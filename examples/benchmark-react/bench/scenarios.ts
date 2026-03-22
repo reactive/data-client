@@ -36,6 +36,30 @@ export const RUN_CONFIG: Record<ScenarioSize, RunProfile> = {
   },
 };
 
+/** Config for convergent (single-page) timing scenarios where each
+ *  sub-iteration is an individual sample and convergence is checked inline. */
+export interface ConvergentProfile {
+  warmup: number;
+  minMeasurement: number;
+  maxMeasurement: number;
+  targetMarginPct: number;
+}
+
+export const CONVERGENT_CONFIG: Record<ScenarioSize, ConvergentProfile> = {
+  small: {
+    warmup: 5,
+    minMeasurement: 5,
+    maxMeasurement: 50,
+    targetMarginPct: process.env.CI ? 5 : 8,
+  },
+  large: {
+    warmup: 3,
+    minMeasurement: 5,
+    maxMeasurement: 40,
+    targetMarginPct: process.env.CI ? 8 : 12,
+  },
+};
+
 export const ACTION_GROUPS: Record<string, (keyof BenchAPI)[]> = {
   mount: ['init', 'initDoubleList', 'mountSortedView', 'listDetailSwitch'],
   update: ['updateEntity', 'updateUser'],

@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import { chromium } from 'playwright';
-import type { Browser, CDPSession, Page } from 'playwright';
+import type { Browser, CDPSession, Locator, Page } from 'playwright';
 
 import { collectMeasures, getMeasureDuration } from './measure.js';
 import { collectHeapUsed } from './memory.js';
@@ -9,9 +9,11 @@ import {
   SCENARIOS,
   LIBRARIES,
   RUN_CONFIG,
+  CONVERGENT_CONFIG,
   ACTION_GROUPS,
   NETWORK_SIM_CONFIG,
 } from './scenarios.js';
+import type { ConvergentProfile } from './scenarios.js';
 import { computeStats, isConverged } from './stats.js';
 import { parseTraceDuration } from './tracing.js';
 import type { Scenario, ScenarioSize } from '../src/shared/types.js';
@@ -159,7 +161,7 @@ interface ScenarioSamples {
 }
 
 // ---------------------------------------------------------------------------
-// Scenario runner
+// Scenario classification and helpers
 // ---------------------------------------------------------------------------
 
 const REF_STABILITY_METRICS = ['issueRefChanged', 'userRefChanged'] as const;
@@ -173,14 +175,34 @@ function isRefStabilityScenario(scenario: Scenario): scenario is Scenario & {
   );
 }
 
-async function runScenario(
+function isConvergentScenario(scenario: Scenario): boolean {
+  return (
+    !scenario.deterministic &&
+    scenario.category !== 'memory' &&
+    scenario.resultMetric !== 'heapDelta' &&
+    !isRefStabilityScenario(scenario)
+  );
+}
+
+function classifyAction(scenario: Scenario): {
+  isMountLike: boolean;
+  isUpdate: boolean;
+} {
+  const isMountLike =
+    scenario.action === 'init' ||
+    scenario.action === 'mountSortedView' ||
+    scenario.action === 'initDoubleList' ||
+    scenario.action === 'listDetailSwitch';
+  return { isMountLike, isUpdate: !isMountLike };
+}
+
+async function setupBenchPage(
   page: Page,
   lib: string,
   scenario: Scenario,
   networkSim: boolean,
-): Promise<ScenarioResult> {
-  const appPath = `/${lib}/`;
-  await page.goto(`${BASE_URL}${appPath}`, {
+): Promise<{ harness: Locator; bench: any }> {
+  await page.goto(`${BASE_URL}/${lib}/`, {
     waitUntil: 'networkidle',
     timeout: 120000,
   });
@@ -198,8 +220,8 @@ async function runScenario(
 
   if (networkSim) {
     await (bench as any).evaluate(
-      (api: any, config: { baseLatencyMs: number; recordsPerMs: number }) =>
-        api.setNetworkSim(config),
+      (api: any, cfg: { baseLatencyMs: number; recordsPerMs: number }) =>
+        api.setNetworkSim(cfg),
       NETWORK_SIM_CONFIG,
     );
   }
@@ -210,6 +232,183 @@ async function runScenario(
       scenario.renderLimit,
     );
   }
+
+  return { harness, bench };
+}
+
+async function runPreMount(
+  page: Page,
+  harness: Locator,
+  bench: any,
+  scenario: Scenario,
+  networkSim: boolean,
+): Promise<void> {
+  const preMountAction = scenario.preMountAction ?? 'init';
+  const mountCount = scenario.mountCount ?? 100;
+  await harness.evaluate(el => {
+    el.removeAttribute('data-bench-complete');
+    el.removeAttribute('data-bench-timeout');
+  });
+  await (bench as any).evaluate(
+    (api: any, [action, n]: [string, number]) => api[action](n),
+    [preMountAction, mountCount],
+  );
+  const preMountTimeout = networkSim ? 60000 : 10000;
+  await page.waitForSelector('[data-bench-complete]', {
+    timeout: preMountTimeout,
+    state: 'attached',
+  });
+  const preMountTimedOut = await harness.evaluate(el =>
+    el.hasAttribute('data-bench-timeout'),
+  );
+  if (preMountTimedOut) {
+    throw new Error(
+      `Harness timeout during pre-mount (${preMountAction}): did not complete within 30 s`,
+    );
+  }
+  await page.evaluate(() => {
+    performance.clearMarks();
+    performance.clearMeasures();
+  });
+}
+
+/** Run one timed iteration: cleanup, invoke action, wait, collect measures. */
+async function runIteration(
+  page: Page,
+  harness: Locator,
+  bench: any,
+  scenario: Scenario,
+  opts: {
+    isMountLike: boolean;
+    mountCount: number;
+    networkSim: boolean;
+    subIdx: number;
+    shouldTrace: boolean;
+  },
+): Promise<{ duration: number; reactCommit: number; traceDuration?: number }> {
+  const { isMountLike, mountCount, networkSim, subIdx, shouldTrace } = opts;
+
+  if (subIdx > 0) {
+    if (isMountLike) {
+      await (bench as any).evaluate((api: any) => api.unmountAll());
+      await page
+        .waitForSelector('[data-bench-item], [data-sorted-list]', {
+          state: 'detached',
+          timeout: 10000,
+        })
+        .catch(() => {});
+      await (bench as any).evaluate((api: any) => {
+        if (api.resetStore) api.resetStore();
+      });
+      await page.evaluate(
+        () =>
+          new Promise<void>(r =>
+            requestAnimationFrame(() => requestAnimationFrame(() => r())),
+          ),
+      );
+    } else {
+      await (bench as any).evaluate((api: any) => api.flushPendingMutations());
+      await page.evaluate(
+        () =>
+          new Promise<void>(r =>
+            requestAnimationFrame(() => requestAnimationFrame(() => r())),
+          ),
+      );
+    }
+  }
+
+  await page.evaluate(() => {
+    performance.clearMarks();
+    performance.clearMeasures();
+  });
+  await harness.evaluate(el => {
+    el.removeAttribute('data-bench-complete');
+    el.removeAttribute('data-bench-timeout');
+  });
+
+  let cdpTracing: CDPSession | undefined;
+  const traceChunks: object[] = [];
+  if (shouldTrace) {
+    cdpTracing = await page.context().newCDPSession(page);
+    cdpTracing.on('Tracing.dataCollected', (params: { value: object[] }) => {
+      traceChunks.push(...params.value);
+    });
+    await cdpTracing.send('Tracing.start', {
+      categories: 'devtools.timeline,blink',
+    });
+  }
+
+  const actionArgs =
+    scenario.action === 'deleteEntity' ?
+      [Math.min(subIdx + 1, mountCount)]
+    : scenario.args;
+  await (bench as any).evaluate(
+    (api: any, { action, args }: { action: string; args: unknown[] }) => {
+      api[action](...args);
+    },
+    { action: scenario.action, args: actionArgs },
+  );
+
+  const completeTimeout = networkSim ? 60000 : 10000;
+  await page.waitForSelector('[data-bench-complete]', {
+    timeout: completeTimeout,
+    state: 'attached',
+  });
+  const timedOut = await harness.evaluate(el =>
+    el.hasAttribute('data-bench-timeout'),
+  );
+  if (timedOut) {
+    throw new Error(
+      `Harness timeout: MutationObserver did not detect expected DOM update within 30 s`,
+    );
+  }
+
+  await (bench as any).evaluate((api: any) => api.flushPendingMutations());
+
+  let traceDuration: number | undefined;
+  if (shouldTrace && cdpTracing) {
+    try {
+      const done = new Promise<void>(resolve => {
+        cdpTracing!.on('Tracing.tracingComplete', () => resolve());
+      });
+      await cdpTracing.send('Tracing.end');
+      await done;
+      const traceJson =
+        '[\n' + traceChunks.map(e => JSON.stringify(e)).join(',\n') + '\n]';
+      traceDuration = parseTraceDuration(Buffer.from(traceJson));
+    } catch {
+      traceDuration = undefined;
+    } finally {
+      await cdpTracing.detach().catch(() => {});
+    }
+  }
+
+  const measures = await collectMeasures(page);
+  const duration =
+    isMountLike ?
+      getMeasureDuration(measures, 'mount-duration')
+    : getMeasureDuration(measures, 'update-duration');
+  const reactCommit = getMeasureDuration(measures, 'react-commit-update');
+
+  return { duration, reactCommit, traceDuration };
+}
+
+// ---------------------------------------------------------------------------
+// Scenario runner (memory, ref-stability, and legacy inner loop)
+// ---------------------------------------------------------------------------
+
+async function runScenario(
+  page: Page,
+  lib: string,
+  scenario: Scenario,
+  networkSim: boolean,
+): Promise<ScenarioResult> {
+  const { harness, bench } = await setupBenchPage(
+    page,
+    lib,
+    scenario,
+    networkSim,
+  );
 
   // --- Memory path (unchanged, always ops=1) ---
   const isMemory =
@@ -248,45 +447,12 @@ async function runScenario(
     return { value: heapAfter - heapBefore };
   }
 
-  // --- Classify scenario ---
-  const isInit = scenario.action === 'init';
-  const isMountLike =
-    isInit ||
-    scenario.action === 'mountSortedView' ||
-    scenario.action === 'initDoubleList' ||
-    scenario.action === 'listDetailSwitch';
-  const isUpdate = !isMountLike;
+  const { isMountLike, isUpdate } = classifyAction(scenario);
   const isRefStability = isRefStabilityScenario(scenario);
-
-  // --- Pre-mount for update/ref-stability scenarios (once) ---
   const mountCount = scenario.mountCount ?? 100;
+
   if (isUpdate || isRefStability) {
-    const preMountAction = scenario.preMountAction ?? 'init';
-    await harness.evaluate(el => {
-      el.removeAttribute('data-bench-complete');
-      el.removeAttribute('data-bench-timeout');
-    });
-    await (bench as any).evaluate(
-      (api: any, [action, n]: [string, number]) => api[action](n),
-      [preMountAction, mountCount],
-    );
-    const preMountTimeout = networkSim ? 60000 : 10000;
-    await page.waitForSelector('[data-bench-complete]', {
-      timeout: preMountTimeout,
-      state: 'attached',
-    });
-    const preMountTimedOut = await harness.evaluate(el =>
-      el.hasAttribute('data-bench-timeout'),
-    );
-    if (preMountTimedOut) {
-      throw new Error(
-        `Harness timeout during pre-mount (${preMountAction}): did not complete within 30 s`,
-      );
-    }
-    await page.evaluate(() => {
-      performance.clearMarks();
-      performance.clearMeasures();
-    });
+    await runPreMount(page, harness, bench, scenario, networkSim);
   }
 
   // --- Ref stability (deterministic, single run, early return) ---
@@ -338,117 +504,14 @@ async function runScenario(
   const traceSubIdx = Math.floor(ops / 2);
 
   for (let subIdx = 0; subIdx < ops; subIdx++) {
-    // Mount scenarios: unmount + detach + resetStore + waitForPaint (skip first iteration — nothing mounted yet)
-    if (isMountLike && subIdx > 0) {
-      await (bench as any).evaluate((api: any) => api.unmountAll());
-      await page
-        .waitForSelector('[data-bench-item], [data-sorted-list]', {
-          state: 'detached',
-          timeout: 10000,
-        })
-        .catch(() => {});
-      await (bench as any).evaluate((api: any) => {
-        if (api.resetStore) api.resetStore();
-      });
-      await page.evaluate(
-        () =>
-          new Promise<void>(r =>
-            requestAnimationFrame(() => requestAnimationFrame(() => r())),
-          ),
-      );
-    }
-
-    // Mutation scenarios: flush pending from prior sub-iteration + let React commit the resolution
-    if (isUpdate && subIdx > 0) {
-      await (bench as any).evaluate((api: any) => api.flushPendingMutations());
-      await page.evaluate(
-        () =>
-          new Promise<void>(r =>
-            requestAnimationFrame(() => requestAnimationFrame(() => r())),
-          ),
-      );
-    }
-
-    // Clear perf marks/measures + reset harness flags
-    await page.evaluate(() => {
-      performance.clearMarks();
-      performance.clearMeasures();
-    });
-    await harness.evaluate(el => {
-      el.removeAttribute('data-bench-complete');
-      el.removeAttribute('data-bench-timeout');
-    });
-
-    // Chrome tracing: only for the middle sub-iteration
     const shouldTrace = USE_TRACE && subIdx === traceSubIdx;
-    let cdpTracing: CDPSession | undefined;
-    const traceChunks: object[] = [];
-    if (shouldTrace) {
-      cdpTracing = await page.context().newCDPSession(page);
-      cdpTracing.on('Tracing.dataCollected', (params: { value: object[] }) => {
-        traceChunks.push(...params.value);
-      });
-      await cdpTracing.send('Tracing.start', {
-        categories: 'devtools.timeline,blink',
-      });
-    }
-
-    // Vary args for deleteEntity so each sub-iteration deletes a different item
-    const actionArgs =
-      scenario.action === 'deleteEntity' ?
-        [Math.min(subIdx + 1, mountCount)]
-      : scenario.args;
-    await (bench as any).evaluate(
-      (api: any, { action, args }: { action: string; args: unknown[] }) => {
-        api[action](...args);
-      },
-      { action: scenario.action, args: actionArgs },
+    const { duration, reactCommit, traceDuration } = await runIteration(
+      page,
+      harness,
+      bench,
+      scenario,
+      { isMountLike, mountCount, networkSim, subIdx, shouldTrace },
     );
-
-    // Wait for completion
-    const completeTimeout = networkSim ? 60000 : 10000;
-    await page.waitForSelector('[data-bench-complete]', {
-      timeout: completeTimeout,
-      state: 'attached',
-    });
-    const timedOut = await harness.evaluate(el =>
-      el.hasAttribute('data-bench-timeout'),
-    );
-    if (timedOut) {
-      throw new Error(
-        `Harness timeout: MutationObserver did not detect expected DOM update within 30 s`,
-      );
-    }
-
-    await (bench as any).evaluate((api: any) => api.flushPendingMutations());
-
-    // Collect trace
-    let traceDuration: number | undefined;
-    if (shouldTrace && cdpTracing) {
-      try {
-        const done = new Promise<void>(resolve => {
-          cdpTracing!.on('Tracing.tracingComplete', () => resolve());
-        });
-        await cdpTracing.send('Tracing.end');
-        await done;
-        const traceJson =
-          '[\n' + traceChunks.map(e => JSON.stringify(e)).join(',\n') + '\n]';
-        traceDuration = parseTraceDuration(Buffer.from(traceJson));
-      } catch {
-        traceDuration = undefined;
-      } finally {
-        await cdpTracing.detach().catch(() => {});
-      }
-    }
-
-    // Collect performance measures
-    const measures = await collectMeasures(page);
-    const duration =
-      isMountLike ?
-        getMeasureDuration(measures, 'mount-duration')
-      : getMeasureDuration(measures, 'update-duration');
-    const reactCommit = getMeasureDuration(measures, 'react-commit-update');
-
     durations.push(duration);
     if (reactCommit > 0) commitTimes.push(reactCommit);
     if (traceDuration != null) traceDurations.push(traceDuration);
@@ -461,6 +524,99 @@ async function runScenario(
     traceDuration:
       traceDurations.length > 0 ? simpleMedian(traceDurations) : undefined,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Convergent scenario runner (single page load, inline stat-sig convergence)
+// ---------------------------------------------------------------------------
+
+const CONVERGENT_GC_INTERVAL = 15;
+
+async function runScenarioConvergent(
+  page: Page,
+  lib: string,
+  scenario: Scenario,
+  networkSim: boolean,
+  config: ConvergentProfile,
+  cdp?: CDPSession,
+): Promise<ScenarioResult[]> {
+  const { harness, bench } = await setupBenchPage(
+    page,
+    lib,
+    scenario,
+    networkSim,
+  );
+  const { isMountLike, isUpdate } = classifyAction(scenario);
+  const mountCount = scenario.mountCount ?? 100;
+
+  if (isUpdate) {
+    await runPreMount(page, harness, bench, scenario, networkSim);
+  }
+
+  const totalMax = config.warmup + config.maxMeasurement;
+  const results: ScenarioResult[] = [];
+  const measurementValues: number[] = [];
+  // Trace early in measurement window so early convergence doesn't skip it
+  const traceSubIdx = config.warmup + Math.min(1, config.minMeasurement - 1);
+  let convergedAt: number | undefined;
+
+  for (let subIdx = 0; subIdx < totalMax; subIdx++) {
+    const isWarmup = subIdx < config.warmup;
+    const measureIdx = subIdx - config.warmup;
+
+    // Periodic GC to prevent heap pressure accumulation on long runs
+    if (cdp && subIdx > 0 && subIdx % CONVERGENT_GC_INTERVAL === 0) {
+      try {
+        await cdp.send('HeapProfiler.collectGarbage');
+      } catch {}
+      await page.waitForTimeout(50);
+    }
+
+    const shouldTrace = USE_TRACE && subIdx === traceSubIdx;
+    const { duration, reactCommit, traceDuration } = await runIteration(
+      page,
+      harness,
+      bench,
+      scenario,
+      { isMountLike, mountCount, networkSim, subIdx, shouldTrace },
+    );
+
+    if (isWarmup) continue;
+
+    measurementValues.push(duration);
+    results.push({
+      value: duration,
+      reactCommit: reactCommit > 0 ? reactCommit : undefined,
+      traceDuration,
+    });
+
+    if (
+      measureIdx + 1 >= config.minMeasurement &&
+      isConverged(
+        measurementValues,
+        0,
+        config.targetMarginPct,
+        config.minMeasurement,
+      )
+    ) {
+      convergedAt = measureIdx + 1;
+      break;
+    }
+  }
+
+  await bench.dispose();
+
+  if (convergedAt != null) {
+    process.stderr.write(
+      `    [converged] ${scenario.name} after ${convergedAt} measurements\n`,
+    );
+  } else {
+    process.stderr.write(
+      `    [max reached] ${scenario.name} after ${config.maxMeasurement} measurements\n`,
+    );
+  }
+
+  return results;
 }
 
 // ---------------------------------------------------------------------------
@@ -517,6 +673,7 @@ function recordResult(
 function warmupCount(scenario: Scenario): number {
   if (scenario.deterministic) return 0;
   if (scenario.category === 'memory') return MEMORY_WARMUP;
+  if (isConvergentScenario(scenario)) return 0;
   return RUN_CONFIG[scenario.size ?? 'small'].warmup;
 }
 
@@ -640,14 +797,68 @@ async function main() {
     for (const s of deterministicScenarios) deterministicNames.add(s.name);
   }
 
-  // Adaptive-convergence rounds per size group
+  // Convergent timing scenarios: single page load with inline convergence
+  for (const [size, scenarios] of sizeGroups) {
+    const convergentScenarios = scenarios.filter(
+      s => !deterministicNames.has(s.name) && isConvergentScenario(s),
+    );
+    if (convergentScenarios.length === 0) continue;
+
+    const config = CONVERGENT_CONFIG[size];
+    process.stderr.write(
+      `\n── ${size} convergent (${convergentScenarios.length} scenarios, ${config.warmup} warmup + up to ${config.maxMeasurement} measurements each) ──\n`,
+    );
+
+    for (const lib of libraries) {
+      const libScenarios = convergentScenarios.filter(s =>
+        s.name.startsWith(`${lib}:`),
+      );
+      if (libScenarios.length === 0) continue;
+
+      const context = await browser.newContext();
+      const page = await context.newPage();
+      const cdp = await context.newCDPSession(page);
+
+      for (const scenario of libScenarios) {
+        try {
+          await cdp.send('HeapProfiler.collectGarbage');
+        } catch {}
+        await page.waitForTimeout(200);
+
+        process.stderr.write(`  ${scenario.name}...\n`);
+        try {
+          const results = await runScenarioConvergent(
+            page,
+            lib,
+            scenario,
+            networkSim,
+            config,
+            cdp,
+          );
+          for (const result of results) {
+            recordResult(samples, scenario, result);
+          }
+        } catch (err) {
+          console.error(
+            `  ${scenario.name} FAILED:`,
+            err instanceof Error ? err.message : err,
+          );
+        }
+      }
+
+      await cdp.detach().catch(() => {});
+      await context.close();
+    }
+  }
+
+  // Outer-loop adaptive rounds for any remaining non-convergent, non-deterministic scenarios
   for (const [size, scenarios] of sizeGroups) {
     const { warmup, minMeasurement, maxMeasurement, targetMarginPct } =
       RUN_CONFIG[size];
-    const nonDeterministic = scenarios.filter(
-      s => !deterministicNames.has(s.name),
+    const outerLoopScenarios = scenarios.filter(
+      s => !deterministicNames.has(s.name) && !isConvergentScenario(s),
     );
-    if (nonDeterministic.length === 0) continue;
+    if (outerLoopScenarios.length === 0) continue;
 
     const maxRounds = warmup + maxMeasurement;
     const converged = new Set<string>();
@@ -657,11 +868,11 @@ async function main() {
       const phase = isMeasure ? 'measure' : 'warmup';
       const phaseRound = isMeasure ? round - warmup + 1 : round + 1;
       const phaseTotal = isMeasure ? maxMeasurement : warmup;
-      const active = nonDeterministic.filter(s => !converged.has(s.name));
+      const active = outerLoopScenarios.filter(s => !converged.has(s.name));
       if (active.length === 0) break;
 
       process.stderr.write(
-        `\n── ${size} round ${round + 1}/${maxRounds} (${phase} ${phaseRound}/${phaseTotal}, ${active.length}/${nonDeterministic.length} active) ──\n`,
+        `\n── ${size} round ${round + 1}/${maxRounds} (${phase} ${phaseRound}/${phaseTotal}, ${active.length}/${outerLoopScenarios.length} active) ──\n`,
       );
 
       await runRound(browser, active, libraries, networkSim, samples, {
@@ -669,7 +880,6 @@ async function main() {
         showProgress: true,
       });
 
-      // After each measurement round, check per-scenario convergence
       if (isMeasure) {
         for (const scenario of active) {
           if (
@@ -687,9 +897,9 @@ async function main() {
             );
           }
         }
-        if (converged.size === nonDeterministic.length) {
+        if (converged.size === outerLoopScenarios.length) {
           process.stderr.write(
-            `\n── All ${size} scenarios converged, stopping early ──\n`,
+            `\n── All ${size} outer-loop scenarios converged, stopping early ──\n`,
           );
           break;
         }
