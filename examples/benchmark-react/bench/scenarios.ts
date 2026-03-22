@@ -17,16 +17,16 @@ export interface RunProfile {
 
 export const RUN_CONFIG: Record<ScenarioSize, RunProfile> = {
   small: {
-    warmup: 3,
-    minMeasurement: 5,
-    maxMeasurement: process.env.CI ? 10 : 20,
-    targetMarginPct: process.env.CI ? 15 : 10,
+    warmup: 5,
+    minMeasurement: 8,
+    maxMeasurement: process.env.CI ? 25 : 20,
+    targetMarginPct: process.env.CI ? 5 : 10,
   },
   large: {
-    warmup: 1,
-    minMeasurement: 3,
-    maxMeasurement: process.env.CI ? 6 : 10,
-    targetMarginPct: process.env.CI ? 20 : 15,
+    warmup: 3,
+    minMeasurement: 5,
+    maxMeasurement: process.env.CI ? 20 : 10,
+    targetMarginPct: process.env.CI ? 8 : 15,
   },
 };
 

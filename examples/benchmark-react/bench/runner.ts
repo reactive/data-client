@@ -443,7 +443,7 @@ async function runRound(
       try {
         await cdp.send('HeapProfiler.collectGarbage');
       } catch {}
-      await page.waitForTimeout(50);
+      await page.waitForTimeout(200);
 
       done++;
       const prefix = opts.showProgress ? `[${done}/${total}] ` : '';
