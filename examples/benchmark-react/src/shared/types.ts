@@ -17,10 +17,12 @@ export interface BenchAPI {
   init(count: number): void;
   updateEntity(id: number): void;
   updateUser(login: string): void;
-  /** Set simulated per-request network latency (ms). 0 disables and clears per-method delays. */
+  /** Set simulated per-request network latency (ms). 0 disables and clears network sim. */
   setNetworkDelay(ms: number): void;
-  /** Set per-method network latency overrides (e.g. { fetchIssueList: 80, fetchIssue: 50 }). */
-  setMethodDelays(delays: Record<string, number>): void;
+  /** Enable/disable response-size-based network simulation. Delay = baseLatencyMs + ceil(recordCount / recordsPerMs). Pass null to disable. */
+  setNetworkSim(
+    config: { baseLatencyMs: number; recordsPerMs: number } | null,
+  ): void;
   /** Wait for all deferred server mutations to settle before next iteration. */
   flushPendingMutations(): Promise<void>;
   unmountAll(): void;

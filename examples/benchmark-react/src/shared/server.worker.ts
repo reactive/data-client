@@ -8,11 +8,16 @@ declare const self: DedicatedWorkerGlobalScope;
 // ── NETWORK DELAY ────────────────────────────────────────────────────────
 
 let networkDelayMs = 0;
-let methodDelays: Record<string, number> = {};
+let networkSim: { baseLatencyMs: number; recordsPerMs: number } | null = null;
 
-function respond(id: number, method: string, value: unknown) {
+function respond(id: number, _method: string, value: unknown) {
   const json = JSON.stringify(value);
-  const delay = methodDelays[method] ?? networkDelayMs;
+  const recordCount = Array.isArray(value) ? value.length : 1;
+  const delay =
+    networkSim ?
+      networkSim.baseLatencyMs +
+      Math.ceil(recordCount / networkSim.recordsPerMs)
+    : networkDelayMs;
   if (delay <= 0) {
     self.postMessage({ id, result: json });
   } else {
@@ -250,10 +255,14 @@ const methods: Record<string, (params: any) => unknown> = {
   seedIssueList: ({ issues }: { issues: Issue[] }) => seedIssueList(issues),
   setNetworkDelay: ({ ms }: { ms: number }) => {
     networkDelayMs = ms;
-    methodDelays = {};
+    networkSim = null;
   },
-  setMethodDelays: ({ delays }: { delays: Record<string, number> }) => {
-    methodDelays = delays;
+  setNetworkSim: ({
+    config,
+  }: {
+    config: { baseLatencyMs: number; recordsPerMs: number } | null;
+  }) => {
+    networkSim = config;
   },
 };
 

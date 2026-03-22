@@ -10,7 +10,7 @@ import {
   LIBRARIES,
   RUN_CONFIG,
   ACTION_GROUPS,
-  NETWORK_SIM_DELAYS,
+  NETWORK_SIM_CONFIG,
 } from './scenarios.js';
 import { computeStats, isConverged } from './stats.js';
 import { parseTraceDuration } from './tracing.js';
@@ -187,8 +187,9 @@ async function runScenario(
 
   if (networkSim) {
     await (bench as any).evaluate(
-      (api: any, delays: Record<string, number>) => api.setMethodDelays(delays),
-      NETWORK_SIM_DELAYS,
+      (api: any, config: { baseLatencyMs: number; recordsPerMs: number }) =>
+        api.setNetworkSim(config),
+      NETWORK_SIM_CONFIG,
     );
   }
 
@@ -257,8 +258,9 @@ async function runScenario(
       (api: any, [action, n]: [string, number]) => api[action](n),
       [preMountAction, mountCount],
     );
+    const preMountTimeout = networkSim ? 60000 : 10000;
     await page.waitForSelector('[data-bench-complete]', {
-      timeout: 10000,
+      timeout: preMountTimeout,
       state: 'attached',
     });
     const preMountTimedOut = await harness.evaluate(el =>

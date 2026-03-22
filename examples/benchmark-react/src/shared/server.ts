@@ -136,10 +136,12 @@ export function setNetworkDelay(ms: number): void {
   });
 }
 
-export function setMethodDelays(delays: Record<string, number>): void {
+export function setNetworkSim(
+  config: { baseLatencyMs: number; recordsPerMs: number } | null,
+): void {
   worker.postMessage({
     id: nextId++,
-    method: 'setMethodDelays',
-    params: { delays },
+    method: 'setNetworkSim',
+    params: { config },
   });
 }

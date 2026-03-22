@@ -6,8 +6,8 @@ import { captureSnapshot, getReport } from './refStability';
 import {
   flushPendingMutations,
   seedIssueList,
-  setMethodDelays,
   setNetworkDelay,
+  setNetworkSim,
 } from './server';
 import type { BenchAPI } from './types';
 
@@ -337,7 +337,7 @@ export function useBenchState() {
       captureRefSnapshot,
       getRefStabilityReport,
       setNetworkDelay,
-      setMethodDelays,
+      setNetworkSim,
       flushPendingMutations,
       setRenderLimit,
       ...libraryActions,

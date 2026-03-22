@@ -1,15 +1,10 @@
 import type { BenchAPI, Scenario, ScenarioSize } from '../src/shared/types.js';
 
-/** Per-method network latency used when --network-sim is enabled (default: on). */
-export const NETWORK_SIM_DELAYS: Record<string, number> = {
-  fetchIssueList: 80,
-  fetchIssue: 50,
-  fetchUser: 50,
-  createIssue: 50,
-  updateIssue: 50,
-  updateUser: 50,
-  deleteIssue: 50,
-  deleteUser: 50,
+/** Response-size-based network simulation used when --network-sim is enabled (default: on).
+ *  Delay per request = baseLatencyMs + ceil(recordCount / recordsPerMs). */
+export const NETWORK_SIM_CONFIG = {
+  baseLatencyMs: 40,
+  recordsPerMs: 20,
 };
 
 export interface RunProfile {
