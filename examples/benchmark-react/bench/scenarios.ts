@@ -13,20 +13,26 @@ export interface RunProfile {
   maxMeasurement: number;
   /** Stop early when 95% CI margin is within this % of the median. */
   targetMarginPct: number;
+  /** Sub-iterations per page visit; median of N is returned as one sample. */
+  opsPerRound: number;
 }
+
+const defaultOpsPerRound = parseInt(process.env.BENCH_OPS_PER_ROUND ?? '5', 10);
 
 export const RUN_CONFIG: Record<ScenarioSize, RunProfile> = {
   small: {
-    warmup: 5,
-    minMeasurement: 8,
-    maxMeasurement: process.env.CI ? 25 : 20,
+    warmup: 3,
+    minMeasurement: 4,
+    maxMeasurement: process.env.CI ? 20 : 15,
     targetMarginPct: process.env.CI ? 5 : 10,
+    opsPerRound: defaultOpsPerRound,
   },
   large: {
-    warmup: 3,
-    minMeasurement: 5,
-    maxMeasurement: process.env.CI ? 20 : 10,
+    warmup: 2,
+    minMeasurement: 3,
+    maxMeasurement: process.env.CI ? 15 : 8,
     targetMarginPct: process.env.CI ? 8 : 15,
+    opsPerRound: defaultOpsPerRound,
   },
 };
 

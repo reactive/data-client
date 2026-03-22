@@ -19,8 +19,10 @@ import {
 import { setCurrentIssues } from '@shared/refStability';
 import { UserResource, IssueResource } from '@shared/resources';
 import type { Issue } from '@shared/types';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import useSWR, { SWRConfig, useSWRConfig } from 'swr';
+
+let mutationCounter = 0;
 
 /** SWR fetcher: dispatches to shared resource fetch methods based on cache key */
 const fetcher = (key: string): Promise<any> => {
@@ -134,10 +136,11 @@ function BenchmarkHarness() {
     (number: number) => {
       const issue = FIXTURE_ISSUES_BY_NUMBER.get(number);
       if (!issue) return;
+      const v = ++mutationCounter;
       measureUpdate(() =>
         IssueResource.update(
           { number },
-          { title: `${issue.title} (updated)` },
+          { title: `${issue.title} (v${v})` },
         ).then(() =>
           mutate(key => typeof key === 'string' && key.startsWith('issues:')),
         ),
@@ -150,13 +153,14 @@ function BenchmarkHarness() {
     (login: string) => {
       const user = FIXTURE_USERS_BY_LOGIN.get(login);
       if (!user) return;
+      const v = ++mutationCounter;
       measureUpdate(
         () =>
-          UserResource.update(
-            { login },
-            { name: `${user.name} (updated)` },
-          ).then(() =>
-            mutate(key => typeof key === 'string' && key.startsWith('issues:')),
+          UserResource.update({ login }, { name: `${user.name} (v${v})` }).then(
+            () =>
+              mutate(
+                key => typeof key === 'string' && key.startsWith('issues:'),
+              ),
           ) as Promise<any>,
       );
     },
@@ -183,14 +187,18 @@ function BenchmarkHarness() {
     [measureUpdate, mutate],
   );
 
+  const moveStateRef = useRef<'open' | 'closed'>('closed');
+
   const moveItem = useCallback(
     (number: number) => {
+      const targetState = moveStateRef.current;
+      moveStateRef.current = targetState === 'closed' ? 'open' : 'closed';
       measureUpdate(
         () =>
-          IssueResource.update({ number }, { state: 'closed' }).then(() =>
+          IssueResource.update({ number }, { state: targetState }).then(() =>
             mutate(key => typeof key === 'string' && key.startsWith('issues:')),
           ),
-        () => moveItemIsReady(containerRef, number),
+        () => moveItemIsReady(containerRef, number, targetState),
       );
     },
     [measureUpdate, mutate, containerRef],
@@ -200,7 +208,8 @@ function BenchmarkHarness() {
     (number: number) => {
       const issue = FIXTURE_ISSUES_BY_NUMBER.get(number);
       if (!issue) return;
-      const expected = `${issue.title} (updated)`;
+      const v = ++mutationCounter;
+      const expected = `${issue.title} (v${v})`;
       measureUpdate(
         () =>
           IssueResource.update({ number }, { title: expected }).then(() =>
@@ -230,6 +239,11 @@ function BenchmarkHarness() {
     [measureUpdate, mutate, containerRef],
   );
 
+  const { cache } = useSWRConfig();
+  const resetStore = useCallback(() => {
+    if (typeof (cache as any).clear === 'function') (cache as any).clear();
+  }, [cache]);
+
   registerAPI({
     updateEntity,
     updateUser,
@@ -237,6 +251,7 @@ function BenchmarkHarness() {
     unshiftItem,
     deleteEntity,
     moveItem,
+    resetStore,
   });
 
   return (
@@ -261,6 +276,8 @@ function BenchProvider({ children }: { children: React.ReactNode }) {
         revalidateOnFocus: false,
         revalidateOnReconnect: false,
         revalidateIfStale: false,
+        revalidateOnMount: true,
+        dedupingInterval: 0,
       }}
     >
       {children}

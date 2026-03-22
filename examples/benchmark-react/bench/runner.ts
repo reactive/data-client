@@ -26,6 +26,7 @@ function parseArgs(): {
   actions?: string[];
   scenario?: string;
   networkSim: boolean;
+  opsPerRound?: number;
 } {
   const argv = process.argv.slice(2);
   const get = (flag: string, envVar: string): string | undefined => {
@@ -39,6 +40,7 @@ function parseArgs(): {
   const actionRaw = get('--action', 'BENCH_ACTION');
   const scenarioRaw = get('--scenario', 'BENCH_SCENARIO');
   const networkSimRaw = get('--network-sim', 'BENCH_NETWORK_SIM');
+  const opsRaw = get('--ops-per-round', 'BENCH_OPS_PER_ROUND');
 
   const libs = libRaw ? libRaw.split(',').map(s => s.trim()) : undefined;
   const size = sizeRaw === 'small' || sizeRaw === 'large' ? sizeRaw : undefined;
@@ -46,14 +48,23 @@ function parseArgs(): {
     actionRaw ? actionRaw.split(',').map(s => s.trim()) : undefined;
   const networkSim =
     networkSimRaw != null ? networkSimRaw !== 'false' : !process.env.CI;
+  const opsPerRound = opsRaw ? parseInt(opsRaw, 10) : undefined;
 
-  return { libs, size, actions, scenario: scenarioRaw, networkSim };
+  return {
+    libs,
+    size,
+    actions,
+    scenario: scenarioRaw,
+    networkSim,
+    opsPerRound,
+  };
 }
 
 function filterScenarios(scenarios: Scenario[]): {
   filtered: Scenario[];
   libraries: string[];
   networkSim: boolean;
+  opsPerRound?: number;
 } {
   const {
     libs,
@@ -61,6 +72,7 @@ function filterScenarios(scenarios: Scenario[]): {
     actions,
     scenario: scenarioFilter,
     networkSim,
+    opsPerRound,
   } = parseArgs();
 
   const libraries = libs ?? (process.env.CI ? ['data-client'] : [...LIBRARIES]);
@@ -114,7 +126,7 @@ function filterScenarios(scenarios: Scenario[]): {
       !s.onlyLibs?.length || libraries.every(lib => s.onlyLibs!.includes(lib)),
   );
 
-  return { filtered, libraries, networkSim };
+  return { filtered, libraries, networkSim, opsPerRound };
 }
 
 // ---------------------------------------------------------------------------
@@ -200,6 +212,7 @@ async function runScenario(
     );
   }
 
+  // --- Memory path (unchanged, always ops=1) ---
   const isMemory =
     scenario.action === 'mountUnmountCycle' &&
     scenario.resultMetric === 'heapDelta';
@@ -236,17 +249,17 @@ async function runScenario(
     return { value: heapAfter - heapBefore };
   }
 
-  const isUpdate =
-    scenario.action === 'updateEntity' ||
-    scenario.action === 'updateEntityMultiView' ||
-    scenario.action === 'updateUser' ||
-    scenario.action === 'invalidateAndResolve' ||
-    scenario.action === 'unshiftItem' ||
-    scenario.action === 'deleteEntity' ||
-    scenario.action === 'moveItem';
-  const isRefStability = isRefStabilityScenario(scenario);
+  // --- Classify scenario ---
   const isInit = scenario.action === 'init';
+  const isMountLike =
+    isInit ||
+    scenario.action === 'mountSortedView' ||
+    scenario.action === 'initDoubleList' ||
+    scenario.action === 'listDetailSwitch';
+  const isUpdate = !isMountLike;
+  const isRefStability = isRefStabilityScenario(scenario);
 
+  // --- Pre-mount for update/ref-stability scenarios (once) ---
   const mountCount = scenario.mountCount ?? 100;
   if (isUpdate || isRefStability) {
     const preMountAction = scenario.preMountAction ?? 'init';
@@ -277,108 +290,197 @@ async function runScenario(
     });
   }
 
+  // --- Ref stability (deterministic, single run, early return) ---
   if (isRefStability) {
     await (bench as any).evaluate((api: any) => api.captureRefSnapshot());
-  }
 
-  await harness.evaluate(el => {
-    el.removeAttribute('data-bench-complete');
-    el.removeAttribute('data-bench-timeout');
-  });
-  const cdpTracing =
-    USE_TRACE && !isRefStability ?
-      await page.context().newCDPSession(page)
-    : undefined;
-  const traceChunks: object[] = [];
-  if (cdpTracing) {
-    cdpTracing.on('Tracing.dataCollected', (params: { value: object[] }) => {
-      traceChunks.push(...params.value);
+    await harness.evaluate(el => {
+      el.removeAttribute('data-bench-complete');
+      el.removeAttribute('data-bench-timeout');
     });
-    await cdpTracing.send('Tracing.start', {
-      categories: 'devtools.timeline,blink',
+    await page.evaluate(() => {
+      performance.clearMarks();
+      performance.clearMeasures();
     });
-  }
 
-  await page.evaluate(() => {
-    performance.clearMarks();
-    performance.clearMeasures();
-  });
-
-  await (bench as any).evaluate(
-    (api: any, { action, args }: { action: string; args: unknown[] }) => {
-      api[action](...args);
-    },
-    { action: scenario.action, args: scenario.args },
-  );
-
-  const completeTimeout = networkSim ? 60000 : 10000;
-  await page.waitForSelector('[data-bench-complete]', {
-    timeout: completeTimeout,
-    state: 'attached',
-  });
-
-  const timedOut = await harness.evaluate(el =>
-    el.hasAttribute('data-bench-timeout'),
-  );
-  if (timedOut) {
-    throw new Error(
-      `Harness timeout: MutationObserver did not detect expected DOM update within 30 s`,
+    await (bench as any).evaluate(
+      (api: any, { action, args }: { action: string; args: unknown[] }) => {
+        api[action](...args);
+      },
+      { action: scenario.action, args: scenario.args },
     );
-  }
 
-  await (bench as any).evaluate((api: any) => api.flushPendingMutations());
-
-  let traceDuration: number | undefined;
-  if (cdpTracing) {
-    try {
-      const done = new Promise<void>(resolve => {
-        cdpTracing!.on('Tracing.tracingComplete', () => resolve());
-      });
-      await cdpTracing.send('Tracing.end');
-      await done;
-      const traceJson =
-        '[\n' + traceChunks.map(e => JSON.stringify(e)).join(',\n') + '\n]';
-      traceDuration = parseTraceDuration(Buffer.from(traceJson));
-    } catch {
-      traceDuration = undefined;
-    } finally {
-      await cdpTracing.detach().catch(() => {});
+    const completeTimeout = networkSim ? 60000 : 10000;
+    await page.waitForSelector('[data-bench-complete]', {
+      timeout: completeTimeout,
+      state: 'attached',
+    });
+    const timedOut = await harness.evaluate(el =>
+      el.hasAttribute('data-bench-timeout'),
+    );
+    if (timedOut) {
+      throw new Error(
+        `Harness timeout: MutationObserver did not detect expected DOM update within 30 s`,
+      );
     }
-  }
 
-  if (isRefStability && scenario.resultMetric) {
     const report = await (bench as any).evaluate((api: any) =>
       api.getRefStabilityReport(),
     );
     await bench.dispose();
-    return { value: report[scenario.resultMetric] as number };
+    return { value: report[scenario.resultMetric!] as number };
   }
 
-  const measures = await collectMeasures(page);
-  const isMountLike =
-    isInit ||
-    scenario.action === 'mountSortedView' ||
-    scenario.action === 'initDoubleList' ||
-    scenario.action === 'listDetailSwitch';
-  const duration =
-    isMountLike ?
-      getMeasureDuration(measures, 'mount-duration')
-    : getMeasureDuration(measures, 'update-duration');
-  // Both mount-like and update scenarios trigger state updates (setItems/etc.),
-  // so React Profiler always fires with phase: 'update' for the measured action.
-  const reactCommit = getMeasureDuration(measures, 'react-commit-update');
+  // --- Sub-iteration loop ---
+  const ops = effectiveOpsPerRound(scenario);
+  const durations: number[] = [];
+  const commitTimes: number[] = [];
+  const traceDurations: number[] = [];
+  const traceSubIdx = Math.floor(ops / 2);
+
+  for (let subIdx = 0; subIdx < ops; subIdx++) {
+    // Mount scenarios: unmount + detach + resetStore + waitForPaint (skip first iteration — nothing mounted yet)
+    if (isMountLike && subIdx > 0) {
+      await (bench as any).evaluate((api: any) => api.unmountAll());
+      await page
+        .waitForSelector('[data-bench-item], [data-sorted-list]', {
+          state: 'detached',
+          timeout: 10000,
+        })
+        .catch(() => {});
+      await (bench as any).evaluate((api: any) => {
+        if (api.resetStore) api.resetStore();
+      });
+      await page.evaluate(
+        () =>
+          new Promise<void>(r =>
+            requestAnimationFrame(() => requestAnimationFrame(() => r())),
+          ),
+      );
+    }
+
+    // Mutation scenarios: flush pending from prior sub-iteration + let React commit the resolution
+    if (isUpdate && subIdx > 0) {
+      await (bench as any).evaluate((api: any) => api.flushPendingMutations());
+      await page.evaluate(
+        () =>
+          new Promise<void>(r =>
+            requestAnimationFrame(() => requestAnimationFrame(() => r())),
+          ),
+      );
+    }
+
+    // Clear perf marks/measures + reset harness flags
+    await page.evaluate(() => {
+      performance.clearMarks();
+      performance.clearMeasures();
+    });
+    await harness.evaluate(el => {
+      el.removeAttribute('data-bench-complete');
+      el.removeAttribute('data-bench-timeout');
+    });
+
+    // Chrome tracing: only for the middle sub-iteration
+    const shouldTrace = USE_TRACE && subIdx === traceSubIdx;
+    let cdpTracing: CDPSession | undefined;
+    const traceChunks: object[] = [];
+    if (shouldTrace) {
+      cdpTracing = await page.context().newCDPSession(page);
+      cdpTracing.on('Tracing.dataCollected', (params: { value: object[] }) => {
+        traceChunks.push(...params.value);
+      });
+      await cdpTracing.send('Tracing.start', {
+        categories: 'devtools.timeline,blink',
+      });
+    }
+
+    // Execute action (vary args for deleteEntity across sub-iterations)
+    const actionArgs =
+      scenario.action === 'deleteEntity' ? [subIdx + 1] : scenario.args;
+    await (bench as any).evaluate(
+      (api: any, { action, args }: { action: string; args: unknown[] }) => {
+        api[action](...args);
+      },
+      { action: scenario.action, args: actionArgs },
+    );
+
+    // Wait for completion
+    const completeTimeout = networkSim ? 60000 : 10000;
+    await page.waitForSelector('[data-bench-complete]', {
+      timeout: completeTimeout,
+      state: 'attached',
+    });
+    const timedOut = await harness.evaluate(el =>
+      el.hasAttribute('data-bench-timeout'),
+    );
+    if (timedOut) {
+      throw new Error(
+        `Harness timeout: MutationObserver did not detect expected DOM update within 30 s`,
+      );
+    }
+
+    await (bench as any).evaluate((api: any) => api.flushPendingMutations());
+
+    // Collect trace
+    let traceDuration: number | undefined;
+    if (shouldTrace && cdpTracing) {
+      try {
+        const done = new Promise<void>(resolve => {
+          cdpTracing!.on('Tracing.tracingComplete', () => resolve());
+        });
+        await cdpTracing.send('Tracing.end');
+        await done;
+        const traceJson =
+          '[\n' + traceChunks.map(e => JSON.stringify(e)).join(',\n') + '\n]';
+        traceDuration = parseTraceDuration(Buffer.from(traceJson));
+      } catch {
+        traceDuration = undefined;
+      } finally {
+        await cdpTracing.detach().catch(() => {});
+      }
+    }
+
+    // Collect performance measures
+    const measures = await collectMeasures(page);
+    const duration =
+      isMountLike ?
+        getMeasureDuration(measures, 'mount-duration')
+      : getMeasureDuration(measures, 'update-duration');
+    const reactCommit = getMeasureDuration(measures, 'react-commit-update');
+
+    durations.push(duration);
+    if (reactCommit > 0) commitTimes.push(reactCommit);
+    if (traceDuration != null) traceDurations.push(traceDuration);
+  }
 
   await bench.dispose();
   return {
-    value: duration,
-    reactCommit: reactCommit > 0 ? reactCommit : undefined,
-    traceDuration,
+    value: simpleMedian(durations),
+    reactCommit: commitTimes.length > 0 ? simpleMedian(commitTimes) : undefined,
+    traceDuration:
+      traceDurations.length > 0 ? simpleMedian(traceDurations) : undefined,
   };
 }
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+function effectiveOpsPerRound(scenario: Scenario): number {
+  if (scenario.deterministic) return 1;
+  if (scenario.category === 'memory') return 1;
+  if (scenario.action === 'listDetailSwitch') return 1;
+  return RUN_CONFIG[scenario.size ?? 'small'].opsPerRound;
+}
+
+function simpleMedian(arr: number[]): number {
+  if (arr.length === 0) return 0;
+  const sorted = [...arr].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0 ?
+      (sorted[mid - 1] + sorted[mid]) / 2
+    : sorted[mid];
+}
 
 function shuffle<T>(arr: T[]): T[] {
   const out = [...arr];
@@ -484,7 +586,13 @@ async function main() {
     filtered: SCENARIOS_TO_RUN,
     libraries,
     networkSim,
+    opsPerRound,
   } = filterScenarios(SCENARIOS);
+
+  if (opsPerRound != null) {
+    RUN_CONFIG.small.opsPerRound = opsPerRound;
+    RUN_CONFIG.large.opsPerRound = opsPerRound;
+  }
 
   if (networkSim) {
     process.stderr.write('Network simulation: ON\n');

@@ -97,9 +97,10 @@ export function computeStats(
   const p95Idx = Math.floor(sorted.length * 0.95);
   const p95 = sorted[Math.min(p95Idx, sorted.length - 1)] ?? median;
   const margin = ciMargin(clean);
+  const pct = median !== 0 ? (margin / Math.abs(median)) * 100 : 0;
   return {
     median,
     p95,
-    range: `± ${margin.toFixed(2)}`,
+    range: `± ${pct.toFixed(1)}%`,
   };
 }

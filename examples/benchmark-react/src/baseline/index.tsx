@@ -26,7 +26,15 @@ import {
   deleteIssue,
 } from '@shared/server';
 import type { Issue } from '@shared/types';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+
+let mutationCounter = 0;
 
 function SortedListView({
   limit,
@@ -188,10 +196,11 @@ function BenchmarkHarness() {
     (number: number) => {
       const issue = FIXTURE_ISSUES_BY_NUMBER.get(number);
       if (!issue) return;
+      const v = ++mutationCounter;
       measureUpdate(() =>
         updateIssue({
           number,
-          title: `${issue.title} (updated)`,
+          title: `${issue.title} (v${v})`,
         }).then(triggerRefetch),
       );
     },
@@ -202,10 +211,11 @@ function BenchmarkHarness() {
     (login: string) => {
       const user = FIXTURE_USERS_BY_LOGIN.get(login);
       if (!user) return;
+      const v = ++mutationCounter;
       measureUpdate(() =>
         serverUpdateUser({
           login,
-          name: `${user.name} (updated)`,
+          name: `${user.name} (v${v})`,
         }).then(triggerRefetch),
       );
     },
@@ -226,11 +236,15 @@ function BenchmarkHarness() {
     [measureUpdate, triggerRefetch],
   );
 
+  const moveStateRef = useRef<'open' | 'closed'>('closed');
+
   const moveItem = useCallback(
     (number: number) => {
+      const targetState = moveStateRef.current;
+      moveStateRef.current = targetState === 'closed' ? 'open' : 'closed';
       measureUpdate(
-        () => updateIssue({ number, state: 'closed' }).then(triggerRefetch),
-        () => moveItemIsReady(containerRef, number),
+        () => updateIssue({ number, state: targetState }).then(triggerRefetch),
+        () => moveItemIsReady(containerRef, number, targetState),
       );
     },
     [measureUpdate, triggerRefetch, containerRef],
@@ -240,7 +254,8 @@ function BenchmarkHarness() {
     (number: number) => {
       const issue = FIXTURE_ISSUES_BY_NUMBER.get(number);
       if (!issue) return;
-      const expected = `${issue.title} (updated)`;
+      const v = ++mutationCounter;
+      const expected = `${issue.title} (v${v})`;
       measureUpdate(
         () => updateIssue({ number, title: expected }).then(triggerRefetch),
         () => {

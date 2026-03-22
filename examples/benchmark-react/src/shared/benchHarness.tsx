@@ -36,16 +36,18 @@ const OBSERVE_MUTATIONS: MutationObserverInit = {
   characterData: true,
 };
 
-/** Check whether an issue has moved from the "open" to the "closed" state list. */
+/** Check whether an issue has moved to the target state list and left the source. */
 export function moveItemIsReady(
   containerRef: React.RefObject<HTMLDivElement | null>,
   number: number,
+  targetState: 'open' | 'closed' = 'closed',
 ): boolean {
+  const sourceState = targetState === 'closed' ? 'open' : 'closed';
   const source = containerRef.current?.querySelector(
-    '[data-state-list="open"]',
+    `[data-state-list="${sourceState}"]`,
   );
   const dest = containerRef.current?.querySelector(
-    '[data-state-list="closed"]',
+    `[data-state-list="${targetState}"]`,
   );
   return (
     source?.querySelector(`[data-issue-number="${number}"]`) == null &&
@@ -324,6 +326,8 @@ export function useBenchState() {
    * Libraries only pass their own actions + any overrides; standard actions
    * (init, unmountAll, etc.) are included automatically.
    */
+  const resetStoreNoop = useCallback(() => {}, []);
+
   const registerAPI = (libraryActions: LibraryActions) => {
     apiRef.current = {
       init,
@@ -340,6 +344,7 @@ export function useBenchState() {
       setNetworkSim,
       flushPendingMutations,
       setRenderLimit,
+      resetStore: resetStoreNoop,
       ...libraryActions,
     } as BenchAPI;
   };

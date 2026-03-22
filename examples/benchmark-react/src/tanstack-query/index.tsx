@@ -25,7 +25,9 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
+
+let mutationCounter = 0;
 
 function queryFn({ queryKey }: { queryKey: readonly unknown[] }): Promise<any> {
   const [type, id] = queryKey as [string, string | number | undefined];
@@ -160,10 +162,11 @@ function BenchmarkHarness() {
     (number: number) => {
       const issue = FIXTURE_ISSUES_BY_NUMBER.get(number);
       if (!issue) return;
+      const v = ++mutationCounter;
       measureUpdate(() =>
         IssueResource.update(
           { number },
-          { title: `${issue.title} (updated)` },
+          { title: `${issue.title} (v${v})` },
         ).then(() =>
           client.invalidateQueries({
             queryKey: ['issues'],
@@ -178,8 +181,9 @@ function BenchmarkHarness() {
     (login: string) => {
       const user = FIXTURE_USERS_BY_LOGIN.get(login);
       if (!user) return;
+      const v = ++mutationCounter;
       measureUpdate(() =>
-        UserResource.update({ login }, { name: `${user.name} (updated)` }).then(
+        UserResource.update({ login }, { name: `${user.name} (v${v})` }).then(
           () =>
             client.invalidateQueries({
               queryKey: ['issues'],
@@ -212,14 +216,18 @@ function BenchmarkHarness() {
     [measureUpdate, client],
   );
 
+  const moveStateRef = useRef<'open' | 'closed'>('closed');
+
   const moveItem = useCallback(
     (number: number) => {
+      const targetState = moveStateRef.current;
+      moveStateRef.current = targetState === 'closed' ? 'open' : 'closed';
       measureUpdate(
         () =>
-          IssueResource.update({ number }, { state: 'closed' }).then(() =>
+          IssueResource.update({ number }, { state: targetState }).then(() =>
             client.invalidateQueries({ queryKey: ['issues'] }),
           ),
-        () => moveItemIsReady(containerRef, number),
+        () => moveItemIsReady(containerRef, number, targetState),
       );
     },
     [measureUpdate, client, containerRef],
@@ -229,7 +237,8 @@ function BenchmarkHarness() {
     (number: number) => {
       const issue = FIXTURE_ISSUES_BY_NUMBER.get(number);
       if (!issue) return;
-      const expected = `${issue.title} (updated)`;
+      const v = ++mutationCounter;
+      const expected = `${issue.title} (v${v})`;
       measureUpdate(
         () =>
           IssueResource.update({ number }, { title: expected }).then(() =>
@@ -258,6 +267,8 @@ function BenchmarkHarness() {
     [measureUpdate, client, containerRef],
   );
 
+  const resetStore = useCallback(() => queryClient.clear(), []);
+
   registerAPI({
     updateEntity,
     updateUser,
@@ -265,6 +276,7 @@ function BenchmarkHarness() {
     unshiftItem,
     deleteEntity,
     moveItem,
+    resetStore,
   });
 
   return (

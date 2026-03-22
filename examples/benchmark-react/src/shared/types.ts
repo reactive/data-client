@@ -55,6 +55,8 @@ export interface BenchAPI {
   triggerGC?(): void;
   /** Cap DOM rendering to the first N items while keeping all data in the store. */
   setRenderLimit?(n: number | undefined): void;
+  /** Clear client-side cache/store so the next mount triggers a fresh fetch. Called between sub-iterations for mount scenarios. */
+  resetStore?(): void;
 }
 
 declare global {
