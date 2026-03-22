@@ -51,14 +51,14 @@ The repo has two benchmark suites:
 
 ## Expected results
 
-Illustrative **relative** results with **SWR = 100%** (baseline). For **throughput** rows, each value is (library ops/s ÷ SWR ops/s) × 100 — **higher is faster**. For **ref-stability** rows, the ratio uses the “refs changed” count — **lower is fewer components that saw a new object reference**. Figures are rounded from the **Latest measured results** table below (network simulation on); absolute ops/s will vary by machine, but **library-to-library ratios** are usually similar.
+Illustrative **relative** results with **baseline = 100%** (plain React useState/useEffect, no data library). For **throughput** rows, each value is (library ops/s ÷ baseline ops/s) × 100 — **higher is faster**. For **ref-stability** rows, the ratio uses the “refs changed” count — **lower is fewer components that saw a new object reference**. Figures are rounded from the **Latest measured results** table below (network simulation on); absolute ops/s will vary by machine, but **library-to-library ratios** are usually similar.
 
-| Category | Scenarios (representative) | data-client | tanstack-query | swr |
-|---|---|---:|---:|---:|
-| Navigation | `getlist-100`, `getlist-500`, `getlist-500-sorted` | ~97% | ~99% | **100%** |
-| Navigation | `list-detail-switch-10` | **~468%** | ~98% | 100% |
-| Mutations | `update-entity`, `update-user`, `update-entity-sorted`, `update-entity-multi-view`, `unshift-item`, `delete-item`, `move-item` | **~4600%** | ~98% | 100% |
-| Scaling (10k items) | `update-user-10000` | **~1953%** | ~82% | 100% |
+| Category | Scenarios (representative) | data-client | tanstack-query | swr | baseline |
+|---|---|---:|---:|---:|---:|
+| Navigation | `getlist-100`, `getlist-500`, `getlist-500-sorted` | ~96% | ~98% | ~99% | **100%** |
+| Navigation | `list-detail-switch-10` | **~949%** | ~199% | ~203% | 100% |
+| Mutations | `update-entity`, `update-user`, `update-entity-sorted`, `update-entity-multi-view`, `unshift-item`, `delete-item`, `move-item` | **~4486%** | ~96% | ~99% | 100% |
+| Scaling (10k items) | `update-user-10000` | **~2006%** | ~84% | ~103% | 100% |
 
 
 ## Latest measured results (network simulation on)
@@ -67,22 +67,22 @@ Median ops/s per scenario; range is approximate 95% CI margin from the runner (`
 
 Run: **2026-03-21**, Linux (WSL2), `yarn build:benchmark-react`, static preview + `env -u CI npx tsx bench/runner.ts --network-sim true` (all libraries; memory scenarios not included). Numbers are **machine-specific**; use them for relative comparison between libraries, not as absolutes.
 
-| Scenario | data-client | tanstack-query | swr |
-|---|---:|---:|---:|
-| **Navigation** | | | |
-| `getlist-100` | 11.20 ± 0.03 | 11.27 ± 0.02 | 11.43 ± 0.07 |
-| `getlist-500` | 9.78 ± 0.12 | 10.01 ± 0.13 | 10.16 ± 0.13 |
-| `getlist-500-sorted` | 9.82 ± 0.16 | 10.08 ± 0.13 | 10.21 ± 0.07 |
-| `list-detail-switch-10` | 6.93 ± 1.02 | 1.45 ± 0.04 | 1.48 ± 0.08 |
-| **Mutations** | | | |
-| `update-entity` | 357.14 ± 11.48 | 7.01 ± 0.02 | 7.02 ± 0.02 |
-| `update-user` | 333.33 ± 14.44 | 7.01 ± 0.02 | 7.17 ± 0.03 |
-| `update-entity-sorted` | 312.50 ± 23.44 | 7.08 ± 0.00 | 7.07 ± 0.03 |
-| `update-entity-multi-view` | 357.14 ± 52.30 | 6.82 ± 0.34 | 6.88 ± 0.39 |
-| `update-user-10000` | 97.09 ± 7.73 | 4.07 ± 0.02 | 4.97 ± 0.02 |
-| `unshift-item` | 285.71 ± 4.90 | 6.92 ± 0.02 | 7.16 ± 0.00 |
-| `delete-item` | 312.50 ± 9.77 | 6.93 ± 0.01 | 7.15 ± 0.01 |
-| `move-item` | 285.71 ± 10.61 | 6.39 ± 0.02 | 6.83 ± 0.00 |
+| Scenario | data-client | tanstack-query | swr | baseline |
+|---|---:|---:|---:|---:|
+| **Navigation** | | | | |
+| `getlist-100` | 11.20 ± 0.03 | 11.27 ± 0.02 | 11.43 ± 0.07 | 11.55 ± 0.02 |
+| `getlist-500` | 9.78 ± 0.12 | 10.01 ± 0.13 | 10.16 ± 0.13 | 10.22 ± 0.07 |
+| `getlist-500-sorted` | 9.82 ± 0.16 | 10.08 ± 0.13 | 10.21 ± 0.07 | 10.29 ± 0.06 |
+| `list-detail-switch-10` | 6.93 ± 1.02 | 1.45 ± 0.04 | 1.48 ± 0.08 | 0.73 ± 0.00 |
+| **Mutations** | | | | |
+| `update-entity` | 357.14 ± 11.48 | 7.01 ± 0.02 | 7.02 ± 0.02 | 7.22 ± 0.00 |
+| `update-user` | 333.33 ± 14.44 | 7.01 ± 0.02 | 7.17 ± 0.03 | 7.22 ± 0.01 |
+| `update-entity-sorted` | 312.50 ± 23.44 | 7.08 ± 0.00 | 7.07 ± 0.03 | 7.28 ± 0.01 |
+| `update-entity-multi-view` | 357.14 ± 52.30 | 6.82 ± 0.34 | 6.88 ± 0.39 | 7.14 ± 0.36 |
+| `update-user-10000` | 97.09 ± 7.73 | 4.07 ± 0.02 | 4.97 ± 0.02 | 4.84 ± 0.03 |
+| `unshift-item` | 285.71 ± 4.90 | 6.92 ± 0.02 | 7.16 ± 0.00 | 7.16 ± 0.02 |
+| `delete-item` | 312.50 ± 9.77 | 6.93 ± 0.01 | 7.15 ± 0.01 | 7.16 ± 0.01 |
+| `move-item` | 285.71 ± 10.61 | 6.39 ± 0.02 | 6.83 ± 0.00 | 6.82 ± 0.00 |
 
 [Measured on a Ryzen 9 7950X; 64 GB RAM; Ubuntu (WSL2); Node 24.12.0; Chromium (Playwright)]
 
