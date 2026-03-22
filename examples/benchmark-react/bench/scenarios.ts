@@ -186,7 +186,12 @@ const BASE_SCENARIOS: BaseScenario[] = [
   },
 ];
 
-export const LIBRARIES = ['data-client', 'tanstack-query', 'swr'] as const;
+export const LIBRARIES = [
+  'data-client',
+  'tanstack-query',
+  'swr',
+  'baseline',
+] as const;
 
 export const SCENARIOS: Scenario[] = LIBRARIES.flatMap(lib =>
   BASE_SCENARIOS.filter(

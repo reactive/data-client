@@ -2,7 +2,7 @@ const { makeConfig } = require('@anansi/webpack-config');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 
-const LIBRARIES = ['data-client', 'tanstack-query', 'swr'];
+const LIBRARIES = ['data-client', 'tanstack-query', 'swr', 'baseline'];
 
 const entries = {};
 for (const lib of LIBRARIES) {
