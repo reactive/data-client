@@ -249,7 +249,7 @@ export function useBenchState() {
   );
 
   const listDetailSwitch = useCallback(
-    async (navigations: number, seedCount = 1000) => {
+    async (navigations: number, seedCount: number) => {
       await seedIssueList(FIXTURE_ISSUES.slice(0, seedCount));
       setSortedViewCount(seedCount);
       setShowSortedView(true);
