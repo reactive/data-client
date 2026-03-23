@@ -56,7 +56,7 @@
     "react-dom": "^19.0.0",
     "react-json-tree": "0.20.0",
     "react-live": "^4.0.0",
-    "typescript": "6.0.1-rc",
+    "typescript": "6.0.2",
     "uuid": "^13.0.0"
   },
   "browserslist": [
