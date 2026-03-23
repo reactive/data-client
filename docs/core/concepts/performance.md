@@ -3,6 +3,9 @@ title: Performance
 sidebar_label: Performance
 ---
 
+import ThemedImage from '@theme/ThemedImage';
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
 <head>
   <meta name="docsearch:pagerank" content="30"/>
 </head>
@@ -19,7 +22,14 @@ React baseline uses useEffect + useState from the React docs.
 
 <center>
 
-![React Rendering Benchmarks](/img/bench-react.svg 'Data Client vs TanStack Query, SWR, and Baseline')
+<ThemedImage
+alt="React Rendering Benchmarks"
+title="Data Client vs TanStack Query, SWR, and Baseline"
+sources={{
+    light: useBaseUrl('/img/bench-react.svg'),
+    dark: useBaseUrl('/img/bench-react-dark.svg'),
+  }}
+/>
 
 [View benchmark source](https://github.com/reactive/data-client/tree/master/examples/benchmark-react) · [Performance over time](https://reactive.github.io/data-client/react-bench/)
 
@@ -39,7 +49,14 @@ speeds up repeated access, including after [mutations](../getting-started/mutati
 
 <center>
 
-![Denormalization Benchmarks](/img/bench-norm.svg 'Data Client vs normalizr')
+<ThemedImage
+alt="Denormalization Benchmarks"
+title="Data Client vs normalizr"
+sources={{
+    light: useBaseUrl('/img/bench-norm.svg'),
+    dark: useBaseUrl('/img/bench-norm-dark.svg'),
+  }}
+/>
 
 [View benchmark source](https://github.com/reactive/data-client/blob/master/examples/benchmark)
 

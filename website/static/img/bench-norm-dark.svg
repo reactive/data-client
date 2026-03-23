@@ -2,13 +2,13 @@
   <title>Denormalization Benchmarks &#8212; Data Client vs normalizr</title>
   <style>
     text { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
-    .bg { fill: #fff; }
-    .title { fill: #1e293b; }
-    .body { fill: #475569; }
-    .axis { fill: #64748b; }
-    .cat { fill: #334155; }
-    .sub { fill: #94a3b8; }
-    .grid { stroke: #e2e8f0; }
+    .bg { fill: #1e1e2e; }
+    .title { fill: #e2e8f0; }
+    .body { fill: #94a3b8; }
+    .axis { fill: #94a3b8; }
+    .cat { fill: #cbd5e1; }
+    .sub { fill: #64748b; }
+    .grid { stroke: #334155; }
   </style>
   <rect width="720" height="390" class="bg" rx="6"/>
 
