@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 390">
+  <title>Denormalization Benchmarks &#8212; Data Client vs normalizr</title>
+  <style>
+    text { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+    .bg { fill: #fff; }
+    .title { fill: #1e293b; }
+    .body { fill: #475569; }
+    .axis { fill: #64748b; }
+    .cat { fill: #334155; }
+    .sub { fill: #94a3b8; }
+    .grid { stroke: #e2e8f0; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #1e1e2e; }
+      .title { fill: #e2e8f0; }
+      .body { fill: #94a3b8; }
+      .axis { fill: #94a3b8; }
+      .cat { fill: #cbd5e1; }
+      .sub { fill: #64748b; }
+      .grid { stroke: #334155; }
+    }
+  </style>
+  <rect width="720" height="390" class="bg" rx="6"/>
+
+  <text x="360" y="22" text-anchor="middle" font-size="15" font-weight="600" class="title">Denormalization Benchmarks</text>
+
+  <g transform="translate(168,30)">
+    <rect width="12" height="12" rx="2" fill="#94a3b8"/>
+    <text x="18" y="11" font-size="11" class="body">normalizr</text>
+    <rect x="95" width="12" height="12" rx="2" fill="#9ec9ee"/>
+    <text x="113" y="11" font-size="11" class="body">Data Client</text>
+    <rect x="200" width="12" height="12" rx="2" fill="#3795DE"/>
+    <text x="218" y="11" font-size="11" class="body">Data Client (cached)</text>
+  </g>
+
+  <text x="14" y="200" text-anchor="middle" font-size="11" class="axis" transform="rotate(-90,14,200)">&#215; faster than normalizr</text>
+
+  <text x="58" y="340" text-anchor="end" font-size="10" class="axis" dominant-baseline="middle">0</text>
+  <text x="58" y="245" text-anchor="end" font-size="10" class="axis" dominant-baseline="middle">10&#215;</text>
+  <text x="58" y="150" text-anchor="end" font-size="10" class="axis" dominant-baseline="middle">20&#215;</text>
+  <text x="58" y="55" text-anchor="end" font-size="10" class="axis" dominant-baseline="middle">30&#215;</text>
+
+  <line x1="65" x2="700" y1="340" y2="340" class="grid"/>
+  <line x1="65" x2="700" y1="245" y2="245" class="grid" stroke-dasharray="4,3"/>
+  <line x1="65" x2="700" y1="150" y2="150" class="grid" stroke-dasharray="4,3"/>
+  <line x1="65" x2="700" y1="55" y2="55" class="grid" stroke-dasharray="4,3"/>
+
+  <!-- Single Entity: normalizr 1x, DC 6.31x, DC cached 29.9x -->
+  <rect x="95"  y="330.5" width="60" height="9.5"   rx="3" fill="#94a3b8"/>
+  <rect x="165" y="280"   width="60" height="60"     rx="3" fill="#9ec9ee"/>
+  <rect x="235" y="56"    width="60" height="284"    rx="3" fill="#3795DE"/>
+  <text x="195" y="273" text-anchor="middle" font-size="11" font-weight="600" fill="#9ec9ee">6&#215;</text>
+  <text x="265" y="52" text-anchor="middle" font-size="10" font-weight="600" fill="#3795DE">30&#215;</text>
+
+  <!-- Large List: normalizr 1x, DC 1.73x, DC cached 11.45x -->
+  <rect x="470" y="330.5" width="60" height="9.5"   rx="3" fill="#94a3b8"/>
+  <rect x="540" y="323.5" width="60" height="16.5"  rx="3" fill="#9ec9ee"/>
+  <rect x="610" y="231"   width="60" height="109"   rx="3" fill="#3795DE"/>
+  <text x="570" y="317" text-anchor="middle" font-size="11" font-weight="600" fill="#9ec9ee">1.7&#215;</text>
+  <text x="640" y="224" text-anchor="middle" font-size="11" font-weight="600" fill="#3795DE">11&#215;</text>
+
+  <text x="195" y="360" text-anchor="middle" font-size="12" class="cat">Single Entity</text>
+  <text x="570" y="360" text-anchor="middle" font-size="12" class="cat">Large List</text>
+
+  <text x="360" y="382" text-anchor="middle" font-size="10" class="sub">Higher is better &#183; operations per second relative to normalizr</text>
+</svg>

@@ -63,6 +63,10 @@
         {
           "type": "doc",
           "id": "concepts/managers"
+        },
+        {
+          "type": "doc",
+          "id": "concepts/performance"
         }
       ]
     },

@@ -12,7 +12,6 @@ import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import Link from '@docusaurus/Link';
 import SchemaTable from '../shared/\_schema_table.mdx';
-import Grid from '@site/src/components/Grid';
 
 [Entities](/rest/api/Entity) have a primary key. This enables easy access via a lookup table.
 This makes it easy to find, update, create, or delete the same data - no matter what
@@ -376,37 +375,8 @@ can be installed to inspect and [debug the store](../getting-started/debugging.m
 
 </center>
 
-
 ## Benchmarks
 
-Here we compare denormalization performance with the legacy [normalizr](https://github.com/paularmstrong/normalizr)
-library, which has less features, but similar schema definitions.
-
-Memoization is done at every entity level - no matter how nested, ensuring global referential equality guarantees
-and up to 20x performance even after [mutation operations](../getting-started/mutations.md) like Create, Update and Delete.
-
-<center>
-
-<Grid>
-
-```mermaid
-xychart-beta
-    title "Denormalize Single Entity"
-    x-axis [normalizr, "Data Client", "Data Client (cached)"]
-    y-axis "Operations per second" 0 --> 6348905
-    bar [212500, 1341000, 6348905]
-```
-
-```mermaid
-xychart-beta
-    title "Denormalize Large List"
-    x-axis [normalizr, "Data Client", "Data Client (cached)"]
-    y-axis "Operations per second" 0 --> 12962
-    bar [1151, 1986, 13182]
-```
-
-</Grid>
-
-[View benchmark](https://github.com/reactive/data-client/blob/master/examples/benchmark)
-
-</center>
+Entity-level memoization delivers up to **20x** denormalization performance and **90x** faster mutation propagation
+compared to non-normalized approaches. See the full [Performance](./performance.md) page for
+normalization benchmarks results as well as full React integration benchmarks.

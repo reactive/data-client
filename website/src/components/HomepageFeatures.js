@@ -22,9 +22,10 @@ const FeatureList = [
   {
     description: (
       <>
-        Normalized cache means data is often <b>ready before</b> it is even
-        needed. Automatic <b>request deduplication</b> means less data to send
-        over the network.
+        Navigation <Link to="/docs/concepts/performance">24x faster</Link> than
+        TanStack Query, SWR and React baseline.{' '}
+        <Link to="/docs/concepts/performance">Mutations 92x</Link> faster than
+        TanStack Query, SWR and React baseline.
       </>
     ),
     Svg: require(`../../static/img/fast-car.svg`).default,
@@ -65,15 +66,14 @@ function Feature({ Svg, light, dark, title, description }) {
   return (
     <div className={clsx('col col--3')}>
       <div className="text--center">
-        {Svg ? (
+        {Svg ?
           <Svg className={styles.featureSvg} alt={title} />
-        ) : (
-          <ThemedImage
+        : <ThemedImage
             className={styles.featureSvg}
             alt={title}
             sources={sources}
           />
-        )}
+        }
       </div>
       <div className="text--center padding-horiz--md">
         <h3>{title}</h3>

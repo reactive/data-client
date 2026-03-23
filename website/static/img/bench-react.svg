@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 390">
+  <title>React Rendering Benchmarks &#8212; Data Client vs TanStack Query, SWR, and Baseline</title>
+  <style>
+    text { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; }
+    .bg { fill: #fff; }
+    .title { fill: #1e293b; }
+    .body { fill: #475569; }
+    .axis { fill: #64748b; }
+    .cat { fill: #334155; }
+    .sub { fill: #94a3b8; }
+    .grid { stroke: #e2e8f0; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #1e1e2e; }
+      .title { fill: #e2e8f0; }
+      .body { fill: #94a3b8; }
+      .axis { fill: #94a3b8; }
+      .cat { fill: #cbd5e1; }
+      .sub { fill: #64748b; }
+      .grid { stroke: #334155; }
+    }
+  </style>
+  <rect width="720" height="390" class="bg" rx="6"/>
+
+  <text x="360" y="22" text-anchor="middle" font-size="15" font-weight="600" class="title">React Rendering Benchmarks</text>
+
+  <g transform="translate(132,34)">
+    <rect width="12" height="12" rx="2" fill="#3795DE"/>
+    <text x="16" y="11" font-size="11" class="body">Data Client</text>
+    <rect x="108" width="12" height="12" rx="2" fill="#ea580c"/>
+    <text x="124" y="11" font-size="11" class="body">TanStack Query</text>
+    <rect x="240" width="12" height="12" rx="2" fill="#7c3aed"/>
+    <text x="256" y="11" font-size="11" class="body">SWR</text>
+    <rect x="295" width="12" height="12" rx="2" fill="#94a3b8"/>
+    <text x="311" y="11" font-size="11" class="body">Baseline</text>
+  </g>
+
+  <text x="14" y="200" text-anchor="middle" font-size="11" class="axis" transform="rotate(-90,14,200)">&#215; faster than baseline</text>
+
+  <text x="58" y="343" text-anchor="end" font-size="10" class="axis" dominant-baseline="middle">0</text>
+  <text x="58" y="268.75" text-anchor="end" font-size="10" class="axis" dominant-baseline="middle">25&#215;</text>
+  <text x="58" y="197.5" text-anchor="end" font-size="10" class="axis" dominant-baseline="middle">50&#215;</text>
+  <text x="58" y="126.25" text-anchor="end" font-size="10" class="axis" dominant-baseline="middle">75&#215;</text>
+  <text x="58" y="55" text-anchor="end" font-size="10" class="axis" dominant-baseline="middle">100&#215;</text>
+
+  <line x1="65" x2="700" y1="340" y2="340" class="grid"/>
+  <line x1="65" x2="700" y1="268.75" y2="268.75" class="grid" stroke-dasharray="4,3"/>
+  <line x1="65" x2="700" y1="197.5" y2="197.5" class="grid" stroke-dasharray="4,3"/>
+  <line x1="65" x2="700" y1="126.25" y2="126.25" class="grid" stroke-dasharray="4,3"/>
+  <line x1="65" x2="700" y1="55" y2="55" class="grid" stroke-dasharray="4,3"/>
+
+  <!-- Cached Navigation: DC 23.8x, TQ 2.25x, SWR 2.18x, BL 1x -->
+  <rect x="72.5"  y="272.2"  width="37" height="67.8" rx="3" fill="#3795DE"/>
+  <rect x="114.5" y="333.6"  width="37" height="6.4"  rx="2" fill="#ea580c"/>
+  <rect x="156.5" y="333.8"  width="37" height="6.2"  rx="2" fill="#7c3aed"/>
+  <rect x="198.5" y="335"    width="37" height="5"    rx="2" fill="#94a3b8"/>
+  <text x="91" y="265" text-anchor="middle" font-size="11" font-weight="600" fill="#3795DE">24&#215;</text>
+
+  <!-- Mutations: DC 92.2x, TQ 0.97x, SWR 0.98x, BL 1x -->
+  <rect x="301"   y="77.2"  width="37" height="262.8" rx="3" fill="#3795DE"/>
+  <rect x="343"   y="337.2" width="37" height="2.8"   rx="1" fill="#ea580c"/>
+  <rect x="385"   y="337.2" width="37" height="2.8"   rx="1" fill="#7c3aed"/>
+  <rect x="427"   y="337.2" width="37" height="2.8"   rx="1" fill="#94a3b8"/>
+  <text x="319.5" y="70" text-anchor="middle" font-size="11" font-weight="600" fill="#3795DE">92&#215;</text>
+
+  <!-- Scaling (10k): DC 92.9x, TQ 0.96x, SWR 1x, BL 1x -->
+  <rect x="529.5" y="75.2"  width="37" height="264.8" rx="3" fill="#3795DE"/>
+  <rect x="571.5" y="337.3" width="37" height="2.7"   rx="1" fill="#ea580c"/>
+  <rect x="613.5" y="337.2" width="37" height="2.8"   rx="1" fill="#7c3aed"/>
+  <rect x="655.5" y="337.2" width="37" height="2.8"   rx="1" fill="#94a3b8"/>
+  <text x="548" y="68" text-anchor="middle" font-size="11" font-weight="600" fill="#3795DE">93&#215;</text>
+
+  <text x="154" y="360" text-anchor="middle" font-size="12" class="cat">Cached Navigation</text>
+  <text x="382.5" y="360" text-anchor="middle" font-size="12" class="cat">Mutations</text>
+  <text x="611" y="360" text-anchor="middle" font-size="12" class="cat">Scaling (10k)</text>
+
+  <text x="360" y="382" text-anchor="middle" font-size="10" class="sub">Higher is better &#183; ops/s relative to React useState baseline</text>
+</svg>
