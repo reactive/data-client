@@ -2,7 +2,7 @@
 import { normalize, INVALID } from '@data-client/normalizr';
 import { denormalize as plainDenormalize } from '@data-client/normalizr';
 import { denormalize as immDenormalize } from '@data-client/normalizr/imm';
-import { Temporal } from '@js-temporal/polyfill';
+import { Temporal } from 'temporal-polyfill';
 
 import { SimpleMemoCache, fromJSEntities } from './denormalize';
 import { schema, EntityMixin, Values } from '../..';

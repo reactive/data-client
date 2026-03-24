@@ -335,8 +335,8 @@ if (
         'file:///node_modules/@number-flow/react/index.d.ts',
       );
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
-        `declare module "@js-temporal/polyfill" { ${temporal} }`,
-        'file:///node_modules/@js-temporal/polyfill/index.d.ts',
+        `declare module "temporal-polyfill" { ${temporal} }`,
+        'file:///node_modules/temporal-polyfill/index.d.ts',
       );
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
         `declare module "uuid" { ${uuid} }`,
@@ -353,7 +353,7 @@ if (
         `declare globals { export { default as NumberFlow } from '@number-flow/react'; }`,
       );
       monaco.languages.typescript.typescriptDefaults.addExtraLib(
-        `declare globals { export { Temporal, DateTimeFormat } from '@js-temporal/polyfill'; }`,
+        `declare globals { export { Temporal, DateTimeFormat } from 'temporal-polyfill'; }`,
       );
 
       rhLibs.forEach((lib, i) => {

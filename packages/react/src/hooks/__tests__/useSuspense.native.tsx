@@ -15,7 +15,6 @@ import {
   MockResolver,
 } from '@data-client/test';
 import { jest } from '@jest/globals';
-import { Temporal } from '@js-temporal/polyfill';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { render, act, screen } from '@testing-library/react-native';
@@ -38,6 +37,7 @@ import nock from 'nock';
 import React, { Suspense } from 'react';
 import { Text, View } from 'react-native';
 import { InteractionManager } from 'react-native';
+import { Temporal } from 'temporal-polyfill';
 
 // relative imports to avoid circular dependency in tsconfig references
 import {

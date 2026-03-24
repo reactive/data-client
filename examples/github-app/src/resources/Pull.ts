@@ -1,4 +1,4 @@
-import { Temporal } from '@js-temporal/polyfill';
+import { Temporal } from 'temporal-polyfill';
 
 import { GithubEntity, githubResource } from './Base';
 import { Label } from './Label';

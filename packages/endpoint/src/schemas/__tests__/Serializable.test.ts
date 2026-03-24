@@ -1,7 +1,7 @@
 // eslint-env jest
 import { normalize } from '@data-client/normalizr';
-import { Temporal } from '@js-temporal/polyfill';
 import { IDEntity } from '__tests__/new';
+import { Temporal } from 'temporal-polyfill';
 
 import SimpleMemoCache from './denormalize';
 

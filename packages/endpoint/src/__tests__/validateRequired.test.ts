@@ -1,7 +1,7 @@
 // eslint-env jest
 import { jest, describe, beforeAll, afterAll, it, expect } from '@jest/globals';
-import { Temporal } from '@js-temporal/polyfill';
 import { IDEntity } from '__tests__/new';
+import { Temporal } from 'temporal-polyfill';
 
 import SimpleMemoCache from '../schemas/__tests__/denormalize';
 import Entity from '../schemas/Entity';

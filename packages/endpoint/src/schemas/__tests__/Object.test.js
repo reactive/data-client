@@ -4,9 +4,9 @@ import {
   denormalize as plainDenormalize,
 } from '@data-client/normalizr';
 import { denormalize as immDenormalize } from '@data-client/normalizr/imm';
-import { Temporal } from '@js-temporal/polyfill';
 import { IDEntity } from '__tests__/new';
 import { fromJS } from 'immutable';
+import { Temporal } from 'temporal-polyfill';
 
 import { fromJSEntities } from './denormalize';
 import { schema } from '../../';

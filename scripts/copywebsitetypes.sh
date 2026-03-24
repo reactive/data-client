@@ -14,7 +14,7 @@ cp ./packages/react/nextjs.d.ts ./website/src/components/Playground/editor-types
 cp ./packages/react/ssr.d.ts ./website/src/components/Playground/editor-types/@data-client/react/ssr.d.ts
 cp ./packages/react/redux.d.ts ./website/src/components/Playground/editor-types/@data-client/react/redux.d.ts
 cp ./node_modules/@types/react/index.d.ts ./website/src/components/Playground/editor-types/react.d.ts
-cp ./node_modules/@js-temporal/polyfill/index.d.ts ./website/src/components/Playground/editor-types/temporal.d.ts
+cp ./node_modules/temporal-spec/index.d.ts ./website/src/components/Playground/editor-types/temporal.d.ts
 cp ./node_modules/bignumber.js/bignumber.d.ts ./website/src/components/Playground/editor-types/bignumber.d.ts
 cp ./node_modules/@types/qs/index.d.ts ./website/src/components/Playground/editor-types/qs.d.ts
 yarn run rollup --config ./scripts/rollup-plugins/uuid-types.rollup.config.js

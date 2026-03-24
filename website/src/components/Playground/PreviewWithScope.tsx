@@ -2,7 +2,6 @@ import * as graphql from '@data-client/graphql';
 import * as rhReact from '@data-client/react';
 import * as rhReactNext from '@data-client/react/next';
 import * as rest from '@data-client/rest';
-import { Temporal, Intl as PolyIntl } from '@js-temporal/polyfill';
 import BigNumber from 'bignumber.js';
 import { use } from 'react';
 import { LiveProvider } from 'react-live';
@@ -11,6 +10,7 @@ import { v4 as uuid } from 'uuid';
 import * as designSystem from './DesignSystem';
 import Preview from './Preview';
 import PreviewWrapper from './PreviewWrapper';
+import { Temporal, Intl, DateTimeFormat } from './temporal';
 import transformCode from './transformCode';
 import type { PreviewProps } from './types';
 import ResetableErrorBoundary from '../ResettableErrorBoundary';
@@ -31,11 +31,6 @@ const mockFetch = (getResponse, name, delay = 150) => {
   return fetch;
 };
 
-const Intl = {
-  ...globalThis.Intl,
-  ...PolyIntl,
-};
-
 const scope = {
   ...rhReact,
   ...rhReactNext,
@@ -49,7 +44,7 @@ const scope = {
   ResetableErrorBoundary,
   Temporal,
   Intl,
-  DateTimeFormat: PolyIntl.DateTimeFormat,
+  DateTimeFormat,
   ...designSystem,
 };
 

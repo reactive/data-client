@@ -3243,12 +3243,12 @@ __metadata:
     "@babel/runtime": "npm:^7.20.0"
     "@data-client/core": "workspace:*"
     "@data-client/normalizr": "workspace:*"
-    "@js-temporal/polyfill": "npm:^0.5.0"
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:^24.0.0"
     immutable: "npm:5.1.5"
     nock: "npm:13.3.1"
     rollup-plugins: "workspace:*"
+    temporal-polyfill: "npm:^0.3.0"
   languageName: unknown
   linkType: soft
 
@@ -3300,11 +3300,11 @@ __metadata:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.20.0"
     "@data-client/endpoint": "workspace:*"
-    "@js-temporal/polyfill": "npm:^0.5.0"
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:^24.0.0"
     immutable: "npm:5.1.5"
     rollup-plugins: "workspace:*"
+    temporal-polyfill: "npm:^0.3.0"
   languageName: unknown
   linkType: soft
 
@@ -3319,7 +3319,6 @@ __metadata:
     "@data-client/test": "workspace:*"
     "@data-client/use-enhanced-reducer": "workspace:^"
     "@jest/globals": "npm:^30.0.0"
-    "@js-temporal/polyfill": "npm:^0.5.0"
     "@react-navigation/native": "npm:^7.0.0"
     "@react-navigation/native-stack": "npm:^7.2.0"
     "@testing-library/dom": "npm:^10.4.0"
@@ -3340,6 +3339,7 @@ __metadata:
     react-native-screens: "npm:^4.1.0"
     react-test-renderer: "npm:^19.0.0"
     rollup-plugins: "workspace:*"
+    temporal-polyfill: "npm:^0.3.0"
   peerDependencies:
     "@react-navigation/native": ^6.0.0 || ^7.0.0
     "@types/react": ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0-0 || ^19.0.0
@@ -3450,7 +3450,6 @@ __metadata:
     "@data-client/core": "workspace:^"
     "@data-client/rest": "workspace:*"
     "@jest/globals": "npm:^30.0.0"
-    "@js-temporal/polyfill": "npm:^0.5.0"
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:^24.0.0"
     "@vue/test-utils": "npm:^2.4.0"
@@ -3458,6 +3457,7 @@ __metadata:
     jest-mock: "npm:^30.0.0"
     nock: "npm:13.3.1"
     rollup-plugins: "workspace:*"
+    temporal-polyfill: "npm:^0.3.0"
     vue: "npm:^3.4.0"
   peerDependencies:
     "@types/vue": ^3.0.0
@@ -5293,15 +5293,6 @@ __metadata:
     "@jridgewell/resolve-uri": "npm:^3.1.0"
     "@jridgewell/sourcemap-codec": "npm:^1.4.14"
   checksum: 10c0/fb547ba31658c4d74eb17e7389f4908bf7c44cef47acb4c5baa57289daf68e6fe53c639f41f751b3923aca67010501264f70e7b49978ad1f040294b22c37b333
-  languageName: node
-  linkType: hard
-
-"@js-temporal/polyfill@npm:^0.5.0":
-  version: 0.5.1
-  resolution: "@js-temporal/polyfill@npm:0.5.1"
-  dependencies:
-    jsbi: "npm:^4.3.0"
-  checksum: 10c0/d9a843e22167e6c98946dc03f8a480d062ece5d01ca850930c8f00af1bd99cfe513a98c3420b24a9920c47e7a61a82e5c8866da47ecdc0e7ee2cd3bf6e440b46
   languageName: node
   linkType: hard
 
@@ -18718,13 +18709,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jsbi@npm:^4.3.0":
-  version: 4.3.0
-  resolution: "jsbi@npm:4.3.0"
-  checksum: 10c0/1817ac1b50ea3f4438bcd84cadc9aee7a8657829f65b55ea6f151f401dbbd3babedbfdd3e4f481bd7b5472abb7823efa640fd7e5eee7c30cea6431f7a8b74696
-  languageName: node
-  linkType: hard
-
 "jsbn@npm:1.1.0":
   version: 1.1.0
   resolution: "jsbn@npm:1.1.0"
@@ -24663,7 +24647,6 @@ __metadata:
     "@docusaurus/preset-classic": "npm:^3.0.1"
     "@docusaurus/theme-live-codeblock": "npm:^3.0.1"
     "@docusaurus/theme-mermaid": "npm:^3.0.1"
-    "@js-temporal/polyfill": "npm:^0.5.0"
     "@mdx-js/react": "npm:^3.1.0"
     "@monaco-editor/react": "npm:^4.8.0-rc.0"
     "@number-flow/react": "npm:^0.6.0"
@@ -24683,6 +24666,7 @@ __metadata:
     react-json-tree: "npm:0.20.0"
     react-live: "npm:^4.0.0"
     serve: "npm:14.2.6"
+    temporal-polyfill: "npm:^0.3.0"
     typescript: "npm:6.0.2"
     uuid: "npm:^13.0.0"
     webpack: "npm:^5.76.0"
@@ -26041,7 +26025,6 @@ __metadata:
     "@data-client/react": "workspace:*"
     "@data-client/rest": "workspace:*"
     "@data-client/test": "workspace:*"
-    "@js-temporal/polyfill": "npm:^0.5.0"
     "@react-navigation/native": "npm:^7.0.0"
     "@react-navigation/native-stack": "npm:^7.0.0"
     "@testing-library/dom": "npm:^10.4.0"
@@ -26075,6 +26058,7 @@ __metadata:
     react-test-renderer: "npm:19.2.3"
     rimraf: "npm:^6.0.0"
     rollup: "npm:4.59.0"
+    temporal-polyfill: "npm:^0.3.0"
     typescript: "npm:6.0.2"
     whatwg-fetch: "npm:3.0.0"
   languageName: unknown
@@ -27918,6 +27902,22 @@ __metadata:
   dependencies:
     streamx: "npm:^2.12.5"
   checksum: 10c0/8df9166c037ba694b49d32a49858e314c60e513d55ac5e084dbf1ddbb827c5fa43cc389a81e87684419c21283308e9d68bb068798189c767ec4c252f890b8a77
+  languageName: node
+  linkType: hard
+
+"temporal-polyfill@npm:^0.3.0":
+  version: 0.3.2
+  resolution: "temporal-polyfill@npm:0.3.2"
+  dependencies:
+    temporal-spec: "npm:0.3.1"
+  checksum: 10c0/762795c94e1b6cb0574541d0b09f805ff23b0a2c9d0356ab3fc0205e390a3bce73e047de2fdc54c7d149d6e6d781aa1d95aa62afa5de4c83cb79c129b0e502da
+  languageName: node
+  linkType: hard
+
+"temporal-spec@npm:0.3.1":
+  version: 0.3.1
+  resolution: "temporal-spec@npm:0.3.1"
+  checksum: 10c0/e38eae391bd59ae675f1925a65c8ef302933cf9ce98efedaf2e69269e8c36f2b5d486cd3084367f04a6c1ea0289b925690c0df20a73f0c4629b531775924e850
   languageName: node
   linkType: hard
 

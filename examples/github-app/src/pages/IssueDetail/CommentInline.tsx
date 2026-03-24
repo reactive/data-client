@@ -2,7 +2,6 @@ import { useNavigator } from '@anansi/core';
 import { Link, useRoutes } from '@anansi/router';
 import { EllipsisOutlined } from '@ant-design/icons';
 import { useCache, useController } from '@data-client/react';
-import { Intl } from '@js-temporal/polyfill';
 import { css } from '@linaria/core';
 import { Card, Avatar, Button, Tag, Popover } from 'antd';
 import React, { memo, useCallback, useState } from 'react';
@@ -10,6 +9,7 @@ import Markdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
 import remarkGfm from 'remark-gfm';
 import remarkRemoveComments from 'remark-remove-comments';
+import { Intl } from 'temporal-polyfill';
 
 import FlexRow from '@/components/FlexRow';
 import { CommentResource, Comment } from '@/resources/Comment';

@@ -1,4 +1,4 @@
-import { Temporal } from '@js-temporal/polyfill';
+import { Temporal } from 'temporal-polyfill';
 
 export function humanTime(date: Temporal.Instant, language: string) {
   const REL = new Intl.RelativeTimeFormat(language, {

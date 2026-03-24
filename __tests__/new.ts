@@ -1,5 +1,5 @@
-import { Temporal } from '@js-temporal/polyfill';
 import React, { createContext, useContext } from 'react';
+import { Temporal } from 'temporal-polyfill';
 
 import {
   Endpoint,

@@ -44,7 +44,6 @@
     "@docusaurus/preset-classic": "^3.0.1",
     "@docusaurus/theme-live-codeblock": "^3.0.1",
     "@docusaurus/theme-mermaid": "^3.0.1",
-    "@js-temporal/polyfill": "^0.5.0",
     "@mdx-js/react": "^3.1.0",
     "@monaco-editor/react": "^4.8.0-rc.0",
     "@number-flow/react": "^0.6.0",
@@ -56,6 +55,7 @@
     "react-dom": "^19.0.0",
     "react-json-tree": "0.20.0",
     "react-live": "^4.0.0",
+    "temporal-polyfill": "^0.3.0",
     "typescript": "6.0.2",
     "uuid": "^13.0.0"
   },

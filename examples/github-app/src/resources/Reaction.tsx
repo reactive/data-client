@@ -1,5 +1,5 @@
 import { HeartOutlined } from '@ant-design/icons';
-import { Temporal } from '@js-temporal/polyfill';
+import { Temporal } from 'temporal-polyfill';
 
 import { githubResource, GithubEntity } from './Base';
 import PreviewEndpoint from './PreviewEndpoint';

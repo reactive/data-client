@@ -46,7 +46,7 @@ We have two nested [entity](./Entity.md) types within our `article`: `users` and
 
 ```typescript
 import { schema, Entity } from '@data-client/endpoint';
-import { Temporal } from '@js-temporal/polyfill';
+import { Temporal } from 'temporal-polyfill';
 
 class User extends Entity {
   id = '';
@@ -79,7 +79,7 @@ class Article extends Entity {
 
 ```javascript
 import { schema, Entity } from '@data-client/endpoint';
-import { Temporal } from '@js-temporal/polyfill';
+import { Temporal } from 'temporal-polyfill';
 
 class User extends Entity { }
 

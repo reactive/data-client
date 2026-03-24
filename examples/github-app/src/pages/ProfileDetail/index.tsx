@@ -1,8 +1,8 @@
 import { useNavigator } from '@anansi/core';
 import { useSuspense } from '@data-client/react';
-import { Intl } from '@js-temporal/polyfill';
 import { Card, Layout } from 'antd';
 import Markdown from 'react-markdown';
+import { Intl } from 'temporal-polyfill';
 
 import { UserResource } from '@/resources/User';
 

@@ -7,8 +7,8 @@ import {
   ForkOutlined,
 } from '@ant-design/icons';
 import { schema } from '@data-client/rest';
-import { Temporal } from '@js-temporal/polyfill';
 import type { JSX } from 'react';
+import { Temporal } from 'temporal-polyfill';
 
 import { githubResource, GithubEntity } from './Base';
 import { Issue } from './Issue';

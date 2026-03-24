@@ -88,7 +88,7 @@ We have two [nested](https://dataclient.io/rest/guides/relational-data) [entity]
 
 ```js
 import { schema, Entity } from '@data-client/endpoint';
-import { Temporal } from '@js-temporal/polyfill';
+import { Temporal } from 'temporal-polyfill';
 
 // Define a users schema
 class User extends Entity {}

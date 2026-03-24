@@ -16,7 +16,6 @@ import {
 } from '@data-client/endpoint';
 import { normalize } from '@data-client/normalizr';
 import { jest } from '@jest/globals';
-import { Temporal } from '@js-temporal/polyfill';
 import { render } from '@testing-library/react';
 import {
   CoolerArticleResource,
@@ -37,6 +36,7 @@ import {
 import { createEntityMeta } from '__tests__/utils';
 import nock from 'nock';
 import React, { Suspense } from 'react';
+import { Temporal } from 'temporal-polyfill';
 
 // relative imports to avoid circular dependency in tsconfig references
 import {
