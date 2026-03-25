@@ -37,7 +37,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # hasChangesets is 'false' after the Version Packages PR is merged (no
+      # changeset files remain), which is the same run where publish executes.
+      # We can't use `published == 'true'` because the custom yarn publish
+      # command isn't detectable by changesets/action.
       - name: Create GitHub Releases
+        if: steps.changesets.outputs.hasChangesets == 'false'
         run: node scripts/create-github-releases.mjs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
