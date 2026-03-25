@@ -294,6 +294,58 @@ class GithubEndpoint<
 }
 ```
 
+## File download {#file-download}
+
+For endpoints that return binary data (files, images, PDFs), override
+[parseResponse](../api/RestEndpoint.md#parseResponse) to call
+[response.blob()](https://developer.mozilla.org/en-US/docs/Web/API/Response/blob) instead of the
+default JSON/text parsing. Set `schema: undefined` since binary data isn't normalizable, and
+`dataExpiryLength: 0` to avoid caching large blobs in memory.
+
+```typescript title="downloadFile.ts"
+import { RestEndpoint } from '@data-client/rest';
+
+const downloadFile = new RestEndpoint({
+  path: '/files/:id/download',
+  schema: undefined,
+  dataExpiryLength: 0,
+  async parseResponse(response) {
+    const blob = await response.blob();
+    const disposition = response.headers.get('Content-Disposition');
+    const filename =
+      disposition?.match(/filename="?(.+?)"?$/)?.[1] ?? 'download';
+    return { blob, filename };
+  },
+  process(value): { blob: Blob; filename: string } {
+    return value;
+  },
+});
+```
+
+```tsx title="DownloadButton.tsx"
+import { useController } from '@data-client/react';
+import { downloadFile } from './downloadFile';
+
+function DownloadButton({ id }: { id: string }) {
+  const ctrl = useController();
+
+  const handleDownload = async () => {
+    const { blob, filename } = await ctrl.fetch(downloadFile, { id });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return <button onClick={handleDownload}>Download</button>;
+}
+```
+
+For `ArrayBuffer` responses (useful for processing binary data in-memory), use
+`response.arrayBuffer()` the same way.
+
 ## Name calling
 
 Sometimes an API might change a key name, or choose one you don't like. Of course

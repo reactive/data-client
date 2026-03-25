@@ -1,6 +1,6 @@
 ---
 name: data-client-rest
-description: Define REST APIs with @data-client/rest - resource(), RestEndpoint, CRUD, GET/POST/PUT/DELETE, HTTP fetch, normalize, cache, urlPrefix, path parameters
+description: Define REST APIs with @data-client/rest - resource(), RestEndpoint, CRUD, GET/POST/PUT/DELETE, HTTP fetch, normalize, cache, urlPrefix, path parameters, file download, blob, parseResponse
 license: Apache 2.0
 ---
 # Guide: Using `@data-client/rest` for Resource Modeling
@@ -133,6 +133,30 @@ getOptimisticResponse(snap, { id }) {
 - **Perform Fetch:** `fetchResponse()` → `parseResponse()` → `process()`
   - **url(urlParams):** `urlPrefix` + `path` + (`searchParams` → `searchToString()`)
   - **getRequestInit(body):** `getHeaders()` + `method` + `signal`
+
+#### Non-JSON responses (file download, blob, arrayBuffer)
+
+Override `parseResponse()` for binary/non-JSON responses. Set `schema: undefined` (not normalizable) and `dataExpiryLength: 0` to avoid caching large blobs.
+
+```ts
+const downloadFile = new RestEndpoint({
+  path: '/files/:id/download',
+  schema: undefined,
+  dataExpiryLength: 0,
+  async parseResponse(response) {
+    const blob = await response.blob();
+    const disposition = response.headers.get('Content-Disposition');
+    const filename =
+      disposition?.match(/filename="?(.+?)"?$/)?.[1] ?? 'download';
+    return { blob, filename };
+  },
+  process(value): { blob: Blob; filename: string } {
+    return value;
+  },
+});
+```
+
+For complete usage with browser download trigger, see [network-transform: file download](references/network-transform.md#file-download).
 
 ---
 

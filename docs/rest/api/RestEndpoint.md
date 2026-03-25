@@ -783,7 +783,49 @@ on ['content-type' header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Hea
 
 If `status` is 204, resolves as `null`.
 
-Override this to handle other response types like [arrayBuffer](https://developer.mozilla.org/en-US/docs/Web/API/Response/arrayBuffer)
+Override this to handle other response types like [blob](https://developer.mozilla.org/en-US/docs/Web/API/Response/blob) or [arrayBuffer](https://developer.mozilla.org/en-US/docs/Web/API/Response/arrayBuffer).
+
+#### File downloads {#file-download}
+
+For binary responses like file downloads, override `parseResponse` to use `response.blob()`.
+Set `schema: undefined` since binary data is not normalizable. Use `dataExpiryLength: 0` to
+avoid caching large blobs in memory.
+
+```ts
+const downloadFile = new RestEndpoint({
+  path: '/files/:id/download',
+  schema: undefined,
+  dataExpiryLength: 0,
+  parseResponse(response) {
+    return response.blob();
+  },
+  process(blob): { blob: Blob; filename: string } {
+    return { blob, filename: 'download' };
+  },
+});
+```
+
+To extract the filename from the `Content-Disposition` header, override both `parseResponse` and `process`:
+
+```ts
+const downloadFile = new RestEndpoint({
+  path: '/files/:id/download',
+  schema: undefined,
+  dataExpiryLength: 0,
+  async parseResponse(response) {
+    const blob = await response.blob();
+    const disposition = response.headers.get('Content-Disposition');
+    const filename =
+      disposition?.match(/filename="?(.+?)"?$/)?.[1] ?? 'download';
+    return { blob, filename };
+  },
+  process(value): { blob: Blob; filename: string } {
+    return value;
+  },
+});
+```
+
+See [file download guide](../guides/network-transform.md#file-download) for complete usage with browser download trigger.
 
 ### process(value, ...args): any {#process}
 
