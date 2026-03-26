@@ -1,5 +1,8 @@
 ---
 '@data-client/normalizr': patch
+'@data-client/core': patch
+'@data-client/react': patch
+'@data-client/vue': patch
 ---
 
 Fix stack overflow during denormalization of large bidirectional entity graphs.
