@@ -1097,6 +1097,41 @@ describe(`${Entity.name} denormalization`, () => {
       consoleSpy.mockRestore();
     });
 
+    test('depth-limited entity with inline object input', () => {
+      const entities = buildChain(200);
+      // bldg-63's departments are processed when depth=128, hitting depthLimitEntity.
+      // Use inline object instead of string pk to exercise the object-input branch.
+      (entities.Building as any)['bldg-63'].departments = [
+        { id: 'dept-64', name: 'Inline Department 64', buildings: [] },
+      ];
+
+      const consoleSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const result = plainDenormalize(Department, 'dept-0', entities);
+      expect(result).not.toEqual(expect.any(Symbol));
+      if (typeof result === 'symbol') return;
+      expect(result).toBeDefined();
+      if (!result) return;
+
+      // walk to the depth-limited inline entity
+      let node: any = result;
+      for (let i = 0; i < 63; i++) {
+        node = node.buildings[0].departments[0];
+      }
+      // node is dept-63, its building is bldg-63
+      expect(node.id).toBe('dept-63');
+      const depthLimitedBldg = node.buildings[0];
+      expect(depthLimitedBldg.id).toBe('bldg-63');
+      // dept-64 was provided as an inline object, so depthLimitEntity used it directly
+      const inlineDept = depthLimitedBldg.departments[0];
+      expect(inlineDept).toBeInstanceOf(Department);
+      expect(inlineDept.id).toBe('dept-64');
+
+      consoleSpy.mockRestore();
+    });
+
     test('depth limit with MemoCache does not cache truncated results', () => {
       const entities = buildChain(1500);
       const consoleSpy = jest

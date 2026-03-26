@@ -130,6 +130,7 @@ const getUnvisit = (
     } else {
       if (isEntity(schema)) {
         if (depth >= MAX_ENTITY_DEPTH) {
+          /* istanbul ignore if */
           if (process.env.NODE_ENV !== 'production' && !depthLimitHit) {
             depthLimitHit = true;
             console.error(
