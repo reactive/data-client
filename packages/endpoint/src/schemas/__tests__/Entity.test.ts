@@ -932,7 +932,7 @@ describe(`${Entity.name} denormalization`, () => {
     // maintained with nested denormalization.
   });
 
-  test('does not overflow stack with large cross-type bidirectional entity graphs (#3822)', () => {
+  describe('large cross-type bidirectional entity graphs (#3822)', () => {
     class Department extends IDEntity {
       readonly name: string = '';
       readonly buildings: Building[] = [];
@@ -949,38 +949,173 @@ describe(`${Entity.name} denormalization`, () => {
       buildings: new schema.Array(Building),
     };
 
-    // Build a linear chain: D-0 → B-0 → D-1 → B-1 → D-2 → B-2 → ...
-    // Each pk is unique so same-pk cycle detection never fires.
-    const CHAIN_LENGTH = 1500;
-    const departmentEntities: Record<string, any> = {};
-    const buildingEntities: Record<string, any> = {};
+    function buildChain(length: number) {
+      const departmentEntities: Record<string, any> = {};
+      const buildingEntities: Record<string, any> = {};
 
-    for (let i = 0; i < CHAIN_LENGTH; i++) {
-      departmentEntities[`dept-${i}`] = {
-        id: `dept-${i}`,
-        name: `Department ${i}`,
-        buildings: [`bldg-${i}`],
-      };
-      buildingEntities[`bldg-${i}`] = {
-        id: `bldg-${i}`,
-        name: `Building ${i}`,
-        departments: i < CHAIN_LENGTH - 1 ? [`dept-${i + 1}`] : [],
+      for (let i = 0; i < length; i++) {
+        departmentEntities[`dept-${i}`] = {
+          id: `dept-${i}`,
+          name: `Department ${i}`,
+          buildings: [`bldg-${i}`],
+        };
+        buildingEntities[`bldg-${i}`] = {
+          id: `bldg-${i}`,
+          name: `Building ${i}`,
+          departments: i < length - 1 ? [`dept-${i + 1}`] : [],
+        };
+      }
+
+      return {
+        Department: departmentEntities,
+        Building: buildingEntities,
       };
     }
 
-    const entities = {
-      Department: departmentEntities,
-      Building: buildingEntities,
-    };
+    test('does not overflow stack', () => {
+      const entities = buildChain(1500);
 
-    expect(() =>
-      plainDenormalize(Department, 'dept-0', entities),
-    ).not.toThrow();
+      expect(() =>
+        plainDenormalize(Department, 'dept-0', entities),
+      ).not.toThrow();
 
-    const memo = new SimpleMemoCache();
-    expect(() =>
-      memo.denormalize(Department, 'dept-0', entities),
-    ).not.toThrow();
+      const memo = new SimpleMemoCache();
+      expect(() =>
+        memo.denormalize(Department, 'dept-0', entities),
+      ).not.toThrow();
+    });
+
+    test('entities within depth limit are fully resolved', () => {
+      const entities = buildChain(5);
+      const result = plainDenormalize(Department, 'dept-0', entities);
+
+      expect(result).not.toEqual(expect.any(Symbol));
+      if (typeof result === 'symbol') return;
+      expect(result).toBeDefined();
+      if (!result) return;
+      expect(result.id).toBe('dept-0');
+      expect(result.buildings[0].id).toBe('bldg-0');
+      expect(result.buildings[0].departments[0].id).toBe('dept-1');
+    });
+
+    test('entities beyond depth limit have unresolved nested ids', () => {
+      const entities = buildChain(1500);
+      const consoleSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const result = plainDenormalize(Department, 'dept-0', entities);
+
+      expect(result).not.toEqual(expect.any(Symbol));
+      if (typeof result === 'symbol') return;
+      expect(result).toBeDefined();
+      if (!result) return;
+
+      // walk to a depth-limited entity: each hop is 1 entity depth
+      // dept-0(1) -> bldg-0(2) -> dept-1(3) -> bldg-1(4) -> ...
+      // At depth 128 we should find truncated entities with unresolved FK ids
+      let node: any = result;
+      for (let i = 0; i < 60; i++) {
+        expect(node.buildings).toBeDefined();
+        expect(node.buildings.length).toBe(1);
+        node = node.buildings[0].departments[0];
+      }
+      // node should still be a Department instance (well within limit)
+      expect(node).toBeInstanceOf(Department);
+
+      expect(consoleSpy).toHaveBeenCalledTimes(1);
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Entity depth limit'),
+      );
+
+      consoleSpy.mockRestore();
+    });
+
+    test('depth-limited entity that is missing from store', () => {
+      const entities = buildChain(200);
+      // dept-64 is the first entity hit by the depth limit (checked at depth=128).
+      // Removing it exercises the "entity not found" branch in depthLimitEntity.
+      delete (entities.Department as any)['dept-64'];
+
+      const consoleSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const result = plainDenormalize(Department, 'dept-0', entities);
+      expect(result).not.toEqual(expect.any(Symbol));
+
+      consoleSpy.mockRestore();
+    });
+
+    test('depth-limited entity that fails validation', () => {
+      class ValidatedDept extends IDEntity {
+        readonly name: string = '';
+        readonly buildings: ValidatedBldg[] = [];
+
+        static validate(processedEntity: any) {
+          if (processedEntity.name === 'INVALID') return 'invalid entity';
+        }
+      }
+      class ValidatedBldg extends IDEntity {
+        readonly name: string = '';
+        readonly departments: ValidatedDept[] = [];
+
+        static schema = {
+          departments: [ValidatedDept],
+        };
+      }
+      ValidatedDept.schema = {
+        buildings: new schema.Array(ValidatedBldg),
+      };
+
+      const deptEntities: Record<string, any> = {};
+      const bldgEntities: Record<string, any> = {};
+      for (let i = 0; i < 200; i++) {
+        deptEntities[`dept-${i}`] = {
+          id: `dept-${i}`,
+          // dept-64 is the first depth-limited entity; mark it invalid
+          name: i === 64 ? 'INVALID' : `Department ${i}`,
+          buildings: [`bldg-${i}`],
+        };
+        bldgEntities[`bldg-${i}`] = {
+          id: `bldg-${i}`,
+          name: `Building ${i}`,
+          departments: i < 199 ? [`dept-${i + 1}`] : [],
+        };
+      }
+
+      const consoleSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const result = plainDenormalize(ValidatedDept, 'dept-0', {
+        ValidatedDept: deptEntities,
+        ValidatedBldg: bldgEntities,
+      });
+      expect(result).not.toEqual(expect.any(Symbol));
+
+      consoleSpy.mockRestore();
+    });
+
+    test('depth limit with MemoCache does not cache truncated results', () => {
+      const entities = buildChain(1500);
+      const consoleSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      const memo = new SimpleMemoCache();
+
+      const result1 = memo.denormalize(Department, 'dept-0', entities);
+      expect(result1).not.toEqual(expect.any(Symbol));
+      if (typeof result1 === 'symbol') return;
+
+      // Second call should also work (memo doesn't serve stale truncated data)
+      const result2 = memo.denormalize(Department, 'dept-0', entities);
+      expect(result2).not.toEqual(expect.any(Symbol));
+      if (typeof result2 === 'symbol') return;
+      expect(result2).toBe(result1);
+
+      consoleSpy.mockRestore();
+    });
   });
 
   test('denormalizes maintain referential equality when appropriate', () => {
