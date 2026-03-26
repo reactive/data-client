@@ -17,6 +17,8 @@ import {
   ProjectWithBuildTypesDescription,
   ProjectSchemaMixin,
   User,
+  Department,
+  buildBidirectionalChain,
 } from './schemas.js';
 import userData from './user.json' with { type: 'json' };
 
@@ -145,6 +147,18 @@ export default function addNormlizrSuite(suite, filter) {
     memo.endpoints = new WeakDependencyMap();
     memo.denormalize(ProjectSchema, result, entities);
     memo.denormalize(User, 'gnoff', githubState.entities);
+  });
+
+  const chain50 = buildBidirectionalChain(50);
+  add('denormalize bidirectional 50', () => {
+    return new MemoCache().denormalize(
+      Department,
+      chain50.result,
+      chain50.entities,
+    );
+  });
+  add('denormalize bidirectional 50 donotcache', () => {
+    return denormalize(Department, chain50.result, chain50.entities);
   });
 
   return suite.on('complete', function () {

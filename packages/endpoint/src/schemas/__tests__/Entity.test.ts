@@ -932,6 +932,57 @@ describe(`${Entity.name} denormalization`, () => {
     // maintained with nested denormalization.
   });
 
+  test('does not overflow stack with large cross-type bidirectional entity graphs (#3822)', () => {
+    class Department extends IDEntity {
+      readonly name: string = '';
+      readonly buildings: Building[] = [];
+    }
+    class Building extends IDEntity {
+      readonly name: string = '';
+      readonly departments: Department[] = [];
+
+      static schema = {
+        departments: [Department],
+      };
+    }
+    Department.schema = {
+      buildings: new schema.Array(Building),
+    };
+
+    // Build a linear chain: D-0 → B-0 → D-1 → B-1 → D-2 → B-2 → ...
+    // Each pk is unique so same-pk cycle detection never fires.
+    const CHAIN_LENGTH = 1500;
+    const departmentEntities: Record<string, any> = {};
+    const buildingEntities: Record<string, any> = {};
+
+    for (let i = 0; i < CHAIN_LENGTH; i++) {
+      departmentEntities[`dept-${i}`] = {
+        id: `dept-${i}`,
+        name: `Department ${i}`,
+        buildings: [`bldg-${i}`],
+      };
+      buildingEntities[`bldg-${i}`] = {
+        id: `bldg-${i}`,
+        name: `Building ${i}`,
+        departments: i < CHAIN_LENGTH - 1 ? [`dept-${i + 1}`] : [],
+      };
+    }
+
+    const entities = {
+      Department: departmentEntities,
+      Building: buildingEntities,
+    };
+
+    expect(() =>
+      plainDenormalize(Department, 'dept-0', entities),
+    ).not.toThrow();
+
+    const memo = new SimpleMemoCache();
+    expect(() =>
+      memo.denormalize(Department, 'dept-0', entities),
+    ).not.toThrow();
+  });
+
   test('denormalizes maintain referential equality when appropriate', () => {
     const entities = {
       Report: {

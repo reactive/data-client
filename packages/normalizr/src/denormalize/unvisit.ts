@@ -97,11 +97,15 @@ function noCacheGetEntity(
   return localCacheKey.get('');
 }
 
+const MAX_ENTITY_DEPTH = 128;
+
 const getUnvisit = (
   getEntity: DenormGetEntity,
   cache: Cache,
   args: readonly any[],
 ) => {
+  let depth = 0;
+  let depthLimitHit = false;
   // we don't inline this as making this function too big inhibits v8's JIT
   const unvisitEntity = getUnvisitEntity(getEntity, cache, args, unvisit);
   function unvisit(schema: any, input: any): any {
@@ -125,7 +129,21 @@ const getUnvisit = (
       }
     } else {
       if (isEntity(schema)) {
-        return unvisitEntity(schema, input);
+        if (depth >= MAX_ENTITY_DEPTH) {
+          if (process.env.NODE_ENV !== 'production' && !depthLimitHit) {
+            depthLimitHit = true;
+            console.error(
+              `Entity depth limit of ${MAX_ENTITY_DEPTH} reached for "${schema.key}" entity. ` +
+                `This usually means your schema has very deep or wide bidirectional relationships. ` +
+                `Nested entities beyond this depth are returned with unresolved ids.`,
+            );
+          }
+          return depthLimitEntity(getEntity, schema, input);
+        }
+        depth++;
+        const result = unvisitEntity(schema, input);
+        depth--;
+        return result;
       }
 
       return schema.denormalize(input, args, unvisit);
@@ -142,3 +160,17 @@ const getUnvisit = (
   };
 };
 export default getUnvisit;
+
+/** At depth limit: return entity without resolving nested schema fields */
+function depthLimitEntity(
+  getEntity: DenormGetEntity,
+  schema: EntityInterface,
+  input: any,
+): object | undefined | typeof INVALID {
+  const entity =
+    typeof input !== 'object' ?
+      getEntity({ key: schema.key, pk: input })
+    : input;
+  if (typeof entity !== 'object' || entity === null) return entity as any;
+  return schema.createIfValid(entity) ?? INVALID;
+}

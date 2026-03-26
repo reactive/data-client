@@ -107,6 +107,56 @@ export const getSortedProjects = new Query(
   },
 );
 
+// Degenerate bidirectional chain for #3822 stack overflow testing
+export class Department extends Entity {
+  id = '';
+  name = '';
+  buildings = [];
+
+  static key = 'Department';
+  pk() {
+    return this.id;
+  }
+}
+export class Building extends Entity {
+  id = '';
+  name = '';
+  departments = [];
+
+  static schema = {
+    departments: [Department],
+  };
+
+  static key = 'Building';
+  pk() {
+    return this.id;
+  }
+}
+Department.schema = {
+  buildings: [Building],
+};
+
+export function buildBidirectionalChain(length) {
+  const departmentEntities = {};
+  const buildingEntities = {};
+  for (let i = 0; i < length; i++) {
+    departmentEntities[`dept-${i}`] = {
+      id: `dept-${i}`,
+      name: `Department ${i}`,
+      buildings: [`bldg-${i}`],
+    };
+    buildingEntities[`bldg-${i}`] = {
+      id: `bldg-${i}`,
+      name: `Building ${i}`,
+      departments: i < length - 1 ? [`dept-${i + 1}`] : [],
+    };
+  }
+  return {
+    entities: { Department: departmentEntities, Building: buildingEntities },
+    result: 'dept-0',
+  };
+}
+
 class BuildTypeDescriptionSimpleMerge extends Entity {
   static merge(existing, incoming) {
     return incoming;
