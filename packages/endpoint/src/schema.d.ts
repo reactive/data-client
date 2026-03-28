@@ -26,6 +26,7 @@ import {
 } from './schemas/EntityMixin.js';
 import { default as Invalidate } from './schemas/Invalidate.js';
 import { default as Query } from './schemas/Query.js';
+import { default as Lazy } from './schemas/Lazy.js';
 import type {
   CollectionConstructor,
   DefaultArgs,
@@ -34,7 +35,7 @@ import type {
   UnionResult,
 } from './schemaTypes.js';
 
-export { EntityMap, Invalidate, Query, EntityMixin, Entity };
+export { EntityMap, Invalidate, Query, Lazy, EntityMixin, Entity };
 
 export type { SchemaClass };
 

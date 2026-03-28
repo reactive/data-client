@@ -18,6 +18,7 @@ export {
   Query,
   Values,
   All,
+  Lazy,
   unshift,
 } from './schema.js';
 // Without this we get 'cannot be named without a reference to' for resource()....why is this?

@@ -11,3 +11,4 @@ export {
   default as Entity,
 } from './schemas/EntityMixin.js';
 export { default as Query } from './schemas/Query.js';
+export { default as Lazy } from './schemas/Lazy.js';
