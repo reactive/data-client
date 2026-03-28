@@ -1,3 +1,5 @@
+// eslint-env jest
+/// <reference types="jest" />
 import { normalize, MemoCache } from '@data-client/normalizr';
 import { denormalize as plainDenormalize } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
@@ -747,9 +749,10 @@ describe('Lazy schema', () => {
         },
         [],
       );
-      expect(
-        result.entities.ValuesDepartment['dept-1'].buildingMap,
-      ).toEqual({ north: 'bldg-1', south: 'bldg-2' });
+      expect(result.entities.ValuesDepartment['dept-1'].buildingMap).toEqual({
+        north: 'bldg-1',
+        south: 'bldg-2',
+      });
     });
 
     test('denormalize keeps Lazy(schema.Values) as raw IDs', () => {
