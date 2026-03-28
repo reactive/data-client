@@ -27,7 +27,7 @@ class Manager extends IDEntity {
 class Department extends IDEntity {
   readonly name: string = '';
   readonly buildings: string[] = [];
-  readonly manager = Manager.fromJS();
+  readonly manager: Manager = {} as any;
 
   static schema = {
     buildings: new schema.Lazy([Building]),
@@ -538,10 +538,10 @@ describe('Lazy schema', () => {
       readonly name: string = '';
       readonly buildings: string[] = [];
     }
-    BidirDepartment.schema = {
+    (BidirDepartment as any).schema = {
       buildings: new schema.Lazy([BidirBuilding]),
     };
-    BidirBuilding.schema = {
+    (BidirBuilding as any).schema = {
       departments: new schema.Lazy([BidirDepartment]),
     };
 
@@ -592,10 +592,10 @@ describe('Lazy schema', () => {
       const memo = new MemoCache();
 
       const deptBuildingsQuery = (
-        BidirDepartment.schema.buildings as schema.Lazy<any>
+        (BidirDepartment as any).schema.buildings as schema.Lazy<any>
       ).query;
       const bldgDeptsQuery = (
-        BidirBuilding.schema.departments as schema.Lazy<any>
+        (BidirBuilding as any).schema.departments as schema.Lazy<any>
       ).query;
 
       // Resolve dept-0's buildings
@@ -615,6 +615,167 @@ describe('Lazy schema', () => {
       expect(depts[0]).toBeInstanceOf(BidirDepartment);
       expect(depts[0].id).toBe('dept-1');
       expect(depts[0].buildings).toEqual(['bldg-1']);
+    });
+  });
+
+  describe('explicit schema.Array inner schema', () => {
+    class ArrayDepartment extends IDEntity {
+      readonly name: string = '';
+      readonly buildings: string[] = [];
+
+      static schema = {
+        buildings: new schema.Lazy(new schema.Array(Building)),
+      };
+    }
+
+    const state = {
+      entities: {
+        ArrayDepartment: {
+          'dept-1': {
+            id: 'dept-1',
+            name: 'Engineering',
+            buildings: ['bldg-1', 'bldg-2'],
+          },
+        },
+        Building: {
+          'bldg-1': { id: 'bldg-1', name: 'Building A', floors: 3 },
+          'bldg-2': { id: 'bldg-2', name: 'Building B', floors: 5 },
+        },
+      },
+      indexes: {},
+    };
+
+    test('normalize stores entities correctly through Lazy(schema.Array)', () => {
+      const result = normalize(
+        ArrayDepartment,
+        {
+          id: 'dept-1',
+          name: 'Engineering',
+          buildings: [
+            { id: 'bldg-1', name: 'Building A', floors: 3 },
+            { id: 'bldg-2', name: 'Building B', floors: 5 },
+          ],
+        },
+        [],
+      );
+      expect(result.entities.ArrayDepartment['dept-1'].buildings).toEqual([
+        'bldg-1',
+        'bldg-2',
+      ]);
+      expect(result.entities.Building['bldg-1']).toEqual({
+        id: 'bldg-1',
+        name: 'Building A',
+        floors: 3,
+      });
+    });
+
+    test('denormalize keeps Lazy(schema.Array) as raw IDs', () => {
+      const dept: any = plainDenormalize(
+        ArrayDepartment,
+        'dept-1',
+        state.entities,
+      );
+      expect(dept.buildings).toEqual(['bldg-1', 'bldg-2']);
+      expect(typeof dept.buildings[0]).toBe('string');
+    });
+
+    test('LazyQuery resolves explicit schema.Array into Building instances', () => {
+      const memo = new MemoCache();
+      const result = memo.query(
+        ArrayDepartment.schema.buildings.query,
+        [['bldg-1', 'bldg-2']],
+        state,
+      );
+      const buildings = result.data as any[];
+      expect(buildings).toHaveLength(2);
+      expect(buildings[0]).toBeInstanceOf(Building);
+      expect(buildings[0].id).toBe('bldg-1');
+      expect(buildings[0].name).toBe('Building A');
+      expect(buildings[1]).toBeInstanceOf(Building);
+      expect(buildings[1].id).toBe('bldg-2');
+      expect(buildings[1].name).toBe('Building B');
+    });
+
+    test('LazyQuery with empty array resolves to empty for schema.Array', () => {
+      const memo = new MemoCache();
+      const result = memo.query(
+        ArrayDepartment.schema.buildings.query,
+        [[]],
+        state,
+      );
+      expect(result.data).toEqual([]);
+    });
+  });
+
+  describe('explicit schema.Values inner schema', () => {
+    class ValuesDepartment extends IDEntity {
+      readonly name: string = '';
+      readonly buildingMap: Record<string, string> = {};
+
+      static schema = {
+        buildingMap: new schema.Lazy(new schema.Values(Building)),
+      };
+    }
+
+    const state = {
+      entities: {
+        ValuesDepartment: {
+          'dept-1': {
+            id: 'dept-1',
+            name: 'Engineering',
+            buildingMap: { north: 'bldg-1', south: 'bldg-2' },
+          },
+        },
+        Building: {
+          'bldg-1': { id: 'bldg-1', name: 'Building A', floors: 3 },
+          'bldg-2': { id: 'bldg-2', name: 'Building B', floors: 5 },
+        },
+      },
+      indexes: {},
+    };
+
+    test('normalize stores entities correctly through Lazy(schema.Values)', () => {
+      const result = normalize(
+        ValuesDepartment,
+        {
+          id: 'dept-1',
+          name: 'Engineering',
+          buildingMap: {
+            north: { id: 'bldg-1', name: 'Building A', floors: 3 },
+            south: { id: 'bldg-2', name: 'Building B', floors: 5 },
+          },
+        },
+        [],
+      );
+      expect(
+        result.entities.ValuesDepartment['dept-1'].buildingMap,
+      ).toEqual({ north: 'bldg-1', south: 'bldg-2' });
+    });
+
+    test('denormalize keeps Lazy(schema.Values) as raw IDs', () => {
+      const dept: any = plainDenormalize(
+        ValuesDepartment,
+        'dept-1',
+        state.entities,
+      );
+      expect(dept.buildingMap).toEqual({ north: 'bldg-1', south: 'bldg-2' });
+      expect(typeof dept.buildingMap.north).toBe('string');
+    });
+
+    test('LazyQuery resolves explicit schema.Values into Building instances', () => {
+      const memo = new MemoCache();
+      const result = memo.query(
+        ValuesDepartment.schema.buildingMap.query,
+        [{ north: 'bldg-1', south: 'bldg-2' }],
+        state,
+      );
+      const buildingMap = result.data as any;
+      expect(buildingMap.north).toBeInstanceOf(Building);
+      expect(buildingMap.north.id).toBe('bldg-1');
+      expect(buildingMap.north.name).toBe('Building A');
+      expect(buildingMap.south).toBeInstanceOf(Building);
+      expect(buildingMap.south.id).toBe('bldg-2');
+      expect(buildingMap.south.name).toBe('Building B');
     });
   });
 

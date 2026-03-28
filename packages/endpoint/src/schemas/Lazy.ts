@@ -105,7 +105,7 @@ export class LazyQuery<S extends Schema> implements SchemaSimple<
     delegate: { getEntity: any; getIndex: any },
   ): any {
     const schema = this.schema as any;
-    if (typeof schema.queryKey === 'function') {
+    if (typeof schema.queryKey === 'function' && schema.key) {
       return schema.queryKey(args, unvisit, delegate);
     }
     return args[0];
