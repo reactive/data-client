@@ -25,8 +25,8 @@ import {
   default as Entity,
 } from './schemas/EntityMixin.js';
 import { default as Invalidate } from './schemas/Invalidate.js';
-import { default as Query } from './schemas/Query.js';
 import { default as Lazy } from './schemas/Lazy.js';
+import { default as Query } from './schemas/Query.js';
 import type {
   CollectionConstructor,
   DefaultArgs,

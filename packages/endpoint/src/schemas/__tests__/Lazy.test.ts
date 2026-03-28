@@ -1,10 +1,9 @@
-import { normalize, MemoCache, INVALID } from '@data-client/normalizr';
+import { normalize, MemoCache } from '@data-client/normalizr';
 import { denormalize as plainDenormalize } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 
 import { SimpleMemoCache } from './denormalize';
 import { schema } from '../..';
-import Entity from '../Entity';
 
 let dateSpy: jest.Spied<any>;
 beforeAll(() => {
@@ -319,11 +318,7 @@ describe('Lazy schema', () => {
 
     test('empty IDs array resolves to empty array', () => {
       const memo = new MemoCache();
-      const result = memo.query(
-        Department.schema.buildings.query,
-        [[]],
-        state,
-      );
+      const result = memo.query(Department.schema.buildings.query, [[]], state);
       expect(result.data).toEqual([]);
       expect(result.paths).toEqual([]);
     });
@@ -577,11 +572,7 @@ describe('Lazy schema', () => {
         plainDenormalize(BidirDepartment, 'dept-0', entities),
       ).not.toThrow();
 
-      const dept: any = plainDenormalize(
-        BidirDepartment,
-        'dept-0',
-        entities,
-      );
+      const dept: any = plainDenormalize(BidirDepartment, 'dept-0', entities);
       expect(dept.id).toBe('dept-0');
       expect(dept.name).toBe('Department 0');
       expect(dept.buildings).toEqual(['bldg-0']);
@@ -630,6 +621,7 @@ describe('Lazy schema', () => {
   describe('Lazy.queryKey returns undefined', () => {
     test('Lazy itself is not queryable', () => {
       const lazy = new schema.Lazy([Building]);
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       expect(lazy.queryKey([], () => {}, {} as any)).toBeUndefined();
     });
   });

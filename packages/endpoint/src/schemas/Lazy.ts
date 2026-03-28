@@ -1,5 +1,9 @@
 import type { Schema, SchemaSimple } from '../interface.js';
-import type { Denormalize, DenormalizeNullable, NormalizeNullable } from '../normal.js';
+import type {
+  Denormalize,
+  DenormalizeNullable,
+  NormalizeNullable,
+} from '../normal.js';
 
 /**
  * Skips eager denormalization of a relationship field.
@@ -8,9 +12,7 @@ import type { Denormalize, DenormalizeNullable, NormalizeNullable } from '../nor
  *
  * @see https://dataclient.io/rest/api/Lazy
  */
-export default class Lazy<S extends Schema>
-  implements SchemaSimple
-{
+export default class Lazy<S extends Schema> implements SchemaSimple {
   declare schema: S;
 
   /**
@@ -26,19 +28,19 @@ export default class Lazy<S extends Schema>
     key: any,
     args: any[],
     visit: (...args: any) => any,
-    delegate: any,
+    _delegate: any,
   ): any {
     return visit(this.schema, input, parent, key, args);
   }
 
-  denormalize(input: {}, args: readonly any[], unvisit: any): any {
+  denormalize(input: {}, _args: readonly any[], _unvisit: any): any {
     return input;
   }
 
   queryKey(
-    args: readonly any[],
-    unvisit: (...args: any) => any,
-    delegate: any,
+    _args: readonly any[],
+    _unvisit: (...args: any) => any,
+    _delegate: any,
   ): undefined {
     return undefined;
   }
@@ -68,9 +70,10 @@ export default class Lazy<S extends Schema>
  * queryKey delegates to inner schema's queryKey if available,
  * otherwise passes through args[0] (the raw normalized value).
  */
-export class LazyQuery<S extends Schema>
-  implements SchemaSimple<Denormalize<S>, readonly any[]>
-{
+export class LazyQuery<S extends Schema> implements SchemaSimple<
+  Denormalize<S>,
+  readonly any[]
+> {
   declare schema: S;
 
   constructor(schema: S) {
@@ -79,11 +82,11 @@ export class LazyQuery<S extends Schema>
 
   normalize(
     input: any,
-    parent: any,
-    key: any,
-    args: any[],
-    visit: (...args: any) => any,
-    delegate: any,
+    _parent: any,
+    _key: any,
+    _args: any[],
+    _visit: (...args: any) => any,
+    _delegate: any,
   ): any {
     return input;
   }
