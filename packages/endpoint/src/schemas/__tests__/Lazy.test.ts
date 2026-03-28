@@ -1,4 +1,4 @@
-import { normalize, MemoCache } from '@data-client/normalizr';
+import { normalize, MemoCache, INVALID } from '@data-client/normalizr';
 import { denormalize as plainDenormalize } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 
@@ -18,14 +18,21 @@ afterAll(() => {
 
 class Building extends IDEntity {
   readonly name: string = '';
+  readonly floors: number = 1;
+}
+
+class Manager extends IDEntity {
+  readonly name: string = '';
 }
 
 class Department extends IDEntity {
   readonly name: string = '';
   readonly buildings: string[] = [];
+  readonly manager = Manager.fromJS();
 
   static schema = {
     buildings: new schema.Lazy([Building]),
+    manager: Manager,
   };
 }
 
@@ -39,86 +46,164 @@ class SingleRefDepartment extends IDEntity {
 }
 
 describe('Lazy schema', () => {
-  const sampleData = {
-    id: 'dept-1',
-    name: 'Engineering',
-    buildings: [
-      { id: 'bldg-1', name: 'Building A' },
-      { id: 'bldg-2', name: 'Building B' },
-    ],
-  };
+  describe('normalize → denormalize round-trip', () => {
+    const apiResponse = {
+      id: 'dept-1',
+      name: 'Engineering',
+      manager: { id: 'mgr-1', name: 'Alice' },
+      buildings: [
+        { id: 'bldg-1', name: 'Building A', floors: 3 },
+        { id: 'bldg-2', name: 'Building B', floors: 5 },
+      ],
+    };
 
-  describe('normalization', () => {
-    test('normalizes inner entities through Lazy wrapper', () => {
-      const result = normalize(Department, sampleData, []);
+    test('normalize stores entities correctly through Lazy', () => {
+      const result = normalize(Department, apiResponse, []);
+
       expect(result.result).toBe('dept-1');
-      expect(result.entities.Department['dept-1']).toEqual({
-        id: 'dept-1',
-        name: 'Engineering',
-        buildings: ['bldg-1', 'bldg-2'],
-      });
+      expect(Object.keys(result.entities.Building)).toEqual([
+        'bldg-1',
+        'bldg-2',
+      ]);
       expect(result.entities.Building['bldg-1']).toEqual({
         id: 'bldg-1',
         name: 'Building A',
+        floors: 3,
       });
       expect(result.entities.Building['bldg-2']).toEqual({
         id: 'bldg-2',
         name: 'Building B',
+        floors: 5,
       });
+      expect(result.entities.Manager['mgr-1']).toEqual({
+        id: 'mgr-1',
+        name: 'Alice',
+      });
+      expect(result.entities.Department['dept-1'].buildings).toEqual([
+        'bldg-1',
+        'bldg-2',
+      ]);
+      expect(result.entities.Department['dept-1'].manager).toBe('mgr-1');
     });
 
-    test('normalizes single entity through Lazy wrapper', () => {
+    test('denormalize resolves non-Lazy fields but keeps Lazy fields as raw IDs', () => {
+      const { result, entities } = normalize(Department, apiResponse, []);
+      const dept: any = plainDenormalize(Department, result, entities);
+
+      expect(dept.id).toBe('dept-1');
+      expect(dept.name).toBe('Engineering');
+      // non-Lazy field Manager is fully resolved
+      expect(dept.manager).toBeInstanceOf(Manager);
+      expect(dept.manager.id).toBe('mgr-1');
+      expect(dept.manager.name).toBe('Alice');
+      // Lazy field buildings stays as raw PK array
+      expect(dept.buildings).toEqual(['bldg-1', 'bldg-2']);
+      expect(typeof dept.buildings[0]).toBe('string');
+      expect(typeof dept.buildings[1]).toBe('string');
+    });
+
+    test('full pipeline: normalize → parent denorm → LazyQuery resolves', () => {
+      const { result, entities } = normalize(Department, apiResponse, []);
+      const dept: any = plainDenormalize(Department, result, entities);
+
+      // Parent has raw IDs
+      expect(dept.buildings).toEqual(['bldg-1', 'bldg-2']);
+
+      // Use LazyQuery to resolve those IDs into full Building entities
+      const memo = new MemoCache();
+      const state = { entities, indexes: {} };
+      const queryResult = memo.query(
+        Department.schema.buildings.query,
+        [dept.buildings],
+        state,
+      );
+      const buildings = queryResult.data as any[];
+      expect(buildings).toHaveLength(2);
+      expect(buildings[0]).toBeInstanceOf(Building);
+      expect(buildings[0].id).toBe('bldg-1');
+      expect(buildings[0].name).toBe('Building A');
+      expect(buildings[0].floors).toBe(3);
+      expect(buildings[1]).toBeInstanceOf(Building);
+      expect(buildings[1].id).toBe('bldg-2');
+      expect(buildings[1].name).toBe('Building B');
+      expect(buildings[1].floors).toBe(5);
+    });
+  });
+
+  describe('normalization', () => {
+    test('single entity ref normalizes correctly through Lazy', () => {
       const result = normalize(
         SingleRefDepartment,
         {
           id: 'dept-1',
           name: 'Engineering',
-          mainBuilding: { id: 'bldg-1', name: 'HQ' },
+          mainBuilding: { id: 'bldg-1', name: 'HQ', floors: 10 },
         },
         [],
       );
-      expect(result.result).toBe('dept-1');
       expect(result.entities.SingleRefDepartment['dept-1'].mainBuilding).toBe(
         'bldg-1',
       );
       expect(result.entities.Building['bldg-1']).toEqual({
         id: 'bldg-1',
         name: 'HQ',
+        floors: 10,
       });
+    });
+
+    test('normalizing Lazy field with empty array', () => {
+      const result = normalize(
+        Department,
+        {
+          id: 'dept-empty',
+          name: 'Empty Dept',
+          manager: { id: 'mgr-1', name: 'Bob' },
+          buildings: [],
+        },
+        [],
+      );
+      expect(result.entities.Department['dept-empty'].buildings).toEqual([]);
+      expect(result.entities.Building).toBeUndefined();
     });
   });
 
-  describe('denormalization', () => {
+  describe('denormalization preserves raw IDs', () => {
     const entities = {
       Department: {
         'dept-1': {
           id: 'dept-1',
           name: 'Engineering',
           buildings: ['bldg-1', 'bldg-2'],
+          manager: 'mgr-1',
         },
       },
       Building: {
-        'bldg-1': { id: 'bldg-1', name: 'Building A' },
-        'bldg-2': { id: 'bldg-2', name: 'Building B' },
+        'bldg-1': { id: 'bldg-1', name: 'Building A', floors: 3 },
+        'bldg-2': { id: 'bldg-2', name: 'Building B', floors: 5 },
+      },
+      Manager: {
+        'mgr-1': { id: 'mgr-1', name: 'Alice' },
       },
     };
 
-    test('Lazy field leaves raw IDs unchanged (plainDenormalize)', () => {
+    test('plainDenormalize keeps Lazy array as string IDs', () => {
       const dept: any = plainDenormalize(Department, 'dept-1', entities);
-      expect(dept).toBeDefined();
       expect(dept.buildings).toEqual(['bldg-1', 'bldg-2']);
-      expect(typeof dept.buildings[0]).toBe('string');
+      expect(dept.buildings[0]).not.toBeInstanceOf(Building);
+      // non-Lazy Manager IS resolved
+      expect(dept.manager).toBeInstanceOf(Manager);
+      expect(dept.manager.name).toBe('Alice');
     });
 
-    test('Lazy field leaves raw IDs unchanged (SimpleMemoCache)', () => {
+    test('SimpleMemoCache keeps Lazy array as string IDs', () => {
       const memo = new SimpleMemoCache();
       const dept: any = memo.denormalize(Department, 'dept-1', entities);
-      expect(dept).toBeDefined();
+      expect(typeof dept).toBe('object');
       expect(dept.buildings).toEqual(['bldg-1', 'bldg-2']);
-      expect(typeof dept.buildings[0]).toBe('string');
+      expect(dept.manager).toBeInstanceOf(Manager);
     });
 
-    test('single entity Lazy field leaves raw PK', () => {
+    test('single entity Lazy field stays as string PK', () => {
       const singleEntities = {
         SingleRefDepartment: {
           'dept-1': {
@@ -128,7 +213,7 @@ describe('Lazy schema', () => {
           },
         },
         Building: {
-          'bldg-1': { id: 'bldg-1', name: 'HQ' },
+          'bldg-1': { id: 'bldg-1', name: 'HQ', floors: 10 },
         },
       };
       const dept: any = plainDenormalize(
@@ -137,25 +222,20 @@ describe('Lazy schema', () => {
         singleEntities,
       );
       expect(dept.mainBuilding).toBe('bldg-1');
+      expect(typeof dept.mainBuilding).toBe('string');
     });
 
-    test('parent denormalization does not track lazy entity dependencies', () => {
+    test('parent paths exclude lazy entity dependencies', () => {
       const memo = new MemoCache();
-      const result1 = memo.denormalize(
-        Department,
-        'dept-1',
-        entities,
-      );
-      expect(result1.data).toBeDefined();
-      const deptPaths = result1.paths;
-      const buildingPaths = deptPaths.filter(p => p.key === 'Building');
-      expect(buildingPaths).toHaveLength(0);
-      const deptPaths2 = deptPaths.filter(p => p.key === 'Department');
-      expect(deptPaths2).toHaveLength(1);
+      const result = memo.denormalize(Department, 'dept-1', entities);
+      expect(result.paths.some(p => p.key === 'Building')).toBe(false);
+      expect(result.paths.some(p => p.key === 'Department')).toBe(true);
+      // Manager IS in paths because it's a non-Lazy field
+      expect(result.paths.some(p => p.key === 'Manager')).toBe(true);
     });
   });
 
-  describe('.query (LazyQuery)', () => {
+  describe('LazyQuery resolution via .query', () => {
     const state = {
       entities: {
         Department: {
@@ -163,127 +243,317 @@ describe('Lazy schema', () => {
             id: 'dept-1',
             name: 'Engineering',
             buildings: ['bldg-1', 'bldg-2'],
+            manager: 'mgr-1',
           },
         },
         Building: {
-          'bldg-1': { id: 'bldg-1', name: 'Building A' },
-          'bldg-2': { id: 'bldg-2', name: 'Building B' },
+          'bldg-1': { id: 'bldg-1', name: 'Building A', floors: 3 },
+          'bldg-2': { id: 'bldg-2', name: 'Building B', floors: 5 },
+          'bldg-3': { id: 'bldg-3', name: 'Building C', floors: 2 },
+        },
+        Manager: {
+          'mgr-1': { id: 'mgr-1', name: 'Alice' },
+        },
+        SingleRefDepartment: {
+          'dept-1': {
+            id: 'dept-1',
+            name: 'Engineering',
+            mainBuilding: 'bldg-1',
+          },
         },
       },
       indexes: {},
     };
 
-    test('.query returns a LazyQuery instance', () => {
-      const lazyField = Department.schema.buildings;
-      expect(lazyField).toBeInstanceOf(schema.Lazy);
-      expect(lazyField.query).toBeDefined();
-      expect(lazyField.query.queryKey).toBeInstanceOf(Function);
-      expect(lazyField.query.denormalize).toBeInstanceOf(Function);
+    test('.query getter always returns the same instance', () => {
+      const lazy = Department.schema.buildings;
+      expect(lazy.query).toBe(lazy.query);
     });
 
-    test('.query getter returns same instance', () => {
-      const lazyField = Department.schema.buildings;
-      expect(lazyField.query).toBe(lazyField.query);
-    });
-
-    test('LazyQuery resolves array of IDs via MemoCache.query', () => {
-      const lazyQuery = Department.schema.buildings.query;
+    test('resolves array of IDs into Building instances', () => {
       const memo = new MemoCache();
-      const result = memo.query(lazyQuery, [['bldg-1', 'bldg-2']], state);
-      expect(result.data).toBeDefined();
-      if (typeof result.data === 'symbol') return;
+      const result = memo.query(
+        Department.schema.buildings.query,
+        [['bldg-1', 'bldg-2']],
+        state,
+      );
+      const buildings = result.data as any[];
+      expect(buildings).toHaveLength(2);
+      expect(buildings[0]).toBeInstanceOf(Building);
+      expect(buildings[0].id).toBe('bldg-1');
+      expect(buildings[0].name).toBe('Building A');
+      expect(buildings[0].floors).toBe(3);
+      expect(buildings[1]).toBeInstanceOf(Building);
+      expect(buildings[1].id).toBe('bldg-2');
+      expect(buildings[1].name).toBe('Building B');
+      expect(buildings[1].floors).toBe(5);
+    });
+
+    test('resolved entities track Building dependencies', () => {
+      const memo = new MemoCache();
+      const result = memo.query(
+        Department.schema.buildings.query,
+        [['bldg-1', 'bldg-2']],
+        state,
+      );
+      const buildingPaths = result.paths.filter(p => p.key === 'Building');
+      expect(buildingPaths).toHaveLength(2);
+      expect(buildingPaths.map(p => p.pk).sort()).toEqual(['bldg-1', 'bldg-2']);
+      // Department should NOT be in paths — we're only resolving buildings
+      expect(result.paths.some(p => p.key === 'Department')).toBe(false);
+    });
+
+    test('subset of IDs resolves only those buildings', () => {
+      const memo = new MemoCache();
+      const result = memo.query(
+        Department.schema.buildings.query,
+        [['bldg-3']],
+        state,
+      );
+      const buildings = result.data as any[];
+      expect(buildings).toHaveLength(1);
+      expect(buildings[0].id).toBe('bldg-3');
+      expect(buildings[0].name).toBe('Building C');
+      expect(buildings[0].floors).toBe(2);
+    });
+
+    test('empty IDs array resolves to empty array', () => {
+      const memo = new MemoCache();
+      const result = memo.query(
+        Department.schema.buildings.query,
+        [[]],
+        state,
+      );
+      expect(result.data).toEqual([]);
+      expect(result.paths).toEqual([]);
+    });
+
+    test('IDs referencing missing entities are filtered out', () => {
+      const memo = new MemoCache();
+      const result = memo.query(
+        Department.schema.buildings.query,
+        [['bldg-1', 'nonexistent', 'bldg-2']],
+        state,
+      );
       const buildings = result.data as any[];
       expect(buildings).toHaveLength(2);
       expect(buildings[0].id).toBe('bldg-1');
-      expect(buildings[0].name).toBe('Building A');
       expect(buildings[1].id).toBe('bldg-2');
-      expect(buildings[1].name).toBe('Building B');
     });
 
-    test('LazyQuery tracks Building entity dependencies', () => {
-      const lazyQuery = Department.schema.buildings.query;
+    test('Entity inner schema: delegates to Building.queryKey for single entity lookup', () => {
       const memo = new MemoCache();
-      const result = memo.query(lazyQuery, [['bldg-1', 'bldg-2']], state);
-      const buildingPaths = result.paths.filter(p => p.key === 'Building');
-      expect(buildingPaths.length).toBeGreaterThanOrEqual(2);
+      const result = memo.query(
+        SingleRefDepartment.schema.mainBuilding.query,
+        [{ id: 'bldg-1' }],
+        state,
+      );
+      const building = result.data as any;
+      expect(building).toBeInstanceOf(Building);
+      expect(building.id).toBe('bldg-1');
+      expect(building.name).toBe('Building A');
+      expect(building.floors).toBe(3);
     });
 
-    test('LazyQuery with Entity inner schema delegates queryKey', () => {
-      const lazyField = SingleRefDepartment.schema.mainBuilding;
-      const lazyQuery = lazyField.query;
+    test('Entity inner schema: missing entity returns undefined', () => {
       const memo = new MemoCache();
-      const result = memo.query(lazyQuery, [{ id: 'bldg-1' }], state);
-      expect(result.data).toBeDefined();
-      if (typeof result.data === 'symbol') return;
-      expect((result.data as any).id).toBe('bldg-1');
-      expect((result.data as any).name).toBe('Building A');
-    });
-
-    test('LazyQuery returns undefined for missing entity', () => {
-      const lazyQuery = SingleRefDepartment.schema.mainBuilding.query;
-      const memo = new MemoCache();
-      const result = memo.query(lazyQuery, [{ id: 'nonexistent' }], state);
+      const result = memo.query(
+        SingleRefDepartment.schema.mainBuilding.query,
+        [{ id: 'nonexistent' }],
+        state,
+      );
       expect(result.data).toBeUndefined();
-    });
-
-    test('LazyQuery returns empty array for empty IDs', () => {
-      const lazyQuery = Department.schema.buildings.query;
-      const memo = new MemoCache();
-      const result = memo.query(lazyQuery, [[]], state);
-      expect(result.data).toEqual([]);
     });
   });
 
   describe('memoization isolation', () => {
-    test('parent memo is stable when lazy entity changes', () => {
+    test('parent referential equality is preserved when lazy entity updates', () => {
       const entities1 = {
         Department: {
           'dept-1': {
             id: 'dept-1',
             name: 'Engineering',
             buildings: ['bldg-1'],
+            manager: 'mgr-1',
           },
         },
         Building: {
-          'bldg-1': { id: 'bldg-1', name: 'Building A' },
+          'bldg-1': { id: 'bldg-1', name: 'Building A', floors: 3 },
+        },
+        Manager: {
+          'mgr-1': { id: 'mgr-1', name: 'Alice' },
         },
       };
+      // Building entity changes, Department entity object stays the same ref
       const entities2 = {
         Department: entities1.Department,
         Building: {
-          'bldg-1': { id: 'bldg-1', name: 'Building A UPDATED' },
+          'bldg-1': { id: 'bldg-1', name: 'Building A RENAMED', floors: 4 },
         },
+        Manager: entities1.Manager,
       };
 
       const memo = new MemoCache();
       const result1 = memo.denormalize(Department, 'dept-1', entities1);
       const result2 = memo.denormalize(Department, 'dept-1', entities2);
+
+      // Parent entity denorm is referentially equal — Building change is invisible
       expect(result1.data).toBe(result2.data);
+      const dept: any = result1.data;
+      expect(dept.name).toBe('Engineering');
+      expect(dept.buildings).toEqual(['bldg-1']);
+      expect(dept.manager).toBeInstanceOf(Manager);
+    });
+
+    test('LazyQuery result DOES update when lazy entity changes', () => {
+      const lazyQuery = Department.schema.buildings.query;
+      const state1 = {
+        entities: {
+          Building: {
+            'bldg-1': { id: 'bldg-1', name: 'Original', floors: 3 },
+          },
+        },
+        indexes: {},
+      };
+      const state2 = {
+        entities: {
+          Building: {
+            'bldg-1': { id: 'bldg-1', name: 'Updated', floors: 4 },
+          },
+        },
+        indexes: {},
+      };
+
+      const memo = new MemoCache();
+      const r1 = memo.query(lazyQuery, [['bldg-1']], state1);
+      const r2 = memo.query(lazyQuery, [['bldg-1']], state2);
+
+      expect((r1.data as any)[0].name).toBe('Original');
+      expect((r1.data as any)[0].floors).toBe(3);
+      expect((r2.data as any)[0].name).toBe('Updated');
+      expect((r2.data as any)[0].floors).toBe(4);
+      expect(r1.data).not.toBe(r2.data);
+    });
+
+    test('LazyQuery result maintains referential equality on unchanged state', () => {
+      const lazyQuery = Department.schema.buildings.query;
+      const state = {
+        entities: {
+          Building: {
+            'bldg-1': { id: 'bldg-1', name: 'Building A', floors: 3 },
+          },
+        },
+        indexes: {},
+      };
+
+      const memo = new MemoCache();
+      const r1 = memo.query(lazyQuery, [['bldg-1']], state);
+      const r2 = memo.query(lazyQuery, [['bldg-1']], state);
+      expect(r1.data).toBe(r2.data);
     });
   });
 
-  describe('does not overflow stack with large bidirectional graphs', () => {
-    test('large chain with Lazy fields does not overflow', () => {
-      class LazyDepartment extends IDEntity {
-        readonly name: string = '';
-        readonly buildings: string[] = [];
-      }
-      class LazyBuilding extends IDEntity {
-        readonly name: string = '';
-        readonly departments: string[] = [];
-      }
-      LazyDepartment.schema = {
+  describe('nested Lazy fields', () => {
+    class Room extends IDEntity {
+      readonly label: string = '';
+    }
+
+    class LazyBuilding extends IDEntity {
+      readonly name: string = '';
+      readonly rooms: string[] = [];
+
+      static schema = {
+        rooms: new schema.Lazy([Room]),
+      };
+    }
+
+    class LazyDepartment extends IDEntity {
+      readonly name: string = '';
+      readonly buildings: string[] = [];
+
+      static schema = {
         buildings: new schema.Lazy([LazyBuilding]),
       };
-      LazyBuilding.schema = {
-        departments: new schema.Lazy([LazyDepartment]),
+    }
+
+    test('resolved entity still has its own Lazy fields as raw IDs', () => {
+      const state = {
+        entities: {
+          LazyBuilding: {
+            'bldg-1': {
+              id: 'bldg-1',
+              name: 'Building A',
+              rooms: ['room-1', 'room-2'],
+            },
+          },
+          Room: {
+            'room-1': { id: 'room-1', label: '101' },
+            'room-2': { id: 'room-2', label: '102' },
+          },
+        },
+        indexes: {},
       };
 
-      const CHAIN_LENGTH = 1500;
+      const memo = new MemoCache();
+      const result = memo.query(
+        LazyDepartment.schema.buildings.query,
+        [['bldg-1']],
+        state,
+      );
+      const buildings = result.data as any[];
+      expect(buildings).toHaveLength(1);
+      expect(buildings[0]).toBeInstanceOf(LazyBuilding);
+      expect(buildings[0].name).toBe('Building A');
+      // Building's own Lazy field stays as raw IDs
+      expect(buildings[0].rooms).toEqual(['room-1', 'room-2']);
+      expect(typeof buildings[0].rooms[0]).toBe('string');
+    });
+
+    test('second-level LazyQuery resolves deeper relationships', () => {
+      const state = {
+        entities: {
+          Room: {
+            'room-1': { id: 'room-1', label: '101' },
+            'room-2': { id: 'room-2', label: '102' },
+          },
+        },
+        indexes: {},
+      };
+
+      const memo = new MemoCache();
+      const result = memo.query(
+        LazyBuilding.schema.rooms.query,
+        [['room-1', 'room-2']],
+        state,
+      );
+      const rooms = result.data as any[];
+      expect(rooms).toHaveLength(2);
+      expect(rooms[0]).toBeInstanceOf(Room);
+      expect(rooms[0].label).toBe('101');
+      expect(rooms[1].label).toBe('102');
+    });
+  });
+
+  describe('bidirectional Lazy prevents stack overflow', () => {
+    class BidirBuilding extends IDEntity {
+      readonly name: string = '';
+      readonly departments: string[] = [];
+    }
+    class BidirDepartment extends IDEntity {
+      readonly name: string = '';
+      readonly buildings: string[] = [];
+    }
+    BidirDepartment.schema = {
+      buildings: new schema.Lazy([BidirBuilding]),
+    };
+    BidirBuilding.schema = {
+      departments: new schema.Lazy([BidirDepartment]),
+    };
+
+    function buildChain(length: number) {
       const departmentEntities: Record<string, any> = {};
       const buildingEntities: Record<string, any> = {};
-
-      for (let i = 0; i < CHAIN_LENGTH; i++) {
+      for (let i = 0; i < length; i++) {
         departmentEntities[`dept-${i}`] = {
           id: `dept-${i}`,
           name: `Department ${i}`,
@@ -292,27 +562,75 @@ describe('Lazy schema', () => {
         buildingEntities[`bldg-${i}`] = {
           id: `bldg-${i}`,
           name: `Building ${i}`,
-          departments: i < CHAIN_LENGTH - 1 ? [`dept-${i + 1}`] : [],
+          departments: i < length - 1 ? [`dept-${i + 1}`] : [],
         };
       }
-
-      const entities = {
-        LazyDepartment: departmentEntities,
-        LazyBuilding: buildingEntities,
+      return {
+        BidirDepartment: departmentEntities,
+        BidirBuilding: buildingEntities,
       };
+    }
 
+    test('1500-node chain does not overflow (plainDenormalize)', () => {
+      const entities = buildChain(1500);
       expect(() =>
-        plainDenormalize(LazyDepartment, 'dept-0', entities),
+        plainDenormalize(BidirDepartment, 'dept-0', entities),
       ).not.toThrow();
 
+      const dept: any = plainDenormalize(
+        BidirDepartment,
+        'dept-0',
+        entities,
+      );
+      expect(dept.id).toBe('dept-0');
+      expect(dept.name).toBe('Department 0');
+      expect(dept.buildings).toEqual(['bldg-0']);
+    });
+
+    test('1500-node chain does not overflow (SimpleMemoCache)', () => {
+      const entities = buildChain(1500);
       const memo = new SimpleMemoCache();
       expect(() =>
-        memo.denormalize(LazyDepartment, 'dept-0', entities),
+        memo.denormalize(BidirDepartment, 'dept-0', entities),
       ).not.toThrow();
+    });
 
-      const dept: any = plainDenormalize(LazyDepartment, 'dept-0', entities);
-      expect(dept.buildings).toEqual(['bldg-0']);
-      expect(typeof dept.buildings[0]).toBe('string');
+    test('chain entities can still be resolved individually via LazyQuery', () => {
+      const entities = buildChain(5);
+      const state = { entities, indexes: {} };
+      const memo = new MemoCache();
+
+      const deptBuildingsQuery = (
+        BidirDepartment.schema.buildings as schema.Lazy<any>
+      ).query;
+      const bldgDeptsQuery = (
+        BidirBuilding.schema.departments as schema.Lazy<any>
+      ).query;
+
+      // Resolve dept-0's buildings
+      const r = memo.query(deptBuildingsQuery, [['bldg-0']], state);
+      const buildings = r.data as any[];
+      expect(buildings).toHaveLength(1);
+      expect(buildings[0]).toBeInstanceOf(BidirBuilding);
+      expect(buildings[0].id).toBe('bldg-0');
+      expect(buildings[0].name).toBe('Building 0');
+      // Building's departments field is also Lazy — raw IDs
+      expect(buildings[0].departments).toEqual(['dept-1']);
+
+      // Resolve building-0's departments
+      const r2 = memo.query(bldgDeptsQuery, [['dept-1']], state);
+      const depts = r2.data as any[];
+      expect(depts).toHaveLength(1);
+      expect(depts[0]).toBeInstanceOf(BidirDepartment);
+      expect(depts[0].id).toBe('dept-1');
+      expect(depts[0].buildings).toEqual(['bldg-1']);
+    });
+  });
+
+  describe('Lazy.queryKey returns undefined', () => {
+    test('Lazy itself is not queryable', () => {
+      const lazy = new schema.Lazy([Building]);
+      expect(lazy.queryKey([], () => {}, {} as any)).toBeUndefined();
     });
   });
 });
