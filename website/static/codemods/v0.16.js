@@ -249,7 +249,22 @@ function transformSchemaImports(j, root) {
 
     if (!used.size) return;
 
-    specs.splice(idx, 1);
+    // Only remove the schema import specifier when there are no remaining
+    // bare references (e.g. destructuring, function args, typeof).
+    const bareRefs = root
+      .find(j.Identifier, { name: local })
+      .filter(p => {
+        const parent = p.parent.node;
+        if (
+          parent.type === 'ImportSpecifier' &&
+          (parent.imported === p.node || parent.local === p.node)
+        )
+          return false;
+        return true;
+      });
+    if (!bareRefs.length) {
+      specs.splice(idx, 1);
+    }
 
     const existingLocals = new Set(
       specs.filter(s => s.type === 'ImportSpecifier').map(s => s.local.name),
