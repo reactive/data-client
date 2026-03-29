@@ -64,65 +64,86 @@ function transformPaths(j, root) {
 
 // --- useFetch() truthiness → .resolved ---
 
+function enclosingFunction(path) {
+  let cur = path.parent;
+  while (cur) {
+    const t = cur.node.type;
+    if (
+      t === 'FunctionDeclaration' ||
+      t === 'FunctionExpression' ||
+      t === 'ArrowFunctionExpression'
+    ) {
+      return cur;
+    }
+    cur = cur.parent;
+  }
+  return null;
+}
+
 function transformUseFetch(j, root) {
   let dirty = false;
-  const vars = new Set();
 
-  root.find(j.VariableDeclarator).forEach(p => {
-    const init = p.node.init;
+  root.find(j.VariableDeclarator).forEach(declPath => {
+    const init = declPath.node.init;
     if (
-      init &&
-      init.type === 'CallExpression' &&
-      init.callee &&
-      init.callee.type === 'Identifier' &&
-      init.callee.name === 'useFetch' &&
-      p.node.id.type === 'Identifier'
+      !init ||
+      init.type !== 'CallExpression' ||
+      !init.callee ||
+      init.callee.type !== 'Identifier' ||
+      init.callee.name !== 'useFetch' ||
+      declPath.node.id.type !== 'Identifier'
     ) {
-      vars.add(p.node.id.name);
+      return;
     }
-  });
+    const varName = declPath.node.id.name;
+    const fnScope = enclosingFunction(declPath);
+    if (!fnScope) return;
 
-  if (!vars.size) return dirty;
+    const scopeRoot = j(fnScope);
 
-  function rewrite(test) {
-    // promise → !promise.resolved
-    if (test.type === 'Identifier' && vars.has(test.name)) {
-      return j.unaryExpression(
-        '!',
-        j.memberExpression(j.identifier(test.name), j.identifier('resolved')),
-      );
+    function rewrite(test) {
+      // promise → !promise.resolved
+      if (test.type === 'Identifier' && test.name === varName) {
+        return j.unaryExpression(
+          '!',
+          j.memberExpression(
+            j.identifier(test.name),
+            j.identifier('resolved'),
+          ),
+        );
+      }
+      // !promise → promise.resolved
+      if (
+        test.type === 'UnaryExpression' &&
+        test.operator === '!' &&
+        test.argument.type === 'Identifier' &&
+        test.argument.name === varName
+      ) {
+        return j.memberExpression(
+          j.identifier(test.argument.name),
+          j.identifier('resolved'),
+        );
+      }
+      return null;
     }
-    // !promise → promise.resolved
-    if (
-      test.type === 'UnaryExpression' &&
-      test.operator === '!' &&
-      test.argument.type === 'Identifier' &&
-      vars.has(test.argument.name)
-    ) {
-      return j.memberExpression(
-        j.identifier(test.argument.name),
-        j.identifier('resolved'),
-      );
-    }
-    return null;
-  }
 
-  [j.IfStatement, j.ConditionalExpression].forEach(type => {
-    root.find(type).forEach(p => {
-      const r = rewrite(p.node.test);
+    [j.IfStatement, j.ConditionalExpression].forEach(type => {
+      scopeRoot.find(type).forEach(p => {
+        const r = rewrite(p.node.test);
+        if (r) {
+          p.node.test = r;
+          dirty = true;
+        }
+      });
+    });
+
+    scopeRoot.find(j.LogicalExpression, { operator: '&&' }).forEach(p => {
+      const r = rewrite(p.node.left);
       if (r) {
-        p.node.test = r;
+        p.node.left = r;
         dirty = true;
       }
     });
-  });
-
-  root.find(j.LogicalExpression, { operator: '&&' }).forEach(p => {
-    const r = rewrite(p.node.left);
-    if (r) {
-      p.node.left = r;
-      dirty = true;
-    }
   });
 
   return dirty;
