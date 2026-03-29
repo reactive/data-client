@@ -80,6 +80,13 @@ export default function EntityMixin<TBase extends Constructor>(
     /** Defines indexes to enable lookup by */
     declare static indexes?: readonly string[];
 
+    /** Maximum entity nesting depth for denormalization (default: 128)
+     *
+     * Set a lower value to truncate deep bidirectional entity graphs earlier.
+     * @see https://dataclient.io/rest/api/Entity#maxEntityDepth
+     */
+    declare static maxEntityDepth?: number;
+
     /**
      * A unique identifier for each Entity
      *

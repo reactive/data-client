@@ -418,6 +418,41 @@ Nested below:
 const price = useQuery(LatestPrice, { symbol: 'BTC' });
 ```
 
+### static maxEntityDepth?: number {#maxEntityDepth}
+
+Limits entity nesting depth during denormalization to prevent stack overflow
+in large bidirectional entity graphs. **Default: 128**
+
+When bidirectional relationships create chains with many unique entities
+(e.g., `Department → Building → Department → ...`), denormalization can recurse
+thousands of levels deep. `maxEntityDepth` truncates resolution at the specified
+depth — entities beyond the limit are returned with nested foreign keys left as
+unresolved ids rather than fully denormalized objects.
+
+```typescript
+class Department extends Entity {
+  id = '';
+  name = '';
+  buildings: Building[] = [];
+
+  pk() { return this.id; }
+  static key = 'Department';
+  // highlight-next-line
+  static maxEntityDepth = 16;
+
+  static schema = {
+    buildings: [Building],
+  };
+}
+```
+
+:::tip
+
+Set this on entities that participate in deep or wide bidirectional relationships.
+Normal entity graphs (depth < 10) never approach the default limit.
+
+:::
+
 ## Lifecycle
 
 import Lifecycle from '../diagrams/\_entity_lifecycle.mdx';

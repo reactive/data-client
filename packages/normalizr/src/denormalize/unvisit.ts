@@ -97,7 +97,7 @@ function noCacheGetEntity(
   return localCacheKey.get('');
 }
 
-const MAX_ENTITY_DEPTH = 128;
+const MAX_ENTITY_DEPTH = 64;
 
 const getUnvisit = (
   getEntity: DenormGetEntity,
@@ -129,14 +129,18 @@ const getUnvisit = (
       }
     } else {
       if (isEntity(schema)) {
-        if (depth >= MAX_ENTITY_DEPTH) {
+        if (depth >= (schema.maxEntityDepth ?? MAX_ENTITY_DEPTH)) {
           /* istanbul ignore if */
           if (process.env.NODE_ENV !== 'production' && !depthLimitHit) {
             depthLimitHit = true;
+            const limit = schema.maxEntityDepth ?? MAX_ENTITY_DEPTH;
             console.error(
-              `Entity depth limit of ${MAX_ENTITY_DEPTH} reached for "${schema.key}" entity. ` +
+              `Entity depth limit of ${limit} reached for "${schema.key}" entity. ` +
                 `This usually means your schema has very deep or wide bidirectional relationships. ` +
-                `Nested entities beyond this depth are returned with unresolved ids.`,
+                `Nested entities beyond this depth are returned with unresolved ids.` +
+                (schema.maxEntityDepth === undefined ?
+                  ` Set static maxEntityDepth on your Entity to configure this limit.`
+                : ''),
             );
           }
           return depthLimitEntity(getEntity, schema, input);

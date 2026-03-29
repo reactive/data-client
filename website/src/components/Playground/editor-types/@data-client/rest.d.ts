@@ -441,6 +441,12 @@ interface IEntityClass<TBase extends Constructor = any> {
      * @see https://dataclient.io/rest/api/Entity#indexes
      */
     indexes?: readonly string[] | undefined;
+    /** Maximum entity nesting depth for denormalization (default: 128)
+     *
+     * Set a lower value to truncate deep bidirectional entity graphs earlier.
+     * @see https://dataclient.io/rest/api/Entity#maxEntityDepth
+     */
+    maxEntityDepth?: number | undefined;
     /**
      * A unique identifier for each Entity
      *

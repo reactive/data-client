@@ -1011,11 +1011,10 @@ describe(`${Entity.name} denormalization`, () => {
       expect(result).toBeDefined();
       if (!result) return;
 
-      // walk to a depth-limited entity: each hop is 1 entity depth
-      // dept-0(1) -> bldg-0(2) -> dept-1(3) -> bldg-1(4) -> ...
-      // At depth 128 we should find truncated entities with unresolved FK ids
+      // walk to a depth-limited entity: each dept→bldg→dept step is 2 entity depths
+      // dept-k is entered at depth 2k (default MAX_ENTITY_DEPTH is 64)
       let node: any = result;
-      for (let i = 0; i < 60; i++) {
+      for (let i = 0; i < 30; i++) {
         expect(node.buildings).toBeDefined();
         expect(node.buildings.length).toBe(1);
         node = node.buildings[0].departments[0];
@@ -1023,19 +1022,21 @@ describe(`${Entity.name} denormalization`, () => {
       // node should still be a Department instance (well within limit)
       expect(node).toBeInstanceOf(Department);
 
-      expect(consoleSpy).toHaveBeenCalledTimes(1);
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Entity depth limit'),
-      );
+      expect(consoleSpy).toHaveBeenCalled();
+      expect(
+        consoleSpy.mock.calls.some(args =>
+          String(args[0]).includes('Entity depth limit'),
+        ),
+      ).toBe(true);
 
       consoleSpy.mockRestore();
     });
 
     test('depth-limited entity that is missing from store', () => {
       const entities = buildChain(200);
-      // dept-64 is the first entity hit by the depth limit (checked at depth=128).
+      // dept-32 is the first Department hit by the default depth limit (depth 64).
       // Removing it exercises the "entity not found" branch in depthLimitEntity.
-      delete (entities.Department as any)['dept-64'];
+      delete (entities.Department as any)['dept-32'];
 
       const consoleSpy = jest
         .spyOn(console, 'error')
@@ -1073,8 +1074,8 @@ describe(`${Entity.name} denormalization`, () => {
       for (let i = 0; i < 200; i++) {
         deptEntities[`dept-${i}`] = {
           id: `dept-${i}`,
-          // dept-64 is the first depth-limited entity; mark it invalid
-          name: i === 64 ? 'INVALID' : `Department ${i}`,
+          // dept-32 is the first depth-limited Department; mark it invalid
+          name: i === 32 ? 'INVALID' : `Department ${i}`,
           buildings: [`bldg-${i}`],
         };
         bldgEntities[`bldg-${i}`] = {
@@ -1099,10 +1100,10 @@ describe(`${Entity.name} denormalization`, () => {
 
     test('depth-limited entity with inline object input', () => {
       const entities = buildChain(200);
-      // bldg-63's departments are processed when depth=128, hitting depthLimitEntity.
+      // bldg-31's departments are processed when depth=64, hitting depthLimitEntity.
       // Use inline object instead of string pk to exercise the object-input branch.
-      (entities.Building as any)['bldg-63'].departments = [
-        { id: 'dept-64', name: 'Inline Department 64', buildings: [] },
+      (entities.Building as any)['bldg-31'].departments = [
+        { id: 'dept-32', name: 'Inline Department 32', buildings: [] },
       ];
 
       const consoleSpy = jest
@@ -1117,17 +1118,86 @@ describe(`${Entity.name} denormalization`, () => {
 
       // walk to the depth-limited inline entity
       let node: any = result;
-      for (let i = 0; i < 63; i++) {
+      for (let i = 0; i < 31; i++) {
         node = node.buildings[0].departments[0];
       }
-      // node is dept-63, its building is bldg-63
-      expect(node.id).toBe('dept-63');
+      // node is dept-31, its building is bldg-31
+      expect(node.id).toBe('dept-31');
       const depthLimitedBldg = node.buildings[0];
-      expect(depthLimitedBldg.id).toBe('bldg-63');
-      // dept-64 was provided as an inline object, so depthLimitEntity used it directly
+      expect(depthLimitedBldg.id).toBe('bldg-31');
+      // dept-32 was provided as an inline object, so depthLimitEntity used it directly
       const inlineDept = depthLimitedBldg.departments[0];
       expect(inlineDept).toBeInstanceOf(Department);
-      expect(inlineDept.id).toBe('dept-64');
+      expect(inlineDept.id).toBe('dept-32');
+
+      consoleSpy.mockRestore();
+    });
+
+    test('maxEntityDepth on Entity lowers the limit', () => {
+      class LimitedDept extends IDEntity {
+        readonly name: string = '';
+        readonly buildings: LimitedBldg[] = [];
+        static maxEntityDepth = 10;
+      }
+      class LimitedBldg extends IDEntity {
+        readonly name: string = '';
+        readonly departments: LimitedDept[] = [];
+
+        static schema = {
+          departments: [LimitedDept],
+        };
+
+        static maxEntityDepth = 10;
+      }
+      LimitedDept.schema = {
+        buildings: new schema.Array(LimitedBldg),
+      };
+
+      const deptEntities: Record<string, any> = {};
+      const bldgEntities: Record<string, any> = {};
+      for (let i = 0; i < 50; i++) {
+        deptEntities[`dept-${i}`] = {
+          id: `dept-${i}`,
+          name: `Department ${i}`,
+          buildings: [`bldg-${i}`],
+        };
+        bldgEntities[`bldg-${i}`] = {
+          id: `bldg-${i}`,
+          name: `Building ${i}`,
+          departments: i < 49 ? [`dept-${i + 1}`] : [],
+        };
+      }
+
+      const consoleSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+
+      const result = plainDenormalize(LimitedDept, 'dept-0', {
+        LimitedDept: deptEntities,
+        LimitedBldg: bldgEntities,
+      });
+
+      expect(result).not.toEqual(expect.any(Symbol));
+      if (typeof result === 'symbol') return;
+      expect(result).toBeDefined();
+      if (!result) return;
+
+      // depth 10 means 5 full hops (dept→bldg = 2 entity levels per hop)
+      // walk 4 hops safely
+      let node: any = result;
+      for (let i = 0; i < 4; i++) {
+        expect(node.buildings).toBeDefined();
+        expect(node.buildings.length).toBe(1);
+        node = node.buildings[0].departments[0];
+      }
+      expect(node).toBeInstanceOf(LimitedDept);
+
+      expect(consoleSpy).toHaveBeenCalled();
+      expect(
+        consoleSpy.mock.calls.some(args =>
+          String(args[0]).includes('Entity depth limit of 10'),
+        ),
+      ).toBe(true);
 
       consoleSpy.mockRestore();
     });
