@@ -20,8 +20,8 @@ const DATA_CLIENT_PACKAGES = new Set([
 // --- path-to-regexp v6 → v8 ---
 
 function transformPathString(s) {
-  // :name(\d+) → :name
-  s = s.replace(/:(\w+)\([^)]*\)/g, ':$1');
+  // :name(\d+) → :name  (handles nested non-capturing groups)
+  s = s.replace(/:(\w+)\((?:[^()]*|\([^()]*\))*\)/g, ':$1');
   // {group}? → {group}
   s = s.replace(/(\{[^}]+\})\?/g, '$1');
   // /:name? → {/:name}  (also handles - . ~ prefixes)
@@ -130,6 +130,28 @@ function transformUseFetch(j, root) {
 
 // --- schema.X namespace → direct imports ---
 
+const JS_GLOBALS = new Set([
+  'Array',
+  'Boolean',
+  'Date',
+  'Error',
+  'Function',
+  'JSON',
+  'Map',
+  'Math',
+  'Number',
+  'Object',
+  'Promise',
+  'Proxy',
+  'Reflect',
+  'RegExp',
+  'Set',
+  'String',
+  'Symbol',
+  'WeakMap',
+  'WeakSet',
+]);
+
 function transformSchemaImports(j, root) {
   let dirty = false;
 
@@ -147,7 +169,23 @@ function transformSchemaImports(j, root) {
     if (idx === -1) return;
 
     const local = specs[idx].local.name;
-    const used = new Set();
+    // Map from exported name → local identifier to use in code
+    const used = new Map();
+
+    const scopeBindings = new Set();
+    root.find(j.ImportDeclaration).forEach(ip => {
+      ip.node.specifiers.forEach((s, i) => {
+        if (ip === importPath && i === idx) return;
+        if (s.local) scopeBindings.add(s.local.name);
+      });
+    });
+
+    function resolveLocal(name) {
+      if (JS_GLOBALS.has(name) || scopeBindings.has(name)) {
+        return 'Schema' + name;
+      }
+      return name;
+    }
 
     root
       .find(j.MemberExpression, {
@@ -155,8 +193,9 @@ function transformSchemaImports(j, root) {
       })
       .forEach(mp => {
         if (mp.node.property.type === 'Identifier') {
-          used.add(mp.node.property.name);
-          j(mp).replaceWith(j.identifier(mp.node.property.name));
+          const name = mp.node.property.name;
+          if (!used.has(name)) used.set(name, resolveLocal(name));
+          j(mp).replaceWith(j.identifier(used.get(name)));
         }
       });
 
@@ -168,8 +207,9 @@ function transformSchemaImports(j, root) {
         })
         .forEach(qp => {
           if (qp.node.right.type === 'Identifier') {
-            used.add(qp.node.right.name);
-            j(qp).replaceWith(j.identifier(qp.node.right.name));
+            const name = qp.node.right.name;
+            if (!used.has(name)) used.set(name, resolveLocal(name));
+            j(qp).replaceWith(j.identifier(used.get(name)));
           }
         });
     } catch (_) {}
@@ -181,9 +221,17 @@ function transformSchemaImports(j, root) {
     const existing = new Set(
       specs.filter(s => s.type === 'ImportSpecifier').map(s => s.imported.name),
     );
-    for (const cls of [...used].sort()) {
-      if (!existing.has(cls)) {
-        specs.push(j.importSpecifier(j.identifier(cls)));
+    for (const [imported, localName] of [...used.entries()].sort((a, b) =>
+      a[0].localeCompare(b[0]),
+    )) {
+      if (!existing.has(imported)) {
+        if (imported !== localName) {
+          specs.push(
+            j.importSpecifier(j.identifier(imported), j.identifier(localName)),
+          );
+        } else {
+          specs.push(j.importSpecifier(j.identifier(imported)));
+        }
       }
     }
 
