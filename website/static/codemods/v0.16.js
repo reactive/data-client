@@ -141,13 +141,21 @@ function transformUseFetch(j, root) {
       });
     });
 
-    scopeRoot.find(j.LogicalExpression, { operator: '&&' }).forEach(p => {
-      const r = rewrite(p.node.left);
-      if (r) {
-        p.node.left = r;
-        dirty = true;
-      }
-    });
+    scopeRoot
+      .find(j.LogicalExpression)
+      .filter(p => p.node.operator === '&&' || p.node.operator === '||')
+      .forEach(p => {
+        const l = rewrite(p.node.left);
+        if (l) {
+          p.node.left = l;
+          dirty = true;
+        }
+        const r = rewrite(p.node.right);
+        if (r) {
+          p.node.right = r;
+          dirty = true;
+        }
+      });
   });
 
   return dirty;
