@@ -174,8 +174,8 @@ function transformSchemaImports(j, root) {
 
     const scopeBindings = new Set();
     root.find(j.ImportDeclaration).forEach(ip => {
-      ip.node.specifiers.forEach((s, i) => {
-        if (ip === importPath && i === idx) return;
+      if (ip === importPath) return;
+      ip.node.specifiers.forEach(s => {
         if (s.local) scopeBindings.add(s.local.name);
       });
     });
@@ -218,13 +218,13 @@ function transformSchemaImports(j, root) {
 
     specs.splice(idx, 1);
 
-    const existing = new Set(
-      specs.filter(s => s.type === 'ImportSpecifier').map(s => s.imported.name),
+    const existingLocals = new Set(
+      specs.filter(s => s.type === 'ImportSpecifier').map(s => s.local.name),
     );
     for (const [imported, localName] of [...used.entries()].sort((a, b) =>
       a[0].localeCompare(b[0]),
     )) {
-      if (!existing.has(imported)) {
+      if (!existingLocals.has(localName)) {
         if (imported !== localName) {
           specs.push(
             j.importSpecifier(j.identifier(imported), j.identifier(localName)),
