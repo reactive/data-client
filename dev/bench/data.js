@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774810599009,
+  "lastUpdate": 1774821423789,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -113221,6 +113221,254 @@ window.BENCHMARK_DATA = {
             "range": "±0.06%",
             "unit": "ops/sec",
             "extra": "98 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "63633c714b5c041e04891255683e5a899c3d3f22",
+          "message": "feat: add Lazy schema for deferred relationship denormalization (#3829)\n\n* feat: add Lazy schema class for deferred relationship denormalization\n\nIntroduces schema.Lazy(innerSchema) that:\n- normalize: delegates to inner schema (entities stored normally)\n- denormalize: no-op (returns raw PKs unchanged)\n- .query getter: returns LazyQuery for use with useQuery()\n\nLazyQuery resolves entities lazily:\n- queryKey: delegates to inner schema if it has queryKey, otherwise passes through args[0]\n- denormalize: delegates to inner schema via unvisit (full entity resolution)\n\nNo changes needed to EntityMixin or unvisit - Lazy.denormalize as no-op\nmeans the existing denormalize loop works without any special handling.\n\nCo-authored-by: natmaster <natmaster@gmail.com>\n\n* test: add comprehensive tests for Lazy schema\n\nTests cover:\n- Normalization: inner entities stored correctly through Lazy wrapper\n- Denormalization: Lazy field leaves raw PKs unchanged (no-op)\n- LazyQuery (.query): resolves array of IDs, delegates to Entity.queryKey,\n  handles missing entities, returns empty for empty IDs\n- Memoization isolation: parent denorm stable when lazy entity changes\n- Stack safety: 1500-node bidirectional graph does not overflow\n\nCo-authored-by: natmaster <natmaster@gmail.com>\n\n* docs: add API documentation for Lazy schema\n\nDocuments the Lazy schema class including:\n- Constructor and usage patterns (array, entity, collection)\n- .query accessor for useQuery integration\n- How normalization/denormalization works\n- Performance characteristics\n\nCo-authored-by: natmaster <natmaster@gmail.com>\n\n* test: rewrite Lazy tests with full scenario coverage\n\nReplaced shallow tests with thorough scenario-based tests (27 total):\n\n- Round-trip: normalize API data → denormalize parent (Lazy stays raw) →\n  LazyQuery resolves to full entities with all fields checked\n- Mixed schema: non-Lazy Manager resolves alongside Lazy buildings on\n  same entity; verified instanceof, field values, paths\n- Dependency tracking: parent paths include Manager but exclude Building;\n  LazyQuery paths include Building PKs but exclude Department\n- LazyQuery edge cases: subset IDs, empty array, missing entity IDs\n  filtered out, single Entity delegation via Building.queryKey\n- Memoization isolation: parent ref equality preserved when Building\n  changes; LazyQuery result updates when entity changes; ref equality\n  maintained on unchanged state\n- Nested Lazy: resolved Building still has its own Lazy rooms as raw IDs;\n  second-level LazyQuery resolves Room entities\n- Bidirectional Lazy: 1500-node chain no overflow; step-through resolution\n  verifying each level's Lazy field stays raw while resolved entity is correct\n- Lazy.queryKey returns undefined (not queryable directly)\n\nCo-authored-by: natmaster <natmaster@gmail.com>\n\n* fix: lint errors and add changeset for Lazy schema\n\n- Prefix unused params with _ to satisfy @typescript-eslint/no-unused-vars\n- Fix prettier formatting (auto-fixed via eslint --fix)\n- Fix import order in schema.d.ts\n- Remove unused imports in test file\n- Add changeset for @data-client/endpoint, rest, graphql (minor)\n\nCo-authored-by: natmaster <natmaster@gmail.com>\n\n* fix: LazyQuery.queryKey skips delegation for non-keyed schemas (Array, Values)\n\nWhen the inner schema is an explicit class instance (e.g. new schema.Array(Building)),\nLazyQuery.queryKey would delegate to the inner schema's queryKey which always returns\nundefined for Array and Values schemas. This caused MemoCache.query to short-circuit\nand return no data, because the args[0] fallback was never reached.\n\nFix: only delegate to inner schema's queryKey when schema.key exists (Entity, Collection),\nwhich distinguishes schemas with meaningful queryKey logic from container schemas\n(Array, Values) that have no-op stubs.\n\nAlso fixes pre-existing TypeScript errors in Lazy.test.ts and adds tests for explicit\nschema.Array and schema.Values inner schemas.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* internal: lint\n\n* enhance: Stricter args typing\n\n* docs: Docs updates\n\n---------\n\nCo-authored-by: Cursor Agent <cursoragent@cursor.com>",
+          "timestamp": "2026-03-29T17:53:21-04:00",
+          "tree_id": "0724fc3bf227352af400ec1afc5703fe76b58235",
+          "url": "https://github.com/reactive/data-client/commit/63633c714b5c041e04891255683e5a899c3d3f22"
+        },
+        "date": 1774821420585,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 458,
+            "range": "±0.78%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 415,
+            "range": "±0.22%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 293,
+            "range": "±2.50%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 268,
+            "range": "±2.26%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 1015,
+            "range": "±0.17%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 756,
+            "range": "±0.30%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 1574,
+            "range": "±0.12%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 856,
+            "range": "±2.01%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 6157,
+            "range": "±0.08%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 2744,
+            "range": "±0.10%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 52794,
+            "range": "±0.35%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 5877,
+            "range": "±0.17%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 277,
+            "range": "±1.96%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 6938,
+            "range": "±0.16%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 5095,
+            "range": "±0.27%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 5780,
+            "range": "±0.11%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 6033,
+            "range": "±0.08%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 1680,
+            "range": "±0.21%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50",
+            "value": 5948,
+            "range": "±1.81%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50 donotcache",
+            "value": 41837,
+            "range": "±0.60%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 4693,
+            "range": "±0.52%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 9672457,
+            "range": "±1.06%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 269,
+            "range": "±1.97%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 3353,
+            "range": "±0.12%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 2505,
+            "range": "±0.10%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 4587,
+            "range": "±0.16%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 4615,
+            "range": "±0.25%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 5247,
+            "range": "±0.26%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 464,
+            "range": "±0.20%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 260,
+            "range": "±0.18%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 273,
+            "range": "±0.12%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 943,
+            "range": "±0.70%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
           }
         ]
       }
