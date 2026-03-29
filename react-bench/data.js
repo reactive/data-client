@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774564550340,
+  "lastUpdate": 1774810509136,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -713,6 +713,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 212.77,
             "range": "± 8.5%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "be9c53156fdea8c7476c5c0c727e73adcca8ea99",
+          "message": "feat(normalizr): Add configurable maxEntityDepth on Entity (#3834)\n\nAllow per-Entity configuration of the denormalization depth limit via\n`static maxEntityDepth`. This lets users lower the limit (default 128)\non entities that participate in deep bidirectional relationships,\nwithout requiring any provider or controller configuration.\n\nThe depth check in `getUnvisit()` now reads `schema.maxEntityDepth`\nwith a fallback to the existing 128 default.\n\nMade-with: Cursor",
+          "timestamp": "2026-03-29T14:52:59-04:00",
+          "tree_id": "17d2a1eb3ddd74a2c9b8321c513a27ac4ccee6b7",
+          "url": "https://github.com/reactive/data-client/commit/be9c53156fdea8c7476c5c0c727e73adcca8ea99"
+        },
+        "date": 1774810507094,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 181.82,
+            "range": "± 4.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 48.79,
+            "range": "± 5.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 434.78,
+            "range": "± 3.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 434.78,
+            "range": "± 6.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 48.54,
+            "range": "± 6.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 339.08,
+            "range": "± 6.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 416.67,
+            "range": "± 6.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 13.35,
+            "range": "± 4.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 93.03,
+            "range": "± 3.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 54.95,
+            "range": "± 3.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 303.03,
+            "range": "± 3.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 416.67,
+            "range": "± 4.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 232.56,
+            "range": "± 5.2%",
             "unit": "ops/s"
           }
         ]
