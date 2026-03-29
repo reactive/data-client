@@ -2,8 +2,32 @@ import type { Schema, SchemaSimple } from '../interface.js';
 import type {
   Denormalize,
   DenormalizeNullable,
+  Normalize,
   NormalizeNullable,
 } from '../normal.js';
+import type { EntityFields } from './EntityFields.js';
+
+type IsAny<T> = 0 extends 1 & T ? true : false;
+
+/** Derives strict Args for LazyQuery from the inner schema S.
+ *
+ * - Entity: [EntityFields<U>] for queryKey delegation
+ * - Collection (or schema with typed queryKey + key): inner schema's Args
+ * - Everything else: [Normalize<S>] — pass the parent's raw normalized value
+ */
+export type LazySchemaArgs<S extends Schema> =
+  S extends { createIfValid: any; pk: any; key: string; prototype: infer U } ?
+    [EntityFields<U>]
+  : S extends (
+    {
+      queryKey(args: infer Args, ...rest: any): any;
+      key: string;
+    }
+  ) ?
+    IsAny<Args> extends true ?
+      [Normalize<S>]
+    : Args
+  : [Normalize<S>];
 
 /**
  * Skips eager denormalization of a relationship field.
@@ -34,6 +58,7 @@ export default class Lazy<S extends Schema> implements SchemaSimple {
   }
 
   denormalize(input: {}, _args: readonly any[], _unvisit: any): any {
+    // If we could figure out we're processing while nested vs from queryKey, then can can get rid of LazyQuery and just use this in both contexts.
     return input;
   }
 
@@ -42,6 +67,7 @@ export default class Lazy<S extends Schema> implements SchemaSimple {
     _unvisit: (...args: any) => any,
     _delegate: any,
   ): undefined {
+    // denormalize must do nothing, so there's no point in making this queryable - hence we have `get query`
     return undefined;
   }
 
@@ -70,25 +96,11 @@ export default class Lazy<S extends Schema> implements SchemaSimple {
  * queryKey delegates to inner schema's queryKey if available,
  * otherwise passes through args[0] (the raw normalized value).
  */
-export class LazyQuery<S extends Schema> implements SchemaSimple<
-  Denormalize<S>,
-  readonly any[]
-> {
+export class LazyQuery<S extends Schema, Args = LazySchemaArgs<S>> {
   declare schema: S;
 
   constructor(schema: S) {
     this.schema = schema;
-  }
-
-  normalize(
-    input: any,
-    _parent: any,
-    _key: any,
-    _args: any[],
-    _visit: (...args: any) => any,
-    _delegate: any,
-  ): any {
-    return input;
   }
 
   denormalize(
@@ -100,7 +112,7 @@ export class LazyQuery<S extends Schema> implements SchemaSimple<
   }
 
   queryKey(
-    args: readonly any[],
+    args: Args,
     unvisit: (...args: any) => any,
     delegate: { getEntity: any; getIndex: any },
   ): any {
@@ -108,7 +120,7 @@ export class LazyQuery<S extends Schema> implements SchemaSimple<
     if (typeof schema.queryKey === 'function' && schema.key) {
       return schema.queryKey(args, unvisit, delegate);
     }
-    return args[0];
+    return (args as readonly any[])[0];
   }
 
   declare _denormalizeNullable: (
@@ -116,6 +128,4 @@ export class LazyQuery<S extends Schema> implements SchemaSimple<
     args: readonly any[],
     unvisit: (schema: any, input: any) => any,
   ) => DenormalizeNullable<S>;
-
-  declare _normalizeNullable: () => NormalizeNullable<S>;
 }

@@ -3,7 +3,10 @@
   "compilerOptions": {
     "outDir": "lib",
     "rootDir": "src",
-    "skipLibCheck": false
+    "skipLibCheck": false,
+    "paths": {
+      "__tests__/*": ["../../__tests__/*"]
+    }
   },
   "include": ["src", "typescript-tests"],
   "references": [{ "path": "../../__tests__" }]
