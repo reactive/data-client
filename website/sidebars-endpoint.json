@@ -49,6 +49,10 @@
   },
   {
     "type": "doc",
+    "id": "api/Lazy"
+  },
+  {
+    "type": "doc",
     "id": "api/validateRequired"
   }
 ]

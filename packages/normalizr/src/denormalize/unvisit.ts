@@ -137,9 +137,10 @@ const getUnvisit = (
             console.error(
               `Entity depth limit of ${limit} reached for "${schema.key}" entity. ` +
                 `This usually means your schema has very deep or wide bidirectional relationships. ` +
-                `Nested entities beyond this depth are returned with unresolved ids.` +
+                `Nested entities beyond this depth are returned with unresolved ids. ` +
+                `Consider using Lazy for recursive schemas to avoid depth limits with better performance: https://dataclient.io/rest/api/Lazy` +
                 (schema.maxEntityDepth === undefined ?
-                  ` Set static maxEntityDepth on your Entity to configure this limit.`
+                  ` Alternatively, set static maxEntityDepth on your Entity to configure this limit.`
                 : ''),
             );
           }

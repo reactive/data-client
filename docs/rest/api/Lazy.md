@@ -15,7 +15,7 @@ This is useful for:
 ## Constructor
 
 ```typescript
-new schema.Lazy(innerSchema)
+new Lazy(innerSchema)
 ```
 
 - `innerSchema`: Any [Schema](/rest/api/schema) — an [Entity](./Entity.md), an array shorthand like `[MyEntity]`, a [Collection](./Collection.md), etc.
@@ -25,7 +25,7 @@ new schema.Lazy(innerSchema)
 ### Array relationship (most common)
 
 ```typescript
-import { Entity, schema } from '@data-client/rest';
+import { Entity, Lazy } from '@data-client/rest';
 
 class Building extends Entity {
   id = '';
@@ -38,7 +38,7 @@ class Department extends Entity {
   buildings: string[] = [];
 
   static schema = {
-    buildings: new schema.Lazy([Building]),
+    buildings: new Lazy([Building]),
   };
 }
 ```
@@ -71,7 +71,7 @@ class Department extends Entity {
   mainBuilding = '';
 
   static schema = {
-    mainBuilding: new schema.Lazy(Building),
+    mainBuilding: new Lazy(Building),
   };
 }
 ```
@@ -92,7 +92,7 @@ When the inner schema is an [Entity](./Entity.md) (or any schema with `queryKey`
 class Department extends Entity {
   id = '';
   static schema = {
-    buildings: new schema.Lazy(buildingsCollection),
+    buildings: new Lazy(buildingsCollection),
   };
 }
 ```

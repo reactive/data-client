@@ -600,6 +600,15 @@ export class User extends Entity {
 }
 ```
 
+:::tip
+
+For bidirectional relationships that don't need eager denormalization,
+[Lazy](../api/Lazy.md) defers resolution and lets you resolve on demand
+via [useQuery](/docs/api/useQuery), avoiding deep recursion and improving
+memoization isolation.
+
+:::
+
 [1]: ../api/Entity.md
 [2]: /docs/api/useCache
 [3]: ../api/Entity.md#schema

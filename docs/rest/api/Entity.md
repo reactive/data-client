@@ -451,6 +451,9 @@ class Department extends Entity {
 Set this on entities that participate in deep or wide bidirectional relationships.
 Normal entity graphs (depth < 10) never approach the default limit.
 
+For relationships that don't need eager denormalization, [Lazy](/rest/api/Lazy)
+skips resolution entirely and lets you resolve on demand via [useQuery](/docs/api/useQuery).
+
 :::
 
 ## Lifecycle
