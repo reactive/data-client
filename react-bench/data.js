@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774810509136,
+  "lastUpdate": 1774821370643,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -815,6 +815,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 232.56,
             "range": "± 5.2%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "63633c714b5c041e04891255683e5a899c3d3f22",
+          "message": "feat: add Lazy schema for deferred relationship denormalization (#3829)\n\n* feat: add Lazy schema class for deferred relationship denormalization\n\nIntroduces schema.Lazy(innerSchema) that:\n- normalize: delegates to inner schema (entities stored normally)\n- denormalize: no-op (returns raw PKs unchanged)\n- .query getter: returns LazyQuery for use with useQuery()\n\nLazyQuery resolves entities lazily:\n- queryKey: delegates to inner schema if it has queryKey, otherwise passes through args[0]\n- denormalize: delegates to inner schema via unvisit (full entity resolution)\n\nNo changes needed to EntityMixin or unvisit - Lazy.denormalize as no-op\nmeans the existing denormalize loop works without any special handling.\n\nCo-authored-by: natmaster <natmaster@gmail.com>\n\n* test: add comprehensive tests for Lazy schema\n\nTests cover:\n- Normalization: inner entities stored correctly through Lazy wrapper\n- Denormalization: Lazy field leaves raw PKs unchanged (no-op)\n- LazyQuery (.query): resolves array of IDs, delegates to Entity.queryKey,\n  handles missing entities, returns empty for empty IDs\n- Memoization isolation: parent denorm stable when lazy entity changes\n- Stack safety: 1500-node bidirectional graph does not overflow\n\nCo-authored-by: natmaster <natmaster@gmail.com>\n\n* docs: add API documentation for Lazy schema\n\nDocuments the Lazy schema class including:\n- Constructor and usage patterns (array, entity, collection)\n- .query accessor for useQuery integration\n- How normalization/denormalization works\n- Performance characteristics\n\nCo-authored-by: natmaster <natmaster@gmail.com>\n\n* test: rewrite Lazy tests with full scenario coverage\n\nReplaced shallow tests with thorough scenario-based tests (27 total):\n\n- Round-trip: normalize API data → denormalize parent (Lazy stays raw) →\n  LazyQuery resolves to full entities with all fields checked\n- Mixed schema: non-Lazy Manager resolves alongside Lazy buildings on\n  same entity; verified instanceof, field values, paths\n- Dependency tracking: parent paths include Manager but exclude Building;\n  LazyQuery paths include Building PKs but exclude Department\n- LazyQuery edge cases: subset IDs, empty array, missing entity IDs\n  filtered out, single Entity delegation via Building.queryKey\n- Memoization isolation: parent ref equality preserved when Building\n  changes; LazyQuery result updates when entity changes; ref equality\n  maintained on unchanged state\n- Nested Lazy: resolved Building still has its own Lazy rooms as raw IDs;\n  second-level LazyQuery resolves Room entities\n- Bidirectional Lazy: 1500-node chain no overflow; step-through resolution\n  verifying each level's Lazy field stays raw while resolved entity is correct\n- Lazy.queryKey returns undefined (not queryable directly)\n\nCo-authored-by: natmaster <natmaster@gmail.com>\n\n* fix: lint errors and add changeset for Lazy schema\n\n- Prefix unused params with _ to satisfy @typescript-eslint/no-unused-vars\n- Fix prettier formatting (auto-fixed via eslint --fix)\n- Fix import order in schema.d.ts\n- Remove unused imports in test file\n- Add changeset for @data-client/endpoint, rest, graphql (minor)\n\nCo-authored-by: natmaster <natmaster@gmail.com>\n\n* fix: LazyQuery.queryKey skips delegation for non-keyed schemas (Array, Values)\n\nWhen the inner schema is an explicit class instance (e.g. new schema.Array(Building)),\nLazyQuery.queryKey would delegate to the inner schema's queryKey which always returns\nundefined for Array and Values schemas. This caused MemoCache.query to short-circuit\nand return no data, because the args[0] fallback was never reached.\n\nFix: only delegate to inner schema's queryKey when schema.key exists (Entity, Collection),\nwhich distinguishes schemas with meaningful queryKey logic from container schemas\n(Array, Values) that have no-op stubs.\n\nAlso fixes pre-existing TypeScript errors in Lazy.test.ts and adds tests for explicit\nschema.Array and schema.Values inner schemas.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* internal: lint\n\n* enhance: Stricter args typing\n\n* docs: Docs updates\n\n---------\n\nCo-authored-by: Cursor Agent <cursoragent@cursor.com>",
+          "timestamp": "2026-03-29T17:53:21-04:00",
+          "tree_id": "0724fc3bf227352af400ec1afc5703fe76b58235",
+          "url": "https://github.com/reactive/data-client/commit/63633c714b5c041e04891255683e5a899c3d3f22"
+        },
+        "date": 1774821367500,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 169.49,
+            "range": "± 4.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 43.48,
+            "range": "± 6.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 384.62,
+            "range": "± 5.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 400,
+            "range": "± 6.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 51.29,
+            "range": "± 5.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 350.99,
+            "range": "± 5.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 357.14,
+            "range": "± 4.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 11.85,
+            "range": "± 9.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 93.46,
+            "range": "± 5.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 47.96,
+            "range": "± 3.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 270.27,
+            "range": "± 4.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 350.99,
+            "range": "± 4.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 202.04,
+            "range": "± 7.3%",
             "unit": "ops/s"
           }
         ]
