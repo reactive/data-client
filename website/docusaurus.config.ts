@@ -536,6 +536,10 @@ const config: Config = {
               label: 'Ideas',
               href: 'https://github.com/reactive/data-client/discussions/categories/ideas',
             },
+            {
+              label: 'Agent Skills',
+              href: 'https://skills.sh/reactive/data-client',
+            },
             // {
             //   label: 'Stack Overflow',
             //   href: 'http://stackoverflow.com/questions/tagged/data-client',

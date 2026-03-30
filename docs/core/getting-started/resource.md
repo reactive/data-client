@@ -45,7 +45,7 @@ values={[
           display: 'inline',          // Inline with text
         }}
 /> Codegen</Link>&nbsp;
-<Link className="button button--secondary button--sm" to="https://github.com/reactive/data-client/blob/master/.cursor/skills"><img src="/img/copilot.svg" alt="Github Copilot" style={{
+<Link className="button button--secondary button--sm" to="https://skills.sh/reactive/data-client"><img src="/img/copilot.svg" alt="Skills" style={{
           height: '1em',              // Match font size
           verticalAlign: '-0.125em',  // Fine-tune: try -0.125em or 'middle'
           display: 'inline',          // Inline with text
