@@ -223,6 +223,23 @@ function patternBindsName(pattern, name) {
   return false;
 }
 
+function collectPatternNames(pattern, out) {
+  if (!pattern) return;
+  if (pattern.type === 'Identifier') { out.add(pattern.name); return; }
+  if (pattern.type === 'AssignmentPattern') return collectPatternNames(pattern.left, out);
+  if (pattern.type === 'RestElement') return collectPatternNames(pattern.argument, out);
+  if (pattern.type === 'ObjectPattern') {
+    pattern.properties.forEach(p =>
+      collectPatternNames(p.type === 'RestElement' ? p.argument : p.value, out),
+    );
+    return;
+  }
+  if (pattern.type === 'ArrayPattern') {
+    pattern.elements.forEach(e => e && collectPatternNames(e, out));
+    return;
+  }
+}
+
 function isShadowed(path, name) {
   let cur = path;
   while (cur.parent) {
@@ -298,6 +315,24 @@ function transformSchemaImports(j, root) {
       ip.node.specifiers.forEach(s => {
         if (s.local) scopeBindings.add(s.local.name);
       });
+    });
+    const isTopLevel = parentType =>
+      parentType === 'Program' || parentType === 'ExportNamedDeclaration' ||
+      parentType === 'ExportDefaultDeclaration';
+    root.find(j.VariableDeclaration).forEach(vp => {
+      if (isTopLevel(vp.parent.node.type)) {
+        vp.node.declarations.forEach(d => collectPatternNames(d.id, scopeBindings));
+      }
+    });
+    root.find(j.FunctionDeclaration).forEach(fp => {
+      if (isTopLevel(fp.parent.node.type) && fp.node.id) {
+        scopeBindings.add(fp.node.id.name);
+      }
+    });
+    root.find(j.ClassDeclaration).forEach(cp => {
+      if (isTopLevel(cp.parent.node.type) && cp.node.id) {
+        scopeBindings.add(cp.node.id.name);
+      }
     });
 
     function resolveLocal(name) {
