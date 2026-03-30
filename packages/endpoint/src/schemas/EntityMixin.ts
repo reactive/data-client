@@ -80,13 +80,6 @@ export default function EntityMixin<TBase extends Constructor>(
     /** Defines indexes to enable lookup by */
     declare static indexes?: readonly string[];
 
-    /** Maximum entity nesting depth for denormalization (default: 128)
-     *
-     * Set a lower value to truncate deep bidirectional entity graphs earlier.
-     * @see https://dataclient.io/rest/api/Entity#maxEntityDepth
-     */
-    declare static maxEntityDepth?: number;
-
     /**
      * A unique identifier for each Entity
      *
@@ -312,8 +305,18 @@ export default function EntityMixin<TBase extends Constructor>(
       for (let i = 0; i < schemaKeys.length; i++) {
         const key = schemaKeys[i];
         if (Object.hasOwn(processedEntity, key)) {
+          let fieldSchema = this.schema[key];
+          // Extract inner schema from depth config (depth irrelevant for normalization)
+          if (
+            fieldSchema &&
+            typeof fieldSchema === 'object' &&
+            'schema' in fieldSchema &&
+            ('detectCycles' in fieldSchema || 'entityDepth' in fieldSchema)
+          ) {
+            fieldSchema = fieldSchema.schema;
+          }
           processedEntity[key] = visit(
-            this.schema[key],
+            fieldSchema,
             processedEntity[key],
             processedEntity,
             key,
@@ -345,7 +348,7 @@ export default function EntityMixin<TBase extends Constructor>(
       this: T,
       input: any,
       args: any[],
-      unvisit: (schema: any, input: any) => any,
+      unvisit: (schema: any, input: any, fieldConfig?: any) => any,
     ): AbstractInstanceType<T> {
       if (typeof input === 'symbol') {
         return input as any;
@@ -353,8 +356,24 @@ export default function EntityMixin<TBase extends Constructor>(
 
       // note: iteration order must be stable
       for (const key of Object.keys(this.schema)) {
-        const schema = this.schema[key];
-        const value = unvisit(schema, input[key]);
+        let fieldSchema = this.schema[key];
+        let fieldConfig: any;
+
+        // Detect field config: { schema: ..., detectCycles?: boolean, entityDepth?: number }
+        if (
+          fieldSchema &&
+          typeof fieldSchema === 'object' &&
+          'schema' in fieldSchema &&
+          ('detectCycles' in fieldSchema || 'entityDepth' in fieldSchema)
+        ) {
+          fieldConfig = {
+            detectCycles: fieldSchema.detectCycles,
+            entityDepth: fieldSchema.entityDepth,
+          };
+          fieldSchema = fieldSchema.schema;
+        }
+
+        const value = unvisit(fieldSchema, input[key], fieldConfig);
 
         if (typeof value === 'symbol') {
           // if default is not 'falsy', then this is required, so propagate INVALID symbol

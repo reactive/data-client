@@ -63,7 +63,6 @@ export interface EntityInterface<T = any> extends SchemaSimple {
   schema: Record<string, Schema>;
   prototype: T;
   cacheWith?: object;
-  maxEntityDepth?: number;
 }
 
 export interface Mergeable {

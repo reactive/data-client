@@ -58,8 +58,14 @@ export type DenormalizeNullableNestedSchema<S extends NestedSchemaClass> =
 export type NormalizeReturnType<T> =
   T extends (...args: any) => infer R ? R : never;
 
+/** Field config wrapper: { schema: S, detectCycles: true } or { schema: S, entityDepth: N } */
+type FieldConfig<Inner = any> =
+  | { schema: Inner; detectCycles: boolean; entityDepth?: number }
+  | { schema: Inner; entityDepth: number; detectCycles?: boolean };
+
 export type Denormalize<S> =
-  S extends { createIfValid: any; pk: any; key: string; prototype: infer U } ? U
+  S extends FieldConfig<infer Inner> ? Denormalize<Inner>
+  : S extends { createIfValid: any; pk: any; key: string; prototype: infer U } ? U
   : S extends RecordClass ? AbstractInstanceType<S>
   : S extends { denormalize: (...args: any) => any } ?
     ReturnType<S['denormalize']>
@@ -69,7 +75,8 @@ export type Denormalize<S> =
   : S;
 
 export type DenormalizeNullable<S> =
-  S extends (
+  S extends FieldConfig<infer Inner> ? DenormalizeNullable<Inner>
+  : S extends (
     { createIfValid: any; pk: any; key: string; prototype: any; schema: any }
   ) ?
     DenormalizeNullableNestedSchema<S> | undefined
@@ -82,7 +89,8 @@ export type DenormalizeNullable<S> =
   : S;
 
 export type Normalize<S> =
-  S extends { createIfValid: any; pk: any; key: string; prototype: {} } ? string
+  S extends FieldConfig<infer Inner> ? Normalize<Inner>
+  : S extends { createIfValid: any; pk: any; key: string; prototype: {} } ? string
   : S extends RecordClass ? NormalizeObject<S['schema']>
   : S extends { normalize: (...args: any) => any } ?
     NormalizeReturnType<S['normalize']>
@@ -92,7 +100,8 @@ export type Normalize<S> =
   : S;
 
 export type NormalizeNullable<S> =
-  S extends { createIfValid: any; pk: any; key: string; prototype: {} } ?
+  S extends FieldConfig<infer Inner> ? NormalizeNullable<Inner>
+  : S extends { createIfValid: any; pk: any; key: string; prototype: {} } ?
     string | undefined
   : S extends RecordClass ? NormalizedNullableObject<S['schema']>
   : S extends { _normalizeNullable: (...args: any) => any } ?

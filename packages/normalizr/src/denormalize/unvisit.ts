@@ -106,13 +106,45 @@ const getUnvisit = (
 ) => {
   let depth = 0;
   let depthLimitHit = false;
+  let fieldDepthBase: number | undefined;
+  let fieldDepthLimit: number | undefined;
+  let cycleAncestors: Set<string> | undefined;
+
   // we don't inline this as making this function too big inhibits v8's JIT
   const unvisitEntity = getUnvisitEntity(getEntity, cache, args, unvisit);
-  function unvisit(schema: any, input: any): any {
+  function unvisit(
+    schema: any,
+    input: any,
+    fieldConfig?: { entityDepth?: number; detectCycles?: boolean },
+  ): any {
     if (!schema) return input;
 
     if (input === null || input === undefined) {
       return input;
+    }
+
+    // Per-field config: save previous state, set new limits, recurse, restore
+    // detectCycles: only create ancestor set if not already active
+    // entityDepth: only set if not already active (designed for self-referential
+    // fields on the same entity; see limitation note in PR description)
+    if (fieldConfig !== undefined) {
+      const prevLimit = fieldDepthLimit;
+      const prevBase = fieldDepthBase;
+      const prevCycleAncestors = cycleAncestors;
+
+      if (fieldConfig.entityDepth !== undefined && fieldDepthLimit === undefined) {
+        fieldDepthBase = depth;
+        fieldDepthLimit = fieldConfig.entityDepth;
+      }
+      if (fieldConfig.detectCycles && cycleAncestors === undefined) {
+        cycleAncestors = new Set<string>();
+      }
+
+      const result = unvisit(schema, input);
+      fieldDepthLimit = prevLimit;
+      fieldDepthBase = prevBase;
+      cycleAncestors = prevCycleAncestors;
+      return result;
     }
 
     if (typeof schema.denormalize !== 'function') {
@@ -129,26 +161,42 @@ const getUnvisit = (
       }
     } else {
       if (isEntity(schema)) {
-        if (depth >= (schema.maxEntityDepth ?? MAX_ENTITY_DEPTH)) {
+        // Per-field cycle detection: same entity type already in ancestor path
+        if (cycleAncestors !== undefined && cycleAncestors.has(schema.key)) {
+          return depthLimitEntity(getEntity, cache, schema, input, args);
+        }
+        // Per-field entityDepth limit
+        if (
+          fieldDepthLimit !== undefined &&
+          depth - fieldDepthBase! >= fieldDepthLimit
+        ) {
+          return depthLimitEntity(getEntity, cache, schema, input, args);
+        }
+        // Global safety net
+        if (depth >= MAX_ENTITY_DEPTH) {
           /* istanbul ignore if */
           if (process.env.NODE_ENV !== 'production' && !depthLimitHit) {
             depthLimitHit = true;
-            const limit = schema.maxEntityDepth ?? MAX_ENTITY_DEPTH;
             console.error(
-              `Entity depth limit of ${limit} reached for "${schema.key}" entity. ` +
+              `Entity depth limit of ${MAX_ENTITY_DEPTH} reached for "${schema.key}" entity. ` +
                 `This usually means your schema has very deep or wide bidirectional relationships. ` +
                 `Nested entities beyond this depth are returned with unresolved ids. ` +
-                `Consider using Lazy for recursive schemas to avoid depth limits with better performance: https://dataclient.io/rest/api/Lazy` +
-                (schema.maxEntityDepth === undefined ?
-                  ` Alternatively, set static maxEntityDepth on your Entity to configure this limit.`
-                : ''),
+                `Consider using { detectCycles: true } on bidirectional schema fields or { entityDepth: N } on self-referential fields.`,
             );
           }
-          return depthLimitEntity(getEntity, schema, input);
+          return depthLimitEntity(getEntity, cache, schema, input, args);
         }
+
+        // Track ancestor type for cycle detection
+        const addedToAncestors =
+          cycleAncestors !== undefined && !cycleAncestors.has(schema.key);
+        if (addedToAncestors) cycleAncestors!.add(schema.key);
+
         depth++;
         const result = unvisitEntity(schema, input);
         depth--;
+
+        if (addedToAncestors) cycleAncestors!.delete(schema.key);
         return result;
       }
 
@@ -167,16 +215,29 @@ const getUnvisit = (
 };
 export default getUnvisit;
 
-/** At depth limit: return entity without resolving nested schema fields */
+/** At depth limit: return cached entity if available, otherwise create shallow copy without caching.
+ * Reads from cache to reuse fully resolved versions, but never writes depth-limited
+ * copies to cache — prevents poisoning the cache with shallow versions. */
 function depthLimitEntity(
   getEntity: DenormGetEntity,
+  cache: Cache,
   schema: EntityInterface,
   input: any,
+  args: readonly any[],
 ): object | undefined | typeof INVALID {
-  const entity =
-    typeof input !== 'object' ?
-      getEntity({ key: schema.key, pk: input })
-    : input;
+  const inputIsId = typeof input !== 'object';
+  const entity = inputIsId ? getEntity({ key: schema.key, pk: input }) : input;
   if (typeof entity !== 'object' || entity === null) return entity as any;
+
+  let pk: string | number | undefined =
+    inputIsId ? input : (schema.pk(entity, undefined, undefined, args) as any);
+  if (pk !== undefined && pk !== '' && pk !== 'undefined') {
+    if (typeof pk !== 'string') pk = `${pk}`;
+    // Check cache for a previously fully resolved version
+    const cached = cache.getEntity(pk, schema, entity, () => {});
+    if (cached !== undefined) return cached;
+  }
+
+  // No cached version — create a shallow copy without caching it
   return schema.createIfValid(entity) ?? INVALID;
 }
