@@ -38,6 +38,13 @@ function transformPathString(s) {
 function transformPaths(j, root) {
   let dirty = false;
 
+  const hasDataClientImport = root
+    .find(j.ImportDeclaration)
+    .filter(importPath =>
+      DATA_CLIENT_PACKAGES.has(importPath.node.source.value),
+    ).length;
+  if (!hasDataClientImport) return false;
+
   root.find(j.StringLiteral).forEach(path => {
     const parent = path.parent.node;
     if (
