@@ -116,30 +116,35 @@ function transformUseFetch(j, root) {
     const scopeRoot = j(fnScope);
 
     function rewrite(test) {
-      // promise → !promise?.resolved
+      // promise → promise?.resolved === false
       if (test.type === 'Identifier' && test.name === varName) {
-        return j.unaryExpression(
-          '!',
+        return j.binaryExpression(
+          '===',
           j.optionalMemberExpression(
             j.identifier(test.name),
             j.identifier('resolved'),
             false,
             true,
           ),
+          j.booleanLiteral(false),
         );
       }
-      // !promise → promise?.resolved
+      // !promise → promise?.resolved !== false
       if (
         test.type === 'UnaryExpression' &&
         test.operator === '!' &&
         test.argument.type === 'Identifier' &&
         test.argument.name === varName
       ) {
-        return j.optionalMemberExpression(
-          j.identifier(test.argument.name),
-          j.identifier('resolved'),
-          false,
-          true,
+        return j.binaryExpression(
+          '!==',
+          j.optionalMemberExpression(
+            j.identifier(test.argument.name),
+            j.identifier('resolved'),
+            false,
+            true,
+          ),
+          j.booleanLiteral(false),
         );
       }
       return null;
