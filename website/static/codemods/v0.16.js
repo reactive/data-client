@@ -270,6 +270,14 @@ function isShadowed(path, name) {
             if (patternBindsName(decl.id, name)) return true;
           }
         }
+        if (
+          (stmt.type === 'FunctionDeclaration' ||
+            stmt.type === 'ClassDeclaration') &&
+          stmt.id &&
+          stmt.id.name === name
+        ) {
+          return true;
+        }
       }
     }
 
