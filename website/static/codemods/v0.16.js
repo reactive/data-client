@@ -198,6 +198,75 @@ const JS_GLOBALS = new Set([
   'WeakSet',
 ]);
 
+function patternBindsName(pattern, name) {
+  if (!pattern) return false;
+  if (pattern.type === 'Identifier') return pattern.name === name;
+  if (pattern.type === 'AssignmentPattern')
+    return patternBindsName(pattern.left, name);
+  if (pattern.type === 'RestElement')
+    return patternBindsName(pattern.argument, name);
+  if (pattern.type === 'ObjectPattern') {
+    return pattern.properties.some(p =>
+      p.type === 'RestElement'
+        ? patternBindsName(p.argument, name)
+        : patternBindsName(p.value, name),
+    );
+  }
+  if (pattern.type === 'ArrayPattern') {
+    return pattern.elements.some(e => e && patternBindsName(e, name));
+  }
+  return false;
+}
+
+function isShadowed(path, name) {
+  let cur = path;
+  while (cur.parent) {
+    cur = cur.parent;
+    const node = cur.node;
+
+    if (
+      node.type === 'FunctionDeclaration' ||
+      node.type === 'FunctionExpression' ||
+      node.type === 'ArrowFunctionExpression'
+    ) {
+      if (node.params && node.params.some(p => patternBindsName(p, name))) {
+        return true;
+      }
+    }
+
+    if (node.type === 'CatchClause') {
+      if (node.param && patternBindsName(node.param, name)) {
+        return true;
+      }
+    }
+
+    if (node.type === 'BlockStatement' || node.type === 'Program') {
+      const stmts = node.body || [];
+      for (const stmt of stmts) {
+        if (stmt.type === 'VariableDeclaration') {
+          for (const decl of stmt.declarations) {
+            if (patternBindsName(decl.id, name)) return true;
+          }
+        }
+      }
+    }
+
+    if (
+      node.type === 'ForStatement' ||
+      node.type === 'ForInStatement' ||
+      node.type === 'ForOfStatement'
+    ) {
+      const init = node.init || node.left;
+      if (init && init.type === 'VariableDeclaration') {
+        for (const decl of init.declarations) {
+          if (patternBindsName(decl.id, name)) return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
 function transformSchemaImports(j, root) {
   let dirty = false;
 
@@ -238,6 +307,7 @@ function transformSchemaImports(j, root) {
         object: { type: 'Identifier', name: local },
       })
       .forEach(mp => {
+        if (isShadowed(mp, local)) return;
         if (mp.node.property.type === 'Identifier') {
           const name = mp.node.property.name;
           if (TYPE_ONLY_SCHEMAS.has(name)) return;
@@ -253,6 +323,7 @@ function transformSchemaImports(j, root) {
           left: { type: 'Identifier', name: local },
         })
         .forEach(qp => {
+          if (isShadowed(qp, local)) return;
           if (qp.node.right.type === 'Identifier') {
             const name = qp.node.right.name;
             if (TYPE_ONLY_SCHEMAS.has(name)) return;
