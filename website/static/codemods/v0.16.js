@@ -356,10 +356,14 @@ function transformSchemaImports(j, root) {
     });
 
     function resolveLocal(name) {
-      if (JS_GLOBALS.has(name) || scopeBindings.has(name)) {
-        return 'Schema' + name;
+      if (!JS_GLOBALS.has(name) && !scopeBindings.has(name)) {
+        return name;
       }
-      return name;
+      let candidate = 'Schema' + name;
+      while (JS_GLOBALS.has(candidate) || scopeBindings.has(candidate)) {
+        candidate = '_' + candidate;
+      }
+      return candidate;
     }
 
     root
