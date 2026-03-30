@@ -150,8 +150,11 @@ function transformUseFetch(j, root) {
       return null;
     }
 
+    const stopNode = fnScope.node.body;
+
     [j.IfStatement, j.ConditionalExpression].forEach(type => {
       scopeRoot.find(type).forEach(p => {
+        if (isShadowed(p, varName, stopNode)) return;
         const r = rewrite(p.node.test);
         if (r) {
           p.node.test = r;
@@ -164,6 +167,7 @@ function transformUseFetch(j, root) {
       .find(j.LogicalExpression)
       .filter(p => p.node.operator === '&&' || p.node.operator === '||')
       .forEach(p => {
+        if (isShadowed(p, varName, stopNode)) return;
         const l = rewrite(p.node.left);
         if (l) {
           p.node.left = l;
@@ -240,10 +244,11 @@ function collectPatternNames(pattern, out) {
   }
 }
 
-function isShadowed(path, name) {
+function isShadowed(path, name, stopNode) {
   let cur = path;
   while (cur.parent) {
     cur = cur.parent;
+    if (stopNode && cur.node === stopNode) return false;
     const node = cur.node;
 
     if (
