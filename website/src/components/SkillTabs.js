@@ -5,6 +5,7 @@ import React from 'react';
 
 export default function SkillTabs({ repo = 'reactive/data-client', skill }) {
   const skillFlag = skill ? ` --skill ${skill}` : '';
+  const catalogUrl = `https://skills.sh/${repo}`;
   return (
     <>
       <Tabs
@@ -29,11 +30,7 @@ export default function SkillTabs({ repo = 'reactive/data-client', skill }) {
         </TabItem>
       </Tabs>
       <p style={{ marginTop: '0.5rem', marginBottom: 0 }}>
-        <a
-          href="https://skills.sh/reactive/data-client"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a href={catalogUrl} target="_blank" rel="noopener noreferrer">
           Browse all skills on skills.sh
         </a>
       </p>
