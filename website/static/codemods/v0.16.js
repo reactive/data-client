@@ -150,11 +150,6 @@ function transformUseFetch(j, root) {
           p.node.left = l;
           dirty = true;
         }
-        const r = rewrite(p.node.right);
-        if (r) {
-          p.node.right = r;
-          dirty = true;
-        }
       });
   });
 
@@ -251,17 +246,15 @@ function transformSchemaImports(j, root) {
 
     // Only remove the schema import specifier when there are no remaining
     // bare references (e.g. destructuring, function args, typeof).
-    const bareRefs = root
-      .find(j.Identifier, { name: local })
-      .filter(p => {
-        const parent = p.parent.node;
-        if (
-          parent.type === 'ImportSpecifier' &&
-          (parent.imported === p.node || parent.local === p.node)
-        )
-          return false;
-        return true;
-      });
+    const bareRefs = root.find(j.Identifier, { name: local }).filter(p => {
+      const parent = p.parent.node;
+      if (
+        parent.type === 'ImportSpecifier' &&
+        (parent.imported === p.node || parent.local === p.node)
+      )
+        return false;
+      return true;
+    });
     if (!bareRefs.length) {
       specs.splice(idx, 1);
     }
