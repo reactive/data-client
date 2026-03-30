@@ -83,6 +83,20 @@ function enclosingFunction(path) {
 function transformUseFetch(j, root) {
   let dirty = false;
 
+  const hasDataClientUseFetch = root
+    .find(j.ImportDeclaration)
+    .filter(importPath => {
+      const source = importPath.node.source.value;
+      if (!source.startsWith('@data-client/')) return false;
+      return importPath.node.specifiers.some(
+        s =>
+          s.type === 'ImportSpecifier' &&
+          s.imported &&
+          (s.imported.name === 'useFetch' || s.imported.value === 'useFetch'),
+      );
+    }).length;
+  if (!hasDataClientUseFetch) return false;
+
   root.find(j.VariableDeclarator).forEach(declPath => {
     const init = declPath.node.init;
     if (
