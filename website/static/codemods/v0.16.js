@@ -158,6 +158,10 @@ function transformUseFetch(j, root) {
 
 // --- schema.X namespace → direct imports ---
 
+// These schema members are type-only exports and cannot be imported as values.
+// They must stay as schema.Object / schema.Array namespace access.
+const TYPE_ONLY_SCHEMAS = new Set(['Object', 'Array']);
+
 const JS_GLOBALS = new Set([
   'Array',
   'Boolean',
@@ -222,6 +226,7 @@ function transformSchemaImports(j, root) {
       .forEach(mp => {
         if (mp.node.property.type === 'Identifier') {
           const name = mp.node.property.name;
+          if (TYPE_ONLY_SCHEMAS.has(name)) return;
           if (!used.has(name)) used.set(name, resolveLocal(name));
           j(mp).replaceWith(j.identifier(used.get(name)));
         }
@@ -236,6 +241,7 @@ function transformSchemaImports(j, root) {
         .forEach(qp => {
           if (qp.node.right.type === 'Identifier') {
             const name = qp.node.right.name;
+            if (TYPE_ONLY_SCHEMAS.has(name)) return;
             if (!used.has(name)) used.set(name, resolveLocal(name));
             j(qp).replaceWith(j.identifier(used.get(name)));
           }
