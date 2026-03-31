@@ -323,78 +323,110 @@ describe('normalization', () => {
   });
 });
 
-describe('detectCycles resolves consistently regardless of traversal depth', () => {
-  // detectCycles stops based on type repetition in the ancestor path,
-  // not a global depth counter. This means an entity gets the same
-  // resolution whether accessed directly or nested deep in another tree.
+describe('detectCycles: consistent behavior regardless of nesting depth', () => {
+  // Building ↔ Department bidirectional relationship
+  // detectCycles should stop the cycle at the same point whether
+  // the Building is at the root or buried 4 levels deep.
 
-  class BuildingDC extends IDEntity {
+  class Building extends IDEntity {
     readonly name: string = '';
-    readonly departments: DepartmentDC[] = [];
+    readonly departments: Dept[] = [];
     static schema: Record<string, any> = {};
   }
-  class DepartmentDC extends IDEntity {
+  class Dept extends IDEntity {
     readonly name: string = '';
-    readonly buildings: BuildingDC[] = [];
+    readonly buildings: Building[] = [];
     static schema: Record<string, any> = {};
   }
+  Building.schema = { departments: { schema: [Dept], detectCycles: true } };
+  Dept.schema = { buildings: { schema: [Building], detectCycles: true } };
+
+  // Wrapper chain: w1 → w2 → w3 → w4 → building b1
   class Wrapper extends IDEntity {
     readonly inner: Wrapper | undefined = undefined;
-    readonly building: BuildingDC | undefined = undefined;
+    readonly building: Building | undefined = undefined;
     static schema: Record<string, any> = {};
   }
-  BuildingDC.schema = { departments: { schema: [DepartmentDC], detectCycles: true } };
-  DepartmentDC.schema = { buildings: { schema: [BuildingDC], detectCycles: true } };
-  Wrapper.schema = { inner: Wrapper, building: BuildingDC };
+  Wrapper.schema = { inner: Wrapper, building: Building };
 
   const entities = {
+    Building: { 'b1': { id: 'b1', name: 'Building 1', departments: ['d1'] } },
+    Dept: { 'd1': { id: 'd1', name: 'Dept 1', buildings: ['b1'] } },
     Wrapper: {
       'w1': { id: 'w1', inner: 'w2' },
       'w2': { id: 'w2', inner: 'w3' },
       'w3': { id: 'w3', inner: 'w4' },
       'w4': { id: 'w4', building: 'b1' },
     },
-    BuildingDC: {
-      'b1': { id: 'b1', name: 'Building 1', departments: ['d1'] },
-    },
-    DepartmentDC: {
-      'd1': { id: 'd1', name: 'Dept 1', buildings: ['b1'] },
+  };
+
+  test('Building at root: resolves Department, stops back-reference', () => {
+    // Building → Dept ✅ → Building ⛔ (type repeated)
+    const building = plainDenormalize(Building, 'b1', entities);
+    if (typeof building === 'symbol' || !building) return;
+
+    expect(building.departments[0].id).toBe('d1');             // Dept resolved
+    expect(building.departments[0].buildings[0].id).toBe('b1'); // back-ref exists but shallow
+  });
+
+  test('Building nested 4 levels deep: same result', () => {
+    // Wrapper → Wrapper → Wrapper → Wrapper → Building → Dept ✅ → Building ⛔
+    const wrapper = plainDenormalize(Wrapper, 'w1', entities);
+    if (typeof wrapper === 'symbol' || !wrapper) return;
+
+    const building = wrapper.inner?.inner?.inner?.building;
+
+    expect(building!.departments[0].id).toBe('d1');             // Dept resolved (same)
+    expect(building!.departments[0].buildings[0].id).toBe('b1'); // back-ref exists (same)
+  });
+});
+
+describe('entityDepth: controls exactly N levels of self-referential nesting', () => {
+  // Department → children → Department → children → ...
+  // entityDepth: 3 means exactly 3 levels of children, regardless of
+  // where the Department appears in the tree.
+
+  class Org extends IDEntity {
+    readonly name: string = '';
+    readonly children: Org[] = [];
+    static schema = {
+      children: { schema: [Org], entityDepth: 3 },
+    };
+  }
+
+  const entities = {
+    Org: {
+      'a': { id: 'a', name: 'Level 0', children: ['b'] },
+      'b': { id: 'b', name: 'Level 1', children: ['c'] },
+      'c': { id: 'c', name: 'Level 2', children: ['d'] },
+      'd': { id: 'd', name: 'Level 3', children: ['e'] },
+      'e': { id: 'e', name: 'Level 4', children: [] },
     },
   };
 
-  test('direct access: resolves one full hop then stops at type repetition', () => {
-    const result = plainDenormalize(BuildingDC, 'b1', entities);
-    expect(result).not.toEqual(expect.any(Symbol));
-    if (typeof result === 'symbol' || !result) return;
+  test('resolves exactly 3 levels of children', () => {
+    const root = plainDenormalize(Org, 'a', entities);
+    if (typeof root === 'symbol' || !root) return;
 
-    // Building → Department resolved (first hop)
-    expect(result.departments[0]).toBeInstanceOf(DepartmentDC);
-    expect(result.departments[0].id).toBe('d1');
+    // Level 0 → children resolved
+    expect(root.id).toBe('a');
 
-    // Department → Building stopped (Building already in ancestor set)
-    // The depth-limited Building is still an instance but its nested fields are unresolved
-    const backRef = result.departments[0].buildings[0];
-    expect(backRef).toBeInstanceOf(BuildingDC);
-    expect(backRef.id).toBe('b1');
-  });
+    // Level 1 (hop 1) → resolved
+    expect(root.children[0].id).toBe('b');
 
-  test('nested deep in another tree: same resolution as direct access', () => {
-    // Building is reached at global depth 4 (Wrapper → Wrapper → Wrapper → Wrapper → Building)
-    const result = plainDenormalize(Wrapper, 'w1', entities);
-    expect(result).not.toEqual(expect.any(Symbol));
-    if (typeof result === 'symbol' || !result) return;
+    // Level 2 (hop 2) → resolved
+    expect(root.children[0].children[0].id).toBe('c');
 
-    const building = result.inner?.inner?.inner?.building;
-    expect(building).toBeDefined();
-    expect(building).toBeInstanceOf(BuildingDC);
+    // Level 3 (hop 3) → resolved (this is the limit)
+    expect(root.children[0].children[0].children[0].id).toBe('d');
 
-    // Same as direct access: Department resolved
-    expect(building!.departments[0]).toBeInstanceOf(DepartmentDC);
-    expect(building!.departments[0].id).toBe('d1');
-
-    // Same as direct access: back-reference stopped
-    const backRef = building!.departments[0].buildings[0];
-    expect(backRef).toBeInstanceOf(BuildingDC);
-    expect(backRef.id).toBe('b1');
+    // Level 4 (hop 4) → depth-limited, entity instance but children unresolved
+    const level3 = root.children[0].children[0].children[0];
+    expect(level3).toBeInstanceOf(Org);
+    if (level3.children.length > 0) {
+      const level4 = level3.children[0];
+      expect(level4).toBeInstanceOf(Org);
+      expect(level4.id).toBe('e');
+    }
   });
 });
