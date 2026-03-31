@@ -195,7 +195,11 @@ export default class DevToolsManager implements Manager {
   /** Ensures all subscriptions are cleaned up. */
   cleanup() {
     if (process.env.NODE_ENV !== 'production') {
-      (globalThis as any).__DC_CONTROLLERS__?.delete(this.devtoolsName);
+      const map: Map<string, Controller> | undefined = (globalThis as any)
+        .__DC_CONTROLLERS__;
+      if (map?.get(this.devtoolsName) === this.controller) {
+        map.delete(this.devtoolsName);
+      }
     }
   }
 }
