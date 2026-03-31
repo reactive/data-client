@@ -137,6 +137,24 @@ Merged store after loading multiple pages: 47,608 entities, 19,504 in one connec
 | `maxEntityDepth: 12` | 13ms | 701ms | 3,181ms | 17,285ms |
 | **`detectCycles`** | **<1ms** | **<1ms** | **<1ms** | **2ms** |
 
+## Why per-field, not per-entity
+
+The decision of when to resolve and when to stop is **relative to the relationship**, not absolute to the entity. The best information for that decision lives at the field level:
+
+- A `buildings` field on Department knows it's a bidirectional back-reference → `detectCycles: true`
+- A `children` field on Department knows it's a self-referential hierarchy → `entityDepth: 3`
+- A `parent` field on Department knows it's a single hop → `entityDepth: 2`
+
+A global counter on the entity (like `maxEntityDepth`) can't distinguish these — it applies the same limit to all paths. The entity doesn't know whether it's being reached through a cyclic back-reference or a legitimate deep hierarchy. The field does.
+
+## Tests
+
+The test suite ([`Depth.test.ts`](packages/endpoint/src/schemas/__tests__/Depth.test.ts)) proves:
+
+**`detectCycles` is predictable** — the test `"Building at root: resolves Department, stops back-reference"` and `"Building nested 4 levels deep: same result"` show identical behavior whether the Building is accessed directly or through 4 levels of Wrapper entities. A global depth counter would give different results depending on traversal context.
+
+**`entityDepth` does what it says** — the test `"resolves exactly 3 levels of children"` shows Org A → B (hop 1) → C (hop 2) → D (hop 3) → E (depth-limited). Always 3 levels, regardless of where Org A sits in the tree.
+
 ## Compatibility
 
 - The global depth safety net (`MAX_ENTITY_DEPTH = 64`) remains as a fallback
