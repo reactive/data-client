@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1774821370643,
+  "lastUpdate": 1774963138150,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -917,6 +917,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 202.04,
             "range": "± 7.3%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e54c9b6e6a48939263f41496a90387ee614d35f5",
+          "message": "feat(core): Expose __DC_CONTROLLERS__ for programmatic store access via MCP (#3753)\n\n* feat: Expose __DC_CONTROLLERS__ for MCP integration into devtools\n\n* internal(skill): Add devtools debugging reference\n\n* fix(core): guard DevtoolsManager cleanup with identity check\n\nWhen multiple DataProviders use the default DevToolsManager (same\ndevtoolsName), cleanup() unconditionally deleted the __DC_CONTROLLERS__\nmap entry by name. If Provider A unmounts first, it would remove\nProvider B's still-active controller from the map.\n\nAdd an identity check (map.get(name) === this.controller) before\ndeleting so only the instance that currently owns the entry removes it.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* docs: Update skill and blog\n\n---------\n\nCo-authored-by: Cursor Agent <cursoragent@cursor.com>",
+          "timestamp": "2026-03-31T09:16:39-04:00",
+          "tree_id": "e7cd19090f1f0774819598c48b10d4c8b1538435",
+          "url": "https://github.com/reactive/data-client/commit/e54c9b6e6a48939263f41496a90387ee614d35f5"
+        },
+        "date": 1774963135746,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 178.57,
+            "range": "± 4.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 46.62,
+            "range": "± 6.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 434.78,
+            "range": "± 0.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 434.78,
+            "range": "± 4.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 50,
+            "range": "± 5.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 384.62,
+            "range": "± 8.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 370.37,
+            "range": "± 6.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 11.25,
+            "range": "± 1.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 92.6,
+            "range": "± 2.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 51.28,
+            "range": "± 4.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 322.58,
+            "range": "± 4.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 416.67,
+            "range": "± 4.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 219.81,
+            "range": "± 5.7%",
             "unit": "ops/s"
           }
         ]
