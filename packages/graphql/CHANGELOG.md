@@ -1,5 +1,34 @@
 # @data-client/graphql
 
+## 0.16.0
+
+### Minor Changes
+
+- [#3829](https://github.com/reactive/data-client/pull/3829) [`63633c7`](https://github.com/reactive/data-client/commit/63633c714b5c041e04891255683e5a899c3d3f22) - Add [schema.Lazy](https://dataclient.io/rest/api/Lazy) for deferred relationship denormalization.
+
+  `schema.Lazy` wraps a relationship field so denormalization returns raw primary keys
+  instead of resolved entities. Use `.query` with [useQuery](/docs/api/useQuery) to
+  resolve on demand in a separate memo/GC scope.
+
+  New exports: `schema.Lazy`, `Lazy`
+
+  ```ts
+  class Department extends Entity {
+    buildings: string[] = [];
+    static schema = {
+      buildings: new schema.Lazy([Building]),
+    };
+  }
+
+  // dept.buildings = ['bldg-1', 'bldg-2'] (raw PKs)
+  const buildings = useQuery(Department.schema.buildings.query, dept.buildings);
+  ```
+
+### Patch Changes
+
+- Updated dependencies [[`63633c7`](https://github.com/reactive/data-client/commit/63633c714b5c041e04891255683e5a899c3d3f22), [`1f34136`](https://github.com/reactive/data-client/commit/1f34136f1d0902ee5456089f2d2f9f35c9f4a758), [`869f28f`](https://github.com/reactive/data-client/commit/869f28fc651ca5e8b0f935089fc0b8d8ce8585cb)]:
+  - @data-client/endpoint@0.16.0
+
 ## 0.15.7
 
 ### Patch Changes

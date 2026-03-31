@@ -1,5 +1,63 @@
 # @data-client/endpoint
 
+## 0.16.0
+
+### Minor Changes
+
+- [#3829](https://github.com/reactive/data-client/pull/3829) [`63633c7`](https://github.com/reactive/data-client/commit/63633c714b5c041e04891255683e5a899c3d3f22) - Add [schema.Lazy](https://dataclient.io/rest/api/Lazy) for deferred relationship denormalization.
+
+  `schema.Lazy` wraps a relationship field so denormalization returns raw primary keys
+  instead of resolved entities. Use `.query` with [useQuery](/docs/api/useQuery) to
+  resolve on demand in a separate memo/GC scope.
+
+  New exports: `schema.Lazy`, `Lazy`
+
+  ```ts
+  class Department extends Entity {
+    buildings: string[] = [];
+    static schema = {
+      buildings: new schema.Lazy([Building]),
+    };
+  }
+
+  // dept.buildings = ['bldg-1', 'bldg-2'] (raw PKs)
+  const buildings = useQuery(Department.schema.buildings.query, dept.buildings);
+  ```
+
+- [#3783](https://github.com/reactive/data-client/pull/3783) [`1f34136`](https://github.com/reactive/data-client/commit/1f34136f1d0902ee5456089f2d2f9f35c9f4a758) - Add `Collection.moveWith()` for custom move schemas
+
+  Analogous to [`addWith()`](https://dataclient.io/rest/api/Collection#addWith), `moveWith()` constructs a custom move schema that controls how entities are added to their destination collection. The remove behavior is automatically derived from the collection type (Array or Values).
+
+  New exports: `unshift` merge function for convenience.
+
+  ```ts
+  import { Collection, unshift } from '@data-client/rest';
+
+  class MyCollection extends Collection {
+    constructor(schema, options) {
+      super(schema, options);
+      this.move = this.moveWith(unshift);
+    }
+  }
+  ```
+
+### Patch Changes
+
+- [#3823](https://github.com/reactive/data-client/pull/3823) [`869f28f`](https://github.com/reactive/data-client/commit/869f28fc651ca5e8b0f935089fc0b8d8ce8585cb) - Fix stack overflow during denormalization of large bidirectional entity graphs.
+
+  Add entity depth limit (64) to prevent `RangeError: Maximum call stack size exceeded`
+  when denormalizing cross-type chains with thousands of unique entities
+  (e.g., Department → Building → Department → ...). Entities beyond the depth limit
+  are returned with unresolved ids instead of fully denormalized nested objects.
+
+  The limit can be configured per-Entity with [`static maxEntityDepth`](/rest/api/Entity#maxEntityDepth):
+
+  ```ts
+  class Department extends Entity {
+    static maxEntityDepth = 16;
+  }
+  ```
+
 ## 0.15.7
 
 ### Patch Changes

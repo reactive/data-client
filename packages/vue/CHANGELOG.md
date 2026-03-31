@@ -1,5 +1,54 @@
 # @data-client/vue
 
+## 0.16.0
+
+### Minor Changes
+
+- [#3752](https://github.com/reactive/data-client/pull/3752) [`3c3bfe8`](https://github.com/reactive/data-client/commit/3c3bfe81ff0c3a786d6804a61f9e7a4362947dcb) - BREAKING CHANGE: [useFetch()](/docs/api/useFetch) always returns a stable promise with a `.resolved` property, even when data is already cached.
+
+  #### before
+
+  ```tsx
+  const promise = useFetch(MyResource.get, { id });
+  if (promise) {
+    // fetch was triggered
+  }
+  ```
+
+  #### after
+
+  ```tsx
+  const promise = useFetch(MyResource.get, { id });
+  if (!promise.resolved) {
+    // fetch is in-flight
+  }
+  use(promise); // works with React.use()
+  ```
+
+### Patch Changes
+
+- [#3753](https://github.com/reactive/data-client/pull/3753) [`e54c9b6`](https://github.com/reactive/data-client/commit/e54c9b6e6a48939263f41496a90387ee614d35f5) - Add `globalThis.__DC_CONTROLLERS__` Map in dev mode for programmatic store access from browser DevTools MCP, React Native debuggers, and other development tooling.
+
+  Each [DataProvider](/docs/api/DataProvider) registers its [Controller](/docs/api/Controller) keyed by the devtools connection name, supporting multiple providers on the same page.
+
+- [#3823](https://github.com/reactive/data-client/pull/3823) [`869f28f`](https://github.com/reactive/data-client/commit/869f28fc651ca5e8b0f935089fc0b8d8ce8585cb) - Fix stack overflow during denormalization of large bidirectional entity graphs.
+
+  Add entity depth limit (64) to prevent `RangeError: Maximum call stack size exceeded`
+  when denormalizing cross-type chains with thousands of unique entities
+  (e.g., Department → Building → Department → ...). Entities beyond the depth limit
+  are returned with unresolved ids instead of fully denormalized nested objects.
+
+  The limit can be configured per-Entity with [`static maxEntityDepth`](/rest/api/Entity#maxEntityDepth):
+
+  ```ts
+  class Department extends Entity {
+    static maxEntityDepth = 16;
+  }
+  ```
+
+- Updated dependencies [[`e54c9b6`](https://github.com/reactive/data-client/commit/e54c9b6e6a48939263f41496a90387ee614d35f5), [`869f28f`](https://github.com/reactive/data-client/commit/869f28fc651ca5e8b0f935089fc0b8d8ce8585cb), [`0e0ff1a`](https://github.com/reactive/data-client/commit/0e0ff1ab49b1a58477b07dba3dfc73df6d4af3f5)]:
+  - @data-client/core@0.16.0
+
 ## 0.15.4
 
 ### Patch Changes

@@ -1,5 +1,24 @@
 # Change Log
 
+## 0.16.0
+
+### Patch Changes
+
+- [#3823](https://github.com/reactive/data-client/pull/3823) [`869f28f`](https://github.com/reactive/data-client/commit/869f28fc651ca5e8b0f935089fc0b8d8ce8585cb) - Fix stack overflow during denormalization of large bidirectional entity graphs.
+
+  Add entity depth limit (64) to prevent `RangeError: Maximum call stack size exceeded`
+  when denormalizing cross-type chains with thousands of unique entities
+  (e.g., Department → Building → Department → ...). Entities beyond the depth limit
+  are returned with unresolved ids instead of fully denormalized nested objects.
+
+  The limit can be configured per-Entity with [`static maxEntityDepth`](/rest/api/Entity#maxEntityDepth):
+
+  ```ts
+  class Department extends Entity {
+    static maxEntityDepth = 16;
+  }
+  ```
+
 ## 0.15.4
 
 ### Patch Changes
