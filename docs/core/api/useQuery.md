@@ -152,6 +152,88 @@ render(<UsersPage />);
 
 <StackBlitz app="todo-app" file="src/resources/TodoResource.ts,src/pages/Home/TodoStats.tsx" height="420" />
 
+### Lazy relationships
+
+[Lazy](/rest/api/Lazy) fields keep raw IDs during parent denormalization. Use [`.query`](/rest/api/Lazy#query) with `useQuery` to resolve them on demand,
+isolating re-renders to only the components that need the related data.
+
+<HooksPlayground fixtures={[
+{
+endpoint: new RestEndpoint({path: '/departments'}),
+args: [],
+response: [
+{ id: '1', name: 'Engineering', buildings: [
+  { id: 'b1', name: 'HQ' },
+  { id: 'b2', name: 'Annex' },
+]},
+{ id: '2', name: 'Design', buildings: [
+  { id: 'b1', name: 'HQ' },
+  { id: 'b3', name: 'Studio' },
+]},
+],
+delay: 150,
+},
+]} row>
+
+```ts title="Resources" collapsed
+export class Building extends Entity {
+  id = '';
+  name = '';
+
+  static key = 'Building';
+}
+
+export class Department extends Entity {
+  id = '';
+  name = '';
+  buildings: string[] = [];
+
+  static schema = {
+    buildings: new Lazy([Building]),
+  };
+  static key = 'Department';
+}
+
+export const DepartmentResource = resource({
+  path: '/departments/:id',
+  schema: Department,
+});
+```
+
+```tsx title="DepartmentsPage" {7}
+import { useQuery, useFetch } from '@data-client/react';
+import { DepartmentResource, Department } from './Resources';
+
+function BuildingList({ dept }: { dept: Department }) {
+  const buildings = useQuery(
+    Department.schema.buildings.query,
+    dept.buildings,
+  );
+  if (!buildings) return null;
+  return (
+    <span>{buildings.map(b => b.name).join(', ')}</span>
+  );
+}
+
+function DepartmentsPage() {
+  useFetch(DepartmentResource.getList);
+  const departments = useQuery(new All(Department));
+  if (!departments) return <div>Loading...</div>;
+  return (
+    <div>
+      {departments.map(dept => (
+        <div key={dept.pk()}>
+          <strong>{dept.name}</strong>: <BuildingList dept={dept} />
+        </div>
+      ))}
+    </div>
+  );
+}
+render(<DepartmentsPage />);
+```
+
+</HooksPlayground>
+
 ### Data fallbacks
 
 In this case `Ticker` is constantly updated from a websocket stream. However, there is no bulk/list
