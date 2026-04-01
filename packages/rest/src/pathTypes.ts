@@ -12,7 +12,8 @@ type KeyVal<K extends string> =
 
 /** Parameters for a given path */
 export type PathArgs<S extends string> =
-  PathKeys<S> extends never ?
+  unknown extends S ? any
+  : PathKeys<S> extends never ?
     // unknown is identity for intersection ('&')
     unknown
   : KeysToArgs<PathKeys<S>>;
@@ -45,7 +46,8 @@ export type KeysToArgs<Key extends string> = {
   });
 
 export type PathArgsAndSearch<S extends string> =
-  Exclude<PathKeys<S>, `${string}}`> extends never ?
+  unknown extends S ? any
+  : Exclude<PathKeys<S>, `${string}}`> extends never ?
     Record<string, number | string | boolean> | undefined
   : {
       [K in PathKeys<S> as K extends `${string}}` ? never

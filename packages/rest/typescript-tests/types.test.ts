@@ -4,6 +4,7 @@ import { User, Article } from '__tests__/new';
 
 import resource from '../src/resource';
 import RestEndpoint, { GetEndpoint, MutateEndpoint } from '../src/RestEndpoint';
+import type { RestGenerics } from '../src/RestEndpointTypes';
 
 it('RestEndpoint construct and extend with typed options', () => {
   new RestEndpoint({
@@ -1673,3 +1674,49 @@ it('should handle more open ended type definitions', () => {
   // @ts-expect-error - missing group
   extended.getPage({ cursor: 'next' });
 };
+
+// === RestEndpoint subclass with O=any (PathArgs<any> regression) ===
+it('should allow concrete body types when subclassing RestEndpoint with O=any', () => {
+  class AuthdEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+    getRequestInit(body: any) {
+      return super.getRequestInit(body);
+    }
+  }
+
+  // When O defaults to any, the endpoint should still accept concrete body types
+  const updateUser = new AuthdEndpoint({
+    method: 'PUT',
+    path: '/users/:id',
+    schema: User,
+    body: {} as { username: string; email: string },
+  });
+  () => updateUser({ id: 5 }, { username: 'bob', email: 'bob@test.com' });
+
+  // Extend should also work with concrete body
+  const extended = new AuthdEndpoint({
+    method: 'POST',
+    path: '/users',
+    schema: User,
+  }).extend({
+    body: {} as { username: string; email: string },
+  });
+  () => extended({ username: 'bob', email: 'bob@test.com' });
+
+  // Constructor with no body (GET) should still work
+  const getter = new AuthdEndpoint({
+    path: '/users/:id',
+    schema: User,
+  });
+  () => getter({ id: 5 });
+
+  // Extend with path change should work
+  const repath = new AuthdEndpoint({
+    path: '/users/:id',
+    schema: User,
+    method: 'PUT',
+    body: {} as { name: string },
+  }).extend({
+    path: '/users/:id/profile',
+  });
+  () => repath({ id: 5 }, { name: 'alice' });
+});

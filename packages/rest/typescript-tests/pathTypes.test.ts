@@ -250,3 +250,7 @@ type PAS_WildOpt = Expect<
     Record<string, number | string | boolean> | undefined
   >
 >;
+
+// --- any path (O=any subclassing) ---
+type PA_Any = Expect<Equal<PathArgs<any>, any>>;
+type PAS_Any = Expect<Equal<PathArgsAndSearch<any>, any>>;

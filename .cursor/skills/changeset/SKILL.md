@@ -47,6 +47,9 @@ Generate changesets, update documentation, draft blog entries, and update skills
    - If new APIs or patterns are introduced that agents should know about, add them to the relevant skill
    - Skill changes don't need changesets — they are development tooling, not published packages
 
+## Writing Perspective
+All user-facing text (changesets, blog entries, docs) should be written from the library user's point of view. Describe what was broken or what they can now do — not internal type mechanics or implementation details. Think "what does a developer using this package experience?"
+
 ## Changeset Format
 - **First line**: Action verb ("Add", "Fix", "Update", "Remove")
 - **Breaking**: Prefix with `BREAKING CHANGE:` or `BREAKING:`
