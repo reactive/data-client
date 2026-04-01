@@ -1,5 +1,26 @@
 # @data-client/rest
 
+## 0.16.1
+
+### Patch Changes
+
+- [#3845](https://github.com/reactive/data-client/pull/3845) [`14095fe`](https://github.com/reactive/data-client/commit/14095fe768625cf11ce3d80d3493571029cf5b67) - Fix type errors when using concrete body types with subclassed RestEndpoint
+
+  Subclassing RestEndpoint (the standard pattern for adding auth headers, custom
+  serialization, etc.) could produce type errors when specifying concrete body types.
+
+  ```ts
+  // Before: type error on body ❌
+  class AuthdEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {}
+  new AuthdEndpoint({
+    method: 'PUT',
+    path: '/users/:id',
+    body: {} as { username: string; email: string },
+  });
+
+  // After: works correctly ✓
+  ```
+
 ## 0.16.0
 
 ### Minor Changes
