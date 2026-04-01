@@ -167,10 +167,16 @@ return <ReviewForm onSubmit={data => controller.fetch(createReview, data)} />;
 <td align="center">🛑</td>
 </tr>
 <tr>
-<td>any</td>
+<td rowSpan="2">any</td>
 <td align="center"></td>
 <td><a href="https://dataclient.io/rest/api/Query">Query(Queryable)</a></td>
 <td>memoized custom transforms</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td><a href="https://dataclient.io/rest/api/Lazy">Lazy(Schema)</a></td>
+<td>deferred denormalization</td>
 <td align="center">✅</td>
 </tr>
 </tbody></table>
