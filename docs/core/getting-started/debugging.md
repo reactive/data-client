@@ -8,14 +8,48 @@ import TabItem from '@theme/TabItem';
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-## Installation
+## Debugging with agents
+
+For many debugging tasks, the fastest path is to use an agent that already knows the
+`@data-client/react` debugging workflow.
+
+Install the [`data-client-react` skill](https://skills.sh/reactive/data-client/data-client-react)
+in your coding agent, then ask it to inspect the current page or app state.
+
+### How agent debugging works
+
+In dev mode, `DevToolsManager` exposes live `Controller` instances so an agent can inspect
+cache state, endpoint metadata, and dispatched actions directly from the running app.
+
+Technically, those controllers are stored on `globalThis.__DC_CONTROLLERS__`, which is a
+browser-global `Map`. You can think of it as a temporary dev-mode registry that lets tools
+and agents look up the active `DataProvider` stores for the current page.
+
+At a high level, the agent can:
+
+- discover the active `DataProvider` controllers
+- read normalized or denormalized cache state
+- inspect recent fetches, responses, errors, and invalidations
+- correlate store changes with browser network activity
+- trigger safe controller operations like invalidation or expiration for investigation
+
+This is useful when you want a quick answer to questions like "why didn't this refetch?",
+"what is in the cache right now?", or "which action updated this entity?" without manually
+clicking through each inspector panel.
+
+## Manual debugging
+
+If you prefer to inspect everything yourself, the browser devtools workflow below remains
+the standard manual path.
+
+### Installation
 
 Add the browser extension for
 [chrome extension](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)
 or
 [firefox extension](https://addons.mozilla.org/en-US/firefox/addon/reduxdevtools/)
 
-## Open dev tools
+### Open dev tools
 
 <span style={{float:'right',marginLeft:'10px',width:'190px',textAlign:'center'}}>
 ![redux-devtools browser button](/img/devtools-browser-button.png)
@@ -47,7 +81,7 @@ This can be changed with [skipLogging](../api/DevToolsManager.md#skiplogging) op
 
 :::
 
-## Control flow
+### Control flow
 
 <abbr title="Reactive Data Client">Data Client</abbr> uses the [flux store](https://facebookarchive.github.io/flux/docs/in-depth-overview/) pattern, making debugging
 straightforward as each change is traceable and descriptive.
@@ -65,7 +99,7 @@ straightforward as each change is traceable and descriptive.
 
 > [More about control flow](../concepts/managers.md)
 
-## State Inspection
+### State Inspection
 
 Whens [schemas](/rest/api/schema) are used, responses are [normalized](../concepts/normalization.md) into `entities`
 and `endpoints` tables. This enables automatic performance advantages over simpler key-value fetch caches; especially
@@ -77,7 +111,7 @@ Click on the **'state'**
 tab in devtools to see the store's entire state. This can be useful to determine exactly where data is. There is
 also a 'meta' section of the cache for information like when the request took place (useful for [TTL](../concepts/expiry-policy.md)).
 
-## State Diff
+### State Diff
 
 For monitoring a particular fetch response, it might be more useful to see how the store updates.
 Click on the 'Diff' tab to see what changed.
@@ -86,7 +120,7 @@ Click on the 'Diff' tab to see what changed.
 
 Here we toggled the 'completed' status of a todo using an [optimistic update](/rest/guides/optimistic-updates).
 
-## Action Tracing
+### Action Tracing
 
 Tracing is not enabled by default as it is very computationally expensive. However, it can be very useful
 in tracking down where [actions](../api/Actions.md) are dispatched from. Customize [DevToolsManager](../api/DevToolsManager.md)
