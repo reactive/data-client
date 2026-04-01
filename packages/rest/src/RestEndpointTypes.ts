@@ -558,10 +558,28 @@ export interface RestEndpointOptions<
   update?: EndpointUpdateFunction<F, S>;
 }
 
+// Workaround: When subclassing RestEndpoint with `O extends RestGenerics = any`,
+// O defaults to `any`. The `[O['searchParams']] extends [undefined]` guard
+// (added for TS6 non-strict mode, see #3782) prevents `any` from distributing
+// through the conditional — it produces `KeysToArgs<string>` instead of `any`
+// for URL params. This restrictive index-signature type then rejects concrete
+// body types.
+//
+// The `unknown extends O ? any :` guard catches `O = any` before it reaches
+// PathArgs, restoring correct behavior for subclassed endpoints.
+//
+// NOT FIXED: TypeScript may partially infer O from constructor arguments,
+// widening path literals to `string` (the RestGenerics constraint) instead of
+// preserving the literal type. In that case PathArgs<string> still produces the
+// restrictive index-signature. This appears inherent to TypeScript's class
+// constructor inference with complex conditional parameter types. Fixing this
+// likely requires simplifying the constructor options type or restructuring how
+// path types propagate through the generic parameter.
 export type RestEndpointConstructorOptions<O extends RestGenerics = any> =
   RestEndpointOptions<
     RestFetch<
-      'searchParams' extends keyof O ?
+      unknown extends O ? any
+      : 'searchParams' extends keyof O ?
         [O['searchParams']] extends [undefined] ?
           PathArgs<O['path']>
         : O['searchParams'] & PathArgs<O['path']>
@@ -586,7 +604,8 @@ export interface RestEndpoint<
   O extends RestGenerics = any,
 > extends RestInstance<
   RestFetch<
-    'searchParams' extends keyof O ?
+    unknown extends O ? any
+    : 'searchParams' extends keyof O ?
       [O['searchParams']] extends [undefined] ?
         PathArgs<O['path']>
       : O['searchParams'] & PathArgs<O['path']>

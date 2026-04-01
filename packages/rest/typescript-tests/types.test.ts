@@ -1678,6 +1678,7 @@ it('should handle more open ended type definitions', () => {
 // === RestEndpoint subclass with O=any (PathArgs<any> regression) ===
 it('should allow concrete body types when subclassing RestEndpoint with O=any', () => {
   class AuthdEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+    urlPrefix = 'https://api.example.com';
     getRequestInit(body: any) {
       return super.getRequestInit(body);
     }
@@ -1719,4 +1720,24 @@ it('should allow concrete body types when subclassing RestEndpoint with O=any', 
     path: '/users/:id/profile',
   });
   () => repath({ id: 5 }, { name: 'alice' });
+
+  // Static path (no params) with POST body
+  const createUser = new AuthdEndpoint({
+    method: 'POST',
+    path: '/users',
+    schema: User,
+    body: {} as { username: string; email: string },
+  });
+  () => createUser({ username: 'bob', email: 'bob@test.com' });
+  // @ts-expect-error - no second argument for static path POST
+  () => createUser({ username: 'bob' }, { email: 'extra' });
+
+  // Static path GET (no params, no body)
+  const listUsers = new AuthdEndpoint({
+    path: '/users',
+    schema: User,
+  });
+  () => listUsers();
+  // @ts-expect-error - static path takes no args
+  () => listUsers({ id: 5 });
 });
