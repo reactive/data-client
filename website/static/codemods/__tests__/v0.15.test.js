@@ -28,7 +28,10 @@ const [x] = useDebounce(val, 100);
 import { useDebounce } from '@data-client/react';
 const [x] = useDebounce(val, 100);
       `,
-      ``,
+      `
+import { useDebounce } from '@data-client/react';
+const [x] = useDebounce(val, 100);
+      `,
       'skips already-destructured useDebounce',
     );
 
@@ -39,7 +42,10 @@ const [x] = useDebounce(val, 100);
 function useDebounce(val, delay) { return val; }
 const x = useDebounce(val, 100);
       `,
-      ``,
+      `
+function useDebounce(val, delay) { return val; }
+const x = useDebounce(val, 100);
+      `,
       'skips useDebounce without @data-client import',
     );
 
@@ -80,7 +86,10 @@ const [y] = useDebounce(other, 200);
 import { useDebounce } from '@data-client/react/next';
 const x = useDebounce(val, 100);
       `,
-      ``,
+      `
+import { useDebounce } from '@data-client/react/next';
+const x = useDebounce(val, 100);
+      `,
       'skips useDebounce imported from @data-client/react/next',
     );
 
@@ -133,7 +142,10 @@ const obj = { 'entitiesMeta': value };
 const x = state.entities;
 const y = state.indexes;
       `,
-      ``,
+      `
+const x = state.entities;
+const y = state.indexes;
+      `,
       'does not touch files without entityMeta',
     );
 
@@ -183,7 +195,9 @@ memo.query(schema, args, state);
       `
 memo.buildQueryKey(schema, args, state.entities, other.indexes, key);
       `,
-      ``,
+      `
+memo.buildQueryKey(schema, args, state.entities, other.indexes, key);
+      `,
       'skips when base objects differ (state vs other)',
     );
 
@@ -296,7 +310,9 @@ const x = obj.INVALID;
       `
 const x = 1;
       `,
-      ``,
+      `
+const x = 1;
+      `,
       'returns unchanged source when no relevant patterns found',
     );
   });
