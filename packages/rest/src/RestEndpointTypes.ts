@@ -11,7 +11,7 @@ import {
   OptionsToBodyArgument,
   OptionsToFunction,
 } from './OptionsToFunction.js';
-import { PathArgs } from './pathTypes.js';
+import { PathArgs, SoftPathArgs } from './pathTypes.js';
 import { EndpointUpdateFunction } from './RestEndpointTypeHelp.js';
 
 export interface RestInstanceBase<
@@ -558,23 +558,11 @@ export interface RestEndpointOptions<
   update?: EndpointUpdateFunction<F, S>;
 }
 
-// Workaround: When subclassing RestEndpoint with `O extends RestGenerics = any`,
-// O defaults to `any`. The `[O['searchParams']] extends [undefined]` guard
-// (added for TS6 non-strict mode, see #3782) prevents `any` from distributing
-// through the conditional — it produces `KeysToArgs<string>` instead of `any`
-// for URL params. This restrictive index-signature type then rejects concrete
-// body types.
-//
-// The `unknown extends O ? any :` guard catches `O = any` before it reaches
-// PathArgs, restoring correct behavior for subclassed endpoints.
-//
-// NOT FIXED: TypeScript may partially infer O from constructor arguments,
-// widening path literals to `string` (the RestGenerics constraint) instead of
-// preserving the literal type. In that case PathArgs<string> still produces the
-// restrictive index-signature. This appears inherent to TypeScript's class
-// constructor inference with complex conditional parameter types. Fixing this
-// likely requires simplifying the constructor options type or restructuring how
-// path types propagate through the generic parameter.
+// When subclassing RestEndpoint with `O extends RestGenerics = any`, O defaults
+// to `any`. The `unknown extends O ? any` guard catches O=any before it reaches
+// PathArgs (see #3782). SoftPathArgs collapses PathArgs<string> to `unknown`
+// when a concrete body is present, preventing union overloads that break
+// getOptimisticResponse callbacks. Method inference treats explicit body as POST.
 export type RestEndpointConstructorOptions<O extends RestGenerics = any> =
   RestEndpointOptions<
     RestFetch<
@@ -582,12 +570,16 @@ export type RestEndpointConstructorOptions<O extends RestGenerics = any> =
       : 'searchParams' extends keyof O ?
         [O['searchParams']] extends [undefined] ?
           PathArgs<O['path']>
-        : O['searchParams'] & PathArgs<O['path']>
-      : PathArgs<O['path']>,
+        : O['searchParams'] & SoftPathArgs<O['path']>
+      : SoftPathArgs<O['path']>,
       OptionsToBodyArgument<
         O,
         'method' extends keyof O ? O['method']
         : O extends { sideEffect: true } ? 'POST'
+        : 'body' extends keyof O ?
+          [O['body']] extends [undefined] ?
+            'GET'
+          : 'POST'
         : 'GET'
       >,
       O['process'] extends {} ? ReturnType<O['process']>
@@ -614,6 +606,10 @@ export interface RestEndpoint<
       O,
       'method' extends keyof O ? O['method']
       : O extends { sideEffect: true } ? 'POST'
+      : 'body' extends keyof O ?
+        [O['body']] extends [undefined] ?
+          'GET'
+        : 'POST'
       : 'GET'
     >,
     O['process'] extends {} ? ReturnType<O['process']>

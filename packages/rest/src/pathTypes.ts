@@ -18,6 +18,13 @@ export type PathArgs<S extends string> =
     unknown
   : KeysToArgs<PathKeys<S>>;
 
+/** Like {@link PathArgs} but widened `path: string` collapses to `unknown`,
+ *  preventing `(params, body) | (body)` union overloads in ParamFetchWithBody. */
+export type SoftPathArgs<P extends string> =
+  unknown extends P ? any
+  : string extends P ? unknown
+  : PathArgs<P>;
+
 /** Computes the union of keys for a path string */
 export type PathKeys<S extends string> =
   string extends S ? string

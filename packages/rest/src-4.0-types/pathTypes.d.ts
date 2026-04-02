@@ -6,6 +6,12 @@ export declare type PathArgs<S extends string> = PathKeys<S> extends never
   ? unknown
   : KeysToArgs<PathKeys<S>>;
 
+/** Like PathArgs but widened `path: string` collapses to `unknown` */
+export declare type SoftPathArgs<P extends string> =
+  unknown extends P ? any
+  : string extends P ? unknown
+  : PathArgs<P>;
+
 export declare type KeysToArgs<Key extends string> = {
   [K in Key]?: string | number;
 };
