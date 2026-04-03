@@ -1,4 +1,4 @@
-import { Entity, resource, schema } from '@data-client/rest';
+import { Entity, resource, All, Query } from '@data-client/rest';
 
 import { Stats } from './Stats';
 
@@ -30,8 +30,8 @@ export const ProductResource = resource({
 interface Args {
   quote_currency?: string;
 }
-export const queryProduct = new schema.Query(
-  new schema.All(Product),
+export const queryProduct = new Query(
+  new All(Product),
   (entries, { quote_currency }: Args) => {
     let sorted = entries.filter(product => product.stats);
     if (quote_currency !== undefined)

@@ -1,5 +1,5 @@
 import { GQLEndpoint } from '@data-client/graphql';
-import { Entity, Schema, ShortenPath, schema } from '@data-client/rest';
+import { Entity, Schema, ShortenPath, Collection } from '@data-client/rest';
 import {
   GetEndpoint,
   RestGenerics,
@@ -92,9 +92,7 @@ export function githubResource<O extends ResourceGenerics>(
   return baseResource.extend({
     getList: {
       schema: {
-        results: baseResource.getList.schema as schema.Collection<
-          O['schema'][]
-        >,
+        results: baseResource.getList.schema as Collection<O['schema'][]>,
         link: '',
       },
     },
@@ -112,7 +110,7 @@ export interface GithubResource<
     Omit<O, 'schema' | 'path'> & {
       readonly path: ShortenPath<O['path']>;
       readonly schema: {
-        results: schema.Collection<O['schema'][]>;
+        results: Collection<O['schema'][]>;
         link: string;
       };
       readonly paginationField: 'page';

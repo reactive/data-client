@@ -1,4 +1,4 @@
-import { Entity, resource, RestEndpoint, schema } from '@data-client/rest';
+import { Entity, resource, RestEndpoint, Collection } from '@data-client/rest';
 
 // docs: https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getproductcandles
 export const getCandles = new RestEndpoint({
@@ -52,7 +52,7 @@ export class User extends Entity {
   }
 
   static schema = {
-    todos: new schema.Collection([Todo], {
+    todos: new Collection([Todo], {
       nestKey: (parent, key) => ({
         userId: parent.id,
       }),

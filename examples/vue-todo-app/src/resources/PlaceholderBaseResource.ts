@@ -37,7 +37,7 @@ export function placeholderResource<O extends ResourceGenerics = any>(
       },
     },
     getList: {
-      process(response: any, ...args: any[]) {
+      process(response: any, ..._args: any[]) {
         if (Array.isArray(response)) return response;
         // for POST (push/unshift)
         return {

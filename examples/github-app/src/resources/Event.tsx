@@ -6,7 +6,7 @@ import {
   PullRequestOutlined,
   ForkOutlined,
 } from '@ant-design/icons';
-import { schema } from '@data-client/rest';
+import { Union } from '@data-client/rest';
 import type { JSX } from 'react';
 import { Temporal } from 'temporal-polyfill';
 
@@ -84,7 +84,7 @@ export class IssuesEvent extends Event {
 
 export const EventResource = githubResource({
   path: '/users/:login/events/public/:id',
-  schema: new schema.Union(
+  schema: new Union(
     {
       PullRequestEvent,
       IssuesEvent,
@@ -102,7 +102,7 @@ export const EventResource = githubResource({
   ),
   Endpoint: PreviewEndpoint,
 }).extend({
-  getList: { path: '/users/:login/events/public\\?per_page=50' },
+  getList: { path: '/users/:login/events/public?per_page=50' },
 });
 
 export const typeToIcon: Record<Event['type'], JSX.Element> = {

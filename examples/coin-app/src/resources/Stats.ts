@@ -1,5 +1,5 @@
 import { SchemaArgs } from '@data-client/react';
-import { Entity, resource, schema } from '@data-client/rest';
+import { Entity, resource, Collection, Values } from '@data-client/rest';
 
 export class Stats extends Entity {
   product_id = '';
@@ -47,7 +47,7 @@ export const StatsResource = resource({
 }).extend({
   getList: {
     path: '/products/stats',
-    schema: new schema.Collection(new schema.Values(Stats)),
+    schema: new Collection(new Values(Stats)),
     process(value) {
       Object.keys(value).forEach(key => {
         value[key] = {

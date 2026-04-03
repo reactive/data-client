@@ -1,4 +1,4 @@
-import { schema } from '@data-client/rest';
+import { Query } from '@data-client/rest';
 
 import {
   placeholderResource,
@@ -20,11 +20,11 @@ export const TodoResource = placeholderResource({
   searchParams: {} as { userId?: string | number } | undefined,
 });
 
-export const queryRemainingTodos = new schema.Query(
+export const queryRemainingTodos = new Query(
   TodoResource.getList.schema,
   (entries) => entries.filter((todo) => !todo.completed).length,
 );
-export const queryTotalTodos = new schema.Query(
+export const queryTotalTodos = new Query(
   TodoResource.getList.schema,
   (entries) => entries.length,
 );
