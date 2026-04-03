@@ -1,5 +1,14 @@
 # @data-client/endpoint
 
+## 0.16.3
+
+### Patch Changes
+
+- [#3858](https://github.com/reactive/data-client/pull/3858) [`c83a81d`](https://github.com/reactive/data-client/commit/c83a81d4183b4b0f7c3a41f5b49fdba890406a6b) - Fix `maxEntityDepth` missing from Entity types on TypeScript 4.0
+
+  `maxEntityDepth` was not included in the TS 4.0 legacy type definitions,
+  so TypeScript 4.0 users could not set or reference this property on Entity classes.
+
 ## 0.16.0
 
 ### Minor Changes
