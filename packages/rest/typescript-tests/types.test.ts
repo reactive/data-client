@@ -1762,6 +1762,21 @@ it('should allow concrete body types when subclassing RestEndpoint with O=any', 
   widenedGet();
   widenedGet({ phrase: 'hello' });
 
+  // Explicit `searchParams: undefined` must use SoftPathArgs like the other
+  // constructor branches (not PathArgs<string>), so callbacks stay callable.
+  const widenedUndefSearchParams = new AuthdEndpoint({
+    path: '/users' as string,
+    searchParams: undefined,
+    schema: User,
+    body: {} as { phrase: string },
+    getOptimisticResponse(snap, body) {
+      return body;
+    },
+  });
+  // @ts-expect-error - body strongly defined means it is required
+  widenedUndefSearchParams();
+  widenedUndefSearchParams({ phrase: 'hello' });
+
   // --- key() in constructor ---
   const widenedKey = new AuthdEndpoint({
     path: '/items' as string,

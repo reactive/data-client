@@ -1670,7 +1670,7 @@ interface RestEndpointOptions<F extends FetchFunction = FetchFunction, S extends
 }
 type RestEndpointConstructorOptions<O extends RestGenerics = any> = RestEndpointOptions<RestFetch<unknown extends O ? any : 'searchParams' extends keyof O ? [
     O['searchParams']
-] extends [undefined] ? PathArgs<O['path']> : O['searchParams'] & SoftPathArgs<O['path']> : SoftPathArgs<O['path']>, OptionsToBodyArgument<O, 'method' extends keyof O ? O['method'] : O extends {
+] extends [undefined] ? SoftPathArgs<O['path']> : O['searchParams'] & SoftPathArgs<O['path']> : SoftPathArgs<O['path']>, OptionsToBodyArgument<O, 'method' extends keyof O ? O['method'] : O extends {
     sideEffect: true;
 } ? 'POST' : 'body' extends keyof O ? [
     O['body']

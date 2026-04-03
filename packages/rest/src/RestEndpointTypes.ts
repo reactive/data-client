@@ -569,7 +569,7 @@ export type RestEndpointConstructorOptions<O extends RestGenerics = any> =
       unknown extends O ? any
       : 'searchParams' extends keyof O ?
         [O['searchParams']] extends [undefined] ?
-          PathArgs<O['path']>
+          SoftPathArgs<O['path']>
         : O['searchParams'] & SoftPathArgs<O['path']>
       : SoftPathArgs<O['path']>,
       OptionsToBodyArgument<
