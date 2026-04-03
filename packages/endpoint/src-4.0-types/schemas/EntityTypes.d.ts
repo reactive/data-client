@@ -30,6 +30,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
      * @see https://dataclient.io/rest/api/Entity#indexes
      */
     indexes?: readonly string[] | undefined;
+    maxEntityDepth?: number | undefined;
     /**
      * A unique identifier for each Entity
      *
