@@ -1,5 +1,47 @@
 # @data-client/rest
 
+## 0.16.2
+
+### Patch Changes
+
+- [#3847](https://github.com/reactive/data-client/pull/3847) [`e93e820`](https://github.com/reactive/data-client/commit/e93e820a112683badd4020c7c04c2284a0f6d8bf) - Fix TypeScript for `RestEndpoint` subclasses when the path is inferred as `string`
+
+  If you extend `RestEndpoint` with a generic such as `O extends RestGenerics = any`, TypeScript can widen a path literal to `string`. Constructor callbacks like `getOptimisticResponse`, `key`, `url`, and `process` could then get the wrong parameter types (or unusable unions), even though calling the endpoint still worked at runtime.
+
+  The same problem could show up when you set `searchParams: undefined` explicitly next to a `body` and a widened path. Both cases now type-check as you would expect.
+
+  ```typescript
+  import { Entity } from '@data-client/endpoint';
+  import { RestEndpoint, RestGenerics } from '@data-client/rest';
+
+  class Item extends Entity {
+    readonly id = '';
+  }
+
+  class AppRestEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {}
+
+  new AppRestEndpoint({
+    path: '/items' as string,
+    schema: Item,
+    body: {} as { name: string },
+    getOptimisticResponse(_snap, body) {
+      body.name;
+      return body;
+    },
+  });
+
+  new AppRestEndpoint({
+    path: '/search' as string,
+    searchParams: undefined,
+    schema: Item,
+    body: {} as { q: string },
+    getOptimisticResponse(_snap, body) {
+      body.q;
+      return body;
+    },
+  });
+  ```
+
 ## 0.16.1
 
 ### Patch Changes
