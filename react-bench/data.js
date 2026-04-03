@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1775215635171,
+  "lastUpdate": 1775224247801,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -1427,6 +1427,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 210.55,
             "range": "± 8.8%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b3054413396cbc6355e885d6cba6f947a8511cec",
+          "message": "pkg: Update `@tanstack/react-query` to v5.96.2 (#3856)\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+          "timestamp": "2026-04-03T09:48:19-04:00",
+          "tree_id": "ac62dec1e39c0200dafb6641c1ec38eb1aee1630",
+          "url": "https://github.com/reactive/data-client/commit/b3054413396cbc6355e885d6cba6f947a8511cec"
+        },
+        "date": 1775224245318,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 169.49,
+            "range": "± 4.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 44.05,
+            "range": "± 5.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 384.62,
+            "range": "± 4.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 400,
+            "range": "± 6.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 50.53,
+            "range": "± 6.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 333.33,
+            "range": "± 4.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 357.14,
+            "range": "± 0.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 13.74,
+            "range": "± 8.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 86.21,
+            "range": "± 1.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 48.91,
+            "range": "± 4.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 285.71,
+            "range": "± 3.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 384.62,
+            "range": "± 3.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 250,
+            "range": "± 3.5%",
             "unit": "ops/s"
           }
         ]
