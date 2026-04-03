@@ -1,4 +1,11 @@
-import { compile, PathFunction, parse, Token, ParamData } from 'path-to-regexp';
+import {
+  compile,
+  PathFunction,
+  parse,
+  pathToRegexp,
+  Token,
+  ParamData,
+} from 'path-to-regexp';
 
 import { ShortenPath } from './pathTypes.js';
 
@@ -16,6 +23,14 @@ export function getUrlTokens(path: string): Set<string> {
     urlTokensCache[path] = tokenMap(parse(path).tokens);
   }
   return urlTokensCache[path];
+}
+
+const pathRegexCache: Record<string, RegExp> = Object.create(null);
+export function getPathRegex(path: string): RegExp {
+  if (!(path in pathRegexCache)) {
+    pathRegexCache[path] = pathToRegexp(path).regexp;
+  }
+  return pathRegexCache[path];
 }
 
 function tokenMap(tokens: Token[]): Set<string> {

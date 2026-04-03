@@ -1,12 +1,16 @@
 import { Endpoint } from '@data-client/endpoint';
-import { pathToRegexp } from 'path-to-regexp';
 
 import extractCollection from './extractCollection.js';
 import mapCollection from './mapCollection.js';
 import NetworkError from './NetworkError.js';
 import { createPaginationSchema } from './paginatedCollections.js';
 import paramsToString from './paramsToString.js';
-import { getUrlBase, getUrlTokens, isPojo } from './RestHelpers.js';
+import {
+  getUrlBase,
+  getUrlTokens,
+  getPathRegex,
+  isPojo,
+} from './RestHelpers.js';
 
 /** Simplifies endpoint definitions that follow REST patterns
  *
@@ -196,7 +200,7 @@ Response (first 300 characters): ${text.substring(0, 300)}`;
   }
 
   get pathRegex() {
-    return pathToRegexp(this.path).regexp;
+    return getPathRegex(this.path);
   }
 
   testKey(key) {
