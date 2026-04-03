@@ -1445,6 +1445,21 @@ it('should handle more open ended type definitions', () => {
   withNewSearch.getPage({ blob: 'ho' });
 };
 
+// --- extend() keeps body required when `method` was omitted (inferred POST) ---
+() => {
+  const create = new RestEndpoint({
+    path: '/items',
+    schema: Article,
+    body: {} as { title: string },
+  });
+  const withNewPath = create.extend({
+    path: '/items/:id',
+  });
+  () => withNewPath({ id: '1' }, { title: 'x' });
+  // @ts-expect-error - body still required after extend (instance `method` matches fetch)
+  () => withNewPath({ id: '1' });
+};
+
 // --- resource() with paginationField ---
 () => {
   const UserResource = resource({

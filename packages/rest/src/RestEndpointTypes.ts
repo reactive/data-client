@@ -520,6 +520,18 @@ type OptionsBodyDefault<O extends RestGenerics> =
   : O['method'] extends 'POST' | 'PUT' | 'PATCH' ? O & { body: any }
   : O & { body: undefined };
 
+/** When `method` is omitted from `O`, infer it (must stay aligned with `OptionsToBodyArgument`). */
+type InferRestMethodWhenOmitted<O extends RestGenerics> =
+  O extends { sideEffect: true } ? 'POST'
+  : 'body' extends keyof O ?
+    [O['body']] extends [undefined] ?
+      'GET'
+    : 'POST'
+  : 'GET';
+
+type MethodArgForBodyInference<O extends RestGenerics> =
+  'method' extends keyof O ? O['method'] : InferRestMethodWhenOmitted<O>;
+
 type OptionsToAdderBodyArgument<O extends { body?: any }> =
   'body' extends keyof O ? O['body'] : any;
 
@@ -572,16 +584,7 @@ export type RestEndpointConstructorOptions<O extends RestGenerics = any> =
           SoftPathArgs<O['path']>
         : O['searchParams'] & SoftPathArgs<O['path']>
       : SoftPathArgs<O['path']>,
-      OptionsToBodyArgument<
-        O,
-        'method' extends keyof O ? O['method']
-        : O extends { sideEffect: true } ? 'POST'
-        : 'body' extends keyof O ?
-          [O['body']] extends [undefined] ?
-            'GET'
-          : 'POST'
-        : 'GET'
-      >,
+      OptionsToBodyArgument<O, MethodArgForBodyInference<O>>,
       O['process'] extends {} ? ReturnType<O['process']>
       : any /*Denormalize<O['schema']>*/
     >,
@@ -602,25 +605,16 @@ export interface RestEndpoint<
         PathArgs<O['path']>
       : O['searchParams'] & PathArgs<O['path']>
     : PathArgs<O['path']>,
-    OptionsToBodyArgument<
-      O,
-      'method' extends keyof O ? O['method']
-      : O extends { sideEffect: true } ? 'POST'
-      : 'body' extends keyof O ?
-        [O['body']] extends [undefined] ?
-          'GET'
-        : 'POST'
-      : 'GET'
-    >,
+    OptionsToBodyArgument<O, MethodArgForBodyInference<O>>,
     O['process'] extends {} ? ReturnType<O['process']>
     : any /*Denormalize<O['schema']>*/
   >,
   'schema' extends keyof O ? O['schema'] : undefined,
   'sideEffect' extends keyof O ? Extract<O['sideEffect'], boolean | undefined>
-  : MethodToSide<O['method']>,
+  : MethodToSide<MethodArgForBodyInference<O>>,
   'method' extends keyof O ? O
   : O & {
-      method: O extends { sideEffect: true } ? 'POST' : 'GET';
+      method: InferRestMethodWhenOmitted<O>;
     }
 > {}
 
