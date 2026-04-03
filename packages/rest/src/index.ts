@@ -36,6 +36,8 @@ export type {
   HookResource,
   HookableEndpointInterface,
 } from './hookifyResource.js';
+export { default as ProgressEndpoint } from './ProgressEndpoint.js';
+export type { DownloadProgress } from './ProgressEndpoint.js';
 export { default as NetworkError } from './NetworkError.js';
 export type { OptionsToFunction } from './OptionsToFunction.js';
 export type {
