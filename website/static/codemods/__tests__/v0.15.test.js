@@ -341,6 +341,36 @@ const x = obj.INVALID;
       `,
       'does not replace INVALID in member expression property position',
     );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import { INVALID } from '@data-client/endpoint';
+export { INVALID };
+      `,
+      `
+import { INVALID } from '@data-client/endpoint';
+export { INVALID };
+      `,
+      'keeps INVALID import for local export specifier',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import { INVALID as BAD } from '@data-client/endpoint';
+const x = BAD;
+export { BAD as INVALID };
+      `,
+      `
+import { INVALID as BAD } from '@data-client/endpoint';
+const x = delegate.INVALID;
+export { BAD as INVALID };
+      `,
+      'does not rewrite export specifier identifiers when local is aliased',
+    );
   });
 
   // ── No-op ────────────────────────────────────────────────────────────

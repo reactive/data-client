@@ -167,6 +167,13 @@ function isValuePosition(idPath) {
   )
     return false;
 
+  // Skip: export specifier
+  if (
+    parent.type === 'ExportSpecifier' &&
+    (parent.local === idPath.node || parent.exported === idPath.node)
+  )
+    return false;
+
   // Skip: non-computed member property (obj.INVALID — the .INVALID part)
   if (
     (parent.type === 'MemberExpression' ||
@@ -239,9 +246,24 @@ function transformInvalid(j, root) {
       dirty = true;
     });
 
-    specs.splice(idx, 1);
-    if (!specs.length) {
-      j(importPath).remove();
+    // Keep the INVALID import when it is still needed by local exports:
+    // `export { INVALID }` must retain a local INVALID binding.
+    const hasLocalExport = root.find(j.ExportSpecifier).filter(specPath => {
+      const exportDecl = specPath.parent.node;
+      return (
+        exportDecl.type === 'ExportNamedDeclaration' &&
+        !exportDecl.source &&
+        specPath.node.local &&
+        specPath.node.local.type === 'Identifier' &&
+        specPath.node.local.name === localName
+      );
+    }).length;
+
+    if (!hasLocalExport) {
+      specs.splice(idx, 1);
+      if (!specs.length) {
+        j(importPath).remove();
+      }
     }
     dirty = true;
   });
