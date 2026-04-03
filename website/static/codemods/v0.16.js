@@ -30,8 +30,8 @@ function transformPathString(s) {
   s = s.replace(/\/:(\w+)\+/g, '/*$1');
   // /:name* → {/*name}
   s = s.replace(/\/:(\w+)\*/g, '{/*$1}');
-  // \? → ?  and  \+ → +  (no longer special in v8)
-  s = s.replace(/\\([?+])/g, '$1');
+  // Literal `?` and `+` in the path still require `\\?` / `\\+` in v8 (see path-to-regexp errors).
+  // Do not strip those escapes — e.g. `.../public\\?per_page=50` must stay escaped.
   return s;
 }
 
@@ -223,9 +223,9 @@ function patternBindsName(pattern, name) {
     return patternBindsName(pattern.argument, name);
   if (pattern.type === 'ObjectPattern') {
     return pattern.properties.some(p =>
-      p.type === 'RestElement'
-        ? patternBindsName(p.argument, name)
-        : patternBindsName(p.value, name),
+      p.type === 'RestElement' ?
+        patternBindsName(p.argument, name)
+      : patternBindsName(p.value, name),
     );
   }
   if (pattern.type === 'ArrayPattern') {
@@ -236,9 +236,14 @@ function patternBindsName(pattern, name) {
 
 function collectPatternNames(pattern, out) {
   if (!pattern) return;
-  if (pattern.type === 'Identifier') { out.add(pattern.name); return; }
-  if (pattern.type === 'AssignmentPattern') return collectPatternNames(pattern.left, out);
-  if (pattern.type === 'RestElement') return collectPatternNames(pattern.argument, out);
+  if (pattern.type === 'Identifier') {
+    out.add(pattern.name);
+    return;
+  }
+  if (pattern.type === 'AssignmentPattern')
+    return collectPatternNames(pattern.left, out);
+  if (pattern.type === 'RestElement')
+    return collectPatternNames(pattern.argument, out);
   if (pattern.type === 'ObjectPattern') {
     pattern.properties.forEach(p =>
       collectPatternNames(p.type === 'RestElement' ? p.argument : p.value, out),
@@ -337,11 +342,14 @@ function transformSchemaImports(j, root) {
       });
     });
     const isTopLevel = parentType =>
-      parentType === 'Program' || parentType === 'ExportNamedDeclaration' ||
+      parentType === 'Program' ||
+      parentType === 'ExportNamedDeclaration' ||
       parentType === 'ExportDefaultDeclaration';
     root.find(j.VariableDeclaration).forEach(vp => {
       if (isTopLevel(vp.parent.node.type)) {
-        vp.node.declarations.forEach(d => collectPatternNames(d.id, scopeBindings));
+        vp.node.declarations.forEach(d =>
+          collectPatternNames(d.id, scopeBindings),
+        );
       }
     });
     root.find(j.FunctionDeclaration).forEach(fp => {

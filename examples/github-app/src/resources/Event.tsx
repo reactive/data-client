@@ -102,7 +102,7 @@ export const EventResource = githubResource({
   ),
   Endpoint: PreviewEndpoint,
 }).extend({
-  getList: { path: '/users/:login/events/public?per_page=50' },
+  getList: { path: '/users/:login/events/public\\?per_page=50' },
 });
 
 export const typeToIcon: Record<Event['type'], JSX.Element> = {

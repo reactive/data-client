@@ -313,6 +313,20 @@ describe('RestEndpoint', () => {
     () => ep.url({ id: '5', rest: 'docs/file' });
   });
 
+  it('should handle escaped special characters in path', () => {
+    const ep = new RestEndpoint({
+      path: '/users/:login/events/public\\?per_page=50',
+    });
+    expect(ep.url({ login: 'alice' })).toBe(
+      '/users/alice/events/public?per_page=50',
+    );
+
+    const ep2 = new RestEndpoint({
+      path: '/search\\?q=hello\\&page=2',
+    });
+    expect(ep2.url()).toBe('/search?q=hello&page=2');
+  });
+
   it('should allow sideEffect overrides', () => {
     const weirdGetUser = new RestEndpoint({
       path: 'http\\://test.com/user/:id',

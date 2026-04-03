@@ -41,14 +41,19 @@ Parameter names must be valid JS identifiers. Names with special characters need
 
 ### Escaping special characters
 
-Characters `()[]{}*:;,!@` must be escaped with `\\` when used as literals. `?` and `+` are no longer special and do not need escaping.
+Characters including `{}()[]+?!:*\\` must be escaped with `\\` when used as **literals** (see
+[path-to-regexp errors](https://github.com/pillarjs/path-to-regexp#errors)). A literal `?` in the path
+(e.g. before fixed query text like `?per_page=50`) must stay as `\\?` in the source string — removing the
+backslash causes `Unexpected ?` at `compile()` time.
 
 ```
 /(literal)      →  /\\(literal\\)
 /[bracket]      →  /\\[bracket\\]
-/path?query     →  /path?query          (no change — ? is not special in v8)
-\\?             →  ?                    (escape no longer needed)
+/a+b            →  /a\\+b               (+ is special unless escaped)
+/resource?p=1   →  /resource\\?p=1      (? starts a modifier unless escaped)
 ```
+
+Optional path params no longer use a trailing `?` on `:name` — use `{/:name}` instead (see above); that is different from a **literal** `?` in the URL.
 
 ### Custom regex removed
 
@@ -66,7 +71,7 @@ Optional with prefix:
 /:attr1?{-:attr2}?{-:attr3}?   →  {/:attr1}{-:attr2}{-:attr3}
 ```
 
-Query params embedded in path:
+Query params embedded in path (prefer grouped params; do **not** drop `\\` before a literal `?` unless you rewrite to this form):
 
 ```
 /search\\?q=:q?&page=:page?    →  /search?{q=:q}{&page=:page}
