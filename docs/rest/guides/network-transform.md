@@ -343,6 +343,32 @@ function DownloadButton({ id }: { id: string }) {
 }
 ```
 
+:::tip Download progress
+
+For large downloads, use [`ProgressEndpoint`](../api/ProgressEndpoint.md) to track
+download progress via `onDownloadProgress`:
+
+```ts
+import { ProgressEndpoint } from '@data-client/rest';
+
+const downloadFile = new ProgressEndpoint({
+  path: '/files/:id/download',
+  schema: undefined,
+  dataExpiryLength: 0,
+  onDownloadProgress({ loaded, total, lengthComputable }) {
+    if (lengthComputable) setProgress(loaded / total!);
+  },
+  async parseResponse(response) {
+    return response.blob();
+  },
+  process(blob): Blob {
+    return blob;
+  },
+});
+```
+
+:::
+
 For `ArrayBuffer` responses (useful for processing binary data in-memory), use
 `response.arrayBuffer()` the same way.
 

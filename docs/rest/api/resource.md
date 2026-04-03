@@ -154,7 +154,8 @@ updates immediate, even before fetch completion.
 
 ### Endpoint
 
-Class used to construct the members.
+Class used to construct the members. Use a custom subclass to add authentication, or
+[`ProgressEndpoint`](./ProgressEndpoint.md) for download progress tracking.
 
 ```ts
 import { RestEndpoint } from '@data-client/rest';

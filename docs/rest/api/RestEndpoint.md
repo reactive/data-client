@@ -776,6 +776,14 @@ Performs the [fetch(input, init)](https://developer.mozilla.org/en-US/docs/Web/A
 [response.ok](https://developer.mozilla.org/en-US/docs/Web/API/Response/ok) is not `true` (like 404),
 will throw a NetworkError.
 
+:::tip
+
+[`ProgressEndpoint`](./ProgressEndpoint.md) extends this method to read the response body via
+[ReadableStream](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream), enabling
+download progress tracking with `onDownloadProgress`.
+
+:::
+
 ### parseResponse(response): Promise {#parseResponse}
 
 Takes the [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) and parses via [.text()](https://developer.mozilla.org/en-US/docs/Web/API/Response/text) or [.json()](https://developer.mozilla.org/en-US/docs/Web/API/Response/json) depending
@@ -826,6 +834,7 @@ const downloadFile = new RestEndpoint({
 ```
 
 See [file download guide](../guides/network-transform.md#file-download) for complete usage with browser download trigger.
+For download progress tracking, see [`ProgressEndpoint`](./ProgressEndpoint.md).
 
 ### process(value, ...args): any {#process}
 
@@ -1258,3 +1267,6 @@ class GithubEndpoint<
   }
 }
 ```
+
+[`ProgressEndpoint`](./ProgressEndpoint.md) is a built-in subclass that adds download progress
+tracking via [ReadableStream](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream).
