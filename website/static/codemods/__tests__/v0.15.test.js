@@ -239,6 +239,66 @@ const meta = state?.[entityMeta];
       `,
       'does not rewrite computed optional member state?.[entityMeta]',
     );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+const obj = { entityMeta: value };
+      `,
+      `
+const obj = { entitiesMeta: value };
+      `,
+      'renames identifier key entityMeta to entitiesMeta in object literal',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+const obj = { entityMeta };
+      `,
+      `
+const obj = { entitiesMeta: entityMeta };
+      `,
+      'expands shorthand entityMeta in object literal',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+const { entityMeta } = state;
+      `,
+      `
+const { entitiesMeta: entityMeta } = state;
+      `,
+      'renames shorthand destructuring key to entitiesMeta',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+const { entityMeta: meta } = state;
+      `,
+      `
+const { entitiesMeta: meta } = state;
+      `,
+      'renames non-shorthand destructuring key to entitiesMeta',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+const obj = { [entityMeta]: value };
+      `,
+      `
+const obj = { [entityMeta]: value };
+      `,
+      'does not rewrite computed identifier property key',
+    );
   });
 
   // ── MemoCache state consolidation ────────────────────────────────────

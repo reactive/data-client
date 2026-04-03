@@ -108,8 +108,6 @@ function transformEntityMeta(j, root) {
         const prop = path.node;
         prop.key = j.identifier('entitiesMeta');
         if (prop.shorthand) {
-          // Preserve local bindings in shorthand forms:
-          // { entityMeta } -> { entitiesMeta: entityMeta }
           prop.shorthand = false;
         }
         dirty = true;
