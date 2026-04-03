@@ -48,9 +48,7 @@ function transformUseDebounce(j, root) {
     ) {
       return;
     }
-    const pattern = j.arrayPattern([
-      j.identifier(declPath.node.id.name),
-    ]);
+    const pattern = j.arrayPattern([j.identifier(declPath.node.id.name)]);
     declPath.node.id = pattern;
     dirty = true;
   });
@@ -64,7 +62,9 @@ function transformEntityMeta(j, root) {
   let dirty = false;
 
   const memberTypes = [j.MemberExpression];
-  try { memberTypes.push(j.OptionalMemberExpression); } catch (_) {}
+  try {
+    memberTypes.push(j.OptionalMemberExpression);
+  } catch (_) {}
 
   memberTypes.forEach(type => {
     root
@@ -91,6 +91,29 @@ function transformEntityMeta(j, root) {
       }
       dirty = true;
     }
+  });
+
+  const propertyTypes = [j.Property];
+  try {
+    propertyTypes.push(j.ObjectProperty);
+  } catch (_) {}
+
+  propertyTypes.forEach(type => {
+    root
+      .find(type, {
+        computed: false,
+        key: { type: 'Identifier', name: 'entityMeta' },
+      })
+      .forEach(path => {
+        const prop = path.node;
+        prop.key = j.identifier('entitiesMeta');
+        if (prop.shorthand) {
+          // Preserve local bindings in shorthand forms:
+          // { entityMeta } -> { entitiesMeta: entityMeta }
+          prop.shorthand = false;
+        }
+        dirty = true;
+      });
   });
 
   return dirty;
@@ -147,9 +170,7 @@ function nodesEqual(a, b) {
   if (a.type !== b.type) return false;
   if (a.type === 'Identifier') return a.name === b.name;
   if (a.type === 'MemberExpression') {
-    return (
-      nodesEqual(a.object, b.object) && nodesEqual(a.property, b.property)
-    );
+    return nodesEqual(a.object, b.object) && nodesEqual(a.property, b.property);
   }
   if (a.type === 'ThisExpression') return true;
   return false;
@@ -238,10 +259,7 @@ function transformInvalid(j, root) {
       if (!isValuePosition(idPath)) return;
 
       j(idPath).replaceWith(
-        j.memberExpression(
-          j.identifier('delegate'),
-          j.identifier('INVALID'),
-        ),
+        j.memberExpression(j.identifier('delegate'), j.identifier('INVALID')),
       );
       dirty = true;
     });

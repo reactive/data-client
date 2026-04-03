@@ -1,6 +1,7 @@
 'use strict';
 
 const { defineInlineTest } = require('jscodeshift/dist/testUtils');
+
 const transform = require('../v0.15');
 
 describe('v0.15 codemod', () => {
@@ -147,6 +148,42 @@ const obj = { 'entityMeta': value };
 const obj = { 'entitiesMeta': value };
       `,
       'renames string literal key entityMeta to entitiesMeta',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+const obj = { entityMeta: value };
+      `,
+      `
+const obj = { entitiesMeta: value };
+      `,
+      'renames identifier key entityMeta to entitiesMeta',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+const { entityMeta } = state;
+      `,
+      `
+const { entitiesMeta: entityMeta } = state;
+      `,
+      'renames object pattern key entityMeta while preserving local binding',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+const obj = { entityMeta };
+      `,
+      `
+const obj = { entitiesMeta: entityMeta };
+      `,
+      'renames shorthand object literal key while preserving local binding',
     );
 
     defineInlineTest(
