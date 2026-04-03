@@ -360,6 +360,20 @@ export { INVALID };
       transform,
       {},
       `
+import { INVALID } from "@data-client/endpoint";
+export { INVALID };
+      `,
+      `
+import { INVALID } from "@data-client/endpoint";
+export { INVALID };
+      `,
+      'does not rewrite file when INVALID import is only used by local export',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
 import { INVALID as BAD } from '@data-client/endpoint';
 const x = BAD;
 export { BAD as INVALID };

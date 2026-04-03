@@ -264,8 +264,8 @@ function transformInvalid(j, root) {
       if (!specs.length) {
         j(importPath).remove();
       }
+      dirty = true;
     }
-    dirty = true;
   });
 
   return dirty;
