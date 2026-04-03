@@ -1,6 +1,6 @@
 ---
 name: changeset
-description: Create changesets for version bump, release notes, changelog, semver patch/minor/major, breaking changes, documentation and skill updates after code changes
+description: Create user-focused changesets (changelog entries) for semver bumps, release notes, breaking changes, and docs; prefer impact and code examples over implementation detail
 disable-model-invocation: true
 ---
 
@@ -27,6 +27,7 @@ Generate changesets, update documentation, draft blog entries, and update skills
    - Select all affected packages (direct + transitive)
    - Choose appropriate version bump (patch/minor/major)
      - For packages under 1.0, use minor for breaking changes
+   - When writing the markdown body, follow **Changeset body quality** below (user-visible outcome, code examples when helpful, no internal implementation narrative)
 
 4. **Update documentation**
    - Update primary docs in `docs/` for any changed public APIs
@@ -47,19 +48,26 @@ Generate changesets, update documentation, draft blog entries, and update skills
    - If new APIs or patterns are introduced that agents should know about, add them to the relevant skill
    - Skill changes don't need changesets — they are development tooling, not published packages
 
-## Writing Perspective
-All user-facing text (changesets, blog entries, docs) should be written from the library user's point of view. Describe what was broken or what they can now do — not internal type mechanics or implementation details. Think "what does a developer using this package experience?"
+## Writing perspective
+All user-facing text (changesets, blog entries, docs) should be written from the library user's point of view. Answer: **what did the user see go wrong, and what works for them now?** Avoid internal names (conditional types, branch names, helper types like `SoftPathArgs`, file paths, PR numbers) unless the audience is maintainers reading a technical appendix — changeset bodies are for consumers reading the changelog.
 
-## Changeset Format
+## Changeset body quality
+1. **Lead with impact** — One short title line, then 1–3 sentences on behavior: errors gone, typings improved, new capability, migration note.
+2. **User vocabulary** — Name public APIs (`RestEndpoint`, `resource()`, hook names). Do not explain how the fix was implemented.
+3. **When to add code** — Prefer a minimal example when the change is TypeScript-only or subtle: show the pattern that was broken and now works (subclass, `extend`, option object). Skip examples for trivial renames or obvious one-line fixes.
+4. **Examples** — Realistic imports and types; omit unrelated options. For fixes, you can show one “now types correctly” snippet instead of a long before/after if the before state was “TypeScript error on …”.
+5. **Breaking changes** — Still say what the user must do; use Before/After sections with code when the migration is non-obvious.
+
+## Changeset format
 - **First line**: Action verb ("Add", "Fix", "Update", "Remove")
 - **Breaking**: Prefix with `BREAKING CHANGE:` or `BREAKING:`
-- **Body**: 1–3 lines describing outcome, not implementation
-- **New exports**: Use "New exports:" with bullet list
+- **Body**: User outcome first; implementation almost never belongs here
+- **New exports**: Use "New exports:" with a bullet list
 
-## Code Examples in Changesets
-- Fixes: `// Before: ... ❌` `// After: ... ✓`
-- Breaking changes: Use `#### Before` and `#### After` headers
-- Multiple use cases: Separate with brief labels
+## Code examples in changesets
+- **Fixes**: Optional `// Before:` / `// After:` comments in one block, or two small blocks — keep them copy-paste plausible
+- **Breaking changes**: Use `#### Before` and `#### After` headers with complete snippets
+- **Multiple scenarios**: Short intro line per scenario, or separate fenced blocks with a one-line label above each
 
 ## Markdown Formatting
 Follow `@.cursor/rules/markdown-formatting.mdc` for all markdown content.
