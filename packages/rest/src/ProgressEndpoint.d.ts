@@ -22,18 +22,13 @@ export interface ProgressEndpointConstructor {
    *
    * @see https://dataclient.io/rest/api/ProgressEndpoint
    */
-  new <O extends RestGenerics = any>(
-    options: RestEndpointConstructorOptions<O> &
-      Readonly<O> & {
-        onDownloadProgress?:
-          | ((event: DownloadProgress) => void)
-          | undefined;
-      },
-  ): RestEndpoint<O> & {
-    readonly onDownloadProgress?:
-      | ((event: DownloadProgress) => void)
-      | undefined;
-  };
+  new <O extends RestGenerics = any>({
+    method,
+    sideEffect,
+    name,
+    onDownloadProgress,
+    ...options
+  }: RestEndpointConstructorOptions<O> & Readonly<O>): RestEndpoint<O>;
   readonly prototype: RestInstanceBase;
 }
 
