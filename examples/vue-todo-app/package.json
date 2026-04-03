@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@data-client/vue": "^0.16.0",
-    "@data-client/rest": "0.16.3",
+    "@data-client/rest": "0.16.4",
     "vue": "^3.5.22",
     "vue-router": "^4.6.3",
     "uuid": "^13.0.0"
