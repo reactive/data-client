@@ -106,6 +106,20 @@ const [x] = useMyDebounce(val, 100);
       `,
       'handles aliased useDebounce import',
     );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import { useDebounce } from '@data-client/react';
+const x: T = useDebounce(val, 100);
+      `,
+      `
+import { useDebounce } from '@data-client/react';
+const [x] = useDebounce(val, 100);
+      `,
+      'drops explicit identifier annotation when converting to array destructuring',
+    );
   });
 
   // ── entityMeta ───────────────────────────────────────────────────────

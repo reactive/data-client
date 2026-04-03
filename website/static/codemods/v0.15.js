@@ -51,9 +51,6 @@ function transformUseDebounce(j, root) {
     const pattern = j.arrayPattern([
       j.identifier(declPath.node.id.name),
     ]);
-    if (declPath.node.id.typeAnnotation) {
-      pattern.typeAnnotation = declPath.node.id.typeAnnotation;
-    }
     declPath.node.id = pattern;
     dirty = true;
   });
