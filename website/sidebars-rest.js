@@ -77,6 +77,10 @@ module.exports = {
         },
         {
           type: 'doc',
+          id: 'api/ProgressEndpoint',
+        },
+        {
+          type: 'doc',
           id: 'api/Endpoint',
         },
         {
