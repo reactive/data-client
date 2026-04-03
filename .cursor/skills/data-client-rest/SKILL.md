@@ -158,6 +158,30 @@ const downloadFile = new RestEndpoint({
 
 For complete usage with browser download trigger, see [network-transform: file download](references/network-transform.md#file-download).
 
+#### Download progress tracking
+
+Use `ProgressEndpoint` (extends `RestEndpoint`) to track download progress via `ReadableStream`. Opt in per-endpoint or for an entire resource:
+
+```ts
+import { ProgressEndpoint, resource } from '@data-client/rest';
+
+// Per-resource
+const FileResource = resource({
+  path: '/files/:id',
+  schema: FileEntity,
+  Endpoint: ProgressEndpoint,
+});
+
+// Per-endpoint via .extend()
+const downloadWithProgress = FileResource.get.extend({
+  onDownloadProgress({ loaded, total, lengthComputable }) {
+    setProgress(lengthComputable ? loaded / total! : undefined);
+  },
+});
+```
+
+`onDownloadProgress` receives `{ loaded, total, lengthComputable }` per chunk. When `Content-Encoding` is set or `Content-Length` is missing, `lengthComputable` is `false`. Gracefully degrades to normal `RestEndpoint` behavior when `response.body` is unavailable.
+
 ---
 
 ## 5. **Extending Resources**
