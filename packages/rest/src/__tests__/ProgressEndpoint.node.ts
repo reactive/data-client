@@ -325,5 +325,24 @@ describe('ProgressEndpoint', () => {
 
       await expect(ep({ id: 11 })).rejects.toBe(callbackError);
     });
+
+    it('should not tag TypeError from onDownloadProgress with status 500', async () => {
+      const ep = new ProgressEndpoint({ path: '/items/:id' });
+      (ep as any).onDownloadProgress = () => {
+        const obj = undefined as any;
+        obj.foo;
+      };
+      RestEndpoint.prototype.fetchResponse = () =>
+        Promise.resolve(makeStreamResponse(JSON.stringify({ id: 12 })));
+
+      let error: any;
+      try {
+        await ep({ id: 12 });
+      } catch (e) {
+        error = e;
+      }
+      expect(error).toBeInstanceOf(TypeError);
+      expect(error.status).toBeUndefined();
+    });
   });
 });

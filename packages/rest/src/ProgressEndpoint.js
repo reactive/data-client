@@ -8,14 +8,7 @@ export default class ProgressEndpoint extends RestEndpoint {
   async fetchResponse(input, init) {
     const response = await super.fetchResponse(input, init);
     if (this.onDownloadProgress && response.body && !response.bodyUsed) {
-      try {
-        return await readWithProgress(response, this.onDownloadProgress);
-      } catch (error) {
-        if (error instanceof TypeError) {
-          error.status = 500;
-        }
-        throw error;
-      }
+      return await readWithProgress(response, this.onDownloadProgress);
     }
     return response;
   }
@@ -33,10 +26,18 @@ async function readWithProgress(response, onProgress) {
 
   try {
     for (;;) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      chunks.push(value);
-      loaded += value.byteLength;
+      let result;
+      try {
+        result = await reader.read();
+      } catch (error) {
+        if (error instanceof TypeError) {
+          error.status = 500;
+        }
+        throw error;
+      }
+      if (result.done) break;
+      chunks.push(result.value);
+      loaded += result.value.byteLength;
       onProgress({ loaded, total, lengthComputable: total !== undefined });
     }
   } finally {
