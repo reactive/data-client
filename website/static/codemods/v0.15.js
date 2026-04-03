@@ -69,6 +69,7 @@ function transformEntityMeta(j, root) {
   memberTypes.forEach(type => {
     root
       .find(type, {
+        computed: false,
         property: { type: 'Identifier', name: 'entityMeta' },
       })
       .forEach(path => {

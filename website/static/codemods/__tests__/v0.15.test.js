@@ -174,6 +174,34 @@ const meta = state?.entitiesMeta;
       `,
       'renames optional chaining state?.entityMeta',
     );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+const entityMeta = 'entityMeta';
+const meta = state[entityMeta];
+      `,
+      `
+const entityMeta = 'entityMeta';
+const meta = state[entityMeta];
+      `,
+      'does not rewrite computed member state[entityMeta]',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+const entityMeta = 'entityMeta';
+const meta = state?.[entityMeta];
+      `,
+      `
+const entityMeta = 'entityMeta';
+const meta = state?.[entityMeta];
+      `,
+      'does not rewrite computed optional member state?.[entityMeta]',
+    );
   });
 
   // ── MemoCache state consolidation ────────────────────────────────────
