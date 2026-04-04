@@ -40,6 +40,36 @@ const x = 1;
       transform,
       {},
       `
+import axios, { AxiosResponse, isAxiosError } from 'axios';
+const x = 1;
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+import { isAxiosError } from 'axios';
+const x = 1;
+      `,
+      'preserves unknown named imports while removing known axios type imports',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios, { AxiosError as Err, spread as spreadValues } from 'axios';
+const x = 1;
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+import { spread as spreadValues } from 'axios';
+const x = 1;
+      `,
+      'preserves aliased unknown named imports from axios',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
 import ax from 'axios';
 const x = 1;
       `,

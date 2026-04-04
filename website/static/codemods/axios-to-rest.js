@@ -103,11 +103,16 @@ function transformImports(j, root) {
       return true;
     });
 
-    const newImport = j.importDeclaration(
+    const restImport = j.importDeclaration(
       [j.importSpecifier(j.identifier('RestEndpoint'))],
       j.literal('@data-client/rest'),
     );
-    j(importPath).replaceWith(newImport);
+    if (remaining.length) {
+      const axiosImport = j.importDeclaration(remaining, j.literal('axios'));
+      j(importPath).replaceWith([restImport, axiosImport]);
+    } else {
+      j(importPath).replaceWith(restImport);
+    }
     dirty = true;
   });
 
