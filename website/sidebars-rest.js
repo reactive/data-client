@@ -69,17 +69,6 @@ module.exports = {
     {
       type: 'category',
       collapsed: false,
-      label: 'Migration Guides',
-      items: [
-        {
-          type: 'doc',
-          id: 'guides/axios-migration',
-        },
-      ],
-    },
-    {
-      type: 'category',
-      collapsed: false,
       label: 'Endpoint API',
       items: [
         {
@@ -105,6 +94,17 @@ module.exports = {
       label: 'Schema API',
       collapsed: false,
       items: require('./sidebars-endpoint.json').slice(1),
+    },
+    {
+      type: 'category',
+      collapsed: false,
+      label: 'Migration Guides',
+      items: [
+        {
+          type: 'doc',
+          id: 'guides/axios-migration',
+        },
+      ],
     },
   ],
 };

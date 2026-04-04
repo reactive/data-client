@@ -29,11 +29,6 @@ export default function SkillTabs({ repo = 'reactive/data-client', skill }) {
           </CodeBlock>
         </TabItem>
       </Tabs>
-      <p style={{ marginTop: '0.5rem', marginBottom: 0 }}>
-        <a href={catalogUrl} target="_blank" rel="noopener noreferrer">
-          Browse all skills on skills.sh
-        </a>
-      </p>
     </>
   );
 }
