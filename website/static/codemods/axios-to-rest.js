@@ -72,7 +72,11 @@ function uniqueClassName(desired, existing) {
 function extractHeaderProperties(j, node) {
   if (node.type === 'ObjectExpression') {
     return node.properties.filter(
-      p => p.type === 'ObjectProperty' || p.type === 'Property',
+      p =>
+        p.type === 'ObjectProperty' ||
+        p.type === 'Property' ||
+        p.type === 'SpreadElement' ||
+        p.type === 'SpreadProperty',
     );
   }
   return [j.spreadElement(node)];

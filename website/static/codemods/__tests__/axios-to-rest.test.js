@@ -112,6 +112,33 @@ class ApiEndpoint extends RestEndpoint {
       transform,
       {},
       `
+import axios from 'axios';
+const defaults = { Authorization: 'Bearer token' };
+const api = axios.create({
+  headers: { ...defaults, 'X-Key': 'val' },
+});
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+const defaults = { Authorization: 'Bearer token' };
+
+class ApiEndpoint extends RestEndpoint {
+  getHeaders(headers) {
+    return {
+      ...headers,
+      ...defaults,
+      'X-Key': 'val'
+    };
+  }
+}
+      `,
+      'preserves spread elements in axios.create headers object',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
 import ax from 'axios';
 const client = ax.create({
   baseURL: 'https://example.com',
