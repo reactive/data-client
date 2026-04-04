@@ -377,6 +377,213 @@ const result = new ApiEndpoint({
     );
   });
 
+  // ── TypeScript edge cases ──────────────────────────────────────────
+
+  describe('TypeScript edge cases', () => {
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios, { AxiosResponse } from 'axios';
+const result: AxiosResponse<User> = await axios.get<User>('/users/1');
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+const result: AxiosResponse<User> = await new RestEndpoint({
+  path: '/users/1'
+});
+      `,
+      'handles generic type parameters on axios method calls',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios, { AxiosResponse } from 'axios';
+const data = (await axios.get('/users')) as AxiosResponse<User>;
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+const data = (await new RestEndpoint({
+  path: '/users'
+})) as AxiosResponse<User>;
+      `,
+      'handles as casts with AxiosResponse',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import type { AxiosResponse } from 'axios';
+import axios from 'axios';
+const result = axios.get('/users');
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+const result = new RestEndpoint({
+  path: '/users'
+});
+      `,
+      'removes import type declaration alongside default import',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios, { type AxiosResponse } from 'axios';
+const result = axios.get('/users');
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+const result = new RestEndpoint({
+  path: '/users'
+});
+      `,
+      'removes inline type specifiers from import',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios, { type AxiosResponse, isAxiosError } from 'axios';
+const result = axios.get('/users');
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+import { isAxiosError } from 'axios';
+const result = new RestEndpoint({
+  path: '/users'
+});
+      `,
+      'removes inline type specifiers but preserves unknown named imports',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import type { AxiosResponse } from 'axios';
+const x: AxiosResponse = {};
+      `,
+      `
+const x: AxiosResponse = {};
+      `,
+      'removes type-only import without adding RestEndpoint when no default import exists',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import type { AxiosResponse } from 'axios';
+      `,
+      ``,
+      'removes standalone type-only import',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+function foo(client: typeof axios) { return client; }
+      `,
+      ``,
+      'no-op when axios is used only as typeof annotation',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+function foo(client: typeof axios) { return client; }
+const result = axios.get('/users');
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+import axios from 'axios';
+function foo(client: typeof axios) { return client; }
+const result = new RestEndpoint({
+  path: '/users'
+});
+      `,
+      'preserves axios import when typeof annotation coexists with method calls',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+export { default as axios } from 'axios';
+      `,
+      `
+export { default as axios } from 'axios';
+      `,
+      'leaves re-exports unchanged',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+declare module 'axios' {
+  interface AxiosRequestConfig {
+    customField?: string;
+  }
+}
+      `,
+      `
+declare module 'axios' {
+  interface AxiosRequestConfig {
+    customField?: string;
+  }
+}
+      `,
+      'leaves declare module augmentations unchanged',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+import { AxiosResponse } from 'axios';
+const result = axios.get('/users');
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+const result = new RestEndpoint({
+  path: '/users'
+});
+      `,
+      'handles multiple import statements from axios without duplicate RestEndpoint imports',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+import { AxiosResponse, AxiosError } from 'axios';
+const result = axios.get('/users');
+const x: AxiosResponse<User> = result;
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+const result = new RestEndpoint({
+  path: '/users'
+});
+const x: AxiosResponse<User> = result;
+      `,
+      'removes multiple axios imports with type references used as annotations',
+    );
+  });
+
   // ── Edge cases ──────────────────────────────────────────────────────
 
   describe('edge cases', () => {
