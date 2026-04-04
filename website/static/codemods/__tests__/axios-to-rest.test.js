@@ -54,8 +54,8 @@ const x = 1;
       transform,
       {},
       `const x = 1;`,
-      ``,
-      'no-op when file has no axios import (returns undefined → empty)',
+      `const x = 1;`,
+      'no-op when file has no axios import (returns unchanged source)',
     );
   });
 
@@ -340,8 +340,11 @@ const result = new ApiEndpoint({
 import { something } from 'other-lib';
 const x = something();
       `,
-      ``,
-      'returns undefined (no change) when no axios import exists',
+      `
+import { something } from 'other-lib';
+const x = something();
+      `,
+      'returns unchanged source when no axios import exists',
     );
 
     defineInlineTest(
