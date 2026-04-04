@@ -338,6 +338,15 @@ When using TypeScript (optional), version 4.0 or above is required.
 
 :::
 
+## Migrating from Axios
+
+Use the [axios-to-rest-migration](https://skills.sh/reactive/data-client/axios-to-rest-migration) skill to automate migration from axios:
+
+<SkillTabs repo="reactive/data-client" skill="axios-to-rest-migration" />
+
+Then run skill `/axios-to-rest-migration` to convert `axios.create()`, interceptors, and API calls to type-safe [`RestEndpoint`](./api/RestEndpoint.md) patterns.
+
+See the full [Axios Migration Guide](./guides/axios-migration.md) for step-by-step examples, a quick reference table, and a standalone codemod.
 
 <p>
 <center>

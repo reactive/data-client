@@ -37,10 +37,6 @@ module.exports = {
           type: 'doc',
           id: 'guides/django',
         },
-        {
-          type: 'doc',
-          id: 'guides/axios-migration',
-        },
       ],
     },
     {
@@ -67,6 +63,17 @@ module.exports = {
         {
           type: 'doc',
           id: 'guides/partial-entities',
+        },
+      ],
+    },
+    {
+      type: 'category',
+      collapsed: false,
+      label: 'Migration Guides',
+      items: [
+        {
+          type: 'doc',
+          id: 'guides/axios-migration',
         },
       ],
     },
