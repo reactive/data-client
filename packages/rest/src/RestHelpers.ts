@@ -1,12 +1,11 @@
-// Namespace import avoids webpack's per-export CJS validation, which fails in
-// StackBlitz WebContainers. Named imports (`import { compile }`) trigger
-// `importExportsPresence` checks that break there. `import *` defers property
-// access to runtime. No tree-shaking loss: CJS modules are included whole
-// regardless of import style, and webpack 5 traces static access on namespaces.
-import type { PathFunction, Token, ParamData } from 'path-to-regexp';
-import * as pathToRegexpModule from 'path-to-regexp';
-const { compile, parse, pathToRegexp } = pathToRegexpModule;
-
+import {
+  compile,
+  PathFunction,
+  parse,
+  pathToRegexp,
+  Token,
+  ParamData,
+} from './pathToRegexp.js';
 import { ShortenPath } from './pathTypes.js';
 
 const urlBaseCache: Record<string, PathFunction<object>> = Object.create(null);
