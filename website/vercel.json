@@ -1,4 +1,4 @@
 {
   "cleanUrls": true,
-  "ignoreCommand": "case $VERCEL_GIT_COMMIT_REF in gh-pages*)exit 0;;esac;B=master;if [ \"$VERCEL_GIT_COMMIT_REF\" = $B ];then git diff HEAD^ HEAD -q -- . ../docs/;else git fetch origin $B -q&&git diff $(git merge-base origin/$B HEAD) HEAD -q -- . ../docs/;fi"
+  "ignoreCommand": "case $VERCEL_GIT_COMMIT_REF in gh-pages*)exit 0;;master)git diff HEAD^ HEAD -q -- . ../docs/;;*)exit 1;;esac"
 }
