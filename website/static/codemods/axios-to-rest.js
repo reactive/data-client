@@ -86,7 +86,13 @@ function extractHeaderProperties(j, node) {
 
 // --- 1. Transform imports ---
 
-function hasLiveReference(j, root, localName, importScope) {
+function hasReference(
+  j,
+  root,
+  localName,
+  importScope,
+  excludeTypePositions,
+) {
   return (
     root
       .find(j.Identifier, { name: localName })
@@ -120,6 +126,19 @@ function hasLiveReference(j, root, localName, importScope) {
           !parent.computed
         ) {
           return false;
+        }
+
+        if (excludeTypePositions) {
+          // Ignore references used only in TS type positions.
+          if (
+            parent.type === 'TSTypeReference' ||
+            parent.type === 'TSQualifiedName' ||
+            parent.type === 'TSTypeQuery' ||
+            parent.type === 'TSExpressionWithTypeArguments' ||
+            parent.type === 'TSImportType'
+          ) {
+            return false;
+          }
         }
 
         return true;
@@ -128,57 +147,12 @@ function hasLiveReference(j, root, localName, importScope) {
   );
 }
 
+function hasLiveReference(j, root, localName, importScope) {
+  return hasReference(j, root, localName, importScope, false);
+}
+
 function hasRuntimeReference(j, root, localName, importScope) {
-  return (
-    root
-      .find(j.Identifier, { name: localName })
-      .filter(path => {
-        if (path.scope.lookup(localName) !== importScope) {
-          return false;
-        }
-
-        const parent = path.parent.node;
-
-        if (
-          (parent.type === 'ImportDefaultSpecifier' ||
-            parent.type === 'ImportSpecifier' ||
-            parent.type === 'ImportNamespaceSpecifier') &&
-          parent.local === path.node
-        ) {
-          return false;
-        }
-
-        if (
-          (parent.type === 'Property' || parent.type === 'ObjectProperty') &&
-          parent.key === path.node &&
-          !parent.computed
-        ) {
-          return false;
-        }
-
-        if (
-          parent.type === 'MemberExpression' &&
-          parent.property === path.node &&
-          !parent.computed
-        ) {
-          return false;
-        }
-
-        // Ignore references used only in TS type positions.
-        if (
-          parent.type === 'TSTypeReference' ||
-          parent.type === 'TSQualifiedName' ||
-          parent.type === 'TSTypeQuery' ||
-          parent.type === 'TSExpressionWithTypeArguments' ||
-          parent.type === 'TSImportType'
-        ) {
-          return false;
-        }
-
-        return true;
-      })
-      .size() > 0
-  );
+  return hasReference(j, root, localName, importScope, true);
 }
 
 function ensureRestEndpointImport(j, root) {
