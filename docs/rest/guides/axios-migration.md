@@ -14,11 +14,11 @@ import SkillTabs from '@site/src/components/SkillTabs';
 
 ## AI-assisted migration {#skill}
 
-Install the [axios-to-rest-migration](https://skills.sh/reactive/data-client/axios-to-rest-migration) skill to automate the migration with your AI coding assistant. The skill runs the [codemod](#codemod) for deterministic transforms, then guides you through the manual steps that require judgment (interceptors, error handling, schema definitions, etc.).
+Install the REST setup skill to automate the migration with your AI coding assistant. It auto-detects axios in your project and runs the [codemod](#codemod) for deterministic transforms, then guides you through the manual steps that require judgment (interceptors, error handling, schema definitions, etc.).
 
-<SkillTabs repo="reactive/data-client" skill="axios-to-rest-migration" />
+<SkillTabs repo="reactive/data-client" skills={['data-client-schema', 'data-client-rest-setup', 'data-client-rest']} />
 
-Then run skill `/axios-to-rest-migration` to start the migration.
+Then run skill `/data-client-rest-setup` to start the migration. It will detect axios and apply the appropriate migration sub-procedure automatically.
 
 ## Why migrate?
 

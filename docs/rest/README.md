@@ -340,35 +340,25 @@ When using TypeScript (optional), version 4.0 or above is required.
 
 ## REST skills
 
+import SkillTabs from '@site/src/components/SkillTabs';
+
+<SkillTabs repo="reactive/data-client" skills={['data-client-schema', 'data-client-rest-setup', 'data-client-rest']} />
+
+Then call `/data-client-rest-setup` to migrate
+
 <p>
 <center>
-<Link className="button button--secondary button--sm" to="https://skills.sh/reactive/data-client"><img src="/img/anthropic.svg" alt="Agent Skills" style={{
+<Link className="button button--secondary button--sm" to="https://skills.sh/reactive/data-client/data-client-rest"><img src="/img/anthropic.svg" alt="REST Codegen Skill" style={{
           height: '1em',
           verticalAlign: '-0.125em',
           display: 'inline',
         }}
-/> Agent Skills</Link>&nbsp;
-<Link className="button button--secondary button--sm" to="https://github.com/reactive/data-client/blob/master/.cursor/skills/data-client-rest/SKILL.md"><img src="/img/copilot.svg" alt="Github Copilot" style={{
-          height: '1em',              // Match font size
-          verticalAlign: '-0.125em',  // Fine-tune: try -0.125em or 'middle'
-          display: 'inline',          // Inline with text
-        }}
-/> Skill</Link>
+/> REST Codegen Skill</Link>
 </center>
 </p>
 
-import SkillTabs from '@site/src/components/SkillTabs';
+### Migrating from Axios
 
-<SkillTabs repo="reactive/data-client" />
-
-Install all `data-client-` skills, then generate REST APIs
-
-## Migrating from Axios
-
-Use the [axios-to-rest-migration](https://skills.sh/reactive/data-client/axios-to-rest-migration) skill to automate migration from axios:
-
-<SkillTabs repo="reactive/data-client" skill="axios-to-rest-migration" />
-
-Then run skill `/axios-to-rest-migration` to convert `axios.create()`, interceptors, and API calls to type-safe [`RestEndpoint`](./api/RestEndpoint.md) patterns.
+The `data-client-rest-setup` skill automatically detects axios usage and applies the axios migration — including the [codemod](./guides/axios-migration.md#codemod), interceptor conversion, and error handling migration.
 
 See the full [Axios Migration Guide](./guides/axios-migration.md) for step-by-step examples, a quick reference table, and a standalone codemod.

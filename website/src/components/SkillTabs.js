@@ -3,8 +3,13 @@ import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';
 import React from 'react';
 
-export default function SkillTabs({ repo = 'reactive/data-client', skill }) {
-  const skillFlag = skill ? ` --skill ${skill}` : '';
+export default function SkillTabs({
+  repo = 'reactive/data-client',
+  skill,
+  skills,
+}) {
+  const allSkills = skills ?? (skill ? [skill] : []);
+  const skillFlag = allSkills.map(s => ` --skill ${s}`).join('');
   return (
     <>
       <Tabs

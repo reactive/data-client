@@ -1,8 +1,3 @@
----
-name: axios-to-rest-migration
-description: Migrate from axios to @data-client/rest. Use when removing axios dependency, converting axios.create/interceptors/error handling to RestEndpoint patterns, or when seeing axios imports in a project that uses @data-client/rest.
----
-
 # Axios → @data-client/rest Migration
 
 ## Step 1: Run the codemod

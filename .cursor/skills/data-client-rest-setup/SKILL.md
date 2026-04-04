@@ -1,16 +1,16 @@
 ---
 name: data-client-rest-setup
-description: Set up @data-client/rest for REST APIs. Creates custom RestEndpoint base class with common behaviors (auth, urlPrefix, error handling). Use after data-client-setup detects REST patterns.
+description: Set up and migrate to @data-client/rest for REST APIs. Detects existing HTTP patterns (axios, fetch, ky, superagent, got) and migrates them. Creates custom RestEndpoint base class with common behaviors. Use when adopting @data-client/rest in a new or existing project.
 disable-model-invocation: true
 ---
 
-# REST Protocol Setup
+# REST Protocol Setup & Migration
 
-This skill configures `@data-client/rest` for a project. It should be applied after skill "data-client-setup" detects REST API patterns.
+This skill configures `@data-client/rest` for a project. It handles both fresh setup and migration from existing HTTP libraries. It should be applied after skill "data-client-setup" detects REST API patterns.
 
 **First, apply the skill "data-client-rest"** for accurate implementation patterns.
 
-## Installation
+## Step 1: Installation
 
 Install the REST package alongside the core package:
 
@@ -25,9 +25,56 @@ yarn add @data-client/rest
 pnpm add @data-client/rest
 ```
 
-## Custom RestEndpoint Base Class
+## Step 2: Detect Existing HTTP Patterns
 
-After installing, **offer to create a custom RestEndpoint class** for the project.
+Scan the codebase to determine what's currently used. **Multiple patterns may coexist** — run each applicable migration sub-procedure independently on the relevant files.
+
+### Detection Checklist
+
+Check `package.json` dependencies and scan source files:
+
+| Check | Pattern | Action |
+|-------|---------|--------|
+| `"axios"` in dependencies, or `import.*from ['"]axios['"]` in source | **Axios** | Follow [references/axios-migration.md](references/axios-migration.md) |
+| `fetch(` calls with REST-style URLs, or wrapper functions around `fetch` | **Raw fetch** | Follow [references/fetch-migration.md](references/fetch-migration.md) |
+| `"ky"` in dependencies, or `import.*from ['"]ky['"]` | **Ky** | Follow [references/ky-migration.md](references/ky-migration.md) |
+| `"superagent"` in dependencies | **SuperAgent** | Follow [references/superagent-migration.md](references/superagent-migration.md) |
+| `"got"` in dependencies (rare in browser code) | **Got** | Follow [references/got-migration.md](references/got-migration.md) |
+| No existing HTTP library detected | **Fresh project** | Skip to [Step 3: Custom RestEndpoint Base Class](#step-3-custom-restendpoint-base-class) |
+
+### Ambiguous Detection
+
+If you cannot confidently determine which patterns are used (e.g., no clear imports but HTTP calls exist), **ask the user**:
+
+> I found HTTP calls in your codebase but couldn't determine the library. Are you migrating from:
+> 1. axios
+> 2. Raw fetch / custom fetch wrapper
+> 3. ky
+> 4. superagent
+> 5. Something else (please describe)
+> 6. Starting fresh (no migration needed)
+
+### Mixed Codebases
+
+When multiple HTTP libraries are detected, run each sub-procedure on the relevant files. The sub-procedures are independent and don't conflict:
+
+1. Identify which files use which library (group by import statements)
+2. Run each applicable migration sub-procedure on its file group
+3. After all migrations, proceed to the base class setup
+
+## Migration References
+
+Each migration is a self-contained reference. Read only the relevant one(s) based on detection results above. After completing migrations, return here for base class setup.
+
+- **Axios** → [references/axios-migration.md](references/axios-migration.md) — codemod, interceptors, error handling, timeout, cancelToken, responseType, paramsSerializer, auth, validateStatus, CSRF, upload progress
+- **Raw fetch** → [references/fetch-migration.md](references/fetch-migration.md) — fetch wrappers, headers, status checks, POST patterns, error handling
+- **Ky** → [references/ky-migration.md](references/ky-migration.md) — prefixUrl, hooks, HTTPError, instance config
+- **SuperAgent** → [references/superagent-migration.md](references/superagent-migration.md) — chained API, plugins, agents, file uploads
+- **Got** → [references/got-migration.md](references/got-migration.md) — Node.js patterns, hooks, pagination, retry
+
+## Step 3: Custom RestEndpoint Base Class
+
+After installation and any migrations, **offer to create a custom RestEndpoint class** for the project.
 
 ### Detection Checklist
 
@@ -111,9 +158,7 @@ process(value: any, ...args: any[]) {
 async fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response> {
   const response = await super.fetchResponse(input, init);
   
-  // Handle specific status codes
   if (response.status === 401) {
-    // Trigger logout or token refresh
     window.dispatchEvent(new CustomEvent('auth:expired'));
   }
   
@@ -125,7 +170,6 @@ async fetchResponse(input: RequestInfo, init: RequestInit): Promise<Response> {
 
 ```ts
 searchToString(searchParams: Record<string, any>): string {
-  // For complex nested query params
   return qs.stringify(searchParams, { arrayFormat: 'brackets' });
 }
 ```
@@ -174,14 +218,11 @@ export class BaseEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> 
   }
 
   process(value: any, ...args: any[]) {
-    // Unwrap { data: ... } envelope if present
     return value?.data ?? value;
   }
 }
 
-// Helper function - implement based on project auth pattern
 async function getAuthToken(): Promise<string | null> {
-  // Check for valid token, refresh if needed
   return localStorage.getItem('token');
 }
 ```
@@ -228,3 +269,4 @@ export const TodoResource = resource({
 - [resource](references/resource.md) - Resource factory function
 - [Authentication Guide](references/auth.md) - Auth patterns and examples
 - [Django Integration](references/django.md) - Django REST Framework patterns
+- [Axios Migration Guide](https://dataclient.io/rest/guides/axios-migration) - Full axios migration documentation
