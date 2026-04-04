@@ -37,6 +37,10 @@ module.exports = {
           type: 'doc',
           id: 'guides/django',
         },
+        {
+          type: 'doc',
+          id: 'guides/axios-migration',
+        },
       ],
     },
     {
