@@ -97,7 +97,7 @@ module.exports = {
     },
     {
       type: 'category',
-      collapsed: false,
+      collapsed: true,
       label: 'Migration Guides',
       items: [
         {
