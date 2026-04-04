@@ -5,7 +5,6 @@ import React from 'react';
 
 export default function SkillTabs({ repo = 'reactive/data-client', skill }) {
   const skillFlag = skill ? ` --skill ${skill}` : '';
-  const catalogUrl = `https://skills.sh/${repo}`;
   return (
     <>
       <Tabs
