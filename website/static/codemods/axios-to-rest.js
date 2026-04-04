@@ -352,7 +352,14 @@ function transformDirectCalls(j, root, axiosLocalName, createToClass) {
     if (urlArg.type !== 'StringLiteral' && urlArg.type !== 'TemplateLiteral')
       return;
 
-    if (args.length > 1) return;
+    const instanceName = callee.object.name;
+    const className = createToClass.get(instanceName);
+    const isCreatedInstance = Boolean(className);
+
+    // Keep existing no-op behavior for direct axios calls with extra args.
+    // However, created instances must still be transformed so we don't leave
+    // dangling references after axios.create() is replaced by a class.
+    if (args.length > 1 && !isCreatedInstance) return;
 
     const method = methodName.toUpperCase();
 
@@ -366,9 +373,6 @@ function transformDirectCalls(j, root, axiosLocalName, createToClass) {
         j.objectProperty(j.identifier('method'), j.stringLiteral(method)),
       );
     }
-
-    const instanceName = callee.object.name;
-    const className = createToClass.get(instanceName);
 
     let newExpr;
     if (className) {

@@ -375,6 +375,54 @@ const result = new ApiEndpoint({
       `,
       'converts instance.post to new ClassName with method POST',
     );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const api = axios.create({ baseURL: 'https://api.example.com' });
+const payload = { name: 'Taylor' };
+const result = api.post('/users', payload);
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+const payload = { name: 'Taylor' };
+
+class ApiEndpoint extends RestEndpoint {
+  urlPrefix = 'https://api.example.com';
+}
+
+const result = new ApiEndpoint({
+  path: '/users',
+  method: 'POST'
+});
+      `,
+      'converts instance.post with payload arg to avoid dangling instance references',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const api = axios.create({ baseURL: 'https://api.example.com' });
+const result = api.patch('/users/1', { enabled: true }, { headers: { 'X-Trace': '1' } });
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+
+class ApiEndpoint extends RestEndpoint {
+  urlPrefix = 'https://api.example.com';
+}
+
+const result = new ApiEndpoint({
+  path: '/users/1',
+  method: 'PATCH'
+});
+      `,
+      'converts instance.patch with payload/config args to avoid dangling instance references',
+    );
   });
 
   // ── TypeScript edge cases ──────────────────────────────────────────
