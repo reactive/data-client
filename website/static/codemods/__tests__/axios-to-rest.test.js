@@ -112,6 +112,46 @@ const x = 1;
       transform,
       {},
       `
+import axios, { CancelToken, AxiosError } from 'axios';
+const source = CancelToken.source();
+if (err instanceof AxiosError) {
+  log(err);
+}
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+import { CancelToken, AxiosError } from 'axios';
+const source = CancelToken.source();
+if (err instanceof AxiosError) {
+  log(err);
+}
+      `,
+      'preserves runtime CancelToken and AxiosError named imports',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios, { AxiosError as Err } from 'axios';
+if (err instanceof Err) {
+  log(err);
+}
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+import { AxiosError as Err } from 'axios';
+if (err instanceof Err) {
+  log(err);
+}
+      `,
+      'preserves aliased runtime AxiosError import when used',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
 import ax from 'axios';
 const x = 1;
       `,

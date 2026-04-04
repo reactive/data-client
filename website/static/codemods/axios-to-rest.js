@@ -14,7 +14,6 @@
 
 const AXIOS_TYPE_IMPORTS = new Set([
   'AxiosResponse',
-  'AxiosError',
   'AxiosRequestConfig',
   'AxiosInstance',
   'AxiosHeaders',
@@ -26,7 +25,6 @@ const AXIOS_TYPE_IMPORTS = new Set([
   'AxiosBasicCredentials',
   'AxiosProxyConfig',
   'AxiosTransformer',
-  'CancelToken',
   'CancelTokenSource',
   'Canceler',
   'Cancel',
@@ -233,8 +231,9 @@ function transformImports(j, root, axiosLocalName, needsRestEndpointImport) {
       if (s.type === 'ImportSpecifier' && s.importKind === 'type') return false;
       if (s.type === 'ImportSpecifier' && s.imported) {
         const importedName = s.imported.name || s.imported.value;
+        const localName = (s.local && s.local.name) || importedName;
+
         if (AXIOS_RUNTIME_IMPORTS.has(importedName)) {
-          const localName = (s.local && s.local.name) || importedName;
           return hasRuntimeReference(
             j,
             root,
