@@ -584,6 +584,178 @@ const x: AxiosResponse<User> = result;
     );
   });
 
+  // ── Real-world usage patterns ──────────────────────────────────────
+
+  describe('real-world usage patterns', () => {
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const users = axios.get('/users').then(res => res.data);
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+const users = new RestEndpoint({
+  path: '/users'
+}).then(res => res.data);
+      `,
+      'chained .then() is preserved after transforming axios.get',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+async function getUsers() {
+  const { data } = await axios.get('/users');
+  return data;
+}
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+async function getUsers() {
+  const { data } = await new RestEndpoint({
+    path: '/users'
+  });
+  return data;
+}
+      `,
+      'await with destructured result in async function',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const result = axios('/users');
+      `,
+      ``,
+      'axios as default function call is left unchanged (no-op)',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const result = axios.get('/users', { headers: { Authorization: 'Bearer token' }, params: { page: 1 } });
+      `,
+      ``,
+      'config object as second arg is left unchanged (no-op)',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const result = axios.request({ url: '/users', method: 'get' });
+      `,
+      ``,
+      'axios.request() is left unchanged (no-op)',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const id = 5;
+const result = axios.get(\`/users/\${id}\`);
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+const id = 5;
+const result = new RestEndpoint({
+  path: \`/users/\${id}\`
+});
+      `,
+      'template literal URLs are transformed',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+export const api = axios.create({ baseURL: 'https://api.example.com' });
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+export class ApiEndpoint extends RestEndpoint {
+  urlPrefix = 'https://api.example.com';
+}
+      `,
+      'exported axios.create() instances produce exported class declarations',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const api = axios.create();
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+class ApiEndpoint extends RestEndpoint {}
+      `,
+      'axios.create() with no arguments produces empty class',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+function fetchData(condition) {
+  if (condition) {
+    return axios.get('/a');
+  } else {
+    return axios.get('/b');
+  }
+}
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+function fetchData(condition) {
+  if (condition) {
+    return new RestEndpoint({
+      path: '/a'
+    });
+  } else {
+    return new RestEndpoint({
+      path: '/b'
+    });
+  }
+}
+      `,
+      'nested/conditional axios calls are all transformed',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const result = axios.all([axios.get('/a'), axios.get('/b')]);
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+import axios from 'axios';
+const result = axios.all([new RestEndpoint({
+  path: '/a'
+}), new RestEndpoint({
+  path: '/b'
+})]);
+      `,
+      'axios.all with nested axios.get calls transforms the gets but preserves axios.all and import',
+    );
+  });
+
   // ── Edge cases ──────────────────────────────────────────────────────
 
   describe('edge cases', () => {

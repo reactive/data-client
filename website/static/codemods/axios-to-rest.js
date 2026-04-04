@@ -349,14 +349,17 @@ function transformDirectCalls(j, root, axiosLocalName, createToClass) {
     if (args.length === 0) return;
 
     const urlArg = args[0];
-    if (urlArg.type !== 'StringLiteral') return;
+    if (urlArg.type !== 'StringLiteral' && urlArg.type !== 'TemplateLiteral')
+      return;
 
-    const urlValue = urlArg.value;
+    if (args.length > 1) return;
+
     const method = methodName.toUpperCase();
 
-    const properties = [
-      j.objectProperty(j.identifier('path'), j.stringLiteral(urlValue)),
-    ];
+    const pathValue =
+      urlArg.type === 'StringLiteral' ? j.stringLiteral(urlArg.value) : urlArg;
+
+    const properties = [j.objectProperty(j.identifier('path'), pathValue)];
 
     if (method !== 'GET') {
       properties.push(
