@@ -2,7 +2,7 @@
 
 ## Step 1: Run the codemod
 
-The codemod handles deterministic transforms automatically:
+**Always run this first**, before any manual edits. It handles deterministic transforms that save significant manual work:
 
 ```bash
 npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=ts,tsx,js,jsx src/
@@ -12,6 +12,11 @@ npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=
 - `import axios from 'axios'` → `import { RestEndpoint } from '@data-client/rest'`
 - `axios.create({ baseURL, headers })` → `RestEndpoint` subclass with `urlPrefix` + `getHeaders()`
 - `axios.get(url)` / `.post(url)` / `.put(url)` / `.patch(url)` / `.delete(url)` → `new RestEndpoint({ path, method })`
+- Instance method calls (e.g. `api.post(url)` where `api = axios.create(...)`) → `new CreatedClassName({ path, method })`
+
+**When the codemod has limited value** (skip to Step 2):
+- The project wraps axios in a custom class/function and never calls `axios.get()`/`.post()` directly
+- Axios is called only via `axios(config)` (generic invocation without a method name)
 
 **What the codemod does NOT do** (requires manual migration — see rules below):
 - Interceptors
@@ -377,6 +382,21 @@ const createUser = new BaseEndpoint({
 const user = useSuspense(UserResource.get, { id: '1' });
 ```
 
+### Context-based auth (Okta, Auth0)
+
+When auth tokens come from React context rather than localStorage, use [`hookifyResource()`](hookifyResource.md) to inject headers via a hook:
+
+```ts
+export const ArticleResource = hookifyResource(
+  resource({ path: '/articles/:id', schema: Article, Endpoint: BaseEndpoint }),
+  function useInit() {
+    const { accessToken } = useAuth();
+    return { headers: { Authorization: `Bearer ${accessToken}` } };
+  },
+);
+// Usage: useSuspense(ArticleResource.useGet(), { id })
+```
+
 ### Gradual migration with TanStack Query
 
 If the app uses TanStack Query / SWR and you can't convert everything at once, keep imperative wrapper functions temporarily but wire Entity schemas into the endpoints so data is normalized:
@@ -395,6 +415,26 @@ export async function getProject(id: string) {
 
 Later, replace `useQuery({ queryFn: getProject })` with `useSuspense(getProjectEndpoint, { id })`.
 
+### Existing endpoint abstractions
+
+Enterprise codebases often have a custom endpoint class wrapping axios (e.g. `ApiEndpoint` with `path`, `method`, `toDynamicUrl()`). Instead of replacing it, **extend `RestEndpoint`** and keep backward-compatible methods:
+
+```ts
+class MyEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+  queryKey: string;
+  constructor(params: { path: string; method: string; queryKey: string }) {
+    super({ path: params.path, method: params.method, schema: undefined, urlPrefix: API_ROOT });
+    this.queryKey = params.queryKey;
+  }
+  // Legacy helper — prefer url() directly
+  toDynamicUrl(segments: Record<string, string>) {
+    return this.url(segments);
+  }
+}
+```
+
+This lets existing hooks and endpoint definitions keep working while gaining `RestEndpoint` lifecycle methods (`url()`, `getRequestInit()`, `fetchResponse()`, `parseResponse()`).
+
 ## Where to find axios patterns
 
 Search patterns for locating axios usage in a codebase:
@@ -411,6 +451,7 @@ Search patterns for locating axios usage in a codebase:
 
 - [Axios Migration Guide](https://dataclient.io/rest/guides/axios-migration) — full documentation with interactive examples
 - [RestEndpoint API](https://dataclient.io/rest/api/RestEndpoint) — lifecycle methods reference
+- [hookifyResource](https://dataclient.io/rest/api/hookifyResource) — context-based auth via hooks
 - [NetworkError](https://dataclient.io/rest/api/NetworkError) — error class
 - [Authentication guide](https://dataclient.io/rest/guides/auth) — token and cookie patterns
 - [Abort guide](https://dataclient.io/rest/guides/abort) — cancellation patterns

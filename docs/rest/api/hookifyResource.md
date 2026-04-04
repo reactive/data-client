@@ -11,7 +11,7 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
-# hookfiyResource
+# hookifyResource
 
 `hookifyResource()` Turns any [Resource](./resource.md) (collection of [RestEndpoints](./RestEndpoint.md)) into a collection
 of hooks that return [RestEndpoints](./RestEndpoint.md).
@@ -129,10 +129,9 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
 ```typescript
 // POST //test.com/api/abc
 // BODY { "title": "winning" }
-resource({
-  urlPrefix: '//test.com',
-  path: '/api/:group/:id',
-}).useGetList().push({ group: 'abc' }, { title: 'winning' });
+hookifyResource(
+  resource({ urlPrefix: '//test.com', path: '/api/:group/:id' }),
+).useGetList().push({ group: 'abc' }, { title: 'winning' });
 ```
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
@@ -148,10 +147,9 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 ```typescript
 // POST //test.com/api/abc
 // BODY { "title": "winning" }
-resource({
-  urlPrefix: '//test.com',
-  path: '/api/:group/:id',
-}).useGetList().push({ group: 'abc' }, { title: 'winning' });
+hookifyResource(
+  resource({ urlPrefix: '//test.com', path: '/api/:group/:id' }),
+).useGetList().unshift({ group: 'abc' }, { title: 'winning' });
 ```
 
 Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
@@ -166,11 +164,13 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 
 ```typescript
 // GET //test.com/api/abc?isExtra=xyz&page=2
-resource({
-  urlPrefix: '//test.com',
-  path: '/api/:group/:id',
-  paginationField: 'page',
-}).useGetList().getPage({
+hookifyResource(
+  resource({
+    urlPrefix: '//test.com',
+    path: '/api/:group/:id',
+    paginationField: 'page',
+  }),
+).useGetList().getPage({
   group: 'abc',
   isExtra: 'xyz',
   page: '2',

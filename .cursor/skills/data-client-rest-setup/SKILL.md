@@ -129,6 +129,32 @@ async getHeaders(headers: HeadersInit): Promise<HeadersInit> {
 }
 ```
 
+### Authentication from React context (Okta, Auth0)
+
+When auth tokens live in React context (not localStorage), `getHeaders()` on a base class **cannot** access them. Use [`hookifyResource()`](references/hookifyResource.md) to inject context-derived headers into every endpoint:
+
+```ts
+import { hookifyResource, resource } from '@data-client/rest';
+
+const ArticleResourceBase = resource({
+  path: '/articles/:id',
+  schema: Article,
+  Endpoint: BaseEndpoint,
+});
+
+export const ArticleResource = hookifyResource(
+  ArticleResourceBase,
+  function useInit() {
+    const accessToken = useContext(AuthContext);
+    return {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    };
+  },
+);
+```
+
+Usage: `useSuspense(ArticleResource.useGet(), { id })` — the hook calls `useInit()` on every render, so the token is always fresh from context.
+
 ### Custom Request Init (CSRF, credentials)
 
 ```ts
