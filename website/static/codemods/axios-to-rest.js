@@ -340,7 +340,25 @@ function transformAxiosCreate(j, root, axiosLocalName) {
 
     const parentPath = declPath.parent;
     if (parentPath.node.type === 'VariableDeclaration') {
-      j(parentPath).replaceWith(classDecl);
+      const variableDeclPath = parentPath;
+      const variableDecl = variableDeclPath.node;
+      const statementPath =
+        variableDeclPath.parent.node.type === 'ExportNamedDeclaration' ?
+          variableDeclPath.parent
+        : variableDeclPath;
+      const classStatement =
+        statementPath.node.type === 'ExportNamedDeclaration' ?
+          j.exportNamedDeclaration(classDecl)
+        : classDecl;
+
+      if (variableDecl.declarations.length === 1) {
+        j(statementPath).replaceWith(classStatement);
+      } else {
+        variableDecl.declarations = variableDecl.declarations.filter(
+          declaration => declaration !== declPath.node,
+        );
+        j(statementPath).insertBefore(classStatement);
+      }
     } else {
       j(declPath).replaceWith(classDecl);
     }

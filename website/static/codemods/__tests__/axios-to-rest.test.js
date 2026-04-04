@@ -287,6 +287,57 @@ class BEndpoint extends RestEndpoint {
       `,
       'handles multiple axios.create calls with unique class names',
     );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const api = axios.create({ baseURL: 'https://api.example.com' }), other = 123;
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+class ApiEndpoint extends RestEndpoint {
+  urlPrefix = 'https://api.example.com';
+}
+const other = 123;
+      `,
+      'preserves sibling declarators when axios.create is in a multi-declarator const',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const other = 123, api = axios.create({ baseURL: 'https://api.example.com' });
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+class ApiEndpoint extends RestEndpoint {
+  urlPrefix = 'https://api.example.com';
+}
+const other = 123;
+      `,
+      'preserves sibling declarators when axios.create is not the first declarator',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+export const api = axios.create({ baseURL: 'https://api.example.com' }), other = 123;
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+export class ApiEndpoint extends RestEndpoint {
+  urlPrefix = 'https://api.example.com';
+}
+export const other = 123;
+      `,
+      'preserves exported sibling declarators when axios.create is in a multi-declarator export const',
+    );
   });
 
   // ── Direct method call transforms ──────────────────────────────────
