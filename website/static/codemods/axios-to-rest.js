@@ -84,11 +84,106 @@ function extractHeaderProperties(j, node) {
 
 // --- 1. Transform imports ---
 
-function transformImports(j, root) {
+function hasLiveReference(j, root, localName, importScope) {
+  return (
+    root
+      .find(j.Identifier, { name: localName })
+      .filter(path => {
+        if (path.scope.lookup(localName) !== importScope) {
+          return false;
+        }
+
+        const parent = path.parent.node;
+
+        if (
+          (parent.type === 'ImportDefaultSpecifier' ||
+            parent.type === 'ImportSpecifier' ||
+            parent.type === 'ImportNamespaceSpecifier') &&
+          parent.local === path.node
+        ) {
+          return false;
+        }
+
+        if (
+          (parent.type === 'Property' || parent.type === 'ObjectProperty') &&
+          parent.key === path.node &&
+          !parent.computed
+        ) {
+          return false;
+        }
+
+        if (
+          parent.type === 'MemberExpression' &&
+          parent.property === path.node &&
+          !parent.computed
+        ) {
+          return false;
+        }
+
+        return true;
+      })
+      .size() > 0
+  );
+}
+
+function ensureRestEndpointImport(j, root) {
   let dirty = false;
+  const restImports = root
+    .find(j.ImportDeclaration)
+    .filter(p => p.node.source.value === '@data-client/rest');
+
+  if (restImports.length) {
+    restImports.forEach(importPath => {
+      const specifiers = importPath.node.specifiers || [];
+      const hasRestEndpoint = specifiers.some(
+        s =>
+          s.type === 'ImportSpecifier' &&
+          s.imported &&
+          (s.imported.name || s.imported.value) === 'RestEndpoint',
+      );
+      if (hasRestEndpoint) return;
+
+      specifiers.push(j.importSpecifier(j.identifier('RestEndpoint')));
+      importPath.node.specifiers = specifiers;
+      dirty = true;
+    });
+    return dirty;
+  }
+
+  const newImport = j.importDeclaration(
+    [j.importSpecifier(j.identifier('RestEndpoint'))],
+    j.literal('@data-client/rest'),
+  );
+  const firstImport = root.find(j.ImportDeclaration).at(0);
+  if (firstImport.length) {
+    firstImport.insertBefore(newImport);
+  } else {
+    root.get().node.program.body.unshift(newImport);
+  }
+  return true;
+}
+
+function transformImports(j, root, axiosLocalName, needsRestEndpointImport) {
+  let dirty = false;
+  const axiosImportPath = root
+    .find(j.ImportDeclaration)
+    .filter(p => p.node.source.value === 'axios')
+    .paths()[0];
+  const axiosStillUsed = hasLiveReference(
+    j,
+    root,
+    axiosLocalName,
+    axiosImportPath ? axiosImportPath.scope : null,
+  );
+
+  if (needsRestEndpointImport || !axiosStillUsed) {
+    dirty = ensureRestEndpointImport(j, root) || dirty;
+  }
 
   root.find(j.ImportDeclaration).forEach(importPath => {
     if (importPath.node.source.value !== 'axios') return;
+
+    if (axiosStillUsed) return;
 
     const specs = importPath.node.specifiers;
     const remaining = specs.filter(s => {
@@ -103,16 +198,13 @@ function transformImports(j, root) {
       return true;
     });
 
-    const restImport = j.importDeclaration(
-      [j.importSpecifier(j.identifier('RestEndpoint'))],
-      j.literal('@data-client/rest'),
-    );
-    if (remaining.length) {
-      const axiosImport = j.importDeclaration(remaining, j.literal('axios'));
-      j(importPath).replaceWith([restImport, axiosImport]);
-    } else {
-      j(importPath).replaceWith(restImport);
+    if (!remaining.length) {
+      j(importPath).remove();
+      dirty = true;
+      return;
     }
+
+    importPath.node.specifiers = remaining;
     dirty = true;
   });
 
@@ -152,10 +244,12 @@ function transformAxiosCreate(j, root, axiosLocalName) {
     }
 
     const config =
-      init.arguments.length > 0 &&
-      init.arguments[0].type === 'ObjectExpression'
-        ? init.arguments[0]
-        : null;
+      (
+        init.arguments.length > 0 &&
+        init.arguments[0].type === 'ObjectExpression'
+      ) ?
+        init.arguments[0]
+      : null;
 
     const classBody = [];
 
@@ -164,11 +258,9 @@ function transformAxiosCreate(j, root, axiosLocalName) {
         if (prop.type === 'SpreadElement' || prop.type === 'RestElement')
           continue;
         const key =
-          prop.key.type === 'Identifier'
-            ? prop.key.name
-            : prop.key.type === 'StringLiteral'
-              ? prop.key.value
-              : null;
+          prop.key.type === 'Identifier' ? prop.key.name
+          : prop.key.type === 'StringLiteral' ? prop.key.value
+          : null;
         if (!key) continue;
 
         if (key === 'baseURL') {
@@ -305,11 +397,21 @@ module.exports = function transformer(fileInfo, api) {
   const createResult = transformAxiosCreate(j, root, axiosLocalName);
   dirty = createResult.dirty || dirty;
 
-  dirty =
-    transformDirectCalls(j, root, axiosLocalName, createResult.createToClass) ||
-    dirty;
+  const directCallsDirty = transformDirectCalls(
+    j,
+    root,
+    axiosLocalName,
+    createResult.createToClass,
+  );
+  dirty = directCallsDirty || dirty;
 
-  dirty = transformImports(j, root) || dirty;
+  dirty =
+    transformImports(
+      j,
+      root,
+      axiosLocalName,
+      createResult.dirty || directCallsDirty,
+    ) || dirty;
 
   return dirty ? root.toSource({ quote: 'single' }) : undefined;
 };

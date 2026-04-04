@@ -302,12 +302,29 @@ import axios from 'axios';
 const url = getUrl();
 const result = axios.get(url);
       `,
+      ``,
+      'leaves non-literal URL calls unchanged without rewriting imports',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const dynamicUrl = getUrl();
+const direct = axios.get('/users');
+const dynamic = axios.get(dynamicUrl);
+      `,
       `
 import { RestEndpoint } from '@data-client/rest';
-const url = getUrl();
-const result = axios.get(url);
+import axios from 'axios';
+const dynamicUrl = getUrl();
+const direct = new RestEndpoint({
+  path: '/users'
+});
+const dynamic = axios.get(dynamicUrl);
       `,
-      'leaves non-literal URL calls unchanged',
+      'keeps axios import when dynamic axios calls remain after converting literal calls',
     );
   });
 
