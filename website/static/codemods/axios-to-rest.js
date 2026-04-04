@@ -37,6 +37,8 @@ const AXIOS_TYPE_IMPORTS = new Set([
   'RawAxiosResponseHeaders',
 ]);
 
+const AXIOS_RUNTIME_IMPORTS = new Set(['CancelToken', 'AxiosError']);
+
 const HTTP_METHODS = new Set(['get', 'post', 'put', 'patch', 'delete']);
 
 // --- Helpers ---
@@ -126,6 +128,59 @@ function hasLiveReference(j, root, localName, importScope) {
   );
 }
 
+function hasRuntimeReference(j, root, localName, importScope) {
+  return (
+    root
+      .find(j.Identifier, { name: localName })
+      .filter(path => {
+        if (path.scope.lookup(localName) !== importScope) {
+          return false;
+        }
+
+        const parent = path.parent.node;
+
+        if (
+          (parent.type === 'ImportDefaultSpecifier' ||
+            parent.type === 'ImportSpecifier' ||
+            parent.type === 'ImportNamespaceSpecifier') &&
+          parent.local === path.node
+        ) {
+          return false;
+        }
+
+        if (
+          (parent.type === 'Property' || parent.type === 'ObjectProperty') &&
+          parent.key === path.node &&
+          !parent.computed
+        ) {
+          return false;
+        }
+
+        if (
+          parent.type === 'MemberExpression' &&
+          parent.property === path.node &&
+          !parent.computed
+        ) {
+          return false;
+        }
+
+        // Ignore references used only in TS type positions.
+        if (
+          parent.type === 'TSTypeReference' ||
+          parent.type === 'TSQualifiedName' ||
+          parent.type === 'TSTypeQuery' ||
+          parent.type === 'TSExpressionWithTypeArguments' ||
+          parent.type === 'TSImportType'
+        ) {
+          return false;
+        }
+
+        return true;
+      })
+      .size() > 0
+  );
+}
+
 function ensureRestEndpointImport(j, root) {
   let dirty = false;
   const restImports = root
@@ -202,12 +257,20 @@ function transformImports(j, root, axiosLocalName, needsRestEndpointImport) {
     const remaining = specs.filter(s => {
       if (s.type === 'ImportDefaultSpecifier') return false;
       if (s.type === 'ImportSpecifier' && s.importKind === 'type') return false;
-      if (
-        s.type === 'ImportSpecifier' &&
-        s.imported &&
-        AXIOS_TYPE_IMPORTS.has(s.imported.name || s.imported.value)
-      ) {
-        return false;
+      if (s.type === 'ImportSpecifier' && s.imported) {
+        const importedName = s.imported.name || s.imported.value;
+        if (AXIOS_RUNTIME_IMPORTS.has(importedName)) {
+          const localName = (s.local && s.local.name) || importedName;
+          return hasRuntimeReference(
+            j,
+            root,
+            localName,
+            importPath.scope,
+          );
+        }
+        if (AXIOS_TYPE_IMPORTS.has(importedName)) {
+          return false;
+        }
       }
       return true;
     });

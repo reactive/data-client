@@ -40,6 +40,48 @@ const x = 1;
       transform,
       {},
       `
+import axios, { CancelToken } from 'axios';
+const source = CancelToken.source();
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+import { CancelToken } from 'axios';
+const source = CancelToken.source();
+      `,
+      'preserves CancelToken import when used at runtime',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios, { AxiosError } from 'axios';
+try {
+  throw new Error('x');
+} catch (err) {
+  if (err instanceof AxiosError) {
+    console.log(err);
+  }
+}
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+import { AxiosError } from 'axios';
+try {
+  throw new Error('x');
+} catch (err) {
+  if (err instanceof AxiosError) {
+    console.log(err);
+  }
+}
+      `,
+      'preserves AxiosError import when used at runtime',
+    );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
 import axios, { AxiosResponse, isAxiosError } from 'axios';
 const x = 1;
       `,
