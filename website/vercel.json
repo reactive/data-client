@@ -1,4 +1,4 @@
 {
   "cleanUrls": true,
-  "ignoreCommand": "case $VERCEL_GIT_COMMIT_REF in gh-pages*)exit 0;;master)git diff HEAD^ HEAD -q -- . ../docs/;;*)exit 1;;esac"
+  "ignoreCommand": "case $VERCEL_GIT_COMMIT_REF in gh-pages*)exit 0;;*)git diff HEAD^ HEAD -q -- . ../docs/;;esac"
 }
