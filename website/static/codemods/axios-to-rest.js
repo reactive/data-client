@@ -279,7 +279,13 @@ function transformAxiosCreate(j, root, axiosLocalName) {
     );
 
     if (varName) {
-      createToClass.set(varName, className);
+      const declarationScope = declPath.scope.lookup(varName) || declPath.scope;
+      let scopedClassNames = createToClass.get(varName);
+      if (!scopedClassNames) {
+        scopedClassNames = new Map();
+        createToClass.set(varName, scopedClassNames);
+      }
+      scopedClassNames.set(declarationScope, className);
     }
 
     const config =
@@ -370,7 +376,13 @@ function transformAxiosCreate(j, root, axiosLocalName) {
 
 // --- 3. Transform direct axios/instance method calls ---
 
-function transformDirectCalls(j, root, axiosLocalName, createToClass) {
+function transformDirectCalls(
+  j,
+  root,
+  axiosLocalName,
+  axiosImportScope,
+  createToClass,
+) {
   let dirty = false;
   const callTargets = new Set([axiosLocalName, ...createToClass.keys()]);
 
@@ -391,12 +403,25 @@ function transformDirectCalls(j, root, axiosLocalName, createToClass) {
     const args = callPath.node.arguments;
     if (args.length === 0) return;
 
+    const targetName = callee.object.name;
+    const callBindingScope = callPath.scope.lookup(targetName);
+
+    let className;
+    if (targetName === axiosLocalName) {
+      // Only transform calls that still refer to the imported axios binding.
+      if (callBindingScope !== axiosImportScope) return;
+    } else {
+      const scopedClassNames = createToClass.get(targetName);
+      if (!scopedClassNames) return;
+      className = scopedClassNames.get(callBindingScope);
+      // Avoid rewriting shadowed identifiers with the same name.
+      if (!className) return;
+    }
+
     const urlArg = args[0];
     if (urlArg.type !== 'StringLiteral' && urlArg.type !== 'TemplateLiteral')
       return;
 
-    const instanceName = callee.object.name;
-    const className = createToClass.get(instanceName);
     const isCreatedInstance = Boolean(className);
 
     // Keep existing no-op behavior for direct axios calls with extra args.
@@ -447,12 +472,14 @@ module.exports = function transformer(fileInfo, api) {
   if (!axiosImport.length) return fileInfo.source;
 
   let axiosLocalName = 'axios';
+  let axiosImportScope = null;
   axiosImport.forEach(p => {
     const defaultSpec = p.node.specifiers.find(
       s => s.type === 'ImportDefaultSpecifier',
     );
     if (defaultSpec) {
       axiosLocalName = defaultSpec.local.name;
+      axiosImportScope = p.scope.lookup(axiosLocalName) || p.scope;
     }
   });
 
@@ -465,6 +492,7 @@ module.exports = function transformer(fileInfo, api) {
     j,
     root,
     axiosLocalName,
+    axiosImportScope,
     createResult.createToClass,
   );
   dirty = directCallsDirty || dirty;

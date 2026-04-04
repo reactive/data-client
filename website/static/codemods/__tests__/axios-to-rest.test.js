@@ -556,6 +556,39 @@ const result = new ApiEndpoint({
       `,
       'converts instance.patch with payload/config args to avoid dangling instance references',
     );
+
+    defineInlineTest(
+      transform,
+      {},
+      `
+import axios from 'axios';
+const api = axios.create({ baseURL: 'https://api.example.com' });
+
+function fetchViaOtherClient() {
+  const api = createOtherClient();
+  return api.get('/shadowed');
+}
+
+const result = api.get('/users');
+      `,
+      `
+import { RestEndpoint } from '@data-client/rest';
+
+class ApiEndpoint extends RestEndpoint {
+  urlPrefix = 'https://api.example.com';
+}
+
+function fetchViaOtherClient() {
+  const api = createOtherClient();
+  return api.get('/shadowed');
+}
+
+const result = new ApiEndpoint({
+  path: '/users'
+});
+      `,
+      'does not rewrite shadowed instance identifiers in nested scopes',
+    );
   });
 
   // ── TypeScript edge cases ──────────────────────────────────────────
