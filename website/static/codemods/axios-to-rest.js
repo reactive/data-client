@@ -84,13 +84,7 @@ function extractHeaderProperties(j, node) {
 
 // --- 1. Transform imports ---
 
-function hasReference(
-  j,
-  root,
-  localName,
-  importScope,
-  excludeTypePositions,
-) {
+function hasReference(j, root, localName, importScope, excludeTypePositions) {
   return (
     root
       .find(j.Identifier, { name: localName })
@@ -105,7 +99,7 @@ function hasReference(
           (parent.type === 'ImportDefaultSpecifier' ||
             parent.type === 'ImportSpecifier' ||
             parent.type === 'ImportNamespaceSpecifier') &&
-          parent.local === path.node
+          (parent.local === path.node || parent.imported === path.node)
         ) {
           return false;
         }
@@ -234,12 +228,7 @@ function transformImports(j, root, axiosLocalName, needsRestEndpointImport) {
         const localName = (s.local && s.local.name) || importedName;
 
         if (AXIOS_RUNTIME_IMPORTS.has(importedName)) {
-          return hasRuntimeReference(
-            j,
-            root,
-            localName,
-            importPath.scope,
-          );
+          return hasRuntimeReference(j, root, localName, importPath.scope);
         }
         if (AXIOS_TYPE_IMPORTS.has(importedName)) {
           return false;
