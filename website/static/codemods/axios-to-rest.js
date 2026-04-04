@@ -165,10 +165,11 @@ function ensureRestEndpointImport(j, root) {
 
 function transformImports(j, root, axiosLocalName, needsRestEndpointImport) {
   let dirty = false;
-  const axiosImportPath = root
+  const axiosImportPaths = root
     .find(j.ImportDeclaration)
     .filter(p => p.node.source.value === 'axios')
-    .paths()[0];
+    .paths();
+  const axiosImportPath = axiosImportPaths[0];
   const axiosStillUsed = hasLiveReference(
     j,
     root,
@@ -176,18 +177,31 @@ function transformImports(j, root, axiosLocalName, needsRestEndpointImport) {
     axiosImportPath ? axiosImportPath.scope : null,
   );
 
-  if (needsRestEndpointImport || !axiosStillUsed) {
+  const hasDefaultImport = axiosImportPaths.some(
+    p =>
+      p.node.importKind !== 'type' &&
+      p.node.specifiers.some(s => s.type === 'ImportDefaultSpecifier'),
+  );
+
+  if (needsRestEndpointImport || (!axiosStillUsed && hasDefaultImport)) {
     dirty = ensureRestEndpointImport(j, root) || dirty;
   }
 
   root.find(j.ImportDeclaration).forEach(importPath => {
     if (importPath.node.source.value !== 'axios') return;
 
+    if (importPath.node.importKind === 'type') {
+      j(importPath).remove();
+      dirty = true;
+      return;
+    }
+
     if (axiosStillUsed) return;
 
     const specs = importPath.node.specifiers;
     const remaining = specs.filter(s => {
       if (s.type === 'ImportDefaultSpecifier') return false;
+      if (s.type === 'ImportSpecifier' && s.importKind === 'type') return false;
       if (
         s.type === 'ImportSpecifier' &&
         s.imported &&
@@ -380,7 +394,7 @@ module.exports = function transformer(fileInfo, api) {
   const axiosImport = root
     .find(j.ImportDeclaration)
     .filter(p => p.node.source.value === 'axios');
-  if (!axiosImport.length) return undefined;
+  if (!axiosImport.length) return fileInfo.source;
 
   let axiosLocalName = 'axios';
   axiosImport.forEach(p => {
