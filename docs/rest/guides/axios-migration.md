@@ -6,10 +6,19 @@ sidebar_label: Axios Migration
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
+import SkillTabs from '@site/src/components/SkillTabs';
 
 # Migrating from Axios
 
 [`@data-client/rest`](/rest) replaces axios with a declarative, type-safe approach to REST APIs.
+
+## AI-assisted migration {#skill}
+
+Install the [axios-to-rest-migration](https://skills.sh/reactive/data-client/axios-to-rest-migration) skill to automate the migration with your AI coding assistant. The skill runs the [codemod](#codemod) for deterministic transforms, then guides you through the manual steps that require judgment (interceptors, error handling, schema definitions, etc.).
+
+<SkillTabs repo="reactive/data-client" skill="axios-to-rest-migration" />
+
+Then run skill `/axios-to-rest-migration` to start the migration.
 
 ## Why migrate?
 
@@ -422,9 +431,9 @@ const getUsers = new RestEndpoint({
 });
 ```
 
-## Automated codemod
+## Codemod {#codemod}
 
-A [jscodeshift](https://github.com/facebook/jscodeshift) codemod handles the mechanical parts of migration:
+For non-AI workflows, a standalone [jscodeshift](https://github.com/facebook/jscodeshift) codemod handles the mechanical parts of migration. (The [AI skill](#skill) above runs this automatically as its first step.)
 
 ```bash
 npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=ts,tsx,js,jsx src/
