@@ -293,16 +293,22 @@ class BEndpoint extends RestEndpoint {
       {},
       `
 import axios from 'axios';
-const api = axios.create({ baseURL: 'https://api.example.com' }), other = 123;
+const api = axios.create({ baseURL: '/api' }), other = 123;
+const result = api.get('/users');
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
+
 class ApiEndpoint extends RestEndpoint {
-  urlPrefix = 'https://api.example.com';
+  urlPrefix = '/api';
 }
+
 const other = 123;
+const result = new ApiEndpoint({
+  path: '/users'
+});
       `,
-      'preserves sibling declarators when axios.create is in a multi-declarator const',
+      'preserves sibling declarators when axios.create shares a declaration',
     );
 
     defineInlineTest(
@@ -327,16 +333,22 @@ const other = 123;
       {},
       `
 import axios from 'axios';
-export const api = axios.create({ baseURL: 'https://api.example.com' }), other = 123;
+export const api = axios.create({ baseURL: '/api' }), other = 123;
+const result = api.get('/users');
       `,
       `
 import { RestEndpoint } from '@data-client/rest';
+
 export class ApiEndpoint extends RestEndpoint {
-  urlPrefix = 'https://api.example.com';
+  urlPrefix = '/api';
 }
+
 export const other = 123;
+const result = new ApiEndpoint({
+  path: '/users'
+});
       `,
-      'preserves exported sibling declarators when axios.create is in a multi-declarator export const',
+      'preserves exported sibling declarators when axios.create shares a declaration',
     );
   });
 
