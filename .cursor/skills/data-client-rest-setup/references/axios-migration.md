@@ -90,7 +90,41 @@ try { ... } catch (err) {
 }
 ```
 
-`NetworkError` has `.status` (number) and `.response` (fetch `Response`). To read the body, use `await err.response.json()` or `.text()`.
+`NetworkError` has `.status` (number) and `.response` (fetch `Response`). To read the body, use `await err.response.clone().json()` or `.text()`. Always `.clone()` before reading — the body can only be consumed once.
+
+**Common pattern: extracting server error messages.** Many axios codebases use `error.response.data.error` or `error.response.data.message` for user-facing error strings. Map this to:
+
+```ts
+// Before (very common axios pattern)
+if (isAxiosError(error) && error.response) {
+  throw new Error(error.response.data.error);
+}
+
+// After — read the error body from the Response
+if (error instanceof NetworkError) {
+  const body = await error.response.clone().json();
+  throw new Error(body.error ?? error.response.statusText);
+}
+```
+
+If this pattern is repeated across many functions, centralize it in the base class `fetchResponse()` so individual call sites don't need try/catch:
+
+```ts
+class ApiEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+  async fetchResponse(input: RequestInfo, init: RequestInit) {
+    try {
+      return await super.fetchResponse(input, init);
+    } catch (error) {
+      if (error instanceof NetworkError) {
+        const body = await error.response.clone().json().catch(() => null);
+        if (body?.error) throw new Error(body.error);
+        if (body?.message) throw new Error(body.message);
+      }
+      throw error;
+    }
+  }
+}
+```
 
 ### timeout → AbortSignal.timeout()
 
@@ -254,30 +288,112 @@ class UploadEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
 }
 ```
 
-## Step 3: Define schemas and convert call sites
+## Step 3: Define schemas and wire to endpoints
 
-After mechanical transforms, define Entity schemas for your data and convert imperative API calls to declarative hooks:
+After mechanical transforms, define Entity schemas and wire them to endpoints. This enables normalization and caching — the core value of @data-client.
+
+### Non-standard primary keys
+
+Many APIs (MongoDB, etc.) use `_id` instead of `id`. Override `pk()`:
 
 ```ts
-// 1. Define an Entity for each resource type
 class User extends Entity {
-  id = '';
+  _id = '';
   name = '';
   email = '';
   static key = 'User';
+  pk() { return this._id; }
 }
+```
 
-// 2. Create a resource (generates CRUD endpoints)
+### Use `resource()` for CRUD groups
+
+When an API module has standard CRUD operations on a single path (list, get, create, update, delete), use `resource()` instead of defining each endpoint individually:
+
+```ts
+// Before (axios): separate functions for getUsers, getUser, createUser, updateUser, deleteUser
+// After: one resource generates all CRUD endpoints
 const UserResource = resource({
   path: '/users/:id',
   schema: User,
+  Endpoint: BaseEndpoint,
 });
+// UserResource.getList, .get, .create, .update, .delete are all available
+```
 
-// 3. Replace imperative calls with hooks
+Use standalone `new BaseEndpoint()` only for non-CRUD operations (search, custom actions, auth endpoints).
+
+### Nested resources
+
+For nested paths like `/projects/:projectId/tasks/:taskId`, create separate resources:
+
+```ts
+const TaskResource = resource({
+  path: '/projects/:projectId/tasks/:taskId',
+  schema: Task,
+  Endpoint: BaseEndpoint,
+});
+```
+
+### Coexisting with Zod/Yup validation
+
+If the codebase already uses Zod or Yup for response validation, choose one approach:
+
+- **Option A — Entity replaces Zod** (recommended): Move field shapes to Entity classes, remove Zod schemas for those types. Entity handles both typing and normalization.
+- **Option B — Zod in `process()`**: Keep Zod for strict runtime validation by parsing in `process()`:
+  ```ts
+  const getUser = new BaseEndpoint({
+    path: '/users/:id',
+    schema: User,
+    process(value, ...args) {
+      return userSchema.parse(super.process(value, ...args));
+    },
+  });
+  ```
+- **Option C — Zod only, no Entity**: Set `schema: undefined` and parse responses manually. Use this only for endpoints that don't benefit from normalization/caching (auth tokens, one-off responses).
+
+Do NOT create Entity classes and then leave `schema: undefined` on all endpoints — that wastes the migration effort.
+
+### Body typing for POST/PUT/PATCH
+
+When defining standalone endpoints with a body, use `body: {} as BodyType` (truthy placeholder). Do **not** use `undefined as unknown as BodyType` — RestEndpoint uses the truthiness of `body` to determine whether to send a request body.
+
+```ts
+const createUser = new BaseEndpoint({
+  path: '/users',
+  method: 'POST' as const,
+  body: {} as { name: string; email: string },
+  schema: User,
+});
+```
+
+`resource()` handles this automatically for its CRUD endpoints.
+
+### Convert call sites to hooks
+
+```ts
 // Before: const { data } = await api.get('/users/1');
 // After:
 const user = useSuspense(UserResource.get, { id: '1' });
 ```
+
+### Gradual migration with TanStack Query
+
+If the app uses TanStack Query / SWR and you can't convert everything at once, keep imperative wrapper functions temporarily but wire Entity schemas into the endpoints so data is normalized:
+
+```ts
+const getProjectEndpoint = new BaseEndpoint({
+  path: '/projects/:id',
+  schema: Project,
+});
+
+// Wrapper preserved for TanStack Query compatibility
+export async function getProject(id: string) {
+  return getProjectEndpoint({ id });
+}
+```
+
+Later, replace `useQuery({ queryFn: getProject })` with `useSuspense(getProjectEndpoint, { id })`.
 
 ## Where to find axios patterns
 

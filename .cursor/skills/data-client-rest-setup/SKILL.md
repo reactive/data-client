@@ -229,21 +229,11 @@ async function getAuthToken(): Promise<string | null> {
 
 ## Usage After Setup
 
-Once the base class is created, use it instead of [RestEndpoint](references/RestEndpoint.md) directly:
+Once the base class is created, use it instead of [RestEndpoint](references/RestEndpoint.md) directly.
 
-```ts
-import { BaseEndpoint } from './BaseEndpoint';
-import { Todo } from '../schemas/Todo';
+### Choosing `resource()` vs individual endpoints
 
-export const getTodo = new BaseEndpoint({
-  path: '/todos/:id',
-  schema: Todo,
-});
-
-export const updateTodo = getTodo.extend({ method: 'PUT' });
-```
-
-Or with `resource()`:
+**Use `resource()`** when an API module has standard CRUD on a single path (list, get, create, update, delete). This is the common case:
 
 ```ts
 import { resource } from '@data-client/rest';
@@ -255,13 +245,31 @@ export const TodoResource = resource({
   schema: Todo,
   Endpoint: BaseEndpoint,
 });
+// Provides: TodoResource.get, .getList, .create, .update, .delete, .partialUpdate
 ```
+
+**Use standalone `new BaseEndpoint()`** for non-CRUD operations (search, auth, custom actions) or when the path doesn't match `resource()` conventions:
+
+```ts
+export const loginEndpoint = new BaseEndpoint({
+  path: '/auth/login',
+  method: 'POST' as const,
+  body: {} as { email: string; password: string },
+  schema: undefined,
+});
+```
+
+**Body typing**: Use `body: {} as BodyType` (truthy value) — not `undefined as unknown as BodyType`. The truthy value is needed so the endpoint correctly sends a request body for POST/PUT/PATCH.
+
+### Coexisting with existing validation (Zod, Yup)
+
+If the codebase already validates responses with Zod/Yup, prefer **Entity as the source of truth** for types that benefit from caching/normalization. Keep Zod only for types that don't need normalization (auth tokens, form validation types, one-off responses). See the migration reference files for detailed options.
 
 ## Next Steps
 
-1. Apply skill "data-client-schema" to define Entity classes
+1. **Define Entity classes** (skill "data-client-schema") and **wire them to endpoints via `schema:`** — this is essential, not optional. Endpoints with `schema: undefined` bypass normalization and caching.
 2. Apply skill "data-client-rest" for resource and endpoint patterns
-3. Apply skill "data-client-react" or "data-client-vue" for usage
+3. Apply skill "data-client-react" or "data-client-vue" for hook-based usage
 
 ## References
 
