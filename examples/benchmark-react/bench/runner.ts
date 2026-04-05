@@ -715,6 +715,7 @@ function buildV8LaunchArgs(): string[] {
     jsFlags.push('--trace-opt', '--trace-deopt');
   }
   if (BENCH_V8_DEOPT) {
+    fs.rmSync(V8_LOG_DIR, { recursive: true, force: true });
     fs.mkdirSync(V8_LOG_DIR, { recursive: true });
     jsFlags.push('--prof', `--logfile=${V8_LOG_DIR}/v8-%p.log`);
   }
