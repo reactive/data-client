@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1775419749027,
+  "lastUpdate": 1775422269807,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -2039,6 +2039,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 243.9,
             "range": "± 3.4%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f5797b4deb2b1c24534e29bf7e8b61e9918b20d0",
+          "message": "internal(bench-react): Add V8 opt/deopt investigation (#3874)\n\n* internal(bench-react): Add V8 opt/deopt investigation\n\nAdd BENCH_V8_TRACE and BENCH_V8_DEOPT env vars to the React benchmark\nrunner. Trace mode uses launchServer to pipe Chromium's --trace-opt\n--trace-deopt output to v8-trace.log. Deopt mode passes --prof to\nwrite per-process V8 profiling logs to v8-logs/. Convenience scripts\nbench:trace and bench:deopt default to data-client small scenarios.\n\nMade-with: Cursor\n\n* fix: Bugbot\n\n* fix: Stale V8 logs corrupt \"largest file\" heuristic",
+          "timestamp": "2026-04-05T16:48:49-04:00",
+          "tree_id": "a4f875fc74491bd9c45dc9c098c2501087edae2b",
+          "url": "https://github.com/reactive/data-client/commit/f5797b4deb2b1c24534e29bf7e8b61e9918b20d0"
+        },
+        "date": 1775422267360,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 170.95,
+            "range": "± 4.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 47.17,
+            "range": "± 9.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 444.66,
+            "range": "± 3.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 416.67,
+            "range": "± 6.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 52.49,
+            "range": "± 5.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 416.67,
+            "range": "± 5.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 400,
+            "range": "± 6.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 11.06,
+            "range": "± 5.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 94.34,
+            "range": "± 0.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 51.55,
+            "range": "± 3.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 303.03,
+            "range": "± 4.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 400,
+            "range": "± 8.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 202.04,
+            "range": "± 6.1%",
             "unit": "ops/s"
           }
         ]
