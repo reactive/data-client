@@ -1736,6 +1736,247 @@ describe('RestEndpoint.fetch()', () => {
     expect(() => noColletionEndpoint.getPage).toThrowErrorMatchingSnapshot();
   });
 });
+
+describe('content property', () => {
+  const binaryData = Buffer.from([0x89, 0x50, 0x4e, 0x47]);
+
+  it("content: 'blob' calls response.blob()", async () => {
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/octet-stream',
+      })
+      .get('/files/1')
+      .reply(200, binaryData);
+
+    const ep = new RestEndpoint({
+      path: 'http\\://test.com/files/:id',
+      content: 'blob',
+    });
+    const result = await ep({ id: 1 });
+    expect(result).toBeInstanceOf(Blob);
+  });
+
+  it("content: 'text' calls response.text()", async () => {
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'text/plain',
+      })
+      .get('/files/1')
+      .reply(200, 'hello world');
+
+    const ep = new RestEndpoint({
+      path: 'http\\://test.com/files/:id',
+      content: 'text',
+    });
+    const result = await ep({ id: 1 });
+    expect(result).toBe('hello world');
+  });
+
+  it("content: 'json' calls response.json() strictly", async () => {
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'text/plain',
+      })
+      .get('/files/1')
+      .reply(200, { ok: true });
+
+    const ep = new RestEndpoint({
+      path: 'http\\://test.com/files/:id',
+      content: 'json',
+    });
+    const result = await ep({ id: 1 });
+    expect(result).toEqual({ ok: true });
+  });
+
+  it('content: blob with schema set throws', async () => {
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/octet-stream',
+      })
+      .get('/files/1')
+      .reply(200, binaryData);
+
+    const ep = new RestEndpoint({
+      path: 'http\\://test.com/files/:id',
+      content: 'blob',
+      schema: User,
+    } as any);
+    await expect(async () => await ep({ id: 1 })).rejects.toMatchObject({
+      status: 400,
+      message: expect.stringContaining('incompatible with schema'),
+    });
+  });
+
+  it('204 with content: blob returns null', async () => {
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+      })
+      .get('/files/1')
+      .reply(204);
+
+    const ep = new RestEndpoint({
+      path: 'http\\://test.com/files/:id',
+      content: 'blob',
+    });
+    const result = await ep({ id: 1 });
+    expect(result).toBe(null);
+  });
+
+  it("extend({ content: 'blob' }) propagates", async () => {
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/octet-stream',
+      })
+      .get('/files/1')
+      .reply(200, binaryData);
+
+    const base = new RestEndpoint({
+      path: 'http\\://test.com/files/:id',
+    });
+    const blobEp = base.extend({ content: 'blob' });
+    expect(blobEp.content).toBe('blob');
+    const result = await blobEp({ id: 1 });
+    expect(result).toBeInstanceOf(Blob);
+  });
+
+  it('subclass with content = blob works', async () => {
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/octet-stream',
+      })
+      .get('/files/1')
+      .reply(200, binaryData);
+
+    class BlobEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+      content = 'blob' as const;
+    }
+    const ep = new BlobEndpoint({ path: 'http\\://test.com/files/:id' });
+    expect(ep.content).toBe('blob');
+    const result = await ep({ id: 1 });
+    expect(result).toBeInstanceOf(Blob);
+  });
+});
+
+describe('auto-detection (no content)', () => {
+  it('Content-Type: image/png returns blob', async () => {
+    const imgData = Buffer.from([0x89, 0x50, 0x4e, 0x47]);
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'image/png',
+      })
+      .get('/files/1')
+      .reply(200, imgData);
+
+    const ep = new RestEndpoint({
+      path: 'http\\://test.com/files/:id',
+    });
+    const result = await ep({ id: 1 });
+    expect(result).toBeInstanceOf(Blob);
+  });
+
+  it('Content-Type: application/octet-stream returns blob', async () => {
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/octet-stream',
+      })
+      .get('/files/1')
+      .reply(200, Buffer.from([1, 2, 3]));
+
+    const ep = new RestEndpoint({
+      path: 'http\\://test.com/files/:id',
+    });
+    const result = await ep({ id: 1 });
+    expect(result).toBeInstanceOf(Blob);
+  });
+
+  it('Content-Type: application/pdf returns blob', async () => {
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/pdf',
+      })
+      .get('/files/1')
+      .reply(200, Buffer.from([0x25, 0x50, 0x44, 0x46]));
+
+    const ep = new RestEndpoint({
+      path: 'http\\://test.com/files/:id',
+    });
+    const result = await ep({ id: 1 });
+    expect(result).toBeInstanceOf(Blob);
+  });
+
+  it('Content-Type: text/plain returns text (unchanged)', async () => {
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'text/plain',
+      })
+      .get('/files/1')
+      .reply(200, 'plain text');
+
+    const ep = new RestEndpoint({
+      path: 'http\\://test.com/files/:id',
+    });
+    const result = await ep({ id: 1 });
+    expect(result).toBe('plain text');
+  });
+
+  it('Content-Type: application/json returns JSON (unchanged)', async () => {
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/json',
+      })
+      .get('/files/1')
+      .reply(200, { id: 1, name: 'test' });
+
+    const ep = new RestEndpoint({
+      path: 'http\\://test.com/files/:id',
+    });
+    const result = await ep({ id: 1 });
+    expect(result).toEqual({ id: 1, name: 'test' });
+  });
+
+  it('Content-Type: application/xml returns text (text-like)', async () => {
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/xml',
+      })
+      .get('/files/1')
+      .reply(200, '<root>hi</root>');
+
+    const ep = new RestEndpoint({
+      path: 'http\\://test.com/files/:id',
+    });
+    const result = await ep({ id: 1 });
+    expect(result).toBe('<root>hi</root>');
+  });
+
+  it('No Content-Type returns text (backward compat)', async () => {
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+      })
+      .get('/files/1')
+      .reply(200, 'no content type');
+
+    const ep = new RestEndpoint({
+      path: 'http\\://test.com/files/:id',
+    });
+    const result = await ep({ id: 1 });
+    expect(result).toBe('no content type');
+  });
+});
 const proto = Object.prototype;
 const gpo = Object.getPrototypeOf;
 
