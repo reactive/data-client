@@ -4,7 +4,7 @@ import { User, Article } from '__tests__/new';
 
 import resource from '../src/resource';
 import RestEndpoint, { GetEndpoint, MutateEndpoint } from '../src/RestEndpoint';
-import type { RestGenerics } from '../src/RestEndpointTypes';
+import type { ContentType, RestGenerics } from '../src/RestEndpointTypes';
 
 it('RestEndpoint construct and extend with typed options', () => {
   new RestEndpoint({
@@ -1981,4 +1981,146 @@ it('should type resource using RestEndpoint subclass with O=any', () => {
     }),
   }));
   () => FnExtended.current();
+});
+
+it('content property: return type inference', () => {
+  const blobEp = new RestEndpoint({
+    path: '/files/:id' as const,
+    content: 'blob',
+  });
+  async () => {
+    const result = await blobEp({ id: '1' });
+    result satisfies Blob;
+    // @ts-expect-error - Blob is not string
+    result satisfies string;
+  };
+
+  const textEp = new RestEndpoint({
+    path: '/files/:id' as const,
+    content: 'text',
+  });
+  async () => {
+    const result = await textEp({ id: '1' });
+    result satisfies string;
+    // @ts-expect-error - string is not Blob
+    result satisfies Blob;
+  };
+
+  const abEp = new RestEndpoint({
+    path: '/files/:id' as const,
+    content: 'arrayBuffer',
+  });
+  async () => {
+    const result = await abEp({ id: '1' });
+    result satisfies ArrayBuffer;
+  };
+
+  const streamEp = new RestEndpoint({
+    path: '/files/:id' as const,
+    content: 'stream',
+  });
+  async () => {
+    const result = await streamEp({ id: '1' });
+    result satisfies ReadableStream<Uint8Array>;
+  };
+
+  // content: 'json' -> any (schema handles typing)
+  const jsonEp = new RestEndpoint({
+    path: '/files/:id' as const,
+    content: 'json',
+    schema: Article,
+  });
+  async () => {
+    const result = await jsonEp({ id: '1' });
+    result satisfies any;
+  };
+
+  // no content -> any (unchanged)
+  const defaultEp = new RestEndpoint({
+    path: '/files/:id' as const,
+    schema: Article,
+  });
+  async () => {
+    const result = await defaultEp({ id: '1' });
+    result satisfies any;
+  };
+});
+
+it('content property: schema constraint', () => {
+  // @ts-expect-error - schema incompatible with content: 'blob'
+  new RestEndpoint({ path: '/x' as const, content: 'blob', schema: Article });
+
+  // @ts-expect-error - schema incompatible with content: 'text'
+  new RestEndpoint({ path: '/x' as const, content: 'text', schema: Article });
+
+  // @ts-expect-error - schema incompatible with content: 'arrayBuffer'
+  new RestEndpoint({
+    path: '/x' as const,
+    content: 'arrayBuffer',
+    schema: Article,
+  });
+
+  // @ts-expect-error - schema incompatible with content: 'stream'
+  new RestEndpoint({
+    path: '/x' as const,
+    content: 'stream',
+    schema: Article,
+  });
+
+  // content: 'json' allows schema
+  new RestEndpoint({
+    path: '/x' as const,
+    content: 'json',
+    schema: Article,
+  });
+
+  // No content -> schema works as before
+  new RestEndpoint({ path: '/x' as const, schema: Article });
+});
+
+it('content property: extend and subclass', () => {
+  const blobEp = new RestEndpoint({
+    path: '/files/:id' as const,
+    content: 'blob',
+  });
+
+  // extend preserves content return type
+  const extended = blobEp.extend({ dataExpiryLength: 0 });
+  async () => {
+    const result = await extended({ id: '1' });
+    result satisfies Blob;
+  };
+
+  // extend with content change (schema: undefined needed when base has schema)
+  const jsonEp = new RestEndpoint({
+    path: '/files/:id' as const,
+    schema: Article,
+  });
+  const switched = jsonEp.extend({ content: 'blob', schema: undefined });
+  async () => {
+    const result = await switched({ id: '1' });
+    result satisfies Blob;
+  };
+
+  // process takes priority over content for return type
+  const withProcess = new RestEndpoint({
+    path: '/x' as const,
+    content: 'blob',
+    process(value): { blob: Blob; name: string } {
+      return value;
+    },
+  });
+  async () => {
+    const result = await withProcess();
+    result satisfies { blob: Blob; name: string };
+  };
+
+  // subclass pattern
+  class BlobEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
+    content = 'blob' as const;
+  }
+  const subclassed = new BlobEndpoint({
+    path: '/files/:id' as const,
+  });
+  expect(subclassed.content).toBe('blob');
 });
