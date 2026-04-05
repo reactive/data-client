@@ -14,6 +14,13 @@ import {
 
 const textLikeRe = /text|xml|html|javascript|css|csv|urlencoded/;
 
+function jsonResponse(response) {
+  return response.json().catch(error => {
+    error.status = 400;
+    throw error;
+  });
+}
+
 /** Simplifies endpoint definitions that follow REST patterns
  *
  * @see https://dataclient.io/rest/api/RestEndpoint
@@ -148,41 +155,34 @@ export default class RestEndpoint extends Endpoint {
     if (response.status === 204) return Promise.resolve(null);
 
     if (this.content) {
-      if (this.content === 'json') {
-        return response.json().catch(error => {
+      /* istanbul ignore else */
+      if (process.env.NODE_ENV !== 'production') {
+        if (
+          this.content !== 'json' &&
+          this.schema != null &&
+          typeof this.schema !== 'string' &&
+          typeof this.schema !== 'undefined'
+        ) {
+          const error = new NetworkError(response);
           error.status = 400;
+          error.message = `content '${this.content}' is incompatible with schema. Binary/text responses cannot be normalized. Use schema: undefined.`;
           throw error;
-        });
-      }
-      if (
-        this.schema != null &&
-        typeof this.schema !== 'string' &&
-        typeof this.schema !== 'undefined'
-      ) {
-        const error = new NetworkError(response);
-        error.status = 400;
-        error.message = `content '${this.content}' is incompatible with schema. Binary/text responses cannot be normalized. Use schema: undefined.`;
-        throw error;
+        }
       }
       if (this.content === 'stream') return Promise.resolve(response.body);
-      return response[this.content]();
+      return this.content === 'json' ?
+          jsonResponse(response)
+        : response[this.content]();
     }
 
     const contentType = response.headers.get('content-type');
-    if (contentType?.includes('json')) {
-      return response.json().catch(error => {
-        error.status = 400;
-        throw error;
-      });
-    }
-    if (contentType && !textLikeRe.test(contentType)) {
-      return response.blob();
-    }
+    if (contentType?.includes('json')) return jsonResponse(response);
+    if (contentType && !textLikeRe.test(contentType)) return response.blob();
+
     return response.text().then(text => {
-      // string or 'not set' schema, are valid
-      // when overriding process they might handle other cases, so we don't want to block on our logic
       if (
-        ['string', 'undefined'].includes(typeof this.schema) ||
+        typeof this.schema === 'string' ||
+        typeof this.schema === 'undefined' ||
         this.schema === null ||
         this.process !== RestEndpoint.prototype.process
       )
@@ -191,7 +191,6 @@ export default class RestEndpoint extends Endpoint {
       const error = new NetworkError(response);
       error.status = 404;
       error.message = `Unexpected text response for schema ${this.schema}`;
-      // custom dev-only messages for more detailed cause
       /* istanbul ignore else */
       if (process.env.NODE_ENV !== 'production') {
         if (
