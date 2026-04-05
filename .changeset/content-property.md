@@ -1,5 +1,5 @@
 ---
-'@data-client/rest': minor
+'@data-client/rest': patch
 ---
 
 Add `content` property to RestEndpoint for typed response parsing
