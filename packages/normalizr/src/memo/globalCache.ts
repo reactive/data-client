@@ -6,8 +6,13 @@ import type { INVALID } from '../denormalize/symbol.js';
 import type { EntityInterface, EntityPath } from '../interface.js';
 import type { DenormGetEntity } from './types.js';
 
+const PLACEHOLDER_DEP: Dep<EntityPath> = {
+  path: { key: '', pk: '' },
+  entity: undefined,
+};
+
 export default class GlobalCache implements Cache {
-  private dependencies: Dep<EntityPath>[] = [];
+  private dependencies: Dep<EntityPath>[] = [PLACEHOLDER_DEP];
   private cycleCache: Map<string, Map<string, number>> = new Map();
   private cycleIndex = -1;
   private localCache: Map<string, Map<string, any>> = new Map();
@@ -120,10 +125,10 @@ export default class GlobalCache implements Cache {
 
     if (paths === undefined) {
       data = computeValue();
-      // we want to do this before we add our 'input' entry
+      // we want to do this before we fill our 'input' entry
       paths = this.paths();
-      // for the first entry, `path` is ignored so empty members is fine
-      this.dependencies.unshift({ path: { key: '', pk: '' }, entity: input });
+      // fill pre-allocated slot 0 with the input reference
+      this.dependencies[0] = { path: { key: '', pk: '' }, entity: input };
       this._resultCache.set(this.dependencies, data);
     } else {
       paths.shift();
@@ -132,7 +137,12 @@ export default class GlobalCache implements Cache {
   }
 
   protected paths() {
-    return this.dependencies.map(dep => dep.path);
+    const deps = this.dependencies;
+    const paths = new Array(deps.length - 1);
+    for (let i = 1; i < deps.length; i++) {
+      paths[i - 1] = deps[i].path;
+    }
+    return paths;
   }
 }
 
