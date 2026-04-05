@@ -14,6 +14,23 @@ import {
 import { PathArgs, SoftPathArgs } from './pathTypes.js';
 import { EndpointUpdateFunction } from './RestEndpointTypeHelp.js';
 
+export type ContentType = 'json' | 'blob' | 'text' | 'arrayBuffer' | 'stream';
+
+interface ContentTypeMap {
+  blob: Blob;
+  text: string;
+  arrayBuffer: ArrayBuffer;
+  stream: ReadableStream<Uint8Array>;
+  json: any;
+}
+
+type ContentReturnType<C extends ContentType> = ContentTypeMap[C];
+
+type ContentSchemaGuard<O> =
+  O extends { content: 'blob' | 'text' | 'arrayBuffer' | 'stream' }
+    ? { schema?: undefined }
+    : {};
+
 export interface RestInstanceBase<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = any,
@@ -48,6 +65,8 @@ export interface RestInstanceBase<
   readonly signal: AbortSignal | undefined;
   /** @see https://dataclient.io/rest/api/RestEndpoint#paginationField */
   readonly paginationField?: string;
+  /** @see https://dataclient.io/rest/api/RestEndpoint#content */
+  readonly content?: ContentType;
 
   /* fetch lifecycles */
   /* before-fetch */
@@ -105,7 +124,8 @@ export interface RestInstanceBase<
     this: E,
     options: Readonly<
       RestEndpointExtendOptions<ExtendOptions, E, F> & ExtendOptions
-    >,
+    > &
+      ContentSchemaGuard<ExtendOptions>,
   ): RestExtendedEndpoint<ExtendOptions, E>;
 }
 
@@ -248,7 +268,9 @@ type OptionsToRestEndpoint<
         Extract<O['sideEffect'], boolean | undefined>
       : 'method' extends keyof O ? MethodToSide<O['method']>
       : E['sideEffect'],
-      O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>,
+      O['process'] extends {} ? ReturnType<O['process']>
+      : 'content' extends keyof O ? ContentReturnType<O['content'] & ContentType>
+      : ResolveType<F>,
       {
         path: Exclude<O['path'], undefined>;
         body: 'body' extends keyof O ? O['body'] : E['body'];
@@ -276,7 +298,9 @@ type OptionsToRestEndpoint<
         Extract<O['sideEffect'], boolean | undefined>
       : 'method' extends keyof O ? MethodToSide<O['method']>
       : E['sideEffect'],
-      O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>,
+      O['process'] extends {} ? ReturnType<O['process']>
+      : 'content' extends keyof O ? ContentReturnType<O['content'] & ContentType>
+      : ResolveType<F>,
       {
         path: E['path'];
         body: O['body'];
@@ -302,7 +326,9 @@ type OptionsToRestEndpoint<
         Extract<O['sideEffect'], boolean | undefined>
       : 'method' extends keyof O ? MethodToSide<O['method']>
       : E['sideEffect'],
-      O['process'] extends {} ? ReturnType<O['process']> : ResolveType<F>,
+      O['process'] extends {} ? ReturnType<O['process']>
+      : 'content' extends keyof O ? ContentReturnType<O['content'] & ContentType>
+      : ResolveType<F>,
       {
         path: E['path'];
         body: E['body'];
@@ -346,6 +372,7 @@ export type RestExtendedEndpoint<
     (
       ...args: Parameters<E>
     ) => O['process'] extends {} ? Promise<ReturnType<O['process']>>
+    : 'content' extends keyof O ? Promise<ContentReturnType<O['content'] & ContentType>>
     : ReturnType<E>,
     'schema' extends keyof O ? O['schema'] : E['schema'],
     'sideEffect' extends keyof O ? Extract<O['sideEffect'], boolean | undefined>
@@ -373,6 +400,8 @@ export interface PartialRestGenerics {
   readonly paginationField?: string;
   /** @see https://dataclient.io/rest/api/RestEndpoint#process */
   process?(value: any, ...args: any): any;
+  /** @see https://dataclient.io/rest/api/RestEndpoint#content */
+  readonly content?: ContentType;
 }
 /** Generic types when constructing a RestEndpoint
  *
@@ -560,6 +589,8 @@ export interface RestEndpointOptions<
    * @see https://dataclient.io/rest/api/RestEndpoint#parseResponse
    */
   parseResponse?(response: Response): Promise<any>;
+  /** @see https://dataclient.io/rest/api/RestEndpoint#content */
+  content?: ContentType;
 
   sideEffect?: boolean | undefined;
   name?: string;
@@ -586,6 +617,7 @@ export type RestEndpointConstructorOptions<O extends RestGenerics = any> =
       : SoftPathArgs<O['path']>,
       OptionsToBodyArgument<O, MethodArgForBodyInference<O>>,
       O['process'] extends {} ? ReturnType<O['process']>
+      : 'content' extends keyof O ? ContentReturnType<O['content'] & ContentType>
       : any /*Denormalize<O['schema']>*/
     >,
     O['schema']
@@ -607,6 +639,7 @@ export interface RestEndpoint<
     : PathArgs<O['path']>,
     OptionsToBodyArgument<O, MethodArgForBodyInference<O>>,
     O['process'] extends {} ? ReturnType<O['process']>
+    : 'content' extends keyof O ? ContentReturnType<O['content'] & ContentType>
     : any /*Denormalize<O['schema']>*/
   >,
   'schema' extends keyof O ? O['schema'] : undefined,
@@ -628,7 +661,9 @@ export interface RestEndpointConstructor {
     sideEffect,
     name,
     ...options
-  }: RestEndpointConstructorOptions<O> & Readonly<O>): RestEndpoint<O>;
+  }: RestEndpointConstructorOptions<O> &
+    Readonly<O> &
+    ContentSchemaGuard<O>): RestEndpoint<O>;
   readonly prototype: RestInstanceBase;
 }
 

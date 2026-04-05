@@ -14,6 +14,7 @@ export type {
   AddEndpoint,
   PaginationFieldEndpoint,
   PaginationEndpoint,
+  ContentType,
 } from './RestEndpoint.js';
 export type { RestEndpoint as IRestEndpoint } from './RestEndpointTypes.js';
 export { getUrlBase, getUrlTokens } from './RestHelpers.js';
