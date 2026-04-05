@@ -27,9 +27,9 @@ interface ContentTypeMap {
 type ContentReturnType<C extends ContentType> = ContentTypeMap[C];
 
 type ContentSchemaGuard<O> =
-  O extends { content: 'blob' | 'text' | 'arrayBuffer' | 'stream' }
-    ? { schema?: undefined }
-    : {};
+  O extends { content: 'blob' | 'text' | 'arrayBuffer' | 'stream' } ?
+    { schema?: undefined }
+  : {};
 
 export interface RestInstanceBase<
   F extends FetchFunction = FetchFunction,
@@ -269,7 +269,8 @@ type OptionsToRestEndpoint<
       : 'method' extends keyof O ? MethodToSide<O['method']>
       : E['sideEffect'],
       O['process'] extends {} ? ReturnType<O['process']>
-      : 'content' extends keyof O ? ContentReturnType<O['content'] & ContentType>
+      : 'content' extends keyof O ?
+        ContentReturnType<O['content'] & ContentType>
       : ResolveType<F>,
       {
         path: Exclude<O['path'], undefined>;
@@ -299,7 +300,8 @@ type OptionsToRestEndpoint<
       : 'method' extends keyof O ? MethodToSide<O['method']>
       : E['sideEffect'],
       O['process'] extends {} ? ReturnType<O['process']>
-      : 'content' extends keyof O ? ContentReturnType<O['content'] & ContentType>
+      : 'content' extends keyof O ?
+        ContentReturnType<O['content'] & ContentType>
       : ResolveType<F>,
       {
         path: E['path'];
@@ -327,7 +329,8 @@ type OptionsToRestEndpoint<
       : 'method' extends keyof O ? MethodToSide<O['method']>
       : E['sideEffect'],
       O['process'] extends {} ? ReturnType<O['process']>
-      : 'content' extends keyof O ? ContentReturnType<O['content'] & ContentType>
+      : 'content' extends keyof O ?
+        ContentReturnType<O['content'] & ContentType>
       : ResolveType<F>,
       {
         path: E['path'];
@@ -369,10 +372,10 @@ export type RestExtendedEndpoint<
       { paginationField: E['getPage']['paginationField'] }
     : unknown),
   RestInstance<
-    (
-      ...args: Parameters<E>
-    ) => O['process'] extends {} ? Promise<ReturnType<O['process']>>
-    : 'content' extends keyof O ? Promise<ContentReturnType<O['content'] & ContentType>>
+    (...args: Parameters<E>) => O['process'] extends {} ?
+      Promise<ReturnType<O['process']>>
+    : 'content' extends keyof O ?
+      Promise<ContentReturnType<O['content'] & ContentType>>
     : ReturnType<E>,
     'schema' extends keyof O ? O['schema'] : E['schema'],
     'sideEffect' extends keyof O ? Extract<O['sideEffect'], boolean | undefined>
@@ -617,7 +620,8 @@ export type RestEndpointConstructorOptions<O extends RestGenerics = any> =
       : SoftPathArgs<O['path']>,
       OptionsToBodyArgument<O, MethodArgForBodyInference<O>>,
       O['process'] extends {} ? ReturnType<O['process']>
-      : 'content' extends keyof O ? ContentReturnType<O['content'] & ContentType>
+      : 'content' extends keyof O ?
+        ContentReturnType<O['content'] & ContentType>
       : any /*Denormalize<O['schema']>*/
     >,
     O['schema']
