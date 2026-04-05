@@ -1,6 +1,14 @@
 /// <reference types="node" />
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { chromium } from 'playwright';
-import type { Browser, CDPSession, Locator, Page } from 'playwright';
+import type {
+  Browser,
+  BrowserServer,
+  CDPSession,
+  Locator,
+  Page,
+} from 'playwright';
 
 import { collectMeasures, getMeasureDuration } from './measure.js';
 import { collectHeapUsed } from './memory.js';
@@ -141,6 +149,9 @@ const BASE_URL =
 const BENCH_LABEL =
   process.env.BENCH_LABEL ? ` [${process.env.BENCH_LABEL}]` : '';
 const USE_TRACE = process.env.BENCH_TRACE === 'true';
+const BENCH_V8_TRACE = process.env.BENCH_V8_TRACE === 'true';
+const BENCH_V8_DEOPT = process.env.BENCH_V8_DEOPT === 'true';
+const V8_LOG_DIR = path.resolve('v8-logs');
 const MEMORY_WARMUP = 1;
 const MEMORY_MEASUREMENTS = 3;
 
@@ -649,6 +660,92 @@ function shuffle<T>(arr: T[]): T[] {
   return out;
 }
 
+/** Chromium from `launch()` does not expose `process()`; use `launchServer` when piping V8 trace output. */
+async function launchBenchChromium(): Promise<{
+  browser: Browser;
+  closeBenchBrowser: () => Promise<void>;
+}> {
+  const launchOpts = {
+    headless: true,
+    args: buildV8LaunchArgs(),
+  };
+
+  if (BENCH_V8_TRACE) {
+    const server: BrowserServer = await chromium.launchServer(launchOpts);
+    let v8TraceStream: fs.WriteStream | undefined;
+    const proc = server.process();
+    if (proc?.stderr ?? proc?.stdout) {
+      v8TraceStream = fs.createWriteStream('v8-trace.log');
+      proc.stderr?.pipe(v8TraceStream);
+      proc.stdout?.pipe(v8TraceStream);
+      process.stderr.write(
+        'V8 trace output → v8-trace.log (root browser process stderr/stdout)\n',
+      );
+    } else {
+      process.stderr.write(
+        'Warning: BENCH_V8_TRACE but browser server process streams unavailable; v8-trace.log may be empty.\n',
+      );
+    }
+    const browser = await chromium.connect({ wsEndpoint: server.wsEndpoint() });
+    return {
+      browser,
+      closeBenchBrowser: async () => {
+        await browser.close();
+        v8TraceStream?.end();
+        await server.close();
+        if (v8TraceStream) {
+          process.stderr.write(
+            '\nV8 opt/deopt trace written to v8-trace.log\n',
+          );
+        }
+      },
+    };
+  }
+
+  const browser = await chromium.launch(launchOpts);
+  return {
+    browser,
+    closeBenchBrowser: () => browser.close(),
+  };
+}
+
+function buildV8LaunchArgs(): string[] {
+  const jsFlags: string[] = [];
+  if (BENCH_V8_TRACE) {
+    jsFlags.push('--trace-opt', '--trace-deopt');
+  }
+  if (BENCH_V8_DEOPT) {
+    fs.mkdirSync(V8_LOG_DIR, { recursive: true });
+    jsFlags.push('--prof', `--logfile=${V8_LOG_DIR}/v8-%p.log`);
+  }
+  if (jsFlags.length === 0) return [];
+  return [`--js-flags=${jsFlags.join(' ')}`];
+}
+
+function reportV8Logs(): void {
+  if (!BENCH_V8_DEOPT) return;
+  try {
+    const logs = fs.readdirSync(V8_LOG_DIR).filter(f => f.endsWith('.log'));
+    if (logs.length === 0) return;
+    process.stderr.write(`\nV8 profiling logs written to ${V8_LOG_DIR}/:\n`);
+    for (const log of logs) {
+      const size = fs.statSync(path.join(V8_LOG_DIR, log)).size;
+      process.stderr.write(`  ${log} (${(size / 1024).toFixed(1)} KB)\n`);
+    }
+    const largest = logs.reduce((a, b) => {
+      const sa = fs.statSync(path.join(V8_LOG_DIR, a)).size;
+      const sb = fs.statSync(path.join(V8_LOG_DIR, b)).size;
+      return sa >= sb ? a : b;
+    });
+    process.stderr.write(
+      `\nProcess the renderer log (typically the largest file) with:\n` +
+        `  node --prof-process ${V8_LOG_DIR}/${largest}\n\n`,
+    );
+  } catch {
+    // best-effort reporting
+  }
+}
+
 function scenarioUnit(scenario: Scenario): string {
   if (isRefStabilityScenario(scenario)) return 'count';
   if (scenario.resultMetric === 'heapDelta') return 'bytes';
@@ -778,7 +875,10 @@ async function main() {
     samples.set(s.name, { value: [], reactCommit: [], trace: [] });
   }
 
-  const browser = await chromium.launch({ headless: true });
+  const { browser, closeBenchBrowser } = await launchBenchChromium();
+  if (BENCH_V8_DEOPT) {
+    process.stderr.write(`V8 profiling logs → ${V8_LOG_DIR}/\n`);
+  }
 
   // Deterministic scenarios: run once, no warmup
   const deterministicNames = new Set<string>();
@@ -924,7 +1024,8 @@ async function main() {
     }
   }
 
-  await browser.close();
+  await closeBenchBrowser();
+  reportV8Logs();
 
   // ---------------------------------------------------------------------------
   // Report

@@ -69,6 +69,21 @@ Use this mapping when deciding which React benchmark scenarios are relevant to a
 
 Regressions >5% on stable scenarios or >15% on volatile scenarios are worth investigating.
 
+### Profiling / tracing (opt + deopt investigation)
+
+The React benchmark supports the same V8 opt/deopt investigation as the Node benchmark, via Chromium's `--js-flags`:
+
+- **`bench:trace`** (`BENCH_V8_TRACE=true`): launches Chromium with `--trace-opt --trace-deopt`; browser process output piped to `v8-trace.log`. Equivalent to `examples/benchmark`'s `start:trace`.
+- **`bench:deopt`** (`BENCH_V8_DEOPT=true`): launches Chromium with `--prof`; V8 writes per-process logs to `v8-logs/v8-<pid>.log`. Process the renderer log (largest file) with `node --prof-process`.
+
+Both default to `--lib data-client --size small` for focused runs. Override with additional flags:
+
+```bash
+yarn workspace example-benchmark-react bench:trace
+yarn workspace example-benchmark-react bench:deopt
+BENCH_V8_TRACE=true yarn workspace example-benchmark-react bench --scenario update-entity
+```
+
 ### When to use Node vs React benchmark
 
 - **Core/normalizr/endpoint changes only** (no rendering impact): Run `examples/benchmark` (Node). Faster iteration, no browser needed.

@@ -210,6 +210,34 @@ The runner prints a JSON array in `customBiggerIsBetter` format (name, unit, val
 
 To view results locally, open `bench/report-viewer.html` in a browser and paste the JSON (or upload `react-bench-output.json`) to see a comparison table and bar chart.
 
-## Optional: Chrome trace
+## Profiling
+
+### Chrome trace (timeline duration)
 
 Set `BENCH_TRACE=true` when running the bench to enable Chrome tracing for duration scenarios. Trace files are written to disk; parsing and reporting trace duration is best-effort and may require additional tooling for the trace zip format.
+
+### V8 opt/deopt investigation
+
+For the same granularity of V8 optimization investigation available in `examples/benchmark` (Node), two modes pass `--js-flags` to Chromium via Playwright:
+
+```bash
+yarn bench:trace    # --trace-opt --trace-deopt → v8-trace.log
+yarn bench:deopt    # --prof → v8-logs/v8-<pid>.log
+```
+
+Both default to `--lib data-client --size small` for focused, fast investigation. Add other flags as needed (e.g. `--scenario update-entity`).
+
+**`bench:trace`** (`BENCH_V8_TRACE=true`) launches Chromium with `--js-flags="--trace-opt --trace-deopt"`. The runner uses Playwright `launchServer` (not `launch`) so the root browser process stdout/stderr can be piped to `v8-trace.log` — `Browser` from `launch()` does not expose `process()`. This is the browser equivalent of `examples/benchmark`'s `start:trace` — look for optimization and deoptimization lines for functions of interest.
+
+**`bench:deopt`** (`BENCH_V8_DEOPT=true`) launches Chromium with `--js-flags="--prof"`. V8 writes per-process profiling logs to `v8-logs/v8-<pid>.log`. Chromium is multi-process, so several files are created; the renderer log (typically the largest) contains the benchmark's hot path. Process it with:
+
+```bash
+node --prof-process v8-logs/v8-<pid>.log > processed.txt
+```
+
+Both env vars can be combined for simultaneous trace output and profiling logs. The convenience scripts can be overridden:
+
+```bash
+BENCH_V8_TRACE=true yarn bench --lib data-client --scenario update-entity
+BENCH_V8_DEOPT=true yarn bench --lib data-client --size large
+```

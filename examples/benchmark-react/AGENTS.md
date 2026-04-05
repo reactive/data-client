@@ -73,3 +73,5 @@ Filtering: `yarn bench --lib data-client --size small --action update`
 | `BENCH_LABEL=<tag>` | Appends `[<tag>]` to result names |
 | `BENCH_PORT` | Preview port (default 5173) |
 | `BENCH_TRACE=true` | Chrome tracing for duration scenarios |
+| `BENCH_V8_TRACE=true` | Launch Chromium with `--trace-opt --trace-deopt`; output to `v8-trace.log` |
+| `BENCH_V8_DEOPT=true` | Launch Chromium with `--prof`; V8 logs to `v8-logs/` |
