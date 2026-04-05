@@ -12,6 +12,8 @@ import {
   isPojo,
 } from './RestHelpers.js';
 
+const textLikeRe = /text|xml|html|javascript|css|csv|urlencoded/;
+
 /** Simplifies endpoint definitions that follow REST patterns
  *
  * @see https://dataclient.io/rest/api/RestEndpoint
@@ -143,50 +145,72 @@ export default class RestEndpoint extends Endpoint {
   }
 
   parseResponse(response) {
-    // this should not have any content to read
     if (response.status === 204) return Promise.resolve(null);
-    if (!response.headers.get('content-type')?.includes('json')) {
-      return response.text().then(text => {
-        // string or 'not set' schema, are valid
-        // when overriding process they might handle other cases, so we don't want to block on our logic
-        if (
-          ['string', 'undefined'].includes(typeof this.schema) ||
-          this.schema === null ||
-          this.process !== RestEndpoint.prototype.process
-        )
-          return text;
 
+    if (this.content) {
+      if (this.content === 'json') {
+        return response.json().catch(error => {
+          error.status = 400;
+          throw error;
+        });
+      }
+      if (
+        this.schema != null &&
+        typeof this.schema !== 'string' &&
+        typeof this.schema !== 'undefined'
+      ) {
         const error = new NetworkError(response);
-        error.status = 404;
-        error.message = `Unexpected text response for schema ${this.schema}`;
-        // custom dev-only messages for more detailed cause
-        /* istanbul ignore else */
-        if (process.env.NODE_ENV !== 'production') {
-          if (
-            !(
-              response.headers.get('content-type')?.includes('html') ||
-              text.startsWith('<!doctype html>')
-            )
-          ) {
-            if (tryParse(text) !== undefined) {
-              error.message = `"content-type" header does not include "json", but JSON response found.
+        error.status = 400;
+        error.message = `content '${this.content}' is incompatible with schema. Binary/text responses cannot be normalized. Use schema: undefined.`;
+        throw error;
+      }
+      if (this.content === 'stream') return Promise.resolve(response.body);
+      return response[this.content]();
+    }
+
+    const contentType = response.headers.get('content-type');
+    if (contentType?.includes('json')) {
+      return response.json().catch(error => {
+        error.status = 400;
+        throw error;
+      });
+    }
+    if (contentType && !textLikeRe.test(contentType)) {
+      return response.blob();
+    }
+    return response.text().then(text => {
+      // string or 'not set' schema, are valid
+      // when overriding process they might handle other cases, so we don't want to block on our logic
+      if (
+        ['string', 'undefined'].includes(typeof this.schema) ||
+        this.schema === null ||
+        this.process !== RestEndpoint.prototype.process
+      )
+        return text;
+
+      const error = new NetworkError(response);
+      error.status = 404;
+      error.message = `Unexpected text response for schema ${this.schema}`;
+      // custom dev-only messages for more detailed cause
+      /* istanbul ignore else */
+      if (process.env.NODE_ENV !== 'production') {
+        if (
+          !(contentType?.includes('html') || text.startsWith('<!doctype html>'))
+        ) {
+          if (tryParse(text) !== undefined) {
+            error.message = `"content-type" header does not include "json", but JSON response found.
 See https://www.rfc-editor.org/rfc/rfc4627 for information on JSON responses
 
 Using parsed JSON.
 If text content was expected see https://dataclient.io/rest/api/RestEndpoint#parseResponse`;
-            }
-          } else {
-            error.message = `Unexpected html response for schema ${this.schema}
+          }
+        } else {
+          error.message = `Unexpected html response for schema ${this.schema}
 This likely means no API endpoint was configured for this request, resulting in an HTML fallback.
 
 Response (first 300 characters): ${text.substring(0, 300)}`;
-          }
         }
-        throw error;
-      });
-    }
-    return response.json().catch(error => {
-      error.status = 400;
+      }
       throw error;
     });
   }
