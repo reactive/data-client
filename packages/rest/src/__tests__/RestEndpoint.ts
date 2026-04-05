@@ -1862,6 +1862,47 @@ describe('content property', () => {
     const result = await ep({ id: 1 });
     expect(result).toBeInstanceOf(Blob);
   });
+
+  it("content: 'arrayBuffer' calls response.arrayBuffer()", async () => {
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/octet-stream',
+      })
+      .get('/files/1')
+      .reply(200, Buffer.from([1, 2, 3, 4]));
+
+    const ep = new RestEndpoint({
+      path: 'http\\://test.com/files/:id',
+      content: 'arrayBuffer',
+    });
+    const result = await ep({ id: 1 });
+    expect(result).toBeInstanceOf(ArrayBuffer);
+  });
+
+  it("content: 'stream' returns response.body", async () => {
+    const mockBody = {
+      getReader() {
+        return {};
+      },
+    };
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      body: mockBody,
+      headers: new Headers({ 'Content-Type': 'application/octet-stream' }),
+    } as unknown as Response;
+
+    const ep = new RestEndpoint({
+      path: 'http\\://test.com/files/:id',
+      content: 'stream',
+      fetchResponse() {
+        return Promise.resolve(mockResponse);
+      },
+    });
+    const result = await ep({ id: 1 });
+    expect(result).toBe(mockBody);
+  });
 });
 
 describe('auto-detection (no content)', () => {
@@ -1960,6 +2001,54 @@ describe('auto-detection (no content)', () => {
     });
     const result = await ep({ id: 1 });
     expect(result).toBe('<root>hi</root>');
+  });
+
+  it('Content-Type: audio/mpeg returns blob', async () => {
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'audio/mpeg',
+      })
+      .get('/files/1')
+      .reply(200, Buffer.from([0xff, 0xfb]));
+
+    const ep = new RestEndpoint({
+      path: 'http\\://test.com/files/:id',
+    });
+    const result = await ep({ id: 1 });
+    expect(result).toBeInstanceOf(Blob);
+  });
+
+  it('Content-Type: video/mp4 returns blob', async () => {
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'video/mp4',
+      })
+      .get('/files/1')
+      .reply(200, Buffer.from([0x00, 0x00]));
+
+    const ep = new RestEndpoint({
+      path: 'http\\://test.com/files/:id',
+    });
+    const result = await ep({ id: 1 });
+    expect(result).toBeInstanceOf(Blob);
+  });
+
+  it('Content-Type: font/woff2 returns blob', async () => {
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'font/woff2',
+      })
+      .get('/files/1')
+      .reply(200, Buffer.from([0x77, 0x4f]));
+
+    const ep = new RestEndpoint({
+      path: 'http\\://test.com/files/:id',
+    });
+    const result = await ep({ id: 1 });
+    expect(result).toBeInstanceOf(Blob);
   });
 
   it('No Content-Type returns text (backward compat)', async () => {

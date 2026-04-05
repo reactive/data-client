@@ -2115,6 +2115,37 @@ it('content property: extend and subclass', () => {
     result satisfies { blob: Blob; name: string };
   };
 
+  // content: 'blob' with explicit schema: undefined compiles
+  const explicitUndefined = new RestEndpoint({
+    path: '/files/:id' as const,
+    content: 'blob',
+    schema: undefined,
+  });
+  async () => {
+    const result = await explicitUndefined({ id: '1' });
+    result satisfies Blob;
+  };
+
+  // switch from blob back to json
+  const backToJson = blobEp.extend({ content: 'json', schema: Article });
+  async () => {
+    const result = await backToJson({ id: '1' });
+    result satisfies any;
+  };
+
+  // content property is typed on instance
+  const ep = new RestEndpoint({
+    path: '/files/:id' as const,
+    content: 'blob',
+  });
+  const contentVal:
+    | 'json'
+    | 'blob'
+    | 'text'
+    | 'arrayBuffer'
+    | 'stream'
+    | undefined = ep.content;
+
   // subclass pattern
   class BlobEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
     content = 'blob' as const;
