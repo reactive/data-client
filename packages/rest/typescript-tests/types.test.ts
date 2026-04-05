@@ -4,7 +4,7 @@ import { User, Article } from '__tests__/new';
 
 import resource from '../src/resource';
 import RestEndpoint, { GetEndpoint, MutateEndpoint } from '../src/RestEndpoint';
-import type { ContentType, RestGenerics } from '../src/RestEndpointTypes';
+import type { RestGenerics } from '../src/RestEndpointTypes';
 
 it('RestEndpoint construct and extend with typed options', () => {
   new RestEndpoint({
