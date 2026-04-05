@@ -2072,6 +2072,57 @@ describe('auto-detection (no content)', () => {
     expect(result).toBeInstanceOf(Blob);
   });
 
+  it('Content-Type: XLSX (openxmlformats) returns blob', async () => {
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type':
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      })
+      .get('/files/1')
+      .reply(200, Buffer.from([0x50, 0x4b, 0x03, 0x04]));
+
+    const ep = new RestEndpoint({
+      path: 'http\\://test.com/files/:id',
+    });
+    const result = await ep({ id: 1 });
+    expect(result).toBeInstanceOf(Blob);
+  });
+
+  it('Content-Type: DOCX (openxmlformats) returns blob', async () => {
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type':
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      })
+      .get('/files/1')
+      .reply(200, Buffer.from([0x50, 0x4b, 0x03, 0x04]));
+
+    const ep = new RestEndpoint({
+      path: 'http\\://test.com/files/:id',
+    });
+    const result = await ep({ id: 1 });
+    expect(result).toBeInstanceOf(Blob);
+  });
+
+  it('Content-Type: PPTX (openxmlformats) returns blob', async () => {
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type':
+          'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      })
+      .get('/files/1')
+      .reply(200, Buffer.from([0x50, 0x4b, 0x03, 0x04]));
+
+    const ep = new RestEndpoint({
+      path: 'http\\://test.com/files/:id',
+    });
+    const result = await ep({ id: 1 });
+    expect(result).toBeInstanceOf(Blob);
+  });
+
   it('No Content-Type returns text (backward compat)', async () => {
     nock(/.*/)
       .defaultReplyHeaders({

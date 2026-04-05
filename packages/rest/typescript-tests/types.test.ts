@@ -2061,11 +2061,7 @@ it('content property: schema constraint', () => {
   });
 
   // @ts-expect-error - schema incompatible with content: 'stream'
-  new RestEndpoint({
-    path: '/x' as const,
-    content: 'stream',
-    schema: Article,
-  });
+  new RestEndpoint({ path: '/x' as const, content: 'stream', schema: Article });
 
   // content: 'json' allows schema
   new RestEndpoint({

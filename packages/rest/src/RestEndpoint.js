@@ -12,7 +12,8 @@ import {
   isPojo,
 } from './RestHelpers.js';
 
-const textLikeRe = /text|xml|html|javascript|css|csv|urlencoded/;
+const textLikeRe =
+  /\btext\b|\bxml\b|\bhtml\b|\bjavascript\b|\bcss\b|\bcsv\b|\burlencoded\b/;
 
 function jsonResponse(response) {
   return response.json().catch(error => {
