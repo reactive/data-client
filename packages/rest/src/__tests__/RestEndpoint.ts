@@ -1811,6 +1811,27 @@ describe('content property', () => {
     });
   });
 
+  it.each(['blob', 'text', 'arrayBuffer', 'stream'] as const)(
+    'content: %s with schema warns at construction',
+    content => {
+      const errorSpy = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
+      try {
+        new RestEndpoint({
+          path: 'http\\://test.com/files/:id',
+          content,
+          schema: User,
+        } as any);
+        expect(errorSpy).toHaveBeenCalledWith(
+          expect.stringContaining('incompatible with schema'),
+        );
+      } finally {
+        errorSpy.mockRestore();
+      }
+    },
+  );
+
   it('204 with content: blob returns null', async () => {
     nock(/.*/)
       .defaultReplyHeaders({

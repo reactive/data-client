@@ -63,6 +63,21 @@ export default class RestEndpoint extends Endpoint {
       (!('body' in this) || this.body !== undefined) &&
       !['GET', 'DELETE'].includes(this.method);
 
+    /* istanbul ignore else */
+    if (process.env.NODE_ENV !== 'production') {
+      if (
+        this.content &&
+        this.content !== 'json' &&
+        this.schema != null &&
+        typeof this.schema !== 'string' &&
+        typeof this.schema !== 'undefined'
+      ) {
+        console.error(
+          `content '${this.content}' is incompatible with schema. Binary/text responses cannot be normalized. Use schema: undefined.`,
+        );
+      }
+    }
+
     Object.defineProperty(this, 'name', {
       get() {
         // using 'in' to ensure inheritance lookup
