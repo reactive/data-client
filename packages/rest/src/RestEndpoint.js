@@ -174,7 +174,19 @@ export default class RestEndpoint extends Endpoint {
 
     const contentType = response.headers.get('content-type');
     if (contentType?.includes('json')) return jsonResponse(response);
-    if (contentType && !textLikeRe.test(contentType)) return response.blob();
+    if (contentType && !textLikeRe.test(contentType)) {
+      if (
+        this.schema != null &&
+        typeof this.schema !== 'string' &&
+        typeof this.schema !== 'undefined'
+      ) {
+        const error = new NetworkError(response);
+        error.status = 400;
+        error.message = `Binary content-type '${contentType}' is incompatible with schema. Binary responses cannot be normalized. Use schema: undefined or set content: 'blob'.`;
+        throw error;
+      }
+      return response.blob();
+    }
 
     return response.text().then(text => {
       if (

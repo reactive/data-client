@@ -1955,6 +1955,25 @@ describe('auto-detection (no content)', () => {
     expect(result).toBeInstanceOf(Blob);
   });
 
+  it('binary Content-Type with normalizable schema throws', async () => {
+    nock(/.*/)
+      .defaultReplyHeaders({
+        'Access-Control-Allow-Origin': '*',
+        'Content-Type': 'application/octet-stream',
+      })
+      .get('/files/1')
+      .reply(200, Buffer.from([1, 2, 3]));
+
+    const ep = new RestEndpoint({
+      path: 'http\\://test.com/files/:id',
+      schema: User,
+    });
+    await expect(async () => await ep({ id: 1 })).rejects.toMatchObject({
+      status: 400,
+      message: expect.stringContaining('incompatible with schema'),
+    });
+  });
+
   it('Content-Type: text/plain returns text (unchanged)', async () => {
     nock(/.*/)
       .defaultReplyHeaders({
