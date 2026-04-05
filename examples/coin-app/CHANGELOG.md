@@ -1,5 +1,12 @@
 # coinbase-lite
 
+## 0.0.21
+
+### Patch Changes
+
+- Updated dependencies [[`16f5d92`](https://github.com/reactive/data-client/commit/16f5d92598de05e92b88af98a9d63eecf27ab819)]:
+  - @data-client/rest@0.16.5
+
 ## 0.0.20
 
 ### Patch Changes

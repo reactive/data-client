@@ -1,5 +1,16 @@
 # @data-client/rest
 
+## 0.16.5
+
+### Patch Changes
+
+- [#3866](https://github.com/reactive/data-client/pull/3866) [`16f5d92`](https://github.com/reactive/data-client/commit/16f5d92598de05e92b88af98a9d63eecf27ab819) - Bundle `path-to-regexp` as tree-shaken ESM
+
+  Bundle only the functions we use (`compile`, `parse`, `pathToRegexp`) from
+  `path-to-regexp` into the ESM/browser build via rollup. This eliminates
+  the CJS/ESM boundary that broke StackBlitz WebContainers and reduces bundle
+  size by tree-shaking unused exports (`match`, `stringify`, and the `ID` regex).
+
 ## 0.16.4
 
 ### Patch Changes
