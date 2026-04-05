@@ -169,7 +169,7 @@ function deepClone(obj: any): any {
   if (obj === null || typeof obj !== 'object') return obj;
   if (Array.isArray(obj)) return obj.map(deepClone);
   const result: any = {};
-  for (const key in obj) {
+  for (const key of Object.keys(obj)) {
     result[key] = deepClone(obj[key]);
   }
   return result;
