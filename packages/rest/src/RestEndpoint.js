@@ -155,19 +155,16 @@ export default class RestEndpoint extends Endpoint {
     if (response.status === 204) return Promise.resolve(null);
 
     if (this.content) {
-      /* istanbul ignore else */
-      if (process.env.NODE_ENV !== 'production') {
-        if (
-          this.content !== 'json' &&
-          this.schema != null &&
-          typeof this.schema !== 'string' &&
-          typeof this.schema !== 'undefined'
-        ) {
-          const error = new NetworkError(response);
-          error.status = 400;
-          error.message = `content '${this.content}' is incompatible with schema. Binary/text responses cannot be normalized. Use schema: undefined.`;
-          throw error;
-        }
+      if (
+        this.content !== 'json' &&
+        this.schema != null &&
+        typeof this.schema !== 'string' &&
+        typeof this.schema !== 'undefined'
+      ) {
+        const error = new NetworkError(response);
+        error.status = 400;
+        error.message = `content '${this.content}' is incompatible with schema. Binary/text responses cannot be normalized. Use schema: undefined.`;
+        throw error;
       }
       if (this.content === 'stream') return Promise.resolve(response.body);
       return this.content === 'json' ?
