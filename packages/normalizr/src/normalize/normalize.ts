@@ -79,15 +79,18 @@ See https://dataclient.io/rest/api/RestEndpoint#parseResponse for more informati
     }
   }
 
-  const ret: NormalizedSchema<E, R> = {
-    result: '' as any,
+  const state = {
     entities: { ...entities },
     indexes: { ...indexes },
     entitiesMeta: { ...entitiesMeta },
   };
-  const visit = getVisit(new NormalizeDelegate(ret, meta));
-  ret.result = visit(schema, input, input, undefined, args);
-  return ret;
+  const visit = getVisit(new NormalizeDelegate(state, meta));
+  return {
+    result: visit(schema, input, input, undefined, args) as any as R,
+    entities: state.entities as any,
+    indexes: state.indexes as any,
+    entitiesMeta: state.entitiesMeta as any,
+  };
 };
 
 function expectedSchemaType(schema: Schema) {
