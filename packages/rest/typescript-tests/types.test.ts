@@ -2054,18 +2054,10 @@ it('content property: schema constraint', () => {
   new RestEndpoint({ path: '/x' as const, content: 'text', schema: Article });
 
   // @ts-expect-error - schema incompatible with content: 'arrayBuffer'
-  new RestEndpoint({
-    path: '/x' as const,
-    content: 'arrayBuffer',
-    schema: Article,
-  });
+  new RestEndpoint({ path: '/x' as const, content: 'arrayBuffer', schema: Article });
 
   // @ts-expect-error - schema incompatible with content: 'stream'
-  new RestEndpoint({
-    path: '/x' as const,
-    content: 'stream',
-    schema: Article,
-  });
+  new RestEndpoint({ path: '/x' as const, content: 'stream', schema: Article });
 
   // content: 'json' allows schema
   new RestEndpoint({
