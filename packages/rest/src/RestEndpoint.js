@@ -193,17 +193,29 @@ export default class RestEndpoint extends Endpoint {
 
     const contentType = response.headers.get('content-type');
     if (contentType?.includes('json')) return jsonResponse(response);
-    if (contentType && !textLikeRe.test(contentType)) return response.blob();
+
+    const isBinary = contentType && !textLikeRe.test(contentType);
+
+    if (
+      typeof this.schema === 'string' ||
+      typeof this.schema === 'undefined' ||
+      this.schema === null ||
+      this.process !== RestEndpoint.prototype.process
+    )
+      return isBinary ? response.blob() : response.text();
+
+    if (isBinary) {
+      const error = new NetworkError(response);
+      error.status = 400;
+      error.message = `Unexpected binary content-type for schema ${this.schema}`;
+      /* istanbul ignore else */
+      if (process.env.NODE_ENV !== 'production') {
+        error.message = `Unexpected binary content-type "${contentType}" for schema ${this.schema}. Binary responses cannot be normalized. Use schema: undefined or set content: 'blob'.`;
+      }
+      throw error;
+    }
 
     return response.text().then(text => {
-      if (
-        typeof this.schema === 'string' ||
-        typeof this.schema === 'undefined' ||
-        this.schema === null ||
-        this.process !== RestEndpoint.prototype.process
-      )
-        return text;
-
       const error = new NetworkError(response);
       error.status = 404;
       error.message = `Unexpected text response for schema ${this.schema}`;
