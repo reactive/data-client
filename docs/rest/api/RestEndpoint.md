@@ -45,6 +45,7 @@ interface RestGenerics {
   readonly body?: any;
   readonly searchParams?: any;
   readonly paginationField?: string;
+  readonly content?: 'json' | 'blob' | 'text' | 'arrayBuffer' | 'stream';
   process?(value: any, ...args: any): any;
 }
 
@@ -55,6 +56,7 @@ export class RestEndpoint<O extends RestGenerics = any> extends Endpoint {
   readonly requestInit: RequestInit;
   readonly method: string;
   readonly paginationField?: string;
+  readonly content?: 'json' | 'blob' | 'text' | 'arrayBuffer' | 'stream';
   readonly signal: AbortSignal | undefined;
   url(...args: Parameters<F>): string;
   searchToString(searchParams: Record<string, any>): string;
@@ -776,41 +778,45 @@ Performs the [fetch(input, init)](https://developer.mozilla.org/en-US/docs/Web/A
 [response.ok](https://developer.mozilla.org/en-US/docs/Web/API/Response/ok) is not `true` (like 404),
 will throw a NetworkError.
 
-### parseResponse(response): Promise {#parseResponse}
+### content {#content}
 
-Takes the [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) and parses via [.text()](https://developer.mozilla.org/en-US/docs/Web/API/Response/text) or [.json()](https://developer.mozilla.org/en-US/docs/Web/API/Response/json) depending
-on ['content-type' header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type) having 'json' (e.g., `application/json`).
+Controls how the [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) body is parsed.
+When set, the return type is inferred automatically, and `schema` is constrained to `undefined`
+for non-JSON content types.
 
-If `status` is 204, resolves as `null`.
+| Value | Parses via | Return type |
+|---|---|---|
+| `'json'` | [response.json()](https://developer.mozilla.org/en-US/docs/Web/API/Response/json) | `any` |
+| `'blob'` | [response.blob()](https://developer.mozilla.org/en-US/docs/Web/API/Response/blob) | `Blob` |
+| `'text'` | [response.text()](https://developer.mozilla.org/en-US/docs/Web/API/Response/text) | `string` |
+| `'arrayBuffer'` | [response.arrayBuffer()](https://developer.mozilla.org/en-US/docs/Web/API/Response/arrayBuffer) | `ArrayBuffer` |
+| `'stream'` | `response.body` | `ReadableStream<Uint8Array>` |
+| *unset* | Auto-detect from Content-Type header | `any` |
 
-Override this to handle other response types like [blob](https://developer.mozilla.org/en-US/docs/Web/API/Response/blob) or [arrayBuffer](https://developer.mozilla.org/en-US/docs/Web/API/Response/arrayBuffer).
+When `content` is not set, `parseResponse` auto-detects the response type from the
+`Content-Type` header: JSON types call `.json()`, binary types (images, `application/octet-stream`,
+PDFs, etc.) call `.blob()`, and text-like types call `.text()`.
 
 #### File downloads {#file-download}
 
-For binary responses like file downloads, override `parseResponse` to use `response.blob()`.
-Set `schema: undefined` since binary data is not normalizable. Use `dataExpiryLength: 0` to
-avoid caching large blobs in memory.
+For file downloads, set `content: 'blob'`. The return type is `Blob` and `schema` must be
+`undefined` (binary data cannot be normalized). Use `dataExpiryLength: 0` to avoid caching
+large blobs in memory.
 
 ```ts
 const downloadFile = new RestEndpoint({
   path: '/files/:id/download',
-  schema: undefined,
+  content: 'blob',
   dataExpiryLength: 0,
-  parseResponse(response) {
-    return response.blob();
-  },
-  process(blob): { blob: Blob; filename: string } {
-    return { blob, filename: 'download' };
-  },
 });
 ```
 
-To extract the filename from the `Content-Disposition` header, override both `parseResponse` and `process`:
+To extract the filename from the `Content-Disposition` header, override `parseResponse`:
 
 ```ts
 const downloadFile = new RestEndpoint({
   path: '/files/:id/download',
-  schema: undefined,
+  content: 'blob',
   dataExpiryLength: 0,
   async parseResponse(response) {
     const blob = await response.blob();
@@ -826,6 +832,20 @@ const downloadFile = new RestEndpoint({
 ```
 
 See [file download guide](../guides/network-transform.md#file-download) for complete usage with browser download trigger.
+
+### parseResponse(response): Promise {#parseResponse}
+
+Takes the [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) and parses the body.
+
+When [`content`](#content) is set, it controls parsing directly. Otherwise, auto-detection runs
+based on the [`Content-Type` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type):
+JSON types call [.json()](https://developer.mozilla.org/en-US/docs/Web/API/Response/json), binary
+types call [.blob()](https://developer.mozilla.org/en-US/docs/Web/API/Response/blob), and text-like
+types call [.text()](https://developer.mozilla.org/en-US/docs/Web/API/Response/text).
+
+If `status` is 204, resolves as `null`.
+
+Override this for advanced cases like extracting headers alongside the body.
 
 ### process(value, ...args): any {#process}
 
