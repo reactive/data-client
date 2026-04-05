@@ -676,8 +676,8 @@ async function launchBenchChromium(): Promise<{
     const proc = server.process();
     if (proc?.stderr ?? proc?.stdout) {
       v8TraceStream = fs.createWriteStream('v8-trace.log');
-      proc.stderr?.pipe(v8TraceStream);
-      proc.stdout?.pipe(v8TraceStream);
+      proc.stderr?.pipe(v8TraceStream, { end: false });
+      proc.stdout?.pipe(v8TraceStream, { end: false });
       process.stderr.write(
         'V8 trace output → v8-trace.log (root browser process stderr/stdout)\n',
       );
@@ -691,9 +691,9 @@ async function launchBenchChromium(): Promise<{
       browser,
       closeBenchBrowser: async () => {
         await browser.close();
-        v8TraceStream?.end();
         await server.close();
         if (v8TraceStream) {
+          v8TraceStream.end();
           process.stderr.write(
             '\nV8 opt/deopt trace written to v8-trace.log\n',
           );
