@@ -48,7 +48,7 @@ function pathToRegexpESM() {
         source
           .replace(/^"use strict";\s*/m, '')
           .replace(/^Object\.defineProperty\(exports,\s*"__esModule".*\n/m, '')
-          .replace(/^exports\.\w+\s*=\s*exports\.\w+\s*=\s*void 0;\s*\n/gm, '')
+          .replace(/^(?:exports\.\w+\s*=\s*)+void 0;\s*\n/gm, '')
           .replace(/^exports\.(\w+)\s*=\s*\w+;\s*\n/gm, '')
           .replace(/\/\/# sourceMappingURL=.*$/, '') +
         '\nexport { compile, parse, pathToRegexp, TokenData };\n'
