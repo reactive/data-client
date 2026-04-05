@@ -56,7 +56,13 @@ export abstract class BaseDelegate {
 
 export const getDependency =
   (delegate: BaseDelegate) =>
-  (path: QueryPath): object | undefined =>
-    delegate[['', 'getEntitiesObject', 'getEntity', 'getIndex'][path.length]](
-      ...path,
-    );
+  (path: QueryPath): object | undefined => {
+    switch (path.length) {
+      case 1:
+        return delegate['getEntitiesObject'](path[0]);
+      case 2:
+        return delegate.getEntity(path[0], path[1]);
+      case 3:
+        return delegate.getIndex(path[0], path[1], path[2]);
+    }
+  };
