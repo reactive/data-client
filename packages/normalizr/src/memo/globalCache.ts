@@ -39,13 +39,9 @@ export default class GlobalCache implements Cache {
     computeValue: (localCacheKey: Map<string, any>) => void,
   ): object | undefined | typeof INVALID {
     const key = schema.key;
-    // Inline cache lookup to avoid allocating { localCacheKey, cycleCacheKey } object.
-    // cycleCache is deferred to the branch that actually needs it.
-    let localCacheKey = this.localCache.get(key);
-    if (!localCacheKey) {
-      localCacheKey = new Map();
-      this.localCache.set(key, localCacheKey);
-    }
+    // cycleCache is deferred to the branch that actually needs it
+    // to avoid unnecessary allocations.
+    const localCacheKey = this.getOrCreateLocalCache(key);
 
     if (!localCacheKey.get(pk)) {
       const globalCache: WeakDependencyMap<
@@ -106,6 +102,15 @@ export default class GlobalCache implements Cache {
       }
     }
     return localCacheKey.get(pk);
+  }
+
+  private getOrCreateLocalCache(key: string): Map<string, any> {
+    let localCacheKey = this.localCache.get(key);
+    if (!localCacheKey) {
+      localCacheKey = new Map();
+      this.localCache.set(key, localCacheKey);
+    }
+    return localCacheKey;
   }
 
   private getOrCreateCycleCache(key: string): Map<string, number> {
