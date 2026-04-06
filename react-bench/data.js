@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1775422269807,
+  "lastUpdate": 1775438801677,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -2141,6 +2141,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 202.04,
             "range": "± 6.1%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7d28629d07f6cade43e36f3cf1956f175f98d84f",
+          "message": "enhance(normalizr): Pre-allocate dependency slot to avoid Array.unshift() (#3876)\n\nGlobalCache.getResults() called unshift() on every cache-miss denormalization,\nwhich is O(n) because it shifts all existing elements. Pre-allocate slot 0\nwith a placeholder and fill it in-place, turning the operation into O(1).\n\nBenchmarks showed 1.3–3.2% improvement on cold-denormalize paths\n(denormalizeLong variants).\n\nMade-with: Cursor",
+          "timestamp": "2026-04-05T21:24:23-04:00",
+          "tree_id": "6927928cda221adf761afedef72e8a894ce01c4c",
+          "url": "https://github.com/reactive/data-client/commit/7d28629d07f6cade43e36f3cf1956f175f98d84f"
+        },
+        "date": 1775438799559,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 186.93,
+            "range": "± 2.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 42.55,
+            "range": "± 6.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 434.78,
+            "range": "± 3.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 384.62,
+            "range": "± 5.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 50,
+            "range": "± 5.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 322.58,
+            "range": "± 7.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 370.37,
+            "range": "± 0.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 11.78,
+            "range": "± 5.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 90.91,
+            "range": "± 4.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 47.85,
+            "range": "± 5.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 270.27,
+            "range": "± 3.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 357.14,
+            "range": "± 5.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 183.5,
+            "range": "± 8.0%",
             "unit": "ops/s"
           }
         ]
