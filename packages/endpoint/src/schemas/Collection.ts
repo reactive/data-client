@@ -396,7 +396,7 @@ function CreateMover<C extends CollectionSchema<any, any>>(
   addMerge: (existing: any, incoming: any) => any,
   removeMerge: (existing: any, incoming: any) => any,
 ) {
-  return Object.create(
+  const mover = Object.create(
     collection,
     derivedProperties(
       collection,
@@ -412,8 +412,7 @@ function CreateMover<C extends CollectionSchema<any, any>>(
       ) {
         return normalizeMove.call(
           this,
-          addMerge,
-          removeMerge,
+          (this as any)._removeSchema,
           input,
           parent,
           key,
@@ -424,12 +423,15 @@ function CreateMover<C extends CollectionSchema<any, any>>(
       },
     ),
   );
+  mover._removeSchema = Object.create(mover, {
+    merge: { value: removeMerge },
+  });
+  return mover;
 }
 
 function normalizeMove(
   this: CollectionSchema<any, any>,
-  addMerge: (existing: any, incoming: any) => any,
-  removeMergeFunc: (existing: any, incoming: any) => any,
+  removeSchema: CollectionSchema<any, any>,
   input: any,
   parent: any,
   key: string,
@@ -470,10 +472,6 @@ function normalizeMove(
   );
 
   const lastArg = args[args.length - 1];
-  const addSchema = Object.create(this, { merge: { value: addMerge } });
-  const removeSchema = Object.create(this, {
-    merge: { value: removeMergeFunc },
-  });
   const collections = delegate.getEntities(this.key);
 
   // Process each entity's collection membership individually
@@ -507,7 +505,8 @@ function normalizeMove(
         if (shouldRemove && !shouldAdd) {
           delegate.mergeEntity(removeSchema, collectionKey, value);
         } else if (shouldAdd && !shouldRemove) {
-          delegate.mergeEntity(addSchema, collectionKey, value);
+          // this.merge is already the addMerge function
+          delegate.mergeEntity(this, collectionKey, value);
         }
       }
     }
