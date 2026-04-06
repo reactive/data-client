@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1775480965763,
+  "lastUpdate": 1775482563403,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -2447,6 +2447,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 263.16,
             "range": "± 5.0%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cc330d669df5e58e19e86746f28c085cdd5d8ec3",
+          "message": "internal(bench): Reduce benchmark variance for tighter CI results (#3880)\n\n* internal(bench-react): Reduce benchmark variance for tighter CI results\n\nTighten convergent config (15/10 warmup, 80/60 max iterations, 2%/3% CI\ntargets), add Chromium stability flags, double-GC between scenarios with\nlonger pauses, tune CI system (CPU governor, swap off, robust server wait).\n\nMade-with: Cursor\n\n* internal(bench): Add system tuning to Node benchmark CI\n\nSame CPU governor and swap tuning as bench-react for consistent results.\n\nMade-with: Cursor\n\n* internal(bench): Pin benchmarks to CPU cores via taskset\n\nConfig tuning alone didn't reduce variance — CI runner noise from CPU\nmigration and shared-infrastructure scheduling is the dominant factor.\nPin benchmark processes to cores 0,1 via taskset to eliminate L1/L2\ncache thrashing from core migration. Moderate warmup/iteration counts\nback to reasonable levels since extra iterations can't fix environmental\nnoise.\n\nMade-with: Cursor",
+          "timestamp": "2026-04-06T09:32:37-04:00",
+          "tree_id": "17fb6b15fcecdab9719cf3ce8e60bc8c805fe318",
+          "url": "https://github.com/reactive/data-client/commit/cc330d669df5e58e19e86746f28c085cdd5d8ec3"
+        },
+        "date": 1775482560596,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 142.86,
+            "range": "± 5.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 38.24,
+            "range": "± 7.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 344.83,
+            "range": "± 9.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 384.62,
+            "range": "± 7.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 42.74,
+            "range": "± 7.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 322.58,
+            "range": "± 8.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 357.14,
+            "range": "± 7.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 7.88,
+            "range": "± 7.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 81.3,
+            "range": "± 15.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 35.59,
+            "range": "± 4.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 227.27,
+            "range": "± 5.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 285.71,
+            "range": "± 6.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 196.08,
+            "range": "± 5.9%",
             "unit": "ops/s"
           }
         ]
