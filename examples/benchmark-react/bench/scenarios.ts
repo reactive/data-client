@@ -47,15 +47,15 @@ export interface ConvergentProfile {
 
 export const CONVERGENT_CONFIG: Record<ScenarioSize, ConvergentProfile> = {
   small: {
-    warmup: 15,
-    minMeasurement: 15,
-    maxMeasurement: 80,
+    warmup: 8,
+    minMeasurement: 10,
+    maxMeasurement: 60,
     targetMarginPct: process.env.CI ? 2 : 6,
   },
   large: {
-    warmup: 10,
-    minMeasurement: 15,
-    maxMeasurement: 60,
+    warmup: 5,
+    minMeasurement: 10,
+    maxMeasurement: 50,
     targetMarginPct: process.env.CI ? 3 : 10,
   },
 };

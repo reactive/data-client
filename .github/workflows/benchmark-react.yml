@@ -63,7 +63,7 @@ jobs:
             curl -sf http://localhost:5173/ > /dev/null && break
             sleep 1
           done
-          cd examples/benchmark-react && yarn bench | tee react-bench-output.json
+          cd examples/benchmark-react && taskset -c 0,1 yarn bench | tee react-bench-output.json
 
       # PR comments on changes
       - name: Store benchmark result (PR)
