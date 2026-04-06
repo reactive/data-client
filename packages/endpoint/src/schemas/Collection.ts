@@ -423,6 +423,8 @@ function CreateMover<C extends CollectionSchema<any, any>>(
       },
     ),
   );
+  // Pre-create the remove schema once so normalizeMove avoids
+  // per-call Object.create (which causes V8 hidden-class polymorphism).
   mover._removeSchema = Object.create(mover, {
     merge: { value: removeMerge },
   });

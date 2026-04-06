@@ -39,6 +39,8 @@ export default class GlobalCache implements Cache {
     computeValue: (localCacheKey: Map<string, any>) => void,
   ): object | undefined | typeof INVALID {
     const key = schema.key;
+    // Inline cache lookup to avoid allocating { localCacheKey, cycleCacheKey } object.
+    // cycleCache is deferred to the branch that actually needs it.
     let localCacheKey = this.localCache.get(key);
     if (!localCacheKey) {
       localCacheKey = new Map();
@@ -58,6 +60,7 @@ export default class GlobalCache implements Cache {
         localCacheKey.set(pk, cacheValue.value);
         // TODO: can we store the cache values instead of tracking *all* their sources?
         // this is only used for setting endpoints cache correctly. if we got this far we will def need to set as we would have already tried getting it
+        // Indexed loop avoids spread-into-push overhead for large dep arrays
         const cdeps = cacheValue.dependencies;
         for (let i = 0; i < cdeps.length; i++) {
           this.dependencies.push(cdeps[i]);
