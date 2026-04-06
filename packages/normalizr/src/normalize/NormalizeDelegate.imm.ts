@@ -54,18 +54,23 @@ export class ImmNormalizeDelegate
   }
 
   protected getNewEntities(key: string): Map<string, any> {
-    // first time we come across this type of entity
-    if (!this.newEntities.has(key)) {
-      this.newEntities.set(key, new Map());
-    }
-    return this.newEntities.get(key) as Map<string, any>;
+    return this.newEntities.get(key) ?? this.initNewEntities(key);
+  }
+
+  private initNewEntities(key: string): Map<string, any> {
+    const map = new Map<string, any>();
+    this.newEntities.set(key, map);
+    return map;
   }
 
   protected getNewIndexes(key: string): Map<string, any> {
-    if (!this.newIndexes.has(key)) {
-      this.newIndexes.set(key, new Map());
-    }
-    return this.newIndexes.get(key) as Map<string, any>;
+    return this.newIndexes.get(key) ?? this.initNewIndexes(key);
+  }
+
+  private initNewIndexes(key: string): Map<string, any> {
+    const map = new Map<string, any>();
+    this.newIndexes.set(key, map);
+    return map;
   }
 
   /** Updates an entity using merge lifecycles when it has previously been set */

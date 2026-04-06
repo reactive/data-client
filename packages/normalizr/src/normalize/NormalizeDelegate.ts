@@ -8,6 +8,8 @@ import { getCheckLoop } from './getCheckLoop.js';
 import { POJODelegate } from '../delegate/Delegate.js';
 import { INVALID } from '../denormalize/symbol.js';
 
+type MetaEntry = { fetchedAt: number; date: number; expiresAt: number };
+
 /** Full normalize() logic for POJO state */
 export class NormalizeDelegate
   extends POJODelegate
@@ -15,19 +17,16 @@ export class NormalizeDelegate
 {
   declare readonly entitiesMeta: {
     [entityKey: string]: {
-      [pk: string]: {
-        date: number;
-        expiresAt: number;
-        fetchedAt: number;
-      };
+      [pk: string]: MetaEntry;
     };
   };
 
-  declare readonly meta: { fetchedAt: number; date: number; expiresAt: number };
+  declare readonly meta: MetaEntry;
   declare checkLoop: (entityKey: string, pk: string, input: object) => boolean;
 
   protected newEntities = new Map<string, Map<string, any>>();
   protected newIndexes = new Map<string, Map<string, any>>();
+  private newMeta = new Map<string, Map<string, MetaEntry>>();
 
   constructor(
     state: {
@@ -35,15 +34,11 @@ export class NormalizeDelegate
       indexes: NormalizedIndex;
       entitiesMeta: {
         [entityKey: string]: {
-          [pk: string]: {
-            date: number;
-            expiresAt: number;
-            fetchedAt: number;
-          };
+          [pk: string]: MetaEntry;
         };
       };
     },
-    actionMeta: { fetchedAt: number; date: number; expiresAt: number },
+    actionMeta: MetaEntry,
   ) {
     super(state);
     this.entitiesMeta = state.entitiesMeta;
@@ -52,31 +47,26 @@ export class NormalizeDelegate
   }
 
   protected getNewEntity(key: string, pk: string) {
-    return this.getNewEntities(key).get(pk);
+    return this.newEntities.get(key)?.get(pk);
   }
 
   protected getNewEntities(key: string): Map<string, any> {
-    // first time we come across this type of entity
-    if (!this.newEntities.has(key)) {
-      this.newEntities.set(key, new Map());
-      // we will be editing these, so we need to clone them first
-      this.entities[key] = {
-        ...this.entities[key],
-      };
-      this.entitiesMeta[key] = {
-        ...this.entitiesMeta[key],
-      };
+    let map = this.newEntities.get(key);
+    if (map === undefined) {
+      map = new Map();
+      this.newEntities.set(key, map);
     }
-
-    return this.newEntities.get(key) as Map<string, any>;
+    return map;
   }
 
   protected getNewIndexes(key: string): Map<string, any> {
-    if (!this.newIndexes.has(key)) {
-      this.newIndexes.set(key, new Map());
+    let map = this.newIndexes.get(key);
+    if (map === undefined) {
+      map = new Map();
+      this.newIndexes.set(key, map);
       this.indexes[key] = { ...this.indexes[key] };
     }
-    return this.newIndexes.get(key) as Map<string, any>;
+    return map;
   }
 
   /** Updates an entity using merge lifecycles when it has previously been set */
@@ -124,29 +114,36 @@ export class NormalizeDelegate
     schema: { key: string; indexes?: any },
     pk: string,
     entity: any,
-    meta: { fetchedAt: number; date: number; expiresAt: number } = this.meta,
+    meta: MetaEntry = this.meta,
   ) {
     const key = schema.key;
     const newEntities = this.getNewEntities(key);
     const updateMeta = !newEntities.has(pk);
-    newEntities.set(pk, entity);
 
-    // update index
+    // update index before setting new entity so we can look up old values
     if (schema.indexes) {
+      // look up the previous entity: in-progress Map first, then original store
+      const oldEntity = newEntities.get(pk) ?? this.entities[key]?.[pk];
       handleIndexes(
         pk,
         schema.indexes,
         this.getNewIndexes(key),
         this.indexes[key],
         entity,
-        this.entities[key] as any,
+        oldEntity,
       );
     }
 
-    // set this after index updates so we know what indexes to remove from
-    this._setEntity(key, pk, entity);
+    newEntities.set(pk, entity);
 
-    if (updateMeta) this._setMeta(key, pk, meta);
+    if (updateMeta) {
+      let metaMap = this.newMeta.get(key);
+      if (metaMap === undefined) {
+        metaMap = new Map();
+        this.newMeta.set(key, metaMap);
+      }
+      metaMap.set(pk, meta);
+    }
   }
 
   /** Invalidates an entity, potentially triggering suspense */
@@ -155,20 +152,43 @@ export class NormalizeDelegate
     this.setEntity({ key }, pk, INVALID);
   }
 
-  protected _setEntity(key: string, pk: string, entity: any) {
-    (this.entities[key] as any)[pk] = entity;
-  }
-
-  protected _setMeta(
-    key: string,
-    pk: string,
-    meta: { fetchedAt: number; date: number; expiresAt: number },
-  ) {
-    this.entitiesMeta[key][pk] = meta;
+  /** Build final POJOs from original store + in-progress Maps.
+   *  Each property is written exactly once, keeping V8 field constness intact. */
+  finalize() {
+    for (const [key, map] of this.newEntities) {
+      const original = this.entities[key];
+      const result: Record<string, any> = {};
+      if (original) {
+        const keys = Object.keys(original);
+        for (let i = 0; i < keys.length; i++) {
+          const pk = keys[i];
+          result[pk] = map.get(pk) ?? original[pk];
+        }
+      }
+      for (const [pk, entity] of map) {
+        if (!(pk in result)) result[pk] = entity;
+      }
+      this.entities[key] = result;
+    }
+    for (const [key, metaMap] of this.newMeta) {
+      const original = this.entitiesMeta[key];
+      const result: Record<string, MetaEntry> = {};
+      if (original) {
+        const keys = Object.keys(original);
+        for (let i = 0; i < keys.length; i++) {
+          const pk = keys[i];
+          result[pk] = metaMap.get(pk) ?? original[pk];
+        }
+      }
+      for (const [pk, meta] of metaMap) {
+        if (!(pk in result)) result[pk] = meta;
+      }
+      (this.entitiesMeta as any)[key] = result;
+    }
   }
 
   getMeta(key: string, pk: string) {
-    return this.entitiesMeta[key][pk];
+    return this.newMeta.get(key)?.get(pk) ?? this.entitiesMeta[key]?.[pk];
   }
 }
 
@@ -178,23 +198,19 @@ function handleIndexes(
   indexes: Map<string, any>,
   storeIndexes: Record<string, any>,
   entity: any,
-  storeEntities: Record<string, any>,
+  oldEntity: any,
 ) {
   for (const index of schemaIndexes) {
     if (!indexes.has(index)) {
       indexes.set(index, (storeIndexes[index] = {}));
     }
     const indexMap = indexes.get(index);
-    if (storeEntities[id]) {
-      delete indexMap[storeEntities[id][index]];
+    if (oldEntity) {
+      delete indexMap[oldEntity[index]];
     }
     // entity already in cache but the index changed
-    if (
-      storeEntities &&
-      storeEntities[id] &&
-      storeEntities[id][index] !== entity[index]
-    ) {
-      indexMap[storeEntities[id][index]] = INVALID;
+    if (oldEntity && oldEntity[index] !== entity[index]) {
+      indexMap[oldEntity[index]] = INVALID;
     }
     if (index in entity) {
       indexMap[entity[index]] = id;
