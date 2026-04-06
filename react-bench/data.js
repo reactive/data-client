@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1775438935064,
+  "lastUpdate": 1775480965763,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -2345,6 +2345,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 227.27,
             "range": "± 3.3%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f57e9256b8dcc53865e27992edbff0e6a73b7ef8",
+          "message": "enhance(normalizr,endpoint): Reduce allocations in hot cache paths (#3879)\n\n* enhance(normalizr,endpoint): Reduce allocations in hot cache paths\n\nInline getCacheKey in GlobalCache to avoid eagerly creating both\nlocalCache and cycleCache Maps per entity type. Replace push(...spread)\nwith an indexed for-loop when copying cached entity dependencies.\n\nPre-create _removeSchema in Collection.CreateMover so normalizeMove\nno longer calls Object.create on every invocation, eliminating hidden\nclass polymorphism that caused V8 \"wrong call target\" deoptimizations.\n\nMade-with: Cursor\n\n* docs: Add optimization rationale comments\n\nMade-with: Cursor\n\n* refactor: Extract getOrCreateLocalCache for readability\n\nMade-with: Cursor",
+          "timestamp": "2026-04-06T09:07:09-04:00",
+          "tree_id": "0153b754bb74b63d7602339066ffe88456be65e7",
+          "url": "https://github.com/reactive/data-client/commit/f57e9256b8dcc53865e27992edbff0e6a73b7ef8"
+        },
+        "date": 1775480963414,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 173.93,
+            "range": "± 4.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 49.75,
+            "range": "± 5.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 513.16,
+            "range": "± 5.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 454.55,
+            "range": "± 0.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 53.48,
+            "range": "± 4.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 384.62,
+            "range": "± 5.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 370.37,
+            "range": "± 6.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 12.17,
+            "range": "± 7.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 101.53,
+            "range": "± 2.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 56.82,
+            "range": "± 1.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 322.58,
+            "range": "± 4.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 434.78,
+            "range": "± 3.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 263.16,
+            "range": "± 5.0%",
             "unit": "ops/s"
           }
         ]
