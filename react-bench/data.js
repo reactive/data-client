@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1775438801677,
+  "lastUpdate": 1775438935064,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -2243,6 +2243,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 183.5,
             "range": "± 8.0%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "98a78318770feaa8433708693bec90b81cbcb1b2",
+          "message": "enhance(normalizr): Avoid hidden class mutation in normalize() result (#3878)\n\nThe normalize() return object was constructed with result: '' as any,\nthen mutated via ret.result = visit(...). This causes a V8 hidden class\ntransition when the property type changes from string to the actual\nresult type (array/object/string), triggering \"field type constness\nchanged\" invalidations that deoptimize code depending on this object\nshape.\n\nRestructured to compute the result first and construct the final\nNormalizedSchema in a single step, keeping the object shape stable from\ncreation.\n\nMade-with: Cursor",
+          "timestamp": "2026-04-05T21:24:45-04:00",
+          "tree_id": "1662fd6671638e3cc96d93dbabd1c59c9870afee",
+          "url": "https://github.com/reactive/data-client/commit/98a78318770feaa8433708693bec90b81cbcb1b2"
+        },
+        "date": 1775438932877,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 177.01,
+            "range": "± 5.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 48.47,
+            "range": "± 5.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 416.67,
+            "range": "± 6.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 434.78,
+            "range": "± 5.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 50.13,
+            "range": "± 7.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 384.62,
+            "range": "± 3.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 322.58,
+            "range": "± 6.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 11.87,
+            "range": "± 6.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 99.01,
+            "range": "± 4.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 50.76,
+            "range": "± 3.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 333.33,
+            "range": "± 6.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 416.67,
+            "range": "± 0.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 227.27,
+            "range": "± 3.3%",
             "unit": "ops/s"
           }
         ]
