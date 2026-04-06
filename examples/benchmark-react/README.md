@@ -14,7 +14,7 @@ The repo has two benchmark suites:
 - **What we measure:** Wall-clock time from triggering an action (e.g. `init(100)` or `updateUser('user0')`) until a MutationObserver detects the expected DOM change in the benchmark container. Optionally we also record React Profiler commit duration and, with `BENCH_TRACE=true`, Chrome trace duration.
 - **Why:** Scenarios are chosen to exercise areas where caching strategies differ: shared-entity updates, referential stability, and derived-view memoization. See [js-framework-benchmark "How the duration is measured"](https://github.com/krausest/js-framework-benchmark/wiki/How-the-duration-is-measured) for a similar timeline-based approach.
 - **Statistical:** Warmup runs are discarded; we report median and 95% CI (as percentage of median). Timing scenarios (navigation and mutation) use **convergent mode**: a single page load per scenario, with warmup iterations followed by adaptive measurement iterations where each iteration produces one sample and convergence is checked inline. This eliminates page-reload overhead between samples for faster, lower-variance results. Deterministic scenarios (ref-stability) run once. Memory scenarios use a separate outer loop with a fresh page per round.
-- **No CPU throttling:** Runs at native speed with more samples for statistical significance rather than artificial slowdown. Convergent timing scenarios use 5 warmup + up to 50 measurement iterations (small) or 3 warmup + up to 40 (large). Early stopping triggers when 95% CI margin drops below the target percentage.
+- **No CPU throttling:** Runs at native speed with more samples for statistical significance rather than artificial slowdown. Convergent timing scenarios use 15 warmup + up to 80 measurement iterations (small) or 10 warmup + up to 60 (large). Early stopping triggers when 95% CI margin drops below the target percentage (2% small / 3% large in CI).
 
 ## Comparison philosophy
 
@@ -98,11 +98,11 @@ Run: **2026-03-22**, Linux (WSL2), `yarn build:benchmark-react`, static preview 
 
 | Category | Scenarios | Typical run-to-run spread |
 |---|---|---|
-| **Stable** | `getlist-*`, `update-entity`, `update-entity-sorted`, `ref-stability-*` | 2-5% |
-| **Moderate** | `update-user-*`, `update-entity-multi-view`, `list-detail-switch-10` | 5-10% |
-| **Volatile** | `memory-mount-unmount-cycle`, `startup-*`, `(react commit)` suffixes | 10-25% |
+| **Stable** | `getlist-*`, `update-entity`, `update-entity-sorted`, `ref-stability-*` | <2% |
+| **Moderate** | `update-user-*`, `update-entity-multi-view`, `list-detail-switch-10`, `move-item` | 2-4% |
+| **Volatile** | `memory-mount-unmount-cycle`, `startup-*`, `(react commit)` suffixes | 5-15% |
 
-Regressions >5% on stable scenarios or >15% on volatile scenarios are worth investigating.
+CI convergence targets: 2% (small scenarios), 3% (large scenarios). Reported margins should not exceed 5%. Regressions >5% on stable scenarios or >10% on moderate scenarios are worth investigating.
 
 ## Interpreting results
 
@@ -197,9 +197,9 @@ Regressions >5% on stable scenarios or >15% on volatile scenarios are worth inve
 
    Scenarios are classified as `small` or `large` based on their cost:
 
-   - **Small** (convergent: 5 warmup + 5–50 measurement iterations): `getlist-100`, `update-entity`, `invalidate-and-resolve`, `unshift-item`, `delete-item`
+   - **Small** (convergent: 15 warmup + 15–80 measurement iterations): `getlist-100`, `update-entity`, `invalidate-and-resolve`, `unshift-item`, `delete-item`
    - **Small** (deterministic, single run): `ref-stability-*`
-   - **Large** (convergent: 3 warmup + 5–40 measurement iterations): `getlist-500`, `getlist-500-sorted`, `update-user`, `update-user-10000`, `update-entity-sorted`, `update-entity-multi-view`, `list-detail-switch-10`
+   - **Large** (convergent: 10 warmup + 15–60 measurement iterations): `getlist-500`, `getlist-500-sorted`, `update-user`, `update-user-10000`, `update-entity-sorted`, `update-entity-multi-view`, `list-detail-switch-10`
    - **Memory** (opt-in, 1 warmup + 3 measurement rounds): `memory-mount-unmount-cycle` — run with `--action memory`
 
    Timing scenarios use convergent mode (single page load, inline convergence per scenario). Each group uses its own warmup/measurement config. Use `--size` to run only one group.

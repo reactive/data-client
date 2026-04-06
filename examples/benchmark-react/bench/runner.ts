@@ -541,7 +541,7 @@ async function runScenario(
 // Convergent scenario runner (single page load, inline stat-sig convergence)
 // ---------------------------------------------------------------------------
 
-const CONVERGENT_GC_INTERVAL = 15;
+const CONVERGENT_GC_INTERVAL = 8;
 
 async function runScenarioConvergent(
   page: Page,
@@ -575,8 +575,12 @@ async function runScenarioConvergent(
     const isWarmup = subIdx < config.warmup;
     const measureIdx = subIdx - config.warmup;
 
-    // Periodic GC to prevent heap pressure accumulation on long runs
+    // Periodic double-GC to prevent heap pressure accumulation on long runs
     if (cdp && subIdx > 0 && subIdx % CONVERGENT_GC_INTERVAL === 0) {
+      try {
+        await cdp.send('HeapProfiler.collectGarbage');
+      } catch {}
+      await page.waitForTimeout(30);
       try {
         await cdp.send('HeapProfiler.collectGarbage');
       } catch {}
@@ -667,7 +671,7 @@ async function launchBenchChromium(): Promise<{
 }> {
   const launchOpts = {
     headless: true,
-    args: buildV8LaunchArgs(),
+    args: buildLaunchArgs(),
   };
 
   if (BENCH_V8_TRACE) {
@@ -709,7 +713,13 @@ async function launchBenchChromium(): Promise<{
   };
 }
 
-function buildV8LaunchArgs(): string[] {
+function buildLaunchArgs(): string[] {
+  const args = [
+    '--disable-background-timer-throttling',
+    '--disable-renderer-backgrounding',
+    '--disable-backgrounding-occluded-windows',
+    '--disable-hang-monitor',
+  ];
   const jsFlags: string[] = [];
   if (BENCH_V8_TRACE) {
     jsFlags.push('--trace-opt', '--trace-deopt');
@@ -719,8 +729,8 @@ function buildV8LaunchArgs(): string[] {
     fs.mkdirSync(V8_LOG_DIR, { recursive: true });
     jsFlags.push('--prof', `--logfile=${V8_LOG_DIR}/v8-%p.log`);
   }
-  if (jsFlags.length === 0) return [];
-  return [`--js-flags=${jsFlags.join(' ')}`];
+  if (jsFlags.length > 0) args.push(`--js-flags=${jsFlags.join(' ')}`);
+  return args;
 }
 
 function reportV8Logs(): void {
@@ -798,11 +808,15 @@ async function runRound(
     const cdp = await context.newCDPSession(page);
 
     for (const scenario of libScenarios) {
-      // Force GC before each scenario to reduce variance from prior allocations
+      // Double-GC before each scenario to reduce variance from prior allocations
       try {
         await cdp.send('HeapProfiler.collectGarbage');
       } catch {}
-      await page.waitForTimeout(200);
+      await page.waitForTimeout(100);
+      try {
+        await cdp.send('HeapProfiler.collectGarbage');
+      } catch {}
+      await page.waitForTimeout(400);
 
       done++;
       const prefix = opts.showProgress ? `[${done}/${total}] ` : '';
@@ -924,7 +938,11 @@ async function main() {
         try {
           await cdp.send('HeapProfiler.collectGarbage');
         } catch {}
-        await page.waitForTimeout(200);
+        await page.waitForTimeout(100);
+        try {
+          await cdp.send('HeapProfiler.collectGarbage');
+        } catch {}
+        await page.waitForTimeout(400);
 
         process.stderr.write(`  ${scenario.name}...\n`);
         try {

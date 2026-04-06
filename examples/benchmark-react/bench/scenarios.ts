@@ -22,16 +22,16 @@ const defaultOpsPerRound = parseInt(process.env.BENCH_OPS_PER_ROUND ?? '5', 10);
 export const RUN_CONFIG: Record<ScenarioSize, RunProfile> = {
   small: {
     warmup: 2,
-    minMeasurement: 3,
-    maxMeasurement: 15,
-    targetMarginPct: process.env.CI ? 4 : 6,
+    minMeasurement: 5,
+    maxMeasurement: 20,
+    targetMarginPct: process.env.CI ? 2 : 6,
     opsPerRound: defaultOpsPerRound,
   },
   large: {
     warmup: 1,
-    minMeasurement: 3,
-    maxMeasurement: 10,
-    targetMarginPct: process.env.CI ? 6 : 10,
+    minMeasurement: 5,
+    maxMeasurement: 15,
+    targetMarginPct: process.env.CI ? 3 : 10,
     opsPerRound: defaultOpsPerRound,
   },
 };
@@ -47,16 +47,16 @@ export interface ConvergentProfile {
 
 export const CONVERGENT_CONFIG: Record<ScenarioSize, ConvergentProfile> = {
   small: {
-    warmup: 5,
-    minMeasurement: 5,
-    maxMeasurement: 50,
-    targetMarginPct: process.env.CI ? 4 : 6,
+    warmup: 15,
+    minMeasurement: 15,
+    maxMeasurement: 80,
+    targetMarginPct: process.env.CI ? 2 : 6,
   },
   large: {
-    warmup: 3,
-    minMeasurement: 5,
-    maxMeasurement: 40,
-    targetMarginPct: process.env.CI ? 6 : 10,
+    warmup: 10,
+    minMeasurement: 15,
+    maxMeasurement: 60,
+    targetMarginPct: process.env.CI ? 3 : 10,
   },
 };
 
