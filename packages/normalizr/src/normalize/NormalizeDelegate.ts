@@ -8,6 +8,8 @@ import { getCheckLoop } from './getCheckLoop.js';
 import { POJODelegate } from '../delegate/Delegate.js';
 import { INVALID } from '../denormalize/symbol.js';
 
+type MetaEntry = { fetchedAt: number; date: number; expiresAt: number };
+
 /** Full normalize() logic for POJO state */
 export class NormalizeDelegate
   extends POJODelegate
@@ -15,15 +17,11 @@ export class NormalizeDelegate
 {
   declare readonly entitiesMeta: {
     [entityKey: string]: {
-      [pk: string]: {
-        date: number;
-        expiresAt: number;
-        fetchedAt: number;
-      };
+      [pk: string]: MetaEntry;
     };
   };
 
-  declare readonly meta: { fetchedAt: number; date: number; expiresAt: number };
+  declare readonly meta: MetaEntry;
   declare checkLoop: (entityKey: string, pk: string, input: object) => boolean;
 
   protected newEntities = new Map<string, Map<string, any>>();
@@ -35,15 +33,11 @@ export class NormalizeDelegate
       indexes: NormalizedIndex;
       entitiesMeta: {
         [entityKey: string]: {
-          [pk: string]: {
-            date: number;
-            expiresAt: number;
-            fetchedAt: number;
-          };
+          [pk: string]: MetaEntry;
         };
       };
     },
-    actionMeta: { fetchedAt: number; date: number; expiresAt: number },
+    actionMeta: MetaEntry,
   ) {
     super(state);
     this.entitiesMeta = state.entitiesMeta;
@@ -56,19 +50,12 @@ export class NormalizeDelegate
   }
 
   protected getNewEntities(key: string): Map<string, any> {
-    // first time we come across this type of entity
-    if (!this.newEntities.has(key)) {
-      this.newEntities.set(key, new Map());
-      // we will be editing these, so we need to clone them first
-      this.entities[key] = {
-        ...this.entities[key],
-      };
-      this.entitiesMeta[key] = {
-        ...this.entitiesMeta[key],
-      };
+    let map = this.newEntities.get(key);
+    if (map === undefined) {
+      map = new Map();
+      this.newEntities.set(key, map);
     }
-
-    return this.newEntities.get(key) as Map<string, any>;
+    return map;
   }
 
   protected getNewIndexes(key: string): Map<string, any> {
@@ -124,11 +111,23 @@ export class NormalizeDelegate
     schema: { key: string; indexes?: any },
     pk: string,
     entity: any,
-    meta: { fetchedAt: number; date: number; expiresAt: number } = this.meta,
+    meta: MetaEntry = this.meta,
   ) {
     const key = schema.key;
     const newEntities = this.getNewEntities(key);
     const updateMeta = !newEntities.has(pk);
+
+    // Clone tables here (not in getNewEntities) so getNewEntities stays a
+    // pure Map operation. V8/Maglev bails out on this.entities access there
+    // due to insufficient type feedback; moving the clone here lets
+    // getNewEntities recover to compiled code after its initial warmup deopt.
+    // Benchmarks show no throughput change, but the function stays in Maglev
+    // instead of falling back to the interpreter.
+    if (updateMeta && newEntities.size === 0) {
+      this.entities[key] = { ...this.entities[key] };
+      this.entitiesMeta[key] = { ...this.entitiesMeta[key] };
+    }
+
     newEntities.set(pk, entity);
 
     // update index
@@ -159,11 +158,7 @@ export class NormalizeDelegate
     (this.entities[key] as any)[pk] = entity;
   }
 
-  protected _setMeta(
-    key: string,
-    pk: string,
-    meta: { fetchedAt: number; date: number; expiresAt: number },
-  ) {
+  protected _setMeta(key: string, pk: string, meta: MetaEntry) {
     this.entitiesMeta[key][pk] = meta;
   }
 
