@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1775482563403,
+  "lastUpdate": 1775565833174,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -2549,6 +2549,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 196.08,
             "range": "± 5.9%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "7df6a49ee9fcdac10f9f24ec48c4df0931efa0b0",
+          "message": "enhance(normalizr): Lazy-clone entity tables to fix getNewEntities deopt (#3884)\n\ngetNewEntities eagerly cloned entity and meta table POJOs on first\naccess per key, causing a Maglev bailout (\"Insufficient type feedback\nfor generic named access\") because this.entities lacked stable type\nfeedback at optimization time.\n\nMove the clone to setEntity (lazy, on first write per entity type) so\ngetNewEntities stays a pure Map operation that Maglev can optimize and\nkeep optimized. Also extract MetaEntry type alias to reduce repetition.\n\nMade-with: Cursor",
+          "timestamp": "2026-04-07T08:40:42-04:00",
+          "tree_id": "a4a8c3d5ccbb87c340ca42ffc1320681fdd14a56",
+          "url": "https://github.com/reactive/data-client/commit/7df6a49ee9fcdac10f9f24ec48c4df0931efa0b0"
+        },
+        "date": 1775565830713,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 141.85,
+            "range": "± 5.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 39.45,
+            "range": "± 7.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 416.67,
+            "range": "± 9.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 370.37,
+            "range": "± 9.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 43.2,
+            "range": "± 6.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 333.33,
+            "range": "± 8.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 370.37,
+            "range": "± 9.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 7.86,
+            "range": "± 10.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 80.01,
+            "range": "± 14.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 34.84,
+            "range": "± 4.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 232.56,
+            "range": "± 3.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 294.12,
+            "range": "± 6.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 196.08,
+            "range": "± 6.0%",
             "unit": "ops/s"
           }
         ]
