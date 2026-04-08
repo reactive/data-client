@@ -312,13 +312,31 @@ export default function EntityMixin<TBase extends Constructor>(
       for (let i = 0; i < schemaKeys.length; i++) {
         const key = schemaKeys[i];
         if (Object.hasOwn(processedEntity, key)) {
-          processedEntity[key] = visit(
-            this.schema[key],
-            processedEntity[key],
-            processedEntity,
-            key,
-            args,
-          );
+          const fieldSchema = this.schema[key];
+          if (typeof (fieldSchema as any).lensSelector === 'function') {
+            // Scalar field values are primitives (e.g. 0.5), but getVisit
+            // short-circuits primitives: `if (typeof value !== 'object') return value`
+            // so Scalar.normalize would never run. We pass the whole entity
+            // (an object) instead, letting Scalar extract what it needs.
+            // We pass `this` (Entity class) as parent so Scalar can discover
+            // which fields use it via parent.schema, and encode the field name
+            // in the key so Scalar returns the correct per-field wrapper.
+            processedEntity[key] = visit(
+              fieldSchema,
+              processedEntity,
+              this,
+              `${this.key}|${id}|${key}`,
+              args,
+            );
+          } else {
+            processedEntity[key] = visit(
+              fieldSchema,
+              processedEntity[key],
+              processedEntity,
+              key,
+              args,
+            );
+          }
         }
       }
 

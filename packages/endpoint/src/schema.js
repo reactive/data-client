@@ -12,3 +12,4 @@ export {
 } from './schemas/EntityMixin.js';
 export { default as Query } from './schemas/Query.js';
 export { default as Lazy } from './schemas/Lazy.js';
+export { default as Scalar } from './schemas/Scalar.js';

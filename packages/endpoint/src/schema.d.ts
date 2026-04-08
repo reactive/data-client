@@ -27,6 +27,7 @@ import {
 import { default as Invalidate } from './schemas/Invalidate.js';
 import { default as Lazy } from './schemas/Lazy.js';
 import { default as Query } from './schemas/Query.js';
+import { default as Scalar } from './schemas/Scalar.js';
 import type {
   CollectionConstructor,
   DefaultArgs,
@@ -35,7 +36,7 @@ import type {
   UnionResult,
 } from './schemaTypes.js';
 
-export { EntityMap, Invalidate, Query, Lazy, EntityMixin, Entity };
+export { EntityMap, Invalidate, Query, Lazy, Scalar, EntityMixin, Entity };
 
 export type { SchemaClass };
 
