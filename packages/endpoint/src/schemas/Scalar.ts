@@ -104,7 +104,6 @@ export default class Scalar {
   declare _cellSchema: ScalarCell;
   declare _entityKey: string | undefined;
   declare _lastProcessed: any;
-  declare _lastCpk: string;
 
   constructor(options: ScalarOptions) {
     this.key = `Scalar(${options.key})`;
@@ -112,7 +111,6 @@ export default class Scalar {
     this._cellSchema = new ScalarCell(options.key);
     this._entityKey = undefined;
     this._lastProcessed = undefined;
-    this._lastCpk = '';
   }
 
   normalize(
