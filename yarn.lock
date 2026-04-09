@@ -28394,9 +28394,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"twig@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "twig@npm:2.0.0"
+"twig@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "twig@npm:3.0.0"
   dependencies:
     "@babel/runtime": "npm:^7.8.4"
     locutus: "npm:^3.0.9"
@@ -28404,7 +28404,7 @@ __metadata:
     walk: "npm:2.3.x"
   bin:
     twigjs: bin/twigjs
-  checksum: 10c0/db15587eed648d0f79887538ff6fa1152b138567dc3fc96b507910313134b0c1753ca42c90177d96f5a302fe9d655cefc70b75fff907acd477bb0772382b21f0
+  checksum: 10c0/a727b665d34c9b7db9cf5fa99072472ef1dd9291d6f29a4b1de88ca95493d16c667f47d7e87f4aaea05275ea184f6550dc3c32cb42026b819d154690f48cff76
   languageName: node
   linkType: hard
 
