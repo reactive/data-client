@@ -1,6 +1,7 @@
 import { actionTypes, Controller } from '@data-client/core';
 import { CacheProvider, useCache } from '@data-client/react';
 import { DataProvider as ExternalDataProvider } from '@data-client/react/redux';
+import { makeRenderDataClient } from '@data-client/test';
 import { renderHook } from '@testing-library/react-native';
 import {
   PollingArticleResource,
@@ -8,7 +9,6 @@ import {
   Article,
 } from '__tests__/new';
 
-import { makeRenderDataClient } from '../../../../test';
 import { ControllerContext } from '../../context';
 import useSubscription from '../useSubscription';
 
