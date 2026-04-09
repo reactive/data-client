@@ -49,8 +49,8 @@
     "@data-client/react": "0.16.0",
     "@data-client/rest": "0.16.5",
     "core-js": "^3.40.0",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
+    "react": "19.2.5",
+    "react-dom": "19.2.5",
     "uuid": "^13.0.0"
   }
 }

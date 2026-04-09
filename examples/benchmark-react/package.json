@@ -28,8 +28,8 @@
     "@data-client/react": "workspace:*",
     "@data-client/rest": "workspace:*",
     "@tanstack/react-query": "5.96.2",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
+    "react": "19.2.5",
+    "react-dom": "19.2.5",
     "swr": "2.4.1"
   },
   "devDependencies": {
