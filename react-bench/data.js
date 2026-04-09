@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1775565833174,
+  "lastUpdate": 1775741097067,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -2651,6 +2651,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 196.08,
             "range": "± 6.0%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d23cd80bbbe21d54100ec484c8ec606abdef9523",
+          "message": "chore: React Native 0.85, @react-native/jest-preset, React 19.2.3 alignment (#3890)\n\n* pkg: Update react to v19.2.5\n\n* chore: upgrade React Native 0.85, align Jest preset, pin React 19.2.3\n\nBump react-native to 0.85.0, babel-plugin-syntax-hermes-parser to ^0.35.0,\nand add @react-native/jest-preset for the ReactNative Jest project (resolver,\nsetup, env, asset transformer, react-native subpath mapper). Pin react,\nreact-dom, and react-test-renderer to 19.2.3 to match react-native-renderer.\nFix subscriptions.native test import to use @data-client/test.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* chore: remove changeset for internal RN/Jest CI update\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* fix: align package-lock.json react versions to 19.2.3 to match package.json\n\nThe lockfiles for github-app, nextjs, and todo-app had react and react-dom\nat 19.2.5 while their package.json files pinned 19.2.3. This mismatch\nwould cause npm ci to fail. Regenerated lockfiles to resolve correctly.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* fix: remove redundant slash in react-native moduleNameMapper replacement\n\nThe capture group ($|/.*) already includes the leading slash for sub-path\nimports like react-native/Libraries/Text, so the extra / in the\nreplacement template produced double slashes (e.g. <rnDir>//Libraries/Text).\n\nRemoving the redundant / fixes both bare react-native (empty capture)\nand sub-path imports.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* fix(jest): avoid double slash in react-native moduleNameMapper replacement\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n---------\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>\nCo-authored-by: Cursor Agent <cursoragent@cursor.com>",
+          "timestamp": "2026-04-09T09:21:35-04:00",
+          "tree_id": "1eb6855d9591302e87b00ac8c0ffefe55e639cbc",
+          "url": "https://github.com/reactive/data-client/commit/d23cd80bbbe21d54100ec484c8ec606abdef9523"
+        },
+        "date": 1775741094020,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 134.23,
+            "range": "± 5.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 39.22,
+            "range": "± 6.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 333.33,
+            "range": "± 9.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 327.96,
+            "range": "± 8.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 41.76,
+            "range": "± 6.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 312.5,
+            "range": "± 9.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 344.83,
+            "range": "± 8.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 8.04,
+            "range": "± 10.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 75.76,
+            "range": "± 8.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 34.13,
+            "range": "± 4.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 222.22,
+            "range": "± 5.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 312.5,
+            "range": "± 7.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 177.01,
+            "range": "± 6.4%",
             "unit": "ops/s"
           }
         ]
