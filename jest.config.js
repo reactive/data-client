@@ -104,9 +104,8 @@ const projects = [
         require.resolve('react-native/package.json'),
       )}$1`,
     },
-    testEnvironment: require.resolve(
-      '@react-native/jest-preset/jest/react-native-env.js',
-    ),
+    testEnvironment:
+      require.resolve('@react-native/jest-preset/jest/react-native-env.js'),
     transformIgnorePatterns: [
       'node_modules\\/(?!(((jest-)?react-native)|@react-native(-community)?|@react-navigation))',
       '<rootDir>/.*__tests__/[^/]+\\.(web|node)\\.(j|t)sx?$',
@@ -119,9 +118,8 @@ const projects = [
     transform: {
       //'^.+\\.js$': '<rootDir>/node_modules/react-native/jest/preprocessor.js', //setup.js needs to be transformed, but preprocessor screws everything else up
       ...baseConfig.transform,
-      '^.+\\.(bmp|gif|jpg|jpeg|mp4|png|psd|svg|webp)$': require.resolve(
-        '@react-native/jest-preset/jest/assetFileTransformer.js',
-      ),
+      '^.+\\.(bmp|gif|jpg|jpeg|mp4|png|psd|svg|webp)$':
+        require.resolve('@react-native/jest-preset/jest/assetFileTransformer.js'),
     },
     haste: {
       defaultPlatform: 'ios',
