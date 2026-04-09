@@ -102,7 +102,7 @@ const projects = [
       ...baseConfig.moduleNameMapper,
       '^react-native($|/.*)': `${path.dirname(
         require.resolve('react-native/package.json'),
-      )}/$1`,
+      )}$1`,
     },
     testEnvironment: require.resolve(
       '@react-native/jest-preset/jest/react-native-env.js',
