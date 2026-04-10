@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1775565859300,
+  "lastUpdate": 1775826991859,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -115701,6 +115701,254 @@ window.BENCHMARK_DATA = {
             "range": "±0.80%",
             "unit": "ops/sec",
             "extra": "97 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e66cc9872f97955e6804b36f947a8c3007130b17",
+          "message": "pkg: Update build packages (#3896)\n\n* pkg: Update build packages\n\n* fix: resolve webpackbar to ^7.0.0 for webpack 5.106 compatibility\n\nWebpack 5.106 enables ProgressPlugin schema validation by default.\nwebpackbar 6.0.1 extends ProgressPlugin and leaks custom options (name,\ncolor, reporters, reporter) into the super constructor, which now fails\nvalidation. webpackbar 7.0.0 properly separates ProgressPlugin options\nfrom its own options.\n\n---------\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>",
+          "timestamp": "2026-04-10T09:12:51-04:00",
+          "tree_id": "34fdcc48cbee0fc034f7b2d3a546d852e9c403ee",
+          "url": "https://github.com/reactive/data-client/commit/e66cc9872f97955e6804b36f947a8c3007130b17"
+        },
+        "date": 1775826989488,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 458,
+            "range": "±1.77%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 403,
+            "range": "±1.01%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 279,
+            "range": "±5.83%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 326,
+            "range": "±0.48%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 1087,
+            "range": "±0.61%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 764,
+            "range": "±0.17%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 1520,
+            "range": "±0.09%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 988,
+            "range": "±1.85%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 7951,
+            "range": "±0.13%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 3134,
+            "range": "±0.50%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 49814,
+            "range": "±0.40%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 5680,
+            "range": "±0.49%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 350,
+            "range": "±2.40%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 7652,
+            "range": "±0.56%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 6209,
+            "range": "±1.48%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 5440,
+            "range": "±0.56%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 5743,
+            "range": "±0.13%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 1667,
+            "range": "±0.18%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50",
+            "value": 6655,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50 donotcache",
+            "value": 44707,
+            "range": "±1.21%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 5600,
+            "range": "±1.29%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 10824484,
+            "range": "±0.56%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 335,
+            "range": "±1.92%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 4075,
+            "range": "±0.24%",
+            "unit": "ops/sec",
+            "extra": "100 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 2906,
+            "range": "±0.05%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 5497,
+            "range": "±1.19%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 5463,
+            "range": "±0.68%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 5542,
+            "range": "±0.27%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 461,
+            "range": "±0.18%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 253,
+            "range": "±0.97%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 271,
+            "range": "±0.20%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 888,
+            "range": "±0.95%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
           }
         ]
       }
