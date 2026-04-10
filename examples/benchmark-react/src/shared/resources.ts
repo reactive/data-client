@@ -164,3 +164,37 @@ export const sortedIssuesQuery = new Query(
 export const sortedIssuesEndpoint = IssueResource.getList.extend({
   schema: sortedIssuesQuery,
 });
+
+/**
+ * Same cache key and normalization as `IssueResource.getList`, but when
+ * `renderLimit` is passed in params, `queryKey` slices the collection ids before
+ * denormalization so hooks only materialize the first N issues. The full
+ * collection stays normalized; GC paths and entity subscriptions still cover
+ * all members, so nested entity updates (e.g. shared user) propagate correctly.
+ *
+ * Benchmark-only: matches the harness `renderLimit` pattern without shifting
+ * work to competitors (they already slice the array they hold).
+ */
+class BenchWindowedIssueListQuery extends Query<any, any> {
+  constructor() {
+    super(IssueResource.getList.schema, (entries: unknown) => entries);
+  }
+
+  queryKey(args: any, unvisit: (schema: any, input: any) => any) {
+    const full = unvisit(this.schema, args);
+    const limit = args?.renderLimit;
+    if (typeof limit === 'number' && limit > 0 && Array.isArray(full)) {
+      return full.slice(0, limit);
+    }
+    return full;
+  }
+}
+
+export const benchWindowedIssueListEndpoint = IssueResource.getList.extend({
+  schema: new BenchWindowedIssueListQuery(),
+  /** Omit client-only window hint so cache key matches `IssueResource.getList`. */
+  key(params: { count?: number; state?: string; renderLimit?: number }) {
+    const { renderLimit: _rl, ...rest } = params;
+    return IssueResource.getList.key(rest as any);
+  },
+});

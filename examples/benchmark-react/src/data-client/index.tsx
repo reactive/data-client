@@ -27,6 +27,7 @@ import { setCurrentIssues } from '@shared/refStability';
 import {
   UserResource,
   IssueResource,
+  benchWindowedIssueListEndpoint,
   sortedIssuesEndpoint,
 } from '@shared/resources';
 import { patchIssue } from '@shared/server';
@@ -58,7 +59,10 @@ const benchGC = new BenchGCPolicy();
 
 /** Renders issues from the list endpoint (models rendering a list fetch response). */
 function ListView({ count, limit }: { count: number; limit?: number }) {
-  const { data: issues } = useDLE(IssueResource.getList, { count });
+  const listEndpoint =
+    limit != null ? benchWindowedIssueListEndpoint : IssueResource.getList;
+  const listParams = limit != null ? { count, renderLimit: limit } : { count };
+  const { data: issues } = useDLE(listEndpoint, listParams);
   if (!issues) return null;
   const list = issues as Issue[];
   setCurrentIssues(list);
@@ -85,7 +89,11 @@ function StateListView({
   count: number;
   limit?: number;
 }) {
-  const { data: issues } = useDLE(IssueResource.getList, { state, count });
+  const listEndpoint =
+    limit != null ? benchWindowedIssueListEndpoint : IssueResource.getList;
+  const listParams =
+    limit != null ? { state, count, renderLimit: limit } : { state, count };
+  const { data: issues } = useDLE(listEndpoint, listParams);
   if (!issues) return null;
   const list = issues as Issue[];
   return (
