@@ -56,3 +56,12 @@ Update docs **in the same commit/PR** when changing public APIs (anything export
 - **Jest**: Maps `@data-client/*` imports to local `packages/*/src` during tests
 - **TypeScript**: Uses TS 6.0 project references; ambient `.d.ts` files copied during build
 - **Native compilation**: When `COMPILE_TARGET=native`, prefers `.native.*` files
+
+## Cursor Cloud specific instructions
+
+- **Node version**: `.nvmrc` specifies Node 24. Use `nvm install` / `nvm use` to match.
+- **Package manager**: Yarn 4 (Berry) via Corepack — run `corepack enable` before `yarn install`.
+- **Build before test**: `yarn build` (or `yarn prepare` for types-only) must complete before running tests or the website. The build populates `lib/` directories and ambient `.d.ts` files that Jest and Docusaurus depend on.
+- **Lint scope**: CI runs `yarn lint --quiet packages/*/src`. Running bare `yarn lint` hits website/examples/config files with pre-existing warnings; scope to `packages/*/src` for a clean pass.
+- **Website dev server**: `cd website && yarn start:vscode` starts Docusaurus on port 3000 (no-open mode). Requires a prior `yarn build` so workspace-linked packages resolve.
+- **No external services**: No databases, Docker, or API keys are required. All examples hit public APIs client-side.
