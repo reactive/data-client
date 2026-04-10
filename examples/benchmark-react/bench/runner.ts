@@ -186,6 +186,15 @@ function isRefStabilityScenario(scenario: Scenario): scenario is Scenario & {
   );
 }
 
+function effectiveConvergentConfig(
+  size: ScenarioSize,
+  scenario: Scenario,
+): ConvergentProfile {
+  const base = CONVERGENT_CONFIG[size];
+  const o = scenario.convergentProfile;
+  return o ? { ...base, ...o } : base;
+}
+
 function isConvergentScenario(scenario: Scenario): boolean {
   return (
     !scenario.deterministic &&
@@ -919,9 +928,9 @@ async function main() {
     );
     if (convergentScenarios.length === 0) continue;
 
-    const config = CONVERGENT_CONFIG[size];
+    const defaultConvergent = CONVERGENT_CONFIG[size];
     process.stderr.write(
-      `\n── ${size} convergent (${convergentScenarios.length} scenarios, ${config.warmup} warmup + up to ${config.maxMeasurement} measurements each) ──\n`,
+      `\n── ${size} convergent (${convergentScenarios.length} scenarios, ${defaultConvergent.warmup} warmup + up to ${defaultConvergent.maxMeasurement} measurements each; per-scenario overrides apply) ──\n`,
     );
 
     for (const lib of libraries) {
@@ -935,6 +944,7 @@ async function main() {
       const cdp = await context.newCDPSession(page);
 
       for (const scenario of libScenarios) {
+        const config = effectiveConvergentConfig(size, scenario);
         try {
           await cdp.send('HeapProfiler.collectGarbage');
         } catch {}

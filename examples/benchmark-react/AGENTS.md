@@ -32,7 +32,7 @@ Filtering: `yarn bench --lib data-client --size small --action update`
 
 ## Scenario System
 
-`BASE_SCENARIOS` in `bench/scenarios.ts` × `LIBRARIES` via `flatMap`. `onlyLibs` restricts to specific libs. CI runs data-client hot-path only (no memory/startup/deterministic). Memory is opt-in locally (`--action memory`). Convergent timing uses single page load with adaptive iterations and early stopping on statistical convergence. Ref-stability scenarios run once (deterministic count, not ops/s).
+`BASE_SCENARIOS` in `bench/scenarios.ts` × `LIBRARIES` via `flatMap`. `onlyLibs` restricts to specific libs. CI runs data-client hot-path only (no memory/startup/deterministic). Memory is opt-in locally (`--action memory`). Convergent timing uses single page load with adaptive iterations and early stopping on statistical convergence. Ref-stability scenarios run once (deterministic count, not ops/s). `update-user-10000` uses optional `convergentProfile` (more measurements, looser CI margin) because 10k subscribers are noisier than other large scenarios.
 
 ## Update Data Flow
 

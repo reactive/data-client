@@ -64,10 +64,11 @@ Use this mapping when deciding which React benchmark scenarios are relevant to a
 | Category | Scenarios | Typical run-to-run spread |
 |---|---|---|
 | **Stable** | `getlist-*`, `update-entity`, `ref-stability-*` | <2% |
-| **Moderate** | `update-user-*`, `update-entity-sorted`, `update-entity-multi-view`, `move-item` | 2–4% |
+| **Moderate** | `update-user`, `update-entity-sorted`, `update-entity-multi-view`, `move-item` | 2–4% |
+| **Heavier tail** | `update-user-10000` | often ~10% within-run margin when converged (10k subscribers) |
 | **Volatile** | `memory-mount-unmount-cycle`, `startup-*`, `(react commit)` suffixes | 5–15% |
 
-CI convergence targets: 2% (small scenarios), 3% (large scenarios). Reported margins should not exceed 5%. Regressions >5% on stable scenarios or >10% on moderate scenarios are worth investigating.
+CI convergence targets: 2% (small scenarios), 3% (large scenarios); `update-user-10000` uses 10% target and up to 120 measurement iterations (`convergentProfile` in `examples/benchmark-react/bench/scenarios.ts`). Reported margins should not exceed 5% for most scenarios. Regressions >5% on stable scenarios or >10% on moderate scenarios are worth investigating.
 
 ### Profiling / tracing (opt + deopt investigation)
 

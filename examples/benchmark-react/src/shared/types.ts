@@ -137,6 +137,14 @@ export type ScenarioCategory = 'hotPath' | 'memory' | 'startup';
 /** small = cheap scenarios (full warmup + measurement). large = expensive scenarios (reduced runs). */
 export type ScenarioSize = 'small' | 'large';
 
+/** Partial override for the convergent runner (`bench/runner.ts`); use for heavy scenarios that need more samples. */
+export interface ConvergentProfileOverride {
+  warmup?: number;
+  minMeasurement?: number;
+  maxMeasurement?: number;
+  targetMarginPct?: number;
+}
+
 export interface Scenario {
   name: string;
   action: keyof BenchAPI;
@@ -159,4 +167,6 @@ export interface Scenario {
   renderLimit?: number;
   /** If set, scenario applies only to these libs; dropped when any selected library is not listed. */
   onlyLibs?: string[];
+  /** Merge over `CONVERGENT_CONFIG` for timing scenarios using inline convergence. */
+  convergentProfile?: ConvergentProfileOverride;
 }

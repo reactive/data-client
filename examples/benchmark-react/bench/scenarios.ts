@@ -176,6 +176,12 @@ const BASE_SCENARIOS: BaseScenario[] = [
     mountCount: 10000,
     size: 'large',
     renderLimit: 100,
+    // 10k mounted rows: subscriber fan-out is noisier; allow more measurements and a looser CI target than other large scenarios.
+    convergentProfile: {
+      maxMeasurement: 120,
+      // Noisier than other large updates (10k subscribers); needs a looser margin than CONVERGENT_CONFIG.large to converge in CI.
+      targetMarginPct: process.env.CI ? 10 : 12,
+    },
   },
   {
     nameSuffix: 'invalidate-and-resolve',

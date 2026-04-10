@@ -99,10 +99,11 @@ Run: **2026-03-22**, Linux (WSL2), `yarn build:benchmark-react`, static preview 
 | Category | Scenarios | Typical run-to-run spread |
 |---|---|---|
 | **Stable** | `getlist-*`, `update-entity`, `update-entity-sorted`, `ref-stability-*` | <2% |
-| **Moderate** | `update-user-*`, `update-entity-multi-view`, `list-detail-switch-10`, `move-item` | 2-4% |
+| **Moderate** | `update-user`, `update-entity-multi-view`, `list-detail-switch-10`, `move-item` | 2-4% |
+| **Heavier tail** | `update-user-10000` (10k subscribers) | often ~10% within-run margin even when converged |
 | **Volatile** | `memory-mount-unmount-cycle`, `startup-*`, `(react commit)` suffixes | 5-15% |
 
-CI convergence targets: 2% (small scenarios), 3% (large scenarios). Reported margins should not exceed 5%. Regressions >5% on stable scenarios or >10% on moderate scenarios are worth investigating.
+CI convergence targets: 2% (small scenarios), 3% (large scenarios), except `update-user-10000` which uses a 10% target and up to 120 measurement iterations so the runner can stop before hitting the cap. Reported margins should not exceed 5% for most scenarios. Regressions >5% on stable scenarios or >10% on moderate scenarios are worth investigating; treat `update-user-10000` as a scaling stress test with higher statistical noise.
 
 ## Interpreting results
 
@@ -199,7 +200,8 @@ CI convergence targets: 2% (small scenarios), 3% (large scenarios). Reported mar
 
    - **Small** (convergent: 8 warmup + 10–60 measurement iterations): `getlist-100`, `update-entity`, `invalidate-and-resolve`, `unshift-item`, `delete-item`
    - **Small** (deterministic, single run): `ref-stability-*`
-   - **Large** (convergent: 5 warmup + 10–50 measurement iterations): `getlist-500`, `getlist-500-sorted`, `update-user`, `update-user-10000`, `update-entity-sorted`, `update-entity-multi-view`, `list-detail-switch-10`
+   - **Large** (convergent: 5 warmup + 10–50 measurement iterations by default): `getlist-500`, `getlist-500-sorted`, `update-user`, `update-entity-sorted`, `update-entity-multi-view`, `list-detail-switch-10`
+   - **`update-user-10000`**: same warmup as other large scenarios, but merges a per-scenario profile (`convergentProfile` in `bench/scenarios.ts`) with up to **120** measurements and a **10%** CI margin target in CI (**12%** locally) because 10k mounted rows produce noisier samples.
    - **Memory** (opt-in, 1 warmup + 3 measurement rounds): `memory-mount-unmount-cycle` — run with `--action memory`
 
    Timing scenarios use convergent mode (single page load, inline convergence per scenario). Each group uses its own warmup/measurement config. Use `--size` to run only one group.
