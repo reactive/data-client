@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1775741097067,
+  "lastUpdate": 1775826981491,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -2753,6 +2753,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 177.01,
             "range": "± 6.4%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e66cc9872f97955e6804b36f947a8c3007130b17",
+          "message": "pkg: Update build packages (#3896)\n\n* pkg: Update build packages\n\n* fix: resolve webpackbar to ^7.0.0 for webpack 5.106 compatibility\n\nWebpack 5.106 enables ProgressPlugin schema validation by default.\nwebpackbar 6.0.1 extends ProgressPlugin and leaks custom options (name,\ncolor, reporters, reporter) into the super constructor, which now fails\nvalidation. webpackbar 7.0.0 properly separates ProgressPlugin options\nfrom its own options.\n\n---------\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>",
+          "timestamp": "2026-04-10T09:12:51-04:00",
+          "tree_id": "34fdcc48cbee0fc034f7b2d3a546d852e9c403ee",
+          "url": "https://github.com/reactive/data-client/commit/e66cc9872f97955e6804b36f947a8c3007130b17"
+        },
+        "date": 1775826976411,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 136.06,
+            "range": "± 7.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 40.73,
+            "range": "± 6.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 294.12,
+            "range": "± 7.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 333.33,
+            "range": "± 8.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 41.76,
+            "range": "± 7.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 294.12,
+            "range": "± 5.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 322.58,
+            "range": "± 7.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 6.46,
+            "range": "± 5.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 78.12,
+            "range": "± 1.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 33.9,
+            "range": "± 5.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 212.77,
+            "range": "± 3.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 270.27,
+            "range": "± 5.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 172.41,
+            "range": "± 6.2%",
             "unit": "ops/s"
           }
         ]
