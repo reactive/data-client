@@ -65,7 +65,7 @@ This also means IDE autocomplete works for every path parameter.
 | `transformResponse` | [`process()`](../api/RestEndpoint.md#process) |
 | `validateStatus` | Custom [`fetchResponse()`](../api/RestEndpoint.md#fetchResponse) |
 | `onUploadProgress` | Custom [`fetchResponse()`](../api/RestEndpoint.md#fetchResponse) with [ReadableStream](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream) |
-| `isAxiosError` / `error.response` | [`NetworkError`](../api/NetworkError.md) with `.status` and `.response` |
+| `isAxiosError` / `error.response` | [`NetworkError`](../api/RestEndpoint.md#fetchResponse) with `.status` and `.response` |
 
 ## Migration examples
 
@@ -361,7 +361,7 @@ try {
 }
 ```
 
-[`NetworkError`](../api/NetworkError.md) provides `.status` and `.response` (the raw [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) object). For soft retries on server errors, see [`errorPolicy`](../api/RestEndpoint.md#errorPolicy).
+[`NetworkError`](../api/RestEndpoint.md#fetchResponse) provides `.status` and `.response` (the raw [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) object). For soft retries on server errors, see [`errorPolicy`](../api/RestEndpoint.md#errorpolicy).
 
 </TabItem>
 </Tabs>
