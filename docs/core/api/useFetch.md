@@ -25,7 +25,7 @@ available, and re-suspending on [invalidation](./Controller.md#invalidate).
 
 ### Parallel data loading
 
-Since `useFetch()` and `use()` are separate calls, multiple fetches start in parallel — even when the first `use()` suspends. See the [parallel fetches example](#parallel-fetches) below.
+Since `useFetch()` and `use()` are separate calls, multiple fetches start in parallel — even when the first `use()` suspends. See the [parallel fetches example](#parallel-data-loading) below.
 
 <HooksPlayground fixtures={parallelFetchFixtures} row>
 
