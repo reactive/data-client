@@ -30,7 +30,7 @@ Data is still allowed to be shown, however Reactive Data Client might attempt to
 [useSuspense()](../api/useSuspense.md) considers fetching on mount as well as when its parameters change.
 In these cases it will fetch if the data is considered stale.
 
-:::info React Native
+:::info[React Native]
 
 When using React Navigation, [focus events](https://reactnavigation.org/docs/use-focus-effect/) also trigger fetches for stale data.
 

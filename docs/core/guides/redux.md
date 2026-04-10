@@ -102,13 +102,13 @@ Then you'll want to use the [&lt;ExternalDataProvider /\>](../api/ExternalDataPr
 [&lt;DataProvider /\>](../api/DataProvider.md) and pass in the store and a selector function to grab
 the Reactive Data Client specific part of the state.
 
-:::info Note
+:::info[Note]
 
 You should only use ONE provider; nested another provider will override the previous.
 
 :::
 
-:::info Note
+:::info[Note]
 
 Because `Reactive Data Client` [manager middlewares](../api/Manager.md#middleware) return promises,
 all redux middlewares are placed after the [Managers](../concepts/managers.md).

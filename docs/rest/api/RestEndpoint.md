@@ -668,7 +668,7 @@ to inform `sideEffect` and whether the endpoint should use a `body` payload. Set
 
 `GET` and `DELETE` both default to no `body`.
 
-:::tip How method affects function Parameters
+:::tip[How method affects function Parameters]
 
 `method` only influences parameters in the RestEndpoint constructor and _not_ [.extend()](#extend).
 This allows non-standard method-body combinations.

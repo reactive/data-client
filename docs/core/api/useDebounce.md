@@ -13,7 +13,7 @@ Delays updating the parameters by [debouncing](https://css-tricks.com/debouncing
 
 Useful to avoid spamming network requests when parameters might change quickly (like a typeahead field).
 
-:::tip React 18+
+:::tip[React 18+]
 
 When loading new data, the [AsyncBoundary](./AsyncBoundary.md) will continue rendering the previous data until it is ready.
 `isPending` will be true while loading.

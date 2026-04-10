@@ -23,7 +23,7 @@ Describe a schema which is a union of multiple schemas. This is useful if you ne
 
 - `define(definition)`: When used, the `definition` passed in will be merged with the original definition passed to the `Union` constructor. This method tends to be useful for creating circular references in schema.
 
-:::info Naming
+:::info[Naming]
 
 `Union` is named after the [set theory concept](https://en.wikipedia.org/wiki/Union_(set_theory)) just like [TypeScript Unions](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#union-types)
 

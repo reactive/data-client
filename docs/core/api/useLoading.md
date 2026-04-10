@@ -27,7 +27,7 @@ ensure referential consistency of the function.
 
 ## Eslint
 
-:::tip Eslint configuration
+:::tip[Eslint configuration]
 
 Since we use the deps list, be sure to add useLoading to the 'additionalHooks' configuration
 of [react-hooks/exhaustive-deps](https://www.npmjs.com/package/eslint-plugin-react-hooks) rule if you use it.

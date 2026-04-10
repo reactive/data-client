@@ -332,7 +332,7 @@ Feel free to use whichever one you prefer.
 [Mutations](/docs/getting-started/mutations) automatically updates _all_ usages without the need for
 additional requests.
 
-:::tip TypeScript 4
+:::tip[TypeScript 4]
 
 When using TypeScript (optional), version 4.0 or above is required.
 

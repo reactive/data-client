@@ -127,7 +127,7 @@ re-renders and `useFetch()` returns updated denormalized data automatically.
 
 :::
 
-:::info React Native
+:::info[React Native]
 
 When using React Navigation, useFetch() will trigger fetches on focus if the data is considered
 stale.
