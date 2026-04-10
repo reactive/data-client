@@ -104,7 +104,7 @@ export function PresentationsPage() {
 Extracting entities from a response is known as `normalization`. Accessing a response reverses
 the process via `denormalization`.
 
-:::info Global Referential Equality
+:::info[Global Referential Equality]
 
 Using entities expands Reactive Data Client' global referential equality guarantee beyond the granularity of
 an entire endpoint response.

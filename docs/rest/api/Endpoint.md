@@ -185,7 +185,7 @@ Default:
 `${this.name} ${JSON.stringify(params)}`;
 ```
 
-:::warning Overrides
+:::warning[Overrides]
 
 When overriding `key`, be sure to also include an updated [testKey](#testKey) if
 you intend on using that method.

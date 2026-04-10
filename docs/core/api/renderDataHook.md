@@ -194,7 +194,7 @@ Returns a `Promise` that resolves if the provided callback executes without exce
 
 ### waitForNextUpdate
 
-:::warning Deprecated
+:::warning[Deprecated]
 
 Use waitFor instead
 

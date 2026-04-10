@@ -31,7 +31,7 @@ Async rendering of remotely triggered data mutations.
 
 <ConditionalDependencies hook="useLive" />
 
-:::info React Native
+:::info[React Native]
 
 When using React Navigation, useLive() will trigger fetches on focus if the data is considered
 stale. useLive() will also sub/unsub with focus/unfocus respectively.

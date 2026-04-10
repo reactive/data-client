@@ -31,7 +31,7 @@ Make it mutable (new items can be [assigned](./Collection.md#assign)) with [Coll
 
 - `define(definition)`: When used, the `definition` passed in will be merged with the original definition passed to the `Values` constructor. This method tends to be useful for creating circular references in schema.
 
-:::info Naming
+:::info[Naming]
 
 `Values` is named after [Object.values()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_objects/Object/values) as
 its schemas are used for the value of an Object.

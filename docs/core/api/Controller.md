@@ -255,7 +255,7 @@ To refresh while continuing to display stale data - [Controller.fetch](#fetch).
 
 :::
 
-:::tip Invalidate many endpoints at once
+:::tip[Invalidate many endpoints at once]
 
 Use [schema.Invalidate](/rest/api/Invalidate) to invalidate every endpoint that contains a given entity.
 

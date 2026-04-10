@@ -27,7 +27,7 @@ Organize content by package layer. Both feature sections and migration guides fo
 
 ## Blog Structure
 
-**Summary (before `<!-- truncate -->`):**
+**Summary (before `{/* truncate */}`):**
 1. Platforms/major features (highest visibility)
 2. Package consolidations (import path changes)
 3. New APIs (hooks, controller methods, schemas)

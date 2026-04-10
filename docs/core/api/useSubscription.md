@@ -60,7 +60,7 @@ function MasterPrice({ symbol }: { symbol: string }) {
 
 <ConditionalDependencies hook="useSubscription" />
 
-:::info React Native
+:::info[React Native]
 
 When using React Navigation, useSubscription() will sub/unsub with focus/unfocus respectively.
 
