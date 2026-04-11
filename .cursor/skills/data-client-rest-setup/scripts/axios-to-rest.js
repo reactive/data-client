@@ -1,0 +1,1 @@
+../../../../website/static/codemods/axios-to-rest.js

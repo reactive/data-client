@@ -133,7 +133,7 @@ await request
 const uploadFile = new RestEndpoint({
   path: '/upload',
   method: 'POST',
-  body: undefined as unknown as FormData,
+  body: {} as FormData,
   schema: undefined,
 });
 // Usage: ctrl.fetch(uploadFile, formData)
