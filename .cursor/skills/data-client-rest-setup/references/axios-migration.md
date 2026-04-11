@@ -282,9 +282,6 @@ class UploadEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
       if (init.headers) {
         Object.entries(init.headers).forEach(([k, v]) => xhr.setRequestHeader(k, v as string));
       }
-      if (init.signal) {
-        init.signal.addEventListener('abort', () => xhr.abort());
-      }
       if (this.onProgress) {
         xhr.upload.onprogress = e => {
           if (e.lengthComputable) this.onProgress!(e.loaded / e.total);
@@ -296,9 +293,25 @@ class UploadEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
           const [key, ...rest] = line.split(': ');
           if (key) headers.append(key, rest.join(': '));
         });
+        init.signal?.removeEventListener('abort', abortXhr);
         resolve(new Response(xhr.response, { status: xhr.status, statusText: xhr.statusText, headers }));
       };
-      xhr.onerror = () => reject(new TypeError('Network request failed'));
+      xhr.onerror = () => {
+        init.signal?.removeEventListener('abort', abortXhr);
+        reject(new TypeError('Network request failed'));
+      };
+      xhr.onabort = () => {
+        init.signal?.removeEventListener('abort', abortXhr);
+        reject(new DOMException('The operation was aborted.', 'AbortError'));
+      };
+      const abortXhr = () => xhr.abort();
+      if (init.signal?.aborted) {
+        reject(new DOMException('The operation was aborted.', 'AbortError'));
+        return;
+      }
+      if (init.signal) {
+        init.signal.addEventListener('abort', abortXhr, { once: true });
+      }
       xhr.send(init.body);
     });
   }
