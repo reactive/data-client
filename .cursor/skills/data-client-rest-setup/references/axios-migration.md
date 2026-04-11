@@ -282,14 +282,6 @@ class UploadEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
       if (init.headers) {
         Object.entries(init.headers).forEach(([k, v]) => xhr.setRequestHeader(k, v as string));
       }
-      const abortXhr = () => xhr.abort();
-      if (init.signal?.aborted) {
-        reject(new DOMException('The operation was aborted.', 'AbortError'));
-        return;
-      }
-      if (init.signal) {
-        init.signal.addEventListener('abort', abortXhr, { once: true });
-      }
       if (this.onProgress) {
         xhr.upload.onprogress = e => {
           if (e.lengthComputable) this.onProgress!(e.loaded / e.total);
@@ -312,6 +304,14 @@ class UploadEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
         init.signal?.removeEventListener('abort', abortXhr);
         reject(new DOMException('The operation was aborted.', 'AbortError'));
       };
+      const abortXhr = () => xhr.abort();
+      if (init.signal?.aborted) {
+        reject(new DOMException('The operation was aborted.', 'AbortError'));
+        return;
+      }
+      if (init.signal) {
+        init.signal.addEventListener('abort', abortXhr, { once: true });
+      }
       xhr.send(init.body);
     });
   }
