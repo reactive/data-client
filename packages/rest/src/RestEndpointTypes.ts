@@ -1,4 +1,5 @@
 import type {
+  Denormalize,
   EndpointExtraOptions,
   EndpointInstanceInterface,
   Schema,
@@ -175,10 +176,10 @@ export interface RestInstance<
   push: AddEndpoint<
     F,
     ExtractCollection<S>['push'],
-    Exclude<O, 'body' | 'method'> & {
+    Omit<O, 'body' | 'method'> & {
       body:
-        | OptionsToAdderBodyArgument<O>
-        | OptionsToAdderBodyArgument<O>[]
+        | OptionsToAdderBodyArgument<O, ExtractCollection<S>['push']>
+        | OptionsToAdderBodyArgument<O, ExtractCollection<S>['push']>[]
         | FormData;
     }
   >;
@@ -188,10 +189,10 @@ export interface RestInstance<
   unshift: AddEndpoint<
     F,
     ExtractCollection<S>['unshift'],
-    Exclude<O, 'body' | 'method'> & {
+    Omit<O, 'body' | 'method'> & {
       body:
-        | OptionsToAdderBodyArgument<O>
-        | OptionsToAdderBodyArgument<O>[]
+        | OptionsToAdderBodyArgument<O, ExtractCollection<S>['unshift']>
+        | OptionsToAdderBodyArgument<O, ExtractCollection<S>['unshift']>[]
         | FormData;
     }
   >;
@@ -201,8 +202,13 @@ export interface RestInstance<
   assign: AddEndpoint<
     F,
     ExtractCollection<S>,
-    Exclude<O, 'body' | 'method'> & {
-      body: Record<string, OptionsToAdderBodyArgument<O>> | FormData;
+    Omit<O, 'body' | 'method'> & {
+      body:
+        | Record<
+            string,
+            OptionsToAdderBodyArgument<O, ExtractCollection<S>['push']>
+          >
+        | FormData;
     }
   >;
   /** Remove item(s) (PATCH) from collection
@@ -211,10 +217,12 @@ export interface RestInstance<
   remove: RemoveEndpoint<
     F,
     ExtractCollection<S>['remove'],
-    Exclude<O, 'body' | 'method'> & {
+    Omit<O, 'body' | 'method'> & {
       body:
-        | OptionsToAdderBodyArgument<O>
-        | OptionsToAdderBodyArgument<O>[]
+        | Partial<OptionsToAdderBodyArgument<O, ExtractCollection<S>['remove']>>
+        | Partial<
+            OptionsToAdderBodyArgument<O, ExtractCollection<S>['remove']>
+          >[]
         | FormData;
     }
   >;
@@ -226,7 +234,9 @@ export interface RestInstance<
     ExtractCollection<S>['move'],
     {
       path: 'movePath' extends keyof O ? O['movePath'] & string : O['path'];
-      body: OptionsToAdderBodyArgument<O> | FormData;
+      body:
+        | Partial<OptionsToAdderBodyArgument<O, ExtractCollection<S>['move']>>
+        | FormData;
     }
   >;
 }
@@ -564,8 +574,8 @@ type InferRestMethodWhenOmitted<O extends RestGenerics> =
 type MethodArgForBodyInference<O extends RestGenerics> =
   'method' extends keyof O ? O['method'] : InferRestMethodWhenOmitted<O>;
 
-type OptionsToAdderBodyArgument<O extends { body?: any }> =
-  'body' extends keyof O ? O['body'] : any;
+type OptionsToAdderBodyArgument<O extends { body?: any }, EntitySchema = any> =
+  'body' extends keyof O ? O['body'] : Partial<Denormalize<EntitySchema>>;
 
 export interface RestEndpointOptions<
   F extends FetchFunction = FetchFunction,

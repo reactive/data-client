@@ -1361,6 +1361,53 @@ describe('resource()', () => {
     expect(result.current.task3?.status).toEqual('in-progress');
   });
 
+  it('extender body types should match mutation endpoint semantics', () => {
+    // resource without explicit body: extenders derive from Partial<Denormalize<schema>>
+    type PushBody = (typeof UserResource)['getList']['push']['body'];
+    type MoveBody = (typeof UserResource)['getList']['move']['body'];
+    type RemoveBody = (typeof UserResource)['getList']['remove']['body'];
+
+    // push (POST) body should not be any
+    // @ts-expect-error
+    ({}) as PushBody satisfies number;
+    // move (PATCH) body should not be any
+    // @ts-expect-error
+    ({}) as MoveBody satisfies number;
+    // remove (PATCH) body should not be any
+    // @ts-expect-error
+    ({}) as RemoveBody satisfies number;
+
+    // resource with explicit body: PATCH extenders should accept partial body
+    interface MyBody {
+      title: string;
+      content: string;
+    }
+    const TypedResource = resource({
+      path: 'http\\://test.com/articles/:id',
+      schema: User,
+      body: {} as MyBody,
+    });
+
+    // POST extenders: push requires full body
+    () => TypedResource.getList.push({ title: 'hi', content: 'there' });
+    // @ts-expect-error - push requires full body, not partial
+    () => TypedResource.getList.push({ title: 'hi' });
+
+    // PATCH extenders: move accepts partial body (like partialUpdate)
+    () => TypedResource.getList.move({ id: '1' }, { title: 'hi' });
+    () => TypedResource.getList.move({ id: '1' }, { content: 'there' });
+    // @ts-expect-error - move rejects invalid fields
+    () => TypedResource.getList.move({ id: '1' }, { invalid: 'field' });
+
+    // PATCH extenders: remove accepts partial body
+    () => TypedResource.getList.remove({ group: 'a' }, { title: 'hi' });
+    // @ts-expect-error - remove rejects invalid fields
+    () => TypedResource.getList.remove({ group: 'a' }, { invalid: 'field' });
+
+    // partialUpdate also accepts partial body
+    () => TypedResource.partialUpdate({ id: '1' }, { title: 'hi' });
+  });
+
   it.each([
     {
       response: {

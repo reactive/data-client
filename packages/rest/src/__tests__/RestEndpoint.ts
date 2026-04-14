@@ -145,6 +145,13 @@ const getNextPage3 = getArticleList3.getPage;
   flat.move.schema satisfies number;
   // @ts-expect-error - push schema should not be any
   flat.push.schema satisfies number;
+  // body should be derived from collection's entity schema, not any
+  // @ts-expect-error
+  flat.push.body satisfies number;
+  // @ts-expect-error
+  flat.move.body satisfies number;
+  // @ts-expect-error
+  flat.remove.body satisfies number;
 
   // nested Collection schema should also be typed
   const nested = new RestEndpoint({
@@ -161,6 +168,48 @@ const getNextPage3 = getArticleList3.getPage;
   nested.move.schema satisfies number;
   // @ts-expect-error - nested push schema should not be any
   nested.push.schema satisfies number;
+  // @ts-expect-error
+  nested.push.body satisfies number;
+  // @ts-expect-error
+  nested.move.body satisfies number;
+  // @ts-expect-error
+  nested.remove.body satisfies number;
+
+  // With explicit body: PATCH extenders should have Partial body
+  type Body = { title: string; content: string };
+  const withBody = new RestEndpoint({
+    urlPrefix: 'http://test.com',
+    path: '/articles/:id',
+    schema: new Collection([PaginatedArticle]),
+    method: 'GET',
+    body: {} as Body,
+  });
+  // POST extenders keep full body type
+  // @ts-expect-error - push body should not be any
+  withBody.push.body satisfies number;
+  withBody.push.body satisfies Body | Body[] | FormData | undefined;
+  // @ts-expect-error - unshift body should not be any
+  withBody.unshift.body satisfies number;
+  // PATCH extenders get Partial body (like partialUpdate)
+  // @ts-expect-error - move body should not be any
+  withBody.move.body satisfies number;
+  withBody.move.body satisfies Partial<Body> | FormData | undefined;
+  // @ts-expect-error - remove body should not be any
+  withBody.remove.body satisfies number;
+  withBody.remove.body satisfies
+    | Partial<Body>
+    | Partial<Body>[]
+    | FormData
+    | undefined;
+  // push body requires full Body (not partial)
+  () => withBody.push({ id: 'a' }, { title: 'hi', content: 'there' });
+  // @ts-expect-error - push rejects partial body
+  () => withBody.push({ id: 'a' }, { title: 'hi' });
+  // move body accepts partial Body (PATCH semantics)
+  () => withBody.move({ id: 'a' }, { title: 'hi' });
+  () => withBody.move({ id: 'a' }, { content: 'there' });
+  // @ts-expect-error - move rejects invalid fields
+  () => withBody.move({ id: 'a' }, { invalid: 'field' });
 };
 
 describe('RestEndpoint', () => {
