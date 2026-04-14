@@ -618,10 +618,15 @@ Controls how the moved entity is added to its destination collection.
 The exported [`unshift`](#unshift-merge) merge function places items at the start:
 
 ```ts
-import { Collection, unshift } from '@data-client/rest';
+import { Collection, unshift, type CollectionOptions } from '@data-client/rest';
+import type { PolymorphicInterface } from '@data-client/endpoint';
 
-class MyCollection extends Collection {
-  constructor(schema, options) {
+class MyCollection<
+  S extends any[] | PolymorphicInterface = any,
+  Args extends any[] = any[],
+  Parent = any,
+> extends Collection<S, Args, Parent> {
+  constructor(schema: S, options?: CollectionOptions<Args, Parent>) {
     super(schema, options);
     // Prepend moved items instead of appending
     // highlight-next-line

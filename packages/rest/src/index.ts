@@ -47,5 +47,6 @@ export type {
   PathArgsAndSearch,
 } from './pathTypes.js';
 
+export type { CollectionOptions } from '@data-client/endpoint';
 export * from '@data-client/endpoint';
 export * from './RestEndpoint.js';
