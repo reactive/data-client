@@ -862,13 +862,14 @@ it('should handle more open ended type definitions', () => {
 
     const explicit: GetEndpoint<{
       path: `${string}:${string}`;
-      schema: schema.Collection<[typeof User]>;
+      schema: schema.Collection<(typeof User)[]>;
     }> = new RestEndpoint({
       path: '' as `${string}:${string}`,
       schema: new Collection([User]),
     });
     explicit({ hi: 5 });
-    explicit.push.process({} as any, { hi: 5 });
+    explicit.push.process({} as any, { username: 'test' });
+    // @ts-expect-error - push requires a body argument
     explicit.push();
   };
 });
