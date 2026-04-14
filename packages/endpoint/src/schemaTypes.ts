@@ -29,6 +29,19 @@ export type CollectionArrayAdder<S extends PolymorphicInterface> =
     T
   : never;
 
+/** Schema when assigning to a Values Collection
+ * Conceptually only returns a single item
+ */
+export type CollectionValuesAdder<S extends PolymorphicInterface> =
+  S extends (
+    {
+      denormalize(...args: any): Record<string, unknown>;
+      schema: infer T;
+    }
+  ) ?
+    T
+  : never;
+
 /** Schema to remove/move (by value) from a Collection(Array|Values)
  * Conceptually only returns a single item
  */
@@ -181,9 +194,7 @@ export interface CollectionInterface<
   /** Schema to merge with a Values Collection
    * @see https://dataclient.io/rest/api/Collection#assign
    */
-  assign: S extends { denormalize(...args: any): Record<string, unknown> } ?
-    Collection<S, Args, Parent>
-  : never;
+  assign: CollectionValuesAdder<S>;
 
   /** Schema to remove (by value) from a Collection(Array|Values)
    * @see https://dataclient.io/rest/api/Collection#remove

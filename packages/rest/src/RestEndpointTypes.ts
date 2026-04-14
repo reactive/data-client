@@ -206,7 +206,7 @@ export interface RestInstance<
       body:
         | Record<
             string,
-            OptionsToAdderBodyArgument<O, ExtractCollection<S>['remove']>
+            OptionsToAdderBodyArgument<O, ExtractCollection<S>['assign']>
           >
         | FormData;
     }
