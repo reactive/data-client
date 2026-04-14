@@ -1,4 +1,4 @@
-import { Entity, schema, Collection } from '@data-client/endpoint';
+import { Entity, schema, Collection, Values } from '@data-client/endpoint';
 import { useController, useCache } from '@data-client/react';
 import { useSuspense } from '@data-client/react';
 import { CacheProvider } from '@data-client/react';
@@ -210,6 +210,21 @@ const getNextPage3 = getArticleList3.getPage;
   () => withBody.move({ id: 'a' }, { content: 'there' });
   // @ts-expect-error - move rejects invalid fields
   () => withBody.move({ id: 'a' }, { invalid: 'field' });
+
+  // Values Collection: assign body should accept Record<string, entity>
+  const valuesEndpoint = new RestEndpoint({
+    urlPrefix: 'http://test.com',
+    path: '/articles',
+    schema: new Collection(new Values(PaginatedArticle)),
+    method: 'GET',
+  });
+  // @ts-expect-error - assign body should not be any
+  valuesEndpoint.assign.body satisfies number;
+  valuesEndpoint.assign.body satisfies
+    | Record<string, Partial<PaginatedArticle>>
+    | FormData
+    | undefined;
+  () => valuesEndpoint.assign({ myKey: { id: 5, title: 'hi', content: 'ho' } });
 };
 
 describe('RestEndpoint', () => {
