@@ -1,5 +1,15 @@
 # example-benchmark-react
 
+## 0.1.7
+
+### Patch Changes
+
+- Updated dependencies [[`8a7c8d9`](https://github.com/reactive/data-client/commit/8a7c8d9cc4228a6281849f56121699f237af4b0f), [`8af3d5e`](https://github.com/reactive/data-client/commit/8af3d5ee3dbbb637805e99cbd01801d3587bedbd), [`81c63a0`](https://github.com/reactive/data-client/commit/81c63a00c668d805b6b8d0d9efdf2aacb5d32253)]:
+  - @data-client/rest@0.16.6
+  - @data-client/endpoint@0.16.6
+  - @data-client/react@0.16.0
+  - @data-client/core@0.16.0
+
 ## 0.1.6
 
 ### Patch Changes

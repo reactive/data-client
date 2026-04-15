@@ -1,5 +1,11 @@
 # @data-client/endpoint
 
+## 0.16.6
+
+### Patch Changes
+
+- [#3904](https://github.com/reactive/data-client/pull/3904) [`8af3d5e`](https://github.com/reactive/data-client/commit/8af3d5ee3dbbb637805e99cbd01801d3587bedbd) - Export `CollectionOptions` from the public `@data-client/endpoint` and `@data-client/rest` entrypoints.
+
 ## 0.16.3
 
 ### Patch Changes

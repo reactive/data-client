@@ -1,5 +1,59 @@
 # @data-client/rest
 
+## 0.16.6
+
+### Patch Changes
+
+- [#3868](https://github.com/reactive/data-client/pull/3868) [`8a7c8d9`](https://github.com/reactive/data-client/commit/8a7c8d9cc4228a6281849f56121699f237af4b0f) - Add `content` property to RestEndpoint for typed response parsing
+
+  Set `content` to control how the response body is parsed, with automatic return type inference:
+
+  ```ts
+  const downloadFile = new RestEndpoint({
+    path: '/files/:id/download',
+    content: 'blob',
+    dataExpiryLength: 0,
+  });
+  const blob: Blob = await ctrl.fetch(downloadFile, { id: '123' });
+  ```
+
+  Accepted values: `'json'`, `'blob'`, `'text'`, `'arrayBuffer'`, `'stream'`.
+
+  Non-JSON content types (`'blob'`, `'text'`, `'arrayBuffer'`, `'stream'`) constrain `schema` to
+  `undefined` at the type level, with a runtime check that throws if a normalizable schema is set.
+
+  When `content` is not set, auto-detection now handles binary Content-Types (`image/*`,
+  `application/octet-stream`, `application/pdf`, etc.) by returning `response.blob()` instead of
+  corrupting data via `.text()`.
+
+- [#3904](https://github.com/reactive/data-client/pull/3904) [`8af3d5e`](https://github.com/reactive/data-client/commit/8af3d5ee3dbbb637805e99cbd01801d3587bedbd) - Export `CollectionOptions` from the public `@data-client/endpoint` and `@data-client/rest` entrypoints.
+
+- [#3910](https://github.com/reactive/data-client/pull/3910) [`81c63a0`](https://github.com/reactive/data-client/commit/81c63a00c668d805b6b8d0d9efdf2aacb5d32253) - Fix [Collection](https://dataclient.io/rest/api/Collection) extender body types to match their HTTP method semantics
+
+  PATCH extenders (`.move`, `.remove`) now type their body as `Partial`, matching
+  [`partialUpdate`](https://dataclient.io/rest/api/resource#partialupdate). Previously they
+  required the full body type even though they are PATCH endpoints.
+
+  Standalone `RestEndpoint` without an explicit `body` option now derives a typed
+  body from the Collection's entity schema instead of falling back to `any`.
+
+  ```ts
+  const MyResource = resource({
+    path: '/articles/:id',
+    schema: Article,
+    body: {} as { title: string; content: string },
+  });
+
+  // move (PATCH) now accepts partial body
+  MyResource.getList.move({ id: '1' }, { title: 'new title' });
+
+  // push (POST) still requires full body
+  MyResource.getList.push({ title: 'hi', content: 'there' });
+  ```
+
+- Updated dependencies [[`8af3d5e`](https://github.com/reactive/data-client/commit/8af3d5ee3dbbb637805e99cbd01801d3587bedbd)]:
+  - @data-client/endpoint@0.16.6
+
 ## 0.16.5
 
 ### Patch Changes
