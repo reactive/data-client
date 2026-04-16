@@ -1911,6 +1911,56 @@ describe('resource()', () => {
     () => useQuery(queryRemainingTodos, { userId: 1 }, 5);
   });
 
+  describe('nonFilterArgumentKeys pass-through', () => {
+    it('supports function form', () => {
+      const TodoResource = resource({
+        path: '/todos/:id',
+        searchParams: {} as { userId?: string; orderBy?: string } | undefined,
+        schema: User,
+        nonFilterArgumentKeys: key => key === 'orderBy',
+      });
+
+      expect(
+        (TodoResource.getList.schema as any).nonFilterArgumentKeys('orderBy'),
+      ).toBe(true);
+      expect(
+        (TodoResource.getList.schema as any).nonFilterArgumentKeys('userId'),
+      ).toBe(false);
+    });
+
+    it('supports RegExp form', () => {
+      const TodoResource = resource({
+        path: '/todos/:id',
+        searchParams: {} as { userId?: string; orderBy?: string } | undefined,
+        schema: User,
+        nonFilterArgumentKeys: /orderBy/,
+      });
+
+      expect(
+        (TodoResource.getList.schema as any).nonFilterArgumentKeys('orderBy'),
+      ).toBe(true);
+      expect(
+        (TodoResource.getList.schema as any).nonFilterArgumentKeys('userId'),
+      ).toBe(false);
+    });
+
+    it('supports array form', () => {
+      const TodoResource = resource({
+        path: '/todos/:id',
+        searchParams: {} as { userId?: string; orderBy?: string } | undefined,
+        schema: User,
+        nonFilterArgumentKeys: ['orderBy'],
+      });
+
+      expect(
+        (TodoResource.getList.schema as any).nonFilterArgumentKeys('orderBy'),
+      ).toBe(true);
+      expect(
+        (TodoResource.getList.schema as any).nonFilterArgumentKeys('userId'),
+      ).toBe(false);
+    });
+  });
+
   describe('warnings', () => {
     let warnSpy: jest.Spied<typeof console.warn>;
     afterEach(() => {

@@ -26,6 +26,7 @@ export default function resource<O extends ResourceGenerics>({
   schema,
   Endpoint = RestEndpoint,
   Collection = BaseCollection,
+  nonFilterArgumentKeys,
   optimistic,
   paginationField,
   ...extraOptions
@@ -98,7 +99,12 @@ This warning will not show in production.`,
     paginationField: paginationField as string,
     movePath: path,
     path: shortenedPath,
-    schema: new Collection([schema as any]),
+    schema: new Collection(
+      [schema as any],
+      nonFilterArgumentKeys === undefined ? undefined : (
+        { nonFilterArgumentKeys }
+      ),
+    ),
     name: getName('getList'),
   });
   const ret = {

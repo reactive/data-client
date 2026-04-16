@@ -41,6 +41,8 @@ export interface ResourceOptions {
   Endpoint?: typeof RestEndpoint;
   /** @see https://dataclient.io/rest/api/resource#collection */
   Collection?: typeof Collection;
+  /** @see https://dataclient.io/rest/api/resource#nonfilterargumentkeys */
+  nonFilterArgumentKeys?: ((key: string) => boolean) | string[] | RegExp;
   /** @see https://dataclient.io/rest/api/resource#optimistic */
   optimistic?: boolean;
   /** @see https://dataclient.io/rest/api/resource#urlprefix */

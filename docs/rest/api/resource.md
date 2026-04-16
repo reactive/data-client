@@ -147,6 +147,31 @@ Passed to [RestEndpoint.body](./RestEndpoint.md#body) for [getList.push](#push) 
 
 If specified, will add [Resource.getList.getPage](#getpage) method on the `Resource`.
 
+### nonFilterArgumentKeys
+
+Pass-through option to [Collection.nonFilterArgumentKeys](./Collection.md#nonfilterargumentkeys)
+for [getList](#getlist) schema.
+
+```ts
+const PostResource = resource({
+  path: '/:group/posts/:id',
+  searchParams: {} as { orderBy?: string; author?: string },
+  schema: Post,
+  nonFilterArgumentKeys: ['orderBy'],
+});
+```
+
+`RegExp` and function forms are also supported:
+
+```ts
+resource({
+  path: '/:group/posts/:id',
+  searchParams: {} as { orderBy?: string; author?: string },
+  schema: Post,
+  nonFilterArgumentKeys: /orderBy/,
+});
+```
+
 ### optimistic
 
 `true` makes all mutation endpoints [optimistic](../guides/optimistic-updates.md), making <abbr title="User Interface">UI</abbr>
@@ -180,18 +205,20 @@ const TodoResource = resource({
 ### Collection
 
 [Collection Class](./Collection.md) used to construct [getList](#getlist) schema.
+Use this when you need to customize collection behavior beyond
+[`nonFilterArgumentKeys`](#nonfilterargumentkeys), like changing move merge logic.
 
 ```ts
-import { resource, Collection } from '@data-client/rest';
+import { resource, Collection, unshift } from '@data-client/rest';
 
 class MyCollection<
   S extends any[] | PolymorphicInterface = any,
   Parent extends any[] = [urlParams: any, body?: any],
 > extends Collection<S, Parent> {
-  // getList.push should add to Collections regardless of its 'orderBy' argument
-  // in other words: `orderBy` is a non-filtering argument - it does not influence which results are returned
-  nonFilterArgumentKeys(key: string) {
-    return key === 'orderBy';
+  constructor(schema: S) {
+    super(schema);
+    // prepend moved items instead of appending
+    this.move = this.moveWith(unshift);
   }
 }
 const TodoResource = resource({
