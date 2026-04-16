@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1776261216004,
+  "lastUpdate": 1776306222894,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -3059,6 +3059,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 180.19,
             "range": "± 6.2%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "41898282+github-actions[bot]@users.noreply.github.com",
+            "name": "github-actions[bot]",
+            "username": "github-actions[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4f5b6b6717c403657deb0bdaadce12b80ced6713",
+          "message": "internal: Publish new version (#3913)\n\nCo-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>",
+          "timestamp": "2026-04-15T22:15:21-04:00",
+          "tree_id": "0753fb4e2c973e60efafbae161b641f5a497af66",
+          "url": "https://github.com/reactive/data-client/commit/4f5b6b6717c403657deb0bdaadce12b80ced6713"
+        },
+        "date": 1776306220858,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 141.85,
+            "range": "± 4.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 41.24,
+            "range": "± 6.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 377.49,
+            "range": "± 11.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 370.37,
+            "range": "± 8.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 44.74,
+            "range": "± 6.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 377.49,
+            "range": "± 8.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 370.37,
+            "range": "± 7.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 7.8,
+            "range": "± 7.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 79.68,
+            "range": "± 14.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 36.36,
+            "range": "± 3.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 227.27,
+            "range": "± 4.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 289.92,
+            "range": "± 4.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 192.31,
+            "range": "± 4.5%",
             "unit": "ops/s"
           }
         ]
