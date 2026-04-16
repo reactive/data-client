@@ -1,5 +1,13 @@
 # example-benchmark
 
+## 0.4.84
+
+### Patch Changes
+
+- Updated dependencies [[`fd64b41`](https://github.com/reactive/data-client/commit/fd64b41a9de266af51708622ea8991060fd788a5)]:
+  - @data-client/core@0.16.7
+  - @data-client/endpoint@0.16.6
+
 ## 0.4.83
 
 ### Patch Changes
