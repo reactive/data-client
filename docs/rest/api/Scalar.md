@@ -36,6 +36,12 @@ class Company extends Entity {
 }
 ```
 
+A single `Scalar` instance can be shared across multiple `Entity` classes — the
+entity context is inferred at normalize time from the parent entity and recorded
+on the wrapper, so denormalize always resolves to the correct cell. Compound pks
+remain unique because they are namespaced by entity key (e.g.
+`Company|1|portfolioA` vs. `Fund|1|portfolioA`).
+
 ### Full entity endpoint
 
 When fetching companies with a portfolio lens, scalar fields are automatically extracted
@@ -54,23 +60,33 @@ const getCompanies = new Endpoint(
 ### Column-only endpoint
 
 Fetch just the lens-dependent columns without refetching entity data. The response is a
-dictionary keyed by entity pk:
+dictionary keyed by entity pk. Because there is no parent entity in this path, the `Scalar`
+must be **bound** to an `Entity` class via the `entity` option:
 
 ```typescript
+const CompanyPortfolioScalar = new Scalar({
+  lens: args => args[0]?.portfolio,
+  key: 'portfolio',
+  entity: Company,
+});
+
 const getPortfolioColumns = new Endpoint(
   ({ portfolio }: { portfolio: string }) =>
     fetch(`/companies/columns?portfolio=${portfolio}`).then(r => r.json()),
-  { schema: new schema.Values(PortfolioScalar) },
+  { schema: new schema.Values(CompanyPortfolioScalar) },
 );
 // Response: { '1': { pct_equity: 0.5, shares: 32342 }, '2': { ... } }
 ```
 
 Column fetches only write `ScalarCell` entries — they never modify the `Company` entities.
 
+A bound `Scalar` can also be used as an `Entity.schema` field (the binding is just ignored
+in favor of the inferred parent), so a single instance can serve both endpoints.
+
 ## Constructor
 
 ```typescript
-new Scalar({ lens, key })
+new Scalar({ lens, key, entity? })
 ```
 
 ### Options
@@ -79,6 +95,10 @@ new Scalar({ lens, key })
   value (e.g. portfolio ID) from endpoint args.
 - **`key`** **string** — **required**. A unique name for this scalar type, used to namespace
   the internal `ScalarCell` entity table (e.g. `'portfolio'`).
+- **`entity`** **Entity class** — *optional*. The `Entity` class this `Scalar` attaches to.
+  Only required when the `Scalar` is used standalone (e.g. inside `schema.Values` for a
+  column-only endpoint), where there is no parent entity to infer from. When used as a field
+  on `Entity.schema`, the entity is inferred from the parent and recorded on the wrapper.
 
 ## How it works
 

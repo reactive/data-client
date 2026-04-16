@@ -150,6 +150,12 @@ const getUnvisit = (
         const result = unvisitEntity(schema, input);
         depth--;
         return result;
+      } else if (
+        (schema as any).key !== undefined &&
+        typeof input === 'string'
+      ) {
+        // scalars can't recurse - so depth tracking is not needed
+        return unvisitEntity(schema as any, input);
       }
 
       return schema.denormalize(input, args, unvisit);

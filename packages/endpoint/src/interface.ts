@@ -24,6 +24,25 @@ export type Serializable<
 > = (value: any) => T;
 
 export interface SchemaSimple<T = any, Args extends readonly any[] = any> {
+  /**
+   * Normalize a value into entity table form.
+   *
+   * @param input    The value being normalized.
+   * @param parent   The containing data the caller passed when invoking
+   *                 `visit(schema, input, parent, key, args)`. By convention
+   *                 this is the parent object/array/dictionary that contains
+   *                 `input`. **Exception:** `EntityMixin` passes the Entity
+   *                 *class* itself (not the parent data row) when visiting
+   *                 a `Scalar` field, so that `Scalar.normalize` can read
+   *                 `parent.key` and `parent.schema` to discover its entity
+   *                 binding. Schemas relying on `parent` should be aware of
+   *                 this special case.
+   * @param key      The key under which `input` lives on `parent` (or a
+   *                 caller-encoded composite key, as with `Scalar`).
+   * @param args     The endpoint args for this normalize call.
+   * @param visit    Recursive visitor for nested schemas.
+   * @param delegate Store accessors for reading/writing entities.
+   */
   normalize(
     input: any,
     parent: any,
@@ -111,7 +130,24 @@ export interface EntityTable {
     | undefined;
 }
 
-/** Visits next data + schema while recurisvely normalizing */
+/**
+ * Visits next data + schema while recursively normalizing.
+ *
+ * @param schema The schema to apply to `value`.
+ * @param value  The value being visited.
+ * @param parent The containing data — by convention the parent object/array/
+ *               dictionary that holds `value`. Schemas that recurse via
+ *               `visit` should pass their own `input` (or the surrounding
+ *               container) here. **Exception:** `EntityMixin` passes the
+ *               Entity *class* itself (not the parent data row) when visiting
+ *               a `Scalar` field, so the receiving `Scalar.normalize` can
+ *               read `parent.key`/`parent.schema` to discover its entity
+ *               binding. Anything reading `parent` from inside `normalize`
+ *               should be aware of this special case.
+ * @param key    The key under which `value` lives on `parent`, or a
+ *               caller-encoded composite key (as with `Scalar`).
+ * @param args   The endpoint args for this normalize call.
+ */
 export interface Visit {
   (schema: any, value: any, parent: any, key: any, args: readonly any[]): any;
   creating?: boolean;

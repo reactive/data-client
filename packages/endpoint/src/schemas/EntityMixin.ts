@@ -318,9 +318,17 @@ export default function EntityMixin<TBase extends Constructor>(
             // short-circuits primitives: `if (typeof value !== 'object') return value`
             // so Scalar.normalize would never run. We pass the whole entity
             // (an object) instead, letting Scalar extract what it needs.
-            // We pass `this` (Entity class) as parent so Scalar can discover
-            // which fields use it via parent.schema, and encode the field name
-            // in the key so Scalar returns the correct per-field wrapper.
+            //
+            // NOTE: This intentionally breaks the standard `Visit` contract
+            // (see `Visit` JSDoc in `interface.ts`): we pass `this` — the
+            // Entity *class* — as `parent` rather than the parent data row.
+            // Scalar.normalize relies on this to:
+            //   - read `parent.key` (the static entity key, e.g. `'Company'`)
+            //     to build correct compound pks, and
+            //   - read `parent.schema` to detect that it's on the entity path
+            //     vs. the standalone Values path.
+            // We also encode the field name into the key so Scalar can
+            // return the correct per-field wrapper.
             processedEntity[key] = visit(
               fieldSchema,
               processedEntity,
