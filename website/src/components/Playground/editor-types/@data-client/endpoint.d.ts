@@ -758,6 +758,13 @@ type CollectionArrayAdder<S extends PolymorphicInterface> = S extends ({
     denormalize(...args: any): any[];
     schema: infer T;
 }) ? T : never;
+/** Schema when assigning to a Values Collection
+ * Conceptually only returns a single item
+ */
+type CollectionValuesAdder<S extends PolymorphicInterface> = S extends ({
+    denormalize(...args: any): Record<string, unknown>;
+    schema: infer T;
+}) ? T : never;
 /** Schema to remove/move (by value) from a Collection(Array|Values)
  * Conceptually only returns a single item
  */
@@ -852,9 +859,7 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
     /** Schema to merge with a Values Collection
      * @see https://dataclient.io/rest/api/Collection#assign
      */
-    assign: S extends {
-        denormalize(...args: any): Record<string, unknown>;
-    } ? Collection<S, Args, Parent> : never;
+    assign: CollectionValuesAdder<S>;
     /** Schema to remove (by value) from a Collection(Array|Values)
      * @see https://dataclient.io/rest/api/Collection#remove
      */
@@ -1233,6 +1238,7 @@ type schema_d_CollectionConstructor = CollectionConstructor;
 type schema_d_CollectionFromSchema<S extends any[] | PolymorphicInterface = any, Args extends any[] = DefaultArgs, Parent = any> = CollectionFromSchema<S, Args, Parent>;
 type schema_d_CollectionInterface<S extends PolymorphicInterface = any, Args extends any[] = any[], Parent = any> = CollectionInterface<S, Args, Parent>;
 declare const schema_d_CollectionRoot: typeof CollectionRoot;
+type schema_d_CollectionValuesAdder<S extends PolymorphicInterface> = CollectionValuesAdder<S>;
 type schema_d_DefaultArgs = DefaultArgs;
 type schema_d_EntityInterface<T = any> = EntityInterface<T>;
 type schema_d_EntityMap<T = any> = EntityMap<T>;
@@ -1263,7 +1269,7 @@ type schema_d_Values<Choices extends Schema = any> = Values<Choices>;
 declare const schema_d_Values: typeof Values;
 declare const schema_d_unshift: typeof unshift;
 declare namespace schema_d {
-  export { schema_d_All as All, Array$1 as Array, schema_d_Collection as Collection, type schema_d_CollectionArrayAdder as CollectionArrayAdder, type schema_d_CollectionArrayOrValuesAdder as CollectionArrayOrValuesAdder, type schema_d_CollectionConstructor as CollectionConstructor, type schema_d_CollectionFromSchema as CollectionFromSchema, type schema_d_CollectionInterface as CollectionInterface, schema_d_CollectionRoot as CollectionRoot, type schema_d_DefaultArgs as DefaultArgs, EntityMixin as Entity, type schema_d_EntityInterface as EntityInterface, type schema_d_EntityMap as EntityMap, schema_d_EntityMixin as EntityMixin, schema_d_Invalidate as Invalidate, schema_d_Lazy as Lazy, type schema_d_MergeFunction as MergeFunction, Object$1 as Object, schema_d_Query as Query, type schema_d_SchemaAttributeFunction as SchemaAttributeFunction, type schema_d_SchemaClass as SchemaClass, type schema_d_SchemaFunction as SchemaFunction, type schema_d_StrategyFunction as StrategyFunction, schema_d_Union as Union, type schema_d_UnionConstructor as UnionConstructor, type schema_d_UnionInstance as UnionInstance, type schema_d_UnionResult as UnionResult, schema_d_UnionRoot as UnionRoot, schema_d_Values as Values, schema_d_unshift as unshift };
+  export { schema_d_All as All, Array$1 as Array, schema_d_Collection as Collection, type schema_d_CollectionArrayAdder as CollectionArrayAdder, type schema_d_CollectionArrayOrValuesAdder as CollectionArrayOrValuesAdder, type schema_d_CollectionConstructor as CollectionConstructor, type schema_d_CollectionFromSchema as CollectionFromSchema, type schema_d_CollectionInterface as CollectionInterface, schema_d_CollectionRoot as CollectionRoot, type schema_d_CollectionValuesAdder as CollectionValuesAdder, type schema_d_DefaultArgs as DefaultArgs, EntityMixin as Entity, type schema_d_EntityInterface as EntityInterface, type schema_d_EntityMap as EntityMap, schema_d_EntityMixin as EntityMixin, schema_d_Invalidate as Invalidate, schema_d_Lazy as Lazy, type schema_d_MergeFunction as MergeFunction, Object$1 as Object, schema_d_Query as Query, type schema_d_SchemaAttributeFunction as SchemaAttributeFunction, type schema_d_SchemaClass as SchemaClass, type schema_d_SchemaFunction as SchemaFunction, type schema_d_StrategyFunction as StrategyFunction, schema_d_Union as Union, type schema_d_UnionConstructor as UnionConstructor, type schema_d_UnionInstance as UnionInstance, type schema_d_UnionResult as UnionResult, schema_d_UnionRoot as UnionRoot, schema_d_Values as Values, schema_d_unshift as unshift };
 }
 
 declare const Entity_base: IEntityClass<abstract new (...args: any[]) => {
@@ -1314,4 +1320,4 @@ declare function validateRequired(processedEntity: any, requiredDefaults: Record
 /** https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-4.html#the-noinfer-utility-type */
 type NI<T> = NoInfer<T>;
 
-export { type AbstractInstanceType, All, Array$1 as Array, type CheckLoop, Collection, type DefaultArgs, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, type EntitiesInterface, type EntitiesPath, Entity, type EntityFields, type EntityInterface, type EntityMap, EntityMixin, type EntityPath, type EntityTable, type ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type FetchFunction, type GetEntity, type GetIndex, type IEntityClass, type IEntityInstance, type INormalizeDelegate, type IQueryDelegate, type IndexPath, Invalidate, type KeyofEndpointInstance, Lazy, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedIndex, type NormalizedNullableObject, Object$1 as Object, type ObjectArgs, type PolymorphicInterface, Query, type Queryable, type ReadEndpoint, type RecordClass, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, Union, type UnknownError, Values, type Visit, schema_d as schema, unshift, validateRequired };
+export { type AbstractInstanceType, All, Array$1 as Array, type CheckLoop, Collection, type CollectionOptions, type DefaultArgs, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, type EntitiesInterface, type EntitiesPath, Entity, type EntityFields, type EntityInterface, type EntityMap, EntityMixin, type EntityPath, type EntityTable, type ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type FetchFunction, type GetEntity, type GetIndex, type IEntityClass, type IEntityInstance, type INormalizeDelegate, type IQueryDelegate, type IndexPath, Invalidate, type KeyofEndpointInstance, Lazy, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedIndex, type NormalizedNullableObject, Object$1 as Object, type ObjectArgs, type PolymorphicInterface, Query, type Queryable, type ReadEndpoint, type RecordClass, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, Union, type UnknownError, Values, type Visit, schema_d as schema, unshift, validateRequired };
