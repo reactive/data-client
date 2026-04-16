@@ -1,5 +1,20 @@
 # @data-client/rest
 
+## 0.17.0
+
+### Minor Changes
+
+- [#3914](https://github.com/reactive/data-client/pull/3914) [`930c8ed`](https://github.com/reactive/data-client/commit/930c8ed04b6f9fcb2d131f39cc706a5eeb0edc4d) - resource() accepts [nonFilterArgumentKeys](https://dataclient.io/rest/api/Collection#nonfilterargumentkeys)
+
+  ```ts
+  const PostResource = resource({
+    path: '/:group/posts/:id',
+    searchParams: {} as { orderBy?: string; author?: string },
+    schema: Post,
+    nonFilterArgumentKeys: ['orderBy'],
+  });
+  ```
+
 ## 0.16.6
 
 ### Patch Changes
