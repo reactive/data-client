@@ -355,6 +355,25 @@ type Serializable<
   },
 > = (value: any) => T;
 interface SchemaSimple<T = any, Args extends readonly any[] = any> {
+  /**
+   * Normalize a value into entity table form.
+   *
+   * @param input    The value being normalized.
+   * @param parent   The containing data the caller passed when invoking
+   *                 `visit(schema, input, parent, key, args)`. By convention
+   *                 this is the parent object/array/dictionary that contains
+   *                 `input`. **Exception:** `EntityMixin` passes the Entity
+   *                 *class* itself (not the parent data row) when visiting
+   *                 a `Scalar` field, so that `Scalar.normalize` can read
+   *                 `parent.key` and `parent.schema` to discover its entity
+   *                 binding. Schemas relying on `parent` should be aware of
+   *                 this special case.
+   * @param key      The key under which `input` lives on `parent` (or a
+   *                 caller-encoded composite key, as with `Scalar`).
+   * @param args     The endpoint args for this normalize call.
+   * @param visit    Recursive visitor for nested schemas.
+   * @param delegate Store accessors for reading/writing entities.
+   */
   normalize(
     input: any,
     parent: any,
@@ -439,7 +458,24 @@ interface EntityTable {
       }
     | undefined;
 }
-/** Visits next data + schema while recurisvely normalizing */
+/**
+ * Visits next data + schema while recursively normalizing.
+ *
+ * @param schema The schema to apply to `value`.
+ * @param value  The value being visited.
+ * @param parent The containing data — by convention the parent object/array/
+ *               dictionary that holds `value`. Schemas that recurse via
+ *               `visit` should pass their own `input` (or the surrounding
+ *               container) here. **Exception:** `EntityMixin` passes the
+ *               Entity *class* itself (not the parent data row) when visiting
+ *               a `Scalar` field, so the receiving `Scalar.normalize` can
+ *               read `parent.key`/`parent.schema` to discover its entity
+ *               binding. Anything reading `parent` from inside `normalize`
+ *               should be aware of this special case.
+ * @param key    The key under which `value` lives on `parent`, or a
+ *               caller-encoded composite key (as with `Scalar`).
+ * @param args   The endpoint args for this normalize call.
+ */
 interface Visit {
   (schema: any, value: any, parent: any, key: any, args: readonly any[]): any;
   creating?: boolean;
@@ -1238,7 +1274,14 @@ type ProcessParameters<
 interface ScalarOptions {
   lens: (args: readonly any[]) => string | undefined;
   key: string;
-  entity: {
+  /**
+   * The Entity class this Scalar attaches to. Optional when only used as a
+   * field on `Entity.schema` (entity context is inferred at normalize time
+   * and recorded on the wrapper). Required when used standalone — e.g. inside
+   * `schema.Values` for column-only fetches — where there is no parent entity
+   * to infer from.
+   */
+  entity?: {
     key: string;
   };
 }
@@ -1249,19 +1292,24 @@ interface ScalarOptions {
  * Data is stored in a Scalar entity table and joined at
  * denormalize time based on endpoint args.
  *
- * Each Scalar instance is bound to exactly one Entity class so the
- * entity key is always known during normalize (including Values-only
- * column fetches) and denormalize. Different entity types that share
- * the same lens should create their own Scalar instances (they can
- * share the `key` option to share the underlying cell table — compound
- * pks stay unique because they are namespaced by entity key).
+ * A single Scalar instance can be shared across multiple entity types when
+ * used as a field on `Entity.schema` — the enclosing Entity is supplied by
+ * the visit walker (as `parentEntity`) and recorded on the wrapper so
+ * denormalize can recover the correct cell. To use a Scalar standalone
+ * (e.g. inside `schema.Values` for a column-only endpoint), bind it to an
+ * Entity class with the `entity` option since there is no parent entity to
+ * infer from.
  *
  * @see https://dataclient.io/rest/api/Scalar
  */
 declare class Scalar implements Mergeable {
   readonly key: string;
   readonly lensSelector: (args: readonly any[]) => string | undefined;
-  readonly entityKey: string;
+  readonly entityKey: string | undefined;
+  /** Opt-in marker: tells the visit walker to dispatch to `normalize()` for
+   * primitive values (the per-cell scalar value, e.g. `0.5`) instead of
+   * applying its primitive short-circuit. */
+  readonly acceptsPrimitives = true;
   constructor(options: ScalarOptions);
   createIfValid(props: any): any;
   merge(existing: any, incoming: any): any;
@@ -1317,6 +1365,7 @@ declare class Scalar implements Mergeable {
     args: any[],
     visit: Visit,
     delegate: INormalizeDelegate,
+    parentEntity: any,
   ): any;
 
   denormalize(

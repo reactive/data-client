@@ -16,7 +16,10 @@ interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
     normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, delegate: {
         getEntity: any;
         setEntity: any;
-    }): any;
+    }, 
+    /** The nearest enclosing entity-like schema (one with `pk`), if any.
+     * Tracked automatically by the visit walker. */
+    parentEntity?: any): any;
     denormalize(input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any): T;
     queryKey(args: Args, unvisit: (...args: any) => any, delegate: {
         getEntity: any;
