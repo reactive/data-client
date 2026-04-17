@@ -18,18 +18,21 @@ export const getVisit = (delegate: INormalizeDelegate) => {
     key: any,
     args: readonly any[],
   ) => {
-    if (!value || !schema) {
-      return value;
+    if (value == null || !schema) return value;
+
+    // Primitive value: most schemas just pass it through. Two exceptions:
+    //  - Entity-by-id references (`schema.pk`): coerce truthy ids to string;
+    //    falsy ids pass through verbatim as "no reference" (legacy behavior).
+    //  - Schemas opting in via `acceptsPrimitives` (e.g. Scalar) receive the
+    //    value — including falsy primitives like `0` — via `.normalize`.
+    if (typeof value !== 'object') {
+      if (typeof schema.normalize !== 'function') return value;
+      if (!schema.acceptsPrimitives) {
+        return value && schema.pk ? `${value}` : value;
+      }
     }
 
-    if (schema.normalize && typeof schema.normalize === 'function') {
-      if (typeof value !== 'object') {
-        if (schema.pk) return `${value}`;
-        // Most schemas (Object/Array/Values/Union) just pass primitives
-        // through. Schemas that need to handle primitives (e.g. Scalar) opt
-        // in via `acceptsPrimitives`.
-        if (!schema.acceptsPrimitives) return value;
-      }
+    if (typeof schema.normalize === 'function') {
       const prev = currentEntity;
       if (schema.pk) currentEntity = schema;
       const result = schema.normalize(
@@ -45,7 +48,7 @@ export const getVisit = (delegate: INormalizeDelegate) => {
       return result;
     }
 
-    if (typeof value !== 'object' || typeof schema !== 'object') return value;
+    if (typeof schema !== 'object') return value;
 
     const method = Array.isArray(schema) ? arrayNormalize : objectNormalize;
     return method(schema, value, parent, key, args, visit);

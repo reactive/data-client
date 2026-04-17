@@ -68,6 +68,50 @@ describe('Scalar', () => {
       expect(cell.shares).toBe(32342);
     });
 
+    it.each([
+      ['zero', 0],
+      ['empty string', ''],
+      ['false', false],
+    ])('normalizes falsy scalar value (%s) into the cell', (_label, value) => {
+      const result = normalize(
+        [Company],
+        [{ id: '1', price: 100, pct_equity: value, shares: 32342 }],
+        [{ portfolio: 'portfolioA' }],
+      );
+
+      // Entity must store a wrapper, not the raw falsy value.
+      const companyEntity = result.entities['Company']?.['1'];
+      expect(companyEntity.pct_equity).toEqual({
+        id: '1',
+        field: 'pct_equity',
+        entityKey: 'Company',
+      });
+
+      // Scalar cell must record the falsy value verbatim.
+      const cell =
+        result.entities['Scalar(portfolio)']?.['Company|1|portfolioA'];
+      expect(cell).toBeDefined();
+      expect(cell.pct_equity).toBe(value);
+      expect(cell.shares).toBe(32342);
+    });
+
+    it('round-trips falsy scalar values through denormalize', () => {
+      const state = normalize(
+        [Company],
+        [{ id: '1', price: 0, pct_equity: 0, shares: 0 }],
+        [{ portfolio: 'portfolioA' }],
+      );
+
+      const memo = new SimpleMemoCache();
+      const result = memo.denormalize([Company], state.result, state.entities, [
+        { portfolio: 'portfolioA' },
+      ]) as any[];
+
+      expect(result[0].pct_equity).toBe(0);
+      expect(result[0].shares).toBe(0);
+      expect(result[0].price).toBe(0);
+    });
+
     it('handles multiple entities in array', () => {
       const result = normalize(
         [Company],
