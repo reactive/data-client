@@ -57,7 +57,7 @@
     "@data-client/graphql": "0.16.3",
     "@data-client/img": "0.16.0",
     "@data-client/react": "0.16.7",
-    "@data-client/rest": "0.16.6",
+    "@data-client/rest": "0.17.0",
     "temporal-polyfill": "^0.3.0",
     "antd": "6.3.5",
     "core-js": "^3.48.0",

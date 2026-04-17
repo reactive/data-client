@@ -20,7 +20,7 @@
     "@babel/core": "^7.24.7",
     "@babel/runtime-corejs3": "^7.26.10",
     "@data-client/react": "^0.16.0",
-    "@data-client/rest": "^0.16.0",
+    "@data-client/rest": "^0.17.0",
     "@number-flow/react": "^0.6.0",
     "@types/node": "24.12.2",
     "@types/react": "19.2.14",
