@@ -30,30 +30,19 @@ export const getVisit = (delegate: INormalizeDelegate) => {
         // in via `acceptsPrimitives`.
         if (!schema.acceptsPrimitives) return value;
       }
-      if (schema.pk) {
-        const prev = currentEntity;
-        currentEntity = schema;
-        const result = schema.normalize(
-          value,
-          parent,
-          key,
-          args,
-          visit,
-          delegate,
-          prev,
-        );
-        currentEntity = prev;
-        return result;
-      }
-      return schema.normalize(
+      const prev = currentEntity;
+      if (schema.pk) currentEntity = schema;
+      const result = schema.normalize(
         value,
         parent,
         key,
         args,
         visit,
         delegate,
-        currentEntity,
+        prev,
       );
+      currentEntity = prev;
+      return result;
     }
 
     if (typeof value !== 'object' || typeof schema !== 'object') return value;
