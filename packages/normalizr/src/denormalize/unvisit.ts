@@ -151,10 +151,14 @@ const getUnvisit = (
         depth--;
         return result;
       } else if (
-        (schema as any).key !== undefined &&
+        typeof (schema as any).createIfValid === 'function' &&
         typeof input === 'string'
       ) {
-        // scalars can't recurse - so depth tracking is not needed
+        // Table-resident schemas without `pk` (e.g. Scalar) — looked up by a
+        // pre-computed string id. They participate in the entity table via
+        // `createIfValid`/`merge` but don't recurse, so depth tracking isn't
+        // needed. Schemas that merely expose `key` (e.g. Invalidate) are not
+        // matched here and fall through to their own `denormalize`.
         return unvisitEntity(schema as any, input);
       }
 
