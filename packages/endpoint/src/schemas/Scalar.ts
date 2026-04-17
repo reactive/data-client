@@ -26,11 +26,12 @@ interface ScalarOptions {
  * denormalize time based on endpoint args.
  *
  * A single Scalar instance can be shared across multiple entity types when
- * used as a field on `Entity.schema` — the entity key is parsed from the
- * normalize key path and stored on the wrapper so denormalize can recover
- * the correct cell. To use a Scalar standalone (e.g. inside `schema.Values`
- * for a column-only endpoint), bind it to an Entity class with the `entity`
- * option since there is no parent entity to infer from.
+ * used as a field on `Entity.schema` — the enclosing Entity is supplied
+ * by `EntityMixin.normalize` (as `parentEntity`) and recorded on the
+ * wrapper so denormalize can recover the correct cell. To use a Scalar
+ * standalone (e.g. inside `schema.Values` for a column-only endpoint), bind
+ * it to an Entity class with the `entity` option since there is no parent
+ * entity to infer from.
  *
  * @see https://dataclient.io/rest/api/Scalar
  */
@@ -38,6 +39,10 @@ export default class Scalar implements Mergeable {
   readonly key: string;
   readonly lensSelector: (args: readonly any[]) => string | undefined;
   readonly entityKey: string | undefined;
+  /** Marks this schema as accepting primitive values directly. `EntityMixin`'s
+   * normalize loop dispatches to `normalize()` instead of routing through
+   * `visit` (whose primitive short-circuit would otherwise bypass us). */
+  readonly acceptsPrimitives = true;
 
   constructor(options: ScalarOptions) {
     this.key = `Scalar(${options.key})`;
@@ -91,41 +96,22 @@ export default class Scalar implements Mergeable {
     args: any[],
     visit: Visit,
     delegate: INormalizeDelegate,
+    parentEntity: any,
   ): any {
-    // Entity path: EntityMixin encodes the key as '<entityKey>|<entityPk>|<fieldName>'
-    //              and passes the whole entity object as `input` (to sidestep the
-    //              primitive short-circuit in getVisit).
-    // Values path: Values encodes `key` as the dictionary key (= entity pk) and
-    //              passes the raw cell data as `input`.
-    const isEntityPath = parent?.schema !== undefined;
     const lensValue = this.lensSelector(args);
 
-    if (isEntityPath) {
-      // `parent` here is the Entity *class* itself (e.g. the `Company`
-      // class), not the parent data row. EntityMixin's normalize loop
-      // deliberately passes `this` (the Entity class) as `parent` for
-      // Scalar fields — this is a Scalar-specific convention; the standard
-      // `Visit` contract is that `parent` is the containing data (see
-      // `Visit` JSDoc in `interface.ts`).
-      //
-      // We read the static `.key` (the entity key, e.g. `'Company'`) — not a
-      // runtime pk — directly from the class. This is more robust than
-      // re-parsing it out of the encoded key string, which would be
-      // ambiguous for composite primary keys that may contain `|`.
-      const entityKey: string = parent.key;
-      const keyStr = `${key}`;
-      const lastPipe = keyStr.lastIndexOf('|');
-      const fieldName = keyStr.slice(lastPipe + 1);
-      // Slice off the leading `${entityKey}|` prefix; this is robust to
-      // composite pks that legitimately contain `|` (e.g. "type|123").
-      const entityPk = keyStr.slice(entityKey.length + 1, lastPipe);
+    // Entity-field path: EntityMixin.normalize supplies the enclosing
+    // Entity class as `parentEntity`. `input` is the per-cell scalar value
+    // (e.g. 0.5), `parent` is the entity data row, `key` is the field name.
+    if (parentEntity && parentEntity.pk) {
+      const entityKey: string = parentEntity.key;
+      const entityPk = `${parentEntity.pk(parent, undefined, undefined, args)}`;
+      const fieldName = `${key}`;
 
       const cpk = `${entityKey}|${entityPk}|${lensValue}`;
-      // Merge only this field's value — EntityMixin calls us once per
-      // scalar field, and `merge` accumulates them into the cell.
-      if (fieldName in input) {
-        delegate.mergeEntity(this, cpk, { [fieldName]: input[fieldName] });
-      }
+      // Merge only this field's value — EntityMixin's loop calls us once
+      // per scalar field, and `merge` accumulates them into the cell.
+      delegate.mergeEntity(this, cpk, { [fieldName]: input });
 
       // Record entityKey on the wrapper so denormalize can resolve the
       // correct cell even when one Scalar instance is shared across

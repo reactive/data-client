@@ -312,29 +312,20 @@ export default function EntityMixin<TBase extends Constructor>(
       for (let i = 0; i < schemaKeys.length; i++) {
         const key = schemaKeys[i];
         if (Object.hasOwn(processedEntity, key)) {
-          const fieldSchema = this.schema[key];
-          if (typeof (fieldSchema as any).lensSelector === 'function') {
-            // Scalar field values are primitives (e.g. 0.5), but getVisit
-            // short-circuits primitives: `if (typeof value !== 'object') return value`
-            // so Scalar.normalize would never run. We pass the whole entity
-            // (an object) instead, letting Scalar extract what it needs.
-            //
-            // NOTE: This intentionally breaks the standard `Visit` contract
-            // (see `Visit` JSDoc in `interface.ts`): we pass `this` — the
-            // Entity *class* — as `parent` rather than the parent data row.
-            // Scalar.normalize relies on this to:
-            //   - read `parent.key` (the static entity key, e.g. `'Company'`)
-            //     to build correct compound pks, and
-            //   - read `parent.schema` to detect that it's on the entity path
-            //     vs. the standalone Values path.
-            // We also encode the field name into the key so Scalar can
-            // return the correct per-field wrapper.
-            processedEntity[key] = visit(
-              fieldSchema,
+          const fieldSchema = this.schema[key] as any;
+          // Schemas that consume primitive field values (e.g. Scalar) cannot
+          // route through `visit` because `visit` short-circuits primitives:
+          // we dispatch directly here and pass `this` (the Entity class) so
+          // the schema can resolve its enclosing entity context.
+          if (fieldSchema.acceptsPrimitives) {
+            processedEntity[key] = fieldSchema.normalize(
+              processedEntity[key],
               processedEntity,
-              this,
-              `${this.key}|${id}|${key}`,
+              key,
               args,
+              visit,
+              delegate,
+              this,
             );
           } else {
             processedEntity[key] = visit(
