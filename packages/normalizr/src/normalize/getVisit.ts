@@ -3,6 +3,14 @@ import { normalize as arrayNormalize } from '../schemas/Array.js';
 import { normalize as objectNormalize } from '../schemas/Object.js';
 
 export const getVisit = (delegate: INormalizeDelegate) => {
+  // Tracks the nearest enclosing entity-like schema so nested schemas (e.g.
+  // Scalar) can read their entity context via the 7th arg passed to
+  // schema.normalize. A closure variable is used (rather than a property on
+  // `delegate`) because cycling distinct Entity subclasses through a single
+  // property pollutes its inline cache and propagates polymorphic access into
+  // inlined call sites, deoptimizing the normalize hot path.
+  let currentEntity: any = undefined;
+
   const visit = (
     schema: any,
     value: any,
@@ -17,9 +25,35 @@ export const getVisit = (delegate: INormalizeDelegate) => {
     if (schema.normalize && typeof schema.normalize === 'function') {
       if (typeof value !== 'object') {
         if (schema.pk) return `${value}`;
-        return value;
+        // Most schemas (Object/Array/Values/Union) just pass primitives
+        // through. Schemas that need to handle primitives (e.g. Scalar) opt
+        // in via `acceptsPrimitives`.
+        if (!schema.acceptsPrimitives) return value;
       }
-      return schema.normalize(value, parent, key, args, visit, delegate);
+      if (schema.pk) {
+        const prev = currentEntity;
+        currentEntity = schema;
+        const result = schema.normalize(
+          value,
+          parent,
+          key,
+          args,
+          visit,
+          delegate,
+          prev,
+        );
+        currentEntity = prev;
+        return result;
+      }
+      return schema.normalize(
+        value,
+        parent,
+        key,
+        args,
+        visit,
+        delegate,
+        currentEntity,
+      );
     }
 
     if (typeof value !== 'object' || typeof schema !== 'object') return value;

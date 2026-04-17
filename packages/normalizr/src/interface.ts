@@ -27,6 +27,9 @@ export interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
     args: any[],
     visit: (...args: any) => any,
     delegate: { getEntity: any; setEntity: any },
+    /** The nearest enclosing entity-like schema (one with `pk`), if any.
+     * Tracked automatically by the visit walker. */
+    parentEntity?: any,
   ): any;
   denormalize(
     input: {},

@@ -312,30 +312,13 @@ export default function EntityMixin<TBase extends Constructor>(
       for (let i = 0; i < schemaKeys.length; i++) {
         const key = schemaKeys[i];
         if (Object.hasOwn(processedEntity, key)) {
-          const fieldSchema = this.schema[key] as any;
-          // Schemas that consume primitive field values (e.g. Scalar) cannot
-          // route through `visit` because `visit` short-circuits primitives:
-          // we dispatch directly here and pass `this` (the Entity class) so
-          // the schema can resolve its enclosing entity context.
-          if (fieldSchema.acceptsPrimitives) {
-            processedEntity[key] = fieldSchema.normalize(
-              processedEntity[key],
-              processedEntity,
-              key,
-              args,
-              visit,
-              delegate,
-              this,
-            );
-          } else {
-            processedEntity[key] = visit(
-              fieldSchema,
-              processedEntity[key],
-              processedEntity,
-              key,
-              args,
-            );
-          }
+          processedEntity[key] = visit(
+            this.schema[key],
+            processedEntity[key],
+            processedEntity,
+            key,
+            args,
+          );
         }
       }
 

@@ -26,12 +26,12 @@ interface ScalarOptions {
  * denormalize time based on endpoint args.
  *
  * A single Scalar instance can be shared across multiple entity types when
- * used as a field on `Entity.schema` — the enclosing Entity is supplied
- * by `EntityMixin.normalize` (as `parentEntity`) and recorded on the
- * wrapper so denormalize can recover the correct cell. To use a Scalar
- * standalone (e.g. inside `schema.Values` for a column-only endpoint), bind
- * it to an Entity class with the `entity` option since there is no parent
- * entity to infer from.
+ * used as a field on `Entity.schema` — the enclosing Entity is supplied by
+ * the visit walker (as `parentEntity`) and recorded on the wrapper so
+ * denormalize can recover the correct cell. To use a Scalar standalone
+ * (e.g. inside `schema.Values` for a column-only endpoint), bind it to an
+ * Entity class with the `entity` option since there is no parent entity to
+ * infer from.
  *
  * @see https://dataclient.io/rest/api/Scalar
  */
@@ -39,9 +39,9 @@ export default class Scalar implements Mergeable {
   readonly key: string;
   readonly lensSelector: (args: readonly any[]) => string | undefined;
   readonly entityKey: string | undefined;
-  /** Marks this schema as accepting primitive values directly. `EntityMixin`'s
-   * normalize loop dispatches to `normalize()` instead of routing through
-   * `visit` (whose primitive short-circuit would otherwise bypass us). */
+  /** Opt-in marker: tells the visit walker to dispatch to `normalize()` for
+   * primitive values (the per-cell scalar value, e.g. `0.5`) instead of
+   * applying its primitive short-circuit. */
   readonly acceptsPrimitives = true;
 
   constructor(options: ScalarOptions) {
@@ -100,8 +100,8 @@ export default class Scalar implements Mergeable {
   ): any {
     const lensValue = this.lensSelector(args);
 
-    // Entity-field path: EntityMixin.normalize supplies the enclosing
-    // Entity class as `parentEntity`. `input` is the per-cell scalar value
+    // Entity-field path: the visit walker supplies the enclosing Entity
+    // class as `parentEntity`. `input` is the per-cell scalar value
     // (e.g. 0.5), `parent` is the entity data row, `key` is the field name.
     if (parentEntity && parentEntity.pk) {
       const entityKey: string = parentEntity.key;
