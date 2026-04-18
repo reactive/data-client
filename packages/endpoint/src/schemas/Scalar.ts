@@ -58,6 +58,9 @@ export default class Scalar implements Mergeable {
     return { ...existing, ...incoming };
   }
 
+  /** Override point: decide whether the incoming write should be reordered
+   * behind the existing one. Default compares `fetchedAt` so older writes
+   * never clobber newer ones (matches Entity behavior). */
   shouldReorder(
     existingMeta: { date: number; fetchedAt: number },
     incomingMeta: { date: number; fetchedAt: number },
@@ -100,23 +103,35 @@ export default class Scalar implements Mergeable {
   ): any {
     const lensValue = this.lensSelector(args);
 
+    // Without a lens we cannot derive a retrievable cell key — writing to
+    // `${…}|undefined` would silently corrupt the Scalar table (literal
+    // "undefined" collides across rows) and denormalize would never find
+    // the data. A missing lens during normalize is a configuration bug;
+    // throw rather than mask it.
+    if (lensValue === undefined) {
+      throw new Error(
+        `${this.key}: lens returned undefined during normalize. Ensure endpoint args contain the lens value.`,
+      );
+    }
+
     // Entity-field path: the visit walker supplies the enclosing Entity
     // class as `parentEntity`. `input` is the per-cell scalar value
-    // (e.g. 0.5), `parent` is the entity data row, `key` is the field name.
+    // (e.g. 0.5), `parent` is the entity data row, `key` is the field name
+    // (always a string from Object.keys, no coercion needed).
     if (parentEntity && parentEntity.pk) {
       const entityKey: string = parentEntity.key;
-      const entityPk = `${parentEntity.pk(parent, undefined, undefined, args)}`;
-      const fieldName = `${key}`;
-
-      const cpk = `${entityKey}|${entityPk}|${lensValue}`;
+      const id = `${parentEntity.pk(parent, undefined, undefined, args)}`;
       // Merge only this field's value — EntityMixin's loop calls us once
       // per scalar field, and `merge` accumulates them into the cell.
-      delegate.mergeEntity(this, cpk, { [fieldName]: input });
-
-      // Record entityKey on the wrapper so denormalize can resolve the
-      // correct cell even when one Scalar instance is shared across
-      // multiple entity types.
-      return { id: entityPk, field: fieldName, entityKey };
+      delegate.mergeEntity(this, `${entityKey}|${id}|${lensValue}`, {
+        [key]: input,
+      });
+      // Wrapper is a tuple: `[entityPk, fieldName, entityKey]`. Using an
+      // array (not an object) lets denormalize distinguish it from cell
+      // data via `Array.isArray` without a brand property — and produces
+      // smaller serialized state for SSR. `entityKey` is recorded so a
+      // single Scalar shared across entity types resolves the correct cell.
+      return [id, key, entityKey];
     }
 
     // Values path: input IS the scalar cell data, key IS the entity pk.
@@ -126,8 +141,7 @@ export default class Scalar implements Mergeable {
         'Scalar used standalone (e.g. inside `schema.Values`) requires an `entity` option to bind it to an Entity class.',
       );
     }
-    const entityPk = `${key}`;
-    const cpk = `${this.entityKey}|${entityPk}|${lensValue}`;
+    const cpk = `${this.entityKey}|${key}|${lensValue}`;
     delegate.mergeEntity(this, cpk, { ...input });
     return cpk;
   }
@@ -139,25 +153,21 @@ export default class Scalar implements Mergeable {
   ): any {
     if (!input || typeof input === 'symbol') return input;
 
-    // input from entity field: { id, field, entityKey } (Union-like wrapper)
-    if (typeof input === 'object' && 'field' in input) {
+    // Entity-field wrapper: `[entityPk, fieldName, entityKey]` (see normalize).
+    if (Array.isArray(input)) {
       const lensValue = this.lensSelector(args);
       if (lensValue === undefined) return undefined;
-      // Prefer entityKey on the wrapper (recorded during entity-path
-      // normalize) so a Scalar shared across entity types resolves the
-      // correct cell. Fall back to the bound entity for back-compat.
-      const entityKey = input.entityKey ?? this.entityKey;
-      const cpk = `${entityKey}|${input.id}|${lensValue}`;
-      const cellData = unvisit(this, cpk);
-      if (cellData && typeof cellData !== 'symbol') {
-        return cellData[input.field];
-      }
-      return undefined;
+      const cellData = unvisit(this, `${input[2]}|${input[0]}|${lensValue}`);
+      return cellData && typeof cellData !== 'symbol' ?
+          cellData[input[1]]
+        : undefined;
     }
 
+    // Cell data passes through unchanged (recursive call from `unvisit`
+    // when looking up the cell via its compound pk).
     if (typeof input === 'object') return input;
 
-    // Values path: input is the compound pk string
+    // Values path: input is the compound pk string.
     return unvisit(this, input);
   }
 

@@ -110,8 +110,8 @@ When an entity with `Scalar` schema fields is normalized:
    `Scalar.normalize` (avoiding the primitive short-circuit in `getVisit`).
 2. `Scalar.normalize` discovers its fields from the parent entity's schema, extracts their
    values, and stores them as a grouped cell via `delegate.mergeEntity(ScalarCell, compoundPk, cellData)`.
-3. A lens-independent wrapper `{ id: entityPk, field: fieldName }` replaces each scalar field
-   on the entity (similar to how [Union](./Union.md) stores `{ id, schema }` wrappers).
+3. A lens-independent tuple wrapper `[entityPk, fieldName, entityKey]` replaces each scalar
+   field on the entity (an array, distinguishable from cell data via `Array.isArray`).
 
 ### Denormalize
 
@@ -132,8 +132,8 @@ scalar values, while sharing the same base entity data.
 entities['Company']['1'] = {
   id: '1',
   price: 100,
-  pct_equity: { id: '1', field: 'pct_equity' },
-  shares: { id: '1', field: 'shares' },
+  pct_equity: ['1', 'pct_equity', 'Company'],
+  shares: ['1', 'shares', 'Company'],
 }
 
 entities['ScalarCell(portfolio)']['Company|1|portfolioA'] = {

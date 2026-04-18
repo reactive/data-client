@@ -48,16 +48,8 @@ describe('Scalar', () => {
       expect(companyEntity).toBeDefined();
       expect(companyEntity.id).toBe('1');
       expect(companyEntity.price).toBe(100);
-      expect(companyEntity.pct_equity).toEqual({
-        id: '1',
-        field: 'pct_equity',
-        entityKey: 'Company',
-      });
-      expect(companyEntity.shares).toEqual({
-        id: '1',
-        field: 'shares',
-        entityKey: 'Company',
-      });
+      expect(companyEntity.pct_equity).toEqual(['1', 'pct_equity', 'Company']);
+      expect(companyEntity.shares).toEqual(['1', 'shares', 'Company']);
 
       // Scalar stores the grouped data
       const cellKey = 'Scalar(portfolio)';
@@ -81,11 +73,7 @@ describe('Scalar', () => {
 
       // Entity must store a wrapper, not the raw falsy value.
       const companyEntity = result.entities['Company']?.['1'];
-      expect(companyEntity.pct_equity).toEqual({
-        id: '1',
-        field: 'pct_equity',
-        entityKey: 'Company',
-      });
+      expect(companyEntity.pct_equity).toEqual(['1', 'pct_equity', 'Company']);
 
       // Scalar cell must record the falsy value verbatim.
       const cell =
@@ -364,11 +352,7 @@ describe('Scalar', () => {
 
       const wrapper =
         initial.entities['CompositeCompany']?.['type|123']?.pct_equity;
-      expect(wrapper).toEqual({
-        id: 'type|123',
-        field: 'pct_equity',
-        entityKey: 'CompositeCompany',
-      });
+      expect(wrapper).toEqual(['type|123', 'pct_equity', 'CompositeCompany']);
 
       const withB = normalize(
         new schema.Values(CompositeScalar),
@@ -536,6 +520,82 @@ describe('Scalar', () => {
         [{ portfolio: 'portfolioA' }],
       ) as any[];
       expect(fundResult[0].pct_equity).toBe(0.9);
+    });
+  });
+
+  describe('field name collision with wrapper shape (regression)', () => {
+    // Cell data is passed back through `Scalar.denormalize` by `unvisitEntity`
+    // (which calls `schema.denormalize(entityCopy, args, unvisit)` after
+    // `createIfValid`). The wrapper is an array `[id, field, entityKey]` and
+    // cell data is always a plain object, so `Array.isArray` distinguishes
+    // them — even when the user names a Scalar-mapped field `field`/`id`.
+    class Reading extends IDEntity {
+      label = '';
+      field = 0;
+      id_ = '';
+
+      static key = 'Reading';
+    }
+    const ReadingScalar = new Scalar({
+      lens: args => args[0]?.sensor,
+      key: 'sensor',
+      entity: Reading,
+    });
+    Reading.schema = {
+      field: ReadingScalar,
+      id_: ReadingScalar,
+    } as any;
+
+    it('round-trips when cell data has a property named `field`', () => {
+      const state = normalize(
+        [Reading],
+        [{ id: '1', label: 'Site A', field: 42, id_: 'collision' }],
+        [{ sensor: 'sensorA' }],
+      );
+
+      // Cell stores the user-defined `field` and `id_` columns verbatim.
+      const cell = state.entities['Scalar(sensor)']?.['Reading|1|sensorA'];
+      expect(cell).toEqual({ field: 42, id_: 'collision' });
+
+      const memo = new SimpleMemoCache();
+      const result = memo.denormalize([Reading], state.result, state.entities, [
+        { sensor: 'sensorA' },
+      ]) as any[];
+
+      expect(result[0].id).toBe('1');
+      expect(result[0].label).toBe('Site A');
+      // Cell data `{ field: 42, ... }` is a plain object; the wrapper is an
+      // array. `Array.isArray` keeps them distinct so `field` resolves to 42
+      // rather than being misidentified as a wrapper and returning `undefined`.
+      expect(result[0].field).toBe(42);
+      expect(result[0].id_).toBe('collision');
+    });
+  });
+
+  describe('lens returning undefined during normalize (regression)', () => {
+    // A missing lens at normalize time is a configuration bug: the cpk would
+    // collapse to `…|undefined` (literal "undefined" colliding across rows)
+    // and denormalize would never find the data again. We throw rather than
+    // silently corrupt the Scalar table or drop the value.
+    it('throws on the entity-field path when the lens is missing', () => {
+      expect(() =>
+        normalize(
+          [Company],
+          [{ id: '1', price: 100, pct_equity: 0.5, shares: 32342 }],
+          // No `portfolio` key on args → lensSelector returns undefined.
+          [{}],
+        ),
+      ).toThrow(/lens returned undefined/);
+    });
+
+    it('throws on the Values path when the lens is missing', () => {
+      expect(() =>
+        normalize(
+          new schema.Values(PortfolioScalar),
+          { '1': { pct_equity: 0.7, shares: 555 } },
+          [{}],
+        ),
+      ).toThrow(/lens returned undefined/);
     });
   });
 

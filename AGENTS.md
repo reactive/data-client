@@ -1,6 +1,6 @@
 # Reactive Data Client
 
-Monorepo for `@data-client` npm packages.
+Monorepo for `@data-client` high performance npm packages.
 
 ## Architecture
 
