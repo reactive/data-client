@@ -14,7 +14,6 @@ import {
   DenormalizeNullable,
   EntityPath,
   MemoCache,
-  isEntity,
   denormalize,
   validateQueryKey,
 } from '@data-client/normalizr';
@@ -526,7 +525,7 @@ export default class Controller<
     if (shouldQuery) {
       isInvalid = !validateQueryKey(input);
       // endpoint without entities
-    } else if (!schema || !schemaHasEntity(schema)) {
+    } else if (!schema || !requiresDenormalize(schema)) {
       return {
         data: cacheEndpoints,
         expiryStatus: this.getExpiryStatus(
@@ -645,23 +644,23 @@ function entityExpiresAt(
   return expiresAt;
 }
 
-/** Determine whether the schema has any entities.
+/** Whether `denormalize()` must run to reconstruct the response.
  *
- * Without entities, denormalization is not needed, and results should not be queried.
+ * True iff some node in the schema tree defines `normalize` — meaning it
+ * transforms the response when written (entity write, polymorphic hoist,
+ * lazy delegation, etc.), so the cached value differs from the response.
+ * Mirrors the dispatch in `getVisit.ts`: schema classes are detected here
+ * by the same hook the visit walker uses, so we never need to walk their
+ * instance fields.
  */
-function schemaHasEntity(schema: Schema): boolean {
-  if (isEntity(schema)) return true;
+function requiresDenormalize(schema: Schema): boolean {
+  if (!schema) return false;
+  if (typeof (schema as any).normalize === 'function') return true;
   if (Array.isArray(schema))
-    return schema.length !== 0 && schemaHasEntity(schema[0]);
-  if (schema && (typeof schema === 'object' || typeof schema === 'function')) {
-    const nestedSchema =
-      'schema' in schema ? (schema.schema as Record<string, Schema>) : schema;
-    if (typeof nestedSchema === 'function') {
-      return schemaHasEntity(nestedSchema);
-    }
-    return Object.values(nestedSchema).some(x => schemaHasEntity(x));
-  }
-  return false;
+    return schema.length !== 0 && requiresDenormalize(schema[0]);
+  if (typeof schema !== 'object') return false;
+  // Plain-object schema map (e.g. `{ data: [Tacos], page: { ... } }`).
+  return Object.values(schema as object).some(x => requiresDenormalize(x));
 }
 
 export type { ErrorTypes };
