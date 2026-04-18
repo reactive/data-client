@@ -96,7 +96,7 @@ fires alongside as a cheaper lens-only refresh — both write to the same
 
 <HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
-endpoint: new RestEndpoint({path: '/companies', searchParams: {} as { portfolio: string }}),
+endpoint: new RestEndpoint({path: '/companies', searchParams: {}}),
 args: [{ portfolio: 'A' }],
 response: [
 { id: '1', name: 'Acme Corp', price: 145.20, pct_equity: 0.50, shares: 10000 },
@@ -106,7 +106,7 @@ response: [
 delay: 150,
 },
 {
-endpoint: new RestEndpoint({path: '/companies', searchParams: {} as { portfolio: string }}),
+endpoint: new RestEndpoint({path: '/companies', searchParams: {}}),
 args: [{ portfolio: 'B' }],
 response: [
 { id: '1', name: 'Acme Corp', price: 145.20, pct_equity: 0.30, shares: 6000 },
@@ -116,7 +116,7 @@ response: [
 delay: 150,
 },
 {
-endpoint: new RestEndpoint({path: '/companies/columns', searchParams: {} as { portfolio: string }}),
+endpoint: new RestEndpoint({path: '/companies/columns', searchParams: {}}),
 args: [{ portfolio: 'A' }],
 response: {
 '1': { pct_equity: 0.50, shares: 10000 },
@@ -126,7 +126,7 @@ response: {
 delay: 150,
 },
 {
-endpoint: new RestEndpoint({path: '/companies/columns', searchParams: {} as { portfolio: string }}),
+endpoint: new RestEndpoint({path: '/companies/columns', searchParams: {}}),
 args: [{ portfolio: 'B' }],
 response: {
 '1': { pct_equity: 0.30, shares: 6000 },

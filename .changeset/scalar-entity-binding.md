@@ -2,6 +2,10 @@
 '@data-client/endpoint': minor
 '@data-client/rest': minor
 '@data-client/graphql': minor
+'@data-client/normalizr': minor
+'@data-client/core': minor
+'@data-client/react': minor
+'@data-client/vue': minor
 ---
 
 Add [Scalar](https://dataclient.io/rest/api/Scalar) schema for lens-dependent entity fields.

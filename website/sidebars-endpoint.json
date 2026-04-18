@@ -37,6 +37,10 @@
   },
   {
     "type": "doc",
+    "id": "api/Scalar"
+  },
+  {
+    "type": "doc",
     "id": "api/Query"
   },
   {
