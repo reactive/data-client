@@ -599,6 +599,212 @@ describe('Scalar', () => {
     });
   });
 
+  describe('denormalize passthroughs and edge cases', () => {
+    const s = new Scalar({
+      lens: args => args[0]?.portfolio,
+      key: 'edge',
+      entity: Company,
+    });
+
+    it.each([
+      ['null', null],
+      ['undefined', undefined],
+      ['zero', 0],
+      ['empty string', ''],
+      ['false', false],
+    ])(
+      'returns the falsy input (%s) without further lookup',
+      (_label, value) => {
+        const unvisit = jest.fn();
+        expect(s.denormalize(value, [{ portfolio: 'p' }], unvisit)).toBe(value);
+        expect(unvisit).not.toHaveBeenCalled();
+      },
+    );
+
+    it('returns symbol inputs unchanged (suspense/INVALID propagation)', () => {
+      const sym = Symbol('INVALID');
+      const unvisit = jest.fn();
+      expect(s.denormalize(sym, [{ portfolio: 'p' }], unvisit)).toBe(sym);
+      expect(unvisit).not.toHaveBeenCalled();
+    });
+
+    it('returns plain-object inputs unchanged (cell data passthrough)', () => {
+      // Cell data flows back through `Scalar.denormalize` from
+      // `unvisitEntityObject` after a cpk lookup; it must pass through so the
+      // wrapper-resolving branch above can index the named field.
+      const cell = { pct_equity: 0.5, shares: 10 };
+      const unvisit = jest.fn();
+      expect(s.denormalize(cell, [{ portfolio: 'p' }], unvisit)).toBe(cell);
+      expect(unvisit).not.toHaveBeenCalled();
+    });
+
+    it('returns undefined for entity-field wrapper when lens is missing at denormalize', () => {
+      const wrapper: [string, string, string] = ['1', 'pct_equity', 'Company'];
+      const unvisit = jest.fn();
+      expect(s.denormalize(wrapper, [{}], unvisit)).toBeUndefined();
+      // No lookup attempted when we cannot derive the cell key.
+      expect(unvisit).not.toHaveBeenCalled();
+    });
+
+    it('returns undefined when the cell lookup yields undefined', () => {
+      const wrapper: [string, string, string] = [
+        'missing',
+        'pct_equity',
+        'Company',
+      ];
+      const unvisit = jest.fn(() => undefined);
+      expect(
+        s.denormalize(wrapper, [{ portfolio: 'p' }], unvisit),
+      ).toBeUndefined();
+      expect(unvisit).toHaveBeenCalledWith(s, 'Company|missing|p');
+    });
+
+    it('returns undefined when the cell lookup yields a symbol (INVALID)', () => {
+      const INVALID = Symbol('INVALID');
+      const wrapper: [string, string, string] = ['1', 'pct_equity', 'Company'];
+      const unvisit = jest.fn(() => INVALID);
+      expect(
+        s.denormalize(wrapper, [{ portfolio: 'p' }], unvisit),
+      ).toBeUndefined();
+    });
+
+    it('looks up by cpk string and returns the cell when called via Values path', () => {
+      // Recursive entry from `unvisitEntity` for string inputs (e.g. when a
+      // Scalar appears as the value type in `schema.Values`). The Scalar should
+      // delegate to `unvisit` so the cache layer can resolve and memoize.
+      const cell = { pct_equity: 0.7 };
+      const unvisit = jest.fn(() => cell);
+      const out = s.denormalize(
+        'Company|1|portfolioB',
+        [{ portfolio: 'portfolioB' }],
+        unvisit,
+      );
+      expect(unvisit).toHaveBeenCalledWith(s, 'Company|1|portfolioB');
+      expect(out).toBe(cell);
+    });
+  });
+
+  describe('Values denormalize round-trip', () => {
+    it('returns cell objects keyed by entity pk', () => {
+      const state = normalize(
+        new schema.Values(PortfolioScalar),
+        {
+          '1': { pct_equity: 0.7, shares: 555 },
+          '2': { pct_equity: 0.1, shares: 999 },
+        },
+        [{ portfolio: 'portfolioB' }],
+      );
+
+      const memo = new SimpleMemoCache();
+      const result = memo.denormalize(
+        new schema.Values(PortfolioScalar),
+        state.result,
+        state.entities,
+        [{ portfolio: 'portfolioB' }],
+      ) as Record<string, any>;
+
+      expect(result['1']).toEqual({ pct_equity: 0.7, shares: 555 });
+      expect(result['2']).toEqual({ pct_equity: 0.1, shares: 999 });
+    });
+  });
+
+  describe('createIfValid', () => {
+    it('returns a shallow copy of the input', () => {
+      const s = new Scalar({
+        lens: args => args[0]?.portfolio,
+        key: 'cif',
+      });
+      const input = { pct_equity: 0.5, shares: 10 };
+      const out = s.createIfValid(input);
+      expect(out).toEqual(input);
+      // Must not mutate or alias the original — denormalize relies on a fresh
+      // object so cache writes don't leak back into the source.
+      expect(out).not.toBe(input);
+    });
+  });
+
+  describe('merge', () => {
+    it('combines existing and incoming, with incoming winning on overlap', () => {
+      const s = new Scalar({
+        lens: args => args[0]?.portfolio,
+        key: 'm',
+      });
+      expect(s.merge({ a: 1, b: 2 }, { b: 3, c: 4 })).toEqual({
+        a: 1,
+        b: 3,
+        c: 4,
+      });
+    });
+
+    it('accumulates per-field writes when called repeatedly (EntityMixin loop)', () => {
+      const s = new Scalar({
+        lens: args => args[0]?.portfolio,
+        key: 'm2',
+      });
+      // EntityMixin invokes Scalar once per field; the store applies `merge`
+      // between the existing cell and each one-key write.
+      const cell = s.merge({}, { pct_equity: 0.5 });
+      const cell2 = s.merge(cell, { shares: 32342 });
+      expect(cell2).toEqual({ pct_equity: 0.5, shares: 32342 });
+    });
+  });
+
+  describe('shouldReorder / mergeWithStore / mergeMetaWithStore', () => {
+    const s = new Scalar({
+      lens: args => args[0]?.portfolio,
+      key: 'reorder',
+    });
+    const olderMeta = { date: 1, fetchedAt: 1, expiresAt: 100 };
+    const newerMeta = { date: 2, fetchedAt: 2, expiresAt: 200 };
+
+    it('reorders only when incoming is older than existing', () => {
+      // Stale (older) write should be reordered behind the newer existing.
+      expect(
+        s.shouldReorder(newerMeta, olderMeta, { x: 'new' }, { x: 'old' }),
+      ).toBe(true);
+      // Fresh (newer) write should NOT be reordered.
+      expect(
+        s.shouldReorder(olderMeta, newerMeta, { x: 'old' }, { x: 'new' }),
+      ).toBe(false);
+      // Equal timestamps: not strictly older, so do not reorder.
+      expect(
+        s.shouldReorder(olderMeta, olderMeta, { x: 'a' }, { x: 'b' }),
+      ).toBe(false);
+    });
+
+    it('mergeWithStore: newer incoming overrides existing fields', () => {
+      const result = s.mergeWithStore(
+        olderMeta,
+        newerMeta,
+        { a: 1, b: 2 },
+        { b: 3, c: 4 },
+      );
+      expect(result).toEqual({ a: 1, b: 3, c: 4 });
+    });
+
+    it('mergeWithStore: stale incoming yields to existing on overlap', () => {
+      // Reorder branch: merge(incoming, existing) so existing wins.
+      const result = s.mergeWithStore(
+        newerMeta,
+        olderMeta,
+        { a: 1, b: 2 },
+        { b: 99, c: 4 },
+      );
+      expect(result).toEqual({ a: 1, b: 2, c: 4 });
+    });
+
+    it('mergeMetaWithStore: keeps newer meta, drops stale incoming meta', () => {
+      // Newer incoming → use incomingMeta.
+      expect(s.mergeMetaWithStore(olderMeta, newerMeta, {}, {})).toBe(
+        newerMeta,
+      );
+      // Stale incoming → keep existingMeta.
+      expect(s.mergeMetaWithStore(newerMeta, olderMeta, {}, {})).toBe(
+        newerMeta,
+      );
+    });
+  });
+
   describe('Values-only fetch without prior entity fetch (regression)', () => {
     it('builds correct compound pks when no entity has been normalized yet', () => {
       const result = normalize(
