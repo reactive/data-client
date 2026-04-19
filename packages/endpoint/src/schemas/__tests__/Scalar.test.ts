@@ -180,11 +180,11 @@ describe('Scalar', () => {
         stateA,
       );
 
-      // Use separate memo instances since different args produce different results
-      const memoA = new SimpleMemoCache();
-      const memoB = new SimpleMemoCache();
+      // A single shared MemoCache must produce different results when only
+      // the lens args change — the entity-level cache must bucket by lens.
+      const memo = new SimpleMemoCache();
 
-      const resultA = memoA.denormalize(
+      const resultA = memo.denormalize(
         [Company],
         stateB.result,
         stateB.entities,
@@ -193,7 +193,7 @@ describe('Scalar', () => {
       expect(resultA[0].pct_equity).toBe(0.5);
       expect(resultA[0].shares).toBe(32342);
 
-      const resultB = memoB.denormalize(
+      const resultB = memo.denormalize(
         [Company],
         stateB.result,
         stateB.entities,
@@ -832,6 +832,103 @@ describe('Scalar', () => {
           k.startsWith('undefined|'),
         ),
       ).toBe(false);
+    });
+  });
+
+  describe('shared MemoCache across lens changes (regression)', () => {
+    // Reproduces the docs scenario at docs/rest/api/Scalar.md: after both
+    // portfolio A and B are loaded, switching back used to return stale
+    // values. The entity-level memo had no `args` dimension, so the chain
+    // recorded for the first call would replay against the original Scalar
+    // cell (e.g. CellA) regardless of the current lens — re-renders with the
+    // new portfolio kept returning the previously-computed entity.
+    it('A → B → A on the same state and entity yields the correct lens result each time', () => {
+      const stateA = normalize(
+        [Company],
+        [{ id: '1', price: 100, pct_equity: 0.5, shares: 32342 }],
+        [{ portfolio: 'portfolioA' }],
+      );
+      const stateB = normalize(
+        [Company],
+        [{ id: '1', price: 100, pct_equity: 0.3, shares: 323 }],
+        [{ portfolio: 'portfolioB' }],
+        stateA,
+      );
+
+      // One MemoCache shared across all denormalize calls — mirrors how the
+      // controller reuses a single MemoCache across re-renders.
+      const memo = new SimpleMemoCache();
+
+      const first = memo.denormalize(
+        [Company],
+        stateB.result,
+        stateB.entities,
+        [{ portfolio: 'portfolioA' }],
+      ) as any[];
+      expect(first[0].pct_equity).toBe(0.5);
+      expect(first[0].shares).toBe(32342);
+
+      const second = memo.denormalize(
+        [Company],
+        stateB.result,
+        stateB.entities,
+        [{ portfolio: 'portfolioB' }],
+      ) as any[];
+      expect(second[0].pct_equity).toBe(0.3);
+      expect(second[0].shares).toBe(323);
+
+      // The third switch is what was "stuck" in the docs example: same
+      // entities/result, just the args change back. Must return A's values.
+      const third = memo.denormalize(
+        [Company],
+        stateB.result,
+        stateB.entities,
+        [{ portfolio: 'portfolioA' }],
+      ) as any[];
+      expect(third[0].pct_equity).toBe(0.5);
+      expect(third[0].shares).toBe(32342);
+    });
+
+    it('alternating lens many times never returns the wrong cell', () => {
+      const state = normalize(
+        [Company],
+        [
+          { id: '1', price: 100, pct_equity: 0.5, shares: 32342 },
+          { id: '2', price: 200, pct_equity: 0.7, shares: 1000 },
+        ],
+        [{ portfolio: 'portfolioA' }],
+      );
+      const stateB = normalize(
+        [Company],
+        [
+          { id: '1', price: 100, pct_equity: 0.3, shares: 323 },
+          { id: '2', price: 200, pct_equity: 0.4, shares: 50 },
+        ],
+        [{ portfolio: 'portfolioB' }],
+        state,
+      );
+
+      const memo = new SimpleMemoCache();
+      const lenses = ['portfolioA', 'portfolioB', 'portfolioA', 'portfolioB'];
+      for (const portfolio of lenses) {
+        const result = memo.denormalize(
+          [Company],
+          stateB.result,
+          stateB.entities,
+          [{ portfolio }],
+        ) as any[];
+        if (portfolio === 'portfolioA') {
+          expect(result[0].pct_equity).toBe(0.5);
+          expect(result[0].shares).toBe(32342);
+          expect(result[1].pct_equity).toBe(0.7);
+          expect(result[1].shares).toBe(1000);
+        } else {
+          expect(result[0].pct_equity).toBe(0.3);
+          expect(result[0].shares).toBe(323);
+          expect(result[1].pct_equity).toBe(0.4);
+          expect(result[1].shares).toBe(50);
+        }
+      }
     });
   });
 });
