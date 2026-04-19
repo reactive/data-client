@@ -8,16 +8,17 @@ hide_title: true
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import PkgTabs from '@site/src/components/PkgTabs';
-import SkillTabs from '@site/src/components/SkillTabs';
 import Installation from '../shared/\_installation.mdx';
 import StackBlitz from '@site/src/components/StackBlitz';
 import Link from '@docusaurus/Link';
 
-<SkillTabs repo="reactive/data-client" />
-
-Then run skill `/data-client-setup` or:
-
 <PkgTabs pkgs="@data-client/react @data-client/test @data-client/rest" />
+
+:::tip[Use Agent Skills]
+
+Prefer to scaffold via your AI agent? See [Agent Skills](./agent-skills.md) and run `/data-client-setup`.
+
+:::
 
 ## Add provider at top-level component
 

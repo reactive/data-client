@@ -54,7 +54,7 @@ function HomepageHeader() {
           <GithubStarsButton />
           <Link
             className="button button--primary"
-            to="/docs/getting-started/installation"
+            to="/docs/getting-started/agent-skills"
           >
             Get Started
           </Link>
@@ -86,7 +86,7 @@ function HomepageEnder() {
           </Link>
           <Link
             className="button button--primary"
-            to="/docs/getting-started/installation"
+            to="/docs/getting-started/agent-skills"
           >
             Get Started{' '}
             <svg

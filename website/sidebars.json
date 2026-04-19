@@ -11,6 +11,10 @@
       "items": [
         {
           "type": "doc",
+          "id": "getting-started/agent-skills"
+        },
+        {
+          "type": "doc",
           "id": "getting-started/installation"
         },
         {
