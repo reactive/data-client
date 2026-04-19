@@ -7,37 +7,37 @@ sidebar_label: Agent Skills
 import SkillTabs from '@site/src/components/SkillTabs';
 import Link from '@docusaurus/Link';
 
-[Agent Skills](https://skills.sh/reactive/data-client) teach AI coding agents
-(Claude Code, Cursor, Codex, etc.) how to use Reactive Data Client correctly —
-covering installation, schema design, REST/GraphQL endpoints, hooks, and testing.
-
-Install the skills into your project so your agent can scaffold, migrate, and
-extend `@data-client` code without guessing.
+The quickest way to get started is to let an [AI Agent](https://agentskills.io) install using skill [/data-client-setup](https://skills.sh/reactive/data-client/data-client-setup).
 
 ## Install
 
 <SkillTabs repo="reactive/data-client" />
 
 Then run skill `/data-client-setup` to install and wire up the provider for your
-project. The setup skill detects your framework (NextJS, Expo, React Native, Vue,
-plain React) and protocol (REST, GraphQL, custom) and applies the right configuration.
+project. It will automatically detect your framework (NextJS, Expo, React Native, Vue,
+plain React), perform installation, as well as do migrations when existing
+endpoints are found.
 
 ## Available Skills
 
-- **`/data-client-setup`** — installs packages and adds the provider for your stack.
-- **`/data-client-rest-setup`** — generates `resource()` definitions and migrates
-  existing `fetch`/`axios` clients (see [REST Agent Skills](/rest#rest-agent-skills)).
-- **`/data-client-schema`** — designs `Entity`, `Collection`, `Union`, and `Query` schemas.
-- **`/data-client-react`** — uses `useSuspense`, `useQuery`, `useLive`, mutations.
-- **`/data-client-react-testing`** / **`/data-client-vue-testing`** — writes tests with
-  `renderDataHook` / `renderDataCompose`, fixtures, and `nock`.
-- **`/data-client-manager`** — implements custom `Manager`s for websockets, SSE,
-  polling, logging, and middleware.
+- [**`/data-client-setup`**](https://skills.sh/reactive/data-client/data-client-setup) — installs and configures Data Client for your framework and API style.
+- [**`/data-client-rest-setup`**](https://skills.sh/reactive/data-client/data-client-rest-setup) — sets up `@data-client/rest` and migrates existing
+  `fetch`/`axios` clients.
+- [**`/data-client-endpoint-setup`**](https://skills.sh/reactive/data-client/data-client-endpoint-setup) — wraps custom async functions with `Endpoint`
+  for non-REST and non-GraphQL workflows.
+- [**`/data-client-graphql-setup`**](https://skills.sh/reactive/data-client/data-client-graphql-setup) — configures `@data-client/graphql` and `GQLEndpoint`
+  for GraphQL APIs.
+- [**`/data-client-schema`**](https://skills.sh/reactive/data-client/data-client-schema) — designs `Entity`, `Collection`, `Union`, `Query`,
+  and related schemas.
+- [**`/data-client-rest`**](https://skills.sh/reactive/data-client/data-client-rest) — defines REST APIs with `resource()`, `RestEndpoint`,
+  CRUD methods, and response parsing.
+- [**`/data-client-react`**](https://skills.sh/reactive/data-client/data-client-react) — uses `useSuspense`, `useFetch`, `useQuery`, `useLive`,
+  and mutation hooks.
+- [**`/data-client-react-testing`**](https://skills.sh/reactive/data-client/data-client-react-testing) — writes React tests with `renderDataHook`,
+  fixtures, interceptors, and `nock`.
+- [**`/data-client-vue-testing`**](https://skills.sh/reactive/data-client/data-client-vue-testing) — writes Vue tests with `renderDataCompose`,
+  `mountDataClient`, fixtures, and `nock`.
+- [**`/data-client-manager`**](https://skills.sh/reactive/data-client/data-client-manager) — implements custom `Manager`s for websockets, SSE,
+  polling, subscriptions, logging, and middleware.
 
 Browse the full catalog at [skills.sh/reactive/data-client](https://skills.sh/reactive/data-client).
-
-<center>
-
-<Link className="button button--secondary" to="./installation">Next: Installation »</Link>
-
-</center>
