@@ -19,7 +19,7 @@
     "@data-client/rest": "0.17.0",
     "vue": "^3.5.22",
     "vue-router": "^4.6.3",
-    "uuid": "^13.0.0"
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.1",

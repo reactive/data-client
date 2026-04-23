@@ -69,6 +69,6 @@
     "rehype-highlight": "7.0.2",
     "remark-gfm": "4.0.1",
     "remark-remove-comments": "1.1.1",
-    "uuid": "^13.0.0"
+    "uuid": "^14.0.0"
   }
 }
