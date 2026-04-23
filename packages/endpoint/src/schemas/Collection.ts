@@ -2,6 +2,7 @@ import ArraySchema from './Array.js';
 import { consistentSerialize } from './consistentSerialize.js';
 import Values from './Values.js';
 import {
+  IDenormalizeDelegate,
   INormalizeDelegate,
   PolymorphicInterface,
   IQueryDelegate,
@@ -276,10 +277,9 @@ export default class CollectionSchema<
 
   denormalize(
     input: any,
-    args: readonly any[],
-    unvisit: (schema: any, input: any) => any,
+    delegate: IDenormalizeDelegate,
   ): ReturnType<S['denormalize']> {
-    return this.schema.denormalize(input, args, unvisit) as any;
+    return this.schema.denormalize(input, delegate) as any;
   }
 }
 
@@ -525,12 +525,11 @@ function createIfValid(value: object): any | undefined {
 function denormalize(
   this: CollectionSchema<any, any>,
   input: any,
-  args: readonly any[],
-  unvisit: (schema: any, input: any) => any,
+  delegate: IDenormalizeDelegate,
 ): any {
   return Array.isArray(input) ?
-      (this.schema.denormalize(input, args, unvisit) as any)
-    : (this.schema.denormalize([input], args, unvisit)[0] as any);
+      (this.schema.denormalize(input, delegate) as any)
+    : (this.schema.denormalize([input], delegate)[0] as any);
 }
 /**
  * We call schema.denormalize and schema.normalize directly

@@ -1,4 +1,8 @@
-import type { Queryable, SchemaSimple } from '../interface.js';
+import type {
+  IDenormalizeDelegate,
+  Queryable,
+  SchemaSimple,
+} from '../interface.js';
 import type { Denormalize, NormalizeNullable, SchemaArgs } from '../normal.js';
 
 /**
@@ -27,10 +31,12 @@ export default class Query<
     return (this.schema as any).normalize(...args);
   }
 
-  denormalize(input: {}, args: any, unvisit: any): ReturnType<P> {
-    const value = unvisit(this.schema, input);
+  denormalize(input: {}, delegate: IDenormalizeDelegate): ReturnType<P> {
+    const value = delegate.unvisit(this.schema, input);
     return (
-      typeof value === 'symbol' ? value : this.process(value, ...args)) as any;
+      typeof value === 'symbol' ? value : (
+        this.process(value, ...delegate.args)
+      )) as any;
   }
 
   queryKey(
@@ -42,8 +48,7 @@ export default class Query<
 
   declare _denormalizeNullable: (
     input: {},
-    args: readonly any[],
-    unvisit: (schema: any, input: any) => any,
+    delegate: IDenormalizeDelegate,
   ) => ReturnType<P> | undefined;
 
   declare _normalizeNullable: () => NormalizeNullable<S>;

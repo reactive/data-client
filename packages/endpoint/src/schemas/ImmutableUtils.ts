@@ -24,12 +24,6 @@ export function isImmutable(object: {}): object is {
 
 /**
  * Denormalize an immutable entity.
- *
- * @param  {Schema} schema
- * @param  {Immutable.Map|Immutable.Record} input
- * @param  {function} unvisit
- * @param  {function} getDenormalizedEntity
- * @return {Immutable.Map|Immutable.Record}
  */
 export function denormalizeImmutable(
   schema: any,

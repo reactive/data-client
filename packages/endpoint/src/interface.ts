@@ -51,11 +51,7 @@ export interface SchemaSimple<T = any, Args extends readonly any[] = any> {
     visit: (...args: any) => any,
     delegate: { getEntity: any; setEntity: any },
   ): any;
-  denormalize(
-    input: {},
-    args: readonly any[],
-    unvisit: (schema: any, input: any) => any,
-  ): T;
+  denormalize(input: {}, delegate: IDenormalizeDelegate): T;
   queryKey(
     args: Args,
     unvisit: (...args: any) => any,
@@ -193,6 +189,20 @@ export interface IQueryDelegate {
   getIndex: GetIndex;
   /** Return to consider results invalid */
   INVALID: symbol;
+}
+
+/** Helpers during schema.denormalize() */
+export interface IDenormalizeDelegate {
+  /** Recursive denormalize of nested schemas */
+  unvisit(schema: any, input: any): any;
+  /** Raw endpoint args. Reading this does NOT contribute to cache
+   * invalidation — if your output varies with args, register an `argsKey`
+   * so the cache buckets correctly. */
+  readonly args: readonly any[];
+  /** Adds a memoization dimension to the surrounding cache frame.
+   * `fn` must be referentially stable (it doubles as the cache path key).
+   * Returns `fn(args)` for convenience. */
+  argsKey(fn: (args: readonly any[]) => string | undefined): string | undefined;
 }
 
 /** Helpers during schema.normalize() */

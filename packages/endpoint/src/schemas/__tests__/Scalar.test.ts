@@ -1,9 +1,23 @@
 // eslint-env jest
-import { normalize, denormalize, MemoCache } from '@data-client/normalizr';
+import { normalize } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 
 import { SimpleMemoCache } from './denormalize';
 import { schema, Scalar } from '../..';
+
+/** Minimal IDenormalizeDelegate for direct schema.denormalize() unit tests. */
+function makeDelegate(
+  args: readonly any[],
+  unvisit: (schema: any, input: any) => any,
+) {
+  return {
+    args,
+    unvisit,
+    argsKey(fn: (args: readonly any[]) => string | undefined) {
+      return fn(args);
+    },
+  };
+}
 
 let dateSpy: jest.Spied<any>;
 beforeAll(() => {
@@ -616,7 +630,9 @@ describe('Scalar', () => {
       'returns the falsy input (%s) without further lookup',
       (_label, value) => {
         const unvisit = jest.fn();
-        expect(s.denormalize(value, [{ portfolio: 'p' }], unvisit)).toBe(value);
+        expect(
+          s.denormalize(value, makeDelegate([{ portfolio: 'p' }], unvisit)),
+        ).toBe(value);
         expect(unvisit).not.toHaveBeenCalled();
       },
     );
@@ -624,7 +640,9 @@ describe('Scalar', () => {
     it('returns symbol inputs unchanged (suspense/INVALID propagation)', () => {
       const sym = Symbol('INVALID');
       const unvisit = jest.fn();
-      expect(s.denormalize(sym, [{ portfolio: 'p' }], unvisit)).toBe(sym);
+      expect(
+        s.denormalize(sym, makeDelegate([{ portfolio: 'p' }], unvisit)),
+      ).toBe(sym);
       expect(unvisit).not.toHaveBeenCalled();
     });
 
@@ -634,14 +652,18 @@ describe('Scalar', () => {
       // wrapper-resolving branch above can index the named field.
       const cell = { pct_equity: 0.5, shares: 10 };
       const unvisit = jest.fn();
-      expect(s.denormalize(cell, [{ portfolio: 'p' }], unvisit)).toBe(cell);
+      expect(
+        s.denormalize(cell, makeDelegate([{ portfolio: 'p' }], unvisit)),
+      ).toBe(cell);
       expect(unvisit).not.toHaveBeenCalled();
     });
 
     it('returns undefined for entity-field wrapper when lens is missing at denormalize', () => {
       const wrapper: [string, string, string] = ['1', 'pct_equity', 'Company'];
       const unvisit = jest.fn();
-      expect(s.denormalize(wrapper, [{}], unvisit)).toBeUndefined();
+      expect(
+        s.denormalize(wrapper, makeDelegate([{}], unvisit)),
+      ).toBeUndefined();
       // No lookup attempted when we cannot derive the cell key.
       expect(unvisit).not.toHaveBeenCalled();
     });
@@ -654,7 +676,7 @@ describe('Scalar', () => {
       ];
       const unvisit = jest.fn(() => undefined);
       expect(
-        s.denormalize(wrapper, [{ portfolio: 'p' }], unvisit),
+        s.denormalize(wrapper, makeDelegate([{ portfolio: 'p' }], unvisit)),
       ).toBeUndefined();
       expect(unvisit).toHaveBeenCalledWith(s, 'Company|missing|p');
     });
@@ -664,7 +686,7 @@ describe('Scalar', () => {
       const wrapper: [string, string, string] = ['1', 'pct_equity', 'Company'];
       const unvisit = jest.fn(() => INVALID);
       expect(
-        s.denormalize(wrapper, [{ portfolio: 'p' }], unvisit),
+        s.denormalize(wrapper, makeDelegate([{ portfolio: 'p' }], unvisit)),
       ).toBeUndefined();
     });
 
@@ -676,8 +698,7 @@ describe('Scalar', () => {
       const unvisit = jest.fn(() => cell);
       const out = s.denormalize(
         'Company|1|portfolioB',
-        [{ portfolio: 'portfolioB' }],
-        unvisit,
+        makeDelegate([{ portfolio: 'portfolioB' }], unvisit),
       );
       expect(unvisit).toHaveBeenCalledWith(s, 'Company|1|portfolioB');
       expect(out).toBe(cell);

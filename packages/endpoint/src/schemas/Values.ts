@@ -1,5 +1,5 @@
 import PolymorphicSchema from './Polymorphic.js';
-import { Visit } from '../interface.js';
+import { IDenormalizeDelegate, Visit } from '../interface.js';
 
 /**
  * Represents variably sized objects
@@ -26,17 +26,13 @@ export default class ValuesSchema extends PolymorphicSchema {
     return output;
   }
 
-  denormalize(
-    input: {},
-    args: readonly any[],
-    unvisit: (schema: any, input: any) => any,
-  ): any {
+  denormalize(input: {}, delegate: IDenormalizeDelegate): any {
     const output: Record<string, any> = {};
     const keys = Object.keys(input);
     for (let i = 0; i < keys.length; i++) {
       const k = keys[i];
       const entityOrId = (input as any)[k];
-      const value = this.denormalizeValue(entityOrId, unvisit);
+      const value = this.denormalizeValue(entityOrId, delegate.unvisit);
 
       // remove empty or deleted values
       if (value && typeof value !== 'symbol') {

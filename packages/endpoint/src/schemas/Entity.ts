@@ -1,3 +1,4 @@
+import type { IDenormalizeDelegate } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 import { Entity as EntityMixin } from '../schema.js';
 
@@ -94,7 +95,6 @@ First three members: ${JSON.stringify(input.slice(0, 3), null, 2)}`;
   declare static denormalize: <T extends typeof Entity>(
     this: T,
     input: any,
-    args: readonly any[],
-    unvisit: (schema: any, input: any) => any,
+    delegate: IDenormalizeDelegate,
   ) => AbstractInstanceType<T>;
 }

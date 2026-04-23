@@ -1,5 +1,9 @@
 import PolymorphicSchema from './Polymorphic.js';
-import type { EntityInterface, INormalizeDelegate } from '../interface.js';
+import type {
+  EntityInterface,
+  IDenormalizeDelegate,
+  INormalizeDelegate,
+} from '../interface.js';
 import type { AbstractInstanceType } from '../normal.js';
 
 type ProcessableEntity = EntityInterface & { process: any };
@@ -108,12 +112,11 @@ export default class Invalidate<
 
   denormalize(
     id: string | { id: string; schema: string },
-    args: readonly any[],
-    unvisit: (schema: any, input: any) => any,
+    delegate: IDenormalizeDelegate,
   ): E extends ProcessableEntity ? AbstractInstanceType<E>
   : AbstractInstanceType<E[keyof E]> {
     // denormalizeValue handles both single entity and polymorphic cases
-    return this.denormalizeValue(id, unvisit) as any;
+    return this.denormalizeValue(id, delegate.unvisit) as any;
   }
 
   /* istanbul ignore next */

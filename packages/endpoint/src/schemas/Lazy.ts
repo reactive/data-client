@@ -1,4 +1,8 @@
-import type { Schema, SchemaSimple } from '../interface.js';
+import type {
+  IDenormalizeDelegate,
+  Schema,
+  SchemaSimple,
+} from '../interface.js';
 import type {
   Denormalize,
   DenormalizeNullable,
@@ -57,7 +61,7 @@ export default class Lazy<S extends Schema> implements SchemaSimple {
     return visit(this.schema, input, parent, key, args);
   }
 
-  denormalize(input: {}, _args: readonly any[], _unvisit: any): any {
+  denormalize(input: {}, _delegate: IDenormalizeDelegate): any {
     // If we could figure out we're processing while nested vs from queryKey, then can can get rid of LazyQuery and just use this in both contexts.
     return input;
   }
@@ -83,8 +87,7 @@ export default class Lazy<S extends Schema> implements SchemaSimple {
 
   declare _denormalizeNullable: (
     input: {},
-    args: readonly any[],
-    unvisit: (schema: any, input: any) => any,
+    delegate: IDenormalizeDelegate,
   ) => any;
 
   declare _normalizeNullable: () => NormalizeNullable<S>;
@@ -103,12 +106,8 @@ export class LazyQuery<S extends Schema, Args = LazySchemaArgs<S>> {
     this.schema = schema;
   }
 
-  denormalize(
-    input: {},
-    args: readonly any[],
-    unvisit: (schema: any, input: any) => any,
-  ): Denormalize<S> {
-    return unvisit(this.schema, input);
+  denormalize(input: {}, delegate: IDenormalizeDelegate): Denormalize<S> {
+    return delegate.unvisit(this.schema, input);
   }
 
   queryKey(
@@ -125,7 +124,6 @@ export class LazyQuery<S extends Schema, Args = LazySchemaArgs<S>> {
 
   declare _denormalizeNullable: (
     input: {},
-    args: readonly any[],
-    unvisit: (schema: any, input: any) => any,
+    delegate: IDenormalizeDelegate,
   ) => DenormalizeNullable<S>;
 }

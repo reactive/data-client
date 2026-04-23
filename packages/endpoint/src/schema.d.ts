@@ -1,6 +1,7 @@
 import type {
   Schema,
   EntityInterface,
+  IDenormalizeDelegate,
   PolymorphicInterface,
   SchemaClass,
   IQueryDelegate,
@@ -83,8 +84,7 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
 
   denormalize(
     input: {},
-    args: readonly any[],
-    unvisit: (schema: any, input: any) => any,
+    delegate: IDenormalizeDelegate,
   ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
 
   queryKey(
@@ -138,8 +138,7 @@ export class All<
 
   denormalize(
     input: {},
-    args: readonly any[],
-    unvisit: (schema: any, input: any) => any,
+    delegate: IDenormalizeDelegate,
   ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
 
   queryKey(
@@ -177,11 +176,7 @@ export class Object<
 
   _denormalizeNullable(): DenormalizeNullableObject<O>;
 
-  denormalize(
-    input: {},
-    args: readonly any[],
-    unvisit: (schema: any, input: any) => any,
-  ): DenormalizeObject<O>;
+  denormalize(input: {}, delegate: IDenormalizeDelegate): DenormalizeObject<O>;
 
   queryKey(
     args: ObjectArgs<O>,
@@ -269,8 +264,7 @@ export interface UnionInstance<
 
   denormalize(
     input: {},
-    args: readonly any[],
-    unvisit: (schema: any, input: any) => any,
+    delegate: IDenormalizeDelegate,
   ): AbstractInstanceType<Choices[keyof Choices]>;
 
   queryKey(
@@ -352,8 +346,7 @@ export class Values<Choices extends Schema = any> implements SchemaClass {
 
   denormalize(
     input: {},
-    args: readonly any[],
-    unvisit: (schema: any, input: any) => any,
+    delegate: IDenormalizeDelegate,
   ): Record<
     string,
     Choices extends EntityMap<infer T> ? T : Denormalize<Choices>

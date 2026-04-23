@@ -1,6 +1,6 @@
 import PolymorphicSchema from './Polymorphic.js';
 import { filterEmpty, getValues } from './utils.js';
-import { Visit } from '../interface.js';
+import { IDenormalizeDelegate, Visit } from '../interface.js';
 
 /**
  * Represents arrays
@@ -15,14 +15,12 @@ export default class ArraySchema extends PolymorphicSchema {
     );
   }
 
-  denormalize(
-    input: any,
-    args: any[],
-    unvisit: (schema: any, input: any) => any,
-  ) {
+  denormalize(input: any, delegate: IDenormalizeDelegate) {
     return input.map ?
         input
-          .map((entityOrId: any) => this.denormalizeValue(entityOrId, unvisit))
+          .map((entityOrId: any) =>
+            this.denormalizeValue(entityOrId, delegate.unvisit),
+          )
           .filter(filterEmpty)
       : input;
   }

@@ -26,18 +26,11 @@ export function isImmutable(object: {}): object is {
 
 /**
  * Denormalize an immutable entity.
- *
- * @param  {Schema} schema
- * @param  {Immutable.Map|Immutable.Record} input
- * @param  {function} unvisit
- * @param  {function} getDenormalizedEntity
- * @return {Immutable.Map|Immutable.Record}
  */
 export function denormalizeImmutable(
   schema: any,
   input: any,
-  args: readonly any[],
-  unvisit: any,
+  delegate: { unvisit: any },
 ): any {
   let deleted = false;
   const obj = Object.keys(schema).reduce((object, key) => {
@@ -45,7 +38,7 @@ export function denormalizeImmutable(
     // we're accessing them using string keys.
     const stringKey = `${key}`;
 
-    const item = unvisit(schema[stringKey], object.get(stringKey));
+    const item = delegate.unvisit(schema[stringKey], object.get(stringKey));
     if (typeof item === 'symbol') {
       deleted = true;
     }

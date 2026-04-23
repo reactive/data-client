@@ -28,11 +28,10 @@ export const normalize = (
 export const denormalize = (
   schema: any,
   input: {},
-  args: readonly any[],
-  unvisit: any,
+  delegate: { unvisit: any },
 ): any => {
   if (isImmutable(input)) {
-    return denormalizeImmutable(schema, input, args, unvisit);
+    return denormalizeImmutable(schema, input, delegate);
   }
 
   const object: any = { ...input };
@@ -40,7 +39,7 @@ export const denormalize = (
   const keys = Object.keys(schema);
   for (let i = 0; i < keys.length; i++) {
     const k = keys[i];
-    const item = unvisit(schema[k], object[k]);
+    const item = delegate.unvisit(schema[k], object[k]);
     if (object[k] !== undefined) {
       object[k] = item;
     }

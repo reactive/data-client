@@ -39,12 +39,13 @@ export const normalize = (
 export const denormalize = (
   schema: any,
   input: any,
-  args: readonly any[],
-  unvisit: any,
+  delegate: { unvisit: any },
 ): any => {
   schema = validateSchema(schema);
   return input.map ?
-      input.map(entityOrId => unvisit(schema, entityOrId)).filter(filterEmpty)
+      input
+        .map(entityOrId => delegate.unvisit(schema, entityOrId))
+        .filter(filterEmpty)
     : input;
 };
 

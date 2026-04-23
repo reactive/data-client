@@ -1,4 +1,5 @@
 import type {
+  IDenormalizeDelegate,
   INormalizeDelegate,
   IQueryDelegate,
   Mergeable,
@@ -146,18 +147,21 @@ export default class Scalar implements Mergeable {
     return cpk;
   }
 
-  denormalize(
-    input: any,
-    args: readonly any[],
-    unvisit: (schema: any, input: any) => any,
-  ): any {
+  denormalize(input: any, delegate: IDenormalizeDelegate): any {
     if (!input || typeof input === 'symbol') return input;
 
     // Entity-field wrapper: `[entityPk, fieldName, entityKey]` (see normalize).
     if (Array.isArray(input)) {
-      const lensValue = this.lensSelector(args);
+      // `argsKey` registers `lensSelector` as a string-keyed dependency on
+      // the surrounding entity-cache frame — so the Scalar wrapper's cached
+      // denormalize result varies per-lens. The function reference must be
+      // stable (set once in the constructor); see WeakDependencyMap.
+      const lensValue = delegate.argsKey(this.lensSelector);
       if (lensValue === undefined) return undefined;
-      const cellData = unvisit(this, `${input[2]}|${input[0]}|${lensValue}`);
+      const cellData = delegate.unvisit(
+        this,
+        `${input[2]}|${input[0]}|${lensValue}`,
+      );
       return cellData && typeof cellData !== 'symbol' ?
           cellData[input[1]]
         : undefined;
@@ -168,7 +172,7 @@ export default class Scalar implements Mergeable {
     if (typeof input === 'object') return input;
 
     // Values path: input is the compound pk string.
-    return unvisit(this, input);
+    return delegate.unvisit(this, input);
   }
 
   queryKey(args: readonly any[], unvisit: any, delegate: IQueryDelegate): any {

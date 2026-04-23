@@ -1,5 +1,5 @@
 import { isImmutable, denormalizeImmutable } from './ImmutableUtils.js';
-import { Visit } from '../interface.js';
+import { IDenormalizeDelegate, Visit } from '../interface.js';
 
 export const normalize = (
   schema: any,
@@ -26,11 +26,10 @@ export const normalize = (
 export function denormalize(
   schema: any,
   input: {},
-  args: readonly any[],
-  unvisit: (schema: any, input: any) => any,
+  delegate: IDenormalizeDelegate,
 ): any {
   if (isImmutable(input)) {
-    return denormalizeImmutable(schema, input, unvisit);
+    return denormalizeImmutable(schema, input, delegate.unvisit);
   }
 
   const object: Record<string, any> = { ...input };
@@ -38,7 +37,7 @@ export function denormalize(
 
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
-    const item = unvisit(schema[key], object[key]);
+    const item = delegate.unvisit(schema[key], object[key]);
     if (object[key] !== undefined) {
       object[key] = item;
     }
@@ -93,12 +92,8 @@ export default class ObjectSchema {
     return normalize(this.schema, ...args);
   }
 
-  denormalize(
-    input: {},
-    args: readonly any[],
-    unvisit: (schema: any, input: any) => any,
-  ): any {
-    return denormalize(this.schema, input, args, unvisit);
+  denormalize(input: {}, delegate: IDenormalizeDelegate): any {
+    return denormalize(this.schema, input, delegate);
   }
 
   queryKey(args: any, unvisit: any) {

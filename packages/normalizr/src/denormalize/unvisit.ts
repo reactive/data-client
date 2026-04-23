@@ -1,7 +1,11 @@
 import type Cache from './cache.js';
 import { INVALID } from './symbol.js';
 import { UNDEF } from './UNDEF.js';
-import type { EntityInterface, EntityPath } from '../interface.js';
+import type {
+  EntityInterface,
+  EntityPath,
+  IDenormalizeDelegate,
+} from '../interface.js';
 import { isEntity } from '../isEntity.js';
 import type { DenormGetEntity } from '../memo/types.js';
 import { denormalize as arrayDenormalize } from '../schemas/Array.js';
@@ -10,8 +14,7 @@ import { denormalize as objectDenormalize } from '../schemas/Object.js';
 const getUnvisitEntity = (
   getEntity: DenormGetEntity,
   cache: Cache,
-  args: readonly any[],
-  unvisit: (schema: any, input: any) => any,
+  delegate: IDenormalizeDelegate,
 ) => {
   return function unvisitEntity(
     schema: EntityInterface,
@@ -21,7 +24,7 @@ const getUnvisitEntity = (
     const entity =
       inputIsId ? getEntity({ key: schema.key, pk: entityOrId }) : entityOrId;
     if (typeof entity === 'symbol') {
-      return schema.denormalize(entity, args, unvisit);
+      return schema.denormalize(entity, delegate);
     }
 
     if (
@@ -46,14 +49,14 @@ const getUnvisitEntity = (
 
     let pk: string | number | undefined =
       inputIsId ? entityOrId : (
-        (schema.pk(entity, undefined, undefined, args) as any)
+        (schema.pk(entity, undefined, undefined, delegate.args) as any)
       );
 
     // if we can't generate a working pk we cannot do cache lookups properly,
     // so simply denormalize without caching
     if (pk === undefined || pk === '' || pk === 'undefined') {
       return noCacheGetEntity(localCacheKey =>
-        unvisitEntityObject(schema, entity, '', localCacheKey, args, unvisit),
+        unvisitEntityObject(schema, entity, '', localCacheKey, delegate),
       );
     }
 
@@ -62,7 +65,7 @@ const getUnvisitEntity = (
 
     // last function computes if it is not in any caches
     return cache.getEntity(pk, schema, entity, localCacheKey =>
-      unvisitEntityObject(schema, entity, pk, localCacheKey, args, unvisit),
+      unvisitEntityObject(schema, entity, pk, localCacheKey, delegate),
     );
   };
 };
@@ -72,8 +75,7 @@ function unvisitEntityObject(
   entity: object,
   pk: string,
   localCacheKey: Map<string, any>,
-  args: readonly any[],
-  unvisit: (schema: any, input: any) => any,
+  delegate: IDenormalizeDelegate,
 ): void {
   const entityCopy = schema.createIfValid(entity);
 
@@ -84,7 +86,7 @@ function unvisitEntityObject(
     // set before we recurse to prevent cycles causing infinite loops
     localCacheKey.set(pk, entityCopy);
     // we still need to set in case denormalize recursively finds INVALID
-    localCacheKey.set(pk, schema.denormalize(entityCopy, args, unvisit));
+    localCacheKey.set(pk, schema.denormalize(entityCopy, delegate));
   }
 }
 
@@ -106,8 +108,16 @@ const getUnvisit = (
 ) => {
   let depth = 0;
   let depthLimitHit = false;
+  // Single delegate object reused for the whole denormalize tree. Recursive
+  // schemas call `delegate.unvisit(...)` for nested types and
+  // `delegate.argsKey(fn)` to register an args-derived cache dimension.
+  const delegate: IDenormalizeDelegate = {
+    args,
+    unvisit,
+    argsKey: fn => cache.argsKey(fn),
+  };
   // we don't inline this as making this function too big inhibits v8's JIT
-  const unvisitEntity = getUnvisitEntity(getEntity, cache, args, unvisit);
+  const unvisitEntity = getUnvisitEntity(getEntity, cache, delegate);
   function unvisit(schema: any, input: any): any {
     if (!schema) return input;
 
@@ -125,7 +135,7 @@ const getUnvisit = (
       if (typeof schema === 'object') {
         const method =
           Array.isArray(schema) ? arrayDenormalize : objectDenormalize;
-        return method(schema, input, args, unvisit);
+        return method(schema, input, delegate);
       }
     } else {
       if (isEntity(schema)) {
@@ -162,7 +172,7 @@ const getUnvisit = (
         return unvisitEntity(schema as any, input);
       }
 
-      return schema.denormalize(input, args, unvisit);
+      return schema.denormalize(input, delegate);
     }
 
     return input;

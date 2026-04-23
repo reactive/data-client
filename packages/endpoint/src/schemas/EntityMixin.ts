@@ -3,6 +3,7 @@ import type {
   Visit,
   IQueryDelegate,
   INormalizeDelegate,
+  IDenormalizeDelegate,
 } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 import type {
@@ -344,8 +345,7 @@ export default function EntityMixin<TBase extends Constructor>(
     static denormalize<T extends typeof EntityMixin>(
       this: T,
       input: any,
-      args: any[],
-      unvisit: (schema: any, input: any) => any,
+      delegate: IDenormalizeDelegate,
     ): AbstractInstanceType<T> {
       if (typeof input === 'symbol') {
         return input as any;
@@ -354,7 +354,7 @@ export default function EntityMixin<TBase extends Constructor>(
       // note: iteration order must be stable
       for (const key of Object.keys(this.schema)) {
         const schema = this.schema[key];
-        const value = unvisit(schema, input[key]);
+        const value = delegate.unvisit(schema, input[key]);
 
         if (typeof value === 'symbol') {
           // if default is not 'falsy', then this is required, so propagate INVALID symbol

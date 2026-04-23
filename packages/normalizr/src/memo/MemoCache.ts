@@ -58,7 +58,7 @@ export default class MemoCache {
 
     return getUnvisit(
       getEntity,
-      new GlobalCache(getEntity, this._getCache, this.endpoints),
+      new GlobalCache(getEntity, this._getCache, this.endpoints, args),
       args,
     )(schema, input);
   }

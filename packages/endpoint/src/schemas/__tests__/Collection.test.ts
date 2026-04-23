@@ -67,12 +67,11 @@ test('key works with custom schema', () => {
 
     denormalize(
       input: any,
-      args: any[],
-      unvisit: (schema: any, input: any) => any,
+      delegate: { unvisit: (schema: any, input: any) => any },
     ) {
       return input.map ?
           input.map((entityOrId: any) =>
-            this.denormalizeValue(entityOrId, unvisit),
+            this.denormalizeValue(entityOrId, delegate.unvisit),
           )
         : input;
     }

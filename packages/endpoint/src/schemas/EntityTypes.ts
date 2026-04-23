@@ -1,4 +1,8 @@
-import type { Schema, IQueryDelegate } from '../interface.js';
+import type {
+  Schema,
+  IDenormalizeDelegate,
+  IQueryDelegate,
+} from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
 
 /**
@@ -185,8 +189,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   >(
     this: T,
     input: any,
-    args: readonly any[],
-    unvisit: (schema: any, input: any) => any,
+    delegate: IDenormalizeDelegate,
   ): AbstractInstanceType<T>;
   /** All instance defaults set */
   readonly defaults: any;
