@@ -57,7 +57,7 @@
     "react-live": "^4.0.0",
     "temporal-polyfill": "^0.3.0",
     "typescript": "6.0.3",
-    "uuid": "^13.0.0"
+    "uuid": "^14.0.0"
   },
   "browserslist": [
     "extends @anansi/browserslist-config",
