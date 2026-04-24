@@ -121,6 +121,26 @@ describe('Controller.getResponse()', () => {
     `);
   });
 
+  it('does not over-denormalize a schema map containing string values', () => {
+    // Regression: `String.prototype.normalize` made string leaves look like schemas.
+    const controller = new Contoller();
+    const ep = new Endpoint(() => Promise.resolve(), {
+      key() {
+        return 'string-only-schema';
+      },
+      schema: { label: 'hello', count: 0, nested: { value: 'world' } },
+    });
+    const cached = { label: 'hi', count: 5, nested: { value: 'there' } };
+    const state = {
+      ...initialState,
+      endpoints: { [ep.key()]: cached },
+    };
+    const { data, expiryStatus } = controller.getResponse(ep, state);
+    expect(expiryStatus).toBe(ExpiryStatus.Valid);
+    // Reference equality — denormalize must be skipped for entity-free schemas.
+    expect(data).toBe(cached);
+  });
+
   it('infers schema with extra members but not set', () => {
     const controller = new Contoller();
     class Tacos extends Entity {

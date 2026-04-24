@@ -655,10 +655,12 @@ function entityExpiresAt(
  */
 function requiresDenormalize(schema: Schema): boolean {
   if (!schema) return false;
-  if (typeof (schema as any).normalize === 'function') return true;
   if (Array.isArray(schema))
     return schema.length !== 0 && requiresDenormalize(schema[0]);
-  if (typeof schema !== 'object') return false;
+  // Must reject primitives before probing `.normalize` — `String.prototype.normalize` exists.
+  const t = typeof schema;
+  if (t !== 'object' && t !== 'function') return false;
+  if (typeof (schema as any).normalize === 'function') return true;
   // Plain-object schema map (e.g. `{ data: [Tacos], page: { ... } }`).
   return Object.values(schema as object).some(x => requiresDenormalize(x));
 }
