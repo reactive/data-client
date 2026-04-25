@@ -8,8 +8,8 @@
 '@data-client/vue': minor
 ---
 
-**BREAKING**: `Schema.denormalize()` now receives a single `delegate`
-argument instead of `(args, unvisit)`.
+**BREAKING**: `Schema.denormalize()` is now `(input, delegate)` instead
+of the previous `(input, args, unvisit)` 3-parameter signature.
 
 ```ts
 // before

@@ -5,6 +5,7 @@ import {
   Collection,
   All,
   Query,
+  Scalar,
 } from './dist/index.js';
 
 export class BuildTypeDescription extends Entity {
@@ -106,6 +107,73 @@ export const getSortedProjects = new Query(
     return [...entries].sort((a, b) => a.name.localeCompare(b.name));
   },
 );
+
+export class Stock extends Entity {
+  id = '';
+  ticker = '';
+  exchange = '';
+  sector = '';
+  industry = '';
+  name = '';
+  marketCap = 0;
+  price = 0;
+  pct_equity = 0;
+  shares = 0;
+
+  static key = 'Stock';
+  pk() {
+    return this.id;
+  }
+}
+
+export const PortfolioScalar = new Scalar({
+  lens: args => args[0]?.portfolio,
+  key: 'portfolio',
+  entity: Stock,
+});
+Stock.schema = {
+  price: PortfolioScalar,
+  pct_equity: PortfolioScalar,
+  shares: PortfolioScalar,
+};
+
+export const StockSchema = {
+  stock: [Stock],
+};
+export const StockScalarValuesSchema = {
+  stock: new Values(PortfolioScalar),
+};
+
+export function buildStockData(count = 700) {
+  const stock = [];
+  for (let i = 0; i < count; i++) {
+    stock.push({
+      id: `s-${i}`,
+      ticker: `TKR${i}`,
+      exchange: i % 2 ? 'NASDAQ' : 'NYSE',
+      sector: `sector-${i % 11}`,
+      industry: `industry-${i % 23}`,
+      name: `Stock Number ${i}`,
+      marketCap: 1_000_000 + i * 137,
+      price: 10 + (i % 500) * 0.13,
+      pct_equity: ((i % 100) + 1) / 1000,
+      shares: 100 + i * 7,
+    });
+  }
+  return { stock };
+}
+
+export function buildStockScalarUpdate(count = 700) {
+  const stock = {};
+  for (let i = 0; i < count; i++) {
+    stock[`s-${i}`] = {
+      price: 10 + (i % 500) * 0.17,
+      pct_equity: ((i % 100) + 2) / 1000,
+      shares: 100 + i * 8,
+    };
+  }
+  return { stock };
+}
 
 // Degenerate bidirectional chain for #3822 stack overflow testing
 export class Department extends Entity {

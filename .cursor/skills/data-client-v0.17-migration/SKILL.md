@@ -87,8 +87,11 @@ class Lazy {
   ) => any;
 }
 
-// after
-import type { IDenormalizeDelegate } from '@data-client/endpoint';
+// after — the codemod adds `IDenormalizeDelegate` to your existing
+// `@data-client/{rest,endpoint,normalizr,...}` import as an inline
+// `type` specifier. Only when no such import exists does it create a
+// new `import type { IDenormalizeDelegate } from '@data-client/endpoint'`.
+import { Entity, type IDenormalizeDelegate } from '@data-client/rest';
 
 interface MySchema {
   denormalize(input: {}, delegate: IDenormalizeDelegate): any;

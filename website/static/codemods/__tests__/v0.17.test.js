@@ -19,7 +19,7 @@ class MySchema {
 }
       `,
       `
-import { Entity, IDenormalizeDelegate } from '@data-client/rest';
+import { Entity, type IDenormalizeDelegate } from '@data-client/rest';
 
 class MySchema {
   denormalize(input: {}, delegate: IDenormalizeDelegate) {
@@ -67,7 +67,7 @@ class Wrapper {
 }
       `,
       `
-import { Entity, IDenormalizeDelegate } from '@data-client/rest';
+import { Entity, type IDenormalizeDelegate } from '@data-client/rest';
 
 class Wrapper {
   denormalize(input: {}, delegate: IDenormalizeDelegate) {
@@ -92,7 +92,7 @@ class WithArgs {
 }
       `,
       `
-import { Entity, IDenormalizeDelegate } from '@data-client/rest';
+import { Entity, type IDenormalizeDelegate } from '@data-client/rest';
 
 class WithArgs {
   denormalize(input: {}, delegate: IDenormalizeDelegate) {
@@ -117,7 +117,7 @@ interface MySchema {
 }
       `,
       `
-import { Entity, IDenormalizeDelegate } from '@data-client/rest';
+import { Entity, type IDenormalizeDelegate } from '@data-client/rest';
 
 interface MySchema {
   denormalize(input: {}, delegate: IDenormalizeDelegate): any
@@ -141,7 +141,7 @@ class Lazy {
 }
       `,
       `
-import { Entity, IDenormalizeDelegate } from '@data-client/rest';
+import { Entity, type IDenormalizeDelegate } from '@data-client/rest';
 
 class Lazy {
   declare _denormalizeNullable: (input: {}, delegate: IDenormalizeDelegate) => any;
@@ -209,7 +209,7 @@ class Aliased {
 }
       `,
       `
-import { Entity, IDenormalizeDelegate } from '@data-client/rest';
+import { Entity, type IDenormalizeDelegate } from '@data-client/rest';
 
 class Aliased {
   denormalize(input: any, delegate: IDenormalizeDelegate) {
@@ -218,6 +218,36 @@ class Aliased {
 }
       `,
       'still rewrites underscore-prefixed param names',
+    );
+
+    // Shadow handling is intentionally narrow: only nested function
+    // parameters that re-bind 'args' / 'unvisit' are detected.
+    // Block-scoped re-bindings inside the same body are NOT detected
+    // and will be rewritten. This test locks that contract.
+    defineInlineTest(
+      transform,
+      { path: 'NestedFn.ts' },
+      `
+import { Entity } from '@data-client/rest';
+
+class Outer {
+  denormalize(input: any, args: readonly any[], unvisit: any) {
+    const inner = (unvisit: any) => unvisit(input);
+    return inner(unvisit);
+  }
+}
+      `,
+      `
+import { Entity, type IDenormalizeDelegate } from '@data-client/rest';
+
+class Outer {
+  denormalize(input: any, delegate: IDenormalizeDelegate) {
+    const inner = (unvisit: any) => unvisit(input);
+    return inner(delegate.unvisit);
+  }
+}
+      `,
+      'preserves nested-function shadowing of unvisit param',
     );
   });
 });

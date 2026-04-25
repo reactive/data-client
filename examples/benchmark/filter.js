@@ -7,13 +7,13 @@
  *
  * @param {Benchmark.Suite} suite
  * @param {string} [filter]
- * @returns {(name: string, fn: () => void) => void}
+ * @returns {(name: string, fn: () => void, options?: object) => void}
  */
 export function createAdd(suite, filter) {
   const match = createMatcher(filter);
-  return (name, fn) => {
+  return (name, fn, options) => {
     if (match(name)) {
-      suite.add(name, fn);
+      suite.add(name, fn, options);
     }
   };
 }

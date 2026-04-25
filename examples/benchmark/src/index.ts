@@ -15,5 +15,6 @@ export {
   Collection,
   All,
   Query,
+  Scalar,
   Invalidate,
 } from '@data-client/endpoint';

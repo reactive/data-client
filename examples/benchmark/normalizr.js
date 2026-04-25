@@ -19,6 +19,11 @@ import {
   User,
   Department,
   buildBidirectionalChain,
+  Stock,
+  StockSchema,
+  StockScalarValuesSchema,
+  buildStockData,
+  buildStockScalarUpdate,
 } from './schemas.js';
 import userData from './user.json' with { type: 'json' };
 
@@ -42,6 +47,31 @@ const actionMeta = {
   date,
   expiresAt: date + 10000000,
 };
+const stockUpdateMeta = {
+  ...actionMeta,
+  fetchedAt: date + 1,
+  date: date + 1,
+};
+
+const stockData = buildStockData(700);
+const stockScalarUpdate = buildStockScalarUpdate(700);
+const stockArgs = [{ portfolio: 'portfolioA' }];
+const stockState = normalize(
+  StockSchema,
+  stockData,
+  stockArgs,
+  initialState,
+  actionMeta,
+);
+const stockUpdatedState = normalize(
+  StockScalarValuesSchema,
+  stockScalarUpdate,
+  stockArgs,
+  stockState,
+  stockUpdateMeta,
+);
+globalThis.__scalarChurn = () =>
+  denormalize(Stock, 's-0', stockState.entities, stockArgs);
 
 export default function addNormlizrSuite(suite, filter) {
   const memo = new MemoCache();
@@ -54,8 +84,22 @@ export default function addNormlizrSuite(suite, filter) {
     valuesState.entities,
     [],
   );
+  memo.denormalize(
+    StockSchema,
+    stockState.result,
+    stockState.entities,
+    stockArgs,
+  );
+  memo.denormalize(
+    StockSchema,
+    stockState.result,
+    stockUpdatedState.entities,
+    stockArgs,
+  );
 
   let curState = initialState;
+  let scalarCurState = initialState;
+  let scalarUpdateCurState = stockState;
 
   const add = createAdd(suite, filter);
 
@@ -66,6 +110,20 @@ export default function addNormlizrSuite(suite, filter) {
   add('normalizeLong Values', () => {
     normalize(ProjectSchemaValues, dataValues, [], curState, actionMeta);
     curState = { ...initialState, entities: {}, endpoints: {} };
+  });
+  add('normalizeLong Scalar', () => {
+    normalize(StockSchema, stockData, stockArgs, scalarCurState, actionMeta);
+    scalarCurState = { ...initialState, entities: {}, endpoints: {} };
+  });
+  add('normalizeLong Scalar update', () => {
+    normalize(
+      StockScalarValuesSchema,
+      stockScalarUpdate,
+      stockArgs,
+      scalarUpdateCurState,
+      stockUpdateMeta,
+    );
+    scalarUpdateCurState = stockState;
   });
   add('denormalizeLong', () => {
     return new MemoCache().denormalize(ProjectSchema, result, entities);
@@ -85,6 +143,14 @@ export default function addNormlizrSuite(suite, filter) {
       ProjectSchemaValues,
       valuesState.result,
       valuesState.entities,
+    );
+  });
+  add('denormalizeLong Scalar donotcache', () => {
+    return denormalize(
+      StockSchema,
+      stockState.result,
+      stockState.entities,
+      stockArgs,
     );
   });
   add('denormalizeShort donotcache 500x', () => {
@@ -119,12 +185,39 @@ export default function addNormlizrSuite(suite, filter) {
   add('denormalizeLong withCache', () => {
     return memo.denormalize(ProjectSchema, result, entities, []);
   });
+  add(
+    'denormalizeLong withCache (Scalar churn)',
+    () => {
+      return memo.denormalize(ProjectSchema, result, entities, []);
+    },
+    {
+      setup: function () {
+        globalThis.__scalarChurn();
+      },
+    },
+  );
   add('denormalizeLong Values withCache', () => {
     return memo.denormalize(
       ProjectSchemaValues,
       valuesState.result,
       valuesState.entities,
       [],
+    );
+  });
+  add('denormalizeLong Scalar withCache', () => {
+    return memo.denormalize(
+      StockSchema,
+      stockState.result,
+      stockState.entities,
+      stockArgs,
+    );
+  });
+  add('denormalizeLong Scalar update withCache', () => {
+    return memo.denormalize(
+      StockSchema,
+      stockState.result,
+      stockUpdatedState.entities,
+      stockArgs,
     );
   });
   add('denormalizeLong All withCache', () => {

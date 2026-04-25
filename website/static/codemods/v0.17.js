@@ -391,16 +391,19 @@ function ensureDelegateImport(j, root) {
     newImport.importKind = 'type';
     const allImports = root.find(j.ImportDeclaration);
     if (allImports.length) {
-      allImports.at(-1).insertAfter(newImport);
+      const paths = allImports.paths();
+      j(paths[paths.length - 1]).insertAfter(newImport);
     } else {
       root.get().node.program.body.unshift(newImport);
     }
     return true;
   }
 
-  target.node.specifiers.push(
-    j.importSpecifier(j.identifier(DELEGATE_TYPE_NAME)),
-  );
+  // Inline `type` keyword so this works under verbatimModuleSyntax /
+  // consistent-type-imports without importing a value at runtime.
+  const spec = j.importSpecifier(j.identifier(DELEGATE_TYPE_NAME));
+  spec.importKind = 'type';
+  target.node.specifiers.push(spec);
   return true;
 }
 
