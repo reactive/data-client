@@ -84,13 +84,19 @@ export default function addNormlizrSuite(suite, filter) {
     valuesState.entities,
     [],
   );
-  memo.denormalize(
+
+  // Scalar/Stock benches use a dedicated MemoCache so they do not pollute the
+  // shared `memo` used by the Project/User/AllProjects benches above. Sharing
+  // a MemoCache across unrelated schemas perturbs V8 hidden-class state for
+  // cached-path benches (masked real deltas by ~15% on Values withCache).
+  const memoStock = new MemoCache();
+  memoStock.denormalize(
     StockSchema,
     stockState.result,
     stockState.entities,
     stockArgs,
   );
-  memo.denormalize(
+  memoStock.denormalize(
     StockSchema,
     stockState.result,
     stockUpdatedState.entities,
@@ -205,7 +211,7 @@ export default function addNormlizrSuite(suite, filter) {
     );
   });
   add('denormalizeLong Scalar withCache', () => {
-    return memo.denormalize(
+    return memoStock.denormalize(
       StockSchema,
       stockState.result,
       stockState.entities,
@@ -213,7 +219,7 @@ export default function addNormlizrSuite(suite, filter) {
     );
   });
   add('denormalizeLong Scalar update withCache', () => {
-    return memo.denormalize(
+    return memoStock.denormalize(
       StockSchema,
       stockState.result,
       stockUpdatedState.entities,
