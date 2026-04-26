@@ -121,6 +121,14 @@ export default class Scalar implements Mergeable {
     // (always a string from Object.keys, no coercion needed).
     if (parentEntity && parentEntity.pk) {
       const entityKey: string = parentEntity.key;
+      // TODO: this re-derives the enclosing entity's pk without the enclosing
+      // `parent`/`key` context that `EntityMixin.normalize` used to compute
+      // the authoritative id (see EntityMixin.ts around `this.pk(processedEntity, parent, key, args)`).
+      // If a custom `pk()` reads its 2nd/3rd args, we will key the Scalar cell
+      // differently than the entity is stored under and denormalize will miss.
+      // Fix by threading the enclosing parent/key through the visit walker
+      // (e.g. via a parentContext param on `visit` / INormalizeDelegate) and
+      // forwarding them here instead of `undefined, undefined`.
       const id = `${parentEntity.pk(parent, undefined, undefined, args)}`;
       // Merge only this field's value — EntityMixin's loop calls us once
       // per scalar field, and `merge` accumulates them into the cell.
