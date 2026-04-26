@@ -20,7 +20,7 @@ interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
     /** The nearest enclosing entity-like schema (one with `pk`), if any.
      * Tracked automatically by the visit walker. */
     parentEntity?: any): any;
-    denormalize(input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any): T;
+    denormalize(input: {}, delegate: IDenormalizeDelegate): T;
     queryKey(args: Args, unvisit: (...args: any) => any, delegate: {
         getEntity: any;
         getIndex: any;
@@ -98,6 +98,19 @@ interface IQueryDelegate {
     getIndex: GetIndex;
     /** Return to consider results invalid */
     INVALID: symbol;
+}
+/** Helpers during schema.denormalize() */
+interface IDenormalizeDelegate {
+    /** Recursive denormalize of nested schemas */
+    unvisit(schema: any, input: any): any;
+    /** Raw endpoint args. Reading this does NOT contribute to cache
+     * invalidation — if your output varies with args, register an `argsKey`
+     * so the cache buckets correctly. */
+    readonly args: readonly any[];
+    /** Adds a memoization dimension to the surrounding cache frame.
+     * `fn` must be referentially stable (it doubles as the cache path key).
+     * Returns `fn(args)` for convenience. */
+    argsKey(fn: (args: readonly any[]) => string | undefined): string | undefined;
 }
 /** Helpers during schema.normalize() */
 interface INormalizeDelegate {
@@ -246,22 +259,36 @@ declare function denormalize<S extends Schema>(schema: S | undefined, input: any
 
 declare function isEntity(schema: Schema): schema is EntityInterface;
 
+/** Function path used by `argsKey` deps. Distinguished from object paths
+ * via `typeof === 'function'`. */
+type KeyFn = (args: readonly any[]) => string | undefined;
 /** Maps a (ordered) list of dependencies to a value.
  *
  * Useful as a memoization cache for flat/normalized stores.
  *
- * All dependencies are only weakly referenced, allowing automatic garbage collection
- * when any dependencies are no longer used.
+ * Object dependencies are weakly referenced (via `WeakMap`), allowing
+ * automatic garbage collection when the dependency is no longer used.
+ * String-keyed dependencies (used by `argsKey`) sit on a `Map` keyed by the
+ * value returned from `path(args)`, branching on a stable function reference.
  */
 declare class WeakDependencyMap<Path, K extends object = object, V = any> {
     private readonly next;
     private nextPath;
-    get(entity: K, getDependency: GetDependency<Path, K | symbol>): readonly [undefined, undefined] | readonly [V, Path[]];
-    set(dependencies: Dep<Path, K>[], value: V): void;
+    /** Sticky: true once any function-typed (`argsKey`) dep has been stored.
+     * Lets `get` pick the entity-only fast path when no schema in this map
+     * uses `argsKey` — avoids a polymorphic `typeof` branch per walk step. */
+    private hasStr;
+    get(entity: K, getDependency: GetDependency<Path, K | symbol>, args?: readonly any[]): readonly [undefined, undefined] | readonly [V, Path[]];
+    /** Slow path: dep chain may interleave entity and `argsKey`-style deps. */
+    private _getMixed;
+    set(dependencies: Dep<Path, K>[], value: V, args?: readonly any[]): void;
+    /** True once any `argsKey`-style dep has been written. Consumers can use
+     * this to skip function-stripping work on the hit path when false. */
+    get hasStringDeps(): boolean;
 }
 type GetDependency<Path, K = object | symbol> = (lookup: Path) => K | undefined;
 interface Dep<Path, K = object> {
-    path: Path;
+    path: Path | KeyFn;
     entity: K | undefined;
 }
 
@@ -471,4 +498,4 @@ type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Pr
 
 declare function validateQueryKey(queryKey: unknown): boolean;
 
-export { type AbstractInstanceType, type ArrayElement, BaseDelegate, type CheckLoop, type DenormGetEntity, type Denormalize, type DenormalizeNullable, type EndpointExtraOptions, type EndpointInterface, type EndpointsCache, type EntitiesInterface, type EntitiesPath, type EntityCache, type EntityInterface, type EntityPath, type EntityTable, type ErrorTypes, ExpiryStatus, type ExpiryStatusInterface, type FetchFunction, type GetEntity, type GetIndex, type IMemoPolicy, INVALID, type INormalizeDelegate, type IQueryDelegate, type IndexInterface, type IndexParams, type IndexPath, type InferReturn, MemoCache, MemoPolicy, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeReturnType, type NormalizedIndex, type NormalizedSchema, type OptimisticUpdateParams, type QueryPath, type Queryable, type ReadEndpoint, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, type UnknownError, type UpdateFunction, type Visit, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };
+export { type AbstractInstanceType, type ArrayElement, BaseDelegate, type CheckLoop, type DenormGetEntity, type Denormalize, type DenormalizeNullable, type EndpointExtraOptions, type EndpointInterface, type EndpointsCache, type EntitiesInterface, type EntitiesPath, type EntityCache, type EntityInterface, type EntityPath, type EntityTable, type ErrorTypes, ExpiryStatus, type ExpiryStatusInterface, type FetchFunction, type GetEntity, type GetIndex, type IDenormalizeDelegate, type IMemoPolicy, INVALID, type INormalizeDelegate, type IQueryDelegate, type IndexInterface, type IndexParams, type IndexPath, type InferReturn, MemoCache, MemoPolicy, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeReturnType, type NormalizedIndex, type NormalizedSchema, type OptimisticUpdateParams, type QueryPath, type Queryable, type ReadEndpoint, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, type UnknownError, type UpdateFunction, type Visit, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };

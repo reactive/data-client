@@ -1,5 +1,5 @@
 ---
-title: Scalar Schema - Lens-dependent entity fields
+title: Scalar Schema - Lens-Dependent Entity Fields
 sidebar_label: Scalar
 ---
 
@@ -8,13 +8,44 @@ import { RestEndpoint } from '@data-client/rest';
 
 # Scalar
 
-`Scalar` handles entity fields whose values depend on a "lens" selection, such as viewing
-portfolio-specific data for companies. Multiple components can render the same entity through
-different lenses simultaneously, each seeing the correct values.
+`Scalar` handles [Entity](./Entity.md) fields whose values depend on a "lens" selection,
+such as portfolio-specific columns on the same company row. Multiple components can render
+the same entity through different lenses simultaneously, each seeing the correct values.
 
 Data is stored in an internal `Scalar` entity table and joined at denormalize time based
 on endpoint args. The parent entity stores lens-independent references, so switching lenses
 never mutates the entity itself.
+
+Use `Scalar` when:
+
+- the field is a scalar value like a number, string, boolean, or date-derived value
+- the value belongs to an entity, but varies by request args
+- you want to refresh those columns independently from the rest of the entity
+
+Do not use `Scalar` for relationships to other entities; define nested [schemas](./schema.md)
+on the entity instead.
+
+## Constructor
+
+```typescript
+new Scalar({ lens, key, entity? })
+```
+
+### Options
+
+- **`lens`** **(args: readonly any[]) => string | undefined** — **required**. Extracts the
+  lens value from endpoint args, such as a portfolio ID. The lens must be present when
+  normalizing a response; returning `undefined` during normalize throws because the cell
+  cannot be stored under a retrievable key. During denormalize, a missing lens returns
+  `undefined` for the scalar field.
+- **`key`** **string** — **required**. A unique name for this scalar type, used to namespace
+  the internal `Scalar` entity table. For example, `'portfolio'` becomes
+  `Scalar(portfolio)`.
+- **`entity`** **Entity class** — _optional_. The `Entity` class this `Scalar` attaches to.
+  This is only required when the `Scalar` is used standalone, such as inside
+  [Values](./Values.md) for a column-only endpoint, where there is no parent entity to
+  infer from. When used as a field on `Entity.schema`, the entity is inferred from the
+  parent and recorded on the wrapper.
 
 ## Usage
 
@@ -60,7 +91,7 @@ const getCompanies = new Endpoint(
 );
 ```
 
-### Column-only endpoint
+### Column-Only Endpoint
 
 Fetch just the lens-dependent columns without refetching entity data. The response is a
 dictionary keyed by entity pk. Because there is no parent entity in this path, the `Scalar`
@@ -86,7 +117,7 @@ Column fetches only write `Scalar(portfolio)` cell entries — they never modify
 A bound `Scalar` can also be used as an `Entity.schema` field (the binding is just ignored
 in favor of the inferred parent), so a single instance can serve both endpoints.
 
-### Combined usage: portfolio grid
+### Combined Usage: Portfolio Grid
 
 Both endpoints share a single `Scalar` instance and feed the same grid.
 `getCompanies` loads the full row data on first render; `getPortfolioColumns`
@@ -229,48 +260,40 @@ the current lens does. In a real app, you'd typically reach for
 `getPortfolioColumns` instead of `getCompanies` after the initial load to
 avoid refetching lens-independent fields.
 
-## Constructor
-
-```typescript
-new Scalar({ lens, key, entity? })
-```
-
-### Options
-
-- **`lens`** **(args: readonly any[]) => string | undefined** — **required**. Extracts the lens
-  value (e.g. portfolio ID) from endpoint args.
-- **`key`** **string** — **required**. A unique name for this scalar type, used to namespace
-  the internal `Scalar` entity table (e.g. `'portfolio'` becomes `Scalar(portfolio)`).
-- **`entity`** **Entity class** — *optional*. The `Entity` class this `Scalar` attaches to.
-  Only required when the `Scalar` is used standalone (e.g. inside `schema.Values` for a
-  column-only endpoint), where there is no parent entity to infer from. When used as a field
-  on `Entity.schema`, the entity is inferred from the parent and recorded on the wrapper.
-
-## How it works
+## How It Works
 
 ### Normalize
 
-When an entity with `Scalar` schema fields is normalized:
+`EntityMixin.normalize`'s field loop is a single uniform `visit(schema, value, parent, key, args)`
+call per field — there is no `Scalar`-specific branch. When the field's schema is a `Scalar`:
 
-1. `EntityMixin.normalize` detects `Scalar` fields and passes the whole entity object to
-   `Scalar.normalize` (avoiding the primitive short-circuit in `getVisit`).
-2. `Scalar.normalize` discovers its fields from the parent entity's schema, extracts their
-   values, and stores them as a grouped cell via `delegate.mergeEntity(this, compoundPk, cellData)` (the cell schema is `this` Scalar instance).
-3. A lens-independent tuple wrapper `[entityPk, fieldName, entityKey]` replaces each scalar
-   field on the entity (an array, distinguishable from cell data via `Array.isArray`).
+1. The visit walker (`getVisit`) tracks the nearest enclosing entity-like schema in a closure and
+   passes it to `schema.normalize` as a 7th `parentEntity` argument. `Scalar` opts out of the
+   primitive short-circuit via `acceptsPrimitives = true`, so its `normalize` receives the raw
+   field value (e.g. `0.5`).
+2. `Scalar.normalize` reads `parentEntity.key` / `parentEntity.pk(parent, …, args)` to build the
+   compound cell pk (`entityKey|entityPk|lensValue`) and writes just that one field via
+   `delegate.mergeEntity(this, compoundPk, { [key]: input })`. The merge lifecycles accumulate
+   the per-call writes into a full cell as the loop runs over each scalar field.
+3. A lens-independent tuple `[entityPk, fieldName, entityKey]` replaces the scalar field on the
+   entity row (an array, distinguishable from cell data via `Array.isArray`).
 
 ### Denormalize
 
 The standard `EntityMixin.denormalize` loop is **completely unchanged**:
 
-1. `unvisit(Scalar, wrapper)` calls `Scalar.denormalize` (Scalar is not entity-like).
-2. `Scalar.denormalize` reads the wrapper, adds the current lens from endpoint `args`, and
-   builds the compound pk.
-3. It calls `unvisit(this, compoundPk)` to look up the correct cell, then extracts and
-   returns the specific field value.
+1. `delegate.unvisit(Scalar, wrapper)` calls `Scalar.denormalize` (Scalar is not entity-like).
+2. `Scalar.denormalize` reads the wrapper tuple and calls `delegate.argsKey(this.lensSelector)` —
+   this both extracts the current lens from endpoint `args` *and* registers that lens as a
+   memoization dimension on the surrounding entity-cache frame, so the cached result varies
+   per-lens. The lens selector is bound on the `Scalar` instance so its reference stays stable
+   across calls (required for `WeakDependencyMap` to hit).
+3. It builds the compound cell pk, calls `delegate.unvisit(this, compoundPk)` to look up the
+   cell, then returns the specific field value.
 
 This means different components viewing the same entity with different lens args get different
-scalar values, while sharing the same base entity data.
+scalar values, while sharing the same base entity data — and the memo cache keeps per-lens
+results independently without any cross-bucket invalidation.
 
 ## Normalized storage
 

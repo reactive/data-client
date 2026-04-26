@@ -27,21 +27,15 @@ export interface SchemaSimple<T = any, Args extends readonly any[] = any> {
   /**
    * Normalize a value into entity table form.
    *
-   * @param input    The value being normalized.
-   * @param parent   The containing data the caller passed when invoking
-   *                 `visit(schema, input, parent, key, args)`. By convention
-   *                 this is the parent object/array/dictionary that contains
-   *                 `input`. **Exception:** `EntityMixin` passes the Entity
-   *                 *class* itself (not the parent data row) when visiting
-   *                 a `Scalar` field, so that `Scalar.normalize` can read
-   *                 `parent.key` and `parent.schema` to discover its entity
-   *                 binding. Schemas relying on `parent` should be aware of
-   *                 this special case.
-   * @param key      The key under which `input` lives on `parent` (or a
-   *                 caller-encoded composite key, as with `Scalar`).
-   * @param args     The endpoint args for this normalize call.
-   * @param visit    Recursive visitor for nested schemas.
-   * @param delegate Store accessors for reading/writing entities.
+   * @param input        The value being normalized.
+   * @param parent       The parent object/array/dictionary containing `input`.
+   * @param key          The key under which `input` lives on `parent`.
+   * @param args         The endpoint args for this normalize call.
+   * @param visit        Recursive visitor for nested schemas.
+   * @param delegate     Store accessors for reading/writing entities.
+   * @param parentEntity Nearest enclosing entity-like schema (one with `pk`),
+   *                     tracked automatically by the visit walker. `Scalar`
+   *                     uses this to discover its entity binding.
    */
   normalize(
     input: any,
@@ -50,6 +44,7 @@ export interface SchemaSimple<T = any, Args extends readonly any[] = any> {
     args: any[],
     visit: (...args: any) => any,
     delegate: { getEntity: any; setEntity: any },
+    parentEntity?: any,
   ): any;
   denormalize(input: {}, delegate: IDenormalizeDelegate): T;
   queryKey(
@@ -131,18 +126,15 @@ export interface EntityTable {
  *
  * @param schema The schema to apply to `value`.
  * @param value  The value being visited.
- * @param parent The containing data — by convention the parent object/array/
- *               dictionary that holds `value`. Schemas that recurse via
- *               `visit` should pass their own `input` (or the surrounding
- *               container) here. **Exception:** `EntityMixin` passes the
- *               Entity *class* itself (not the parent data row) when visiting
- *               a `Scalar` field, so the receiving `Scalar.normalize` can
- *               read `parent.key`/`parent.schema` to discover its entity
- *               binding. Anything reading `parent` from inside `normalize`
- *               should be aware of this special case.
- * @param key    The key under which `value` lives on `parent`, or a
- *               caller-encoded composite key (as with `Scalar`).
+ * @param parent The parent object/array/dictionary that holds `value`.
+ *               Schemas that recurse via `visit` should pass their own
+ *               `input` (or the surrounding container) here.
+ * @param key    The key under which `value` lives on `parent`.
  * @param args   The endpoint args for this normalize call.
+ *
+ * The walker internally tracks the nearest enclosing entity-like schema and
+ * forwards it to `schema.normalize` as a trailing `parentEntity` argument —
+ * see `SchemaSimple.normalize`. Consumers of `visit` don't pass it.
  */
 export interface Visit {
   (schema: any, value: any, parent: any, key: any, args: readonly any[]): any;

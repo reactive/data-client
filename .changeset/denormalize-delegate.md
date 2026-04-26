@@ -27,12 +27,19 @@ The new [`IDenormalizeDelegate`](https://dataclient.io/docs/api/Schema)
 exposes `unvisit`, `args`, and a new `argsKey(fn)` helper that registers
 a memoization dimension when output varies with endpoint args. Reading
 `delegate.args` directly does *not* contribute to cache invalidation —
-schemas that branch on args must call `argsKey`:
+schemas that branch on args must call `argsKey`. The `fn` reference
+doubles as the cache path key, so it must be **referentially stable**
+— define it on the instance or at module scope, not inline per call:
 
 ```ts
-denormalize(input, delegate) {
-  const portfolio = delegate.argsKey(args => args[0]?.portfolio);
-  return this.lookup(input, portfolio);
+class LensSchema {
+  constructor({ lens }) {
+    this.lensSelector = lens; // stable reference across calls
+  }
+  denormalize(input, delegate) {
+    const portfolio = delegate.argsKey(this.lensSelector);
+    return this.lookup(input, portfolio);
+  }
 }
 ```
 

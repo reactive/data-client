@@ -35,14 +35,26 @@ Carry a `WeakSet` for cycle detection (`User.posts → Post.author → User` is 
 
 ## Args-dependent schemas
 
-Schemas whose denormalized output depends on per-call `args` (not just stored data) must register an args contributor in their constructor:
+Schemas whose denormalized output depends on per-call `args` (not just stored data) must register that dependency inside `denormalize` via `delegate.argsKey(fn)`:
 
 ```ts
-import { registerArgsContributor } from '../memo/argsContributors.js';
-registerArgsContributor(this, (args) => /* stable string fingerprint | undefined */);
+denormalize(input, delegate) {
+  const lens = delegate.argsKey(this.lensSelector); // this.lensSelector is ctor-bound
+  return this.lookup(input, lens);
+}
 ```
 
-The contributor must be pure of `args`. Storage shape must let `denormalize` recover the right cell from `args` (typically by encoding the fingerprint into `pk` at normalize time). Schemas without this dependency need no opt-in.
+Contract:
+
+- `fn(args)` must be pure and return a `string | undefined` bucket key.
+- `fn` must be **referentially stable** — it's the cache *path key* on `WeakDependencyMap`. Bind it in the constructor or module-level; never an inline arrow re-created per call. Inline functions make every cache lookup miss.
+- `argsKey` returns `fn(args)` for convenience (same value `set` will recompute for the chain).
+- Reading `delegate.args` directly does **not** contribute to memoization — only `argsKey` adds a dep.
+- Storage shape must let `denormalize` recover the right cell from the bucket key (typically by encoding it into `pk` at normalize time). `Scalar` is the reference implementation.
+
+Under the hood: `argsKey` pushes `{path: fn, entity: undefined}` onto the current `GlobalCache` frame; `WeakDependencyMap` branches function-typed paths via a lazy `Map<string, Link>` alongside the usual `WeakMap<K, Link>`. See `src/memo/WeakDependencyMap.ts` (`KeyFn`, `hasStr`) and `src/memo/globalCache.ts` (`argsKey`, `_hasArgsKey`) for the fast-path gating.
+
+Schemas without args-dependence need no opt-in; entity-only chains run the pre-PR fast paths.
 
 ## Tests
 

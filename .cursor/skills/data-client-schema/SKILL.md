@@ -12,9 +12,11 @@ to represent the data expected.
 ### Object
 
 - [Entity](references/Entity.md) - represents a single unique object (denormalized)
+- [EntityMixin](references/EntityMixin.md) - turn any pre-existing class into an Entity
 - [new Union(Entity)](references/Union.md) - polymorphic objects (A | B)
 - `{[key:string]: Schema}` - immutable objects
 - [new Invalidate(Entity|Union)](references/Invalidate.md) - to delete an Entity
+- [new Lazy(() => Schema)](references/Lazy.md) - break circular imports / defer deep recursive denormalization
 
 ### List
 
@@ -26,6 +28,10 @@ to represent the data expected.
 
 - `new Collection(Values(Schema))` - mutable/growable maps
 - [new Values(Schema)](references/Values.md) - immutable maps
+
+### Lens-dependent entity fields
+
+- [new Scalar({ lens, key, entity? })](references/Scalar.md) - per-field cells that vary by a runtime "lens" (portfolio, currency, locale) without mutating the underlying entity
 
 ### Derived / selector pattern
 
@@ -156,10 +162,13 @@ See [partial-entities](references/partial-entities.md) for patterns and examples
 For detailed API documentation, see the [references](references/) directory:
 
 - [Entity](references/Entity.md) - Normalized data class
+- [EntityMixin](references/EntityMixin.md) - Turn any class into an Entity
 - [Collection](references/Collection.md) - Mutable/growable lists
 - [Union](references/Union.md) - Polymorphic schemas
 - [Query](references/Query.md) - Programmatic selectors
 - [Invalidate](references/Invalidate.md) - Delete entities
+- [Lazy](references/Lazy.md) - Deferred / circular schemas
+- [Scalar](references/Scalar.md) - Lens-dependent entity fields
 - [Values](references/Values.md) - Map schemas
 - [All](references/All.md) - List all entities of a kind
 - [Array](references/Array.md) - Immutable list schema

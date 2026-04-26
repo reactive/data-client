@@ -211,27 +211,21 @@ interface SchemaSimple<T = any, Args extends readonly any[] = any> {
     /**
      * Normalize a value into entity table form.
      *
-     * @param input    The value being normalized.
-     * @param parent   The containing data the caller passed when invoking
-     *                 `visit(schema, input, parent, key, args)`. By convention
-     *                 this is the parent object/array/dictionary that contains
-     *                 `input`. **Exception:** `EntityMixin` passes the Entity
-     *                 *class* itself (not the parent data row) when visiting
-     *                 a `Scalar` field, so that `Scalar.normalize` can read
-     *                 `parent.key` and `parent.schema` to discover its entity
-     *                 binding. Schemas relying on `parent` should be aware of
-     *                 this special case.
-     * @param key      The key under which `input` lives on `parent` (or a
-     *                 caller-encoded composite key, as with `Scalar`).
-     * @param args     The endpoint args for this normalize call.
-     * @param visit    Recursive visitor for nested schemas.
-     * @param delegate Store accessors for reading/writing entities.
+     * @param input        The value being normalized.
+     * @param parent       The parent object/array/dictionary containing `input`.
+     * @param key          The key under which `input` lives on `parent`.
+     * @param args         The endpoint args for this normalize call.
+     * @param visit        Recursive visitor for nested schemas.
+     * @param delegate     Store accessors for reading/writing entities.
+     * @param parentEntity Nearest enclosing entity-like schema (one with `pk`),
+     *                     tracked automatically by the visit walker. `Scalar`
+     *                     uses this to discover its entity binding.
      */
     normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, delegate: {
         getEntity: any;
         setEntity: any;
-    }): any;
-    denormalize(input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any): T;
+    }, parentEntity?: any): any;
+    denormalize(input: {}, delegate: IDenormalizeDelegate): T;
     queryKey(args: Args, unvisit: (...args: any) => any, delegate: {
         getEntity: any;
         getIndex: any;
@@ -278,18 +272,15 @@ interface EntityTable {
  *
  * @param schema The schema to apply to `value`.
  * @param value  The value being visited.
- * @param parent The containing data — by convention the parent object/array/
- *               dictionary that holds `value`. Schemas that recurse via
- *               `visit` should pass their own `input` (or the surrounding
- *               container) here. **Exception:** `EntityMixin` passes the
- *               Entity *class* itself (not the parent data row) when visiting
- *               a `Scalar` field, so the receiving `Scalar.normalize` can
- *               read `parent.key`/`parent.schema` to discover its entity
- *               binding. Anything reading `parent` from inside `normalize`
- *               should be aware of this special case.
- * @param key    The key under which `value` lives on `parent`, or a
- *               caller-encoded composite key (as with `Scalar`).
+ * @param parent The parent object/array/dictionary that holds `value`.
+ *               Schemas that recurse via `visit` should pass their own
+ *               `input` (or the surrounding container) here.
+ * @param key    The key under which `value` lives on `parent`.
  * @param args   The endpoint args for this normalize call.
+ *
+ * The walker internally tracks the nearest enclosing entity-like schema and
+ * forwards it to `schema.normalize` as a trailing `parentEntity` argument —
+ * see `SchemaSimple.normalize`. Consumers of `visit` don't pass it.
  */
 interface Visit {
     (schema: any, value: any, parent: any, key: any, args: readonly any[]): any;
@@ -330,6 +321,19 @@ interface IQueryDelegate {
     getIndex: GetIndex;
     /** Return to consider results invalid */
     INVALID: symbol;
+}
+/** Helpers during schema.denormalize() */
+interface IDenormalizeDelegate {
+    /** Recursive denormalize of nested schemas */
+    unvisit(schema: any, input: any): any;
+    /** Raw endpoint args. Reading this does NOT contribute to cache
+     * invalidation — if your output varies with args, register an `argsKey`
+     * so the cache buckets correctly. */
+    readonly args: readonly any[];
+    /** Adds a memoization dimension to the surrounding cache frame.
+     * `fn` must be referentially stable (it doubles as the cache path key).
+     * Returns `fn(args)` for convenience. */
+    argsKey(fn: (args: readonly any[]) => string | undefined): string | undefined;
 }
 /** Helpers during schema.normalize() */
 interface INormalizeDelegate {
@@ -583,7 +587,7 @@ interface IEntityClass<TBase extends Constructor = any> {
      * @see https://dataclient.io/rest/api/Entity#queryKey
      */
     queryKey(args: readonly any[], unvisit: any, delegate: IQueryDelegate): any;
-    denormalize<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, input: any, args: readonly any[], unvisit: (schema: any, input: any) => any): AbstractInstanceType<T>;
+    denormalize<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, input: any, delegate: IDenormalizeDelegate): AbstractInstanceType<T>;
     /** All instance defaults set */
     readonly defaults: any;
 }
@@ -673,7 +677,7 @@ declare class Invalidate<E extends ProcessableEntity | Record<string, Processabl
     denormalize(id: string | {
         id: string;
         schema: string;
-    }, args: readonly any[], unvisit: (schema: any, input: any) => any): E extends ProcessableEntity ? AbstractInstanceType<E> : AbstractInstanceType<E[keyof E]>;
+    }, delegate: IDenormalizeDelegate): E extends ProcessableEntity ? AbstractInstanceType<E> : AbstractInstanceType<E[keyof E]>;
     _denormalizeNullable(): (E extends ProcessableEntity ? AbstractInstanceType<E> : AbstractInstanceType<E[keyof E]>) | undefined;
     _normalizeNullable(): string | undefined;
 }
@@ -712,12 +716,12 @@ declare class Lazy<S extends Schema> implements SchemaSimple {
      */
     constructor(schema: S);
     normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, _delegate: any): any;
-    denormalize(input: {}, _args: readonly any[], _unvisit: any): any;
+    denormalize(input: {}, _delegate: IDenormalizeDelegate): any;
     queryKey(_args: readonly any[], _unvisit: (...args: any) => any, _delegate: any): undefined;
     /** Queryable schema for use with useQuery() to resolve lazy relationships */
     get query(): LazyQuery<S>;
     private _query;
-    _denormalizeNullable: (input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any) => any;
+    _denormalizeNullable: (input: {}, delegate: IDenormalizeDelegate) => any;
     _normalizeNullable: () => NormalizeNullable<S>;
 }
 /**
@@ -729,12 +733,12 @@ declare class Lazy<S extends Schema> implements SchemaSimple {
 declare class LazyQuery<S extends Schema, Args = LazySchemaArgs<S>> {
     schema: S;
     constructor(schema: S);
-    denormalize(input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any): Denormalize<S>;
+    denormalize(input: {}, delegate: IDenormalizeDelegate): Denormalize<S>;
     queryKey(args: Args, unvisit: (...args: any) => any, delegate: {
         getEntity: any;
         getIndex: any;
     }): any;
-    _denormalizeNullable: (input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any) => DenormalizeNullable<S>;
+    _denormalizeNullable: (input: {}, delegate: IDenormalizeDelegate) => DenormalizeNullable<S>;
 }
 
 /**
@@ -754,9 +758,9 @@ declare class Query<S extends Queryable | {
      */
     constructor(schema: S, process: P);
     normalize(...args: any): any;
-    denormalize(input: {}, args: any, unvisit: any): ReturnType<P>;
+    denormalize(input: {}, delegate: IDenormalizeDelegate): ReturnType<P>;
     queryKey(args: ProcessParameters<P, S>, unvisit: (schema: any, args: any) => any): any;
-    _denormalizeNullable: (input: {}, args: readonly any[], unvisit: (schema: any, input: any) => any) => ReturnType<P> | undefined;
+    _denormalizeNullable: (input: {}, delegate: IDenormalizeDelegate) => ReturnType<P> | undefined;
     _normalizeNullable: () => NormalizeNullable<S>;
 }
 type ProcessParameters<P, S extends Queryable | {
@@ -836,7 +840,7 @@ declare class Scalar implements Mergeable {
         expiresAt: number;
     };
     normalize(input: any, parent: any, key: any, args: any[], visit: Visit, delegate: INormalizeDelegate, parentEntity: any): any;
-    denormalize(input: any, args: readonly any[], unvisit: (schema: any, input: any) => any): any;
+    denormalize(input: any, delegate: IDenormalizeDelegate): any;
     queryKey(args: readonly any[], unvisit: any, delegate: IQueryDelegate): any;
 }
 
@@ -1042,8 +1046,7 @@ declare class Array$1<S extends Schema = Schema> implements SchemaClass {
 
   denormalize(
     input: {},
-    args: readonly any[],
-    unvisit: (schema: any, input: any) => any,
+    delegate: IDenormalizeDelegate,
   ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
 
   queryKey(
@@ -1097,8 +1100,7 @@ declare class All<
 
   denormalize(
     input: {},
-    args: readonly any[],
-    unvisit: (schema: any, input: any) => any,
+    delegate: IDenormalizeDelegate,
   ): (S extends EntityMap<infer T> ? T : Denormalize<S>)[];
 
   queryKey(
@@ -1136,11 +1138,7 @@ declare class Object$1<
 
   _denormalizeNullable(): DenormalizeNullableObject<O>;
 
-  denormalize(
-    input: {},
-    args: readonly any[],
-    unvisit: (schema: any, input: any) => any,
-  ): DenormalizeObject<O>;
+  denormalize(input: {}, delegate: IDenormalizeDelegate): DenormalizeObject<O>;
 
   queryKey(
     args: ObjectArgs<O>,
@@ -1228,8 +1226,7 @@ interface UnionInstance<
 
   denormalize(
     input: {},
-    args: readonly any[],
-    unvisit: (schema: any, input: any) => any,
+    delegate: IDenormalizeDelegate,
   ): AbstractInstanceType<Choices[keyof Choices]>;
 
   queryKey(
@@ -1311,8 +1308,7 @@ declare class Values<Choices extends Schema = any> implements SchemaClass {
 
   denormalize(
     input: {},
-    args: readonly any[],
-    unvisit: (schema: any, input: any) => any,
+    delegate: IDenormalizeDelegate,
   ): Record<
     string,
     Choices extends EntityMap<infer T> ? T : Denormalize<Choices>
@@ -1429,7 +1425,7 @@ declare abstract class Entity extends Entity_base {
      * @see https://dataclient.io/rest/api/Entity#process
      */
     static process(input: any, parent: any, key: string | undefined, args: any[]): any;
-    static denormalize: <T extends typeof Entity>(this: T, input: any, args: readonly any[], unvisit: (schema: any, input: any) => any) => AbstractInstanceType<T>;
+    static denormalize: <T extends typeof Entity>(this: T, input: any, delegate: IDenormalizeDelegate) => AbstractInstanceType<T>;
 }
 
 declare function validateRequired(processedEntity: any, requiredDefaults: Record<string, unknown>): string | undefined;
@@ -2337,4 +2333,4 @@ declare function useController(): Controller;
 declare function useLive<E extends EndpointInterface$1<FetchFunction$1, Schema$1 | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>]): E['schema'] extends undefined | null ? ResolveType$1<E> : Denormalize$1<E['schema']>;
 declare function useLive<E extends EndpointInterface$1<FetchFunction$1, Schema$1 | undefined, undefined | false>>(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): E['schema'] extends undefined | null ? ResolveType$1<E> | undefined : DenormalizeNullable$1<E['schema']>;
 
-export { type AbstractInstanceType, type AddEndpoint, All, Array$1 as Array, _default as AsyncBoundary, type CheckLoop, Collection, type CollectionOptions, type ContentType, type CustomResource, DataProvider, type DefaultArgs, type Defaults, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, type EntitiesInterface, type EntitiesPath, Entity, type EntityFields, type EntityInterface, type EntityMap, EntityMixin, type EntityPath, type EntityTable, type ErrorTypes$1 as ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type ExtendedResource, type FetchFunction, type FetchGet, type FetchMutate, type FromFallBack, type GetEndpoint, type GetEntity, type GetIndex, type HookResource, type HookableEndpointInterface, type IEntityClass, type IEntityInstance, type INormalizeDelegate, type IQueryDelegate, type RestEndpoint$1 as IRestEndpoint, type IndexPath, Invalidate, type KeyofEndpointInstance, type KeyofRestEndpoint, type KeysToArgs, Lazy, type Mergeable, type MethodToSide, type MoveEndpoint, type MutateEndpoint, type NI, NetworkError, ErrorBoundary as NetworkErrorBoundary, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedIndex, type NormalizedNullableObject, Object$1 as Object, type ObjectArgs, type OptionsToFunction, type PaginationEndpoint, type PaginationFieldEndpoint, type ParamFetchNoBody, type ParamFetchWithBody, type ParamToArgs, type PartialRestGenerics, type PathArgs, type PathArgsAndSearch, type PathKeys, type PolymorphicInterface, Query, type Queryable, type ReadEndpoint, type RecordClass, type RemoveEndpoint, type ResolveType, type Resource, type ResourceEndpointExtensions, type ResourceExtension, type ResourceGenerics, type ResourceInterface, type ResourceOptions, RestEndpoint, type RestEndpointConstructor, type RestEndpointConstructorOptions, type RestEndpointExtendOptions, type RestEndpointOptions, type RestExtendedEndpoint, type RestFetch, type RestGenerics, type RestInstance, type RestInstanceBase, type RestType, type RestTypeNoBody, type RestTypeWithBody, Scalar, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type ShortenPath, type SnapshotInterface, Union, type UnknownError, Values, type Visit, resource as createResource, getUrlBase, getUrlTokens, hookifyResource, resource, schema_d as schema, unshift, useCache, useController, useDLE, useError, useFetch, useLive, useQuery, useSubscription, useSuspense, validateRequired };
+export { type AbstractInstanceType, type AddEndpoint, All, Array$1 as Array, _default as AsyncBoundary, type CheckLoop, Collection, type CollectionOptions, type ContentType, type CustomResource, DataProvider, type DefaultArgs, type Defaults, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, type EntitiesInterface, type EntitiesPath, Entity, type EntityFields, type EntityInterface, type EntityMap, EntityMixin, type EntityPath, type EntityTable, type ErrorTypes$1 as ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type ExtendedResource, type FetchFunction, type FetchGet, type FetchMutate, type FromFallBack, type GetEndpoint, type GetEntity, type GetIndex, type HookResource, type HookableEndpointInterface, type IDenormalizeDelegate, type IEntityClass, type IEntityInstance, type INormalizeDelegate, type IQueryDelegate, type RestEndpoint$1 as IRestEndpoint, type IndexPath, Invalidate, type KeyofEndpointInstance, type KeyofRestEndpoint, type KeysToArgs, Lazy, type Mergeable, type MethodToSide, type MoveEndpoint, type MutateEndpoint, type NI, NetworkError, ErrorBoundary as NetworkErrorBoundary, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedIndex, type NormalizedNullableObject, Object$1 as Object, type ObjectArgs, type OptionsToFunction, type PaginationEndpoint, type PaginationFieldEndpoint, type ParamFetchNoBody, type ParamFetchWithBody, type ParamToArgs, type PartialRestGenerics, type PathArgs, type PathArgsAndSearch, type PathKeys, type PolymorphicInterface, Query, type Queryable, type ReadEndpoint, type RecordClass, type RemoveEndpoint, type ResolveType, type Resource, type ResourceEndpointExtensions, type ResourceExtension, type ResourceGenerics, type ResourceInterface, type ResourceOptions, RestEndpoint, type RestEndpointConstructor, type RestEndpointConstructorOptions, type RestEndpointExtendOptions, type RestEndpointOptions, type RestExtendedEndpoint, type RestFetch, type RestGenerics, type RestInstance, type RestInstanceBase, type RestType, type RestTypeNoBody, type RestTypeWithBody, Scalar, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type ShortenPath, type SnapshotInterface, Union, type UnknownError, Values, type Visit, resource as createResource, getUrlBase, getUrlTokens, hookifyResource, resource, schema_d as schema, unshift, useCache, useController, useDLE, useError, useFetch, useLive, useQuery, useSubscription, useSuspense, validateRequired };

@@ -108,21 +108,30 @@ The codemod matches `denormalize`, `_denormalize`, and `_denormalizeNullable` on
 
 The codemod will rewrite `args` to `delegate.args`, but if your schema's *return value* depends on those args, you must also register an [`argsKey`](https://dataclient.io/docs/api/Schema) so memoization invalidates correctly. The codemod cannot do this for you.
 
+`argsKey` returns `fn(args)` for convenience **and** the function reference doubles as the cache path key on `WeakDependencyMap` — so `fn` must be **referentially stable**. Bind it in the constructor or at module scope; an inline arrow creates a new reference per call and misses the cache every time.
+
 ```ts
 // before — args read directly
-denormalize(input, args, unvisit) {
-  const lens = args[0]?.portfolio;
-  return this.lookup(input, lens);
+class LensSchema {
+  denormalize(input, args, unvisit) {
+    const lens = args[0]?.portfolio;
+    return this.lookup(input, lens);
+  }
 }
 
-// after — declare the dependency so the cache buckets per-lens
-denormalize(input, delegate) {
-  const lens = delegate.argsKey(args => args[0]?.portfolio);
-  return this.lookup(input, lens);
+// after — stable instance field + declared memo dimension
+class LensSchema {
+  constructor({ lens }) {
+    this.lensSelector = lens;
+  }
+  denormalize(input, delegate) {
+    const lens = delegate.argsKey(this.lensSelector);
+    return this.lookup(input, lens);
+  }
 }
 ```
 
-`argsKey` returns `fn(args)` for convenience and the function reference doubles as the cache path key, so make `fn` referentially stable (e.g. a module-level function or stored on the instance). See [`Scalar`](https://dataclient.io/rest/api/Scalar) for a real-world example.
+See [`Scalar`](https://dataclient.io/rest/api/Scalar) for a real-world example.
 
 ## What the codemod skips
 

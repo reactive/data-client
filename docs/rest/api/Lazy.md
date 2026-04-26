@@ -109,7 +109,7 @@ const buildings = useQuery(
 Returns a `LazyQuery` instance suitable for [useQuery](/docs/api/useQuery). The `LazyQuery`:
 
 - **`queryKey(args)`** — If the inner schema has a `queryKey` (Entity, Collection, etc.), delegates to it. Otherwise returns `args[0]` directly (for array/object schemas where you pass the raw normalized value).
-- **`denormalize(input, args, unvisit)`** — Delegates to the inner schema, resolving IDs into full entity instances.
+- **`denormalize(input, delegate)`** — Delegates to the inner schema, resolving IDs into full entity instances.
 
 The `.query` getter always returns the same instance (cached).
 
