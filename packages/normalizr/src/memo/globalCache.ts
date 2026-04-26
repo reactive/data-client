@@ -40,15 +40,12 @@ export default class GlobalCache implements Cache {
 
   /** Records `fn(args)` as a string-keyed dependency for the surrounding
    * entity-cache frame and returns the value. The function reference is the
-   * cache path key (must be referentially stable); the returned string is
-   * the bucket key at that level of the dep chain. */
+   * cache path key (must be referentially stable); `set` later re-evaluates
+   * the function with the same `args` to derive the bucket key — keeps the
+   * Dep shape monomorphic with entity-style deps (`{path, entity}`). */
   argsKey(fn: KeyFn): string | undefined {
-    const value = fn(this._args);
-    this.dependencies.push({
-      path: fn as any,
-      key: value,
-    });
-    return value;
+    this.dependencies.push({ path: fn as any, entity: undefined });
+    return fn(this._args);
   }
 
   getEntity(
@@ -107,7 +104,7 @@ export default class GlobalCache implements Cache {
           dependencies: localKey,
           value: localCacheKey.get(pk),
         };
-        globalCache.set(localKey, cacheValue);
+        globalCache.set(localKey, cacheValue, this._args);
 
         // start of cycle - reset cycle detection
         if (this.cycleIndex === trackingIndex) {
@@ -170,7 +167,7 @@ export default class GlobalCache implements Cache {
       paths = this.paths();
       // fill pre-allocated slot 0 with the input reference
       this.dependencies[0] = { path: { key: '', pk: '' }, entity: input };
-      this._resultCache.set(this.dependencies, data);
+      this._resultCache.set(this.dependencies, data, this._args);
     } else {
       paths.shift();
       // strip any function-typed (`argsKey`) paths — not subscribable entities

@@ -49,14 +49,14 @@ export default class WeakDependencyMap<
     return [curLink.value, curLink.journey] as readonly [V, Path[]];
   }
 
-  set(dependencies: Dep<Path, K>[], value: V) {
+  set(dependencies: Dep<Path, K>[], value: V, args: readonly any[] = []) {
     if (dependencies.length < 1) throw new KeySize();
     let curLink: Link<Path, K, V> = this as any;
     for (const dep of dependencies) {
       let nextLink: Link<Path, K, V> | undefined;
       if (typeof dep.path === 'function') {
         if (!curLink.nextStr) curLink.nextStr = new Map();
-        const k = dep.key ?? UNDEF_KEY;
+        const k = (dep.path as KeyFn)(args) ?? UNDEF_KEY;
         nextLink = curLink.nextStr.get(k);
         if (!nextLink) {
           nextLink = new Link<Path, K, V>();
@@ -87,9 +87,7 @@ export type GetDependency<Path, K = object | symbol> = (
 
 export interface Dep<Path, K = object> {
   path: Path | KeyFn;
-  entity?: K | undefined;
-  /** Set when `path` is a `KeyFn`; the precomputed `path(args)` value. */
-  key?: string | undefined;
+  entity: K | undefined;
 }
 
 const EMPTY = [undefined, undefined] as const;
