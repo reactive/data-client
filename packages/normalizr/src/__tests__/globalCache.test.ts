@@ -191,6 +191,46 @@ describe('GlobalCache', () => {
       expect(v2).toBe(v1);
     });
 
+    it('preserves function-dep filtering across a result-cache miss + entity-cache hit', () => {
+      // Regression: when the result cache misses (new input ref) but every
+      // entity ref is unchanged, getEntity replays cached deps WITHOUT
+      // running computeValue — so argsKey is never called in this frame.
+      // The replayed deps may contain function-typed (`argsKey`) paths from
+      // the prior frame; `paths()` must still strip them from the
+      // subscription list, otherwise a function leaks into EntityPath[].
+      const entities = { Foo: { '1': { id: '1' } } };
+      const { getEntity, getCache, resultCache } = makeDeps(entities);
+      const lens = (args: readonly any[]) => args[0]?.portfolio;
+      const args = [{ portfolio: 'A' }];
+
+      // Frame 1: populate the per-entity cache with a chain that contains
+      // both the entity dep and a function (argsKey) dep, exactly as would
+      // happen when an Entity's computeValue walks a Scalar field.
+      const frame1 = new GlobalCache(getEntity, getCache, resultCache, args);
+      frame1.getResults({ id: '1' }, true, () => {
+        frame1.getEntity('1', Foo, entities.Foo['1'], m => {
+          frame1.argsKey(lens);
+          m.set('1', { id: '1', resolved: true });
+        });
+        return [{ id: '1', resolved: true }];
+      });
+
+      // Frame 2: NEW input ref (resultCache miss) but same entity ref
+      // (entity cache hits, so computeValue / argsKey do NOT run).
+      const frame2 = new GlobalCache(getEntity, getCache, resultCache, args);
+      const { paths } = frame2.getResults({ id: '1' }, true, () => {
+        frame2.getEntity('1', Foo, entities.Foo['1'], () => {
+          throw new Error(
+            'computeValue must not run — entity cache should hit',
+          );
+        });
+        return [{ id: '1', resolved: true }];
+      });
+
+      expect(paths.every(p => typeof p !== 'function')).toBe(true);
+      expect(paths).toEqual([{ key: 'Foo', pk: '1' }]);
+    });
+
     it('recomputes when the entity reference changes (WeakMap identity)', () => {
       // Entity-keyed chains depend on === identity of the entity ref. A new
       // object at entities[key][pk] busts the cache even if contents match.

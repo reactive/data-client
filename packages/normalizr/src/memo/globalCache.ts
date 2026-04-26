@@ -85,6 +85,12 @@ export default class GlobalCache implements Cache {
         for (let i = 0; i < cdeps.length; i++) {
           this.dependencies.push(cdeps[i]);
         }
+        // Replayed deps may include function-typed (`argsKey`) paths from
+        // a prior frame's computeValue (e.g. Scalar.denormalize). Since
+        // computeValue didn't run here, `argsKey()` wasn't called and the
+        // flag would otherwise stay false — causing `paths()`'s fast path
+        // to leak function refs into the EntityPath subscription list.
+        if (globalCache.hasStringDeps) this._hasArgsKey = true;
         return cacheValue.value;
       }
       // if we don't find in denormalize cache then do full denormalize
