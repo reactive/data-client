@@ -25,6 +25,9 @@ export default class GlobalCache implements Cache {
   declare private _getEntity: DenormGetEntity;
   declare private _resultCache: EndpointsCache;
   declare private _args: readonly any[];
+  /** Set true once `argsKey` is called for this denormalize frame. Gates
+   * function-stripping fast paths in `paths()` / `getResults()`. */
+  private _hasArgsKey = false;
 
   constructor(
     getEntity: DenormGetEntity,
@@ -44,6 +47,7 @@ export default class GlobalCache implements Cache {
    * the function with the same `args` to derive the bucket key — keeps the
    * Dep shape monomorphic with entity-style deps (`{path, entity}`). */
   argsKey(fn: KeyFn): string | undefined {
+    this._hasArgsKey = true;
     this.dependencies.push({ path: fn as any, entity: undefined });
     return fn(this._args);
   }
@@ -170,11 +174,14 @@ export default class GlobalCache implements Cache {
       this._resultCache.set(this.dependencies, data, this._args);
     } else {
       paths.shift();
-      // strip any function-typed (`argsKey`) paths — not subscribable entities
-      for (let i = 0; i < paths.length; i++) {
-        if (typeof paths[i] === 'function') {
-          paths = paths.filter(p => typeof p !== 'function') as EntityPath[];
-          break;
+      // strip any function-typed (`argsKey`) paths — not subscribable entities.
+      // Only possible when the result cache has ever stored such a dep.
+      if (this._resultCache.hasStringDeps) {
+        for (let i = 0; i < paths.length; i++) {
+          if (typeof paths[i] === 'function') {
+            paths = paths.filter(p => typeof p !== 'function') as EntityPath[];
+            break;
+          }
         }
       }
     }
@@ -185,6 +192,15 @@ export default class GlobalCache implements Cache {
    * (`argsKey`) deps are not subscribable entities and are filtered out. */
   protected paths() {
     const deps = this.dependencies;
+    // Fast path: when no `argsKey` was recorded this frame, `deps[1..]` are
+    // all entity paths — restore the pre-allocated indexed-write pattern.
+    if (!this._hasArgsKey) {
+      const paths = new Array(deps.length - 1) as EntityPath[];
+      for (let i = 1; i < deps.length; i++) {
+        paths[i - 1] = deps[i].path as EntityPath;
+      }
+      return paths;
+    }
     const paths: EntityPath[] = [];
     for (let i = 1; i < deps.length; i++) {
       const p = deps[i].path;

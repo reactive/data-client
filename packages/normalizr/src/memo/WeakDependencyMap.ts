@@ -24,6 +24,10 @@ export default class WeakDependencyMap<
 > {
   private readonly next = new WeakMap<K, Link<Path, K, V>>();
   private nextPath: Path | KeyFn | undefined = undefined;
+  /** Sticky: true once any function-typed (`argsKey`) dep has been stored.
+   * Lets `get` pick the entity-only fast path when no schema in this map
+   * uses `argsKey` — avoids a polymorphic `typeof` branch per walk step. */
+  private hasStr = false;
 
   get(
     entity: K,
@@ -32,20 +36,36 @@ export default class WeakDependencyMap<
   ) {
     let curLink = this.next.get(entity);
     if (!curLink) return EMPTY;
+    if (this.hasStr) return this._getMixed(curLink, getDependency, args);
+    while (curLink.nextPath) {
+      // we cannot perform lookups with `undefined`, so we use a special object to represent undefined
+      const nextDependency = getDependency(curLink.nextPath as Path) ?? UNDEF;
+      const nextLink = curLink.next.get(nextDependency as any);
+      if (!nextLink) return EMPTY;
+      curLink = nextLink;
+    }
+    // curLink exists, but has no path - so must have a value
+    return [curLink.value, curLink.journey] as readonly [V, Path[]];
+  }
+
+  /** Slow path: dep chain may interleave entity and `argsKey`-style deps. */
+  private _getMixed(
+    curLink: Link<Path, K, V>,
+    getDependency: GetDependency<Path, K | symbol>,
+    args: readonly any[],
+  ) {
     while (curLink.nextPath) {
       let nextLink: Link<Path, K, V> | undefined;
       if (typeof curLink.nextPath === 'function') {
         const keyValue = (curLink.nextPath as KeyFn)(args) ?? UNDEF_KEY;
         nextLink = curLink.nextStr?.get(keyValue);
       } else {
-        // we cannot perform lookups with `undefined`, so we use a special object to represent undefined
         const nextDependency = getDependency(curLink.nextPath as Path) ?? UNDEF;
         nextLink = curLink.next.get(nextDependency as any);
       }
       if (!nextLink) return EMPTY;
       curLink = nextLink;
     }
-    // curLink exists, but has no path - so must have a value
     return [curLink.value, curLink.journey] as readonly [V, Path[]];
   }
 
@@ -55,6 +75,7 @@ export default class WeakDependencyMap<
     for (const dep of dependencies) {
       let nextLink: Link<Path, K, V> | undefined;
       if (typeof dep.path === 'function') {
+        this.hasStr = true;
         if (!curLink.nextStr) curLink.nextStr = new Map();
         const k = (dep.path as KeyFn)(args) ?? UNDEF_KEY;
         nextLink = curLink.nextStr.get(k);
@@ -78,6 +99,12 @@ export default class WeakDependencyMap<
     curLink.value = value;
     // we could recompute this on get, but it would have a cost and we optimize for `get`
     curLink.journey = dependencies.map(d => d.path) as Path[];
+  }
+
+  /** True once any `argsKey`-style dep has been written. Consumers can use
+   * this to skip function-stripping work on the hit path when false. */
+  get hasStringDeps(): boolean {
+    return this.hasStr;
   }
 }
 
