@@ -1,16 +1,18 @@
+import { WeakDependencyMap } from './dist/index.js';
 import { createAdd } from './filter.js';
 import { printStatus } from './printStatus.js';
 
 /**
  * Microbenchmark suite for testing very specific, isolated operations.
  *
- * Tests 6 optimization patterns:
+ * Tests optimization patterns:
  * 1. forEach vs indexed for loop
  * 2. reduce+spread vs direct mutation
  * 3. array.map vs pre-allocated loop
  * 4. repeated getter vs cached
  * 5. slice+map vs pre-allocated extraction
  * 6. Map double-get vs single-get
+ * 7. WeakDependencyMap get/set (entity vs argsKey/scalar paths)
  *
  * @param {import('benchmark').Suite} suite
  * @param {string} [filter]
@@ -299,6 +301,76 @@ export default function addMicroSuite(suite, filter) {
       // 50% existing keys, 50% new keys
       const key = i % 2 === 0 ? `existing${i % 50}` : `new${i}`;
       singleGetPattern(map, key, createValue);
+    }
+  });
+
+  // ============================================================
+  // Optimization 7: WeakDependencyMap get/set hot path
+  // ============================================================
+  // Targeted at the recent WeakDependencyMap refactor (drop `key`,
+  // pass args to set, lazy-allocate `next`). Allocates fresh entities
+  // each iteration to avoid weak-ref cleanup races.
+  const wdmEntities = Array.from({ length: 30 }, (_, i) => ({ id: i }));
+  const wdmGetDep = path => wdmEntities[path[1]];
+  const lensFn = args => args[0]?.lens;
+
+  function buildEntityDeps() {
+    const deps = new Array(30);
+    for (let i = 0; i < 30; i++) {
+      deps[i] = { path: ['Project', i], entity: wdmEntities[i] };
+    }
+    return deps;
+  }
+
+  function buildScalarDeps() {
+    const deps = new Array(30);
+    for (let i = 0; i < 28; i++) {
+      deps[i] = { path: ['Project', i], entity: wdmEntities[i] };
+    }
+    // Include `key` so this works against pre-refactor `set` signatures too
+    // (variant A/A+B `set` recomputes from `path(args)`; `key` is harmless).
+    deps[28] = { path: lensFn, entity: undefined, key: 'portfolio-A' };
+    deps[29] = { path: ['Project', 29], entity: wdmEntities[29] };
+    return deps;
+  }
+
+  const entityDeps = buildEntityDeps();
+  const scalarDeps = buildScalarDeps();
+  const wdmArgs = [{ lens: 'portfolio-A' }];
+
+  // Pre-built map for get-only benchmarks (steady-state cache hit)
+  const primedEntityMap = new WeakDependencyMap();
+  primedEntityMap.set(entityDeps, 'cached', wdmArgs);
+  const primedScalarMap = new WeakDependencyMap();
+  primedScalarMap.set(scalarDeps, 'cached', wdmArgs);
+  const entityRoot = entityDeps[0].entity;
+  const scalarRoot = scalarDeps[0].entity;
+
+  add('7-WDM get entity (30 chain)', () => {
+    for (let i = 0; i < 1000; i++) {
+      primedEntityMap.get(entityRoot, wdmGetDep, wdmArgs);
+    }
+  });
+
+  add('7-WDM get scalar (30 chain w/ argsKey)', () => {
+    for (let i = 0; i < 1000; i++) {
+      primedScalarMap.get(scalarRoot, wdmGetDep, wdmArgs);
+    }
+  });
+
+  add('7-WDM set+get entity (30 chain, fresh)', () => {
+    const m = new WeakDependencyMap();
+    m.set(entityDeps, 'value', wdmArgs);
+    for (let i = 0; i < 100; i++) {
+      m.get(entityRoot, wdmGetDep, wdmArgs);
+    }
+  });
+
+  add('7-WDM set+get scalar (30 chain, fresh)', () => {
+    const m = new WeakDependencyMap();
+    m.set(scalarDeps, 'value', wdmArgs);
+    for (let i = 0; i < 100; i++) {
+      m.get(scalarRoot, wdmGetDep, wdmArgs);
     }
   });
 
