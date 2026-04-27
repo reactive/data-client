@@ -145,7 +145,11 @@ export default class GlobalCache implements Cache {
       this.dependencies[0] = { path: { key: '', pk: '' }, entity: input };
       this._resultCache.set(this.dependencies, data);
     } else {
-      paths.shift();
+      // `paths` aliases the stored Link.journey — return a copy that skips
+      // the input placeholder slot. `paths.shift()` would mutate the shared
+      // journey, progressively dropping real entity paths on successive
+      // hits and corrupting subscriptions / GC ref-counting.
+      paths = paths.slice(1);
     }
     return { data, paths };
   }
