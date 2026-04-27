@@ -19,12 +19,15 @@ args.
 
 New exports: `Scalar`, `schema.Scalar`.
 
-A single `Scalar` instance can serve both as an `Entity.schema` field
-(parent entity inferred from the visit) and standalone inside `schema.Values`
-for cheap column-only refreshes (entity bound explicitly via `entity`):
+A single `Scalar` instance can serve both as an `Entity.schema` field (parent
+entity inferred from the visit) and standalone — inside `Values(Scalar)`,
+`[Scalar]`, or `Collection([Scalar])` — for cheap column-only refreshes
+(entity bound explicitly via `entity`). Cell pks are derived from the map key
+or via `Scalar.entityPk()`, which defaults to `Entity.pk()` so custom and
+composite primary keys work with no override:
 
 ```ts
-import { Entity, RestEndpoint, Scalar, schema } from '@data-client/rest';
+import { Collection, Entity, RestEndpoint, Scalar } from '@data-client/rest';
 
 class Company extends Entity {
   id = '';
@@ -46,16 +49,22 @@ Company.schema = {
 export const getCompanies = new RestEndpoint({
   path: '/companies',
   searchParams: {} as { portfolio: string },
-  schema: [Company],
+  schema: new Collection([Company], { argsKey: () => ({}) }),
 });
 // Lens-only refresh — writes to the same Scalar(portfolio) cell table
 export const getPortfolioColumns = new RestEndpoint({
   path: '/companies/columns',
   searchParams: {} as { portfolio: string },
-  schema: new schema.Values(PortfolioScalar),
+  schema: new Collection([PortfolioScalar], {
+    argsKey: ({ portfolio }) => ({ portfolio }),
+  }),
 });
 ```
 
 `useSuspense(getCompanies, { portfolio: 'A' })` and
 `useSuspense(getCompanies, { portfolio: 'B' })` resolve to different
 `pct_equity` / `shares` while sharing the same `Company` row.
+
+`Scalar.queryKey` enumerates cells in its table for the current lens, so
+endpoints that use `Scalar` directly as their top-level schema reconstruct
+from cache without a network round-trip once the cells are present.

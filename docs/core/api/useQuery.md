@@ -16,7 +16,7 @@ import VoteDemo from '../shared/\_VoteDemo.mdx';
 Data rendering without the fetch.
 
 Access any [Queryable Schema](/rest/api/schema#queryable)'s store value; like [Entity](/rest/api/Entity), [All](/rest/api/All), [Collection](/rest/api/Collection), [Query](/rest/api/Query),
-and [Union](/rest/api/Union). [Lazy](/rest/api/Lazy) fields also work via their [`.query`](/rest/api/Lazy#query) accessor.
+[Union](/rest/api/Union), and [Scalar](/rest/api/Scalar). [Lazy](/rest/api/Lazy) fields also work via their [`.query`](/rest/api/Lazy#query) accessor.
 If the value does not exist, returns `undefined`.
 
 `useQuery()` is reactive to data [mutations](../getting-started/mutations.md); rerendering only when necessary. Returns `undefined`
@@ -60,7 +60,7 @@ function useQuery<S extends Queryable>(
 
 [Queryable](/rest/api/schema#queryable) schemas require an `queryKey()` method that returns something. These include
 [Entity](/rest/api/Entity), [All](/rest/api/All), [Collection](/rest/api/Collection), [Query](/rest/api/Query),
-and [Union](/rest/api/Union). [Lazy](/rest/api/Lazy) fields produce a Queryable via their [`.query`](/rest/api/Lazy#query) accessor.
+[Union](/rest/api/Union), and [Scalar](/rest/api/Scalar). [Lazy](/rest/api/Lazy) fields produce a Queryable via their [`.query`](/rest/api/Lazy#query) accessor.
 
 ```ts
 interface Queryable {

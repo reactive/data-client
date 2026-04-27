@@ -787,6 +787,7 @@ interface ScalarOptions {
      */
     entity?: {
         key: string;
+        pk?: (...args: any[]) => string | number | undefined;
     };
 }
 /**
@@ -802,6 +803,7 @@ interface ScalarOptions {
 declare class Scalar implements Mergeable {
     readonly key: string;
     readonly lensSelector: (args: readonly any[]) => string | undefined;
+    readonly entity: ScalarOptions['entity'];
     readonly entityKey: string | undefined;
     /**
      * Allow normalize to receive primitive field values.
@@ -816,6 +818,19 @@ declare class Scalar implements Mergeable {
      * @see https://dataclient.io/rest/api/Scalar
      */
     constructor(options: ScalarOptions);
+    /**
+     * The bound Entity's pk for a standalone scalar cell.
+     *
+     * Prefers the surrounding map key (authoritative for `Values(Scalar)`),
+     * then falls back to the bound `Entity.pk(...)`.
+     *
+     * @see https://dataclient.io/rest/api/Scalar#entityPk
+     * @param [input] the scalar cell input
+     * @param [parent] When normalizing, the object which included the cell
+     * @param [key] When normalizing, the surrounding map key (if any)
+     * @param [args] ...args sent to Endpoint
+     */
+    entityPk(input: any, parent: any, key: string | undefined, args: readonly any[]): string | number | undefined;
     createIfValid(props: any): any;
     merge(existing: any, incoming: any): any;
     /**
@@ -853,7 +868,14 @@ declare class Scalar implements Mergeable {
     };
     normalize(input: any, parent: any, key: any, args: any[], visit: Visit, delegate: INormalizeDelegate, parentEntity: any): any;
     denormalize(input: any, delegate: IDenormalizeDelegate): any;
-    queryKey(args: readonly any[], unvisit: any, delegate: IQueryDelegate): undefined;
+    /**
+     * Returns the cpks of cells matching the current lens, or undefined.
+     *
+     * Only consulted when `Scalar` is an endpoint's top-level schema; field
+     * usage resolves through the parent entity. Relies on `lens` not
+     * containing the cpk delimiter `|`.
+     */
+    queryKey(args: readonly any[], unvisit: any, delegate: IQueryDelegate): string[] | undefined;
 }
 
 type CollectionOptions<Args extends any[] = DefaultArgs, Parent = any> = ({

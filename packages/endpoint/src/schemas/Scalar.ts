@@ -24,7 +24,10 @@ interface ScalarOptions {
    * Optional when used as a field on `Entity.schema`, where the parent Entity
    * is inferred. Required for standalone usage such as `schema.Values`.
    */
-  entity?: { key: string };
+  entity?: {
+    key: string;
+    pk?: (...args: any[]) => string | number | undefined;
+  };
 }
 
 /**
@@ -40,6 +43,7 @@ interface ScalarOptions {
 export default class Scalar implements Mergeable {
   readonly key: string;
   readonly lensSelector: (args: readonly any[]) => string | undefined;
+  readonly entity: ScalarOptions['entity'];
   readonly entityKey: string | undefined;
   /**
    * Allow normalize to receive primitive field values.
@@ -57,7 +61,30 @@ export default class Scalar implements Mergeable {
   constructor(options: ScalarOptions) {
     this.key = `Scalar(${options.key})`;
     this.lensSelector = options.lens;
+    this.entity = options.entity;
     this.entityKey = options.entity?.key;
+  }
+
+  /**
+   * The bound Entity's pk for a standalone scalar cell.
+   *
+   * Prefers the surrounding map key (authoritative for `Values(Scalar)`),
+   * then falls back to the bound `Entity.pk(...)`.
+   *
+   * @see https://dataclient.io/rest/api/Scalar#entityPk
+   * @param [input] the scalar cell input
+   * @param [parent] When normalizing, the object which included the cell
+   * @param [key] When normalizing, the surrounding map key (if any)
+   * @param [args] ...args sent to Endpoint
+   */
+  entityPk(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    args: readonly any[],
+  ): string | number | undefined {
+    if (key !== undefined) return key;
+    return this.entity?.pk?.(input, parent, key, args);
   }
 
   createIfValid(props: any) {
@@ -131,7 +158,7 @@ export default class Scalar implements Mergeable {
     // class as `parentEntity`. `input` is the per-cell scalar value
     // (e.g. 0.5), `parent` is the entity data row, `key` is the field name
     // (always a string from Object.keys, no coercion needed).
-    if (parentEntity && parentEntity.pk) {
+    if (typeof parentEntity === 'function' && parentEntity.pk) {
       const entityKey: string = parentEntity.key;
       // TODO: this re-derives the enclosing entity's pk without the enclosing
       // `parent`/`key` context that `EntityMixin.normalize` used to compute
@@ -155,15 +182,23 @@ export default class Scalar implements Mergeable {
       return [id, key, entityKey];
     }
 
-    // Values path: input IS the scalar cell data, key IS the entity pk.
+    // Standalone path: input is scalar cell data, and pk is derived from either
+    // the item itself (`[Scalar]`) or the surrounding key (`Values(Scalar)`).
     // No parent entity to infer from — require explicit `entity` binding.
     if (this.entityKey === undefined) {
       throw new Error(
         'Scalar used standalone (e.g. inside `schema.Values`) requires an `entity` option to bind it to an Entity class.',
       );
     }
+    const id = this.entityPk(input, parent, key, args);
+    if (id === undefined) {
+      throw new Error(
+        `${this.key}: cannot derive entity pk for cell. Provide items with an ` +
+          '`id` field, a pk-keyed map key, or override Scalar.entityPk().',
+      );
+    }
     // cpk = compound pk: `"entityKey|entityPk|lensValue"`; used throughout this file.
-    const cpk = `${this.entityKey}|${key}|${lensValue}`;
+    const cpk = `${this.entityKey}|${id}|${lensValue}`;
     delegate.mergeEntity(this, cpk, { ...input });
     return cpk;
   }
@@ -207,11 +242,32 @@ export default class Scalar implements Mergeable {
     return delegate.unvisit(this, input);
   }
 
+  /**
+   * Returns the cpks of cells matching the current lens, or undefined.
+   *
+   * Only consulted when `Scalar` is an endpoint's top-level schema; field
+   * usage resolves through the parent entity. Relies on `lens` not
+   * containing the cpk delimiter `|`.
+   */
   queryKey(
     args: readonly any[],
     unvisit: any,
     delegate: IQueryDelegate,
-  ): undefined {
-    return undefined;
+  ): string[] | undefined {
+    const lens = this.lensSelector(args);
+    if (lens === undefined) return undefined;
+
+    const cells = delegate.getEntities(this.key);
+    if (!cells) return undefined;
+
+    const cpks: string[] = [];
+    for (const [cpk, entity] of cells.entries()) {
+      if (!entity || typeof entity === 'symbol') continue;
+      const lastPipe = cpk.lastIndexOf('|');
+      if (lastPipe !== -1 && cpk.slice(lastPipe + 1) === lens) {
+        cpks.push(cpk);
+      }
+    }
+    return cpks.length ? cpks : undefined;
   }
 }

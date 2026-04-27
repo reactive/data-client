@@ -14,6 +14,7 @@ export default function buildQueryKey(delegate: IQueryDelegate) {
   ): NormalizeNullable<S> {
     // schema classes
     if (canQuery(schema)) {
+      if (args.length === 1 && args[0] === null) return undefined as any;
       return schema.queryKey(args as any[], queryKey, delegate);
     }
 

@@ -1,0 +1,123 @@
+import HooksPlayground from '@site/src/components/HooksPlayground';
+import { companyFixtures } from '@site/src/fixtures/companies';
+
+<HooksPlayground fixtures={companyFixtures} row groupId="schema" defaultOpen={props.defaultOpen ?? "y"} defaultTab={props.defaultTab}>
+
+```ts title="api/Company" {11-20,26-28,34-36} collapsed
+import { Collection, Entity, RestEndpoint, Scalar } from '@data-client/rest';
+
+export class Company extends Entity {
+  id = '';
+  name = '';
+  price = 0;
+  pct_equity = 0;
+  shares = 0;
+}
+
+const PortfolioScalar = new Scalar({
+  lens: args => args[0]?.portfolio,
+  key: 'portfolio',
+  entity: Company,
+});
+Company.schema = {
+  pct_equity: PortfolioScalar,
+  shares: PortfolioScalar,
+};
+
+export const getCompanies = new RestEndpoint({
+  path: '/companies',
+  searchParams: {} as { portfolio: string },
+  // `portfolio` is a lens, not a filter — the returned Company list is the same
+  // regardless of lens. Dropping it from `argsKey` collapses every portfolio to
+  // one Collection pk, so `Collection.queryKey()` finds the list on every
+  // switch and `useSuspense` reuses it without refetching.
+  schema: new Collection([Company], { argsKey: () => ({}) }),
+});
+
+export const getPortfolioColumns = new RestEndpoint({
+  path: '/companies/columns',
+  searchParams: {} as { portfolio: string },
+  schema: new Collection([PortfolioScalar], {
+    argsKey: ({ portfolio }) => ({ portfolio }),
+  }),
+});
+```
+
+```tsx title="CompanyGrid" collapsed
+import { type Company } from './api/Company';
+
+export default function CompanyGrid({ companies }: { companies: Company[] }) {
+  return (
+    <table style={{ marginTop: 8, width: '100%' }}>
+      <thead>
+        <tr>
+          <th align="left">Name</th>
+          <th align="right">Price</th>
+          <th align="right">% Equity</th>
+          <th align="right">Shares</th>
+        </tr>
+      </thead>
+      <tbody>
+        {companies.map(c => (
+          <tr key={c.pk()}>
+            <td>{c.name}</td>
+            <td align="right">${c.price.toFixed(2)}</td>
+            <td align="right">{formatPercent(c.pct_equity)}</td>
+            <td align="right">{formatShares(c.shares)}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+function formatPercent(value: number | undefined) {
+  return value === undefined ? 'loading...' : `${(value * 100).toFixed(1)}%`;
+}
+
+function formatShares(value: number | undefined) {
+  return value === undefined ? 'loading...' : value.toLocaleString();
+}
+```
+
+```tsx title="PortfolioGrid"
+import { useSuspense, useFetch } from '@data-client/react';
+import { getCompanies, getPortfolioColumns } from './api/Company';
+import CompanyGrid from './CompanyGrid';
+
+function PortfolioGrid() {
+  const [portfolio, setPortfolio] = React.useState('A');
+  // Fetches on first render, then re-denormalizes from cache on every
+  // portfolio switch. The Collection's `queryKey()` ignores `portfolio`,
+  // so there is no endpoint refetch on switch.
+  const companies = useSuspense(getCompanies, { portfolio });
+  // The first render's `useSuspense` already populated `Scalar(portfolio)`
+  // for `firstPortfolio`, so we only fetch columns when the user switches
+  // away. `useFetch` then dedupes later revisits via its endpoint cache.
+  const firstPortfolio = React.useRef(portfolio).current;
+  useFetch(
+    getPortfolioColumns,
+    portfolio === firstPortfolio ? null : { portfolio },
+  );
+
+  return (
+    <div>
+      <label>
+        Portfolio:{' '}
+        <select
+          value={portfolio}
+          onChange={e => setPortfolio(e.currentTarget.value)}
+        >
+          <option value="A">Portfolio A</option>
+          <option value="B">Portfolio B</option>
+        </select>
+      </label>
+      <CompanyGrid companies={companies} />
+    </div>
+  );
+}
+
+render(<PortfolioGrid />);
+```
+
+</HooksPlayground>

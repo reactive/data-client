@@ -149,7 +149,7 @@ If specified, will add [Resource.getList.getPage](#getpage) method on the `Resou
 
 ### nonFilterArgumentKeys
 
-Pass-through option to [Collection.nonFilterArgumentKeys](./Collection.md#nonfilterargumentkeys)
+Pass-through option to [Collection.nonFilterArgumentKeys](./Collection.md#nonFilterArgumentKeys)
 for [getList](#getlist) schema.
 
 ```ts

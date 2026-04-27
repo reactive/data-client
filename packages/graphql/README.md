@@ -167,6 +167,13 @@ return <ReviewForm onSubmit={data => controller.fetch(createReview, data)} />;
 <td align="center">🛑</td>
 </tr>
 <tr>
+<td rowSpan="1"><a href="https://en.wikipedia.org/wiki/Scalar_(mathematics)">Scalar</a></td>
+<td align="center">✅</td>
+<td><a href="https://dataclient.io/rest/api/Scalar">Scalar</a></td>
+<td>lens-dependent entity fields</td>
+<td align="center">✅</td>
+</tr>
+<tr>
 <td rowSpan="2">any</td>
 <td align="center"></td>
 <td><a href="https://dataclient.io/rest/api/Query">Query(Queryable)</a></td>

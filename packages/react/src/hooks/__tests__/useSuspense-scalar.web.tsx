@@ -1,11 +1,6 @@
-import {
-  Collection,
-  Entity,
-  RestEndpoint,
-  Scalar,
-  schema,
-} from '@data-client/rest';
+import { Collection, Entity, RestEndpoint, Scalar } from '@data-client/rest';
 import { jest } from '@jest/globals';
+import { waitFor } from '@testing-library/react';
 import React from 'react';
 
 import { renderDataHook } from '../../../../test';
@@ -38,7 +33,9 @@ const getCompanies = new RestEndpoint({
 const getPortfolioColumns = new RestEndpoint({
   path: '/companies/columns',
   searchParams: {} as { portfolio: string },
-  schema: new schema.Values(PortfolioScalar),
+  schema: new Collection([PortfolioScalar], {
+    argsKey: ({ portfolio }: { portfolio: string }) => ({ portfolio }),
+  }),
 });
 
 const portfolioRows: Record<string, any[]> = {
@@ -57,15 +54,15 @@ const portfolioRows: Record<string, any[]> = {
     { id: '2', name: 'Globex', price: 89.5, pct_equity: 0.4, shares: 8000 },
   ],
 };
-const portfolioColumns: Record<string, Record<string, any>> = {
-  A: {
-    '1': { pct_equity: 0.5, shares: 10000 },
-    '2': { pct_equity: 0.2, shares: 4000 },
-  },
-  B: {
-    '1': { pct_equity: 0.3, shares: 6000 },
-    '2': { pct_equity: 0.4, shares: 8000 },
-  },
+const portfolioColumns: Record<string, any[]> = {
+  A: [
+    { id: '1', pct_equity: 0.5, shares: 10000 },
+    { id: '2', pct_equity: 0.2, shares: 4000 },
+  ],
+  B: [
+    { id: '1', pct_equity: 0.3, shares: 6000 },
+    { id: '2', pct_equity: 0.4, shares: 8000 },
+  ],
 };
 
 describe('Scalar lens — useSuspense across portfolio switches (regression)', () => {
@@ -129,8 +126,8 @@ describe('Scalar lens — useSuspense across portfolio switches (regression)', (
 describe('Scalar lens — Collection + useFetch fetch counts (docs demo)', () => {
   // Mirrors docs/rest/api/Scalar.md: getCompanies uses
   // `Collection([Company], { argsKey: () => ({}) })` so all portfolios share
-  // one list entity; useFetch(getPortfolioColumns) fills in scalar cells
-  // per-portfolio.
+  // one list entity; getPortfolioColumns uses Collection([PortfolioScalar])
+  // with per-portfolio pks to fill in scalar cells per portfolio.
   const getCompaniesCollection = new RestEndpoint({
     path: '/companies',
     searchParams: {} as { portfolio: string },
@@ -158,7 +155,7 @@ describe('Scalar lens — Collection + useFetch fetch counts (docs demo)', () =>
     const columnsSpy = jest.fn(
       ({ portfolio }: { portfolio: 'A' | 'B' }) => portfolioColumns[portfolio],
     );
-    const { result, rerender, waitForNextUpdate } = renderDataHook(DemoHook, {
+    const { result, rerender } = renderDataHook(DemoHook, {
       initialProps: { portfolio: 'A' as 'A' | 'B' },
       resolverFixtures: [
         { endpoint: getCompaniesCollection, response: companiesSpy },
@@ -169,14 +166,14 @@ describe('Scalar lens — Collection + useFetch fetch counts (docs demo)', () =>
     // Initial render: `useSuspense(getCompanies)` fetches and populates
     // Scalar(A). `useFetch(getPortfolioColumns)` is gated off for the
     // initial portfolio, so no redundant columns fetch.
-    await waitForNextUpdate();
+    await waitFor(() => expect(result.current).not.toBeUndefined());
     expect(companiesSpy).toHaveBeenCalledTimes(1);
     expect(columnsSpy).toHaveBeenCalledTimes(0);
     expect(result.current[0].pct_equity).toBe(0.5);
 
-    // Switch to B: Collection entity is shared (pk excludes `portfolio`), so
-    // `useSuspense` reuses the list. `useFetch` fires once to populate
-    // Scalar(B) cells — companies stays at 1.
+    // Switch to B: the Company Collection entity is shared (pk excludes
+    // `portfolio`), so `useSuspense` reuses the list. `useFetch` fires once
+    // to populate Scalar(B) cells — companies stays at 1.
     rerender({ portfolio: 'B' });
     await new Promise(r => setTimeout(r, 50));
     expect(companiesSpy).toHaveBeenCalledTimes(1);

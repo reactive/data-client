@@ -309,7 +309,7 @@ class User extends Entity {
 In this case, `user.todos` and getTodos() response (from the argsKey example) will always
 be the same (referentially equal) Array.
 
-### nonFilterArgumentKeys?
+### nonFilterArgumentKeys? {#nonFilterArgumentKeys}
 
 A convenient alternative to [argsKey](#argsKey)
 

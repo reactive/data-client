@@ -3,8 +3,7 @@ title: Scalar Schema - Lens-Dependent Entity Fields
 sidebar_label: Scalar
 ---
 
-import HooksPlayground from '@site/src/components/HooksPlayground';
-import { RestEndpoint } from '@data-client/rest';
+import ScalarDemo from '../shared/\_ScalarDemo.mdx';
 
 # Scalar
 
@@ -32,191 +31,7 @@ Use normal nested [schemas](./schema.md) for relationships to other entities.
 In this example, `pct_equity` and `shares` depend on the selected portfolio, while
 `name` and `price` are stable properties of the `Company` entity.
 
-<HooksPlayground row groupId="schema" defaultOpen="y" fixtures={[
-  {
-    endpoint: new RestEndpoint({ path: '/companies', searchParams: {} }),
-    args: [{ portfolio: 'A' }],
-    response: [
-      {
-        id: '1',
-        name: 'Acme Corp',
-        price: 145.20,
-        pct_equity: 0.50,
-        shares: 10000,
-      },
-      {
-        id: '2',
-        name: 'Globex',
-        price: 89.50,
-        pct_equity: 0.20,
-        shares: 4000,
-      },
-      {
-        id: '3',
-        name: 'Initech',
-        price: 32.10,
-        pct_equity: 0.10,
-        shares: 2500,
-      },
-    ],
-    delay: 150,
-  },
-  {
-    endpoint: new RestEndpoint({ path: '/companies', searchParams: {} }),
-    args: [{ portfolio: 'B' }],
-    response: [
-      {
-        id: '1',
-        name: 'Acme Corp',
-        price: 145.20,
-        pct_equity: 0.30,
-        shares: 6000,
-      },
-      {
-        id: '2',
-        name: 'Globex',
-        price: 89.50,
-        pct_equity: 0.40,
-        shares: 8000,
-      },
-      {
-        id: '3',
-        name: 'Initech',
-        price: 32.10,
-        pct_equity: 0.05,
-        shares: 1200,
-      },
-    ],
-    delay: 150,
-  },
-  {
-    endpoint: new RestEndpoint({ path: '/companies/columns', searchParams: {} }),
-    args: [{ portfolio: 'A' }],
-    response: {
-      '1': { pct_equity: 0.50, shares: 10000 },
-      '2': { pct_equity: 0.20, shares: 4000 },
-      '3': { pct_equity: 0.10, shares: 2500 },
-    },
-    delay: 150,
-  },
-  {
-    endpoint: new RestEndpoint({ path: '/companies/columns', searchParams: {} }),
-    args: [{ portfolio: 'B' }],
-    response: {
-      '1': { pct_equity: 0.30, shares: 6000 },
-      '2': { pct_equity: 0.40, shares: 8000 },
-      '3': { pct_equity: 0.05, shares: 1200 },
-    },
-    delay: 150,
-  },
-]}>
-
-```ts title="api/Company" {17-20,24-28,34} collapsed
-import { Collection, Entity, RestEndpoint, Scalar, Values } from '@data-client/rest';
-
-export class Company extends Entity {
-  id = '';
-  name = '';
-  price = 0;
-  pct_equity = 0;
-  shares = 0;
-}
-
-// Bound to Company so both endpoints below can use this same instance.
-const PortfolioScalar = new Scalar({
-  lens: args => args[0]?.portfolio,
-  key: 'portfolio',
-  entity: Company,
-});
-Company.schema = {
-  pct_equity: PortfolioScalar,
-  shares: PortfolioScalar,
-};
-
-export const getCompanies = new RestEndpoint({
-  path: '/companies',
-  searchParams: {} as { portfolio: string },
-  // `portfolio` is a lens, not a filter — the returned Company list is the same
-  // regardless of lens. Excluding it from `argsKey` collapses every portfolio
-  // to one Collection pk, so `Collection.queryKey()` finds the list on every
-  // switch and `useSuspense` reuses it without refetching.
-  schema: new Collection([Company], { argsKey: () => ({}) }),
-});
-
-export const getPortfolioColumns = new RestEndpoint({
-  path: '/companies/columns',
-  searchParams: {} as { portfolio: string },
-  schema: new Values(PortfolioScalar),
-});
-```
-
-```tsx title="PortfolioGrid"
-import { useSuspense, useFetch } from '@data-client/react';
-import { getCompanies, getPortfolioColumns } from './api/Company';
-
-function PortfolioGrid() {
-  const [portfolio, setPortfolio] = React.useState('A');
-  // Fetches on first render, then re-denormalizes from cache on every
-  // portfolio switch. The Collection's `queryKey()` ignores `portfolio`,
-  // so there is no endpoint refetch on switch.
-  const companies = useSuspense(getCompanies, { portfolio });
-  // The first render's `useSuspense` already populated `Scalar(portfolio)`
-  // for `firstPortfolio`, so we only fetch columns when the user switches
-  // away. `useFetch` then dedupes later revisits via its endpoint cache.
-  const firstPortfolio = React.useRef(portfolio).current;
-  useFetch(
-    getPortfolioColumns,
-    portfolio === firstPortfolio ? null : { portfolio },
-  );
-
-  return (
-    <div>
-      <label>
-        Portfolio:{' '}
-        <select
-          value={portfolio}
-          onChange={e => setPortfolio(e.currentTarget.value)}
-        >
-          <option value="A">Portfolio A</option>
-          <option value="B">Portfolio B</option>
-        </select>
-      </label>
-      <table style={{ marginTop: 8, width: '100%' }}>
-        <thead>
-          <tr>
-            <th align="left">Name</th>
-            <th align="right">Price</th>
-            <th align="right">% Equity</th>
-            <th align="right">Shares</th>
-          </tr>
-        </thead>
-        <tbody>
-          {companies.map(c => (
-            <tr key={c.pk()}>
-              <td>{c.name}</td>
-              <td align="right">${c.price.toFixed(2)}</td>
-              <td align="right">{formatPercent(c.pct_equity)}</td>
-              <td align="right">{formatShares(c.shares)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function formatPercent(value: number | undefined) {
-  return value === undefined ? 'loading...' : `${(value * 100).toFixed(1)}%`;
-}
-
-function formatShares(value: number | undefined) {
-  return value === undefined ? 'loading...' : value.toLocaleString();
-}
-
-render(<PortfolioGrid />);
-```
-
-</HooksPlayground>
+<ScalarDemo />
 
 On first render, `getCompanies` fetches once to populate the Company entities and
 the initial `Scalar(portfolio)` cells. Every later portfolio switch re-denormalizes
@@ -225,11 +40,11 @@ from the existing `Collection` entity with the new lens — no network fetch —
 user actually visits. Revisit a portfolio already in cache and neither endpoint
 fires again.
 
-Wrapping `[Company]` in a [Collection](./Collection.md) is what makes this work:
+Wrapping lists in [Collection](./Collection.md) is what makes this work:
 `Array` has no `queryKey`, so `useSuspense(getCompanies, { portfolio: 'B' })`
 would miss the endpoint cache and trigger a refetch. `Collection.queryKey()`
 returns its pk when the `Collection` entity is in the store, so the reuse path
-fires as long as the pk is stable across lens changes.
+fires as long as the pk is stable across the cases you want to share.
 
 Here [`argsKey: () => ({})`](./Collection.md#argsKey) forces every portfolio to
 the same `pk`, so one Collection entity serves all lenses. When an endpoint has
@@ -247,6 +62,19 @@ concern — it controls which args are ignored when a mutation like `push` or
 `assign` matches existing collections — and does _not_ collapse pks. Use it for
 sort or pagination args where results differ per value (distinct pks) but
 creates should still reach every variant.
+
+`getPortfolioColumns` also uses `Collection`, but keeps `portfolio` in its pk
+with `argsKey: ({ portfolio }) => ({ portfolio })` because each portfolio has a
+distinct column response. `Scalar.entityPk()` derives each cell's Company id
+from the array item (delegating to `Company.pk()` by default), so the endpoint
+can use the natural REST shape:
+
+```typescript
+[
+  { id: '1', pct_equity: 0.5, shares: 10000 },
+  { id: '2', pct_equity: 0.2, shares: 4000 },
+]
+```
 
 ### Entity Fields
 
@@ -326,6 +154,12 @@ The lens value must be present when normalizing a response. Returning `undefined
 during normalize throws because the scalar cell cannot be stored under a retrievable
 key. During denormalize, a missing lens returns `undefined` for that field.
 
+The returned value becomes part of the stored cell key and is also used for
+cell lookup during [queryKey](#queryKey). It must be a string that does not
+contain `|` — the `|` character is the cpk delimiter
+(`entityKey|entityPk|lens`), and a lens containing `|` would collide with
+other lenses that share the same trailing segment.
+
 ### key: string {#key}
 
 Unique name for this scalar type. This namespaces the internal `Scalar` entity table.
@@ -339,6 +173,32 @@ Entity class this `Scalar` stores cells for.
 This is optional when the scalar is used as a field on `Entity.schema`, where the
 parent entity is inferred. It is required for standalone usage such as
 `new Values(PortfolioScalar)`.
+
+### entityPk(input, parent, key, args): string | number | undefined {#entityPk}
+
+Derives the bound Entity's primary key when `Scalar` is used standalone, such as
+inside `Values`, `[Scalar]`, or `Collection([Scalar])`. The cell's actual pk
+stored under `Scalar(key)` is the compound `entityKey|entityPk|lens` — this
+method only supplies the `entityPk` piece.
+
+By default `entityPk()`:
+
+- returns the surrounding map `key` when present (authoritative for
+  `Values(Scalar)`, where the cell may not carry the pk fields), then
+- delegates to the bound `Entity.pk(input, parent, key, args)` static so
+  `[Scalar]` and `Collection([Scalar])` array responses — including custom or
+  composite Entity pks — work out of the box.
+
+Override `entityPk()` in a subclass only when the response uses an id field the
+`Entity.pk()` does not read:
+
+```typescript
+class CompanyIdScalar extends Scalar {
+  entityPk(input: any) {
+    return input.companyId;
+  }
+}
+```
 
 ## Behavior
 
@@ -367,6 +227,22 @@ Because the lens participates in denormalization memoization, separate portfolio
 currency, or locale views cache independently while sharing the same base entity
 data.
 
+### queryKey {#queryKey}
+
+`Scalar` is a [Queryable](/rest/api/schema#queryable) schema. When used as a
+top-level endpoint schema — or passed to [useQuery](/docs/api/useQuery),
+[Controller.get](/docs/api/Controller#get), [schema.Query](./Query.md), or any
+other Queryable consumer — it reports the cpks of all cells whose lens matches
+the current args:
+
+- Returns an array of compound pks on hit.
+- Returns `undefined` when the lens is `undefined`, the table is missing, or
+  no cell matches the current lens.
+
+The common case — `Scalar` nested as an `Entity.schema` field — never reaches
+this method. Denormalization goes through the parent entity, so `queryKey`
+is only consulted when `Scalar` is itself the root schema being queried.
+
 ### Normalized Storage
 
 ```typescript
@@ -393,3 +269,4 @@ entities['Scalar(portfolio)']['Company|1|portfolioB'] = {
 - [Entity](/rest/api/Entity) — defines the base entity that scalar fields attach to
 - [Values](./Values.md) — used for column-only endpoints (dictionary keyed by entity pk)
 - [Union](./Union.md) — similar wrapper pattern for polymorphic entities
+- [Queryable](/rest/api/schema#queryable) — Scalar participates in [useQuery](/docs/api/useQuery), [Controller.get](/docs/api/Controller#get), and [schema.Query](./Query.md)

@@ -3,7 +3,7 @@ import { normalize } from '@data-client/normalizr';
 import { IDEntity } from '__tests__/new';
 
 import { SimpleMemoCache } from './denormalize';
-import { schema, Scalar } from '../..';
+import { Collection, schema, Scalar } from '../..';
 
 /** Minimal IDenormalizeDelegate for direct schema.denormalize() unit tests. */
 function makeDelegate(
@@ -317,6 +317,126 @@ describe('Scalar', () => {
     });
   });
 
+  describe('array-of-records standalone', () => {
+    it('normalizes [Scalar] using each item id as the entity pk', () => {
+      const state = normalize(
+        [PortfolioScalar],
+        [
+          { id: '1', pct_equity: 0.7, shares: 555 },
+          { id: '2', pct_equity: 0.1, shares: 999 },
+        ],
+        [{ portfolio: 'portfolioB' }],
+      );
+
+      expect(state.result).toEqual([
+        'Company|1|portfolioB',
+        'Company|2|portfolioB',
+      ]);
+      expect(state.entities['Scalar(portfolio)']).toMatchObject({
+        'Company|1|portfolioB': {
+          id: '1',
+          pct_equity: 0.7,
+          shares: 555,
+        },
+        'Company|2|portfolioB': {
+          id: '2',
+          pct_equity: 0.1,
+          shares: 999,
+        },
+      });
+    });
+
+    it('normalizes Collection([Scalar]) and denormalizes the array round-trip', () => {
+      const columns = new Collection([PortfolioScalar], {
+        argsKey: ({ portfolio }: { portfolio: string }) => ({ portfolio }),
+      });
+      const state = normalize(
+        columns,
+        [
+          { id: '1', pct_equity: 0.7, shares: 555 },
+          { id: '2', pct_equity: 0.1, shares: 999 },
+        ],
+        [{ portfolio: 'portfolioB' }],
+      );
+
+      expect(state.result).toEqual('{"portfolio":"portfolioB"}');
+      expect(state.entities['[Scalar(portfolio)]']).toEqual({
+        '{"portfolio":"portfolioB"}': [
+          'Company|1|portfolioB',
+          'Company|2|portfolioB',
+        ],
+      });
+
+      const memo = new SimpleMemoCache();
+      const result = memo.denormalize(columns, state.result, state.entities, [
+        { portfolio: 'portfolioB' },
+      ]) as any[];
+      expect(result).toEqual([
+        { id: '1', pct_equity: 0.7, shares: 555 },
+        { id: '2', pct_equity: 0.1, shares: 999 },
+      ]);
+    });
+
+    it('joins array-fetched cells onto existing entities', () => {
+      const initial = normalize(
+        [Company],
+        [{ id: '1', price: 100, pct_equity: 0.5, shares: 32342 }],
+        [{ portfolio: 'portfolioA' }],
+      );
+      const withB = normalize(
+        [PortfolioScalar],
+        [{ id: '1', pct_equity: 0.7, shares: 555 }],
+        [{ portfolio: 'portfolioB' }],
+        initial,
+      );
+
+      const memo = new SimpleMemoCache();
+      const result = memo.denormalize(
+        [Company],
+        initial.result,
+        withB.entities,
+        [{ portfolio: 'portfolioB' }],
+      ) as any[];
+
+      expect(result[0].pct_equity).toBe(0.7);
+      expect(result[0].shares).toBe(555);
+      expect(result[0].price).toBe(100);
+    });
+
+    it('supports subclass entityPk overrides', () => {
+      class CompanyIdScalar extends Scalar {
+        entityPk(input: any): string | undefined {
+          return input?.companyId;
+        }
+      }
+      const CustomScalar = new CompanyIdScalar({
+        lens: args => args[0]?.portfolio,
+        key: 'custom-portfolio',
+        entity: Company,
+      });
+
+      const state = normalize(
+        [CustomScalar],
+        [{ companyId: '1', pct_equity: 0.7, shares: 555 }],
+        [{ portfolio: 'portfolioB' }],
+      );
+
+      expect(
+        state.entities['Scalar(custom-portfolio)']?.['Company|1|portfolioB'],
+      ).toEqual({ companyId: '1', pct_equity: 0.7, shares: 555 });
+    });
+
+    it('throws when the standalone path cannot derive an entity pk', () => {
+      expect(() =>
+        normalize(
+          [PortfolioScalar],
+          [{ pct_equity: 0.7, shares: 555 }],
+          [{ portfolio: 'portfolioB' }],
+        ),
+      ).toThrow(/cannot derive entity pk/);
+    });
+  });
+
   describe('composite primary keys containing "|"', () => {
     class CompositeCompany extends IDEntity {
       type = '';
@@ -442,14 +562,6 @@ describe('Scalar', () => {
       expect(s.entityKey).toBeUndefined();
     });
 
-    it('queryKey returns undefined', () => {
-      const s = new Scalar({
-        lens: args => args[0]?.portfolio,
-        key: 'test',
-      });
-      expect(s.queryKey([], undefined, {} as any)).toBeUndefined();
-    });
-
     it('throws when used inside Values without an `entity` binding', () => {
       const Unbound = new Scalar({
         lens: args => args[0]?.portfolio,
@@ -460,6 +572,171 @@ describe('Scalar', () => {
           { portfolio: 'p' },
         ]),
       ).toThrow(/entity/);
+    });
+  });
+
+  describe('queryKey', () => {
+    // Minimal IQueryDelegate that serves cells from an in-memory map keyed by
+    // schema key -> cpk -> cell. Scalar.queryKey only reads getEntities.
+    function makeQueryDelegate(
+      cells: Record<string, Record<string, any>> = {},
+    ) {
+      return {
+        getEntities(key: string) {
+          const table = cells[key];
+          if (!table) return undefined;
+          return {
+            keys: () => Object.keys(table)[Symbol.iterator](),
+            entries: () => Object.entries(table)[Symbol.iterator](),
+          };
+        },
+        getEntity: (key: string, pk: string) => cells[key]?.[pk],
+        getIndex: () => undefined,
+        INVALID: Symbol('INVALID'),
+      } as any;
+    }
+
+    const LensScalar = new Scalar({
+      lens: args => args[0]?.portfolio,
+      key: 'portfolio-q',
+      entity: Company,
+    });
+
+    it('returns undefined when lens is undefined and does not touch delegate', () => {
+      const delegate = {
+        getEntities: jest.fn(() => undefined),
+      } as any;
+      expect(LensScalar.queryKey([], undefined, delegate)).toBeUndefined();
+      expect(LensScalar.queryKey([{}], undefined, delegate)).toBeUndefined();
+      expect(delegate.getEntities).not.toHaveBeenCalled();
+    });
+
+    it('returns undefined when the Scalar table is absent', () => {
+      const delegate = makeQueryDelegate({});
+      expect(
+        LensScalar.queryKey([{ portfolio: 'A' }], undefined, delegate),
+      ).toBeUndefined();
+    });
+
+    it('returns undefined when the table is empty', () => {
+      const delegate = makeQueryDelegate({ 'Scalar(portfolio-q)': {} });
+      expect(
+        LensScalar.queryKey([{ portfolio: 'A' }], undefined, delegate),
+      ).toBeUndefined();
+    });
+
+    it('returns undefined when no cell matches the current lens', () => {
+      const delegate = makeQueryDelegate({
+        'Scalar(portfolio-q)': {
+          'Company|1|B': { pct_equity: 0.1 },
+          'Company|2|C': { pct_equity: 0.2 },
+        },
+      });
+      expect(
+        LensScalar.queryKey([{ portfolio: 'A' }], undefined, delegate),
+      ).toBeUndefined();
+    });
+
+    it('returns the cpk array for cells matching the current lens', () => {
+      const delegate = makeQueryDelegate({
+        'Scalar(portfolio-q)': {
+          'Company|1|A': { pct_equity: 0.5 },
+          'Company|2|A': { pct_equity: 0.3 },
+          'Company|1|B': { pct_equity: 0.9 },
+        },
+      });
+      const result = LensScalar.queryKey(
+        [{ portfolio: 'A' }],
+        undefined,
+        delegate,
+      );
+      expect(result).toEqual(['Company|1|A', 'Company|2|A']);
+    });
+
+    it('skips invalid (symbol / falsy) entries when enumerating', () => {
+      const INVALID = Symbol('INVALID');
+      const delegate = makeQueryDelegate({
+        'Scalar(portfolio-q)': {
+          'Company|1|A': { pct_equity: 0.5 },
+          'Company|2|A': INVALID,
+          'Company|3|A': undefined as any,
+          'Company|4|A': { pct_equity: 0.4 },
+        },
+      });
+      const result = LensScalar.queryKey(
+        [{ portfolio: 'A' }],
+        undefined,
+        delegate,
+      );
+      expect(result).toEqual(['Company|1|A', 'Company|4|A']);
+    });
+
+    it('returns cells across multiple entity types when a Scalar is shared', () => {
+      const delegate = makeQueryDelegate({
+        'Scalar(portfolio-q)': {
+          'Company|1|A': { pct_equity: 0.5 },
+          'Fund|1|A': { pct_equity: 0.9 },
+          'Fund|2|B': { pct_equity: 0.1 },
+        },
+      });
+      const result = LensScalar.queryKey(
+        [{ portfolio: 'A' }],
+        undefined,
+        delegate,
+      );
+      expect(result).toEqual(['Company|1|A', 'Fund|1|A']);
+    });
+
+    it('handles composite entity pks containing `|`', () => {
+      const delegate = makeQueryDelegate({
+        'Scalar(portfolio-q)': {
+          'Company|a|b|A': { pct_equity: 0.5 },
+          'Company|c|d|B': { pct_equity: 0.3 },
+        },
+      });
+      const result = LensScalar.queryKey(
+        [{ portfolio: 'A' }],
+        undefined,
+        delegate,
+      );
+      expect(result).toEqual(['Company|a|b|A']);
+    });
+
+    it('over-matches when another lens ends with the current lens after `|` (documented limitation)', () => {
+      // `lens` must not contain `|`. If a caller violates this, a lookup
+      // for lens 'A' matches cells whose lens is 'X|A' because
+      // lastIndexOf('|') picks the delimiter inside the offending lens
+      // value rather than the cpk delimiter. Captured here so the behavior
+      // is explicit; see the `lens` option doc.
+      const delegate = makeQueryDelegate({
+        'Scalar(portfolio-q)': {
+          'Company|1|A': { pct_equity: 0.5 },
+          'Company|2|X|A': { pct_equity: 0.3 },
+        },
+      });
+      const result = LensScalar.queryKey(
+        [{ portfolio: 'A' }],
+        undefined,
+        delegate,
+      );
+      expect(result).toEqual(['Company|1|A', 'Company|2|X|A']);
+    });
+
+    it('supports subclass overrides of queryKey', () => {
+      class MyScalar extends Scalar {
+        queryKey(_args: readonly any[], _unvisit: any, _delegate: any) {
+          return ['custom|1|A'];
+        }
+      }
+      const s = new MyScalar({
+        lens: args => args[0]?.portfolio,
+        key: 'portfolio-sub',
+        entity: Company,
+      });
+      const delegate = makeQueryDelegate({});
+      expect(s.queryKey([{ portfolio: 'A' }], undefined, delegate)).toEqual([
+        'custom|1|A',
+      ]);
     });
   });
 
