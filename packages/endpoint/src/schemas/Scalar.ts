@@ -156,18 +156,10 @@ export default class Scalar implements Mergeable {
   }
 
   denormalize(input: any, delegate: IDenormalizeDelegate): any {
-    // Deliberately broad falsy guard — not just `null`/`undefined`. In normal
-    // flow `input` is a wrapper tuple (array), a cpk string, a cell object, or
-    // a symbol (INVALID propagation). A primitive non-string like `0`/`false`
-    // can only appear from a malformed store or a direct unit-test call; if
-    // one reached the Values branch below it would infinite-recurse via
-    // `delegate.unvisit(this, 0) → unvisit → schema.denormalize(0, …)` since
-    // `isEntity(this)` is false and the string-input fast path doesn't match.
-    // Returning it verbatim is the safe terminal case. Memoization stays
-    // coherent because `input` comes from the stored entity row, so any shape
-    // change implies a new entity reference and a full re-traversal — the
-    // cached `argsKey`-bearing chain is never replayed against a frame that
-    // skipped the guard.
+    // Broad falsy guard is deliberate: legit inputs are wrapper array, cpk
+    // string, cell object, or symbol. A primitive non-string (e.g. `0`) would
+    // infinite-recurse through the Values branch below (`unvisit` re-dispatches
+    // back here since `isEntity(this)` is false and the string fast path misses).
     if (!input || typeof input === 'symbol') return input;
 
     // Entity-field wrapper: `[entityPk, fieldName, entityKey]` (see normalize).
