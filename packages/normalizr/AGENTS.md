@@ -5,7 +5,7 @@ Non-obvious constraints when changing `src/memo/`, `src/denormalize/`, or `src/i
 ## Correctness constraints
 
 - **Referential equality is a contract.** Successive `MemoCache.denormalize` calls with identical inputs must return the same object reference. `useSuspense`/`useCache`/`useQuery` skip re-renders on `===`, and many tests assert `toBe`. Probe-and-discard caching schemes (write to a throwaway cache, "real" cache repopulates next call) silently break this.
-- **`WeakDependencyMap` is identity-keyed.** Cache hits depend on every entity ref in the recorded chain being `===` to the live walk's refs. Anything that wraps/proxies refs on read defeats memoization. Variants that introduce new caches (buckets, scopes) must share the same `baseGetEntity` so chain refs stay coherent.
+- **`WeakDependencyMap` is identity-keyed.** Cache hits depend on every entity ref in the recorded chain being `===` to the live walk's refs. Anything that wraps/proxies refs on read defeats memoization. Variants that introduce new caches (buckets, scopes) must share the same `getEntity` (the `DenormGetEntity` from `IMemoPolicy.getEntities(entities)`) so chain refs stay coherent.
 - **Both MemoCache tiers must stay coherent** — `endpoints` (top-level) and `_getCache` (per-entity) walk against the same store. Any new caching dimension applies to both, or top-level hits return stale per-entity values.
 - **Cache lookup precedes traversal.** Pick `WeakDependencyMap` → look up → on miss, traverse and write. You can't decide which map to use *based on* what the traversal observes. Discover-then-lookup designs need either a separate pre-scan or a `setRaw`-style promotion primitive (doesn't exist yet).
 - **Storage shape is API.** `state.entities[key][pk]` is observed by snapshot tests, SSR payloads, and devtools. Shape changes are breaking even when normalize/denormalize round-trip correctly.
@@ -40,9 +40,13 @@ Schemas whose denormalized output depends on per-call `args` (not just stored da
 ```ts
 denormalize(input, delegate) {
   const lens = delegate.argsKey(this.lensSelector); // this.lensSelector is ctor-bound
-  return this.lookup(input, lens);
+  if (lens === undefined) return undefined;
+  // Encode the bucket key in your stored pk at normalize time, then unvisit:
+  return delegate.unvisit(this, buildCompoundPk(input, lens));
 }
 ```
+
+See `packages/endpoint/src/schemas/Scalar.ts` (`denormalize`) for the reference implementation.
 
 Contract:
 
@@ -52,7 +56,7 @@ Contract:
 - Reading `delegate.args` directly does **not** contribute to memoization — only `argsKey` adds a dep.
 - Storage shape must let `denormalize` recover the right cell from the bucket key (typically by encoding it into `pk` at normalize time). `Scalar` is the reference implementation.
 
-Under the hood: `argsKey` pushes `{path: fn, entity: undefined}` onto the current `GlobalCache` frame; `WeakDependencyMap` branches function-typed paths via a lazy `Map<string, Link>` alongside the usual `WeakMap<K, Link>`. See `src/memo/WeakDependencyMap.ts` (`KeyFn`, `hasStr`) and `src/memo/globalCache.ts` (`argsKey`, `_hasArgsKey`) for the fast-path gating.
+Under the hood: `argsKey` pushes `{path: fn, entity: undefined}` onto the current `GlobalCache` frame; `WeakDependencyMap` branches function-typed paths via a lazy `Map<string, Link>` alongside the usual `WeakMap<K, Link>`. See `src/memo/WeakDependencyMap.ts` (`KeyFn`, `hasStringDeps`) and `src/memo/globalCache.ts` (`argsKey`, `_hasArgsKey`) for the fast-path gating.
 
 Schemas without args-dependence need no opt-in; entity-only chains run the pre-PR fast paths.
 
