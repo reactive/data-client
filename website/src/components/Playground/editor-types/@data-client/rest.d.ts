@@ -764,33 +764,34 @@ type ProcessParameters<P, S extends Queryable | {
 }> = P extends (entries: any, ...args: infer Par) => any ? Par extends [] ? SchemaArgs<S> : Par & SchemaArgs<S> : SchemaArgs<S>;
 
 interface ScalarOptions {
+    /**
+     * Selects the lens value from Endpoint args.
+     *
+     * The returned value is part of the stored cell key, so it must be stable
+     * for a given lens selection.
+     */
     lens: (args: readonly any[]) => string | undefined;
+    /**
+     * Unique namespace for this Scalar's internal entity table.
+     */
     key: string;
     /**
-     * The Entity class this Scalar attaches to. Optional when only used as a
-     * field on `Entity.schema` (entity context is inferred at normalize time
-     * and recorded on the wrapper). Required when used standalone — e.g. inside
-     * `schema.Values` for column-only fetches — where there is no parent entity
-     * to infer from.
+     * Entity class this Scalar stores cells for.
+     *
+     * Optional when used as a field on `Entity.schema`, where the parent Entity
+     * is inferred. Required for standalone usage such as `schema.Values`.
      */
     entity?: {
         key: string;
     };
 }
 /**
- * Schema for lens-dependent scalar fields on entities.
+ * Represents lens-dependent scalar fields on entities.
  *
- * Scalar fields vary by a "lens" selection (e.g. which portfolio).
- * Data is stored in a Scalar entity table and joined at
- * denormalize time based on endpoint args.
- *
- * A single Scalar instance can be shared across multiple entity types when
- * used as a field on `Entity.schema` — the enclosing Entity is supplied by
- * the visit walker (as `parentEntity`) and recorded on the wrapper so
- * denormalize can recover the correct cell. To use a Scalar standalone
- * (e.g. inside `schema.Values` for a column-only endpoint), bind it to an
- * Entity class with the `entity` option since there is no parent entity to
- * infer from.
+ * Scalar stores values that belong to an Entity but vary by Endpoint args,
+ * such as portfolio-, currency-, or locale-specific columns. Use it as an
+ * `Entity.schema` field, or bind `entity` when using it standalone in
+ * `schema.Values`.
  *
  * @see https://dataclient.io/rest/api/Scalar
  */
@@ -798,16 +799,27 @@ declare class Scalar implements Mergeable {
     readonly key: string;
     readonly lensSelector: (args: readonly any[]) => string | undefined;
     readonly entityKey: string | undefined;
-    /** Opt-in marker: tells the visit walker to dispatch to `normalize()` for
-     * primitive values (the per-cell scalar value, e.g. `0.5`) instead of
-     * applying its primitive short-circuit. */
+    /**
+     * Allow normalize to receive primitive field values.
+     *
+     * Scalar stores per-cell values like `0.5`, so the visit walker must not
+     * apply its primitive short-circuit before dispatching to `normalize()`.
+     */
     readonly acceptsPrimitives = true;
+    /**
+     * Represents lens-dependent scalar fields on entities.
+     *
+     * @see https://dataclient.io/rest/api/Scalar
+     */
     constructor(options: ScalarOptions);
     createIfValid(props: any): any;
     merge(existing: any, incoming: any): any;
-    /** Override point: decide whether the incoming write should be reordered
-     * behind the existing one. Default compares `fetchedAt` so older writes
-     * never clobber newer ones (matches Entity behavior). */
+    /**
+     * Determines whether an incoming write is older than the stored cell.
+     *
+     * Defaults to comparing `fetchedAt`, matching Entity behavior so older
+     * responses do not overwrite newer values.
+     */
     shouldReorder(existingMeta: {
         date: number;
         fetchedAt: number;
@@ -837,7 +849,7 @@ declare class Scalar implements Mergeable {
     };
     normalize(input: any, parent: any, key: any, args: any[], visit: Visit, delegate: INormalizeDelegate, parentEntity: any): any;
     denormalize(input: any, delegate: IDenormalizeDelegate): any;
-    queryKey(args: readonly any[], unvisit: any, delegate: IQueryDelegate): any;
+    queryKey(args: readonly any[], unvisit: any, delegate: IQueryDelegate): undefined;
 }
 
 type CollectionOptions<Args extends any[] = DefaultArgs, Parent = any> = ({

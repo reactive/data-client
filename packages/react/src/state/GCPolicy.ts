@@ -1,1 +1,3 @@
-export { GCPolicy as default } from '@data-client/core';
+import { GCPolicy } from '@data-client/core';
+
+export default GCPolicy;

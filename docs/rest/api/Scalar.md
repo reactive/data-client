@@ -8,167 +8,110 @@ import { RestEndpoint } from '@data-client/rest';
 
 # Scalar
 
-`Scalar` handles [Entity](./Entity.md) fields whose values depend on a "lens" selection,
-such as portfolio-specific columns on the same company row. Multiple components can render
-the same entity through different lenses simultaneously, each seeing the correct values.
+`Scalar` describes [Entity](./Entity.md) fields whose values depend on endpoint args,
+such as portfolio-, currency-, or locale-specific columns on the same row.
 
-Data is stored in an internal `Scalar` entity table and joined at denormalize time based
-on endpoint args. The parent entity stores lens-independent references, so switching lenses
-never mutates the entity itself.
+Use `Scalar` when the field belongs to an entity, but its value changes based on a
+"lens" selected by the request. Multiple components can render the same entity with
+different lens args at the same time, each receiving the correct scalar values.
 
-Use `Scalar` when:
+- `lens`: **required** Selects the lens value from endpoint args.
+- `key`: **required** Namespaces this scalar's internal table.
+- `entity`: Binds the scalar to an `Entity` when it is used outside of an
+  `Entity.schema` field.
 
-- the field is a scalar value like a number, string, boolean, or date-derived value
-- the value belongs to an entity, but varies by request args
-- you want to refresh those columns independently from the rest of the entity
+::::note
 
-Do not use `Scalar` for relationships to other entities; define nested [schemas](./schema.md)
-on the entity instead.
+`Scalar` is for scalar values like numbers, strings, booleans, or date-derived values.
+Use normal nested [schemas](./schema.md) for relationships to other entities.
 
-## Constructor
-
-```typescript
-new Scalar({ lens, key, entity? })
-```
-
-### Options
-
-- **`lens`** **(args: readonly any[]) => string | undefined** — **required**. Extracts the
-  lens value from endpoint args, such as a portfolio ID. The lens must be present when
-  normalizing a response; returning `undefined` during normalize throws because the cell
-  cannot be stored under a retrievable key. During denormalize, a missing lens returns
-  `undefined` for the scalar field.
-- **`key`** **string** — **required**. A unique name for this scalar type, used to namespace
-  the internal `Scalar` entity table. For example, `'portfolio'` becomes
-  `Scalar(portfolio)`.
-- **`entity`** **Entity class** — _optional_. The `Entity` class this `Scalar` attaches to.
-  This is only required when the `Scalar` is used standalone, such as inside
-  [Values](./Values.md) for a column-only endpoint, where there is no parent entity to
-  infer from. When used as a field on `Entity.schema`, the entity is inferred from the
-  parent and recorded on the wrapper.
+::::
 
 ## Usage
 
-```typescript
-import { Entity, Scalar, schema } from '@data-client/rest';
+In this example, `pct_equity` and `shares` depend on the selected portfolio, while
+`name` and `price` are stable properties of the `Company` entity.
 
-const PortfolioScalar = new Scalar({
-  lens: args => args[0]?.portfolio,
-  key: 'portfolio',
-});
-
-class Company extends Entity {
-  id = '';
-  price = 0;
-  pct_equity = 0;
-  shares = 0;
-
-  static schema = {
-    pct_equity: PortfolioScalar,
-    shares: PortfolioScalar,
-  };
-}
-```
-
-A single `Scalar` instance can be shared across multiple `Entity` classes — the
-entity context is inferred at normalize time from the parent entity and recorded
-on the wrapper, so denormalize always resolves to the correct cell. Compound pks
-remain unique because they are namespaced by entity key (e.g.
-`Company|1|portfolioA` vs. `Fund|1|portfolioA`).
-
-### Full entity endpoint
-
-When fetching companies with a portfolio lens, scalar fields are automatically extracted
-and stored in the `Scalar` cell table:
-
-```typescript
-import { Endpoint } from '@data-client/rest';
-
-const getCompanies = new Endpoint(
-  ({ portfolio }: { portfolio: string }) =>
-    fetch(`/companies?portfolio=${portfolio}`).then(r => r.json()),
-  { schema: [Company] },
-);
-```
-
-### Column-Only Endpoint
-
-Fetch just the lens-dependent columns without refetching entity data. The response is a
-dictionary keyed by entity pk. Because there is no parent entity in this path, the `Scalar`
-must be **bound** to an `Entity` class via the `entity` option:
-
-```typescript
-const CompanyPortfolioScalar = new Scalar({
-  lens: args => args[0]?.portfolio,
-  key: 'portfolio',
-  entity: Company,
-});
-
-const getPortfolioColumns = new Endpoint(
-  ({ portfolio }: { portfolio: string }) =>
-    fetch(`/companies/columns?portfolio=${portfolio}`).then(r => r.json()),
-  { schema: new schema.Values(CompanyPortfolioScalar) },
-);
-// Response: { '1': { pct_equity: 0.5, shares: 32342 }, '2': { ... } }
-```
-
-Column fetches only write `Scalar(portfolio)` cell entries — they never modify the `Company` entities.
-
-A bound `Scalar` can also be used as an `Entity.schema` field (the binding is just ignored
-in favor of the inferred parent), so a single instance can serve both endpoints.
-
-### Combined Usage: Portfolio Grid
-
-Both endpoints share a single `Scalar` instance and feed the same grid.
-`getCompanies` loads the full row data on first render; `getPortfolioColumns`
-fires alongside as a cheaper lens-only refresh — both write to the same
-`Scalar(portfolio)` cell table. Switch portfolios in the dropdown to watch
-`% Equity` and `Shares` swap while the `Company` rows themselves stay stable.
-
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
-{
-endpoint: new RestEndpoint({path: '/companies', searchParams: {}}),
-args: [{ portfolio: 'A' }],
-response: [
-{ id: '1', name: 'Acme Corp', price: 145.20, pct_equity: 0.50, shares: 10000 },
-{ id: '2', name: 'Globex', price: 89.50, pct_equity: 0.20, shares: 4000 },
-{ id: '3', name: 'Initech', price: 32.10, pct_equity: 0.10, shares: 2500 },
-],
-delay: 150,
-},
-{
-endpoint: new RestEndpoint({path: '/companies', searchParams: {}}),
-args: [{ portfolio: 'B' }],
-response: [
-{ id: '1', name: 'Acme Corp', price: 145.20, pct_equity: 0.30, shares: 6000 },
-{ id: '2', name: 'Globex', price: 89.50, pct_equity: 0.40, shares: 8000 },
-{ id: '3', name: 'Initech', price: 32.10, pct_equity: 0.05, shares: 1200 },
-],
-delay: 150,
-},
-{
-endpoint: new RestEndpoint({path: '/companies/columns', searchParams: {}}),
-args: [{ portfolio: 'A' }],
-response: {
-'1': { pct_equity: 0.50, shares: 10000 },
-'2': { pct_equity: 0.20, shares: 4000 },
-'3': { pct_equity: 0.10, shares: 2500 },
-},
-delay: 150,
-},
-{
-endpoint: new RestEndpoint({path: '/companies/columns', searchParams: {}}),
-args: [{ portfolio: 'B' }],
-response: {
-'1': { pct_equity: 0.30, shares: 6000 },
-'2': { pct_equity: 0.40, shares: 8000 },
-'3': { pct_equity: 0.05, shares: 1200 },
-},
-delay: 150,
-},
+<HooksPlayground row groupId="schema" defaultOpen="y" fixtures={[
+  {
+    endpoint: new RestEndpoint({ path: '/companies', searchParams: {} }),
+    args: [{ portfolio: 'A' }],
+    response: [
+      {
+        id: '1',
+        name: 'Acme Corp',
+        price: 145.20,
+        pct_equity: 0.50,
+        shares: 10000,
+      },
+      {
+        id: '2',
+        name: 'Globex',
+        price: 89.50,
+        pct_equity: 0.20,
+        shares: 4000,
+      },
+      {
+        id: '3',
+        name: 'Initech',
+        price: 32.10,
+        pct_equity: 0.10,
+        shares: 2500,
+      },
+    ],
+    delay: 150,
+  },
+  {
+    endpoint: new RestEndpoint({ path: '/companies', searchParams: {} }),
+    args: [{ portfolio: 'B' }],
+    response: [
+      {
+        id: '1',
+        name: 'Acme Corp',
+        price: 145.20,
+        pct_equity: 0.30,
+        shares: 6000,
+      },
+      {
+        id: '2',
+        name: 'Globex',
+        price: 89.50,
+        pct_equity: 0.40,
+        shares: 8000,
+      },
+      {
+        id: '3',
+        name: 'Initech',
+        price: 32.10,
+        pct_equity: 0.05,
+        shares: 1200,
+      },
+    ],
+    delay: 150,
+  },
+  {
+    endpoint: new RestEndpoint({ path: '/companies/columns', searchParams: {} }),
+    args: [{ portfolio: 'A' }],
+    response: {
+      '1': { pct_equity: 0.50, shares: 10000 },
+      '2': { pct_equity: 0.20, shares: 4000 },
+      '3': { pct_equity: 0.10, shares: 2500 },
+    },
+    delay: 150,
+  },
+  {
+    endpoint: new RestEndpoint({ path: '/companies/columns', searchParams: {} }),
+    args: [{ portfolio: 'B' }],
+    response: {
+      '1': { pct_equity: 0.30, shares: 6000 },
+      '2': { pct_equity: 0.40, shares: 8000 },
+      '3': { pct_equity: 0.05, shares: 1200 },
+    },
+    delay: 150,
+  },
 ]}>
 
-```ts title="api/Company" {12,17-18,28-32}
+```ts title="api/Company" {17-20,31-32} collapsed
 import { Entity, RestEndpoint, Scalar, schema } from '@data-client/rest';
 
 export class Company extends Entity {
@@ -211,7 +154,7 @@ function PortfolioGrid() {
   const [portfolio, setPortfolio] = React.useState('A');
   // Full load: Company rows + Scalar cells for the current lens.
   const companies = useSuspense(getCompanies, { portfolio });
-  // Cheap lens-only refresh in the background — writes to the same cell table.
+  // Column refresh writes to the same Scalar(portfolio) cells.
   useFetch(getPortfolioColumns, { portfolio });
 
   return (
@@ -240,8 +183,8 @@ function PortfolioGrid() {
             <tr key={c.pk()}>
               <td>{c.name}</td>
               <td align="right">${c.price.toFixed(2)}</td>
-              <td align="right">{(c.pct_equity * 100).toFixed(1)}%</td>
-              <td align="right">{c.shares.toLocaleString()}</td>
+              <td align="right">{formatPercent(c.pct_equity)}</td>
+              <td align="right">{formatShares(c.shares)}</td>
             </tr>
           ))}
         </tbody>
@@ -249,55 +192,147 @@ function PortfolioGrid() {
     </div>
   );
 }
+
+function formatPercent(value: number | undefined) {
+  return value === undefined ? 'loading...' : `${(value * 100).toFixed(1)}%`;
+}
+
+function formatShares(value: number | undefined) {
+  return value === undefined ? 'loading...' : value.toLocaleString();
+}
+
 render(<PortfolioGrid />);
 ```
 
 </HooksPlayground>
 
-`name` and `price` references stay stable across portfolio switches because
-the `Company` entity itself never changes — only the Scalar cell selected by
-the current lens does. In a real app, you'd typically reach for
-`getPortfolioColumns` instead of `getCompanies` after the initial load to
-avoid refetching lens-independent fields.
+`getCompanies` loads full row data for the selected portfolio. `getPortfolioColumns`
+can refresh only the portfolio-dependent columns. Both endpoints write to the same
+`Scalar(portfolio)` cells, so `% Equity` and `Shares` update without replacing the
+`Company` entity rows.
 
-## How It Works
+### Entity Fields
+
+Use `Scalar` in an `Entity.schema` field when lens-dependent values arrive as part
+of the entity response.
+
+```typescript
+import { Entity, RestEndpoint, Scalar } from '@data-client/rest';
+
+const PortfolioScalar = new Scalar({
+  lens: args => args[0]?.portfolio,
+  key: 'portfolio',
+});
+
+class Company extends Entity {
+  id = '';
+  price = 0;
+  pct_equity = 0;
+  shares = 0;
+
+  static schema = {
+    pct_equity: PortfolioScalar,
+    shares: PortfolioScalar,
+  };
+}
+
+const getCompanies = new RestEndpoint({
+  path: '/companies',
+  searchParams: {} as { portfolio: string },
+  schema: [Company],
+});
+```
+
+A single unbound `Scalar` instance can be shared across multiple entity classes.
+When used as an `Entity.schema` field, the parent entity is inferred during
+normalization.
+
+### Values Endpoint
+
+Use [Values](./Values.md) when an endpoint returns only the scalar columns, keyed by
+entity pk. Since this response has no enclosing entity schema, pass `entity` when
+constructing the `Scalar`.
+
+```typescript
+import { Entity, RestEndpoint, Scalar, schema } from '@data-client/rest';
+
+const CompanyPortfolioScalar = new Scalar({
+  lens: args => args[0]?.portfolio,
+  key: 'portfolio',
+  entity: Company,
+});
+
+const getPortfolioColumns = new RestEndpoint({
+  path: '/companies/columns',
+  searchParams: {} as { portfolio: string },
+  schema: new schema.Values(CompanyPortfolioScalar),
+});
+
+// Response: { '1': { pct_equity: 0.5, shares: 32342 }, '2': { ... } }
+```
+
+Column-only endpoints write `Scalar(portfolio)` cells without modifying the
+`Company` entities. A bound `Scalar` can still be used as an `Entity.schema` field;
+the inferred parent entity takes precedence there.
+
+## Options
+
+```typescript
+new Scalar({ lens, key, entity? })
+```
+
+### lens(args): string | undefined {#lens}
+
+Selects the lens value from endpoint args, such as a portfolio ID.
+
+The lens value must be present when normalizing a response. Returning `undefined`
+during normalize throws because the scalar cell cannot be stored under a retrievable
+key. During denormalize, a missing lens returns `undefined` for that field.
+
+### key: string {#key}
+
+Unique name for this scalar type. This namespaces the internal `Scalar` entity table.
+
+For example, `key: 'portfolio'` stores cells in `Scalar(portfolio)`.
+
+### entity?: Entity {#entity}
+
+Entity class this `Scalar` stores cells for.
+
+This is optional when the scalar is used as a field on `Entity.schema`, where the
+parent entity is inferred. It is required for standalone usage such as
+`new schema.Values(PortfolioScalar)`.
+
+## Behavior
 
 ### Normalize
 
-`EntityMixin.normalize`'s field loop is a single uniform `visit(schema, value, parent, key, args)`
-call per field — there is no `Scalar`-specific branch. When the field's schema is a `Scalar`:
+When normalizing an entity response, `Scalar` stores the field value in a separate
+cell keyed by:
 
-1. The visit walker (`getVisit`) tracks the nearest enclosing entity-like schema in a closure and
-   passes it to `schema.normalize` as a 7th `parentEntity` argument. `Scalar` opts out of the
-   primitive short-circuit via `acceptsPrimitives = true`, so its `normalize` receives the raw
-   field value (e.g. `0.5`).
-2. `Scalar.normalize` reads `parentEntity.key` / `parentEntity.pk(parent, …, args)` to build the
-   compound cell pk (`entityKey|entityPk|lensValue`) and writes just that one field via
-   `delegate.mergeEntity(this, compoundPk, { [key]: input })`. The merge lifecycles accumulate
-   the per-call writes into a full cell as the loop runs over each scalar field.
-3. A lens-independent tuple `[entityPk, fieldName, entityKey]` replaces the scalar field on the
-   entity row (an array, distinguishable from cell data via `Array.isArray`).
+```text
+entityKey|entityPk|lensValue
+```
+
+The entity row keeps a lens-independent reference to that cell. This lets one
+entity row point to different scalar values depending on the current endpoint args.
+
+When normalizing a `Values` response, each top-level key is treated as the entity pk,
+and the response value is stored as that entity's scalar cell for the current lens.
 
 ### Denormalize
 
-The standard `EntityMixin.denormalize` loop is **completely unchanged**:
+During denormalization, `Scalar` reads the current lens from endpoint args and looks
+up the matching cell. If no matching lens or cell exists, the field denormalizes to
+`undefined`.
 
-1. `delegate.unvisit(Scalar, wrapper)` calls `Scalar.denormalize` (Scalar is not entity-like).
-2. `Scalar.denormalize` reads the wrapper tuple and calls `delegate.argsKey(this.lensSelector)` —
-   this both extracts the current lens from endpoint `args` *and* registers that lens as a
-   memoization dimension on the surrounding entity-cache frame, so the cached result varies
-   per-lens. The lens selector is bound on the `Scalar` instance so its reference stays stable
-   across calls (required for `WeakDependencyMap` to hit).
-3. It builds the compound cell pk, calls `delegate.unvisit(this, compoundPk)` to look up the
-   cell, then returns the specific field value.
+Because the lens participates in denormalization memoization, separate portfolio,
+currency, or locale views cache independently while sharing the same base entity
+data.
 
-This means different components viewing the same entity with different lens args get different
-scalar values, while sharing the same base entity data — and the memo cache keeps per-lens
-results independently without any cross-bucket invalidation.
+### Normalized Storage
 
-## Normalized storage
-
-```
+```typescript
 entities['Company']['1'] = {
   id: '1',
   price: 100,
