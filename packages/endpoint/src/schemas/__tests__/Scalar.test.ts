@@ -637,6 +637,30 @@ describe('Scalar', () => {
       },
     );
 
+    // Regression: truthy non-string primitives previously fell through to
+    // `delegate.unvisit`, which re-dispatched back to `Scalar.denormalize`
+    // (no `pk`, string fast path misses) and stack-overflowed. This can
+    // occur during schema migration when a Scalar is added to an entity
+    // with cached raw numeric/boolean field values still in the store.
+    it.each([
+      ['positive number', 0.5],
+      ['integer', 42],
+      ['negative number', -1],
+      ['true', true],
+      ['NaN', NaN],
+      ['Infinity', Infinity],
+      ['bigint', 10n],
+    ])(
+      'returns the truthy non-string primitive input (%s) without recursion',
+      (_label, value) => {
+        const unvisit = jest.fn();
+        expect(
+          s.denormalize(value, makeDelegate([{ portfolio: 'p' }], unvisit)),
+        ).toBe(value);
+        expect(unvisit).not.toHaveBeenCalled();
+      },
+    );
+
     it('returns symbol inputs unchanged (suspense/INVALID propagation)', () => {
       const sym = Symbol('INVALID');
       const unvisit = jest.fn();
@@ -688,6 +712,31 @@ describe('Scalar', () => {
       expect(
         s.denormalize(wrapper, makeDelegate([{ portfolio: 'p' }], unvisit)),
       ).toBeUndefined();
+    });
+
+    it('does not stack-overflow when an entity holds stale raw primitive values (schema migration)', () => {
+      // Reproduce the real-world scenario: an entity was previously stored
+      // with raw numeric scalar fields, and now its schema declares those
+      // fields as a Scalar. EntityMixin.denormalize calls
+      // `delegate.unvisit(Scalar, 0.5)` per field; without the primitive
+      // guard, `unvisit` dispatches back into `Scalar.denormalize(0.5)`
+      // (string fast path misses, `isEntity(this)` is false) and recurses
+      // until the stack overflows.
+      const staleState = {
+        Company: {
+          '1': { id: '1', price: 100, pct_equity: 0.5, shares: 32342 },
+        },
+      };
+      const memo = new SimpleMemoCache();
+      const result = memo.denormalize([Company], ['1'], staleState, [
+        { portfolio: 'portfolioA' },
+      ]) as any[];
+
+      // Stale raw values pass through unchanged — no crash, no recursion.
+      expect(result[0].id).toBe('1');
+      expect(result[0].price).toBe(100);
+      expect(result[0].pct_equity).toBe(0.5);
+      expect(result[0].shares).toBe(32342);
     });
 
     it('looks up by cpk string and returns the cell when called via Values path', () => {

@@ -111,8 +111,8 @@ In this example, `pct_equity` and `shares` depend on the selected portfolio, whi
   },
 ]}>
 
-```ts title="api/Company" {17-20,31-32} collapsed
-import { Entity, RestEndpoint, Scalar, schema } from '@data-client/rest';
+```ts title="api/Company" {17-20,24-28,34} collapsed
+import { Collection, Entity, RestEndpoint, Scalar, Values } from '@data-client/rest';
 
 export class Company extends Entity {
   id = '';
@@ -136,13 +136,17 @@ Company.schema = {
 export const getCompanies = new RestEndpoint({
   path: '/companies',
   searchParams: {} as { portfolio: string },
-  schema: [Company],
+  // `portfolio` is a lens, not a filter — the returned Company list is the same
+  // regardless of lens. Excluding it from `argsKey` collapses every portfolio
+  // to one Collection pk, so `Collection.queryKey()` finds the list on every
+  // switch and `useSuspense` reuses it without refetching.
+  schema: new Collection([Company], { argsKey: () => ({}) }),
 });
 
 export const getPortfolioColumns = new RestEndpoint({
   path: '/companies/columns',
   searchParams: {} as { portfolio: string },
-  schema: new schema.Values(PortfolioScalar),
+  schema: new Values(PortfolioScalar),
 });
 ```
 
@@ -152,10 +156,18 @@ import { getCompanies, getPortfolioColumns } from './api/Company';
 
 function PortfolioGrid() {
   const [portfolio, setPortfolio] = React.useState('A');
-  // Full load: Company rows + Scalar cells for the current lens.
+  // Fetches on first render, then re-denormalizes from cache on every
+  // portfolio switch. The Collection's `queryKey()` ignores `portfolio`,
+  // so there is no endpoint refetch on switch.
   const companies = useSuspense(getCompanies, { portfolio });
-  // Column refresh writes to the same Scalar(portfolio) cells.
-  useFetch(getPortfolioColumns, { portfolio });
+  // The first render's `useSuspense` already populated `Scalar(portfolio)`
+  // for `firstPortfolio`, so we only fetch columns when the user switches
+  // away. `useFetch` then dedupes later revisits via its endpoint cache.
+  const firstPortfolio = React.useRef(portfolio).current;
+  useFetch(
+    getPortfolioColumns,
+    portfolio === firstPortfolio ? null : { portfolio },
+  );
 
   return (
     <div>
@@ -206,10 +218,35 @@ render(<PortfolioGrid />);
 
 </HooksPlayground>
 
-`getCompanies` loads full row data for the selected portfolio. `getPortfolioColumns`
-can refresh only the portfolio-dependent columns. Both endpoints write to the same
-`Scalar(portfolio)` cells, so `% Equity` and `Shares` update without replacing the
-`Company` entity rows.
+On first render, `getCompanies` fetches once to populate the Company entities and
+the initial `Scalar(portfolio)` cells. Every later portfolio switch re-denormalizes
+from the existing `Collection` entity with the new lens — no network fetch — and
+`getPortfolioColumns` fetches only the lens-dependent cells for portfolios the
+user actually visits. Revisit a portfolio already in cache and neither endpoint
+fires again.
+
+Wrapping `[Company]` in a [Collection](./Collection.md) is what makes this work:
+`Array` has no `queryKey`, so `useSuspense(getCompanies, { portfolio: 'B' })`
+would miss the endpoint cache and trigger a refetch. `Collection.queryKey()`
+returns its pk when the `Collection` entity is in the store, so the reuse path
+fires as long as the pk is stable across lens changes.
+
+Here [`argsKey: () => ({})`](./Collection.md#argsKey) forces every portfolio to
+the same `pk`, so one Collection entity serves all lenses. When an endpoint has
+real filter args alongside the lens, keep the filters in the pk and drop only
+the lens:
+
+```typescript
+new Collection([Company], {
+  argsKey: ({ portfolio, ...filters }) => filters,
+});
+```
+
+[`nonFilterArgumentKeys`](./Collection.md#nonFilterArgumentKeys) is a separate
+concern — it controls which args are ignored when a mutation like `push` or
+`assign` matches existing collections — and does _not_ collapse pks. Use it for
+sort or pagination args where results differ per value (distinct pks) but
+creates should still reach every variant.
 
 ### Entity Fields
 
@@ -217,7 +254,7 @@ Use `Scalar` in an `Entity.schema` field when lens-dependent values arrive as pa
 of the entity response.
 
 ```typescript
-import { Entity, RestEndpoint, Scalar } from '@data-client/rest';
+import { Collection, Entity, RestEndpoint, Scalar } from '@data-client/rest';
 
 const PortfolioScalar = new Scalar({
   lens: args => args[0]?.portfolio,
@@ -239,7 +276,7 @@ class Company extends Entity {
 const getCompanies = new RestEndpoint({
   path: '/companies',
   searchParams: {} as { portfolio: string },
-  schema: [Company],
+  schema: new Collection([Company], { argsKey: () => ({}) }),
 });
 ```
 
@@ -254,7 +291,7 @@ entity pk. Since this response has no enclosing entity schema, pass `entity` whe
 constructing the `Scalar`.
 
 ```typescript
-import { Entity, RestEndpoint, Scalar, schema } from '@data-client/rest';
+import { Entity, RestEndpoint, Scalar, Values } from '@data-client/rest';
 
 const CompanyPortfolioScalar = new Scalar({
   lens: args => args[0]?.portfolio,
@@ -265,7 +302,7 @@ const CompanyPortfolioScalar = new Scalar({
 const getPortfolioColumns = new RestEndpoint({
   path: '/companies/columns',
   searchParams: {} as { portfolio: string },
-  schema: new schema.Values(CompanyPortfolioScalar),
+  schema: new Values(CompanyPortfolioScalar),
 });
 
 // Response: { '1': { pct_equity: 0.5, shares: 32342 }, '2': { ... } }
@@ -301,7 +338,7 @@ Entity class this `Scalar` stores cells for.
 
 This is optional when the scalar is used as a field on `Entity.schema`, where the
 parent entity is inferred. It is required for standalone usage such as
-`new schema.Values(PortfolioScalar)`.
+`new Values(PortfolioScalar)`.
 
 ## Behavior
 

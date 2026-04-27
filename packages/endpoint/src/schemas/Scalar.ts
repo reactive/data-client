@@ -162,24 +162,30 @@ export default class Scalar implements Mergeable {
         'Scalar used standalone (e.g. inside `schema.Values`) requires an `entity` option to bind it to an Entity class.',
       );
     }
+    // cpk = compound pk: `"entityKey|entityPk|lensValue"`; used throughout this file.
     const cpk = `${this.entityKey}|${key}|${lensValue}`;
     delegate.mergeEntity(this, cpk, { ...input });
     return cpk;
   }
 
   denormalize(input: any, delegate: IDenormalizeDelegate): any {
-    // Broad falsy guard is deliberate: legit inputs are wrapper array, cpk
-    // string, cell object, or symbol. A primitive non-string (e.g. `0`) would
-    // infinite-recurse through the Values branch below (`unvisit` re-dispatches
-    // back here since `isEntity(this)` is false and the string fast path misses).
-    if (!input || typeof input === 'symbol') return input;
+    // Legit inputs are wrapper array, cpk string, cell object, or symbol.
+    // Any other primitive — falsy (`0`, `''`, `false`, `null`, `undefined`)
+    // or truthy (`0.5`, `true`, `42`, `bigint`, `symbol`, etc.) — cannot be
+    // resolved via the entity table and must short-circuit here. Without
+    // this, non-string truthy primitives would infinite-recurse through the
+    // Values branch below: `unvisit` re-dispatches back to us because
+    // `isEntity(this)` is false and its string-only fast path misses. This
+    // can happen during schema migration when a Scalar is added to an entity
+    // with cached raw numeric/boolean field values still in the store.
+    if (!input || (typeof input !== 'object' && typeof input !== 'string')) {
+      return input;
+    }
 
-    // Entity-field wrapper: `[entityPk, fieldName, entityKey]` (see normalize).
+    // Entity-field wrapper `[entityPk, fieldName, entityKey]`: cpk is derived
+    // from current `args`, so record `lensSelector` on the enclosing Entity's
+    // cache frame. `lensSelector` must be ctor-bound (stable ref); see WeakDependencyMap.
     if (Array.isArray(input)) {
-      // `argsKey` registers `lensSelector` as a string-keyed dependency on
-      // the surrounding entity-cache frame — so the Scalar wrapper's cached
-      // denormalize result varies per-lens. The function reference must be
-      // stable (set once in the constructor); see WeakDependencyMap.
       const lensValue = delegate.argsKey(this.lensSelector);
       if (lensValue === undefined) return undefined;
       const cellData = delegate.unvisit(
@@ -195,7 +201,9 @@ export default class Scalar implements Mergeable {
     // when looking up the cell via its compound pk).
     if (typeof input === 'object') return input;
 
-    // Values path: input is the compound pk string.
+    // String-cpk fallback. Walker-driven Values(Scalar) never reaches this —
+    // `unvisit.ts` intercepts string+createIfValid before `schema.denormalize`.
+    // No `argsKey`: cpk is fixed at normalize-time; per-entity WDM keys on cpk.
     return delegate.unvisit(this, input);
   }
 

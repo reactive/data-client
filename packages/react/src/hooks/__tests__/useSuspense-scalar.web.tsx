@@ -1,4 +1,10 @@
-import { Entity, RestEndpoint, Scalar, schema } from '@data-client/rest';
+import {
+  Collection,
+  Entity,
+  RestEndpoint,
+  Scalar,
+  schema,
+} from '@data-client/rest';
 import { jest } from '@jest/globals';
 import React from 'react';
 
@@ -117,5 +123,71 @@ describe('Scalar lens — useSuspense across portfolio switches (regression)', (
     expect(result.current[0].pct_equity).toBe(0.3);
     expect(result.current[0].shares).toBe(6000);
     expect(result.current[1].pct_equity).toBe(0.4);
+  });
+});
+
+describe('Scalar lens — Collection + useFetch fetch counts (docs demo)', () => {
+  // Mirrors docs/rest/api/Scalar.md: getCompanies uses
+  // `Collection([Company], { argsKey: () => ({}) })` so all portfolios share
+  // one list entity; useFetch(getPortfolioColumns) fills in scalar cells
+  // per-portfolio.
+  const getCompaniesCollection = new RestEndpoint({
+    path: '/companies',
+    searchParams: {} as { portfolio: string },
+    schema: new Collection([Company], { argsKey: () => ({}) }),
+  });
+
+  // Matches the PortfolioGrid demo in docs/rest/api/Scalar.md: the initial
+  // portfolio's scalar cells come from `useSuspense(getCompanies)`, so
+  // `useFetch(getPortfolioColumns)` only needs to fire for portfolios the
+  // user switches to afterward.
+  function DemoHook({ portfolio }: { portfolio: 'A' | 'B' }) {
+    const companies = useSuspense(getCompaniesCollection, { portfolio });
+    const firstPortfolio = React.useRef(portfolio).current;
+    useFetch(
+      getPortfolioColumns,
+      portfolio === firstPortfolio ? null : { portfolio },
+    );
+    return companies;
+  }
+
+  it('skips columns on first load and refetches nothing when revisiting', async () => {
+    const companiesSpy = jest.fn(
+      ({ portfolio }: { portfolio: 'A' | 'B' }) => portfolioRows[portfolio],
+    );
+    const columnsSpy = jest.fn(
+      ({ portfolio }: { portfolio: 'A' | 'B' }) => portfolioColumns[portfolio],
+    );
+    const { result, rerender, waitForNextUpdate } = renderDataHook(DemoHook, {
+      initialProps: { portfolio: 'A' as 'A' | 'B' },
+      resolverFixtures: [
+        { endpoint: getCompaniesCollection, response: companiesSpy },
+        { endpoint: getPortfolioColumns, response: columnsSpy },
+      ],
+    });
+
+    // Initial render: `useSuspense(getCompanies)` fetches and populates
+    // Scalar(A). `useFetch(getPortfolioColumns)` is gated off for the
+    // initial portfolio, so no redundant columns fetch.
+    await waitForNextUpdate();
+    expect(companiesSpy).toHaveBeenCalledTimes(1);
+    expect(columnsSpy).toHaveBeenCalledTimes(0);
+    expect(result.current[0].pct_equity).toBe(0.5);
+
+    // Switch to B: Collection entity is shared (pk excludes `portfolio`), so
+    // `useSuspense` reuses the list. `useFetch` fires once to populate
+    // Scalar(B) cells — companies stays at 1.
+    rerender({ portfolio: 'B' });
+    await new Promise(r => setTimeout(r, 50));
+    expect(companiesSpy).toHaveBeenCalledTimes(1);
+    expect(columnsSpy).toHaveBeenCalledTimes(1);
+    expect(result.current[0].pct_equity).toBe(0.3);
+
+    // Switch back to A: neither endpoint refires.
+    rerender({ portfolio: 'A' });
+    await new Promise(r => setTimeout(r, 50));
+    expect(companiesSpy).toHaveBeenCalledTimes(1);
+    expect(columnsSpy).toHaveBeenCalledTimes(1);
+    expect(result.current[0].pct_equity).toBe(0.5);
   });
 });
