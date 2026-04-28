@@ -179,16 +179,18 @@ export default class GlobalCache implements Cache {
       this.dependencies[0] = { path: { key: '', pk: '' }, entity: input };
       this._resultCache.set(this.dependencies, data, this._args);
     } else {
-      paths.shift();
-      // strip any function-typed (`argsKey`) paths — not subscribable entities.
-      // Only possible when the result cache has ever stored such a dep.
+      // `paths` aliases the stored Link.journey — return a copy that skips
+      // the input placeholder slot. Also strips function-typed (`argsKey`)
+      // paths when any have been stored on the result cache.
       if (this._resultCache.hasStringDeps) {
-        for (let i = 0; i < paths.length; i++) {
-          if (typeof paths[i] === 'function') {
-            paths = paths.filter(p => typeof p !== 'function') as EntityPath[];
-            break;
-          }
+        const filtered: EntityPath[] = [];
+        for (let i = 1; i < paths.length; i++) {
+          const p = paths[i];
+          if (typeof p !== 'function') filtered.push(p);
         }
+        paths = filtered;
+      } else {
+        paths = paths.slice(1);
       }
     }
     return { data, paths };

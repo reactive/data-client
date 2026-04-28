@@ -121,6 +121,47 @@ describe('GlobalCache', () => {
       expect(r2.paths).toEqual(r1.paths);
     });
 
+    it('does not mutate cached journey across repeated result-cache hits', () => {
+      // Regression: on a resultCache hit, `getResults` must strip the
+      // placeholder input slot from the returned paths WITHOUT mutating the
+      // journey array stored on the WeakDependencyMap `Link` node. A mutating
+      // `paths.shift()` progressively removes real entity paths from the
+      // stored journey on each successive hit, corrupting the subscription
+      // list (missed countRef, incorrect entityExpiresAt).
+      const entities = {
+        Foo: { '1': { id: '1' }, '2': { id: '2' } },
+      };
+      const { getEntity, getCache, resultCache } = makeDeps(entities);
+      const input = [{ id: '1' }, { id: '2' }];
+
+      const frame1 = new GlobalCache(getEntity, getCache, resultCache, []);
+      const r1 = frame1.getResults(input, true, () => {
+        frame1.getEntity('1', Foo, entities.Foo['1'], m =>
+          m.set('1', { ...entities.Foo['1'] }),
+        );
+        frame1.getEntity('2', Foo, entities.Foo['2'], m =>
+          m.set('2', { ...entities.Foo['2'] }),
+        );
+        return [{ id: '1' }, { id: '2' }];
+      });
+      expect(r1.paths).toEqual([
+        { key: 'Foo', pk: '1' },
+        { key: 'Foo', pk: '2' },
+      ]);
+
+      // Repeated hits must each return the full set of entity paths.
+      for (let n = 0; n < 3; n++) {
+        const frame = new GlobalCache(getEntity, getCache, resultCache, []);
+        const { paths } = frame.getResults(input, true, () => {
+          throw new Error('resultCache must hit');
+        });
+        expect(paths).toEqual([
+          { key: 'Foo', pk: '1' },
+          { key: 'Foo', pk: '2' },
+        ]);
+      }
+    });
+
     it('cache hit across frames also works when argsKey was used (paths filtered)', () => {
       // Once the resultCache has stored any function-typed dep, future hits
       // must strip them when returning paths. Ensures the on-hit filter at

@@ -183,13 +183,11 @@ method only supplies the `entityPk` piece.
 
 By default `entityPk()`:
 
-- returns the surrounding map `key` when it authoritatively addresses the
-  cell — i.e. `parent[key] === input`, as in `Values(Scalar)` where the map
-  key is the entity pk and the cell may not carry the pk fields — then
+- returns the surrounding map `key` when present (authoritative for
+  `Values(Scalar)`, where the cell may not carry the pk fields), then
 - delegates to the bound `Entity.pk(input, parent, key, args)` static so
-  `[Scalar]` and `Collection([Scalar])` array responses — including arrays
-  nested under a parent object schema like `{ stock: [Scalar] }`, and
-  custom or composite Entity pks — work out of the box.
+  `[Scalar]` and `Collection([Scalar])` array responses — including custom or
+  composite Entity pks — work out of the box.
 
 Override `entityPk()` in a subclass only when the response uses an id field the
 `Entity.pk()` does not read:

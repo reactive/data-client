@@ -68,13 +68,8 @@ export default class Scalar implements Mergeable {
   /**
    * The bound Entity's pk for a standalone scalar cell.
    *
-   * Prefers the surrounding map key (authoritative for `Values(Scalar)`,
-   * where `parent[key] === input`), then falls back to the bound
-   * `Entity.pk(...)`. Other shapes — `[Scalar]` top-level (where `key` is
-   * `undefined`) or nested under a plain object schema like
-   * `{ stock: [Scalar] }` (where `Array.normalize` forwards the parent
-   * object's field name as `key`, but `parent[key]` is the enclosing array,
-   * not the item) — must derive pk from the item itself.
+   * Prefers the surrounding map key (authoritative for `Values(Scalar)`),
+   * then falls back to the bound `Entity.pk(...)`.
    *
    * @see https://dataclient.io/rest/api/Scalar#entityPk
    * @param [input] the scalar cell input
@@ -88,14 +83,7 @@ export default class Scalar implements Mergeable {
     key: string | undefined,
     args: readonly any[],
   ): string | number | undefined {
-    // Only trust `key` when the enclosing container literally maps it to this
-    // cell — i.e. `Values(Scalar)`, where the map key is the entity pk by
-    // construction. `Array.normalize` forwards the *outer* object's field name
-    // as `key` for every element (see Array.ts), so `key !== undefined` alone
-    // would collapse every item onto the same compound pk.
-    if (key !== undefined && parent != null && parent[key] === input) {
-      return key;
-    }
+    if (key !== undefined) return key;
     return this.entity?.pk?.(input, parent, key, args);
   }
 
