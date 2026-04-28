@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1777353195959,
+  "lastUpdate": 1777382410943,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -3467,6 +3467,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 196.08,
             "range": "± 10.0%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6e8e499441741b58ad35127b517e8d83fc7a58fd",
+          "message": "fix(normalizr): do not mutate cached journey on result-cache hit (#3925)\n\n* chore: rebase PR #3925 onto latest master\n\n* pkg: Bump peerdeps of @data-client/react to support 0.17 (#3927)\n\n* pkg: Bump peerdeps of @data-client/react to support 0.17\n\n* pkg: Update yarn.lock for peerdep bump\n\n* perf(normalizr): store consumer-facing journey at write time (#3928)\n\nMove the per-hit paths.slice(1) (and the hasStringDeps filter loop)\nout of GlobalCache.getResults and into the cache write.\n\nGlobalCache.paths() already produces the placeholder-free,\nfunction-free shape every consumer needs. Hand it to\nWeakDependencyMap.set as the journey, and the cache-hit branch can\nreturn that array by reference - no per-hit allocation, no per-hit\ntypeof === 'function' walk.\n\nSafety: paths is now a shared reference held by every subsequent\nhit. The contract that consumers must not mutate it was established\nby the journey-mutation fix (PR #3925) and is exercised by the\nexisting globalCache.test.ts regression test.\n\n* fix: Scalar reversion\n\n* test(core): add getResponseMeta-paths integration test (non-GC angle) (#3929)\n\n* test(core): replace getResponseMeta-countRef with getResponseMeta-paths\n\nThe previous integration test poked GCPolicy['entityCount'] directly to\nprove the journey-mutation bug. Replace it with a test that asserts the\npublic-API consequence the bug creates outside of GC: every subscriber\nto the same endpoint must observe the same expiresAt from\nController.getResponseMeta().\n\nThis is the property the bug actually broke for non-GC users: with the\nbuggy paths.shift(), entityExpiresAt(paths, …) iterates a\nprogressively-shorter list, dropping the entity with the earliest\nexpiry first. Subscriber 2 observes a too-late expiresAt; subscriber 3+\nobserve Infinity and never refetch. Fires under ImmortalGCPolicy too,\nsince entityExpiresAt is unconditional whenever the endpoint has no\ntop-level meta.expiresAt — typical for state populated via\ncontroller.set(Entity, …), SSR hydration, or useQuery.\n\nVerified the assertion fails on the buggy paths.shift() (m3.expiresAt\nreturns FOO_2_EXPIRY instead of FOO_1_EXPIRY) and passes on the fix.\n\n* test(core): keep existing countRef integration test alongside paths test\n\nRestore the GC-side getResponseMeta-countRef.ts integration test that\nthe prior commit replaced. The two tests cover the journey-mutation\nbug from complementary angles:\n\n- getResponseMeta-countRef.ts: GC consumer of paths (entityCount\n  under-counting → premature reaping under default GCPolicy).\n- getResponseMeta-paths.ts: non-GC consumer of paths\n  (entityExpiresAt → suppressed entity-expiry refetch; fires under\n  ImmortalGCPolicy too).\n\nBoth pass on the fix; both fail on the buggy paths.shift().",
+          "timestamp": "2026-04-28T09:16:36-04:00",
+          "tree_id": "74a366bf6fd771c76515b36a56378481b06c06bf",
+          "url": "https://github.com/reactive/data-client/commit/6e8e499441741b58ad35127b517e8d83fc7a58fd"
+        },
+        "date": 1777382408425,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 129.87,
+            "range": "± 4.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 39.6,
+            "range": "± 6.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 303.03,
+            "range": "± 7.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 312.5,
+            "range": "± 7.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 42.02,
+            "range": "± 6.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 250,
+            "range": "± 5.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 277.78,
+            "range": "± 7.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 7.91,
+            "range": "± 8.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 71.18,
+            "range": "± 11.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 34.42,
+            "range": "± 5.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 200,
+            "range": "± 5.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 263.16,
+            "range": "± 6.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 165.3,
+            "range": "± 9.5%",
             "unit": "ops/s"
           }
         ]
