@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1776305945558,
+  "lastUpdate": 1777353257340,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -116693,6 +116693,296 @@ window.BENCHMARK_DATA = {
             "range": "±0.74%",
             "unit": "ops/sec",
             "extra": "97 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "84078d7d36bf5cf0fd16a479ce16c48c5d804f32",
+          "message": "feat(endpoint): add Scalar schema for lens-dependent entity fields (#3887)\n\n* feat(endpoint): add Scalar schema for lens-dependent entity fields\n\nIntroduces Scalar + ScalarCell classes following the Union pattern:\n- Scalar (SchemaSimple, not entity-like) routes normalize/denormalize\n- ScalarCell (entity-like, internal) stores grouped cell data\n- EntityMixin.normalize: if/else to pass whole entity to Scalar\n- EntityMixin.denormalize: completely unchanged (Union-like wrapper)\n- Entity stores lens-independent {id,field} wrappers\n- Denormalize joins correct cell based on endpoint args\n\nCo-authored-by: natmaster <natmaster@gmail.com>\n\n* test(endpoint): add Scalar schema tests\n\nTests cover:\n- normalize stores wrapper refs in entity, cell data in ScalarCell\n- multiple entities, different lenses produce separate cells\n- denormalize joins correct cell based on lens args\n- different lens args produce different results from same entity\n- missing lens returns undefined for scalar fields\n- column-only fetch via Values stores cells without modifying entities\n- column fetch cells joinable via denormalize with Company schema\n- merge accumulation updates existing cells\n- Scalar constructor and queryKey\n\nCo-authored-by: natmaster <natmaster@gmail.com>\n\n* docs(rest): add Scalar schema API documentation\n\nCovers usage (full entity + column-only endpoints), constructor options,\nnormalize/denormalize flow, normalized storage model, and related APIs.\n\nCo-authored-by: natmaster <natmaster@gmail.com>\n\n* Remove dead _lastCpk field from Scalar class\n\n_lastCpk was declared and initialized but never read or written\nelsewhere in the codebase.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* enchance: Better design\n\n* enhance(endpoint): clean up Scalar parent-entity context plumbing\n\nReplace the encoded-key hack with a direct `parentEntity` argument:\n- `EntityMixin.normalize` now dispatches schemas marked `acceptsPrimitives`\n  directly (bypassing `visit`'s primitive short-circuit) and passes `this`\n  as the 7th arg.\n- `Scalar.normalize` reads `parentEntity` to derive entity key and pk; no\n  more parsing `'<entityKey>|<entityPk>|<fieldName>'` out of the visit key.\n- `parent` is now the entity data row (standard `Visit` contract), not the\n  Entity class.\n- `getVisit` and the `SchemaSimple` interface are unchanged — zero impact\n  on the normalize hot path (verified at parity with HEAD across 8-run A/B\n  benchmarks).\n\nMade-with: Cursor\n\n* enhance(normalizr): track parentEntity in visit walker\n\nMove parent-entity context tracking into `getVisit` itself, eliminating\nthe per-schema-type dispatch in `EntityMixin`. The walker now:\n- Maintains a `currentEntity` closure variable, save/restored around\n  every entity visit (schemas with `pk`).\n- Passes it as a 7th `parentEntity` arg to every `schema.normalize` call.\n- Honors a new `acceptsPrimitives` opt-in marker so schemas like `Scalar`\n  receive primitive values instead of being short-circuited.\n\n`EntityMixin.normalize`'s field loop is now a single uniform `visit(...)`\ncall — no more conditional branch for Scalar fields. `Scalar.normalize`\nreads `parentEntity` from the standard 7th arg; `parent` is the entity\ndata row as the standard `Visit` contract specifies.\n\nTrade-off: ~3% normalize-throughput cost on the hot path (closure\nsave/restore around every entity visit). Validated with 8-run A/B\nbenchmarks. Buys a uniform schema contract — Scalar (and any future\ncontext-dependent schema) needs no special case in `EntityMixin`.\n\nMade-with: Cursor\n\n* refactor(normalizr): collapse entity/non-entity branches in visit walker\n\nBoth branches called `schema.normalize` with the same args except for the\nparent-entity context. Snapshot `prev = currentEntity` first, then\nconditionally update `currentEntity = schema` for entities. Pass `prev` —\nwhich equals the prior entity for entities and the still-current entity\nfor non-entities — and unconditionally restore. One call site instead of\ntwo, no behavior change. 8-run A/B benchmarks at parity with the prior\nversion (within noise).\n\nMade-with: Cursor\n\n* internal: Update website types\n\n* fix: visit edge case\n\n* fix(normalizr): tighten table-resident schema check in unvisit\n\nThe `else if` branch for table-resident schemas without `pk` was matching\nany schema exposing a `key` property. `Invalidate` extends PolymorphicSchema\nand exposes `key` via a getter, so it was being routed into `unvisitEntity`\n-> `unvisitEntityObject`, which calls `schema.createIfValid()` -- a method\n`Invalidate` does not implement. This caused `TypeError` on basic Invalidate\ndenormalization and broke deletion/symbol propagation.\n\nSwitch the discriminator to `typeof createIfValid === 'function'`, which is\nthe precise capability `unvisitEntityObject` requires. This matches Scalar\n(which now implements Mergeable) and regular entities, but not Invalidate,\nQuery, Union, etc. -- they continue falling through to their own\n`denormalize` methods.\n\nMade-with: Cursor\n\n* fix: edge cases\n\n* docs: updates\n\n* test(endpoint): cover Scalar merge, denormalize edge cases\n\nAdd direct tests for merge/shouldReorder/mergeWithStore/mergeMetaWithStore\nand denormalize passthroughs (falsy, symbol, object, missing-lens, missing\ncell, cpk string + Values round-trip) to bring Scalar.ts to 100% coverage.\n\nMade-with: Cursor\n\n* docs: Fix\n\n* fix(core): handle Scalar/wrapper schemas in skip-denormalize check\n\n`getResponseMeta` short-circuits `denormalize()` when the endpoint\nschema doesn't transform the response. The previous check\n(`schemaHasEntity`) had two bugs surfaced by Scalar:\n\n1. For `Values(Scalar)` it walked `Object.values(scalarInstance)`,\n   recursed into the `lensSelector` function, and looped forever.\n2. Scalar is table-resident without `pk`, so it was not detected as\n   needing denormalize — the raw cpk strings were returned instead of\n   the joined cell data.\n\nReplace with `requiresDenormalize`, which mirrors `getVisit.ts`:\nschemas that define `normalize` always need denormalize to reconstruct\nthe response. This collapses the entity check, the Scalar special-\ncase, the wrapper `.schema` recursion, and the self-loop guard into a\nsingle early-exit, so schema class instances never fall through to\n`Object.values()` traversal of their instance fields.\n\nAdds regression tests for both `Values(Scalar)` (column-only endpoint)\nand Entity-with-Scalar-fields, with a hard 2s timeout so a re-\nintroduced infinite recursion fails fast rather than hanging Jest.\n\nNet: -89B minified, neutral-to-positive on `core ^get` benchmarks.\nMade-with: Cursor\n\n* docs: Fix types\n\n* internal: Update tests for check for memoization paths\n\n* fix: cache busting with args\n\n* fix: does not over-denormalize a schema map containing string values\n\n* docs: Release notes and migration for breaking changes\n\n* docs(blog): Conform v0.17 release post to blog style guide\n\nAdd nonFilterArgumentKeys feature, embed a Scalar HooksPlayground demo\n(replacing dead imports), recategorize binary auto-detection under\nOther Improvements, and link PR #3887 for the Scalar / denormalize\ndelegate work.\n\nMade-with: Cursor\n\n* internal: Bench and upgrade skill\n\n* refactor(normalizr): drop precomputed key from Dep, pass args to set\n\nMakes the `Dep` shape strictly monomorphic (`{path, entity}` only) by\nremoving the optional `key` field and having `WeakDependencyMap.set`\nre-evaluate `path(args)` when the path is a `KeyFn`. Callers in\n`globalCache` now forward `this._args` to `set`.\n\nBenefits:\n- Eliminates the `wrong map` deopts observed on `WeakDependencyMap.set`\n  and `GlobalCache#paths` caused by the previously polymorphic Dep shape.\n- Simpler, tighter interface -- one fewer field to keep in sync at each\n  `argsKey` call site.\n- Slightly smaller gzipped esm bundle (-17 B); cjs flat.\n\nMacro throughput is statistically unchanged vs the prior shape across\nthe denormalize/normalize suites (all deltas well within 95% CI over\n5 runs). The change is a clarity + deopt-cleanup refactor, not a perf\noptimization.\n\nMade-with: Cursor\n\n* internal: Add WeakDependencyMap microbenchmarks\n\nMade-with: Cursor\n\n* bench: isolate Scalar MemoCache from shared priming\n\nPreviously, the shared `memo` used by Project/User/AllProjects/Values\nbenches was also primed with StockSchema (scalar) entries during suite\nsetup. Cross-schema priming in a single MemoCache perturbs V8\nhidden-class state for downstream cached-path benches — masking real\ndeltas by ~15% on `denormalizeLong Values withCache` and adding\nsystematic noise to other withCache benches.\n\nMove Stock priming to a dedicated `memoStock` MemoCache instance used\nonly by the two Scalar withCache benches. Non-Scalar benches now see\nthe same `memo` shape they did prior to the Scalar PR, so measurements\nare comparable against master.\n\nVerified with 5x full suite runs:\n  denormalizeLong Values withCache: 7273 -> 8674 ops/sec (+19%)\n  other benches within run-to-run noise.\n\nMade-with: Cursor\n\n* perf: restore entity-only fast paths in denormalize cache\n\nRecovers the 3–7% regressions introduced by \"fix: cache busting with\nargs\" (acdb4b161c) on cached denormalize benches. Root cause: `argsKey`\nsupport added unconditional `typeof === 'function'` branches, dynamic\n`push`-based path materialization, and post-hoc filter scans to the\nhot `WeakDependencyMap.get` / `GlobalCache.paths` / `GlobalCache.getResults`\npaths — every caller paid the cost, even entity-only chains.\n\nChanges\n-------\nnormalizr/memo/WeakDependencyMap\n  * Sticky `hasStr` flag: set true only when a `KeyFn` dep is stored.\n  * `get` uses the pre-acdb entity-only loop when `hasStr` is false\n    (common case), and a separate `_getMixed` slow path otherwise.\n  * Expose `hasStringDeps` for consumers to gate their own work.\n\nnormalizr/memo/globalCache\n  * Per-frame `_hasArgsKey` flag set in `argsKey()`.\n  * `paths()` restores pre-allocated `new Array(n)` + indexed writes\n    when no function-typed dep was pushed this frame.\n  * `getResults` skips the function-strip scan on cache hit unless the\n    result WDM has ever stored a string dep.\n\nnormalizr/denormalize/unvisit + schemas/{Array,Object}, endpoint/schemas/\n{Array,Object,Values,EntityMixin}\n  * Hoist `delegate.args` / `delegate.unvisit` out of per-entity and\n    per-array-element loops so hot denormalize walks read a closure\n    local instead of doing a property load per call.\n\nMeasurements (5-run medians, ops/sec, vs a9e9… pre-acdb baseline)\n-----------------------------------------------------------------\n                                           pre   at-acdb   HEAD\n  denormalizeShort 500x                   1234    1198    1583   +28.3%\n  denormalize bidirectional 50            8549    7922   10801   +26.3%\n  denormalizeLong                          437     424     552   +26.3%\n  denormalizeLong with mixin Entity        411     396     515   +25.3%\n  denormalizeLong All withCache          10479   10401   12242   +16.8%\n  denormalizeLong Values                   380     359     439   +15.5%\n  denormalizeLong Query-sorted withCache 10858   10763   12305   +13.3%\n  query All withCache                    11071   10619   12387   +11.9%\n  denormalizeLong withCache              12119   11708   12514   + 3.3%\n  denormalizeLong Values withCache        8879    8692    8875     0.0%\n  queryShort 500x withCache               4792    4556    4494   - 6.2%\n  denormalizeShort 500x withCache        13126   12364   12397   - 5.6%\n\nThe short 500x benches amplify per-call overhead ~500×; the residual\nregression there reflects the unavoidable delegate-object indirection\nstill required for `argsKey` support. Aggregate across the suite is\nstrongly net-positive vs pre-acdb.\n\nTests: packages/normalizr + packages/endpoint — all 680 pass.\nMade-with: Cursor\n\n* docs: Update docs\n\n* internal: More tests\n\n* fix(normalizr): propagate argsKey flag on entity-cache hit\n\nWhen the result cache missed (new input ref) but every entity ref was\nunchanged, `GlobalCache.getEntity` replayed cached deps without running\n`computeValue`, leaving `_hasArgsKey` false. `paths()` then took its\nfast path and leaked function-typed (`argsKey`) deps from the replayed\nchain into the returned `EntityPath[]` subscription list.\n\nSet `_hasArgsKey` on cache hit when the per-entity `WeakDependencyMap`\nhas ever stored a function dep (`hasStringDeps`), keeping the single\nbranch outside the push loop to preserve hidden-class stability on the\nhot path.\n\nMade-with: Cursor\n\n* internal: TODO on Scalar pk context mismatch\n\nScalar.normalize re-derives the enclosing entity's pk without the\n`parent`/`key` context that EntityMixin.normalize uses, so any custom\npk() reading those args would key the Scalar cell under a different id\nthan the entity is stored under.\n\nMade-with: Cursor\n\n* internal: clarify intent of Scalar.denormalize falsy guard\n\nMade-with: Cursor\n\n* internal: trim Scalar.denormalize guard comment\n\nMade-with: Cursor\n\n* docs: Tuning\n\n* docs: Update agents to latest design\n\n* fix(endpoint): guard Scalar.denormalize against truthy non-string primitives\n\nTruthy non-string primitives (e.g. `0.5`, `true`, `42`) previously fell\nthrough the falsy/symbol guard and into `delegate.unvisit(this, input)`.\nSince Scalar has no `pk`, `unvisit`'s `createIfValid` fast path only\nmatches string inputs, so non-string primitives re-dispatched to\n`Scalar.denormalize` — infinite recursion / stack overflow. This can\nsurface during schema migration when Scalar is added to an entity that\nstill has cached raw numeric or boolean field values in the store.\n\nTighten the guard to pass through any non-string, non-object input so\nstale values degrade gracefully instead of crashing.\n\nMade-with: Cursor\n\n* enhance: entityPk + queryKey\n\n* fix(endpoint): scope Scalar.entityPk surrounding-key heuristic to authoritative map keys\n\nPreviously `entityPk` returned any non-undefined `key`, but\n`Array.normalize` forwards the *parent's* field name as `key` to every\nelement. When `[Scalar]` or `Collection([Scalar])` was nested under a\nplain object schema like `{ stock: [Scalar] }`, every item received the\nsame field-name pk, collapsing all cells onto one compound pk and\nsilently corrupting data.\n\nTrust `key` only when the enclosing container literally maps it to the\ncell — `parent[key] === input` — which holds for `Values(Scalar)` (the\nintended use of the surrounding-key heuristic) but not for arrays.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n---------\n\nCo-authored-by: Cursor Agent <cursoragent@cursor.com>",
+          "timestamp": "2026-04-28T01:10:04-04:00",
+          "tree_id": "9f89073c4c6c55366699e9011782efac2326c655",
+          "url": "https://github.com/reactive/data-client/commit/84078d7d36bf5cf0fd16a479ce16c48c5d804f32"
+        },
+        "date": 1777353254693,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 433,
+            "range": "±2.62%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 395,
+            "range": "±0.27%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "normalizeLong Scalar",
+            "value": 331,
+            "range": "±0.85%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "normalizeLong Scalar update",
+            "value": 853,
+            "range": "±0.69%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 243,
+            "range": "±4.33%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 231,
+            "range": "±4.22%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 942,
+            "range": "±0.13%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 717,
+            "range": "±0.20%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar donotcache",
+            "value": 902,
+            "range": "±0.59%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 1540,
+            "range": "±0.10%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 717,
+            "range": "±3.96%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 6899,
+            "range": "±0.14%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 2819,
+            "range": "±0.17%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 53631,
+            "range": "±0.51%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 6245,
+            "range": "±0.31%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 233,
+            "range": "±3.82%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 6104,
+            "range": "±0.38%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong withCache (Scalar churn)",
+            "value": 6090,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 5139,
+            "range": "±0.17%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar withCache",
+            "value": 7615,
+            "range": "±2.80%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar update withCache",
+            "value": 4011,
+            "range": "±1.12%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 6420,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 6232,
+            "range": "±0.21%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 1659,
+            "range": "±0.21%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50",
+            "value": 5090,
+            "range": "±4.89%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50 donotcache",
+            "value": 36895,
+            "range": "±0.16%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 4636,
+            "range": "±0.97%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 9348305,
+            "range": "±1.09%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 227,
+            "range": "±4.11%",
+            "unit": "ops/sec",
+            "extra": "69 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 3556,
+            "range": "±0.35%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 2623,
+            "range": "±0.25%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 4566,
+            "range": "±0.65%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 4607,
+            "range": "±0.27%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 5287,
+            "range": "±0.40%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 431,
+            "range": "±0.19%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 250,
+            "range": "±0.34%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 266,
+            "range": "±0.46%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 921,
+            "range": "±0.68%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
           }
         ]
       }
