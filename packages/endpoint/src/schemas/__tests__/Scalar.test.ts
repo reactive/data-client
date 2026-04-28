@@ -437,6 +437,82 @@ describe('Scalar', () => {
     });
   });
 
+  describe('nested array-of-records under a plain object schema (regression)', () => {
+    // `[Scalar]` (or `Collection([Scalar])`) nested inside a plain object schema
+    // — `{ stock: [Scalar] }` — must derive each item's entity pk from the item
+    // itself, not from the parent's field name. Previously `Array.normalize`
+    // forwarded its enclosing field name (e.g. `'stock'`) as `key` to each
+    // child; `Scalar.entityPk` returned that key (since it was non-undefined),
+    // collapsing every cell onto compound pk `Company|stock|<lens>` and
+    // silently corrupting the data.
+    it('keys cells by item id, not by parent field name', () => {
+      const objSchema = { stock: [PortfolioScalar] };
+      const state = normalize(
+        objSchema,
+        {
+          stock: [
+            { id: '1', pct_equity: 0.7, shares: 555 },
+            { id: '2', pct_equity: 0.1, shares: 999 },
+          ],
+        },
+        [{ portfolio: 'portfolioB' }],
+      );
+
+      expect(state.result).toEqual({
+        stock: ['Company|1|portfolioB', 'Company|2|portfolioB'],
+      });
+      expect(state.entities['Scalar(portfolio)']).toMatchObject({
+        'Company|1|portfolioB': {
+          id: '1',
+          pct_equity: 0.7,
+          shares: 555,
+        },
+        'Company|2|portfolioB': {
+          id: '2',
+          pct_equity: 0.1,
+          shares: 999,
+        },
+      });
+      // Must not key any cell by the parent field name.
+      expect(
+        Object.keys(state.entities['Scalar(portfolio)'] ?? {}).some(k =>
+          k.includes('|stock|'),
+        ),
+      ).toBe(false);
+    });
+
+    it('keys cells by item id when nested as Collection([Scalar])', () => {
+      const columns = new Collection([PortfolioScalar], {
+        nestKey: (parent: any, key: string) => ({ portfolio: key }),
+      });
+      const objSchema = { stock: columns };
+      const state = normalize(
+        objSchema,
+        {
+          stock: [
+            { id: '1', pct_equity: 0.7, shares: 555 },
+            { id: '2', pct_equity: 0.1, shares: 999 },
+          ],
+        },
+        [{ portfolio: 'portfolioB' }],
+      );
+
+      // Cells are keyed by item id, not by the parent field name.
+      expect(state.entities['Scalar(portfolio)']).toMatchObject({
+        'Company|1|portfolioB': {
+          id: '1',
+          pct_equity: 0.7,
+          shares: 555,
+        },
+        'Company|2|portfolioB': {
+          id: '2',
+          pct_equity: 0.1,
+          shares: 999,
+        },
+      });
+    });
+  });
+
   describe('composite primary keys containing "|"', () => {
     class CompositeCompany extends IDEntity {
       type = '';
