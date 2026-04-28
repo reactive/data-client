@@ -173,26 +173,20 @@ export default class GlobalCache implements Cache {
 
     if (paths === undefined) {
       data = computeValue();
-      // we want to do this before we fill our 'input' entry
+      // build the consumer-facing subscription list once, here.
+      // `paths()` already excludes the input placeholder slot and (when
+      // `_hasArgsKey`) function-typed `argsKey` deps, so it's exactly the
+      // shape every hit-branch consumer needs. We hand it to the cache as
+      // the journey so subsequent hits return it by reference — no per-hit
+      // `slice(1)` or filter pass required.
       paths = this.paths();
-      // fill pre-allocated slot 0 with the input reference
+      // fill pre-allocated slot 0 with the input reference (chain key only)
       this.dependencies[0] = { path: { key: '', pk: '' }, entity: input };
-      this._resultCache.set(this.dependencies, data, this._args);
-    } else {
-      // `paths` aliases the stored Link.journey — return a copy that skips
-      // the input placeholder slot. Also strips function-typed (`argsKey`)
-      // paths when any have been stored on the result cache.
-      if (this._resultCache.hasStringDeps) {
-        const filtered: EntityPath[] = [];
-        for (let i = 1; i < paths.length; i++) {
-          const p = paths[i];
-          if (typeof p !== 'function') filtered.push(p);
-        }
-        paths = filtered;
-      } else {
-        paths = paths.slice(1);
-      }
+      this._resultCache.set(this.dependencies, data, this._args, paths);
     }
+    // hit branch: `paths` aliases the stored Link.journey — return as-is.
+    // Callers must not mutate it (entityExpiresAt and createCountRef both
+    // read-only). The journey-mutation regression test guards this contract.
     return { data, paths };
   }
 

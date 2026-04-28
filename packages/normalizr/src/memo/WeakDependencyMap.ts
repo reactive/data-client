@@ -69,7 +69,18 @@ export default class WeakDependencyMap<
     return [curLink.value, curLink.journey] as readonly [V, Path[]];
   }
 
-  set(dependencies: Dep<Path, K>[], value: V, args: readonly any[] = []) {
+  set(
+    dependencies: Dep<Path, K>[],
+    value: V,
+    args: readonly any[] = [],
+    /** Optional consumer-facing journey returned to `get()` callers verbatim.
+     * Defaults to `dependencies.map(d => d.path)`. Pass an explicit array to
+     * skip the per-write `.map(...)` and (more importantly) to skip per-hit
+     * post-processing — see `GlobalCache.getResults` for the read-side
+     * payoff. The array becomes a shared reference held by every subsequent
+     * cache hit; callers MUST NOT mutate it. */
+    journey?: Path[],
+  ) {
     if (dependencies.length < 1) throw new KeySize();
     let curLink: Link<Path, K, V> = this as any;
     for (const dep of dependencies) {
@@ -98,7 +109,7 @@ export default class WeakDependencyMap<
     curLink.nextPath = undefined;
     curLink.value = value;
     // we could recompute this on get, but it would have a cost and we optimize for `get`
-    curLink.journey = dependencies.map(d => d.path) as Path[];
+    curLink.journey = journey ?? (dependencies.map(d => d.path) as Path[]);
   }
 
   /** True once any `argsKey`-style dep has been written. Consumers can use
