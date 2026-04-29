@@ -60,7 +60,7 @@ delay: 150,
 },
 ]}>
 
-```ts title="api/Todo" {15} collapsed
+```ts title="api/Todo" {15-18,24} collapsed
 import { Entity, RestEndpoint, Collection } from '@data-client/rest';
 
 export class Todo extends Entity {
@@ -72,16 +72,20 @@ export class Todo extends Entity {
   static key = 'Todo';
 }
 
+export const userTodos = new Collection([Todo], {
+  nestKey: (parent: { id: string }) => ({ userId: parent.id }),
+});
+
 export const getTodos = new RestEndpoint({
   path: '/todos',
   searchParams: {} as { userId?: string },
-  schema: new Collection([Todo]),
+  schema: userTodos,
 });
 ```
 
-```ts title="api/User" {13-17} collapsed
+```ts title="api/User" {13} collapsed
 import { Entity, RestEndpoint, Collection } from '@data-client/rest';
-import { Todo } from './Todo';
+import { Todo, userTodos } from './Todo';
 
 export class User extends Entity {
   id = '';
@@ -92,11 +96,7 @@ export class User extends Entity {
 
   static key = 'User';
   static schema = {
-    todos: new Collection([Todo], {
-      nestKey: (parent, key) => ({
-        userId: parent.id,
-      }),
-    }),
+    todos: userTodos,
   };
 }
 
@@ -247,7 +247,10 @@ await ctrl.fetch(StatsResource.getList.assign, {
 
 ## Options
 
-One of `argsKey` or `nestKey` is used to compute the `Collection's` [pk](#pk).
+`argsKey` and `nestKey` compute the `Collection's` [pk](#pk). `argsKey` is used
+when the Collection is normalized as a top-level endpoint result; `nestKey` is
+used when the same Collection is nested in an [Entity](./Entity.md). Provide both
+to reuse one Collection definition in both contexts.
 
 ### argsKey(...args): Object {#argsKey}
 
@@ -257,16 +260,23 @@ on Endpoint arguments.
 ```ts {7-9}
 import { RestEndpoint, Collection } from '@data-client/rest';
 
+const userTodos = new Collection([Todo], {
+  argsKey: (urlParams: { userId?: string }) => ({
+    ...urlParams,
+  }),
+  nestKey: (parent: { id: string }) => ({
+    userId: parent.id,
+  }),
+});
+
 const getTodos = new RestEndpoint({
   path: '/todos',
   searchParams: {} as { userId?: string },
-  schema: new Collection([Todo], {
-    argsKey: (urlParams: { userId?: string }) => ({
-      ...urlParams,
-    }),
-  }),
+  schema: userTodos,
 });
 ```
+
+When omitted, `argsKey` defaults to `params => ({ ...params })`.
 
 ### nestKey(parent, key): Object {#nestKey}
 
@@ -275,18 +285,12 @@ on the parent it is nested inside.
 
 Nested `Collection's` [pk](#pk) are better defined by what they are nested inside. This allows
 the nested Collection to share its state with other instances whose key has the same value.
+When `argsKey` and `nestKey` return the same object shape, top-level and nested
+reads resolve to the same collection state.
 
-```ts {28-30}
-import { Collection, Entity } from '@data-client/rest';
-
-class Todo extends Entity {
-  id = '';
-  userId = '';
-  title = '';
-  completed = false;
-
-  static key = 'Todo';
-}
+```ts {13}
+import { Entity } from '@data-client/rest';
+import { Todo, userTodos } from './Todo';
 
 class User extends Entity {
   id = '';
@@ -297,17 +301,21 @@ class User extends Entity {
 
   static key = 'User';
   static schema = {
-    todos: new Collection([Todo], {
-      nestKey: (parent, key) => ({
-        userId: parent.id,
-      }),
-    }),
+    todos: userTodos,
   };
 }
 ```
 
 In this case, `user.todos` and getTodos() response (from the argsKey example) will always
-be the same (referentially equal) Array.
+be the same (referentially equal) Array. Add both key functions to the shared
+Collection definition:
+
+```ts
+const userTodos = new Collection([Todo], {
+  argsKey: ({ userId }: { userId?: string }) => ({ userId }),
+  nestKey: (parent: User) => ({ userId: parent.id }),
+});
+```
 
 ### nonFilterArgumentKeys? {#nonFilterArgumentKeys}
 
@@ -684,16 +692,24 @@ static mergeWithStore(
 
 `mergeWithStore()` is called during normalization when a processed entity is already found in the store.
 
-### pk: (parent?, key?, args?): pk? {#pk}
+### pk: (parent?, key?, args?, parentEntity?): pk? {#pk}
 
-`pk()` calls [argsKey](#argsKey) or [nestKey](#nestKey) depending on which are specified, and
-then serializes the result for the pk string.
+`pk()` calls [nestKey](#nestKey) when nested in an Entity and available;
+otherwise it calls [argsKey](#argsKey). It then serializes the result for the pk
+string.
 
 ```ts
-pk(value: any, parent: any, key: string, args: readonly any[]) {
-  const obj = this.argsKey
-    ? this.argsKey(...args)
-    : this.nestKey(parent, key);
+pk(
+  value: any,
+  parent: any,
+  key: string,
+  args: readonly any[],
+  parentEntity?: any,
+) {
+  const obj =
+    parentEntity && this.nestKey
+      ? this.nestKey(parent, key)
+      : this.argsKey(...args);
   for (const key in obj) {
     if (typeof obj[key] !== 'string') obj[key] = `${obj[key]}`;
   }

@@ -146,6 +146,44 @@ These are rare; do them by hand:
 
 `Schema.normalize()` and the `visit()` callback gain an optional trailing `parentEntity` parameter — the nearest enclosing entity-like schema, tracked automatically by the visit walker. Existing schemas don't need changes; new schemas can opt in.
 
+### Optional Collection cleanup
+
+`Collection` can now define both `argsKey` and `nestKey` on the same instance. During normalization it uses `argsKey` when top-level and `nestKey` when nested in an Entity, so paired definitions can be consolidated:
+
+```ts
+// before: two separate but equivalent Collections
+export const getTodos = new RestEndpoint({
+  path: '/todos',
+  searchParams: {} as { userId?: string },
+  schema: new Collection([Todo]),
+});
+
+class User extends Entity {
+  static schema = {
+    todos: new Collection([Todo], {
+      nestKey: parent => ({ userId: parent.id }),
+    }),
+  };
+}
+
+// after: one shared Collection
+export const userTodos = new Collection([Todo], {
+  nestKey: parent => ({ userId: parent.id }),
+});
+
+export const getTodos = new RestEndpoint({
+  path: '/todos',
+  searchParams: {} as { userId?: string },
+  schema: userTodos,
+});
+
+class User extends Entity {
+  static schema = {
+    todos: userTodos,
+  };
+}
+```
+
 ## Where to find affected code
 
 Search for these patterns in your codebase:

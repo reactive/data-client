@@ -821,8 +821,13 @@ declare class Scalar implements Mergeable {
     /**
      * The bound Entity's pk for a standalone scalar cell.
      *
-     * Prefers the surrounding map key (authoritative for `Values(Scalar)`),
-     * then falls back to the bound `Entity.pk(...)`.
+     * Prefers the surrounding map key (authoritative for `Values(Scalar)`,
+     * where `parent[key] === input`), then falls back to the bound
+     * `Entity.pk(...)`. Other shapes — `[Scalar]` top-level (where `key` is
+     * `undefined`) or nested under a plain object schema like
+     * `{ stock: [Scalar] }` (where `Array.normalize` forwards the parent
+     * object's field name as `key`, but `parent[key]` is the enclosing array,
+     * not the item) — must derive pk from the item itself.
      *
      * @see https://dataclient.io/rest/api/Scalar#entityPk
      * @param [input] the scalar cell input
@@ -878,19 +883,18 @@ declare class Scalar implements Mergeable {
     queryKey(args: readonly any[], unvisit: any, delegate: IQueryDelegate): string[] | undefined;
 }
 
-type CollectionOptions<Args extends any[] = DefaultArgs, Parent = any> = ({
+type CollectionOptions<Args extends any[] = DefaultArgs, Parent = any> = {
     /** Defines lookups for Collections nested in other schemas.
      *
      * @see https://dataclient.io/rest/api/Collection#nestKey
      */
     nestKey?: (parent: Parent, key: string) => Record<string, any>;
-} | {
     /** Defines lookups top-level Collections using ...args.
      *
      * @see https://dataclient.io/rest/api/Collection#argsKey
      */
     argsKey?: (...args: Args) => Record<string, any>;
-}) & ({
+} & ({
     /** Sets a default createCollectionFilter for addWith(), push, unshift, and assign.
      *
      * @see https://dataclient.io/rest/api/Collection#createcollectionfilter
@@ -942,15 +946,17 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
     /**
      * A unique identifier for each Collection
      *
-     * Calls argsKey or nestKey depending on which are specified, and then serializes the result for the pk string.
+     * Calls nestKey when nested in an Entity and available; otherwise calls
+     * argsKey. The resulting object is serialized for the pk string.
      *
      * @param [parent] When normalizing, the object which included the entity
      * @param [key] When normalizing, the key where this entity was found
      * @param [args] ...args sent to Endpoint
+     * @param [parentEntity] Entity class containing this Collection when nested
      * @see https://dataclient.io/docs/api/Collection#pk
      */
-    pk(value: any, parent: any, key: string, args: any[]): string;
-    normalize(input: any, parent: Parent, key: string, args: any[], visit: (...args: any) => any, delegate: INormalizeDelegate): string;
+    pk(value: any, parent: any, key: string, args: any[], parentEntity?: any): string;
+    normalize(input: any, parent: Parent, key: string, args: any[], visit: (...args: any) => any, delegate: INormalizeDelegate, parentEntity?: any): string;
     /** Creates new instance copying over defined values of arguments
      *
      * @see https://dataclient.io/docs/api/Collection#merge

@@ -243,7 +243,14 @@ declare class WeakDependencyMap<Path, K extends object = object, V = any> {
     get(entity: K, getDependency: GetDependency<Path, K | symbol>, args?: readonly any[]): readonly [undefined, undefined] | readonly [V, Path[]];
     /** Slow path: dep chain may interleave entity and `argsKey`-style deps. */
     private _getMixed;
-    set(dependencies: Dep<Path, K>[], value: V, args?: readonly any[]): void;
+    set(dependencies: Dep<Path, K>[], value: V, args?: readonly any[], 
+    /** Optional consumer-facing journey returned to `get()` callers verbatim.
+     * Defaults to `dependencies.map(d => d.path)`. Pass an explicit array to
+     * skip the per-write `.map(...)` and (more importantly) to skip per-hit
+     * post-processing — see `GlobalCache.getResults` for the read-side
+     * payoff. The array becomes a shared reference held by every subsequent
+     * cache hit; callers MUST NOT mutate it. */
+    journey?: Path[]): void;
     /** True once any `argsKey`-style dep has been written. Consumers can use
      * this to skip function-stripping work on the hit path when false. */
     get hasStringDeps(): boolean;

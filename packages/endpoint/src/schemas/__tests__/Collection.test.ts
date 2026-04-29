@@ -49,6 +49,27 @@ const userTodos = new Collection(new schema.Array(Todo), {
   }),
 });
 
+const sharedUserTodos = new Collection(new schema.Array(Todo), {
+  argsKey: ({ userId }: { userId: string }) => ({
+    userId,
+  }),
+  nestKey: (parent: { id: string }) => ({
+    userId: parent.id,
+  }),
+});
+
+class UserWithSharedTodos extends IDEntity {
+  name = '';
+  username = '';
+  email = '';
+  todos: Todo[] = [];
+
+  static key = 'UserWithSharedTodos';
+  static schema = {
+    todos: sharedUserTodos,
+  };
+}
+
 test('key works with custom schema', () => {
   class CustomArray extends PolymorphicSchema {
     declare schema: any;
@@ -160,6 +181,29 @@ describe(`${schema.Collection.name} normalization`, () => {
     //const a: string[] | undefined = state.result;
     // @ts-expect-error
     const b: Record<any, any> | undefined = state.result;
+  });
+
+  test('normalizes the same collection nested and top level', () => {
+    const nestedState = normalize(UserWithSharedTodos, {
+      id: '1',
+      username: 'bob',
+      todos: [{ id: '5', title: 'finish collections' }],
+    });
+    const topLevelState = normalize(
+      sharedUserTodos,
+      [{ id: '10', title: 'top level item', userId: 1 }],
+      [{ userId: '1' }],
+      nestedState,
+    );
+
+    expect(nestedState.result).toBe('1');
+    expect(topLevelState.result).toBe('{"userId":"1"}');
+    expect(
+      nestedState.entities[sharedUserTodos.key]?.['{"userId":"1"}'],
+    ).toEqual(['5']);
+    expect(
+      topLevelState.entities[sharedUserTodos.key]?.['{"userId":"1"}'],
+    ).toEqual(['10']);
   });
 
   test('normalizes already processed entities', () => {
@@ -2022,6 +2066,56 @@ describe(`${schema.Collection.name} denormalization`, () => {
     ).toMatchSnapshot();
   });
 
+  test('same collection denormalizes nested and top level with push propagation', () => {
+    const normalized = normalize(UserWithSharedTodos, {
+      id: '1',
+      username: 'bob',
+      todos: [{ id: '5', title: 'finish collections' }],
+    });
+    const memo = new SimpleMemoCache();
+
+    const todos = memo.denormalize(
+      sharedUserTodos,
+      '{"userId":"1"}',
+      normalized.entities,
+      [{ userId: '1' }],
+    );
+    const user = memo.denormalize(
+      UserWithSharedTodos,
+      normalized.result,
+      normalized.entities,
+      [{ id: '1' }],
+    );
+    expect(user).toBeDefined();
+    expect(user).not.toEqual(expect.any(Symbol));
+    if (typeof user === 'symbol' || !user) return;
+    expect(todos).toBe(user.todos);
+
+    const pushedState = normalize(
+      sharedUserTodos.push,
+      [{ id: '10', title: 'create new items' }],
+      [{ userId: '1' }],
+      normalized,
+    );
+    const pushedTodos = memo.denormalize(
+      sharedUserTodos,
+      '{"userId":"1"}',
+      pushedState.entities,
+      [{ userId: '1' }],
+    );
+    const pushedUser = memo.denormalize(
+      UserWithSharedTodos,
+      normalized.result,
+      pushedState.entities,
+      [{ id: '1' }],
+    );
+    expect(pushedUser).toBeDefined();
+    expect(pushedUser).not.toEqual(expect.any(Symbol));
+    if (typeof pushedUser === 'symbol' || !pushedUser) return;
+    expect(pushedUser.todos.length).toBe(2);
+    expect(pushedTodos).toBe(pushedUser.todos);
+  });
+
   describe('caching', () => {
     const memo = new SimpleMemoCache();
     test('denormalizes nested and top level share referential equality', () => {
@@ -2221,14 +2315,14 @@ describe(`${schema.Collection.name} denormalization`, () => {
     expect(queryKey).toBeUndefined();
   });
 
-  it('should buildQueryKey undefined with nested Collection', () => {
+  it('should buildQueryKey with nested Collection using default argsKey', () => {
     const memo = new MemoCache();
     const queryKey = memo.buildQueryKey(
       User.schema.todos,
       [{ userId: '1' }],
       normalizeNested,
     );
-    expect(queryKey).toBeUndefined();
+    expect(queryKey).toBe('{"userId":"1"}');
   });
 
   it('pk should serialize differently with nested args', () => {

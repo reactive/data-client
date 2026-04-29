@@ -88,14 +88,22 @@ export interface CollectionInterface<
   /**
    * A unique identifier for each Collection
    *
-   * Calls argsKey or nestKey depending on which are specified, and then serializes the result for the pk string.
+   * Calls nestKey when nested in an Entity and available; otherwise calls
+   * argsKey. The resulting object is serialized for the pk string.
    *
    * @param [parent] When normalizing, the object which included the entity
    * @param [key] When normalizing, the key where this entity was found
    * @param [args] ...args sent to Endpoint
+   * @param [parentEntity] Entity class containing this Collection when nested
    * @see https://dataclient.io/docs/api/Collection#pk
    */
-  pk(value: any, parent: any, key: string, args: any[]): string;
+  pk(
+    value: any,
+    parent: any,
+    key: string,
+    args: any[],
+    parentEntity?: any,
+  ): string;
   normalize(
     input: any,
     parent: Parent,
@@ -103,6 +111,7 @@ export interface CollectionInterface<
     args: any[],
     visit: (...args: any) => any,
     delegate: INormalizeDelegate,
+    parentEntity?: any,
   ): string;
 
   /** Creates new instance copying over defined values of arguments

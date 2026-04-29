@@ -63,9 +63,9 @@ export default class CollectionSchema<
   Args extends any[] = DefaultArgs,
   Parent = any,
 > implements Mergeable {
-  declare protected nestKey: (parent: any, key: string) => Record<string, any>;
+  declare protected nestKey?: (parent: any, key: string) => Record<string, any>;
 
-  declare protected argsKey?: (...args: any) => Record<string, any>;
+  declare protected argsKey: (...args: any) => Record<string, any>;
 
   declare readonly schema: S;
 
@@ -123,16 +123,9 @@ export default class CollectionSchema<
   constructor(schema: S, options?: CollectionOptions<Args, Parent>) {
     this.schema =
       Array.isArray(schema) ? (new ArraySchema(schema[0]) as any) : schema;
-    if (!options) {
-      this.argsKey = params => ({ ...params });
-    } else {
-      if ('nestKey' in options) {
-        (this as any).nestKey = options.nestKey;
-      } else if ('argsKey' in options) {
-        this.argsKey = options.argsKey;
-      } else {
-        this.argsKey = params => ({ ...params });
-      }
+    this.argsKey = options?.argsKey ?? (params => ({ ...params }));
+    if (options?.nestKey) {
+      this.nestKey = options.nestKey;
     }
     this.key = keyFromSchema(this.schema);
     if ((options as any)?.nonFilterArgumentKeys) {
@@ -186,9 +179,17 @@ export default class CollectionSchema<
     };
   }
 
-  pk(value: any, parent: any, key: string, args: readonly any[]) {
+  pk(
+    value: any,
+    parent: any,
+    key: string,
+    args: readonly any[],
+    parentEntity?: any,
+  ) {
     const obj =
-      this.argsKey ? this.argsKey(...args) : this.nestKey(parent, key);
+      parentEntity && this.nestKey ?
+        this.nestKey(parent, key)
+      : this.argsKey(...args);
     for (const key in obj) {
       if (['number', 'boolean'].includes(typeof obj[key]))
         obj[key] = `${obj[key]}`;
@@ -205,6 +206,7 @@ export default class CollectionSchema<
     args: any[],
     visit: (...args: any) => any,
     delegate: INormalizeDelegate,
+    parentEntity?: any,
   ): string {
     const normalizedValue = this.schema.normalize(
       input,
@@ -214,7 +216,7 @@ export default class CollectionSchema<
       visit,
       delegate,
     );
-    const id = this.pk(normalizedValue, parent, key, args);
+    const id = this.pk(normalizedValue, parent, key, args, parentEntity);
 
     delegate.mergeEntity(this, id, normalizedValue);
     return id;
@@ -266,11 +268,9 @@ export default class CollectionSchema<
   // >>>>>>>>>>>>>>DENORMALIZE<<<<<<<<<<<<<<
 
   queryKey(args: Args, unvisit: unknown, delegate: IQueryDelegate): any {
-    if (this.argsKey) {
-      const pk = this.pk(undefined, undefined, '', args);
-      // ensure this actually has entity or we shouldn't try to use it in our query
-      if (delegate.getEntity(this.key, pk)) return pk;
-    }
+    const pk = this.pk(undefined, undefined, '', args);
+    // ensure this actually has entity or we shouldn't try to use it in our query
+    if (delegate.getEntity(this.key, pk)) return pk;
   }
 
   declare createIfValid: (value: any) => any | undefined;
@@ -286,40 +286,35 @@ export default class CollectionSchema<
 export type CollectionOptions<
   Args extends any[] = DefaultArgs,
   Parent = any,
-> = (
+> = {
+  /** Defines lookups for Collections nested in other schemas.
+   *
+   * @see https://dataclient.io/rest/api/Collection#nestKey
+   */
+  nestKey?: (parent: Parent, key: string) => Record<string, any>;
+  /** Defines lookups top-level Collections using ...args.
+   *
+   * @see https://dataclient.io/rest/api/Collection#argsKey
+   */
+  argsKey?: (...args: Args) => Record<string, any>;
+} & (
   | {
-      /** Defines lookups for Collections nested in other schemas.
+      /** Sets a default createCollectionFilter for addWith(), push, unshift, and assign.
        *
-       * @see https://dataclient.io/rest/api/Collection#nestKey
+       * @see https://dataclient.io/rest/api/Collection#createcollectionfilter
        */
-      nestKey?: (parent: Parent, key: string) => Record<string, any>;
+      createCollectionFilter?: (
+        ...args: Args
+      ) => (collectionKey: Record<string, string>) => boolean;
     }
   | {
-      /** Defines lookups top-level Collections using ...args.
+      /** Test to determine which arg keys should **not** be used for filtering results.
        *
-       * @see https://dataclient.io/rest/api/Collection#argsKey
+       * @see https://dataclient.io/rest/api/Collection#nonfilterargumentkeys
        */
-      argsKey?: (...args: Args) => Record<string, any>;
+      nonFilterArgumentKeys?: ((key: string) => boolean) | string[] | RegExp;
     }
-) &
-  (
-    | {
-        /** Sets a default createCollectionFilter for addWith(), push, unshift, and assign.
-         *
-         * @see https://dataclient.io/rest/api/Collection#createcollectionfilter
-         */
-        createCollectionFilter?: (
-          ...args: Args
-        ) => (collectionKey: Record<string, string>) => boolean;
-      }
-    | {
-        /** Test to determine which arg keys should **not** be used for filtering results.
-         *
-         * @see https://dataclient.io/rest/api/Collection#nonfilterargumentkeys
-         */
-        nonFilterArgumentKeys?: ((key: string) => boolean) | string[] | RegExp;
-      }
-  );
+);
 
 function derivedProperties(
   collection: CollectionSchema<any, any>,
@@ -362,6 +357,7 @@ function normalizeCreate(
   args: readonly any[],
   visit: ((...args: any) => any) & { creating?: boolean },
   delegate: INormalizeDelegate,
+  _parentEntity?: any,
 ): any {
   if (process.env.NODE_ENV !== 'production') {
     // means 'this is a creation endpoint' - so real PKs are not required
@@ -409,6 +405,7 @@ function CreateMover<C extends CollectionSchema<any, any>>(
         args: readonly any[],
         visit: any,
         delegate: INormalizeDelegate,
+        parentEntity?: any,
       ) {
         return normalizeMove.call(
           this,
@@ -419,6 +416,7 @@ function CreateMover<C extends CollectionSchema<any, any>>(
           args,
           visit,
           delegate,
+          parentEntity,
         );
       },
     ),
@@ -440,6 +438,7 @@ function normalizeMove(
   args: readonly any[],
   visit: ((...args: any) => any) & { creating?: boolean },
   delegate: INormalizeDelegate,
+  _parentEntity?: any,
 ): any {
   const isArray = this.schema instanceof ArraySchema;
   const entitySchema = this.schema.schema;

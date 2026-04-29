@@ -1,3 +1,7 @@
+declare const _default$1: "ffffffff-ffff-ffff-ffff-ffffffffffff";
+
+declare const _default: "00000000-0000-0000-0000-000000000000";
+
 type UUIDTypes<TBuf extends Uint8Array = Uint8Array> = string | TBuf;
 type Version1Options = {
     node?: Uint8Array;
@@ -19,12 +23,9 @@ type Version7Options = {
     seq?: number;
     rng?: () => Uint8Array;
 };
+type NonSharedArrayBuffer = ReturnType<typeof Uint8Array.of>;
 
-declare const _default$1: "ffffffff-ffff-ffff-ffff-ffffffffffff";
-
-declare const _default: "00000000-0000-0000-0000-000000000000";
-
-declare function parse(uuid: string): Uint8Array;
+declare function parse(uuid: string): NonSharedArrayBuffer;
 
 declare function stringify(arr: Uint8Array, offset?: number): string;
 
@@ -32,7 +33,7 @@ declare function v1(options?: Version1Options, buf?: undefined, offset?: number)
 declare function v1<Buf extends Uint8Array = Uint8Array>(options: Version1Options | undefined, buf: Buf, offset?: number): Buf;
 
 declare function v1ToV6(uuid: string): string;
-declare function v1ToV6(uuid: Uint8Array): Uint8Array;
+declare function v1ToV6(uuid: Uint8Array): NonSharedArrayBuffer;
 
 declare function v3(value: string | Uint8Array, namespace: UUIDTypes, buf?: undefined, offset?: number): string;
 declare function v3<TBuf extends Uint8Array = Uint8Array>(value: string | Uint8Array, namespace: UUIDTypes, buf: TBuf, offset?: number): TBuf;
@@ -64,4 +65,4 @@ declare function validate(uuid: unknown): boolean;
 
 declare function version(uuid: string): number;
 
-export { _default$1 as MAX, _default as NIL, type UUIDTypes, type Version1Options, type Version4Options, type Version6Options, type Version7Options, parse, stringify, v1, v1ToV6, v3, v4, v5, v6, v6ToV1, v7, validate, version };
+export { _default$1 as MAX, _default as NIL, type NonSharedArrayBuffer, type UUIDTypes, type Version1Options, type Version4Options, type Version6Options, type Version7Options, parse, stringify, v1, v1ToV6, v3, v4, v5, v6, v6ToV1, v7, validate, version };
