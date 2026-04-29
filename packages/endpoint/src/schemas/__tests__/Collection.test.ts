@@ -73,16 +73,9 @@ class UserWithSharedTodos extends IDEntity {
 test('key works with custom schema', () => {
   class CustomArray extends PolymorphicSchema {
     declare schema: any;
-    normalize(
-      input: any,
-      parent: any,
-      key: any,
-      args: any[],
-      visit: any,
-      snapshot: any,
-    ): any {
+    normalize(input: any, parent: any, key: any, delegate: any): any {
       return input.map((value, index) =>
-        this.normalizeValue(value, parent, key, args, visit),
+        this.normalizeValue(value, parent, key, delegate),
       );
     }
 
@@ -135,14 +128,10 @@ describe(`${schema.Collection.name} normalization`, () => {
 
   test('should throw a custom error if data loads with args of unexpected value', () => {
     function normalizeBad() {
-      userTodos.normalize(
-        [],
-        undefined as any,
-        '',
-        [],
-        () => undefined,
-        {} as any,
-      );
+      userTodos.normalize([], undefined as any, '', {
+        args: [],
+        visit: () => undefined,
+      } as any);
     }
     expect(normalizeBad).toThrowErrorMatchingSnapshot();
   });

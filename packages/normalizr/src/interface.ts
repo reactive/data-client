@@ -24,9 +24,7 @@ export interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
     input: any,
     parent: any,
     key: any,
-    args: any[],
-    visit: (...args: any) => any,
-    delegate: { getEntity: any; setEntity: any },
+    delegate: INormalizeDelegate,
     /** The nearest enclosing entity-like schema (one with `pk`), if any.
      * Tracked automatically by the visit walker. */
     parentEntity?: any,
@@ -98,7 +96,8 @@ export interface EntityTable {
 
 /** Visits next data + schema while recurisvely normalizing */
 export interface Visit {
-  (schema: any, value: any, parent: any, key: any, args: readonly any[]): any;
+  (schema: any, value: any, parent: any, key: any): any;
+  creating?: boolean;
 }
 
 /** Used in denormalize. Lookup to find an entity in the store table */
@@ -160,6 +159,10 @@ export interface IDenormalizeDelegate {
 
 /** Helpers during schema.normalize() */
 export interface INormalizeDelegate {
+  /** Recursive normalize of nested schemas */
+  visit: Visit;
+  /** Raw endpoint args for this normalize call */
+  readonly args: readonly any[];
   /** Action meta-data for this normalize call */
   readonly meta: { fetchedAt: number; date: number; expiresAt: number };
   /** Get all entities for a given schema key */

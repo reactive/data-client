@@ -53,7 +53,12 @@ export default class PolymorphicSchema {
     return Object.values(this.schema).join(';');
   }
 
-  normalizeValue(value: any, parent: any, key: any, args: any[], visit: Visit) {
+  normalizeValue(
+    value: any,
+    parent: any,
+    key: any,
+    delegate: { visit: Visit },
+  ) {
     if (!value) return value;
     const isSingle = this.isSingleSchema;
     const schema =
@@ -79,7 +84,7 @@ Value: ${JSON.stringify(value, undefined, 2)}`,
       }
       return value;
     }
-    const normalizedValue = visit(schema, value, parent, key, args);
+    const normalizedValue = delegate.visit(schema, value, parent, key);
     return (
         isSingle || normalizedValue === undefined || normalizedValue === null
       ) ?

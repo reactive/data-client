@@ -1,5 +1,5 @@
 import PolymorphicSchema from './Polymorphic.js';
-import { IDenormalizeDelegate, Visit } from '../interface.js';
+import { IDenormalizeDelegate, INormalizeDelegate } from '../interface.js';
 
 /**
  * Represents polymorphic values.
@@ -18,8 +18,8 @@ export default class UnionSchema extends PolymorphicSchema {
     super(definition, schemaAttribute);
   }
 
-  normalize(input: any, parent: any, key: any, args: any[], visit: Visit) {
-    return this.normalizeValue(input, parent, key, args, visit);
+  normalize(input: any, parent: any, key: any, delegate: INormalizeDelegate) {
+    return this.normalizeValue(input, parent, key, delegate);
   }
 
   denormalize(input: {}, delegate: IDenormalizeDelegate) {

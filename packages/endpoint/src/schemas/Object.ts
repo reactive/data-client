@@ -6,14 +6,13 @@ export const normalize = (
   input: any,
   parent: any,
   key: any,
-  args: any[],
-  visit: Visit,
+  delegate: { visit: Visit },
 ) => {
   const object = { ...input };
   const keys = Object.keys(schema);
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
-    const value = visit(schema[key], input[key], input, key, args);
+    const value = delegate.visit(schema[key], input[key], input, key);
     if (value === undefined) {
       delete object[key];
     } else {
@@ -84,9 +83,7 @@ export default class ObjectSchema {
       input: any,
       parent: any,
       key: any,
-      args: any[],
-      visit: any,
-      // delegate: any,
+      delegate: { visit: Visit },
     ]
   ) {
     return normalize(this.schema, ...args);

@@ -50,15 +50,8 @@ export default class Lazy<S extends Schema> implements SchemaSimple {
     this.schema = schema;
   }
 
-  normalize(
-    input: any,
-    parent: any,
-    key: any,
-    args: any[],
-    visit: (...args: any) => any,
-    _delegate: any,
-  ): any {
-    return visit(this.schema, input, parent, key, args);
+  normalize(input: any, parent: any, key: any, delegate: any): any {
+    return delegate.visit(this.schema, input, parent, key);
   }
 
   denormalize(input: {}, _delegate: IDenormalizeDelegate): any {

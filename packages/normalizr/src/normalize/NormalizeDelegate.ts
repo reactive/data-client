@@ -21,7 +21,9 @@ export class NormalizeDelegate
     };
   };
 
+  declare readonly args: readonly any[];
   declare readonly meta: MetaEntry;
+  declare visit: INormalizeDelegate['visit'];
   declare checkLoop: (entityKey: string, pk: string, input: object) => boolean;
 
   protected newEntities = new Map<string, Map<string, any>>();
@@ -37,10 +39,12 @@ export class NormalizeDelegate
         };
       };
     },
+    args: readonly any[],
     actionMeta: MetaEntry,
   ) {
     super(state);
     this.entitiesMeta = state.entitiesMeta;
+    this.args = args;
     this.meta = actionMeta;
     this.checkLoop = getCheckLoop();
   }

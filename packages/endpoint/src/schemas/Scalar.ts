@@ -148,11 +148,10 @@ export default class Scalar implements Mergeable {
     input: any,
     parent: any,
     key: any,
-    args: any[],
-    visit: Visit,
     delegate: INormalizeDelegate,
     parentEntity: any,
   ): any {
+    const args = delegate.args;
     const lensValue = this.lensSelector(args);
 
     // Without a lens we cannot derive a retrievable cell key — writing to

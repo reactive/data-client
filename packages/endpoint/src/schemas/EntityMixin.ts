@@ -252,10 +252,10 @@ export default function EntityMixin<TBase extends Constructor>(
       input: any,
       parent: any,
       key: string | undefined,
-      args: readonly any[],
-      visit: Visit,
       delegate: INormalizeDelegate,
     ): any {
+      const args = delegate.args;
+      const visit = delegate.visit;
       const processedEntity = this.process(input, parent, key, args);
       let id: string | number | undefined;
       if (typeof processedEntity === 'undefined') {
@@ -318,7 +318,6 @@ export default function EntityMixin<TBase extends Constructor>(
             processedEntity[key],
             processedEntity,
             key,
-            args,
           );
         }
       }

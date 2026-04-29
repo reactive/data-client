@@ -1,5 +1,5 @@
 import ArraySchema from './Array.js';
-import { IQueryDelegate, Visit } from '../interface.js';
+import { IQueryDelegate } from '../interface.js';
 import {
   Entity,
   EntityInterface,
@@ -24,9 +24,9 @@ export default class AllSchema<
     super(definition, schemaAttribute as any);
   }
 
-  normalize(input: any, parent: any, key: any, args: any[], visit: Visit): any {
+  normalize(input: any, parent: any, key: any, delegate: any): any {
     // we return undefined so we always 'query'
-    super.normalize(input, parent, key, args, visit);
+    super.normalize(input, parent, key, delegate);
   }
 
   queryKey(args: any, unvisit: any, delegate: IQueryDelegate): any {

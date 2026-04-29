@@ -7,11 +7,16 @@ import { IDenormalizeDelegate, Visit } from '../interface.js';
  * @see https://dataclient.io/rest/api/Array
  */
 export default class ArraySchema extends PolymorphicSchema {
-  normalize(input: any, parent: any, key: any, args: any[], visit: Visit): any {
+  normalize(
+    input: any,
+    parent: any,
+    key: any,
+    delegate: { visit: Visit },
+  ): any {
     const values = getValues(input);
 
     return values.map(value =>
-      this.normalizeValue(value, parent, key, args, visit),
+      this.normalizeValue(value, parent, key, delegate),
     );
   }
 

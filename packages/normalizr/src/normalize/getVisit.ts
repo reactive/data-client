@@ -11,13 +11,7 @@ export const getVisit = (delegate: INormalizeDelegate) => {
   // inlined call sites, deoptimizing the normalize hot path.
   let currentEntity: any = undefined;
 
-  const visit = (
-    schema: any,
-    value: any,
-    parent: any,
-    key: any,
-    args: readonly any[],
-  ) => {
+  const visit = (schema: any, value: any, parent: any, key: any) => {
     if (value == null || !schema) return value;
 
     // Primitive value: most schemas just pass it through. Two exceptions:
@@ -35,15 +29,7 @@ export const getVisit = (delegate: INormalizeDelegate) => {
     if (typeof schema.normalize === 'function') {
       const prev = currentEntity;
       if (schema.pk) currentEntity = schema;
-      const result = schema.normalize(
-        value,
-        parent,
-        key,
-        args,
-        visit,
-        delegate,
-        prev,
-      );
+      const result = schema.normalize(value, parent, key, delegate, prev);
       currentEntity = prev;
       return result;
     }
@@ -51,7 +37,8 @@ export const getVisit = (delegate: INormalizeDelegate) => {
     if (typeof schema !== 'object') return value;
 
     const method = Array.isArray(schema) ? arrayNormalize : objectNormalize;
-    return method(schema, value, parent, key, args, visit);
+    return method(schema, value, parent, key, delegate);
   };
+  delegate.visit = visit;
   return visit;
 };

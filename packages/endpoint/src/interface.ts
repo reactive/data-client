@@ -30,9 +30,7 @@ export interface SchemaSimple<T = any, Args extends readonly any[] = any> {
    * @param input        The value being normalized.
    * @param parent       The parent object/array/dictionary containing `input`.
    * @param key          The key under which `input` lives on `parent`.
-   * @param args         The endpoint args for this normalize call.
-   * @param visit        Recursive visitor for nested schemas.
-   * @param delegate     Store accessors for reading/writing entities.
+   * @param delegate     Recursive visitor, endpoint args, and store accessors.
    * @param parentEntity Nearest enclosing entity-like schema (one with `pk`),
    *                     tracked automatically by the visit walker. `Scalar`
    *                     uses this to discover its entity binding.
@@ -41,9 +39,7 @@ export interface SchemaSimple<T = any, Args extends readonly any[] = any> {
     input: any,
     parent: any,
     key: any,
-    args: any[],
-    visit: (...args: any) => any,
-    delegate: { getEntity: any; setEntity: any },
+    delegate: INormalizeDelegate,
     parentEntity?: any,
   ): any;
   denormalize(input: {}, delegate: IDenormalizeDelegate): T;
@@ -130,14 +126,13 @@ export interface EntityTable {
  *               Schemas that recurse via `visit` should pass their own
  *               `input` (or the surrounding container) here.
  * @param key    The key under which `value` lives on `parent`.
- * @param args   The endpoint args for this normalize call.
  *
  * The walker internally tracks the nearest enclosing entity-like schema and
  * forwards it to `schema.normalize` as a trailing `parentEntity` argument —
- * see `SchemaSimple.normalize`. Consumers of `visit` don't pass it.
+ * see `SchemaSimple.normalize`.
  */
 export interface Visit {
-  (schema: any, value: any, parent: any, key: any, args: readonly any[]): any;
+  (schema: any, value: any, parent: any, key: any): any;
   creating?: boolean;
 }
 
@@ -199,6 +194,10 @@ export interface IDenormalizeDelegate {
 
 /** Helpers during schema.normalize() */
 export interface INormalizeDelegate {
+  /** Recursive normalize of nested schemas */
+  visit: Visit;
+  /** Raw endpoint args for this normalize call */
+  readonly args: readonly any[];
   /** Action meta-data for this normalize call */
   readonly meta: { fetchedAt: number; date: number; expiresAt: number };
   /** Get all entities for a given schema key */

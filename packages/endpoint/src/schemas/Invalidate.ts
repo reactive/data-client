@@ -56,10 +56,9 @@ export default class Invalidate<
     input: any,
     parent: any,
     key: string | undefined,
-    args: any[],
-    visit: (...args: any) => any,
     delegate: INormalizeDelegate,
   ): string | { id: string; schema: string } {
+    const args = delegate.args;
     const entitySchema = this.inferSchema(input, parent, key);
     if (!entitySchema) return input;
 

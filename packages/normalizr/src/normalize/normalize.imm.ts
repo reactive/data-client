@@ -87,10 +87,11 @@ See https://dataclient.io/rest/api/RestEndpoint#parseResponse for more informati
 
   const delegate = new ImmNormalizeDelegate(
     { entities, indexes, entitiesMeta },
+    args,
     meta,
   );
   const visit = getVisit(delegate);
-  const result = visit(schema, input, input, undefined, args);
+  const result = visit(schema, input, input, undefined);
 
   return {
     result,

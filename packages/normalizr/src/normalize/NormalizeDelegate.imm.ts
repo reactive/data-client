@@ -24,7 +24,9 @@ export class ImmNormalizeDelegate
   declare indexes: ImmutableJSMutableTable;
   declare entitiesMeta: ImmutableJSMutableTable;
 
+  declare readonly args: readonly any[];
   declare readonly meta: { fetchedAt: number; date: number; expiresAt: number };
+  declare visit: any;
   declare checkLoop: (entityKey: string, pk: string, input: object) => boolean;
 
   protected newEntities = new Map<string, Map<string, any>>();
@@ -36,6 +38,7 @@ export class ImmNormalizeDelegate
       indexes: ImmutableJSMutableTable;
       entitiesMeta: ImmutableJSMutableTable;
     },
+    args: readonly any[],
     actionMeta: { fetchedAt: number; date: number; expiresAt: number },
   ) {
     super(
@@ -45,6 +48,7 @@ export class ImmNormalizeDelegate
       },
     );
     this.entitiesMeta = state.entitiesMeta;
+    this.args = args;
     this.meta = actionMeta;
     this.checkLoop = getCheckLoop();
   }

@@ -108,8 +108,6 @@ export interface CollectionInterface<
     input: any,
     parent: Parent,
     key: string,
-    args: any[],
-    visit: (...args: any) => any,
     delegate: INormalizeDelegate,
     parentEntity?: any,
   ): string;
@@ -247,6 +245,9 @@ export type SchemaFunction<K = string, Args = any> = (
   parent: any,
   key: string,
 ) => K;
+export type SchemaAttribute<K = string, Args = any> =
+  | K
+  | SchemaFunction<K, Args>;
 export type MergeFunction = (entityA: any, entityB: any) => any;
 export type SchemaAttributeFunction<S extends Schema> = (
   value: any,
