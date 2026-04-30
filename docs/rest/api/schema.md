@@ -258,6 +258,94 @@ interface Queryable {
 }
 ```
 
+## Custom Schema interface {#custom-schema}
+
+Custom schema implementations can participate in normalization and denormalization
+by implementing the same methods as built-in schemas.
+
+### normalize(input, parent, key, delegate, parentEntity?) {#schema-normalize}
+
+`normalize()` receives the value at the current schema node and returns the
+normalized representation to store in the surrounding result. Use
+`delegate.visit()` to recursively normalize nested schemas and `delegate.args`
+to read the endpoint args for the current normalize call.
+
+```ts
+import type { INormalizeDelegate } from '@data-client/endpoint';
+
+class Wrapper {
+  schema = Article;
+
+  normalize(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    delegate: INormalizeDelegate,
+  ) {
+    const normalized = delegate.visit(this.schema, input.data, input, 'data');
+    return {
+      ...input,
+      data: normalized,
+      requestId: delegate.args[0]?.requestId,
+    };
+  }
+}
+```
+
+#### INormalizeDelegate
+
+```ts
+interface INormalizeDelegate {
+  visit(schema: any, input: any, parent: any, key: any): any;
+  readonly args: readonly any[];
+  readonly meta: { fetchedAt: number; date: number; expiresAt: number };
+  getEntities(key: string): EntitiesInterface | undefined;
+  getEntity(key: string, pk: string): any;
+  mergeEntity(schema: Mergeable, pk: string, incomingEntity: any): void;
+  setEntity(schema: { key: string }, pk: string, entity: any): void;
+  invalidate(schema: { key: string }, pk: string): void;
+  checkLoop(key: string, pk: string, input: object): boolean;
+}
+```
+
+`parentEntity` is the nearest enclosing entity-like schema, when present. Most
+custom schemas can ignore it; schemas that need their containing entity context
+can use it to derive related storage keys.
+
+:::note
+
+Before v0.18, `normalize()` received `args` and `visit` as separate positional
+parameters: `(input, parent, key, args, visit, delegate, parentEntity?)`. Use
+`delegate.args` and `delegate.visit()` instead.
+
+:::
+
+### denormalize(input, delegate) {#schema-denormalize}
+
+`denormalize()` receives the normalized input and returns the denormalized value.
+Use `delegate.unvisit()` for nested schemas and `delegate.args` for endpoint
+args.
+
+```ts
+import type { IDenormalizeDelegate } from '@data-client/endpoint';
+
+class Wrapper {
+  schema = Article;
+
+  denormalize(input: any, delegate: IDenormalizeDelegate) {
+    const value = delegate.unvisit(this.schema, input.data);
+    return {
+      ...input,
+      data: value,
+      requestId: delegate.args[0]?.requestId,
+    };
+  }
+}
+```
+
+If denormalized output changes based on args, register that cache dimension with
+`delegate.argsKey(fn)`. See [Scalar](./Scalar.md) for an args-dependent schema.
+
 ## Schema Overview
 
 <SchemaTable/>
