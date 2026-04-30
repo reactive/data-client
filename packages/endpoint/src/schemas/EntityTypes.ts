@@ -1,6 +1,7 @@
 import type {
   Schema,
   IDenormalizeDelegate,
+  INormalizeDelegate,
   IQueryDelegate,
 } from '../interface.js';
 import { AbstractInstanceType } from '../normal.js';
