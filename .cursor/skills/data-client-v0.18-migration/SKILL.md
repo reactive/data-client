@@ -5,7 +5,7 @@ description: Migrate custom @data-client schemas to v0.18 delegate signatures: d
 
 # @data-client v0.18 Migration
 
-Applies to anyone implementing a custom [`Schema`](https://dataclient.io/docs/api/Schema) — `SchemaSimple`, `SchemaClass`, polymorphic wrappers, or types that subclass `EntityMixin` directly. Built-in schemas (`Entity`, `resource()`, `Collection`, `Union`, `Values`, `Array`, `Object`, `Query`, `Invalidate`, `Lazy`) are migrated by the library.
+Applies to anyone implementing a custom [`Schema`](https://dataclient.io/rest/api/CustomSchema) — `SchemaSimple`, `SchemaClass`, polymorphic wrappers, or types that subclass `EntityMixin` directly. Built-in schemas (`Entity`, `resource()`, `Collection`, `Union`, `Values`, `Array`, `Object`, `Query`, `Invalidate`, `Lazy`) are migrated by the library.
 
 The automated codemod handles the common cases:
 
@@ -54,7 +54,7 @@ normalize(input, parent, key, delegate) {
 }
 ```
 
-Full delegate surface ([`IDenormalizeDelegate`](https://dataclient.io/docs/api/Schema)):
+Full delegate surface ([`IDenormalizeDelegate`](https://dataclient.io/rest/api/CustomSchema)):
 
 ```ts
 interface IDenormalizeDelegate {
@@ -167,7 +167,7 @@ On types: **`interface { denormalize(...) }`** uses the literal key `denormalize
 
 ### args-dependent output (manual)
 
-The codemod will rewrite `args` to `delegate.args`, but if your schema's *return value* depends on those args, you must also register an [`argsKey`](https://dataclient.io/docs/api/Schema) so memoization invalidates correctly. The codemod cannot do this for you.
+The codemod will rewrite `args` to `delegate.args`, but if your schema's *return value* depends on those args, you must also register an [`argsKey`](https://dataclient.io/rest/api/CustomSchema) so memoization invalidates correctly. The codemod cannot do this for you.
 
 `argsKey` returns `fn(args)` for convenience **and** the function reference doubles as the cache path key on `WeakDependencyMap` — so `fn` must be **referentially stable**. Bind it in the constructor or at module scope; an inline arrow creates a new reference per call and misses the cache every time.
 
@@ -236,4 +236,4 @@ Search for these patterns in your codebase:
 
 - Changesets: `.changeset/denormalize-delegate.md`, `.changeset/normalize-delegate.md`
 - Built-in schema diffs: `packages/endpoint/src/schemas/{Array,Object,Values,Union,Query,Invalidate,Lazy,Collection}.ts`
-- New interfaces: [`IDenormalizeDelegate`](https://dataclient.io/docs/api/Schema), [`INormalizeDelegate`](https://dataclient.io/docs/api/Schema)
+- New interfaces: [`IDenormalizeDelegate`](https://dataclient.io/rest/api/CustomSchema), [`INormalizeDelegate`](https://dataclient.io/rest/api/CustomSchema)

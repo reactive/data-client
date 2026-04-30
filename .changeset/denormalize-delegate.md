@@ -23,7 +23,7 @@ denormalize(input, delegate) {
 }
 ```
 
-The new [`IDenormalizeDelegate`](https://dataclient.io/docs/api/Schema)
+The new [`IDenormalizeDelegate`](https://dataclient.io/rest/api/CustomSchema)
 exposes `unvisit`, `args`, and a new `argsKey(fn)` helper that registers
 a memoization dimension when output varies with endpoint args. Reading
 `delegate.args` directly does *not* contribute to cache invalidation —
