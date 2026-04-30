@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1777469968943,
+  "lastUpdate": 1777556675813,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -3671,6 +3671,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 149.25,
             "range": "± 7.7%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "396d163e6f4991818519ec33d903a85437483dfd",
+          "message": "Move normalize args and visit into delegate (#3934)\n\n* Move normalize args and visit into delegate\n\n* Document normalize delegate migration\n\n* Update v0.18 normalize migration codemod\n\n* Fix normalize delegate entity type import\n\n* Fix normalize delegate type validation\n\n* Add normalize changeset migration example\n\n* docs: tighten v0.18 migration skill and anchor Collection section\n\n- Document codemod import gate, class-field/const gaps, and TS key rules\n- Correct denormalize type matching (interface method vs declare/property)\n- Expand skipped cases; shorten Collection cleanup with blog deep link\n- Add stable blog anchor for Collection consolidation heading\n\n* docs: move custom schema API to dedicated page\n\n* docs: align custom schema page structure",
+          "timestamp": "2026-04-30T09:41:11-04:00",
+          "tree_id": "ce0d76e53817a75bf328e746a04a88d283966c6e",
+          "url": "https://github.com/reactive/data-client/commit/396d163e6f4991818519ec33d903a85437483dfd"
+        },
+        "date": 1777556672797,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 131.58,
+            "range": "± 3.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 38.84,
+            "range": "± 6.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 333.33,
+            "range": "± 9.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 322.58,
+            "range": "± 8.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 41.75,
+            "range": "± 8.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 274.02,
+            "range": "± 6.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 270.27,
+            "range": "± 6.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 7.13,
+            "range": "± 7.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 71.18,
+            "range": "± 14.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 35.72,
+            "range": "± 4.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 202.04,
+            "range": "± 7.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 263.16,
+            "range": "± 6.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 163.93,
+            "range": "± 9.6%",
             "unit": "ops/s"
           }
         ]
