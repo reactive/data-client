@@ -329,11 +329,11 @@ describe('normalize', () => {
         return this.uuid;
       }
 
-      static normalize(input, parent, key, args, visit, delegate) {
+      static normalize(input, parent, key, delegate) {
         const entity = { ...input };
         Object.keys(this.schema).forEach(key => {
           const schema = this.schema[key];
-          entity[key] = visit(schema, input[key], input, key, args);
+          entity[key] = delegate.visit(schema, input[key], input, key);
         });
         delegate.mergeEntity(this, this.pk(entity), entity);
         return {

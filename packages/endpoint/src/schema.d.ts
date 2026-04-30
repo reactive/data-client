@@ -57,7 +57,7 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
   constructor(
     definition: S,
     schemaAttribute?: S extends EntityMap<infer T> ?
-      string | SchemaFunction<keyof S>
+      keyof T | SchemaFunction<keyof S>
     : undefined,
   );
 
@@ -108,7 +108,7 @@ export class All<
   constructor(
     definition: S,
     schemaAttribute?: S extends EntityMap<infer T> ?
-      string | SchemaFunction<keyof S>
+      keyof T | SchemaFunction<keyof S>
     : undefined,
   );
 

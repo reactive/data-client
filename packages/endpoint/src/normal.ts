@@ -118,5 +118,5 @@ export type NormalizedSchema<E, R> = {
 };
 
 export interface EntityMap<T = any> {
-  readonly [k: string]: any;
+  readonly [k: string]: EntityInterface<T>;
 }

@@ -3,6 +3,7 @@ import type {
   SchemaSimple,
   Schema,
   PolymorphicInterface,
+  IDenormalizeDelegate,
   INormalizeDelegate,
 } from './interface.js';
 import type { EntityMap } from './normal.js';
@@ -181,8 +182,7 @@ export interface CollectionInterface<
   createIfValid: (value: any) => any | undefined;
   denormalize(
     input: any,
-    args: readonly any[],
-    unvisit: (schema: any, input: any) => any,
+    delegate: IDenormalizeDelegate,
   ): ReturnType<S['denormalize']>;
 
   _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;

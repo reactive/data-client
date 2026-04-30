@@ -270,7 +270,9 @@ export default class CollectionSchema<
   denormalize(
     input: any,
     delegate: IDenormalizeDelegate,
-  ): ReturnType<S['denormalize']> {
+  ): ReturnType<S['denormalize']>;
+
+  denormalize(input: any, delegate: IDenormalizeDelegate): any {
     return this.schema.denormalize(input, delegate) as any;
   }
 }
