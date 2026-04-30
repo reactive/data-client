@@ -151,6 +151,182 @@ class Lazy {
     );
   });
 
+  describe('class normalize methods', () => {
+    defineInlineTest(
+      transform,
+      { path: 'NormalizeSchema.ts' },
+      `
+import { Entity } from '@data-client/rest';
+
+class Wrapper {
+  normalize(
+    input: any,
+    parent: any,
+    key: string,
+    args: readonly any[],
+    visit: any,
+    delegate: any,
+  ) {
+    const value = visit(this.schema, input.value, input, 'value', args);
+    return this.process(value, ...args);
+  }
+}
+      `,
+      `
+import { Entity, type INormalizeDelegate } from '@data-client/rest';
+
+class Wrapper {
+  normalize(input: any, parent: any, key: string, delegate: INormalizeDelegate) {
+    const value = delegate.visit(this.schema, input.value, input, 'value');
+    return this.process(value, ...delegate.args);
+  }
+}
+      `,
+      'rewrites class normalize and adds INormalizeDelegate import',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'NormalizeSchema.js' },
+      `
+import { Entity } from '@data-client/rest';
+
+class Wrapper {
+  normalize(input, parent, key, args, visit, delegate) {
+    return visit(this.schema, input, parent, key, args);
+  }
+}
+      `,
+      `
+import { Entity } from '@data-client/rest';
+
+class Wrapper {
+  normalize(input, parent, key, delegate) {
+    return delegate.visit(this.schema, input, parent, key);
+  }
+}
+      `,
+      'rewrites class normalize without adding type import in JS files',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'NormalizePassThrough.ts' },
+      `
+import { Entity } from '@data-client/rest';
+
+class Wrapper {
+  normalize(input: any, parent: any, key: string, args: readonly any[], visit: any, snapshot: any, parentEntity?: any) {
+    return this.inner.normalize(input, parent, key, args, visit, snapshot, parentEntity);
+  }
+}
+      `,
+      `
+import { Entity, type INormalizeDelegate } from '@data-client/rest';
+
+class Wrapper {
+  normalize(
+    input: any,
+    parent: any,
+    key: string,
+    snapshot: INormalizeDelegate,
+    parentEntity?: any
+  ) {
+    return this.inner.normalize(input, parent, key, snapshot, parentEntity);
+  }
+}
+      `,
+      'rewrites pass-through .normalize(..., args, visit, delegate) calls',
+    );
+  });
+
+  describe('normalize TypeScript signatures', () => {
+    defineInlineTest(
+      transform,
+      { path: 'normalize-iface.ts' },
+      `
+import { Entity } from '@data-client/rest';
+
+interface MySchema {
+  normalize(input: any, parent: any, key: string, args: readonly any[], visit: (s: any, v: any, p: any, k: any, a: readonly any[]) => any, delegate: any, parentEntity?: any): any;
+}
+      `,
+      `
+import { Entity, type INormalizeDelegate } from '@data-client/rest';
+
+interface MySchema {
+  normalize(
+    input: any,
+    parent: any,
+    key: string,
+    delegate: INormalizeDelegate,
+    parentEntity?: any
+  ): any
+}
+      `,
+      'rewrites TS interface normalize method signature',
+    );
+
+    defineInlineTest(
+      transform,
+      { path: 'normalize-field.ts' },
+      `
+import { Entity } from '@data-client/rest';
+
+class Wrapper {
+  declare normalize: (
+    input: any,
+    parent: any,
+    key: string,
+    args: readonly any[],
+    visit: (s: any, v: any) => any,
+    delegate: any,
+  ) => any;
+}
+      `,
+      `
+import { Entity, type INormalizeDelegate } from '@data-client/rest';
+
+class Wrapper {
+  declare normalize: (input: any, parent: any, key: string, delegate: INormalizeDelegate) => any;
+}
+      `,
+      'rewrites class field with normalize TSFunctionType annotation',
+    );
+  });
+
+  describe('combined schema methods', () => {
+    defineInlineTest(
+      transform,
+      { path: 'Combined.ts' },
+      `
+import { Entity } from '@data-client/rest';
+
+class Wrapper {
+  normalize(input: any, parent: any, key: string, args: readonly any[], visit: any, delegate: any) {
+    return visit(this.schema, input, parent, key, args);
+  }
+  denormalize(input: any, args: readonly any[], unvisit: any) {
+    return unvisit(this.schema, input);
+  }
+}
+      `,
+      `
+import { Entity, type IDenormalizeDelegate, type INormalizeDelegate } from '@data-client/rest';
+
+class Wrapper {
+  normalize(input: any, parent: any, key: string, delegate: INormalizeDelegate) {
+    return delegate.visit(this.schema, input, parent, key);
+  }
+  denormalize(input: any, delegate: IDenormalizeDelegate) {
+    return delegate.unvisit(this.schema, input);
+  }
+}
+      `,
+      'adds both normalize and denormalize delegate imports',
+    );
+  });
+
   describe('safety', () => {
     defineInlineTest(
       transform,

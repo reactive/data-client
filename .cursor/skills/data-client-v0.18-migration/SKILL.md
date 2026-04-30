@@ -1,6 +1,6 @@
 ---
 name: data-client-v0.18-migration
-description: Migrate custom @data-client schemas from the v0.18 denormalize(input, args, unvisit) signature to the v0.18 denormalize(input, delegate) signature. Use when upgrading to v0.18, when seeing TS errors about unvisit not being callable, or when adapting custom Schema implementations.
+description: Migrate custom @data-client schemas to v0.18 delegate signatures: denormalize(input, args, unvisit) -> denormalize(input, delegate) and normalize(input, parent, key, args, visit, delegate) -> normalize(input, parent, key, delegate). Use when upgrading to v0.18, seeing TS errors about unvisit/visit/args signatures, or adapting custom Schema implementations.
 ---
 
 # @data-client v0.18 Migration
@@ -28,6 +28,22 @@ denormalize(input, args, unvisit) {
 // after
 denormalize(input, delegate) {
   return delegate.unvisit(this.schema, input);
+}
+```
+
+`Schema.normalize()` also takes a delegate, matching the denormalize shape. The
+old signature was `(input, parent, key, args, visit, delegate, parentEntity?)`;
+the new signature is `(input, parent, key, delegate, parentEntity?)`.
+
+```ts
+// before
+normalize(input, parent, key, args, visit, delegate) {
+  return visit(this.schema, input, parent, key, args);
+}
+
+// after
+normalize(input, parent, key, delegate) {
+  return delegate.visit(this.schema, input, parent, key);
 }
 ```
 
@@ -69,6 +85,38 @@ class Wrapper {
 }
 ```
 
+### Normalize methods
+
+`(input, parent, key, args, visit, delegate, parentEntity?)` →
+`(input, parent, key, delegate, parentEntity?)`. Inside the body:
+
+- `visit(schema, value, parent, key, args)` → `delegate.visit(schema, value, parent, key)`
+- bare `args` references (including spreads) → `delegate.args`
+- pass-through `someSchema.normalize(input, parent, key, args, visit, delegate)` →
+  `someSchema.normalize(input, parent, key, delegate)`
+
+```ts
+// before
+class Wrapper {
+  normalize(input: {}, parent: any, key: string, args: readonly any[], visit: any, delegate: any) {
+    const value = visit(this.schema, input, parent, key, args);
+    return this.process(value, ...args);
+  }
+}
+
+// after
+class Wrapper {
+  normalize(input: {}, parent: any, key: string, delegate: INormalizeDelegate) {
+    const value = delegate.visit(this.schema, input, parent, key);
+    return this.process(value, ...delegate.args);
+  }
+}
+```
+
+If your normalize implementation used a different name for the existing delegate
+parameter, such as `snapshot`, the codemod keeps that name and rewrites
+`args`/`visit` to `snapshot.args` / `snapshot.visit`.
+
 ### TypeScript signatures
 
 Update method signatures and `declare` fields the same way:
@@ -77,6 +125,7 @@ Update method signatures and `declare` fields the same way:
 // before
 interface MySchema {
   denormalize(input: {}, args: readonly any[], unvisit: (s: any, v: any) => any): any;
+  normalize(input: {}, parent: any, key: any, args: readonly any[], visit: (s: any, v: any, p: any, k: any, a: readonly any[]) => any, delegate: any): any;
 }
 
 class Lazy {
@@ -87,14 +136,19 @@ class Lazy {
   ) => any;
 }
 
-// after — the codemod adds `IDenormalizeDelegate` to your existing
+// after — the codemod adds delegate types to your existing
 // `@data-client/{rest,endpoint,normalizr,...}` import as an inline
-// `type` specifier. Only when no such import exists does it create a
-// new `import type { IDenormalizeDelegate } from '@data-client/endpoint'`.
-import { Entity, type IDenormalizeDelegate } from '@data-client/rest';
+// `type` specifier. Only when no such import exists does it create
+// new `import type { ... } from '@data-client/endpoint'` lines.
+import {
+  Entity,
+  type IDenormalizeDelegate,
+  type INormalizeDelegate,
+} from '@data-client/rest';
 
 interface MySchema {
   denormalize(input: {}, delegate: IDenormalizeDelegate): any;
+  normalize(input: {}, parent: any, key: any, delegate: INormalizeDelegate): any;
 }
 
 class Lazy {
@@ -102,7 +156,9 @@ class Lazy {
 }
 ```
 
-The codemod matches `denormalize`, `_denormalize`, and `_denormalizeNullable` on type declarations.
+The codemod matches `denormalize`, `_denormalize`, and `_denormalizeNullable`
+on type declarations. It also matches `normalize` method/property signatures
+with the old 6- or 7-argument form.
 
 ### args-dependent output (manual)
 
@@ -138,13 +194,17 @@ See [`Scalar`](https://dataclient.io/rest/api/Scalar) for a real-world example.
 These are rare; do them by hand:
 
 - **Computed/string-keyed methods**: only literal `denormalize` keys are matched.
+- **Computed/string-keyed normalize methods**: only literal `normalize` keys are matched.
 - **Methods reassigned dynamically** (`obj.denormalize = function(input, args, unvisit) { ... }`).
+- **Normalize methods reassigned dynamically** (`obj.normalize = function(input, parent, key, args, visit, delegate) { ... }`).
 - **Custom helper functions** that wrap `(args, unvisit)` and are passed around — you'll need to update both the helper and its callers.
 - **`argsKey` registration** for schemas whose output varies with `args` (see above).
 
-## New (additive, no migration needed)
+## New normalize context
 
-`Schema.normalize()` and the `visit()` callback gain an optional trailing `parentEntity` parameter — the nearest enclosing entity-like schema, tracked automatically by the visit walker. Existing schemas don't need changes; new schemas can opt in.
+`Schema.normalize()` keeps the optional trailing `parentEntity` parameter — the
+nearest enclosing entity-like schema, tracked automatically by the visit walker.
+Existing schemas that use it should keep it after the delegate parameter.
 
 ### Optional Collection cleanup
 
@@ -189,13 +249,17 @@ class User extends Entity {
 Search for these patterns in your codebase:
 
 - `denormalize(input` followed by 3 params — both class methods and bare functions
+- `normalize(input` followed by `args, visit, delegate` params
 - `unvisit(` calls inside a `denormalize` body
+- `visit(` calls inside a `normalize` body
 - Spread `...args` inside a `denormalize` body
+- Spread `...args` inside a `normalize` body
 - TS interfaces / `declare` fields with the 3-param signature
+- TS interfaces / `declare` fields with the old normalize signature
 - Custom `Schema` / `SchemaClass` / `SchemaSimple` implementations
 
 ## Reference
 
-- Changeset: `.changeset/denormalize-delegate.md`
+- Changesets: `.changeset/denormalize-delegate.md`, `.changeset/normalize-delegate.md`
 - Built-in schema diffs: `packages/endpoint/src/schemas/{Array,Object,Values,Union,Query,Invalidate,Lazy,Collection}.ts`
-- New interface: [`IDenormalizeDelegate`](https://dataclient.io/docs/api/Schema)
+- New interfaces: [`IDenormalizeDelegate`](https://dataclient.io/docs/api/Schema), [`INormalizeDelegate`](https://dataclient.io/docs/api/Schema)
