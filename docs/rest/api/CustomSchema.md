@@ -1,19 +1,61 @@
 ---
-title: Custom Schema
+title: Custom Schema - Define data processing protocols
 sidebar_label: Custom Schema
 description: Interfaces needed to define custom schemas for normalization, denormalization, and query keys.
 ---
 
-Custom schemas participate in normalization and denormalization by implementing
-the methods normalizr calls while walking a schema tree. Most applications should
-prefer built-in schemas like [Entity](./Entity.md), [Collection](./Collection.md),
-[Union](./Union.md), and [Values](./Values.md); use this page when building your
-own schema type.
+# Custom Schema
+
+Custom schemas participate in normalization, denormalization, and query key
+building by implementing the methods normalizr calls while walking a schema tree.
+
+Most applications should prefer built-in schemas like [Entity](./Entity.md),
+[Collection](./Collection.md), [Union](./Union.md), and [Values](./Values.md).
+Use this page when building your own schema type.
 
 The interfaces below list the properties normalizr itself reads. Schema-specific
 APIs, such as reordering hooks on [Collection](./Collection.md), are not included.
 
-## Minimal schema
+## Usage
+
+This custom schema wraps another schema under a `data` field while preserving the
+rest of the object.
+
+```ts
+import type {
+  IDenormalizeDelegate,
+  INormalizeDelegate,
+} from '@data-client/endpoint';
+
+class DataWrapper {
+  constructor(private schema: any) {}
+
+  normalize(
+    input: any,
+    parent: any,
+    key: string | undefined,
+    delegate: INormalizeDelegate,
+  ) {
+    return {
+      ...input,
+      data: delegate.visit(this.schema, input.data, input, 'data'),
+    };
+  }
+
+  denormalize(input: any, delegate: IDenormalizeDelegate) {
+    return {
+      ...input,
+      data: delegate.unvisit(this.schema, input.data),
+    };
+  }
+}
+```
+
+Use `delegate.visit()` to recursively normalize nested schemas and
+`delegate.unvisit()` to recursively denormalize them. `delegate.args` exposes the
+endpoint args for the current operation.
+
+## Interfaces
 
 Any object with `normalize()`, `denormalize()`, or `queryKey()` can be used as a
 schema node. Plain arrays and objects are also schemas.
@@ -30,7 +72,11 @@ type Schema =
 type Serializable<T extends { toJSON(): string } = { toJSON(): string }> = (
   value: any,
 ) => T;
+```
 
+### SchemaSimple {#schemasimple}
+
+```ts
 interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
   normalize(
     input: any,
@@ -49,11 +95,11 @@ interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
 ```
 
 `normalize()` receives the value at the current schema node and returns the
-normalized representation stored in the surrounding result. Use `delegate.visit()`
-to recursively normalize nested schemas.
+normalized representation stored in the surrounding result. `parentEntity` is the
+nearest enclosing entity-like schema, when present. Most custom schemas can
+ignore it.
 
-`denormalize()` receives normalized input and returns the denormalized value. Use
-`delegate.unvisit()` for nested schemas.
+`denormalize()` receives normalized input and returns the denormalized value.
 
 `queryKey()` computes the normalized key used to read from the store without
 fetching. It is only needed for schemas that can be read directly with
@@ -96,8 +142,9 @@ interface MetaEntry {
 }
 ```
 
-`parentEntity` in `SchemaSimple.normalize()` is the nearest enclosing entity-like
-schema, when present. Most custom schemas can ignore it.
+Use `mergeEntity()` when updating an entity-like schema with merge lifecycles. Use
+`setEntity()` when the incoming value should overwrite previous normalized data.
+Use `invalidate()` when the schema represents an invalid entity result.
 
 ## Denormalization delegate
 
@@ -157,9 +204,9 @@ interface GetIndex {
 
 ## Entity-like schemas
 
-Normalizr treats a schema as entity-like when it has a `pk` property. Entity-like
-schemas are stored by `key` and primary key, denormalized through entity caches,
-and tracked for cycle detection.
+Normalizr treats a schema as entity-like when it has a `pk` property.
+Entity-like schemas are stored by `key` and primary key, denormalized through
+entity caches, and tracked for cycle detection.
 
 ```ts
 interface EntityInterface<T = any> extends SchemaSimple {
@@ -200,34 +247,9 @@ interface Mergeable {
 `maxEntityDepth` limits recursive denormalization depth for very deep entity
 graphs.
 
-## Example
+## Related
 
-```ts
-import type {
-  IDenormalizeDelegate,
-  INormalizeDelegate,
-} from '@data-client/endpoint';
-
-class DataWrapper {
-  constructor(private schema: any) {}
-
-  normalize(
-    input: any,
-    parent: any,
-    key: string | undefined,
-    delegate: INormalizeDelegate,
-  ) {
-    return {
-      ...input,
-      data: delegate.visit(this.schema, input.data, input, 'data'),
-    };
-  }
-
-  denormalize(input: any, delegate: IDenormalizeDelegate) {
-    return {
-      ...input,
-      data: delegate.unvisit(this.schema, input.data),
-    };
-  }
-}
-```
+- [Thinking in Schemas](./schema.md)
+- [Entity](./Entity.md)
+- [Collection](./Collection.md)
+- [Scalar](./Scalar.md)
