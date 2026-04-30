@@ -13,7 +13,14 @@ The automated codemod handles the common cases:
 npx jscodeshift -t https://dataclient.io/codemods/v0.18.js --extensions=ts,tsx,js,jsx src/
 ```
 
-This skill describes what it does and how to handle the cases it can't.
+## Codemod prerequisites / limits
+
+- **Edits only run in files that already import `@data-client/*`** (any subpath). If the codemod appears to do nothing, add such an import (or migrate that file by hand).
+- **`denormalize` / `normalize` as class fields** — e.g. `denormalize = (input, args, unvisit) => { ... }` — are **not** transformed; use a `denormalize(...) { }` method (or rewrite manually).
+- **TS interface method signatures** — only the key `denormalize` is matched for `TSMethodSignature` (not `_denormalize` / `_denormalizeNullable`). Underscore-prefixed names are updated when they appear as **`declare` or property types** with a function type annotation (see below).
+- **Top-level** `function denormalize` / `function normalize` is handled; **`const denormalize = function...`** is not.
+
+This skill describes what the codemod does and how to handle the cases it cannot.
 
 ## What changed
 
@@ -156,9 +163,7 @@ class Lazy {
 }
 ```
 
-The codemod matches `denormalize`, `_denormalize`, and `_denormalizeNullable`
-on type declarations. It also matches `normalize` method/property signatures
-with the old 6- or 7-argument form.
+On types: **`interface { denormalize(...) }`** uses the literal key `denormalize` only. **`_denormalize` / `_denormalizeNullable`** (and similar) are matched on **`declare` / property signatures** whose type is a `(...)` function type. **`normalize`** type signatures use the literal key `normalize` with the old 6- or 7-parameter form.
 
 ### args-dependent output (manual)
 
@@ -191,13 +196,16 @@ See [`Scalar`](https://dataclient.io/rest/api/Scalar) for a real-world example.
 
 ## What the codemod skips
 
-These are rare; do them by hand:
+Do these by hand when they apply:
 
-- **Computed/string-keyed methods**: only literal `denormalize` keys are matched.
-- **Computed/string-keyed normalize methods**: only literal `normalize` keys are matched.
+- **No `@data-client/*` import** in the file (codemod no-ops).
+- **Class field** `denormalize = …` / `normalize = …` (arrow or function expression).
+- **`const denormalize` / `const normalize`** (only declarations named `denormalize` / `normalize` are matched).
+- **Computed keys** on class/object methods (e.g. `[name]: function...`). Identifier and string-literal keys `denormalize` / `normalize` are matched.
 - **Methods reassigned dynamically** (`obj.denormalize = function(input, args, unvisit) { ... }`).
 - **Normalize methods reassigned dynamically** (`obj.normalize = function(input, parent, key, args, visit, delegate) { ... }`).
-- **Custom helper functions** that wrap `(args, unvisit)` and are passed around — you'll need to update both the helper and its callers.
+- **Interface methods** named `_denormalize` / `_denormalizeNullable` (use `denormalize` on the interface or edit manually).
+- **Custom helper functions** that wrap `(args, unvisit)` and are passed around — update the helper and its callers.
 - **`argsKey` registration** for schemas whose output varies with `args` (see above).
 
 ## New normalize context
@@ -208,41 +216,7 @@ Existing schemas that use it should keep it after the delegate parameter.
 
 ### Optional Collection cleanup
 
-`Collection` can now define both `argsKey` and `nestKey` on the same instance. During normalization it uses `argsKey` when top-level and `nestKey` when nested in an Entity, so paired definitions can be consolidated:
-
-```ts
-// before: two separate but equivalent Collections
-export const getTodos = new RestEndpoint({
-  path: '/todos',
-  searchParams: {} as { userId?: string },
-  schema: new Collection([Todo]),
-});
-
-class User extends Entity {
-  static schema = {
-    todos: new Collection([Todo], {
-      nestKey: parent => ({ userId: parent.id }),
-    }),
-  };
-}
-
-// after: one shared Collection
-export const userTodos = new Collection([Todo], {
-  nestKey: parent => ({ userId: parent.id }),
-});
-
-export const getTodos = new RestEndpoint({
-  path: '/todos',
-  searchParams: {} as { userId?: string },
-  schema: userTodos,
-});
-
-class User extends Entity {
-  static schema = {
-    todos: userTodos,
-  };
-}
-```
+Unrelated to delegate signatures: v0.18 allows one `Collection` to carry both `argsKey` and `nestKey` so the same instance can back a top-level endpoint schema and a nested entity field. Consolidation is optional—see [Optional: consolidate Collection definitions](/blog/2026/04/24/v0.18-scalar-typed-downloads#collection-consolidation) in the v0.18 blog.
 
 ## Where to find affected code
 
