@@ -1,5 +1,134 @@
 # @data-client/vue
 
+## 0.18.0
+
+### Minor Changes
+
+- [#3931](https://github.com/reactive/data-client/pull/3931) [`959465a`](https://github.com/reactive/data-client/commit/959465a064db687176e483932987b083f19718eb) - Allow one `Collection` schema to be used both top-level and nested.
+
+  Before:
+
+  ```ts
+  const getTodos = new Collection([Todo], { argsKey });
+  const userTodos = new Collection([Todo], { nestKey });
+  ```
+
+  After:
+
+  ```ts
+  const userTodos = new Collection([Todo], { argsKey, nestKey });
+  ```
+
+- [#3887](https://github.com/reactive/data-client/pull/3887) [`84078d7`](https://github.com/reactive/data-client/commit/84078d7d36bf5cf0fd16a479ce16c48c5d804f32) - **BREAKING**: `Schema.denormalize()` is now `(input, delegate)` instead
+  of the previous `(input, args, unvisit)` 3-parameter signature.
+
+  ```ts
+  // before
+  denormalize(input, args, unvisit) {
+    return unvisit(this.schema, input);
+  }
+
+  // after
+  denormalize(input, delegate) {
+    return delegate.unvisit(this.schema, input);
+  }
+  ```
+
+  The new [`IDenormalizeDelegate`](https://dataclient.io/rest/api/CustomSchema)
+  exposes `unvisit`, `args`, and a new `argsKey(fn)` helper that registers
+  a memoization dimension when output varies with endpoint args. Reading
+  `delegate.args` directly does _not_ contribute to cache invalidation —
+  schemas that branch on args must call `argsKey`. The `fn` reference
+  doubles as the cache path key, so it must be **referentially stable**
+  — define it on the instance or at module scope, not inline per call:
+
+  ```ts
+  class LensSchema {
+    constructor({ lens }) {
+      this.lensSelector = lens; // stable reference across calls
+    }
+    denormalize(input, delegate) {
+      const portfolio = delegate.argsKey(this.lensSelector);
+      return this.lookup(input, portfolio);
+    }
+  }
+  ```
+
+  All built-in schemas (`Array`, `Object`, `Values`, `Union`, `Query`,
+  `Invalidate`, `Lazy`, `Collection`) have been updated. Custom schemas
+  implementing `SchemaSimple` must update their `denormalize` signature.
+
+  `Schema.normalize()` and the `visit()` callback also gain an optional
+  trailing `parentEntity` argument tracking the nearest enclosing
+  entity-like schema. This is additive — existing schemas don't need
+  changes unless they want to use it.
+
+- [#3887](https://github.com/reactive/data-client/pull/3887) [`84078d7`](https://github.com/reactive/data-client/commit/84078d7d36bf5cf0fd16a479ce16c48c5d804f32) - Add [Scalar](https://dataclient.io/rest/api/Scalar) schema for lens-dependent entity fields.
+
+  `Scalar` models entity fields whose values vary by a runtime "lens" (such as the
+  selected portfolio, currency, or locale). Multiple components can render the
+  same entity through different lenses simultaneously — each sees the correct
+  values without the entity itself ever being mutated. Lens-dependent values are
+  stored in a separate cell table and joined at denormalize time from endpoint
+  args.
+
+  New exports: `Scalar`, `schema.Scalar`.
+
+  A single `Scalar` instance can serve both as an `Entity.schema` field (parent
+  entity inferred from the visit) and standalone — inside `Values(Scalar)`,
+  `[Scalar]`, or `Collection([Scalar])` — for cheap column-only refreshes
+  (entity bound explicitly via `entity`). Cell pks are derived from the map key
+  or via `Scalar.entityPk()`, which defaults to `Entity.pk()` so custom and
+  composite primary keys work with no override:
+
+  ```ts
+  import { Collection, Entity, RestEndpoint, Scalar } from '@data-client/rest';
+
+  class Company extends Entity {
+    id = '';
+    price = 0;
+    pct_equity = 0;
+    shares = 0;
+  }
+  const PortfolioScalar = new Scalar({
+    lens: args => args[0]?.portfolio,
+    key: 'portfolio',
+    entity: Company,
+  });
+  Company.schema = {
+    pct_equity: PortfolioScalar,
+    shares: PortfolioScalar,
+  };
+
+  // Full load — Company rows + scalar cells for the current portfolio
+  export const getCompanies = new RestEndpoint({
+    path: '/companies',
+    searchParams: {} as { portfolio: string },
+    schema: new Collection([Company], { argsKey: () => ({}) }),
+  });
+  // Lens-only refresh — writes to the same Scalar(portfolio) cell table
+  export const getPortfolioColumns = new RestEndpoint({
+    path: '/companies/columns',
+    searchParams: {} as { portfolio: string },
+    schema: new Collection([PortfolioScalar], {
+      argsKey: ({ portfolio }) => ({ portfolio }),
+    }),
+  });
+  ```
+
+  `useSuspense(getCompanies, { portfolio: 'A' })` and
+  `useSuspense(getCompanies, { portfolio: 'B' })` resolve to different
+  `pct_equity` / `shares` while sharing the same `Company` row.
+
+  `Scalar.queryKey` enumerates cells in its table for the current lens, so
+  endpoints that use `Scalar` directly as their top-level schema reconstruct
+  from cache without a network round-trip once the cells are present.
+
+### Patch Changes
+
+- Updated dependencies [[`959465a`](https://github.com/reactive/data-client/commit/959465a064db687176e483932987b083f19718eb), [`84078d7`](https://github.com/reactive/data-client/commit/84078d7d36bf5cf0fd16a479ce16c48c5d804f32), [`6e8e499`](https://github.com/reactive/data-client/commit/6e8e499441741b58ad35127b517e8d83fc7a58fd), [`84078d7`](https://github.com/reactive/data-client/commit/84078d7d36bf5cf0fd16a479ce16c48c5d804f32)]:
+  - @data-client/core@0.18.0
+
 ## 0.16.1
 
 ### Patch Changes

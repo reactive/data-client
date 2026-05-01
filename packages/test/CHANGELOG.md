@@ -1,5 +1,11 @@
 # @data-client/test
 
+## 0.18.0
+
+### Patch Changes
+
+- [`89e06d3`](https://github.com/reactive/data-client/commit/89e06d38ab839f12f468283a6ff416983f95d65a) - Bump `@data-client/react` peer dependency range to include `^0.18.0`.
+
 ## 0.16.0
 
 ### Patch Changes

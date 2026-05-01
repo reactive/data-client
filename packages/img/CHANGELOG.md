@@ -1,5 +1,14 @@
 # @data-client/img
 
+## 0.18.0
+
+### Patch Changes
+
+- [`89e06d3`](https://github.com/reactive/data-client/commit/89e06d38ab839f12f468283a6ff416983f95d65a) - Bump `@data-client/react` peer dependency range to include `^0.18.0`.
+
+- Updated dependencies [[`959465a`](https://github.com/reactive/data-client/commit/959465a064db687176e483932987b083f19718eb), [`84078d7`](https://github.com/reactive/data-client/commit/84078d7d36bf5cf0fd16a479ce16c48c5d804f32), [`6e8e499`](https://github.com/reactive/data-client/commit/6e8e499441741b58ad35127b517e8d83fc7a58fd), [`396d163`](https://github.com/reactive/data-client/commit/396d163e6f4991818519ec33d903a85437483dfd), [`84078d7`](https://github.com/reactive/data-client/commit/84078d7d36bf5cf0fd16a479ce16c48c5d804f32)]:
+  - @data-client/endpoint@0.18.0
+
 ## 0.16.0
 
 ### Patch Changes
