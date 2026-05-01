@@ -1,9 +1,9 @@
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { companyFixtures } from '@site/src/fixtures/companies';
 
-<HooksPlayground fixtures={companyFixtures} row groupId="schema" defaultOpen={props.defaultOpen ?? "y"} defaultTab={props.defaultTab}>
+<HooksPlayground fixtures={companyFixtures} row={props.row ?? false} groupId="schema" defaultOpen={props.defaultOpen ?? "y"} defaultTab={props.defaultTab}>
 
-```ts title="api/Company" {11-20,26-28,34-36} collapsed
+```ts title="api/Company" {11-20,26-28,34-36}
 import { Collection, Entity, RestEndpoint, Scalar } from '@data-client/rest';
 
 export class Company extends Entity {
@@ -80,7 +80,7 @@ function formatShares(value: number | undefined) {
 }
 ```
 
-```tsx title="PortfolioGrid"
+```tsx title="PortfolioGrid" collapsed
 import { useSuspense, useFetch } from '@data-client/react';
 import { getCompanies, getPortfolioColumns } from './api/Company';
 import CompanyGrid from './CompanyGrid';

@@ -216,7 +216,7 @@ Existing schemas that use it should keep it after the delegate parameter.
 
 ### Optional Collection cleanup
 
-Unrelated to delegate signatures: v0.18 allows one `Collection` to carry both `argsKey` and `nestKey` so the same instance can back a top-level endpoint schema and a nested entity field. Consolidation is optional—see [Optional: consolidate Collection definitions](/blog/2026/04/24/v0.18-scalar-typed-downloads#collection-consolidation) in the v0.18 blog.
+Unrelated to delegate signatures: v0.18 allows one `Collection` to carry both `argsKey` and `nestKey` so the same instance can back a top-level endpoint schema and a nested entity field. Consolidation is optional—see [Optional: consolidate Collection definitions](/blog/2026/05/01/v0.18-scalar-typed-downloads#collection-consolidation) in the v0.18 blog.
 
 ## Where to find affected code
 
