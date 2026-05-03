@@ -31,9 +31,9 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "@anansi/cli": "3.1.105",
-    "@anansi/babel-preset": "6.2.25",
+    "@anansi/babel-preset": "6.2.26",
     "@anansi/browserslist-config": "1.7.4",
-    "@anansi/webpack-config": "21.1.17",
+    "@anansi/webpack-config": "21.1.18",
     "@babel/core": "7.29.0",
     "@linaria/core": "6.3.0",
     "@linaria/react": "6.3.0",

@@ -33,9 +33,9 @@
     "swr": "2.4.1"
   },
   "devDependencies": {
-    "@anansi/babel-preset": "6.2.25",
+    "@anansi/babel-preset": "6.2.26",
     "@anansi/browserslist-config": "^1.4.3",
-    "@anansi/webpack-config": "21.1.17",
+    "@anansi/webpack-config": "21.1.18",
     "@babel/core": "^7.22.15",
     "@playwright/test": "1.59.1",
     "@types/node": "24.12.2",

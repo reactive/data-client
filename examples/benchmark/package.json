@@ -25,7 +25,7 @@
     "react": "19.2.3"
   },
   "devDependencies": {
-    "@anansi/webpack-config": "21.1.17",
+    "@anansi/webpack-config": "21.1.18",
     "@babel/core": "7.29.0",
     "@babel/node": "7.29.0",
     "@types/babel__core": "^7",
