@@ -167,8 +167,8 @@
     "@types/react-dom": "19.2.3",
     "@types/react-test-renderer": "19.1.0",
     "jest": "^30.0.0",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
+    "react": "19.2.6",
+    "react-dom": "19.2.6",
     "react-native": "0.85.3",
     "react-test-renderer": "*",
     "rollup-plugins": "workspace:*"

@@ -3323,7 +3323,7 @@ __metadata:
     jest-mock: "npm:^30.0.0"
     nock: "npm:13.3.1"
     qs: "npm:^6.14.2"
-    react: "npm:19.2.3"
+    react: "npm:19.2.6"
     react-dom: "npm:^19.0.0"
     react-native: "npm:0.85.3"
     react-native-safe-area-context: "npm:^5.0.0"
@@ -3376,8 +3376,8 @@ __metadata:
     "@types/react-dom": "npm:19.2.3"
     "@types/react-test-renderer": "npm:19.1.0"
     jest: "npm:^30.0.0"
-    react: "npm:19.2.3"
-    react-dom: "npm:19.2.3"
+    react: "npm:19.2.6"
+    react-dom: "npm:19.2.6"
     react-native: "npm:0.85.3"
     react-test-renderer: "npm:*"
     rollup-plugins: "workspace:*"
@@ -11078,8 +11078,8 @@ __metadata:
     core-js: "npm:3.49.0"
     d3: "npm:7.9.0"
     history: "npm:*"
-    react: "npm:19.2.3"
-    react-dom: "npm:19.2.3"
+    react: "npm:19.2.6"
+    react-dom: "npm:19.2.6"
     react-refresh: "npm:*"
     typescript: "npm:6.0.3"
     webpack: "npm:*"
@@ -14137,8 +14137,8 @@ __metadata:
     "@types/react": "npm:19.2.14"
     "@types/react-dom": "npm:19.2.3"
     playwright: "npm:1.59.1"
-    react: "npm:19.2.3"
-    react-dom: "npm:19.2.3"
+    react: "npm:19.2.6"
+    react-dom: "npm:19.2.6"
     serve: "npm:14.2.6"
     swr: "npm:2.4.1"
     tsx: "npm:4.21.0"
@@ -14163,7 +14163,7 @@ __metadata:
     "@types/react": "npm:19.2.14"
     benchmark: "npm:2.1.4"
     normalizr: "npm:3.6.2"
-    react: "npm:19.2.3"
+    react: "npm:19.2.6"
     webpack: "npm:5.106.2"
     webpack-cli: "npm:6.0.1"
   languageName: unknown
@@ -23766,14 +23766,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:19.2.3":
-  version: 19.2.3
-  resolution: "react-dom@npm:19.2.3"
+"react-dom@npm:19.2.6":
+  version: 19.2.6
+  resolution: "react-dom@npm:19.2.6"
   dependencies:
     scheduler: "npm:^0.27.0"
   peerDependencies:
-    react: ^19.2.3
-  checksum: 10c0/dc43f7ede06f46f3acc16ee83107c925530de9b91d1d0b3824583814746ff4c498ea64fd65cd83aba363205268adff52e2827c582634ae7b15069deaeabc4892
+    react: ^19.2.6
+  checksum: 10c0/dbf2aef67857c03a612bc9316a4562e5066f43fa04bf28f7f0734963fc1350da2c9f8eb973930655453281079f30cc8222bab383dbec4b5097084e2c081e3334
   languageName: node
   linkType: hard
 
@@ -23864,10 +23864,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-is@npm:^19.1.0, react-is@npm:^19.2.3":
-  version: 19.2.5
-  resolution: "react-is@npm:19.2.5"
-  checksum: 10c0/58c28ab2f7f868f9836c728fa164a16dcf20246ab84a3ae6a09e617b0e4d9bbb3acdddfdc40452f0134d27b121d3359227602a050c0be554cb20069cb52a67f4
+"react-is@npm:^19.1.0, react-is@npm:^19.2.6":
+  version: 19.2.6
+  resolution: "react-is@npm:19.2.6"
+  checksum: 10c0/263177f370fc156b279d22570dd6e922a0ad641a4a426a4cb70284b8003b00ef532d59f2beca1d22a1ca0b37f85f9077d7733ca5d344ebecd2942e9bc2a2a3c0
   languageName: node
   linkType: hard
 
@@ -24066,22 +24066,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-test-renderer@npm:19.2.3":
-  version: 19.2.3
-  resolution: "react-test-renderer@npm:19.2.3"
+"react-test-renderer@npm:19.2.6":
+  version: 19.2.6
+  resolution: "react-test-renderer@npm:19.2.6"
   dependencies:
-    react-is: "npm:^19.2.3"
+    react-is: "npm:^19.2.6"
     scheduler: "npm:^0.27.0"
   peerDependencies:
-    react: ^19.2.3
-  checksum: 10c0/842b82239dbddbc536083a6260c3e1b0507c02a3400bd05879fc19160468fd0f8ab79fec5dceffa6113b131835cc7621212f8415b46ea5156ab66bbfd7e24297
+    react: ^19.2.6
+  checksum: 10c0/c8267de9def8ba2b821ebae1de9becb2d67e95f39d5ec4c63560446e60649f651bd1426f041d31bacbedc0dcb1a0cfae321d6d5ebe3563821c709cc8f4171363
   languageName: node
   linkType: hard
 
-"react@npm:19.2.3":
-  version: 19.2.3
-  resolution: "react@npm:19.2.3"
-  checksum: 10c0/094220b3ba3a76c1b668f972ace1dd15509b157aead1b40391d1c8e657e720c201d9719537375eff08f5e0514748c0319063392a6f000e31303aafc4471f1436
+"react@npm:19.2.6":
+  version: 19.2.6
+  resolution: "react@npm:19.2.6"
+  checksum: 10c0/66afde33b9a9ee87b1e1cae39d8e7e040d1262e719524fd70660c4d4ce79929c532ac19fc3df5a911edaf02768fdf2c49de4ede1ba99bc6aad72796e0e26e798
   languageName: node
   linkType: hard
 
@@ -25017,12 +25017,12 @@ __metadata:
     nock: "npm:13.3.1"
     npm-run-all: "npm:^4.1.5"
     prettier: "npm:3.8.3"
-    react: "npm:19.2.3"
-    react-dom: "npm:19.2.3"
+    react: "npm:19.2.6"
+    react-dom: "npm:19.2.6"
     react-native: "npm:0.85.3"
     react-native-safe-area-context: "npm:^5.0.0"
     react-native-screens: "npm:^4.1.0"
-    react-test-renderer: "npm:19.2.3"
+    react-test-renderer: "npm:19.2.6"
     rimraf: "npm:^6.0.0"
     rollup: "npm:4.60.2"
     temporal-polyfill: "npm:^0.3.0"
