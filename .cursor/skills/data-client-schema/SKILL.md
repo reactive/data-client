@@ -1,6 +1,6 @@
 ---
 name: data-client-schema
-description: Define data schemas - Entity, Collection, Union, Query, pk/primary key, normalize/denormalize, relational/nested data, polymorphic types, Invalidate, Values
+description: Model data with @data-client schemas (Entity, EntityMixin, Collection, Union, Query, Values, All, Invalidate, Lazy, Scalar) for atomic, consistent, referentially-equal async data via normalization, identity-based caching, and a single source of truth. Use when defining or editing pk, static schema, resource()/RestEndpoint schema, mutable lists/maps (push/unshift/assign/remove/move), polymorphic/discriminated types, memoized selectors / derived data, partial/supplementary entities, relational/nested/joined data, optimistic updates, or cache invalidation across @data-client/rest, /endpoint, /graphql, or /normalizr. Apply proactively when discussing data models, remote data shape, caching, normalization, identity, joins, polymorphism, mutable collections, or store consistency.
 license: Apache 2.0
 ---
 
