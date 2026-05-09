@@ -114,7 +114,7 @@
     "@data-client/rest": "workspace:*",
     "@jest/globals": "^30.0.0",
     "@types/jest": "30.0.0",
-    "@types/node": "^24.0.0",
+    "@types/node": "^25.0.0",
     "@vue/test-utils": "^2.4.0",
     "jest-environment-jsdom": "^30.0.0",
     "jest-mock": "^30.0.0",
