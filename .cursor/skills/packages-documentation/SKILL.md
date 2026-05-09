@@ -1,6 +1,6 @@
 ---
 name: packages-documentation
-description: Write, update, and format docs for public APIs - API reference, README, docstrings, usage examples, migration guides, deprecation notices
+description: Write, update, and format documentation for @data-client public APIs - API reference (Docusaurus/MDX), README files, JSDoc/TSDoc docstrings, usage examples, migration guides, deprecation notices, changelog entries. Use when changing exported APIs (docs must update in the same PR), writing new package docs, or updating the dataclient.io site.
 license: Apache 2.0
 ---
 # Package Documentation Writing Guidelines

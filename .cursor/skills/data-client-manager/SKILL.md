@@ -1,12 +1,16 @@
 ---
 name: data-client-manager
-description: Implement @data-client Managers for global side effects - websocket, SSE, polling, subscriptions, logging, middleware, Controller actions, redux pattern
+description: Implement @data-client Managers for global/background side effects - websocket, SSE, polling, real-time updates, subscriptions, logging, analytics, middleware, intercepting Controller actions, DataProvider managers prop, redux-style action handling. Use when adding cross-cutting store behavior, reacting to dispatched actions, or handling external event streams.
 license: Apache 2.0
 ---
 # Guide: Using `@data-client` Managers for global side effects
 
 [Managers](references/managers.md) are singletons that handle global side-effects. Kind of like useEffect() for the central data store.
 They interface with the store using [Controller](references/Controller.md), and [redux middleware](https://redux.js.org/tutorials/fundamentals/part-4-store#middleware) is run in response to [actions](references/Actions.md).
+
+## Single Responsibility
+
+One concern per Manager; compose many small managers (e.g. transport, subscriptions, logging, auth) rather than one large one.
 
 ## References
 
