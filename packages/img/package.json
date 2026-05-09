@@ -93,7 +93,7 @@
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.1.0",
     "@types/jest": "30.0.0",
-    "@types/node": "^24.0.0",
+    "@types/node": "^25.0.0",
     "@types/react": "19.2.14",
     "@types/react-dom": "^19",
     "react": "^19.0.0",
