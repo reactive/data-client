@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1778352681426,
+  "lastUpdate": 1778676139831,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -4181,6 +4181,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 180.19,
             "range": "± 8.6%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "dfa657eb419641845bc7c39abe52189905773190",
+          "message": "fix(core): treat only undefined as missing for passthrough endpoint cache (#3960)\n\n* fix(core): treat only undefined as missing for passthrough endpoint cache\n\ngetResponseMeta used !cacheEndpoints, so falsy cached values ('', 0, false, null) were marked Invalid and hooks refetched indefinitely.\n\nUse cacheEndpoints === undefined to match shouldQuery semantics.\n\nAdd regression tests for schema-less endpoints; changeset for @data-client/core.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n\n* chore: add linked packages to falsy-cache changeset\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n\n* chore: rephrase changeset from user-facing outcome\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n\n---------\n\nCo-authored-by: Cursor <cursoragent@cursor.com>",
+          "timestamp": "2026-05-13T08:38:58-04:00",
+          "tree_id": "8b50ea70261cedc707954ea314505fbe816d34c1",
+          "url": "https://github.com/reactive/data-client/commit/dfa657eb419641845bc7c39abe52189905773190"
+        },
+        "date": 1778676136292,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 135.14,
+            "range": "± 4.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 41.84,
+            "range": "± 4.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 370.37,
+            "range": "± 9.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 322.58,
+            "range": "± 8.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 41.58,
+            "range": "± 7.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 303.03,
+            "range": "± 6.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 298.57,
+            "range": "± 7.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 8.09,
+            "range": "± 9.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 68.97,
+            "range": "± 12.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 35.15,
+            "range": "± 5.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 217.39,
+            "range": "± 4.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 285.71,
+            "range": "± 4.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 181.82,
+            "range": "± 8.7%",
             "unit": "ops/s"
           }
         ]
