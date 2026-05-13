@@ -1,5 +1,11 @@
 # @data-client/rest
 
+## 0.18.1
+
+### Patch Changes
+
+- [`adb82f1`](https://github.com/reactive/data-client/commit/adb82f15c1959ecfc09565a519d2672a2d63178c) - RestEndpoint.remove.name is 'partialUpdate' since it uses 'PATCH'
+
 ## 0.18.0
 
 ### Minor Changes

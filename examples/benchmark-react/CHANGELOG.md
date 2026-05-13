@@ -1,5 +1,15 @@
 # example-benchmark-react
 
+## 0.1.11
+
+### Patch Changes
+
+- Updated dependencies [[`dfa657e`](https://github.com/reactive/data-client/commit/dfa657eb419641845bc7c39abe52189905773190), [`adb82f1`](https://github.com/reactive/data-client/commit/adb82f15c1959ecfc09565a519d2672a2d63178c)]:
+  - @data-client/core@0.18.1
+  - @data-client/react@0.18.1
+  - @data-client/rest@0.18.1
+  - @data-client/endpoint@0.18.0
+
 ## 0.1.10
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "example-benchmark-react",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "private": true,
   "description": "React rendering benchmark comparing @data-client/react against other data libraries",
   "scripts": {

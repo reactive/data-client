@@ -1,5 +1,14 @@
 # @data-client/core
 
+## 0.18.1
+
+### Patch Changes
+
+- [#3960](https://github.com/reactive/data-client/pull/3960) [`dfa657e`](https://github.com/reactive/data-client/commit/dfa657eb419641845bc7c39abe52189905773190) - Endpoints that resolve to falsy values (`''`, `0`, `false`, or `null`) no longer trigger infinite refetches.
+
+- Updated dependencies [[`dfa657e`](https://github.com/reactive/data-client/commit/dfa657eb419641845bc7c39abe52189905773190)]:
+  - @data-client/normalizr@0.18.1
+
 ## 0.18.0
 
 ### Minor Changes
