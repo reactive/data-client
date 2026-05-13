@@ -318,6 +318,53 @@ describe('Controller.getResponse() with Scalar', () => {
   );
 });
 
+describe('Controller.getResponse() with schema-less endpoints', () => {
+  it.each([
+    ['empty string', ''],
+    ['zero', 0],
+    ['false', false],
+    ['null', null],
+  ])('treats cached %s as valid data', (_name, cachedValue) => {
+    const controller = new Contoller();
+    const endpoint = new Endpoint(() => Promise.resolve(), {
+      key: () => 'falsy-endpoint',
+    });
+    const key = endpoint.key();
+    const fetchedAt = Date.now();
+    const state = {
+      ...initialState,
+      endpoints: {
+        [key]: cachedValue,
+      },
+      meta: {
+        [key]: {
+          date: fetchedAt,
+          fetchedAt,
+          expiresAt: fetchedAt + 1000,
+        },
+      },
+    };
+
+    const { data, expiryStatus } = controller.getResponse(endpoint, state);
+    expect(data).toBe(cachedValue);
+    expect(expiryStatus).toBe(ExpiryStatus.Valid);
+  });
+
+  it('treats undefined cache entries as invalid', () => {
+    const controller = new Contoller();
+    const endpoint = new Endpoint(() => Promise.resolve(), {
+      key: () => 'missing-endpoint',
+    });
+
+    const { data, expiryStatus } = controller.getResponse(
+      endpoint,
+      initialState,
+    );
+    expect(data).toBeUndefined();
+    expect(expiryStatus).toBe(ExpiryStatus.Invalid);
+  });
+});
+
 describe('Snapshot.getResponseMeta()', () => {
   it('denormalizes schema with extra members but not set', () => {
     const controller = new Contoller();

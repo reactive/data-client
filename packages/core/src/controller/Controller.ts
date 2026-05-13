@@ -529,7 +529,7 @@ export default class Controller<
       return {
         data: cacheEndpoints,
         expiryStatus: this.getExpiryStatus(
-          !cacheEndpoints,
+          cacheEndpoints === undefined,
           !!endpoint.invalidIfStale,
           meta,
         ),
