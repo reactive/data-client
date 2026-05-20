@@ -46,7 +46,7 @@
     "tsx": "4.22.0",
     "typescript": "6.0.3",
     "webpack": "5.106.2",
-    "webpack-cli": "6.0.1"
+    "webpack-cli": "7.0.2"
   },
   "browserslist": "extends @anansi/browserslist-config"
 }
