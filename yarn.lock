@@ -3227,7 +3227,7 @@ __metadata:
     "@testing-library/react": "npm:^16.1.0"
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:^25.0.0"
-    "@types/react": "npm:19.2.14"
+    "@types/react": "npm:19.2.15"
     "@types/react-dom": "npm:^19"
     react: "npm:^19.0.0"
     react-dom: "npm:^19.2.1"
@@ -3276,7 +3276,7 @@ __metadata:
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:^25.0.0"
     "@types/qs": "npm:^6"
-    "@types/react": "npm:19.2.14"
+    "@types/react": "npm:19.2.15"
     "@types/react-dom": "npm:*"
     jest-mock: "npm:^30.0.0"
     nock: "npm:13.3.1"
@@ -3330,7 +3330,7 @@ __metadata:
     "@testing-library/react-native": "npm:^13.0.0"
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:^25.0.0"
-    "@types/react": "npm:19.2.14"
+    "@types/react": "npm:19.2.15"
     "@types/react-dom": "npm:19.2.3"
     "@types/react-test-renderer": "npm:19.1.0"
     jest: "npm:^30.0.0"
@@ -3378,7 +3378,7 @@ __metadata:
     "@babel/runtime": "npm:^7.20.0"
     "@types/jest": "npm:30.0.0"
     "@types/node": "npm:^25.0.0"
-    "@types/react": "npm:19.2.14"
+    "@types/react": "npm:19.2.15"
     react: "npm:^19.0.0"
     rollup-plugins: "workspace:*"
   peerDependencies:
@@ -7874,12 +7874,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:25.8.0, @types/node@npm:>=18, @types/node@npm:>=20.0.0, @types/node@npm:^25.0.0":
-  version: 25.8.0
-  resolution: "@types/node@npm:25.8.0"
+"@types/node@npm:*, @types/node@npm:25.9.1, @types/node@npm:>=18, @types/node@npm:>=20.0.0, @types/node@npm:^25.0.0":
+  version: 25.9.1
+  resolution: "@types/node@npm:25.9.1"
   dependencies:
     undici-types: "npm:>=7.24.0 <7.24.7"
-  checksum: 10c0/ff53e5428309d2e6060190ec5e02afd0e4a7369456b16130a7f5898f12a6ad0efd62d752830f2f7355d714ae429bc0acbb2dc0cbf761cadb03e88c4996cdf1dc
+  checksum: 10c0/9a04682842bebbcf21a1779dfeab9aa733d7bd7bbc0a0edb641ab3a9a3d43eac543225acf669c334f458f1956443ebc072bc3c72840c543b8b356cab5c82d456
   languageName: node
   linkType: hard
 
@@ -7998,12 +7998,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:19.2.14":
-  version: 19.2.14
-  resolution: "@types/react@npm:19.2.14"
+"@types/react@npm:*, @types/react@npm:19.2.15":
+  version: 19.2.15
+  resolution: "@types/react@npm:19.2.15"
   dependencies:
     csstype: "npm:^3.2.2"
-  checksum: 10c0/7d25bf41b57719452d86d2ac0570b659210402707313a36ee612666bf11275a1c69824f8c3ee1fdca077ccfe15452f6da8f1224529b917050eb2d861e52b59b7
+  checksum: 10c0/b554eab715bb14e581f0ae60e5cefe91e1a5e06c31022b543a9806cf224aa056f21e4fb46208e46eb934d86ca0b247ebc82377192a0dead303cb28b8764c6e67
   languageName: node
   linkType: hard
 
@@ -14077,15 +14077,15 @@ __metadata:
     "@data-client/rest": "workspace:*"
     "@playwright/test": "npm:1.60.0"
     "@tanstack/react-query": "npm:5.96.2"
-    "@types/node": "npm:25.8.0"
-    "@types/react": "npm:19.2.14"
+    "@types/node": "npm:25.9.1"
+    "@types/react": "npm:19.2.15"
     "@types/react-dom": "npm:19.2.3"
     playwright: "npm:1.60.0"
     react: "npm:19.2.3"
     react-dom: "npm:19.2.3"
     serve: "npm:14.2.6"
     swr: "npm:2.4.1"
-    tsx: "npm:4.22.0"
+    tsx: "npm:4.22.3"
     typescript: "npm:6.0.3"
     webpack: "npm:5.106.2"
     webpack-cli: "npm:6.0.1"
@@ -14104,7 +14104,7 @@ __metadata:
     "@data-client/normalizr": "workspace:*"
     "@types/babel__core": "npm:^7"
     "@types/benchmark": "npm:2.1.5"
-    "@types/react": "npm:19.2.14"
+    "@types/react": "npm:19.2.15"
     benchmark: "npm:2.1.4"
     normalizr: "npm:3.6.2"
     react: "npm:19.2.3"
@@ -23535,7 +23535,7 @@ __metadata:
     "@monaco-editor/react": "npm:^4.8.0-rc.0"
     "@number-flow/react": "npm:^0.6.0"
     "@tsconfig/docusaurus": "npm:^2.0.0"
-    "@types/react": "npm:19.2.14"
+    "@types/react": "npm:19.2.15"
     "@types/react-dom": "npm:19.2.3"
     "@types/react-helmet": "npm:^6.1.5"
     "@types/react-router-dom": "npm:^5.3.3"
@@ -23776,12 +23776,12 @@ __metadata:
   linkType: hard
 
 "react-native-safe-area-context@npm:^5.0.0":
-  version: 5.7.0
-  resolution: "react-native-safe-area-context@npm:5.7.0"
+  version: 5.8.0
+  resolution: "react-native-safe-area-context@npm:5.8.0"
   peerDependencies:
     react: "*"
     react-native: "*"
-  checksum: 10c0/c3799e17321b41df1e0a10492c98472f8f8225ef0bbaf8146c4a9acb9519aae9ac11429059143c215e4402c2808e8445274850a339f8477522ded2461e18da80
+  checksum: 10c0/86d1375ce17d549b541d157148d9d093f9e918de47d3b0a5cbc4cb6afe619aa52e99f07dc62ee0878eaa70e8da3411193b24cfee1b7b271ffd295d0fce83d128
   languageName: node
   linkType: hard
 
@@ -24844,8 +24844,8 @@ __metadata:
     "@testing-library/react-hooks": "npm:8.0.1"
     "@testing-library/react-native": "npm:13.3.3"
     "@types/jest": "npm:30.0.0"
-    "@types/node": "npm:25.8.0"
-    "@types/react": "npm:19.2.14"
+    "@types/node": "npm:25.9.1"
+    "@types/react": "npm:19.2.15"
     "@types/react-dom": "npm:19.2.3"
     babel-plugin-module-resolver: "npm:5.0.3"
     babel-plugin-syntax-hermes-parser: "npm:^0.36.0"
@@ -27062,9 +27062,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tsx@npm:4.22.0":
-  version: 4.22.0
-  resolution: "tsx@npm:4.22.0"
+"tsx@npm:4.22.3":
+  version: 4.22.3
+  resolution: "tsx@npm:4.22.3"
   dependencies:
     esbuild: "npm:~0.28.0"
     fsevents: "npm:~2.3.3"
@@ -27073,7 +27073,7 @@ __metadata:
       optional: true
   bin:
     tsx: dist/cli.mjs
-  checksum: 10c0/cc7474ac13eebf6bb4d87ce21bdd79213261a37a6e247a74d7920b3e0ce7b704b42e7642e7978e2f3de5762981b3b74ed0ae14cf60934107aa0b1390f25e46ba
+  checksum: 10c0/09a5a7d354ff75e5af6285217d709ec80a46c2ee19e0d9b5c5d00eab81047c3ea6b2a5498a2c5255f3960d6e7acd1a1eee34b9433dc56fb32907ca3b38271f41
   languageName: node
   linkType: hard
 
