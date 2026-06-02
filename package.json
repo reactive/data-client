@@ -119,7 +119,7 @@
     "twig": "^2.0.0",
     "webpackbar": "^7.0.0"
   },
-  "packageManager": "yarn@4.15.0",
+  "packageManager": "yarn@4.16.0",
   "prettier": {
     "printWidth": 80,
     "semi": true,
