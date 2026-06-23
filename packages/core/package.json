@@ -133,7 +133,7 @@
     "url": "https://github.com/reactive/data-client/issues"
   },
   "dependencies": {
-    "@babel/runtime": "^7.20.0",
+    "@babel/runtime": "^8.0.0",
     "@data-client/normalizr": "workspace:^",
     "flux-standard-action": "^2.1.1"
   },
