@@ -15,7 +15,7 @@
   },
   "devDependencies": {
     "@babel/core": "7.29.0",
-    "@babel/node": "7.29.0",
+    "@babel/node": "7.29.7",
     "@types/babel__core": "^7"
   }
 }
