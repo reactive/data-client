@@ -61,7 +61,7 @@
     "@anansi/eslint-plugin": "1.0.73",
     "@anansi/jest-preset": "0.11.33",
     "@babel/cli": "7.29.7",
-    "@babel/core": "7.29.0",
+    "@babel/core": "7.29.6",
     "@babel/node": "7.29.7",
     "@babel/preset-flow": "^7.18.6",
     "@changesets/changelog-github": "^0.7.0",
