@@ -93,7 +93,7 @@
   "funding": "https://github.com/sponsors/ntucker",
   "license": "Apache-2.0",
   "dependencies": {
-    "@babel/runtime": "^7.20.0",
+    "@babel/runtime": "^8.0.0",
     "@data-client/core": "workspace:^"
   },
   "peerDependencies": {
