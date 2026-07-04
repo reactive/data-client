@@ -1,0 +1,20 @@
+---
+description: CircleCI and GitHub Actions conventions - Jest worker pinning, esmodule relevance flag, workspace trimming
+globs: .circleci/**, .github/workflows/*.yml
+alwaysApply: false
+---
+
+# CI configuration
+
+## CircleCI (`.circleci/config.yml`)
+
+- Jest `--maxWorkers` is pinned per job to the `resource_class` vCPU count (large = 4, medium = 2) because docker containers report the host's CPUs via `os.cpus()`. Exception: the ReactNative `unit_tests` run is deliberately uncapped — its suites are fake-timer-wait dominated and capping workers flakes 5s test timeouts.
+- The esmodule jobs halt based on a `.ci-esmodule-relevant` flag computed once in `setup` and transported via `save_cache`/`restore_cache` (keyed on `CIRCLE_SHA1`) so jobs can halt before paying `attach_workspace`. The flag's path regex in `setup` must cover every path the esmodule jobs build (currently `examples/todo-app`, `examples/github-app`, `examples/normalizr-relationships`, `packages/`, `yarn.lock`, the config itself). Missing/unreadable flag fails open (jobs run).
+- Never `git fetch --depth` the base branch in the relevance check: a shallow fetch severs the merge base and the three-dot diff fails.
+- Changing root `package.json` `workspaces` requires updating the `setup` job's workspace trimming step.
+
+## GitHub Actions (`.github/workflows/`)
+
+- Workflows install only needed workspaces via `./scripts/ci-install.sh [extra-workspace ...]`.
+- `benchmark-react.yml` caches Playwright browsers keyed on the resolved `playwright` version from `examples/benchmark-react`; bumping playwright invalidates the cache automatically.
+- Benchmark workflows (`benchmark.yml`, `benchmark-react.yml`) tune the host (CPU governor, swapoff) and pin CPUs with `taskset` — they must run directly on the runner, not in a `container:`.
