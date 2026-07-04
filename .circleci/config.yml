@@ -22,11 +22,26 @@ executors:
 
 commands:
   halt-unless-esmodule-relevant-change:
+    # Reads the flag computed once in the `setup` job (attach_workspace must run first).
     steps:
-      # Ensure we have a git checkout with history to diff against
-      - checkout
       - run:
           name: Skip job if only non-esmodule paths changed
+          command: |
+            # Fail open: only halt when setup explicitly determined irrelevance.
+            if [ "$(cat ~/project/.ci-esmodule-relevant 2>/dev/null)" = "false" ]; then
+              echo "No relevant esmodule-related changes; halting this job."
+              circleci-agent step halt
+            fi
+            echo "Relevant changes detected; continuing job."
+
+jobs:
+  setup:
+    executor: node
+    resource_class: large
+    steps:
+      - checkout
+      - run:
+          name: Detect esmodule-relevant changes
           command: |
             # Determine changed files relative to the default branch when available.
             # Use CIRCLE_DEFAULT_BRANCH so this stays correct if the default branch changes.
@@ -55,19 +70,12 @@ commands:
 
             if echo "${CHANGED_FILES}" | grep -Eq \
               '^(\.circleci/config\.yml|yarn\.lock|examples/todo-app/|examples/github-app/|packages/)'; then
-              echo "Relevant changes detected; continuing job."
+              echo "Relevant changes detected."
+              echo "true" > ~/project/.ci-esmodule-relevant
             else
-              echo "No relevant esmodule-related changes; halting this job."
-              circleci-agent step halt
+              echo "No relevant esmodule-related changes; downstream esmodule jobs will halt."
+              echo "false" > ~/project/.ci-esmodule-relevant
             fi
-
-jobs:
-  setup:
-    executor: node
-    resource_class: large
-    steps:
-      - checkout:
-          depth: 1
       - run:
           name: Add examples/* to yarn workspace
           command: |
@@ -94,12 +102,22 @@ jobs:
             - .yarn/cache
             - .yarn/install-state.gz
           key: v14-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}-{{ checksum "examples/todo-app/package.json" }}
-      - run: yarn run ci:build:types
-      - run: yarn run ci:build-test-lib
+      - run:
+          # These are independent (babel/rollup compile from src, not tsc output),
+          # so run them concurrently to shorten the critical path.
+          name: Build types and test lib (parallel)
+          command: |
+            yarn run ci:build:types &
+            TYPES_PID=$!
+            yarn run ci:build-test-lib &
+            TESTLIB_PID=$!
+            wait $TYPES_PID
+            wait $TESTLIB_PID
       - persist_to_workspace:
           root: ~/
           paths:
             # explicitly list so we can ignore some directories that are not needed
+            - project/.ci-esmodule-relevant
             - project/.yarn
             - project/__tests__
             - project/examples/todo-app
@@ -162,17 +180,19 @@ jobs:
             fi
       - run:
           name: Running Jest
+          # --maxWorkers matches resource_class (large = 4 vCPU); Jest's
+          # os.cpus() sees the host's CPUs in docker and would oversubscribe.
           command: |
             if [ "<< parameters.react-version >>" == "^17" ]; then
-              yarn test:ci --selectProjects ReactDOM --testPathPatterns packages/react packages/use-enhanced-reducer packages/img
+              yarn test:ci --maxWorkers=4 --selectProjects ReactDOM --testPathPatterns packages/react packages/use-enhanced-reducer packages/img
             elif [ "<< parameters.react-version >>" == "^18" ]; then
-              yarn test:ci --selectProjects ReactDOM --testPathPatterns packages/react packages/use-enhanced-reducer packages/img
+              yarn test:ci --maxWorkers=4 --selectProjects ReactDOM --testPathPatterns packages/react packages/use-enhanced-reducer packages/img
             elif [ "<< parameters.react-version >>" == "native" ]; then
-              yarn test:ci --selectProjects ReactNative
+              yarn test:ci --maxWorkers=4 --selectProjects ReactNative
             else
               curl -Os https://uploader.codecov.io/latest/linux/codecov;
               chmod +x codecov;
-              yarn run test:coverage --ci --selectProjects ReactDOM Node --coverageReporters=text-lcov > ./lcov.info;
+              yarn run test:coverage --ci --maxWorkers=4 --selectProjects ReactDOM Node --coverageReporters=text-lcov > ./lcov.info;
               if [ "$CODECOV_TOKEN" != "" ]; then
                 ./codecov -t ${CODECOV_TOKEN} < ./lcov.info || true;
               else
@@ -201,16 +221,18 @@ jobs:
             yarn up react@^18 react-dom@^18 react-test-renderer@^18
       - run:
           # we must use npm because yarn 4 isn't compatible with legacy node versions
+          # --maxWorkers matches resource_class (default medium = 2 vCPU); Jest's
+          # os.cpus() sees the host's CPUs in docker and would oversubscribe.
           command: |
-            ANANSI_JEST_TYPECHECK=false yarn test --ci --selectProjects Node
+            ANANSI_JEST_TYPECHECK=false yarn test --ci --maxWorkers=2 --selectProjects Node
 
   setup-esmodule-types:
     executor: node
     resource_class: large
     steps:
-      - halt-unless-esmodule-relevant-change
       - attach_workspace:
           at: ~/
+      - halt-unless-esmodule-relevant-change
       - run:
           name: Build Legacy Types
           command: yarn run ci:build:legacy-types
@@ -226,9 +248,9 @@ jobs:
         type: string
     executor: node
     steps:
-      - halt-unless-esmodule-relevant-change
       - attach_workspace:
           at: ~/
+      - halt-unless-esmodule-relevant-change
       - run:
           name: Install TypeScript Version
           command: |
@@ -262,9 +284,9 @@ jobs:
   esmodule-types-latest:
     executor: node
     steps:
-      - halt-unless-esmodule-relevant-change
       - attach_workspace:
           at: ~/
+      - halt-unless-esmodule-relevant-change
       - run:
           name: Run Typecheck
           command: |
@@ -285,9 +307,9 @@ jobs:
   validate-esmodule-browser-build:
     executor: node
     steps:
-      - halt-unless-esmodule-relevant-change
       - attach_workspace:
           at: ~/
+      - halt-unless-esmodule-relevant-change
       - run: yarn run ci:build:esmodule
       - run:
           command: |
