@@ -46,7 +46,8 @@ jobs:
         run: ./scripts/ci-install.sh examples/benchmark-react
       - name: Get Playwright version
         id: playwright-version
-        run: echo "version=$(node -p "require('playwright/package.json').version")" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "version=$(node -p "require(require.resolve('playwright/package.json', { paths: ['examples/benchmark-react'] })).version")" >> "$GITHUB_OUTPUT"
       - name: Cache Playwright browsers
         id: playwright-cache
         uses: actions/cache@v6
@@ -54,11 +55,13 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
       - name: Install Playwright (Chromium + system deps)
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: npx playwright install chromium --with-deps
-      - name: Install Playwright system deps (cached browsers)
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: npx playwright install-deps chromium
+        # System deps can't live in the cache, so install them either way.
+        run: |
+          if [ "${{ steps.playwright-cache.outputs.cache-hit }}" = "true" ]; then
+            npx playwright install-deps chromium
+          else
+            npx playwright install chromium --with-deps
+          fi
       - name: Build packages
         run: yarn build:benchmark-react
       - name: Tune system for benchmarking

@@ -27,12 +27,15 @@ commands:
       - run:
           name: Skip job if only non-esmodule paths changed
           command: |
-            # Fail open: only halt when setup explicitly determined irrelevance.
-            if [ "$(cat ~/project/.ci-esmodule-relevant 2>/dev/null)" = "false" ]; then
+            FLAG="$(cat ~/project/.ci-esmodule-relevant 2>/dev/null)" || FLAG=''
+            if [ "${FLAG}" = "false" ]; then
               echo "No relevant esmodule-related changes; halting this job."
               circleci-agent step halt
+            elif [ "${FLAG}" = "true" ]; then
+              echo "Relevant changes detected; continuing job."
+            else
+              echo "No relevance flag found; failing open (continuing job)."
             fi
-            echo "Relevant changes detected; continuing job."
 
 jobs:
   setup:
@@ -43,40 +46,39 @@ jobs:
       - run:
           name: Detect esmodule-relevant changes
           command: |
-            # Determine changed files relative to the default branch when available.
+            # Compare against the default branch (or its previous commit).
             # Use CIRCLE_DEFAULT_BRANCH so this stays correct if the default branch changes.
             BASE_BRANCH="${CIRCLE_DEFAULT_BRANCH:-master}"
+            # Fail open: run the esmodule jobs unless we can prove irrelevance.
+            ESMODULE_RELEVANT=true
 
-            # If we can't find origin/${BASE_BRANCH} (or previous commit), consider this run relevant.
             if [ "${CIRCLE_BRANCH}" = "${BASE_BRANCH}" ]; then
-              if git rev-parse HEAD~1 >/dev/null 2>&1; then
-                CHANGED_FILES="$(git diff --name-only HEAD~1...HEAD || true)"
-              else
-                echo "No previous commit on ${BASE_BRANCH}; treating as relevant."
-                CHANGED_FILES=".circleci/config.yml"
-              fi
+              DIFF_RANGE="HEAD~1...HEAD"
             else
               # NOTE: never fetch with --depth here: a shallow fetch severs the
               # merge base, making the three-dot diff fail (and thus previously
               # silently skipping these checks on every PR branch).
-              git fetch --force origin "${BASE_BRANCH}:refs/remotes/origin/${BASE_BRANCH}" || true
-              if ! CHANGED_FILES="$(git diff --name-only "origin/${BASE_BRANCH}...HEAD")"; then
-                echo "Could not diff against origin/${BASE_BRANCH}; treating as relevant."
-                CHANGED_FILES=".circleci/config.yml"
+              # blob:none keeps the commit/tree graph (enough for merge-base and
+              # --name-only diffs) without transferring file contents.
+              git fetch --force --filter=blob:none origin "${BASE_BRANCH}:refs/remotes/origin/${BASE_BRANCH}" || true
+              DIFF_RANGE="origin/${BASE_BRANCH}...HEAD"
+            fi
+
+            if CHANGED_FILES="$(git diff --name-only "${DIFF_RANGE}")"; then
+              echo "Changed files:"
+              echo "${CHANGED_FILES}"
+              if echo "${CHANGED_FILES}" | grep -Eq \
+                '^(\.circleci/config\.yml|yarn\.lock|examples/todo-app/|examples/github-app/|examples/normalizr-relationships/|packages/)'; then
+                echo "Relevant changes detected."
+              else
+                echo "No relevant esmodule-related changes; downstream esmodule jobs will halt."
+                ESMODULE_RELEVANT=false
               fi
-            fi
-
-            echo "Changed files:"
-            echo "${CHANGED_FILES}"
-
-            if echo "${CHANGED_FILES}" | grep -Eq \
-              '^(\.circleci/config\.yml|yarn\.lock|examples/todo-app/|examples/github-app/|packages/)'; then
-              echo "Relevant changes detected."
-              echo "true" > ~/project/.ci-esmodule-relevant
             else
-              echo "No relevant esmodule-related changes; downstream esmodule jobs will halt."
-              echo "false" > ~/project/.ci-esmodule-relevant
+              echo "Could not diff ${DIFF_RANGE}; treating as relevant."
             fi
+
+            echo "${ESMODULE_RELEVANT}" > ~/project/.ci-esmodule-relevant
       - run:
           name: Add examples/* to yarn workspace
           command: |
@@ -107,13 +109,7 @@ jobs:
           # These are independent (babel/rollup compile from src, not tsc output),
           # so run them concurrently to shorten the critical path.
           name: Build types and test lib (parallel)
-          command: |
-            yarn run ci:build:types &
-            TYPES_PID=$!
-            yarn run ci:build-test-lib &
-            TESTLIB_PID=$!
-            wait $TYPES_PID
-            wait $TESTLIB_PID
+          command: yarn run ci:build:setup
       - persist_to_workspace:
           root: ~/
           paths:
@@ -184,9 +180,7 @@ jobs:
           # --maxWorkers matches resource_class (large = 4 vCPU); Jest's
           # os.cpus() sees the host's CPUs in docker and would oversubscribe.
           command: |
-            if [ "<< parameters.react-version >>" == "^17" ]; then
-              yarn test:ci --maxWorkers=4 --selectProjects ReactDOM --testPathPatterns packages/react packages/use-enhanced-reducer packages/img
-            elif [ "<< parameters.react-version >>" == "^18" ]; then
+            if [ "<< parameters.react-version >>" == "^17" ] || [ "<< parameters.react-version >>" == "^18" ]; then
               yarn test:ci --maxWorkers=4 --selectProjects ReactDOM --testPathPatterns packages/react packages/use-enhanced-reducer packages/img
             elif [ "<< parameters.react-version >>" == "native" ]; then
               # No --maxWorkers here: the ReactNative suites are dominated by
@@ -225,8 +219,7 @@ jobs:
             yarn up react@^18 react-dom@^18 react-test-renderer@^18
       - run:
           # we must use npm because yarn 4 isn't compatible with legacy node versions
-          # --maxWorkers matches resource_class (default medium = 2 vCPU); Jest's
-          # os.cpus() sees the host's CPUs in docker and would oversubscribe.
+          # --maxWorkers matches resource_class (default medium = 2 vCPU); see unit_tests
           command: |
             ANANSI_JEST_TYPECHECK=false yarn test --ci --maxWorkers=2 --selectProjects Node
 
