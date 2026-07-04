@@ -29,8 +29,6 @@ Monorepo for `@data-client` high performance npm packages.
 
 Changing root `package.json` `workspaces` requires updating `.circleci/config.yml` (`setup` job) and `.github/workflows/` install steps.
 
-CircleCI pins Jest `--maxWorkers` to each job's `resource_class` vCPUs (docker reports host CPUs) — except ReactNative, which flakes when capped. ESM jobs halt via a `.ci-esmodule-relevant` flag computed once in `setup`; its path regex must cover the examples those jobs build.
-
 ## Changesets
 
 Any user-facing change in `packages/*` requires a changeset. Core packages are version-linked (bumping one bumps all). See skill "changeset" for full workflow.
