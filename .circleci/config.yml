@@ -189,7 +189,10 @@ jobs:
             elif [ "<< parameters.react-version >>" == "^18" ]; then
               yarn test:ci --maxWorkers=4 --selectProjects ReactDOM --testPathPatterns packages/react packages/use-enhanced-reducer packages/img
             elif [ "<< parameters.react-version >>" == "native" ]; then
-              yarn test:ci --maxWorkers=4 --selectProjects ReactNative
+              # No --maxWorkers here: the ReactNative suites are dominated by
+              # fake-timer waits, and capping workers makes the heavy hook
+              # suites contend enough to flake 5s test timeouts.
+              yarn test:ci --selectProjects ReactNative
             else
               curl -Os https://uploader.codecov.io/latest/linux/codecov;
               chmod +x codecov;
