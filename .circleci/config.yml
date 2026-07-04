@@ -22,8 +22,12 @@ executors:
 
 commands:
   halt-unless-esmodule-relevant-change:
-    # Reads the flag computed once in the `setup` job (attach_workspace must run first).
+    # Reads the flag computed once in the `setup` job. Transported via cache
+    # (not the workspace) so jobs can halt before paying attach_workspace.
     steps:
+      - restore_cache:
+          keys:
+            - esmodule-relevant-v1-{{ .Environment.CIRCLE_SHA1 }}
       - run:
           name: Skip job if only non-esmodule paths changed
           command: |
@@ -79,6 +83,10 @@ jobs:
             fi
 
             echo "${ESMODULE_RELEVANT}" > ~/project/.ci-esmodule-relevant
+      - save_cache:
+          key: esmodule-relevant-v1-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - .ci-esmodule-relevant
       - run:
           name: Add examples/* to yarn workspace
           command: |
@@ -114,7 +122,6 @@ jobs:
           root: ~/
           paths:
             # explicitly list so we can ignore some directories that are not needed
-            - project/.ci-esmodule-relevant
             - project/.yarn
             - project/__tests__
             - project/examples/todo-app
@@ -227,9 +234,9 @@ jobs:
     executor: node
     resource_class: large
     steps:
+      - halt-unless-esmodule-relevant-change
       - attach_workspace:
           at: ~/
-      - halt-unless-esmodule-relevant-change
       - run:
           name: Build Legacy Types
           command: yarn run ci:build:legacy-types
@@ -245,9 +252,9 @@ jobs:
         type: string
     executor: node
     steps:
+      - halt-unless-esmodule-relevant-change
       - attach_workspace:
           at: ~/
-      - halt-unless-esmodule-relevant-change
       - run:
           name: Install TypeScript Version
           command: |
@@ -281,9 +288,9 @@ jobs:
   esmodule-types-latest:
     executor: node
     steps:
+      - halt-unless-esmodule-relevant-change
       - attach_workspace:
           at: ~/
-      - halt-unless-esmodule-relevant-change
       - run:
           name: Run Typecheck
           command: |
@@ -304,9 +311,9 @@ jobs:
   validate-esmodule-browser-build:
     executor: node
     steps:
+      - halt-unless-esmodule-relevant-change
       - attach_workspace:
           at: ~/
-      - halt-unless-esmodule-relevant-change
       - run: yarn run ci:build:esmodule
       - run:
           command: |
