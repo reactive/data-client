@@ -49,7 +49,7 @@ function Preview<T>({
     [],
   );
 
-  const hiddenResult = !(selectedValue === 'n' || !row);
+  const hiddenResult = row && selectedValue === 'y';
   return (
     <DataProvider managers={managers}>
       <MockResolver

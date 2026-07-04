@@ -2,25 +2,26 @@ import Editor from '@monaco-editor/react';
 import type { ISelection } from 'monaco-editor';
 import type * as Monaco from 'monaco-editor';
 import rangeParser from 'parse-numeric-range';
-import { useCallback, useMemo } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { LiveEditor } from 'react-live';
 import './monaco-init';
 
 import { extensionToMonacoLanguage } from './extensionToMonacoLanguage';
 import { isMobileOrBot } from './isMobileOrBot';
-import { largeOptions, options } from './monacoOptions';
+import { options } from './monacoOptions';
 import PlaygroundLiveEditor from './PlaygroundLiveEditor';
 import useAutoHeight from './useAutoHeight';
 
-export default function PlaygroundMonacoEditor({
+// TODO: consider using the ts worker's getEmitOutput to compile rather than babel
+
+function PlaygroundMonacoEditor({
   onChange,
   code,
   path = '',
   onFocus,
   tabIndex,
-  highlights = undefined,
+  highlights,
   autoFocus = false,
-  large = false,
   isFocused = false,
   language = 'tsx',
   readOnly = false,
@@ -32,26 +33,11 @@ export default function PlaygroundMonacoEditor({
   tabIndex: number;
   highlights?: string;
   autoFocus?: boolean;
-  large?: boolean;
   isFocused?: boolean;
   language?: string;
   readOnly?: boolean;
 }) {
-  const editorOptions = useMemo(
-    () => ({ ...(large ? largeOptions : options), readOnly }),
-    [large, readOnly],
-  );
-  //const isBrowser = useIsBrowser(); we used to key Editor on this; but I'm not sure why
-
-  /* TODO: using ts to compile rather than babel
-  const handleChange = useWorkerCB(
-    tsWorker => {
-      tsWorker.getEmitOutput(`file:///${path}`).then(source => {
-        onChange(source.outputFiles[0].text);
-      });
-    },
-    [onChange, path],
-  );*/
+  const editorOptions = useMemo(() => ({ ...options, readOnly }), [readOnly]);
   const { height, handleMount: handleAutoMount } = useAutoHeight({
     isFocused,
     lineHeight: editorOptions.lineHeight,
@@ -102,6 +88,13 @@ export default function PlaygroundMonacoEditor({
     [],
   );
 
+  // loading only shows the initial snapshot, so it need not track code changes
+  const loading = useMemo(
+    () => <LiveEditor language={language} code={code} disabled />,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [language],
+  );
+
   // Use lightweight editor for mobile/bots
   // This runs inside BrowserOnly, so navigator is always defined
   // Check must be after hooks to satisfy React's rules of hooks
@@ -115,12 +108,12 @@ export default function PlaygroundMonacoEditor({
       defaultLanguage={extensionToMonacoLanguage(language)}
       onChange={onChange}
       defaultValue={code}
-      //value={code}
       options={editorOptions}
       theme="prism"
       onMount={handleMount}
       height={height}
-      loading={<LiveEditor language={language} code={code} disabled />}
+      loading={loading}
     />
   );
 }
+export default memo(PlaygroundMonacoEditor);

@@ -1,4 +1,3 @@
-import useBaseUrl from '@docusaurus/useBaseUrl';
 import React from 'react';
 import { LiveError, LivePreview } from 'react-live';
 

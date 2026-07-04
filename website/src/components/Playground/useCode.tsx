@@ -1,4 +1,7 @@
-import { parseCodeBlockTitle } from '@docusaurus/theme-common/internal';
+import {
+  parseCodeBlockTitle,
+  parseLanguage,
+} from '@docusaurus/theme-common/internal';
 import React, { useMemo, useReducer } from 'react';
 
 export interface CodeTab {
@@ -37,10 +40,10 @@ export function useCode(
         const collapsed =
           defaultTab ?
             title !== defaultTab
-          : (parseCodeBlockCollapsed(metastring) ?? false);
-        const col = parseCodeBlockCol(metastring) ?? false;
+          : parseCodeBlockCollapsed(metastring);
+        const col = parseCodeBlockCol(metastring);
         const highlights = /\{([\d\-,.]+)\}/.exec(metastring)?.[1];
-        const language = /language-(\w+)/.exec(rest.className)?.[1] ?? 'tsx';
+        const language = parseLanguage(rest.className) ?? 'tsx';
         const extension = langToExtension(language);
         const fileBase = title || 'default';
         const path =
@@ -62,15 +65,9 @@ export function useCode(
   const [codes, dispatch] = useReducer(reduceCodes, undefined, () =>
     codeTabs.map(({ code }) => code),
   );
-  //const [ready, setReady] = useState(() => codeTabs.map(() => false));
   const handleCodeChange = useMemo(
     () =>
       codeTabs.map((_, i) => v => {
-        /*setReady(readies => {
-      const ret = [...readies];
-      ret[i] = true;
-      return ret;
-    });*/
         dispatch({ i, code: v });
       }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -87,17 +84,17 @@ function reduceCodes(state: string[], action: { i: number; code: string }) {
 const codeBlockCollapsedRegex = /\bcollapsed\b/;
 const codeBlockColRegex = /\bcolumn\b/;
 const codeBlockPathRegex = /path=(?<quote>["'])(?<path>.*?)\1/;
-export function parseCodeBlockCollapsed(metastring?: string): boolean {
+function parseCodeBlockCollapsed(metastring?: string): boolean {
   return codeBlockCollapsedRegex.test(metastring ?? '');
 }
-export function parseCodeBlockCol(metastring?: string): boolean {
+function parseCodeBlockCol(metastring?: string): boolean {
   return codeBlockColRegex.test(metastring ?? '');
 }
-export function parseCodeBlockPath(metastring?: string): string {
-  return metastring?.match(codeBlockPathRegex)?.groups!.path ?? '';
+function parseCodeBlockPath(metastring?: string): string {
+  return metastring?.match(codeBlockPathRegex)?.groups?.path ?? '';
 }
 
-export function langToExtension(lang: string) {
+function langToExtension(lang: string) {
   if (lang === 'typescript') return 'ts';
   return lang;
 }

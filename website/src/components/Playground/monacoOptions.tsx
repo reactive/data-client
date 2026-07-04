@@ -16,9 +16,3 @@ export const options = {
   fontSize: 13,
   lineHeight: 19,
 } as const;
-
-export const largeOptions = {
-  ...options,
-  fontSize: 14,
-  lineHeight: 20,
-};

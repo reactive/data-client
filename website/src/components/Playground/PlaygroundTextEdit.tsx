@@ -26,7 +26,6 @@ export function PlaygroundTextEdit({
   codeTabs,
   handleCodeChange,
   codes,
-  large = false,
   isPlayground = true,
 }: PlaygroundProps) {
   const id = useId();
@@ -81,13 +80,11 @@ export function PlaygroundTextEdit({
                 onClick={() => handleTabToggle(i)}
                 closed={closedList[i]}
                 title={title}
-                collapsible={codeTabs.length > 1 || fixtures?.length}
-                lastChild={i === codeTabs.length - 1 && large}
+                collapsible={codeTabs.length > 1 || !!fixtures?.length}
               />
             : null}
             <TextEditTab
               hidden={closedList[i]}
-              key={i}
               tabIndex={i}
               onFocus={
                 row && !col && codeTabs.length > 1 ?
@@ -100,7 +97,6 @@ export function PlaygroundTextEdit({
               isFocused={!closedList[i]}
               language={language}
               {...rest}
-              large={large}
             />
           </React.Fragment>
         ),
@@ -114,7 +110,6 @@ interface PlaygroundProps {
   codeTabs: CodeTab[];
   handleCodeChange: UseCodeReturn['handleCodeChange'];
   codes: UseCodeReturn['codes'];
-  large?: boolean;
   isPlayground?: boolean;
 }
 
@@ -135,28 +130,24 @@ function TextEditTab({
         {code}
       </pre>
       // monaco editor doesn't work with SSR - so use LiveEditor which still shows readable code while the js loads
-    : <LiveEditor key={tabIndex} language={language} code={code} disabled />;
+    : <LiveEditor language={language} code={code} disabled />;
   return (
-    <>
-      <div
-        key={tabIndex}
-        className={clsx(styles.playgroundEditor, {
-          [styles.hidden]: hidden,
-        })}
-      >
-        <BrowserOnly fallback={fallback}>
-          {() => (
-            <PlaygroundEditor
-              key={tabIndex}
-              tabIndex={tabIndex}
-              code={code}
-              language={language}
-              {...rest}
-            />
-          )}
-        </BrowserOnly>
-      </div>
-    </>
+    <div
+      className={clsx(styles.playgroundEditor, {
+        [styles.hidden]: hidden,
+      })}
+    >
+      <BrowserOnly fallback={fallback}>
+        {() => (
+          <PlaygroundEditor
+            tabIndex={tabIndex}
+            code={code}
+            language={language}
+            {...rest}
+          />
+        )}
+      </BrowserOnly>
+    </div>
   );
 }
 
@@ -165,23 +156,15 @@ function CodeTabHeader({
   closed,
   title,
   collapsible = false,
-  lastChild = false,
 }: {
   onClick: () => void;
   closed: boolean;
   title: React.ReactNode;
-  collapsible?: boolean | number;
-  lastChild?: boolean;
+  collapsible?: boolean;
 }) {
   if (collapsible)
     return (
-      <Header
-        className={clsx({
-          [styles.lastChild]: lastChild && closed,
-        })}
-        small={true}
-        onClick={onClick}
-      >
+      <Header small={true} onClick={onClick}>
         <span
           className={clsx(styles.arrow, closed ? styles.right : styles.down)}
         >
@@ -232,6 +215,8 @@ function EditorTabs({
     </Header>
   );
 }
+// Not React's useId: ids are embedded in Monaco model URIs and extracted with
+// /\/\d+\// in monaco-init.ts, so they must be purely numeric (no ':').
 function useId() {
   return useMemo(() => (Math.random() * 10000).toPrecision(4).toString(), []);
 }

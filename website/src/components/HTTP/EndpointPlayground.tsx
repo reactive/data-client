@@ -35,7 +35,6 @@ export default function EndpointPlayground({
           codeTabs={codeTabs}
           handleCodeChange={handleCodeChange}
           codes={codes}
-          large={false}
           isPlayground={false}
         />
       </LiveProvider>

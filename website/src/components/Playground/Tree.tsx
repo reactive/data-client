@@ -1,22 +1,20 @@
-import { useColorMode, usePrismTheme } from '@docusaurus/theme-common';
+import { useColorMode } from '@docusaurus/theme-common';
 import React, { useMemo } from 'react';
 import { JSONTree } from 'react-json-tree';
 
+const valueColorMap = {
+  String: 'rgb(195, 232, 141)',
+  Date: 'rgb(247, 140, 108)',
+  Number: 'rgb(247, 140, 108)',
+  Boolean: 'rgb(247, 140, 108)',
+  Null: 'rgb(255, 88, 116)',
+  Undefined: 'rgb(255, 88, 116)',
+  Function: 'rgb(247, 140, 108)',
+  Symbol: 'rgb(247, 140, 108)',
+};
+
 export default function Output({ value }: { value: any }) {
   const isDarkTheme = useColorMode().colorMode === 'dark';
-  const valueColorMap = useMemo(
-    () => ({
-      String: 'rgb(195, 232, 141)',
-      Date: 'rgb(247, 140, 108)',
-      Number: 'rgb(247, 140, 108)',
-      Boolean: 'rgb(247, 140, 108)',
-      Null: 'rgb(255, 88, 116)',
-      Undefined: 'rgb(255, 88, 116)',
-      Function: 'rgb(247, 140, 108)',
-      Symbol: 'rgb(247, 140, 108)',
-    }),
-    [],
-  );
   const theme = useMemo(
     () => ({
       tree: {
@@ -29,7 +27,7 @@ export default function Output({ value }: { value: any }) {
         font: 'var(--ifm-code-font-size) / var(--ifm-pre-line-height) var(--ifm-font-family-monospace) !important',
         color: 'rgb(227, 227, 227)',
       },
-      arrowContainer: ({ style }, arrowStyle) => ({
+      arrowContainer: ({ style }) => ({
         style: {
           ...style,
           fontFamily: 'arial',
@@ -54,7 +52,7 @@ export default function Output({ value }: { value: any }) {
       }),
       base0B: 'rgb(191, 199, 213)',
     }),
-    [isDarkTheme, valueColorMap],
+    [isDarkTheme],
   );
   const shouldExpandNodeInitially = useMemo(shouldExpandNode, []);
   return (
@@ -86,7 +84,15 @@ const shouldExpandNode = () => {
   };
 };
 
-const HASINTL = typeof Intl !== 'undefined';
+const timeFormatter =
+  typeof Intl !== 'undefined' ?
+    Intl.DateTimeFormat('en-US', {
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+      fractionalSecondDigits: 3,
+    })
+  : undefined;
 
 function valueRenderer(
   valueAsString: string,
@@ -95,18 +101,13 @@ function valueRenderer(
 ) {
   const key = keyPath[0];
   if (
-    HASINTL &&
+    timeFormatter &&
     typeof value === 'number' &&
     typeof key === 'string' &&
     isFinite(value) &&
     (key === 'date' || key.endsWith('At'))
   ) {
-    return Intl.DateTimeFormat('en-US', {
-      hour: 'numeric',
-      minute: 'numeric',
-      second: 'numeric',
-      fractionalSecondDigits: 3,
-    }).format(value);
+    return timeFormatter.format(value);
   }
   return valueAsString;
 }
