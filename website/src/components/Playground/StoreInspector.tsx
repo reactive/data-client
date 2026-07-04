@@ -10,9 +10,7 @@ function StoreInspector({
   selectedValue,
 }: {
   selectedValue: 'y' | 'n';
-  toggle: (
-    event: React.FocusEvent<HTMLLIElement> | React.MouseEvent<HTMLLIElement>,
-  ) => void;
+  toggle: React.MouseEventHandler<HTMLDivElement>;
 }) {
   const isSelected = selectedValue === 'y';
   return (
@@ -31,7 +29,7 @@ export function StoreToggle({
   onClick,
   open = true,
 }: {
-  onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
+  onClick?: React.MouseEventHandler<HTMLDivElement>;
   open?: boolean;
 }) {
   return (

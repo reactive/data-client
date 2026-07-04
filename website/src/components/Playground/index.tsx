@@ -7,6 +7,7 @@ import Boundary from './Boundary';
 import { isGoogleBot } from './isMobileOrBot';
 import MonacoPreloads from './MonacoPreloads';
 import { PlaygroundTextEdit } from './PlaygroundTextEdit';
+import type PreviewWithScopeType from './PreviewWithScope';
 import PreviewWrapper from './PreviewWrapper';
 import { StoreToggle } from './StoreInspector';
 import styles from './styles.module.css';
@@ -116,9 +117,9 @@ const previewLoading = (
   </PreviewWrapper>
 );
 
-const PreviewWithScopeLazy = lazy(() =>
+const PreviewWithScopeLazy = lazy<typeof PreviewWithScopeType>(() =>
   isGoogleBot ?
-    Promise.resolve({ default: (): JSX.Element => previewLoading })
+    Promise.resolve({ default: () => previewLoading })
   : import(
       /* webpackChunkName: 'PreviewWithScope', webpackPrefetch: true */ './PreviewWithScope'
     ),
