@@ -45,6 +45,7 @@ Any user-facing change in `packages/*` requires a changeset. Core packages are v
 
 1. **Prefer smaller React components** that do one thing
 2. **Use fixtures/interceptors for testing** instead of mocking
+3. **Consider project [goals](./GOALS.md)** when considering library changes
 
 ## Documentation Updates
 

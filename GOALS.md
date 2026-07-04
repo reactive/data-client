@@ -1,0 +1,21 @@
+# Goals
+
+- First class support for sharing API definitions across projects, platforms, and uses.
+  - React Native, React Web, NextJS, Anansi, NodeJS, Bun, Vue (secondary)
+  - One definition, many uses
+  - Wide version ranges (React, TypeScript, Node, browsers); minimal runtime dependencies
+- Understandable at scale
+  - Rely on a minimal number of heavy lifting core concepts
+  - Absolute minimum complexity as things scale
+  - Intuitive to agents and humans; skills and codemods for onboarding, debugging, migrations
+  - Data binding directly in the component that renders the data
+- Strong data integrity guarantees
+  - Referential stability: unchanged data keeps the same object identity everywhere
+  - Atomic mutations; every view consistent without refetching
+  - Types and runtime never silently diverge
+- Best performance in class
+  - Networking overhead is the most expensive - minimize this first
+  - 60 FPS continuous experience even on mid-range hardware. No blocking stutters.
+  - Minimize bundle size when it doesn't significantly impact other goals
+  - We assume best practices production bundling: brotli, minification, react compiler, etc
+  - Claims backed by fair, reproducible benchmarks of real DOM updates; stated neutrally
