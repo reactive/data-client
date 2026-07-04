@@ -1,39 +1,38 @@
 import pkg from 'monaco-editor/package.json';
 import React, { memo } from 'react';
 
+import { MOBILE_OR_BOT_UA_REGEX } from './isMobileOrBot';
+
 function MonacoPreloads() {
   return (
-    <>
-      <script
-        dangerouslySetInnerHTML={{ __html: preloadScript }}
-        type="application/javascript"
-      />
-    </>
+    <script
+      dangerouslySetInnerHTML={{ __html: preloadScript }}
+      type="application/javascript"
+    />
   );
 }
 export default memo(MonacoPreloads);
 
-export const MONACO_VERSION = pkg.version ?? '0.46.0';
+export const MONACO_CDN_VS = `https://cdn.jsdelivr.net/npm/monaco-editor@${pkg.version}/min/vs`;
 
 const monacoPreloads = [
-  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/editor/editor.main.js`,
-  //`https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/editor/editor.main.css`, if we load this early the css doesn't work right
-  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/loader.js`,
-  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/nls.messages-loader.js`,
-  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/basic-languages/monaco.contribution.js`,
-  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/editor.api-CalNCsUg.js`,
-  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/workers-DcJshg-q.js`,
+  `${MONACO_CDN_VS}/editor/editor.main.js`,
+  //`${MONACO_CDN_VS}/editor/editor.main.css`, if we load this early the css doesn't work right
+  `${MONACO_CDN_VS}/loader.js`,
+  `${MONACO_CDN_VS}/nls.messages-loader.js`,
+  `${MONACO_CDN_VS}/basic-languages/monaco.contribution.js`,
+  `${MONACO_CDN_VS}/editor.api-CalNCsUg.js`,
+  `${MONACO_CDN_VS}/workers-DcJshg-q.js`,
 ];
 const workerPreloads = [
-  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/typescript-DfOrAzoV.js`,
-  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/tsMode-CZz1Umrk.js`,
-  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/assets/ts.worker-CMbG-7ft.js`,
-  `https://cdn.jsdelivr.net/npm/monaco-editor@${MONACO_VERSION}/min/vs/assets/editor.worker-Be8ye1pW.js`,
+  `${MONACO_CDN_VS}/typescript-DfOrAzoV.js`,
+  `${MONACO_CDN_VS}/tsMode-CZz1Umrk.js`,
+  `${MONACO_CDN_VS}/assets/ts.worker-CMbG-7ft.js`,
+  `${MONACO_CDN_VS}/assets/editor.worker-Be8ye1pW.js`,
 ];
 
-// Regex must match isMobileOrBot in isMobileOrBot.ts (cannot import into script string)
 const preloadScript = `
-if (!/bot|googlebot|crawler|spider|robot|crawling|Mobile|Android|BlackBerry/i.test(
+if (!/${MOBILE_OR_BOT_UA_REGEX.source}/i.test(
   navigator.userAgent,
 ) && !window.monacoPreloaded) {
 window.monacoPreloaded = true;

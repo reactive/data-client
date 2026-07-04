@@ -27,8 +27,6 @@ export default function useAutoHeight({
       const el = editor.getContainerDomNode();
       const codeContainers = el.getElementsByClassName('view-lines');
 
-      let prevLineCount = 0;
-
       const model = editor.getModel();
       let lineCount = 10;
       if (model) {
@@ -42,6 +40,7 @@ export default function useAutoHeight({
 
       editor.layout();
 
+      let prevHeight = contentHeight;
       updateHeightRef.current = () => {
         // For diff editors, take max of both sides' line counts
         const codeContainerCount = Math.max(
@@ -54,7 +53,10 @@ export default function useAutoHeight({
         const lineCount =
           viewlinecount < modellinecount * 3 ? viewlinecount : modellinecount;
         const height = lineCount * LINE_HEIGHT + CONTAINER_GUTTER; // fold
-        prevLineCount = codeContainerCount;
+        // decorations change often without affecting height; skip the forced
+        // layout and state update when nothing changed
+        if (height === prevHeight) return;
+        prevHeight = height;
 
         el.style.height = height + 'px';
         setHeight(height);

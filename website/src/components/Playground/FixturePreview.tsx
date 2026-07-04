@@ -21,26 +21,23 @@ function FixtureResponse({
 }: {
   fixture: FixtureOrInterceptor;
 }): ReactElement {
+  if ('fetchResponse' in fixture || typeof fixture.response === 'function') {
+    const fn =
+      'fetchResponse' in fixture ? fixture.fetchResponse : fixture.response;
+    return (
+      <BrowserOnly>
+        {() => (
+          <CodeBlock language="javascript" className={styles.fixtureJson}>
+            {`${fn}`}
+          </CodeBlock>
+        )}
+      </BrowserOnly>
+    );
+  }
   return (
-    'fetchResponse' in fixture ?
-      <BrowserOnly>
-        {() => (
-          <CodeBlock language="javascript" className={styles.fixtureJson}>
-            {`${fixture.fetchResponse}`}
-          </CodeBlock>
-        )}
-      </BrowserOnly>
-    : typeof fixture.response === 'function' ?
-      <BrowserOnly>
-        {() => (
-          <CodeBlock language="javascript" className={styles.fixtureJson}>
-            {`${fixture.response}`}
-          </CodeBlock>
-        )}
-      </BrowserOnly>
-    : <CodeBlock language="json" className={styles.fixtureJson}>
-        {JSON.stringify(fixture.response)}
-      </CodeBlock>
+    <CodeBlock language="json" className={styles.fixtureJson}>
+      {JSON.stringify(fixture.response)}
+    </CodeBlock>
   );
 }
 
@@ -62,10 +59,12 @@ function FixtureOrInterceptor({
       </div>
     );
   }
+  // Interceptor endpoints don't declare these, but RestEndpoints provide them
+  const endpoint = fixture.endpoint as { method?: string; path?: string };
   return (
     <div className={styles.fixtureItem}>
       <div className={styles.fixtureHeader}>
-        {(fixture.endpoint as any).method} {(fixture.endpoint as any).path}
+        {endpoint.method} {endpoint.path}
       </div>
       <FixtureResponse fixture={fixture} />
     </div>

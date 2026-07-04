@@ -1,6 +1,6 @@
-/** Shared user-agent patterns for bot/mobile detection. Inline copy in MonacoPreloads.tsx script string. */
-const BOT_UA_REGEX = /bot|googlebot|crawler|spider|robot|crawling/i;
-const MOBILE_OR_BOT_UA_REGEX =
+/** Shared user-agent patterns for bot/mobile detection. */
+export const BOT_UA_REGEX = /bot|googlebot|crawler|spider|robot|crawling/i;
+export const MOBILE_OR_BOT_UA_REGEX =
   /bot|googlebot|crawler|spider|robot|crawling|Mobile|Android|BlackBerry/i;
 
 /** True if crawler/bot (SSR-safe). Used for skipping Monaco/Preview load. */

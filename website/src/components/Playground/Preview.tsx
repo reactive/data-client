@@ -30,9 +30,7 @@ function Preview<T>({
     useScrollPositionBlocker();
 
   const toggle = useCallback(
-    (
-      event: React.FocusEvent<HTMLLIElement> | React.MouseEvent<HTMLLIElement>,
-    ) => {
+    (event: React.MouseEvent<HTMLDivElement>) => {
       blockElementScrollPositionUntilNextRender(event.currentTarget);
       const next = selectedValue === 'y' ? 'n' : 'y';
       setTabGroupChoice(next);
@@ -49,7 +47,7 @@ function Preview<T>({
     [],
   );
 
-  const hiddenResult = !(selectedValue === 'n' || !row);
+  const hiddenResult = row && selectedValue === 'y';
   return (
     <DataProvider managers={managers}>
       <MockResolver

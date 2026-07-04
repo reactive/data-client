@@ -1,6 +1,5 @@
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import clsx from 'clsx';
-import type { Language, PrismTheme } from 'prism-react-renderer';
 import React, { lazy } from 'react';
 import { LiveProvider } from 'react-live';
 
@@ -8,28 +7,18 @@ import Boundary from './Boundary';
 import { isGoogleBot } from './isMobileOrBot';
 import MonacoPreloads from './MonacoPreloads';
 import { PlaygroundTextEdit } from './PlaygroundTextEdit';
+import type PreviewWithScopeType from './PreviewWithScope';
 import PreviewWrapper from './PreviewWrapper';
+import { StoreToggle } from './StoreInspector';
 import styles from './styles.module.css';
 import type { PreviewProps } from './types';
 import { useCode } from './useCode';
 import { useReactLiveTheme } from './useReactLiveTheme';
 
-// previously exported by react-live
-type LiveProviderProps = {
-  code?: string;
-  disabled?: boolean;
-  enableTypeScript?: boolean;
-  language?: Language;
-  noInline?: boolean;
-  scope?: Record<string, unknown>;
-  theme?: PrismTheme;
-  hidden?: boolean;
-  transformCode?(code: string): void;
-};
+type LiveProviderProps = React.ComponentProps<typeof LiveProvider>;
 
 export default function Playground<T>({
   children,
-  transformCode,
   groupId,
   defaultOpen,
   row = false,
@@ -38,10 +27,11 @@ export default function Playground<T>({
   getInitialInterceptorData,
   defaultTab,
   ...props
-}: Omit<LiveProviderProps, 'ref'> &
+}: LiveProviderProps &
   Omit<PreviewProps<T>, 'row'> & {
     row?: boolean;
-    children: string | any[];
+    hidden?: boolean;
+    children: string | React.ReactElement[];
     defaultTab?: string;
   }) {
   const {
@@ -87,10 +77,8 @@ function PlaygroundContent<T>({
   getInitialInterceptorData,
 }: ContentProps<T>) {
   const { handleCodeChange, codes, codeTabs } = useCode(children, defaultTab);
-  /*const code = ready.every(v => v)
-    ? codes.join('\n')
-    : 'render(<div>Loading...</div>);';*/
-  const code = codes.join('\n');
+  // defer so typing in the editor isn't blocked by preview re-transpilation
+  const code = React.useDeferredValue(codes.join('\n'));
 
   return (
     <Reversible reverse={reverse}>
@@ -125,18 +113,13 @@ interface ContentProps<T = any> extends PreviewProps<T> {
 const previewLoading = (
   <PreviewWrapper key="preview">
     <div className={styles.playgroundPreview}></div>
-    <div className={styles.debugToggle}>
-      Store
-      <span className={clsx(styles.arrow, styles.right, styles.vertical)}>
-        ▶
-      </span>
-    </div>
+    <StoreToggle />
   </PreviewWrapper>
 );
 
-const PreviewWithScopeLazy = lazy(() =>
+const PreviewWithScopeLazy = lazy<typeof PreviewWithScopeType>(() =>
   isGoogleBot ?
-    Promise.resolve({ default: (props: any): JSX.Element => previewLoading })
+    Promise.resolve({ default: () => previewLoading })
   : import(
       /* webpackChunkName: 'PreviewWithScope', webpackPrefetch: true */ './PreviewWithScope'
     ),

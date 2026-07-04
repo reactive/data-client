@@ -10,20 +10,12 @@ function StoreInspector({
   selectedValue,
 }: {
   selectedValue: 'y' | 'n';
-  toggle: (
-    event: React.FocusEvent<HTMLLIElement> | React.MouseEvent<HTMLLIElement>,
-  ) => void;
+  toggle: React.MouseEventHandler<HTMLDivElement>;
 }) {
   const isSelected = selectedValue === 'y';
-  const rotation = isSelected ? styles.right : styles.left;
   return (
     <>
-      <div className={styles.debugToggle} onClick={toggle}>
-        Store
-        <span className={clsx(styles.arrow, rotation, styles.vertical)}>
-          ▶
-        </span>
-      </div>
+      <StoreToggle onClick={toggle} open={isSelected} />
       {isSelected ?
         <StoreTreeM />
       : null}
@@ -32,13 +24,34 @@ function StoreInspector({
 }
 export default memo(StoreInspector);
 
+/** Toggle row shared with the preview loading fallback in ./index.tsx */
+export function StoreToggle({
+  onClick,
+  open = true,
+}: {
+  onClick?: React.MouseEventHandler<HTMLDivElement>;
+  open?: boolean;
+}) {
+  return (
+    <div className={styles.debugToggle} onClick={onClick}>
+      Store
+      <span
+        className={clsx(
+          styles.arrow,
+          open ? styles.right : styles.left,
+          styles.vertical,
+        )}
+      >
+        ▶
+      </span>
+    </div>
+  );
+}
+
 function StoreTree() {
   const state = useContext(StateContext);
   const simplifiedState = useMemo(() => {
-    const ret = {
-      ...state,
-    };
-    delete ret.optimistic;
+    const { optimistic, ...ret } = state;
     return ret;
   }, [state]);
   return <Tree value={simplifiedState} />;
