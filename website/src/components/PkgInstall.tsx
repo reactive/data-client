@@ -2,7 +2,13 @@ import { useStorageSlot } from '@docusaurus/theme-common';
 import CodeBlock from '@theme/CodeBlock';
 import React from 'react';
 
-export default function PkgInstall({ pkgs, dev = false, global }) {
+interface Props {
+  pkgs: string;
+  dev?: boolean;
+  global?: boolean;
+}
+
+export default function PkgInstall({ pkgs, dev = false, global }: Props) {
   const [relevantTabGroupChoice] = useStorageSlot(
     'docusaurus.tab.node-packages-program',
   );
@@ -14,7 +20,7 @@ export default function PkgInstall({ pkgs, dev = false, global }) {
         {pkgs}
       </CodeBlock>
     );
-  } else if (relevantTabGroupChoice === 'pnmp') {
+  } else if (relevantTabGroupChoice === 'pnpm') {
     return (
       <CodeBlock className="language-bash">
         pnpm add{global ? ' -g' : ''}

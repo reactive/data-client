@@ -5,8 +5,32 @@ import clsx from 'clsx';
 import React from 'react';
 
 import styles from './HomepageFeatures.module.css';
+import ChemicalCompositionSvg from '../../static/img/chemical-composition.svg';
+import FastCarSvg from '../../static/img/fast-car.svg';
+import GrowingBarChartSvg from '../../static/img/growing-bar-chart.svg';
 
-const FeatureList = [
+type SvgComponent = React.ComponentType<React.ComponentProps<'svg'>>;
+
+interface BaseFeature {
+  description: React.ReactNode;
+  title: string;
+}
+
+interface SvgFeature extends BaseFeature {
+  Svg: SvgComponent;
+  dark?: never;
+  light?: never;
+}
+
+interface ThemedImageFeature extends BaseFeature {
+  dark: string;
+  light: string;
+  Svg?: never;
+}
+
+type FeatureItem = SvgFeature | ThemedImageFeature;
+
+const featureList: FeatureItem[] = [
   {
     description: (
       <>
@@ -28,7 +52,7 @@ const FeatureList = [
         TanStack Query, SWR and React baseline.
       </>
     ),
-    Svg: require(`../../static/img/fast-car.svg`).default,
+    Svg: FastCarSvg,
     title: 'Performance',
   },
   {
@@ -39,7 +63,7 @@ const FeatureList = [
         <Link to="/docs#endpoint">protocols</Link>, and behaviors.
       </>
     ),
-    Svg: require(`../../static/img/chemical-composition.svg`).default,
+    Svg: ChemicalCompositionSvg,
     title: 'Composition over configuration',
   },
   {
@@ -53,25 +77,25 @@ const FeatureList = [
         <Link to="/docs#optimistic-updates">optimistic updates</Link> and more.
       </>
     ),
-    Svg: require(`../../static/img/growing-bar-chart.svg`).default,
+    Svg: GrowingBarChartSvg,
     title: 'Incremental Adoption',
   },
 ];
 
-function Feature({ Svg, light, dark, title, description }) {
-  const sources = {
-    light: useBaseUrl(light),
-    dark: useBaseUrl(dark),
-  };
+function Feature(feature: FeatureItem) {
+  const { title, description } = feature;
   return (
     <div className={clsx('col col--3')}>
       <div className="text--center">
-        {Svg ?
-          <Svg className={styles.featureSvg} alt={title} />
+        {'Svg' in feature ?
+          <feature.Svg className={styles.featureSvg} alt={title} />
         : <ThemedImage
             className={styles.featureSvg}
             alt={title}
-            sources={sources}
+            sources={{
+              light: useBaseUrl(feature.light),
+              dark: useBaseUrl(feature.dark),
+            }}
           />
         }
       </div>
@@ -88,7 +112,7 @@ export default function HomepageFeatures() {
     <section className={styles.features}>
       <div className="container">
         <div className="row">
-          {FeatureList.map((props, idx) => (
+          {featureList.map((props, idx) => (
             <Feature key={idx} {...props} />
           ))}
         </div>

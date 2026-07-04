@@ -2,7 +2,12 @@ import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';
 import React from 'react';
 
-export default function GenericsTabs({ children }) {
+interface Props {
+  children: React.ReactNode;
+}
+
+export default function GenericsTabs({ children }: Props) {
+  const [simpleType, genericType] = React.Children.toArray(children);
   return (
     <Tabs
       defaultValue="simple"
@@ -12,8 +17,8 @@ export default function GenericsTabs({ children }) {
         { label: 'With Generics', value: 'generics' },
       ]}
     >
-      <TabItem value="simple">{children[0]}</TabItem>
-      <TabItem value="generics">{children[1]}</TabItem>
+      <TabItem value="simple">{simpleType}</TabItem>
+      <TabItem value="generics">{genericType}</TabItem>
     </Tabs>
   );
 }

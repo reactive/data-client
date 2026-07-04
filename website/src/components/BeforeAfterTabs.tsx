@@ -2,7 +2,12 @@ import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';
 import React from 'react';
 
-export default function BeforeAfterTabs({ children }) {
+interface Props {
+  children: React.ReactNode;
+}
+
+export default function BeforeAfterTabs({ children }: Props) {
+  const [before, after] = React.Children.toArray(children);
   return (
     <Tabs
       defaultValue="before"
@@ -12,8 +17,8 @@ export default function BeforeAfterTabs({ children }) {
         { label: 'after', value: 'after' },
       ]}
     >
-      <TabItem value="before">{children[0]}</TabItem>
-      <TabItem value="after">{children[1]}</TabItem>
+      <TabItem value="before">{before}</TabItem>
+      <TabItem value="after">{after}</TabItem>
     </Tabs>
   );
 }

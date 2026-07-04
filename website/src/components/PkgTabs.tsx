@@ -3,7 +3,13 @@ import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';
 import React from 'react';
 
-export default function PkgTabs({ pkgs, dev = false }) {
+interface Props {
+  pkgs: string;
+  dev?: boolean;
+  upgrade?: boolean;
+}
+
+export default function PkgTabs({ pkgs, dev = false }: Props) {
   return (
     <Tabs
       defaultValue="npm"

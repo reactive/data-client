@@ -2,7 +2,12 @@ import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';
 import React from 'react';
 
-export default function LanguageTabs({ children }) {
+interface Props {
+  children: React.ReactNode;
+}
+
+export default function LanguageTabs({ children }: Props) {
+  const [typescriptCode, javascriptCode] = React.Children.toArray(children);
   return (
     <Tabs
       defaultValue="ts"
@@ -12,8 +17,8 @@ export default function LanguageTabs({ children }) {
         { label: 'JavaScript', value: 'js' },
       ]}
     >
-      <TabItem value="ts">{children[0]}</TabItem>
-      <TabItem value="js">{children[1]}</TabItem>
+      <TabItem value="ts">{typescriptCode}</TabItem>
+      <TabItem value="js">{javascriptCode}</TabItem>
     </Tabs>
   );
 }
