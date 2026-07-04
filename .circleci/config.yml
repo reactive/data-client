@@ -56,11 +56,12 @@ jobs:
                 CHANGED_FILES=".circleci/config.yml"
               fi
             else
-              if git rev-parse --verify "origin/${BASE_BRANCH}" >/dev/null 2>&1; then
-                git fetch origin "${BASE_BRANCH}" --depth=1 || true
-                CHANGED_FILES="$(git diff --name-only "origin/${BASE_BRANCH}...HEAD" || true)"
-              else
-                echo "origin/${BASE_BRANCH} not found; treating as relevant."
+              # NOTE: never fetch with --depth here: a shallow fetch severs the
+              # merge base, making the three-dot diff fail (and thus previously
+              # silently skipping these checks on every PR branch).
+              git fetch --force origin "${BASE_BRANCH}:refs/remotes/origin/${BASE_BRANCH}" || true
+              if ! CHANGED_FILES="$(git diff --name-only "origin/${BASE_BRANCH}...HEAD")"; then
+                echo "Could not diff against origin/${BASE_BRANCH}; treating as relevant."
                 CHANGED_FILES=".circleci/config.yml"
               fi
             fi
