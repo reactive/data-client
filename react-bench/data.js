@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1782652676625,
+  "lastUpdate": 1783188490462,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -5201,6 +5201,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 173.93,
             "range": "± 9.1%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "ad1fcbdd0d6f1c415d97cbc1b482716985680d49",
+          "message": "internal: Cut CI wall-clock latency on the validation critical path (#4007)\n\n* internal: Cut CircleCI validation critical path latency\n\n- Compute esmodule relevance once in setup and persist a flag file;\n  downstream jobs read the flag instead of doing a full checkout + git\n  diff each (removes dead time from both hops of the esmodule chain)\n- Run ci:build:types and ci:build-test-lib concurrently in setup (they\n  are independent; babel/rollup compile from src, not tsc output)\n- Pin Jest --maxWorkers to the resource class vCPUs; os.cpus() reports\n  the docker host's CPUs, oversubscribing workers\n- Remove no-op checkout depth parameter (built-in checkout ignores it)\n\n* internal: Cache Playwright browsers in benchmark-react workflow\n\nKeyed on the resolved playwright version so Renovate bumps invalidate\nthe cache automatically. On cache hit only system deps are installed.\n\n* internal: retrigger CI to check unit_tests-native flakiness\n\n* fix(ci): esmodule relevance diff silently failed on PR branches\n\ngit fetch --depth=1 of the base branch severs the merge base, making\nthe three-dot diff error out; with the old '|| true' fallback the\nchanged-file list came back empty and every esmodule job halted on PR\nbranches. Fetch with full history and fail open (treat as relevant)\nwhen the diff cannot be computed.\n\n* fix(ci): Don't cap Jest workers for ReactNative suites\n\nThe native suites are dominated by fake-timer waits rather than CPU;\ncapping to 4 workers serialized the heavy hook suites (16s -> 26s) and\nflaked integration-garbage-collection's 5s timeout in two consecutive\nruns. Coverage/DOM runs keep the cap where it measurably helps\n(unit_tests-latest 49s -> 33s).\n\n* internal: Simplify CI relevance detection and Playwright caching\n\n- Unify fail-open handling in the esmodule detect step: one\n  ESMODULE_RELEVANT boolean instead of a sentinel filename that\n  depended on the grep regex matching it; identical diff-failure\n  behavior on default-branch and PR paths\n- Fetch base branch with --filter=blob:none (commit graph only is\n  needed for --name-only diffs; degrades to full fetch when the\n  server ignores the filter)\n- Add examples/normalizr-relationships/ to the relevance regex; it is\n  built by validate-esmodule-browser-build\n- Log fail-open explicitly when the relevance flag is missing\n- Replace inline PID juggling with run-p via new ci:build:setup script\n  (npm-run-all already a dev dependency; runnable locally)\n- Merge identical ^17/^18 Jest branches\n- Merge conditional Playwright install steps into one; resolve the\n  playwright version from the workspace explicitly so hoisting changes\n  can't break the cache key\n- Document worker pinning and the relevance flag in AGENTS.md\n\n* internal: Move CI guidance from AGENTS.md to glob-scoped cursor rule\n\nOnly attaches when editing .circleci/** or .github/workflows/*.yml\ninstead of costing context on every conversation.\n\n* internal: Halt esmodule jobs before attach_workspace\n\nTransport the relevance flag via save_cache/restore_cache (keyed on\nCIRCLE_SHA1) instead of the workspace. Halted jobs previously paid\n13-16s attaching the ~1.3GB workspace before reading the flag; a\ncache restore of one file takes ~1s. Cache miss fails open (jobs\nrun). Detection is deterministic per commit, so the immutable cache\nkey is safe across reruns.",
+          "timestamp": "2026-07-04T14:05:00-04:00",
+          "tree_id": "52d5f3d9a4968a30036ee98815f6cdc88e421b53",
+          "url": "https://github.com/reactive/data-client/commit/ad1fcbdd0d6f1c415d97cbc1b482716985680d49"
+        },
+        "date": 1783188486770,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 144.93,
+            "range": "± 4.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 45.98,
+            "range": "± 4.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 400,
+            "range": "± 7.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 377.49,
+            "range": "± 10.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 48.78,
+            "range": "± 8.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 344.83,
+            "range": "± 6.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 370.37,
+            "range": "± 5.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 9.28,
+            "range": "± 10.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 98.52,
+            "range": "± 10.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 40.33,
+            "range": "± 6.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 243.9,
+            "range": "± 5.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 312.5,
+            "range": "± 5.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 192.31,
+            "range": "± 9.6%",
             "unit": "ops/s"
           }
         ]
