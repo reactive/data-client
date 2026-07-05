@@ -38,7 +38,10 @@ For instance, [NetworkManager](../api/NetworkManager.md) orchestrates data fetch
 keeps track of which resources are subscribed with [useLive](../api/useLive.md) or [useSubscription](../api/useSubscription.md). By centralizing control, [NetworkManager](../api/NetworkManager.md) automatically deduplicates fetches, and [SubscriptionManager](../api/SubscriptionManager.md)
 will keep only actively rendered resources updated.
 
-This makes [Managers](../api/Manager.md) the best way to integrate additional side-effects like metrics and monitoring.
+This makes [Managers](../api/Manager.md) the best way to integrate additional side-effects like
+[logging](#middleware-logging), [error reporting](#error-reporting), [metrics](#metrics),
+[notifications](#notifications), [data streams](#data-stream), [refreshing on focus or reconnect](#refresh-on-focus),
+[cross-tab synchronization](#cross-tab-sync), and [offline persistence](#persistence).
 They can also be customized to change core behaviors.
 
 | Default managers                                     |                                                                                      |
@@ -68,6 +71,200 @@ export default class LoggingManager implements Manager {
 
   cleanup() {}
 }
+```
+
+### Error reporting {#error-reporting}
+
+Report failed fetches to monitoring services like [Sentry](https://sentry.io) by inspecting
+[SET_RESPONSE](../api/Actions.md#set_response) actions with `error` set.
+
+```typescript
+import {
+  type Manager,
+  type Middleware,
+  actionTypes,
+} from '@data-client/react';
+import { captureException } from '@sentry/react';
+
+export default class ErrorReportManager implements Manager {
+  middleware: Middleware = controller => next => async action => {
+    if (action.type === actionTypes.SET_RESPONSE && action.error)
+      captureException(action.response, {
+        extra: { endpoint: action.endpoint.name, args: action.args },
+      });
+    return next(action);
+  };
+
+  cleanup() {}
+}
+```
+
+### Metrics {#metrics}
+
+Track fetch timing by observing [FETCH](../api/Actions.md#fetch) actions. `action.meta.promise`
+resolves when the fetch completes.
+
+```typescript
+import {
+  type Manager,
+  type Middleware,
+  actionTypes,
+} from '@data-client/react';
+import { trackTiming } from './analytics';
+
+export default class MetricsManager implements Manager {
+  middleware: Middleware = controller => next => async action => {
+    if (action.type === actionTypes.FETCH) {
+      const start = performance.now();
+      action.meta.promise.finally(() => {
+        trackTiming(action.endpoint.name, performance.now() - start);
+      });
+    }
+    return next(action);
+  };
+
+  cleanup() {}
+}
+```
+
+### Notifications (toasts) {#notifications}
+
+Show a toast when any [mutation](/rest/guides/side-effects) succeeds or fails.
+
+```typescript
+import {
+  type Manager,
+  type Middleware,
+  actionTypes,
+} from '@data-client/react';
+import { toast } from './toast';
+
+export default class ToastManager implements Manager {
+  middleware: Middleware = controller => next => async action => {
+    if (
+      action.type === actionTypes.SET_RESPONSE &&
+      action.endpoint.sideEffect
+    ) {
+      if (action.error) toast.error(`${action.endpoint.name} failed`);
+      else toast.success(`${action.endpoint.name} succeeded`);
+    }
+    return next(action);
+  };
+
+  cleanup() {}
+}
+```
+
+### Refresh on focus or reconnect {#refresh-on-focus}
+
+[Controller.expireAll()](../api/Controller.md#expireAll) marks data as [Stale](../concepts/expiry-policy.md#stale),
+triggering refetch of any _actively rendered_ data without suspending ([stale-while-revalidate](./expiry-policy.md)).
+[init()](../api/Manager.md#init) and [cleanup()](../api/Manager.md#cleanup) manage the event listeners.
+
+```typescript
+import type { Manager, Middleware, Controller } from '@data-client/react';
+
+export default class RefreshManager implements Manager {
+  declare protected controller: Controller;
+  protected handle = () =>
+    this.controller.expireAll({ testKey: () => true });
+
+  middleware: Middleware = controller => {
+    this.controller = controller;
+    return next => async action => next(action);
+  };
+
+  init() {
+    window.addEventListener('focus', this.handle);
+    window.addEventListener('online', this.handle);
+  }
+
+  cleanup() {
+    window.removeEventListener('focus', this.handle);
+    window.removeEventListener('online', this.handle);
+  }
+}
+```
+
+### Cross-tab synchronization {#cross-tab-sync}
+
+When a mutation succeeds in one tab, mark data stale in all other tabs using
+[BroadcastChannel](https://developer.mozilla.org/en-US/docs/Web/API/BroadcastChannel).
+
+```typescript
+import {
+  type Manager,
+  type Middleware,
+  actionTypes,
+} from '@data-client/react';
+
+export default class TabSyncManager implements Manager {
+  protected channel = new BroadcastChannel('data-client');
+
+  middleware: Middleware = controller => {
+    this.channel.onmessage = () =>
+      controller.expireAll({ testKey: () => true });
+    return next => async action => {
+      if (
+        action.type === actionTypes.SET_RESPONSE &&
+        action.endpoint.sideEffect &&
+        !action.error
+      )
+        this.channel.postMessage('mutation');
+      return next(action);
+    };
+  };
+
+  cleanup() {
+    this.channel.close();
+  }
+}
+```
+
+### Offline persistence {#persistence}
+
+Persist the store with [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
+(here via [idb-keyval](https://www.npmjs.com/package/idb-keyval)); restore it with
+[DataProvider's initialState](../api/DataProvider.md#initialState). IndexedDB writes are
+asynchronous and use [structured clone](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm)
+instead of blocking the main thread with JSON serialization like `localStorage` would.
+Debouncing writes keeps rapid action bursts cheap. Consider [expiry times](./expiry-policy.md)
+when restoring.
+
+```typescript
+import type { Manager, Middleware } from '@data-client/react';
+import { set } from 'idb-keyval';
+
+export default class PersistManager implements Manager {
+  declare protected timer?: ReturnType<typeof setTimeout>;
+
+  middleware: Middleware = controller => next => async action => {
+    await next(action);
+    // debounce: persist at most once per second
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => {
+      // in-flight optimistic updates reference functions, so are not persistable
+      const state = { ...controller.getState(), optimistic: [] };
+      set('data-client', state);
+    }, 1000);
+  };
+
+  cleanup() {
+    clearTimeout(this.timer);
+  }
+}
+```
+
+```tsx
+import { get } from 'idb-keyval';
+
+const initialState = await get('data-client');
+
+createRoot(document.body).render(
+  <DataProvider initialState={initialState} managers={managers}>
+    <App />
+  </DataProvider>,
+);
 ```
 
 ### Middleware data stream (push-based) {#data-stream}

@@ -360,3 +360,19 @@ after this one from seeing that [action](./Actions.md).
 Types: [`FETCH`](./Actions.md#fetch), [`SET`](./Actions.md#set), [`SET_RESPONSE`](./Actions.md#set_response),
 [`RESET`](./Actions.md#reset), [`SUBSCRIBE`](./Actions.md#subscribe), [`UNSUBSCRIBE`](./Actions.md#unsubscribe),
 [`INVALIDATE`](./Actions.md#invalidate), [`INVALIDATEALL`](./Actions.md#invalidateall), [`EXPIREALL`](./Actions.md#expireall)
+
+## Use cases
+
+Minimal examples for common Manager use cases:
+
+- [Logging](../concepts/managers.md#middleware-logging)
+- [Error reporting (monitoring)](../concepts/managers.md#error-reporting)
+- [Metrics (fetch timing)](../concepts/managers.md#metrics)
+- [Notifications (toasts)](../concepts/managers.md#notifications)
+- [Refresh on focus or reconnect](../concepts/managers.md#refresh-on-focus)
+- [Cross-tab synchronization](../concepts/managers.md#cross-tab-sync)
+- [Offline persistence](../concepts/managers.md#persistence)
+- [Data streams (websockets/SSE)](../concepts/managers.md#data-stream)
+- [Authentication: logout on 401](./LogoutManager.md)
+- [Periodic updates (interval/ticker)](#dispatching-actions)
+- [Custom transport subscriptions](#reading-and-consuming-actions)
