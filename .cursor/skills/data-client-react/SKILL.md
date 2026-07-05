@@ -131,6 +131,8 @@ This is useful for webosckets, SSE, logging, etc. Always use the skill "data-cli
 - [useDebounce(query, timeout)](references/useDebounce.md) when rendering async data based on user field inputs
 - [[handleSubmit, loading, error] = useLoading()](references/useLoading.md) when tracking async mutations
 - Prefer smaller React components that do one thing
+- **Co-locate data bindings**: call useSuspense/useDLE/useCache/useQuery in the component that renders the data — don't prop drill
+- **Don't hide data bindings inside custom hooks**: wrapping them obfuscates a component's data dependencies and couples data logic to view code, causing drift. Put tightly coupled data transformations in a `Query` schema (with the data model, e.g. `src/resources/`) so they stay reusable and evolve independently of views
 
 # References
 

@@ -198,6 +198,10 @@ width="415" height="184"
 Do not [prop drill](https://react.dev/learn/passing-data-deeply-with-context#the-problem-with-passing-props). Instead, [useSuspense()](../api/useSuspense.md) in the components that render the data from it. This is
 known as _data co-location_.
 
+Do not hide data binding hooks inside custom hooks. Instead, put tightly coupled data transformations
+in [Query](/rest/api/Query) — data logic belongs with the data model, where it stays visible, reusable,
+and free to change independently of the view.
+
 Instead of writing complex update functions or invalidations cascades, Reactive Data Client automatically updates
 bound components immediately upon [data change](./mutations.md). This is known as _reactive programming_.
 

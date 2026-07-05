@@ -50,6 +50,9 @@ to represent the data expected.
   );
   ```
 
+  Define `Query` transformations with the data model (e.g. `src/resources/`) — not inside custom hooks
+  wrapping useSuspense/useQuery, which hides data dependencies and couples data logic to view code.
+
 ---
 
 ## 2. Entity best practices
