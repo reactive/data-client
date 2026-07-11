@@ -259,7 +259,7 @@ export const ProjectSchemaSimpleMerge = {
  * store-copy costs (per-type entity map clone in NormalizeDelegate,
  * endpoints/meta spreads in setResponseReducer) from schema traversal.
  */
-export class FlatItem extends Entity {
+class FlatItem extends Entity {
   id = '';
   name = '';
   value = 0;
@@ -275,7 +275,7 @@ export class FlatItem extends Entity {
 
 /** Second, small entity type used as a control: writes to it should not
  * scale with the number of FlatItem entities in the store. */
-export class ControlItem extends Entity {
+class ControlItem extends Entity {
   id = '';
   name = '';
 
@@ -285,7 +285,7 @@ export class ControlItem extends Entity {
   }
 }
 
-export const getFlatItems = new Endpoint(() => Promise.resolve([]), {
+const getFlatItems = new Endpoint(() => Promise.resolve([]), {
   schema: [FlatItem],
   key() {
     return '/flatItems';
@@ -297,7 +297,7 @@ export const getFlatItem = new Endpoint(({ id }) => Promise.resolve({ id }), {
     return `/flatItems/${id}`;
   },
 });
-export const getControlItems = new Endpoint(() => Promise.resolve([]), {
+const getControlItems = new Endpoint(() => Promise.resolve([]), {
   schema: [ControlItem],
   key() {
     return '/controlItems';
@@ -313,8 +313,8 @@ export const getControlItem = new Endpoint(
   },
 );
 
-export const FlatItemCollection = new Collection([FlatItem]);
-export const getFlatItemCollection = new Endpoint(() => Promise.resolve([]), {
+const FlatItemCollection = new Collection([FlatItem]);
+const getFlatItemCollection = new Endpoint(() => Promise.resolve([]), {
   schema: FlatItemCollection,
   key() {
     return '/flatItemsCollection';
@@ -343,7 +343,7 @@ export function buildFlatItemData(count, offset = 0) {
   return items;
 }
 
-export function buildControlItemData(count) {
+function buildControlItemData(count) {
   const items = [];
   for (let i = 0; i < count; i++) {
     items.push({ id: `c-${i}`, name: `Control ${i}` });
@@ -375,10 +375,17 @@ export function buildLargeEntityState(n) {
   return state;
 }
 
-/** buildLargeEntityState(n) plus `n` distinct cached endpoint keys,
- * simulating `n` previously-fetched detail requests. */
+/** State with `n` distinct cached endpoint keys, simulating `n`
+ * previously-fetched detail requests. Entity count stays minimal (10
+ * ControlItems) since the endpoints/meta spreads being measured don't
+ * depend on it; the keys reference pks that were since garbage collected. */
 export function buildManyEndpointsState(n) {
-  const state = buildLargeEntityState(n);
+  const state = applyResponse(
+    initialState,
+    getControlItems,
+    [],
+    buildControlItemData(10),
+  );
   const endpoints = { ...state.endpoints };
   const meta = { ...state.meta };
   const date = Date.now();

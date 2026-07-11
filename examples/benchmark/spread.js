@@ -1,4 +1,3 @@
-import { createAdd } from './filter.js';
 import { buildScenarios } from './spread-scenarios.js';
 
 /**
@@ -10,11 +9,9 @@ import { buildScenarios } from './spread-scenarios.js';
  * size of the written entity's type map, not the whole store.
  */
 export default function addSpreadSuite(suite, filter) {
-  const add = createAdd(suite, filter);
-
-  // buildScenarios pre-filters so unmatched fixtures are never constructed
+  // buildScenarios filters, so unmatched fixtures are never constructed
   for (const { name, fn } of buildScenarios(filter)) {
-    add(name, fn);
+    suite.add(name, fn);
   }
 
   return suite;

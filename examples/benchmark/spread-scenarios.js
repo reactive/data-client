@@ -48,6 +48,8 @@ const tickArgs = { id: 'f-500' };
 const controlTick = { id: 'c-5', name: 'Control tick' };
 const controlArgs = { id: 'c-5' };
 const invalidateAllOptions = { testKey: () => true };
+// ids past any store fixture so pushed items never collide with existing pks
+const PUSH_ID_OFFSET = 1_000_000;
 
 /**
  * Degenerate-case write scenarios exercising the spread operations whose cost
@@ -63,31 +65,21 @@ const invalidateAllOptions = { testKey: () => true };
  *
  * `create()` builds the scenario's fixtures and returns the op to measure.
  */
+const storeSweep = [
+  ['1k', 5000, ctrl1k],
+  ['10k', 1000, ctrl10k],
+  ['100k', 200, ctrl100k],
+];
+
 const scenarios = [
-  {
-    name: 'setOneEntity in 1k entity store',
-    iterations: 5000,
+  ...storeSweep.map(([size, iterations, getCtrl]) => ({
+    name: `setOneEntity in ${size} entity store`,
+    iterations,
     create() {
-      const ctrl = ctrl1k();
+      const ctrl = getCtrl();
       return () => ctrl.setResponse(getFlatItem, tickArgs, tick);
     },
-  },
-  {
-    name: 'setOneEntity in 10k entity store',
-    iterations: 1000,
-    create() {
-      const ctrl = ctrl10k();
-      return () => ctrl.setResponse(getFlatItem, tickArgs, tick);
-    },
-  },
-  {
-    name: 'setOneEntity in 100k entity store',
-    iterations: 200,
-    create() {
-      const ctrl = ctrl100k();
-      return () => ctrl.setResponse(getFlatItem, tickArgs, tick);
-    },
-  },
+  })),
   {
     name: 'setOneEntity control in 100k entity store',
     iterations: 5000,
@@ -109,7 +101,7 @@ const scenarios = [
     iterations: 1000,
     create() {
       const ctrl = ctrlCollection();
-      const pushedItems = buildFlatItemData(10, 1_000_000);
+      const pushedItems = buildFlatItemData(10, PUSH_ID_OFFSET);
       return () => ctrl.setResponse(pushFlatItems, pushedItems);
     },
   },

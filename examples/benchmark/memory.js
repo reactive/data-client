@@ -6,8 +6,9 @@
  * scenario this reports:
  *
  * - allocated/op: approximate bytes allocated per operation, from summing
- *   positive used-heap deltas between ops. Undercounts when a scavenge lands
- *   mid-op, so treat as a lower bound.
+ *   positive used-heap deltas between samples (every SAMPLE_INTERVAL ops, to
+ *   keep the sampler's own allocations out of the numbers). Undercounts when
+ *   a scavenge lands mid-window, so treat as a lower bound.
  * - GC minor/major/other + pause: count and total pause time of GC events
  *   during the measured loop (PerformanceObserver 'gc' entries).
  * - retained: used-heap delta vs. baseline after full GC — should be ~0;
@@ -27,6 +28,10 @@ const gc = vm.runInNewContext('gc');
 
 // v8.getHeapStatistics() avoids the /proc rss read that process.memoryUsage() does
 const heapUsed = () => v8.getHeapStatistics().used_heap_size;
+
+// heapUsed() itself allocates; sampling every op would inflate allocated/op
+// and GC counts for cheap scenarios
+const SAMPLE_INTERVAL = 10;
 
 function fullGC() {
   gc();
@@ -64,9 +69,11 @@ async function measure(name, fn, iterations, warmup = 25) {
   const start = performance.now();
   for (let i = 0; i < iterations; i++) {
     fn();
-    const used = heapUsed();
-    if (used > prev) allocated += used - prev;
-    prev = used;
+    if (i % SAMPLE_INTERVAL === SAMPLE_INTERVAL - 1 || i === iterations - 1) {
+      const used = heapUsed();
+      if (used > prev) allocated += used - prev;
+      prev = used;
+    }
   }
   const elapsedMs = performance.now() - start;
 
