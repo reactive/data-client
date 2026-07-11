@@ -18,10 +18,10 @@ Table representation and value representation are separate policy dimensions; co
 
 | | POJO values | Immutable values |
 |---|---|---|
-| **POJO tables** | default (main entries) | legacy main-entry behavior via inline `isImmutable` checks (to be policy-gated in F1) |
-| **Immutable tables** | Track A contract; already implemented by `/imm` | Track B contract (`EntityRecord`) |
+| **POJO tables** | ① default (main entries) | ③ legacy accident via inline `isImmutable` checks — **dropped in F1** (no known users; loud dev-mode error + migration note) |
+| **Immutable tables** | ② Track A contract *and* Track B's default recommendation; already implemented by `/imm` | ④ Track B candidate (`EntityRecord`) — **gated by spike B0.0** |
 
-Denormalize always converts entity values to plain classes (`createIfValid`/`fromJS`), so Track A only needs the immutable-tables/POJO-values cell. `EntityRecord` and immutable-value denormalization are Track B only.
+Denormalize always converts entity values to plain classes (`createIfValid`/`fromJS`), so Track A only needs cell ②. Cell ④ is **additive** on top of ② (a new mixin + value policy in `/imm` entries) — Track B can ship ② first and add ④ later without breaking anything, which is why ④ is spike-gated rather than assumed.
 
 ## Constraints (from GOALS.md — apply to both tracks)
 
@@ -59,7 +59,7 @@ Creates the *value-shape* policy seam. Prerequisite for B1 (and the F-track bund
   - `getUnvisit` currently receives only `getEntity`/cache/args — the policy is reduced to `getEntities()` in `MemoCache.denormalize` before `getUnvisit` is called. The seam must thread a denormalize strategy through construction.
   - A closure-resolved strategy only fixes the *shorthand* Object dispatch in `unvisit.ts`; endpoint `Object.denormalize` receives the delegate, and `Polymorphic` receives only `unvisit` through Array/Values — so the **delegate protocol** changes, which triggers constraint 5 (cross-package version compatibility).
   - Must hold ≤2% on cached `normalizr` benches; no optional delegate fields.
-- **F0.3 — Migration path for the legacy cell.** Main entries today support POJO tables + immutable *input* (endpoint Object/Union). `/imm`'s `MemoPolicy` requires `getIn` tables, so "switch to `/imm`" is **not** drop-in for those users. Decide: a hybrid policy (POJO tables + immutable-value handling), an explicit conversion recipe, or dropping the combination with a loud error.
+- **F0.3 — Kill path for cell ③ (decision recorded: drop it).** Main entries today accidentally support POJO tables + immutable *input* (endpoint Object/Union inline checks). Nobody wants this combination; F1 drops it rather than building a hybrid policy. Remaining spike work is only the exit ramp: a loud dev-mode error when immutable input reaches main-entry denormalize (cheap detection at the error site only, not the hot path), and a changelog migration note (convert values, or move fully to `/imm` cell ②).
 
 ### Work items
 
@@ -126,15 +126,26 @@ Changeset (minor — opt-in). Docs per docs-in-same-PR policy.
 
 Target user: owns their store (e.g. Redux + Immutable), calls `normalize`/`denormalize`/`MemoCache(ImmPolicy)` directly. Core's internal store is explicitly **not** this track's concern (that's Track A).
 
+**Contract question**: cell ② (immutable tables, POJO values) is the working hypothesis for what external users actually want — it already works, and denormalize output is plain classes either way. Cell ④ (Records/Maps as stored values) is only observable in the *store itself* (user middleware, devtools, persistence, hand-written selectors on raw state), so its entire justification must come from store-level capabilities. B0.0 decides whether ④ is worth building at all.
+
 ### Stage B0 — Spikes
 
-- **B0.1 — `EntityRecord` design.** Prototype an Entity mixin for Immutable Record instances. If Records are stored in entity tables, the override surface is the **full lifecycle**, not just denormalize statics: `process` (spreads input), `pk` (property-based prototype method), `normalize` (`Object.hasOwn`, bracket reads, mutation), index extraction, `merge`/`mergeWithStore` (spreads), `fromJS` (`Object.assign`), `createIfValid`, `denormalize` (bracket mutation), plus polymorphic discrimination and `queryKey`. Decide: storage shape (Records in the table vs. POJO storage + Record construction at denormalize — storage shape is public API; POJO storage is the conservative default and dramatically shrinks the override surface); memoization (`toBe` stability with Records across repeated calls and unrelated writes); dependency wiring (optional peer imported only from `/imm`, or duck-typed per F1's detection decision); `/imm` subpath types across the supported TS matrix incl. legacy `typesVersions`.
+- **B0.0 — Cell ② vs. cell ④ tradeoff spike (gate for the `EntityRecord` line: B0.1, B0.3, B1).** Since ④ is additive, default to shipping ② and defer ④ unless this spike finds concrete justification. Evaluate:
+  - **Performance**: ④ pays Record/Map `get()` field access through the whole normalize lifecycle (`process`/`pk`/`merge`/index extraction) and a double conversion on read (Record in store → plain class out of denormalize). ② runs the ordinary POJO path after table access. Measure normalize + denormalize throughput and memoization stability for both on the imm benchmark suite. Expected: ② wins or ties everywhere; ④ needs a surprise to win.
+  - **Bundle size**: ④ adds `EntityRecord` + value-aware Object/Polymorphic denormalize to `/imm` entries (imm users only — measure, but weight lightly).
+  - **Simplicity — the real question**: what does ④ enable that ② can't?
+    - Store-wide immutability invariants: apps whose middleware/lint rejects plain objects anywhere in state (e.g. strict `redux-immutable-state-invariant`-style enforcement).
+    - Deep-persistence rehydration: `fromJS(serialized)` naturally produces ④; supporting only ② means shipping a shallow table-level hydration helper *and* loud dev-mode detection of immutable values in tables (this helper is needed regardless — it's the same hydration footgun Track A's A0.3 identified).
+    - User-side structural equality (`Immutable.is`) and cursor patterns over raw store values.
+  - Against ④: the full lifecycle override surface from B0.1's findings, a second documented contract, and the double-conversion mental model (Records in store, classes in components).
+  - **Decision rule**: ship ② as the documented Track B contract; build ④ only if the spike identifies a named user capability (not aesthetics) that ② + the hydration helper cannot satisfy, and the perf cost is acceptable. Record the outcome as an ADR either way.
+- **B0.1 — `EntityRecord` design** *(only if B0.0 selects ④)*. Prototype an Entity mixin for Immutable Record instances. If Records are stored in entity tables, the override surface is the **full lifecycle**, not just denormalize statics: `process` (spreads input), `pk` (property-based prototype method), `normalize` (`Object.hasOwn`, bracket reads, mutation), index extraction, `merge`/`mergeWithStore` (spreads), `fromJS` (`Object.assign`), `createIfValid`, `denormalize` (bracket mutation), plus polymorphic discrimination and `queryKey`. Decide: storage shape (Records in the table vs. POJO storage + Record construction at denormalize — storage shape is public API; POJO storage is the conservative default and dramatically shrinks the override surface); memoization (`toBe` stability with Records across repeated calls and unrelated writes); dependency wiring (optional peer imported only from `/imm`, or duck-typed per F1's detection decision); `/imm` subpath types across the supported TS matrix incl. legacy `typesVersions`.
 - **B0.2 — Integration reality check.** Minimal Redux + Immutable example driving the `/imm` APIs. Known mismatch (not just a demand question): `normalize.imm` destructures a plain wrapper object and `MemoCache.query` reads `state.entities`/`state.indexes` as properties — a typical Immutable *root* state needs a thin adapter. Also gauge demand signal from issues/discussions to bound scope.
-- **B0.3 — Immutable-input surface matrix.** Broadened per review: every exported schema (Object, Array, Union, Values, All, Collection Array *and* Values, Query, Lazy, Scalar, Invalidate, Serializable) × operation (normalize, denormalize, queryKey) × input kind (Record by id, Record passed by reference, deep-immutable Map, POJO refs inside immutable tables). Include Record discriminator access, Record indexes, and merge ordering. Deliverable → Stage B1 test matrix.
+- **B0.3 — Immutable-input surface matrix** *(only if B0.0 selects ④)*. Broadened per review: every exported schema (Object, Array, Union, Values, All, Collection Array *and* Values, Query, Lazy, Scalar, Invalidate, Serializable) × operation (normalize, denormalize, queryKey) × input kind (Record by id, Record passed by reference, deep-immutable Map, POJO refs inside immutable tables). Include Record discriminator access, Record indexes, and merge ordering. Deliverable → Stage B1 test matrix.
 
-### Stage B1 — `EntityRecord` + `@data-client/endpoint/imm`
+### Stage B1 — `EntityRecord` + `@data-client/endpoint/imm` *(conditional on B0.0 selecting ④)*
 
-Depends on F1 (value-policy seam for nested denormalization) and B0.1/B0.3.
+Depends on B0.0 (gate), F1 (value-policy seam for nested denormalization), and B0.1/B0.3. If B0.0 selects ②, this stage is replaced by a much smaller one: the shallow table-level hydration helper, dev-mode detection of immutable values in tables (fail loudly instead of the current silent `id: ""` corruption), and converting the corrupt-Record snapshot into an assertion of the *rejection* behavior.
 
 1. Implement per B0.1; new `/imm` subpath in `packages/endpoint` (full packaging checklist: `exports`, `typesVersions`, CJS/native, `npm pack` verification, `yarn build:types`).
 2. Fix or explicitly reject the mixed case (plain `Entity` with deep-immutable stored values); if rejected, fail loudly in dev instead of silently producing `id: ""` garbage.
@@ -147,11 +158,11 @@ Delete `emptyImmutableLike`/`createNestedImmutable`/`deepClone` from `normalize.
 
 ### Stage B3 — Verification + docs
 
-Depends on F1, B1, B2, B0.2.
+Depends on F1, B1 (or its cell-② replacement), B2, B0.2.
 
-1. imm-policy benchmark suite in `examples/benchmark` (normalize + memoized denormalize on immutable tables; Record entities after B1).
+1. imm-policy benchmark suite in `examples/benchmark` (normalize + memoized denormalize on immutable tables; Record entities only if ④ shipped).
 2. CI matrix for the `immutable` version range decided in F1 (v4 + v5 cells if the range spans both).
-3. Docs: extend the existing normalizr README ImmutableJS section + site guide — `/imm` entries, `EntityRecord`, the tables-immutable vs. values-immutable contracts, POJO-leaf constraint, Redux root-state adapter (from B0.2), hydration. Mark the ROADMAP item done.
+3. Docs: extend the existing normalizr README ImmutableJS section + site guide — `/imm` entries, the cell-② contract (immutable tables, POJO values) as *the* documented contract, the POJO-leaf constraint and hydration helper, Redux root-state adapter (from B0.2); `EntityRecord` only if ④ shipped. Mark the ROADMAP item done.
 
 ---
 
@@ -166,13 +177,15 @@ Track A:  A0.3 ──► A1 (react/vue accessors) ──► A2 (core seam) ─�
           A0.1 (gate; needs throwaway A2-prototype adapter) ─┬─► A2/A3 decision
           A0.2 ──────────────────────────────────────────────┘
 
-Track B:  B0.1, B0.3 ──► B1 (EntityRecord + endpoint/imm; needs F1)
-          B0.2 ─────────► B3 (docs, CI matrix; needs F1 + B1 + B2)
+Track B:  B0.0 (② vs ④ gate) ─┬─ ④ ─► B0.1, B0.3 ──► B1 (EntityRecord + endpoint/imm; needs F1)
+                               └─ ② ─► B1-lite (hydration helper + loud rejection)
+          B0.2 ────────────────────► B3 (docs, CI matrix; needs F1 + B1 + B2)
           B2 (independent; any time)
 ```
 
 - A1 and B2 are independent and can land early; neither needs F1.
-- A0.1 is the gate: no shippable core immutable work until the benchmark verdict; A1/A2 seams are shape-agnostic and independently justified.
+- A0.1 is the Track A gate: no shippable core immutable work until the benchmark verdict; A1/A2 seams are shape-agnostic and independently justified.
 - A0.1 requires prototyping a disposable store-operation adapter (the harness is hard-wired to the default reducer) — this is expected cost, not scope creep.
-- Track B has no performance gate — correctness/completeness commitment; scope bounded by B0.2's demand findings.
+- B0.0 is the Track B gate for the `EntityRecord` line: cell ④ is additive on top of ②, so deferring it burns no bridges; default outcome is shipping ② with the hydration helper.
+- Track B has no performance gate — correctness/completeness commitment; scope bounded by B0.2's demand findings and B0.0's contract decision.
 - Breaking changes (F1, B2) should be batched into one planned breaking release with a single migration guide (note: release-type labels must follow the project's 0.x versioning policy).
