@@ -6,7 +6,7 @@ Related: [GOALS.md](../GOALS.md), `docs/ROADMAP.md` ("Immutable.js support as op
 
 ## Two distinct goals
 
-**Track A — Internal store performance (core + react).** Use immutable data structures *inside* the store as a potential performance optimization, targeting the spread-heavy `core` benchmarks (`^set` suite) and memory benchmarks (heap-delta scenarios in `examples/benchmark-react`). ImmutableJS is an implementation detail here and must **never leak** to the react layer or users: entities stay plain classes, hook outputs are unchanged, referential-stability contracts hold. This track is benchmark-gated — if immutable tables don't beat cheaper alternatives (native `Map` tables with lazy cloning), we ship the alternative instead and close the ImmutableJS half of this track with an ADR.
+**Track A — Internal store performance (core + react).** Use immutable data structures *inside* the store as a potential performance optimization, targeting the degenerate-case store-size-scaling writes measured by the `spread` benchmark suite (`examples/benchmark/spread.js` — single-entity `setResponse` into 1k/10k/100k stores plus flat control, 10k cached endpoint keys, collection push, `invalidateAll`/`expireAll`), the `core` `^set` benchmarks, and the memory-pressure script (`yarn workspace example-benchmark start:memory` — allocation/op, GC churn, retained heap). The spread scenarios' memory symptom is transient allocation + GC churn from store-size-proportional copies, which is precisely what structural sharing attacks. ImmutableJS is an implementation detail here and must **never leak** to the react layer or users: entities stay plain classes, hook outputs are unchanged, referential-stability contracts hold. This track is benchmark-gated — if immutable tables don't beat cheaper alternatives (native `Map` tables with lazy cloning), we ship the alternative instead and close the ImmutableJS half of this track with an ADR.
 
 **Track B — External ImmutableJS support for `@data-client/normalizr` users.** Users with their own ImmutableJS-based stores (e.g. Redux + Immutable) who drive `normalize`/`denormalize`/`MemoCache` directly. Here ImmutableJS *is* the user-facing contract, including entity values as Immutable Records (`EntityRecord`). Correctness- and docs-focused, not performance-focused.
 
@@ -56,12 +56,12 @@ Prerequisite for both tracks; creates the policy seam everything else uses.
 
 ### Stage A0 — Spikes (A0.1 is the go/no-go gate for the whole track)
 
-- **A0.1 — Three-arm store benchmark (gate).** Compare on `core` suite `^set` filters and memory scenarios, at realistic and adversarial sizes (10k+ entities of one type; thousands of `endpoints`/`meta` keys):
-  1. Current POJO tables (lazy per-key clone in `NormalizeDelegate` — already manual structural sharing),
+- **A0.1 — Three-arm store benchmark (gate).** The harness already exists: the `spread` suite (`examples/benchmark/spread.js`, scenarios in `spread-scenarios.js`) covers exactly the degenerate cases immutable tables target — `setOneEntity` 1k/10k/100k store sweep (per-type entity map clone in `NormalizeDelegate`), 10k cached endpoint keys (`endpoints`/`meta` spreads in `setResponseReducer`), collection push onto 10k items (`pushMerge`), `invalidateAll`/`expireAll` — and `start:memory` reports allocation/op, GC counts/pause time, and retained heap for the same scenarios. Run all three arms through it, plus `core` `^set`/`^get` for the non-degenerate baseline:
+  1. Current POJO tables (lazy per-key clone — already manual structural sharing; the `control` scenario shows the flat baseline),
   2. Immutable Map tables (existing `ImmNormalizeDelegate`),
   3. Native `Map` tables with the same lazy-clone strategy (no dependency, no leak risk).
 
-  Measure write throughput, read/denormalize-miss overhead (`getIn` vs. property access), allocation churn, and heap deltas (extend `examples/benchmark` with a memory harness or reuse `benchmark-react` heap-delta methodology). **Decision rule**: ImmutableJS proceeds only if it clearly beats arm 3; otherwise arm 3 (or status quo) becomes the deliverable and A3 pivots accordingly.
+  Expected signatures: arm 1 scales near-linearly with store size on the `setOneEntity` sweep with high allocation/GC churn; arms 2–3 should flatten the sweep and cut allocation/op. Watch read/denormalize-miss overhead (`getIn` vs. property access) on `core` `^get` as the counter-metric. **Decision rule**: ImmutableJS proceeds only if it clearly beats arm 3 across the spread sweep *and* memory metrics without regressing `^get`; otherwise arm 3 (or status quo) becomes the deliverable and A3 pivots accordingly.
 - **A0.2 — GC sweep vs. memoization.** The GC reducer mutates in place (`delete state.entities[key][pk]` in `createReducer.ts`) deliberately, preserving table identity so sweeps don't bust `WeakDependencyMap` chains. Immutable `deleteIn` creates a new per-key table map, invalidating memo chains for every entity of that type per sweep. Investigate mitigations (batched sweeps via `withMutations`, GC epochs, accepting and measuring the re-denormalize cost) — outcome feeds the A0.1 decision.
 - **A0.3 — State-read audit → accessor API design.** Enumerate every raw state read outside core reducers: react hooks (`state.endpoints[key]`, `state.meta[key]` bracket reads in `useCache`/`useSuspense`/`useFetch`/`useDLE`/`useQuery`; table refs used as `useMemo` deps are identity-only and already shape-agnostic), `ExternalDataProvider`'s optimistic replay, managers, `packages/ssr`, devtools serialization. Design the minimal `Controller` accessor surface (or state facade) that makes them shape-agnostic.
 
@@ -91,7 +91,7 @@ POJO policy is the default with **zero added indirection cost** (verify on `core
 
 Changeset (minor). Docs per docs-in-same-PR policy.
 
-**Exit criteria**: measured wins on the targeted `^set`/memory benchmarks landed in CI history; react benchmark suite shows no regression; zero user-visible data-shape change.
+**Exit criteria**: measured wins on the `spread` sweep and `start:memory` metrics, with the tracked CI case (`setOneEntity in 10k entity store` in `.github/workflows/benchmark-spread.yml`, which already triggers on the store-write paths this stage touches: `packages/core/src/state/**`, `packages/normalizr/src/normalize/**`) showing the improvement in its history; `core` `^set`/`^get` and react benchmark suites show no regression; zero user-visible data-shape change.
 
 ---
 
