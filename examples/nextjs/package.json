@@ -22,7 +22,7 @@
     "@data-client/react": "^0.18.0",
     "@data-client/rest": "^0.18.0",
     "@number-flow/react": "^0.6.0",
-    "@types/node": "25.9.4",
+    "@types/node": "25.9.5",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "clsx": "^2.1.1",
