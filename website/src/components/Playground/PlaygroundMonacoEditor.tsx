@@ -39,54 +39,51 @@ function PlaygroundMonacoEditor({
 }) {
   const editorOptions = useMemo(() => ({ ...options, readOnly }), [readOnly]);
   const { height, handleMount: handleAutoMount } = useAutoHeight({
+    initialContentHeight: code.split('\n').length * editorOptions.lineHeight,
     isFocused,
-    lineHeight: editorOptions.lineHeight,
   });
 
-  const handleMount = useCallback(
-    (editor: Monaco.editor.ICodeEditor, monaco: typeof Monaco) => {
-      // autofocus
-      if (autoFocus) editor.focus();
-      // autohighlight
-      const myhighlights = highlights ? rangeParser(highlights) : undefined;
+  const handleMount = useCallback((editor: Monaco.editor.ICodeEditor) => {
+    // autofocus
+    if (autoFocus) editor.focus();
+    // autohighlight
+    const myhighlights = highlights ? rangeParser(highlights) : undefined;
 
-      if (myhighlights) {
-        let selectionStartLineNumber = myhighlights[0];
-        let positionLineNumber = selectionStartLineNumber;
-        const selections: ISelection[] = [];
-        myhighlights.forEach(lineNumber => {
-          // more of same selection
-          if (lineNumber === positionLineNumber) {
-            positionLineNumber++;
-          } else {
-            selections.push({
-              selectionStartLineNumber,
-              selectionStartColumn: 0,
-              positionLineNumber,
-              positionColumn: 0,
-            });
-            selectionStartLineNumber = lineNumber;
-            positionLineNumber = lineNumber + 1;
-          }
-        });
-        selections.push({
-          selectionStartLineNumber,
-          selectionStartColumn: 0,
-          positionLineNumber,
-          positionColumn: 0,
-        });
-        editor.setSelections(selections);
-      }
-
-      // go to definition
-      editor.onDidFocusEditorText(() => {
-        onFocus(tabIndex);
+    if (myhighlights) {
+      let selectionStartLineNumber = myhighlights[0];
+      let positionLineNumber = selectionStartLineNumber;
+      const selections: ISelection[] = [];
+      myhighlights.forEach(lineNumber => {
+        // more of same selection
+        if (lineNumber === positionLineNumber) {
+          positionLineNumber++;
+        } else {
+          selections.push({
+            selectionStartLineNumber,
+            selectionStartColumn: 0,
+            positionLineNumber,
+            positionColumn: 0,
+          });
+          selectionStartLineNumber = lineNumber;
+          positionLineNumber = lineNumber + 1;
+        }
       });
+      selections.push({
+        selectionStartLineNumber,
+        selectionStartColumn: 0,
+        positionLineNumber,
+        positionColumn: 0,
+      });
+      editor.setSelections(selections);
+    }
 
-      return handleAutoMount(editor, monaco);
-    },
-    [],
-  );
+    // go to definition
+    editor.onDidFocusEditorText(() => {
+      onFocus(tabIndex);
+    });
+
+    handleAutoMount(editor);
+  }, []);
 
   // loading only shows the initial snapshot, so it need not track code changes
   const loading = useMemo(

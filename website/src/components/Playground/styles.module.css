@@ -1,5 +1,11 @@
-.playgroundContainer {
+/* Outer wrapper: container queries measure available width (not viewport).
+   Margin lives here so document spacing is unaffected by the flex container. */
+.playgroundQueryContainer {
+  container-type: inline-size;
+  container-name: playground;
   margin-bottom: var(--ifm-leading);
+}
+.playgroundContainer {
   border-radius: var(--ifm-global-radius);
   box-shadow: var(--ifm-global-shadow-lw);
   overflow: visible;
@@ -11,22 +17,15 @@
 .playgroundContainer.standaloneEditor {
   --ifm-code-font-size: 14.4px;
 }
-.playgroundContainer.row.standaloneEditor > :last-child {
-  overflow: visible;
-}
-.playgroundContainer:not(.row).standaloneEditor > :last-child {
+.playgroundContainer.standaloneEditor > :last-child {
   overflow: visible;
 }
 .playgroundContainer .playgroundHeader.tabControls:first-of-type {
   border-top-left-radius: var(--ifm-global-radius);
   overflow: hidden;
 }
-.playgroundContainer.row > :last-child {
-  overflow: hidden;
-  border-top-right-radius: var(--ifm-global-radius);
-  border-bottom-right-radius: var(--ifm-global-radius);
-}
-.playgroundContainer:not(.row) > :last-child {
+/* Stacked (default) radii; side-by-side radii applied in @container below */
+.playgroundContainer > :last-child {
   overflow: hidden;
   border-bottom-left-radius: var(--ifm-global-radius);
   border-bottom-right-radius: var(--ifm-global-radius);
@@ -39,17 +38,16 @@
 
 .playgroundContainer > div {
   flex: 1 1 auto;
-}
-.playgroundContainer > div:first-child {
-  flex: 0 0 65%;
-}
-.playgroundContainer.endpointPlayground > div:first-child {
-  flex: 0 1 50%;
+  min-width: 0;
 }
 .row.playgroundContainer > div:first-child {
   background-color: var(--monoco-code-background);
-  border-bottom-left-radius: var(--ifm-global-radius);
+  border-bottom-left-radius: 0;
   border-top-left-radius: calc(var(--ifm-global-radius) * 2);
+  border-top-right-radius: var(--ifm-global-radius);
+}
+.playgroundContainer.row .playgroundHeader.tabControls:first-of-type {
+  border-top-right-radius: var(--ifm-global-radius);
 }
 
 .playgroundHeader {
@@ -199,7 +197,6 @@ div > .playgroundHeader.subtabs {
   background-color: var(--ifm-color-emphasis-300);
 }
 
-.playgroundContainer.row.hidden,
 .hidden {
   display: none;
 }
@@ -435,43 +432,32 @@ div.fixtureJson {
 }
 
 
-@media only screen and (min-width: 768px) and (max-width: 996px) {
+/* Side-by-side when the playground itself has enough width (docs sidebar
+   no longer forces an incorrect stack on homepage/blog). */
+@container playground (min-width: 720px) {
   .playgroundContainer.row {
     flex-direction: row;
   }
-}
-@media only screen and (max-width: 768px) {
   .playgroundContainer.row > :last-child {
-    border-top-right-radius: 0;
+    border-top-right-radius: var(--ifm-global-radius);
     border-bottom-right-radius: var(--ifm-global-radius);
-    border-bottom-left-radius: var(--ifm-global-radius);
+    border-bottom-left-radius: 0;
+    /* basis 0 — not auto — so preview content cannot steal editor width */
+    flex: 35 1 0;
+    min-width: 16rem;
   }
   .row.playgroundContainer > div:first-child {
-    border-bottom-left-radius: 0;
-    border-top-right-radius: var(--ifm-global-radius);
-
-  }
-  .playgroundContainer .playgroundHeader.tabControls:first-of-type {
-    border-top-right-radius: var(--ifm-global-radius);
-  }
-}
-@media only screen and (min-width: 997px) and (max-width: 1268px) {
-  .playgroundContainer.row > :last-child {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: var(--ifm-global-radius);
     border-bottom-left-radius: var(--ifm-global-radius);
+    border-top-right-radius: 0;
+    flex: 65 1 0;
+    min-width: 16rem;
   }
-  .row.playgroundContainer > div:first-child {
-    border-bottom-left-radius: 0;
-    border-top-right-radius: var(--ifm-global-radius);
-
+  /* div element kept: must out-specify .row's div:first-child 65% rule */
+  .playgroundContainer.endpointPlayground > div:first-child,
+  .playgroundContainer.endpointPlayground > div:last-child {
+    flex: 50 1 0;
   }
-  .playgroundContainer .playgroundHeader.tabControls:first-of-type {
-    border-top-right-radius: var(--ifm-global-radius);
-  }
-}
-@media only screen and (min-width: 1268px) {
-  .playgroundContainer.row {
-    flex-direction: row;
+  .playgroundContainer.row .playgroundHeader.tabControls:first-of-type {
+    border-top-right-radius: 0;
   }
 }

@@ -42,24 +42,29 @@ export default function Playground<T>({
   return (
     <>
       <div
-        className={clsx(styles.playgroundContainer, {
-          [styles.row]: row,
+        className={clsx(styles.playgroundQueryContainer, {
           [styles.hidden]: hidden,
         })}
       >
-        <LiveProvider theme={realTheme} enableTypeScript={true} {...props}>
-          <PlaygroundContent
-            reverse={playgroundPosition === 'top'}
-            row={row}
-            fixtures={fixtures}
-            groupId={groupId}
-            defaultOpen={defaultOpen}
-            getInitialInterceptorData={getInitialInterceptorData}
-            defaultTab={defaultTab}
-          >
-            {children}
-          </PlaygroundContent>
-        </LiveProvider>
+        <div
+          className={clsx(styles.playgroundContainer, {
+            [styles.row]: row,
+          })}
+        >
+          <LiveProvider theme={realTheme} enableTypeScript={true} {...props}>
+            <PlaygroundContent
+              reverse={playgroundPosition === 'top'}
+              row={row}
+              fixtures={fixtures}
+              groupId={groupId}
+              defaultOpen={defaultOpen}
+              getInitialInterceptorData={getInitialInterceptorData}
+              defaultTab={defaultTab}
+            >
+              {children}
+            </PlaygroundContent>
+          </LiveProvider>
+        </div>
       </div>
       <MonacoPreloads />
     </>

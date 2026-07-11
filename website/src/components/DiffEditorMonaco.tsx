@@ -17,10 +17,6 @@ export default function DiffEditor({
   codeTabs,
   fallback,
 }: DiffMonacoProps) {
-  const { height, handleMount } = useAutoHeight({
-    lineHeight: options.lineHeight,
-  });
-
   const [original, modified] = useMemo(
     () => [
       codes[0].replaceAll(/^\s*\/\/ highlight-(next-line|start|end)\n/gm, ''),
@@ -28,6 +24,12 @@ export default function DiffEditor({
     ],
     [codes],
   );
+
+  const { height, handleMount } = useAutoHeight({
+    initialContentHeight:
+      Math.max(original.split('\n').length, modified.split('\n').length) *
+      options.lineHeight,
+  });
 
   return (
     <>
@@ -38,28 +40,30 @@ export default function DiffEditor({
             return fallback;
           }
           return (
-            <div
-              className={clsx(
-                styles.playgroundContainer,
-                styles.standaloneEditor,
-              )}
-            >
-              <div className={styles.playgroundTextEdit}>
-                <div className={clsx(styles.playgroundEditor)}>
-                  <BaseDiffEditor
-                    language={extensionToMonacoLanguage(codeTabs[0].language)}
-                    original={original}
-                    modified={modified}
-                    options={DIFF_OPTIONS}
-                    onMount={handleMount}
-                    height={height}
-                    theme="prism"
-                    loading={fallback}
-                    // Prevent "TextModel got disposed before DiffEditorWidget model got reset" error
-                    // by not letting @monaco-editor/react manage model disposal
-                    keepCurrentOriginalModel
-                    keepCurrentModifiedModel
-                  />
+            <div className={styles.playgroundQueryContainer}>
+              <div
+                className={clsx(
+                  styles.playgroundContainer,
+                  styles.standaloneEditor,
+                )}
+              >
+                <div className={styles.playgroundTextEdit}>
+                  <div className={styles.playgroundEditor}>
+                    <BaseDiffEditor
+                      language={extensionToMonacoLanguage(codeTabs[0].language)}
+                      original={original}
+                      modified={modified}
+                      options={DIFF_OPTIONS}
+                      onMount={handleMount}
+                      height={height}
+                      theme="prism"
+                      loading={fallback}
+                      // Prevent "TextModel got disposed before DiffEditorWidget model got reset" error
+                      // by not letting @monaco-editor/react manage model disposal
+                      keepCurrentOriginalModel
+                      keepCurrentModifiedModel
+                    />
+                  </div>
                 </div>
               </div>
             </div>

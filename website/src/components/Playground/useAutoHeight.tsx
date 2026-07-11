@@ -2,97 +2,66 @@ import { type MonacoDiffEditor } from '@monaco-editor/react';
 import type * as Monaco from 'monaco-editor';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-export default function useAutoHeight({
-  isFocused = false,
-  lineHeight,
-  containerGutter = 10,
-}) {
-  const updateHeightRef = useRef<() => void>();
-  useEffect(() => {
-    if (isFocused && updateHeightRef.current) {
-      setTimeout(updateHeightRef.current, 5);
-    }
-  }, [isFocused]);
-
-  const [height, setHeight] = useState<string | number>('1000');
-  const handleMount = useCallback(
-    (
-      editor: Monaco.editor.ICodeEditor | MonacoDiffEditor,
-      monaco: typeof Monaco,
-    ) => {
-      // autoheight
-      const LINE_HEIGHT = lineHeight;
-      const CONTAINER_GUTTER = containerGutter;
-
-      const el = editor.getContainerDomNode();
-      const codeContainers = el.getElementsByClassName('view-lines');
-
-      const model = editor.getModel();
-      let lineCount = 10;
-      if (model) {
-        // before rendering we have no view information, so we initialize based on unwrapped lines
-        lineCount = getLineCount(model);
-      }
-
-      const contentHeight = lineCount * LINE_HEIGHT + CONTAINER_GUTTER;
-      el.style.height = contentHeight + 'px';
-      setHeight(contentHeight);
-
-      editor.layout();
-
-      let prevHeight = contentHeight;
-      updateHeightRef.current = () => {
-        // For diff editors, take max of both sides' line counts
-        const codeContainerCount = Math.max(
-          ...Array.from(codeContainers).map(c => c.childElementCount),
-        );
-        const viewlinecount =
-          editor._modelData?.viewModel?.getLineCount?.() ?? codeContainerCount;
-        const model = editor.getModel();
-        const modellinecount = model ? getLineCount(model) : codeContainerCount;
-        const lineCount =
-          viewlinecount < modellinecount * 3 ? viewlinecount : modellinecount;
-        const height = lineCount * LINE_HEIGHT + CONTAINER_GUTTER; // fold
-        // decorations change often without affecting height; skip the forced
-        // layout and state update when nothing changed
-        if (height === prevHeight) return;
-        prevHeight = height;
-
-        el.style.height = height + 'px';
-        setHeight(height);
-
-        editor.layout();
-      };
-      if ('onDidChangeModelDecorations' in editor) {
-        editor.onDidChangeModelDecorations(() => {
-          // wait until dom rendered
-          setTimeout(updateHeightRef.current, 0);
-        });
-      } else {
-        editor.getOriginalEditor().onDidChangeModelDecorations(() => {
-          // wait until dom rendered
-          setTimeout(updateHeightRef.current, 0);
-        });
-        editor.getModifiedEditor().onDidChangeModelDecorations(() => {
-          // wait until dom rendered
-          setTimeout(updateHeightRef.current, 0);
-        });
-      }
-      return () => editor?.dispose();
-    },
-    [],
-  );
-  return { height, handleMount };
+function isDiffEditor(
+  editor: Monaco.editor.ICodeEditor | MonacoDiffEditor,
+): editor is MonacoDiffEditor {
+  return 'getOriginalEditor' in editor && 'getModifiedEditor' in editor;
 }
 
-function getLineCount(
-  model: Monaco.editor.ITextModel | Monaco.editor.IDiffEditorModel,
-) {
-  if ('original' in model) {
-    return Math.max(
-      model.original.getLineCount(),
-      model.modified.getLineCount(),
-    );
-  }
-  return model.getLineCount();
+export default function useAutoHeight({
+  initialContentHeight,
+  containerGutter = 10,
+  isFocused = true,
+}: {
+  /** Estimate (line count × line height) shown until Monaco measures itself */
+  initialContentHeight: number;
+  containerGutter?: number;
+  /** Re-measure when a previously hidden tab becomes visible */
+  isFocused?: boolean;
+}) {
+  const [height, setHeight] = useState(initialContentHeight + containerGutter);
+
+  const updateHeightRef = useRef<() => void>();
+  useEffect(() => {
+    if (!isFocused || !updateHeightRef.current) return;
+    // Wait a frame so display:none → block layout has applied
+    const id = requestAnimationFrame(() => updateHeightRef.current?.());
+    return () => cancelAnimationFrame(id);
+  }, [isFocused]);
+
+  const disposablesRef = useRef<{ dispose(): void }[]>([]);
+  useEffect(() => () => disposablesRef.current.forEach(d => d.dispose()), []);
+
+  const handleMount = useCallback(
+    (editor: Monaco.editor.ICodeEditor | MonacoDiffEditor) => {
+      const editors =
+        isDiffEditor(editor) ?
+          [editor.getOriginalEditor(), editor.getModifiedEditor()]
+        : [editor];
+      // modified (or sole) editor is the one users interact with
+      const primary = editors[editors.length - 1];
+
+      const updateHeight = () => {
+        // Hidden tabs (display:none) report width 0; a crushed pane during
+        // flex transitions can be nearly as bad — word-wrap invents thousands
+        // of lines. Skip until the editor has a real layout width.
+        if (primary.getLayoutInfo().width < 40) return;
+
+        setHeight(
+          Math.max(...editors.map(e => e.getContentHeight())) + containerGutter,
+        );
+      };
+
+      updateHeightRef.current = updateHeight;
+      updateHeight();
+
+      disposablesRef.current.forEach(d => d.dispose());
+      disposablesRef.current = editors.map(e =>
+        e.onDidContentSizeChange(updateHeight),
+      );
+    },
+    [containerGutter],
+  );
+
+  return { height, handleMount };
 }
