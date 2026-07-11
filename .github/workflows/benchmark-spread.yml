@@ -1,0 +1,97 @@
+name: Benchmark Spread
+
+# Tracks one fast degenerate-case store-write benchmark over time.
+# Triggers are narrower than benchmark.yml: only store-write code paths
+# (reducers, normalize store copies, default Entity merge) affect this case.
+# The rest of the `spread` suite and the memory script are manual-only.
+
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'packages/core/src/state/**'
+      - 'packages/normalizr/src/normalize/**'
+      - 'packages/endpoint/src/schemas/EntityMixin.ts'
+      - 'examples/benchmark/spread.js'
+      - 'examples/benchmark/spread-scenarios.js'
+      - 'examples/benchmark/schemas.js'
+      - '.github/workflows/benchmark-spread.yml'
+  push:
+    branches:
+      - master
+    paths:
+      - 'packages/core/src/state/**'
+      - 'packages/normalizr/src/normalize/**'
+      - 'packages/endpoint/src/schemas/EntityMixin.ts'
+      - 'examples/benchmark/spread.js'
+      - 'examples/benchmark/spread-scenarios.js'
+      - 'examples/benchmark/schemas.js'
+      - '.github/workflows/benchmark-spread.yml'
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.event_name == 'push' && 'gh-pages-bench-spread-push' || format('benchmark-spread-{0}', github.head_ref) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  benchmark-spread:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v7
+      with:
+        fetch-depth: 1
+    - uses: actions/setup-node@v6
+      with:
+        node-version: '24'
+        cache: 'yarn'
+    - name: Install packages
+      run: ./scripts/ci-install.sh examples/benchmark
+    - name: Build packages
+      run: yarn build:benchmark
+    - name: Tune system for benchmarking
+      run: |
+        # Pin CPU governor to performance mode (reduces frequency scaling jitter)
+        for gov in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; do
+          echo performance | sudo tee "$gov" 2>/dev/null || true
+        done
+        # Disable swap to prevent memory pressure variance
+        sudo swapoff -a || true
+    - name: Run benchmark
+      run: taskset -c 0,1 yarn workspace example-benchmark start spread "setOneEntity in 10k entity store" | tee output.txt
+
+    # PR comments on changes
+    - name: Store benchmark result (PR)
+      if: ${{ github.event_name == 'pull_request' }}
+      uses: rhysd/github-action-benchmark@v1
+      with:
+        name: 'Benchmark Spread'
+        tool: 'benchmarkjs'
+        output-file-path: output.txt
+        github-token: "${{ secrets.GITHUB_TOKEN }}"
+        gh-pages-branch: 'gh-pages-bench'
+        benchmark-data-dir-path: spread-bench
+        alert-threshold: '150%'
+        comment-always: true
+        fail-on-alert: false
+        alert-comment-cc-users: '@ntucker'
+        save-data-file: false
+        auto-push: false
+
+    # master reports to history
+    - name: Store benchmark result (main)
+      if: ${{ github.event_name == 'push' }}
+      uses: rhysd/github-action-benchmark@v1
+      with:
+        name: 'Benchmark Spread'
+        tool: 'benchmarkjs'
+        output-file-path: output.txt
+        github-token: "${{ secrets.GITHUB_TOKEN }}"
+        gh-pages-branch: 'gh-pages-bench'
+        benchmark-data-dir-path: spread-bench
+        auto-push: true
+        fail-on-alert: false

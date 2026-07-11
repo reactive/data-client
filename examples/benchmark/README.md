@@ -35,6 +35,7 @@ Both arguments are optional:
 - `entity` - benchmarks various entity-specific operations
 - `core` - benchmarks entire operations using [Controller](https://dataclient.io/docs/api/Controller)
 - `normalizr` - benchmarks just normalize/denormalize
+- `spread` - degenerate-case writes where spread cost scales with store size (single-entity `setResponse` into 1k/10k/100k entity stores, 10k cached endpoint keys, collection push onto 10k items, invalidateAll/expireAll). One case (`setOneEntity in 10k entity store`) is tracked over time in CI via `.github/workflows/benchmark-spread.yml`; the rest are manual-only.
 - `micro` - isolated microbenchmarks for testing specific operations
 - `old-normalizr` - runs equivalent benchmarks using the normalizr package
 
@@ -60,6 +61,22 @@ Performance compared to normalizr package (higher is better):
 [Comparison done on a Ryzen 7950x; Ubuntu; Node 22.14.0]
 
 Not only is denormalize faster, but it is more feature-rich as well.
+
+### Memory pressure
+
+The `spread` scenarios allocate transient copies proportional to store size, so
+the memory symptom is allocation rate and GC churn rather than retained heap.
+Measure it with:
+
+```bash
+yarn start:memory [filter]
+```
+
+This runs the same scenarios as the `spread` suite (see `spread-scenarios.js`)
+and reports per scenario: approximate bytes allocated per operation, GC event
+counts (minor/major/other) and total GC pause during the loop, and retained
+heap after a full GC (should be ~0; nonzero indicates actual retention).
+Local-only — not tracked in CI.
 
 ### Profiling
 

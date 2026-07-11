@@ -22,7 +22,7 @@ export function createAdd(suite, filter) {
  * @param {string} [filter]
  * @returns {(name: string) => boolean}
  */
-function createMatcher(filter) {
+export function createMatcher(filter) {
   if (!filter) return () => true;
   if (filter.startsWith('^')) {
     const prefix = filter.slice(1);
