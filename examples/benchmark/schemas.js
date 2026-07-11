@@ -375,10 +375,9 @@ export function buildLargeEntityState(n) {
   return state;
 }
 
-/** State with `n` distinct cached endpoint keys, simulating `n`
- * previously-fetched detail requests. Entity count stays minimal (10
- * ControlItems) since the endpoints/meta spreads being measured don't
- * depend on it; the keys reference pks that were since garbage collected. */
+/** State with `n` distinct cached endpoint keys. Entity count stays minimal
+ * since the endpoints/meta spreads being measured don't depend on it; the
+ * synthetic endpoint keys deliberately reference absent FlatItem entities. */
 export function buildManyEndpointsState(n) {
   const state = applyResponse(
     initialState,

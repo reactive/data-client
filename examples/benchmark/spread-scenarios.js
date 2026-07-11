@@ -61,18 +61,19 @@ const PUSH_ID_OFFSET = 1_000_000;
  * - cached endpoints: { ...state.endpoints } / { ...state.meta } in
  *   setResponseReducer, O(distinct cached endpoint keys) per fetch
  * - collection push: pushMerge [...existing, ...incoming], O(collection size)
- * - invalidateAll/expireAll: full endpoints/meta copies
+ * - invalidateAll: full endpoints + meta copies
+ * - expireAll: full meta copy
  *
  * `create()` builds the scenario's fixtures and returns the op to measure.
  */
 const storeSweep = [
-  ['1k', 5000, ctrl1k],
-  ['10k', 1000, ctrl10k],
-  ['100k', 200, ctrl100k],
+  { size: '1k', iterations: 5000, getCtrl: ctrl1k },
+  { size: '10k', iterations: 1000, getCtrl: ctrl10k },
+  { size: '100k', iterations: 200, getCtrl: ctrl100k },
 ];
 
 const scenarios = [
-  ...storeSweep.map(([size, iterations, getCtrl]) => ({
+  ...storeSweep.map(({ size, iterations, getCtrl }) => ({
     name: `setOneEntity in ${size} entity store`,
     iterations,
     create() {
@@ -114,7 +115,7 @@ const scenarios = [
     },
   },
   {
-    name: 'expireAll 10k endpoints',
+    name: 'expireAll 10k meta entries',
     iterations: 500,
     create() {
       const ctrl = ctrlEndpoints();

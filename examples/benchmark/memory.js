@@ -7,8 +7,8 @@
  *
  * - allocated/op: approximate bytes allocated per operation, from summing
  *   positive used-heap deltas between samples (every SAMPLE_INTERVAL ops, to
- *   keep the sampler's own allocations out of the numbers). Undercounts when
- *   a scavenge lands mid-window, so treat as a lower bound.
+ *   reduce the sampler's own contribution). Undercounts when a scavenge lands
+ *   mid-window, so treat as a lower bound.
  * - GC minor/major/other + pause: count and total pause time of GC events
  *   during the measured loop (PerformanceObserver 'gc' entries).
  * - retained: used-heap delta vs. baseline after full GC — should be ~0;
@@ -29,8 +29,8 @@ const gc = vm.runInNewContext('gc');
 // v8.getHeapStatistics() avoids the /proc rss read that process.memoryUsage() does
 const heapUsed = () => v8.getHeapStatistics().used_heap_size;
 
-// heapUsed() itself allocates; sampling every op would inflate allocated/op
-// and GC counts for cheap scenarios
+// heapUsed() itself allocates; sample less often to reduce its effect on
+// allocated/op and GC counts for cheap scenarios.
 const SAMPLE_INTERVAL = 10;
 
 function fullGC() {
