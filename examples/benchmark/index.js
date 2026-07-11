@@ -7,6 +7,7 @@ import addEntitySuite from './entity.js';
 import addMicroSuite from './micro.js';
 import addNormlizrSuite from './normalizr.js';
 import addOldNormlizrSuite from './old-normalizr/normalizr.js';
+import addSpreadSuite from './spread.js';
 
 v8.setFlagsFromString('--expose_gc');
 const gc = vm.runInNewContext('gc');
@@ -42,6 +43,15 @@ if (process.argv[2] === 'entity') {
     .run();
 } else if (process.argv[2] === 'old-normalizr') {
   addOldNormlizrSuite(new Benchmark.Suite(), filter)
+    .on('cycle', event => {
+      // Output benchmark result by converting benchmark result to string
+      console.log(String(event.target));
+      // collect garbage between runs to make results more consistent
+      gc();
+    })
+    .run();
+} else if (process.argv[2] === 'spread') {
+  addSpreadSuite(new Benchmark.Suite(), filter)
     .on('cycle', event => {
       // Output benchmark result by converting benchmark result to string
       console.log(String(event.target));

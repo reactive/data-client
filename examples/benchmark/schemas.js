@@ -6,6 +6,10 @@ import {
   All,
   Query,
   Scalar,
+  Controller,
+  createReducer,
+  initialState,
+  Endpoint,
 } from './dist/index.js';
 
 export class BuildTypeDescription extends Entity {
@@ -248,6 +252,153 @@ export class ProjectWithBuildTypesDescriptionSimpleMerge extends Entity {
 export const ProjectSchemaSimpleMerge = {
   project: [ProjectWithBuildTypesDescriptionSimpleMerge],
 };
+
+/* Degenerate-case fixtures for the `spread` suite and memory script.
+ *
+ * FlatItem has no nested schema, so single-entity writes isolate the
+ * store-copy costs (per-type entity map clone in NormalizeDelegate,
+ * endpoints/meta spreads in setResponseReducer) from schema traversal.
+ */
+export class FlatItem extends Entity {
+  id = '';
+  name = '';
+  value = 0;
+  category = '';
+  status = '';
+  updatedAt = 0;
+
+  static key = 'FlatItem';
+  pk() {
+    return this.id;
+  }
+}
+
+/** Second, small entity type used as a control: writes to it should not
+ * scale with the number of FlatItem entities in the store. */
+export class ControlItem extends Entity {
+  id = '';
+  name = '';
+
+  static key = 'ControlItem';
+  pk() {
+    return this.id;
+  }
+}
+
+export const getFlatItems = new Endpoint(() => Promise.resolve([]), {
+  schema: [FlatItem],
+  key() {
+    return '/flatItems';
+  },
+});
+export const getFlatItem = new Endpoint(({ id }) => Promise.resolve({ id }), {
+  schema: FlatItem,
+  key({ id }) {
+    return `/flatItems/${id}`;
+  },
+});
+export const getControlItems = new Endpoint(() => Promise.resolve([]), {
+  schema: [ControlItem],
+  key() {
+    return '/controlItems';
+  },
+});
+export const getControlItem = new Endpoint(
+  ({ id }) => Promise.resolve({ id }),
+  {
+    schema: ControlItem,
+    key({ id }) {
+      return `/controlItems/${id}`;
+    },
+  },
+);
+
+export const FlatItemCollection = new Collection([FlatItem]);
+export const getFlatItemCollection = new Endpoint(() => Promise.resolve([]), {
+  schema: FlatItemCollection,
+  key() {
+    return '/flatItemsCollection';
+  },
+});
+export const pushFlatItems = new Endpoint(() => Promise.resolve([]), {
+  schema: FlatItemCollection.push,
+  key() {
+    return '/flatItemsCollection/push';
+  },
+});
+
+export function buildFlatItemData(count, offset = 0) {
+  const items = [];
+  for (let i = 0; i < count; i++) {
+    const n = offset + i;
+    items.push({
+      id: `f-${n}`,
+      name: `Item ${n}`,
+      value: n * 3,
+      category: `cat-${n % 17}`,
+      status: n % 2 ? 'active' : 'inactive',
+      updatedAt: 1700000000000 + n,
+    });
+  }
+  return items;
+}
+
+export function buildControlItemData(count) {
+  const items = [];
+  for (let i = 0; i < count; i++) {
+    items.push({ id: `c-${i}`, name: `Control ${i}` });
+  }
+  return items;
+}
+
+/** Runs a real setResponse through the reducer and returns the next state. */
+function applyResponse(state, endpoint, args, response) {
+  const controller = new Controller({});
+  const reducer = createReducer(controller);
+  let nextState = state;
+  controller.dispatch = action => {
+    nextState = reducer(nextState, action);
+  };
+  controller.setResponse(endpoint, ...args, response);
+  return nextState;
+}
+
+/** State with `n` FlatItem entities plus 10 ControlItem entities. */
+export function buildLargeEntityState(n) {
+  let state = applyResponse(
+    initialState,
+    getFlatItems,
+    [],
+    buildFlatItemData(n),
+  );
+  state = applyResponse(state, getControlItems, [], buildControlItemData(10));
+  return state;
+}
+
+/** buildLargeEntityState(n) plus `n` distinct cached endpoint keys,
+ * simulating `n` previously-fetched detail requests. */
+export function buildManyEndpointsState(n) {
+  const state = buildLargeEntityState(n);
+  const endpoints = { ...state.endpoints };
+  const meta = { ...state.meta };
+  const date = Date.now();
+  for (let i = 0; i < n; i++) {
+    const key = getFlatItem.key({ id: `f-${i}` });
+    endpoints[key] = `f-${i}`;
+    meta[key] = { date, fetchedAt: date, expiresAt: date + 3600_000 };
+  }
+  return { ...state, endpoints, meta };
+}
+
+/** State with a Collection containing `n` FlatItems. */
+export function buildCollectionState(n) {
+  return applyResponse(
+    initialState,
+    getFlatItemCollection,
+    [],
+    buildFlatItemData(n),
+  );
+}
 
 export class User extends Entity {
   nodeId = '';

@@ -142,12 +142,14 @@ This builds all packages and generates size comparison data. Document the bundle
   - `@examples/benchmark/entity.js`
   - `@examples/benchmark/normalizr.js`
   - `@examples/benchmark/core.js`
+  - `@examples/benchmark/spread.js` (degenerate-case store-size-scaling writes; scenarios in `@examples/benchmark/spread-scenarios.js`)
   - `@examples/benchmark/old-normalizr/normalizr.js`
+- **Memory pressure script**: `@examples/benchmark/memory.js` (allocation rate, GC churn, retained heap for the spread scenarios)
 - **Schemas/data used by multiple suites**:
   - `@examples/benchmark/schemas.js`
   - `@examples/benchmark/data.json`
   - `@examples/benchmark/user.json`
-- **CI benchmark runner**: `@.github/workflows/benchmark.yml`
+- **CI benchmark runners**: `@.github/workflows/benchmark.yml` (default suites), `@.github/workflows/benchmark-spread.yml` (single spread case, store-write triggers only)
 
 ## How to run
 
@@ -228,6 +230,17 @@ Use this mapping when deciding which suite(s) to run for a change:
     - Changes to `setResponse()` or reducer updates: `^set`
     - Changes to `getResponse()` or cache retrieval: `^get`
 
+- **`spread`** (`@examples/benchmark/spread.js`, scenarios shared with `memory.js` via `@examples/benchmark/spread-scenarios.js`)
+  - **Primary focus**: degenerate cases where spread-operation cost scales with **store size** rather than payload size — single-entity `setResponse` into 1k/10k/100k entity stores (per-type entity map clone in `NormalizeDelegate`), writes with 10k cached endpoint keys (`endpoints`/`meta` spreads in `setResponseReducer`), collection push onto 10k items (`pushMerge`), and `invalidateAll`/`expireAll` over 10k endpoints.
+  - **Packages exercised**:
+    - **`@data-client/core`**: `Controller`, `createReducer` write paths
+    - **`@data-client/normalizr`**: `normalize` store-copy behavior
+    - **`@data-client/endpoint`**: `Entity.merge`, `Collection` push
+  - **Recommended filters**: `setOneEntity` (store-size sweep + control), `collection push`, `invalidateAll`
+  - **CI**: only `setOneEntity in 10k entity store` is tracked over time, via its own workflow `@.github/workflows/benchmark-spread.yml` (separate `spread-bench` history dir on `gh-pages-bench`). It triggers on **store-write paths only**: `packages/core/src/state/**`, `packages/normalizr/src/normalize/**`, `packages/endpoint/src/schemas/EntityMixin.ts`, and the spread suite files. All other spread benchmarks are manual-only. The `setOneEntity` sweep should scale near-linearly with store size while the `control` benchmark stays flat.
+  - Scenario fixtures are built lazily per matching filter (`buildScenarios(filter)` in `spread-scenarios.js`), so filtered runs skip the expensive 100k-store construction.
+  - **Memory pressure**: run `yarn workspace example-benchmark start:memory [filter]` to measure allocation/op, GC counts and pause time, and retained heap for the same scenarios. Copies are transient, so expect high allocation + GC churn with ~0 retained.
+
 - **`old-normalizr`** (`@examples/benchmark/old-normalizr/normalizr.js`)
   - **Primary focus**: baseline comparison against the legacy `normalizr` npm package.
   - **Packages exercised**:
@@ -256,6 +269,14 @@ yarn workspace example-benchmark start | tee output.txt
 ```
 
 The output is parsed as **benchmark.js** format and reported by `rhysd/github-action-benchmark` (see `@.github/workflows/benchmark.yml`).
+
+A second workflow, `@.github/workflows/benchmark-spread.yml`, runs only:
+
+```bash
+yarn workspace example-benchmark start spread "setOneEntity in 10k entity store"
+```
+
+with narrower path triggers (store-write code: `packages/core/src/state/**`, `packages/normalizr/src/normalize/**`, `packages/endpoint/src/schemas/EntityMixin.ts`, spread suite files) and reports to a separate `spread-bench` history dir on the same `gh-pages-bench` branch.
 
 ## Expected variance
 
