@@ -12,23 +12,19 @@ export default function TypeScriptEditor({ children, row }) {
   const realTheme = useReactLiveTheme();
   return (
     <LiveProvider theme={realTheme} enableTypeScript={true}>
-      <div
-        className={clsx(styles.playgroundContainer, styles.standaloneEditor)}
-      >
-        <PlaygroundTextEdit
-          fixtures={[]}
-          row={
-            row === undefined ?
-              codeTabs.length > 1 ?
-                true
-              : false
-            : row
-          }
-          codeTabs={codeTabs}
-          handleCodeChange={handleCodeChange}
-          codes={codes}
-          isPlayground={false}
-        />
+      <div className={styles.playgroundQueryContainer}>
+        <div
+          className={clsx(styles.playgroundContainer, styles.standaloneEditor)}
+        >
+          <PlaygroundTextEdit
+            fixtures={[]}
+            row={row ?? codeTabs.length > 1}
+            codeTabs={codeTabs}
+            handleCodeChange={handleCodeChange}
+            codes={codes}
+            isPlayground={false}
+          />
+        </div>
       </div>
       <MonacoPreloads />
     </LiveProvider>

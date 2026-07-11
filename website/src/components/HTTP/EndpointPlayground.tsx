@@ -21,29 +21,33 @@ export default function EndpointPlayground({
   const { handleCodeChange, codes, codeTabs } = useCode(children);
   const realTheme = useReactLiveTheme();
   return (
-    <div
-      className={clsx(
-        playgroundstyles.endpointPlayground,
-        playgroundstyles.playgroundContainer,
-        playgroundstyles.row,
-      )}
-    >
-      <LiveProvider theme={realTheme} enableTypeScript={true}>
-        <PlaygroundTextEdit
-          fixtures={[]}
-          row
-          codeTabs={codeTabs}
-          handleCodeChange={handleCodeChange}
-          codes={codes}
-          isPlayground={false}
-        />
-      </LiveProvider>
+    <div className={playgroundstyles.playgroundQueryContainer}>
+      <div
+        className={clsx(
+          playgroundstyles.endpointPlayground,
+          playgroundstyles.playgroundContainer,
+          playgroundstyles.row,
+        )}
+      >
+        <LiveProvider theme={realTheme} enableTypeScript={true}>
+          <PlaygroundTextEdit
+            fixtures={[]}
+            row
+            codeTabs={codeTabs}
+            handleCodeChange={handleCodeChange}
+            codes={codes}
+            isPlayground={false}
+          />
+        </LiveProvider>
 
-      <div className={clsx(styles.fixtureCol, playgroundstyles.previewWrapper)}>
-        <Request input={input} init={init} />
-        {status ?
-          <Response status={status} response={response} />
-        : null}
+        <div
+          className={clsx(styles.fixtureCol, playgroundstyles.previewWrapper)}
+        >
+          <Request input={input} init={init} />
+          {status ?
+            <Response status={status} response={response} />
+          : null}
+        </div>
       </div>
       <MonacoPreloads />
     </div>

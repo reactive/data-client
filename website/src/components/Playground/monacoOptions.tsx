@@ -15,4 +15,7 @@ export const options = {
     '"Roboto Mono",SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace',
   fontSize: 13,
   lineHeight: 19,
+  // @monaco-editor/react's default; explicit because useAutoHeight's
+  // resize→rewrap→getContentHeight flow depends on it
+  automaticLayout: true,
 } as const;
