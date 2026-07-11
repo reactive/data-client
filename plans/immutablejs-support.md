@@ -1,150 +1,144 @@
-# Full ImmutableJS Support — Staged Plan
+# ImmutableJS — Two-Track Plan
 
 Status: draft
 Owner: TBD
 Related: [GOALS.md](../GOALS.md), `docs/ROADMAP.md` ("Immutable.js support as optional peerdep")
 
-## Constraints (from GOALS.md)
+## Two distinct goals
 
-1. **Zero bundle cost for POJO users** — all immutable code stays behind `/imm` subpath exports; nothing immutable-related in main entries.
-2. **Zero runtime cost for POJO users** — no per-call duck-type checks or branching on the hot path; behavior differences are resolved once via policy/delegate injection (the pattern established by `MemoCache(policy)` in 0.15).
-3. **SRP / drift protection** — one implementation per concern; immutable semantics live in dedicated modules, never inlined into shared schema code.
+**Track A — Internal store performance (core + react).** Use immutable data structures *inside* the store as a potential performance optimization, targeting the spread-heavy `core` benchmarks (`^set` suite) and memory benchmarks (heap-delta scenarios in `examples/benchmark-react`). ImmutableJS is an implementation detail here and must **never leak** to the react layer or users: entities stay plain classes, hook outputs are unchanged, referential-stability contracts hold. This track is benchmark-gated — if immutable tables don't beat cheaper alternatives (native `Map` tables with lazy cloning), we ship the alternative instead and close the ImmutableJS half of this track with an ADR.
+
+**Track B — External ImmutableJS support for `@data-client/normalizr` users.** Users with their own ImmutableJS-based stores (e.g. Redux + Immutable) who drive `normalize`/`denormalize`/`MemoCache` directly. Here ImmutableJS *is* the user-facing contract, including entity values as Immutable Records (`EntityRecord`). Correctness- and docs-focused, not performance-focused.
+
+Key insight separating them: denormalize always converts entity values to plain classes (`createIfValid`/`fromJS`), so Track A only needs **immutable tables with POJO values** — a contract the existing `@data-client/normalizr/imm` layer already implements. `EntityRecord` and the immutable branches of Object/Polymorphic denormalize are **Track B only**.
+
+## Constraints (from GOALS.md — apply to both tracks)
+
+1. **Zero bundle cost for non-users** — all immutable code behind `/imm` subpath exports.
+2. **Zero runtime cost for the default path** — no per-call duck-type checks; behavior differences resolved once via policy injection (the `MemoCache(policy)` pattern from 0.15).
+3. **SRP / drift protection** — one implementation per concern; immutable semantics in dedicated modules, never inlined into shared schema code.
+4. **Track A only**: no ImmutableJS types, values, or APIs observable from `@data-client/react` hooks or user data. Acknowledged soft leak: `controller.getState()` raw state in managers/middleware (documented caveat when the opt-in policy is active).
 
 ## Current state (baseline)
 
 - `@data-client/normalizr/imm` exists: `MemoPolicy` (`ImmDelegate`), `normalize`, `denormalize`, `ImmNormalizeDelegate`. `MemoCache` and `Controller` accept injected policies.
-- **Supported contract**: outer state tables (`entities`/`indexes`/`entitiesMeta`) are Immutable Maps; entity *values* are POJOs. Tested for `Values`, `All`, `Invalidate`, `Query`, `MemoCache`.
-- **Known gaps** (details in each stage):
-  - Entity values as Immutable Records/Maps are broken (`fromJS`/`merge`/`denormalize`/`validate` in `EntityMixin` assume POJOs; see corrupt snapshot in `packages/normalizr/src/__tests__/__snapshots__/immutable.test.ts.snap`).
-  - `isImmutable`/`denormalizeImmutable` ship in **main** bundles of both normalizr and endpoint (`Object.ts`, `Polymorphic.ts`) and run a per-object check on the denormalize hot path for everyone.
-  - The two `ImmutableUtils.ts` copies (normalizr, endpoint) have already drifted (different signatures and INVALID handling).
+- **Supported contract**: outer tables (`entities`/`indexes`/`entitiesMeta`) immutable, entity values POJO. Tested for `Values`, `All`, `Invalidate`, `Query`, `MemoCache`.
+- **Known gaps**:
+  - `isImmutable`/`denormalizeImmutable` ship in **main** bundles of both normalizr and endpoint (`Object.ts`, `Polymorphic.ts`); per-object hot-path check for everyone. The two `ImmutableUtils.ts` copies have already drifted.
+  - Entity values as Records/Maps are broken (`fromJS`/`merge`/`denormalize`/`validate` assume POJOs; corrupt snapshot committed in `packages/normalizr/src/__tests__/__snapshots__/immutable.test.ts.snap`). `EntityRecord.ts` is an empty stub. (Track B)
+  - Core reducers/`Controller`/`GCPolicy` and react hooks assume POJO state shape (bracket reads like `state.endpoints[key]`; spreads; in-place GC deletes). (Track A)
   - `normalize.imm.ts` ships a fake-immutable default store (`deepClone`, `createNestedImmutable`).
-  - `packages/endpoint/src/schemas/EntityRecord.ts` is an empty stub.
-  - Core (reducers, `GCPolicy`, `Controller` state reads) is POJO-only; no written decision on whether that is in scope.
   - No user-facing docs for immutable usage.
 
 ---
 
-## Stage 0 — Spikes and knowledge gathering
+## Shared Foundation — Stage F1: evict immutable code from main bundles
 
-No production code changes. Each spike de-risks a later stage; results get recorded in this document before the dependent stage starts.
+Prerequisite for both tracks; creates the policy seam everything else uses.
 
-### S0.1 Measure the `isImmutable` hot-path cost (feeds Stage 1)
+### Spikes
 
-- Add a microbenchmark to `examples/benchmark/micro.js` isolating object-schema denormalize with and without the `isImmutable(input)` check (hack it out locally; don't commit the removal).
-- Establishes the expected payoff for Stage 1 and the baseline for its regression gate.
-- **Question answered**: is the win measurable (the 0.15 entity-path removal claimed 10–20%), or is it noise on modern V8? Either result is useful — if noise, Stage 1 is justified by bundle size and SRP alone and we shouldn't oversell it in the changeset.
+- **F0.1 — Measure the `isImmutable` hot-path cost.** Microbenchmark in `examples/benchmark/micro.js` isolating object-schema denormalize with/without the check. Sets the regression gate; tells us whether the payoff is perf (0.15 entity-path removal claimed 10–20%) or only bundle/SRP.
+- **F0.2 — Prototype the policy seam** for object/polymorphic denormalize: strategy on the unvisit `delegate` vs. resolved at `getUnvisit` construction from `IMemoPolicy`. Must respect the hidden-class/deopt constraints in `packages/normalizr/AGENTS.md`; hold ≤2% on cached `normalizr` benches. Decides whether `Polymorphic`'s discrimination reads (`value.get('schema')`/`value.get('id')`) share the strategy or need their own hook.
 
-### S0.2 Prototype the policy seam for object/polymorphic denormalize (feeds Stage 1)
+### Work items
 
-- The immutable branch in `Object.ts`/`Polymorphic.ts` must move behind the injected policy. Prototype where the strategy lives: on the unvisit `delegate` (one object per denormalize tree) vs. resolved at `getUnvisit` construction from `IMemoPolicy`.
-- **Constraints to verify** (per `packages/normalizr/AGENTS.md`): adding fields to hot-path objects changes hidden classes and has measured 5–10% costs; conditional call-site shapes deopt. The prototype must run `yarn workspace example-benchmark start normalizr` and hold ≤2% on cached benches.
-- **Question answered**: exact seam shape, and whether `Polymorphic`'s discrimination reads (`value.get('schema')`, `value.get('id')`) can share the same strategy or need their own hook.
+1. Move the immutable branches of `Object.ts`/`Polymorphic.ts` (both packages) behind the policy; POJO policy performs no check, imm policy supplies immutable-aware implementations.
+2. Consolidate the two drifted `ImmutableUtils.ts` copies (or delete if subsumed).
+3. Bundle verification (`yarn ci:build:bundlesize`) + a CI grep asserting main entries contain no immutable code.
+4. Changeset — **breaking** for anyone denormalizing immutable input via main entries (migrate to `/imm`, same shape as the 0.15 `MemoCache` migration).
 
-### S0.3 Enumerate immutable-input surfaces under the supported contract (feeds Stages 1–2)
-
-- Audit which schema `denormalize`/`queryKey` paths can ever receive immutable input when (a) only tables are immutable, (b) entity values are also immutable. Known suspects beyond Object/Polymorphic: `Values` (iterates `Object.keys(input)`), `Collection.createIfValid` (spread), `All` (table iteration — `ImmDelegate.getEntities` already returns the Immutable Map, which is iterable-compatible).
-- Deliverable: a table of schema × operation × input-kind, marking which need policy-routed handling and which are already safe. This becomes the Stage 2 test matrix.
-
-### S0.4 `EntityRecord` design spike (feeds Stage 2)
-
-Prototype an Entity mixin whose instances are Immutable Records. Questions that must be answered before committing to an API:
-
-- **Composition**: extend/wrap `EntityMixin` overriding statics (`fromJS`, `createIfValid`, `merge`, `mergeWithStore`, `denormalize`, `validate`, `defaults`), or a parallel mixin sharing helpers? Prefer the smallest override surface that avoids duplicating normalize logic.
-- **Storage shape**: do Record instances go *into* the entity table, or do we normalize to POJOs and only construct Records at denormalize time? Storage shape is public API (snapshot tests, SSR payloads, devtools) — POJO storage is the conservative default and keeps `mergeWithStore` trivial; Record storage would need Record-aware merge and meta handling. Decide with evidence.
-- **Memoization**: `WeakDependencyMap` chains are keyed by entity object identity. Verify referential-stability contracts hold (`toBe` across repeated `MemoCache.denormalize` calls) with Records, including after unrelated store writes.
-- **Immutable dependency**: `immutable` becomes an optional `peerDependency` (with `peerDependenciesMeta.optional`) imported **only** from the `/imm` entry — verify no accidental graph reachability from the main entry. Check whether we need actual imports at all or can stay duck-typed like `ImmutableUtils` does today (types-only import may suffice).
-- **Types**: confirm the `/imm` subpath types pattern (as done in normalizr's `package.json` `exports`) works across the supported TS matrix, and decide whether legacy `typesVersions` (3.4/4.0/4.1) get the export or it's TS ≥5.x-only.
-
-### S0.5 External immutable-store integration reality check (feeds Stage 4)
-
-- Build a minimal Redux + ImmutableJS example driving `MemoCache(ImmPolicy)` + `/imm` `normalize` in a user reducer. Identify exactly which `Controller` reads break when the *outer* state object is immutable (`state.endpoints[key]`, `state.meta[...]`, `GCPolicy` reads).
-- Search issues/discussions for actual demand signal for an immutable *internal* store vs. external-store interop.
-- **Question answered**: is a thin outer-state adapter (fixed keys: `entities`, `endpoints`, `indexes`, `meta`, `entitiesMeta`, `optimistic`, `lastReset`) sufficient for real integrations, making a `@data-client/core/imm` unnecessary?
+**Exit criteria**: no immutable code in main bundles; POJO benches within noise or improved; `/imm` tests green.
 
 ---
 
-## Stage 1 — Evict immutable code from main bundles; consolidate `ImmutableUtils`
+## Track A — Internal store performance
 
-**Depends on**: S0.1, S0.2, S0.3.
+### Stage A0 — Spikes (A0.1 is the go/no-go gate for the whole track)
 
-**Why**: constraints 1–3 are currently violated on the object/polymorphic path; this also creates the seam Stage 2 builds on.
+- **A0.1 — Three-arm store benchmark (gate).** Compare on `core` suite `^set` filters and memory scenarios, at realistic and adversarial sizes (10k+ entities of one type; thousands of `endpoints`/`meta` keys):
+  1. Current POJO tables (lazy per-key clone in `NormalizeDelegate` — already manual structural sharing),
+  2. Immutable Map tables (existing `ImmNormalizeDelegate`),
+  3. Native `Map` tables with the same lazy-clone strategy (no dependency, no leak risk).
 
-Work items:
+  Measure write throughput, read/denormalize-miss overhead (`getIn` vs. property access), allocation churn, and heap deltas (extend `examples/benchmark` with a memory harness or reuse `benchmark-react` heap-delta methodology). **Decision rule**: ImmutableJS proceeds only if it clearly beats arm 3; otherwise arm 3 (or status quo) becomes the deliverable and A3 pivots accordingly.
+- **A0.2 — GC sweep vs. memoization.** The GC reducer mutates in place (`delete state.entities[key][pk]` in `createReducer.ts`) deliberately, preserving table identity so sweeps don't bust `WeakDependencyMap` chains. Immutable `deleteIn` creates a new per-key table map, invalidating memo chains for every entity of that type per sweep. Investigate mitigations (batched sweeps via `withMutations`, GC epochs, accepting and measuring the re-denormalize cost) — outcome feeds the A0.1 decision.
+- **A0.3 — State-read audit → accessor API design.** Enumerate every raw state read outside core reducers: react hooks (`state.endpoints[key]`, `state.meta[key]` bracket reads in `useCache`/`useSuspense`/`useFetch`/`useDLE`/`useQuery`; table refs used as `useMemo` deps are identity-only and already shape-agnostic), `ExternalDataProvider`'s optimistic replay, managers, `packages/ssr`, devtools serialization. Design the minimal `Controller` accessor surface (or state facade) that makes them shape-agnostic.
 
-1. Move the immutable branch of `Object.ts` and `Polymorphic.ts` denormalize (both packages) behind the policy seam chosen in S0.2. POJO policy performs no check; imm policy supplies the immutable-aware implementations.
-2. Consolidate the two drifted `ImmutableUtils.ts` copies into a single implementation, living with the imm policy code (or delete entirely if the policy move subsumes them).
-3. Bundle verification: `yarn ci:build:bundlesize`; assert main entries of normalizr and endpoint contain no `isImmutable`/immutable branches (add a grep-based check to CI if cheap).
-4. Benchmarks: `normalizr` suite `^denormalize` filters, plus the S0.1 microbenchmark as the before/after evidence.
-5. Changeset (likely **breaking** for anyone denormalizing immutable input through the *main* entry — they must switch to `/imm`, same migration shape as the 0.15 `MemoCache` change).
+### Stage A1 — React/Controller accessor refactor (independent, zero user-facing change)
 
-**Exit criteria**: no immutable code in main bundles; POJO benches within noise or improved; existing `/imm` tests green; drift eliminated (one implementation).
+Route the hooks' bracket reads through `Controller` accessors per A0.3. Ships on its own — it's a correctness-neutral decoupling that also benefits any future store representation. No changeset-visible behavior change (internal, but verify no public API shifts; if accessors become public API, document them).
 
-## Stage 2 — `EntityRecord` and `@data-client/endpoint/imm`
+**Exit criteria**: `packages/react` contains no POJO-shape assumptions on state; all Jest projects green; react benchmarks within noise.
 
-**Depends on**: Stage 1 (seam), S0.3 (test matrix), S0.4 (design decisions).
+### Stage A2 — Core store policy seam
 
-**Why**: this is the actual "full support" feature gap — immutable entity *values* are currently corrupt (the committed snapshot proves it).
+Make state-shape-dependent operations in core pluggable via one injected store policy (mirroring `MemoCache(policy)`):
 
-Work items:
+1. `initialState` construction; `setResponseReducer`'s direct POJO `normalize` import → policy-provided normalize/delegate.
+2. Reducer table ops: `endpoints`/`meta` spreads in `setResponseReducer`, `invalidateReducer`, `expireReducer`; the GC branch (per A0.2 outcome).
+3. Reads in `Controller` (`state.endpoints[key]`, `entityExpiresAt` over `state.entitiesMeta`), `selectMeta`, `GCPolicy`.
+4. Serialization hooks for devtools display and `packages/ssr` hydration (toJS/fromJS boundary).
 
-1. Implement `EntityRecord` per the S0.4 design in `packages/endpoint`, exported from a new `/imm` subpath (`package.json` `exports`, build wiring, `yarn build:types`).
-2. `immutable` as optional peer dependency of `@data-client/endpoint` (or stay duck-typed if S0.4 shows imports are unnecessary).
-3. Fix or explicitly reject the mixed case: plain `Entity` classes with deep-immutable stored values. If rejected, `fromJS` should fail loudly in dev rather than silently producing `id: ""` garbage.
-4. Tests: convert the corrupt-Record snapshot into real assertions; re-enable the commented-out denormalize expectations in `immutable.test.ts`; cover the S0.3 matrix (Collection push/unshift, Union discrimination, Values, All) with Record entities; referential-stability `toBe` tests. All three Jest projects (Node, ReactDOM, ReactNative).
-5. Docs in the same PR (see Stage 5 for the guide; API reference for `EntityRecord` lands here per the docs-in-same-PR policy).
-6. Changeset (minor — new feature).
+POJO policy is the default with **zero added indirection cost** (verify on `core` `^set`/`^get` benches, ≤2%).
 
-**Exit criteria**: Record-based entities normalize, merge, and denormalize correctly with memoization intact; zero main-bundle growth; no new peer warnings for non-users.
+**Exit criteria**: default path benchmark-neutral; policy is the single injection point (no scattered conditionals).
 
-## Stage 3 — Remove the fake-immutable fallback from `normalize.imm.ts`
+### Stage A3 — Ship the winning store
 
-**Depends on**: nothing (can run parallel to Stage 2). No spike needed — the design question is small.
+- If **ImmutableJS won A0.1**: `@data-client/core/imm` exporting the immutable store policy; opt-in wiring through `DataProvider`/`CacheProvider`; `immutable` as optional peer of core. Document the `getState()` caveat for manager authors.
+- If **native-Map or status quo won**: land the winner in the main package (no subpath needed — no dependency), write the ADR closing the ImmutableJS internal-store question with benchmark evidence.
 
-Work items:
+Changeset (minor). Docs per docs-in-same-PR policy.
 
-1. Delete `emptyImmutableLike`, `createNestedImmutable`, and `deepClone`; require explicit immutable state (anyone importing `/imm` has `immutable` available) or accept an injected empty-state factory.
-2. Changeset (**breaking** for `/imm` `normalize` callers relying on the implicit default).
-
-**Exit criteria**: `/imm` bundle shrinks; no POJO shim masquerading as immutable state.
-
-## Stage 4 — Core scope decision (ADR) + external-store adapter if warranted
-
-**Depends on**: S0.5.
-
-**Why**: "full support" needs a written boundary, or scope will creep into an immutable internal store that fights the performance goal.
-
-Work items:
-
-1. Write an ADR (this folder): immutable support targets **external stores**; core's internal store stays POJO. Cite GOALS.md performance priorities and S0.5 findings.
-2. If S0.5 showed real integrations need it: ship the thin outer-state adapter (or document the hand-rolled equivalent) so `Controller.getResponse`/`GCPolicy` work against immutable outer state. This should be a few lines per fixed key, not a core rewrite.
-3. Publish the S0.5 example as `examples/` entry or docs snippet.
-
-**Exit criteria**: the boundary is documented and discoverable; the supported integration path has a working, tested example.
-
-## Stage 5 — Verification infrastructure and docs
-
-**Depends on**: Stages 1–2 (content to document and guard).
-
-Work items:
-
-1. **Benchmarks**: add an imm-policy suite to `examples/benchmark` (normalize + memoized denormalize against Immutable tables, and Record entities once Stage 2 lands) plus a POJO-path guard so "zero cost to non-users" is CI-enforced, not asserted. Keep names stable for history.
-2. **Bundle guard**: CI assertion that main entries contain no immutable code (from Stage 1, item 3).
-3. **Version matrix**: decide the supported `immutable` peer range; if it spans v4 and v5, add a CI cell (devDep is pinned 5.1.8 today; `isImmutable` duck-typing (`__ownerID`, `_map`) must be verified against both).
-4. **Docs**: a guide covering the `/imm` entries, `EntityRecord`, the tables-immutable vs. values-immutable contracts, and the Redux+ImmutableJS integration; link from ROADMAP (and mark the roadmap item done). Follow the packages-documentation skill for placement/format.
-
-**Exit criteria**: a regression in bundle size, POJO perf, or immutable correctness fails CI; a new user can integrate from docs alone.
+**Exit criteria**: measured wins on the targeted `^set`/memory benchmarks landed in CI history; react benchmark suite shows no regression; zero user-visible data-shape change.
 
 ---
 
-## Sequencing summary
+## Track B — External `normalizr` + ImmutableJS support
+
+Target user: owns their store (e.g. Redux + Immutable), calls `normalize`/`denormalize`/`MemoCache(ImmPolicy)` directly. Core's internal store is explicitly **not** this track's concern (that's Track A).
+
+### Stage B0 — Spikes
+
+- **B0.1 — `EntityRecord` design.** Prototype an Entity mixin for Immutable Record instances. Decide: composition (override surface on `EntityMixin` statics — `fromJS`, `createIfValid`, `merge`, `mergeWithStore`, `denormalize`, `validate`, `defaults` — vs. parallel mixin); storage shape (Records in the entity table vs. POJO storage + Record construction at denormalize — storage shape is public API per normalizr AGENTS.md; POJO storage is the conservative default); memoization (`toBe` stability with Records across repeated calls and unrelated writes); dependency wiring (`immutable` as optional peer imported only from `/imm`, or stay duck-typed); `/imm` subpath types across the supported TS matrix.
+- **B0.2 — Integration reality check.** Minimal Redux + ImmutableJS example driving the `/imm` APIs in a user reducer. Identify demand signal (issues/discussions) and whether a thin outer-state adapter (fixed keys) is needed for `Controller`-based reads in that context.
+- **B0.3 — Immutable-input surface matrix.** Audit schema `denormalize`/`queryKey` paths receiving immutable input when entity values are also immutable: `Values` (iterates `Object.keys(input)`), `Collection.createIfValid` (spread), Union/Polymorphic discrimination, `All` table iteration. Deliverable: schema × operation × input-kind table → Stage B1 test matrix.
+
+### Stage B1 — `EntityRecord` + `@data-client/endpoint/imm`
+
+1. Implement per B0.1; new `/imm` subpath in `packages/endpoint` (`exports` wiring, `yarn build:types`).
+2. Fix or explicitly reject the mixed case (plain `Entity` with deep-immutable stored values); if rejected, fail loudly in dev instead of silently producing `id: ""` garbage.
+3. Tests: convert the corrupt-Record snapshot into real assertions; re-enable the commented-out expectations in `immutable.test.ts`; cover the B0.3 matrix; referential-stability `toBe` tests; all three Jest projects.
+4. Changeset (minor) + API reference docs in the same PR.
+
+### Stage B2 — Remove the fake-immutable fallback
+
+Delete `emptyImmutableLike`/`createNestedImmutable`/`deepClone` from `normalize.imm.ts`; require explicit immutable state (anyone importing `/imm` has `immutable`). Changeset (**breaking** for `/imm` `normalize` callers relying on the implicit default). Independent — can land any time after F1.
+
+### Stage B3 — Verification + docs
+
+1. imm-policy benchmark suite in `examples/benchmark` (normalize + memoized denormalize on immutable tables; Record entities after B1).
+2. Supported `immutable` version range decision; CI cell for v4 + v5 if the range spans both (`isImmutable` duck-typing against `__ownerID`/`_map` verified on each; devDep pinned 5.1.8 today).
+3. Docs guide: `/imm` entries, `EntityRecord`, tables-immutable vs. values-immutable contracts, Redux+ImmutableJS integration (from B0.2). Mark the ROADMAP item done.
+
+---
+
+## Sequencing
 
 ```
-S0.1 ─┐
-S0.2 ─┼─► Stage 1 ─► Stage 2 ─► Stage 5
-S0.3 ─┘              ▲
-S0.4 ────────────────┘
-S0.5 ─────► Stage 4          Stage 3 (independent, anytime)
+F0.1, F0.2 ──► F1 (shared foundation)
+                │
+   ┌────────────┴────────────┐
+   ▼ Track A                 ▼ Track B
+A0.3 ─► A1 (react accessors) B0.1 ─► B1 (EntityRecord + endpoint/imm)
+A0.1 ─┬► A2 (core seam)      B0.2 ─► B3 (docs, CI matrix)
+A0.2 ─┘   │                  B0.3 ─► B1
+          ▼                  B2 (independent after F1)
+        A3 (ship winner)
 ```
 
-Every stage that touches `packages/*` needs a changeset; Stages 1 and 3 are breaking for `/imm`-adjacent users and should ideally land in the same minor release to consolidate migration cost.
+- A1 and B2 are independent and can land early.
+- A0.1 is the gate: no core immutable work beyond the (shape-agnostic, independently justified) A1/A2 seams until the benchmark verdict is in.
+- Track B has no performance gate — it's a correctness/completeness commitment; scope is bounded by B0.2's demand findings.
+- Breaking changes (F1, B2) should land in the same minor release to consolidate migration cost.
