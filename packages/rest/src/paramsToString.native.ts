@@ -1,10 +1,6 @@
 export default function paramsToString(
   searchParams?:
-    | string
-    | URLSearchParams
-    | Record<string, string>
-    | string[][]
-    | undefined,
+    string | URLSearchParams | Record<string, string> | string[][] | undefined,
 ) {
   const params = new URLSearchParams(searchParams as any);
   try {

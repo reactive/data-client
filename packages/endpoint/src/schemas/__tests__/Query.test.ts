@@ -154,29 +154,20 @@ describe.each([
           },
         });
         const totalCount:
-          | DenormalizeNullable<typeof userCountByAdmin>
-          | symbol = new MemoCache(MyDelegate).query(
-          userCountByAdmin,
-          [],
-          state,
-        ).data;
+          DenormalizeNullable<typeof userCountByAdmin> | symbol = new MemoCache(
+          MyDelegate,
+        ).query(userCountByAdmin, [], state).data;
 
         expect(totalCount).toBe(4);
         const nonAdminCount:
-          | DenormalizeNullable<typeof userCountByAdmin>
-          | symbol = new MemoCache(MyDelegate).query(
-          userCountByAdmin,
-          [{ isAdmin: false }],
-          state,
-        ).data;
+          DenormalizeNullable<typeof userCountByAdmin> | symbol = new MemoCache(
+          MyDelegate,
+        ).query(userCountByAdmin, [{ isAdmin: false }], state).data;
         expect(nonAdminCount).toBe(3);
         const adminCount:
-          | DenormalizeNullable<typeof userCountByAdmin>
-          | symbol = new MemoCache(MyDelegate).query(
-          userCountByAdmin,
-          [{ isAdmin: true }],
-          state,
-        ).data;
+          DenormalizeNullable<typeof userCountByAdmin> | symbol = new MemoCache(
+          MyDelegate,
+        ).query(userCountByAdmin, [{ isAdmin: true }], state).data;
         expect(adminCount).toBe(1);
         if (typeof totalCount === 'symbol') return;
 

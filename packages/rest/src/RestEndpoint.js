@@ -221,9 +221,9 @@ export default class RestEndpoint extends Endpoint {
       error.message = `Unexpected text response for schema ${this.schema}`;
       /* istanbul ignore else */
       if (process.env.NODE_ENV !== 'production') {
-        if (
-          !(contentType?.includes('html') || text.startsWith('<!doctype html>'))
-        ) {
+        if (!(
+          contentType?.includes('html') || text.startsWith('<!doctype html>')
+        )) {
           if (tryParse(text) !== undefined) {
             error.message = `"content-type" header does not include "json", but JSON response found.
 See https://www.rfc-editor.org/rfc/rfc4627 for information on JSON responses

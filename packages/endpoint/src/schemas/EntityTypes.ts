@@ -235,17 +235,19 @@ export type EntityOptions<TInstance extends {}> = {
     | keyof TInstance;
   readonly key?: string;
 } & {
-  readonly [K in Extract<
-    keyof IEntityClass,
-    | 'process'
-    | 'merge'
-    | 'expiresAt'
-    | 'createIfValid'
-    | 'mergeWithStore'
-    | 'validate'
-    | 'shouldReorder'
-    | 'shouldUpdate'
-  >]?: IEntityClass<abstract new (...args: any[]) => TInstance>[K];
+  readonly [
+    K in Extract<
+      keyof IEntityClass,
+      | 'process'
+      | 'merge'
+      | 'expiresAt'
+      | 'createIfValid'
+      | 'mergeWithStore'
+      | 'validate'
+      | 'shouldReorder'
+      | 'shouldUpdate'
+    >
+  ]?: IEntityClass<abstract new (...args: any[]) => TInstance>[K];
 };
 
 export interface RequiredPKOptions<

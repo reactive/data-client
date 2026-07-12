@@ -39,8 +39,7 @@ export const MockPlugin = {
 
     // Get the controller from the app's global properties (set by DataClientPlugin)
     const originalController = app.config.globalProperties.$dataClient as
-      | Controller
-      | undefined;
+      Controller | undefined;
 
     if (!originalController) {
       /* istanbul ignore else */

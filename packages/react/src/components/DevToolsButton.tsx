@@ -52,10 +52,7 @@ export default function DevToolsButton({
 }
 
 export type DevToolsPosition =
-  | 'bottom-right'
-  | 'bottom-left'
-  | 'top-right'
-  | 'top-left';
+  'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 
 const PosToStyle: Record<DevToolsPosition, any> = {
   'bottom-right': { bottom: '10px', right: '10px' },

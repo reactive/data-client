@@ -11,8 +11,7 @@ export interface SuccessFixtureEndpoint<
   readonly endpoint: E;
   readonly args: Parameters<E>;
   readonly response:
-    | ResolveType<E>
-    | ((...args: Parameters<E>) => ResolveType<E>);
+    ResolveType<E> | ((...args: Parameters<E>) => ResolveType<E>);
   readonly error?: false;
   /** Number of miliseconds to wait before resolving */
   readonly delay?: number;

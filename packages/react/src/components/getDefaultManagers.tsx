@@ -67,9 +67,7 @@ export type GetManagersOptions = {
   devToolsManager?: DevToolsManager | DevToolsConfig | null;
   networkManager?: NetworkManager | ConstructorArgs<typeof NetworkManager>;
   subscriptionManager?:
-    | SubscriptionManager
-    | ConstructorArgs<typeof SubscriptionManager>
-    | null;
+    SubscriptionManager | ConstructorArgs<typeof SubscriptionManager> | null;
 };
 
 export type ConstructorArgs<T extends { new (...args: any): any }> =

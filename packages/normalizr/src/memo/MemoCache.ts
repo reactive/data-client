@@ -102,8 +102,7 @@ export default class MemoCache {
 
     // cache lookup: argsKey -> schema -> ...touched indexes or entities
     let queryCache = this.queryKeys.get(argsKey) as
-      | WeakDependencyMap<QueryPath, object, any>
-      | undefined;
+      WeakDependencyMap<QueryPath, object, any> | undefined;
     if (!queryCache) {
       queryCache = new WeakDependencyMap<QueryPath>();
       this.queryKeys.set(argsKey, queryCache);

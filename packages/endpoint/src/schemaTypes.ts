@@ -246,8 +246,7 @@ export type SchemaFunction<K = string, Args = any> = (
   key: string,
 ) => K;
 export type SchemaAttribute<K = string, Args = any> =
-  | K
-  | SchemaFunction<K, Args>;
+  K | SchemaFunction<K, Args>;
 export type MergeFunction = (entityA: any, entityB: any) => any;
 export type SchemaAttributeFunction<S extends Schema> = (
   value: any,
