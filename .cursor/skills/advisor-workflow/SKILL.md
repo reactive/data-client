@@ -29,13 +29,15 @@ Defaults are calibration points, not caps; exceed them when the spend policy jus
 
 **Risk override**: anything touching security, privacy, money, data loss, concurrency, public compatibility, or irreversible migration is design-bearing regardless of diff size.
 
+**Failed-attempts override**: if this skill was invoked because prior attempts at the task failed, the task is never Mechanical — even if it looks like a straightforward fix. Treat it as high-uncertainty: package the existing failure evidence (error output, what was tried, why each attempt failed) per step 5's escalation valve, and proceed to steps 2–6 with that as your starting EVIDENCE. Never re-attempt a failed approach without new evidence.
+
 ### 2. Extract decision points (you)
 
 Explore the codebase yourself (reading is cheap). List the decisions with high rework cost: every new or changed interface, schema, contract, or cross-cutting mechanism. Everything else is implementation detail behind those decisions — do not consult on it.
 
 ### 3. Context packets + consults
 
-For each decision point (bundling coupled ones), send a `design-advisor` consult; batch independent ones in parallel:
+First route the decisions: if the task has a single dominating decision (architecture, correctness-critical algorithm, security), that one goes to `principal-advisor` — launched in the background, never also to `design-advisor` — and you implement what doesn't depend on it while it thinks. Every remaining decision point (bundling coupled ones) gets a `design-advisor` consult; batch independent ones in parallel. Both advisors take the same packet format:
 
 ```
 DECISION: <the specific question>
@@ -49,8 +51,6 @@ OMITTED: <areas considered but not included, so the advisor can call for them>
 ```
 
 Include enough primary evidence to avoid omission bias, but no unrelated bulk — repeated context and advisor reasoning tokens are real costs. Allow one "send me X" round-trip, then decide.
-
-If the task has a single dominating decision (architecture, correctness-critical algorithm, security), send it to `principal-advisor` in the background instead and implement what doesn't depend on it meanwhile.
 
 ### 4. Implement (you)
 
