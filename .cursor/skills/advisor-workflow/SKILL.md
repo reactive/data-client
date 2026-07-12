@@ -23,7 +23,7 @@ Defaults are calibration points, not caps; exceed them when the spend policy jus
 
 ### 1. Triage (you, ~1 minute)
 
-- **Mechanical** (rename, config change, straightforward bug fix, well-specified small feature): implement directly; skip to step 5. Run `quality-reviewer` only if the diff ends up touching lifecycle, public APIs, or 3+ files.
+- **Mechanical** (rename, config change, straightforward bug fix, well-specified small feature): implement directly; skip to steps 5–6 (step 6 states when review applies).
 - **Design-bearing** (new/changed public signatures, schemas, store shapes, cross-module contracts, layout/CSS systems): steps 2–6.
 - **High-uncertainty** (unknown library behavior, unclear data flow, "not sure this approach works"): first build and run a walking skeleton — the smallest end-to-end slice that produces runnable evidence — so wrong directions die small; use it and its evidence as the context packet. Then steps 2–6.
 
@@ -62,7 +62,7 @@ Run the real thing: build, tests, dev server, browser where UI is involved. Advi
 
 **Escalation valve**: after two distinct failed hypotheses on the same problem — or when another attempt would cost more than a consult — stop; never repeat an approach without new evidence (cheap-model spin erases the price advantage). Package the failure evidence (error output, what you tried, why each attempt failed) and consult `design-advisor`, or `principal-advisor` if the failure is correctness-deep — per the spend policy, resume an existing principal consult rather than opening a fresh one. For any failure not obviously in the code you are writing (environment, build, tooling), first run the cheapest experiment that discriminates "caused by my changes" from "pre-existing" (e.g. stash your diff and re-run); if pre-existing and outside the task's scope, document it and move on.
 
-### 6. End review (mandatory for design-bearing/high-risk work)
+### 6. End review (mandatory for design-bearing/high-risk work, or any diff touching lifecycle, public APIs, or 3+ files)
 
 Send the diff to `quality-reviewer`, stating the full scope explicitly (base revision; committed/staged/unstaged/untracked). Apply findings yourself, recording each disposition (applied / rejected + reason) — you may reject with evidence; advisors are fallible, so audit their equivalence proofs. An unresolved **critical** finding blocks completion: after one evidence-based exchange, escalate to `principal-advisor` (resuming if one exists); surface the documented risk to the user only when further consultation stops adding information — an unresolved critical is never silently shipped. One fix loop normally; re-review after large fixes. Re-validate (step 5) anything behavior-touching.
 
