@@ -1,8 +1,9 @@
 import { loader } from '@monaco-editor/react';
 import type * as Monaco from 'monaco-editor';
 
+import { injectMonacoResourceHints } from './injectMonacoResourceHints';
 import { MOBILE_OR_BOT_UA_REGEX } from './isMobileOrBot';
-import { MONACO_CDN_VS } from './MonacoPreloads';
+import { MONACO_CDN_VS } from './monacoPreloadManifest';
 
 // Mobile and bots render PlaygroundLiveEditor instead, so skip downloading
 // Monaco and the type bundles entirely. This module runs once per page load.
@@ -30,14 +31,47 @@ if (
     'bignumber.js',
   ];
 
+  injectMonacoResourceHints();
   loader.config({
     paths: {
       vs: MONACO_CDN_VS,
     },
   });
   const monacoPromise = loader.init();
-  monacoPromise.then(monaco => {
-    // or make sure that it exists by other ways
+
+  // Fetch type libs in parallel with Monaco CDN bootstrap (no webpackPreload —
+  // that raced high-priority against editor.main). Apply them only after init.
+  const typeLibsPromise = Promise.allSettled([
+    import(
+      /* webpackChunkName: 'reactDTS' */ '!!raw-loader?esModule=false!./editor-types/react.d.ts'
+    ),
+    import(
+      /* webpackChunkName: 'bignumberDTS' */ '!!raw-loader?esModule=false!./editor-types/bignumber.d.ts'
+    ),
+    import(
+      /* webpackChunkName: 'numberflowDTS' */ '!!raw-loader?esModule=false!./editor-types/@number-flow/react.d.ts'
+    ),
+    import(
+      /* webpackChunkName: 'temporalDTS' */ '!!raw-loader?esModule=false!./editor-types/temporal.d.ts'
+    ),
+    import(
+      /* webpackChunkName: 'uuidDTS' */ '!!raw-loader?esModule=false!./editor-types/uuid.d.ts'
+    ),
+    import(
+      /* webpackChunkName: 'qsDTS' */ '!!raw-loader?esModule=false!./editor-types/qs.d.ts'
+    ),
+    import(
+      /* webpackChunkName: 'globalsDTS' */ '!!raw-loader?esModule=false!./editor-types/globals.d.ts'
+    ),
+    ...rhDeps.map(
+      dep =>
+        import(
+          /* webpackChunkName: '[request]', webpackMode: "lazy-once" */ `!!raw-loader?esModule=false!./editor-types/@data-client/${dep}.d.ts`
+        ),
+    ),
+  ]);
+
+  monacoPromise.then(async monaco => {
     if (!monaco) return;
     monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
       allowNonTsExtensions: true,
@@ -191,40 +225,8 @@ if (
         return { suggestions: [] };
       },
     });
-  });
 
-  Promise.allSettled([
-    monacoPromise,
-    import(
-      /* webpackChunkName: 'reactDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/react.d.ts'
-    ),
-    import(
-      /* webpackChunkName: 'bignumberDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/bignumber.d.ts'
-    ),
-    import(
-      /* webpackChunkName: 'numberflowDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/@number-flow/react.d.ts'
-    ),
-    import(
-      /* webpackChunkName: 'temporalDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/temporal.d.ts'
-    ),
-    import(
-      /* webpackChunkName: 'uuidDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/uuid.d.ts'
-    ),
-    import(
-      /* webpackChunkName: 'qsDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/qs.d.ts'
-    ),
-    import(
-      /* webpackChunkName: 'globalsDTS', webpackPreload: true */ '!!raw-loader?esModule=false!./editor-types/globals.d.ts'
-    ),
-    ...rhDeps.map(
-      dep =>
-        import(
-          /* webpackChunkName: '[request]', webpackPreload: true, webpackMode: "lazy-once" */ `!!raw-loader?esModule=false!./editor-types/@data-client/${dep}.d.ts`
-        ),
-    ),
-  ]).then(([mPromise, ...settles]) => {
-    if (mPromise.status !== 'fulfilled' || !mPromise.value) return;
-    const monaco = mPromise.value;
+    const settles = await typeLibsPromise;
     const [
       react,
       bignumber,
