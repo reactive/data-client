@@ -3,13 +3,13 @@ import React, { useContext, memo, useRef, forwardRef } from 'react';
 
 import CodeProvider from './CodeProvider';
 import CodeTabContext from './CodeTabContext';
+import PlaygroundHeaderControls from './PlaygroundHeaderControls';
 import HooksPlayground from '../HooksPlayground';
 
 function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-// eslint-disable-next-line react/display-name
 const DemoPlayground = memo(
   forwardRef((props, ref: React.RefObject<HTMLDivElement>) => {
     const { selectedValue, values } = useContext(CodeTabContext);
@@ -31,22 +31,22 @@ const DemoPlayground = memo(
               hidden={value !== selectedValue}
               fixtures={fixtures}
               getInitialInterceptorData={getInitialInterceptorData}
+              headerControls={<PlaygroundHeaderControls />}
             >
-              {code.map(({ path, code: instanceCode, open }, i) => {
-                return (
-                  <code
-                    key={path}
-                    title={capitalizeFirstLetter(path)}
-                    path={`${value}/${path}.tsx`}
-                    collapsed={!open}
-                    autoFocus={
-                      autoFocus && Object.values(code).length === i + 1
-                    }
-                  >
-                    {instanceCode}
-                  </code>
-                );
-              })}
+              {code.map(({ path, code: instanceCode, open }, i) =>
+                React.createElement(
+                  'code',
+                  {
+                    key: path,
+                    title: capitalizeFirstLetter(path),
+                    path: `${value}/${path}.tsx`,
+                    collapsed: !open,
+                    autoFocus:
+                      autoFocus && Object.values(code).length === i + 1,
+                  } as React.HTMLAttributes<HTMLElement>,
+                  instanceCode,
+                ),
+              )}
             </HooksPlayground>
           ),
         )}

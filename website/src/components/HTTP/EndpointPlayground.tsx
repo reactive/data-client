@@ -1,15 +1,13 @@
 import clsx from 'clsx';
 import React from 'react';
-import { LiveProvider } from 'react-live';
 
 import Request from './Request';
 import Response from './Response';
 import styles from './Wrapper.module.css';
-import MonacoPreloads from '../Playground/MonacoPreloads';
-import { PlaygroundTextEdit } from '../Playground/PlaygroundTextEdit';
+import { useCodeDocuments } from '../Playground/editor/codeModel';
+import EditorShell from '../Playground/editor/EditorShell';
+import EditorSurface from '../Playground/editor/EditorSurface';
 import playgroundstyles from '../Playground/styles.module.css';
-import { useCode } from '../Playground/useCode';
-import { useReactLiveTheme } from '../Playground/useReactLiveTheme';
 
 export default function EndpointPlayground({
   input,
@@ -18,41 +16,33 @@ export default function EndpointPlayground({
   status,
   children,
 }: Props) {
-  const { handleCodeChange, codes, codeTabs } = useCode(children);
-  const realTheme = useReactLiveTheme();
-  return (
-    <div className={playgroundstyles.playgroundQueryContainer}>
-      <div
-        className={clsx(
-          playgroundstyles.endpointPlayground,
-          playgroundstyles.playgroundContainer,
-          playgroundstyles.row,
-        )}
-      >
-        <LiveProvider theme={realTheme} enableTypeScript={true}>
-          <PlaygroundTextEdit
-            fixtures={[]}
-            row
-            codeTabs={codeTabs}
-            handleCodeChange={handleCodeChange}
-            codes={codes}
-            isPlayground={false}
-          />
-        </LiveProvider>
+  const model = useCodeDocuments(children);
 
+  return (
+    <EditorShell>
+      <div className={playgroundstyles.playgroundQueryContainer}>
         <div
-          className={clsx(styles.fixtureCol, playgroundstyles.previewWrapper)}
+          className={clsx(
+            playgroundstyles.endpointPlayground,
+            playgroundstyles.playgroundContainer,
+            playgroundstyles.row,
+          )}
         >
-          <Request input={input} init={init} />
-          {status ?
-            <Response status={status} response={response} />
-          : null}
+          <EditorSurface {...model} layout="row" variant="standalone" />
+          <div
+            className={clsx(styles.fixtureCol, playgroundstyles.previewWrapper)}
+          >
+            <Request input={input} init={init} />
+            {status ?
+              <Response status={status} response={response} />
+            : null}
+          </div>
         </div>
       </div>
-      <MonacoPreloads />
-    </div>
+    </EditorShell>
   );
 }
+
 interface Props {
   input: RequestInfo;
   init: RequestInit;

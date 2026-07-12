@@ -2,11 +2,11 @@ import CodeBlock from '@theme/CodeBlock';
 import clsx from 'clsx';
 
 import styles from './Wrapper.module.css';
+import { useCodeDocuments } from '../Playground/editor/codeModel';
 import Header from '../Playground/Header';
-import { useCode } from '../Playground/useCode';
 
 export default function Response({ response, status }: Props) {
-  const { handleCodeChange, codes, codeTabs } = useCode(
+  const { documents } = useCodeDocuments(
     response ? JSON.stringify(response, undefined, 2) : 'NO CONTENT',
   );
 
@@ -19,7 +19,7 @@ export default function Response({ response, status }: Props) {
       <CodeBlock
         language="json"
         className={styles.containedCode}
-      >{`${codes[0]}`}</CodeBlock>
+      >{`${documents[0].value}`}</CodeBlock>
     </div>
   );
 }

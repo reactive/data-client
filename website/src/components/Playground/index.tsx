@@ -1,73 +1,71 @@
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import clsx from 'clsx';
-import React, { lazy } from 'react';
-import { LiveProvider } from 'react-live';
+import React, { lazy, useDeferredValue } from 'react';
 
 import Boundary from './Boundary';
-import { isGoogleBot } from './isMobileOrBot';
-import MonacoPreloads from './MonacoPreloads';
-import { PlaygroundTextEdit } from './PlaygroundTextEdit';
+import { useCodeDocuments } from './editor/codeModel';
+import EditorShell from './editor/EditorShell';
+import EditorSurface from './editor/EditorSurface';
+import { isGoogleBot } from './editor/isMobileOrBot';
+import FixturePreview from './preview/FixturePreview';
+import PreviewWrapper from './preview/PreviewWrapper';
+import { StoreToggle } from './preview/StoreInspector';
 import type PreviewWithScopeType from './PreviewWithScope';
-import PreviewWrapper from './PreviewWrapper';
-import { StoreToggle } from './StoreInspector';
 import styles from './styles.module.css';
-import type { PreviewProps } from './types';
-import { useCode } from './useCode';
-import { useReactLiveTheme } from './useReactLiveTheme';
+import type { FixtureOrInterceptor, PreviewProps } from './types';
 
-type LiveProviderProps = React.ComponentProps<typeof LiveProvider>;
+export interface PlaygroundProps<T = any> {
+  children: React.ReactNode;
+  groupId?: string;
+  defaultOpen?: 'y' | 'n';
+  row?: boolean;
+  hidden?: boolean;
+  fixtures?: FixtureOrInterceptor<T>[];
+  getInitialInterceptorData?: () => T;
+  defaultTab?: string;
+  headerControls?: React.ReactNode;
+}
 
 export default function Playground<T>({
   children,
-  groupId,
-  defaultOpen,
+  groupId = 'playground',
+  defaultOpen = 'n',
   row = false,
   hidden = false,
-  fixtures,
+  fixtures = [],
   getInitialInterceptorData,
   defaultTab,
-  ...props
-}: LiveProviderProps &
-  Omit<PreviewProps<T>, 'row'> & {
-    row?: boolean;
-    hidden?: boolean;
-    children: string | React.ReactElement[];
-    defaultTab?: string;
-  }) {
+  headerControls,
+}: PlaygroundProps<T>) {
   const {
     liveCodeBlock: { playgroundPosition },
   } = useDocusaurusContext().siteConfig.themeConfig as any;
-  const realTheme = useReactLiveTheme();
 
   return (
-    <>
+    <div
+      className={clsx(styles.playgroundQueryContainer, {
+        [styles.hidden]: hidden,
+      })}
+    >
       <div
-        className={clsx(styles.playgroundQueryContainer, {
-          [styles.hidden]: hidden,
+        className={clsx(styles.playgroundContainer, {
+          [styles.row]: row,
         })}
       >
-        <div
-          className={clsx(styles.playgroundContainer, {
-            [styles.row]: row,
-          })}
+        <PlaygroundContent
+          reverse={playgroundPosition === 'top'}
+          row={row}
+          fixtures={fixtures}
+          groupId={groupId}
+          defaultOpen={defaultOpen}
+          getInitialInterceptorData={getInitialInterceptorData}
+          defaultTab={defaultTab}
+          headerControls={headerControls}
         >
-          <LiveProvider theme={realTheme} enableTypeScript={true} {...props}>
-            <PlaygroundContent
-              reverse={playgroundPosition === 'top'}
-              row={row}
-              fixtures={fixtures}
-              groupId={groupId}
-              defaultOpen={defaultOpen}
-              getInitialInterceptorData={getInitialInterceptorData}
-              defaultTab={defaultTab}
-            >
-              {children}
-            </PlaygroundContent>
-          </LiveProvider>
-        </div>
+          {children}
+        </PlaygroundContent>
       </div>
-      <MonacoPreloads />
-    </>
+    </div>
   );
 }
 
@@ -80,44 +78,52 @@ function PlaygroundContent<T>({
   defaultOpen,
   defaultTab,
   getInitialInterceptorData,
+  headerControls,
 }: ContentProps<T>) {
-  const { handleCodeChange, codes, codeTabs } = useCode(children, defaultTab);
-  // defer so typing in the editor isn't blocked by preview re-transpilation
-  const code = React.useDeferredValue(codes.join('\n'));
-
-  return (
-    <Reversible reverse={reverse}>
-      <PlaygroundTextEdit
-        fixtures={fixtures}
-        row={row}
-        codeTabs={codeTabs}
-        handleCodeChange={handleCodeChange}
-        codes={codes}
-      />
-      <Boundary fallback={previewLoading}>
-        <PreviewWithScopeLazy
-          code={code}
-          {...{
-            groupId,
-            defaultOpen,
-            row,
-            fixtures,
-            getInitialInterceptorData,
-          }}
-        />
-      </Boundary>
-    </Reversible>
+  const model = useCodeDocuments(children, defaultTab);
+  // Defer preview transpilation so editor input remains responsive.
+  const code = useDeferredValue(
+    model.documents.map(document => document.value).join('\n'),
   );
+  const editor = (
+    <EditorShell key="editor">
+      <EditorSurface
+        {...model}
+        layout={row ? 'row' : 'stacked'}
+        variant="playground"
+        fixtureContent={
+          fixtures.length ? <FixturePreview fixtures={fixtures} /> : undefined
+        }
+        headerControls={headerControls}
+      />
+    </EditorShell>
+  );
+  const preview = (
+    <Boundary key="preview" fallback={previewLoading}>
+      <PreviewWithScopeLazy
+        code={code}
+        groupId={groupId}
+        defaultOpen={defaultOpen}
+        row={row}
+        fixtures={fixtures}
+        getInitialInterceptorData={getInitialInterceptorData}
+      />
+    </Boundary>
+  );
+
+  return <>{reverse ? [preview, editor] : [editor, preview]}</>;
 }
-interface ContentProps<T = any> extends PreviewProps<T> {
-  children: React.ReactNode;
-  reverse?: boolean;
+
+interface ContentProps<T> extends PreviewProps<T> {
+  children: PlaygroundProps<T>['children'];
+  reverse: boolean;
   defaultTab?: string;
+  headerControls?: React.ReactNode;
 }
 
 const previewLoading = (
   <PreviewWrapper key="preview">
-    <div className={styles.playgroundPreview}></div>
+    <div className={styles.playgroundPreview} />
     <StoreToggle />
   </PreviewWrapper>
 );
@@ -129,13 +135,3 @@ const PreviewWithScopeLazy = lazy<typeof PreviewWithScopeType>(() =>
       /* webpackChunkName: 'PreviewWithScope', webpackPrefetch: true */ './PreviewWithScope'
     ),
 );
-
-function Reversible({
-  children,
-  reverse = false,
-}: {
-  children: React.ReactNode[];
-  reverse?: boolean;
-}): React.ReactElement {
-  return (reverse ? [...children].reverse() : children) as React.ReactElement;
-}

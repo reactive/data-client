@@ -35,10 +35,10 @@ export function CodeProvider<V extends { label: string; value: string }[]>({
   }
 
   const setSelectedValue = (
-    event: React.FocusEvent<HTMLLIElement> | React.MouseEvent<HTMLLIElement>,
+    event: React.FocusEvent<HTMLElement> | React.MouseEvent<HTMLElement>,
   ) => {
     const newTab = event.currentTarget;
-    const newTabValue = newTab.getAttribute('value');
+    const newTabValue = newTab.getAttribute('data-value');
 
     if (newTabValue !== selectedValue) {
       blockElementScrollPositionUntilNextRender(playgroundRef.current);

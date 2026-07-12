@@ -3,10 +3,6 @@ import React, { memo } from 'react';
 
 import Playground from './Playground';
 
-// React forces console.error, so we must demote it to warn
-// see https://github.com/facebook/react/issues/15069
-console.error = console.warn;
-
 const HooksPlayground = ({
   children,
   groupId,
@@ -15,10 +11,10 @@ const HooksPlayground = ({
   row = false,
   fixtures = [],
   defaultTab,
+  headerControls,
   getInitialInterceptorData = () => ({}),
 }: PlaygroundProps) => (
   <Playground
-    noInline
     groupId={groupId}
     defaultOpen={defaultOpen}
     row={row}
@@ -26,12 +22,15 @@ const HooksPlayground = ({
     fixtures={fixtures}
     getInitialInterceptorData={getInitialInterceptorData}
     defaultTab={defaultTab}
+    headerControls={headerControls}
   >
     {typeof children === 'string' ?
       children
     : Array.isArray(children) ?
       children
-    : children.props.children}
+    : React.isValidElement<{ children: React.ReactNode }>(children) ?
+      children.props.children
+    : ''}
   </Playground>
 );
 export default memo(HooksPlayground);
@@ -48,4 +47,5 @@ interface PlaygroundProps<T = any> {
   children: React.ReactNode;
   reverse?: boolean;
   defaultTab?: string;
+  headerControls?: React.ReactNode;
 }
