@@ -4,6 +4,7 @@ import { fromJS, Record, Map } from 'immutable';
 
 import { normalize } from '..';
 import { denormalize } from '../denormalize/denormalize.imm';
+import { isImmutable } from '../schemas/ImmutableUtils';
 
 export function fromJSEntities(entities: {
   [k: string]: { [k: string]: any };
@@ -30,6 +31,25 @@ class IDEntity extends Entity {
     return this.id || key;
   }
 }
+
+describe('isImmutable', () => {
+  it('detects Maps and v5 Records (own __ownerID)', () => {
+    expect(isImmutable(Map({ a: 1 }))).toBe(true);
+    const R = Record({ a: 1 });
+    expect(isImmutable(new R())).toBe(true);
+  });
+
+  it('detects v4 Records via _map internals', () => {
+    // immutable v4 Records have no own `__ownerID` — only `_map.__ownerID`
+    expect(isImmutable({ _map: { __ownerID: undefined } })).toBe(true);
+  });
+
+  it('rejects plain objects, even with a _map property', () => {
+    expect(isImmutable({})).toBe(false);
+    expect(isImmutable({ _map: {} })).toBe(false);
+    expect(isImmutable(Object.create(null))).toBe(false);
+  });
+});
 
 class Tacos extends IDEntity {
   type = '';
@@ -109,6 +129,34 @@ describe('immutableJS', () => {
     expect(denormalize(Menu, '1', fromJSEntities(entities))).toMatchSnapshot();
 
     expect(denormalize(Menu, '2', fromJSEntities(entities))).toMatchSnapshot();
+  });
+
+  test('denormalizes Record result objects, preserving the Record wrapper', () => {
+    // Records hit the `_map`-based detection branch (no own `__ownerID`)
+    const ResultRecord = Record<{ data: string | null }>({ data: null });
+    const entities = Map({
+      Tacos: Map({ 1: { id: '1', type: 'foo' } }),
+    });
+
+    const result: any = denormalize(
+      { data: Tacos },
+      new ResultRecord({ data: '1' }),
+      entities,
+    );
+
+    expect(result.get('data')).toBeInstanceOf(Tacos);
+    expect(result.get('data').type).toBe('foo');
+  });
+
+  test('denormalizes null-prototype object inputs (no hasOwnProperty)', () => {
+    const input = Object.assign(Object.create(null), { data: '1' });
+    const entities = Map({
+      Tacos: Map({ 1: { id: '1', type: 'foo' } }),
+    });
+
+    const result: any = denormalize({ data: Tacos }, input, entities);
+    expect(result.data).toBeInstanceOf(Tacos);
+    expect(result.data.type).toBe('foo');
   });
 
   test('propagates the exact invalid symbol through immutable object inputs', () => {

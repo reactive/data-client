@@ -1,11 +1,12 @@
 // eslint-env jest
 import { Entity, schema, Values } from '@data-client/endpoint';
-import { fromJS } from 'immutable';
+import { fromJS, Record } from 'immutable';
 
 import { normalize } from '../';
 import { denormalize as denormalizeSimple } from '../denormalize/denormalize';
 import { INVALID } from '../denormalize/symbol';
 import MemoCached from '../memo/MemoCache';
+import { MemoPolicy } from '../memo/Policy';
 
 class IDEntity extends Entity {
   id = '';
@@ -449,6 +450,58 @@ describe.each([
     expect(() =>
       denormalize({ data: Tacos }, fromJS({ data: '1' }), {}),
     ).toThrow(/Immutable input is not supported by the default denormalize/);
+
+    // Records are also detected (v5: own `__ownerID`)
+    const DataRecord = Record({ data: '' });
+    expect(() =>
+      denormalize({ data: Tacos }, new DataRecord({ data: '1' }), {}),
+    ).toThrow(/Immutable input is not supported by the default denormalize/);
+
+    // immutable v4 Records have no own `__ownerID` — only `_map.__ownerID`
+    const v4RecordShape = { _map: { __ownerID: undefined }, data: '1' };
+    expect(() => denormalize({ data: Tacos }, v4RecordShape, {})).toThrow(
+      /Immutable input is not supported by the default denormalize/,
+    );
+  });
+
+  test('denormalizes falsy inputs against object schemas', () => {
+    expect(denormalize({ data: Tacos }, 0, {})).toEqual({});
+    expect(denormalize({ data: Tacos }, '', {})).toEqual({});
+  });
+
+  test('passes through primitive store values', () => {
+    // malformed store data (primitive where an entity object belongs)
+    const entities = { Tacos: { 1: 42 } };
+    expect(denormalize(Tacos, '1', entities)).toBe(42);
+  });
+
+  test('custom MemoCache policies without valuePolicy default to plain', () => {
+    // external IMemoPolicy implementations may predate valuePolicy
+    const legacyPolicy = {
+      QueryDelegate: MemoPolicy.QueryDelegate,
+      getEntities: MemoPolicy.getEntities,
+    };
+    const memo = new MemoCached(legacyPolicy);
+    const entities = {
+      Tacos: { 1: { id: '1', type: 'foo' } },
+    };
+    const { data } = memo.denormalize(
+      { data: Tacos },
+      { data: '1' },
+      entities,
+      [],
+    );
+    expect(data.data.type).toBe('foo');
+  });
+
+  test('denormalizes null-prototype object inputs', () => {
+    // no hasOwnProperty available — immutable detection must not choke
+    const input = Object.assign(Object.create(null), { data: '1' });
+    const entities = {
+      Tacos: { 1: { id: '1', type: 'foo' } },
+    };
+    const value = denormalize({ data: Tacos }, input, entities);
+    expect(value.data.type).toBe('foo');
   });
 
   test('denormalizes ignoring unfound entities in arrays', () => {

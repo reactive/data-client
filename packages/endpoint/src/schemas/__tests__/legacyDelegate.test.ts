@@ -1,6 +1,6 @@
 // eslint-env jest
 import { IDEntity } from '__tests__/new';
-import { fromJS } from 'immutable';
+import { fromJS, Record } from 'immutable';
 
 import { schema } from '../..';
 import type { IDenormalizeDelegate } from '../../interface';
@@ -42,6 +42,17 @@ describe('cross-version delegate compatibility (old normalizr shapes)', () => {
       user: { id: '1', name: 'resolved' },
       extra: 'kept',
     });
+  });
+
+  test('Object denormalize leaves schema keys absent from input unset', () => {
+    const object = new schema.Object({ user: User, missing: User });
+    const delegate = makeLegacyDelegate((s, input) =>
+      input === undefined ? undefined : { id: input, name: 'resolved' },
+    );
+
+    const result = object.denormalize({ user: '1' }, delegate);
+    expect(result.user).toEqual({ id: '1', name: 'resolved' });
+    expect(result).not.toHaveProperty('missing');
   });
 
   test('Object denormalize propagates the exact nested symbol', () => {
@@ -86,5 +97,37 @@ describe('cross-version delegate compatibility (old normalizr shapes)', () => {
     expect(() =>
       object.denormalize(fromJS({ user: '1' }) as any, delegate),
     ).toThrow(/Immutable input is not supported by the default denormalize/);
+
+    // Records are also detected (v5: own `__ownerID`)
+    const UserRecord = Record({ user: '' });
+    expect(() =>
+      object.denormalize(new UserRecord({ user: '1' }) as any, delegate),
+    ).toThrow(/Immutable input is not supported by the default denormalize/);
+
+    // immutable v4 Records have no own `__ownerID` — only `_map.__ownerID`
+    const v4RecordShape = { _map: { __ownerID: undefined }, user: '1' };
+    expect(() => object.denormalize(v4RecordShape as any, delegate)).toThrow(
+      /Immutable input is not supported by the default denormalize/,
+    );
+  });
+
+  test('falsy input with legacy delegate skips detection and spreads', () => {
+    const object = new schema.Object({ user: User });
+    const delegate = makeLegacyDelegate((s, input) => input);
+
+    expect(object.denormalize(0 as any, delegate)).toEqual({});
+  });
+
+  test('null-prototype input with legacy delegate denormalizes normally', () => {
+    // no hasOwnProperty available — immutable detection must not choke
+    const object = new schema.Object({ user: User });
+    const delegate = makeLegacyDelegate((s, input) =>
+      s === User ? { id: input, name: 'resolved' } : input,
+    );
+    const input = Object.assign(Object.create(null), { user: '1' });
+
+    expect(object.denormalize(input, delegate)).toEqual({
+      user: { id: '1', name: 'resolved' },
+    });
   });
 });

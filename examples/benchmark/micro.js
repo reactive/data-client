@@ -2,6 +2,7 @@ import {
   WeakDependencyMap,
   denormalize,
   Entity,
+  MemoCache,
   schema,
 } from './dist/index.js';
 import { createAdd } from './filter.js';
@@ -443,6 +444,36 @@ export default function addMicroSuite(suite, filter) {
   add('8-unionPolymorphic denormalize (100 items)', () => {
     for (let i = 0; i < 10; i++) {
       denormalize([PetUnion], unionList, unionEntities);
+    }
+  });
+
+  // Cached (MemoCache hit) counterparts: guard per-call overhead — delegate
+  // construction in getUnvisit runs before the result-cache short-circuit,
+  // so cache hits still pay it. Stable schema/input/entity refs → pure hits.
+  const unionListSchema = [PetUnion];
+  const objectMemo = new MemoCache();
+  const unionMemo = new MemoCache();
+  // prime the caches
+  objectMemo.denormalize(
+    shorthandTreeSchema,
+    shorthandTreeInput,
+    emptyEntities,
+  );
+  unionMemo.denormalize(unionListSchema, unionList, unionEntities);
+
+  add('8-objectShorthand denormalize withCache (31 nodes)', () => {
+    for (let i = 0; i < 100; i++) {
+      objectMemo.denormalize(
+        shorthandTreeSchema,
+        shorthandTreeInput,
+        emptyEntities,
+      );
+    }
+  });
+
+  add('8-unionPolymorphic denormalize withCache (100 items)', () => {
+    for (let i = 0; i < 100; i++) {
+      unionMemo.denormalize(unionListSchema, unionList, unionEntities);
     }
   });
 
