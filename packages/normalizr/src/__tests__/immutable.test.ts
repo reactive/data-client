@@ -1,5 +1,5 @@
 // eslint-env jest
-import { Entity, schema } from '@data-client/endpoint';
+import { Entity, schema, Scalar } from '@data-client/endpoint';
 import { fromJS, Record, Map } from 'immutable';
 
 import { normalize } from '..';
@@ -109,5 +109,49 @@ describe('immutableJS', () => {
     expect(denormalize(Menu, '1', fromJSEntities(entities))).toMatchSnapshot();
 
     expect(denormalize(Menu, '2', fromJSEntities(entities))).toMatchSnapshot();
+  });
+
+  test('propagates the exact invalid symbol through immutable object inputs', () => {
+    // consolidation of the drifted ImmutableUtils copies resolved on
+    // *propagating* the first symbol (not collapsing to a package-local
+    // INVALID) so identity checks work across package boundaries
+    const INVALID_TACO = Symbol('ENTITY WAS INVALID');
+    const entities = Map({ Tacos: Map({ '1': INVALID_TACO as any }) });
+    expect(denormalize({ data: Tacos }, fromJS({ data: '1' }), entities)).toBe(
+      INVALID_TACO,
+    );
+  });
+
+  test('denormalizes args-dependent schemas (Scalar argsKey path)', () => {
+    class Company extends IDEntity {
+      price = 0;
+      pct_equity = 0;
+      static key = 'Company';
+    }
+    const PortfolioScalar = new Scalar({
+      lens: (args: readonly any[]) => args[0]?.portfolio,
+      key: 'portfolio',
+      entity: Company,
+    });
+    Company.schema = { pct_equity: PortfolioScalar } as any;
+
+    const args = [{ portfolio: 'portfolioA' }];
+    const state = normalize(
+      [Company],
+      [{ id: '1', price: 100, pct_equity: 0.5 }],
+      args,
+    );
+
+    const result = denormalize(
+      [Company],
+      state.result,
+      fromJSEntities(state.entities),
+      args,
+    ) as any[];
+
+    expect(result[0].price).toBe(100);
+    // without args threaded through LocalCache, the lens resolves to
+    // undefined and the scalar field denormalizes to undefined
+    expect(result[0].pct_equity).toBe(0.5);
   });
 });

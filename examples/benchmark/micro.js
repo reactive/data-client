@@ -1,4 +1,9 @@
-import { WeakDependencyMap } from './dist/index.js';
+import {
+  WeakDependencyMap,
+  denormalize,
+  Entity,
+  schema,
+} from './dist/index.js';
 import { createAdd } from './filter.js';
 import { printStatus } from './printStatus.js';
 
@@ -13,6 +18,7 @@ import { printStatus } from './printStatus.js';
  * 5. slice+map vs pre-allocated extraction
  * 6. Map double-get vs single-get
  * 7. WeakDependencyMap get/set (entity vs argsKey/scalar paths)
+ * 8. Object/Polymorphic denormalize (isImmutable hot-path cost)
  *
  * @param {import('benchmark').Suite} suite
  * @param {string} [filter]
@@ -371,6 +377,72 @@ export default function addMicroSuite(suite, filter) {
     m.set(scalarDeps, 'value', wdmArgs);
     for (let i = 0; i < 100; i++) {
       m.get(scalarRoot, wdmGetDep, wdmArgs);
+    }
+  });
+
+  // ============================================================
+  // Optimization 8: Object/Polymorphic denormalize hot path
+  // ============================================================
+  // Isolates the per-node isImmutable check in object-schema denormalize
+  // (normalizr schemas/Object.ts, endpoint schemas/Object.ts) and the
+  // per-item discriminator reads in Polymorphic.denormalizeValue
+  // (endpoint schemas/Polymorphic.ts). Baseline for evicting immutable
+  // branches from main-entry denormalize (plans/immutablejs-support.md F1).
+
+  // depth-2 fanout-5 tree: 31 object-schema nodes visited per call
+  function buildObjTree(depth, useClass) {
+    if (depth === 0) {
+      return [useClass ? new schema.Object({}) : {}, { v0: 0, v1: 1, v2: 2 }];
+    }
+    const schemaNode = {};
+    const inputNode = {};
+    for (let i = 0; i < 5; i++) {
+      const [s, inp] = buildObjTree(depth - 1, useClass);
+      schemaNode[`k${i}`] = s;
+      inputNode[`k${i}`] = inp;
+    }
+    return [useClass ? new schema.Object(schemaNode) : schemaNode, inputNode];
+  }
+  const [shorthandTreeSchema, shorthandTreeInput] = buildObjTree(2, false);
+  const [classTreeSchema, classTreeInput] = buildObjTree(2, true);
+  const emptyEntities = {};
+
+  add('8-objectShorthand denormalize (31 nodes)', () => {
+    for (let i = 0; i < 100; i++) {
+      denormalize(shorthandTreeSchema, shorthandTreeInput, emptyEntities);
+    }
+  });
+
+  add('8-objectClass denormalize (31 nodes)', () => {
+    for (let i = 0; i < 100; i++) {
+      denormalize(classTreeSchema, classTreeInput, emptyEntities);
+    }
+  });
+
+  class MicroCat extends Entity {
+    id = '';
+    name = '';
+    static key = 'MicroCat';
+  }
+  class MicroDog extends Entity {
+    id = '';
+    name = '';
+    static key = 'MicroDog';
+  }
+  const PetUnion = new schema.Union({ cats: MicroCat, dogs: MicroDog }, 'type');
+  const unionEntities = { MicroCat: {}, MicroDog: {} };
+  for (let i = 0; i < 50; i++) {
+    unionEntities.MicroCat[i] = { id: `${i}`, name: `cat${i}`, type: 'cats' };
+    unionEntities.MicroDog[i] = { id: `${i}`, name: `dog${i}`, type: 'dogs' };
+  }
+  const unionList = [];
+  for (let i = 0; i < 100; i++) {
+    unionList.push({ id: `${i % 50}`, schema: i % 2 ? 'dogs' : 'cats' });
+  }
+
+  add('8-unionPolymorphic denormalize (100 items)', () => {
+    for (let i = 0; i < 10; i++) {
+      denormalize([PetUnion], unionList, unionEntities);
     }
   });
 

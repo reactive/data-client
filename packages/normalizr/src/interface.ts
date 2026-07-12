@@ -147,6 +147,14 @@ export interface IQueryDelegate {
 export interface IDenormalizeDelegate {
   /** Recursive denormalize of nested schemas */
   unvisit(schema: any, input: any): any;
+  /** Denormalize an object-shaped schema node ({ key: Schema }).
+   *
+   * Value-representation aware: the plain policy runs the POJO loop; the
+   * `/imm` policy also handles ImmutableJS Map/Record inputs. */
+  unvisitObject(schema: Record<string, any>, input: any): any;
+  /** Read a field from a normalized reference (e.g. polymorphic
+   * `schema`/`id` discriminators), respecting the value representation. */
+  getField(value: any, key: string): any;
   /** Raw endpoint args. Reading this does NOT contribute to cache
    * invalidation — if your output varies with args, register an `argsKey`
    * so the cache buckets correctly. */
@@ -155,6 +163,24 @@ export interface IDenormalizeDelegate {
    * `fn` must be referentially stable (it doubles as the cache path key).
    * Returns `fn(args)` for convenience. */
   argsKey(fn: (args: readonly any[]) => string | undefined): string | undefined;
+}
+
+/** Value-representation strategy for denormalization.
+ *
+ * Resolved once at `getUnvisit` construction (never per-call): the main
+ * entries use the plain (POJO) policy; `/imm` entries substitute an
+ * ImmutableJS-aware one. Implementations must be monomorphic — both
+ * members always present.
+ */
+export interface IValuePolicy {
+  /** Denormalize an object-shaped schema node ({ key: Schema }) */
+  denormalizeObject(
+    schema: Record<string, any>,
+    input: any,
+    delegate: IDenormalizeDelegate,
+  ): any;
+  /** Read a field from a normalized reference */
+  getField(value: any, key: string): any;
 }
 
 /** Helpers during schema.normalize() */

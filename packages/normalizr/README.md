@@ -263,6 +263,29 @@ import { denormalize } from '@data-client/normalizr/imm';
 const article = denormalize(Article, '123', state.entities, args);
 ```
 
+`MemoCache` works with Immutable state by constructing it with the imm `MemoPolicy`:
+
+```js
+import { MemoCache } from '@data-client/normalizr';
+import { MemoPolicy } from '@data-client/normalizr/imm';
+
+const memo = new MemoCache(MemoPolicy);
+const { data } = memo.denormalize(Article, '123', state.entities, args);
+```
+
+### Supported state shape
+
+The supported contract is *immutable tables, plain-object values*: the outer
+`entities`/`indexes`/`entitiesMeta` tables are ImmutableJS Maps, while each
+stored entity value remains a plain object. Normalized results (like endpoint
+responses run through `fromJS`) may also be immutable when using the `/imm`
+entry points.
+
+The default (main-entry) `denormalize` and `MemoCache` do **not** support
+ImmutableJS input — all ImmutableJS handling lives behind `/imm` so
+applications that don't use it pay no bundle or runtime cost. In development,
+passing immutable input to the default denormalize throws a descriptive error.
+
 ## Schemas
 
 Available from [@data-client/endpoint](https://www.npmjs.com/package/@data-client/endpoint)

@@ -442,10 +442,13 @@ describe.each([
 
   test('denormalizes without entities fills undefined', () => {
     expect(denormalize({ data: Tacos }, { data: '1' }, {})).toMatchSnapshot();
-    expect(
-      denormalize({ data: Tacos }, fromJS({ data: '1' }), {}),
-    ).toMatchSnapshot();
     expect(denormalize(Tacos, '1', {})).toEqual(undefined);
+  });
+
+  test('rejects immutable input loudly (only supported via /imm entries)', () => {
+    expect(() =>
+      denormalize({ data: Tacos }, fromJS({ data: '1' }), {}),
+    ).toThrow(/Immutable input is not supported by the default denormalize/);
   });
 
   test('denormalizes ignoring unfound entities in arrays', () => {

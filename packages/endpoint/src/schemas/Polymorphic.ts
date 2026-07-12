@@ -1,5 +1,4 @@
-import { isImmutable } from './ImmutableUtils.js';
-import { Visit } from '../interface.js';
+import { IDenormalizeDelegate, Visit } from '../interface.js';
 
 export default class PolymorphicSchema {
   declare private _schemaAttribute: any;
@@ -96,18 +95,21 @@ Value: ${JSON.stringify(value, undefined, 2)}`,
   }
 
   // value is guaranteed by caller to not be null
-  denormalizeValue(value: any, unvisit: any) {
+  denormalizeValue(value: any, delegate: IDenormalizeDelegate) {
     const isSingle = this.isSingleSchema;
+    // getField respects the value representation (e.g. ImmutableJS refs under
+    // the /imm policy); direct reads are the fallback for delegates from
+    // older @data-client/normalizr versions.
     const schemaKey =
       !isSingle &&
       value &&
-      (isImmutable(value) ? value.get('schema') : value.schema);
+      (delegate.getField ? delegate.getField(value, 'schema') : value.schema);
     if (!isSingle && !schemaKey) {
       // denormalize should also handle 'passthrough' values (not normalized) and still
       // construct the correct Entity instance
       if (typeof value === 'object' && value !== null) {
         const schema = this.inferSchema(value, undefined, undefined);
-        if (schema) return unvisit(schema, value);
+        if (schema) return delegate.unvisit(schema, value);
       }
       /* istanbul ignore else */
       if (process.env.NODE_ENV !== 'production' && value) {
@@ -120,9 +122,9 @@ Value: ${JSON.stringify(value, undefined, 2)}.`,
     }
     const id =
       isSingle ? undefined
-      : isImmutable(value) ? value.get('id')
+      : delegate.getField ? delegate.getField(value, 'id')
       : value.id;
     const schema = isSingle ? this.schema : this.schema[schemaKey];
-    return unvisit(schema, id || value);
+    return delegate.unvisit(schema, id || value);
   }
 }
