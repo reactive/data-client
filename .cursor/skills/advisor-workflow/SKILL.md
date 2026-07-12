@@ -60,7 +60,7 @@ Implement against the decided interfaces. Write the advisor's proving tests. If 
 
 Run the real thing: build, tests, dev server, browser where UI is involved. Advisors can identify risks statically but cannot establish runtime behavior — that is your job alone, and it is where implementers catch bugs no reviewer can. Loop on real failures. Also execute the `quality-reviewer`'s "Needs runtime verification" list when you get it.
 
-**Escalation valve**: after two distinct failed hypotheses on the same problem — or when another attempt would cost more than a consult — stop. Package the failure evidence (error output, what you tried, why each attempt failed) and consult `design-advisor` (or `principal-advisor` if correctness-deep). Never repeat an approach without new evidence; cheap-model spin is the hidden cost that erases the price advantage.
+**Escalation valve**: after two distinct failed hypotheses on the same problem — or when another attempt would cost more than a consult — stop. Package the failure evidence (error output, what you tried, why each attempt failed) and consult `design-advisor`. Escalate to `principal-advisor` instead only if the failure is correctness-deep **and** its single per-task consult is still unspent — spending it here leaves step 6 arbitration without a fallback (contested criticals then surface to the user). If it's already spent, send the evidence as a follow-up to the existing principal consult (resume) or use `design-advisor`. Never repeat an approach without new evidence; cheap-model spin is the hidden cost that erases the price advantage.
 
 ### 6. End review (mandatory for design-bearing/high-risk work)
 
