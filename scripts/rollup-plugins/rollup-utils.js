@@ -1,6 +1,9 @@
 import fs from 'fs';
 import path from 'path';
+import { createRequire } from 'module';
 import dts from 'rollup-plugin-dts';
+
+const require = createRequire(import.meta.url);
 
 function isExternalTypes(id) {
   if (id.startsWith('@data-client/core')) return true;
@@ -24,7 +27,9 @@ export const typeConfigNext = {
 };
 
 export const esnextConfig = {
-  input: '../../node_modules/typescript/lib/lib.es2022.array.d.ts',
+  // TypeScript 7 native no longer ships lib.*.d.ts beside the root package.
+  // @typescript/old is the TS6 API dependency of @typescript/typescript6.
+  input: require.resolve('@typescript/old/lib/lib.es2022.array.d.ts'),
   output: [{ file: 'lib.esnext.d.ts', format: 'es' }],
   external: id => {
     return false;

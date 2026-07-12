@@ -34,8 +34,9 @@
     "@types/d3": "^7",
     "@types/react": "*",
     "@types/react-dom": "*",
+    "@typescript/native": "npm:typescript@7.0.2",
     "react-refresh": "*",
-    "typescript": "6.0.3",
+    "typescript": "npm:@typescript/typescript6@6.0.2",
     "webpack": "*",
     "webpack-cli": "*"
   },

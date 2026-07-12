@@ -108,6 +108,7 @@
   },
   "exports": {
     ".": {
+      "types": "./lib/index.d.ts",
       "module": "./lib/index.js",
       "import": "./node.mjs",
       "require": "./dist/index.js",
