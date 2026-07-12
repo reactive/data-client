@@ -130,6 +130,8 @@ jobs:
             - project/node_modules
             - project/packages
             - project/scripts
+            # Playground unit tests (transformCode, codeModel); rest of website omitted
+            - project/website/src/components/Playground
             - project/.yarnrc.yml
             - project/babel.config.js
             - project/eslint.config.mjs
