@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783861415695,
+  "lastUpdate": 1783866597146,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -5507,6 +5507,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 156.25,
             "range": "± 10.0%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d432eba98aba5841e608a90afd872b236ad0ed0d",
+          "message": "pkg: Update validation packages (#3996)\n\n* pkg: Update validation packages\n\n* fix: Align prettier and jest-environment-node for validation upgrades\n\nPrettier 3.9 reformats union types; force jest-environment-node@30.4.1 so React Native's Jest preset no longer ships a 29.x mocker that lacks clearMocksOnScope under Jest 30.4.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n\n---------\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\nCo-authored-by: Cursor <cursoragent@cursor.com>",
+          "timestamp": "2026-07-12T10:26:45-04:00",
+          "tree_id": "cdc0243a22ebb3d172e9b12898b0c050de167e79",
+          "url": "https://github.com/reactive/data-client/commit/d432eba98aba5841e608a90afd872b236ad0ed0d"
+        },
+        "date": 1783866593810,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 136.99,
+            "range": "± 3.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 43.67,
+            "range": "± 3.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 363.76,
+            "range": "± 9.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 350.99,
+            "range": "± 10.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 46.62,
+            "range": "± 9.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 307.77,
+            "range": "± 8.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 322.58,
+            "range": "± 6.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 8.13,
+            "range": "± 7.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 74.91,
+            "range": "± 13.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 37.66,
+            "range": "± 5.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 215.08,
+            "range": "± 5.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 250.16,
+            "range": "± 8.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 169.49,
+            "range": "± 11.0%",
             "unit": "ops/s"
           }
         ]
