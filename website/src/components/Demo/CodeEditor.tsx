@@ -10,6 +10,7 @@ function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+/** Never rendered: parseCodeDocuments reads code + metadata from these elements' props. */
 function PlaygroundCode({ children }: PlaygroundCodeProps) {
   return <code>{children}</code>;
 }

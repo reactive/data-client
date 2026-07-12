@@ -50,7 +50,7 @@ describe('code document model', () => {
     ]);
   });
 
-  test('updates only the addressed document and ignores invalid indexes', () => {
+  test('updates only the addressed document', () => {
     const documents = parseCodeDocuments([
       code({ metastring: 'title="One"' }, 'one'),
       code({ metastring: 'title="Two"' }, 'two'),
@@ -59,7 +59,6 @@ describe('code document model', () => {
     const updated = updateDocument(documents, 1, 'changed');
     expect(updated[0]).toBe(documents[0]);
     expect(updated[1]).toEqual({ ...documents[1], value: 'changed' });
-    expect(updateDocument(updated, 3, 'ignored')).toBe(updated);
   });
 });
 

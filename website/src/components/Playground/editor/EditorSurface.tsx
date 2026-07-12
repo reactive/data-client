@@ -5,14 +5,16 @@ import React, {
   type ComponentProps,
   useCallback,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { LiveEditor } from 'react-live';
 
-import { isGoogleBot } from './isMobileOrBot';
-import Editor from './PlaygroundEditor';
 import Header from '../Header';
+import { isGoogleBot } from '../isMobileOrBot';
+import Editor from '../PlaygroundEditor';
 import styles from '../styles.module.css';
+import TabList from '../TabList';
 import type { CodeDocument, CodeModel } from './codeModel';
 
 export interface EditorSurfaceProps extends CodeModel {
@@ -36,16 +38,21 @@ export default function EditorSurface({
     documents.map(({ collapsed }) => collapsed),
   );
 
+  // Document count and col flags are fixed after the initial parse, so
+  // capturing them once keeps these handlers referentially stable. That
+  // stability is what lets memo(PlaygroundMonacoEditor) skip re-rendering
+  // unedited tabs on every keystroke.
+  const colFlags = useRef(documents.map(({ col }) => col)).current;
   const handleTabSwitch = useCallback(
     (index: number) => {
       setClosed(closed =>
         closed.map((previous, documentIndex) => {
-          if (documents[documentIndex].col) return previous;
+          if (colFlags[documentIndex]) return previous;
           return documentIndex !== index;
         }),
       );
     },
-    [documents],
+    [colFlags],
   );
   const handleTabOpen = useCallback((index: number) => {
     setClosed(closed => {
@@ -58,6 +65,15 @@ export default function EditorSurface({
       closed.map((value, i) => (i === index ? !value : value)),
     );
   }, []);
+  const handleChanges = useMemo(
+    () =>
+      documents.map(
+        (_, index) => (value?: string) => update(index, value ?? ''),
+      ),
+    // only depend on length so identities survive keystrokes (see colFlags note)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [documents.length, update],
+  );
 
   return (
     <div className={styles.playgroundTextEdit}>
@@ -93,14 +109,13 @@ export default function EditorSurface({
                 handleTabSwitch
               : handleTabOpen
             }
-            onChange={value => update(index, value ?? '')}
+            onChange={handleChanges[index]}
             code={document.value}
             path={`/${id}/${document.path}`}
             isFocused={!closedList[index]}
             language={document.language}
             highlights={document.highlights}
-            autoFocus={document.autoFocus as boolean | undefined}
-            readOnly={document.readOnly as boolean | undefined}
+            autoFocus={document.autoFocus}
           />
         </React.Fragment>
       ))}
@@ -191,22 +206,14 @@ function EditorTabs({
       )}
       small={hasHeaderControls || compact}
     >
-      <div className={styles.tabs} role="tablist" aria-orientation="horizontal">
-        {tabs.map(({ document, index }) => (
-          <div
-            role="tab"
-            aria-selected={!closedList[index]}
-            tabIndex={!closedList[index] ? 0 : -1}
-            key={`${document.path}:${index}`}
-            onClick={() => onClick(index)}
-            className={clsx(styles.tab, {
-              [styles.selected]: !closedList[index],
-            })}
-          >
-            {document.title}
-          </div>
-        ))}
-      </div>
+      <TabList
+        tabs={tabs.map(({ document, index }) => ({
+          key: `${document.path}:${index}`,
+          label: document.title,
+          selected: !closedList[index],
+          onSelect: () => onClick(index),
+        }))}
+      />
     </Header>
   );
 }

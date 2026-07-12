@@ -1,8 +1,8 @@
 import React from 'react';
 import { LiveProvider } from 'react-live';
 
-import MonacoPreloads from './MonacoPreloads';
-import { useReactLiveTheme } from './useReactLiveTheme';
+import MonacoPreloads from '../MonacoPreloads';
+import { useReactLiveTheme } from '../useReactLiveTheme';
 
 export default function EditorShell({
   children,

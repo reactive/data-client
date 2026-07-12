@@ -15,16 +15,7 @@ import useAutoHeight from './Playground/useAutoHeight';
 
 export default function DiffEditor({ documents, fallback }: DiffMonacoProps) {
   const [original, modified] = useMemo(
-    () => [
-      documents[0].value.replaceAll(
-        /^\s*\/\/ highlight-(next-line|start|end)\n/gm,
-        '',
-      ),
-      documents[1].value.replaceAll(
-        /^\s*\/\/ highlight-(next-line|start|end)\n/gm,
-        '',
-      ),
-    ],
+    () => documents.map(({ value }) => value.replaceAll(HIGHLIGHT_COMMENT, '')),
     [documents],
   );
 
@@ -84,6 +75,8 @@ export type DiffMonacoProps = {
   fallback: React.ReactNode;
   documents: readonly CodeDocument[];
 };
+
+const HIGHLIGHT_COMMENT = /^\s*\/\/ highlight-(next-line|start|end)\n/gm;
 
 const DIFF_OPTIONS: editor.IDiffEditorConstructionOptions = {
   ...options,

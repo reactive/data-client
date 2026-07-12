@@ -6,11 +6,11 @@ import Boundary from './Boundary';
 import { useCodeDocuments } from './editor/codeModel';
 import EditorShell from './editor/EditorShell';
 import EditorSurface from './editor/EditorSurface';
-import { isGoogleBot } from './editor/isMobileOrBot';
-import FixturePreview from './preview/FixturePreview';
-import PreviewWrapper from './preview/PreviewWrapper';
-import { StoreToggle } from './preview/StoreInspector';
-import type PreviewWithScopeType from './PreviewWithScope';
+import FixturePreview from './FixturePreview';
+import { isGoogleBot } from './isMobileOrBot';
+import type LivePreviewType from './preview/LivePreview';
+import PreviewWrapper from './PreviewWrapper';
+import { StoreToggle } from './StoreInspector';
 import styles from './styles.module.css';
 import type { FixtureOrInterceptor, PreviewProps } from './types';
 
@@ -128,10 +128,10 @@ const previewLoading = (
   </PreviewWrapper>
 );
 
-const PreviewWithScopeLazy = lazy<typeof PreviewWithScopeType>(() =>
+const PreviewWithScopeLazy = lazy<typeof LivePreviewType>(() =>
   isGoogleBot ?
     Promise.resolve({ default: () => previewLoading })
   : import(
-      /* webpackChunkName: 'PreviewWithScope', webpackPrefetch: true */ './PreviewWithScope'
+      /* webpackChunkName: 'PreviewWithScope', webpackPrefetch: true */ './preview/LivePreview'
     ),
 );

@@ -1,12 +1,16 @@
 import CodeBlock from '@theme/CodeBlock';
-import type React from 'react';
+import React, { useMemo } from 'react';
 
 import DiffEditorChooser from './DiffEditorChooser';
 import Grid from './Grid';
-import { useCodeDocuments } from './Playground/editor/codeModel';
+import { parseCodeDocuments } from './Playground/editor/codeModel';
 
 export default function DiffEditor({ children }: Props) {
-  const { documents } = useCodeDocuments(children, 'Before');
+  // Display-only: documents never change after parsing
+  const documents = useMemo(
+    () => parseCodeDocuments(children, 'Before'),
+    [children],
+  );
 
   const fallback = (
     <Grid wrap>
@@ -24,5 +28,4 @@ export default function DiffEditor({ children }: Props) {
 
 interface Props {
   children: React.ReactNode;
-  row?: boolean;
 }

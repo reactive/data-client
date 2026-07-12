@@ -8,7 +8,7 @@ export interface CodeDocument {
   col?: boolean;
   highlights?: string;
   language: string;
-  [key: string]: unknown;
+  autoFocus?: boolean;
 }
 
 export interface CodeModel {
@@ -62,6 +62,8 @@ export function parseCodeDocuments(
           (fileBase.includes('.') ? fileBase : `${fileBase}.${extension}`),
         highlights: /\{([\d\-,.]+)\}/.exec(metastring)?.[1],
         language,
+        // Direct element props (title, path, collapsed, autoFocus) override
+        // metastring-derived values — Demo/CodeEditor relies on this.
         ...rest,
       };
     });
@@ -72,7 +74,6 @@ export function updateDocument(
   index: number,
   value: string,
 ): readonly CodeDocument[] {
-  if (index < 0 || index >= documents.length) return documents;
   return documents.map((document, documentIndex) =>
     documentIndex === index ? { ...document, value } : document,
   );
