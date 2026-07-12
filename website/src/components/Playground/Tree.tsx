@@ -1,6 +1,6 @@
 import { useColorMode } from '@docusaurus/theme-common';
-import React, { useMemo } from 'react';
-import { JSONTree } from 'react-json-tree';
+import React, { useMemo, type CSSProperties } from 'react';
+import { JSONTree, type KeyPath, type ValueRenderer } from 'react-json-tree';
 
 const valueColorMap = {
   String: 'rgb(195, 232, 141)',
@@ -13,7 +13,7 @@ const valueColorMap = {
   Symbol: 'rgb(247, 140, 108)',
 };
 
-export default function Output({ value }: { value: any }) {
+export default function Output({ value }: { value: unknown }) {
   const isDarkTheme = useColorMode().colorMode === 'dark';
   const theme = useMemo(
     () => ({
@@ -27,7 +27,7 @@ export default function Output({ value }: { value: any }) {
         font: 'var(--ifm-code-font-size) / var(--ifm-pre-line-height) var(--ifm-font-family-monospace) !important',
         color: 'rgb(227, 227, 227)',
       },
-      arrowContainer: ({ style }) => ({
+      arrowContainer: ({ style }: { style: CSSProperties }) => ({
         style: {
           ...style,
           fontFamily: 'arial',
@@ -44,7 +44,10 @@ export default function Output({ value }: { value: any }) {
       itemRange: {
         color: 'rgb(105, 112, 152)',
       },
-      valueText: ({ style }, nodeType: keyof typeof valueColorMap) => ({
+      valueText: (
+        { style }: { style: CSSProperties },
+        nodeType: keyof typeof valueColorMap,
+      ) => ({
         style: {
           ...style,
           color: valueColorMap[nodeType],
@@ -70,9 +73,9 @@ const shouldExpandNode = () => {
   let entityCount = 0;
   let schemaCount = 0;
 
-  return (keyName, data, level) => {
+  return (keyName: KeyPath, _data: unknown, level: number) => {
     if (level === 0) return true;
-    if (level === 1 && ['entities', 'results'].includes(keyName[0]))
+    if (level === 1 && ['entities', 'results'].includes(String(keyName[0])))
       return true;
     if (level === 2 && keyName[1] === 'entities') return schemaCount++ < 2;
     if (level === 2 && keyName[1] === 'results') return true;
@@ -94,11 +97,11 @@ const timeFormatter =
     })
   : undefined;
 
-function valueRenderer(
-  valueAsString: string,
+const valueRenderer: ValueRenderer = (
+  valueAsString: unknown,
   value: unknown,
-  ...keyPath: string[]
-) {
+  ...keyPath: KeyPath
+) => {
   const key = keyPath[0];
   if (
     timeFormatter &&
@@ -109,5 +112,5 @@ function valueRenderer(
   ) {
     return timeFormatter.format(value);
   }
-  return valueAsString;
-}
+  return valueAsString as string;
+};

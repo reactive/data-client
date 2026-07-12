@@ -1,12 +1,12 @@
-import type { FixtureEndpoint } from '@data-client/test';
+import type { Fixture, Interceptor } from '@data-client/test';
 import { createContext } from 'react';
 
 export interface CodeTabValue {
   label: string;
   value: string;
-  code: { code: string; path: string; open?: true }[];
+  code: { code: string; path: string; open?: boolean }[];
   autoFocus?: boolean;
-  fixtures?: FixtureEndpoint[];
+  fixtures?: (Fixture | Interceptor)[];
   getInitialInterceptorData?: () => unknown;
 }
 

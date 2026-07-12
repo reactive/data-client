@@ -1,8 +1,12 @@
 import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';
-import React from 'react';
+import React, { type ReactNode } from 'react';
 
-export default function ProtocolTabs({ children }) {
+export default function ProtocolTabs({
+  children,
+}: {
+  children: [ReactNode, ReactNode];
+}) {
   return (
     <Tabs
       defaultValue="rest"

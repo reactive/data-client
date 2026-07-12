@@ -11,6 +11,10 @@ export default [
       '**/node_modules*/*',
       'node_modules/*',
       '**/src-*-types/*',
+      // Playground snippet sources loaded via raw-loader; globals come from Monaco scope
+      'website/src/components/Demo/code/**',
+      // Monaco editor ambient stubs (not application source)
+      'website/src/components/Playground/editor-types/**',
     ],
   },
   {

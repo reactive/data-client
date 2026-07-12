@@ -1,6 +1,7 @@
 import { LiveProvider } from 'react-live';
 
 import { previewScope } from './scope';
+import { usePlaygroundConsoleDemotion } from './usePlaygroundConsoleDemotion';
 import Preview from '../Preview';
 import PreviewWrapper from '../PreviewWrapper';
 import transformCode from '../transformCode';
@@ -18,6 +19,8 @@ export default function LivePreview<T>({
   fixtures,
   getInitialInterceptorData,
 }: LivePreviewProps<T>) {
+  usePlaygroundConsoleDemotion();
+
   return (
     <LiveProvider
       key="preview"

@@ -1,12 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-export function useIntersectionObserver<T>(options: Props = {}) {
+export function useIntersectionObserver<T extends Element>(
+  options: Props = {},
+) {
   const { threshold = 0.1, root = null, rootMargin = '0%' } = options;
   const ref = useRef<T>(null);
   const [entry, setEntry] = useState<null | IntersectionObserverEntry>(null);
 
   useEffect(() => {
-    const node = ref?.current;
+    const node = ref.current;
 
     if (!node || typeof IntersectionObserver !== 'function') {
       return;
@@ -31,6 +33,6 @@ export function useIntersectionObserver<T>(options: Props = {}) {
 }
 export interface Props {
   threshold?: number;
-  root?: React.ReactElement;
+  root?: Element | Document | null;
   rootMargin?: string;
 }

@@ -1,12 +1,13 @@
-import { FixtureEndpoint } from '@data-client/test';
 import React, { useContext, memo, useRef, forwardRef } from 'react';
+import type { ForwardedRef } from 'react';
 
 import CodeProvider from './CodeProvider';
 import CodeTabContext from './CodeTabContext';
+import type { CodeTabValue } from './CodeTabContext';
 import PlaygroundHeaderControls from './PlaygroundHeaderControls';
 import HooksPlayground from '../HooksPlayground';
 
-function capitalizeFirstLetter(string) {
+function capitalizeFirstLetter(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
@@ -16,7 +17,10 @@ function PlaygroundCode({ children }: PlaygroundCodeProps) {
 }
 
 const DemoPlayground = memo(
-  forwardRef((props, ref: React.RefObject<HTMLDivElement>) => {
+  forwardRef(function DemoPlayground(
+    _props: object,
+    ref: ForwardedRef<HTMLDivElement>,
+  ) {
     const { selectedValue, values } = useContext(CodeTabContext);
 
     return (
@@ -66,13 +70,7 @@ interface PlaygroundCodeProps {
 }
 
 interface Props<T extends string> {
-  codes: {
-    label: string;
-    value: string;
-    code: { code: string; path: string; open?: true }[];
-    autoFocus?: boolean;
-    fixtures?: FixtureEndpoint[];
-  }[];
+  codes: CodeTabValue[];
   defaultValue: T;
 }
 
@@ -80,7 +78,7 @@ export default function CodeEditor<T extends string>({
   codes,
   defaultValue,
 }: Props<T>) {
-  const playgroundRef = useRef();
+  const playgroundRef = useRef<HTMLDivElement>(null);
 
   return (
     <CodeProvider

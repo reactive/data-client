@@ -21,7 +21,7 @@ export default function useAutoHeight({
 }) {
   const [height, setHeight] = useState(initialContentHeight + containerGutter);
 
-  const updateHeightRef = useRef<() => void>();
+  const updateHeightRef = useRef<(() => void) | undefined>(undefined);
   useEffect(() => {
     if (!isFocused || !updateHeightRef.current) return;
     // Wait a frame so display:none → block layout has applied

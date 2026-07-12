@@ -10,7 +10,14 @@ interface Props<V extends CodeTabValue[]> {
   groupId?: string | null;
   defaultValue: V[number]['value'];
   children: React.ReactNode;
-  playgroundRef: React.RefObject<HTMLElement>;
+  playgroundRef: React.RefObject<HTMLElement | null>;
+}
+
+function isTabValue<V extends CodeTabValue[]>(
+  values: V,
+  choice: string,
+): choice is V[number]['value'] {
+  return values.some(({ value }) => value === choice);
 }
 
 export function CodeProvider<V extends CodeTabValue[]>({
@@ -30,14 +37,17 @@ export function CodeProvider<V extends CodeTabValue[]>({
   if (
     choice != null &&
     choice !== selectedValue &&
-    values.find(({ value }) => value === choice)
+    isTabValue(values, choice)
   ) {
-    setLocalSelectedValue(choice as any);
+    setLocalSelectedValue(choice);
   }
 
   const setSelectedValue = (newTabValue: string) => {
     if (newTabValue !== selectedValue) {
-      blockElementScrollPositionUntilNextRender(playgroundRef.current);
+      const el = playgroundRef.current;
+      if (el) {
+        blockElementScrollPositionUntilNextRender(el);
+      }
       setLocalSelectedValue(newTabValue as V[number]['value']);
 
       if (groupId != null) {

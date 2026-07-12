@@ -45,7 +45,7 @@ function FixtureOrInterceptor({
   fixture,
 }: {
   fixture: FixtureOrInterceptor;
-}): JSX.Element {
+}): ReactElement {
   if ('args' in fixture) {
     return (
       <div

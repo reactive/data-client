@@ -7,7 +7,7 @@ import React from 'react';
 
 type Props = WrapperProps<typeof MetadataType>;
 
-export default function MetadataWrapper(props: Props): JSX.Element {
+export default function MetadataWrapper(props: Props): React.ReactElement {
   const { assets, metadata } = useBlogPost();
   const { frontMatter } = metadata;
 
