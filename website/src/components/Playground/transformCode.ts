@@ -7,7 +7,7 @@
  * multiline imports from leaving orphan `} from '…'` syntax.
  */
 const STATIC_IMPORT =
-  /^[ \t]*import(?!\s*\(|\.)(?:[\s\S]*?\bfrom\s*)?["'][^"'\r\n]+["']\s*;?[ \t]*(?:\/\/[^\r\n]*)?(?:\r?\n|$)/gm;
+  /^[ \t]*import(?!\s*\(|\.)(?:(?:[\s\S]*?\bfrom\s*)|\s+)["'][^"'\r\n]+["']\s*;?[ \t]*(?:\/\/[^\r\n]*)?(?:\r?\n|$)/gm;
 
 const EXPORT_LIST =
   /^[ \t]*export\s+(?:type\s+)?(?:\{[\s\S]*?\}|\*(?:\s+as\s+\w+)?)\s*(?:from\s*["'][^"'\r\n]+["'])?\s*;?[ \t]*(?:\/\/[^\r\n]*)?(?:\r?\n|$)/gm;
