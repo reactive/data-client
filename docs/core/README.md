@@ -667,7 +667,7 @@ groupId="Demos"
 </TabItem>
 </Tabs>
 
-<p style={{textAlign: 'center'}}>
+<div style={{ textAlign: 'center' }}>
 <Link className="button button--secondary" to="/demos">More Demos</Link>&nbsp;
 <Link className="button button--secondary" to="https://skills.sh/reactive/data-client"><img src="/img/anthropic.svg" alt="Agent Skills" style={{
           height: '1em',
@@ -675,4 +675,4 @@ groupId="Demos"
           display: 'inline',
         }}
 /> Agent Skills</Link>
-</p>
+</div>

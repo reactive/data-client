@@ -139,7 +139,7 @@ suspends.
 import { GQLEndpoint, GQLEntity } from '@data-client/graphql';
 
 const gql = new GQLEndpoint(
-  'https://swapi-graphql.netlify.app/.netlify/functions/index',
+  'https://swapi-graphql.netlify.app/graphql',
 );
 class Person extends GQLEntity {
   readonly id: string = '';
@@ -198,7 +198,7 @@ import { useController } from '@data-client/react';
 import { GQLEndpoint, GQLEntity } from '@data-client/graphql';
 
 const gql = new GQLEndpoint(
-  'https://swapi-graphql.netlify.app/.netlify/functions/index',
+  'https://swapi-graphql.netlify.app/graphql',
 );
 
 class Review extends GQLEntity {

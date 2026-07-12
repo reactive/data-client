@@ -21,8 +21,10 @@ import { detailFixtures, listFixtures } from '@site/src/fixtures/profiles';
 
 # useSuspense()
 
-<p class="tagline">
-High performance async data rendering without overfetching.
+<p className="tagline">
+  {
+    'High performance async data rendering without overfetching.'
+  }
 </p>
 
 `useSuspense()` is like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await) for React components. This means the remainder of the component only runs after the data has loaded, avoiding the complexity of handling loading and error conditions. Instead, fallback handling is
