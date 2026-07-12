@@ -23,7 +23,7 @@ function Preview<T>({
   getInitialInterceptorData,
 }: PreviewProps<T>) {
   const [choice, setTabGroupChoice] = useTabStorage(groupId);
-  const selectedValue = (choice ?? defaultOpen) as 'y' | 'n';
+  const selectedValue = choice === 'y' || choice === 'n' ? choice : defaultOpen;
   const { blockElementScrollPositionUntilNextRender } =
     useScrollPositionBlocker();
 

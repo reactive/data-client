@@ -6,6 +6,7 @@ import Playground from './Playground';
 const HooksPlayground = ({
   children,
   groupId,
+  hidden = false,
   defaultOpen = 'n',
   row = false,
   fixtures = [],
@@ -17,6 +18,7 @@ const HooksPlayground = ({
     groupId={groupId}
     defaultOpen={defaultOpen}
     row={row}
+    hidden={hidden}
     fixtures={fixtures}
     getInitialInterceptorData={getInitialInterceptorData}
     defaultTab={defaultTab}
@@ -37,6 +39,7 @@ interface PlaygroundProps<T = any> {
   groupId: string;
   defaultOpen?: 'y' | 'n';
   row: boolean;
+  hidden?: boolean;
   fixtures?: (Fixture | Interceptor<T>)[];
   getInitialInterceptorData?: () => T;
   children: React.ReactNode;

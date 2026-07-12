@@ -11,7 +11,6 @@ import React, {
 import { LiveEditor } from 'react-live';
 
 import Header from '../Header';
-import { isGoogleBot } from '../isMobileOrBot';
 import Editor from '../PlaygroundEditor';
 import styles from '../styles.module.css';
 import TabList from '../TabList';
@@ -20,6 +19,8 @@ import type { CodeDocument, CodeModel } from './codeModel';
 export interface EditorSurfaceProps extends CodeModel {
   layout: 'row' | 'stacked';
   variant: 'playground' | 'standalone';
+  /** When false, keep static SSR-friendly editors (no Monaco). Defaults true. */
+  interactive?: boolean;
   fixtureContent?: React.ReactNode;
   headerControls?: React.ReactNode;
 }
@@ -29,6 +30,7 @@ export default function EditorSurface({
   update,
   layout,
   variant,
+  interactive = true,
   fixtureContent,
   headerControls,
 }: EditorSurfaceProps) {
@@ -103,6 +105,7 @@ export default function EditorSurface({
           : null}
           <TextEditTab
             hidden={closedList[index]}
+            interactive={interactive}
             tabIndex={index}
             onFocus={
               row && !document.col && documents.length > 1 ?
@@ -125,18 +128,33 @@ export default function EditorSurface({
 
 function TextEditTab({
   hidden,
+  interactive,
   code,
   language,
   tabIndex,
   ...rest
-}: ComponentProps<typeof Editor> & { hidden: boolean }) {
-  const fallback =
-    hidden ? <></>
-    : isGoogleBot ?
-      <pre className="prism-code language-tsx" spellCheck="false">
-        {code}
-      </pre>
-    : <LiveEditor language={language} code={code} disabled />;
+}: ComponentProps<typeof Editor> & {
+  hidden: boolean;
+  interactive: boolean;
+}) {
+  // Stable across SSR/hydration (do not branch on navigator / isGoogleBot here).
+  const staticView = <LiveEditor language={language} code={code} disabled />;
+
+  // Deferred protocols: keep open-file source in the DOM for SSG/crawlers;
+  // skip Monaco until the sandbox has been shown once.
+  if (!interactive) {
+    return (
+      <div
+        className={clsx(styles.playgroundEditor, {
+          [styles.hidden]: hidden,
+        })}
+      >
+        {hidden ? null : staticView}
+      </div>
+    );
+  }
+
+  const fallback = hidden ? <></> : staticView;
 
   return (
     <div
