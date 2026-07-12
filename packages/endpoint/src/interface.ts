@@ -3,12 +3,7 @@ import type { EndpointExtraOptions, FetchFunction } from './types.js';
 export * from './SnapshotInterface.js';
 
 export type Schema =
-  | null
-  | string
-  | { [K: string]: any }
-  | Schema[]
-  | SchemaSimple
-  | Serializable;
+  null | string | { [K: string]: any } | Schema[] | SchemaSimple | Serializable;
 
 export interface Queryable<Args extends readonly any[] = readonly any[]> {
   queryKey(

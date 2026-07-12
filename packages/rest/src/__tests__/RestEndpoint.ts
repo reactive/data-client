@@ -197,10 +197,7 @@ const getNextPage3 = getArticleList3.getPage;
   // @ts-expect-error - remove body should not be any
   withBody.remove.body satisfies number;
   withBody.remove.body satisfies
-    | Partial<Body>
-    | Partial<Body>[]
-    | FormData
-    | undefined;
+    Partial<Body> | Partial<Body>[] | FormData | undefined;
   // push body requires full Body (not partial)
   () => withBody.push({ id: 'a' }, { title: 'hi', content: 'there' });
   // @ts-expect-error - push rejects partial body
@@ -221,9 +218,7 @@ const getNextPage3 = getArticleList3.getPage;
   // @ts-expect-error - assign body should not be any
   valuesEndpoint.assign.body satisfies number;
   valuesEndpoint.assign.body satisfies
-    | Record<string, Partial<PaginatedArticle>>
-    | FormData
-    | undefined;
+    Record<string, Partial<PaginatedArticle>> | FormData | undefined;
   () => valuesEndpoint.assign({ myKey: { id: 5, title: 'hi', content: 'ho' } });
 };
 

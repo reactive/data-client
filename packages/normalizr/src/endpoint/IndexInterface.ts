@@ -16,9 +16,8 @@ export type IndexParams<S extends Schema> =
     }
   ) ?
     {
-      [K in Extract<
-        ArrayElement<S['indexes']>,
-        keyof AbstractInstanceType<S>
-      >]?: AbstractInstanceType<S>[K];
+      [
+        K in Extract<ArrayElement<S['indexes']>, keyof AbstractInstanceType<S>>
+      ]?: AbstractInstanceType<S>[K];
     }
   : Readonly<object>;

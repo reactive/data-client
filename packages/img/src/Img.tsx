@@ -6,8 +6,8 @@ import getImage from './getImage.js';
 
 type Props<
   C extends
-    | keyof JSX.IntrinsicElements
-    | React.JSXElementConstructor<{ src: string }> = 'img',
+    keyof JSX.IntrinsicElements | React.JSXElementConstructor<{ src: string }> =
+    'img',
 > = React.ComponentProps<C> & { component?: C };
 
 export default function Img<

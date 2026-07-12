@@ -57,8 +57,9 @@ export type PathArgsAndSearch<S extends string> =
   : Exclude<PathKeys<S>, `${string}}`> extends never ?
     Record<string, number | string | boolean> | undefined
   : {
-      [K in PathKeys<S> as K extends `${string}}` ? never
-      : KeyName<K>]: KeyVal<K>;
+      [
+        K in PathKeys<S> as K extends `${string}}` ? never : KeyName<K>
+      ]: KeyVal<K>;
     } & Record<string, number | string | string[]>;
 
 /** Removes the last :param or *wildcard token */

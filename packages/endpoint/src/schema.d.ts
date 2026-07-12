@@ -73,12 +73,10 @@ export class Array<S extends Schema = Schema> implements SchemaClass {
   ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
 
   _normalizeNullable():
-    | (S extends EntityMap ? UnionResult<S> : Normalize<S>)[]
-    | undefined;
+    (S extends EntityMap ? UnionResult<S> : Normalize<S>)[] | undefined;
 
   _denormalizeNullable():
-    | (S extends EntityMap<infer T> ? T : Denormalize<S>)[]
-    | undefined;
+    (S extends EntityMap<infer T> ? T : Denormalize<S>)[] | undefined;
 
   denormalize(
     input: {},
@@ -125,12 +123,10 @@ export class All<
   ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
 
   _normalizeNullable():
-    | (S extends EntityMap ? UnionResult<S> : Normalize<S>)[]
-    | undefined;
+    (S extends EntityMap ? UnionResult<S> : Normalize<S>)[] | undefined;
 
   _denormalizeNullable():
-    | (S extends EntityMap<infer T> ? T : Denormalize<S>)[]
-    | undefined;
+    (S extends EntityMap<infer T> ? T : Denormalize<S>)[] | undefined;
 
   denormalize(
     input: {},
@@ -251,8 +247,7 @@ export interface UnionInstance<
   _normalizeNullable(): UnionResult<Choices> | undefined;
 
   _denormalizeNullable():
-    | AbstractInstanceType<Choices[keyof Choices]>
-    | undefined;
+    AbstractInstanceType<Choices[keyof Choices]> | undefined;
 
   denormalize(
     input: {},
