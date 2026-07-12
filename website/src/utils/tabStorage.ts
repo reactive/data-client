@@ -1,14 +1,15 @@
 import { useStorageSlot } from '@docusaurus/theme-common';
 import { useCallback } from 'react';
 
-export function useTabStorage(groupId: string) {
-  const key = getStorageKey(groupId);
+/** Persist a tab choice under `docusaurus.tab.${groupId}`. Pass the raw group id. */
+export function useTabStorage(groupId: string | null | undefined) {
+  const key = groupId ? `docusaurus.tab.${groupId}` : null;
   const [value, storageSlot] = useStorageSlot(key);
 
   const setValue = useCallback(
     (newValue: string) => {
       if (!key) {
-        return; // no-op
+        return;
       }
       storageSlot.set(newValue);
     },
@@ -17,5 +18,3 @@ export function useTabStorage(groupId: string) {
 
   return [value, setValue] as const;
 }
-
-const getStorageKey = (groupId: string) => `docusaurus.tab.${groupId}`;

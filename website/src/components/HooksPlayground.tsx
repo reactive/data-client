@@ -35,17 +35,14 @@ const HooksPlayground = ({
 );
 export default memo(HooksPlayground);
 
-//child.props.children.props.title
-
 interface PlaygroundProps<T = any> {
   groupId: string;
   defaultOpen?: 'y' | 'n';
   row: boolean;
-  hidden: boolean;
+  hidden?: boolean;
   fixtures?: (Fixture | Interceptor<T>)[];
   getInitialInterceptorData?: () => T;
   children: React.ReactNode;
-  reverse?: boolean;
   defaultTab?: string;
   headerControls?: React.ReactNode;
 }

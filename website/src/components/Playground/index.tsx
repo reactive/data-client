@@ -1,6 +1,7 @@
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import useIsomorphicLayoutEffect from '@docusaurus/useIsomorphicLayoutEffect';
 import clsx from 'clsx';
-import React, { lazy, useDeferredValue } from 'react';
+import React, { lazy, useDeferredValue, useState } from 'react';
 
 import Boundary from './Boundary';
 import { useCodeDocuments } from './editor/codeModel';
@@ -55,6 +56,7 @@ export default function Playground<T>({
         <PlaygroundContent
           reverse={playgroundPosition === 'top'}
           row={row}
+          hidden={hidden}
           fixtures={fixtures}
           groupId={groupId}
           defaultOpen={defaultOpen}
@@ -73,6 +75,7 @@ function PlaygroundContent<T>({
   reverse,
   children,
   row,
+  hidden,
   fixtures,
   groupId,
   defaultOpen,
@@ -85,10 +88,18 @@ function PlaygroundContent<T>({
   const code = useDeferredValue(
     model.documents.map(document => document.value).join('\n'),
   );
+
+  // Hydrate Monaco on first show and keep it (preserves undo / go-to-def).
+  const [editorInteractive, setEditorInteractive] = useState(!hidden);
+  useIsomorphicLayoutEffect(() => {
+    if (!hidden) setEditorInteractive(true);
+  }, [hidden]);
+
   const editor = (
     <EditorShell key="editor">
       <EditorSurface
         {...model}
+        interactive={editorInteractive}
         layout={row ? 'row' : 'stacked'}
         variant="playground"
         fixtureContent={
@@ -98,18 +109,20 @@ function PlaygroundContent<T>({
       />
     </EditorShell>
   );
-  const preview = (
-    <Boundary key="preview" fallback={previewLoading}>
-      <PreviewWithScopeLazy
-        code={code}
-        groupId={groupId}
-        defaultOpen={defaultOpen}
-        row={row}
-        fixtures={fixtures}
-        getInitialInterceptorData={getInitialInterceptorData}
-      />
-    </Boundary>
-  );
+  // Live preview only while visible — unmounts when hidden (resets store).
+  const preview =
+    hidden ? previewLoading : (
+      <Boundary key="preview" fallback={previewLoading}>
+        <PreviewWithScopeLazy
+          code={code}
+          groupId={groupId}
+          defaultOpen={defaultOpen}
+          row={row}
+          fixtures={fixtures}
+          getInitialInterceptorData={getInitialInterceptorData}
+        />
+      </Boundary>
+    );
 
   return <>{reverse ? [preview, editor] : [editor, preview]}</>;
 }
@@ -117,6 +130,7 @@ function PlaygroundContent<T>({
 interface ContentProps<T> extends PreviewProps<T> {
   children: PlaygroundProps<T>['children'];
   reverse: boolean;
+  hidden: boolean;
   defaultTab?: string;
   headerControls?: React.ReactNode;
 }

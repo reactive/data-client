@@ -48,7 +48,7 @@ const DemoPlayground = memo(
                   title={capitalizeFirstLetter(path)}
                   path={`${value}/${path}.tsx`}
                   collapsed={!open}
-                  autoFocus={autoFocus && Object.values(code).length === i + 1}
+                  autoFocus={autoFocus && code.length === i + 1}
                 >
                   {instanceCode}
                 </PlaygroundCode>
