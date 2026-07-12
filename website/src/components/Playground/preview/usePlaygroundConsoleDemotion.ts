@@ -1,13 +1,30 @@
 import { useEffect } from 'react';
 
-/** React error-boundary console.error noise from live preview failures. */
+/**
+ * Playground console demotion — third-party noise only.
+ *
+ * Live previews pull in packages we do not own (react-live, React's reaction to
+ * react-live's ErrorBoundary, sucrase's classic JSX). Those emit development
+ * console noise that is expected during demos and is safe to demote/suppress.
+ *
+ * Do NOT add matchers for anything we control and should fix instead:
+ * - `@data-client/*` packages
+ * - First-party website / docs / demo code (non-package sources in this repo)
+ *
+ * If a playground surfaces a real library or site bug, fix the source — never
+ * paper over it here.
+ */
+
+/** react-live / React ErrorBoundary follow-ups (not @data-client). → warn */
 const DEMOTE_ERROR = [
+  // React after a preview throw caught by react-live's ErrorBoundary
   /The above error occurred in the <[^>]+> component:/,
   /React will try to recreate this component tree/,
+  // react-live's ErrorBoundary only implements componentDidCatch
   /Error boundaries should implement getDerivedStateFromError\(\)/,
 ];
 
-/** Exact React 19 development warning from classic JSX (react-live/sucrase). */
+/** react-live → sucrase classic JSX (emits __self). Not our transform. → drop */
 const DEMOTE_WARN = [
   /Your app \(or one of its dependencies\) is using an outdated JSX transform/,
 ];
@@ -48,7 +65,7 @@ function demotedConsoleWarn(...args: unknown[]) {
   originalWarn?.apply(console, args);
 }
 
-/** Demote known react-live / React preview console noise while live previews are mounted. */
+/** Demote third-party react-live / React preview console noise while previews are mounted. */
 export function usePlaygroundConsoleDemotion() {
   useEffect(() => {
     if (typeof console === 'undefined') return;
