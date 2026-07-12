@@ -22,40 +22,39 @@ const DemoPlayground = memo(
     ref: ForwardedRef<HTMLDivElement>,
   ) {
     const { selectedValue, values } = useContext(CodeTabContext);
+    // One sandbox only — hidden siblings still mounted Monaco + DataProvider.
+    const selected =
+      values.find(value => value.value === selectedValue) ?? values[0];
+    const {
+      value,
+      code,
+      fixtures,
+      getInitialInterceptorData,
+      autoFocus = false,
+    } = selected;
 
     return (
       <div ref={ref}>
-        {values.map(
-          ({
-            value,
-            code,
-            fixtures,
-            getInitialInterceptorData,
-            autoFocus = false,
-          }) => (
-            <HooksPlayground
-              groupId="homepage-demo"
-              row
-              key={value}
-              hidden={value !== selectedValue}
-              fixtures={fixtures}
-              getInitialInterceptorData={getInitialInterceptorData}
-              headerControls={<PlaygroundHeaderControls />}
+        <HooksPlayground
+          groupId="homepage-demo"
+          row
+          key={value}
+          fixtures={fixtures}
+          getInitialInterceptorData={getInitialInterceptorData}
+          headerControls={<PlaygroundHeaderControls />}
+        >
+          {code.map(({ path, code: instanceCode, open }, i) => (
+            <PlaygroundCode
+              key={path}
+              title={capitalizeFirstLetter(path)}
+              path={`${value}/${path}.tsx`}
+              collapsed={!open}
+              autoFocus={autoFocus && code.length === i + 1}
             >
-              {code.map(({ path, code: instanceCode, open }, i) => (
-                <PlaygroundCode
-                  key={path}
-                  title={capitalizeFirstLetter(path)}
-                  path={`${value}/${path}.tsx`}
-                  collapsed={!open}
-                  autoFocus={autoFocus && Object.values(code).length === i + 1}
-                >
-                  {instanceCode}
-                </PlaygroundCode>
-              ))}
-            </HooksPlayground>
-          ),
-        )}
+              {instanceCode}
+            </PlaygroundCode>
+          ))}
+        </HooksPlayground>
       </div>
     );
   }),

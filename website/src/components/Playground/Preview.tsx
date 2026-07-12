@@ -22,9 +22,7 @@ function Preview<T>({
   fixtures,
   getInitialInterceptorData,
 }: PreviewProps<T>) {
-  const [choice, setTabGroupChoice] = useTabStorage(
-    `docusaurus.tab.${groupId}`,
-  );
+  const [choice, setTabGroupChoice] = useTabStorage(groupId);
   const selectedValue = (choice ?? defaultOpen) as 'y' | 'n';
   const { blockElementScrollPositionUntilNextRender } =
     useScrollPositionBlocker();

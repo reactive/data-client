@@ -6,7 +6,6 @@ import Playground from './Playground';
 const HooksPlayground = ({
   children,
   groupId,
-  hidden = false,
   defaultOpen = 'n',
   row = false,
   fixtures = [],
@@ -18,7 +17,6 @@ const HooksPlayground = ({
     groupId={groupId}
     defaultOpen={defaultOpen}
     row={row}
-    hidden={hidden}
     fixtures={fixtures}
     getInitialInterceptorData={getInitialInterceptorData}
     defaultTab={defaultTab}
@@ -35,17 +33,13 @@ const HooksPlayground = ({
 );
 export default memo(HooksPlayground);
 
-//child.props.children.props.title
-
 interface PlaygroundProps<T = any> {
   groupId: string;
   defaultOpen?: 'y' | 'n';
   row: boolean;
-  hidden: boolean;
   fixtures?: (Fixture | Interceptor<T>)[];
   getInitialInterceptorData?: () => T;
   children: React.ReactNode;
-  reverse?: boolean;
   defaultTab?: string;
   headerControls?: React.ReactNode;
 }

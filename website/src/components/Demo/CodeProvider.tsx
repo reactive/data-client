@@ -1,4 +1,5 @@
 import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
+import useIsomorphicLayoutEffect from '@docusaurus/useIsomorphicLayoutEffect';
 import React, { memo, useState } from 'react';
 
 import CodeTabContext from './CodeTabContext';
@@ -27,39 +28,32 @@ export function CodeProvider<V extends CodeTabValue[]>({
   playgroundRef,
   children,
 }: Props<V>) {
-  const [choice, setTabGroupChoice] = useTabStorage(
-    `docusaurus.tab.${groupId}`,
-  );
-  const [selectedValue, setLocalSelectedValue] = useState(defaultValue);
+  const [choice, setTabGroupChoice] = useTabStorage(groupId);
+  const [selectedValue, setSelectedValue] = useState(defaultValue);
   const { blockElementScrollPositionUntilNextRender } =
     useScrollPositionBlocker();
 
-  if (
-    choice != null &&
-    choice !== selectedValue &&
-    isTabValue(values, choice)
-  ) {
-    setLocalSelectedValue(choice);
-  }
-
-  const setSelectedValue = (newTabValue: string) => {
-    if (newTabValue !== selectedValue) {
-      const el = playgroundRef.current;
-      if (el) {
-        blockElementScrollPositionUntilNextRender(el);
-      }
-      setLocalSelectedValue(newTabValue as V[number]['value']);
-
-      if (groupId != null) {
-        setTabGroupChoice(newTabValue);
-      }
+  // Local state stays interactive if storage no-ops; sync like Docusaurus tabs.
+  useIsomorphicLayoutEffect(() => {
+    if (choice != null && isTabValue(values, choice)) {
+      setSelectedValue(choice);
     }
-  };
+  }, [choice, values]);
 
   const value = {
     selectedValue,
     values,
-    setSelectedValue,
+    setSelectedValue: (newTabValue: string) => {
+      if (!isTabValue(values, newTabValue) || newTabValue === selectedValue) {
+        return;
+      }
+      const el = playgroundRef.current;
+      if (el) {
+        blockElementScrollPositionUntilNextRender(el);
+      }
+      setSelectedValue(newTabValue);
+      setTabGroupChoice(newTabValue);
+    },
   };
   return (
     <CodeTabContext.Provider value={value}>{children}</CodeTabContext.Provider>
