@@ -35,9 +35,7 @@ export const denormalize = (
     if (
       input &&
       typeof (input as any).hasOwnProperty === 'function' &&
-      (Object.hasOwnProperty.call(input, '__ownerID') ||
-        ((input as any)._map &&
-          Object.hasOwnProperty.call((input as any)._map, '__ownerID')))
+      Object.hasOwnProperty.call(input, '__ownerID')
     ) {
       throw new Error(
         `Immutable input is not supported by the default denormalize.

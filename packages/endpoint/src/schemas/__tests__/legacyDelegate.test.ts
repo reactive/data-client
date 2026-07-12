@@ -103,13 +103,6 @@ describe('cross-version delegate compatibility (old normalizr shapes)', () => {
     expect(() =>
       object.denormalize(new UserRecord({ user: '1' }) as any, delegate),
     ).toThrow(/Immutable input is not supported by the default denormalize/);
-
-    // legacy immutable v3 Records store values on `_map` and lack an own
-    // `__ownerID` (shape verified against immutable@3.8)
-    const v3RecordShape = { _map: { __ownerID: undefined }, user: '1' };
-    expect(() => object.denormalize(v3RecordShape as any, delegate)).toThrow(
-      /Immutable input is not supported by the default denormalize/,
-    );
   });
 
   test('falsy input with legacy delegate is not misdetected as immutable', () => {

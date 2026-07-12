@@ -13,9 +13,8 @@ import type { IDenormalizeDelegate } from '../interface.js';
  * to the immutable library.
  *
  * Duck-typed against ImmutableJS internals so 'immutable' stays out of
- * our dependencies: v4–v5 Maps and Records carry an own `__ownerID`;
- * the `_map.__ownerID` fallback covers legacy v3 Records (which store
- * their values on an internal Map instead).
+ * our dependencies: v4–v5 collections and Records all carry an own
+ * `__ownerID`. (immutable v3 is not supported.)
  *
  * @param  {any} object
  * @return {bool}
@@ -26,10 +25,8 @@ export function isImmutable(object: {}): object is {
 } {
   return !!(
     typeof object.hasOwnProperty === 'function' &&
-    (Object.hasOwnProperty.call(object, '__ownerID') || // Immutable.Map
-      ((object as any)._map &&
-        Object.hasOwnProperty.call((object as any)._map, '__ownerID')))
-  ); // Immutable.Record
+    Object.hasOwnProperty.call(object, '__ownerID')
+  );
 }
 
 /**

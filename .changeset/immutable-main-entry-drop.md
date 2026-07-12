@@ -16,6 +16,9 @@ hot path and all ImmutableJS support code from the main bundles. In
 development, passing immutable input to the default denormalize now throws a
 descriptive error instead of silently producing corrupt output.
 
+ImmutableJS v4 or later is required: detection of legacy v3 Records (which
+kept their values on an internal `_map`) has been removed.
+
 Immutable *state tables* already required `@data-client/normalizr/imm` since
 v0.15 — that usage is unchanged and continues to support immutable results:
 

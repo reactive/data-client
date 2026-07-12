@@ -286,6 +286,8 @@ ImmutableJS input — all ImmutableJS handling lives behind `/imm` so
 applications that don't use it pay no bundle or runtime cost. In development,
 passing immutable input to the default denormalize throws a descriptive error.
 
+[immutable](https://www.npmjs.com/package/immutable) v4 and v5 are supported.
+
 ## Schemas
 
 Available from [@data-client/endpoint](https://www.npmjs.com/package/@data-client/endpoint)

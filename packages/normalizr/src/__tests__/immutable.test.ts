@@ -39,17 +39,12 @@ describe('isImmutable', () => {
     expect(isImmutable(new R())).toBe(true);
   });
 
-  it('detects legacy v3 Records via _map internals', () => {
-    // immutable v3 Records store values on an internal `_map` and have no
-    // own `__ownerID` (verified against immutable@3.8); v4+ Records have
-    // their own `__ownerID` and are covered by the test above
-    expect(isImmutable({ _map: { __ownerID: undefined } })).toBe(true);
-  });
-
-  it('rejects plain objects, even with a _map property', () => {
+  it('rejects plain objects, including unsupported v3 Record shapes', () => {
     expect(isImmutable({})).toBe(false);
-    expect(isImmutable({ _map: {} })).toBe(false);
     expect(isImmutable(Object.create(null))).toBe(false);
+    // immutable v3 Records (values on internal `_map`, no own `__ownerID`)
+    // are no longer supported — plain-object handling applies
+    expect(isImmutable({ _map: { __ownerID: undefined } })).toBe(false);
   });
 });
 
@@ -134,7 +129,6 @@ describe('immutableJS', () => {
   });
 
   test('denormalizes Record result objects, preserving the Record wrapper', () => {
-    // Records hit the `_map`-based detection branch (no own `__ownerID`)
     const ResultRecord = Record<{ data: string | null }>({ data: null });
     const entities = Map({
       Tacos: Map({ 1: { id: '1', type: 'foo' } }),

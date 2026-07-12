@@ -456,13 +456,6 @@ describe.each([
     expect(() =>
       denormalize({ data: Tacos }, new DataRecord({ data: '1' }), {}),
     ).toThrow(/Immutable input is not supported by the default denormalize/);
-
-    // legacy immutable v3 Records store values on `_map` and lack an own
-    // `__ownerID` (shape verified against immutable@3.8)
-    const v3RecordShape = { _map: { __ownerID: undefined }, data: '1' };
-    expect(() => denormalize({ data: Tacos }, v3RecordShape, {})).toThrow(
-      /Immutable input is not supported by the default denormalize/,
-    );
   });
 
   test('tolerates falsy inputs against object schemas', () => {
