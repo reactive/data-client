@@ -10,6 +10,10 @@ function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+function PlaygroundCode({ children }: PlaygroundCodeProps) {
+  return <code>{children}</code>;
+}
+
 const DemoPlayground = memo(
   forwardRef((props, ref: React.RefObject<HTMLDivElement>) => {
     const { selectedValue, values } = useContext(CodeTabContext);
@@ -33,20 +37,17 @@ const DemoPlayground = memo(
               getInitialInterceptorData={getInitialInterceptorData}
               headerControls={<PlaygroundHeaderControls />}
             >
-              {code.map(({ path, code: instanceCode, open }, i) =>
-                React.createElement(
-                  'code',
-                  {
-                    key: path,
-                    title: capitalizeFirstLetter(path),
-                    path: `${value}/${path}.tsx`,
-                    collapsed: !open,
-                    autoFocus:
-                      autoFocus && Object.values(code).length === i + 1,
-                  } as React.HTMLAttributes<HTMLElement>,
-                  instanceCode,
-                ),
-              )}
+              {code.map(({ path, code: instanceCode, open }, i) => (
+                <PlaygroundCode
+                  key={path}
+                  title={capitalizeFirstLetter(path)}
+                  path={`${value}/${path}.tsx`}
+                  collapsed={!open}
+                  autoFocus={autoFocus && Object.values(code).length === i + 1}
+                >
+                  {instanceCode}
+                </PlaygroundCode>
+              ))}
             </HooksPlayground>
           ),
         )}
@@ -54,6 +55,14 @@ const DemoPlayground = memo(
     );
   }),
 );
+
+interface PlaygroundCodeProps {
+  children: string;
+  title: string;
+  path: string;
+  collapsed: boolean;
+  autoFocus?: boolean;
+}
 
 interface Props<T extends string> {
   codes: {
