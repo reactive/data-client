@@ -98,23 +98,27 @@ describe('cross-version delegate compatibility (old normalizr shapes)', () => {
       object.denormalize(fromJS({ user: '1' }) as any, delegate),
     ).toThrow(/Immutable input is not supported by the default denormalize/);
 
-    // Records are also detected (v5: own `__ownerID`)
+    // Records are also detected (own `__ownerID` in v4–v5)
     const UserRecord = Record({ user: '' });
     expect(() =>
       object.denormalize(new UserRecord({ user: '1' }) as any, delegate),
     ).toThrow(/Immutable input is not supported by the default denormalize/);
 
-    // immutable v4 Records have no own `__ownerID` — only `_map.__ownerID`
-    const v4RecordShape = { _map: { __ownerID: undefined }, user: '1' };
-    expect(() => object.denormalize(v4RecordShape as any, delegate)).toThrow(
+    // legacy immutable v3 Records store values on `_map` and lack an own
+    // `__ownerID` (shape verified against immutable@3.8)
+    const v3RecordShape = { _map: { __ownerID: undefined }, user: '1' };
+    expect(() => object.denormalize(v3RecordShape as any, delegate)).toThrow(
       /Immutable input is not supported by the default denormalize/,
     );
   });
 
-  test('falsy input with legacy delegate skips detection and spreads', () => {
+  test('falsy input with legacy delegate is not misdetected as immutable', () => {
     const object = new schema.Object({ user: User });
     const delegate = makeLegacyDelegate((s, input) => input);
 
+    // spreading falsy primitives into an empty result is long-standing
+    // behavior, unchanged by the immutable-input rejection
+    expect(() => object.denormalize(0 as any, delegate)).not.toThrow();
     expect(object.denormalize(0 as any, delegate)).toEqual({});
   });
 

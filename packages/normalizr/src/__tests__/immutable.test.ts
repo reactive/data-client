@@ -33,14 +33,16 @@ class IDEntity extends Entity {
 }
 
 describe('isImmutable', () => {
-  it('detects Maps and v5 Records (own __ownerID)', () => {
+  it('detects Maps and Records (own __ownerID in v4–v5)', () => {
     expect(isImmutable(Map({ a: 1 }))).toBe(true);
     const R = Record({ a: 1 });
     expect(isImmutable(new R())).toBe(true);
   });
 
-  it('detects v4 Records via _map internals', () => {
-    // immutable v4 Records have no own `__ownerID` — only `_map.__ownerID`
+  it('detects legacy v3 Records via _map internals', () => {
+    // immutable v3 Records store values on an internal `_map` and have no
+    // own `__ownerID` (verified against immutable@3.8); v4+ Records have
+    // their own `__ownerID` and are covered by the test above
     expect(isImmutable({ _map: { __ownerID: undefined } })).toBe(true);
   });
 
@@ -144,6 +146,8 @@ describe('immutableJS', () => {
       entities,
     );
 
+    // container type is preserved; members resolve to plain entity instances
+    expect(result).toBeInstanceOf(ResultRecord);
     expect(result.get('data')).toBeInstanceOf(Tacos);
     expect(result.get('data').type).toBe('foo');
   });

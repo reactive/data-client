@@ -12,9 +12,10 @@ import type { IDenormalizeDelegate } from '../interface.js';
  * Check if an object is immutable by checking if it has a key specific
  * to the immutable library.
  *
- * Duck-typed against ImmutableJS internals (`__ownerID` for Map,
- * `_map.__ownerID` for Record) — stable across immutable v4–v5 — so
- * 'immutable' stays out of our dependencies.
+ * Duck-typed against ImmutableJS internals so 'immutable' stays out of
+ * our dependencies: v4–v5 Maps and Records carry an own `__ownerID`;
+ * the `_map.__ownerID` fallback covers legacy v3 Records (which store
+ * their values on an internal Map instead).
  *
  * @param  {any} object
  * @return {bool}

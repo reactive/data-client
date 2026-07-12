@@ -451,20 +451,25 @@ describe.each([
       denormalize({ data: Tacos }, fromJS({ data: '1' }), {}),
     ).toThrow(/Immutable input is not supported by the default denormalize/);
 
-    // Records are also detected (v5: own `__ownerID`)
+    // Records are also detected (own `__ownerID` in v4–v5)
     const DataRecord = Record({ data: '' });
     expect(() =>
       denormalize({ data: Tacos }, new DataRecord({ data: '1' }), {}),
     ).toThrow(/Immutable input is not supported by the default denormalize/);
 
-    // immutable v4 Records have no own `__ownerID` — only `_map.__ownerID`
-    const v4RecordShape = { _map: { __ownerID: undefined }, data: '1' };
-    expect(() => denormalize({ data: Tacos }, v4RecordShape, {})).toThrow(
+    // legacy immutable v3 Records store values on `_map` and lack an own
+    // `__ownerID` (shape verified against immutable@3.8)
+    const v3RecordShape = { _map: { __ownerID: undefined }, data: '1' };
+    expect(() => denormalize({ data: Tacos }, v3RecordShape, {})).toThrow(
       /Immutable input is not supported by the default denormalize/,
     );
   });
 
-  test('denormalizes falsy inputs against object schemas', () => {
+  test('tolerates falsy inputs against object schemas', () => {
+    // falsy non-null inputs must not be misdetected as immutable (throw);
+    // spreading them into an empty result is long-standing behavior,
+    // unchanged by the immutable-input rejection
+    expect(() => denormalize({ data: Tacos }, 0, {})).not.toThrow();
     expect(denormalize({ data: Tacos }, 0, {})).toEqual({});
     expect(denormalize({ data: Tacos }, '', {})).toEqual({});
   });
@@ -473,25 +478,6 @@ describe.each([
     // malformed store data (primitive where an entity object belongs)
     const entities = { Tacos: { 1: 42 } };
     expect(denormalize(Tacos, '1', entities)).toBe(42);
-  });
-
-  test('custom MemoCache policies without valuePolicy default to plain', () => {
-    // external IMemoPolicy implementations may predate valuePolicy
-    const legacyPolicy = {
-      QueryDelegate: MemoPolicy.QueryDelegate,
-      getEntities: MemoPolicy.getEntities,
-    };
-    const memo = new MemoCached(legacyPolicy);
-    const entities = {
-      Tacos: { 1: { id: '1', type: 'foo' } },
-    };
-    const { data } = memo.denormalize(
-      { data: Tacos },
-      { data: '1' },
-      entities,
-      [],
-    );
-    expect(data.data.type).toBe('foo');
   });
 
   test('denormalizes null-prototype object inputs', () => {
@@ -808,5 +794,28 @@ describe.each([
         {},
       ),
     ).toMatchSnapshot();
+  });
+});
+
+describe('MemoCache policy compatibility', () => {
+  test('policies without valuePolicy default to plain-object handling', () => {
+    // external IMemoPolicy implementations written before valuePolicy
+    // existed must keep working (valuePolicy is optional on the interface)
+    const preValuePolicyPolicy = {
+      QueryDelegate: MemoPolicy.QueryDelegate,
+      getEntities: MemoPolicy.getEntities,
+    };
+    const memo = new MemoCached(preValuePolicyPolicy);
+    const entities = {
+      Tacos: { 1: { id: '1', type: 'foo' } },
+    };
+    const { data } = memo.denormalize(
+      { data: Tacos },
+      { data: '1' },
+      entities,
+      [],
+    );
+    expect(data.data).toBeInstanceOf(Tacos);
+    expect(data.data.type).toBe('foo');
   });
 });
