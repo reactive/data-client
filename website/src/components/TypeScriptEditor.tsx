@@ -1,32 +1,34 @@
 import clsx from 'clsx';
-import { LiveProvider } from 'react-live';
+import React from 'react';
 
-import MonacoPreloads from './Playground/MonacoPreloads';
-import { PlaygroundTextEdit } from './Playground/PlaygroundTextEdit';
+import { useCodeDocuments } from './Playground/editor/codeModel';
+import EditorShell from './Playground/editor/EditorShell';
+import EditorSurface from './Playground/editor/EditorSurface';
 import styles from './Playground/styles.module.css';
-import { useCode } from './Playground/useCode';
-import { useReactLiveTheme } from './Playground/useReactLiveTheme';
 
-export default function TypeScriptEditor({ children, row }) {
-  const { handleCodeChange, codes, codeTabs } = useCode(children);
-  const realTheme = useReactLiveTheme();
+export default function TypeScriptEditor({
+  children,
+  row,
+}: {
+  children: string | React.ReactNode | React.ReactNode[];
+  row?: boolean;
+}) {
+  const model = useCodeDocuments(children);
+  const isRow = row ?? model.documents.length > 1;
+
   return (
-    <LiveProvider theme={realTheme} enableTypeScript={true}>
+    <EditorShell>
       <div className={styles.playgroundQueryContainer}>
         <div
           className={clsx(styles.playgroundContainer, styles.standaloneEditor)}
         >
-          <PlaygroundTextEdit
-            fixtures={[]}
-            row={row ?? codeTabs.length > 1}
-            codeTabs={codeTabs}
-            handleCodeChange={handleCodeChange}
-            codes={codes}
-            isPlayground={false}
+          <EditorSurface
+            {...model}
+            layout={isRow ? 'row' : 'stacked'}
+            variant="standalone"
           />
         </div>
       </div>
-      <MonacoPreloads />
-    </LiveProvider>
+    </EditorShell>
   );
 }

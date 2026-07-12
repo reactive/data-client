@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { type editor } from 'monaco-editor';
 import { useMemo } from 'react';
 
+import type { CodeDocument } from './Playground/editor/codeModel';
 import { extensionToMonacoLanguage } from './Playground/extensionToMonacoLanguage';
 import './Playground/monaco-init';
 import { isMobileOrBot } from './Playground/isMobileOrBot';
@@ -12,17 +13,10 @@ import MonacoPreloads from './Playground/MonacoPreloads';
 import styles from './Playground/styles.module.css';
 import useAutoHeight from './Playground/useAutoHeight';
 
-export default function DiffEditor({
-  codes,
-  codeTabs,
-  fallback,
-}: DiffMonacoProps) {
+export default function DiffEditor({ documents, fallback }: DiffMonacoProps) {
   const [original, modified] = useMemo(
-    () => [
-      codes[0].replaceAll(/^\s*\/\/ highlight-(next-line|start|end)\n/gm, ''),
-      codes[1].replaceAll(/^\s*\/\/ highlight-(next-line|start|end)\n/gm, ''),
-    ],
-    [codes],
+    () => documents.map(({ value }) => value.replaceAll(HIGHLIGHT_COMMENT, '')),
+    [documents],
   );
 
   const { height, handleMount } = useAutoHeight({
@@ -50,7 +44,9 @@ export default function DiffEditor({
                 <div className={styles.playgroundTextEdit}>
                   <div className={styles.playgroundEditor}>
                     <BaseDiffEditor
-                      language={extensionToMonacoLanguage(codeTabs[0].language)}
+                      language={extensionToMonacoLanguage(
+                        documents[0].language,
+                      )}
                       original={original}
                       modified={modified}
                       options={DIFF_OPTIONS}
@@ -77,15 +73,10 @@ export default function DiffEditor({
 
 export type DiffMonacoProps = {
   fallback: React.ReactNode;
-  codes: string[];
-  codeTabs: {
-    [k: string]: any;
-    code: string;
-    path?: string | undefined;
-    title?: string | undefined;
-    collapsed: boolean;
-  }[];
+  documents: readonly CodeDocument[];
 };
+
+const HIGHLIGHT_COMMENT = /^\s*\/\/ highlight-(next-line|start|end)\n/gm;
 
 const DIFF_OPTIONS: editor.IDiffEditorConstructionOptions = {
   ...options,
