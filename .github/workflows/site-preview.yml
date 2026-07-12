@@ -16,6 +16,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'yarn'
+      - name: Install packages
+        run: ./scripts/ci-install.sh website
+      - name: Build package types
+        run: yarn ci:build:types
+      - name: Typecheck website
+        run: yarn workspace rdc-website typecheck
+
   deploy:
     runs-on: ubuntu-latest
     steps:

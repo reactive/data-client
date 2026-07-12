@@ -1,4 +1,5 @@
 import { loader } from '@monaco-editor/react';
+import type * as Monaco from 'monaco-editor';
 
 import { MOBILE_OR_BOT_UA_REGEX } from './isMobileOrBot';
 import { MONACO_CDN_VS } from './MonacoPreloads';
@@ -81,13 +82,20 @@ if (
     });
     // go to definition
     monaco.editor.registerEditorOpener({
-      openCodeEditor(sourceEditor, resource, selectionOrPosition) {
+      openCodeEditor(
+        _sourceEditor: Monaco.editor.ICodeEditor,
+        resource: Monaco.Uri,
+        selectionOrPosition?: Monaco.IRange | Monaco.IPosition,
+      ) {
         if (resource.path.startsWith('/')) {
           // alternatively set model directly in the editor if you have your own tab/navigation implementation\
           const model = monaco.editor.getModel(resource);
           const destinationEditor = monaco.editor
             .getEditors()
-            .find(editor => editor.getModel() === model);
+            .find(
+              (editor: Monaco.editor.ICodeEditor) =>
+                editor.getModel() === model,
+            );
           if (!destinationEditor) return false;
           // focus event is handled by editor to show that tab
           destinationEditor.focus();
@@ -118,7 +126,10 @@ if (
       // These characters should trigger our `provideCompletionItems` function
       triggerCharacters: ["'", '"', '.', '/'],
       // Function which returns a list of autocompletion ietems. If we return an empty array, there won't be any autocompletion.
-      provideCompletionItems: (model, position) => {
+      provideCompletionItems: (
+        model: Monaco.editor.ITextModel,
+        position: Monaco.Position,
+      ) => {
         // Get all the text content before the cursor
         const textUntilPosition = model.getValueInRange({
           startLineNumber: 1,
@@ -147,8 +158,10 @@ if (
           ) {
             const completions = monaco.editor
               .getModels()
-              .map(model => model.uri.path)
-              .map(path => {
+              .map(
+                (editorModel: Monaco.editor.ITextModel) => editorModel.uri.path,
+              )
+              .map((path: string) => {
                 const candidateId = /\/\d+\//g.exec(path)?.[0] ?? '';
                 const file = path.substring(candidateId.length - 1);
                 return {
@@ -160,7 +173,7 @@ if (
                   range,
                 };
               });
-            if (!completions.length) return;
+            if (!completions.length) return { suggestions: [] };
             return { suggestions: completions };
           } else {
             // User is trying to import a dependency
@@ -175,6 +188,7 @@ if (
             };
           }
         }
+        return { suggestions: [] };
       },
     });
   });

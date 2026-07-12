@@ -5,7 +5,7 @@ import Header from '../Playground/Header';
 
 export default function Request({ input, init }: Props) {
   let text = `${init.method} ${input}`;
-  Object.entries(init.headers).forEach(([key, value]) => {
+  new Headers(init.headers).forEach((value, key) => {
     text += `\n${key}: ${value}`;
   });
   if (init.body) {

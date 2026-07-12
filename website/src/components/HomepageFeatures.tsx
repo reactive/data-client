@@ -82,20 +82,21 @@ const featureList: FeatureItem[] = [
   },
 ];
 
+function isSvgFeature(feature: FeatureItem): feature is SvgFeature {
+  return 'Svg' in feature && feature.Svg != null;
+}
+
 function Feature(feature: FeatureItem) {
   const { title, description } = feature;
   return (
     <div className={clsx('col col--3')}>
       <div className="text--center">
-        {'Svg' in feature ?
-          <feature.Svg className={styles.featureSvg} alt={title} />
-        : <ThemedImage
-            className={styles.featureSvg}
-            alt={title}
-            sources={{
-              light: useBaseUrl(feature.light),
-              dark: useBaseUrl(feature.dark),
-            }}
+        {isSvgFeature(feature) ?
+          <SvgFeatureIcon Svg={feature.Svg} title={title} />
+        : <ThemedFeatureIcon
+            light={feature.light}
+            dark={feature.dark}
+            title={title}
           />
         }
       </div>
@@ -104,6 +105,31 @@ function Feature(feature: FeatureItem) {
         <p>{description}</p>
       </div>
     </div>
+  );
+}
+
+function SvgFeatureIcon({ Svg, title }: { Svg: SvgComponent; title: string }) {
+  return <Svg className={styles.featureSvg} aria-label={title} />;
+}
+
+function ThemedFeatureIcon({
+  light,
+  dark,
+  title,
+}: {
+  light: string;
+  dark: string;
+  title: string;
+}) {
+  return (
+    <ThemedImage
+      className={styles.featureSvg}
+      alt={title}
+      sources={{
+        light: useBaseUrl(light),
+        dark: useBaseUrl(dark),
+      }}
+    />
   );
 }
 

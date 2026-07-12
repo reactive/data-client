@@ -1,4 +1,5 @@
 import { Entity, Collection, resource } from '@data-client/rest';
+import type { Interceptor } from '@data-client/test';
 import { v4 as uuid } from 'uuid';
 
 export class Todo extends Entity {
@@ -46,22 +47,22 @@ export const UserResource = resource({
   optimistic: true,
 });
 
-export const todoFixtures = [
+export const todoFixtures: Interceptor[] = [
   {
     endpoint: UserResource.getList,
-    async response(...args: any) {
+    async response(...args: Parameters<typeof UserResource.getList>) {
       return (await UserResource.getList(...args)).slice(0, 3);
     },
   },
   {
     endpoint: TodoResource.getList,
-    async response(...args: any) {
+    async response(...args: Parameters<typeof TodoResource.getList>) {
       return (await TodoResource.getList(...args)).slice(0, 7);
     },
   },
   {
     endpoint: TodoResource.partialUpdate,
-    async response(...args: any) {
+    async response(...args: Parameters<typeof TodoResource.partialUpdate>) {
       return {
         ...(await TodoResource.partialUpdate(...args)),
         id: args?.[0]?.id,
@@ -70,7 +71,7 @@ export const todoFixtures = [
   },
   {
     endpoint: TodoResource.getList.push,
-    async response(...args: any) {
+    async response(...args: Parameters<typeof TodoResource.getList.push>) {
       //await new Promise(resolve => setTimeout(resolve, 500));
       return {
         ...(await TodoResource.getList.push(...args)),

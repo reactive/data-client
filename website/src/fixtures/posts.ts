@@ -1,5 +1,26 @@
 import { Entity, resource } from '@data-client/rest';
+import type { Interceptor } from '@data-client/test';
 import { v4 as uuid } from 'uuid';
+
+type EntityPost = {
+  id: string;
+  title: string;
+  body: string;
+  votes: number;
+  author: number;
+};
+
+type PostInterceptorState = {
+  entities: Record<string | number, Record<string, unknown>>;
+  votes?: Record<string | number, number>;
+};
+
+type PostListParams = NonNullable<
+  Parameters<typeof PostResource.getList>[0]
+> & {
+  page?: number;
+  cursor?: number;
+};
 
 export class User extends Entity {
   id = 0;
@@ -58,7 +79,7 @@ export const PostResource = resource({
   },
 });
 
-const entities = {
+const entities: Record<string, EntityPost> = {
   '1': {
     id: '1',
     title: 'Why wait on data we already have?',
@@ -103,30 +124,34 @@ const entities = {
   },
 };
 
-export const getInitialInterceptorData = () => ({ entities: {} });
+export const getInitialInterceptorData = (): PostInterceptorState => ({
+  entities: {},
+});
 
-export const postFixtures = [
+export const postFixtures: Interceptor<PostInterceptorState>[] = [
   {
     endpoint: PostResource.get,
-    async response({ id }) {
-      const author = await UserResource.get({ id: entities[id].author });
+    async response({ id }: Parameters<typeof PostResource.get>[0]) {
+      const entity = entities[String(id)];
+      const author = await UserResource.get({ id: entity.author });
       return {
+        ...entity,
         id,
         votes: 0,
-        ...entities[id],
         author,
       };
     },
   },
   {
     endpoint: PostResource.getList,
-    async response(...args) {
-      const page = args?.[0]?.page ?? 1;
-      const userId = args?.[0]?.userId;
+    async response(...args: Parameters<typeof PostResource.getList>) {
+      const params = args[0] as PostListParams | undefined;
+      const page = params?.page ?? 1;
+      const userId = params?.userId;
       let posts = Object.values(entities);
       if (userId) {
         posts = Object.values(entities).filter(
-          post => post.author === args[0].userId,
+          post => post.author === params?.userId,
         );
       }
       const PAGE_SIZE = 3;
@@ -159,25 +184,34 @@ export const postFixtures = [
   },
   {
     endpoint: PostResource.vote,
-    response({ id }) {
+    response({ id }: Parameters<typeof PostResource.vote>[0]) {
+      const entity = entities[String(id)];
+      if (!this.votes) this.votes = {};
+      const votes = (this.votes[id] = (this.votes[id] ?? entity.votes) + 1);
       return {
         id,
-        votes: (this.votes[id] = (this.votes[id] ?? entities[id].votes) + 1),
+        votes,
       };
     },
     delay: () => 500 + Math.random() * 4500,
   },
   {
     endpoint: PostResource.update,
-    response({ id }, body) {
+    response(
+      { id }: Parameters<typeof PostResource.update>[0],
+      body: Parameters<typeof PostResource.update>[1],
+    ) {
+      const entity = entities[String(id)];
       this.entities[id] = {
+        ...entity,
+        ...(body instanceof FormData ? {} : body),
         id,
         votes: 0,
-        ...entities[id],
-        ...body,
       };
-      for (const [key, value] of body.entries()) {
-        this.entities[id][key] = value;
+      if (body instanceof FormData) {
+        for (const [key, value] of body.entries()) {
+          this.entities[id][key] = value;
+        }
       }
       return this.entities[id];
     },
@@ -185,10 +219,12 @@ export const postFixtures = [
   },
   {
     endpoint: PostResource.getList.push,
-    response(body) {
+    response(body: Parameters<typeof PostResource.getList.push>[0]) {
       const id = randomId();
       this.entities[id] = { id, author: 1 };
-      for (const [key, value] of body.entries()) {
+      const entries =
+        body instanceof FormData ? body.entries() : Object.entries(body);
+      for (const [key, value] of entries) {
         this.entities[id][key] = value;
       }
       return this.entities[id];
@@ -197,16 +233,17 @@ export const postFixtures = [
   },
 ];
 
-export const postPaginatedFixtures = [
+export const postPaginatedFixtures: Interceptor<PostInterceptorState>[] = [
   {
     endpoint: PostResource.getList,
-    async response(...args) {
-      const cursor = args?.[0]?.cursor ?? 1;
-      const userId = args?.[0]?.userId;
+    async response(...args: Parameters<typeof PostResource.getList>) {
+      const params = args[0] as PostListParams | undefined;
+      const cursor = params?.cursor ?? 1;
+      const userId = params?.userId;
       let posts = Object.values(entities);
       if (userId) {
         posts = Object.values(entities).filter(
-          post => post.author === args[0].userId,
+          post => post.author === params?.userId,
         );
       }
       const PAGE_SIZE = 3;
@@ -234,8 +271,9 @@ export const postPaginatedFixtures = [
         cursor: cursor + 1,
       };
     },
-    delay: (...args) => {
-      return args?.[0]?.cursor ? 200 : 0;
+    delay: (...args: Parameters<typeof PostResource.getList>) => {
+      const params = args[0] as PostListParams | undefined;
+      return params?.cursor ? 200 : 0;
     },
   },
 ];

@@ -7,7 +7,7 @@ import React from 'react';
 
 type Props = WrapperProps<typeof MDXPageType>;
 
-export default function MDXPageWrapper(props: Props): JSX.Element {
+export default function MDXPageWrapper(props: Props): React.ReactElement {
   const { assets, frontMatter } = useDoc();
   const image = assets.image ?? frontMatter.image;
   return (

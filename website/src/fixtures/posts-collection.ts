@@ -1,5 +1,18 @@
 import { Entity, RestEndpoint, Collection } from '@data-client/rest';
+import type { Interceptor } from '@data-client/test';
 import { v4 as uuid } from 'uuid';
+
+type EntityPost = {
+  id: string;
+  title: string;
+  body: string;
+  author: string;
+  group: string;
+};
+
+type PostCollectionInterceptorState = {
+  entities: Record<string | number, Record<string, unknown>>;
+};
 
 class Post extends Entity {
   id = '';
@@ -15,7 +28,7 @@ export const getPosts = new RestEndpoint({
   }),
 });
 
-const entities = {
+const entities: Record<string, EntityPost> = {
   '1': {
     id: '1',
     title: 'Why wait on data we already have?',
@@ -39,14 +52,17 @@ const entities = {
   },
 };
 
-export const getInitialInterceptorData = () => ({ entities: {} });
+export const getInitialInterceptorData =
+  (): PostCollectionInterceptorState => ({
+    entities: {},
+  });
 
 const delay = 150;
 
-export const postFixtures = [
+export const postFixtures: Interceptor<PostCollectionInterceptorState>[] = [
   {
     endpoint: getPosts,
-    response(...args) {
+    response(...args: Parameters<typeof getPosts>) {
       if (args[0]?.author) {
         return Object.values(entities).filter(
           post => post.author === args[0].author,
@@ -58,7 +74,10 @@ export const postFixtures = [
   },
   {
     endpoint: getPosts.push,
-    response({ group }, body) {
+    response(
+      { group }: Parameters<typeof getPosts.push>[0],
+      body: Parameters<typeof getPosts.push>[1],
+    ) {
       const id = randomId();
       this.entities[id] = { id, group };
       const entries =

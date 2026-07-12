@@ -16,7 +16,7 @@ Monorepo for `@data-client` high performance npm packages.
 - `yarn build` - Build all packages
 - `yarn test` - Run tests (Jest projects: ReactDOM, Node, ReactNative)
 - `yarn lint` / `yarn format` - Linting and formatting
-- Website dev: `cd website && yarn start:vscode`
+- Website: `yarn workspace rdc-website typecheck` / `yarn lint --quiet 'website/src/**/*.{ts,tsx}'` / `yarn workspace rdc-website build`; dev: `cd website && yarn start:vscode`
 
 **Test naming**: `*.node.test.ts[x]` (Node), `*.native.test.ts[x]` (RN), `*.test.ts[x]` (regular)
 

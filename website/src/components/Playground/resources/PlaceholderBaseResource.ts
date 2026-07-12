@@ -16,13 +16,16 @@ export function createPlaceholderResource<U extends string, S extends Schema>({
 }) {
   const base = resource({ path, schema, Endpoint });
   const partialUpdate = base.partialUpdate.extend({
-    fetch: async function (...args: any) {
+    fetch: async function (
+      this: ThisParameterType<typeof base.partialUpdate>,
+      ...args: Parameters<typeof base.partialUpdate>
+    ) {
       // body only contains what we're changing, but we can find the id in params
       return {
         ...(await base.partialUpdate.call(this, ...args)),
-        id: args[0].id,
+        id: (args[0] as unknown as { id: string | number }).id,
       };
-    },
+    } as typeof base.partialUpdate,
   });
   return {
     ...base,
@@ -33,13 +36,16 @@ export function createPlaceholderResource<U extends string, S extends Schema>({
     // More here: https://dataclient.io/docs/guides/network-transform#case-of-the-missing-id
     partialUpdate,
     create: base.create.extend({
-      fetch: async function (...args: any) {
+      fetch: async function (
+        this: ThisParameterType<typeof base.create>,
+        ...args: Parameters<typeof base.create>
+      ) {
         // body only contains what we're changing, but we can find the id in params
         return {
           ...(await base.create.call(this, ...args)),
-          id: args[args.length - 1].id,
+          id: (args[args.length - 1] as unknown as { id: string | number }).id,
         };
-      },
+      } as typeof base.create,
     }),
-  } as typeof base;
+  } as unknown as typeof base;
 }

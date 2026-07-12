@@ -1,4 +1,15 @@
 import { Entity, resource } from '@data-client/rest';
+import type { Interceptor } from '@data-client/test';
+
+type TaskData = {
+  id: string;
+  title: string;
+  status: string;
+};
+
+type KanbanInterceptorState = {
+  tasks: Record<string, TaskData>;
+};
 
 export class Task extends Entity {
   id = '';
@@ -24,14 +35,17 @@ const initialTasks = {
   '4': { id: '4', title: 'Review PR', status: 'in-progress' },
 };
 
-export const getInitialInterceptorData = () => ({
+export const getInitialInterceptorData = (): KanbanInterceptorState => ({
   tasks: JSON.parse(JSON.stringify(initialTasks)),
 });
 
-export const kanbanFixtures = [
+export const kanbanFixtures: Interceptor<KanbanInterceptorState>[] = [
   {
     endpoint: TaskResource.getList.move,
-    response({ id }: { id: string }, body: any) {
+    response(
+      { id }: Parameters<typeof TaskResource.getList.move>[0],
+      body: Parameters<typeof TaskResource.getList.move>[1],
+    ) {
       if (this.tasks[id]) {
         this.tasks[id] = { ...this.tasks[id], ...body };
       }
@@ -41,8 +55,8 @@ export const kanbanFixtures = [
   },
   {
     endpoint: TaskResource.getList,
-    response({ status }: { status: string }) {
-      return Object.values(this.tasks).filter((t: any) => t.status === status);
+    response({ status }: Parameters<typeof TaskResource.getList>[0]) {
+      return Object.values(this.tasks).filter(t => t.status === status);
     },
     delay: 150,
   },

@@ -24,8 +24,8 @@ const AutoPlayVideo = ({
       threshold: 0.25, // Play when 25% of the video is visible
     };
 
-    const handleIntersect = entries => {
-      entries.forEach(entry => {
+    const handleIntersect = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry: IntersectionObserverEntry) => {
         if (entry.isIntersecting) {
           videoElement.play();
         } else {

@@ -1,12 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-export function useHasIntersected<T>(options: Props = {}) {
+export function useHasIntersected<T extends Element>(options: Props = {}) {
   const { threshold = 0.1, root = null, rootMargin = '0%' } = options;
   const ref = useRef<T>(null);
   const [hasIntersected, setHasIntersected] = useState(false);
 
   useEffect(() => {
-    const node = ref?.current;
+    const node = ref.current;
 
     if (!node || typeof IntersectionObserver !== 'function') {
       return;
@@ -36,6 +36,6 @@ export function useHasIntersected<T>(options: Props = {}) {
 }
 export interface Props {
   threshold?: number;
-  root?: React.ReactElement;
+  root?: Element | Document | null;
   rootMargin?: string;
 }

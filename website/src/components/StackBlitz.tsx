@@ -1,4 +1,5 @@
 import Link from '@docusaurus/Link';
+import type { ReactElement } from 'react';
 
 import { isGoogleBot } from './Playground/isMobileOrBot';
 import { useHasIntersected } from './useHasIntersected';
@@ -15,6 +16,18 @@ export default function StackBlitz({
   file,
   ctl = '0',
   initialpath = '',
+}: {
+  app?: string;
+  repo?: string;
+  width?: string;
+  height?: string;
+  hidedevtools?: string;
+  view?: string;
+  terminalHeight?: string;
+  hideNavigation?: string;
+  file: string;
+  ctl?: string;
+  initialpath?: string;
 }) {
   const embed = '1';
   const params = new URLSearchParams({
@@ -35,21 +48,7 @@ export default function StackBlitz({
 
   const [frameRef, hasIntersected] = useHasIntersected<HTMLIFrameElement>();
 
-  /* This was causing CORS issues....we probably don't need anymore since we have the
-  intersection code anyway
-  useEffect(() => {
-    if (!hasIntersected) return;
-    const loadListener = () => {
-      frameRef.current?.contentWindow?.addEventListener('focus', event => {
-        // Stop the propagation of the focus event
-        event.stopPropagation();
-      });
-    };
-    frameRef.current?.addEventListener('load', loadListener);
-    return () => frameRef.current?.removeEventListener('load', loadListener);
-  }, [hasIntersected, frameRef]);*/
-
-  let embedElement: React.ReactElement;
+  let embedElement: ReactElement;
   if (!hasIntersected || isGoogleBot) {
     embedElement = (
       <iframe width={width} height={height} ref={frameRef}></iframe>

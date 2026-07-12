@@ -7,6 +7,7 @@
     "start:vscode": "run start --no-open",
     "start:prod": "serve build",
     "build": "docusaurus build",
+    "typecheck": "yarn node ../node_modules/typescript/lib/tsc.js --noEmit -p tsconfig.json",
     "publish-gh-pages": "docusaurus-publish",
     "write-translations": "docusaurus-write-translations",
     "version": "docusaurus docs:version",

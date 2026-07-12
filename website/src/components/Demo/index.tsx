@@ -33,7 +33,7 @@ export default function Demo() {
               </Link>{' '}
               including even the most challenging{' '}
               <Link to="/docs/getting-started/mutations#optimistic-updates">
-                <strike>race conditions</strike>
+                <s>race conditions</s>
               </Link>
               .
             </p>
