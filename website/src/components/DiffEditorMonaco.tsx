@@ -9,7 +9,6 @@ import { extensionToMonacoLanguage } from './Playground/extensionToMonacoLanguag
 import './Playground/monaco-init';
 import { isMobileOrBot } from './Playground/isMobileOrBot';
 import { options } from './Playground/monacoOptions';
-import MonacoPreloads from './Playground/MonacoPreloads';
 import styles from './Playground/styles.module.css';
 import useAutoHeight from './Playground/useAutoHeight';
 
@@ -26,48 +25,43 @@ export default function DiffEditor({ documents, fallback }: DiffMonacoProps) {
   });
 
   return (
-    <>
-      <BrowserOnly fallback={fallback}>
-        {() => {
-          // Skip Monaco for mobile/bots - use static fallback
-          if (isMobileOrBot()) {
-            return fallback;
-          }
-          return (
-            <div className={styles.playgroundQueryContainer}>
-              <div
-                className={clsx(
-                  styles.playgroundContainer,
-                  styles.standaloneEditor,
-                )}
-              >
-                <div className={styles.playgroundTextEdit}>
-                  <div className={styles.playgroundEditor}>
-                    <BaseDiffEditor
-                      language={extensionToMonacoLanguage(
-                        documents[0].language,
-                      )}
-                      original={original}
-                      modified={modified}
-                      options={DIFF_OPTIONS}
-                      onMount={handleMount}
-                      height={height}
-                      theme="prism"
-                      loading={fallback}
-                      // Prevent "TextModel got disposed before DiffEditorWidget model got reset" error
-                      // by not letting @monaco-editor/react manage model disposal
-                      keepCurrentOriginalModel
-                      keepCurrentModifiedModel
-                    />
-                  </div>
+    <BrowserOnly fallback={fallback}>
+      {() => {
+        // Skip Monaco for mobile/bots - use static fallback
+        if (isMobileOrBot()) {
+          return fallback;
+        }
+        return (
+          <div className={styles.playgroundQueryContainer}>
+            <div
+              className={clsx(
+                styles.playgroundContainer,
+                styles.standaloneEditor,
+              )}
+            >
+              <div className={styles.playgroundTextEdit}>
+                <div className={styles.playgroundEditor}>
+                  <BaseDiffEditor
+                    language={extensionToMonacoLanguage(documents[0].language)}
+                    original={original}
+                    modified={modified}
+                    options={DIFF_OPTIONS}
+                    onMount={handleMount}
+                    height={height}
+                    theme="prism"
+                    loading={fallback}
+                    // Prevent "TextModel got disposed before DiffEditorWidget model got reset" error
+                    // by not letting @monaco-editor/react manage model disposal
+                    keepCurrentOriginalModel
+                    keepCurrentModifiedModel
+                  />
                 </div>
               </div>
             </div>
-          );
-        }}
-      </BrowserOnly>
-      <MonacoPreloads />
-    </>
+          </div>
+        );
+      }}
+    </BrowserOnly>
   );
 }
 

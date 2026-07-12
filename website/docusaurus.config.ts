@@ -1,11 +1,16 @@
 import type * as Preset from '@docusaurus/preset-classic';
 import type * as PresetMermaid from '@docusaurus/theme-mermaid';
 import type { Config } from '@docusaurus/types';
+import { createRequire } from 'module';
 import path from 'path';
 import { themes } from 'prism-react-renderer';
 
 import gqlRedirects from './gqlRedirects';
 import versions from './versions.json';
+
+// Keep Monaco CDN preload hashes in sync with the installed monaco-editor package.
+const require = createRequire(path.join(__dirname, 'package.json'));
+require('./scripts/generateMonacoPreloads.cjs').ensureMonacoPreloadManifest();
 
 //const versionsRest = require('./rest_versions.json');
 
