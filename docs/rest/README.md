@@ -346,16 +346,14 @@ import SkillTabs from '@site/src/components/SkillTabs';
 
 Then call `/data-client-rest-setup` to migrate
 
-<p>
-<center>
+<div style={{ textAlign: 'center' }}>
 <Link className="button button--secondary button--sm" to="https://skills.sh/reactive/data-client/data-client-rest"><img src="/img/anthropic.svg" alt="REST Codegen Skill" style={{
           height: '1em',
           verticalAlign: '-0.125em',
           display: 'inline',
         }}
 /> REST Codegen Skill</Link>
-</center>
-</p>
+</div>
 
 ### Migrating from Axios
 

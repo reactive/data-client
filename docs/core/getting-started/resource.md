@@ -37,8 +37,7 @@ values={[
 
 <PkgInstall pkgs="@data-client/rest" />
 
-<p>
-<center>
+<div style={{ textAlign: 'center' }}>
 <Link className="button button--secondary button--sm" to="https://chatgpt.com/g/g-682609591fe48191a6850901521b4e4b-typescript-rest-codegen"><img src="/img/gpt.svg" alt="Codegen GPT" style={{
           height: '1em',
           verticalAlign: '-0.125em',
@@ -51,8 +50,7 @@ values={[
           display: 'inline',          // Inline with text
         }}
 /> Skills</Link>
-</center>
-</p>
+</div>
 
 
 
