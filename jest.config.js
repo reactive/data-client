@@ -1,6 +1,7 @@
 process.env.ANANSI_JEST_BABELCONFIG = 'babel.config.js';
 process.env.ANANSI_JEST_TSCONFIG = 'tsconfig.test.json';
 
+const fs = require('fs');
 const path = require('path');
 
 const baseConfig = {
@@ -56,14 +57,24 @@ const packages = [
   'test',
 ];
 
+// CircleCI persist_to_workspace omits most of website/; only include this root
+// when the tree is present (full checkout / when CI persists Playground).
+const playgroundRoot = path.join(
+  __dirname,
+  'website/src/components/Playground',
+);
+const reactDomRoots = [
+  ...packages.map(pkgName => `<rootDir>/packages/${pkgName}/src`),
+  ...(fs.existsSync(playgroundRoot) ?
+    ['<rootDir>/website/src/components/Playground']
+  : []),
+];
+
 const projects = [
   {
     ...baseConfig,
     rootDir: __dirname,
-    roots: [
-      ...packages.map(pkgName => `<rootDir>/packages/${pkgName}/src`),
-      '<rootDir>/website/src/components/Playground',
-    ],
+    roots: reactDomRoots,
     displayName: 'ReactDOM',
     setupFiles: ['<rootDir>/scripts/testSetup.js'],
     testEnvironment: 'jsdom',
