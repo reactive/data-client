@@ -26,12 +26,13 @@ export function denormalize(
   input: {},
   delegate: IDenormalizeDelegate,
 ): any {
-  // value-representation aware path (plain or ImmutableJS input, decided by
-  // the active policy). Capability check supports delegates from older
-  // @data-client/normalizr versions, which lack unvisitObject.
   if (delegate.unvisitObject) {
+    // value-representation aware path (plain or ImmutableJS input, decided
+    // by the active policy)
     return delegate.unvisitObject(schema, input);
   }
+  // Fallback plain (POJO) loop for delegates from older
+  // @data-client/normalizr versions, which lack unvisitObject.
 
   /* istanbul ignore else */
   if (process.env.NODE_ENV !== 'production') {
@@ -59,11 +60,13 @@ See https://github.com/reactive/data-client/blob/master/packages/normalizr/READM
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
     const item = delegate.unvisit(schema[key], object[key]);
+    if (typeof item === 'symbol') {
+      // propagate the exact symbol so identity checks (INVALID) work across
+      // package boundaries
+      return item;
+    }
     if (object[key] !== undefined) {
       object[key] = item;
-    }
-    if (typeof item === 'symbol') {
-      return item;
     }
   }
   return object;

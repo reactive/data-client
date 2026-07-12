@@ -100,10 +100,11 @@ Value: ${JSON.stringify(value, undefined, 2)}`,
     // getField respects the value representation (e.g. ImmutableJS refs under
     // the /imm policy); direct reads are the fallback for delegates from
     // older @data-client/normalizr versions.
+    const getField = delegate.getField;
     const schemaKey =
       !isSingle &&
       value &&
-      (delegate.getField ? delegate.getField(value, 'schema') : value.schema);
+      (getField ? getField(value, 'schema') : value.schema);
     if (!isSingle && !schemaKey) {
       // denormalize should also handle 'passthrough' values (not normalized) and still
       // construct the correct Entity instance
@@ -122,7 +123,7 @@ Value: ${JSON.stringify(value, undefined, 2)}.`,
     }
     const id =
       isSingle ? undefined
-      : delegate.getField ? delegate.getField(value, 'id')
+      : getField ? getField(value, 'id')
       : value.id;
     const schema = isSingle ? this.schema : this.schema[schemaKey];
     return delegate.unvisit(schema, id || value);

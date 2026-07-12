@@ -111,11 +111,9 @@ const getUnvisit = (
 ) => {
   let depth = 0;
   let depthLimitHit = false;
-  // Single delegate object reused for the whole denormalize tree. Recursive
-  // schemas call `delegate.unvisit(...)` for nested types and
-  // `delegate.argsKey(fn)` to register an args-derived cache dimension.
-  // `unvisitObject`/`getField` are always present (monomorphic shape) and
-  // resolve value-representation differences via the injected policy.
+  // Single delegate object reused for the whole denormalize tree.
+  // `unvisitObject`/`getField` are always present (monomorphic shape),
+  // resolving value-representation differences via the injected policy.
   const delegate: IDenormalizeDelegate = {
     args,
     unvisit,
@@ -144,7 +142,7 @@ const getUnvisit = (
       if (typeof schema === 'object') {
         return Array.isArray(schema) ?
             arrayDenormalize(schema, input, delegate)
-          : delegate.unvisitObject(schema, input);
+          : valuePolicy.denormalizeObject(schema, input, delegate);
       }
     } else {
       if (isEntity(schema)) {

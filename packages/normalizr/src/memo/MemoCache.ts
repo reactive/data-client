@@ -60,7 +60,6 @@ export default class MemoCache {
       getEntity,
       new GlobalCache(getEntity, this._getCache, this.endpoints, args),
       args,
-      // undefined (external custom policies) resolves to the plain default
       this.policy.valuePolicy,
     )(schema, input);
   }
