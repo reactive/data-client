@@ -60,7 +60,10 @@ const projects = [
   {
     ...baseConfig,
     rootDir: __dirname,
-    roots: packages.map(pkgName => `<rootDir>/packages/${pkgName}/src`),
+    roots: [
+      ...packages.map(pkgName => `<rootDir>/packages/${pkgName}/src`),
+      '<rootDir>/website/src/components/Playground',
+    ],
     displayName: 'ReactDOM',
     setupFiles: ['<rootDir>/scripts/testSetup.js'],
     testEnvironment: 'jsdom',
