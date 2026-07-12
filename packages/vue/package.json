@@ -51,6 +51,7 @@
   "types": "lib/index.d.ts",
   "exports": {
     ".": {
+      "types": "./lib/index.d.ts",
       "module": "./lib/index.js",
       "import": "./node.mjs",
       "require": "./dist/index.js",
@@ -58,6 +59,7 @@
       "default": "./lib/index.js"
     },
     "./test": {
+      "types": "./lib/test/index.d.ts",
       "module": "./lib/test/index.js",
       "import": "./node.mjs",
       "require": "./dist/test/index.js",

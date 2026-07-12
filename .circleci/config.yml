@@ -258,7 +258,11 @@ jobs:
       - run:
           name: Install TypeScript Version
           command: |
+            # Default install uses typescript=@typescript/typescript6 (API) +
+            # @typescript/native=typescript@7 (tsc). For the compatibility matrix,
+            # replace both with the requested compiler release so `tsc` matches.
             yarn up typescript@~<< parameters.typescript-version >>
+            yarn up '@typescript/native@npm:typescript@~<< parameters.typescript-version >>'
             if [[ "<< parameters.typescript-version >>" == "4.0" || \
             "<< parameters.typescript-version >>" == "4.1" || \
             "<< parameters.typescript-version >>" == "4.3" ]]; then

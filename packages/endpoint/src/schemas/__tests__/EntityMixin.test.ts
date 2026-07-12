@@ -379,10 +379,10 @@ describe(`${schema.Entity.name} normalization`, () => {
       name = '';
       secondthing = '';
     }
-    // @ts-expect-error
     const MyEntity = EntityMixin(MyData, {
       pk: 'name',
       schema: {
+        // @ts-expect-error invalid schema key is not a ValidSchemas property
         blarb: Temporal.Instant.from,
       },
     });

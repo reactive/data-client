@@ -63,6 +63,7 @@
   },
   "exports": {
     ".": {
+      "types": "./lib/index.d.ts",
       "node": {
         "module": "./lib/index.js",
         "import": "./node.mjs",
@@ -76,6 +77,7 @@
       "default": "./lib/index.js"
     },
     "./browser": {
+      "types": "./lib/browser.d.ts",
       "default": "./lib/browser.js"
     },
     "./package.json": "./package.json"
