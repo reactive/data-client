@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1783821605203,
+  "lastUpdate": 1783861415695,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -5405,6 +5405,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 188.68,
             "range": "± 9.1%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e",
+          "message": "pkg: Update `typescript` to v7 (#4019)\n\n* pkg: Update `typescript` to v7\n\n* pkg: Complete TypeScript 7 upgrade\n\nShip package.json exports `types` conditions required by TS7 resolution,\ndual-install the TS6 Compiler API for eslint/ts-jest/rollup-plugin-dts,\nand pin `tsc --build --builders 1` so parallel project builds do not race.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n\n---------\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\nCo-authored-by: Cursor <cursoragent@cursor.com>",
+          "timestamp": "2026-07-12T09:00:19-04:00",
+          "tree_id": "9439555a315a79efb09fa67f5a92493e797f4604",
+          "url": "https://github.com/reactive/data-client/commit/aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e"
+        },
+        "date": 1783861412911,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 132.46,
+            "range": "± 3.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 40.9,
+            "range": "± 5.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 303.03,
+            "range": "± 7.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 303.03,
+            "range": "± 7.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 42.66,
+            "range": "± 10.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 303.03,
+            "range": "± 2.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 303.03,
+            "range": "± 5.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 8.14,
+            "range": "± 8.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 69.2,
+            "range": "± 9.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 36.43,
+            "range": "± 5.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 198.04,
+            "range": "± 3.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 270.27,
+            "range": "± 4.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 156.25,
+            "range": "± 10.0%",
             "unit": "ops/s"
           }
         ]
