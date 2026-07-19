@@ -11,9 +11,11 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "webpack --mode=production --target=node --env readable",
+    "build": "webpack --mode=production --target=node --env readable && node ./gc-build-manifest.js write",
     "start": "NODE_ENV=production node --allow-natives-syntax ./index.js",
     "start:memory": "NODE_ENV=production node ./memory.js",
+    "start:gc": "NODE_ENV=production node ./gc-policy.js",
+    "start:gc:verify": "node ./gc-build-manifest.js self-test",
     "start:trace": "yarn run start --trace_opt --trace_deopt",
     "start:deopt": "NODE_ENV=production npx dexnode --out v8.log --redirect-code-traces-to=/tmp/codetrace --allow-natives-syntax ./index.js"
   },
