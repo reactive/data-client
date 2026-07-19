@@ -9,6 +9,56 @@ export interface RefStabilityReport {
   userRefChanged: number;
 }
 
+/** Axes for browser GC scenarios (local mirror of the shared GC vocabulary). */
+export interface GCScenarioConfig {
+  candidateKind: 'entity' | 'endpoint' | 'mixed';
+  /** `duplicate` is entity-only (one path released `count` times). */
+  pattern: 'unique' | 'duplicate';
+  /** Canonical counts: 1000 | 10000 | 100000 */
+  count: number;
+  control: 'gc' | 'no-gc';
+}
+
+/** Queue cardinality after prepare (fixtures + createCountRef outside timing). */
+export interface GCPreparedSummary {
+  queueEntries: number;
+  uniqueTargets: number;
+}
+
+/**
+ * Page-side GC interaction measurement (schemaVersion 1).
+ * Heap fields are attached by the Playwright runner, not page code.
+ */
+export interface GCBrowserMeasurement {
+  schemaVersion: 1;
+  totalMs: number;
+  /** Monolithic baseline: exactly `[totalMs]` when control is `gc`; empty for `no-gc`. */
+  sliceDurationsMs: number[];
+  actionCount: number;
+  queueEntries: number;
+  uniqueTargets: number;
+  actionTargetCount: number;
+  deletionCount: number;
+  /** Actual setTimeout(0) callback delay from immediately before collection. */
+  timerDelayMs: number;
+  /** Raw rAF intervals around collection. */
+  frameIntervalsMs: number[];
+  /** Quiet-frame period measured during prepare (never hardcode 16.67). */
+  displayPeriodMs: number;
+  /**
+   * Excess whole frame periods vs displayPeriodMs (nearest-period; see harness).
+   */
+  missedFrames: number;
+  /**
+   * Responsiveness proxy: max(timerDelayMs, max excess of any frame interval
+   * over one displayPeriodMs). Not pointer/input-event latency — no synthetic
+   * pointer events are generated.
+   */
+  maxInputDelayMs: number;
+  longTaskCount: number;
+  longTaskTotalMs: number;
+}
+
 /**
  * Benchmark API interface exposed by each library app on window.__BENCH__
  */
@@ -57,6 +107,34 @@ export interface BenchAPI {
   setRenderLimit?(n: number | undefined): void;
   /** Clear client-side cache/store so the next mount triggers a fresh fetch. Called between sub-iterations for mount scenarios. */
   resetStore?(): void;
+  /**
+   * Prepare isolated browser GC fixtures + queues (untimed). data-client only.
+   * Also measures quiet displayPeriodMs. Does not start interaction timing.
+   * Dynamically loads the GC harness chunk during prepare (before timing).
+   */
+  prepareGCScenario?(config: GCScenarioConfig): Promise<GCPreparedSummary>;
+  /**
+   * Run explicit monolithic cache GC (or no-gc control) with interaction probes.
+   * Resolves only after timer + rAF probes settle. data-client only.
+   */
+  runGCScenario?(): Promise<GCBrowserMeasurement>;
+  /** Tear down the isolated GC harness (store + policy). data-client only. */
+  disposeGCScenario?(): void;
+  /**
+   * Validation/calibration only: synthetic ~40–50ms block through the Chromium
+   * frame probe. Confirms blocking spans pending frame boundaries.
+   */
+  calibrateGCFrameProbe?(blockMs?: number): Promise<{
+    blockMs: number;
+    totalMs: number;
+    timerDelayMs: number;
+    displayPeriodMs: number;
+    frameIntervalsMs: number[];
+    frameIntervalMax: number;
+    missedFrames: number;
+    maxInputDelayMs: number;
+    spannedPendingFrame: boolean;
+  }>;
 }
 
 declare global {
@@ -126,13 +204,10 @@ export type ScenarioAction =
   | { action: 'moveItem'; args: [number] };
 
 export type ResultMetric =
-  | 'duration'
-  | 'issueRefChanged'
-  | 'userRefChanged'
-  | 'heapDelta';
+  'duration' | 'issueRefChanged' | 'userRefChanged' | 'heapDelta' | 'totalMs';
 
-/** hotPath = JS only, included in CI. memory = heap delta, not CI. startup = page load metrics, not CI. */
-export type ScenarioCategory = 'hotPath' | 'memory' | 'startup';
+/** hotPath = JS only, included in CI. memory = heap delta, not CI. startup = page load metrics, not CI. gc = cache GC interaction, not CI. */
+export type ScenarioCategory = 'hotPath' | 'memory' | 'startup' | 'gc';
 
 /** small = cheap scenarios (full warmup + measurement). large = expensive scenarios (reduced runs). */
 export type ScenarioSize = 'small' | 'large';
@@ -141,9 +216,9 @@ export interface Scenario {
   name: string;
   action: keyof BenchAPI;
   args: unknown[];
-  /** Which value to report; default 'duration'. Ref-stability use issueRefChanged/userRefChanged; memory use heapDelta. */
+  /** Which value to report; default 'duration'. Ref-stability use issueRefChanged/userRefChanged; memory use heapDelta; gc use totalMs. */
   resultMetric?: ResultMetric;
-  /** hotPath (default) = run in CI. memory = heap delta. startup = page load metrics. */
+  /** hotPath (default) = run in CI. memory = heap delta. startup = page load metrics. gc = cache GC (opt-in). */
   category?: ScenarioCategory;
   /** small (default) = full runs. large = reduced warmup/measurement for expensive scenarios. */
   size?: ScenarioSize;

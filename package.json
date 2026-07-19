@@ -4,6 +4,7 @@
     "packages/*",
     "examples/benchmark",
     "examples/benchmark-react",
+    "examples/benchmark-native",
     "examples/test-bundlesize",
     "examples/normalizr-*",
     "examples/coin-app",
