@@ -444,18 +444,122 @@ Also required before aggressive default changes:
 | Expensive / device | Heap snapshots; release-Hermes Android frame and memory | Start as manual; promote only with cost justification |
 | Unit tests | Jest correctness for GC policy and reducer behavior | Required for logic; **not** a substitute for idle or frame measurement |
 
-### Planned commands and artifacts
+### Implemented harnesses and artifacts
 
-Commands and artifact paths are planned, not claimed as already present:
+v1 measurement harnesses exist in the monorepo (shared JSON vocabulary; no shared
+runtime package):
 
-- Node GC scenarios under the existing benchmark workspace (canonical counts,
-  `gc` / `no-gc` controls).
-- Browser Chromium harness for interaction, long-task, and optional heap modes.
-- Android release-Hermes runs on mid-range hardware for frame and retained-memory
-  modes.
-- Aggregated JSON reports plus optional traces/heap snapshots as CI or local
-  artifacts.
-- Calibration notes that record host fingerprint, medians, and variance before
-  any threshold is frozen.
+- **Node** — `examples/benchmark` (`start:gc`): scan / reducer / end-to-end modes
+  over the canonical scenario axes, with `gc` / `no-gc` controls.
+- **Browser** — `examples/benchmark-react` (`bench:gc`): Chromium interaction,
+  long-task, frame-period, and heap-delta collection for the same axes.
+- **Android** — `examples/benchmark-native`: release-Hermes interaction / frame /
+  observational memory runs on device; host matrix/collect scripts pull reports
+  over adb. Build and unit validation can pass without a device; device runs are
+  still required for calibration.
 
-Exact script names and directory layout land with the harness implementation.
+Aggregated schemaVersion-1 JSON reports are generated artifacts (stdout redirect,
+`BENCH_GC_OUTPUT`, or the native artifacts path). Optional traces/heap snapshots
+stay local. Raw machine reports and calibration notes are not committed as
+universal baselines — see Baseline capture below for current host status and
+rerun commands.
+
+### Baseline capture and gate status
+
+Captured **2026-07-18** on Linux WSL2 x64, Node v24.5.0, headless Chromium 149
+(~16.7 ms measured display period). Numbers below are from **full provenanced
+reruns** tied to BuildManifest IDs. Raw reports remain local `/tmp` (and native
+sidecar) ignored artifacts — not committed universal baselines.
+`dirty=true` is expected: the measurement implementation is still uncommitted;
+manifest `buildId` / source / artifact hashes still make those local reports
+attributable. This measurement-phase work does **not** change GC production
+defaults.
+
+**What ran successfully**
+
+- ReactDOM GC policy / `countRef` / web integration: 3 suites, 10 tests passed;
+  ReactNative GC integration: 1 suite/test passed.
+- Provenanced Node and browser 100k matrices (manifests below).
+- Core `^get` / `^set` and React browser small hot-path controls (output retained
+  in local artifacts; passed).
+- `yarn ci:build:bundlesize` completed (`rdcClient.js` 33.8 KiB minified absolute
+  size — a build baseline, not a branch delta).
+- Native release assemble + sidecar verification (manifest below). No adb device
+  attached → **no** Android frame/memory baseline.
+
+**BuildManifest provenance**
+
+| Layer | Status | Identity |
+| --- | --- | --- |
+| Node | complete (100k matrix) | `buildId` `5da8f199371b9c84fe516700e977386f39267009ca6eae05ed5c0c16427d7a1c`; commit `4a2faa52558eb593e6e1121e2301a6bb8410690c`; `dirty=true` |
+| Browser | `complete=true` | `buildId` `1d71ad58789bb9ac78d6fd0aa59259e59ebe8915bd9102a55bfd7086c54c0bce`; same commit; `dirty=true` |
+| Native | build only (no device) | `buildId` `4a744c2e08acd490161a61b6d2c69a7d718af694e5b7b9775ec27c2ef56a006d`; `sourceDigest` `fab95578c64693c89f767e7fc7378fc8c8c81168174161641f251c79685672b7`; APK sha `fbc7355b4eb168f4dbce8dc837ae697a6e0d2fc908a5479fe2897e46d5f23949`; size 52,247,736 bytes; sidecar verified |
+
+**100k Node median / p95 `totalMs` (samples=5)**
+
+| Scenario | scan | end-to-end |
+| --- | --- | --- |
+| entity unique | 5.247 / 6.571 | 12.991 / 14.467 |
+| endpoint unique | 14.745 / 16.633 | 33.691 / 39.094 |
+| mixed unique | 8.961 / 9.859 | 21.113 / 21.527 |
+| entity duplicate | 2.242 / 2.280 | 5.911 / 5.992 |
+
+**Browser 100k `gc` medians (3 samples, `complete=true`)**
+
+| Scenario | `totalMs` | `maxInputDelayMs` | notes |
+| --- | --- | --- | --- |
+| entity unique | 9.0 | 9.1 | `heapDelta` −10,704,036 B |
+| endpoint unique | 16.7 | 16.8 | `frameIntervalMax` 17.7 ms; `heapDelta` −15,031,404 B |
+| mixed unique | 13.5 | 13.5 | `heapDelta` −12,755,312 B |
+| entity duplicate | 6.8 | 6.8 | `heapDelta` −433,492 B |
+
+Matching `no-gc` `maxInputDelayMs` controls were 0–0.1 ms. All 100k runs reported
+0 Long Tasks and 0 nearest-period `missedFrames`. Long Tasks only fire at ≥50 ms,
+so they miss a sweep that still consumes roughly one 60 Hz frame budget — visible
+in endpoint unique `maxInputDelayMs` ≈ 16.8 ms versus the ~16.7 ms measured
+period. A synthetic 45 ms calibration reported ~45.1 ms max frame interval and
+2 missed frames, confirming the pending-frame probe.
+
+**Frozen gate definitions (not unsupported universal numbers)**
+
+1. **Correctness** — fixture self-validation of queue cardinality and final
+   deletion count; Jest coverage for reacquisition, cancellation, duplicates,
+   index reuse, and starvation.
+2. **Primary interaction comparisons** — GC **excess** over the matching `no-gc`
+   control for `maxInputDelayMs`, missed frames, and long tasks. Frame budget
+   uses measured `displayPeriodMs`, not a hardcoded 16.67 ms.
+3. **Cooperative ceilings** — max-slice and total-overhead numeric limits remain
+   calibration outputs. One local host with 3–5 samples is insufficient to freeze
+   universal thresholds.
+4. **CI promotion** — Node/browser may become gates only after repeated controlled
+   CI variance runs; not claimed yet.
+5. **Bundle** — repo rule unchanged: ~1 KiB growth must justify a 5–10% relevant
+   measured win.
+6. **Android** — uncalibrated. Any React Native **default** change stays blocked
+   until release-Hermes runs on a named mid-range physical device under this
+   protocol. Harness/APK completion is not device validation.
+
+**Recommended reruns**
+
+```bash
+# Node 100k gc + no-gc
+yarn build:benchmark
+yarn workspace example-benchmark start:gc /100000/ --samples=5 --no-table
+
+# Browser 100k (preview must be serving dist/)
+yarn build:benchmark-react
+BENCH_GC_OUTPUT=/tmp/gc-browser.json yarn workspace example-benchmark-react \
+  bench:gc --samples 3 --scenario 100000
+
+# Native 100k gc + no-gc (requires adb device + release APK)
+yarn workspace example-benchmark-native build:android:release
+SAMPLES=5 yarn workspace example-benchmark-native matrix entity/unique/100000
+
+# Foreground controls
+yarn workspace example-benchmark start core '^get'
+yarn workspace example-benchmark start core '^set'
+yarn workspace example-benchmark-react bench:small --lib data-client
+
+# Bundle
+yarn ci:build:bundlesize
+```
