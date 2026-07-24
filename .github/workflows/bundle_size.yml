@@ -48,3 +48,28 @@ jobs:
         pattern: "examples/test-bundlesize/dist/**/*.{js,json}"
         exclude: "{examples/test-bundlesize/dist/manifest.json,**/*.LICENSE.txt,**/*.map,**/node_modules/**}"
         minimum-change-threshold: 8
+
+  immutable-leak:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v7
+    - uses: actions/setup-node@v6
+      with:
+        node-version: '24'
+        cache: 'yarn'
+    - name: Install packages
+      run: ./scripts/ci-install.sh examples/test-bundlesize
+    - name: Build production bundles
+      run: yarn ci:build:bundlesize
+    - name: Assert no ImmutableJS code in main-entry bundles
+      # Immutable support must stay behind /imm subpath exports (zero bundle
+      # cost for non-users — see plans/immutablejs-support.md F1). The
+      # `__ownerID` string only appears in the ImmutableJS duck-type check,
+      # so its presence means immutable code leaked into a main entry.
+      run: |
+        if grep -rl --include='*.js' "__ownerID" examples/test-bundlesize/dist/; then
+          echo "::error::ImmutableJS support code leaked into main-entry bundles (__ownerID marker found). Keep immutable code behind /imm subpath exports."
+          exit 1
+        fi
+        echo "No immutable markers found in production bundles."

@@ -577,3 +577,22 @@ describe.each([
     },
   );
 });
+
+test('denormalizes passthrough values (not normalized) by inferring their schema', () => {
+  const union = new Union(
+    {
+      users: User,
+      groups: Group,
+    },
+    input => (input.username ? 'users' : 'groups'),
+  );
+
+  // no `schema` discriminator stored — infer directly from the value
+  const value = plainDenormalize(
+    union,
+    { id: '5', username: 'Jake', type: 'users' },
+    entities,
+  );
+  expect(value).toBeInstanceOf(User);
+  expect(value.username).toBe('Jake');
+});

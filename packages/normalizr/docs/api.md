@@ -46,13 +46,15 @@ const normalizedData = normalize(mySchema, myData);
 
 ## `denormalize(schema, input, entities)`
 
-Denormalizes an input based on schema and provided entities from a plain object or Immutable data. The reverse of `normalize`.
+Denormalizes an input based on schema and provided entities from a plain object. The reverse of `normalize`.
 
 If your schema and data have recursive references, only the first instance of an entity will be given. Subsequent references will be returned as the `id` provided.
 
 - `schema`: **required** A schema definition that was used to get the value for `input`.
 - `input`: **required** The normalized result that should be _de-normalized_. Usually the same value that was given in the `result` key of the output of `normalize`.
-- `entities`: **required** An object, keyed by entity schema names that may appear in the denormalized output. Also accepts an object with Immutable data.
+- `entities`: **required** An object, keyed by entity schema names that may appear in the denormalized output.
+
+For ImmutableJS state, use `denormalize` from `@data-client/normalizr/imm` instead (see the [ImmutableJS section of the README](../README.md#immutablejs)).
 
 ### Usage
 

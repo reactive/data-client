@@ -5,7 +5,7 @@ import { ArticleResource, IDEntity } from '__tests__/new';
 import { Record } from 'immutable';
 
 import { SimpleMemoCache } from './denormalize';
-import { PolymorphicInterface } from '../..';
+import { IDenormalizeDelegate, PolymorphicInterface } from '../..';
 import { schema, Collection, Union, unshift } from '../..';
 import PolymorphicSchema from '../Polymorphic';
 
@@ -79,13 +79,10 @@ test('key works with custom schema', () => {
       );
     }
 
-    denormalize(
-      input: any,
-      delegate: { unvisit: (schema: any, input: any) => any },
-    ) {
+    denormalize(input: any, delegate: IDenormalizeDelegate) {
       return input.map ?
           input.map((entityOrId: any) =>
-            this.denormalizeValue(entityOrId, delegate.unvisit),
+            this.denormalizeValue(entityOrId, delegate),
           )
         : input;
     }

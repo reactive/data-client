@@ -1,11 +1,12 @@
 // eslint-env jest
 import { Entity, schema, Values } from '@data-client/endpoint';
-import { fromJS } from 'immutable';
+import { fromJS, Record } from 'immutable';
 
 import { normalize } from '../';
 import { denormalize as denormalizeSimple } from '../denormalize/denormalize';
 import { INVALID } from '../denormalize/symbol';
 import MemoCached from '../memo/MemoCache';
+import { MemoPolicy } from '../memo/Policy';
 
 class IDEntity extends Entity {
   id = '';
@@ -442,10 +443,44 @@ describe.each([
 
   test('denormalizes without entities fills undefined', () => {
     expect(denormalize({ data: Tacos }, { data: '1' }, {})).toMatchSnapshot();
-    expect(
-      denormalize({ data: Tacos }, fromJS({ data: '1' }), {}),
-    ).toMatchSnapshot();
     expect(denormalize(Tacos, '1', {})).toEqual(undefined);
+  });
+
+  test('rejects immutable input loudly (only supported via /imm entries)', () => {
+    expect(() =>
+      denormalize({ data: Tacos }, fromJS({ data: '1' }), {}),
+    ).toThrow(/Immutable input is not supported by the default denormalize/);
+
+    // Records are also detected (own `__ownerID` in v4–v5)
+    const DataRecord = Record({ data: '' });
+    expect(() =>
+      denormalize({ data: Tacos }, new DataRecord({ data: '1' }), {}),
+    ).toThrow(/Immutable input is not supported by the default denormalize/);
+  });
+
+  test('tolerates falsy inputs against object schemas', () => {
+    // falsy non-null inputs must not be misdetected as immutable (throw);
+    // spreading them into an empty result is long-standing behavior,
+    // unchanged by the immutable-input rejection
+    expect(() => denormalize({ data: Tacos }, 0, {})).not.toThrow();
+    expect(denormalize({ data: Tacos }, 0, {})).toEqual({});
+    expect(denormalize({ data: Tacos }, '', {})).toEqual({});
+  });
+
+  test('passes through primitive store values', () => {
+    // malformed store data (primitive where an entity object belongs)
+    const entities = { Tacos: { 1: 42 } };
+    expect(denormalize(Tacos, '1', entities)).toBe(42);
+  });
+
+  test('denormalizes null-prototype object inputs', () => {
+    // no hasOwnProperty available — immutable detection must not choke
+    const input = Object.assign(Object.create(null), { data: '1' });
+    const entities = {
+      Tacos: { 1: { id: '1', type: 'foo' } },
+    };
+    const value = denormalize({ data: Tacos }, input, entities);
+    expect(value.data.type).toBe('foo');
   });
 
   test('denormalizes ignoring unfound entities in arrays', () => {
@@ -752,5 +787,28 @@ describe.each([
         {},
       ),
     ).toMatchSnapshot();
+  });
+});
+
+describe('MemoCache policy compatibility', () => {
+  test('policies without valuePolicy default to plain-object handling', () => {
+    // external IMemoPolicy implementations written before valuePolicy
+    // existed must keep working (valuePolicy is optional on the interface)
+    const preValuePolicyPolicy = {
+      QueryDelegate: MemoPolicy.QueryDelegate,
+      getEntities: MemoPolicy.getEntities,
+    };
+    const memo = new MemoCached(preValuePolicyPolicy);
+    const entities = {
+      Tacos: { 1: { id: '1', type: 'foo' } },
+    };
+    const { data } = memo.denormalize(
+      { data: Tacos },
+      { data: '1' },
+      entities,
+      [],
+    );
+    expect(data.data).toBeInstanceOf(Tacos);
+    expect(data.data.type).toBe('foo');
   });
 });

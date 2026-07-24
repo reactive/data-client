@@ -1,4 +1,3 @@
-import { isImmutable, denormalizeImmutable } from './ImmutableUtils.js';
 import { IDenormalizeDelegate, Visit } from '../interface.js';
 
 export const normalize = (
@@ -27,8 +26,30 @@ export function denormalize(
   input: {},
   delegate: IDenormalizeDelegate,
 ): any {
-  if (isImmutable(input)) {
-    return denormalizeImmutable(schema, input, delegate.unvisit);
+  if (delegate.unvisitObject) {
+    // value-representation aware path (plain or ImmutableJS input, decided
+    // by the active policy)
+    return delegate.unvisitObject(schema, input);
+  }
+  // Fallback plain (POJO) loop for delegates from older
+  // @data-client/normalizr versions, which lack unvisitObject.
+
+  /* istanbul ignore else */
+  if (process.env.NODE_ENV !== 'production') {
+    // ImmutableJS Map/Record inputs are only supported via the /imm entries.
+    // Detect here (dev only — stripped from production) to fail loudly
+    // instead of silently producing corrupt output from spreading a Map.
+    if (
+      input &&
+      typeof (input as any).hasOwnProperty === 'function' &&
+      Object.hasOwnProperty.call(input, '__ownerID')
+    ) {
+      throw new Error(
+        `Immutable input is not supported by the default denormalize.
+Use @data-client/normalizr/imm entries (denormalize or MemoCache with its MemoPolicy) for ImmutableJS state.
+See https://github.com/reactive/data-client/blob/master/packages/normalizr/README.md#immutablejs`,
+      );
+    }
   }
 
   const object: Record<string, any> = { ...input };
@@ -37,11 +58,13 @@ export function denormalize(
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
     const item = delegate.unvisit(schema[key], object[key]);
+    if (typeof item === 'symbol') {
+      // propagate the exact symbol so identity checks (INVALID) work across
+      // package boundaries
+      return item;
+    }
     if (object[key] !== undefined) {
       object[key] = item;
-    }
-    if (typeof item === 'symbol') {
-      return item;
     }
   }
   return object;
