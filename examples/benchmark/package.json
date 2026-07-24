@@ -27,12 +27,12 @@
   },
   "devDependencies": {
     "@anansi/webpack-config": "21.1.19",
-    "@babel/core": "7.29.7",
-    "@babel/node": "7.29.7",
+    "@babel/core": "8.0.1",
+    "@babel/node": "8.0.1",
     "@types/babel__core": "^7",
     "@types/benchmark": "2.1.5",
     "@types/react": "19.2.17",
     "webpack": "5.108.4",
-    "webpack-cli": "6.0.1"
+    "webpack-cli": "7.2.1"
   }
 }
