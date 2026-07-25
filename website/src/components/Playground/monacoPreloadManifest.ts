@@ -18,6 +18,9 @@ export const monacoPreloadManifest = {
     'monaco.contribution-BgRy6xDf.js',
     'monaco.contribution-BE88ZNGY.js',
     'monaco.contribution-BPhsneLd.js',
+    'toggleHighContrast-qGX7E9o7.js',
+    'basic-languages/monaco.contribution.js',
+    'editorWorkerHost-fVE1cjcC.js',
   ],
   prefetchPaths: [
     'assets/editor.worker-lj3bdIIn.js',

@@ -35,54 +35,16 @@ function computeMonacoPreloadManifest() {
     throw new Error(`monaco-editor min/vs missing at ${VS_ROOT}`);
   }
 
-  const mainPath = path.join(VS_ROOT, 'editor/editor.main.js');
-  const mainSource = fs.readFileSync(mainPath, 'utf8');
-  const defineMatch = mainSource.match(
-    /define\(\s*["']vs\/editor\/editor\.main["']\s*,\s*\[([^\]]+)\]/,
-  );
-  if (!defineMatch) {
-    throw new Error(
-      'Failed to parse AMD dependency array from editor/editor.main.js — Monaco packaging may have changed',
-    );
+  const mainRel = 'editor/editor.main.js';
+  if (!fs.existsSync(path.join(VS_ROOT, mainRel))) {
+    throw new Error(`monaco-editor ${mainRel} missing under ${VS_ROOT}`);
   }
 
-  /** @type {string[]} */
-  const amdDeps = [];
-  const depLiteral = /["']([^"']+)["']/g;
-  let depMatch;
-  while ((depMatch = depLiteral.exec(defineMatch[1]))) {
-    amdDeps.push(depMatch[1]);
-  }
-  if (amdDeps.length < 5) {
-    throw new Error(
-      `Suspiciously few AMD deps parsed from editor.main (${amdDeps.length}): ${amdDeps.join(', ')}`,
-    );
-  }
-
-  /** @type {string[]} */
-  const preloadPaths = ['loader.js', 'editor/editor.main.js'];
-
-  for (const dep of amdDeps) {
-    if (dep === 'exports' || dep === 'require') continue;
-    if (dep.endsWith('.css')) {
-      throw new Error(
-        `Refusing to preload CSS dependency from editor.main: ${dep}`,
-      );
-    }
-    if (
-      dep === 'vs/nls.messages-loader!' ||
-      dep.startsWith('vs/nls.messages-loader')
-    ) {
-      preloadPaths.push('nls.messages-loader.js');
-      continue;
-    }
-    if (dep.startsWith('../')) {
-      const relative = `${dep.slice(3)}.js`.replace(/\.js\.js$/, '.js');
-      preloadPaths.push(relative);
-      continue;
-    }
-    throw new Error(`Unrecognized editor.main AMD dependency: ${dep}`);
-  }
+  // BFS static AMD deps from editor.main so 0.56's nested index bootstrap
+  // (basic-languages, toggleHighContrast, editorWorkerHost, …) is preloaded.
+  // Language grammars are dynamic requires inside basic-languages — not visited.
+  const preloadPaths = collectAmdClosure(mainRel);
+  preloadPaths.unshift('loader.js');
 
   const prefetchPaths = [
     ...exactGlob(VS_ROOT, /^typescript-.+\.js$/),
@@ -107,6 +69,11 @@ function computeMonacoPreloadManifest() {
       'Expected at least one monaco.contribution-* preload path from editor.main deps',
     );
   }
+  if (!normalizedPreload.some(p => p.startsWith('index-'))) {
+    throw new Error(
+      'Expected hashed index-* module in editor.main AMD closure',
+    );
+  }
   if (normalizedPrefetch.length < 2) {
     throw new Error(
       'Expected typescript/tsMode and worker prefetch paths; found none/too few',
@@ -118,6 +85,95 @@ function computeMonacoPreloadManifest() {
     preloadPaths: normalizedPreload,
     prefetchPaths: normalizedPrefetch,
   };
+}
+
+/**
+ * @param {string} entryRel path relative to VS_ROOT
+ * @returns {string[]}
+ */
+function collectAmdClosure(entryRel) {
+  /** @type {string[]} */
+  const ordered = [];
+  const seen = new Set();
+  const queue = [entryRel];
+
+  while (queue.length > 0) {
+    const modRel = queue.shift();
+    if (seen.has(modRel)) continue;
+    seen.add(modRel);
+    ordered.push(modRel);
+
+    for (const dep of parseAmdDependencyArray(modRel)) {
+      const resolved = resolveAmdDependency(modRel, dep);
+      if (!resolved || seen.has(resolved)) continue;
+      if (!fs.existsSync(path.join(VS_ROOT, resolved))) {
+        throw new Error(
+          `AMD dependency missing: ${resolved} (from ${modRel} → ${dep})`,
+        );
+      }
+      queue.push(resolved);
+    }
+  }
+
+  return ordered;
+}
+
+/** @param {string} modRel @returns {string[]} */
+function parseAmdDependencyArray(modRel) {
+  const source = fs.readFileSync(path.join(VS_ROOT, modRel), 'utf8');
+  // Minified modules use define("id",[...],factory). Match the first define.
+  const defineMatch = source.match(
+    /define\(\s*(?:["'][^"']+["']\s*,\s*)?\[([^\]]*)\]/,
+  );
+  if (!defineMatch) {
+    throw new Error(
+      `Failed to parse AMD dependency array from ${modRel} — Monaco packaging may have changed`,
+    );
+  }
+
+  /** @type {string[]} */
+  const deps = [];
+  const depLiteral = /["']([^"']+)["']/g;
+  let depMatch;
+  while ((depMatch = depLiteral.exec(defineMatch[1]))) {
+    deps.push(depMatch[1]);
+  }
+  return deps;
+}
+
+/**
+ * @param {string} fromRel
+ * @param {string} dep
+ * @returns {string | null} path relative to VS_ROOT, or null to skip
+ */
+function resolveAmdDependency(fromRel, dep) {
+  if (dep === 'exports' || dep === 'require') return null;
+  if (dep.endsWith('.css')) {
+    throw new Error(
+      `Refusing to preload CSS dependency from ${fromRel}: ${dep}`,
+    );
+  }
+  if (
+    dep === 'vs/nls.messages-loader!' ||
+    dep.startsWith('vs/nls.messages-loader')
+  ) {
+    return 'nls.messages-loader.js';
+  }
+  if (dep.startsWith('./') || dep.startsWith('../')) {
+    const absolute = path.normalize(
+      path.join(VS_ROOT, path.dirname(fromRel), dep),
+    );
+    const withJs =
+      absolute.endsWith('.js') ? absolute : `${absolute}.js`;
+    return path.relative(VS_ROOT, withJs);
+  }
+  if (dep.startsWith('vs/')) {
+    const rel = dep.slice(3);
+    return rel.endsWith('.js') ? rel : `${rel}.js`;
+  }
+  throw new Error(
+    `Unrecognized AMD dependency from ${fromRel}: ${dep}`,
+  );
 }
 
 /** @param {string} dir @param {RegExp} pattern */

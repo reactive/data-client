@@ -83,4 +83,7 @@ const DIFF_OPTIONS: editor.IDiffEditorConstructionOptions = {
   enableSplitViewResizing: false,
   readOnly: true,
   compactMode: true,
+  // Built-in advanced (default). advanced-wasm / advanced-external need
+  // @vscode/diff via VS Code module resolution — not available on CDN AMD.
+  diffAlgorithm: 'advanced',
 };
