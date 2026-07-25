@@ -121,7 +121,14 @@
     "react-test-renderer": "19.2.3",
     "twig": "^2.0.0",
     "webpackbar": "^7.0.0",
-    "jest-environment-node": "30.4.1"
+    "jest-environment-node": "30.4.1",
+    "tar": ">=7.5.22",
+    "serialize-javascript": ">=7.0.5",
+    "dompurify": ">=3.4.12",
+    "editorconfig/minimatch": "9.0.9",
+    "socks": ">=2.8.9",
+    "uuid": ">=11.1.1",
+    "sigstore": ">=4.1.1"
   },
   "packageManager": "yarn@4.17.1",
   "prettier": {
