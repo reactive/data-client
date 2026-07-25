@@ -14,37 +14,16 @@ const fs = require('fs');
 const path = require('path');
 
 const WEBSITE_ROOT = path.join(__dirname, '..');
-const MONACO_ROOT = resolveMonacoRoot();
-const VS_ROOT = path.join(MONACO_ROOT, 'min', 'vs');
+// monaco-editor >=0.56 exports map `./*` → `esm/vs/*.js`, so
+// require.resolve('monaco-editor/package.json') fails. Entry is min/vs/index.js.
+const VS_ROOT = path.dirname(
+  require.resolve('monaco-editor', { paths: [WEBSITE_ROOT] }),
+);
+const MONACO_ROOT = path.resolve(VS_ROOT, '../..');
 const MANIFEST_PATH = path.join(
   WEBSITE_ROOT,
   'src/components/Playground/monacoPreloadManifest.ts',
 );
-
-/**
- * monaco-editor >=0.56 exports map `./*` → `esm/vs/*.js`, so
- * `require.resolve('monaco-editor/package.json')` fails. Resolve the package
- * entry and walk up to the real package root instead.
- */
-function resolveMonacoRoot() {
-  const entry = require.resolve('monaco-editor', { paths: [WEBSITE_ROOT] });
-  let dir = path.dirname(entry);
-  while (dir !== path.dirname(dir)) {
-    const pkgPath = path.join(dir, 'package.json');
-    if (fs.existsSync(pkgPath)) {
-      try {
-        const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-        if (pkg.name === 'monaco-editor') return dir;
-      } catch {
-        // ignore unreadable/invalid package.json while walking up
-      }
-    }
-    dir = path.dirname(dir);
-  }
-  throw new Error(
-    `Could not locate monaco-editor package root from entry ${entry}`,
-  );
-}
 
 /** @returns {{ monacoVersion: string, preloadPaths: string[], prefetchPaths: string[] }} */
 function computeMonacoPreloadManifest() {
