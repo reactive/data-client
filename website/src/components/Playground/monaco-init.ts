@@ -73,16 +73,16 @@ if (
 
   monacoPromise.then(async monaco => {
     if (!monaco) return;
-    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+    monaco.typescript.typescriptDefaults.setCompilerOptions({
       allowNonTsExtensions: true,
-      target: monaco.languages.typescript.ScriptTarget.ES2017,
-      jsx: monaco.languages.typescript.JsxEmit.ReactJSX,
+      target: monaco.typescript.ScriptTarget.ES2017,
+      jsx: monaco.typescript.JsxEmit.ReactJSX,
       strict: true,
       strictNullChecks: true,
       exactOptionalPropertyTypes: true,
       lib: ['dom', 'esnext'],
-      module: monaco.languages.typescript.ModuleKind.ESNext,
-      moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+      module: monaco.typescript.ModuleKind.ESNext,
+      moduleResolution: monaco.typescript.ModuleResolutionKind.NodeJs,
       allowSyntheticDefaultImports: true,
       skipLibCheck: true,
       skipDefaultLibCheck: true,
@@ -240,13 +240,13 @@ if (
       result.status === 'fulfilled' ? result.value.default : '',
     );
 
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+    monaco.typescript.typescriptDefaults.addExtraLib(
       `declare module "react/jsx-runtime" {
         import './';
       }`,
       'file:///node_modules/@types/react/jsx-runtime.d.ts',
     );
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+    monaco.typescript.typescriptDefaults.addExtraLib(
       `import * as React from 'react'
 
     declare global {
@@ -258,7 +258,7 @@ if (
     }`,
       'file:///node_modules/@types/react/more.d.ts',
     );
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+    monaco.typescript.typescriptDefaults.addExtraLib(
       `declare function render(component:JSX.Element):void;
         declare function uuid(): string;
         declare function CurrentTime(props: {}):JSX.Element;
@@ -310,53 +310,53 @@ if (
           value: number;
         }`,
     );
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+    monaco.typescript.typescriptDefaults.addExtraLib(
       `declare module "react" { ${react} }`,
       'file:///node_modules/@types/react/index.d.ts',
     );
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+    monaco.typescript.typescriptDefaults.addExtraLib(
       `declare module "bignumber.js" { ${bignumber} }`,
       'file:///node_modules/bignumber.js/index.d.ts',
     );
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+    monaco.typescript.typescriptDefaults.addExtraLib(
       `declare module "@number-flow/react" { ${numberFlow} };`,
       'file:///node_modules/@number-flow/react/index.d.ts',
     );
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+    monaco.typescript.typescriptDefaults.addExtraLib(
       `declare module "temporal-polyfill" { ${temporal} }`,
       'file:///node_modules/temporal-polyfill/index.d.ts',
     );
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+    monaco.typescript.typescriptDefaults.addExtraLib(
       `declare module "uuid" { ${uuid} }`,
       'file:///node_modules/@types/uuid/index.d.ts',
     );
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+    monaco.typescript.typescriptDefaults.addExtraLib(
       `declare module "qs" { ${qs} }`,
       'file:///node_modules/@types/qs/index.d.ts',
     );
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+    monaco.typescript.typescriptDefaults.addExtraLib(
       `declare globals { ${react} }`,
     );
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+    monaco.typescript.typescriptDefaults.addExtraLib(
       `declare globals { export { default as NumberFlow } from '@number-flow/react'; }`,
     );
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+    monaco.typescript.typescriptDefaults.addExtraLib(
       `declare globals { export { Temporal, DateTimeFormat } from 'temporal-polyfill'; }`,
     );
 
     rhLibs.forEach((lib, i) => {
       const dep = rhDeps[i];
-      monaco.languages.typescript.typescriptDefaults.addExtraLib(
+      monaco.typescript.typescriptDefaults.addExtraLib(
         `declare module "@data-client/${dep}" { ${lib} }`,
         `file:///node_modules/@data-client/${dep}/index.d.ts`,
       );
     });
 
-    monaco.languages.typescript.typescriptDefaults.addExtraLib(
+    monaco.typescript.typescriptDefaults.addExtraLib(
       `declare globals { ${globals} }`,
     );
 
-    monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true);
+    monaco.typescript.typescriptDefaults.setEagerModelSync(true);
     return monaco;
   });
 }

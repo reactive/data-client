@@ -7,22 +7,28 @@ export const monacoPreloadManifest = {
   preloadPaths: [
     'loader.js',
     'editor/editor.main.js',
+    'json.worker-BizpAl9O.js',
+    'css.worker-CyhWkhHo.js',
+    'html.worker-CA3iAimZ.js',
+    'ts.worker-2QLmBukE.js',
     'nls.messages-loader.js',
-    'monaco.contribution-DO3azKX8.js',
-    'monaco.contribution-qLAYrEOP.js',
-    'monaco.contribution-EcChJV6a.js',
-    'monaco.contribution-D2OdxNBt.js',
+    'index-CBVt3dzv.js',
+    'monaco.contribution-9cKT3C7t.js',
+    'editor-KLE6jdfb.js',
+    'monaco.contribution-BgRy6xDf.js',
+    'monaco.contribution-BE88ZNGY.js',
+    'monaco.contribution-BPhsneLd.js',
+    'toggleHighContrast-qGX7E9o7.js',
     'basic-languages/monaco.contribution.js',
-    'editor.api-CalNCsUg.js',
-    'workers-DcJshg-q.js',
+    'editorWorkerHost-fVE1cjcC.js',
   ],
   prefetchPaths: [
-    'assets/editor.worker-Be8ye1pW.js',
-    'assets/ts.worker-CMbG-7ft.js',
-    'tsMode-CZz1Umrk.js',
-    'typescript-DfOrAzoV.js',
+    'assets/editor.worker-lj3bdIIn.js',
+    'assets/ts.worker-BWKtMYOk.js',
+    'tsMode-B0S_kp2q.js',
+    'typescript-_2t_511t.js',
   ],
 } as const;
 
 export const MONACO_CDN_VS =
-  'https://cdn.jsdelivr.net/npm/monaco-editor@0.55.1/min/vs';
+  'https://cdn.jsdelivr.net/npm/monaco-editor@0.56.0/min/vs';
