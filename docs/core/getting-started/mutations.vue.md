@@ -1,15 +1,15 @@
 ---
-title: Mutating Asynchronous Data in React
+title: Mutating Asynchronous Data in Vue
 sidebar_label: Mutate Data
 description: Safe and high performance data mutations without refetching or writing state management.
 ---
 
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import { TodoResource } from '@site/src/components/Demo/code/todo-app/rest/resources';
 import { todoFixtures } from '@site/src/fixtures/todos';
 import { RestEndpoint } from '@data-client/rest';
-import UseLoading from '../shared/\_useLoading.mdx';
-import VoteDemo from '../shared/\_VoteDemo.mdx';
+import UseLoading from '../shared/\_useLoading.vue.mdx';
+import VoteDemo from '../shared/\_VoteDemo.vue.mdx';
 
 <head>
   <meta name="docsearch:pagerank" content="40"/>
@@ -24,7 +24,7 @@ Using our [Create, Update, and Delete](/docs/concepts/atomic-mutations) endpoint
 
 [//]: # 'TODO: Add create, and delete examples as well (in tabs)'
 
-<HooksPlayground defaultOpen="n" row fixtures={todoFixtures}>
+<TypeScriptEditor row>
 
 ```ts title="TodoResource" collapsed
 import { Entity, resource } from '@data-client/rest';
@@ -46,87 +46,92 @@ export const TodoResource = resource({
 });
 ```
 
-```tsx title="TodoItem" {7-11,13-15}
-import { useController } from '@data-client/react';
-import { TodoResource, type Todo } from './TodoResource';
+```html title="TodoItem.vue" {8-12,14-16}
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { TodoResource, type Todo } from './TodoResource';
 
-export default function TodoItem({ todo }: { todo: Todo }) {
+  defineProps<{ todo: Todo }>();
   const ctrl = useController();
-  const handleChange = e =>
+
+  const handleChange = (e: Event) =>
     ctrl.fetch(
       TodoResource.partialUpdate,
       { id: todo.id },
-      { completed: e.currentTarget.checked },
+      { completed: (e.target as HTMLInputElement).checked },
     );
   const handleDelete = () =>
     ctrl.fetch(TodoResource.delete, {
       id: todo.id,
     });
-  return (
-    <div className="listItem nogap">
-      <label>
-        <input
-          type="checkbox"
-          checked={todo.completed}
-          onChange={handleChange}
-        />
-        {todo.completed ? <strike>{todo.title}</strike> : todo.title}
-      </label>
-      <CancelButton onClick={handleDelete} />
-    </div>
-  );
-}
+</script>
+
+<template>
+  <div class="listItem nogap">
+    <label>
+      <input
+        type="checkbox"
+        :checked="todo.completed"
+        @change="handleChange"
+      />
+      <strike v-if="todo.completed">{{ todo.title }}</strike>
+      <template v-else>{{ todo.title }}</template>
+    </label>
+    <CancelButton @click="handleDelete" />
+  </div>
+</template>
 ```
 
-```tsx title="CreateTodo" {8-11} collapsed
-import { useController } from '@data-client/react';
-import { TodoResource } from './TodoResource';
+```html title="CreateTodo.vue" {10-13} collapsed
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { TodoResource } from './TodoResource';
 
-export default function CreateTodo({ userId }: { userId: number }) {
+  const props = defineProps<{ userId: number }>();
   const ctrl = useController();
-  const handleKeyDown = async e => {
+
+  const handleKeyDown = async (e: KeyboardEvent) => {
     if (e.key === 'Enter') {
       ctrl.fetch(TodoResource.getList.push, {
-        userId,
-        title: e.currentTarget.value,
+        userId: props.userId,
+        title: (e.target as HTMLInputElement).value,
       });
-      e.currentTarget.value = '';
+      (e.target as HTMLInputElement).value = '';
     }
   };
-  return (
-    <div className="listItem nogap">
-      <label>
-        <input type="checkbox" name="new" checked={false} disabled />
-        <TextInput size="small" onKeyDown={handleKeyDown} />
-      </label>
-      <CancelButton />
-    </div>
-  );
-}
+</script>
+
+<template>
+  <div class="listItem nogap">
+    <label>
+      <input type="checkbox" name="new" :checked="false" disabled />
+      <TextInput size="small" @keydown="handleKeyDown" />
+    </label>
+    <CancelButton />
+  </div>
+</template>
 ```
 
-```tsx title="TodoList" collapsed
-import { useSuspense } from '@data-client/react';
-import { TodoResource } from './TodoResource';
-import TodoItem from './TodoItem';
-import CreateTodo from './CreateTodo';
+```html title="TodoList.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { TodoResource } from './TodoResource';
+  import TodoItem from './TodoItem.vue';
+  import CreateTodo from './CreateTodo.vue';
 
-function TodoList() {
   const userId = 1;
-  const todos = useSuspense(TodoResource.getList, { userId });
-  return (
-    <div>
-      {todos.map(todo => (
-        <TodoItem key={todo.pk()} todo={todo} />
-      ))}
-      <CreateTodo userId={userId} />
-    </div>
-  );
-}
-render(<TodoList />);
+  const todos = await useSuspense(TodoResource.getList, { userId });
+</script>
+
+<template>
+  <div>
+    <TodoItem v-for="todo in todos" :key="todo.pk()" :todo="todo" />
+    <CreateTodo :userId="userId" />
+  </div>
+</template>
 ```
 
-</HooksPlayground>
+</TypeScriptEditor>
 
 Rather than triggering invalidation cascades or using manually written update functions,
 <abbr title="Reactive Data Client">Data Client</abbr> reactively updates appropriate components using the fetch response.
@@ -147,3 +152,4 @@ problems in asynchronous programming.
 [useLoading()](../api/useLoading.md) enhances async functions by tracking their loading and error states.
 
 <UseLoading />
+
