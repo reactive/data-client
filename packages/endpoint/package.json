@@ -134,7 +134,7 @@
     "url": "https://github.com/reactive/data-client/issues"
   },
   "dependencies": {
-    "@babel/runtime": "^7.20.0"
+    "@babel/runtime": "^8.0.0"
   },
   "devDependencies": {
     "@anansi/browserslist-config": "^1.4.2",
