@@ -171,7 +171,7 @@
     "jest": "^30.0.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-native": "0.86.0",
+    "react-native": "0.86.2",
     "react-test-renderer": "*",
     "rollup-plugins": "workspace:*"
   }
