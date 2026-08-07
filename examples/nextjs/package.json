@@ -23,8 +23,8 @@
     "@data-client/rest": "^0.18.0",
     "@number-flow/react": "^0.6.0",
     "@types/node": "25.9.5",
-    "@types/react": "19.2.18",
-    "@types/react-dom": "19.2.4",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
     "clsx": "^2.1.1",
     "core-js": "^3.40.0",
     "next": "~15.5.21",
@@ -36,8 +36,8 @@
     "@typescript/native": "npm:typescript@7.0.2"
   },
   "overrides": {
-    "@types/react": "19.2.18",
-    "@types/react-dom": "19.2.4",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
     "sharp": ">=0.35.0",
     "postcss": ">=8.5.23"
   }
