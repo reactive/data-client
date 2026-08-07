@@ -10394,7 +10394,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"brace-expansion@npm:1.1.18":
+"brace-expansion@npm:^1.1.7":
   version: 1.1.18
   resolution: "brace-expansion@npm:1.1.18"
   dependencies:
@@ -10404,7 +10404,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"brace-expansion@npm:2.1.4":
+"brace-expansion@npm:^2.0.1, brace-expansion@npm:^2.0.2":
   version: 2.1.4
   resolution: "brace-expansion@npm:2.1.4"
   dependencies:
@@ -10413,7 +10413,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"brace-expansion@npm:5.0.9":
+"brace-expansion@npm:^5.0.5":
   version: 5.0.9
   resolution: "brace-expansion@npm:5.0.9"
   dependencies:
@@ -14490,10 +14490,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-uri@npm:>=3.1.5":
-  version: 4.1.2
-  resolution: "fast-uri@npm:4.1.2"
-  checksum: 10c0/539fda19fbc7ada89ac8c5beca3c7ab57d643789485ca25f2b88f94edaea3fc90d553ecd55d85b95d5c819ab2bf57f6ff7880aa0a92d0883e25bd35f30860e6a
+"fast-uri@npm:^3.0.1":
+  version: 3.1.5
+  resolution: "fast-uri@npm:3.1.5"
+  checksum: 10c0/2bf60eb800dd610c65e17be436425dcb21c92aff3a87d442a8bccab0b7b071e88cf1a5d7d1ea946370b937e6fc0375c405c0296c10587e57de4f78be4646d1d0
   languageName: node
   linkType: hard
 
@@ -18060,7 +18060,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:3.15.1":
+"js-yaml@npm:^3.13.1, js-yaml@npm:^3.6.1":
   version: 3.15.1
   resolution: "js-yaml@npm:3.15.1"
   dependencies:
@@ -18072,7 +18072,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:4.3.1":
+"js-yaml@npm:^4.1.0, js-yaml@npm:^4.1.1, js-yaml@npm:^4.3.0":
   version: 4.3.1
   resolution: "js-yaml@npm:4.3.1"
   dependencies:
@@ -19228,7 +19228,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mermaid@npm:>=11.16.1":
+"mermaid@npm:>=11.6.0":
   version: 11.16.1
   resolution: "mermaid@npm:11.16.1"
   dependencies:
@@ -23323,7 +23323,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:>=8.5.23":
+"postcss@npm:^8.4.21, postcss@npm:^8.4.24, postcss@npm:^8.4.33, postcss@npm:^8.4.40, postcss@npm:^8.5.15, postcss@npm:^8.5.19, postcss@npm:^8.5.4":
   version: 8.5.26
   resolution: "postcss@npm:8.5.26"
   dependencies:
@@ -27601,7 +27601,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici@npm:>=8.9.0":
+"undici@npm:^8.4.1":
   version: 8.10.0
   resolution: "undici@npm:8.10.0"
   checksum: 10c0/37ae2b1db8f65c3a003504e2040e96887b99f9db16ba07dcf49c37ed8b7f8c72f4452f2d46f52f7c9e49518fe8325e3b5e7e02ac3a2424886bd67d4b62a0ecab

@@ -75,11 +75,6 @@
     "serialize-javascript": ">=7.0.5",
     "sockjs": {
       "uuid": ">=11.1.1"
-    },
-    "brace-expansion": ">=1.1.18",
-    "fast-uri": ">=3.1.5",
-    "js-yaml": ">=4.3.1",
-    "ip-address": ">=10.4.0",
-    "undici": ">=6.28.0"
+    }
   }
 }

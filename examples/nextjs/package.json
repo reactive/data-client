@@ -39,7 +39,6 @@
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.4",
     "sharp": ">=0.35.0",
-    "postcss": ">=8.5.23",
-    "brace-expansion": ">=2.1.4"
+    "postcss": ">=8.5.23"
   }
 }
