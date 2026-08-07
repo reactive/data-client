@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784977907327,
+  "lastUpdate": 1786141371789,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -5915,6 +5915,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 178.57,
             "range": "± 10.1%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "3fa47c8d3cdf05aa2af335e46d760b479fdb5c84",
+          "message": "pkg(security): Bump transitive CVEs and non-major deps (#4068)\n\n* pkg(security): Bump transitive CVEs and non-major deps\n\nForce patched versions via yarn resolutions and example npm overrides,\nrefresh lockfiles, and fold in open Renovate/Dependabot dependency bumps.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n\n* fix(ci): Keep antd at 6.5.2 to avoid Yarn quarantine\n\nantd@6.5.4 is quarantined by Yarn's time gate, which broke the CircleCI\nsetup job when github-app is added to the workspace.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n\n* fix(ci): Deduplicate @types/react for website typecheck\n\nForce a single @types/react/@types/react-dom version via resolutions so\nDocusaurus nested types match the workspace after the 19.2.18 bump.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n\n* internal(pkg): Drop unnecessary resolution and override pins\n\nKeep lockfile-driven CVE bumps and only retain package.json changes that\nupdate existing entries or are required (@types/react dedupe).\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n\n* fix(ci): Revert @types/react 19.2.18 for TS 4.0 matrix\n\nThe forced 19.2.18 resolution blocked esmodule-types-4.0 from installing\n@types/react@ts4.0, so tsc 4.0 failed on template literal types.\n\nCo-authored-by: Cursor <cursoragent@cursor.com>\n\n---------\n\nCo-authored-by: Cursor <cursoragent@cursor.com>",
+          "timestamp": "2026-08-07T18:19:52-04:00",
+          "tree_id": "5608f76ee3a7e15fc4e1ae323d0921cefa1bbc8b",
+          "url": "https://github.com/reactive/data-client/commit/3fa47c8d3cdf05aa2af335e46d760b479fdb5c84"
+        },
+        "date": 1786141369213,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 137.94,
+            "range": "± 4.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 44.05,
+            "range": "± 3.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 384.62,
+            "range": "± 9.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 333.33,
+            "range": "± 8.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 43.11,
+            "range": "± 9.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 312.5,
+            "range": "± 7.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 327.96,
+            "range": "± 7.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 9.9,
+            "range": "± 9.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 72.2,
+            "range": "± 14.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 37.67,
+            "range": "± 5.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 219.81,
+            "range": "± 6.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 285.71,
+            "range": "± 3.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 177.01,
+            "range": "± 7.9%",
             "unit": "ops/s"
           }
         ]
