@@ -95,17 +95,19 @@ export function getAcidSideEffectData(): AcidSideEffectState {
   };
 }
 
-export const acidTodoFixtures: Interceptor<AcidTodoState>[] = [
-  {
-    endpoint: getTodoList,
-    response(params) {
-      if (params?.userId != null) {
-        return this.todos.filter(todo => todo.userId == params.userId);
-      }
-      return this.todos;
-    },
-    delay: 150,
+const getTodoListInterceptor: Interceptor<AcidTodoState> = {
+  endpoint: getTodoList,
+  response(params) {
+    if (params?.userId != null) {
+      return this.todos.filter(todo => todo.userId == params.userId);
+    }
+    return this.todos;
   },
+  delay: 150,
+};
+
+export const acidTodoFixtures: Interceptor<AcidTodoState>[] = [
+  getTodoListInterceptor,
   {
     endpoint: getTodo,
     response({ id }) {
@@ -163,16 +165,7 @@ export const acidConsistencyFixtures: Interceptor<AcidConsistencyState>[] = [
 ];
 
 export const acidRollbackFixtures: Interceptor<AcidTodoState>[] = [
-  {
-    endpoint: getTodoList,
-    response(params) {
-      if (params?.userId != null) {
-        return this.todos.filter(todo => todo.userId == params.userId);
-      }
-      return this.todos;
-    },
-    delay: 150,
-  },
+  getTodoListInterceptor,
   {
     endpoint: createTodo,
     response() {
@@ -185,16 +178,7 @@ export const acidRollbackFixtures: Interceptor<AcidTodoState>[] = [
 ];
 
 export const acidSideEffectFixtures: Interceptor<AcidSideEffectState>[] = [
-  {
-    endpoint: getTodoList,
-    response(params) {
-      if (params?.userId != null) {
-        return this.todos.filter(todo => todo.userId == params.userId);
-      }
-      return this.todos;
-    },
-    delay: 150,
-  },
+  getTodoListInterceptor,
   {
     endpoint: getUser,
     response({ id }) {
@@ -206,8 +190,7 @@ export const acidSideEffectFixtures: Interceptor<AcidSideEffectState>[] = [
   },
   {
     endpoint: createTodo,
-    response(...args) {
-      const body = args.length > 1 ? args[1] : args[0];
+    response(body) {
       const todo = {
         completed: false,
         userId: '1',

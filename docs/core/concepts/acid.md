@@ -18,7 +18,7 @@ import AcidCollections from '../shared/\_acidCollections.mdx';
 import AcidQuery from '../shared/\_acidQuery.mdx';
 import AcidValidate from '../shared/\_acidValidate.mdx';
 import AcidTransports from '../shared/\_acidTransports.mdx';
-import AcidFetchOrder from '../shared/\_acidFetchOrder.mdx';
+import OptimisticTransform from '../../rest/shared/\_optimisticTransform.mdx';
 import AcidSnapshot from '../shared/\_acidSnapshot.mdx';
 import AcidRest from '../shared/\_acidRest.mdx';
 
@@ -33,7 +33,7 @@ ACID. The frontend store is that database for interactive data — but every
 durable write is [asynchronous](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous).
 
 Reactive Data Client applies the same guarantees so every view agrees without
-[refetching](../api/Controller.md#expireAll), mutations don't flash torn state, and
+refetching, mutations don't flash torn state, and
 crashes don't lose data that reached a durable store like a REST server or
 [IndexedDB](./managers.md#persistence).
 
@@ -181,7 +181,7 @@ keeps 0, 1, 2.
 
 Click increment several times quickly.
 
-<AcidFetchOrder />
+<OptimisticTransform />
 
 [Optimistic updates](/rest/guides/optimistic-updates) amplify these races;
 Reactive Data Client handles them automatically.
@@ -221,40 +221,6 @@ A [persist Manager](./managers.md#persistence) can replicate confirmed state to
 for offline reloads. Restore it with
 [DataProvider's initialState](../api/DataProvider.md#initialState). Drop
 in-flight optimistic updates — they are not cloneable, and they are not the ack.
-
-```typescript
-import type { Manager, Middleware } from '@data-client/react';
-import { set } from 'idb-keyval';
-
-export default class PersistManager implements Manager {
-  declare protected timer?: ReturnType<typeof setTimeout>;
-
-  middleware: Middleware = controller => next => async action => {
-    await next(action);
-    clearTimeout(this.timer);
-    this.timer = setTimeout(() => {
-      const state = { ...controller.getState(), optimistic: [] };
-      set('data-client', state);
-    }, 1000);
-  };
-
-  cleanup() {
-    clearTimeout(this.timer);
-  }
-}
-```
-
-```tsx
-import { get } from 'idb-keyval';
-
-const initialState = await get('data-client');
-
-createRoot(document.body).render(
-  <DataProvider initialState={initialState} managers={managers}>
-    <App />
-  </DataProvider>,
-);
-```
 
 :::info[Reactivity]
 
