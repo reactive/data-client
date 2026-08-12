@@ -1,0 +1,88 @@
+import HooksPlayground from '@site/src/components/HooksPlayground';
+import {
+  acidSideEffectFixtures,
+  getAcidSideEffectData,
+} from '@site/src/fixtures/acid';
+
+<HooksPlayground defaultOpen="n" row fixtures={acidSideEffectFixtures} getInitialInterceptorData={getAcidSideEffectData}>
+
+```ts title="api/Todo" collapsed
+import { Entity, RestEndpoint, Collection } from '@data-client/rest';
+
+export class Todo extends Entity {
+  id = '';
+  userId = '';
+  title = '';
+  completed = false;
+
+  static key = 'Todo';
+}
+
+export const userTodos = new Collection([Todo], {
+  argsKey: ({ userId }: { userId?: string }) => ({ userId }),
+});
+
+export const getTodos = new RestEndpoint({
+  path: '/todos',
+  searchParams: {} as { userId?: string },
+  schema: userTodos,
+});
+```
+
+```ts title="api/User" {18-21}
+import { Entity, RestEndpoint } from '@data-client/rest';
+import { getTodos } from './api/Todo';
+
+export class User extends Entity {
+  id = '';
+  name = '';
+  todoCount = 0;
+
+  static key = 'User';
+}
+
+export const getUser = new RestEndpoint({
+  path: '/users/:id',
+  schema: User,
+});
+
+export const createTodo = getTodos.push.extend({
+  schema: {
+    todo: getTodos.push.schema,
+    user: User,
+  },
+});
+```
+
+```tsx title="TodoPage"
+import { useController, useSuspense } from '@data-client/react';
+import { getTodos } from './api/Todo';
+import { createTodo, getUser } from './api/User';
+
+function TodoPage() {
+  const ctrl = useController();
+  const user = useSuspense(getUser, { id: '1' });
+  const todos = useSuspense(getTodos, { userId: '1' });
+  const handleAdd = () =>
+    ctrl.fetch(createTodo, {
+      userId: '1',
+      title: 'New todo',
+    });
+  return (
+    <div>
+      <p>
+        {user.name} has <b>{user.todoCount}</b> todos
+      </p>
+      {todos.map(todo => (
+        <div key={todo.pk()} className="listItem">
+          {todo.title}
+        </div>
+      ))}
+      <button onClick={handleAdd}>Add todo</button>
+    </div>
+  );
+}
+render(<TodoPage />);
+```
+
+</HooksPlayground>

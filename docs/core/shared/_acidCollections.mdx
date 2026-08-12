@@ -1,0 +1,129 @@
+import HooksPlayground from '@site/src/components/HooksPlayground';
+import {
+  acidConsistencyFixtures,
+  getAcidConsistencyData,
+} from '@site/src/fixtures/acid';
+
+<HooksPlayground defaultOpen="n" row fixtures={acidConsistencyFixtures} getInitialInterceptorData={getAcidConsistencyData}>
+
+```ts title="api/Todo" {12-15} collapsed
+import { Entity, RestEndpoint, Collection } from '@data-client/rest';
+
+export class Todo extends Entity {
+  id = '';
+  userId = '';
+  title = '';
+  completed = false;
+
+  static key = 'Todo';
+}
+
+export const userTodos = new Collection([Todo], {
+  argsKey: ({ userId }: { userId?: string }) => ({ userId }),
+  nestKey: (parent: { id: string }) => ({ userId: parent.id }),
+});
+
+export const getTodos = new RestEndpoint({
+  path: '/todos',
+  searchParams: {} as { userId?: string },
+  schema: userTodos,
+});
+
+export const updateTodo = new RestEndpoint({
+  path: '/todos/:id',
+  method: 'PATCH',
+  schema: Todo,
+  getOptimisticResponse(snap, { id }, body) {
+    const cur = snap.get(Todo, { id });
+    if (!cur) throw snap.abort;
+    return { ...cur, ...body };
+  },
+});
+```
+
+```ts title="api/User" collapsed
+import { Entity, RestEndpoint } from '@data-client/rest';
+import { Todo, userTodos } from './api/Todo';
+
+export class User extends Entity {
+  id = '';
+  name = '';
+  todos: Todo[] = [];
+
+  static key = 'User';
+  static schema = {
+    todos: userTodos,
+  };
+}
+
+export const getUser = new RestEndpoint({
+  path: '/users/:id',
+  schema: User,
+});
+```
+
+```tsx title="TodoList" {8}
+import { useController, useSuspense } from '@data-client/react';
+import { getTodos, updateTodo } from './api/Todo';
+import { getUser } from './api/User';
+
+function TodoList() {
+  const ctrl = useController();
+  const user = useSuspense(getUser, { id: '1' });
+  const todos = useSuspense(getTodos, { userId: '1' });
+  const handleChange = (todo, e) =>
+    ctrl.fetch(
+      updateTodo,
+      { id: todo.id },
+      { completed: e.currentTarget.checked },
+    );
+  return (
+    <div>
+      <p>
+        <small>user.todos === getList: {String(user.todos === todos)}</small>
+      </p>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '1em',
+        }}
+      >
+        <div>
+          <small>user.todos</small>
+          {user.todos.map(todo => (
+            <div key={todo.pk()} className="listItem nogap">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={todo.completed}
+                  onChange={e => handleChange(todo, e)}
+                />
+                {todo.title}
+              </label>
+            </div>
+          ))}
+        </div>
+        <div>
+          <small>getList</small>
+          {todos.map(todo => (
+            <div key={todo.pk()} className="listItem nogap">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={todo.completed}
+                  onChange={e => handleChange(todo, e)}
+                />
+                {todo.title}
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+render(<TodoList />);
+```
+
+</HooksPlayground>

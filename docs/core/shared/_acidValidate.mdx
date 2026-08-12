@@ -1,0 +1,80 @@
+import HooksPlayground from '@site/src/components/HooksPlayground';
+import { RestEndpoint } from '@data-client/rest';
+
+<HooksPlayground fixtures={[
+{
+endpoint: new RestEndpoint({path: '/article/:id'}),
+args: [{ id: 1 }],
+response: { id: '1', title: 'first' },
+delay: 150,
+},
+{
+endpoint: new RestEndpoint({path: '/article/:id'}),
+args: [{ id: 2 }],
+response: { id: '2' },
+delay: 150,
+},
+{
+endpoint: new RestEndpoint({path: '/article/:id'}),
+args: [{ id: 3 }],
+response: { id: '3', title: { complex: 'second', object: 5 } },
+delay: 150,
+},
+]}>
+
+```ts title="api/Article" {7-10}
+export class Article extends Entity {
+  id = '';
+  title = '';
+
+  static validate(processedEntity) {
+    if (!Object.hasOwn(processedEntity, 'title')) return 'missing title field';
+    if (typeof processedEntity.title !== 'string') return 'title is wrong type';
+  }
+}
+
+export const getArticle = new RestEndpoint({
+  path: '/article/:id',
+  schema: Article,
+});
+```
+
+```tsx title="ArticlePage" collapsed
+import { getArticle } from './api/Article';
+
+export default function ArticlePage({ id }: { id: string }) {
+  const article = useSuspense(getArticle, { id });
+  return <div>{article.title}</div>;
+}
+```
+
+```tsx title="Navigator"
+import ArticlePage from './ArticlePage';
+
+function Navigator() {
+  const [id, setId] = React.useState('1');
+  return (
+    <div>
+      <button value="1" onClick={e => setId(e.currentTarget.value)}>
+        Valid
+      </button>
+      <button value="2" onClick={e => setId(e.currentTarget.value)}>
+        Missing title
+      </button>
+      <button value="3" onClick={e => setId(e.currentTarget.value)}>
+        Wrong type
+      </button>
+      <AsyncBoundary fallback={<Loading />}>
+        <ArticlePage id={id} />
+      </AsyncBoundary>
+    </div>
+  );
+}
+render(
+  <ResetableErrorBoundary>
+    <Navigator />
+  </ResetableErrorBoundary>,
+);
+```
+
+</HooksPlayground>

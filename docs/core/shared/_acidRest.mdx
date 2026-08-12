@@ -1,0 +1,102 @@
+import HooksPlayground from '@site/src/components/HooksPlayground';
+import {
+  acidTodoFixtures,
+  getAcidTodoData,
+} from '@site/src/fixtures/acid';
+
+<HooksPlayground defaultOpen="n" row fixtures={acidTodoFixtures} getInitialInterceptorData={getAcidTodoData}>
+
+```ts title="TodoResource" collapsed
+import { Entity, resource } from '@data-client/rest';
+
+export class Todo extends Entity {
+  id = '';
+  userId = '';
+  title = '';
+  completed = false;
+
+  static key = 'Todo';
+}
+export const TodoResource = resource({
+  path: '/todos/:id',
+  searchParams: {} as { userId?: string | number } | undefined,
+  schema: Todo,
+  optimistic: true,
+});
+```
+
+```tsx title="TodoItem" collapsed
+import { useController } from '@data-client/react';
+import { TodoResource, type Todo } from './TodoResource';
+
+export default function TodoItem({ todo }: { todo: Todo }) {
+  const ctrl = useController();
+  const handleChange = e =>
+    ctrl.fetch(
+      TodoResource.partialUpdate,
+      { id: todo.id },
+      { completed: e.currentTarget.checked },
+    );
+  return (
+    <div className="listItem nogap">
+      <label>
+        <input
+          type="checkbox"
+          checked={todo.completed}
+          onChange={handleChange}
+        />
+        {todo.completed ? <strike>{todo.title}</strike> : todo.title}
+      </label>
+    </div>
+  );
+}
+```
+
+```tsx title="Session" collapsed
+import { useSuspense } from '@data-client/react';
+import { TodoResource } from './TodoResource';
+import TodoItem from './TodoItem';
+
+export default function Session() {
+  const todos = useSuspense(TodoResource.getList, { userId: '1' });
+  const [note, setNote] = React.useState('');
+  return (
+    <div>
+      <TextInput
+        size="small"
+        placeholder="local-only note (lost on crash)"
+        value={note}
+        onChange={e => setNote(e.currentTarget.value)}
+      />
+      {todos.map(todo => (
+        <TodoItem key={todo.pk()} todo={todo} />
+      ))}
+    </div>
+  );
+}
+```
+
+```tsx title="App"
+import { useController } from '@data-client/react';
+import Session from './Session';
+
+function App() {
+  const ctrl = useController();
+  const [session, setSession] = React.useState(0);
+  const handleCrash = async () => {
+    await ctrl.resetEntireStore();
+    setSession(s => s + 1);
+  };
+  return (
+    <div>
+      <button onClick={handleCrash}>Simulate crash</button>
+      <AsyncBoundary fallback={<Loading />}>
+        <Session key={session} />
+      </AsyncBoundary>
+    </div>
+  );
+}
+render(<App />);
+```
+
+</HooksPlayground>

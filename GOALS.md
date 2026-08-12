@@ -10,8 +10,8 @@
   - Intuitive to agents and humans; skills and codemods for onboarding, debugging, migrations
   - Data binding directly in the component that renders the data
 - Strong data integrity guarantees
+  - ACID over async durable stores, plus reactivity — clear cause and effect, without losing work
   - Referential stability: unchanged data keeps the same object identity everywhere
-  - Atomic mutations; every view consistent without refetching
   - Types and runtime never silently diverge
 - Best performance in class
   - Networking overhead is the most expensive - minimize this first
