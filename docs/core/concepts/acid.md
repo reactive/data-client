@@ -52,7 +52,8 @@ tearing* — flashes of inconsistent state as usages update one by one.
 into the one copy of that entity. Every consumer of that [pk](/rest/api/Entity#pk)
 updates together. [Read more about defining other update endpoints](/rest/guides/side-effects).
 
-Toggle a todo. Both lists update at once — no flash of one list lagging.
+Close an issue. The list and the detail pane update together — no flash of
+one view lagging.
 
 <AcidUpdate />
 
@@ -64,8 +65,8 @@ Created entities are immediately available. They are added to existing
 [.unshift](/rest/api/RestEndpoint#unshift), or
 [.assign](/rest/api/RestEndpoint#assign).
 
-Add a todo. It appears in both lists together — never invisible, never an
-orphan, never a list hole.
+Open an issue. It appears in the list and is immediately readable with
+[get](/rest/api/resource#get) — never invisible, never an orphan.
 
 <AcidCreate />
 
@@ -74,7 +75,8 @@ orphan, never a list hole.
 [schema.Invalidate](/rest/api/Invalidate) removes the entity.
 [Resource.delete](/rest/api/resource#delete) provides such an endpoint.
 
-Delete a todo. It disappears from both lists in the same commit.
+Delete an issue. It disappears from the list and the detail pane in the same
+commit.
 
 <AcidDelete />
 
@@ -83,7 +85,7 @@ Delete a todo. It disappears from both lists in the same commit.
 Optimistic updates apply as that same snapshot. If the network fails, they
 roll back as that snapshot.
 
-Click add. The todo appears immediately, then vanishes when the server errors.
+Close an issue. It flips immediately, then snaps back when the server errors.
 
 <AcidRollback />
 
@@ -95,7 +97,7 @@ and refetching the others can fail partway — a flash of torn state.
 
 [See mutation side-effects](/rest/guides/side-effects) for the full pattern.
 
-Add a todo. The list and the user's count update together.
+Buy DOGE. The trade list and the account balance update together.
 
 <AcidSideEffects />
 
@@ -103,15 +105,15 @@ Add a todo. The list and the user's count update together.
 
 A write takes the store from one valid state to another. Invariants hold:
 one copy of each entity, relationships join, invalid data is rejected.
-That prevents *data tearing* — the same todo showing two different values.
+That prevents *data tearing* — the same issue showing two different values.
 
 ### Identity
 
-[Entity.pk()](/rest/api/Entity#pk) is the unique index. The same todo from
+[Entity.pk()](/rest/api/Entity#pk) is the unique index. The same issue from
 [getList](/rest/api/resource#getlist) and [get](/rest/api/resource#get) is the
 **same object** — the same value, wherever it is embedded.
 
-Select a todo, then toggle it. `fromList === get` stays true.
+Select an issue, then close it. `fromList === get` stays true.
 
 <AcidIdentity />
 
@@ -121,7 +123,7 @@ When [Collection.argsKey](/rest/api/Collection#argskey) and
 [Collection.nestKey](/rest/api/Collection#nestkey) return the same shape, a nested
 list and a top-level list are the **same array**.
 
-Toggle a todo. `user.todos === getList` stays true, and both columns update.
+Close an issue. `repo.issues === getList` stays true, and both columns update.
 
 <AcidCollections />
 
@@ -130,7 +132,7 @@ Toggle a todo. `user.todos === getList` stays true, and both columns update.
 [Query](/rest/api/Query) derived values stay consistent for the same reason —
 they read the entity table, not a copy.
 
-Toggle todos. The remaining count updates without refetching.
+Close issues. The open count updates without refetching.
 
 <AcidQuery />
 
@@ -149,7 +151,8 @@ The same entity is the same value whether it arrived from fetch, initial
 load, [Controller.set()](../api/Controller.md#set), or a
 [websocket](./managers.md#data-stream).
 
-Click simulate websocket. Both lists update — no copy left behind.
+Click **Alice closed this**. The list and the detail pane update — no copy
+left behind.
 
 <AcidTransports />
 
@@ -191,7 +194,7 @@ Reactive Data Client handles them automatically.
 All hooks in one render read the same snapshot, so the tree never paints mixed
 old and new values.
 
-Toggle a todo. `list` and `query` in that row always agree.
+Close an issue. `list` and `query` in that row always agree.
 
 <AcidSnapshot />
 
@@ -203,12 +206,12 @@ Later retrievals reflect those updates.
 
 ### REST
 
-`ctrl.fetch` is the commit path. Saving as you go (a toggle, an inline
+`ctrl.fetch` is the commit path. Saving as you go (a close, an inline
 edit) commits to the server. Use a form when the friction is the point —
 publish, purchase.
 
-Toggle some todos, then simulate a crash. Data Client refetches from the
-server and the work is still there. The local-only note is gone.
+Close some issues, type a draft comment, then simulate a crash. Data Client
+refetches from the server and the closes are still there. The draft is gone.
 
 <AcidRest />
 

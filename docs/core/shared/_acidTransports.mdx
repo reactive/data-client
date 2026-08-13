@@ -1,66 +1,51 @@
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import {
-  acidTodoFixtures,
-  getAcidTodoData,
+  acidIssueFixtures,
+  getAcidIssueData,
 } from '@site/src/fixtures/acid';
 
-<HooksPlayground defaultOpen="n" row fixtures={acidTodoFixtures} getInitialInterceptorData={getAcidTodoData}>
+<HooksPlayground defaultOpen="n" row fixtures={acidIssueFixtures} getInitialInterceptorData={getAcidIssueData}>
 
-```ts title="TodoResource" collapsed
+```ts title="IssueResource" collapsed
 import { Entity, resource } from '@data-client/rest';
 
-export class Todo extends Entity {
+export class Issue extends Entity {
   id = '';
-  userId = '';
+  repoId = '';
   title = '';
-  completed = false;
+  state: 'open' | 'closed' = 'open';
 
-  static key = 'Todo';
+  static key = 'Issue';
 }
-export const TodoResource = resource({
-  path: '/todos/:id',
-  searchParams: {} as { userId?: string | number } | undefined,
-  schema: Todo,
+export const IssueResource = resource({
+  path: '/issues/:id',
+  searchParams: {} as { repoId?: string } | undefined,
+  schema: Issue,
   optimistic: true,
 });
 ```
 
-```tsx title="TodoList" collapsed
-import { useSuspense } from '@data-client/react';
-import { TodoResource } from './TodoResource';
-
-export default function TodoList() {
-  const todos = useSuspense(TodoResource.getList, { userId: '1' });
-  return (
-    <div>
-      {todos.map(todo => (
-        <div key={todo.pk()} className="listItem">
-          {todo.title}
-        </div>
-      ))}
-    </div>
-  );
-}
-```
-
-```tsx title="TodoPage"
+```tsx title="IssuePage" {10-13}
 import { useController, useSuspense } from '@data-client/react';
-import { Todo, TodoResource } from './TodoResource';
-import TodoList from './TodoList';
+import { Issue, IssueResource } from './IssueResource';
 
-function TodoPage() {
+function IssuePage() {
   const ctrl = useController();
-  const todos = useSuspense(TodoResource.getList, { userId: '1' });
-  const handlePush = () => {
-    const todo = todos[0];
-    ctrl.set(Todo, { id: todo.id }, current => ({
+  const issues = useSuspense(IssueResource.getList, { repoId: '1' });
+  const [id, setId] = React.useState(issues[0].id);
+  const issue = useSuspense(IssueResource.get, { id });
+  const handlePush = () =>
+    ctrl.set(Issue, { id }, current => ({
       ...current,
-      title: `${current.title} (pushed)`,
+      state: current.state === 'open' ? 'closed' : 'open',
     }));
-  };
   return (
     <div>
-      <button onClick={handlePush}>Simulate websocket</button>
+      <button onClick={handlePush}>
+        {issue.state === 'open' ?
+          'Alice closed this'
+        : 'Alice reopened this'}
+      </button>
       <div
         style={{
           display: 'grid',
@@ -68,13 +53,32 @@ function TodoPage() {
           gap: '1em',
         }}
       >
-        <TodoList />
-        <TodoList />
+        <div>
+          {issues.map(item => (
+            <div
+              key={item.pk()}
+              className="listItem"
+              style={{ cursor: 'pointer' }}
+              onClick={() => setId(item.id)}
+            >
+              {item.id === id ?
+                <b>{item.title}</b>
+              : item.title}
+              <small>{item.state}</small>
+            </div>
+          ))}
+        </div>
+        <div>
+          <div>{issue.title}</div>
+          <p>
+            <small>{issue.state}</small>
+          </p>
+        </div>
       </div>
     </div>
   );
 }
-render(<TodoPage />);
+render(<IssuePage />);
 ```
 
 </HooksPlayground>

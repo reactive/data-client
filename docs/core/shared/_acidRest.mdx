@@ -1,82 +1,66 @@
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import {
-  acidTodoFixtures,
-  getAcidTodoData,
+  acidIssueFixtures,
+  getAcidIssueData,
 } from '@site/src/fixtures/acid';
 
-<HooksPlayground defaultOpen="n" row fixtures={acidTodoFixtures} getInitialInterceptorData={getAcidTodoData}>
+<HooksPlayground defaultOpen="n" row fixtures={acidIssueFixtures} getInitialInterceptorData={getAcidIssueData}>
 
-```ts title="TodoResource" collapsed
+```ts title="IssueResource" collapsed
 import { Entity, resource } from '@data-client/rest';
 
-export class Todo extends Entity {
+export class Issue extends Entity {
   id = '';
-  userId = '';
+  repoId = '';
   title = '';
-  completed = false;
+  state: 'open' | 'closed' = 'open';
 
-  static key = 'Todo';
+  static key = 'Issue';
 }
-export const TodoResource = resource({
-  path: '/todos/:id',
-  searchParams: {} as { userId?: string | number } | undefined,
-  schema: Todo,
+export const IssueResource = resource({
+  path: '/issues/:id',
+  searchParams: {} as { repoId?: string } | undefined,
+  schema: Issue,
   optimistic: true,
 });
 ```
 
-```tsx title="TodoItem" collapsed
-import { useController } from '@data-client/react';
-import { TodoResource, type Todo } from './TodoResource';
-
-export default function TodoItem({ todo }: { todo: Todo }) {
-  const ctrl = useController();
-  const handleChange = e =>
-    ctrl.fetch(
-      TodoResource.partialUpdate,
-      { id: todo.id },
-      { completed: e.currentTarget.checked },
-    );
-  return (
-    <div className="listItem nogap">
-      <label>
-        <input
-          type="checkbox"
-          checked={todo.completed}
-          onChange={handleChange}
-        />
-        {todo.completed ? <strike>{todo.title}</strike> : todo.title}
-      </label>
-    </div>
-  );
-}
-```
-
 ```tsx title="Session" collapsed
-import { useSuspense } from '@data-client/react';
-import { TodoResource } from './TodoResource';
-import TodoItem from './TodoItem';
+import { useController, useSuspense } from '@data-client/react';
+import { IssueResource } from './IssueResource';
 
 export default function Session() {
-  const todos = useSuspense(TodoResource.getList, { userId: '1' });
-  const [note, setNote] = React.useState('');
+  const ctrl = useController();
+  const issues = useSuspense(IssueResource.getList, { repoId: '1' });
+  const [draft, setDraft] = React.useState('');
+  const handleToggle = issue =>
+    ctrl.fetch(
+      IssueResource.partialUpdate,
+      { id: issue.id },
+      { state: issue.state === 'open' ? 'closed' : 'open' },
+    );
   return (
     <div>
-      <TextInput
-        size="small"
-        placeholder="local-only note (lost on crash)"
-        value={note}
-        onChange={e => setNote(e.currentTarget.value)}
+      <TextArea
+        placeholder="draft comment (lost on crash)"
+        value={draft}
+        onChange={e => setDraft(e.currentTarget.value)}
       />
-      {todos.map(todo => (
-        <TodoItem key={todo.pk()} todo={todo} />
+      {issues.map(issue => (
+        <div key={issue.pk()} className="listItem">
+          {issue.title}
+          <small>{issue.state}</small>
+          <button onClick={() => handleToggle(issue)}>
+            {issue.state === 'open' ? 'Close' : 'Reopen'}
+          </button>
+        </div>
       ))}
     </div>
   );
 }
 ```
 
-```tsx title="App"
+```tsx title="App" {8-9}
 import { useController } from '@data-client/react';
 import Session from './Session';
 

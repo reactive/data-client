@@ -2,172 +2,192 @@ import { RestEndpoint } from '@data-client/rest';
 import type { Interceptor } from '@data-client/test';
 import { v4 as uuid } from 'uuid';
 
-export type AcidTodo = {
+export type AcidIssue = {
   id: string;
-  userId: string;
+  repoId: string;
   title: string;
-  completed: boolean;
+  state: 'open' | 'closed';
 };
 
-export type AcidTodoState = {
-  todos: AcidTodo[];
+export type AcidIssueState = {
+  issues: AcidIssue[];
 };
 
-export type AcidUser = {
+export type AcidRepo = {
   id: string;
   name: string;
 };
 
-export type AcidConsistencyState = AcidTodoState & {
-  users: AcidUser[];
+export type AcidCollectionState = AcidIssueState & {
+  repos: AcidRepo[];
 };
 
-const getTodoList = new RestEndpoint({
-  path: '/todos',
-  searchParams: {} as { userId?: string | number } | undefined,
+export type AcidAccount = {
+  id: string;
+  balance: number;
+};
+
+export type AcidTrade = {
+  id: string;
+  amount: number;
+  coin: string;
+};
+
+export type AcidTradeState = {
+  account: AcidAccount;
+  trades: AcidTrade[];
+};
+
+const getIssueList = new RestEndpoint({
+  path: '/issues',
+  searchParams: {} as { repoId?: string } | undefined,
 });
-const getTodo = new RestEndpoint({
-  path: '/todos/:id',
+const getIssue = new RestEndpoint({
+  path: '/issues/:id',
 });
-const partialUpdateTodo = new RestEndpoint({
-  path: '/todos/:id',
+const partialUpdateIssue = new RestEndpoint({
+  path: '/issues/:id',
   method: 'PATCH',
 });
-const createTodo = new RestEndpoint({
-  path: '/todos',
+const createIssue = new RestEndpoint({
+  path: '/issues',
   method: 'POST',
 });
-const deleteTodo = new RestEndpoint({
-  path: '/todos/:id',
+const deleteIssue = new RestEndpoint({
+  path: '/issues/:id',
   method: 'DELETE',
 });
-const getUser = new RestEndpoint({
-  path: '/users/:id',
+const getRepo = new RestEndpoint({
+  path: '/repos/:id',
+});
+const getAccount = new RestEndpoint({
+  path: '/accounts/:id',
+});
+const getTradeList = new RestEndpoint({
+  path: '/trade',
+});
+const createTrade = new RestEndpoint({
+  path: '/trade',
+  method: 'POST',
 });
 
-export function getAcidTodoData(): AcidTodoState {
+export function getAcidIssueData(): AcidIssueState {
   return {
-    todos: [
+    issues: [
+      {
+        id: '3',
+        repoId: '1',
+        title: 'Rate limit the API',
+        state: 'closed',
+      },
       {
         id: '1',
-        userId: '1',
-        title: 'Write tests',
-        completed: false,
+        repoId: '1',
+        title: 'Fix login timeout',
+        state: 'open',
       },
       {
         id: '2',
-        userId: '1',
-        title: 'Ship it',
-        completed: false,
-      },
-      {
-        id: '3',
-        userId: '1',
-        title: 'Take a break',
-        completed: true,
+        repoId: '1',
+        title: 'Document ACID guarantees',
+        state: 'open',
       },
     ],
   };
 }
 
-export function getAcidConsistencyData(): AcidConsistencyState {
+export function getAcidCollectionData(): AcidCollectionState {
   return {
-    users: [{ id: '1', name: 'Bob' }],
-    todos: getAcidTodoData().todos,
+    repos: [{ id: '1', name: 'data-client' }],
+    issues: getAcidIssueData().issues,
   };
 }
 
-export type AcidSideEffectState = AcidTodoState & {
-  users: (AcidUser & { todoCount: number })[];
-};
-
-export function getAcidSideEffectData(): AcidSideEffectState {
-  const todos = getAcidTodoData().todos;
+export function getAcidTradeData(): AcidTradeState {
   return {
-    todos,
-    users: [
-      {
-        id: '1',
-        name: 'Bob',
-        todoCount: todos.filter(todo => todo.userId === '1').length,
-      },
-    ],
+    account: { id: '1', balance: 1337 },
+    trades: [{ id: '1', amount: 50, coin: 'DOGE' }],
   };
 }
 
-const getTodoListInterceptor: Interceptor<AcidTodoState> = {
-  endpoint: getTodoList,
-  response(params) {
-    if (params?.userId != null) {
-      return this.todos.filter(todo => todo.userId == params.userId);
-    }
-    return this.todos;
+const delay = 150;
+
+const getIssueListInterceptor: Interceptor<AcidIssueState> = {
+  endpoint: getIssueList,
+  response({ repoId }) {
+    return this.issues.filter(issue => issue.repoId == repoId);
   },
-  delay: 150,
+  delay,
 };
 
-export const acidTodoFixtures: Interceptor<AcidTodoState>[] = [
-  getTodoListInterceptor,
-  {
-    endpoint: getTodo,
-    response({ id }) {
-      return this.todos.find(todo => todo.id == id);
-    },
-    delay: 150,
+const getIssueInterceptor: Interceptor<AcidIssueState> = {
+  endpoint: getIssue,
+  response({ id }) {
+    return this.issues.find(issue => issue.id == id);
   },
-  {
-    endpoint: partialUpdateTodo,
-    response({ id }, body) {
-      const todo = this.todos.find(item => item.id == id);
-      if (!todo) return { id, ...body };
-      Object.assign(todo, body);
-      return { ...todo };
-    },
-    delay: 150,
+  delay,
+};
+
+const partialUpdateIssueInterceptor: Interceptor<AcidIssueState> = {
+  endpoint: partialUpdateIssue,
+  response({ id }, body) {
+    const issue = this.issues.find(item => item.id == id);
+    if (!issue) return { id, ...body };
+    Object.assign(issue, body);
+    return { ...issue };
   },
+  delay,
+};
+
+export const acidIssueFixtures: Interceptor<AcidIssueState>[] = [
+  getIssueListInterceptor,
+  getIssueInterceptor,
+  partialUpdateIssueInterceptor,
   {
-    endpoint: createTodo,
+    endpoint: createIssue,
     response(body) {
-      const todo = {
-        completed: false,
+      const issue = {
+        state: 'open' as const,
+        repoId: '1',
         ...body,
         id: uuid(),
       };
-      this.todos.push(todo);
-      return todo;
+      this.issues.push(issue);
+      return issue;
     },
-    delay: 150,
+    delay,
   },
   {
-    endpoint: deleteTodo,
+    endpoint: deleteIssue,
     response({ id }) {
-      this.todos = this.todos.filter(todo => todo.id != id);
+      this.issues = this.issues.filter(issue => issue.id != id);
       return { id };
     },
-    delay: 150,
+    delay,
   },
 ];
 
-export const acidConsistencyFixtures: Interceptor<AcidConsistencyState>[] = [
-  ...acidTodoFixtures,
+export const acidCollectionFixtures: Interceptor<AcidCollectionState>[] = [
+  ...acidIssueFixtures,
   {
-    endpoint: getUser,
+    endpoint: getRepo,
     response({ id }) {
-      const user = this.users.find(item => item.id == id);
-      if (!user) return { id, todos: [] };
+      const repo = this.repos.find(item => item.id == id);
+      if (!repo) return { id, issues: [] };
       return {
-        ...user,
-        todos: this.todos.filter(todo => todo.userId == id),
+        ...repo,
+        issues: this.issues.filter(issue => issue.repoId == id),
       };
     },
-    delay: 150,
+    delay,
   },
 ];
 
-export const acidRollbackFixtures: Interceptor<AcidTodoState>[] = [
-  getTodoListInterceptor,
+export const acidRollbackFixtures: Interceptor<AcidIssueState>[] = [
+  getIssueListInterceptor,
+  getIssueInterceptor,
   {
-    endpoint: createTodo,
+    endpoint: partialUpdateIssue,
     response() {
       throw Object.assign(new Error('Internal Server Error'), {
         status: 500,
@@ -177,36 +197,37 @@ export const acidRollbackFixtures: Interceptor<AcidTodoState>[] = [
   },
 ];
 
-export const acidSideEffectFixtures: Interceptor<AcidSideEffectState>[] = [
-  getTodoListInterceptor,
+export const acidTradeFixtures: Interceptor<AcidTradeState>[] = [
   {
-    endpoint: getUser,
-    response({ id }) {
-      const user = this.users.find(item => item.id == id);
-      if (!user) return { id, todoCount: 0 };
-      return { ...user };
+    endpoint: getAccount,
+    response() {
+      return { ...this.account };
     },
-    delay: 150,
+    delay,
   },
   {
-    endpoint: createTodo,
+    endpoint: getTradeList,
+    response() {
+      return this.trades;
+    },
+    delay,
+  },
+  {
+    endpoint: createTrade,
     response(body) {
-      const todo = {
-        completed: false,
-        userId: '1',
+      const trade = {
+        amount: 10,
+        coin: 'DOGE',
         ...body,
         id: uuid(),
       };
-      this.todos.push(todo);
-      const user = this.users.find(item => item.id === '1');
-      if (user) {
-        user.todoCount = this.todos.filter(item => item.userId === '1').length;
-      }
+      this.trades.push(trade);
+      this.account.balance -= trade.amount;
       return {
-        todo,
-        user: user ? { ...user } : { id: '1', todoCount: 0 },
+        trade,
+        account: { ...this.account },
       };
     },
-    delay: 150,
+    delay,
   },
 ];
