@@ -25,52 +25,88 @@ export const IssueResource = resource({
 });
 ```
 
-```tsx title="IssuePage" {14}
+```ts title="TypicalCache" collapsed
+export function useTypicalDelete(seed) {
+  const [list] = React.useState(() => seed.map(issue => ({ ...issue })));
+  const [deleted, setDeleted] = React.useState({});
+  const remove = id => setDeleted(current => ({ ...current, [id]: true }));
+  return { list, deleted, remove };
+}
+```
+
+```tsx title="IssuePage" {16}
 import { useController, useSuspense } from '@data-client/react';
 import { IssueResource } from './IssueResource';
+import { useTypicalDelete } from './TypicalCache';
 
 function IssuePage() {
   const ctrl = useController();
   const issues = useSuspense(IssueResource.getList, { repoId: '1' });
+  const typical = useTypicalDelete(issues);
   const [id, setId] = React.useState(issues[0]?.id);
   const selected = issues.find(item => item.id === id) ?? issues[0];
   const issue = useSuspense(
     IssueResource.get,
     selected ? { id: selected.id } : null,
   );
-  const handleDelete = () =>
+  const handleDelete = () => {
     ctrl.fetch(IssueResource.delete, { id: selected.id });
+    typical.remove(selected.id);
+  };
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: '1em',
-      }}
-    >
-      <div>
-        {issues.map(item => (
-          <div
-            key={item.pk()}
-            className="listItem"
-            style={{ cursor: 'pointer' }}
-            onClick={() => setId(item.id)}
-          >
-            {item === selected ?
-              <b>{item.title}</b>
-            : item.title}
+    <AcidCompare>
+      <AcidPane title="Data Client">
+        <div className="acidSplit">
+          <div>
+            {issues.map(item => (
+              <IssueRow
+                key={item.pk()}
+                title={item.title}
+                state={item.state}
+                selected={item.id === selected?.id}
+                onClick={() => setId(item.id)}
+              />
+            ))}
           </div>
-        ))}
-      </div>
-      <div>
-        {issue ?
-          <div className="listItem nogap">
-            {issue.title}
-            <CancelButton onClick={handleDelete} />
+          <div>
+            {issue ?
+              <div className="listItem nogap">
+                {issue.title}
+                <CancelButton onClick={handleDelete} />
+              </div>
+            : <small>No issues</small>}
           </div>
-        : <small>No issues</small>}
-      </div>
-    </div>
+        </div>
+      </AcidPane>
+        <AcidPane
+          title="Typical independent caches"
+          torn={Object.keys(typical.deleted).length > 0}
+        >
+        <div className="acidSplit">
+          <div>
+            {typical.list.map(item => (
+              <IssueRow
+                key={item.id}
+                title={item.title}
+                state={item.state}
+                selected={item.id === id}
+                ghost={typical.deleted[item.id]}
+                onClick={() => setId(item.id)}
+              />
+            ))}
+          </div>
+          <div>
+            {typical.deleted[id] ?
+              <small>Deleted</small>
+            : <div className="listItem nogap">
+                {typical.list.find(item => item.id === id)?.title}
+                <CancelButton onClick={handleDelete} />
+              </div>
+            }
+          </div>
+        </div>
+      </AcidPane>
+    </AcidCompare>
   );
 }
 render(<IssuePage />);

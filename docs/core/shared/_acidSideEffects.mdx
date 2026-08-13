@@ -45,28 +45,81 @@ export const TradeResource = resource({
 }));
 ```
 
+```ts title="TypicalCache" collapsed
+export function useTypicalTrade(seedTrades, seedBalance) {
+  const [trades, setTrades] = React.useState(() =>
+    seedTrades.map(trade => ({ ...trade })),
+  );
+  const [balance] = React.useState(seedBalance);
+  const initialCount = React.useRef(seedTrades.length);
+  const buy = () =>
+    setTrades(current => [
+      ...current,
+      { id: `local-${current.length}`, amount: 10, coin: 'DOGE' },
+    ]);
+  return {
+    trades,
+    balance,
+    buy,
+    torn: trades.length > initialCount.current,
+  };
+}
+```
+
 ```tsx title="TradePage" collapsed
 import { useController, useSuspense } from '@data-client/react';
 import { AccountResource } from './AccountResource';
 import { TradeResource } from './TradeResource';
+import { useTypicalTrade } from './TypicalCache';
 
 function TradePage() {
   const ctrl = useController();
   const account = useSuspense(AccountResource.get, { id: '1' });
   const trades = useSuspense(TradeResource.getList);
-  const handleBuy = () =>
+  const typical = useTypicalTrade(trades, account.balance);
+  const handleBuy = () => {
     ctrl.fetch(TradeResource.create, { amount: 10, coin: 'DOGE' });
+    typical.buy();
+  };
   return (
     <div>
-      <p>
-        Balance: <b>{account.balance}</b> USD
-      </p>
-      {trades.map(trade => (
-        <div key={trade.pk()} className="listItem">
-          {trade.amount} {trade.coin}
-        </div>
-      ))}
       <button onClick={handleBuy}>Buy 10 DOGE</button>
+      <AcidCompare>
+        <AcidPane title="Data Client">
+          <p>
+            Balance:{' '}
+            <b>
+              <NumberFlow
+                value={account.balance}
+                format={{ style: 'currency', currency: 'USD' }}
+              />
+            </b>
+          </p>
+          {trades.map(trade => (
+            <div key={trade.pk()} className="listItem">
+              {trade.amount} {trade.coin}
+            </div>
+          ))}
+        </AcidPane>
+        <AcidPane
+          title="Typical independent caches"
+          torn={typical.torn}
+        >
+          <p>
+            Balance:{' '}
+            <b>
+              <span className={typical.torn ? 'issueState issueState--stale' : undefined}>
+                {typical.balance} USD
+              </span>
+            </b>
+          </p>
+          {typical.trades.map(trade => (
+            <div key={trade.id} className="listItem">
+              {trade.amount} {trade.coin}
+            </div>
+          ))}
+        </AcidPane>
+      </AcidCompare>
     </div>
   );
 }

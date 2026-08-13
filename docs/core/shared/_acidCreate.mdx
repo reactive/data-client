@@ -25,52 +25,93 @@ export const IssueResource = resource({
 });
 ```
 
-```tsx title="IssuePage" {13}
+```ts title="TypicalCache" collapsed
+export function useTypicalCreate(seed) {
+  const [list] = React.useState(() => seed.map(issue => ({ ...issue })));
+  const [orphan, setOrphan] = React.useState(null);
+  const create = title =>
+    setOrphan({ id: 'local', title, state: 'open' });
+  return { list, orphan, create, torn: orphan != null };
+}
+```
+
+```tsx title="IssuePage" {14}
 import { useController, useSuspense } from '@data-client/react';
 import { IssueResource } from './IssueResource';
+import { useTypicalCreate } from './TypicalCache';
 
 function IssuePage() {
   const ctrl = useController();
   const issues = useSuspense(IssueResource.getList, { repoId: '1' });
-  const issue = useSuspense(IssueResource.get, {
-    id: issues[issues.length - 1].id,
-  });
+  const typical = useTypicalCreate(issues);
+  const newest = issues[issues.length - 1];
+  const issue = useSuspense(IssueResource.get, { id: newest.id });
   const handleKeyDown = e => {
     if (e.key === 'Enter' && e.currentTarget.value.trim()) {
-      ctrl.fetch(IssueResource.getList.push, {
-        repoId: '1',
-        title: e.currentTarget.value,
-      });
+      const title = e.currentTarget.value;
+      ctrl.fetch(IssueResource.getList.push, { repoId: '1', title });
+      typical.create(title);
       e.currentTarget.value = '';
     }
   };
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: '1em',
-      }}
-    >
-      <div>
-        {issues.map(item => (
-          <div key={item.pk()} className="listItem">
-            {item.title}
+    <div>
+      <div className="listItem nogap">
+        <TextInput
+          size="small"
+          placeholder="New issue"
+          onKeyDown={handleKeyDown}
+        />
+      </div>
+      <AcidCompare>
+        <AcidPane title="Data Client">
+          <div className="acidSplit">
+            <div>
+              {issues.map(item => (
+                <IssueRow
+                  key={item.pk()}
+                  title={item.title}
+                  state={item.state}
+                />
+              ))}
+            </div>
+            <div>
+              <small>Newest</small>
+              <div>{issue.title}</div>
+              <IssueState state={issue.state} />
+            </div>
           </div>
-        ))}
-        <div className="listItem nogap">
-          <TextInput
-            size="small"
-            placeholder="New issue"
-            onKeyDown={handleKeyDown}
-          />
-        </div>
-      </div>
-      <div>
-        <small>Newest</small>
-        <div>{issue.title}</div>
-        <small>{issue.state}</small>
-      </div>
+        </AcidPane>
+        <AcidPane
+          title="Typical independent caches"
+          torn={typical.torn}
+        >
+          <div className="acidSplit">
+            <div>
+              {typical.list.map(item => (
+                <IssueRow
+                  key={item.id}
+                  title={item.title}
+                  state={item.state}
+                />
+              ))}
+            </div>
+            <div>
+              <small>Newest</small>
+              {typical.orphan ?
+                <>
+                  <div>{typical.orphan.title}</div>
+                  <IssueState state="open" />
+                </>
+              : <>
+                  <div>{newest.title}</div>
+                  <IssueState state={newest.state} />
+                </>
+              }
+            </div>
+          </div>
+        </AcidPane>
+      </AcidCompare>
     </div>
   );
 }

@@ -69,6 +69,20 @@ function CounterPage() {
   const { count } = useSuspense(getCount);
   const [stateCount, setStateCount] = React.useState(0);
   const [responseCount, setResponseCount] = React.useState(0);
+  const [dcTrail, setDcTrail] = React.useState([0]);
+  const [otherTrail, setOtherTrail] = React.useState([0]);
+  React.useEffect(() => {
+    setDcTrail(trail =>
+      trail[trail.length - 1] === count ? trail : [...trail, count],
+    );
+  }, [count]);
+  React.useEffect(() => {
+    setOtherTrail(trail =>
+      trail[trail.length - 1] === responseCount ?
+        trail
+      : [...trail, responseCount],
+    );
+  }, [responseCount]);
   const [clickHandler, loading, error] = useLoading(async () => {
     setStateCount(stateCount + 1);
     const val = await ctrl.fetch(increment);
@@ -100,6 +114,11 @@ function CounterPage() {
           </tr>
         </tbody>
       </table>
+      <div className="acidHistory">
+        Data Client: {dcTrail.join(' → ')}
+        <br />
+        Other: {otherTrail.join(' → ')}
+      </div>
       <button className="up" onClick={clickHandler}>
         &nbsp;
       </button>

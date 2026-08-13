@@ -25,57 +25,102 @@ export const IssueResource = resource({
 });
 ```
 
+```ts title="TypicalCache" collapsed
+const SEED = [
+  { id: '3', repoId: '1', title: 'Rate limit the API', state: 'closed' },
+  { id: '1', repoId: '1', title: 'Fix login timeout', state: 'open' },
+  { id: '2', repoId: '1', title: 'Document ACID guarantees', state: 'open' },
+];
+
+export function useTypicalSession() {
+  const [list, setList] = React.useState(() =>
+    SEED.map(issue => ({ ...issue })),
+  );
+  const update = (id, body) =>
+    setList(current =>
+      current.map(issue => (issue.id === id ? { ...issue, ...body } : issue)),
+    );
+  return { list, update };
+}
+```
+
 ```tsx title="Session" collapsed
 import { useController, useSuspense } from '@data-client/react';
 import { IssueResource } from './IssueResource';
+import { useTypicalSession } from './TypicalCache';
 
-export default function Session() {
+export default function Session({ draft, setDraft }) {
   const ctrl = useController();
   const issues = useSuspense(IssueResource.getList, { repoId: '1' });
-  const [draft, setDraft] = React.useState('');
-  const handleToggle = issue =>
-    ctrl.fetch(
-      IssueResource.partialUpdate,
-      { id: issue.id },
-      { state: issue.state === 'open' ? 'closed' : 'open' },
-    );
+  const typical = useTypicalSession();
+  const handleToggle = issue => {
+    const state = issue.state === 'open' ? 'closed' : 'open';
+    ctrl.fetch(IssueResource.partialUpdate, { id: issue.id }, { state });
+    typical.update(issue.id, { state });
+  };
   return (
-    <div>
-      <TextArea
-        placeholder="draft comment (lost on crash)"
-        value={draft}
-        onChange={e => setDraft(e.currentTarget.value)}
-      />
-      {issues.map(issue => (
-        <div key={issue.pk()} className="listItem">
-          {issue.title}
-          <small>{issue.state}</small>
-          <button onClick={() => handleToggle(issue)}>
-            {issue.state === 'open' ? 'Close' : 'Reopen'}
-          </button>
-        </div>
-      ))}
-    </div>
+    <AcidCompare>
+      <AcidPane title="Data Client">
+        <small>ctrl.fetch — survives crash</small>
+        {issues.map(issue => (
+          <IssueRow
+            key={issue.pk()}
+            title={issue.title}
+            state={issue.state}
+          >
+            <button onClick={() => handleToggle(issue)}>
+              {issue.state === 'open' ? 'Close' : 'Reopen'}
+            </button>
+          </IssueRow>
+        ))}
+        <TextArea
+          placeholder="draft comment (lost on crash)"
+          value={draft}
+          onChange={e => setDraft(e.currentTarget.value)}
+        />
+      </AcidPane>
+      <AcidPane title="Typical independent caches">
+        <small>useState — lost on crash</small>
+        {typical.list.map(issue => (
+          <IssueRow
+            key={issue.id}
+            title={issue.title}
+            state={issue.state}
+          />
+        ))}
+        <TextArea
+          placeholder="draft comment (lost on crash)"
+          value={draft}
+          onChange={e => setDraft(e.currentTarget.value)}
+        />
+      </AcidPane>
+    </AcidCompare>
   );
 }
 ```
 
-```tsx title="App" {8-9}
+```tsx title="App" {9}
 import { useController } from '@data-client/react';
 import Session from './Session';
 
 function App() {
   const ctrl = useController();
   const [session, setSession] = React.useState(0);
+  const [draft, setDraft] = React.useState('');
   const handleCrash = async () => {
     await ctrl.resetEntireStore();
+    setDraft('');
     setSession(s => s + 1);
   };
   return (
     <div>
       <button onClick={handleCrash}>Simulate crash</button>
       <AsyncBoundary fallback={<Loading />}>
-        <Session key={session} />
+        <Session
+          key={session}
+          draft={draft}
+          setDraft={setDraft}
+        />
       </AsyncBoundary>
     </div>
   );

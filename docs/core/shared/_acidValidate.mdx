@@ -20,9 +20,27 @@ args: [{ id: 3 }],
 response: { id: '3', title: { complex: 'second', object: 5 } },
 delay: 150,
 },
+{
+endpoint: new RestEndpoint({path: '/raw-article/:id'}),
+args: [{ id: 1 }],
+response: { id: '1', title: 'first' },
+delay: 150,
+},
+{
+endpoint: new RestEndpoint({path: '/raw-article/:id'}),
+args: [{ id: 2 }],
+response: { id: '2' },
+delay: 150,
+},
+{
+endpoint: new RestEndpoint({path: '/raw-article/:id'}),
+args: [{ id: 3 }],
+response: { id: '3', title: { complex: 'second', object: 5 } },
+delay: 150,
+},
 ]}>
 
-```ts title="api/Article" {7-10}
+```ts title="api/Article" {5-8}
 export class Article extends Entity {
   id = '';
   title = '';
@@ -39,17 +57,65 @@ export const getArticle = new RestEndpoint({
 });
 ```
 
-```tsx title="ArticlePage" collapsed
-import { getArticle } from './api/Article';
+```ts title="api/RawArticle" collapsed
+export class RawArticle extends Entity {
+  id = '';
+  title: string | object = '';
+}
 
-export default function ArticlePage({ id }: { id: string }) {
+export const getRawArticle = new RestEndpoint({
+  path: '/raw-article/:id',
+  schema: RawArticle,
+});
+```
+
+```tsx title="ArticlePage" collapsed
+import { useQuery, useSuspense } from '@data-client/react';
+import { Article, getArticle } from './api/Article';
+import { getRawArticle } from './api/RawArticle';
+
+export function ValidatedPane({ id }: { id: string }) {
+  const lastGood = useQuery(Article, { id: '1' });
+  return (
+    <div>
+      <AsyncBoundary
+        fallback={
+          <div>
+            <div className="alert alert--danger">
+              Rejected — not committed
+            </div>
+            {lastGood ?
+              <div>Still in store: {lastGood.title}</div>
+            : null}
+          </div>
+        }
+      >
+        <ArticleBody id={id} />
+      </AsyncBoundary>
+    </div>
+  );
+}
+
+function ArticleBody({ id }: { id: string }) {
   const article = useSuspense(getArticle, { id });
   return <div>{article.title}</div>;
 }
+
+export function RawArticlePage({ id }: { id: string }) {
+  const article = useSuspense(getRawArticle, { id });
+  return (
+    <div>
+      title:{' '}
+      {typeof article.title === 'string' ?
+        article.title || '""'
+      : JSON.stringify(article.title)}
+    </div>
+  );
+}
 ```
 
-```tsx title="Navigator"
-import ArticlePage from './ArticlePage';
+```tsx title="Navigator" collapsed
+import { ValidatedPane, RawArticlePage } from './ArticlePage';
 
 function Navigator() {
   const [id, setId] = React.useState('1');
@@ -64,9 +130,14 @@ function Navigator() {
       <button value="3" onClick={e => setId(e.currentTarget.value)}>
         Wrong type
       </button>
-      <AsyncBoundary fallback={<Loading />}>
-        <ArticlePage id={id} />
-      </AsyncBoundary>
+      <AcidCompare>
+        <AcidPane title="Data Client">
+          <ValidatedPane id={id} />
+        </AcidPane>
+        <AcidPane title="Typical independent caches">
+          <RawArticlePage id={id} />
+        </AcidPane>
+      </AcidCompare>
     </div>
   );
 }

@@ -62,57 +62,107 @@ export const getRepo = new RestEndpoint({
 });
 ```
 
+```ts title="TypicalCache" collapsed
+export function useTypicalCollections(seed) {
+  const [repoIssues, setRepoIssues] = React.useState(() =>
+    seed.map(issue => ({ ...issue })),
+  );
+  const [tabIssues] = React.useState(() =>
+    seed.map(issue => ({ ...issue })),
+  );
+  const update = (id, body) =>
+    setRepoIssues(current =>
+      current.map(issue => (issue.id === id ? { ...issue, ...body } : issue)),
+    );
+  const torn = repoIssues.some(
+    (issue, i) => issue.state !== tabIssues[i].state,
+  );
+  return { repoIssues, tabIssues, update, torn };
+}
+```
+
 ```tsx title="IssuePage" collapsed
 import { useController, useSuspense } from '@data-client/react';
 import { getIssues, updateIssue } from './IssueResource';
 import { getRepo } from './RepoResource';
+import { useTypicalCollections } from './TypicalCache';
 
 function IssuePage() {
   const ctrl = useController();
   const repo = useSuspense(getRepo, { id: '1' });
   const issues = useSuspense(getIssues, { repoId: '1' });
-  const handleToggle = issue =>
-    ctrl.fetch(
-      updateIssue,
-      { id: issue.id },
-      { state: issue.state === 'open' ? 'closed' : 'open' },
-    );
+  const typical = useTypicalCollections(issues);
+  const handleToggle = issue => {
+    const state = issue.state === 'open' ? 'closed' : 'open';
+    ctrl.fetch(updateIssue, { id: issue.id }, { state });
+    typical.update(issue.id, { state });
+  };
   return (
     <div>
-      <p>
-        <small>
-          repo.issues === getList: {String(repo.issues === issues)}
-        </small>
-      </p>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '1em',
-        }}
-      >
-        <div>
-          <small>Repo page</small>
-          {repo.issues.map(issue => (
-            <div key={issue.pk()} className="listItem">
-              {issue.title}
-              <small>{issue.state}</small>
-              <button onClick={() => handleToggle(issue)}>
-                {issue.state === 'open' ? 'Close' : 'Reopen'}
-              </button>
+      {repo.issues.map(issue => (
+        <IssueRow
+          key={issue.pk()}
+          title={issue.title}
+          state={issue.state}
+        >
+          <button onClick={() => handleToggle(issue)}>
+            {issue.state === 'open' ? 'Close' : 'Reopen'}
+          </button>
+        </IssueRow>
+      ))}
+      <AcidCompare>
+        <AcidPane title="Data Client">
+          <div className="acidSplit">
+            <div>
+              <small>Repo page</small>
+              {repo.issues.map(issue => (
+                <IssueRow
+                  key={issue.pk()}
+                  title={issue.title}
+                  state={issue.state}
+                />
+              ))}
             </div>
-          ))}
-        </div>
-        <div>
-          <small>Issues tab</small>
-          {issues.map(issue => (
-            <div key={issue.pk()} className="listItem">
-              {issue.title}
-              <small>{issue.state}</small>
+            <div>
+              <small>Issues tab</small>
+              {issues.map(issue => (
+                <IssueRow
+                  key={issue.pk()}
+                  title={issue.title}
+                  state={issue.state}
+                />
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+        </AcidPane>
+        <AcidPane
+          title="Typical independent caches"
+          torn={typical.torn}
+        >
+          <div className="acidSplit">
+            <div>
+              <small>Repo page</small>
+              {typical.repoIssues.map(issue => (
+                <IssueRow
+                  key={issue.id}
+                  title={issue.title}
+                  state={issue.state}
+                />
+              ))}
+            </div>
+            <div>
+              <small>Issues tab</small>
+              {typical.tabIssues.map(issue => (
+                <IssueRow
+                  key={issue.id}
+                  title={issue.title}
+                  state={issue.state}
+                />
+              ))}
+            </div>
+          </div>
+        </AcidPane>
+      </AcidCompare>
     </div>
   );
 }

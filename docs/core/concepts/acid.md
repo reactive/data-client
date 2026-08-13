@@ -52,8 +52,8 @@ tearing* — flashes of inconsistent state as usages update one by one.
 into the one copy of that entity. Every consumer of that [pk](/rest/api/Entity#pk)
 updates together. [Read more about defining other update endpoints](/rest/guides/side-effects).
 
-Close an issue. The list and the detail pane update together — no flash of
-one view lagging.
+Close an issue. Data Client updates the list and the detail together.
+Typical independent caches close the detail and leave the list open.
 
 <AcidUpdate />
 
@@ -65,8 +65,8 @@ Created entities are immediately available. They are added to existing
 [.unshift](/rest/api/RestEndpoint#unshift), or
 [.assign](/rest/api/RestEndpoint#assign).
 
-Open an issue. It appears in the list and is immediately readable with
-[get](/rest/api/resource#get) — never invisible, never an orphan.
+Open an issue. Data Client adds it to the list and the newest detail.
+Typical independent caches show it in detail while the list still misses it.
 
 <AcidCreate />
 
@@ -75,8 +75,8 @@ Open an issue. It appears in the list and is immediately readable with
 [schema.Invalidate](/rest/api/Invalidate) removes the entity.
 [Resource.delete](/rest/api/resource#delete) provides such an endpoint.
 
-Delete an issue. It disappears from the list and the detail pane in the same
-commit.
+Delete an issue. Data Client removes it from the list and the detail together.
+Typical independent caches clear the detail and leave a ghost in the list.
 
 <AcidDelete />
 
@@ -85,7 +85,8 @@ commit.
 Optimistic updates apply as that same snapshot. If the network fails, they
 roll back as that snapshot.
 
-Close an issue. It flips immediately, then snaps back when the server errors.
+Close an issue. Data Client flips both views, then rolls both back on the 500.
+Typical independent caches roll the detail back and leave the list closed.
 
 <AcidRollback />
 
@@ -97,7 +98,8 @@ and refetching the others can fail partway — a flash of torn state.
 
 [See mutation side-effects](/rest/guides/side-effects) for the full pattern.
 
-Buy DOGE. The trade list and the account balance update together.
+Buy DOGE. Data Client records the trade and the new balance in one commit.
+Typical independent caches append the trade and leave the balance stale.
 
 <AcidSideEffects />
 
@@ -113,7 +115,8 @@ That prevents *data tearing* — the same issue showing two different values.
 [getList](/rest/api/resource#getlist) and [get](/rest/api/resource#get) is the
 **same object** — the same value, wherever it is embedded.
 
-Select an issue, then close it. `fromList === get` stays true.
+Select an issue, then close it. Data Client `getList` and `get` stay locked
+together. Typical independent caches keep two copies that drift.
 
 <AcidIdentity />
 
@@ -123,7 +126,8 @@ When [Collection.argsKey](/rest/api/Collection#argskey) and
 [Collection.nestKey](/rest/api/Collection#nestkey) return the same shape, a nested
 list and a top-level list are the **same array**.
 
-Close an issue. `repo.issues === getList` stays true, and both columns update.
+Close an issue. Data Client updates the repo page and the issues tab together.
+Typical independent caches update one list and leave the other open.
 
 <AcidCollections />
 
@@ -132,7 +136,8 @@ Close an issue. `repo.issues === getList` stays true, and both columns update.
 [Query](/rest/api/Query) derived values stay consistent for the same reason —
 they read the entity table, not a copy.
 
-Close issues. The open count updates without refetching.
+Close issues. Data Client drops the open count immediately. Typical
+independent caches keep a stale count.
 
 <AcidQuery />
 
@@ -141,7 +146,8 @@ Close issues. The open count updates without refetching.
 [Entity.validate()](./validation.md) is the check constraint. Invalid responses
 are not committed.
 
-Switch between payloads. Only the valid article renders.
+Switch between payloads. Data Client rejects invalid articles and keeps the
+last good commit. Typical independent caches render the malformed fields.
 
 <AcidValidate />
 
@@ -151,8 +157,8 @@ The same entity is the same value whether it arrived from fetch, initial
 load, [Controller.set()](../api/Controller.md#set), or a
 [websocket](./managers.md#data-stream).
 
-Click **Alice closed this**. The list and the detail pane update — no copy
-left behind.
+Click **Alice closed this**. Data Client updates the list and the detail.
+Typical independent caches update a local detail copy and leave the list behind.
 
 <AcidTransports />
 
@@ -194,7 +200,8 @@ Reactive Data Client handles them automatically.
 All hooks in one render read the same snapshot, so the tree never paints mixed
 old and new values.
 
-Close an issue. `list` and `query` in that row always agree.
+Close an issue. Data Client only paints matching `list`/`query` pairs. Typical
+independent caches record a mixed-version paint.
 
 <AcidSnapshot />
 
@@ -211,7 +218,8 @@ edit) commits to the server. Use a form when the friction is the point —
 publish, purchase.
 
 Close some issues, type a draft comment, then simulate a crash. Data Client
-refetches from the server and the closes are still there. The draft is gone.
+refetches the closes from the server. Typical independent caches lose the
+closes. Both lose the draft.
 
 <AcidRest />
 

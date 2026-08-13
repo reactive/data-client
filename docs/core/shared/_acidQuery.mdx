@@ -30,34 +30,75 @@ export const openCount = new Query(
 );
 ```
 
+```ts title="TypicalCache" collapsed
+export function useTypicalQuery(seed) {
+  const [list, setList] = React.useState(() =>
+    seed.map(issue => ({ ...issue })),
+  );
+  const [open] = React.useState(
+    () => seed.filter(issue => issue.state === 'open').length,
+  );
+  const update = (id, body) =>
+    setList(current =>
+      current.map(issue => (issue.id === id ? { ...issue, ...body } : issue)),
+    );
+  const liveOpen = list.filter(issue => issue.state === 'open').length;
+  return { list, open, update, torn: open !== liveOpen };
+}
+```
+
 ```tsx title="IssuePage" collapsed
 import { useController, useQuery, useSuspense } from '@data-client/react';
 import { openCount, IssueResource } from './IssueResource';
+import { useTypicalQuery } from './TypicalCache';
 
 function IssuePage() {
   const ctrl = useController();
   const issues = useSuspense(IssueResource.getList, { repoId: '1' });
   const open = useQuery(openCount, { repoId: '1' });
-  const handleToggle = issue =>
-    ctrl.fetch(
-      IssueResource.partialUpdate,
-      { id: issue.id },
-      { state: issue.state === 'open' ? 'closed' : 'open' },
-    );
+  const typical = useTypicalQuery(issues);
+  const handleToggle = issue => {
+    const state = issue.state === 'open' ? 'closed' : 'open';
+    ctrl.fetch(IssueResource.partialUpdate, { id: issue.id }, { state });
+    typical.update(issue.id, { state });
+  };
   return (
     <div>
-      <p>
-        <b>{open}</b> open
-      </p>
       {issues.map(issue => (
-        <div key={issue.pk()} className="listItem">
-          {issue.title}
-          <small>{issue.state}</small>
+        <IssueRow
+          key={issue.pk()}
+          title={issue.title}
+          state={issue.state}
+        >
           <button onClick={() => handleToggle(issue)}>
             {issue.state === 'open' ? 'Close' : 'Reopen'}
           </button>
-        </div>
+        </IssueRow>
       ))}
+      <AcidCompare>
+        <AcidPane title="Data Client">
+          <p>
+            <b>
+              <NumberFlow value={open ?? 0} />
+            </b>{' '}
+            open
+          </p>
+        </AcidPane>
+        <AcidPane title="Typical independent caches" torn={typical.torn}>
+          <p>
+            <b>
+              <span
+                className={
+                  typical.torn ? 'issueState issueState--stale' : undefined
+                }
+              >
+                {typical.open}
+              </span>
+            </b>{' '}
+            open
+          </p>
+        </AcidPane>
+      </AcidCompare>
     </div>
   );
 }
