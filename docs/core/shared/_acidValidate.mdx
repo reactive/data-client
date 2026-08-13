@@ -121,20 +121,22 @@ function Navigator() {
   const [id, setId] = React.useState('1');
   return (
     <div>
-      <button value="1" onClick={e => setId(e.currentTarget.value)}>
-        Valid
-      </button>
-      <button value="2" onClick={e => setId(e.currentTarget.value)}>
-        Missing title
-      </button>
-      <button value="3" onClick={e => setId(e.currentTarget.value)}>
-        Wrong type
-      </button>
+      <div className="acidToolbar">
+        <button value="1" onClick={e => setId(e.currentTarget.value)}>
+          Valid
+        </button>
+        <button value="2" onClick={e => setId(e.currentTarget.value)}>
+          Missing title
+        </button>
+        <button value="3" onClick={e => setId(e.currentTarget.value)}>
+          Wrong type
+        </button>
+      </div>
       <AcidCompare>
-        <AcidPane title="Data Client">
+        <AcidPane title="Data Client" subtitle="validated commits">
           <ValidatedPane id={id} />
         </AcidPane>
-        <AcidPane title="Typical independent caches">
+        <AcidPane title="Typical caches" subtitle="renders whatever arrives">
           <RawArticlePage id={id} />
         </AcidPane>
       </AcidCompare>

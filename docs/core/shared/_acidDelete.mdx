@@ -55,9 +55,10 @@ function IssuePage() {
   };
   return (
     <AcidCompare>
-      <AcidPane title="Data Client">
+      <AcidPane title="Data Client" subtitle="one shared store">
         <div className="acidSplit">
           <div>
+            <small>List</small>
             {issues.map(item => (
               <IssueRow
                 key={item.pk()}
@@ -68,7 +69,8 @@ function IssuePage() {
               />
             ))}
           </div>
-          <div>
+          <div className="acidReadout">
+            <small>Detail</small>
             {issue ?
               <div className="listItem nogap">
                 {issue.title}
@@ -78,12 +80,14 @@ function IssuePage() {
           </div>
         </div>
       </AcidPane>
-        <AcidPane
-          title="Typical independent caches"
-          torn={Object.keys(typical.deleted).length > 0}
-        >
+      <AcidPane
+        title="Typical caches"
+        subtitle="independent copies"
+        torn={Object.keys(typical.deleted).length > 0}
+      >
         <div className="acidSplit">
           <div>
+            <small>List</small>
             {typical.list.map(item => (
               <IssueRow
                 key={item.id}
@@ -95,7 +99,8 @@ function IssuePage() {
               />
             ))}
           </div>
-          <div>
+          <div className="acidReadout">
+            <small>Detail</small>
             {typical.deleted[id] ?
               <small>Deleted</small>
             : <div className="listItem nogap">

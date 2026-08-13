@@ -76,17 +76,22 @@ function IssuePage() {
         </IssueRow>
       ))}
       <AcidCompare>
-        <AcidPane title="Data Client">
-          <p>
-            <b>
+        <AcidPane title="Data Client" subtitle="one shared store">
+          <div className="acidReadout">
+            <small>Open issues</small>
+            <strong>
               <NumberFlow value={open ?? 0} />
-            </b>{' '}
-            open
-          </p>
+            </strong>
+          </div>
         </AcidPane>
-        <AcidPane title="Typical independent caches" torn={typical.torn}>
-          <p>
-            <b>
+        <AcidPane
+          title="Typical caches"
+          subtitle="independent copies"
+          torn={typical.torn}
+        >
+          <div className="acidReadout">
+            <small>Open issues</small>
+            <strong>
               <span
                 className={
                   typical.torn ? 'issueState issueState--stale' : undefined
@@ -94,9 +99,8 @@ function IssuePage() {
               >
                 {typical.open}
               </span>
-            </b>{' '}
-            open
-          </p>
+            </strong>
+          </div>
         </AcidPane>
       </AcidCompare>
     </div>

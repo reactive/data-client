@@ -6,17 +6,24 @@ export function AcidCompare({ children }: { children: React.ReactNode }) {
 
 export function AcidPane({
   title,
+  subtitle,
   torn,
   children,
 }: {
   title: string;
+  subtitle?: string;
   torn?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <div className={torn ? 'acidPane acidPane--torn' : 'acidPane'}>
       <div className="acidPaneHeader">
-        <small>{title}</small>
+        <div className="acidPaneTitle">
+          <small>{title}</small>
+          {subtitle ?
+            <span className="acidPaneSubtitle">{subtitle}</span>
+          : null}
+        </div>
         {torn ?
           <span className="acidTornLabel">Views disagree</span>
         : null}
@@ -60,15 +67,17 @@ export function IssueRow({
   onClick?: () => void;
   children?: React.ReactNode;
 }) {
+  const cls = [
+    'issueRow',
+    selected ? 'issueRow--selected' : '',
+    ghost ? 'issueRow--ghost' : '',
+    onClick ? 'issueRow--clickable' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
   return (
-    <div
-      className={ghost ? 'listItem issueRow--ghost' : 'listItem'}
-      style={{ cursor: onClick ? 'pointer' : undefined }}
-      onClick={onClick}
-    >
-      {selected ?
-        <b>{title}</b>
-      : <span>{title}</span>}
+    <div className={cls} onClick={onClick}>
+      <span className="issueRowTitle">{title}</span>
       <IssueState state={state} stale={stale} />
       {children}
     </div>

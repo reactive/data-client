@@ -83,41 +83,54 @@ function TradePage() {
   };
   return (
     <div>
-      <button onClick={handleBuy}>Buy 10 DOGE</button>
+      <div className="acidToolbar">
+        <button onClick={handleBuy}>Buy 10 DOGE</button>
+      </div>
       <AcidCompare>
-        <AcidPane title="Data Client">
-          <p>
-            Balance:{' '}
-            <b>
-              <NumberFlow
-                value={account.balance}
-                format={{ style: 'currency', currency: 'USD' }}
-              />
-            </b>
-          </p>
-          {trades.map(trade => (
-            <div key={trade.pk()} className="listItem">
-              {trade.amount} {trade.coin}
+        <AcidPane title="Data Client" subtitle="one shared store">
+          <div className="acidSplit">
+            <div className="acidReadout">
+              <small>Balance</small>
+              <strong>
+                <NumberFlow
+                  value={account.balance}
+                  format={{ style: 'currency', currency: 'USD' }}
+                />
+              </strong>
             </div>
-          ))}
+            <div>
+              <small>Trades</small>
+              {trades.map(trade => (
+                <div key={trade.pk()} className="issueRow">
+                  {trade.amount} {trade.coin}
+                </div>
+              ))}
+            </div>
+          </div>
         </AcidPane>
         <AcidPane
-          title="Typical independent caches"
+          title="Typical caches"
+          subtitle="independent copies"
           torn={typical.torn}
         >
-          <p>
-            Balance:{' '}
-            <b>
-              <span className={typical.torn ? 'issueState issueState--stale' : undefined}>
-                {typical.balance} USD
-              </span>
-            </b>
-          </p>
-          {typical.trades.map(trade => (
-            <div key={trade.id} className="listItem">
-              {trade.amount} {trade.coin}
+          <div className="acidSplit">
+            <div className="acidReadout">
+              <small>Balance</small>
+              <strong>
+                <span className={typical.torn ? 'issueState issueState--stale' : undefined}>
+                  {typical.balance} USD
+                </span>
+              </strong>
             </div>
-          ))}
+            <div>
+              <small>Trades</small>
+              {typical.trades.map(trade => (
+                <div key={trade.id} className="issueRow">
+                  {trade.amount} {trade.coin}
+                </div>
+              ))}
+            </div>
+          </div>
         </AcidPane>
       </AcidCompare>
     </div>

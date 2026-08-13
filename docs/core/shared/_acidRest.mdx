@@ -60,7 +60,7 @@ export default function Session({ draft, setDraft }) {
   };
   return (
     <AcidCompare>
-      <AcidPane title="Data Client">
+      <AcidPane title="Data Client" subtitle="one shared store">
         <small>ctrl.fetch — survives crash</small>
         {issues.map(issue => (
           <IssueRow
@@ -79,7 +79,7 @@ export default function Session({ draft, setDraft }) {
           onChange={e => setDraft(e.currentTarget.value)}
         />
       </AcidPane>
-      <AcidPane title="Typical independent caches">
+      <AcidPane title="Typical caches" subtitle="independent copies">
         <small>useState — lost on crash</small>
         {typical.list.map(issue => (
           <IssueRow
@@ -114,7 +114,9 @@ function App() {
   };
   return (
     <div>
-      <button onClick={handleCrash}>Simulate crash</button>
+      <div className="acidToolbar">
+        <button onClick={handleCrash}>Simulate crash</button>
+      </div>
       <AsyncBoundary fallback={<Loading />}>
         <Session
           key={session}

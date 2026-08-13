@@ -56,7 +56,7 @@ function IssuePage() {
   };
   return (
     <div>
-      <div className="listItem nogap">
+      <div className="acidToolbar">
         <TextInput
           size="small"
           placeholder="New issue"
@@ -64,9 +64,10 @@ function IssuePage() {
         />
       </div>
       <AcidCompare>
-        <AcidPane title="Data Client">
+        <AcidPane title="Data Client" subtitle="one shared store">
           <div className="acidSplit">
             <div>
+              <small>List</small>
               {issues.map(item => (
                 <IssueRow
                   key={item.pk()}
@@ -75,7 +76,7 @@ function IssuePage() {
                 />
               ))}
             </div>
-            <div>
+            <div className="acidReadout">
               <small>Newest</small>
               <div>{issue.title}</div>
               <IssueState state={issue.state} />
@@ -83,11 +84,13 @@ function IssuePage() {
           </div>
         </AcidPane>
         <AcidPane
-          title="Typical independent caches"
+          title="Typical caches"
+          subtitle="independent copies"
           torn={typical.torn}
         >
           <div className="acidSplit">
             <div>
+              <small>List</small>
               {typical.list.map(item => (
                 <IssueRow
                   key={item.id}
@@ -96,7 +99,7 @@ function IssuePage() {
                 />
               ))}
             </div>
-            <div>
+            <div className="acidReadout">
               <small>Newest</small>
               {typical.orphan ?
                 <>

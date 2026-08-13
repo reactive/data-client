@@ -111,7 +111,7 @@ function IssuePage() {
         </IssueRow>
       ))}
       <AcidCompare>
-        <AcidPane title="Data Client">
+        <AcidPane title="Data Client" subtitle="one shared store">
           <div className="acidSplit">
             <div>
               <small>Repo page</small>
@@ -136,7 +136,8 @@ function IssuePage() {
           </div>
         </AcidPane>
         <AcidPane
-          title="Typical independent caches"
+          title="Typical caches"
+          subtitle="independent copies"
           torn={typical.torn}
         >
           <div className="acidSplit">

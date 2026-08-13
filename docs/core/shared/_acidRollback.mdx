@@ -84,13 +84,16 @@ function IssuePage() {
   };
   return (
     <div>
-      <button onClick={handleToggle}>
-        {issue.state === 'open' ? 'Close' : 'Reopen'}
-      </button>
+      <div className="acidToolbar">
+        <button onClick={handleToggle}>
+          {issue.state === 'open' ? 'Close' : 'Reopen'}
+        </button>
+      </div>
       <AcidCompare>
-        <AcidPane title="Data Client">
+        <AcidPane title="Data Client" subtitle="one shared store">
           <div className="acidSplit">
             <div>
+              <small>List</small>
               {issues.map(item => (
                 <IssueRow
                   key={item.pk()}
@@ -101,18 +104,21 @@ function IssuePage() {
                 />
               ))}
             </div>
-            <div>
+            <div className="acidReadout">
+              <small>Detail</small>
               <div>{issue.title}</div>
               <IssueState state={issue.state} />
             </div>
           </div>
         </AcidPane>
         <AcidPane
-          title="Typical independent caches"
+          title="Typical caches"
+          subtitle="independent copies"
           torn={typical.torn(id)}
         >
           <div className="acidSplit">
             <div>
+              <small>List</small>
               {typical.list.map(item => (
                 <IssueRow
                   key={item.id}
@@ -123,7 +129,8 @@ function IssuePage() {
                 />
               ))}
             </div>
-            <div>
+            <div className="acidReadout">
+              <small>Detail</small>
               <div>{typical.view(id).title}</div>
               <IssueState state={typical.view(id).state} />
             </div>

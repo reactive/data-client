@@ -73,8 +73,8 @@ export default function IssueRow({
     onToggle();
   };
   return (
-    <div className="listItem">
-      {fromList.title}
+    <div className="issueRow">
+      <span className="issueRowTitle">{fromList.title}</span>
       <button onClick={handleToggle}>
         {fromList.state === 'open' ? 'Close' : 'Reopen'}
       </button>
@@ -111,7 +111,7 @@ function IssueList() {
         />
       ))}
       <AcidCompare>
-        <AcidPane title="Data Client">
+        <AcidPane title="Data Client" subtitle="one shared store">
           <div className="acidSplit">
             <div className="acidReadout">
               <small>list</small>
@@ -123,7 +123,11 @@ function IssueList() {
             </div>
           </div>
         </AcidPane>
-        <AcidPane title="Typical independent caches" torn={torn}>
+        <AcidPane
+          title="Typical caches"
+          subtitle="independent copies"
+          torn={torn}
+        >
           <div className="acidSplit">
             <div className="acidReadout">
               <small>list</small>
