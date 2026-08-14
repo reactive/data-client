@@ -5,7 +5,7 @@
   "homepage": "https://dataclient.io",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com:reactive/data-client.git",
+    "url": "git+ssh://git@github.com/reactive/data-client.git",
     "directory": "packages/react"
   },
   "bugs": {
