@@ -171,7 +171,7 @@ html[data-theme='dark'] .small.rt-TextFieldRoot {
 
 /* ==========================================================================
    ACID comparison playgrounds — "editorial lab" system.
-   Two stacked panes: Data Client (calm, primary rule) vs Typical caches
+   Two stacked panes: Data Client (calm, primary rule) vs Flat caches
    (cool, muted) that shifts to a quiet danger treatment when views tear.
    Everything derives from Infima variables so both themes stay correct.
    ========================================================================== */
@@ -237,7 +237,7 @@ div.acidToolbar .rt-TextFieldRoot {
 .acidCompare > .acidPane:first-child {
   border-left-color: var(--ifm-color-primary);
 }
-/* Later panes = typical caches: cooler and slightly receded. */
+/* Later panes = flat caches: cooler and slightly receded. */
 .acidCompare > .acidPane:not(:first-child) {
   background: color-mix(
     in srgb,

@@ -79,7 +79,7 @@ export default function Session({ draft, setDraft }) {
           onChange={e => setDraft(e.currentTarget.value)}
         />
       </AcidPane>
-      <AcidPane title="Typical caches" subtitle="independent copies">
+      <AcidPane title="Flat caches" subtitle="independent copies">
         <small>useState — lost on crash</small>
         {typical.list.map(issue => (
           <IssueRow
