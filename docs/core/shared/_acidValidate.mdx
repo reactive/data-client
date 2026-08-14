@@ -102,6 +102,14 @@ function ArticleBody({ id }: { id: string }) {
 }
 
 export function RawArticlePage({ id }: { id: string }) {
+  return (
+    <AsyncBoundary fallback={<Loading />}>
+      <RawArticleBody id={id} />
+    </AsyncBoundary>
+  );
+}
+
+function RawArticleBody({ id }: { id: string }) {
   const article = useSuspense(getRawArticle, { id });
   return (
     <div>
