@@ -4,7 +4,22 @@ import {
   getAcidIssueData,
 } from '@site/src/fixtures/acid';
 
-<HooksPlayground defaultOpen="n" row fixtures={acidIssueFixtures} getInitialInterceptorData={getAcidIssueData}>
+<HooksPlayground
+  defaultOpen="n"
+  row
+  fixtures={acidIssueFixtures}
+  getInitialInterceptorData={getAcidIssueData}
+  demo={{
+    id: 'acid-update',
+    mp4: '/videos/demos/acid-update.mp4',
+    poster: {
+      light: '/img/demos/acid-update.jpg',
+      dark: '/img/demos/acid-update.dark.jpg',
+    },
+    width: 720,
+    height: 480,
+  }}
+>
 
 ```ts title="IssueResource" collapsed
 import { Entity, resource } from '@data-client/rest';

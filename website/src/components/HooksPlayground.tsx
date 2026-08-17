@@ -1,7 +1,7 @@
-import type { Fixture, Interceptor } from '@data-client/test';
 import React, { memo } from 'react';
 
 import Playground from './Playground';
+import type { PlaygroundProps as BasePlaygroundProps } from './Playground';
 
 const HooksPlayground = ({
   children,
@@ -13,6 +13,7 @@ const HooksPlayground = ({
   defaultTab,
   headerControls,
   getInitialInterceptorData = () => ({}),
+  demo,
 }: PlaygroundProps) => (
   <Playground
     groupId={groupId}
@@ -23,6 +24,7 @@ const HooksPlayground = ({
     getInitialInterceptorData={getInitialInterceptorData}
     defaultTab={defaultTab}
     headerControls={headerControls}
+    demo={demo}
   >
     {typeof children === 'string' ?
       children
@@ -35,14 +37,10 @@ const HooksPlayground = ({
 );
 export default memo(HooksPlayground);
 
-interface PlaygroundProps<T = any> {
+type PlaygroundProps<T = any> = Omit<
+  BasePlaygroundProps<T>,
+  'groupId' | 'row'
+> & {
   groupId: string;
-  defaultOpen?: 'y' | 'n';
   row: boolean;
-  hidden?: boolean;
-  fixtures?: (Fixture | Interceptor<T>)[];
-  getInitialInterceptorData?: () => T;
-  children: React.ReactNode;
-  defaultTab?: string;
-  headerControls?: React.ReactNode;
-}
+};
