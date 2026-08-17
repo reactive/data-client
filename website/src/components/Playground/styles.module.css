@@ -292,6 +292,9 @@ div > .playgroundHeader.subtabs {
   border-top-left-radius: var(--ifm-global-radius);
   border-top-right-radius: var(--ifm-global-radius);
 }
+.demoFacade {
+  overflow: hidden;
+}
 .stageEnter {
   animation: stageFade 180ms ease-out;
 }
@@ -318,6 +321,10 @@ div > .playgroundHeader.subtabs {
   padding: 0.7em 0.1em 1em 0.1em;
   cursor: pointer;
   flex: 0 0 auto;
+  /* writing-mode gives a content-sized inline height; stretch to the demo pane */
+  align-self: stretch;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .debugToggle:hover {

@@ -8,7 +8,6 @@ import { useCodeDocuments } from './editor/codeModel';
 import EditorShell from './editor/EditorShell';
 import EditorSurface from './editor/EditorSurface';
 import FixturePreview from './FixturePreview';
-import Header from './Header';
 import { isGoogleBot } from './isMobileOrBot';
 import type { LivePreviewProps } from './preview/LivePreview';
 import type LivePreviewType from './preview/LivePreview';
@@ -205,8 +204,7 @@ function PlaygroundContent<T>({
   if (demo && !activated) {
     return (
       <>
-        <div className={styles.playgroundContainer}>
-          <Header onClick={activate}>Demo</Header>
+        <div className={clsx(styles.playgroundContainer, styles.demoFacade)}>
           <div className={styles.stageEnter}>
             <DemoVideo source={demo} onActivate={activate} />
           </div>
