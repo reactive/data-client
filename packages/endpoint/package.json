@@ -127,7 +127,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com:reactive/data-client.git",
+    "url": "git+ssh://git@github.com/reactive/data-client.git",
     "directory": "packages/endpoint"
   },
   "bugs": {
