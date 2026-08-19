@@ -40,7 +40,7 @@ Any user-facing change in `packages/*` requires a changeset. Core packages are v
 - **Documentation**: `docs/core/api`, `docs/rest`, `docs/core/guides`
 - **Tests**: `packages/*/src/**/__tests__`
 - **Benchmarks**: `examples/benchmark` (Node: core/normalizr/endpoint throughput), `examples/benchmark-react` (browser: React rendering and data-library comparison). See `.cursor/rules/benchmarking.mdc` and each example’s README.
-- **Skills**: `.agents/skills/` (Cursor, Codex, and other agents)
+- **Skills**: `.agents/skills/` (Cursor, Codex, and other agents); Cursor-only skills in `.cursor/skills/`
 
 ## Key Principles
 

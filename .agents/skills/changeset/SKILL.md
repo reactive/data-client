@@ -14,7 +14,7 @@ Generate changesets, update documentation, draft blog entries, and update skills
    - Compare current branch to `master` to identify modified packages
    - Group changes by impact type (feature, fix, breaking)
    - Identify transitive dependencies that expose the change
-   - Check for modified skills in `.agents/skills/` and `packages/*/.agents/skills/`
+   - Check for modified skills in `.agents/skills/`, `.cursor/skills/`, and `packages/*/.agents/skills/`
 
 2. **Determine affected packages**
    - Include directly modified packages

@@ -63,4 +63,4 @@ Get a new developer up and running with the Reactive Data Client monorepo.
 ## Resources
 - [Documentation](https://dataclient.io/docs)
 - [Discord](https://discord.gg/35nb8Mz)
-- [Contributing Guide](./CONTRIBUTING.md)
+- [Contributing Guide](../../../CONTRIBUTING.md)
