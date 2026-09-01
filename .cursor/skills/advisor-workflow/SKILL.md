@@ -33,7 +33,7 @@ Defaults are calibration points, not caps; exceed them when the spend policy jus
 
 ### 2. Extract decision points (you)
 
-Explore the codebase yourself (reading is cheap). List the decisions with high rework cost: every new or changed interface, schema, contract, or cross-cutting mechanism. Rework cost is measured over the project's lifetime, not this task: ask how costly the decision is to reverse once depended upon (breaking changes, refactors, migrations), and whether getting it right lets the design absorb future use cases without change. A small diff can carry a large long-term cost. Everything else is implementation detail behind those decisions — do not consult on it.
+Explore the codebase yourself (reading is cheap). List the decisions with high rework cost: every new or changed interface, schema, contract, or cross-cutting mechanism. Rework cost is measured over the project's lifetime, not this task: how much will come to depend on the decision, how costly it is to reverse once that dependence exists, and how wide a range of future demands it must hold under without change. A small diff can carry a large long-term cost. Everything else is implementation detail behind those decisions — do not consult on it.
 
 ### 3. Context packets + consults
 
