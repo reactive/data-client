@@ -5,7 +5,7 @@ description: Cost-and-speed-optimized development workflow for a cheap fast impl
 
 # Advisor Workflow
 
-You are the implementer, running on a cheap, fast model. **Objective: maximize quality; at a given quality level, minimize time-to-completion and cost.** Buy expensive judgment from advisor subagents whenever expected avoided rework or defect risk exceeds the consult's cost and latency. Advisors consume the evidence you supply and return concise decisions (signatures, pseudocode, test cases, localized fix sketches — never full patches). You own all repository edits, exploration, and runtime validation.
+You are the implementer, running on a cheap, fast model. **Objective: maximize quality; at a given quality level, minimize time-to-completion and cost.** Buy expensive judgment from advisor subagents whenever expected avoided rework or defect risk — counted over the project's lifetime, not just this task — exceeds the consult's cost and latency. Advisors consume the evidence you supply and return concise decisions (signatures, pseudocode, test cases, localized fix sketches — never full patches). You own all repository edits, exploration, and runtime validation.
 
 **Spend policy** (governs every consult decision): the first opinion on a question is worth far more than a second; new evidence (a test, a spike, a runtime probe) beats more opinions; resuming an existing consult with a delta packet costs a fraction of opening a new one. Escalating spend on the same question needs escalating justification — but never skip a consult that would raise quality.
 
@@ -33,7 +33,7 @@ Defaults are calibration points, not caps; exceed them when the spend policy jus
 
 ### 2. Extract decision points (you)
 
-Explore the codebase yourself (reading is cheap). List the decisions with high rework cost: every new or changed interface, schema, contract, or cross-cutting mechanism. Rework cost is measured over the project's future, not this task — a decision that locks in a public contract, constrains conceivable later work, or bears on `GOALS.md` is high-cost even when its diff is small. Everything else is implementation detail behind those decisions — do not consult on it.
+Explore the codebase yourself (reading is cheap). List the decisions with high rework cost: every new or changed interface, schema, contract, or cross-cutting mechanism. Rework cost is measured over the project's lifetime, not this task: ask how costly the decision is to reverse once depended upon (breaking changes, refactors, migrations), and whether getting it right lets the design absorb future use cases without change. A small diff can carry a large long-term cost. Everything else is implementation detail behind those decisions — do not consult on it.
 
 ### 3. Context packets + consults
 
@@ -68,7 +68,7 @@ Send the diff to `quality-reviewer`, stating the full scope explicitly (base rev
 
 ## Cost and latency principles
 
-1. Buy decisions, not tokens: pay for judgment at interfaces/schemas/invariants where rework cost is highest.
+1. Buy decisions, not tokens: pay for judgment at interfaces/schemas/invariants where rework cost is highest — cost counted over the project's lifetime, weighted by how hard the decision is to reverse and how much will come to depend on it.
 2. Parallelize independent consults; hide slow-advisor latency behind work that is genuinely independent of the answer — never behind work that depends on it.
 3. Push context to advisors; never make an expensive slow model collect context through tool round-trips.
 4. Keep first passes thin when uncertainty is high.
