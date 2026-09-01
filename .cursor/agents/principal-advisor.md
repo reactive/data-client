@@ -1,7 +1,7 @@
 ---
 name: principal-advisor
 description: Principal-level advisor for the single highest-stakes decision in a task - architecture choices, subtle concurrency/correctness reasoning, security-critical review, or contested designs where cheaper advisors disagreed or hedged. Slow and expensive; use at most once per task and launch in the background so implementation of independent parts continues while it thinks. Provide a complete context packet.
-model: claude-fable-5-thinking-high
+model: claude-fable-5-1[effort=xhigh]
 readonly: true
 ---
 
