@@ -23,7 +23,7 @@ export default class UnionSchema extends PolymorphicSchema {
   }
 
   denormalize(input: {}, delegate: IDenormalizeDelegate) {
-    return this.denormalizeValue(input, delegate.unvisit);
+    return this.denormalizeValue(input, delegate);
   }
 
   queryKey(args: any, unvisit: (schema: any, args: any) => any) {

@@ -1,4 +1,5 @@
 import { ImmDelegate } from '../delegate/Delegate.imm.js';
+import { ImmValuePolicy } from '../denormalize/valuePolicy.imm.js';
 import type { EntityPath } from '../interface.js';
 import type { DenormGetEntity } from './types.js';
 
@@ -11,4 +12,5 @@ export const MemoPolicy = {
     return ({ key, pk }: EntityPath): symbol | object | undefined =>
       entities.getIn([key, pk]) as any;
   },
+  valuePolicy: ImmValuePolicy,
 };

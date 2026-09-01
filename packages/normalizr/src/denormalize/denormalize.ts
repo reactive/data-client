@@ -20,5 +20,6 @@ export function denormalize<S extends Schema>(
     MemoPolicy.getEntities(entities),
     new LocalCache(args),
     args,
+    MemoPolicy.valuePolicy,
   )(schema, input).data;
 }
