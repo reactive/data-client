@@ -33,11 +33,11 @@ Defaults are calibration points, not caps; exceed them when the spend policy jus
 
 ### 2. Extract decision points (you)
 
-Explore the codebase yourself (reading is cheap). List the decisions with high rework cost: every new or changed interface, schema, contract, or cross-cutting mechanism. Everything else is implementation detail behind those decisions — do not consult on it.
+Explore the codebase yourself (reading is cheap). List the decisions with high rework cost: every new or changed interface, schema, contract, or cross-cutting mechanism. Rework cost is measured over the project's future, not this task — a decision that locks in a public contract, constrains conceivable later work, or bears on `GOALS.md` is high-cost even when its diff is small. Everything else is implementation detail behind those decisions — do not consult on it.
 
 ### 3. Context packets + consults
 
-First route the decisions: if the task has a single dominating decision (architecture, correctness-critical algorithm, security), that one goes to `principal-advisor` — never also to `design-advisor`. Then decide its mode: if nothing meaningful can proceed without the answer, run it blocking before planning the rest; if independent work exists, run it in the background and implement only that while it thinks. Every remaining decision point (bundling coupled ones) gets a `design-advisor` consult; batch independent ones in parallel. Both advisors take the same packet format:
+First route the decisions: if the task has a single dominating decision (architecture, correctness-critical algorithm, security, or one whose consequences outlive the task by shaping the project's future direction), that one goes to `principal-advisor` — never also to `design-advisor`. Then decide its mode: if nothing meaningful can proceed without the answer, run it blocking before planning the rest; if independent work exists, run it in the background and implement only that while it thinks. Every remaining decision point (bundling coupled ones) gets a `design-advisor` consult; batch independent ones in parallel. Both advisors take the same packet format:
 
 ```
 DECISION: <the specific question>
