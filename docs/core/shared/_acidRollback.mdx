@@ -1,0 +1,146 @@
+import HooksPlayground from '@site/src/components/HooksPlayground';
+import {
+  acidRollbackFixtures,
+  getAcidIssueData,
+} from '@site/src/fixtures/acid';
+
+<HooksPlayground defaultOpen="n" row fixtures={acidRollbackFixtures} getInitialInterceptorData={getAcidIssueData}>
+
+```ts title="IssueResource" collapsed
+import { Entity, resource } from '@data-client/rest';
+
+export class Issue extends Entity {
+  id = '';
+  repoId = '';
+  title = '';
+  state: 'open' | 'closed' = 'open';
+
+  static key = 'Issue';
+}
+export const IssueResource = resource({
+  path: '/issues/:id',
+  searchParams: {} as { repoId?: string } | undefined,
+  schema: Issue,
+  optimistic: true,
+});
+```
+
+```ts title="TypicalCache" collapsed
+export function useTypicalRollback(seed) {
+  const [list, setList] = React.useState(() =>
+    seed.map(issue => ({ ...issue })),
+  );
+  const [details, setDetails] = React.useState(() =>
+    Object.fromEntries(seed.map(issue => [issue.id, { ...issue }])),
+  );
+  const timers = React.useRef<Record<string, ReturnType<typeof setTimeout>>>(
+    {},
+  );
+  React.useEffect(
+    () => () => {
+      Object.values(timers.current).forEach(clearTimeout);
+    },
+    [],
+  );
+  const view = id => details[id];
+  const update = (id, state) => {
+    if (timers.current[id]) clearTimeout(timers.current[id]);
+    let prev = state;
+    setDetails(current => {
+      prev = current[id].state;
+      return { ...current, [id]: { ...current[id], state } };
+    });
+    setList(current =>
+      current.map(issue => (issue.id === id ? { ...issue, state } : issue)),
+    );
+    timers.current[id] = setTimeout(() => {
+      setDetails(current => ({
+        ...current,
+        [id]: { ...current[id], state: prev },
+      }));
+    }, 500);
+  };
+  const torn = id =>
+    list.find(issue => issue.id === id)?.state !== view(id)?.state;
+  return { list, view, update, torn };
+}
+```
+
+```tsx title="IssuePage" {13}
+import { useController, useSuspense } from '@data-client/react';
+import { IssueResource } from './IssueResource';
+import { useTypicalRollback } from './TypicalCache';
+
+function IssuePage() {
+  const ctrl = useController();
+  const issues = useSuspense(IssueResource.getList, { repoId: '1' });
+  const typical = useTypicalRollback(issues);
+  const [id, setId] = React.useState(issues[0].id);
+  const issue = useSuspense(IssueResource.get, { id });
+  const handleToggle = () => {
+    const state = issue.state === 'open' ? 'closed' : 'open';
+    ctrl.fetch(IssueResource.partialUpdate, { id }, { state });
+    typical.update(id, state);
+  };
+  return (
+    <div>
+      <div className="acidToolbar">
+        <button onClick={handleToggle}>
+          {issue.state === 'open' ? 'Close' : 'Reopen'}
+        </button>
+      </div>
+      <AcidCompare>
+        <AcidPane title="Data Client" subtitle="one shared store">
+          <div className="acidSplit">
+            <div>
+              <small>List</small>
+              {issues.map(item => (
+                <IssueRow
+                  key={item.pk()}
+                  title={item.title}
+                  state={item.state}
+                  selected={item.id === id}
+                  onClick={() => setId(item.id)}
+                />
+              ))}
+            </div>
+            <div className="acidReadout">
+              <small>Detail</small>
+              <div>{issue.title}</div>
+              <IssueState state={issue.state} />
+            </div>
+          </div>
+        </AcidPane>
+        <AcidPane
+          title="Flat caches"
+          subtitle="independent copies"
+          torn={typical.torn(id)}
+        >
+          <div className="acidSplit">
+            <div>
+              <small>List</small>
+              {typical.list.map(item => (
+                <IssueRow
+                  key={item.id}
+                  title={item.title}
+                  state={item.state}
+                  selected={item.id === id}
+                  onClick={() => setId(item.id)}
+                />
+              ))}
+            </div>
+            <div className="acidReadout">
+              <small>Detail</small>
+              <div>{typical.view(id).title}</div>
+              <IssueState state={typical.view(id).state} />
+            </div>
+          </div>
+        </AcidPane>
+      </AcidCompare>
+    </div>
+  );
+}
+render(<IssuePage />);
+```
+
+</HooksPlayground>

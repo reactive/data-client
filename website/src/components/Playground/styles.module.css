@@ -178,6 +178,136 @@ div > .playgroundHeader.subtabs {
   display: flex;
   height: 100%;
 }
+.demoViewport {
+  aspect-ratio: var(--demo-width) / var(--demo-height);
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+}
+.demoViewport .playgroundPreview {
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+}
+.headerActions {
+  display: flex;
+  align-items: stretch;
+  flex: 0 0 auto;
+}
+.headerAction,
+.paneToggle {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.headerAction:focus-visible,
+.paneToggle:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -2px;
+}
+.headerAction {
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0 0.5rem;
+  border-radius: var(--ifm-global-radius);
+}
+.headerAction:hover {
+  background: var(--ifm-color-emphasis-300);
+}
+.headerActionIcon {
+  flex: 0 0 auto;
+  display: block;
+}
+/* Icon-only Hide code: last cell of the editor tab row, same height as tabs. */
+.paneToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  align-self: stretch;
+  margin-inline-start: auto;
+  padding: 0 0.55rem;
+}
+.paneToggle:hover {
+  background-color: var(--ifm-color-emphasis-700);
+}
+/* Stock Live Preview header: same box as a tab (emoji cannot grow it). */
+.previewHeader {
+  line-height: 1.25;
+}
+.previewHeader:not(.tabControls) {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  height: calc(1.5rem + 1.25em);
+}
+.previewHeader.tabControls .title {
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+.previewHeader .paneToggle:hover {
+  background-color: var(--ifm-color-emphasis-300);
+}
+/* Collapsed: conventional top-right Show code. */
+.playgroundContainer.hideCode .headerActions {
+  margin-inline-start: auto;
+  padding-inline-end: 0.5rem;
+}
+.codeCollapsed {
+  display: none;
+}
+/* Focusable live-demo pane (receives focus on facade handoff). */
+.previewPane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.previewPane > * {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.previewPane:focus {
+  outline: none;
+}
+.previewPane:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+.playgroundContainer.hideCode .previewPane {
+  border-top-left-radius: var(--ifm-global-radius);
+  border-top-right-radius: var(--ifm-global-radius);
+}
+.demoFacade {
+  overflow: hidden;
+}
+.stageEnter {
+  animation: stageFade 180ms ease-out;
+}
+@keyframes stageFade {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .stageEnter {
+    animation: none;
+  }
+}
 
 .debugToggle {
   writing-mode: vertical-rl;
@@ -191,6 +321,10 @@ div > .playgroundHeader.subtabs {
   padding: 0.7em 0.1em 1em 0.1em;
   cursor: pointer;
   flex: 0 0 auto;
+  /* writing-mode gives a content-sized inline height; stretch to the demo pane */
+  align-self: stretch;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .debugToggle:hover {
@@ -204,8 +338,10 @@ div > .playgroundHeader.subtabs {
 /* tabs */
 .playgroundHeader.tabControls {
   display: flex;
+  align-items: stretch;
   justify-content: space-between;
   padding: 0;
+  line-height: 1.25;
 }
 .playgroundHeader.tabControls .title {
   padding: 0.75rem;
@@ -218,6 +354,7 @@ div > .playgroundHeader.subtabs {
 
 .tabs {
   display: flex;
+  align-self: stretch;
   overflow: auto;
 }
 
@@ -227,6 +364,7 @@ div > .playgroundHeader.subtabs {
   cursor: pointer;
   display: flex;
   align-items: center;
+  line-height: 1.25;
 }
 .tab:hover {
   background-color: var(--ifm-color-emphasis-700);
@@ -459,5 +597,11 @@ div.fixtureJson {
   }
   .playgroundContainer.row .playgroundHeader.tabControls:first-of-type {
     border-top-right-radius: 0;
+  }
+  .playgroundContainer.row.hideCode > .previewPane {
+    flex: 1 1 auto;
+    min-width: 0;
+    background-color: var(--ifm-background-color);
+    border-radius: var(--ifm-global-radius);
   }
 }

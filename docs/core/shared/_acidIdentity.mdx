@@ -1,0 +1,116 @@
+import HooksPlayground from '@site/src/components/HooksPlayground';
+import {
+  acidIssueFixtures,
+  getAcidIssueData,
+} from '@site/src/fixtures/acid';
+
+<HooksPlayground defaultOpen="n" row fixtures={acidIssueFixtures} getInitialInterceptorData={getAcidIssueData}>
+
+```ts title="IssueResource" collapsed
+import { Entity, resource } from '@data-client/rest';
+
+export class Issue extends Entity {
+  id = '';
+  repoId = '';
+  title = '';
+  state: 'open' | 'closed' = 'open';
+
+  static key = 'Issue';
+}
+export const IssueResource = resource({
+  path: '/issues/:id',
+  searchParams: {} as { repoId?: string } | undefined,
+  schema: Issue,
+  optimistic: true,
+});
+```
+
+```ts title="TypicalCache" collapsed
+export function useTypicalIdentity(seed) {
+  const [list] = React.useState(() => seed.map(issue => ({ ...issue })));
+  const [details, setDetails] = React.useState(() =>
+    Object.fromEntries(seed.map(issue => [issue.id, { ...issue }])),
+  );
+  const view = id => details[id];
+  const update = (id, body) =>
+    setDetails(current => ({
+      ...current,
+      [id]: { ...current[id], ...body },
+    }));
+  const torn = id => list.find(issue => issue.id === id)?.state !== view(id)?.state;
+  return { list, view, update, torn };
+}
+```
+
+```tsx title="IssuePage" {7,10,11}
+import { useController, useSuspense } from '@data-client/react';
+import { IssueResource } from './IssueResource';
+import { useTypicalIdentity } from './TypicalCache';
+
+function IssuePage() {
+  const ctrl = useController();
+  const issues = useSuspense(IssueResource.getList, { repoId: '1' });
+  const typical = useTypicalIdentity(issues);
+  const [id, setId] = React.useState(issues[0].id);
+  const issue = useSuspense(IssueResource.get, { id });
+  const fromList = issues.find(item => item.id === id);
+  const handleToggle = () => {
+    const state = issue.state === 'open' ? 'closed' : 'open';
+    ctrl.fetch(IssueResource.partialUpdate, { id }, { state });
+    typical.update(id, { state });
+  };
+  return (
+    <div>
+      {issues.map(item => (
+        <IssueRow
+          key={item.pk()}
+          title={item.title}
+          state={item.state}
+          selected={item.id === id}
+          onClick={() => setId(item.id)}
+        />
+      ))}
+      <div className="acidToolbar">
+        <button onClick={handleToggle}>
+          {issue.state === 'open' ? 'Close' : 'Reopen'}
+        </button>
+      </div>
+      <AcidCompare>
+        <AcidPane title="Data Client" subtitle="one shared store">
+          <div className="acidSplit">
+            <div className="acidReadout">
+              <small>getList</small>
+              <IssueState state={fromList.state} />
+            </div>
+            <div className="acidReadout">
+              <small>get</small>
+              <IssueState state={issue.state} />
+            </div>
+          </div>
+        </AcidPane>
+        <AcidPane
+          title="Flat caches"
+          subtitle="independent copies"
+          torn={typical.torn(id)}
+        >
+          <div className="acidSplit">
+            <div className="acidReadout">
+              <small>getList</small>
+              <IssueState
+                state={typical.list.find(item => item.id === id).state}
+              />
+            </div>
+            <div className="acidReadout">
+              <small>get</small>
+              <IssueState state={typical.view(id).state} />
+            </div>
+          </div>
+        </AcidPane>
+      </AcidCompare>
+    </div>
+  );
+}
+render(<IssuePage />);
+```
+
+</HooksPlayground>

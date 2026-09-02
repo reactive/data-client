@@ -1,0 +1,124 @@
+import HooksPlayground from '@site/src/components/HooksPlayground';
+import {
+  acidIssueFixtures,
+  getAcidIssueData,
+} from '@site/src/fixtures/acid';
+
+<HooksPlayground defaultOpen="n" row fixtures={acidIssueFixtures} getInitialInterceptorData={getAcidIssueData}>
+
+```ts title="IssueResource" collapsed
+import { Entity, resource } from '@data-client/rest';
+
+export class Issue extends Entity {
+  id = '';
+  repoId = '';
+  title = '';
+  state: 'open' | 'closed' = 'open';
+
+  static key = 'Issue';
+}
+export const IssueResource = resource({
+  path: '/issues/:id',
+  searchParams: {} as { repoId?: string } | undefined,
+  schema: Issue,
+  optimistic: true,
+});
+```
+
+```ts title="TypicalCache" collapsed
+export function useTypicalCreate(seed) {
+  const [list] = React.useState(() => seed.map(issue => ({ ...issue })));
+  const [orphan, setOrphan] = React.useState(null);
+  const create = title =>
+    setOrphan({ id: 'local', title, state: 'open' });
+  return { list, orphan, create, torn: orphan != null };
+}
+```
+
+```tsx title="IssuePage" {14}
+import { useController, useSuspense } from '@data-client/react';
+import { IssueResource } from './IssueResource';
+import { useTypicalCreate } from './TypicalCache';
+
+function IssuePage() {
+  const ctrl = useController();
+  const issues = useSuspense(IssueResource.getList, { repoId: '1' });
+  const typical = useTypicalCreate(issues);
+  const newest = issues[issues.length - 1];
+  const issue = useSuspense(IssueResource.get, { id: newest.id });
+  const handleKeyDown = e => {
+    if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+      const title = e.currentTarget.value;
+      ctrl.fetch(IssueResource.getList.push, { repoId: '1', title });
+      typical.create(title);
+      e.currentTarget.value = '';
+    }
+  };
+  return (
+    <div>
+      <div className="acidToolbar">
+        <TextInput
+          size="small"
+          placeholder="New issue"
+          onKeyDown={handleKeyDown}
+        />
+      </div>
+      <AcidCompare>
+        <AcidPane title="Data Client" subtitle="one shared store">
+          <div className="acidSplit">
+            <div>
+              <small>List</small>
+              {issues.map(item => (
+                <IssueRow
+                  key={item.pk()}
+                  title={item.title}
+                  state={item.state}
+                />
+              ))}
+            </div>
+            <div className="acidReadout">
+              <small>Newest</small>
+              <div>{issue.title}</div>
+              <IssueState state={issue.state} />
+            </div>
+          </div>
+        </AcidPane>
+        <AcidPane
+          title="Flat caches"
+          subtitle="independent copies"
+          torn={typical.torn}
+        >
+          <div className="acidSplit">
+            <div>
+              <small>List</small>
+              {typical.list.map(item => (
+                <IssueRow
+                  key={item.id}
+                  title={item.title}
+                  state={item.state}
+                />
+              ))}
+            </div>
+            <div className="acidReadout">
+              <small>Newest</small>
+              {typical.orphan ?
+                <>
+                  <div>{typical.orphan.title}</div>
+                  <IssueState state="open" />
+                </>
+              : <>
+                  <div>{newest.title}</div>
+                  <IssueState state={newest.state} />
+                </>
+              }
+            </div>
+          </div>
+        </AcidPane>
+      </AcidCompare>
+    </div>
+  );
+}
+render(<IssuePage />);
+```
+
+</HooksPlayground>
