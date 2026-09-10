@@ -6,6 +6,7 @@ import { normalize } from './normalize/normalize.js';
 export { default as MemoCache } from './memo/MemoCache.js';
 export { BaseDelegate } from './delegate/BaseDelegate.js';
 export { MemoPolicy } from './memo/Policy.js';
+export { PlainValuePolicy } from './denormalize/valuePolicy.js';
 export type {
   AbstractInstanceType,
   NormalizeReturnType,

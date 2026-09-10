@@ -25,7 +25,7 @@ export default class ValuesSchema extends PolymorphicSchema {
     for (let i = 0; i < keys.length; i++) {
       const k = keys[i];
       const entityOrId = (input as any)[k];
-      const value = this.denormalizeValue(entityOrId, delegate.unvisit);
+      const value = this.denormalizeValue(entityOrId, delegate);
 
       // remove empty or deleted values
       if (value && typeof value !== 'symbol') {

@@ -23,9 +23,7 @@ export default class ArraySchema extends PolymorphicSchema {
   denormalize(input: any, delegate: IDenormalizeDelegate) {
     return input.map ?
         input
-          .map((entityOrId: any) =>
-            this.denormalizeValue(entityOrId, delegate.unvisit),
-          )
+          .map((entityOrId: any) => this.denormalizeValue(entityOrId, delegate))
           .filter(filterEmpty)
       : input;
   }

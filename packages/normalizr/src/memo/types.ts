@@ -1,6 +1,10 @@
 import WeakDependencyMap, { GetDependency } from './WeakDependencyMap.js';
 import type { BaseDelegate } from '../delegate/BaseDelegate.js';
-import type { EntityInterface, EntityPath } from '../interface.js';
+import type {
+  EntityInterface,
+  EntityPath,
+  IValuePolicy,
+} from '../interface.js';
 
 export interface EntityCache extends Map<
   string,
@@ -17,4 +21,7 @@ export type DenormGetEntity = GetDependency<EntityPath>;
 export interface IMemoPolicy {
   QueryDelegate: new (v: { entities: any; indexes: any }) => BaseDelegate;
   getEntities(entities: any): DenormGetEntity;
+  /** Value-representation strategy for denormalization.
+   * Optional for backwards compatibility — defaults to the plain (POJO) policy. */
+  valuePolicy?: IValuePolicy;
 }

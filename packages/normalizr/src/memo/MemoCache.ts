@@ -60,6 +60,7 @@ export default class MemoCache {
       getEntity,
       new GlobalCache(getEntity, this._getCache, this.endpoints, args),
       args,
+      this.policy.valuePolicy,
     )(schema, input);
   }
 
