@@ -3292,7 +3292,7 @@ __metadata:
     "@types/react-dom": "npm:*"
     jest-mock: "npm:^30.0.0"
     nock: "npm:13.3.1"
-    qs: "npm:^6.16.0"
+    qs: "npm:^6.14.2"
     react: "npm:19.2.3"
     react-dom: "npm:^19.0.0"
     react-native: "npm:0.86.2"
@@ -4492,7 +4492,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@humanfs/node@npm:>=0.16.8":
+"@humanfs/node@npm:^0.16.6":
   version: 0.16.8
   resolution: "@humanfs/node@npm:0.16.8"
   dependencies:
@@ -10194,7 +10194,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"baseline-browser-mapping@npm:>=2.11.0":
+"baseline-browser-mapping@npm:^2.11.20":
   version: 2.11.21
   resolution: "baseline-browser-mapping@npm:2.11.21"
   bin:
@@ -10540,7 +10540,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"browserslist@npm:>=4.28.7":
+"browserslist@npm:^4.0.0, browserslist@npm:^4.18.1, browserslist@npm:^4.23.0, browserslist@npm:^4.23.3, browserslist@npm:^4.24.0, browserslist@npm:^4.28.1, browserslist@npm:^4.28.2":
   version: 4.28.9
   resolution: "browserslist@npm:4.28.9"
   dependencies:
@@ -18077,7 +18077,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:3.15.2":
+"js-yaml@npm:^3.13.1, js-yaml@npm:^3.6.1":
   version: 3.15.2
   resolution: "js-yaml@npm:3.15.2"
   dependencies:
@@ -18089,7 +18089,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-yaml@npm:4.3.2":
+"js-yaml@npm:^4.1.0, js-yaml@npm:^4.1.1, js-yaml@npm:^4.3.0":
   version: 4.3.2
   resolution: "js-yaml@npm:4.3.2"
   dependencies:
@@ -20528,7 +20528,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nanoid@npm:3.3.18":
+"nanoid@npm:^3.3.11, nanoid@npm:^3.3.17":
   version: 3.3.18
   resolution: "nanoid@npm:3.3.18"
   bin:
