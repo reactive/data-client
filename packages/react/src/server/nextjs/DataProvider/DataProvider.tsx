@@ -12,7 +12,7 @@ export type { NextDataProviderProps } from './types.js';
  *
  * Streams store state to the client alongside the HTML so every Suspense
  * boundary hydrates with the data it was rendered from.
- * @see https://dataclient.io/docs/guides/ssr#nextjs-app-router
+ * @see https://dataclient.io/docs/guides/ssr#nextjs
  */
 export default function DataProvider({
   children,
