@@ -82,8 +82,9 @@ request-scoped server store has nothing to collect.
 ##### managers {#managers}
 
 The server builds a store per request, so [Managers](../api/Manager.md) must be created per
-request as well. Unlike the [browser DataProvider](../api/DataProvider.md#managers), this takes a
-**function** that is called once per request on the server and once in the browser:
+request as well. The [browser DataProvider](../api/DataProvider.md#managers) accepts either
+instances or a function; here only a **function** is accepted, called once per request on the
+server and once in the browser:
 
 ```tsx title="app/Provider.tsx"
 'use client';

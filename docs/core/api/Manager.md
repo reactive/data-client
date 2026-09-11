@@ -67,7 +67,8 @@ Provides any cleanup of dangling resources after manager is no longer in use.
 
 Use the [managers](../api/DataProvider.md#managers) prop of [DataProvider](../api/DataProvider.md). Be
 sure to hoist to _module level_ or wrap in a _useMemo()_ to ensure they are not recreated. Managers
-have internal state, so it is important to not constantly recreate them.
+have internal state, so it is important to not constantly recreate them. Passing a function
+(`managers={() => [...]}`) is the alternative: the provider calls it once when it mounts.
 
 <Tabs
 defaultValue="web"

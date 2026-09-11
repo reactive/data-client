@@ -21,7 +21,7 @@ in the React tree.
 ```typescript
 interface ProviderProps {
   children: ReactNode;
-  managers?: Manager[];
+  managers?: Manager[] | (() => Manager[]);
   initialState?: State<unknown>;
   Controller?: typeof Controller;
   devButton?:
@@ -80,11 +80,25 @@ store, so it is fetched once like any other client render.
 The Next.js App Router provider from `@data-client/react/nextjs` fills this in from the stream;
 see the [SSR guide](../guides/ssr.md#nextjs) for its props.
 
-### managers?: Manager[] {#managers}
+### managers?: Manager[] | (() => Manager[]) {#managers}
 
-List of [Manager](./Manager.md)s use. This is the main extensibility point of the provider.
+List of [Manager](./Manager.md)s to use, or a function that creates them. This is the main
+extensibility point of the provider.
 
 [getDefaultManagers()](./getDefaultManagers.md) can be used to extend the default managers.
+
+Either form is resolved once when the provider mounts. A function is convenient when the same
+definition is shared with the [Next.js provider](../guides/ssr.md#managers), which only accepts a
+function, or when more than one `DataProvider` is mounted on a page: managers keep a reference to
+the store they were attached to, so each provider should get its own instances.
+
+```tsx
+const managers = () => [...getDefaultManagers(), new MyManager()];
+
+<DataProvider managers={managers}>
+  <App />
+</DataProvider>
+```
 
 Default Production:
 
