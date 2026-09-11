@@ -1,32 +1,36 @@
-/// <reference types="react/canary" />
-import { type State } from '@data-client/core';
-import { ComponentProps, use } from 'react';
+'use client';
+import type { Controller as DataController, Manager } from '@data-client/core';
 
+import { getSnapshotStore } from './snapshotStore.js';
+import StreamedStateReceiver from './StreamedStateReceiver.js';
+import type { StoreProviderProps } from './types.js';
+import createServerSnapshot from '../../../components/createServerSnapshot.js';
 import DataProvider from '../../../components/DataProvider.js';
-import { awaitInitialData } from '../../getInitialData.js';
+import { ServerSnapshotContext } from '../../../context.js';
 
-export default function createPersistedStore() {
-  const initPromise = awaitInitialData();
+export default function createPersistedStore(
+  managers?: () => Manager[],
+  Controller?: typeof DataController,
+) {
+  const snapshotStore = getSnapshotStore();
+  const initialState = snapshotStore.state;
+  const resolvedManagers = (snapshotStore.managers ??= managers?.());
+  const serverSnapshot = createServerSnapshot(() => snapshotStore.state);
 
-  const StoreDataProvider = ({
-    children,
-    initPromise,
-    ...props
-  }: ProviderProps) => {
-    const initialState = use(initPromise);
-    return (
-      <DataProvider {...props} initialState={initialState}>
+  const StoreDataProvider = ({ children, ...props }: StoreProviderProps) => (
+    <DataProvider
+      {...props}
+      managers={resolvedManagers}
+      Controller={Controller}
+      initialState={initialState}
+    >
+      <ServerSnapshotContext.Provider value={serverSnapshot}>
+        <StreamedStateReceiver snapshotStore={snapshotStore} />
         {children}
-      </DataProvider>
-    );
-  };
-  return [StoreDataProvider, initPromise] as const;
-}
+      </ServerSnapshotContext.Provider>
+    </DataProvider>
+  );
 
-type ProviderProps = Omit<
-  Partial<ComponentProps<typeof DataProvider>>,
-  'initialState'
-> & {
-  children: React.ReactNode;
-  initPromise: Promise<State<any>>;
-};
+  const renderStateDelta = () => null;
+  return [StoreDataProvider, renderStateDelta] as const;
+}

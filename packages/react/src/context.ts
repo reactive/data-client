@@ -29,6 +29,20 @@ export const ControllerContext = createContext<Controller>(
   }),
 );
 
+export interface ServerSnapshot {
+  /**
+   * State to hydrate with: what the server rendered from, falling back to
+   * `live` for anything the server never sent. Returns a cached object while
+   * its inputs are unchanged.
+   */
+  getServerSnapshot(live: State<unknown>): State<unknown>;
+}
+/**
+ * Lets cache reads hydrate against the exact state the server rendered
+ * with, even when the live store has already moved on.
+ */
+export const ServerSnapshotContext = createContext<ServerSnapshot | null>(null);
+
 export interface Store<S> {
   subscribe(listener: () => void): () => void;
   getState(): S;

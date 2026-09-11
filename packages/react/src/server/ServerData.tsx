@@ -1,5 +1,7 @@
 import type { State } from '@data-client/core';
 
+import { escapeJsonForHtml } from './escapeJsonForHtml.js';
+
 export const ServerData = ({
   data,
   nonce,
@@ -10,7 +12,7 @@ export const ServerData = ({
   nonce?: string | undefined;
 }) => {
   try {
-    const encoded = JSON.stringify(data);
+    const encoded = escapeJsonForHtml(JSON.stringify(data));
     return (
       <script
         id={id}
