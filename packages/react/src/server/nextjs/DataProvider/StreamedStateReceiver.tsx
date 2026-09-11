@@ -4,7 +4,7 @@ import type { StateDelta } from '@data-client/core';
 import { useLayoutEffect } from 'react';
 import { flushSync } from 'react-dom';
 
-import type { SnapshotStore } from './snapshotStore.js';
+import type { SnapshotStore } from './deltaQueue.js';
 import useController from '../../../hooks/useController.js';
 
 const { applyStateDelta, selectBaseline, createHydrate } = __INTERNAL__;

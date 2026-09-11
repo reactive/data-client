@@ -5,4 +5,5 @@ export {
   applyStateDelta,
   selectBaseline,
   createHydrate,
+  overlayState,
 } from './state/stream/index.js';

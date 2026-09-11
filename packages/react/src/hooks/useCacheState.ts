@@ -36,7 +36,7 @@ const useCacheState: () => State<unknown> =
       return React.useSyncExternalStore(
         emptySubscribe,
         getLive,
-        snapshot ? snapshot.getServerSnapshot : getLive,
+        snapshot ? () => snapshot.getServerSnapshot(live) : getLive,
       );
     }
   : () => use(StateContext);
