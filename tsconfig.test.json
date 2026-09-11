@@ -16,7 +16,7 @@
   },
   "include": [
     "packages/*/src",
-    "packages/*/typings",
+    "packages/*/type-shims",
     "packages/*/typescript-tests",
     "__tests__"
   ]
