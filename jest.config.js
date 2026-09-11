@@ -59,15 +59,13 @@ const packages = [
 
 // CircleCI persist_to_workspace omits most of website/; only include this root
 // when the tree is present (full checkout / when CI persists Playground).
-const playgroundRoot = path.join(
-  __dirname,
+const websiteComponentRoots = [
   'website/src/components/Playground',
-);
+  'website/src/components/DemoVideo',
+].filter(rel => fs.existsSync(path.join(__dirname, rel)));
 const reactDomRoots = [
   ...packages.map(pkgName => `<rootDir>/packages/${pkgName}/src`),
-  ...(fs.existsSync(playgroundRoot) ?
-    ['<rootDir>/website/src/components/Playground']
-  : []),
+  ...websiteComponentRoots.map(rel => `<rootDir>/${rel}`),
 ];
 
 const projects = [

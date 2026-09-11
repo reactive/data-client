@@ -1,0 +1,142 @@
+import HooksPlayground from '@site/src/components/HooksPlayground';
+import {
+  acidTradeFixtures,
+  getAcidTradeData,
+} from '@site/src/fixtures/acid';
+
+<HooksPlayground defaultOpen="n" row fixtures={acidTradeFixtures} getInitialInterceptorData={getAcidTradeData}>
+
+```ts title="AccountResource" collapsed
+import { Entity, resource } from '@data-client/rest';
+
+export class Account extends Entity {
+  id = '';
+  balance = 0;
+
+  static key = 'Account';
+}
+export const AccountResource = resource({
+  path: '/accounts/:id',
+  schema: Account,
+});
+```
+
+```ts title="TradeResource" {16-19}
+import { Entity, resource } from '@data-client/rest';
+import { Account } from './AccountResource';
+
+export class Trade extends Entity {
+  id = '';
+  amount = 0;
+  coin = '';
+
+  static key = 'Trade';
+}
+export const TradeResource = resource({
+  path: '/trade/:id',
+  schema: Trade,
+}).extend(Base => ({
+  create: Base.getList.push.extend({
+    schema: {
+      trade: Base.getList.push.schema,
+      account: Account,
+    },
+  }),
+}));
+```
+
+```ts title="TypicalCache" collapsed
+export function useTypicalTrade(seedTrades, seedBalance) {
+  const [trades, setTrades] = React.useState(() =>
+    seedTrades.map(trade => ({ ...trade })),
+  );
+  const [balance] = React.useState(seedBalance);
+  const initialCount = React.useRef(seedTrades.length);
+  const buy = () =>
+    setTrades(current => [
+      ...current,
+      { id: `local-${current.length}`, amount: 10, coin: 'DOGE' },
+    ]);
+  return {
+    trades,
+    balance,
+    buy,
+    torn: trades.length > initialCount.current,
+  };
+}
+```
+
+```tsx title="TradePage" collapsed
+import { useController, useSuspense } from '@data-client/react';
+import { AccountResource } from './AccountResource';
+import { TradeResource } from './TradeResource';
+import { useTypicalTrade } from './TypicalCache';
+
+function TradePage() {
+  const ctrl = useController();
+  const account = useSuspense(AccountResource.get, { id: '1' });
+  const trades = useSuspense(TradeResource.getList);
+  const typical = useTypicalTrade(trades, account.balance);
+  const handleBuy = () => {
+    ctrl.fetch(TradeResource.create, { amount: 10, coin: 'DOGE' });
+    typical.buy();
+  };
+  return (
+    <div>
+      <div className="acidToolbar">
+        <button onClick={handleBuy}>Buy 10 DOGE</button>
+      </div>
+      <AcidCompare>
+        <AcidPane title="Data Client" subtitle="one shared store">
+          <div className="acidSplit">
+            <div className="acidReadout">
+              <small>Balance</small>
+              <strong>
+                <NumberFlow
+                  value={account.balance}
+                  format={{ style: 'currency', currency: 'USD' }}
+                />
+              </strong>
+            </div>
+            <div>
+              <small>Trades</small>
+              {trades.map(trade => (
+                <div key={trade.pk()} className="issueRow">
+                  {trade.amount} {trade.coin}
+                </div>
+              ))}
+            </div>
+          </div>
+        </AcidPane>
+        <AcidPane
+          title="Flat caches"
+          subtitle="independent copies"
+          torn={typical.torn}
+        >
+          <div className="acidSplit">
+            <div className="acidReadout">
+              <small>Balance</small>
+              <strong>
+                <span className={typical.torn ? 'issueState issueState--stale' : undefined}>
+                  {typical.balance} USD
+                </span>
+              </strong>
+            </div>
+            <div>
+              <small>Trades</small>
+              {typical.trades.map(trade => (
+                <div key={trade.id} className="issueRow">
+                  {trade.amount} {trade.coin}
+                </div>
+              ))}
+            </div>
+          </div>
+        </AcidPane>
+      </AcidCompare>
+    </div>
+  );
+}
+render(<TradePage />);
+```
+
+</HooksPlayground>

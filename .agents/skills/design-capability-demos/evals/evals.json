@@ -1,0 +1,113 @@
+{
+  "skill_name": "design-capability-demos",
+  "evals": [
+    {
+      "id": 1,
+      "name": "react-deferred-rendering",
+      "prompt": "We're trying to show why React's useDeferredValue is useful. It lets an expensive, non-urgent render lag behind so urgent input updates stay responsive, and background rendering can be interrupted when newer input arrives. Come up with demo ideas, rank them, and refine the strongest one into something we could build.",
+      "expected_output": "A compact set of ranked concepts culminating in a controlled same-workload demo where a familiar urgent interaction remains responsive while expensive dependent rendering lags and catches up. Parameters should amplify genuine render cost, identify a stable clarity window, and avoid penalizing only the baseline.",
+      "files": [],
+      "assertions": [
+        "The response provides 3-5 genuinely distinct demo concepts and explicitly ranks them.",
+        "The selected design compares equivalent useful work and changes only use of deferred rendering or its closest credible activation difference.",
+        "A familiar, minimal interaction directly exposes urgent input responsiveness versus blocking, while the expensive dependent result eventually catches up.",
+        "The workload parameters amplify genuine render cost rather than inserting a delay or handicap only into the baseline.",
+        "The refined design identifies a primary parameter, a usable range or clarity window, fixed controls, and failure conditions when tuned too low or too high.",
+        "The response identifies a transferable invariant without relying on React-specific nouns.",
+        "The response stays focused on scenario, contrast, interaction, observable outcome, controls, and parameters rather than presentation or explanatory messaging."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "relay-colocated-fragments",
+      "prompt": "Design a demo for Relay fragments. The capability is that each nested UI component can declare its own data requirements independently, while Relay composes those fragments into one efficient operation. We want several candidate concepts, a ranked choice, and a refined demo design—not implementation code.",
+      "expected_output": "A structurally fitting nested-component scenario that makes ownership and composition observable, likely through a local child requirement change whose effects remain local in source while the generated operation updates. The comparison should preserve equivalent data and UI output and should tune structural parameters such as nesting, component count, or requirement changes without burying the idea in app chrome.",
+      "files": [],
+      "assertions": [
+        "The response provides 3-5 distinct concepts, ranks them, and selects one canonical case.",
+        "The selected scenario naturally contains nested components with independently owned data requirements.",
+        "The contrast preserves equivalent UI and fetched data while changing centralized versus colocated declaration and composition.",
+        "A small local change to a child component's data needs produces an observable consequence that demonstrates both local ownership and composition into an efficient operation.",
+        "The design avoids claiming a runtime speedup when the demonstrated benefit is architectural or authoring-related.",
+        "The refined design tunes causally relevant structural parameters and records fixed controls or confounders.",
+        "The design removes incidental product complexity and exposes a transferable invariant about local requirements and global composition."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "container-query-layout",
+      "prompt": "hey, can you design a few strong demo ideas for a component library feature built on CSS container queries? Components adapt to the width they're actually given instead of the browser viewport. Rank the ideas and tune the winning one so the difference from viewport-based breakpoints is impossible to miss.",
+      "expected_output": "A familiar component placed in independently sized containers under one fixed viewport, with a minimal resizing or layout-change interaction. The controlled baseline uses viewport breakpoints, the enabled case uses container width, and selected widths cross component-relevant thresholds without changing content or viewport. The result should transfer beyond the chosen component type.",
+      "files": [],
+      "assertions": [
+        "The response provides and ranks 3-5 structurally distinct concepts before refining one.",
+        "The selected demo holds the viewport, component content, and useful output constant while varying container allocation and query mechanism.",
+        "One simple resize or layout-allocation interaction makes independently correct component adaptation directly visible.",
+        "The design selects container widths or breakpoints that create a broad, robust contrast rather than a fragile single threshold.",
+        "The selected scenario is structurally realistic for reusable components embedded in different parent layouts.",
+        "The response identifies confounders such as viewport changes, different content, CSS differences beyond the query mechanism, or layout overflow.",
+        "The invariant generalizes beyond the specific component or product surface used in the demo."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "postgres-transaction-atomicity",
+      "prompt": "Design several demo concepts for PostgreSQL transaction atomicity. The capability is that a multi-step operation becomes visible all at once or not at all: for example, transferring money requires debiting one account and crediting another, and a failure between those updates must not leave a partial transfer. Rank the concepts and refine the strongest one without drifting into a throughput benchmark.",
+      "expected_output": "A canonical bank-transfer or equivalent invariant-preserving scenario using the same dependent updates and a deterministic failure at the same point. The credible baseline commits statements independently and can expose partial state; the transaction wraps them so failure rolls everything back. Direct evidence should be the balances and conserved invariant, with success and failure perturbations rather than artificial scale.",
+      "files": [],
+      "reference_sources": [
+        "https://www.postgresql.org/docs/current/tutorial-transactions.html"
+      ],
+      "assertions": [
+        "The response provides and ranks 3-5 structurally distinct concepts before refining one.",
+        "The selected design keeps the genuine outcome surface on atomic visibility and invariant preservation rather than claiming a throughput or latency advantage.",
+        "The credible contrast uses the same intended multi-step operation and failure point, varying independent commits versus one transaction rather than weakening the baseline with unrelated behavior.",
+        "One deterministic failure injected after an early mutation directly exposes partial state in the baseline and rollback or non-visibility in the transactional case.",
+        "The observable state includes an invariant such as conserved total value, not merely a success label or transaction log message.",
+        "The refinement tests at least a successful operation, the discriminating mid-operation failure, and a boundary or adjacent failure case while controlling initial data, autocommit behavior, retries, and concurrency.",
+        "The invariant transfers to dependent multi-step mutations beyond banking and the response remains within demo-design scope."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "rust-ownership-static-prevention",
+      "prompt": "Come up with and rank demo concepts for Rust ownership and moves as a memory-safety capability. Focus on the fact that after ownership of a heap value moves, the old binding cannot be used, so invalid access is rejected at compile time. Refine the best demo itself; don't turn this into a language-speed comparison or a general Rust tutorial.",
+      "expected_output": "A minimal invalid program moves a String and then uses the old binding, producing a compile-time diagnostic before execution, paired with nearby valid ownership choices such as using the new owner, borrowing, or explicitly cloning. The proof should remain on static prevention, avoid contrived crashes or performance claims, and vary the ownership relation rather than adding scale.",
+      "files": [],
+      "reference_sources": [
+        "https://doc.rust-lang.org/book/ch04-01-what-is-ownership.html",
+        "https://doc.rust-lang.org/book/ch04-02-references-and-borrowing.html"
+      ],
+      "assertions": [
+        "The response provides and ranks 3-5 distinct proof concepts before refining one canonical case.",
+        "The selected design preserves the compile-time safety outcome surface and does not substitute runtime speed, garbage-collection, or contrived crash claims.",
+        "A minimal move followed by use of the invalidated binding is the discriminating trigger, with the compiler diagnostic as direct evidence before execution.",
+        "The contrast or perturbation matrix includes nearby valid programs that preserve the same intended ownership task, such as using the new owner, borrowing, or explicit cloning.",
+        "Any cross-language or unchecked comparator is limited to the acceptance-versus-rejection claim and does not attribute differences caused by syntax, runtime, or unrelated tooling to ownership.",
+        "The design uses structural or categorical boundary cases rather than inventing scale, latency, or benchmark parameters.",
+        "The invariant generalizes to preventing invalid use after transfer of exclusive responsibility, and the response avoids tutorial or presentation material."
+      ]
+    },
+    {
+      "id": 6,
+      "name": "kubernetes-replica-self-healing",
+      "prompt": "Design and rank several demos for Kubernetes self-healing through desired-state reconciliation. Specifically, when a Pod belonging to a Deployment fails or is deleted, the controller creates a replacement to restore the desired replica count. Refine the strongest demo and keep the claim narrower than 'Kubernetes fixes applications.'",
+      "expected_output": "A controlled failure of one managed replica with direct observation of desired, current, and ready state plus replacement identity. A credible unmanaged or manually recovered baseline uses the same container and failure. The design distinguishes replica replacement from container restart and avoids implying that reconciliation repairs application defects or guarantees uninterrupted service.",
+      "files": [],
+      "reference_sources": [
+        "https://kubernetes.io/docs/concepts/architecture/self-healing/",
+        "https://kubernetes.io/docs/tutorials/kubernetes-basics/deploy-app/deploy-intro/"
+      ],
+      "assertions": [
+        "The response provides and ranks 3-5 structurally distinct concepts before refining one.",
+        "The selected design keeps the outcome surface on restoration of declared replica state, not broad application repair, generic high availability, or performance.",
+        "The baseline and enabled case use the same container, health behavior, and failure while varying credible manual or unmanaged recovery versus controller reconciliation.",
+        "One explicit Pod failure or deletion reveals a temporary replica deficit followed by a new replacement identity and restoration of the desired ready count.",
+        "The design distinguishes Deployment replica replacement from a kubelet restarting a container inside the same Pod and controls restart policy or failure type accordingly.",
+        "The refinement tests a no-failure case, one discriminating failure, and a bounded adjacent case while controlling probes, image, desired replicas, scheduling capacity, and observation timing.",
+        "The invariant transfers to reconciliation systems generally, and caveats prevent claims about fixing persistent application bugs or guaranteeing zero interruption."
+      ]
+    }
+  ]
+}
+

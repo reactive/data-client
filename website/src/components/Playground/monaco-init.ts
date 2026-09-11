@@ -263,6 +263,10 @@ if (
         declare function uuid(): string;
         declare function CurrentTime(props: {}):JSX.Element;
         declare function CancelButton(props: { onClick?: () => void }):JSX.Element;
+        declare function AcidCompare(props: { children: React.ReactNode }):JSX.Element;
+        declare function AcidPane(props: { title: string; subtitle?: string; torn?: boolean; children: React.ReactNode }):JSX.Element;
+        declare function IssueState(props: { state: 'open' | 'closed'; stale?: boolean }):JSX.Element;
+        declare function IssueRow(props: { title: string; state: 'open' | 'closed'; selected?: boolean; ghost?: boolean; stale?: boolean; onClick?: () => void; children?: React.ReactNode }):JSX.Element;
         declare function Avatar(props: { src: string }):JSX.Element;
         declare function Formatted({ downColor, formatter, formatterFn, timeout, transition, transitionLength, upColor, value, stylePrefix, }: NumberProps):JSX.Element
         declare function ResetableErrorBoundary(props: { children: React.ReactNode }):JSX.Element;

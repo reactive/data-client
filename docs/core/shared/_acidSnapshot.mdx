@@ -1,0 +1,149 @@
+import HooksPlayground from '@site/src/components/HooksPlayground';
+import {
+  acidIssueFixtures,
+  getAcidIssueData,
+} from '@site/src/fixtures/acid';
+
+<HooksPlayground defaultOpen="n" row fixtures={acidIssueFixtures} getInitialInterceptorData={getAcidIssueData}>
+
+```ts title="IssueResource" collapsed
+import { Entity, resource } from '@data-client/rest';
+
+export class Issue extends Entity {
+  id = '';
+  repoId = '';
+  title = '';
+  state: 'open' | 'closed' = 'open';
+
+  static key = 'Issue';
+}
+export const IssueResource = resource({
+  path: '/issues/:id',
+  searchParams: {} as { repoId?: string } | undefined,
+  schema: Issue,
+  optimistic: true,
+});
+```
+
+```ts title="TypicalCache" collapsed
+export function useTypicalSnapshot(seed) {
+  const [copies, setCopies] = React.useState(() =>
+    Object.fromEntries(
+      seed.map(issue => [
+        issue.id,
+        { list: issue.state, query: issue.state },
+      ]),
+    ),
+  );
+  const toggle = id =>
+    setCopies(current => ({
+      ...current,
+      [id]: {
+        list: current[id].list === 'open' ? 'closed' : 'open',
+        query: current[id].query,
+      },
+    }));
+  return { copies, toggle };
+}
+```
+
+```tsx title="IssueRow" {12-15}
+import { useController, useQuery, useSuspense } from '@data-client/react';
+import { Issue, IssueResource } from './IssueResource';
+
+export default function IssueRow({
+  id,
+  onToggle,
+}: {
+  id: string;
+  onToggle: () => void;
+}) {
+  const ctrl = useController();
+  const fromList = useSuspense(IssueResource.getList, {
+    repoId: '1',
+  }).find(issue => issue.id === id);
+  const fromQuery = useQuery(Issue, { id });
+  if (!fromList) return null;
+  const handleToggle = () => {
+    ctrl.fetch(
+      IssueResource.partialUpdate,
+      { id },
+      { state: fromList.state === 'open' ? 'closed' : 'open' },
+    );
+    onToggle();
+  };
+  return (
+    <div className="issueRow">
+      <span className="issueRowTitle">{fromList.title}</span>
+      <button onClick={handleToggle}>
+        {fromList.state === 'open' ? 'Close' : 'Reopen'}
+      </button>
+      <IssueState state={fromList.state} />
+    </div>
+  );
+}
+```
+
+```tsx title="IssueList" collapsed
+import { useQuery, useSuspense } from '@data-client/react';
+import { Issue, IssueResource } from './IssueResource';
+import IssueRow from './IssueRow';
+import { useTypicalSnapshot } from './TypicalCache';
+
+function IssueList() {
+  const issues = useSuspense(IssueResource.getList, { repoId: '1' });
+  const typical = useTypicalSnapshot(issues);
+  const [active, setActive] = React.useState(issues[0].id);
+  const fromList = issues.find(issue => issue.id === active);
+  const fromQuery = useQuery(Issue, { id: active });
+  const other = typical.copies[active];
+  const torn = other.list !== other.query;
+  return (
+    <div>
+      {issues.map(issue => (
+        <IssueRow
+          key={issue.pk()}
+          id={issue.id}
+          onToggle={() => {
+            typical.toggle(issue.id);
+            setActive(issue.id);
+          }}
+        />
+      ))}
+      <AcidCompare>
+        <AcidPane title="Data Client" subtitle="one shared store">
+          <div className="acidSplit">
+            <div className="acidReadout">
+              <small>list</small>
+              <IssueState state={fromList.state} />
+            </div>
+            <div className="acidReadout">
+              <small>query</small>
+              <IssueState state={fromQuery?.state ?? fromList.state} />
+            </div>
+          </div>
+        </AcidPane>
+        <AcidPane
+          title="Flat caches"
+          subtitle="independent copies"
+          torn={torn}
+        >
+          <div className="acidSplit">
+            <div className="acidReadout">
+              <small>list</small>
+              <IssueState state={other.list} />
+            </div>
+            <div className="acidReadout">
+              <small>query</small>
+              <IssueState state={other.query} />
+            </div>
+          </div>
+        </AcidPane>
+      </AcidCompare>
+    </div>
+  );
+}
+render(<IssueList />);
+```
+
+</HooksPlayground>

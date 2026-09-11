@@ -3,6 +3,8 @@ import Translate from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React, {
   type ComponentProps,
+  lazy,
+  Suspense,
   useCallback,
   useMemo,
   useRef,
@@ -11,10 +13,12 @@ import React, {
 import { LiveEditor } from 'react-live';
 
 import Header from '../Header';
-import Editor from '../PlaygroundEditor';
+import type PlaygroundEditor from '../PlaygroundEditor';
 import styles from '../styles.module.css';
 import TabList from '../TabList';
 import type { CodeDocument, CodeModel } from './codeModel';
+
+const Editor = lazy(() => import('../PlaygroundEditor'));
 
 export interface EditorSurfaceProps extends CodeModel {
   layout: 'row' | 'stacked';
@@ -23,6 +27,10 @@ export interface EditorSurfaceProps extends CodeModel {
   interactive?: boolean;
   fixtureContent?: React.ReactNode;
   headerControls?: React.ReactNode;
+  /** Trailing control on the editor tab/title row (e.g. Hide code). */
+  paneToggle?: React.ReactNode;
+  paneId?: string;
+  className?: string;
 }
 
 export default function EditorSurface({
@@ -33,6 +41,9 @@ export default function EditorSurface({
   interactive = true,
   fixtureContent,
   headerControls,
+  paneToggle,
+  paneId,
+  className,
 }: EditorSurfaceProps) {
   const id = useNumericId();
   const row = layout === 'row';
@@ -78,11 +89,12 @@ export default function EditorSurface({
   );
 
   return (
-    <div className={styles.playgroundTextEdit}>
+    <div id={paneId} className={clsx(styles.playgroundTextEdit, className)}>
       <EditorHeader
         fixtureContent={!row ? fixtureContent : undefined}
         title={row && documents.length === 1 ? documents[0].title : undefined}
         controls={headerControls}
+        paneToggle={row && documents.length === 1 ? paneToggle : undefined}
       />
       {row && documents.length > 1 ?
         <EditorTabs
@@ -91,6 +103,7 @@ export default function EditorSurface({
           onClick={handleTabSwitch}
           compact={variant === 'standalone'}
           hasHeaderControls={headerControls != null}
+          paneToggle={paneToggle}
         />
       : null}
       {documents.map((document, index) => (
@@ -133,7 +146,7 @@ function TextEditTab({
   language,
   tabIndex,
   ...rest
-}: ComponentProps<typeof Editor> & {
+}: ComponentProps<typeof PlaygroundEditor> & {
   hidden: boolean;
   interactive: boolean;
 }) {
@@ -164,12 +177,14 @@ function TextEditTab({
     >
       <BrowserOnly fallback={fallback}>
         {() => (
-          <Editor
-            tabIndex={tabIndex}
-            code={code}
-            language={language}
-            {...rest}
-          />
+          <Suspense fallback={fallback}>
+            <Editor
+              tabIndex={tabIndex}
+              code={code}
+              language={language}
+              {...rest}
+            />
+          </Suspense>
         )}
       </BrowserOnly>
     </div>
@@ -204,12 +219,14 @@ function EditorTabs({
   onClick,
   compact,
   hasHeaderControls,
+  paneToggle,
 }: {
   documents: readonly CodeDocument[];
   closedList: readonly boolean[];
   onClick: (index: number) => void;
   compact: boolean;
   hasHeaderControls: boolean;
+  paneToggle?: React.ReactNode;
 }) {
   const tabs = documents
     .map((document, index) => ({ document, index }))
@@ -232,6 +249,7 @@ function EditorTabs({
           onSelect: () => onClick(index),
         }))}
       />
+      {paneToggle}
     </Header>
   );
 }
@@ -247,10 +265,12 @@ function EditorHeader({
   ),
   fixtureContent,
   controls,
+  paneToggle,
 }: {
   title?: React.ReactNode;
   fixtureContent?: React.ReactNode;
   controls?: React.ReactNode;
+  paneToggle?: React.ReactNode;
 }) {
   return (
     <>
@@ -260,10 +280,11 @@ function EditorHeader({
           {fixtureContent}
         </>
       : null}
-      {controls != null ?
+      {controls != null || paneToggle != null ?
         <Header className={styles.tabControls}>
           <div className={styles.title}>{title}</div>
           {controls}
+          {paneToggle}
         </Header>
       : null}
     </>

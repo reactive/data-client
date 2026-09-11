@@ -168,3 +168,381 @@ html[data-theme='dark'] .small.rt-TextFieldRoot {
 .rt-TextAreaRoot:focus-within {
   border-color: var(--ifm-color-formfield-active);
 }
+
+/* ==========================================================================
+   ACID comparison playgrounds — "editorial lab" system.
+   Two stacked panes: Data Client (calm, primary rule) vs Flat caches
+   (cool, muted) that shifts to a quiet danger treatment when views tear.
+   Everything derives from Infima variables so both themes stay correct.
+   ========================================================================== */
+
+.acidCompare {
+  display: grid;
+  gap: 0.7rem;
+  container-type: inline-size;
+  container-name: acid;
+}
+
+/* --- Toolbar: groups the demo's action controls above the compare -------- */
+div.acidToolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.65rem;
+}
+div.acidToolbar > button {
+  margin: 0;
+  padding: 0.24rem 0.7rem;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--ifm-font-color-base);
+  background: var(--ifm-background-surface-color);
+  border: 1px solid var(--ifm-color-emphasis-400);
+  border-radius: calc(var(--ifm-global-radius) * 0.75);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+div.acidToolbar > button:hover {
+  border-color: var(--ifm-color-emphasis-600);
+  background: var(--ifm-hover-overlay);
+}
+div.acidToolbar > button:active {
+  transform: translateY(1px);
+}
+div.acidToolbar .rt-TextFieldRoot {
+  flex: 1 1 12rem;
+  width: auto;
+  margin: 0;
+}
+
+/* --- Panes ---------------------------------------------------------------- */
+.acidPane {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-left: 3px solid var(--ifm-color-emphasis-400);
+  border-radius: var(--ifm-global-radius);
+  padding: 0.5rem 0.65rem 0.65rem;
+  background: var(--ifm-background-color);
+  transition:
+    border-color 0.25s ease,
+    background-color 0.25s ease;
+}
+/* First pane = Data Client: calm, carries the brand rule. */
+.acidCompare > .acidPane:first-child {
+  border-left-color: var(--ifm-color-primary);
+}
+/* Later panes = flat caches: cooler and slightly receded. */
+.acidCompare > .acidPane:not(:first-child) {
+  background: color-mix(
+    in srgb,
+    var(--ifm-color-emphasis-100) 45%,
+    var(--ifm-background-color)
+  );
+}
+/* Torn: left danger rule + soft wash. Quiet, but unmistakable. */
+.acidCompare > .acidPane.acidPane--torn {
+  border-color: color-mix(
+    in srgb,
+    var(--ifm-color-danger) 40%,
+    var(--ifm-color-emphasis-300)
+  );
+  border-left-color: var(--ifm-color-danger);
+  background: color-mix(
+    in srgb,
+    var(--ifm-color-danger) 6%,
+    var(--ifm-background-color)
+  );
+}
+
+/* --- Pane header: full-bleed strip with hairline rule --------------------- */
+.acidPaneHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+  margin: -0.5rem -0.65rem 0.55rem;
+  padding: 0.35rem 0.65rem;
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  background: color-mix(
+    in srgb,
+    var(--ifm-color-emphasis-100) 50%,
+    transparent
+  );
+}
+.acidPane--torn .acidPaneHeader {
+  border-bottom-color: color-mix(
+    in srgb,
+    var(--ifm-color-danger) 30%,
+    var(--ifm-color-emphasis-200)
+  );
+  background: color-mix(in srgb, var(--ifm-color-danger) 7%, transparent);
+}
+.acidPaneTitle {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.45em;
+  min-width: 0;
+}
+.acidPaneTitle > small {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ifm-color-emphasis-800);
+}
+.acidPaneSubtitle {
+  font-size: 0.66rem;
+  color: var(--ifm-color-emphasis-600);
+}
+
+/* --- Torn chip ------------------------------------------------------------ */
+.acidTornLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  flex: 0 0 auto;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  line-height: 1.5;
+  padding: 0.1em 0.6em;
+  border-radius: 999px;
+  color: var(--ifm-color-danger-darker);
+  border: 1px solid color-mix(in srgb, var(--ifm-color-danger) 50%, transparent);
+  background: color-mix(in srgb, var(--ifm-color-danger) 10%, transparent);
+  animation: acidTornIn 0.25s ease-out;
+}
+.acidTornLabel::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--ifm-color-danger);
+}
+html[data-theme='dark'] .acidTornLabel {
+  color: var(--ifm-color-danger-lightest);
+}
+@keyframes acidTornIn {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+}
+
+/* --- Hint line directly inside a pane (e.g. "survives crash") ------------ */
+.acidPane > small {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--ifm-color-emphasis-600);
+  margin-bottom: 0.35rem;
+}
+
+/* --- List / detail split inside a pane ------------------------------------ */
+.acidSplit {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 0.6rem;
+  align-items: start;
+}
+@container acid (max-width: 420px) {
+  .acidSplit {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+/* Column headers: first <small> in a split column reads as a label. */
+.acidSplit > div > small:first-child,
+.acidReadout > small:first-child {
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ifm-color-emphasis-600);
+  margin-bottom: 0.3rem;
+}
+
+/* --- Readout: framed value block (detail view, counters, balances) -------- */
+.acidReadout {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  padding: 0.45rem 0.55rem 0.55rem;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: calc(var(--ifm-global-radius) * 0.75);
+  background: color-mix(
+    in srgb,
+    var(--ifm-color-emphasis-100) 40%,
+    transparent
+  );
+}
+.acidReadout > div {
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.3;
+  align-self: stretch;
+}
+.acidReadout > strong {
+  font-size: 1.15rem;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.acidReadout .issueState {
+  margin-left: 0;
+  align-self: flex-start;
+  font-size: 0.72rem;
+}
+.acidReadout .listItem {
+  align-self: stretch;
+  align-items: center;
+}
+
+/* --- History strip (optimistic increment demo) ----------------------------- */
+.acidHistory {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.7;
+  text-align: left;
+  padding: 0.35rem 0.55rem;
+  margin: 0.4rem 0 0.6rem;
+  border: 1px solid var(--ifm-color-emphasis-200);
+  border-radius: calc(var(--ifm-global-radius) * 0.75);
+  background: color-mix(
+    in srgb,
+    var(--ifm-color-emphasis-100) 40%,
+    transparent
+  );
+  color: var(--ifm-color-emphasis-700);
+}
+.acidHistory-mixed {
+  color: var(--ifm-color-danger);
+  font-weight: 700;
+}
+
+/* --- State badges ---------------------------------------------------------- */
+.issueState {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 0.12em 0.6em;
+  line-height: 1.5;
+  flex: 0 0 auto;
+  margin-left: auto;
+  transition:
+    color 0.25s ease,
+    background-color 0.25s ease,
+    border-color 0.25s ease;
+}
+/* Open: outlined amber pill. */
+.issueState--open {
+  color: var(--ifm-color-warning-darkest);
+  border-color: color-mix(in srgb, var(--ifm-color-warning-dark) 75%, transparent);
+  background: color-mix(in srgb, var(--ifm-color-warning) 8%, transparent);
+}
+html[data-theme='dark'] .issueState--open {
+  color: var(--ifm-color-warning-light);
+  border-color: color-mix(in srgb, var(--ifm-color-warning) 55%, transparent);
+}
+/* Closed: solid muted info pill. */
+.issueState--closed {
+  color: var(--ifm-color-white);
+  background: var(--ifm-color-info-darkest);
+  border-color: var(--ifm-color-info-darkest);
+}
+html[data-theme='dark'] .issueState--closed {
+  color: var(--ifm-color-black);
+  background: var(--ifm-color-info-light);
+  border-color: var(--ifm-color-info-light);
+}
+/* Stale: danger wash overrides either state. */
+.issueState--stale,
+html[data-theme='dark'] .issueState--stale {
+  color: var(--ifm-color-danger-darkest);
+  background: color-mix(in srgb, var(--ifm-color-danger) 14%, transparent);
+  border-color: var(--ifm-color-danger);
+}
+html[data-theme='dark'] .issueState--stale {
+  color: var(--ifm-color-danger-lightest);
+}
+
+/* --- Issue rows: selectable list rows -------------------------------------- */
+div.issueRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.26rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: calc(var(--ifm-global-radius) * 0.75);
+  line-height: 1.35;
+  font-size: 0.85rem;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+.issueRow + .issueRow {
+  margin-top: 2px;
+}
+.issueRow--clickable {
+  cursor: pointer;
+}
+.issueRow--clickable:hover {
+  background: var(--ifm-hover-overlay);
+}
+div.issueRow--selected {
+  background: var(--ifm-menu-color-background-active);
+  border-color: var(--ifm-color-emphasis-200);
+}
+.issueRowTitle {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.issueRow--selected .issueRowTitle {
+  font-weight: 650;
+}
+/* Ghost: deleted in one view but still present in another. */
+div.issueRow--ghost {
+  opacity: 0.55;
+  border: 1px dashed color-mix(in srgb, var(--ifm-color-danger) 55%, transparent);
+}
+.issueRow--ghost .issueRowTitle {
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--ifm-color-danger) 65%, transparent);
+}
+/* Inline actions inside a row (Close/Reopen in list demos). */
+div.issueRow button {
+  margin: 0;
+  padding: 0.05rem 0.5rem;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--ifm-color-emphasis-800);
+  background: var(--ifm-background-surface-color);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: calc(var(--ifm-global-radius) * 0.75);
+  cursor: pointer;
+  flex: 0 0 auto;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+div.issueRow button:hover {
+  border-color: var(--ifm-color-emphasis-600);
+  background: var(--ifm-hover-overlay);
+}

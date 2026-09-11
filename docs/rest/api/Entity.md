@@ -32,7 +32,7 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 `Entity` defines a single _unique_ object.
 
 [Entity.key](#key) + [Entity.pk()](#pk) (primary key) enable a [flat lookup table](https://react.dev/learn/choosing-the-state-structure#principles-for-structuring-state) store, enabling high
-performance, data consistency and atomic mutations.
+performance and [ACID](/docs/concepts/acid) integrity.
 
 `Entities` enable customizing the data processing lifecycle by defining its static members like [schema](#schema)
 and overriding its [lifecycle methods](#lifecycle).

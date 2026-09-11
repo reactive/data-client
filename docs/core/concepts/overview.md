@@ -26,7 +26,7 @@ import Link from '@docusaurus/Link';
                 </tr>
         </thead>
         <tbody>
-        		<tr class="grouplabel"><th colSpan="2"><Link to="./expiry-policy">Expiry Status</Link></th></tr>
+        		<tr className="grouplabel"><th colSpan="2"><Link to="./expiry-policy">Expiry Status</Link></th></tr>
                 <tr>
                         <th>Fresh</th>
                         <td>Data can always be used and needs no updates.</td>
@@ -41,7 +41,7 @@ import Link from '@docusaurus/Link';
                 </tr>
         </tbody>
         <tbody>
-        		<tr class="grouplabel"><th colSpan="2"><Link to="./error-policy">Error Policy</Link></th></tr>
+        		<tr className="grouplabel"><th colSpan="2"><Link to="./error-policy">Error Policy</Link></th></tr>
                 <tr>
                         <th>Soft</th>
                         <td>Transient errors that should not invalidate existing data.</td>
