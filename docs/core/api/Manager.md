@@ -116,13 +116,16 @@ AppRegistry.registerComponent('MyApp', () => Root);
 
 <TabItem value="nextjs">
 
+The server renders every request with its own store, so pass a factory: it runs once per
+request on the server and once in the browser.
+
 ```tsx title="app/Provider.tsx"
 'use client';
 import { getDefaultManagers } from '@data-client/react';
 import { DataProvider } from '@data-client/react/nextjs';
 
 // highlight-next-line
-const managers = [...getDefaultManagers(), new MyManager()];
+const managers = () => [...getDefaultManagers(), new MyManager()];
 
 export default function Provider({
   children,

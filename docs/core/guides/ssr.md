@@ -50,6 +50,92 @@ export default function RootLayout({ children }) {
 }
 ```
 
+Async Server Components anywhere between the provider and your Client Components are fine:
+the store is streamed to the browser alongside the HTML, so data fetched by a component that
+renders late still arrives before the HTML it produced. Every [Suspense](https://react.dev/reference/react/Suspense)
+boundary then hydrates from exactly the data it was rendered with, without refetching.
+
+```tsx title="app/[userId]/layout.tsx"
+export default async function UserLayout({ children, params }) {
+  // resolves after the shell has already been sent
+  const { userId } = await params;
+  return <section data-user={userId}>{children}</section>;
+}
+```
+
+#### Props
+
+```typescript
+interface NextDataProviderProps {
+  children: ReactNode;
+  managers?: Manager[] | (() => Manager[]);
+  nonce?: string;
+  Controller?: typeof Controller;
+  gcPolicy?: GCInterface;
+  devButton?: DevToolsPosition | null;
+}
+```
+
+##### managers {#managers}
+
+The server builds a store per request, so [Managers](../api/Manager.md) must be created per
+request as well. Pass a **factory** and it is called once per request on the server and once
+in the browser:
+
+```tsx title="app/Provider.tsx"
+'use client';
+import { getDefaultManagers } from '@data-client/react';
+import { DataProvider } from '@data-client/react/nextjs';
+
+// highlight-next-line
+const managers = () => [...getDefaultManagers(), new MyManager()];
+
+export default function Provider({ children }: { children: React.ReactNode }) {
+  return <DataProvider managers={managers}>{children}</DataProvider>;
+}
+```
+
+A plain array is used in the browser only; the server keeps its default managers and warns in
+development. Server-side managers should not hold resources: their `cleanup()` is not run
+per request.
+
+##### nonce {#nonce}
+
+State is streamed in inline `<script>` tags. When your
+[Content Security Policy](https://nextjs.org/docs/app/guides/content-security-policy) requires
+a nonce, pass it through:
+
+```tsx title="app/layout.tsx"
+import { headers } from 'next/headers';
+import { DataProvider } from '@data-client/react/nextjs';
+
+export default async function RootLayout({ children }) {
+  const nonce = (await headers()).get('x-nonce') ?? undefined;
+  return (
+    <html>
+      <body>
+        <DataProvider nonce={nonce}>{children}</DataProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+#### Limitations
+
+- Use one `DataProvider` per document. Nested or sibling providers share the same streamed state.
+- Only the initial document is transferred. Client-side navigations and `router.refresh()` fetch
+  in the browser like any client render.
+- With [Partial Prerendering](https://nextjs.org/docs/app/getting-started/partial-prerendering) the
+  static shell's state is transferred; data fetched while resuming dynamic holes is fetched again
+  in the browser.
+- If the same entity is returned with different data by two requests during one render, the
+  browser hydrates with the latest one. Boundaries rendered from the earlier value are re-rendered
+  by React (a recoverable hydration mismatch in development).
+- On React 18, a synchronous store update (for example from a WebSocket manager) while a boundary
+  is still hydrating can make React client-render that boundary. React 19 hydrates it at a
+  matching priority instead.
+
 #### Client Components
 
 To keep your data fresh and performant, you can use client components and [useSuspense()](../api/useSuspense.md)

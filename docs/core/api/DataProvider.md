@@ -71,6 +71,15 @@ export interface State<T> {
 Instead of starting with an empty cache, you can provide your own initial state. This can
 be useful for testing, or rehydrating the cache state when using server side rendering.
 
+While React hydrates server-rendered HTML, hooks read from `initialState` rather than the live
+store, so a [Suspense](https://react.dev/reference/react/Suspense) boundary that hydrates after a
+[Manager](./Manager.md) has already updated the store still matches its HTML. Once hydrated,
+components render the live state. Anything missing from `initialState` is read from the live
+store, so it is fetched once like any other client render.
+
+The Next.js App Router provider from `@data-client/react/nextjs` fills this in from the stream;
+see the [SSR guide](../guides/ssr.md#nextjs) for its props.
+
 ### managers?: Manager[] {#managers}
 
 List of [Manager](./Manager.md)s use. This is the main extensibility point of the provider.
