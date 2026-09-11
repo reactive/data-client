@@ -120,12 +120,6 @@ if (!LegacyReact) {
   ({ createRoot, hydrateRoot } = jest.requireActual('react-dom/client'));
 }
 
-const liveTodo = (id: string) =>
-  (
-    controller?.getState().entities.Todo as
-      Record<string, { title: string }> | undefined
-  )?.[id];
-
 describeHydration('Next.js DataProvider hydration', () => {
   let container: HTMLDivElement;
   let errors: string[];
@@ -272,10 +266,9 @@ describeHydration('Next.js DataProvider hydration', () => {
     controller!.resetEntireStore();
     await tick();
     streamDelta(delta2);
-    // React 18 may client-render the dehydrated sibling and remount from the
-    // snapshot (which already folded the delta). Assert the drop on 19 only.
+    // React 18 may client-render and remount from the snapshot (delta already folded).
     if (React19) {
-      expect(liveTodo('1')).toBeUndefined();
+      expect(controller!.getState().entities.Todo).not.toHaveProperty('1');
     }
     gate.release();
     await tick(REVEAL);

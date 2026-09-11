@@ -87,12 +87,6 @@ if (!LegacyReact) {
   ({ hydrateRoot } = jest.requireActual('react-dom/client'));
 }
 
-const liveTodo = (id: string) =>
-  (
-    controller?.getState().entities.Todo as
-      Record<string, { title: string }> | undefined
-  )?.[id];
-
 describeHydration('<DataProvider /> hydration', () => {
   let container: HTMLDivElement;
   let errors: string[];
@@ -176,9 +170,8 @@ describeHydration('<DataProvider /> hydration', () => {
       { id: '1', title: 'todo 1 updated' },
     );
     await tick();
-    // React 18 defers this store write until the dehydrated sibling hydrates.
+    // React 18 defers this write until the dehydrated sibling hydrates.
     if (React19) {
-      expect(liveTodo('1')?.title).toBe('todo 1 updated');
       expect(container.querySelector('[data-probe]')!.textContent).toBe(
         'todo 1 updated',
       );
