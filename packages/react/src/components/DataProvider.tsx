@@ -14,7 +14,8 @@ import type { DevToolsPosition } from './DevToolsButton.js';
 import { getDefaultManagers } from './getDefaultManagers.js';
 import { SSR } from './LegacyReact.js';
 import { renderDevButton } from './renderDevButton.js';
-import { ControllerContext } from '../context.js';
+import { ControllerContext, ServerSnapshotContext } from '../context.js';
+import type { ServerSnapshot } from '../context.js';
 import { DevToolsManager } from '../managers/index.js';
 import GCPolicy from '../state/GCPolicy.js';
 
@@ -58,6 +59,12 @@ See https://dataclient.io/docs/guides/ssr.`,
   const managersRef: React.RefObject<Manager[]> = useRef<any>(managers);
   if (!managersRef.current) managersRef.current = getDefaultManagers();
 
+  // hydration reads must see what the server rendered with, not live state
+  const serverSnapshotRef: React.RefObject<ServerSnapshot> =
+    useRef<any>(undefined);
+  if (!serverSnapshotRef.current)
+    serverSnapshotRef.current = { getServerSnapshot: () => initialState };
+
   // run in a useEffect in DataStore
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const mgrEffect = useCallback(
@@ -79,14 +86,16 @@ See https://dataclient.io/docs/guides/ssr.`,
   );
   return (
     <ControllerContext.Provider value={controllerRef.current}>
-      <DataStore
-        mgrEffect={mgrEffect}
-        middlewares={middlewares}
-        initialState={initialState}
-        controller={controllerRef.current}
-      >
-        {children}
-      </DataStore>
+      <ServerSnapshotContext.Provider value={serverSnapshotRef.current}>
+        <DataStore
+          mgrEffect={mgrEffect}
+          middlewares={middlewares}
+          initialState={initialState}
+          controller={controllerRef.current}
+        >
+          {children}
+        </DataStore>
+      </ServerSnapshotContext.Provider>
       {renderDevButton(devButton, hasDevManager)}
     </ControllerContext.Provider>
   );
