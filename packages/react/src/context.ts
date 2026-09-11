@@ -29,6 +29,16 @@ export const ControllerContext = createContext<Controller>(
   }),
 );
 
+export interface ServerSnapshot {
+  /** State the HTML currently being hydrated was rendered from */
+  getServerSnapshot(): State<unknown>;
+}
+/**
+ * Lets cache reads hydrate against the exact state the server rendered
+ * with, even when the live store has already moved on.
+ */
+export const ServerSnapshotContext = createContext<ServerSnapshot | null>(null);
+
 export interface Store<S> {
   subscribe(listener: () => void): () => void;
   getState(): S;
