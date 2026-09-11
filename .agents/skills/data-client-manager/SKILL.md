@@ -158,7 +158,7 @@ export default class CustomSubsManager implements Manager {
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import ReactDOM from 'react-dom';
 
-const managers = [...getDefaultManagers(), new MyManager()];
+const managers = () => [...getDefaultManagers(), new MyManager()];
 
 ReactDOM.createRoot(document.body).render(
   <DataProvider managers={managers}>
@@ -166,3 +166,5 @@ ReactDOM.createRoot(document.body).render(
   </DataProvider>,
 );
 ```
+
+Pass `managers` as a function: it runs once per provider (and once per request with `@data-client/react/nextjs`). Arrays are still accepted by the browser `DataProvider` but are transitional and will be removed; migrate existing `managers={[...]}` to `managers={() => [...]}`.
