@@ -68,7 +68,7 @@ export default async function UserLayout({ children, params }) {
 ```typescript
 interface NextDataProviderProps {
   children: ReactNode;
-  managers?: Manager[] | (() => Manager[]);
+  managers?: () => Manager[];
   nonce?: string;
   Controller?: typeof Controller;
   gcPolicy?: GCInterface;
@@ -79,8 +79,8 @@ interface NextDataProviderProps {
 ##### managers {#managers}
 
 The server builds a store per request, so [Managers](../api/Manager.md) must be created per
-request as well. Pass a **factory** and it is called once per request on the server and once
-in the browser:
+request as well. Unlike the [browser DataProvider](../api/DataProvider.md#managers), this takes a
+**function** that is called once per request on the server and once in the browser:
 
 ```tsx title="app/Provider.tsx"
 'use client';
@@ -95,9 +95,8 @@ export default function Provider({ children }: { children: React.ReactNode }) {
 }
 ```
 
-A plain array is used in the browser only; the server keeps its default managers and warns in
-development. Server-side managers should not hold resources: their `cleanup()` is not run
-per request.
+Manager instances shared across requests would mix up users' data, so an array is rejected.
+Server-side managers should not hold resources: their `cleanup()` is not run per request.
 
 ##### nonce {#nonce}
 

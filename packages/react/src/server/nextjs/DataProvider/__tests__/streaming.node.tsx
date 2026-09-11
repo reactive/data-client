@@ -136,14 +136,6 @@ const payloadWith = (payloads: Payload[], key: string) =>
   );
 
 describe('Next.js DataProvider streaming', () => {
-  let warnSpy: jest.SpyInstance;
-  beforeEach(() => {
-    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-  });
-  afterEach(() => {
-    warnSpy.mockRestore();
-  });
-
   function setup() {
     const capture = new CaptureManager();
     const managers = () => [new NetworkManager(), capture];
@@ -376,17 +368,15 @@ describe('Next.js DataProvider streaming', () => {
     expect(capture.controller.getState().entities.Todo).toHaveProperty('1');
   });
 
-  it('warns when given manager instances on the server and ignores them', async () => {
-    const html = await renderPage(
-      <DataProvider managers={[new NetworkManager()]}>
-        <p>hi</p>
-      </DataProvider>,
-    );
-    expect(html).toContain('<p>hi</p>');
-    expect(warnSpy).toHaveBeenCalledTimes(1);
-    expect(warnSpy.mock.calls[0][0]).toMatch(
-      /ignores a managers array on the server/,
-    );
+  it('rejects manager instances with a migration hint', async () => {
+    await expect(
+      renderPage(
+        <DataProvider managers={[new NetworkManager()] as any}>
+          <p>hi</p>
+        </DataProvider>,
+        { onError: () => undefined },
+      ),
+    ).rejects.toThrow(/managers=\{\(\) => \[\.\.\.\]\}/);
   });
 
   it('exposes the controller to descendants', async () => {

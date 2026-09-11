@@ -8,13 +8,10 @@ import createServerSnapshot from '../../../components/createServerSnapshot.js';
 import DataProvider from '../../../components/DataProvider.js';
 import { ServerSnapshotContext } from '../../../context.js';
 
-export default function createPersistedStore(
-  managers?: Manager[] | (() => Manager[]),
-) {
+export default function createPersistedStore(managers?: () => Manager[]) {
   const snapshotStore = getSnapshotStore();
   const initialState = snapshotStore.state;
-  const resolvedManagers =
-    typeof managers === 'function' ? managers() : managers;
+  const resolvedManagers = managers?.();
   const serverSnapshot = createServerSnapshot(() => snapshotStore.state);
 
   const StoreDataProvider = ({

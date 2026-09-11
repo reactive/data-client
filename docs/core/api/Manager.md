@@ -116,8 +116,8 @@ AppRegistry.registerComponent('MyApp', () => Root);
 
 <TabItem value="nextjs">
 
-The server renders every request with its own store, so pass a factory: it runs once per
-request on the server and once in the browser.
+The server renders every request with its own store, so the Next.js provider takes a function
+instead of instances: it runs once per request on the server and once in the browser.
 
 ```tsx title="app/Provider.tsx"
 'use client';
