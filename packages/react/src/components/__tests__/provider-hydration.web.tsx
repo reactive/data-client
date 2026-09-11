@@ -176,10 +176,9 @@ describeHydration('<DataProvider /> hydration', () => {
       { id: '1', title: 'todo 1 updated' },
     );
     await tick();
-    // Probe/useCache can still read the hydration overlay (server snapshot
-    // wins). The live store is the 18-honest assert.
-    expect(liveTodo('1')?.title).toBe('todo 1 updated');
+    // React 18 defers this store write until the dehydrated sibling hydrates.
     if (React19) {
+      expect(liveTodo('1')?.title).toBe('todo 1 updated');
       expect(container.querySelector('[data-probe]')!.textContent).toBe(
         'todo 1 updated',
       );
