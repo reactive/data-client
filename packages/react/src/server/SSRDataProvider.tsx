@@ -19,6 +19,7 @@ interface Props<S> extends Store<S> {
   children: React.ReactNode;
   devButton?: DevToolsPosition | null | undefined;
   hasDevManager: boolean;
+  Controller?: typeof Controller;
 }
 
 /**
@@ -31,8 +32,12 @@ export default function SSRDataProvider({
   getState,
   devButton,
   hasDevManager = true,
+  Controller: ControllerClass = Controller,
 }: Props<State<any>>) {
-  const controller = useMemo(() => new Controller({ dispatch }), [dispatch]);
+  const controller = useMemo(
+    () => new ControllerClass({ dispatch }),
+    [dispatch, ControllerClass],
+  );
   const store = useMemo(() => ({ subscribe, getState }), [subscribe, getState]);
 
   return (

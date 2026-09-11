@@ -1,5 +1,10 @@
 import { DevToolsManager, __INTERNAL__, initialState } from '@data-client/core';
-import type { Manager, State, StateDelta } from '@data-client/core';
+import type {
+  Controller as DataController,
+  Manager,
+  State,
+  StateDelta,
+} from '@data-client/core';
 import type { ReactElement } from 'react';
 
 import { DELTA_QUEUE_GLOBAL, BASELINE_ID } from './deltaQueue.js';
@@ -11,9 +16,12 @@ import SSRDataProvider from '../../SSRDataProvider.js';
 
 const { diffState, applyStateDelta } = __INTERNAL__;
 
-export default function createPersistedStore(managers?: () => Manager[]) {
+export default function createPersistedStore(
+  managers?: () => Manager[],
+  Controller?: typeof DataController,
+) {
   const serverManagers = managers?.();
-  const { store } = createServerStore(serverManagers);
+  const { store } = createServerStore(serverManagers, Controller);
   // the client runs the same factory, so its dev button decision matches
   const hasDevManager =
     serverManagers === undefined ||
@@ -60,6 +68,7 @@ export default function createPersistedStore(managers?: () => Manager[]) {
       dispatch={store.dispatch}
       devButton={devButton}
       hasDevManager={hasDevManager}
+      Controller={Controller}
     >
       {children}
     </SSRDataProvider>

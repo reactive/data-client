@@ -13,8 +13,11 @@ import { createStore, applyMiddleware } from './redux/redux.js';
 import { NetworkManager as ReactNetworkManager } from '../managers/index.js';
 
 /** Redux-style store for one server render; managers must include a NetworkManager */
-export default function createServerStore(managers?: Manager[]) {
-  const controller = new Controller();
+export default function createServerStore(
+  managers?: Manager[],
+  ControllerClass: typeof Controller = Controller,
+) {
+  const controller = new ControllerClass();
   managers = managers ?? [new ReactNetworkManager()];
   const networkManager = managers.find(m => m instanceof NetworkManager) as
     NetworkManager | undefined;
@@ -31,5 +34,5 @@ export default function createServerStore(managers?: Manager[]) {
   );
   const store = createStore(reducer, initialState as any, enhancer);
   initManager(managers, controller, store.getState())();
-  return { store, controller, managers, networkManager };
+  return { store, controller, networkManager };
 }

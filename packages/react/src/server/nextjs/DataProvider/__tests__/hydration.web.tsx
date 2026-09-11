@@ -313,6 +313,34 @@ describeHydration('Next.js DataProvider hydration', () => {
     expect(getSnapshotStore().state.entities.Todo).toHaveProperty('0');
   });
 
+  it('keeps the receiver when a delta ends the wait before DOMContentLoaded', async () => {
+    Object.defineProperty(document, 'readyState', {
+      value: 'loading',
+      configurable: true,
+    });
+    let thrown: Promise<void> | undefined;
+    try {
+      getSnapshotStore();
+    } catch (e) {
+      thrown = e as Promise<void>;
+    }
+    // the first delta script runs before the document finishes parsing
+    installBaseline(s0);
+    streamDelta(delta1);
+    await thrown;
+    const queue = getDeltaQueue();
+    expect(queue.pending).toBeUndefined();
+    delete (document as any).readyState;
+    expect(getSnapshotStore().state.entities.Todo).toHaveProperty('0');
+
+    const receiver = jest.fn();
+    queue.onDelta = receiver;
+    document.dispatchEvent(new Event('DOMContentLoaded'));
+    streamDelta(delta2);
+    expect(queue.onDelta).toBe(receiver);
+    expect(receiver).toHaveBeenCalledWith(delta2);
+  });
+
   it('resolves a managers factory once on the client', async () => {
     const factory = jest.fn(() => [new NetworkManager()]);
     container.innerHTML = renderToString(
@@ -324,18 +352,37 @@ describeHydration('Next.js DataProvider hydration', () => {
     );
     factory.mockClear();
     installBaseline(s1);
+    // StrictMode invokes useMemo's calculation twice; the factory must not be
     const root = hydrateRoot(
       container,
-      <NextDataProvider managers={factory}>
-        <Suspense fallback="loading">
-          <TodoView id="0" />
-        </Suspense>
-      </NextDataProvider>,
+      <StrictMode>
+        <NextDataProvider managers={factory}>
+          <Suspense fallback="loading">
+            <TodoView id="0" />
+          </Suspense>
+        </NextDataProvider>
+      </StrictMode>,
     );
     await tick();
     expect(factory).toHaveBeenCalledTimes(1);
     expect(text('[data-id="0"]')).toBe('todo 0');
     expect(errors).toEqual([]);
     root.unmount();
+  });
+
+  it('uses a custom Controller class on the client', async () => {
+    class MyController extends Controller {}
+    let seen: Controller | undefined;
+    function Capture() {
+      seen = useController();
+      return null;
+    }
+    createRoot(container).render(
+      <NextDataProvider Controller={MyController as typeof Controller}>
+        <Capture />
+      </NextDataProvider>,
+    );
+    await tick();
+    expect(seen).toBeInstanceOf(MyController);
   });
 });

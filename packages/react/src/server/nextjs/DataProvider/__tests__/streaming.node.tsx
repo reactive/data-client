@@ -5,7 +5,8 @@ jest.mock(
 );
 
 import { __INTERNAL__, NetworkManager } from '@data-client/core';
-import type { Controller, Manager, State, StateDelta } from '@data-client/core';
+import { Controller } from '@data-client/core';
+import type { Manager, State, StateDelta } from '@data-client/core';
 import { Endpoint, Entity } from '@data-client/endpoint';
 import React, { Suspense } from 'react';
 
@@ -379,17 +380,18 @@ describe('Next.js DataProvider streaming', () => {
     ).rejects.toThrow(/managers=\{\(\) => \[\.\.\.\]\}/);
   });
 
-  it('exposes the controller to descendants', async () => {
+  it('exposes the controller to descendants, honoring a custom class', async () => {
+    class MyController extends Controller {}
     let seen: Controller | undefined;
     function Probe() {
       seen = useController();
       return null;
     }
     await renderPage(
-      <DataProvider>
+      <DataProvider Controller={MyController as typeof Controller}>
         <Probe />
       </DataProvider>,
     );
-    expect(seen).toBeDefined();
+    expect(seen).toBeInstanceOf(MyController);
   });
 });

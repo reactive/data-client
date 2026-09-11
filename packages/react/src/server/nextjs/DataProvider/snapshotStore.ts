@@ -18,11 +18,15 @@ export function getSnapshotStore(): SnapshotStore {
   const element = document.getElementById(BASELINE_ID);
   if (!element && document.readyState === 'loading') {
     throw (queue.pending ??= new Promise<void>(resolve => {
+      // whichever fires first wins; the loser must not clobber the receiver
+      // that may have been installed on `onDelta` in the meantime
       const done = () => {
-        queue.onDelta = undefined;
+        document.removeEventListener('DOMContentLoaded', done);
+        if (queue.onDelta === done) queue.onDelta = undefined;
+        queue.pending = undefined;
         resolve();
       };
-      document.addEventListener('DOMContentLoaded', done, { once: true });
+      document.addEventListener('DOMContentLoaded', done);
       queue.onDelta = done;
     }));
   }

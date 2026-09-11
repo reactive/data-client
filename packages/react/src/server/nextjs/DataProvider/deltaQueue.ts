@@ -1,4 +1,4 @@
-import type { State, StateDelta } from '@data-client/core';
+import type { Manager, State, StateDelta } from '@data-client/core';
 
 /** Global array the streamed inline scripts push deltas onto */
 export const DELTA_QUEUE_GLOBAL = '__DATA_CLIENT_DELTAS__';
@@ -11,6 +11,8 @@ export interface SnapshotStore {
   /** Number of queued deltas already folded into `state` */
   cursor: number;
   queue: DeltaQueue;
+  /** Result of the managers factory; renders React discards must not run it again */
+  managers?: Manager[];
 }
 
 export interface DeltaQueue extends Array<StateDelta> {

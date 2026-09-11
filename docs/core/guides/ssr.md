@@ -76,6 +76,9 @@ interface NextDataProviderProps {
 }
 ```
 
+`Controller` applies on both server and client. `gcPolicy` applies in the browser only: a
+request-scoped server store has nothing to collect.
+
 ##### managers {#managers}
 
 The server builds a store per request, so [Managers](../api/Manager.md) must be created per
@@ -130,7 +133,9 @@ export default async function RootLayout({ children }) {
   in the browser.
 - If the same entity is returned with different data by two requests during one render, the
   browser hydrates with the latest one. Boundaries rendered from the earlier value are re-rendered
-  by React (a recoverable hydration mismatch in development).
+  by React (a recoverable hydration mismatch in development). Likewise, data the browser fetched on
+  its own during streaming fills in anything the server never sent or removed, so a boundary the
+  server rendered without that data is re-rendered with it.
 - On React 18 (including the version bundled with Next.js 13 and 14), a store update while a
   boundary is still hydrating - a streamed delta, a WebSocket manager, a mutation - can make React
   client-render that boundary. The data is still correct and nothing is refetched, but the server

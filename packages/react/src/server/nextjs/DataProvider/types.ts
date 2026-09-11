@@ -16,4 +16,8 @@ export interface NextDataProviderProps extends Omit<
   nonce?: string;
 }
 
-export type StoreProviderProps = Omit<NextDataProviderProps, 'nonce'>;
+/** What reaches the store provider: everything consumed at store creation is stripped */
+export type StoreProviderProps = Omit<
+  NextDataProviderProps,
+  'nonce' | 'managers' | 'Controller'
+>;
