@@ -11,26 +11,13 @@ import SSRDataProvider from '../../SSRDataProvider.js';
 
 const { diffState, applyStateDelta } = __INTERNAL__;
 
-export default function createPersistedStore(
-  managers?: Manager[] | (() => Manager[]),
-) {
-  let serverManagers: Manager[] | undefined;
-  if (typeof managers === 'function') {
-    serverManagers = managers();
-  } else if (managers !== undefined && process.env.NODE_ENV !== 'production') {
-    console.warn(
-      `DataProvider from @data-client/react/nextjs ignores a managers array on the server.
-Pass a factory so every request gets its own instances: managers={() => [new NetworkManager()]}
-See https://dataclient.io/docs/guides/ssr#managers`,
-    );
-  }
+export default function createPersistedStore(managers?: () => Manager[]) {
+  const serverManagers = managers?.();
   const { store } = createServerStore(serverManagers);
-  // mirrors what the client will compute so the dev button hydrates cleanly
+  // the client runs the same factory, so its dev button decision matches
   const hasDevManager =
-    managers === undefined ||
-    (typeof managers === 'function' ? serverManagers! : managers).some(
-      manager => manager instanceof DevToolsManager,
-    );
+    serverManagers === undefined ||
+    serverManagers.some(manager => manager instanceof DevToolsManager);
 
   let emittedSnapshot: State<unknown> | undefined;
   /**

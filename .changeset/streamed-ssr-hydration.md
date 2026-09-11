@@ -1,6 +1,6 @@
 ---
-'@data-client/core': patch
-'@data-client/react': patch
+'@data-client/core': minor
+'@data-client/react': minor
 '@data-client/vue': patch
 ---
 
@@ -34,5 +34,5 @@ New exports:
 - `StateDelta` – the serializable description of state changes carried by `HydrateAction`
 - `NextDataProviderProps` from `@data-client/react/nextjs`
 
-`ActionTypes` now includes `HydrateAction`; custom `Manager` middleware with an exhaustive
-`switch` over action types should add a case or a default branch.
+`ActionTypes` now includes `HydrateAction`. Custom `Manager` middleware that narrows action
+types with an exhaustive `switch` needs a case for it or a `default` branch.

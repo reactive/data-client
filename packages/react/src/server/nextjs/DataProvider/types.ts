@@ -7,11 +7,11 @@ export interface NextDataProviderProps extends Omit<
   'initialState' | 'managers'
 > {
   /**
-   * Managers for the store. On the server every request needs its own
-   * instances, so pass a factory when customizing them.
+   * Creates the store's Managers. Called once per request on the server and
+   * once in the browser, since instances cannot be shared between requests.
    * @see https://dataclient.io/docs/guides/ssr#managers
    */
-  managers?: Manager[] | (() => Manager[]);
+  managers?: () => Manager[];
   /** Content-Security-Policy nonce applied to the inline scripts that stream state */
   nonce?: string;
 }
