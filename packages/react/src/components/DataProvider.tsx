@@ -9,6 +9,7 @@ import type { State, Manager, GCInterface } from '@data-client/core';
 import React, { useCallback, useMemo, useRef } from 'react';
 import type { JSX } from 'react';
 
+import createServerSnapshot from './createServerSnapshot.js';
 import DataStore from './DataStore.js';
 import type { DevToolsPosition } from './DevToolsButton.js';
 import { getDefaultManagers } from './getDefaultManagers.js';
@@ -63,7 +64,7 @@ See https://dataclient.io/docs/guides/ssr.`,
   const serverSnapshotRef: React.RefObject<ServerSnapshot> =
     useRef<any>(undefined);
   if (!serverSnapshotRef.current)
-    serverSnapshotRef.current = { getServerSnapshot: () => initialState };
+    serverSnapshotRef.current = createServerSnapshot(() => initialState);
 
   // run in a useEffect in DataStore
   // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -30,8 +30,12 @@ export const ControllerContext = createContext<Controller>(
 );
 
 export interface ServerSnapshot {
-  /** State the HTML currently being hydrated was rendered from */
-  getServerSnapshot(): State<unknown>;
+  /**
+   * State to hydrate with: what the server rendered from, falling back to
+   * `live` for anything the server never sent. Returns a cached object while
+   * its inputs are unchanged.
+   */
+  getServerSnapshot(live: State<unknown>): State<unknown>;
 }
 /**
  * Lets cache reads hydrate against the exact state the server rendered

@@ -18,6 +18,7 @@ import {
   createHydrate,
   diffState,
   mergeStateDelta,
+  overlayState,
   selectBaseline,
 } from '../stream';
 
@@ -269,6 +270,42 @@ describe('state streaming', () => {
       expect(back.entities.Article!['6']).toBe(s2.entities.Article!['6']);
       expect(back.entities.Article).not.toHaveProperty('5');
       expect(back.endpoints[setOther.key]).toBe(s2.endpoints[setOther.key]);
+    });
+  });
+
+  describe('overlayState', () => {
+    it('prefers snapshot slots and falls back to live for the rest', () => {
+      const live = reducer(
+        s1,
+        createSetResponse(ArticleResource.get, {
+          args: [{ id: 5 }],
+          response: { ...article, title: 'client' },
+          fetchedAt: 9000,
+        }),
+      );
+      const view = overlayState(s1, reducer(live, setOther));
+      // server value wins where it exists
+      expect(view.entities.Article!['5']).toBe(s1.entities.Article!['5']);
+      expect(view.meta[setArticle.key]).toBe(s1.meta[setArticle.key]);
+      // live fills in what the server never sent
+      expect((view.entities.Article!['6'] as any).title).toBe('other');
+      expect(view.endpoints[setOther.key]).toBe('6');
+    });
+
+    it('returns live itself when the snapshot is live', () => {
+      expect(overlayState(s1, s1)).toBe(s1);
+    });
+
+    it('keeps live-only tables and adds snapshot-only tables', () => {
+      const setUser = createSetResponse(IndexedUserResource.get, {
+        args: [{ id: 1 }],
+        response: { id: 1, username: 'bob' },
+      });
+      const live = reducer(initialState, setUser);
+      const view = overlayState(s1, live);
+      expect(view.entities.IndexedUser).toBe(live.entities.IndexedUser);
+      expect(view.indexes.IndexedUser).toBe(live.indexes.IndexedUser);
+      expect(view.entities.Article).toEqual(s1.entities.Article);
     });
   });
 
