@@ -132,9 +132,10 @@ export default async function RootLayout({ children }) {
 - If the same entity is returned with different data by two requests during one render, the
   browser hydrates with the latest one. Boundaries rendered from the earlier value are re-rendered
   by React (a recoverable hydration mismatch in development).
-- On React 18, a synchronous store update (for example from a WebSocket manager) while a boundary
-  is still hydrating can make React client-render that boundary. React 19 hydrates it at a
-  matching priority instead.
+- On React 18 (including the version bundled with Next.js 13 and 14), a store update while a
+  boundary is still hydrating - a streamed delta, a WebSocket manager, a mutation - can make React
+  client-render that boundary. The data is still correct and nothing is refetched, but the server
+  DOM nodes are replaced. React 19 keeps them and hydrates at a matching priority instead.
 
 #### Client Components
 
