@@ -31,7 +31,8 @@ export default async function RootLayout({ children }) {
 New exports:
 
 - `actionTypes.HYDRATE` / `HydrateAction` – merges streamed server state into the client store
-- `StateDelta` – the serializable description of state changes carried by `HydrateAction`
+- `StateDelta` and `StateBaseline` – the serializable state changes carried by `HydrateAction` and
+  what the client previously held for those slots
 - `NextDataProviderProps` from `@data-client/react/nextjs`
 
 `ActionTypes` now includes `HydrateAction`. Custom `Manager` middleware that narrows action

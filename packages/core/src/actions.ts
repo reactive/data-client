@@ -24,13 +24,7 @@ import type {
 import type { EndpointUpdateFunction } from './controller/types.js';
 import type { StateBaseline, StateDelta } from './state/stream/types.js';
 
-export type {
-  StateDelta,
-  StateBaseline,
-  EntityChange,
-  EndpointChange,
-  IndexChange,
-} from './state/stream/types.js';
+export type { StateDelta, StateBaseline } from './state/stream/types.js';
 
 type EndpointAndUpdate<E extends EndpointInterface> = EndpointInterface & {
   update?: EndpointUpdateFunction<E>;

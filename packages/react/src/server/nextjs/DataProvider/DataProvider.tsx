@@ -20,12 +20,13 @@ export default function DataProvider({
   ...props
 }: NextDataProviderProps): React.ReactElement {
   const [StoreDataProvider, renderStateDelta] = useMemo(
-    () => createPersistedStore(props.managers),
+    () => createPersistedStore(props.managers, props.Controller),
     // the store lives for the whole request/page; managers cannot change after
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
   useServerInsertedHTML(() => renderStateDelta(nonce));
 
-  return <StoreDataProvider {...props}>{children}</StoreDataProvider>;
+  const { managers: _, Controller: __, ...storeProps } = props;
+  return <StoreDataProvider {...storeProps}>{children}</StoreDataProvider>;
 }
