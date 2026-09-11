@@ -87,18 +87,24 @@ extensibility point of the provider.
 
 [getDefaultManagers()](./getDefaultManagers.md) can be used to extend the default managers.
 
-Either form is resolved once when the provider mounts. A function is convenient when the same
-definition is shared with the [Next.js provider](../guides/ssr.md#managers), which only accepts a
-function, or when more than one `DataProvider` is mounted on a page: managers keep a reference to
-the store they were attached to, so each provider should get its own instances.
+Both forms are resolved once when the provider mounts. Prefer the function: the same definition
+works with the [Next.js provider](../guides/ssr.md#managers), which only accepts a function, and
+each `DataProvider` on a page gets its own instances (managers keep a reference to the store they
+were attached to).
+
+:::warning Arrays are transitional
+
+Passing `Manager[]` keeps working for now but will be removed in a future release. Migrate to the
+function form when you can:
 
 ```tsx
+// Before:
+const managers = [...getDefaultManagers(), new MyManager()];
+// After:
 const managers = () => [...getDefaultManagers(), new MyManager()];
-
-<DataProvider managers={managers}>
-  <App />
-</DataProvider>
 ```
+
+:::
 
 Default Production:
 

@@ -23,8 +23,9 @@ import GCPolicy from '../state/GCPolicy.js';
 export interface ProviderProps {
   children: React.ReactNode;
   /**
-   * Managers for this store, or a function creating them. Resolved once when
-   * the provider mounts.
+   * Function creating the Managers for this store; called once when the
+   * provider mounts. Passing instances directly is transitional and will be
+   * removed in a future release.
    * @see https://dataclient.io/docs/api/DataProvider#managers
    */
   managers?: Manager[] | (() => Manager[]);
