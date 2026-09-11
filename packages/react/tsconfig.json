@@ -4,7 +4,7 @@
     "outDir": "lib",
     "rootDir": "src"
   },
-  "include": ["src"],
+  "include": ["src", "typings"],
   "references": [
     { "path": "../../__tests__" },
     { "path": "../core" },
