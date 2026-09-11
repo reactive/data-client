@@ -1,32 +1,41 @@
-/// <reference types="react/canary" />
-import { type State } from '@data-client/core';
-import { ComponentProps, use } from 'react';
+'use client';
+import type { Manager } from '@data-client/core';
 
+import { getSnapshotStore } from './snapshotStore.js';
+import StreamedStateReceiver from './StreamedStateReceiver.js';
+import type { StoreProviderProps } from './types.js';
 import DataProvider from '../../../components/DataProvider.js';
-import { awaitInitialData } from '../../getInitialData.js';
+import { ServerSnapshotContext } from '../../../context.js';
+import type { ServerSnapshot } from '../../../context.js';
 
-export default function createPersistedStore() {
-  const initPromise = awaitInitialData();
+export default function createPersistedStore(
+  managers?: Manager[] | (() => Manager[]),
+) {
+  const snapshotStore = getSnapshotStore();
+  const initialState = snapshotStore.state;
+  const resolvedManagers =
+    typeof managers === 'function' ? managers() : managers;
+  const serverSnapshot: ServerSnapshot = {
+    getServerSnapshot: () => snapshotStore.state,
+  };
 
   const StoreDataProvider = ({
     children,
-    initPromise,
+    managers: _,
     ...props
-  }: ProviderProps) => {
-    const initialState = use(initPromise);
-    return (
-      <DataProvider {...props} initialState={initialState}>
+  }: StoreProviderProps) => (
+    <DataProvider
+      {...props}
+      managers={resolvedManagers}
+      initialState={initialState}
+    >
+      <ServerSnapshotContext.Provider value={serverSnapshot}>
+        <StreamedStateReceiver snapshotStore={snapshotStore} />
         {children}
-      </DataProvider>
-    );
-  };
-  return [StoreDataProvider, initPromise] as const;
-}
+      </ServerSnapshotContext.Provider>
+    </DataProvider>
+  );
 
-type ProviderProps = Omit<
-  Partial<ComponentProps<typeof DataProvider>>,
-  'initialState'
-> & {
-  children: React.ReactNode;
-  initPromise: Promise<State<any>>;
-};
+  const renderStateDelta = () => null;
+  return [StoreDataProvider, renderStateDelta] as const;
+}
