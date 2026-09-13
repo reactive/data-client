@@ -237,7 +237,7 @@ describe('<DataProvider />', () => {
       return null;
     }
 
-    it('is called once, even across re-renders and under StrictMode', () => {
+    it('is stable across re-renders within a mount', () => {
       const created: TrackingManager[] = [];
       const factory = jest.fn(() => {
         const tracking = new TrackingManager();
@@ -252,6 +252,12 @@ describe('<DataProvider />', () => {
         </StrictMode>
       );
       const { rerender, unmount } = render(tree);
+      const callsAfterMount = factory.mock.calls.length;
+      // StrictMode 17/18 discards one render/useRef pass, so the factory runs
+      // twice. React 19 keeps one. Neither is a second production mount.
+      const reactMajor = Number(React.version.split('.')[0]);
+      expect(callsAfterMount).toBe(reactMajor >= 19 ? 1 : 2);
+
       rerender(tree);
       rerender(
         <StrictMode>
@@ -261,15 +267,17 @@ describe('<DataProvider />', () => {
           </DataProvider>
         </StrictMode>,
       );
-      expect(factory).toHaveBeenCalledTimes(1);
-      expect(created).toHaveLength(1);
+      expect(factory).toHaveBeenCalledTimes(callsAfterMount);
+      expect(created).toHaveLength(callsAfterMount);
+
+      const tracking = created[created.length - 1];
       // the created managers are the ones wired into the store
-      expect(created[0].controller).toBe(controller);
+      expect(tracking.controller).toBe(controller);
       // StrictMode runs effects twice on mount; each init is matched by a cleanup
-      expect(created[0].initCalls).toBeGreaterThanOrEqual(1);
-      expect(created[0].cleanupCalls).toBe(created[0].initCalls - 1);
+      expect(tracking.initCalls).toBeGreaterThanOrEqual(1);
+      expect(tracking.cleanupCalls).toBe(tracking.initCalls - 1);
       unmount();
-      expect(created[0].cleanupCalls).toBe(created[0].initCalls);
+      expect(tracking.cleanupCalls).toBe(tracking.initCalls);
     });
 
     it('gives each provider its own instances, unlike a shared array', () => {
