@@ -10,7 +10,8 @@ its defaults, so a custom `Manager` ran on one side but not the other. `@data-cl
 now takes a function that is called once per request on the server and once in the browser, and
 throws with a migration hint when given an array.
 
-The browser `DataProvider` from `@data-client/react` is unchanged and still takes `Manager[]`.
+The browser `DataProvider` from `@data-client/react` accepts the same factory;
+arrays still work there as a transitional API.
 
 #### Before
 
