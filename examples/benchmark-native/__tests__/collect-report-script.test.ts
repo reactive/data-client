@@ -3,16 +3,16 @@
  * run-as cannot read private filesDir on typical physical devices.
  */
 const fs = require('fs');
-const path = require('path');
 
-const script = fs.readFileSync(
-  path.join(__dirname, '../scripts/collect-report.sh'),
-  'utf8',
-);
+const script = fs.readFileSync('scripts/collect-report.sh', 'utf8');
+const executable = script
+  .split('\n')
+  .filter((line: string) => !/^\s*#/.test(line))
+  .join('\n');
 
 describe('collect-report.sh report I/O', () => {
   it('does not use run-as to read or wait on the report', () => {
-    expect(script).not.toMatch(/run-as/);
+    expect(executable).not.toMatch(/run-as/);
   });
 
   it('pulls app-specific external storage and the Downloads mirror', () => {
