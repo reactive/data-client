@@ -51,7 +51,7 @@ interface BenchNativeNativeModule {
   getMemorySnapshot(): Promise<MemorySnapshot>;
   startUiFrameCapture(): Promise<{ started: boolean; source: string }>;
   stopUiFrameCapture(): Promise<UiFrameCaptureResult>;
-  writeReport(json: string): Promise<{ path: string }>;
+  writeReport(json: string): Promise<{ path: string; pullPath?: string }>;
 }
 
 const LINKING_ERROR = `BenchNative native module is not linked. Rebuild the Android app.`;

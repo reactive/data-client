@@ -4,6 +4,10 @@
 # Requires exactly one adb device unless ANDROID_SERIAL is set and valid.
 # Split APKs unsupported. Sidecar (artifacts/build-sidecar.json) is authority —
 # never the live checkout. Intent label is optional; commit is not authority.
+#
+# Report I/O: the app writes app-specific external storage (externalFilesDir)
+# and, on API 29+, a Downloads mirror. Collect uses adb pull / exec-out cat —
+# never run-as (release is not debuggable).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -79,6 +83,82 @@ fi
 ADB=(adb -s "${SERIAL}")
 echo "Using device ${SERIAL}"
 
+# adb-visible report paths. Release APKs are not debuggable, so run-as cannot
+# read private filesDir. Prefer the Downloads mirror on Android 10+ user builds
+# (shell often cannot read /Android/data/<id>/).
+REPORT_NAME="gc-report.json"
+PUBLIC_REPORT_NAME="dataclient-gc-report.json"
+DEVICE_REPORT_APP="/sdcard/Android/data/${APP_ID}/files/${REPORT_NAME}"
+DEVICE_REPORT_APP_EMU="/storage/emulated/0/Android/data/${APP_ID}/files/${REPORT_NAME}"
+DEVICE_REPORT_PUBLIC="/sdcard/Download/${PUBLIC_REPORT_NAME}"
+DEVICE_REPORT_PUBLIC_EMU="/storage/emulated/0/Download/${PUBLIC_REPORT_NAME}"
+
+clear_device_reports() {
+  "${ADB[@]}" shell "rm -f \
+    '${DEVICE_REPORT_APP}' \
+    '${DEVICE_REPORT_APP_EMU}' \
+    '${DEVICE_REPORT_PUBLIC}' \
+    '${DEVICE_REPORT_PUBLIC_EMU}'" >/dev/null 2>&1 || true
+}
+
+device_report_ready() {
+  local p
+  for p in \
+    "${DEVICE_REPORT_PUBLIC}" \
+    "${DEVICE_REPORT_PUBLIC_EMU}" \
+    "${DEVICE_REPORT_APP}" \
+    "${DEVICE_REPORT_APP_EMU}"; do
+    if "${ADB[@]}" shell "test -s '${p}'" >/dev/null 2>&1; then
+      return 0
+    fi
+  done
+  return 1
+}
+
+extract_logcat_report_path() {
+  local line
+  line="$("${ADB[@]}" logcat -d -s BenchNative:I | tr -d '\r' | grep 'REPORT_READY' | tail -n 1 || true)"
+  if [[ -z "${line}" ]]; then
+    return 1
+  fi
+  if [[ "${line}" =~ pull=([^[:space:]]+) ]]; then
+    printf '%s\n' "${BASH_REMATCH[1]}"
+    return 0
+  fi
+  if [[ "${line}" =~ path=([^[:space:]]+) ]]; then
+    printf '%s\n' "${BASH_REMATCH[1]}"
+    return 0
+  fi
+  return 1
+}
+
+pull_device_report() {
+  local candidates=()
+  local from_log src
+  from_log="$(extract_logcat_report_path || true)"
+  if [[ -n "${from_log}" ]]; then
+    candidates+=("${from_log}")
+  fi
+  candidates+=(
+    "${DEVICE_REPORT_PUBLIC}"
+    "${DEVICE_REPORT_PUBLIC_EMU}"
+    "${DEVICE_REPORT_APP}"
+    "${DEVICE_REPORT_APP_EMU}"
+  )
+  for src in "${candidates[@]}"; do
+    rm -f "${OUT}"
+    if "${ADB[@]}" pull "${src}" "${OUT}" >/dev/null 2>&1 && [[ -s "${OUT}" ]]; then
+      echo "Pulled ${src} → ${OUT}"
+      return 0
+    fi
+    if "${ADB[@]}" exec-out cat "${src}" > "${OUT}" 2>/dev/null && [[ -s "${OUT}" ]]; then
+      echo "Read ${src} → ${OUT}"
+      return 0
+    fi
+  done
+  return 1
+}
+
 # --- provenance: local APK must match sidecar (authority) ---
 node -e '
 const fs=require("fs");
@@ -138,8 +218,8 @@ if [[ "${INSTALLED_SHA}" != "${SIDECAR_APK_SHA}" ]]; then
 fi
 echo "installedApkSha256=${INSTALLED_SHA}"
 
-# Clear previous report
-"${ADB[@]}" shell "run-as ${APP_ID} rm -f files/gc-report.json" 2>/dev/null || true
+# Clear previous report (externalFilesDir + Downloads mirror; no run-as)
+clear_device_reports
 
 echo "Starting ${ACTIVITY} with axes ${CANDIDATE_KIND}/${PATTERN}/${COUNT}/interaction/${CONTROL}…"
 "${ADB[@]}" logcat -c || true
@@ -167,7 +247,7 @@ while (( SECONDS < deadline )); do
     found=1
     break
   fi
-  if "${ADB[@]}" shell "run-as ${APP_ID} ls files/gc-report.json" >/dev/null 2>&1; then
+  if device_report_ready; then
     found=1
     break
   fi
@@ -180,7 +260,12 @@ if [[ "${found}" != "1" ]]; then
   exit 1
 fi
 
-"${ADB[@]}" shell "run-as ${APP_ID} cat files/gc-report.json" > "${OUT}"
+if ! pull_device_report; then
+  echo "error: REPORT_READY seen but adb could not pull the report" >&2
+  echo "tried Downloads mirror and Android/data/${APP_ID}/files/${REPORT_NAME}" >&2
+  "${ADB[@]}" logcat -d -s BenchNative:I | grep 'REPORT_READY' | tail -n 5 >&2 || true
+  exit 1
+fi
 echo "Wrote ${OUT}"
 
 # Verify embedded buildId matches sidecar; attach sidecar provenance + installed hash.
