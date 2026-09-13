@@ -1,3 +1,4 @@
+import type * as DocsPlugin from '@docusaurus/plugin-content-docs';
 import type * as Preset from '@docusaurus/preset-classic';
 import type * as PresetMermaid from '@docusaurus/theme-mermaid';
 import type { Config } from '@docusaurus/types';
@@ -270,7 +271,7 @@ const config: Config = {
         /*onlyIncludeVersions: isDev
           ? ['current', ...versionsRest.slice(0, 4)]
           : ['current', ...versionsRest],*/
-      },
+      } satisfies DocsPlugin.Options,
     ],
     [
       '@docusaurus/plugin-content-docs',
@@ -298,7 +299,7 @@ const config: Config = {
         /*onlyIncludeVersions: isDev
           ? ['current', ...versionsRest.slice(0, 4)]
           : ['current', ...versionsRest],*/
-      },
+      } satisfies DocsPlugin.Options,
     ],
     [
       '@docusaurus/plugin-client-redirects',
@@ -328,6 +329,10 @@ const config: Config = {
           {
             to: '/rest/guides/partial-entities',
             from: ['/rest/guides/summary-list'],
+          },
+          {
+            to: '/docs/concepts/acid',
+            from: ['/docs/concepts/atomic-mutations'],
           },
           {
             to: '/docs/getting-started/resource',
