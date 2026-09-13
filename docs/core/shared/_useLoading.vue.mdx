@@ -1,0 +1,109 @@
+import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
+
+<TypeScriptEditor row>
+
+```ts title="PostResource" collapsed
+import { Entity, resource } from '@data-client/rest';
+
+export class Post extends Entity {
+  id = 0;
+  author = 0;
+  title = '';
+  body = '';
+  votes = 0;
+
+  static key = 'Post';
+
+  get img() {
+    return `//loremflickr.com/96/72/kitten,cat?lock=${this.id % 16}`;
+  }
+}
+export const PostResource = resource({
+  path: '/posts/:id',
+  schema: Post,
+});
+```
+
+```html title="PostDetail.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { PostResource } from './PostResource';
+
+  const props = defineProps<{ id: number }>();
+  const post = await useSuspense(PostResource.get, { id: props.id });
+</script>
+
+<template>
+  <div>
+    <div class="voteBlock">
+      <img :src="post.img" width="70" height="52" />
+    </div>
+    <div>
+      <h4>{{ post.title }}</h4>
+      <p>{{ post.body }}</p>
+    </div>
+  </div>
+</template>
+```
+
+```html title="PostForm.vue" collapsed
+<script setup lang="ts">
+  const props = defineProps<{
+    loading: boolean;
+    error: Error | undefined;
+  }>();
+  const emit = defineEmits<{ submit: [data: FormData] }>();
+
+  const handleSubmit = (e: Event) => {
+    e.preventDefault();
+    const data = new FormData(e.target as HTMLFormElement);
+    emit('submit', data);
+  };
+</script>
+
+<template>
+  <form @submit="handleSubmit">
+    <TextInput
+      label="Title"
+      name="title"
+      defaultValue="My New Post"
+      required
+    />
+    <TextArea name="body" :rows="12" label="Body" required>
+      After clicking 'save', the button will be disabled until the POST
+      is completed. Upon completion the newly created post is displayed
+      immediately as Reactive Data Client is able to use the fetch
+      response to populate the store.
+    </TextArea>
+    <div v-if="error" class="alert alert--danger">{{ error.message }}</div>
+    <div>
+      <button type="submit" :disabled="loading">
+        {{ loading ? 'saving...' : 'Save' }}
+      </button>
+    </div>
+  </form>
+</template>
+```
+
+```html title="PostCreate.vue"
+<script setup lang="ts">
+  import { useLoading, useController } from '@data-client/vue';
+  import { PostResource } from './PostResource';
+  import PostForm from './PostForm.vue';
+
+  const emit = defineEmits<{ navigateToPost: [id: number] }>();
+  const ctrl = useController();
+
+  const [handleSubmit, loading, error] = useLoading(async (data: FormData) => {
+    const post = await ctrl.fetch(PostResource.getList.push, data);
+    emit('navigateToPost', post.id);
+  });
+</script>
+
+<template>
+  <PostForm @submit="handleSubmit" :loading="loading" :error="error" />
+</template>
+```
+
+</TypeScriptEditor>
+
