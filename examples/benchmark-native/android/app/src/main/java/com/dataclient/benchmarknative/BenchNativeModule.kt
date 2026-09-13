@@ -1,12 +1,15 @@
 package com.dataclient.benchmarknative
 
 import android.app.ActivityManager
+import android.content.ContentValues
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.os.Debug
+import android.os.Environment
 import android.os.Handler
 import android.os.Looper
+import android.provider.MediaStore
 import android.util.Log
 import android.view.Choreographer
 import android.view.FrameMetrics
@@ -236,15 +239,75 @@ class BenchNativeModule(
   @ReactMethod
   fun writeReport(json: String, promise: Promise) {
     try {
-      val file = File(reactContext.filesDir, REPORT_FILE)
-      file.writeText(json)
-      Log.i(LOG_TAG, "REPORT_READY path=${file.absolutePath} bytes=${json.length}")
+      val file = writeAppExternalReport(json)
+      // Q+: /Android/data is often hidden from adb shell on user builds of a
+      // non-debuggable release APK. Mirror to Downloads so collect can pull.
+      val pullFile = writePublicPullCopy(json) ?: file
+      Log.i(
+        LOG_TAG,
+        "REPORT_READY path=${file.absolutePath} pull=${pullFile.absolutePath} bytes=${json.length}",
+      )
       val map = Arguments.createMap()
       map.putString("path", file.absolutePath)
+      map.putString("pullPath", pullFile.absolutePath)
       promise.resolve(map)
     } catch (e: Exception) {
       promise.reject("WRITE_REPORT", e)
     }
+  }
+
+  /** App-specific external storage — no extra permission; preferred report file. */
+  private fun writeAppExternalReport(json: String): File {
+    val dir =
+      reactContext.getExternalFilesDir(null)
+        ?: throw IllegalStateException(
+          "app-specific external storage unavailable; cannot write adb-pullable report",
+        )
+    if (!dir.exists() && !dir.mkdirs()) {
+      throw IllegalStateException("failed to create report dir ${dir.absolutePath}")
+    }
+    val file = File(dir, REPORT_FILE)
+    file.writeText(json)
+    return file
+  }
+
+  /**
+   * Public Downloads copy for `adb pull` on Android 10+ user builds. Pre-Q,
+   * `externalFilesDir` is already shell-visible so no extra copy is needed.
+   */
+  private fun writePublicPullCopy(json: String): File? {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return null
+    val resolver = reactContext.contentResolver
+    resolver.delete(
+      MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+      "${MediaStore.MediaColumns.DISPLAY_NAME}=?",
+      arrayOf(PUBLIC_REPORT_FILE),
+    )
+    val values =
+      ContentValues().apply {
+        put(MediaStore.Downloads.DISPLAY_NAME, PUBLIC_REPORT_FILE)
+        put(MediaStore.Downloads.MIME_TYPE, "application/json")
+        put(MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/")
+        put(MediaStore.Downloads.IS_PENDING, 1)
+      }
+    val uri =
+      resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+        ?: throw IllegalStateException("MediaStore insert failed for $PUBLIC_REPORT_FILE")
+    try {
+      val out =
+        resolver.openOutputStream(uri, "w")
+          ?: throw IllegalStateException("no output stream for $uri")
+      out.use { it.write(json.toByteArray()) }
+      val done = ContentValues().apply { put(MediaStore.Downloads.IS_PENDING, 0) }
+      resolver.update(uri, done, null, null)
+    } catch (e: Exception) {
+      resolver.delete(uri, null, null)
+      throw e
+    }
+    return File(
+      Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+      PUBLIC_REPORT_FILE,
+    )
   }
 
   private fun stopCaptureInternal(idempotent: Boolean): WritableMap {
@@ -380,6 +443,7 @@ class BenchNativeModule(
     const val NAME = "BenchNative"
     const val LOG_TAG = "BenchNative"
     const val REPORT_FILE = "gc-report.json"
+    const val PUBLIC_REPORT_FILE = "dataclient-gc-report.json"
     const val BUILD_MANIFEST_ASSET = "build-manifest.json"
   }
 }
