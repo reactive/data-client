@@ -93,7 +93,7 @@ interface Payload {
 function readPayloads(html: string): Payload[] {
   const payloads: Payload[] = [];
   const self: { __DATA_CLIENT_DELTAS__?: StateDelta[] } = {};
-  for (const match of html.matchAll(/<script([^>]*)>([^<]*)<\/script>/g)) {
+  for (const match of html.matchAll(/<script([^>]*)>([^<]*)<\/script\s*>/gi)) {
     const [, attrs, content] = match;
     if (attrs.includes('id="data-client-data"')) {
       payloads.push({

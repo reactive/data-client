@@ -10,7 +10,7 @@ import type { ReactElement } from 'react';
 import { DELTA_QUEUE_GLOBAL, BASELINE_ID } from './deltaQueue.js';
 import type { StoreProviderProps } from './types.js';
 import createServerStore from '../../createServerStore.js';
-import { escapeJsonForHtml } from '../../escapeJsonForHtml.js';
+import { escapeJsonForScript } from '../../escapeJsonForScript.js';
 import ServerData from '../../ServerData.js';
 import SSRDataProvider from '../../SSRDataProvider.js';
 
@@ -81,6 +81,6 @@ function deltaScript(delta: StateDelta): string {
   const queue = `self.${DELTA_QUEUE_GLOBAL}`;
   // JSON.parse of a string literal: faster than an object literal for large
   // payloads and immune to `{"__proto__":...}` setting the prototype
-  const literal = escapeJsonForHtml(JSON.stringify(JSON.stringify(delta)));
+  const literal = escapeJsonForScript(JSON.stringify(JSON.stringify(delta)));
   return `(function(){var q=${queue}=${queue}||[],d=JSON.parse(${literal});q.push(d);q.onDelta&&q.onDelta(d)})()`;
 }

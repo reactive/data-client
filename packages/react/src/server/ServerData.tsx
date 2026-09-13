@@ -1,6 +1,6 @@
 import type { State } from '@data-client/core';
 
-import { escapeJsonForHtml } from './escapeJsonForHtml.js';
+import { escapeJsonForScript } from './escapeJsonForScript.js';
 
 export const ServerData = ({
   data,
@@ -12,7 +12,7 @@ export const ServerData = ({
   nonce?: string | undefined;
 }) => {
   try {
-    const encoded = escapeJsonForHtml(JSON.stringify(data));
+    const encoded = escapeJsonForScript(JSON.stringify(data));
     return (
       <script
         id={id}
