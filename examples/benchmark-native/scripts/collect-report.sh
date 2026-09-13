@@ -99,6 +99,8 @@ clear_device_reports() {
     '${DEVICE_REPORT_APP_EMU}' \
     '${DEVICE_REPORT_PUBLIC}' \
     '${DEVICE_REPORT_PUBLIC_EMU}'" >/dev/null 2>&1 || true
+  # Downloads mirror is MediaStore-owned; filesystem rm can leave the row.
+  "${ADB[@]}" shell "content delete --uri content://media/external/downloads --where \"_display_name='${PUBLIC_REPORT_NAME}'\"" >/dev/null 2>&1 || true
 }
 
 device_report_ready() {
@@ -113,6 +115,15 @@ device_report_ready() {
     fi
   done
   return 1
+}
+
+# Fail closed: a leftover Downloads/externalFilesDir file must not count as this run.
+assert_device_reports_absent() {
+  if device_report_ready; then
+    echo "error: leftover report still on device after clear (refusing to collect a stale file)" >&2
+    echo "remove ${DEVICE_REPORT_PUBLIC} and ${DEVICE_REPORT_APP} then retry" >&2
+    exit 1
+  fi
 }
 
 extract_logcat_report_path() {
@@ -218,8 +229,10 @@ if [[ "${INSTALLED_SHA}" != "${SIDECAR_APK_SHA}" ]]; then
 fi
 echo "installedApkSha256=${INSTALLED_SHA}"
 
-# Clear previous report (externalFilesDir + Downloads mirror; no run-as)
+# Clear previous report (externalFilesDir + Downloads mirror; no run-as).
+# Verify gone so a leftover cannot complete wait for the wrong scenario.
 clear_device_reports
+assert_device_reports_absent
 
 echo "Starting ${ACTIVITY} with axes ${CANDIDATE_KIND}/${PATTERN}/${COUNT}/interaction/${CONTROL}…"
 "${ADB[@]}" logcat -c || true

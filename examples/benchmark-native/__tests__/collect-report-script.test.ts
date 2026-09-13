@@ -25,4 +25,12 @@ describe('collect-report.sh report I/O', () => {
   it('fails clearly if wait passes but pull cannot read the file', () => {
     expect(script).toMatch(/REPORT_READY seen but adb could not pull/);
   });
+
+  it('refuses to collect if a leftover report survives clear', () => {
+    expect(script).toMatch(/assert_device_reports_absent/);
+    expect(script).toMatch(/leftover report still on device after clear/);
+    expect(executable).toMatch(
+      /content delete --uri content:\/\/media\/external\/downloads/,
+    );
+  });
 });

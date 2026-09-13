@@ -50,7 +50,7 @@ This writes:
 
 ## Host collection
 
-The app writes `gc-report.json` to **app-specific external storage** (`Android/data/<applicationId>/files/`, `Context.getExternalFilesDir`) so a non-debuggable release APK does not depend on `run-as` (that only works when `android:debuggable` is true). On Android 10+ user builds the shell often cannot read `/Android/data`, so the app also mirrors `dataclient-gc-report.json` to public Downloads. `scripts/collect-report.sh` `adb pull`s those paths (Downloads first, then `externalFilesDir`, then the `REPORT_READY` logcat path). Do not set `release { debuggable true }` — this APK is already debug-signed, and that would soften release-Hermes measurement semantics.
+The app writes `gc-report.json` to **app-specific external storage** (`Android/data/<applicationId>/files/`, `Context.getExternalFilesDir`) so a non-debuggable release APK does not depend on `run-as` (that only works when `android:debuggable` is true). On Android 10+ user builds the shell often cannot read `/Android/data`, so the app also mirrors `dataclient-gc-report.json` to public Downloads. `scripts/collect-report.sh` deletes both copies (including the MediaStore Downloads row) and refuses to start if a leftover remains, then `adb pull`s those paths (Downloads first, then `externalFilesDir`, then the `REPORT_READY` logcat path). Do not set `release { debuggable true }` — this APK is already debug-signed, and that would soften release-Hermes measurement semantics.
 
 ```bash
 # exactly one device, or:
