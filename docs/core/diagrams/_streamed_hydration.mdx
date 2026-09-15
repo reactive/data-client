@@ -139,4 +139,4 @@ flowchart TB
 | **Streaming HTML + RSC** | `@data-client/react/nextjs` | `useServerInsertedHTML()` writes the inert baseline, then a `StateDelta` script per flush, into the **HTML** stream | It cannot order that script against **RSC**. A Client Component may start before the delta that describes it has executed. |
 | **`renderToPipeableStream`** | `@data-client/react/ssr` (Express, Anansi) | Intended: a state-piece colocated in the revealing Suspense/island so React emits the delta and the dependent markup as one ordered subtree | Not shipped in this release — generic `/ssr` remains a one-shot snapshot. Parser/hydration order is still not a contract. |
 
-The sequence is the **intended** client clock. This release does not throw per-key waiters or fold independently of the receiver layout effect.
+The figures are the **intended** client clock. This release does not throw per-key waiters or fold independently of the receiver layout effect.
