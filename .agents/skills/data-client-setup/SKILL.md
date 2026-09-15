@@ -109,8 +109,6 @@ export default function RootLayout({ children }) {
 
 **Important**: NextJS uses `@data-client/react/nextjs` import path.
 
-Hooks under this provider are the same as client. Streamed hydration (baseline + `StateDelta`, not one `initialState`) is in skill "data-client-react".
-
 ### Expo
 
 Edit `app/_layout.tsx`:
