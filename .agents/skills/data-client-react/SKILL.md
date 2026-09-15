@@ -1,6 +1,6 @@
 ---
 name: data-client-react
-description: Use @data-client/react hooks for data fetching, mutations, and rendering - useSuspense, useFetch, useQuery, useCache, useLive, useDLE, useSubscription, useController, DataProvider, AsyncBoundary, useLoading, useDebounce. Use when reading/rendering remote data, triggering mutations, doing optimistic updates, real-time subscriptions, wiring Suspense/error boundaries, or SSR/streamed hydration (Next.js App Router, renderToPipeableStream) in React.
+description: Use @data-client/react hooks for data fetching, mutations, and rendering - useSuspense, useFetch, useQuery, useCache, useLive, useDLE, useSubscription, useController, DataProvider, AsyncBoundary, useLoading, useDebounce. Use when reading/rendering remote data, triggering mutations, doing optimistic updates, real-time subscriptions, wiring Suspense/error boundaries, or SSR/streamed hydration (Next.js App Router, RSC, renderToPipeableStream) in React.
 license: Apache 2.0
 ---
 ## Rendering

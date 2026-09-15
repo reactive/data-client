@@ -18,8 +18,6 @@ Only what differs from a browser-only app. Components, hooks, Managers, and muta
 | `renderToPipeableStream` (Express, Anansi) | `@data-client/react/ssr` | One-shot snapshot passed as `initialState` |
 | Next.js Pages Router | `@data-client/ssr/nextjs` | One-shot snapshot |
 
-Say **RSC** and **`renderToPipeableStream`**; do not use the React-internal names for those layers.
-
 ## Next.js App Router
 
 ```tsx title="app/layout.tsx"
@@ -65,7 +63,7 @@ How hydration flows:
 1. The shell carries an inert baseline; first paint does not wait for Data Client.
 2. Each later committed server revision emits a `StateDelta` via `useServerInsertedHTML()`. The client folds queued deltas into the hydration snapshot and dispatches `HYDRATE` into the live store from a layout effect.
 3. If that fold already happened when a Client Component renders, `useSuspense` hits. If RSC starts the island first, a miss fetches like any client render. `useServerInsertedHTML` writes to the HTML stream; it does not order RSC.
-4. `useLive` / `useSubscription` dispatch `SUBSCRIBE` after commit, same as the browser. `SUBSCRIBE` is not proof the server delta arrived.
+4. `SUBSCRIBE` from `useLive` / `useSubscription` is not proof the server delta arrived.
 
 Scope:
 
