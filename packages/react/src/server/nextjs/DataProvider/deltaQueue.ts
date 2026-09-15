@@ -16,7 +16,7 @@ export interface SnapshotStore {
 }
 
 export interface DeltaQueue extends Array<StateDelta> {
-  /** Live-store attach. Fold on script arrival is independent of this callback. */
+  /** Live-store attach. Today StreamedStateReceiver folds through this callback. */
   onDelta?: (delta: StateDelta) => void;
   /** One fold per document, shared by every provider render */
   snapshot?: SnapshotStore;

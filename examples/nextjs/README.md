@@ -13,9 +13,10 @@ Open [http://localhost:3000](http://localhost:3000) to see the result.
 ## Verifying the streamed store
 
 The store hydrates incrementally: an inert baseline, then a `StateDelta` per committed server
-revision. A late island hydrates at **its** generation. Flight-first is covered by the per-key
-waiter, not by script-before-HTML. See the
-[SSR guide](https://dataclient.io/docs/guides/ssr#streamed-hydration) for the sequence.
+revision. A late island hydrates at **its** generation when that piece is already folded.
+Flight may start a Client Component before the HTML delta; script-before-HTML is not a
+zero-refetch guarantee. See the
+[SSR guide](https://dataclient.io/docs/guides/ssr#streamed-hydration) for what ships.
 
 `app/[userId]/page.tsx` waits 50ms before rendering its Client Component. The curl below is a
 **wire check** (baseline and a delta appear in the HTML stream), not the hydration contract:
