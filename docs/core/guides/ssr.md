@@ -23,15 +23,15 @@ load and slow client hydration, potentially causing application stutters.
 
 The store is not a second document that waits for the page. It is the same stream, in generations:
 
-1. The shell carries an **inert baseline** (G0). First paint is not delayed for Data Client.
+1. The shell carries an **inert baseline**. First paint is not delayed for Data Client.
 2. Each later committed server revision emits a **StateDelta**. The client folds queued pieces into the hydration snapshot and dispatches [`HYDRATE`](../api/Actions.md#hydrate) into the live store from the receiver layout effect.
 3. Several islands that finish in one flush share one delta. A nested child may become readable before its parent. A later island may write an entity already present from an earlier delta; the three-way merge keeps slots the client already changed.
-4. If that fold has already happened, [`useSuspense()`](../api/useSuspense.md) hits. If Flight starts the island first, a miss fetches like any client render.
+4. If that fold has already happened, [`useSuspense()`](../api/useSuspense.md) hits. If **RSC** starts the island first, a miss fetches like any client render.
 5. After the island commits, [`useLive()`](../api/useLive.md) / [`useSubscription()`](../api/useSubscription.md) dispatch [`SUBSCRIBE`](../api/Actions.md#subscribe) so WebSocket or polling may start. Subscription is not proof the server delta arrived.
 
-Next.js App Router emits this protocol. Pages Router (`@data-client/ssr/nextjs`) and generic `@data-client/react/ssr` (Express, Anansi) remain a one-shot document snapshot.
+Next.js App Router emits this protocol. Pages Router (`@data-client/ssr/nextjs`) and generic `@data-client/react/ssr` (Express, Anansi, [`renderToPipeableStream`](https://react.dev/reference/react-dom/server/renderToPipeableStream)) remain a one-shot document snapshot.
 
-[`useServerInsertedHTML()`](https://nextjs.org/docs/app/api-reference/functions/use-server-inserted-html) writes into the **HTML** stream. It does not order React Server Component Flight. A Client Component may start before its delta script runs and before the receiver layout effect. Script-before-HTML is insertion order, not a zero-refetch guarantee.
+[`useServerInsertedHTML()`](https://nextjs.org/docs/app/api-reference/functions/use-server-inserted-html) writes into the **HTML** stream. It does not order **RSC**. A Client Component may start before its delta script runs and before the receiver layout effect. Script-before-HTML is insertion order, not a zero-refetch guarantee.
 
 ```
 MarketPage
@@ -44,14 +44,14 @@ MarketPage
         └── Trades                useLive(getTrades, { symbol: 'BTC' })
 ```
 
-The generation table and sequence below describe the **intended** client clock (per-key waiters and fold-on-script). This release ships the wire (G0 + `StateDelta` + `HYDRATE`) and the receiver layout-effect fold.
+The figures below are **one concept each**: an overview with black boxes, then a zoom that opens that box. They describe the **intended** client clock (per-key waiters and fold-on-script). This release ships the wire (baseline + `StateDelta` + `HYDRATE`) and the receiver layout-effect fold.
 
 <StreamedHydration/>
 
 ### Open questions {#streamed-hydration-open}
 
-- **Per-key waiters** and **fold-on-script-arrival** (independent of `StreamedStateReceiver`’s layout effect) remain future client-clock work. Until they land, a Flight-first miss fetches like any client render.
-- Incremental baseline-plus-delta for generic Fizz / Anansi is not shipped.
+- **Per-key waiters** and **fold-on-script-arrival** (independent of `StreamedStateReceiver`’s layout effect) remain future client-clock work. Until they land, an RSC-first miss fetches like any client render.
+- Incremental baseline-plus-delta for generic `renderToPipeableStream` / Anansi is not shipped.
 - A document-wide [`DOMContentLoaded`](https://developer.mozilla.org/en-US/docs/Web/API/Document/DOMContentLoaded_event) wait is an acceptable interim, not the long-term contract.
 
 ## NextJS SSR {#nextjs}
@@ -88,8 +88,8 @@ export default function RootLayout({ children }) {
 
 Async Server Components anywhere between the provider and your Client Components are fine.
 Each committed server revision emits a `StateDelta` that folds into the hydration snapshot
-and `HYDRATE`s the live store from the receiver layout effect. HTML insertion order is not a
-Flight clock: a Client Component may start before its delta script runs, and a miss then
+and `HYDRATE`s the live store from the receiver layout effect. HTML insertion order is not an
+RSC clock: a Client Component may start before its delta script runs, and a miss then
 fetches like any client render.
 
 ```tsx title="app/[userId]/layout.tsx"
