@@ -9,6 +9,7 @@ export const INVALIDATE = 'rdc/invalidate' as const;
 export const INVALIDATEALL = 'rdc/invalidateall' as const;
 export const EXPIREALL = 'rdc/expireall' as const;
 export const GC = 'rdc/gc' as const;
+export const HYDRATE = 'rdc/hydrate' as const;
 
 export const FETCH_TYPE = FETCH;
 export const SET_TYPE = SET;
@@ -21,3 +22,4 @@ export const INVALIDATE_TYPE = INVALIDATE;
 export const INVALIDATEALL_TYPE = INVALIDATEALL;
 export const EXPIREALL_TYPE = EXPIREALL;
 export const GC_TYPE = GC;
+export const HYDRATE_TYPE = HYDRATE;

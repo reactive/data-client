@@ -22,6 +22,8 @@ const baseConfig = {
     'cjs',
     'json',
   ],
+  // helpers shared by tests live next to them without being suites
+  testPathIgnorePatterns: ['/node_modules/', '/__tests__/fixtures/'],
   coveragePathIgnorePatterns: [
     'node_modules',
     '/__tests__',

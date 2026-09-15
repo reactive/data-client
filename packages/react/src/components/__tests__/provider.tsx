@@ -211,4 +211,122 @@ describe('<DataProvider />', () => {
       ]
     `);
   });
+
+  describe('managers factory', () => {
+    class TrackingManager implements Manager {
+      declare controller: Controller;
+      initCalls = 0;
+      cleanupCalls = 0;
+
+      init() {
+        this.initCalls++;
+      }
+
+      cleanup() {
+        this.cleanupCalls++;
+      }
+
+      middleware: Middleware = controller => {
+        this.controller = controller;
+        return next => action => next(action);
+      };
+    }
+    let controller: Controller | undefined;
+    function Probe() {
+      controller = useController();
+      return null;
+    }
+
+    it('is stable across re-renders within a mount', () => {
+      const created: TrackingManager[] = [];
+      const factory = jest.fn(() => {
+        const tracking = new TrackingManager();
+        created.push(tracking);
+        return [new NetworkManager(), tracking];
+      });
+      const tree = (
+        <StrictMode>
+          <DataProvider managers={factory}>
+            <Probe />
+          </DataProvider>
+        </StrictMode>
+      );
+      const { rerender, unmount } = render(tree);
+      const callsAfterMount = factory.mock.calls.length;
+      // StrictMode 17/18 discards one render/useRef pass, so the factory runs
+      // twice. React 19 keeps one. Neither is a second production mount.
+      const reactMajor = Number(React.version.split('.')[0]);
+      expect(callsAfterMount).toBe(reactMajor >= 19 ? 1 : 2);
+
+      rerender(tree);
+      rerender(
+        <StrictMode>
+          <DataProvider managers={factory}>
+            <Probe />
+            <span />
+          </DataProvider>
+        </StrictMode>,
+      );
+      expect(factory).toHaveBeenCalledTimes(callsAfterMount);
+      expect(created).toHaveLength(callsAfterMount);
+
+      const tracking = created[created.length - 1];
+      // the created managers are the ones wired into the store
+      expect(tracking.controller).toBe(controller);
+      // StrictMode runs effects twice on mount; each init is matched by a cleanup
+      expect(tracking.initCalls).toBeGreaterThanOrEqual(1);
+      expect(tracking.cleanupCalls).toBe(tracking.initCalls - 1);
+      unmount();
+      expect(tracking.cleanupCalls).toBe(tracking.initCalls);
+    });
+
+    it('gives each provider its own instances, unlike a shared array', () => {
+      const trackers: TrackingManager[] = [];
+      const factory = () => {
+        const tracking = new TrackingManager();
+        trackers.push(tracking);
+        return [new NetworkManager(), tracking];
+      };
+      const controllers: Controller[] = [];
+      function CaptureController() {
+        controllers.push(useController());
+        return null;
+      }
+      render(
+        <>
+          <DataProvider managers={factory}>
+            <CaptureController />
+          </DataProvider>
+          <DataProvider managers={factory}>
+            <CaptureController />
+          </DataProvider>
+        </>,
+      );
+      expect(trackers).toHaveLength(2);
+      expect(controllers[0]).not.toBe(controllers[1]);
+      expect(trackers[0].controller).toBe(controllers[0]);
+      expect(trackers[1].controller).toBe(controllers[1]);
+
+      // a shared array leaves one instance bound to whichever store mounted last
+      const shared = new TrackingManager();
+      const sharedManagers = [new NetworkManager(), shared];
+      const sharedControllers: Controller[] = [];
+      function CaptureShared() {
+        sharedControllers.push(useController());
+        return null;
+      }
+      render(
+        <>
+          <DataProvider managers={sharedManagers}>
+            <CaptureShared />
+          </DataProvider>
+          <DataProvider managers={sharedManagers}>
+            <CaptureShared />
+          </DataProvider>
+        </>,
+      );
+      expect(shared.controller).toBe(sharedControllers[1]);
+      expect(shared.controller).not.toBe(sharedControllers[0]);
+    });
+  });
 });

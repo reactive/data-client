@@ -21,7 +21,7 @@ in the React tree.
 ```typescript
 interface ProviderProps {
   children: ReactNode;
-  managers?: Manager[];
+  managers?: Manager[] | (() => Manager[]);
   initialState?: State<unknown>;
   Controller?: typeof Controller;
   devButton?:
@@ -71,11 +71,40 @@ export interface State<T> {
 Instead of starting with an empty cache, you can provide your own initial state. This can
 be useful for testing, or rehydrating the cache state when using server side rendering.
 
-### managers?: Manager[] {#managers}
+While React hydrates server-rendered HTML, hooks read from `initialState` rather than the live
+store, so a [Suspense](https://react.dev/reference/react/Suspense) boundary that hydrates after a
+[Manager](./Manager.md) has already updated the store still matches its HTML. Once hydrated,
+components render the live state. Anything missing from `initialState` is read from the live
+store, so it is fetched once like any other client render.
 
-List of [Manager](./Manager.md)s use. This is the main extensibility point of the provider.
+The Next.js App Router provider from `@data-client/react/nextjs` fills this in from the stream;
+see the [SSR guide](../guides/ssr.md#nextjs) for its props.
+
+### managers?: Manager[] | (() => Manager[]) {#managers}
+
+List of [Manager](./Manager.md)s to use, or a function that creates them. This is the main
+extensibility point of the provider.
 
 [getDefaultManagers()](./getDefaultManagers.md) can be used to extend the default managers.
+
+Both forms are resolved once when the provider mounts. Prefer the function: the same definition
+works with the [Next.js provider](../guides/ssr.md#managers), which only accepts a function, and
+each `DataProvider` on a page gets its own instances (managers keep a reference to the store they
+were attached to).
+
+:::warning Arrays are transitional
+
+Passing `Manager[]` keeps working for now but will be removed in a future release. Migrate to the
+function form when you can:
+
+```tsx
+// Before:
+const managers = [...getDefaultManagers(), new MyManager()];
+// After:
+const managers = () => [...getDefaultManagers(), new MyManager()];
+```
+
+:::
 
 Default Production:
 

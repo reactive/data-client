@@ -65,9 +65,18 @@ Provides any cleanup of dangling resources after manager is no longer in use.
 
 ## Adding managers to Reactive Data Client {#adding}
 
-Use the [managers](../api/DataProvider.md#managers) prop of [DataProvider](../api/DataProvider.md). Be
-sure to hoist to _module level_ or wrap in a _useMemo()_ to ensure they are not recreated. Managers
-have internal state, so it is important to not constantly recreate them.
+Use the [managers](../api/DataProvider.md#managers) prop of [DataProvider](../api/DataProvider.md)
+with a function that creates them. The provider calls it once when it mounts, so each store gets
+its own instances and the same definition works for the [Next.js provider](../guides/ssr.md#managers).
+
+:::note Migrating from arrays
+
+`managers` also still accepts an array of instances. This form is transitional and will be removed
+in a future release; change `managers={[...]}` to `managers={() => [...]}` when you can. Managers
+have internal state, so an array must be hoisted to _module level_ or wrapped in _useMemo()_ to
+avoid recreating them.
+
+:::
 
 <Tabs
 defaultValue="web"
@@ -85,7 +94,7 @@ values={[
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import ReactDOM from 'react-dom';
 
-const managers = [...getDefaultManagers(), new MyManager()];
+const managers = () => [...getDefaultManagers(), new MyManager()];
 
 ReactDOM.createRoot(document.body).render(
   <DataProvider managers={managers}>
@@ -102,7 +111,7 @@ ReactDOM.createRoot(document.body).render(
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { AppRegistry } from 'react-native';
 
-const managers = [...getDefaultManagers(), new MyManager()];
+const managers = () => [...getDefaultManagers(), new MyManager()];
 
 const Root = () => (
   <DataProvider managers={managers}>
@@ -116,13 +125,16 @@ AppRegistry.registerComponent('MyApp', () => Root);
 
 <TabItem value="nextjs">
 
+The server renders every request with its own store, so the Next.js provider takes a function
+instead of instances: it runs once per request on the server and once in the browser.
+
 ```tsx title="app/Provider.tsx"
 'use client';
 import { getDefaultManagers } from '@data-client/react';
 import { DataProvider } from '@data-client/react/nextjs';
 
 // highlight-next-line
-const managers = [...getDefaultManagers(), new MyManager()];
+const managers = () => [...getDefaultManagers(), new MyManager()];
 
 export default function Provider({
   children,
@@ -160,7 +172,7 @@ import {
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 // highlight-next-line
-const managers = [...getDefaultManagers(), new MyManager()];
+const managers = () => [...getDefaultManagers(), new MyManager()];
 
 export default function Provider({
   children,

@@ -9,18 +9,26 @@ import type { State, Manager, GCInterface } from '@data-client/core';
 import React, { useCallback, useMemo, useRef } from 'react';
 import type { JSX } from 'react';
 
+import createServerSnapshot from './createServerSnapshot.js';
 import DataStore from './DataStore.js';
 import type { DevToolsPosition } from './DevToolsButton.js';
 import { getDefaultManagers } from './getDefaultManagers.js';
 import { SSR } from './LegacyReact.js';
 import { renderDevButton } from './renderDevButton.js';
-import { ControllerContext } from '../context.js';
+import { ControllerContext, ServerSnapshotContext } from '../context.js';
+import type { ServerSnapshot } from '../context.js';
 import { DevToolsManager } from '../managers/index.js';
 import GCPolicy from '../state/GCPolicy.js';
 
 export interface ProviderProps {
   children: React.ReactNode;
-  managers?: Manager[];
+  /**
+   * Function creating the Managers for this store; called once when the
+   * provider mounts. Passing instances directly is transitional and will be
+   * removed in a future release.
+   * @see https://dataclient.io/docs/api/DataProvider#managers
+   */
+  managers?: Manager[] | (() => Manager[]);
   initialState?: State<unknown>;
   Controller?: typeof DataController;
   gcPolicy?: GCInterface;
@@ -55,8 +63,18 @@ See https://dataclient.io/docs/guides/ssr.`,
     controllerRef.current = new Controller({ gcPolicy: gcRef.current });
   //TODO: bind all methods so destructuring works
 
-  const managersRef: React.RefObject<Manager[]> = useRef<any>(managers);
-  if (!managersRef.current) managersRef.current = getDefaultManagers();
+  const managersRef: React.RefObject<Manager[]> = useRef<any>(undefined);
+  if (!managersRef.current)
+    managersRef.current =
+      typeof managers === 'function' ? managers() : (
+        (managers ?? getDefaultManagers())
+      );
+
+  // hydration reads must see what the server rendered with, not live state
+  const serverSnapshotRef: React.RefObject<ServerSnapshot> =
+    useRef<any>(undefined);
+  if (!serverSnapshotRef.current)
+    serverSnapshotRef.current = createServerSnapshot(() => initialState);
 
   // run in a useEffect in DataStore
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -79,14 +97,16 @@ See https://dataclient.io/docs/guides/ssr.`,
   );
   return (
     <ControllerContext.Provider value={controllerRef.current}>
-      <DataStore
-        mgrEffect={mgrEffect}
-        middlewares={middlewares}
-        initialState={initialState}
-        controller={controllerRef.current}
-      >
-        {children}
-      </DataStore>
+      <ServerSnapshotContext.Provider value={serverSnapshotRef.current}>
+        <DataStore
+          mgrEffect={mgrEffect}
+          middlewares={middlewares}
+          initialState={initialState}
+          controller={controllerRef.current}
+        >
+          {children}
+        </DataStore>
+      </ServerSnapshotContext.Provider>
       {renderDevButton(devButton, hasDevManager)}
     </ControllerContext.Provider>
   );

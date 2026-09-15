@@ -6,6 +6,7 @@ sidebar_label: Server Side Rendering
 
 import PkgTabs from '@site/src/components/PkgTabs';
 import StackBlitz from '@site/src/components/StackBlitz';
+import StreamedHydration from '../diagrams/\_streamed_hydration.mdx';
 
 <head>
   <meta name="docsearch:pagerank" content="10"/>
@@ -17,6 +18,41 @@ Server Side Rendering (SSR) can improve the first-load performance of your appli
 Client takes this one step further by pre-populating the data store. Unlike other SSR methodologies,
 Reactive Data Client becomes interactive the moment the page is visible, making [data mutations](../getting-started/mutations.md) instantaneous. Additionally there is no need for additional data fetches that increase server
 load and slow client hydration, potentially causing application stutters.
+
+## Incremental streamed hydration {#streamed-hydration}
+
+The store is not a second document that waits for the page. It is the same stream, in generations:
+
+1. The shell carries an **inert baseline**. First paint is not delayed for Data Client.
+2. Each later committed server revision emits a **StateDelta**. The client folds queued pieces into the hydration snapshot and dispatches [`HYDRATE`](../api/Actions.md#hydrate) into the live store from the receiver layout effect.
+3. Several islands that finish in one flush share one delta. A nested child may become readable before its parent. A later island may write an entity already present from an earlier delta; the three-way merge keeps slots the client already changed.
+4. If that fold has already happened, [`useSuspense()`](../api/useSuspense.md) hits. If **RSC** starts the island first, a miss fetches like any client render.
+5. After the island commits, [`useLive()`](../api/useLive.md) / [`useSubscription()`](../api/useSubscription.md) dispatch [`SUBSCRIBE`](../api/Actions.md#subscribe) so WebSocket or polling may start. Subscription is not proof the server delta arrived.
+
+Next.js App Router emits this protocol. Pages Router (`@data-client/ssr/nextjs`) and generic `@data-client/react/ssr` (Express, Anansi, [`renderToPipeableStream`](https://react.dev/reference/react-dom/server/renderToPipeableStream)) remain a one-shot document snapshot.
+
+[`useServerInsertedHTML()`](https://nextjs.org/docs/app/api-reference/functions/use-server-inserted-html) writes into the **HTML** stream. It does not order **RSC**. A Client Component may start before its delta script runs and before the receiver layout effect. Script-before-HTML is insertion order, not a zero-refetch guarantee.
+
+```
+MarketPage
+├── Shell                         provider, chrome — no Data Client read
+├── Watchlist                     useLive(getTickers)
+├── SymbolHeader                  useLive(getSymbolInfo, { symbol: 'BTC' })
+└── Market                        Suspense (late)
+    ├── Book                      useLive(getOrderBook, { symbol: 'BTC' })
+    └── Tape                      nested Suspense
+        └── Trades                useLive(getTrades, { symbol: 'BTC' })
+```
+
+The figures below are **one concept each**: an overview with black boxes, then a zoom that opens that box. They describe the **intended** client clock (per-key waiters and fold-on-script). This release ships the wire (baseline + `StateDelta` + `HYDRATE`) and the receiver layout-effect fold.
+
+<StreamedHydration/>
+
+### Open questions {#streamed-hydration-open}
+
+- **Per-key waiters** and **fold-on-script-arrival** (independent of `StreamedStateReceiver`’s layout effect) remain future client-clock work. Until they land, an RSC-first miss fetches like any client render.
+- Incremental baseline-plus-delta for generic `renderToPipeableStream` / Anansi is not shipped.
+- A document-wide [`DOMContentLoaded`](https://developer.mozilla.org/en-US/docs/Web/API/Document/DOMContentLoaded_event) wait is an acceptable interim, not the long-term contract.
 
 ## NextJS SSR {#nextjs}
 
@@ -49,6 +85,101 @@ export default function RootLayout({ children }) {
   );
 }
 ```
+
+Async Server Components anywhere between the provider and your Client Components are fine.
+Each committed server revision emits a `StateDelta` that folds into the hydration snapshot
+and `HYDRATE`s the live store from the receiver layout effect. HTML insertion order is not an
+RSC clock: a Client Component may start before its delta script runs, and a miss then
+fetches like any client render.
+
+```tsx title="app/[userId]/layout.tsx"
+export default async function UserLayout({ children, params }) {
+  // resolves after the shell has already been sent
+  const { userId } = await params;
+  return <section data-user={userId}>{children}</section>;
+}
+```
+
+#### Props
+
+```typescript
+interface NextDataProviderProps {
+  children: ReactNode;
+  managers?: () => Manager[];
+  nonce?: string;
+  Controller?: typeof Controller;
+  gcPolicy?: GCInterface;
+  devButton?: DevToolsPosition | null;
+}
+```
+
+`Controller` applies on both server and client. `gcPolicy` applies in the browser only: a
+request-scoped server store has nothing to collect.
+
+##### managers {#managers}
+
+The server builds a store per request, so [Managers](../api/Manager.md) must be created per
+request as well. It takes a **function**, called once per
+request on the server and once in the browser (the [browser DataProvider](../api/DataProvider.md#managers)
+accepts the same function; its array form is transitional):
+
+```tsx title="app/Provider.tsx"
+'use client';
+import { getDefaultManagers } from '@data-client/react';
+import { DataProvider } from '@data-client/react/nextjs';
+
+// highlight-next-line
+const managers = () => [...getDefaultManagers(), new MyManager()];
+
+export default function Provider({ children }: { children: React.ReactNode }) {
+  return <DataProvider managers={managers}>{children}</DataProvider>;
+}
+```
+
+Manager instances shared across requests would mix up users' data, so an array is rejected.
+Server-side managers should not hold resources: their `cleanup()` is not run per request.
+
+##### nonce {#nonce}
+
+State is streamed in inline `<script>` tags. When your
+[Content Security Policy](https://nextjs.org/docs/app/guides/content-security-policy) requires
+a nonce, pass it through:
+
+```tsx title="app/layout.tsx"
+import { headers } from 'next/headers';
+import { DataProvider } from '@data-client/react/nextjs';
+
+export default async function RootLayout({ children }) {
+  const nonce = (await headers()).get('x-nonce') ?? undefined;
+  return (
+    <html>
+      <body>
+        <DataProvider nonce={nonce}>{children}</DataProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+#### Limitations
+
+- Use one `DataProvider` per document. Nested or sibling providers share the same streamed state.
+- Only the initial document is transferred. Client-side navigations and `router.refresh()` fetch
+  in the browser like any client render.
+- With [Partial Prerendering](https://nextjs.org/docs/app/getting-started/partial-prerendering) the
+  static shell's state is transferred; data fetched while resuming dynamic holes is fetched again
+  in the browser.
+- If the same entity is returned with different data by two requests during one render, the
+  browser hydrates with the latest one. Boundaries rendered from the earlier value are re-rendered
+  by React (a recoverable hydration mismatch in development). Likewise, data the browser fetched on
+  its own during streaming fills in anything the server never sent or removed, so a boundary the
+  server rendered without that data is re-rendered with it.
+- On React 18 (including the version bundled with Next.js 13 and 14), a store update while a
+  boundary is still hydrating - a streamed delta, a WebSocket manager, a mutation - can make React
+  client-render that boundary. The data is still correct and nothing is refetched, but the server
+  DOM nodes are replaced. React 19 keeps them and hydrates at a matching priority instead.
+- App-owned requests that bypass [`useSuspense()`](../api/useSuspense.md) (for example a direct
+  depth snapshot to resync WebSocket sequence numbers) are out of this contract.
 
 #### Client Components
 
@@ -103,6 +234,9 @@ class User extends Entity {
 ```
 
 ### Pages Router
+
+Pages Router remains a one-shot document snapshot via `@data-client/ssr/nextjs`. It does not use
+the incremental baseline-plus-delta protocol above.
 
 With NextJS &lt; 14, you might be using the pages router. For this we have [Document](https://nextjs.org/docs/advanced-features/custom-document)
 and NextJS specific wrapper for [App](https://nextjs.org/docs/advanced-features/custom-app)
@@ -212,6 +346,9 @@ export default class MyDocument extends DataClientDocument {
 ```
 
 ## Express JS SSR
+
+Generic `@data-client/react/ssr` (Express, Anansi) remains a **one-shot** document snapshot.
+Incremental baseline-plus-delta is the Next.js App Router path in this release.
 
 When implementing your own server using express.
 

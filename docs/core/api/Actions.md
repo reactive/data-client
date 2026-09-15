@@ -316,3 +316,50 @@ interface ExpireAllAction {
 
 Sent by [Controller.expireAll()](./Controller.md#expireAll)
 
+## HYDRATE
+
+<Grid wrap>
+
+```ts
+interface HydrateAction {
+  type: typeof actionTypes.HYDRATE;
+  delta: StateDelta;
+  baseline: StateBaseline;
+}
+
+interface StateDelta {
+  entities: { key: string; pk: string; value?: { entity?: unknown; meta?: EntityMeta } }[];
+  endpoints: { key: string; value?: { endpoint?: unknown; meta?: EndpointMeta } }[];
+  indexes: { key: string; index: string; value?: Record<string, string> }[];
+  /** Set when the server store was reset; changes then apply on top of an empty store */
+  reset?: number;
+}
+```
+
+```js
+{
+  type: 'rdc/hydrate',
+  delta: {
+    entities: [
+      { key: 'User', pk: '1', value: { entity: { id: 1, name: 'Ann' }, meta: { date, expiresAt, fetchedAt } } },
+    ],
+    endpoints: [
+      { key: 'GET https://jsonplaceholder.typicode.com/users/1', value: { endpoint: '1', meta: { date, expiresAt, fetchedAt } } },
+    ],
+    indexes: [],
+  },
+  baseline: { entities: {}, entitiesMeta: {}, endpoints: {}, meta: {}, indexes: {}, lastReset: 0 },
+}
+```
+
+</Grid>
+
+Merges state streamed from the server during [server side rendering](../guides/ssr.md) into the client store.
+Each `delta` describes only the slots that changed since the previous one; an entry without `value` removes that slot.
+
+`baseline` holds what the client previously received for those slots. A slot the client has changed since
+(for example through a mutation while the page was still streaming) keeps the client's value. The whole
+action is ignored when the client has [reset the store](./Controller.md#resetEntireStore) since `baseline.lastReset`.
+
+Sent by [DataProvider](./DataProvider.md) from `@data-client/react/nextjs`
+
