@@ -6,6 +6,7 @@ sidebar_label: Server Side Rendering
 
 import PkgTabs from '@site/src/components/PkgTabs';
 import StackBlitz from '@site/src/components/StackBlitz';
+import StreamedHydration from '../diagrams/\_streamed_hydration.mdx';
 
 <head>
   <meta name="docsearch:pagerank" content="10"/>
@@ -17,6 +18,37 @@ Server Side Rendering (SSR) can improve the first-load performance of your appli
 Client takes this one step further by pre-populating the data store. Unlike other SSR methodologies,
 Reactive Data Client becomes interactive the moment the page is visible, making [data mutations](../getting-started/mutations.md) instantaneous. Additionally there is no need for additional data fetches that increase server
 load and slow client hydration, potentially causing application stutters.
+
+## Incremental streamed hydration {#streamed-hydration}
+
+The store is not a second document that waits for the page. It is the same stream, in generations:
+
+1. The shell carries an **inert baseline** (G0). First paint is not delayed for Data Client.
+2. Each later committed server revision emits a **StateDelta**. The client folds that piece into the hydration snapshot — and dispatches `HYDRATE` into the live store if the receiver is attached — **before** the island rendered from that revision may run [`useSuspense()`](../api/useSuspense.md).
+3. Several islands that finish in one flush share one delta. A nested child may become readable before its parent. A later island may write an entity already present from an earlier delta; the three-way merge keeps slots the client already changed.
+4. If the island runs before its piece is readable, `useSuspense()` waits on **that endpoint key** while the initial stream is open. It does not `FETCH`, and it does not wait for other keys or for `DOMContentLoaded`.
+5. After the island commits, [`useLive()`](../api/useLive.md) / [`useSubscription()`](../api/useSubscription.md) dispatch [`SUBSCRIBE`](../api/Actions.md#subscribe) so WebSocket or polling may start. Subscription is not proof the server delta arrived.
+
+Next.js App Router and generic `renderToPipeableStream` (Express, Anansi) share this protocol. They differ only in how scripts are inserted and how the initial stream is closed. Pages Router (`@data-client/ssr/nextjs`) remains a one-shot document snapshot.
+
+The sequence used in this guide — two islands in one flush, a nested tape before its parent book, a later book delta overlapping `Ticker:BTC`, a Flight-first waiter, subscribe-after-commit — is the contract. [`useServerInsertedHTML()`](https://nextjs.org/docs/app/api-reference/functions/use-server-inserted-html) writes into the **HTML** stream. It does not order React Server Component Flight. A Client Component may start before its delta script runs; the per-key waiter is what makes that safe.
+
+While the initial stream is open, a miss cannot tell “arrives later” from “not in this response.” Server-backed keys pay a waiter and one retry; client-only keys delay one `FETCH` until stream close.
+
+```
+MarketPage
+├── Shell                         provider, chrome — no Data Client read
+├── Watchlist                     useLive(getTickers)
+├── SymbolHeader                  useLive(getSymbolInfo, { symbol: 'BTC' })
+└── Market                        Suspense (late)
+    ├── Book                      useLive(getOrderBook, { symbol: 'BTC' })
+    └── Tape                      nested Suspense
+        └── Trades                useLive(getTrades, { symbol: 'BTC' })
+```
+
+A fifth key, `getUserPrefs`, is never on the server. It waits until the **initial stream closes**, then fetches once. Hits from G1–G3 are already interactive; they do not wait for that close.
+
+<StreamedHydration/>
 
 ## NextJS SSR {#nextjs}
 
@@ -50,10 +82,11 @@ export default function RootLayout({ children }) {
 }
 ```
 
-Async Server Components anywhere between the provider and your Client Components are fine:
-the store is streamed to the browser alongside the HTML, so data fetched by a component that
-renders late still arrives before the HTML it produced. Every [Suspense](https://react.dev/reference/react/Suspense)
-boundary then hydrates from exactly the data it was rendered with, without refetching.
+Async Server Components anywhere between the provider and your Client Components are fine.
+Each committed server revision emits a `StateDelta` that must fold into the hydration snapshot —
+and `HYDRATE` the live store if the receiver is attached — **before** that island’s
+[`useSuspense()`](../api/useSuspense.md) may fetch. HTML insertion order is not a Flight clock:
+a Client Component may start before its delta script runs; the per-key waiter covers that race.
 
 ```tsx title="app/[userId]/layout.tsx"
 export default async function UserLayout({ children, params }) {
@@ -141,6 +174,8 @@ export default async function RootLayout({ children }) {
   boundary is still hydrating - a streamed delta, a WebSocket manager, a mutation - can make React
   client-render that boundary. The data is still correct and nothing is refetched, but the server
   DOM nodes are replaced. React 19 keeps them and hydrates at a matching priority instead.
+- App-owned requests that bypass [`useSuspense()`](../api/useSuspense.md) (for example a direct
+  depth snapshot to resync WebSocket sequence numbers) are out of this contract.
 
 #### Client Components
 
@@ -195,6 +230,9 @@ class User extends Entity {
 ```
 
 ### Pages Router
+
+Pages Router remains a one-shot document snapshot via `@data-client/ssr/nextjs`. It does not use
+the incremental baseline-plus-delta protocol above.
 
 With NextJS &lt; 14, you might be using the pages router. For this we have [Document](https://nextjs.org/docs/advanced-features/custom-document)
 and NextJS specific wrapper for [App](https://nextjs.org/docs/advanced-features/custom-app)
@@ -305,55 +343,53 @@ export default class MyDocument extends DataClientDocument {
 
 ## Express JS SSR
 
-When implementing your own server using express.
+Generic `renderToPipeableStream` (Express, Anansi) uses the same protocol as Next.js App Router:
+an inert baseline in the shell, a `StateDelta` per committed revision, a shared coordinator, and
+per-key waiters. The adapters differ only in insertion and stream-close.
+
+Do not wait on `useReadyCacheState()` / a quiet window before flushing the shell, and do not treat
+`awaitInitialData()` → `<DataProvider initialState>` as the streaming path.
 
 ### Server side
 
 ```tsx
 import express from 'express';
 import { renderToPipeableStream } from 'react-dom/server';
-import {
-  createPersistedStore,
-  createServerDataComponent,
-} from '@data-client/react/ssr';
+import { createPersistedStore } from '@data-client/react/ssr';
 
 const rootId = 'react-root';
 
 const app = express();
 app.get('/*', (req: any, res: any) => {
-  const [ServerDataProvider, useReadyCacheState, controller] =
-    createPersistedStore();
-  const ServerDataComponent =
-    createServerDataComponent(useReadyCacheState);
-
-  controller.fetch(NeededForPage, { id: 5 });
+  // Request-scoped store. Do not wait on useReadyCacheState() before the shell.
+  const [ServerDataProvider] = createPersistedStore();
 
   const { pipe, abort } = renderToPipeableStream(
-    <Document
-      assets={assets}
-      scripts={[<ServerDataComponent key="server-data" />]}
-      rootId={rootId}
-    >
-      <ServerDataProvider>{children}</ServerDataProvider>
+    <Document assets={assets} rootId={rootId}>
+      {/* G0: inert baseline in the shell — first paint is not delayed */}
+      <ServerDataProvider>
+        {/* Colocate a StateDelta piece in each framework-owned Suspense/island
+            so the delta and dependent markup are one ordered subtree. */}
+        {children}
+      </ServerDataProvider>
     </Document>,
-
     {
-      onCompleteShell() {
-        // If something errored before we started streaming, we set the error code appropriately.
-        res.statusCode = didError ? 500 : 200;
+      onShellReady() {
+        res.statusCode = 200;
         res.setHeader('Content-type', 'text/html');
+        // HTML flush. Not store-complete.
         pipe(res);
       },
+      onAllReady() {
+        // Close leftover waiters only. Hits from earlier generations stay as they were.
+      },
       onError(x: any) {
-        didError = true;
         console.error(x);
-        res.statusCode = 500;
-        pipe(res);
+        abort(); // abort also closes leftover waiters
       },
     },
   );
   // Abandon and switch to client rendering if enough time passes.
-  // Try lowering this to see the client recover.
   setTimeout(abort, 1000);
 });
 
@@ -362,18 +398,23 @@ app.listen(3000, () => {
 });
 ```
 
+`onShellReady` must not be treated as store-complete. Renderer `onAllReady` / abort is **close**
+only: unresolved keys fetch once; G1–Gn hits are already interactive.
+
 ### Client
 
+Mount the streaming provider bound to this document’s baseline and delta queue. Do not
+`awaitInitialData()` and pass one `initialState` into [`<DataProvider>`](../api/DataProvider.md).
+
 ```tsx
-import { hydrateRoot } from 'react-dom';
-import { awaitInitialData } from '@data-client/react/ssr';
+import { hydrateRoot } from 'react-dom/client';
 
 const rootId = 'react-root';
 
-awaitInitialData().then(initialState => {
-  hydrateRoot(
-    document.getElementById(rootId),
-    <DataProvider initialState={initialState}>{children}</DataProvider>,
-  );
-});
+hydrateRoot(
+  document.getElementById(rootId),
+  // Streaming provider: fold G0 + each StateDelta as scripts arrive.
+  // Do not awaitInitialData() then <DataProvider initialState={...}>.
+  children,
+);
 ```

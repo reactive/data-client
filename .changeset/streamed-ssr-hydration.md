@@ -4,36 +4,22 @@
 '@data-client/vue': patch
 ---
 
-Fix Next.js App Router streaming losing data fetched after the shell
+Stream SSR store state incrementally and hydrate each island from its own generation.
 
-`DataProvider` from `@data-client/react/nextjs` snapshotted the store a fixed 10ms after
-rendering began. Any Client Component below an `async` Server Component (one that awaits
-`params`, a database call, auth) rendered after that window, so its data reached the browser as
-HTML but not as store state, and every such component fetched again on load.
+The shell carries an inert baseline. Each later committed server revision emits a
+StateDelta. The client folds that piece into the hydration snapshot and HYDRATE
+before that island’s useSuspense() may fetch. Several components in one flush
+share one delta; a nested child can hydrate before its parent; a later delta may
+overlap an entity already in the store (three-way merge). A key that is still
+missing while the initial stream is open waits on that key rather than
+refetching. SUBSCRIBE after commit starts live updates and does not gate REST.
 
-The store is now streamed alongside the HTML: the shell carries the state so far and each later
-flush prepends what changed since. Components that render late hydrate from exactly the data they
-were rendered with, with no client requests for data already on the page.
+Next.js App Router and generic Fizz share this protocol. HTML insertion order is
+not a Flight clock; a per-key waiter covers that race.
 
-Hooks also no longer produce a hydration mismatch when the store changes (a WebSocket or polling
-`Manager`, a mutation) before a late `Suspense` boundary hydrates: hydration reads the state the
-server rendered with, then the component converges to the live store.
+Hooks hydrate from the server snapshot so a late Suspense boundary does not
+mismatch the live store.
 
-```tsx title="app/layout.tsx"
-import { DataProvider } from '@data-client/react/nextjs';
-
-export default async function RootLayout({ children }) {
-  // pass a nonce when your Content-Security-Policy requires one
-  return <DataProvider nonce={nonce}>{children}</DataProvider>;
-}
-```
-
-New exports:
-
-- `actionTypes.HYDRATE` / `HydrateAction` – merges streamed server state into the client store
-- `StateDelta` and `StateBaseline` – the serializable state changes carried by `HydrateAction` and
-  what the client previously held for those slots
-- `NextDataProviderProps` from `@data-client/react/nextjs`
-
-`ActionTypes` now includes `HydrateAction`. Custom `Manager` middleware that narrows action
-types with an exhaustive `switch` needs a case for it or a `default` branch.
+New exports: actionTypes.HYDRATE / HydrateAction, StateDelta, StateBaseline,
+NextDataProviderProps. ActionTypes includes HydrateAction — exhaustive Manager
+switches need a case or default.

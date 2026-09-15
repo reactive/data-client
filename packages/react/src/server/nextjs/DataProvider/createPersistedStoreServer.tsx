@@ -29,8 +29,9 @@ export default function createPersistedStore(
 
   let emittedSnapshot: State<unknown> | undefined;
   /**
-   * Called by Next.js before every streamed chunk. The first call emits the
-   * complete state so far; later calls emit only what changed since.
+   * Called by Next.js before every streamed HTML chunk via useServerInsertedHTML.
+   * G0 is the inert baseline; later calls emit a StateDelta. This is HTML-stream
+   * insertion, not a Flight clock.
    */
   function renderStateDelta(nonce?: string): ReactElement | null {
     try {
