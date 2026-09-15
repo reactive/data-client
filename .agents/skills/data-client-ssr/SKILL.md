@@ -1,38 +1,41 @@
 ---
 name: data-client-ssr
-description: Stream and incrementally hydrate @data-client SSR state — baseline plus StateDelta, Next.js App Router and generic Fizz, useSuspense waiters, HYDRATE, subscribe-after-commit. Use when implementing or debugging SSR, RSC, renderToPipeableStream, Anansi, or duplicate REST after HTML already contains the data.
+description: Stream and incrementally hydrate @data-client SSR state — baseline plus StateDelta on Next.js App Router, HYDRATE, subscribe-after-commit. Use when implementing or debugging SSR, RSC, Next App Router, renderToPipeableStream, Anansi, or duplicate REST after HTML already contains the data.
 license: Apache 2.0
 ---
 
 # Streamed SSR hydration
 
-The store hydrates incrementally. G0 is an inert baseline in the shell. Each later server revision is a StateDelta. Fold it into the hydration snapshot (and HYDRATE the live store if attached) before that island’s useSuspense() would fetch. A miss while the initial stream is open waits on that endpoint key. SUBSCRIBE after commit starts live transport only.
+The Next.js App Router store hydrates incrementally. G0 is an inert baseline in the shell. Each later server revision is a StateDelta. The client folds queued pieces into the hydration snapshot and HYDRATE the live store from StreamedStateReceiver’s layout effect. SUBSCRIBE after commit starts live transport only.
 
-Canonical sequence: docs/guides/ssr.md#streamed-hydration (batch, nested out-of-order, overlapping entity, Flight-first waiter).
+Per-key useSuspense waiters and fold-on-script-arrival (independent of that layout effect) are **not shipped**. A miss while Flight races the HTML delta fetches like any client render.
+
+Canonical sequence: docs/guides/ssr.md#streamed-hydration (what ships vs intended client clock).
 
 ## Do
 
 - Put Next DataProvider in the root layout. managers={() => [...getDefaultManagers(), ...]} — never a shared array on the Next entry.
 - Keep useSuspense / useLive in the island that renders the data. Same as CSR.
-- Close the generic Fizz coordinator from renderer complete/abort. Do not wait onAllReady to emit state.
 - Let NetworkManager handle in-flight client FETCH only. Do not expect it to dedupe against SSR.
 
 ## Do not
 
-- Wait for DOMContentLoaded (or the first/last delta) before creating the provider or folding pieces.
 - Replace DataProvider initialState on each delta.
 - Treat useServerInsertedHTML as ordering state before Flight.
-- Use SUBSCRIBE to release a REST waiter or to mean “SSR data is here.”
-- Add endpoint/schema options for streaming. The waiter is internal to useSuspense’s would-fetch path.
-- Intercept controller.fetch(), useFetch(), useDLE(), or mutations. Only useSuspense would-fetch (including useLive) throws the waiter.
+- Use SUBSCRIBE to mean “SSR data is here.”
+- Add endpoint/schema options for streaming.
 - Buffer the shell, HTML, or Flight until all endpoints are known.
+
+A document-wide DOMContentLoaded wait is an acceptable **interim** while per-key waiters are unshipped. It is not the long-term contract, and it is not required as the sole fix.
 
 ## Adapters
 
-- Next: @data-client/react/nextjs — insertion via useServerInsertedHTML; stream-close may be DOMContentLoaded for leftover misses only.
-- Generic: @data-client/react/ssr — colocate state-pieces in Suspense/island boundaries; explicit close.
-- Anansi: replace the one-shot initData.dataclient path; leave unrelated JSONSpout one-shot.
+- Next: @data-client/react/nextjs — insertion via useServerInsertedHTML; live HYDRATE from the receiver layout effect.
+- Generic: @data-client/react/ssr — still a one-shot document snapshot (useReadyCacheState / awaitInitialData). Incremental baseline+delta is not shipped here.
+- Anansi: leave the one-shot initData.dataclient path.
 
-## Proof vs product
+## Open questions (future client-clock work)
 
-A Next 16 Flight-first consumer that refetches while SSR HTML is visible is a broken waiter/fold (any generation), not a reason to gate the document. Expiry windows (even ten years) cannot repair a FETCH already started from G0.
+- Per-key waiters on useSuspense would-fetch, and fold-on-script-arrival independent of StreamedStateReceiver.
+- Next 16 Flight-first race (refetch while SSR HTML is visible) remains open until that clock lands. Expiry windows cannot repair a FETCH already started from G0.
+- Incremental baseline+delta for generic Fizz / Anansi.

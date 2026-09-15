@@ -9,14 +9,13 @@ const { applyStateDelta, initialState } = __INTERNAL__;
 /**
  * Reads the server baseline and folds every delta that has streamed in so far.
  *
- * Intended contract: fold each piece as soon as its script arrives, independent
- * of StreamedStateReceiver's layout effect. Returns once the G0 baseline is
- * present — no wait for the first delta, the last delta, or DOMContentLoaded.
- * Stream-close (DOMContentLoaded if Next exposes no final-flush API) releases
- * leftover waiters into a normal client fetch; it does not gate this bootstrap.
+ * Returns once the G0 baseline is present — no wait for the first delta, the
+ * last delta, or DOMContentLoaded. A document-wide DOMContentLoaded wait is
+ * an acceptable interim, not a required bootstrap gate.
  *
  * Today this still suspends only when the baseline element is missing and the
- * document is still loading.
+ * document is still loading. Per-key waiters and fold-on-script-arrival
+ * independent of StreamedStateReceiver are not shipped.
  */
 export function getSnapshotStore(): SnapshotStore {
   const queue = getDeltaQueue();
