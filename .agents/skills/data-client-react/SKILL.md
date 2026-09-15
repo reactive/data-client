@@ -1,6 +1,6 @@
 ---
 name: data-client-react
-description: Use @data-client/react hooks for data fetching, mutations, and rendering - useSuspense, useFetch, useQuery, useCache, useLive, useDLE, useSubscription, useController, DataProvider, AsyncBoundary, useLoading, useDebounce. Use when reading/rendering remote data, triggering mutations, doing optimistic updates, real-time subscriptions, or wiring Suspense/error boundaries in React.
+description: Use @data-client/react hooks for data fetching, mutations, and rendering - useSuspense, useFetch, useQuery, useCache, useLive, useDLE, useSubscription, useController, DataProvider, AsyncBoundary, useLoading, useDebounce. Use when reading/rendering remote data, triggering mutations, doing optimistic updates, real-time subscriptions, wiring Suspense/error boundaries, or SSR/streaming hydration (Next.js App Router, renderToPipeableStream, RSC, Anansi, HYDRATE, StateDelta).
 license: Apache 2.0
 ---
 ## Rendering
@@ -29,6 +29,21 @@ const comments = use(commentsPromise);
 ```
 
 For API definitions (like TodoResource), apply the skill "data-client-rest".
+
+## Which hook
+
+Same choice on the client and under SSR. Co-locate the hook in the island that renders the data. Do not pick a different hook “because SSR.”
+
+| Need | Hook | SSR |
+| --- | --- | --- |
+| Guaranteed data (Suspense) | `useSuspense` | Same. Cache is seeded by streamed baseline + `StateDelta`s, not one `initialState`. A miss still `FETCH`es until per-key waiters land. |
+| Fresh + live (poll/WS/SSE) | `useLive` | Same: `useSuspense` + `SUBSCRIBE` after commit. `SUBSCRIBE` is not hydration. |
+| Cache only, nullable | `useCache` | Same. No fetch. |
+| Derived/aggregate from cache | `useQuery` | Same. No fetch. |
+| `{ data, loading, error }` | `useDLE` | Same. Still fetches on miss; never a waiter. |
+| Parallel `use()` | `useFetch` | Same. Still fetches on miss; never a waiter. |
+| Subscribe only | `useSubscription` | Same. Pair with `useSuspense` or `useDLE`. |
+| Imperative / mutations | `useController` → `ctrl.fetch()` | Same. Never a waiter. |
 
 ## Mutations
 
@@ -86,6 +101,16 @@ Its props are `fallback`, `errorComponent`, and `errorClassName` and `listen`. I
 </AsyncBoundary>
 ```
 
+## Provider
+
+| Host | Import | SSR |
+| --- | --- | --- |
+| Browser / Vite / Expo | `@data-client/react` | Same provider. `managers={() => [...]}` preferred (array transitional). Optional one-shot `initialState` for tests. |
+| Next.js App Router | `@data-client/react/nextjs` | Same hooks below it. `managers` **must** be a factory — never a shared array. Store arrives as inert baseline + per-flush `StateDelta`s; do not replace `initialState` on each delta. One provider per document. |
+| `renderToPipeableStream` (Express, Anansi) | `@data-client/react/ssr` | Same hooks. Today a one-shot snapshot (`useReadyCacheState` / `awaitInitialData`). Intended: same baseline+delta protocol as App Router. |
+
+Pages Router (`@data-client/ssr/nextjs`) stays one-shot. Streamed deltas apply to App Router; generic `renderToPipeableStream` is intended to share that protocol.
+
 ## Type-safe imperative actions
 
 [Controller](references/Controller.md) is returned from `useController()`. It has:
@@ -126,12 +151,46 @@ available in dev mode.
 Custom [Managers](https://dataclient.io/docs/api/Manager) allow for global side effect handling.
 This is useful for webosckets, SSE, logging, etc. Always use the skill "data-client-manager" when writing managers.
 
+Managers are the same under SSR. Do not start channel work before `SUBSCRIBE`. Do not treat `SUBSCRIBE` as SSR hydration. [`NetworkManager`](https://dataclient.io/docs/api/NetworkManager) only dedupes in-flight client `FETCH`; it does not dedupe against SSR.
+
+## SSR (same as client)
+
+SSR is not a second data API. Components keep `useSuspense` / `useLive` in the island. The store hydrates incrementally: an inert baseline in the shell, then a `StateDelta` per committed server revision, folded into the hydration snapshot and `HYDRATE`’d into the live store. Same hooks; streamed baseline+deltas instead of one `initialState`.
+
+Canonical figures: [docs/core/guides/ssr.md#streamed-hydration](https://dataclient.io/docs/guides/ssr#streamed-hydration) (overview, then one zoom per black box). Say **RSC** and **`renderToPipeableStream`** — never Flight/Fizz.
+
+### Fetch vs cache
+
+| Cache | Client | SSR |
+| --- | --- | --- |
+| Hit | render | Same |
+| Stale | fetch, no suspend | Same |
+| Invalid / missing | `FETCH` + suspend | Same **this release**. Intended: while the initial stream is open, `useSuspense` waits on **that** endpoint key instead of `FETCH`. Hits never allocate a waiter. |
+| `null` args | no bind | Same |
+
+`useDLE`, `useFetch`, and `ctrl.fetch()` always fetch on miss — client and SSR. Do not add endpoint or schema options for streaming; a waiter is internal to `useSuspense`’s would-fetch path (including `useLive`).
+
+### Subscribe
+
+`useLive` / `useSubscription` dispatch `SUBSCRIBE` after commit. Same on SSR. Subscription is not proof the server delta arrived, and it does not mean “SSR data is here.”
+
+### Do / do not
+
+- Put the Next `DataProvider` in the root layout. `managers={() => [...getDefaultManagers(), ...]}`.
+- Keep `useSuspense` / `useLive` in the island that renders the data. Same as client.
+- Let `NetworkManager` handle in-flight client `FETCH` only.
+- Do not replace `DataProvider` `initialState` on each delta.
+- Do not treat `useServerInsertedHTML` as ordering state before RSC.
+- Do not buffer the shell, HTML, or RSC until all endpoints are known.
+- A document-wide `DOMContentLoaded` wait is an acceptable **interim** while per-key waiters are unshipped. It is not the long-term contract, and it does not gate the provider, hits, or manager startup.
+
+Per-key `useSuspense` waiters and fold-on-script-arrival (independent of `StreamedStateReceiver`’s layout effect) are **not shipped**. Incremental baseline+delta for generic `renderToPipeableStream` / Anansi is not shipped. An RSC-first miss fetches like any client render; expiry cannot retract a `FETCH` already started from the empty baseline.
+
 ## Best Practices & Notes
 
 - [useDebounce(query, timeout)](references/useDebounce.md) when rendering async data based on user field inputs
 - [[handleSubmit, loading, error] = useLoading()](references/useLoading.md) when tracking async mutations
 - Prefer smaller React components that do one thing
-- **SSR / streaming hydration**: skill "data-client-ssr"
 - **Co-locate data bindings**: call useSuspense/useDLE/useCache/useQuery in the component that renders the data — don't prop drill
 - **Don't hide data bindings inside custom hooks**: wrapping them obfuscates a component's data dependencies and couples data logic to view code, causing drift. Put tightly coupled data transformations in a `Query` schema (with the data model, e.g. `src/resources/`) so they stay reusable and evolve independently of views
 
@@ -152,6 +211,7 @@ For detailed API documentation, see the [references](references/) directory:
 - [useLoading](references/useLoading.md);[_useLoading.md](references/_useLoading.md) - Track async mutation state
 - [useDebounce](references/useDebounce.md) - Debounce values
 - [DataProvider](references/DataProvider.md) - Root provider
+- [SSR guide](https://dataclient.io/docs/guides/ssr#streamed-hydration) - Streamed hydration figures (baseline + `StateDelta`)
 - [data-dependency](references/data-dependency.md) - Rendering guide
 - [mutations](references/mutations.md);[_VoteDemo.md](references/_VoteDemo.md) - Mutations guide
 - [Actions](references/Actions.md) - Store action types (FETCH, SET, etc.)
