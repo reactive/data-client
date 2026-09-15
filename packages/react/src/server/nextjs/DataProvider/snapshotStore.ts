@@ -9,8 +9,14 @@ const { applyStateDelta, initialState } = __INTERNAL__;
 /**
  * Reads the server baseline and folds every delta that has streamed in so far.
  *
- * Throws a promise (suspends) while the document is still loading and the
- * baseline has not been parsed yet.
+ * Intended contract: fold each piece as soon as its script arrives, independent
+ * of StreamedStateReceiver's layout effect. Returns once the G0 baseline is
+ * present — no wait for the first delta, the last delta, or DOMContentLoaded.
+ * Stream-close (DOMContentLoaded if Next exposes no final-flush API) releases
+ * leftover waiters into a normal client fetch; it does not gate this bootstrap.
+ *
+ * Today this still suspends only when the baseline element is missing and the
+ * document is still loading.
  */
 export function getSnapshotStore(): SnapshotStore {
   const queue = getDeltaQueue();

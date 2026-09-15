@@ -8,7 +8,7 @@ export const BASELINE_ID = 'data-client-data';
 export interface SnapshotStore {
   /** Fold of everything the server has sent: what the HTML being hydrated was rendered from */
   state: State<unknown>;
-  /** Number of queued deltas already folded into `state` */
+  /** Number of queued deltas already folded into `state` (snapshot cursor). Live attach uses a separate cursor so a late receiver replays missed pieces once. */
   cursor: number;
   queue: DeltaQueue;
   /** Result of the managers factory; renders React discards must not run it again */
@@ -16,7 +16,7 @@ export interface SnapshotStore {
 }
 
 export interface DeltaQueue extends Array<StateDelta> {
-  /** Installed once the provider mounts so later deltas apply immediately */
+  /** Live-store attach. Fold on script arrival is independent of this callback. */
   onDelta?: (delta: StateDelta) => void;
   /** One fold per document, shared by every provider render */
   snapshot?: SnapshotStore;

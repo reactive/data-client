@@ -13,6 +13,8 @@ export default function createPersistedStore(
   Controller?: typeof DataController,
 ) {
   const snapshotStore = getSnapshotStore();
+  // One-time DataProvider initialState seed. Later pieces are snapshot folds
+  // plus HYDRATE — never a replaced prop.
   const initialState = snapshotStore.state;
   const resolvedManagers = (snapshotStore.managers ??= managers?.());
   const serverSnapshot = createServerSnapshot(() => snapshotStore.state);

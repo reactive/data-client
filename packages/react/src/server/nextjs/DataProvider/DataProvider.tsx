@@ -10,9 +10,13 @@ export type { NextDataProviderProps } from './types.js';
 /**
  * DataProvider for the Next.js App Router.
  *
- * Streams store state to the client alongside the HTML so every Suspense
- * boundary hydrates with the data it was rendered from.
- * @see https://dataclient.io/docs/guides/ssr#nextjs
+ * Emits an inert baseline (G0) then a StateDelta per flush via
+ * `useServerInsertedHTML()`. Fold each piece into the hydration snapshot
+ * (and HYDRATE the live store if attached) before that island's useSuspense()
+ * may fetch. Insertion is the HTML stream, not Flight; the per-key waiter
+ * covers that race. `initialState` is the one-time seed — later pieces are
+ * snapshot folds plus HYDRATE, never a replaced prop.
+ * @see https://dataclient.io/docs/guides/ssr#streamed-hydration
  */
 export default function DataProvider({
   children,

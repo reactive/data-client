@@ -31,6 +31,8 @@ Minimal working examples for each use case live in [references/managers.md](refe
 | Custom transport subscriptions              | "Reading and Consuming Actions" in [Manager.md](references/Manager.md)            | consume `SUBSCRIBE`/`UNSUBSCRIBE` without calling `next`                                                                                                             |
 | Auth: logout on 401, reset store on deauth  | [LogoutManager.md](references/LogoutManager.md)                                   | `handleLogout(controller)` + `controller.resetEntireStore()`                                                                                                         |
 
+Do not start channel work before `SUBSCRIBE`; do not treat `SUBSCRIBE` as SSR hydration. See skill "data-client-ssr".
+
 ## References
 
 For detailed API documentation, see the [references](references/) directory:
