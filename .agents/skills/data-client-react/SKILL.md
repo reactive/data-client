@@ -1,6 +1,6 @@
 ---
 name: data-client-react
-description: Use @data-client/react hooks for data fetching, mutations, and rendering - useSuspense, useFetch, useQuery, useCache, useLive, useDLE, useSubscription, useController, DataProvider, AsyncBoundary, useLoading, useDebounce. Use when reading/rendering remote data, triggering mutations, doing optimistic updates, real-time subscriptions, wiring Suspense/error boundaries, or SSR/streamed hydration (Next.js App Router, RSC, renderToPipeableStream) in React.
+description: Use @data-client/react hooks for data fetching, mutations, and rendering - useSuspense, useFetch, useQuery, useCache, useLive, useDLE, useSubscription, useController, DataProvider, AsyncBoundary, useLoading, useDebounce. Use when reading/rendering remote data, triggering mutations, doing optimistic updates, real-time subscriptions, wiring Suspense/error boundaries, or SSR/Next.js hydration in React.
 license: Apache 2.0
 ---
 ## Rendering
@@ -30,7 +30,7 @@ const comments = use(commentsPromise);
 
 For API definitions (like TodoResource), apply the skill "data-client-rest".
 
-Under SSR the hooks are identical; only how the store is seeded differs (Next.js App Router streams a baseline plus `StateDelta`s; other entries pass one `initialState`). See [ssr](references/ssr.md).
+Under SSR the hooks are identical; only the provider entry and how the store is seeded differ. Read [ssr](references/ssr.md) when wiring server rendering or debugging hydration.
 
 ## Mutations
 
@@ -153,7 +153,7 @@ For detailed API documentation, see the [references](references/) directory:
 - [useLoading](references/useLoading.md);[_useLoading.md](references/_useLoading.md) - Track async mutation state
 - [useDebounce](references/useDebounce.md) - Debounce values
 - [DataProvider](references/DataProvider.md) - Root provider
-- [ssr](references/ssr.md) - SSR entries and streamed hydration (Next.js App Router, `renderToPipeableStream`)
+- [ssr](references/ssr.md) - SSR entries and hydration (Next.js, `renderToPipeableStream`)
 - [data-dependency](references/data-dependency.md) - Rendering guide
 - [mutations](references/mutations.md);[_VoteDemo.md](references/_VoteDemo.md) - Mutations guide
 - [Actions](references/Actions.md) - Store action types (FETCH, SET, etc.)
