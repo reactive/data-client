@@ -14,7 +14,7 @@ Open [http://localhost:3000](http://localhost:3000) to see the result.
 
 The store hydrates incrementally: an inert baseline, then a `StateDelta` per committed server
 revision. A late island hydrates at **its** generation when that piece is already folded.
-Flight may start a Client Component before the HTML delta; script-before-HTML is not a
+RSC may start a Client Component before the HTML delta; script-before-HTML is not a
 zero-refetch guarantee. See the
 [SSR guide](https://dataclient.io/docs/guides/ssr#streamed-hydration) for what ships.
 
@@ -27,7 +27,7 @@ curl --no-buffer -s http://localhost:3000/1 | grep -o 'data-client-data\|__DATA_
 ```
 
 The baseline (`data-client-data`) and a delta script (`__DATA_CLIENT_DELTAS__`) are printed before
-the first todo title. Script-before-Fizz-HTML does not by itself mean zero client requests.
+the first todo title. Script-before-HTML does not by itself mean zero client requests.
 
 To try a local checkout of `@data-client/react`, run `yarn workspace @data-client/react pack` in the
 repository root and point this app's `package.json` at the resulting tarball.

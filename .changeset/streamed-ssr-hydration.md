@@ -13,10 +13,10 @@ a nested child can hydrate before its parent; a later delta may overlap an entit
 already in the store (three-way merge). SUBSCRIBE after commit starts live updates
 and does not gate REST.
 
-Next.js App Router emits this protocol. HTML insertion order is not a Flight clock;
+Next.js App Router emits this protocol. HTML insertion order is not an RSC clock;
 a Client Component may start before its delta script runs, and a miss then fetches
 like any client render. Per-key waiters that would suppress that refetch are not
-in this release. Generic Fizz remains a one-shot document snapshot.
+in this release. Generic `renderToPipeableStream` remains a one-shot document snapshot.
 
 Hooks hydrate from the server snapshot so a late Suspense boundary does not
 mismatch the live store.

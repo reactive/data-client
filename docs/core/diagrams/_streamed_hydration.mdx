@@ -1,126 +1,142 @@
-| Generation | Server revision | Endpoints in the piece | Entities | Who hydrates from it |
-| --- | --- | --- | --- | --- |
-| **G0** | empty request store | — | — | nobody; shell only |
-| **G1** | one flush, two islands | `getTickers`, `getSymbolInfo(BTC)` | `Ticker:BTC`, `Ticker:ETH`, `Symbol:BTC` | Watchlist + SymbolHeader |
-| **G2** | nested child first | `getTrades(BTC)` | `Trade:…` | Tape, before parent Book exists |
-| **G3** | disjoint parent later | `getOrderBook(BTC)` | `Book:BTC`, plus `Ticker:BTC` again (constructed nested ticker) | Book; live three-way merge vs tick |
-
-| Lane | Host | How a piece gets on the wire | What it cannot promise |
-| --- | --- | --- | --- |
-| **Next / RSC** | `@data-client/react/nextjs` | `useServerInsertedHTML()` writes the inert baseline, then a `StateDelta` script per flush, into the **HTML** stream | It cannot order that script against **Flight**. Flight may start a Client Component before the delta that describes it has executed. |
-| **Generic Fizz** | `@data-client/react/ssr` (Express, Anansi, `renderToPipeableStream`) | Intended: a state-piece colocated in the revealing Suspense/island so React emits the delta and the dependent markup as one ordered subtree | Not shipped in this release — generic `/ssr` remains a one-shot snapshot. Parser/hydration order would still need the same intended coordinator and per-key waiter. |
-
-The sequence is the **intended** client clock. This release does not throw per-key waiters or fold independently of the receiver layout effect.
+Thick-border nodes on the overview are black boxes. Each zoom opens **one** box.
 
 ```mermaid
-sequenceDiagram
-    autonumber
-    participant Tree as Page
-    participant Srv as Server
-    participant Next as Next
-    participant Fizz as Fizz
-    participant Coord as Coord
-    participant Live as Live
-    participant Sub as Sub
+flowchart LR
+  Baseline["Baseline<br/>shell paints now"]
+  subgraph pieces["Pieces arrive"]
+    direction TB
+    FirstFlush["First flush"]
+    NestedIsland["Nested island"]
+    LaterOverlap["Later overlap"]
+  end
+  Hydrate["Island hydrates"]
+  Subscribe["Subscribe for live updates"]
+  Insertion["RSC vs renderToPipeableStream"]
 
-    rect rgb(246, 241, 232)
-    Note over Tree,Live: G0 — inert baseline. The shell leaves immediately.
-    Tree->>Srv: open request-scoped store
-    par Next App Router
-        Next->>Next: first useServerInsertedHTML writes inert baseline
-        Next-->>Tree: shell HTML and Flight shell
-    and Generic Fizz without RSC
-        Fizz->>Fizz: baseline script in the shell
-        Fizz-->>Tree: shell HTML
-    end
-    Coord->>Coord: install G0 as the hydration snapshot seed
-    Note over Coord,Live: getSnapshotStore returns now. No document-wide wait. initialState is this seed, once. G0 is the baseline JSON, not a StateDelta.
-    end
+  Baseline --> pieces
+  Insertion -.-> pieces
+  pieces --> Hydrate
+  Hydrate --> Subscribe
 
-    rect rgb(232, 236, 228)
-    Note over Tree,Sub: G1 — one flush, two islands. Watchlist and SymbolHeader batch together.
-    Srv->>Srv: SET_RESPONSE getTickers
-    Srv->>Srv: SET_RESPONSE getSymbolInfo BTC
-    Note over Srv: One StateDelta. Entities Ticker:BTC, Ticker:ETH, Symbol:BTC.
-    par Next
-        Next->>Next: useServerInsertedHTML prepends StateDelta G1
-        Next-->>Tree: G1 script, then Watchlist and SymbolHeader HTML
-        Note over Next: Script-before-HTML is insertion order, not Flight. If Flight already started these islands, they wait like G3 — they do not FETCH.
-    and Fizz
-        Fizz->>Fizz: state-piece inside the revealing Suspense
-        Fizz-->>Tree: G1 delta, then those islands' HTML
-    end
-    critical Fold before those islands useSuspense
-        Coord->>Coord: fold G1 now, even if the receiver effect has not committed
-        Coord->>Live: HYDRATE G1 if the live receiver is attached
-        Tree->>Coord: useSuspense getTickers
-        Coord-->>Tree: cache hit — no waiter, no FETCH
-        Tree->>Coord: useSuspense getSymbolInfo BTC
-        Coord-->>Tree: cache hit
-    end
-    Tree->>Sub: after commit, SUBSCRIBE getTickers
-    Tree->>Sub: after commit, SUBSCRIBE getSymbolInfo BTC
-    Sub-->>Live: live ticks start for those keys only
-    Note over Sub,Live: Watchlist is interactive. Market is still a hole. G1 did not wait for Book.
-    end
-
-    rect rgb(230, 236, 241)
-    Note over Tree,Sub: G2 — nested Tape resolves before parent Book. Tree order is not stream order.
-    Srv->>Srv: SET_RESPONSE getTrades BTC
-    par Next
-        Next-->>Tree: G2 delta, then nested Tape HTML
-        Note over Next: Book's Flight record may already be queued. That is out of order, not an error.
-    and Fizz
-        Fizz-->>Tree: G2 delta colocated with the Tape reveal chunk
-        Note over Fizz: Book HTML has not been written. Parent still pending.
-    end
-    critical Fold before Tape useSuspense
-        Coord->>Coord: fold G2
-        Coord->>Live: HYDRATE G2
-        Tree->>Coord: useSuspense getTrades BTC
-        Coord-->>Tree: cache hit
-    end
-    Tree->>Sub: after Tape commit, SUBSCRIBE getTrades BTC
-    Note over Tree,Coord: G2 does not satisfy getOrderBook. If Book has not rendered, there is no waiter yet. If Next already started Book, that waiter stays pending.
-    end
-
-    rect rgb(244, 228, 220)
-    Note over Tree,Sub: G3 — disjoint Book stream, overlapping Ticker:BTC from the G1 batch.
-    Srv->>Srv: SET_RESPONSE getOrderBook BTC
-    Note over Srv: Book:BTC plus nested Ticker:BTC. lastPrice may have moved since G1.
-
-    par Next Flight-first race
-        Next->>Tree: Flight starts the Book Client Component before G3 executes
-        Tree->>Coord: useSuspense getOrderBook BTC — miss, initial stream still open
-        Coord-->>Tree: throw the per-key waiter — do not dispatch FETCH
-        Next->>Coord: G3 delta script runs
-        Coord->>Coord: fold G3 into the snapshot first
-        Coord->>Live: HYDRATE G3
-        Note over Live: Three-way merge. If a G1 subscription already wrote Ticker:BTC, keep the live slot. Else take the server nested ticker. Book:BTC is new.
-        Coord->>Tree: resolve only the getOrderBook waiter
-        Tree->>Coord: retry useSuspense getOrderBook BTC
-        Coord-->>Tree: cache hit — zero REST
-    and Fizz usual order
-        Fizz-->>Tree: G3 delta, then Book HTML
-        Coord->>Coord: fold G3 before Book hydrates
-        Tree->>Coord: useSuspense getOrderBook BTC
-        Coord-->>Tree: cache hit
-        Note over Fizz,Coord: If hydration still races the parser, Book uses the same per-key waiter. Insertion order is an optimization, not the contract.
-    end
-
-    Tree->>Sub: after Book commit, SUBSCRIBE getOrderBook BTC
-    Note over Sub: SUBSCRIBE never releases a REST waiter. If it fired during the wait, REST stays suppressed until G3 is readable.
-    end
-
-    rect rgb(225, 236, 229)
-    Note over Tree,Live: Stream close. Only keys still missing fetch. G1–G3 stay as they were.
-    par Next
-        Next->>Coord: DOMContentLoaded marks the initial stream closed
-    and Fizz
-        Fizz->>Coord: renderer complete or abort
-    end
-    Coord->>Tree: remaining waiters resolve as miss
-    Tree->>Live: FETCH getUserPrefs once
-    Note over Coord,Live: No document-wide bootstrap. NetworkManager never saw G1–G3. Expiry never had to save a race it never saw.
-    end
+  style FirstFlush stroke-width:3px
+  style NestedIsland stroke-width:3px
+  style LaterOverlap stroke-width:3px
+  style Hydrate stroke-width:3px
+  style Insertion stroke-width:3px
 ```
+
+| Piece | Server revision | Endpoints in the piece | Entities | Who hydrates from it |
+| --- | --- | --- | --- | --- |
+| **Baseline** | empty request store | — | — | nobody; shell only |
+| **First flush** | one flush, two islands | `getTickers`, `getSymbolInfo(BTC)` | `Ticker:BTC`, `Ticker:ETH`, `Symbol:BTC` | Watchlist + SymbolHeader |
+| **Nested island** | nested child first | `getTrades(BTC)` | `Trade:…` | Tape, before parent Book exists |
+| **Later overlap** | disjoint parent later | `getOrderBook(BTC)` | `Book:BTC`, plus `Ticker:BTC` again (constructed nested ticker) | Book; live three-way merge vs tick |
+
+### Island hydrates
+
+Opens **Island hydrates**. Shared path for every piece.
+
+```mermaid
+flowchart TB
+  Server["Request store"]
+  Baseline["Baseline"]
+  Delta["StateDelta"]
+  Snapshot["Hydration snapshot"]
+  LiveStore["Live store"]
+  Island["Island"]
+  SubMgr["SubscriptionManager"]
+
+  Server --> Baseline
+  Server --> Delta
+  Baseline -->|"seed once"| Snapshot
+  Delta -->|"fold this piece"| Snapshot
+  Snapshot -->|"HYDRATE"| LiveStore
+  Island -->|"useSuspense"| Snapshot
+  Snapshot -->|"cache hit"| Island
+  Island -->|"after commit SUBSCRIBE"| SubMgr
+  SubMgr -->|"ticks"| LiveStore
+```
+
+### First flush
+
+Opens **First flush**. One server revision, two islands, one `StateDelta`.
+
+```mermaid
+flowchart LR
+  Revision["One server revision"]
+  Delta["One StateDelta"]
+  Watchlist["Watchlist<br/>getTickers"]
+  SymbolHeader["SymbolHeader<br/>getSymbolInfo"]
+  Market["Market still pending"]
+
+  Revision -->|"SET_RESPONSE ×2"| Delta
+  Delta --> Watchlist
+  Delta --> SymbolHeader
+  Watchlist -.-> Market
+  SymbolHeader -.-> Market
+```
+
+### Nested island
+
+Opens **Nested island**. Tree order is not stream order.
+
+```mermaid
+flowchart TB
+  Market["Market"]
+  Book["Book — still pending"]
+  Tape["Tape / Trades"]
+  Delta["Trades StateDelta"]
+
+  Market --- Book
+  Market --- Tape
+  Delta --> Tape
+```
+
+### Later overlap
+
+Opens **Later overlap**. A later disjoint piece writes an entity the first flush already put in the store.
+
+```mermaid
+flowchart LR
+  FirstFlush["First flush wrote Ticker:BTC"]
+  LiveTick["Live tick may already own that slot"]
+  BookPiece["Later book piece writes Book:BTC<br/>and Ticker:BTC again"]
+  Merge["Three-way merge"]
+  LiveStore["Live store"]
+
+  FirstFlush --> LiveStore
+  FirstFlush --> LiveTick
+  LiveTick --> Merge
+  BookPiece --> Merge
+  Merge --> LiveStore
+```
+
+### RSC vs renderToPipeableStream
+
+Opens **RSC vs renderToPipeableStream**. Two clocks, not two products.
+
+```mermaid
+flowchart TB
+  subgraph htmlStream["Streaming HTML"]
+    Insert["useServerInsertedHTML"]
+    RTP["renderToPipeableStream"]
+    Chunk["HTML chunk<br/>baseline, then StateDelta + island markup"]
+    Insert -->|"Next App Router"| Chunk
+    RTP -->|"state piece colocated<br/>with the revealing Suspense"| Chunk
+  end
+  subgraph rsc["RSC"]
+    Payload["RSC payload"]
+    Client["Client Component can start<br/>before the HTML delta runs"]
+    Payload --> Client
+  end
+  Snapshot["Hydration snapshot"]
+  Chunk --> Snapshot
+  Client -->|"useSuspense"| Snapshot
+```
+
+| Wire | Host | How a piece gets on the wire | What it cannot promise |
+| --- | --- | --- | --- |
+| **Streaming HTML + RSC** | `@data-client/react/nextjs` | `useServerInsertedHTML()` writes the inert baseline, then a `StateDelta` script per flush, into the **HTML** stream | It cannot order that script against **RSC**. A Client Component may start before the delta that describes it has executed. |
+| **`renderToPipeableStream`** | `@data-client/react/ssr` (Express, Anansi) | Intended: a state-piece colocated in the revealing Suspense/island so React emits the delta and the dependent markup as one ordered subtree | Not shipped in this release — generic `/ssr` remains a one-shot snapshot. Parser/hydration order is still not a contract. |
+
+The sequence is the **intended** client clock. This release does not throw per-key waiters or fold independently of the receiver layout effect.

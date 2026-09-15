@@ -6,11 +6,11 @@ license: Apache 2.0
 
 # Streamed SSR hydration
 
-The Next.js App Router store hydrates incrementally. G0 is an inert baseline in the shell. Each later server revision is a StateDelta. The client folds queued pieces into the hydration snapshot and HYDRATE the live store from StreamedStateReceiver’s layout effect. SUBSCRIBE after commit starts live transport only.
+The Next.js App Router store hydrates incrementally. The shell carries an inert baseline. Each later server revision is a StateDelta. The client folds queued pieces into the hydration snapshot and HYDRATE the live store from StreamedStateReceiver’s layout effect. SUBSCRIBE after commit starts live transport only.
 
-Per-key useSuspense waiters and fold-on-script-arrival (independent of that layout effect) are **not shipped**. A miss while Flight races the HTML delta fetches like any client render.
+Per-key useSuspense waiters and fold-on-script-arrival (independent of that layout effect) are **not shipped**. A miss while RSC races the HTML delta fetches like any client render.
 
-Canonical sequence: docs/guides/ssr.md#streamed-hydration (what ships vs intended client clock).
+Canonical figures: docs/guides/ssr.md#streamed-hydration (overview, then one zoom per black box).
 
 ## Do
 
@@ -21,10 +21,10 @@ Canonical sequence: docs/guides/ssr.md#streamed-hydration (what ships vs intende
 ## Do not
 
 - Replace DataProvider initialState on each delta.
-- Treat useServerInsertedHTML as ordering state before Flight.
+- Treat useServerInsertedHTML as ordering state before RSC.
 - Use SUBSCRIBE to mean “SSR data is here.”
 - Add endpoint/schema options for streaming.
-- Buffer the shell, HTML, or Flight until all endpoints are known.
+- Buffer the shell, HTML, or RSC until all endpoints are known.
 
 A document-wide DOMContentLoaded wait is an acceptable **interim** while per-key waiters are unshipped. It is not the long-term contract, and it is not required as the sole fix.
 
@@ -37,5 +37,5 @@ A document-wide DOMContentLoaded wait is an acceptable **interim** while per-key
 ## Open questions (future client-clock work)
 
 - Per-key waiters on useSuspense would-fetch, and fold-on-script-arrival independent of StreamedStateReceiver.
-- Next 16 Flight-first race (refetch while SSR HTML is visible) remains open until that clock lands. Expiry windows cannot repair a FETCH already started from G0.
-- Incremental baseline+delta for generic Fizz / Anansi.
+- Next 16 RSC-first race (refetch while SSR HTML is visible) remains open until that clock lands. Expiry windows cannot repair a FETCH already started from the empty baseline.
+- Incremental baseline+delta for generic renderToPipeableStream / Anansi.
