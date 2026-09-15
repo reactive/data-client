@@ -47,11 +47,13 @@ describe('escapeJsonForScript', () => {
         nonce="abc"
       />,
     );
-    expect(html.match(/<\/script\s*>/gi)).toHaveLength(1);
+    const open = html.indexOf('<script');
+    const tagEnd = html.indexOf('>', open);
+    const close = html.toLowerCase().indexOf('</script', tagEnd);
+    expect(open).toBeGreaterThanOrEqual(0);
+    expect(html.toLowerCase().indexOf('</script', close + 1)).toBe(-1);
     expect(html).toContain('nonce="abc"');
-    const inner = html
-      .replace(/^<script[^>]*>/i, '')
-      .replace(/<\/script\s*>$/i, '');
+    const inner = html.slice(tagEnd + 1, close);
     expect(JSON.parse(inner).endpoints[hostile.title]).toBe(hostile.title);
   });
 });

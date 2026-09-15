@@ -93,11 +93,29 @@ interface Payload {
 function readPayloads(html: string): Payload[] {
   const payloads: Payload[] = [];
   const self: { __DATA_CLIENT_DELTAS__?: StateDelta[] } = {};
-  for (const match of html.matchAll(/<script([^>]*)>([^<]*)<\/script\s*>/gi)) {
-    const [, attrs, content] = match;
+  let cursor = 0;
+  while (cursor < html.length) {
+    const open = html.indexOf('<script', cursor);
+    if (open === -1) break;
+    const afterName = open + '<script'.length;
+    const next = html.charAt(afterName);
+    if (next !== '>' && next !== '' && !/\s/.test(next)) {
+      cursor = afterName;
+      continue;
+    }
+    const tagEnd = html.indexOf('>', afterName);
+    if (tagEnd === -1) break;
+    const attrs = html.slice(afterName, tagEnd);
+    const contentStart = tagEnd + 1;
+    const close = html.toLowerCase().indexOf('</script', contentStart);
+    if (close === -1) break;
+    const content = html.slice(contentStart, close);
+    const closeEnd = html.indexOf('>', close);
+    cursor = closeEnd === -1 ? close : closeEnd + 1;
+
     if (attrs.includes('id="data-client-data"')) {
       payloads.push({
-        index: match.index!,
+        index: open,
         baseline: JSON.parse(content),
         attrs,
       });
@@ -108,7 +126,7 @@ function readPayloads(html: string): Payload[] {
       new Function('self', content)(self);
       expect(self.__DATA_CLIENT_DELTAS__).toHaveLength(before + 1);
       payloads.push({
-        index: match.index!,
+        index: open,
         delta: self.__DATA_CLIENT_DELTAS__![before],
         attrs,
       });
