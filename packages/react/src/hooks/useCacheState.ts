@@ -3,14 +3,9 @@ import type { State } from '@data-client/core';
 import React from 'react';
 
 import use from './useUniversal.js';
-import {
-  ServerSnapshotContext,
-  StateContext,
-  StoreContext,
-} from '../context.js';
+import { StateContext, StoreContext } from '../context.js';
 
 const hasSyncExternalStore = Object.hasOwn(React, 'useSyncExternalStore');
-const emptySubscribe = () => () => undefined;
 
 const useCacheState: () => State<unknown> =
   /* istanbul ignore if */
@@ -25,19 +20,6 @@ const useCacheState: () => State<unknown> =
         store.getState,
       );
       return store.uninitialized ? state : syncState;
-    }
-  : typeof document !== 'undefined' && hasSyncExternalStore ?
-    () => {
-      const live = use(StateContext);
-      const snapshot = use(ServerSnapshotContext);
-      // updates still flow through context, so transitions stay
-      // non-blocking; the store hook only supplies the hydration snapshot
-      const getLive = React.useCallback(() => live, [live]);
-      return React.useSyncExternalStore(
-        emptySubscribe,
-        getLive,
-        snapshot ? () => snapshot.getServerSnapshot(live) : getLive,
-      );
     }
   : () => use(StateContext);
 

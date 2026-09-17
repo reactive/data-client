@@ -11,11 +11,12 @@ export type { NextDataProviderProps } from './types.js';
  * DataProvider for the Next.js App Router.
  *
  * Emits an inert baseline then a StateDelta per flush via
- * `useServerInsertedHTML()`. The client folds queued pieces into the
- * hydration snapshot and HYDRATE from StreamedStateReceiver's layout
- * effect. Insertion is the HTML stream, not RSC; a Client Component
- * may start before that fold. `initialState` is the one-time seed —
- * later pieces are snapshot folds plus HYDRATE, never a replaced prop.
+ * `useServerInsertedHTML()`. The client adapter owns the snapshot and
+ * folds queued pieces plus live HYDRATE from StreamedStateReceiver's
+ * layout effect. Insertion is the HTML stream, not RSC; a Client
+ * Component may start before that fold. `initialState` is the one-time
+ * seed — later pieces are snapshot folds plus HYDRATE, never a replaced
+ * prop.
  * @see https://dataclient.io/docs/guides/ssr#streamed-hydration
  */
 export default function DataProvider({

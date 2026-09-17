@@ -14,9 +14,12 @@ Only what differs from a browser-only app. Components, hooks, Managers, and muta
 
 | Host | Import | How the store is seeded |
 | --- | --- | --- |
-| Next.js App Router | `@data-client/react/nextjs` | Streamed: inert baseline in the shell, then a `StateDelta` per committed server revision, `HYDRATE`d into the live store |
-| `renderToPipeableStream` (Express, Anansi) | `@data-client/react/ssr` | One-shot snapshot passed as `initialState` |
+| Browser SPA | `@data-client/react` | Public `DataProvider`; hooks read `StateContext` |
+| Next.js App Router | `@data-client/react/nextjs` | Adapter-owned streamed snapshot: inert baseline in the shell, then a `StateDelta` per committed server revision |
+| `renderToPipeableStream` (Express, Anansi) | `@data-client/react/ssr` | One-shot snapshot passed as `initialState`. Unstable `__INTERNAL__.StreamingDataProvider` if the host already owns a snapshot store |
 | Next.js Pages Router | `@data-client/ssr/nextjs` | One-shot snapshot |
+
+Do not dispatch a root `HYDRATE` action. Stream publication is adapter-internal.
 
 ## Next.js App Router
 
@@ -61,7 +64,7 @@ export default function Provider({ children }: { children: React.ReactNode }) {
 How hydration flows:
 
 1. The shell carries an inert baseline; first paint does not wait for Data Client.
-2. Each later committed server revision emits a `StateDelta` via `useServerInsertedHTML()`. The client folds queued deltas into the hydration snapshot and dispatches `HYDRATE` into the live store from a layout effect.
+2. Each later committed server revision emits a `StateDelta` via `useServerInsertedHTML()`. The Next.js adapter folds queued deltas into its snapshot and publishes them into the live store from a layout effect.
 3. If that fold already happened when a Client Component renders, `useSuspense` hits. If RSC starts the island first, a miss fetches like any client render. `useServerInsertedHTML` writes to the HTML stream; it does not order RSC.
 4. `SUBSCRIBE` from `useLive` / `useSubscription` is not proof the server delta arrived.
 
@@ -100,7 +103,7 @@ awaitInitialData().then(initialState => {
 });
 ```
 
-Streamed baseline + deltas are not available on this entry.
+A stable streamed baseline + deltas API is not available on this entry. Hosts that already own a snapshot store can compose `__INTERNAL__.StreamingDataProvider` from `@data-client/react/ssr`; that namespace is unstable and is not a user-facing component.
 
 ## Next.js Pages Router
 
@@ -112,6 +115,8 @@ Do not describe these as current behavior:
 
 - Per-key `useSuspense` waiters (suspend on a pending stream key instead of dispatching `FETCH`).
 - Fold-on-script-arrival independent of the receiver layout effect.
-- Streamed baseline + deltas for `@data-client/react/ssr` (Express, Anansi).
+- A render-pure revision-visibility protocol: progressively revealed islands still cannot read their server revision through `StateContext` without a live store identity change.
+- Schema-aware live merge of streamed slots (`writeDelta` is whole-slot skip/replace) and reset-aware snapshot overlay (`lastReset`).
+- A stable streamed baseline + deltas export on `@data-client/react/ssr`.
 
-Consequence today: an RSC-first miss fetches like any client render. Do not work around it by replacing `initialState`, buffering the shell until all endpoints are known, or adding endpoint/schema options for streaming. A document-wide `DOMContentLoaded` wait is an acceptable interim, not the contract.
+Consequence today: an RSC-first miss fetches like any client render. Per-delta live publication remains `flushSync` from the receiver. Missing-baseline still suspends while the document is loading. Do not work around these by replacing `initialState`, buffering the shell until all endpoints are known, adding endpoint/schema options for streaming, or dispatching a root hydrate action. A document-wide `DOMContentLoaded` wait is an acceptable interim, not the contract.

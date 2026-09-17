@@ -310,6 +310,8 @@ describeHydration('Next.js DataProvider hydration', () => {
   });
 
   it('waits for the baseline while the document is still loading', async () => {
+    // HOLD regression guard: missing-baseline still suspends on document
+    // load. Not final no-delay compliance.
     Object.defineProperty(document, 'readyState', {
       value: 'loading',
       configurable: true,

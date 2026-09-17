@@ -19,7 +19,6 @@ import type {
   INVALIDATEALL,
   EXPIREALL,
   SET_RESPONSE,
-  HYDRATE,
 } from './actionTypes.js';
 import type { EndpointUpdateFunction } from './controller/types.js';
 import type { StateBaseline, StateDelta } from './state/stream/types.js';
@@ -157,15 +156,6 @@ export interface GCAction {
   endpoints: string[];
 }
 
-/* HYDRATE */
-/** Merges state streamed from the server during SSR into the client store */
-export interface HydrateAction {
-  type: typeof HYDRATE;
-  delta: StateDelta;
-  /** What the client previously received for the slots in `delta`; slots the client changed since are left alone */
-  baseline: StateBaseline;
-}
-
 /** @see https://dataclient.io/docs/api/Actions */
 export type ActionTypes =
   | FetchAction
@@ -178,5 +168,4 @@ export type ActionTypes =
   | InvalidateAllAction
   | ExpireAllAction
   | ResetAction
-  | GCAction
-  | HydrateAction;
+  | GCAction;

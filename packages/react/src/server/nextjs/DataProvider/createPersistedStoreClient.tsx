@@ -2,11 +2,10 @@
 import type { Controller as DataController, Manager } from '@data-client/core';
 
 import { getSnapshotStore } from './snapshotStore.js';
-import StreamedStateReceiver from './StreamedStateReceiver.js';
 import type { StoreProviderProps } from './types.js';
-import createServerSnapshot from '../../../components/createServerSnapshot.js';
-import DataProvider from '../../../components/DataProvider.js';
-import { ServerSnapshotContext } from '../../../context.js';
+import DataProviderBase from '../../../components/DataProviderBase.js';
+import createStreamingReducer from '../../stream/createStreamingReducer.js';
+import StreamedStateReceiver from '../../stream/StreamedStateReceiver.js';
 
 export default function createPersistedStore(
   managers?: () => Manager[],
@@ -17,20 +16,18 @@ export default function createPersistedStore(
   // plus HYDRATE — never a replaced prop.
   const initialState = snapshotStore.state;
   const resolvedManagers = (snapshotStore.managers ??= managers?.());
-  const serverSnapshot = createServerSnapshot(() => snapshotStore.state);
 
   const StoreDataProvider = ({ children, ...props }: StoreProviderProps) => (
-    <DataProvider
+    <DataProviderBase
       {...props}
       managers={resolvedManagers}
       Controller={Controller}
       initialState={initialState}
+      reducerFactory={createStreamingReducer}
     >
-      <ServerSnapshotContext.Provider value={serverSnapshot}>
-        <StreamedStateReceiver snapshotStore={snapshotStore} />
-        {children}
-      </ServerSnapshotContext.Provider>
-    </DataProvider>
+      <StreamedStateReceiver snapshotStore={snapshotStore} />
+      {children}
+    </DataProviderBase>
   );
 
   const renderStateDelta = () => null;

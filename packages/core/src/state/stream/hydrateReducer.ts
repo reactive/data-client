@@ -1,5 +1,6 @@
-import type { HydrateAction, State } from '../../types.js';
-import { mergeStateDelta } from '../stream/mergeStateDelta.js';
+import type { HydrateAction } from './hydrateAction.js';
+import { mergeStateDelta } from './mergeStateDelta.js';
+import type { State } from '../../types.js';
 
 export function hydrateReducer(
   state: State<unknown>,

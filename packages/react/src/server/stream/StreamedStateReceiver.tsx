@@ -4,8 +4,9 @@ import type { StateDelta } from '@data-client/core';
 import { useLayoutEffect } from 'react';
 import { flushSync } from 'react-dom';
 
-import type { SnapshotStore } from './deltaQueue.js';
-import useController from '../../../hooks/useController.js';
+import type { StreamingDispatch } from './createStreamingReducer.js';
+import type { SnapshotStore } from './types.js';
+import useController from '../../hooks/useController.js';
 
 const { applyStateDelta, selectBaseline, createHydrate } = __INTERNAL__;
 
@@ -16,6 +17,9 @@ const { applyStateDelta, selectBaseline, createHydrate } = __INTERNAL__;
  * island; a miss then fetches. Fold-on-script-arrival (independent of this
  * effect) and per-key waiters are not shipped. Separate snapshot and live
  * cursors so a late attach replays missed pieces once.
+ *
+ * flushSync and per-delta live HYDRATE are preserved HOLD behavior, not the
+ * concurrent happy path.
  */
 export default function StreamedStateReceiver({
   snapshotStore,
@@ -26,10 +30,12 @@ export default function StreamedStateReceiver({
 
   useLayoutEffect(() => {
     const { queue } = snapshotStore;
+    const dispatchStreamingAction =
+      controller.dispatch as StreamingDispatch;
     const receive = (delta: StateDelta) => {
       const baseline = selectBaseline(snapshotStore.state, delta);
       snapshotStore.state = applyStateDelta(snapshotStore.state, delta);
-      controller.dispatch(createHydrate(delta, baseline));
+      dispatchStreamingAction(createHydrate(delta, baseline));
     };
     while (snapshotStore.cursor < queue.length)
       receive(queue[snapshotStore.cursor++]);

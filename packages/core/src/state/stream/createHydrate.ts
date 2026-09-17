@@ -1,6 +1,6 @@
+import { HYDRATE } from './hydrateAction.js';
+import type { HydrateAction } from './hydrateAction.js';
 import type { StateBaseline, StateDelta } from './types.js';
-import { HYDRATE } from '../../actionTypes.js';
-import type { HydrateAction } from '../../types.js';
 
 export function createHydrate(
   delta: StateDelta,

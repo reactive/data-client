@@ -28,7 +28,7 @@ export interface IndexChange {
  *
  * Streamed from server to client while rendering so the client can hydrate
  * with exactly the data each piece of HTML was rendered from.
- * @see https://dataclient.io/docs/api/Actions#hydrate
+ * @see https://dataclient.io/docs/guides/ssr#streamed-hydration
  */
 export interface StateDelta {
   entities: EntityChange[];

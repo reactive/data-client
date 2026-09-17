@@ -4,7 +4,11 @@ import {
   Manager,
   Middleware,
   Controller,
+  createReducer,
+  actionTypes,
 } from '@data-client/core';
+import type { State } from '@data-client/core';
+import { Entity, Endpoint } from '@data-client/endpoint';
 import { act, render } from '@testing-library/react';
 import { CoolerArticleResource } from '__tests__/new';
 import nock from 'nock';
@@ -14,6 +18,7 @@ import { ControllerContext, StateContext } from '../../context';
 import { useController, useSuspense } from '../../hooks';
 import { payload } from '../../test-fixtures';
 import DataProvider from '../DataProvider';
+import DataProviderBase from '../DataProviderBase';
 import { getDefaultManagers } from '../getDefaultManagers';
 
 describe('<DataProvider />', () => {
@@ -328,5 +333,66 @@ describe('<DataProvider />', () => {
       expect(shared.controller).toBe(sharedControllers[1]);
       expect(shared.controller).not.toBe(sharedControllers[0]);
     });
+  });
+});
+
+describe('<DataProviderBase /> reducer injection', () => {
+  it('uses the injected reducer for committed actions and optimistic replay', () => {
+    class Todo extends Entity {
+      id = '';
+      title = '';
+      pk() {
+        return this.id;
+      }
+    }
+    const updateTodo = new Endpoint(
+      async (todo: { id: string; title: string }) => todo,
+      {
+        schema: Todo,
+        name: 'updateTodo',
+        sideEffect: true,
+        getOptimisticResponse: (
+          _snap: unknown,
+          todo: { id: string; title: string },
+        ) => todo,
+      },
+    );
+
+    const seen: string[] = [];
+    const reducerFactory = (controller: Controller) => {
+      const master = createReducer(controller);
+      return (state: State<unknown> | undefined, action: any) => {
+        seen.push(action.type);
+        return master(state, action);
+      };
+    };
+
+    let ctrl: Controller | undefined;
+    function Probe() {
+      ctrl = useController();
+      return null;
+    }
+
+    render(
+      <DataProviderBase reducerFactory={reducerFactory} devButton={null}>
+        <Probe />
+      </DataProviderBase>,
+    );
+
+    act(() => {
+      ctrl!.setResponse(
+        CoolerArticleResource.get,
+        { id: 5 },
+        { id: 5, title: 'hi', content: 'more things here' },
+      );
+    });
+    expect(seen).toContain(actionTypes.SET_RESPONSE);
+
+    const beforeOptimistic = seen.length;
+    act(() => {
+      void ctrl!.fetch(updateTodo, { id: '1', title: 'opt' });
+    });
+    expect(seen.slice(beforeOptimistic)).toContain(actionTypes.FETCH);
+    expect(seen.slice(beforeOptimistic)).toContain(actionTypes.OPTIMISTIC);
   });
 });

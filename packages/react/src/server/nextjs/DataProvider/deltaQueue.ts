@@ -1,23 +1,22 @@
-import type { Manager, State, StateDelta } from '@data-client/core';
+import type { Manager } from '@data-client/core';
+
+import type {
+  DeltaQueue as SharedDeltaQueue,
+  SnapshotStore as SharedSnapshotStore,
+} from '../../stream/types.js';
 
 /** Global array the streamed inline scripts push deltas onto */
 export const DELTA_QUEUE_GLOBAL = '__DATA_CLIENT_DELTAS__';
 /** Element id of the inert JSON baseline emitted with the shell */
 export const BASELINE_ID = 'data-client-data';
 
-export interface SnapshotStore {
-  /** Fold of everything the server has sent: what the HTML being hydrated was rendered from */
-  state: State<unknown>;
-  /** Number of queued deltas already folded into `state` (snapshot cursor). Live attach uses a separate cursor so a late receiver replays missed pieces once. */
-  cursor: number;
-  queue: DeltaQueue;
+export interface SnapshotStore extends SharedSnapshotStore {
   /** Result of the managers factory; renders React discards must not run it again */
   managers?: Manager[];
+  queue: DeltaQueue;
 }
 
-export interface DeltaQueue extends Array<StateDelta> {
-  /** Live-store attach. Today StreamedStateReceiver folds through this callback. */
-  onDelta?: (delta: StateDelta) => void;
+export interface DeltaQueue extends SharedDeltaQueue {
   /** One fold per document, shared by every provider render */
   snapshot?: SnapshotStore;
   /** Pending wait for the baseline while the document is still loading */

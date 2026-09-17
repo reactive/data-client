@@ -4,6 +4,9 @@ export {
   diffState,
   applyStateDelta,
   selectBaseline,
+  HYDRATE,
   createHydrate,
+  hydrateReducer,
   overlayState,
 } from './state/stream/index.js';
+export type { HydrateAction } from './state/stream/index.js';

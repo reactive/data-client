@@ -5,7 +5,7 @@ import {
 } from '__tests__/new';
 
 import { Controller } from '../..';
-import { GC, HYDRATE } from '../../actionTypes';
+import { GC } from '../../actionTypes';
 import {
   createInvalidate,
   createReset,
@@ -17,9 +17,11 @@ import {
   applyStateDelta,
   createHydrate,
   diffState,
+  hydrateReducer,
   mergeStateDelta,
   overlayState,
   selectBaseline,
+  HYDRATE,
 } from '../stream';
 
 /** What a JSON transport can carry: no `optimistic`, no `undefined` */
@@ -340,19 +342,19 @@ describe('state streaming', () => {
     });
   });
 
-  describe('HYDRATE reducer', () => {
+  describe('hydrateReducer', () => {
     const delta = transport(diffState(s1, s2)!);
 
     it('merges when the client has not reset', () => {
       const action = createHydrate(delta, selectBaseline(s1, delta));
       expect(action.type).toBe(HYDRATE);
-      const next = reducer(s1, action);
+      const next = hydrateReducer(s1, action);
       expect(serializable(next)).toEqual(serializable(s2));
     });
 
     it('ignores deltas after the client reset', () => {
       const live = reducer(s1, createReset());
-      const next = reducer(
+      const next = hydrateReducer(
         live,
         createHydrate(delta, selectBaseline(s1, delta)),
       );
@@ -362,21 +364,21 @@ describe('state streaming', () => {
     it('applies a server reset', () => {
       const afterReset = reducer(reducer(s2, createReset()), setOther);
       const resetDelta = transport(diffState(s2, afterReset)!);
-      const next = reducer(
+      const next = hydrateReducer(
         s2,
         createHydrate(resetDelta, selectBaseline(s2, resetDelta)),
       );
       expect(serializable(next)).toEqual(serializable(afterReset));
     });
 
-    it('is exposed as an ActionType handled without schemas', () => {
+    it('is handled without schemas', () => {
       const setCooler = createSetResponse(CoolerArticleResource.get, {
         args: [{ id: 7 }],
         response: { id: 7, title: 'cool', content: '', tags: [] },
       });
       const server = reducer(initialState, setCooler);
       const wire = transport(diffState(initialState, server)!);
-      const client = reducer(
+      const client = hydrateReducer(
         initialState,
         createHydrate(wire, selectBaseline(initialState, wire)),
       );

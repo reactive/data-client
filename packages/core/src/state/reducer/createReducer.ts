@@ -1,6 +1,5 @@
 import { expireReducer } from './expireReducer.js';
 import { fetchReducer } from './fetchReducer.js';
-import { hydrateReducer } from './hydrateReducer.js';
 import { initialState } from './initialState.js';
 import { invalidateReducer } from './invalidateReducer.js';
 import { setReducer } from './setReducer.js';
@@ -15,7 +14,6 @@ import {
   INVALIDATEALL,
   EXPIREALL,
   SET_RESPONSE,
-  HYDRATE,
 } from '../../actionTypes.js';
 import type Controller from '../../controller/Controller.js';
 import type { ActionTypes, State } from '../../types.js';
@@ -60,9 +58,6 @@ export default function createReducer(controller: Controller): ReducerType {
 
       case RESET:
         return { ...initialState, lastReset: action.date };
-
-      case HYDRATE:
-        return hydrateReducer(state, action);
 
       default:
         // A reducer must always return a valid state.
