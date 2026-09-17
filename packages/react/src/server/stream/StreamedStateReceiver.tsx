@@ -30,8 +30,7 @@ export default function StreamedStateReceiver({
 
   useLayoutEffect(() => {
     const { queue } = snapshotStore;
-    const dispatchStreamingAction =
-      controller.dispatch as StreamingDispatch;
+    const dispatchStreamingAction = controller.dispatch as StreamingDispatch;
     const receive = (delta: StateDelta) => {
       const baseline = selectBaseline(snapshotStore.state, delta);
       snapshotStore.state = applyStateDelta(snapshotStore.state, delta);

@@ -5,8 +5,10 @@ import createStreamingReducer from './stream/createStreamingReducer.js';
 import StreamedStateReceiver from './stream/StreamedStateReceiver.js';
 import type { SnapshotStore } from './stream/types.js';
 
-export interface StreamingDataProviderProps
-  extends Omit<ProviderProps, 'initialState'> {
+export interface StreamingDataProviderProps extends Omit<
+  ProviderProps,
+  'initialState'
+> {
   snapshotStore: SnapshotStore;
 }
 

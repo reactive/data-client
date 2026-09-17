@@ -28,7 +28,7 @@ const getTodo = new Endpoint(
   { schema: Todo, name: 'getTodo' },
 );
 
-const transport = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
+const transport = <T>(value: T): T => JSON.parse(JSON.stringify(value));
 
 describe('createStreamingReducer', () => {
   const controller = new Controller();
