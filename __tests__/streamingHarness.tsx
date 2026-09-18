@@ -4,6 +4,7 @@ import { Writable } from 'stream';
 
 const MULTIPLE_RENDERERS =
   'Detected multiple renderers concurrently rendering the same context provider';
+const USE_LAYOUT_EFFECT_SSR = 'useLayoutEffect does nothing on the server';
 
 export type GatePromise = Promise<void> & { done: boolean; release(): void };
 
@@ -36,7 +37,12 @@ export async function captureStream(
   element: ReactElement,
   opts: { releaseAfterShell: Array<() => void>; abortMs?: number },
 ): Promise<{ shell: string; rest: string[] }> {
-  const { renderToPipeableStream } = jest.requireActual('react-dom/server') as {
+  // jsdom matches the "browser" export: React 18's server.browser has
+  // renderToReadableStream only. Pin the Node build so every version exposes
+  // renderToPipeableStream (18.3, 19.2, 19.3).
+  const { renderToPipeableStream } = jest.requireActual(
+    'react-dom/server.node',
+  ) as {
     renderToPipeableStream: typeof import('react-dom/server').renderToPipeableStream;
   };
   const abortMs = opts.abortMs ?? 4000;
@@ -109,8 +115,16 @@ export function appendChunk(
 
 export function executeScripts(scripts: HTMLScriptElement[]): void {
   for (const script of scripts) {
+    const code = script.textContent || '';
+    // React 18 emits `function $RS(){}` / `function $RC(){}` declarations.
+    // `new Function` keeps those local; rewrite so they land on the realm global
+    // (19.x already uses `$RC = function` assignments, which this preserves).
+    const rewritten = code.replace(
+      /function\s+(\$[A-Za-z]+)\s*\(/g,
+      'globalThis.$1 = function $1(',
+    );
     // eslint-disable-next-line @typescript-eslint/no-implied-eval
-    new Function(script.textContent || '')();
+    new Function(rewritten)();
   }
 }
 
@@ -157,6 +171,7 @@ export function recordConsoleErrors(): {
       : first instanceof Error ? first.message
       : String(first ?? '');
     if (text.includes(MULTIPLE_RENDERERS)) return;
+    if (text.includes(USE_LAYOUT_EFFECT_SSR)) return;
     unexpected.push(args);
   };
   return {

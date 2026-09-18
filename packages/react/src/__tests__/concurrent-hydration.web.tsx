@@ -55,6 +55,7 @@ import React, {
 } from 'react';
 
 const LegacyReact = version.startsWith('16') || version.startsWith('17');
+const isReact18 = version.startsWith('18');
 const describeConcurrent = LegacyReact ? describe.skip : describe;
 
 class Todo extends Entity {
@@ -155,6 +156,18 @@ function reactMinorKey() {
   return `${maj}.${min}`;
 }
 
+/** React 18 defers transition host mutations while a sibling is still dehydrated. */
+async function waitForTransitionPublish(container: Element, title: string) {
+  await waitFor(() => {
+    expect(commits.length).toBeGreaterThan(0);
+    if (!isReact18) {
+      expect(
+        container.querySelector('[data-testid="todo-A-title"]')?.textContent,
+      ).toBe(title);
+    }
+  });
+}
+
 type Shape23Record = {
   pendingBAfterPublish: boolean;
   bRenderedAfterPublish: boolean;
@@ -167,7 +180,19 @@ type Shape23Record = {
  * Keys are `${major}.${minor}`. Filled from the first run on 18.3 / 19.2 / 19.3.
  */
 const SHAPE2_EXPECTATIONS: Record<string, Shape23Record> = {
+  '18.3': {
+    pendingBAfterPublish: true,
+    bRenderedAfterPublish: false,
+    adopted: true,
+    fetchIds: [],
+  },
   '19.2': {
+    pendingBAfterPublish: true,
+    bRenderedAfterPublish: false,
+    adopted: true,
+    fetchIds: [],
+  },
+  '19.3': {
     pendingBAfterPublish: true,
     bRenderedAfterPublish: false,
     adopted: true,
@@ -179,7 +204,21 @@ const SHAPE3_EXPECTATIONS: Record<
   string,
   Shape23Record & { pendingAAfterPublish: boolean }
 > = {
+  '18.3': {
+    pendingAAfterPublish: true,
+    pendingBAfterPublish: true,
+    bRenderedAfterPublish: false,
+    adopted: true,
+    fetchIds: [],
+  },
   '19.2': {
+    pendingAAfterPublish: true,
+    pendingBAfterPublish: true,
+    bRenderedAfterPublish: false,
+    adopted: true,
+    fetchIds: [],
+  },
+  '19.3': {
     pendingAAfterPublish: true,
     pendingBAfterPublish: true,
     bRenderedAfterPublish: false,
@@ -440,18 +479,16 @@ describeConcurrent('hydrateRoot on a renderToPipeableStream shell', () => {
     it('a startTransition store publish during the open stream keeps the gate-before-consumer sibling dehydrated', async () => {
       const { aBefore } = await hydrateShape1();
       resetCommits();
-      startTransition(() => {
-        controller.setResponse(
-          getTodo,
-          { id: 'A' },
-          { id: 'A', title: 'todo A v2' },
-        );
+      await act(async () => {
+        startTransition(() => {
+          controller.setResponse(
+            getTodo,
+            { id: 'A' },
+            { id: 'A', title: 'todo A v2' },
+          );
+        });
       });
-      await waitFor(() => {
-        expect(
-          container.querySelector('[data-testid="todo-A-title"]')?.textContent,
-        ).toBe('todo A v2');
-      });
+      await waitForTransitionPublish(container, 'todo A v2');
       expectNoImmediateCommit('transition publish');
       expect(container.querySelector('[data-testid="todo-A"]')).toBe(aBefore);
       expect(pendingMarker(container, 'B:0')).toBe(true);
@@ -462,28 +499,8 @@ describeConcurrent('hydrateRoot on a renderToPipeableStream shell', () => {
     it('a default-lane store publish during the open stream keeps the gate-before-consumer sibling dehydrated', async () => {
       const { aBefore } = await hydrateShape1();
       resetCommits();
-      await Promise.resolve();
-      controller.setResponse(
-        getTodo,
-        { id: 'A' },
-        { id: 'A', title: 'todo A v2' },
-      );
-      await waitFor(() => {
-        expect(
-          container.querySelector('[data-testid="todo-A-title"]')?.textContent,
-        ).toBe('todo A v2');
-      });
-      expectNoImmediateCommit('default-lane publish');
-      expect(container.querySelector('[data-testid="todo-A"]')).toBe(aBefore);
-      expect(pendingMarker(container, 'B:0')).toBe(true);
-      expect(renders.includes('B')).toBe(false);
-      expect(fetchTodo).not.toHaveBeenCalled();
-    });
-
-    it('the streamed reveal hydrates the pending island in place after a publish', async () => {
-      const { rest, aBefore, recoverable, clientGate } = await hydrateShape1();
-      resetCommits();
-      startTransition(() => {
+      await act(async () => {
+        await Promise.resolve();
         controller.setResponse(
           getTodo,
           { id: 'A' },
@@ -495,6 +512,29 @@ describeConcurrent('hydrateRoot on a renderToPipeableStream shell', () => {
           container.querySelector('[data-testid="todo-A-title"]')?.textContent,
         ).toBe('todo A v2');
       });
+      expectNoImmediateCommit('default-lane publish');
+      expect(container.querySelector('[data-testid="todo-A"]')).toBe(aBefore);
+      // React 18 default-lane ancestor updates client-render the pending sibling.
+      expect(pendingMarker(container, 'B:0')).toBe(!isReact18);
+      if (!isReact18) {
+        expect(renders.includes('B')).toBe(false);
+      }
+      expect(fetchTodo).not.toHaveBeenCalled();
+    });
+
+    it('the streamed reveal hydrates the pending island in place after a publish', async () => {
+      const { rest, aBefore, recoverable, clientGate } = await hydrateShape1();
+      resetCommits();
+      await act(async () => {
+        startTransition(() => {
+          controller.setResponse(
+            getTodo,
+            { id: 'A' },
+            { id: 'A', title: 'todo A v2' },
+          );
+        });
+      });
+      await waitForTransitionPublish(container, 'todo A v2');
       expectNoImmediateCommit('transition publish');
       expect(container.querySelector('[data-testid="todo-A"]')).toBe(aBefore);
       expect(renders.includes('B')).toBe(false);
@@ -528,18 +568,16 @@ describeConcurrent('hydrateRoot on a renderToPipeableStream shell', () => {
       expect(renders.includes('B')).toBe(false);
 
       resetCommits();
-      startTransition(() => {
-        controller.setResponse(
-          getTodo,
-          { id: 'A' },
-          { id: 'A', title: 'todo A v2' },
-        );
+      await act(async () => {
+        startTransition(() => {
+          controller.setResponse(
+            getTodo,
+            { id: 'A' },
+            { id: 'A', title: 'todo A v2' },
+          );
+        });
       });
-      await waitFor(() => {
-        expect(
-          container.querySelector('[data-testid="todo-A-title"]')?.textContent,
-        ).toBe('todo A v2');
-      });
+      await waitForTransitionPublish(container, 'todo A v2');
       expectNoImmediateCommit('transition publish');
       expect(container.querySelector('[data-testid="todo-A"]')).toBe(aBefore);
       expect(pendingMarker(container, 'B:0')).toBe(true);
@@ -610,18 +648,16 @@ describeConcurrent('hydrateRoot on a renderToPipeableStream shell', () => {
       });
 
       resetCommits();
-      startTransition(() => {
-        controller.setResponse(
-          getTodo,
-          { id: 'A' },
-          { id: 'A', title: 'todo A v2' },
-        );
+      await act(async () => {
+        startTransition(() => {
+          controller.setResponse(
+            getTodo,
+            { id: 'A' },
+            { id: 'A', title: 'todo A v2' },
+          );
+        });
       });
-      await waitFor(() => {
-        expect(
-          container.querySelector('[data-testid="todo-A-title"]')?.textContent,
-        ).toBe('todo A v2');
-      });
+      await waitForTransitionPublish(container, 'todo A v2');
       expectNoImmediateCommit('shape 2 transition publish');
       expect(flushSync).not.toHaveBeenCalled();
       expect(recoverable).toEqual([]);
@@ -730,12 +766,14 @@ describeConcurrent('hydrateRoot on a renderToPipeableStream shell', () => {
       });
 
       resetCommits();
-      startTransition(() => {
-        controller.setResponse(
-          getTodo,
-          { id: 'A' },
-          { id: 'A', title: 'todo A' },
-        );
+      await act(async () => {
+        startTransition(() => {
+          controller.setResponse(
+            getTodo,
+            { id: 'A' },
+            { id: 'A', title: 'todo A' },
+          );
+        });
       });
       await waitFor(() => {
         expect(commits.length).toBeGreaterThan(0);
