@@ -1,18 +1,10 @@
-import { AsyncBoundary, DataProvider, useSuspense } from '@data-client/react';
+import { AsyncBoundary, DataProvider } from '@data-client/react';
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { getCandles, TodoResource } from './resources';
+import { Doit } from './ui';
 
-export const Doit = () => {
-  const a = useSuspense(getCandles, { product_id: 'BTC-USD' });
-  const todos = useSuspense(TodoResource.getList, { userId: 1 });
-  return (
-    <>
-      {a} hi {todos.length}
-    </>
-  );
-};
+export { Doit };
 export const second = React.memo(Doit);
 
 export default function Entry() {
