@@ -4,7 +4,6 @@ import { createRoot } from 'react-dom/client';
 
 import { Doit } from './ui';
 
-/** Next.js App Router / RSC adapter graph (`@data-client/react/nextjs`). */
 export default function Entry() {
   return (
     <DataProvider>

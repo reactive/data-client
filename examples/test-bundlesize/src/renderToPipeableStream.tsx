@@ -10,7 +10,6 @@ import { Doit } from './ui';
 const [ServerDataProvider, useReadyCacheState] = createPersistedStore();
 const ServerDataComponent = createServerDataComponent(useReadyCacheState);
 
-/** Generic renderToPipeableStream adapter graph (`@data-client/react/ssr`). */
 export default function Entry() {
   return (
     <ServerDataProvider>

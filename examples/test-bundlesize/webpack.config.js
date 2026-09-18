@@ -52,60 +52,52 @@ function withRdcChunks(config, rdcName) {
   return config;
 }
 
-class CopyRdcIntoDistPlugin {
-  constructor(filename) {
-    this.filename = filename;
-  }
-  apply(compiler) {
-    compiler.hooks.afterEmit.tap('CopyRdcIntoDistPlugin', () => {
-      const src = path.join(compiler.options.output.path, this.filename);
-      const destDir = path.join(__dirname, 'dist');
-      fs.mkdirSync(destDir, { recursive: true });
-      fs.copyFileSync(src, path.join(destDir, this.filename));
-    });
-  }
+function copyRdcToDist(filename) {
+  return {
+    apply(compiler) {
+      compiler.hooks.afterEmit.tap('copyRdcToDist', () => {
+        fs.copyFileSync(
+          path.join(compiler.options.output.path, filename),
+          path.join(__dirname, 'dist', filename),
+        );
+      });
+    },
+  };
 }
 
-// Three production compilations, same minify/split as SPA:
-//   rdcClient.js          SPA (@data-client/react)
-//   rdcNextjs.js          Next.js/RSC (@data-client/react/nextjs)
-//   rdcPipeableStream.js  renderToPipeableStream (@data-client/react/ssr)
+const adapters = [
+  {
+    name: 'nextjs',
+    entrypath: './src/nextjs.tsx',
+    rdcName: 'rdcNextjs',
+  },
+  {
+    name: 'renderToPipeableStream',
+    entrypath: './src/renderToPipeableStream.tsx',
+    rdcName: 'rdcPipeableStream',
+  },
+];
+
 module.exports = (env = {}, argv) => {
   const spa = withRdcChunks(makeConfig(options)(env, argv), 'rdcClient');
   spa.name = 'spa';
 
-  const nextjs = withRdcChunks(
-    makeConfig({
-      ...options,
-      buildDir: '.sizecompare/nextjs/',
-      htmlOptions: false,
-    })({ ...env, name: 'nextjs', entrypath: './src/nextjs.tsx' }, argv),
-    'rdcNextjs',
-  );
-  nextjs.name = 'nextjs';
-  nextjs.dependencies = ['spa'];
-  nextjs.plugins.push(new CopyRdcIntoDistPlugin('rdcNextjs.js'));
+  const extra = adapters.map(({ name, entrypath, rdcName }) => {
+    const config = withRdcChunks(
+      makeConfig({
+        ...options,
+        buildDir: `node_modules/.cache/test-bundlesize/${name}/`,
+        htmlOptions: false,
+      })({ ...env, name, entrypath }, argv),
+      rdcName,
+    );
+    config.name = name;
+    config.dependencies = ['spa'];
+    config.plugins.push(copyRdcToDist(`${rdcName}.js`));
+    return config;
+  });
 
-  const pipeableStream = withRdcChunks(
-    makeConfig({
-      ...options,
-      buildDir: '.sizecompare/pipeable-stream/',
-      htmlOptions: false,
-    })(
-      {
-        ...env,
-        name: 'renderToPipeableStream',
-        entrypath: './src/renderToPipeableStream.tsx',
-      },
-      argv,
-    ),
-    'rdcPipeableStream',
-  );
-  pipeableStream.name = 'renderToPipeableStream';
-  pipeableStream.dependencies = ['spa'];
-  pipeableStream.plugins.push(new CopyRdcIntoDistPlugin('rdcPipeableStream.js'));
-
-  return [spa, nextjs, pipeableStream];
+  return [spa, ...extra];
 };
 
 module.exports.options = options;
