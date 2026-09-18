@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1786141371789,
+  "lastUpdate": 1789744814604,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -6017,6 +6017,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 177.01,
             "range": "± 7.9%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a76996a5ed350ce1869a438aab88bf72cdb1ed52",
+          "message": "test(react): Lock concurrent rendering GOALS on public APIs (#4094)\n\n* test(react): Add commit-priority probe and streaming SSR harness\n\nInstall a DevTools hook before react-dom/client so suites can record\nscheduler priority, and share two-phase renderToPipeableStream replay\nhelpers for hydrateRoot tests.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* test(react): Add concurrent probe control suite\n\nCalibrate Immediate vs Normal commits, document discrete-event SyncLane,\nand show that recreating Suspense elements client-renders a pending\nboundary so streamed nodes are not adopted.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* test(react): Lock startTransition over useSuspense\n\nKeep the committed UI, accept urgent input, and require non-Immediate\nstore publishes for transition/default setResponse without flushSync or\nuseSyncExternalStore.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* test(react): Add hydrateRoot streaming hydration suite\n\nLock gate-before-consumer identity and in-place reveal, and record\nper-version outcomes for read-then-suspend and two-pending public\nDataProvider topologies.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* test(react): Assert public cache reads skip useSyncExternalStore\n\nHoist a throwing useSyncExternalStore wrapper so public hooks cannot\ncapture the real API, and label the React 19 use() vs React 18\nuseContext fallback.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* ci: Add React 19.3 ReactDOM matrix row\n\nDelete root React resolutions, install 19.3.0, and run the concurrent\nrendering suites so latest React is locked in CI rather than the 19.2.3 pin.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* test(react): Run streaming hydration suites on React 18\n\nLoad renderToPipeableStream from the Node server build, hoist React 18\n$RC function declarations onto the global, and lock 18.3/19.2/19.3\nshape 2–3 rows. React 18 default-lane publishes still client-render a\npending sibling; transition publishes keep it dehydrated without host text.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* test(react): Deduplicate concurrent rendering test harness\n\nShare replayRest, getHydrateRoot, and probe calibration helpers so the\nsuites stop copying stream install and notify-store boilerplate. Keep\nreactCommitProbe as the first import so the DevTools hook still installs\nbefore react-dom/client.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* test(react): Allow React 18 hydration-update warning in recreate control\n\nThe recreate-Suspense probe client-renders the pending sibling on 18, which\nlogs the pre-hydration update warning. Expect that warning in this case only;\nleave other suites' empty-console afterEach asserts unchanged.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* test(react): Discover pending Suspense ids and install DevTools in setup\n\nDiscover template[id] from the installed shell (fallback-text + <!--$?-->\nif missing) so React HTML-protocol numbering does not brick the suites.\nInstall __REACT_DEVTOOLS_GLOBAL_HOOK__ in ReactDOM testSetup.js and attach\nthe commit recorder to that object. Share Todo/Endpoint/mockInitialState\nvia concurrentFixtures.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* test(react): Apply follow-up harness to concurrent suites\n\nDrop the import/order ritual and duplicate Immediate/Normal calibration\nfrom hydration/transition. Keep fail-loud calibration in probe-controls.\nPreserve the React 18 hydration-update allowlist.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* docs: Add fully concurrent rendering GOALS bullet\n\nLock the public @data-client/react concurrent-rendering goal with the\ntests on this PR. Same wording as HOLD 4090, without adapter APIs:\nuseTransition/startTransition over useSuspense, streaming SSR, hydration;\nstore reads must not force SyncLane; older React may use a labeled fallback.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n---------\n\nCo-authored-by: Cursor Agent <cursoragent@cursor.com>",
+          "timestamp": "2026-09-18T11:16:54-04:00",
+          "tree_id": "8d43aaa79433987fcf0dc3330c110b138d71dff8",
+          "url": "https://github.com/reactive/data-client/commit/a76996a5ed350ce1869a438aab88bf72cdb1ed52"
+        },
+        "date": 1789744811389,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 125,
+            "range": "± 4.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 39.84,
+            "range": "± 5.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 312.5,
+            "range": "± 7.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 294.12,
+            "range": "± 7.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 43.39,
+            "range": "± 9.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 263.16,
+            "range": "± 5.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 277.78,
+            "range": "± 7.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 7.22,
+            "range": "± 5.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 71.43,
+            "range": "± 12.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 32.95,
+            "range": "± 5.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 188.68,
+            "range": "± 5.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 250,
+            "range": "± 4.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 158.77,
+            "range": "± 8.3%",
             "unit": "ops/s"
           }
         ]
