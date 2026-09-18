@@ -14,18 +14,6 @@ jest.mock('react', () => {
   return { ...wrapped, default: wrapped };
 });
 
-/* eslint-disable import/order -- reactCommitProbe must precede react-dom/client */
-import {
-  expectAllCommitsPriority,
-  expectNoImmediateCommit,
-  expectOnlyNormalCommits,
-  ImmediatePriority,
-  makeNotifyStore,
-  NormalPriority,
-  resetCommits,
-} from '__tests__/reactCommitProbe';
-import { recordConsoleErrors } from '__tests__/streamingHarness';
-import { Endpoint, Entity } from '@data-client/endpoint';
 import {
   DataProvider,
   getDefaultManagers,
@@ -34,8 +22,14 @@ import {
   useLive,
   useSuspense,
 } from '@data-client/react';
-import { mockInitialState } from '@data-client/test';
 import { act, fireEvent, render } from '@testing-library/react';
+import { makeGetTodo, mockTodoState } from '__tests__/concurrentFixtures';
+import {
+  expectNoImmediateCommit,
+  expectOnlyNormalCommits,
+  resetCommits,
+} from '__tests__/reactCommitProbe';
+import { recordConsoleErrors } from '__tests__/streamingHarness';
 import React, {
   startTransition,
   Suspense,
@@ -44,15 +38,9 @@ import React, {
   useTransition,
   version,
 } from 'react';
-/* eslint-enable import/order */
 
 const LegacyReact = version.startsWith('16') || version.startsWith('17');
 const describeConcurrent = LegacyReact ? describe.skip : describe;
-
-class Todo extends Entity {
-  id = '';
-  title = '';
-}
 
 const resolvers: Record<
   string,
@@ -64,19 +52,8 @@ const fetchTodo = jest.fn(
       resolvers[id] = resolve;
     }),
 );
-const getTodo = new Endpoint(fetchTodo, {
-  schema: Todo,
-  name: 'getTodo',
-  pollFrequency: 60000,
-});
-
-const stateA = mockInitialState([
-  {
-    endpoint: getTodo,
-    args: [{ id: 'A' }],
-    response: { id: 'A', title: 'todo A' },
-  },
-]);
+const getTodo = makeGetTodo(fetchTodo, { pollFrequency: 60000 });
+const stateA = mockTodoState(getTodo, ['A']);
 const noDevManagers = getDefaultManagers({ devToolsManager: null });
 
 function TodoView({ id }: { id: string }) {
@@ -88,41 +65,6 @@ const flushSync = jest.mocked(
   (require('react-dom') as typeof import('react-dom')).flushSync,
 );
 const useSyncExternalStoreMock = jest.mocked(useSyncExternalStore);
-
-describeConcurrent('commit-priority probe calibration', () => {
-  it('a subscribed useSyncExternalStore store commits at Immediate priority', () => {
-    const store = makeNotifyStore();
-    function Consumer() {
-      const value = useSyncExternalStore(store.subscribe, store.getSnapshot);
-      return <span>{value}</span>;
-    }
-    render(<Consumer />);
-    resetCommits();
-    act(() => {
-      store.notify();
-    });
-    expectAllCommitsPriority(
-      'uSES notify was not Immediate',
-      ImmediatePriority,
-    );
-  });
-
-  it('a plain state update outside an event commits at Normal priority', async () => {
-    let setX: (n: number) => void = () => {};
-    function Sample() {
-      const [x, set] = useState(0);
-      setX = set;
-      return <span>{x}</span>;
-    }
-    render(<Sample />);
-    resetCommits();
-    await act(async () => {
-      await Promise.resolve();
-      setX(1);
-    });
-    expectAllCommitsPriority('plain setState was not Normal', NormalPriority);
-  });
-});
 
 describeConcurrent('startTransition over useSuspense', () => {
   let consoleRecorder: ReturnType<typeof recordConsoleErrors>;
@@ -221,13 +163,7 @@ describeConcurrent('startTransition over useSuspense', () => {
   });
 
   it('controller.setResponse inside startTransition commits at non-sync priority', () => {
-    const stateB = mockInitialState([
-      {
-        endpoint: getTodo,
-        args: [{ id: 'B' }],
-        response: { id: 'B', title: 'todo B' },
-      },
-    ]);
+    const stateB = mockTodoState(getTodo, ['B']);
     function ShowB() {
       const todo = useSuspense(getTodo, { id: 'B' });
       return (

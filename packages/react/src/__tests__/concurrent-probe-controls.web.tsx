@@ -1,4 +1,11 @@
-/* eslint-disable import/order -- reactCommitProbe must precede react-dom/client */
+import {
+  DataProvider,
+  getDefaultManagers,
+  useController,
+  useSuspense,
+} from '@data-client/react';
+import { act, fireEvent, render, waitFor } from '@testing-library/react';
+import { makeGetTodo, mockTodoState } from '__tests__/concurrentFixtures';
 import {
   expectAllCommitsPriority,
   ImmediatePriority,
@@ -8,6 +15,7 @@ import {
 } from '__tests__/reactCommitProbe';
 import {
   captureStream,
+  discoverPendingBoundary,
   Gate,
   getHydrateRoot,
   holdDocumentLoading,
@@ -17,15 +25,6 @@ import {
   recordConsoleErrors,
   replayRest,
 } from '__tests__/streamingHarness';
-import { Endpoint, Entity } from '@data-client/endpoint';
-import {
-  DataProvider,
-  getDefaultManagers,
-  useController,
-  useSuspense,
-} from '@data-client/react';
-import { act, fireEvent, render, waitFor } from '@testing-library/react';
-import { mockInitialState } from '@data-client/test';
 import React, {
   startTransition,
   Suspense,
@@ -33,7 +32,6 @@ import React, {
   useSyncExternalStore,
   version,
 } from 'react';
-/* eslint-enable import/order */
 
 const LegacyReact = version.startsWith('16') || version.startsWith('17');
 const describeConcurrent = LegacyReact ? describe.skip : describe;
@@ -62,28 +60,11 @@ function takeHydrationUpdateWarnings(unexpected: unknown[][]): unknown[][] {
   return taken;
 }
 
-class Todo extends Entity {
-  id = '';
-  title = '';
-}
-
 const fetchTodo = jest.fn(({ id }: { id: string }) =>
   Promise.resolve({ id, title: `todo ${id}` }),
 );
-const getTodo = new Endpoint(fetchTodo, { schema: Todo, name: 'getTodo' });
-
-const stateAB = mockInitialState([
-  {
-    endpoint: getTodo,
-    args: [{ id: 'A' }],
-    response: { id: 'A', title: 'todo A' },
-  },
-  {
-    endpoint: getTodo,
-    args: [{ id: 'B' }],
-    response: { id: 'B', title: 'todo B' },
-  },
-]);
+const getTodo = makeGetTodo(fetchTodo);
+const stateAB = mockTodoState(getTodo, ['A', 'B']);
 
 function TodoView({ id }: { id: string }) {
   const todo = useSuspense(getTodo, { id });
@@ -259,6 +240,7 @@ describeConcurrent('concurrent probe controls', () => {
         releaseAfterShell: [() => serverGate.release()],
       });
       installShell(container, shell);
+      const pendingB = discoverPendingBoundary(container, 'loading B');
       finishDocument = holdDocumentLoading();
       const root = getHydrateRoot()(container, <Page gate={clientGate} />);
       await waitFor(() => {
@@ -266,13 +248,13 @@ describeConcurrent('concurrent probe controls', () => {
           container.querySelector('[data-testid="todo-A"]'),
         ).not.toBeNull();
       });
-      expect(pendingMarker(container, 'B:0')).toBe(true);
+      expect(pendingMarker(container, pendingB)).toBe(true);
 
       act(() => {
         bump();
       });
       await waitFor(() => {
-        expect(pendingMarker(container, 'B:0')).toBe(false);
+        expect(pendingMarker(container, pendingB)).toBe(false);
       });
       expect(container.textContent).toContain('loading B');
 
