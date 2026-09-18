@@ -1,8 +1,6 @@
-// Server Side Component compatibility (specifying this cannot be used as such)
-// https://beta.nextjs.org/docs/rendering/server-and-client-components#third-party-packages
 'use client';
-import type { State, Manager } from '@data-client/core';
-import { createReducer, Controller } from '@data-client/core';
+import type { State } from '@data-client/core';
+import { Controller } from '@data-client/core';
 import useEnhancedReducer from '@data-client/use-enhanced-reducer';
 import type { Middleware as GenericMiddleware } from '@data-client/use-enhanced-reducer';
 import React, { useEffect, useMemo, memo } from 'react';
@@ -11,12 +9,20 @@ import BackupLoading from './BackupLoading.js';
 import UniversalSuspense from './UniversalSuspense.js';
 import { StateContext } from '../context.js';
 
+export type Reducer = (
+  state: State<unknown> | undefined,
+  action: any,
+) => State<unknown>;
+
+export type ReducerFactory = (controller: Controller) => Reducer;
+
 interface StoreProps {
   children: React.ReactNode;
   mgrEffect: () => void;
   middlewares: GenericMiddleware[];
   initialState: State<unknown>;
   controller: Controller;
+  reducerFactory: ReducerFactory;
 }
 /**
  * This part of the provider concerns only the parts that matter for store changes
@@ -28,8 +34,12 @@ function DataStore({
   middlewares,
   initialState,
   controller,
+  reducerFactory,
 }: StoreProps) {
-  const masterReducer = useMemo(() => createReducer(controller), [controller]);
+  const masterReducer = useMemo(
+    () => reducerFactory(controller),
+    [controller, reducerFactory],
+  );
 
   // we don't need `dispatch` here, since applyManager() assigns the dispatch to controller
   const [state] = useEnhancedReducer(masterReducer, initialState, middlewares);

@@ -22,6 +22,8 @@ const baseConfig = {
     'cjs',
     'json',
   ],
+  // helpers shared by tests live next to them without being suites
+  testPathIgnorePatterns: ['/node_modules/', '/__tests__/fixtures/'],
   coveragePathIgnorePatterns: [
     'node_modules',
     '/__tests__',
@@ -39,6 +41,7 @@ const baseConfig = {
   /** TODO: Remove once we move to 'publishConfig' */
   moduleNameMapper: {
     '^__tests__/(.*)$': '<rootDir>/__tests__/$1',
+    '^@data-client/react/ssr$': '<rootDir>/packages/react/src/server',
     '@data-client/react/redux$': ['<rootDir>/packages/react/src/server/redux'],
     '@data-client/([^/]+)(/.*|[^/]*)$': ['<rootDir>/packages/$1/src$2'],
   },

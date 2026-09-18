@@ -4,7 +4,11 @@ import {
   Manager,
   Middleware,
   Controller,
+  createReducer,
+  actionTypes,
 } from '@data-client/core';
+import type { State } from '@data-client/core';
+import { Entity, Endpoint } from '@data-client/endpoint';
 import { act, render } from '@testing-library/react';
 import { CoolerArticleResource } from '__tests__/new';
 import nock from 'nock';
@@ -14,6 +18,7 @@ import { ControllerContext, StateContext } from '../../context';
 import { useController, useSuspense } from '../../hooks';
 import { payload } from '../../test-fixtures';
 import DataProvider from '../DataProvider';
+import DataProviderBase from '../DataProviderBase';
 import { getDefaultManagers } from '../getDefaultManagers';
 
 describe('<DataProvider />', () => {
@@ -210,5 +215,184 @@ describe('<DataProvider />', () => {
         "Action dispatched after unmount. This will be ignored.",
       ]
     `);
+  });
+
+  describe('managers factory', () => {
+    class TrackingManager implements Manager {
+      declare controller: Controller;
+      initCalls = 0;
+      cleanupCalls = 0;
+
+      init() {
+        this.initCalls++;
+      }
+
+      cleanup() {
+        this.cleanupCalls++;
+      }
+
+      middleware: Middleware = controller => {
+        this.controller = controller;
+        return next => action => next(action);
+      };
+    }
+    let controller: Controller | undefined;
+    function Probe() {
+      controller = useController();
+      return null;
+    }
+
+    it('is stable across re-renders within a mount', () => {
+      const created: TrackingManager[] = [];
+      const factory = jest.fn(() => {
+        const tracking = new TrackingManager();
+        created.push(tracking);
+        return [new NetworkManager(), tracking];
+      });
+      const tree = (
+        <StrictMode>
+          <DataProvider managers={factory}>
+            <Probe />
+          </DataProvider>
+        </StrictMode>
+      );
+      const { rerender, unmount } = render(tree);
+      const callsAfterMount = factory.mock.calls.length;
+      // StrictMode 17/18 discards one render/useRef pass, so the factory runs
+      // twice. React 19 keeps one. Neither is a second production mount.
+      const reactMajor = Number(React.version.split('.')[0]);
+      expect(callsAfterMount).toBe(reactMajor >= 19 ? 1 : 2);
+
+      rerender(tree);
+      rerender(
+        <StrictMode>
+          <DataProvider managers={factory}>
+            <Probe />
+            <span />
+          </DataProvider>
+        </StrictMode>,
+      );
+      expect(factory).toHaveBeenCalledTimes(callsAfterMount);
+      expect(created).toHaveLength(callsAfterMount);
+
+      const tracking = created[created.length - 1];
+      // the created managers are the ones wired into the store
+      expect(tracking.controller).toBe(controller);
+      // StrictMode runs effects twice on mount; each init is matched by a cleanup
+      expect(tracking.initCalls).toBeGreaterThanOrEqual(1);
+      expect(tracking.cleanupCalls).toBe(tracking.initCalls - 1);
+      unmount();
+      expect(tracking.cleanupCalls).toBe(tracking.initCalls);
+    });
+
+    it('gives each provider its own instances, unlike a shared array', () => {
+      const trackers: TrackingManager[] = [];
+      const factory = () => {
+        const tracking = new TrackingManager();
+        trackers.push(tracking);
+        return [new NetworkManager(), tracking];
+      };
+      const controllers: Controller[] = [];
+      function CaptureController() {
+        controllers.push(useController());
+        return null;
+      }
+      render(
+        <>
+          <DataProvider managers={factory}>
+            <CaptureController />
+          </DataProvider>
+          <DataProvider managers={factory}>
+            <CaptureController />
+          </DataProvider>
+        </>,
+      );
+      expect(trackers).toHaveLength(2);
+      expect(controllers[0]).not.toBe(controllers[1]);
+      expect(trackers[0].controller).toBe(controllers[0]);
+      expect(trackers[1].controller).toBe(controllers[1]);
+
+      // a shared array leaves one instance bound to whichever store mounted last
+      const shared = new TrackingManager();
+      const sharedManagers = [new NetworkManager(), shared];
+      const sharedControllers: Controller[] = [];
+      function CaptureShared() {
+        sharedControllers.push(useController());
+        return null;
+      }
+      render(
+        <>
+          <DataProvider managers={sharedManagers}>
+            <CaptureShared />
+          </DataProvider>
+          <DataProvider managers={sharedManagers}>
+            <CaptureShared />
+          </DataProvider>
+        </>,
+      );
+      expect(shared.controller).toBe(sharedControllers[1]);
+      expect(shared.controller).not.toBe(sharedControllers[0]);
+    });
+  });
+});
+
+describe('<DataProviderBase /> reducer injection', () => {
+  it('uses the injected reducer for committed actions and optimistic replay', () => {
+    class Todo extends Entity {
+      id = '';
+      title = '';
+      pk() {
+        return this.id;
+      }
+    }
+    const updateTodo = new Endpoint(
+      async (todo: { id: string; title: string }) => todo,
+      {
+        schema: Todo,
+        name: 'updateTodo',
+        sideEffect: true,
+        getOptimisticResponse: (
+          _snap: unknown,
+          todo: { id: string; title: string },
+        ) => todo,
+      },
+    );
+
+    const seen: string[] = [];
+    const reducerFactory = (controller: Controller) => {
+      const master = createReducer(controller);
+      return (state: State<unknown> | undefined, action: any) => {
+        seen.push(action.type);
+        return master(state, action);
+      };
+    };
+
+    let ctrl: Controller | undefined;
+    function Probe() {
+      ctrl = useController();
+      return null;
+    }
+
+    render(
+      <DataProviderBase reducerFactory={reducerFactory} devButton={null}>
+        <Probe />
+      </DataProviderBase>,
+    );
+
+    act(() => {
+      ctrl!.setResponse(
+        CoolerArticleResource.get,
+        { id: 5 },
+        { id: 5, title: 'hi', content: 'more things here' },
+      );
+    });
+    expect(seen).toContain(actionTypes.SET_RESPONSE);
+
+    const beforeOptimistic = seen.length;
+    act(() => {
+      void ctrl!.fetch(updateTodo, { id: '1', title: 'opt' });
+    });
+    expect(seen.slice(beforeOptimistic)).toContain(actionTypes.FETCH);
+    expect(seen.slice(beforeOptimistic)).toContain(actionTypes.OPTIMISTIC);
   });
 });
