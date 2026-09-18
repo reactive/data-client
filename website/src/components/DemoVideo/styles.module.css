@@ -1,0 +1,108 @@
+.root {
+  position: relative;
+  width: 100%;
+  aspect-ratio: var(--demo-width) / var(--demo-height);
+  overflow: hidden;
+  background: var(--ifm-pre-background);
+  isolation: isolate;
+}
+.root.activatable {
+  cursor: pointer;
+}
+
+.poster,
+.video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.poster :global(img) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.poster {
+  z-index: 1;
+  transition: opacity 160ms ease;
+}
+.posterHidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.unavailable {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ifm-color-content);
+  background: color-mix(in srgb, var(--ifm-background-color) 72%, transparent);
+}
+
+.controls {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, #0b1220 72%, transparent),
+    transparent
+  );
+}
+
+.playback,
+.activate {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  line-height: 1;
+  border-radius: 999px;
+}
+.playback:focus-visible,
+.activate:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 3px;
+}
+
+.playback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  color: #fff;
+  background: color-mix(in srgb, #0b1220 55%, transparent);
+  border: 1px solid color-mix(in srgb, #fff 35%, transparent);
+}
+.playback:hover {
+  background: color-mix(in srgb, #0b1220 75%, transparent);
+}
+
+.activate {
+  margin-left: auto;
+  padding: 0.55rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+  background: var(--ifm-color-primary);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--ifm-color-primary) 35%, transparent);
+}
+.activate:hover {
+  background: var(--ifm-color-primary-dark);
+}

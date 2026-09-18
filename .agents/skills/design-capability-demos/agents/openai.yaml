@@ -1,0 +1,5 @@
+interface:
+  display_name: "Design Capability Demos"
+  short_description: "Generate and refine compelling capability demos"
+  default_prompt: "Use $design-capability-demos to generate and rank demo concepts for this framework or library capability."
+
