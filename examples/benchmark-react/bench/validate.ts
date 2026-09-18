@@ -534,6 +534,188 @@ test('listDetailSwitch completes with correct DOM transitions', async (page, lib
   );
 });
 
+test(
+  'GC frame probe calibration: synthetic block spans pending frames',
+  async (page, lib) => {
+    if (
+      !(await page.evaluate(
+        () => typeof window.__BENCH__?.calibrateGCFrameProbe === 'function',
+      ))
+    )
+      return;
+
+    const result = await page.evaluate(async () => {
+      return window.__BENCH__!.calibrateGCFrameProbe!(45);
+    });
+
+    assert(
+      result.blockMs >= 40 && result.blockMs <= 50,
+      lib,
+      'gc calibrate blockMs',
+      `expected 40–50ms block, got ${result.blockMs}`,
+    );
+    assert(
+      result.totalMs >= 35,
+      lib,
+      'gc calibrate totalMs',
+      `synthetic block should be timed (~45ms), got ${result.totalMs}`,
+    );
+    assert(
+      result.spannedPendingFrame === true,
+      lib,
+      'gc calibrate spannedPendingFrame',
+      `expected blocking to span pending frame (missedFrames=${result.missedFrames} frameIntervalMax=${result.frameIntervalMax} displayPeriod=${result.displayPeriodMs})`,
+    );
+    assert(
+      result.frameIntervalMax >= result.displayPeriodMs * 1.5 ||
+        result.missedFrames >= 1,
+      lib,
+      'gc calibrate frame gap',
+      `expected large frame gap or missedFrames≥1`,
+    );
+    process.stderr.write(
+      `    calibrate: totalMs=${result.totalMs.toFixed(1)} frameIntervalMax=${result.frameIntervalMax.toFixed(1)} missedFrames=${result.missedFrames} displayPeriod=${result.displayPeriodMs.toFixed(2)}\n`,
+    );
+  },
+  { onlyLibs: ['data-client'] },
+);
+
+test(
+  'GC scenario API: prepare/run/dispose cardinality (1k entity unique)',
+  async (page, lib) => {
+    if (
+      !(await page.evaluate(
+        () => typeof window.__BENCH__?.prepareGCScenario === 'function',
+      ))
+    )
+      return;
+
+    const prepared = await page.evaluate(async () => {
+      return window.__BENCH__!.prepareGCScenario!({
+        candidateKind: 'entity',
+        pattern: 'unique',
+        count: 1000,
+        control: 'gc',
+      });
+    });
+    assert(
+      prepared.queueEntries === 1000,
+      lib,
+      'gc prepare queueEntries',
+      `expected 1000, got ${prepared.queueEntries}`,
+    );
+    assert(
+      prepared.uniqueTargets === 1000,
+      lib,
+      'gc prepare uniqueTargets',
+      `expected 1000, got ${prepared.uniqueTargets}`,
+    );
+
+    const measurement = await page.evaluate(async () => {
+      return window.__BENCH__!.runGCScenario!();
+    });
+    assert(
+      measurement.schemaVersion === 1,
+      lib,
+      'gc schemaVersion',
+      `expected 1, got ${measurement.schemaVersion}`,
+    );
+    assert(
+      measurement.actionCount === 1,
+      lib,
+      'gc actionCount',
+      `expected 1, got ${measurement.actionCount}`,
+    );
+    assert(
+      measurement.deletionCount === 1000,
+      lib,
+      'gc deletionCount',
+      `expected 1000, got ${measurement.deletionCount}`,
+    );
+    assert(
+      measurement.actionTargetCount === 1000,
+      lib,
+      'gc actionTargetCount',
+      `expected 1000, got ${measurement.actionTargetCount}`,
+    );
+    assert(
+      measurement.sliceDurationsMs.length === 1,
+      lib,
+      'gc sliceDurationsMs',
+      `expected 1 slice, got ${measurement.sliceDurationsMs.length}`,
+    );
+    assert(
+      measurement.displayPeriodMs > 0,
+      lib,
+      'gc displayPeriodMs',
+      `expected positive displayPeriodMs, got ${measurement.displayPeriodMs}`,
+    );
+    assert(
+      typeof measurement.maxInputDelayMs === 'number' &&
+        measurement.maxInputDelayMs >= 0,
+      lib,
+      'gc maxInputDelayMs',
+      `expected non-negative maxInputDelayMs, got ${measurement.maxInputDelayMs}`,
+    );
+    assert(
+      typeof measurement.missedFrames === 'number' &&
+        measurement.missedFrames >= 0,
+      lib,
+      'gc missedFrames',
+      `expected non-negative missedFrames, got ${measurement.missedFrames}`,
+    );
+
+    // no-gc control: same prepare/run path, zero actions/deletions
+    await page.evaluate(() => window.__BENCH__!.disposeGCScenario!());
+    await page.evaluate(async () => {
+      await window.__BENCH__!.prepareGCScenario!({
+        candidateKind: 'entity',
+        pattern: 'unique',
+        count: 1000,
+        control: 'no-gc',
+      });
+    });
+    const noGc = await page.evaluate(async () => {
+      return window.__BENCH__!.runGCScenario!();
+    });
+    assert(
+      noGc.actionCount === 0 && noGc.deletionCount === 0,
+      lib,
+      'gc no-gc control',
+      `expected zero action/deletion, got action=${noGc.actionCount} deletion=${noGc.deletionCount}`,
+    );
+
+    // duplicate pattern: queueEntries=count, uniqueTargets=1, deletionCount=1
+    await page.evaluate(() => window.__BENCH__!.disposeGCScenario!());
+    const dupPrepared = await page.evaluate(async () => {
+      return window.__BENCH__!.prepareGCScenario!({
+        candidateKind: 'entity',
+        pattern: 'duplicate',
+        count: 1000,
+        control: 'gc',
+      });
+    });
+    assert(
+      dupPrepared.queueEntries === 1000 && dupPrepared.uniqueTargets === 1,
+      lib,
+      'gc duplicate prepare',
+      `expected queue=1000 unique=1, got queue=${dupPrepared.queueEntries} unique=${dupPrepared.uniqueTargets}`,
+    );
+    const dup = await page.evaluate(async () => {
+      return window.__BENCH__!.runGCScenario!();
+    });
+    assert(
+      dup.deletionCount === 1 && dup.actionTargetCount === 1000,
+      lib,
+      'gc duplicate run',
+      `expected deletion=1 actionTarget=1000, got deletion=${dup.deletionCount} actionTarget=${dup.actionTargetCount}`,
+    );
+
+    await page.evaluate(() => window.__BENCH__!.disposeGCScenario!());
+  },
+  { onlyLibs: ['data-client'] },
+);
+
 // ── TIMING VALIDATION ────────────────────────────────────────────────
 // Verify that when data-bench-complete fires (measurement ends), the DOM
 // already reflects the update. A 100ms network delay makes timing bugs
