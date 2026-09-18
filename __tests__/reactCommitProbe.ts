@@ -1,11 +1,13 @@
 /**
- * DevTools commit-priority probe. Import this module before `react-dom/client`
- * so `isDevToolsPresent` is captured with the hook installed.
+ * DevTools commit-priority probe. `__REACT_DEVTOOLS_GLOBAL_HOOK__` is installed
+ * in ReactDOM `scripts/testSetup.js` so `isDevToolsPresent` is true even when
+ * a suite `jest.mock('react-dom')` `requireActual`s client before this import.
+ * This module only attaches the commit recorder onto that hook object.
  *
  * `priority` is committed lanes → event priority → scheduler priority:
  * 1 Immediate, 2 UserBlocking, 3 Normal (DefaultLane and TransitionLanes),
  * 5 Idle. This is a React development-build implementation surface; suites
- * that use it must self-calibrate.
+ * that use it must self-calibrate (fail-loud).
  */
 import { version } from 'react';
 
@@ -101,19 +103,19 @@ export function makeNotifyStore() {
   };
 }
 
-(globalThis as any).__REACT_DEVTOOLS_GLOBAL_HOOK__ = {
-  supportsFiber: true,
-  isDisabled: false,
-  renderers: new Map(),
-  inject: () => 1,
-  onCommitFiberRoot(_id: number, root: any, priority?: number) {
-    commits.push({
-      priority,
-      updaters: [...(root.memoizedUpdaters ?? [])].map(fiberName),
-    });
-  },
-  onCommitFiberUnmount() {},
-  onPostCommitFiberRoot() {},
-  onScheduleFiberRoot() {},
-  checkDCE() {},
+const hook = (globalThis as any).__REACT_DEVTOOLS_GLOBAL_HOOK__;
+if (!hook) {
+  throw new Error(
+    '__REACT_DEVTOOLS_GLOBAL_HOOK__ must be installed in scripts/testSetup.js before react-dom loads',
+  );
+}
+hook.onCommitFiberRoot = function onCommitFiberRoot(
+  _id: number,
+  root: any,
+  priority?: number,
+) {
+  commits.push({
+    priority,
+    updaters: [...(root.memoizedUpdaters ?? [])].map(fiberName),
+  });
 };

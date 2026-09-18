@@ -154,9 +154,44 @@ export function installShell(container: Element, shell: string): void {
   executeScripts(Array.from(container.querySelectorAll('script')));
 }
 
-export const pendingMarker = (el: Element, boundaryId: string) =>
-  !!el.querySelector(`template[id="${boundaryId}"]`) &&
-  el.innerHTML.includes('<!--$?-->');
+export type PendingBoundary = {
+  id: string | undefined;
+  fallbackText: string;
+};
+
+/**
+ * React's streaming HTML protocol numbers pending templates (`B:0`, `B:1`, …).
+ * Discover the id from the installed shell so a protocol tweak does not brick
+ * the suite. Walks each `template[id]`'s following siblings until `<!--/$-->`.
+ */
+export function discoverPendingBoundary(
+  el: Element,
+  fallbackText: string,
+): PendingBoundary {
+  for (const tpl of Array.from(el.querySelectorAll('template[id]'))) {
+    let node: ChildNode | null = tpl.nextSibling;
+    while (node) {
+      if (node.nodeType === Node.COMMENT_NODE) {
+        const data = (node as Comment).data.trim();
+        if (data === '/$' || data === '$?') break;
+      }
+      if ((node.textContent ?? '').includes(fallbackText)) {
+        return { id: (tpl as HTMLTemplateElement).id, fallbackText };
+      }
+      node = node.nextSibling;
+    }
+  }
+  return { id: undefined, fallbackText };
+}
+
+/** Dehydrated pending: `<!--$?-->` plus a discovered template id, or fallback text. */
+export function pendingMarker(el: Element, boundary: PendingBoundary): boolean {
+  if (!el.innerHTML.includes('<!--$?-->')) return false;
+  if (boundary.id) {
+    return el.querySelector(`template[id="${boundary.id}"]`) != null;
+  }
+  return (el.textContent ?? '').includes(boundary.fallbackText);
+}
 
 export function recordConsoleErrors(): {
   unexpected: unknown[][];
