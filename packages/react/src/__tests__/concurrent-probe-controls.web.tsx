@@ -1,20 +1,21 @@
+/* eslint-disable import/order -- reactCommitProbe must precede react-dom/client */
 import {
-  commits,
+  expectAllCommitsPriority,
   ImmediatePriority,
+  makeNotifyStore,
   NormalPriority,
   resetCommits,
 } from '__tests__/reactCommitProbe';
 import {
-  appendChunk,
   captureStream,
-  executeScripts,
-  findTestId,
   Gate,
+  getHydrateRoot,
   holdDocumentLoading,
   installShell,
   makeGate,
   pendingMarker,
   recordConsoleErrors,
+  replayRest,
 } from '__tests__/streamingHarness';
 import { Endpoint, Entity } from '@data-client/endpoint';
 import {
@@ -32,6 +33,7 @@ import React, {
   useSyncExternalStore,
   version,
 } from 'react';
+/* eslint-enable import/order */
 
 const LegacyReact = version.startsWith('16') || version.startsWith('17');
 const describeConcurrent = LegacyReact ? describe.skip : describe;
@@ -64,10 +66,6 @@ function TodoView({ id }: { id: string }) {
   return <div data-testid={`todo-${id}`}>{todo.title}</div>;
 }
 
-function failCalibration(label: string) {
-  throw new Error(`${label} on React ${version}: ${JSON.stringify(commits)}`);
-}
-
 describeConcurrent('concurrent probe controls', () => {
   let consoleRecorder: ReturnType<typeof recordConsoleErrors>;
 
@@ -90,23 +88,7 @@ describeConcurrent('concurrent probe controls', () => {
   });
 
   it('a subscribed useSyncExternalStore store commits at Immediate priority, even inside startTransition', () => {
-    const listeners = new Set<() => void>();
-    let snapshot = 0;
-    const store = {
-      subscribe(fn: () => void) {
-        listeners.add(fn);
-        return () => {
-          listeners.delete(fn);
-        };
-      },
-      getSnapshot() {
-        return snapshot;
-      },
-      notify() {
-        snapshot += 1;
-        listeners.forEach(fn => fn());
-      },
-    };
+    const store = makeNotifyStore();
     function Consumer() {
       const value = useSyncExternalStore(store.subscribe, store.getSnapshot);
       return <span data-testid="uses-value">{value}</span>;
@@ -117,12 +99,10 @@ describeConcurrent('concurrent probe controls', () => {
       store.notify();
     });
     expect(getByTestId('uses-value').textContent).toBe('1');
-    if (
-      commits.length === 0 ||
-      commits.some(c => c.priority !== ImmediatePriority)
-    ) {
-      failCalibration('uSES notify was not Immediate');
-    }
+    expectAllCommitsPriority(
+      'uSES notify was not Immediate',
+      ImmediatePriority,
+    );
 
     resetCommits();
     act(() => {
@@ -131,12 +111,10 @@ describeConcurrent('concurrent probe controls', () => {
       });
     });
     expect(getByTestId('uses-value').textContent).toBe('2');
-    if (
-      commits.length === 0 ||
-      commits.some(c => c.priority !== ImmediatePriority)
-    ) {
-      failCalibration('uSES notify inside startTransition was not Immediate');
-    }
+    expectAllCommitsPriority(
+      'uSES notify inside startTransition was not Immediate',
+      ImmediatePriority,
+    );
   });
 
   it('a plain state update outside an event commits at Normal priority', async () => {
@@ -153,12 +131,7 @@ describeConcurrent('concurrent probe controls', () => {
       setX(1);
     });
     expect(document.querySelector('[data-testid="x"]')?.textContent).toBe('1');
-    if (
-      commits.length === 0 ||
-      commits.some(c => c.priority !== NormalPriority)
-    ) {
-      failCalibration('plain setState was not Normal');
-    }
+    expectAllCommitsPriority('plain setState was not Normal', NormalPriority);
   });
 
   it('a store publish from a discrete click handler is Immediate by React design', () => {
@@ -198,12 +171,10 @@ describeConcurrent('concurrent probe controls', () => {
       fireEvent.click(getByText('publish'));
     });
     expect(getByTestId('todo-A').textContent).toBe('todo A v2');
-    if (
-      commits.length === 0 ||
-      commits.some(c => c.priority !== ImmediatePriority)
-    ) {
-      failCalibration('discrete setResponse was not Immediate');
-    }
+    expectAllCommitsPriority(
+      'discrete setResponse was not Immediate',
+      ImmediatePriority,
+    );
   });
 
   describe('recreating Suspense elements above a pending boundary', () => {
@@ -265,15 +236,7 @@ describeConcurrent('concurrent probe controls', () => {
       });
       installShell(container, shell);
       finishDocument = holdDocumentLoading();
-      const recoverable: unknown[] = [];
-      const { hydrateRoot } = jest.requireActual('react-dom/client') as {
-        hydrateRoot: typeof import('react-dom/client').hydrateRoot;
-      };
-      const root = hydrateRoot(container, <Page gate={clientGate} />, {
-        onRecoverableError(err) {
-          recoverable.push(err);
-        },
-      });
+      const root = getHydrateRoot()(container, <Page gate={clientGate} />);
       await waitFor(() => {
         expect(
           container.querySelector('[data-testid="todo-A"]'),
@@ -289,19 +252,12 @@ describeConcurrent('concurrent probe controls', () => {
       });
       expect(container.textContent).toContain('loading B');
 
-      let bStreamedNode: Element | undefined;
-      for (const chunk of rest) {
-        const { insertedElements, scripts } = appendChunk(container, chunk);
-        const found = findTestId(insertedElements, 'todo-B');
-        if (found) bStreamedNode = found;
-        executeScripts(scripts);
-      }
+      const bStreamedNode = replayRest(container, rest, 'todo-B');
       expect(bStreamedNode).toBeDefined();
       const visibleB = container.querySelector('[data-testid="todo-B"]');
       expect(visibleB === bStreamedNode).toBe(false);
 
       root.unmount();
-      void recoverable;
     });
   });
 });

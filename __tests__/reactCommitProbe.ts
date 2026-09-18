@@ -71,6 +71,36 @@ export function expectOnlyNormalCommits(label: string) {
   }
 }
 
+export function failCalibration(label: string): never {
+  throw new Error(`${label} on React ${version}: ${JSON.stringify(commits)}`);
+}
+
+export function expectAllCommitsPriority(label: string, priority: number) {
+  if (commits.length === 0 || commits.some(c => c.priority !== priority)) {
+    failCalibration(label);
+  }
+}
+
+export function makeNotifyStore() {
+  const listeners = new Set<() => void>();
+  let snapshot = 0;
+  return {
+    subscribe(fn: () => void) {
+      listeners.add(fn);
+      return () => {
+        listeners.delete(fn);
+      };
+    },
+    getSnapshot() {
+      return snapshot;
+    },
+    notify() {
+      snapshot += 1;
+      listeners.forEach(fn => fn());
+    },
+  };
+}
+
 (globalThis as any).__REACT_DEVTOOLS_GLOBAL_HOOK__ = {
   supportsFiber: true,
   isDisabled: false,

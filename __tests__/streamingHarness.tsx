@@ -123,7 +123,7 @@ export function executeScripts(scripts: HTMLScriptElement[]): void {
       /function\s+(\$[A-Za-z]+)\s*\(/g,
       'globalThis.$1 = function $1(',
     );
-    // eslint-disable-next-line @typescript-eslint/no-implied-eval
+
     new Function(rewritten)();
   }
 }
@@ -203,4 +203,27 @@ export function findTestId(
     if (inner) return inner;
   }
   return undefined;
+}
+
+export function replayRest(
+  container: Element,
+  rest: string[],
+  testId: string,
+): Element | undefined {
+  let streamed: Element | undefined;
+  for (const chunk of rest) {
+    const { insertedElements, scripts } = appendChunk(container, chunk);
+    const found = findTestId(insertedElements, testId);
+    if (found) streamed = found;
+    executeScripts(scripts);
+  }
+  return streamed;
+}
+
+export function getHydrateRoot(): typeof import('react-dom/client').hydrateRoot {
+  return (
+    jest.requireActual('react-dom/client') as {
+      hydrateRoot: typeof import('react-dom/client').hydrateRoot;
+    }
+  ).hydrateRoot;
 }

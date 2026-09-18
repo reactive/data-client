@@ -14,11 +14,13 @@ jest.mock('react', () => {
   return { ...wrapped, default: wrapped };
 });
 
+/* eslint-disable import/order -- reactCommitProbe must precede react-dom/client */
 import {
-  commits,
+  expectAllCommitsPriority,
   expectNoImmediateCommit,
   expectOnlyNormalCommits,
   ImmediatePriority,
+  makeNotifyStore,
   NormalPriority,
   resetCommits,
 } from '__tests__/reactCommitProbe';
@@ -42,6 +44,7 @@ import React, {
   useTransition,
   version,
 } from 'react';
+/* eslint-enable import/order */
 
 const LegacyReact = version.startsWith('16') || version.startsWith('17');
 const describeConcurrent = LegacyReact ? describe.skip : describe;
@@ -81,10 +84,6 @@ function TodoView({ id }: { id: string }) {
   return <div data-testid="todo">{todo.title}</div>;
 }
 
-function failCalibration(label: string) {
-  throw new Error(`${label} on React ${version}: ${JSON.stringify(commits)}`);
-}
-
 const flushSync = jest.mocked(
   (require('react-dom') as typeof import('react-dom')).flushSync,
 );
@@ -92,23 +91,7 @@ const useSyncExternalStoreMock = jest.mocked(useSyncExternalStore);
 
 describeConcurrent('commit-priority probe calibration', () => {
   it('a subscribed useSyncExternalStore store commits at Immediate priority', () => {
-    const listeners = new Set<() => void>();
-    let snapshot = 0;
-    const store = {
-      subscribe(fn: () => void) {
-        listeners.add(fn);
-        return () => {
-          listeners.delete(fn);
-        };
-      },
-      getSnapshot() {
-        return snapshot;
-      },
-      notify() {
-        snapshot += 1;
-        listeners.forEach(fn => fn());
-      },
-    };
+    const store = makeNotifyStore();
     function Consumer() {
       const value = useSyncExternalStore(store.subscribe, store.getSnapshot);
       return <span>{value}</span>;
@@ -118,12 +101,10 @@ describeConcurrent('commit-priority probe calibration', () => {
     act(() => {
       store.notify();
     });
-    if (
-      commits.length === 0 ||
-      commits.some(c => c.priority !== ImmediatePriority)
-    ) {
-      failCalibration('uSES notify was not Immediate');
-    }
+    expectAllCommitsPriority(
+      'uSES notify was not Immediate',
+      ImmediatePriority,
+    );
   });
 
   it('a plain state update outside an event commits at Normal priority', async () => {
@@ -139,12 +120,7 @@ describeConcurrent('commit-priority probe calibration', () => {
       await Promise.resolve();
       setX(1);
     });
-    if (
-      commits.length === 0 ||
-      commits.some(c => c.priority !== NormalPriority)
-    ) {
-      failCalibration('plain setState was not Normal');
-    }
+    expectAllCommitsPriority('plain setState was not Normal', NormalPriority);
   });
 });
 
@@ -288,7 +264,6 @@ describeConcurrent('startTransition over useSuspense', () => {
     });
     expect(getByTestId('todo').textContent).toBe('todo B v2');
     expectOnlyNormalCommits('transition setResponse');
-    expect(commits.every(c => c.priority === NormalPriority)).toBe(true);
   });
 
   it('a store write outside any event commits at default priority', async () => {
@@ -315,7 +290,6 @@ describeConcurrent('startTransition over useSuspense', () => {
     });
     expect(getByTestId('todo').textContent).toBe('todo A v2');
     expectOnlyNormalCommits('default-lane setResponse');
-    expect(commits.every(c => c.priority === NormalPriority)).toBe(true);
   });
 
   it('useLive / useCache consumers re-render from Context on a transition publish', () => {

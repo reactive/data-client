@@ -14,24 +14,26 @@ jest.mock('react', () => {
   return { ...wrapped, default: wrapped };
 });
 
+/* eslint-disable import/order -- reactCommitProbe must precede react-dom/client */
 import {
   commits,
+  expectAllCommitsPriority,
   expectNoImmediateCommit,
   ImmediatePriority,
+  makeNotifyStore,
   NormalPriority,
   resetCommits,
 } from '__tests__/reactCommitProbe';
 import {
-  appendChunk,
   captureStream,
-  executeScripts,
-  findTestId,
   Gate,
+  getHydrateRoot,
   holdDocumentLoading,
   installShell,
   makeGate,
   pendingMarker,
   recordConsoleErrors,
+  replayRest,
   HydratedProbe,
   type GatePromise,
 } from '__tests__/streamingHarness';
@@ -53,6 +55,7 @@ import React, {
   useSyncExternalStore,
   version,
 } from 'react';
+/* eslint-enable import/order */
 
 const LegacyReact = version.startsWith('16') || version.startsWith('17');
 const isReact18 = version.startsWith('18');
@@ -147,10 +150,6 @@ function ReadThenSuspend({
   return children as React.ReactElement;
 }
 
-function failCalibration(label: string) {
-  throw new Error(`${label} on React ${version}: ${JSON.stringify(commits)}`);
-}
-
 function reactMinorKey() {
   const [maj, min] = version.split('.');
   return `${maj}.${min}`;
@@ -177,66 +176,32 @@ type Shape23Record = {
 
 /**
  * Per-version recorded outcomes for causal controls — not a universal contract.
- * Keys are `${major}.${minor}`. Filled from the first run on 18.3 / 19.2 / 19.3.
+ * Keys are `${major}.${minor}`.
  */
+const SHAPE2_ROW: Shape23Record = {
+  pendingBAfterPublish: true,
+  bRenderedAfterPublish: false,
+  adopted: true,
+  fetchIds: [],
+};
 const SHAPE2_EXPECTATIONS: Record<string, Shape23Record> = {
-  '18.3': {
-    pendingBAfterPublish: true,
-    bRenderedAfterPublish: false,
-    adopted: true,
-    fetchIds: [],
-  },
-  '19.2': {
-    pendingBAfterPublish: true,
-    bRenderedAfterPublish: false,
-    adopted: true,
-    fetchIds: [],
-  },
-  '19.3': {
-    pendingBAfterPublish: true,
-    bRenderedAfterPublish: false,
-    adopted: true,
-    fetchIds: [],
-  },
+  '18.3': SHAPE2_ROW,
+  '19.2': SHAPE2_ROW,
+  '19.3': SHAPE2_ROW,
 };
 
+const SHAPE3_ROW: Shape23Record & { pendingAAfterPublish: boolean } = {
+  pendingAAfterPublish: true,
+  ...SHAPE2_ROW,
+};
 const SHAPE3_EXPECTATIONS: Record<
   string,
   Shape23Record & { pendingAAfterPublish: boolean }
 > = {
-  '18.3': {
-    pendingAAfterPublish: true,
-    pendingBAfterPublish: true,
-    bRenderedAfterPublish: false,
-    adopted: true,
-    fetchIds: [],
-  },
-  '19.2': {
-    pendingAAfterPublish: true,
-    pendingBAfterPublish: true,
-    bRenderedAfterPublish: false,
-    adopted: true,
-    fetchIds: [],
-  },
-  '19.3': {
-    pendingAAfterPublish: true,
-    pendingBAfterPublish: true,
-    bRenderedAfterPublish: false,
-    adopted: true,
-    fetchIds: [],
-  },
+  '18.3': SHAPE3_ROW,
+  '19.2': SHAPE3_ROW,
+  '19.3': SHAPE3_ROW,
 };
-
-function replayRest(container: Element, rest: string[], testId: string) {
-  let streamed: Element | undefined;
-  for (const chunk of rest) {
-    const { insertedElements, scripts } = appendChunk(container, chunk);
-    const found = findTestId(insertedElements, testId);
-    if (found) streamed = found;
-    executeScripts(scripts);
-  }
-  return streamed;
-}
 
 function fetchIds() {
   return fetchTodo.mock.calls.map(call => (call[0] as { id: string }).id);
@@ -248,12 +213,13 @@ function expectRecorded<T extends Record<string, unknown>>(
   label: string,
 ) {
   const key = reactMinorKey();
-  // eslint-disable-next-line no-console
+
   console.info(`${label} React ${version} (${key})`, observed);
   const expected = table[key];
   if (!expected) {
-    // First run records the outcome; a follow-up commit locks the row.
-    return;
+    throw new Error(
+      `${label}: no recorded row for React ${version} (${key}): ${JSON.stringify(observed)}`,
+    );
   }
   expect(observed).toEqual(expected);
 }
@@ -265,23 +231,7 @@ const useSyncExternalStoreMock = jest.mocked(useSyncExternalStore);
 
 describeConcurrent('commit-priority probe calibration', () => {
   it('a subscribed useSyncExternalStore store commits at Immediate priority', () => {
-    const listeners = new Set<() => void>();
-    let snapshot = 0;
-    const store = {
-      subscribe(fn: () => void) {
-        listeners.add(fn);
-        return () => {
-          listeners.delete(fn);
-        };
-      },
-      getSnapshot() {
-        return snapshot;
-      },
-      notify() {
-        snapshot += 1;
-        listeners.forEach(fn => fn());
-      },
-    };
+    const store = makeNotifyStore();
     function Consumer() {
       const value = useSyncExternalStore(store.subscribe, store.getSnapshot);
       return <span>{value}</span>;
@@ -299,12 +249,10 @@ describeConcurrent('commit-priority probe calibration', () => {
     act(() => {
       store.notify();
     });
-    if (
-      commits.length === 0 ||
-      commits.some(c => c.priority !== ImmediatePriority)
-    ) {
-      failCalibration('uSES notify was not Immediate');
-    }
+    expectAllCommitsPriority(
+      'uSES notify was not Immediate',
+      ImmediatePriority,
+    );
     act(() => {
       root.unmount();
     });
@@ -332,12 +280,7 @@ describeConcurrent('commit-priority probe calibration', () => {
       await Promise.resolve();
       setX(1);
     });
-    if (
-      commits.length === 0 ||
-      commits.some(c => c.priority !== NormalPriority)
-    ) {
-      failCalibration('plain setState was not Normal');
-    }
+    expectAllCommitsPriority('plain setState was not Normal', NormalPriority);
     act(() => {
       root.unmount();
     });
@@ -386,12 +329,27 @@ describeConcurrent('hydrateRoot on a renderToPipeableStream shell', () => {
     consoleRecorder.restore();
   });
 
-  function getHydrateRoot() {
-    return (
-      jest.requireActual('react-dom/client') as {
-        hydrateRoot: typeof import('react-dom/client').hydrateRoot;
-      }
-    ).hydrateRoot;
+  async function streamPage(
+    element: React.ReactElement,
+    releases: Array<() => void>,
+  ) {
+    const { shell, rest } = await captureStream(element, {
+      releaseAfterShell: releases,
+    });
+    installShell(container, shell);
+    renders.length = 0;
+    hydratedIslands.length = 0;
+    fetchTodo.mockClear();
+    return rest;
+  }
+
+  async function publishAOnTransition(title: string) {
+    resetCommits();
+    await act(async () => {
+      startTransition(() => {
+        controller.setResponse(getTodo, { id: 'A' }, { id: 'A', title });
+      });
+    });
   }
 
   describe('shape 1 — stable, gate-before-consumer', () => {
@@ -427,21 +385,14 @@ describeConcurrent('hydrateRoot on a renderToPipeableStream shell', () => {
     async function hydrateShape1(strict = false) {
       const serverGate = makeGate();
       const clientGate = makeGate();
-      const { rest } = await captureStream(
+      const rest = await streamPage(
         <Page gate={serverGate} strict={strict} />,
-        { releaseAfterShell: [() => serverGate.release()] },
-      ).then(async result => {
-        installShell(container, result.shell);
-        renders.length = 0;
-        hydratedIslands.length = 0;
-        fetchTodo.mockClear();
-        return result;
-      });
+        [() => serverGate.release()],
+      );
       const aBefore = container.querySelector('[data-testid="todo-A"]');
       finishDocument = holdDocumentLoading();
       const recoverable: unknown[] = [];
-      const hydrateRoot = getHydrateRoot();
-      root = hydrateRoot(
+      root = getHydrateRoot()(
         container,
         <Page gate={clientGate} strict={strict} />,
         {
@@ -478,16 +429,7 @@ describeConcurrent('hydrateRoot on a renderToPipeableStream shell', () => {
 
     it('a startTransition store publish during the open stream keeps the gate-before-consumer sibling dehydrated', async () => {
       const { aBefore } = await hydrateShape1();
-      resetCommits();
-      await act(async () => {
-        startTransition(() => {
-          controller.setResponse(
-            getTodo,
-            { id: 'A' },
-            { id: 'A', title: 'todo A v2' },
-          );
-        });
-      });
+      await publishAOnTransition('todo A v2');
       await waitForTransitionPublish(container, 'todo A v2');
       expectNoImmediateCommit('transition publish');
       expect(container.querySelector('[data-testid="todo-A"]')).toBe(aBefore);
@@ -524,16 +466,7 @@ describeConcurrent('hydrateRoot on a renderToPipeableStream shell', () => {
 
     it('the streamed reveal hydrates the pending island in place after a publish', async () => {
       const { rest, aBefore, recoverable, clientGate } = await hydrateShape1();
-      resetCommits();
-      await act(async () => {
-        startTransition(() => {
-          controller.setResponse(
-            getTodo,
-            { id: 'A' },
-            { id: 'A', title: 'todo A v2' },
-          );
-        });
-      });
+      await publishAOnTransition('todo A v2');
       await waitForTransitionPublish(container, 'todo A v2');
       expectNoImmediateCommit('transition publish');
       expect(container.querySelector('[data-testid="todo-A"]')).toBe(aBefore);
@@ -567,16 +500,7 @@ describeConcurrent('hydrateRoot on a renderToPipeableStream shell', () => {
       expect(pendingMarker(container, 'B:0')).toBe(true);
       expect(renders.includes('B')).toBe(false);
 
-      resetCommits();
-      await act(async () => {
-        startTransition(() => {
-          controller.setResponse(
-            getTodo,
-            { id: 'A' },
-            { id: 'A', title: 'todo A v2' },
-          );
-        });
-      });
+      await publishAOnTransition('todo A v2');
       await waitForTransitionPublish(container, 'todo A v2');
       expectNoImmediateCommit('transition publish');
       expect(container.querySelector('[data-testid="todo-A"]')).toBe(aBefore);
@@ -626,19 +550,12 @@ describeConcurrent('hydrateRoot on a renderToPipeableStream shell', () => {
     it('records whether a Context-reading pending sibling stays dehydrated after a transition publish', async () => {
       const serverGate = makeGate();
       const clientGate = makeGate();
-      const { rest } = await captureStream(<Page gate={serverGate} />, {
-        releaseAfterShell: [() => serverGate.release()],
-      }).then(async result => {
-        installShell(container, result.shell);
-        renders.length = 0;
-        hydratedIslands.length = 0;
-        fetchTodo.mockClear();
-        return result;
-      });
+      const rest = await streamPage(<Page gate={serverGate} />, [
+        () => serverGate.release(),
+      ]);
       finishDocument = holdDocumentLoading();
       const recoverable: unknown[] = [];
-      const hydrateRoot = getHydrateRoot();
-      root = hydrateRoot(container, <Page gate={clientGate} />, {
+      root = getHydrateRoot()(container, <Page gate={clientGate} />, {
         onRecoverableError(err) {
           recoverable.push(err);
         },
@@ -647,16 +564,7 @@ describeConcurrent('hydrateRoot on a renderToPipeableStream shell', () => {
         expect(hydratedIslands).toContain('A');
       });
 
-      resetCommits();
-      await act(async () => {
-        startTransition(() => {
-          controller.setResponse(
-            getTodo,
-            { id: 'A' },
-            { id: 'A', title: 'todo A v2' },
-          );
-        });
-      });
+      await publishAOnTransition('todo A v2');
       await waitForTransitionPublish(container, 'todo A v2');
       expectNoImmediateCommit('shape 2 transition publish');
       expect(flushSync).not.toHaveBeenCalled();
@@ -678,14 +586,17 @@ describeConcurrent('hydrateRoot on a renderToPipeableStream shell', () => {
         },
         { timeout: 2000 },
       );
-      const observed: Shape23Record = {
-        ...afterPublish,
-        adopted:
-          bStreamedNode !== undefined &&
-          bStreamedNode === container.querySelector('[data-testid="todo-B"]'),
-        fetchIds: fetchIds(),
-      };
-      expectRecorded(SHAPE2_EXPECTATIONS, observed, 'shape 2');
+      expectRecorded(
+        SHAPE2_EXPECTATIONS,
+        {
+          ...afterPublish,
+          adopted:
+            bStreamedNode !== undefined &&
+            bStreamedNode === container.querySelector('[data-testid="todo-B"]'),
+          fetchIds: fetchIds(),
+        },
+        'shape 2',
+      );
     });
   });
 
@@ -727,28 +638,15 @@ describeConcurrent('hydrateRoot on a renderToPipeableStream shell', () => {
       const serverGateB = makeGate();
       const clientGateA = makeGate();
       const clientGateB = makeGate();
-      const { rest } = await captureStream(
+      const rest = await streamPage(
         <Page gateA={serverGateA} gateB={serverGateB} initialState={stateAB} />,
-        {
-          releaseAfterShell: [
-            () => serverGateA.release(),
-            () => serverGateB.release(),
-          ],
-        },
-      ).then(async result => {
-        installShell(container, result.shell);
-        renders.length = 0;
-        hydratedIslands.length = 0;
-        fetchTodo.mockClear();
-        return result;
-      });
+        [() => serverGateA.release(), () => serverGateB.release()],
+      );
       expect(pendingMarker(container, 'B:0')).toBe(true);
       expect(pendingMarker(container, 'B:1')).toBe(true);
 
       finishDocument = holdDocumentLoading();
-      const recoverable: unknown[] = [];
-      const hydrateRoot = getHydrateRoot();
-      root = hydrateRoot(
+      root = getHydrateRoot()(
         container,
         <Page
           gateA={clientGateA}
@@ -756,8 +654,8 @@ describeConcurrent('hydrateRoot on a renderToPipeableStream shell', () => {
           initialState={emptyState}
         />,
         {
-          onRecoverableError(err) {
-            recoverable.push(err);
+          onRecoverableError() {
+            // Swallow; this case records adoption rather than requiring zero recoverable.
           },
         },
       );
@@ -765,16 +663,7 @@ describeConcurrent('hydrateRoot on a renderToPipeableStream shell', () => {
         expect(container.querySelector('#app')).not.toBeNull();
       });
 
-      resetCommits();
-      await act(async () => {
-        startTransition(() => {
-          controller.setResponse(
-            getTodo,
-            { id: 'A' },
-            { id: 'A', title: 'todo A' },
-          );
-        });
-      });
+      await publishAOnTransition('todo A');
       await waitFor(() => {
         expect(commits.length).toBeGreaterThan(0);
       });
@@ -801,14 +690,16 @@ describeConcurrent('hydrateRoot on a renderToPipeableStream shell', () => {
       ).catch(() => {
         // Replay may client-render instead of hydrating; still record adoption.
       });
-      const observed = {
-        ...afterPublish,
-        adopted:
-          bStreamedNode !== undefined &&
-          bStreamedNode === container.querySelector('[data-testid="todo-B"]'),
-      };
-      void recoverable;
-      expectRecorded(SHAPE3_EXPECTATIONS, observed, 'shape 3');
+      expectRecorded(
+        SHAPE3_EXPECTATIONS,
+        {
+          ...afterPublish,
+          adopted:
+            bStreamedNode !== undefined &&
+            bStreamedNode === container.querySelector('[data-testid="todo-B"]'),
+        },
+        'shape 3',
+      );
     });
   });
 });
