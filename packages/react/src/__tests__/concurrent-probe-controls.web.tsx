@@ -37,6 +37,30 @@ import React, {
 
 const LegacyReact = version.startsWith('16') || version.startsWith('17');
 const describeConcurrent = LegacyReact ? describe.skip : describe;
+const isReact18 = version.startsWith('18');
+const HYDRATION_UPDATE_BEFORE_FINISH =
+  'This Suspense boundary received an update before it finished hydrating';
+
+function isHydrationUpdateWarning(args: unknown[]): boolean {
+  return args.some(arg => {
+    const text =
+      typeof arg === 'string' ? arg
+      : arg instanceof Error ? arg.message
+      : '';
+    return text.includes(HYDRATION_UPDATE_BEFORE_FINISH);
+  });
+}
+
+/** Drain React 18's intended client-render warning so suite afterEach still requires a clean console. */
+function takeHydrationUpdateWarnings(unexpected: unknown[][]): unknown[][] {
+  const taken = unexpected.filter(isHydrationUpdateWarning);
+  unexpected.splice(
+    0,
+    unexpected.length,
+    ...unexpected.filter(args => !isHydrationUpdateWarning(args)),
+  );
+  return taken;
+}
 
 class Todo extends Entity {
   id = '';
@@ -258,6 +282,13 @@ describeConcurrent('concurrent probe controls', () => {
       expect(visibleB === bStreamedNode).toBe(false);
 
       root.unmount();
+
+      if (isReact18) {
+        // Intended client-render control on 18; other suites still require an empty console.
+        expect(
+          takeHydrationUpdateWarnings(consoleRecorder.unexpected).length,
+        ).toBeGreaterThan(0);
+      }
     });
   });
 });
