@@ -13,9 +13,13 @@
   - Referential stability: unchanged data keeps the same object identity everywhere
   - Atomic mutations; every view consistent without refetching
   - Types and runtime never silently diverge
+- Fully concurrent rendering on the latest React
+  - `useTransition` / `startTransition` over `useSuspense`, streaming SSR, and hydration all work
+  - Store reads must not force SyncLane; `flushSync` is not the happy path
+  - Older React may use a worse fallback; that fallback is not the forward path
 - Best performance in class
   - Networking overhead is the most expensive - minimize this first
-  - 60 FPS continuous experience even on mid-range hardware. No blocking stutters.
+  - 60 FPS continuous experience even on mid-range hardware. No blocking stutters. Concurrent rendering is part of this, not a tradeoff.
   - Minimize bundle size when it doesn't significantly impact other goals
   - We assume best practices production bundling: brotli, minification, react compiler, etc
   - Claims backed by fair, reproducible benchmarks of real DOM updates; stated neutrally
