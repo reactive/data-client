@@ -5,16 +5,26 @@ Copy the skeleton; delete sections that do not apply. Replace every `<…>`.
 ```markdown
 # What the user should experience: <feature> (<example app>)
 
-Scope: <one paragraph: the extreme case, the hosts/flavors that must all satisfy, the thesis (variable timing)>.
+Scope: <one paragraph: the extreme case, the hosts/flavors that must all satisfy>.
 Earlier mechanisms are candidates ([idea]); earlier runs are real ([finding]).
 
 ## How to read the evidence labels
 <table: measured / source / finding / idea / inference, with the exact baseline build named>
 
+## Critical variables
+<which runtime conditions the real world will vary for this problem; the central one first>
+
+| variable | range (measured or documented) | how it was sampled |
+| --- | --- | --- |
+| <e.g. request finish order> | <0.6–1.2 s, either order; second wave chained after the first> | <30 sequential cold loads + 8 concurrent> |
+| <e.g. input validity> | <listed vs delisted symbol> | <filtered on status before tallying> |
+
+Every invariant below must hold at every point of every row.
+
 ## The running example
 <ASCII wireframe of the page with named parts>
 **The same data lives in several places.** <which values repeat where>
-**Timings vary and are chained.** [measured] <request → latency range; which requests start only after which>
+**How the critical variables show up here.** [measured] <e.g. request → latency range; which requests start only after which; update rates>
 
 | moment | what is ready |
 | --- | --- |
@@ -62,9 +72,9 @@ What depends on this: <later decisions, promises in Bucket 2 that change meaning
 <paths: scripts, raw results, source files, findings, PRs>
 ```
 
-## Worked snippet: a timing-dependent baseline outcome
+## Worked snippet: a baseline outcome that depends on a critical variable
 
-When the same code produces different results run to run, tabulate rather than summarize:
+When the same code produces different results depending on where a variable lands (here: request finish order), tabulate rather than summarize:
 
 ```markdown
 | outcome | when the frame arrives | what the handoff contains | how often [measured] |
@@ -93,4 +103,4 @@ Then one storyboard per outcome, then the invariant: "under *any* interleaving, 
 - Production build of the example app against the npm-published packages; note versions.
 - Raw stream: read the HTTP body chunk by chunk; record first-byte time, when the handoff data appears, pending/reveal markers, last-byte time; parse the handoff to list what it contains.
 - Real browser: Playwright with the system Chrome; record upstream network requests with timestamps and console output. Production React does not log recoverable hydration errors to the console; use a dev build or an `onRecoverableError` hook when that matters.
-- ≥ 10 valid loads per configuration; vary inputs to defeat caches; validate inputs first; keep raw results (`.jsonl`) and cite their paths.
+- Sample across every critical variable deliberately (repeat runs, vary inputs, force both orders, build a variant for topology changes); ≥ 10 valid samples per configuration before quoting a frequency; validate inputs first; keep raw results (`.jsonl`) and cite their paths.
