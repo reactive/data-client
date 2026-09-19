@@ -80,7 +80,7 @@ Copy and track:
 - navigation and coming back: what stays on screen, what is stale and for how long
 - failures and slow paths: rate limits, timeouts, partial responses, invalid inputs
 - older platform versions: what degrades, labeled
-- users who do not use the feature: pay nothing (bundle, runtime)
+- users who do not use the feature: pay the minimum (bundle, runtime) without substantially complicating the library; zero is the target, not the rule
 
 **5. Verify each** on the baseline, across the sampled range of every critical variable. For every invariant record: evidence line(s) with labels, and a **Boundary** sentence stating exactly where the guarantee stops (this is usually where the next bucket begins). When the baseline outcome differs by where a variable lands, tabulate the distinct outcomes with frequency and what the person sees in each; never collapse them into "usually fine" or "broken".
 
