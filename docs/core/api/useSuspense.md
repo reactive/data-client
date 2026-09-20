@@ -150,6 +150,17 @@ Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by
 
 :::
 
+"Not in store" means the response cannot be **assembled** from the store, not that this endpoint never fetched.
+Endpoints with a [Queryable](/rest/api/schema#queryable) schema ([Entity](/rest/api/Entity) looked up by its arguments,
+[Collection](/rest/api/Collection), [Query](/rest/api/Query), [All](/rest/api/All)) are Valid as soon as the entities exist —
+whether written by another endpoint, [ctrl.set()](./Controller.md#set), or SSR. Expiry then comes from those entities.
+List schemas (`[Entity]`) need their own response.
+
+```ts
+useSuspense(getTickers, { symbols: ['BTC', 'ETH'] }); // list: fetches
+useSuspense(getTicker, { symbol: 'BTC' }); // Entity by args: no fetch, Ticker 'BTC' already in store
+```
+
 :::info[React Native]
 
 When using React Navigation, useSuspense() will trigger fetches on focus if the data is considered

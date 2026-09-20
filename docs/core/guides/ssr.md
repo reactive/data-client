@@ -68,6 +68,10 @@ export default function InteractivePage({ params }: { params: { userId: number }
 Note that this is identical to how you would write components without SSR. This makes
 makes the components usable across platforms.
 
+On the client, a component hydrates without fetching when the transferred store can **assemble** its
+response — its own cached response, or, for [Queryable](/rest/api/schema#queryable) schemas, the entities alone.
+`useSuspense(TodoResource.get, { id })` needs no request of its own if `getList` already put that `Todo` in the store.
+
 #### Server Components
 
 However, if your data never changes, you can slightly decrease the javascript bundle sent, by

@@ -241,7 +241,7 @@ This enables their use in these additional cases:
   - [RestEndpoint.getOptimisticResponse](./RestEndpoint.md#getoptimisticresponse)
   - [Unit testing hooks](/docs/guides/unit-testing-hooks) with [renderDataHook()](/docs/api/renderDataHook)
 - [memo.query()](#memoquery)
-- Improve performance of [useSuspense](/docs/api/useSuspense), [useDLE](/docs/api/useDLE) by rendering before endpoint resolution
+- [useSuspense](/docs/api/useSuspense), [useLive](/docs/api/useLive), [useDLE](/docs/api/useDLE) resolve **without fetching** when the entities already exist — written by any endpoint, [ctrl.set()](/docs/api/Controller#set), or SSR. `getTicker({ symbol })` is ready from a `Ticker` a list endpoint or websocket wrote; a list schema (`[Ticker]`) is not Queryable and needs its own response.
 
 `Querables` include [Entity](./Entity.md), [All](./All.md), [Collection](./Collection.md), [Query](./Query.md),
 [Union](./Union.md), and [Scalar](./Scalar.md). [Lazy](./Lazy.md) fields produce a Queryable via their [`.query`](./Lazy.md#query) accessor.
