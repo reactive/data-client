@@ -108,3 +108,4 @@ Use [template.md](template.md) for the document skeleton, the critical-variables
 - Measuring a dev server linked to a local checkout and calling it baseline.
 - Filing "hard to build" under tradeoffs; the person pays nothing, so it is Bucket 2 with a mechanism note.
 - Letting an earlier plan's mechanism (deltas, waiters, overlays) leak into the invariant wording.
+- Mis-stating what "has the data" means. In Data Client a read is ready when the store can *assemble* its response (Queryable schemas resolve from entities written by anyone), not only when that exact request was answered. Check the library's actual readiness rule before writing an invariant about misses or duplicates.
