@@ -1,5 +1,4 @@
 import type { ReactElement, ReactNode } from 'react';
-import * as ReactDOM from 'react-dom';
 
 import { LegacyReact } from '../LegacyReact';
 import {
@@ -8,17 +7,16 @@ import {
   type RaceRenderer,
 } from './precommit-race.node-suite';
 
-// react-dom 17 has no `react-dom/client`, and React 19 types drop `render`
-const legacyDOM = ReactDOM as unknown as {
-  render(node: ReactElement, container: Element): void;
-  unmountComponentAtNode(container: Element): boolean;
-};
-
 function createRoot(container: HTMLElement): Omit<RaceRenderer, 'read'> {
   if (LegacyReact) {
+    // react-dom 17 has no `react-dom/client`, and React 19 types drop `render`
+    const dom: {
+      render(node: ReactElement, container: Element): void;
+      unmountComponentAtNode(container: Element): boolean;
+    } = require('react-dom');
     return {
-      render: node => legacyDOM.render(node, container),
-      unmount: () => legacyDOM.unmountComponentAtNode(container),
+      render: node => dom.render(node, container),
+      unmount: () => dom.unmountComponentAtNode(container),
     };
   }
   const client: typeof import('react-dom/client') = require('react-dom/client');

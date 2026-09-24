@@ -11,6 +11,7 @@
  * is suspended, so the race cannot happen there. `use()` exists from 19.
  */
 import { Endpoint } from '@data-client/endpoint';
+import { makeGate, type GatePromise } from '__tests__/streamingHarness';
 import { use, startTransition, Suspense, Component } from 'react';
 import type { ReactElement, ReactNode } from 'react';
 
@@ -114,14 +115,9 @@ function FetchReader({
   return <Text>{`value ${value}`}</Text>;
 }
 
-interface Gate {
-  promise: Promise<unknown>;
-  open: boolean;
-}
-
-function Blocker({ gate }: { gate: Gate }) {
-  if (use) use(gate.promise);
-  else if (!gate.open) throw gate.promise;
+function Blocker({ gate }: { gate: GatePromise }) {
+  if (use) use(gate);
+  else if (!gate.done) throw gate;
   return null;
 }
 
@@ -149,13 +145,7 @@ async function runRace(
     errors.push(args);
   });
   const { endpoint, getCalls } = makeEndpoint(settle);
-  let release: (value?: unknown) => void = () => {};
-  const gate: Gate = {
-    promise: new Promise(resolve => {
-      release = resolve;
-    }),
-    open: false,
-  };
+  const gate = makeGate();
   const managers = shared ? getDefaultManagers() : undefined;
   const Text = host.Text;
   const Reader = reader === 'fetch' ? FetchReader : SuspenseReader;
@@ -176,22 +166,21 @@ async function runRace(
       : null}
     </>
   );
+  // legacy roots throw when a component suspends outside every boundary
+  const element =
+    LegacyReact ?
+      <Suspense fallback={<Text>outer</Text>}>{tree}</Suspense>
+    : tree;
   const expected = settle === 'error' ? 'error nope' : 'value 5';
   const renderer = host.createRenderer();
   try {
-    // legacy roots throw when a component suspends outside every boundary
-    const root =
-      LegacyReact ?
-        <Suspense fallback={<Text>outer</Text>}>{tree}</Suspense>
-      : tree;
-    if (transition) startTransition(() => renderer.render(root));
-    else renderer.render(root);
+    if (transition) startTransition(() => renderer.render(element));
+    else renderer.render(element);
     // the extra tick lets the fetch settle while the render is still parked
     await waitUntil(() => getCalls() > 0);
     await tick();
     const beforeRelease = renderer.read();
-    gate.open = true;
-    release(true);
+    gate.release();
     await waitUntil(() => renderer.read().includes(expected));
     await waitUntilStable(getCalls);
     const warned = errors.some(args =>
@@ -274,7 +263,7 @@ export function registerPrecommitRaceTests(host: RaceHost) {
 
     for (const spec of cases) {
       const supported =
-        (!spec.transition || !LegacyReact) && (spec.reader !== 'fetch' || use);
+        !(spec.transition && LegacyReact) && !(spec.reader === 'fetch' && !use);
       (supported ? test : test.skip)(
         `shared=${spec.shared} where=${spec.where} transition=${spec.transition} reader=${spec.reader}`,
         async () => {
