@@ -30,10 +30,23 @@ import {
   sortedIssuesEndpoint,
 } from '@shared/resources';
 import { patchIssue } from '@shared/server';
-import type { Issue } from '@shared/types';
+import type { GCScenarioConfig, Issue } from '@shared/types';
 import React, { useCallback, useRef } from 'react';
 
 let mutationCounter = 0;
+
+/** Lazily loaded GC harness — never statically imported (bundle fairness). */
+type GCHarnessModule = typeof import('./gcBrowserHarness');
+let gcHarnessModule: GCHarnessModule | null = null;
+
+async function loadGCHarness(): Promise<GCHarnessModule> {
+  if (!gcHarnessModule) {
+    gcHarnessModule = await import(
+      /* webpackChunkName: "gc-browser-harness" */ './gcBrowserHarness'
+    );
+  }
+  return gcHarnessModule;
+}
 
 /** GCPolicy with no interval (won't fire during timing scenarios) and instant
  *  expiry so an explicit sweep() collects all unreferenced data immediately. */
@@ -300,6 +313,25 @@ function BenchmarkHarness() {
     moveItem,
     triggerGC: () => benchGC.sweep(),
     resetStore,
+    prepareGCScenario: async (config: GCScenarioConfig) => {
+      const mod = await loadGCHarness();
+      return mod.prepareGCScenario(config);
+    },
+    runGCScenario: () => {
+      if (!gcHarnessModule) {
+        throw new Error(
+          'prepareGCScenario() must load the GC harness before runGCScenario()',
+        );
+      }
+      return gcHarnessModule.runGCScenario();
+    },
+    disposeGCScenario: () => {
+      gcHarnessModule?.disposeGCScenario();
+    },
+    calibrateGCFrameProbe: async (blockMs?: number) => {
+      const mod = await loadGCHarness();
+      return mod.calibrateGCFrameProbe(blockMs);
+    },
   });
 
   return (
