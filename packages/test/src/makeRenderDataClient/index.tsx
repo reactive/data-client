@@ -23,13 +23,13 @@ import { MockProps } from '../mockTypes.js';
 
 const activeCleanups = new Set<() => void>();
 
+type KickRef = { current?: React.Dispatch<React.SetStateAction<number>> };
+
 /** Sibling that commits even when the hook suspends, so we can schedule a real update. */
-function Kick({ kickRef }: { kickRef: { current: (() => void) | null } }) {
+function Kick({ kickRef }: { kickRef: KickRef }) {
   const [, setKick] = useState(0);
   useLayoutEffect(() => {
-    kickRef.current = () => {
-      setKick(count => count + 1);
-    };
+    kickRef.current = setKick;
   }, [kickRef]);
   return null;
 }
@@ -149,8 +149,7 @@ export default function makeRenderDataHook(
         }
       : ProviderWithResolver;
 
-    // Captured in Kick's layout effect, which still runs inside the sync mount act.
-    const kickRef: { current: (() => void) | null } = { current: null };
+    const kickRef: KickRef = {};
     const wrapper: React.ComponentType<any> = ({
       children,
       ...props
@@ -168,7 +167,7 @@ export default function makeRenderDataHook(
     // A suspending first render inside sync act() drops the passive-effect task.
     // A real setState gives React a task that flushes those effects. An empty act() does not.
     act(() => {
-      kickRef.current?.();
+      kickRef.current?.(count => count + 1);
     });
     ret.controller = nm['controller'];
     ret.cleanup = cleanup;
