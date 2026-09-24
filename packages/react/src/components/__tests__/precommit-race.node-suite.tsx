@@ -208,10 +208,11 @@ function expectResolved(
     expect(result.beforeRelease).not.toContain(expected);
   }
   expect(result.text).toContain(expected);
-  if (shared) {
+  if (shared || LegacyReact) {
     expect(result.calls).toBe(1);
   } else {
-    expect(result.calls).toBeGreaterThan(0);
+    // every discarded provider brought its own NetworkManager
+    expect(result.calls).toBeGreaterThan(1);
     expect(result.calls).toBeLessThan(10);
   }
   expect(result.warned).toBe(false);
