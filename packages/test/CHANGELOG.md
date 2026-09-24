@@ -1,5 +1,17 @@
 # @data-client/test
 
+## 0.18.2
+
+### Patch Changes
+
+- [#4099](https://github.com/reactive/data-client/pull/4099) [`4ae6080`](https://github.com/reactive/data-client/commit/4ae608081ed33c6ce5ab3c0032276cc3069311f8) - Fix mount effects when `renderDataHook()` suspends on the first render
+
+  `renderDataHook()` and `makeRenderDataHook()` now run provider mount effects when the first render suspends, including `use(useFetch())`. The hook result stays unresolved until the data arrives.
+
+- [#4019](https://github.com/reactive/data-client/pull/4019) [`aa15f29`](https://github.com/reactive/data-client/commit/aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e) Thanks [@renovate](https://github.com/apps/renovate)! - Fix TypeScript 7 module resolution for package exports
+
+  TypeScript 7 requires a `types` condition in `package.json` `exports`. Without it, imports resolved to runtime entrypoints like `node.mjs` and lost declaration files.
+
 ## 0.18.0
 
 ### Patch Changes
