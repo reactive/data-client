@@ -1,3 +1,5 @@
+import { useRef } from 'react';
+
 import { renderHook, act } from '../../../test';
 import { MiddlewareAPI } from '../types';
 import useEnhancedReducer from '../useEnhancedReducer';
@@ -207,6 +209,50 @@ describe('createEnhancedReducerHook', () => {
     });
     expect(callBefore.mock.calls[1][0]).toEqual({ counter: 1 });
     expect(callAfter.mock.calls[1][0]).toEqual({ counter: 2 });
+  });
+
+  test('holds a dispatch from render until commit', () => {
+    const reducer = jest.fn(
+      (state: { n: number }, action: { type: string; n?: number }) =>
+        action.n === undefined ? state : { n: action.n },
+    );
+    let reducerRanDuringRender = false;
+    const { result } = renderHook(() => {
+      const [state, dispatch] = useEnhancedReducer(reducer, { n: 0 }, []);
+      const once = useRef(false);
+      if (!once.current) {
+        once.current = true;
+        const before = reducer.mock.calls.length;
+        dispatch({ type: 'set', n: 1 });
+        if (reducer.mock.calls.length > before) reducerRanDuringRender = true;
+      }
+      return state;
+    });
+    expect(reducerRanDuringRender).toBe(false);
+    expect(result.current).toEqual({ n: 1 });
+  });
+
+  test('runs middleware before a pre-commit dispatch reaches React', () => {
+    const seen: string[] = [];
+    const middleware = () => (next: any) => (action: any) => {
+      seen.push('middleware');
+      return next(action);
+    };
+    renderHook(() => {
+      const [, dispatch] = useEnhancedReducer(
+        (state: { n: number }) => ({ n: state.n + 1 }),
+        { n: 0 },
+        [middleware],
+      );
+      const once = useRef(false);
+      if (!once.current) {
+        once.current = true;
+        dispatch({ type: 'go' });
+        seen.push('returned');
+      }
+      return null;
+    });
+    expect(seen.slice(0, 2)).toEqual(['middleware', 'returned']);
   });
 
   it('warns when dispatching during middleware setup', () => {
