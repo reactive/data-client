@@ -8,7 +8,7 @@ import {
   GenericDispatch,
   DataClientDispatch,
 } from '@data-client/react';
-import React, { memo, Suspense } from 'react';
+import React, { memo, Suspense, useLayoutEffect, useState } from 'react';
 
 import {
   renderHook,
@@ -22,6 +22,17 @@ import mockInitialState from '../mockState.js';
 import { MockProps } from '../mockTypes.js';
 
 const activeCleanups = new Set<() => void>();
+
+/** Sibling that commits even when the hook suspends, so we can schedule a real update. */
+function Kick({ kickRef }: { kickRef: { current: (() => void) | null } }) {
+  const [, setKick] = useState(0);
+  useLayoutEffect(() => {
+    kickRef.current = () => {
+      setKick(count => count + 1);
+    };
+  }, [kickRef]);
+  return null;
+}
 
 if (typeof afterEach === 'function') {
   afterEach(() => {
@@ -138,18 +149,26 @@ export default function makeRenderDataHook(
         }
       : ProviderWithResolver;
 
+    // Captured in Kick's layout effect, which still runs inside the sync mount act.
+    const kickRef: { current: (() => void) | null } = { current: null };
     const wrapper: React.ComponentType<any> = ({
       children,
       ...props
     }: React.PropsWithChildren<P>) => (
       <ProviderWithWrapper {...(props as any)}>
         <Suspense fallback={null}>{children}</Suspense>
+        <Kick kickRef={kickRef} />
       </ProviderWithWrapper>
     );
 
     const ret: any = renderHook(callback, {
       ...options,
       wrapper,
+    });
+    // A suspending first render inside sync act() drops the passive-effect task.
+    // A real setState gives React a task that flushes those effects. An empty act() does not.
+    act(() => {
+      kickRef.current?.();
     });
     ret.controller = nm['controller'];
     ret.cleanup = cleanup;
