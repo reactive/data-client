@@ -6,6 +6,9 @@
  * ReactDOM skips paths containing `.node`, and the Node project only
  * collects files ending in `.node.ts`. The host entrypoints call
  * `registerPrecommitRaceTests`.
+ *
+ * React 17 only has legacy roots, which commit DataProvider while a sibling
+ * is suspended, so the race cannot happen there. `use()` exists from 19.
  */
 import { Endpoint } from '@data-client/endpoint';
 import { use, startTransition, Suspense, Component } from 'react';
@@ -14,6 +17,7 @@ import type { ReactElement, ReactNode } from 'react';
 import { useFetch, useSuspense } from '../../hooks';
 import DataProvider from '../DataProvider';
 import { getDefaultManagers } from '../getDefaultManagers';
+import { LegacyReact } from '../LegacyReact';
 
 export interface RaceRenderer {
   render(node: ReactElement): void;
@@ -110,8 +114,14 @@ function FetchReader({
   return <Text>{`value ${value}`}</Text>;
 }
 
-function Blocker({ promise }: { promise: Promise<unknown> }) {
-  use(promise);
+interface Gate {
+  promise: Promise<unknown>;
+  open: boolean;
+}
+
+function Blocker({ gate }: { gate: Gate }) {
+  if (use) use(gate.promise);
+  else if (!gate.open) throw gate.promise;
   return null;
 }
 
@@ -140,9 +150,12 @@ async function runRace(
   });
   const { endpoint, getCalls } = makeEndpoint(settle);
   let release: (value?: unknown) => void = () => {};
-  const pending = new Promise(resolve => {
-    release = resolve;
-  });
+  const gate: Gate = {
+    promise: new Promise(resolve => {
+      release = resolve;
+    }),
+    open: false,
+  };
   const managers = shared ? getDefaultManagers() : undefined;
   const Text = host.Text;
   const Reader = reader === 'fetch' ? FetchReader : SuspenseReader;
@@ -154,30 +167,37 @@ async function runRace(
             <Reader endpoint={endpoint} Text={Text} />
           </Suspense>
           {where === 'inside' ?
-            <Blocker promise={pending} />
+            <Blocker gate={gate} />
           : null}
         </ErrorBox>
       </DataProvider>
       {where === 'outside' ?
-        <Blocker promise={pending} />
+        <Blocker gate={gate} />
       : null}
     </>
   );
   const expected = settle === 'error' ? 'error nope' : 'value 5';
   const renderer = host.createRenderer();
   try {
-    if (transition) startTransition(() => renderer.render(tree));
-    else renderer.render(tree);
+    // legacy roots throw when a component suspends outside every boundary
+    const root =
+      LegacyReact ?
+        <Suspense fallback={<Text>outer</Text>}>{tree}</Suspense>
+      : tree;
+    if (transition) startTransition(() => renderer.render(root));
+    else renderer.render(root);
     // the extra tick lets the fetch settle while the render is still parked
     await waitUntil(() => getCalls() > 0);
     await tick();
+    const beforeRelease = renderer.read();
+    gate.open = true;
     release(true);
     await waitUntil(() => renderer.read().includes(expected));
     await waitUntilStable(getCalls);
     const warned = errors.some(args =>
       args.join(' ').includes("hasn't mounted yet"),
     );
-    return { text: renderer.read(), calls: getCalls(), warned };
+    return { beforeRelease, text: renderer.read(), calls: getCalls(), warned };
   } finally {
     renderer.unmount();
     spy.mockRestore();
@@ -185,10 +205,19 @@ async function runRace(
 }
 
 function expectResolved(
-  result: { text: string; calls: number; warned: boolean },
-  { shared, settle }: { shared: boolean; settle: 'value' | 'error' },
+  result: Awaited<ReturnType<typeof runRace>>,
+  {
+    shared,
+    where,
+    settle,
+  }: { shared: boolean; where: Where; settle: 'value' | 'error' },
 ) {
   const expected = settle === 'error' ? 'error nope' : 'value 5';
+  if (LegacyReact) {
+    expect(result.beforeRelease).toContain(expected);
+  } else if (where !== 'none') {
+    expect(result.beforeRelease).not.toContain(expected);
+  }
   expect(result.text).toContain(expected);
   if (shared) {
     expect(result.calls).toBe(1);
@@ -243,23 +272,27 @@ export function registerPrecommitRaceTests(host: RaceHost) {
       { shared: false, where: 'outside', transition: false, reader: 'fetch' },
     ];
 
-    test.each(cases)(
-      'shared=$shared where=$where transition=$transition reader=$reader',
-      async spec => {
-        const result = await runRace(host, { ...spec, settle: 'value' });
-        expectResolved(result, { shared: spec.shared, settle: 'value' });
-      },
-    );
+    for (const spec of cases) {
+      const supported =
+        (!spec.transition || !LegacyReact) && (spec.reader !== 'fetch' || use);
+      (supported ? test : test.skip)(
+        `shared=${spec.shared} where=${spec.where} transition=${spec.transition} reader=${spec.reader}`,
+        async () => {
+          const result = await runRace(host, { ...spec, settle: 'value' });
+          expectResolved(result, { ...spec, settle: 'value' });
+        },
+      );
+    }
 
     it('re-resolves a rejected fetch without calling the endpoint again', async () => {
-      const result = await runRace(host, {
+      const spec = {
         shared: true,
         where: 'outside',
         transition: false,
         reader: 'suspense',
         settle: 'error',
-      });
-      expectResolved(result, { shared: true, settle: 'error' });
+      } as const;
+      expectResolved(await runRace(host, spec), spec);
     });
   });
 }
