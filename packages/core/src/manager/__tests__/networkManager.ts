@@ -397,3 +397,94 @@ describe('NetworkManager', () => {
     });
   });
 });
+
+describe('NetworkManager re-resolves a fetch whose store never committed', () => {
+  function bind(dispatch: jest.Mock) {
+    return new Controller({ dispatch, getState: () => initialState });
+  }
+
+  async function start(nm: NetworkManager, endpoint: any, dispatch: jest.Mock) {
+    const controller = bind(dispatch);
+    const action = createFetch(endpoint, { args: [] });
+    void Promise.resolve(action.meta.promise).catch(() => {});
+    const pending = nm.middleware(controller)(jest.fn(() => Promise.resolve()))(
+      action,
+    );
+    await Promise.resolve(pending).catch(() => {});
+    await new Promise(resolve => setTimeout(resolve, 0));
+    return { controller, action };
+  }
+
+  it('does not resolve again when the same controller commits', async () => {
+    let calls = 0;
+    const endpoint = new Endpoint(
+      () => {
+        calls += 1;
+        return Promise.resolve(5);
+      },
+      { name: 'settledSame' },
+    );
+    const dispatch = jest.fn(() => Promise.resolve());
+    const nm = new NetworkManager();
+    await start(nm, endpoint, dispatch);
+    expect(calls).toBe(1);
+    expect(dispatch).toHaveBeenCalledTimes(1);
+    nm.init();
+    expect(dispatch).toHaveBeenCalledTimes(1);
+    expect(calls).toBe(1);
+    nm.cleanup();
+  });
+
+  it('re-resolves a response into the controller that commits', async () => {
+    let calls = 0;
+    const endpoint = new Endpoint(
+      () => {
+        calls += 1;
+        return Promise.resolve(5);
+      },
+      { name: 'settledValue' },
+    );
+    const first = jest.fn((_action: any) => Promise.resolve());
+    const second = jest.fn((_action: any) => Promise.resolve());
+    const nm = new NetworkManager();
+    await start(nm, endpoint, first);
+    nm.middleware(bind(second));
+    nm.init();
+    expect(calls).toBe(1);
+    expect(second).toHaveBeenCalledTimes(1);
+    expect(second.mock.calls[0][0]).toMatchObject({
+      type: SET_RESPONSE,
+      response: 5,
+      error: false,
+    });
+    nm.init();
+    expect(second).toHaveBeenCalledTimes(1);
+    nm.cleanup();
+  });
+
+  it('re-resolves an error into the controller that commits', async () => {
+    let calls = 0;
+    const failure = new Error('nope');
+    const endpoint = new Endpoint(
+      () => {
+        calls += 1;
+        return Promise.reject(failure);
+      },
+      { name: 'settledError' },
+    );
+    const first = jest.fn((_action: any) => Promise.resolve());
+    const second = jest.fn((_action: any) => Promise.resolve());
+    const nm = new NetworkManager();
+    await start(nm, endpoint, first);
+    nm.middleware(bind(second));
+    nm.init();
+    expect(calls).toBe(1);
+    expect(second).toHaveBeenCalledTimes(1);
+    expect(second.mock.calls[0][0]).toMatchObject({
+      type: SET_RESPONSE,
+      response: failure,
+      error: true,
+    });
+    nm.cleanup();
+  });
+});
