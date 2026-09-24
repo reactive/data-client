@@ -25,7 +25,7 @@ import {
 } from '@data-client/react';
 import ReactDOM from 'react-dom';
 
-const managers = [
+const managers = () => [
   new NetworkManager(),
   new SubscriptionManager(PollingSubscription)
 ]

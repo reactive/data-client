@@ -258,6 +258,7 @@ export default class PersistManager implements Manager {
 ```tsx
 import { get } from 'idb-keyval';
 
+const managers = () => [...getDefaultManagers(), new PersistManager()];
 const initialState = await get('data-client');
 
 createRoot(document.body).render(

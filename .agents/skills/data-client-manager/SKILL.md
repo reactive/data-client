@@ -31,6 +31,8 @@ Minimal working examples for each use case live in [references/managers.md](refe
 | Custom transport subscriptions              | "Reading and Consuming Actions" in [Manager.md](references/Manager.md)            | consume `SUBSCRIBE`/`UNSUBSCRIBE` without calling `next`                                                                                                             |
 | Auth: logout on 401, reset store on deauth  | [LogoutManager.md](references/LogoutManager.md)                                   | `handleLogout(controller)` + `controller.resetEntireStore()`                                                                                                         |
 
+Do not start channel work before `SUBSCRIBE`; do not treat `SUBSCRIBE` as SSR hydration (see `references/ssr.md` in skill "data-client-react").
+
 ## References
 
 For detailed API documentation, see the [references](references/) directory:
@@ -158,7 +160,7 @@ export default class CustomSubsManager implements Manager {
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import ReactDOM from 'react-dom';
 
-const managers = [...getDefaultManagers(), new MyManager()];
+const managers = () => [...getDefaultManagers(), new MyManager()];
 
 ReactDOM.createRoot(document.body).render(
   <DataProvider managers={managers}>
@@ -166,3 +168,5 @@ ReactDOM.createRoot(document.body).render(
   </DataProvider>,
 );
 ```
+
+Pass `managers` as a function: it runs once per provider (and once per request with `@data-client/react/nextjs`). Arrays are still accepted by the browser `DataProvider` but are transitional and will be removed; migrate existing `managers={[...]}` to `managers={() => [...]}`.
