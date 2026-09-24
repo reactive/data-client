@@ -27,11 +27,31 @@ export interface RaceHost {
 }
 
 const CALL_CAP = 30;
+const POLL_MS = 10;
+// three waits must fit inside Jest's default 5s test timeout
+const WAIT_TIMEOUT_MS = 1500;
 
-function wait(ms: number) {
+function tick() {
   return new Promise(resolve => {
-    setTimeout(resolve, ms);
+    setTimeout(resolve, POLL_MS);
   });
+}
+
+async function waitUntil(condition: () => boolean) {
+  const deadline = Date.now() + WAIT_TIMEOUT_MS;
+  while (!condition() && Date.now() < deadline) await tick();
+}
+
+async function waitUntilStable(read: () => number, polls = 5) {
+  const deadline = Date.now() + WAIT_TIMEOUT_MS;
+  let last = read();
+  let unchanged = 0;
+  while (unchanged < polls && Date.now() < deadline) {
+    await tick();
+    const next = read();
+    unchanged = next === last ? unchanged + 1 : 0;
+    last = next;
+  }
 }
 
 function makeEndpoint(settle: 'value' | 'error') {
@@ -143,13 +163,17 @@ async function runRace(
       : null}
     </>
   );
+  const expected = settle === 'error' ? 'error nope' : 'value 5';
   const renderer = host.createRenderer();
   try {
     if (transition) startTransition(() => renderer.render(tree));
     else renderer.render(tree);
-    await wait(100);
+    // the extra tick lets the fetch settle while the render is still parked
+    await waitUntil(() => getCalls() > 0);
+    await tick();
     release(true);
-    await wait(500);
+    await waitUntil(() => renderer.read().includes(expected));
+    await waitUntilStable(getCalls);
     const warned = errors.some(args =>
       args.join(' ').includes("hasn't mounted yet"),
     );
@@ -218,8 +242,6 @@ export function registerPrecommitRaceTests(host: RaceHost) {
       { shared: true, where: 'outside', transition: true, reader: 'fetch' },
       { shared: false, where: 'outside', transition: false, reader: 'fetch' },
     ];
-
-    jest.setTimeout(20000);
 
     test.each(cases)(
       'shared=$shared where=$where transition=$transition reader=$reader',
