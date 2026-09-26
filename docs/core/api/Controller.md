@@ -495,6 +495,10 @@ function useQuery<S extends Queryable>(
 
 Gets the (globally referentially stable) response for a given endpoint/args pair from state given.
 
+Resolution order: the endpoint's cached response; else, for a [Queryable](/rest/api/schema#queryable) schema,
+a response assembled from entities via [queryKey()](/rest/api/Entity#queryKey) (`expiresAt` = earliest entity expiry);
+else `Invalid`.
+
 #### data
 
 The denormalize response data. Guarantees global referential stability for all members.

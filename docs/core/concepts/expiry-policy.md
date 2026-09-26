@@ -41,6 +41,13 @@ When using React Navigation, [focus events](https://reactnavigation.org/docs/use
 Data should not be shown. Any components needing this data will trigger fetch and suspense. If
 no components care about this data no action will be taken.
 
+### Where the status comes from
+
+If the endpoint has a cached response, from that response's metadata. Otherwise, if its schema is
+[Queryable](/rest/api/schema#queryable) and the entities exist, the response is assembled from them and the
+status uses the **earliest** expiry among those entities. Only when neither applies is the data Invalid.
+An `Entity` endpoint can therefore be Fresh without ever having fetched.
+
 ## Expiry Time
 
 ### Endpoint.dataExpiryLength

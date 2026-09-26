@@ -30,6 +30,9 @@ const comments = use(commentsPromise);
 
 For API definitions (like TodoResource), apply the skill "data-client-rest".
 
+**Readiness is per store, not per request.** A hook fetches only when the store cannot assemble its response.
+[Queryable](https://dataclient.io/rest/api/schema#queryable) schemas (`Entity` looked up by args, `Collection`, `Query`, `All`) resolve from entities written by *any* endpoint, `ctrl.set()`, or SSR — `useSuspense(TodoResource.get, { id: 5 })` does not fetch if `getList` already stored Todo 5. List schemas (`[Entity]`) need their own response. Expiry for assembled responses is the earliest entity expiry.
+
 ## Mutations
 
 ```ts

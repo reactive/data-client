@@ -63,6 +63,7 @@ to represent the data expected.
 - Override `Entity.process(value, parent, key, args)` to insert fields based on args/url
 - `static schema` (optional) for nested schemas or deserialization functions
   - When designing APIs, prefer nesting entities
+- `Entity` endpoints are [Queryable](references/schema.md#queryable): `useSuspense(get, { id })` resolves **without fetching** once that entity exists from any writer (list endpoint, `ctrl.set()`, SSR). Make `pk()` derivable from the endpoint's args (or declare [indexes](references/Entity.md#indexes)) so this works; `[Entity]` list schemas are not Queryable.
 
 ---
 
