@@ -384,6 +384,19 @@ const id = '2';
 ctrl.set(Article, { id }, article => ({ id, votes: article.votes + 1 }));
 ```
 
+Array schemas set many entities in one normalize. Each entity merges with what is stored; entities not in the list are left alone.
+Arrays take no args and no updater function.
+
+```ts
+ctrl.set(
+  [Todo],
+  [
+    { id: '5', completed: true },
+    { id: '6', completed: false },
+  ],
+);
+```
+
 ### setResponse(endpoint, ...args, response) {#setResponse}
 
 Stores `response` in cache for given [Endpoint](/rest/api/Endpoint) and args.

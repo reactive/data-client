@@ -233,6 +233,16 @@ export default class Controller<
     ...rest: readonly [...SchemaArgs<S>, {}]
   ): Promise<void>;
 
+  /**
+   * Sets every item of an Array schema like `[Entity]` in one normalize.
+   * @see https://dataclient.io/docs/api/Controller#set
+   */
+  set<
+    S extends
+      | Schema[]
+      | { normalize(...args: any): any[]; queryKey(...args: any): undefined },
+  >(schema: S, value: readonly {}[]): Promise<void>;
+
   set<S extends Queryable>(
     schema: S,
     ...rest: readonly [...SchemaArgs<S>, any]
