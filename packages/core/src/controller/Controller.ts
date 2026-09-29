@@ -240,7 +240,12 @@ export default class Controller<
   set<
     S extends
       | Schema[]
-      | { normalize(...args: any): any[]; queryKey(...args: any): undefined },
+      | {
+          normalize(...args: any): any[];
+          queryKey(...args: any): undefined;
+          // excludes Entity, whose `any` returns match the members above
+          pk?: never;
+        },
   >(schema: S, value: readonly {}[]): Promise<void>;
 
   set<S extends Queryable>(

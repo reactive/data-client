@@ -117,8 +117,10 @@ describe('set', () => {
       controller.set([CoolerArticle], { id: 5 }, [payload]);
       // @ts-expect-error array schemas have no previous value to update
       controller.set([CoolerArticle], (articles: any) => articles);
-      // @ts-expect-error
+      // @ts-expect-error value must be an array
       controller.set([CoolerArticle], payload);
+      // @ts-expect-error entities need args, even with an array value
+      controller.set(CoolerArticle, [payload]);
     };
   });
 
