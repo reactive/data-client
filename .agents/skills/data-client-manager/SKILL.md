@@ -73,7 +73,7 @@ export default class TimeManager implements Manager {
 
 ### Batch writes
 
-To write many entities at once (a websocket snapshot, buffered stream messages), call `controller.set([Entity], rows)` once. It normalizes once; each row merges with its stored entity, and entities not in `rows` stay. Array schemas take no args and no updater function.
+To write many entities at once (a websocket snapshot, buffered stream messages), call `controller.set([Entity], rows)` once. It normalizes once; each row merges with its stored entity, and entities not in `rows` stay.
 
 - Don't loop `controller.set(Entity, args, row)` per row: each call is a separate store update.
 - Don't add an endpoint or call `setResponse()` just to batch: it caches a response nothing reads.

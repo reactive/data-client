@@ -365,7 +365,7 @@ function UserName() {
 
 ### set(queryable, ...args, value) {#set}
 
-Updates any [Queryable](/rest/api/schema#queryable) [Schema](/rest/api/schema#schema-overview).
+Updates any [Queryable](/rest/api/schema#queryable) [Schema](/rest/api/schema#schema-overview), or many entities at once with an [Array](/rest/api/Array) schema.
 
 ```ts
 ctrl.set(
@@ -384,8 +384,7 @@ const id = '2';
 ctrl.set(Article, { id }, article => ({ id, votes: article.votes + 1 }));
 ```
 
-Array schemas set many entities in one normalize. Each entity merges with what is stored; entities not in the list are left alone.
-Arrays take no args and no updater function.
+An [Array](/rest/api/Array) schema updates many entities in one store update. Each row merges with its stored entity, and entities not in the list are untouched. Arrays take no args and no updater function.
 
 ```ts
 ctrl.set(

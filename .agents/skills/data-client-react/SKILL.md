@@ -92,8 +92,10 @@ Its props are `fallback`, `errorComponent`, and `errorClassName` and `listen`. I
 ctrl.fetch(), ctrl.fetchIfStale(), ctrl.expireAll(), ctrl.invalidate(), ctrl.invalidateAll(), ctrl.setResponse(), ctrl.set(),
 ctrl.setError(), ctrl.resetEntireStore(), ctrl.subscribe(), ctrl.unsubscribe().
 
-To write many entities without a fetch, call `ctrl.set([Entity], rows)` once: one normalize, each row merges with its stored entity, and entities not in `rows` stay.
-Don't loop `ctrl.set(Entity, args, row)` per row (one store update each), and don't add an endpoint or `setResponse()` just to batch (it caches a response nothing reads).
+To write many entities without a fetch, call `ctrl.set([Entity], rows)` once. It normalizes once; each row merges with its stored entity, and entities not in `rows` stay.
+
+- Don't loop `ctrl.set(Entity, args, row)` per row: each call is a separate store update.
+- Don't add an endpoint or call `setResponse()` just to batch: it caches a response nothing reads.
 
 ## Programmatic queries
 
