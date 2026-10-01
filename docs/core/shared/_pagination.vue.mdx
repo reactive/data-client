@@ -1,0 +1,113 @@
+import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
+
+<TypeScriptEditor row>
+
+```ts title="User" collapsed
+import { Entity } from '@data-client/rest';
+
+export class User extends Entity {
+  id = 0;
+  name = '';
+  username = '';
+  email = '';
+  phone = '';
+  website = '';
+
+  get profileImage() {
+    return `https://i.pravatar.cc/64?img=${this.id + 4}`;
+  }
+
+  pk() {
+    return this.id;
+  }
+  static key = 'User';
+}
+```
+
+```ts title="Post" {22,24} collapsed
+import { Entity, resource } from '@data-client/rest';
+import { User } from './User';
+
+export class Post extends Entity {
+  id = 0;
+  author = User.fromJS();
+  title = '';
+  body = '';
+
+  pk() {
+    return this.id;
+  }
+  static key = 'Post';
+
+  static schema = {
+    author: User,
+  };
+}
+export const PostResource = resource({
+  path: '/posts/:id',
+  schema: Post,
+  paginationField: 'cursor',
+}).extend('getList', {
+  schema: { posts: new schema.Collection([Post]), cursor: '' },
+});
+```
+
+```html title="PostItem.vue" collapsed
+<script setup lang="ts">
+import { type Post } from './Post';
+
+defineProps<{ post: Post }>();
+</script>
+
+<template>
+  <div class="listItem spaced">
+    <Avatar :src="post.author.profileImage" />
+    <div>
+      <h4>{{ post.title }}</h4>
+      <small>by {{ post.author.name }}</small>
+    </div>
+  </div>
+</template>
+```
+
+```html title="LoadMore.vue"
+<script setup lang="ts">
+import { useController, useLoading } from '@data-client/vue';
+import { PostResource } from './Post';
+
+const props = defineProps<{ cursor: string }>();
+const ctrl = useController();
+const [loadPage, isPending] = useLoading(
+  () => ctrl.fetch(PostResource.getList.getPage, { cursor: props.cursor }),
+);
+</script>
+
+<template>
+  <center>
+    <button @click="loadPage" :disabled="isPending">
+      {{ isPending ? '...' : 'Load more' }}
+    </button>
+  </center>
+</template>
+```
+
+```html title="PostList.vue" collapsed
+<script setup lang="ts">
+import { useSuspense } from '@data-client/vue';
+import PostItem from './PostItem.vue';
+import LoadMore from './LoadMore.vue';
+import { PostResource } from './Post';
+
+const data = await useSuspense(PostResource.getList);
+</script>
+
+<template>
+  <div>
+    <PostItem v-for="post in data.posts" :key="post.pk()" :post="post" />
+    <LoadMore v-if="data.cursor" :cursor="data.cursor" />
+  </div>
+</template>
+```
+
+</TypeScriptEditor>
+

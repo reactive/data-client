@@ -1,0 +1,14 @@
+import CodeBlock from '@theme/CodeBlock';
+
+:::tip Conditional Dependencies
+
+Use `null` as the second argument to any <abbr title="Reactive Data Client">Data Client</abbr> hook means "do nothing."
+
+<CodeBlock
+  language="typescript">
+  {`// todo could be undefined if id is undefined
+const todo = await ${props.hook ?? 'useSuspense'}(TodoResource.get, computed(() => id ? { id } : null)));`}
+</CodeBlock>
+
+:::
+
