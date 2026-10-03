@@ -8,7 +8,7 @@ import type {
   ResolveType,
 } from '@data-client/core';
 import { ExpiryStatus } from '@data-client/core';
-import { computed, unref, watch, markRaw, type ComputedRef } from 'vue';
+import { computed, toValue, watch, markRaw, type ComputedRef } from 'vue';
 
 import { useController, injectState } from '../context.js';
 import type {
@@ -61,7 +61,7 @@ export default function useDLE(endpoint: any, ...args: any[]): any {
   const controller = useController();
 
   // Track top-level reactive args (Refs are unwrapped). This allows props/refs to trigger updates.
-  const resolvedArgs = computed(() => args.map(a => unref(a as any)) as any);
+  const resolvedArgs = computed(() => args.map(a => toValue(a as any)) as any);
 
   // Compute a key that changes when args change (including reactive props)
   const argsKey = computed(() =>

@@ -428,4 +428,48 @@ describe('vue useFetch()', () => {
     expect(fetchMock1).toHaveBeenCalledTimes(1);
     expect(fetchMock2).toHaveBeenCalledTimes(1);
   });
+
+  it('should re-fetch when props change (getter args)', async () => {
+    const fetchMock1 = jest.fn(() => payload);
+    const fetchMock2 = jest.fn(() => payload2);
+
+    mynock
+      .get(`/article-cooler/${payload.id}`)
+      .reply(200, fetchMock1)
+      .get(`/article-cooler/${payload2.id}`)
+      .reply(200, fetchMock2);
+
+    // Use a reactive object that will be shared
+    const params = reactive({ id: payload.id });
+
+    const ArticleWithReactiveParams = defineComponent({
+      name: 'ArticleWithReactiveParams',
+      setup() {
+        // Pass a getter - re-evaluated reactively
+        useFetch(CoolerArticleResource.get, () => ({ id: params.id }));
+        return () => h('div', { class: 'article' }, `Article ${params.id}`);
+      },
+    });
+
+    const wrapper = mount(TestWrapper, {
+      slots: { default: () => h(ArticleWithReactiveParams) },
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
+    });
+
+    // Wait for the first fetch to happen
+    await flushUntil(wrapper, () => fetchMock1.mock.calls.length > 0);
+    expect(fetchMock1).toHaveBeenCalledTimes(1);
+    expect(fetchMock2).toHaveBeenCalledTimes(0);
+
+    // Update the reactive object to trigger re-fetch
+    params.id = payload2.id;
+    await flush();
+
+    // Wait for the second fetch to happen
+    await flushUntil(wrapper, () => fetchMock2.mock.calls.length > 0);
+    expect(fetchMock1).toHaveBeenCalledTimes(1);
+    expect(fetchMock2).toHaveBeenCalledTimes(1);
+  });
 });

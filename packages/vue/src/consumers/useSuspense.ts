@@ -9,7 +9,7 @@ import type {
 } from '@data-client/core';
 import {
   computed,
-  unref,
+  toValue,
   watch,
   readonly,
   type DeepReadonly,
@@ -74,7 +74,7 @@ export default async function useSuspense(
   const controller = useController();
 
   // Track top-level reactive args (Refs are unwrapped). This allows props/refs to trigger updates.
-  const resolvedArgs = computed(() => args.map(a => unref(a as any)) as any);
+  const resolvedArgs = computed(() => args.map(a => toValue(a as any)) as any);
 
   // Compute a key that changes when args change (including reactive props)
   const argsKey = computed(() =>

@@ -6,7 +6,7 @@ import type {
   FetchFunction,
   DenormalizeNullable,
 } from '@data-client/core';
-import { computed, watch, ref, unref } from 'vue';
+import { computed, watch, ref, toValue } from 'vue';
 
 import { useController, injectState } from '../context.js';
 import type {
@@ -65,7 +65,7 @@ export default function useFetch(endpoint: any, ...args: any[]): any {
   const controller = useController();
 
   // Track top-level reactive args (Refs are unwrapped). This allows props/refs to trigger updates.
-  const resolvedArgs = computed(() => args.map(a => unref(a as any)) as any);
+  const resolvedArgs = computed(() => args.map(a => toValue(a as any)) as any);
 
   // Compute a key that changes when args change (including reactive props)
   const argsKey = computed(() =>

@@ -284,6 +284,41 @@ describe('vue useDLE()', () => {
     cleanup();
   });
 
+  it('should fetch anew with param changes (getter args)', async () => {
+    const props = reactive({ id: payload.id });
+    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
+      (props: { id: number }) => {
+        return useDLE(CoolerArticleResource.get, () => ({ id: props.id }));
+      },
+      { props },
+    );
+
+    expect(result.data.value).toBe(undefined);
+    expect(result.error.value).toBe(undefined);
+    expect(result.loading.value).toBe(true);
+
+    await waitForNextUpdate();
+
+    expect(result.loading.value).toBe(false);
+    expect(result.error.value).toBeUndefined();
+    expect(result.data.value).toEqual(CoolerArticle.fromJS(payload));
+
+    props.id = payload2.id;
+    await nextTick();
+
+    expect(result.data.value).toBe(undefined);
+    expect(result.error.value).toBe(undefined);
+    expect(result.loading.value).toBe(true);
+
+    await waitForNextUpdate();
+
+    expect(result.loading.value).toBe(false);
+    expect(result.error.value).toBeUndefined();
+    expect(result.data.value).toEqual(CoolerArticle.fromJS(payload2));
+
+    cleanup();
+  });
+
   it('should not be loading with null params', async () => {
     const { result, cleanup } = await renderDataCompose(() => {
       return useDLE(CoolerArticleResource.get, null);

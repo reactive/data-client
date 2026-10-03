@@ -3,7 +3,7 @@ import type {
   Queryable,
   SchemaArgs,
 } from '@data-client/core';
-import { computed, unref, watch, type ComputedRef } from 'vue';
+import { computed, toValue, watch, type ComputedRef } from 'vue';
 
 import { useController, injectState } from '../context.js';
 import type { MaybeRefsOrGetters } from '../types.js';
@@ -24,7 +24,7 @@ export default function useQuery(schema: any, ...args: any[]): any {
   const controller = useController();
 
   // Track top-level reactive args (Refs are unwrapped). This allows props/refs to trigger updates.
-  const resolvedArgs = computed(() => args.map(a => unref(a as any)) as any);
+  const resolvedArgs = computed(() => args.map(a => toValue(a as any)) as any);
 
   // Compute query meta based on state and args. This mirrors React's memoization
   // that keys off state.entities/indexes and args.

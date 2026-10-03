@@ -344,6 +344,58 @@ describe('vue useCache()', () => {
     cleanup();
   });
 
+  it('should handle null args by returning undefined (getter args)', async () => {
+    const props = reactive({ id: payload.id as number | null });
+    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
+      (props: { id: number | null }) =>
+        useCache(CoolerArticleResource.get, () =>
+          props.id !== null ? { id: props.id } : null,
+        ),
+      {
+        props,
+        initialFixtures: [
+          {
+            endpoint: CoolerArticleResource.get,
+            args: [{ id: payload.id }],
+            response: payload,
+          },
+          {
+            endpoint: CoolerArticleResource.get,
+            args: [{ id: payload2.id }],
+            response: payload2,
+          },
+        ],
+      },
+    );
+
+    // Wait for initial render
+    await waitForNextUpdate();
+
+    expect(result.value).toBeDefined();
+
+    // Verify initial values
+    expect(result.value?.title).toBe(payload.title);
+    expect(result.value?.content).toBe(payload.content);
+
+    // Change to null - the ComputedRef should reactively become undefined
+    props.id = null;
+    await nextTick();
+
+    // The same ComputedRef should now have undefined value
+    expect(result.value).toBeUndefined();
+
+    // Change back to valid id - should get cached data
+    props.id = payload2.id;
+    await nextTick();
+
+    // The ComputedRef should now have the new article data
+    expect(result.value).toBeDefined();
+    expect(result.value?.title).toBe(payload2.title);
+    expect(result.value?.content).toBe(payload2.content);
+
+    cleanup();
+  });
+
   it('returns undefined for stale data when invalidIfStale is true', async () => {
     const { result, controller, waitForNextUpdate, cleanup } =
       await renderDataCompose(

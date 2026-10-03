@@ -419,6 +419,53 @@ describe('vue useQuery()', () => {
       expect(result.value?.title).toBe('Second Article');
     });
 
+    it('should update result when Entity args change (getter args)', async () => {
+      const payload1 = {
+        id: 1,
+        title: 'First Article',
+        slug: 'first-article',
+        content: 'content 1',
+        tags: ['tag1'],
+      };
+      const payload2 = {
+        id: 2,
+        title: 'Second Article',
+        slug: 'second-article',
+        content: 'content 2',
+        tags: ['tag2'],
+      };
+
+      const props = reactive({ id: 1 });
+      const { result } = await renderDataCompose(
+        () => {
+          return useQuery(ArticleWithSlug, () => ({ id: props.id }));
+        },
+        {
+          initialFixtures: [
+            {
+              endpoint: ArticleSlugResource.get,
+              args: [{ id: 1 }],
+              response: payload1,
+            },
+            {
+              endpoint: ArticleSlugResource.get,
+              args: [{ id: 2 }],
+              response: payload2,
+            },
+          ],
+        },
+      );
+
+      expect(result.value).toEqual(ArticleWithSlug.fromJS(payload1));
+      expect(result.value?.id).toBe(1);
+      expect(result.value?.title).toBe('First Article');
+
+      props.id = 2;
+      expect(result.value).toEqual(ArticleWithSlug.fromJS(payload2));
+      expect(result.value?.id).toBe(2);
+      expect(result.value?.title).toBe('Second Article');
+    });
+
     it('should update result when Entity args change from slug to id', async () => {
       const props = reactive({
         id: 5 as number | undefined,

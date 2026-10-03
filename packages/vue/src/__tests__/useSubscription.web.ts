@@ -177,6 +177,85 @@ describe('vue useSubscription()', () => {
     cleanup();
   });
 
+  it('should not receive updates after unsubscribing by setting active to null (getter args)', async () => {
+    jest.useFakeTimers();
+    const frequency = PollingArticleResource.get.pollFrequency as number;
+    expect(frequency).toBe(5000);
+
+    const responseMock = jest.fn(() => payload);
+    const propsRef = reactive({ active: true });
+
+    const { result, waitForNextUpdate, allSettled, cleanup } =
+      await renderDataCompose(
+        (props: { active: boolean }) => {
+          const args = () => (props.active ? { id: payload.id } : null);
+          useSubscription(PollingArticleResource.get, args);
+          return useSuspense(PollingArticleResource.get, {
+            id: payload.id,
+          });
+        },
+        {
+          props: propsRef,
+          resolverFixtures: [
+            {
+              endpoint: PollingArticleResource.get,
+              response: responseMock,
+            },
+          ],
+        },
+      );
+
+    // Wait for initial render
+    jest.advanceTimersByTime(frequency);
+    await allSettled();
+    await waitForNextUpdate();
+
+    // Verify initial values
+    const initialArticleRef = await result;
+    expect(initialArticleRef!.value!.title).toBe(payload.title);
+    expect(responseMock).toHaveBeenCalledTimes(1);
+
+    // Change the mock response
+    responseMock.mockReturnValue({
+      ...payload,
+      title: 'after first poll',
+    });
+
+    // Advance time to trigger another poll
+    jest.advanceTimersByTime(frequency);
+    await allSettled();
+    await nextTick();
+
+    // Verify the article was updated
+    const updatedArticleRef = await result;
+    expect(updatedArticleRef!.value!.title).toBe('after first poll');
+    expect(responseMock).toHaveBeenCalledTimes(2);
+
+    // Now unsubscribe by setting active to false
+    propsRef.active = false;
+    await nextTick();
+
+    // Change the mock response again
+    responseMock.mockReturnValue({
+      ...payload,
+      title: 'should not see this',
+    });
+
+    // Advance time - subscription should not trigger
+    jest.advanceTimersByTime(frequency);
+    await allSettled();
+    await nextTick();
+
+    // Verify the article was NOT updated (still has old value)
+    const finalArticleRef = await result;
+    expect(finalArticleRef!.value!.title).toBe('after first poll');
+    // Should still be 2 calls, no new poll happened
+    expect(responseMock).toHaveBeenCalledTimes(2);
+
+    jest.useRealTimers();
+    cleanup();
+  });
+
   it('should unsubscribe when subscribed component unmounts', async () => {
     jest.useFakeTimers();
     const frequency = PollingArticleResource.get.pollFrequency as number;
