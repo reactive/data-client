@@ -23,9 +23,9 @@ in your coding agent, then ask it to inspect the current page or app state.
 :::vue
 
 Install the [`data-client-react` skill](https://skills.sh/reactive/data-client/data-client-react)
-in your coding agent, then ask it to inspect the current page or app state. Its DevTools debugging
-workflow only uses the [Controller](../api/Controller.md), so it works the same with
-`@data-client/vue`.
+in your coding agent, then ask it to inspect the current page or app state using the skill's
+`devtools-debugging` reference. That workflow only uses the [Controller](../api/Controller.md), so it
+works the same with `@data-client/vue`, even though the skill is written for React.
 
 :::
 
@@ -36,7 +36,7 @@ cache state, endpoint metadata, and dispatched actions directly from the running
 
 Technically, those controllers are stored on `globalThis.__DC_CONTROLLERS__`, which is a
 browser-global `Map`. You can think of it as a temporary dev-mode registry that lets tools
-and agents look up the active :react[`DataProvider` stores]:vue[stores (one per app that installs `DataClientPlugin`)] for the current page.
+and agents look up the active :react[`DataProvider`]:vue[`DataClientPlugin`] stores for the current page.
 
 At a high level, the agent can:
 
