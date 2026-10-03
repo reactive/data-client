@@ -11,11 +11,11 @@ const lines = (start: number, end: number) => ({
 
 describe('highlightSelections', () => {
   test('selects a single line through the start of the next', () => {
-    expect(highlightSelections('2')).toEqual([lines(2, 3)]);
+    expect(highlightSelections([2])).toEqual([lines(2, 3)]);
   });
 
   test('merges consecutive lines and splits gaps', () => {
-    expect(highlightSelections('1-3,5,7-8')).toEqual([
+    expect(highlightSelections([1, 2, 3, 5, 7, 8])).toEqual([
       lines(1, 4),
       lines(5, 6),
       lines(7, 9),

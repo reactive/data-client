@@ -1,5 +1,6 @@
 import Editor from '@monaco-editor/react';
 import type * as Monaco from 'monaco-editor';
+import rangeParser from 'parse-numeric-range';
 import { memo, useCallback, useMemo } from 'react';
 import { LiveEditor } from 'react-live';
 
@@ -56,7 +57,7 @@ function InteractiveEditor({
   const handleMount = useCallback((editor: Monaco.editor.ICodeEditor) => {
     if (autoFocus) editor.focus();
     if (highlights) {
-      const selections = highlightSelections(highlights);
+      const selections = highlightSelections(rangeParser(highlights));
       if (selections.length) editor.setSelections(selections);
     }
     // Focus reveals this tab (also how cross-tab go to definition lands)

@@ -1,12 +1,11 @@
 import type { ISelection } from 'monaco-editor';
-import rangeParser from 'parse-numeric-range';
 
 /**
- * Converts a code-fence highlight range (`{1-3,5}`) into Monaco selections,
- * merging consecutive lines into one whole-line selection each.
+ * Converts sorted highlighted line numbers (parsed from a code-fence range
+ * like `{1-3,5}`) into Monaco selections, merging consecutive lines into one
+ * whole-line selection each.
  */
-export function highlightSelections(highlights: string): ISelection[] {
-  const lines = rangeParser(highlights);
+export function highlightSelections(lines: readonly number[]): ISelection[] {
   if (!lines.length) return [];
 
   let selectionStartLineNumber = lines[0];
