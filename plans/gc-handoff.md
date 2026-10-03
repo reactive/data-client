@@ -328,14 +328,11 @@ APIs, or default provider policy.
 
 ### Branch state
 
-PR #4034 is open against `master`. Before this handoff commit the branch
-was 4 commits ahead of its merge base with `origin/master` and 3 behind.
-Those three are unrelated: #4099 renderDataHook suspense mount, #4094
-concurrent rendering tests, and #4093 bundle-size CI. Rebase or merge before
-further implementation; do not assume the harness still passes on current
-master until that is done.
+PR #4034 is open against `master`. It was rebased onto the commits from
+#4099, #4094, and #4093. Re-check CI on the rebased tip before treating the
+harness as green on current master.
 
-This handoff commit only adds this file. It does not change harness code.
+This handoff file does not change harness code.
 
 ### How to ignore the previous agent's preferences
 
