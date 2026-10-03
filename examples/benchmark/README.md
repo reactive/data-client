@@ -96,8 +96,8 @@ yarn workspace example-benchmark start:gc:verify
 Every `yarn build:benchmark` / workspace `build` runs webpack then writes
 `dist/gc-build-manifest.json` (BuildManifest v1: `schemaVersion`, `buildId`,
 `commit`, `dirty`, `sourceDigest`, `artifacts`). `sourceDigest` hashes sorted
-relevant inputs on disk (`packages/core/src/**`, GC harness/runner/config/
-package files), so dirty or untracked relevant files change it. `artifacts`
+relevant inputs on disk (`packages/core/src/**`, `examples/gc-shared/**`,
+GC harness/runner/config/package files), so dirty or untracked relevant files change it. `artifacts`
 maps each emitted `dist/*` file (except the manifest) to sha256. `buildId` is
 the digest of those canonical fields excluding itself.
 
@@ -113,7 +113,7 @@ tampering are rejected and restores all files afterward.
 Examples:
 
 ```bash
-# All 1k scenarios (substring filter); JSON on stdout
+# All 1k scenarios (not 10k/100k); JSON on stdout
 yarn workspace example-benchmark start:gc /1000/ --samples=5
 
 # Single 100k entity scan without building unrelated fixtures
@@ -126,8 +126,12 @@ yarn workspace example-benchmark start:gc entity/duplicate/1000
 yarn workspace example-benchmark start:gc /1000/scan/gc --no-table > gc-report.json
 ```
 
-Filter syntax matches the other suites (`text` substring, `^text` prefix) against
-stable scenario IDs:
+Unlike the other suites' substring filter, `start:gc` filters match
+**slash-bounded segments** of the stable scenario ID (`1000` and `/1000/` match
+the 1000 count only, never 10000/100000; `entity/duplicate/1000` must be
+contiguous segments), or `^text` for an ID prefix. The axes, IDs, and filter
+are shared with the browser and Android harnesses via
+[`examples/gc-shared`](../gc-shared/README.md):
 
 `node/{entity|endpoint|mixed}/{unique|duplicate}/{1000|10000|100000}/{scan|reducer|end-to-end}/{gc|no-gc}`
 

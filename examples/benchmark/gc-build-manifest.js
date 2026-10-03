@@ -39,7 +39,6 @@ const BENCH_SOURCE_FILES = [
   'examples/benchmark/gc-build-manifest.js',
   'examples/benchmark/gc-policy.js',
   'examples/benchmark/gc-policy-scenarios.js',
-  'examples/benchmark/filter.js',
   'examples/benchmark/package.json',
   'examples/benchmark/webpack.config.cjs',
   'examples/benchmark/src/index.ts',
@@ -47,6 +46,8 @@ const BENCH_SOURCE_FILES = [
 ];
 
 const CORE_SRC_DIR = 'packages/core/src';
+/** Source directories walked recursively (relative to repo root). */
+const SOURCE_DIRS = [CORE_SRC_DIR, 'examples/gc-shared'];
 
 function sha256Buffer(buf) {
   return createHash('sha256').update(buf).digest('hex');
@@ -79,14 +80,16 @@ function walkFiles(absDir, repoRelDir) {
 
 /**
  * Sorted list of relevant source paths (repo-relative posix).
- * Includes untracked files under packages/core/src when present on disk.
+ * Includes untracked files under SOURCE_DIRS when present on disk.
  */
 export function listRelevantSourcePaths() {
-  const coreFiles = walkFiles(path.join(REPO_ROOT, CORE_SRC_DIR), CORE_SRC_DIR);
+  const dirFiles = SOURCE_DIRS.flatMap(dir =>
+    walkFiles(path.join(REPO_ROOT, dir), dir),
+  );
   const benchFiles = BENCH_SOURCE_FILES.filter(rel =>
     existsSync(path.join(REPO_ROOT, rel)),
   );
-  return [...new Set([...coreFiles, ...benchFiles])].sort((a, b) =>
+  return [...new Set([...dirFiles, ...benchFiles])].sort((a, b) =>
     a.localeCompare(b),
   );
 }
@@ -156,7 +159,7 @@ export function gitCommitFull() {
 export function computeDirty() {
   try {
     // Pathspecs already scope status to relevant inputs.
-    const pathspecs = [CORE_SRC_DIR, ...BENCH_SOURCE_FILES];
+    const pathspecs = [...SOURCE_DIRS, ...BENCH_SOURCE_FILES];
     const out = execFileSync(
       'git',
       ['status', '--porcelain', '-u', '--', ...pathspecs],
