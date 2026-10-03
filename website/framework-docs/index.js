@@ -115,15 +115,28 @@ function watch(framework) {
   });
 }
 
+/** Apply `<framework>_label` overrides; strips every framework's keys */
+function rewriteLabel(item, framework) {
+  const next = { ...item };
+  for (const fw of FRAMEWORKS) delete next[`${fw}_label`];
+  if (item[`${framework}_label`]) next.label = item[`${framework}_label`];
+  return next;
+}
+
 /** Drop sidebar entries for docs that do not exist in this framework */
-function filterSidebar(items, ids) {
+function filterSidebar(items, ids, framework) {
   return items.flatMap(item => {
-    if (item.type === 'doc') return ids.has(item.id) ? [item] : [];
+    // string shorthand ('introduction') has no label to override
+    if (typeof item !== 'object') return [item];
+    if (item.type === 'doc')
+      return ids.has(item.id) ? [rewriteLabel(item, framework)] : [];
     if (item.type === 'category') {
-      const children = filterSidebar(item.items, ids);
-      return children.length ? [{ ...item, items: children }] : [];
+      const children = filterSidebar(item.items, ids, framework);
+      return children.length ?
+          [{ ...rewriteLabel(item, framework), items: children }]
+        : [];
     }
-    return [item];
+    return [rewriteLabel(item, framework)];
   });
 }
 
@@ -132,7 +145,7 @@ function sidebarsFor(framework, sidebars) {
   return Object.fromEntries(
     Object.entries(sidebars).map(([name, items]) => [
       name,
-      filterSidebar(items, ids),
+      filterSidebar(items, ids, framework),
     ]),
   );
 }

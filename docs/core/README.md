@@ -1,5 +1,6 @@
 ---
 title: Introducing the Reactive Data Client
+vue_title: Introducing the Reactive Data Client for Vue
 sidebar_label: Introduction
 description: Building delightful dynamic applications with NextJS, Expo, React Native and more.
 vue_description: Building delightful dynamic applications with Vue and more.
