@@ -5,6 +5,7 @@ import type {
   Schema,
   FetchFunction,
   DenormalizeNullable,
+  ResolveType,
 } from '@data-client/core';
 import { computed, watch, ref, unref, type Ref } from 'vue';
 
@@ -14,7 +15,7 @@ import type {
   MaybeRefsOrGettersNullable,
 } from '../types.js';
 
-type FetchPromise = Promise<any> & { resolved: boolean };
+type FetchPromise<T = any> = Promise<T> & { resolved: boolean };
 
 const RESOLVED = Object.assign(Promise.resolve(), {
   resolved: true,
@@ -45,8 +46,10 @@ export default function useFetch<
   ...args: MaybeRefsOrGetters<Parameters<E>>
 ): Readonly<
   Ref<
-    E['schema'] extends undefined | null ? ReturnType<E> & { resolved: boolean }
-    : Promise<Denormalize<E['schema']>> & { resolved: boolean }
+    FetchPromise<
+      E['schema'] extends undefined | null ? ResolveType<E>
+      : Denormalize<E['schema']>
+    >
   >
 >;
 
@@ -61,14 +64,18 @@ export default function useFetch<
   ...args: MaybeRefsOrGettersNullable<Parameters<E>> | readonly [null]
 ): Readonly<
   Ref<
-    E['schema'] extends undefined | null ?
-      (ReturnType<E> & { resolved: boolean }) | undefined
-    : | (Promise<DenormalizeNullable<E['schema']>> & { resolved: boolean })
-      | undefined
+    | FetchPromise<
+        E['schema'] extends undefined | null ? ResolveType<E>
+        : DenormalizeNullable<E['schema']>
+      >
+    | undefined
   >
 >;
 
-export default function useFetch(endpoint: any, ...args: any[]): any {
+export default function useFetch(
+  endpoint: any,
+  ...args: any[]
+): Readonly<Ref<FetchPromise | undefined>> {
   const stateRef = injectState();
   const controller = useController();
 
