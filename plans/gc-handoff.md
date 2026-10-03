@@ -135,7 +135,8 @@ Committed tests on React 19.2 narrow that reading:
   nothing re-renders. The consumer shows stale data until an unrelated
   update, then suspends and refetches. In an app this needs an idle callback
   to fire between a non-sync commit and React's scheduled passive-effect
-  flush. How often that happens is unmeasured.
+  flush. How often that happens is unmeasured. The test passes on React
+  17.0.2, 18.3.1, and 19.2.3.
 
 Vue's provider in
 [packages/vue/src/providers/createDataClient.ts](../packages/vue/src/providers/createDataClient.ts)
