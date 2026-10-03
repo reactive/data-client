@@ -1,6 +1,6 @@
 # Framework docs
 
-`docs/core` is the single source for both the React docs (`/docs`) and the Vue docs (`/docs/vue`).
+`docs/core` is the single source for both the React docs (`/docs`) and the Vue docs (`/vue`).
 
 ## Authoring
 

@@ -16,7 +16,7 @@ require('./scripts/generateMonacoPreloads.cjs').ensureMonacoPreloadManifest();
 
 const isDev = process.env.NODE_ENV === 'development';
 
-// docs/core is shared by React (/docs) and Vue (/docs/vue); see framework-docs/
+// docs/core is shared by React (/docs) and Vue (/vue); see framework-docs/
 const frameworkDocs = require('./framework-docs/index.js');
 const remarkFramework = require('./framework-docs/remarkFramework.js');
 const vueDocs = frameworkDocs.generate('vue');
@@ -259,14 +259,14 @@ const config: Config = {
         id: 'vue',
         path: vueDocs.outDir,
         exclude: ['getting-started/README.md'],
-        routeBasePath: 'docs/vue',
+        routeBasePath: 'vue',
         sidebarPath: require.resolve('./framework-docs/sidebars-vue.js'),
         beforeDefaultRemarkPlugins: [
           [
             remarkFramework,
             {
               framework: 'vue',
-              routeBasePath: 'docs/vue',
+              routeBasePath: 'vue',
               docIds: frameworkDocs.docIds('vue'),
             },
           ],
@@ -337,6 +337,11 @@ const config: Config = {
     [
       '@docusaurus/plugin-client-redirects',
       {
+        // Vue docs briefly lived at /docs/vue
+        createRedirects(existingPath: string) {
+          if (existingPath === '/vue' || existingPath.startsWith('/vue/'))
+            return `/docs${existingPath}`;
+        },
         redirects: [
           {
             to: '/rest/guides/side-effects',
@@ -457,7 +462,14 @@ const config: Config = {
           type: 'doc',
           position: 'left',
           docId: 'introduction',
-          label: 'Docs',
+          label: 'React',
+        },
+        {
+          to: '/vue',
+          label: 'Vue',
+          position: 'left',
+          // Vue's API pages use a different sidebar, so match the whole path
+          activeBaseRegex: '^/vue(/|$)',
         },
         {
           type: 'docSidebar',
@@ -533,6 +545,10 @@ const config: Config = {
             {
               label: 'Introduction',
               to: '/docs',
+            },
+            {
+              label: 'Vue',
+              to: '/vue',
             },
             {
               label: 'REST',
