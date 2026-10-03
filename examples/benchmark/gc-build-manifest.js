@@ -46,8 +46,16 @@ const BENCH_SOURCE_FILES = [
 ];
 
 const CORE_SRC_DIR = 'packages/core/src';
-/** Source directories walked recursively (relative to repo root). */
-const SOURCE_DIRS = [CORE_SRC_DIR, 'examples/gc-shared'];
+/**
+ * Source directories walked recursively (relative to repo root): every
+ * package bundled into dist/index.js, plus the shared GC fixture/protocol.
+ */
+const SOURCE_DIRS = [
+  CORE_SRC_DIR,
+  'packages/normalizr/src',
+  'packages/endpoint/src',
+  'examples/gc-shared',
+];
 
 function sha256Buffer(buf) {
   return createHash('sha256').update(buf).digest('hex');
