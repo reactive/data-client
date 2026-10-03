@@ -532,6 +532,7 @@ import {
 import { unAuth } from '../authentication';
 import App from './App.vue';
 
+const myDomain = 'http://test.com';
 const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
 
 const managers = [
@@ -973,17 +974,19 @@ const updateHandler = useCallback(
 ```ts
 const controller = useController();
 
-const updateHandler = async updatePayload => {
-  await controller.fetch(MyResource.update, { id: props.id }, updatePayload);
-  // the store has already been updated when fetch() resolves
-  const { data: denormalized } = controller.getResponse(
-    MyResource.update,
+const handleRefresh = () => {
+  const { expiryStatus } = controller.getResponse(
+    MyResource.get,
     { id: props.id },
-    updatePayload,
     controller.getState(),
   );
-  router.push(denormalized.getterUrl);
+  // only refetch if the data is no longer fresh
+  if (expiryStatus !== ExpiryStatus.Valid)
+    controller.fetch(MyResource.get, { id: props.id });
 };
 ```
+
+Mutations (`sideEffect: true`) resolve _before_ the store is updated, so read their result from the
+value `fetch()` resolves with rather than `getState()`.
 
 :::
