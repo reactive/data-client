@@ -19,9 +19,7 @@ indexable and hydration-safe, and those behaviors are easy to drop silently.
 ```
 index.tsx           Playground: code model, editor/preview ordering, hidden handling
 userAgent.ts        isBot / isMobileOrBot gates
-PlaygroundEditor.tsx  editor entry used by EditorSurface (aliases editor/InteractiveEditor)
 PlaygroundLiveEditor.tsx  editable react-live editor (mobile/bot fallback)
-resources/          sample resources (currently unreferenced; kept for future demos)
 Boundary.tsx        BrowserOnly + Suspense with one fallback for SSR and loading
 Header.tsx, TabList.tsx, styles.module.css   shared chrome (also used by HTTP/, Demo/)
 editor/             code model + editor UI
