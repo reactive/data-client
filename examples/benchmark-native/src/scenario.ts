@@ -101,6 +101,19 @@ export function listScenarios(filter?: string): ScenarioAxes[] {
   const needle = prefix ? filter.slice(1) : filter;
   return out.filter(s => {
     const id = scenarioId(s);
-    return prefix ? id.startsWith(needle) : id.includes(needle);
+    return prefix ? id.startsWith(needle) : slashBoundedIncludes(id, needle);
   });
+}
+
+/**
+ * Contiguous slash-bounded segments. One leading slash and one trailing
+ * slash are removed, so `/100000/` matches the 100000 segment only.
+ * `1000` does not match `10000` or `100000`.
+ */
+function slashBoundedIncludes(id: string, filter: string): boolean {
+  let needle = filter;
+  if (needle.startsWith('/')) needle = needle.slice(1);
+  if (needle.endsWith('/')) needle = needle.slice(0, -1);
+  if (needle.length === 0) return true;
+  return `/${id}/`.includes(`/${needle}/`);
 }

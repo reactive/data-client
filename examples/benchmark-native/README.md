@@ -70,7 +70,7 @@ CANDIDATE_KIND=entity PATTERN=unique COUNT=100000 CONTROL=no-gc SAMPLES=5 \
 
 ### Matrix
 
-Full canonical matrix via loops; 100k skipped unless `FULL=1` or filter selects them.
+Full canonical matrix via loops; 100k skipped unless `FULL=1` or a filter selects those rows. Filters match slash-bounded segments, so `entity/unique/1000` does not select 10k or 100k. `/100000/` selects only the 100k rows and does not need `FULL=1`.
 
 ```bash
 SAMPLES=3 yarn workspace example-benchmark-native matrix
