@@ -74,13 +74,13 @@ function walkFiles(dir: string): string[] {
 
 /**
  * Sorted relevant inputs for sourceDigest:
- * packages/core/src + benchmark-react src/bench/config/package files.
+ * packages/core/src + examples/gc-shared + benchmark-react src/bench/config/package files.
  * Hashes actual file contents (includes dirty/untracked).
  */
 export function listSourceInputFiles(): string[] {
   const files = new Set<string>();
-  for (const f of walkFiles(path.join(REPO_ROOT, 'packages/core/src'))) {
-    files.add(f);
+  for (const dir of ['packages/core/src', 'examples/gc-shared']) {
+    for (const f of walkFiles(path.join(REPO_ROOT, dir))) files.add(f);
   }
   const benchRoots = [
     path.join(BENCH_ROOT, 'src'),

@@ -226,7 +226,7 @@ async function testThrowingWorkRejectsPromptly() {
     await import('../src/data-client/gcInteractionProbe.ts');
 
   const pendingRaf = new Set<ReturnType<typeof setTimeout>>();
-  const g = globalThis as typeof globalThis & {
+  const g = globalThis as unknown as {
     requestAnimationFrame?: (cb: (t: number) => void) => number;
     cancelAnimationFrame?: (id: number) => void;
   };
