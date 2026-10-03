@@ -30,6 +30,7 @@ All implementations share presentational components, fixture data, fetch functio
 - **With network (local)** — Same shared-author update but with simulated network delay (consistent ms per "request"). Normalized caches propagate via a single store update; query-keyed caches invalidate and refetch affected queries. **Not run in CI** — run locally with `yarn bench` (no `CI` env) to include these.
 - **Memory (local only)** — Heap delta after repeated mount/unmount cycles.
 - **Startup (local only)** — FCP and task duration via CDP `Performance.getMetrics`.
+- **GC (local only)** — Isolated data-client cache GC interaction + heap deltas on Chromium. Excluded by default and from CI; opt in with `--action gc`.
 
 ## Scenarios
 
@@ -51,6 +52,29 @@ All implementations share presentational components, fixture data, fetch functio
 **Memory (local only)**
 
 - **Memory mount/unmount cycle** (`memory-mount-unmount-cycle`) — Mount 500 issues, unmount, repeat 10 times; report JS heap delta (bytes) via CDP. Surfaces leaks or unbounded growth.
+
+**GC (local only, data-client)**
+
+Isolated monolithic cache-GC baseline (not V8/engine GC). Builds a separate Controller + timerless GCPolicy with raw deterministic state — no 100k React rows, no network. Mode is always end-to-end (sweep → reduce).
+
+- **Axes:** `candidateKind` entity|endpoint|mixed × `pattern` unique|duplicate (duplicate is entity-only) × `count` 1k/10k/100k × `control` gc|no-gc
+- **Timing boundaries:** prepare (fixtures + queue + quiet `displayPeriodMs` + dynamic harness import) is untimed; `runGCScenario` measures only sweep/no-op inside a Chromium-calibrated probe (rAF registers next rAF, then `setTimeout(0)` runs collection post-paint while a frame is pending — Chromium-specific calibration, not a web guarantee); engine GC for heap snapshots is outside interaction timing
+- **Probes:** wall-clock frame timestamps, `setTimeout(0)` `timerDelayMs`, `missedFrames` via nearest-period excess over measured `displayPeriodMs`, long-task overlap filter + `takeRecords`. `maxInputDelayMs` is a responsiveness proxy (not pointer input). Validation runs a synthetic 40–50 ms block calibration confirming the probe spans pending frames
+- **Stable IDs:** detailed report scenario ids are `browser/{kind}/{pattern}/{count}/end-to-end/{control}` (not display names)
+- **Failures:** incomplete runs write `complete:false` with failure records and exit nonzero
+- **Bundle fairness:** GC harness is a dynamic `import()` chunk loaded during prepare — not in the initial data-client bundle
+- **Provenance:** `yarn build` writes `dist/gc-build-manifest.json` (BuildManifest v1). GC runner verifies local source digest + artifact hashes and matching served manifest `buildId` before measuring; report embeds verified provenance (never live HEAD)
+- **Outputs:** scalar median `totalMs` on stdout. Detailed schemaVersion 1 JSON is always written to `gc-measurement-output.json` (gitignored; override path with `BENCH_GC_OUTPUT`). Failed runs still write `complete:false` reports before exiting nonzero
+
+```bash
+yarn build                                       # webpack + BuildManifest
+yarn bench:gc                                    # all GC scenarios, 5 samples each
+yarn bench:gc --scenario unique-1000 --samples 3
+yarn bench:gc --scenario entity-unique-100000
+BENCH_GC_OUTPUT=./custom-gc.json yarn bench:gc --scenario mixed-unique-100000
+yarn test:gc-metrics
+yarn test:gc-provenance                          # after build
+```
 
 **Startup (local only)**
 
@@ -171,8 +195,10 @@ CI convergence targets: 2% (small scenarios), 3% (large scenarios). Reported mar
    |---|---|---|
    | `--lib <names>` | `BENCH_LIB` | Comma-separated library names (e.g. `data-client,swr`) |
    | `--size <small\|large>` | `BENCH_SIZE` | Run only `small` (cheap, full rigor) or `large` (expensive, reduced runs) scenarios |
-   | `--action <group\|action>` | `BENCH_ACTION` | Filter by action group (`mount`, `update`, `mutation`, `memory`) or exact action name. Memory is **not run by default**; use `--action memory` to include. |
+   | `--action <group\|action>` | `BENCH_ACTION` | Filter by action group (`mount`, `update`, `mutation`, `memory`, `gc`) or exact action name. Memory and GC are **not run by default**; use `--action memory` or `--action gc` to include. |
    | `--scenario <pattern>` | `BENCH_SCENARIO` | Substring filter on scenario name |
+   | `--samples <n>` | `BENCH_GC_SAMPLES` | Samples per GC scenario (default 5; GC phase only) |
+   | (env only) | `BENCH_GC_OUTPUT` | Override detailed GC report path (default `gc-measurement-output.json`) |
 
    CLI flags take precedence over env vars. Examples:
 
@@ -181,6 +207,7 @@ CI convergence targets: 2% (small scenarios), 3% (large scenarios). Reported mar
    yarn bench --size small                      # only cheap scenarios (full warmup/measurement)
    yarn bench --action mount                    # init, mountSortedView
    yarn bench --action memory                   # memory-mount-unmount-cycle (heap delta; opt-in category)
+   yarn bench --action gc                       # isolated cache GC scenarios (data-client; opt-in)
    yarn bench --action update --lib swr         # update scenarios for swr only
    yarn bench --scenario sorted-view            # only sorted-view scenarios
    ```
@@ -191,6 +218,7 @@ CI convergence targets: 2% (small scenarios), 3% (large scenarios). Reported mar
    yarn bench:small       # --size small
    yarn bench:large       # --size large
    yarn bench:dc          # --lib data-client
+   yarn bench:gc          # --lib data-client --action gc
    ```
 
 5. **Scenario sizes**
@@ -201,6 +229,7 @@ CI convergence targets: 2% (small scenarios), 3% (large scenarios). Reported mar
    - **Small** (deterministic, single run): `ref-stability-*`
    - **Large** (convergent: 5 warmup + 10–50 measurement iterations): `getlist-500`, `getlist-500-sorted`, `update-user`, `update-user-10000`, `update-entity-sorted`, `update-entity-multi-view`, `list-detail-switch-10`
    - **Memory** (opt-in, 1 warmup + 3 measurement rounds): `memory-mount-unmount-cycle` — run with `--action memory`
+   - **GC** (opt-in, fixed samples default 5): `gc-*-{1000,10000,100000}-{gc,no-gc}` — run with `yarn bench:gc` or `--action gc`
 
    Timing scenarios use convergent mode (single page load, inline convergence per scenario). Each group uses its own warmup/measurement config. Use `--size` to run only one group.
 

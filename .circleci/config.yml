@@ -90,12 +90,7 @@ jobs:
       - run:
           name: Add examples/* to yarn workspace
           command: |
-            npm pkg delete workspaces[6]
-            npm pkg delete workspaces[5]
-            npm pkg delete workspaces[4]
-            npm pkg delete workspaces[3]
-            npm pkg delete workspaces[2]
-            npm pkg delete workspaces[1]
+            npm pkg set workspaces="$(node -p "JSON.stringify(require('./package.json').workspaces.filter(w => !w.startsWith('examples/') && w !== 'website'))")" --json
             npm pkg set 'workspaces[]'='examples/todo-app'
             npm pkg set 'workspaces[]'='examples/github-app'
             npm pkg set 'workspaces[]'='examples/normalizr-relationships'

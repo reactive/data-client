@@ -32,7 +32,7 @@ Filtering: `yarn bench --lib data-client --size small --action update`
 
 ## Scenario System
 
-`BASE_SCENARIOS` in `bench/scenarios.ts` × `LIBRARIES` via `flatMap`. `onlyLibs` restricts to specific libs. CI runs data-client hot-path only (no memory/startup/deterministic). Memory is opt-in locally (`--action memory`). Convergent timing uses single page load with adaptive iterations and early stopping on statistical convergence. Ref-stability scenarios run once (deterministic count, not ops/s).
+`BASE_SCENARIOS` in `bench/scenarios.ts` × `LIBRARIES` via `flatMap`. `onlyLibs` restricts to specific libs. CI runs data-client hot-path only (no memory/startup/deterministic/gc). Memory and GC are opt-in locally (`--action memory` / `--action gc` / `yarn bench:gc`). Convergent timing uses single page load with adaptive iterations and early stopping on statistical convergence. Ref-stability scenarios run once (deterministic count, not ops/s). GC uses a dedicated fixed-sample phase with an isolated Controller harness (`src/data-client/gcBrowserHarness.ts`), not the DataProvider `benchGC` singleton.
 
 ## Update Data Flow
 
@@ -75,3 +75,7 @@ Filtering: `yarn bench --lib data-client --size small --action update`
 | `BENCH_TRACE=true` | Chrome tracing for duration scenarios |
 | `BENCH_V8_TRACE=true` | Launch Chromium with `--trace-opt --trace-deopt`; output to `v8-trace.log` |
 | `BENCH_V8_DEOPT=true` | Launch Chromium with `--prof`; V8 logs to `v8-logs/` |
+| `BENCH_GC_SAMPLES` | Samples per GC scenario (default 5; also `--samples`) |
+| `BENCH_GC_OUTPUT` | Override path for detailed GC JSON (default `gc-measurement-output.json`, gitignored) |
+
+BuildManifest v1 is written to `dist/gc-build-manifest.json` after webpack (`yarn build`). `buildId` digests schemaVersion, commit, dirty, sourceDigest, and sorted artifact hashes. GC runs require a matching served manifest.
