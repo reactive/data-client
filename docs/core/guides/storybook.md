@@ -1,4 +1,5 @@
 ---
+frameworks: [react]
 title: Mocking data for Storybook
 sidebar_label: Mocking data for Storybook
 ---

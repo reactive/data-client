@@ -45,7 +45,7 @@ export class Ticker extends Entity {
   ): any {
     const value = { ...input };
     // sometimes product_id is not included in the API response
-    if (args[0].product_id) {
+    if (args[0]?.product_id) {
       value.product_id = args[0].product_id;
     }
     // fallback to current price to show no gain if we don't have 24 hour

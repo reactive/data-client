@@ -75,3 +75,6 @@ typings/
 **/tsconfig*.tsbuildinfo
 
 /codemods
+
+# generated Vue mirror of docs/core (website/framework-docs)
+docs/.core-*

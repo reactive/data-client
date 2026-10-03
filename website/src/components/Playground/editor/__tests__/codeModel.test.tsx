@@ -16,6 +16,24 @@ describe('code document model', () => {
     ]);
   });
 
+  test('selects a Vue SFC tab by its component name', () => {
+    const documents = parseCodeDocuments(
+      [
+        code({ metastring: 'title="Post" collapsed' }, 'export {};'),
+        code(
+          {
+            className: 'language-html',
+            metastring: 'title="PostList.vue" collapsed',
+          },
+          '<template />',
+        ),
+      ],
+      'PostList',
+    );
+
+    expect(documents.map(doc => doc.collapsed)).toEqual([true, false]);
+  });
+
   test('parses metadata and selects the requested default tab', () => {
     const documents = parseCodeDocuments(
       [

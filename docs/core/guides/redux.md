@@ -1,4 +1,5 @@
 ---
+frameworks: [react]
 id: redux
 title: Empowering Redux with Reactive Data Client
 sidebar_label: Redux integration

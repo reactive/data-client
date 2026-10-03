@@ -1,4 +1,5 @@
 ---
+frameworks: [react]
 title: DataProvider - Normalized async data management in React
 sidebar_label: <DataProvider />
 description: High performance, globally consistent data management in React

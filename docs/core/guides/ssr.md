@@ -1,4 +1,5 @@
 ---
+frameworks: [react]
 id: ssr
 title: Server Side Rendering with NextJS, Express, and more
 sidebar_label: Server Side Rendering

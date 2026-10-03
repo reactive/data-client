@@ -9,11 +9,13 @@ import styles from './Playground/styles.module.css';
 export default function TypeScriptEditor({
   children,
   row,
+  defaultTab,
 }: {
   children: string | React.ReactNode | React.ReactNode[];
   row?: boolean;
+  defaultTab?: string;
 }) {
-  const model = useCodeDocuments(children);
+  const model = useCodeDocuments(children, defaultTab);
   const isRow = row ?? model.documents.length > 1;
 
   return (

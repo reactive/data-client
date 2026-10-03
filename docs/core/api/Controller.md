@@ -21,8 +21,8 @@ and retrieval performance.
 `Controller` is provided:
 
 - [Managers](./Manager.md) as the first argument in [Manager.middleware](./Manager.md#middleware)
-- React with [useController()](./useController.md)
-- [Unit testing hooks](../guides/unit-testing-hooks.md) with [renderDataHook()](./renderDataHook.md#controller)
+- :react[React]:vue[Vue] with [useController()](./useController.md)
+- :react[[Unit testing hooks](../guides/unit-testing-hooks.md) with [renderDataHook()](./renderDataHook.md#controller)]:vue[Unit testing composables with `renderDataCompose()` from `@data-client/vue/test`]
 
 ```ts
 class Controller {
@@ -34,6 +34,7 @@ class Controller {
   invalidateAll({ testKey }): Promise<void>;
   resetEntireStore(): Promise<void>;
   set(queryable, ...args, value): Promise<void>;
+  set([Entity], rows): Promise<void>;
   setResponse(endpoint, ...args, response): Promise<void>;
   setError(endpoint, ...args, error): Promise<void>;
   resolve(endpoint, { args, response, fetchedAt, error }): Promise<void>;
@@ -365,7 +366,7 @@ function UserName() {
 
 ### set(queryable, ...args, value) {#set}
 
-Updates any [Queryable](/rest/api/schema#queryable) [Schema](/rest/api/schema#schema-overview).
+Updates any [Queryable](/rest/api/schema#queryable) [Schema](/rest/api/schema#schema-overview), or many entities at once with an [Array](/rest/api/Array) schema.
 
 ```ts
 ctrl.set(
@@ -383,6 +384,26 @@ Functions can be used in the value when derived data is used. This [prevents rac
 const id = '2';
 ctrl.set(Article, { id }, article => ({ id, votes: article.votes + 1 }));
 ```
+
+#### set([Entity], rows) {#set-array}
+
+Pass an [Array](/rest/api/Array) schema (`[Todo]` or `new schema.Array(Todo)`) and a list of rows to update
+many entities in one store update. Each row merges with its stored entity; entities not in the list are untouched.
+
+```ts
+ctrl.set(
+  [Todo],
+  [
+    { id: '5', completed: true },
+    { id: '6', completed: false },
+  ],
+);
+```
+
+Array schemas take no `args` (so [Entity.pk()](/rest/api/Entity#pk) and [Entity.process()](/rest/api/Entity#process)
+receive `[]`) and no updater function. Rows that share a pk merge in list order, without
+[Entity.shouldReorder()](/rest/api/Entity#shouldreorder). Use this instead of calling `set()` once per row, such as when
+[batching high-frequency stream updates](../concepts/managers.md#batching).
 
 ### setResponse(endpoint, ...args, response) {#setResponse}
 

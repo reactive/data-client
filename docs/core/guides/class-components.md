@@ -1,4 +1,5 @@
 ---
+frameworks: [react]
 title: Using hooks with class components
 ---
 import PkgTabs from '@site/src/components/PkgTabs';
