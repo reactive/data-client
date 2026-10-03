@@ -27,6 +27,7 @@ Minimal working examples for each use case live in [references/managers.md](refe
 | Cross-tab sync                              | "Cross-tab synchronization" in [managers.md](references/managers.md)              | BroadcastChannel + `controller.expireAll()`                                                                                                                          |
 | Offline persistence (IndexedDB)             | "Offline persistence" in [managers.md](references/managers.md)                    | debounced IndexedDB write of `controller.getState()` (drop `optimistic` - not cloneable); restore via DataProvider `initialState`. Never use localStorage (blocking) |
 | Websocket/SSE push streams                  | "Middleware data stream" in [managers.md](references/managers.md)                 | `controller.set()` on message; connect in `init()`, close in `cleanup()`                                                                                             |
+| High-frequency streams / snapshots          | "Batching high-frequency updates" in [managers.md](references/managers.md)        | buffer, then one `controller.set([Entity], rows)` per flush                                                                                                          |
 | Polling/interval updates (ticker)           | "Dispatching Actions" in [Manager.md](references/Manager.md); `TimeManager` below | `setInterval` + `controller.set()`                                                                                                                                   |
 | Custom transport subscriptions              | "Reading and Consuming Actions" in [Manager.md](references/Manager.md)            | consume `SUBSCRIBE`/`UNSUBSCRIBE` without calling `next`                                                                                                             |
 | Auth: logout on 401, reset store on deauth  | [LogoutManager.md](references/LogoutManager.md)                                   | `handleLogout(controller)` + `controller.resetEntireStore()`                                                                                                         |
@@ -70,6 +71,8 @@ export default class TimeManager implements Manager {
   }
 }
 ```
+
+Write many entities in one store update with `controller.set([Entity], rows)` (websocket snapshots, buffered stream messages). Never loop `controller.set(Entity, args, row)` per row, and never add an endpoint or `setResponse()` just to batch.
 
 ## Reading and Consuming Actions
 

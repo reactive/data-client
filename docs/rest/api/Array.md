@@ -81,6 +81,21 @@ render(<UsersPage />);
 
 </HooksPlayground>
 
+### Updating many entities
+
+Use an Array with [Controller.set()](/docs/api/Controller#set-array) to write many entities in one store update,
+without an endpoint.
+
+```ts
+ctrl.set(
+  [User],
+  [
+    { id: '123', name: 'Jim' },
+    { id: '456', name: 'Jane' },
+  ],
+);
+```
+
 ### Polymorphic types
 
 If your input data is an array of more than one type of entity, it is necessary to define a schema mapping.
