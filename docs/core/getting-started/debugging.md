@@ -11,23 +11,36 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 ## Debugging with agents
 
 For many debugging tasks, the fastest path is to use an agent that already knows the
-`@data-client/react` debugging workflow.
+:react[`@data-client/react`]:vue[`@data-client/vue`] debugging workflow.
+
+:::react
 
 Install the [`data-client-react` skill](https://skills.sh/reactive/data-client/data-client-react)
 in your coding agent, then ask it to inspect the current page or app state.
 
+:::
+
+:::vue
+
+Install the [`data-client-react` skill](https://skills.sh/reactive/data-client/data-client-react)
+in your coding agent, then ask it to inspect the current page or app state. Its DevTools debugging
+workflow only uses the [Controller](../api/Controller.md), so it works the same with
+`@data-client/vue`.
+
+:::
+
 ### How agent debugging works
 
-In dev mode, `DevToolsManager` exposes live `Controller` instances so an agent can inspect
+In dev mode, [DevToolsManager](../api/DevToolsManager.md) exposes live `Controller` instances so an agent can inspect
 cache state, endpoint metadata, and dispatched actions directly from the running app.
 
 Technically, those controllers are stored on `globalThis.__DC_CONTROLLERS__`, which is a
 browser-global `Map`. You can think of it as a temporary dev-mode registry that lets tools
-and agents look up the active `DataProvider` stores for the current page.
+and agents look up the active :react[`DataProvider` stores]:vue[stores (one per app that installs `DataClientPlugin`)] for the current page.
 
 At a high level, the agent can:
 
-- discover the active `DataProvider` controllers
+- discover the active :react[`DataProvider`]:vue[`DataClientPlugin`] controllers
 - read normalized or denormalized cache state
 - inspect recent fetches, responses, errors, and invalidations
 - correlate store changes with browser network activity
@@ -51,6 +64,8 @@ or
 
 ### Open dev tools
 
+:::react
+
 <span style={{float:'right',marginLeft:'10px',width:'190px',textAlign:'center'}}>
 ![redux-devtools browser button](/img/devtools-browser-button.png)
 <span style={{display:'inline-block',width:'40px',height:'40px'}}>
@@ -58,7 +73,17 @@ or
 </span>
 </span>
 
-After installing and loading your [site in dev-mode](https://webpack.js.org/guides/development/), :react[you either
+:::
+
+:::vue
+
+<span style={{float:'right',marginLeft:'10px',width:'190px',textAlign:'center'}}>
+![redux-devtools browser button](/img/devtools-browser-button.png)
+</span>
+
+:::
+
+After installing and loading your site in :react[[dev-mode](https://webpack.js.org/guides/development/)]:vue[[dev-mode](https://vite.dev/guide/env-and-mode)], :react[you either
 click the <abbr title="Reactive Data Client">Data Client</abbr> logo (default bottom-right of window) or the
 redux-devtool logo in the location bar.]:vue[click the redux-devtool logo in the location bar.]
 
@@ -130,6 +155,8 @@ Tracing is not enabled by default as it is very computationally expensive. Howev
 in tracking down where [actions](../api/Actions.md) are dispatched from. Customize [DevToolsManager](../api/DevToolsManager.md)
 by setting the trace option to `true` with [getDefaultManagers](../api/getDefaultManagers.md):
 
+:::react
+
 ```tsx title="index.tsx"
 import {
   DevToolsManager,
@@ -149,3 +176,24 @@ ReactDOM.createRoot(document.body).render(
   </DataProvider>,
 );
 ```
+
+:::
+
+:::vue
+
+```ts title="main.ts"
+import { createApp } from 'vue';
+import { DataClientPlugin, getDefaultManagers } from '@data-client/vue';
+import App from './App.vue';
+
+const managers = getDefaultManagers({
+  // highlight-next-line
+  devToolsManager: { trace: true },
+});
+
+const app = createApp(App);
+app.use(DataClientPlugin, { managers });
+app.mount('#app');
+```
+
+:::
