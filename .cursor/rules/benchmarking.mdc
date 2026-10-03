@@ -229,6 +229,7 @@ Use this mapping when deciding which suite(s) to run for a change:
   - **Recommended filters**:
     - Changes to `setResponse()` or reducer updates: `^set`
     - Changes to `getResponse()` or cache retrieval: `^get`
+    - Changes to `Controller.set()` or batch writes: `setMany` (one `set()` per row vs one `set([Entity], rows)`, into a 500-entity store)
 
 - **`spread`** (`@examples/benchmark/spread.js`, scenarios shared with `memory.js` via `@examples/benchmark/spread-scenarios.js`)
   - **Primary focus**: degenerate cases where spread-operation cost scales with **store size** rather than payload size — single-entity `setResponse` into 1k/10k/100k entity stores (per-type entity map clone in `NormalizeDelegate`), writes with 10k cached endpoint keys (`endpoints`/`meta` spreads in `setResponseReducer`), collection push onto 10k items (`pushMerge`), and `invalidateAll`/`expireAll` over 10k endpoints.
