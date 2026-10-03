@@ -1,7 +1,7 @@
 import Link from '@docusaurus/Link';
 import type { ReactElement } from 'react';
 
-import { isGoogleBot } from './Playground/isMobileOrBot';
+import { isBot } from './Playground/userAgent';
 import { useHasIntersected } from './useHasIntersected';
 
 export default function StackBlitz({
@@ -49,7 +49,7 @@ export default function StackBlitz({
   const [frameRef, hasIntersected] = useHasIntersected<HTMLIFrameElement>();
 
   let embedElement: ReactElement;
-  if (!hasIntersected || isGoogleBot) {
+  if (!hasIntersected || isBot) {
     embedElement = (
       <iframe width={width} height={height} ref={frameRef}></iframe>
     );

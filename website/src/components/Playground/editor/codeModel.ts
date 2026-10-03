@@ -61,7 +61,11 @@ export function parseCodeDocuments(
           : /\bcollapsed\b/.test(metastring),
         col: /\bcolumn\b/.test(metastring),
         path:
-          metastring.match(/path=(?<quote>["'])(?<path>.*?)\1/)?.groups?.path ||
+          // quoted (path="a.ts") or bare (path=a.ts)
+          /path=(?:(["'])(.*?)\1|([^\s"']+))/
+            .exec(metastring)
+            ?.slice(2)
+            .find(Boolean) ||
           (fileBase.includes('.') ? fileBase : `${fileBase}.${extension}`),
         highlights: /\{([\d\-,.]+)\}/.exec(metastring)?.[1],
         language,
