@@ -1,7 +1,7 @@
 import CodeBlock from '@theme/CodeBlock';
 import React, { useMemo } from 'react';
 
-import DiffEditorMonaco from './DiffEditorMonaco';
+import DiffEditorChooser from './DiffEditorChooser';
 import Grid from './Grid';
 import { parseCodeDocuments } from './Playground/editor/codeModel';
 
@@ -23,7 +23,7 @@ export default function DiffEditor({ children }: Props) {
     </Grid>
   );
 
-  return <DiffEditorMonaco documents={documents} fallback={fallback} />;
+  return <DiffEditorChooser documents={documents} fallback={fallback} />;
 }
 
 interface Props {

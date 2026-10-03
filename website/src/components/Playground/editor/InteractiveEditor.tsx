@@ -2,7 +2,6 @@ import Editor from '@monaco-editor/react';
 import type * as Monaco from 'monaco-editor';
 import rangeParser from 'parse-numeric-range';
 import { memo, useCallback, useMemo } from 'react';
-import { LiveEditor } from 'react-live';
 
 import '../monaco/setup';
 import { highlightSelections } from '../monaco/highlightSelections';
@@ -10,12 +9,11 @@ import { extensionToMonacoLanguage } from '../monaco/language';
 import { options } from '../monaco/options';
 import { MONACO_THEME } from '../monaco/theme';
 import useAutoHeight from '../monaco/useAutoHeight';
+import PlaygroundLiveEditor from '../PlaygroundLiveEditor';
 import { isMobileOrBot } from '../userAgent';
 import StaticEditor from './StaticEditor';
 
 // TODO: consider using the ts worker's getEmitOutput to compile rather than babel
-
-const MobileEditor = memo(LiveEditor);
 
 export interface InteractiveEditorProps {
   onChange: (value: string | undefined) => void;
@@ -31,6 +29,7 @@ export interface InteractiveEditorProps {
   /** Whether this tab is visible; re-measures height when it becomes so */
   isFocused?: boolean;
   language?: string;
+  readOnly?: boolean;
 }
 
 /**
@@ -47,9 +46,11 @@ function InteractiveEditor({
   autoFocus = false,
   isFocused = false,
   language = 'tsx',
+  readOnly = false,
 }: InteractiveEditorProps) {
+  const editorOptions = useMemo(() => ({ ...options, readOnly }), [readOnly]);
   const { height, handleMount: handleAutoMount } = useAutoHeight({
-    initialContentHeight: code.split('\n').length * options.lineHeight,
+    initialContentHeight: code.split('\n').length * editorOptions.lineHeight,
     isFocused,
   });
 
@@ -78,7 +79,7 @@ function InteractiveEditor({
   // After hooks to satisfy the rules of hooks; safe because we only render
   // client-side, so navigator is defined and hydration is already done.
   if (isMobileOrBot()) {
-    return <MobileEditor onChange={onChange} code={code} />;
+    return <PlaygroundLiveEditor onChange={onChange} code={code} />;
   }
 
   return (
@@ -87,7 +88,7 @@ function InteractiveEditor({
       defaultLanguage={extensionToMonacoLanguage(language)}
       onChange={onChange}
       defaultValue={code}
-      options={options}
+      options={editorOptions}
       theme={MONACO_THEME}
       onMount={handleMount}
       height={height}
