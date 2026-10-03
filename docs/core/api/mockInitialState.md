@@ -95,9 +95,9 @@ const results = [
   },
 ];
 
-createApp(MyComponentToTest)
-  .use(DataClientPlugin, { initialState: mockInitialState(results) })
-  .mount('#app');
+const app = createApp(MyComponentToTest);
+app.use(DataClientPlugin, { initialState: mockInitialState(results) });
+app.mount('#app');
 ```
 
 :::

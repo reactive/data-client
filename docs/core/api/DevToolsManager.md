@@ -65,7 +65,9 @@ const managers = getDefaultManagers({
   devToolsManager: { trace: true },
 });
 
-createApp(App).use(DataClientPlugin, { managers }).mount('#app');
+const app = createApp(App);
+app.use(DataClientPlugin, { managers });
+app.mount('#app');
 ```
 
 :::
@@ -120,19 +122,15 @@ import {
 } from '@data-client/vue';
 import App from './App.vue';
 
-const managers =
-  process.env.NODE_ENV !== 'production'
-    ? [
-        // highlight-start
-        new DevToolsManager(undefined, () => true),
-        // highlight-end
-        ...getDefaultManagers().filter(
-          manager => manager.constructor.name !== 'DevToolsManager',
-        ),
-      ]
-    : getDefaultManagers();
+// production builds leave out DevToolsManager
+const managers = getDefaultManagers({
+  // highlight-next-line
+  devToolsManager: new DevToolsManager(undefined, () => true),
+});
 
-createApp(App).use(DataClientPlugin, { managers }).mount('#app');
+const app = createApp(App);
+app.use(DataClientPlugin, { managers });
+app.mount('#app');
 ```
 
 :::

@@ -43,12 +43,24 @@ interface Manager {
 ### middleware
 
 `middleware` is very similar to a [redux middleware](https://redux.js.org/advanced/middleware).
-The only differences is that the `next()` function returns a `Promise`. This promise resolves when the reducer update is
-:react[[committed](https://indepth.dev/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react/#general-algorithm)
+The only differences is that the `next()` function returns a `Promise`.
+
+:::react
+
+This promise resolves when the reducer update is
+[committed](https://indepth.dev/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react/#general-algorithm)
 when using &lt;DataProvider /\>. This is necessary since the commit phase is asynchronously scheduled. This enables building
-managers that perform work after the DOM is updated and also with the newly computed state.]:vue[committed to the
+managers that perform work after the DOM is updated and also with the newly computed state.
+
+:::
+
+:::vue
+
+This promise resolves when the reducer update is committed to the
 [DataClientPlugin](../getting-started/installation.md) store. This enables building managers that perform work with the
-newly computed state.]
+newly computed state.
+
+:::
 
 Since redux is fully synchronous, an adapter must be placed in front of Reactive Data Client style middleware to
 ensure they can consume a promise. Conversely, redux middleware must be changed to pass through promises.

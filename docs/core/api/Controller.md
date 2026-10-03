@@ -277,7 +277,11 @@ An [example](https://stackblitz.com/github/reactive/data-client/tree/master/exam
 },
 ```
 
+:::react
+
 <StackBlitz app="github-app" file="src/routing/routes.tsx" view="editor" />
+
+:::
 
 ### expireAll(\{ testKey }) {#expireAll}
 
@@ -547,7 +551,9 @@ const managers = [
   ...getDefaultManagers(),
 ];
 
-createApp(App).use(DataClientPlugin, { managers }).mount('#app');
+const app = createApp(App);
+app.use(DataClientPlugin, { managers });
+app.mount('#app');
 ```
 
 :::
@@ -875,19 +881,8 @@ function useCache<E extends EndpointInterface>(
 
 :::vue
 
-In event handlers, pass [getState()](#getState) to read the latest store:
-
-```ts
-const ctrl = useController();
-
-const handleClick = () => {
-  const { data, expiryStatus } = ctrl.getResponse(
-    PostResource.get,
-    { id: props.id },
-    ctrl.getState(),
-  );
-};
-```
+In event handlers, pass [getState()](#getState) to read the latest store, as in the
+[getState() example](#getState).
 
 :::
 
@@ -930,13 +925,24 @@ Returns a [Snapshot](./Snapshot.md).
 
 Gets the internal state of Reactive Data Client that has _already been [committed](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom)_.
 
-:::warning
+::::warning
 
 This should only be used in event handlers or [Managers](./Manager.md).
 
-Using getState() in :react[React's render lifecycle can result in data tearing]:vue[a `computed()` or template won't update when the store changes]. :vue[Use [useQuery()](./useQuery.md) or [useCache()](./useCache.md) there instead.]
+:::react
+
+Using getState() in React's render lifecycle can result in data tearing.
 
 :::
+
+:::vue
+
+Using getState() in a `computed()` or template won't update when the store changes. Use
+[useQuery()](./useQuery.md) or [useCache()](./useCache.md) there instead.
+
+:::
+
+::::
 
 :::react
 
