@@ -153,19 +153,15 @@ by setting the trace option to `true` with [getDefaultManagers](../api/getDefaul
 :::react
 
 ```tsx title="index.tsx"
-import {
-  DevToolsManager,
-  DataProvider,
-  getDefaultManagers,
-} from '@data-client/react';
-import ReactDOM from 'react-dom';
+import { DataProvider, getDefaultManagers } from '@data-client/react';
+import { createRoot } from 'react-dom/client';
 
 const managers = getDefaultManagers({
   // highlight-next-line
   devToolsManager: { trace: true },
 });
 
-ReactDOM.createRoot(document.body).render(
+createRoot(document.body).render(
   <DataProvider managers={managers}>
     <App />
   </DataProvider>,
