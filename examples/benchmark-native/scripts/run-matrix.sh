@@ -9,15 +9,20 @@
 #
 # Usage:
 #   bash scripts/run-matrix.sh
-#   bash scripts/run-matrix.sh entity/unique/1000
+#   bash scripts/run-matrix.sh entity/unique/1000            # 1000 only, not 10k/100k
 #   bash scripts/run-matrix.sh entity/unique/100000          # 100k via filter
+#   bash scripts/run-matrix.sh /100000/                      # only 100k; no FULL=1
 #   FULL=1 SAMPLES=5 bash scripts/run-matrix.sh             # entire matrix incl. 100k
-#   FULL=1 bash scripts/run-matrix.sh /100000/              # only 100k rows
+#
+# Filters match slash-bounded segments, not raw substrings.
+# DRY_RUN=1 prints matched specs and does not install or collect.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 # shellcheck source=validate-config.sh
 source "${ROOT}/scripts/validate-config.sh"
+# shellcheck source=scenario-filter.sh
+source "${ROOT}/scripts/scenario-filter.sh"
 
 FILTER="${1:-}"
 OUT_DIR="${OUT_DIR:-${ROOT}/artifacts/matrix}"
@@ -55,14 +60,20 @@ fi
 ran=0
 skipped_100k=0
 for spec in "${SCENARIOS[@]}"; do
-  if [[ -n "${FILTER}" && "${spec}" != *"${FILTER}"* ]]; then
+  if ! scenario_filter_matches "${spec}" "${FILTER}"; then
     continue
   fi
   IFS='/' read -r kind pattern count control <<<"${spec}"
 
-  # 100k safety: require FULL=1, or a non-empty filter that already matched this row.
+  # 100k safety: require FULL=1, or an explicit filter that selected this row.
   if [[ "${count}" == "100000" && "${FULL}" != "1" && -z "${FILTER}" ]]; then
     skipped_100k=$((skipped_100k + 1))
+    continue
+  fi
+
+  if [[ "${DRY_RUN:-0}" == "1" ]]; then
+    echo "${spec}"
+    ran=$((ran + 1))
     continue
   fi
 
