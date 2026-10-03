@@ -3,7 +3,7 @@
  * Single-source framework docs (authoring conventions in ./README.md).
  *
  * `docs/core` is rendered directly for React at /docs. Vue renders a generated
- * mirror (docs/.core-vue, gitignored) at /docs/vue, because two docs instances
+ * mirror (docs/.core-vue, gitignored) at /vue, because two docs instances
  * cannot share one folder.
  */
 const fs = require('fs');
