@@ -10,7 +10,7 @@ This guide covers how to write and format documentation for public library inter
 ## Documentation Structure
 
 The `/docs` folder is organized by package:
-- `docs/core/` - Documentation for `@data-client/core` and `@data-client/react`
+- `docs/core/` - Documentation for `@data-client/core`, `@data-client/react` and `@data-client/vue`
 - `docs/rest/` - Documentation for `@data-client/rest`
 - `docs/graphql/` - Documentation for `@data-client/graphql`
 
@@ -19,6 +19,21 @@ Each package documentation has subdirectories:
 - `guides/` - How-to guides and tutorials
 - `concepts/` - Conceptual documentation
 - `getting-started/` - Getting started guides
+
+## React and Vue (single source)
+
+`docs/core` renders twice: React at `/docs`, Vue at `/docs/vue`. Never copy a page to make a Vue version.
+Wrap framework-specific content instead, so shared prose and resources stay in one place:
+
+- `:::react` / `:::vue` blocks (use `::::` on an outer admonition that contains them)
+- `:react[...]` / `:vue[...]` for inline words or links
+- `<FrameworkPlayground>` instead of `<HooksPlayground>`, with shared resource code blocks
+  directly inside and component code blocks in `:::react` / `:::vue`
+- `vue_title:`, `vue_description:` (any `vue_<key>:`) front matter overrides
+- `frameworks: [react]` front matter for pages with no Vue equivalent
+- `foo.vue.md` replaces `foo.md` for Vue; only for Vue-only pages or when nothing is shareable
+
+When changing a page, update both framework blocks in the same edit. See `website/framework-docs/README.md`.
 
 ## Documentation File Naming
 

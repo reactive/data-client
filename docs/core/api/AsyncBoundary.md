@@ -1,4 +1,5 @@
 ---
+frameworks: [react]
 title: AsyncBoundary - Centralize loading and error handling
 sidebar_label: <AsyncBoundary />
 description: Handles loading and error conditions of Suspense.

@@ -1,7 +1,9 @@
 ---
 title: useSuspense() - Simplified data fetching for React
+vue_title: useSuspense() - Simplified data fetching for Vue
 sidebar_label: useSuspense()
 description: High performance async data rendering without overfetching. useSuspense() is like await for React components.
+vue_description: High performance async data rendering without overfetching. useSuspense() is like await for Vue components.
 ---
 
 <head>
@@ -13,7 +15,7 @@ import TabItem from '@theme/TabItem';
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import PaginationDemo from '../shared/\_pagination.mdx';
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import { RestEndpoint } from '@data-client/rest';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import StackBlitz from '@site/src/components/StackBlitz';
@@ -27,8 +29,19 @@ import { detailFixtures, listFixtures } from '@site/src/fixtures/profiles';
   }
 </p>
 
+:::react
+
 `useSuspense()` is like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await) for React components. This means the remainder of the component only runs after the data has loaded, avoiding the complexity of handling loading and error conditions. Instead, fallback handling is
 [centralized](../getting-started/data-dependency.md#boundaries) with a singular [AsyncBoundary](../api/AsyncBoundary.md).
+
+:::
+
+:::vue
+
+[await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await) `useSuspense()` in Vue components. This means the remainder of the component only runs after the data has loaded, avoiding the complexity of handling loading and error conditions. Instead, fallback handling is
+[centralized](../getting-started/data-dependency.md#boundaries) with Vue's built-in [Suspense](https://vuejs.org/guide/built-ins/suspense.html).
+
+:::
 
 `useSuspense()` is reactive to data [mutations](../getting-started/mutations.md); rerendering only when necessary.
 
@@ -43,7 +56,7 @@ values={[
 ]}>
 <TabItem value="rest">
 
-<HooksPlayground fixtures={detailFixtures} row>
+<FrameworkPlayground fixtures={detailFixtures} row>
 
 ```typescript title="ProfileResource" collapsed
 import { Entity, resource } from '@data-client/rest';
@@ -62,6 +75,8 @@ export const ProfileResource = resource({
   schema: Profile,
 });
 ```
+
+:::react
 
 ```tsx title="ProfileDetail"
 import { useSuspense } from '@data-client/react';
@@ -82,12 +97,37 @@ function ProfileDetail(): JSX.Element {
 render(<ProfileDetail />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="ProfileDetail.vue"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { ProfileResource } from './ProfileResource';
+
+  const profile = await useSuspense(ProfileResource.get, { id: 1 });
+</script>
+
+<template>
+  <div class="listItem">
+    <Avatar :src="profile.avatar" />
+    <div>
+      <h4>{{ profile.fullName }}</h4>
+      <p>{{ profile.bio }}</p>
+    </div>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 </TabItem>
 <TabItem value="other">
 
-<HooksPlayground row>
+<FrameworkPlayground row>
 
 ```typescript title="Profile" collapsed
 import { Endpoint } from '@data-client/endpoint';
@@ -108,6 +148,8 @@ export const getProfile = new Endpoint(
 );
 ```
 
+:::react
+
 ```tsx title="ProfileDetail"
 import { useSuspense } from '@data-client/react';
 import { getProfile } from './Profile';
@@ -127,7 +169,32 @@ function ProfileDetail(): JSX.Element {
 render(<ProfileDetail />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="ProfileDetail.vue"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getProfile } from './Profile';
+
+  const profile = await useSuspense(getProfile, 1);
+</script>
+
+<template>
+  <div class="listItem">
+    <Avatar :src="profile.avatar" />
+    <div>
+      <h4>{{ profile.fullName }}</h4>
+      <p>{{ profile.bio }}</p>
+    </div>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 </TabItem>
 </Tabs>
@@ -146,20 +213,26 @@ Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by
 :::note
 
 1. Identical fetches are automatically deduplicated
-2. [Hard errors](../concepts/error-policy.md#hard) to be [caught](../getting-started/data-dependency#async-fallbacks) by [Error Boundaries](./AsyncBoundary.md)
+2. [Hard errors](../concepts/error-policy.md#hard) to be [caught](../getting-started/data-dependency#async-fallbacks) by :react[[Error Boundaries](./AsyncBoundary.md)]:vue[[onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured)]
 
 :::
 
-:::info[React Native]
+:::react
+
+::::info[React Native]
 
 When using React Navigation, useSuspense() will trigger fetches on focus if the data is considered
 stale.
+
+::::
 
 :::
 
 <ConditionalDependencies />
 
 ## Types
+
+:::react
 
 <GenericsTabs>
 
@@ -188,11 +261,27 @@ function useSuspense<
 
 </GenericsTabs>
 
+:::
+
+:::vue
+
+```typescript
+function useSuspense(
+  endpoint: ReadEndpoint,
+  ...args: MaybeRefsOrGetters<Parameters<typeof endpoint>> | [null]
+): Promise<DeepReadonly<ComputedRef<Denormalize<typeof endpoint.schema>>>>;
+```
+
+Arguments can be plain values, [refs or getters](https://vuejs.org/api/utility-types.html#maybereforgetter); the result
+updates when they change.
+
+:::
+
 ## Examples
 
 ### List
 
-<HooksPlayground fixtures={listFixtures} row>
+<FrameworkPlayground fixtures={listFixtures} row>
 
 ```typescript title="ProfileResource" collapsed
 import { Entity, resource } from '@data-client/rest';
@@ -211,6 +300,8 @@ export const ProfileResource = resource({
   schema: Profile,
 });
 ```
+
+:::react
 
 ```tsx title="ProfileList"  {5}
 import { useSuspense } from '@data-client/react';
@@ -235,7 +326,34 @@ function ProfileList(): JSX.Element {
 render(<ProfileList />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="ProfileList.vue"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { ProfileResource } from './ProfileResource';
+
+  const profiles = await useSuspense(ProfileResource.getList);
+</script>
+
+<template>
+  <div>
+    <div class="listItem" v-for="profile in profiles" :key="profile.pk()">
+      <Avatar :src="profile.avatar" />
+      <div>
+        <h4>{{ profile.fullName }}</h4>
+        <p>{{ profile.bio }}</p>
+      </div>
+    </div>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ### Pagination
 
@@ -247,6 +365,8 @@ Reactive [pagination](/rest/guides/pagination) is achieved with [mutable schemas
 
 When fetch parameters depend on data from another resource.
 
+:::react
+
 ```tsx
 function PostWithAuthor() {
   const post = useSuspense(PostResource.get, { id });
@@ -256,6 +376,27 @@ function PostWithAuthor() {
   });
 }
 ```
+
+:::
+
+:::vue
+
+```html
+<script setup lang="ts">
+  import { computed } from 'vue';
+  import { useSuspense } from '@data-client/vue';
+  import { PostResource, UserResource } from './Resources';
+
+  const props = defineProps<{ id: string }>();
+  const post = await useSuspense(PostResource.get, { id: props.id });
+  const author = await useSuspense(UserResource.get, {
+  // highlight-next-line
+    id: post.value.userId,
+  });
+</script>
+```
+
+:::
 
 ### Conditional
 
@@ -300,6 +441,8 @@ export const UserResource = resource({
 });
 ```
 
+:::react
+
 ```tsx title="PostWithAuthor" {7-11}
 import { PostResource, UserResource } from './Resources';
 
@@ -317,6 +460,40 @@ export default function PostWithAuthor({ id }: { id: string }) {
   if (!author) return;
 }
 ```
+
+:::
+
+:::vue
+
+```html title="PostWithAuthor.vue" {10-16}
+<script setup lang="ts">
+  import { computed } from 'vue';
+  import { useSuspense } from '@data-client/vue';
+  import { PostResource, UserResource } from './Resources';
+
+  const props = defineProps<{ id: string }>();
+  const post = await useSuspense(PostResource.get, { id: props.id });
+  const author = await useSuspense(
+    UserResource.get,
+    computed(() =>
+      post.value.userId
+        ? {
+            id: post.value.userId,
+          }
+        : null,
+    ),
+  );
+  // author as ComputedRef<User | undefined>
+</script>
+
+<template>
+  <div v-if="author">
+    <!-- render author -->
+  </div>
+</template>
+```
+
+:::
 
 </TypeScriptEditor>
 
@@ -346,6 +523,8 @@ export const getPosts = new RestEndpoint({
 });
 ```
 
+:::react
+
 ```tsx title="ArticleList" {5-7}
 import { getPosts } from './api/Post';
 
@@ -365,7 +544,31 @@ export default function ArticleList({ page }: { page: string }) {
 }
 ```
 
+:::
+
+:::vue
+
+```html title="ArticleList.vue"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getPosts } from './api/Post';
+
+  const props = defineProps<{ page: string }>();
+  const data = await useSuspense(getPosts, { page: props.page });
+</script>
+
+<template>
+  <div>
+    <div v-for="post in data.posts" :key="post.pk()">{{ post.title }}</div>
+  </div>
+</template>
+```
+
+:::
+
 </TypeScriptEditor>
+
+:::react
 
 ### Server Side Rendering
 
@@ -391,3 +594,5 @@ less intrusive _loading bar_, like [YouTube](https://youtube.com) and [Robinhood
 <StackBlitz app="todo-app" file="src/pages/Home/TodoList.tsx,src/pages/Home/index.tsx,src/useNavigationState.ts" height={600} />
 
 If you need help adding this to your own custom router, check out the [official React guide](https://react.dev/reference/react/useTransition#building-a-suspense-enabled-router)
+
+:::
