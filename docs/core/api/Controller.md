@@ -34,6 +34,7 @@ class Controller {
   invalidateAll({ testKey }): Promise<void>;
   resetEntireStore(): Promise<void>;
   set(queryable, ...args, value): Promise<void>;
+  set([Entity], rows): Promise<void>;
   setResponse(endpoint, ...args, response): Promise<void>;
   setError(endpoint, ...args, error): Promise<void>;
   resolve(endpoint, { args, response, fetchedAt, error }): Promise<void>;
@@ -384,7 +385,7 @@ const id = '2';
 ctrl.set(Article, { id }, article => ({ id, votes: article.votes + 1 }));
 ```
 
-#### Many entities at once {#set-array}
+#### set([Entity], rows) {#set-array}
 
 Pass an [Array](/rest/api/Array) schema (`[Todo]` or `new schema.Array(Todo)`) and a list of rows to update
 many entities in one store update. Each row merges with its stored entity; entities not in the list are untouched.
