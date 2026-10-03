@@ -261,7 +261,16 @@ const config: Config = {
         exclude: ['getting-started/README.md'],
         routeBasePath: 'docs/vue',
         sidebarPath: require.resolve('./framework-docs/sidebars-vue.js'),
-        beforeDefaultRemarkPlugins: [[remarkFramework, { framework: 'vue' }]],
+        beforeDefaultRemarkPlugins: [
+          [
+            remarkFramework,
+            {
+              framework: 'vue',
+              routeBasePath: 'docs/vue',
+              docIds: frameworkDocs.docIds('vue'),
+            },
+          ],
+        ],
         // generated files have no git history
         showLastUpdateAuthor: false,
         showLastUpdateTime: false,

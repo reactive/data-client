@@ -225,7 +225,7 @@ export default class TabSyncManager implements Manager {
 
 Persist the store with [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
 (here via [idb-keyval](https://www.npmjs.com/package/idb-keyval)); restore it with
-[DataProvider's initialState](../api/DataProvider.md#initialState). IndexedDB writes are
+:react[[DataProvider's initialState](../api/DataProvider.md#initialState)]:vue[DataClientPlugin's `initialState` option]. IndexedDB writes are
 asynchronous and use [structured clone](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm)
 instead of blocking the main thread with JSON serialization like `localStorage` would.
 Debouncing writes keeps rapid action bursts cheap. Consider [expiry times](./expiry-policy.md)

@@ -16,7 +16,7 @@ export default function DocBreadcrumbsWrapper(props: Props): React.JSX.Element {
   if (!pathname.startsWith('/docs')) return <DocBreadcrumbs {...props} />;
 
   return (
-    <div className={styles.wrapper} data-framework-selector-anchor>
+    <div className={styles.wrapper}>
       <div className={styles.left}>
         <DocBreadcrumbs {...props} />
       </div>

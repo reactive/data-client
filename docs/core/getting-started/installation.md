@@ -12,7 +12,11 @@ import Installation from '../shared/\_installation.mdx';
 import StackBlitz from '@site/src/components/StackBlitz';
 import Link from '@docusaurus/Link';
 
+:::react
+
 <PkgTabs pkgs="@data-client/react @data-client/test @data-client/rest" />
+
+:::
 
 :::tip[Use Agent Skills]
 
@@ -21,6 +25,12 @@ Prefer to scaffold via your AI agent? See [Agent Skills](./agent-skills.md) and 
 :::
 
 ## Add provider at top-level component
+
+:::vue
+
+Install the [Vue plugin](https://vuejs.org/guide/reusability/plugins.html) when creating your app.
+
+:::
 
 <Installation />
 
@@ -32,7 +42,17 @@ Prefer to scaffold via your AI agent? See [Agent Skills](./agent-skills.md) and 
 
 ## Example
 
+:::react
+
 <StackBlitz app="todo-app" file="src/index.tsx,src/RootProvider.tsx" view="both" ctl="1" />
+
+:::
+
+:::vue
+
+<StackBlitz app="vue-todo-app" file="src/main.ts,src/pages/UserTodos.vue" view="both" ctl="1" />
+
+:::
 
 ## Supported Tools
 
@@ -63,6 +83,8 @@ follow the instructions to [add legacy browser support to packages](../guides/le
 
 </details>
 
+:::react
+
 <details>
 <summary><b>ReactJS 16-19 and React Native</b></summary>
 
@@ -74,3 +96,16 @@ React libraries, [feel free to share with others](https://github.com/reactive/da
 discussions.
 
 </details>
+
+:::
+
+:::vue
+
+<details>
+<summary><b>Vue 3</b></summary>
+
+`@data-client/vue` supports Vue 3 and is built on the [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html).
+
+</details>
+
+:::

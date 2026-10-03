@@ -1,4 +1,5 @@
 ---
+frameworks: [react]
 title: Render as you Fetch
 ---
 

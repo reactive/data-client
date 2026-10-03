@@ -1,7 +1,7 @@
 import { postFixtures } from '@site/src/fixtures/posts';
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 
-<HooksPlayground fixtures={postFixtures} getInitialInterceptorData={() => ({votes: {}})} row defaultTab={props.defaultTab}>
+<FrameworkPlayground fixtures={postFixtures} getInitialInterceptorData={() => ({votes: {}})} row defaultTab={props.defaultTab}>
 
 ```ts title="Post" collapsed
 import { Entity, schema } from '@data-client/rest';
@@ -54,6 +54,8 @@ export const PostResource = resource({
   },
 });
 ```
+
+:::react
 
 ```tsx title="PostItem" {7} collapsed
 import { useController } from '@data-client/react';
@@ -131,4 +133,81 @@ function PostList() {
 render(<PostList />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="PostItem.vue" {9} collapsed
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { PostResource, type Post } from './PostResource';
+
+  const props = defineProps<{ post: Post }>();
+  const ctrl = useController();
+
+  const handleVote = () => {
+    ctrl.fetch(PostResource.vote, { id: props.post.id });
+  };
+</script>
+
+<template>
+  <div>
+    <div class="voteBlock">
+      <small class="vote">
+        <button class="up" @click="handleVote">&nbsp;</button>
+        {{ post.votes }}
+      </small>
+      <img :src="post.img" width="70" height="52" />
+    </div>
+    <div>
+      <h4>{{ post.title }}</h4>
+      <p>{{ post.body }}</p>
+    </div>
+  </div>
+</template>
+```
+
+```html title="TotalVotes.vue" collapsed {13}
+<script setup lang="ts">
+  import { Query } from '@data-client/rest';
+  import { useQuery } from '@data-client/vue';
+  import { PostResource } from './PostResource';
+
+  const queryTotalVotes = new Query(
+    PostResource.getList.schema,
+    posts => posts.reduce((total, post) => total + post.votes, 0),
+  );
+
+  const props = defineProps<{ userId: number }>();
+  const totalVotes = useQuery(queryTotalVotes, { userId: props.userId });
+</script>
+
+<template>
+  <center>
+    <small>{{ totalVotes }} votes total</small>
+  </center>
+</template>
+```
+
+```html title="PostList.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { PostResource } from './PostResource';
+  import PostItem from './PostItem.vue';
+  import TotalVotes from './TotalVotes.vue';
+
+  const userId = 2;
+  const posts = await useSuspense(PostResource.getList, { userId });
+</script>
+
+<template>
+  <div>
+    <PostItem v-for="post in posts" :key="post.pk()" :post="post" />
+    <TotalVotes :userId="userId" />
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
