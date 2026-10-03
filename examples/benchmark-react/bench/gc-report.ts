@@ -7,7 +7,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 
 import type { BuildManifestV1 } from './build-manifest.js';
-import { browserGCScenarioId } from '../src/data-client/gcInteractionMetrics.ts';
+import { browserGCScenarioId } from '../src/data-client/gcInteractionMetrics.js';
 import type {
   GCBrowserMeasurement,
   GCScenarioConfig,
@@ -269,5 +269,3 @@ export function buildGCReport(opts: {
     scenarios: opts.scenarios,
   };
 }
-
-export { browserGCScenarioId };

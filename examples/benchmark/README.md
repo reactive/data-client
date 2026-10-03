@@ -90,8 +90,7 @@ V8/engine GC — do not conflate the two.
 ```bash
 yarn build:benchmark
 yarn workspace example-benchmark start:gc [filter] [--samples=N] [--memory] [--table|--no-table]
-yarn workspace example-benchmark start:gc --verify-manifest
-# or: yarn workspace example-benchmark start:gc:verify
+yarn workspace example-benchmark start:gc:verify
 ```
 
 Every `yarn build:benchmark` / workspace `build` runs webpack then writes
@@ -108,7 +107,7 @@ builds with a rebuild instruction. Report `build` provenance comes from the
 **verified manifest**, never from live `git rev-parse` at run time. Manifest
 generation and verification are outside timed cache-GC work.
 
-`--verify-manifest` / `start:gc:verify` self-tests that source and artifact
+`start:gc:verify` self-tests that source and artifact
 tampering are rejected and restores all files afterward.
 
 Examples:

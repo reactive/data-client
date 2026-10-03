@@ -5,7 +5,7 @@
  * - FrameMetrics TOTAL_DURATION is a *duration* → ceil(duration/period) − 1
  * - Choreographer deltas are *intervals* → round(interval/period) − 1 (same as JS rAF)
  */
-import type { UiCaptureSource } from './types';
+import type { UiFrameCaptureResult } from './BenchNative';
 
 export function median(values: number[]): number {
   if (values.length === 0) return 0;
@@ -46,18 +46,6 @@ export function missedFramesFromIntervalMs(
 ): number {
   if (!(refreshPeriodMs > 0) || !(intervalMs > 0)) return 0;
   return Math.max(0, Math.round(intervalMs / refreshPeriodMs) - 1);
-}
-
-/** Sum FrameMetrics-style duration misses. */
-export function excessMissedFramesFromDurations(
-  durationsMs: number[],
-  refreshPeriodMs: number,
-): number {
-  let missed = 0;
-  for (const d of durationsMs) {
-    missed += missedFramesFromDurationMs(d, refreshPeriodMs);
-  }
-  return missed;
 }
 
 /**
@@ -118,22 +106,12 @@ export async function measureDisplayPeriodMs(samples = 8): Promise<number> {
   return median(intervals);
 }
 
-export interface UiFrameCaptureAggregate {
-  source: UiCaptureSource;
-  frameCount: number;
-  maxFrameDurationMs: number;
-  totalFrameDurationMs: number;
-  missedFrames: number;
-  refreshPeriodMs: number;
-  refreshRateHz: number;
-}
-
 /**
  * Reject invalid refresh period or zero/insufficient native frames.
  * Missed-frame math must match capture source semantics.
  */
 export function validateUiFrameCapture(
-  result: UiFrameCaptureAggregate,
+  result: UiFrameCaptureResult,
   options: { minFrames?: number } = {},
 ): void {
   const minFrames = options.minFrames ?? 1;

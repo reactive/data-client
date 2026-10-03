@@ -292,7 +292,7 @@ export function createHarness(spec, mode) {
 
   let capturedAction = null;
   let workingState = state;
-  /** Seed retained only until reducer takes its clone (then nulled). */
+  /** Seed retained only until reducer takes it (then nulled). */
   let seedState = mode === 'reducer' ? state : null;
 
   controller.getState = () => workingState;
@@ -349,17 +349,17 @@ export function createHarness(spec, mode) {
       seedState = null;
     },
     /**
-     * Reducer: clone seed into working state and drop the full-size seed
-     * so heapBefore does not retain two copies of the fixture.
+     * Reducer: hand the freshly built seed to the reducer and drop the seed
+     * ref. The fixture is built per harness, so there is nothing to protect
+     * by cloning.
      */
     takeReducerState() {
       if (!seedState) {
         throw new Error('takeReducerState() requires reducer mode with a seed');
       }
-      const clone = structuredClone(seedState);
+      workingState = seedState;
       seedState = null;
-      workingState = clone;
-      return clone;
+      return workingState;
     },
     /** Drop store/policy/controller so a later V8 GC can reclaim everything. */
     dispose() {

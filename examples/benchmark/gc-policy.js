@@ -14,7 +14,7 @@
  * Usage:
  *   yarn build:benchmark
  *   yarn workspace example-benchmark start:gc [filter] [--samples=N] [--memory] [--table|--no-table]
- *   yarn workspace example-benchmark start:gc --verify-manifest
+ *   yarn workspace example-benchmark start:gc:verify
  */
 import os from 'node:os';
 import process from 'node:process';
@@ -22,7 +22,7 @@ import { setImmediate } from 'node:timers';
 import v8 from 'node:v8';
 import vm from 'node:vm';
 
-import { verifyManifestOrThrow, runSelfTest } from './gc-build-manifest.js';
+import { verifyManifestOrThrow } from './gc-build-manifest.js';
 import {
   listScenarios,
   createHarness,
@@ -38,7 +38,6 @@ function parseArgs(argv) {
   let samples = DEFAULT_SAMPLES;
   let memory = false;
   let table;
-  let verifyManifestOnly = false;
   for (const arg of argv) {
     if (arg === '--memory') {
       memory = true;
@@ -46,8 +45,6 @@ function parseArgs(argv) {
       table = true;
     } else if (arg === '--no-table') {
       table = false;
-    } else if (arg === '--verify-manifest') {
-      verifyManifestOnly = true;
     } else if (arg.startsWith('--samples=')) {
       samples = Number(arg.slice('--samples='.length));
       if (!Number.isFinite(samples) || samples < 1) {
@@ -63,7 +60,7 @@ function parseArgs(argv) {
     }
   }
   if (table === undefined) table = Boolean(process.stderr.isTTY);
-  return { filter, samples, memory, table, verifyManifestOnly };
+  return { filter, samples, memory, table };
 }
 
 function cpuModel() {
@@ -288,32 +285,9 @@ async function main() {
     samples: sampleCount,
     memory,
     table,
-    verifyManifestOnly,
   } = parseArgs(process.argv.slice(2));
 
   // Provenance check is outside timing and runs before any scenario work
-  if (verifyManifestOnly) {
-    const result = runSelfTest();
-    for (const step of result.steps) {
-      console.error(`  ${step}`);
-    }
-    console.error('gc-build-manifest self-test passed');
-    process.stdout.write(
-      `${JSON.stringify(
-        {
-          ok: true,
-          buildId: result.manifest.buildId,
-          commit: result.manifest.commit,
-          dirty: result.manifest.dirty,
-          sourceDigest: result.manifest.sourceDigest,
-        },
-        null,
-        2,
-      )}\n`,
-    );
-    return;
-  }
-
   const buildManifest = verifyManifestOrThrow();
 
   const scenarios = listScenarios(filter);

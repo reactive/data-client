@@ -92,24 +92,23 @@ DEVICE_REPORT_APP="/sdcard/Android/data/${APP_ID}/files/${REPORT_NAME}"
 DEVICE_REPORT_APP_EMU="/storage/emulated/0/Android/data/${APP_ID}/files/${REPORT_NAME}"
 DEVICE_REPORT_PUBLIC="/sdcard/Download/${PUBLIC_REPORT_NAME}"
 DEVICE_REPORT_PUBLIC_EMU="/storage/emulated/0/Download/${PUBLIC_REPORT_NAME}"
+# Pull order: public Downloads first, then app-scoped externalFilesDir.
+DEVICE_REPORTS=(
+  "${DEVICE_REPORT_PUBLIC}"
+  "${DEVICE_REPORT_PUBLIC_EMU}"
+  "${DEVICE_REPORT_APP}"
+  "${DEVICE_REPORT_APP_EMU}"
+)
 
 clear_device_reports() {
-  "${ADB[@]}" shell "rm -f \
-    '${DEVICE_REPORT_APP}' \
-    '${DEVICE_REPORT_APP_EMU}' \
-    '${DEVICE_REPORT_PUBLIC}' \
-    '${DEVICE_REPORT_PUBLIC_EMU}'" >/dev/null 2>&1 || true
+  "${ADB[@]}" shell "rm -f $(printf "'%s' " "${DEVICE_REPORTS[@]}")" >/dev/null 2>&1 || true
   # Downloads mirror is MediaStore-owned; filesystem rm can leave the row.
   "${ADB[@]}" shell "content delete --uri content://media/external/downloads --where \"_display_name='${PUBLIC_REPORT_NAME}'\"" >/dev/null 2>&1 || true
 }
 
 device_report_ready() {
   local p
-  for p in \
-    "${DEVICE_REPORT_PUBLIC}" \
-    "${DEVICE_REPORT_PUBLIC_EMU}" \
-    "${DEVICE_REPORT_APP}" \
-    "${DEVICE_REPORT_APP_EMU}"; do
+  for p in "${DEVICE_REPORTS[@]}"; do
     if "${ADB[@]}" shell "test -s '${p}'" >/dev/null 2>&1; then
       return 0
     fi
@@ -150,12 +149,7 @@ pull_device_report() {
   if [[ -n "${from_log}" ]]; then
     candidates+=("${from_log}")
   fi
-  candidates+=(
-    "${DEVICE_REPORT_PUBLIC}"
-    "${DEVICE_REPORT_PUBLIC_EMU}"
-    "${DEVICE_REPORT_APP}"
-    "${DEVICE_REPORT_APP_EMU}"
-  )
+  candidates+=("${DEVICE_REPORTS[@]}")
   for src in "${candidates[@]}"; do
     rm -f "${OUT}"
     if "${ADB[@]}" pull "${src}" "${OUT}" >/dev/null 2>&1 && [[ -s "${OUT}" ]]; then
@@ -180,10 +174,7 @@ verifySidecarIdentity(sidecar);
 console.log("sidecar identity verified buildId="+sidecar.buildId+" sidecarId="+sidecar.sidecarId);
 ' "${SIDECAR}" "${ROOT}/scripts/build-identity.cjs"
 
-SIDECAR_BUILD_ID="$(node -e 'console.log(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).buildId)' "${SIDECAR}")"
-SIDECAR_DIGEST="$(node -e 'console.log(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).sourceDigest)' "${SIDECAR}")"
-SIDECAR_APK_SHA="$(node -e 'console.log(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).apkSha256)' "${SIDECAR}")"
-SIDECAR_ID="$(node -e 'console.log(JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")).sidecarId)' "${SIDECAR}")"
+read -r SIDECAR_DIGEST SIDECAR_APK_SHA < <(node -e 'const s=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"));console.log(s.sourceDigest,s.apkSha256)' "${SIDECAR}")
 
 LOCAL_APK_SHA="$(node "${ROOT}/scripts/build-manifest.cjs" hash "${APK}")"
 if [[ "${LOCAL_APK_SHA}" != "${SIDECAR_APK_SHA}" ]]; then
@@ -209,15 +200,16 @@ cleanup() { rm -f "${TMP_INSTALLED}"; }
 trap cleanup EXIT
 
 # Prefer `pm path` → pull the single base APK.
-INSTALLED_PATH="$("${ADB[@]}" shell pm path "${APP_ID}" | tr -d '\r' | awk -F: '/^package:/{print $2; exit}')"
+PM_PATH_OUT="$("${ADB[@]}" shell pm path "${APP_ID}" | tr -d '\r' || true)"
+INSTALLED_PATH="$(awk -F: '/^package:/{print $2; exit}' <<<"${PM_PATH_OUT}")"
 if [[ -z "${INSTALLED_PATH}" ]]; then
   echo "error: could not resolve installed package path for ${APP_ID}" >&2
   exit 1
 fi
-PATH_COUNT="$("${ADB[@]}" shell pm path "${APP_ID}" | tr -d '\r' | grep -c '^package:' || true)"
+PATH_COUNT="$(grep -c '^package:' <<<"${PM_PATH_OUT}" || true)"
 if [[ "${PATH_COUNT}" -ne 1 ]]; then
   echo "error: expected exactly one installed APK path (split APKs unsupported); got ${PATH_COUNT}" >&2
-  "${ADB[@]}" shell pm path "${APP_ID}" >&2 || true
+  printf '%s\n' "${PM_PATH_OUT}" >&2
   exit 1
 fi
 
