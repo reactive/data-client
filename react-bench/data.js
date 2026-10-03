@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1789744814604,
+  "lastUpdate": 1791068349661,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -6119,6 +6119,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 158.77,
             "range": "± 8.3%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f343f9d42a12f3ad763fac96362166d3b3156b69",
+          "message": "fix(core): Allow controller.set() with Array schemas (#4103)\n\n* fix(core): Allow controller.set() with Array schemas\n\ncontroller.set([Entity], rows) and controller.set(new schema.Array(Entity), rows)\nalready batch-write at runtime (one SET action, one normalize), but the\nQueryable constraint rejected Array schemas because their queryKey is undefined.\nAdd an overload for Array schemas that takes only the value.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* chore: Format controller-set-array changeset\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* docs(skills): Teach controller.set([Entity], rows) batch writes\n\nAdd a short batch-write gotcha to the data-client-manager and\ndata-client-react skills, with evals that fail a per-row\ncontroller.set(Entity, ...) loop or a setResponse/push-endpoint\nworkaround and pass controller.set([Entity], rows).\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* fix(core): Keep Entities off the Array set() overload\n\nEntity's any-typed normalize/queryKey matched the Array overload, so\ncontroller.set(Entity, [row]) typechecked but was a runtime no-op.\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* docs: Tighten controller.set Array wording in docs, skills, and evals\n\nCo-authored-by: Nathaniel Tucker <me@ntucker.me>\n\n* docs: Document batch set() for streams; batch coin-app ticker writes\n\n- managers.md: add \"Batching high-frequency updates\" with a buffered\n  set([Entity], rows) flush; fix stream example's controller reference\n- Controller.md: anchor the Array form, note pk()/process() get no args\n- Array.md: show ctrl.set([User], rows)\n- DevTools predicate examples also skip batched [Ticker] writes\n- coin-app StreamManager buffers ticker messages and flushes them with\n  one set([Ticker], rows) per 50ms; Ticker.process tolerates empty args\n- skills: fold batch-write guidance into one line each; drop evals\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01QygSDvhjbnZRtLhyLvuBB8\n\n* fix(coin-app): Reset stream buffer state on cleanup so re-init flushes\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01QygSDvhjbnZRtLhyLvuBB8\n\n* docs(blog): Start draft v0.19 release post with batch Controller.set()\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01QygSDvhjbnZRtLhyLvuBB8\n\n* docs: Show before/after for batch set() in changeset and blog\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01QygSDvhjbnZRtLhyLvuBB8\n\n* bench: Compare per-row set() to batch set([Entity], rows); chart in v0.19 post\n\nAdds core suite benchmarks 'setMany {50,500}x one-per-row' and\n'setMany {50,500} batch' writing into a 500-entity store. Locally the\nbatch is ~20x faster for 50 rows and ~95x for 500 rows.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01QygSDvhjbnZRtLhyLvuBB8\n\n* docs: Show set([Entity], rows) signature in Controller docs; restore skill evals\n\nAddresses staff review: the Controller.set heading only showed the\n...args form, and the skill evals belong with this change.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01QygSDvhjbnZRtLhyLvuBB8\n\n* docs: Note same-pk rows in a batch skip shouldReorder; keep latest ticker per product\n\nCoin-app buffers only the latest message per product so batched writes keep\nTicker.shouldReorder() ordering. Clarify the DevTools tip applies to [Ticker].\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01QygSDvhjbnZRtLhyLvuBB8\n\n---------\n\nCo-authored-by: Cursor Agent <cursoragent@cursor.com>\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-03T18:56:16-04:00",
+          "tree_id": "63c79a12d7a83f28b16ab23a015659d908a845c2",
+          "url": "https://github.com/reactive/data-client/commit/f343f9d42a12f3ad763fac96362166d3b3156b69"
+        },
+        "date": 1791068346411,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 163.93,
+            "range": "± 3.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 54.35,
+            "range": "± 3.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 370.37,
+            "range": "± 6.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 370.88,
+            "range": "± 7.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 54.06,
+            "range": "± 9.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 344.83,
+            "range": "± 4.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 377.49,
+            "range": "± 6.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 12.84,
+            "range": "± 8.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 80.01,
+            "range": "± 14.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 44.44,
+            "range": "± 5.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 238.1,
+            "range": "± 4.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 333.33,
+            "range": "± 4.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 194.19,
+            "range": "± 8.7%",
             "unit": "ops/s"
           }
         ]
