@@ -76,10 +76,12 @@ jobs:
             if CHANGED_FILES="$(git diff --name-only "${DIFF_RANGE}")"; then
               echo "Changed files:"
               echo "${CHANGED_FILES}"
-              # Here-strings, not pipes: CircleCI runs bash with pipefail, so an
+              # Grep a file, not a pipe: CircleCI runs bash with pipefail, so an
               # early-exiting `grep -q` could SIGPIPE the writer and flip a check.
+              # (No here-strings either: CircleCI reads their angle brackets as parameter syntax.)
+              printf '%s\n' "${CHANGED_FILES}" > /tmp/ci-changed-files
               if grep -Eq \
-                '^(\.circleci/config\.yml|package\.json$|scripts/|yarn\.lock|examples/todo-app/|examples/github-app/|examples/normalizr-relationships/|packages/)' <<< "${CHANGED_FILES}"; then
+                '^(\.circleci/config\.yml|package\.json$|scripts/|yarn\.lock|examples/todo-app/|examples/github-app/|examples/normalizr-relationships/|packages/)' /tmp/ci-changed-files; then
                 echo "Relevant changes detected."
               else
                 echo "No relevant esmodule-related changes; downstream esmodule jobs will halt."
@@ -87,9 +89,9 @@ jobs:
               fi
               # Docs/website/tooling-only changes can't affect lint, typecheck or
               # unit tests (Playground has unit tests, so it stays relevant).
-              NON_DOCS_FILES="$(grep -Ev '^(website/|docs/|\.changeset/|\.cursor/|\.agents/|\.claude/|\.github/|[^/]+\.md$)' <<< "${CHANGED_FILES}" || true)"
+              NON_DOCS_FILES="$(grep -Ev '^(website/|docs/|\.changeset/|\.cursor/|\.agents/|\.claude/|\.github/|[^/]+\.md$)' /tmp/ci-changed-files || true)"
               if [ -z "${NON_DOCS_FILES}" ] \
-                && ! grep -q '^website/src/components/Playground/' <<< "${CHANGED_FILES}"; then
+                && ! grep -q '^website/src/components/Playground/' /tmp/ci-changed-files; then
                 echo "Only docs/website/tooling paths changed; test jobs will halt."
                 TESTS_RELEVANT=false
               fi
