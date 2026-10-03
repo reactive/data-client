@@ -33,7 +33,7 @@ function rewriteLinks(node, routeBasePath, docIds) {
   if (node.type === 'link' || node.type === 'definition') {
     const match = node.url.match(DOCS_LINK);
     const id = match?.[1]?.replace(/\.mdx?$/, '').replace(/\/$/, '');
-    if (match && !id?.startsWith('vue/') && (!id || docIds.has(id)))
+    if (match && (!id || docIds.has(id)))
       node.url = `/${routeBasePath}${id ? `/${id}` : ''}${match[2] ?? ''}`;
   }
   node.children?.forEach(child => rewriteLinks(child, routeBasePath, docIds));

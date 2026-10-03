@@ -13,8 +13,9 @@ export default function getManagers() {
         // double latency to help with high frequency updates
         latency: 1000,
         // skip websocket updates as these are too spammy
+        // StreamManager writes them in batches with set([Ticker], rows)
         predicate: (state, action) =>
-          action.type !== actionTypes.SET || action.schema !== Ticker,
+          action.type !== actionTypes.SET || action.schema[0] !== Ticker,
       },
     }),
   ];

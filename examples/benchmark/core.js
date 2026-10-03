@@ -103,6 +103,36 @@ export default function addReducerSuite(suite, filter) {
     githubReducer(githubState, action);
   };
 
+  // many entities written without an endpoint (e.g. a stream flush)
+  class Ticker extends Entity {
+    product_id = '';
+    price = 0;
+    volume = 0;
+
+    pk() {
+      return this.product_id;
+    }
+
+    static key = 'Ticker';
+  }
+  const tickerRows = Array.from({ length: 500 }, (_, i) => ({
+    product_id: `T${i}-USD`,
+    price: i,
+    volume: i * 10,
+  }));
+  const tickerUpdates = tickerRows.map(({ product_id, price }) => ({
+    product_id,
+    price: price + 1,
+  }));
+  const tickerCtrl = new Controller({});
+  const tickerReducer = createReducer(tickerCtrl);
+  let tickerState = state;
+  tickerCtrl.dispatch = action => {
+    tickerState = tickerReducer(tickerState, action);
+  };
+  tickerCtrl.set([Ticker], tickerRows);
+  const populatedTickerState = tickerState;
+
   const add = createAdd(suite, filter);
 
   add('getResponse', () => {
@@ -160,6 +190,20 @@ export default function addReducerSuite(suite, filter) {
       controller.setResponse(getUser, 'gnoff', userData);
     }
   });
+  // store holds 500 tickers; each flush updates `count` of them
+  for (const count of [50, 500]) {
+    const updates = tickerUpdates.slice(0, count);
+    add(`setMany ${count}x one-per-row`, () => {
+      tickerState = populatedTickerState;
+      for (const row of updates) {
+        tickerCtrl.set(Ticker, row, row);
+      }
+    });
+    add(`setMany ${count} batch`, () => {
+      tickerState = populatedTickerState;
+      return tickerCtrl.set([Ticker], updates);
+    });
+  }
 
   return suite.on('complete', function () {
     if (process.env.SHOW_OPTIMIZATION) {

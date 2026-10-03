@@ -22,7 +22,7 @@ Each package documentation has subdirectories:
 
 ## React and Vue (single source)
 
-`docs/core` renders twice: React at `/docs`, Vue at `/docs/vue`. Never copy a page to make a Vue version.
+`docs/core` renders twice: React at `/docs`, Vue at `/vue`. Never copy a page to make a Vue version.
 Wrap framework-specific content instead, so shared prose and resources stay in one place:
 
 - `:::react` / `:::vue` blocks (use `::::` on an outer admonition that contains them)
