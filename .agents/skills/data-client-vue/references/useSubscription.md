@@ -1,0 +1,1 @@
+../../../../docs/core/api/useSubscription.md
