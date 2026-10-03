@@ -502,6 +502,7 @@ import { DataProvider, LogoutManager, getDefaultManagers } from '@data-client/re
 import ReactDOM from 'react-dom';
 import { unAuth } from '../authentication';
 
+const myDomain = 'http://test.com';
 const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
 
 const managers = [

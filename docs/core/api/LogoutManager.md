@@ -220,6 +220,7 @@ Use [controller.invalidateAll](./Controller.md#invalidateAll) to only clear part
 ```ts
 import { unAuth } from '../authentication';
 
+const myDomain = 'http://test.com';
 // highlight-next-line
 const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
 
