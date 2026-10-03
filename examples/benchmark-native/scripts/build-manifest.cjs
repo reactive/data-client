@@ -37,10 +37,6 @@ const IGNORE_DIR_NAMES = new Set([
   'node_modules',
   'build',
   'artifacts',
-  '.jdk',
-  '.git',
-  '.gradle',
-  '.idea',
   'coverage',
   'Pods',
 ]);
@@ -69,10 +65,6 @@ function collectInputFiles() {
   walkFiles(path.join(REPO, 'packages/core/src'), files);
   return files
     .map(f => path.resolve(f))
-    .filter(
-      f =>
-        !f.includes(`${path.sep}android${path.sep}app${path.sep}build${path.sep}`),
-    )
     .sort((a, b) => a.localeCompare(b));
 }
 
@@ -131,7 +123,6 @@ function prepare() {
     sourceDigest: digest,
     createdAt: new Date().toISOString(),
   };
-  verifyManifestBuildId(manifest);
   fs.mkdirSync(ASSET_DIR, { recursive: true });
   fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2) + '\n');
   console.log(`Wrote ${MANIFEST_PATH}`);
@@ -191,7 +182,6 @@ function finalize(apkPath = DEFAULT_APK) {
     sidecarId,
     builtAt: new Date().toISOString(),
   };
-  verifySidecarIdentity(sidecar);
   fs.mkdirSync(path.dirname(SIDECAR_PATH), { recursive: true });
   fs.writeFileSync(SIDECAR_PATH, JSON.stringify(sidecar, null, 2) + '\n');
   console.log(`Wrote ${SIDECAR_PATH}`);

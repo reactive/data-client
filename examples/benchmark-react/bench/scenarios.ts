@@ -1,3 +1,4 @@
+import { GC_CANONICAL_COUNTS } from '../src/data-client/gcInteractionMetrics.js';
 import type { BenchAPI, Scenario, ScenarioSize } from '../src/shared/types.js';
 
 /** Response-size-based network simulation used when --network-sim is enabled (default: on).
@@ -220,9 +221,6 @@ export const LIBRARIES = [
   'swr',
   'baseline',
 ] as const;
-
-/** Canonical GC counts matching the Node GC harness / shared vocabulary. */
-export const GC_CANONICAL_COUNTS = [1_000, 10_000, 100_000] as const;
 
 const GC_UNIQUE_KINDS = ['entity', 'endpoint', 'mixed'] as const;
 const GC_CONTROLS = ['gc', 'no-gc'] as const;

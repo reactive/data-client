@@ -96,8 +96,9 @@ export async function measureDisplayPeriodMs(samples = 8): Promise<number> {
   return median(intervals);
 }
 
-/** Canonical GC counts (must match `GC_CANONICAL_COUNTS` in bench/scenarios.ts). */
-const CANONICAL_COUNTS: readonly number[] = [1_000, 10_000, 100_000];
+/** Canonical GC counts matching the Node GC harness / shared vocabulary. */
+export const GC_CANONICAL_COUNTS = [1_000, 10_000, 100_000] as const;
+const CANONICAL_COUNTS: readonly number[] = GC_CANONICAL_COUNTS;
 
 /**
  * Stable detailed-report scenario ID from validated axes (not display names).

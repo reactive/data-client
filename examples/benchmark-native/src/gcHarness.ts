@@ -258,6 +258,8 @@ export function createHarness(config: GCScenarioConfig): Harness {
     },
     dispose() {
       capturedAction = null;
+      // Release the full store held by this scope
+      workingState = initialState;
       controller.getState = () => initialState;
       controller.dispatch = (() =>
         Promise.resolve()) as typeof controller.dispatch;

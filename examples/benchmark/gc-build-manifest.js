@@ -153,8 +153,9 @@ export function gitCommitFull() {
 /**
  * dirty=true when any relevant path is modified, added, or untracked vs git.
  */
-export function computeDirty(paths = listRelevantSourcePaths()) {
+export function computeDirty() {
   try {
+    // Pathspecs already scope status to relevant inputs.
     const pathspecs = [CORE_SRC_DIR, ...BENCH_SOURCE_FILES];
     const out = execFileSync(
       'git',
@@ -165,22 +166,7 @@ export function computeDirty(paths = listRelevantSourcePaths()) {
         stdio: ['ignore', 'pipe', 'ignore'],
       },
     ).trim();
-    if (!out) return false;
-    const relevant = new Set(paths);
-    for (const line of out.split('\n')) {
-      if (!line) continue;
-      const rest = line.slice(3);
-      const filePath = rest.includes(' -> ') ? rest.split(' -> ').pop() : rest;
-      const norm = toPosix(filePath.replace(/^"|"$/g, ''));
-      if (
-        relevant.has(norm) ||
-        norm.startsWith(`${CORE_SRC_DIR}/`) ||
-        BENCH_SOURCE_FILES.includes(norm)
-      ) {
-        return true;
-      }
-    }
-    return false;
+    return out.length > 0;
   } catch {
     return true;
   }
@@ -219,7 +205,7 @@ export function buildManifest() {
     );
   }
   const commit = gitCommitFull();
-  const dirty = computeDirty(paths);
+  const dirty = computeDirty();
   const body = {
     schemaVersion: MANIFEST_SCHEMA_VERSION,
     commit,

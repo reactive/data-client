@@ -39,7 +39,7 @@ import {
 import type { ConvergentProfile } from './scenarios.js';
 import { computeStats, isConverged } from './stats.js';
 import { parseTraceDuration } from './tracing.js';
-import { browserGCScenarioId } from '../src/data-client/gcInteractionMetrics.ts';
+import { browserGCScenarioId } from '../src/data-client/gcInteractionMetrics.js';
 import type {
   GCBrowserMeasurement,
   GCScenarioConfig,
@@ -106,6 +106,8 @@ function parseArgs(): {
   };
 }
 
+const isGCAction = (a: string) => a === 'gc' || a === 'runGCScenario';
+
 function filterScenarios(scenarios: Scenario[]): {
   filtered: Scenario[];
   libraries: string[];
@@ -129,13 +131,7 @@ function filterScenarios(scenarios: Scenario[]): {
 
   // GC scenarios are data-client-only; default lib when selecting --action gc
   const effectiveLibraries =
-    (
-      !libs &&
-      actions &&
-      actions.every(a => a === 'gc' || a === 'runGCScenario')
-    ) ?
-      ['data-client']
-    : libraries;
+    !libs && actions && actions.every(isGCAction) ? ['data-client'] : libraries;
 
   let filtered = scenarios;
 
@@ -152,11 +148,7 @@ function filterScenarios(scenarios: Scenario[]): {
   } else if (
     !actions ||
     !actions.some(
-      a =>
-        a === 'memory' ||
-        a === 'mountUnmountCycle' ||
-        a === 'gc' ||
-        a === 'runGCScenario',
+      a => a === 'memory' || a === 'mountUnmountCycle' || isGCAction(a),
     )
   ) {
     // Locally: exclude memory/gc by default; use --action memory|gc to include
@@ -964,7 +956,6 @@ async function runGCPhase(
   const failures: GCFailureRecord[] = [];
   const requestedScenarios = scenarios.length;
   const requestedSamples = scenarios.length * sampleCount;
-  let completedScenarios = 0;
   let completedSamples = 0;
 
   if (scenarios.length === 0) {
@@ -1026,7 +1017,6 @@ async function runGCPhase(
     }
 
     if (!scenarioFailed && scenarioSamples.length === sampleCount) {
-      completedScenarios++;
       const report = scenarioReportFromConfig(config, scenarioSamples);
       const { summary } = report;
       const medianTotal = summary.totalMs?.median ?? 0;
@@ -1076,7 +1066,7 @@ async function runGCPhase(
     headless: true,
     requestedScenarios,
     requestedSamples,
-    completedScenarios,
+    completedScenarios: reports.length,
     completedSamples,
     failures,
     provenance,
@@ -1205,6 +1195,10 @@ async function main() {
   for (const s of SCENARIOS_TO_RUN) {
     samples.set(s.name, { value: [], reactCommit: [], trace: [] });
   }
+
+  // Fail fast on a stale build before spending time on earlier phases
+  const gcProvenance =
+    gcScenarios.length > 0 ? await verifyGCBuildProvenance(BASE_URL) : null;
 
   const { browser, closeBenchBrowser } = await launchBenchChromium();
   if (BENCH_V8_DEOPT) {
@@ -1365,15 +1359,14 @@ async function main() {
 
   // GC: dedicated phase (opt-in via --action gc)
   let gcComplete = true;
-  if (gcScenarios.length > 0) {
-    const provenance = await verifyGCBuildProvenance(BASE_URL);
+  if (gcProvenance) {
     const { complete } = await runGCPhase(
       browser,
       gcScenarios,
       gcSamples,
       scenarioFilter,
       samples,
-      provenance,
+      gcProvenance,
     );
     gcComplete = complete;
   }
