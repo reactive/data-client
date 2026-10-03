@@ -37,10 +37,11 @@ import {
 } from '@data-client/react';
 import ReactDOM from 'react-dom';
 
-const managers = getDefaultManagers({
-  // highlight-next-line
-  devToolsManager: { trace: true },
-});
+const managers = () =>
+  getDefaultManagers({
+    // highlight-next-line
+    devToolsManager: { trace: true },
+  });
 
 ReactDOM.createRoot(document.body).render(
   <DataProvider managers={managers}>
@@ -65,7 +66,7 @@ import {
 } from '@data-client/react';
 import ReactDOM from 'react-dom';
 
-const managers =
+const managers = () =>
   process.env.NODE_ENV !== 'production'
     ? [
         // highlight-start

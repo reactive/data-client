@@ -5,12 +5,11 @@ import React from 'react';
 import use from './useUniversal.js';
 import { StateContext, StoreContext } from '../context.js';
 
+const hasSyncExternalStore = Object.hasOwn(React, 'useSyncExternalStore');
+
 const useCacheState: () => State<unknown> =
   /* istanbul ignore if */
-  (
-    typeof window === 'undefined' &&
-    Object.hasOwn(React, 'useSyncExternalStore')
-  ) ?
+  typeof window === 'undefined' && hasSyncExternalStore ?
     /* istanbul ignore next */
     () => {
       const store = use(StoreContext);

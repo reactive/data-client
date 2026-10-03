@@ -21,6 +21,9 @@ import type {
   SET_RESPONSE,
 } from './actionTypes.js';
 import type { EndpointUpdateFunction } from './controller/types.js';
+import type { StateBaseline, StateDelta } from './state/stream/types.js';
+
+export type { StateDelta, StateBaseline } from './state/stream/types.js';
 
 type EndpointAndUpdate<E extends EndpointInterface> = EndpointInterface & {
   update?: EndpointUpdateFunction<E>;

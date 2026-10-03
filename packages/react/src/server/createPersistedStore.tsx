@@ -1,43 +1,15 @@
 'use client';
-import {
-  Controller,
-  Manager,
-  NetworkManager,
-  State,
-  initialState,
-  createReducer,
-  applyManager,
-  initManager,
-} from '@data-client/core';
+import { Manager, State } from '@data-client/core';
 import { useSyncExternalStore } from 'react';
 
-import { PromiseifyMiddleware } from './redux/index.js';
-import { createStore, applyMiddleware } from './redux/redux.js';
+import createServerStore from './createServerStore.js';
 import SSRDataProvider from './SSRDataProvider.js';
-import { NetworkManager as ReactNetworkManager } from '../managers/index.js';
 
 export default function createPersistedStore(
   managers?: Manager[],
   hasDevManager: boolean = true,
 ) {
-  const controller = new Controller();
-  managers = managers ?? [new ReactNetworkManager()];
-  const networkManager: NetworkManager = managers.find(
-    m => m instanceof NetworkManager,
-  ) as any;
-  if (networkManager === undefined)
-    throw new Error('managers must include a NetworkManager');
-  const reducer = createReducer(controller);
-  const enhancer = applyMiddleware(
-    // redux 5's types are wrong and do not allow any return typing from next, which is incorrect.
-    // `next: (action: unknown) => unknown`: allows any action, but disallows all return types.
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    ...applyManager(managers, controller),
-    PromiseifyMiddleware,
-  );
-  const store = createStore(reducer, initialState as any, enhancer);
-  initManager(managers, controller, store.getState())();
+  const { store, controller, networkManager } = createServerStore(managers);
 
   const selector = (state: any) => state;
 

@@ -316,7 +316,7 @@ import { unAuth } from '../authentication';
 
 const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
 
-const managers = [
+const managers = () => [
   new LogoutManager({
     handleLogout(controller) {
       // call custom unAuth function we defined

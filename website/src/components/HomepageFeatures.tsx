@@ -9,7 +9,7 @@ import ChemicalCompositionSvg from '../../static/img/chemical-composition.svg';
 import FastCarSvg from '../../static/img/fast-car.svg';
 import GrowingBarChartSvg from '../../static/img/growing-bar-chart.svg';
 
-type SvgComponent = React.ComponentType<React.ComponentProps<'svg'>>;
+type SvgComponent = typeof FastCarSvg;
 
 interface BaseFeature {
   description: React.ReactNode;

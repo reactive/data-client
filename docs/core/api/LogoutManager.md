@@ -40,7 +40,7 @@ import {
 import ReactDOM from 'react-dom';
 
 // highlight-next-line
-const managers = [new LogoutManager(), ...getDefaultManagers()];
+const managers = () => [new LogoutManager(), ...getDefaultManagers()];
 
 ReactDOM.createRoot(document.body).render(
   <DataProvider managers={managers}>
@@ -62,7 +62,7 @@ import {
 import { AppRegistry } from 'react-native';
 
 // highlight-next-line
-const managers = [new LogoutManager(), ...getDefaultManagers()];
+const managers = () => [new LogoutManager(), ...getDefaultManagers()];
 
 const Root = () => (
   <DataProvider managers={managers}>
@@ -82,7 +82,7 @@ import { LogoutManager, getDefaultManagers } from '@data-client/react';
 import { DataProvider } from '@data-client/react/nextjs';
 
 // highlight-next-line
-const managers = [new LogoutManager(), ...getDefaultManagers()];
+const managers = () => [new LogoutManager(), ...getDefaultManagers()];
 
 export default function Provider({
   children,
@@ -124,7 +124,7 @@ import {
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 // highlight-next-line
-const managers = [new LogoutManager(), ...getDefaultManagers()];
+const managers = () => [new LogoutManager(), ...getDefaultManagers()];
 
 export default function Provider({
   children,
@@ -175,7 +175,7 @@ export default function RootLayout() {
 ```ts
 import { unAuth } from '../authentication';
 
-const managers = [
+const managers = () => [
   new LogoutManager({
     handleLogout(controller) {
       // call custom unAuth function we defined
@@ -198,7 +198,7 @@ import { unAuth } from '../authentication';
 // highlight-next-line
 const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
 
-const managers = [
+const managers = () => [
   new LogoutManager({
     handleLogout(controller) {
       // call custom unAuth function we defined

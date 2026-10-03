@@ -1,5 +1,6 @@
 import { expireReducer } from './expireReducer.js';
 import { fetchReducer } from './fetchReducer.js';
+import { initialState } from './initialState.js';
 import { invalidateReducer } from './invalidateReducer.js';
 import { setReducer } from './setReducer.js';
 import { setResponseReducer } from './setResponseReducer.js';
@@ -16,6 +17,8 @@ import {
 } from '../../actionTypes.js';
 import type Controller from '../../controller/Controller.js';
 import type { ActionTypes, State } from '../../types.js';
+
+export { initialState };
 
 export default function createReducer(controller: Controller): ReducerType {
   return function reducer(
@@ -63,16 +66,6 @@ export default function createReducer(controller: Controller): ReducerType {
     }
   } as any;
 }
-
-export const initialState: State<unknown> = {
-  entities: {},
-  endpoints: {},
-  indexes: {},
-  meta: {},
-  entitiesMeta: {},
-  optimistic: [],
-  lastReset: 0,
-};
 
 type ReducerType = (
   state: State<unknown> | undefined,

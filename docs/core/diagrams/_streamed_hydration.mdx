@@ -1,0 +1,142 @@
+Thick-border nodes on the overview are black boxes. Each zoom opens **one** box.
+
+```mermaid
+flowchart LR
+  Baseline["Baseline<br/>shell paints now"]
+  subgraph pieces["Pieces arrive"]
+    direction TB
+    FirstFlush["First flush"]
+    NestedIsland["Nested island"]
+    LaterOverlap["Later overlap"]
+  end
+  Hydrate["Island hydrates"]
+  Subscribe["Subscribe for live updates"]
+  Insertion["RSC vs renderToPipeableStream"]
+
+  Baseline --> pieces
+  Insertion -.-> pieces
+  pieces --> Hydrate
+  Hydrate --> Subscribe
+
+  style FirstFlush stroke-width:3px
+  style NestedIsland stroke-width:3px
+  style LaterOverlap stroke-width:3px
+  style Hydrate stroke-width:3px
+  style Insertion stroke-width:3px
+```
+
+| Piece | Server revision | Endpoints in the piece | Entities | Who hydrates from it |
+| --- | --- | --- | --- | --- |
+| **Baseline** | empty request store | — | — | nobody; shell only |
+| **First flush** | one flush, two islands | `getTickers`, `getSymbolInfo(BTC)` | `Ticker:BTC`, `Ticker:ETH`, `Symbol:BTC` | Watchlist + SymbolHeader |
+| **Nested island** | nested child first | `getTrades(BTC)` | `Trade:…` | Tape, before parent Book exists |
+| **Later overlap** | disjoint parent later | `getOrderBook(BTC)` | `Book:BTC`, plus `Ticker:BTC` again (constructed nested ticker) | Book; live three-way merge vs tick |
+
+### Island hydrates
+
+Opens **Island hydrates**. Shared path for every piece.
+
+```mermaid
+flowchart TB
+  Server["Request store"]
+  Baseline["Baseline"]
+  Delta["StateDelta"]
+  Snapshot["Hydration snapshot"]
+  LiveStore["Live store"]
+  Island["Island"]
+  SubMgr["SubscriptionManager"]
+
+  Server --> Baseline
+  Server --> Delta
+  Baseline -->|"seed once"| Snapshot
+  Delta -->|"fold this piece"| Snapshot
+  Snapshot -->|"HYDRATE"| LiveStore
+  Island -->|"useSuspense"| Snapshot
+  Snapshot -->|"cache hit"| Island
+  Island -->|"after commit SUBSCRIBE"| SubMgr
+  SubMgr -->|"ticks"| LiveStore
+```
+
+### First flush
+
+Opens **First flush**. One server revision, two islands, one `StateDelta`.
+
+```mermaid
+flowchart LR
+  Revision["One server revision"]
+  Delta["One StateDelta"]
+  Watchlist["Watchlist<br/>getTickers"]
+  SymbolHeader["SymbolHeader<br/>getSymbolInfo"]
+  Market["Market still pending"]
+
+  Revision -->|"SET_RESPONSE ×2"| Delta
+  Delta --> Watchlist
+  Delta --> SymbolHeader
+  Watchlist -.-> Market
+  SymbolHeader -.-> Market
+```
+
+### Nested island
+
+Opens **Nested island**. Tree order is not stream order.
+
+```mermaid
+flowchart TB
+  Market["Market"]
+  Book["Book — still pending"]
+  Tape["Tape / Trades"]
+  Delta["Trades StateDelta"]
+
+  Market --- Book
+  Market --- Tape
+  Delta --> Tape
+```
+
+### Later overlap
+
+Opens **Later overlap**. A later disjoint piece writes an entity the first flush already put in the store.
+
+```mermaid
+flowchart LR
+  FirstFlush["First flush wrote Ticker:BTC"]
+  LiveTick["Live tick may already own that slot"]
+  BookPiece["Later book piece writes Book:BTC<br/>and Ticker:BTC again"]
+  Merge["Three-way merge"]
+  LiveStore["Live store"]
+
+  FirstFlush --> LiveStore
+  FirstFlush --> LiveTick
+  LiveTick --> Merge
+  BookPiece --> Merge
+  Merge --> LiveStore
+```
+
+### RSC vs renderToPipeableStream
+
+Opens **RSC vs renderToPipeableStream**. Two clocks, not two products.
+
+```mermaid
+flowchart TB
+  subgraph htmlStream["Streaming HTML"]
+    Insert["useServerInsertedHTML"]
+    RTP["renderToPipeableStream"]
+    Chunk["HTML chunk<br/>baseline, then StateDelta + island markup"]
+    Insert -->|"Next App Router"| Chunk
+    RTP -->|"state piece colocated<br/>with the revealing Suspense"| Chunk
+  end
+  subgraph rsc["RSC"]
+    Payload["RSC payload"]
+    Client["Client Component can start<br/>before the HTML delta runs"]
+    Payload --> Client
+  end
+  Snapshot["Hydration snapshot"]
+  Chunk --> Snapshot
+  Client -->|"useSuspense"| Snapshot
+```
+
+| Wire | Host | How a piece gets on the wire | What it cannot promise |
+| --- | --- | --- | --- |
+| **Streaming HTML + RSC** | `@data-client/react/nextjs` | `useServerInsertedHTML()` writes the inert baseline, then a `StateDelta` script per flush, into the **HTML** stream | It cannot order that script against **RSC**. A Client Component may start before the delta that describes it has executed. |
+| **`renderToPipeableStream`** | `@data-client/react/ssr` (Express, Anansi) | Intended: a state-piece colocated in the revealing Suspense/island so React emits the delta and the dependent markup as one ordered subtree | Not shipped in this release — generic `/ssr` remains a one-shot snapshot. Parser/hydration order is still not a contract. |
+
+The figures are the **intended** client clock. This release does not throw per-key waiters or fold independently of the receiver layout effect.

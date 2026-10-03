@@ -1,29 +1,37 @@
 'use client';
-import { useMemo, type ComponentProps } from 'react';
+import { useServerInsertedHTML } from 'next/navigation';
+import { useMemo } from 'react';
 
 import createPersistedStore from './createPersistedStore.js';
-import ServerDataComponent from './ServerDataComponent.js';
-import type DataProviderClient from '../../../components/DataProvider.js';
+import type { NextDataProviderProps } from './types.js';
 
+export type { NextDataProviderProps } from './types.js';
+
+/**
+ * DataProvider for the Next.js App Router.
+ *
+ * Emits an inert baseline then a StateDelta per flush via
+ * `useServerInsertedHTML()`. The client adapter owns the snapshot and
+ * folds queued pieces plus live HYDRATE from StreamedStateReceiver's
+ * layout effect. Insertion is the HTML stream, not RSC; a Client
+ * Component may start before that fold. `initialState` is the one-time
+ * seed — later pieces are snapshot folds plus HYDRATE, never a replaced
+ * prop.
+ * @see https://dataclient.io/docs/guides/ssr#streamed-hydration
+ */
 export default function DataProvider({
   children,
+  nonce,
   ...props
-}: ProviderProps): React.ReactElement {
-  const [ServerDataProvider, initPromise] = useMemo(createPersistedStore, []);
-
-  return (
-    <>
-      <ServerDataComponent initPromise={initPromise} />
-      <ServerDataProvider {...props} initPromise={initPromise}>
-        {children}
-      </ServerDataProvider>
-    </>
+}: NextDataProviderProps): React.ReactElement {
+  const [StoreDataProvider, renderStateDelta] = useMemo(
+    () => createPersistedStore(props.managers, props.Controller),
+    // the store lives for the whole request/page; managers cannot change after
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   );
-}
+  useServerInsertedHTML(() => renderStateDelta(nonce));
 
-type ProviderProps = Omit<
-  Partial<ComponentProps<typeof DataProviderClient>>,
-  'initialState'
-> & {
-  children: React.ReactNode;
-};
+  const { managers: _, Controller: __, ...storeProps } = props;
+  return <StoreDataProvider {...storeProps}>{children}</StoreDataProvider>;
+}

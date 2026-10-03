@@ -14,5 +14,10 @@
       "__tests__/*": ["./__tests__/*"]
     }
   },
-  "include": ["packages/*/src", "packages/*/typescript-tests", "__tests__"]
+  "include": [
+    "packages/*/src",
+    "packages/*/type-shims",
+    "packages/*/typescript-tests",
+    "__tests__"
+  ]
 }
