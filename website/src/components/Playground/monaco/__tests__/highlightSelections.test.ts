@@ -10,6 +10,10 @@ const lines = (start: number, end: number) => ({
 });
 
 describe('highlightSelections', () => {
+  test('selects nothing without lines', () => {
+    expect(highlightSelections([])).toEqual([]);
+  });
+
   test('selects a single line through the start of the next', () => {
     expect(highlightSelections([2])).toEqual([lines(2, 3)]);
   });

@@ -1,6 +1,8 @@
 /// <reference types="jest" />
 
-import { modelPath, stripModelId } from '../modelPath';
+import { renderHook } from '@testing-library/react';
+
+import { modelPath, stripModelId, useModelId } from '../modelPath';
 
 describe('model paths', () => {
   test('round-trips a namespaced file path', () => {
@@ -12,5 +14,14 @@ describe('model paths', () => {
     expect(stripModelId('/node_modules/react/index.d.ts')).toBe(
       '/node_modules/react/index.d.ts',
     );
+  });
+
+  test('useModelId is numeric and stable across renders', () => {
+    const { result, rerender } = renderHook(() => useModelId());
+    const first = result.current;
+    expect(first).toMatch(/^\d+$/);
+    expect(stripModelId(modelPath(first, 'a.ts'))).toBe('/a.ts');
+    rerender();
+    expect(result.current).toBe(first);
   });
 });
