@@ -16,7 +16,7 @@ import createReducer, { initialState } from '../reducer/createReducer';
  * a different consumer releases it. The surviving result then denormalizes
  * without that entity while its expiry stays `Valid`, so nothing refetches.
  *
- * See plans/gc-handoff.md, decision 1 ("What is a GC root").
+ * See plans/garbage-collection.md, "Open decisions" 1.
  */
 describe('GCPolicy deletes entities still named by uncounted endpoints', () => {
   class Article extends Entity {
