@@ -29,6 +29,7 @@ export interface InteractiveEditorProps {
   /** Whether this tab is visible; re-measures height when it becomes so */
   isFocused?: boolean;
   language?: string;
+  readOnly?: boolean;
 }
 
 /**
@@ -45,9 +46,11 @@ function InteractiveEditor({
   autoFocus = false,
   isFocused = false,
   language = 'tsx',
+  readOnly = false,
 }: InteractiveEditorProps) {
+  const editorOptions = useMemo(() => ({ ...options, readOnly }), [readOnly]);
   const { height, handleMount: handleAutoMount } = useAutoHeight({
-    initialContentHeight: code.split('\n').length * options.lineHeight,
+    initialContentHeight: code.split('\n').length * editorOptions.lineHeight,
     isFocused,
   });
 
@@ -85,7 +88,7 @@ function InteractiveEditor({
       defaultLanguage={extensionToMonacoLanguage(language)}
       onChange={onChange}
       defaultValue={code}
-      options={options}
+      options={editorOptions}
       theme={MONACO_THEME}
       onMount={handleMount}
       height={height}

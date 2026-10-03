@@ -5,12 +5,11 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 
 import Header from '../Header';
 import { modelPath, useModelId } from '../monaco/modelPath';
+import Editor from '../PlaygroundEditor';
 import styles from '../styles.module.css';
 import TabList from '../TabList';
 import type { CodeDocument, CodeModel } from './codeModel';
-import InteractiveEditor, {
-  type InteractiveEditorProps,
-} from './InteractiveEditor';
+import type { InteractiveEditorProps } from './InteractiveEditor';
 import StaticEditor from './StaticEditor';
 
 export interface EditorSurfaceProps extends CodeModel {
@@ -150,7 +149,7 @@ function TextEditTab({
       {/* Not yet interactive (e.g. never-shown Demo tab): skip Monaco entirely */}
       {interactive ?
         <BrowserOnly fallback={staticView}>
-          {() => <InteractiveEditor {...editorProps} />}
+          {() => <Editor {...editorProps} />}
         </BrowserOnly>
       : staticView}
     </div>
