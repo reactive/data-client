@@ -1,4 +1,4 @@
-import type { Manager, Middleware, ActionTypes } from '@data-client/react';
+import type { Manager, Middleware } from '@data-client/react';
 import { Controller, actionTypes } from '@data-client/react';
 import type { Entity } from '@data-client/rest';
 
@@ -10,14 +10,16 @@ export default class StreamManager implements Manager {
   declare protected evtSource: WebSocket; // | EventSource;
   declare protected createEventSource: () => WebSocket; // | EventSource;
   declare protected entities: Record<string, typeof Entity>;
-  protected msgQueue: (string | ArrayBufferLike | Blob | ArrayBufferView)[] =
-    [];
 
+  /** Subscriber count per product; re-sent on every (re)connect */
+  protected subscriptions = new Map<string, number>();
+  /** Products waiting to be sent in the next subscribe message */
   protected product_ids: string[] = [];
   /** Messages waiting to be written, grouped by entity type */
   protected buffer: Record<string, Record<string, any>> = {};
   declare protected flushTimeout?: ReturnType<typeof setTimeout>;
   private attempts = 0;
+  declare protected reconnectTimeout?: ReturnType<typeof setTimeout>;
   declare protected controller: Controller;
 
   constructor(
@@ -58,13 +60,7 @@ export default class StreamManager implements Manager {
           )
             break;
           if ('channel' in action.endpoint) {
-            this.send(
-              JSON.stringify({
-                type: 'unsubscribe',
-                product_ids: [action.args[0]?.product_id],
-                channels: [action.endpoint.channel],
-              }),
-            );
+            this.unsubscribe(action.args[0]?.product_id);
             return Promise.resolve();
           }
           return next(action);
@@ -75,47 +71,81 @@ export default class StreamManager implements Manager {
   };
 
   connect = () => {
-    this.evtSource = this.createEventSource();
-    this.evtSource.onmessage = event => {
+    const ws = this.createEventSource();
+    this.evtSource = ws;
+    // a replaced socket can still fire events (e.g. error after close())
+    const isCurrent = () => ws === this.evtSource;
+    ws.onmessage = event => {
+      if (!isCurrent()) return;
       try {
         const msg = JSON.parse(event.data);
-        this.handleMessage(this.controller, msg);
+        this.handleMessage(msg);
       } catch (e) {
         console.error('Failed to handle message');
         console.error(e);
       }
     };
-    this.evtSource.onopen = () => {
+    ws.onopen = () => {
+      if (!isCurrent()) return;
       console.info('WebSocket connected');
       // Reset reconnection attempts after a successful connection
       this.attempts = 0;
+      // A new socket has no subscriptions, so (re)subscribe everything active
+      this.product_ids = [...this.subscriptions.keys()];
+      this.flushSubscribe();
     };
-    this.evtSource.onclose = () => {
+    ws.onclose = () => {
+      if (!isCurrent()) return;
       console.info('WebSocket disconnected');
       this.reconnect();
     };
-    this.evtSource.onerror = error => {
+    ws.onerror = error => {
+      if (!isCurrent()) return;
       console.error('WebSocket error:', error);
       // Ensures that the onclose handler gets triggered for reconnection
-      this.evtSource.close();
+      ws.close();
     };
   };
 
-  send(data: string | ArrayBufferLike | Blob | ArrayBufferView): void {
+  /** Sends only while open; onopen re-subscribes, so nothing needs queueing */
+  send(data: Parameters<WebSocket['send']>[0]): void {
     if (this.evtSource.readyState === this.evtSource.OPEN) {
       this.evtSource.send(data);
-    } else {
-      this.msgQueue.push(data);
     }
   }
 
-  subscribe(product_id: string) {
-    if (this.evtSource.readyState === this.evtSource.OPEN) {
-      this.product_ids.push(product_id);
+  subscribe(product_id: string | undefined) {
+    if (!product_id) return;
+    const count = this.subscriptions.get(product_id) ?? 0;
+    this.subscriptions.set(product_id, count + 1);
+    // already subscribed, or onopen will subscribe it
+    if (count || this.evtSource.readyState !== this.evtSource.OPEN) return;
+    this.product_ids.push(product_id);
+    // batch subscriptions made in the same tick into one message
+    if (this.product_ids.length === 1)
       setTimeout(() => this.flushSubscribe(), 5);
-    } else {
-      this.product_ids.push(product_id);
+  }
+
+  unsubscribe(product_id: string | undefined) {
+    if (!product_id) return;
+    const count = this.subscriptions.get(product_id) ?? 0;
+    if (count > 1) {
+      this.subscriptions.set(product_id, count - 1);
+      return;
     }
+    this.subscriptions.delete(product_id);
+    // never sent yet
+    if (this.product_ids.includes(product_id)) {
+      this.product_ids = this.product_ids.filter(id => id !== product_id);
+      return;
+    }
+    this.send(
+      JSON.stringify({
+        type: 'unsubscribe',
+        product_ids: [product_id],
+        channels: ['ticker'],
+      }),
+    );
   }
 
   flushSubscribe() {
@@ -136,10 +166,9 @@ export default class StreamManager implements Manager {
    * Only the latest message per product is kept, since rows in one batch
    * skip Ticker.shouldReorder()
    *
-   * @param controller
    * @param msg JSON parsed message
    */
-  handleMessage(ctrl: Controller, msg: any) {
+  handleMessage(msg: any) {
     if (msg.type in this.entities) {
       (this.buffer[msg.type] ??= {})[msg.product_id] = msg;
       this.flushTimeout ??= setTimeout(this.flush, 50);
@@ -158,16 +187,13 @@ export default class StreamManager implements Manager {
 
   init() {
     this.connect();
-    this.evtSource.addEventListener('open', event => {
-      //this.msgQueue.forEach((msg) => this.evtSource.send(msg));
-      this.flushSubscribe();
-    });
   }
 
   reconnect() {
     // Exponential backoff formula to gradually increase the reconnection time
-    setTimeout(
+    this.reconnectTimeout = setTimeout(
       () => {
+        this.reconnectTimeout = undefined;
         console.info(
           `Attempting to reconnect... (Attempt: ${this.attempts + 1})`,
         );
@@ -182,6 +208,10 @@ export default class StreamManager implements Manager {
     // remove our event handler that attempts reconnection
     this.evtSource.onclose = null;
     this.evtSource.close();
+    // a pending reconnect would open a new socket after we are gone
+    clearTimeout(this.reconnectTimeout);
+    this.reconnectTimeout = undefined;
+    this.attempts = 0;
     clearTimeout(this.flushTimeout);
     this.flushTimeout = undefined;
     this.buffer = {};
