@@ -251,7 +251,8 @@ only. They do not choose a product design.
 
 - No production `GCPolicy`, reducer, hook, or schema change.
 - No CI job runs the new GC benchmarks.
-- No physical Android calibration.
+- No physical Android calibration. **Deferred as future work**; not planned
+  soon. See "Future work" below.
 - No decision on ownership (per-consumer refs vs query reachability vs whole
   documents), scheduling, or how a deletion becomes a React snapshot.
 
@@ -310,9 +311,17 @@ Do not treat prior rankings as votes.
   ways to close it; neither is measured.
 - If comparing schedulers, measure release/unmount cost and idle sweep cost
   separately, on the browser harness, not only in Node.
-- Before any RN default change, run the release app on a named mid-range
-  device. The harness is ready enough to do that; the numbers are not.
 - Keep production GC unchanged until those results exist.
+
+### Future work
+
+- **Android on-device calibration.** Not planned soon. The release-Hermes app
+  in `examples/benchmark-native` builds and its unit tests pass, but it has
+  never run on a physical device. Until it does, there is no React Native
+  frame or memory baseline. Do not change React Native GC defaults on the
+  strength of Node or Chromium numbers alone; a design may land web-first and
+  leave the RN policy as is. When picked up, run the release app on a named
+  mid-range device (see `examples/benchmark-native/README.md`).
 
 ## 4. What this PR is
 
