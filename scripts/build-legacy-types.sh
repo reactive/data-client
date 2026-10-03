@@ -10,6 +10,16 @@ fi
 # Called directly (not via `yarn g:*`) to skip a yarn boot per step.
 downlevel_dts="$(dirname "$0")/../node_modules/.bin/downlevel-dts"
 
+# Copies only the .d.ts files under src dir $1 into $2 (ts* dirs are published).
+copy_types() {
+    [ -d "$1" ] || return 0
+    (cd "$1" && find . -name '*.d.ts') | while IFS= read -r file
+    do
+        mkdir -p "$2/$(dirname "$file")"
+        cp "$1/$file" "$2/$file"
+    done
+}
+
 # Custom types for a version also apply to every version listed after it,
 # so each output dir gets (in order): earlier versions' custom types, the
 # downleveled lib, then its own custom types. Each output dir only depends on
@@ -20,14 +30,10 @@ build_version() {
     mkdir -p "./ts$version"
     for earlier in "$@"
     do
-        if [ -d "./src-$earlier-types" ]; then
-            cp -R "./src-$earlier-types/." "./ts$version/"
-        fi
+        copy_types "./src-$earlier-types" "./ts$version"
     done
     "$downlevel_dts" lib "ts$version" --to="$version"
-    if [ -d "./src-$version-types" ]; then
-        cp -R "./src-$version-types/." "./ts$version/"
-    fi
+    copy_types "./src-$version-types" "./ts$version"
 }
 
 # LEGACY_MIN_TS skips outputs no consumer reads (CI's oldest tested TS).

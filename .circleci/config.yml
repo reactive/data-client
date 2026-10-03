@@ -54,7 +54,7 @@ jobs:
       - run:
           name: Detect relevant changes
           command: |
-            # Compare against the default branch (or its previous commit).
+            # Compare against the default branch.
             # Use CIRCLE_DEFAULT_BRANCH so this stays correct if the default branch changes.
             BASE_BRANCH="${CIRCLE_DEFAULT_BRANCH:-master}"
             # Fail open: run jobs unless we can prove irrelevance.
@@ -62,7 +62,10 @@ jobs:
             TESTS_RELEVANT=true
 
             if [ "${CIRCLE_BRANCH}" = "${BASE_BRANCH}" ]; then
-              DIFF_RANGE="HEAD~1...HEAD"
+              # A push can land several commits (rebase-merge), so HEAD~1 isn't
+              # the whole change; always run everything on the default branch.
+              echo "On ${BASE_BRANCH}; running all jobs."
+              DIFF_RANGE=""
             else
               # NOTE: never fetch with --depth here: a shallow fetch severs the
               # merge base, making the three-dot diff fail (and thus previously
@@ -76,11 +79,14 @@ jobs:
             # Grep a file, not a pipe: CircleCI runs bash with pipefail, so an
             # early-exiting `grep -q` could SIGPIPE the writer and flip a check.
             # (No here-strings either: CircleCI reads their angle brackets as parameter syntax.)
-            if git diff --name-only "${DIFF_RANGE}" > /tmp/ci-changed-files; then
+            # --no-renames: a move out of packages/ must list the old path too.
+            if [ -z "${DIFF_RANGE}" ]; then
+              :
+            elif git -c core.quotePath=off diff --no-renames --name-only "${DIFF_RANGE}" > /tmp/ci-changed-files; then
               echo "Changed files:"
               cat /tmp/ci-changed-files
               if ! grep -Eq \
-                '^(\.circleci/config\.yml|package\.json$|scripts/|yarn\.lock|examples/todo-app/|examples/github-app/|examples/normalizr-relationships/|packages/)' /tmp/ci-changed-files; then
+                '^(\.circleci/config\.yml|package\.json$|tsconfig[^/]*\.json$|babel\.config\.js$|\.yarnrc\.yml$|scripts/|yarn\.lock|examples/todo-app/|examples/github-app/|examples/normalizr-relationships/|packages/)' /tmp/ci-changed-files; then
                 echo "No relevant esmodule-related changes; downstream esmodule jobs will halt."
                 ESMODULE_RELEVANT=false
               fi
