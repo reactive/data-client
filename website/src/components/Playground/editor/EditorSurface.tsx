@@ -1,20 +1,17 @@
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import Translate from '@docusaurus/Translate';
 import clsx from 'clsx';
-import React, {
-  type ComponentProps,
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { LiveEditor } from 'react-live';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 
 import Header from '../Header';
-import Editor from '../PlaygroundEditor';
+import { modelPath, useModelId } from '../monaco/modelPath';
 import styles from '../styles.module.css';
 import TabList from '../TabList';
 import type { CodeDocument, CodeModel } from './codeModel';
+import InteractiveEditor, {
+  type InteractiveEditorProps,
+} from './InteractiveEditor';
+import StaticEditor from './StaticEditor';
 
 export interface EditorSurfaceProps extends CodeModel {
   layout: 'row' | 'stacked';
@@ -34,7 +31,7 @@ export default function EditorSurface({
   fixtureContent,
   headerControls,
 }: EditorSurfaceProps) {
-  const id = useNumericId();
+  const id = useModelId();
   const row = layout === 'row';
   const [closedList, setClosed] = useState(() =>
     documents.map(({ collapsed }) => collapsed),
@@ -42,7 +39,7 @@ export default function EditorSurface({
 
   // Document count and col flags are fixed after the initial parse, so
   // capturing them once keeps these handlers referentially stable. That
-  // stability is what lets memo(PlaygroundMonacoEditor) skip re-rendering
+  // stability is what lets memo(InteractiveEditor) skip re-rendering
   // unedited tabs on every keystroke.
   const colFlags = useRef(documents.map(({ col }) => col)).current;
   const handleTabSwitch = useCallback(
@@ -114,7 +111,7 @@ export default function EditorSurface({
             }
             onChange={handleChanges[index]}
             code={document.value}
-            path={`/${id}/${document.path}`}
+            path={modelPath(id, document.path)}
             isFocused={!closedList[index]}
             language={document.language}
             highlights={document.highlights}
@@ -129,32 +126,20 @@ export default function EditorSurface({
 function TextEditTab({
   hidden,
   interactive,
-  code,
-  language,
-  tabIndex,
-  ...rest
-}: ComponentProps<typeof Editor> & {
+  ...editorProps
+}: InteractiveEditorProps & {
   hidden: boolean;
   interactive: boolean;
 }) {
-  // Stable across SSR/hydration (do not branch on navigator / isGoogleBot here).
-  const staticView = <LiveEditor language={language} code={code} disabled />;
-
-  // Deferred protocols: keep open-file source in the DOM for SSG/crawlers;
-  // skip Monaco until the sandbox has been shown once.
-  if (!interactive) {
-    return (
-      <div
-        className={clsx(styles.playgroundEditor, {
-          [styles.hidden]: hidden,
-        })}
-      >
-        {hidden ? null : staticView}
-      </div>
+  // SSR + hydration markup: open tabs' source stays in the HTML for crawlers.
+  // Never branch on navigator / user agent outside BrowserOnly.
+  const staticView =
+    hidden ? null : (
+      <StaticEditor
+        code={editorProps.code}
+        language={editorProps.language ?? 'tsx'}
+      />
     );
-  }
-
-  const fallback = hidden ? <></> : staticView;
 
   return (
     <div
@@ -162,16 +147,12 @@ function TextEditTab({
         [styles.hidden]: hidden,
       })}
     >
-      <BrowserOnly fallback={fallback}>
-        {() => (
-          <Editor
-            tabIndex={tabIndex}
-            code={code}
-            language={language}
-            {...rest}
-          />
-        )}
-      </BrowserOnly>
+      {/* Not yet interactive (e.g. never-shown Demo tab): skip Monaco entirely */}
+      {interactive ?
+        <BrowserOnly fallback={staticView}>
+          {() => <InteractiveEditor {...editorProps} />}
+        </BrowserOnly>
+      : staticView}
     </div>
   );
 }
@@ -267,13 +248,5 @@ function EditorHeader({
         </Header>
       : null}
     </>
-  );
-}
-
-// Monaco model URIs are matched with /\/\d+\// in monaco-init.ts.
-function useNumericId() {
-  return useMemo(
-    () => Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString(),
-    [],
   );
 }

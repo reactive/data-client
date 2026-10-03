@@ -1,7 +1,7 @@
 import React from 'react';
 import { LiveProvider } from 'react-live';
 
-import { useReactLiveTheme } from '../useReactLiveTheme';
+import { useReactLiveTheme } from './useReactLiveTheme';
 
 export default function EditorShell({
   children,
