@@ -52,7 +52,10 @@ export default function useCache<
   : DenormalizeNullable<E['schema']>
 >;
 
-export default function useCache(endpoint: any, ...args: any[]): any {
+export default function useCache(
+  endpoint: any,
+  ...args: any[]
+): ComputedRef<unknown> {
   const stateRef = injectState();
   const controller = useController();
 
