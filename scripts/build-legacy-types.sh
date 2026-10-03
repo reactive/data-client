@@ -1,9 +1,17 @@
 #!/bin/bash
 set -e
 
+# --newer-overlays-last: copy earlier versions' custom types after the
+# downleveled lib instead of before, so they replace colliding lib files.
+newer_last=false
+if [ "$1" = "--newer-overlays-last" ]; then
+    newer_last=true
+    shift
+fi
+
 # Check if at least one directory is provided
 if [ $# -eq 0 ]; then
-    echo "Usage: $0 <version1> [version2] ..."
+    echo "Usage: $0 [--newer-overlays-last] <version1> [version2] ..."
     exit 1
 fi
 
@@ -22,17 +30,23 @@ copy_types() {
 
 # Custom types for a version also apply to every version listed after it,
 # so each output dir gets (in order): earlier versions' custom types, the
-# downleveled lib, then its own custom types. Each output dir only depends on
-# lib and src-*-types, so versions build concurrently.
+# downleveled lib, then its own custom types (with --newer-overlays-last, the
+# downleveled lib comes first). Each output dir only depends on lib and
+# src-*-types, so versions build concurrently.
 build_version() {
     local version="$1"
     shift
     mkdir -p "./ts$version"
+    if [ "$newer_last" = true ]; then
+        "$downlevel_dts" lib "ts$version" --to="$version"
+    fi
     for earlier in "$@"
     do
         copy_types "./src-$earlier-types" "./ts$version"
     done
-    "$downlevel_dts" lib "ts$version" --to="$version"
+    if [ "$newer_last" = false ]; then
+        "$downlevel_dts" lib "ts$version" --to="$version"
+    fi
     copy_types "./src-$version-types" "./ts$version"
 }
 
