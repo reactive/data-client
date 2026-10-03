@@ -1,0 +1,75 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import CodeBlock from '@theme/CodeBlock';
+import providerSetup from '@site/src/components/providerSetup';
+
+::::react
+
+<Tabs
+defaultValue="web"
+groupId="platform"
+values={[
+{ label: 'Web', value: 'web' },
+{ label: 'React Native', value: 'native' },
+{ label: 'NextJS', value: 'nextjs' },
+{ label: 'Expo', value: 'expo' },
+]}>
+
+<TabItem value="web">
+
+<CodeBlock language="tsx" title="index.tsx">
+  {providerSetup(props).web}
+</CodeBlock>
+
+</TabItem>
+
+<TabItem value="native">
+
+<CodeBlock language="tsx" title="index.tsx">
+  {providerSetup(props).native}
+</CodeBlock>
+
+</TabItem>
+
+<TabItem value="nextjs">
+
+<CodeBlock language="tsx" title="app/Provider.tsx">
+  {providerSetup(props).nextjs}
+</CodeBlock>
+
+```tsx title="app/layout.tsx"
+// highlight-next-line
+import Provider from './Provider';
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        // highlight-next-line
+        <Provider>{children}</Provider>
+      </body>
+    </html>
+  );
+}
+```
+
+</TabItem>
+
+<TabItem value="expo">
+
+<CodeBlock language="tsx" title="app/_layout.tsx">
+  {providerSetup(props).expo}
+</CodeBlock>
+
+</TabItem>
+</Tabs>
+
+::::
+
+::::vue
+
+<CodeBlock language="ts" title="main.ts">
+  {providerSetup(props).vue}
+</CodeBlock>
+
+::::
