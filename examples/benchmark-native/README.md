@@ -1,6 +1,6 @@
 # Release-Hermes Android GC benchmark
 
-Private monorepo workspace `example-benchmark-native`: Android-only React Native **0.86** app (React **19.2.3**, Hermes enabled). Measures `@data-client/core` cache GC interaction cost on a physical device in a **release** build.
+Private monorepo workspace `example-benchmark-native`: Android-only React Native **0.86.2** app (React **19.2.3**, Hermes enabled). Measures `@data-client/core` cache GC interaction cost on a physical device in a **release** build.
 
 This phase is **manual**, not CI. Emulators are functional checks only — not authoritative.
 
