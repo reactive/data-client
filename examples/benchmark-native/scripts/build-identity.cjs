@@ -22,7 +22,10 @@ function computeBuildId(inputs) {
   if (typeof inputs.gitDirty !== 'boolean') {
     throw new Error('gitDirty must be boolean');
   }
-  if (typeof inputs.sourceDigest !== 'string' || !/^[0-9a-f]{64}$/.test(inputs.sourceDigest)) {
+  if (
+    typeof inputs.sourceDigest !== 'string' ||
+    !/^[0-9a-f]{64}$/.test(inputs.sourceDigest)
+  ) {
     throw new Error('sourceDigest must be 64-char hex sha256');
   }
   // Canonical encoding: fixed field order, no timestamps/artifacts.
@@ -40,10 +43,16 @@ function computeBuildId(inputs) {
  * @returns {string} hex sha256
  */
 function computeSidecarId(inputs) {
-  if (typeof inputs.buildId !== 'string' || !/^[0-9a-f]{64}$/.test(inputs.buildId)) {
+  if (
+    typeof inputs.buildId !== 'string' ||
+    !/^[0-9a-f]{64}$/.test(inputs.buildId)
+  ) {
     throw new Error('buildId must be 64-char hex sha256');
   }
-  if (typeof inputs.apkSha256 !== 'string' || !/^[0-9a-f]{64}$/.test(inputs.apkSha256)) {
+  if (
+    typeof inputs.apkSha256 !== 'string' ||
+    !/^[0-9a-f]{64}$/.test(inputs.apkSha256)
+  ) {
     throw new Error('apkSha256 must be 64-char hex sha256');
   }
   return crypto

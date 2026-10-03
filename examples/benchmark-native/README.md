@@ -27,6 +27,8 @@ yarn workspace example-benchmark-native test
 yarn workspace example-benchmark-native build:android:release
 ```
 
+Tooling comes from the monorepo root: Jest 30 (`preset: 'react-native'`), the root ESLint flat config (`lint` runs `yarn g:lint`), and TypeScript via `@typescript/native`.
+
 This writes:
 
 - embedded asset `android/app/src/main/assets/build-manifest.json` (generated; gitignored)

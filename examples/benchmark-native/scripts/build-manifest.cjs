@@ -12,10 +12,11 @@
  * Inputs: sorted paths under this app (tracked+untracked contents) plus
  * packages/core/src, excluding build/node_modules/artifacts/.jdk/generated.
  */
+const { execSync } = require('child_process');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
-const { execSync } = require('child_process');
+
 const {
   computeBuildId,
   computeSidecarId,
@@ -63,9 +64,7 @@ function collectInputFiles() {
   const files = [];
   walkFiles(ROOT, files);
   walkFiles(path.join(REPO, 'packages/core/src'), files);
-  return files
-    .map(f => path.resolve(f))
-    .sort((a, b) => a.localeCompare(b));
+  return files.map(f => path.resolve(f)).sort((a, b) => a.localeCompare(b));
 }
 
 function sha256File(filePath) {

@@ -62,6 +62,24 @@ export default [
       },
     },
   },
+  // Node CommonJS: configs, host scripts, and the GC harness shared modules
+  {
+    files: [
+      '**/*.cjs',
+      'examples/gc-shared/**/*.js',
+      'examples/benchmark-native/*.config.js',
+      'examples/benchmark-native/.prettierrc.js',
+      'examples/benchmark-native/scripts/**',
+    ],
+    languageOptions: {
+      sourceType: 'commonjs',
+      globals: globals.node,
+    },
+    rules: {
+      // `const crypto = require('crypto')` shadows Node's global by design
+      'no-redeclare': ['error', { builtinGlobals: false }],
+    },
+  },
   {
     files: ['examples/**/*.?(m|c)ts?(x)'],
     rules: {
