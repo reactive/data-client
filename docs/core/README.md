@@ -2,6 +2,7 @@
 title: Introducing the Reactive Data Client
 sidebar_label: Introduction
 description: Building delightful dynamic applications with NextJS, Expo, React Native and more.
+vue_description: Building delightful dynamic applications with Vue and more.
 slug: /
 id: introduction
 ---
@@ -13,6 +14,7 @@ import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import ProtocolTabs from '@site/src/components/ProtocolTabs';
 import HooksPlayground from '@site/src/components/HooksPlayground';
+import StackBlitz from '@site/src/components/StackBlitz';
 import Link from '@docusaurus/Link';
 
 <head>
@@ -53,11 +55,11 @@ width="415" height="184"
 By _decoupling_ endpoint definitions from their usage, we are able to reuse them in many contexts.
 
 - Easy reuse in different **components** eases co-locating data dependencies
-- Reuse with different **[hooks](./api/useSuspense.md)** and **[imperative actions](./api/Controller.md)** allows different behaviors with the same endpoint
-- Reuse across different **[platforms](./getting-started/installation.md)** like React Native, React web, or even beyond React in Angular, Svelte, Vue, or Node
+- Reuse with different **:react[[hooks](./api/useSuspense.md)]:vue[[composables](./api/useSuspense.md)]** and **[imperative actions](./api/Controller.md)** allows different behaviors with the same endpoint
+- Reuse across different **[platforms](./getting-started/installation.md)** :react[like React Native, React web, or even beyond React in Angular, Svelte, Vue, or Node]:vue[like Vue web, or even beyond Vue in React, Angular, Svelte, or Node]
 - Published as **packages** independent of their consumption
 
-Endpoints are extensible and composable, with protocol implementations ([REST](/rest), [GraphQL](/graphql), [Websockets+SSE](./concepts/managers.md#data-stream), [Img/binary](./guides/img-media.md))
+Endpoints are extensible and composable, with protocol implementations ([REST](/rest), [GraphQL](/graphql), [Websockets+SSE](./concepts/managers.md#data-stream):react[, [Img/binary](./guides/img-media.md)])
 to get started quickly, extend, and share common patterns.
 
 <ProtocolTabs>
@@ -93,6 +95,8 @@ export const getTodo = gql.query(`
 Make your components reusable by binding the data [where you need it](./getting-started/data-dependency.md) with the one-line [useSuspense()](./api/useSuspense.md). Much like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await),
 [useSuspense()](./api/useSuspense.md) guarantees its data once it returns.
 
+:::react
+
 ```tsx {4}
 import { useSuspense } from '@data-client/react';
 
@@ -103,14 +107,39 @@ export default function TodoDetail({ id }: { id: number }) {
 }
 ```
 
+:::
+
+:::vue
+
+```html title="TodoDetail.vue" {5}
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+
+  const props = defineProps<{ id: number }>();
+  const todo = await useSuspense(getTodo, { id: props.id });
+</script>
+
+<template>
+  <div>{{ todo.title }}</div>
+</template>
+```
+
+:::
+
 No more prop drilling, or cumbersome external state management. Reactive Data Client guarantees global referential equality,
 data safety and performance.
+
+:::react
 
 Co-location also allows [Server Side Rendering](./guides/ssr.md) to incrementally stream HTML, greatly reducing [TTFB](https://web.dev/ttfb/).
 [Reactive Data Client SSR](./guides/ssr.md) automatically hydrates its store, allowing immediate interactive mutations with **zero** client-side
 fetches on first load.
 
+:::
+
 ## Handle loading/error
+
+:::react
 
 Avoid 100s of loading spinners by placing [AsyncBoundary](./api/AsyncBoundary.md) around many suspending components.
 
@@ -131,6 +160,46 @@ function App() {
 
 [Non-Suspense fallback handling](./getting-started/data-dependency.md#stateful) can also be used for certain
 cases in React 16 and 17
+
+:::
+
+:::vue
+
+Avoid 100s of loading spinners by placing Vue's built-in [&lt;Suspense /\>](https://vuejs.org/guide/built-ins/suspense.html)
+around many suspending components. Its `#fallback` slot renders while any descendant is still awaiting data.
+Errors are caught with [onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured).
+
+Typically these are placed at or above navigational boundaries like pages, routes or modals.
+
+```html title="App.vue" {5-8,13,18-20}
+<script setup lang="ts">
+  import { onErrorCaptured, ref } from 'vue';
+
+  const error = ref<Error | null>(null);
+  onErrorCaptured(err => {
+    error.value = err;
+    return false;
+  });
+</script>
+
+<template>
+  <div v-if="error">Error: {{ error.message }}</div>
+  <Suspense v-else>
+    <template #default>
+      <AnotherRoute />
+      <TodoDetail :id="5" />
+    </template>
+    <template #fallback>
+      <Loading />
+    </template>
+  </Suspense>
+</template>
+```
+
+[Non-Suspense fallback handling](./getting-started/data-dependency.md#stateful) can also be used for certain
+cases.
+
+:::
 
 ## Mutations
 
@@ -231,14 +300,16 @@ export const TodoResource = { get, update };
 
 </ProtocolTabs>
 
-### Tell react to update
+### Tell :react[react]:vue[Vue] to update
 
-Just like `setState()`, we must make React aware of the any mutations so it can rerender.
+Just like :react[`setState()`]:vue[assigning to a `ref()`], we must make :react[React]:vue[Vue] aware of the any mutations so it can rerender.
 
 [Controller](./api/Controller.md) provides this functionality in a type-safe manner.
 [Controller.fetch()](./api/Controller.md#fetch) lets us trigger mutations.
 
-We can [useController](./api/useController.md) to access it in React components.
+We can [useController](./api/useController.md) to access it in :react[React]:vue[Vue] components.
+
+:::react
 
 <ProtocolTabs>
 
@@ -248,7 +319,8 @@ import { useController } from '@data-client/react';
 function ArticleEdit() {
   const ctrl = useController();
   // highlight-next-line
-  const handleSubmit = data => ctrl.fetch(TodoResource.update, { id }, data);
+  const handleSubmit = data =>
+    ctrl.fetch(TodoResource.update, { id }, data);
   return <ArticleForm onSubmit={handleSubmit} />;
 }
 ```
@@ -259,17 +331,62 @@ import { useController } from '@data-client/react';
 function ArticleEdit() {
   const ctrl = useController();
   // highlight-next-line
-  const handleSubmit = data => ctrl.fetch(TodoResource.update, { id, ...data });
+  const handleSubmit = data =>
+    ctrl.fetch(TodoResource.update, { id, ...data });
   return <ArticleForm onSubmit={handleSubmit} />;
 }
 ```
 
 </ProtocolTabs>
 
+:::
+
+:::vue
+
+<ProtocolTabs>
+
+```html title="ArticleEdit.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+
+  const props = defineProps<{ id: number }>();
+  const ctrl = useController();
+  // highlight-next-line
+  const handleSubmit = data =>
+    ctrl.fetch(TodoResource.update, { id: props.id }, data);
+</script>
+
+<template>
+  <ArticleForm @submit="handleSubmit" />
+</template>
+```
+
+```html title="ArticleEdit.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+
+  const props = defineProps<{ id: number }>();
+  const ctrl = useController();
+  // highlight-next-line
+  const handleSubmit = data =>
+    ctrl.fetch(TodoResource.update, { id: props.id, ...data });
+</script>
+
+<template>
+  <ArticleForm @submit="handleSubmit" />
+</template>
+```
+
+</ProtocolTabs>
+
+:::
+
 <details>
 <summary><b>Tracking imperative loading/error state</b></summary>
 
 [useLoading()](./api/useLoading.md) enhances async functions by tracking their loading and error states.
+
+:::react
 
 ```tsx
 import { useController, useLoading } from '@data-client/react';
@@ -284,6 +401,29 @@ function ArticleEdit() {
   return <ArticleForm onSubmit={handleSubmit} loading={loading} />;
 }
 ```
+
+:::
+
+:::vue
+
+```html title="ArticleEdit.vue"
+<script setup lang="ts">
+  import { useController, useLoading } from '@data-client/vue';
+
+  const props = defineProps<{ id: number }>();
+  const ctrl = useController();
+  // highlight-next-line
+  const [handleSubmit, loading, error] = useLoading(data =>
+    ctrl.fetch(TodoResource.update, { id: props.id }, data),
+  );
+</script>
+
+<template>
+  <ArticleForm @submit="handleSubmit" :loading="loading" />
+</template>
+```
+
+:::
 
 </details>
 
@@ -307,11 +447,13 @@ const getList = new RestEndpoint({
   paginationField: 'page',
 });
 
-export default TodoResource = { getList, get, update };
+export default (TodoResource = { getList, get, update });
 ```
 
 [Schemas](./concepts/normalization.md) also automatically infer and enforce the response type, ensuring
 the variable `todos` will be typed precisely.
+
+:::react
 
 ```tsx {4}
 import { useSuspense } from '@data-client/react';
@@ -328,6 +470,27 @@ export default function TodoList() {
   );
 }
 ```
+
+:::
+
+:::vue
+
+```html title="TodoList.vue" {5}
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import TodoListItem from './TodoListItem.vue';
+
+  const todos = await useSuspense(TodoResource.getList);
+</script>
+
+<template>
+  <div>
+    <TodoListItem v-for="todo in todos" :key="todo.pk()" :todo="todo" />
+  </div>
+</template>
+```
+
+:::
 
 Now we've used our data model in three cases - `TodoResource.get`, `TodoResource.getList` and `TodoResource.update`. Data consistency
 (as well as referential equality) will be guaranteed between the endpoints, even after mutations occur.
@@ -364,6 +527,8 @@ const TodoResource = resource({
 <details>
 <summary><b>Resource Endpoints</b></summary>
 
+:::react
+
 ```typescript
 // read
 // GET https://jsonplaceholder.typicode.com/todos/5
@@ -397,21 +562,71 @@ ctrl.fetch(TodoResource.partialUpdate, { id: 5 }, { title: 'my todo' });
 ctrl.fetch(TodoResource.delete, { id: 5 });
 ```
 
+:::
+
+:::vue
+
+```typescript
+// read
+// GET https://jsonplaceholder.typicode.com/todos/5
+const todo = await useSuspense(TodoResource.get, { id: 5 });
+
+// GET https://jsonplaceholder.typicode.com/todos
+const todos = await useSuspense(TodoResource.getList);
+
+// GET https://jsonplaceholder.typicode.com/todos?userId=1
+const todos = await useSuspense(TodoResource.getList, { userId: 1 });
+
+// mutate
+const ctrl = useController();
+
+// GET https://jsonplaceholder.typicode.com/todos?userId=1
+ctrl.fetch(TodoResource.getList.getPage, { userId: 1, page: 2 });
+
+// POST https://jsonplaceholder.typicode.com/todos
+ctrl.fetch(TodoResource.getList.push, { title: 'my todo' });
+
+// POST https://jsonplaceholder.typicode.com/todos?userId=1
+ctrl.fetch(TodoResource.getList.push, { userId: 1 }, { title: 'my todo' });
+
+// PUT https://jsonplaceholder.typicode.com/todos/5
+ctrl.fetch(TodoResource.update, { id: 5 }, { title: 'my todo' });
+
+// PATCH https://jsonplaceholder.typicode.com/todos/5
+ctrl.fetch(TodoResource.partialUpdate, { id: 5 }, { title: 'my todo' });
+
+// DELETE https://jsonplaceholder.typicode.com/todos/5
+ctrl.fetch(TodoResource.delete, { id: 5 });
+```
+
+:::
+
 </details>
 
 ### Zero delay mutations {#optimistic-updates}
+
+:::react
 
 [Controller.fetch](./api/Controller.md#fetch) call the mutation endpoint, and update React based on the response.
 While [useTransition](https://react.dev/reference/react/useTransition) improves the experience,
 the UI still ultimately waits on the fetch completion to update.
 
+:::
+
+:::vue
+
+[Controller.fetch](./api/Controller.md#fetch) call the mutation endpoint, and update Vue based on the response.
+The UI still ultimately waits on the fetch completion to update.
+
+:::
+
 For many cases like toggling todo.completed, incrementing an upvote, or dragging and drop
 a frame this can be too slow!
 
-We can optionally tell Reactive Data Client to perform the React renders immediately. To do this
+We can optionally tell Reactive Data Client to perform the :react[React]:vue[Vue] renders immediately. To do this
 we'll need to specify _how_.
 
-[getOptimisticResponse](/rest/guides/optimistic-updates) is just like [setState with an updater function](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state). Using [snap](./api/Snapshot.md) for access to the store to get the previous
+[getOptimisticResponse](/rest/guides/optimistic-updates) is just like :react[[setState with an updater function](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state)]:vue[an updater function]. Using [snap](./api/Snapshot.md) for access to the store to get the previous
 value, as well as the fetch arguments, we return the _expected_ fetch response.
 
 ```typescript
@@ -447,14 +662,16 @@ which can be used to [initiate data updates](./concepts/managers.md#data-stream)
 <details>
 <summary><b>StreamManager</b></summary>
 
+:::react
+
 ```typescript
 import type { Manager, Middleware, ActionTypes } from '@data-client/react';
 import { Controller, actionTypes } from '@data-client/react';
 import type { EntityInterface } from '@data-client/rest';
 
 export default class StreamManager implements Manager {
-  protected declare evtSource: WebSocket | EventSource;
-  protected declare entities: Record<string, typeof EntityInterface>;
+  declare protected evtSource: WebSocket | EventSource;
+  declare protected entities: Record<string, typeof EntityInterface>;
 
   constructor(
     evtSource: WebSocket | EventSource,
@@ -483,6 +700,49 @@ export default class StreamManager implements Manager {
   }
 }
 ```
+
+:::
+
+:::vue
+
+```typescript
+import type { Manager, Middleware, ActionTypes } from '@data-client/vue';
+import { Controller, actionTypes } from '@data-client/vue';
+import type { EntityInterface } from '@data-client/rest';
+
+export default class StreamManager implements Manager {
+  declare protected evtSource: WebSocket | EventSource;
+  declare protected entities: Record<string, typeof EntityInterface>;
+
+  constructor(
+    evtSource: WebSocket | EventSource,
+    entities: Record<string, EntityInterface>,
+  ) {
+    this.evtSource = evtSource;
+    this.entities = entities;
+  }
+
+  middleware: Middleware = controller => {
+    this.evtSource.onmessage = event => {
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg.type in this.endpoints)
+          controller.set(this.entities[msg.type], ...msg.args, msg.data);
+      } catch (e) {
+        console.error('Failed to handle message');
+        console.error(e);
+      }
+    };
+    return next => async action => next(action);
+  };
+
+  cleanup() {
+    this.evtSource.close();
+  }
+}
+```
+
+:::
 
 </details>
 
@@ -617,11 +877,13 @@ const incrementInterceptor: Interceptor = {
 </TabItem>
 </Tabs>
 
-- [Mock data for storybook](./guides/storybook.md) with [MockResolver](./api/MockResolver.md)
-- [Test hooks](./guides/unit-testing-hooks.md) with [renderDataHook()](./api/renderDataHook.md)
-- [Test components](./guides/unit-testing-components.md) with [MockResolver](./api/MockResolver.md) and [mockInitialState()](./api/mockInitialState.md)
+- :react[[Mock data for storybook](./guides/storybook.md) with [MockResolver](./api/MockResolver.md)]:vue[Mock data with `MockPlugin` from `@data-client/vue/test`]
+- :react[[Test hooks](./guides/unit-testing-hooks.md) with [renderDataHook()](./api/renderDataHook.md)]:vue[Test composables with `renderDataCompose()`]
+- :react[[Test components](./guides/unit-testing-components.md) with [MockResolver](./api/MockResolver.md)]:vue[Test components with `mountDataClient()`] and [mockInitialState()](./api/mockInitialState.md)
 
 ## Demo
+
+:::react
 
 <Tabs
 defaultValue="todo"
@@ -666,6 +928,16 @@ groupId="Demos"
 [![Explore on GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/reactive/data-client/tree/master/examples/nextjs)
 </TabItem>
 </Tabs>
+
+:::
+
+:::vue
+
+<StackBlitz app="vue-todo-app" file="src/pages/UserTodos.vue,src/resources/TodoResource.ts" view="both" />
+
+[![Explore on GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/reactive/data-client/tree/master/examples/vue-todo-app)
+
+:::
 
 <div style={{ textAlign: 'center' }}>
 <Link className="button button--secondary" to="/demos">More Demos</Link>&nbsp;

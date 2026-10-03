@@ -21,8 +21,8 @@ and retrieval performance.
 `Controller` is provided:
 
 - [Managers](./Manager.md) as the first argument in [Manager.middleware](./Manager.md#middleware)
-- React with [useController()](./useController.md)
-- [Unit testing hooks](../guides/unit-testing-hooks.md) with [renderDataHook()](./renderDataHook.md#controller)
+- :react[React]:vue[Vue] with [useController()](./useController.md)
+- :react[[Unit testing hooks](../guides/unit-testing-hooks.md) with [renderDataHook()](./renderDataHook.md#controller)]:vue[Unit testing composables with `renderDataCompose()` from `@data-client/vue/test`]
 
 ```ts
 class Controller {

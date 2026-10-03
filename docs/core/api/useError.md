@@ -1,4 +1,5 @@
 ---
+frameworks: [react]
 title: useError() - Accessing error metadata
 sidebar_label: useError()
 ---

@@ -1,12 +1,13 @@
 ---
 title: useQuery() - Normalized data store access in React
+vue_title: useQuery() - Normalized data store access in Vue
 sidebar_label: useQuery()
 description: Data rendering without the fetch. Access any Schema's memoized store value.
 ---
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import StackBlitz from '@site/src/components/StackBlitz';
 import { RestEndpoint } from '@data-client/rest';
 import VoteDemo from '../shared/\_VoteDemo.mdx';
@@ -38,6 +39,8 @@ more information about type handling
 
 ## Types
 
+:::react
+
 <GenericsTabs>
 
 ```typescript
@@ -55,6 +58,22 @@ function useQuery<S extends Queryable>(
 ```
 
 </GenericsTabs>
+
+:::
+
+:::vue
+
+```typescript
+function useQuery<S extends Queryable>(
+  schema: S,
+  ...args: MaybeRefsOrGetters<SchemaArgs<S>>
+): ComputedRef<DenormalizeNullable<S> | undefined>;
+```
+
+Arguments can be plain values or [refs](https://vuejs.org/api/reactivity-core.html#ref) (including
+[computed](https://vuejs.org/api/reactivity-core.html#computed)); the result updates when they change.
+
+:::
 
 ### Queryable
 
@@ -82,7 +101,7 @@ interface Queryable {
 
 [Query](/rest/api/Query) provides programmatic access to the Reactive Data Client store.
 
-<HooksPlayground fixtures={[
+<FrameworkPlayground fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],
@@ -108,6 +127,8 @@ export const UserResource = resource({
   schema: User,
 });
 ```
+
+:::react
 
 ```tsx title="UsersPage" {22}
 import { Query } from '@data-client/rest';
@@ -144,7 +165,50 @@ function UsersPage() {
 render(<UsersPage />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="UsersPage.vue" {22}
+<script setup lang="ts">
+  import { Query, All } from '@data-client/rest';
+  import { useQuery, useFetch } from '@data-client/vue';
+  import { UserResource, User } from './UserResource';
+
+  interface Args {
+    asc: boolean;
+    isAdmin?: boolean;
+  }
+  const sortedUsers = new Query(
+    new All(User),
+    (entries, { asc, isAdmin }: Args = { asc: false }) => {
+      let sorted = [...entries].sort((a, b) =>
+        a.name.localeCompare(b.name),
+      );
+      if (isAdmin !== undefined)
+        sorted = sorted.filter(user => user.isAdmin === isAdmin);
+      if (asc) return sorted;
+      return sorted.reverse();
+    },
+  );
+
+  useFetch(UserResource.getList);
+  const users = useQuery(sortedUsers, { asc: true });
+</script>
+
+<template>
+  <div v-if="!users">No users in cache yet</div>
+  <div v-else>
+    <div v-for="user in users" :key="user.pk()">{{ user.name }}</div>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
+
+:::react
 
 ### Remaining Todo total
 
@@ -152,23 +216,25 @@ render(<UsersPage />);
 
 <StackBlitz app="todo-app" file="src/resources/TodoResource.ts,src/pages/Home/TodoStats.tsx" height="420" />
 
+:::
+
 ### Lazy relationships
 
 [Lazy](/rest/api/Lazy) fields keep raw IDs during parent denormalization. Use [`.query`](/rest/api/Lazy#query) with `useQuery` to resolve them on demand,
 isolating re-renders to only the components that need the related data.
 
-<HooksPlayground fixtures={[
+<FrameworkPlayground fixtures={[
 {
 endpoint: new RestEndpoint({path: '/departments'}),
 args: [],
 response: [
 { id: '1', name: 'Engineering', buildings: [
-  { id: 'b1', name: 'HQ' },
-  { id: 'b2', name: 'Annex' },
+{ id: 'b1', name: 'HQ' },
+{ id: 'b2', name: 'Annex' },
 ]},
 { id: '2', name: 'Design', buildings: [
-  { id: 'b1', name: 'HQ' },
-  { id: 'b3', name: 'Studio' },
+{ id: 'b1', name: 'HQ' },
+{ id: 'b3', name: 'Studio' },
 ]},
 ],
 delay: 150,
@@ -200,6 +266,8 @@ export const DepartmentResource = resource({
 });
 ```
 
+:::react
+
 ```tsx title="DepartmentsPage" {7}
 import { useQuery, useFetch } from '@data-client/react';
 import { DepartmentResource, Department } from './Resources';
@@ -210,9 +278,7 @@ function BuildingList({ dept }: { dept: Department }) {
     dept.buildings,
   );
   if (!buildings) return null;
-  return (
-    <span>{buildings.map(b => b.name).join(', ')}</span>
-  );
+  return <span>{buildings.map(b => b.name).join(', ')}</span>;
 }
 
 function DepartmentsPage() {
@@ -232,7 +298,55 @@ function DepartmentsPage() {
 render(<DepartmentsPage />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="BuildingList.vue" {8-11}
+<script setup lang="ts">
+  import { computed } from 'vue';
+  import { useQuery } from '@data-client/vue';
+  import { Department } from './Resources';
+
+  const props = defineProps<{ dept: Department }>();
+
+  const buildings = useQuery(
+    Department.schema.buildings.query,
+    computed(() => props.dept.buildings),
+  );
+</script>
+
+<template>
+  <span v-if="buildings">{{ buildings.map(b => b.name).join(', ') }}</span>
+</template>
+```
+
+```html title="DepartmentsPage.vue"
+<script setup lang="ts">
+  import { All } from '@data-client/rest';
+  import { useQuery, useFetch } from '@data-client/vue';
+  import { DepartmentResource, Department } from './Resources';
+  import BuildingList from './BuildingList.vue';
+
+  useFetch(DepartmentResource.getList);
+  const departments = useQuery(new All(Department));
+</script>
+
+<template>
+  <div v-if="!departments">Loading...</div>
+  <div v-else>
+    <div v-for="dept in departments" :key="dept.pk()">
+      <strong>{{ dept.name }}</strong>: <BuildingList :dept="dept" />
+    </div>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
+
+:::react
 
 ### Data fallbacks
 
@@ -242,3 +356,5 @@ fetch for `Ticker` - making it inefficient for getting the prices on a list view
 So in this case we can fetch a list of `Stats` as a fallback since it has price data as well.
 
 <StackBlitz app="coin-app" file="src/pages/Home/CurrencyList.tsx,src/resources/fallbackQueries.ts,src/pages/Home/AssetPrice.tsx" />
+
+:::

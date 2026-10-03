@@ -1,4 +1,5 @@
 ---
+frameworks: [react]
 title: useCancelling() - Declarative fetch aborting for React
 sidebar_label: useCancelling()
 description: Builds an Endpoint that cancels fetch everytime parameters change. Aborts inflight request on param change.

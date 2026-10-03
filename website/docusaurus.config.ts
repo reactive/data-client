@@ -16,6 +16,12 @@ require('./scripts/generateMonacoPreloads.cjs').ensureMonacoPreloadManifest();
 
 const isDev = process.env.NODE_ENV === 'development';
 
+// docs/core is shared by React (/docs) and Vue (/docs/vue); see framework-docs/
+const frameworkDocs = require('./framework-docs/index.js');
+const remarkFramework = require('./framework-docs/remarkFramework.js');
+const vueDocs = frameworkDocs.generate('vue');
+if (isDev) frameworkDocs.watch('vue');
+
 const config: Config = {
   title: 'Data Client',
   tagline: 'Async State Management without the Management',
@@ -197,9 +203,12 @@ const config: Config = {
         docs: {
           //id: 'core',
           path: '../docs/core',
-          exclude: ['getting-started/README.md'],
+          exclude: ['getting-started/README.md', '**/*.vue.{md,mdx}'],
           //routeBasePath: 'core',
-          sidebarPath: require.resolve('./sidebars.json'),
+          sidebarPath: require.resolve('./framework-docs/sidebars-react.js'),
+          beforeDefaultRemarkPlugins: [
+            [remarkFramework, { framework: 'react' }],
+          ],
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
           editUrl: ({ locale, docPath }) => {
@@ -244,6 +253,31 @@ const config: Config = {
     ],
   ],
   plugins: [
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'vue',
+        path: vueDocs.outDir,
+        exclude: ['getting-started/README.md'],
+        routeBasePath: 'docs/vue',
+        sidebarPath: require.resolve('./framework-docs/sidebars-vue.js'),
+        beforeDefaultRemarkPlugins: [
+          [
+            remarkFramework,
+            {
+              framework: 'vue',
+              routeBasePath: 'docs/vue',
+              docIds: frameworkDocs.docIds('vue'),
+            },
+          ],
+        ],
+        // generated files have no git history
+        showLastUpdateAuthor: false,
+        showLastUpdateTime: false,
+        editUrl: ({ docPath }) =>
+          `https://github.com/reactive/data-client/edit/master/docs/core/${frameworkDocs.sourcePath('vue', docPath)}`,
+      },
+    ],
     [
       '@docusaurus/plugin-content-docs',
       {
