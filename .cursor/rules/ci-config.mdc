@@ -9,7 +9,10 @@ alwaysApply: false
 ## CircleCI (`.circleci/config.yml`)
 
 - Jest `--maxWorkers` is pinned per job to the `resource_class` vCPU count (large = 4, medium = 2) because docker containers report the host's CPUs via `os.cpus()`. Exception: the ReactNative `unit_tests` run is deliberately uncapped — its suites are fake-timer-wait dominated and capping workers flakes 5s test timeouts.
-- The esmodule jobs halt based on a `.ci-esmodule-relevant` flag computed once in `setup` and transported via `save_cache`/`restore_cache` (keyed on `CIRCLE_SHA1`) so jobs can halt before paying `attach_workspace`. The flag's path regex in `setup` must cover every path the esmodule jobs build (currently `examples/todo-app`, `examples/github-app`, `examples/normalizr-relationships`, `packages/`, `yarn.lock`, the config itself). Missing/unreadable flag fails open (jobs run).
+- Jobs halt via the `halt-unless-relevant-change` command based on flags computed once in `setup` (`.ci-esmodule-relevant`, `.ci-tests-relevant`) and transported via `save_cache`/`restore_cache` (keyed on `CIRCLE_SHA1`) so jobs can halt before paying `attach_workspace`. Missing/unreadable flags fail open (jobs run).
+  - `esmodule`: the path regex must cover every path the esmodule jobs build (currently `examples/todo-app`, `examples/github-app`, `examples/normalizr-relationships`, `packages/`, root `package.json`, `scripts/`, `yarn.lock`, the config itself).
+  - `tests` (lint, typecheck, unit_tests, node_matrix): false only when every changed path is docs/website/tooling (`website/`, `docs/`, `.changeset/`, `.cursor/`, `.agents/`, `.claude/`, `.github/`, root `*.md`), except `website/src/components/Playground/` (has unit tests). When both flags are false, `setup` halts before install.
+- Legacy TS types (`ci:build:legacy-types`, consumed by `esmodule-types`) build inside `setup` (`ci:build:setup:esmodule`) only when the esmodule flag is set; there is no separate job, to keep a job hop off the critical path. `scripts/build-legacy-types.sh` builds each TS version concurrently.
 - Never `git fetch --depth` the base branch in the relevance check: a shallow fetch severs the merge base and the three-dot diff fails.
 - Changing root `package.json` `workspaces` requires updating the `setup` job's workspace trimming step.
 

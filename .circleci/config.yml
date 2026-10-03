@@ -21,19 +21,23 @@ executors:
       YARN_ENABLE_IMMUTABLE_INSTALLS: true
 
 commands:
-  halt-unless-esmodule-relevant-change:
-    # Reads the flag computed once in the `setup` job. Transported via cache
+  halt-unless-relevant-change:
+    # Reads a flag computed once in the `setup` job. Transported via cache
     # (not the workspace) so jobs can halt before paying attach_workspace.
+    parameters:
+      flag:
+        type: enum
+        enum: ["esmodule", "tests"]
     steps:
       - restore_cache:
           keys:
-            - esmodule-relevant-v1-{{ .Environment.CIRCLE_SHA1 }}
+            - ci-relevant-v2-{{ .Environment.CIRCLE_SHA1 }}
       - run:
-          name: Skip job if only non-esmodule paths changed
+          name: Skip job if only non-<< parameters.flag >> paths changed
           command: |
-            FLAG="$(cat ~/project/.ci-esmodule-relevant 2>/dev/null)" || FLAG=''
+            FLAG="$(cat ~/project/.ci-<< parameters.flag >>-relevant 2>/dev/null)" || FLAG=''
             if [ "${FLAG}" = "false" ]; then
-              echo "No relevant esmodule-related changes; halting this job."
+              echo "No << parameters.flag >>-relevant changes; halting this job."
               circleci-agent step halt
             elif [ "${FLAG}" = "true" ]; then
               echo "Relevant changes detected; continuing job."
@@ -48,13 +52,14 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Detect esmodule-relevant changes
+          name: Detect relevant changes
           command: |
             # Compare against the default branch (or its previous commit).
             # Use CIRCLE_DEFAULT_BRANCH so this stays correct if the default branch changes.
             BASE_BRANCH="${CIRCLE_DEFAULT_BRANCH:-master}"
-            # Fail open: run the esmodule jobs unless we can prove irrelevance.
+            # Fail open: run jobs unless we can prove irrelevance.
             ESMODULE_RELEVANT=true
+            TESTS_RELEVANT=true
 
             if [ "${CIRCLE_BRANCH}" = "${BASE_BRANCH}" ]; then
               DIFF_RANGE="HEAD~1...HEAD"
@@ -71,22 +76,41 @@ jobs:
             if CHANGED_FILES="$(git diff --name-only "${DIFF_RANGE}")"; then
               echo "Changed files:"
               echo "${CHANGED_FILES}"
-              if echo "${CHANGED_FILES}" | grep -Eq \
-                '^(\.circleci/config\.yml|yarn\.lock|examples/todo-app/|examples/github-app/|examples/normalizr-relationships/|packages/)'; then
+              # Here-strings, not pipes: CircleCI runs bash with pipefail, so an
+              # early-exiting `grep -q` could SIGPIPE the writer and flip a check.
+              if grep -Eq \
+                '^(\.circleci/config\.yml|package\.json$|scripts/|yarn\.lock|examples/todo-app/|examples/github-app/|examples/normalizr-relationships/|packages/)' <<< "${CHANGED_FILES}"; then
                 echo "Relevant changes detected."
               else
                 echo "No relevant esmodule-related changes; downstream esmodule jobs will halt."
                 ESMODULE_RELEVANT=false
+              fi
+              # Docs/website/tooling-only changes can't affect lint, typecheck or
+              # unit tests (Playground has unit tests, so it stays relevant).
+              NON_DOCS_FILES="$(grep -Ev '^(website/|docs/|\.changeset/|\.cursor/|\.agents/|\.claude/|\.github/|[^/]+\.md$)' <<< "${CHANGED_FILES}" || true)"
+              if [ -z "${NON_DOCS_FILES}" ] \
+                && ! grep -q '^website/src/components/Playground/' <<< "${CHANGED_FILES}"; then
+                echo "Only docs/website/tooling paths changed; test jobs will halt."
+                TESTS_RELEVANT=false
               fi
             else
               echo "Could not diff ${DIFF_RANGE}; treating as relevant."
             fi
 
             echo "${ESMODULE_RELEVANT}" > ~/project/.ci-esmodule-relevant
+            echo "${TESTS_RELEVANT}" > ~/project/.ci-tests-relevant
       - save_cache:
-          key: esmodule-relevant-v1-{{ .Environment.CIRCLE_SHA1 }}
+          key: ci-relevant-v2-{{ .Environment.CIRCLE_SHA1 }}
           paths:
             - .ci-esmodule-relevant
+            - .ci-tests-relevant
+      - run:
+          name: Halt setup if nothing downstream is relevant
+          command: |
+            if [ "$(cat ~/project/.ci-tests-relevant)" = "false" ] && [ "$(cat ~/project/.ci-esmodule-relevant)" = "false" ]; then
+              echo "Every downstream job will halt; skipping install and build."
+              circleci-agent step halt
+            fi
       - run:
           name: Add examples/* to yarn workspace
           command: |
@@ -115,9 +139,16 @@ jobs:
           key: v14-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}-{{ checksum "examples/todo-app/package.json" }}
       - run:
           # These are independent (babel/rollup compile from src, not tsc output),
-          # so run them concurrently to shorten the critical path.
+          # so run them concurrently to shorten the critical path. Legacy types
+          # (for the esmodule-types TS matrix) are built here rather than in a
+          # separate job to save a job hop on the critical path.
           name: Build types and test lib (parallel)
-          command: yarn run ci:build:setup
+          command: |
+            if [ "$(cat ~/project/.ci-esmodule-relevant)" = "false" ]; then
+              yarn run ci:build:setup
+            else
+              yarn run ci:build:setup:esmodule
+            fi
       - persist_to_workspace:
           root: ~/
           paths:
@@ -146,6 +177,8 @@ jobs:
     executor: node
     resource_class: medium
     steps:
+      - halt-unless-relevant-change:
+          flag: tests
       - attach_workspace:
           at: ~/
       - run:
@@ -155,6 +188,8 @@ jobs:
   typecheck:
     executor: node
     steps:
+      - halt-unless-relevant-change:
+          flag: tests
       - attach_workspace:
           at: ~/
       - run:
@@ -168,6 +203,8 @@ jobs:
     executor: node
     resource_class: large
     steps:
+      - halt-unless-relevant-change:
+          flag: tests
       - attach_workspace:
           at: ~/
       - run:
@@ -221,6 +258,8 @@ jobs:
     docker:
       - image: cimg/node:<< parameters.node-version >>
     steps:
+      - halt-unless-relevant-change:
+          flag: tests
       - attach_workspace:
           at: ~/
       - run:
@@ -238,29 +277,14 @@ jobs:
           command: |
             ANANSI_JEST_TYPECHECK=false yarn test --ci --maxWorkers=2 --selectProjects Node
 
-  setup-esmodule-types:
-    executor: node
-    resource_class: large
-    steps:
-      - halt-unless-esmodule-relevant-change
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: Build Legacy Types
-          command: yarn run ci:build:legacy-types
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            # explicitly list so we can ignore some directories that are not needed
-            - project/packages/*/ts*
-
   esmodule-types:
     parameters:
       typescript-version:
         type: string
     executor: node
     steps:
-      - halt-unless-esmodule-relevant-change
+      - halt-unless-relevant-change:
+          flag: esmodule
       - attach_workspace:
           at: ~/
       - run:
@@ -300,7 +324,8 @@ jobs:
   esmodule-types-latest:
     executor: node
     steps:
-      - halt-unless-esmodule-relevant-change
+      - halt-unless-relevant-change:
+          flag: esmodule
       - attach_workspace:
           at: ~/
       - run:
@@ -323,7 +348,8 @@ jobs:
   validate-esmodule-browser-build:
     executor: node
     steps:
-      - halt-unless-esmodule-relevant-change
+      - halt-unless-relevant-change:
+          flag: esmodule
       - attach_workspace:
           at: ~/
       - run: yarn run ci:build:esmodule
@@ -365,9 +391,6 @@ workflows:
       - esmodule-types-latest:
           requires:
             - setup
-      - setup-esmodule-types:
-          requires:
-            - setup
       - esmodule-types:
           matrix:
             parameters:
@@ -378,4 +401,4 @@ workflows:
               # 4.7 (but its broken so we do 4.8) lets you apply a generic type to a function type to see its return value
               typescript-version: ["4.0", "4.1", "4.3", "4.8", "5.3"]
           requires:
-            - setup-esmodule-types
+            - setup

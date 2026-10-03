@@ -6,22 +6,40 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
-destinations=("$@")
-# Loop through all provided arguments
-for version in "$@"
-do
-   yarn g:downtypes lib "ts$version" --to="$version"
-    # Check if custom type file directory exists
+# Custom types for a version also apply to every version listed after it,
+# so each output dir gets (in order): earlier versions' custom types, the
+# downleveled lib, then its own custom types. Each output dir only depends on
+# lib and src-*-types, so versions build concurrently.
+build_version() {
+    local version="$1"
+    shift
+    for earlier in "$@"
+    do
+        if [ -d "./src-$earlier-types" ]; then
+            yarn g:copy --up 1 "./src-$earlier-types/**/*.d.ts" "./ts$version/" || return 1
+        fi
+    done
+    yarn g:downtypes lib "ts$version" --to="$version" || return 1
     if [ -d "./src-$version-types" ]; then
-        for dest in "${destinations[@]}"
-        do
-            yarn g:copy --up 1 "./src-$version-types/**/*.d.ts" "./ts$dest/"
-            echo "Copied ./src-$version-types to ./ts$dest/"
-        done
+        yarn g:copy --up 1 "./src-$version-types/**/*.d.ts" "./ts$version/" || return 1
+        echo "Copied ./src-$version-types to ./ts$version/"
     else
         echo "Custom types for $version not found."
     fi
-    # this is how you pop the first element off
-    unset destinations[0]
-    destinations=("${destinations[@]}")
+}
+
+pids=()
+earlier=()
+for version in "$@"
+do
+    build_version "$version" "${earlier[@]}" &
+    pids+=($!)
+    earlier+=("$version")
 done
+
+status=0
+for pid in "${pids[@]}"
+do
+    wait "$pid" || status=1
+done
+exit $status
