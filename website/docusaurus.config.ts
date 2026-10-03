@@ -465,11 +465,11 @@ const config: Config = {
           label: 'React',
         },
         {
-          type: 'doc',
-          position: 'left',
-          docsPluginId: 'vue',
-          docId: 'introduction',
+          to: '/vue',
           label: 'Vue',
+          position: 'left',
+          // Vue's API pages use a different sidebar, so match the whole path
+          activeBaseRegex: '^/vue(/|$)',
         },
         {
           type: 'docSidebar',
