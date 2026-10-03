@@ -1,6 +1,6 @@
 import { GCPolicy } from '@data-client/core';
 import { DataProvider, useController, useSuspense } from '@data-client/react';
-import { act, render } from '@testing-library/react';
+import { act, render, waitFor } from '@testing-library/react';
 import { makeGetTodo, mockTodoState, Todo } from '__tests__/concurrentFixtures';
 import React, { Suspense, useLayoutEffect, useState } from 'react';
 
@@ -91,6 +91,6 @@ describe('GC sweep between consumer commit and countRef', () => {
       controller.setResponse(getTodo, { id: '2' }, { id: '2', title: 'two' });
     });
     expect(fetchTodo).toHaveBeenCalledTimes(1);
-    expect(container.textContent).toBe('fetched 1');
+    await waitFor(() => expect(container.textContent).toBe('fetched 1'));
   });
 });
