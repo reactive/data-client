@@ -75,14 +75,15 @@ export const getTicker = new RestEndpoint({
 
 ```html title="AssetPrice.vue"
 <script setup lang="ts">
+  import { computed } from 'vue';
   import { useLive } from '@data-client/vue';
   import { getTicker } from './Ticker';
 
   const props = defineProps<{ productId: string }>();
   // highlight-next-line
-  const ticker = await useLive(getTicker, () => ({
+  const ticker = await useLive(getTicker, computed(() => ({
     productId: props.productId,
-  }));
+  })));
 </script>
 
 <template>
@@ -161,7 +162,7 @@ function useLive(
 ): Promise<DeepReadonly<ComputedRef<Denormalize<typeof endpoint.schema>>>>;
 ```
 
-Arguments can be plain values, [refs or getters](https://vuejs.org/api/utility-types.html#maybereforgetter); the result
+Arguments can be plain values or [refs](https://vuejs.org/api/reactivity-core.html#ref) (including [computed](https://vuejs.org/api/reactivity-core.html#computed)); the result
 updates (and the subscription is re-established) when they change.
 
 :::

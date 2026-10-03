@@ -455,7 +455,7 @@ render(<ProfileList />);
 </FrameworkPlayground>
 
 Since [useDLE](../api/useDLE.md) does not [useSuspense](../api/useSuspense.md), you won't be able to easily centrally
-orchestrate loading and error code. :react[Additionally, React 18 features like [useTransition](https://react.dev/reference/react/useTransition),
+orchestrate loading and error :vue[code.]:react[code. Additionally, React 18 features like [useTransition](https://react.dev/reference/react/useTransition),
 and [incrementally streaming SSR](../guides/ssr.md) won't work with components that use it.]
 
 ## Conditional

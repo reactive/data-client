@@ -113,7 +113,11 @@ function useSubscription(
 
 ```typescript
 function useSubscription<
-  E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+  E extends EndpointInterface<
+    FetchFunction,
+    Schema | undefined,
+    undefined
+  >,
   Args extends readonly [...Parameters<E>] | readonly [null],
 >(endpoint: E, ...args: Args): void;
 ```
@@ -153,7 +157,9 @@ function MasterPrice({ symbol }: { symbol: string }) {
   useSubscription(getPrice, entry?.isIntersecting ? null : { symbol });
 
   return (
-    <div ref={ref}>{price.value.toLocaleString('en', { currency: 'USD' })}</div>
+    <div ref={ref}>
+      {price.value.toLocaleString('en', { currency: 'USD' })}
+    </div>
   );
 }
 ```

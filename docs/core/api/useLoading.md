@@ -63,13 +63,14 @@ export const PostResource = resource({
 
 ```html title="PostDetail.vue" collapsed
 <script setup lang="ts">
+  import { computed } from 'vue';
   import { useSuspense } from '@data-client/vue';
   import { PostResource } from './PostResource';
 
   const props = defineProps<{ id: number }>();
-  const post = await useSuspense(PostResource.get, () => ({
+  const post = await useSuspense(PostResource.get, computed(() => ({
     id: props.id,
-  }));
+  })));
 </script>
 
 <template>

@@ -8,7 +8,6 @@ description: Data rendering without the fetch. Access any Schema's memoized stor
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
-import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import StackBlitz from '@site/src/components/StackBlitz';
 import { RestEndpoint } from '@data-client/rest';
 import VoteDemo from '../shared/\_VoteDemo.mdx';
@@ -33,141 +32,7 @@ when data is [Invalid](../concepts/expiry-policy#invalid).
 
 ## Usage
 
-:::react
-
 <VoteDemo defaultTab="TotalVotes" />
-
-:::
-
-:::vue
-
-<TypeScriptEditor row defaultTab="TotalVotes.vue">
-
-```ts title="Post" collapsed
-import { Entity, schema } from '@data-client/rest';
-
-export class Post extends Entity {
-  id = 0;
-  author = { id: 0 };
-  title = '';
-  body = '';
-  votes = 0;
-
-  static key = 'Post';
-
-  static schema = {
-    author: EntityMixin(
-      class User {
-        id = 0;
-      },
-    ),
-  };
-
-  get img() {
-    return `//loremflickr.com/96/72/kitten,cat?lock=${this.id % 16}`;
-  }
-}
-```
-
-```ts title="PostResource" {15-22}
-import { resource } from '@data-client/rest';
-import { Post } from './Post';
-
-export { Post };
-
-export const PostResource = resource({
-  path: '/posts/:id',
-  searchParams: {} as { userId?: string | number } | undefined,
-  schema: Post,
-}).extend('vote', {
-  path: '/posts/:id/vote',
-  method: 'POST',
-  body: undefined,
-  schema: Post,
-  getOptimisticResponse(snapshot, { id }) {
-    const post = snapshot.get(Post, { id });
-    if (!post) throw snapshot.abort;
-    return {
-      id,
-      votes: post.votes + 1,
-    };
-  },
-});
-```
-
-```html title="PostItem.vue" collapsed
-<script setup lang="ts">
-  import { useController } from '@data-client/vue';
-  import { PostResource, type Post } from './PostResource';
-
-  const props = defineProps<{ post: Post }>();
-  const ctrl = useController();
-  const handleVote = () => {
-    ctrl.fetch(PostResource.vote, { id: props.post.id });
-  };
-</script>
-
-<template>
-  <div>
-    <div class="voteBlock">
-      <small class="vote">
-        <button class="up" @click="handleVote">&nbsp;</button>
-        {{ post.votes }}
-      </small>
-      <img :src="post.img" width="70" height="52" />
-    </div>
-    <div>
-      <h4>{{ post.title }}</h4>
-      <p>{{ post.body }}</p>
-    </div>
-  </div>
-</template>
-```
-
-```html title="TotalVotes.vue" {12}
-<script setup lang="ts">
-  import { schema } from '@data-client/rest';
-  import { useQuery } from '@data-client/vue';
-  import { PostResource } from './PostResource';
-
-  const props = defineProps<{ userId: number }>();
-
-  const queryTotalVotes = new schema.Query(
-    PostResource.getList.schema,
-    posts => posts.reduce((total, post) => total + post.votes, 0),
-  );
-  const totalVotes = useQuery(queryTotalVotes, { userId: props.userId });
-</script>
-
-<template>
-  <center>
-    <small>{{ totalVotes }} votes total</small>
-  </center>
-</template>
-```
-
-```html title="PostList.vue" collapsed
-<script setup lang="ts">
-  import { useSuspense } from '@data-client/vue';
-  import { PostResource } from './PostResource';
-  import PostItem from './PostItem.vue';
-  import TotalVotes from './TotalVotes.vue';
-
-  const userId = 2;
-  const posts = await useSuspense(PostResource.getList, { userId });
-</script>
-
-<template>
-  <div>
-    <PostItem v-for="post in posts" :key="post.pk()" :post="post" />
-    <TotalVotes :userId="userId" />
-  </div>
-</template>
-```
-
-</TypeScriptEditor>
-
-:::
 
 See [truthiness narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#truthiness-narrowing) for
 more information about type handling
@@ -317,7 +182,9 @@ render(<UsersPage />);
   const sortedUsers = new Query(
     new All(User),
     (entries, { asc, isAdmin }: Args = { asc: false }) => {
-      let sorted = [...entries].sort((a, b) => a.name.localeCompare(b.name));
+      let sorted = [...entries].sort((a, b) =>
+        a.name.localeCompare(b.name),
+      );
       if (isAdmin !== undefined)
         sorted = sorted.filter(user => user.isAdmin === isAdmin);
       if (asc) return sorted;
@@ -362,12 +229,12 @@ endpoint: new RestEndpoint({path: '/departments'}),
 args: [],
 response: [
 { id: '1', name: 'Engineering', buildings: [
-  { id: 'b1', name: 'HQ' },
-  { id: 'b2', name: 'Annex' },
+{ id: 'b1', name: 'HQ' },
+{ id: 'b2', name: 'Annex' },
 ]},
 { id: '2', name: 'Design', buildings: [
-  { id: 'b1', name: 'HQ' },
-  { id: 'b3', name: 'Studio' },
+{ id: 'b1', name: 'HQ' },
+{ id: 'b3', name: 'Studio' },
 ]},
 ],
 delay: 150,
@@ -411,9 +278,7 @@ function BuildingList({ dept }: { dept: Department }) {
     dept.buildings,
   );
   if (!buildings) return null;
-  return (
-    <span>{buildings.map(b => b.name).join(', ')}</span>
-  );
+  return <span>{buildings.map(b => b.name).join(', ')}</span>;
 }
 
 function DepartmentsPage() {

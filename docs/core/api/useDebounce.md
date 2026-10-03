@@ -149,6 +149,7 @@ render(<SearchIssues />);
 
 ```html title="IssueList.vue" collapsed
 <script setup lang="ts">
+  import { computed } from 'vue';
   import { useSuspense } from '@data-client/vue';
   import { issueQuery } from './IssueQuery';
 
@@ -157,9 +158,9 @@ render(<SearchIssues />);
     owner: string;
     repo: string;
   }>();
-  const response = await useSuspense(issueQuery, () => ({
+  const response = await useSuspense(issueQuery, computed(() => ({
     q: `${props.query} repo:${props.owner}/${props.repo}`,
-  }));
+  })));
 </script>
 
 <template>

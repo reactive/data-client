@@ -93,7 +93,9 @@ import { PostResource, CommentResource } from './Resources';
 function PostWithComments({ id }: { id: number }) {
   // Both fetches start in parallel
   const postPromise = useFetch(PostResource.get, { id });
-  const commentsPromise = useFetch(CommentResource.getList, { postId: id });
+  const commentsPromise = useFetch(CommentResource.getList, {
+    postId: id,
+  });
 
   // use() reads the results — if the first suspends,
   // the second fetch is already in-flight
@@ -196,13 +198,13 @@ function MasterPost({ id }: { id: number }) {
 
 :::react
 
-| Expiry Status | Fetch           | `use()` behavior | `resolved` | Conditions                                                                                            |
-| ------------- | --------------- | ---------------- | ---------- | ----------------------------------------------------------------------------------------------------- |
-| Invalid       | yes<sup>1</sup> | suspends         | `false`    | not in store, [deletion](/rest/api/resource#delete), [invalidation](./Controller.md#invalidate) |
-| Stale         | yes<sup>1</sup> | suspends         | `false`    | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                          |
-| Valid         | no              | returns data     | `true`     | fetch completion                                                                                      |
+| Expiry Status | Fetch           | `use()` behavior | `resolved` | Conditions                                                                                                                             |
+| ------------- | --------------- | ---------------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Invalid       | yes<sup>1</sup> | suspends         | `false`    | not in store, [deletion](/rest/api/resource#delete), [invalidation](./Controller.md#invalidate)                                        |
+| Stale         | yes<sup>1</sup> | suspends         | `false`    | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                                                           |
+| Valid         | no              | returns data     | `true`     | fetch completion                                                                                                                       |
 | Error         | no              | throws error     | `true`     | fetch failed, caught by [Error Boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary) |
-|               | no              | `undefined`      |            | `null` used as second argument                                                                        |
+|               | no              | `undefined`      |            | `null` used as second argument                                                                                                         |
 
 When the store updates (e.g., via mutations or [Controller.set()](./Controller.md#set)), the component
 re-renders and `useFetch()` returns updated denormalized data automatically.
@@ -211,13 +213,13 @@ re-renders and `useFetch()` returns updated denormalized data automatically.
 
 :::vue
 
-| Expiry Status | Fetch           | `.value`         | `resolved` | Conditions                                                                                            |
-| ------------- | --------------- | ---------------- | ---------- | ----------------------------------------------------------------------------------------------------- |
+| Expiry Status | Fetch           | `.value`         | `resolved` | Conditions                                                                                      |
+| ------------- | --------------- | ---------------- | ---------- | ----------------------------------------------------------------------------------------------- |
 | Invalid       | yes<sup>1</sup> | pending promise  | `false`    | not in store, [deletion](/rest/api/resource#delete), [invalidation](./Controller.md#invalidate) |
-| Stale         | yes<sup>1</sup> | pending promise  | `false`    | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                          |
-| Valid         | no              | resolved promise | `true`     | fetch completion                                                                                      |
-| Error         | no              | rejected promise | `true`     | fetch failed                                                                                          |
-|               | no              | `undefined`      |            | `null` used as second argument                                                                        |
+| Stale         | yes<sup>1</sup> | pending promise  | `false`    | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                    |
+| Valid         | no              | resolved promise | `true`     | fetch completion                                                                                |
+| Error         | no              | rejected promise | `true`     | fetch failed                                                                                    |
+|               | no              | `undefined`      |            | `null` used as second argument                                                                  |
 
 The returned `Ref` is updated with a new promise whenever a fetch is triggered: on argument change,
 [invalidation](./Controller.md#invalidate), or [reset](./Controller.md#resetentirestore).

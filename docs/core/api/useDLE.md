@@ -53,7 +53,7 @@ import { ProfileResource } from './ProfileResource';
 function ProfileList(): JSX.Element {
   const { data, loading, error } = useDLE(ProfileResource.getList);
   if (error) return <div>Error {`${error.status}`}</div>;
-  if (loading || !data) return <Loading/>;
+  if (loading || !data) return <Loading />;
   return (
     <div>
       {data.map(profile => (
@@ -112,12 +112,12 @@ below describes their `.value`.
 
 :::
 
-| Expiry Status | Fetch           | Data         | Loading | Error             | Conditions                                                                                                                                                                   |
-| ------------- | --------------- | ------------ | ------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Expiry Status | Fetch           | Data         | Loading | Error             | Conditions                                                                                                                                                             |
+| ------------- | --------------- | ------------ | ------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Invalid       | yes<sup>1</sup> | `undefined`  | true    | false             | not in store, [deletion](/rest/api/resource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) |
-| Stale         | yes<sup>1</sup> | denormalized | false   | false             | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                                                                                                 |
-| Valid         | no              | denormalized | false   | maybe<sup>2</sup> | fetch completion                                                                                                                                                             |
-|               | no              | `undefined`  | false   | false             | `null` used as second argument                                                                                                                                               |
+| Stale         | yes<sup>1</sup> | denormalized | false   | false             | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                                                                                           |
+| Valid         | no              | denormalized | false   | maybe<sup>2</sup> | fetch completion                                                                                                                                                       |
+|               | no              | `undefined`  | false   | false             | `null` used as second argument                                                                                                                                         |
 
 :::note
 
@@ -233,7 +233,7 @@ function ProfileDetail(): JSX.Element {
     error,
   } = useDLE(ProfileResource.get, { id: 1 });
   if (error) return <div>Error {`${error.status}`}</div>;
-  if (loading || !profile) return <Loading/>;
+  if (loading || !profile) return <Loading />;
   return (
     <div className="listItem">
       <Avatar src={profile.avatar} />
@@ -331,7 +331,7 @@ import { PostResource, UserResource } from './Resources';
 export default function PostWithAuthor({ id }: { id: string }) {
   const postDLE = useDLE(PostResource.get, { id });
   if (postDLE.error) return <div>Error {`${postDLE.error.status}`}</div>;
-  if (postDLE.loading || !postDLE.data) return <Loading/>;
+  if (postDLE.loading || !postDLE.data) return <Loading />;
   const authorDLE = useDLE(
     UserResource.get,
     postDLE.data.userId
@@ -340,10 +340,11 @@ export default function PostWithAuthor({ id }: { id: string }) {
         }
       : null,
   );
-  if (authorDLE.error) return <div>Error {`${authorDLE.error.status}`}</div>;
-  if (authorDLE.loading || !authorDLE.data) return <Loading/>;
+  if (authorDLE.error)
+    return <div>Error {`${authorDLE.error.status}`}</div>;
+  if (authorDLE.loading || !authorDLE.data) return <Loading />;
 
-  return <div>{authorDLE.data.username}</div>
+  return <div>{authorDLE.data.username}</div>;
 }
 ```
 
@@ -427,7 +428,7 @@ import { getPosts } from './api/Post';
 export default function ArticleList({ page }: { page: string }) {
   const { data, loading, error } = useDLE(getPosts, { page });
   if (error) return <div>Error {`${error.status}`}</div>;
-  if (loading || !data) return <Loading/>;
+  if (loading || !data) return <Loading />;
   const { results: posts, nextPage, lastPage } = data;
   return (
     <div>
