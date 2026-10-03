@@ -23,7 +23,7 @@ export default function useQuery(schema: any, ...args: any[]): any {
   const stateRef = injectState();
   const controller = useController();
 
-  // Track top-level reactive args (Refs are unwrapped). This allows props/refs to trigger updates.
+  // Track top-level reactive args (refs and getters are resolved). This allows props/refs/getters to trigger updates.
   const resolvedArgs = computed(() => args.map(a => toValue(a as any)) as any);
 
   // Compute query meta based on state and args. This mirrors React's memoization
