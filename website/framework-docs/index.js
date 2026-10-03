@@ -6,7 +6,7 @@
  * Vue renders a generated mirror (docs/.core-vue, gitignored) at /docs/vue,
  * which Docusaurus needs because two docs instances cannot share one folder.
  *
- * Authoring conventions (see docs/core/README-frameworks.md):
+ * Authoring conventions (see website/framework-docs/README.md):
  * - `:::react` / `:::vue` blocks and `:react[...]` / `:vue[...]` inline text
  *   (resolved by ./remarkFramework.js per instance)
  * - `frameworks: [react]` front matter: page only exists for that framework
