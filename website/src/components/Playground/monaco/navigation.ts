@@ -1,6 +1,6 @@
 import type * as Monaco from 'monaco-editor';
 
-import { stripModelId } from './modelPath';
+import { siblingFilePaths } from './modelPath';
 
 /** Packages offered when completing a bare `from '…'` specifier. */
 const SUGGESTED_DEPENDENCIES = [
@@ -54,8 +54,8 @@ export function registerEditorOpener(monaco: typeof Monaco) {
 }
 
 /**
- * Completes import specifiers: relative paths list the page's other models
- * (playground tabs), bare specifiers list SUGGESTED_DEPENDENCIES.
+ * Completes import specifiers: relative paths list the other files in the
+ * same playground, bare specifiers list SUGGESTED_DEPENDENCIES.
  */
 export function registerImportCompletions(monaco: typeof Monaco) {
   monaco.languages.registerCompletionItemProvider('typescript', {
@@ -88,19 +88,21 @@ export function registerImportCompletions(monaco: typeof Monaco) {
 
       if (textUntilPosition.endsWith('.') || textUntilPosition.endsWith('/')) {
         return {
-          suggestions: monaco.editor
-            .getModels()
-            .map((editorModel: Monaco.editor.ITextModel) =>
-              stripModelId(editorModel.uri.path),
-            )
-            .map((file: string) => ({
-              // Show the full file path for label
-              label: file,
-              // Don't keep extension for JS files
-              insertText: file.replace(/\.tsx?$/, ''),
-              kind: monaco.languages.CompletionItemKind.Module,
-              range,
-            })),
+          suggestions: siblingFilePaths(
+            model.uri.path,
+            monaco.editor
+              .getModels()
+              .map(
+                (editorModel: Monaco.editor.ITextModel) => editorModel.uri.path,
+              ),
+          ).map((file: string) => ({
+            // Show the full file path for label
+            label: file,
+            // Don't keep extension for JS files
+            insertText: file.replace(/\.tsx?$/, ''),
+            kind: monaco.languages.CompletionItemKind.Module,
+            range,
+          })),
         };
       }
       // User is trying to import a dependency

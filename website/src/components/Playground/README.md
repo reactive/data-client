@@ -6,13 +6,13 @@ indexable and hydration-safe, and those behaviors are easy to drop silently.
 
 ## Entry points
 
-| Component | Used by | What it renders |
-| --- | --- | --- |
-| `HooksPlayground` (`../HooksPlayground.tsx`) → `Playground` (`index.tsx`) | MDX docs/blog, homepage `Demo` | Editor + live preview + Store inspector |
-| `TypeScriptEditor` (`../TypeScriptEditor.tsx`) | MDX | Editor only (`variant="standalone"`) |
-| `EndpointPlayground` (`../HTTP/EndpointPlayground.tsx`) | MDX | Editor + static HTTP request/response |
-| `DiffEditor` (`../DiffEditor.tsx` → `../DiffEditorChooser.tsx` → `../DiffEditorMonaco.tsx`) | MDX | Read-only Monaco diff of two fences |
-| `Demo/CodeEditor` (`../Demo/CodeEditor.tsx`) | Homepage | One `HooksPlayground` per protocol tab |
+| Component                                                                                   | Used by                        | What it renders                         |
+| ------------------------------------------------------------------------------------------- | ------------------------------ | --------------------------------------- |
+| `HooksPlayground` (`../HooksPlayground.tsx`) → `Playground` (`index.tsx`)                   | MDX docs/blog, homepage `Demo` | Editor + live preview + Store inspector |
+| `TypeScriptEditor` (`../TypeScriptEditor.tsx`)                                              | MDX                            | Editor only (`variant="standalone"`)    |
+| `EndpointPlayground` (`../HTTP/EndpointPlayground.tsx`)                                     | MDX                            | Editor + static HTTP request/response   |
+| `DiffEditor` (`../DiffEditor.tsx` → `../DiffEditorChooser.tsx` → `../DiffEditorMonaco.tsx`) | MDX                            | Read-only Monaco diff of two fences     |
+| `Demo/CodeEditor` (`../Demo/CodeEditor.tsx`)                                                | Homepage                       | One `HooksPlayground` per protocol tab  |
 
 ## Layout
 
@@ -92,7 +92,7 @@ DesignSystem/       components injected into preview scope
 
 ### Editor
 
-- Fence metastring: `title="…"`, `path="…"`, `collapsed`, `column`, `{1-3}`
+- Fence metastring: `title="…"`, `path="…"` (or bare `path=a.ts`), `collapsed`, `column`, `{1-3}`
   highlight ranges (pre-selected in Monaco); `language-*` class. Element props
   override metastring values (Demo passes them directly). `defaultTab`
   overrides `collapsed`.
@@ -106,6 +106,8 @@ DesignSystem/       components injected into preview scope
 - Fixtures are listed above the editor in stacked layout only.
 - Go-to-definition across files: focusing the target editor reveals its tab.
   Relies on the `/<numeric id>/<path>` model URIs (`monaco/modelPath.ts`).
+- Relative import completions list only the other files of the same
+  playground (same model id).
 - Handlers passed to `InteractiveEditor` are referentially stable so unedited
   tabs skip re-rendering on keystrokes.
 - Height follows Monaco content size and re-measures when a tab is shown.

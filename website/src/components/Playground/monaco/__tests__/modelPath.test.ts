@@ -2,7 +2,12 @@
 
 import { renderHook } from '@testing-library/react';
 
-import { modelPath, stripModelId, useModelId } from '../modelPath';
+import {
+  modelPath,
+  siblingFilePaths,
+  stripModelId,
+  useModelId,
+} from '../modelPath';
 
 describe('model paths', () => {
   test('round-trips a namespaced file path', () => {
@@ -14,6 +19,18 @@ describe('model paths', () => {
     expect(stripModelId('/node_modules/react/index.d.ts')).toBe(
       '/node_modules/react/index.d.ts',
     );
+  });
+
+  test('siblingFilePaths lists only other files in the same editor', () => {
+    expect(
+      siblingFilePaths('/1/index.tsx', [
+        '/1/index.tsx',
+        '/1/api.ts',
+        '/2/other.ts',
+        '/12/near-miss.ts',
+        '/node_modules/react/index.d.ts',
+      ]),
+    ).toEqual(['/api.ts']);
   });
 
   test('useModelId is numeric and stable across renders', () => {
