@@ -222,7 +222,7 @@ re-renders and `useFetch()` returns updated denormalized data automatically.
 |               | no              | `undefined`      |            | `null` used as second argument                                                                  |
 
 The returned `Ref` is updated with a new promise whenever a fetch is triggered: on argument change,
-[invalidation](./Controller.md#invalidate), or [reset](./Controller.md#resetentirestore).
+[invalidation](./Controller.md#invalidate), or [reset](./Controller.md#resetEntireStore).
 
 :::
 
