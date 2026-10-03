@@ -16,6 +16,10 @@ export default function FrameworkPlayground({
 }: React.ComponentProps<typeof HooksPlayground>) {
   const framework = useFramework();
   if (framework === 'vue')
-    return <TypeScriptEditor row={row}>{props.children}</TypeScriptEditor>;
+    return (
+      <TypeScriptEditor row={row} defaultTab={props.defaultTab}>
+        {props.children}
+      </TypeScriptEditor>
+    );
   return <HooksPlayground row={row} {...props} />;
 }
