@@ -1,0 +1,34 @@
+{
+  "skill_name": "data-client-vue",
+  "evals": [
+    {
+      "id": 1,
+      "name": "csv-import",
+      "prompt": "Add an `ImportProducts.vue` component (src/components/ImportProducts.vue) with a file input. When the user picks a CSV, parse it with `parseProductsCsv(file): Promise<{ id: string; name: string; price: number }[]>` from src/lib/csv.ts and put every row into the Data Client store, so `ProductRow.vue` (which calls `useQuery(Product, { id })`) shows them. There is no server call for this. Product is in src/resources/Product.ts and extends Entity with `id`, `name`, `price`.",
+      "expected_output": "A <script setup> component that uses useController() and, after parsing, writes all rows with one ctrl.set([Product], rows) call, with no fetch, endpoint, or setResponse.",
+      "files": [],
+      "assertions": [
+        "All parsed rows are written with a single `ctrl.set([Product], rows)` or `ctrl.set(new schema.Array(Product), rows)` call that passes the rows and no args.",
+        "The rows are not written by calling `ctrl.set(Product, …)` once per row (no loop, forEach, or map over rows that calls set).",
+        "No endpoint is defined and `setResponse()` is not called to write the rows.",
+        "No `as any` or other cast is used to make the `ctrl.set` call typecheck.",
+        "The controller comes from `useController()` imported from `@data-client/vue`, called in `<script setup>`."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "reactive-prop-args",
+      "prompt": "Write src/components/UserTodos.vue. It takes a `userId: number` prop and renders the user's name (UserResource.get) and their todo titles (TodoResource.getList with `{ userId }`). The parent swaps `userId` without remounting, so the data must follow the prop. Loading should use Suspense. UserResource and TodoResource are in src/resources/.",
+      "expected_output": "A <script setup> component that awaits useSuspense for both endpoints with computed() arguments derived from props.userId, starts both fetches in parallel with useFetch (or otherwise avoids a waterfall), and renders through the template.",
+      "files": [],
+      "assertions": [
+        "Both `useSuspense` calls are awaited at the top level of `<script setup>`.",
+        "The `useSuspense` arguments are passed as `computed(() => ...)` (or a ref) derived from `props.userId`, not a plain object like `{ id: props.userId }` that is read once.",
+        "No bare getter function (e.g. `() => ({ id: props.userId })`) is passed as an argument.",
+        "Results are not copied into separate `ref()` or `reactive()` state; the template reads the returned values directly.",
+        "The template does not throw while a new `userId` is loading: it guards the results (e.g. `v-if`) or the component is remounted with `:key` so it suspends again.",
+        "The two fetches are not a waterfall: `useFetch` starts both before the first `await`, or the code otherwise starts them in parallel."
+      ]
+    }
+  ]
+}
