@@ -14,7 +14,7 @@
     "bench:dc": "npx tsx bench/runner.ts --lib data-client",
     "bench:trace": "BENCH_V8_TRACE=true npx tsx bench/runner.ts --lib data-client --size small",
     "bench:deopt": "BENCH_V8_DEOPT=true npx tsx bench/runner.ts --lib data-client --size small",
-    "bench:gc": "npx tsx bench/runner.ts --lib data-client --action gc",
+    "bench:gc": "npx tsx bench/gc-runner.ts",
     "test:gc-metrics": "npx tsx bench/gc-interaction-metrics.test.ts",
     "test:gc-provenance": "npx tsx bench/gc-provenance.test.ts",
     "bench:run": "yarn build && (yarn preview &) && sleep 5 && yarn bench",

@@ -1,4 +1,3 @@
-import { GC_CANONICAL_COUNTS } from '../src/data-client/gcInteractionMetrics.js';
 import type { BenchAPI, Scenario, ScenarioSize } from '../src/shared/types.js';
 
 /** Response-size-based network simulation used when --network-sim is enabled (default: on).
@@ -66,7 +65,6 @@ export const ACTION_GROUPS: Record<string, (keyof BenchAPI)[]> = {
   update: ['updateEntity', 'updateUser'],
   mutation: ['unshiftItem', 'deleteEntity', 'invalidateAndResolve', 'moveItem'],
   memory: ['mountUnmountCycle'],
-  gc: ['runGCScenario'],
 };
 
 type BaseScenario = Omit<Scenario, 'name' | 'category'> & {
@@ -222,56 +220,6 @@ export const LIBRARIES = [
   'baseline',
 ] as const;
 
-const GC_UNIQUE_KINDS = ['entity', 'endpoint', 'mixed'] as const;
-const GC_CONTROLS = ['gc', 'no-gc'] as const;
-
-/** data-client-only browser GC scenarios (excluded by default / CI; `--action gc`). */
-const GC_SCENARIOS: Scenario[] = (() => {
-  const out: Scenario[] = [];
-  for (const count of GC_CANONICAL_COUNTS) {
-    const size: ScenarioSize = count <= 1_000 ? 'small' : 'large';
-    for (const candidateKind of GC_UNIQUE_KINDS) {
-      for (const control of GC_CONTROLS) {
-        out.push({
-          name: `data-client: gc-${candidateKind}-unique-${count}-${control}`,
-          action: 'runGCScenario',
-          args: [
-            {
-              candidateKind,
-              pattern: 'unique',
-              count,
-              control,
-            },
-          ],
-          category: 'gc',
-          resultMetric: 'totalMs',
-          size,
-          onlyLibs: ['data-client'],
-        });
-      }
-    }
-    for (const control of GC_CONTROLS) {
-      out.push({
-        name: `data-client: gc-entity-duplicate-${count}-${control}`,
-        action: 'runGCScenario',
-        args: [
-          {
-            candidateKind: 'entity',
-            pattern: 'duplicate',
-            count,
-            control,
-          },
-        ],
-        category: 'gc',
-        resultMetric: 'totalMs',
-        size,
-        onlyLibs: ['data-client'],
-      });
-    }
-  }
-  return out;
-})();
-
 export const SCENARIOS: Scenario[] = [
   ...LIBRARIES.flatMap(lib =>
     BASE_SCENARIOS.filter(
@@ -282,5 +230,4 @@ export const SCENARIOS: Scenario[] = [
       ...(onlyLibs ? { onlyLibs: [...onlyLibs] } : {}),
     })),
   ),
-  ...GC_SCENARIOS,
 ];

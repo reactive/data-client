@@ -238,8 +238,9 @@ during unmount. A min-heap was worse on time and memory. `Object.keys` over
 
 ## Measuring
 
-Three opt-in harnesses, not in CI, share one JSON report vocabulary but no
-code:
+Three opt-in harnesses, not in CI, share one JSON report vocabulary and, via
+`examples/gc-shared`, the fixture, scenario axes/IDs, filter syntax, frame
+helpers, and summary stats:
 
 | Harness                              | Command              | Measures                                                            |
 | ------------------------------------ | -------------------- | ------------------------------------------------------------------- |
@@ -257,7 +258,9 @@ proposed defaults.
 - **Scenario ID:** `platform` × `candidateKind` (`entity` | `endpoint` |
   `mixed`) × `pattern` (`unique` | `duplicate`) × `count` (1k, 10k, 100k) ×
   `mode` (`scan` | `reducer` | `end-to-end` | `interaction` | `memory`) ×
-  `control` (`gc` | `no-gc`). The 100k run is the main one.
+  `control` (`gc` | `no-gc`). The 100k run is the main one. Every harness
+  filters IDs the same way: slash-bounded segments (`/100000/`,
+  `entity/unique/1000`) or a `^prefix`.
 - **Timing window:** build fixtures before timing. Time only the cache-GC
   work, let the event loop settle, and force engine GC only for heap
   snapshots. Never confuse JS engine GC with cache GC.

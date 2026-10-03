@@ -1,30 +1,13 @@
 /// <reference types="node" />
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import { chromium } from 'playwright';
-import type {
-  Browser,
-  BrowserServer,
-  CDPSession,
-  Locator,
-  Page,
-} from 'playwright';
+import type { Browser, CDPSession, Locator, Page } from 'playwright';
 
 import {
-  MANIFEST_FILENAME,
-  MANIFEST_PATH,
-  readBuildManifest,
-  verifyLocalManifest,
-  type BuildManifestV1,
-} from './build-manifest.js';
-import {
-  buildGCReport,
-  scenarioReportFromConfig,
-  writeGCReport,
-  type GCFailureRecord,
-  type GCSampleResult,
-  type GCScenarioReport,
-} from './gc-report.js';
+  BENCH_V8_DEOPT,
+  V8_LOG_DIR,
+  launchBenchChromium,
+  reportV8Logs,
+  setupBenchPage,
+} from './browser.js';
 import { collectMeasures, getMeasureDuration } from './measure.js';
 import { collectHeapUsed } from './memory.js';
 import { formatReport, type BenchmarkResult } from './report.js';
@@ -34,18 +17,11 @@ import {
   RUN_CONFIG,
   CONVERGENT_CONFIG,
   ACTION_GROUPS,
-  NETWORK_SIM_CONFIG,
 } from './scenarios.js';
 import type { ConvergentProfile } from './scenarios.js';
 import { computeStats, isConverged } from './stats.js';
 import { parseTraceDuration } from './tracing.js';
-import { browserGCScenarioId } from '../src/data-client/gcInteractionMetrics.js';
-import type {
-  GCBrowserMeasurement,
-  GCScenarioConfig,
-  Scenario,
-  ScenarioSize,
-} from '../src/shared/types.js';
+import type { Scenario, ScenarioSize } from '../src/shared/types.js';
 
 // ---------------------------------------------------------------------------
 // CLI + env var parsing
@@ -58,8 +34,6 @@ function parseArgs(): {
   scenario?: string;
   networkSim: boolean;
   opsPerRound?: number;
-  /** Validated samples-per-GC-scenario (≥1 integer). */
-  gcSamples: number;
 } {
   const argv = process.argv.slice(2);
   const get = (flag: string, envVar: string): string | undefined => {
@@ -74,8 +48,6 @@ function parseArgs(): {
   const scenarioRaw = get('--scenario', 'BENCH_SCENARIO');
   const networkSimRaw = get('--network-sim', 'BENCH_NETWORK_SIM');
   const opsRaw = get('--ops-per-round', 'BENCH_OPS_PER_ROUND');
-  // Flag / env / default resolved once here (filterScenarios must not re-read env).
-  const gcSamplesRaw = get('--samples', 'BENCH_GC_SAMPLES') ?? '5';
 
   const libs = libRaw ? libRaw.split(',').map(s => s.trim()) : undefined;
   const size = sizeRaw === 'small' || sizeRaw === 'large' ? sizeRaw : undefined;
@@ -84,16 +56,6 @@ function parseArgs(): {
   const networkSim =
     networkSimRaw != null ? networkSimRaw !== 'false' : !process.env.CI;
   const opsPerRound = opsRaw ? parseInt(opsRaw, 10) : undefined;
-  const gcSamplesParsed = Number.parseInt(gcSamplesRaw, 10);
-  if (
-    !Number.isFinite(gcSamplesParsed) ||
-    !Number.isInteger(gcSamplesParsed) ||
-    gcSamplesParsed < 1
-  ) {
-    throw new Error(
-      `invalid --samples / BENCH_GC_SAMPLES=${JSON.stringify(gcSamplesRaw)}; expected integer ≥ 1`,
-    );
-  }
 
   return {
     libs,
@@ -102,36 +64,25 @@ function parseArgs(): {
     scenario: scenarioRaw,
     networkSim,
     opsPerRound,
-    gcSamples: gcSamplesParsed,
   };
 }
-
-const isGCAction = (a: string) => a === 'gc' || a === 'runGCScenario';
 
 function filterScenarios(scenarios: Scenario[]): {
   filtered: Scenario[];
   libraries: string[];
   networkSim: boolean;
   opsPerRound?: number;
-  gcSamples: number;
-  scenarioFilter: string | null;
 } {
   const {
     libs,
     size,
     actions,
-    scenario: scenarioFilterArg,
+    scenario: scenarioFilter,
     networkSim,
     opsPerRound,
-    gcSamples,
   } = parseArgs();
-  const scenarioFilter = scenarioFilterArg ?? null;
 
   const libraries = libs ?? (process.env.CI ? ['data-client'] : [...LIBRARIES]);
-
-  // GC scenarios are data-client-only; default lib when selecting --action gc
-  const effectiveLibraries =
-    !libs && actions && actions.every(isGCAction) ? ['data-client'] : libraries;
 
   let filtered = scenarios;
 
@@ -142,19 +93,14 @@ function filterScenarios(scenarios: Scenario[]): {
         s.name.startsWith('data-client:') &&
         s.category !== 'memory' &&
         s.category !== 'startup' &&
-        s.category !== 'gc' &&
         !s.deterministic,
     );
   } else if (
     !actions ||
-    !actions.some(
-      a => a === 'memory' || a === 'mountUnmountCycle' || isGCAction(a),
-    )
+    !actions.some(a => a === 'memory' || a === 'mountUnmountCycle')
   ) {
-    // Locally: exclude memory/gc by default; use --action memory|gc to include
-    filtered = filtered.filter(
-      s => s.category !== 'memory' && s.category !== 'gc',
-    );
+    // Locally: exclude memory by default; use --action memory to include
+    filtered = filtered.filter(s => s.category !== 'memory');
   }
 
   if (libs) {
@@ -177,6 +123,7 @@ function filterScenarios(scenarios: Scenario[]): {
     filtered = filtered.filter(s => resolvedActions.has(s.action));
   }
 
+  // Substring of the display name (the GC runner uses stable-id segments instead)
   if (scenarioFilter) {
     filtered = filtered.filter(s => s.name.includes(scenarioFilter));
   }
@@ -184,17 +131,14 @@ function filterScenarios(scenarios: Scenario[]): {
   // Multi-lib runs: omit scenarios that do not apply to every selected library (e.g. invalidate-and-resolve).
   filtered = filtered.filter(
     s =>
-      !s.onlyLibs?.length ||
-      effectiveLibraries.every(lib => s.onlyLibs!.includes(lib)),
+      !s.onlyLibs?.length || libraries.every(lib => s.onlyLibs!.includes(lib)),
   );
 
   return {
     filtered,
-    libraries: effectiveLibraries,
+    libraries,
     networkSim,
     opsPerRound,
-    gcSamples,
-    scenarioFilter,
   };
 }
 
@@ -202,15 +146,9 @@ function filterScenarios(scenarios: Scenario[]): {
 // Config
 // ---------------------------------------------------------------------------
 
-const BASE_URL =
-  process.env.BENCH_BASE_URL ??
-  `http://localhost:${process.env.BENCH_PORT ?? '5173'}`;
 const BENCH_LABEL =
   process.env.BENCH_LABEL ? ` [${process.env.BENCH_LABEL}]` : '';
 const USE_TRACE = process.env.BENCH_TRACE === 'true';
-const BENCH_V8_TRACE = process.env.BENCH_V8_TRACE === 'true';
-const BENCH_V8_DEOPT = process.env.BENCH_V8_DEOPT === 'true';
-const V8_LOG_DIR = path.resolve('v8-logs');
 const MEMORY_WARMUP = 1;
 const MEMORY_MEASUREMENTS = 3;
 
@@ -249,9 +187,7 @@ function isConvergentScenario(scenario: Scenario): boolean {
   return (
     !scenario.deterministic &&
     scenario.category !== 'memory' &&
-    scenario.category !== 'gc' &&
     scenario.resultMetric !== 'heapDelta' &&
-    scenario.resultMetric !== 'totalMs' &&
     !isRefStabilityScenario(scenario)
   );
 }
@@ -266,46 +202,6 @@ function classifyAction(scenario: Scenario): {
     scenario.action === 'initDoubleList' ||
     scenario.action === 'listDetailSwitch';
   return { isMountLike, isUpdate: !isMountLike };
-}
-
-async function setupBenchPage(
-  page: Page,
-  lib: string,
-  scenario: Scenario,
-  networkSim: boolean,
-): Promise<{ harness: Locator; bench: any }> {
-  await page.goto(`${BASE_URL}/${lib}/`, {
-    waitUntil: 'networkidle',
-    timeout: 120000,
-  });
-  await page.waitForSelector('[data-app-ready]', {
-    timeout: 120000,
-    state: 'attached',
-  });
-
-  const harness = page.locator('[data-bench-harness]');
-  await harness.waitFor({ state: 'attached' });
-
-  const bench = await page.evaluateHandle('window.__BENCH__');
-  if (await bench.evaluate(b => b == null))
-    throw new Error('window.__BENCH__ not found');
-
-  if (networkSim) {
-    await (bench as any).evaluate(
-      (api: any, cfg: { baseLatencyMs: number; recordsPerMs: number }) =>
-        api.setNetworkSim(cfg),
-      NETWORK_SIM_CONFIG,
-    );
-  }
-
-  if (scenario.renderLimit != null) {
-    await (bench as any).evaluate(
-      (api: any, n: number) => api.setRenderLimit(n),
-      scenario.renderLimit,
-    );
-  }
-
-  return { harness, bench };
 }
 
 async function runPreMount(
@@ -729,103 +625,9 @@ function shuffle<T>(arr: T[]): T[] {
   return out;
 }
 
-/** Chromium from `launch()` does not expose `process()`; use `launchServer` when piping V8 trace output. */
-async function launchBenchChromium(): Promise<{
-  browser: Browser;
-  closeBenchBrowser: () => Promise<void>;
-}> {
-  const launchOpts = {
-    headless: true,
-    args: buildLaunchArgs(),
-  };
-
-  if (BENCH_V8_TRACE) {
-    const server: BrowserServer = await chromium.launchServer(launchOpts);
-    let v8TraceStream: fs.WriteStream | undefined;
-    const proc = server.process();
-    if (proc?.stderr ?? proc?.stdout) {
-      v8TraceStream = fs.createWriteStream('v8-trace.log');
-      proc.stderr?.pipe(v8TraceStream, { end: false });
-      proc.stdout?.pipe(v8TraceStream, { end: false });
-      process.stderr.write(
-        'V8 trace output → v8-trace.log (root browser process stderr/stdout)\n',
-      );
-    } else {
-      process.stderr.write(
-        'Warning: BENCH_V8_TRACE but browser server process streams unavailable; v8-trace.log may be empty.\n',
-      );
-    }
-    const browser = await chromium.connect({ wsEndpoint: server.wsEndpoint() });
-    return {
-      browser,
-      closeBenchBrowser: async () => {
-        await browser.close();
-        await server.close();
-        if (v8TraceStream) {
-          v8TraceStream.end();
-          process.stderr.write(
-            '\nV8 opt/deopt trace written to v8-trace.log\n',
-          );
-        }
-      },
-    };
-  }
-
-  const browser = await chromium.launch(launchOpts);
-  return {
-    browser,
-    closeBenchBrowser: () => browser.close(),
-  };
-}
-
-function buildLaunchArgs(): string[] {
-  const args = [
-    '--disable-background-timer-throttling',
-    '--disable-renderer-backgrounding',
-    '--disable-backgrounding-occluded-windows',
-    '--disable-hang-monitor',
-  ];
-  const jsFlags: string[] = [];
-  if (BENCH_V8_TRACE) {
-    jsFlags.push('--trace-opt', '--trace-deopt');
-  }
-  if (BENCH_V8_DEOPT) {
-    fs.rmSync(V8_LOG_DIR, { recursive: true, force: true });
-    fs.mkdirSync(V8_LOG_DIR, { recursive: true });
-    jsFlags.push('--prof', `--logfile=${V8_LOG_DIR}/v8-%p.log`);
-  }
-  if (jsFlags.length > 0) args.push(`--js-flags=${jsFlags.join(' ')}`);
-  return args;
-}
-
-function reportV8Logs(): void {
-  if (!BENCH_V8_DEOPT) return;
-  try {
-    const logs = fs.readdirSync(V8_LOG_DIR).filter(f => f.endsWith('.log'));
-    if (logs.length === 0) return;
-    process.stderr.write(`\nV8 profiling logs written to ${V8_LOG_DIR}/:\n`);
-    for (const log of logs) {
-      const size = fs.statSync(path.join(V8_LOG_DIR, log)).size;
-      process.stderr.write(`  ${log} (${(size / 1024).toFixed(1)} KB)\n`);
-    }
-    const largest = logs.reduce((a, b) => {
-      const sa = fs.statSync(path.join(V8_LOG_DIR, a)).size;
-      const sb = fs.statSync(path.join(V8_LOG_DIR, b)).size;
-      return sa >= sb ? a : b;
-    });
-    process.stderr.write(
-      `\nProcess the renderer log (typically the largest file) with:\n` +
-        `  node --prof-process ${V8_LOG_DIR}/${largest}\n\n`,
-    );
-  } catch {
-    // best-effort reporting
-  }
-}
-
 function scenarioUnit(scenario: Scenario): string {
   if (isRefStabilityScenario(scenario)) return 'count';
   if (scenario.resultMetric === 'heapDelta') return 'bytes';
-  if (scenario.resultMetric === 'totalMs') return 'ms';
   return 'ops/s';
 }
 
@@ -847,239 +649,8 @@ function recordResult(
 function warmupCount(scenario: Scenario): number {
   if (scenario.deterministic) return 0;
   if (scenario.category === 'memory') return MEMORY_WARMUP;
-  if (scenario.category === 'gc') return 0;
   if (isConvergentScenario(scenario)) return 0;
   return RUN_CONFIG[scenario.size ?? 'small'].warmup;
-}
-
-async function settlePage(page: Page): Promise<void> {
-  await page.evaluate(
-    () =>
-      new Promise<void>(r =>
-        requestAnimationFrame(() => requestAnimationFrame(() => r())),
-      ),
-  );
-  await page.waitForTimeout(50);
-}
-
-async function verifyGCBuildProvenance(
-  baseUrl: string,
-): Promise<BuildManifestV1 & { servedManifestBuildId: string }> {
-  if (!fs.existsSync(MANIFEST_PATH)) {
-    throw new Error(
-      `Missing ${MANIFEST_FILENAME}. Run yarn build (writes BuildManifest v1 after webpack).`,
-    );
-  }
-  const local = readBuildManifest();
-  verifyLocalManifest(local);
-
-  const servedUrl = `${baseUrl.replace(/\/$/, '')}/${MANIFEST_FILENAME}`;
-  const res = await fetch(servedUrl);
-  if (!res.ok) {
-    throw new Error(
-      `Failed to fetch served ${MANIFEST_FILENAME} from ${servedUrl}: ${res.status}`,
-    );
-  }
-  const served = (await res.json()) as BuildManifestV1;
-  if (served.schemaVersion !== 1) {
-    throw new Error(`served manifest schemaVersion ${served.schemaVersion}`);
-  }
-  if (served.buildId !== local.buildId) {
-    throw new Error(
-      `served manifest buildId mismatch (local ${local.buildId.slice(0, 12)}… vs served ${served.buildId.slice(0, 12)}…). Restart preview after rebuild.`,
-    );
-  }
-  process.stderr.write(
-    `GC provenance OK buildId=${local.buildId.slice(0, 16)}… commit=${local.commit.slice(0, 8)} dirty=${local.dirty}\n`,
-  );
-  return { ...local, servedManifestBuildId: served.buildId };
-}
-
-/**
- * Dedicated GC phase (not the generic convergent/update path).
- * Per sample: prepare → engine GC + heapBefore → run → settle → engine GC +
- * heapAfter (store live) → dispose. Never force engine GC inside interaction timing.
- * Failures are accumulated; report is always written with complete true/false;
- * returns { reports, complete } and caller must exit nonzero when incomplete.
- */
-async function runGCScenarioSample(
-  page: Page,
-  bench: any,
-  config: GCScenarioConfig,
-  cdp: CDPSession,
-): Promise<GCSampleResult> {
-  await (bench as any).evaluate(async (api: any, cfg: GCScenarioConfig) => {
-    if (!api.prepareGCScenario) {
-      throw new Error('prepareGCScenario not available');
-    }
-    await api.prepareGCScenario(cfg);
-  }, config);
-
-  // Forced engine GC + heapBefore (outside interaction timing)
-  const heapBeforeBytes = await collectHeapUsed(cdp);
-
-  const measurement: GCBrowserMeasurement = await (bench as any).evaluate(
-    async (api: any) => {
-      if (!api.runGCScenario) {
-        throw new Error('runGCScenario not available');
-      }
-      return api.runGCScenario();
-    },
-  );
-
-  await settlePage(page);
-
-  // Forced engine GC + heapAfter while store remains live
-  const heapAfterBytes = await collectHeapUsed(cdp);
-
-  await (bench as any).evaluate((api: any) => {
-    if (api.disposeGCScenario) api.disposeGCScenario();
-  });
-
-  return {
-    ...measurement,
-    heapBeforeBytes,
-    heapAfterBytes,
-    heapDeltaBytes: heapAfterBytes - heapBeforeBytes,
-  };
-}
-
-async function runGCPhase(
-  browser: Browser,
-  scenarios: Scenario[],
-  sampleCount: number,
-  scenarioFilter: string | null,
-  samples: Map<string, ScenarioSamples>,
-  provenance: BuildManifestV1 & { servedManifestBuildId: string },
-): Promise<{ reports: GCScenarioReport[]; complete: boolean }> {
-  const reports: GCScenarioReport[] = [];
-  const failures: GCFailureRecord[] = [];
-  const requestedScenarios = scenarios.length;
-  const requestedSamples = scenarios.length * sampleCount;
-  let completedSamples = 0;
-
-  if (scenarios.length === 0) {
-    return { reports, complete: true };
-  }
-
-  process.stderr.write(
-    `\n── GC (${scenarios.length} scenarios, ${sampleCount} samples each) ──\n`,
-  );
-
-  const context = await browser.newContext();
-  const page = await context.newPage();
-  const cdp = await context.newCDPSession(page);
-  try {
-    await cdp.send('Performance.enable');
-  } catch {
-    // best-effort
-  }
-
-  for (const scenario of scenarios) {
-    const config = scenario.args[0] as GCScenarioConfig;
-    const scenarioId = browserGCScenarioId(config);
-    const scenarioSamples: GCSampleResult[] = [];
-    let scenarioFailed = false;
-
-    process.stderr.write(`  ${scenario.name} (${scenarioId})...\n`);
-
-    for (let i = 0; i < sampleCount; i++) {
-      try {
-        const { bench } = await setupBenchPage(
-          page,
-          'data-client',
-          scenario,
-          false,
-        );
-        const sample = await runGCScenarioSample(page, bench, config, cdp);
-        scenarioSamples.push(sample);
-        recordResult(samples, scenario, { value: sample.totalMs });
-        completedSamples++;
-        await bench.dispose();
-      } catch (err) {
-        scenarioFailed = true;
-        const message = err instanceof Error ? err.message : String(err);
-        failures.push({
-          scenarioId,
-          sampleIndex: i,
-          error: message,
-        });
-        console.error(`  ${scenario.name} sample ${i} FAILED:`, message);
-        try {
-          await page.evaluate(() => {
-            window.__BENCH__?.disposeGCScenario?.();
-          });
-        } catch {
-          // ignore cleanup failures
-        }
-        break;
-      }
-    }
-
-    if (!scenarioFailed && scenarioSamples.length === sampleCount) {
-      const report = scenarioReportFromConfig(config, scenarioSamples);
-      const { summary } = report;
-      const medianTotal = summary.totalMs?.median ?? 0;
-      const maxFrame =
-        summary.frameIntervalsMs?.max ?? summary.frameIntervalsMs?.median;
-      process.stderr.write(
-        `    median totalMs=${medianTotal.toFixed(3)} ms` +
-          (summary.timerDelayMs ?
-            ` timerDelay=${summary.timerDelayMs.median.toFixed(2)} ms`
-          : '') +
-          (summary.displayPeriodMs ?
-            ` displayPeriod=${summary.displayPeriodMs.median.toFixed(2)} ms`
-          : '') +
-          (maxFrame != null ?
-            ` frameIntervalMax=${maxFrame.toFixed(2)} ms`
-          : '') +
-          (summary.maxInputDelayMs ?
-            ` maxInputDelay=${summary.maxInputDelayMs.median.toFixed(2)} ms`
-          : '') +
-          (summary.missedFrames != null ?
-            ` missedFrames=${summary.missedFrames.median}`
-          : '') +
-          (summary.longTaskCount ?
-            ` longTasks=${summary.longTaskCount.median}` +
-            (summary.longTaskTotalMs ?
-              `/${summary.longTaskTotalMs.median.toFixed(2)} ms`
-            : '')
-          : '') +
-          (summary.heapDeltaBytes ?
-            ` heapΔ=${Math.round(summary.heapDeltaBytes.median)} B`
-          : '') +
-          `\n`,
-      );
-      reports.push(report);
-    }
-  }
-
-  await cdp.detach().catch(() => {});
-  await context.close();
-
-  const version = browser.version();
-  const report = buildGCReport({
-    scenarios: reports,
-    samplesPerScenario: sampleCount,
-    filter: scenarioFilter,
-    browserVersion: version,
-    headless: true,
-    requestedScenarios,
-    requestedSamples,
-    completedScenarios: reports.length,
-    completedSamples,
-    failures,
-    provenance,
-  });
-  writeGCReport(report);
-
-  if (!report.complete) {
-    process.stderr.write(
-      `GC phase incomplete: ${failures.length} failure(s), completed ${completedSamples}/${requestedSamples} samples\n`,
-    );
-  }
-
-  return { reports, complete: report.complete };
 }
 
 /** Run each scenario once per matching library (one browser context per lib). */
@@ -1159,8 +730,6 @@ async function main() {
     libraries,
     networkSim,
     opsPerRound,
-    gcSamples,
-    scenarioFilter,
   } = filterScenarios(SCENARIOS);
 
   if (opsPerRound != null) {
@@ -1178,10 +747,7 @@ async function main() {
   }
 
   const memoryScenarios = SCENARIOS_TO_RUN.filter(s => s.category === 'memory');
-  const gcScenarios = SCENARIOS_TO_RUN.filter(s => s.category === 'gc');
-  const mainScenarios = SCENARIOS_TO_RUN.filter(
-    s => s.category !== 'memory' && s.category !== 'gc',
-  );
+  const mainScenarios = SCENARIOS_TO_RUN.filter(s => s.category !== 'memory');
 
   const bySize: Record<ScenarioSize, Scenario[]> = { small: [], large: [] };
   for (const s of mainScenarios) {
@@ -1195,10 +761,6 @@ async function main() {
   for (const s of SCENARIOS_TO_RUN) {
     samples.set(s.name, { value: [], reactCommit: [], trace: [] });
   }
-
-  // Fail fast on a stale build before spending time on earlier phases
-  const gcProvenance =
-    gcScenarios.length > 0 ? await verifyGCBuildProvenance(BASE_URL) : null;
 
   const { browser, closeBenchBrowser } = await launchBenchChromium();
   if (BENCH_V8_DEOPT) {
@@ -1357,20 +919,6 @@ async function main() {
     }
   }
 
-  // GC: dedicated phase (opt-in via --action gc)
-  let gcComplete = true;
-  if (gcProvenance) {
-    const { complete } = await runGCPhase(
-      browser,
-      gcScenarios,
-      gcSamples,
-      scenarioFilter,
-      samples,
-      gcProvenance,
-    );
-    gcComplete = complete;
-  }
-
   await closeBenchBrowser();
   reportV8Logs();
 
@@ -1438,10 +986,6 @@ async function main() {
   process.stderr.write('\n');
 
   process.stdout.write(formatReport(report));
-
-  if (!gcComplete) {
-    process.exitCode = 1;
-  }
 }
 
 main().catch(err => {

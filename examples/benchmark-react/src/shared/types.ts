@@ -204,10 +204,10 @@ export type ScenarioAction =
   | { action: 'moveItem'; args: [number] };
 
 export type ResultMetric =
-  'duration' | 'issueRefChanged' | 'userRefChanged' | 'heapDelta' | 'totalMs';
+  'duration' | 'issueRefChanged' | 'userRefChanged' | 'heapDelta';
 
-/** hotPath = JS only, included in CI. memory = heap delta, not CI. startup = page load metrics, not CI. gc = cache GC interaction, not CI. */
-export type ScenarioCategory = 'hotPath' | 'memory' | 'startup' | 'gc';
+/** hotPath = JS only, included in CI. memory = heap delta, not CI. startup = page load metrics, not CI. (Cache GC runs separately via bench/gc-runner.ts.) */
+export type ScenarioCategory = 'hotPath' | 'memory' | 'startup';
 
 /** small = cheap scenarios (full warmup + measurement). large = expensive scenarios (reduced runs). */
 export type ScenarioSize = 'small' | 'large';
@@ -216,9 +216,9 @@ export interface Scenario {
   name: string;
   action: keyof BenchAPI;
   args: unknown[];
-  /** Which value to report; default 'duration'. Ref-stability use issueRefChanged/userRefChanged; memory use heapDelta; gc use totalMs. */
+  /** Which value to report; default 'duration'. Ref-stability use issueRefChanged/userRefChanged; memory use heapDelta. */
   resultMetric?: ResultMetric;
-  /** hotPath (default) = run in CI. memory = heap delta. startup = page load metrics. gc = cache GC (opt-in). */
+  /** hotPath (default) = run in CI. memory = heap delta. startup = page load metrics. */
   category?: ScenarioCategory;
   /** small (default) = full runs. large = reduced warmup/measurement for expensive scenarios. */
   size?: ScenarioSize;
