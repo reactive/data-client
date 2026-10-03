@@ -11,8 +11,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-# shellcheck source=validate-config.sh
-source "${ROOT}/scripts/validate-config.sh"
+PROTOCOL_CLI="${ROOT}/../gc-shared/protocol-cli.js"
 
 APP_ID="${APP_ID:-com.dataclient.benchmarknative}"
 ACTIVITY="${ACTIVITY:-${APP_ID}/.MainActivity}"
@@ -29,8 +28,8 @@ SAMPLES="${SAMPLES:-1}"
 LABEL="${LABEL:-}"
 INSTALL="${INSTALL:-1}"
 
-# Validate axes before any install/device work.
-validate_host_config "${CANDIDATE_KIND}" "${PATTERN}" "${COUNT}" "${CONTROL}" "${SAMPLES}"
+# Validate axes before any install/device work (shared GC protocol).
+node "${PROTOCOL_CLI}" validate "${CANDIDATE_KIND}" "${PATTERN}" "${COUNT}" "${CONTROL}" "${SAMPLES}"
 
 mkdir -p "$(dirname "${OUT}")"
 

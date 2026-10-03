@@ -6,24 +6,14 @@
  * - Choreographer deltas are *intervals* → round(interval/period) − 1 (same as JS rAF)
  */
 import type { UiFrameCaptureResult } from './BenchNative';
+import { frameIntervalsFromTimestamps } from '../../gc-shared/frames.js';
 
-export function median(values: number[]): number {
-  if (values.length === 0) return 0;
-  const sorted = [...values].sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 === 0
-    ? (sorted[mid - 1] + sorted[mid]) / 2
-    : sorted[mid];
-}
-
-/** Adjacent differences of rAF timestamps (ms). */
-export function frameIntervalsFromTimestamps(timestampsMs: number[]): number[] {
-  const intervals: number[] = [];
-  for (let i = 1; i < timestampsMs.length; i++) {
-    intervals.push(timestampsMs[i] - timestampsMs[i - 1]);
-  }
-  return intervals;
-}
+export {
+  computeMaxInputDelayMs,
+  frameIntervalsFromTimestamps,
+  measureDisplayPeriodMs,
+  median,
+} from '../../gc-shared/frames.js';
 
 /**
  * FrameMetrics TOTAL_DURATION → excess missed frames.
@@ -70,40 +60,6 @@ export function missedFramesFromTimestamps(
     frameIntervalsFromTimestamps(timestampsMs),
     displayPeriodMs,
   );
-}
-
-export function computeMaxInputDelayMs(
-  timerDelayMs: number,
-  frameIntervalsMs: number[],
-  displayPeriodMs: number,
-): number {
-  let maxExcessFrame = 0;
-  if (displayPeriodMs > 0) {
-    for (const interval of frameIntervalsMs) {
-      maxExcessFrame = Math.max(
-        maxExcessFrame,
-        Math.max(0, interval - displayPeriodMs),
-      );
-    }
-  }
-  return Math.max(timerDelayMs, maxExcessFrame);
-}
-
-export async function measureDisplayPeriodMs(samples = 8): Promise<number> {
-  const intervals: number[] = [];
-  await new Promise<void>(resolve => {
-    let last = 0;
-    let n = 0;
-    const frame = (now: number) => {
-      if (n > 0) intervals.push(now - last);
-      last = now;
-      n++;
-      if (n <= samples) requestAnimationFrame(frame);
-      else resolve();
-    };
-    requestAnimationFrame(frame);
-  });
-  return median(intervals);
 }
 
 /**

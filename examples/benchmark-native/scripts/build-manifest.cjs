@@ -10,7 +10,7 @@
  * verify   — verify manifest and/or sidecar identity
  *
  * Inputs: sorted paths under this app (tracked+untracked contents) plus
- * packages/core/src, excluding build/node_modules/artifacts/.jdk/generated.
+ * packages/core/src and examples/gc-shared, excluding build/node_modules/artifacts/.jdk/generated.
  */
 const { execSync } = require('child_process');
 const crypto = require('crypto');
@@ -63,7 +63,9 @@ function walkFiles(dir, out) {
 function collectInputFiles() {
   const files = [];
   walkFiles(ROOT, files);
-  walkFiles(path.join(REPO, 'packages/core/src'), files);
+  for (const dir of ['packages/core/src', 'examples/gc-shared']) {
+    walkFiles(path.join(REPO, dir), files);
+  }
   return files.map(f => path.resolve(f)).sort((a, b) => a.localeCompare(b));
 }
 

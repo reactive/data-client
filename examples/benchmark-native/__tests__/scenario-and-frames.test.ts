@@ -5,12 +5,7 @@ import {
   median,
   missedFramesFromTimestamps,
 } from '../src/frames';
-import {
-  splitMixedCount,
-  scenarioId,
-  parseScenarioId,
-  listScenarios,
-} from '../src/scenario';
+import { splitMixedCount, scenarioId } from '../src/scenario';
 
 describe('scenarioId', () => {
   it('builds stable android interaction ids', () => {
@@ -24,31 +19,15 @@ describe('scenarioId', () => {
     ).toBe('android/entity/unique/1000/interaction/gc');
   });
 
-  it('round-trips parseScenarioId', () => {
-    const id = 'android/mixed/unique/10000/interaction/no-gc';
-    expect(scenarioId(parseScenarioId(id))).toBe(id);
-  });
-
-  it('matches slash-bounded segments so 1000 does not select 10000 or 100000', () => {
-    const countOf = (id: string) => id.split('/')[3];
-    const counts = (filter: string) =>
-      listScenarios(filter).map(scenarioId).map(countOf);
-
-    expect(counts('1000')).toEqual(expect.arrayContaining(['1000']));
-    expect(counts('1000').every(count => count === '1000')).toBe(true);
-    expect(counts('entity/unique/1000')).toEqual(['1000', '1000']);
-    expect(counts('/100000/').length).toBeGreaterThan(0);
-    expect(counts('/100000/').every(count => count === '100000')).toBe(true);
-    expect(counts('100000/').every(count => count === '100000')).toBe(true);
-    expect(counts('/100000').every(count => count === '100000')).toBe(true);
-  });
-
-  it('lists duplicate only for entity', () => {
-    const ids = listScenarios().map(scenarioId);
-    expect(ids.some(id => id.includes('/duplicate/'))).toBe(true);
-    expect(ids.some(id => id.startsWith('android/endpoint/duplicate'))).toBe(
-      false,
-    );
+  it('rejects invalid axes', () => {
+    expect(() =>
+      scenarioId({
+        candidateKind: 'endpoint',
+        pattern: 'duplicate',
+        count: 1000,
+        control: 'gc',
+      }),
+    ).toThrow(/duplicate pattern only supports/);
   });
 });
 

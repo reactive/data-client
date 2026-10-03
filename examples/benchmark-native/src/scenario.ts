@@ -4,8 +4,9 @@ import type {
   GCScenarioConfig,
   Pattern,
 } from './types';
-import { CANONICAL_COUNTS } from './types';
-import { validateScenarioConfig } from './validateConfig';
+import { scenarioId as sharedScenarioId } from '../../gc-shared/protocol.js';
+
+export { splitMixedCount } from '../../gc-shared/protocol.js';
 
 export interface ScenarioAxes {
   platform: 'android';
@@ -16,104 +17,18 @@ export interface ScenarioAxes {
   control: Control;
 }
 
-/** Stable scenario ID: `android/{kind}/{pattern}/{count}/interaction/{control}`. */
+/**
+ * Stable scenario ID: `android/{kind}/{pattern}/{count}/interaction/{control}`.
+ * Throws on invalid axes. Listing/filtering lives in the shared protocol
+ * (`examples/gc-shared/protocol-cli.js list android`, used by run-matrix.sh).
+ */
 export function scenarioId(axes: ScenarioAxes | GCScenarioConfig): string {
-  return [
-    'android',
-    axes.candidateKind,
-    axes.pattern,
-    String(axes.count),
-    'interaction',
-    axes.control,
-  ].join('/');
-}
-
-/**
- * Split mixed total into entity + endpoint counts (entities get the remainder
- * when odd so entityCount + endpointCount === total).
- */
-export function splitMixedCount(total: number): {
-  entities: number;
-  endpoints: number;
-} {
-  const endpoints = Math.floor(total / 2);
-  return { entities: total - endpoints, endpoints };
-}
-
-export function parseScenarioId(id: string): ScenarioAxes {
-  const parts = id.split('/');
-  if (
-    parts.length !== 6 ||
-    parts[0] !== 'android' ||
-    parts[4] !== 'interaction'
-  ) {
-    throw new Error(`invalid android scenario id: ${id}`);
-  }
-  const config: GCScenarioConfig = {
-    candidateKind: parts[1] as CandidateKind,
-    pattern: parts[2] as Pattern,
-    count: Number(parts[3]),
-    control: parts[5] as Control,
-  };
-  validateScenarioConfig(config);
-  return {
+  return sharedScenarioId({
     platform: 'android',
-    ...config,
+    candidateKind: axes.candidateKind,
+    pattern: axes.pattern,
+    count: axes.count,
     mode: 'interaction',
-  };
-}
-
-export function listScenarios(filter?: string): ScenarioAxes[] {
-  const kinds: CandidateKind[] = ['entity', 'endpoint', 'mixed'];
-  const controls: Control[] = ['gc', 'no-gc'];
-  const out: ScenarioAxes[] = [];
-
-  for (const candidateKind of kinds) {
-    for (const count of CANONICAL_COUNTS) {
-      for (const control of controls) {
-        out.push({
-          platform: 'android',
-          candidateKind,
-          pattern: 'unique',
-          count,
-          mode: 'interaction',
-          control,
-        });
-      }
-    }
-  }
-
-  for (const count of CANONICAL_COUNTS) {
-    for (const control of controls) {
-      out.push({
-        platform: 'android',
-        candidateKind: 'entity',
-        pattern: 'duplicate',
-        count,
-        mode: 'interaction',
-        control,
-      });
-    }
-  }
-
-  if (!filter) return out;
-  const prefix = filter.startsWith('^');
-  const needle = prefix ? filter.slice(1) : filter;
-  return out.filter(s => {
-    const id = scenarioId(s);
-    return prefix ? id.startsWith(needle) : slashBoundedIncludes(id, needle);
+    control: axes.control,
   });
-}
-
-/**
- * Contiguous slash-bounded segments. One leading slash and one trailing
- * slash are removed, so `/100000/` matches the 100000 segment only.
- * `1000` does not match `10000` or `100000`.
- */
-function slashBoundedIncludes(id: string, filter: string): boolean {
-  let needle = filter;
-  if (needle.startsWith('/')) needle = needle.slice(1);
-  if (needle.endsWith('/')) needle = needle.slice(0, -1);
-  if (needle.length === 0) return true;
-  return `/${id}/`.includes(`/${needle}/`);
 }

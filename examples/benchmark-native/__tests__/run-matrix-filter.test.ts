@@ -47,4 +47,22 @@ describe('run-matrix.sh filter', () => {
       true,
     );
   });
+
+  it('matches the full stable id (mode segment between count and control)', () => {
+    expect(dryRun('unique/1000/interaction/no-gc')).toEqual([
+      'entity/unique/1000/no-gc',
+      'endpoint/unique/1000/no-gc',
+      'mixed/unique/1000/no-gc',
+    ]);
+    expect(dryRun('^android/mixed/unique/10000/')).toEqual([
+      'mixed/unique/10000/gc',
+      'mixed/unique/10000/no-gc',
+    ]);
+  });
+
+  it('fails when nothing matches', () => {
+    for (const filter of ['entity/unique/1000/gc', 'widget/unique/1000']) {
+      expect(() => dryRun(filter)).toThrow();
+    }
+  });
 });

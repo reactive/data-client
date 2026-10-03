@@ -1,7 +1,6 @@
 import {
   ConfigValidationError,
   MAX_SAMPLES,
-  parseHostEnvConfig,
   parseLaunchConfig,
   validateSampleCount,
   validateScenarioConfig,
@@ -115,25 +114,5 @@ describe('parseLaunchConfig', () => {
     expect(() => parseLaunchConfig({ autoRun: true, samples: 0 })).toThrow(
       /samples/,
     );
-  });
-});
-
-describe('parseHostEnvConfig', () => {
-  it('parses shell-like strings', () => {
-    expect(
-      parseHostEnvConfig({
-        candidateKind: 'entity',
-        pattern: 'duplicate',
-        count: '100000',
-        control: 'gc',
-        samples: '5',
-      }),
-    ).toEqual({
-      candidateKind: 'entity',
-      pattern: 'duplicate',
-      count: 100000,
-      control: 'gc',
-      samples: 5,
-    });
   });
 });

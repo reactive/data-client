@@ -9,34 +9,9 @@ import type {
   GCScenarioReport,
   NumberSummary,
 } from './types';
+import { summarizeNumbers } from '../../gc-shared/stats.js';
 
-/** Caller must pass a non-empty sorted array. */
-function percentile(sorted: number[], p: number): number {
-  if (sorted.length === 1) return sorted[0]!;
-  const idx = (p / 100) * (sorted.length - 1);
-  const lo = Math.floor(idx);
-  const hi = Math.ceil(idx);
-  if (lo === hi) return sorted[lo]!;
-  const w = idx - lo;
-  return sorted[lo]! * (1 - w) + sorted[hi]! * w;
-}
-
-export function summarizeNumbers(values: number[]): NumberSummary | null {
-  if (values.length === 0) return null;
-  const sorted = values.slice().sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  const median =
-    sorted.length % 2 === 0
-      ? (sorted[mid - 1]! + sorted[mid]!) / 2
-      : sorted[mid]!;
-  return {
-    median,
-    min: sorted[0]!,
-    max: sorted[sorted.length - 1]!,
-    p95: percentile(sorted, 95),
-    p99: percentile(sorted, 99),
-  };
-}
+export { summarizeNumbers };
 
 function optionalField(
   samples: GCAndroidMeasurement[],

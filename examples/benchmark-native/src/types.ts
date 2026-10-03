@@ -1,7 +1,9 @@
 /**
  * Local schemaVersion 1 types mirroring the documented GC measurement protocol.
- * No shared runtime package — semantic compatibility only.
+ * Axes, ids, fixture, and stats are shared via examples/gc-shared.
  */
+import { CANONICAL_COUNTS } from '../../gc-shared/protocol.js';
+import type { NumberSummary } from '../../gc-shared/stats.js';
 
 export type CandidateKind = 'entity' | 'endpoint' | 'mixed';
 export type Pattern = 'unique' | 'duplicate';
@@ -9,8 +11,8 @@ export type Control = 'gc' | 'no-gc';
 export type Mode = 'interaction';
 export type UiCaptureSource = 'FrameMetrics' | 'Choreographer';
 
-/** Canonical scenario counts. */
-export const CANONICAL_COUNTS = [1_000, 10_000, 100_000] as const;
+/** Canonical scenario counts (shared protocol, examples/gc-shared). */
+export { CANONICAL_COUNTS };
 export type CanonicalCount = (typeof CANONICAL_COUNTS)[number];
 
 /** Axes for Android GC scenarios. */
@@ -67,13 +69,7 @@ export interface GCAndroidMeasurement {
   jsHeapDeltaBytes?: number;
 }
 
-export interface NumberSummary {
-  median: number;
-  min: number;
-  max: number;
-  p95: number;
-  p99: number;
-}
+export type { NumberSummary };
 
 export interface GCScenarioReport {
   id: string;
