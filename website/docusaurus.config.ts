@@ -462,7 +462,7 @@ const config: Config = {
           type: 'doc',
           position: 'left',
           docId: 'introduction',
-          label: 'Docs',
+          label: 'React',
         },
         {
           type: 'doc',
