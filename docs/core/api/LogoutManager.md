@@ -19,6 +19,8 @@ Logs out based on fetch responses. By default this is triggered by [401 (Unautho
 
 ## Usage
 
+:::react
+
 <Tabs
 defaultValue="web"
 groupId="platform"
@@ -170,6 +172,29 @@ export default function RootLayout() {
 </TabItem>
 </Tabs>
 
+:::
+
+:::vue
+
+```ts title="main.ts"
+import { createApp } from 'vue';
+import {
+  DataClientPlugin,
+  LogoutManager,
+  getDefaultManagers,
+} from '@data-client/vue';
+import App from './App.vue';
+
+// highlight-next-line
+const managers = [new LogoutManager(), ...getDefaultManagers()];
+
+const app = createApp(App);
+app.use(DataClientPlugin, { managers });
+app.mount('#app');
+```
+
+:::
+
 ### Custom logout handler
 
 ```ts
@@ -195,6 +220,7 @@ Use [controller.invalidateAll](./Controller.md#invalidateAll) to only clear part
 ```ts
 import { unAuth } from '../authentication';
 
+const myDomain = 'http://test.com';
 // highlight-next-line
 const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
 
@@ -232,6 +258,10 @@ protected shouldLogout(error: UnknownError) {
 }
 ```
 
+:::react
+
 ## Github Example
 
 <StackBlitz app="github-app" file="src/RootProvider.tsx" view="editor" />
+
+:::
