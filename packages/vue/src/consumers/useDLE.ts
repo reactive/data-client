@@ -56,7 +56,14 @@ export default function useDLE<
   error: ComputedRef<ErrorTypes | undefined>;
 };
 
-export default function useDLE(endpoint: any, ...args: any[]): any {
+export default function useDLE(
+  endpoint: any,
+  ...args: any[]
+): {
+  data: ComputedRef<unknown>;
+  loading: ComputedRef<boolean>;
+  error: ComputedRef<ErrorTypes | undefined>;
+} {
   const stateRef = injectState();
   const controller = useController();
 

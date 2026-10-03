@@ -19,7 +19,10 @@ export default function useQuery<S extends Queryable>(
   ...args: MaybeRefsOrGetters<SchemaArgs<S>>
 ): ComputedRef<DenormalizeNullable<S> | undefined>;
 
-export default function useQuery(schema: any, ...args: any[]): any {
+export default function useQuery(
+  schema: any,
+  ...args: any[]
+): ComputedRef<unknown> {
   const stateRef = injectState();
   const controller = useController();
 

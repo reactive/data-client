@@ -69,7 +69,7 @@ export default function useSuspense<
 export default async function useSuspense(
   endpoint: any,
   ...args: any[]
-): Promise<any> {
+): Promise<DeepReadonly<ComputedRef<unknown>>> {
   const stateRef = injectState();
   const controller = useController();
 
