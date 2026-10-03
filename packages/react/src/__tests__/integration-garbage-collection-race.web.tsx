@@ -18,14 +18,8 @@ import React, { Suspense, useLayoutEffect, useState } from 'react';
  * that window. In an app it would be an idle callback that fires between a
  * non-sync commit and React's scheduled passive-effect flush.
  *
- * See plans/gc-handoff.md, decision 3 ("How is 'still referenced' known").
+ * See plans/garbage-collection.md, "Open decisions" 3.
  */
-class SweepableGCPolicy extends GCPolicy {
-  sweep() {
-    this.runSweep();
-  }
-}
-
 describe('GC sweep between consumer commit and countRef', () => {
   it('deletes a mounted consumer entity, which later suspends and refetches', async () => {
     const fetchTodo = jest.fn(async ({ id }: { id: string }) => ({
@@ -33,7 +27,7 @@ describe('GC sweep between consumer commit and countRef', () => {
       title: `fetched ${id}`,
     }));
     const getTodo = makeGetTodo(fetchTodo);
-    const gcPolicy = new SweepableGCPolicy({ expiresAt: () => 0 });
+    const gcPolicy = new GCPolicy({ expiresAt: () => 0 });
     let sweepOnLayout = false;
     let setShow!: (show: boolean) => void;
     let controller!: ReturnType<typeof useController>;
@@ -44,7 +38,7 @@ describe('GC sweep between consumer commit and countRef', () => {
     }
     function SweepInLayout() {
       useLayoutEffect(() => {
-        if (sweepOnLayout) gcPolicy.sweep();
+        if (sweepOnLayout) gcPolicy['runSweep']();
       }, []);
       return null;
     }
