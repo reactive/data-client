@@ -1,9 +1,10 @@
 import { mount } from '@vue/test-utils';
 import nock from 'nock';
-import { defineComponent, h, nextTick, reactive, inject } from 'vue';
+import { defineComponent, h, nextTick, reactive, inject, type Ref } from 'vue';
 
 // Reuse the same endpoints/fixtures used by the React tests
 import {
+  CoolerArticle,
   CoolerArticleResource,
   StaticArticleResource,
 } from '../../../../__tests__/new';
@@ -293,6 +294,47 @@ describe('vue useFetch()', () => {
     expect(fetchMock).toHaveBeenCalledTimes(0);
 
     global.Date.now = originalDateNow;
+  });
+
+  it('should type the return value as a Ref of the fetch promise', () => {
+    let promiseRef:
+      | Ref<(Promise<CoolerArticle> & { resolved: boolean }) | undefined>
+      | undefined;
+    let nullableRef:
+      | Ref<
+          | (Promise<CoolerArticle | undefined> & { resolved: boolean })
+          | undefined
+        >
+      | undefined;
+    const Comp = defineComponent({
+      name: 'FetchTesterTypes',
+      setup() {
+        const p = useFetch(CoolerArticleResource.get, { id: payload.id });
+        promiseRef = p;
+        // @ts-expect-error it is a Ref, not a Promise
+        p.then;
+        // @ts-expect-error it is a Ref, not a Promise
+        p.resolved;
+        const resolved: boolean = p.value.resolved;
+        void resolved;
+
+        const n = useFetch(CoolerArticleResource.get, null);
+        nullableRef = n;
+        // @ts-expect-error value may be undefined when args are null
+        () => n.value.resolved;
+        return () => h('div');
+      },
+    });
+
+    mount(TestWrapper, {
+      slots: { default: () => h(Comp) },
+      global: {
+        plugins: [[DataClientPlugin]],
+      },
+    });
+
+    expect(promiseRef?.value).toBeInstanceOf(Promise);
+    expect(nullableRef?.value).toBeUndefined();
   });
 
   it('should return a promise with resolved=false when fetching', async () => {

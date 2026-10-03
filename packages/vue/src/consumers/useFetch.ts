@@ -6,7 +6,7 @@ import type {
   FetchFunction,
   DenormalizeNullable,
 } from '@data-client/core';
-import { computed, watch, ref, unref } from 'vue';
+import { computed, watch, ref, unref, type Ref } from 'vue';
 
 import { useController, injectState } from '../context.js';
 import type {
@@ -43,8 +43,10 @@ export default function useFetch<
 >(
   endpoint: E,
   ...args: MaybeRefsOrGetters<Parameters<E>>
-): E['schema'] extends undefined | null ? ReturnType<E> & { resolved: boolean }
-: Promise<Denormalize<E['schema']>> & { resolved: boolean };
+): Ref<
+  E['schema'] extends undefined | null ? ReturnType<E> & { resolved: boolean }
+  : Promise<Denormalize<E['schema']>> & { resolved: boolean }
+>;
 
 export default function useFetch<
   E extends EndpointInterface<
@@ -55,10 +57,12 @@ export default function useFetch<
 >(
   endpoint: E,
   ...args: MaybeRefsOrGettersNullable<Parameters<E>> | readonly [null]
-): E['schema'] extends undefined | null ?
-  (ReturnType<E> & { resolved: boolean }) | undefined
-: | (Promise<DenormalizeNullable<E['schema']>> & { resolved: boolean })
-  | undefined;
+): Ref<
+  E['schema'] extends undefined | null ?
+    (ReturnType<E> & { resolved: boolean }) | undefined
+  : | (Promise<DenormalizeNullable<E['schema']>> & { resolved: boolean })
+    | undefined
+>;
 
 export default function useFetch(endpoint: any, ...args: any[]): any {
   const stateRef = injectState();
