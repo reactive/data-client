@@ -26,7 +26,7 @@ export default function useSubscription<
   const controller = useController();
 
   // Track top-level reactive args (refs and getters are resolved). This allows props/refs/getters to trigger resubscribe.
-  const resolvedArgs = computed(() => args.map(a => toValue(a as any)) as any);
+  const resolvedArgs = computed(() => args.map(a => toValue(a)) as any);
   const key = computed(() => {
     if (resolvedArgs.value[0] === null) return '';
     return endpoint.key(...(resolvedArgs.value as readonly [...Parameters<E>]));

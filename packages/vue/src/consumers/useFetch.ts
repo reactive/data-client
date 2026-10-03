@@ -65,7 +65,7 @@ export default function useFetch(endpoint: any, ...args: any[]): any {
   const controller = useController();
 
   // Track top-level reactive args (refs and getters are resolved). This allows props/refs/getters to trigger updates.
-  const resolvedArgs = computed(() => args.map(a => toValue(a as any)) as any);
+  const resolvedArgs = computed(() => args.map(a => toValue(a)) as any);
 
   // Compute a key that changes when args change (including reactive props)
   const argsKey = computed(() =>
