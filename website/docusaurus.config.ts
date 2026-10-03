@@ -22,6 +22,16 @@ const remarkFramework = require('./framework-docs/remarkFramework.js');
 const vueDocs = frameworkDocs.generate('vue');
 if (isDev) frameworkDocs.watch('vue');
 
+// Setting `exclude` replaces Docusaurus' defaults, so keep them; otherwise
+// `_`-prefixed MDX partials (e.g. shared/_useLive.mdx) get published as pages.
+// Mirrors GlobExcludeDefault from @docusaurus/utils.
+const docsExcludeDefault = [
+  '**/_*.{js,jsx,ts,tsx,md,mdx}',
+  '**/_*/**',
+  '**/*.test.{js,jsx,ts,tsx}',
+  '**/__tests__/**',
+];
+
 const config: Config = {
   title: 'Data Client',
   tagline: 'Async State Management without the Management',
@@ -203,7 +213,11 @@ const config: Config = {
         docs: {
           //id: 'core',
           path: '../docs/core',
-          exclude: ['getting-started/README.md', '**/*.vue.{md,mdx}'],
+          exclude: [
+            ...docsExcludeDefault,
+            'getting-started/README.md',
+            '**/*.vue.{md,mdx}',
+          ],
           //routeBasePath: 'core',
           sidebarPath: require.resolve('./framework-docs/sidebars-react.js'),
           beforeDefaultRemarkPlugins: [
@@ -258,7 +272,7 @@ const config: Config = {
       {
         id: 'vue',
         path: vueDocs.outDir,
-        exclude: ['getting-started/README.md'],
+        exclude: [...docsExcludeDefault, 'getting-started/README.md'],
         routeBasePath: 'vue',
         sidebarPath: require.resolve('./framework-docs/sidebars-vue.js'),
         beforeDefaultRemarkPlugins: [
