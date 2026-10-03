@@ -2,9 +2,9 @@
 '@data-client/vue': patch
 ---
 
-Fix [useFetch()](https://dataclient.io/docs/api/useFetch) return type to be a `Ref`
+Fix [useFetch()](https://dataclient.io/docs/api/useFetch) return type to be a read-only `Ref`
 
-`useFetch()` returns a `Ref` holding the fetch promise, but was typed as returning the promise directly.
+`useFetch()` returns a read-only `Ref` holding the fetch promise, but was typed as returning the promise directly.
 
 ```ts
 const promise = useFetch(PostResource.get, { id });

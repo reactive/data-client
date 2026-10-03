@@ -298,12 +298,16 @@ describe('vue useFetch()', () => {
 
   it('should type the return value as a Ref of the fetch promise', () => {
     let promiseRef:
-      | Ref<(Promise<CoolerArticle> & { resolved: boolean }) | undefined>
+      | Readonly<
+          Ref<(Promise<CoolerArticle> & { resolved: boolean }) | undefined>
+        >
       | undefined;
     let nullableRef:
-      | Ref<
-          | (Promise<CoolerArticle | undefined> & { resolved: boolean })
-          | undefined
+      | Readonly<
+          Ref<
+            | (Promise<CoolerArticle | undefined> & { resolved: boolean })
+            | undefined
+          >
         >
       | undefined;
     const Comp = defineComponent({
@@ -315,6 +319,8 @@ describe('vue useFetch()', () => {
         p.then;
         // @ts-expect-error it is a Ref, not a Promise
         p.resolved;
+        // @ts-expect-error the returned Ref is read-only
+        () => (p.value = undefined as any);
         const resolved: boolean = p.value.resolved;
         void resolved;
 

@@ -43,9 +43,11 @@ export default function useFetch<
 >(
   endpoint: E,
   ...args: MaybeRefsOrGetters<Parameters<E>>
-): Ref<
-  E['schema'] extends undefined | null ? ReturnType<E> & { resolved: boolean }
-  : Promise<Denormalize<E['schema']>> & { resolved: boolean }
+): Readonly<
+  Ref<
+    E['schema'] extends undefined | null ? ReturnType<E> & { resolved: boolean }
+    : Promise<Denormalize<E['schema']>> & { resolved: boolean }
+  >
 >;
 
 export default function useFetch<
@@ -57,11 +59,13 @@ export default function useFetch<
 >(
   endpoint: E,
   ...args: MaybeRefsOrGettersNullable<Parameters<E>> | readonly [null]
-): Ref<
-  E['schema'] extends undefined | null ?
-    (ReturnType<E> & { resolved: boolean }) | undefined
-  : | (Promise<DenormalizeNullable<E['schema']>> & { resolved: boolean })
-    | undefined
+): Readonly<
+  Ref<
+    E['schema'] extends undefined | null ?
+      (ReturnType<E> & { resolved: boolean }) | undefined
+    : | (Promise<DenormalizeNullable<E['schema']>> & { resolved: boolean })
+      | undefined
+  >
 >;
 
 export default function useFetch(endpoint: any, ...args: any[]): any {
