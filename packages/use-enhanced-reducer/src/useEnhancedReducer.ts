@@ -41,7 +41,31 @@ export default function useEnhancedReducer<R extends React.Reducer<any, any>>(
 
   const getState = useCallback(() => stateRef.current, []);
 
-  const dispatchWithPromise = usePromisifiedDispatch(realDispatch, state);
+  const promisifiedDispatch = usePromisifiedDispatch(realDispatch, state);
+  // Queue actions that reach React before this hook commits. The mount effect
+  // replays them, and that effect runs only once this fiber has committed, so
+  // the update lands on a mounted reducer. Middleware still runs immediately.
+  const heldRef = useRef<
+    null | [ReducerAction<R>, (value: Promise<void> | void) => void][]
+  >([]);
+  const dispatchWithPromise = useCallback(
+    (action: ReducerAction<R>) => {
+      const held = heldRef.current;
+      if (held === null) return promisifiedDispatch(action);
+      return new Promise<void>(resolve => {
+        held.push([action, resolve]);
+      });
+    },
+    [promisifiedDispatch],
+  );
+  useEffect(() => {
+    const held = heldRef.current;
+    if (held === null) return;
+    heldRef.current = null;
+    for (const [action, resolve] of held) {
+      resolve(promisifiedDispatch(action));
+    }
+  }, [promisifiedDispatch]);
 
   const outerDispatchRef = useRef<Dispatch<R>>(unsetDispatch);
   // protected from dispatches after unmount
