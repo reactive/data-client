@@ -17,7 +17,7 @@ export function stripModelId(path: string) {
   return path.substring(candidateId.length - 1);
 }
 
-/** Stable per-mount id. Only used client-side (inside BrowserOnly), so randomness cannot cause hydration mismatches. */
+/** Stable per-mount id. Also runs during SSR, but the id only reaches Monaco (inside BrowserOnly), never markup, so randomness cannot cause hydration mismatches. */
 export function useModelId() {
   return useMemo(
     () => Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString(),

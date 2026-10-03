@@ -11,7 +11,7 @@ indexable and hydration-safe, and those behaviors are easy to drop silently.
 | `HooksPlayground` (`../HooksPlayground.tsx`) → `Playground` (`index.tsx`) | MDX docs/blog, homepage `Demo` | Editor + live preview + Store inspector |
 | `TypeScriptEditor` (`../TypeScriptEditor.tsx`) | MDX | Editor only (`variant="standalone"`) |
 | `EndpointPlayground` (`../HTTP/EndpointPlayground.tsx`) | MDX | Editor + static HTTP request/response |
-| `DiffEditor` (`../DiffEditor.tsx` → `../DiffEditorMonaco.tsx`) | MDX | Read-only Monaco diff of two fences |
+| `DiffEditor` (`../DiffEditor.tsx` → `../DiffEditorChooser.tsx` → `../DiffEditorMonaco.tsx`) | MDX | Read-only Monaco diff of two fences |
 | `Demo/CodeEditor` (`../Demo/CodeEditor.tsx`) | Homepage | One `HooksPlayground` per protocol tab |
 
 ## Layout
