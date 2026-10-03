@@ -5,8 +5,9 @@ license: Apache 2.0
 ---
 ## Setup
 
-Install `DataClientPlugin` once on the app. Composables only work inside `<script setup>` (or `setup()`)
-of components below it.
+Install `DataClientPlugin` once on the app. Composables only work inside `<script setup>` of components
+below it. Awaiting composables (`await useSuspense()`) requires `<script setup>`: in a hand-written
+`async setup()`, composables called after the first `await` lose the component instance.
 
 ```ts title="main.ts"
 import { DataClientPlugin } from '@data-client/vue';
@@ -45,7 +46,7 @@ useFetch(CommentResource.getList, { postId: id });
 const post = await useSuspense(PostResource.get, { id });
 const comments = await useSuspense(CommentResource.getList, { postId: id });
 // conditional: null skips fetching and binding
-const user = useCache(UserResource.get, computed(() => (userId.value ? { id: userId.value } : null)));
+const user = await useSuspense(UserResource.get, computed(() => (userId.value ? { id: userId.value } : null)));
 ```
 
 For API definitions (like TodoResource), apply the skill "data-client-rest".
@@ -81,6 +82,10 @@ const todo = await useSuspense(TodoResource.get, computed(() => ({ id: props.id 
 
 Use `computed()` or `ref()` rather than a bare getter function (`() => ({ id })`).
 
+When arguments change, `useSuspense()` does not suspend again: the result is `undefined` until the new
+fetch resolves (unless that data is already cached). Guard the template (`v-if="todo"`), or have the
+parent remount the component with `:key="id"` so it suspends inside `<Suspense>` again.
+
 ## Mutations
 
 ```ts
@@ -102,7 +107,7 @@ const getNextPage = (page) => ctrl.fetch(TodoResource.getList.getPage, { userId:
 ```
 
 Read reactive values (`props.todo.id`, `title.value`) inside the handler so each call uses current state.
-In Options API templates the Controller is also available as `$dataClient`.
+The Controller is also available as `$dataClient` in any template (and `this.$dataClient` in the Options API).
 
 ## Helpful composables
 
