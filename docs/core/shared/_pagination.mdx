@@ -1,7 +1,7 @@
 import { postPaginatedFixtures } from '@site/src/fixtures/posts';
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 
-<HooksPlayground defaultOpen="n" row fixtures={postPaginatedFixtures} defaultTab={props.defaultTab}>
+<FrameworkPlayground defaultOpen="n" row fixtures={postPaginatedFixtures} defaultTab={props.defaultTab}>
 
 ```ts title="User" collapsed
 import { Entity } from '@data-client/rest';
@@ -52,6 +52,8 @@ export const PostResource = resource({
   schema: { posts: new Collection([Post]), cursor: '' },
 });
 ```
+
+:::react
 
 ```tsx title="PostItem" collapsed
 import { type Post } from './Post';
@@ -113,4 +115,67 @@ export default function PostList() {
 render(<PostList />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="PostItem.vue" collapsed
+<script setup lang="ts">
+  import { type Post } from './Post';
+
+  defineProps<{ post: Post }>();
+</script>
+
+<template>
+  <div class="listItem spaced">
+    <Avatar :src="post.author.profileImage" />
+    <div>
+      <h4>{{ post.title }}</h4>
+      <small>by {{ post.author.name }}</small>
+    </div>
+  </div>
+</template>
+```
+
+```html title="LoadMore.vue"
+<script setup lang="ts">
+  import { useController, useLoading } from '@data-client/vue';
+  import { PostResource } from './Post';
+
+  const props = defineProps<{ cursor: string }>();
+  const ctrl = useController();
+  const [loadPage, isPending] = useLoading(() =>
+    ctrl.fetch(PostResource.getList.getPage, { cursor: props.cursor }),
+  );
+</script>
+
+<template>
+  <center>
+    <button @click="loadPage" :disabled="isPending">
+      {{ isPending ? '...' : 'Load more' }}
+    </button>
+  </center>
+</template>
+```
+
+```html title="PostList.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import PostItem from './PostItem.vue';
+  import LoadMore from './LoadMore.vue';
+  import { PostResource } from './Post';
+
+  const data = await useSuspense(PostResource.getList);
+</script>
+
+<template>
+  <div>
+    <PostItem v-for="post in data.posts" :key="post.pk()" :post="post" />
+    <LoadMore v-if="data.cursor" :cursor="data.cursor" />
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>

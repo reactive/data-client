@@ -55,7 +55,10 @@ export function parseCodeDocuments(
         value: trimFinalNewline(code),
         title,
         collapsed:
-          defaultTab ? title !== defaultTab : /\bcollapsed\b/.test(metastring),
+          defaultTab ?
+            // Vue SFC tabs are titled `Name.vue`; match them by component name
+            title?.replace(/\.vue$/, '') !== defaultTab
+          : /\bcollapsed\b/.test(metastring),
         col: /\bcolumn\b/.test(metastring),
         path:
           metastring.match(/path=(?<quote>["'])(?<path>.*?)\1/)?.groups?.path ||
