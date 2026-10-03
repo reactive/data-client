@@ -29,6 +29,8 @@ to send to redux devtools.
 
 For example, we can enable the [trace](https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md#trace) option to help track down where actions are dispatched from.
 
+:::react
+
 ```tsx title="index.tsx"
 import {
   DevToolsManager,
@@ -49,6 +51,25 @@ ReactDOM.createRoot(document.body).render(
 );
 ```
 
+:::
+
+:::vue
+
+```ts title="main.ts"
+import { createApp } from 'vue';
+import { DataClientPlugin, getDefaultManagers } from '@data-client/vue';
+import App from './App.vue';
+
+const managers = getDefaultManagers({
+  // highlight-next-line
+  devToolsManager: { trace: true },
+});
+
+createApp(App).use(DataClientPlugin, { managers }).mount('#app');
+```
+
+:::
+
 ### skipLogging
 
 `(action: ActionTypes) => boolean`
@@ -56,6 +77,8 @@ ReactDOM.createRoot(document.body).render(
 Can skip some actions to be registered in the browser devtool.
 
 By default will skip inflight [fetch actions](./Controller.md#fetch)
+
+:::react
 
 ```tsx title="index.tsx"
 import {
@@ -83,6 +106,36 @@ ReactDOM.createRoot(document.body).render(
   </DataProvider>,
 );
 ```
+
+:::
+
+:::vue
+
+```ts title="main.ts"
+import { createApp } from 'vue';
+import {
+  DevToolsManager,
+  DataClientPlugin,
+  getDefaultManagers,
+} from '@data-client/vue';
+import App from './App.vue';
+
+const managers =
+  process.env.NODE_ENV !== 'production'
+    ? [
+        // highlight-start
+        new DevToolsManager(undefined, () => true),
+        // highlight-end
+        ...getDefaultManagers().filter(
+          manager => manager.constructor.name !== 'DevToolsManager',
+        ),
+      ]
+    : getDefaultManagers();
+
+createApp(App).use(DataClientPlugin, { managers }).mount('#app');
+```
+
+:::
 
 #### Skipping high-frequency updates
 

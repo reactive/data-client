@@ -27,6 +27,8 @@ This can be used as the :react[initialState prop for [&lt;DataProvider /\>](./Da
 
 ## Example
 
+:::react
+
 ```typescript
 import { DataProvider } from '@data-client/react';
 import { mockInitialState } from '@data-client/test';
@@ -36,9 +38,9 @@ import MyComponentToTest from 'components/MyComponentToTest';
 
 const results = [
   {
-    request: ArticleResource.getList,
-    params: { maxResults: 10 },
-    result: [
+    endpoint: ArticleResource.getList,
+    args: [{ maxResults: 10 }],
+    response: [
       {
         id: 5,
         content: 'have a merry christmas',
@@ -59,3 +61,43 @@ const results = [
   <MyComponentToTest />
 </DataProvider>;
 ```
+
+:::
+
+:::vue
+
+```ts
+import { createApp } from 'vue';
+import { DataClientPlugin } from '@data-client/vue';
+import { mockInitialState } from '@data-client/test';
+
+import ArticleResource from 'resources/ArticleResource';
+import MyComponentToTest from 'components/MyComponentToTest.vue';
+
+const results = [
+  {
+    endpoint: ArticleResource.getList,
+    args: [{ maxResults: 10 }],
+    response: [
+      {
+        id: 5,
+        content: 'have a merry christmas',
+        author: 2,
+        contributors: [],
+      },
+      {
+        id: 532,
+        content: 'never again',
+        author: 23,
+        contributors: [5],
+      },
+    ],
+  },
+];
+
+createApp(MyComponentToTest)
+  .use(DataClientPlugin, { initialState: mockInitialState(results) })
+  .mount('#app');
+```
+
+:::

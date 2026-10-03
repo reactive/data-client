@@ -80,6 +80,8 @@ installed once per app, so managers are created once.
 
 :::
 
+:::react
+
 <Tabs
 defaultValue="web"
 groupId="platform"
@@ -216,6 +218,24 @@ export default function RootLayout() {
 
 </TabItem>
 </Tabs>
+
+:::
+
+:::vue
+
+```ts title="main.ts"
+import { createApp } from 'vue';
+import { DataClientPlugin, getDefaultManagers } from '@data-client/vue';
+import App from './App.vue';
+
+const managers = [...getDefaultManagers(), new MyManager()];
+
+const app = createApp(App);
+app.use(DataClientPlugin, { managers });
+app.mount('#app');
+```
+
+:::
 
 ## Control flow
 
