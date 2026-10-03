@@ -13,19 +13,14 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 For many debugging tasks, the fastest path is to use an agent that already knows the
 :react[`@data-client/react`]:vue[`@data-client/vue`] debugging workflow.
 
-:::react
-
 Install the [`data-client-react` skill](https://skills.sh/reactive/data-client/data-client-react)
 in your coding agent, then ask it to inspect the current page or app state.
 
-:::
-
 :::vue
 
-Install the [`data-client-react` skill](https://skills.sh/reactive/data-client/data-client-react)
-in your coding agent, then ask it to inspect the current page or app state using the skill's
-`devtools-debugging` reference. That workflow only uses the [Controller](../api/Controller.md), so it
-works the same with `@data-client/vue`, even though the skill is written for React.
+The skill is named for React, but its `devtools-debugging` workflow only uses the
+[Controller](../api/Controller.md), so it works the same with `@data-client/vue`. Ask your agent
+to follow that reference.
 
 :::
 
