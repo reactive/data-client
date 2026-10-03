@@ -401,7 +401,8 @@ ctrl.set(
 ```
 
 Array schemas take no `args` (so [Entity.pk()](/rest/api/Entity#pk) and [Entity.process()](/rest/api/Entity#process)
-receive `[]`) and no updater function. Use this instead of calling `set()` once per row, such as when
+receive `[]`) and no updater function. Rows that share a pk merge in list order, without
+[Entity.shouldReorder()](/rest/api/Entity#shouldreorder). Use this instead of calling `set()` once per row, such as when
 [batching high-frequency stream updates](../concepts/managers.md#batching).
 
 ### setResponse(endpoint, ...args, response) {#setResponse}

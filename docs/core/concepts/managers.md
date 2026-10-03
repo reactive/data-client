@@ -369,6 +369,9 @@ export default class StreamManager implements Manager {
 }
 ```
 
+Rows in one batch that share a pk merge in order and skip [Entity.shouldReorder()](/rest/api/Entity#shouldreorder),
+so buffer only the latest message per pk when order matters.
+
 #### Skipping DevTools for high-frequency updates
 
 When using WebSockets or other real-time data sources, you may want to skip logging
