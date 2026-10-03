@@ -118,6 +118,25 @@ not help because the GC action is already ahead in the queue. Treat that
 probe as supporting evidence for the control-flow reading, not as a shipped
 test.
 
+Committed tests on React 19.2 narrow that reading:
+
+- **Queued GC ahead of a sync mount: did not reproduce.** A sweep dispatched
+  at default priority followed by `flushSync` of a new consumer rendered both
+  updates together. The consumer saw the entity already deleted, suspended,
+  and refetched. That is a refetch, not deletion of counted data. Whether a
+  transition- or idle-priority GC dispatch would be skipped by a mount
+  render was not tested, nor were React 17/18 (disposable probe, not
+  committed).
+- **Sweep between commit and passive effect: reproduces deterministically.**
+  [integration-garbage-collection-race.web.tsx](../packages/react/src/__tests__/integration-garbage-collection-race.web.tsx)
+  sweeps from a sibling layout effect, after the consumer commits and before
+  its `countRef` effect runs. The entity is deleted while the consumer is
+  mounted and counted. Because `case GC` returns the same state object,
+  nothing re-renders. The consumer shows stale data until an unrelated
+  update, then suspends and refetches. In an app this needs an idle callback
+  to fire between a non-sync commit and React's scheduled passive-effect
+  flush. How often that happens is unmeasured.
+
 Vue's provider in
 [packages/vue/src/providers/createDataClient.ts](../packages/vue/src/providers/createDataClient.ts)
 applies the reducer inside `realDispatch` before the dispatch promise
@@ -130,12 +149,12 @@ Verified in source:
 denormalizes with `.filter(filterEmpty)`. A missing entity becomes a shorter
 array rather than an invalid result.
 
-A disposable probe against real `Controller.getResponseMeta` (same `/tmp`
-spike) reported: after deleting one entity under a surviving list endpoint,
-the list shrank and expiry stayed `Valid`, so Suspense was not forced to
-refetch. A deleted entity behind a detail endpoint was `undefined` while
-still `Valid`. Re-run this before relying on it; the probe is not in the
-repo.
+[GCPolicy-dangling.ts](../packages/core/src/state/__tests__/GCPolicy-dangling.ts)
+drives real `GCPolicy`, `Controller`, and reducer. A result written without a
+mounted consumer (`setResponse`, prefetch, hydration) is never queued, yet an
+entity it names is swept when another consumer releases it. The surviving
+list shrinks and the surviving detail reads `undefined`, both still `Valid`,
+so nothing refetches.
 
 ### Memo and index residue
 
@@ -223,12 +242,13 @@ only. They do not choose a product design.
   with provenance checks so a report is tied to a build manifest.
 - Some local baselines exist. Android on-device numbers do not.
 - Several designs were sketched and partly spiked. None is chosen.
+- Characterization tests for silent shrink and the commit-to-passive-effect
+  race (section 2). They assert current behavior; a design that fixes either
+  should flip them.
 
 ### Not done
 
 - No production `GCPolicy`, reducer, hook, or schema change.
-- No committed regression test for the React dispatch-to-reducer race.
-- No committed test for surviving-endpoint silent shrink.
 - No CI job runs the new GC benchmarks.
 - No physical Android calibration.
 - No decision on ownership (per-consumer refs vs query reachability vs whole
@@ -283,9 +303,10 @@ Do not treat prior rankings as votes.
 
 ### Suggested next evidence, not a required sequence
 
-- Re-run the silent-shrink case as a real Jest test and decide if it is
-  acceptable.
-- Re-run the React deferred-dispatch race under concurrent rendering.
+- Decide whether silent shrink is acceptable (it is now a committed test).
+- Decide whether the commit-to-passive-effect window matters. Counting in a
+  layout effect, or reading live counts when the GC reducer applies, are two
+  ways to close it; neither is measured.
 - If comparing schedulers, measure release/unmount cost and idle sweep cost
   separately, on the browser harness, not only in Node.
 - Before any RN default change, run the release app on a named mid-range
