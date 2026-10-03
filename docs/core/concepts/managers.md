@@ -304,7 +304,7 @@ export default class StreamManager implements Manager {
       try {
         const msg = JSON.parse(event.data);
         if (msg.type in this.entities)
-          controller.set(this.entities[msg.type], ...msg.args, msg.data);
+          this.controller.set(this.entities[msg.type], ...msg.args, msg.data);
       } catch (e) {
         console.error('Failed to handle message');
         console.error(e);
@@ -325,6 +325,47 @@ export default class StreamManager implements Manager {
 
 [Controller.set()](../api/Controller.md#set) allows directly updating [Querable Schemas](/rest/api/schema#queryable)
 directly with `event.data`.
+
+#### Batching high-frequency updates {#batching}
+
+Streams like exchange tickers can send hundreds of messages per second, and connections often start with a large snapshot.
+Rather than calling `set()` per message, buffer them and write each batch with an [Array](/rest/api/Array) schema.
+[Controller.set([Entity], rows)](../api/Controller.md#set-array) normalizes every row in one store update.
+
+```typescript
+export default class StreamManager implements Manager {
+  // ...
+  protected buffer: Record<string, any[]> = {};
+  declare protected flushTimeout?: ReturnType<typeof setTimeout>;
+
+  connect() {
+    this.evtSource = this.createEventSource();
+    this.evtSource.onmessage = event => {
+      const msg = JSON.parse(event.data);
+      if (msg.type in this.entities) {
+        (this.buffer[msg.type] ??= []).push(msg.data);
+        this.flushTimeout ??= setTimeout(this.flush, 50);
+      }
+    };
+  }
+
+  // highlight-start
+  flush = () => {
+    const buffer = this.buffer;
+    this.buffer = {};
+    this.flushTimeout = undefined;
+    for (const type in buffer) {
+      this.controller.set([this.entities[type]], buffer[type]);
+    }
+  };
+  // highlight-end
+
+  cleanup() {
+    this.evtSource?.close();
+    clearTimeout(this.flushTimeout);
+  }
+}
+```
 
 #### Skipping DevTools for high-frequency updates
 
@@ -348,8 +389,10 @@ export default function getManagers() {
         // Increase latency buffer for high-frequency updates
         latency: 1000,
         // Skip WebSocket SET actions to avoid log spam
+        // (batched writes use the [Ticker] schema)
         predicate: (state, action) =>
-          action.type !== actionTypes.SET || action.schema !== Ticker,
+          action.type !== actionTypes.SET ||
+          (action.schema !== Ticker && action.schema[0] !== Ticker),
       },
     }),
   ];

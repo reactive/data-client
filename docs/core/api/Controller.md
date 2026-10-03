@@ -384,7 +384,10 @@ const id = '2';
 ctrl.set(Article, { id }, article => ({ id, votes: article.votes + 1 }));
 ```
 
-An [Array](/rest/api/Array) schema updates many entities in one store update. Each row merges with its stored entity, and entities not in the list are untouched. Arrays take no args and no updater function.
+#### Many entities at once {#set-array}
+
+Pass an [Array](/rest/api/Array) schema (`[Todo]` or `new schema.Array(Todo)`) and a list of rows to update
+many entities in one store update. Each row merges with its stored entity; entities not in the list are untouched.
 
 ```ts
 ctrl.set(
@@ -395,6 +398,10 @@ ctrl.set(
   ],
 );
 ```
+
+Array schemas take no `args` (so [Entity.pk()](/rest/api/Entity#pk) and [Entity.process()](/rest/api/Entity#process)
+receive `[]`) and no updater function. Use this instead of calling `set()` once per row, such as when
+[batching high-frequency stream updates](../concepts/managers.md#batching).
 
 ### setResponse(endpoint, ...args, response) {#setResponse}
 
