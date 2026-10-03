@@ -71,5 +71,5 @@ in a framework are dropped automatically, so Vue-only docs can be listed there t
 - Docusaurus can't point two docs instances at one folder, so `index.js` mirrors `docs/core` into
   `docs/.core-vue` (gitignored; a sibling so relative imports into `docs/rest` keep working), applying `.vue.md` overrides, `vue_` front matter and
   `frameworks:` filtering. It runs on config load and re-syncs on change during `yarn start`.
-- `FrameworkSelector` (breadcrumbs and TOC) switches to the same page in the other docs instance,
+- `FrameworkSelector` (in the breadcrumbs) switches to the same page in the other docs instance,
   and disables a framework when the page doesn't exist there.

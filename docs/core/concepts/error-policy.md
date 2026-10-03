@@ -20,7 +20,7 @@ It uses the rejection error to determine whether it should be treated as 'soft' 
 
 Soft errors will continue showing valid data if it exists. However, if no previous data is in the store,
 it will reject with `error`. In this case [useSuspense()](../api/useSuspense.md) throws the
-error to be caught by the nearest [ErrorBoundary](../api/ErrorBoundary.md) or [AsyncBoundary](../api/AsyncBoundary.md)
+error to be caught by the nearest :react[[ErrorBoundary](../api/ErrorBoundary.md) or [AsyncBoundary](../api/AsyncBoundary.md)]:vue[[onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured)]
 
 ### Hard
 

@@ -272,7 +272,7 @@ function useSuspense(
 ): Promise<DeepReadonly<ComputedRef<Denormalize<typeof endpoint.schema>>>>;
 ```
 
-Arguments can be plain values, [refs or getters](https://vuejs.org/api/utility-types.html#maybereforgetter); the result
+Arguments can be plain values or [refs](https://vuejs.org/api/reactivity-core.html#ref) (including [computed](https://vuejs.org/api/reactivity-core.html#computed)); the result
 updates when they change.
 
 :::

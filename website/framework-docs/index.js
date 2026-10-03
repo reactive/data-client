@@ -142,4 +142,4 @@ function sourcePath(framework, docPath) {
   return resolveSources(framework).get(docPath) ?? docPath;
 }
 
-module.exports = { generate, watch, sidebarsFor, sourcePath };
+module.exports = { generate, watch, sidebarsFor, sourcePath, docIds };
