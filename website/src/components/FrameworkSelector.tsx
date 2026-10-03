@@ -1,4 +1,7 @@
-import { useAllDocsData } from '@docusaurus/plugin-content-docs/client';
+import {
+  useActiveDocContext,
+  useAllDocsData,
+} from '@docusaurus/plugin-content-docs/client';
 import { useHistory, useLocation } from '@docusaurus/router';
 import React, { useState, useRef, useEffect } from 'react';
 
@@ -8,7 +11,6 @@ import useFramework, {
   frameworkPluginId,
 } from './useFramework';
 
-// React logo SVG
 const ReactLogo = () => (
   <svg viewBox="0 0 24 24" className={styles.logo}>
     <path
@@ -18,7 +20,6 @@ const ReactLogo = () => (
   </svg>
 );
 
-// Vue logo SVG
 const VueLogo = () => (
   <svg viewBox="0 0 24 24" className={styles.logo}>
     <path
@@ -33,27 +34,15 @@ const frameworks: { value: Framework; label: string; Logo: React.FC }[] = [
   { value: 'vue', label: 'Vue', Logo: VueLogo },
 ];
 
-/** Same page in the other framework's docs, if it exists */
+/** Same page in each framework's docs, if it exists */
 function useCounterparts(): Record<Framework, string | undefined> {
-  const { pathname } = useLocation();
   const allDocs = useAllDocsData();
-  const current = useFramework();
-  const base = allDocs[frameworkPluginId[current]]?.path ?? '/docs';
-  const rel = pathname.slice(base.length);
-  const result = {} as Record<Framework, string | undefined>;
-  for (const fw of Object.keys(frameworkPluginId) as Framework[]) {
-    const data = allDocs[frameworkPluginId[fw]];
-    const target = `${data?.path ?? ''}${rel}`.replace(/\/$/, '') || '/';
-    result[fw] =
-      (
-        data?.versions
-          .flatMap(v => v.docs)
-          .some(doc => doc.path.replace(/\/$/, '') === target)
-      ) ?
-        target
-      : undefined;
-  }
-  return result;
+  const { activeDoc } = useActiveDocContext(frameworkPluginId[useFramework()]);
+  const find = (fw: Framework) =>
+    allDocs[frameworkPluginId[fw]].versions[0].docs.find(
+      doc => doc.id === activeDoc?.id,
+    )?.path;
+  return { react: find('react'), vue: find('vue') };
 }
 
 export default function FrameworkSelector() {
@@ -69,12 +58,7 @@ export default function FrameworkSelector() {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
-        setIsOpen(false);
-      }
+      if (!containerRef.current?.contains(e.target as Node)) setIsOpen(false);
     };
 
     document.addEventListener('mousedown', handleClickOutside);

@@ -10,16 +10,15 @@ import useFramework from './useFramework';
  * Put shared code blocks (resources) directly inside, and framework-specific
  * components in :::react / :::vue blocks.
  */
-export default function FrameworkPlayground({
-  row,
-  ...props
-}: React.ComponentProps<typeof HooksPlayground>) {
+export default function FrameworkPlayground(
+  props: React.ComponentProps<typeof HooksPlayground>,
+) {
   const framework = useFramework();
   if (framework === 'vue')
     return (
-      <TypeScriptEditor row={row} defaultTab={props.defaultTab}>
+      <TypeScriptEditor row={props.row} defaultTab={props.defaultTab}>
         {props.children}
       </TypeScriptEditor>
     );
-  return <HooksPlayground row={row} {...props} />;
+  return <HooksPlayground {...props} />;
 }

@@ -1,4 +1,4 @@
-/* global require, module, __dirname, Buffer */
+/* global module */
 /**
  * Remark plugin that resolves framework-specific content in shared docs.
  *
@@ -13,24 +13,17 @@ const DIRECTIVES = ['containerDirective', 'leafDirective', 'textDirective'];
 
 function filterChildren(node, framework) {
   if (!node.children) return;
-  const next = [];
-  for (const child of node.children) {
-    if (DIRECTIVES.includes(child.type) && FRAMEWORKS.includes(child.name)) {
-      if (child.name !== framework) continue;
-      filterChildren(child, framework);
-      // container label (:::vue[label]) is a paragraph flagged as directiveLabel
-      next.push(...child.children.filter(c => !c.data?.directiveLabel));
-      continue;
-    }
+  node.children = node.children.flatMap(child => {
     filterChildren(child, framework);
-    next.push(child);
-  }
-  node.children = next;
+    if (!DIRECTIVES.includes(child.type) || !FRAMEWORKS.includes(child.name))
+      return [child];
+    if (child.name !== framework) return [];
+    // container label (:::vue[label]) is a paragraph flagged as directiveLabel
+    return child.children.filter(c => !c.data?.directiveLabel);
+  });
 }
 
 module.exports = function remarkFramework({ framework }) {
-  if (!FRAMEWORKS.includes(framework))
-    throw new Error(`remarkFramework: unknown framework "${framework}"`);
   return tree => filterChildren(tree, framework);
 };
 module.exports.FRAMEWORKS = FRAMEWORKS;

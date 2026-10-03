@@ -11,22 +11,16 @@ import styles from './styles.module.css';
 type Props = WrapperProps<typeof DocBreadcrumbsType>;
 
 export default function DocBreadcrumbsWrapper(props: Props): React.JSX.Element {
-  const location = useLocation();
-  // Only show framework selector on main /docs pages (not /rest or /graphql)
-  const showSelector = location.pathname.startsWith('/docs');
-
-  if (!showSelector) {
-    return <DocBreadcrumbs {...props} />;
-  }
+  const { pathname } = useLocation();
+  // Only /docs pages have a framework (not /rest or /graphql)
+  if (!pathname.startsWith('/docs')) return <DocBreadcrumbs {...props} />;
 
   return (
     <div className={styles.wrapper} data-framework-selector-anchor>
       <div className={styles.left}>
         <DocBreadcrumbs {...props} />
       </div>
-      <div className={styles.right}>
-        <FrameworkSelector />
-      </div>
+      <FrameworkSelector />
     </div>
   );
 }

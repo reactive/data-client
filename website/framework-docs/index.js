@@ -1,30 +1,21 @@
 /* global require, module, __dirname, Buffer */
 /**
- * Single-source framework docs.
+ * Single-source framework docs (authoring conventions in ./README.md).
  *
- * `docs/core` is the one source of truth. React renders it directly at /docs.
- * Vue renders a generated mirror (docs/.core-vue, gitignored) at /docs/vue,
- * which Docusaurus needs because two docs instances cannot share one folder.
- *
- * Authoring conventions (see website/framework-docs/README.md):
- * - `:::react` / `:::vue` blocks and `:react[...]` / `:vue[...]` inline text
- *   (resolved by ./remarkFramework.js per instance)
- * - `frameworks: [react]` front matter: page only exists for that framework
- * - `vue_<key>:` front matter overrides `<key>:` for Vue (e.g. vue_title)
- * - `foo.vue.md` replaces `foo.md` for Vue; use only when nearly nothing
- *   is shareable, or for Vue-only pages
+ * `docs/core` is rendered directly for React at /docs. Vue renders a generated
+ * mirror (docs/.core-vue, gitignored) at /docs/vue, because two docs instances
+ * cannot share one folder.
  */
 const fs = require('fs');
 const path = require('path');
 
+const { FRAMEWORKS } = require('./remarkFramework.js');
+
 const SRC = path.resolve(__dirname, '../../docs/core');
-// Sibling of docs/core so relative imports that leave the folder
-// (e.g. ../../rest/diagrams/...) still resolve from the mirror
-const outDirFor = framework =>
-  path.resolve(__dirname, `../../docs/.core-${framework}`);
-const FRAMEWORKS = ['react', 'vue'];
 const MD = /\.mdx?$/;
-const OVERRIDE = /\.(react|vue)(\.mdx?)$/;
+/** `foo.vue.md` replaces `foo.md` for Vue */
+const VUE_OVERRIDE = /\.vue(\.mdx?)$/;
+const FM = /^---\n([\s\S]*?)\n---\n/;
 
 function walk(dir, base = dir) {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
@@ -34,55 +25,47 @@ function walk(dir, base = dir) {
   });
 }
 
-const FM = /^---\n([\s\S]*?)\n---\n/;
+const readSrc = file => fs.readFileSync(path.join(SRC, file), 'utf8');
+const frontMatter = content => content.match(FM)?.[1] ?? '';
 
-function readFrontMatter(content) {
-  const match = content.match(FM);
-  return match ? match[1] : '';
-}
-
-/** Which frameworks a source page renders for */
+/** Which frameworks a source page renders for (`frameworks: [react]`) */
 function pageFrameworks(content) {
-  const fm = readFrontMatter(content);
-  const match = fm.match(/^frameworks:\s*\[([^\]]*)\]\s*$/m);
+  const match = frontMatter(content).match(/^frameworks:\s*\[([^\]]*)\]\s*$/m);
   if (!match) return FRAMEWORKS;
   return match[1].split(',').map(s => s.trim().replace(/['"]/g, ''));
 }
 
 /** Apply `<framework>_<key>:` front matter overrides */
 function rewriteFrontMatter(content, framework) {
-  const fm = readFrontMatter(content);
+  const fm = frontMatter(content);
   if (!fm) return content;
-  const lines = fm.split('\n');
   const prefix = `${framework}_`;
+  const key = l => l.split(':')[0];
+  const lines = fm.split('\n');
   const overridden = new Set(
     lines
       .filter(l => l.startsWith(prefix))
-      .map(l => l.slice(prefix.length).split(':')[0]),
+      .map(l => key(l).slice(prefix.length)),
   );
   const next = lines
-    .filter(l => !overridden.has(l.split(':')[0]))
+    .filter(l => !overridden.has(key(l)))
     .map(l => (l.startsWith(prefix) ? l.slice(prefix.length) : l));
   return content.replace(FM, `---\n${next.join('\n')}\n---\n`);
 }
 
-/** Resolve which source file supplies each output path for a framework */
+/** Map of output path -> source path (relative to docs/core) for a framework */
 function resolveSources(framework) {
-  const files = walk(SRC);
   const sources = new Map();
-  // shared files first, then overrides win
-  for (const file of files) {
-    if (OVERRIDE.test(file)) continue;
-    if (MD.test(file)) {
-      const content = fs.readFileSync(path.join(SRC, file), 'utf8');
-      if (!pageFrameworks(content).includes(framework)) continue;
+  for (const file of walk(SRC)) {
+    if (VUE_OVERRIDE.test(file)) {
+      if (framework === 'vue')
+        sources.set(file.replace(VUE_OVERRIDE, '$1'), file);
+    } else if (
+      !sources.has(file) &&
+      (!MD.test(file) || pageFrameworks(readSrc(file)).includes(framework))
+    ) {
+      sources.set(file, file);
     }
-    sources.set(file, file);
-  }
-  for (const file of files) {
-    const match = file.match(OVERRIDE);
-    if (!match || match[1] !== framework) continue;
-    sources.set(file.replace(OVERRIDE, '$2'), file);
   }
   return sources;
 }
@@ -92,19 +75,18 @@ function docIds(framework) {
   const ids = new Set();
   for (const [out, src] of resolveSources(framework)) {
     if (!MD.test(out) || path.basename(out).startsWith('_')) continue;
-    const content = fs.readFileSync(path.join(SRC, src), 'utf8');
-    const fm = rewriteFrontMatter(content, framework);
-    const id = readFrontMatter(fm).match(/^id:\s*(\S+)\s*$/m);
-    const dir = path.dirname(out);
+    const id = frontMatter(readSrc(src)).match(/^id:\s*(\S+)\s*$/m);
     const name = id ? id[1] : path.basename(out).replace(MD, '');
-    ids.add(dir === '.' ? name : `${dir}/${name}`);
+    ids.add(path.posix.join(path.dirname(out), name));
   }
   return ids;
 }
 
 /** Write the mirror for a framework; only touches files whose output changed */
 function generate(framework) {
-  const outDir = outDirFor(framework);
+  // Sibling of docs/core so relative imports that leave the folder
+  // (e.g. ../../rest/diagrams/...) still resolve from the mirror
+  const outDir = path.resolve(__dirname, `../../docs/.core-${framework}`);
   const sources = resolveSources(framework);
   for (const [out, src] of sources) {
     const target = path.join(outDir, out);
@@ -136,7 +118,6 @@ function watch(framework) {
 /** Drop sidebar entries for docs that do not exist in this framework */
 function filterSidebar(items, ids) {
   return items.flatMap(item => {
-    if (typeof item === 'string') return ids.has(item) ? [item] : [];
     if (item.type === 'doc') return ids.has(item.id) ? [item] : [];
     if (item.type === 'category') {
       const children = filterSidebar(item.items, ids);
@@ -161,13 +142,4 @@ function sourcePath(framework, docPath) {
   return resolveSources(framework).get(docPath) ?? docPath;
 }
 
-module.exports = {
-  SRC,
-  FRAMEWORKS,
-  generate,
-  watch,
-  sidebarsFor,
-  sourcePath,
-  docIds,
-  rewriteFrontMatter,
-};
+module.exports = { generate, watch, sidebarsFor, sourcePath };

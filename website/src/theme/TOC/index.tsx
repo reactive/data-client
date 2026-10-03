@@ -11,7 +11,7 @@ import styles from './styles.module.css';
 
 type Props = WrapperProps<typeof TOCType>;
 
-// Separate component for the fixed selector to avoid any wrapper interference
+/** Framework selector pinned above the TOC once the breadcrumbs scroll away */
 function FixedFrameworkSelector() {
   const [showSelector, setShowSelector] = useState(false);
   const [selectorPosition, setSelectorPosition] = useState<{
@@ -33,7 +33,6 @@ function FixedFrameworkSelector() {
 
     if (!breadcrumbsWrapper || !tocElement) return;
 
-    // Update position based on TOC element (only needed on resize)
     const updatePosition = () => {
       const tocRect = tocElement.getBoundingClientRect();
       setSelectorPosition({
@@ -42,30 +41,13 @@ function FixedFrameworkSelector() {
       });
     };
 
-    // Use IntersectionObserver - much more efficient than scroll events
-    // Only fires when visibility state changes, not on every scroll frame
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        // Show selector when breadcrumbs are NOT intersecting (scrolled out of view)
-        const shouldShow = !entry.isIntersecting;
-        setShowSelector(shouldShow);
-        if (shouldShow) {
-          updatePosition();
-        }
-      },
-      {
-        // Trigger when element fully leaves the viewport (top edge)
-        threshold: 0,
-        rootMargin: '0px',
-      },
-    );
-
+    // Show once the breadcrumbs have scrolled out of view
+    const observer = new IntersectionObserver(([entry]) => {
+      setShowSelector(!entry.isIntersecting);
+      if (!entry.isIntersecting) updatePosition();
+    });
     observer.observe(breadcrumbsWrapper);
-
-    // Only need resize listener for position updates (not scroll)
     window.addEventListener('resize', updatePosition, { passive: true });
-
-    // Initial position calculation
     updatePosition();
 
     return () => {
@@ -76,7 +58,6 @@ function FixedFrameworkSelector() {
 
   if (!isDocsPage || !selectorPosition) return null;
 
-  // Use portal to render outside the TOC hierarchy
   return createPortal(
     <div
       className={`${styles.fixedSelector} ${showSelector ? styles.visible : ''}`}

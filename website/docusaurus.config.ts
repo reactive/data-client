@@ -203,7 +203,7 @@ const config: Config = {
         docs: {
           //id: 'core',
           path: '../docs/core',
-          exclude: ['getting-started/README.md', '**/*.vue.md', '**/*.vue.mdx'],
+          exclude: ['getting-started/README.md', '**/*.vue.{md,mdx}'],
           //routeBasePath: 'core',
           sidebarPath: require.resolve('./framework-docs/sidebars-react.js'),
           beforeDefaultRemarkPlugins: [
