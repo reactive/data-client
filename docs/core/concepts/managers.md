@@ -363,6 +363,8 @@ export default class StreamManager implements Manager {
   cleanup() {
     this.evtSource?.close();
     clearTimeout(this.flushTimeout);
+    this.flushTimeout = undefined;
+    this.buffer = {};
   }
 }
 ```

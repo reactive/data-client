@@ -181,6 +181,8 @@ export default class StreamManager implements Manager {
     this.evtSource.onclose = null;
     this.evtSource.close();
     clearTimeout(this.flushTimeout);
+    this.flushTimeout = undefined;
+    this.buffer = {};
   }
 
   getMiddleware() {
