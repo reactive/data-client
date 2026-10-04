@@ -48,17 +48,6 @@
       "*": [
         "lib/index.d.ts"
       ]
-    },
-    ">=3.4": {
-      "": [
-        "ts3.4/index.d.ts"
-      ],
-      "browser": [
-        "ts3.4/browser.d.ts"
-      ],
-      "*": [
-        "ts3.4/index.d.ts"
-      ]
     }
   },
   "exports": {
@@ -90,7 +79,6 @@
     "src",
     "dist",
     "lib",
-    "ts3.4",
     "node.mjs",
     "legacy",
     "native",
@@ -107,7 +95,6 @@
     "build:legacy:lib:cjs": "BABEL_MODULES=cjs BROWSERSLIST_ENV='2018' POLYFILL_TARGETS='chrome>80,safari>13,firefox>72' yarn g:babel-lite --out-dir legacy --extensions '.cts' && mv ./legacy/makeRenderDataClient/renderHook.js ./legacy/makeRenderDataClient/renderHook.cjs && mv ./legacy/makeRenderDataClient/use18.js ./legacy/makeRenderDataClient/use18.cjs && mv ./legacy/makeRenderDataClient/use18.native.js ./legacy/makeRenderDataClient/use18.native.cjs",
     "build:bundle": "BROWSERSLIST_ENV=node12 yarn g:rollup && COMPILE_TARGET=native BROWSERSLIST_ENV=hermes12 yarn g:rollup && echo '{\"type\":\"commonjs\"}' > dist/package.json",
     "build:clean": "yarn g:clean native",
-    "build:legacy-types": "yarn g:downtypes lib ts3.4",
     "build": "run build:lib && run build:legacy:lib && run build:native:esm && run build:bundle",
     "dev": "run build:lib:esm -w & run build:lib:cjs -w && fg",
     "prepare": "run build:lib",
