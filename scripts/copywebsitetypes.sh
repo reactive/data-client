@@ -21,8 +21,6 @@ cp ./node_modules/temporal-spec/index.d.ts ./website/src/components/Playground/e
 cp ./node_modules/bignumber.js/dist/bignumber.d.mts ./website/src/components/Playground/editor-types/bignumber.d.ts
 cp ./node_modules/@types/qs/index.d.ts ./website/src/components/Playground/editor-types/qs.d.ts
 cp ./node_modules/path-to-regexp/dist/index.d.ts ./website/src/components/Playground/editor-types/path-to-regexp.d.ts
-yarn run rollup --config ./scripts/rollup-plugins/uuid-types.rollup.config.js
-cp ./node_modules/@number-flow/react/dist/index.d.ts ./website/src/components/Playground/editor-types/@number-flow/react.d.ts
-yarn run rollup --config ./scripts/rollup-plugins/number-flow-types.rollup.config.js
+yarn run rollup --config ./scripts/rollup-plugins/editor-types.rollup.config.js
 rm ./website/src/components/Playground/editor-types/globals.d.ts
 yarn run rollup --config ./scripts/rollup-plugins/globals.rollup.config.js
