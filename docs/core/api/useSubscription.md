@@ -69,8 +69,8 @@ function MasterPrice({ symbol }: { symbol: string }) {
   import { getPrice } from 'api/Price';
 
   const props = defineProps<{ symbol: string }>();
-  const price = await useSuspense(getPrice, { symbol: props.symbol });
-  useSubscription(getPrice, { symbol: props.symbol });
+  const price = await useSuspense(getPrice, () => ({ symbol: props.symbol }));
+  useSubscription(getPrice, () => ({ symbol: props.symbol }));
   // ...
 </script>
 ```
@@ -176,7 +176,7 @@ function MasterPrice({ symbol }: { symbol: string }) {
   import { getPrice } from 'api/Price';
 
   const props = defineProps<{ symbol: string }>();
-  const price = await useSuspense(getPrice, { symbol: props.symbol });
+  const price = await useSuspense(getPrice, () => ({ symbol: props.symbol }));
   const el = useTemplateRef('el');
   const isVisible = useElementVisibility(el);
   // null params means don't subscribe

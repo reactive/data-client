@@ -365,7 +365,7 @@ export default function PostWithAuthor({ id }: { id: string }) {
     data: post,
     loading: postLoading,
     error: postError,
-  } = useDLE(PostResource.get, { id: props.id });
+  } = useDLE(PostResource.get, () => ({ id: props.id }));
   const {
     data: author,
     loading: authorLoading,
@@ -452,7 +452,7 @@ export default function ArticleList({ page }: { page: string }) {
   import { getPosts } from './api/Post';
 
   const props = defineProps<{ page: string }>();
-  const { data, loading, error } = useDLE(getPosts, { page: props.page });
+  const { data, loading, error } = useDLE(getPosts, () => ({ page: props.page }));
 </script>
 
 <template>

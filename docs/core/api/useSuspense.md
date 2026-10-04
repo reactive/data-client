@@ -390,11 +390,11 @@ function PostWithAuthor() {
   import { PostResource, UserResource } from './Resources';
 
   const props = defineProps<{ id: string }>();
-  const post = await useSuspense(PostResource.get, { id: props.id });
-  const author = await useSuspense(UserResource.get, {
+  const post = await useSuspense(PostResource.get, () => ({ id: props.id }));
+  const author = await useSuspense(UserResource.get, () => ({
   // highlight-next-line
     id: post.value.userId,
-  });
+  }));
 </script>
 ```
 
@@ -474,7 +474,7 @@ export default function PostWithAuthor({ id }: { id: string }) {
   import { PostResource, UserResource } from './Resources';
 
   const props = defineProps<{ id: string }>();
-  const post = await useSuspense(PostResource.get, { id: props.id });
+  const post = await useSuspense(PostResource.get, () => ({ id: props.id }));
   const author = await useSuspense(
     UserResource.get,
     computed(() =>
@@ -556,7 +556,7 @@ export default function ArticleList({ page }: { page: string }) {
   import { getPosts } from './api/Post';
 
   const props = defineProps<{ page: string }>();
-  const data = await useSuspense(getPosts, { page: props.page });
+  const data = await useSuspense(getPosts, () => ({ page: props.page }));
 </script>
 
 <template>

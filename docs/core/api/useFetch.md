@@ -131,15 +131,15 @@ render(<PostWithComments id={1} />);
   const props = defineProps<{ id: number }>();
 
   // Both fetches start in parallel
-  useFetch(PostResource.get, { id: props.id });
-  useFetch(CommentResource.getList, { postId: props.id });
+  useFetch(PostResource.get, () => ({ id: props.id }));
+  useFetch(CommentResource.getList, () => ({ postId: props.id }));
 
   // useSuspense() reads the results — the second fetch
   // is already in-flight while the first one is awaited
-  const post = await useSuspense(PostResource.get, { id: props.id });
-  const comments = await useSuspense(CommentResource.getList, {
+  const post = await useSuspense(PostResource.get, () => ({ id: props.id }));
+  const comments = await useSuspense(CommentResource.getList, () => ({
     postId: props.id,
-  });
+  }));
 </script>
 
 <template>
@@ -188,7 +188,7 @@ function MasterPost({ id }: { id: number }) {
   import { PostResource } from './Resources';
 
   const props = defineProps<{ id: number }>();
-  useFetch(PostResource.get, { id: props.id });
+  useFetch(PostResource.get, () => ({ id: props.id }));
   // ...
 </script>
 ```
@@ -320,7 +320,7 @@ function MasterPost({ id }: { id: number }) {
   import { PostResource } from './Resources';
 
   const props = defineProps<{ id: number }>();
-  const promise = useFetch(PostResource.get, { id: props.id });
+  const promise = useFetch(PostResource.get, () => ({ id: props.id }));
   if (promise.value && !promise.value.resolved) {
     // fetch is in-flight
   }
