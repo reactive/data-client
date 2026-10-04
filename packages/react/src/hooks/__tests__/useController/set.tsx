@@ -270,6 +270,7 @@ describe('set', () => {
     const titles = new schema.Query(all, articles =>
       articles.map(article => article.title),
     );
+    const titleCount = new schema.Query(titles, list => list.length);
     let promise: any;
     act(() => {
       promise = controller.set(list, [{ id: 5, title: 'listed' }]);
@@ -279,12 +280,18 @@ describe('set', () => {
       promise = controller.set(titles, [{ id: 6, title: 'queried' }]);
     });
     await act(() => promise);
+    act(() => {
+      promise = controller.set(titleCount, [{ id: 8, title: 'nested' }]);
+    });
+    await act(() => promise);
     const state = controller.getState();
     expect(controller.get(list, state)?.map(({ id }) => id)).toEqual([5]);
     expect(controller.get(titles, state)?.sort()).toEqual([
       'listed',
+      'nested',
       'queried',
     ]);
+    expect(controller.get(titleCount, state)).toBe(3);
 
     // type tests
     () => {
@@ -305,6 +312,8 @@ describe('set', () => {
       controller.set(list, () => 42);
       // @ts-expect-error Queries take their schema's input, not process() output
       controller.set(titles, ['listed']);
+      // @ts-expect-error nested Queries take the innermost schema's input
+      controller.set(titleCount, 3);
       // @ts-expect-error title is a string
       controller.set(CoolerArticle, { id: 5 }, { id: 5, title: false });
       // @ts-expect-error updaters must return the Entity's fields

@@ -386,6 +386,15 @@ takes the input of the schema it wraps, since `set()` normalizes that schema rat
 ctrl.set(TodoResource.getList.schema, [{ id: '5', completed: true }]);
 ```
 
+:::note Type checking limits
+
+To keep type checking fast for large [Unions](/rest/api/Union), a Union row is checked against the
+combined fields of all its members rather than against one member. Each field's type is still checked,
+but a row that mixes fields from different members (like `{ type: 'first', secondField: 1 }`) is not
+an error. Make sure the fields you set belong to the member the row's discriminator selects.
+
+:::
+
 Functions can be used in the value when derived data is used. This [prevents race conditions](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state).
 
 ```ts

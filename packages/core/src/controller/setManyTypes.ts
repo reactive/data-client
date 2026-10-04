@@ -85,13 +85,16 @@ export type SetManyValue<S> =
 
 /** Raw input `set()` normalizes for a Queryable */
 export type SetValue<S> =
-  InputSchema<S> extends infer N ?
+  InputSchema<InputSchema<InputSchema<S>>> extends infer N ?
     N extends EntityInterface ?
       SetRow<Denormalize<N>>
     : SetInput<Denormalize<N>>
   : never;
 
-/** Query normalizes with its inner schema; its process() output is not input */
+/** Query normalizes with its inner schema; its process() output is not input
+ *
+ * Applied three times in SetValue to unwrap nested Queries (TS 4.0 has no recursive aliases)
+ */
 type InputSchema<S> =
   S extends (
     {
