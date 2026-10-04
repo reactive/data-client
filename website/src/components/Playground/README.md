@@ -122,6 +122,10 @@ DesignSystem/       components injected into preview scope
   `fixtures`); `memo(Preview)` keeps it from re-rendering on code edits.
 - Store inspector open state persists per `groupId` via tab storage and
   avoids scroll jumps; in `row` layout it replaces the result while open.
+- `renderCount` wraps the live result in a `<Profiler>` and shows its commit
+  count in the preview header (written to the DOM, so counting adds no commits).
+  `website/profiling-plugin.js` aliases `react-dom/client` to React's profiling
+  build because production builds never call `onRender`.
 - Third-party console noise is demoted only while previews are mounted
   (`usePlaygroundConsoleDemotion`); never add first-party matchers.
 

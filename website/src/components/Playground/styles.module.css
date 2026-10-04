@@ -461,3 +461,19 @@ div.fixtureJson {
     border-top-right-radius: 0;
   }
 }
+
+/* Preview header badge (Playground `renderCount`) */
+.renderCount {
+  align-self: center;
+  margin-right: 0.75rem;
+  font: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+  font-weight: normal;
+  padding: 0 0.5em;
+  border: none;
+  border-radius: var(--ifm-global-radius);
+  background: var(--ifm-color-emphasis-300);
+  color: inherit;
+  cursor: pointer;
+}
