@@ -74,7 +74,8 @@ no text left for a framework (e.g. only `:react[...]`) is dropped from that fram
 ## How it works
 
 - `remarkFramework.js` keeps the matching `:::react`/`:::vue` content and drops the rest. Each docs
-  instance runs it with its own framework.
+  instance runs it with its own framework. It then drops imports nothing references anymore, so a
+  partial or component used only inside `:::react` isn't bundled into the Vue page.
 - Docusaurus can't point two docs instances at one folder, so `index.js` mirrors `docs/core` into
   `docs/.core-vue` (gitignored; a sibling so relative imports into `docs/rest` keep working), applying `.vue.md` overrides, `vue_` front matter and
   `frameworks:` filtering. It runs on config load and re-syncs on change during `yarn start`.
