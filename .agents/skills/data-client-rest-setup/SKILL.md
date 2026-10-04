@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # REST Protocol Setup & Migration
 
-This skill configures `@data-client/rest` for a project. It handles both fresh setup and migration from existing HTTP libraries. It should be applied after skill "data-client-setup" detects REST API patterns.
+This guide configures `@data-client/rest` for a project. It handles both fresh setup and migration from existing HTTP libraries. Use it once the Data Client provider is set up and the project calls REST APIs.
 
 **First, apply the skill "data-client-rest"** for accurate implementation patterns.
 

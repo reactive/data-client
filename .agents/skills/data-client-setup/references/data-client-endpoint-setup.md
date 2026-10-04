@@ -2,7 +2,7 @@
 
 # Custom Endpoint Setup
 
-This skill configures `@data-client/endpoint` for wrapping existing async functions. It should be applied after `data-client-setup` detects custom async patterns that aren't REST or GraphQL.
+This guide configures `@data-client/endpoint` for wrapping existing async functions. Use it once the Data Client provider is set up and the project has async operations that aren't REST or GraphQL.
 
 ## Installation
 

@@ -2,7 +2,7 @@
 
 # GraphQL Protocol Setup
 
-This skill configures `@data-client/graphql` for a project. It should be applied after `data-client-setup` detects GraphQL patterns.
+This guide configures `@data-client/graphql` for a project. Use it once the Data Client provider is set up and the project calls GraphQL APIs.
 
 ## Installation
 

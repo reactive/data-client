@@ -8,7 +8,7 @@
 npx jscodeshift -t <skill-root>/scripts/axios-to-rest.js --extensions=ts,tsx,js,jsx src/
 ```
 
-Resolve `<skill-root>` to the absolute path of this skill's directory (the parent of `scripts/`).
+Resolve `<skill-root>` to the absolute path of the directory containing this guide's `scripts/` folder.
 
 **What the codemod does:**
 - `import axios from 'axios'` → `import { RestEndpoint } from '@data-client/rest'`
