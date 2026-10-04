@@ -11,8 +11,10 @@ interface Props {
   skills?: string[];
   /** Skills for the OpenSkills tab when it should differ from `skills` (it has no picker groups) */
   openSkills?: string[];
-  /** Claude Code plugin ids (`plugin@marketplace`) from the repo's `.claude-plugin/marketplace.json`; adds a Claude Code tab */
+  /** Plugins (skill groups) from the repo's `.claude-plugin/marketplace.json`; adds a Claude Code tab */
   plugins?: string[];
+  /** `name` of the repo's `.claude-plugin/marketplace.json` */
+  marketplace?: string;
 }
 
 export default function SkillTabs({
@@ -22,6 +24,7 @@ export default function SkillTabs({
   skills,
   openSkills,
   plugins,
+  marketplace = 'data-client',
 }: Props) {
   const allSkills = skills ?? (skill ? [skill] : []);
   const skillFlag = allSkills.map(s => ` --skill ${s}`).join('');
@@ -37,7 +40,7 @@ export default function SkillTabs({
     plugins &&
     [
       `claude plugin marketplace add ${repo}`,
-      ...plugins.map(p => `claude plugin install ${p}`),
+      ...plugins.map(p => `claude plugin install ${p}@${marketplace}`),
     ].join('\n');
   return (
     <Tabs
@@ -54,6 +57,12 @@ export default function SkillTabs({
           npx skills add {repo}
           {skillFlag}
         </CodeBlock>
+        {plugins && (
+          <p>
+            Select the {plugins.map(toGroupTitle).join(' and ')} groups (space
+            toggles a whole group).
+          </p>
+        )}
       </TabItem>
       <TabItem value="openskills">
         <CodeBlock className="language-bash">{openSkillsCommand}</CodeBlock>
@@ -66,3 +75,10 @@ export default function SkillTabs({
     </Tabs>
   );
 }
+
+// how the skills CLI picker titles a plugin's group
+const toGroupTitle = (plugin: string) =>
+  plugin
+    .split('-')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
