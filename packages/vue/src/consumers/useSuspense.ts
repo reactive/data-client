@@ -128,6 +128,21 @@ export default async function useSuspense(
   // Trigger on initial call
   await maybeFetch();
 
+  // Keep returning the last resolved data while new args are loading,
+  // matching when React's useSuspense would suspend. Vue can't re-suspend after
+  // setup, so this avoids yielding `undefined` mid-transition.
+  let lastData: unknown;
+  const data = computed(() => {
+    const meta = responseMeta.value;
+    const loading =
+      !!argsKey.value &&
+      meta.expiryStatus !== ExpiryStatus.Valid &&
+      (meta.expiryStatus === ExpiryStatus.Invalid ||
+        Date.now() > meta.expiresAt);
+    if (loading) return lastData;
+    return (lastData = meta.data);
+  });
+
   // Return readonly computed ref - Vue automatically unwraps in templates and reactive contexts
-  return readonly(computed(() => responseMeta.value.data));
+  return readonly(data);
 }
