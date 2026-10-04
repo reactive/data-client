@@ -51,6 +51,5 @@ if (typeof window !== 'undefined' && !isMobileOrBot()) {
 
     addTypeLibs(monaco, await typeLibsPromise);
     monaco.typescript.typescriptDefaults.setEagerModelSync(true);
-    return monaco;
   });
 }

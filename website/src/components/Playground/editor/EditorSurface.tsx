@@ -134,10 +134,7 @@ function TextEditTab({
   // Never branch on navigator / user agent outside BrowserOnly.
   const staticView =
     hidden ? null : (
-      <StaticEditor
-        code={editorProps.code}
-        language={editorProps.language ?? 'tsx'}
-      />
+      <StaticEditor code={editorProps.code} language={editorProps.language} />
     );
 
   return (

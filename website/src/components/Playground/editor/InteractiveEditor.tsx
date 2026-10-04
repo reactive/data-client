@@ -28,7 +28,7 @@ export interface InteractiveEditorProps {
   autoFocus?: boolean;
   /** Whether this tab is visible; re-measures height when it becomes so */
   isFocused?: boolean;
-  language?: string;
+  language: string;
   readOnly?: boolean;
 }
 
@@ -45,7 +45,7 @@ function InteractiveEditor({
   highlights,
   autoFocus = false,
   isFocused = false,
-  language = 'tsx',
+  language,
   readOnly = false,
 }: InteractiveEditorProps) {
   const editorOptions = useMemo(() => ({ ...options, readOnly }), [readOnly]);

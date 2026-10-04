@@ -31,6 +31,9 @@ describe('model paths', () => {
         '/node_modules/react/index.d.ts',
       ]),
     ).toEqual(['/api.ts']);
+    expect(siblingFilePaths('/plain.ts', ['/plain.ts', '/other.ts'])).toEqual(
+      [],
+    );
   });
 
   test('useModelId is numeric and stable across renders', () => {
