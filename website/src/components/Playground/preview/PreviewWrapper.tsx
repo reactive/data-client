@@ -1,8 +1,8 @@
 import Translate from '@docusaurus/Translate';
 import React from 'react';
 
-import Header from './Header';
-import styles from './styles.module.css';
+import Header from '../Header';
+import styles from '../styles.module.css';
 
 export default function PreviewWrapper({ children }: Props) {
   return (
