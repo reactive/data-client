@@ -107,3 +107,21 @@ if (process.argv.includes('--check')) {
   }
   console.log(`Updated ${changes.length} skill reference files.`);
 }
+
+// SKILL.md links to references that no longer exist (renamed or removed docs)
+const deadLinks = fs.readdirSync(SKILLS).flatMap(skill => {
+  const skillMd = path.join(SKILLS, skill, 'SKILL.md');
+  if (!fs.existsSync(skillMd)) return [];
+  return [
+    ...fs.readFileSync(skillMd, 'utf8').matchAll(/\]\((references\/[^)#\s]+)/g),
+  ]
+    .map(([, link]) => link)
+    .filter(link => !fs.existsSync(path.join(SKILLS, skill, link)))
+    .map(link => `${rel(skillMd)} -> ${link}`);
+});
+if (deadLinks.length) {
+  console.error(
+    `Skills link to missing references:\n  ${deadLinks.join('\n  ')}\nUpdate the link or the skill's ${MANIFEST}.`,
+  );
+  process.exit(1);
+}

@@ -90,7 +90,9 @@ content resolved the same way (`remarkFramework.js`, front matter and `.vue.md` 
 reduced to their code. The
 first framework in `frameworks` writes `<name>.md`; later ones write `<name>.<framework>.md` only when
 the page differs. Output is committed because skills install straight from the repo; the `skills`
-workflow runs `yarn build:skills --check`.
+workflow runs `yarn build:skills --check`, which also fails when a `SKILL.md` links to a
+`references/` file that no longer exists. See `.cursor/rules/skills-sync.mdc` for what to update
+when docs are added, renamed or deleted.
 
 Partials can use `props` in `{...}` expressions; the generator evaluates them with the props passed
 where the partial is used. JSX inside an expression is only supported for `<CodeBlock>`; anything
