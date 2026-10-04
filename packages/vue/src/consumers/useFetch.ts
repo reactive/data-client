@@ -14,6 +14,7 @@ import type {
   MaybeRefsOrGetters,
   MaybeRefsOrGettersNullable,
 } from '../types.js';
+import refetchTriggers from './refetchTriggers.js';
 
 type FetchPromise<T = any> = Promise<T> & { resolved: boolean };
 
@@ -124,20 +125,9 @@ export default function useFetch(
   maybeFetch();
 
   // Also watch for store changes that might require refetch (e.g., invalidation)
-  watch(
-    () => {
-      const m = responseMeta.value;
-      return [
-        m.expiresAt,
-        m.expiryStatus,
-        stateRef.value.lastReset,
-        argsKey.value,
-      ];
-    },
-    () => {
-      maybeFetch();
-    },
-  );
+  watch(refetchTriggers(responseMeta, stateRef, argsKey), () => {
+    maybeFetch();
+  });
 
   return lastPromise;
 }
