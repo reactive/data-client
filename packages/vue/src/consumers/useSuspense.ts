@@ -10,7 +10,6 @@ import type {
 import {
   computed,
   customRef,
-  unref,
   watch,
   readonly,
   shallowRef,
@@ -18,12 +17,12 @@ import {
   type ComputedRef,
 } from 'vue';
 
-import { useController, injectState } from '../context.js';
 import type {
   MaybeRefsOrGetters,
   MaybeRefsOrGettersNullable,
 } from '../types.js';
 import refetchTriggers from './refetchTriggers.js';
+import useResponseMeta from './useResponseMeta.js';
 
 /**
  * Ensure an endpoint is available.
@@ -73,25 +72,8 @@ export default async function useSuspense(
   endpoint: any,
   ...args: any[]
 ): Promise<any> {
-  const stateRef = injectState();
-  const controller = useController();
-
-  // Track top-level reactive args (Refs are unwrapped). This allows props/refs to trigger updates.
-  const resolvedArgs = computed(() => args.map(a => unref(a as any)) as any);
-
-  // Compute a key that changes when args change (including reactive props)
-  const argsKey = computed(() =>
-    resolvedArgs.value[0] !== null ? endpoint.key(...resolvedArgs.value) : '',
-  );
-
-  // Compute response meta reactively so we can respond to store updates
-  const responseMeta = computed(() => {
-    return controller.getResponseMeta(
-      endpoint,
-      ...resolvedArgs.value,
-      stateRef.value,
-    );
-  });
+  const { controller, stateRef, resolvedArgs, argsKey, responseMeta } =
+    useResponseMeta(endpoint, args);
 
   // key of the fetch in flight; staleness alone isn't reactive (time passes without a
   // refetch), so only hold previous data while a fetch is actually running
@@ -115,16 +97,6 @@ export default async function useSuspense(
     // errors are stored and surfaced through the returned ref
     maybeFetch().catch(() => {});
   });
-
-  // Maintain GC refcounts on data mount/changes
-  watch(
-    () => responseMeta.value.data,
-    (_newVal, _oldVal, onCleanup) => {
-      const decrement = responseMeta.value.countRef();
-      onCleanup(() => decrement?.());
-    },
-    { immediate: true },
-  );
 
   // Trigger on initial call
   await maybeFetch();
