@@ -78,6 +78,9 @@ no text left for a framework (e.g. only `:react[...]`) is dropped from that fram
 - Docusaurus can't point two docs instances at one folder, so `index.js` mirrors `docs/core` into
   `docs/.core-vue` (gitignored; a sibling so relative imports into `docs/rest` keep working), applying `.vue.md` overrides, `vue_` front matter and
   `frameworks:` filtering. It runs on config load and re-syncs on change during `yarn start`.
+- `docsInstances.js` lists every docs instance (id, source folder, route, `llms.txt` path).
+  `docusaurus.config.ts`, `docsToMarkdown.mjs` and `llms-plugin.js` all read it, so a new
+  framework or docs folder is added there once.
 - `FrameworkSelector` (in the breadcrumbs) switches to the same page in the other docs instance,
   and disables a framework when the page doesn't exist there.
 

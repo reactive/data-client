@@ -13,8 +13,11 @@
 const fs = require('fs');
 const path = require('path');
 
-/** docs/core, which every framework's docs instance renders (Vue via a mirror) */
-const CORE = path.resolve(__dirname, '../docs/core');
+const { DOCS_INSTANCES } = require('./framework-docs/docsInstances.js');
+
+const ROOT = path.resolve(__dirname, '..');
+const frameworks = DOCS_INSTANCES.filter(d => d.framework);
+const shared = DOCS_INSTANCES.filter(d => !d.framework);
 
 /** Route without trailing slash (`/docs/` -> `/docs`) */
 const trim = route => route.replace(/(.)\/$/, '$1');
@@ -47,13 +50,8 @@ function sections(version, title) {
   return [...byLabel].map(([label, docs]) => ({ label, docs }));
 }
 
-/**
- * @param {object} options
- * @param {Record<string, { id: string, path: string, name: string }>} options.frameworks
- *   framework -> its docs instance id, site path, and display name
- * @param {Record<string, string>} options.shared docs instance id -> title, for docs every framework includes
- */
-module.exports = function llmsPlugin(context, { frameworks, shared }) {
+/** Docs instances come from framework-docs/docsInstances.js */
+module.exports = function llmsPlugin(context) {
   return {
     name: 'llms-plugin',
     async postBuild({ outDir, plugins, siteConfig: { url } }) {
@@ -62,13 +60,13 @@ module.exports = function llmsPlugin(context, { frameworks, shared }) {
 
       // docs instance -> what to render it as
       const sets = new Map([
-        ...Object.entries(frameworks).map(([framework, { id }]) => [
+        ...frameworks.map(({ id, framework, path: source }) => [
           id,
-          { framework, title: 'Core', core: true },
+          { framework, title: 'Core', source: path.resolve(ROOT, source) },
         ]),
-        ...Object.entries(shared).map(([id, title]) => [
+        ...shared.map(({ id, name }) => [
           id,
-          { framework: 'react', title },
+          { framework: 'react', title: name },
         ]),
       ]);
       for (const [id, set] of sets) {
@@ -114,8 +112,8 @@ module.exports = function llmsPlugin(context, { frameworks, shared }) {
             // the Vue mirror has the same layout as docs/core; docToMarkdown
             // applies `.vue.md` overrides and front matter itself
             const file =
-              set.core ?
-                path.join(CORE, path.relative(set.dir, source))
+              set.source ?
+                path.join(set.source, path.relative(set.dir, source))
               : source;
             const content = docToMarkdown(file, set.framework, {
               resolveRoute,
@@ -137,20 +135,20 @@ module.exports = function llmsPlugin(context, { frameworks, shared }) {
         }
       }
 
-      for (const [framework, site] of Object.entries(frameworks)) {
-        const others = Object.entries(frameworks)
-          .filter(([other]) => other !== framework)
-          .map(([, o]) => `Using ${o.name}? See ${url}${o.path}llms.txt`);
+      for (const site of frameworks) {
+        const others = frameworks
+          .filter(other => other !== site)
+          .map(o => `Using ${o.name}? See ${url}${o.llms}llms.txt`);
         const header = [
           `# Data Client for ${site.name}`,
           `> Reactive Data Client: async state management for ${site.name} with normalized, type-safe data from REST, GraphQL, and any other source.`,
           [
-            `Packages: @data-client/${framework}, @data-client/rest, @data-client/graphql.`,
+            `Packages: @data-client/${site.framework}, @data-client/rest, @data-client/graphql.`,
             ...others,
           ].join(' '),
         ].join('\n\n');
-        const all = [site.id, ...Object.keys(shared)].flatMap(
-          id => sets.get(id).sections,
+        const all = [site, ...shared].flatMap(
+          ({ id }) => sets.get(id).sections,
         );
 
         const index = all.map(
@@ -162,12 +160,12 @@ module.exports = function llmsPlugin(context, { frameworks, shared }) {
               )
               .join('\n')}\n`,
         );
-        write(`${site.path}llms.txt`, [`${header}\n`, ...index].join('\n'));
+        write(`${site.llms}llms.txt`, [`${header}\n`, ...index].join('\n'));
 
         const full = all
           .flatMap(s => s.docs)
           .map(d => `<!-- Source: ${url}${d.md} -->\n\n${d.content.trim()}\n`);
-        write(`${site.path}llms-full.txt`, [`${header}\n`, ...full].join('\n'));
+        write(`${site.llms}llms-full.txt`, [`${header}\n`, ...full].join('\n'));
       }
     },
   };

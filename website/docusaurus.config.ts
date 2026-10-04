@@ -18,10 +18,17 @@ require('./scripts/generateMonacoPreloads.cjs').ensureMonacoPreloadManifest();
 const isDev = process.env.NODE_ENV === 'development';
 
 // docs/core is shared by React (/docs) and Vue (/vue); see framework-docs/
+const { docsInstance } = require('./framework-docs/docsInstances.js');
 const frameworkDocs = require('./framework-docs/index.js');
 const remarkFramework = require('./framework-docs/remarkFramework.js');
 const vueDocs = frameworkDocs.generate('vue');
 if (isDev) frameworkDocs.watch('vue');
+const vueInstance = docsInstance('vue');
+/** Plugin options locating a docs instance (framework-docs/docsInstances.js) */
+const docsLocation = (id: string) => {
+  const { path: docsPath, routeBasePath } = docsInstance(id);
+  return { path: `../${docsPath}`, routeBasePath };
+};
 
 const config: Config = {
   title: 'Data Client',
@@ -202,15 +209,13 @@ const config: Config = {
       '@docusaurus/preset-classic',
       {
         docs: {
-          //id: 'core',
-          path: '../docs/core',
+          ...docsLocation('default'),
           // `exclude` replaces Docusaurus' defaults; keep them so `_` partials aren't published
           exclude: [
             ...GlobExcludeDefault,
             'getting-started/README.md',
             '**/*.vue.{md,mdx}',
           ],
-          //routeBasePath: 'core',
           sidebarPath: require.resolve('./framework-docs/sidebars-react.js'),
           beforeDefaultRemarkPlugins: [
             [remarkFramework, { framework: 'react' }],
@@ -262,17 +267,17 @@ const config: Config = {
     [
       '@docusaurus/plugin-content-docs',
       {
-        id: 'vue',
+        id: vueInstance.id,
         path: vueDocs.outDir,
         exclude: [...GlobExcludeDefault, 'getting-started/README.md'],
-        routeBasePath: 'vue',
+        routeBasePath: vueInstance.routeBasePath,
         sidebarPath: require.resolve('./framework-docs/sidebars-vue.js'),
         beforeDefaultRemarkPlugins: [
           [
             remarkFramework,
             {
               framework: 'vue',
-              routeBasePath: 'vue',
+              routeBasePath: vueInstance.routeBasePath,
               docIds: frameworkDocs.docIds('vue'),
             },
           ],
@@ -288,8 +293,7 @@ const config: Config = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'rest',
-        path: '../docs/rest',
-        routeBasePath: 'rest',
+        ...docsLocation('rest'),
         sidebarPath: require.resolve('./sidebars-rest.js'),
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
@@ -316,8 +320,7 @@ const config: Config = {
       '@docusaurus/plugin-content-docs',
       {
         id: 'graphql',
-        path: '../docs/graphql',
-        routeBasePath: 'graphql',
+        ...docsLocation('graphql'),
         sidebarPath: require.resolve('./sidebars-graphql.js'),
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
@@ -413,16 +416,7 @@ const config: Config = {
     path.resolve(__dirname, './node-plugin'),
     path.resolve(__dirname, './profiling-plugin'),
     path.resolve(__dirname, './raw-plugin'),
-    [
-      path.resolve(__dirname, './llms-plugin'),
-      {
-        frameworks: {
-          react: { id: 'default', path: '/', name: 'React' },
-          vue: { id: 'vue', path: '/vue/', name: 'Vue' },
-        },
-        shared: { rest: 'REST', graphql: 'GraphQL' },
-      },
-    ],
+    path.resolve(__dirname, './llms-plugin'),
   ],
   themeConfig: {
     mermaid: {
