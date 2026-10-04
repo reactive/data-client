@@ -76,7 +76,7 @@ type PathTokenSlow<K extends string> =
   K extends `${infer H}${PathDelimiter}${string}` ? PathToken<H> : K;
 
 export type KeysToArgs<Key extends string> = OptionalArgs<Key> &
-  (Exclude<Key, `${string}}`> extends never ? unknown : RequiredArgs<Key>);
+  (RequiredPathKeys<Key> extends never ? unknown : RequiredArgs<Key>);
 
 /** Wide keys (`string`, template patterns) keep the original key-remapping
  * form so index signatures (and their `keyof`) stay exactly the same. */
@@ -94,16 +94,17 @@ type HasWideKey<Key extends string> =
 // Literal keys: mapped over the computed names without an `as` clause.
 // `as` clauses get re-instantiated every time TypeScript asks whether the
 // mapped type is generic (on every relation check of hook/fetch params).
-// Each value is the KeyVal of the key(s) named N.
+// Each value is the KeyVal of the key(s) named N (inlined so errors show the
+// resolved type rather than an alias).
 type OptionalArgs<Key extends string> =
   HasWideKey<Key> extends true ?
     { [K in Key as K extends `${string}}` ? KeyName<K> : never]?: KeyVal<K> }
   : {
-      [N in KeyName<OptionalKeys<Key>>]?:
-        | (N extends KeyName<Extract<OptionalKeys<Key>, `*${string}`>> ?
+      [N in KeyName<OptionalPathKeys<Key>>]?:
+        | (N extends KeyName<Extract<OptionalPathKeys<Key>, `*${string}`>> ?
             string[]
           : never)
-        | (N extends KeyName<Exclude<OptionalKeys<Key>, `*${string}`>> ?
+        | (N extends KeyName<Exclude<OptionalPathKeys<Key>, `*${string}`>> ?
             string | number
           : never);
     };
@@ -112,17 +113,17 @@ type RequiredArgs<Key extends string> =
   HasWideKey<Key> extends true ?
     { [K in Key as K extends `${string}}` ? never : KeyName<K>]: KeyVal<K> }
   : {
-      [N in KeyName<RequiredKeys<Key>>]:
-        | (N extends KeyName<Extract<RequiredKeys<Key>, `*${string}`>> ?
+      [N in KeyName<RequiredPathKeys<Key>>]:
+        | (N extends KeyName<Extract<RequiredPathKeys<Key>, `*${string}`>> ?
             string[]
           : never)
-        | (N extends KeyName<Exclude<RequiredKeys<Key>, `*${string}`>> ?
+        | (N extends KeyName<Exclude<RequiredPathKeys<Key>, `*${string}`>> ?
             string | number
           : never);
     };
 
-type OptionalKeys<Key extends string> = Key extends `${string}}` ? Key : never;
-type RequiredKeys<Key extends string> = Key extends `${string}}` ? never : Key;
+type OptionalPathKeys<Key extends string> = Extract<Key, `${string}}`>;
+type RequiredPathKeys<Key extends string> = Exclude<Key, `${string}}`>;
 
 export type PathArgsAndSearch<S extends string> =
   unknown extends S ? any

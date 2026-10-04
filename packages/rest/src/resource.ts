@@ -81,9 +81,10 @@ This warning will not show in production.`,
   // Loosely typed: the public signature infers O from the naked `O` position,
   // so spreading the generic rest into `new Endpoint()` would otherwise leave
   // ContentSchemaGuard<O> as an unresolvable (deferred) conditional.
+  // Retype this if a future TypeScript resolves that conditional here.
   const extraBaseOptions: Record<string, any> = extraOptions;
-  const extraMutateOptions: Record<string, any> = { ...extraOptions };
-  const extraPartialOptions: Record<string, any> = { ...extraOptions };
+  const extraMutateOptions = { ...extraBaseOptions };
+  const extraPartialOptions = { ...extraBaseOptions };
   const get: GetEndpoint<{ path: O['path']; schema: O['schema'] }> =
     new Endpoint({
       ...extraBaseOptions,
@@ -92,9 +93,9 @@ This warning will not show in production.`,
       name: getName('get'),
     }) as any;
   if (optimistic) {
-    (extraMutateOptions as any).getOptimisticResponse = optimisticUpdate;
+    extraMutateOptions.getOptimisticResponse = optimisticUpdate;
     // TODO: Check that schema is a queryable, otherwise this doesn't make sense
-    (extraPartialOptions as any).getOptimisticResponse = optimisticPartial(
+    extraPartialOptions.getOptimisticResponse = optimisticPartial(
       schema as any,
     );
   }

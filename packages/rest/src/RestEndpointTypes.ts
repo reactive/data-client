@@ -32,19 +32,17 @@ type ContentSchemaGuard<O> =
     { schema?: undefined }
   : {};
 
-/** Generic `this: E` methods live in non-generic mixin interfaces.
- *
- * TypeScript re-instantiates every member of a generic interface (with fresh
- * signature type parameters) for each distinct instantiation. Keeping these
- * methods free of F/S/M/O (we read `E['fetch']` instead of `F`) in a
- * non-generic interface means one shared signature across all endpoints,
- * and identical members when comparing one RestInstanceBase to another.
+/* Generic `this: E` methods (extend, paginated) live in non-generic mixin
+ * interfaces. TypeScript re-instantiates every member of a generic interface
+ * (with fresh signature type parameters) for each distinct instantiation;
+ * here the signatures are shared across all endpoints, and compare as
+ * identical when relating one RestInstanceBase to another. extend() reads
+ * `E['fetch']` instead of `F` so it doesn't depend on the outer generics.
  */
 interface RestInstanceExtenders {
-  // TODO: figure out better way than wrapping whole options in Readonly<> + making O extend from {}
-  //       this is just a hack to handle when no members of PartialRestGenerics are present
-  //       Note: Using overloading (like paginated did) struggles because typescript does not have a clear way of distinguishing one
-  //       should be used from the other (due to same problem with every member being partial)
+  // TODO: `ExtendOptions extends PartialRestGenerics | {}` is a hack for options with no
+  //       PartialRestGenerics members. Overloads (like paginated) can't tell the cases apart
+  //       since every member is optional.
   /** Creates a child endpoint that inherits from this while overriding provided `options`.
    * @see https://dataclient.io/rest/api/RestEndpoint#extend
    */
@@ -277,6 +275,8 @@ export type RestEndpointExtendOptions<
 > &
   // Same as Partial<Omit<E, ExtendOmitKeys>>, but skips the per-key Exclude<> work
   // (and the double mapped type) when E has no members beyond the standard ones.
+  // Keep the guard inside the mapped type's keys: a `? unknown : ...` conditional
+  // here would be deferred and break ExtendOptions inference on chained extend().
   PartialPick<
     E,
     keyof E extends ExtendOmitKeys ? never : Exclude<keyof E, ExtendOmitKeys>
