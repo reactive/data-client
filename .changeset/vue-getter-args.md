@@ -13,5 +13,7 @@ const props = defineProps<{ id: number }>();
 
 // Before: getter was passed to the endpoint as-is
 // After: re-fetches when props.id changes
-const article = await useSuspense(ArticleResource.get, () => ({ id: props.id }));
+const article = await useSuspense(ArticleResource.get, () => ({
+  id: props.id,
+}));
 ```
