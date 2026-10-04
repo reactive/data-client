@@ -142,25 +142,38 @@ export default async function useSuspense(
 
   // While a fetch for new args is in flight (when React's useSuspense would suspend),
   // keep returning the last resolved data. Vue can't re-suspend after setup, so this
-  // avoids yielding `undefined` mid-transition.
+  // avoids yielding `undefined` mid-transition. Refetches of the same key still show
+  // current store data when there is any.
   let lastData: unknown;
-  const result = computed((): { data?: unknown; error?: unknown } => {
+  let lastKey = '';
+  // keep the same object when nothing changed, so readers only re-run on real changes
+  let lastResult: { data?: unknown; error?: unknown } = {};
+  const settle = (data: unknown, error?: unknown) =>
+    lastResult.data === data && lastResult.error === error ?
+      lastResult
+    : (lastResult = { data, error });
+  const result = computed(() => {
     const meta = responseMeta.value;
+    const key = argsKey.value;
+    // INVALID symbol (e.g. deleted entity) means no usable data
+    const metaData = typeof meta.data === 'symbol' ? undefined : meta.data;
     const loading =
-      !!argsKey.value &&
-      fetchingKey.value === argsKey.value &&
+      !!key &&
+      fetchingKey.value === key &&
+      (lastKey !== key || metaData === undefined) &&
       meta.expiryStatus !== ExpiryStatus.Valid &&
       (meta.expiryStatus === ExpiryStatus.Invalid ||
         Date.now() > meta.expiresAt);
-    if (loading) return { data: lastData };
+    if (loading) return settle(lastData);
     // surface fetch errors for the current args like React's useSuspense does
     const error = controller.getError(
       endpoint,
       ...resolvedArgs.value,
       stateRef.value,
     );
-    if (error) return { error };
-    return { data: (lastData = meta.data) };
+    if (error) return settle(undefined, error);
+    lastKey = key;
+    return settle((lastData = metaData));
   });
 
   // Throw on every read; a computed that throws would return its cached value on the next read
