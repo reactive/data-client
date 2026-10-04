@@ -15,5 +15,3 @@ const props = defineProps<{ id: number }>();
 // After: re-fetches when props.id changes
 const article = await useSuspense(ArticleResource.get, () => ({ id: props.id }));
 ```
-
-Requires Vue 3.3 or later. The `vue` peer dependency is now `^3.3.0`, matching what the TypeScript types already required.

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation } from '@docusaurus/router';
+import { useActivePlugin } from '@docusaurus/plugin-content-docs/client';
 
 import DocBreadcrumbs from '@theme-original/DocBreadcrumbs';
 import type DocBreadcrumbsType from '@theme/DocBreadcrumbs';
@@ -11,9 +11,10 @@ import styles from './styles.module.css';
 type Props = WrapperProps<typeof DocBreadcrumbsType>;
 
 export default function DocBreadcrumbsWrapper(props: Props): React.JSX.Element {
-  const { pathname } = useLocation();
-  // Only /docs pages have a framework (not /rest or /graphql)
-  if (!pathname.startsWith('/docs')) return <DocBreadcrumbs {...props} />;
+  const pluginId = useActivePlugin()?.pluginId;
+  // Only framework docs have a selector (not /rest or /graphql)
+  if (pluginId !== 'default' && pluginId !== 'vue')
+    return <DocBreadcrumbs {...props} />;
 
   return (
     <div className={styles.wrapper}>
