@@ -234,19 +234,13 @@ export default class Controller<
   ): Promise<void>;
 
   /**
-   * Sets every item of an Array schema like `[Entity]` in one normalize.
-   * @see https://dataclient.io/docs/api/Controller#set
+   * Sets every row of an Array or Values of one Entity (or Union) in one normalize.
+   * @see https://dataclient.io/docs/api/Controller#set-array
    */
-  set<
-    S extends
-      | Schema[]
-      | {
-          normalize(...args: any): any[];
-          queryKey(...args: any): undefined;
-          // excludes Entity, whose `any` returns match the members above
-          pk?: never;
-        },
-  >(schema: S, value: readonly {}[]): Promise<void>;
+  set<S extends SetManySchema>(
+    schema: S,
+    value: SetManyValue<S>,
+  ): Promise<void>;
 
   set<S extends Queryable>(
     schema: S,
@@ -838,3 +832,78 @@ function extractStateAndArgs(rest: readonly unknown[]): [State<any>, any[]] {
   // this is typescript generics breaking
   return [rest[l - 1] as State<any>, args];
 }
+
+/** Matches Entity classes (same members Denormalize<> checks) */
+interface EntityLike {
+  createIfValid(...args: any): any;
+  pk(...args: any): any;
+  readonly key: string;
+  prototype: any;
+}
+
+/** Entity-like schemas whose rows each normalize to one stored entity */
+type SetEntitySchema =
+  | EntityLike
+  // Union
+  | {
+      readonly schema: { readonly [k: string]: EntityLike };
+      queryKey(...args: any): { schema: string };
+      pk?: never;
+    };
+
+/** `[Entity]`, `schema.Array(Entity)` or `schema.Values(Entity)` (or of a Union) */
+type SetManySchema =
+  | readonly SetEntitySchema[]
+  | {
+      readonly schema: SetEntitySchema | { readonly [k: string]: EntityLike };
+      schemaKey(): string;
+      denormalize(...args: any): readonly any[] | { readonly [k: string]: any };
+      queryKey(...args: any): undefined;
+      // excludes Entity, whose `any` returns match the members above
+      pk?: never;
+    };
+
+type IsUnion<T, U = T> =
+  T extends unknown ?
+    [U] extends [T] ?
+      false
+    : true
+  : never;
+
+type FunctionKeys<U> = {
+  [K in keyof U]: U[K] extends (...args: any) => any ? K : never;
+}[keyof U];
+
+/** Raw input for one field: numbers and strings coerce; objects are pre-normalize */
+type SetField<T> =
+  T extends number ? T | string
+  : T extends string ? T | number
+  : T extends boolean | null | undefined ? T
+  : unknown;
+
+/** Fields of one row */
+type SetRow<U> =
+  // EntityMixin and other untyped entities
+  0 extends 1 & U ? { readonly [k: string]: any }
+  : U extends unknown ?
+    { readonly [K in Exclude<keyof U, FunctionKeys<U>>]?: SetField<U[K]> }
+  : never;
+
+/** Polymorphic rows may carry a discriminator that is not an Entity field */
+type SetRowOf<Sch, U> =
+  Sch extends EntityLike ? SetRow<U>
+  : SetRow<U> & { readonly [k: string]: unknown };
+
+type SetManyValue<S> =
+  S extends readonly (infer E)[] ?
+    true extends IsUnion<E> ?
+      readonly { 'Use a Union schema for several Entity types': never }[]
+    : readonly SetRowOf<E, Denormalize<E>>[]
+  : S extends (
+    { readonly schema: infer Sch; denormalize(...args: any): infer R }
+  ) ?
+    R extends readonly (infer U)[] ? readonly SetRowOf<Sch, U>[]
+    : R extends { readonly [k: string]: infer U } ?
+      { readonly [k: string]: SetRowOf<Sch, U> }
+    : never
+  : never;
