@@ -33,15 +33,12 @@ export default [
     rules: {
       'no-restricted-syntax': [
         'error',
-        ...[
-          'TSDeclareFunction + FunctionDeclaration',
-          'ExportNamedDeclaration:has(> TSDeclareFunction) + ExportNamedDeclaration > FunctionDeclaration',
-          'ExportDefaultDeclaration:has(> TSDeclareFunction) + ExportDefaultDeclaration > FunctionDeclaration',
-        ].map(impl => ({
-          selector: `${impl} > TSTypeAnnotation :matches(TSAnyKeyword, TSTypeReference[typeName.name='Promise'] > TSTypeParameterInstantiation > TSAnyKeyword)`,
+        {
+          selector:
+            ':matches(TSDeclareFunction + FunctionDeclaration, ExportNamedDeclaration:has(> TSDeclareFunction) + ExportNamedDeclaration > FunctionDeclaration, ExportDefaultDeclaration:has(> TSDeclareFunction) + ExportDefaultDeclaration > FunctionDeclaration, MethodDefinition:has(> TSEmptyBodyFunctionExpression) + MethodDefinition > FunctionExpression) > TSTypeAnnotation TSAnyKeyword',
           message:
             'Overload implementation signatures must not return `any`; it hides mismatches between the overloads and the body. Use the real return type (with `unknown` inner values).',
-        })),
+        },
       ],
     },
   },
