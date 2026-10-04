@@ -263,11 +263,13 @@ describe('DataClientPlugin', () => {
     const provider = DataClientPlugin.install(app);
     const stopSpy = jest.spyOn(provider, 'stop');
 
-    app.mount(document.createElement('div'));
+    const el = document.createElement('div');
+    app.mount(el);
     expect(stopSpy).not.toHaveBeenCalled();
 
     app.unmount();
     expect(stopSpy).toHaveBeenCalledTimes(1);
+    expect(el.innerHTML).toBe('');
   });
 
   it('should work with multiple components', () => {

@@ -46,8 +46,11 @@ export const DataClientPlugin = {
     } else {
       const unmount = app.unmount;
       app.unmount = function (this: App) {
-        stop();
-        return unmount.call(this);
+        try {
+          stop();
+        } finally {
+          unmount.call(this);
+        }
       };
     }
 
