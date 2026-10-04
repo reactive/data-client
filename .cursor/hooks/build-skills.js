@@ -15,7 +15,13 @@ try {
   process.exit(0);
 }
 const command = payload.command ?? payload.tool_input?.command ?? '';
-if (!/\bgit\b[^;&|\n]*\bpush\b/.test(command)) process.exit(0);
+// `git push`, `git -C dir push`; not `git stash push` or `git config push.x`
+if (
+  !/\bgit(?:\s+-C\s+\S+|\s+-c\s+\S+|\s+--?[\w-]+(?:=\S+)?)*\s+push\b/.test(
+    command,
+  )
+)
+  process.exit(0);
 
 const projectDir =
   process.env.CURSOR_PROJECT_DIR ||
@@ -51,11 +57,17 @@ const isInput = file =>
   /^\.agents\/skills\/[^/]+\/(references\.json|SKILL\.md)$/.test(file) ||
   file.startsWith('website/framework-docs/');
 
-// files the branch changes relative to master
+// files the branch changes relative to master, plus uncommitted ones when
+// the same command commits before pushing (`git commit -am x && git push`)
 let changed;
 try {
   const base = git('merge-base', 'HEAD', 'origin/master');
   changed = git('diff', '--name-only', base, 'HEAD').split('\n');
+  if (/\bgit\b[^;&|\n]*\bcommit\b/.test(command))
+    changed.push(
+      ...git('diff', '--name-only', 'HEAD').split('\n'),
+      ...git('ls-files', '--others', '--exclude-standard').split('\n'),
+    );
 } catch {
   process.exit(0);
 }
