@@ -83,11 +83,15 @@ export default function useCache(endpoint: any, ...args: any[]): any {
   // It only changes the value when expiry or params change.
   // This way, random unrelated re-renders don't cause the concept of expiry
   // to change
+  // Read narrow computeds (not responseMeta) so unrelated store updates
+  // don't re-evaluate Date.now(). All are read up front so each is tracked.
+  const expiresAt = computed(() => responseMeta.value.expiresAt);
+  const lastReset = computed(() => stateRef.value.lastReset);
   const expired = computed(() => {
-    return (
-      (Date.now() > responseMeta.value.expiresAt || forceFetch.value) &&
-      argsKey.value
-    );
+    const key = argsKey.value;
+    const force = forceFetch.value;
+    void lastReset.value;
+    return (Date.now() > expiresAt.value || force) && key;
   });
 
   // fully "valid" data will not suspend/loading even if it is not fresh

@@ -1,7 +1,11 @@
+import { Endpoint } from '@data-client/endpoint';
 import nock from 'nock';
 import { computed, defineComponent, h, nextTick, reactive } from 'vue';
 
-import { CoolerArticleResource } from '../../../../__tests__/new';
+import {
+  CoolerArticle,
+  CoolerArticleResource,
+} from '../../../../__tests__/new';
 import useCache from '../consumers/useCache';
 import { renderDataCompose, mountDataClient } from '../test';
 
@@ -393,6 +397,48 @@ describe('vue useCache()', () => {
     // Even though data might be expired, if it's Valid it should be returned
     expect(result.value).toBeDefined();
     expect(result.value?.title).toBe(payload.title);
+
+    cleanup();
+  });
+
+  it('keeps stale invalidIfStale data on unrelated store updates', async () => {
+    const staleEndpoint = new Endpoint(
+      async ({ id }: { id: number }) => ({ ...payload, id }),
+      {
+        schema: CoolerArticle,
+        dataExpiryLength: 20,
+        invalidIfStale: true,
+        name: 'invalidIfStaleArticle',
+      },
+    );
+    const otherEndpoint = new Endpoint(async () => payload, {
+      schema: CoolerArticle,
+      name: 'otherArticle',
+    });
+
+    const { result, controller, cleanup } = await renderDataCompose(
+      () => useCache(staleEndpoint, { id: 79 }),
+      {
+        initialFixtures: [
+          {
+            endpoint: staleEndpoint,
+            args: [{ id: 79 }],
+            response: { ...payload, id: 79 },
+          },
+        ],
+      },
+    );
+    expect(result.value?.id).toBe(79);
+
+    // let data expire
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    // unrelated store update
+    controller.setResponse(otherEndpoint, { ...payload, id: 80 });
+    await nextTick();
+
+    // expiry only re-evaluates when expiresAt, args, or reset change (like React)
+    expect(result.value?.id).toBe(79);
 
     cleanup();
   });
