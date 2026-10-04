@@ -11,7 +11,6 @@ import { phrasing } from 'mdast-util-phrasing';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import remarkDirective from 'remark-directive';
 import remarkFrontmatter from 'remark-frontmatter';
 import remarkGfm from 'remark-gfm';
@@ -20,6 +19,8 @@ import remarkParse from 'remark-parse';
 import remarkStringify from 'remark-stringify';
 import { unified } from 'unified';
 import { visit } from 'unist-util-visit';
+
+import { ROOT, SITE, rel } from './site.mjs';
 
 const require = createRequire(import.meta.url);
 const preprocessContent =
@@ -34,11 +35,7 @@ const {
 } = require('./index.js');
 const remarkFramework = require('./remarkFramework.js');
 
-export const ROOT = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '../..',
-);
-export const SITE = 'https://dataclient.io';
+export { ROOT, SITE, rel };
 
 /** docs folder -> route base per framework; keep in sync with docusaurus.config.ts */
 const ROUTES = [
@@ -67,27 +64,31 @@ const stringifier = unified()
   .use(remarkGfm)
   .use(remarkDirective);
 
-export const rel = file => path.relative(ROOT, file).split(path.sep).join('/');
-
-/** Files read (or checked for) by the current `trackDeps()` call */
+/** Files read (or checked for) by the innermost `collect()` */
 let deps;
+/** Runs `fn`, collecting the files it reads into a fresh `deps` */
+function collect(fn) {
+  const outer = deps;
+  deps = new Set();
+  try {
+    return { value: fn(), deps };
+  } finally {
+    deps = outer;
+  }
+}
+
 /** Memoized calls also replay the files they depended on into `deps` */
 function memoize(fn) {
   const cache = new Map();
   return (...args) => {
     const key = args.join('\0');
-    let entry = cache.get(key);
-    if (!entry) {
-      const outer = deps;
-      deps = new Set();
-      try {
-        entry = { value: fn(...args), deps };
-      } finally {
-        deps = outer;
-      }
-      cache.set(key, entry);
-    }
-    if (deps) for (const file of entry.deps) deps.add(file);
+    if (!cache.has(key))
+      cache.set(
+        key,
+        collect(() => fn(...args)),
+      );
+    const entry = cache.get(key);
+    for (const file of entry.deps) deps?.add(file);
     return entry.value;
   };
 }
@@ -97,15 +98,12 @@ function memoize(fn) {
  * can cache output until one of them changes.
  */
 export function trackDeps(fn) {
-  const outer = deps;
-  deps = new Set();
-  try {
-    return { value: fn(), deps: [...deps].map(rel).sort() };
-  } finally {
-    deps = outer;
-  }
+  const { value, deps: files } = collect(fn);
+  return { value, deps: [...files].map(rel).sort() };
 }
 
+// Every file the renderer reads must go through read() or exists(), so
+// trackDeps() sees it; anything else would serve stale cached references.
 const read = memoize(file => {
   deps.add(file);
   return fs.readFileSync(file, 'utf8');
@@ -124,6 +122,16 @@ const sourceFor = (file, framework) => {
 /** Page content with `<framework>_<key>` front matter applied */
 const contentFor = memoize((file, framework) =>
   rewriteFrontMatter(read(sourceFor(file, framework)), framework),
+);
+
+/**
+ * Just the front matter, read untracked: routes depend on nothing else, and
+ * callers caching renders key on every doc's front matter instead of
+ * re-rendering each page whenever a page it links to changes.
+ */
+const frontMatterOf = memoize(
+  file =>
+    fs.readFileSync(file, 'utf8').match(/^---\n[\s\S]*?\n---\n/)?.[0] ?? '',
 );
 
 /** Parsed once per source; callers get a copy to transform */
@@ -149,7 +157,10 @@ export const routeOf = memoize((file, framework) => {
   const match = ROUTES.find(([dir]) => relPath.startsWith(dir));
   if (!match) return;
   const [dir, bases] = match;
-  const docId = docIdOf(relPath.slice(dir.length), contentFor(file, framework));
+  const docId = docIdOf(
+    relPath.slice(dir.length),
+    rewriteFrontMatter(frontMatterOf(sourceFor(file, framework)), framework),
+  );
   // Vue links to pages without a Vue version go to the React docs
   const base =
     dir === 'docs/core/' && framework === 'vue' && !vueIds.has(docId) ?

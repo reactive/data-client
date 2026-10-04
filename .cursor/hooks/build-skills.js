@@ -57,24 +57,21 @@ const isInput = file =>
 
 // files the branch changes relative to master, plus uncommitted ones when
 // the same command commits before pushing (`git commit -am x && git push`)
-let changed;
 try {
-  const base = git('merge-base', 'HEAD', 'origin/master');
-  changed = git('diff', '--name-only', base, 'HEAD').split('\n');
-  const dirty = [
-    ...git('diff', '--name-only', 'HEAD').split('\n'),
-    ...git('ls-files', '--others', '--exclude-standard').split('\n'),
-  ].filter(isInput);
-  if (dirty.length) {
-    // the generator reads the working tree, so it can only vouch for what's
-    // pushed when that includes these edits; otherwise leave it to CI
-    if (!/\bgit\b[^;&|\n]*\bcommit\b/.test(command)) process.exit(0);
-    changed.push(...dirty);
-  }
+  const dirty = git('status', '--porcelain', '--untracked-files=all')
+    .split('\n')
+    .map(line => line.slice(3).replace(/^.* -> /, ''))
+    .some(isInput);
+  // the generator reads the working tree, so it can only vouch for what's
+  // pushed when that includes these edits; otherwise leave it to CI
+  if (dirty && !/\bgit\b[^;&|\n]*\bcommit\b/.test(command)) process.exit(0);
+  const committed = git('diff', '--name-only', 'origin/master...HEAD')
+    .split('\n')
+    .some(isInput);
+  if (!dirty && !committed) process.exit(0);
 } catch {
   process.exit(0);
 }
-if (!changed.some(isInput)) process.exit(0);
 
 let problems = '';
 try {
@@ -92,11 +89,8 @@ const uncommitted = git(
   '--porcelain',
   '--untracked-files=all',
   '--',
-  '.agents/skills',
-)
-  .split('\n')
-  .filter(line => line.includes('/references/'))
-  .join('\n');
+  '.agents/skills/*/references',
+);
 if (!uncommitted && !problems) process.exit(0);
 
 const message = [
