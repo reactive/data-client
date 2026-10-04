@@ -6,7 +6,7 @@ alwaysApply: false
 
 # Skills sync
 
-Skill `references/*.md` files listed in a skill's `references.json` are generated from `docs/` by `yarn build:skills` (an end-of-turn agent hook runs it; the `skills` CI check fails on drift and on dead `references/` links in `SKILL.md`). Everything else in a skill (`SKILL.md`, references without the generated header) is hand-written and only changes when you change it.
+Skill `references/*.md` files listed in a skill's `references.json` are generated from `docs/` by `yarn build:skills` (an agent hook runs it before `git push`; the `skills` CI check fails on drift and on dead `references/` links in `SKILL.md`). Everything else in a skill (`SKILL.md`, references without the generated header) is hand-written and only changes when you change it.
 
 - **Editing a doc**: never edit the generated reference. Edit the doc; references regenerate.
 - **Adding a doc**: if a skill covers that API or topic (match by skill `description`), add the page to its `references.json` and link it from the skill's reference list in `SKILL.md`. New partials (`_foo.mdx`) need nothing; they're inlined.

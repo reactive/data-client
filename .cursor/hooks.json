@@ -6,7 +6,7 @@
         "command": "node .cursor/hooks/eslint-fix.js"
       }
     ],
-    "stop": [
+    "beforeShellExecution": [
       {
         "command": "node .cursor/hooks/build-skills.js"
       }

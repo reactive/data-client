@@ -1,7 +1,8 @@
 {
   "hooks": {
-    "Stop": [
+    "PreToolUse": [
       {
+        "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
