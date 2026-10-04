@@ -354,8 +354,9 @@ better to [include mutation sideeffects in the mutation response](/rest/guides/s
 
 ### invalidate(endpoint, ...args) {#invalidate}
 
-Forces refetching and suspense on [useSuspense](./useSuspense.md) with the same Endpoint
-and parameters.
+Forces refetching :react[and suspense ]on [useSuspense](./useSuspense.md) with the same Endpoint
+and parameters.:vue[ Vue can't suspend a component again after setup, so `useSuspense()` keeps returning the
+current data until the refetch resolves.]
 
 :::react
 
@@ -395,7 +396,7 @@ function ArticleName({ id }: { id: string }) {
   <div>
     <h1>{{ article.title }}</h1>
     <button @click="ctrl.invalidate(ArticleResource.get, { id })">
-      Fetch &amp; suspend
+      Refetch
     </button>
   </div>
 </template>
@@ -403,11 +404,15 @@ function ArticleName({ id }: { id: string }) {
 
 :::
 
+::::react
+
 :::tip
 
 To refresh while continuing to display stale data - [Controller.fetch](#fetch).
 
 :::
+
+::::
 
 :::tip[Invalidate many endpoints at once]
 
@@ -417,7 +422,7 @@ For REST try using [Resource.delete](/rest/api/resource#delete)
 
 ```ts
 // deletes MyResource(5)
-// this will resuspend MyResource.get({id: '5'})
+// this will refetch MyResource.get({id: '5'})
 // and remove it from MyResource.getList
 controller.setResponse(MyResource.delete, { id: '5' }, { id: '5' });
 ```
@@ -466,7 +471,7 @@ function ArticleName({ id }: { id: string }) {
   <div>
     <h1>{{ article.title }}</h1>
     <button @click="ctrl.invalidateAll(ArticleResource.get)">
-      Fetch &amp; suspend
+      Refetch
     </button>
   </div>
 </template>
@@ -474,11 +479,15 @@ function ArticleName({ id }: { id: string }) {
 
 :::
 
+::::react
+
 :::tip
 
 To refresh while continuing to display stale data - [Controller.expireAll](#expireAll) instead.
 
 :::
+
+::::
 
 Here we clear only GET endpoints using the test.com domain. This means other domains remain in cache.
 
