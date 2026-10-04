@@ -26,7 +26,7 @@ When using the default [polling subscriptions](./PollingSubscription), frequency
 ## Usage
 
 ```typescript title="api/Price"
-import { Resource, Entity } from '@data-client/rest';
+import { RestEndpoint, Entity } from '@data-client/rest';
 
 export class Price extends Entity {
   symbol = '';
@@ -38,7 +38,7 @@ export class Price extends Entity {
   }
 }
 
-export const getPrice = new RestEndpont({
+export const getPrice = new RestEndpoint({
   urlPrefix: 'http://test.com',
   path: '/price/:symbol',
   schema: Price,
@@ -147,6 +147,7 @@ function useSubscription(
 :::react
 
 ```tsx title="MasterPrice.tsx"
+import { useIntersectionObserver } from '@uidotdev/usehooks';
 import { useSuspense, useSubscription } from '@data-client/react';
 import { getPrice } from 'api/Price';
 
@@ -154,13 +155,9 @@ function MasterPrice({ symbol }: { symbol: string }) {
   const price = useSuspense(getPrice, { symbol });
   const [ref, entry] = useIntersectionObserver();
   // null params means don't subscribe
-  useSubscription(getPrice, entry?.isIntersecting ? null : { symbol });
+  useSubscription(getPrice, entry?.isIntersecting ? { symbol } : null);
 
-  return (
-    <div ref={ref}>
-      {price.value.toLocaleString('en', { currency: 'USD' })}
-    </div>
-  );
+  return <div ref={ref}>{price.price}</div>;
 }
 ```
 
@@ -193,7 +190,7 @@ function MasterPrice({ symbol }: { symbol: string }) {
 
 :::
 
-When `null` is send as the second argument, the subscription is deactivated. Of course,
+When `null` is sent as the second argument, the subscription is deactivated. Of course,
 if other components are still subscribed the data updates will still be active.
 
 :::react
