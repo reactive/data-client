@@ -743,4 +743,37 @@ describe('vue useDLE()', () => {
       Date.now = realDate;
     }
   });
+
+  it('returns undefined (not a Symbol) for a deleted entity whose refetch errored', async () => {
+    const { result, controller, cleanup } = await renderDataCompose(
+      () => useDLE(CoolerArticleResource.get, { id: payload.id }),
+      {
+        initialFixtures: [
+          {
+            endpoint: CoolerArticleResource.get,
+            args: [{ id: payload.id }],
+            response: payload,
+          },
+        ],
+      },
+    );
+    expect(result.data.value?.title).toBe(payload.title);
+
+    // error meta keeps the response from counting as expired
+    await controller.setError(
+      CoolerArticleResource.get,
+      { id: payload.id },
+      new Error('failed'),
+    );
+    await controller.setResponse(
+      CoolerArticleResource.delete,
+      { id: payload.id },
+      { id: payload.id },
+    );
+    await nextTick();
+
+    expect(result.loading.value).toBe(false);
+    expect(result.data.value).toBeUndefined();
+    cleanup();
+  });
 });

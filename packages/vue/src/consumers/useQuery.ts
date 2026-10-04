@@ -3,10 +3,11 @@ import type {
   Queryable,
   SchemaArgs,
 } from '@data-client/core';
-import { computed, toValue, watch, type ComputedRef } from 'vue';
+import { computed, toValue, type ComputedRef } from 'vue';
 
 import { useController, injectState } from '../context.js';
 import type { MaybeRefsOrGetters } from '../types.js';
+import useCountRef from './useCountRef.js';
 
 /**
  * Query the store.
@@ -36,15 +37,7 @@ export default function useQuery(schema: any, ...args: any[]): any {
     ),
   );
 
-  // Maintain GC refcounts on data mount/changes
-  watch(
-    () => queryMeta.value.data,
-    (_newVal, _oldVal, onCleanup) => {
-      const decrement = queryMeta.value.countRef();
-      onCleanup(() => decrement());
-    },
-    { immediate: true },
-  );
+  useCountRef(queryMeta);
 
   return computed(() => queryMeta.value.data);
 }
