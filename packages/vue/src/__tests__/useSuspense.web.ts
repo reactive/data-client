@@ -1,6 +1,13 @@
-import { Endpoint } from '@data-client/endpoint';
+import { Endpoint, Invalidate } from '@data-client/endpoint';
 import nock from 'nock';
-import { computed, defineComponent, h, nextTick, reactive } from 'vue';
+import {
+  computed,
+  defineComponent,
+  h,
+  nextTick,
+  onErrorCaptured,
+  reactive,
+} from 'vue';
 
 import {
   CoolerArticleResource,
@@ -253,6 +260,208 @@ describe('vue useSuspense()', () => {
         ...payload,
         ...requestBody,
       }));
+  });
+
+  it('keeps previous data while new args are loading', async () => {
+    const resolvers: Record<number, (value: any) => void> = {};
+    const ControlledEndpoint = new Endpoint(
+      ({ id }: { id: number }) =>
+        new Promise(resolve => {
+          resolvers[id] = resolve;
+        }),
+      { schema: CoolerArticle, name: 'KeepPreviousEndpoint' },
+    );
+
+    const errorSpy = jest.fn();
+    const ArticleTitle = defineComponent({
+      name: 'ArticleTitle',
+      props: { id: { type: Number, required: true } },
+      async setup(props: { id: number }) {
+        const article = await useSuspense(
+          ControlledEndpoint,
+          computed(() => ({ id: props.id })),
+        );
+        // no optional chaining: crashes if data is ever undefined
+        return () => h('h3', article.value.title);
+      },
+    });
+    const Parent = defineComponent({
+      name: 'Parent',
+      props: { id: { type: Number, required: true } },
+      setup(props: { id: number }) {
+        onErrorCaptured(e => {
+          errorSpy(e);
+          return false;
+        });
+        return () => h(ArticleTitle, { id: props.id });
+      },
+    });
+
+    const props = reactive({ id: payload.id });
+    const { wrapper, cleanup } = mountDataClient(Parent, { props });
+
+    await flushUntil(wrapper, () => !!resolvers[payload.id]);
+    resolvers[payload.id](payload);
+    await flushUntil(wrapper, () => wrapper.find('h3').exists());
+    expect(wrapper.find('h3').text()).toBe(payload.title);
+
+    props.id = payload2.id;
+    await flushUntil(wrapper, () => !!resolvers[payload2.id]);
+    await nextTick();
+
+    // still showing previous data while the new fetch is in flight
+    expect(wrapper.find('h3').text()).toBe(payload.title);
+    expect(errorSpy).not.toHaveBeenCalled();
+
+    resolvers[payload2.id](payload2);
+    await flushUntil(
+      wrapper,
+      () => wrapper.find('h3').text() === payload2.title,
+    );
+    expect(wrapper.find('h3').text()).toBe(payload2.title);
+    expect(errorSpy).not.toHaveBeenCalled();
+
+    cleanup();
+  });
+
+  // first fetch resolves; later fetches stay in flight until resolveRefetch()
+  function heldRefetchEndpoint(name: string, options: object = {}) {
+    let fetches = 0;
+    let resolveRefetch: (value: any) => void = () => {};
+    const endpoint = new Endpoint(
+      ({ id }: { id: number }) =>
+        fetches++ === 0 ?
+          Promise.resolve({ ...payload, id })
+        : new Promise(resolve => {
+            resolveRefetch = resolve;
+          }),
+      { schema: CoolerArticle, name, ...options },
+    );
+    return {
+      endpoint,
+      fetches: () => fetches,
+      resolveRefetch: (value: any) => resolveRefetch(value),
+    };
+  }
+
+  async function mountArticle(
+    endpoint: ReturnType<typeof heldRefetchEndpoint>['endpoint'],
+  ) {
+    const { result, controller, waitForNextUpdate, cleanup } =
+      await renderDataCompose(() => useSuspense(endpoint, { id: payload.id }));
+    await waitForNextUpdate();
+    const articleRef = await result;
+    expect(articleRef.value.title).toBe(payload.title);
+    return { articleRef, controller, cleanup };
+  }
+
+  const staleOptions = { dataExpiryLength: 20, invalidIfStale: true };
+
+  it('shows store updates once invalidIfStale data goes stale', async () => {
+    const { endpoint, fetches } = heldRefetchEndpoint(
+      'StaleEndpoint',
+      staleOptions,
+    );
+    const { articleRef, controller, cleanup } = await mountArticle(endpoint);
+
+    // let the data go stale without anything triggering a refetch
+    await new Promise(resolve => setTimeout(resolve, 50));
+    await controller.set(
+      CoolerArticle,
+      { id: payload.id },
+      { ...payload, title: 'edited' },
+    );
+    await nextTick();
+
+    expect(fetches()).toBe(1);
+    expect(articleRef.value.title).toBe('edited');
+
+    cleanup();
+  });
+
+  it('shows new args data that went stale before it was read', async () => {
+    const LazyEndpoint = new Endpoint(
+      ({ id }: { id: number }) =>
+        Promise.resolve(id === payload.id ? payload : payload2),
+      { schema: CoolerArticle, name: 'LazyEndpoint', ...staleOptions },
+    );
+    const props = reactive({ id: payload.id });
+    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
+      (props: { id: number }) =>
+        useSuspense(
+          LazyEndpoint,
+          computed(() => ({ id: props.id })),
+        ),
+      { props },
+    );
+    await waitForNextUpdate();
+    const articleRef = await result;
+    expect(articleRef.value.title).toBe(payload.title);
+
+    // new args resolve and go stale without the result being read in between
+    props.id = payload2.id;
+    await nextTick();
+    await new Promise(resolve => setTimeout(resolve, 0));
+    await nextTick();
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    expect(articleRef.value.title).toBe(payload2.title);
+    cleanup();
+  });
+
+  it('shows store updates while refetching the same args', async () => {
+    const { endpoint, fetches, resolveRefetch } = heldRefetchEndpoint(
+      'RefetchEndpoint',
+      staleOptions,
+    );
+    const { articleRef, controller, cleanup } = await mountArticle(endpoint);
+
+    // expiring the data makes the hook refetch the same args
+    await controller.expireAll({
+      testKey: key => key.startsWith('RefetchEndpoint'),
+    });
+    await nextTick();
+    expect(fetches()).toBe(2);
+    await controller.set(
+      CoolerArticle,
+      { id: payload.id },
+      { ...payload, title: 'edited' },
+    );
+    await nextTick();
+
+    expect(fetches()).toBe(2);
+    expect(articleRef.value.title).toBe('edited');
+
+    resolveRefetch({ ...payload, title: 'edited' });
+    await new Promise(resolve => setTimeout(resolve, 0));
+    cleanup();
+  });
+
+  it('keeps previous data while refetching a deleted entity', async () => {
+    const { endpoint, fetches, resolveRefetch } =
+      heldRefetchEndpoint('DeletedEndpoint');
+    const { articleRef, controller, cleanup } = await mountArticle(endpoint);
+
+    const DeleteEndpoint = new Endpoint(
+      ({ id }: { id: number }) => Promise.resolve({ id }),
+      {
+        schema: new Invalidate(CoolerArticle),
+        sideEffect: true,
+        name: 'DeleteArticle',
+      },
+    );
+    await controller.fetch(DeleteEndpoint, { id: payload.id });
+    await nextTick();
+    await nextTick();
+
+    expect(fetches()).toBe(2);
+    expect(articleRef.value.title).toBe(payload.title);
+
+    resolveRefetch({ ...payload, title: 'restored' });
+    await new Promise(resolve => setTimeout(resolve, 0));
+    await nextTick();
+    expect(articleRef.value.title).toBe('restored');
+    cleanup();
   });
 
   it('should initially resolve, then when args are null should return undefined, then back to resolving', async () => {
