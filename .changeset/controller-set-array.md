@@ -10,6 +10,8 @@ Fix `controller.set()` types for Array schemas
 
 Rows are typed by the Entity's fields. The schema holds one Entity, [Union](https://dataclient.io/rest/api/Union) (for mixed types) or [Invalidate](https://dataclient.io/rest/api/Invalidate) (to delete), in an Array or [Values](https://dataclient.io/rest/api/Values) (which takes an object keyed by id).
 
+Batch `set()` needs `@data-client/rest` (or `endpoint`/`graphql`) from this release, since older Entity classes don't type as `EntityInterface`.
+
 ```ts
 // Before: TypeScript error on [Ticker], so batches became one set() per row
 for (const row of rows) {
