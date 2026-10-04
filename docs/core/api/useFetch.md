@@ -289,8 +289,8 @@ function useFetch(
 >;
 ```
 
-Arguments can be plain values or [refs](https://vuejs.org/api/reactivity-core.html#ref) (including
-[computed](https://vuejs.org/api/reactivity-core.html#computed)); a new fetch is triggered when they change.
+Arguments can be plain values, [refs](https://vuejs.org/api/reactivity-core.html#ref) (including [computed](https://vuejs.org/api/reactivity-core.html#computed)), or getter
+functions like `() => ({ id: props.id })`; a new fetch is triggered when they change.
 
 :::
 
