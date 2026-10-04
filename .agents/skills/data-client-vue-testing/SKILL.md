@@ -362,7 +362,7 @@ expect(result.current?.value?.title).toBe('hi ho');
 - **useSuspense returns Promise → ComputedRef** - Await once, then access `.value`
 - **Test both empty and populated states** - Verify undefined behavior
 - **Test reactive prop changes** - Use `reactive()` and verify updates
-- **Don't test with async setup + prop changes** - Async setup only runs once; use non-async patterns or useFetch + watchEffect instead
+- **Pass prop-derived args as getters** - Async setup runs once, so `useSuspense(Resource.get, () => ({ id: props.id }))` follows prop changes; a plain `{ id: props.id }` is read once
 
 ## References
 

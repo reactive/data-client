@@ -130,7 +130,8 @@ const ArticleComponent = defineComponent({
     },
   },
   async setup(props) {
-    const article = await useSuspense(MyResource.get, { id: props.id });
+    // a getter so the fetch follows props.id
+    const article = await useSuspense(MyResource.get, () => ({ id: props.id }));
     return () => h('div', article.value.title);
   },
 });
@@ -269,7 +270,7 @@ interface Interceptor {
 6. **Suspense is automatic** - no need to manually wrap components in Suspense
 7. **Use reactive props** - Pass a `reactive` in the `props` option and set its members to change component props
 8. **Vue Suspense behavior** - Vue's `useSuspense` returns a Promise that suspends when data is missing, then resolves to a ComputedRef
-9. **Reactive props with async setup** - Components using async setup with `useSuspense` that depend on props should use `useFetch` + `watchEffect` for reactive behavior, or rely on non-async setup patterns. Async setup only runs once per component instance.
+9. **Reactive props with async setup** - Async setup runs once per component instance, so pass prop-derived arguments as a getter (`() => ({ id: props.id })`); a plain object is read once and won't follow prop changes.
 
 ## Migration from Manual Setup
 
