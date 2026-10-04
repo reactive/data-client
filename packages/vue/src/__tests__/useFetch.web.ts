@@ -443,8 +443,9 @@ describe('vue useFetch()', () => {
       name: 'staleArticle',
     });
 
-    const { controller, waitForNextUpdate, cleanup } =
-      await renderDataCompose(() => useFetch(staleEndpoint, { id: 77 }));
+    const { controller, waitForNextUpdate, cleanup } = await renderDataCompose(
+      () => useFetch(staleEndpoint, { id: 77 }),
+    );
     await waitForNextUpdate();
     await flushUntil(null, () => fetchMock.mock.calls.length > 0);
     expect(fetchMock).toHaveBeenCalledTimes(1);
