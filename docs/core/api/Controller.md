@@ -401,8 +401,29 @@ ctrl.set(
 ```
 
 Rows are typed by the Entity's fields; numbers and strings may be either, and object, array and Date values are not
-checked since rows are raw input. The schema must hold one Entity or [Union](/rest/api/Union): `[User, Admin]` is a
-TypeScript error, so use `[new schema.Union({ user: User, admin: Admin }, 'type')]` for mixed lists.
+checked since rows are raw input.
+
+For lists that mix Entity types, use a [Union](/rest/api/Union); each row is stored by its `type`:
+
+```ts
+const Feed = new schema.Union({ post: Post, comment: Comment }, 'type');
+
+ctrl.set(
+  [Feed],
+  [
+    { id: '1', type: 'post', title: 'Hello' },
+    { id: '7', type: 'comment', body: 'Nice!' },
+  ],
+);
+```
+
+To delete many entities at once, use [Invalidate](/rest/api/Invalidate#batch-invalidation); rows only need their pk
+fields:
+
+```ts
+ctrl.set([new schema.Invalidate(Todo)], [{ id: '5' }, { id: '6' }]);
+```
+
 [Values](/rest/api/Values) schemas take an object of rows instead:
 
 ```ts

@@ -162,6 +162,11 @@ describe('set', () => {
       controller.set(new schema.Lazy([CoolerArticle]), [{ id: 5 }]);
       // @ts-expect-error Lazy is not keyed rows
       controller.set(new schema.Lazy(CoolerArticle), { a: { id: 5 } });
+      const query = new schema.Query(new schema.All(CoolerArticle), x => x);
+      // @ts-expect-error Query is derived from the store, so not writable
+      controller.set([query], [{ id: 5 }]);
+      // @ts-expect-error Collections are keyed by args
+      controller.set([new schema.Collection([CoolerArticle])], [{ id: 5 }]);
       // @ts-expect-error Values take a keyed object, not an array
       controller.set(new schema.Values(CoolerArticle), [{ id: 5 }]);
       // @ts-expect-error Arrays take an array, not a keyed object
@@ -176,7 +181,7 @@ describe('set', () => {
     };
   });
 
-  it('should batch set polymorphic and Values schemas', async () => {
+  it('should batch set polymorphic, Values and Invalidate schemas', async () => {
     const { controller } = renderDataClient(() => null);
     let promise: any;
     act(() => {
@@ -214,6 +219,17 @@ describe('set', () => {
       'eight',
     );
 
+    act(() => {
+      promise = controller.set(
+        [new schema.Invalidate(CoolerArticle)],
+        [{ id: 7 }, { id: 8 }],
+      );
+    });
+    await act(() => promise);
+    const after = controller.getState();
+    expect(controller.get(CoolerArticle, { id: 7 }, after)).toBeUndefined();
+    expect(controller.get(CoolerArticle, { id: 8 }, after)).toBeUndefined();
+
     // type tests
     () => {
       // @ts-expect-error body is a string
@@ -231,6 +247,11 @@ describe('set', () => {
         ),
         [{ id: '1', kind: 'first' }],
       );
+      controller.set(new schema.Array(new schema.Invalidate(UnionSchema)), [
+        { id: '1', type: 'first' },
+      ]);
+      // @ts-expect-error id is a number
+      controller.set([new schema.Invalidate(CoolerArticle)], [{ id: false }]);
       // EntityMixin rows
       controller.set([ArticleFromMixin], [{ id: 5, title: 'mixin' }]);
       // @ts-expect-error title is a string

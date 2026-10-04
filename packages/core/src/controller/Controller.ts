@@ -844,17 +844,20 @@ interface EntityLike {
 
 type EntityMapLike = { readonly [k: string]: EntityLike };
 
-/** Entity-like schemas whose rows each normalize to one stored entity */
+/** What one row normalizes to: a reference to one stored entity */
+type EntityRef = string | { readonly id: string; readonly schema: string };
+
+/** Schemas that write each row to one stored entity: Entity, Union, or Invalidate (batch delete).
+ * Query, All and Collection don't: they normalize to lists, or Collection keys by args batch set() lacks. */
 type SetEntitySchema =
   | EntityLike
-  // Union
   | {
-      readonly schema: EntityMapLike;
-      queryKey(...args: any): { schema: string };
+      _normalizeNullable(): EntityRef | undefined;
+      // excludes Collection
       pk?: never;
     };
 
-/** `[Entity]`, `schema.Array(Entity)` or `schema.Values(Entity)` (or of a Union) */
+/** `[Entity]`, `schema.Array(Entity)` or `schema.Values(Entity)` (or of a Union or Invalidate) */
 type SetManySchema =
   | readonly SetEntitySchema[]
   | {
