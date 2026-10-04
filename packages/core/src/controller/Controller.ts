@@ -228,13 +228,8 @@ export default class Controller<
     schema: S,
     ...rest: readonly [
       ...SchemaArgs<S>,
-      (previousValue: Denormalize<S>) => SetValue<S>,
+      SetValue<S> | ((previousValue: Denormalize<S>) => SetValue<S>),
     ]
-  ): Promise<void>;
-
-  set<S extends Queryable>(
-    schema: S,
-    ...rest: readonly [...SchemaArgs<S>, SetValue<S>]
   ): Promise<void>;
 
   /**

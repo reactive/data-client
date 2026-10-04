@@ -55,34 +55,41 @@ type SetField<T> =
   : T extends object ? unknown
   : T;
 
-/** Fields of one row; like EntityFields, but distributive and without key remapping (TS 4.0) */
+/** Fields of one row (or a coerced primitive); like EntityFields, but distributive
+ * and without key remapping (TS 4.0) */
 type SetRow<U> =
   // EntityMixin and other untyped entities
   0 extends 1 & U ? { readonly [k: string]: any }
-  : U extends unknown ?
+  : U extends object ?
     { readonly [K in Exclude<keyof U, FunctionKeys<U>>]?: SetField<U[K]> }
-  : never;
+  : SetField<U>;
 
 export type SetManyValue<S> =
   S extends readonly (infer E)[] ?
     true extends IsUnion<E> ?
       readonly { 'Use a Union schema for several Entity types': never }[]
-    : SetInput<readonly Denormalize<E>[]>
-  : SetInput<Denormalize<S>>;
+    : readonly SetItem<Denormalize<E>>[]
+  : SetValue<S>;
 
 /** Raw input `set()` normalizes for a Queryable */
 export type SetValue<S> =
-  NormalizedSchema<S> extends infer N ?
+  InputSchema<S> extends infer N ?
     N extends EntityLike ?
       SetRow<Denormalize<N>>
     : SetInput<Denormalize<N>>
   : never;
 
-/** Query normalizes with its inner schema; its process() output is not input.
- * Entity is checked first since its static `schema` and `process` match too. */
-type NormalizedSchema<S> =
-  S extends EntityLike ? S
-  : S extends { readonly schema: infer Sch; process(...args: any): any } ? Sch
+/** Query normalizes with its inner schema; its process() output is not input */
+type InputSchema<S> =
+  S extends (
+    {
+      readonly schema: infer Sch;
+      process(...args: any): any;
+      // excludes Entity, whose static schema and process() match the members above
+      pk?: never;
+    }
+  ) ?
+    Sch
   : S;
 
 /** Raw input for a denormalized value, like a Collection's list or a Union's row */
@@ -90,11 +97,8 @@ type SetInput<T> =
   0 extends 1 & T ? any
   : // not distributive, so a Union's members stay together for SetItem
   [T] extends [readonly (infer U)[]] ? readonly SetItem<U>[]
-  : [T] extends [object] ?
-    string extends keyof T ?
-      { readonly [k: string]: SetItem<T[string & keyof T]> }
-    : SetItem<T>
-  : SetField<T>;
+  : string extends keyof T ? { readonly [k: string]: SetItem<T[keyof T]> }
+  : SetItem<T>;
 
 /**
  * One member of a list or keyed object. Polymorphic rows may carry a
@@ -102,5 +106,4 @@ type SetInput<T> =
  */
 type SetItem<U> =
   true extends IsUnion<U> ? SetRow<U> & { readonly [k: string]: unknown }
-  : U extends object ? SetRow<U>
-  : SetField<U>;
+  : SetRow<U>;

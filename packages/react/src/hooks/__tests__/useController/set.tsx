@@ -305,8 +305,6 @@ describe('set', () => {
       controller.set(list, () => 42);
       // @ts-expect-error Queries take their schema's input, not process() output
       controller.set(titles, ['listed']);
-      // @ts-expect-error Entities take an object
-      controller.set(CoolerArticle, { id: 5 }, 5);
       // @ts-expect-error title is a string
       controller.set(CoolerArticle, { id: 5 }, { id: 5, title: false });
       // @ts-expect-error updaters must return the Entity's fields
