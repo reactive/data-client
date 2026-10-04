@@ -11,6 +11,7 @@ import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import StackBlitz from '@site/src/components/StackBlitz';
 import { parallelFetchFixtures } from '@site/src/fixtures/post-comments';
+import VueArgs from '../shared/\_vueArgs.mdx';
 
 <head>
   <meta name="docsearch:pagerank" content="10"/>
@@ -285,8 +286,9 @@ function useFetch(
 >;
 ```
 
-Arguments can be plain values, [refs](https://vuejs.org/api/reactivity-core.html#ref) (including [computed](https://vuejs.org/api/reactivity-core.html#computed)), or getter
-functions like `() => ({ id: props.id })`; a new fetch is triggered when they change.
+<VueArgs />
+
+A new fetch is triggered when the arguments change.
 
 :::
 

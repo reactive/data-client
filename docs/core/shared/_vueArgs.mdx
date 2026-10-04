@@ -1,0 +1,3 @@
+Arguments can be plain values, [refs](https://vuejs.org/api/reactivity-core.html#ref) (including [computed](https://vuejs.org/api/reactivity-core.html#computed)), or getter
+functions like `() => ({ id: props.id })`. A plain object like `{ id: props.id }` is read once, so it won't
+follow prop or route changes; wrap it in a getter or `computed(() => ({ id: props.id }))` instead.

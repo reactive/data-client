@@ -9,6 +9,7 @@ import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import StackBlitz from '@site/src/components/StackBlitz';
+import VueArgs from '../shared/\_vueArgs.mdx';
 import { RestEndpoint } from '@data-client/rest';
 
 # useCache()
@@ -229,8 +230,9 @@ function useCache(
 ): ComputedRef<DenormalizeNullable<typeof endpoint.schema>>;
 ```
 
-Arguments can be plain values, [refs](https://vuejs.org/api/reactivity-core.html#ref) (including [computed](https://vuejs.org/api/reactivity-core.html#computed)), or getter
-functions like `() => ({ id: props.id })`; the result updates when they change.
+<VueArgs />
+
+The result updates when the arguments change.
 
 :::
 

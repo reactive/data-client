@@ -20,6 +20,7 @@ import { RestEndpoint } from '@data-client/rest';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import StackBlitz from '@site/src/components/StackBlitz';
 import { detailFixtures, listFixtures } from '@site/src/fixtures/profiles';
+import VueArgs from '../shared/\_vueArgs.mdx';
 
 # useSuspense()
 
@@ -272,9 +273,9 @@ function useSuspense(
 ): Promise<DeepReadonly<ComputedRef<Denormalize<typeof endpoint.schema>>>>;
 ```
 
-Arguments can be plain values, [refs](https://vuejs.org/api/reactivity-core.html#ref) (including [computed](https://vuejs.org/api/reactivity-core.html#computed)), or getter
-functions like `() => ({ id: props.id })`; the result
-updates when they change.
+<VueArgs />
+
+The result updates when the arguments change.
 
 :::
 

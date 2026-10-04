@@ -8,6 +8,7 @@ description: Keeps data fresh, but only when component is active. Supports polli
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import StackBlitz from '@site/src/components/StackBlitz';
+import VueArgs from '../shared/\_vueArgs.mdx';
 
 # useSubscription()
 
@@ -135,8 +136,7 @@ function useSubscription(
 ): void;
 ```
 
-Arguments can be plain values, [refs](https://vuejs.org/api/reactivity-core.html#ref) (including [computed](https://vuejs.org/api/reactivity-core.html#computed)), or getter
-functions like `() => ({ id: props.id })`.
+<VueArgs />
 
 :::
 

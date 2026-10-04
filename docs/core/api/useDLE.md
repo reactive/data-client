@@ -13,6 +13,7 @@ import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import StackBlitz from '@site/src/components/StackBlitz';
+import VueArgs from '../shared/\_vueArgs.mdx';
 
 # useDLE() - [D]ata [L]oading [E]rror
 
@@ -191,8 +192,9 @@ function useDLE(
 };
 ```
 
-Arguments can be plain values, [refs](https://vuejs.org/api/reactivity-core.html#ref) (including [computed](https://vuejs.org/api/reactivity-core.html#computed)), or getter
-functions like `() => ({ id: props.id })`; the results update when they change.
+<VueArgs />
+
+The results update when the arguments change.
 
 :::
 
