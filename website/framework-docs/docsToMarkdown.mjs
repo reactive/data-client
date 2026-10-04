@@ -69,17 +69,51 @@ const stringifier = unified()
 
 export const rel = file => path.relative(ROOT, file).split(path.sep).join('/');
 
+/** Files read (or checked for) by the current `trackDeps()` call */
+let deps;
+/** Memoized calls also replay the files they depended on into `deps` */
 function memoize(fn) {
   const cache = new Map();
   return (...args) => {
     const key = args.join('\0');
-    if (!cache.has(key)) cache.set(key, fn(...args));
-    return cache.get(key);
+    let entry = cache.get(key);
+    if (!entry) {
+      const outer = deps;
+      deps = new Set();
+      try {
+        entry = { value: fn(...args), deps };
+      } finally {
+        deps = outer;
+      }
+      cache.set(key, entry);
+    }
+    if (deps) for (const file of entry.deps) deps.add(file);
+    return entry.value;
   };
 }
 
-const read = memoize(file => fs.readFileSync(file, 'utf8'));
-const exists = memoize(file => fs.existsSync(file));
+/**
+ * Runs `fn` and returns its value with the files it depended on, so callers
+ * can cache output until one of them changes.
+ */
+export function trackDeps(fn) {
+  const outer = deps;
+  deps = new Set();
+  try {
+    return { value: fn(), deps: [...deps].map(rel).sort() };
+  } finally {
+    deps = outer;
+  }
+}
+
+const read = memoize(file => {
+  deps.add(file);
+  return fs.readFileSync(file, 'utf8');
+});
+const exists = memoize(file => {
+  deps.add(file);
+  return fs.existsSync(file);
+});
 
 /** Source for a framework: `foo.vue.md` replaces `foo.md` */
 const sourceFor = (file, framework) => {
