@@ -24,6 +24,28 @@ export default [
     },
   },
   {
+    // An overload implementation signature is not visible to callers, so `any`
+    // there only disables checking the overloads against the body.
+    // Use the real container type with `unknown` inner values instead.
+    files: ['packages/*/src/**/*.?(m|c)ts?(x)'],
+    // TODO: drop once #4114 and #4125 type the Vue composables
+    ignores: ['packages/vue/**'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        ...[
+          'TSDeclareFunction + FunctionDeclaration',
+          'ExportNamedDeclaration:has(> TSDeclareFunction) + ExportNamedDeclaration > FunctionDeclaration',
+          'ExportDefaultDeclaration:has(> TSDeclareFunction) + ExportDefaultDeclaration > FunctionDeclaration',
+        ].map(impl => ({
+          selector: `${impl} > TSTypeAnnotation :matches(TSAnyKeyword, TSTypeReference[typeName.name='Promise'] > TSTypeParameterInstantiation > TSAnyKeyword)`,
+          message:
+            'Overload implementation signatures must not return `any`; it hides mismatches between the overloads and the body. Use the real return type (with `unknown` inner values).',
+        })),
+      ],
+    },
+  },
+  {
     files: ['**/__tests__/**/*.?(m|c)ts?(x)', '**/*.test?(.*).?(m|c)ts?(x)'],
     rules: {
       '@typescript-eslint/no-unused-expressions': 'off',
