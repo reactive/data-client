@@ -15,6 +15,7 @@ import type {
   MaybeRefsOrGetters,
   MaybeRefsOrGettersNullable,
 } from '../types.js';
+import refetchTriggers from './refetchTriggers.js';
 
 /**
  * Use async data with { data, loading, error } (DLE)
@@ -104,15 +105,7 @@ export default function useDLE(endpoint: any, ...args: any[]): any {
 
   // Trigger fetch when necessary
   watch(
-    () => {
-      const m = responseMeta.value;
-      return [
-        m.expiresAt,
-        m.expiryStatus,
-        stateRef.value.lastReset,
-        argsKey.value,
-      ];
-    },
+    refetchTriggers(responseMeta, stateRef, argsKey),
     async () => {
       const currentKey = argsKey.value;
       if (!currentKey) return;
