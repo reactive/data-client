@@ -280,9 +280,13 @@ function useFetch<
 function useFetch(
   endpoint: ReadEndpoint,
   ...args: MaybeRefsOrGetters<Parameters<typeof endpoint>> | [null]
-): Ref<
-  | (Promise<Denormalize<typeof endpoint.schema>> & { resolved: boolean })
-  | undefined
+): Readonly<
+  Ref<
+    | (Promise<Denormalize<typeof endpoint.schema>> & {
+        resolved: boolean;
+      })
+    | undefined
+  >
 >;
 ```
 

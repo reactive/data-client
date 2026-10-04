@@ -276,6 +276,9 @@ function useSuspense(
 <VueArgs />
 
 The result updates when the arguments change.
+While data for new arguments loads, the result keeps the previous data instead of becoming `undefined`.
+If that fetch fails, reading the result throws the error (per its [error policy](../concepts/error-policy.md)), so it reaches
+[onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured).
 
 :::
 

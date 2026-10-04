@@ -32,14 +32,27 @@ export const DataClientPlugin = {
 
     provider.start();
 
-    app.onUnmount(() => {
+    const stop = () => {
       /* istanbul ignore if */
       if (process.env.NODE_ENV === 'development') {
         console.info('Stopping DataClientPlugin');
       }
 
       provider.stop();
-    });
+    };
+    // app.onUnmount() was added in Vue 3.5
+    if (typeof app.onUnmount === 'function') {
+      app.onUnmount(stop);
+    } else {
+      const unmount = app.unmount;
+      app.unmount = function (this: App) {
+        try {
+          stop();
+        } finally {
+          unmount.call(this);
+        }
+      };
+    }
 
     return provider;
   },

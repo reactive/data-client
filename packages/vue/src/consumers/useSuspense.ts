@@ -9,9 +9,11 @@ import type {
 } from '@data-client/core';
 import {
   computed,
+  customRef,
   toValue,
   watch,
   readonly,
+  shallowRef,
   type DeepReadonly,
   type ComputedRef,
 } from 'vue';
@@ -21,6 +23,7 @@ import type {
   MaybeRefsOrGetters,
   MaybeRefsOrGettersNullable,
 } from '../types.js';
+import refetchTriggers from './refetchTriggers.js';
 
 /**
  * Ensure an endpoint is available.
@@ -90,30 +93,28 @@ export default async function useSuspense(
     );
   });
 
+  // key of the fetch in flight; staleness alone isn't reactive (time passes without a
+  // refetch), so only hold previous data while a fetch is actually running
+  const fetchingKey = shallowRef('');
+
   const maybeFetch = async () => {
     const currentKey = argsKey.value;
     if (!currentKey) return;
-    const meta = responseMeta.value;
-    const forceFetch = meta.expiryStatus === ExpiryStatus.Invalid;
-    if (Date.now() <= meta.expiresAt && !forceFetch) return;
-    await controller.fetch(endpoint, ...resolvedArgs.value);
+    if (!isStale(responseMeta.value)) return;
+    fetchingKey.value = currentKey;
+    try {
+      await controller.fetch(endpoint, ...resolvedArgs.value);
+    } finally {
+      // store updates synchronously before fetch resolves, so data is ready here
+      if (fetchingKey.value === currentKey) fetchingKey.value = '';
+    }
   };
 
   // Watch for changes to key, expiry, or store state that require refetch
-  watch(
-    () => {
-      const m = responseMeta.value;
-      return [
-        m.expiresAt,
-        m.expiryStatus,
-        stateRef.value.lastReset,
-        argsKey.value,
-      ];
-    },
-    () => {
-      return maybeFetch();
-    },
-  );
+  watch(refetchTriggers(responseMeta, stateRef, argsKey), () => {
+    // errors are stored and surfaced through the returned ref
+    maybeFetch().catch(() => {});
+  });
 
   // Maintain GC refcounts on data mount/changes
   watch(
@@ -128,6 +129,56 @@ export default async function useSuspense(
   // Trigger on initial call
   await maybeFetch();
 
-  // Return readonly computed ref - Vue automatically unwraps in templates and reactive contexts
-  return readonly(computed(() => responseMeta.value.data));
+  // While a fetch for new args (or for a key with no data) is in flight, where React's
+  // useSuspense would suspend, keep returning the last resolved data. Vue can't re-suspend
+  // after setup, so this avoids yielding `undefined` mid-transition. A key that already
+  // has data keeps showing current store data, even while stale or refetching.
+  let lastData: unknown;
+  let lastKey = '';
+  // INVALID symbol (e.g. deleted entity) means no usable data
+  const metaData = computed(() => {
+    const data = responseMeta.value.data;
+    return typeof data === 'symbol' ? undefined : data;
+  });
+  const loading = computed(() => {
+    const meta = responseMeta.value;
+    const key = argsKey.value;
+    return (
+      !!key &&
+      fetchingKey.value === key &&
+      (lastKey !== key || metaData.value === undefined) &&
+      meta.expiryStatus !== ExpiryStatus.Valid &&
+      isStale(meta)
+    );
+  });
+  // surface fetch errors for the current args like React's useSuspense does
+  const error = computed(() =>
+    loading.value ? undefined : (
+      controller.getError(endpoint, ...resolvedArgs.value, stateRef.value)
+    ),
+  );
+  const data = computed(() => {
+    if (loading.value || error.value) return lastData;
+    lastKey = argsKey.value;
+    return (lastData = metaData.value);
+  });
+
+  // Throw on every read; a computed that throws would return its cached value on the next read
+  const result = customRef(() => ({
+    get() {
+      if (error.value) throw error.value;
+      return data.value;
+    },
+    set() {},
+  }));
+
+  // Return readonly ref - Vue automatically unwraps in templates and reactive contexts
+  return readonly(result);
+}
+
+/** Hard invalid data must refetch regardless of staleness */
+function isStale(meta: { expiryStatus: ExpiryStatus; expiresAt: number }) {
+  return (
+    meta.expiryStatus === ExpiryStatus.Invalid || Date.now() > meta.expiresAt
+  );
 }

@@ -274,7 +274,8 @@ app.listen(3000, () => {
 ### Client
 
 ```tsx
-import { hydrateRoot } from 'react-dom';
+import { hydrateRoot } from 'react-dom/client';
+import { DataProvider } from '@data-client/react';
 import { awaitInitialData } from '@data-client/react/ssr';
 
 const rootId = 'react-root';
