@@ -22,7 +22,7 @@ const VS_ROOT = path.dirname(
 const MONACO_ROOT = path.resolve(VS_ROOT, '../..');
 const MANIFEST_PATH = path.join(
   WEBSITE_ROOT,
-  'src/components/Playground/monacoPreloadManifest.ts',
+  'src/components/Playground/monaco/preloadManifest.ts',
 );
 
 /** @returns {{ monacoVersion: string, preloadPaths: string[], prefetchPaths: string[] }} */
