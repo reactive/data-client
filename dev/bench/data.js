@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791127044924,
+  "lastUpdate": 1791127532875,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -122839,6 +122839,324 @@ window.BENCHMARK_DATA = {
             "range": "±0.20%",
             "unit": "ops/sec",
             "extra": "96 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b4b502d545aab0cf75bf030f3de4607a2e3ab7dc",
+          "message": "fix(types): Fix TS 4.x legacy types with skipLibCheck off; internal(ci): fail-open esmodule relevance, faster rest legacy types (#4122)\n\n* internal(ci): Fail open on esmodule relevance and speed up rest legacy types\n\nThe esmodule relevance flag now uses a denylist of provably irrelevant\npaths, so new inputs run the esmodule jobs by default. rest's legacy\ntypes build uses scripts/build-legacy-types.sh (direct downlevel-dts,\nd.ts-only copies) with --newer-overlays-last to keep its overlay order;\nts4.0/ts4.1 output is byte-identical (8.6s -> 4.5s locally).\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01EEcQdob4nGVuMq91oUHC2V\n\n* internal(ci): Simplify legacy types overlay order and share docs-only paths\n\nDownlevel always runs first; --inherit-newer-overlays (rest) then applies\nearlier versions' custom types. Without the flag those copies were always\noverwritten by downlevel-dts, so endpoint/normalizr output is unchanged\n(ts*/ byte-identical). The esmodule and tests relevance checks now share\none DOCS_ONLY path list.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01EEcQdob4nGVuMq91oUHC2V\n\n* fix(types): Apply newer legacy type overlays to older TS outputs (#4138)\n\n* fix(types): Apply newer legacy type overlays to older TS outputs\n\nendpoint and normalizr legacy outputs (ts4.2, ts4.0, ts3.4) now inherit\nevery newer version's src-*-types overlay, as rest already did. This\nreplaces the TS 5.4 NoInfer builtin with the NI<T> = T fallback for\nTS < 4.8 consumers.\n\nnormalizr re-exports memo types by name instead of `export type *`\n(TS 5.0 syntax that downlevel-dts leaves as is).\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01MpCgcZt8G8R5KARZ7z5CKE\n\n* docs(blog): Note legacy TypeScript types fix\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01MpCgcZt8G8R5KARZ7z5CKE\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>\n\n* fix(types): Fix endpoint/rest legacy type errors with skipLibCheck off (#4140)\n\n* fix(types): Apply newer legacy type overlays to older TS outputs\n\nendpoint and normalizr legacy outputs (ts4.2, ts4.0, ts3.4) now inherit\nevery newer version's src-*-types overlay, as rest already did. This\nreplaces the TS 5.4 NoInfer builtin with the NI<T> = T fallback for\nTS < 4.8 consumers.\n\nnormalizr re-exports memo types by name instead of `export type *`\n(TS 5.0 syntax that downlevel-dts leaves as is).\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01MpCgcZt8G8R5KARZ7z5CKE\n\n* docs(blog): Note legacy TypeScript types fix\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01MpCgcZt8G8R5KARZ7z5CKE\n\n* fix(types): Fix endpoint/rest legacy type errors with skipLibCheck off\n\n- TS 4.0: unroll RemoveArray and approximate PartialArray (recursive\n  conditional types need 4.1) in new src-4.0-types overlays\n- TS <4.2: rewrite `abstract new` to `new` in the downleveled output and\n  drop the stale src-4.0-types Entity/EntityTypes copies\n- TS 4.2: ConstructorInstance<> replaces InstanceType<> on abstract TBase\n- TS 4.2-4.4: UnionInstance Args is unconstrained\n- TS 4.0-4.5: rest getPage narrows paginationField with Extract<>\n- CI: esmodule-types also typechecks a skipLibCheck: false consumer\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01AMEHZGboXdMFRkF4D2ktki\n\n* docs(blog): Link #4140 in v0.19 notes\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01AMEHZGboXdMFRkF4D2ktki\n\n* refactor(types): Isolate recursive tuple types so the 4.0 overlay is one small file\n\n- RemoveArray and PartialArray move to tupleTypes.ts; the src-4.0-types\n  overlay replaces only that module instead of copying endpointTypes/utility\n- Legacy build only rewrites files that contain `abstract new (`\n- libcheck typetest skips TypeScript's own lib checks\n- Split the legacy types bullet in ci-config.mdc\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01AMEHZGboXdMFRkF4D2ktki\n\n* internal: Resolve leftover merge conflict in ci-config rule\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01AMEHZGboXdMFRkF4D2ktki\n\n* internal: Resolve leftover merge conflict in build-legacy-types.sh\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01AMEHZGboXdMFRkF4D2ktki\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>\n\n* internal(ci): Harden legacy types script and libcheck lib/ on latest TS\n\nversion_lt compares major.minor in bash instead of relying on sort -V\n(a missing -V silently skipped the abstract new rewrite), and the\nabstract new grep no longer fails the build under pipefail when nothing\nmatches. esmodule-types-latest also runs the skipLibCheck: false\ntypetest so lib/ is checked on the newest compiler.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01EEcQdob4nGVuMq91oUHC2V\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-04T11:20:54-04:00",
+          "tree_id": "1a3cb0f4485f4588e2bb3560c1844f78bad1da11",
+          "url": "https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc"
+        },
+        "date": 1791127530538,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 435,
+            "range": "±4.05%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 396,
+            "range": "±1.28%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "normalizeLong Scalar",
+            "value": 371,
+            "range": "±3.34%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "normalizeLong Scalar update",
+            "value": 901,
+            "range": "±0.24%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 227,
+            "range": "±6.64%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 219,
+            "range": "±4.15%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 1004,
+            "range": "±0.68%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 741,
+            "range": "±0.15%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar donotcache",
+            "value": 1034,
+            "range": "±0.57%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 1383,
+            "range": "±0.14%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 628,
+            "range": "±7.30%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 6544,
+            "range": "±0.57%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 3096,
+            "range": "±2.95%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 59202,
+            "range": "±1.22%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 6282,
+            "range": "±2.76%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 213,
+            "range": "±8.11%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 6436,
+            "range": "±0.36%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong withCache (Scalar churn)",
+            "value": 6429,
+            "range": "±0.70%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 5157,
+            "range": "±1.10%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar withCache",
+            "value": 7840,
+            "range": "±0.38%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar update withCache",
+            "value": 4086,
+            "range": "±0.46%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 6426,
+            "range": "±0.24%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 6538,
+            "range": "±1.91%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 1769,
+            "range": "±0.30%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50",
+            "value": 4565,
+            "range": "±7.95%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50 donotcache",
+            "value": 41869,
+            "range": "±0.22%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 4469,
+            "range": "±3.49%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 10408471,
+            "range": "±0.70%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 210,
+            "range": "±7.15%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 3553,
+            "range": "±1.61%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 2886,
+            "range": "±0.13%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 4488,
+            "range": "±3.44%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 3804,
+            "range": "±0.22%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 4955,
+            "range": "±1.97%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 434,
+            "range": "±0.27%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 252,
+            "range": "±0.95%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 268,
+            "range": "±0.51%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 909,
+            "range": "±1.44%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "setMany 50x one-per-row",
+            "value": 156,
+            "range": "±0.22%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "setMany 50 batch",
+            "value": 3655,
+            "range": "±0.58%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "setMany 500x one-per-row",
+            "value": 15.95,
+            "range": "±0.39%",
+            "unit": "ops/sec",
+            "extra": "44 samples"
+          },
+          {
+            "name": "setMany 500 batch",
+            "value": 1422,
+            "range": "±0.16%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
           }
         ]
       }
