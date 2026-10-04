@@ -25,7 +25,6 @@ alwaysApply: false
 
 ## Vercel docs site (`website/scripts/vercel-ignore.sh`)
 
-- `website/vercel.json` `ignoreCommand` runs that script from the `website/` root. Exit 0 skips the build; exit 1 builds. Vercel treats any other status as build, so the script exits 0 only when it can see that the published site is unchanged, and builds if the diff cannot be computed.
-- Same paths as the workflows, minus files that are not published: `website/CHANGELOG.md`, `website/**/__tests__/**`, and `website/**/*.test.*`. `gh-pages*` branches always skip.
-- Preview branches compare the pull request's own changes (last successful preview, or merge-base with `master`). Do not use `git diff HEAD^ HEAD` there: merging `master` into a package or CI PR makes that diff the incoming master tree and starts a full preview build. Production (`master`, `rest-hooks-site`, or `VERCEL_ENV=production`) compares against the last successful deploy, or `HEAD^` for a squash merge.
-- A skipped build still creates a Vercel deployment long enough to run this script, then cancels it. `git.deploymentEnabled: false` does not stick when the project dashboard overrides it.
+- `website/vercel.json` `ignoreCommand` runs it: exit 0 skips, exit 1 builds. It skips only when it can see the published site is unchanged, so any git failure builds. `SITE_PATHS` matches the workflow `paths` minus unpublished files (`website/CHANGELOG.md`, `website/**/__tests__/**`, `website/**/*.test.*`); `gh-pages*` branches always skip. `website/scripts/vercel-ignore.test.sh` covers each rule.
+- Previews diff the PR's own changes (since the last preview, against a merge commit's upstream parent, or from the merge-base with `master`). Never `git diff HEAD^ HEAD` there: after merging `master` into a package PR that diff is master's site changes. Production (`master`, `rest-hooks-site`, `VERCEL_ENV=production`) diffs since the last deploy, else `HEAD^`.
+- A skipped build still creates a canceled Vercel deployment; `git.deploymentEnabled: false` does not stick while the project dashboard overrides it.
