@@ -169,6 +169,7 @@ function sourcePath(framework, docPath) {
 }
 
 module.exports = {
+  FM,
   generate,
   watch,
   sidebarsFor,

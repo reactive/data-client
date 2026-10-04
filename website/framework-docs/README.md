@@ -97,7 +97,7 @@ when docs are added, renamed or deleted.
 
 A `skills` list in `references.json` bundles other skills, so one skill works without the others
 installed (`data-client-setup` carries the REST, GraphQL and endpoint setup skills). Each bundled
-skill's `SKILL.md` body becomes `references/<skill>.md`, with its `references/` links pointing into
+skill's `SKILL.md` body becomes `references/<skill>.md`, with its relative links pointing into
 `references/<skill>/`, which holds copies of its references and scripts.
 
 Partials can use `props` in `{...}` expressions; the generator evaluates them with the props passed
