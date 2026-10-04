@@ -16,7 +16,10 @@ export default function providerSetup({
   imports?: string[];
 }) {
   const lines = codeOf(children).trimEnd().split('\n');
-  const firstCode = lines.findIndex(line => !line.startsWith('import '));
+  // leading imports (blank lines between them allowed)
+  const firstCode = lines.findIndex(
+    line => line.trim() !== '' && !line.startsWith('import '),
+  );
   const split = firstCode === -1 ? lines.length : firstCode;
   const own = lines.slice(0, split).filter(Boolean);
   const managers = lines.slice(split).join('\n').trim();
@@ -89,14 +92,16 @@ app.mount('#app');`,
   };
 }
 
-/** Raw text of the first code block in MDX children */
+/** Raw text of the first fenced code block in MDX children */
 function codeOf(children: ReactNode): string {
   for (const child of Children.toArray(children)) {
-    if (typeof child === 'string') return child;
-    if (isValidElement<{ children?: ReactNode }>(child)) {
-      const code = codeOf(child.props.children);
-      if (code) return code;
-    }
+    if (!isValidElement<{ children?: ReactNode; className?: string }>(child))
+      continue;
+    const { children: inner, className } = child.props;
+    if (className?.startsWith('language-') && typeof inner === 'string')
+      return inner;
+    const code = codeOf(inner);
+    if (code) return code;
   }
   return '';
 }

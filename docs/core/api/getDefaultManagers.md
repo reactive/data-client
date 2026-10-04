@@ -33,12 +33,6 @@ const managers = getDefaultManagers({
 
 </ProviderManagers>
 
-:::react
-
-See [DataProvider](./DataProvider.md) for details on usage in different environments.
-
-:::
-
 :::vue
 
 When `managers` is omitted, `DataClientPlugin` uses `getDefaultManagers()` with no arguments.
