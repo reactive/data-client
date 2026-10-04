@@ -1,4 +1,4 @@
-/** Types for batch `Controller.set([Entity], rows)` */
+/** Value types for `Controller.set()`, including batch `set([Entity], rows)` */
 import type { Denormalize } from '@data-client/normalizr';
 
 /** Matches Entity classes (same members Denormalize<> checks).
@@ -63,19 +63,44 @@ type SetRow<U> =
     { readonly [K in Exclude<keyof U, FunctionKeys<U>>]?: SetField<U[K]> }
   : never;
 
-/** Polymorphic rows may carry a discriminator that is not an Entity field */
-type SetRowOf<Sch, U> =
-  Sch extends EntityLike ? SetRow<U>
-  : SetRow<U> & { readonly [k: string]: unknown };
-
 export type SetManyValue<S> =
   S extends readonly (infer E)[] ?
     true extends IsUnion<E> ?
       readonly { 'Use a Union schema for several Entity types': never }[]
-    : readonly SetRowOf<E, Denormalize<E>>[]
-  : S extends { readonly schema: infer Sch } ?
-    Denormalize<S> extends readonly (infer U)[] ? readonly SetRowOf<Sch, U>[]
-    : Denormalize<S> extends { readonly [k: string]: infer U } ?
-      { readonly [k: string]: SetRowOf<Sch, U> }
-    : never
+    : SetInput<readonly Denormalize<E>[]>
+  : SetInput<Denormalize<S>>;
+
+/** Raw input `set()` normalizes for a Queryable */
+export type SetValue<S> =
+  NormalizedSchema<S> extends infer N ?
+    N extends EntityLike ?
+      SetRow<Denormalize<N>>
+    : SetInput<Denormalize<N>>
   : never;
+
+/** Query normalizes with its inner schema; its process() output is not input.
+ * Entity is checked first since its static `schema` and `process` match too. */
+type NormalizedSchema<S> =
+  S extends EntityLike ? S
+  : S extends { readonly schema: infer Sch; process(...args: any): any } ? Sch
+  : S;
+
+/** Raw input for a denormalized value, like a Collection's list or a Union's row */
+type SetInput<T> =
+  0 extends 1 & T ? any
+  : // not distributive, so a Union's members stay together for SetItem
+  [T] extends [readonly (infer U)[]] ? readonly SetItem<U>[]
+  : [T] extends [object] ?
+    string extends keyof T ?
+      { readonly [k: string]: SetItem<T[string & keyof T]> }
+    : SetItem<T>
+  : SetField<T>;
+
+/**
+ * One member of a list or keyed object. Polymorphic rows may carry a
+ * discriminator that is not an Entity field.
+ */
+type SetItem<U> =
+  true extends IsUnion<U> ? SetRow<U> & { readonly [k: string]: unknown }
+  : U extends object ? SetRow<U>
+  : SetField<U>;

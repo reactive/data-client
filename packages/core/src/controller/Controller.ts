@@ -33,7 +33,7 @@ import {
   createSetResponse,
 } from './actions/index.js';
 import ensurePojo from './ensurePojo.js';
-import type { SetManySchema, SetManyValue } from './setManyTypes.js';
+import type { SetManySchema, SetManyValue, SetValue } from './setManyTypes.js';
 import type { EndpointUpdateFunction } from './types.js';
 import { ReduxMiddlewareAPI } from '../manager/applyManager.js';
 import type { GCInterface } from '../state/GCPolicy.js';
@@ -226,12 +226,15 @@ export default class Controller<
    */
   set<S extends Queryable>(
     schema: S,
-    ...rest: readonly [...SchemaArgs<S>, (previousValue: Denormalize<S>) => {}]
+    ...rest: readonly [
+      ...SchemaArgs<S>,
+      (previousValue: Denormalize<S>) => SetValue<S>,
+    ]
   ): Promise<void>;
 
   set<S extends Queryable>(
     schema: S,
-    ...rest: readonly [...SchemaArgs<S>, {}]
+    ...rest: readonly [...SchemaArgs<S>, SetValue<S>]
   ): Promise<void>;
 
   /**
