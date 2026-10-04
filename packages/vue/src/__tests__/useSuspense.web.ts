@@ -386,7 +386,12 @@ describe('vue useSuspense()', () => {
     const articleRef = await result;
     expect(articleRef.value.title).toBe(payload.title);
 
-    await new Promise(resolve => setTimeout(resolve, 50));
+    // expiring the data makes the hook refetch the same args
+    await controller.expireAll({
+      testKey: key => key.startsWith('RefetchEndpoint'),
+    });
+    await nextTick();
+    expect(fetchCount).toBe(2);
     const UpdateEndpoint = new Endpoint(
       (body: typeof payload) => Promise.resolve(body),
       { schema: CoolerArticle, sideEffect: true, name: 'RefetchUpdate' },
@@ -549,6 +554,41 @@ describe('vue useSuspense()', () => {
     // The data should now be from the final fetch (payload2)
     expect(articleRef.value?.title).toBe(payload2.title);
     expect(articleRef.value?.content).toBe(payload2.content);
+
+    cleanup();
+  });
+
+  it('should not refetch stale data on store updates that keep expiry unchanged', async () => {
+    const fetchMock = jest.fn(async ({ id }: { id: number }) => ({
+      ...payload,
+      id,
+    }));
+    const staleEndpoint = new Endpoint(fetchMock, {
+      schema: CoolerArticle,
+      dataExpiryLength: 20,
+      name: 'staleArticle',
+    });
+
+    const { result, controller, waitForNextUpdate, cleanup } =
+      await renderDataCompose(() => useSuspense(staleEndpoint, { id: 77 }));
+    await waitForNextUpdate();
+    const articleRef = await result;
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    // let data become stale
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    await controller.set(
+      CoolerArticle,
+      { id: 77 },
+      { id: 77, title: 'edited' },
+    );
+    await nextTick();
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    // the store update should not trigger a refetch that overwrites the set
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(articleRef.value?.title).toBe('edited');
 
     cleanup();
   });
