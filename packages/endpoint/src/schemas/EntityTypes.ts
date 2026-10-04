@@ -61,7 +61,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
     value: Partial<AbstractInstanceType<T>>,
     parent?: any,
     key?: string,
-    args?: any[],
+    args?: readonly any[],
   ): string | number | undefined;
   /** Return true to merge incoming data; false keeps existing entity
    *
