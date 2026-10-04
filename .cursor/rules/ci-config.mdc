@@ -19,5 +19,11 @@ alwaysApply: false
 ## GitHub Actions (`.github/workflows/`)
 
 - Workflows install only needed workspaces via `./scripts/ci-install.sh [extra-workspace ...]`.
+- `site-preview.yml`/`site-release.yml` `paths` (`website/**`, `docs/{core,rest,graphql}/**`) must match `SITE_PATHS` in `website/scripts/vercel-ignore.sh`.
 - `benchmark-react.yml` caches Playwright browsers keyed on the resolved `playwright` version from `examples/benchmark-react`; bumping playwright invalidates the cache automatically.
 - Benchmark workflows (`benchmark.yml`, `benchmark-react.yml`) tune the host (CPU governor, swapoff) and pin CPUs with `taskset` — they must run directly on the runner, not in a `container:`.
+
+## Vercel docs site (`website/scripts/vercel-ignore.sh`)
+
+- Vercel's ignore step: exit 0 skips, anything else builds, so fail open. Never diff only `HEAD^`: a master merge or multi-commit push makes it wrong. Run `vercel-ignore.test.sh` after changes.
+- `git.deploymentEnabled: false` doesn't stick (dashboard overrides it); skipped pushes still show as canceled deployments.
