@@ -1,4 +1,3 @@
-import { ExpiryStatus } from '@data-client/core';
 import type {
   EndpointInterface,
   Denormalize,
@@ -7,14 +6,14 @@ import type {
   DenormalizeNullable,
   ResolveType,
 } from '@data-client/core';
-import { computed, watch, ref, unref, type Ref } from 'vue';
+import { watch, ref, type Ref } from 'vue';
 
-import { useController, injectState } from '../context.js';
 import type {
   MaybeRefsOrGetters,
   MaybeRefsOrGettersNullable,
 } from '../types.js';
 import refetchTriggers from './refetchTriggers.js';
+import useResponseMeta, { isStale } from './useResponseMeta.js';
 
 type FetchPromise<T = any> = Promise<T> & { resolved: boolean };
 
@@ -77,25 +76,8 @@ export default function useFetch(
   endpoint: any,
   ...args: any[]
 ): Readonly<Ref<FetchPromise | undefined>> {
-  const stateRef = injectState();
-  const controller = useController();
-
-  // Track top-level reactive args (Refs are unwrapped). This allows props/refs to trigger updates.
-  const resolvedArgs = computed(() => args.map(a => unref(a as any)) as any);
-
-  // Compute a key that changes when args change (including reactive props)
-  const argsKey = computed(() =>
-    resolvedArgs.value[0] !== null ? endpoint.key(...resolvedArgs.value) : '',
-  );
-
-  // Compute response meta reactively so we can respond to store updates
-  const responseMeta = computed(() => {
-    return controller.getResponseMeta(
-      endpoint,
-      ...resolvedArgs.value,
-      stateRef.value,
-    );
-  });
+  const { controller, stateRef, resolvedArgs, argsKey, responseMeta } =
+    useResponseMeta(endpoint, args);
 
   const lastPromise = ref<FetchPromise | undefined>(undefined);
   let lastKey = '';
@@ -107,10 +89,7 @@ export default function useFetch(
       lastKey = '';
       return;
     }
-    const meta = responseMeta.value;
-    const forceFetch = meta.expiryStatus === ExpiryStatus.Invalid;
-
-    if (Date.now() > meta.expiresAt || forceFetch) {
+    if (isStale(responseMeta.value)) {
       lastPromise.value = trackPromise(
         controller.fetch(endpoint, ...resolvedArgs.value),
       );
