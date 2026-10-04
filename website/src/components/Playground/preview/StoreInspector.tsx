@@ -2,7 +2,7 @@ import { StateContext } from '@data-client/react';
 import clsx from 'clsx';
 import React, { useContext, memo, useMemo } from 'react';
 
-import styles from './styles.module.css';
+import styles from '../styles.module.css';
 import Tree from './Tree';
 
 function StoreInspector({
@@ -24,7 +24,7 @@ function StoreInspector({
 }
 export default memo(StoreInspector);
 
-/** Toggle row shared with the preview loading fallback in ./index.tsx */
+/** Toggle row; also rendered (inert) by the preview loading fallback in ../index.tsx */
 export function StoreToggle({
   onClick,
   open = true,
