@@ -37,10 +37,19 @@ function Harness() {
 }
 
 describe('useRenderCount', () => {
+  test('stays hidden until a commit is reported', () => {
+    function NoCommits() {
+      return useRenderCount(true).badge;
+    }
+    render(<NoCommits />);
+    expect(screen.getByTitle(/React commits/).hidden).toBe(true);
+  });
+
   test('counts commits of the profiled subtree and resets on click', () => {
     jest.useFakeTimers();
     render(<Harness />);
     const badge = screen.getByTitle(/React commits/);
+    expect(badge.hidden).toBe(false);
     expect(badge.textContent).toBe('1 render');
 
     fireEvent.click(screen.getByText('batched'));

@@ -124,8 +124,9 @@ DesignSystem/       components injected into preview scope
   avoids scroll jumps; in `row` layout it replaces the result while open.
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
   count in the preview header (written to the DOM, so counting adds no commits).
-  `website/profiling-plugin.js` aliases `react-dom/client` to React's profiling
-  build because production builds never call `onRender`.
+  `website/profiling-plugin.js` replaces `react-dom/client` with React's
+  profiling build because production builds never call `onRender`; the badge
+  stays hidden if that ever stops working.
 - Third-party console noise is demoted only while previews are mounted
   (`usePlaygroundConsoleDemotion`); never add first-party matchers.
 
