@@ -18,6 +18,8 @@ Hard errors always reject with `error` - even when data has previously made avai
 'hard' | `undefined` can both be used to indicate this state.
 
 ```ts title="api/lastUpdated"
+import { Entity, RestEndpoint } from '@data-client/rest';
+
 export class TimedEntity extends Entity {
   id = '';
   updatedAt = Temporal.Instant.fromEpochMilliseconds(0);
@@ -33,102 +35,80 @@ export const lastUpdated = new RestEndpoint({
 });
 ```
 
-```tsx title="TimePage"
+```ts title="getUpdated"
 import { lastUpdated } from './api/lastUpdated';
 
 export const getUpdated = lastUpdated.extend({
   fetch(this: any, arg) {
-    return this.FAKE_ERROR !== undefined
-      ? Promise.reject(this.FAKE_ERROR)
-      : lastUpdated(arg);
+    // fail once with FAKE_ERROR when it is set
+    const error = this.FAKE_ERROR;
+    this.FAKE_ERROR = undefined;
+    return error ? Promise.reject(error) : lastUpdated(arg);
   },
   errorPolicy: error =>
     error.status >= 500 ? ('soft' as const) : ('hard' as const),
   FAKE_ERROR: undefined as Error | undefined,
 });
 
-export default function TimePage({ id }) {
-  const { updatedAt } = useSuspense(getUpdated, { id });
-  React.useEffect(
-    () => () => {
-      getUpdated.FAKE_ERROR = undefined;
-    },
-    [updatedAt],
-  );
-  return (
-    <div>
-      API time:{' '}
-      <time>
-        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(
-          updatedAt,
-        )}
-      </time>
-    </div>
-  );
-}
+export const createError = (status: number) =>
+  Object.assign(new Error('fake error'), { status });
 ```
 
-```tsx title="ShowTime"
-import TimePage, { getUpdated } from './TimePage';
+```html title="TimePage.vue"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getUpdated } from './getUpdated';
 
-function createError(status) {
-  const error: Error & { status: any } = new Error(
-    'fake error',
-  ) as any;
-  error.status = status;
-  return error;
-}
+  const props = defineProps<{ id: string }>();
+  const time = await useSuspense(getUpdated, () => ({ id: props.id }));
+</script>
 
-function ShowTime() {
+<template>
+  <div>
+    API time:
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+  </div>
+</template>
+```
+
+```html title="ShowTime.vue"
+<script setup lang="ts">
+  import { onErrorCaptured, ref } from 'vue';
+  import { useController } from '@data-client/vue';
+  import { getUpdated, createError } from './getUpdated';
+  import TimePage from './TimePage.vue';
+
   const ctrl = useController();
-  return (
-    <div>
-      <AsyncBoundary fallback={<div>loading...</div>}>
-        <TimePage id="1" />
-      </AsyncBoundary>
-      <div>
-        <button
-          onClick={() => {
-            getUpdated.FAKE_ERROR = createError(500);
-            ctrl.fetch(getUpdated, { id: '1' });
-          }}
-        >
-          Fetch Soft
-        </button>
-        <button
-          onClick={() => {
-            getUpdated.FAKE_ERROR = createError(400);
-            ctrl.fetch(getUpdated, { id: '1' });
-          }}
-        >
-          Fetch Hard
-        </button>
-        <button
-          onClick={() => {
-            getUpdated.FAKE_ERROR = createError(500);
-            ctrl.invalidate(getUpdated, { id: '1' });
-          }}
-        >
-          Invalidate Soft
-        </button>
-        <button
-          onClick={() => {
-            getUpdated.FAKE_ERROR = createError(400);
-            ctrl.invalidate(getUpdated, { id: '1' });
-          }}
-        >
-          Invalidate Hard
-        </button>
-      </div>
-    </div>
-  );
-}
+  const error = ref<Error | null>(null);
+  onErrorCaptured(e => {
+    error.value = e;
+    return false;
+  });
 
-render(
-  <ResetableErrorBoundary>
-    <ShowTime />
-  </ResetableErrorBoundary>,
-);
+  const fail = (action: 'fetch' | 'invalidate', status: number) => {
+    getUpdated.FAKE_ERROR = createError(status);
+    ctrl[action](getUpdated, { id: '1' });
+  };
+</script>
+
+<template>
+  <div>
+    <div v-if="error">
+      {{ error.message }}
+      <button @click="error = null">Reset</button>
+    </div>
+    <Suspense v-else>
+      <TimePage id="1" />
+      <template #fallback><div>loading...</div></template>
+    </Suspense>
+    <div>
+      <button @click="fail('fetch', 500)">Fetch Soft</button>
+      <button @click="fail('fetch', 400)">Fetch Hard</button>
+      <button @click="fail('invalidate', 500)">Invalidate Soft</button>
+      <button @click="fail('invalidate', 400)">Invalidate Hard</button>
+    </div>
+  </div>
+</template>
 ```
 
 ### Policy for RestEndpoint

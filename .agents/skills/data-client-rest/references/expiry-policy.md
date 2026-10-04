@@ -40,6 +40,8 @@ Toggling between 'first' and 'second' changes the parameters. If the data is sti
 you will continue to see the old time without any refresh.
 
 ```ts title="api/lastUpdated"
+import { Entity, RestEndpoint } from '@data-client/rest';
+
 export class TimedEntity extends Entity {
   id = '';
   updatedAt = Temporal.Instant.fromEpochMilliseconds(0);
@@ -55,10 +57,14 @@ export const lastUpdated = new RestEndpoint({
 });
 ```
 
-```tsx title="TimePage"
+```ts title="getUpdated"
 import { lastUpdated } from './api/lastUpdated';
 
-const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
+export const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
+```
+
+```tsx title="TimePage"
+import { getUpdated } from './getUpdated';
 
 export default function TimePage({ id }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
@@ -162,6 +168,8 @@ This is demonstrated by the component suspending once its data goes stale. If th
 within the expiry time it just continues to display it.
 
 ```ts title="api/lastUpdated"
+import { Entity, RestEndpoint } from '@data-client/rest';
+
 export class TimedEntity extends Entity {
   id = '';
   updatedAt = Temporal.Instant.fromEpochMilliseconds(0);
@@ -177,13 +185,17 @@ export const lastUpdated = new RestEndpoint({
 });
 ```
 
-```tsx title="TimePage"
+```ts title="getUpdated"
 import { lastUpdated } from './api/lastUpdated';
 
-const getUpdated = lastUpdated.extend({
+export const getUpdated = lastUpdated.extend({
   invalidIfStale: true,
   dataExpiryLength: 5000,
 });
+```
+
+```tsx title="TimePage"
+import { getUpdated } from './getUpdated';
 
 export default function TimePage({ id }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
@@ -238,6 +250,8 @@ We sometimes want to fetch new data; while continuing to show the old (stale) da
 the previous data. This can be done even with 'fresh' data.
 
 ```ts title="api/lastUpdated"
+import { Entity, RestEndpoint } from '@data-client/rest';
+
 export class TimedEntity extends Entity {
   id = '';
   updatedAt = Temporal.Instant.fromEpochMilliseconds(0);
@@ -280,6 +294,8 @@ render(<ShowTime />);
 [Controller.expireAll()](https://dataclient.io/docs/api/Controller#expireAll) sets all responses' [expiry status](#expiry-status) matching `testKey` to [Stale](#stale).
 
 ```ts title="api/lastUpdated"
+import { Entity, RestEndpoint } from '@data-client/rest';
+
 export class TimedEntity extends Entity {
   id = '';
   updatedAt = Temporal.Instant.fromEpochMilliseconds(0);
@@ -359,9 +375,11 @@ Both [endpoints](https://dataclient.io/rest/api/Endpoint) and [entities](./Entit
 
 ### A specific endpoint {#invalidate-endpoint}
 
-In this example we can see [invalidating the endpoint](https://dataclient.io/docs/api/Controller#invalidate) shows the loading fallback since the data is not allowed to be displayed.
+In this example [invalidating the endpoint](https://dataclient.io/docs/api/Controller#invalidate) shows the loading fallback since the data is not allowed to be displayed.
 
 ```ts title="api/lastUpdated"
+import { Entity, RestEndpoint } from '@data-client/rest';
+
 export class TimedEntity extends Entity {
   id = '';
   updatedAt = Temporal.Instant.fromEpochMilliseconds(0);

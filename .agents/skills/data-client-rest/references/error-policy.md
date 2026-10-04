@@ -18,6 +18,8 @@ Hard errors always reject with `error` - even when data has previously made avai
 'hard' | `undefined` can both be used to indicate this state.
 
 ```ts title="api/lastUpdated"
+import { Entity, RestEndpoint } from '@data-client/rest';
+
 export class TimedEntity extends Entity {
   id = '';
   updatedAt = Temporal.Instant.fromEpochMilliseconds(0);
@@ -33,28 +35,30 @@ export const lastUpdated = new RestEndpoint({
 });
 ```
 
-```tsx title="TimePage"
+```ts title="getUpdated"
 import { lastUpdated } from './api/lastUpdated';
 
 export const getUpdated = lastUpdated.extend({
   fetch(this: any, arg) {
-    return this.FAKE_ERROR !== undefined
-      ? Promise.reject(this.FAKE_ERROR)
-      : lastUpdated(arg);
+    // fail once with FAKE_ERROR when it is set
+    const error = this.FAKE_ERROR;
+    this.FAKE_ERROR = undefined;
+    return error ? Promise.reject(error) : lastUpdated(arg);
   },
   errorPolicy: error =>
     error.status >= 500 ? ('soft' as const) : ('hard' as const),
   FAKE_ERROR: undefined as Error | undefined,
 });
 
+export const createError = (status: number) =>
+  Object.assign(new Error('fake error'), { status });
+```
+
+```tsx title="TimePage"
+import { getUpdated } from './getUpdated';
+
 export default function TimePage({ id }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
-  React.useEffect(
-    () => () => {
-      getUpdated.FAKE_ERROR = undefined;
-    },
-    [updatedAt],
-  );
   return (
     <div>
       API time:{' '}
@@ -69,15 +73,8 @@ export default function TimePage({ id }) {
 ```
 
 ```tsx title="ShowTime"
-import TimePage, { getUpdated } from './TimePage';
-
-function createError(status) {
-  const error: Error & { status: any } = new Error(
-    'fake error',
-  ) as any;
-  error.status = status;
-  return error;
-}
+import { getUpdated, createError } from './getUpdated';
+import TimePage from './TimePage';
 
 function ShowTime() {
   const ctrl = useController();
