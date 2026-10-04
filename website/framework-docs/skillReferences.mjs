@@ -221,6 +221,6 @@ const problems = fs.readdirSync(SKILLS).flatMap(skill => {
   ];
 });
 if (problems.length) {
-  console.error(`Skill problems:\n  ${problems.join('\n  ')}`);
+  console.error(`Skill problems:\n  ${[...new Set(problems)].join('\n  ')}`);
   process.exit(1);
 }
