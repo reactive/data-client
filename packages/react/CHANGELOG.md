@@ -1,5 +1,30 @@
 # @data-client/react
 
+## 0.18.2
+
+### Patch Changes
+
+- [#4103](https://github.com/reactive/data-client/pull/4103) [`f343f9d`](https://github.com/reactive/data-client/commit/f343f9d42a12f3ad763fac96362166d3b3156b69) - Fix `controller.set()` types for Array schemas
+
+  `controller.set([Entity], rows)` and `controller.set(new schema.Array(Entity), rows)` now typecheck. This writes every row in one store update: each row merges with its stored entity, and entities not in `rows` stay.
+
+  ```ts
+  // Before: TypeScript error on [Ticker], so batches became one set() per row
+  for (const row of rows) {
+    ctrl.set(Ticker, { product_id: row.product_id }, row);
+  }
+
+  // After: one store update
+  ctrl.set([Ticker], rows);
+  ```
+
+- [#4019](https://github.com/reactive/data-client/pull/4019) [`aa15f29`](https://github.com/reactive/data-client/commit/aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e) Thanks [@renovate](https://github.com/apps/renovate)! - Fix TypeScript 7 module resolution for package exports
+
+  TypeScript 7 requires a `types` condition in `package.json` `exports`. Without it, imports resolved to runtime entrypoints like `node.mjs` and lost declaration files.
+
+- Updated dependencies [[`f343f9d`](https://github.com/reactive/data-client/commit/f343f9d42a12f3ad763fac96362166d3b3156b69), [`aa15f29`](https://github.com/reactive/data-client/commit/aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e)]:
+  - @data-client/core@0.18.2
+
 ## 0.18.1
 
 ### Patch Changes
