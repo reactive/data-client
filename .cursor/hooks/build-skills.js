@@ -62,15 +62,25 @@ const isInput = file =>
 // files the branch changes relative to master, plus uncommitted ones when
 // the same command commits before pushing (`git commit -am x && git push`)
 try {
-  const dirty = git('status', '--porcelain', '--untracked-files=all')
+  // renames as delete + add, so the old path counts too
+  const dirty = git(
+    'status',
+    '--porcelain',
+    '--no-renames',
+    '--untracked-files=all',
+  )
     .split('\n')
-    // both sides of a rename
-    .flatMap(line => line.slice(3).split(' -> '))
+    .map(line => line.slice(3))
     .some(isInput);
   // the generator reads the working tree, so it can only vouch for what's
   // pushed when that includes these edits; otherwise leave it to CI
   if (dirty && !gitCommand('commit').test(command)) process.exit(0);
-  const committed = git('diff', '--name-only', 'origin/master...HEAD')
+  const committed = git(
+    'diff',
+    '--name-only',
+    '--no-renames',
+    'origin/master...HEAD',
+  )
     .split('\n')
     .some(isInput);
   if (!dirty && !committed) process.exit(0);
