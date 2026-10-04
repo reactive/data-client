@@ -9,6 +9,7 @@ import type {
 } from '@data-client/core';
 import {
   computed,
+  customRef,
   unref,
   watch,
   readonly,
@@ -121,7 +122,8 @@ export default async function useSuspense(
       ];
     },
     () => {
-      return maybeFetch();
+      // errors are stored and surfaced through the returned ref
+      maybeFetch().catch(() => {});
     },
   );
 
@@ -144,7 +146,13 @@ export default async function useSuspense(
   // current store data when there is any.
   let lastData: unknown;
   let lastKey = '';
-  const data = computed(() => {
+  // keep the same object when nothing changed, so readers only re-run on real changes
+  let lastResult: { data?: unknown; error?: unknown } = {};
+  const settle = (data: unknown, error?: unknown) =>
+    lastResult.data === data && lastResult.error === error ?
+      lastResult
+    : (lastResult = { data, error });
+  const result = computed(() => {
     const meta = responseMeta.value;
     const key = argsKey.value;
     // INVALID symbol (e.g. deleted entity) means no usable data
@@ -156,11 +164,28 @@ export default async function useSuspense(
       meta.expiryStatus !== ExpiryStatus.Valid &&
       (meta.expiryStatus === ExpiryStatus.Invalid ||
         Date.now() > meta.expiresAt);
-    if (loading) return lastData;
+    if (loading) return settle(lastData);
+    // surface fetch errors for the current args like React's useSuspense does
+    const error = controller.getError(
+      endpoint,
+      ...resolvedArgs.value,
+      stateRef.value,
+    );
+    if (error) return settle(undefined, error);
     lastKey = key;
-    return (lastData = metaData);
+    return settle((lastData = metaData));
   });
 
-  // Return readonly computed ref - Vue automatically unwraps in templates and reactive contexts
+  // Throw on every read; a computed that throws would return its cached value on the next read
+  const data = customRef(() => ({
+    get() {
+      const { data, error } = result.value;
+      if (error) throw error;
+      return data;
+    },
+    set() {},
+  }));
+
+  // Return readonly ref - Vue automatically unwraps in templates and reactive contexts
   return readonly(data);
 }
