@@ -15,7 +15,6 @@ const path = require('path');
 
 const { DOCS_INSTANCES } = require('./framework-docs/docsInstances.js');
 
-const ROOT = path.resolve(__dirname, '..');
 const frameworks = DOCS_INSTANCES.filter(d => d.framework);
 const shared = DOCS_INSTANCES.filter(d => !d.framework);
 
@@ -55,20 +54,21 @@ module.exports = function llmsPlugin(context) {
   return {
     name: 'llms-plugin',
     async postBuild({ outDir, plugins, siteConfig: { url } }) {
-      const { docToMarkdown } =
+      const { docToMarkdown, ROOT } =
         await import('./framework-docs/docsToMarkdown.mjs');
 
       // docs instance -> what to render it as
-      const sets = new Map([
-        ...frameworks.map(({ id, framework, path: source }) => [
-          id,
-          { framework, title: 'Core', source: path.resolve(ROOT, source) },
+      // shared docs render as React; their links are the same in every framework
+      const sets = new Map(
+        DOCS_INSTANCES.map(d => [
+          d.id,
+          {
+            framework: d.framework ?? 'react',
+            title: d.framework ? 'Core' : d.name,
+            source: path.resolve(ROOT, d.path),
+          },
         ]),
-        ...shared.map(({ id, name }) => [
-          id,
-          { framework: 'react', title: name },
-        ]),
-      ]);
+      );
       for (const [id, set] of sets) {
         const plugin = plugins.find(
           p =>
@@ -111,10 +111,7 @@ module.exports = function llmsPlugin(context) {
             );
             // the Vue mirror has the same layout as docs/core; docToMarkdown
             // applies `.vue.md` overrides and front matter itself
-            const file =
-              set.source ?
-                path.join(set.source, path.relative(set.dir, source))
-              : source;
+            const file = path.join(set.source, path.relative(set.dir, source));
             const content = docToMarkdown(file, set.framework, {
               resolveRoute,
             });

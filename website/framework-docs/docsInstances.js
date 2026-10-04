@@ -38,5 +38,8 @@ const DOCS_INSTANCES = [
 ];
 
 const docsInstance = id => DOCS_INSTANCES.find(d => d.id === id);
+/** The instance rendering docs/core for a framework */
+const frameworkInstance = framework =>
+  DOCS_INSTANCES.find(d => d.framework === framework);
 
-module.exports = { DOCS_INSTANCES, docsInstance };
+module.exports = { DOCS_INSTANCES, docsInstance, frameworkInstance };

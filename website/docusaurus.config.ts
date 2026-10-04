@@ -18,16 +18,19 @@ require('./scripts/generateMonacoPreloads.cjs').ensureMonacoPreloadManifest();
 const isDev = process.env.NODE_ENV === 'development';
 
 // docs/core is shared by React (/docs) and Vue (/vue); see framework-docs/
-const { docsInstance } = require('./framework-docs/docsInstances.js');
+const {
+  docsInstance,
+  frameworkInstance,
+} = require('./framework-docs/docsInstances.js');
 const frameworkDocs = require('./framework-docs/index.js');
 const remarkFramework = require('./framework-docs/remarkFramework.js');
 const vueDocs = frameworkDocs.generate('vue');
 if (isDev) frameworkDocs.watch('vue');
-const vueInstance = docsInstance('vue');
+const vueInstance = frameworkInstance('vue');
 /** Plugin options locating a docs instance (framework-docs/docsInstances.js) */
 const docsLocation = (id: string) => {
   const { path: docsPath, routeBasePath } = docsInstance(id);
-  return { path: `../${docsPath}`, routeBasePath };
+  return { id, path: `../${docsPath}`, routeBasePath };
 };
 
 const config: Config = {
@@ -292,7 +295,6 @@ const config: Config = {
     [
       '@docusaurus/plugin-content-docs',
       {
-        id: 'rest',
         ...docsLocation('rest'),
         sidebarPath: require.resolve('./sidebars-rest.js'),
         showLastUpdateAuthor: true,
@@ -319,7 +321,6 @@ const config: Config = {
     [
       '@docusaurus/plugin-content-docs',
       {
-        id: 'graphql',
         ...docsLocation('graphql'),
         sidebarPath: require.resolve('./sidebars-graphql.js'),
         showLastUpdateAuthor: true,
@@ -348,7 +349,8 @@ const config: Config = {
       {
         // Vue docs briefly lived at /docs/vue
         createRedirects(existingPath: string) {
-          if (existingPath === '/vue' || existingPath.startsWith('/vue/'))
+          const vue = `/${vueInstance.routeBasePath}`;
+          if (existingPath === vue || existingPath.startsWith(`${vue}/`))
             return `/docs${existingPath}`;
         },
         redirects: [

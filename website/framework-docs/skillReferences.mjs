@@ -12,9 +12,14 @@
  * Usage: node website/framework-docs/skillReferences.mjs [--check]
  */
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 
 import { ROOT, SITE, docToMarkdown, rel, routeOf } from './docsToMarkdown.mjs';
+
+const { frameworkInstance } = createRequire(import.meta.url)(
+  './docsInstances.js',
+);
 
 const SKILLS = path.join(ROOT, '.agents/skills');
 const MANIFEST = 'references.json';
@@ -23,7 +28,12 @@ const MD = /\.mdx?$/;
 
 /** Content ignoring the header and which framework's docs links point to */
 const comparable = content =>
-  content?.replace(/^.*\n/, '').replaceAll(`${SITE}/vue/`, `${SITE}/docs/`);
+  content
+    ?.replace(/^.*\n/, '')
+    .replaceAll(
+      `${SITE}/${frameworkInstance('vue').routeBasePath}/`,
+      `${SITE}/${frameworkInstance('react').routeBasePath}/`,
+    );
 
 /** Map of reference path -> content for one skill */
 function generateSkill(skillDir) {
