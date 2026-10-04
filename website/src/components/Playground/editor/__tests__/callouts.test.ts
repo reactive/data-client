@@ -39,6 +39,15 @@ describe('parseCallouts', () => {
       { line: 2, index: 3, text: 'two lines' },
     ]);
   });
+
+  test('warns about a callout with no code line after it', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    expect(parseCallouts('a;\n// callout: dangling').callouts).toEqual([]);
+    expect(warn).toHaveBeenCalledWith(
+      'DiffEditor: "// callout: dangling" has no code line after it',
+    );
+    warn.mockRestore();
+  });
 });
 
 describe('calloutMarker', () => {

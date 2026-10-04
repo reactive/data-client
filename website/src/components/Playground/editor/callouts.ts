@@ -61,6 +61,11 @@ export function parseCallouts(code: string, startIndex = 0): CalloutDocument {
       staticLines.push(line);
     }
   }
+  if (pending.length && process.env.NODE_ENV !== 'production') {
+    console.warn(
+      `DiffEditor: "// callout: ${pending.join(' ')}" has no code line after it`,
+    );
+  }
 
   return {
     editorValue: editorLines.join('\n'),
