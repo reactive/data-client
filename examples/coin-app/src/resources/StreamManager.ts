@@ -14,6 +14,9 @@ export default class StreamManager implements Manager {
     [];
 
   protected product_ids: string[] = [];
+  /** Messages waiting to be written, grouped by entity type */
+  protected buffer: Record<string, Record<string, any>> = {};
+  declare protected flushTimeout?: ReturnType<typeof setTimeout>;
   private attempts = 0;
   declare protected controller: Controller;
 
@@ -129,14 +132,29 @@ export default class StreamManager implements Manager {
 
   /** Every websocket message is sent here
    *
+   * Messages are buffered so bursts become a single store update.
+   * Only the latest message per product is kept, since rows in one batch
+   * skip Ticker.shouldReorder()
+   *
    * @param controller
    * @param msg JSON parsed message
    */
   handleMessage(ctrl: Controller, msg: any) {
     if (msg.type in this.entities) {
-      ctrl.set(this.entities[msg.type], msg, msg);
+      (this.buffer[msg.type] ??= {})[msg.product_id] = msg;
+      this.flushTimeout ??= setTimeout(this.flush, 50);
     }
   }
+
+  /** Writes all buffered messages; one `set()` per entity type */
+  flush = () => {
+    const buffer = this.buffer;
+    this.buffer = {};
+    this.flushTimeout = undefined;
+    for (const type in buffer) {
+      this.controller.set([this.entities[type]], Object.values(buffer[type]));
+    }
+  };
 
   init() {
     this.connect();
@@ -164,6 +182,9 @@ export default class StreamManager implements Manager {
     // remove our event handler that attempts reconnection
     this.evtSource.onclose = null;
     this.evtSource.close();
+    clearTimeout(this.flushTimeout);
+    this.flushTimeout = undefined;
+    this.buffer = {};
   }
 
   getMiddleware() {

@@ -22,12 +22,8 @@ Currently returns \[[DevToolsManager](./DevToolsManager.md)\*, [NetworkManager](
 :::react
 
 ```tsx
-import {
-  DevToolsManager,
-  DataProvider,
-  getDefaultManagers,
-} from '@data-client/react';
-import ReactDOM from 'react-dom';
+import { DataProvider, getDefaultManagers } from '@data-client/react';
+import { createRoot } from 'react-dom/client';
 
 // highlight-start
 const managers = getDefaultManagers({
@@ -36,7 +32,7 @@ const managers = getDefaultManagers({
 });
 // highlight-end
 
-ReactDOM.createRoot(document.body).render(
+createRoot(document.body).render(
   <DataProvider managers={managers}>
     <App />
   </DataProvider>,

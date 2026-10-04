@@ -30,19 +30,15 @@ to send to redux devtools.
 For example, we can enable the [trace](https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md#trace) option to help track down where actions are dispatched from.
 
 ```tsx title="index.tsx"
-import {
-  DevToolsManager,
-  DataProvider,
-  getDefaultManagers,
-} from '@data-client/react';
-import ReactDOM from 'react-dom';
+import { DataProvider, getDefaultManagers } from '@data-client/react';
+import { createRoot } from 'react-dom/client';
 
 const managers = getDefaultManagers({
   // highlight-next-line
   devToolsManager: { trace: true },
 });
 
-ReactDOM.createRoot(document.body).render(
+createRoot(document.body).render(
   <DataProvider managers={managers}>
     <App />
   </DataProvider>,
@@ -63,7 +59,7 @@ import {
   DataProvider,
   getDefaultManagers,
 } from '@data-client/react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 const managers =
   process.env.NODE_ENV !== 'production'
@@ -77,7 +73,7 @@ const managers =
       ]
     : getDefaultManagers();
 
-ReactDOM.createRoot(document.body).render(
+createRoot(document.body).render(
   <DataProvider managers={managers}>
     <App />
   </DataProvider>,
@@ -99,9 +95,11 @@ const managers = getDefaultManagers({
     // Increase latency buffer for high-frequency updates
     latency: 1000,
     // Skip WebSocket SET actions for Ticker to reduce log spam
+    // (including batched set([Ticker], rows) writes)
     // highlight-start
     predicate: (state, action) =>
-      action.type !== actionTypes.SET || action.schema !== Ticker,
+      action.type !== actionTypes.SET ||
+      (action.schema !== Ticker && action.schema[0] !== Ticker),
     // highlight-end
   },
 });
