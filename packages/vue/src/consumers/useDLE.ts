@@ -103,16 +103,15 @@ export default function useDLE(endpoint: any, ...args: any[]): any {
   /****************************************************************************************************/
 
   // Trigger fetch when necessary
+  // Multi-source form compares each value; a getter returning a new array
+  // would fire on every store update and refetch stale data unexpectedly
   watch(
-    () => {
-      const m = responseMeta.value;
-      return [
-        m.expiresAt,
-        m.expiryStatus,
-        stateRef.value.lastReset,
-        argsKey.value,
-      ];
-    },
+    [
+      () => responseMeta.value.expiresAt,
+      () => responseMeta.value.expiryStatus,
+      () => stateRef.value.lastReset,
+      argsKey,
+    ],
     async () => {
       const currentKey = argsKey.value;
       if (!currentKey) return;

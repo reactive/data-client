@@ -361,4 +361,39 @@ describe('vue useSuspense()', () => {
 
     cleanup();
   });
+
+  it('should not refetch stale data on store updates that keep expiry unchanged', async () => {
+    const fetchMock = jest.fn(async ({ id }: { id: number }) => ({
+      ...payload,
+      id,
+    }));
+    const staleEndpoint = new Endpoint(fetchMock, {
+      schema: CoolerArticle,
+      dataExpiryLength: 20,
+      name: 'staleArticle',
+    });
+
+    const { result, controller, waitForNextUpdate, cleanup } =
+      await renderDataCompose(() => useSuspense(staleEndpoint, { id: 77 }));
+    await waitForNextUpdate();
+    const articleRef = await result;
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    // let data become stale
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    await controller.set(
+      CoolerArticle,
+      { id: 77 },
+      { id: 77, title: 'edited' },
+    );
+    await nextTick();
+    await new Promise(resolve => setTimeout(resolve, 30));
+
+    // the store update should not trigger a refetch that overwrites the set
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(articleRef.value?.title).toBe('edited');
+
+    cleanup();
+  });
 });

@@ -109,16 +109,15 @@ export default function useFetch(endpoint: any, ...args: any[]): any {
   maybeFetch();
 
   // Also watch for store changes that might require refetch (e.g., invalidation)
+  // Multi-source form compares each value; a getter returning a new array
+  // would fire on every store update and refetch stale data unexpectedly
   watch(
-    () => {
-      const m = responseMeta.value;
-      return [
-        m.expiresAt,
-        m.expiryStatus,
-        stateRef.value.lastReset,
-        argsKey.value,
-      ];
-    },
+    [
+      () => responseMeta.value.expiresAt,
+      () => responseMeta.value.expiryStatus,
+      () => stateRef.value.lastReset,
+      argsKey,
+    ],
     () => {
       maybeFetch();
     },
