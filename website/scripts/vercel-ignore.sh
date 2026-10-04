@@ -59,29 +59,38 @@ upstream() {
   git rev-parse --verify -q origin/master || git rev-parse --verify -q master
 }
 
+# Vercel clones about 10 commits deep. Fetch more of this branch and master
+# when a comparison base is out of reach.
+deepen() {
+  [ -n "${VERCEL_GIT_COMMIT_REF:-}" ] &&
+    timeout 30 git fetch -q --no-tags --deepen=300 origin "$VERCEL_GIT_COMMIT_REF" \
+      '+refs/heads/master:refs/remotes/origin/master' 2>/dev/null
+}
+
 prev="${VERCEL_GIT_PREVIOUS_SHA:-}"
 
 # A push can carry several commits (rebase merges), so compare against the
-# last deploy, deepening the shallow clone if it's out of reach.
+# last deploy.
 if [[ "${VERCEL_GIT_COMMIT_REF:-}" =~ ^(master|rest-hooks-site)$ || "${VERCEL_ENV:-}" == production ]]; then
-  [ -n "$prev" ] && ! has_rev "$prev^{commit}" && [ -n "${VERCEL_GIT_COMMIT_REF:-}" ] &&
-    timeout 15 git fetch -q --no-tags --deepen=200 origin "$VERCEL_GIT_COMMIT_REF" 2>/dev/null
+  [ -n "$prev" ] && ! has_rev "$prev^{commit}" && deepen
   is_ancestor "$prev" HEAD && decide "$prev" HEAD "production changes since ${prev:0:12}"
   build "no previous production deploy to compare"
 fi
 
 # Previews compare the branch's changes, not commits merged in from upstream.
-# Merging master: if the branch tip has no new site files since the last
-# preview, no rebuild; otherwise diff against the merged master commit so its files
-# don't count. Merges of other branches fall through and count in full.
+# When the tip merges master, diff against the merged master commit: that
+# counts the branch's site files and any conflict resolutions, not master's.
+# Merges of other branches fall through and count in full.
 if has_rev 'HEAD^2' && master="$(upstream)" && is_ancestor 'HEAD^2' "$master"; then
-  is_ancestor "$prev" 'HEAD^1' && decide "$prev" 'HEAD^1' "preview changes since ${prev:0:12} (merge)"
-  decide 'HEAD^2' HEAD "preview changes vs upstream"
+  decide 'HEAD^2' HEAD "preview changes vs master (merge)"
 fi
 
 is_ancestor "$prev" HEAD && decide "$prev" HEAD "preview changes since ${prev:0:12}"
 
-if master="$(upstream)" && base="$(git merge-base HEAD "$master" 2>/dev/null)"; then
+merge_base() {
+  master="$(upstream)" && git merge-base HEAD "$master" 2>/dev/null
+}
+if base="$(merge_base)" || { deepen && base="$(merge_base)"; }; then
   decide "$base" HEAD "preview changes vs master"
 fi
 

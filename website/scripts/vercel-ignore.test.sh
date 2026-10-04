@@ -126,12 +126,22 @@ commit "pr packages" packages/core/src/set.ts .circleci/config.yml
 git -C "$repo" merge --no-edit "$master_sha" >/dev/null
 expect skip "preview merge of master into package PR" pkg-pr
 
-# Site PR already deployed, then merges a master that also changed the site.
+# Site PR already deployed, then merges master: rebuild so the preview
+# reflects the merged result.
 git -C "$repo" checkout -b site-pr "$master_sha^" >/dev/null 2>&1
 commit "pr website" website/docusaurus.config.ts
 deployed="$(git -C "$repo" rev-parse HEAD)"
 git -C "$repo" merge --no-edit "$master_sha" >/dev/null
-expect skip "preview merge after the site commit already deployed" site-pr "$deployed"
+expect build "preview merge of master into a deployed site PR" site-pr "$deployed"
+
+# A conflict resolution in the merge commit changes the site itself.
+git -C "$repo" checkout -b conflict-pr "$master_sha^" >/dev/null 2>&1
+commit "pr index" website/src/pages/index.js
+conflict_deployed="$(git -C "$repo" rev-parse HEAD)"
+git -C "$repo" merge --no-edit "$master_sha" >/dev/null 2>&1 || true
+printf 'resolved\n' >"$repo/website/src/pages/index.js"
+git -C "$repo" commit -qam "merge master" >/dev/null
+expect build "preview merge with a site conflict resolution" conflict-pr "$conflict_deployed"
 
 # Site PR that has never deployed, merged with master: still build.
 git -C "$repo" checkout -B site-pr-fresh "$deployed" >/dev/null 2>&1
