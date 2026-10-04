@@ -298,6 +298,24 @@ describe('vue useFetch()', () => {
     global.Date.now = originalDateNow;
   });
 
+  it('should type the return value as a read-only Ref of the fetch promise', () => {
+    () => {
+      const p = useFetch(CoolerArticleResource.get, { id: payload.id });
+      // @ts-expect-error it is a Ref, not a Promise
+      p.then;
+      // @ts-expect-error it is a Ref, not a Promise
+      p.resolved;
+      // @ts-expect-error the returned Ref is read-only
+      p.value = undefined as any;
+      p.value satisfies Promise<CoolerArticle>;
+      p.value.resolved satisfies boolean;
+
+      const n = useFetch(CoolerArticleResource.get, null);
+      // @ts-expect-error value may be undefined when args are null
+      n.value.resolved;
+    };
+  });
+
   it('should return a promise with resolved=false when fetching', async () => {
     const fetchMock = jest.fn(() => payload);
     mynock.get(`/article-cooler/${payload.id}`).reply(200, fetchMock);
