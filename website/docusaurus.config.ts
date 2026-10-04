@@ -413,6 +413,37 @@ const config: Config = {
     path.resolve(__dirname, './node-plugin'),
     path.resolve(__dirname, './profiling-plugin'),
     path.resolve(__dirname, './raw-plugin'),
+    [
+      path.resolve(__dirname, './llms-plugin'),
+      {
+        docsSets: {
+          react: { id: 'default', title: 'Core', framework: 'react' },
+          vue: { id: 'vue', title: 'Core', framework: 'vue' },
+          rest: { id: 'rest', title: 'REST', framework: 'react' },
+          graphql: { id: 'graphql', title: 'GraphQL', framework: 'react' },
+        },
+        sites: [
+          {
+            path: '/',
+            title: 'Data Client for React',
+            summary:
+              'Reactive Data Client: async state management for React with normalized, type-safe data from REST, GraphQL, and any other source.',
+            details:
+              'Packages: @data-client/react, @data-client/rest, @data-client/graphql. Using Vue? See https://dataclient.io/vue/llms.txt',
+            docs: ['react', 'rest', 'graphql'],
+          },
+          {
+            path: '/vue/',
+            title: 'Data Client for Vue',
+            summary:
+              'Reactive Data Client: async state management for Vue 3 with normalized, type-safe data from REST, GraphQL, and any other source.',
+            details:
+              'Packages: @data-client/vue, @data-client/rest, @data-client/graphql. Using React? See https://dataclient.io/llms.txt',
+            docs: ['vue', 'rest', 'graphql'],
+          },
+        ],
+      },
+    ],
   ],
   themeConfig: {
     mermaid: {
