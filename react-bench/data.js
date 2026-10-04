@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791137466788,
+  "lastUpdate": 1791138927315,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -6731,6 +6731,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 256.41,
             "range": "± 7.8%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b23988347fcb403b402a1aaffe69f98140e5e8f2",
+          "message": "internal(react): Type hook implementation return values (#4147)\n\n* internal(react): Type hook implementation return values\n\nOverloaded useSuspense, useDLE and useLive declared their implementation\nsignature `: any`, so TypeScript never checked the overloads against the body.\nDeclare the real container type (with `unknown` inner values) and drop casts\nthat only existed for the old `any`. useDLE now keeps the cached value and the\nloading-adjusted value in separate consts, since reassigning `data` widened it.\n\nAdd a no-restricted-syntax lint rule against `any` (or `Promise<any>`) on\noverload implementation signatures in packages/*/src. Vue is excluded until\n#4114 and #4125 land.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01KQdp9wSRM7XD2RXNrrKTCc\n\n* internal: Simplify overload lint rule and cover class methods\n\nCollapse the selectors into one, match `any` anywhere in the implementation's\nreturn annotation, and cover class method overloads. That flagged\nCollection.denormalize, which now returns `unknown`.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01KQdp9wSRM7XD2RXNrrKTCc\n\n* internal(react): Add compile-time tests for hook return types\n\nPin every useSuspense, useLive and useDLE overload (schema and plain\nendpoints, null args, DLE discrimination), including that none resolve to\n`any`. Implementation signatures aren't visible to callers, so these guard\nthe public types the lint rule can't see.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01KQdp9wSRM7XD2RXNrrKTCc\n\n* internal(react): Move hook type tests to typescript-tests\n\nFollow the repo's convention for compile-time-only tests (checked by\ntsconfig.test.json, not run by jest). Drop the notAny helper since each\n@ts-expect-error already fails on `any`, and make the useLive and plain\nuseDLE cases match the others.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01KQdp9wSRM7XD2RXNrrKTCc\n\n* internal(react): Limit compile tsconfig to src\n\nAdding typescript-tests to the package tsconfig broke `tsc --build`, since\nthe compile config inherited that include despite rootDir src. Match\nendpoint's tsconfig.compile.json.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01KQdp9wSRM7XD2RXNrrKTCc\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-04T14:32:32-04:00",
+          "tree_id": "1155495d57cea0a3871609a14c7f346ba43d1128",
+          "url": "https://github.com/reactive/data-client/commit/b23988347fcb403b402a1aaffe69f98140e5e8f2"
+        },
+        "date": 1791138924441,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 175.44,
+            "range": "± 3.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 55.71,
+            "range": "± 4.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 454.55,
+            "range": "± 8.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 454.55,
+            "range": "± 9.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 56.03,
+            "range": "± 9.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 408.33,
+            "range": "± 7.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 416.67,
+            "range": "± 8.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 14.71,
+            "range": "± 7.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 85.84,
+            "range": "± 16.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 47.96,
+            "range": "± 5.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 263.16,
+            "range": "± 6.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 357.14,
+            "range": "± 4.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 212.77,
+            "range": "± 8.3%",
             "unit": "ops/s"
           }
         ]
