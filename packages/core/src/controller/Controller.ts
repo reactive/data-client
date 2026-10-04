@@ -833,7 +833,8 @@ function extractStateAndArgs(rest: readonly unknown[]): [State<any>, any[]] {
   return [rest[l - 1] as State<any>, args];
 }
 
-/** Matches Entity classes (same members Denormalize<> checks) */
+/** Matches Entity classes (same members Denormalize<> checks).
+ * Not EntityInterface: Entity's declared pk() takes mutable `args`, which fails its readonly `args`. */
 interface EntityLike {
   createIfValid(...args: any): any;
   pk(...args: any): any;
@@ -841,12 +842,14 @@ interface EntityLike {
   prototype: any;
 }
 
+type EntityMapLike = { readonly [k: string]: EntityLike };
+
 /** Entity-like schemas whose rows each normalize to one stored entity */
 type SetEntitySchema =
   | EntityLike
   // Union
   | {
-      readonly schema: { readonly [k: string]: EntityLike };
+      readonly schema: EntityMapLike;
       queryKey(...args: any): { schema: string };
       pk?: never;
     };
@@ -855,9 +858,7 @@ type SetEntitySchema =
 type SetManySchema =
   | readonly SetEntitySchema[]
   | {
-      readonly schema: SetEntitySchema | { readonly [k: string]: EntityLike };
-      schemaKey(): string;
-      denormalize(...args: any): readonly any[] | { readonly [k: string]: any };
+      readonly schema: SetEntitySchema | EntityMapLike;
       queryKey(...args: any): undefined;
       // excludes Entity, whose `any` returns match the members above
       pk?: never;
@@ -878,10 +879,10 @@ type FunctionKeys<U> = {
 type SetField<T> =
   T extends number ? T | string
   : T extends string ? T | number
-  : T extends boolean | null | undefined ? T
-  : unknown;
+  : T extends object ? unknown
+  : T;
 
-/** Fields of one row */
+/** Fields of one row; like EntityFields, but distributive and without key remapping (TS 4.0) */
 type SetRow<U> =
   // EntityMixin and other untyped entities
   0 extends 1 & U ? { readonly [k: string]: any }
@@ -899,11 +900,9 @@ type SetManyValue<S> =
     true extends IsUnion<E> ?
       readonly { 'Use a Union schema for several Entity types': never }[]
     : readonly SetRowOf<E, Denormalize<E>>[]
-  : S extends (
-    { readonly schema: infer Sch; denormalize(...args: any): infer R }
-  ) ?
-    R extends readonly (infer U)[] ? readonly SetRowOf<Sch, U>[]
-    : R extends { readonly [k: string]: infer U } ?
+  : S extends { readonly schema: infer Sch } ?
+    Denormalize<S> extends readonly (infer U)[] ? readonly SetRowOf<Sch, U>[]
+    : Denormalize<S> extends { readonly [k: string]: infer U } ?
       { readonly [k: string]: SetRowOf<Sch, U> }
     : never
   : never;
