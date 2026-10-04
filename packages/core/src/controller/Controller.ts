@@ -33,6 +33,7 @@ import {
   createSetResponse,
 } from './actions/index.js';
 import ensurePojo from './ensurePojo.js';
+import type { SetManySchema, SetManyValue } from './setManyTypes.js';
 import type { EndpointUpdateFunction } from './types.js';
 import { ReduxMiddlewareAPI } from '../manager/applyManager.js';
 import type { GCInterface } from '../state/GCPolicy.js';
@@ -234,19 +235,13 @@ export default class Controller<
   ): Promise<void>;
 
   /**
-   * Sets every item of an Array schema like `[Entity]` in one normalize.
-   * @see https://dataclient.io/docs/api/Controller#set
+   * Sets every row of an Array or Values of one Entity (or Union) in one normalize.
+   * @see https://dataclient.io/docs/api/Controller#set-array
    */
-  set<
-    S extends
-      | Schema[]
-      | {
-          normalize(...args: any): any[];
-          queryKey(...args: any): undefined;
-          // excludes Entity, whose `any` returns match the members above
-          pk?: never;
-        },
-  >(schema: S, value: readonly {}[]): Promise<void>;
+  set<S extends SetManySchema>(
+    schema: S,
+    value: SetManyValue<S>,
+  ): Promise<void>;
 
   set<S extends Queryable>(
     schema: S,
