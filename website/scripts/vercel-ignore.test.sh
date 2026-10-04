@@ -135,6 +135,13 @@ git -C "$repo" checkout -B site-pr-fresh "$deployed" >/dev/null 2>&1
 git -C "$repo" merge --no-edit "$master_sha" >/dev/null
 expect build "preview merge of a site PR with no prior deploy" site-pr-fresh
 
+# No merge-base with master (e.g. shallow history): the tip alone can't prove
+# the site is unchanged, so build.
+git -C "$repo" checkout --orphan unrelated >/dev/null 2>&1
+commit "unrelated site" website/src/pages/index.js
+commit "unrelated pkg" packages/core/src/index.ts
+expect build "preview without merge-base builds" unrelated
+
 # gh-pages branches never build, even if website files differ.
 expect skip "gh-pages branch" gh-pages-bench
 

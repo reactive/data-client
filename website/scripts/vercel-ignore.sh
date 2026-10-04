@@ -83,6 +83,6 @@ if master="$(upstream)" && base="$(git merge-base HEAD "$master" 2>/dev/null)"; 
   decide "$base" HEAD "preview changes vs master"
 fi
 
-has_rev 'HEAD^' && decide 'HEAD^' HEAD "preview changes in $(git rev-parse --short HEAD)"
-
+# Without a base, the tip commit alone can't prove earlier commits left the
+# site unchanged.
 build "no base to compare"
