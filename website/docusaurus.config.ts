@@ -1,6 +1,7 @@
 import type * as Preset from '@docusaurus/preset-classic';
 import type * as PresetMermaid from '@docusaurus/theme-mermaid';
 import type { Config } from '@docusaurus/types';
+import { GlobExcludeDefault } from '@docusaurus/utils';
 import { createRequire } from 'module';
 import path from 'path';
 import { themes } from 'prism-react-renderer';
@@ -21,16 +22,6 @@ const frameworkDocs = require('./framework-docs/index.js');
 const remarkFramework = require('./framework-docs/remarkFramework.js');
 const vueDocs = frameworkDocs.generate('vue');
 if (isDev) frameworkDocs.watch('vue');
-
-// Setting `exclude` replaces Docusaurus' defaults, so keep them; otherwise
-// `_`-prefixed MDX partials (e.g. shared/_useLive.mdx) get published as pages.
-// Mirrors GlobExcludeDefault from @docusaurus/utils.
-const docsExcludeDefault = [
-  '**/_*.{js,jsx,ts,tsx,md,mdx}',
-  '**/_*/**',
-  '**/*.test.{js,jsx,ts,tsx}',
-  '**/__tests__/**',
-];
 
 const config: Config = {
   title: 'Data Client',
@@ -213,8 +204,9 @@ const config: Config = {
         docs: {
           //id: 'core',
           path: '../docs/core',
+          // `exclude` replaces Docusaurus' defaults; keep them so `_` partials aren't published
           exclude: [
-            ...docsExcludeDefault,
+            ...GlobExcludeDefault,
             'getting-started/README.md',
             '**/*.vue.{md,mdx}',
           ],
@@ -272,7 +264,7 @@ const config: Config = {
       {
         id: 'vue',
         path: vueDocs.outDir,
-        exclude: [...docsExcludeDefault, 'getting-started/README.md'],
+        exclude: [...GlobExcludeDefault, 'getting-started/README.md'],
         routeBasePath: 'vue',
         sidebarPath: require.resolve('./framework-docs/sidebars-vue.js'),
         beforeDefaultRemarkPlugins: [
