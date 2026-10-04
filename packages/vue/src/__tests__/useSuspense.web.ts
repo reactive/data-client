@@ -1,6 +1,13 @@
-import { Endpoint } from '@data-client/endpoint';
+import { Endpoint, Invalidate } from '@data-client/endpoint';
 import nock from 'nock';
-import { computed, defineComponent, h, nextTick, reactive } from 'vue';
+import {
+  computed,
+  defineComponent,
+  h,
+  nextTick,
+  onErrorCaptured,
+  reactive,
+} from 'vue';
 
 import {
   CoolerArticleResource,
@@ -253,6 +260,190 @@ describe('vue useSuspense()', () => {
         ...payload,
         ...requestBody,
       }));
+  });
+
+  it('keeps previous data while new args are loading', async () => {
+    const resolvers: Record<number, (value: any) => void> = {};
+    const ControlledEndpoint = new Endpoint(
+      ({ id }: { id: number }) =>
+        new Promise(resolve => {
+          resolvers[id] = resolve;
+        }),
+      { schema: CoolerArticle, name: 'KeepPreviousEndpoint' },
+    );
+
+    const errorSpy = jest.fn();
+    const ArticleTitle = defineComponent({
+      name: 'ArticleTitle',
+      props: { id: { type: Number, required: true } },
+      async setup(props: { id: number }) {
+        const article = await useSuspense(
+          ControlledEndpoint,
+          computed(() => ({ id: props.id })),
+        );
+        // no optional chaining: crashes if data is ever undefined
+        return () => h('h3', article.value.title);
+      },
+    });
+    const Parent = defineComponent({
+      name: 'Parent',
+      props: { id: { type: Number, required: true } },
+      setup(props: { id: number }) {
+        onErrorCaptured(e => {
+          errorSpy(e);
+          return false;
+        });
+        return () => h(ArticleTitle, { id: props.id });
+      },
+    });
+
+    const props = reactive({ id: payload.id });
+    const { wrapper, cleanup } = mountDataClient(Parent, { props });
+
+    await flushUntil(wrapper, () => !!resolvers[payload.id]);
+    resolvers[payload.id](payload);
+    await flushUntil(wrapper, () => wrapper.find('h3').exists());
+    expect(wrapper.find('h3').text()).toBe(payload.title);
+
+    props.id = payload2.id;
+    await flushUntil(wrapper, () => !!resolvers[payload2.id]);
+    await nextTick();
+
+    // still showing previous data while the new fetch is in flight
+    expect(wrapper.find('h3').text()).toBe(payload.title);
+    expect(errorSpy).not.toHaveBeenCalled();
+
+    resolvers[payload2.id](payload2);
+    await flushUntil(
+      wrapper,
+      () => wrapper.find('h3').text() === payload2.title,
+    );
+    expect(wrapper.find('h3').text()).toBe(payload2.title);
+    expect(errorSpy).not.toHaveBeenCalled();
+
+    cleanup();
+  });
+
+  it('shows store updates once invalidIfStale data goes stale', async () => {
+    const StaleEndpoint = new Endpoint(
+      ({ id }: { id: number }) => Promise.resolve({ ...payload, id }),
+      {
+        schema: CoolerArticle,
+        name: 'StaleEndpoint',
+        dataExpiryLength: 20,
+        invalidIfStale: true,
+      },
+    );
+    const { result, controller, waitForNextUpdate, cleanup } =
+      await renderDataCompose(() =>
+        useSuspense(StaleEndpoint, { id: payload.id }),
+      );
+    await waitForNextUpdate();
+    const articleRef = await result;
+    expect(articleRef.value.title).toBe(payload.title);
+
+    // let the data go stale without anything triggering a refetch
+    await new Promise(resolve => setTimeout(resolve, 50));
+    const UpdateEndpoint = new Endpoint(
+      (body: typeof payload) => Promise.resolve(body),
+      {
+        schema: CoolerArticle,
+        sideEffect: true,
+        name: 'StaleUpdate',
+      },
+    );
+    await controller.fetch(UpdateEndpoint, { ...payload, title: 'edited' });
+    await nextTick();
+
+    expect(articleRef.value.title).toBe('edited');
+
+    cleanup();
+  });
+
+  it('shows store updates while refetching the same args', async () => {
+    let fetchCount = 0;
+    let resolveRefetch: (value: any) => void = () => {};
+    const RefetchEndpoint = new Endpoint(
+      ({ id }: { id: number }) =>
+        // first fetch resolves; the refetch stays in flight until we resolve it
+        fetchCount++ === 0 ?
+          Promise.resolve({ ...payload, id })
+        : new Promise(resolve => {
+            resolveRefetch = resolve;
+          }),
+      {
+        schema: CoolerArticle,
+        name: 'RefetchEndpoint',
+        dataExpiryLength: 20,
+        invalidIfStale: true,
+      },
+    );
+    const { result, controller, waitForNextUpdate, cleanup } =
+      await renderDataCompose(() =>
+        useSuspense(RefetchEndpoint, { id: payload.id }),
+      );
+    await waitForNextUpdate();
+    const articleRef = await result;
+    expect(articleRef.value.title).toBe(payload.title);
+
+    await new Promise(resolve => setTimeout(resolve, 50));
+    const UpdateEndpoint = new Endpoint(
+      (body: typeof payload) => Promise.resolve(body),
+      { schema: CoolerArticle, sideEffect: true, name: 'RefetchUpdate' },
+    );
+    await controller.fetch(UpdateEndpoint, { ...payload, title: 'edited' });
+    await nextTick();
+    await nextTick();
+
+    expect(fetchCount).toBe(2);
+    expect(articleRef.value.title).toBe('edited');
+
+    resolveRefetch({ ...payload, title: 'edited' });
+    await new Promise(resolve => setTimeout(resolve, 0));
+    cleanup();
+  });
+
+  it('keeps previous data while refetching a deleted entity', async () => {
+    let fetchCount = 0;
+    let resolveRefetch: (value: any) => void = () => {};
+    const DeletedEndpoint = new Endpoint(
+      ({ id }: { id: number }) =>
+        // first fetch resolves; the refetch stays in flight until we resolve it
+        fetchCount++ === 0 ?
+          Promise.resolve({ ...payload, id })
+        : new Promise(resolve => {
+            resolveRefetch = resolve;
+          }),
+      { schema: CoolerArticle, name: 'DeletedEndpoint' },
+    );
+    const { result, controller, waitForNextUpdate, cleanup } =
+      await renderDataCompose(() =>
+        useSuspense(DeletedEndpoint, { id: payload.id }),
+      );
+    await waitForNextUpdate();
+    const articleRef = await result;
+    expect(articleRef.value.title).toBe(payload.title);
+
+    const DeleteEndpoint = new Endpoint(
+      ({ id }: { id: number }) => Promise.resolve({ id }),
+      {
+        schema: new Invalidate(CoolerArticle),
+        sideEffect: true,
+        name: 'DeleteArticle',
+      },
+    );
+    await controller.fetch(DeleteEndpoint, { id: payload.id });
+    await nextTick();
+    await nextTick();
+
+    expect(fetchCount).toBe(2);
+    expect(articleRef.value.title).toBe(payload.title);
+
+    resolveRefetch({ ...payload, title: 'restored' });
+    await new Promise(resolve => setTimeout(resolve, 0));
+    await nextTick();
+    expect(articleRef.value.title).toBe('restored');
+    cleanup();
   });
 
   it('should initially resolve, then when args are null should return undefined, then back to resolving', async () => {
