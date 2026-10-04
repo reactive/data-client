@@ -45,13 +45,16 @@ export default abstract class Entity extends EntityMixin(EmptyBase) {
    * @param [key] When normalizing, the key where this entity was found
    * @param [args] ...args sent to Endpoint
    */
-  declare static pk: <T extends typeof Entity>(
-    this: T,
-    value: Partial<AbstractInstanceType<T>>,
-    parent?: any,
-    key?: string,
-    args?: any[],
-  ) => string | number | undefined;
+  declare static pk: {
+    // method syntax: overrides that type `args` as a mutable array still compile
+    pk<T extends typeof Entity>(
+      this: T,
+      value: Partial<AbstractInstanceType<T>>,
+      parent?: any,
+      key?: string,
+      args?: readonly any[],
+    ): string | number | undefined;
+  }['pk'];
 
   /** Do any transformations when first receiving input
    *
