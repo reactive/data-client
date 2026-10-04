@@ -1,0 +1,25 @@
+---
+description: Strategy for type/API changes that would break users or mixed package versions
+globs: packages/**, .changeset/**, plans/next-breaking-release.md
+alwaysApply: false
+---
+
+# Breaking Change Strategy
+
+Get users the fix now with a clean upgrade path; batch the actual break into a later release.
+
+## Before shipping a change that could break
+
+Check both:
+- **User code**: subclasses, overrides, explicit annotations, and classes implementing exported interfaces.
+- **Mixed versions**: `@data-client/rest`/`endpoint`/`graphql` aren't dependencies of `react`/`vue`/`core`, so users can pair a newer client with an older endpoint (and vice versa). Type checks in core against endpoint types must still accept older endpoint versions.
+
+Requiring a matching version for a feature that is new in the same release is not breaking.
+
+## When it would break
+
+1. **Ship a compatible version**: a shim that keeps old code compiling and working (e.g. method-syntax declarations for parameter bivariance, a loose structural type instead of the strict interface, a deprecated alias).
+2. **Prepare users**: in the changeset and the release's draft blog post, recommend the future-proof form now with a code example, so the later break is a no-op for them.
+3. **Track the cleanup**: add an entry to [plans/next-breaking-release.md](../../plans/next-breaking-release.md) naming the shim to remove, what it breaks, and the migration.
+
+Mark a change `BREAKING` (minor bump while under 1.0) only when no compatible version is reasonable. When a release is already breaking, work through `plans/next-breaking-release.md`, move each finished item into that release's blog migration guide, and delete it from the plan.
