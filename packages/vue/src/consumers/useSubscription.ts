@@ -3,7 +3,7 @@ import type {
   Schema,
   FetchFunction,
 } from '@data-client/core';
-import { computed, unref, watch } from 'vue';
+import { computed, toValue, watch } from 'vue';
 
 import { useController } from '../context.js';
 import type { MaybeRefsOrGettersNullable } from '../types.js';
@@ -25,8 +25,8 @@ export default function useSubscription<
 ) {
   const controller = useController();
 
-  // Track top-level reactive args (Refs are unwrapped). This allows props/refs to trigger resubscribe.
-  const resolvedArgs = computed(() => args.map(a => unref(a as any)) as any);
+  // Track top-level reactive args (refs and getters are resolved). This allows props/refs/getters to trigger resubscribe.
+  const resolvedArgs = computed(() => args.map(a => toValue(a)) as any);
   const key = computed(() => {
     if (resolvedArgs.value[0] === null) return '';
     return endpoint.key(...(resolvedArgs.value as readonly [...Parameters<E>]));

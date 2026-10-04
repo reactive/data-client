@@ -179,7 +179,7 @@ render(<PostList />);
   );
 
   const props = defineProps<{ userId: number }>();
-  const totalVotes = useQuery(queryTotalVotes, { userId: props.userId });
+  const totalVotes = useQuery(queryTotalVotes, () => ({ userId: props.userId }));
 </script>
 
 <template>

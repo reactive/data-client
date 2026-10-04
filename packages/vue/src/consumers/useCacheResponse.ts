@@ -39,7 +39,7 @@ export default function useCacheResponse(endpoint: any, args: any[]) {
       return controller.getResponseMeta(endpoint, ...resolvedArgs.value, {
         ...stateRef.value,
         entities: {},
-      }).data as any;
+      }).data;
     }
     return responseMeta.value.data;
   });
