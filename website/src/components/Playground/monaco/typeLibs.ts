@@ -96,6 +96,7 @@ const PREVIEW_SCOPE_DECLARATIONS = `declare function render(component:JSX.Elemen
         declare function SearchIcon():JSX.Element;
         declare function Loading():JSX.Element;
         declare function randomFloatInRange(min: number, max: number, decimals?: number): number;
+        declare function mockFetch<T>(getResponse: (...args: any[]) => T, name?: string, delay?: number): (...args: any[]) => Promise<T>;
         declare interface NumberProps {
           /**
            * Color value when the component flashes 'down'.
@@ -273,6 +274,7 @@ import * as _globals from '${GLOBALS_MODULE}';
 declare global {
   export import React = _React;
   export import JSX = _React.JSX;
+  export import use = _React.use;
   const NumberFlow: typeof _NumberFlow;
   export import Temporal = _Temporal;
   export import DateTimeFormat = _Intl.DateTimeFormat;
