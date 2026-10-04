@@ -180,4 +180,27 @@ expect build "production env site tip" other-branch "$(parent)" production
 commit "prod pkg" packages/normalizr/src/index.ts
 expect skip "production env package tip" other-branch "$(parent)" production
 
+# --- Renovate previews ignore website dependency manifests and lockfiles ---
+git -C "$repo" checkout -b renovate/docusaurus master >/dev/null 2>&1
+commit "bump docusaurus" website/package.json
+expect skip "renovate website package.json" renovate/docusaurus
+expect build "renovate ref in production env" renovate/docusaurus "$(parent)" production
+commit "bump lockfiles" website/yarn.lock website/examples/demo/package.json website/examples/demo/pnpm-lock.yaml
+expect skip "renovate nested manifests and lockfiles since last deploy" renovate/docusaurus "$(parent)"
+git -C "$repo" checkout master >/dev/null 2>&1
+commit "master site for renovate" docs/core/api/Renovate.md
+git -C "$repo" checkout renovate/docusaurus >/dev/null 2>&1
+git -C "$repo" merge --no-edit master >/dev/null
+expect skip "renovate merge of master" renovate/docusaurus
+commit "renovate site source" website/src/pages/index.js
+expect build "renovate with site source" renovate/docusaurus "$(parent)"
+
+git -C "$repo" checkout -b deps master >/dev/null 2>&1
+commit "manual bump" website/package.json
+expect build "non-renovate website package.json" deps
+
+git -C "$repo" checkout master >/dev/null 2>&1
+commit "master bump" website/package.json website/yarn.lock
+expect build "master website manifest" master "$(parent)"
+
 echo "all vercel-ignore cases passed"
