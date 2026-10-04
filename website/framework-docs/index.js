@@ -169,8 +169,6 @@ function sourcePath(framework, docPath) {
 }
 
 module.exports = {
-  walk,
-  frontMatter,
   generate,
   watch,
   sidebarsFor,

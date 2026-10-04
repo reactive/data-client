@@ -64,54 +64,17 @@ const stringifier = unified()
   .use(remarkGfm)
   .use(remarkDirective);
 
-/** Files read (or checked for) by the innermost `collect()` */
-let deps;
-/** Runs `fn`, collecting the files it reads into a fresh `deps` */
-function collect(fn) {
-  const outer = deps;
-  deps = new Set();
-  try {
-    return { value: fn(), deps };
-  } finally {
-    deps = outer;
-  }
-}
-
-/** Memoized calls also replay the files they depended on into `deps` */
 function memoize(fn) {
   const cache = new Map();
   return (...args) => {
     const key = args.join('\0');
-    if (!cache.has(key))
-      cache.set(
-        key,
-        collect(() => fn(...args)),
-      );
-    const entry = cache.get(key);
-    for (const file of entry.deps) deps?.add(file);
-    return entry.value;
+    if (!cache.has(key)) cache.set(key, fn(...args));
+    return cache.get(key);
   };
 }
 
-/**
- * Runs `fn` and returns its value with the files it depended on, so callers
- * can cache output until one of them changes.
- */
-export function trackDeps(fn) {
-  const { value, deps: files } = collect(fn);
-  return { value, deps: [...files].map(rel).sort() };
-}
-
-// Every file the renderer reads must go through read() or exists(), so
-// trackDeps() sees it; anything else would serve stale cached references.
-const read = memoize(file => {
-  deps.add(file);
-  return fs.readFileSync(file, 'utf8');
-});
-const exists = memoize(file => {
-  deps.add(file);
-  return fs.existsSync(file);
-});
+const read = memoize(file => fs.readFileSync(file, 'utf8'));
+const exists = memoize(file => fs.existsSync(file));
 
 /** Source for a framework: `foo.vue.md` replaces `foo.md` */
 const sourceFor = (file, framework) => {
@@ -122,16 +85,6 @@ const sourceFor = (file, framework) => {
 /** Page content with `<framework>_<key>` front matter applied */
 const contentFor = memoize((file, framework) =>
   rewriteFrontMatter(read(sourceFor(file, framework)), framework),
-);
-
-/**
- * Just the front matter, read untracked: routes depend on nothing else, and
- * callers caching renders key on every doc's front matter instead of
- * re-rendering each page whenever a page it links to changes.
- */
-const frontMatterOf = memoize(
-  file =>
-    fs.readFileSync(file, 'utf8').match(/^---\n[\s\S]*?\n---\n/)?.[0] ?? '',
 );
 
 /** Parsed once per source; callers get a copy to transform */
@@ -157,10 +110,7 @@ export const routeOf = memoize((file, framework) => {
   const match = ROUTES.find(([dir]) => relPath.startsWith(dir));
   if (!match) return;
   const [dir, bases] = match;
-  const docId = docIdOf(
-    relPath.slice(dir.length),
-    rewriteFrontMatter(frontMatterOf(sourceFor(file, framework)), framework),
-  );
+  const docId = docIdOf(relPath.slice(dir.length), contentFor(file, framework));
   // Vue links to pages without a Vue version go to the React docs
   const base =
     dir === 'docs/core/' && framework === 'vue' && !vueIds.has(docId) ?
