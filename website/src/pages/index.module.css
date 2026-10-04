@@ -8,19 +8,6 @@
   text-align: center;
   position: relative;
   overflow: hidden;
-  /*margin-bottom: 10px;*/
-
-  /* background: linear-gradient(
-      transparent 212px,
-      var(--ifm-hero-fade-to-background-color) 100%
-    ),
-    url('../../static/img/rest_hooks_logo_grayscale.svg')
-      var(--ifm-hero-background-color) no-repeat; */
-  background-position: 0, 100% calc(20% - 3rem);
-
-  /* overlap */
-  padding-bottom: 14.5rem;
-  margin-bottom: -12rem;
 }
 
 .logoWrapper {
@@ -36,9 +23,7 @@ html[data-theme='light'] .logoWrapper {
 
 @media screen and (max-width: 996px) {
   .heroBanner {
-    padding: 2rem 0;
-    padding-bottom: 14rem;
-    margin-bottom: -13rem;
+    padding: 2rem 0 2.5rem;
   }
 }
 
@@ -86,9 +71,7 @@ html[data-theme='light'] .buttons :global(.button.button--secondary) {
     margin-bottom: 20px;
   }
   .heroBanner {
-    padding: 1rem 0;
-    padding-bottom: 14rem;
-
+    padding: 1rem 0 2rem;
   }
 }
 
@@ -103,4 +86,21 @@ html[data-theme='light'] .buttons :global(.button.button--secondary) {
 :global(.main-wrapper) > main {
   z-index: 1;
   position: relative;
+}
+
+.sectionHeading {
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+.sectionLede {
+  text-align: center;
+  color: var(--ifm-color-emphasis-700);
+  margin-bottom: 1.5rem;
+}
+.ender {
+  flex-direction: column;
+  padding: 4rem 0;
+}
+.ender .sectionHeading {
+  margin-bottom: 1.5rem;
 }

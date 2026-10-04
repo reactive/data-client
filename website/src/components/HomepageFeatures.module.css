@@ -1,12 +1,32 @@
 .features {
-  display: flex;
-  align-items: center;
   margin: 3.2rem 0;
   padding: 0;
   width: 100%;
 }
 
+.heading {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.feature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-left: var(--ifm-spacing-horizontal);
+  padding-right: var(--ifm-spacing-horizontal);
+}
+
 .featureSvg {
-  height: 60px;
-  width: 60px;
+  height: 56px;
+  width: 56px;
+  margin-bottom: 0.75rem;
+  color: var(--ifm-color-primary);
+}
+
+@media screen and (max-width: 996px) {
+  .feature {
+    margin-bottom: 2rem;
+  }
 }

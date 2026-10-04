@@ -1,0 +1,52 @@
+.wrapper {
+  position: relative;
+  margin-bottom: var(--ifm-spacing-vertical);
+  border-radius: var(--ifm-code-border-radius);
+  overflow: hidden;
+  background: var(--monoco-code-background);
+  box-shadow: var(--ifm-global-shadow-lw);
+}
+
+/* Sits behind the transparent placeholder iframe; the loaded embed paints over it */
+.loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgb(191, 199, 213);
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+}
+
+.frame {
+  position: relative;
+  display: block;
+  border: 0;
+  max-width: 100%;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: var(--ifm-spacing-vertical);
+  padding: 1.5rem 1rem;
+  border-radius: var(--ifm-code-border-radius);
+  background: var(--ifm-color-emphasis-100);
+  border: 1px solid var(--ifm-color-emphasis-200);
+  text-align: center;
+}
+
+.cardTitle {
+  margin: 0;
+  font-weight: var(--ifm-font-weight-semibold);
+}
+
+.cardLinks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
