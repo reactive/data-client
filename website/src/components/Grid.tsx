@@ -8,7 +8,6 @@ export default function Grid({
   wrap = false,
 }: {
   children: ReactNode;
-  cols?: number;
   wrap?: boolean;
 }) {
   return (
