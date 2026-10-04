@@ -107,6 +107,18 @@ const loadGlobals = (): RawModule =>
     /* webpackChunkName: 'globalsDTS' */ '!!raw-loader?esModule=false!../editor-types/globals.d.ts'
   );
 
+/** Module name for editor-types/globals.d.ts; only globalScopeLib() imports it. */
+const GLOBALS_MODULE = 'playground-globals';
+
+/**
+ * Exports not aliased as globals: `default`, and names that would redeclare a
+ * built-in global (those keep built-in types; use `schema.Array`, `schema.Object`).
+ */
+const SKIP_NAMES = new Set(['default', 'Array', 'Object']);
+
+/** Top-level `export { … };` lists (not `export { … } from '…'` re-exports) */
+const EXPORT_LIST = /^export\s*\{([^}]*)\}\s*;/gm;
+
 /** Ambient declarations for names the preview injects via react-live scope (see ../preview/scope.ts). */
 const PREVIEW_SCOPE_DECLARATIONS = `declare function render(component:JSX.Element):void;
         declare function uuid(): string;
@@ -237,18 +249,6 @@ export function addTypeLibs(
   );
 }
 
-/** Module name for editor-types/globals.d.ts; only globalScopeLib() imports it. */
-const GLOBALS_MODULE = 'playground-globals';
-
-/**
- * Names the preview scope provides that would redeclare a built-in global.
- * They keep their built-in types (use `schema.Array`, `schema.Object`).
- */
-const BUILTIN_NAMES = new Set(['Array', 'Object']);
-
-/** Top-level `export { … };` lists (not `export { … } from '…'` re-exports) */
-const EXPORT_LIST = /^export\s*\{([^}]*)\}\s*;/gm;
-
 /**
  * globals.d.ts is a rollup-generated module that exports its declarations
  * through a top-level `export { … };` list. Returns those names, and the source
@@ -265,8 +265,8 @@ function parseGlobalsLib(globals: string): {
       .split(',')
       .map(specifier => specifier.trim().replace(/^type\s+/, ''))
       .filter(Boolean);
-    specifiers.forEach(specifier =>
-      names.push(specifier.split(/\s+as\s+/).pop() as string),
+    names.push(
+      ...specifiers.map(specifier => specifier.split(/\s+as\s+/).pop()!),
     );
     return `export { ${specifiers.join(', ')} };`;
   });
@@ -274,7 +274,7 @@ function parseGlobalsLib(globals: string): {
     console.warn('Playground: no exports found in globals.d.ts');
   return {
     source,
-    names: names.filter(name => name !== 'default' && !BUILTIN_NAMES.has(name)),
+    names: names.filter(name => !SKIP_NAMES.has(name)),
   };
 }
 
