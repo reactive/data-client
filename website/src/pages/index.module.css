@@ -97,9 +97,3 @@ html[data-theme='light'] .buttons :global(.button.button--secondary) {
   color: var(--ifm-color-emphasis-700);
   margin-bottom: 1.5rem;
 }
-.ender {
-  padding: 4rem 0;
-}
-.ender .sectionHeading {
-  margin-bottom: 1.5rem;
-}

@@ -66,11 +66,8 @@ function HomepageHeader() {
 
 function HomepageEnder() {
   return (
-    <section className={clsx('hero', styles.ender)}>
+    <section className={'hero'}>
       <div className="container">
-        <h2 className={styles.sectionHeading}>
-          Start with one resource and one hook
-        </h2>
         <div className={styles.buttons}>
           <Link
             className="button button--secondary"
