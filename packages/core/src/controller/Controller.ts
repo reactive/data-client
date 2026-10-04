@@ -859,6 +859,8 @@ type SetManySchema =
   | readonly SetEntitySchema[]
   | {
       readonly schema: SetEntitySchema | EntityMapLike;
+      // Array and Values; excludes schema.Object, whose queryKey() returns any
+      schemaKey(): string;
       queryKey(...args: any): undefined;
       // excludes Entity, whose `any` returns match the members above
       pk?: never;
