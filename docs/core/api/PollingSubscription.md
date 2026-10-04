@@ -23,18 +23,17 @@ import {
   DataProvider,
   NetworkManager,
 } from '@data-client/react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 const managers = [
   new NetworkManager(),
   new SubscriptionManager(PollingSubscription)
 ]
 
-ReactDOM.render(
+createRoot(document.body).render(
   <DataProvider managers={managers}>
     <App />
   </DataProvider>,
-  document.body,
 );
 ```
 

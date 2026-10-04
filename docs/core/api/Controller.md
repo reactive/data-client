@@ -312,7 +312,7 @@ as well.
 
 ```ts
 import { DataProvider, LogoutManager, getDefaultManagers } from '@data-client/react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { unAuth } from '../authentication';
 
 const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
@@ -329,7 +329,7 @@ const managers = [
   ...getDefaultManagers(),
 ];
 
-ReactDOM.createRoot(document.body).render(
+createRoot(document.body).render(
   <DataProvider managers={managers}>
     <App />
   </DataProvider>,
