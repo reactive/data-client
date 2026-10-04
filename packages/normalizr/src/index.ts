@@ -19,7 +19,12 @@ export type {
 export type { NI } from './NoInfer.js';
 export * from './endpoint/types.js';
 export * from './interface.js';
-export type * from './memo/types.js';
+export type {
+  EntityCache,
+  EndpointsCache,
+  DenormGetEntity,
+  IMemoPolicy,
+} from './memo/types.js';
 export * from './Expiry.js';
 export { INVALID } from './denormalize/symbol.js';
 export { validateQueryKey } from './buildQueryKey.js';

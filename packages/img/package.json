@@ -36,14 +36,6 @@
       "*": [
         "lib/index.d.ts"
       ]
-    },
-    ">=3.4": {
-      "": [
-        "ts3.4/index.d.ts"
-      ],
-      "*": [
-        "ts3.4/index.d.ts"
-      ]
     }
   },
   "type": "module",
@@ -54,7 +46,6 @@
     "src",
     "dist",
     "lib",
-    "ts3.4",
     "LICENSE",
     "README.md"
   ],
@@ -64,7 +55,6 @@
     "build:js:browser": "BROWSERSLIST_ENV=legacy yarn g:rollup",
     "build:bundle": "yarn g:runs build:js:\\* && echo '{\"type\":\"commonjs\"}' > dist/package.json",
     "build:clean": "yarn g:clean",
-    "build:legacy-types": "yarn g:downtypes lib ts3.4",
     "build": "run build:lib && run build:bundle",
     "dev": "run build:lib -w",
     "prepare": "run build:lib",

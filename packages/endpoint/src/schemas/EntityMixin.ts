@@ -13,6 +13,7 @@ import type {
   RequiredPKOptions,
   IDClass,
   Constructor,
+  ConstructorInstance,
   PKClass,
 } from './EntityTypes.js';
 
@@ -22,24 +23,24 @@ import type {
  */
 export default function EntityMixin<TBase extends PKClass>(
   Base: TBase,
-  opt?: EntityOptions<InstanceType<TBase>>,
+  opt?: EntityOptions<ConstructorInstance<TBase>>,
 ): IEntityClass<TBase> & TBase;
 
 // id is in Instance, so we default to that as pk
 export default function EntityMixin<TBase extends IDClass>(
   Base: TBase,
-  opt?: EntityOptions<InstanceType<TBase>>,
+  opt?: EntityOptions<ConstructorInstance<TBase>>,
 ): IEntityClass<TBase> & TBase & (new (...args: any[]) => IEntityInstance);
 
 // pk was specified in options, so we don't need to redefine
 export default function EntityMixin<TBase extends Constructor>(
   Base: TBase,
-  opt: RequiredPKOptions<InstanceType<TBase>>,
+  opt: RequiredPKOptions<ConstructorInstance<TBase>>,
 ): IEntityClass<TBase> & TBase & (new (...args: any[]) => IEntityInstance);
 
 export default function EntityMixin<TBase extends Constructor>(
   Base: TBase,
-  options: EntityOptions<InstanceType<TBase>> = {},
+  options: EntityOptions<ConstructorInstance<TBase>> = {},
 ) {
   /**
    * Entity defines a single (globally) unique object.
