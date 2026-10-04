@@ -159,9 +159,9 @@ describe('set', () => {
       // @ts-expect-error schema.Object is not keyed rows either
       controller.set(new schema.Object({ a: CoolerArticle }), { a: { id: 5 } });
       // @ts-expect-error Lazy is not a list
-      controller.set(new schema.Lazy(() => [CoolerArticle]), [{ id: 5 }]);
+      controller.set(new schema.Lazy([CoolerArticle]), [{ id: 5 }]);
       // @ts-expect-error Lazy is not keyed rows
-      controller.set(new schema.Lazy(() => CoolerArticle), { a: { id: 5 } });
+      controller.set(new schema.Lazy(CoolerArticle), { a: { id: 5 } });
       // @ts-expect-error Values take a keyed object, not an array
       controller.set(new schema.Values(CoolerArticle), [{ id: 5 }]);
       // @ts-expect-error Arrays take an array, not a keyed object
