@@ -721,38 +721,38 @@ describe('vue useSuspense()', () => {
     cleanup();
   });
   describe('stale data on mount', () => {
-    function setup(invalidIfStale: boolean) {
-      let resolveFetch = (_v: any) => {};
+    // mounts with cached data that has already expired; the refetch stays in flight until resolveFetch()
+    async function mountStale(invalidIfStale: boolean) {
+      let resolveFetch: (value: any) => void = () => {};
       const fetchMock = jest.fn(
         () => new Promise(resolve => (resolveFetch = resolve)),
       );
-      const endpoint = new Endpoint(fetchMock as any, {
+      const endpoint = new Endpoint(fetchMock, {
         schema: CoolerArticle,
-        dataExpiryLength: 20,
         invalidIfStale,
         name: 'staleOnMount',
       });
+      const args = { id: payload.id };
       const initialState = mockInitialState([
-        { endpoint, args: [{ id: 5 }], response: payload },
+        { endpoint, args: [args], response: payload },
       ]);
+      // long expired (0 would fall back to entity expiry)
+      initialState.meta[endpoint.key(args)].expiresAt = 1;
+
+      const { result, cleanup } = await renderDataCompose(
+        () => useSuspense(endpoint, args),
+        { initialState },
+      );
+      expect(fetchMock).toHaveBeenCalledTimes(1);
       return {
-        fetchMock,
-        endpoint,
-        initialState,
-        resolveFetch: (v: any) => resolveFetch(v),
+        result,
+        cleanup,
+        resolveFetch: (value: any) => resolveFetch(value),
       };
     }
 
     it('shows stale data immediately and revalidates in the background', async () => {
-      const { fetchMock, endpoint, initialState, resolveFetch } = setup(false);
-      // let the data go stale before mounting
-      await new Promise(resolve => setTimeout(resolve, 50));
-
-      const { result, cleanup } = await renderDataCompose(
-        () => useSuspense(endpoint, { id: 5 }),
-        { initialState },
-      );
-      expect(fetchMock).toHaveBeenCalledTimes(1);
+      const { result, cleanup, resolveFetch } = await mountStale(false);
 
       // resolves without waiting for the refetch
       const articleRef = await result;
@@ -766,19 +766,11 @@ describe('vue useSuspense()', () => {
     });
 
     it('suspends on stale invalidIfStale data until the refetch resolves', async () => {
-      const { fetchMock, endpoint, initialState, resolveFetch } = setup(true);
-      await new Promise(resolve => setTimeout(resolve, 50));
+      const { result, cleanup, resolveFetch } = await mountStale(true);
 
-      const { result, cleanup } = await renderDataCompose(
-        () => useSuspense(endpoint, { id: 5 }),
-        { initialState },
-      );
-      expect(fetchMock).toHaveBeenCalledTimes(1);
-
-      let resolved = false;
-      result.then(() => (resolved = true));
-      await new Promise(resolve => setTimeout(resolve, 10));
-      expect(resolved).toBe(false);
+      await expect(
+        Promise.race([result, Promise.resolve('pending')]),
+      ).resolves.toBe('pending');
 
       resolveFetch({ ...payload, title: 'revalidated' });
       const articleRef = await result;
