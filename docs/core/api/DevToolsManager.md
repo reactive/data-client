@@ -3,6 +3,8 @@ title: DevToolsManager
 sidebar_label: DevToolsManager
 ---
 
+import ProviderManagers from '../shared/_provider_managers.mdx';
+
 ```typescript
 class DevToolsManager implements Manager
 ```
@@ -29,48 +31,16 @@ to send to redux devtools.
 
 For example, we can enable the [trace](https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md#trace) option to help track down where actions are dispatched from.
 
-:::react
+<ProviderManagers imports={['getDefaultManagers']}>
 
-```tsx title="index.tsx"
-import {
-  DevToolsManager,
-  DataProvider,
-  getDefaultManagers,
-} from '@data-client/react';
-import ReactDOM from 'react-dom';
-
+```ts
 const managers = getDefaultManagers({
   // highlight-next-line
   devToolsManager: { trace: true },
 });
-
-ReactDOM.createRoot(document.body).render(
-  <DataProvider managers={managers}>
-    <App />
-  </DataProvider>,
-);
 ```
 
-:::
-
-:::vue
-
-```ts title="main.ts"
-import { createApp } from 'vue';
-import { DataClientPlugin, getDefaultManagers } from '@data-client/vue';
-import App from './App.vue';
-
-const managers = getDefaultManagers({
-  // highlight-next-line
-  devToolsManager: { trace: true },
-});
-
-const app = createApp(App);
-app.use(DataClientPlugin, { managers });
-app.mount('#app');
-```
-
-:::
+</ProviderManagers>
 
 ### skipLogging
 
@@ -80,54 +50,17 @@ Can skip some actions to be registered in the browser devtool.
 
 By default will skip inflight [fetch actions](./Controller.md#fetch)
 
-:::react
+<ProviderManagers imports={['DevToolsManager', 'getDefaultManagers']}>
 
-```tsx title="index.tsx"
-import {
-  DevToolsManager,
-  DataProvider,
-  getDefaultManagers,
-} from '@data-client/react';
-import ReactDOM from 'react-dom';
-
+```ts
 // production builds leave out DevToolsManager
 const managers = getDefaultManagers({
   // highlight-next-line
   devToolsManager: new DevToolsManager(undefined, () => true),
 });
-
-ReactDOM.createRoot(document.body).render(
-  <DataProvider managers={managers}>
-    <App />
-  </DataProvider>,
-);
 ```
 
-:::
-
-:::vue
-
-```ts title="main.ts"
-import { createApp } from 'vue';
-import {
-  DevToolsManager,
-  DataClientPlugin,
-  getDefaultManagers,
-} from '@data-client/vue';
-import App from './App.vue';
-
-// production builds leave out DevToolsManager
-const managers = getDefaultManagers({
-  // highlight-next-line
-  devToolsManager: new DevToolsManager(undefined, () => true),
-});
-
-const app = createApp(App);
-app.use(DataClientPlugin, { managers });
-app.mount('#app');
-```
-
-:::
+</ProviderManagers>
 
 #### Skipping high-frequency updates
 
