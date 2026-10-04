@@ -32,19 +32,15 @@ For example, we can enable the [trace](https://github.com/reduxjs/redux-devtools
 :::react
 
 ```tsx title="index.tsx"
-import {
-  DevToolsManager,
-  DataProvider,
-  getDefaultManagers,
-} from '@data-client/react';
-import ReactDOM from 'react-dom';
+import { DataProvider, getDefaultManagers } from '@data-client/react';
+import { createRoot } from 'react-dom/client';
 
 const managers = getDefaultManagers({
   // highlight-next-line
   devToolsManager: { trace: true },
 });
 
-ReactDOM.createRoot(document.body).render(
+createRoot(document.body).render(
   <DataProvider managers={managers}>
     <App />
   </DataProvider>,
@@ -88,7 +84,7 @@ import {
   DataProvider,
   getDefaultManagers,
 } from '@data-client/react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 // production builds leave out DevToolsManager
 const managers = getDefaultManagers({
@@ -96,7 +92,7 @@ const managers = getDefaultManagers({
   devToolsManager: new DevToolsManager(undefined, () => true),
 });
 
-ReactDOM.createRoot(document.body).render(
+createRoot(document.body).render(
   <DataProvider managers={managers}>
     <App />
   </DataProvider>,

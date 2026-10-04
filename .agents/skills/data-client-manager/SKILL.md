@@ -159,11 +159,11 @@ export default class CustomSubsManager implements Manager {
 
 ```tsx
 import { DataProvider, getDefaultManagers } from '@data-client/react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 const managers = [...getDefaultManagers(), new MyManager()];
 
-ReactDOM.createRoot(document.body).render(
+createRoot(document.body).render(
   <DataProvider managers={managers}>
     <App />
   </DataProvider>,

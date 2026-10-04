@@ -39,12 +39,12 @@ import {
   LogoutManager,
   getDefaultManagers,
 } from '@data-client/react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 // highlight-next-line
 const managers = [new LogoutManager(), ...getDefaultManagers()];
 
-ReactDOM.createRoot(document.body).render(
+createRoot(document.body).render(
   <DataProvider managers={managers}>
     <App />
   </DataProvider>,
