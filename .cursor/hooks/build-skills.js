@@ -64,7 +64,8 @@ const isInput = file =>
 try {
   const dirty = git('status', '--porcelain', '--untracked-files=all')
     .split('\n')
-    .map(line => line.slice(3).replace(/^.* -> /, ''))
+    // both sides of a rename
+    .flatMap(line => line.slice(3).split(' -> '))
     .some(isInput);
   // the generator reads the working tree, so it can only vouch for what's
   // pushed when that includes these edits; otherwise leave it to CI
