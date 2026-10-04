@@ -402,44 +402,41 @@ describe('vue useCache()', () => {
   });
 
   it('keeps stale invalidIfStale data on unrelated store updates', async () => {
-    const staleEndpoint = new Endpoint(
-      async ({ id }: { id: number }) => ({ ...payload, id }),
-      {
+    const realDate = Date.now;
+    Date.now = jest.fn(() => 1_000_000);
+    try {
+      const staleEndpoint = new Endpoint(async () => payload, {
         schema: CoolerArticle,
         dataExpiryLength: 20,
         invalidIfStale: true,
         name: 'invalidIfStaleArticle',
-      },
-    );
-    const otherEndpoint = new Endpoint(async () => payload, {
-      schema: CoolerArticle,
-      name: 'otherArticle',
-    });
+      });
 
-    const { result, controller, cleanup } = await renderDataCompose(
-      () => useCache(staleEndpoint, { id: 79 }),
-      {
-        initialFixtures: [
-          {
-            endpoint: staleEndpoint,
-            args: [{ id: 79 }],
-            response: { ...payload, id: 79 },
-          },
-        ],
-      },
-    );
-    expect(result.value?.id).toBe(79);
+      const { result, controller, cleanup } = await renderDataCompose(
+        () => useCache(staleEndpoint, { id: 79 }),
+        {
+          initialFixtures: [
+            {
+              endpoint: staleEndpoint,
+              args: [{ id: 79 }],
+              response: { ...payload, id: 79 },
+            },
+          ],
+        },
+      );
+      expect(result.value?.id).toBe(79);
 
-    // let data expire
-    await new Promise(resolve => setTimeout(resolve, 50));
+      // data expires, then an unrelated store update
+      Date.now = jest.fn(() => 2_000_000);
+      await controller.set(CoolerArticle, { id: 80 }, { ...payload, id: 80 });
+      await nextTick();
 
-    // unrelated store update
-    controller.setResponse(otherEndpoint, { ...payload, id: 80 });
-    await nextTick();
+      // expiry only re-evaluates when expiresAt, args, or reset change (like React)
+      expect(result.value?.id).toBe(79);
 
-    // expiry only re-evaluates when expiresAt, args, or reset change (like React)
-    expect(result.value?.id).toBe(79);
-
-    cleanup();
+      cleanup();
+    } finally {
+      Date.now = realDate;
+    }
   });
 });

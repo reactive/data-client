@@ -698,41 +698,40 @@ describe('vue useDLE()', () => {
   });
 
   it('should keep stale invalidIfStale data on unrelated store updates', async () => {
-    const fetchMock = jest.fn(async ({ id }: { id: number }) => ({
-      ...payload,
-      id,
-    }));
-    const staleEndpoint = new Endpoint(fetchMock, {
-      schema: CoolerArticle,
-      dataExpiryLength: 20,
-      invalidIfStale: true,
-      name: 'invalidIfStaleArticle',
-    });
-    const otherEndpoint = new Endpoint(async () => payload2, {
-      schema: CoolerArticle,
-      name: 'otherArticle',
-    });
+    const realDate = Date.now;
+    Date.now = jest.fn(() => 1_000_000);
+    try {
+      const fetchMock = jest.fn(async ({ id }: { id: number }) => ({
+        ...payload,
+        id,
+      }));
+      const staleEndpoint = new Endpoint(fetchMock, {
+        schema: CoolerArticle,
+        dataExpiryLength: 20,
+        invalidIfStale: true,
+        name: 'invalidIfStaleArticle',
+      });
 
-    const { result, controller, waitForNextUpdate, cleanup } =
-      await renderDataCompose(() => useDLE(staleEndpoint, { id: 78 }));
-    await waitForNextUpdate();
+      const { result, controller, waitForNextUpdate, cleanup } =
+        await renderDataCompose(() => useDLE(staleEndpoint, { id: 78 }));
+      await waitForNextUpdate();
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(result.loading.value).toBe(false);
 
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(result.loading.value).toBe(false);
+      // data expires, then an unrelated store update
+      Date.now = jest.fn(() => 2_000_000);
+      await controller.set(CoolerArticle, { id: 80 }, { ...payload, id: 80 });
+      await nextTick();
+      await new Promise(resolve => setTimeout(resolve, 0));
 
-    // let data expire
-    await new Promise(resolve => setTimeout(resolve, 50));
+      // expiry only re-evaluates when expiresAt, args, or reset change (like React)
+      expect(result.loading.value).toBe(false);
+      expect(result.data.value?.id).toBe(78);
+      expect(fetchMock).toHaveBeenCalledTimes(1);
 
-    // unrelated store update
-    controller.setResponse(otherEndpoint, payload2);
-    await nextTick();
-    await new Promise(resolve => setTimeout(resolve, 0));
-
-    // expiry only re-evaluates when expiresAt, args, or reset change (like React)
-    expect(result.loading.value).toBe(false);
-    expect(result.data.value?.id).toBe(78);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-
-    cleanup();
+      cleanup();
+    } finally {
+      Date.now = realDate;
+    }
   });
 });

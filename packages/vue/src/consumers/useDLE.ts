@@ -16,6 +16,7 @@ import type {
   MaybeRefsOrGettersNullable,
 } from '../types.js';
 import refetchTriggers from './refetchTriggers.js';
+import useExpired from './useExpired.js';
 
 /**
  * Use async data with { data, loading, error } (DLE)
@@ -88,16 +89,7 @@ export default function useDLE(endpoint: any, ...args: any[]): any {
   // It only changes the value when expiry or params change.
   // This way, random unrelated re-renders don't cause the concept of expiry
   // to change
-  // Read narrow computeds (not responseMeta) so unrelated store updates
-  // don't re-evaluate Date.now(). All are read up front so each is tracked.
-  const expiresAt = computed(() => responseMeta.value.expiresAt);
-  const lastReset = computed(() => stateRef.value.lastReset);
-  const expired = computed(() => {
-    const key = argsKey.value;
-    const force = forceFetch.value;
-    void lastReset.value;
-    return !!((Date.now() > expiresAt.value || force) && key);
-  });
+  const expired = useExpired(responseMeta, stateRef, argsKey, forceFetch);
 
   // fully "valid" data will not suspend/loading even if it is not fresh
   const loading = computed(() => {
