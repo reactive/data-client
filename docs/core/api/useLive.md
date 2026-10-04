@@ -165,6 +165,8 @@ function useLive(
 Arguments can be plain values or [refs](https://vuejs.org/api/reactivity-core.html#ref) (including [computed](https://vuejs.org/api/reactivity-core.html#computed)); the result
 updates (and the subscription is re-established) when they change.
 While data for new arguments loads, the result keeps the previous data instead of becoming `undefined`.
+If that fetch fails, reading the result throws the error (per its [error policy](../concepts/error-policy.md)), so it reaches
+[onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured).
 
 :::
 
