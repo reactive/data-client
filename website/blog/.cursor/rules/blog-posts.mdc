@@ -73,9 +73,33 @@ As usual, if you have any troubles or questions, feel free to join our [![Chat](
 | `<HooksPlayground>` | Interactive demos with fixtures |
 | `<StackBlitz>` | Embedded app demos (todo-app, coin-app) |
 | `<TypeScriptEditor>` | Type-safe code examples |
-| `<DiffEditor>` | Before/After migration changes |
+| `<DiffEditor>` | Before/After migration changes (with `caption` and `// callout:` annotations) |
 | `<PkgTabs pkgs="..." upgrade />` | Package installation |
 | `<AutoPlayVideo>` | SSR/navigation demos |
+
+## DiffEditor Annotations
+
+Let the diff carry its reason instead of a paragraph of prose above it:
+
+- `caption="..."` - one line on why the change is needed, shown above the diff. Backticks render as code.
+- `// callout: reason` - on its own line inside a fence; annotates the next code line with a numbered marker (①, ②, …) and lists the reason under the diff. Use for the *why* of a specific line, instead of trailing code comments that would show up in the diff.
+
+````mdx
+<DiffEditor caption="The codemod cannot infer this dependency, so update these schemas by hand.">
+
+```ts title="After"
+class LensSchema {
+  constructor({ lens }) {
+    // callout: The function reference is the cache key, so set it once here.
+    this.lensSelector = lens;
+  }
+}
+```
+
+</DiffEditor>
+````
+
+Caption and callout text render as plain HTML outside the editor, so they are in the static page for search engines. Keep each to one sentence; anything longer belongs in the prose.
 
 ## Performance Sections
 

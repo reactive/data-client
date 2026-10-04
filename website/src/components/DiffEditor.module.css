@@ -1,0 +1,30 @@
+.figure {
+  margin: 0;
+}
+
+.caption {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--ifm-color-emphasis-800);
+}
+
+.callouts {
+  list-style: none;
+  /* The editor and fallback carry their own bottom margin; tuck under it */
+  margin: calc(0.5rem - var(--ifm-leading)) 0 var(--ifm-leading);
+  padding: 0;
+  font-size: 0.9rem;
+}
+.callouts li {
+  display: flex;
+  gap: 0.5em;
+}
+.callouts li + li {
+  margin-top: 0.25rem;
+}
+
+.marker,
+:global(.diff-callout-marker) {
+  color: var(--ifm-color-primary);
+  font-weight: bold;
+}
