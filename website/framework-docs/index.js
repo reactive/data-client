@@ -115,28 +115,30 @@ function watch(framework) {
   });
 }
 
-/** Apply `<framework>_label` overrides; strips every framework's keys */
-function rewriteLabel(item, framework) {
-  const next = { ...item };
-  for (const fw of FRAMEWORKS) delete next[`${fw}_label`];
-  if (item[`${framework}_label`]) next.label = item[`${framework}_label`];
-  return next;
+const SIDEBAR_OVERRIDE = new RegExp(`^(${FRAMEWORKS.join('|')})_(.+)$`);
+
+/** Apply `<framework>_<key>` overrides to a sidebar item, like front matter */
+function rewriteSidebarItem(item, framework) {
+  // string shorthand ('introduction') has nothing to override
+  if (typeof item !== 'object') return item;
+  const next = {};
+  const overrides = {};
+  for (const [key, value] of Object.entries(item)) {
+    const match = key.match(SIDEBAR_OVERRIDE);
+    if (!match) next[key] = value;
+    else if (match[1] === framework) overrides[match[2]] = value;
+  }
+  return { ...next, ...overrides };
 }
 
 /** Drop sidebar entries for docs that do not exist in this framework */
 function filterSidebar(items, ids, framework) {
-  return items.flatMap(item => {
-    // string shorthand ('introduction') has no label to override
-    if (typeof item !== 'object') return [item];
-    if (item.type === 'doc')
-      return ids.has(item.id) ? [rewriteLabel(item, framework)] : [];
-    if (item.type === 'category') {
-      const children = filterSidebar(item.items, ids, framework);
-      return children.length ?
-          [{ ...rewriteLabel(item, framework), items: children }]
-        : [];
-    }
-    return [rewriteLabel(item, framework)];
+  return items.flatMap(raw => {
+    const item = rewriteSidebarItem(raw, framework);
+    if (item.type === 'doc') return ids.has(item.id) ? [item] : [];
+    if (item.type !== 'category') return [item];
+    const children = filterSidebar(item.items, ids, framework);
+    return children.length ? [{ ...item, items: children }] : [];
   });
 }
 

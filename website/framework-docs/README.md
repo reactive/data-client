@@ -56,21 +56,20 @@ Errors are caught by :react[[Error Boundaries](./AsyncBoundary.md)]:vue[`onError
 | Different block of content             | `:::react` / `:::vue`                         |
 | Different word or link inline          | `:react[...]` / `:vue[...]`                   |
 | Different front matter value           | `vue_<key>:` overrides `<key>:`               |
-| Different sidebar label                | `"vue_label"` on a `sidebars.json` item       |
+| Different sidebar category value       | `"vue_<key>"` overrides `"<key>"`             |
+| Different heading text                 | `## :react[...]:vue[...] {#stable-id}`        |
 | Page has no Vue equivalent             | `frameworks: [react]` in front matter         |
 | Vue-only page, or nothing is shareable | `foo.vue.md` next to (or instead of) `foo.md` |
 
 Nest inside an admonition by giving the outer one more colons (`::::tip` ... `::::`).
 
 Sidebars come from `website/sidebars.json` for both frameworks; entries for docs that don't exist
-in a framework are dropped automatically, so Vue-only docs can be listed there too. Give an item a
-`"vue_label"` (or `"react_label"`) to override its `label` for that framework, e.g. the `Hooks` category
-is labeled `Composables` for Vue.
+in a framework are dropped automatically, so Vue-only docs can be listed there too. Items take the
+same `vue_<key>` overrides as front matter, e.g. `"vue_label": "Composables"` on the `Hooks` category
+(docs are relabeled with `vue_sidebar_label:` in their front matter).
 
-When a heading differs per framework, give it an explicit id so links to it work for both:
-`## :react[Add provider at top-level component]:vue[Install the plugin] {#add-provider-at-top-level-component}`. Give both
-frameworks a heading; for a section only one framework has, wrap the whole section in `:::react`/`:::vue`
-instead (a heading with only `:react[...]` renders empty on Vue pages).
+Give per-framework headings an explicit id so links to them work in both frameworks. A heading with
+no text left for a framework (e.g. only `:react[...]`) is dropped from that framework's page.
 
 ## How it works
 
