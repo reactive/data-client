@@ -9,6 +9,7 @@ import type {
 } from '@data-client/core';
 import {
   computed,
+  customRef,
   unref,
   watch,
   readonly,
@@ -111,7 +112,8 @@ export default async function useSuspense(
 
   // Watch for changes to key, expiry, or store state that require refetch
   watch(refetchTriggers(responseMeta, stateRef, argsKey), () => {
-    return maybeFetch();
+    // errors are stored and surfaced through the returned ref
+    maybeFetch().catch(() => {});
   });
 
   // Maintain GC refcounts on data mount/changes
@@ -133,22 +135,40 @@ export default async function useSuspense(
   // has data keeps showing current store data, even while stale or refetching.
   let lastData: unknown;
   let lastKey = '';
-  const data = computed(() => {
+  const loading = computed(() => {
     const meta = responseMeta.value;
     const key = argsKey.value;
-    const loading =
+    return (
       !!key &&
       fetchingKey.value === key &&
       (lastKey !== key || meta.data === undefined) &&
       meta.expiryStatus !== ExpiryStatus.Valid &&
-      isStale(meta);
-    if (loading) return lastData;
-    lastKey = key;
-    return (lastData = meta.data);
+      isStale(meta)
+    );
+  });
+  // surface fetch errors for the current args like React's useSuspense does
+  const error = computed(() =>
+    loading.value ? undefined : (
+      controller.getError(endpoint, ...resolvedArgs.value, stateRef.value)
+    ),
+  );
+  const data = computed(() => {
+    if (loading.value || error.value) return lastData;
+    lastKey = argsKey.value;
+    return (lastData = responseMeta.value.data);
   });
 
-  // Return readonly computed ref - Vue automatically unwraps in templates and reactive contexts
-  return readonly(data);
+  // Throw on every read; a computed that throws would return its cached value on the next read
+  const result = customRef(() => ({
+    get() {
+      if (error.value) throw error.value;
+      return data.value;
+    },
+    set() {},
+  }));
+
+  // Return readonly ref - Vue automatically unwraps in templates and reactive contexts
+  return readonly(result);
 }
 
 /** Hard invalid data must refetch regardless of staleness */
