@@ -3,7 +3,7 @@
     "react"
   ],
   "docs": {
-    "Actions.md": ".agents/skills/data-client-manager/references/Actions.md",
+    "Actions.md": "docs/core/api/Actions.md",
     "AsyncBoundary.md": "docs/core/api/AsyncBoundary.md",
     "Controller.md": "docs/core/api/Controller.md",
     "DataProvider.md": "docs/core/api/DataProvider.md",

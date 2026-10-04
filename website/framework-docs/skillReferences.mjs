@@ -6,7 +6,7 @@
  *
  *   { "frameworks": ["react", "vue"], "docs": { "useSuspense.md": "docs/core/api/useSuspense.md" } }
  *
- * The first framework writes `<name>.md`; later ones write
+ * The first framework with the page writes `<name>.md`; later ones write
  * `<name>.<framework>.md` only when their page differs.
  *
  * Usage: node website/framework-docs/skillReferences.mjs [--check]
@@ -36,6 +36,9 @@ function generateSkill(skillDir) {
     const localRoutes = new Map();
     for (const [name, doc] of Object.entries(docs)) {
       const file = path.join(ROOT, doc);
+      // generated references aren't sources: they may not be regenerated yet
+      if (!doc.startsWith('docs/'))
+        throw new Error(`${rel(skillDir)}/${MANIFEST}: ${doc} is not in docs/`);
       if (!fs.existsSync(file))
         throw new Error(`${rel(skillDir)}/${MANIFEST}: ${doc} does not exist`);
       if (!path.basename(file).startsWith('_'))
@@ -54,7 +57,8 @@ function generateSkill(skillDir) {
       if (!body) continue;
       const content = `${HEADER} ${doc} (${framework}). Edit the source doc, not this file. -->\n\n${body}`;
       const primary = path.join(skillDir, 'references', name);
-      if (framework === frameworks[0]) out.set(primary, content);
+      // the first framework that has the page writes `<name>.md`
+      if (!out.has(primary)) out.set(primary, content);
       else if (comparable(out.get(primary)) !== comparable(content))
         out.set(primary.replace(MD, `.${framework}.md`), content);
     }
