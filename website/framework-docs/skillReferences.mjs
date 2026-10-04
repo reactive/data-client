@@ -112,20 +112,40 @@ if (process.argv.includes('--check')) {
   console.log(`Updated ${changes.length} skill reference files.`);
 }
 
-// SKILL.md links to references that no longer exist (renamed or removed docs)
-const deadLinks = fs.readdirSync(SKILLS).flatMap(skill => {
+const problems = fs.readdirSync(SKILLS).flatMap(skill => {
   const skillMd = path.join(SKILLS, skill, 'SKILL.md');
-  if (!fs.existsSync(skillMd)) return [];
+  const refs = path.join(SKILLS, skill, 'references');
+  const text = fs.existsSync(skillMd) ? fs.readFileSync(skillMd, 'utf8') : '';
+  const files = fs.existsSync(refs) ? fs.readdirSync(refs) : [];
+  const manifest = path.join(SKILLS, skill, MANIFEST);
+  const { frameworks = [] } =
+    fs.existsSync(manifest) ?
+      JSON.parse(fs.readFileSync(manifest, 'utf8'))
+    : {};
   return [
-    ...fs.readFileSync(skillMd, 'utf8').matchAll(/\]\((references\/[^)#\s]+)/g),
-  ]
-    .map(([, link]) => link)
-    .filter(link => !fs.existsSync(path.join(SKILLS, skill, link)))
-    .map(link => `${rel(skillMd)} -> ${link}`);
+    // links to references that no longer exist (renamed or removed docs)
+    ...[...text.matchAll(/\]\((references\/[^)#\s]+)/g)]
+      .map(([, link]) => link)
+      .filter(link => !fs.existsSync(path.join(SKILLS, skill, link)))
+      .map(link => `${rel(skillMd)} links to missing ${link}`),
+    // symlinked docs ship raw MDX; list them in references.json instead
+    ...files
+      .filter(
+        f => MD.test(f) && fs.lstatSync(path.join(refs, f)).isSymbolicLink(),
+      )
+      .map(f => `${rel(refs)}/${f} is a symlink; add it to ${MANIFEST}`),
+    // agents only find framework variants if SKILL.md tells them to look
+    ...frameworks
+      .slice(1)
+      .filter(fw => files.some(f => f.endsWith(`.${fw}.md`)))
+      .filter(fw => !text.includes(`.${fw}.md`))
+      .map(
+        fw =>
+          `${rel(skillMd)} needs a note to read \`<name>.${fw}.md\` instead of \`<name>.md\` for ${fw} projects`,
+      ),
+  ];
 });
-if (deadLinks.length) {
-  console.error(
-    `Skills link to missing references:\n  ${deadLinks.join('\n  ')}\nUpdate the link or the skill's ${MANIFEST}.`,
-  );
+if (problems.length) {
+  console.error(`Skill problems:\n  ${problems.join('\n  ')}`);
   process.exit(1);
 }
