@@ -378,6 +378,14 @@ ctrl.set(
 );
 ```
 
+The value is typed by the schema: an [Entity](/rest/api/Entity) takes its fields (numbers and strings may be either),
+while a [Collection](/rest/api/Collection) or [All](/rest/api/All) takes a list of rows. A [Query](/rest/api/Query)
+takes the input of the schema it wraps, since `set()` normalizes that schema rather than reversing `process()`.
+
+```ts
+ctrl.set(TodoResource.getList.schema, [{ id: '5', completed: true }]);
+```
+
 Functions can be used in the value when derived data is used. This [prevents race conditions](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state).
 
 ```ts

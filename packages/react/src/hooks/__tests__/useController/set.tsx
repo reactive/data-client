@@ -3,6 +3,7 @@ import { schema } from '@data-client/rest';
 import {
   ArticleFromMixin,
   CoolerArticle,
+  CoolerArticleResource,
   FirstUnion,
   SecondUnion,
   UnionResource,
@@ -232,6 +233,57 @@ describe('set', () => {
     };
   });
 
+  it('should type values by the schema', async () => {
+    const { controller } = renderDataClient(() => null);
+    const list = CoolerArticleResource.getList.schema;
+    const all = new schema.All(CoolerArticle);
+    const titles = new schema.Query(all, articles =>
+      articles.map(article => article.title),
+    );
+    let promise: any;
+    act(() => {
+      promise = controller.set(list, [{ id: 5, title: 'listed' }]);
+    });
+    await act(() => promise);
+    act(() => {
+      promise = controller.set(titles, [{ id: 6, title: 'queried' }]);
+    });
+    await act(() => promise);
+    const state = controller.getState();
+    expect(controller.get(list, state)?.map(({ id }) => id)).toEqual([5]);
+    expect(controller.get(titles, state)?.sort()).toEqual([
+      'listed',
+      'queried',
+    ]);
+
+    // type tests
+    () => {
+      controller.set(all, [{ id: '5', title: 'coerced' }]);
+      controller.set(list, articles => [
+        ...articles.map(({ id }) => ({ id })),
+        { id: 7 },
+      ]);
+      // @ts-expect-error All takes a list of rows
+      controller.set(all, 42);
+      // @ts-expect-error title is a string
+      controller.set(all, [{ id: 5, title: false }]);
+      // @ts-expect-error Collections take a list of rows
+      controller.set(list, 'anything');
+      // @ts-expect-error unknown field
+      controller.set(list, [{ id: 5, bogus: 1 }]);
+      // @ts-expect-error updaters must return rows
+      controller.set(list, () => 42);
+      // @ts-expect-error Queries take their schema's input, not process() output
+      controller.set(titles, ['listed']);
+      // @ts-expect-error Entities take an object
+      controller.set(CoolerArticle, { id: 5 }, 5);
+      // @ts-expect-error title is a string
+      controller.set(CoolerArticle, { id: 5 }, { id: 5, title: false });
+      // @ts-expect-error updaters must return the Entity's fields
+      controller.set(CoolerArticle, { id: 5 }, () => ({ title: false }));
+    };
+  });
+
   it('should update store with error', async () => {
     const { result, controller } = renderDataClient(() => {
       return useQuery(CoolerArticle, { id: payload.id });
@@ -239,6 +291,7 @@ describe('set', () => {
     expect(result.current).toBeUndefined();
     let promise: any;
     act(() => {
+      // @ts-expect-error testing runtime error
       promise = controller.set(CoolerArticle, { id: 5 }, 5);
     });
     expect(result.current).toBeUndefined();

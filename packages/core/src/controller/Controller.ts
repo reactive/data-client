@@ -225,12 +225,15 @@ export default class Controller<
    */
   set<S extends Queryable>(
     schema: S,
-    ...rest: readonly [...SchemaArgs<S>, (previousValue: Denormalize<S>) => {}]
+    ...rest: readonly [
+      ...SchemaArgs<S>,
+      (previousValue: Denormalize<S>) => SetValue<S>,
+    ]
   ): Promise<void>;
 
   set<S extends Queryable>(
     schema: S,
-    ...rest: readonly [...SchemaArgs<S>, {}]
+    ...rest: readonly [...SchemaArgs<S>, SetValue<S>]
   ): Promise<void>;
 
   /**
@@ -907,3 +910,27 @@ type SetManyValue<S> =
       { readonly [k: string]: SetRowOf<Sch, U> }
     : never
   : never;
+
+/** Raw input `set()` normalizes for a Queryable */
+type SetValue<S> =
+  S extends EntityLike ? SetRow<Denormalize<S>>
+  : // Query normalizes with its inner schema; its process() output is not input
+  S extends { readonly schema: infer Sch; process(...args: any): any } ?
+    SetValue<Sch>
+  : SetInput<Denormalize<S>>;
+
+/** Raw input for a denormalized value, like a Collection's or All's list */
+type SetInput<T> =
+  0 extends 1 & T ? any
+  : T extends readonly (infer U)[] ? readonly SetItem<U>[]
+  : T extends object ?
+    string extends keyof T ?
+      { readonly [k: string]: SetItem<T[string & keyof T]> }
+    : SetRow<T>
+  : SetField<T>;
+
+/** One member of a list or keyed object */
+type SetItem<U> =
+  true extends IsUnion<U> ? SetRow<U> & { readonly [k: string]: unknown }
+  : U extends object ? SetRow<U>
+  : SetField<U>;
