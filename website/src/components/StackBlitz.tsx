@@ -1,5 +1,4 @@
 import Link from '@docusaurus/Link';
-import { useWindowSize } from '@docusaurus/theme-common';
 
 import { isGoogleBot } from './Playground/isMobileOrBot';
 import styles from './StackBlitz.module.css';
@@ -47,51 +46,50 @@ export default function StackBlitz({
   const projectUrl = `https://stackblitz.com/github/reactive/${projectPath}`;
 
   const [frameRef, hasIntersected] = useHasIntersected<HTMLIFrameElement>();
-  // Embedded IDEs are cramped on phones; link out instead
-  const isMobile = useWindowSize() === 'mobile';
 
+  // Embedded IDEs are cramped on phones, so CSS swaps in a link-out card.
+  // A media query (not useWindowSize) keeps the SSR markup right on first paint;
+  // the hidden iframe never intersects, so it never loads on phones.
   return (
     <>
-      {isMobile ?
-        <div className={styles.card}>
-          <p className={styles.cardTitle}>
-            {app ? `Explore the ${app} example` : 'Explore the example'}
-          </p>
-          <div className={styles.cardLinks}>
-            <Link
-              className="button button--primary"
-              to={`${projectUrl}?${new URLSearchParams({ file })}`}
-            >
-              Open in StackBlitz
-            </Link>
-            <Link
-              className="button button--secondary"
-              to={`https://github.com/reactive/${projectPath}`}
-            >
-              View source
-            </Link>
-          </div>
+      <div className={styles.card}>
+        <p className={styles.cardTitle}>
+          {app ? `Explore the ${app} example` : 'Explore the example'}
+        </p>
+        <div className={styles.cardLinks}>
+          <Link
+            className="button button--primary"
+            to={`${projectUrl}?${new URLSearchParams({ file })}`}
+          >
+            Open in StackBlitz
+          </Link>
+          <Link
+            className="button button--secondary"
+            to={`https://github.com/reactive/${projectPath}`}
+          >
+            View source
+          </Link>
         </div>
-      : <div className={styles.wrapper}>
-          <span className={styles.loading} aria-hidden="true">
-            Loading demo…
-          </span>
-          <iframe
-            ref={frameRef}
-            width={width}
-            height={height}
-            title={`${app ?? repo} demo on StackBlitz`}
-            className={styles.frame}
-            {...(hasIntersected && !isGoogleBot ?
-              {
-                src: `${projectUrl}?${params}`,
-                loading: 'lazy',
-                sandbox: 'allow-scripts allow-same-origin',
-              }
-            : {})}
-          ></iframe>
-        </div>
-      }
+      </div>
+      <div className={styles.wrapper}>
+        <span className={styles.loading} aria-hidden="true">
+          Loading demo…
+        </span>
+        <iframe
+          ref={frameRef}
+          width={width}
+          height={height}
+          title={`${app ?? repo} demo on StackBlitz`}
+          className={styles.frame}
+          {...(hasIntersected && !isGoogleBot ?
+            {
+              src: `${projectUrl}?${params}`,
+              loading: 'lazy',
+              sandbox: 'allow-scripts allow-same-origin',
+            }
+          : {})}
+        ></iframe>
+      </div>
       <p style={{ textAlign: 'center' }}>
         <Link className="button button--secondary button--sm" to="/demos">
           More Demos
