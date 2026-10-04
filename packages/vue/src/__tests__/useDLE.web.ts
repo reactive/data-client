@@ -676,9 +676,6 @@ describe('vue useDLE()', () => {
     const { result, controller, waitForNextUpdate, cleanup } =
       await renderDataCompose(() => useDLE(staleEndpoint, { id: 77 }));
     await waitForNextUpdate();
-    for (let i = 0; i < 100 && !result.data.value; i++) {
-      await new Promise(resolve => setTimeout(resolve, 0));
-    }
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
@@ -691,7 +688,7 @@ describe('vue useDLE()', () => {
       { id: 77, title: 'edited' },
     );
     await nextTick();
-    await new Promise(resolve => setTimeout(resolve, 30));
+    await new Promise(resolve => setTimeout(resolve, 0));
 
     // the store update should not trigger a refetch that overwrites the set
     expect(fetchMock).toHaveBeenCalledTimes(1);

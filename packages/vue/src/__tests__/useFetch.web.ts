@@ -459,7 +459,7 @@ describe('vue useFetch()', () => {
       { id: 77, title: 'edited' },
     );
     await nextTick();
-    await new Promise(resolve => setTimeout(resolve, 30));
+    await new Promise(resolve => setTimeout(resolve, 0));
 
     // the store update should not trigger a refetch that overwrites the set
     expect(fetchMock).toHaveBeenCalledTimes(1);

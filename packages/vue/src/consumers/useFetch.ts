@@ -13,6 +13,7 @@ import type {
   MaybeRefsOrGetters,
   MaybeRefsOrGettersNullable,
 } from '../types.js';
+import refetchTriggers from './refetchTriggers.js';
 
 type FetchPromise = Promise<any> & { resolved: boolean };
 
@@ -109,19 +110,9 @@ export default function useFetch(endpoint: any, ...args: any[]): any {
   maybeFetch();
 
   // Also watch for store changes that might require refetch (e.g., invalidation)
-  // Multi-source form compares each value; a getter returning a new array
-  // would fire on every store update and refetch stale data unexpectedly
-  watch(
-    [
-      () => responseMeta.value.expiresAt,
-      () => responseMeta.value.expiryStatus,
-      () => stateRef.value.lastReset,
-      argsKey,
-    ],
-    () => {
-      maybeFetch();
-    },
-  );
+  watch(refetchTriggers(responseMeta, stateRef, argsKey), () => {
+    maybeFetch();
+  });
 
   return lastPromise;
 }

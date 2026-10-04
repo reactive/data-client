@@ -21,6 +21,7 @@ import type {
   MaybeRefsOrGetters,
   MaybeRefsOrGettersNullable,
 } from '../types.js';
+import refetchTriggers from './refetchTriggers.js';
 
 /**
  * Ensure an endpoint is available.
@@ -100,19 +101,9 @@ export default async function useSuspense(
   };
 
   // Watch for changes to key, expiry, or store state that require refetch
-  // Multi-source form compares each value; a getter returning a new array
-  // would fire on every store update and refetch stale data unexpectedly
-  watch(
-    [
-      () => responseMeta.value.expiresAt,
-      () => responseMeta.value.expiryStatus,
-      () => stateRef.value.lastReset,
-      argsKey,
-    ],
-    () => {
-      return maybeFetch();
-    },
-  );
+  watch(refetchTriggers(responseMeta, stateRef, argsKey), () => {
+    return maybeFetch();
+  });
 
   // Maintain GC refcounts on data mount/changes
   watch(
