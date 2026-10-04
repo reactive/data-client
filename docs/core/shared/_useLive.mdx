@@ -1,6 +1,6 @@
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 
-<HooksPlayground row defaultTab={props.defaultTab}>
+<FrameworkPlayground row defaultTab={props.defaultTab}>
 
 ```typescript title="Ticker" {32} collapsed
 import { Entity, RestEndpoint } from '@data-client/rest';
@@ -38,6 +38,8 @@ export const getTicker = new RestEndpoint({
 });
 ```
 
+:::react
+
 ```tsx title="AssetPrice" {5}
 import { useLive } from '@data-client/react';
 import { getTicker } from './Ticker';
@@ -60,4 +62,30 @@ interface Props {
 render(<AssetPrice productId="BTC-USD" />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="AssetPrice.vue" {6}
+<script setup lang="ts">
+  import { useLive } from '@data-client/vue';
+  import { getTicker } from './Ticker';
+
+  const props = defineProps<{ productId: string }>();
+  const ticker = await useLive(getTicker, { productId: props.productId });
+</script>
+
+<template>
+  <center>
+    {{ productId }}
+    <NumberFlow
+      :value="ticker.price"
+      :format="{ style: 'currency', currency: 'USD' }"
+    />
+  </center>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>

@@ -7,9 +7,12 @@ on:
     branches:
       - master
       - rest-hooks-site
+    # Published site only. Keep in sync with website/scripts/vercel-ignore.sh.
     paths:
       - 'website/**'
-      - 'docs/**'
+      - 'docs/core/**'
+      - 'docs/rest/**'
+      - 'docs/graphql/**'
       - '.github/workflows/site-release.yml'
 
 concurrency:

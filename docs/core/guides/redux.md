@@ -1,4 +1,5 @@
 ---
+frameworks: [react]
 id: redux
 title: Empowering Redux with Reactive Data Client
 sidebar_label: Redux integration
@@ -28,7 +29,7 @@ import {
   type Middleware,
 } from '@data-client/react/redux';
 import { getDefaultManagers, Controller } from '@data-client/react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 const managers = getDefaultManagers();
 // be sure to include your other reducers here
@@ -43,7 +44,7 @@ const { store, selector, controller } = prepareStore(
   extraMiddlewares,
 );
 
-ReactDOM.render(
+createRoot(document.body).render(
   <ExternalDataProvider
     store={store}
     selector={selector}
@@ -51,7 +52,6 @@ ReactDOM.render(
   >
     <App />
   </ExternalDataProvider>,
-  document.body,
 );
 ```
 
@@ -66,7 +66,7 @@ import {
 } from '@data-client/react/redux';
 import { getDefaultManagers, Controller } from '@data-client/react';
 import { Provider } from 'react-redux';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 const managers = getDefaultManagers();
 // be sure to include your other reducers here
@@ -81,7 +81,7 @@ const { store, selector, controller } = prepareStore(
   extraMiddlewares,
 );
 
-ReactDOM.render(
+createRoot(document.body).render(
   <ExternalDataProvider
     store={store}
     selector={selector}
@@ -91,7 +91,6 @@ ReactDOM.render(
       <App />
     </Provider>
   </ExternalDataProvider>,
-  document.body,
 );
 ```
 

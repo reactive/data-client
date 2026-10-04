@@ -58,15 +58,19 @@ or
 </span>
 </span>
 
-After installing and loading your [site in dev-mode](https://webpack.js.org/guides/development/), you either
+After installing and loading your [site in dev-mode](https://webpack.js.org/guides/development/), :react[you either
 click the <abbr title="Reactive Data Client">Data Client</abbr> logo (default bottom-right of window) or the
-redux-devtool logo in the location bar.
+redux-devtool logo in the location bar.]:vue[click the redux-devtool logo in the location bar.]
 
 Clicking that will open the inspector, which allows you to observe dispatched actions,
 their effect on the store's state as well as current store state.
 
+:::react
+
 The <abbr title="Reactive Data Client">Data Client</abbr> logo only appears in dev-mode. However, its
 location can be moved or completely disabled by setting the [devButton DataProvider prop](../api/DataProvider.md#devbutton).
+
+:::
 
 ![browser-devtools](/img/devtool-action.png 'Reactive Data Client devtools')
 

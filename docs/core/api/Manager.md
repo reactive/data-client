@@ -65,9 +65,20 @@ Provides any cleanup of dangling resources after manager is no longer in use.
 
 ## Adding managers to Reactive Data Client {#adding}
 
+:::react
+
 Use the [managers](../api/DataProvider.md#managers) prop of [DataProvider](../api/DataProvider.md). Be
 sure to hoist to _module level_ or wrap in a _useMemo()_ to ensure they are not recreated. Managers
 have internal state, so it is important to not constantly recreate them.
+
+:::
+
+:::vue
+
+Use the `managers` option of [DataClientPlugin](../getting-started/installation.md). The plugin is
+installed once per app, so managers are created once.
+
+:::
 
 <Tabs
 defaultValue="web"
@@ -83,11 +94,11 @@ values={[
 
 ```tsx title="/index.tsx"
 import { DataProvider, getDefaultManagers } from '@data-client/react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 const managers = [...getDefaultManagers(), new MyManager()];
 
-ReactDOM.createRoot(document.body).render(
+createRoot(document.body).render(
   <DataProvider managers={managers}>
     <App />
   </DataProvider>,

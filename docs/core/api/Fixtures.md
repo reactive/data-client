@@ -12,7 +12,7 @@ Fixtures and Interceptors allow universal data mocking without the need for monk
 fetch behaviors. Fixtures define static responses to specific endpoint arg combinations. This
 allows them to be used in static contexts like [mockInitialState()](./mockInitialState.md).
 Interceptors are functions run and match a fetch pattern. This restricts them to being used only
-in dynamic response contexts like [MockResolver](./MockResolver.md).
+in dynamic response contexts like :react[[MockResolver](./MockResolver.md)]:vue[`MockPlugin`].
 
 ## SuccessFixture
 
@@ -193,7 +193,7 @@ Determines what the response for this mock should be. If a function it will be r
 
 Function running is called 'collapsing' after the mechanism in [Quantum Mechanics](https://www.wondriumdaily.com/copenhagen-interpretation-of-quantum-mechanics/)
 
-`this` can be used to store simulated server-side data. It is initialized using [getInitialInterceptorData](./MockResolver.md#getinitialinterceptordata). It's important to not use arrow functions when using this as they disallow `this` binding.
+`this` can be used to store simulated server-side data. It is initialized using :react[[getInitialInterceptorData](./MockResolver.md#getinitialinterceptordata)]:vue[`getInitialInterceptorData`]. It's important to not use arrow functions when using this as they disallow `this` binding.
 
 ### fetchResponse(input, init) {#fetchResponse}
 

@@ -30,19 +30,15 @@ to send to redux devtools.
 For example, we can enable the [trace](https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md#trace) option to help track down where actions are dispatched from.
 
 ```tsx title="index.tsx"
-import {
-  DevToolsManager,
-  DataProvider,
-  getDefaultManagers,
-} from '@data-client/react';
-import ReactDOM from 'react-dom';
+import { DataProvider, getDefaultManagers } from '@data-client/react';
+import { createRoot } from 'react-dom/client';
 
 const managers = getDefaultManagers({
   // highlight-next-line
   devToolsManager: { trace: true },
 });
 
-ReactDOM.createRoot(document.body).render(
+createRoot(document.body).render(
   <DataProvider managers={managers}>
     <App />
   </DataProvider>,
@@ -63,7 +59,7 @@ import {
   DataProvider,
   getDefaultManagers,
 } from '@data-client/react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 const managers =
   process.env.NODE_ENV !== 'production'
@@ -77,7 +73,7 @@ const managers =
       ]
     : getDefaultManagers();
 
-ReactDOM.createRoot(document.body).render(
+createRoot(document.body).render(
   <DataProvider managers={managers}>
     <App />
   </DataProvider>,
@@ -99,9 +95,11 @@ const managers = getDefaultManagers({
     // Increase latency buffer for high-frequency updates
     latency: 1000,
     // Skip WebSocket SET actions for Ticker to reduce log spam
+    // (including batched set([Ticker], rows) writes)
     // highlight-start
     predicate: (state, action) =>
-      action.type !== actionTypes.SET || action.schema !== Ticker,
+      action.type !== actionTypes.SET ||
+      (action.schema !== Ticker && action.schema[0] !== Ticker),
     // highlight-end
   },
 });
@@ -126,8 +124,8 @@ __DC_CONTROLLERS__.get('Data Client: My App').getState();
 
 This is useful for AI coding assistants using the [Chrome DevTools MCP](https://developer.chrome.com/blog/chrome-devtools-mcp)
 or [Expo MCP](https://docs.expo.dev/eas/ai/mcp/) to programmatically inspect and interact
-with the store. Each [DataProvider](/docs/api/DataProvider) registers independently, so
-multiple providers on the same page are fully supported.
+with the store. Each :react[[DataProvider](/docs/api/DataProvider)]:vue[installed DataClientPlugin] registers independently, so
+multiple :react[providers]:vue[apps] on the same page are fully supported.
 
 Controllers are removed from the map when `cleanup()` is called.
 
