@@ -35,7 +35,10 @@ build_version() {
     "$downlevel_dts" lib "ts$version" --to="$version"
     # downlevel-dts keeps `abstract new` constructor types, which need TS 4.2
     if version_lt "$version" 4.2; then
-        find "ts$version" -name '*.d.ts' -exec perl -pi -e 's/abstract new \(/new (/g' {} +
+        grep -rl --include='*.d.ts' 'abstract new (' "ts$version" | while IFS= read -r file
+        do
+            perl -pi -e 's/abstract new \(/new (/g' "$file"
+        done
     fi
     for earlier in "$@"
     do

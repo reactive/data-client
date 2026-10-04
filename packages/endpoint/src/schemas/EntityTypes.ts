@@ -209,7 +209,10 @@ export interface IEntityInstance {
 }
 
 export type Constructor = abstract new (...args: any[]) => {};
-/** InstanceType<> that accepts abstract constructors on TypeScript 4.2 (whose InstanceType needs `new`) */
+/** InstanceType<> for abstract constructor types, which TypeScript 4.2's InstanceType rejects
+ *
+ * Unlike AbstractInstanceType<>, this resolves constructor type aliases (not just classes)
+ */
 export type ConstructorInstance<T extends abstract new (...args: any) => any> =
   T extends abstract new (...args: any) => infer R ? R : any;
 export type IDClass = abstract new (...args: any[]) => {
