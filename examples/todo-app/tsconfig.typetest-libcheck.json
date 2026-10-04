@@ -1,0 +1,15 @@
+{
+  // Standalone so it type-checks only @data-client declarations (and their deps)
+  // on every TypeScript in the esmodule-types matrix.
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "esnext",
+    "lib": ["dom", "esnext"],
+    "moduleResolution": "node",
+    "strict": true,
+    "skipLibCheck": false,
+    "types": [],
+    "noEmit": true
+  },
+  "files": ["typetest-libcheck.ts"]
+}

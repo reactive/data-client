@@ -53,7 +53,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   pk<
     T extends (abstract new (
       ...args: any[]
-    ) => IEntityInstance & InstanceType<TBase>) &
+    ) => IEntityInstance & ConstructorInstance<TBase>) &
       IEntityClass &
       TBase,
   >(
@@ -136,7 +136,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   fromJS<
     T extends (abstract new (
       ...args: any[]
-    ) => IEntityInstance & InstanceType<TBase>) &
+    ) => IEntityInstance & ConstructorInstance<TBase>) &
       IEntityClass &
       TBase,
   >(
@@ -151,7 +151,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   createIfValid<
     T extends (abstract new (
       ...args: any[]
-    ) => IEntityInstance & InstanceType<TBase>) &
+    ) => IEntityInstance & ConstructorInstance<TBase>) &
       IEntityClass &
       TBase,
   >(
@@ -182,7 +182,7 @@ export interface IEntityClass<TBase extends Constructor = any> {
   denormalize<
     T extends (abstract new (
       ...args: any[]
-    ) => IEntityInstance & InstanceType<TBase>) &
+    ) => IEntityInstance & ConstructorInstance<TBase>) &
       IEntityClass &
       TBase,
   >(
@@ -209,6 +209,9 @@ export interface IEntityInstance {
 }
 
 export type Constructor = abstract new (...args: any[]) => {};
+/** InstanceType<> that accepts abstract constructors on TypeScript 4.2 (whose InstanceType needs `new`) */
+export type ConstructorInstance<T extends abstract new (...args: any) => any> =
+  T extends abstract new (...args: any) => infer R ? R : any;
 export type IDClass = abstract new (...args: any[]) => {
   id: string | number | undefined;
 };
