@@ -725,7 +725,8 @@ describe('vue useSuspense()', () => {
     async function mountStale(invalidIfStale: boolean) {
       let resolveFetch: (value: any) => void = () => {};
       const fetchMock = jest.fn(
-        () => new Promise(resolve => (resolveFetch = resolve)),
+        (_args: { id: number }) =>
+          new Promise<typeof payload>(resolve => (resolveFetch = resolve)),
       );
       const endpoint = new Endpoint(fetchMock, {
         schema: CoolerArticle,
@@ -733,11 +734,15 @@ describe('vue useSuspense()', () => {
         name: 'staleOnMount',
       });
       const args = { id: payload.id };
-      const initialState = mockInitialState([
+      const state = mockInitialState([
         { endpoint, args: [args], response: payload },
       ]);
+      const key = endpoint.key(args);
       // long expired (0 would fall back to entity expiry)
-      initialState.meta[endpoint.key(args)].expiresAt = 1;
+      const initialState = {
+        ...state,
+        meta: { ...state.meta, [key]: { ...state.meta[key], expiresAt: 1 } },
+      };
 
       const { result, cleanup } = await renderDataCompose(
         () => useSuspense(endpoint, args),
