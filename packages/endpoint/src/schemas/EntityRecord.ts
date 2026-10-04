@@ -1,6 +1,10 @@
-import { Constructor, EntityOptions } from './EntityTypes.js';
+import {
+  Constructor,
+  ConstructorInstance,
+  EntityOptions,
+} from './EntityTypes.js';
 
 export default function EntityRecord<TBase extends Constructor>(
   Base: TBase,
-  options: EntityOptions<InstanceType<TBase>> = {},
+  options: EntityOptions<ConstructorInstance<TBase>> = {},
 ) {}
