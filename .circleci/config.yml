@@ -329,6 +329,8 @@ jobs:
             fi
             yarn run tsc --project examples/todo-app/tsconfig.typetest.json
             yarn run tsc --project examples/github-app/tsconfig.typetest.json
+            # skipLibCheck: false, so the legacy typesVersions outputs get checked too
+            yarn run tsc --project examples/todo-app/tsconfig.typetest-libcheck.json
 
   esmodule-types-latest:
     executor: node

@@ -20,6 +20,11 @@ copy_types() {
     done
 }
 
+# True when version $1 is older than version $2.
+version_lt() {
+    [ "$1" != "$2" ] && [ "$(printf '%s\n' "$1" "$2" | sort -V | head -1)" = "$1" ]
+}
+
 # Versions are listed newest first, and custom types for a version also apply
 # to every version listed after it. So each output dir gets the downleveled lib,
 # then earlier versions' custom types, then its own. Each output dir only
@@ -28,6 +33,13 @@ build_version() {
     local version="$1"
     shift
     "$downlevel_dts" lib "ts$version" --to="$version"
+    # downlevel-dts keeps `abstract new` constructor types, which need TS 4.2
+    if version_lt "$version" 4.2; then
+        grep -rl --include='*.d.ts' 'abstract new (' "ts$version" | while IFS= read -r file
+        do
+            perl -pi -e 's/abstract new \(/new (/g' "$file"
+        done
+    fi
     for earlier in "$@"
     do
         copy_types "./src-$earlier-types" "./ts$version"
@@ -37,8 +49,7 @@ build_version() {
 
 # LEGACY_MIN_TS skips outputs no consumer reads (CI's oldest tested TS).
 below_min() {
-    [ -n "$LEGACY_MIN_TS" ] && [ "$1" != "$LEGACY_MIN_TS" ] \
-        && [ "$(printf '%s\n' "$1" "$LEGACY_MIN_TS" | sort -V | head -1)" = "$1" ]
+    [ -n "$LEGACY_MIN_TS" ] && version_lt "$1" "$LEGACY_MIN_TS"
 }
 
 pids=()
