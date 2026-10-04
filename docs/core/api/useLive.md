@@ -16,6 +16,7 @@ import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import {RestEndpoint} from '@data-client/rest';
 import StackBlitz from '@site/src/components/StackBlitz';
 import UseLive from '../shared/\_useLive.mdx';
+import VueArgs from '../shared/\_vueArgs.mdx';
 
 # useLive()
 
@@ -162,9 +163,9 @@ function useLive(
 ): Promise<DeepReadonly<ComputedRef<Denormalize<typeof endpoint.schema>>>>;
 ```
 
-Arguments can be plain values, [refs](https://vuejs.org/api/reactivity-core.html#ref) (including [computed](https://vuejs.org/api/reactivity-core.html#computed)), or getter
-functions like `() => ({ id: props.id })`; the result
-updates (and the subscription is re-established) when they change.
+<VueArgs />
+
+The result updates (and the subscription is re-established) when the arguments change.
 While data for new arguments loads, the result keeps the previous data instead of becoming `undefined`.
 If that fetch fails, reading the result throws the error (per its [error policy](../concepts/error-policy.md)), so it reaches
 [onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured).

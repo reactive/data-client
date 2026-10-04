@@ -117,7 +117,7 @@ export default function TodoDetail({ id }: { id: number }) {
   import { useSuspense } from '@data-client/vue';
 
   const props = defineProps<{ id: number }>();
-  const todo = await useSuspense(getTodo, { id: props.id });
+  const todo = await useSuspense(getTodo, () => ({ id: props.id }));
 </script>
 
 <template>
