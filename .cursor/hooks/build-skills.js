@@ -34,7 +34,7 @@ const git = (...args) =>
     cwd: projectDir,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'ignore'],
-  }).trim();
+  }).trimEnd();
 
 /** Docs some skill renders; partials (`_foo.mdx`) may be inlined anywhere */
 let skillDocs;
@@ -93,7 +93,7 @@ const uncommitted = git(
   '--porcelain',
   '--untracked-files=all',
   '--',
-  '.agents/skills/*/references',
+  '.agents/skills/*/references/*',
 );
 if (!uncommitted && !problems) process.exit(0);
 
