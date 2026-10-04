@@ -1,16 +1,5 @@
 /** Value types for `Controller.set()`, including batch `set([Entity], rows)` */
-import type { Denormalize } from '@data-client/normalizr';
-
-/** Matches Entity classes (same members Denormalize<> checks).
- * Not EntityInterface: Entity's declared pk() takes mutable `args`, which fails its readonly `args`. */
-interface EntityLike {
-  createIfValid(...args: any): any;
-  pk(...args: any): any;
-  readonly key: string;
-  prototype: any;
-}
-
-type EntityMapLike = { readonly [k: string]: EntityLike };
+import type { Denormalize, EntityInterface } from '@data-client/normalizr';
 
 /** What one row normalizes to: a reference to one stored entity */
 type EntityRef = string | { readonly id: string; readonly schema: string };
@@ -18,7 +7,7 @@ type EntityRef = string | { readonly id: string; readonly schema: string };
 /** Schemas that write each row to one stored entity: Entity, Union, or Invalidate (batch delete).
  * Query, All and Collection don't: they normalize to lists, or Collection keys by args batch set() lacks. */
 type SetEntitySchema =
-  | EntityLike
+  | EntityInterface
   | {
       _normalizeNullable(): EntityRef | undefined;
       // excludes Collection
@@ -29,7 +18,7 @@ type SetEntitySchema =
 export type SetManySchema =
   | readonly SetEntitySchema[]
   | {
-      readonly schema: SetEntitySchema | EntityMapLike;
+      readonly schema: SetEntitySchema | Record<string, EntityInterface>;
       // Array and Values; excludes schema.Object, whose queryKey() returns any
       schemaKey(): string;
       queryKey(...args: any): undefined;
@@ -97,7 +86,7 @@ export type SetManyValue<S> =
 /** Raw input `set()` normalizes for a Queryable */
 export type SetValue<S> =
   InputSchema<S> extends infer N ?
-    N extends EntityLike ?
+    N extends EntityInterface ?
       SetRow<Denormalize<N>>
     : SetInput<Denormalize<N>>
   : never;
