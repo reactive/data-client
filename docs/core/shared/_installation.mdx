@@ -21,9 +21,9 @@ values={[
 
 ```tsx title="index.tsx"
 import { DataProvider } from '@data-client/react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
-ReactDOM.createRoot(document.body).render(
+createRoot(document.body).render(
   <DataProvider>
     <App />
   </DataProvider>,

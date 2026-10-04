@@ -24,7 +24,7 @@ Prefer to scaffold via your AI agent? See [Agent Skills](./agent-skills.md) and 
 
 :::
 
-## Add provider at top-level component
+## :react[Add provider at top-level component]:vue[Install the plugin] {#add-provider-at-top-level-component}
 
 :::vue
 
@@ -57,9 +57,9 @@ Install the [Vue plugin](https://vuejs.org/guide/reusability/plugins.html) when 
 ## Supported Tools
 
 <details>
-<summary><b>TypeScript 3.7+</b></summary>
+<summary><b>TypeScript 4.0+</b></summary>
 
-TypeScript is optional, but requires at least version [3.7](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#more-recursive-type-aliases) and [strictNullChecks](https://www.typescriptlang.org/tsconfig#strictNullChecks) for full type enforcement.
+TypeScript is optional, but requires at least version [4.0](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-0.html#variadic-tuple-types) and [strictNullChecks](https://www.typescriptlang.org/tsconfig#strictNullChecks) for full type enforcement.
 
 </details>
 
