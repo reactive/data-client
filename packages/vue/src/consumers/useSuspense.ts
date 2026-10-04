@@ -140,17 +140,22 @@ export default async function useSuspense(
 
   // While a fetch for new args is in flight (when React's useSuspense would suspend),
   // keep returning the last resolved data. Vue can't re-suspend after setup, so this
-  // avoids yielding `undefined` mid-transition.
+  // avoids yielding `undefined` mid-transition. Refetches of the same key still show
+  // current store data when there is any.
   let lastData: unknown;
+  let lastKey = '';
   const data = computed(() => {
     const meta = responseMeta.value;
+    const key = argsKey.value;
     const loading =
-      !!argsKey.value &&
-      fetchingKey.value === argsKey.value &&
+      !!key &&
+      fetchingKey.value === key &&
+      (lastKey !== key || meta.data === undefined) &&
       meta.expiryStatus !== ExpiryStatus.Valid &&
       (meta.expiryStatus === ExpiryStatus.Invalid ||
         Date.now() > meta.expiresAt);
     if (loading) return lastData;
+    lastKey = key;
     return (lastData = meta.data);
   });
 

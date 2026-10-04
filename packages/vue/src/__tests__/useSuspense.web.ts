@@ -360,6 +360,49 @@ describe('vue useSuspense()', () => {
     cleanup();
   });
 
+  it('shows store updates while refetching the same args', async () => {
+    let fetchCount = 0;
+    let resolveRefetch: (value: any) => void = () => {};
+    const RefetchEndpoint = new Endpoint(
+      ({ id }: { id: number }) =>
+        // first fetch resolves; the refetch stays in flight until we resolve it
+        fetchCount++ === 0 ?
+          Promise.resolve({ ...payload, id })
+        : new Promise(resolve => {
+            resolveRefetch = resolve;
+          }),
+      {
+        schema: CoolerArticle,
+        name: 'RefetchEndpoint',
+        dataExpiryLength: 20,
+        invalidIfStale: true,
+      },
+    );
+    const { result, controller, waitForNextUpdate, cleanup } =
+      await renderDataCompose(() =>
+        useSuspense(RefetchEndpoint, { id: payload.id }),
+      );
+    await waitForNextUpdate();
+    const articleRef = await result;
+    expect(articleRef.value.title).toBe(payload.title);
+
+    await new Promise(resolve => setTimeout(resolve, 50));
+    const UpdateEndpoint = new Endpoint(
+      (body: typeof payload) => Promise.resolve(body),
+      { schema: CoolerArticle, sideEffect: true, name: 'RefetchUpdate' },
+    );
+    await controller.fetch(UpdateEndpoint, { ...payload, title: 'edited' });
+    await nextTick();
+    await nextTick();
+
+    expect(fetchCount).toBe(2);
+    expect(articleRef.value.title).toBe('edited');
+
+    resolveRefetch({ ...payload, title: 'edited' });
+    await new Promise(resolve => setTimeout(resolve, 0));
+    cleanup();
+  });
+
   it('should initially resolve, then when args are null should return undefined, then back to resolving', async () => {
     const props = reactive({ id: payload.id as number | null });
     const { result, allSettled, waitForNextUpdate, cleanup } =
