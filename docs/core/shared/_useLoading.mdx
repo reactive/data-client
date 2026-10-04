@@ -135,7 +135,7 @@ render(<Navigation />);
   import { PostResource } from './PostResource';
 
   const props = defineProps<{ id: number }>();
-  const post = await useSuspense(PostResource.get, { id: props.id });
+  const post = await useSuspense(PostResource.get, () => ({ id: props.id }));
 </script>
 
 <template>

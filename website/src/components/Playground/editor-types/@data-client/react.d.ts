@@ -1,19 +1,19 @@
 import * as _data_client_core from '@data-client/core';
 import { NetworkManager, Manager, State, Controller, GCInterface, DevToolsManager, DevToolsConfig, SubscriptionManager, EndpointInterface, FetchFunction, Schema, ResolveType, Denormalize, DenormalizeNullable, Queryable, NI, SchemaArgs, NetworkError, UnknownError, ErrorTypes as ErrorTypes$1, __INTERNAL__, actions, applyManager, createReducer, initManager } from '@data-client/core';
 export { AbstractInstanceType, ActionTypes, Controller, CreateCountRef, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, EntityInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GCInterface, GCOptions, GCPolicy, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, Queryable, ResetAction, ResolveType, Schema, SchemaArgs, SchemaClass, SetAction, SetResponseAction, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
-import * as react_jsx_runtime from 'react/jsx-runtime';
-import React, { JSX, Context } from 'react';
+import * as React from 'react';
+import React__default, { JSX, Context } from 'react';
 
 /** Can help prevent stuttering by waiting for idle for sideEffect free fetches */
 declare class WebIdlingNetworkManager extends NetworkManager {
 }
 
-declare function BackupLoading(): react_jsx_runtime.JSX.Element;
+declare function BackupLoading(): React__default.JSX.Element;
 
 type DevToolsPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 
 interface ProviderProps {
-    children: React.ReactNode;
+    children: React__default.ReactNode;
     managers?: Manager[];
     initialState?: State<unknown>;
     Controller?: typeof Controller;
@@ -44,18 +44,25 @@ type ConstructorArgs<T extends {
 } ? O : never;
 
 /** Suspense but compatible with 18 SSR, 17, 16 and native */
-declare const UniversalSuspense: React.FunctionComponent<{
-    children?: React.ReactNode;
-    fallback: React.ReactNode;
+declare const UniversalSuspense: React__default.FunctionComponent<{
+    children?: React__default.ReactNode;
+    fallback: React__default.ReactNode;
 }>;
 //# sourceMappingURL=UniversalSuspense.d.ts.map
 
+declare const ErrorFallback: ({ error, className, }: {
+    error: Error;
+    resetErrorBoundary: () => void;
+    className?: string;
+}) => React.JSX.Element;
+//# sourceMappingURL=ErrorFallback.d.ts.map
+
 interface ErrorBoundaryProps<E extends Error> {
-    children: React.ReactNode;
+    children: React__default.ReactNode;
     /** className prop sent to fallbackComponent */
     className?: string;
     /** Renders when an error is caught */
-    fallbackComponent: React.ComponentType<{
+    fallbackComponent: React__default.ComponentType<{
         error: E;
         resetErrorBoundary: () => void;
         className?: string;
@@ -70,13 +77,9 @@ interface ErrorState<E extends Error> {
  * Reusable React error boundary component
  * @see https://dataclient.io/docs/api/ErrorBoundary
  */
-declare class ErrorBoundary<E extends Error> extends React.Component<ErrorBoundaryProps<E>, ErrorState<E>> {
+declare class ErrorBoundary<E extends Error> extends React__default.Component<ErrorBoundaryProps<E>, ErrorState<E>> {
     static defaultProps: {
-        fallbackComponent: ({ error, className, }: {
-            error: Error;
-            resetErrorBoundary: () => void;
-            className?: string;
-        }) => react_jsx_runtime.JSX.Element;
+        fallbackComponent: typeof ErrorFallback;
     };
     static getDerivedStateFromError(error: Error): {
         error: Error;
@@ -99,8 +102,8 @@ declare function AsyncBoundary({ children, errorComponent, fallback, ...errorPro
 declare const _default: typeof AsyncBoundary;
 
 interface Props {
-    children: React.ReactNode;
-    fallback?: React.ReactNode;
+    children: React__default.ReactNode;
+    fallback?: React__default.ReactNode;
     errorClassName?: string;
     /** Renders when an error is caught */
     errorComponent?: ErrorBoundaryProps<Error>['fallbackComponent'];
@@ -295,9 +298,9 @@ declare namespace internal_d {
   export { internal_d_INVALID as INVALID, internal_d_MemoCache as MemoCache, internal_d_actions as actions, internal_d_applyManager as applyManager, internal_d_createReducer as createReducer, internal_d_initManager as initManager, internal_d_initialState as initialState, internal_d_useCacheState as useCacheState };
 }
 
-type ReducerAction<R extends React.Reducer<any, any>> = R extends React.Reducer<any, infer A> ? A : never;
+type ReducerAction<R extends React__default.Reducer<any, any>> = R extends React__default.Reducer<any, infer A> ? A : never;
 
 /** Turns a dispatch function into one that resolves once its been commited */
-declare function usePromisifiedDispatch<R extends React.Reducer<any, any>>(dispatch: React.Dispatch<ReducerAction<R>>, state: React.ReducerState<R>): (action: ReducerAction<R>) => Promise<void>;
+declare function usePromisifiedDispatch<R extends React__default.Reducer<any, any>>(dispatch: React__default.Dispatch<ReducerAction<R>>, state: React__default.ReducerState<R>): (action: ReducerAction<R>) => Promise<void>;
 
 export { _default as AsyncBoundary, BackupLoading, DataProvider as CacheProvider, ControllerContext, DataProvider, type DevToolsPosition, ErrorBoundary, WebIdlingNetworkManager as IdlingNetworkManager, ErrorBoundary as NetworkErrorBoundary, type ProviderProps, StateContext, type Store, StoreContext, UniversalSuspense, internal_d as __INTERNAL__, getDefaultManagers, useCache, useCancelling, useController, useDLE, useDebounce, useError, useFetch, useLive, useLoading, usePromisifiedDispatch, useQuery, useSubscription, useSuspense };
