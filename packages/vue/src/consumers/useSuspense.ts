@@ -12,6 +12,7 @@ import {
   unref,
   watch,
   readonly,
+  shallowRef,
   type DeepReadonly,
   type ComputedRef,
 } from 'vue';
@@ -90,13 +91,22 @@ export default async function useSuspense(
     );
   });
 
+  // key of the fetch in flight, so we only hold previous data while actually loading
+  const fetchingKey = shallowRef('');
+
   const maybeFetch = async () => {
     const currentKey = argsKey.value;
     if (!currentKey) return;
     const meta = responseMeta.value;
     const forceFetch = meta.expiryStatus === ExpiryStatus.Invalid;
     if (Date.now() <= meta.expiresAt && !forceFetch) return;
-    await controller.fetch(endpoint, ...resolvedArgs.value);
+    fetchingKey.value = currentKey;
+    try {
+      await controller.fetch(endpoint, ...resolvedArgs.value);
+    } finally {
+      // store updates synchronously before fetch resolves, so data is ready here
+      if (fetchingKey.value === currentKey) fetchingKey.value = '';
+    }
   };
 
   // Watch for changes to key, expiry, or store state that require refetch
@@ -128,14 +138,15 @@ export default async function useSuspense(
   // Trigger on initial call
   await maybeFetch();
 
-  // Keep returning the last resolved data while new args are loading,
-  // matching when React's useSuspense would suspend. Vue can't re-suspend after
-  // setup, so this avoids yielding `undefined` mid-transition.
+  // While a fetch for new args is in flight (when React's useSuspense would suspend),
+  // keep returning the last resolved data. Vue can't re-suspend after setup, so this
+  // avoids yielding `undefined` mid-transition.
   let lastData: unknown;
   const data = computed(() => {
     const meta = responseMeta.value;
     const loading =
       !!argsKey.value &&
+      fetchingKey.value === argsKey.value &&
       meta.expiryStatus !== ExpiryStatus.Valid &&
       (meta.expiryStatus === ExpiryStatus.Invalid ||
         Date.now() > meta.expiresAt);

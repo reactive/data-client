@@ -324,6 +324,42 @@ describe('vue useSuspense()', () => {
     cleanup();
   });
 
+  it('shows store updates once invalidIfStale data goes stale', async () => {
+    const StaleEndpoint = new Endpoint(
+      ({ id }: { id: number }) => Promise.resolve({ ...payload, id }),
+      {
+        schema: CoolerArticle,
+        name: 'StaleEndpoint',
+        dataExpiryLength: 20,
+        invalidIfStale: true,
+      },
+    );
+    const { result, controller, waitForNextUpdate, cleanup } =
+      await renderDataCompose(() =>
+        useSuspense(StaleEndpoint, { id: payload.id }),
+      );
+    await waitForNextUpdate();
+    const articleRef = await result;
+    expect(articleRef.value.title).toBe(payload.title);
+
+    // let the data go stale without anything triggering a refetch
+    await new Promise(resolve => setTimeout(resolve, 50));
+    const UpdateEndpoint = new Endpoint(
+      (body: typeof payload) => Promise.resolve(body),
+      {
+        schema: CoolerArticle,
+        sideEffect: true,
+        name: 'StaleUpdate',
+      },
+    );
+    await controller.fetch(UpdateEndpoint, { ...payload, title: 'edited' });
+    await nextTick();
+
+    expect(articleRef.value.title).toBe('edited');
+
+    cleanup();
+  });
+
   it('should initially resolve, then when args are null should return undefined, then back to resolving', async () => {
     const props = reactive({ id: payload.id as number | null });
     const { result, allSettled, waitForNextUpdate, cleanup } =
