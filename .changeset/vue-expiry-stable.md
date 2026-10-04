@@ -8,6 +8,8 @@ After an `invalidIfStale` response expired, any unrelated store update switched 
 `useDLE()` stayed `loading` without starting a fetch. Expiry is now only re-checked when the response's expiry, the
 arguments, or a reset changes, matching `@data-client/react`.
 
+The `vue` peer dependency is now `^3.4.0`.
+
 ```ts
 const { data, loading } = useDLE(ArticleResource.get, { id: 5 });
 // ...after the response's dataExpiryLength passes
