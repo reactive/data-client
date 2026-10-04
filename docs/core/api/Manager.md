@@ -252,7 +252,7 @@ import type { Manager, Middleware } from '@data-client/core';
 import CurrentTime from './CurrentTime';
 
 export default class TimeManager implements Manager {
-  protected declare intervalID?: ReturnType<typeof setInterval>;
+  declare protected intervalID?: ReturnType<typeof setInterval>;
 
   middleware: Middleware = controller => {
     this.intervalID = setInterval(() => {
@@ -277,8 +277,8 @@ export default class TimeManager implements Manager {
 <TypeScriptEditor>
 
 ```ts
-import type { Manager, Middleware } from '@data-client/react';
-import { actionTypes } from '@data-client/react';
+import type { Manager, Middleware } from '@data-client/core';
+import { actionTypes } from '@data-client/core';
 
 export default class LoggingManager implements Manager {
   middleware: Middleware = controller => next => async action => {
@@ -321,19 +321,24 @@ In case we want to 'handle' a certain [action](./Actions.md), we can 'consume' i
 ```ts title="isEntity" collapsed
 import type { Schema, EntityInterface } from '@data-client/core';
 
-export default function isEntity(schema: Schema): schema is EntityInterface {
+export default function isEntity(
+  schema: Schema,
+): schema is EntityInterface {
   return schema !== null && (schema as any).pk !== undefined;
 }
 ```
 
-
 ```ts title="SubsManager"
-import type { Manager, Middleware, EntityInterface } from '@data-client/react';
-import { actionTypes } from '@data-client/react';
+import type {
+  Manager,
+  Middleware,
+  EntityInterface,
+} from '@data-client/core';
+import { actionTypes } from '@data-client/core';
 import isEntity from './isEntity';
 
 export default class CustomSubsManager implements Manager {
-  protected declare entities: Record<string, EntityInterface>;
+  declare protected entities: Record<string, EntityInterface>;
 
   middleware: Middleware = controller => next => async action => {
     switch (action.type) {

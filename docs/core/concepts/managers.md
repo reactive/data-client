@@ -333,18 +333,22 @@ we can maintain fresh data when the data updates are independent of user action.
 price, or a real-time collaborative editor.
 
 ```typescript
-import type { Manager, Middleware, Controller } from '@data-client/core';
-import type { Entity } from '@data-client/rest';
+import type {
+  Manager,
+  Middleware,
+  Controller,
+  EntityInterface,
+} from '@data-client/core';
 
 export default class StreamManager implements Manager {
   declare protected controller: Controller;
   declare protected evtSource: WebSocket; // | EventSource;
   declare protected createEventSource: () => WebSocket | EventSource;
-  declare protected entities: Record<string, typeof Entity>;
+  declare protected entities: Record<string, EntityInterface>;
 
   constructor(
     createEventSource: () => WebSocket | EventSource,
-    entities: Record<string, typeof Entity>,
+    entities: Record<string, EntityInterface>,
   ) {
     this.createEventSource = createEventSource;
     this.entities = entities;
