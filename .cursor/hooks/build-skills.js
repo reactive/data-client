@@ -56,7 +56,9 @@ function isSkillSource(file) {
 if (
   !isSkillDoc(relative) &&
   !isSkillSource(relative) &&
-  !relative.startsWith('website/framework-docs/')
+  !relative.startsWith('website/framework-docs/') &&
+  // symlinked into skills that others bundle
+  !relative.startsWith('website/static/codemods/')
 )
   process.exit(0);
 
