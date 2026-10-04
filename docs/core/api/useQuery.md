@@ -11,6 +11,7 @@ import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import StackBlitz from '@site/src/components/StackBlitz';
 import { RestEndpoint } from '@data-client/rest';
 import VoteDemo from '../shared/\_VoteDemo.mdx';
+import VueArgs from '../shared/\_vueArgs.mdx';
 
 # useQuery()
 
@@ -70,8 +71,9 @@ function useQuery<S extends Queryable>(
 ): ComputedRef<DenormalizeNullable<S> | undefined>;
 ```
 
-Arguments can be plain values, [refs](https://vuejs.org/api/reactivity-core.html#ref) (including [computed](https://vuejs.org/api/reactivity-core.html#computed)), or getter
-functions like `() => ({ id: props.id })`; the result updates when they change.
+<VueArgs />
+
+The result updates when the arguments change.
 
 :::
 

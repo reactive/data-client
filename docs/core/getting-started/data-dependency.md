@@ -195,7 +195,7 @@ render(<Navigation />);
 
   const props = defineProps<{ id: string }>();
   const emit = defineEmits<{ setRoute: [route: string] }>();
-  const post = await useSuspense(PostResource.get, { id: props.id });
+  const post = await useSuspense(PostResource.get, () => ({ id: props.id }));
 </script>
 
 <template>
