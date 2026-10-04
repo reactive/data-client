@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791127414902,
+  "lastUpdate": 1791133093282,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -6425,6 +6425,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 243.9,
             "range": "± 8.8%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cc57a77d2e563071926f50cb9054516d2ab9101e",
+          "message": "fix(endpoint): Make Entity classes assignable to EntityInterface (#4149)\n\n* fix(endpoint): Make Entity.pk() args readonly to match EntityInterface\n\nEntity classes now satisfy normalizr's EntityInterface, so Controller\ndrops its private EntityLike workaround. Endpoint's own EntityInterface\nalso takes readonly args, so both contracts match.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01F92DVcdVpL6sVLSA69App5\n\n* docs(changeset): Only static pk() overrides need readonly args\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01F92DVcdVpL6sVLSA69App5\n\n* fix(endpoint): Keep Entity.pk() readonly-args change non-breaking\n\nDeclare static pk() with method syntax so subclass overrides that type\nargs as a mutable array still compile. Revert endpoint EntityInterface\nand keep core's loose EntityLike so mixed package versions keep working.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01F92DVcdVpL6sVLSA69App5\n\n* fix(core): Use EntityInterface for batch set() schemas\n\nEntity now satisfies EntityInterface, so the private EntityLike type is\nno longer needed. Batch set() is unreleased, so this only requires\nmatching endpoint versions for a new feature.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01F92DVcdVpL6sVLSA69App5\n\n* docs: Track deferred Entity pk() cleanups; recommend readonly args\n\nAdd plans/next-breaking-release.md for the compatibility shims, and note\nin the v0.19 blog and changeset that static pk() overrides should type\nargs as readonly ahead of that release.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01F92DVcdVpL6sVLSA69App5\n\n* internal: Document breaking change strategy as a cursor rule\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01F92DVcdVpL6sVLSA69App5\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-04T12:55:04-04:00",
+          "tree_id": "0ba57b8ca10b5708f473051ae78a3ab0312c7e10",
+          "url": "https://github.com/reactive/data-client/commit/cc57a77d2e563071926f50cb9054516d2ab9101e"
+        },
+        "date": 1791133090275,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 140.85,
+            "range": "± 3.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 43.1,
+            "range": "± 4.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 370.37,
+            "range": "± 8.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 370.37,
+            "range": "± 8.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 43.96,
+            "range": "± 9.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 322.58,
+            "range": "± 5.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 333.33,
+            "range": "± 8.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 9.77,
+            "range": "± 9.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 72.2,
+            "range": "± 14.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 38.03,
+            "range": "± 6.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 208.33,
+            "range": "± 6.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 294.12,
+            "range": "± 5.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 173.93,
+            "range": "± 9.8%",
             "unit": "ops/s"
           }
         ]
