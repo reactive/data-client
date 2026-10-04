@@ -1,4 +1,3 @@
-import { ExpiryStatus } from '@data-client/core';
 import type {
   EndpointInterface,
   Denormalize,
@@ -14,7 +13,7 @@ import type {
   MaybeRefsOrGettersNullable,
 } from '../types.js';
 import refetchTriggers from './refetchTriggers.js';
-import useResponseMeta from './useResponseMeta.js';
+import useResponseMeta, { isStale } from './useResponseMeta.js';
 
 type FetchPromise<T = any> = Promise<T> & { resolved: boolean };
 
@@ -90,10 +89,7 @@ export default function useFetch(
       lastKey = '';
       return;
     }
-    const meta = responseMeta.value;
-    const forceFetch = meta.expiryStatus === ExpiryStatus.Invalid;
-
-    if (Date.now() > meta.expiresAt || forceFetch) {
+    if (isStale(responseMeta.value)) {
       lastPromise.value = trackPromise(
         controller.fetch(endpoint, ...resolvedArgs.value),
       );

@@ -50,7 +50,6 @@ export default function useCacheResponse(endpoint: any, args: any[]) {
     resolvedArgs,
     argsKey,
     responseMeta,
-    forceFetch,
     loading,
     data,
   };

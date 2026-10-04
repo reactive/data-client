@@ -1,3 +1,4 @@
+import { ExpiryStatus } from '@data-client/core';
 import { computed, unref } from 'vue';
 
 import { useController, injectState } from '../context.js';
@@ -27,4 +28,14 @@ export default function useResponseMeta(endpoint: any, args: any[]) {
   useCountRef(responseMeta);
 
   return { controller, stateRef, resolvedArgs, argsKey, responseMeta };
+}
+
+/** Whether a response needs fetching; hard invalid data must refetch regardless of staleness */
+export function isStale(meta: {
+  expiryStatus: ExpiryStatus;
+  expiresAt: number;
+}) {
+  return (
+    meta.expiryStatus === ExpiryStatus.Invalid || Date.now() > meta.expiresAt
+  );
 }

@@ -15,6 +15,7 @@ import type {
 } from '../types.js';
 import refetchTriggers from './refetchTriggers.js';
 import useCacheResponse from './useCacheResponse.js';
+import { isStale } from './useResponseMeta.js';
 
 /**
  * Use async data with { data, loading, error } (DLE)
@@ -63,7 +64,6 @@ export default function useDLE(endpoint: any, ...args: any[]): any {
     resolvedArgs,
     argsKey,
     responseMeta,
-    forceFetch,
     loading,
     data,
   } = useCacheResponse(endpoint, args);
@@ -74,9 +74,7 @@ export default function useDLE(endpoint: any, ...args: any[]): any {
     async () => {
       const currentKey = argsKey.value;
       if (!currentKey) return;
-      const meta = responseMeta.value;
-      const force = forceFetch.value;
-      if (Date.now() <= meta.expiresAt && !force) return;
+      if (!isStale(responseMeta.value)) return;
       await controller.fetch(endpoint, ...resolvedArgs.value).catch(() => {});
     },
     { immediate: true },

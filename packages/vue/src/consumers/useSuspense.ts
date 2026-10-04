@@ -22,7 +22,7 @@ import type {
   MaybeRefsOrGettersNullable,
 } from '../types.js';
 import refetchTriggers from './refetchTriggers.js';
-import useResponseMeta from './useResponseMeta.js';
+import useResponseMeta, { isStale } from './useResponseMeta.js';
 
 /**
  * Ensure an endpoint is available.
@@ -141,11 +141,4 @@ export default async function useSuspense(
 
   // Return readonly ref - Vue automatically unwraps in templates and reactive contexts
   return readonly(result);
-}
-
-/** Hard invalid data must refetch regardless of staleness */
-function isStale(meta: { expiryStatus: ExpiryStatus; expiresAt: number }) {
-  return (
-    meta.expiryStatus === ExpiryStatus.Invalid || Date.now() > meta.expiresAt
-  );
 }
