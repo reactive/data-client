@@ -23,6 +23,14 @@ const MODULE_LIBS: readonly [
       ),
   ],
   [
+    'csstype',
+    'csstype/index.d.ts',
+    () =>
+      import(
+        /* webpackChunkName: 'csstypeDTS' */ '!!raw-loader?esModule=false!../editor-types/csstype.d.ts'
+      ),
+  ],
+  [
     'react/jsx-runtime',
     '@types/react/jsx-runtime.d.ts',
     () =>
@@ -45,6 +53,23 @@ const MODULE_LIBS: readonly [
       import(
         /* webpackChunkName: 'numberflowDTS' */ '!!raw-loader?esModule=false!../editor-types/@number-flow/react.d.ts'
       ),
+  ],
+  [
+    'number-flow/lite',
+    'number-flow/dist/lite.d.ts',
+    () =>
+      import(
+        /* webpackChunkName: 'numberflowLiteDTS' */ '!!raw-loader?esModule=false!../editor-types/number-flow-lite.d.ts'
+      ),
+  ],
+  [
+    'number-flow/plugins',
+    'number-flow/dist/plugins/index.d.ts',
+    // number-flow/lite re-exports everything number-flow/plugins does
+    () =>
+      Promise.resolve({
+        default: `export { continuous, type Plugin } from 'number-flow/lite';`,
+      }),
   ],
   [
     'temporal-polyfill',

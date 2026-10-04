@@ -14,6 +14,7 @@ cp ./packages/react/nextjs.d.ts ./website/src/components/Playground/editor-types
 cp ./packages/react/ssr.d.ts ./website/src/components/Playground/editor-types/@data-client/react/ssr.d.ts
 cp ./packages/react/redux.d.ts ./website/src/components/Playground/editor-types/@data-client/react/redux.d.ts
 cp ./node_modules/@types/react/index.d.ts ./website/src/components/Playground/editor-types/react.d.ts
+node ./scripts/strip-dts-comments.mjs ./node_modules/csstype/index.d.ts ./website/src/components/Playground/editor-types/csstype.d.ts
 # ambient module declarations can't use relative imports
 sed 's#from "\./"#from "react"#' ./node_modules/@types/react/jsx-runtime.d.ts > ./website/src/components/Playground/editor-types/react-jsx-runtime.d.ts
 cp ./node_modules/temporal-spec/index.d.ts ./website/src/components/Playground/editor-types/temporal.d.ts
@@ -22,5 +23,6 @@ cp ./node_modules/@types/qs/index.d.ts ./website/src/components/Playground/edito
 cp ./node_modules/path-to-regexp/dist/index.d.ts ./website/src/components/Playground/editor-types/path-to-regexp.d.ts
 yarn run rollup --config ./scripts/rollup-plugins/uuid-types.rollup.config.js
 cp ./node_modules/@number-flow/react/dist/index.d.ts ./website/src/components/Playground/editor-types/@number-flow/react.d.ts
+yarn run rollup --config ./scripts/rollup-plugins/number-flow-types.rollup.config.js
 rm ./website/src/components/Playground/editor-types/globals.d.ts
 yarn run rollup --config ./scripts/rollup-plugins/globals.rollup.config.js
