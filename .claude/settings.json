@@ -1,8 +1,7 @@
 {
   "hooks": {
-    "PostToolUse": [
+    "Stop": [
       {
-        "matcher": "Edit|MultiEdit|Write",
         "hooks": [
           {
             "type": "command",
