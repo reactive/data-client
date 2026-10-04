@@ -1,17 +1,9 @@
 #!/bin/bash
 set -e
 
-# --inherit-newer-overlays: custom types for a version also apply to every
-# version listed after it. Without it each version gets only its own.
-inherit=false
-if [ "$1" = "--inherit-newer-overlays" ]; then
-    inherit=true
-    shift
-fi
-
 # Check if at least one directory is provided
 if [ $# -eq 0 ]; then
-    echo "Usage: $0 [--inherit-newer-overlays] <version1> [version2] ..."
+    echo "Usage: $0 <version1> [version2] ..."
     exit 1
 fi
 
@@ -28,19 +20,18 @@ copy_types() {
     done
 }
 
-# Each output dir gets the downleveled lib, then (with --inherit-newer-overlays)
-# earlier versions' custom types, then its own. Each output dir only depends on
-# lib and src-*-types, so versions build concurrently.
+# Versions are listed newest first, and custom types for a version also apply
+# to every version listed after it. So each output dir gets the downleveled lib,
+# then earlier versions' custom types, then its own. Each output dir only
+# depends on lib and src-*-types, so versions build concurrently.
 build_version() {
     local version="$1"
     shift
     "$downlevel_dts" lib "ts$version" --to="$version"
-    if [ "$inherit" = true ]; then
-        for earlier in "$@"
-        do
-            copy_types "./src-$earlier-types" "./ts$version"
-        done
-    fi
+    for earlier in "$@"
+    do
+        copy_types "./src-$earlier-types" "./ts$version"
+    done
     copy_types "./src-$version-types" "./ts$version"
 }
 
