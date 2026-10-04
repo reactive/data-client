@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791133093282,
+  "lastUpdate": 1791136133877,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -6527,6 +6527,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 173.93,
             "range": "± 9.8%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "74e67fa2c4f9f104f5b7a49e877a48e5963e4bd2",
+          "message": "fix: Deleted entities return undefined instead of an internal Symbol (#4150)\n\n* fix(core): Return undefined instead of INVALID symbol from getResponseMeta\n\nDeleted entities leaked the internal INVALID symbol as data through\ngetResponse()/fetchIfStale() and into useCache()/useDLE() (React and Vue)\nand Vue useSuspense(). Map it to undefined like get() and getQueryMeta().\n\nAlso share the Vue useCache()/useDLE() response logic in useCacheResponse().\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01LJicJQAHR76VGM7mYL6Ygt\n\n* test: share errored state in getResponse tests; blog: note deleted entity fix\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01LJicJQAHR76VGM7mYL6Ygt\n\n* refactor(vue): Drop useSuspense INVALID check now that getResponseMeta maps it\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01LJicJQAHR76VGM7mYL6Ygt\n\n* refactor(vue): Share response setup across Vue composables (#4152)\n\n* refactor(vue): Share response setup across useSuspense, useFetch, useCacheResponse\n\nExtract stateRef/controller/resolvedArgs/argsKey/responseMeta and the GC\nrefcount watch into useResponseMeta(). Vue useFetch() now holds GC refs\nwhile mounted, like React useFetch().\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01KfSmjsGHGGSxfsj8ve7NHA\n\n* refactor(vue): Share GC refcount watch with useQuery\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01KfSmjsGHGGSxfsj8ve7NHA\n\n* refactor(vue): Share isStale() across useSuspense, useFetch, useDLE\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01KfSmjsGHGGSxfsj8ve7NHA\n\n* docs(blog): Note Vue useFetch GC fix\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01KfSmjsGHGGSxfsj8ve7NHA\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>\n\n* docs(changeset): Show the user-facing impact of the deleted entity Symbol\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01LJicJQAHR76VGM7mYL6Ygt\n\n* docs(blog): Explain deleted entity fix impact and workaround removal\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01LJicJQAHR76VGM7mYL6Ygt\n\n* docs(blog): Use DiffEditor for deleted entity workaround removal\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01LJicJQAHR76VGM7mYL6Ygt\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-04T13:46:08-04:00",
+          "tree_id": "2a989f85741e34cd04a01750a9c2b0480476a9a0",
+          "url": "https://github.com/reactive/data-client/commit/74e67fa2c4f9f104f5b7a49e877a48e5963e4bd2"
+        },
+        "date": 1791136130963,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 192.31,
+            "range": "± 4.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 58.82,
+            "range": "± 4.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 526.32,
+            "range": "± 9.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 571.9,
+            "range": "± 7.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 58.66,
+            "range": "± 8.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 454.55,
+            "range": "± 6.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 500,
+            "range": "± 7.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 14.2,
+            "range": "± 9.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 131.58,
+            "range": "± 16.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 53.33,
+            "range": "± 5.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 322.58,
+            "range": "± 4.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 434.78,
+            "range": "± 5.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 277.78,
+            "range": "± 8.5%",
             "unit": "ops/s"
           }
         ]
