@@ -23,6 +23,14 @@ const MODULE_LIBS: readonly [
       ),
   ],
   [
+    'csstype',
+    'csstype/index.d.ts',
+    () =>
+      import(
+        /* webpackChunkName: 'csstypeDTS' */ '!!raw-loader?esModule=false!../editor-types/csstype.d.ts'
+      ),
+  ],
+  [
     'react/jsx-runtime',
     '@types/react/jsx-runtime.d.ts',
     () =>
