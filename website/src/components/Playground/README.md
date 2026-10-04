@@ -117,7 +117,9 @@ DesignSystem/       components injected into preview scope
 - All documents are concatenated (deferred with `useDeferredValue`),
   stripped of imports/exports by `transformCode`, and run `noInline`
   (`render(<App />)`) with `preview/scope.ts` as globals. Keep
-  `monaco/typeLibs.ts` declarations in sync with the scope.
+  `monaco/typeLibs.ts` declarations in sync with the scope: `globalScopeLib()`
+  aliases library exports into `declare global` (valid TS only; never
+  `declare globals`), and `Array`/`Object` keep their built-in types.
 - Each playground gets its own `DataProvider` store (`MockResolver` serves
   `fixtures`); `memo(Preview)` keeps it from re-rendering on code edits.
 - Store inspector open state persists per `groupId` via tab storage and
