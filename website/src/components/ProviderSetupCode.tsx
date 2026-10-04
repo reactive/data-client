@@ -90,8 +90,8 @@ export default function ProviderSetupCode({
   children: ReactNode;
 }) {
   const managers = parseCodeDocuments(children)[0]?.value;
-  if (!managers)
-    throw new Error('<ProviderManagers> needs a code block defining managers');
+  // nothing to show without a managers block (e.g. the partial rendered alone)
+  if (!managers) return null;
   const { title, imports: importLines, body } = PLATFORMS[platform];
   // the managers block's own imports continue the import list
   const gap = managers.startsWith('import ') ? '\n' : '\n\n';
