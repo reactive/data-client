@@ -1,7 +1,6 @@
 import * as _data_client_core from '@data-client/core';
 import { ActionTypes, State, Manager, Controller, GCInterface, Dispatch as Dispatch$1 } from '@data-client/core';
 export { applyManager, createReducer, initialState } from '@data-client/core';
-import * as react_jsx_runtime from 'react/jsx-runtime';
 import React from 'react';
 
 /**
@@ -151,7 +150,7 @@ type ReducersMapObject<S = any, A extends {
 type DevToolsPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 
 /** For usage with https://dataclient.io/docs/api/makeRenderDataHook */
-declare function TestExternalDataProvider({ children, managers, initialState, Controller, gcPolicy, devButton, }: Props$1): react_jsx_runtime.JSX.Element;
+declare function TestExternalDataProvider({ children, managers, initialState, Controller, gcPolicy, devButton, }: Props$1): React.JSX.Element;
 interface Props$1 {
     children: React.ReactNode;
     managers: Manager[];
@@ -177,7 +176,7 @@ interface Props<S> {
  * Like DataProvider, but for an external store
  * @see https://dataclient.io/docs/api/ExternalDataProvider
  */
-declare function ExternalDataProvider<S>({ children, store, selector, controller, devButton, hasDevManager, }: Props<S>): react_jsx_runtime.JSX.Element;
+declare function ExternalDataProvider<S>({ children, store, selector, controller, devButton, hasDevManager, }: Props<S>): React.JSX.Element;
 
 declare const mapMiddleware: <M extends Middleware[]>(selector: (state: any) => State<unknown>) => (...middlewares: Middleware[]) => M;
 //# sourceMappingURL=mapMiddleware.d.ts.map

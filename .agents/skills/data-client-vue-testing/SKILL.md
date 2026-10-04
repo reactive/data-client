@@ -53,7 +53,7 @@ it('should render article component', async () => {
   const ArticleComp = defineComponent({
     props: { id: Number },
     async setup(props) {
-      const article = await useSuspense(ArticleResource.get, { id: props.id });
+      const article = await useSuspense(ArticleResource.get, () => ({ id: props.id }));
       return () => h('div', [
         h('h3', article.value.title),
         h('p', article.value.content),
