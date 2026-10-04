@@ -121,7 +121,8 @@ export default async function useSuspense(
       ];
     },
     () => {
-      return maybeFetch();
+      // errors are stored and surfaced through the returned ref
+      maybeFetch().catch(() => {});
     },
   );
 
@@ -151,6 +152,13 @@ export default async function useSuspense(
       (meta.expiryStatus === ExpiryStatus.Invalid ||
         Date.now() > meta.expiresAt);
     if (loading) return lastData;
+    // surface fetch errors for the current args like React's useSuspense does
+    const error = controller.getError(
+      endpoint,
+      ...resolvedArgs.value,
+      stateRef.value,
+    );
+    if (error) throw error;
     return (lastData = meta.data);
   });
 

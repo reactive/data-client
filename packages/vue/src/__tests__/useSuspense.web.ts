@@ -324,6 +324,101 @@ describe('vue useSuspense()', () => {
     cleanup();
   });
 
+  it('throws fetch errors for new args from the returned ref', async () => {
+    const ErrorEndpoint = new Endpoint(
+      ({ id }: { id: number }) =>
+        id === payload.id ?
+          Promise.resolve(payload)
+        : Promise.reject(new Error('Not Found')),
+      { schema: CoolerArticle, name: 'ErrorArgsEndpoint' },
+    );
+    const props = reactive({ id: payload.id });
+    const { result, allSettled, cleanup } = await renderDataCompose(
+      (props: { id: number }) =>
+        useSuspense(
+          ErrorEndpoint,
+          computed(() => ({ id: props.id })),
+        ),
+      { props },
+    );
+    const articleRef = await result;
+    expect(articleRef.value.title).toBe(payload.title);
+
+    // previously an unhandled rejection, failing this test
+    props.id = payload2.id;
+    await nextTick();
+    await allSettled();
+    await nextTick();
+
+    expect(() => articleRef.value).toThrow('Not Found');
+
+    // recovers when args change back
+    props.id = payload.id;
+    await nextTick();
+    expect(articleRef.value.title).toBe(payload.title);
+
+    cleanup();
+  });
+
+  it('sends fetch errors for new args to onErrorCaptured', async () => {
+    const settlers: Record<
+      number,
+      { resolve: (value: any) => void; reject: (e: any) => void }
+    > = {};
+    const ControlledEndpoint = new Endpoint(
+      ({ id }: { id: number }) =>
+        new Promise((resolve, reject) => {
+          settlers[id] = { resolve, reject };
+        }),
+      { schema: CoolerArticle, name: 'ErrorTransitionEndpoint' },
+    );
+
+    const errorSpy = jest.fn();
+    const ArticleTitle = defineComponent({
+      name: 'ArticleTitle',
+      props: { id: { type: Number, required: true } },
+      async setup(props: { id: number }) {
+        const article = await useSuspense(
+          ControlledEndpoint,
+          computed(() => ({ id: props.id })),
+        );
+        return () => h('h3', article.value.title);
+      },
+    });
+    const Parent = defineComponent({
+      name: 'Parent',
+      props: { id: { type: Number, required: true } },
+      setup(props: { id: number }) {
+        onErrorCaptured(e => {
+          errorSpy(e);
+          return false;
+        });
+        return () => h(ArticleTitle, { id: props.id });
+      },
+    });
+
+    const props = reactive({ id: payload.id });
+    const { wrapper, cleanup } = mountDataClient(Parent, { props });
+
+    await flushUntil(wrapper, () => !!settlers[payload.id]);
+    settlers[payload.id].resolve(payload);
+    await flushUntil(wrapper, () => wrapper.find('h3').exists());
+    expect(wrapper.find('h3').text()).toBe(payload.title);
+
+    props.id = payload2.id;
+    await flushUntil(wrapper, () => !!settlers[payload2.id]);
+    const error = Object.assign(new Error('Not Found'), { status: 404 });
+    settlers[payload2.id].reject(error);
+    await flushUntil(wrapper, () => errorSpy.mock.calls.length > 0);
+
+    // the fetch error itself, not a crash from rendering undefined data
+    for (const [captured] of errorSpy.mock.calls) {
+      expect(captured).toBe(error);
+    }
+
+    cleanup();
+  });
+
   it('shows store updates once invalidIfStale data goes stale', async () => {
     const StaleEndpoint = new Endpoint(
       ({ id }: { id: number }) => Promise.resolve({ ...payload, id }),
