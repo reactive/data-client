@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791068349661,
+  "lastUpdate": 1791126935721,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -6220,6 +6220,108 @@ window.BENCHMARK_DATA = {
           {
             "name": "data-client: move-item",
             "value": 194.19,
+            "range": "± 8.7%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8b3bb892b61bf433abed923e33446f3d6be16e5d",
+          "message": "fix(core): Type batch controller.set() rows; allow Union and Invalidate (#4130)\n\n* fix(core): Type batch controller.set() rows and reject multi-Entity arrays\n\nThe Array overload of controller.set() accepted any Schema[] with untyped\nrows, so [User, Admin] (throws in dev, uses User in prod), [[User]],\n[() => 1] and [{ bogus: 1 }] typechecked, as did ctrl.set([User], [1]).\n\nNow the schema must hold a single Entity or Union, in an array, a\nschema.Array, or a schema.Values (which takes rows keyed by id). Rows are\ntyped by the Entity's fields, with number/string coercion; object values\nstay open since rows are raw input. Polymorphic rows may carry a\ndiscriminator that is not an Entity field, and untyped Entities like\nEntityMixin accept any row.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01MbthieGWrKshPjDkH7mGz2\n\n* refactor(core): Simplify batch set() types\n\nName the Entity map shape once, drop constraint members the value type\nalready enforces, reuse Denormalize<> for Array/Values rows, and collapse\nSetField's tail branches.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01MbthieGWrKshPjDkH7mGz2\n\n* fix(core): Keep schema.Object off the batch set() overload\n\nRestore the schemaKey() member; schema.Object's queryKey() returns any, so\nqueryKey(): undefined alone no longer excluded it. Adds type tests for\nschema.Object with keyed rows and schema.Lazy.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01MbthieGWrKshPjDkH7mGz2\n\n* test(react): Construct schema.Lazy correctly in batch set() type tests\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01MbthieGWrKshPjDkH7mGz2\n\n* feat(core): Allow batch delete with set([Invalidate(Entity)], rows)\n\nType batch set() elements by what makes them writable: one row normalizes to\none stored entity (_normalizeNullable() returns an entity ref). That admits\nEntity, Union and Invalidate, and keeps out Query/All (lists) and\nCollection (keyed by args). Docs lead with Union and Invalidate examples.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01MbthieGWrKshPjDkH7mGz2\n\n* refactor(core): Move batch set() types to setManyTypes.ts\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01MbthieGWrKshPjDkH7mGz2\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-04T11:12:39-04:00",
+          "tree_id": "292ca611e7d07e8482f72780cfeee9b0bfd5e59b",
+          "url": "https://github.com/reactive/data-client/commit/8b3bb892b61bf433abed923e33446f3d6be16e5d"
+        },
+        "date": 1791126932554,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 175.44,
+            "range": "± 5.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 52.22,
+            "range": "± 3.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 416.67,
+            "range": "± 5.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 370.37,
+            "range": "± 7.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 55.26,
+            "range": "± 6.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 322.58,
+            "range": "± 6.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 339.08,
+            "range": "± 5.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 12.58,
+            "range": "± 8.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 79.68,
+            "range": "± 10.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 46.73,
+            "range": "± 6.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 250,
+            "range": "± 3.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 333.33,
+            "range": "± 4.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 192.31,
             "range": "± 8.7%",
             "unit": "ops/s"
           }
