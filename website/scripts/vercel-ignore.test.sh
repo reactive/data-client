@@ -45,35 +45,38 @@ expect() {
   printf 'ok   %s\n' "$name"
 }
 
+# Previous deploy for a single-commit push.
+parent() { git -C "$repo" rev-parse HEAD^; }
+
 commit "init" README.md
 
 # --- production (master): one squash commit ---
 commit "pkg" packages/core/src/index.ts
-expect skip "master package-only" master
+expect skip "master package-only" master "$(parent)"
 
 commit "docs page" docs/core/api/Controller.md
-expect build "master docs/core" master
+expect build "master docs/core" master "$(parent)"
 
 commit "roadmap" docs/ROADMAP.md
-expect skip "master docs/ROADMAP.md" master
+expect skip "master docs/ROADMAP.md" master "$(parent)"
 
 commit "prettier" docs/.prettierrc
-expect skip "master docs/.prettierrc" master
+expect skip "master docs/.prettierrc" master "$(parent)"
 
 commit "blog" website/blog/2026-10-04-note.md
-expect build "master website blog" master
+expect build "master website blog" master "$(parent)"
 
 commit "changelog" website/CHANGELOG.md
-expect skip "master website changelog" master
+expect skip "master website changelog" master "$(parent)"
 
 commit "unit test" website/src/components/Playground/__tests__/transformCode.test.ts website/src/components/Playground/__tests__/fixture.json
-expect skip "master website unit test" master
+expect skip "master website unit test" master "$(parent)"
 
 commit "colocated test" website/src/components/Playground/transformCode.test.ts website/scripts/vercel-ignore.test.sh
-expect skip "master colocated website tests" master
+expect skip "master colocated website tests" master "$(parent)"
 
 commit "ci" .circleci/config.yml .github/workflows/benchmark.yml
-expect skip "master CI-only" master
+expect skip "master CI-only" master "$(parent)"
 
 # Last successful production deploy was before a package commit. Still skip.
 pkg_sha="$(git -C "$repo" rev-parse HEAD)"
@@ -135,6 +138,14 @@ git -C "$repo" checkout -B site-pr-fresh "$deployed" >/dev/null 2>&1
 git -C "$repo" merge --no-edit "$master_sha" >/dev/null
 expect build "preview merge of a site PR with no prior deploy" site-pr-fresh
 
+# Merging another feature branch (not upstream) brings its site changes in.
+git -C "$repo" checkout -b feat-docs "$deployed" >/dev/null 2>&1
+commit "stacked docs" docs/core/api/Stacked.md
+git -C "$repo" checkout -b feat "$deployed" >/dev/null 2>&1
+commit "feat pkg" packages/core/src/feat.ts
+git -C "$repo" merge --no-edit feat-docs >/dev/null
+expect build "preview merge of a non-upstream branch with site changes" feat "$deployed"
+
 # No merge-base with master (e.g. shallow history): the tip alone can't prove
 # the site is unchanged, so build.
 git -C "$repo" checkout --orphan unrelated >/dev/null 2>&1
@@ -145,11 +156,18 @@ expect build "preview without merge-base builds" unrelated
 # gh-pages branches never build, even if website files differ.
 expect skip "gh-pages branch" gh-pages-bench
 
+# Last production deploy is outside the clone (shallow history): the tip
+# alone can't prove earlier commits in the push left the site unchanged.
+git -C "$repo" checkout master >/dev/null 2>&1
+commit "rebase-merged docs" docs/rest/api/Rebased.md
+commit "rebase-merged pkg" packages/rest/src/rebased.ts
+expect build "master with unreachable previous deploy" master 0123456789abcdef0123456789abcdef01234567
+
 # VERCEL_ENV=production uses this branch's history, not the diff against master.
 # A site commit still builds; a later package-only commit does not.
-git -C "$repo" checkout master >/dev/null 2>&1
-expect build "production env site tip" other-branch "" production
+commit "prod site" website/src/pages/index.js
+expect build "production env site tip" other-branch "$(parent)" production
 commit "prod pkg" packages/normalizr/src/index.ts
-expect skip "production env package tip" other-branch "" production
+expect skip "production env package tip" other-branch "$(parent)" production
 
 echo "all vercel-ignore cases passed"

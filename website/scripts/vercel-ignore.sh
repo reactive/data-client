@@ -61,18 +61,20 @@ upstream() {
 
 prev="${VERCEL_GIT_PREVIOUS_SHA:-}"
 
-# Production deploys the branch's own history (squash merges are one commit).
+# A push can carry several commits (rebase merges), so compare against the
+# last deploy, deepening the shallow clone if it's out of reach.
 if [[ "${VERCEL_GIT_COMMIT_REF:-}" =~ ^(master|rest-hooks-site)$ || "${VERCEL_ENV:-}" == production ]]; then
+  [ -n "$prev" ] && ! has_rev "$prev^{commit}" && [ -n "${VERCEL_GIT_COMMIT_REF:-}" ] &&
+    timeout 15 git fetch -q --no-tags --deepen=200 origin "$VERCEL_GIT_COMMIT_REF" 2>/dev/null
   is_ancestor "$prev" HEAD && decide "$prev" HEAD "production changes since ${prev:0:12}"
-  has_rev 'HEAD^' && decide 'HEAD^' HEAD "production changes in $(git rev-parse --short HEAD)"
-  build "production commit has no parent"
+  build "no previous production deploy to compare"
 fi
 
 # Previews compare the branch's changes, not commits merged in from upstream.
-# A merge commit's parents are (branch tip, upstream): if the branch tip has
-# no new site files since the last preview, merging upstream needs no rebuild;
-# otherwise diff against the upstream parent so master's files don't count.
-if has_rev 'HEAD^2'; then
+# Merging master: if the branch tip has no new site files since the last
+# preview, no rebuild; otherwise diff against the merged master commit so its files
+# don't count. Merges of other branches fall through and count in full.
+if has_rev 'HEAD^2' && master="$(upstream)" && is_ancestor 'HEAD^2' "$master"; then
   is_ancestor "$prev" 'HEAD^1' && decide "$prev" 'HEAD^1' "preview changes since ${prev:0:12} (merge)"
   decide 'HEAD^2' HEAD "preview changes vs upstream"
 fi
