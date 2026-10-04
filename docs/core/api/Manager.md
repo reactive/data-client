@@ -239,7 +239,7 @@ The job of `middleware` is to dispatch actions, respond to [actions](./Actions.m
 <TypeScriptEditor>
 
 ```ts title="CurrentTime" collapsed
-import { Entity } from '@data-client/endpoint';
+import { Entity } from '@data-client/rest';
 
 export default class CurrentTime extends Entity {
   id = 0;
@@ -247,8 +247,8 @@ export default class CurrentTime extends Entity {
 }
 ```
 
-```ts title="TimeManager"
-import type { Manager, Middleware } from '@data-client/core';
+```ts title="TimeManager" framework-imports
+import type { Manager, Middleware } from '@data-client/react';
 import CurrentTime from './CurrentTime';
 
 export default class TimeManager implements Manager {
@@ -276,9 +276,9 @@ export default class TimeManager implements Manager {
 
 <TypeScriptEditor>
 
-```ts
-import type { Manager, Middleware } from '@data-client/core';
-import { actionTypes } from '@data-client/core';
+```ts framework-imports
+import type { Manager, Middleware } from '@data-client/react';
+import { actionTypes } from '@data-client/react';
 
 export default class LoggingManager implements Manager {
   middleware: Middleware = controller => next => async action => {
@@ -318,8 +318,8 @@ In case we want to 'handle' a certain [action](./Actions.md), we can 'consume' i
 
 <TypeScriptEditor>
 
-```ts title="isEntity" collapsed
-import type { Schema, EntityInterface } from '@data-client/core';
+```ts title="isEntity" collapsed framework-imports
+import type { Schema, EntityInterface } from '@data-client/react';
 
 export default function isEntity(
   schema: Schema,
@@ -328,13 +328,13 @@ export default function isEntity(
 }
 ```
 
-```ts title="SubsManager"
+```ts title="SubsManager" framework-imports
 import type {
   Manager,
   Middleware,
   EntityInterface,
-} from '@data-client/core';
-import { actionTypes } from '@data-client/core';
+} from '@data-client/react';
+import { actionTypes } from '@data-client/react';
 import isEntity from './isEntity';
 
 export default class CustomSubsManager implements Manager {

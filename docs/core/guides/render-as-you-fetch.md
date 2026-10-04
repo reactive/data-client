@@ -39,7 +39,7 @@ Use [Controller.fetchIfStale](../api/Controller#fetchIfStale) in the route event
 <!--<iframe loading="lazy" src="https://stackblitz.com/github/ntucker/anansi/tree/master/examples/concurrent?embed=1&file=src/routing/routes.tsx&hideExplorer=1&hidedevtools=1&view=editor" width="100%" height="600"></iframe>-->
 
 ```ts
-import { Controller } from '@data-client/core';
+import { Controller } from '@data-client/react';
 import { lazy, Route } from '@anansi/router';
 import { getImage } from '@data-client/img';
 

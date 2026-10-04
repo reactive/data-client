@@ -55,11 +55,16 @@ Errors are caught by :react[[Error Boundaries](./AsyncBoundary.md)]:vue[`onError
 | -------------------------------------- | --------------------------------------------- |
 | Different block of content             | `:::react` / `:::vue`                         |
 | Different word or link inline          | `:react[...]` / `:vue[...]`                   |
+| Same code, framework's package         | ` ```ts framework-imports ` (see below)       |
 | Different front matter value           | `vue_<key>:` overrides `<key>:`               |
 | Different sidebar category value       | `"vue_<key>"` overrides `"<key>"`             |
 | Different heading text                 | `## :react[...]:vue[...] {#stable-id}`        |
 | Page has no Vue equivalent             | `frameworks: [react]` in front matter         |
 | Vue-only page, or nothing is shareable | `foo.vue.md` next to (or instead of) `foo.md` |
+
+Framework-agnostic code (managers, middleware, types) imports from `@data-client/react` and adds
+`framework-imports` to the fence; Vue pages show `@data-client/vue` instead. Never import
+`@data-client/core` in examples: apps only install `@data-client/react` or `@data-client/vue`.
 
 Nest inside an admonition by giving the outer one more colons (`::::tip` ... `::::`).
 

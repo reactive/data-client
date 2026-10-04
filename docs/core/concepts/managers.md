@@ -60,8 +60,8 @@ its [Controller](../api/Controller.md)
 
 ### Middleware logging
 
-```typescript
-import type { Manager, Middleware } from '@data-client/core';
+```typescript framework-imports
+import type { Manager, Middleware } from '@data-client/react';
 
 export default class LoggingManager implements Manager {
   middleware: Middleware = controller => next => async action => {
@@ -86,7 +86,7 @@ import {
   type Manager,
   type Middleware,
   actionTypes,
-} from '@data-client/core';
+} from '@data-client/react';
 import { captureException } from '@sentry/react';
 
 export default class ErrorReportManager implements Manager {
@@ -111,7 +111,7 @@ import {
   type Manager,
   type Middleware,
   actionTypes,
-} from '@data-client/core';
+} from '@data-client/vue';
 import { captureException } from '@sentry/vue';
 
 export default class ErrorReportManager implements Manager {
@@ -134,12 +134,12 @@ export default class ErrorReportManager implements Manager {
 Track fetch timing by observing [FETCH](../api/Actions.md#fetch) actions. `action.meta.promise`
 resolves when the fetch completes.
 
-```typescript
+```typescript framework-imports
 import {
   type Manager,
   type Middleware,
   actionTypes,
-} from '@data-client/core';
+} from '@data-client/react';
 import { trackTiming } from './analytics';
 
 export default class MetricsManager implements Manager {
@@ -161,12 +161,12 @@ export default class MetricsManager implements Manager {
 
 Show a toast when any [mutation](/rest/guides/side-effects) succeeds or fails.
 
-```typescript
+```typescript framework-imports
 import {
   type Manager,
   type Middleware,
   actionTypes,
-} from '@data-client/core';
+} from '@data-client/react';
 import { toast } from './toast';
 
 export default class ToastManager implements Manager {
@@ -191,8 +191,8 @@ export default class ToastManager implements Manager {
 triggering refetch of any _actively rendered_ data without suspending ([stale-while-revalidate](./expiry-policy.md)).
 [init()](../api/Manager.md#init) and [cleanup()](../api/Manager.md#cleanup) manage the event listeners.
 
-```typescript
-import type { Manager, Middleware, Controller } from '@data-client/core';
+```typescript framework-imports
+import type { Manager, Middleware, Controller } from '@data-client/react';
 
 export default class RefreshManager implements Manager {
   declare protected controller: Controller;
@@ -221,12 +221,12 @@ export default class RefreshManager implements Manager {
 When a mutation succeeds in one tab, mark data stale in all other tabs using
 [BroadcastChannel](https://developer.mozilla.org/en-US/docs/Web/API/BroadcastChannel).
 
-```typescript
+```typescript framework-imports
 import {
   type Manager,
   type Middleware,
   actionTypes,
-} from '@data-client/core';
+} from '@data-client/react';
 
 export default class TabSyncManager implements Manager {
   protected channel = new BroadcastChannel('data-client');
@@ -261,8 +261,8 @@ instead of blocking the main thread with JSON serialization like `localStorage` 
 Debouncing writes keeps rapid action bursts cheap. Consider [expiry times](./expiry-policy.md)
 when restoring.
 
-```typescript
-import type { Manager, Middleware } from '@data-client/core';
+```typescript framework-imports
+import type { Manager, Middleware } from '@data-client/react';
 import { set } from 'idb-keyval';
 
 export default class PersistManager implements Manager {
@@ -332,13 +332,13 @@ or [Server Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-
 we can maintain fresh data when the data updates are independent of user action. For example, a trading app's
 price, or a real-time collaborative editor.
 
-```typescript
+```typescript framework-imports
 import type {
   Manager,
   Middleware,
   Controller,
   EntityInterface,
-} from '@data-client/core';
+} from '@data-client/react';
 
 export default class StreamManager implements Manager {
   declare protected controller: Controller;
@@ -444,9 +444,7 @@ When using WebSockets or other real-time data sources, you may want to skip logg
 certain high-frequency actions to [DevToolsManager](../api/DevToolsManager.md) to avoid
 overwhelming the browser extension.
 
-:::react
-
-```typescript
+```typescript framework-imports
 import { getDefaultManagers, actionTypes } from '@data-client/react';
 import StreamManager from './StreamManager';
 import { Ticker } from './Ticker';
@@ -470,37 +468,6 @@ export default function getManagers() {
   ];
 }
 ```
-
-:::
-
-:::vue
-
-```typescript
-import { getDefaultManagers, actionTypes } from '@data-client/vue';
-import StreamManager from './StreamManager';
-import { Ticker } from './Ticker';
-
-export default function getManagers() {
-  return [
-    new StreamManager(() => new WebSocket('wss://ws-feed.example.com'), {
-      ticker: Ticker,
-    }),
-    ...getDefaultManagers({
-      devToolsManager: {
-        // Increase latency buffer for high-frequency updates
-        latency: 1000,
-        // Skip WebSocket SET actions to avoid log spam
-        // (batched writes use the [Ticker] schema)
-        predicate: (state, action) =>
-          action.type !== actionTypes.SET ||
-          (action.schema !== Ticker && action.schema[0] !== Ticker),
-      },
-    }),
-  ];
-}
-```
-
-:::
 
 :::react
 

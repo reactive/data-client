@@ -4,6 +4,7 @@ cp ./packages/graphql/index.d.ts ./website/src/components/Playground/editor-type
 cp ./packages/normalizr/index.d.ts ./website/src/components/Playground/editor-types/@data-client/normalizr.d.ts
 cp ./packages/react/index.d.ts ./website/src/components/Playground/editor-types/@data-client/react.d.ts
 cp ./packages/rest/index.d.ts ./website/src/components/Playground/editor-types/@data-client/rest.d.ts
+cp ./packages/vue/index.d.ts ./website/src/components/Playground/editor-types/@data-client/vue.d.ts
 mkdir -p ./website/src/components/Playground/editor-types/@data-client/rest
 mkdir -p ./website/src/components/Playground/editor-types/@data-client/core
 mkdir -p ./website/src/components/Playground/editor-types/@data-client/react

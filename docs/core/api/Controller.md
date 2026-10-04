@@ -540,7 +540,7 @@ import {
   type Queryable,
   type SchemaArgs,
   type DenormalizeNullable,
-} from '@data-client/core';
+} from '@data-client/react';
 
 /** Oversimplified useQuery */
 function useQuery<S extends Queryable>(
@@ -609,7 +609,7 @@ import {
   useController,
   StateContext,
   EndpointInterface,
-} from '@data-client/core';
+} from '@data-client/react';
 
 /** Oversimplified useCache */
 function useCache<E extends EntityInterface>(
@@ -622,9 +622,12 @@ function useCache<E extends EntityInterface>(
 }
 ```
 
-```tsx title="MyManager.ts"
-import type { Manager, Middleware, actionTypes } from '@data-client/core';
-import type { EndpointInterface } from '@data-client/endpoint';
+```tsx title="MyManager.ts" framework-imports
+import {
+  type Manager,
+  type Middleware,
+  actionTypes,
+} from '@data-client/react';
 
 export default class MyManager implements Manager {
   middleware: Middleware = controller => {
