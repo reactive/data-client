@@ -1,4 +1,5 @@
 import { normalize, INVALID } from '@data-client/normalizr';
+import type { EntityInterface } from '@data-client/normalizr';
 import { denormalize as plainDenormalize } from '@data-client/normalizr';
 import { denormalize as immDenormalize } from '@data-client/normalizr/imm';
 import { IDEntity } from '__tests__/new';
@@ -454,6 +455,14 @@ describe(`${Entity.name} normalization`, () => {
           user: { id: '4', name: 'Jimmy' },
         }),
       ).toMatchSnapshot();
+    });
+
+    test('Entity classes satisfy EntityInterface', () => {
+      class User extends Entity {
+        readonly id: string = '';
+      }
+      const entity: EntityInterface = User;
+      expect(entity.pk({ id: '5' }, undefined, undefined, [])).toBe('5');
     });
   });
 

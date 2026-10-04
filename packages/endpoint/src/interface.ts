@@ -61,7 +61,7 @@ export interface EntityInterface<T = any> extends SchemaSimple {
     params: any,
     parent: any,
     key: string | undefined,
-    args: any[],
+    args: readonly any[],
   ): string | number | undefined;
   readonly key: string;
   indexes?: any;

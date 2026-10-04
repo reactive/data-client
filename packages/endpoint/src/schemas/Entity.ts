@@ -50,7 +50,7 @@ export default abstract class Entity extends EntityMixin(EmptyBase) {
     value: Partial<AbstractInstanceType<T>>,
     parent?: any,
     key?: string,
-    args?: any[],
+    args?: readonly any[],
   ) => string | number | undefined;
 
   /** Do any transformations when first receiving input
