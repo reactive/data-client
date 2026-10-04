@@ -30,7 +30,7 @@ export default function resource<O extends ResourceGenerics>({
   optimistic,
   paginationField,
   ...extraOptions
-}: Readonly<O> & ResourceOptions): Resource<O> {
+}: Readonly<O> & O & ResourceOptions): Resource<O> {
   if (process.env.NODE_ENV !== 'production') {
     // if they lowercase and it looks like they meant to use upper-case version
     if (
@@ -78,11 +78,15 @@ This warning will not show in production.`,
     extended[key] = extended[key].extend(options);
   }
 
-  const extraMutateOptions = { ...extraOptions };
-  const extraPartialOptions = { ...extraOptions };
+  // Loosely typed: the public signature infers O from the naked `O` position,
+  // so spreading the generic rest into `new Endpoint()` would otherwise leave
+  // ContentSchemaGuard<O> as an unresolvable (deferred) conditional.
+  const extraBaseOptions: Record<string, any> = extraOptions;
+  const extraMutateOptions: Record<string, any> = { ...extraOptions };
+  const extraPartialOptions: Record<string, any> = { ...extraOptions };
   const get: GetEndpoint<{ path: O['path']; schema: O['schema'] }> =
     new Endpoint({
-      ...extraOptions,
+      ...extraBaseOptions,
       path,
       schema,
       name: getName('get'),

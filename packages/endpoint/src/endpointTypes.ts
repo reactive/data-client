@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-function-type */
 import type { EndpointInterface, Schema } from './interface.js';
+import type { RemoveArray } from './tupleTypes.js';
 import type {
   EndpointExtraOptions,
   FetchFunction,
   PartialParameters,
 } from './types.js';
-import type { RemoveArray } from './tupleTypes.js';
 
 export interface EndpointOptions<
   F extends FetchFunction = FetchFunction,
@@ -69,8 +69,8 @@ export interface EndpointInstance<
       Record<string, unknown>,
   >(
     this: E,
-    options: Readonly<O>,
-  ): ExtendedEndpoint<typeof options, E, F>;
+    options: Readonly<O> & O,
+  ): ExtendedEndpoint<Readonly<O>, E, F>;
 }
 
 /**

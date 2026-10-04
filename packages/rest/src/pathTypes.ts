@@ -1,11 +1,21 @@
-type CleanKey<S extends string> = S extends `"${infer K}"` ? K : S;
+// The non-`infer` pre-checks are matched without instantiating any types,
+// so plain keys (the common case) skip the inferring templates entirely.
+type CleanKey<S extends string> =
+  S extends `"${string}"` ?
+    S extends `"${infer K}"` ?
+      K
+    : S
+  : S;
 
-type KeyName<K extends string> = CleanKey<
-  K extends `*${infer N}}` ? N
-  : K extends `*${infer N}` ? N
-  : K extends `${infer N}}` ? N
-  : K
->;
+type KeyName<K extends string> =
+  K extends `*${string}` | `${string}}` ?
+    CleanKey<
+      K extends `*${infer N}}` ? N
+      : K extends `*${infer N}` ? N
+      : K extends `${infer N}}` ? N
+      : K
+    >
+  : CleanKey<K>;
 
 type KeyVal<K extends string> =
   K extends `*${string}` ? string[] : string | number;
@@ -28,29 +38,91 @@ export type SoftPathArgs<P extends string> =
 /** Computes the union of keys for a path string */
 export type PathKeys<S extends string> =
   string extends S ? string
-  : S extends `${infer A}\\${':' | '*' | '}'}${infer B}` ?
-    PathKeys<A> | PathKeys<B>
-  : Splits<S, ':'> | Splits<S, '*'>;
+  : // cheap (non-inferring) pre-check before the 3-way escape split
+  S extends `${string}\\${string}` ?
+    S extends `${infer A}\\${':' | '*' | '}'}${infer B}` ?
+      PathKeys<A> | PathKeys<B>
+    : ColonSplits<S> | StarSplits<S>
+  : ColonSplits<S> | StarSplits<S>;
 
-type Splits<S extends string, M extends ':' | '*'> =
-  S extends `${string}${M}${infer K}${M}${infer R}` ?
-    Splits<`${M}${K}`, M> | Splits<`${M}${R}`, M>
-  : S extends (
-    `${string}${M}${infer K}${'/' | '\\' | '%' | '&' | '*' | ':' | '{' | ';' | ',' | '!' | '@'}${infer R}`
+/** Characters that end a :param or *wildcard token */
+type PathDelimiter =
+  '/' | '\\' | '%' | '&' | '*' | ':' | '{' | ';' | ',' | '!' | '@';
+
+/** Token after every ':' in S */
+type ColonSplits<S extends string> =
+  S extends `${string}:${infer K}` ? PathToken<K> | ColonSplits<K> : never;
+
+/** `*`-prefixed token after every '*' in S */
+type StarSplits<S extends string> =
+  S extends `${string}*${infer K}` ? `*${PathToken<K>}` | StarSplits<K> : never;
+
+/** Prefix of K up to (excluding) its first PathDelimiter.
+ *
+ * Fast path: no delimiter at all, or the first '/' ends a delimiter-free token.
+ * The delimiter-union templates without `infer` are matched without instantiation. */
+type PathToken<K extends string> =
+  K extends `${string}${PathDelimiter}${string}` ?
+    K extends `${infer H}/${string}` ?
+      H extends `${string}${PathDelimiter}${string}` ?
+        PathTokenSlow<H>
+      : H
+    : PathTokenSlow<K>
+  : K;
+
+/** Cuts at the first occurrence of each delimiter (union); recursing on each
+ * candidate converges on the shortest, delimiter-free prefix. */
+type PathTokenSlow<K extends string> =
+  K extends `${infer H}${PathDelimiter}${string}` ? PathToken<H> : K;
+
+export type KeysToArgs<Key extends string> = OptionalArgs<Key> &
+  (Exclude<Key, `${string}}`> extends never ? unknown : RequiredArgs<Key>);
+
+/** Wide keys (`string`, template patterns) keep the original key-remapping
+ * form so index signatures (and their `keyof`) stay exactly the same. */
+type HasWideKey<Key extends string> =
+  true extends (
+    Key extends string ?
+      {} extends { [P in Key]: 1 } ?
+        true
+      : never
+    : never
   ) ?
-    Splits<`${M}${K}`, M> | Splits<R, M>
-  : S extends `${string}${M}${infer K}` ?
-    M extends '*' ?
-      `*${K}`
-    : K
-  : never;
+    true
+  : false;
 
-export type KeysToArgs<Key extends string> = {
-  [K in Key as K extends `${string}}` ? KeyName<K> : never]?: KeyVal<K>;
-} & (Exclude<Key, `${string}}`> extends never ? unknown
-: {
-    [K in Key as K extends `${string}}` ? never : KeyName<K>]: KeyVal<K>;
-  });
+// Literal keys: mapped over the computed names without an `as` clause.
+// `as` clauses get re-instantiated every time TypeScript asks whether the
+// mapped type is generic (on every relation check of hook/fetch params).
+// Each value is the KeyVal of the key(s) named N.
+type OptionalArgs<Key extends string> =
+  HasWideKey<Key> extends true ?
+    { [K in Key as K extends `${string}}` ? KeyName<K> : never]?: KeyVal<K> }
+  : {
+      [N in KeyName<OptionalKeys<Key>>]?:
+        | (N extends KeyName<Extract<OptionalKeys<Key>, `*${string}`>> ?
+            string[]
+          : never)
+        | (N extends KeyName<Exclude<OptionalKeys<Key>, `*${string}`>> ?
+            string | number
+          : never);
+    };
+
+type RequiredArgs<Key extends string> =
+  HasWideKey<Key> extends true ?
+    { [K in Key as K extends `${string}}` ? never : KeyName<K>]: KeyVal<K> }
+  : {
+      [N in KeyName<RequiredKeys<Key>>]:
+        | (N extends KeyName<Extract<RequiredKeys<Key>, `*${string}`>> ?
+            string[]
+          : never)
+        | (N extends KeyName<Exclude<RequiredKeys<Key>, `*${string}`>> ?
+            string | number
+          : never);
+    };
+
+type OptionalKeys<Key extends string> = Key extends `${string}}` ? Key : never;
+type RequiredKeys<Key extends string> = Key extends `${string}}` ? never : Key;
 
 export type PathArgsAndSearch<S extends string> =
   unknown extends S ? any
