@@ -19,12 +19,11 @@ alwaysApply: false
 ## GitHub Actions (`.github/workflows/`)
 
 - Workflows install only needed workspaces via `./scripts/ci-install.sh [extra-workspace ...]`.
-- Docs site builds (`site-preview.yml`, `site-release.yml`) run only for the published site: `website/**`, `docs/core/**`, `docs/rest/**`, `docs/graphql/**`, and the workflow file itself. Keep that list in sync with `website/scripts/vercel-ignore.sh`. Package, example, CI, changeset, and other docs changes (including `docs/ROADMAP.md`) do not start those workflows. `site-preview` builds on the runner and does not deploy; the Vercel Git integration publishes the preview.
+- `site-preview.yml`/`site-release.yml` `paths` (`website/**`, `docs/{core,rest,graphql}/**`) must match `SITE_PATHS` in `website/scripts/vercel-ignore.sh`.
 - `benchmark-react.yml` caches Playwright browsers keyed on the resolved `playwright` version from `examples/benchmark-react`; bumping playwright invalidates the cache automatically.
 - Benchmark workflows (`benchmark.yml`, `benchmark-react.yml`) tune the host (CPU governor, swapoff) and pin CPUs with `taskset` — they must run directly on the runner, not in a `container:`.
 
 ## Vercel docs site (`website/scripts/vercel-ignore.sh`)
 
-- `website/vercel.json` `ignoreCommand` runs it: exit 0 skips, exit 1 builds. It skips only when it can see the published site is unchanged, so any git failure builds. `SITE_PATHS` matches the workflow `paths` minus unpublished files (`website/CHANGELOG.md`, `website/**/__tests__/**`, `website/**/*.test.*`); `gh-pages*` branches always skip. `website/scripts/vercel-ignore.test.sh` covers each rule.
-- Never judge a push by `git diff HEAD^ HEAD`: after merging `master` into a package PR it shows master's site changes, and a push can carry several commits. Previews diff the PR's own changes (since the last preview, against the merged commit when the tip merges `master`, or from the merge-base with `master`); production diffs since the last deploy. When a base is outside Vercel's ~10-commit clone the script deepens the branch and `master`, and builds if it still has none.
-- A skipped build still creates a canceled Vercel deployment; `git.deploymentEnabled: false` does not stick while the project dashboard overrides it.
+- Vercel's ignore step: exit 0 skips, anything else builds, so fail open. Never diff only `HEAD^`: a master merge or multi-commit push makes it wrong. Run `vercel-ignore.test.sh` after changes.
+- `git.deploymentEnabled: false` doesn't stick (dashboard overrides it); skipped pushes still show as canceled deployments.
