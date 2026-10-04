@@ -4460,6 +4460,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fontsource-variable/roboto-mono@npm:^5.3.0":
+  version: 5.3.0
+  resolution: "@fontsource-variable/roboto-mono@npm:5.3.0"
+  checksum: 10c0/dbb0234b3b637e2f145e693cad525c81371af26251fcf3cc9683931bda6b53e3c9c2680f89cf0c87c2a52723d01e873cf893982178b63a7afdd4c0a4ca929d61
+  languageName: node
+  linkType: hard
+
+"@fontsource-variable/rubik@npm:^5.3.0":
+  version: 5.3.0
+  resolution: "@fontsource-variable/rubik@npm:5.3.0"
+  checksum: 10c0/b9577a08be21c4b256d4681c7b4d048c0d2e78a40e1b3d0e02fad3a8175b54b3a4f1148982153e32683ee6f4afd7be542117e0d1b206e90946f7f0a843d7c49e
+  languageName: node
+  linkType: hard
+
 "@gar/promise-retry@npm:^1.0.0, @gar/promise-retry@npm:^1.0.2, @gar/promise-retry@npm:^1.0.3":
   version: 1.0.3
   resolution: "@gar/promise-retry@npm:1.0.3"
@@ -23685,6 +23699,8 @@ __metadata:
     "@docusaurus/preset-classic": "npm:^3.0.1"
     "@docusaurus/theme-live-codeblock": "npm:^3.0.1"
     "@docusaurus/theme-mermaid": "npm:^3.0.1"
+    "@fontsource-variable/roboto-mono": "npm:^5.3.0"
+    "@fontsource-variable/rubik": "npm:^5.3.0"
     "@mdx-js/react": "npm:^3.1.0"
     "@monaco-editor/react": "npm:^4.8.0-rc.0"
     "@number-flow/react": "npm:^0.6.0"
@@ -23697,8 +23713,10 @@ __metadata:
     "@typescript/native": "npm:typescript@7.0.2"
     bignumber.js: "npm:11.1.5"
     clsx: "npm:2.1.1"
+    js-yaml: "npm:^4.1.1"
     monaco-editor: "npm:^0.56.0"
     parse-numeric-range: "npm:^1.3.0"
+    playwright: "npm:1.61.1"
     raw-loader: "npm:^4.0.2"
     react: "npm:^19.0.0"
     react-dom: "npm:^19.0.0"
