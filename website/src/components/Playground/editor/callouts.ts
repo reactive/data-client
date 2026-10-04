@@ -14,10 +14,12 @@ export interface CalloutDocument {
   callouts: Callout[];
 }
 
+export type DiffSide = CalloutDocument & { language: string };
+
 const CALLOUT_COMMENT = /^\s*\/\/ callout: (.+)$/;
 const HIGHLIGHT_COMMENT = /^\s*\/\/ highlight-(next-line|start|end)\s*$/;
 
-/** ① … ⑳, then (21) … */
+/** ① … ⑳, then (21) …; DiffEditor.module.css mirrors the first 20 */
 export function calloutMarker(index: number) {
   return index < 20 ? String.fromCharCode(0x2460 + index) : `(${index + 1})`;
 }

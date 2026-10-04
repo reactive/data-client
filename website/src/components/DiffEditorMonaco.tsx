@@ -5,12 +5,8 @@ import {
 } from '@monaco-editor/react';
 import clsx from 'clsx';
 import { type editor } from 'monaco-editor';
-import { useCallback } from 'react';
 
-import {
-  type CalloutDocument,
-  calloutMarker,
-} from './Playground/editor/callouts';
+import type { DiffSide } from './Playground/editor/callouts';
 import { extensionToMonacoLanguage } from './Playground/monaco/language';
 import { options } from './Playground/monaco/options';
 import './Playground/monaco/setup';
@@ -30,41 +26,31 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
   });
 
   // Mark each callout's line with the marker its legend entry uses. Monaco
-  // doesn't render injected `after` text here, so the marker is CSS content
-  // on the line's last character.
-  const handleDiffMount = useCallback(
-    (diffEditor: MonacoDiffEditor) => {
-      handleMount(diffEditor);
-      [diffEditor.getOriginalEditor(), diffEditor.getModifiedEditor()].forEach(
-        (editor, i) => {
-          const model = editor.getModel();
-          if (!model) return;
-          editor.createDecorationsCollection(
-            sides[i].callouts.map(({ line, index }) => {
-              const column = model.getLineMaxColumn(line);
-              return {
-                range: {
-                  startLineNumber: line,
-                  startColumn: column - 1,
-                  endLineNumber: line,
-                  endColumn: column,
-                },
-                options: { inlineClassName: `diff-callout-${index}` },
-              };
-            }),
-          );
-        },
-      );
-    },
-    [handleMount, sides],
-  );
-  const markerStyles = sides
-    .flatMap(({ callouts }) => callouts)
-    .map(
-      ({ index }) =>
-        `.diff-callout-${index}::after{content:"  ${calloutMarker(index)}"}`,
-    )
-    .join('');
+  // doesn't render injected `after` text here, so DiffEditor.module.css draws
+  // the marker as ::after content.
+  const handleDiffMount = (diffEditor: MonacoDiffEditor) => {
+    handleMount(diffEditor);
+    [diffEditor.getOriginalEditor(), diffEditor.getModifiedEditor()].forEach(
+      (editor, i) => {
+        const model = editor.getModel();
+        if (!model) return;
+        editor.createDecorationsCollection(
+          sides[i].callouts.map(({ line, index }) => {
+            const column = model.getLineMaxColumn(line);
+            return {
+              range: {
+                startLineNumber: line,
+                startColumn: column,
+                endLineNumber: line,
+                endColumn: column,
+              },
+              options: { afterContentClassName: `diff-callout-${index}` },
+            };
+          }),
+        );
+      },
+    );
+  };
 
   return (
     <BrowserOnly fallback={fallback}>
@@ -75,7 +61,6 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
         }
         return (
           <div className={styles.playgroundQueryContainer}>
-            {markerStyles && <style>{markerStyles}</style>}
             <div
               className={clsx(
                 styles.playgroundContainer,
@@ -112,8 +97,6 @@ export type DiffMonacoProps = {
   fallback: React.ReactNode;
   sides: readonly [DiffSide, DiffSide];
 };
-
-export type DiffSide = CalloutDocument & { language: string };
 
 const DIFF_OPTIONS: editor.IDiffEditorConstructionOptions = {
   ...options,

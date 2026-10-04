@@ -18,7 +18,7 @@ export default function DiffEditor({ children, caption }: Props) {
       { ...modified, language: after.language },
     ] as const;
   }, [children]);
-  const callouts = [...sides[0].callouts, ...sides[1].callouts];
+  const callouts = sides.flatMap(side => side.callouts);
 
   const fallback = (
     <Grid wrap>
