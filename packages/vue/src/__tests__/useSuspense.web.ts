@@ -15,7 +15,7 @@ import {
   CoolerArticle,
 } from '../../../../__tests__/new';
 import useSuspense from '../consumers/useSuspense';
-import { renderDataCompose, mountDataClient } from '../test';
+import { renderDataCompose, mountDataClient, mockInitialState } from '../test';
 
 // Each arg form a composable accepts that should re-evaluate reactively
 const argForms: [string, <T>(fn: () => T) => MaybeRefOrGetter<T>][] = [
@@ -719,5 +719,72 @@ describe('vue useSuspense()', () => {
     expect(articleRef.value?.title).toBe('edited');
 
     cleanup();
+  });
+  describe('stale data on mount', () => {
+    function setup(invalidIfStale: boolean) {
+      let resolveFetch = (_v: any) => {};
+      const fetchMock = jest.fn(
+        () => new Promise(resolve => (resolveFetch = resolve)),
+      );
+      const endpoint = new Endpoint(fetchMock as any, {
+        schema: CoolerArticle,
+        dataExpiryLength: 20,
+        invalidIfStale,
+        name: 'staleOnMount',
+      });
+      const initialState = mockInitialState([
+        { endpoint, args: [{ id: 5 }], response: payload },
+      ]);
+      return {
+        fetchMock,
+        endpoint,
+        initialState,
+        resolveFetch: (v: any) => resolveFetch(v),
+      };
+    }
+
+    it('shows stale data immediately and revalidates in the background', async () => {
+      const { fetchMock, endpoint, initialState, resolveFetch } = setup(false);
+      // let the data go stale before mounting
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      const { result, cleanup } = await renderDataCompose(
+        () => useSuspense(endpoint, { id: 5 }),
+        { initialState },
+      );
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+
+      // resolves without waiting for the refetch
+      const articleRef = await result;
+      expect(articleRef.value?.title).toBe(payload.title);
+
+      resolveFetch({ ...payload, title: 'revalidated' });
+      await flushUntil(null, () => articleRef.value?.title === 'revalidated');
+      expect(articleRef.value?.title).toBe('revalidated');
+
+      cleanup();
+    });
+
+    it('suspends on stale invalidIfStale data until the refetch resolves', async () => {
+      const { fetchMock, endpoint, initialState, resolveFetch } = setup(true);
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      const { result, cleanup } = await renderDataCompose(
+        () => useSuspense(endpoint, { id: 5 }),
+        { initialState },
+      );
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+
+      let resolved = false;
+      result.then(() => (resolved = true));
+      await new Promise(resolve => setTimeout(resolve, 10));
+      expect(resolved).toBe(false);
+
+      resolveFetch({ ...payload, title: 'revalidated' });
+      const articleRef = await result;
+      expect(articleRef.value?.title).toBe('revalidated');
+
+      cleanup();
+    });
   });
 });
