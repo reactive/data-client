@@ -66,8 +66,11 @@ function HomepageHeader() {
 
 function HomepageEnder() {
   return (
-    <section className={'hero'}>
+    <section className={clsx('hero', styles.ender)}>
       <div className="container">
+        <h2 className={styles.sectionHeading}>
+          Start with one resource and one hook
+        </h2>
         <div className={styles.buttons}>
           <Link
             className="button button--secondary"
@@ -134,20 +137,27 @@ export default function Home() {
       <main>
         <Demo />
         <HomepageFeatures />
-        <div className="container">
-          <div className="row">
-            <div className="col">
-              <StackBlitz
-                app="github-app"
-                width="100%"
-                height="750"
-                style={{ maxHeight: 'calc(100vh - 64px)', height: '800px' }}
-                file="src/resources/Issue.tsx,src/pages/IssueList.tsx"
-                view="both"
-              />
-            </div>
+        <section className="container">
+          <h2 className={styles.sectionHeading}>A complete app</h2>
+          <p className={styles.sectionLede}>
+            A GitHub issues and pull request browser on the live GitHub API,
+            built with REST resources and Suspense.
+          </p>
+          <StackBlitz
+            app="github-app"
+            width="100%"
+            height="750"
+            style={{ maxHeight: 'calc(100vh - 64px)', height: '800px' }}
+            file="src/resources/Issue.tsx,src/pages/IssueList.tsx"
+            view="both"
+            moreDemos={false}
+          />
+          <div className={styles.buttons}>
+            <Link className="button button--secondary" to="/demos">
+              More demos
+            </Link>
           </div>
-        </div>
+        </section>
         <HomepageEnder />
       </main>
     </Layout>

@@ -1,0 +1,44 @@
+.header {
+  padding: 1.5rem var(--ifm-spacing-horizontal) 0.5rem;
+}
+.header h1 {
+  margin-bottom: 0.25rem;
+}
+.header p {
+  margin: 0;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.tabs {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+.tabs > li {
+  white-space: nowrap;
+}
+
+.caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  padding: 0 var(--ifm-spacing-horizontal) 0.75rem;
+}
+.caption p {
+  margin: 0;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.frame {
+  display: block;
+  border: 0;
+  width: 100%;
+  height: calc(100vh - 240px);
+  min-height: 500px;
+}
