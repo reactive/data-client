@@ -11,7 +11,17 @@ The quickest way to get started is to let an [AI Agent](https://agentskills.io) 
 
 ## Install
 
-<SkillTabs repo="reactive/data-client" />
+:::react
+
+<SkillTabs repo="reactive/data-client" openSkills={['data-client-setup', 'data-client-rest-setup', 'data-client-endpoint-setup', 'data-client-graphql-setup', 'data-client-schema', 'data-client-rest', 'data-client-manager', 'data-client-react', 'data-client-react-testing']} />
+
+:::
+
+:::vue
+
+<SkillTabs repo="reactive/data-client" openSkills={['data-client-setup', 'data-client-rest-setup', 'data-client-endpoint-setup', 'data-client-graphql-setup', 'data-client-schema', 'data-client-rest', 'data-client-manager', 'data-client-vue', 'data-client-vue-testing']} />
+
+:::
 
 Then run skill `/data-client-setup` to install and wire up the provider for your
 project. It will automatically detect your framework (NextJS, Expo, React Native, Vue,

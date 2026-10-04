@@ -9,6 +9,8 @@ interface Props {
   skillsDir?: string;
   skill?: string;
   skills?: string[];
+  /** Skills for the OpenSkills tab when it should differ from `skills` (it has no picker groups) */
+  openSkills?: string[];
 }
 
 export default function SkillTabs({
@@ -16,13 +18,15 @@ export default function SkillTabs({
   skillsDir = '.agents/skills',
   skill,
   skills,
+  openSkills,
 }: Props) {
   const allSkills = skills ?? (skill ? [skill] : []);
   const skillFlag = allSkills.map(s => ` --skill ${s}`).join('');
   // openskills has no --skill flag; it installs a single skill from its path
+  const openSkillList = openSkills ?? allSkills;
   const openSkillsCommand =
-    allSkills.length ?
-      allSkills
+    openSkillList.length ?
+      openSkillList
         .map(s => `npx openskills install ${repo}/${skillsDir}/${s}`)
         .join('\n')
     : `npx openskills install ${repo}`;
