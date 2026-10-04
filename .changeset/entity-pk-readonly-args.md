@@ -15,3 +15,13 @@ import type { EntityInterface } from '@data-client/react';
 // After: typechecks
 const schema: EntityInterface = User;
 ```
+
+Overrides of `static pk()` that type `args` as a mutable array still compile, but a future breaking release will require `readonly any[]`, so update them now:
+
+```ts
+class User extends Entity {
+  static pk(value: any, parent?: any, key?: string, args?: readonly any[]) {
+    return `${value.id}-${args?.[0]?.org}`;
+  }
+}
+```
