@@ -160,12 +160,16 @@ interface SnapshotInterface {
 }
 type ExpiryStatusInterface = 1 | 2 | 3;
 
+/** Removes Rem's length worth of leading elements from Orig */
+type RemoveArray<Orig extends any[], Rem extends any[]> = Rem extends [any, ...infer RestRem] ? Orig extends [any, ...infer RestOrig] ? RemoveArray<RestOrig, RestRem> : never : Orig;
+
 /** Get the Params type for a given Shape */
 type EndpointParam<E> = E extends (first: infer A, ...rest: any) => any ? A : E extends {
     key: (first: infer A, ...rest: any) => any;
 } ? A : never;
 /** What the function's promise resolves to */
 type ResolveType<E extends (...args: any) => any> = ReturnType<E> extends Promise<infer R> ? R : never;
+
 type PartialParameters<T extends (...args: any[]) => any> = T extends (...args: infer P) => any ? Partial<P> : never;
 type EndpointToFunction<E extends (...args: any) => Promise<any>> = (this: E, ...args: Parameters<E>) => ReturnType<E>;
 
@@ -208,17 +212,12 @@ interface SchemaSimple<T = any, Args extends readonly any[] = any> {
      * @param input        The value being normalized.
      * @param parent       The parent object/array/dictionary containing `input`.
      * @param key          The key under which `input` lives on `parent`.
-     * @param args         The endpoint args for this normalize call.
-     * @param visit        Recursive visitor for nested schemas.
-     * @param delegate     Store accessors for reading/writing entities.
+     * @param delegate     Recursive visitor, endpoint args, and store accessors.
      * @param parentEntity Nearest enclosing entity-like schema (one with `pk`),
      *                     tracked automatically by the visit walker. `Scalar`
      *                     uses this to discover its entity binding.
      */
-    normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, delegate: {
-        getEntity: any;
-        setEntity: any;
-    }, parentEntity?: any): any;
+    normalize(input: any, parent: any, key: any, delegate: INormalizeDelegate, parentEntity?: any): any;
     denormalize(input: {}, delegate: IDenormalizeDelegate): T;
     queryKey(args: Args, unvisit: (...args: any) => any, delegate: {
         getEntity: any;
@@ -270,14 +269,13 @@ interface EntityTable {
  *               Schemas that recurse via `visit` should pass their own
  *               `input` (or the surrounding container) here.
  * @param key    The key under which `value` lives on `parent`.
- * @param args   The endpoint args for this normalize call.
  *
  * The walker internally tracks the nearest enclosing entity-like schema and
  * forwards it to `schema.normalize` as a trailing `parentEntity` argument —
- * see `SchemaSimple.normalize`. Consumers of `visit` don't pass it.
+ * see `SchemaSimple.normalize`.
  */
 interface Visit {
-    (schema: any, value: any, parent: any, key: any, args: readonly any[]): any;
+    (schema: any, value: any, parent: any, key: any): any;
     creating?: boolean;
 }
 /** Used in denormalize. Lookup to find an entity in the store table */
@@ -331,6 +329,10 @@ interface IDenormalizeDelegate {
 }
 /** Helpers during schema.normalize() */
 interface INormalizeDelegate {
+    /** Recursive normalize of nested schemas */
+    visit: Visit;
+    /** Raw endpoint args for this normalize call */
+    readonly args: readonly any[];
     /** Action meta-data for this normalize call */
     readonly meta: {
         fetchedAt: number;
@@ -447,7 +449,6 @@ interface ExtendableEndpointConstructor {
     new <F extends (this: EndpointInstanceInterface<FetchFunction> & E, params?: any, body?: any) => Promise<any>, S extends Schema | undefined = undefined, M extends boolean | undefined = false, E extends Record<string, any> = {}>(RestFetch: F, options?: Readonly<EndpointOptions<F, S, M>> & E): EndpointInstanceInterface<F, S, M> & E;
     readonly prototype: Function;
 }
-type RemoveArray<Orig extends any[], Rem extends any[]> = Rem extends [any, ...infer RestRem] ? Orig extends [any, ...infer RestOrig] ? RemoveArray<RestOrig, RestRem> : never : Orig;
 
 declare let Endpoint: EndpointConstructor;
 
@@ -498,7 +499,7 @@ interface IEntityClass<TBase extends Constructor = any> {
      * @param [key] When normalizing, the key where this entity was found
      * @param [args] ...args sent to Endpoint
      */
-    pk<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, value: Partial<AbstractInstanceType<T>>, parent?: any, key?: string, args?: any[]): string | number | undefined;
+    pk<T extends (abstract new (...args: any[]) => IEntityInstance & ConstructorInstance<TBase>) & IEntityClass & TBase>(this: T, value: Partial<AbstractInstanceType<T>>, parent?: any, key?: string, args?: readonly any[]): string | number | undefined;
     /** Return true to merge incoming data; false keeps existing entity
      *
      * @see https://dataclient.io/docs/api/Entity#shouldUpdate
@@ -559,22 +560,19 @@ interface IEntityClass<TBase extends Constructor = any> {
      *
      * @param [props] Plain Object of properties to assign.
      */
-    fromJS<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, props?: Partial<AbstractInstanceType<T>>): AbstractInstanceType<T>;
+    fromJS<T extends (abstract new (...args: any[]) => IEntityInstance & ConstructorInstance<TBase>) & IEntityClass & TBase>(this: T, props?: Partial<AbstractInstanceType<T>>): AbstractInstanceType<T>;
     /** Called when denormalizing an entity to create an instance when 'valid'
      *
      * @param [props] Plain Object of properties to assign.
      * @see https://dataclient.io/rest/api/Entity#createIfValid
      */
-    createIfValid<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, props: Partial<AbstractInstanceType<T>>): AbstractInstanceType<T> | undefined;
+    createIfValid<T extends (abstract new (...args: any[]) => IEntityInstance & ConstructorInstance<TBase>) & IEntityClass & TBase>(this: T, props: Partial<AbstractInstanceType<T>>): AbstractInstanceType<T> | undefined;
     /** Do any transformations when first receiving input
      *
      * @see https://dataclient.io/rest/api/Entity#process
      */
     process(input: any, parent: any, key: string | undefined, args: any[]): any;
-    normalize(input: any, parent: any, key: string | undefined, args: any[], visit: (...args: any) => any, snapshot: {
-        getEntity: any;
-        setEntity: any;
-    }): any;
+    normalize(input: any, parent: any, key: string | undefined, delegate: INormalizeDelegate): any;
     /** Do any transformations when first receiving input
      *
      * @see https://dataclient.io/rest/api/Entity#validate
@@ -585,7 +583,7 @@ interface IEntityClass<TBase extends Constructor = any> {
      * @see https://dataclient.io/rest/api/Entity#queryKey
      */
     queryKey(args: readonly any[], unvisit: any, delegate: IQueryDelegate): any;
-    denormalize<T extends (abstract new (...args: any[]) => IEntityInstance & InstanceType<TBase>) & IEntityClass & TBase>(this: T, input: any, delegate: IDenormalizeDelegate): AbstractInstanceType<T>;
+    denormalize<T extends (abstract new (...args: any[]) => IEntityInstance & ConstructorInstance<TBase>) & IEntityClass & TBase>(this: T, input: any, delegate: IDenormalizeDelegate): AbstractInstanceType<T>;
     /** All instance defaults set */
     readonly defaults: any;
 }
@@ -600,6 +598,11 @@ interface IEntityInstance {
     pk(parent?: any, key?: string, args?: readonly any[]): string | number | undefined;
 }
 type Constructor = abstract new (...args: any[]) => {};
+/** InstanceType<> for abstract constructor types, which TypeScript 4.2's InstanceType rejects
+ *
+ * Unlike AbstractInstanceType<>, this resolves constructor type aliases (not just classes)
+ */
+type ConstructorInstance<T extends abstract new (...args: any) => any> = T extends abstract new (...args: any) => infer R ? R : any;
 type IDClass = abstract new (...args: any[]) => {
     id: string | number | undefined;
 };
@@ -624,9 +627,9 @@ interface RequiredPKOptions<TInstance extends {}> extends EntityOptions<TInstanc
  * Turns any class into an Entity.
  * @see https://dataclient.io/rest/api/EntityMixin
  */
-declare function EntityMixin<TBase extends PKClass>(Base: TBase, opt?: EntityOptions<InstanceType<TBase>>): IEntityClass<TBase> & TBase;
-declare function EntityMixin<TBase extends IDClass>(Base: TBase, opt?: EntityOptions<InstanceType<TBase>>): IEntityClass<TBase> & TBase & (new (...args: any[]) => IEntityInstance);
-declare function EntityMixin<TBase extends Constructor>(Base: TBase, opt: RequiredPKOptions<InstanceType<TBase>>): IEntityClass<TBase> & TBase & (new (...args: any[]) => IEntityInstance);
+declare function EntityMixin<TBase extends PKClass>(Base: TBase, opt?: EntityOptions<ConstructorInstance<TBase>>): IEntityClass<TBase> & TBase;
+declare function EntityMixin<TBase extends IDClass>(Base: TBase, opt?: EntityOptions<ConstructorInstance<TBase>>): IEntityClass<TBase> & TBase & (new (...args: any[]) => IEntityInstance);
+declare function EntityMixin<TBase extends Constructor>(Base: TBase, opt: RequiredPKOptions<ConstructorInstance<TBase>>): IEntityClass<TBase> & TBase & (new (...args: any[]) => IEntityInstance);
 
 declare class PolymorphicSchema {
     private _schemaAttribute;
@@ -637,7 +640,9 @@ declare class PolymorphicSchema {
     getSchemaAttribute(input: any, parent: any, key: any): any;
     inferSchema(input: any, parent: any, key: any): any;
     schemaKey(): string;
-    normalizeValue(value: any, parent: any, key: any, args: any[], visit: Visit): any;
+    normalizeValue(value: any, parent: any, key: any, delegate: {
+        visit: Visit;
+    }): any;
     denormalizeValue(value: any, unvisit: any): any;
 }
 
@@ -667,7 +672,7 @@ declare class Invalidate<E extends ProcessableEntity | Record<string, Processabl
      */
     constructor(entity: E, schemaAttribute?: E extends HoistablePolymorphic ? undefined : E extends Record<string, ProcessableEntity> ? string | ((input: any, parent: any, key: any) => string) : undefined);
     get key(): string;
-    normalize(input: any, parent: any, key: string | undefined, args: any[], visit: (...args: any) => any, delegate: INormalizeDelegate): string | {
+    normalize(input: any, parent: any, key: string | undefined, delegate: INormalizeDelegate): string | {
         id: string;
         schema: string;
     };
@@ -713,7 +718,7 @@ declare class Lazy<S extends Schema> implements SchemaSimple {
      * @param {Schema} schema - The inner schema (e.g., [Building], Building, Collection)
      */
     constructor(schema: S);
-    normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, _delegate: any): any;
+    normalize(input: any, parent: any, key: any, delegate: any): any;
     denormalize(input: {}, _delegate: IDenormalizeDelegate): any;
     queryKey(_args: readonly any[], _unvisit: (...args: any) => any, _delegate: any): undefined;
     /** Queryable schema for use with useQuery() to resolve lazy relationships */
@@ -869,7 +874,7 @@ declare class Scalar implements Mergeable {
         date: number;
         expiresAt: number;
     };
-    normalize(input: any, parent: any, key: any, args: any[], visit: Visit, delegate: INormalizeDelegate, parentEntity: any): any;
+    normalize(input: any, parent: any, key: any, delegate: INormalizeDelegate, parentEntity: any): any;
     denormalize(input: any, delegate: IDenormalizeDelegate): any;
     /**
      * Returns the cpks of cells matching the current lens, or undefined.
@@ -954,7 +959,7 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
      * @see https://dataclient.io/docs/api/Collection#pk
      */
     pk(value: any, parent: any, key: string, args: any[], parentEntity?: any): string;
-    normalize(input: any, parent: Parent, key: string, args: any[], visit: (...args: any) => any, delegate: INormalizeDelegate, parentEntity?: any): string;
+    normalize(input: any, parent: Parent, key: string, delegate: INormalizeDelegate, parentEntity?: any): string;
     /** Creates new instance copying over defined values of arguments
      *
      * @see https://dataclient.io/docs/api/Collection#merge
@@ -1002,7 +1007,7 @@ interface CollectionInterface<S extends PolymorphicInterface = any, Args extends
      */
     queryKey(args: Args, unvisit: unknown, delegate: unknown): any;
     createIfValid: (value: any) => any | undefined;
-    denormalize(input: any, args: readonly any[], unvisit: (schema: any, input: any) => any): ReturnType<S['denormalize']>;
+    denormalize(input: any, delegate: IDenormalizeDelegate): ReturnType<S['denormalize']>;
     _denormalizeNullable(): ReturnType<S['_denormalizeNullable']>;
     _normalizeNullable(): ReturnType<S['_normalizeNullable']>;
     /** Schema to place at the *end* of this Collection
@@ -1037,6 +1042,7 @@ interface CollectionConstructor {
 }
 type StrategyFunction<T> = (value: any, parent: any, key: string) => T;
 type SchemaFunction<K = string, Args = any> = (value: Args, parent: any, key: string) => K;
+type SchemaAttribute<K = string, Args = any> = K | SchemaFunction<K, Args>;
 type MergeFunction = (entityA: any, entityB: any) => any;
 type SchemaAttributeFunction<S extends Schema> = (value: any, parent: any, key: string) => S;
 type UnionResult<Choices extends EntityMap> = {
@@ -1069,18 +1075,14 @@ declare class Array$1<S extends Schema = Schema> implements SchemaClass {
     input: any,
     parent: any,
     key: any,
-    args: any[],
-    visit: (...args: any) => any,
     delegate: INormalizeDelegate,
   ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
 
   _normalizeNullable():
-    | (S extends EntityMap ? UnionResult<S> : Normalize<S>)[]
-    | undefined;
+    (S extends EntityMap ? UnionResult<S> : Normalize<S>)[] | undefined;
 
   _denormalizeNullable():
-    | (S extends EntityMap<infer T> ? T : Denormalize<S>)[]
-    | undefined;
+    (S extends EntityMap<infer T> ? T : Denormalize<S>)[] | undefined;
 
   denormalize(
     input: {},
@@ -1123,18 +1125,14 @@ declare class All<
     input: any,
     parent: any,
     key: any,
-    args: any[],
-    visit: (...args: any) => any,
     delegate: INormalizeDelegate,
   ): (S extends EntityMap ? UnionResult<S> : Normalize<S>)[];
 
   _normalizeNullable():
-    | (S extends EntityMap ? UnionResult<S> : Normalize<S>)[]
-    | undefined;
+    (S extends EntityMap ? UnionResult<S> : Normalize<S>)[] | undefined;
 
   _denormalizeNullable():
-    | (S extends EntityMap<infer T> ? T : Denormalize<S>)[]
-    | undefined;
+    (S extends EntityMap<infer T> ? T : Denormalize<S>)[] | undefined;
 
   denormalize(
     input: {},
@@ -1167,8 +1165,6 @@ declare class Object$1<
     input: any,
     parent: any,
     key: any,
-    args: any[],
-    visit: (...args: any) => any,
     delegate: INormalizeDelegate,
   ): NormalizeObject<O>;
 
@@ -1238,8 +1234,8 @@ interface UnionConstructor {
  */
 interface UnionInstance<
   Choices extends EntityMap = any,
-  Args extends EntityFields<AbstractInstanceType<Choices[keyof Choices]>> =
-    EntityFields<AbstractInstanceType<Choices[keyof Choices]>>,
+  // unconstrained: TypeScript 4.2-4.4 can't prove UnionConstructor's Args satisfy EntityFields
+  Args = EntityFields<AbstractInstanceType<Choices[keyof Choices]>>,
 > {
   readonly _hoistable: true;
   define(definition: Schema): void;
@@ -1251,16 +1247,13 @@ interface UnionInstance<
     input: any,
     parent: any,
     key: any,
-    args: any[],
-    visit: (...args: any) => any,
     delegate: INormalizeDelegate,
   ): UnionResult<Choices>;
 
   _normalizeNullable(): UnionResult<Choices> | undefined;
 
   _denormalizeNullable():
-    | AbstractInstanceType<Choices[keyof Choices]>
-    | undefined;
+    AbstractInstanceType<Choices[keyof Choices]> | undefined;
 
   denormalize(
     input: {},
@@ -1322,8 +1315,6 @@ declare class Values<Choices extends Schema = any> implements SchemaClass {
     input: any,
     parent: any,
     key: any,
-    args: any[],
-    visit: (...args: any) => any,
     delegate: INormalizeDelegate,
   ): Record<
     string,
@@ -1403,6 +1394,7 @@ type schema_d_Query<S extends Queryable | {
 declare const schema_d_Query: typeof Query;
 type schema_d_Scalar = Scalar;
 declare const schema_d_Scalar: typeof Scalar;
+type schema_d_SchemaAttribute<K = string, Args = any> = SchemaAttribute<K, Args>;
 type schema_d_SchemaAttributeFunction<S extends Schema> = SchemaAttributeFunction<S>;
 type schema_d_SchemaClass<T = any, Args extends readonly any[] = any> = SchemaClass<T, Args>;
 type schema_d_SchemaFunction<K = string, Args = any> = SchemaFunction<K, Args>;
@@ -1412,15 +1404,14 @@ type schema_d_Union<Choices extends EntityMap, SchemaAttribute extends
     | SchemaFunction<keyof Choices>> = Union<Choices, SchemaAttribute>;
 declare const schema_d_Union: typeof Union;
 type schema_d_UnionConstructor = UnionConstructor;
-type schema_d_UnionInstance<Choices extends EntityMap = any, Args extends EntityFields<AbstractInstanceType<Choices[keyof Choices]>> =
-    EntityFields<AbstractInstanceType<Choices[keyof Choices]>>> = UnionInstance<Choices, Args>;
+type schema_d_UnionInstance<Choices extends EntityMap = any, Args = EntityFields<AbstractInstanceType<Choices[keyof Choices]>>> = UnionInstance<Choices, Args>;
 type schema_d_UnionResult<Choices extends EntityMap> = UnionResult<Choices>;
 declare const schema_d_UnionRoot: typeof UnionRoot;
 type schema_d_Values<Choices extends Schema = any> = Values<Choices>;
 declare const schema_d_Values: typeof Values;
 declare const schema_d_unshift: typeof unshift;
 declare namespace schema_d {
-  export { schema_d_All as All, Array$1 as Array, schema_d_Collection as Collection, type schema_d_CollectionArrayAdder as CollectionArrayAdder, type schema_d_CollectionArrayOrValuesAdder as CollectionArrayOrValuesAdder, type schema_d_CollectionConstructor as CollectionConstructor, type schema_d_CollectionFromSchema as CollectionFromSchema, type schema_d_CollectionInterface as CollectionInterface, schema_d_CollectionRoot as CollectionRoot, type schema_d_CollectionValuesAdder as CollectionValuesAdder, type schema_d_DefaultArgs as DefaultArgs, EntityMixin as Entity, type schema_d_EntityInterface as EntityInterface, type schema_d_EntityMap as EntityMap, schema_d_EntityMixin as EntityMixin, schema_d_Invalidate as Invalidate, schema_d_Lazy as Lazy, type schema_d_MergeFunction as MergeFunction, Object$1 as Object, schema_d_Query as Query, schema_d_Scalar as Scalar, type schema_d_SchemaAttributeFunction as SchemaAttributeFunction, type schema_d_SchemaClass as SchemaClass, type schema_d_SchemaFunction as SchemaFunction, type schema_d_StrategyFunction as StrategyFunction, schema_d_Union as Union, type schema_d_UnionConstructor as UnionConstructor, type schema_d_UnionInstance as UnionInstance, type schema_d_UnionResult as UnionResult, schema_d_UnionRoot as UnionRoot, schema_d_Values as Values, schema_d_unshift as unshift };
+  export { schema_d_All as All, Array$1 as Array, schema_d_Collection as Collection, type schema_d_CollectionArrayAdder as CollectionArrayAdder, type schema_d_CollectionArrayOrValuesAdder as CollectionArrayOrValuesAdder, type schema_d_CollectionConstructor as CollectionConstructor, type schema_d_CollectionFromSchema as CollectionFromSchema, type schema_d_CollectionInterface as CollectionInterface, schema_d_CollectionRoot as CollectionRoot, type schema_d_CollectionValuesAdder as CollectionValuesAdder, type schema_d_DefaultArgs as DefaultArgs, EntityMixin as Entity, type schema_d_EntityInterface as EntityInterface, type schema_d_EntityMap as EntityMap, schema_d_EntityMixin as EntityMixin, schema_d_Invalidate as Invalidate, schema_d_Lazy as Lazy, type schema_d_MergeFunction as MergeFunction, Object$1 as Object, schema_d_Query as Query, schema_d_Scalar as Scalar, type schema_d_SchemaAttribute as SchemaAttribute, type schema_d_SchemaAttributeFunction as SchemaAttributeFunction, type schema_d_SchemaClass as SchemaClass, type schema_d_SchemaFunction as SchemaFunction, type schema_d_StrategyFunction as StrategyFunction, schema_d_Union as Union, type schema_d_UnionConstructor as UnionConstructor, type schema_d_UnionInstance as UnionInstance, type schema_d_UnionResult as UnionResult, schema_d_UnionRoot as UnionRoot, schema_d_Values as Values, schema_d_unshift as unshift };
 }
 
 declare const Entity_base: IEntityClass<abstract new (...args: any[]) => {
@@ -1457,7 +1448,9 @@ declare abstract class Entity extends Entity_base {
      * @param [key] When normalizing, the key where this entity was found
      * @param [args] ...args sent to Endpoint
      */
-    static pk: <T extends typeof Entity>(this: T, value: Partial<AbstractInstanceType<T>>, parent?: any, key?: string, args?: any[]) => string | number | undefined;
+    static pk: {
+        pk<T extends typeof Entity>(this: T, value: Partial<AbstractInstanceType<T>>, parent?: any, key?: string, args?: readonly any[]): string | number | undefined;
+    }['pk'];
     /** Do any transformations when first receiving input
      *
      * @see https://dataclient.io/rest/api/Entity#process
