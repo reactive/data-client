@@ -228,8 +228,8 @@ export interface UnionConstructor {
  */
 export interface UnionInstance<
   Choices extends EntityMap = any,
-  Args extends EntityFields<AbstractInstanceType<Choices[keyof Choices]>> =
-    EntityFields<AbstractInstanceType<Choices[keyof Choices]>>,
+  // unconstrained: TypeScript 4.2-4.4 can't prove UnionConstructor's Args satisfy EntityFields
+  Args = EntityFields<AbstractInstanceType<Choices[keyof Choices]>>,
 > {
   readonly _hoistable: true;
   define(definition: Schema): void;

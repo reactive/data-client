@@ -150,9 +150,9 @@ Edit entry file (e.g., `index.tsx`, `main.tsx`, or `src/index.tsx`):
 
 ```tsx
 import { DataProvider } from '@data-client/react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById('root')!).render(
   <DataProvider>
     <App />
   </DataProvider>,

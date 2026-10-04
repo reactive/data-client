@@ -115,15 +115,30 @@ function watch(framework) {
   });
 }
 
+const SIDEBAR_OVERRIDE = new RegExp(`^(${FRAMEWORKS.join('|')})_(.+)$`);
+
+/** Apply `<framework>_<key>` overrides to a sidebar item, like front matter */
+function rewriteSidebarItem(item, framework) {
+  // string shorthand ('introduction') has nothing to override
+  if (typeof item !== 'object') return item;
+  const next = {};
+  const overrides = {};
+  for (const [key, value] of Object.entries(item)) {
+    const match = key.match(SIDEBAR_OVERRIDE);
+    if (!match) next[key] = value;
+    else if (match[1] === framework) overrides[match[2]] = value;
+  }
+  return { ...next, ...overrides };
+}
+
 /** Drop sidebar entries for docs that do not exist in this framework */
-function filterSidebar(items, ids) {
-  return items.flatMap(item => {
+function filterSidebar(items, ids, framework) {
+  return items.flatMap(raw => {
+    const item = rewriteSidebarItem(raw, framework);
     if (item.type === 'doc') return ids.has(item.id) ? [item] : [];
-    if (item.type === 'category') {
-      const children = filterSidebar(item.items, ids);
-      return children.length ? [{ ...item, items: children }] : [];
-    }
-    return [item];
+    if (item.type !== 'category') return [item];
+    const children = filterSidebar(item.items, ids, framework);
+    return children.length ? [{ ...item, items: children }] : [];
   });
 }
 
@@ -132,7 +147,7 @@ function sidebarsFor(framework, sidebars) {
   return Object.fromEntries(
     Object.entries(sidebars).map(([name, items]) => [
       name,
-      filterSidebar(items, ids),
+      filterSidebar(items, ids, framework),
     ]),
   );
 }
