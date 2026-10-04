@@ -1,7 +1,6 @@
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-import CodeBlock from '@theme/CodeBlock';
-import providerSetup from '@site/src/components/providerSetup';
+import ProviderSetupCode from '@site/src/components/ProviderSetupCode';
 
 ::::react
 
@@ -17,25 +16,19 @@ values={[
 
 <TabItem value="web">
 
-<CodeBlock language="tsx" title="index.tsx">
-  {providerSetup(props).web}
-</CodeBlock>
+<ProviderSetupCode platform="web" {...props} />
 
 </TabItem>
 
 <TabItem value="native">
 
-<CodeBlock language="tsx" title="index.tsx">
-  {providerSetup(props).native}
-</CodeBlock>
+<ProviderSetupCode platform="native" {...props} />
 
 </TabItem>
 
 <TabItem value="nextjs">
 
-<CodeBlock language="tsx" title="app/Provider.tsx">
-  {providerSetup(props).nextjs}
-</CodeBlock>
+<ProviderSetupCode platform="nextjs" {...props} />
 
 ```tsx title="app/layout.tsx"
 // highlight-next-line
@@ -57,9 +50,7 @@ export default function RootLayout({ children }) {
 
 <TabItem value="expo">
 
-<CodeBlock language="tsx" title="app/_layout.tsx">
-  {providerSetup(props).expo}
-</CodeBlock>
+<ProviderSetupCode platform="expo" {...props} />
 
 </TabItem>
 </Tabs>
@@ -68,8 +59,6 @@ export default function RootLayout({ children }) {
 
 ::::vue
 
-<CodeBlock language="ts" title="main.ts">
-  {providerSetup(props).vue}
-</CodeBlock>
+<ProviderSetupCode platform="vue" {...props} />
 
 ::::
