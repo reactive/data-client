@@ -24,6 +24,7 @@
   display: block;
   border: 0;
   max-width: 100%;
+  max-height: calc(100vh - 64px);
 }
 
 .card {

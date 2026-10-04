@@ -9,10 +9,6 @@
   color: var(--ifm-color-emphasis-700);
 }
 
-.tabs {
-  flex-wrap: nowrap;
-  overflow-x: auto;
-}
 .tabs > li {
   white-space: nowrap;
 }

@@ -8,12 +8,10 @@ import FastCarSvg from '../../static/img/fast-car.svg';
 import GrowingBarChartSvg from '../../static/img/growing-bar-chart.svg';
 import TypeScriptSvg from '../../static/img/typescript-mono.svg';
 
-type SvgComponent = React.ComponentType<React.ComponentProps<'svg'>>;
-
 interface FeatureItem {
   description: React.ReactNode;
   title: string;
-  Svg: SvgComponent;
+  Svg: React.ComponentType<React.ComponentProps<'svg'>>;
 }
 
 const featureList: FeatureItem[] = [
@@ -81,7 +79,7 @@ export default function HomepageFeatures() {
   return (
     <section className={styles.features}>
       <div className="container">
-        <h2 className={styles.heading}>Why Data Client</h2>
+        <h2 className="text--center margin-bottom--lg">Why Data Client</h2>
         <div className="row">
           {featureList.map((props, idx) => (
             <Feature key={idx} {...props} />

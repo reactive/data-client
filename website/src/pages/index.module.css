@@ -98,7 +98,6 @@ html[data-theme='light'] .buttons :global(.button.button--secondary) {
   margin-bottom: 1.5rem;
 }
 .ender {
-  flex-direction: column;
   padding: 4rem 0;
 }
 .ender .sectionHeading {

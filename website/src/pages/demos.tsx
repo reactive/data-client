@@ -97,8 +97,6 @@ function DemoPanel({ app, description, files }: Demo) {
           hideNavigation: '1',
           terminalHeight: '0',
         })}`}
-        width="900"
-        height="700"
       ></iframe>
     </>
   );
@@ -119,6 +117,7 @@ export default function DemoList() {
         </p>
       </header>
       <Tabs
+        lazy
         defaultValue="todo"
         values={demos.map(({ value, label }) => ({ value, label }))}
         groupId="Demos"

@@ -146,17 +146,10 @@ export default function Home() {
           <StackBlitz
             app="github-app"
             width="100%"
-            height="750"
-            style={{ maxHeight: 'calc(100vh - 64px)', height: '800px' }}
+            height="800"
             file="src/resources/Issue.tsx,src/pages/IssueList.tsx"
             view="both"
-            moreDemos={false}
           />
-          <div className={styles.buttons}>
-            <Link className="button button--secondary" to="/demos">
-              More demos
-            </Link>
-          </div>
         </section>
         <HomepageEnder />
       </main>
