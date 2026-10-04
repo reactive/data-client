@@ -1,33 +1,16 @@
 import { ExpiryStatus } from '@data-client/core';
-import { computed, unref, watch } from 'vue';
+import { computed } from 'vue';
 
-import { useController, injectState } from '../context.js';
 import useExpired from './useExpired.js';
+import useResponseMeta from './useResponseMeta.js';
 
 /** Reactive store response shared by useCache() and useDLE().
  *
  * `data` excludes cached entities while useSuspense() would suspend.
  */
 export default function useCacheResponse(endpoint: any, args: any[]) {
-  const stateRef = injectState();
-  const controller = useController();
-
-  // Track top-level reactive args (Refs are unwrapped). This allows props/refs to trigger updates.
-  const resolvedArgs = computed(() => args.map(a => unref(a as any)) as any);
-
-  // Compute a key that changes when args change (including reactive props)
-  const argsKey = computed(() =>
-    resolvedArgs.value[0] !== null ? endpoint.key(...resolvedArgs.value) : '',
-  );
-
-  // Compute response meta reactively so we can respond to store updates
-  const responseMeta = computed(() => {
-    return controller.getResponseMeta(
-      endpoint,
-      ...resolvedArgs.value,
-      stateRef.value,
-    );
-  });
+  const { controller, stateRef, resolvedArgs, argsKey, responseMeta } =
+    useResponseMeta(endpoint, args);
 
   // If we are hard invalid we must fetch regardless of triggering or staleness
   const forceFetch = computed(
@@ -48,16 +31,6 @@ export default function useCacheResponse(endpoint: any, args: any[]) {
   );
   /****************************************************************************************************/
 
-  // Maintain GC refcounts on data mount/changes
-  watch(
-    () => responseMeta.value.data,
-    (_newVal, _oldVal, onCleanup) => {
-      const decrement = responseMeta.value.countRef();
-      onCleanup(() => decrement());
-    },
-    { immediate: true },
-  );
-
   const data = computed(() => {
     // if useSuspense() would suspend, don't include entities from cache
     if (loading.value) {
@@ -77,7 +50,6 @@ export default function useCacheResponse(endpoint: any, args: any[]) {
     resolvedArgs,
     argsKey,
     responseMeta,
-    forceFetch,
     loading,
     data,
   };
