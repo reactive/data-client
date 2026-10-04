@@ -19,7 +19,34 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # Same decision the Vercel project runs via ignoreCommand. Exit 0 skips the
+  # preview (Renovate non-major website bumps, or yarn prepare will exit 2).
+  preview:
+    name: Decide whether to build
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.decision.outputs.skip }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+      - name: Fetch pull request base
+        run: git fetch --no-tags --depth=1 origin ${{ github.event.pull_request.base.sha }} || true
+      - name: Run Vercel ignore decision
+        id: decision
+        env:
+          VERCEL_GIT_COMMIT_REF: ${{ github.head_ref }}
+          VERCEL_GIT_PREVIOUS_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if bash website/scripts/vercel-ignore.sh; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
   typecheck:
+    needs: preview
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -29,17 +56,23 @@ jobs:
       - name: Test Vercel ignore decision
         run: bash website/scripts/vercel-ignore.test.sh
       - uses: actions/setup-node@v6
+        if: needs.preview.outputs.skip != 'true'
         with:
           node-version: '26'
           cache: 'yarn'
       - name: Install packages
+        if: needs.preview.outputs.skip != 'true'
         run: ./scripts/ci-install.sh website
       - name: Build package types
+        if: needs.preview.outputs.skip != 'true'
         run: yarn ci:build:types
       - name: Typecheck website
+        if: needs.preview.outputs.skip != 'true'
         run: yarn workspace rdc-website typecheck
 
   deploy:
+    needs: preview
+    if: needs.preview.outputs.skip != 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

@@ -32,3 +32,6 @@ alwaysApply: false
 
 - Vercel's ignore step: exit 0 skips, anything else builds, so fail open. Never diff only `HEAD^`: a master merge or multi-commit push makes it wrong. Run `vercel-ignore.test.sh` after changes.
 - `git.deploymentEnabled: false` doesn't stick (dashboard overrides it); skipped pushes still show as canceled deployments.
+- Previews on `renovate/*` skip when the site diff is only non-major dependency bumps under `website/`. A major bump of a dependency declared in a website `package.json` still builds. Real site or docs changes still build. Production (`master`, `rest-hooks-site`, or `VERCEL_ENV=production`) is unchanged.
+- The docs-site install command dies with status 2 in `yarn prepare` (`tsc --build`), not in `yarn install`, when `react-native` >= 0.87 is installed and compiled `packages/` sources still import `InteractionManager` (removed from RN's public types in 0.87; `TS2305`). Previews with no site or docs source change skip in that case. Production and real site/docs changes still build.
+- `site-preview.yml` runs this script and skips its Vercel build and website typecheck when the script skips. `vercel-ignore-decide.js` classifies dependency bumps and the prepare failure.
