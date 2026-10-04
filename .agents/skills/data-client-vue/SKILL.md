@@ -5,22 +5,10 @@ license: Apache 2.0
 ---
 ## Setup
 
-Install `DataClientPlugin` once on the app. Composables only work inside `<script setup>` of components
+Install `DataClientPlugin` once with `app.use(DataClientPlugin)` ([installation](references/installation.md);
+apply the skill "data-client-setup" to set it up). Composables only work inside `<script setup>` of components
 below it. Awaiting composables (`await useSuspense()`) requires `<script setup>`: in a hand-written
 `async setup()`, composables called after the first `await` lose the component instance.
-
-```ts title="main.ts"
-import { DataClientPlugin } from '@data-client/vue';
-import { createApp } from 'vue';
-import App from './App.vue';
-
-const app = createApp(App);
-app.use(DataClientPlugin);
-// with options: app.use(DataClientPlugin, { managers: getDefaultManagers({ ... }) });
-app.mount('#app');
-```
-
-For installation and framework detection, apply the skill "data-client-setup".
 
 ## Rendering
 
@@ -57,30 +45,18 @@ For API definitions (like TodoResource), apply the skill "data-client-rest".
   level of `<script setup>`. `useCache()`, `useQuery()`, and each of `useDLE()`'s `data`/`loading`/`error`
   are `ComputedRef`s.
 - Templates unwrap them (`{{ todo.title }}`); in script read `.value` (`todo.value.title`).
-- Results stay live: mutations, subscriptions, and other components' fetches update them without refetching.
 
 ### Reactive arguments
 
 Arguments can be plain values, `ref`s, or `computed`s. A plain object is read once, so it will not
-refetch when a prop or route param changes. Pass a `computed` whenever an argument depends on reactive state.
+refetch when a prop or route param changes. Whenever an argument depends on reactive state, pass a
+`computed()` or `ref()` (not a bare getter function like `() => ({ id })`):
 
-```vue
-<script setup lang="ts">
-import { computed } from 'vue';
-import { useSuspense } from '@data-client/vue';
-import { TodoResource } from '../resources/TodoResource';
-
+```ts
 const props = defineProps<{ id: number }>();
 // refetches when props.id changes
 const todo = await useSuspense(TodoResource.get, computed(() => ({ id: props.id })));
-</script>
-
-<template>
-  <h3>{{ todo.title }}</h3>
-</template>
 ```
-
-Use `computed()` or `ref()` rather than a bare getter function (`() => ({ id })`).
 
 When arguments change, `useSuspense()` does not suspend again: the result is `undefined` until the new
 fetch resolves (unless that data is already cached). Guard the template (`v-if="todo"`), or have the
@@ -120,22 +96,10 @@ const [handleSubmit, loading, error] = useLoading(async (data: FormData) => {
 // loading and error are refs
 ```
 
-```vue
-<script setup lang="ts">
-import { ref } from 'vue';
-import { useDebounce } from '@data-client/vue';
-
-const query = ref('');
+```ts
+const query = ref(''); // bound with v-model
 const [debouncedQuery, isPending] = useDebounce(query, 200);
-</script>
-
-<template>
-  <input v-model="query" />
-  <Suspense>
-    <IssueList :query="debouncedQuery" owner="vuejs" repo="core" />
-    <template #fallback><Loading /></template>
-  </Suspense>
-</template>
+// pass debouncedQuery to the component that fetches, inside <Suspense>
 ```
 
 ## Loading and error boundaries
@@ -144,29 +108,10 @@ There is no `AsyncBoundary` component in Vue. A component that `await`s `useSusp
 must render inside Vue's [`<Suspense>`](https://vuejs.org/guide/built-ins/suspense.html); its
 `#fallback` slot is the loading state. Catch fetch errors in an ancestor with
 [`onErrorCaptured()`](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured).
-Reuse the codebase's existing boundary component if it has one.
-
-```vue title="AsyncBoundary.vue"
-<script setup lang="ts">
-import { onErrorCaptured, ref } from 'vue';
-
-const error = ref<Error | null>(null);
-onErrorCaptured(err => {
-  error.value = err;
-  return false;
-});
-</script>
-
-<template>
-  <div v-if="error">Error: {{ error.message }}</div>
-  <Suspense v-else>
-    <template #default><slot /></template>
-    <template #fallback><Loading /></template>
-  </Suspense>
-</template>
-```
-
-Place boundaries around route views or sections, not around each data-bound component.
+Reuse the codebase's existing boundary component if it has one; otherwise follow the
+[boundary example](references/_AsyncBoundary.md) (`onErrorCaptured` stores the error and returns `false`;
+the template shows it or renders `<Suspense>`). Place boundaries around route views or sections, not around
+each data-bound component ([boundaries](references/data-dependency.md#boundaries)).
 
 ## Type-safe imperative actions
 
@@ -238,6 +183,7 @@ read the `:::vue` sections.
 - [_AsyncBoundary.md](references/_AsyncBoundary.md) - Suspense and onErrorCaptured boundaries
 - [useLoading](references/useLoading.md);[_useLoading.md](references/_useLoading.md) - Track async mutation state
 - [useDebounce](references/useDebounce.md) - Debounce values
+- [installation](references/installation.md) - Install `DataClientPlugin`
 - [getDefaultManagers](references/getDefaultManagers.md) - Configure `DataClientPlugin` managers
 - [data-dependency](references/data-dependency.md) - Rendering guide
 - [mutations](references/mutations.md);[_VoteDemo.md](references/_VoteDemo.md) - Mutations guide

@@ -1,0 +1,1 @@
+../../../../docs/core/getting-started/installation.md
