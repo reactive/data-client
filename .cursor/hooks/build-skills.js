@@ -1,21 +1,21 @@
 /* global require */
-// Regenerates agent skill references once at the end of an agent turn (Cursor
-// `stop`, Claude Code `Stop`) when the turn touched their inputs, so the CI
-// drift check doesn't fail later. Generation takes seconds, so it never runs
-// per edit, and turns that touched no inputs cost one `git status`.
+// Before an agent runs `git push` (Cursor `beforeShellExecution`, Claude Code
+// `PreToolUse` on Bash), regenerates agent skill references when the branch
+// touches their inputs, and holds the push until the result is committed.
+// Runs once per push instead of per edit or turn, so any number of local
+// commits can come first; CI's `skills` check is the backstop.
 const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const input = fs.readFileSync(0, 'utf8').trim();
 let payload = {};
 try {
-  payload = JSON.parse(input || '{}');
+  payload = JSON.parse(fs.readFileSync(0, 'utf8') || '{}');
 } catch {
-  // run anyway; the payload only guards against loops
+  process.exit(0);
 }
-// Claude Code: we already sent the agent back once this stop
-if (payload.stop_hook_active) process.exit(0);
+const command = payload.command ?? payload.tool_input?.command ?? '';
+if (!/\bgit\b[^;&|\n]*\bpush\b/.test(command)) process.exit(0);
 
 const projectDir =
   process.env.CURSOR_PROJECT_DIR ||
@@ -26,18 +26,7 @@ const git = (...args) =>
     cwd: projectDir,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'ignore'],
-  });
-const stampFile = path.join(
-  projectDir,
-  'node_modules/.cache/build-skills.json',
-);
-
-let stamp = {};
-try {
-  stamp = JSON.parse(fs.readFileSync(stampFile, 'utf8'));
-} catch {
-  // first run
-}
+  }).trim();
 
 let manifestCache;
 /** Every skill's references.json */
@@ -75,77 +64,58 @@ const isInput = file =>
   // symlinked into skills that others bundle
   file.startsWith('website/static/codemods/');
 
-let head, changed;
+// files the branch changes relative to master
+let changed;
 try {
-  head = git('rev-parse', 'HEAD').trim();
-  changed = git('status', '--porcelain', '--untracked-files=all')
-    .split('\n')
-    .filter(Boolean)
-    .map(line => line.slice(3).replace(/^.* -> /, ''));
+  const base = git('merge-base', 'HEAD', 'origin/master');
+  changed = git('diff', '--name-only', base, 'HEAD').split('\n');
 } catch {
   process.exit(0);
 }
+if (!changed.some(isInput)) process.exit(0);
 
-// inputs committed during the turn no longer show in status
-if (stamp.head && stamp.head !== head) {
-  try {
-    changed.push(...git('diff', '--name-only', stamp.head, head).split('\n'));
-  } catch {
-    // stamp from a commit that no longer exists (rebased, other clone)
-  }
-}
-
-const inputs = [...new Set(changed.filter(isInput))].sort();
-// skip when the inputs are unchanged since the last run (e.g. a docs edit
-// still uncommitted many turns later)
-const fingerprint = inputs
-  .map(file => {
-    const stat = fs.statSync(path.join(projectDir, file), {
-      throwIfNoEntry: false,
-    });
-    return `${file}:${stat ? `${stat.mtimeMs}:${stat.size}` : 'deleted'}`;
-  })
-  .join('\n');
-const fresh = fingerprint !== stamp.fingerprint || head !== stamp.head;
-try {
-  fs.mkdirSync(path.dirname(stampFile), { recursive: true });
-  fs.writeFileSync(stampFile, JSON.stringify({ head, fingerprint }));
-} catch {
-  // no cache dir; we'll just regenerate again next time
-}
-if (!inputs.length || !fresh) process.exit(0);
-
-let out = '';
 let problems = '';
 try {
-  out = execFileSync('node', ['website/framework-docs/skillReferences.mjs'], {
+  execFileSync('node', ['website/framework-docs/skillReferences.mjs'], {
     cwd: projectDir,
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe'],
+    stdio: ['ignore', 'ignore', 'pipe'],
   });
 } catch (err) {
-  // dead links, missing variant notes or bad manifests: the agent can fix
-  // these now, while CI would only report them after the push
-  out = err.stdout ?? '';
-  problems = (err.stderr ?? '').trim();
+  // dead links, missing variant notes or bad manifests
+  problems = String(err.stderr ?? '').trim();
 }
-const updated = Number(out.match(/Updated (\d+)/)?.[1] ?? 0);
-if (!updated && !problems) process.exit(0);
+// includes references regenerated earlier but never committed
+const uncommitted = git(
+  'status',
+  '--porcelain',
+  '--untracked-files=all',
+  '--',
+  '.agents/skills',
+)
+  .split('\n')
+  .filter(line => line.includes('/references/'))
+  .join('\n');
+if (!uncommitted && !problems) process.exit(0);
 
-// tell the agent, so the regenerated files land in the same commit
 const message = [
-  updated &&
-    `Regenerated ${updated} skill reference file(s) in .agents/skills/*/references from your docs or skill changes. Include them with those changes (commit them if you already committed the docs).`,
+  uncommitted &&
+    `Skill references generated from this branch's docs or skill changes aren't committed. Commit them, then push again:\n${uncommitted}`,
   problems &&
-    `\`yarn build:skills\` found problems the skills CI check will fail on:\n${problems}`,
+    `\`yarn build:skills\` found problems the skills CI check will fail on. Fix them, commit, then push again:\n${problems}`,
 ]
   .filter(Boolean)
   .join('\n\n');
 console.log(
   JSON.stringify(
-    payload.hook_event_name === 'Stop' ?
-      { decision: 'block', reason: message }
-    : { followup_message: message },
+    payload.hook_event_name === 'PreToolUse' ?
+      {
+        hookSpecificOutput: {
+          hookEventName: 'PreToolUse',
+          permissionDecision: 'deny',
+          permissionDecisionReason: message,
+        },
+      }
+    : { permission: 'deny', userMessage: message, agentMessage: message },
   ),
 );
 process.exit(0);
