@@ -3423,7 +3423,7 @@ __metadata:
   peerDependencies:
     "@types/vue": ^3.0.0
     "@vue/test-utils": ^2.4.0
-    vue: ^3.0.0
+    vue: ^3.4.0
   peerDependenciesMeta:
     "@types/vue":
       optional: true
