@@ -3,5 +3,5 @@
   "compilerOptions": {
     "exactOptionalPropertyTypes": true
   },
-  "exclude": ["node_modules", "dist", "lib", "ts3.4", "legacy", "**/__tests__"]
+  "exclude": ["node_modules", "dist", "lib", "legacy", "**/__tests__"]
 }
