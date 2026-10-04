@@ -75,7 +75,7 @@ As usual, if you have any troubles or questions, feel free to join our [![Chat](
 | `<TypeScriptEditor>` | Type-safe code examples |
 | `<DiffEditor>` | Before/After migration changes |
 | `<PkgTabs pkgs="..." upgrade />` | Package installation |
-| `<AutoPlayVideo>` | SSR/navigation demos |
+| `<AutoPlayVideo>` | Recorded clips (SSR/navigation, DevTools). Record with [scripts/videos](../../scripts/videos/README.md); pass `alt` and put the code it shows in a fenced block next to it |
 
 ## Performance Sections
 
