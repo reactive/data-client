@@ -3,18 +3,16 @@ import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';
 import React from 'react';
 
+import marketplace from '../../../.claude-plugin/marketplace.json';
+
 interface Props {
   repo?: string;
   /** Directory of the skills within repo; openskills installs one skill per path */
   skillsDir?: string;
   skill?: string;
   skills?: string[];
-  /** Skills for the OpenSkills tab when it should differ from `skills` (it has no picker groups) */
-  openSkills?: string[];
-  /** Plugins (skill groups) from the repo's `.claude-plugin/marketplace.json`; adds a Claude Code tab */
-  plugins?: string[];
-  /** `name` of the repo's `.claude-plugin/marketplace.json` */
-  marketplace?: string;
+  /** Plugin from `.claude-plugin/marketplace.json` to install with its dependencies; adds a Claude Code tab */
+  plugin?: string;
 }
 
 export default function SkillTabs({
@@ -22,26 +20,23 @@ export default function SkillTabs({
   skillsDir = '.agents/skills',
   skill,
   skills,
-  openSkills,
-  plugins,
-  marketplace = 'data-client',
+  plugin,
 }: Props) {
-  const allSkills = skills ?? (skill ? [skill] : []);
-  const skillFlag = allSkills.map(s => ` --skill ${s}`).join('');
+  const allSkills =
+    plugin ? pluginSkills(plugin) : (skills ?? (skill ? [skill] : []));
+  const skillsCommand = [`npx skills add ${repo}`]
+    .concat(allSkills.map(s => `--skill ${s}`))
+    .join(allSkills.length > 1 ? ' \\\n  ' : ' ');
   // openskills has no --skill flag; it installs a single skill from its path
-  const openSkillList = openSkills ?? allSkills;
   const openSkillsCommand =
-    openSkillList.length ?
-      openSkillList
+    allSkills.length ?
+      allSkills
         .map(s => `npx openskills install ${repo}/${skillsDir}/${s}`)
         .join('\n')
     : `npx openskills install ${repo}`;
   const claudeCommand =
-    plugins &&
-    [
-      `claude plugin marketplace add ${repo}`,
-      ...plugins.map(p => `claude plugin install ${p}@${marketplace}`),
-    ].join('\n');
+    plugin &&
+    `claude plugin marketplace add ${repo}\nclaude plugin install ${plugin}@${marketplace.name}`;
   return (
     <Tabs
       defaultValue="skills"
@@ -53,16 +48,7 @@ export default function SkillTabs({
       ]}
     >
       <TabItem value="skills">
-        <CodeBlock className="language-bash">
-          npx skills add {repo}
-          {skillFlag}
-        </CodeBlock>
-        {plugins && (
-          <p>
-            Select the {plugins.map(toGroupTitle).join(' and ')} groups (space
-            toggles a whole group).
-          </p>
-        )}
+        <CodeBlock className="language-bash">{skillsCommand}</CodeBlock>
       </TabItem>
       <TabItem value="openskills">
         <CodeBlock className="language-bash">{openSkillsCommand}</CodeBlock>
@@ -76,9 +62,15 @@ export default function SkillTabs({
   );
 }
 
-// how the skills CLI picker titles a plugin's group
-const toGroupTitle = (plugin: string) =>
-  plugin
-    .split('-')
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
+const plugins: { name: string; dependencies?: string[]; skills: string[] }[] =
+  marketplace.plugins;
+
+/** Skill names of a marketplace plugin, after those of its dependencies */
+function pluginSkills(name: string): string[] {
+  const plugin = plugins.find(p => p.name === name);
+  if (!plugin) throw new Error(`No plugin "${name}" in marketplace.json`);
+  return [
+    ...(plugin.dependencies ?? []).flatMap(pluginSkills),
+    ...plugin.skills.map(path => path.split('/').pop() as string),
+  ];
+}

@@ -32,6 +32,7 @@
       "strict": false,
       "homepage": "https://dataclient.io/docs/getting-started/agent-skills",
       "license": "Apache-2.0",
+      "dependencies": ["core"],
       "skills": [
         "./.agents/skills/data-client-react",
         "./.agents/skills/data-client-react-testing"
@@ -44,6 +45,7 @@
       "strict": false,
       "homepage": "https://dataclient.io/vue/getting-started/agent-skills",
       "license": "Apache-2.0",
+      "dependencies": ["core"],
       "skills": [
         "./.agents/skills/data-client-vue",
         "./.agents/skills/data-client-vue-testing"
