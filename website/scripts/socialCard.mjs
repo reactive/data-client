@@ -6,17 +6,18 @@
  *   yarn workspace rdc-website social-card blog/2026-10-03-v0.19-batch-set.md
  *   yarn workspace rdc-website social-card 0.19 --force   # overwrite existing
  *
+ * Cards before v0.19 are hand-made; don't --force over them.
+ *
  * Requires a Chromium for Playwright (`npx playwright install chromium`), or
  * set CHROMIUM_PATH to an existing Chromium binary.
  */
 import yaml from 'js-yaml';
 import fs from 'node:fs';
-import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { parseArgs } from 'node:util';
 import { chromium } from 'playwright';
 
-const require = createRequire(import.meta.url);
 const WEBSITE_ROOT = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
   '..',
@@ -43,12 +44,18 @@ function findPost(arg) {
 
 function parsePost(source) {
   const [, front, body] = source.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
-  const { title, description = '' } = yaml.load(front);
+  const { title, description = '', image } = yaml.load(front);
   const [, version, headline] = title.match(/^v(\d+\.\d+):?\s*(.*)$/);
   const summary = body.split(
     /\{\/\*\s*truncate\s*\*\/\}|<!--\s*truncate\s*-->/,
   )[0];
-  return { version, headline, description, rows: summaryRows(summary) };
+  return {
+    version,
+    headline,
+    description,
+    image,
+    rows: summaryRows(summary),
+  };
 }
 
 // Bullets under **Bold section:** headings in the summary, new features first
@@ -67,10 +74,9 @@ function summaryRows(summary) {
     const bullet = line.match(/^[-*]\s+(.*)/);
     if (tag && bullet) rows.push({ tag, label: bulletLabel(bullet[1]) });
   }
-  return [
-    ...rows.filter(r => r.tag === 'new'),
-    ...rows.filter(r => r.tag !== 'new'),
-  ].slice(0, MAX_ROWS);
+  return rows
+    .sort((a, b) => (b.tag === 'new') - (a.tag === 'new'))
+    .slice(0, MAX_ROWS);
 }
 
 // A leading link's text, else the bullet's first clause
@@ -141,9 +147,9 @@ function lightStreams(random) {
 }
 
 // Inline the site's fonts so rendering is offline and reproducible
-function fontFace(family, pkg, file) {
+function fontFace(family, file) {
   const woff2 = fs.readFileSync(
-    require.resolve(`${pkg}/files/${file}`),
+    path.join(WEBSITE_ROOT, 'static/font', file),
     'base64',
   );
   return `@font-face { font-family: '${family}'; font-weight: 100 900; src: url(data:font/woff2;base64,${woff2}) format('woff2'); }`;
@@ -168,8 +174,8 @@ function cardHtml({ version, headline, description, rows }) {
 
   return `<!doctype html><html><head><meta charset="utf-8">
 <style>
-  ${fontFace('Rubik', '@fontsource-variable/rubik', 'rubik-latin-wght-normal.woff2')}
-  ${fontFace('Roboto Mono', '@fontsource-variable/roboto-mono', 'roboto-mono-latin-wght-normal.woff2')}
+  ${fontFace('Rubik', 'Rubik.woff2')}
+  ${fontFace('Roboto Mono', 'Roboto-Mono.woff2')}
   * { box-sizing: border-box; margin: 0; }
   body {
     width: ${WIDTH}px; height: ${HEIGHT}px; overflow: hidden; position: relative;
@@ -276,19 +282,24 @@ async function render(html, outFile) {
 }
 
 async function main() {
-  const args = process.argv.slice(2);
-  const postFile = findPost(args.find(a => a !== '--force'));
+  const { positionals, values } = parseArgs({
+    allowPositionals: true,
+    options: { force: { type: 'boolean' } },
+  });
+  const postFile = findPost(positionals[0]);
   const post = parsePost(fs.readFileSync(postFile, 'utf8'));
   const outFile = path.join(OUT_DIR, `${post.version}-card.png`);
-  if (fs.existsSync(outFile) && !args.includes('--force'))
+  if (fs.existsSync(outFile) && !values.force)
     throw new Error(
-      `${path.relative(process.cwd(), outFile)} exists (cards before v0.19 are hand-made); pass --force to overwrite`,
+      `${path.relative(process.cwd(), outFile)} exists; pass --force to overwrite`,
     );
   await render(cardHtml(post), outFile);
   console.log(`Wrote ${path.relative(process.cwd(), outFile)}`);
-  console.log(
-    `Frontmatter for ${path.basename(postFile)}:\n  image: /img/social/${post.version}-card.png`,
-  );
+  const image = `/img/social/${post.version}-card.png`;
+  if (post.image !== image)
+    console.log(
+      `Add to ${path.basename(postFile)} frontmatter:\n  image: ${image}`,
+    );
 }
 
 main().catch(e => {
