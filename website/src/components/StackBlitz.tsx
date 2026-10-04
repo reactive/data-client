@@ -60,7 +60,7 @@ export default function StackBlitz({
   const isMobile = useWindowSize() === 'mobile';
 
   let embedElement: ReactElement;
-  if (!hasIntersected || isGoogleBot) {
+  if (!hasIntersected || isGoogleBot || isMobile) {
     embedElement = (
       <iframe
         width={width}
@@ -103,13 +103,15 @@ export default function StackBlitz({
             </Link>
           </div>
         </div>
-      : <div className={styles.wrapper}>
-          <span className={styles.loading} aria-hidden="true">
-            Loading demo…
-          </span>
-          {embedElement}
-        </div>
-      }
+      : null}
+      {/* Stays mounted (hidden on phones) so the intersection observer keeps
+          its node and the embed can load after resizing to desktop */}
+      <div className={styles.wrapper} hidden={isMobile}>
+        <span className={styles.loading} aria-hidden="true">
+          Loading demo…
+        </span>
+        {embedElement}
+      </div>
       {moreDemos ?
         <p style={{ textAlign: 'center' }}>
           <Link className="button button--secondary button--sm" to="/demos">
