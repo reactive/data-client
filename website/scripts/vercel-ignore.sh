@@ -67,6 +67,10 @@ deepen() {
       '+refs/heads/master:refs/remotes/origin/master' 2>/dev/null
 }
 
+merge_base() {
+  master="$(upstream)" && git merge-base HEAD "$master" 2>/dev/null
+}
+
 prev="${VERCEL_GIT_PREVIOUS_SHA:-}"
 
 # A push can carry several commits (rebase merges), so compare against the
@@ -87,9 +91,6 @@ fi
 
 is_ancestor "$prev" HEAD && decide "$prev" HEAD "preview changes since ${prev:0:12}"
 
-merge_base() {
-  master="$(upstream)" && git merge-base HEAD "$master" 2>/dev/null
-}
 if base="$(merge_base)" || { deepen && base="$(merge_base)"; }; then
   decide "$base" HEAD "preview changes vs master"
 fi
