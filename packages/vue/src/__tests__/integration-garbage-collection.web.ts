@@ -2,6 +2,7 @@ import { GCPolicy } from '@data-client/core';
 import { defineComponent, h } from 'vue';
 
 import { Article, ArticleResource } from '../../../../__tests__/new';
+import useFetch from '../consumers/useFetch';
 import useQuery from '../consumers/useQuery';
 import useSuspense from '../consumers/useSuspense';
 import { renderDataCompose, mountDataClient } from '../test';
@@ -77,6 +78,39 @@ describe('Integration Garbage Collection Web (Vue)', () => {
     expect(articleRef?.value.content).toBe(articleData.content);
 
     cleanup();
+  });
+
+  it('useFetch should hold GC refs while mounted', async () => {
+    const gcPolicy = new GCPolicy({
+      intervalMS: GC_INTERVAL,
+      expiryMultiplier: 2,
+    });
+    const decrement = jest.fn();
+    const countRef = jest
+      .spyOn(gcPolicy, 'createCountRef')
+      .mockImplementation(() => () => decrement);
+
+    const { cleanup } = await renderDataCompose(
+      () => useFetch(ArticleResource.get, { id: 1 }),
+      {
+        initialFixtures: [
+          {
+            endpoint: ArticleResource.get,
+            args: [{ id: 1 }],
+            response: { id: 1, title: 'Test Article', content: 'Content' },
+          },
+        ],
+        gcPolicy,
+      },
+    );
+
+    expect(countRef).toHaveBeenCalledWith(
+      expect.objectContaining({ key: ArticleResource.get.key({ id: 1 }) }),
+    );
+    expect(decrement).not.toHaveBeenCalled();
+
+    cleanup();
+    expect(decrement).toHaveBeenCalled();
   });
 
   it('should work with useQuery and GCPolicy', async () => {
