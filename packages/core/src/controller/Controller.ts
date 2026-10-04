@@ -919,14 +919,15 @@ type SetValue<S> =
     SetValue<Sch>
   : SetInput<Denormalize<S>>;
 
-/** Raw input for a denormalized value, like a Collection's or All's list */
+/** Raw input for a denormalized value, like a Collection's list or a Union's row */
 type SetInput<T> =
   0 extends 1 & T ? any
-  : T extends readonly (infer U)[] ? readonly SetItem<U>[]
-  : T extends object ?
+  : // not distributive, so a Union's members stay together for SetItem
+  [T] extends [readonly (infer U)[]] ? readonly SetItem<U>[]
+  : [T] extends [object] ?
     string extends keyof T ?
       { readonly [k: string]: SetItem<T[string & keyof T]> }
-    : SetRow<T>
+    : SetItem<T>
   : SetField<T>;
 
 /** One member of a list or keyed object */

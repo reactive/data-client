@@ -226,6 +226,9 @@ describe('set', () => {
         ),
         [{ id: '1', kind: 'first' }],
       );
+      controller.set(byKind, { id: '1' }, { id: '1', kind: 'first' });
+      // @ts-expect-error body is a string
+      controller.set(byKind, { id: '1' }, { id: '1', body: false });
       // EntityMixin rows
       controller.set([ArticleFromMixin], [{ id: 5, title: 'mixin' }]);
       // @ts-expect-error title is a string
