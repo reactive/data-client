@@ -8,23 +8,31 @@ import type * as Monaco from 'monaco-editor';
 
 type RawModule = Promise<{ default: string }>;
 
-/** `declare module "<name>"` libs, mounted at file:///node_modules/<dir>/index.d.ts */
+/** `declare module "<name>"` libs, mounted at file:///node_modules/<file> */
 const MODULE_LIBS: readonly [
   name: string,
-  dir: string,
+  file: string,
   load: () => RawModule,
 ][] = [
   [
     'react',
-    '@types/react',
+    '@types/react/index.d.ts',
     () =>
       import(
         /* webpackChunkName: 'reactDTS' */ '!!raw-loader?esModule=false!../editor-types/react.d.ts'
       ),
   ],
   [
+    'react/jsx-runtime',
+    '@types/react/jsx-runtime.d.ts',
+    () =>
+      import(
+        /* webpackChunkName: 'reactJsxRuntimeDTS' */ '!!raw-loader?esModule=false!../editor-types/react-jsx-runtime.d.ts'
+      ),
+  ],
+  [
     'bignumber.js',
-    'bignumber.js',
+    'bignumber.js/index.d.ts',
     () =>
       import(
         /* webpackChunkName: 'bignumberDTS' */ '!!raw-loader?esModule=false!../editor-types/bignumber.d.ts'
@@ -32,7 +40,7 @@ const MODULE_LIBS: readonly [
   ],
   [
     '@number-flow/react',
-    '@number-flow/react',
+    '@number-flow/react/index.d.ts',
     () =>
       import(
         /* webpackChunkName: 'numberflowDTS' */ '!!raw-loader?esModule=false!../editor-types/@number-flow/react.d.ts'
@@ -40,7 +48,7 @@ const MODULE_LIBS: readonly [
   ],
   [
     'temporal-polyfill',
-    'temporal-polyfill',
+    'temporal-polyfill/index.d.ts',
     () =>
       import(
         /* webpackChunkName: 'temporalDTS' */ '!!raw-loader?esModule=false!../editor-types/temporal.d.ts'
@@ -48,7 +56,7 @@ const MODULE_LIBS: readonly [
   ],
   [
     'uuid',
-    '@types/uuid',
+    '@types/uuid/index.d.ts',
     () =>
       import(
         /* webpackChunkName: 'uuidDTS' */ '!!raw-loader?esModule=false!../editor-types/uuid.d.ts'
@@ -56,10 +64,18 @@ const MODULE_LIBS: readonly [
   ],
   [
     'qs',
-    '@types/qs',
+    '@types/qs/index.d.ts',
     () =>
       import(
         /* webpackChunkName: 'qsDTS' */ '!!raw-loader?esModule=false!../editor-types/qs.d.ts'
+      ),
+  ],
+  [
+    'path-to-regexp',
+    'path-to-regexp/index.d.ts',
+    () =>
+      import(
+        /* webpackChunkName: 'pathToRegexpDTS' */ '!!raw-loader?esModule=false!../editor-types/path-to-regexp.d.ts'
       ),
   ],
 ];
@@ -176,12 +192,6 @@ export function addTypeLibs(
   const { typescriptDefaults } = monaco.typescript;
 
   typescriptDefaults.addExtraLib(
-    `declare module "react/jsx-runtime" {
-        import './';
-      }`,
-    'file:///node_modules/@types/react/jsx-runtime.d.ts',
-  );
-  typescriptDefaults.addExtraLib(
     `declare module 'react' {
       namespace JSX {
         interface IntrinsicElements {
@@ -194,10 +204,10 @@ export function addTypeLibs(
   );
   typescriptDefaults.addExtraLib(PREVIEW_SCOPE_DECLARATIONS);
 
-  MODULE_LIBS.forEach(([name, dir], i) => {
+  MODULE_LIBS.forEach(([name, file], i) => {
     typescriptDefaults.addExtraLib(
       `declare module "${name}" { ${modules[i]} }`,
-      `file:///node_modules/${dir}/index.d.ts`,
+      `file:///node_modules/${file}`,
     );
   });
 
@@ -268,6 +278,7 @@ function globalScopeLib(scopeNames: string[]): string {
   return `import * as _React from 'react';
 import _NumberFlow from '@number-flow/react';
 import { Temporal as _Temporal, Intl as _Intl } from 'temporal-polyfill';
+import _BigNumber from 'bignumber.js';
 import type { ActionTypes, Manager as _Manager } from '@data-client/core';
 import * as _globals from '${GLOBALS_MODULE}';
 
@@ -278,6 +289,7 @@ declare global {
   const NumberFlow: typeof _NumberFlow;
   export import Temporal = _Temporal;
   export import DateTimeFormat = _Intl.DateTimeFormat;
+  export import BigNumber = _BigNumber;
   // type-only re-export in globals.d.ts, which \`import =\` can't alias
   interface Manager<Actions = ActionTypes> extends _Manager<Actions> {}
 ${scopeNames.map(name => `  export import ${name} = _globals.${name};`).join('\n')}
