@@ -13,8 +13,9 @@ export default class StreamManager implements Manager {
 
   /** Subscriber count per product; re-sent on every (re)connect */
   protected subscriptions = new Map<string, number>();
-  /** Products waiting to be sent in the next subscribe message */
-  protected product_ids: string[] = [];
+  /** Products the current socket is subscribed to */
+  protected sent = new Set<string>();
+  declare protected syncTimeout?: ReturnType<typeof setTimeout>;
   /** Messages waiting to be written, grouped by entity type */
   protected buffer: Record<string, Record<string, any>> = {};
   declare protected flushTimeout?: ReturnType<typeof setTimeout>;
@@ -71,12 +72,8 @@ export default class StreamManager implements Manager {
   };
 
   connect = () => {
-    const ws = this.createEventSource();
-    this.evtSource = ws;
-    // a replaced socket can still fire events (e.g. error after close())
-    const isCurrent = () => ws === this.evtSource;
-    ws.onmessage = event => {
-      if (!isCurrent()) return;
+    this.evtSource = this.createEventSource();
+    this.evtSource.onmessage = event => {
       try {
         const msg = JSON.parse(event.data);
         this.handleMessage(msg);
@@ -85,79 +82,68 @@ export default class StreamManager implements Manager {
         console.error(e);
       }
     };
-    ws.onopen = () => {
-      if (!isCurrent()) return;
+    this.evtSource.onopen = () => {
       console.info('WebSocket connected');
       // Reset reconnection attempts after a successful connection
       this.attempts = 0;
       // A new socket has no subscriptions, so (re)subscribe everything active
-      this.product_ids = [...this.subscriptions.keys()];
-      this.flushSubscribe();
+      this.sent.clear();
+      this.sync();
     };
-    ws.onclose = () => {
-      if (!isCurrent()) return;
+    this.evtSource.onclose = () => {
       console.info('WebSocket disconnected');
       this.reconnect();
     };
-    ws.onerror = error => {
-      if (!isCurrent()) return;
+    this.evtSource.onerror = error => {
       console.error('WebSocket error:', error);
       // Ensures that the onclose handler gets triggered for reconnection
-      ws.close();
+      this.evtSource.close();
     };
   };
 
-  /** Sends only while open; onopen re-subscribes, so nothing needs queueing */
-  send(data: Parameters<WebSocket['send']>[0]): void {
-    if (this.evtSource.readyState === this.evtSource.OPEN) {
-      this.evtSource.send(data);
-    }
-  }
-
   subscribe(product_id: string | undefined) {
     if (!product_id) return;
-    const count = this.subscriptions.get(product_id) ?? 0;
-    this.subscriptions.set(product_id, count + 1);
-    // already subscribed, or onopen will subscribe it
-    if (count || this.evtSource.readyState !== this.evtSource.OPEN) return;
-    this.product_ids.push(product_id);
-    // batch subscriptions made in the same tick into one message
-    if (this.product_ids.length === 1)
-      setTimeout(() => this.flushSubscribe(), 5);
+    this.subscriptions.set(
+      product_id,
+      (this.subscriptions.get(product_id) ?? 0) + 1,
+    );
+    this.syncTimeout ??= setTimeout(this.sync, 5);
   }
 
   unsubscribe(product_id: string | undefined) {
     if (!product_id) return;
     const count = this.subscriptions.get(product_id) ?? 0;
-    if (count > 1) {
-      this.subscriptions.set(product_id, count - 1);
-      return;
-    }
-    this.subscriptions.delete(product_id);
-    // never sent yet
-    if (this.product_ids.includes(product_id)) {
-      this.product_ids = this.product_ids.filter(id => id !== product_id);
-      return;
-    }
-    this.send(
-      JSON.stringify({
-        type: 'unsubscribe',
-        product_ids: [product_id],
-        channels: ['ticker'],
-      }),
-    );
+    if (count > 1) this.subscriptions.set(product_id, count - 1);
+    else this.subscriptions.delete(product_id);
+    this.syncTimeout ??= setTimeout(this.sync, 5);
   }
 
-  flushSubscribe() {
-    if (this.product_ids.length)
-      this.send(
-        JSON.stringify({
-          type: 'subscribe',
-          product_ids: this.product_ids,
-          channels: ['ticker'],
-        }),
+  /** Sends the difference between active and sent subscriptions, batched */
+  sync = () => {
+    clearTimeout(this.syncTimeout);
+    this.syncTimeout = undefined;
+    // onopen syncs again once connected
+    if (this.evtSource.readyState !== this.evtSource.OPEN) return;
+    const active = [...this.subscriptions.keys()];
+    this.sendChannel(
+      'subscribe',
+      active.filter(id => !this.sent.has(id)),
+    );
+    this.sendChannel(
+      'unsubscribe',
+      [...this.sent].filter(id => !this.subscriptions.has(id)),
+    );
+    this.sent = new Set(active);
+  };
+
+  protected sendChannel(
+    type: 'subscribe' | 'unsubscribe',
+    product_ids: string[],
+  ) {
+    if (product_ids.length)
+      this.evtSource.send(
+        JSON.stringify({ type, product_ids, channels: ['ticker'] }),
       );
-    this.product_ids = [];
   }
 
   /** Every websocket message is sent here
@@ -205,13 +191,17 @@ export default class StreamManager implements Manager {
   }
 
   cleanup() {
-    // remove our event handler that attempts reconnection
+    // detach handlers so the closing socket can't reconnect or touch a new one
+    this.evtSource.onopen = null;
+    this.evtSource.onmessage = null;
     this.evtSource.onclose = null;
+    this.evtSource.onerror = null;
     this.evtSource.close();
     // a pending reconnect would open a new socket after we are gone
     clearTimeout(this.reconnectTimeout);
     this.reconnectTimeout = undefined;
-    this.attempts = 0;
+    clearTimeout(this.syncTimeout);
+    this.syncTimeout = undefined;
     clearTimeout(this.flushTimeout);
     this.flushTimeout = undefined;
     this.buffer = {};
