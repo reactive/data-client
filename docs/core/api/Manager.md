@@ -75,7 +75,7 @@ have internal state, so it is important to not constantly recreate them.
 
 :::vue
 
-Use the `managers` option of [DataClientPlugin](../getting-started/installation.md). The plugin is
+Use the [managers](./DataClientPlugin.md#managers) option of [DataClientPlugin](./DataClientPlugin.md). The plugin is
 installed once per app, so managers are created once.
 
 :::

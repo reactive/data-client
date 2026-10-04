@@ -48,9 +48,10 @@ export interface State<T> {
   readonly meta: {
     readonly [key: string]: {
       readonly date: number;
-      readonly error?: ErrorTypes;
+      readonly fetchedAt: number;
       readonly expiresAt: number;
       readonly prevExpiresAt?: number;
+      readonly error?: ErrorTypes;
       readonly invalidated?: boolean;
       readonly errorPolicy?: 'hard' | 'soft' | undefined;
     };

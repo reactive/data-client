@@ -124,7 +124,7 @@ __DC_CONTROLLERS__.get('Data Client: My App').getState();
 
 This is useful for AI coding assistants using the [Chrome DevTools MCP](https://developer.chrome.com/blog/chrome-devtools-mcp)
 or [Expo MCP](https://docs.expo.dev/eas/ai/mcp/) to programmatically inspect and interact
-with the store. Each :react[[DataProvider](/docs/api/DataProvider)]:vue[installed DataClientPlugin] registers independently, so
+with the store. Each :react[[DataProvider](/docs/api/DataProvider)]:vue[installed [DataClientPlugin](./DataClientPlugin.md)] registers independently, so
 multiple :react[providers]:vue[apps] on the same page are fully supported.
 
 Controllers are removed from the map when `cleanup()` is called.
