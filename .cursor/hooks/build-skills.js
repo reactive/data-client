@@ -22,7 +22,11 @@ const projectDir =
   process.env.CLAUDE_PROJECT_DIR ||
   process.cwd();
 const git = (...args) =>
-  execFileSync('git', args, { cwd: projectDir, encoding: 'utf8' });
+  execFileSync('git', args, {
+    cwd: projectDir,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'ignore'],
+  });
 const stampFile = path.join(
   projectDir,
   'node_modules/.cache/build-skills.json',
@@ -55,7 +59,7 @@ function isSkillDoc(file) {
 }
 const isInput = file =>
   isSkillDoc(file) ||
-  /^\.agents\/skills\/[^/]+\/references\.json$/.test(file) ||
+  /^\.agents\/skills\/[^/]+\/(references\.json|SKILL\.md)$/.test(file) ||
   file.startsWith('website/framework-docs/');
 
 let head, changed;
@@ -65,11 +69,17 @@ try {
     .split('\n')
     .filter(Boolean)
     .map(line => line.slice(3).replace(/^.* -> /, ''));
-  // inputs committed during the turn no longer show in status
-  if (stamp.head && stamp.head !== head)
-    changed.push(...git('diff', '--name-only', stamp.head, head).split('\n'));
 } catch {
   process.exit(0);
+}
+
+// inputs committed during the turn no longer show in status
+if (stamp.head && stamp.head !== head) {
+  try {
+    changed.push(...git('diff', '--name-only', stamp.head, head).split('\n'));
+  } catch {
+    // stamp from a commit that no longer exists (rebased, other clone)
+  }
 }
 
 const inputs = [...new Set(changed.filter(isInput))].sort();
@@ -92,22 +102,32 @@ try {
 }
 if (!inputs.length || !fresh) process.exit(0);
 
-let updated = 0;
+let out = '';
+let problems = '';
 try {
-  const out = execFileSync(
-    'node',
-    ['website/framework-docs/skillReferences.mjs'],
-    { cwd: projectDir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] },
-  );
-  updated = Number(out.match(/Updated (\d+)/)?.[1] ?? 0);
-} catch {
-  // CI reports anything left stale; don't block the agent loop
-  process.exit(0);
+  out = execFileSync('node', ['website/framework-docs/skillReferences.mjs'], {
+    cwd: projectDir,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  });
+} catch (err) {
+  // dead links, missing variant notes or bad manifests: the agent can fix
+  // these now, while CI would only report them after the push
+  out = err.stdout ?? '';
+  problems = (err.stderr ?? '').trim();
 }
-if (!updated) process.exit(0);
+const updated = Number(out.match(/Updated (\d+)/)?.[1] ?? 0);
+if (!updated && !problems) process.exit(0);
 
 // tell the agent, so the regenerated files land in the same commit
-const message = `Regenerated ${updated} skill reference file(s) in .agents/skills/*/references from your docs changes. Include them with those changes (commit them if you already committed the docs).`;
+const message = [
+  updated &&
+    `Regenerated ${updated} skill reference file(s) in .agents/skills/*/references from your docs changes. Include them with those changes (commit them if you already committed the docs).`,
+  problems &&
+    `\`yarn build:skills\` found problems the skills CI check will fail on:\n${problems}`,
+]
+  .filter(Boolean)
+  .join('\n\n');
 console.log(
   JSON.stringify(
     payload.hook_event_name === 'Stop' ?
