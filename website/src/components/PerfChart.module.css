@@ -39,4 +39,5 @@
 
 .table th[scope='row'] {
   text-align: left;
+  white-space: nowrap;
 }
