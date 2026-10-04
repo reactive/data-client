@@ -13,13 +13,17 @@ The quickest way to get started is to let an [AI Agent](https://agentskills.io) 
 
 :::react
 
-<SkillTabs repo="reactive/data-client" openSkills={['data-client-setup', 'data-client-rest-setup', 'data-client-endpoint-setup', 'data-client-graphql-setup', 'data-client-schema', 'data-client-rest', 'data-client-manager', 'data-client-react', 'data-client-react-testing']} />
+<SkillTabs repo="reactive/data-client" openSkills={['data-client-setup', 'data-client-rest-setup', 'data-client-endpoint-setup', 'data-client-graphql-setup', 'data-client-schema', 'data-client-rest', 'data-client-manager', 'data-client-react', 'data-client-react-testing']} plugins={['core@data-client', 'react@data-client']} />
+
+With `npx skills add`, select the **Core** and **React** groups in the picker (space toggles a whole group).
 
 :::
 
 :::vue
 
-<SkillTabs repo="reactive/data-client" openSkills={['data-client-setup', 'data-client-rest-setup', 'data-client-endpoint-setup', 'data-client-graphql-setup', 'data-client-schema', 'data-client-rest', 'data-client-manager', 'data-client-vue', 'data-client-vue-testing']} />
+<SkillTabs repo="reactive/data-client" openSkills={['data-client-setup', 'data-client-rest-setup', 'data-client-endpoint-setup', 'data-client-graphql-setup', 'data-client-schema', 'data-client-rest', 'data-client-manager', 'data-client-vue', 'data-client-vue-testing']} plugins={['core@data-client', 'vue@data-client']} />
+
+With `npx skills add`, select the **Core** and **Vue** groups in the picker (space toggles a whole group).
 
 :::
 

@@ -11,6 +11,8 @@ interface Props {
   skills?: string[];
   /** Skills for the OpenSkills tab when it should differ from `skills` (it has no picker groups) */
   openSkills?: string[];
+  /** Claude Code plugin ids (`plugin@marketplace`) from the repo's `.claude-plugin/marketplace.json`; adds a Claude Code tab */
+  plugins?: string[];
 }
 
 export default function SkillTabs({
@@ -19,6 +21,7 @@ export default function SkillTabs({
   skill,
   skills,
   openSkills,
+  plugins,
 }: Props) {
   const allSkills = skills ?? (skill ? [skill] : []);
   const skillFlag = allSkills.map(s => ` --skill ${s}`).join('');
@@ -30,6 +33,12 @@ export default function SkillTabs({
         .map(s => `npx openskills install ${repo}/${skillsDir}/${s}`)
         .join('\n')
     : `npx openskills install ${repo}`;
+  const claudeCommand =
+    plugins &&
+    [
+      `claude plugin marketplace add ${repo}`,
+      ...plugins.map(p => `claude plugin install ${p}`),
+    ].join('\n');
   return (
     <Tabs
       defaultValue="skills"
@@ -37,6 +46,7 @@ export default function SkillTabs({
       values={[
         { label: 'Skills', value: 'skills' },
         { label: 'OpenSkills', value: 'openskills' },
+        ...(claudeCommand ? [{ label: 'Claude Code', value: 'claude' }] : []),
       ]}
     >
       <TabItem value="skills">
@@ -48,6 +58,11 @@ export default function SkillTabs({
       <TabItem value="openskills">
         <CodeBlock className="language-bash">{openSkillsCommand}</CodeBlock>
       </TabItem>
+      {claudeCommand && (
+        <TabItem value="claude">
+          <CodeBlock className="language-bash">{claudeCommand}</CodeBlock>
+        </TabItem>
+      )}
     </Tabs>
   );
 }
