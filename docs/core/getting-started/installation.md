@@ -24,7 +24,7 @@ Prefer to scaffold via your AI agent? See [Agent Skills](./agent-skills.md) and 
 
 :::
 
-## Add provider at top-level component
+## :react[Add provider at top-level component]:vue[Install the plugin] {#add-provider-at-top-level-component}
 
 :::vue
 
