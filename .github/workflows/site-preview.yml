@@ -6,9 +6,12 @@ on:
   pull_request:
     branches:
       - master
+    # Published site only. Keep in sync with website/scripts/vercel-ignore.sh.
     paths:
       - 'website/**'
-      - 'docs/**'
+      - 'docs/core/**'
+      - 'docs/rest/**'
+      - 'docs/graphql/**'
       - '.github/workflows/site-preview.yml'
 
 concurrency:
@@ -23,6 +26,8 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 1
+      - name: Test Vercel ignore decision
+        run: bash website/scripts/vercel-ignore.test.sh
       - uses: actions/setup-node@v6
         with:
           node-version: '26'
