@@ -14,7 +14,7 @@ import {
   afterEach,
 } from '@jest/globals';
 import { mount } from '@vue/test-utils';
-import { defineComponent, h, inject } from 'vue';
+import { createApp, defineComponent, h, inject } from 'vue';
 
 import { ControllerKey, StateKey } from '../../context';
 import { DataClientPlugin } from '../DataClientPlugin';
@@ -250,6 +250,23 @@ describe('DataClientPlugin', () => {
     wrapper.unmount();
 
     // Stop should be called exactly once when app unmounts
+    expect(stopSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should stop on app unmount without app.onUnmount (Vue < 3.5)', () => {
+    const app = createApp(
+      defineComponent({ setup: () => () => h('div', 'test') }),
+    );
+    // Vue < 3.5 has no app.onUnmount()
+    (app as any).onUnmount = undefined;
+
+    const provider = DataClientPlugin.install(app);
+    const stopSpy = jest.spyOn(provider, 'stop');
+
+    app.mount(document.createElement('div'));
+    expect(stopSpy).not.toHaveBeenCalled();
+
+    app.unmount();
     expect(stopSpy).toHaveBeenCalledTimes(1);
   });
 
