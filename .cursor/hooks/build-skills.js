@@ -63,11 +63,16 @@ let changed;
 try {
   const base = git('merge-base', 'HEAD', 'origin/master');
   changed = git('diff', '--name-only', base, 'HEAD').split('\n');
-  if (/\bgit\b[^;&|\n]*\bcommit\b/.test(command))
-    changed.push(
-      ...git('diff', '--name-only', 'HEAD').split('\n'),
-      ...git('ls-files', '--others', '--exclude-standard').split('\n'),
-    );
+  const dirty = [
+    ...git('diff', '--name-only', 'HEAD').split('\n'),
+    ...git('ls-files', '--others', '--exclude-standard').split('\n'),
+  ].filter(isInput);
+  if (dirty.length) {
+    // the generator reads the working tree, so it can only vouch for what's
+    // pushed when that includes these edits; otherwise leave it to CI
+    if (!/\bgit\b[^;&|\n]*\bcommit\b/.test(command)) process.exit(0);
+    changed.push(...dirty);
+  }
 } catch {
   process.exit(0);
 }
