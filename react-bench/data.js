@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791136133877,
+  "lastUpdate": 1791137466788,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -6629,6 +6629,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 277.78,
             "range": "± 8.5%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a82758cd1998e58d7ad280407db28bd84f5d7b18",
+          "message": "fix(core): Type controller.set() values by schema (#4133)\n\n* fix(core): Type controller.set() values by schema\n\ncontroller.set() typed its value (and updater return) as `{}`, so\n`set(new schema.All(User), 42)` or `set(UserResource.getList.schema, 'x')`\ntypechecked. Values are now the raw input the schema normalizes: Entity\nfields, rows for Collection/All, and a Query's inner schema input.\nBatch set() shares the same row typing.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01BN4uSb49CL2pwcZFnTCJkc\n\n* enhance(core): Simplify controller.set() value types\n\nOne overload for value or updater; SetRow handles primitives; rename the\nQuery unwrap to InputSchema and exclude Entity with pk?: never.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01BN4uSb49CL2pwcZFnTCJkc\n\n* enhance(core): Speed up controller.set() value type checking\n\n- Infer S from the schema only (SkipInfer), so TS doesn't walk the value\n  against every conditional in SetValue\n- Merge a Union's members into one row type instead of a union of rows,\n  so each row is one comparison rather than one per member\n- Keep string/number literal fields exact\n\nOn a 30-member Union with 1000 updater calls, check time drops from\n16.8s to 4.7s (master, with untyped values: 3.3s); other extreme cases\nare now at or below master.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01BN4uSb49CL2pwcZFnTCJkc\n\n* fix(core): Unwrap nested Queries in set() value types; document Union row tradeoff\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01BN4uSb49CL2pwcZFnTCJkc\n\n* docs(blog): Interactive demo of typed controller.set() values\n\nRegenerate the playground's @data-client editor types so the demo\nreflects v0.19 set() typing.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01BN4uSb49CL2pwcZFnTCJkc\n\n* docs(blog): Move typed set() section under Other improvements\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01BN4uSb49CL2pwcZFnTCJkc\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-04T14:08:40-04:00",
+          "tree_id": "eb6fbc6feb6b0f23f1cb3943a6d6e90ccdf6a367",
+          "url": "https://github.com/reactive/data-client/commit/a82758cd1998e58d7ad280407db28bd84f5d7b18"
+        },
+        "date": 1791137464418,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 200,
+            "range": "± 3.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 67.11,
+            "range": "± 5.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 526.32,
+            "range": "± 7.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 476.19,
+            "range": "± 5.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 67.57,
+            "range": "± 9.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 416.67,
+            "range": "± 6.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 526.32,
+            "range": "± 5.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 23.56,
+            "range": "± 9.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 119.05,
+            "range": "± 11.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 55.71,
+            "range": "± 5.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 303.03,
+            "range": "± 5.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 400,
+            "range": "± 5.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 256.41,
+            "range": "± 7.8%",
             "unit": "ops/s"
           }
         ]
