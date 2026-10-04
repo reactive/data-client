@@ -8,12 +8,7 @@ export type EndpointParam<E> =
 export type ResolveType<E extends (...args: any) => any> =
   ReturnType<E> extends Promise<infer R> ? R : never;
 
-export type PartialArray<A> =
-  A extends [] ? []
-  : A extends [infer F] ? [F] | []
-  : A extends [infer F, ...infer Rest] ? [F] | [F, ...PartialArray<Rest>]
-  : A extends (infer T)[] ? T[]
-  : never;
+export type { PartialArray } from './tupleTypes.js';
 
 // workaround for https://github.com/microsoft/TypeScript/issues/29919
 export type PartialParameters<T extends (...args: any[]) => any> =
