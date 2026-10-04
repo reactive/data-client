@@ -191,8 +191,8 @@ function useDLE(
 };
 ```
 
-Arguments can be plain values or [refs](https://vuejs.org/api/reactivity-core.html#ref) (including
-[computed](https://vuejs.org/api/reactivity-core.html#computed)); the results update when they change.
+Arguments can be plain values, [refs](https://vuejs.org/api/reactivity-core.html#ref) (including [computed](https://vuejs.org/api/reactivity-core.html#computed)), or getter
+functions like `() => ({ id: props.id })`; the results update when they change.
 
 :::
 

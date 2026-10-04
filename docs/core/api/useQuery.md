@@ -70,8 +70,8 @@ function useQuery<S extends Queryable>(
 ): ComputedRef<DenormalizeNullable<S> | undefined>;
 ```
 
-Arguments can be plain values or [refs](https://vuejs.org/api/reactivity-core.html#ref) (including
-[computed](https://vuejs.org/api/reactivity-core.html#computed)); the result updates when they change.
+Arguments can be plain values, [refs](https://vuejs.org/api/reactivity-core.html#ref) (including [computed](https://vuejs.org/api/reactivity-core.html#computed)), or getter
+functions like `() => ({ id: props.id })`; the result updates when they change.
 
 :::
 
