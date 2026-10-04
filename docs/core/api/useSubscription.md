@@ -1,5 +1,6 @@
 ---
 title: useSubscription() - Updating frequent data changes in React
+vue_title: useSubscription() - Updating frequent data changes in Vue
 sidebar_label: useSubscription()
 description: Keeps data fresh, but only when component is active. Supports polling, websockets, and SSE.
 ---
@@ -44,6 +45,8 @@ export const getPrice = new RestEndpont({
 });
 ```
 
+:::react
+
 ```tsx title="MasterPrice"
 import { useSuspense, useSubscription } from '@data-client/react';
 import { getPrice } from 'api/Price';
@@ -55,18 +58,49 @@ function MasterPrice({ symbol }: { symbol: string }) {
 }
 ```
 
+:::
+
+:::vue
+
+```html title="MasterPrice.vue"
+<script setup lang="ts">
+  import { useSuspense, useSubscription } from '@data-client/vue';
+  import { getPrice } from 'api/Price';
+
+  const props = defineProps<{ symbol: string }>();
+  const price = await useSuspense(getPrice, { symbol: props.symbol });
+  useSubscription(getPrice, { symbol: props.symbol });
+  // ...
+</script>
+```
+
+:::
 
 ## Behavior
 
 <ConditionalDependencies hook="useSubscription" />
 
-:::info[React Native]
+:::react
+
+::::info[React Native]
 
 When using React Navigation, useSubscription() will sub/unsub with focus/unfocus respectively.
+
+::::
+
+:::
+
+:::vue
+
+The subscription is created when the component is set up and removed when it unmounts. When
+an argument passed as a [ref](https://vuejs.org/api/reactivity-core.html#ref) changes, the previous
+subscription is removed and a new one is created for the new arguments.
 
 :::
 
 ## Types
+
+:::react
 
 <GenericsTabs>
 
@@ -79,16 +113,38 @@ function useSubscription(
 
 ```typescript
 function useSubscription<
-  E extends EndpointInterface<FetchFunction, Schema | undefined, undefined>,
+  E extends EndpointInterface<
+    FetchFunction,
+    Schema | undefined,
+    undefined
+  >,
   Args extends readonly [...Parameters<E>] | readonly [null],
 >(endpoint: E, ...args: Args): void;
 ```
 
 </GenericsTabs>
 
+:::
+
+:::vue
+
+```typescript
+function useSubscription(
+  endpoint: ReadEndpoint,
+  ...args: MaybeRefsOrGetters<Parameters<typeof endpoint>> | [null]
+): void;
+```
+
+Arguments can be plain values or [refs](https://vuejs.org/api/reactivity-core.html#ref) (including
+[computed](https://vuejs.org/api/reactivity-core.html#computed)).
+
+:::
+
 ## Examples
 
 ### Only subscribe while element is visible
+
+:::react
 
 ```tsx title="MasterPrice.tsx"
 import { useSuspense, useSubscription } from '@data-client/react';
@@ -101,16 +157,60 @@ function MasterPrice({ symbol }: { symbol: string }) {
   useSubscription(getPrice, entry?.isIntersecting ? null : { symbol });
 
   return (
-    <div ref={ref}>{price.value.toLocaleString('en', { currency: 'USD' })}</div>
+    <div ref={ref}>
+      {price.value.toLocaleString('en', { currency: 'USD' })}
+    </div>
   );
 }
 ```
 
+:::
+
+:::vue
+
+```html title="MasterPrice.vue"
+<script setup lang="ts">
+  import { computed, useTemplateRef } from 'vue';
+  import { useElementVisibility } from '@vueuse/core';
+  import { useSuspense, useSubscription } from '@data-client/vue';
+  import { getPrice } from 'api/Price';
+
+  const props = defineProps<{ symbol: string }>();
+  const price = await useSuspense(getPrice, { symbol: props.symbol });
+  const el = useTemplateRef('el');
+  const isVisible = useElementVisibility(el);
+  // null params means don't subscribe
+  useSubscription(
+    getPrice,
+    computed(() => (isVisible.value ? { symbol: props.symbol } : null)),
+  );
+</script>
+
+<template>
+  <div ref="el">{{ price.price }}</div>
+</template>
+```
+
+:::
+
 When `null` is send as the second argument, the subscription is deactivated. Of course,
 if other components are still subscribed the data updates will still be active.
 
+:::react
+
 [useIntersectionObserver()](https://usehooks.com/useintersectionobserver) uses [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API), which is very performant. [ref](https://react.dev/reference/react/useRef) allows
 us to access the [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model).
+
+:::
+
+:::vue
+
+[useElementVisibility()](https://vueuse.org/core/useElementVisibility/) from VueUse uses [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API), which is very performant. [Template refs](https://vuejs.org/guide/essentials/template-refs.html) allow
+us to access the [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model).
+
+:::
+
+:::react
 
 ### Crypto prices (websockets)
 
@@ -118,3 +218,5 @@ We implemented our own `StreamManager` to handle our custom websocket protocol. 
 actions](./Actions.md#subscribe) sent by `useSubscription` to ensure we only listen to updates for components that are rendered.
 
 <StackBlitz app="coin-app" file="src/resources/StreamManager.ts,src/resources/Ticker.ts,src/pages/Home/AssetPrice.tsx" height="600" />
+
+:::

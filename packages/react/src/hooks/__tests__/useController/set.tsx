@@ -1,4 +1,5 @@
 import { DataProvider } from '@data-client/react';
+import { schema } from '@data-client/rest';
 import { CoolerArticle } from '__tests__/new';
 import nock from 'nock';
 
@@ -60,6 +61,10 @@ describe('set', () => {
     // type tests
     // TODO: move these to own unit tests if/when applicable
     () => {
+      controller.set(CoolerArticle, { id: 5 }, article => ({
+        id: 5,
+        title: `${article.title}!`,
+      }));
       // @ts-expect-error
       controller.set(CoolerArticle, payload);
       controller.set(
@@ -68,6 +73,54 @@ describe('set', () => {
         payload.id,
         payload,
       );
+    };
+  });
+
+  it('should batch set entities with an array schema', async () => {
+    const { controller } = renderDataClient(() => null);
+    let promise: any;
+    act(() => {
+      controller.set(CoolerArticle, { id: 5 }, { ...payload, content: 'kept' });
+      controller.set(CoolerArticle, { id: 1 }, createPayload);
+      promise = controller.set(
+        [CoolerArticle],
+        [
+          { id: 5, title: 'merged' },
+          { id: 6, title: 'new' },
+        ],
+      );
+    });
+    await act(() => promise);
+    const state = controller.getState();
+    expect(controller.get(CoolerArticle, { id: 5 }, state)).toMatchObject({
+      title: 'merged',
+      content: 'kept',
+    });
+    expect(controller.get(CoolerArticle, { id: 6 }, state)?.title).toBe('new');
+    expect(controller.get(CoolerArticle, { id: 1 }, state)?.title).toBe(
+      createPayload.title,
+    );
+
+    act(() => {
+      promise = controller.set(new schema.Array(CoolerArticle), [
+        { id: 6, title: 'array class' },
+      ]);
+    });
+    await act(() => promise);
+    expect(
+      controller.get(CoolerArticle, { id: 6 }, controller.getState())?.title,
+    ).toBe('array class');
+
+    // type tests
+    () => {
+      // @ts-expect-error array schemas have no args
+      controller.set([CoolerArticle], { id: 5 }, [payload]);
+      // @ts-expect-error array schemas have no previous value to update
+      controller.set([CoolerArticle], (articles: any) => articles);
+      // @ts-expect-error value must be an array
+      controller.set([CoolerArticle], payload);
+      // @ts-expect-error entities need args, even with an array value
+      controller.set(CoolerArticle, [payload]);
     };
   });
 

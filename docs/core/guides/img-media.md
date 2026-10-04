@@ -1,4 +1,5 @@
 ---
+frameworks: [react]
 title: React 18 Suspense with Images and other Media
 sidebar_label: Images and other Media
 ---

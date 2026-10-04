@@ -11,7 +11,7 @@ Actions are minimal descriptions of store updates.
 
 They are [dispatched by Controller methods](./Controller.md#action-dispatchers) ->
 [read and consumed by Manager middleware](./Manager.md#reading-and-consuming-actions) -> 
-processed by [reducers](https://react.dev/reference/react/useReducer) registered with [DataProvider](./DataProvider.md)
+processed by [reducers](https://react.dev/reference/react/useReducer) registered with :react[[DataProvider](./DataProvider.md)]:vue[[DataClientPlugin](../getting-started/installation.md)]
 to update the store's state.
 
 Many actions use the same meta information:

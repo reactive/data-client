@@ -16,6 +16,12 @@ require('./scripts/generateMonacoPreloads.cjs').ensureMonacoPreloadManifest();
 
 const isDev = process.env.NODE_ENV === 'development';
 
+// docs/core is shared by React (/docs) and Vue (/vue); see framework-docs/
+const frameworkDocs = require('./framework-docs/index.js');
+const remarkFramework = require('./framework-docs/remarkFramework.js');
+const vueDocs = frameworkDocs.generate('vue');
+if (isDev) frameworkDocs.watch('vue');
+
 const config: Config = {
   title: 'Data Client',
   tagline: 'Async State Management without the Management',
@@ -197,9 +203,12 @@ const config: Config = {
         docs: {
           //id: 'core',
           path: '../docs/core',
-          exclude: ['getting-started/README.md'],
+          exclude: ['getting-started/README.md', '**/*.vue.{md,mdx}'],
           //routeBasePath: 'core',
-          sidebarPath: require.resolve('./sidebars.json'),
+          sidebarPath: require.resolve('./framework-docs/sidebars-react.js'),
+          beforeDefaultRemarkPlugins: [
+            [remarkFramework, { framework: 'react' }],
+          ],
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
           editUrl: ({ locale, docPath }) => {
@@ -244,6 +253,31 @@ const config: Config = {
     ],
   ],
   plugins: [
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'vue',
+        path: vueDocs.outDir,
+        exclude: ['getting-started/README.md'],
+        routeBasePath: 'vue',
+        sidebarPath: require.resolve('./framework-docs/sidebars-vue.js'),
+        beforeDefaultRemarkPlugins: [
+          [
+            remarkFramework,
+            {
+              framework: 'vue',
+              routeBasePath: 'vue',
+              docIds: frameworkDocs.docIds('vue'),
+            },
+          ],
+        ],
+        // generated files have no git history
+        showLastUpdateAuthor: false,
+        showLastUpdateTime: false,
+        editUrl: ({ docPath }) =>
+          `https://github.com/reactive/data-client/edit/master/docs/core/${frameworkDocs.sourcePath('vue', docPath)}`,
+      },
+    ],
     [
       '@docusaurus/plugin-content-docs',
       {
@@ -303,6 +337,11 @@ const config: Config = {
     [
       '@docusaurus/plugin-client-redirects',
       {
+        // Vue docs briefly lived at /docs/vue
+        createRedirects(existingPath: string) {
+          if (existingPath === '/vue' || existingPath.startsWith('/vue/'))
+            return `/docs${existingPath}`;
+        },
         redirects: [
           {
             to: '/rest/guides/side-effects',
@@ -423,10 +462,18 @@ const config: Config = {
           type: 'doc',
           position: 'left',
           docId: 'introduction',
-          label: 'Docs',
+          label: 'React',
         },
         {
-          type: 'docSidebar',
+          type: 'doc',
+          position: 'left',
+          docId: 'introduction',
+          docsPluginId: 'vue',
+          label: 'Vue',
+        },
+        {
+          // links to the React or Vue API, based on the docs being viewed
+          type: 'custom-frameworkDocSidebar',
           position: 'left',
           sidebarId: 'api',
           label: 'API',
@@ -499,6 +546,10 @@ const config: Config = {
             {
               label: 'Introduction',
               to: '/docs',
+            },
+            {
+              label: 'Vue',
+              to: '/vue',
             },
             {
               label: 'REST',

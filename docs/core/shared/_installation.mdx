@@ -4,6 +4,8 @@ import PkgTabs from '@site/src/components/PkgTabs';
 import PkgInstall from '@site/src/components/PkgInstall';
 import Link from '@docusaurus/Link';
 
+::::react
+
 <Tabs
 defaultValue="web"
 groupId="platform"
@@ -13,7 +15,6 @@ values={[
 { label: 'NextJS', value: 'nextjs' },
 { label: 'Expo', value: 'expo' },
 { label: 'Anansi', value: 'anansi' },
-{ label: 'Vue', value: 'vue' },
 ]}>
 
 <TabItem value="web">
@@ -109,9 +110,11 @@ npx @anansi/cli hatch my-project
 Anansi includes Reactive Data Client automatically.
 
 </TabItem>
-<TabItem value="vue">
+</Tabs>
 
-[Vue](https://vuejs.org/) is an alternative to React.
+::::
+
+::::vue
 
 <PkgInstall pkgs="@data-client/vue @data-client/rest" />
 
@@ -132,5 +135,4 @@ app.use(DataClientPlugin, {
 app.mount('#app');
 ```
 
-</TabItem>
-</Tabs>
+::::
