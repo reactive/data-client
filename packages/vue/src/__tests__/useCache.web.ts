@@ -405,12 +405,15 @@ describe('vue useCache()', () => {
     const realDate = Date.now;
     Date.now = jest.fn(() => 1_000_000);
     try {
-      const staleEndpoint = new Endpoint(async () => payload, {
-        schema: CoolerArticle,
-        dataExpiryLength: 20,
-        invalidIfStale: true,
-        name: 'invalidIfStaleArticle',
-      });
+      const staleEndpoint = new Endpoint(
+        async ({ id }: { id: number }) => ({ ...payload, id }),
+        {
+          schema: CoolerArticle,
+          dataExpiryLength: 20,
+          invalidIfStale: true,
+          name: 'invalidIfStaleArticle',
+        },
+      );
 
       const { result, controller, cleanup } = await renderDataCompose(
         () => useCache(staleEndpoint, { id: 79 }),
