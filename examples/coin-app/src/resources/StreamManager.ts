@@ -122,8 +122,8 @@ export default class StreamManager implements Manager {
   sync = () => {
     clearTimeout(this.syncTimeout);
     this.syncTimeout = undefined;
-    // onopen syncs again once connected
-    if (this.evtSource.readyState !== this.evtSource.OPEN) return;
+    // onopen syncs again once connected (or init() has not run yet)
+    if (this.evtSource?.readyState !== WebSocket.OPEN) return;
     const active = [...this.subscriptions.keys()];
     this.sendChannel(
       'subscribe',
