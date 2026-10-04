@@ -31,15 +31,25 @@ endpoints are found.
   and related schemas.
 - [**`/data-client-rest`**](https://skills.sh/reactive/data-client/data-client-rest) — defines REST APIs with `resource()`, `RestEndpoint`,
   CRUD methods, and response parsing.
-- [**`/data-client-react`**](https://skills.sh/reactive/data-client/data-client-react) — uses `useSuspense`, `useFetch`, `useQuery`, `useLive`,
-  and mutation hooks.
-- [**`/data-client-vue`**](https://skills.sh/reactive/data-client/data-client-vue) — uses `useSuspense`, `useFetch`, `useQuery`, `useLive`,
-  and mutation composables with `DataClientPlugin`.
-- [**`/data-client-react-testing`**](https://skills.sh/reactive/data-client/data-client-react-testing) — writes React tests with `renderDataHook`,
-  fixtures, interceptors, and `nock`.
-- [**`/data-client-vue-testing`**](https://skills.sh/reactive/data-client/data-client-vue-testing) — writes Vue tests with `renderDataCompose`,
-  `mountDataClient`, fixtures, and `nock`.
 - [**`/data-client-manager`**](https://skills.sh/reactive/data-client/data-client-manager) — implements custom `Manager`s for websockets, SSE,
   polling, subscriptions, logging, and middleware.
+
+:::react
+
+- [**`/data-client-react`**](https://skills.sh/reactive/data-client/data-client-react) — uses `useSuspense`, `useFetch`, `useQuery`, `useLive`,
+  and mutation hooks.
+- [**`/data-client-react-testing`**](https://skills.sh/reactive/data-client/data-client-react-testing) — writes React tests with `renderDataHook`,
+  fixtures, interceptors, and `nock`.
+
+:::
+
+:::vue
+
+- [**`/data-client-vue`**](https://skills.sh/reactive/data-client/data-client-vue) — uses `useSuspense`, `useFetch`, `useQuery`, `useLive`,
+  and mutation composables with `DataClientPlugin`.
+- [**`/data-client-vue-testing`**](https://skills.sh/reactive/data-client/data-client-vue-testing) — writes Vue tests with `renderDataCompose`,
+  `mountDataClient`, fixtures, and `nock`.
+
+:::
 
 Browse the full catalog at [skills.sh/reactive/data-client](https://skills.sh/reactive/data-client).
