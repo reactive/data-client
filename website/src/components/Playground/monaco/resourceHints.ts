@@ -1,4 +1,4 @@
-import { MONACO_CDN_VS, monacoPreloadManifest } from './monacoPreloadManifest';
+import { MONACO_CDN_VS, monacoPreloadManifest } from './preloadManifest';
 
 const RESOURCE_HINT_ATTRIBUTE = 'data-monaco-resource-hint';
 

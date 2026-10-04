@@ -5,10 +5,11 @@ module.exports = function (context, options) {
     configureWebpack(config, isServer, utils) {
       return {
         ignoreWarnings: [
-          // Suppress warning about dynamic import expressions in monaco-init.ts
-          // This is expected behavior for dynamic TypeScript definition loading
+          // Suppress warning about dynamic import expressions in
+          // Playground/monaco/typeLibs.ts. This is expected behavior for
+          // dynamic TypeScript definition loading
           {
-            module: /monaco-init\.ts/,
+            module: /Playground[\\/]monaco[\\/]typeLibs\.ts/,
             message:
               /Critical dependency: the request of a dependency is an expression/,
           },
