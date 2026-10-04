@@ -355,6 +355,8 @@ jobs:
             yarn run tsc --project examples/todo-app/tsconfig.typetest.json --exactOptionalPropertyTypes true
             yarn run tsc --project examples/github-app/tsconfig.typetest.json --exactOptionalPropertyTypes true
             yarn run tsc --project examples/todo-app/tsconfig.typetest41.json --exactOptionalPropertyTypes true
+            # skipLibCheck: false on lib/ too (TS 7 removed moduleResolution node)
+            yarn run tsc --project examples/todo-app/tsconfig.typetest-libcheck.json --moduleResolution bundler
 
   validate-esmodule-browser-build:
     executor: node

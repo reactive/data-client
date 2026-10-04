@@ -20,9 +20,10 @@ copy_types() {
     done
 }
 
-# True when version $1 is older than version $2.
+# True when major.minor version $1 is older than $2 (pure bash, no `sort -V`).
 version_lt() {
-    [ "$1" != "$2" ] && [ "$(printf '%s\n' "$1" "$2" | sort -V | head -1)" = "$1" ]
+    local a_major="${1%%.*}" a_minor="${1#*.}" b_major="${2%%.*}" b_minor="${2#*.}"
+    (( a_major < b_major || (a_major == b_major && a_minor < b_minor) ))
 }
 
 # Versions are listed newest first, and custom types for a version also apply
@@ -35,7 +36,7 @@ build_version() {
     "$downlevel_dts" lib "ts$version" --to="$version"
     # downlevel-dts keeps `abstract new` constructor types, which need TS 4.2
     if version_lt "$version" 4.2; then
-        grep -rl --include='*.d.ts' 'abstract new (' "ts$version" | while IFS= read -r file
+        { grep -rl --include='*.d.ts' 'abstract new (' "ts$version" || true; } | while IFS= read -r file
         do
             perl -pi -e 's/abstract new \(/new (/g' "$file"
         done

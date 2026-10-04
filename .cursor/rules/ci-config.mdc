@@ -16,7 +16,7 @@ alwaysApply: false
   - Built inside `setup` (`ci:build:setup:esmodule`) only when the esmodule flag is set; there is no separate job, to keep a job hop off the critical path.
   - In CI only endpoint/normalizr/rest outputs for TS >= 4.0 are built (`LEGACY_MIN_TS=4.0`, the oldest TS in the `esmodule-types` matrix); release builds (`build:types`) still emit every version.
   - `scripts/build-legacy-types.sh` builds each TS version concurrently; each `ts<version>/` gets the downleveled `lib` (with `abstract new` rewritten to `new` below 4.2, which `downlevel-dts` misses), then every newer version's `src-*-types` overlay, then its own. Keep overlays to small single-purpose modules (like `NoInfer.ts`, `tupleTypes.ts`) so whole-file copies can't go stale.
-  - `esmodule-types` also runs `examples/todo-app/tsconfig.typetest-libcheck.json` (`skipLibCheck: false`, `types: []`) so errors inside the legacy outputs fail CI; the other typetests use `skipLibCheck: true`.
+  - `esmodule-types` also runs `examples/todo-app/tsconfig.typetest-libcheck.json` (`skipLibCheck: false`, `types: []`) so errors inside the legacy outputs fail CI, and `esmodule-types-latest` runs it with `--moduleResolution bundler` (TS 7 removed `node`) to cover `lib/`; the other typetests use `skipLibCheck: true`.
   - Any change to legacy types building must leave `ts*/` output byte-identical to master (diff it) unless it intentionally changes published types (then add a changeset).
 - Never `git fetch --depth` the base branch in the relevance check: a shallow fetch severs the merge base and the three-dot diff fails.
 - Changing root `package.json` `workspaces` requires updating the `setup` job's workspace trimming step.
