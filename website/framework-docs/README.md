@@ -95,6 +95,11 @@ workflow runs `yarn build:skills --check`, which also fails when a `SKILL.md` li
 `SKILL.md` never mentions. See `.cursor/rules/skills-sync.mdc` for what to update
 when docs are added, renamed or deleted.
 
+A `skills` list in `references.json` bundles other skills, so one skill works without the others
+installed (`data-client-setup` carries the REST, GraphQL and endpoint setup skills). Each bundled
+skill's `SKILL.md` body becomes `references/<skill>.md`, with its `references/` links pointing into
+`references/<skill>/`, which holds copies of its references and scripts.
+
 Partials can use `props` in `{...}` expressions; the generator evaluates them with the props passed
 where the partial is used. JSX inside an expression is only supported for `<CodeBlock>`; anything
 else fails the build so it can't silently drop content.

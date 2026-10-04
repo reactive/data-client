@@ -1,6 +1,6 @@
 ---
 name: data-client-setup
-description: Install and set up @data-client/react or @data-client/vue in a project. Detects project type (NextJS, Expo, React Native, Vue, plain React) and protocol (REST, GraphQL, custom), then hands off to protocol-specific setup skills.
+description: Install and set up @data-client/react or @data-client/vue in a project. Detects project type (NextJS, Expo, React Native, Vue, plain React) and protocol (REST, GraphQL, custom), then follows the bundled protocol-specific setup guide.
 disable-model-invocation: true
 ---
 
@@ -183,32 +183,32 @@ app.mount('#app');
 
 ## Protocol-Specific Setup
 
-After provider setup, apply the appropriate skill based on detected protocol:
+After provider setup, follow the guide for each detected protocol. These guides are bundled copies of the standalone protocol setup skills, so they need nothing else installed.
 
 ### REST APIs
 
-Apply skill **"data-client-rest-setup"** which will:
+Follow [references/data-client-rest-setup.md](references/data-client-rest-setup.md), which will:
 1. Install `@data-client/rest`
 2. Offer to create a custom `BaseEndpoint` class extending `RestEndpoint`
 3. Configure common behaviors: urlPrefix, authentication, error handling
 
 ### GraphQL APIs
 
-Apply skill **"data-client-graphql-setup"** which will:
+Follow [references/data-client-graphql-setup.md](references/data-client-graphql-setup.md), which will:
 1. Install `@data-client/graphql`
 2. Create and configure `GQLEndpoint` instance
 3. Set up authentication headers
 
 ### Custom Async Operations
 
-Apply skill **"data-client-endpoint-setup"** which will:
+Follow [references/data-client-endpoint-setup.md](references/data-client-endpoint-setup.md), which will:
 1. Install `@data-client/endpoint`
 2. Offer to wrap existing async functions with `new Endpoint()`
 3. Configure schemas and caching options
 
 ### Multiple Protocols
 
-If multiple protocols are detected, apply multiple setup skills. Each protocol package can be installed alongside others.
+If multiple protocols are detected, follow each protocol's guide. Each protocol package can be installed alongside others.
 
 ## Verification Checklist
 
@@ -218,7 +218,7 @@ After setup, verify:
 - [ ] Provider/Plugin wraps the app at root level
 - [ ] Correct import path used (especially `@data-client/react/nextjs` for NextJS)
 - [ ] No duplicate providers in component tree
-- [ ] Protocol-specific setup completed via appropriate skill
+- [ ] Protocol-specific setup completed via its guide
 
 ## Common Issues
 
@@ -254,3 +254,6 @@ For detailed API documentation, see the [references](references/) directory:
 - [DataProvider](references/DataProvider.md) - Root provider component
 - [installation](references/installation.md) - Installation guide
 - [getDefaultManagers](references/getDefaultManagers.md) - Default managers
+- [REST setup](references/data-client-rest-setup.md) - `@data-client/rest` setup and migration from axios, fetch, ky, superagent or got
+- [GraphQL setup](references/data-client-graphql-setup.md) - `@data-client/graphql` setup
+- [Custom endpoint setup](references/data-client-endpoint-setup.md) - Wrapping other async functions with `@data-client/endpoint`
