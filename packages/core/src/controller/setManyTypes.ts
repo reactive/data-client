@@ -48,21 +48,44 @@ type FunctionKeys<U> = {
   [K in keyof U]: U[K] extends (...args: any) => any ? K : never;
 }[keyof U];
 
-/** Raw input for one field: numbers and strings coerce; objects are pre-normalize */
+/** Raw input for one field: numbers and strings coerce (literals stay exact);
+ * objects are pre-normalize */
 type SetField<T> =
-  T extends number ? T | string
-  : T extends string ? T | number
+  T extends number ?
+    number extends T ?
+      T | string
+    : T
+  : T extends string ?
+    string extends T ?
+      T | number
+    : T
   : T extends object ? unknown
   : T;
 
-/** Fields of one row (or a coerced primitive); like EntityFields, but distributive
- * and without key remapping (TS 4.0) */
+/** Non-function keys of any member of U */
+type FieldKeys<U> =
+  U extends unknown ? Exclude<keyof U, FunctionKeys<U>> : never;
+
+/** Input for field K, from each member of U that has it */
+type MemberField<U, K> =
+  U extends unknown ?
+    K extends keyof U ?
+      SetField<U[K]>
+    : never
+  : never;
+
+/** Fields of one row (or a coerced primitive); like EntityFields, but without
+ * key remapping (TS 4.0). A Union's members merge into one object type: checking
+ * a row against it costs one comparison instead of one per member. */
 type SetRow<U> =
   // EntityMixin and other untyped entities
   0 extends 1 & U ? { readonly [k: string]: any }
-  : U extends object ?
-    { readonly [K in Exclude<keyof U, FunctionKeys<U>>]?: SetField<U[K]> }
+  : [U] extends [object] ? { readonly [K in FieldKeys<U>]?: MemberField<U, K> }
   : SetField<U>;
+
+/** Keeps S inferred from the schema alone: inferring it from the value too would
+ * walk the value's type against every conditional in SetValue (TS 5.4 has NoInfer) */
+export type SkipInfer<T, S> = [T][S extends unknown ? 0 : never];
 
 export type SetManyValue<S> =
   S extends readonly (infer E)[] ?
