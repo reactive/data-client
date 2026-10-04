@@ -11,6 +11,7 @@ import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import StackBlitz from '@site/src/components/StackBlitz';
 import { parallelFetchFixtures } from '@site/src/fixtures/post-comments';
+import VueArgs from '../shared/\_vueArgs.mdx';
 
 <head>
   <meta name="docsearch:pagerank" content="10"/>
@@ -130,15 +131,15 @@ render(<PostWithComments id={1} />);
   const props = defineProps<{ id: number }>();
 
   // Both fetches start in parallel
-  useFetch(PostResource.get, { id: props.id });
-  useFetch(CommentResource.getList, { postId: props.id });
+  useFetch(PostResource.get, () => ({ id: props.id }));
+  useFetch(CommentResource.getList, () => ({ postId: props.id }));
 
   // useSuspense() reads the results — the second fetch
   // is already in-flight while the first one is awaited
-  const post = await useSuspense(PostResource.get, { id: props.id });
-  const comments = await useSuspense(CommentResource.getList, {
+  const post = await useSuspense(PostResource.get, () => ({ id: props.id }));
+  const comments = await useSuspense(CommentResource.getList, () => ({
     postId: props.id,
-  });
+  }));
 </script>
 
 <template>
@@ -187,7 +188,7 @@ function MasterPost({ id }: { id: number }) {
   import { PostResource } from './Resources';
 
   const props = defineProps<{ id: number }>();
-  useFetch(PostResource.get, { id: props.id });
+  useFetch(PostResource.get, () => ({ id: props.id }));
   // ...
 </script>
 ```
@@ -289,8 +290,9 @@ function useFetch(
 >;
 ```
 
-Arguments can be plain values or [refs](https://vuejs.org/api/reactivity-core.html#ref) (including
-[computed](https://vuejs.org/api/reactivity-core.html#computed)); a new fetch is triggered when they change.
+<VueArgs />
+
+A new fetch is triggered when the arguments change.
 
 :::
 
@@ -322,7 +324,7 @@ function MasterPost({ id }: { id: number }) {
   import { PostResource } from './Resources';
 
   const props = defineProps<{ id: number }>();
-  const promise = useFetch(PostResource.get, { id: props.id });
+  const promise = useFetch(PostResource.get, () => ({ id: props.id }));
   if (promise.value && !promise.value.resolved) {
     // fetch is in-flight
   }

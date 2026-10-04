@@ -81,6 +81,14 @@ if [[ "${VERCEL_GIT_COMMIT_REF:-}" =~ ^(master|rest-hooks-site)$ || "${VERCEL_EN
   build "no previous production deploy to compare"
 fi
 
+# Renovate previews skip when only website dependency manifests or lockfiles
+# changed. Site or docs source changes still build.
+if [[ "${VERCEL_GIT_COMMIT_REF:-}" == renovate/* ]]; then
+  for f in package.json yarn.lock package-lock.json pnpm-lock.yaml npm-shrinkwrap.json; do
+    SITE_PATHS+=(":(exclude,glob)website/**/$f")
+  done
+fi
+
 # Previews compare the branch's changes, not commits merged in from upstream.
 # When the tip merges master, diff against the merged master commit: that
 # counts the branch's site files and any conflict resolutions, not master's.

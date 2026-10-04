@@ -8,6 +8,7 @@ description: Keeps data fresh, but only when component is active. Supports polli
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import StackBlitz from '@site/src/components/StackBlitz';
+import VueArgs from '../shared/\_vueArgs.mdx';
 
 # useSubscription()
 
@@ -25,7 +26,7 @@ When using the default [polling subscriptions](./PollingSubscription), frequency
 ## Usage
 
 ```typescript title="api/Price"
-import { Resource, Entity } from '@data-client/rest';
+import { RestEndpoint, Entity } from '@data-client/rest';
 
 export class Price extends Entity {
   symbol = '';
@@ -37,7 +38,7 @@ export class Price extends Entity {
   }
 }
 
-export const getPrice = new RestEndpont({
+export const getPrice = new RestEndpoint({
   urlPrefix: 'http://test.com',
   path: '/price/:symbol',
   schema: Price,
@@ -68,8 +69,8 @@ function MasterPrice({ symbol }: { symbol: string }) {
   import { getPrice } from 'api/Price';
 
   const props = defineProps<{ symbol: string }>();
-  const price = await useSuspense(getPrice, { symbol: props.symbol });
-  useSubscription(getPrice, { symbol: props.symbol });
+  const price = await useSuspense(getPrice, () => ({ symbol: props.symbol }));
+  useSubscription(getPrice, () => ({ symbol: props.symbol }));
   // ...
 </script>
 ```
@@ -135,8 +136,7 @@ function useSubscription(
 ): void;
 ```
 
-Arguments can be plain values or [refs](https://vuejs.org/api/reactivity-core.html#ref) (including
-[computed](https://vuejs.org/api/reactivity-core.html#computed)).
+<VueArgs />
 
 :::
 
@@ -147,6 +147,7 @@ Arguments can be plain values or [refs](https://vuejs.org/api/reactivity-core.ht
 :::react
 
 ```tsx title="MasterPrice.tsx"
+import { useIntersectionObserver } from '@uidotdev/usehooks';
 import { useSuspense, useSubscription } from '@data-client/react';
 import { getPrice } from 'api/Price';
 
@@ -154,13 +155,9 @@ function MasterPrice({ symbol }: { symbol: string }) {
   const price = useSuspense(getPrice, { symbol });
   const [ref, entry] = useIntersectionObserver();
   // null params means don't subscribe
-  useSubscription(getPrice, entry?.isIntersecting ? null : { symbol });
+  useSubscription(getPrice, entry?.isIntersecting ? { symbol } : null);
 
-  return (
-    <div ref={ref}>
-      {price.value.toLocaleString('en', { currency: 'USD' })}
-    </div>
-  );
+  return <div ref={ref}>{price.price}</div>;
 }
 ```
 
@@ -176,7 +173,7 @@ function MasterPrice({ symbol }: { symbol: string }) {
   import { getPrice } from 'api/Price';
 
   const props = defineProps<{ symbol: string }>();
-  const price = await useSuspense(getPrice, { symbol: props.symbol });
+  const price = await useSuspense(getPrice, () => ({ symbol: props.symbol }));
   const el = useTemplateRef('el');
   const isVisible = useElementVisibility(el);
   // null params means don't subscribe
@@ -193,7 +190,7 @@ function MasterPrice({ symbol }: { symbol: string }) {
 
 :::
 
-When `null` is send as the second argument, the subscription is deactivated. Of course,
+When `null` is sent as the second argument, the subscription is deactivated. Of course,
 if other components are still subscribed the data updates will still be active.
 
 :::react

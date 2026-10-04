@@ -72,7 +72,7 @@ render(<AssetPrice productId="BTC-USD" />);
   import { getTicker } from './Ticker';
 
   const props = defineProps<{ productId: string }>();
-  const ticker = await useLive(getTicker, { productId: props.productId });
+  const ticker = await useLive(getTicker, () => ({ productId: props.productId }));
 </script>
 
 <template>

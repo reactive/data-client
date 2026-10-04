@@ -54,7 +54,10 @@ export default function useSuspense<
     Schema | undefined,
     undefined | false
   >,
->(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): any {
+>(
+  endpoint: E,
+  ...args: readonly [...Parameters<E>] | readonly [null]
+): unknown {
   const state = useCacheState();
   const controller = useController();
 

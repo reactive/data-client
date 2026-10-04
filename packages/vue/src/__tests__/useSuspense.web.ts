@@ -7,6 +7,7 @@ import {
   nextTick,
   onErrorCaptured,
   reactive,
+  type MaybeRefOrGetter,
 } from 'vue';
 
 import {
@@ -15,6 +16,12 @@ import {
 } from '../../../../__tests__/new';
 import useSuspense from '../consumers/useSuspense';
 import { renderDataCompose, mountDataClient } from '../test';
+
+// Each arg form a composable accepts that should re-evaluate reactively
+const argForms: [string, <T>(fn: () => T) => MaybeRefOrGetter<T>][] = [
+  ['computed', fn => computed(fn)],
+  ['getter', fn => fn],
+];
 
 // Minimal shared fixture (copied from React test fixtures)
 const payload = {
@@ -569,52 +576,55 @@ describe('vue useSuspense()', () => {
     cleanup();
   });
 
-  it('should initially resolve, then when args are null should return undefined, then back to resolving', async () => {
-    const props = reactive({ id: payload.id as number | null });
-    const { result, allSettled, waitForNextUpdate, cleanup } =
-      await renderDataCompose(
-        (props: { id: number | null }) =>
-          useSuspense(
-            CoolerArticleResource.get,
-            computed(() => (props.id !== null ? { id: props.id } : null)),
-          ),
-        { props },
-      );
+  it.each(argForms)(
+    'should initially resolve, then when args are null should return undefined, then back to resolving (%s args)',
+    async (_, toArg) => {
+      const props = reactive({ id: payload.id as number | null });
+      const { result, allSettled, waitForNextUpdate, cleanup } =
+        await renderDataCompose(
+          (props: { id: number | null }) =>
+            useSuspense(
+              CoolerArticleResource.get,
+              toArg(() => (props.id !== null ? { id: props.id } : null)),
+            ),
+          { props },
+        );
 
-    // Wait for initial render
-    await waitForNextUpdate();
+      // Wait for initial render
+      await waitForNextUpdate();
 
-    // Await the promise once to get the reactive ComputedRef
-    const articleRef = await result;
+      // Await the promise once to get the reactive ComputedRef
+      const articleRef = await result;
 
-    expect(articleRef).toBeDefined();
+      expect(articleRef).toBeDefined();
 
-    // Verify initial values
-    expect(articleRef.value?.title).toBe(payload.title);
-    expect(articleRef.value?.content).toBe(payload.content);
+      // Verify initial values
+      expect(articleRef.value?.title).toBe(payload.title);
+      expect(articleRef.value?.content).toBe(payload.content);
 
-    // Change to null - the ComputedRef should reactively become undefined
-    props.id = null;
-    await nextTick();
+      // Change to null - the ComputedRef should reactively become undefined
+      props.id = null;
+      await nextTick();
 
-    // The same ComputedRef should now have undefined value
-    expect(articleRef.value).toBeUndefined();
+      // The same ComputedRef should now have undefined value
+      expect(articleRef.value).toBeUndefined();
 
-    // Change back to valid id - should resolve the new data
-    props.id = payload2.id;
-    await nextTick();
+      // Change back to valid id - should resolve the new data
+      props.id = payload2.id;
+      await nextTick();
 
-    // Wait for the fetch to complete
-    await allSettled();
-    await nextTick();
+      // Wait for the fetch to complete
+      await allSettled();
+      await nextTick();
 
-    // The ComputedRef should now have the new article data
-    expect(articleRef).toBeDefined();
-    expect(articleRef?.value?.title).toBe(payload2.title);
-    expect(articleRef.value?.content).toBe(payload2.content);
+      // The ComputedRef should now have the new article data
+      expect(articleRef).toBeDefined();
+      expect(articleRef?.value?.title).toBe(payload2.title);
+      expect(articleRef.value?.content).toBe(payload2.content);
 
-    cleanup();
-  });
+      cleanup();
+    },
+  );
 
   it('should initiate second fetch when props change even if first promise never resolves', async () => {
     let fetchInitialCalled = false;

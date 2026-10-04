@@ -71,7 +71,7 @@ export default function useSuspense<
 export default async function useSuspense(
   endpoint: any,
   ...args: any[]
-): Promise<any> {
+): Promise<DeepReadonly<ComputedRef<unknown>>> {
   const { controller, stateRef, resolvedArgs, argsKey, responseMeta } =
     useResponseMeta(endpoint, args);
 

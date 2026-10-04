@@ -1,12 +1,12 @@
-# Debugging @data-client/react with Chrome DevTools MCP
+# Debugging Data Client with Chrome DevTools MCP
 
-Debug `@data-client/react` state and actions programmatically via Chrome DevTools MCP `evaluate_script`. The app's `DevToolsManager` exposes the Controller on `globalThis.__DC_CONTROLLERS__` (a `Map` keyed by `devtoolsName`) in dev mode.
+Debug `@data-client/react` or `@data-client/vue` state and actions programmatically via Chrome DevTools MCP `evaluate_script`. The app's `DevToolsManager` exposes the Controller on `globalThis.__DC_CONTROLLERS__` (a `Map` keyed by `devtoolsName`) in dev mode.
 
 ## Prerequisites
 
 1. Dev server running with `NODE_ENV !== 'production'`
 2. Chrome DevTools MCP connected and page loaded
-3. `DevToolsManager` included in `DataProvider` managers (default in dev mode)
+3. `DevToolsManager` included in `DataProvider` (React) or `DataClientPlugin` (Vue) managers (default in dev mode)
 
 ## Step 1: Access the Controller
 
@@ -26,7 +26,7 @@ Debug `@data-client/react` state and actions programmatically via Chrome DevTool
 
 ### Get a controller by key
 
-Use the key from discovery. Always use `.get(devtoolsName)` with the actual key — not `.values().next().value` — so you target the correct store when multiple `DataProvider`s exist.
+Use the key from discovery. Always use `.get(devtoolsName)` with the actual key — not `.values().next().value` — so you target the correct store when multiple `DataProvider`s or Vue apps exist.
 
 ```js
 // evaluate_script
