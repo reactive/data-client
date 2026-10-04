@@ -92,7 +92,7 @@ DesignSystem/       components injected into preview scope
 
 ### Editor
 
-- Fence metastring: `title="…"`, `path="…"` (or bare `path=a.ts`), `collapsed`, `column`, `{1-3}`
+- Fence metastring: `title="…"`, `path="…"` (quotes optional), `collapsed`, `column`, `{1-3}`
   highlight ranges (pre-selected in Monaco); `language-*` class. Element props
   override metastring values (Demo passes them directly). `defaultTab`
   overrides `collapsed`.

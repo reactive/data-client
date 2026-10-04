@@ -8,11 +8,15 @@ import type * as Monaco from 'monaco-editor';
 
 type RawModule = Promise<{ default: string }>;
 
-/** `declare module "<name>"` libs, mounted at file:///node_modules/<dir>/index.d.ts */
+/**
+ * `declare module "<name>"` libs, mounted at file:///node_modules/<dir>/index.d.ts.
+ * `global` libs are also declared globally (they are in the preview scope).
+ */
 const MODULE_LIBS: readonly [
   name: string,
   dir: string,
   load: () => RawModule,
+  global?: true,
 ][] = [
   [
     'react',
@@ -21,6 +25,7 @@ const MODULE_LIBS: readonly [
       import(
         /* webpackChunkName: 'reactDTS' */ '!!raw-loader?esModule=false!../editor-types/react.d.ts'
       ),
+    true,
   ],
   [
     'bignumber.js',
@@ -152,7 +157,10 @@ export function fetchTypeLibs(): Promise<TypeLibs> {
 
   return Promise.all([
     settled(MODULE_LIBS.map(([, , load]) => load())),
-    settled([loadGlobals()]),
+    loadGlobals().then(
+      ({ default: lib }) => lib,
+      () => '',
+    ),
     settled(
       DATA_CLIENT_ENTRIES.map(
         entry =>
@@ -161,7 +169,7 @@ export function fetchTypeLibs(): Promise<TypeLibs> {
           ),
       ),
     ),
-  ]).then(([modules, [globals], dataClient]) => ({
+  ]).then(([modules, globals, dataClient]) => ({
     modules,
     dataClient,
     globals,
@@ -173,7 +181,6 @@ export function addTypeLibs(
   { modules, dataClient, globals }: TypeLibs,
 ) {
   const { typescriptDefaults } = monaco.typescript;
-  const react = modules[0];
 
   typescriptDefaults.addExtraLib(
     `declare module "react/jsx-runtime" {
@@ -203,7 +210,10 @@ export function addTypeLibs(
   });
 
   // React, NumberFlow and Temporal are also globals in the preview scope
-  typescriptDefaults.addExtraLib(`declare globals { ${react} }`);
+  MODULE_LIBS.forEach(([, , , global], i) => {
+    if (global)
+      typescriptDefaults.addExtraLib(`declare globals { ${modules[i]} }`);
+  });
   typescriptDefaults.addExtraLib(
     `declare globals { export { default as NumberFlow } from '@number-flow/react'; }`,
   );

@@ -5,7 +5,6 @@ import { useMemo } from 'react';
  * files as `/<numeric id>/<file path>`. Go-to-definition and import
  * completions (./navigation.ts) rely on this shape.
  */
-const MODEL_ID_SEGMENT = /\/\d+\//;
 const MODEL_ID_ROOT = /^\/\d+\//;
 
 export function modelPath(editorId: string, filePath: string) {
@@ -14,8 +13,7 @@ export function modelPath(editorId: string, filePath: string) {
 
 /** `/123/src/api.ts` → `/src/api.ts` (unchanged when there is no id segment) */
 export function stripModelId(path: string) {
-  const candidateId = MODEL_ID_SEGMENT.exec(path)?.[0] ?? '';
-  return path.substring(candidateId.length - 1);
+  return path.replace(MODEL_ID_ROOT, '/');
 }
 
 /** `/123/src/api.ts` → `/123/` (undefined when there is no id segment) */
@@ -32,6 +30,7 @@ export function siblingFilePaths(
   modelPaths: readonly string[],
 ): string[] {
   const id = modelIdSegment(currentPath);
+  if (!id) return [];
   return modelPaths
     .filter(path => path !== currentPath && modelIdSegment(path) === id)
     .map(stripModelId);
