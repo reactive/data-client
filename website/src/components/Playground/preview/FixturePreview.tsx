@@ -2,8 +2,8 @@ import BrowserOnly from '@docusaurus/BrowserOnly';
 import CodeBlock from '@theme/CodeBlock';
 import { memo, type ReactElement } from 'react';
 
-import styles from './styles.module.css';
-import type { FixtureOrInterceptor } from './types';
+import styles from '../styles.module.css';
+import type { FixtureOrInterceptor } from '../types';
 
 function FixturePreview({ fixtures }: { fixtures: FixtureOrInterceptor[] }) {
   return (

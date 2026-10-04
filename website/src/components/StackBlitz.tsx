@@ -1,6 +1,6 @@
 import Link from '@docusaurus/Link';
 
-import { isGoogleBot } from './Playground/isMobileOrBot';
+import { isBot } from './Playground/userAgent';
 import styles from './StackBlitz.module.css';
 import { useHasIntersected } from './useHasIntersected';
 
@@ -81,7 +81,7 @@ export default function StackBlitz({
           height={height}
           title={`${app ?? repo} demo on StackBlitz`}
           className={styles.frame}
-          {...(hasIntersected && !isGoogleBot ?
+          {...(hasIntersected && !isBot ?
             {
               src: `${projectUrl}?${params}`,
               loading: 'lazy',
