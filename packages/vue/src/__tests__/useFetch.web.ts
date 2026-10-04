@@ -1,15 +1,18 @@
+import { Endpoint } from '@data-client/endpoint';
 import { mount } from '@vue/test-utils';
 import nock from 'nock';
 import { defineComponent, h, nextTick, reactive, inject } from 'vue';
 
 // Reuse the same endpoints/fixtures used by the React tests
 import {
+  CoolerArticle,
   CoolerArticleResource,
   StaticArticleResource,
 } from '../../../../__tests__/new';
 import useFetch from '../consumers/useFetch';
 import { ControllerKey } from '../context';
 import { DataClientPlugin } from '../providers/DataClientPlugin';
+import { renderDataCompose } from '../test';
 
 // Minimal shared fixture (copied from React test fixtures)
 const payload = {
@@ -427,5 +430,43 @@ describe('vue useFetch()', () => {
     await flushUntil(wrapper, () => fetchMock2.mock.calls.length > 0);
     expect(fetchMock1).toHaveBeenCalledTimes(1);
     expect(fetchMock2).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not refetch stale data on store updates that keep expiry unchanged', async () => {
+    const fetchMock = jest.fn(async ({ id }: { id: number }) => ({
+      ...payload,
+      id,
+    }));
+    const staleEndpoint = new Endpoint(fetchMock, {
+      schema: CoolerArticle,
+      dataExpiryLength: 20,
+      name: 'staleArticle',
+    });
+
+    const { controller, waitForNextUpdate, cleanup } = await renderDataCompose(
+      () => useFetch(staleEndpoint, { id: 77 }),
+    );
+    await waitForNextUpdate();
+    await flushUntil(null, () => fetchMock.mock.calls.length > 0);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    // let data become stale
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    await controller.set(
+      CoolerArticle,
+      { id: 77 },
+      { id: 77, title: 'edited' },
+    );
+    await nextTick();
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    // the store update should not trigger a refetch that overwrites the set
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(
+      controller.get(CoolerArticle, { id: 77 }, controller.getState())?.title,
+    ).toBe('edited');
+
+    cleanup();
   });
 });
