@@ -4,6 +4,9 @@ sidebar_label: DataClientPlugin
 description: High performance, globally consistent data management in Vue
 ---
 
+import StateType from '../shared/_state_type.mdx';
+import GCPolicyOptions from '../shared/_gc_policy.mdx';
+
 # DataClientPlugin
 
 [Vue plugin](https://vuejs.org/guide/reusability/plugins.html) that creates the store and
@@ -41,7 +44,7 @@ interface ProvideOptions {
 
 List of [Managers](./Manager.md) to use. This is the main extensibility point of the store.
 
-[getDefaultManagers()](./getDefaultManagers.md) can be used to extend the default managers.
+Defaults to [getDefaultManagers()](./getDefaultManagers.md), which can also be used to extend the defaults.
 
 ```ts title="main.ts"
 import { DataClientPlugin, getDefaultManagers } from '@data-client/vue';
@@ -49,14 +52,6 @@ import { DataClientPlugin, getDefaultManagers } from '@data-client/vue';
 app.use(DataClientPlugin, {
   managers: [...getDefaultManagers(), new MyManager()],
 });
-```
-
-Defaults to `getDefaultManagers()`:
-
-Default Production:
-
-```typescript
-[new NetworkManager(), new SubscriptionManager(PollingSubscription)];
 ```
 
 Default Development:
@@ -79,39 +74,7 @@ be useful for testing, or rehydrating the cache state when using server side ren
 app.use(DataClientPlugin, { initialState: window.__INITIAL_STATE__ });
 ```
 
-```typescript
-export interface State<T> {
-  readonly entities: {
-    readonly [entityKey: string]: { readonly [pk: string]: T } | undefined;
-  };
-  readonly endpoints: {
-    readonly [key: string]: unknown | PK[] | PK | undefined;
-  };
-  readonly indexes: NormalizedIndex;
-  readonly meta: {
-    readonly [key: string]: {
-      readonly date: number;
-      readonly fetchedAt: number;
-      readonly expiresAt: number;
-      readonly prevExpiresAt?: number;
-      readonly error?: ErrorTypes;
-      readonly invalidated?: boolean;
-      readonly errorPolicy?: 'hard' | 'soft' | undefined;
-    };
-  };
-  readonly entitiesMeta: {
-    readonly [entityKey: string]: {
-      readonly [pk: string]: {
-        readonly date: number;
-        readonly expiresAt: number;
-        readonly fetchedAt: number;
-      };
-    };
-  };
-  readonly optimistic: (SetResponseAction | OptimisticAction)[];
-  readonly lastReset: number;
-}
-```
+<StateType />
 
 ### Controller?: typeof Controller {#Controller}
 
@@ -147,17 +110,7 @@ app.use(DataClientPlugin, {
 });
 ```
 
-```ts
-new GCPolicy({
-  // how often to sweep (default 5 minutes)
-  intervalMS: 60 * 1000 * 5,
-  // how many stale lifetimes before data is removed (default 2)
-  expiryMultiplier: 2,
-  // or choose when unused data is removed (replaces expiryMultiplier)
-  // here: one minute after it goes stale
-  expiresAt: ({ expiresAt }) => expiresAt + 60 * 1000,
-});
-```
+<GCPolicyOptions />
 
 ## $dataClient {#dataclient}
 
@@ -177,8 +130,6 @@ templates and Options API components can use it without [useController()](./useC
   </button>
 </template>
 ```
-
-`$dataClient` is typed as `Controller` on `ComponentCustomProperties`.
 
 ## Using composables
 
