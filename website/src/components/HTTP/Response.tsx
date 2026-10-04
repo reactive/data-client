@@ -14,7 +14,7 @@ export default function Response({ response, status }: Props) {
             [styles.error]: status >= 400,
           })}
         >
-          {`${status} ${STATUS_TEXT[status] ?? ''}`.trim()}
+          {STATUS_TEXT[status] ? `${status} ${STATUS_TEXT[status]}` : status}
         </span>
       </Header>
       <CodeBlock language="json" className={styles.containedCode}>

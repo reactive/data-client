@@ -94,7 +94,7 @@
   --pg-tab-hover-bg: var(--ifm-color-emphasis-300);
   --pg-tab-hover: var(--ifm-color-emphasis-900);
   --pg-tab-selected: #e3e8f2;
-  --pg-subbar: var(--ifm-color-emphasis-300);
+  --pg-tab-selected-bg: var(--monoco-code-background);
 }
 :root[data-theme='dark'],
 /* EndpointPlayground's right column is code, so it always uses the dark bar */
@@ -104,11 +104,11 @@
   --pg-tab: rgba(191, 199, 213, 0.7);
   --pg-tab-hover-bg: #3b415b;
   --pg-tab-hover: #e3e8f2;
-  --pg-subbar: #3b415b;
 }
 
 .playgroundHeader.tabControls,
-div.playgroundTextEdit > .playgroundHeader {
+div.playgroundTextEdit > .playgroundHeader,
+.endpointPlayground .playgroundHeader {
   background: var(--pg-bar);
   color: var(--pg-tab);
   box-shadow: inset 0 -1px 0 var(--pg-bar-edge);
@@ -158,6 +158,8 @@ div.playgroundTextEdit > .playgroundHeader {
 .arrow.vertical {
   float: right;
   margin-right: 0;
+  /* room between the last letter and the arrow */
+  margin-inline-start: 0.9em;
 }
 .arrow.right {
   transform: rotateZ(0deg);
@@ -213,10 +215,6 @@ div.playgroundTextEdit > .playgroundHeader {
 .debugToggle:hover {
   background-color: var(--ifm-color-emphasis-300);
 }
-/* room between the last letter and the arrow */
-.debugToggle .arrow {
-  margin-inline-start: 0.9em;
-}
 
 .hidden {
   display: none;
@@ -255,9 +253,8 @@ div.playgroundTextEdit > .playgroundHeader {
 }
 
 /* Selected tab joins the code panel below; inset edge avoids layout shift */
-.tab.selected,
-.tab.selected:hover {
-  background-color: var(--monoco-code-background);
+.tab.selected {
+  background-color: var(--pg-tab-selected-bg);
   color: var(--pg-tab-selected);
   box-shadow: inset 0 2px 0 var(--ifm-color-primary);
 }
@@ -267,15 +264,14 @@ div.playgroundTextEdit > .playgroundHeader {
 /* With header controls (e.g. homepage demos) the selected control joins the
    file subtab row below it, and that row's selected file joins the code */
 div.playgroundTextEdit > .playgroundHeader.subtabs {
-  background: var(--pg-subbar);
+  background: var(--pg-tab-hover-bg);
 }
-.subtabs .tab:hover {
+.subtabs .tab:not(.selected):hover {
   background-color: var(--pg-bar);
 }
-.controlTabs .tab.selected,
-.controlTabs .tab.selected:hover {
-  background-color: var(--pg-subbar);
-  color: var(--pg-tab-hover);
+.controlTabs {
+  --pg-tab-selected-bg: var(--pg-tab-hover-bg);
+  --pg-tab-selected: var(--pg-tab-hover);
 }
 
 :root .playgroundPreview {
@@ -287,15 +283,19 @@ div.playgroundTextEdit > .playgroundHeader.subtabs {
 /** DEMO STYLES
 * Place any styles needed for demos here
 */
-.playgroundPreview button {
-  margin-bottom: 8px;
-  margin-right: 8px;
-  padding: 0.3rem 0.8rem;
+.playgroundPreview button,
+.playgroundPreview input[type='text'],
+.playgroundPreview textarea {
   border: 1px solid var(--ifm-color-emphasis-400);
   border-radius: 6px;
   background: var(--ifm-background-surface-color);
   color: var(--ifm-font-color-base);
   font: inherit;
+}
+.playgroundPreview button {
+  margin-bottom: 8px;
+  margin-right: 8px;
+  padding: 0.3rem 0.8rem;
   font-size: 0.9rem;
   font-weight: 500;
   line-height: 1.4;
@@ -308,11 +308,6 @@ div.playgroundTextEdit > .playgroundHeader.subtabs {
 .playgroundPreview input[type='text'],
 .playgroundPreview textarea {
   padding: 0.3rem 0.5rem;
-  border: 1px solid var(--ifm-color-emphasis-400);
-  border-radius: 6px;
-  background: var(--ifm-background-surface-color);
-  color: var(--ifm-font-color-base);
-  font: inherit;
 }
 .playgroundPreview input[type='checkbox'] {
   width: 1rem;
@@ -509,24 +504,21 @@ div.fixtureJson {
   .playgroundContainer.endpointPlayground > div:last-child {
     flex: 50 1 0;
   }
+  .playgroundContainer.endpointPlayground > div:last-child {
+    border-left: 1px solid var(--pg-bar-edge);
+  }
   .playgroundContainer.row .playgroundHeader.tabControls:first-of-type {
     border-top-right-radius: 0;
   }
 }
 
-/* EndpointPlayground: every header bar matches the dark editor tab bar */
+/* EndpointPlayground: left tab bar and right fixture headers share one height */
 .endpointPlayground .playgroundHeader {
   display: flex;
   align-items: center;
   box-sizing: border-box;
   height: 34px;
   padding: 0 0.75rem;
-  background: var(--pg-bar);
-  color: var(--pg-tab);
-  box-shadow: inset 0 -1px 0 var(--pg-bar-edge);
-  text-transform: none;
-  font-size: 80%;
-  font-weight: 500;
   letter-spacing: 0.04rem;
 }
 .endpointPlayground .playgroundHeader.tabControls {
@@ -535,11 +527,6 @@ div.fixtureJson {
 .endpointPlayground .playgroundHeader .tab {
   height: 33px;
   padding: 0 0.75rem;
-}
-@container playground (min-width: 720px) {
-  .endpointPlayground > div:last-child {
-    border-left: 1px solid var(--pg-bar-edge);
-  }
 }
 
 /* Slim Before/After labels above DiffEditor panes; offsets set from Monaco layout */

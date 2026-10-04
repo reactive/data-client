@@ -36,18 +36,19 @@ export default function DiffEditor({ documents, fallback }: DiffMonacoProps) {
       const panes = [editor.getOriginalEditor(), editor.getModifiedEditor()];
       const updateOffsets = () => {
         const left = editor.getContainerDomNode().getBoundingClientRect().left;
-        setLabelOffsets(
-          panes.map(
-            pane =>
-              (pane.getDomNode()?.getBoundingClientRect().left ?? left) -
-              left +
-              pane.getLayoutInfo().contentLeft,
-          ),
+        const next = panes.map(
+          pane =>
+            (pane.getDomNode()?.getBoundingClientRect().left ?? left) -
+            left +
+            pane.getLayoutInfo().contentLeft,
+        );
+        setLabelOffsets(prev =>
+          prev?.every((offset, i) => offset === next[i]) ? prev : next,
         );
       };
       updateOffsets();
-      // disposed along with the panes
-      panes.forEach(pane => pane.onDidLayoutChange(updateOffsets));
+      // Both panes lay out together; disposed along with the pane
+      panes[1].onDidLayoutChange(updateOffsets);
     },
     [handleMount],
   );
