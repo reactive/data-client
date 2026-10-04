@@ -12,7 +12,7 @@ import {
 import React, { useEffect } from 'react';
 // relative imports to avoid circular dependency in tsconfig references
 
-import { makeRenderDataClient } from '../../../../test';
+import { act, makeRenderDataClient } from '../../../../test';
 import { articlesPages, payload, nested } from '../test-fixtures';
 import useCache from '../useCache';
 
@@ -289,5 +289,39 @@ describe('useCache()', () => {
       }
       expect(track.mock.calls.length).toBe(1);
     });
+  });
+
+  it('should be undefined (not a Symbol) for a deleted entity whose refetch errored', async () => {
+    const { result, controller } = renderDataClient(
+      () => {
+        return useCache(CoolerArticleResource.get, { id: payload.id });
+      },
+      {
+        initialFixtures: [
+          {
+            endpoint: CoolerArticleResource.get,
+            args: [{ id: payload.id }],
+            response: payload,
+          },
+        ],
+      },
+    );
+    expect(result.current?.title).toBe(payload.title);
+
+    // error meta keeps the response from counting as expired
+    act(() => {
+      controller.setError(
+        CoolerArticleResource.get,
+        { id: payload.id },
+        new Error('failed'),
+      );
+      controller.setResponse(
+        CoolerArticleResource.delete,
+        { id: payload.id },
+        { id: payload.id },
+      );
+    });
+
+    expect(result.current).toBeUndefined();
   });
 });
