@@ -1,7 +1,4 @@
 name: website
-env:
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 on:
   pull_request:
     branches:
@@ -38,20 +35,3 @@ jobs:
         run: yarn ci:build:types
       - name: Typecheck website
         run: yarn workspace rdc-website typecheck
-
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 1
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Build Project Artifacts
-        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
-      # - name: Deploy Project Artifacts to Vercel
-      #   continue-on-error: true
-      #   run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
