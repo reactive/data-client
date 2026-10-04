@@ -48,19 +48,12 @@ build_version() {
     copy_types "./src-$version-types" "./ts$version"
 }
 
-# LEGACY_MIN_TS skips outputs no consumer reads (CI's oldest tested TS).
-below_min() {
-    [ -n "$LEGACY_MIN_TS" ] && version_lt "$1" "$LEGACY_MIN_TS"
-}
-
 pids=()
 earlier=()
 for version in "$@"
 do
-    if ! below_min "$version"; then
-        build_version "$version" "${earlier[@]}" &
-        pids+=($!)
-    fi
+    build_version "$version" "${earlier[@]}" &
+    pids+=($!)
     earlier+=("$version")
 done
 
