@@ -283,30 +283,35 @@ div.playgroundTextEdit > .playgroundHeader.subtabs {
 /** DEMO STYLES
 * Place any styles needed for demos here
 */
-.playgroundPreview button,
-.playgroundPreview input[type='text'],
-.playgroundPreview textarea {
+.playgroundPreview button {
+  margin-bottom: 8px;
+  margin-right: 8px;
+  padding: 2px 6px;
+}
+/* Base skin for plain controls only; classed ones (DesignSystem rt-*, vote
+   arrows) keep their own chrome. :where() keeps specificity unchanged. */
+.playgroundPreview button:where(:not([class])),
+.playgroundPreview input[type='text']:where(:not([class])),
+.playgroundPreview textarea:where(:not([class])) {
   border: 1px solid var(--ifm-color-emphasis-400);
   border-radius: 6px;
   background: var(--ifm-background-surface-color);
   color: var(--ifm-font-color-base);
   font: inherit;
 }
-.playgroundPreview button {
-  margin-bottom: 8px;
-  margin-right: 8px;
+.playgroundPreview button:where(:not([class])) {
   padding: 0.3rem 0.8rem;
   font-size: 0.9rem;
   font-weight: 500;
   line-height: 1.4;
   cursor: pointer;
 }
-.playgroundPreview button:hover {
+.playgroundPreview button:where(:not([class])):hover {
   border-color: var(--ifm-color-primary);
   color: var(--ifm-color-primary);
 }
-.playgroundPreview input[type='text'],
-.playgroundPreview textarea {
+.playgroundPreview input[type='text']:where(:not([class])),
+.playgroundPreview textarea:where(:not([class])) {
   padding: 0.3rem 0.5rem;
 }
 .playgroundPreview input[type='checkbox'] {
