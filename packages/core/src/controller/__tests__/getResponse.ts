@@ -1,4 +1,5 @@
 import { Endpoint, Entity, Scalar, schema } from '@data-client/endpoint';
+import { INVALID } from '@data-client/normalizr';
 
 import { ExpiryStatus } from '../..';
 import { initialState } from '../../state/reducer/createReducer';
@@ -192,6 +193,63 @@ describe('Controller.getResponse()', () => {
     expect(second.data.data).toBe(data.data);
     expect(second.expiryStatus).toBe(expiryStatus);
     expect(second.expiresAt).toBe(expiresAt);
+  });
+});
+
+describe('Controller.getResponse() with deleted entities', () => {
+  class Tacos extends Entity {
+    type = '';
+    id = '';
+  }
+  const ep = new Endpoint(({ id }: { id: string }) => Promise.resolve(), {
+    key: ({ id }) => `taco ${id}`,
+    schema: Tacos,
+  });
+  const key = ep.key({ id: '1' });
+  const state = {
+    ...initialState,
+    entities: { Tacos: { 1: INVALID } },
+    endpoints: { [key]: '1' },
+  };
+  // error meta keeps the response from counting as expired
+  const erroredState = {
+    ...state,
+    meta: {
+      [key]: {
+        date: 0,
+        fetchedAt: 0,
+        expiresAt: Infinity,
+        error: new Error('failed'),
+      },
+    },
+  };
+
+  it('returns undefined data instead of the INVALID symbol', () => {
+    const controller = new Contoller();
+    const { data, expiryStatus } = controller.getResponse(
+      ep,
+      { id: '1' },
+      state,
+    );
+    expect(data).toBeUndefined();
+    expect(expiryStatus).toBe(ExpiryStatus.Invalid);
+  });
+
+  it('returns undefined data when the last fetch errored', () => {
+    const controller = new Contoller();
+    const { data, expiryStatus } = controller.getResponse(
+      ep,
+      { id: '1' },
+      erroredState,
+    );
+    expect(data).toBeUndefined();
+    expect(expiryStatus).toBe(ExpiryStatus.InvalidIfStale);
+  });
+
+  it('fetchIfStale() resolves errored deleted entities to undefined', () => {
+    const controller = new Contoller();
+    controller.getState = () => erroredState as any;
+    expect(controller.fetchIfStale(ep, { id: '1' })).toBeUndefined();
   });
 });
 

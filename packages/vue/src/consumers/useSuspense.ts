@@ -10,7 +10,6 @@ import type {
 import {
   computed,
   customRef,
-  unref,
   watch,
   readonly,
   shallowRef,
@@ -18,12 +17,12 @@ import {
   type ComputedRef,
 } from 'vue';
 
-import { useController, injectState } from '../context.js';
 import type {
   MaybeRefsOrGetters,
   MaybeRefsOrGettersNullable,
 } from '../types.js';
 import refetchTriggers from './refetchTriggers.js';
+import useResponseMeta, { isStale } from './useResponseMeta.js';
 
 /**
  * Ensure an endpoint is available.
@@ -73,25 +72,8 @@ export default async function useSuspense(
   endpoint: any,
   ...args: any[]
 ): Promise<DeepReadonly<ComputedRef<unknown>>> {
-  const stateRef = injectState();
-  const controller = useController();
-
-  // Track top-level reactive args (Refs are unwrapped). This allows props/refs to trigger updates.
-  const resolvedArgs = computed(() => args.map(a => unref(a as any)) as any);
-
-  // Compute a key that changes when args change (including reactive props)
-  const argsKey = computed(() =>
-    resolvedArgs.value[0] !== null ? endpoint.key(...resolvedArgs.value) : '',
-  );
-
-  // Compute response meta reactively so we can respond to store updates
-  const responseMeta = computed(() => {
-    return controller.getResponseMeta(
-      endpoint,
-      ...resolvedArgs.value,
-      stateRef.value,
-    );
-  });
+  const { controller, stateRef, resolvedArgs, argsKey, responseMeta } =
+    useResponseMeta(endpoint, args);
 
   // key of the fetch in flight; staleness alone isn't reactive (time passes without a
   // refetch), so only hold previous data while a fetch is actually running
@@ -116,16 +98,6 @@ export default async function useSuspense(
     maybeFetch().catch(() => {});
   });
 
-  // Maintain GC refcounts on data mount/changes
-  watch(
-    () => responseMeta.value.data,
-    (_newVal, _oldVal, onCleanup) => {
-      const decrement = responseMeta.value.countRef();
-      onCleanup(() => decrement?.());
-    },
-    { immediate: true },
-  );
-
   // Trigger on initial call
   await maybeFetch();
 
@@ -135,18 +107,13 @@ export default async function useSuspense(
   // has data keeps showing current store data, even while stale or refetching.
   let lastData: unknown;
   let lastKey = '';
-  // INVALID symbol (e.g. deleted entity) means no usable data
-  const metaData = computed(() => {
-    const data = responseMeta.value.data;
-    return typeof data === 'symbol' ? undefined : data;
-  });
   const loading = computed(() => {
     const meta = responseMeta.value;
     const key = argsKey.value;
     return (
       !!key &&
       fetchingKey.value === key &&
-      (lastKey !== key || metaData.value === undefined) &&
+      (lastKey !== key || meta.data === undefined) &&
       meta.expiryStatus !== ExpiryStatus.Valid &&
       isStale(meta)
     );
@@ -160,7 +127,7 @@ export default async function useSuspense(
   const data = computed(() => {
     if (loading.value || error.value) return lastData;
     lastKey = argsKey.value;
-    return (lastData = metaData.value);
+    return (lastData = responseMeta.value.data);
   });
 
   // Throw on every read; a computed that throws would return its cached value on the next read
@@ -174,11 +141,4 @@ export default async function useSuspense(
 
   // Return readonly ref - Vue automatically unwraps in templates and reactive contexts
   return readonly(result);
-}
-
-/** Hard invalid data must refetch regardless of staleness */
-function isStale(meta: { expiryStatus: ExpiryStatus; expiresAt: number }) {
-  return (
-    meta.expiryStatus === ExpiryStatus.Invalid || Date.now() > meta.expiresAt
-  );
 }

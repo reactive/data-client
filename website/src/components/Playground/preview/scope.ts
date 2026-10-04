@@ -8,7 +8,7 @@ import { v4 as uuid } from 'uuid';
 
 import ResetableErrorBoundary from '../../ResettableErrorBoundary';
 import * as designSystem from '../DesignSystem';
-import { Temporal, Intl, DateTimeFormat } from '../temporal';
+import { Temporal, Intl, DateTimeFormat } from './temporal';
 
 function randomFloatInRange(min: number, max: number, decimals: number) {
   return parseFloat((Math.random() * (max - min) + min).toFixed(decimals));

@@ -9,11 +9,11 @@ import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
 import clsx from 'clsx';
 import React, { memo, useCallback, useMemo, lazy } from 'react';
 
-import Boundary from './Boundary';
+import Boundary from '../Boundary';
 import StoreInspector from './StoreInspector';
-import styles from './styles.module.css';
-import type { PreviewProps } from './types';
-import { useTabStorage } from '../../utils/tabStorage';
+import { useTabStorage } from '../../../utils/tabStorage';
+import styles from '../styles.module.css';
+import type { PreviewProps } from '../types';
 
 function Preview<T>({
   groupId,
