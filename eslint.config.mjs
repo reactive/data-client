@@ -28,8 +28,6 @@ export default [
     // there only disables checking the overloads against the body.
     // Use the real container type with `unknown` inner values instead.
     files: ['packages/*/src/**/*.?(m|c)ts?(x)'],
-    // TODO: drop once #4114 and #4125 type the Vue composables
-    ignores: ['packages/vue/**'],
     rules: {
       'no-restricted-syntax': [
         'error',
