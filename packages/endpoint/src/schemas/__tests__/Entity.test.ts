@@ -1,5 +1,5 @@
-import { normalize, INVALID } from '@data-client/normalizr';
 import type { EntityInterface } from '@data-client/normalizr';
+import { normalize, INVALID } from '@data-client/normalizr';
 import { denormalize as plainDenormalize } from '@data-client/normalizr';
 import { denormalize as immDenormalize } from '@data-client/normalizr/imm';
 import { IDEntity } from '__tests__/new';
@@ -463,6 +463,16 @@ describe(`${Entity.name} normalization`, () => {
       }
       const entity: EntityInterface = User;
       expect(entity.pk({ id: '5' }, undefined, undefined, [])).toBe('5');
+    });
+
+    test('static pk() overrides may type args as a mutable array', () => {
+      class User extends Entity {
+        readonly id: string = '';
+        static pk(value: any, parent?: any, key?: string, args?: any[]) {
+          return `${value.id}-${args?.[0]}`;
+        }
+      }
+      expect(User.pk({ id: '5' }, undefined, undefined, ['a'])).toBe('5-a');
     });
   });
 
