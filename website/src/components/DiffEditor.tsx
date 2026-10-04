@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import styles from './DiffEditor.module.css';
 import DiffEditorChooser from './DiffEditorChooser';
 import Grid from './Grid';
-import { parseCallouts } from './Playground/editor/callouts';
+import { calloutMarker, parseCallouts } from './Playground/editor/callouts';
 import { parseCodeDocuments } from './Playground/editor/codeModel';
 
 export default function DiffEditor({ children, caption }: Props) {
@@ -43,10 +43,10 @@ export default function DiffEditor({ children, caption }: Props) {
       <DiffEditorChooser sides={sides} fallback={fallback} />
       {callouts.length > 0 && (
         <ol className={styles.callouts}>
-          {callouts.map(({ marker, text }) => (
-            <li key={marker}>
-              <span className={styles.marker}>{marker}</span>
-              {inlineCode(text)}
+          {callouts.map(({ index, text }) => (
+            <li key={index}>
+              <span className={styles.marker}>{calloutMarker(index)}</span>
+              <span>{inlineCode(text)}</span>
             </li>
           ))}
         </ol>

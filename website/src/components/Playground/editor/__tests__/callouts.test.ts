@@ -25,19 +25,18 @@ describe('parseCallouts', () => {
       staticValue:
         'class A {\n  // highlight-next-line\n  lens = selector;  // ①\n}',
       callouts: [
-        { line: 2, marker: '①', text: 'Set once so the cache key is stable' },
+        { line: 2, index: 0, text: 'Set once so the cache key is stable' },
       ],
     });
   });
 
-  test('continues numbering from startIndex', () => {
-    const code = '// callout: one\na;\n// callout: two\n// callout: three\nb;';
+  test('continues numbering from startIndex and joins wrapped callouts', () => {
+    const code = '// callout: one\na;\n// callout: two\n// callout: lines\nb;';
     const { staticValue, callouts } = parseCallouts(code, 2);
-    expect(staticValue).toBe('a;  // ③\nb;  // ④ ⑤');
-    expect(callouts.map(({ line, marker }) => [line, marker])).toEqual([
-      [1, '③'],
-      [2, '④'],
-      [2, '⑤'],
+    expect(staticValue).toBe('a;  // ③\nb;  // ④');
+    expect(callouts).toEqual([
+      { line: 1, index: 2, text: 'one' },
+      { line: 2, index: 3, text: 'two lines' },
     ]);
   });
 });

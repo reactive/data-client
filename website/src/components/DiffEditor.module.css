@@ -24,7 +24,7 @@
 }
 
 .marker,
-:global(.diff-callout-marker) {
+.figure :global([class*='diff-callout-'])::after {
   color: var(--ifm-color-primary);
   font-weight: bold;
 }

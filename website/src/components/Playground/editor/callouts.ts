@@ -1,7 +1,8 @@
 export interface Callout {
   /** 1-based line in `editorValue` the callout annotates */
   line: number;
-  marker: string;
+  /** Position across both sides of the diff; see `calloutMarker()` */
+  index: number;
   text: string;
 }
 
@@ -23,7 +24,7 @@ export function calloutMarker(index: number) {
 
 /**
  * Pulls `// callout: text` comments out of a fence; each annotates the next
- * code line. Markers continue numbering from `startIndex` so callouts across
+ * code line, and consecutive ones join into a single callout. Markers continue numbering from `startIndex` so callouts across
  * both sides of a diff share one legend.
  */
 export function parseCallouts(code: string, startIndex = 0): CalloutDocument {
@@ -44,15 +45,19 @@ export function parseCallouts(code: string, startIndex = 0): CalloutDocument {
       continue;
     }
     editorLines.push(line);
-    const markers = pending.map(text => {
-      const marker = calloutMarker(startIndex + callouts.length);
-      callouts.push({ line: editorLines.length, marker, text });
-      return marker;
-    });
-    staticLines.push(
-      markers.length ? `${line}  // ${markers.join(' ')}` : line,
-    );
-    pending = [];
+    if (pending.length) {
+      const index = startIndex + callouts.length;
+      // Consecutive callout comments are one callout wrapped across lines
+      callouts.push({
+        line: editorLines.length,
+        index,
+        text: pending.join(' '),
+      });
+      staticLines.push(`${line}  // ${calloutMarker(index)}`);
+      pending = [];
+    } else {
+      staticLines.push(line);
+    }
   }
 
   return {
