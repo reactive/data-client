@@ -5,12 +5,13 @@ import { type editor } from 'monaco-editor';
 import { useMemo } from 'react';
 
 import type { CodeDocument } from './Playground/editor/codeModel';
-import { extensionToMonacoLanguage } from './Playground/extensionToMonacoLanguage';
-import './Playground/monaco-init';
-import { isMobileOrBot } from './Playground/isMobileOrBot';
-import { options } from './Playground/monacoOptions';
+import { extensionToMonacoLanguage } from './Playground/monaco/language';
+import { options } from './Playground/monaco/options';
+import './Playground/monaco/setup';
+import { MONACO_THEME } from './Playground/monaco/theme';
+import useAutoHeight from './Playground/monaco/useAutoHeight';
 import styles from './Playground/styles.module.css';
-import useAutoHeight from './Playground/useAutoHeight';
+import { isMobileOrBot } from './Playground/userAgent';
 
 export default function DiffEditor({ documents, fallback }: DiffMonacoProps) {
   const [original, modified] = useMemo(
@@ -48,7 +49,7 @@ export default function DiffEditor({ documents, fallback }: DiffMonacoProps) {
                     options={DIFF_OPTIONS}
                     onMount={handleMount}
                     height={height}
-                    theme="prism"
+                    theme={MONACO_THEME}
                     loading={fallback}
                     // Prevent "TextModel got disposed before DiffEditorWidget model got reset" error
                     // by not letting @monaco-editor/react manage model disposal
