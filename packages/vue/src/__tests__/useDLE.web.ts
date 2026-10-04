@@ -1,3 +1,4 @@
+import { Endpoint } from '@data-client/endpoint';
 import nock from 'nock';
 import { computed, nextTick, reactive } from 'vue';
 
@@ -657,6 +658,41 @@ describe('vue useDLE()', () => {
     // With null args, argsKey is empty, so not loading
     expect(result.loading.value).toBe(false);
     expect(result.data.value).toBeUndefined();
+
+    cleanup();
+  });
+
+  it('should not refetch stale data on store updates that keep expiry unchanged', async () => {
+    const fetchMock = jest.fn(async ({ id }: { id: number }) => ({
+      ...payload,
+      id,
+    }));
+    const staleEndpoint = new Endpoint(fetchMock, {
+      schema: CoolerArticle,
+      dataExpiryLength: 20,
+      name: 'staleArticle',
+    });
+
+    const { result, controller, waitForNextUpdate, cleanup } =
+      await renderDataCompose(() => useDLE(staleEndpoint, { id: 77 }));
+    await waitForNextUpdate();
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    // let data become stale
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    await controller.set(
+      CoolerArticle,
+      { id: 77 },
+      { id: 77, title: 'edited' },
+    );
+    await nextTick();
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    // the store update should not trigger a refetch that overwrites the set
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(result.data.value?.title).toBe('edited');
 
     cleanup();
   });
