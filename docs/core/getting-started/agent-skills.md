@@ -13,9 +13,8 @@ The quickest way to get started is to let an [AI Agent](https://agentskills.io) 
 
 <SkillTabs skill="data-client-setup" />
 
-Then run skill `/data-client-setup`. It detects your framework (NextJS, Expo, React Native, Vue,
-plain React) and API style (REST, GraphQL, custom), installs the matching skills below, wires up
-the provider, and migrates existing endpoints it finds.
+Then run skill `/data-client-setup`. It detects your framework and API style (REST, GraphQL,
+custom), installs the matching skills below, wires up the provider, and migrates existing endpoints.
 
 ### Install all skills up front
 

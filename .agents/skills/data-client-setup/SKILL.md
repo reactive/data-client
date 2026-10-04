@@ -71,11 +71,11 @@ This skill hands off to other Data Client skills. Install the ones that match wh
 | GraphQL | `data-client-graphql-setup` |
 | Custom async | `data-client-endpoint-setup` |
 
-Use the installer that installed this skill, and the same scope (add the global flag if this skill lives under your home directory rather than the project):
+Use the installer that installed this skill. For OpenSkills and the skills CLI, add `-g` if this skill lives under your home directory rather than the project.
 
 - **Claude Code plugin** (this skill is under `~/.claude/plugins/`): `claude plugin install react@data-client` or `claude plugin install vue@data-client`. Either includes every skill above.
 - **OpenSkills** (`AGENTS.md` lists skills in an `<available_skills>` block): `npx openskills install reactive/data-client/.agents/skills/<skill>`, once per skill.
-- **Otherwise** use the skills CLI: `npx skills add reactive/data-client --yes --skill <skill> <skill> ...`
+- **Otherwise** use the skills CLI: `npx skills add reactive/data-client --yes --skill <skill> --skill <skill> ...`
 
 Newly installed skills may not be loaded until the next session, so read their `SKILL.md` directly when this skill says to apply them.
 
