@@ -37,6 +37,28 @@ function Harness() {
 }
 
 describe('useRenderCount', () => {
+  test('renders nothing when disabled', () => {
+    function Disabled() {
+      const { onCommit, badge } = useRenderCount(false);
+      expect(onCommit).toBeUndefined();
+      return badge ?? null;
+    }
+    const { container } = render(<Disabled />);
+    expect(container.innerHTML).toBe('');
+  });
+
+  test('ignores commits before the badge mounts', () => {
+    function Unmounted() {
+      const { onCommit } = useRenderCount(true);
+      return (
+        <Profiler id="test" onRender={onCommit!}>
+          <Counter />
+        </Profiler>
+      );
+    }
+    expect(() => render(<Unmounted />)).not.toThrow();
+  });
+
   test('stays hidden until a commit is reported', () => {
     function NoCommits() {
       return useRenderCount(true).badge;
