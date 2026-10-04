@@ -15,11 +15,15 @@ try {
   process.exit(0);
 }
 const command = payload.command ?? payload.tool_input?.command ?? '';
-// `git push` as a command (also `git -C dir push`, `cd x && git push`); not
-// `git stash push`, `git log --grep push` or a commit message mentioning push
-const PUSH =
-  /(?:^|[;&|(]\s*)git(?:\s+-[cC]\s+\S+|\s+--?[\w-]+(?:=\S+)?)*\s+push\b/m;
-if (!PUSH.test(command)) process.exit(0);
+// a git subcommand as a command (`git push`, `git -C dir push`, `cd x && git
+// push`); not `git stash push`, `git -c commit.gpgsign=false`, a branch named
+// fix-commit or a commit message mentioning push
+const gitCommand = sub =>
+  new RegExp(
+    `(?:^|[;&|(]\\s*)git(?:\\s+-[cC]\\s+\\S+|\\s+--?[\\w-]+(?:=\\S+)?)*\\s+${sub}(?![\\w.-])`,
+    'm',
+  );
+if (!gitCommand('push').test(command)) process.exit(0);
 
 const projectDir =
   process.env.CURSOR_PROJECT_DIR ||
@@ -64,7 +68,7 @@ try {
     .some(isInput);
   // the generator reads the working tree, so it can only vouch for what's
   // pushed when that includes these edits; otherwise leave it to CI
-  if (dirty && !/\bgit\b[^;&|\n]*\bcommit\b/.test(command)) process.exit(0);
+  if (dirty && !gitCommand('commit').test(command)) process.exit(0);
   const committed = git('diff', '--name-only', 'origin/master...HEAD')
     .split('\n')
     .some(isInput);
