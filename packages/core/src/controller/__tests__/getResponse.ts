@@ -211,6 +211,18 @@ describe('Controller.getResponse() with deleted entities', () => {
     entities: { Tacos: { 1: INVALID } },
     endpoints: { [key]: '1' },
   };
+  // error meta keeps the response from counting as expired
+  const erroredState = {
+    ...state,
+    meta: {
+      [key]: {
+        date: 0,
+        fetchedAt: 0,
+        expiresAt: Infinity,
+        error: new Error('failed'),
+      },
+    },
+  };
 
   it('returns undefined data instead of the INVALID symbol', () => {
     const controller = new Contoller();
@@ -228,17 +240,7 @@ describe('Controller.getResponse() with deleted entities', () => {
     const { data, expiryStatus } = controller.getResponse(
       ep,
       { id: '1' },
-      {
-        ...state,
-        meta: {
-          [key]: {
-            date: 0,
-            fetchedAt: 0,
-            expiresAt: Infinity,
-            error: new Error('failed'),
-          },
-        },
-      },
+      erroredState,
     );
     expect(data).toBeUndefined();
     expect(expiryStatus).toBe(ExpiryStatus.InvalidIfStale);
@@ -246,18 +248,7 @@ describe('Controller.getResponse() with deleted entities', () => {
 
   it('fetchIfStale() resolves errored deleted entities to undefined', () => {
     const controller = new Contoller();
-    controller.getState = () =>
-      ({
-        ...state,
-        meta: {
-          [key]: {
-            date: 0,
-            fetchedAt: 0,
-            expiresAt: Infinity,
-            error: new Error('failed'),
-          },
-        },
-      }) as any;
+    controller.getState = () => erroredState as any;
     expect(controller.fetchIfStale(ep, { id: '1' })).toBeUndefined();
   });
 });
