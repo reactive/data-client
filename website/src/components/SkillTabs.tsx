@@ -24,9 +24,10 @@ export default function SkillTabs({
 }: Props) {
   const allSkills =
     plugin ? pluginSkills(plugin) : (skills ?? (skill ? [skill] : []));
-  const skillsCommand = [`npx skills add ${repo}`]
-    .concat(allSkills.map(s => `--skill ${s}`))
-    .join(allSkills.length > 1 ? ' \\\n  ' : ' ');
+  const skillsCommand = [
+    `npx skills add ${repo}`,
+    ...allSkills.map(s => `--skill ${s}`),
+  ].join(allSkills.length > 1 ? ' \\\n  ' : ' ');
   // openskills has no --skill flag; it installs a single skill from its path
   const openSkillsCommand =
     allSkills.length ?
@@ -71,6 +72,6 @@ function pluginSkills(name: string): string[] {
   if (!plugin) throw new Error(`No plugin "${name}" in marketplace.json`);
   return [
     ...(plugin.dependencies ?? []).flatMap(pluginSkills),
-    ...plugin.skills.map(path => path.split('/').pop() as string),
+    ...plugin.skills.map(path => path.slice(path.lastIndexOf('/') + 1)),
   ];
 }
