@@ -15,13 +15,11 @@ try {
   process.exit(0);
 }
 const command = payload.command ?? payload.tool_input?.command ?? '';
-// `git push`, `git -C dir push`; not `git stash push` or `git config push.x`
-if (
-  !/\bgit(?:\s+-C\s+\S+|\s+-c\s+\S+|\s+--?[\w-]+(?:=\S+)?)*\s+push\b/.test(
-    command,
-  )
-)
-  process.exit(0);
+// `git push` as a command (also `git -C dir push`, `cd x && git push`); not
+// `git stash push`, `git log --grep push` or a commit message mentioning push
+const PUSH =
+  /(?:^|[;&|(]\s*)git(?:\s+-[cC]\s+\S+|\s+--?[\w-]+(?:=\S+)?)*\s+push\b/m;
+if (!PUSH.test(command)) process.exit(0);
 
 const projectDir =
   process.env.CURSOR_PROJECT_DIR ||
