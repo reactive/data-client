@@ -19,5 +19,13 @@ alwaysApply: false
 ## GitHub Actions (`.github/workflows/`)
 
 - Workflows install only needed workspaces via `./scripts/ci-install.sh [extra-workspace ...]`.
+- Docs site builds (`site-preview.yml`, `site-release.yml`) run only for the published site: `website/**`, `docs/core/**`, `docs/rest/**`, `docs/graphql/**`, and the workflow file itself. Keep that list in sync with `website/scripts/vercel-ignore.sh`. Package, example, CI, changeset, and other docs changes (including `docs/ROADMAP.md`) do not start those workflows. `site-preview` builds on the runner and does not deploy; the Vercel Git integration publishes the preview.
 - `benchmark-react.yml` caches Playwright browsers keyed on the resolved `playwright` version from `examples/benchmark-react`; bumping playwright invalidates the cache automatically.
 - Benchmark workflows (`benchmark.yml`, `benchmark-react.yml`) tune the host (CPU governor, swapoff) and pin CPUs with `taskset` — they must run directly on the runner, not in a `container:`.
+
+## Vercel docs site (`website/scripts/vercel-ignore.sh`)
+
+- `website/vercel.json` `ignoreCommand` runs that script from the `website/` root. Exit 0 skips the build; exit 1 builds. Vercel treats any other status as build, so the script exits 0 only when it can see that the published site is unchanged, and builds if the diff cannot be computed.
+- Same paths as the workflows, minus files that are not published: `website/CHANGELOG.md`, `website/**/__tests__/**`, and `website/**/*.test.*`. `gh-pages*` branches always skip.
+- Preview branches compare the pull request's own changes (last successful preview, or merge-base with `master`). Do not use `git diff HEAD^ HEAD` there: merging `master` into a package or CI PR makes that diff the incoming master tree and starts a full preview build. Production (`master`, `rest-hooks-site`, or `VERCEL_ENV=production`) compares against the last successful deploy, or `HEAD^` for a squash merge.
+- A skipped build still creates a Vercel deployment long enough to run this script, then cancels it. `git.deploymentEnabled: false` does not stick when the project dashboard overrides it.
