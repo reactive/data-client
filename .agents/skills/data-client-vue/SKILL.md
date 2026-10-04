@@ -58,9 +58,8 @@ const props = defineProps<{ id: number }>();
 const todo = await useSuspense(TodoResource.get, computed(() => ({ id: props.id })));
 ```
 
-When arguments change, `useSuspense()` does not suspend again: the result is `undefined` until the new
-fetch resolves (unless that data is already cached). Guard the template (`v-if="todo"`), or have the
-parent remount the component with `:key="id"` so it suspends inside `<Suspense>` again.
+When arguments change, `useSuspense()` and `useLive()` keep the previous data until the new fetch resolves
+(no `v-if` guard needed); a failed fetch for the new arguments reaches `onErrorCaptured()`.
 
 ## Mutations
 
