@@ -1,6 +1,7 @@
-import { computed, unref, watch } from 'vue';
+import { computed, unref } from 'vue';
 
 import { useController, injectState } from '../context.js';
+import useCountRef from './useCountRef.js';
 
 /** Reactive store response for an endpoint and its (possibly reactive) args.
  *
@@ -23,14 +24,7 @@ export default function useResponseMeta(endpoint: any, args: any[]) {
     controller.getResponseMeta(endpoint, ...resolvedArgs.value, stateRef.value),
   );
 
-  // Maintain GC refcounts on data mount/changes
-  watch(
-    () => responseMeta.value.data,
-    (_newVal, _oldVal, onCleanup) => {
-      onCleanup(responseMeta.value.countRef());
-    },
-    { immediate: true },
-  );
+  useCountRef(responseMeta);
 
   return { controller, stateRef, resolvedArgs, argsKey, responseMeta };
 }
