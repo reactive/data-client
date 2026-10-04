@@ -147,16 +147,18 @@ export default async function useSuspense(
   const data = computed(() => {
     const meta = responseMeta.value;
     const key = argsKey.value;
+    // INVALID symbol (e.g. deleted entity) means no usable data
+    const metaData = typeof meta.data === 'symbol' ? undefined : meta.data;
     const loading =
       !!key &&
       fetchingKey.value === key &&
-      (lastKey !== key || meta.data === undefined) &&
+      (lastKey !== key || metaData === undefined) &&
       meta.expiryStatus !== ExpiryStatus.Valid &&
       (meta.expiryStatus === ExpiryStatus.Invalid ||
         Date.now() > meta.expiresAt);
     if (loading) return lastData;
     lastKey = key;
-    return (lastData = meta.data);
+    return (lastData = metaData);
   });
 
   // Return readonly computed ref - Vue automatically unwraps in templates and reactive contexts
