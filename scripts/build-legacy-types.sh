@@ -20,19 +20,18 @@ copy_types() {
     done
 }
 
-# Custom types for a version also apply to every version listed after it,
-# so each output dir gets (in order): earlier versions' custom types, the
-# downleveled lib, then its own custom types. Each output dir only depends on
-# lib and src-*-types, so versions build concurrently.
+# Versions are listed newest first, and custom types for a version also apply
+# to every version listed after it. So each output dir gets the downleveled lib,
+# then earlier versions' custom types, then its own. Each output dir only
+# depends on lib and src-*-types, so versions build concurrently.
 build_version() {
     local version="$1"
     shift
-    mkdir -p "./ts$version"
+    "$downlevel_dts" lib "ts$version" --to="$version"
     for earlier in "$@"
     do
         copy_types "./src-$earlier-types" "./ts$version"
     done
-    "$downlevel_dts" lib "ts$version" --to="$version"
     copy_types "./src-$version-types" "./ts$version"
 }
 

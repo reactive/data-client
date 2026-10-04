@@ -85,14 +85,17 @@ jobs:
             elif git -c core.quotePath=off diff --no-renames --name-only "${DIFF_RANGE}" > /tmp/ci-changed-files; then
               echo "Changed files:"
               cat /tmp/ci-changed-files
-              if ! grep -Eq \
-                '^(\.circleci/config\.yml|package\.json$|tsconfig[^/]*\.json$|babel\.config\.js$|\.yarnrc\.yml$|scripts/|yarn\.lock|examples/todo-app/|examples/github-app/|examples/normalizr-relationships/|packages/)' /tmp/ci-changed-files; then
+              # Docs/website/tooling paths; both flags below are denylists over it.
+              DOCS_ONLY='website/|docs/|\.changeset/|\.cursor/|\.agents/|\.claude/|\.github/|[^/]+\.md$'
+              # Denylist (fail open): only paths provably outside every esmodule
+              # job's inputs can skip them, so a new input dir runs by default.
+              if ! grep -Evq "^(${DOCS_ONLY}|\.vscode/|plans/|__tests__/|eslint\.config\.mjs$|jest\.config\.js$|examples/[^/]+\.md$|examples/(benchmark|benchmark-react|coin-app|nextjs|normalizr-github|normalizr-redux|test-bundlesize|vue-todo-app)/)" /tmp/ci-changed-files; then
                 echo "No relevant esmodule-related changes; downstream esmodule jobs will halt."
                 ESMODULE_RELEVANT=false
               fi
               # Docs/website/tooling-only changes can't affect lint, typecheck or
               # unit tests (Playground has unit tests, so it stays relevant).
-              if ! grep -Evq '^(website/|docs/|\.changeset/|\.cursor/|\.agents/|\.claude/|\.github/|[^/]+\.md$)' /tmp/ci-changed-files \
+              if ! grep -Evq "^(${DOCS_ONLY})" /tmp/ci-changed-files \
                 && ! grep -q '^website/src/components/Playground/' /tmp/ci-changed-files; then
                 echo "Only docs/website/tooling paths changed; test jobs will halt."
                 TESTS_RELEVANT=false
