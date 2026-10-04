@@ -80,3 +80,18 @@ no text left for a framework (e.g. only `:react[...]`) is dropped from that fram
   `frameworks:` filtering. It runs on config load and re-syncs on change during `yarn start`.
 - `FrameworkSelector` (in the breadcrumbs) switches to the same page in the other docs instance,
   and disables a framework when the page doesn't exist there.
+
+## Agent skill references
+
+`skillReferences.mjs` (`yarn build:skills`) renders the docs each skill lists in
+`.agents/skills/<skill>/references.json` into plain markdown with `docsToMarkdown.mjs`: framework
+content resolved the same way (`remarkFramework.js`, front matter and `.vue.md` helpers from
+`index.js`), Docusaurus' own MDX preprocessing, partials inlined, and playgrounds, tabs and embeds
+reduced to their code. The
+first framework in `frameworks` writes `<name>.md`; later ones write `<name>.<framework>.md` only when
+the page differs. Output is committed because skills install straight from the repo; the `skills`
+workflow runs `yarn build:skills --check`.
+
+Partials can use `props` in `{...}` expressions; the generator evaluates them with the props passed
+where the partial is used. JSX inside an expression is only supported for `<CodeBlock>`; anything
+else fails the build so it can't silently drop content.
