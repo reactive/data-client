@@ -118,7 +118,7 @@ export default function useCache(
       return controller.getResponseMeta(endpoint, ...resolvedArgs.value, {
         ...stateRef.value,
         entities: {},
-      }).data as any;
+      }).data;
     }
     return responseMeta.value.data;
   });
