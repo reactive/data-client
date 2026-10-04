@@ -97,6 +97,10 @@ if has_rev 'HEAD^2' && master="$(upstream)" && is_ancestor 'HEAD^2' "$master"; t
   decide 'HEAD^2' HEAD "preview changes vs master (merge)"
 fi
 
+# A preview's previous deploy can be the commit being built (a branch with no
+# successful preview yet). Diffing it against itself would always skip.
+[ -n "$prev" ] && [ "$(git rev-parse -q --verify "$prev^{commit}")" = "$(git rev-parse HEAD)" ] && prev=""
+
 is_ancestor "$prev" HEAD && decide "$prev" HEAD "preview changes since ${prev:0:12}"
 
 if base="$(merge_base)" || { deepen && base="$(merge_base)"; }; then

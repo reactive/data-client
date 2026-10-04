@@ -108,6 +108,7 @@ expect skip "preview package follow-up after site deploy" feature "$page_sha"
 
 commit "playground source" website/src/components/Playground/transformCode.ts
 expect build "preview playground source since last deploy" feature "$page_sha"
+expect build "preview whose previous deploy is the commit itself" feature "$(git -C "$repo" rev-parse HEAD)"
 
 # Multi-commit branch with no prior deploy: the site edit is not the tip.
 git -C "$repo" checkout -b stacked master >/dev/null 2>&1
