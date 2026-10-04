@@ -120,7 +120,6 @@ function bundleSkill(sourceDir, skillDir, out) {
     .readFileSync(skillMd, 'utf8')
     .replace(FM, '')
     .trimStart()
-    // relative links now resolve from references/, next to the copied files
     // relative links now resolve from references/, next to the copied files;
     // fenced code (odd split indexes) is left as is
     .split(/(^```[\s\S]*?^```)/m)
