@@ -19,7 +19,7 @@ import type { EntityInterface } from '@data-client/react';
 const schema: EntityInterface = User;
 ```
 
-If you override `static pk()`, or implement `EntityInterface.pk`, and annotate `args` as a mutable array, make it `readonly`:
+If you override `static pk()` and annotate `args` as a mutable array, make it `readonly`:
 
 ```ts
 class User extends Entity {
