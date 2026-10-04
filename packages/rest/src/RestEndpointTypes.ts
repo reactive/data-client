@@ -166,7 +166,8 @@ export interface RestInstance<
     O['paginationField'] extends string ?
       PaginationFieldEndpoint<
         F & { schema: S; sideEffect: M } & O,
-        O['paginationField']
+        // TypeScript <4.6 doesn't narrow O['paginationField'] here
+        Extract<O['paginationField'], string>
       >
     : undefined
   : undefined;
