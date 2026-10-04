@@ -562,10 +562,12 @@ export default class Controller<
       else expiresAt = entityExpiresAt(paths, state.entitiesMeta);
     }
 
+    const invalidData = typeof data === 'symbol';
     return {
-      data,
+      // INVALID symbol (e.g. deleted entity) is an internal marker; expose it as missing data
+      data: invalidData ? undefined : data,
       expiryStatus: this.getExpiryStatus(
-        typeof data === 'symbol',
+        invalidData,
         !!endpoint.invalidIfStale || isInvalid,
         meta,
       ),
