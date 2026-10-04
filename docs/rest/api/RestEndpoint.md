@@ -325,14 +325,14 @@ const getUsers = new RestEndpoint({
   path: '/:group/user/:id',
   searchParams: {} as { isAdmin?: boolean; sort: 'asc' | 'desc' },
 });
-getList.url({ group: 'big', id: '5', sort: 'asc' }) ===
+getUsers.url({ group: 'big', id: '5', sort: 'asc' }) ===
   '/big/user/5?sort=asc';
-getList.url({
+getUsers.url({
   group: 'big',
   id: '5',
   sort: 'desc',
   isAdmin: true,
-}) === '/big/user/5?isAdmin=true&sort=asc';
+}) === '/big/user/5?isAdmin=true&sort=desc';
 ```
 
 ## Fetch Lifecycle
@@ -373,7 +373,7 @@ as [searchParams](https://developer.mozilla.org/en-US/docs/Web/API/URL/searchPar
 <summary><b>Implementation</b></summary>
 
 ```typescript
-import { getUrlBase, getUrlTokens } from '@rest-hooks/rest';
+import { getUrlBase, getUrlTokens } from '@data-client/rest';
 
 url(urlParams = {}) {
   const urlBase = getUrlBase(this.path)(urlParams);
