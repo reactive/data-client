@@ -92,15 +92,14 @@ export default async function useSuspense(
     );
   });
 
-  // key of the fetch in flight, so we only hold previous data while actually loading
+  // key of the fetch in flight; staleness alone isn't reactive (time passes without a
+  // refetch), so only hold previous data while a fetch is actually running
   const fetchingKey = shallowRef('');
 
   const maybeFetch = async () => {
     const currentKey = argsKey.value;
     if (!currentKey) return;
-    const meta = responseMeta.value;
-    const forceFetch = meta.expiryStatus === ExpiryStatus.Invalid;
-    if (Date.now() <= meta.expiresAt && !forceFetch) return;
+    if (!isStale(responseMeta.value)) return;
     fetchingKey.value = currentKey;
     try {
       await controller.fetch(endpoint, ...resolvedArgs.value);
@@ -128,10 +127,10 @@ export default async function useSuspense(
   // Trigger on initial call
   await maybeFetch();
 
-  // While a fetch for new args is in flight (when React's useSuspense would suspend),
-  // keep returning the last resolved data. Vue can't re-suspend after setup, so this
-  // avoids yielding `undefined` mid-transition. Refetches of the same key still show
-  // current store data when there is any.
+  // While a fetch for new args (or for a key with no data) is in flight, where React's
+  // useSuspense would suspend, keep returning the last resolved data. Vue can't re-suspend
+  // after setup, so this avoids yielding `undefined` mid-transition. A key that already
+  // has data keeps showing current store data, even while stale or refetching.
   let lastData: unknown;
   let lastKey = '';
   const data = computed(() => {
@@ -144,8 +143,7 @@ export default async function useSuspense(
       fetchingKey.value === key &&
       (lastKey !== key || metaData === undefined) &&
       meta.expiryStatus !== ExpiryStatus.Valid &&
-      (meta.expiryStatus === ExpiryStatus.Invalid ||
-        Date.now() > meta.expiresAt);
+      isStale(meta);
     if (loading) return lastData;
     lastKey = key;
     return (lastData = metaData);
@@ -153,4 +151,11 @@ export default async function useSuspense(
 
   // Return readonly computed ref - Vue automatically unwraps in templates and reactive contexts
   return readonly(data);
+}
+
+/** Hard invalid data must refetch regardless of staleness */
+function isStale(meta: { expiryStatus: ExpiryStatus; expiresAt: number }) {
+  return (
+    meta.expiryStatus === ExpiryStatus.Invalid || Date.now() > meta.expiresAt
+  );
 }

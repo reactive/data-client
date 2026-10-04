@@ -324,83 +324,112 @@ describe('vue useSuspense()', () => {
     cleanup();
   });
 
-  it('shows store updates once invalidIfStale data goes stale', async () => {
-    const StaleEndpoint = new Endpoint(
-      ({ id }: { id: number }) => Promise.resolve({ ...payload, id }),
-      {
-        schema: CoolerArticle,
-        name: 'StaleEndpoint',
-        dataExpiryLength: 20,
-        invalidIfStale: true,
-      },
+  // first fetch resolves; later fetches stay in flight until resolveRefetch()
+  function heldRefetchEndpoint(name: string, options: object = {}) {
+    let fetches = 0;
+    let resolveRefetch: (value: any) => void = () => {};
+    const endpoint = new Endpoint(
+      ({ id }: { id: number }) =>
+        fetches++ === 0 ?
+          Promise.resolve({ ...payload, id })
+        : new Promise(resolve => {
+            resolveRefetch = resolve;
+          }),
+      { schema: CoolerArticle, name, ...options },
     );
+    return {
+      endpoint,
+      fetches: () => fetches,
+      resolveRefetch: (value: any) => resolveRefetch(value),
+    };
+  }
+
+  async function mountArticle(
+    endpoint: ReturnType<typeof heldRefetchEndpoint>['endpoint'],
+  ) {
     const { result, controller, waitForNextUpdate, cleanup } =
-      await renderDataCompose(() =>
-        useSuspense(StaleEndpoint, { id: payload.id }),
-      );
+      await renderDataCompose(() => useSuspense(endpoint, { id: payload.id }));
     await waitForNextUpdate();
     const articleRef = await result;
     expect(articleRef.value.title).toBe(payload.title);
+    return { articleRef, controller, cleanup };
+  }
+
+  const staleOptions = { dataExpiryLength: 20, invalidIfStale: true };
+
+  it('shows store updates once invalidIfStale data goes stale', async () => {
+    const { endpoint, fetches } = heldRefetchEndpoint(
+      'StaleEndpoint',
+      staleOptions,
+    );
+    const { articleRef, controller, cleanup } = await mountArticle(endpoint);
 
     // let the data go stale without anything triggering a refetch
     await new Promise(resolve => setTimeout(resolve, 50));
-    const UpdateEndpoint = new Endpoint(
-      (body: typeof payload) => Promise.resolve(body),
-      {
-        schema: CoolerArticle,
-        sideEffect: true,
-        name: 'StaleUpdate',
-      },
+    await controller.set(
+      CoolerArticle,
+      { id: payload.id },
+      { ...payload, title: 'edited' },
     );
-    await controller.fetch(UpdateEndpoint, { ...payload, title: 'edited' });
     await nextTick();
 
+    expect(fetches()).toBe(1);
     expect(articleRef.value.title).toBe('edited');
 
     cleanup();
   });
 
-  it('shows store updates while refetching the same args', async () => {
-    let fetchCount = 0;
-    let resolveRefetch: (value: any) => void = () => {};
-    const RefetchEndpoint = new Endpoint(
+  it('shows new args data that went stale before it was read', async () => {
+    const LazyEndpoint = new Endpoint(
       ({ id }: { id: number }) =>
-        // first fetch resolves; the refetch stays in flight until we resolve it
-        fetchCount++ === 0 ?
-          Promise.resolve({ ...payload, id })
-        : new Promise(resolve => {
-            resolveRefetch = resolve;
-          }),
-      {
-        schema: CoolerArticle,
-        name: 'RefetchEndpoint',
-        dataExpiryLength: 20,
-        invalidIfStale: true,
-      },
+        Promise.resolve(id === payload.id ? payload : payload2),
+      { schema: CoolerArticle, name: 'LazyEndpoint', ...staleOptions },
     );
-    const { result, controller, waitForNextUpdate, cleanup } =
-      await renderDataCompose(() =>
-        useSuspense(RefetchEndpoint, { id: payload.id }),
-      );
+    const props = reactive({ id: payload.id });
+    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
+      (props: { id: number }) =>
+        useSuspense(
+          LazyEndpoint,
+          computed(() => ({ id: props.id })),
+        ),
+      { props },
+    );
     await waitForNextUpdate();
     const articleRef = await result;
     expect(articleRef.value.title).toBe(payload.title);
+
+    // new args resolve and go stale without the result being read in between
+    props.id = payload2.id;
+    await nextTick();
+    await new Promise(resolve => setTimeout(resolve, 0));
+    await nextTick();
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    expect(articleRef.value.title).toBe(payload2.title);
+    cleanup();
+  });
+
+  it('shows store updates while refetching the same args', async () => {
+    const { endpoint, fetches, resolveRefetch } = heldRefetchEndpoint(
+      'RefetchEndpoint',
+      staleOptions,
+    );
+    const { articleRef, controller, cleanup } = await mountArticle(endpoint);
 
     // expiring the data makes the hook refetch the same args
     await controller.expireAll({
       testKey: key => key.startsWith('RefetchEndpoint'),
     });
     await nextTick();
-    expect(fetchCount).toBe(2);
-    const UpdateEndpoint = new Endpoint(
-      (body: typeof payload) => Promise.resolve(body),
-      { schema: CoolerArticle, sideEffect: true, name: 'RefetchUpdate' },
+    expect(fetches()).toBe(2);
+    await controller.set(
+      CoolerArticle,
+      { id: payload.id },
+      { ...payload, title: 'edited' },
     );
-    await controller.fetch(UpdateEndpoint, { ...payload, title: 'edited' });
-    await nextTick();
     await nextTick();
 
-    expect(fetchCount).toBe(2);
+    expect(fetches()).toBe(2);
     expect(articleRef.value.title).toBe('edited');
 
     resolveRefetch({ ...payload, title: 'edited' });
@@ -409,25 +438,9 @@ describe('vue useSuspense()', () => {
   });
 
   it('keeps previous data while refetching a deleted entity', async () => {
-    let fetchCount = 0;
-    let resolveRefetch: (value: any) => void = () => {};
-    const DeletedEndpoint = new Endpoint(
-      ({ id }: { id: number }) =>
-        // first fetch resolves; the refetch stays in flight until we resolve it
-        fetchCount++ === 0 ?
-          Promise.resolve({ ...payload, id })
-        : new Promise(resolve => {
-            resolveRefetch = resolve;
-          }),
-      { schema: CoolerArticle, name: 'DeletedEndpoint' },
-    );
-    const { result, controller, waitForNextUpdate, cleanup } =
-      await renderDataCompose(() =>
-        useSuspense(DeletedEndpoint, { id: payload.id }),
-      );
-    await waitForNextUpdate();
-    const articleRef = await result;
-    expect(articleRef.value.title).toBe(payload.title);
+    const { endpoint, fetches, resolveRefetch } =
+      heldRefetchEndpoint('DeletedEndpoint');
+    const { articleRef, controller, cleanup } = await mountArticle(endpoint);
 
     const DeleteEndpoint = new Endpoint(
       ({ id }: { id: number }) => Promise.resolve({ id }),
@@ -441,7 +454,7 @@ describe('vue useSuspense()', () => {
     await nextTick();
     await nextTick();
 
-    expect(fetchCount).toBe(2);
+    expect(fetches()).toBe(2);
     expect(articleRef.value.title).toBe(payload.title);
 
     resolveRefetch({ ...payload, title: 'restored' });
