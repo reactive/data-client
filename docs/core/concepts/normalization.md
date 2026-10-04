@@ -48,7 +48,7 @@ values={[
 { label: 'Response', value: 'Response' },
 { label: 'Endpoint', value: 'Endpoint' },
 { label: 'Entity', value: 'Entity' },
-{ label: 'React', value: 'React' },
+{ label: 'Component', value: 'Component' },
 ]}>
 <TabItem value="State">
 
@@ -87,7 +87,9 @@ class Presentation extends Entity {
 ```
 
 </TabItem>
-<TabItem value="React">
+<TabItem value="Component">
+
+:::react
 
 ```tsx
 export function PresentationsPage() {
@@ -97,6 +99,24 @@ export function PresentationsPage() {
   ));
 }
 ```
+
+:::
+
+:::vue
+
+```html title="PresentationsPage.vue"
+<script setup lang="ts">
+  const presentations = await useSuspense(getPresentations);
+</script>
+
+<template>
+  <div v-for="presentation in presentations" :key="presentation.pk()">
+    {{ presentation.title }}
+  </div>
+</template>
+```
+
+:::
 
 </TabItem>
 </Tabs>
@@ -143,6 +163,8 @@ const todoCreate = new RestEndpoint({
 <details>
 <summary><b>Example Usage</b></summary>
 
+:::react
+
 ```tsx
 import { useController } from '@data-client/react';
 
@@ -157,6 +179,28 @@ export default function NewTodoForm() {
   );
 }
 ```
+
+:::
+
+:::vue
+
+```html title="NewTodoForm.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+
+  const ctrl = useController();
+  const handleSubmit = (e: Event) =>
+    ctrl.fetch(todoCreate, new FormData(e.target as HTMLFormElement));
+</script>
+
+<template>
+  <Form @submit="handleSubmit">
+    <FormField name="title" />
+  </Form>
+</template>
+```
+
+:::
 
 </details>
 
@@ -177,6 +221,8 @@ const todoUpdate = new RestEndpoint({
 <details>
 <summary><b>Example Usage</b></summary>
 
+:::react
+
 ```tsx
 import { useController } from '@data-client/react';
 
@@ -195,6 +241,34 @@ export default function UpdateTodoForm({ id }: { id: number }) {
   );
 }
 ```
+
+:::
+
+:::vue
+
+```html title="UpdateTodoForm.vue"
+<script setup lang="ts">
+  import { useController, useSuspense } from '@data-client/vue';
+
+  const props = defineProps<{ id: number }>();
+  const todo = await useSuspense(todoDetail, () => ({ id: props.id }));
+  const ctrl = useController();
+  const handleSubmit = (e: Event) =>
+    ctrl.fetch(
+      todoUpdate,
+      { id: props.id },
+      new FormData(e.target as HTMLFormElement),
+    );
+</script>
+
+<template>
+  <Form @submit="handleSubmit" :initialValues="todo">
+    <FormField name="title" />
+  </Form>
+</template>
+```
+
+:::
 
 </details>
 
@@ -215,6 +289,8 @@ const todoDelete = new RestEndpoint({
 <details>
 <summary><b>Example Usage</b></summary>
 
+:::react
+
 ```tsx
 import { useController } from '@data-client/react';
 
@@ -230,6 +306,28 @@ export default function TodoWithDelete({ todo }: { todo: Todo }) {
   );
 }
 ```
+
+:::
+
+:::vue
+
+```html title="TodoWithDelete.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+
+  defineProps<{ todo: Todo }>();
+  const ctrl = useController();
+</script>
+
+<template>
+  <div>
+    {{ todo.title }}
+    <button @click="ctrl.fetch(todoDelete, { id: todo.id })">Delete</button>
+  </div>
+</template>
+```
+
+:::
 
 </details>
 
