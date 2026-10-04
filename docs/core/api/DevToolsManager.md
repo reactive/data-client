@@ -86,7 +86,7 @@ When using [WebSockets](../concepts/managers.md#data-stream) or other real-time 
 high-frequency updates can overwhelm the DevTools extension. Use the `predicate` option to
 filter out specific action types or schemas:
 
-```tsx title="index.tsx"
+```tsx title="index.ts" framework-imports
 import { getDefaultManagers, actionTypes } from '@data-client/react';
 import { Ticker } from './resources/Ticker';
 

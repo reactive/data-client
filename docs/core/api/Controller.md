@@ -533,6 +533,8 @@ Looks up any [Queryable](/rest/api/schema#queryable) [Schema](/rest/api/schema#s
 This is used in [useQuery](./useQuery.md) and can be used in
 [Managers](./Manager.md) to safely access the store.
 
+:::react
+
 ```tsx title="useQuery.ts"
 import {
   useController,
@@ -553,6 +555,8 @@ function useQuery<S extends Queryable>(
   return controller.get(schema, ...args, state);
 }
 ```
+
+:::
 
 ### getResponse(endpoint, ...args, state) {#getResponse}
 
@@ -604,6 +608,8 @@ A number representing time when it expires. Compare to Date.now().
 This is used in [useCache](./useCache.md), [useSuspense](./useSuspense.md) and can be used in
 [Managers](./Manager.md) to lookup a response with the state provided.
 
+:::react
+
 ```tsx title="useCache.ts"
 import {
   useController,
@@ -621,6 +627,8 @@ function useCache<E extends EntityInterface>(
   return controller.getResponse(endpoint, ...args, state).data;
 }
 ```
+
+:::
 
 ```tsx title="MyManager.ts" framework-imports
 import {
