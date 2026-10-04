@@ -238,7 +238,7 @@ function EditorHeader({
         </>
       : null}
       {controls != null ?
-        <Header className={styles.tabControls}>
+        <Header className={clsx(styles.tabControls, styles.controlTabs)}>
           <div className={styles.title}>{title}</div>
           {controls}
         </Header>

@@ -9,7 +9,13 @@ export default function Response({ response, status }: Props) {
     <div>
       <Header small className={clsx(styles.doubleTitle)}>
         <span>Response</span>
-        <span>{status}</span>
+        <span
+          className={clsx(styles.status, {
+            [styles.error]: status >= 400,
+          })}
+        >
+          {`${status} ${STATUS_TEXT[status] ?? ''}`.trim()}
+        </span>
       </Header>
       <CodeBlock language="json" className={styles.containedCode}>
         {response ? JSON.stringify(response, undefined, 2) : 'NO CONTENT'}
@@ -21,3 +27,17 @@ interface Props {
   response: JSON;
   status: number;
 }
+
+const STATUS_TEXT: Record<number, string> = {
+  200: 'OK',
+  201: 'Created',
+  202: 'Accepted',
+  204: 'No Content',
+  400: 'Bad Request',
+  401: 'Unauthorized',
+  403: 'Forbidden',
+  404: 'Not Found',
+  409: 'Conflict',
+  422: 'Unprocessable Content',
+  500: 'Internal Server Error',
+};
