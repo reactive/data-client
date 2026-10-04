@@ -20,14 +20,11 @@ copy_types() {
     done
 }
 
-<<<<<<< HEAD
 # True when version $1 is older than version $2.
 version_lt() {
     [ "$1" != "$2" ] && [ "$(printf '%s\n' "$1" "$2" | sort -V | head -1)" = "$1" ]
 }
 
-=======
->>>>>>> origin/claude/project-thread-bw2hx0
 # Versions are listed newest first, and custom types for a version also apply
 # to every version listed after it. So each output dir gets the downleveled lib,
 # then earlier versions' custom types, then its own. Each output dir only
@@ -36,7 +33,6 @@ build_version() {
     local version="$1"
     shift
     "$downlevel_dts" lib "ts$version" --to="$version"
-<<<<<<< HEAD
     # downlevel-dts keeps `abstract new` constructor types, which need TS 4.2
     if version_lt "$version" 4.2; then
         grep -rl --include='*.d.ts' 'abstract new (' "ts$version" | while IFS= read -r file
@@ -44,8 +40,6 @@ build_version() {
             perl -pi -e 's/abstract new \(/new (/g' "$file"
         done
     fi
-=======
->>>>>>> origin/claude/project-thread-bw2hx0
     for earlier in "$@"
     do
         copy_types "./src-$earlier-types" "./ts$version"
