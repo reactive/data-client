@@ -7,7 +7,9 @@ import {
   nextTick,
   onErrorCaptured,
   reactive,
+  watch,
 } from 'vue';
+import * as Vue from 'vue';
 
 import {
   CoolerArticleResource,
@@ -15,6 +17,11 @@ import {
 } from '../../../../__tests__/new';
 import useSuspense from '../consumers/useSuspense';
 import { renderDataCompose, mountDataClient } from '../test';
+
+// runtime export used by compiled <script setup>, missing from vue's public types
+const { withAsyncContext } = Vue as unknown as {
+  withAsyncContext: <T>(getAwaitable: () => T) => [T, () => void];
+};
 
 // Minimal shared fixture (copied from React test fixtures)
 const payload = {
@@ -344,12 +351,13 @@ describe('vue useSuspense()', () => {
     const articleRef = await result;
     expect(articleRef.value.title).toBe(payload.title);
 
-    // previously an unhandled rejection, failing this test
     props.id = payload2.id;
     await nextTick();
     await allSettled();
     await nextTick();
 
+    expect(() => articleRef.value).toThrow('Not Found');
+    // every read throws, not just the first
     expect(() => articleRef.value).toThrow('Not Found');
 
     // recovers when args change back
@@ -378,10 +386,17 @@ describe('vue useSuspense()', () => {
       name: 'ArticleTitle',
       props: { id: { type: Number, required: true } },
       async setup(props: { id: number }) {
-        const article = await useSuspense(
-          ControlledEndpoint,
-          computed(() => ({ id: props.id })),
+        // what <script setup> compiles `await` to, keeping the component instance
+        const [pending, restore] = withAsyncContext(() =>
+          useSuspense(
+            ControlledEndpoint,
+            computed(() => ({ id: props.id })),
+          ),
         );
+        const article = await pending;
+        restore();
+        // reads the ref before render in the same flush
+        watch(article, () => {});
         return () => h('h3', article.value.title);
       },
     });
@@ -411,6 +426,9 @@ describe('vue useSuspense()', () => {
     settlers[payload2.id].reject(error);
     await flushUntil(wrapper, () => errorSpy.mock.calls.length > 0);
 
+    expect(errorSpy).toHaveBeenCalled();
+    // render threw too, rather than showing the previous args' data
+    expect(wrapper.find('h3').exists()).toBe(false);
     // the fetch error itself, not a crash from rendering undefined data
     for (const [captured] of errorSpy.mock.calls) {
       expect(captured).toBe(error);

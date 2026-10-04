@@ -9,6 +9,7 @@ import type {
 } from '@data-client/core';
 import {
   computed,
+  customRef,
   unref,
   watch,
   readonly,
@@ -143,7 +144,7 @@ export default async function useSuspense(
   // keep returning the last resolved data. Vue can't re-suspend after setup, so this
   // avoids yielding `undefined` mid-transition.
   let lastData: unknown;
-  const data = computed(() => {
+  const result = computed((): { data?: unknown; error?: unknown } => {
     const meta = responseMeta.value;
     const loading =
       !!argsKey.value &&
@@ -151,17 +152,27 @@ export default async function useSuspense(
       meta.expiryStatus !== ExpiryStatus.Valid &&
       (meta.expiryStatus === ExpiryStatus.Invalid ||
         Date.now() > meta.expiresAt);
-    if (loading) return lastData;
+    if (loading) return { data: lastData };
     // surface fetch errors for the current args like React's useSuspense does
     const error = controller.getError(
       endpoint,
       ...resolvedArgs.value,
       stateRef.value,
     );
-    if (error) throw error;
-    return (lastData = meta.data);
+    if (error) return { error };
+    return { data: (lastData = meta.data) };
   });
 
-  // Return readonly computed ref - Vue automatically unwraps in templates and reactive contexts
+  // Throw on every read; a computed that throws would return its cached value on the next read
+  const data = customRef(() => ({
+    get() {
+      const { data, error } = result.value;
+      if (error) throw error;
+      return data;
+    },
+    set() {},
+  }));
+
+  // Return readonly ref - Vue automatically unwraps in templates and reactive contexts
   return readonly(data);
 }
