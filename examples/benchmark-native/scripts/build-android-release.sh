@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Authoritative release build: prepare BuildManifest → Gradle assembleRelease → sidecar.
+# Authoritative release build: prepare BuildManifest (rebuilds the dist files
+# Metro bundles, then hashes them) → Gradle assembleRelease → sidecar.
 # Split APKs are unsupported; requires single app-release.apk.
 set -euo pipefail
 

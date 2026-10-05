@@ -116,7 +116,7 @@ export interface BuildManifestV1 {
   buildId: string;
   gitCommit: string;
   gitDirty: boolean;
-  /** Content digest of the app tree plus Metro-resolved package lib inputs. */
+  /** Content digest of the app tree plus the package files Metro bundles. */
   sourceDigest: string;
   createdAt: string;
 }

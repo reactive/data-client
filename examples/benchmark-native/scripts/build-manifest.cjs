@@ -9,11 +9,11 @@
  * digest   — print current sourceDigest (for stale checks)
  * verify   — verify manifest and/or sidecar identity
  *
- * Inputs: sorted paths under this app (tracked+untracked contents) plus
- * the Metro-resolved lib of packages/{core,normalizr,endpoint} (react-native
- * export condition → lib/, the bytes the release APK bundles — not package
- * src or the legacy main field) and examples/gc-shared, excluding
- * build/node_modules/artifacts/.jdk/generated.
+ * Inputs: sorted paths under this app (tracked+untracked contents) plus the
+ * package files the release Metro bundle actually resolves (@data-client/*
+ * via package exports key order: import → node.mjs, require → dist/) and
+ * examples/gc-shared, excluding build/node_modules/artifacts/.jdk/generated.
+ * prepare rebuilds those package bundles (build:bundle) before hashing.
  */
 const { execSync } = require('child_process');
 const crypto = require('crypto');
@@ -63,56 +63,248 @@ function walkFiles(dir, out) {
   }
 }
 
-/**
- * Packages the release bundle loads through Metro's react-native condition.
- * Metro (`unstable_conditionNames: ["react-native"]`, package exports on)
- * resolves these to lib/, not src/ and not the legacy "react-native" field.
- */
-const BUNDLED_PACKAGES = [
-  'packages/core',
-  'packages/normalizr',
-  'packages/endpoint',
-];
+const { resolve: metroResolve } = require('metro-resolver');
 
-function bundleRootForPackage(packageRel) {
-  const pkgPath = path.join(REPO, packageRel, 'package.json');
-  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-  const dot = pkg.exports && pkg.exports['.'];
-  const rel = dot && dot['react-native'];
-  if (typeof rel !== 'string' || rel.length === 0) {
-    throw new Error(
-      `${packageRel} has no exports["."].react-native (Metro condition)`,
-    );
+let metroResolverConfig;
+function loadMetroResolverConfig() {
+  if (!metroResolverConfig) {
+    metroResolverConfig = require(path.join(ROOT, 'metro.config.js')).resolver;
   }
-  const entry = path.resolve(path.join(REPO, packageRel), rel);
-  if (!fs.existsSync(entry)) {
-    throw new Error(
-      `Metro react-native entry missing: ${path.relative(REPO, entry)} (run that package's build:lib)`,
-    );
-  }
-  return path.dirname(entry);
+  return metroResolverConfig;
 }
 
-/** .js files under a Metro lib root. Declarations and external maps are not bundled. */
-function walkJsFiles(dir, out) {
-  if (!fs.existsSync(dir)) return;
-  for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
-    const full = path.join(dir, ent.name);
-    if (ent.isDirectory()) {
-      if (shouldSkipDir(ent.name)) continue;
-      walkJsFiles(full, out);
-    } else if (ent.isFile() && ent.name.endsWith('.js')) {
-      out.push(full);
+function realpathOrSelf(filePath) {
+  try {
+    return fs.realpathSync(filePath);
+  } catch {
+    return filePath;
+  }
+}
+
+function fileSystemLookup(filePath) {
+  try {
+    const stat = fs.lstatSync(filePath);
+    return {
+      exists: true,
+      type: stat.isDirectory() ? 'd' : 'f',
+      realPath: realpathOrSelf(filePath),
+    };
+  } catch {
+    return { exists: false };
+  }
+}
+
+function getPackageForModule(abs) {
+  let dir = abs;
+  try {
+    if (!fs.statSync(abs).isDirectory()) dir = path.dirname(abs);
+  } catch {
+    dir = path.dirname(abs);
+  }
+  while (true) {
+    const pkgPath = path.join(dir, 'package.json');
+    if (fs.existsSync(pkgPath)) {
+      const rel = path.relative(dir, abs);
+      return {
+        rootPath: dir,
+        packageJson: JSON.parse(fs.readFileSync(pkgPath, 'utf8')),
+        packageRelativePath: rel === '' ? '' : rel,
+      };
+    }
+    const parent = path.dirname(dir);
+    if (parent === dir) return null;
+    dir = parent;
+  }
+}
+
+/**
+ * Same resolver context the release bundle uses (metro.config.js + RN defaults).
+ * isESMImport selects the `import` condition; otherwise Metro asserts `require`.
+ * Both are tried before `react-native` because matching follows the package's
+ * own exports key order.
+ */
+function metroResolveContext(originModulePath, isESMImport) {
+  const resolver = loadMetroResolverConfig();
+  return {
+    allowHaste: false,
+    assetExts: new Set(resolver.assetExts || []),
+    dev: false,
+    disableHierarchicalLookup: !!resolver.disableHierarchicalLookup,
+    doesFileExist: filePath => {
+      try {
+        return fs.statSync(filePath).isFile();
+      } catch {
+        return false;
+      }
+    },
+    extraNodeModules: resolver.extraNodeModules || {},
+    fileSystemLookup,
+    getPackage: pkgPath => JSON.parse(fs.readFileSync(pkgPath, 'utf8')),
+    getPackageForModule,
+    isESMImport,
+    mainFields: resolver.resolverMainFields,
+    nodeModulesPaths: resolver.nodeModulesPaths,
+    originModulePath,
+    preferNativePlatform: true,
+    resolveAsset: () => null,
+    resolveRequest: resolver.resolveRequest || null,
+    sourceExts: resolver.sourceExts,
+    unstable_conditionNames: resolver.unstable_conditionNames,
+    unstable_conditionsByPlatform: resolver.unstable_conditionsByPlatform,
+    unstable_enablePackageExports: resolver.unstable_enablePackageExports,
+    unstable_logWarning: () => {},
+  };
+}
+
+function resolveMetroFile(originModulePath, specifier, isESMImport) {
+  const resolved = metroResolve(
+    metroResolveContext(originModulePath, isESMImport),
+    specifier,
+    'android',
+  );
+  if (!resolved || resolved.type !== 'sourceFile' || !resolved.filePath) {
+    throw new Error(
+      `Metro did not resolve ${specifier} from ${originModulePath}`,
+    );
+  }
+  return resolved.filePath;
+}
+
+function staticDependencies(code) {
+  const deps = [];
+  const seen = new Set();
+  const add = (specifier, isESMImport) => {
+    if (!specifier.startsWith('.') && !specifier.startsWith('@data-client/')) {
+      return;
+    }
+    const key = `${isESMImport ? 'esm' : 'cjs'}:${specifier}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    deps.push({ specifier, isESMImport });
+  };
+  const esmFrom =
+    /(?:^|[;\n])\s*(?:import|export)\s+(?!type\b)[\s\S]*?\sfrom\s*['"]([^'"]+)['"]/g;
+  const esmSide = /(?:^|[;\n])\s*import\s+['"]([^'"]+)['"]/g;
+  const cjs = /require\(\s*['"]([^'"]+)['"]\s*\)/g;
+  let match;
+  while ((match = esmFrom.exec(code))) add(match[1], true);
+  while ((match = esmSide.exec(code))) add(match[1], true);
+  while ((match = cjs.exec(code))) add(match[1], false);
+  return deps;
+}
+
+function shouldFollowResolved(filePath) {
+  const rel = path.relative(REPO, filePath).split(path.sep).join('/');
+  if (rel.startsWith('..')) return false;
+  return (
+    rel.startsWith('examples/benchmark-native/') ||
+    rel.startsWith('examples/gc-shared/') ||
+    rel.startsWith('packages/')
+  );
+}
+
+/**
+ * Package files reachable from the release entry the same way Metro resolves
+ * them (android, dev false). This is the closure in the release bundle, not
+ * the `react-native` exports field (lib/) and not unused dist siblings.
+ */
+function metroBundledPackageFiles() {
+  const entry = path.join(ROOT, 'index.js');
+  const queue = [entry];
+  const seen = new Set();
+  const packageFiles = [];
+  while (queue.length) {
+    const file = queue.pop();
+    const real = realpathOrSelf(file);
+    if (seen.has(real)) continue;
+    seen.add(real);
+    const rel = path.relative(REPO, real).split(path.sep).join('/');
+    if (rel.startsWith('packages/')) packageFiles.push(real);
+    if (!shouldFollowResolved(real)) continue;
+    let code;
+    try {
+      code = fs.readFileSync(real, 'utf8');
+    } catch {
+      continue;
+    }
+    for (const dep of staticDependencies(code)) {
+      let next;
+      try {
+        next = resolveMetroFile(real, dep.specifier, dep.isESMImport);
+      } catch (err) {
+        throw new Error(
+          `Metro resolve failed for ${dep.specifier} from ${path.relative(REPO, real)}: ${err.message}`,
+        );
+      }
+      queue.push(next);
     }
   }
+  return packageFiles.sort((a, b) => a.localeCompare(b));
+}
+
+function dataClientPackageName(filePath) {
+  const rel = path.relative(REPO, filePath).split(path.sep);
+  if (rel[0] !== 'packages' || !rel[1]) return null;
+  return rel[1];
+}
+
+function runPackageBuildBundle(packageDirName) {
+  const pkgPath = path.join(REPO, 'packages', packageDirName, 'package.json');
+  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+  if (!pkg.scripts || !pkg.scripts['build:bundle']) {
+    throw new Error(`${pkg.name} has no build:bundle script`);
+  }
+  console.log(
+    `== build:bundle ${pkg.name} (file the release Metro bundle resolves) ==`,
+  );
+  execSync(`yarn workspace ${pkg.name} run build:bundle`, {
+    cwd: REPO,
+    stdio: 'inherit',
+  });
+}
+
+/**
+ * Rebuild dist outputs Metro will bundle, then return that file list.
+ * Direct @data-client imports are built first so node.mjs → dist can resolve;
+ * transitive packages (normalizr, required from core's dist) are built next.
+ */
+function ensureMetroBundlesBuilt() {
+  const built = new Set();
+  const build = name => {
+    if (built.has(name)) return;
+    built.add(name);
+    runPackageBuildBundle(name);
+  };
+  for (let attempt = 0; attempt < 6; attempt++) {
+    let files;
+    try {
+      files = metroBundledPackageFiles();
+    } catch (err) {
+      const missing = String(err.message).match(/packages\/([^/]+)\/dist/);
+      if (missing && !built.has(missing[1])) {
+        build(missing[1]);
+        continue;
+      }
+      throw err;
+    }
+    const pending = [];
+    for (const file of files) {
+      const name = dataClientPackageName(file);
+      const rel = path.relative(REPO, file).split(path.sep).join('/');
+      if (name && rel.includes('/dist/') && !built.has(name)) {
+        pending.push(name);
+      }
+    }
+    if (!pending.length) return files;
+    for (const name of pending) build(name);
+  }
+  throw new Error('could not build the package bundles Metro resolves');
 }
 
 function collectInputFiles() {
   const files = [];
   walkFiles(ROOT, files);
-  for (const packageRel of BUNDLED_PACKAGES) {
-    walkJsFiles(bundleRootForPackage(packageRel), files);
-  }
+  for (const file of metroBundledPackageFiles()) files.push(file);
   walkFiles(path.join(REPO, 'examples/gc-shared'), files);
   return files.map(f => path.resolve(f)).sort((a, b) => a.localeCompare(b));
 }
@@ -162,6 +354,7 @@ function gitMeta() {
 }
 
 function prepare() {
+  ensureMetroBundlesBuilt();
   const digest = sourceDigest();
   const { gitCommit, gitDirty } = gitMeta();
   const schemaVersion = 1;
@@ -264,10 +457,11 @@ function verify() {
 }
 
 module.exports = {
-  BUNDLED_PACKAGES,
-  bundleRootForPackage,
   collectInputFiles,
+  ensureMetroBundlesBuilt,
   hashInputFiles,
+  metroBundledPackageFiles,
+  resolveMetroFile,
   sourceDigest,
 };
 
