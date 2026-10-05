@@ -14,13 +14,23 @@ name: "CodeQL"
 on:
   push:
     branches: [ master ]
+    # Shipped source only: manifests, docs and tests can't add alerts that matter
     paths:
-      - 'packages/**'
+      - 'packages/*/src/**'
+      - 'packages/*/*.mjs'
+      - '!packages/**/__tests__/**'
+      - '.github/workflows/codeql-analysis.yml'
   pull_request:
+    # ready_for_review: drafts skip the job below, so run once marked ready
+    types: [opened, synchronize, reopened, ready_for_review]
     # The branches below must be a subset of the branches above
     branches: [ master ]
+    # Shipped source only: manifests, docs and tests can't add alerts that matter
     paths:
-      - 'packages/**'
+      - 'packages/*/src/**'
+      - 'packages/*/*.mjs'
+      - '!packages/**/__tests__/**'
+      - '.github/workflows/codeql-analysis.yml'
   schedule:
     - cron: '25 22 * * 5'
 
@@ -38,6 +48,7 @@ jobs:
       contents: read # for actions/checkout to fetch code
       security-events: write # for github/codeql-action/autobuild to send a status report
     name: Analyze
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
 
     strategy:

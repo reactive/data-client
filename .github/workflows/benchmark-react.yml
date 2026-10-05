@@ -2,6 +2,8 @@ name: Benchmark React
 
 on:
   pull_request:
+    # ready_for_review: drafts skip the job below, so run once marked ready
+    types: [opened, synchronize, reopened, ready_for_review]
     branches:
       - master
     paths:
@@ -10,6 +12,8 @@ on:
       - 'packages/endpoint/src/schemas/**'
       - 'packages/normalizr/src/**'
       - 'examples/benchmark-react/**'
+      - '!packages/**/__tests__/**'
+      - '!examples/benchmark-react/**/*.md'
       - '.github/workflows/benchmark-react.yml'
   push:
     branches:
@@ -20,6 +24,8 @@ on:
       - 'packages/endpoint/src/schemas/**'
       - 'packages/normalizr/src/**'
       - 'examples/benchmark-react/**'
+      - '!packages/**/__tests__/**'
+      - '!examples/benchmark-react/**/*.md'
       - '.github/workflows/benchmark-react.yml'
 
 concurrency:
@@ -32,6 +38,7 @@ permissions:
 
 jobs:
   benchmark-react:
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
 
     steps:

@@ -1,19 +1,17 @@
 name: Bundle Size
 
 on:
+  # PR-only: on push the action measures but has nowhere to report
   pull_request:
-    # The branches below must be a subset of the branches above
+    # ready_for_review: drafts skip the job below, so run once marked ready
+    types: [opened, synchronize, reopened, ready_for_review]
     branches: [ master ]
     paths:
       - 'packages/**'
-      - 'yarn.lock'
-      - 'examples/test-bundlesize/**'
-      - '.github/workflows/bundle_size.yml'
-  push:
-    branches:
-      - master
-    paths:
-      - 'packages/**'
+      - '!packages/**/__tests__/**'
+      - '!packages/*/typescript-tests/**'
+      - '!packages/*/src-*-types/**'
+      - '!packages/**/*.md'
       - 'yarn.lock'
       - 'examples/test-bundlesize/**'
       - '.github/workflows/bundle_size.yml'
@@ -24,7 +22,7 @@ concurrency:
 
 jobs:
   build:
-
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
 
     steps:

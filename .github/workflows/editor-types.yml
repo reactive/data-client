@@ -7,6 +7,10 @@ on:
     # Inputs of scripts/copywebsitetypes.sh
     paths:
       - 'packages/**'
+      - '!packages/**/__tests__/**'
+      - '!packages/*/typescript-tests/**'
+      - '!packages/*/src-*-types/**'
+      - '!packages/**/*.md'
       - 'scripts/copywebsitetypes.sh'
       - 'scripts/strip-dts-comments.mjs'
       - 'scripts/globals.ts'
@@ -22,6 +26,10 @@ on:
       - master
     paths:
       - 'packages/**'
+      - '!packages/**/__tests__/**'
+      - '!packages/*/typescript-tests/**'
+      - '!packages/*/src-*-types/**'
+      - '!packages/**/*.md'
       - 'scripts/copywebsitetypes.sh'
       - 'scripts/strip-dts-comments.mjs'
       - 'scripts/globals.ts'

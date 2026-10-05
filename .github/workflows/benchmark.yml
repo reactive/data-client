@@ -2,6 +2,8 @@ name: Benchmark
 
 on:
   pull_request:
+    # ready_for_review: drafts skip the job below, so run once marked ready
+    types: [opened, synchronize, reopened, ready_for_review]
     branches:
       - master
     paths:
@@ -9,6 +11,8 @@ on:
       - 'packages/endpoint/src/schemas/**'
       - 'packages/core/src/**'
       - 'examples/benchmark/**'
+      - '!packages/**/__tests__/**'
+      - '!examples/benchmark/**/*.md'
       - '.github/workflows/benchmark.yml'
   push:
     branches:
@@ -18,6 +22,8 @@ on:
       - 'packages/endpoint/src/schemas/**'
       - 'packages/core/src/**'
       - 'examples/benchmark/**'
+      - '!packages/**/__tests__/**'
+      - '!examples/benchmark/**/*.md'
       - '.github/workflows/benchmark.yml'
 permissions:
   contents: write
@@ -29,7 +35,7 @@ concurrency:
 
 jobs:
   benchmark:
-
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
 
     steps:

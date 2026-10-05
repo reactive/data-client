@@ -30,6 +30,9 @@ alwaysApply: false
 - `site-preview.yml`/`site-release.yml` `paths` (`website/**`, `docs/{core,rest,graphql}/**`) must match `SITE_PATHS` in `website/scripts/vercel-ignore.sh`.
 - `benchmark-react.yml` caches Playwright browsers keyed on the resolved `playwright` version from `examples/benchmark-react`; bumping playwright invalidates the cache automatically.
 - Benchmark workflows (`benchmark.yml`, `benchmark-react.yml`) tune the host (CPU governor, swapoff) and pin CPUs with `taskset` — they must run directly on the runner, not in a `container:`.
+- Report-style workflows (`benchmark*.yml`, `bundle_size.yml`, `codeql-analysis.yml`) skip draft PRs with a job-level `if: ${{ !github.event.pull_request.draft }}` and list `ready_for_review` in `pull_request.types`, so they run once a PR is marked ready. Correctness checks (`editor-types`, `skills`, `website`) still run on drafts.
+- `paths` leave out what a workflow never reads, so test- or docs-only edits under `packages/` don't fan out: `__tests__/`, `typescript-tests/`, `src-*-types/` (legacy types) and `*.md`. CodeQL triggers only on shipped source (`packages/*/src/**`, `packages/*/*.mjs`). `bundle_size.yml` is PR-only: on push the action measures but has nowhere to report.
+- Renovate (`.github/renovate.json`) uses `rebaseWhen: conflicted`: master's branch protection requires up-to-date branches, which makes the default rebase every Renovate PR (and rerun all of its CI) on each master push. Update the branch before merging a Renovate PR.
 
 ## Vercel docs site (`website/scripts/vercel-ignore.sh`)
 
