@@ -9,7 +9,7 @@ license: Apache 2.0
 ## Composable Testing with renderDataCompose()
 
 ```typescript
-import { renderDataCompose } from '../test';
+import { renderDataCompose } from '@data-client/vue/test';
 import { reactive, computed } from 'vue';
 
 it('useQuery() should return cached data', () => {
@@ -46,7 +46,7 @@ it('useQuery() should return cached data', () => {
 ## Component Testing with mountDataClient()
 
 ```typescript
-import { mountDataClient } from '../test';
+import { mountDataClient } from '@data-client/vue/test';
 import { defineComponent, h, reactive } from 'vue';
 
 it('should render article component', async () => {
@@ -369,7 +369,6 @@ expect(result.current?.value?.title).toBe('hi ho');
 For detailed API documentation, see the [references](references/) directory:
 
 - [Fixtures](references/Fixtures.md) - Fixture format reference
-- [unit-testing-hooks](references/unit-testing-hooks.md) - Hook/composable testing guide
 - [nock-http-mocking](references/nock-http-mocking.md) - Full nock setup, dynamic server state, request spying, errors, pitfalls
 - [polling-subscriptions](references/polling-subscriptions.md) - Fake-timer patterns for `useLive`/`useSubscription`/`pollFrequency`, unsubscribe verification, polling via nock
 

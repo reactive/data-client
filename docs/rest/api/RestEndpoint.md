@@ -1222,12 +1222,12 @@ return (
 );
 ```
 
-See [pagination guide](guides/pagination.md) for more info.
+See [pagination guide](../guides/pagination.md) for more info.
 
 ### paginated(paginationfield) {#paginated}
 
 Creates a new endpoint with an extra `paginationfield` string that will be used to find the specific
-page, to append to this endpoint. See [Infinite Scrolling Pagination](guides/pagination.md#infinite-scrolling) for more info.
+page, to append to this endpoint. See [Infinite Scrolling Pagination](../guides/pagination.md#infinite-scrolling) for more info.
 
 ```ts
 const getNextPage = getList.paginated('cursor');

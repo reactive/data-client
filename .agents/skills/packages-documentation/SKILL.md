@@ -105,6 +105,7 @@ Before completing changes to public APIs in `/packages`:
 - [ ] Added migration notes for breaking changes
 - [ ] Updated TypeScript examples in documentation
 - [ ] Verified documentation builds correctly (if applicable)
+- [ ] Updated agent skills in `.agents/skills` that cover the API: `references.json` for added/renamed/deleted pages, and `SKILL.md` examples (see `.cursor/rules/skills-sync.mdc`)
 
 ## Important Notes
 
