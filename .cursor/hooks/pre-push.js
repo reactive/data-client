@@ -30,6 +30,7 @@ const gitCommand = sub =>
   );
 if (!gitCommand('push').test(command)) process.exit(0);
 const commits = gitCommand('commit').test(command);
+const stages = gitCommand('add').test(command);
 // `git commit -a` / `-am` / `--all`
 const commitsAll =
   commits &&
@@ -114,6 +115,20 @@ function regenerate({ what, from, script, check, isInput, outputs }) {
 
 const PENDING = path.join(projectDir, 'node_modules/.cache/pre-push-fixed');
 
+/** `{ file: blob }` for those of `files` HEAD has */
+function headBlobs(files) {
+  if (!files.length) return {};
+  return Object.fromEntries(
+    git('ls-tree', '-z', 'HEAD', '--', ...files)
+      .split('\0')
+      .filter(Boolean)
+      .map(line => {
+        const [meta, file] = line.split('\t');
+        return [file, meta.split(' ')[2]];
+      }),
+  );
+}
+
 /** `eslint --fix` the JS/TS files this push includes */
 function lintFix() {
   // eslint reads the working tree, so lint an uncommitted file only when this
@@ -139,28 +154,38 @@ function lintFix() {
   ];
   const { fixed } = eslintFix(pushed);
   // fixes an earlier push's run left uncommitted: those files are dirty now,
-  // so they aren't linted above, but the push would still go without them
-  let pending = [];
+  // so they aren't linted above, but the push would still go without them.
+  // Each is kept with its HEAD blob at the time; once a commit changes that,
+  // the fix went in with it
+  let pending = {};
   try {
     pending = JSON.parse(fs.readFileSync(PENDING, 'utf8'));
   } catch {
     // none yet
   }
-  const unpushed = [
-    ...new Set([
-      ...fixed,
-      ...pending.filter(file => dirty.includes(file) && !committing.has(file)),
-    ]),
-  ];
+  const blobs = headBlobs([...fixed, ...Object.keys(pending)]);
+  const unpushed = Object.fromEntries([
+    ...Object.entries(pending).filter(
+      ([file, blob]) =>
+        blob === (blobs[file] ?? null) &&
+        dirty.includes(file) &&
+        !committing.has(file),
+    ),
+    ...fixed.map(file => [file, blobs[file] ?? null]),
+  ]);
   try {
     fs.mkdirSync(path.dirname(PENDING), { recursive: true });
     fs.writeFileSync(PENDING, JSON.stringify(unpushed));
   } catch {
     // no install
   }
-  return unpushed.length ?
+  // a `git add` in this command may commit them; check again on the next push
+  const held = Object.keys(unpushed).filter(
+    file => fixed.includes(file) || !stages,
+  );
+  return held.length ?
       [
-        `\`eslint --fix\` changed files this push would include. Commit them, then push again:\n${unpushed.join('\n')}`,
+        `\`eslint --fix\` changed files this push would include. Commit them, then push again:\n${held.join('\n')}`,
       ]
     : [];
 }
