@@ -1,0 +1,96 @@
+.figure {
+  margin: 0;
+}
+
+.caption {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--ifm-color-emphasis-800);
+}
+
+.callouts {
+  list-style: none;
+  /* The editor and fallback carry their own bottom margin; tuck under it */
+  margin: calc(0.5rem - var(--ifm-leading)) 0 var(--ifm-leading);
+  padding: 0;
+  font-size: 0.9rem;
+}
+.callouts li {
+  display: flex;
+  gap: 0.5em;
+}
+.callouts li + li {
+  margin-top: 0.25rem;
+}
+
+.marker {
+  color: var(--ifm-color-primary);
+  font-weight: bold;
+}
+
+/* Monaco markers; must match calloutMarker() */
+.figure :global([class*='diff-callout-'])::after {
+  margin-left: 1ch;
+  color: var(--ifm-color-primary);
+  font-weight: bold;
+}
+.figure :global(.diff-callout-0)::after {
+  content: '①';
+}
+.figure :global(.diff-callout-1)::after {
+  content: '②';
+}
+.figure :global(.diff-callout-2)::after {
+  content: '③';
+}
+.figure :global(.diff-callout-3)::after {
+  content: '④';
+}
+.figure :global(.diff-callout-4)::after {
+  content: '⑤';
+}
+.figure :global(.diff-callout-5)::after {
+  content: '⑥';
+}
+.figure :global(.diff-callout-6)::after {
+  content: '⑦';
+}
+.figure :global(.diff-callout-7)::after {
+  content: '⑧';
+}
+.figure :global(.diff-callout-8)::after {
+  content: '⑨';
+}
+.figure :global(.diff-callout-9)::after {
+  content: '⑩';
+}
+.figure :global(.diff-callout-10)::after {
+  content: '⑪';
+}
+.figure :global(.diff-callout-11)::after {
+  content: '⑫';
+}
+.figure :global(.diff-callout-12)::after {
+  content: '⑬';
+}
+.figure :global(.diff-callout-13)::after {
+  content: '⑭';
+}
+.figure :global(.diff-callout-14)::after {
+  content: '⑮';
+}
+.figure :global(.diff-callout-15)::after {
+  content: '⑯';
+}
+.figure :global(.diff-callout-16)::after {
+  content: '⑰';
+}
+.figure :global(.diff-callout-17)::after {
+  content: '⑱';
+}
+.figure :global(.diff-callout-18)::after {
+  content: '⑲';
+}
+.figure :global(.diff-callout-19)::after {
+  content: '⑳';
+}

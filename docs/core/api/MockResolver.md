@@ -1,4 +1,5 @@
 ---
+frameworks: [react]
 title: MockResolver - Data Mocking for React
 sidebar_label: <MockResolver />
 ---

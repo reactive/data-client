@@ -1,10 +1,11 @@
 ---
 title: useDLE() - [D]ata [L]oading [E]rror React State
+vue_title: useDLE() - [D]ata [L]oading [E]rror Vue State
 sidebar_label: useDLE()
 description: High performance async data rendering without overfetching. With fetch meta data.
 ---
 
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import {RestEndpoint} from '@data-client/rest';
 import { detailFixtures, listFixtures } from '@site/src/fixtures/profiles';
 import PkgTabs from '@site/src/components/PkgTabs';
@@ -12,6 +13,7 @@ import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import StackBlitz from '@site/src/components/StackBlitz';
+import VueArgs from '../shared/\_vueArgs.mdx';
 
 # useDLE() - [D]ata [L]oading [E]rror
 
@@ -23,7 +25,7 @@ In case you cannot use [suspense](../getting-started/data-dependency.md#async-fa
 
 ## Usage
 
-<HooksPlayground fixtures={listFixtures} row>
+<FrameworkPlayground fixtures={listFixtures} row>
 
 ```typescript title="ProfileResource" collapsed
 import { Entity, resource } from '@data-client/rest';
@@ -43,6 +45,8 @@ export const ProfileResource = resource({
 });
 ```
 
+:::react
+
 ```tsx title="ProfileList"
 import { useDLE } from '@data-client/react';
 import { ProfileResource } from './ProfileResource';
@@ -50,7 +54,7 @@ import { ProfileResource } from './ProfileResource';
 function ProfileList(): JSX.Element {
   const { data, loading, error } = useDLE(ProfileResource.getList);
   if (error) return <div>Error {`${error.status}`}</div>;
-  if (loading || !data) return <Loading/>;
+  if (loading || !data) return <Loading />;
   return (
     <div>
       {data.map(profile => (
@@ -68,23 +72,62 @@ function ProfileList(): JSX.Element {
 render(<ProfileList />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="ProfileList.vue"
+<script setup lang="ts">
+  import { useDLE } from '@data-client/vue';
+  import { ProfileResource } from './ProfileResource';
+
+  const { data, loading, error } = useDLE(ProfileResource.getList);
+</script>
+
+<template>
+  <div v-if="error">Error {{ error.status }}</div>
+  <Loading v-else-if="loading || !data" />
+  <div v-else>
+    <div class="listItem" v-for="profile in data" :key="profile.pk()">
+      <Avatar :src="profile.avatar" />
+      <div>
+        <h4>{{ profile.fullName }}</h4>
+        <p>{{ profile.bio }}</p>
+      </div>
+    </div>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ## Behavior
 
-| Expiry Status | Fetch           | Data         | Loading | Error             | Conditions                                                                                                                                                                   |
-| ------------- | --------------- | ------------ | ------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+:::vue
+
+`data`, `loading` and `error` are each a [ComputedRef](https://vuejs.org/api/reactivity-core.html#computed).
+Destructure them at the top level of `<script setup>` so they are unwrapped in the template. The table
+below describes their `.value`.
+
+:::
+
+| Expiry Status | Fetch           | Data         | Loading | Error             | Conditions                                                                                                                                                             |
+| ------------- | --------------- | ------------ | ------- | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Invalid       | yes<sup>1</sup> | `undefined`  | true    | false             | not in store, [deletion](/rest/api/resource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) |
-| Stale         | yes<sup>1</sup> | denormalized | false   | false             | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                                                                                                 |
-| Valid         | no              | denormalized | false   | maybe<sup>2</sup> | fetch completion                                                                                                                                                             |
-|               | no              | `undefined`  | false   | false             | `null` used as second argument                                                                                                                                               |
+| Stale         | yes<sup>1</sup> | denormalized | false   | false             | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                                                                                           |
+| Valid         | no              | denormalized | false   | maybe<sup>2</sup> | fetch completion                                                                                                                                                       |
+|               | no              | `undefined`  | false   | false             | `null` used as second argument                                                                                                                                         |
 
 :::note
 
 1. Identical fetches are automatically deduplicated
-2. [Hard errors](../concepts/error-policy.md#hard) to be [caught](../getting-started/data-dependency#async-fallbacks) by [Error Boundaries](./AsyncBoundary.md)
+2. [Hard errors](../concepts/error-policy.md#hard) to be [caught](../getting-started/data-dependency#async-fallbacks) by :react[[Error Boundaries](./AsyncBoundary.md)]:vue[[onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured)]
 
 :::
+
+::::react
 
 :::info[React Native]
 
@@ -93,9 +136,13 @@ stale.
 
 :::
 
+::::
+
 <ConditionalDependencies hook="useDLE" />
 
 ## Types
+
+:::react
 
 <GenericsTabs>
 
@@ -130,11 +177,32 @@ function useDLE<
 
 </GenericsTabs>
 
+:::
+
+:::vue
+
+```typescript
+function useDLE(
+  endpoint: ReadEndpoint,
+  ...args: MaybeRefsOrGetters<Parameters<typeof endpoint>> | [null]
+): {
+  data: ComputedRef<DenormalizeNullable<typeof endpoint.schema>>;
+  loading: ComputedRef<boolean>;
+  error: ComputedRef<ErrorTypes | undefined>;
+};
+```
+
+<VueArgs />
+
+The results update when the arguments change.
+
+:::
+
 ## Examples
 
 ### Detail
 
-<HooksPlayground fixtures={detailFixtures} row>
+<FrameworkPlayground fixtures={detailFixtures} row>
 
 ```typescript title="ProfileResource" collapsed
 import { Entity, resource } from '@data-client/rest';
@@ -154,6 +222,8 @@ export const ProfileResource = resource({
 });
 ```
 
+:::react
+
 ```tsx title="ProfileDetail"
 import { useDLE } from '@data-client/react';
 import { ProfileResource } from './ProfileResource';
@@ -165,7 +235,7 @@ function ProfileDetail(): JSX.Element {
     error,
   } = useDLE(ProfileResource.get, { id: 1 });
   if (error) return <div>Error {`${error.status}`}</div>;
-  if (loading || !profile) return <Loading/>;
+  if (loading || !profile) return <Loading />;
   return (
     <div className="listItem">
       <Avatar src={profile.avatar} />
@@ -179,7 +249,38 @@ function ProfileDetail(): JSX.Element {
 render(<ProfileDetail />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="ProfileDetail.vue"
+<script setup lang="ts">
+  import { useDLE } from '@data-client/vue';
+  import { ProfileResource } from './ProfileResource';
+
+  const {
+    data: profile,
+    loading,
+    error,
+  } = useDLE(ProfileResource.get, { id: 1 });
+</script>
+
+<template>
+  <div v-if="error">Error {{ error.status }}</div>
+  <Loading v-else-if="loading || !profile" />
+  <div v-else class="listItem">
+    <Avatar :src="profile.avatar" />
+    <div>
+      <h4>{{ profile.fullName }}</h4>
+      <p>{{ profile.bio }}</p>
+    </div>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ### Conditional
 
@@ -224,13 +325,15 @@ export const UserResource = resource({
 });
 ```
 
+:::react
+
 ```tsx title="PostWithAuthor"
 import { PostResource, UserResource } from './Resources';
 
 export default function PostWithAuthor({ id }: { id: string }) {
   const postDLE = useDLE(PostResource.get, { id });
   if (postDLE.error) return <div>Error {`${postDLE.error.status}`}</div>;
-  if (postDLE.loading || !postDLE.data) return <Loading/>;
+  if (postDLE.loading || !postDLE.data) return <Loading />;
   const authorDLE = useDLE(
     UserResource.get,
     postDLE.data.userId
@@ -239,12 +342,56 @@ export default function PostWithAuthor({ id }: { id: string }) {
         }
       : null,
   );
-  if (authorDLE.error) return <div>Error {`${authorDLE.error.status}`}</div>;
-  if (authorDLE.loading || !authorDLE.data) return <Loading/>;
+  if (authorDLE.error)
+    return <div>Error {`${authorDLE.error.status}`}</div>;
+  if (authorDLE.loading || !authorDLE.data) return <Loading />;
 
-  return <div>{authorDLE.data.username}</div>
+  return <div>{authorDLE.data.username}</div>;
 }
 ```
+
+:::
+
+:::vue
+
+```html title="PostWithAuthor.vue" {15-21}
+<script setup lang="ts">
+  import { computed } from 'vue';
+  import { useDLE } from '@data-client/vue';
+  import { PostResource, UserResource } from './Resources';
+
+  const props = defineProps<{ id: string }>();
+  const {
+    data: post,
+    loading: postLoading,
+    error: postError,
+  } = useDLE(PostResource.get, () => ({ id: props.id }));
+  const {
+    data: author,
+    loading: authorLoading,
+    error: authorError,
+  } = useDLE(
+    UserResource.get,
+    computed(() =>
+      post.value?.userId
+        ? {
+            id: post.value.userId,
+          }
+        : null,
+    ),
+  );
+</script>
+
+<template>
+  <div v-if="postError">Error {{ postError.status }}</div>
+  <Loading v-else-if="postLoading || !post" />
+  <div v-else-if="authorError">Error {{ authorError.status }}</div>
+  <Loading v-else-if="authorLoading || !author" />
+  <div v-else>{{ author.username }}</div>
+</template>
+```
+
+:::
 
 </TypeScriptEditor>
 
@@ -274,6 +421,8 @@ export const getPosts = new RestEndpoint({
 });
 ```
 
+:::react
+
 ```tsx title="ArticleList" {12}
 import { useDLE } from '@data-client/react';
 import { getPosts } from './api/Post';
@@ -281,7 +430,7 @@ import { getPosts } from './api/Post';
 export default function ArticleList({ page }: { page: string }) {
   const { data, loading, error } = useDLE(getPosts, { page });
   if (error) return <div>Error {`${error.status}`}</div>;
-  if (loading || !data) return <Loading/>;
+  if (loading || !data) return <Loading />;
   const { results: posts, nextPage, lastPage } = data;
   return (
     <div>
@@ -293,7 +442,35 @@ export default function ArticleList({ page }: { page: string }) {
 }
 ```
 
+:::
+
+:::vue
+
+```html title="ArticleList.vue" {14}
+<script setup lang="ts">
+  import { useDLE } from '@data-client/vue';
+  import { getPosts } from './api/Post';
+
+  const props = defineProps<{ page: string }>();
+  const { data, loading, error } = useDLE(getPosts, () => ({ page: props.page }));
+</script>
+
+<template>
+  <div v-if="error">Error {{ error.status }}</div>
+  <Loading v-else-if="loading || !data" />
+  <div v-else>
+    <div v-for="post in data.results" :key="post.pk()">
+      {{ post.title }}
+    </div>
+  </div>
+</template>
+```
+
+:::
+
 </TypeScriptEditor>
+
+:::react
 
 ### Github Reactions
 
@@ -304,3 +481,5 @@ It's usually better to wrap cases like this in new [Suspense Boundaries](../gett
 However, our component library `ant design` does not allow this.
 
 <StackBlitz app="github-app" file="src/resources/Reaction.tsx,src/pages/IssueDetail/index.tsx" view="editor" initialpath="/reactive/data-client/issue/1113" height={750} />
+
+:::

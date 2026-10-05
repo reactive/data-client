@@ -285,7 +285,7 @@ export const PostResource = resource({
 });
 ```
 
-```typescript title="Request" column
+```typescript title="Usage" column
 import { PostResource } from './Resource';
 PostResource.get({
   group: 'react',
@@ -327,7 +327,7 @@ export const PostResource = resource({
 });
 ```
 
-```typescript title="Request" column
+```typescript title="Usage" column
 import { PostResource } from './Resource';
 PostResource.getList({
   group: 'react',
@@ -380,7 +380,7 @@ export const PostResource = resource({
 });
 ```
 
-```typescript title="Request" column
+```typescript title="Usage" column
 import { PostResource } from './Resource';
 PostResource.getList.push(
   { group: 'react', author: 'clara' },
@@ -424,7 +424,7 @@ export const PostResource = resource({
 });
 ```
 
-```typescript title="Request" column
+```typescript title="Usage" column
 import { PostResource } from './Resource';
 PostResource.getList.unshift(
   { group: 'react', author: 'clara' },
@@ -471,7 +471,7 @@ export const PostResource = resource({
 });
 ```
 
-```typescript title="Request" column
+```typescript title="Usage" column
 import { PostResource } from './Resource';
 PostResource.getList.getPage({
   group: 'react',
@@ -519,7 +519,7 @@ export const PostResource = resource({
 });
 ```
 
-```typescript title="Request" column
+```typescript title="Usage" column
 import { PostResource } from './Resource';
 PostResource.getList.move(
   { group: 'react', id: '1' },
@@ -562,7 +562,7 @@ export const PostResource = resource({
 });
 ```
 
-```typescript title="Request" column
+```typescript title="Usage" column
 import { PostResource } from './Resource';
 PostResource.update(
   { group: 'react', id: '1' },
@@ -605,7 +605,7 @@ export const PostResource = resource({
 });
 ```
 
-```typescript title="Request" column
+```typescript title="Usage" column
 import { PostResource } from './Resource';
 PostResource.partialUpdate(
   { group: 'react', id: '1' },
@@ -648,7 +648,7 @@ export const PostResource = resource({
 });
 ```
 
-```typescript title="Request" column
+```typescript title="Usage" column
 import { PostResource } from './Resource';
 PostResource.delete({ group: 'react', id: '1' });
 ```

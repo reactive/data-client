@@ -299,6 +299,8 @@ If the codebase already validates responses with Zod/Yup, prefer **Entity as the
 
 ## References
 
+Vue projects: read `<name>.vue.md` instead of `<name>.md` when it exists.
+
 - [RestEndpoint](references/RestEndpoint.md) - Full RestEndpoint API
 - [resource](references/resource.md) - Resource factory function
 - [Authentication Guide](references/auth.md) - Auth patterns and examples

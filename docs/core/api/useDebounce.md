@@ -1,17 +1,20 @@
 ---
 title: useDebounce() - Declarative value delays for React
+vue_title: useDebounce() - Declarative value delays for Vue
 sidebar_label: useDebounce()
 description: Delays updating the parameters by debouncing. Avoid excessive network requests due to quick parameter changes like typeaheads.
 ---
 
 import PkgInstall from '@site/src/components/PkgInstall';
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 
 # useDebounce()
 
 Delays updating the parameters by [debouncing](https://css-tricks.com/debouncing-throttling-explained-examples/).
 
 Useful to avoid spamming network requests when parameters might change quickly (like a typeahead field).
+
+::::react
 
 :::tip[React 18+]
 
@@ -20,9 +23,23 @@ When loading new data, the [AsyncBoundary](./AsyncBoundary.md) will continue ren
 
 :::
 
+::::
+
+::::vue
+
+:::tip
+
+`useDebounce()` returns [refs](https://vuejs.org/api/reactivity-core.html#ref), so the debounced
+value can be passed directly to other composables or components. `isPending` is true from the moment
+the input changes until the debounced value is updated.
+
+:::
+
+::::
+
 ## Usage
 
-<HooksPlayground row>
+<FrameworkPlayground row>
 
 ```ts title="IssueQuery" collapsed
 import { RestEndpoint, Entity, Collection } from '@data-client/rest';
@@ -67,6 +84,8 @@ export const issueQuery = new RestEndpoint({
   },
 });
 ```
+
+:::react
 
 ```tsx title="IssueList" collapsed
 import { useSuspense } from '@data-client/react';
@@ -124,10 +143,89 @@ export default function SearchIssues() {
 render(<SearchIssues />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="IssueList.vue" collapsed
+<script setup lang="ts">
+  import { computed } from 'vue';
+  import { useSuspense } from '@data-client/vue';
+  import { issueQuery } from './IssueQuery';
+
+  const props = defineProps<{
+    query: string;
+    owner: string;
+    repo: string;
+  }>();
+  const response = await useSuspense(issueQuery, computed(() => ({
+    q: `${props.query} repo:${props.owner}/${props.repo}`,
+  })));
+</script>
+
+<template>
+  <small style="display: block">{{ response.total_count }} results</small>
+  <div v-for="issue in response.items.slice(0, 5)" :key="issue.pk()">
+    <a :href="issue.html_url" target="_blank">{{ issue.title }}</a>
+  </div>
+</template>
+```
+
+```html title="SearchIssues.vue"
+<script setup lang="ts">
+  import { ref } from 'vue';
+  import { useDebounce } from '@data-client/vue';
+  import IssueList from './IssueList.vue';
+
+  const query = ref('');
+  // highlight-next-line
+  const [debouncedQuery, isPending] = useDebounce(query, 200);
+</script>
+
+<template>
+  <TextInput
+    spellcheck="false"
+    placeholder="Search react issues"
+    v-model="query"
+    :loading="isPending"
+    autofocus
+    size="large"
+  >
+    <SearchIcon />
+  </TextInput>
+  <Suspense>
+    <IssueList :query="debouncedQuery" owner="facebook" repo="react" />
+    <template #fallback><Loading /></template>
+  </Suspense>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ## Types
+
+:::react
 
 ```typescript
 function useDebounce<T>(value: T, delay: number, updatable?: boolean): T;
 ```
+
+:::
+
+:::vue
+
+```typescript
+function useDebounce<T>(
+  value: T | Ref<T>,
+  delay: number,
+  updatable?: boolean | Ref<boolean>,
+): [Ref<T>, Ref<boolean>];
+```
+
+`value` and `updatable` can be plain values or [refs](https://vuejs.org/api/reactivity-core.html#ref).
+Returns a tuple of `[debouncedValue, isPending]` refs. When `updatable` is `false`, the debounced
+value stops updating and `isPending` resets to `false`.
+
+:::

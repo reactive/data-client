@@ -1,5 +1,6 @@
+import { Endpoint } from '@data-client/endpoint';
 import nock from 'nock';
-import { computed, nextTick, reactive } from 'vue';
+import { computed, nextTick, reactive, type MaybeRefOrGetter } from 'vue';
 
 import {
   CoolerArticle,
@@ -10,6 +11,12 @@ import {
 } from '../../../../__tests__/new';
 import useDLE from '../consumers/useDLE';
 import { renderDataCompose } from '../test';
+
+// Each arg form a composable accepts that should re-evaluate reactively
+const argForms: [string, <T>(fn: () => T) => MaybeRefOrGetter<T>][] = [
+  ['computed', fn => computed(fn)],
+  ['getter', fn => fn],
+];
 
 // Minimal shared fixtures (copied from React test fixtures)
 const payload = {
@@ -246,43 +253,46 @@ describe('vue useDLE()', () => {
     cleanup();
   });
 
-  it('should fetch anew with param changes', async () => {
-    const props = reactive({ id: payload.id });
-    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
-      (props: { id: number }) => {
-        return useDLE(
-          CoolerArticleResource.get,
-          computed(() => ({ id: props.id })),
-        );
-      },
-      { props },
-    );
+  it.each(argForms)(
+    'should fetch anew with param changes (%s args)',
+    async (_, toArg) => {
+      const props = reactive({ id: payload.id });
+      const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
+        (props: { id: number }) => {
+          return useDLE(
+            CoolerArticleResource.get,
+            toArg(() => ({ id: props.id })),
+          );
+        },
+        { props },
+      );
 
-    expect(result.data.value).toBe(undefined);
-    expect(result.error.value).toBe(undefined);
-    expect(result.loading.value).toBe(true);
+      expect(result.data.value).toBe(undefined);
+      expect(result.error.value).toBe(undefined);
+      expect(result.loading.value).toBe(true);
 
-    await waitForNextUpdate();
+      await waitForNextUpdate();
 
-    expect(result.loading.value).toBe(false);
-    expect(result.error.value).toBeUndefined();
-    expect(result.data.value).toEqual(CoolerArticle.fromJS(payload));
+      expect(result.loading.value).toBe(false);
+      expect(result.error.value).toBeUndefined();
+      expect(result.data.value).toEqual(CoolerArticle.fromJS(payload));
 
-    props.id = payload2.id;
-    await nextTick();
+      props.id = payload2.id;
+      await nextTick();
 
-    expect(result.data.value).toBe(undefined);
-    expect(result.error.value).toBe(undefined);
-    expect(result.loading.value).toBe(true);
+      expect(result.data.value).toBe(undefined);
+      expect(result.error.value).toBe(undefined);
+      expect(result.loading.value).toBe(true);
 
-    await waitForNextUpdate();
+      await waitForNextUpdate();
 
-    expect(result.loading.value).toBe(false);
-    expect(result.error.value).toBeUndefined();
-    expect(result.data.value).toEqual(CoolerArticle.fromJS(payload2));
+      expect(result.loading.value).toBe(false);
+      expect(result.error.value).toBeUndefined();
+      expect(result.data.value).toEqual(CoolerArticle.fromJS(payload2));
 
-    cleanup();
-  });
+      cleanup();
+    },
+  );
 
   it('should not be loading with null params', async () => {
     const { result, cleanup } = await renderDataCompose(() => {
@@ -658,6 +668,112 @@ describe('vue useDLE()', () => {
     expect(result.loading.value).toBe(false);
     expect(result.data.value).toBeUndefined();
 
+    cleanup();
+  });
+
+  it('should not refetch stale data on store updates that keep expiry unchanged', async () => {
+    const fetchMock = jest.fn(async ({ id }: { id: number }) => ({
+      ...payload,
+      id,
+    }));
+    const staleEndpoint = new Endpoint(fetchMock, {
+      schema: CoolerArticle,
+      dataExpiryLength: 20,
+      name: 'staleArticle',
+    });
+
+    const { result, controller, waitForNextUpdate, cleanup } =
+      await renderDataCompose(() => useDLE(staleEndpoint, { id: 77 }));
+    await waitForNextUpdate();
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    // let data become stale
+    await new Promise(resolve => setTimeout(resolve, 50));
+
+    await controller.set(
+      CoolerArticle,
+      { id: 77 },
+      { id: 77, title: 'edited' },
+    );
+    await nextTick();
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    // the store update should not trigger a refetch that overwrites the set
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(result.data.value?.title).toBe('edited');
+
+    cleanup();
+  });
+
+  it('should keep stale invalidIfStale data on unrelated store updates', async () => {
+    const realDate = Date.now;
+    Date.now = jest.fn(() => 1_000_000);
+    try {
+      const fetchMock = jest.fn(async ({ id }: { id: number }) => ({
+        ...payload,
+        id,
+      }));
+      const staleEndpoint = new Endpoint(fetchMock, {
+        schema: CoolerArticle,
+        dataExpiryLength: 20,
+        invalidIfStale: true,
+        name: 'invalidIfStaleArticle',
+      });
+
+      const { result, controller, waitForNextUpdate, cleanup } =
+        await renderDataCompose(() => useDLE(staleEndpoint, { id: 78 }));
+      await waitForNextUpdate();
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(result.loading.value).toBe(false);
+
+      // data expires, then an unrelated store update
+      Date.now = jest.fn(() => 2_000_000);
+      await controller.set(CoolerArticle, { id: 80 }, { ...payload, id: 80 });
+      await nextTick();
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      // expiry only re-evaluates when expiresAt, args, or reset change (like React)
+      expect(result.loading.value).toBe(false);
+      expect(result.data.value?.id).toBe(78);
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+
+      cleanup();
+    } finally {
+      Date.now = realDate;
+    }
+  });
+
+  it('returns undefined (not a Symbol) for a deleted entity whose refetch errored', async () => {
+    const { result, controller, cleanup } = await renderDataCompose(
+      () => useDLE(CoolerArticleResource.get, { id: payload.id }),
+      {
+        initialFixtures: [
+          {
+            endpoint: CoolerArticleResource.get,
+            args: [{ id: payload.id }],
+            response: payload,
+          },
+        ],
+      },
+    );
+    expect(result.data.value?.title).toBe(payload.title);
+
+    // error meta keeps the response from counting as expired
+    await controller.setError(
+      CoolerArticleResource.get,
+      { id: payload.id },
+      new Error('failed'),
+    );
+    await controller.setResponse(
+      CoolerArticleResource.delete,
+      { id: payload.id },
+      { id: payload.id },
+    );
+    await nextTick();
+
+    expect(result.loading.value).toBe(false);
+    expect(result.data.value).toBeUndefined();
     cleanup();
   });
 });

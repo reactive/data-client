@@ -1,6 +1,6 @@
 ---
 name: data-client-setup
-description: Install and set up @data-client/react or @data-client/vue in a project. Detects project type (NextJS, Expo, React Native, Vue, plain React) and protocol (REST, GraphQL, custom), then hands off to protocol-specific setup skills.
+description: Install and set up @data-client/react or @data-client/vue in a project. Detects project type (NextJS, Expo, React Native, Vue, plain React) and protocol (REST, GraphQL, custom), then installs and hands off to the matching framework and protocol skills.
 disable-model-invocation: true
 ---
 
@@ -57,6 +57,27 @@ For async operations that don't match REST or GraphQL:
 - Custom async functions returning Promises
 - Third-party SDK clients (Firebase, Supabase, AWS SDK, etc.)
 - IndexedDB or other local async storage
+
+### 4. Install the Skills This Project Needs
+
+This skill hands off to other Data Client skills. Install the ones that match what you detected, skipping any already installed:
+
+| Detected | Skills |
+|----------|--------|
+| Always | `data-client-schema`, `data-client-manager` |
+| React (NextJS, Expo, React Native, plain React) | `data-client-react`, `data-client-react-testing` |
+| Vue | `data-client-vue`, `data-client-vue-testing` |
+| REST | `data-client-rest-setup`, `data-client-rest` |
+| GraphQL | `data-client-graphql-setup` |
+| Custom async | `data-client-endpoint-setup` |
+
+Use the installer that installed this skill. For OpenSkills and the skills CLI, add `-g` if this skill lives under your home directory rather than the project.
+
+- **Claude Code plugin** (this skill is under `~/.claude/plugins/`): `claude plugin install react@data-client` or `claude plugin install vue@data-client`. Either includes every skill above.
+- **OpenSkills** (`AGENTS.md` lists skills in an `<available_skills>` block): `npx openskills install reactive/data-client/.agents/skills/<skill>`, once per skill.
+- **Otherwise** use the skills CLI: `npx skills add reactive/data-client --yes --skill <skill> --skill <skill> ...`
+
+Newly installed skills may not be loaded until the next session, so read their `SKILL.md` directly when this skill says to apply them.
 
 ## Installation
 
@@ -150,9 +171,9 @@ Edit entry file (e.g., `index.tsx`, `main.tsx`, or `src/index.tsx`):
 
 ```tsx
 import { DataProvider } from '@data-client/react';
-import ReactDOM from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+createRoot(document.getElementById('root')!).render(
   <DataProvider>
     <App />
   </DataProvider>,
@@ -246,6 +267,8 @@ After core setup and protocol-specific setup:
 3. Define REST resources - see skill "data-client-rest"
 
 ## References
+
+Vue projects: read `<name>.vue.md` instead of `<name>.md` when it exists.
 
 For detailed API documentation, see the [references](references/) directory:
 

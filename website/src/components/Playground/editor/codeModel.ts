@@ -16,6 +16,14 @@ export interface CodeModel {
   update: (index: number, value: string) => void;
 }
 
+/** `key="value"`, `key='value'` or bare `key=value` from a fence metastring */
+function metaValue(metastring: string, key: string): string | undefined {
+  return new RegExp(`\\b${key}=(?:(["'])(.*?)\\1|([^\\s"']+))`)
+    .exec(metastring)
+    ?.slice(2)
+    .find(value => value !== undefined);
+}
+
 export function parseCodeDocuments(
   children: string | React.ReactNode | React.ReactNode[],
   defaultTab?: string,
@@ -42,9 +50,7 @@ export function parseCodeDocuments(
       : child.props.children.props,
     )
     .map(({ children: code, metastring = '', ...rest }) => {
-      const title =
-        metastring.match(/title=(?<quote>["'])(?<title>.*?)\1/)?.groups
-          ?.title ?? '';
+      const title = metaValue(metastring, 'title') ?? '';
       const language =
         /\blanguage-(?<language>[\w-]+)/.exec(rest.className ?? '')?.groups
           ?.language ?? 'tsx';
@@ -55,10 +61,13 @@ export function parseCodeDocuments(
         value: trimFinalNewline(code),
         title,
         collapsed:
-          defaultTab ? title !== defaultTab : /\bcollapsed\b/.test(metastring),
+          defaultTab ?
+            // Vue SFC tabs are titled `Name.vue`; match them by component name
+            title?.replace(/\.vue$/, '') !== defaultTab
+          : /\bcollapsed\b/.test(metastring),
         col: /\bcolumn\b/.test(metastring),
         path:
-          metastring.match(/path=(?<quote>["'])(?<path>.*?)\1/)?.groups?.path ||
+          metaValue(metastring, 'path') ||
           (fileBase.includes('.') ? fileBase : `${fileBase}.${extension}`),
         highlights: /\{([\d\-,.]+)\}/.exec(metastring)?.[1],
         language,

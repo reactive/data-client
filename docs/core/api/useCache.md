@@ -1,13 +1,15 @@
 ---
 title: useCache() - Normalized data store access in React
+vue_title: useCache() - Normalized data store access in Vue
 sidebar_label: useCache()
 description: Data rendering without the fetch. Access any Endpoint's response.
 ---
 
 import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import StackBlitz from '@site/src/components/StackBlitz';
+import VueArgs from '../shared/\_vueArgs.mdx';
 import { RestEndpoint } from '@data-client/rest';
 
 # useCache()
@@ -21,7 +23,7 @@ Access any [Endpoint](/rest/api/Endpoint)'s response. If the response does not e
 
 ## Usage
 
-<HooksPlayground fixtures={[
+<FrameworkPlayground fixtures={[
 {
 endpoint: new RestEndpoint({path: '/user'}),
 args: [],
@@ -48,6 +50,8 @@ export const UserResource = resource({
   schema: User,
 });
 ```
+
+:::react
 
 ```tsx title="Unauthed" collapsed
 import { useLoading } from '@data-client/react';
@@ -104,23 +108,95 @@ function AuthorizedPage() {
 render(<AuthorizedPage />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="Unauthed.vue" collapsed
+<script setup lang="ts">
+  import { useController, useLoading } from '@data-client/vue';
+  import { UserResource } from './UserResource';
+
+  const ctrl = useController();
+  const [handleLogin, loading] = useLoading(() =>
+    ctrl.fetch(UserResource.current),
+  );
+</script>
+
+<template>
+  <div>
+    <p>Not authorized</p>
+    <template v-if="loading">logging in...</template>
+    <button v-else @click="handleLogin">Login</button>
+  </div>
+</template>
+```
+
+```html title="Authorized.vue" collapsed
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { UserResource, type User } from './UserResource';
+
+  defineProps<{ user: User }>();
+  const ctrl = useController();
+  const handleLogout = () => ctrl.invalidate(UserResource.current);
+</script>
+
+<template>
+  <div>
+    <p>Welcome, {{ user.name }}!</p>
+    <button @click="handleLogout">Logout</button>
+  </div>
+</template>
+```
+
+```html title="AuthorizedPage.vue"
+<script setup lang="ts">
+  import { useCache } from '@data-client/vue';
+  import { UserResource } from './UserResource';
+  import Unauthed from './Unauthed.vue';
+  import Authorized from './Authorized.vue';
+
+  // currentUser as ComputedRef<User | undefined>
+  const currentUser = useCache(UserResource.current);
+</script>
+
+<template>
+  <!-- currentUser is unwrapped in the template -->
+  <Authorized v-if="currentUser" :user="currentUser" />
+  <!-- user is not logged in -->
+  <Unauthed v-else />
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 See [truthiness narrowing](https://www.typescriptlang.org/docs/handbook/2/narrowing.html#truthiness-narrowing) for
 more information about type handling
 
 ## Behavior
 
-| Expiry Status | Returns      | Conditions                                                                                                                                                                   |
-| ------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+:::vue
+
+`useCache()` returns a [ComputedRef](https://vuejs.org/api/reactivity-core.html#computed). The table
+below describes its `.value`.
+
+:::
+
+| Expiry Status | Returns      | Conditions                                                                                                                                                             |
+| ------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Invalid       | `undefined`  | not in store, [deletion](/rest/api/resource#delete), [invalidation](./Controller.md#invalidate), [invalidIfStale](../concepts/expiry-policy.md#endpointinvalidifstale) |
-| Stale         | denormalized | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                                                                                                 |
-| Valid         | denormalized | fetch completion                                                                                                                                                             |
-|               | `undefined`  | `null` used as second argument                                                                                                                                               |
+| Stale         | denormalized | (first-render, arg change) & [expiry &lt; now](../concepts/expiry-policy.md)                                                                                           |
+| Valid         | denormalized | fetch completion                                                                                                                                                       |
+|               | `undefined`  | `null` used as second argument                                                                                                                                         |
 
 <ConditionalDependencies hook="useCache" />
 
 ## Types
+
+:::react
 
 <GenericsTabs>
 
@@ -143,6 +219,25 @@ function useCache<
 
 </GenericsTabs>
 
+:::
+
+:::vue
+
+```typescript
+function useCache(
+  endpoint: ReadEndpoint,
+  ...args: MaybeRefsOrGetters<Parameters<typeof endpoint.key>> | [null]
+): ComputedRef<DenormalizeNullable<typeof endpoint.schema>>;
+```
+
+<VueArgs />
+
+The result updates when the arguments change.
+
+:::
+
+:::react
+
 ## Examples
 
 ### Github Navbar login/logout
@@ -157,3 +252,5 @@ to determine whether to show the login or logout navigation buttons.
 Here we only show commenting form if the user is authenticated.
 
 <StackBlitz app="github-app" file="src/resources/User.ts,src/pages/IssueDetail/CreateComment.tsx" view="editor" />
+
+:::

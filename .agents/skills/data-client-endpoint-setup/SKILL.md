@@ -336,4 +336,6 @@ Both hooks and controller methods take endpoint as first argument, with the endp
 
 ## References
 
+Vue projects: read `<name>.vue.md` instead of `<name>.md` when it exists.
+
 - [Endpoint](references/Endpoint.md) - Full Endpoint API

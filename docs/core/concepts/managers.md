@@ -8,6 +8,7 @@ image: /img/social/managers-card.png
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import StackBlitz from '@site/src/components/StackBlitz';
+import BatchSetDemo from '../shared/\_BatchSetDemo.mdx';
 
 <head>
   <meta name="docsearch:pagerank" content="40"/>
@@ -225,7 +226,7 @@ export default class TabSyncManager implements Manager {
 
 Persist the store with [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
 (here via [idb-keyval](https://www.npmjs.com/package/idb-keyval)); restore it with
-[DataProvider's initialState](../api/DataProvider.md#initialState). IndexedDB writes are
+:react[[DataProvider's initialState](../api/DataProvider.md#initialState)]:vue[DataClientPlugin's `initialState` option]. IndexedDB writes are
 asynchronous and use [structured clone](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm)
 instead of blocking the main thread with JSON serialization like `localStorage` would.
 Debouncing writes keeps rapid action bursts cheap. Consider [expiry times](./expiry-policy.md)
@@ -304,7 +305,7 @@ export default class StreamManager implements Manager {
       try {
         const msg = JSON.parse(event.data);
         if (msg.type in this.entities)
-          controller.set(this.entities[msg.type], ...msg.args, msg.data);
+          this.controller.set(this.entities[msg.type], ...msg.args, msg.data);
       } catch (e) {
         console.error('Failed to handle message');
         console.error(e);
@@ -325,6 +326,58 @@ export default class StreamManager implements Manager {
 
 [Controller.set()](../api/Controller.md#set) allows directly updating [Querable Schemas](/rest/api/schema#queryable)
 directly with `event.data`.
+
+#### Batching high-frequency updates {#batching}
+
+Streams like exchange tickers can send hundreds of messages per second, and connections often start with a large snapshot.
+Rather than calling `set()` per message, buffer them and write each batch with an [Array](/rest/api/Array) schema.
+[Controller.set([Entity], rows)](../api/Controller.md#set-array) normalizes every row in one store update.
+
+```typescript
+export default class StreamManager implements Manager {
+  // ...
+  protected buffer: Record<string, any[]> = {};
+  declare protected flushTimeout?: ReturnType<typeof setTimeout>;
+
+  connect() {
+    this.evtSource = this.createEventSource();
+    this.evtSource.onmessage = event => {
+      const msg = JSON.parse(event.data);
+      if (msg.type in this.entities) {
+        (this.buffer[msg.type] ??= []).push(msg.data);
+        this.flushTimeout ??= setTimeout(this.flush, 50);
+      }
+    };
+  }
+
+  // highlight-start
+  flush = () => {
+    const buffer = this.buffer;
+    this.buffer = {};
+    this.flushTimeout = undefined;
+    for (const type in buffer) {
+      this.controller.set([this.entities[type]], buffer[type]);
+    }
+  };
+  // highlight-end
+
+  cleanup() {
+    this.evtSource?.close();
+    clearTimeout(this.flushTimeout);
+    this.flushTimeout = undefined;
+    this.buffer = {};
+  }
+}
+```
+
+Rows in one batch that share a pk merge in order and skip [Entity.shouldReorder()](/rest/api/Entity#shouldreorder),
+so buffer only the latest message per pk when order matters.
+
+:::react
+
+<BatchSetDemo />
+
+:::
 
 #### Skipping DevTools for high-frequency updates
 
@@ -348,8 +401,10 @@ export default function getManagers() {
         // Increase latency buffer for high-frequency updates
         latency: 1000,
         // Skip WebSocket SET actions to avoid log spam
+        // (batched writes use the [Ticker] schema)
         predicate: (state, action) =>
-          action.type !== actionTypes.SET || action.schema !== Ticker,
+          action.type !== actionTypes.SET ||
+          (action.schema !== Ticker && action.schema[0] !== Ticker),
       },
     }),
   ];

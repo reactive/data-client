@@ -7,6 +7,7 @@ import type {
   FetchFunction,
   PartialParameters,
 } from './types.js';
+import type { RemoveArray } from './tupleTypes.js';
 export interface EndpointOptions<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = undefined,
@@ -62,8 +63,8 @@ export interface EndpointInstance<
       Record<string, unknown>,
   >(
     this: E,
-    options: Readonly<O>,
-  ): ExtendedEndpoint<typeof options, E, F>;
+    options: Readonly<O> & O,
+  ): ExtendedEndpoint<Readonly<O>, E, F>;
 }
 /**
  * Defines an async data source.
@@ -156,11 +157,5 @@ export interface ExtendableEndpointConstructor {
   ): EndpointInstanceInterface<F, S, M> & E;
   readonly prototype: Function;
 }
-type RemoveArray<Orig extends any[], Rem extends any[]> =
-  Rem extends [any, ...infer RestRem] ?
-    Orig extends [any, ...infer RestOrig] ?
-      RemoveArray<RestOrig, RestRem>
-    : never
-  : Orig;
 export {};
 //# sourceMappingURL=endpointTypes.d.ts.map

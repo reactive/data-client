@@ -16,6 +16,8 @@ resource.
 
 :::
 
+:::react
+
 ```tsx
 import {
   SubscriptionManager,
@@ -23,20 +25,45 @@ import {
   DataProvider,
   NetworkManager,
 } from '@data-client/react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 const managers = [
   new NetworkManager(),
   new SubscriptionManager(PollingSubscription)
 ]
 
-ReactDOM.render(
+createRoot(document.body).render(
   <DataProvider managers={managers}>
     <App />
   </DataProvider>,
-  document.body,
 );
 ```
+
+:::
+
+:::vue
+
+```ts title="main.ts"
+import { createApp } from 'vue';
+import {
+  SubscriptionManager,
+  PollingSubscription,
+  DataClientPlugin,
+  NetworkManager,
+} from '@data-client/vue';
+import App from './App.vue';
+
+const managers = [
+  new NetworkManager(),
+  new SubscriptionManager(PollingSubscription),
+];
+
+const app = createApp(App);
+app.use(DataClientPlugin, { managers });
+app.mount('#app');
+```
+
+:::
 
 ## Dispatched Actions
 
@@ -44,4 +71,4 @@ ReactDOM.render(
 
 > #### Note:
 >
-> This is already used by `DataProvider` by default.
+> This is already used by :react[`DataProvider`]:vue[`DataClientPlugin`] by default.

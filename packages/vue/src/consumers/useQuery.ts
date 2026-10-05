@@ -3,10 +3,11 @@ import type {
   Queryable,
   SchemaArgs,
 } from '@data-client/core';
-import { computed, unref, watch, type ComputedRef } from 'vue';
+import { computed, toValue, type ComputedRef } from 'vue';
 
 import { useController, injectState } from '../context.js';
 import type { MaybeRefsOrGetters } from '../types.js';
+import useCountRef from './useCountRef.js';
 
 /**
  * Query the store.
@@ -19,12 +20,15 @@ export default function useQuery<S extends Queryable>(
   ...args: MaybeRefsOrGetters<SchemaArgs<S>>
 ): ComputedRef<DenormalizeNullable<S> | undefined>;
 
-export default function useQuery(schema: any, ...args: any[]): any {
+export default function useQuery(
+  schema: any,
+  ...args: any[]
+): ComputedRef<unknown> {
   const stateRef = injectState();
   const controller = useController();
 
-  // Track top-level reactive args (Refs are unwrapped). This allows props/refs to trigger updates.
-  const resolvedArgs = computed(() => args.map(a => unref(a as any)) as any);
+  // Track top-level reactive args (refs and getters are resolved). This allows props/refs/getters to trigger updates.
+  const resolvedArgs = computed(() => args.map(a => toValue(a)) as any);
 
   // Compute query meta based on state and args. This mirrors React's memoization
   // that keys off state.entities/indexes and args.
@@ -36,15 +40,7 @@ export default function useQuery(schema: any, ...args: any[]): any {
     ),
   );
 
-  // Maintain GC refcounts on data mount/changes
-  watch(
-    () => queryMeta.value.data,
-    (_newVal, _oldVal, onCleanup) => {
-      const decrement = queryMeta.value.countRef();
-      onCleanup(() => decrement());
-    },
-    { immediate: true },
-  );
+  useCountRef(queryMeta);
 
   return computed(() => queryMeta.value.data);
 }

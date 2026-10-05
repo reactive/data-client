@@ -2,6 +2,8 @@
 name: changeset
 description: Create user-focused changesets (changelog entries) for semver bumps, release notes, breaking changes, and docs; prefer impact and code examples over implementation detail
 disable-model-invocation: true
+metadata:
+  internal: true
 ---
 
 # Create Changesets
@@ -56,7 +58,7 @@ All user-facing text (changesets, blog entries, docs) should be written from the
 2. **User vocabulary** — Name public APIs (`RestEndpoint`, `resource()`, hook names). Do not explain how the fix was implemented.
 3. **When to add code** — Prefer a minimal example when the change is TypeScript-only or subtle: show the pattern that was broken and now works (subclass, `extend`, option object). Skip examples for trivial renames or obvious one-line fixes.
 4. **Examples** — Realistic imports and types; omit unrelated options. For fixes, you can show one “now types correctly” snippet instead of a long before/after if the before state was “TypeScript error on …”.
-5. **Breaking changes** — Still say what the user must do; use Before/After sections with code when the migration is non-obvious.
+5. **Breaking changes** — Still say what the user must do; use Before/After sections with code when the migration is non-obvious. Before marking anything breaking, follow `.cursor/rules/breaking-changes.mdc` (ship a compatible version, recommend the future-proof form, track the cleanup).
 
 ## Changeset format
 - **First line**: Action verb ("Add", "Fix", "Update", "Remove")

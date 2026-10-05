@@ -1,4 +1,5 @@
 ---
+frameworks: [react]
 title: "<ExternalDataProvider />"
 ---
 
@@ -20,15 +21,14 @@ in the React tree.
 
 ```tsx title="index.tsx"
 import { ExternalDataProvider } from '@data-client/react/redux';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 import { store, selector } from './store';
 
-ReactDOM.render(
+createRoot(document.body).render(
   <ExternalDataProvider store={store} selector={selector}>
     <App />
   </ExternalDataProvider>,
-  document.body,
 );
 ```
 

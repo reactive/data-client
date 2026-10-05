@@ -7,24 +7,31 @@ import Boundary from './Boundary';
 import { useCodeDocuments } from './editor/codeModel';
 import EditorShell from './editor/EditorShell';
 import EditorSurface from './editor/EditorSurface';
-import FixturePreview from './FixturePreview';
-import { isGoogleBot } from './isMobileOrBot';
+import FixturePreview from './preview/FixturePreview';
 import type LivePreviewType from './preview/LivePreview';
-import PreviewWrapper from './PreviewWrapper';
-import { StoreToggle } from './StoreInspector';
+import PreviewWrapper from './preview/PreviewWrapper';
+import { StoreToggle } from './preview/StoreInspector';
 import styles from './styles.module.css';
-import type { FixtureOrInterceptor, PreviewProps } from './types';
+import type { FixtureOrInterceptor } from './types';
+import { isBot } from './userAgent';
 
 export interface PlaygroundProps<T = any> {
   children: React.ReactNode;
+  /** Tab-storage key for the Store inspector's open/closed choice */
   groupId?: string;
+  /** Store inspector open by default */
   defaultOpen?: 'y' | 'n';
+  /** Tabs for files + editor beside preview (when wide enough) */
   row?: boolean;
+  /** Inactive (e.g. unselected Demo tab): no Monaco until first shown, no preview */
   hidden?: boolean;
   fixtures?: FixtureOrInterceptor<T>[];
   getInitialInterceptorData?: () => T;
+  /** Title of the file tab to open; overrides `collapsed` metastrings */
   defaultTab?: string;
   headerControls?: React.ReactNode;
+  /** Show a badge counting the preview's React commits (e.g. one notification vs N) */
+  renderCount?: boolean;
 }
 
 export default function Playground<T>({
@@ -37,52 +44,12 @@ export default function Playground<T>({
   getInitialInterceptorData,
   defaultTab,
   headerControls,
+  renderCount = false,
 }: PlaygroundProps<T>) {
-  const {
-    liveCodeBlock: { playgroundPosition },
-  } = useDocusaurusContext().siteConfig.themeConfig as any;
+  const { playgroundPosition } = (
+    useDocusaurusContext().siteConfig.themeConfig as any
+  ).liveCodeBlock;
 
-  return (
-    <div
-      className={clsx(styles.playgroundQueryContainer, {
-        [styles.hidden]: hidden,
-      })}
-    >
-      <div
-        className={clsx(styles.playgroundContainer, {
-          [styles.row]: row,
-        })}
-      >
-        <PlaygroundContent
-          reverse={playgroundPosition === 'top'}
-          row={row}
-          hidden={hidden}
-          fixtures={fixtures}
-          groupId={groupId}
-          defaultOpen={defaultOpen}
-          getInitialInterceptorData={getInitialInterceptorData}
-          defaultTab={defaultTab}
-          headerControls={headerControls}
-        >
-          {children}
-        </PlaygroundContent>
-      </div>
-    </div>
-  );
-}
-
-function PlaygroundContent<T>({
-  reverse,
-  children,
-  row,
-  hidden,
-  fixtures,
-  groupId,
-  defaultOpen,
-  defaultTab,
-  getInitialInterceptorData,
-  headerControls,
-}: ContentProps<T>) {
   const model = useCodeDocuments(children, defaultTab);
   // Defer preview transpilation so editor input remains responsive.
   const code = useDeferredValue(
@@ -113,28 +80,36 @@ function PlaygroundContent<T>({
   const preview =
     hidden ? previewLoading : (
       <Boundary key="preview" fallback={previewLoading}>
-        <PreviewWithScopeLazy
+        <LivePreview
           code={code}
           groupId={groupId}
           defaultOpen={defaultOpen}
           row={row}
           fixtures={fixtures}
           getInitialInterceptorData={getInitialInterceptorData}
+          renderCount={renderCount}
         />
       </Boundary>
     );
 
-  return <>{reverse ? [preview, editor] : [editor, preview]}</>;
+  return (
+    <div
+      className={clsx(styles.playgroundQueryContainer, {
+        [styles.hidden]: hidden,
+      })}
+    >
+      <div
+        className={clsx(styles.playgroundContainer, {
+          [styles.row]: row,
+        })}
+      >
+        {playgroundPosition === 'top' ? [preview, editor] : [editor, preview]}
+      </div>
+    </div>
+  );
 }
 
-interface ContentProps<T> extends PreviewProps<T> {
-  children: PlaygroundProps<T>['children'];
-  reverse: boolean;
-  hidden: boolean;
-  defaultTab?: string;
-  headerControls?: React.ReactNode;
-}
-
+/** SSR, crawler, hidden and loading state: empty preview frame + Store toggle */
 const previewLoading = (
   <PreviewWrapper key="preview">
     <div className={styles.playgroundPreview} />
@@ -142,8 +117,8 @@ const previewLoading = (
   </PreviewWrapper>
 );
 
-const PreviewWithScopeLazy = lazy<typeof LivePreviewType>(() =>
-  isGoogleBot ?
+const LivePreview = lazy<typeof LivePreviewType>(() =>
+  isBot ?
     Promise.resolve({ default: () => previewLoading })
   : import(
       /* webpackChunkName: 'PreviewWithScope', webpackPrefetch: true */ './preview/LivePreview'

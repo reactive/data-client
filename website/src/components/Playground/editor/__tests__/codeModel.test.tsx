@@ -16,6 +16,24 @@ describe('code document model', () => {
     ]);
   });
 
+  test('selects a Vue SFC tab by its component name', () => {
+    const documents = parseCodeDocuments(
+      [
+        code({ metastring: 'title="Post" collapsed' }, 'export {};'),
+        code(
+          {
+            className: 'language-html',
+            metastring: 'title="PostList.vue" collapsed',
+          },
+          '<template />',
+        ),
+      ],
+      'PostList',
+    );
+
+    expect(documents.map(doc => doc.collapsed)).toEqual([true, false]);
+  });
+
   test('parses metadata and selects the requested default tab', () => {
     const documents = parseCodeDocuments(
       [
@@ -47,6 +65,20 @@ describe('code document model', () => {
         path: 'After.tsx',
         collapsed: false,
       },
+    ]);
+  });
+
+  test('accepts unquoted title and path', () => {
+    expect(
+      parseCodeDocuments([
+        code({ metastring: 'path=Todo.ts' }, 'a'),
+        code({ metastring: "title='T' path='src/b.ts' {1}" }, 'b'),
+        code({ metastring: 'title=c.ts' }, 'c'),
+      ]).map(({ path, title }) => [path, title]),
+    ).toEqual([
+      ['Todo.ts', ''],
+      ['src/b.ts', 'T'],
+      ['c.ts', 'c.ts'],
     ]);
   });
 

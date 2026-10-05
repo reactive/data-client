@@ -54,6 +54,8 @@ const AbortableUserDetail = UserDetail.extend({
 abort.abort();
 ```
 
+::::react
+
 ## Cancelling on params change
 
 Sometimes a user has the opportunity to fill out a field that is used to affect the results of a network call.
@@ -71,3 +73,5 @@ arguments (Endpoint/params pair) to useSuspense(). This solution aborts fetches 
 which means you might end up canceling a fetch that another component still cares about.
 
 :::
+
+::::

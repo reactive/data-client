@@ -1,4 +1,4 @@
-import type { Manager, Middleware, ActionTypes } from '@data-client/react';
+import type { Manager, Middleware } from '@data-client/react';
 import { Controller, actionTypes } from '@data-client/react';
 import type { Entity } from '@data-client/rest';
 
@@ -10,11 +10,17 @@ export default class StreamManager implements Manager {
   declare protected evtSource: WebSocket; // | EventSource;
   declare protected createEventSource: () => WebSocket; // | EventSource;
   declare protected entities: Record<string, typeof Entity>;
-  protected msgQueue: (string | ArrayBufferLike | Blob | ArrayBufferView)[] =
-    [];
 
-  protected product_ids: string[] = [];
+  /** Subscriber count per product; re-sent on every (re)connect */
+  protected subscriptions = new Map<string, number>();
+  /** Products the current socket is subscribed to */
+  protected sent = new Set<string>();
+  declare protected syncTimeout?: ReturnType<typeof setTimeout>;
+  /** Messages waiting to be written, grouped by entity type */
+  protected buffer: Record<string, Record<string, any>> = {};
+  declare protected flushTimeout?: ReturnType<typeof setTimeout>;
   private attempts = 0;
+  declare protected reconnectTimeout?: ReturnType<typeof setTimeout>;
   declare protected controller: Controller;
 
   constructor(
@@ -55,13 +61,7 @@ export default class StreamManager implements Manager {
           )
             break;
           if ('channel' in action.endpoint) {
-            this.send(
-              JSON.stringify({
-                type: 'unsubscribe',
-                product_ids: [action.args[0]?.product_id],
-                channels: [action.endpoint.channel],
-              }),
-            );
+            this.unsubscribe(action.args[0]?.product_id);
             return Promise.resolve();
           }
           return next(action);
@@ -76,7 +76,7 @@ export default class StreamManager implements Manager {
     this.evtSource.onmessage = event => {
       try {
         const msg = JSON.parse(event.data);
-        this.handleMessage(this.controller, msg);
+        this.handleMessage(msg);
       } catch (e) {
         console.error('Failed to handle message');
         console.error(e);
@@ -86,6 +86,9 @@ export default class StreamManager implements Manager {
       console.info('WebSocket connected');
       // Reset reconnection attempts after a successful connection
       this.attempts = 0;
+      // A new socket has no subscriptions, so (re)subscribe everything active
+      this.sent.clear();
+      this.sync();
     };
     this.evtSource.onclose = () => {
       console.info('WebSocket disconnected');
@@ -98,58 +101,85 @@ export default class StreamManager implements Manager {
     };
   };
 
-  send(data: string | ArrayBufferLike | Blob | ArrayBufferView): void {
-    if (this.evtSource.readyState === this.evtSource.OPEN) {
-      this.evtSource.send(data);
-    } else {
-      this.msgQueue.push(data);
-    }
+  subscribe(product_id: string | undefined) {
+    if (!product_id) return;
+    this.subscriptions.set(
+      product_id,
+      (this.subscriptions.get(product_id) ?? 0) + 1,
+    );
+    this.syncTimeout ??= setTimeout(this.sync, 5);
   }
 
-  subscribe(product_id: string) {
-    if (this.evtSource.readyState === this.evtSource.OPEN) {
-      this.product_ids.push(product_id);
-      setTimeout(() => this.flushSubscribe(), 5);
-    } else {
-      this.product_ids.push(product_id);
-    }
+  unsubscribe(product_id: string | undefined) {
+    if (!product_id) return;
+    const count = this.subscriptions.get(product_id) ?? 0;
+    if (count > 1) this.subscriptions.set(product_id, count - 1);
+    else this.subscriptions.delete(product_id);
+    this.syncTimeout ??= setTimeout(this.sync, 5);
   }
 
-  flushSubscribe() {
-    if (this.product_ids.length)
-      this.send(
-        JSON.stringify({
-          type: 'subscribe',
-          product_ids: this.product_ids,
-          channels: ['ticker'],
-        }),
+  /** Sends the difference between active and sent subscriptions, batched */
+  sync = () => {
+    clearTimeout(this.syncTimeout);
+    this.syncTimeout = undefined;
+    // onopen syncs again once connected (or init() has not run yet)
+    if (this.evtSource?.readyState !== WebSocket.OPEN) return;
+    const active = [...this.subscriptions.keys()];
+    this.sendChannel(
+      'subscribe',
+      active.filter(id => !this.sent.has(id)),
+    );
+    this.sendChannel(
+      'unsubscribe',
+      [...this.sent].filter(id => !this.subscriptions.has(id)),
+    );
+    this.sent = new Set(active);
+  };
+
+  protected sendChannel(
+    type: 'subscribe' | 'unsubscribe',
+    product_ids: string[],
+  ) {
+    if (product_ids.length)
+      this.evtSource.send(
+        JSON.stringify({ type, product_ids, channels: ['ticker'] }),
       );
-    this.product_ids = [];
   }
 
   /** Every websocket message is sent here
    *
-   * @param controller
+   * Messages are buffered so bursts become a single store update.
+   * Only the latest message per product is kept, since rows in one batch
+   * skip Ticker.shouldReorder()
+   *
    * @param msg JSON parsed message
    */
-  handleMessage(ctrl: Controller, msg: any) {
+  handleMessage(msg: any) {
     if (msg.type in this.entities) {
-      ctrl.set(this.entities[msg.type], msg, msg);
+      (this.buffer[msg.type] ??= {})[msg.product_id] = msg;
+      this.flushTimeout ??= setTimeout(this.flush, 50);
     }
   }
 
+  /** Writes all buffered messages; one `set()` per entity type */
+  flush = () => {
+    const buffer = this.buffer;
+    this.buffer = {};
+    this.flushTimeout = undefined;
+    for (const type in buffer) {
+      this.controller.set([this.entities[type]], Object.values(buffer[type]));
+    }
+  };
+
   init() {
     this.connect();
-    this.evtSource.addEventListener('open', event => {
-      //this.msgQueue.forEach((msg) => this.evtSource.send(msg));
-      this.flushSubscribe();
-    });
   }
 
   reconnect() {
     // Exponential backoff formula to gradually increase the reconnection time
-    setTimeout(
+    this.reconnectTimeout = setTimeout(
       () => {
+        this.reconnectTimeout = undefined;
         console.info(
           `Attempting to reconnect... (Attempt: ${this.attempts + 1})`,
         );
@@ -161,9 +191,20 @@ export default class StreamManager implements Manager {
   }
 
   cleanup() {
-    // remove our event handler that attempts reconnection
+    // detach handlers so the closing socket can't reconnect or touch a new one
+    this.evtSource.onopen = null;
+    this.evtSource.onmessage = null;
     this.evtSource.onclose = null;
+    this.evtSource.onerror = null;
     this.evtSource.close();
+    // a pending reconnect would open a new socket after we are gone
+    clearTimeout(this.reconnectTimeout);
+    this.reconnectTimeout = undefined;
+    clearTimeout(this.syncTimeout);
+    this.syncTimeout = undefined;
+    clearTimeout(this.flushTimeout);
+    this.flushTimeout = undefined;
+    this.buffer = {};
   }
 
   getMiddleware() {

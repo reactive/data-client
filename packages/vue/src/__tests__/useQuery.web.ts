@@ -1,6 +1,6 @@
 import { schema, All, Collection } from '@data-client/endpoint';
 import { resource } from '@data-client/rest';
-import { reactive, computed } from 'vue';
+import { reactive, computed, type MaybeRefOrGetter } from 'vue';
 
 import {
   ArticleWithSlug,
@@ -14,6 +14,12 @@ import {
 } from '../../../../__tests__/new';
 import useQuery from '../consumers/useQuery';
 import { renderDataCompose } from '../test';
+
+// Each arg form a composable accepts that should re-evaluate reactively
+const argForms: [string, <T>(fn: () => T) => MaybeRefOrGetter<T>][] = [
+  ['computed', fn => computed(fn)],
+  ['getter', fn => fn],
+];
 
 // Inline fixtures (duplicated from React tests to avoid cross-project imports)
 const payloadSlug = {
@@ -369,55 +375,58 @@ describe('vue useQuery()', () => {
   });
 
   describe('changing args', () => {
-    it('should update result when Entity args change', async () => {
-      const payload1 = {
-        id: 1,
-        title: 'First Article',
-        slug: 'first-article',
-        content: 'content 1',
-        tags: ['tag1'],
-      };
-      const payload2 = {
-        id: 2,
-        title: 'Second Article',
-        slug: 'second-article',
-        content: 'content 2',
-        tags: ['tag2'],
-      };
+    it.each(argForms)(
+      'should update result when Entity args change (%s args)',
+      async (_, toArg) => {
+        const payload1 = {
+          id: 1,
+          title: 'First Article',
+          slug: 'first-article',
+          content: 'content 1',
+          tags: ['tag1'],
+        };
+        const payload2 = {
+          id: 2,
+          title: 'Second Article',
+          slug: 'second-article',
+          content: 'content 2',
+          tags: ['tag2'],
+        };
 
-      const props = reactive({ id: 1 });
-      const { result } = await renderDataCompose(
-        () => {
-          return useQuery(
-            ArticleWithSlug,
-            computed(() => ({ id: props.id })),
-          );
-        },
-        {
-          initialFixtures: [
-            {
-              endpoint: ArticleSlugResource.get,
-              args: [{ id: 1 }],
-              response: payload1,
-            },
-            {
-              endpoint: ArticleSlugResource.get,
-              args: [{ id: 2 }],
-              response: payload2,
-            },
-          ],
-        },
-      );
+        const props = reactive({ id: 1 });
+        const { result } = await renderDataCompose(
+          () => {
+            return useQuery(
+              ArticleWithSlug,
+              toArg(() => ({ id: props.id })),
+            );
+          },
+          {
+            initialFixtures: [
+              {
+                endpoint: ArticleSlugResource.get,
+                args: [{ id: 1 }],
+                response: payload1,
+              },
+              {
+                endpoint: ArticleSlugResource.get,
+                args: [{ id: 2 }],
+                response: payload2,
+              },
+            ],
+          },
+        );
 
-      expect(result.value).toEqual(ArticleWithSlug.fromJS(payload1));
-      expect(result.value?.id).toBe(1);
-      expect(result.value?.title).toBe('First Article');
+        expect(result.value).toEqual(ArticleWithSlug.fromJS(payload1));
+        expect(result.value?.id).toBe(1);
+        expect(result.value?.title).toBe('First Article');
 
-      props.id = 2;
-      expect(result.value).toEqual(ArticleWithSlug.fromJS(payload2));
-      expect(result.value?.id).toBe(2);
-      expect(result.value?.title).toBe('Second Article');
-    });
+        props.id = 2;
+        expect(result.value).toEqual(ArticleWithSlug.fromJS(payload2));
+        expect(result.value?.id).toBe(2);
+        expect(result.value?.title).toBe('Second Article');
+      },
+    );
 
     it('should update result when Entity args change from slug to id', async () => {
       const props = reactive({

@@ -1,9 +1,26 @@
+import { Endpoint } from '@data-client/endpoint';
 import nock from 'nock';
-import { computed, defineComponent, h, nextTick, reactive } from 'vue';
+import {
+  computed,
+  defineComponent,
+  h,
+  nextTick,
+  reactive,
+  type MaybeRefOrGetter,
+} from 'vue';
 
-import { CoolerArticleResource } from '../../../../__tests__/new';
+import {
+  CoolerArticle,
+  CoolerArticleResource,
+} from '../../../../__tests__/new';
 import useCache from '../consumers/useCache';
 import { renderDataCompose, mountDataClient } from '../test';
+
+// Each arg form a composable accepts that should re-evaluate reactively
+const argForms: [string, <T>(fn: () => T) => MaybeRefOrGetter<T>][] = [
+  ['computed', fn => computed(fn)],
+  ['getter', fn => fn],
+];
 
 // Minimal shared fixture (copied from React test fixtures)
 const payload = {
@@ -291,58 +308,61 @@ describe('vue useCache()', () => {
       }));
   });
 
-  it('should handle null args by returning undefined', async () => {
-    const props = reactive({ id: payload.id as number | null });
-    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
-      (props: { id: number | null }) =>
-        useCache(
-          CoolerArticleResource.get,
-          computed(() => (props.id !== null ? { id: props.id } : null)),
-        ),
-      {
-        props,
-        initialFixtures: [
-          {
-            endpoint: CoolerArticleResource.get,
-            args: [{ id: payload.id }],
-            response: payload,
-          },
-          {
-            endpoint: CoolerArticleResource.get,
-            args: [{ id: payload2.id }],
-            response: payload2,
-          },
-        ],
-      },
-    );
+  it.each(argForms)(
+    'should handle null args by returning undefined (%s args)',
+    async (_, toArg) => {
+      const props = reactive({ id: payload.id as number | null });
+      const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
+        (props: { id: number | null }) =>
+          useCache(
+            CoolerArticleResource.get,
+            toArg(() => (props.id !== null ? { id: props.id } : null)),
+          ),
+        {
+          props,
+          initialFixtures: [
+            {
+              endpoint: CoolerArticleResource.get,
+              args: [{ id: payload.id }],
+              response: payload,
+            },
+            {
+              endpoint: CoolerArticleResource.get,
+              args: [{ id: payload2.id }],
+              response: payload2,
+            },
+          ],
+        },
+      );
 
-    // Wait for initial render
-    await waitForNextUpdate();
+      // Wait for initial render
+      await waitForNextUpdate();
 
-    expect(result.value).toBeDefined();
+      expect(result.value).toBeDefined();
 
-    // Verify initial values
-    expect(result.value?.title).toBe(payload.title);
-    expect(result.value?.content).toBe(payload.content);
+      // Verify initial values
+      expect(result.value?.title).toBe(payload.title);
+      expect(result.value?.content).toBe(payload.content);
 
-    // Change to null - the ComputedRef should reactively become undefined
-    props.id = null;
-    await nextTick();
+      // Change to null - the ComputedRef should reactively become undefined
+      props.id = null;
+      await nextTick();
 
-    // The same ComputedRef should now have undefined value
-    expect(result.value).toBeUndefined();
+      // The same ComputedRef should now have undefined value
+      expect(result.value).toBeUndefined();
 
-    // Change back to valid id - should get cached data
-    props.id = payload2.id;
-    await nextTick();
+      // Change back to valid id - should get cached data
+      props.id = payload2.id;
+      await nextTick();
 
-    // The ComputedRef should now have the new article data
-    expect(result.value).toBeDefined();
-    expect(result.value?.title).toBe(payload2.title);
-    expect(result.value?.content).toBe(payload2.content);
+      // The ComputedRef should now have the new article data
+      expect(result.value).toBeDefined();
+      expect(result.value?.title).toBe(payload2.title);
+      expect(result.value?.content).toBe(payload2.content);
 
-    cleanup();
-  });
+      cleanup();
+    },
+  );
 
   it('returns undefined for stale data when invalidIfStale is true', async () => {
     const { result, controller, waitForNextUpdate, cleanup } =
@@ -394,6 +414,80 @@ describe('vue useCache()', () => {
     expect(result.value).toBeDefined();
     expect(result.value?.title).toBe(payload.title);
 
+    cleanup();
+  });
+
+  it('keeps stale invalidIfStale data on unrelated store updates', async () => {
+    const realDate = Date.now;
+    Date.now = jest.fn(() => 1_000_000);
+    try {
+      const staleEndpoint = new Endpoint(
+        async ({ id }: { id: number }) => ({ ...payload, id }),
+        {
+          schema: CoolerArticle,
+          dataExpiryLength: 20,
+          invalidIfStale: true,
+          name: 'invalidIfStaleArticle',
+        },
+      );
+
+      const { result, controller, cleanup } = await renderDataCompose(
+        () => useCache(staleEndpoint, { id: 79 }),
+        {
+          initialFixtures: [
+            {
+              endpoint: staleEndpoint,
+              args: [{ id: 79 }],
+              response: { ...payload, id: 79 },
+            },
+          ],
+        },
+      );
+      expect(result.value?.id).toBe(79);
+
+      // data expires, then an unrelated store update
+      Date.now = jest.fn(() => 2_000_000);
+      await controller.set(CoolerArticle, { id: 80 }, { ...payload, id: 80 });
+      await nextTick();
+
+      // expiry only re-evaluates when expiresAt, args, or reset change (like React)
+      expect(result.value?.id).toBe(79);
+
+      cleanup();
+    } finally {
+      Date.now = realDate;
+    }
+  });
+
+  it('returns undefined (not a Symbol) for a deleted entity whose refetch errored', async () => {
+    const { result, controller, cleanup } = await renderDataCompose(
+      () => useCache(CoolerArticleResource.get, { id: payload.id }),
+      {
+        initialFixtures: [
+          {
+            endpoint: CoolerArticleResource.get,
+            args: [{ id: payload.id }],
+            response: payload,
+          },
+        ],
+      },
+    );
+    expect(result.value?.title).toBe(payload.title);
+
+    // error meta keeps the response from counting as expired
+    await controller.setError(
+      CoolerArticleResource.get,
+      { id: payload.id },
+      new Error('failed'),
+    );
+    await controller.setResponse(
+      CoolerArticleResource.delete,
+      { id: payload.id },
+      { id: payload.id },
+    );
+    await nextTick();
+
+    expect(result.value).toBeUndefined();
     cleanup();
   });
 });

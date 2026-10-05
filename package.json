@@ -24,8 +24,10 @@
     "build:types": "yarn build:copy:ambient && tsc --build --builders 1 && yarn workspaces foreach -Wpti --no-private run build:legacy-types",
     "ci:build": "yarn ci:build:types && yarn workspaces foreach -Wptiv --no-private run build:lib",
     "ci:build:setup": "run-p ci:build:types ci:build-test-lib",
+    "ci:build:setup:esmodule": "run-p ci:build:types-and-legacy ci:build-test-lib",
+    "ci:build:types-and-legacy": "yarn ci:build:types && yarn ci:build:legacy-types",
     "ci:build:types": "yarn build:copy:ambient && tsc --build --builders 1",
-    "ci:build:legacy-types": "yarn workspaces foreach -WptivR -j 10 --from @data-client/react --from @data-client/rest --from @data-client/graphql run build:legacy-types",
+    "ci:build:legacy-types": "yarn workspaces foreach -Wpiv --include @data-client/endpoint --include @data-client/normalizr --include @data-client/rest run build:legacy-types",
     "ci:build-test-lib": "yarn workspace @data-client/core run build:lib && yarn workspace @data-client/test run build:lib && yarn workspace @data-client/test run build:bundle",
     "ci:build:esmodule": "yarn workspaces foreach -WptivR --from @data-client/react --from @data-client/rest --from @data-client/graphql run build:lib && yarn workspace @data-client/normalizr run build:js:node && yarn workspace @data-client/endpoint run build:js:node",
     "ci:build:bundlesize": "yarn workspaces foreach -Wptiv --no-private run build:lib && yarn workspace test-bundlesize run build:sizecompare",
@@ -33,6 +35,7 @@
     "build:benchmark-react": "yarn workspaces foreach -WptivR --from @data-client/core --from @data-client/endpoint --from @data-client/react --from @data-client/rest run build:lib && yarn workspace example-benchmark-react run build",
     "build:copy:ambient": "mkdirp ./packages/endpoint/lib && copyfiles --flat ./packages/endpoint/src/schema.d.ts ./packages/endpoint/lib/ && copyfiles --flat ./packages/endpoint/src/endpoint.d.ts ./packages/endpoint/lib/ && mkdirp ./packages/rest/lib && copyfiles --flat ./packages/rest/src/RestEndpoint.d.ts ./packages/rest/lib && copyfiles --flat ./packages/rest/src/next/RestEndpoint.d.ts ./packages/rest/lib/next && mkdirp ./packages/react/lib && copyfiles --flat ./packages/react/src/server/redux/redux.d.ts ./packages/react/lib/server/redux",
     "copy:websitetypes": "./scripts/copywebsitetypes.sh",
+    "build:skills": "yarn workspace rdc-website build:skills",
     "test": "NODE_ENV=test run jest",
     "test:ci": "ANANSI_JEST_TYPECHECK=false yarn test --ci",
     "test:coverage": "ANANSI_JEST_TYPECHECK=false yarn test --coverage",
@@ -47,6 +50,7 @@
     "g:tsc": "cd $INIT_CWD && tsc",
     "g:legacy-types": "cd $INIT_CWD && ../../scripts/build-legacy-types.sh",
     "g:runs": "cd $INIT_CWD && run-s",
+    "g:runp": "cd $INIT_CWD && run-p",
     "g:copy": "cd $INIT_CWD && copyfiles",
     "g:lint": "cd $INIT_CWD && eslint"
   },
@@ -129,7 +133,9 @@
     "socks": ">=2.8.9",
     "uuid": ">=11.1.1",
     "sigstore": ">=4.1.1",
-    "qs": ">=6.16.0"
+    "qs": ">=6.16.0",
+    "rollup-plugin-filesize/pacote": "^21.5.1",
+    "@types/react@npm:*": "19.2.17"
   },
   "packageManager": "yarn@4.18.0",
   "prettier": {

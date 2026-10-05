@@ -1,6 +1,7 @@
 import type * as Preset from '@docusaurus/preset-classic';
 import type * as PresetMermaid from '@docusaurus/theme-mermaid';
 import type { Config } from '@docusaurus/types';
+import { GlobExcludeDefault } from '@docusaurus/utils';
 import { createRequire } from 'module';
 import path from 'path';
 import { themes } from 'prism-react-renderer';
@@ -16,6 +17,12 @@ require('./scripts/generateMonacoPreloads.cjs').ensureMonacoPreloadManifest();
 
 const isDev = process.env.NODE_ENV === 'development';
 
+// docs/core is shared by React (/docs) and Vue (/vue); see framework-docs/
+const frameworkDocs = require('./framework-docs/index.js');
+const remarkFramework = require('./framework-docs/remarkFramework.js');
+const vueDocs = frameworkDocs.generate('vue');
+if (isDev) frameworkDocs.watch('vue');
+
 const config: Config = {
   title: 'Data Client',
   tagline: 'Async State Management without the Management',
@@ -29,6 +36,15 @@ const config: Config = {
     hooks: {
       onBrokenMarkdownLinks: 'log',
     },
+    // Vercel preview deploys publish `draft: true` pages so PRs can review them;
+    // production (VERCEL_ENV=production) and local builds still drop them.
+    ...(process.env.VERCEL_ENV === 'preview' && {
+      parseFrontMatter: async params => {
+        const result = await params.defaultParseFrontMatter(params);
+        if (result.frontMatter.draft) result.frontMatter.draft = false;
+        return result;
+      },
+    }),
   },
   headTags: [
     {
@@ -197,9 +213,17 @@ const config: Config = {
         docs: {
           //id: 'core',
           path: '../docs/core',
-          exclude: ['getting-started/README.md'],
+          // `exclude` replaces Docusaurus' defaults; keep them so `_` partials aren't published
+          exclude: [
+            ...GlobExcludeDefault,
+            'getting-started/README.md',
+            '**/*.vue.{md,mdx}',
+          ],
           //routeBasePath: 'core',
-          sidebarPath: require.resolve('./sidebars.json'),
+          sidebarPath: require.resolve('./framework-docs/sidebars-react.js'),
+          beforeDefaultRemarkPlugins: [
+            [remarkFramework, { framework: 'react' }],
+          ],
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
           editUrl: ({ locale, docPath }) => {
@@ -244,6 +268,31 @@ const config: Config = {
     ],
   ],
   plugins: [
+    [
+      '@docusaurus/plugin-content-docs',
+      {
+        id: 'vue',
+        path: vueDocs.outDir,
+        exclude: [...GlobExcludeDefault, 'getting-started/README.md'],
+        routeBasePath: 'vue',
+        sidebarPath: require.resolve('./framework-docs/sidebars-vue.js'),
+        beforeDefaultRemarkPlugins: [
+          [
+            remarkFramework,
+            {
+              framework: 'vue',
+              routeBasePath: 'vue',
+              docIds: frameworkDocs.docIds('vue'),
+            },
+          ],
+        ],
+        // generated files have no git history
+        showLastUpdateAuthor: false,
+        showLastUpdateTime: false,
+        editUrl: ({ docPath }) =>
+          `https://github.com/reactive/data-client/edit/master/docs/core/${frameworkDocs.sourcePath('vue', docPath)}`,
+      },
+    ],
     [
       '@docusaurus/plugin-content-docs',
       {
@@ -303,6 +352,11 @@ const config: Config = {
     [
       '@docusaurus/plugin-client-redirects',
       {
+        // Vue docs briefly lived at /docs/vue
+        createRedirects(existingPath: string) {
+          if (existingPath === '/vue' || existingPath.startsWith('/vue/'))
+            return `/docs${existingPath}`;
+        },
         redirects: [
           {
             to: '/rest/guides/side-effects',
@@ -368,6 +422,16 @@ const config: Config = {
     path.resolve(__dirname, './node-plugin'),
     path.resolve(__dirname, './profiling-plugin'),
     path.resolve(__dirname, './raw-plugin'),
+    [
+      path.resolve(__dirname, './llms-plugin'),
+      {
+        frameworks: {
+          react: { id: 'default', path: '/', name: 'React' },
+          vue: { id: 'vue', path: '/vue/', name: 'Vue' },
+        },
+        shared: { rest: 'REST', graphql: 'GraphQL' },
+      },
+    ],
   ],
   themeConfig: {
     mermaid: {
@@ -423,10 +487,18 @@ const config: Config = {
           type: 'doc',
           position: 'left',
           docId: 'introduction',
-          label: 'Docs',
+          label: 'React',
         },
         {
-          type: 'docSidebar',
+          type: 'doc',
+          position: 'left',
+          docId: 'introduction',
+          docsPluginId: 'vue',
+          label: 'Vue',
+        },
+        {
+          // links to the React or Vue API, based on the docs being viewed
+          type: 'custom-frameworkDocSidebar',
           position: 'left',
           sidebarId: 'api',
           label: 'API',
@@ -499,6 +571,10 @@ const config: Config = {
             {
               label: 'Introduction',
               to: '/docs',
+            },
+            {
+              label: 'Vue',
+              to: '/vue',
             },
             {
               label: 'REST',

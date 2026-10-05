@@ -33,6 +33,12 @@ import {
   createSetResponse,
 } from './actions/index.js';
 import ensurePojo from './ensurePojo.js';
+import type {
+  SkipInfer,
+  SetManySchema,
+  SetManyValue,
+  SetValue,
+} from './setManyTypes.js';
 import type { EndpointUpdateFunction } from './types.js';
 import { ReduxMiddlewareAPI } from '../manager/applyManager.js';
 import type { GCInterface } from '../state/GCPolicy.js';
@@ -228,12 +234,22 @@ export default class Controller<
    */
   set<S extends Queryable>(
     schema: S,
-    ...rest: readonly [...SchemaArgs<S>, (previousValue: Denormalize<S>) => {}]
+    ...rest: readonly [
+      ...SchemaArgs<S>,
+      SkipInfer<
+        SetValue<S> | ((previousValue: Denormalize<S>) => SetValue<S>),
+        S
+      >,
+    ]
   ): Promise<void>;
 
-  set<S extends Queryable>(
+  /**
+   * Sets every row of an Array or Values of one Entity (or Union) in one normalize.
+   * @see https://dataclient.io/docs/api/Controller#set-array
+   */
+  set<S extends SetManySchema>(
     schema: S,
-    ...rest: readonly [...SchemaArgs<S>, {}]
+    value: SkipInfer<SetManyValue<S>, S>,
   ): Promise<void>;
 
   set<S extends Queryable>(
@@ -555,10 +571,12 @@ export default class Controller<
       else expiresAt = entityExpiresAt(paths, state.entitiesMeta);
     }
 
+    const invalidData = typeof data === 'symbol';
     return {
-      data,
+      // INVALID symbol (e.g. deleted entity) is an internal marker; expose it as missing data
+      data: invalidData ? undefined : data,
       expiryStatus: this.getExpiryStatus(
-        typeof data === 'symbol',
+        invalidData,
         !!endpoint.invalidIfStale || isInvalid,
         meta,
       ),

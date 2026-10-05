@@ -1,20 +1,21 @@
-import { ExpiryStatus } from '@data-client/core';
 import type {
   EndpointInterface,
   Denormalize,
   Schema,
   FetchFunction,
   DenormalizeNullable,
+  ResolveType,
 } from '@data-client/core';
-import { computed, watch, ref, unref } from 'vue';
+import { watch, ref, type Ref } from 'vue';
 
-import { useController, injectState } from '../context.js';
 import type {
   MaybeRefsOrGetters,
   MaybeRefsOrGettersNullable,
 } from '../types.js';
+import refetchTriggers from './refetchTriggers.js';
+import useResponseMeta, { isStale } from './useResponseMeta.js';
 
-type FetchPromise = Promise<any> & { resolved: boolean };
+type FetchPromise<T = any> = Promise<T> & { resolved: boolean };
 
 const RESOLVED = Object.assign(Promise.resolve(), {
   resolved: true,
@@ -43,8 +44,14 @@ export default function useFetch<
 >(
   endpoint: E,
   ...args: MaybeRefsOrGetters<Parameters<E>>
-): E['schema'] extends undefined | null ? ReturnType<E> & { resolved: boolean }
-: Promise<Denormalize<E['schema']>> & { resolved: boolean };
+): Readonly<
+  Ref<
+    FetchPromise<
+      E['schema'] extends undefined | null ? ResolveType<E>
+      : Denormalize<E['schema']>
+    >
+  >
+>;
 
 export default function useFetch<
   E extends EndpointInterface<
@@ -55,31 +62,22 @@ export default function useFetch<
 >(
   endpoint: E,
   ...args: MaybeRefsOrGettersNullable<Parameters<E>> | readonly [null]
-): E['schema'] extends undefined | null ?
-  (ReturnType<E> & { resolved: boolean }) | undefined
-: | (Promise<DenormalizeNullable<E['schema']>> & { resolved: boolean })
-  | undefined;
+): Readonly<
+  Ref<
+    | FetchPromise<
+        E['schema'] extends undefined | null ? ResolveType<E>
+        : DenormalizeNullable<E['schema']>
+      >
+    | undefined
+  >
+>;
 
-export default function useFetch(endpoint: any, ...args: any[]): any {
-  const stateRef = injectState();
-  const controller = useController();
-
-  // Track top-level reactive args (Refs are unwrapped). This allows props/refs to trigger updates.
-  const resolvedArgs = computed(() => args.map(a => unref(a as any)) as any);
-
-  // Compute a key that changes when args change (including reactive props)
-  const argsKey = computed(() =>
-    resolvedArgs.value[0] !== null ? endpoint.key(...resolvedArgs.value) : '',
-  );
-
-  // Compute response meta reactively so we can respond to store updates
-  const responseMeta = computed(() => {
-    return controller.getResponseMeta(
-      endpoint,
-      ...resolvedArgs.value,
-      stateRef.value,
-    );
-  });
+export default function useFetch(
+  endpoint: any,
+  ...args: any[]
+): Readonly<Ref<FetchPromise | undefined>> {
+  const { controller, stateRef, resolvedArgs, argsKey, responseMeta } =
+    useResponseMeta(endpoint, args);
 
   const lastPromise = ref<FetchPromise | undefined>(undefined);
   let lastKey = '';
@@ -91,10 +89,7 @@ export default function useFetch(endpoint: any, ...args: any[]): any {
       lastKey = '';
       return;
     }
-    const meta = responseMeta.value;
-    const forceFetch = meta.expiryStatus === ExpiryStatus.Invalid;
-
-    if (Date.now() > meta.expiresAt || forceFetch) {
+    if (isStale(responseMeta.value)) {
       lastPromise.value = trackPromise(
         controller.fetch(endpoint, ...resolvedArgs.value),
       );
@@ -109,20 +104,9 @@ export default function useFetch(endpoint: any, ...args: any[]): any {
   maybeFetch();
 
   // Also watch for store changes that might require refetch (e.g., invalidation)
-  watch(
-    () => {
-      const m = responseMeta.value;
-      return [
-        m.expiresAt,
-        m.expiryStatus,
-        stateRef.value.lastReset,
-        argsKey.value,
-      ];
-    },
-    () => {
-      maybeFetch();
-    },
-  );
+  watch(refetchTriggers(responseMeta, stateRef, argsKey), () => {
+    maybeFetch();
+  });
 
   return lastPromise;
 }

@@ -2,6 +2,8 @@
 name: initialize
 description: Setup, install, and onboard new developers to Reactive Data Client monorepo - nvm, yarn, build, test, getting started guide
 disable-model-invocation: true
+metadata:
+  internal: true
 ---
 
 # Initialize Development Environment
