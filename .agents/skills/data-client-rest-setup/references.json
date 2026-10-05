@@ -1,0 +1,13 @@
+{
+  "frameworks": [
+    "react",
+    "vue"
+  ],
+  "docs": {
+    "RestEndpoint.md": "docs/rest/api/RestEndpoint.md",
+    "auth.md": "docs/rest/guides/auth.md",
+    "django.md": "docs/rest/guides/django.md",
+    "hookifyResource.md": "docs/rest/api/hookifyResource.md",
+    "resource.md": "docs/rest/api/resource.md"
+  }
+}

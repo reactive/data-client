@@ -54,7 +54,7 @@ const AbortableUserDetail = UserDetail.extend({
 abort.abort();
 ```
 
-:::react
+::::react
 
 ## Cancelling on params change
 
@@ -66,12 +66,12 @@ change before the request is resolved.
 
 <UseCancelling />
 
-::::warning[Warning]
+:::warning[Warning]
 
 Be careful when using this with many disjoint components fetching the same
 arguments (Endpoint/params pair) to useSuspense(). This solution aborts fetches per-component,
 which means you might end up canceling a fetch that another component still cares about.
 
-::::
-
 :::
+
+::::
