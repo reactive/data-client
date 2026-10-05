@@ -86,8 +86,7 @@
 }
 
 /* Playground chrome. Every header (editor tabs, Live Preview, Store) shares
-   one bar color so the top row reads as one band. Dark mode bars sit one step
-   lighter than the code in a near-neutral grey, matched by the preview body. */
+   one neutral bar color in both themes so the top row reads as one band. */
 :root {
   --pg-bar: var(--ifm-color-emphasis-200);
   --pg-bar-edge: transparent;
@@ -97,18 +96,12 @@
   --pg-tab-selected: #e3e8f2;
   --pg-tab-selected-bg: var(--monoco-code-background);
 }
-:root[data-theme='dark'],
 /* EndpointPlayground's right column is code, so it always uses the dark bar */
 .endpointPlayground {
   --pg-bar: hsl(229, 8%, 26%);
   --pg-tab: rgba(191, 199, 213, 0.7);
   --pg-tab-hover-bg: hsl(229, 8%, 29%);
   --pg-tab-hover: #e3e8f2;
-}
-:root[data-theme='dark'] {
-  --pg-preview-bg: hsl(229, 4%, 18%);
-}
-.endpointPlayground {
   --pg-bar-edge: hsl(229, 8%, 17%);
 }
 
@@ -180,7 +173,7 @@ div.playgroundTextEdit > .playgroundHeader,
 
 :global(.col) .playgroundPreview {
   padding: 1rem;
-  background-color: var(--pg-preview-bg, var(--ifm-pre-background));
+  background-color: var(--ifm-pre-background);
   flex: 1 4 30%;
   overflow: auto;
 }
