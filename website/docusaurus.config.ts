@@ -46,6 +46,15 @@ const config: Config = {
     hooks: {
       onBrokenMarkdownLinks: 'log',
     },
+    // Vercel preview deploys publish `draft: true` pages so PRs can review them;
+    // production (VERCEL_ENV=production) and local builds still drop them.
+    ...(process.env.VERCEL_ENV === 'preview' && {
+      parseFrontMatter: async params => {
+        const result = await params.defaultParseFrontMatter(params);
+        if (result.frontMatter.draft) result.frontMatter.draft = false;
+        return result;
+      },
+    }),
   },
   headTags: [
     {

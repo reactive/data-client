@@ -67,6 +67,13 @@ export enum ExpiryStatus {
 }
 ```
 
+:::vue
+
+Vue components only suspend while mounting; mounted components keep showing their data while it
+refetches.
+
+:::
+
 ##### Valid
 
 - Will never suspend.

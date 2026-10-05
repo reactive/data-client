@@ -1,8 +1,8 @@
 {
   "hooks": {
-    "PostToolUse": [
+    "PreToolUse": [
       {
-        "matcher": "Edit|MultiEdit|Write",
+        "matcher": "Bash",
         "hooks": [
           {
             "type": "command",

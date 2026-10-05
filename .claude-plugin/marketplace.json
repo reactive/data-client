@@ -1,0 +1,67 @@
+{
+  "name": "data-client",
+  "owner": {
+    "name": "Nathaniel Tucker",
+    "email": "me@ntucker.me"
+  },
+  "metadata": {
+    "description": "Agent skills for Reactive Data Client: setup, schemas, REST, managers, and React or Vue usage and testing"
+  },
+  "plugins": [
+    {
+      "name": "core",
+      "description": "Framework-agnostic Data Client skills: setup, REST, GraphQL, custom endpoints, schemas, and managers",
+      "source": "./",
+      "strict": false,
+      "homepage": "https://dataclient.io/docs/getting-started/agent-skills",
+      "license": "Apache-2.0",
+      "skills": [
+        "./.agents/skills/data-client-setup",
+        "./.agents/skills/data-client-rest-setup",
+        "./.agents/skills/data-client-endpoint-setup",
+        "./.agents/skills/data-client-graphql-setup",
+        "./.agents/skills/data-client-schema",
+        "./.agents/skills/data-client-rest",
+        "./.agents/skills/data-client-manager"
+      ]
+    },
+    {
+      "name": "react",
+      "description": "Data Client hooks and testing for React, NextJS, and React Native",
+      "source": "./",
+      "strict": false,
+      "homepage": "https://dataclient.io/docs/getting-started/agent-skills",
+      "license": "Apache-2.0",
+      "dependencies": ["core"],
+      "skills": [
+        "./.agents/skills/data-client-react",
+        "./.agents/skills/data-client-react-testing"
+      ]
+    },
+    {
+      "name": "vue",
+      "description": "Data Client composables and testing for Vue 3",
+      "source": "./",
+      "strict": false,
+      "homepage": "https://dataclient.io/vue/getting-started/agent-skills",
+      "license": "Apache-2.0",
+      "dependencies": ["core"],
+      "skills": [
+        "./.agents/skills/data-client-vue",
+        "./.agents/skills/data-client-vue-testing"
+      ]
+    },
+    {
+      "name": "migrations",
+      "description": "Upgrade guides: Data Client v0.18 delegate signatures and path-to-regexp v8 path syntax",
+      "source": "./",
+      "strict": false,
+      "homepage": "https://dataclient.io/blog",
+      "license": "Apache-2.0",
+      "skills": [
+        "./.agents/skills/data-client-v0.18-migration",
+        "./.agents/skills/path-to-regexp-v8-migration"
+      ]
+    }
+  ]
+}

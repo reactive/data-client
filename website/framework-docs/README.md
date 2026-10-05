@@ -74,7 +74,8 @@ no text left for a framework (e.g. only `:react[...]`) is dropped from that fram
 ## How it works
 
 - `remarkFramework.js` keeps the matching `:::react`/`:::vue` content and drops the rest. Each docs
-  instance runs it with its own framework.
+  instance runs it with its own framework. It then drops imports nothing references anymore, so a
+  partial or component used only inside `:::react` isn't bundled into the Vue page.
 - Docusaurus can't point two docs instances at one folder, so `index.js` mirrors `docs/core` into
   `docs/.core-vue` (gitignored; a sibling so relative imports into `docs/rest` keep working), applying `.vue.md` overrides, `vue_` front matter and
   `frameworks:` filtering. It runs on config load and re-syncs on change during `yarn start`.
@@ -93,7 +94,10 @@ content resolved the same way (`remarkFramework.js`, front matter and `.vue.md` 
 reduced to their code. The
 first framework in `frameworks` writes `<name>.md`; later ones write `<name>.<framework>.md` only when
 the page differs. Output is committed because skills install straight from the repo; the `skills`
-workflow runs `yarn build:skills --check`.
+workflow runs `yarn build:skills --check`, which also fails when a `SKILL.md` links to a
+`references/` file that no longer exists, a reference is a symlink, or a skill has `.vue.md` variants its
+`SKILL.md` never mentions. See `.cursor/rules/skills-sync.mdc` for what to update
+when docs are added, renamed or deleted.
 
 Partials can use `props` in `{...}` expressions; the generator evaluates them with the props passed
 where the partial is used. JSX inside an expression is only supported for `<CodeBlock>`; anything

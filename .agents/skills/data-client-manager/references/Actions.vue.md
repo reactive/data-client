@@ -4,8 +4,8 @@
 
 Actions are minimal descriptions of store updates.
 
-They are [dispatched by Controller methods](./Controller.md#action-dispatchers) ->
-[read and consumed by Manager middleware](./Manager.md#reading-and-consuming-actions) ->
+They are [dispatched by Controller methods](./Controller.vue.md#action-dispatchers) ->
+[read and consumed by Manager middleware](./Manager.vue.md#reading-and-consuming-actions) ->
 processed by [reducers](https://react.dev/reference/react/useReducer) registered with [DataClientPlugin](https://dataclient.io/vue/getting-started/installation)
 to update the store's state.
 
@@ -57,7 +57,7 @@ interface FetchAction {
 }
 ```
 
-Sent by [Controller.fetch()](./Controller.md#fetch), [Controller.fetchIfStale()](./Controller.md#fetchIfStale),
+Sent by [Controller.fetch()](./Controller.vue.md#fetch), [Controller.fetchIfStale()](./Controller.vue.md#fetchIfStale),
 [useSuspense()](https://dataclient.io/vue/api/useSuspense), [useDLE()](https://dataclient.io/vue/api/useDLE), [useLive()](https://dataclient.io/vue/api/useLive), [useFetch()](https://dataclient.io/vue/api/useFetch)
 
 Read by [NetworkManager](https://dataclient.io/vue/api/NetworkManager)
@@ -97,7 +97,7 @@ interface SetAction {
 }
 ```
 
-Sent by [Controller.set()](./Controller.md#set)
+Sent by [Controller.set()](./Controller.vue.md#set)
 
 ## SET\_RESPONSE
 
@@ -141,9 +141,9 @@ interface SetResponseAction {
 }
 ```
 
-Sent by [Controller.setResponse()](./Controller.md#setResponse), [NetworkManager](https://dataclient.io/vue/api/NetworkManager)
+Sent by [Controller.setResponse()](./Controller.vue.md#setResponse), [NetworkManager](https://dataclient.io/vue/api/NetworkManager)
 
-Read by [NetworkManager](https://dataclient.io/vue/api/NetworkManager), [LogoutManager](./LogoutManager.md)
+Read by [NetworkManager](https://dataclient.io/vue/api/NetworkManager), [LogoutManager](./LogoutManager.vue.md)
 
 ## RESET
 
@@ -161,7 +161,7 @@ interface ResetAction {
 }
 ```
 
-Sent by [Controller.resetEntireStore()](./Controller.md#resetEntireStore)
+Sent by [Controller.resetEntireStore()](./Controller.vue.md#resetEntireStore)
 
 Read by [NetworkManager](https://dataclient.io/vue/api/NetworkManager)
 
@@ -189,7 +189,7 @@ interface SubscribeAction {
 }
 ```
 
-Sent by [Controller.subscribe()](./Controller.md#subscribe), [useSubscription()](https://dataclient.io/vue/api/useSubscription), [useLive()](https://dataclient.io/vue/api/useLive)
+Sent by [Controller.subscribe()](./Controller.vue.md#subscribe), [useSubscription()](https://dataclient.io/vue/api/useSubscription), [useLive()](https://dataclient.io/vue/api/useLive)
 
 Read by [SubscriptionManager](https://dataclient.io/vue/api/SubscriptionManager)
 
@@ -217,7 +217,7 @@ interface UnsubscribeAction {
 }
 ```
 
-Sent by [Controller.unsubscribe()](./Controller.md#unsubscribe), [useSubscription()](https://dataclient.io/vue/api/useSubscription), [useLive()](https://dataclient.io/vue/api/useLive)
+Sent by [Controller.unsubscribe()](./Controller.vue.md#unsubscribe), [useSubscription()](https://dataclient.io/vue/api/useSubscription), [useLive()](https://dataclient.io/vue/api/useLive)
 
 Read by [SubscriptionManager](https://dataclient.io/vue/api/SubscriptionManager)
 
@@ -237,7 +237,7 @@ interface InvalidateAction {
 }
 ```
 
-Sent by [Controller.invalidate()](./Controller.md#invalidate)
+Sent by [Controller.invalidate()](./Controller.vue.md#invalidate)
 
 ## INVALIDATEALL
 
@@ -255,7 +255,7 @@ interface InvalidateAllAction {
 }
 ```
 
-Sent by [Controller.invalidateAll()](./Controller.md#invalidateAll)
+Sent by [Controller.invalidateAll()](./Controller.vue.md#invalidateAll)
 
 ## EXPIREALL
 
@@ -273,4 +273,4 @@ interface ExpireAllAction {
 }
 ```
 
-Sent by [Controller.expireAll()](./Controller.md#expireAll)
+Sent by [Controller.expireAll()](./Controller.vue.md#expireAll)

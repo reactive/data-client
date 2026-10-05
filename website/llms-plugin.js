@@ -1,4 +1,4 @@
-/* global require, module, __dirname */
+/* global require, module */
 /**
  * Emits https://llmstxt.org files after build, per framework:
  *
@@ -10,13 +10,20 @@
  * partials are inlined and only the requested framework's content remains.
  * Links between pages point at their .md versions.
  */
+const { aliasedSitePathToRelativePath } = require('@docusaurus/utils');
 const fs = require('fs');
 const path = require('path');
 
 const { DOCS_INSTANCES } = require('./framework-docs/docsInstances.js');
 
-const frameworks = DOCS_INSTANCES.filter(d => d.framework);
-const shared = DOCS_INSTANCES.filter(d => !d.framework);
+/** framework -> the docs instance rendering docs/core for it */
+const frameworks = Object.fromEntries(
+  DOCS_INSTANCES.filter(d => d.framework).map(d => [d.framework, d]),
+);
+/** docs instance id -> title, for docs every framework includes */
+const shared = Object.fromEntries(
+  DOCS_INSTANCES.filter(d => !d.framework).map(d => [d.id, d.name]),
+);
 
 /** Route without trailing slash (`/docs/` -> `/docs`) */
 const trim = route => route.replace(/(.)\/$/, '$1');
@@ -57,35 +64,34 @@ module.exports = function llmsPlugin(context) {
       const { docToMarkdown, ROOT } =
         await import('./framework-docs/docsToMarkdown.mjs');
 
-      // docs instance -> what to render it as
-      // shared docs render as React; their links are the same in every framework
-      const sets = new Map(
-        DOCS_INSTANCES.map(d => [
-          d.id,
-          {
-            framework: d.framework ?? 'react',
-            title: d.framework ? 'Core' : d.name,
-            source: path.resolve(ROOT, d.path),
-          },
-        ]),
+      // docs instance id -> its folder and sidebar sections
+      const instances = new Map(
+        [
+          ...Object.values(frameworks).map(({ id }) => [id, 'Core']),
+          ...Object.entries(shared),
+        ].map(([id, title]) => {
+          const plugin = plugins.find(
+            p =>
+              p.name === 'docusaurus-plugin-content-docs' &&
+              (p.options.id ?? 'default') === id,
+          );
+          const version = plugin.content.loadedVersions.find(
+            v => v.versionName === 'current',
+          );
+          return [
+            id,
+            {
+              dir: path.resolve(context.siteDir, plugin.options.path),
+              sections: sections(version, title),
+            },
+          ];
+        }),
       );
-      for (const [id, set] of sets) {
-        const plugin = plugins.find(
-          p =>
-            p.name === 'docusaurus-plugin-content-docs' &&
-            (p.options.id ?? 'default') === id,
-        );
-        set.dir = path.resolve(context.siteDir, plugin.options.path);
-        set.sections = sections(
-          plugin.content.loadedVersions.find(v => v.versionName === 'current'),
-          set.title,
-        );
-      }
 
       // links between rendered pages point at their markdown
       const routes = new Set(
-        [...sets.values()].flatMap(set =>
-          set.sections.flatMap(s => s.docs.map(doc => trim(doc.permalink))),
+        [...instances.values()].flatMap(({ sections }) =>
+          sections.flatMap(s => s.docs.map(doc => trim(doc.permalink))),
         ),
       );
       const resolveRoute = route => {
@@ -101,68 +107,89 @@ module.exports = function llmsPlugin(context) {
         fs.writeFileSync(target, content);
       };
 
-      // Render and write each page once; shared docs are reused by every framework
-      for (const set of sets.values()) {
-        for (const section of set.sections) {
-          section.docs = section.docs.map(doc => {
-            const source = path.resolve(
-              context.siteDir,
-              doc.source.replace(/^@site\//, ''),
-            );
-            // the Vue mirror has the same layout as docs/core; docToMarkdown
-            // applies `.vue.md` overrides and front matter itself
-            const file = path.join(set.source, path.relative(set.dir, source));
-            const content = docToMarkdown(file, set.framework, {
-              resolveRoute,
-            });
-            if (content === undefined)
-              throw new Error(
-                `llms-plugin: ${file} has no ${set.framework} page`,
-              );
-            const md = `${trim(doc.permalink)}.md`;
-            write(md, content);
-            return {
-              title: doc.title,
-              // Docusaurus falls back to the first paragraph, often a fragment
-              description: doc.frontMatter.description,
-              md,
-              content,
-            };
-          });
-        }
-      }
+      /** A doc as markdown; framework instances render from their source (Vue via its mirror) */
+      const render = (id, doc, framework) => {
+        const source = path.resolve(
+          context.siteDir,
+          aliasedSitePathToRelativePath(doc.source),
+        );
+        // the mirror has docs/core's layout; docToMarkdown applies `.vue.md`
+        // overrides and front matter itself
+        const file =
+          id in shared ? source : (
+            path.join(
+              ROOT,
+              frameworks[framework].path,
+              path.relative(instances.get(id).dir, source),
+            )
+          );
+        const content = docToMarkdown(file, framework, { resolveRoute });
+        if (content === undefined)
+          throw new Error(`llms-plugin: ${file} has no ${framework} page`);
+        return content;
+      };
 
-      for (const site of frameworks) {
-        const others = frameworks
-          .filter(other => other !== site)
-          .map(o => `Using ${o.name}? See ${url}${o.llms}llms.txt`);
-        const header = [
-          `# Data Client for ${site.name}`,
-          `> Reactive Data Client: async state management for ${site.name} with normalized, type-safe data from REST, GraphQL, and any other source.`,
-          [
-            `Packages: @data-client/${site.framework}, @data-client/rest, @data-client/graphql.`,
-            ...others,
-          ].join(' '),
-        ].join('\n\n');
-        const all = [site, ...shared].flatMap(
-          ({ id }) => sets.get(id).sections,
+      const [defaultFramework] = Object.keys(frameworks);
+      for (const [framework, site] of Object.entries(frameworks)) {
+        // Shared docs render per framework so their links stay in it. Their
+        // one .md per URL is the default framework's, like the HTML page.
+        const all = [site.id, ...Object.keys(shared)].flatMap(id =>
+          instances.get(id).sections.map(({ label, docs }) => ({
+            label,
+            pages: docs.map(doc => {
+              const page = {
+                title: doc.title,
+                // Docusaurus falls back to the first paragraph, often a fragment
+                description: doc.frontMatter.description,
+                md: `${trim(doc.permalink)}.md`,
+                content: render(id, doc, framework),
+              };
+              if (!(id in shared) || framework === defaultFramework)
+                write(page.md, page.content);
+              return page;
+            }),
+          })),
         );
 
-        const index = all.map(
-          ({ label, docs }) =>
-            `## ${label}\n\n${docs
+        const others = Object.entries(frameworks)
+          .filter(([other]) => other !== framework)
+          .map(([, o]) => `Using ${o.name}? See ${url}${o.llms}llms.txt`);
+        // shared docs instance ids are their package names
+        const packages = [framework, ...Object.keys(shared)].map(
+          name => `@data-client/${name}`,
+        );
+        const file = parts =>
+          `${[
+            `# Data Client for ${site.name}`,
+            `> Reactive Data Client: async state management for ${site.name} with normalized, type-safe data from REST, GraphQL, and any other source.`,
+            [`Packages: ${packages.join(', ')}.`, ...others].join(' '),
+            ...parts,
+          ].join('\n\n')}\n`;
+
+        write(
+          `${site.llms}llms.txt`,
+          file(
+            all.map(
+              ({ label, pages }) =>
+                `## ${label}\n\n${pages
+                  .map(
+                    p =>
+                      `- [${p.title}](${url}${p.md})${p.description ? `: ${p.description}` : ''}`,
+                  )
+                  .join('\n')}`,
+            ),
+          ),
+        );
+        write(
+          `${site.llms}llms-full.txt`,
+          file(
+            all
+              .flatMap(s => s.pages)
               .map(
-                d =>
-                  `- [${d.title}](${url}${d.md})${d.description ? `: ${d.description}` : ''}`,
-              )
-              .join('\n')}\n`,
+                p => `<!-- Source: ${url}${p.md} -->\n\n${p.content.trim()}`,
+              ),
+          ),
         );
-        write(`${site.llms}llms.txt`, [`${header}\n`, ...index].join('\n'));
-
-        const full = all
-          .flatMap(s => s.docs)
-          .map(d => `<!-- Source: ${url}${d.md} -->\n\n${d.content.trim()}\n`);
-        write(`${site.llms}llms-full.txt`, [`${header}\n`, ...full].join('\n'));
       }
     },
   };

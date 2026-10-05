@@ -12,6 +12,7 @@ const HooksPlayground = ({
   fixtures = [],
   defaultTab,
   headerControls,
+  renderCount,
   getInitialInterceptorData = () => ({}),
 }: PlaygroundProps) => (
   <Playground
@@ -23,6 +24,7 @@ const HooksPlayground = ({
     getInitialInterceptorData={getInitialInterceptorData}
     defaultTab={defaultTab}
     headerControls={headerControls}
+    renderCount={renderCount}
   >
     {/* A single fence arrives as one <pre> element; unwrap it to its <code> */}
     {typeof children === 'string' ?

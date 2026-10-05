@@ -11,7 +11,6 @@ import { phrasing } from 'mdast-util-phrasing';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import remarkDirective from 'remark-directive';
 import remarkFrontmatter from 'remark-frontmatter';
 import remarkGfm from 'remark-gfm';
@@ -20,6 +19,8 @@ import remarkParse from 'remark-parse';
 import remarkStringify from 'remark-stringify';
 import { unified } from 'unified';
 import { visit } from 'unist-util-visit';
+
+import { ROOT, SITE, rel } from './site.mjs';
 
 const require = createRequire(import.meta.url);
 const preprocessContent =
@@ -35,11 +36,7 @@ const {
 } = require('./index.js');
 const remarkFramework = require('./remarkFramework.js');
 
-export const ROOT = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '../..',
-);
-export const SITE = 'https://dataclient.io';
+export { ROOT, SITE, rel };
 
 /** Docs instance rendering `relPath` (from the repo root) for a framework */
 const instanceOf = (relPath, framework) =>
@@ -68,8 +65,6 @@ const stringifier = unified()
   })
   .use(remarkGfm)
   .use(remarkDirective);
-
-export const rel = file => path.relative(ROOT, file).split(path.sep).join('/');
 
 function memoize(fn) {
   const cache = new Map();
@@ -424,6 +419,8 @@ function render(file, framework, props = {}) {
         ];
       case 'br':
         return [{ type: 'break' }];
+      case 'table':
+        return [convertTable(node)];
     }
     if (HTML.includes(name))
       return [
@@ -435,6 +432,51 @@ function render(file, framework, props = {}) {
       return [{ type: INLINE[name], children: convertAll(node.children) }];
     // Playgrounds, layout and other wrappers: keep what's inside
     return convertAll(node.children);
+  }
+
+  /** A GFM table; row and column spans repeat the cell so each row stands alone */
+  function convertTable(node) {
+    const jsx = n => n.type?.startsWith('mdxJsx');
+    const rows = [];
+    const collect = n =>
+      n.name === 'tr' ? rows.push(n) : n.children?.filter(jsx).forEach(collect);
+    node.children.filter(jsx).forEach(collect);
+    /** column -> { cell, rows left } carried down from a rowSpan above */
+    const spans = [];
+    const cellContent = cell =>
+      convertAll(cell.children).flatMap(c =>
+        c.type === 'paragraph' ? c.children : [c],
+      );
+    const out = rows.map(row => {
+      const cells = [];
+      const take = () => {
+        while (spans[cells.length]?.left > 0) {
+          spans[cells.length].left--;
+          cells.push(structuredClone(spans[cells.length].cell));
+        }
+      };
+      // cells on their own lines parse into a paragraph inside the row
+      const tds = row.children
+        .flatMap(c => (c.type === 'paragraph' ? c.children : [c]))
+        .filter(c => jsx(c) && (c.name === 'td' || c.name === 'th'));
+      for (const td of tds) {
+        take();
+        const attrs = attributesOf(td, props, source);
+        const cell = { type: 'tableCell', children: cellContent(td) };
+        for (let i = 0; i < (Number(attrs.colSpan) || 1); i++) {
+          if (Number(attrs.rowSpan) > 1)
+            spans[cells.length] = { cell, left: Number(attrs.rowSpan) - 1 };
+          cells.push(structuredClone(cell));
+        }
+      }
+      take();
+      return { type: 'tableRow', children: cells };
+    });
+    const width = Math.max(...out.map(r => r.children.length));
+    for (const row of out)
+      while (row.children.length < width)
+        row.children.push({ type: 'tableCell', children: [] });
+    return { type: 'table', align: [], children: out };
   }
 
   function convertAll(children) {

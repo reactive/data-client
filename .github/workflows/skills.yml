@@ -1,5 +1,16 @@
 name: skills
 on:
+  # master catches drift from lockfile bumps or PRs merged in sequence
+  push:
+    branches:
+      - master
+    paths:
+      - 'docs/**'
+      - '.agents/skills/**'
+      - 'website/framework-docs/**'
+      - 'website/package.json'
+      - 'yarn.lock'
+      - '.github/workflows/skills.yml'
   pull_request:
     branches:
       - master
@@ -9,6 +20,7 @@ on:
       - '.agents/skills/**'
       - 'website/framework-docs/**'
       - 'website/package.json'
+      - 'yarn.lock'
       - '.github/workflows/skills.yml'
 
 concurrency:

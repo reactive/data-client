@@ -362,13 +362,15 @@ expect(result.current?.value?.title).toBe('hi ho');
 - **useSuspense returns Promise → ComputedRef** - Await once, then access `.value`
 - **Test both empty and populated states** - Verify undefined behavior
 - **Test reactive prop changes** - Use `reactive()` and verify updates
-- **Don't test with async setup + prop changes** - Async setup only runs once; use non-async patterns or useFetch + watchEffect instead
+- **Pass prop-derived args as getters** - Async setup runs once, so `useSuspense(Resource.get, () => ({ id: props.id }))` follows prop changes; a plain `{ id: props.id }` is read once
 
 ## References
 
 For detailed API documentation, see the [references](references/) directory:
 
 - [Fixtures](references/Fixtures.md) - Fixture format reference
+- [mockInitialState](references/mockInitialState.md) - Create initial state for `DataClientPlugin`
+- [vue-test-utilities](references/vue-test-utilities.md) - `renderDataCompose()` and `mountDataClient()` guide
 - [nock-http-mocking](references/nock-http-mocking.md) - Full nock setup, dynamic server state, request spying, errors, pitfalls
 - [polling-subscriptions](references/polling-subscriptions.md) - Fake-timer patterns for `useLive`/`useSubscription`/`pollFrequency`, unsubscribe verification, polling via nock
 

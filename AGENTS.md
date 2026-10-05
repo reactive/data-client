@@ -41,7 +41,7 @@ Any user-facing change in `packages/*` requires a changeset. Core packages are v
 - **Tests**: `packages/*/src/**/__tests__`
 - **Benchmarks**: `examples/benchmark` (Node: core/normalizr/endpoint throughput), `examples/benchmark-react` (browser: React rendering and data-library comparison). See `.cursor/rules/benchmarking.mdc` and each example’s README.
 - **Skills**: `.agents/skills/` (Cursor, Codex, and other agents)
-  - `references/*.md` listed in a skill's `references.json` are generated from `docs/`; edit the doc, never the reference. `yarn build:skills` regenerates them (agent edit hooks do this automatically) and the `skills` CI check fails on drift.
+  - `references/*.md` listed in a skill's `references.json` are generated from `docs/`; edit the doc, never the reference. `yarn build:skills` regenerates them (an agent pre-push hook makes sure they are committed) and the `skills` CI check fails on drift.
 
 ## Key Principles
 

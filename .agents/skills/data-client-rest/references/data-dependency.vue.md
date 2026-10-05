@@ -178,7 +178,7 @@ in [Query](https://dataclient.io/rest/api/Query) — data logic belongs with the
 and free to change independently of the view.
 
 Instead of writing complex update functions or invalidations cascades, Reactive Data Client automatically updates
-bound components immediately upon [data change](./mutations.md). This is known as _reactive programming_.
+bound components immediately upon [data change](./mutations.vue.md). This is known as _reactive programming_.
 
 ## Loading and Error {#async-fallbacks}
 

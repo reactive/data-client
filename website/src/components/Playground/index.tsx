@@ -30,6 +30,8 @@ export interface PlaygroundProps<T = any> {
   /** Title of the file tab to open; overrides `collapsed` metastrings */
   defaultTab?: string;
   headerControls?: React.ReactNode;
+  /** Show a badge counting the preview's React commits (e.g. one notification vs N) */
+  renderCount?: boolean;
 }
 
 export default function Playground<T>({
@@ -42,6 +44,7 @@ export default function Playground<T>({
   getInitialInterceptorData,
   defaultTab,
   headerControls,
+  renderCount = false,
 }: PlaygroundProps<T>) {
   const { playgroundPosition } = (
     useDocusaurusContext().siteConfig.themeConfig as any
@@ -84,6 +87,7 @@ export default function Playground<T>({
           row={row}
           fixtures={fixtures}
           getInitialInterceptorData={getInitialInterceptorData}
+          renderCount={renderCount}
         />
       </Boundary>
     );

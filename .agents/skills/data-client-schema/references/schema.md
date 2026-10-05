@@ -251,70 +251,17 @@ interface Queryable {
 
 ## Schema Overview
 
-Data Type
-Mutable
-Schema
-Description
-[Queryable](./schema.md#queryable)
-
-[Object](https://en.wikipedia.org/wiki/Object_\(computer_science\))
-✅
-[Entity](./Entity.md)
-single _unique_ object
-✅
-
-✅
-[Union(Entity)](./Union.md)
-polymorphic objects (`A | B`)
-✅
-
-🛑
-[Object](./Object.md)
-statically known keys
-🛑
-
-[Invalidate(Entity)](./Invalidate.md)
-[delete an entity](https://dataclient.io/docs/concepts/expiry-policy#invalidate-entity)
-🛑
-
-[List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))
-✅
-[Collection(Array)](./Collection.md)
-growable lists
-✅
-
-🛑
-[Array](./Array.md)
-immutable lists
-🛑
-
-[All](./All.md)
-list of all entities of a kind
-✅
-
-[Map](https://en.wikipedia.org/wiki/Associative_array)
-✅
-[Collection(Values)](./Collection.md)
-growable maps
-✅
-
-🛑
-[Values](./Values.md)
-immutable maps
-🛑
-
-[Scalar](https://en.wikipedia.org/wiki/Scalar_\(mathematics\))
-✅
-[Scalar](./Scalar.md)
-lens-dependent entity fields
-✅
-
-any
-
-[Query(Queryable)](./Query.md)
-memoized custom transforms
-✅
-
-[Lazy(Schema)](./Lazy.md)
-deferred denormalization
-✅
+| Data Type                                                           | Mutable | Schema                                | Description                                                                             | [Queryable](./schema.md#queryable) |
+| ------------------------------------------------------------------- | ------- | ------------------------------------- | --------------------------------------------------------------------------------------- | ---------------------------------- |
+| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | ✅       | [Entity](./Entity.md)                 | single _unique_ object                                                                  | ✅                                  |
+| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | ✅       | [Union(Entity)](./Union.md)           | polymorphic objects (`A \| B`)                                                          | ✅                                  |
+| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | 🛑      | [Object](./Object.md)                 | statically known keys                                                                   | 🛑                                 |
+| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) |         | [Invalidate(Entity)](./Invalidate.md) | [delete an entity](https://dataclient.io/docs/concepts/expiry-policy#invalidate-entity) | 🛑                                 |
+| [List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))   | ✅       | [Collection(Array)](./Collection.md)  | growable lists                                                                          | ✅                                  |
+| [List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))   | 🛑      | [Array](./Array.md)                   | immutable lists                                                                         | 🛑                                 |
+| [List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))   |         | [All](./All.md)                       | list of all entities of a kind                                                          | ✅                                  |
+| [Map](https://en.wikipedia.org/wiki/Associative_array)              | ✅       | [Collection(Values)](./Collection.md) | growable maps                                                                           | ✅                                  |
+| [Map](https://en.wikipedia.org/wiki/Associative_array)              | 🛑      | [Values](./Values.md)                 | immutable maps                                                                          | 🛑                                 |
+| [Scalar](https://en.wikipedia.org/wiki/Scalar_\(mathematics\))      | ✅       | [Scalar](./Scalar.md)                 | lens-dependent entity fields                                                            | ✅                                  |
+| any                                                                 |         | [Query(Queryable)](./Query.md)        | memoized custom transforms                                                              | ✅                                  |
+| any                                                                 |         | [Lazy(Schema)](./Lazy.md)             | deferred denormalization                                                                | ✅                                  |
