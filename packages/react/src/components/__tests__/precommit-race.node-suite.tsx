@@ -13,7 +13,15 @@
  */
 import { Endpoint } from '@data-client/endpoint';
 import { makeGate, type GatePromise } from '__tests__/streamingHarness';
-import { use, lazy, startTransition, Suspense, Component } from 'react';
+import {
+  use,
+  lazy,
+  startTransition,
+  Activity,
+  StrictMode,
+  Suspense,
+  Component,
+} from 'react';
 import type { ReactElement, ReactNode } from 'react';
 
 import { useFetch, useSuspense } from '../../hooks';
@@ -134,12 +142,14 @@ async function runRace(
     transition,
     reader,
     settle,
+    strict = false,
   }: {
     shared: boolean;
     where: Where;
     transition: boolean;
     reader: ReaderKind;
     settle: 'value' | 'error';
+    strict?: boolean;
   },
 ) {
   const errors: unknown[][] = [];
@@ -182,10 +192,11 @@ async function runRace(
     );
   }
   // legacy roots throw when a component suspends outside every boundary
-  const element =
+  const root =
     LegacyReact ?
       <Suspense fallback={<Text>outer</Text>}>{tree}</Suspense>
     : tree;
+  const element = strict ? <StrictMode>{root}</StrictMode> : root;
   const expected = settle === 'error' ? 'error nope' : 'value 5';
   const renderer = host.createRenderer();
   try {
@@ -203,6 +214,53 @@ async function runRace(
       args.join(' ').includes("hasn't mounted yet"),
     );
     return { beforeRelease, text: renderer.read(), calls: getCalls(), warned };
+  } finally {
+    renderer.unmount();
+    spy.mockRestore();
+  }
+}
+
+// a hidden Activity renders its tree without mounting Effects, so DataProvider stays uncommitted until shown
+async function runHiddenActivity(host: RaceHost, settle: 'value' | 'error') {
+  const errors: unknown[][] = [];
+  const spy = jest.spyOn(console, 'error').mockImplementation((...args) => {
+    errors.push(args);
+  });
+  const { endpoint, getCalls } = makeEndpoint(settle);
+  const managers = getDefaultManagers();
+  const Text = host.Text;
+  const tree = (mode: 'hidden' | 'visible') => (
+    <Activity mode={mode}>
+      <DataProvider managers={managers} devButton={null}>
+        <ErrorBox Text={Text}>
+          <Suspense fallback={<Text>fallback</Text>}>
+            <SuspenseReader endpoint={endpoint} Text={Text} />
+          </Suspense>
+        </ErrorBox>
+      </DataProvider>
+    </Activity>
+  );
+  const expected = settle === 'error' ? 'error nope' : 'value 5';
+  const renderer = host.createRenderer();
+  try {
+    renderer.render(tree('hidden'));
+    await waitUntil(() => getCalls() > 0);
+    await tick();
+    const beforeReveal = renderer.read();
+    const callsBeforeReveal = getCalls();
+    renderer.render(tree('visible'));
+    await waitUntil(() => renderer.read().includes(expected));
+    await waitUntilStable(getCalls);
+    const warned = errors.some(args =>
+      args.join(' ').includes("hasn't mounted yet"),
+    );
+    return {
+      beforeReveal,
+      callsBeforeReveal,
+      text: renderer.read(),
+      calls: getCalls(),
+      warned,
+    };
   } finally {
     renderer.unmount();
     spy.mockRestore();
@@ -304,5 +362,34 @@ export function registerPrecommitRaceTests(host: RaceHost) {
       } as const;
       expectResolved(await runRace(host, spec), spec);
     });
+
+    for (const settle of ['value', 'error'] as const) {
+      const outcome = settle === 'error' ? 'an error' : 'a value';
+      it(`shows ${outcome} under StrictMode without calling the endpoint again`, async () => {
+        const spec = {
+          shared: true,
+          where: 'outside',
+          transition: false,
+          reader: 'suspense',
+          settle,
+          strict: true,
+        } as const;
+        expectResolved(await runRace(host, spec), spec);
+      });
+
+      // Activity is React 19.2+
+      (Activity !== undefined ? it : it.skip)(
+        `shows ${outcome} that settled inside a hidden Activity once it is revealed`,
+        async () => {
+          const expected = settle === 'error' ? 'error nope' : 'value 5';
+          const result = await runHiddenActivity(host, settle);
+          expect(result.callsBeforeReveal).toBe(1);
+          expect(result.beforeReveal).not.toContain(expected);
+          expect(result.text).toContain(expected);
+          expect(result.calls).toBe(1);
+          expect(result.warned).toBe(false);
+        },
+      );
+    }
   });
 }
