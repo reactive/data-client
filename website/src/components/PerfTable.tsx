@@ -9,7 +9,7 @@ export interface PerfTableRow {
   values: [number, number][];
 }
 
-/** Before/after results across several metrics, each cell with a change badge and paired bars */
+/** Before/after results across several metrics; cells show the change, with exact numbers on hover or focus */
 export default function PerfTable({
   columns,
   rows,
@@ -42,17 +42,18 @@ export default function PerfTable({
               const change = Math.round(((after - before) / before) * 100);
               const max = Math.max(before, after);
               return (
-                <td key={columns[i].label}>
-                  <div className={styles.values}>
-                    <span className={styles.before}>
-                      {before}
-                      {unit}
-                    </span>
-                    <span>→</span>
-                    <strong>
-                      {after}
-                      {unit}
-                    </strong>
+                <td key={columns[i].label} tabIndex={0}>
+                  <div className={styles.cell}>
+                    <div className={styles.bars} aria-hidden="true">
+                      <span
+                        className={styles.barBefore}
+                        style={{ width: `${(before / max) * 100}%` }}
+                      />
+                      <span
+                        className={styles.barAfter}
+                        style={{ width: `${(after / max) * 100}%` }}
+                      />
+                    </div>
                     <span
                       className={
                         change < 0 ? styles.better
@@ -66,16 +67,15 @@ export default function PerfTable({
                       : `${change > 0 ? '+' : ''}${change}%`}
                     </span>
                   </div>
-                  <div className={styles.bars} aria-hidden="true">
-                    <span
-                      className={styles.barBefore}
-                      style={{ width: `${(before / max) * 100}%` }}
-                    />
-                    <span
-                      className={styles.barAfter}
-                      style={{ width: `${(after / max) * 100}%` }}
-                    />
-                  </div>
+                  {/* exact numbers stay in the DOM for crawlers and screen readers */}
+                  <span className={styles.tip}>
+                    {before}
+                    {unit} →{' '}
+                    <strong>
+                      {after}
+                      {unit}
+                    </strong>
+                  </span>
                 </td>
               );
             })}

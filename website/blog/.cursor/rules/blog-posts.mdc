@@ -108,7 +108,7 @@ Bar lengths switch to a log scale on their own when speedups differ by more than
 Each bar is shaded up to a dashed 1x line (no change), so the bright part is the gain.
 
 For several metrics per row (like time and memory), use `<PerfTable>` instead of a markdown table. Each cell shows
-before → after, a colored percent-change badge and paired bars; lower is better.
+paired before/after bars and a colored percent-change badge, with exact numbers on hover or tap; lower is better.
 
 ```mdx
 import PerfTable from '@site/src/components/PerfTable';
