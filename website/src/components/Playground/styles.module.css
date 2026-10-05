@@ -559,3 +559,22 @@ div.fixtureJson {
   position: absolute;
   left: 0.75rem;
 }
+
+/* Preview header badge (Playground `renderCount`) */
+.previewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.renderCount {
+  font: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+  font-weight: normal;
+  padding: 0 0.5em;
+  border: none;
+  border-radius: var(--ifm-global-radius);
+  background: var(--ifm-color-emphasis-300);
+  color: inherit;
+  cursor: pointer;
+}
