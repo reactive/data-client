@@ -15,7 +15,7 @@ const SRC = path.resolve(__dirname, '../../docs/core');
 const MD = /\.mdx?$/;
 /** `foo.vue.md` replaces `foo.md` for Vue */
 const VUE_OVERRIDE = /\.vue(\.mdx?)$/;
-const FM = /^---\n([\s\S]*?)\n---\n/;
+const FM = /^---\r?\n([\s\S]*?)\r?\n---\r?\n/;
 
 /** Files under `dir`, relative to it, with forward slashes (as `docIdOf` expects) */
 function walk(dir, base = dir) {
