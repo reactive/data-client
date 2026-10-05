@@ -48,12 +48,11 @@ commands:
   restore-yarn-cache:
     # The workspace skips the yarn cache (~130 MiB) to keep setup's upload
     # short; only jobs that re-resolve dependencies (`yarn up`/`add`) need it.
-    # The newest entry is almost always the one setup just saved. Run before
-    # attach_workspace so the workspace's install state wins.
     steps:
       - restore_cache:
           keys:
-            - v15-dependencies-
+            - v16-dependencies-{{ checksum ".ci-deps-key" }}
+            - v16-dependencies-
 
 jobs:
   setup:
@@ -148,10 +147,7 @@ jobs:
           name: Compute dependency cache key
           command: |
             git show HEAD:package.json HEAD:yarn.lock HEAD:examples/todo-app/package.json HEAD:examples/github-app/package.json HEAD:examples/normalizr-relationships/package.json | sha256sum > .ci-deps-key
-      - restore_cache:
-          keys:
-            - v15-dependencies-{{ checksum ".ci-deps-key" }}
-            - v15-dependencies-
+      - restore-yarn-cache
       - run:
           name: yarn install
           command: |
@@ -159,8 +155,7 @@ jobs:
       - save_cache:
           paths:
             - .yarn/cache
-            - .yarn/install-state.gz
-          key: v15-dependencies-{{ checksum ".ci-deps-key" }}
+          key: v16-dependencies-{{ checksum ".ci-deps-key" }}
       - run:
           # These are independent (babel/rollup compile from src, not tsc output),
           # so run them concurrently to shorten the critical path. Legacy types
@@ -181,6 +176,7 @@ jobs:
             - project/.yarn/releases
             - project/.yarn/plugins
             - project/.yarn/install-state.gz
+            - project/.ci-deps-key
             - project/__tests__
             - project/examples/todo-app
             - project/examples/github-app
@@ -236,14 +232,14 @@ jobs:
     steps:
       - halt-unless-relevant-change:
           flag: tests
+      - attach_workspace:
+          at: ~/
       - unless:
           # `latest` uses the installed React as-is
           condition:
             equal: ["latest", << parameters.react-version >>]
           steps:
             - restore-yarn-cache
-      - attach_workspace:
-          at: ~/
       - run:
           name: Installing React Version
           command: |
@@ -298,9 +294,9 @@ jobs:
     steps:
       - halt-unless-relevant-change:
           flag: tests
-      - restore-yarn-cache
       - attach_workspace:
           at: ~/
+      - restore-yarn-cache
       - run:
           command: |
             node --version
@@ -324,9 +320,9 @@ jobs:
     steps:
       - halt-unless-relevant-change:
           flag: esmodule
-      - restore-yarn-cache
       - attach_workspace:
           at: ~/
+      - restore-yarn-cache
       - run:
           name: Install TypeScript Version
           command: |
