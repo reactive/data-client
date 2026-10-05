@@ -47,7 +47,12 @@ export default function PerfChart({
   // log scale keeps a 3x row visible next to a 600x row; judged on this chart's rows alone
   const log = Math.max(...speedups) / Math.min(...speedups) > 10;
   const max = Math.max(...speedups, scaleMax ?? 0);
-  const scale = (n: number) => (log ? Math.log(Math.max(n, 1)) : n);
+  // in log mode the track starts at 1x, or below it when a row regressed, so a slower
+  // row still gets a bar and a visible gap up to 1x
+  const min = Math.min(...speedups);
+  const lo = min < 1 ? min / 2 : 1;
+  const scale = (n: number) =>
+    log ? Math.log(Math.max(n, lo)) - Math.log(lo) : n;
   const scaledMax = scale(max) || 1;
   // where 1x (no change) falls on the bar track, so bars read against it
   const tip = usePerfTip(styles.active);
