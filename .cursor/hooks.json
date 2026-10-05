@@ -8,7 +8,7 @@
     ],
     "beforeShellExecution": [
       {
-        "command": "node .cursor/hooks/build-skills.js"
+        "command": "node .cursor/hooks/pre-push.js"
       }
     ]
   }

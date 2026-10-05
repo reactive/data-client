@@ -6,7 +6,20 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/.cursor/hooks/build-skills.js\""
+            "if": "Bash(git *)",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.cursor/hooks/pre-push.js\""
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/worktree-setup.js\"",
+            "timeout": 1800
           }
         ]
       }

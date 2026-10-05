@@ -42,8 +42,10 @@ Any user-facing change in `packages/*` requires a changeset. Core packages are v
 - **Documentation**: `docs/core/api`, `docs/rest`, `docs/core/guides`
 - **Tests**: `packages/*/src/**/__tests__`
 - **Benchmarks**: `examples/benchmark` (Node: core/normalizr/endpoint throughput), `examples/benchmark-react` (browser: React rendering and data-library comparison). See `.cursor/rules/benchmarking.mdc` and each example’s README.
-- **Skills**: `.agents/skills/` (Cursor, Codex, and other agents)
+- **Skills**: `.agents/skills/` (Cursor, Codex, and other agents; `.claude/skills` links to it for Claude Code)
   - `references/*.md` listed in a skill's `references.json` are generated from `docs/`; edit the doc, never the reference. `yarn build:skills` regenerates them (an agent pre-push hook makes sure they are committed) and the `skills` CI check fails on drift.
+- **Agent rules**: `.cursor/rules/*.mdc` (and nested `<dir>/.cursor/rules`) are the source for both Cursor and Claude Code. `yarn build:agent-rules` generates `.claude/rules/*.md` from them (`globs` become `paths`); never edit those. Every rule needs `globs` or `alwaysApply: true`; guidance pulled in by description alone belongs in a skill. The pre-push hook and the `agent-rules` CI check catch drift.
+- **Agent hooks**: scripts live in `.cursor/hooks/` (wired in `.cursor/hooks.json`; `.claude/settings.json` runs the same `pre-push.js`). Keep them cheap: run once before push, not per edit or turn.
 
 ## Key Principles
 
