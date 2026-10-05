@@ -17,6 +17,7 @@ Monorepo for `@data-client` high performance npm packages.
 - `yarn test` - Run tests (Jest projects: ReactDOM, Node, ReactNative)
 - `yarn lint` / `yarn format` - Linting and formatting
 - `yarn check:typeperf` - Type-check cost budget (CI `typecheck` job); run after `yarn ci:build:types` when changing public types, `--update` to re-record. See `scripts/typeperf/README.md`
+- `yarn copy:websitetypes` - Regenerates the website playground's Monaco types (`website/src/components/Playground/editor-types`, ~10s); commit the result when public types or a copied dependency (`scripts/copywebsitetypes.sh`) change. CI `typecheck` fails when they're stale
 - Website: `yarn workspace rdc-website typecheck` / `yarn lint --quiet 'website/src/**/*.{ts,tsx}'` / `yarn workspace rdc-website build`; dev: `cd website && yarn start:vscode`
 
 **Test naming**: `*.node.test.ts[x]` (Node), `*.native.test.ts[x]` (RN), `*.test.ts[x]` (regular)

@@ -19,6 +19,7 @@ alwaysApply: false
   - `esmodule-types` also runs `examples/todo-app/tsconfig.typetest-libcheck.json` (`skipLibCheck: false`, `types: []`) so errors inside the legacy outputs fail CI, and `esmodule-types-latest` runs it with `--moduleResolution bundler` (TS 7 removed `node`) to cover `lib/`; the other typetests use `skipLibCheck: true`.
   - Any change to legacy types building must leave `ts*/` output byte-identical to master (diff it) unless it intentionally changes published types (then add a changeset).
 - `typecheck` also runs `yarn check:typeperf` ([scripts/typeperf](../../scripts/typeperf/README.md)), which reads the `ci:build:types` output from `setup`'s workspace.
+- `typecheck` also runs `scripts/copywebsitetypes.sh` (bundles from the same `lib/` types plus `node_modules`) and fails if `website/src/components/Playground/editor-types` changes. It relies on package and dependency changes setting the `tests` flag (a dependency bump always touches the root `yarn.lock`).
 - Never `git fetch --depth` the base branch in the relevance check: a shallow fetch severs the merge base and the three-dot diff fails.
 - Changing root `package.json` `workspaces` requires updating the `setup` job's workspace trimming step.
 
