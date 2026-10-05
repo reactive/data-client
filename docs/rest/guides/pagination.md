@@ -210,8 +210,8 @@ function NewsList() {
 ## Tokens in HTTP Headers
 
 In some cases the pagination tokens will be embeded in HTTP headers, rather than part of the payload. In this
-case you'll need to customize the [parseResponse()](api/RestEndpoint.md#parseResponse) function
-for [getList](api/resource.md#getlist) so the pagination headers are included fetch object.
+case you'll need to customize the [parseResponse()](../api/RestEndpoint.md#parseResponse) function
+for [getList](../api/resource.md#getlist) so the pagination headers are included fetch object.
 
 We show the custom `getList` below. All other parts of the above example remain the same.
 

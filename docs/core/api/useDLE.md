@@ -127,16 +127,16 @@ below describes their `.value`.
 
 :::
 
-:::react
+::::react
 
-::::info[React Native]
+:::info[React Native]
 
 When using React Navigation, useDLE() will trigger fetches on focus if the data is considered
 stale.
 
-::::
-
 :::
+
+::::
 
 <ConditionalDependencies hook="useDLE" />
 

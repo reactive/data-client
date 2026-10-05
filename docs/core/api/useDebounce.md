@@ -14,28 +14,28 @@ Delays updating the parameters by [debouncing](https://css-tricks.com/debouncing
 
 Useful to avoid spamming network requests when parameters might change quickly (like a typeahead field).
 
-:::react
+::::react
 
-::::tip[React 18+]
+:::tip[React 18+]
 
 When loading new data, the [AsyncBoundary](./AsyncBoundary.md) will continue rendering the previous data until it is ready.
 `isPending` will be true while loading.
 
-::::
-
 :::
 
-:::vue
+::::
 
-::::tip
+::::vue
+
+:::tip
 
 `useDebounce()` returns [refs](https://vuejs.org/api/reactivity-core.html#ref), so the debounced
 value can be passed directly to other composables or components. `isPending` is true from the moment
 the input changes until the debounced value is updated.
 
-::::
-
 :::
+
+::::
 
 ## Usage
 

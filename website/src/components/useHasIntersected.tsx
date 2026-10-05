@@ -1,13 +1,12 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export function useHasIntersected<T extends Element>(options: Props = {}) {
   const { threshold = 0.1, root = null, rootMargin = '0%' } = options;
-  const ref = useRef<T>(null);
+  // Callback ref (via state) so a node mounted after the first render is observed
+  const [node, ref] = useState<T | null>(null);
   const [hasIntersected, setHasIntersected] = useState(false);
 
   useEffect(() => {
-    const node = ref.current;
-
     if (!node || typeof IntersectionObserver !== 'function') {
       return;
     }
@@ -30,7 +29,7 @@ export function useHasIntersected<T extends Element>(options: Props = {}) {
     return () => {
       observer.disconnect();
     };
-  }, [threshold, root, rootMargin]);
+  }, [node, threshold, root, rootMargin]);
 
   return [ref, hasIntersected] as const;
 }

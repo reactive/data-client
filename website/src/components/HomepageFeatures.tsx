@@ -1,6 +1,4 @@
 import Link from '@docusaurus/Link';
-import useBaseUrl from '@docusaurus/useBaseUrl';
-import ThemedImage from '@theme/ThemedImage';
 import clsx from 'clsx';
 import React from 'react';
 
@@ -8,27 +6,13 @@ import styles from './HomepageFeatures.module.css';
 import ChemicalCompositionSvg from '../../static/img/chemical-composition.svg';
 import FastCarSvg from '../../static/img/fast-car.svg';
 import GrowingBarChartSvg from '../../static/img/growing-bar-chart.svg';
+import TypeScriptSvg from '../../static/img/typescript-mono.svg';
 
-type SvgComponent = React.ComponentType<React.ComponentProps<'svg'>>;
-
-interface BaseFeature {
+interface FeatureItem {
   description: React.ReactNode;
   title: string;
+  Svg: React.ComponentType<React.ComponentProps<'svg'>>;
 }
-
-interface SvgFeature extends BaseFeature {
-  Svg: SvgComponent;
-  dark?: never;
-  light?: never;
-}
-
-interface ThemedImageFeature extends BaseFeature {
-  dark: string;
-  light: string;
-  Svg?: never;
-}
-
-type FeatureItem = SvgFeature | ThemedImageFeature;
 
 const featureList: FeatureItem[] = [
   {
@@ -39,8 +23,7 @@ const featureList: FeatureItem[] = [
         make it easy to avoid race conditions
       </>
     ),
-    light: '/img/typescript.svg',
-    dark: '/img/typescript.dark.svg',
+    Svg: TypeScriptSvg,
     title: 'Data Integrity',
   },
   {
@@ -82,54 +65,13 @@ const featureList: FeatureItem[] = [
   },
 ];
 
-function isSvgFeature(feature: FeatureItem): feature is SvgFeature {
-  return 'Svg' in feature && feature.Svg != null;
-}
-
-function Feature(feature: FeatureItem) {
-  const { title, description } = feature;
+function Feature({ title, description, Svg }: FeatureItem) {
   return (
-    <div className={clsx('col col--3')}>
-      <div className="text--center">
-        {isSvgFeature(feature) ?
-          <SvgFeatureIcon Svg={feature.Svg} title={title} />
-        : <ThemedFeatureIcon
-            light={feature.light}
-            dark={feature.dark}
-            title={title}
-          />
-        }
-      </div>
-      <div className="text--center padding-horiz--md">
-        <h3>{title}</h3>
-        <p>{description}</p>
-      </div>
+    <div className={clsx('col col--3', styles.feature)}>
+      <Svg className={styles.featureSvg} role="img" aria-label={title} />
+      <h3>{title}</h3>
+      <p>{description}</p>
     </div>
-  );
-}
-
-function SvgFeatureIcon({ Svg, title }: { Svg: SvgComponent; title: string }) {
-  return <Svg className={styles.featureSvg} aria-label={title} />;
-}
-
-function ThemedFeatureIcon({
-  light,
-  dark,
-  title,
-}: {
-  light: string;
-  dark: string;
-  title: string;
-}) {
-  return (
-    <ThemedImage
-      className={styles.featureSvg}
-      alt={title}
-      sources={{
-        light: useBaseUrl(light),
-        dark: useBaseUrl(dark),
-      }}
-    />
   );
 }
 
