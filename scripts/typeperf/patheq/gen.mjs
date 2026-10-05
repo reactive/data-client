@@ -90,8 +90,8 @@ for (let i = 0; i < 1500; i++) {
   paths.push(s);
 }
 const orig = fs.readFileSync(new URL('./orig.ts', import.meta.url), 'utf8');
-let out = `import type { PathKeys, PathArgs, ShortenPath, PathArgsAndSearch, KeysToArgs } from '@data-client/rest';\n${orig}\n`;
-out += `type Eq<A, B> = (<T>() => T extends A ? 1 : 2) extends (<T>() => T extends B ? 1 : 2) ? true : false;\nfunction ok<T extends true>() {}\n`;
+let out = `import type { PathKeys, PathArgs, ShortenPath, PathArgsAndSearch, KeysToArgs } from '@data-client/rest';\n${orig}
+type Eq<A, B> = (<T>() => T extends A ? 1 : 2) extends (<T>() => T extends B ? 1 : 2) ? true : false;\nfunction ok<T extends true>() {}\n`;
 paths.forEach(p => {
   const l = "'" + p.replace(/'/g, "\\'") + "'";
   out += `ok<Eq<PathKeys<${l}>, OPathKeys<${l}>>>(); ok<Eq<PathArgs<${l}>, OPathArgs<${l}>>>(); ok<Eq<ShortenPath<${l}>, OShortenPath<${l}>>>(); ok<Eq<PathArgsAndSearch<${l}>, OPathArgsAndSearch<${l}>>>();\n`;

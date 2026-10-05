@@ -1,5 +1,5 @@
 // Generates extreme-case type-checking fixtures for @data-client public types.
-// usage: node scripts/typeperf/gen.mjs [scenario]  (N=2 scales every fixture up)
+// usage: node scripts/typeperf/gen.mjs [scenario...]  (N=2 scales every fixture up)
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -7,24 +7,17 @@ import { fileURLToPath } from 'node:url';
 import patheq from './patheq/gen.mjs';
 const dir = path.dirname(fileURLToPath(import.meta.url));
 const out = path.join(dir, 'scenarios');
-const only = process.argv[2];
-if (!only) fs.rmSync(out, { recursive: true, force: true });
-fs.mkdirSync(out, { recursive: true });
 const N = Number(process.env.N ?? 1);
 const scen = {};
 const fields = (n, p = 'f') =>
   Array.from(
     { length: n },
-    (_, i) =>
-      `  ${p}${i} = ${
-        i % 3 === 0 ? "''"
-        : i % 3 === 1 ? '0'
-        : 'false'
-      };`,
+    (_, i) => `  ${p}${i} = ${["''", '0', 'false'][i % 3]};`,
   ).join('\n');
 
-// 30-member Union `Un` and 300-field Entity `Big`, shared by several fixtures
+// M-member Union `Un` and BIG-field Entity `Big`, shared by several fixtures
 const M = 30;
+const BIG = 300;
 const unionDefs = () =>
   Array.from(
     { length: M },
@@ -33,11 +26,11 @@ const unionDefs = () =>
   ).join('') +
   `export const Un = new schema.Union({ ${Array.from({ length: M }, (_, i) => `u${i}: U${i}`).join(', ')} }, 'type');\n`;
 const bigDefs = () =>
-  `export class Big extends Entity {\n  id = '';\n${fields(300)}\n  static key = 'Big';\n}\n`;
+  `export class Big extends Entity {\n  id = '';\n${fields(BIG)}\n  static key = 'Big';\n}\n`;
 
 // 1. many resources + react hooks
 scen.resources = () => {
-  let s = `import { Entity, resource, schema } from '@data-client/rest';
+  let s = `import { Entity, resource } from '@data-client/rest';
 import { useSuspense, useController, useCache, useQuery, useLive, useDLE, useFetch } from '@data-client/react';
 `;
   const R = 40 * N;
@@ -77,15 +70,15 @@ import { useSuspense, useController } from '@data-client/react';
 ${bigDefs()}export const BigResource = resource({ path: '/big/:id', schema: Big });
 export function useBig() {\n  const ctrl = useController();\n`;
   for (let i = 0; i < 100 * N; i++) {
-    s += `  { const b = useSuspense(BigResource.get, { id: '${i}' }); const x: string = b.f${(i * 3) % 300}; ctrl.fetch(BigResource.partialUpdate, { id: '${i}' }, { f${(i * 3) % 300}: 'a' }); ctrl.set(Big, { id: '${i}' }, { f${(i * 3) % 300}: 'b' }); void x; }\n`;
+    s += `  { const b = useSuspense(BigResource.get, { id: '${i}' }); const x: string = b.f${(i * 3) % BIG}; ctrl.fetch(BigResource.partialUpdate, { id: '${i}' }, { f${(i * 3) % BIG}: 'a' }); ctrl.set(Big, { id: '${i}' }, { f${(i * 3) % BIG}: 'b' }); void x; }\n`;
   }
   return s + '}\n';
 };
 
 // 3. 30-member Union, Collection of union, Values, nested
 scen.union = () => {
-  let s = `import { Entity, resource, schema, Collection, RestEndpoint } from '@data-client/rest';
-import { useSuspense, useController, useQuery } from '@data-client/react';
+  let s = `import { Entity, schema, Collection, RestEndpoint } from '@data-client/rest';
+import { useSuspense, useController } from '@data-client/react';
 ${unionDefs()}export const getFeed = new RestEndpoint({ path: '/feed', schema: new Collection([Un]) });
 export const getOne = new RestEndpoint({ path: '/feed/:id', schema: Un });
 export const getVals = new RestEndpoint({ path: '/vals', schema: new schema.Values(Un) });
@@ -101,7 +94,7 @@ export function useU() {\n  const ctrl = useController();\n`;
 
 // 4. path params / endpoint extension chains
 scen.paths = () => {
-  let s = `import { RestEndpoint, Entity, resource } from '@data-client/rest';
+  let s = `import { RestEndpoint, Entity } from '@data-client/rest';
 import { useSuspense, useController } from '@data-client/react';
 export class P extends Entity { id = ''; a = ''; static key = 'P'; }
 `;
@@ -130,7 +123,7 @@ import type { Denormalize, DenormalizeNullable, Normalize } from '@data-client/e
   s += `export const LR = resource({ path: '/l/:id', schema: L${D - 1} });
 export function useL() {\n`;
   for (let i = 0; i < 60 * N; i++)
-    s += `  { const x = useSuspense(LR.get, { id: '${i}' }); const v: string = x.child.child.child.child.child.child.child.child.child.child.child.v0; type A${i} = Denormalize<typeof LR.getList.schema>; type B${i} = Normalize<typeof LR.get.schema>; type C${i} = DenormalizeNullable<typeof L${(i % (D - 1)) + 1}.schema>; void v; }\n`;
+    s += `  { const x = useSuspense(LR.get, { id: '${i}' }); const v: string = x.${'child.'.repeat(D - 1)}v0; type A${i} = Denormalize<typeof LR.getList.schema>; type B${i} = Normalize<typeof LR.get.schema>; type C${i} = DenormalizeNullable<typeof L${(i % (D - 1)) + 1}.schema>; void v; }\n`;
   return s + '}\n';
 };
 
@@ -218,53 +211,60 @@ const setHeader =
   () => `import { Entity, schema, Collection } from '@data-client/rest';
 import { useController } from '@data-client/react';
 ${unionDefs()}export const Feed = new Collection([Un]);
-${bigDefs()}`;
+${bigDefs()}export function useS() {
+  const ctrl = useController();
+`;
 scen.setValues = () => {
-  let s =
-    setHeader() + 'export function useS() {\n  const ctrl = useController();\n';
+  let s = setHeader();
   for (let i = 0; i < 333 * N; i++)
-    s += `  ctrl.set(Un, { id: '${i}', type: 'u${i % 30}' }, { id: '${i}', type: 'u${i % 30}', m${i % 30}_0: 'x' });
-  ctrl.set(Feed, [{ id: '${i}', type: 'u${i % 30}', m${i % 30}_0: 'x' }]);
-  ctrl.set(Big, { id: '${i}' }, { f${(i * 3) % 300}: '' });\n`;
+    s += `  ctrl.set(Un, { id: '${i}', type: 'u${i % M}' }, { id: '${i}', type: 'u${i % M}', m${i % M}_0: 'x' });
+  ctrl.set(Feed, [{ id: '${i}', type: 'u${i % M}', m${i % M}_0: 'x' }]);
+  ctrl.set(Big, { id: '${i}' }, { f${(i * 3) % BIG}: '' });\n`;
   return s + '}\n';
 };
 scen.setUpdaters = () => {
-  let s =
-    setHeader() + 'export function useS() {\n  const ctrl = useController();\n';
+  let s = setHeader();
   for (let i = 0; i < 1000 * N; i++)
-    s += `  ctrl.set(Un, { id: '${i}', type: 'u${i % 30}' }, prev => ({ ...prev, m${i % 30}_0: 'x' }));\n`;
+    s += `  ctrl.set(Un, { id: '${i}', type: 'u${i % M}' }, prev => ({ ...prev, m${i % M}_0: 'x' }));\n`;
   return s + '}\n';
 };
 
 // 10. path types vs their frozen pre-#4173 implementation (a type error is a mismatch)
 scen.patheq = patheq;
 
-const names = Object.keys(scen).filter(n => !only || n === only);
-for (const name of names) {
-  const fn = scen[name];
-  const d = path.join(out, name);
-  fs.rmSync(d, { recursive: true, force: true });
-  fs.mkdirSync(d);
-  fs.writeFileSync(path.join(d, 'index.ts'), fn());
-  fs.writeFileSync(
-    path.join(d, 'tsconfig.json'),
-    JSON.stringify(
-      {
-        compilerOptions: {
-          target: 'esnext',
-          module: 'esnext',
-          lib: ['dom', 'esnext'],
-          strict: true,
-          moduleResolution: 'bundler',
-          skipLibCheck: true,
-          noEmit: true,
-          types: [],
+/** Writes scenarios/<name>/ for the named fixtures (all when empty); returns the names */
+export function generate(only = []) {
+  const names = Object.keys(scen).filter(n => !only.length || only.includes(n));
+  if (!only.length) fs.rmSync(out, { recursive: true, force: true });
+  for (const name of names) {
+    const fn = scen[name];
+    const d = path.join(out, name);
+    fs.rmSync(d, { recursive: true, force: true });
+    fs.mkdirSync(d, { recursive: true });
+    fs.writeFileSync(path.join(d, 'index.ts'), fn());
+    fs.writeFileSync(
+      path.join(d, 'tsconfig.json'),
+      JSON.stringify(
+        {
+          compilerOptions: {
+            target: 'esnext',
+            module: 'esnext',
+            lib: ['dom', 'esnext'],
+            strict: true,
+            moduleResolution: 'bundler',
+            skipLibCheck: true,
+            noEmit: true,
+            types: [],
+          },
+          files: ['index.ts'],
         },
-        files: ['index.ts'],
-      },
-      null,
-      2,
-    ),
-  );
+        null,
+        2,
+      ),
+    );
+  }
+  return names;
 }
-console.log('generated', names.join(' '));
+
+if (process.argv[1] === fileURLToPath(import.meta.url))
+  console.log('generated', generate(process.argv.slice(2)).join(' '));

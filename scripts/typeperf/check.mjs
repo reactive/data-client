@@ -7,14 +7,13 @@
 //
 // usage: yarn check:typeperf [--update] [scenario...]
 //   --update  rewrite budget.json with the current counts (after an intended change)
-import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
-import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import ts from 'typescript';
 
-const require = createRequire(import.meta.url);
-const ts = require('typescript');
+import { generate } from './gen.mjs';
+
 const dir = path.dirname(fileURLToPath(import.meta.url));
 const budgetFile = path.join(dir, 'budget.json');
 const TOLERANCE = 0.1;
@@ -23,10 +22,6 @@ const args = process.argv.slice(2);
 const update = args.includes('--update');
 const only = args.filter(a => !a.startsWith('--'));
 const budget = JSON.parse(fs.readFileSync(budgetFile, 'utf8'));
-
-execFileSync(process.execPath, [path.join(dir, 'gen.mjs')], {
-  stdio: 'inherit',
-});
 
 // Share parsed lib and @data-client .d.ts files between fixtures; each program still
 // gets its own checker, so instantiation counts are unaffected.
@@ -50,8 +45,7 @@ let needsUpdate = false;
 if (update && !only.length) budget.instantiations = {};
 console.log(`TypeScript ${ts.version}\n`);
 console.log('scenario\tinstantiations\tbudget\tchange\ttime');
-for (const s of fs.readdirSync(path.join(dir, 'scenarios'))) {
-  if (only.length && !only.includes(s)) continue;
+for (const s of generate(only)) {
   const cfg = ts.getParsedCommandLineOfConfigFile(
     path.join(dir, 'scenarios', s, 'tsconfig.json'),
     {},
