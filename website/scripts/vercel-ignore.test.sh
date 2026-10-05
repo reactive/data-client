@@ -163,6 +163,15 @@ commit "unrelated site" website/src/pages/index.js
 commit "unrelated pkg" packages/core/src/index.ts
 expect build "preview without merge-base builds" unrelated
 
+# Vercel's clone can carry a master ref at the commit being built. Comparing
+# HEAD with itself would always skip, so that ref is not a base.
+git -C "$repo" checkout -b clone-master master >/dev/null 2>&1
+commit "clone-master page" docs/core/api/CloneMaster.md
+real_master="$(git -C "$repo" rev-parse master)"
+git -C "$repo" update-ref refs/heads/master HEAD
+expect build "preview when the clone's master ref is HEAD" clone-master
+git -C "$repo" update-ref refs/heads/master "$real_master"
+
 # gh-pages branches never build, even if website files differ.
 expect skip "gh-pages branch" gh-pages-bench
 

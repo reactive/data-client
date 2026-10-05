@@ -51,12 +51,21 @@ is_ancestor() {
   [ -n "$1" ] && git merge-base --is-ancestor "$1" "$2" 2>/dev/null
 }
 
-# Prints master's sha. Vercel clones shallow, so fetch it if missing; the
-# timeout keeps a hung network call from holding the build machine.
+# Prints master's sha. Always fetch it: Vercel's clone can carry a `master` or
+# `origin/master` ref that points at the commit being built, which makes every
+# preview diff empty. The timeout keeps a hung network call from holding the
+# build machine. A ref equal to HEAD is never trusted as master.
 upstream() {
-  has_rev origin/master ||
-    timeout 15 git fetch -q --no-tags --depth=80 origin master:refs/remotes/origin/master 2>/dev/null
-  git rev-parse --verify -q origin/master || git rev-parse --verify -q master
+  local head ref sha
+  timeout 15 git fetch -q --no-tags --depth=80 origin +master:refs/remotes/origin/master 2>/dev/null
+  head="$(git rev-parse HEAD)"
+  for ref in origin/master master; do
+    sha="$(git rev-parse --verify -q "$ref^{commit}")" && [ "$sha" != "$head" ] && {
+      echo "$sha"
+      return 0
+    }
+  done
+  return 1
 }
 
 # Vercel clones about 10 commits deep. Fetch more of this branch and master
@@ -100,7 +109,7 @@ fi
 is_ancestor "$prev" HEAD && decide "$prev" HEAD "preview changes since ${prev:0:12}"
 
 if base="$(merge_base)" || { deepen && base="$(merge_base)"; }; then
-  decide "$base" HEAD "preview changes vs master"
+  decide "$base" HEAD "preview changes vs master (base ${base:0:12})"
 fi
 
 # Without a base, the tip commit alone can't prove earlier commits left the
