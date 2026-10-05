@@ -289,8 +289,11 @@ export type RestEndpointExtendOptions<
   >;
 
 /** Parameters<F> as a single tuple, so process() accepts every way the endpoint can be called.
- * Endpoints with optional params or body have a union like `[params] | []` or `[params, body] | [body]`;
+ * Endpoints with optional params or body have a union like `[params] | []` or `[params, body] | [body]`
+ * (see ParamFetchNoBody/ParamFetchWithBody);
  * it merges position-wise, with an element optional when some call omits it.
+ * Only for contextually typing an options callback: TypeScript can't infer callback parameters from a
+ * union of tuples. The instance `process()` keeps `Parameters<F>`, the stricter signature for callers.
  */
 type ProcessArgs<A extends readonly any[]> =
   number extends A['length'] ? A
