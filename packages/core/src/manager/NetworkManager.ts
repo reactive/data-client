@@ -111,10 +111,10 @@ export default class NetworkManager implements Manager {
     // init() can run inside the host's commit; publish after it so resolve() never re-enters it
     Promise.resolve().then(() => {
       for (const meta of this.fetching.values()) {
-        const parked = meta.parked;
-        if (parked) {
-          delete meta.parked;
-          this.controller.resolve(parked[0], parked[1]);
+        if (meta.parked) {
+          const [endpoint, resolution] = meta.parked;
+          meta.parked = undefined;
+          this.controller.resolve(endpoint, resolution);
         }
       }
     });
@@ -245,7 +245,7 @@ export default class NetworkManager implements Manager {
       !action.endpoint.sideEffect &&
       this.controller.awaitingInit &&
       this.fetching.get(action.key);
-    if (meta && meta.fetchedAt === action.meta.fetchedAt)
+    if (meta && meta.fetchedAt === resolution.fetchedAt)
       meta.parked = [action.endpoint, resolution];
     else this.controller.resolve(action.endpoint, resolution);
   }
