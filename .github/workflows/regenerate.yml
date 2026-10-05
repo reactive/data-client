@@ -31,6 +31,8 @@ on:
       - '.claude/skills'
       - 'scripts/agent-rules.mjs'
       - '.github/workflows/regenerate.yml'
+      - '.github/workflows/editor-types.yml'
+      - '.github/workflows/skills.yml'
 
 concurrency:
   group: regenerate-${{ github.head_ref }}
@@ -38,6 +40,7 @@ concurrency:
 
 permissions:
   contents: write
+  pull-requests: read
   statuses: write
 
 jobs:
@@ -50,6 +53,8 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 1
+          # install and generators run dependency code; only the push gets the token
+          persist-credentials: false
       - uses: actions/setup-node@v6
         with:
           node-version: '26'
@@ -70,12 +75,18 @@ jobs:
                 echo types=true ;;
             esac
             case "${file}" in
-              docs/* | .agents/skills/* | website/framework-docs/* | .gitattributes) echo skills=true ;;
+              .github/workflows/editor-types.yml) echo types=true ;;
+              docs/* | .agents/skills/* | website/framework-docs/* | .gitattributes | .github/workflows/skills.yml)
+                echo skills=true ;;
               package.json | website/package.json | yarn.lock | .github/workflows/regenerate.yml)
                 echo types=true
                 echo skills=true ;;
             esac
           done < "${RUNNER_TEMP}/files" | sort -u >> "${GITHUB_OUTPUT}"
+          # the API lists at most 3000 files: run everything
+          if [ "$(wc -l < "${RUNNER_TEMP}/files")" -ge 3000 ]; then
+            printf 'types=true\nskills=true\n' >> "${GITHUB_OUTPUT}"
+          fi
       - name: Install packages
         if: steps.pick.outputs.types || steps.pick.outputs.skills
         # website provides bignumber.js, @number-flow/react, etc.
@@ -120,7 +131,7 @@ jobs:
             -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
             commit --quiet -m 'chore: Regenerate generated files' \
             -m "Reran yarn copy:websitetypes, yarn build:skills and yarn build:agent-rules on the merge with master. ${RUN_URL}"
-          git push origin "HEAD:refs/heads/${HEAD_REF}"
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/${HEAD_REF}"
           # Workflow runs for a GITHUB_TOKEN push never execute: GitHub parks
           # them as "action_required" (awaiting approval; don't approve them).
           # This status is the signal on the new head; CircleCI still runs.
