@@ -1,0 +1,14 @@
+{
+  "frameworks": [
+    "react",
+    "vue"
+  ],
+  "docs": {
+    "Actions.md": "docs/core/api/Actions.md",
+    "Controller.md": "docs/core/api/Controller.md",
+    "LogoutManager.md": "docs/core/api/LogoutManager.md",
+    "Manager.md": "docs/core/api/Manager.md",
+    "getDefaultManagers.md": "docs/core/api/getDefaultManagers.md",
+    "managers.md": "docs/core/concepts/managers.md"
+  }
+}

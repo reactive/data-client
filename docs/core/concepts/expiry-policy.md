@@ -8,7 +8,7 @@ description: When data is considere Fresh, Stale, or Invalid. And how that state
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import {RestEndpoint} from '@data-client/rest';
 
 # Endpoint Expiry Policy
@@ -30,11 +30,15 @@ Data is still allowed to be shown, however Reactive Data Client might attempt to
 [useSuspense()](../api/useSuspense.md) considers fetching on mount as well as when its parameters change.
 In these cases it will fetch if the data is considered stale.
 
+::::react
+
 :::info[React Native]
 
 When using React Navigation, [focus events](https://reactnavigation.org/docs/use-focus-effect/) also trigger fetches for stale data.
 
 :::
+
+::::
 
 ### Invalid
 
@@ -52,7 +56,7 @@ to make it becomes [stale](#stale) almost instantly; or a very large number to s
 Toggling between 'first' and 'second' changes the parameters. If the data is still considered fresh
 you will continue to see the old time without any refresh.
 
-<HooksPlayground fixtures={[
+<FrameworkPlayground fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -70,6 +74,8 @@ delay: () => 150,
 >
 
 ```ts title="api/lastUpdated" collapsed
+import { Entity, RestEndpoint } from '@data-client/rest';
+
 export class TimedEntity extends Entity {
   id = '';
   updatedAt = Temporal.Instant.fromEpochMilliseconds(0);
@@ -85,10 +91,16 @@ export const lastUpdated = new RestEndpoint({
 });
 ```
 
-```tsx title="TimePage"
+```ts title="getUpdated"
 import { lastUpdated } from './api/lastUpdated';
 
-const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
+export const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
+```
+
+:::react
+
+```tsx title="TimePage"
+import { getUpdated } from './getUpdated';
 
 export default function TimePage({ id }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
@@ -133,7 +145,53 @@ function Navigator() {
 render(<Navigator />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="TimePage.vue"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getUpdated } from './getUpdated';
+
+  const props = defineProps<{ id: string }>();
+  const time = await useSuspense(getUpdated, () => ({ id: props.id }));
+</script>
+
+<template>
+  <div>
+    API time for {{ id }}:
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+  </div>
+</template>
+```
+
+```html title="Navigator.vue" collapsed
+<script setup lang="ts">
+  import { ref } from 'vue';
+  import TimePage from './TimePage.vue';
+
+  const id = ref('1');
+</script>
+
+<template>
+  <div>
+    <div>
+      <button @click="id = '1'">First</button>
+      <button @click="id = '2'">Second</button>
+    </div>
+    <!-- :key remounts TimePage so it suspends for the new id -->
+    <Suspense timeout="0">
+      <TimePage :key="id" :id="id" />
+      <template #fallback><div>loading...</div></template>
+    </Suspense>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 <details>
 <summary><b>@data-client/rest</b></summary>
@@ -192,7 +250,7 @@ that expires immediately be considered '[invalid](#invalid)'.
 This is demonstrated by the component suspending once its data goes stale. If the data is still
 within the expiry time it just continues to display it.
 
-<HooksPlayground fixtures={[
+<FrameworkPlayground fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -210,6 +268,8 @@ delay: () => 150,
 >
 
 ```ts title="api/lastUpdated" collapsed
+import { Entity, RestEndpoint } from '@data-client/rest';
+
 export class TimedEntity extends Entity {
   id = '';
   updatedAt = Temporal.Instant.fromEpochMilliseconds(0);
@@ -225,13 +285,19 @@ export const lastUpdated = new RestEndpoint({
 });
 ```
 
-```tsx title="TimePage"
+```ts title="getUpdated"
 import { lastUpdated } from './api/lastUpdated';
 
-const getUpdated = lastUpdated.extend({
+export const getUpdated = lastUpdated.extend({
   invalidIfStale: true,
   dataExpiryLength: 5000,
 });
+```
+
+:::react
+
+```tsx title="TimePage"
+import { getUpdated } from './getUpdated';
 
 export default function TimePage({ id }) {
   const { updatedAt } = useSuspense(getUpdated, { id });
@@ -276,7 +342,53 @@ function Navigator() {
 render(<Navigator />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="TimePage.vue"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getUpdated } from './getUpdated';
+
+  const props = defineProps<{ id: string }>();
+  const time = await useSuspense(getUpdated, () => ({ id: props.id }));
+</script>
+
+<template>
+  <div>
+    API time for {{ id }}:
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+  </div>
+</template>
+```
+
+```html title="Navigator.vue" collapsed
+<script setup lang="ts">
+  import { ref } from 'vue';
+  import TimePage from './TimePage.vue';
+
+  const id = ref('1');
+</script>
+
+<template>
+  <div>
+    <div>
+      <button @click="id = '1'">First</button>
+      <button @click="id = '2'">Second</button>
+    </div>
+    <!-- :key remounts TimePage so it suspends for the new id -->
+    <Suspense timeout="0">
+      <TimePage :key="id" :id="id" />
+      <template #fallback><div>loading...</div></template>
+    </Suspense>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ## Force refresh
 
@@ -287,7 +399,7 @@ We sometimes want to fetch new data; while continuing to show the old (stale) da
 [Controller.fetch](../api/Controller#fetch) can be used to trigger a fetch while still showing
 the previous data. This can be done even with 'fresh' data.
 
-<HooksPlayground fixtures={[
+<FrameworkPlayground fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -305,6 +417,8 @@ delay: () => 150,
 >
 
 ```ts title="api/lastUpdated" collapsed
+import { Entity, RestEndpoint } from '@data-client/rest';
+
 export class TimedEntity extends Entity {
   id = '';
   updatedAt = Temporal.Instant.fromEpochMilliseconds(0);
@@ -319,6 +433,8 @@ export const lastUpdated = new RestEndpoint({
   schema: TimedEntity,
 });
 ```
+
+:::react
 
 ```tsx title="ShowTime"
 import { lastUpdated } from './api/lastUpdated';
@@ -342,13 +458,36 @@ function ShowTime() {
 render(<ShowTime />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="ShowTime.vue"
+<script setup lang="ts">
+  import { useController, useSuspense } from '@data-client/vue';
+  import { lastUpdated } from './api/lastUpdated';
+
+  const time = await useSuspense(lastUpdated, { id: '1' });
+  const ctrl = useController();
+</script>
+
+<template>
+  <div>
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+    <button @click="ctrl.fetch(lastUpdated, { id: '1' })">Refresh</button>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ### Refresh visible endpoints
 
 [Controller.expireAll()](../api/Controller.md#expireAll) sets all responses' [expiry status](#expiry-status) matching `testKey` to [Stale](#stale).
 
-<HooksPlayground fixtures={[
+<FrameworkPlayground fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -366,6 +505,8 @@ delay: () => 150,
 >
 
 ```ts title="api/lastUpdated" collapsed
+import { Entity, RestEndpoint } from '@data-client/rest';
+
 export class TimedEntity extends Entity {
   id = '';
   updatedAt = Temporal.Instant.fromEpochMilliseconds(0);
@@ -380,6 +521,8 @@ export const lastUpdated = new RestEndpoint({
   schema: TimedEntity,
 });
 ```
+
+:::react
 
 ```tsx title="ShowTime" collapsed
 import { lastUpdated } from './api/lastUpdated';
@@ -439,17 +582,72 @@ function Demo() {
 render(<Demo />);
 ```
 
-</HooksPlayground>
+:::
 
-## Invalidate (re-suspend) {#invalidate}
+:::vue
+
+```html title="ShowTime.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { lastUpdated } from './api/lastUpdated';
+
+  const props = defineProps<{ id: string }>();
+  const time = await useSuspense(lastUpdated, () => ({ id: props.id }));
+</script>
+
+<template>
+  <div>
+    <b>{{ id }}</b> <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+  </div>
+</template>
+```
+
+```html title="Demo.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { lastUpdated } from './api/lastUpdated';
+  import ShowTime from './ShowTime.vue';
+
+  const ctrl = useController();
+</script>
+
+<template>
+  <div>
+    <Suspense v-for="id in ['1', '2', '3']" :key="id">
+      <ShowTime :id="id" />
+      <template #fallback><div>{{ id }} Loading...</div></template>
+    </Suspense>
+
+    <button @click="ctrl.expireAll(lastUpdated)">Expire All</button>
+    <button @click="ctrl.fetch(lastUpdated, { id: '1' })">
+      Force Refresh First
+    </button>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
+
+## :react[Invalidate (re-suspend)]:vue[Invalidate] {#invalidate}
 
 Both [endpoints](/rest/api/Endpoint) and [entities](/rest/api/Entity) can be targetted to be invalidated.
 
+:::vue
+
+Invalidated data always refetches, even when it is fresh. Vue can't suspend a component again once its
+setup has run, so mounted components keep showing their previous data until the refetch resolves.
+Meanwhile [useCache()](../api/useCache.md) returns `undefined` and [useDLE()](../api/useDLE.md)'s `loading`
+is `true`. Components mounted after invalidation suspend until the new data arrives.
+
+:::
+
 ### A specific endpoint {#invalidate-endpoint}
 
-In this example we can see [invalidating the endpoint](../api/Controller.md#invalidate) shows the loading fallback since the data is not allowed to be displayed.
+In this example [invalidating the endpoint](../api/Controller.md#invalidate) :react[shows the loading fallback since the data is not allowed to be displayed]:vue[refetches it, even though its data is still fresh].
 
-<HooksPlayground fixtures={[
+<FrameworkPlayground fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -467,6 +665,8 @@ delay: () => 150,
 >
 
 ```ts title="api/lastUpdated" collapsed
+import { Entity, RestEndpoint } from '@data-client/rest';
+
 export class TimedEntity extends Entity {
   id = '';
   updatedAt = Temporal.Instant.fromEpochMilliseconds(0);
@@ -481,6 +681,8 @@ export const lastUpdated = new RestEndpoint({
   schema: TimedEntity,
 });
 ```
+
+:::react
 
 ```tsx title="ShowTime" collapsed
 import { lastUpdated } from './api/lastUpdated';
@@ -542,14 +744,60 @@ function Demo() {
 render(<Demo />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="ShowTime.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { lastUpdated } from './api/lastUpdated';
+
+  const props = defineProps<{ id: string }>();
+  const time = await useSuspense(lastUpdated, () => ({ id: props.id }));
+</script>
+
+<template>
+  <div>
+    <b>{{ id }}</b> <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+  </div>
+</template>
+```
+
+```html title="Demo.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { lastUpdated } from './api/lastUpdated';
+  import ShowTime from './ShowTime.vue';
+
+  const ctrl = useController();
+</script>
+
+<template>
+  <div>
+    <Suspense v-for="id in ['1', '2', '3']" :key="id">
+      <ShowTime :id="id" />
+      <template #fallback><div>{{ id }} Loading...</div></template>
+    </Suspense>
+
+    <button @click="ctrl.invalidateAll(lastUpdated)">Invalidate All</button>
+    <button @click="ctrl.invalidate(lastUpdated, { id: '1' })">
+      Invalidate First
+    </button>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ### Any endpoint with an entity {#invalidate-entity}
 
 Using the [Invalidate schema](/rest/api/Invalidate) allows us to invalidate _any_ endpoint that includes that relies on that [entity](/rest/api/Entity) in their
 response. If the endpoint uses the entity in an [Array](/rest/api/Array), it will simply be removed from that [Array](/rest/api/Array).
 
-<HooksPlayground fixtures={[
+<FrameworkPlayground fixtures={[
 {
 endpoint: new RestEndpoint({
 path: '/api/currentTime/:id',
@@ -593,6 +841,8 @@ export const lastUpdated = new RestEndpoint({
   schema: TimedEntity,
 });
 ```
+
+:::react
 
 ```tsx title="TimePage" collapsed
 import { lastUpdated } from './api/lastUpdated';
@@ -670,7 +920,71 @@ function ShowTime() {
 render(<ShowTime />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="TimePage.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { lastUpdated } from './api/lastUpdated';
+
+  const props = defineProps<{ id: string }>();
+  const time = await useSuspense(lastUpdated, () => ({ id: props.id }));
+</script>
+
+<template>
+  <div>
+    API time for {{ id }}:
+    <time>{{ time.updatedAt.toLocaleString('en-US', { timeStyle: 'long' }) }}</time>
+  </div>
+</template>
+```
+
+```html title="ShowTime.vue"
+<script setup lang="ts">
+  import { Invalidate, RestEndpoint } from '@data-client/rest';
+  import { useController, useLoading } from '@data-client/vue';
+  import { TimedEntity } from './api/lastUpdated';
+  import TimePage from './TimePage.vue';
+
+  const InvalidateTimedEntity = new Invalidate(TimedEntity);
+  const deleteLastUpdated = new RestEndpoint({
+    path: '/api/currentTime/:id',
+    method: 'DELETE',
+    schema: InvalidateTimedEntity,
+  });
+
+  const ctrl = useController();
+  const [handleDelete, loadingDelete] = useLoading(() =>
+    ctrl.fetch(deleteLastUpdated, { id: '1' }),
+  );
+</script>
+
+<template>
+  <div>
+    <Suspense>
+      <TimePage id="1" />
+      <template #fallback><div>loading...</div></template>
+    </Suspense>
+    <button @click="handleDelete">
+      {{ loadingDelete ? 'loading...' : 'Invalidate' }}
+    </button>
+    <button
+      @click="ctrl.setResponse(deleteLastUpdated, { id: '1' }, { id: '1' })"
+    >
+      Invalidate (without fetching DELETE)
+    </button>
+    <button @click="ctrl.set(InvalidateTimedEntity, { id: '1' }, { id: '1' })">
+      Invalidate Entity with ctrl.set
+    </button>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 [Controller.fetch()](../api/Controller.md#fetch) lets us update the server and store.
 We can use [Controller.setResponse()](../api/Controller.md#setResponse) or [Controller.set()](../api/Controller.md#set)

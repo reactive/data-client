@@ -2,6 +2,8 @@
 name: packages-documentation
 description: Write, update, and format documentation for @data-client public APIs - API reference (Docusaurus/MDX), README files, JSDoc/TSDoc docstrings, usage examples, migration guides, deprecation notices, changelog entries. Use when changing exported APIs (docs must update in the same PR), writing new package docs, or updating the dataclient.io site.
 license: Apache 2.0
+metadata:
+  internal: true
 ---
 # Package Documentation Writing Guidelines
 
@@ -108,6 +110,7 @@ Before completing changes to public APIs in `/packages`:
 - [ ] Added migration notes for breaking changes
 - [ ] Updated TypeScript examples in documentation
 - [ ] Verified documentation builds correctly (if applicable)
+- [ ] Updated agent skills in `.agents/skills` that cover the API: `references.json` for added/renamed/deleted pages, and `SKILL.md` examples (see `.cursor/rules/skills-sync.mdc`)
 
 ## Important Notes
 

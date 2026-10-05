@@ -32,6 +32,56 @@ type ContentSchemaGuard<O> =
     { schema?: undefined }
   : {};
 
+/* Generic `this: E` methods (extend, paginated) live in non-generic mixin
+ * interfaces. TypeScript re-instantiates every member of a generic interface
+ * (with fresh signature type parameters) for each distinct instantiation;
+ * here the signatures are shared across all endpoints, and compare as
+ * identical when relating one RestInstanceBase to another. extend() reads
+ * `E['fetch']` instead of `F` so it doesn't depend on the outer generics.
+ */
+interface RestInstanceExtenders {
+  // TODO: `ExtendOptions extends PartialRestGenerics | {}` is a hack for options with no
+  //       PartialRestGenerics members. Overloads (like paginated) can't tell the cases apart
+  //       since every member is optional.
+  /** Creates a child endpoint that inherits from this while overriding provided `options`.
+   * @see https://dataclient.io/rest/api/RestEndpoint#extend
+   */
+  extend<
+    E extends RestInstanceBase,
+    ExtendOptions extends PartialRestGenerics | {},
+  >(
+    this: E,
+    options: Readonly<
+      RestEndpointExtendOptions<ExtendOptions, E, E['fetch']> & ExtendOptions
+    > &
+      // naked ExtendOptions wins inference (plain object type instead of a
+      // reverse-mapped type); Readonly<> still provides literal-preserving
+      // contextual types for path/method/etc.
+      ExtendOptions &
+      ContentSchemaGuard<ExtendOptions>,
+  ): RestExtendedEndpoint<ExtendOptions, E>;
+}
+
+interface RestInstancePaginators {
+  /** Creates an Endpoint to append the next page extending a list for pagination
+   * @see https://dataclient.io/rest/api/RestEndpoint#paginated
+   */
+  paginated<
+    E extends RestInstanceBase<FetchFunction, any, undefined>,
+    A extends any[],
+  >(
+    this: E,
+    removeCursor: (...args: A) => readonly [...Parameters<E>],
+  ): PaginationEndpoint<E, A>;
+  paginated<
+    E extends RestInstanceBase<FetchFunction, any, undefined>,
+    C extends string,
+  >(
+    this: E,
+    cursorField: C,
+  ): PaginationFieldEndpoint<E, C>;
+}
+
 export interface RestInstanceBase<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = any,
@@ -42,7 +92,8 @@ export interface RestInstanceBase<
     searchParams?: any;
     method?: string;
   } = { path: string },
-> extends EndpointInstanceInterface<F, S, M> {
+>
+  extends EndpointInstanceInterface<F, S, M>, RestInstanceExtenders {
   /** @see https://dataclient.io/rest/api/RestEndpoint#body */
   readonly body?: 'body' extends keyof O ? O['body'] : any;
   /** @see https://dataclient.io/rest/api/RestEndpoint#searchParams */
@@ -109,25 +160,6 @@ export interface RestInstanceBase<
    * @see https://dataclient.io/rest/api/RestEndpoint#testKey
    */
   testKey(key: string): boolean;
-
-  /* extenders */
-  // TODO: figure out better way than wrapping whole options in Readonly<> + making O extend from {}
-  //       this is just a hack to handle when no members of PartialRestGenerics are present
-  //       Note: Using overloading (like paginated did) struggles because typescript does not have a clear way of distinguishing one
-  //       should be used from the other (due to same problem with every member being partial)
-  /** Creates a child endpoint that inherits from this while overriding provided `options`.
-   * @see https://dataclient.io/rest/api/RestEndpoint#extend
-   */
-  extend<
-    E extends RestInstanceBase,
-    ExtendOptions extends PartialRestGenerics | {},
-  >(
-    this: E,
-    options: Readonly<
-      RestEndpointExtendOptions<ExtendOptions, E, F> & ExtendOptions
-    > &
-      ContentSchemaGuard<ExtendOptions>,
-  ): RestExtendedEndpoint<ExtendOptions, E>;
 }
 
 export interface RestInstance<
@@ -141,31 +173,21 @@ export interface RestInstance<
     method?: string;
     paginationField?: string;
   } = { path: string },
-> extends RestInstanceBase<F, S, M, O> {
-  /** Creates an Endpoint to append the next page extending a list for pagination
-   * @see https://dataclient.io/rest/api/RestEndpoint#paginated
-   */
-  paginated<
-    E extends RestInstanceBase<FetchFunction, any, undefined>,
-    A extends any[],
-  >(
-    this: E,
-    removeCursor: (...args: A) => readonly [...Parameters<E>],
-  ): PaginationEndpoint<E, A>;
-  paginated<
-    E extends RestInstanceBase<FetchFunction, any, undefined>,
-    C extends string,
-  >(
-    this: E,
-    cursorField: C,
-  ): PaginationFieldEndpoint<E, C>;
+>
+  extends RestInstanceBase<F, S, M, O>, RestInstancePaginators {
   /** Concatinate the next page of results (GET)
    * @see https://dataclient.io/rest/api/RestEndpoint#getPage
    */
   getPage: 'paginationField' extends keyof O ?
     O['paginationField'] extends string ?
       PaginationFieldEndpoint<
-        F & { schema: S; sideEffect: M } & O,
+        // A plain fetch function (no members) only contributes ResolveType<>;
+        // collapsing it to one signature avoids distributing this intersection
+        // over each member when F is a union of fetch signatures.
+        ([keyof F] extends [never] ? (...args: any) => ReturnType<F> : F) & {
+          schema: S;
+          sideEffect: M;
+        } & O,
         // TypeScript <4.6 doesn't narrow O['paginationField'] here
         Extract<O['paginationField'], string>
       >
@@ -251,12 +273,20 @@ export type RestEndpointExtendOptions<
   'schema' extends keyof O ? Extract<O['schema'], Schema | undefined>
   : E['schema']
 > &
-  Partial<
-    Omit<
-      E,
-      KeyofRestEndpoint | keyof PartialRestGenerics | keyof RestEndpointOptions
-    >
+  // Same as Partial<Omit<E, ExtendOmitKeys>>, but skips the per-key Exclude<> work
+  // (and the double mapped type) when E has no members beyond the standard ones.
+  // Keep the guard inside the mapped type's keys: a `? unknown : ...` conditional
+  // here would be deferred and break ExtendOptions inference on chained extend().
+  PartialPick<
+    E,
+    keyof E extends ExtendOmitKeys ? never : Exclude<keyof E, ExtendOmitKeys>
   >;
+
+type ExtendOmitKeys =
+  KeyofRestEndpoint | keyof PartialRestGenerics | keyof RestEndpointOptions;
+
+/** Partial<Pick<T, K>> as a single homomorphic mapped type */
+type PartialPick<T, K extends keyof T> = { [P in K]?: T[P] };
 
 type OptionsToRestEndpoint<
   O extends PartialRestGenerics,
@@ -394,8 +424,11 @@ export type RestExtendedEndpoint<
     : E['sideEffect']
   >
 > &
-  Omit<O, KeyofRestEndpoint> &
-  Omit<E, KeyofRestEndpoint | keyof O>;
+  // Equivalent to Omit<O, KeyofRestEndpoint> & Omit<E, KeyofRestEndpoint | keyof O>;
+  // the guards avoid per-key Exclude<> work when there are no extra members
+  (keyof O extends KeyofRestEndpoint ? unknown : Omit<O, KeyofRestEndpoint>) &
+  (keyof E extends KeyofRestEndpoint ? unknown
+  : Omit<E, KeyofRestEndpoint | keyof O>);
 
 export interface PartialRestGenerics {
   /** @see https://dataclient.io/rest/api/RestEndpoint#path */
@@ -678,6 +711,8 @@ export interface RestEndpointConstructor {
     ...options
   }: RestEndpointConstructorOptions<O> &
     Readonly<O> &
+    // naked O wins inference (plain object type instead of a reverse-mapped type)
+    O &
     ContentSchemaGuard<O>): RestEndpoint<O>;
   readonly prototype: RestInstanceBase;
 }

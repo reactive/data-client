@@ -172,6 +172,8 @@ See [partial-entities](references/partial-entities.md) for patterns and examples
 
 # References
 
+Vue projects: read `<name>.vue.md` instead of `<name>.md` when it exists.
+
 For detailed API documentation, see the [references](references/) directory:
 
 - [Entity](references/Entity.md) - Normalized data class

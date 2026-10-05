@@ -167,6 +167,8 @@ export const IssueResource = resource({
 
 # References
 
+Vue projects: read `<name>.vue.md` instead of `<name>.md` when it exists.
+
 For detailed API documentation, see the [references](references/) directory:
 
 - [resource](references/resource.md) - Create CRUD endpoints
