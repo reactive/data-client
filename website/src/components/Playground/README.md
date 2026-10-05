@@ -81,7 +81,9 @@ DesignSystem/       components injected into preview scope
 - Mobile: editable react-live editor instead of Monaco; live preview still runs.
 - Bots: same editor fallback; preview stays `previewLoading` (never loads
   `LivePreview`); StackBlitz embeds never load.
-- `DiffEditor` shows a two-`CodeBlock` grid instead of Monaco.
+- `DiffEditor` shows a two-`CodeBlock` grid instead of Monaco, with callout
+  markers appended as trailing comments; caption and callout legend are
+  outside the editor, so they render for everyone.
 
 ### Hidden playgrounds (homepage Demo protocol tabs)
 
