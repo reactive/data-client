@@ -130,5 +130,5 @@ try { ... } catch (err) {
 ## Reference
 
 - [RestEndpoint API](https://dataclient.io/rest/api/RestEndpoint) — lifecycle methods reference
-- [NetworkError](https://dataclient.io/rest/api/NetworkError) — error class
+- [NetworkError](https://dataclient.io/rest/api/RestEndpoint#fetchResponse) — error class
 - [Authentication guide](https://dataclient.io/rest/guides/auth) — token and cookie patterns

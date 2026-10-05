@@ -34,6 +34,8 @@ Minimal working examples for each use case live in [references/managers.md](refe
 
 ## References
 
+Vue projects: read `<name>.vue.md` instead of `<name>.md` when it exists.
+
 For detailed API documentation, see the [references](references/) directory:
 
 - [Manager](references/Manager.md) - Manager interface and lifecycle

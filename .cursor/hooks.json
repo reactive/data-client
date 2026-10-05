@@ -5,6 +5,11 @@
       {
         "command": "node .cursor/hooks/eslint-fix.js"
       }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": "node .cursor/hooks/build-skills.js"
+      }
     ]
   }
 }

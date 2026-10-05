@@ -247,6 +247,8 @@ After core setup and protocol-specific setup:
 
 ## References
 
+Vue projects: read `<name>.vue.md` instead of `<name>.md` when it exists.
+
 For detailed API documentation, see the [references](references/) directory:
 
 - [DataProvider](references/DataProvider.md) - Root provider component

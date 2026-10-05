@@ -71,7 +71,7 @@ export default function useSuspense<
 export default async function useSuspense(
   endpoint: any,
   ...args: any[]
-): Promise<any> {
+): Promise<DeepReadonly<ComputedRef<unknown>>> {
   const { controller, stateRef, resolvedArgs, argsKey, responseMeta } =
     useResponseMeta(endpoint, args);
 
@@ -98,8 +98,12 @@ export default async function useSuspense(
     maybeFetch().catch(() => {});
   });
 
-  // Trigger on initial call
-  await maybeFetch();
+  // Like React, fully "valid" data never suspends, even when stale: show it and refetch in
+  // the background. Only missing or invalid data waits for the fetch.
+  const suspend = responseMeta.value.expiryStatus !== ExpiryStatus.Valid;
+  const initialFetch = maybeFetch();
+  if (suspend) await initialFetch;
+  else initialFetch.catch(() => {});
 
   // While a fetch for new args (or for a key with no data) is in flight, where React's
   // useSuspense would suspend, keep returning the last resolved data. Vue can't re-suspend

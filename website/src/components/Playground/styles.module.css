@@ -31,7 +31,6 @@
   border-bottom-right-radius: var(--ifm-global-radius);
 }
 
-
 .playgroundContainer.row .hidden {
   display: none;
 }
@@ -55,8 +54,8 @@
   padding: 0.75rem;
   text-transform: uppercase;
   font-weight: bold;
-  background: var(--ifm-color-emphasis-200);
-  color: var(--ifm-color-content);
+  background: var(--pg-bar);
+  color: var(--pg-tab);
   font-size: var(--ifm-code-font-size);
 }
 .playgroundHeader.small {
@@ -69,7 +68,8 @@
   cursor: pointer;
 }
 .playgroundHeader.clickable:hover {
-  background-color: var(--ifm-color-emphasis-500);
+  background-color: var(--pg-tab-hover-bg);
+  color: var(--pg-tab-hover);
 }
 .playgroundHeader.noupper {
   text-transform: none;
@@ -85,23 +85,44 @@
   padding: 0.75rem var(--ifm-pre-padding);
 }
 
-body {
-  --ifm-color-playground-tab-selected: var(--ifm-color-emphasis-300);
+/* Playground chrome. Every header (editor tabs, Live Preview, Store) shares
+   one neutral bar color in both themes so the top row reads as one band. */
+:root {
+  --pg-bar: var(--ifm-color-emphasis-200);
+  --pg-bar-edge: transparent;
+  --pg-tab: var(--ifm-color-content);
+  --pg-tab-hover-bg: var(--ifm-color-emphasis-300);
+  --pg-tab-hover: var(--ifm-color-emphasis-900);
+  --pg-tab-selected: #e3e8f2;
+  --pg-tab-selected-bg: var(--monoco-code-background);
+}
+/* Dark mode: the editor column sits a step above the code, darker than the
+   neutral preview headers, so the two sides read apart without a divider */
+:root[data-theme='dark']
+  .playgroundContainer:not(.endpointPlayground)
+  .playgroundTextEdit {
+  --pg-bar: hsl(229, 14%, 21%);
+  --pg-tab-hover-bg: hsl(229, 14%, 26%);
+}
+/* EndpointPlayground's right column is code, so it always uses the dark bar */
+.endpointPlayground {
+  --pg-bar: hsl(229, 8%, 26%);
+  --pg-tab: rgb(191, 199, 213);
+  --pg-tab-hover-bg: hsl(229, 8%, 29%);
+  --pg-tab-hover: #e3e8f2;
+  --pg-bar-edge: hsl(229, 8%, 17%);
 }
 
-div.playgroundTextEdit > .playgroundHeader {
-  background: var(--ifm-color-emphasis-600);
-  color: var(--ifm-color-content-inverse);
+.playgroundHeader.tabControls,
+div.playgroundTextEdit > .playgroundHeader,
+.endpointPlayground .playgroundHeader {
+  box-shadow: inset 0 -1px 0 var(--pg-bar-edge);
 }
 .playgroundContainer:not(.row)
   > div.playgroundTextEdit
   > .playgroundHeader:first-child {
   border-top-right-radius: var(--ifm-global-radius);
   border-top-left-radius: var(--ifm-global-radius);
-}
-div > .playgroundHeader.subtabs {
-  color: var(--ifm-color-content);
-  background: var(--ifm-color-playground-tab-selected);
 }
 
 .playgroundEditor {
@@ -142,6 +163,8 @@ div > .playgroundHeader.subtabs {
 .arrow.vertical {
   float: right;
   margin-right: 0;
+  /* room between the last letter and the arrow */
+  margin-inline-start: 0.9em;
 }
 .arrow.right {
   transform: rotateZ(0deg);
@@ -182,11 +205,12 @@ div > .playgroundHeader.subtabs {
 .debugToggle {
   writing-mode: vertical-rl;
   text-orientation: upright;
-  letter-spacing: 0.08rem;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
   text-transform: uppercase;
   font-weight: 500;
-  background: var(--ifm-color-emphasis-200);
-  color: var(--ifm-color-content);
+  background: var(--pg-bar);
+  color: var(--pg-tab);
   font-size: var(--ifm-code-font-size);
   padding: 0.7em 0.1em 1em 0.1em;
   cursor: pointer;
@@ -194,7 +218,8 @@ div > .playgroundHeader.subtabs {
 }
 
 .debugToggle:hover {
-  background-color: var(--ifm-color-emphasis-300);
+  background-color: var(--pg-tab-hover-bg);
+  color: var(--pg-tab-hover);
 }
 
 .hidden {
@@ -229,28 +254,30 @@ div > .playgroundHeader.subtabs {
   align-items: center;
 }
 .tab:hover {
-  background-color: var(--ifm-color-emphasis-700);
+  background-color: var(--pg-tab-hover-bg);
+  color: var(--pg-tab-hover);
 }
 
+/* Selected tab joins the code panel below; inset edge avoids layout shift */
 .tab.selected {
-  background-color: var(--ifm-color-playground-tab-selected);
-  color: var(--ifm-color-content);
-}
-.subtabs .tab.selected {
-  background-color: var(--ifm-color-emphasis-600);
-  color: var(--ifm-color-content-inverse);
-}
-.subtabs .tab.selected:hover {
-  background-color: var(--ifm-color-emphasis-600);
-}
-.subtabs .tab {
-  padding: 0.4rem 0.75rem;
+  background-color: var(--pg-tab-selected-bg);
+  color: var(--pg-tab-selected);
+  box-shadow: inset 0 2px 0 var(--ifm-color-primary);
 }
 .small .tab {
   padding: 0.4rem 0.75rem;
 }
-.subtabs .tab:hover {
-  background-color: var(--ifm-color-emphasis-400);
+/* With header controls (e.g. homepage demos) the selected control joins the
+   file subtab row below it, and that row's selected file joins the code */
+div.playgroundTextEdit > .playgroundHeader.subtabs {
+  background: var(--pg-tab-hover-bg);
+}
+.subtabs .tab:not(.selected):hover {
+  background-color: var(--pg-bar);
+}
+.controlTabs {
+  --pg-tab-selected-bg: var(--pg-tab-hover-bg);
+  --pg-tab-selected: var(--pg-tab-hover);
 }
 
 :root .playgroundPreview {
@@ -267,7 +294,39 @@ div > .playgroundHeader.subtabs {
   margin-right: 8px;
   padding: 2px 6px;
 }
-.playgroundPreview form input[type="text"] {
+/* Base skin for plain controls only; classed ones (DesignSystem rt-*, vote
+   arrows) keep their own chrome. :where() keeps specificity unchanged. */
+.playgroundPreview button:where(:not([class])),
+.playgroundPreview input[type='text']:where(:not([class])),
+.playgroundPreview textarea:where(:not([class])) {
+  border: 1px solid var(--ifm-color-emphasis-400);
+  border-radius: 6px;
+  background: var(--ifm-background-surface-color);
+  color: var(--ifm-font-color-base);
+  font: inherit;
+}
+.playgroundPreview button:where(:not([class])) {
+  padding: 0.3rem 0.8rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.playgroundPreview button:where(:not([class])):hover {
+  border-color: var(--ifm-color-primary);
+  color: var(--ifm-color-primary);
+}
+.playgroundPreview input[type='text']:where(:not([class])),
+.playgroundPreview textarea:where(:not([class])) {
+  padding: 0.3rem 0.5rem;
+}
+.playgroundPreview input[type='checkbox'] {
+  width: 1rem;
+  height: 1rem;
+  vertical-align: -2px;
+  accent-color: var(--ifm-color-primary);
+}
+.playgroundPreview form input[type='text'] {
   width: 100%;
 }
 .playgroundPreview form textarea {
@@ -291,7 +350,7 @@ div > .playgroundHeader.subtabs {
   line-height: 1.1;
   margin-bottom: 4px;
 }
-.playgroundPreview :global(.listItem) > label input[type="text"] {
+.playgroundPreview :global(.listItem) > label input[type='text'] {
   width: calc(100% - 21px);
 }
 .playgroundPreview :global(.listItem.spaced) {
@@ -431,7 +490,6 @@ div.fixtureJson {
   position: auto !important;
 }
 
-
 /* Side-by-side when the playground itself has enough width (docs sidebar
    no longer forces an incorrect stack on homepage/blog). */
 @container playground (min-width: 720px) {
@@ -457,7 +515,47 @@ div.fixtureJson {
   .playgroundContainer.endpointPlayground > div:last-child {
     flex: 50 1 0;
   }
+  .playgroundContainer.endpointPlayground > div:last-child {
+    border-left: 1px solid var(--pg-bar-edge);
+  }
   .playgroundContainer.row .playgroundHeader.tabControls:first-of-type {
     border-top-right-radius: 0;
   }
+}
+
+/* EndpointPlayground: left tab bar and right fixture headers share one height */
+.endpointPlayground .playgroundHeader {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 34px;
+  padding: 0 0.75rem;
+  letter-spacing: 0.04rem;
+}
+.endpointPlayground .playgroundHeader.tabControls {
+  padding: 0;
+}
+.endpointPlayground .playgroundHeader .tab {
+  height: 33px;
+  padding: 0 0.75rem;
+}
+
+/* Slim Before/After labels above DiffEditor panes; offsets set from Monaco layout */
+.diffLabels {
+  position: relative;
+  height: 22px;
+  background: var(--monoco-code-background);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(191, 199, 213, 0.55);
+  font: 500 11px / 22px var(--ifm-font-family-base);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+/* Match the space below the last line */
+.playgroundContainer.standaloneEditor .diffLabels + .playgroundEditor {
+  padding-top: 10px;
+}
+.diffLabels > span {
+  position: absolute;
+  left: 0.75rem;
 }
