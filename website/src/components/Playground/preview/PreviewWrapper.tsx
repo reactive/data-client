@@ -7,15 +7,13 @@ import styles from '../styles.module.css';
 export default function PreviewWrapper({ children, headerControls }: Props) {
   return (
     <div className={styles.previewWrapper}>
-      <Header className={headerControls ? styles.tabControls : undefined}>
-        <div className={headerControls ? styles.title : undefined}>
-          <Translate
-            id="theme.Playground.result"
-            description="The result label of the live codeblocks"
-          >
-            🔴 Live Preview
-          </Translate>
-        </div>
+      <Header className={styles.previewHeader}>
+        <Translate
+          id="theme.Playground.result"
+          description="The result label of the live codeblocks"
+        >
+          🔴 Live Preview
+        </Translate>
         {headerControls}
       </Header>
       <div className={styles.playgroundResult}>{children}</div>

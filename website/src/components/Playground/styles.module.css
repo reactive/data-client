@@ -561,9 +561,12 @@ div.fixtureJson {
 }
 
 /* Preview header badge (Playground `renderCount`) */
+.previewHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 .renderCount {
-  align-self: center;
-  margin-right: 0.75rem;
   font: inherit;
   letter-spacing: normal;
   text-transform: none;

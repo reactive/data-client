@@ -8,8 +8,7 @@ module.exports = function (context, options) {
       if (isServer) return {};
       // React's profiling build calls <Profiler onRender> in production, which
       // the Playground `renderCount` badge relies on. Its timers only run
-      // inside a <Profiler> subtree (profiling-loader stops React DevTools from
-      // profiling the whole tree).
+      // inside a <Profiler> subtree (see profiling-loader).
       // A replacement rather than an alias: Docusaurus' `react-dom` alias
       // would match `react-dom/client` first.
       const reactDomProfiling =
@@ -17,17 +16,9 @@ module.exports = function (context, options) {
           /^react-dom\/client$/,
           'react-dom/profiling',
         );
-      const patchDevToolsCheck = {
-        rules: [
-          {
-            test: /react-dom[\\/]cjs[\\/]react-dom-profiling\.profiling\.js$/,
-            loader: require.resolve('./profiling-loader'),
-          },
-        ],
-      };
       if (process.env.PROFILE === 'true') {
         return {
-          // No patchDevToolsCheck: profiling the site wants DevTools timings.
+          // No profiling-loader: profiling the site wants DevTools timings.
           plugins: [reactDomProfiling],
           optimization: {
             ...config.optimization,
@@ -65,7 +56,17 @@ module.exports = function (context, options) {
           },
         };
       }
-      return { plugins: [reactDomProfiling], module: patchDevToolsCheck };
+      return {
+        plugins: [reactDomProfiling],
+        module: {
+          rules: [
+            {
+              test: /react-dom[\\/]cjs[\\/]react-dom-profiling\.profiling\.js$/,
+              loader: require.resolve('./profiling-loader'),
+            },
+          ],
+        },
+      };
     },
   };
 };
