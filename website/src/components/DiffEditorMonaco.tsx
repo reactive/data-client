@@ -34,6 +34,9 @@ export default function DiffEditor({ documents, fallback }: DiffMonacoProps) {
     (editor: MonacoDiffEditor) => {
       handleMount(editor);
       const panes = [editor.getOriginalEditor(), editor.getModifiedEditor()];
+      // Side-by-side forces a glyph margin on the original pane; nothing
+      // renders there in this read-only diff, so it only indents the code
+      panes[0].updateOptions({ glyphMargin: false });
       const updateOffsets = () => {
         const left = editor.getContainerDomNode().getBoundingClientRect().left;
         const next = panes.map(

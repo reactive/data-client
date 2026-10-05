@@ -96,6 +96,14 @@
   --pg-tab-selected: #e3e8f2;
   --pg-tab-selected-bg: var(--monoco-code-background);
 }
+/* Dark mode: the editor column sits a step above the code, darker than the
+   neutral preview headers, so the two sides read apart without a divider */
+:root[data-theme='dark']
+  .playgroundContainer:not(.endpointPlayground)
+  .playgroundTextEdit {
+  --pg-bar: hsl(229, 14%, 21%);
+  --pg-tab-hover-bg: hsl(229, 14%, 26%);
+}
 /* EndpointPlayground's right column is code, so it always uses the dark bar */
 .endpointPlayground {
   --pg-bar: hsl(229, 8%, 26%);
@@ -542,6 +550,10 @@ div.fixtureJson {
   font: 500 11px / 22px var(--ifm-font-family-base);
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+/* Match the space below the last line */
+.playgroundContainer.standaloneEditor .diffLabels + .playgroundEditor {
+  padding-top: 10px;
 }
 .diffLabels > span {
   position: absolute;
