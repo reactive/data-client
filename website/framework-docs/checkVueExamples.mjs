@@ -37,7 +37,7 @@ const PLACEHOLDERS = [
     .readFileSync(path.join(PLAYGROUND, 'DesignSystem/index.ts'), 'utf8')
     .matchAll(/^export \{ (\w+) \}/gm),
 ].map(([, name]) => name);
-/** `foo.react.md` and `foo.vue.md` render through `foo.md` */
+/** `foo.react.md` and `foo.vue.md` render through `foo.md`, when it exists */
 const OVERRIDE = new RegExp(`\\.(${FRAMEWORKS.join('|')})\\.mdx?$`);
 
 const titleOf = block => block.meta?.match(/title="([^"]+)"/)?.[1];
@@ -104,8 +104,13 @@ const docs = [...new Set(DOCS_INSTANCES.map(d => d.path))].flatMap(dir =>
   walk(path.join(ROOT, dir))
     // partials render inside their pages
     .filter(f => /\.mdx?$/.test(f) && !f.split('/').at(-1).startsWith('_'))
-    .filter(f => !OVERRIDE.test(f))
-    .map(f => path.join(ROOT, dir, f)),
+    .map(f => path.join(ROOT, dir, f))
+    // framework-only pages (no base file) render on their own
+    .filter(
+      f =>
+        !OVERRIDE.test(f) ||
+        !['.md', '.mdx'].some(ext => fs.existsSync(f.replace(OVERRIDE, ext))),
+    ),
 );
 
 /** Example apps: files to write, each mapped back to its fence */
