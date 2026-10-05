@@ -3,6 +3,8 @@
 # Check https://circleci.com/docs/2.0/language-javascript/ for more details
 #
 version: 2.1
+orbs:
+  codecov: codecov/codecov@6.1.0
 executors:
   node:
     docker: &docker
@@ -252,17 +254,19 @@ jobs:
               yarn test:ci --selectProjects ReactNative
             elif [ "<< parameters.react-version >>" == "19.3" ]; then
               yarn test:ci --maxWorkers=4 --selectProjects ReactDOM --testPathPatterns 'packages/react/src/__tests__/concurrent-.*\.web\.tsx' 'packages/react/src/hooks/__tests__/useCacheState.web.tsx'
-            else
-              curl -fsSO --connect-timeout 10 --max-time 60 https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov || echo "Codecov uploader download failed; skipping coverage upload";
-              yarn run test:coverage --ci --maxWorkers=4 --selectProjects ReactDOM Node --coverageReporters=text-lcov > ./lcov.info;
-              if [ -x ./codecov ]; then
-                if [ "$CODECOV_TOKEN" != "" ]; then
-                  ./codecov -t ${CODECOV_TOKEN} < ./lcov.info || true;
-                else
-                  ./codecov < ./lcov.info || true;
-                fi
-              fi
+            elif [ "<< parameters.react-version >>" == "latest" ]; then
+              # Coverage floors live in the test:coverage script
+              yarn run test:coverage --ci --maxWorkers=4 --selectProjects ReactDOM Node --coverageReporters=lcovonly --coverageReporters=text-summary
             fi
+      - when:
+          condition:
+            equal: [latest, << parameters.react-version >>]
+          steps:
+            # The orb GPG-verifies the pinned CLI before running it with CODECOV_TOKEN
+            - codecov/upload:
+                version: v11.3.1
+                files: ./coverage/lcov.info
+                disable_search: true
 
   node_matrix:
     parameters:

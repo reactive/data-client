@@ -39,7 +39,7 @@
     "build:skills": "yarn workspace rdc-website build:skills",
     "test": "NODE_ENV=test run jest",
     "test:ci": "ANANSI_JEST_TYPECHECK=false yarn test --ci",
-    "test:coverage": "ANANSI_JEST_TYPECHECK=false yarn test --coverage",
+    "test:coverage": "ANANSI_JEST_TYPECHECK=false yarn test --coverage --coverageThreshold='{\"global\":{\"statements\":98,\"branches\":96,\"functions\":90,\"lines\":98}}'",
     "prepare": "yarn build:copy:ambient && tsc --build --builders 1",
     "prepack": "yarn prepare",
     "prepublishOnly": "yarn workspaces foreach -Wpti --no-private run build:legacy-types",
