@@ -1,5 +1,5 @@
-/* global require */
-// `node --test .cursor/hooks/eslint-fix.test.js`
+/* global require, __dirname */
+// `node --test '.cursor/hooks/*.test.js'`
 const assert = require('assert/strict');
 const { execFileSync } = require('child_process');
 const fs = require('fs');

@@ -30,6 +30,12 @@ const gitCommand = sub =>
   );
 if (!gitCommand('push').test(command)) process.exit(0);
 const commits = gitCommand('commit').test(command);
+// `git commit -a` / `-am` / `--all`
+const commitsAll =
+  commits &&
+  /(?:^|[;&|(]\s*)git\b[^;&|]*\scommit\b[^;&|]*\s(?:--all\b|-[A-Za-z]*a)/m.test(
+    command,
+  );
 
 /** Docs some skill renders; partials (`_foo.mdx`) may be inlined anywhere */
 let skillDocs;
@@ -54,9 +60,8 @@ const isSkillInput = file =>
   /^\.agents\/skills\/[^/]+\/(references\.json|SKILL\.md)$/.test(file) ||
   file.startsWith('website/framework-docs/');
 
-// files the branch changes relative to master, plus uncommitted ones when
-// the same command commits before pushing (`git commit -am x && git push`);
-// renames as delete + add, so the old path counts too
+// files the branch changes relative to master and uncommitted ones; renames
+// as delete + add, so the old path counts too
 let dirty, committed;
 try {
   dirty = dirtyFiles();
@@ -108,12 +113,27 @@ function regenerate({ what, from, script, check, isInput, outputs }) {
 
 /** `eslint --fix` the JS/TS files this push includes */
 function lintFix() {
-  // eslint reads the working tree, so skip files with uncommitted edits unless
-  // this command commits them (per file, since eslint reads only those)
-  const pushed =
+  // eslint reads the working tree, so lint an uncommitted file only when this
+  // command's commit takes all of it: staged with nothing unstaged on top, or
+  // any tracked edit with `-a`. Partial staging, untracked files and pathspecs
+  // can't be told from here, so those are left alone with the user's WIP
+  const committing = new Set(
     commits ?
-      [...new Set([...committed, ...dirty])]
-    : committed.filter(file => !dirty.includes(file));
+      git('status', '--porcelain', '--no-renames', '--untracked-files=all')
+        .split('\n')
+        .filter(
+          line =>
+            line &&
+            !line.startsWith('?') &&
+            (commitsAll || (line[0] !== ' ' && line[1] === ' ')),
+        )
+        .map(line => line.slice(3))
+    : [],
+  );
+  const pushed = [
+    ...committed.filter(file => !dirty.includes(file)),
+    ...committing,
+  ];
   const { fixed } = eslintFix(pushed);
   return fixed.length ?
       [
