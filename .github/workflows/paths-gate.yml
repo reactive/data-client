@@ -3,6 +3,7 @@ name: paths gate
 # merge_group ignores `paths`, and a required check that never runs blocks the
 # PR, so callers trigger without `paths` (push excepted) and skip their job
 # unless a file in their `on.push.paths` changed. A skipped job passes.
+# dependency-gate.yml reads `paths` the same way.
 on:
   workflow_call:
     outputs:
@@ -19,11 +20,9 @@ jobs:
       relevant: ${{ steps.diff.outputs.relevant }}
     steps:
       - uses: actions/checkout@v7
-        with:
-          fetch-depth: 1
       - id: diff
         env:
-          BASE: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
+          BASE: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
         run: |
           # The caller's push `paths` (github.workflow_ref names the caller)
           workflow="${GITHUB_WORKFLOW_REF#*/*/}"
