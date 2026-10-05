@@ -4,7 +4,7 @@
  *
  * - Each playground with a `.vue` file is one app: its files import each other
  *   by title (`./Resource` is the block titled `Resource`).
- * - A `.vue` block outside a playground, or a ts block importing
+ * - A Vue SFC (`html` block) outside a playground, or a ts block importing
  *   `@data-client/vue`, is checked on its own. Its relative imports resolve to
  *   the page's other titled blocks, or to stubs typed `any`.
  *
@@ -41,13 +41,15 @@ const PLACEHOLDERS = [
 const OVERRIDE = new RegExp(`\\.(${FRAMEWORKS.join('|')})\\.mdx?$`);
 
 const titleOf = block => block.meta?.match(/title="([^"]+)"/)?.[1];
-const isVue = block => titleOf(block)?.endsWith('.vue');
+/** A single file component, titled or not */
+const isVue = block =>
+  block.lang === 'html' && /<(script|template)\b/.test(block.raw);
 const checked = block =>
   EXT[block.lang] && (block.lang !== 'html' || isVue(block));
 /** File name a block is imported by: `Resource` -> `Resource.ts` */
 const fileName = (block, i) => {
   const title = titleOf(block) ?? `untitled${i}`;
-  return path.extname(title) ? title : title + EXT[block.lang];
+  return title.endsWith(EXT[block.lang]) ? title : title + EXT[block.lang];
 };
 /** Code that still exports its types to the example's other files, unchecked */
 const noCheck = ({ raw }) =>
@@ -250,7 +252,8 @@ try {
     { cwd: OUT, encoding: 'utf8', stdio: 'pipe' },
   );
 } catch (error) {
-  output = (error.stdout ?? '') + (error.stderr ?? error.message);
+  // a crash can exit without diagnostics
+  output = (error.stdout ?? '') + (error.stderr ?? '') || error.message;
 } finally {
   fs.rmSync(OUT, { recursive: true, force: true });
 }

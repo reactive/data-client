@@ -10,6 +10,7 @@ and [setResponse](./Controller.md#setResponse)
 ```html
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
+  import { MyResource } from './resources';
 
   const props = defineProps<{ id: string }>();
   const ctrl = useController();

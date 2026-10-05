@@ -202,12 +202,17 @@ const createUser = new RestEndpoint({
 
 More updates:
 
-```typescript title="Component.vue"
-// start both fetches in parallel
-useFetch(userList);
-useFetch(userList, { admin: true });
-const allusers = await useSuspense(userList);
-const adminUsers = await useSuspense(userList, { admin: true });
+```html title="Component.vue"
+<script setup lang="ts">
+  import { useFetch, useSuspense } from '@data-client/vue';
+  import { userList } from './resources';
+
+  // start both fetches in parallel
+  useFetch(userList);
+  useFetch(userList, { admin: true });
+  const allusers = await useSuspense(userList);
+  const adminUsers = await useSuspense(userList, { admin: true });
+</script>
 ```
 
 The endpoint below ensures the new user shows up immediately in the usages above.

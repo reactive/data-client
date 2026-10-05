@@ -141,7 +141,7 @@ return (
 
 :::vue
 
-```html
+```html nocheck
 <template>
   <div>
     <TheThing

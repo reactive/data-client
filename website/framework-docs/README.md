@@ -88,8 +88,8 @@ Vue code fences are copied verbatim into Vue skill references and into readers' 
 playground doesn't run them, so `yarn check:vue-examples` (`checkVueExamples.mjs`, run by the
 `skills` workflow) type-checks them with `vue-tsc` against `@data-client/vue` and `@data-client/rest`.
 It checks each playground that has a `.vue` file as one app (files import each other by title:
-`./Resource` is the block titled `Resource`), and every other `.vue` block or ts block importing
-`@data-client/vue` on its own, where relative imports resolve to the page's titled blocks or to
+`./Resource` is the block titled `Resource`), and every other ` ```html ` single file component
+(titled or not) or ts block importing `@data-client/vue` on its own, where relative imports resolve to the page's titled blocks or to
 stubs typed `any`.
 
 - Import everything a block uses, including `@data-client/rest` schemas in shared blocks the React
