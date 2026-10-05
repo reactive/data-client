@@ -8,7 +8,47 @@
   grid-template-columns: max-content 1fr max-content;
   align-items: center;
   gap: 0.5rem 0.75rem;
-  margin-bottom: 1rem;
+}
+
+.row {
+  position: relative;
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  align-items: center;
+  border-radius: var(--ifm-global-radius);
+  cursor: default;
+}
+
+.row:hover,
+.row:focus {
+  outline: none;
+  background: var(--ifm-color-emphasis-100);
+}
+
+/* exact numbers, revealed on hover, or on tap/keyboard focus */
+.tip {
+  position: absolute;
+  z-index: 1;
+  bottom: calc(100% + 0.25rem);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ifm-global-radius);
+  font-size: 0.875rem;
+  white-space: nowrap;
+  color: var(--ifm-color-emphasis-900);
+  background: var(--ifm-background-surface-color);
+  box-shadow: var(--ifm-global-shadow-md);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+
+.row:hover .tip,
+.row:focus .tip {
+  opacity: 1;
 }
 
 .label {
@@ -51,17 +91,4 @@
     var(--ifm-color-emphasis-300) var(--perf-split, 0),
     var(--ifm-color-primary) var(--perf-split, 0)
   );
-}
-
-.table {
-  font-size: 0.875rem;
-}
-
-.table td {
-  text-align: right;
-}
-
-.table th[scope='row'] {
-  text-align: left;
-  white-space: nowrap;
 }

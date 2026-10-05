@@ -85,8 +85,8 @@ As usual, if you have any troubles or questions, feel free to join our [![Chat](
 4. Visualize with `<PerfChart>`, not mermaid `xychart-beta` (it has no legend, so overlaid bars are unlabeled)
 5. Link to [benchmarks](https://reactive.github.io/data-client/dev/bench/)
 
-`<PerfChart>` renders a crawlable table of the raw numbers plus a bar chart of each row's speedup. Pass raw
-measurements, not percentages; the component computes the multiplier.
+`<PerfChart>` renders a bar chart of each row's speedup. The raw numbers appear on hover or tap, and stay in the
+page text for crawlers and screen readers. Pass raw measurements, not percentages; the component computes the multiplier.
 
 ```mdx
 import PerfChart from '@site/src/components/PerfChart';
@@ -103,7 +103,6 @@ import PerfChart from '@site/src/components/PerfChart';
 ```
 
 `unit` defaults to `ms`, with lower being better; set `higherIsBetter` and `unit="ops/sec"` for throughput.
-For metrics that aren't speed, like memory, set `ratioLabel` (for example `"Less memory"`) to rename the multiplier column.
 Bar lengths switch to a log scale on their own when speedups differ by more than 10x, and the chart labels it.
 Each bar is shaded up to a dashed 1x line (no change), so the bright part is the gain.
 

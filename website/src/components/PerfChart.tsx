@@ -1,4 +1,4 @@
-import { type CSSProperties, Fragment } from 'react';
+import type { CSSProperties } from 'react';
 
 import styles from './PerfChart.module.css';
 
@@ -10,7 +10,7 @@ export interface PerfRow {
   value: number;
 }
 
-/** Benchmark results as a table plus a bar chart of each row's speedup over its baseline */
+/** Bar chart of each row's speedup over its baseline, with exact numbers on hover or focus */
 export default function PerfChart({
   title,
   rows,
@@ -18,7 +18,6 @@ export default function PerfChart({
   valueLabel = 'After',
   unit = 'ms',
   higherIsBetter = false,
-  ratioLabel = 'Speedup',
 }: {
   title: string;
   rows: PerfRow[];
@@ -27,8 +26,6 @@ export default function PerfChart({
   unit?: string;
   /** Set for throughput metrics like ops/sec; defaults to durations where lower is better */
   higherIsBetter?: boolean;
-  /** Column header for the multiplier, like "Less memory" for non-time metrics */
-  ratioLabel?: string;
 }) {
   const data = rows.map(row => {
     const speedup =
@@ -56,14 +53,15 @@ export default function PerfChart({
           </div>
         )}
       </figcaption>
-      <div className={styles.bars} style={one} aria-hidden="true">
-        <span />
-        <span className={styles.oneLabel}>1x</span>
-        <span />
-        {data.map(({ label, speedup, multiplier }) => (
-          <Fragment key={label}>
+      <div className={styles.bars} style={one}>
+        <div className={styles.row} aria-hidden="true">
+          <span />
+          <span className={styles.oneLabel}>1x</span>
+        </div>
+        {data.map(({ label, baseline, value, speedup, multiplier }) => (
+          <div className={styles.row} key={label} tabIndex={0}>
             <span className={styles.label}>{label}</span>
-            <span className={styles.track}>
+            <span className={styles.track} aria-hidden="true">
               <span
                 className={styles.bar}
                 style={
@@ -75,33 +73,16 @@ export default function PerfChart({
               />
             </span>
             <span className="text--bold">{multiplier}</span>
-          </Fragment>
+            {/* exact numbers stay in the DOM for crawlers and screen readers */}
+            <span className={styles.tip}>
+              {baselineLabel} {baseline} {unit} → {valueLabel}{' '}
+              <strong>
+                {value} {unit}
+              </strong>
+            </span>
+          </div>
         ))}
       </div>
-      <table className={`${styles.table} margin-bottom--none`}>
-        <thead>
-          <tr>
-            <th />
-            <th>
-              {baselineLabel} ({unit})
-            </th>
-            <th>
-              {valueLabel} ({unit})
-            </th>
-            <th>{ratioLabel}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map(({ label, baseline, value, multiplier }) => (
-            <tr key={label}>
-              <th scope="row">{label}</th>
-              <td>{baseline}</td>
-              <td>{value}</td>
-              <td>{multiplier}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </figure>
   );
 }
