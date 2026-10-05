@@ -3,7 +3,8 @@
 // (Cursor `stop`, Claude Code `Stop`): fixes the uncommitted JS/TS files
 // changed since this hook last ran, so edits from the agent and from someone
 // editing alongside it are batched into one run per turn instead of one per
-// edit, and a turn that changed none skips eslint. `pre-push.js` also uses it
+// edit, and a turn that changed none skips eslint. Errors eslint can't fix go
+// back to the agent once per turn (not after a Cursor abort). `pre-push.js` also uses it
 // for the files a push includes.
 const { execFileSync } = require('child_process');
 const fs = require('fs');
@@ -35,14 +36,18 @@ const dirtyFiles = () =>
     .filter(Boolean)
     .map(line => line.slice(3));
 
-/** Fixes the JS/TS `files` that exist; returns the ones eslint changed */
+/**
+ * Fixes the JS/TS `files` that exist; returns the ones eslint changed and the
+ * errors it couldn't fix, one `file:line:col message (rule)` each
+ */
 function eslintFix(files) {
   files = files.filter(file => isLintable(file) && mtime(file) !== undefined);
-  if (!files.length) return [];
+  if (!files.length) return { fixed: [], errors: [] };
   const read = file => fs.readFileSync(path.join(projectDir, file), 'utf8');
   const before = files.map(read);
+  let report = '[]';
   try {
-    execFileSync(
+    report = execFileSync(
       path.join(projectDir, 'node_modules/.bin/eslint'),
       [
         '--fix',
@@ -50,21 +55,52 @@ function eslintFix(files) {
         '--cache-location',
         CACHE,
         '--no-warn-ignored',
+        '--format',
+        'json',
         '--',
         ...files,
       ],
-      { cwd: projectDir, stdio: 'ignore' },
+      {
+        cwd: projectDir,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+        maxBuffer: 64 * 1024 * 1024,
+      },
+    );
+  } catch (err) {
+    // exit 1 means lint errors are left; a crash or missing install is left
+    // to CI
+    if (err.status === 1) report = err.stdout;
+  }
+  let errors = [];
+  try {
+    errors = JSON.parse(report).flatMap(({ filePath, messages }) =>
+      messages
+        .filter(({ severity }) => severity === 2)
+        .map(
+          ({ line, column, message, ruleId }) =>
+            `${path.relative(projectDir, filePath)}:${line}:${column} ${message}${ruleId ? ` (${ruleId})` : ''}`,
+        ),
     );
   } catch {
-    // unfixable lint errors are left to CI, like a missing install
+    // not eslint's report
   }
-  return files.filter((file, i) => read(file) !== before[i]);
+  return {
+    fixed: files.filter((file, i) => read(file) !== before[i]),
+    errors,
+  };
 }
 
 if (require.main === module) {
   // stamped with the start time, so edits made while eslint runs count next
   // turn; holds the mtimes eslint left, so its own fixes don't
   const start = new Date();
+  let payload = {};
+  try {
+    payload = JSON.parse(fs.readFileSync(0, 'utf8') || '{}');
+  } catch {
+    // run by hand
+  }
   try {
     const lastRun =
       fs.statSync(LAST_RUN, { throwIfNoEntry: false })?.mtimeMs ?? 0;
@@ -77,7 +113,7 @@ if (require.main === module) {
     const files = dirtyFiles().filter(
       file => mtime(file) > lastRun && mtime(file) !== linted[file],
     );
-    eslintFix(files);
+    const { errors } = eslintFix(files);
     fs.mkdirSync(path.dirname(LAST_RUN), { recursive: true });
     fs.writeFileSync(
       LAST_RUN,
@@ -86,6 +122,23 @@ if (require.main === module) {
       ),
     );
     fs.utimesSync(LAST_RUN, start, start);
+    // hand errors eslint can't fix back to the agent once per turn, so it
+    // fixes them before finishing; the files it edits get linted again on
+    // its next stop, which reports nothing more
+    const followUp =
+      payload.stop_hook_active ||
+      payload.loop_count > 0 ||
+      (payload.status && payload.status !== 'completed');
+    if (errors.length && !followUp) {
+      const message = `ESLint found errors it couldn't fix in uncommitted files. Fix them:\n${errors.slice(0, 50).join('\n')}${errors.length > 50 ? `\n…and ${errors.length - 50} more` : ''}`;
+      console.log(
+        JSON.stringify(
+          payload.hook_event_name === 'Stop' ?
+            { decision: 'block', reason: message }
+          : { followup_message: message },
+        ),
+      );
+    }
   } catch {
     // not a git checkout
   }

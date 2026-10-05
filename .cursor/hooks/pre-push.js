@@ -121,7 +121,7 @@ function lintFix() {
     commits ?
       [...new Set([...committed, ...dirty])]
     : committed.filter(file => !dirty.includes(file));
-  const fixed = eslintFix(pushed);
+  const { fixed } = eslintFix(pushed);
   return fixed.length ?
       [
         `\`eslint --fix\` changed files this push would include. Commit them, then push again:\n${fixed.join('\n')}`,
