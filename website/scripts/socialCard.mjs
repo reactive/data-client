@@ -46,20 +46,24 @@ function parsePost(source) {
   const [, front, body] = source.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
   const { title, description = '', image } = yaml.load(front);
   const [, version, headline] = title.match(/^v(\d+\.\d+):?\s*(.*)$/);
-  const summary = body.split(
+  const [summary, details = ''] = body.split(
     /\{\/\*\s*truncate\s*\*\/\}|<!--\s*truncate\s*-->/,
-  )[0];
+  );
+  const bullets = summaryBullets(summary);
   return {
     version,
     headline,
     description,
     image,
-    rows: summaryRows(summary),
+    rows: bullets
+      .slice(0, MAX_ROWS)
+      .map(({ tag, text }) => ({ tag, label: bulletLabel(text) })),
+    feature: featureVisual(bullets, details),
   };
 }
 
 // Bullets under **Bold section:** headings in the summary, new features first
-function summaryRows(summary) {
+function summaryBullets(summary) {
   const rows = [];
   let tag;
   for (const line of summary.split('\n')) {
@@ -72,11 +76,110 @@ function summaryRows(summary) {
       continue;
     }
     const bullet = line.match(/^[-*]\s+(.*)/);
-    if (tag && bullet) rows.push({ tag, label: bulletLabel(bullet[1]) });
+    if (tag && bullet) rows.push({ tag, text: bullet[1] });
   }
-  return rows
-    .sort((a, b) => (b.tag === 'new') - (a.tag === 'new'))
-    .slice(0, MAX_ROWS);
+  return rows.sort((a, b) => (b.tag === 'new') - (a.tag === 'new'));
+}
+
+const MAX_CODE_LINES = 8;
+
+// Code windows for the headline features: a Before/After pair from the first
+// feature's section, else the first code block of each new feature's section
+function featureVisual(bullets, details) {
+  const features = bullets
+    .filter(b => b.tag === 'new')
+    .slice(0, 3)
+    .map(b => ({ ...b, ...featureSection(b.text, details) }))
+    // bullets that link to the same section show its code once
+    .filter(
+      (f, i, all) =>
+        f.blocks?.length && all.findIndex(o => o.section === f.section) === i,
+    );
+  if (!features.length) return;
+  const [first] = features;
+  const before = first.blocks.find(b => b.title === 'Before');
+  const after = first.blocks.find(b => b.title === 'After');
+  const windows =
+    before && after ?
+      [
+        { ...before, kind: 'before' },
+        { ...after, kind: 'after' },
+      ]
+    : features.map(f => ({
+        title: bulletLabel(f.text),
+        code: f.blocks[0].code,
+      }));
+  const speedup = (first.text + first.section).match(
+    /(\d+(?:\.\d+)?)x faster/i,
+  )?.[1];
+  return { windows, speedup };
+}
+
+// The section a bullet's #anchor links to, and its fenced code blocks
+function featureSection(bullet, details) {
+  const anchor = bullet.match(/\]\([^)#]*#([\w-]+)\)/)?.[1];
+  const start =
+    anchor ? details.search(new RegExp(`^##.*\\{#${anchor}\\}`, 'm')) : -1;
+  if (start < 0) return;
+  const section = details.slice(start).split(/\n## /)[0];
+  const blocks = [...section.matchAll(/```\w*([^\n]*)\n([\s\S]*?)\n```/g)].map(
+    ([, meta, code]) => ({
+      title: meta.match(/title="([^"]+)"/)?.[1],
+      code: firstLines(code.replace(/^\s*\/\/ highlight-next-line\n/gm, '')),
+    }),
+  );
+  return { section, blocks };
+}
+
+// Up to MAX_CODE_LINES, ending at a blank line when cut so statements stay whole
+function firstLines(code) {
+  const lines = code.split('\n');
+  if (lines.length <= MAX_CODE_LINES) return code;
+  const head = lines.slice(0, MAX_CODE_LINES);
+  const blank = head.lastIndexOf('');
+  return head.slice(0, blank > 0 ? blank : MAX_CODE_LINES).join('\n');
+}
+
+const KEYWORDS =
+  'const|let|var|function|return|for|of|in|if|else|new|class|extends|import|export|from|await|async|static|this|typeof';
+const TOKEN_KINDS = ['comment', 'string', 'keyword', 'number', 'type', 'call'];
+const TOKEN = new RegExp(
+  [
+    '(\\/\\/.*)',
+    '(`[^`]*`|\'[^\']*\'|"[^"]*")',
+    `\\b(${KEYWORDS})\\b`,
+    '\\b(\\d+(?:\\.\\d+)?)\\b',
+    '\\b([A-Z]\\w*)',
+    '\\b(\\w+)(?=\\()',
+  ].join('|'),
+  'g',
+);
+
+// Minimal TS highlighting: comments, strings, keywords, numbers, Types, calls
+function highlight(code) {
+  let html = '';
+  let last = 0;
+  for (const m of code.matchAll(TOKEN)) {
+    const kind = TOKEN_KINDS[m.slice(1).findIndex(g => g !== undefined)];
+    html += `${escape(code.slice(last, m.index))}<span class="t-${kind}">${escape(m[0])}</span>`;
+    last = m.index + m[0].length;
+  }
+  return html + escape(code.slice(last));
+}
+
+function windowsHtml({ windows, speedup }) {
+  const html = windows
+    .map(
+      ({ title, code, kind = '' }, i) =>
+        `<div class="editor ${kind} w${i + 1}-of-${windows.length}"><div class="chrome"><i></i><i></i><i></i><span>${escape(title ?? '')}</span></div><pre>${code
+          .split('\n')
+          .map(line => `<div class="line">${highlight(line) || ' '}</div>`)
+          .join('')}</pre></div>`,
+    )
+    .join('');
+  return speedup ?
+      `${html}<div class="stat"><div class="big">${escape(speedup)}<small>×</small></div><div class="unit">faster</div></div>`
+    : html;
 }
 
 // A leading link's text, else the bullet's first clause
@@ -155,7 +258,7 @@ function fontFace(family, file) {
   return `@font-face { font-family: '${family}'; font-weight: 100 900; src: url(data:font/woff2;base64,${woff2}) format('woff2'); }`;
 }
 
-function cardHtml({ version, headline, description, rows }) {
+function cardHtml({ version, headline, description, rows, feature }) {
   const logo = fs
     .readFileSync(path.join(WEBSITE_ROOT, 'static/img/client-logo.svg'), 'utf8')
     .replace(/<\?xml[^>]*>|<!--[\s\S]*?-->/g, '');
@@ -185,7 +288,7 @@ function cardHtml({ version, headline, description, rows }) {
       radial-gradient(ellipse 50% 60% at 10% 10%, #0b1d3a 0%, transparent 70%),
       #050b17;
   }
-  .streams { position: absolute; inset: 0; }
+  .streams { position: absolute; inset: 0; -webkit-mask-image: linear-gradient(90deg, transparent 70%, #000 90%); }
   .left { position: absolute; left: 88px; top: 80px; width: 760px; }
   .brand { display: flex; align-items: center; gap: 26px; }
   .brand svg { width: 150px; height: auto; }
@@ -227,6 +330,39 @@ function cardHtml({ version, headline, description, rows }) {
   .chip.new { color: #5eead4; background: rgba(20,184,166,0.16); border: 1px solid rgba(94,234,212,0.35); }
   .chip.improved { color: #a5b4fc; background: rgba(99,102,241,0.18); border: 1px solid rgba(165,180,252,0.35); font-size: 18px; }
   .label { font-size: 26px; color: #e6edf7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .editor {
+    position: absolute; right: 90px; width: 740px; border-radius: 18px; overflow: hidden;
+    background: linear-gradient(160deg, rgba(22,33,58,0.97), rgba(9,15,30,0.98));
+    border: 1.5px solid rgba(120,160,230,0.25);
+    box-shadow: 0 40px 90px rgba(0,0,0,0.6);
+    transform: perspective(1600px) rotateY(-9deg);
+  }
+  .editor.after { border-color: rgba(74,163,255,0.6); box-shadow: 0 40px 90px rgba(0,0,0,0.65), 0 0 70px rgba(47,124,240,0.35); }
+  .editor.before { opacity: 0.55; filter: saturate(0.6); }
+  .w1-of-1 { top: 50%; translate: 0 -50%; }
+  .w1-of-2 { top: 90px; right: 150px; width: 620px; }
+  .w2-of-2 { bottom: 150px; }
+  .w1-of-3 { top: 60px; right: 60px; width: 600px; }
+  .w2-of-3 { top: 300px; right: 330px; width: 520px; }
+  .w3-of-3 { bottom: 60px; right: 90px; width: 620px; }
+  .chrome { display: flex; align-items: center; gap: 9px; padding: 14px 20px; background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .chrome i { width: 13px; height: 13px; border-radius: 50%; background: #2c3a55; }
+  .chrome span { margin-left: 14px; font: 500 20px 'Roboto Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; color: #8aa0c0; }
+  .after .chrome span, .w1-of-1 .chrome span, .w1-of-3 .chrome span { color: #5eead4; }
+  .editor pre { padding: 20px 26px 24px 0; font: 400 24px/1.55 'Roboto Mono', monospace; color: #d6deeb; white-space: pre; overflow: hidden; }
+  .line::before { content: ''; display: inline-block; width: 26px; text-align: center; }
+  .before .line::before { content: '−'; width: 52px; color: #f87171; }
+  .after .line::before { content: '+'; width: 52px; color: #4ade80; }
+  .t-keyword { color: #c792ea; } .t-string { color: #c3e88d; } .t-number { color: #f78c6c; }
+  .t-type { color: #ffcb6b; } .t-call { color: #82aaff; } .t-comment { color: #637777; font-style: italic; }
+  .stat {
+    position: absolute; right: 50px; bottom: 45px; padding: 18px 30px 20px; border-radius: 22px;
+    background: linear-gradient(160deg, rgba(20,60,120,0.95), rgba(10,26,58,0.97));
+    border: 1.5px solid rgba(94,234,212,0.45); box-shadow: 0 30px 70px rgba(0,0,0,0.6), 0 0 50px rgba(45,212,191,0.25);
+  }
+  .stat .big { font-size: 92px; font-weight: 700; line-height: 1; background: linear-gradient(180deg, #5eead4, #3b8cf5); -webkit-background-clip: text; color: transparent; }
+  .stat .big small { font-size: 0.55em; }
+  .stat .unit { font-size: 30px; font-weight: 500; letter-spacing: 0.12em; color: #cfe3ff; text-transform: uppercase; margin-top: 4px; }
 </style></head><body>
 ${lightStreams(prng(version))}
 <div class="left">
@@ -237,7 +373,8 @@ ${lightStreams(prng(version))}
   <div class="tagline">${escape(description)}</div>
 </div>
 ${
-  panelRows ?
+  feature ? windowsHtml(feature)
+  : panelRows ?
     `<div class="panel"><h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4z"/><path d="M19 17l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg>WHAT'S NEW</h2>${panelRows}</div>`
   : ''
 }
@@ -263,17 +400,18 @@ async function render(html, outFile) {
       ).every(faces => faces.length),
     );
     if (!fontsLoaded) throw new Error('Rubik/Roboto Mono failed to load');
-    // Largest headline size where every line fits its box, with real font metrics
+    // Shrink the headline and code until every line fits, with real font metrics
     await page.evaluate(() => {
-      const box = document.getElementById('headline');
-      let size = 120;
-      box.style.fontSize = size + 'px';
-      while (
-        size > 40 &&
-        (box.scrollHeight > box.clientHeight ||
-          [...box.children].some(l => l.scrollWidth > box.clientWidth))
-      )
-        box.style.fontSize = --size + 'px';
+      for (const box of document.querySelectorAll('#headline, pre')) {
+        let size = box.id ? 120 : 26;
+        box.style.fontSize = size + 'px';
+        while (
+          size > 14 &&
+          (box.scrollHeight > box.clientHeight ||
+            [...box.children].some(l => l.scrollWidth > box.clientWidth))
+        )
+          box.style.fontSize = --size + 'px';
+      }
     });
     await page.screenshot({ path: outFile });
   } finally {
