@@ -69,7 +69,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PR: ${{ github.event.pull_request.number }}
         run: |
-          gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR}/files" --paginate --jq '.[].filename' > "${RUNNER_TEMP}/files"
+          gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR}/files" --paginate \
+            --jq '.[] | .filename, (.previous_filename // empty)' > "${RUNNER_TEMP}/files"
           while read -r file; do
             case "${file}" in
               packages/*/__tests__/* | packages/*/typescript-tests/* | packages/*/src-*-types/* | packages/*.md) ;;
@@ -168,7 +169,9 @@ jobs:
             -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
             commit --quiet -m 'chore: Regenerate generated files' \
             -m "Reran yarn copy:websitetypes, yarn build:skills and yarn build:agent-rules on the merge with master. ${RUN_URL}"
-          git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/${HEAD_REF}"
+          # only if the branch is still where generate saw it (not moved or deleted)
+          git push --force-with-lease="refs/heads/${HEAD_REF}:${HEAD_SHA}" \
+            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/${HEAD_REF}"
           # Workflow runs for a GITHUB_TOKEN push never execute: GitHub parks
           # them as "action_required" (awaiting approval; don't approve them).
           # This status is the signal on the new head; CircleCI still runs.
