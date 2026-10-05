@@ -24,7 +24,7 @@ on:
       - '.github/workflows/agent-rules.yml'
 
 concurrency:
-  group: agent-rules-${{ github.head_ref || github.ref }}
+  group: agent-rules-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
