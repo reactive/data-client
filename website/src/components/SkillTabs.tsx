@@ -4,37 +4,37 @@ import Tabs from '@theme/Tabs';
 import React from 'react';
 
 import marketplace from '../../../.claude-plugin/marketplace.json';
+import useFramework from './useFramework';
 
 interface Props {
   repo?: string;
-  /** Directory of the skills within repo; openskills installs one skill per path */
-  skillsDir?: string;
   skill?: string;
   skills?: string[];
-  /** Plugin from `.claude-plugin/marketplace.json` to install with its dependencies */
+  /** Plugin from `.claude-plugin/marketplace.json` to install with its dependencies.
+   * Defaults to the current page's framework when no skills are given. */
   plugin?: string;
 }
 
+const skillsDir = '.agents/skills';
+
 export default function SkillTabs({
   repo = 'reactive/data-client',
-  skillsDir = '.agents/skills',
   skill,
   skills,
   plugin,
 }: Props) {
-  const allSkills =
-    plugin ? pluginSkills(plugin) : (skills ?? (skill ? [skill] : []));
+  const framework = useFramework();
+  if (!skills && skill) skills = [skill];
+  if (!skills) plugin ??= framework;
+  const allSkills = plugin ? pluginSkills(plugin) : (skills ?? []);
   const skillsCommand = [
     `npx skills add ${repo}`,
     ...allSkills.map(s => `--skill ${s}`),
   ].join(allSkills.length > 1 ? ' \\\n  ' : ' ');
   // openskills has no --skill flag; it installs a single skill from its path
-  const openSkillsCommand =
-    allSkills.length ?
-      allSkills
-        .map(s => `npx openskills install ${repo}/${skillsDir}/${s}`)
-        .join('\n')
-    : `npx openskills install ${repo}`;
+  const openSkillsCommand = allSkills
+    .map(s => `npx openskills install ${repo}/${skillsDir}/${s}`)
+    .join('\n');
   // Claude Code installs whole plugins, so install each one holding a listed skill
   const claudePlugins =
     plugin ? [plugin] : [...new Set(allSkills.map(pluginOf))];

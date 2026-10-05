@@ -20,17 +20,7 @@ custom), installs the matching skills below, wires up the provider, and migrates
 
 To install every skill for your framework now instead, without letting your agent run installs:
 
-:::react
-
-<SkillTabs plugin="react" />
-
-:::
-
-:::vue
-
-<SkillTabs plugin="vue" />
-
-:::
+<SkillTabs />
 
 ## Available Skills
 
