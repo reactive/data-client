@@ -51,8 +51,10 @@ See https://dataclient.io/docs/guides/ssr.`,
 
   // contents of this component expected to be relatively stable
   const controllerRef: React.RefObject<DataController> = useRef<any>(undefined);
-  if (!controllerRef.current)
+  if (!controllerRef.current) {
     controllerRef.current = new Controller({ gcPolicy: gcRef.current });
+    controllerRef.current.awaitingInit = true;
+  }
   //TODO: bind all methods so destructuring works
 
   const managersRef: React.RefObject<Manager[]> = useRef<any>(managers);

@@ -22,39 +22,10 @@ export interface FetchingMeta {
   resolve: (value?: any) => void;
   reject: (value?: any) => void;
   fetchedAt: number;
+  parked?: [FetchAction['endpoint'], Resolution];
 }
 
-/** Result of a throttled fetch, and the controller it was resolved into. */
-interface SettledFetch {
-  controller: Controller;
-  endpoint: FetchAction['endpoint'];
-  args: FetchAction['args'];
-  response: unknown;
-  fetchedAt: number;
-  error: boolean;
-}
-
-const settledByMeta = new WeakMap<FetchingMeta, SettledFetch>();
-
-function noteSettled(
-  fetching: Map<string, FetchingMeta>,
-  controller: Controller,
-  action: FetchAction,
-  fetchedAt: number,
-  response: unknown,
-  error: boolean,
-) {
-  const meta = fetching.get(action.key);
-  if (!meta || meta.fetchedAt !== fetchedAt) return;
-  settledByMeta.set(meta, {
-    controller,
-    endpoint: action.endpoint,
-    args: action.args,
-    response,
-    fetchedAt,
-    error,
-  });
-}
+type Resolution = Parameters<Controller['resolve']>[1];
 
 /** Handles all async network dispatches
  *
@@ -137,27 +108,16 @@ export default class NetworkManager implements Manager {
   /** On mount */
   init() {
     delete this.cleanupDate;
-    // A fetch can resolve into a store that never commits. Replay that result
-    // through the controller that just committed, without calling the endpoint.
-    for (const meta of this.fetching.values()) {
-      const settled = settledByMeta.get(meta);
-      if (!settled || settled.controller === this.controller) continue;
-      settled.controller = this.controller;
-      if (settled.error) {
-        this.controller.resolve(settled.endpoint, {
-          args: settled.args,
-          response: settled.response as Error,
-          fetchedAt: settled.fetchedAt,
-          error: true,
-        });
-      } else {
-        this.controller.resolve(settled.endpoint, {
-          args: settled.args,
-          response: settled.response,
-          fetchedAt: settled.fetchedAt,
-        });
+    // init() can run inside the host's commit; publish after it so resolve() never re-enters it
+    Promise.resolve().then(() => {
+      for (const meta of this.fetching.values()) {
+        const parked = meta.parked;
+        if (parked) {
+          delete meta.parked;
+          this.controller.resolve(parked[0], parked[1]);
+        }
       }
-    }
+    });
   }
 
   /** Ensures all promises are completed by rejecting remaining. */
@@ -190,9 +150,7 @@ export default class NetworkManager implements Manager {
   /** Clear promise state for a given key */
   protected clear(key: string) {
     if (this.fetching.has(key)) {
-      const meta = this.fetching.get(key) as FetchingMeta;
-      meta.promise.catch(() => {});
-      settledByMeta.delete(meta);
+      (this.fetching.get(key) as FetchingMeta).promise.catch(() => {});
       this.fetching.delete(key);
     }
   }
@@ -248,16 +206,7 @@ export default class NetworkManager implements Manager {
 
           // don't update state with promises started before last clear
           if (fetchedAt >= lastReset) {
-            if (throttle)
-              noteSettled(
-                this.fetching,
-                this.controller,
-                action,
-                fetchedAt,
-                response,
-                false,
-              );
-            this.controller.resolve(action.endpoint, {
+            this.publish(action, {
               args: action.args,
               response,
               fetchedAt,
@@ -269,16 +218,7 @@ export default class NetworkManager implements Manager {
           const lastReset = this.getLastReset();
           // don't update state with promises started before last clear
           if (fetchedAt >= lastReset) {
-            if (throttle)
-              noteSettled(
-                this.fetching,
-                this.controller,
-                action,
-                fetchedAt,
-                error,
-                true,
-              );
-            this.controller.resolve(action.endpoint, {
+            this.publish(action, {
               args: action.args,
               response: error,
               fetchedAt,
@@ -297,6 +237,17 @@ export default class NetworkManager implements Manager {
     } else {
       return deferedFetch().catch(() => {});
     }
+  }
+
+  /** Resolves a fetch, or parks a throttled result on its record until init() if the controller awaits it */
+  protected publish(action: FetchAction, resolution: Resolution) {
+    const meta =
+      !action.endpoint.sideEffect &&
+      this.controller.awaitingInit &&
+      this.fetching.get(action.key);
+    if (meta && meta.fetchedAt === action.meta.fetchedAt)
+      meta.parked = [action.endpoint, resolution];
+    else this.controller.resolve(action.endpoint, resolution);
   }
 
   /** Called when middleware intercepts a set action.

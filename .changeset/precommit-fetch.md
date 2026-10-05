@@ -8,11 +8,8 @@
 '@data-client/rest': patch
 '@data-client/test': patch
 '@data-client/vue': patch
-'@data-client/use-enhanced-reducer': patch
 ---
 
-Fix Suspense staying on the fallback when a fetch resolves before the store commits
+Fix Suspense staying on the fallback when a fetch resolves before DataProvider mounts
 
-A [useSuspense](/docs/api/useSuspense) or `use(useFetch())` read that finishes while [DataProvider](/docs/api/DataProvider) is still rendering now shows its result once the provider commits, instead of leaving the fallback up. The endpoint is not called again. A fetch that fails is included.
-
-[useEnhancedReducer](https://www.npmjs.com/package/@data-client/use-enhanced-reducer) applies actions that arrive before the hook has committed, in order, from its mount effect. `dispatch` still returns a promise that resolves when that action commits.
+[useSuspense](/docs/api/useSuspense) and `use(useFetch())` could stay on the fallback, or refetch in a loop, when their fetch finished before [DataProvider](/docs/api/DataProvider) had mounted. This happens when something outside the provider suspends during the first render, or when the provider sits inside a lazy-loaded layout, as with Expo Router. The result now shows once the provider mounts, the endpoint is not called again, and failed fetches are included.

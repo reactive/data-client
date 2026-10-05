@@ -2,7 +2,7 @@ import { Endpoint } from '@data-client/endpoint';
 import { Article, ArticleResource } from '__tests__/new';
 
 import { SET_RESPONSE } from '../../actionTypes';
-import { createFetch } from '../../controller/actions';
+import { createFetch, createReset } from '../../controller/actions';
 import Controller from '../../controller/Controller';
 import NetworkManager from '../../manager/NetworkManager';
 import { initialState } from '../../state/reducer/createReducer';
@@ -398,93 +398,119 @@ describe('NetworkManager', () => {
   });
 });
 
-describe('NetworkManager re-resolves a fetch whose store never committed', () => {
-  function bind(dispatch: jest.Mock) {
-    return new Controller({ dispatch, getState: () => initialState });
+describe('NetworkManager while the controller awaits init()', () => {
+  function bind(dispatch: jest.Mock, awaitingInit = true): Controller {
+    const controller = new Controller({
+      dispatch,
+      getState: () => initialState,
+    });
+    if (awaitingInit) controller.awaitingInit = true;
+    return controller;
   }
 
-  async function start(nm: NetworkManager, endpoint: any, dispatch: jest.Mock) {
-    const controller = bind(dispatch);
-    const action = createFetch(endpoint, { args: [] });
-    void Promise.resolve(action.meta.promise).catch(() => {});
-    const pending = nm.middleware(controller)(jest.fn(() => Promise.resolve()))(
-      action,
-    );
-    await Promise.resolve(pending).catch(() => {});
-    await new Promise(resolve => setTimeout(resolve, 0));
-    return { controller, action };
-  }
-
-  it('does not resolve again when the same controller commits', async () => {
+  function counted(settle: () => Promise<unknown>, sideEffect?: true) {
     let calls = 0;
     const endpoint = new Endpoint(
       () => {
         calls += 1;
-        return Promise.resolve(5);
+        return settle();
       },
-      { name: 'settledSame' },
+      { name: 'counted', sideEffect },
     );
+    return { endpoint, calls: () => calls };
+  }
+
+  async function start(
+    nm: NetworkManager,
+    { endpoint }: ReturnType<typeof counted>,
+    controller: Controller,
+  ) {
+    const action = createFetch(endpoint, { args: [] });
+    void Promise.resolve(action.meta.promise).catch(() => {});
+    await Promise.resolve(
+      nm.middleware(controller)(() => Promise.resolve())(action),
+    ).catch(() => {});
+    await new Promise(resolve => setTimeout(resolve, 0));
+  }
+
+  function commit(nm: NetworkManager, controller: Controller) {
+    delete controller.awaitingInit;
+    nm.init();
+  }
+
+  it('resolves immediately when nothing awaits init()', async () => {
+    const fetcher = counted(() => Promise.resolve(5));
     const dispatch = jest.fn(() => Promise.resolve());
     const nm = new NetworkManager();
-    await start(nm, endpoint, dispatch);
-    expect(calls).toBe(1);
+    await start(nm, fetcher, bind(dispatch, false));
     expect(dispatch).toHaveBeenCalledTimes(1);
-    nm.init();
-    expect(dispatch).toHaveBeenCalledTimes(1);
-    expect(calls).toBe(1);
     nm.cleanup();
   });
 
-  it('re-resolves a response into the controller that commits', async () => {
-    let calls = 0;
-    const endpoint = new Endpoint(
-      () => {
-        calls += 1;
-        return Promise.resolve(5);
-      },
-      { name: 'settledValue' },
-    );
-    const first = jest.fn((_action: any) => Promise.resolve());
-    const second = jest.fn((_action: any) => Promise.resolve());
+  it('parks a response until init(), then publishes it from a microtask', async () => {
+    const fetcher = counted(() => Promise.resolve(5));
+    const dispatch = jest.fn((_action: any) => Promise.resolve());
+    const controller = bind(dispatch);
     const nm = new NetworkManager();
-    await start(nm, endpoint, first);
-    nm.middleware(bind(second));
-    nm.init();
-    expect(calls).toBe(1);
-    expect(second).toHaveBeenCalledTimes(1);
-    expect(second.mock.calls[0][0]).toMatchObject({
+    await start(nm, fetcher, controller);
+    expect(dispatch).not.toHaveBeenCalled();
+    commit(nm, controller);
+    expect(dispatch).not.toHaveBeenCalled();
+    await Promise.resolve();
+    expect(dispatch).toHaveBeenCalledTimes(1);
+    expect(dispatch.mock.calls[0][0]).toMatchObject({
       type: SET_RESPONSE,
       response: 5,
       error: false,
     });
     nm.init();
-    expect(second).toHaveBeenCalledTimes(1);
+    await Promise.resolve();
+    expect(dispatch).toHaveBeenCalledTimes(1);
+    expect(fetcher.calls()).toBe(1);
     nm.cleanup();
   });
 
-  it('re-resolves an error into the controller that commits', async () => {
-    let calls = 0;
+  it('publishes into the controller bound when init() runs', async () => {
     const failure = new Error('nope');
-    const endpoint = new Endpoint(
-      () => {
-        calls += 1;
-        return Promise.reject(failure);
-      },
-      { name: 'settledError' },
-    );
-    const first = jest.fn((_action: any) => Promise.resolve());
-    const second = jest.fn((_action: any) => Promise.resolve());
+    const fetcher = counted(() => Promise.reject(failure));
+    const discarded = jest.fn((_action: any) => Promise.resolve());
+    const committed = jest.fn((_action: any) => Promise.resolve());
     const nm = new NetworkManager();
-    await start(nm, endpoint, first);
-    nm.middleware(bind(second));
-    nm.init();
-    expect(calls).toBe(1);
-    expect(second).toHaveBeenCalledTimes(1);
-    expect(second.mock.calls[0][0]).toMatchObject({
+    await start(nm, fetcher, bind(discarded));
+    const controller = bind(committed);
+    nm.middleware(controller);
+    commit(nm, controller);
+    await Promise.resolve();
+    expect(discarded).not.toHaveBeenCalled();
+    expect(committed).toHaveBeenCalledTimes(1);
+    expect(committed.mock.calls[0][0]).toMatchObject({
       type: SET_RESPONSE,
       response: failure,
       error: true,
     });
+    expect(fetcher.calls()).toBe(1);
+    nm.cleanup();
+  });
+
+  it('does not park mutations', async () => {
+    const fetcher = counted(() => Promise.resolve(5), true);
+    const dispatch = jest.fn(() => Promise.resolve());
+    const nm = new NetworkManager();
+    await start(nm, fetcher, bind(dispatch));
+    expect(dispatch).toHaveBeenCalledTimes(1);
+    nm.cleanup();
+  });
+
+  it('drops a parked result on RESET', async () => {
+    const fetcher = counted(() => Promise.resolve(5));
+    const dispatch = jest.fn(() => Promise.resolve());
+    const controller = bind(dispatch);
+    const nm = new NetworkManager();
+    await start(nm, fetcher, controller);
+    await nm.middleware(controller)(() => Promise.resolve())(createReset());
+    commit(nm, controller);
+    await Promise.resolve();
+    expect(dispatch).not.toHaveBeenCalled();
     nm.cleanup();
   });
 });
