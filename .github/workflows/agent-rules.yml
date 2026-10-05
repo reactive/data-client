@@ -42,4 +42,4 @@ jobs:
       - name: Check Claude Code rules match the Cursor rules
         run: node scripts/agent-rules.mjs --check
       - name: Test agent hooks
-        run: node --test .cursor/hooks/
+        run: node --test '.cursor/hooks/*.test.js'
