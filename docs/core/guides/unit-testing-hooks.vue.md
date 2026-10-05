@@ -4,7 +4,7 @@ title: Unit testing composables
 
 Composables pull data logic out of components, so they are often the easiest place to test it.
 `renderDataCompose()` from `@data-client/vue/test` runs a composable inside a component mounted
-with [DataClientPlugin](../getting-started/installation.md) and [Fixtures](../api/Fixtures.md).
+with [DataClientPlugin](../api/DataClientPlugin.md) and [Fixtures](../api/Fixtures.md).
 It takes the same [options](./unit-testing-components.md#options) and needs the same
 [setup](./unit-testing-components.md#setup) as [mountDataClient()](./unit-testing-components.md).
 
@@ -53,10 +53,11 @@ it('useSuspense() follows store updates', async () => {
   const { result, controller, cleanup } = await renderDataCompose(
     () => useSuspense(ArticleResource.get, { id: 5 }),
     {
-      resolverFixtures: [
+      initialFixtures: [
         {
           endpoint: ArticleResource.get,
-          response: ({ id }) => ({ id, title: 'hi ho', content: 'whatever' }),
+          args: [{ id: 5 }],
+          response: { id: 5, title: 'hi ho', content: 'whatever' },
         },
       ],
     },
@@ -185,5 +186,3 @@ Resolves, once the composable has run, to the same `controller`, `wrapper`, `cle
 | --------------------- | ------------------------------------------------------------------------------------------------- |
 | `result`              | What the composable returned                                                                      |
 | `waitForNextUpdate()` | Prefer `await result` or `allSettled()`; this waits for a pending Promise `result` with a 1 second cap |
-
-`options` are the same as [mountDataClient()'s](./unit-testing-components.md#options).

@@ -41,7 +41,7 @@ To install every skill for your framework now instead, without letting your agen
 :::react
 
 - [**`/data-client-react`**](https://skills.sh/reactive/data-client/data-client-react) — uses `useSuspense`, `useFetch`, `useQuery`, `useLive`,
-  and mutation hooks.
+  and mutation hooks, and [debugs your running app](./devtools-debugging.md) with Chrome DevTools MCP.
 - [**`/data-client-react-testing`**](https://skills.sh/reactive/data-client/data-client-react-testing) — writes React tests with `renderDataHook`,
   fixtures, interceptors, and `nock`.
 
@@ -50,20 +50,13 @@ To install every skill for your framework now instead, without letting your agen
 :::vue
 
 - [**`/data-client-vue`**](https://skills.sh/reactive/data-client/data-client-vue) — uses `useSuspense`, `useFetch`, `useQuery`, `useLive`,
-  and mutation composables with `DataClientPlugin`.
+  and mutation composables with `DataClientPlugin`, and [debugs your running app](./devtools-debugging.md) with Chrome DevTools MCP.
 - [**`/data-client-vue-testing`**](https://skills.sh/reactive/data-client/data-client-vue-testing) — writes Vue tests with `renderDataCompose`,
   `mountDataClient`, fixtures, and `nock`.
 
 :::
 
 Browse the full catalog at [skills.sh/reactive/data-client](https://skills.sh/reactive/data-client).
-
-## Debugging with agents
-
-With [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) connected, the
-:react[`/data-client-react`]:vue[`/data-client-vue`] skill can inspect your running app's store,
-dispatched actions and network requests. See
-[Debugging with Chrome DevTools MCP](../guides/devtools-debugging.md) for what it does.
 
 ## Docs for LLMs
 

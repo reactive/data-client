@@ -10,7 +10,7 @@
 >
 > Instead, load responses with [Fixtures](./Fixtures.md).
 
-`@data-client/vue/test` mounts components with [DataClientPlugin](https://dataclient.io/vue/getting-started/installation),
+`@data-client/vue/test` mounts components with [DataClientPlugin](https://dataclient.io/vue/api/DataClientPlugin),
 a `<Suspense>` boundary and [Fixtures](./Fixtures.md), so tests can check what a component
 renders without a network fetch cycle. For composables on their own, see
 [Unit testing composables](./unit-testing-composables.md).
@@ -26,7 +26,7 @@ npm install --save-dev @vue/test-utils jest-environment-jsdom
 
 ## mountDataClient()
 
-`mountDataClient()` mounts a component inside `DataClientPlugin` and `<Suspense>`. [initialFixtures](#options)
+[initialFixtures](#options)
 fill the store before the first render, so a component that `await`s
 [useSuspense()](https://dataclient.io/vue/api/useSuspense) renders its data right away.
 

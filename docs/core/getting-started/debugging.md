@@ -37,7 +37,7 @@ This is useful when you want a quick answer to questions like "why didn't this r
 "what is in the cache right now?", or "which action updated this entity?" without manually
 clicking through each inspector panel.
 
-To run these steps yourself, or see exactly what the agent does, follow [Debugging with Chrome DevTools MCP](../guides/devtools-debugging.md).
+To run these steps yourself, or see exactly what the agent does, follow [Debugging with Chrome DevTools MCP](./devtools-debugging.md).
 
 ## Manual debugging
 

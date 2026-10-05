@@ -94,18 +94,6 @@ await flushUntil(() => wrapper.find('h3').exists());
 await flushUntil(() => wrapper.find('h3').text() === 'Expected Title');
 ```
 
-**Awaiting useSuspense() (for composable tests):**
-```typescript
-const { result } = await renderDataCompose(() => useSuspense(...));
-
-// useSuspense() returns a Promise
-expect(result).toBeInstanceOf(Promise);
-
-// Await the promise to get the reactive ComputedRef
-const dataRef = await result;
-expect(dataRef.value.title).toBe('hi ho');
-```
-
 ## Reactive Props Testing
 
 **Pattern 1: Testing prop changes:**
@@ -128,8 +116,6 @@ props.id = 2;
 await nextTick();
 expect(result.value?.title).toBe('Second');
 ```
-
-An id that isn't in the store gives `result.value === undefined`.
 
 **Pattern 2: Conditional arguments (null handling):**
 ```typescript
@@ -228,16 +214,6 @@ await nextTick();
 expect(dataRef.value.title).toBe('Updated'); // Reactive!
 ```
 
-**fetch() for mutations:**
-```typescript
-await controller.fetch(
-  ArticleResource.update,
-  { id: 5 },
-  { title: 'Mutated', content: 'mutated content' }
-);
-await nextTick();
-```
-
 ## Testing with nock (HTTP Mocking)
 
 Use nock when a test must exercise the real fetch path — verifying URL construction, headers, request bodies, retries, or anything in your `RestEndpoint`/`Resource` networking layer. For pure store/state behavior, prefer `initialFixtures`/`resolverFixtures` (lighter and faster).
@@ -302,12 +278,10 @@ For unsubscribe patterns, component-level polling tests, fake-timer-safe `flushU
 - **Always call cleanup()** - Prevents memory leaks and test pollution
 - **Use reactive() for props** - Enables testing prop changes
 - **Use flushUntil() in component tests** - More reliable than fixed delays
-- **Await renderDataCompose()** - It resolves once the composable ran; `result` is its return value
 - **Remember nextTick()** - After mutations/setResponse to allow Vue reactivity to propagate
 - **Use initialFixtures for initial state** - Pre-populate the store
 - **Use resolverFixtures for dynamic responses** - Intercept requests with functions
 - **Test both empty and populated states** - Verify undefined behavior
-- **Test reactive prop changes** - Use `reactive()` and verify updates
 - **Pass prop-derived args as getters or computed()** - Async setup runs once, so `useSuspense(Resource.get, () => ({ id: props.id }))` follows prop changes; a plain `{ id: props.id }` is read once
 
 ## References
