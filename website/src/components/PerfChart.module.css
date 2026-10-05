@@ -5,7 +5,11 @@
 
 .bars {
   display: grid;
-  grid-template-columns: max-content 1fr max-content;
+  /* min widths keep bar tracks the same size across charts */
+  grid-template-columns: minmax(6.5rem, max-content) 1fr minmax(
+      3rem,
+      max-content
+    );
   align-items: center;
   gap: 0.5rem 0.75rem;
 }
@@ -20,13 +24,13 @@
   cursor: default;
 }
 
-.row:hover,
-.row:focus {
+.row:focus-visible,
+.active {
   outline: none;
   background: var(--ifm-color-emphasis-100);
 }
 
-/* exact numbers, revealed on hover, or on tap/keyboard focus */
+/* exact numbers, revealed on hover, tap or keyboard focus */
 .tip {
   position: absolute;
   z-index: 1;
@@ -46,9 +50,20 @@
   transition: opacity 0.15s;
 }
 
-.row:hover .tip,
-.row:focus .tip {
+.row:focus-visible .tip,
+.active .tip {
   opacity: 1;
+}
+
+/* only devices that really hover; on touch, a tap toggles .active instead */
+@media (hover: hover) {
+  .row:hover {
+    background: var(--ifm-color-emphasis-100);
+  }
+
+  .row:hover .tip {
+    opacity: 1;
+  }
 }
 
 .label {

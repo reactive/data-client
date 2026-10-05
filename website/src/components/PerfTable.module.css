@@ -34,7 +34,7 @@
   gap: 0.5rem;
 }
 
-/* exact numbers, revealed on hover, or on tap/keyboard focus */
+/* exact numbers, revealed on hover, tap or keyboard focus */
 .tip {
   position: absolute;
   z-index: 1;
@@ -53,15 +53,26 @@
   transition: opacity 0.15s;
 }
 
-.perfTable td:hover .tip,
-.perfTable td:focus .tip {
+.perfTable td:focus-visible .tip,
+.perfTable td.active .tip {
   opacity: 1;
 }
 
-.perfTable td:hover,
-.perfTable td:focus {
+.perfTable td:focus-visible,
+.perfTable td.active {
   outline: none;
   background: var(--ifm-color-emphasis-100);
+}
+
+/* only devices that really hover; on touch, a tap toggles .active instead */
+@media (hover: hover) {
+  .perfTable td:hover {
+    background: var(--ifm-color-emphasis-100);
+  }
+
+  .perfTable td:hover .tip {
+    opacity: 1;
+  }
 }
 
 .better,

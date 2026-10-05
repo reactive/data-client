@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 
 import styles from './PerfChart.module.css';
+import usePerfTip from './usePerfTip';
 
 export interface PerfRow {
   label: string;
@@ -18,6 +19,7 @@ export default function PerfChart({
   valueLabel = 'After',
   unit = 'ms',
   higherIsBetter = false,
+  scaleMax,
 }: {
   title: string;
   rows: PerfRow[];
@@ -26,6 +28,8 @@ export default function PerfChart({
   unit?: string;
   /** Set for throughput metrics like ops/sec; defaults to durations where lower is better */
   higherIsBetter?: boolean;
+  /** Speedup that fills a whole bar; give neighboring charts the same value so their 1x lines align */
+  scaleMax?: number;
 }) {
   const data = rows.map(row => {
     const speedup =
@@ -33,12 +37,13 @@ export default function PerfChart({
     return { ...row, speedup, multiplier: formatSpeedup(speedup) };
   });
   const speedups = data.map(({ speedup }) => speedup);
-  const max = Math.max(...speedups);
+  const max = Math.max(...speedups, scaleMax ?? 0);
   // log scale keeps a 3x row visible next to a 600x row
   const log = max / Math.min(...speedups) > 10;
   const scale = (n: number) => (log ? Math.log(Math.max(n, 1)) : n);
   const scaledMax = scale(max) || 1;
   // where 1x (no change) falls on the bar track, so bars read against it
+  const tip = usePerfTip(styles.active);
   const one = {
     '--perf-one': `${(scale(1) / scaledMax) * 100}%`,
   } as CSSProperties;
@@ -59,7 +64,7 @@ export default function PerfChart({
           <span className={styles.oneLabel}>1x</span>
         </div>
         {data.map(({ label, baseline, value, speedup, multiplier }) => (
-          <div className={styles.row} key={label} tabIndex={0}>
+          <div key={label} {...tip(label, styles.row)}>
             <span className={styles.label}>{label}</span>
             <span className={styles.track} aria-hidden="true">
               <span

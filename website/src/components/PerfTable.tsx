@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 
 import styles from './PerfTable.module.css';
+import usePerfTip from './usePerfTip';
 
 export interface PerfTableRow {
   label: string;
@@ -18,6 +19,7 @@ export default function PerfTable({
   columns: { label: string; unit: string }[];
   rows: PerfTableRow[];
 }) {
+  const tip = usePerfTip(styles.active);
   return (
     <div className={styles.scroll}>
       <table className={styles.perfTable}>
@@ -43,7 +45,7 @@ export default function PerfTable({
                 const change = Math.round(((after - before) / before) * 100);
                 const max = Math.max(before, after);
                 return (
-                  <td key={columns[i].label} tabIndex={0}>
+                  <td key={columns[i].label} {...tip(`${label}-${i}`)}>
                     <div className={styles.cell}>
                       <div className={styles.bars} aria-hidden="true">
                         <span
