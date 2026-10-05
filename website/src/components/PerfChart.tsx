@@ -18,6 +18,7 @@ export default function PerfChart({
   valueLabel = 'After',
   unit = 'ms',
   higherIsBetter = false,
+  ratioLabel = 'Speedup',
 }: {
   title: string;
   rows: PerfRow[];
@@ -26,6 +27,8 @@ export default function PerfChart({
   unit?: string;
   /** Set for throughput metrics like ops/sec; defaults to durations where lower is better */
   higherIsBetter?: boolean;
+  /** Column header for the multiplier, like "Less memory" for non-time metrics */
+  ratioLabel?: string;
 }) {
   const data = rows.map(row => {
     const speedup =
@@ -73,7 +76,7 @@ export default function PerfChart({
             <th>
               {valueLabel} ({unit})
             </th>
-            <th>Speedup</th>
+            <th>{ratioLabel}</th>
           </tr>
         </thead>
         <tbody>

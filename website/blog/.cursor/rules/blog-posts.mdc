@@ -103,6 +103,7 @@ import PerfChart from '@site/src/components/PerfChart';
 ```
 
 `unit` defaults to `ms`, with lower being better; set `higherIsBetter` and `unit="ops/sec"` for throughput.
+For metrics that aren't speed, like memory, set `ratioLabel` (for example `"Less memory"`) to rename the multiplier column.
 Bar lengths switch to a log scale on their own when speedups differ by more than 10x, and the chart labels it.
 
 ## Conventions
