@@ -5,6 +5,7 @@ sidebar_label: getDefaultManagers
 ---
 
 import StackBlitz from '@site/src/components/StackBlitz';
+import ProviderManagers from '../shared/_provider_managers.mdx';
 
 # getDefaultManagers()
 
@@ -19,48 +20,20 @@ Currently returns \[[DevToolsManager](./DevToolsManager.md)\*, [NetworkManager](
 
 ## Usage
 
-:::react
+<ProviderManagers imports={['getDefaultManagers']}>
 
-```tsx
-import { DataProvider, getDefaultManagers } from '@data-client/react';
-import { createRoot } from 'react-dom/client';
-
+```ts
 // highlight-start
 const managers = getDefaultManagers({
   // set fallback expiry time to an hour
   networkManager: { dataExpiryLength: 1000 * 60 * 60 },
 });
 // highlight-end
-
-createRoot(document.body).render(
-  <DataProvider managers={managers}>
-    <App />
-  </DataProvider>,
-);
 ```
 
-See [DataProvider](./DataProvider.md) for details on usage in different environments.
-
-:::
+</ProviderManagers>
 
 :::vue
-
-```ts title="main.ts"
-import { createApp } from 'vue';
-import { DataClientPlugin, getDefaultManagers } from '@data-client/vue';
-import App from './App.vue';
-
-// highlight-start
-const managers = getDefaultManagers({
-  // set fallback expiry time to an hour
-  networkManager: { dataExpiryLength: 1000 * 60 * 60 },
-});
-// highlight-end
-
-const app = createApp(App);
-app.use(DataClientPlugin, { managers });
-app.mount('#app');
-```
 
 When `managers` is omitted, `DataClientPlugin` uses `getDefaultManagers()` with no arguments.
 See [DataClientPlugin](./DataClientPlugin.md#options) for the

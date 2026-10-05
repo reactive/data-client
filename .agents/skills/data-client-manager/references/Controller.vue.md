@@ -298,8 +298,8 @@ import {
   LogoutManager,
   getDefaultManagers,
 } from '@data-client/vue';
-import { unAuth } from '../authentication';
 import App from './App.vue';
+import { unAuth } from '../authentication';
 
 const myDomain = 'http://test.com';
 const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);

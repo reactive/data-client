@@ -3,6 +3,8 @@ title: Controller - Typesafe imperative store access
 sidebar_label: Controller
 ---
 
+import ProviderManagers from '../shared/_provider_managers.mdx';
+
 <head>
   <meta name="docsearch:pagerank" content="30"/>
 </head>
@@ -509,15 +511,9 @@ function useLogout() {
 It's usually a good idea to also clear cache on 401 (unauthorized) with [LogoutManager](./LogoutManager.md)
 as well.
 
-:::react
+<ProviderManagers imports={['LogoutManager', 'getDefaultManagers']}>
 
-```tsx
-import {
-  DataProvider,
-  LogoutManager,
-  getDefaultManagers,
-} from '@data-client/react';
-import { createRoot } from 'react-dom/client';
+```ts
 import { unAuth } from '../authentication';
 
 const myDomain = 'http://test.com';
@@ -534,49 +530,9 @@ const managers = [
   }),
   ...getDefaultManagers(),
 ];
-
-createRoot(document.body).render(
-  <DataProvider managers={managers}>
-    <App />
-  </DataProvider>,
-);
 ```
 
-:::
-
-:::vue
-
-```ts title="main.ts"
-import { createApp } from 'vue';
-import {
-  DataClientPlugin,
-  LogoutManager,
-  getDefaultManagers,
-} from '@data-client/vue';
-import { unAuth } from '../authentication';
-import App from './App.vue';
-
-const myDomain = 'http://test.com';
-const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
-
-const managers = [
-  new LogoutManager({
-    handleLogout(controller) {
-      // call custom unAuth function we defined
-      unAuth();
-      // still reset the store
-      controller.invalidateAll({ testKey });
-    },
-  }),
-  ...getDefaultManagers(),
-];
-
-const app = createApp(App);
-app.use(DataClientPlugin, { managers });
-app.mount('#app');
-```
-
-:::
+</ProviderManagers>
 
 ### resetEntireStore() {#resetEntireStore}
 

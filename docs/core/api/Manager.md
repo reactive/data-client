@@ -3,11 +3,10 @@ title: Manager - Powerful middlewares with global store knowledge
 sidebar_label: Manager
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
+import ProviderManagers from '../shared/_provider_managers.mdx';
 
 <head>
   <meta name="docsearch:pagerank" content="20"/>
@@ -94,162 +93,14 @@ installed once per app, so managers are created once.
 
 :::
 
-:::react
+<ProviderManagers imports={['getDefaultManagers']}>
 
-<Tabs
-defaultValue="web"
-groupId="platform"
-values={[
-{ label: 'Web', value: 'web' },
-{ label: 'React Native', value: 'native' },
-{ label: 'NextJS', value: 'nextjs' },
-{ label: 'Expo', value: 'expo' },
-]}>
-
-<TabItem value="web">
-
-```tsx title="/index.tsx"
-import { DataProvider, getDefaultManagers } from '@data-client/react';
-import { createRoot } from 'react-dom/client';
-
-const managers = [...getDefaultManagers(), new MyManager()];
-
-createRoot(document.body).render(
-  <DataProvider managers={managers}>
-    <App />
-  </DataProvider>,
-);
-```
-
-</TabItem>
-
-<TabItem value="native">
-
-```tsx title="/index.tsx"
-import { DataProvider, getDefaultManagers } from '@data-client/react';
-import { AppRegistry } from 'react-native';
-
-const managers = [...getDefaultManagers(), new MyManager()];
-
-const Root = () => (
-  <DataProvider managers={managers}>
-    <App />
-  </DataProvider>
-);
-AppRegistry.registerComponent('MyApp', () => Root);
-```
-
-</TabItem>
-
-<TabItem value="nextjs">
-
-```tsx title="app/Provider.tsx"
-'use client';
-import { getDefaultManagers } from '@data-client/react';
-import { DataProvider } from '@data-client/react/nextjs';
-
+```ts
 // highlight-next-line
 const managers = [...getDefaultManagers(), new MyManager()];
-
-export default function Provider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return <DataProvider managers={managers}>{children}</DataProvider>;
-}
 ```
 
-```tsx title="app/_layout.tsx"
-import Provider from './Provider';
-
-export default function RootLayout({ children }) {
-  return (
-    <html>
-      <body>
-        <Provider>{children}</Provider>
-      </body>
-    </html>
-  );
-}
-```
-
-</TabItem>
-<TabItem value="expo">
-
-```tsx title="app/Provider.tsx"
-import { getDefaultManagers, DataProvider } from '@data-client/react';
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from '@react-navigation/native';
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// highlight-next-line
-const managers = [...getDefaultManagers(), new MyManager()];
-
-export default function Provider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const colorScheme = useColorScheme();
-
-  return (
-    <ThemeProvider
-      value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
-    >
-      // highlight-next-line
-      <DataProvider managers={managers}>{children}</DataProvider>
-    </ThemeProvider>
-  );
-}
-```
-
-```tsx title="app/_layout.tsx"
-import { Stack } from 'expo-router';
-import 'react-native-reanimated';
-
-// highlight-next-line
-import Provider from './Provider';
-
-export default function RootLayout() {
-  return (
-    // highlight-start
-    <Provider>
-      // highlight-end
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      // highlight-start
-    </Provider>
-    // highlight-end
-  );
-}
-```
-
-</TabItem>
-</Tabs>
-
-:::
-
-:::vue
-
-```ts title="main.ts"
-import { createApp } from 'vue';
-import { DataClientPlugin, getDefaultManagers } from '@data-client/vue';
-import App from './App.vue';
-
-const managers = [...getDefaultManagers(), new MyManager()];
-
-const app = createApp(App);
-app.use(DataClientPlugin, { managers });
-app.mount('#app');
-```
-
-:::
+</ProviderManagers>
 
 ## Control flow
 

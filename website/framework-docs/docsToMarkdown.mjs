@@ -20,6 +20,7 @@ import remarkStringify from 'remark-stringify';
 import { unified } from 'unified';
 import { visit } from 'unist-util-visit';
 
+import providerSetup from './providerSetup.mjs';
 import { ROOT, SITE, rel } from './site.mjs';
 
 const require = createRequire(import.meta.url);
@@ -167,6 +168,11 @@ function attrValue(attribute, props, file) {
 function attributesOf(node, props, file) {
   const attrs = {};
   for (const attribute of node.attributes ?? []) {
+    if (attribute.type === 'mdxJsxExpressionAttribute') {
+      // spread, e.g. a partial forwarding `{...props}`
+      Object.assign(attrs, evaluate(`{${attribute.value}}`, props, file));
+      continue;
+    }
     if (attribute.type !== 'mdxJsxAttribute') continue;
     Object.defineProperty(attrs, attribute.name, {
       enumerable: true,
@@ -350,8 +356,10 @@ function render(file, framework, props = {}) {
     if (!name || DROP.includes(name)) return [];
     const flow = node.type === 'mdxJsxFlowElement';
     const attrs = attributesOf(node, props, source);
-    if (partials[name])
+    if (partials[name]) {
+      attrs.children = node.children;
       return render(partials[name], framework, attrs)?.children ?? [];
+    }
     switch (name) {
       case 'CodeBlock':
         return [
@@ -361,6 +369,11 @@ function render(file, framework, props = {}) {
             title: attrs.title,
           }),
         ];
+      case 'ProviderSetupCode': {
+        const managers = attrs.children?.find(c => c.type === 'code')?.value;
+        const { language, code, title } = providerSetup({ ...attrs, managers });
+        return [codeBlock({ lang: language, value: code, title })];
+      }
       case 'PkgTabs':
       case 'PkgInstall':
         return [
