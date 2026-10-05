@@ -396,6 +396,67 @@ declare const MemoPolicy: {
 /** https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-4.html#the-noinfer-utility-type */
 type NI<T> = NoInfer<T>;
 
+/** Value types for `Controller.set()`, including batch `set([Entity], rows)` */
+
+/** What one row normalizes to: a reference to one stored entity */
+type EntityRef = string | {
+    readonly id: string;
+    readonly schema: string;
+};
+/** Schemas that write each row to one stored entity: Entity, Union, or Invalidate (batch delete).
+ * Query, All and Collection don't: they normalize to lists, or Collection keys by args batch set() lacks. */
+type SetEntitySchema = EntityInterface | {
+    _normalizeNullable(): EntityRef | undefined;
+    pk?: never;
+};
+/** `[Entity]`, `schema.Array(Entity)` or `schema.Values(Entity)` (or of a Union or Invalidate) */
+type SetManySchema = readonly SetEntitySchema[] | {
+    readonly schema: SetEntitySchema | Record<string, EntityInterface>;
+    schemaKey(): string;
+    queryKey(...args: any): undefined;
+    pk?: never;
+};
+type IsUnion<T, U = T> = T extends unknown ? [
+    U
+] extends [T] ? false : true : never;
+type FunctionKeys<U> = {
+    [K in keyof U]: U[K] extends (...args: any) => any ? K : never;
+}[keyof U];
+/** Raw input for one field: numbers and strings coerce (literals stay exact);
+ * objects are pre-normalize */
+type SetField<T> = T extends number ? number extends T ? T | string : T : T extends string ? string extends T ? T | number : T : T extends object ? unknown : T;
+/** Fields of one row (or a coerced primitive); like EntityFields, but distributive
+ * and without key remapping (TS 4.0). A Union gets one row per member, so a
+ * discriminator like `type` selects the member the other fields are checked against. */
+type SetRow<U> = 0 extends 1 & U ? {
+    readonly [k: string]: any;
+} : U extends object ? {
+    readonly [K in Exclude<keyof U, FunctionKeys<U>>]?: SetField<U[K]>;
+} : SetField<U>;
+/** Keeps S inferred from the schema alone: inferring it from the value too would
+ * walk the value's type against every conditional in SetValue (TS 5.4 has NoInfer) */
+type SkipInfer<T, S> = [T][S extends unknown ? 0 : never];
+type SetManyValue<S> = S extends readonly (infer E)[] ? true extends IsUnion<E> ? readonly {
+    'Use a Union schema for several Entity types': never;
+}[] : readonly SetRow<Denormalize<E>>[] : SetValue<S>;
+/** Raw input `set()` normalizes for a Queryable */
+type SetValue<S> = InputSchema<InputSchema<InputSchema<S>>> extends infer N ? N extends EntityInterface ? SetRow<Denormalize<N>> : SetInput<Denormalize<N>> : never;
+/** Query normalizes with its inner schema; its process() output is not input
+ *
+ * Applied three times in SetValue to unwrap nested Queries (TS 4.0 has no recursive aliases)
+ */
+type InputSchema<S> = S extends ({
+    readonly schema: infer Sch;
+    process(...args: any): any;
+    pk?: never;
+}) ? Sch : S;
+/** Raw input for a denormalized value, like a Collection's list or a Union's row */
+type SetInput<T> = 0 extends 1 & T ? any : [
+    T
+] extends [readonly (infer U)[]] ? readonly SetRow<U>[] : string extends keyof T ? {
+    readonly [k: string]: SetRow<T[keyof T]>;
+} : SetRow<T>;
+
 interface NetworkError extends Error {
     status: number;
     response?: Response;
@@ -507,4 +568,4 @@ type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Pr
 
 declare function validateQueryKey(queryKey: unknown): boolean;
 
-export { type AbstractInstanceType, type ArrayElement, BaseDelegate, type CheckLoop, type DenormGetEntity, type Denormalize, type DenormalizeNullable, type EndpointExtraOptions, type EndpointInterface, type EndpointsCache, type EntitiesInterface, type EntitiesPath, type EntityCache, type EntityInterface, type EntityPath, type EntityTable, type ErrorTypes, ExpiryStatus, type ExpiryStatusInterface, type FetchFunction, type GetEntity, type GetIndex, type IDenormalizeDelegate, type IMemoPolicy, INVALID, type INormalizeDelegate, type IQueryDelegate, type IndexInterface, type IndexParams, type IndexPath, type InferReturn, MemoCache, MemoPolicy, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeReturnType, type NormalizedIndex, type NormalizedSchema, type OptimisticUpdateParams, type QueryPath, type Queryable, type ReadEndpoint, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SnapshotInterface, type UnknownError, type UpdateFunction, type Visit, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };
+export { type AbstractInstanceType, type ArrayElement, BaseDelegate, type CheckLoop, type DenormGetEntity, type Denormalize, type DenormalizeNullable, type EndpointExtraOptions, type EndpointInterface, type EndpointsCache, type EntitiesInterface, type EntitiesPath, type EntityCache, type EntityInterface, type EntityPath, type EntityTable, type ErrorTypes, ExpiryStatus, type ExpiryStatusInterface, type FetchFunction, type GetEntity, type GetIndex, type IDenormalizeDelegate, type IMemoPolicy, INVALID, type INormalizeDelegate, type IQueryDelegate, type IndexInterface, type IndexParams, type IndexPath, type InferReturn, MemoCache, MemoPolicy, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeReturnType, type NormalizedIndex, type NormalizedSchema, type OptimisticUpdateParams, type QueryPath, type Queryable, type ReadEndpoint, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SetManySchema, type SetManyValue, type SetValue, type SkipInfer, type SnapshotInterface, type UnknownError, type UpdateFunction, type Visit, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };

@@ -312,6 +312,11 @@ When provided, any fetches with this endpoint will behave as though the `expecte
 from this function was a succesful network response. When the actual fetch completes (regardless
 of failure or success), the optimistic update will be replaced with the actual network response.
 
+`expectedResponse` is normalized with the endpoint's [schema](#schema), so TypeScript checks it like a
+[Controller.set()](https://dataclient.io/vue/api/Controller#set) value: an [Entity](https://dataclient.io/rest/api/Entity) takes any of its fields, and a
+[Collection](https://dataclient.io/rest/api/Collection) takes a list of them. When the endpoint resolves a specific type, like the return
+of [process()](https://dataclient.io/rest/api/RestEndpoint#process), it must match that type instead.
+
 ```ts title="Post"
 import { Entity, schema } from '@data-client/rest';
 

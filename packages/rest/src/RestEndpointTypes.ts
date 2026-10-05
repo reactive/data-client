@@ -664,7 +664,7 @@ type OptionsToAdderBodyArgument<O extends { body?: any }, EntitySchema = any> =
 export interface RestEndpointOptions<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = undefined,
-> extends EndpointExtraOptions<F> {
+> extends EndpointExtraOptions<F, S> {
   /** Prepended to all urls
    * @see https://dataclient.io/rest/api/RestEndpoint#urlPrefix
    */

@@ -1,13 +1,3 @@
-interface NetworkError extends Error {
-    status: number;
-    response?: Response;
-}
-interface UnknownError extends Error {
-    status?: unknown;
-    response?: unknown;
-}
-type ErrorTypes = NetworkError | UnknownError;
-
 /** Attempts to infer reasonable input type to construct an Entity */
 type EntityFields<U> = {
     readonly [K in keyof U as U[K] extends (...args: any) => any ? never : K]?: U[K] extends number ? U[K] | string : U[K] extends string ? U[K] | number : U[K];
@@ -108,6 +98,48 @@ interface EntityMap<T = any> {
     readonly [k: string]: EntityInterface<T>;
 }
 
+type FunctionKeys<U> = {
+    [K in keyof U]: U[K] extends (...args: any) => any ? K : never;
+}[keyof U];
+/** Raw input for one field: numbers and strings coerce (literals stay exact);
+ * objects are pre-normalize */
+type SetField<T> = T extends number ? number extends T ? T | string : T : T extends string ? string extends T ? T | number : T : T extends object ? unknown : T;
+/** Fields of one row (or a coerced primitive); like EntityFields, but distributive
+ * and without key remapping (TS 4.0). A Union gets one row per member, so a
+ * discriminator like `type` selects the member the other fields are checked against. */
+type SetRow<U> = 0 extends 1 & U ? {
+    readonly [k: string]: any;
+} : U extends object ? {
+    readonly [K in Exclude<keyof U, FunctionKeys<U>>]?: SetField<U[K]>;
+} : SetField<U>;
+/** Raw input `set()` normalizes for a Queryable */
+type SetValue<S> = InputSchema<InputSchema<InputSchema<S>>> extends infer N ? N extends EntityInterface ? SetRow<Denormalize<N>> : SetInput<Denormalize<N>> : never;
+/** Query normalizes with its inner schema; its process() output is not input
+ *
+ * Applied three times in SetValue to unwrap nested Queries (TS 4.0 has no recursive aliases)
+ */
+type InputSchema<S> = S extends ({
+    readonly schema: infer Sch;
+    process(...args: any): any;
+    pk?: never;
+}) ? Sch : S;
+/** Raw input for a denormalized value, like a Collection's list or a Union's row */
+type SetInput<T> = 0 extends 1 & T ? any : [
+    T
+] extends [readonly (infer U)[]] ? readonly SetRow<U>[] : string extends keyof T ? {
+    readonly [k: string]: SetRow<T[keyof T]>;
+} : SetRow<T>;
+
+interface NetworkError extends Error {
+    status: number;
+    response?: Response;
+}
+interface UnknownError extends Error {
+    status?: unknown;
+    response?: unknown;
+}
+type ErrorTypes = NetworkError | UnknownError;
+
 interface SnapshotInterface {
     readonly fetchedAt: number;
     readonly abort: Error;
@@ -174,7 +206,7 @@ type PartialParameters<T extends (...args: any[]) => any> = T extends (...args: 
 type EndpointToFunction<E extends (...args: any) => Promise<any>> = (this: E, ...args: Parameters<E>) => ReturnType<E>;
 
 type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Promise<R>;
-interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
+interface EndpointExtraOptions<F extends FetchFunction = FetchFunction, S extends Schema | undefined = undefined> {
     /** Default data expiry length, will fall back to NetworkManager default if not defined */
     readonly dataExpiryLength?: number;
     /** Default error expiry length, will fall back to NetworkManager default if not defined */
@@ -186,10 +218,13 @@ interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
     /** Determines whether to throw or fallback to */
     errorPolicy?(error: any): 'hard' | 'soft' | undefined;
     /** Enables optimistic updates for this request - uses return value as assumed network response */
-    getOptimisticResponse?(snap: SnapshotInterface, ...args: Parameters<F>): ResolveType<F>;
+    getOptimisticResponse?(snap: SnapshotInterface, ...args: Parameters<F>): OptimisticResponse<F, S>;
     /** User-land extra data to send */
     readonly extra?: any;
 }
+/** What getOptimisticResponse() returns: the fetch's resolved type, or when that is `any`
+ * (no `process()`), the raw input the schema normalizes, like a `Controller.set()` value */
+type OptimisticResponse<F extends FetchFunction, S> = undefined extends S ? ResolveType<F> : 0 extends 1 & ResolveType<F> ? SetValue<S> : ResolveType<F>;
 
 type Schema = null | string | {
     [K: string]: any;
@@ -377,7 +412,7 @@ interface MutateEndpoint<F extends FetchFunction = FetchFunction, S extends Sche
 /** For retrieval requests */
 type ReadEndpoint<F extends FetchFunction = FetchFunction, S extends Schema | undefined = Schema | undefined> = EndpointInterface<F, S, undefined>;
 
-interface EndpointOptions<F extends FetchFunction = FetchFunction, S extends Schema | undefined = undefined, M extends boolean | undefined = false> extends EndpointExtraOptions<F> {
+interface EndpointOptions<F extends FetchFunction = FetchFunction, S extends Schema | undefined = undefined, M extends boolean | undefined = false> extends EndpointExtraOptions<F, S> {
     key?: (...args: Parameters<F>) => string;
     sideEffect?: M;
     schema?: S;
