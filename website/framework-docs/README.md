@@ -95,8 +95,9 @@ stubs typed `any`.
 - Import everything a block uses, including `@data-client/rest` schemas in shared blocks the React
   playground would provide as globals, and child components (`import ArticleForm from './ArticleForm.vue'`).
   Vue templates only see what `<script setup>` imports.
-- `Loading`, `Avatar`, `TextInput`, `TextArea`, `CancelButton` and `SearchIcon` stand for the app's own
-  design system and need no import, like `RouterLink` and `RouterView`.
+- The playground's design system (`website/src/components/Playground/DesignSystem`: `Loading`,
+  `Avatar`, `TextInput`, ...) stands for the app's own components and needs no import, like
+  `RouterLink` and `RouterView`. `NumberFlow` is a real library: import it from `@number-flow/vue`.
 - Use HTML elements Vue knows: `<center>` and `<strike>` resolve as (missing) components.
 - Template expressions only see Vue's allowed globals, not `FormData` or `window`; move such code
   into `<script setup>`.

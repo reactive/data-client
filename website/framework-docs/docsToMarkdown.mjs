@@ -182,32 +182,25 @@ const html = value => ({ type: 'html', value });
 
 /**
  * Code without Docusaurus-only syntax (highlight markers, display options).
- * `data.lines` maps each line of the result to its line in `value`; `data.nocheck`
- * marks fences the Vue example check skips.
+ * `data.raw` keeps the fence's own lines, so the Vue example check can map
+ * errors back to them; `data.nocheck` marks fences that check skips.
  */
 function codeBlock({ lang, value, title, meta = title && `title="${title}"` }) {
-  const kept = value
-    .split('\n')
-    .map((text, line) => ({ text, line }))
-    .filter(
-      ({ text }) =>
-        !/^\s*(\/\/|#|<!--|\{\/\*)\s*highlight-(next-line|start|end)/.test(
-          text,
-        ),
-    );
-  const code = kept.map(({ text }) => text).join('\n');
-  const leading = code.slice(0, code.length - code.trimStart().length);
   return {
     type: 'code',
     lang: lang ?? null,
     meta:
       meta?.replace(/\s*\b(collapsed|showLineNumbers|nocheck)\b/g, '').trim() ||
       null,
-    value: code.trim(),
-    data: {
-      lines: kept.slice(leading.split('\n').length - 1).map(({ line }) => line),
-      nocheck: /\bnocheck\b/.test(meta ?? ''),
-    },
+    value: value
+      .split('\n')
+      .filter(
+        l =>
+          !/^\s*(\/\/|#|<!--|\{\/\*)\s*highlight-(next-line|start|end)/.test(l),
+      )
+      .join('\n')
+      .trim(),
+    data: { raw: value, nocheck: /\bnocheck\b/.test(meta ?? '') },
   };
 }
 const codeLang = attrs =>
@@ -236,9 +229,6 @@ const INLINE = { b: 'strong', strong: 'strong', em: 'emphasis', i: 'emphasis' };
 const HTML = ['details', 'sup', 'sub', 'kbd'];
 /** Site-only embeds with nothing to read */
 const DROP = ['ThemedImage', 'SkillTabs', 'head'];
-
-/** Numbers each playground rendered, so its code blocks can be grouped */
-let playgrounds = 0;
 
 /** Rewrites one page (and its partials) into plain markdown nodes */
 function render(file, framework, props = {}) {
@@ -281,10 +271,7 @@ function render(file, framework, props = {}) {
         break;
       case 'code': {
         const code = codeBlock(node);
-        Object.assign(code.data, {
-          file: source,
-          line: node.position?.start.line,
-        });
+        code.data.line = node.position?.start.line;
         return [code];
       }
       case 'containerDirective': {
@@ -462,12 +449,10 @@ function render(file, framework, props = {}) {
     // Playgrounds, layout and other wrappers: keep what's inside
     const children = convertAll(node.children);
     // files of one playground make up one example app
-    if (name.endsWith('Playground')) {
-      const playground = ++playgrounds;
+    if (name.endsWith('Playground'))
       visit({ type: 'root', children }, 'code', code => {
-        code.data.playground = playground;
+        code.data.playground = node;
       });
-    }
     return children;
   }
 
@@ -521,7 +506,7 @@ function render(file, framework, props = {}) {
   }
 
   tree.children = convertAll(tree.children);
-  // `<CodeBlock>`s have no position; partials already tagged their own
+  // partials already tagged their own
   visit(tree, 'code', code => {
     code.data.file ??= source;
   });
@@ -538,7 +523,7 @@ function render(file, framework, props = {}) {
 
 /**
  * Code blocks of a doc for a framework, in page order, or undefined if the page isn't in it.
- * Blocks from one playground share a `playground` number; `file` and `line` locate fences
+ * Blocks from one playground share its `playground` node; `file` and `line` locate fences
  * (blocks from `<CodeBlock>` only have `file`).
  */
 export function docCodeBlocks(file, framework) {

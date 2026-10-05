@@ -23,24 +23,22 @@ import { docCodeBlocks } from './docsToMarkdown.mjs';
 import { ROOT, rel } from './site.mjs';
 
 const require = createRequire(import.meta.url);
-const EDITOR_TYPES = path.join(
-  ROOT,
-  'website/src/components/Playground/editor-types',
-);
-const DOCS = ['docs/core', 'docs/rest', 'docs/graphql'];
+const { DOCS_INSTANCES, FRAMEWORKS } = require('./docsInstances.js');
+const { walk } = require('./index.js');
+
+const PLAYGROUND = path.join(ROOT, 'website/src/components/Playground');
 const EXT = { ts: '.ts', typescript: '.ts', tsx: '.tsx', html: '.vue' };
 /**
- * Stand-ins for an app's own design system; examples use them without
- * importing them, so readers swap in their own components
+ * The playground's design system: stand-ins for an app's own components, so
+ * examples use them without importing them. Vue imports NumberFlow itself.
  */
 const PLACEHOLDERS = [
-  'Loading',
-  'Avatar',
-  'TextInput',
-  'TextArea',
-  'CancelButton',
-  'SearchIcon',
-];
+  ...fs
+    .readFileSync(path.join(PLAYGROUND, 'DesignSystem/index.ts'), 'utf8')
+    .matchAll(/^export \{ (\w+) \}/gm),
+].map(([, name]) => name);
+/** `foo.react.md` and `foo.vue.md` render through `foo.md` */
+const OVERRIDE = new RegExp(`\\.(${FRAMEWORKS.join('|')})\\.mdx?$`);
 
 const titleOf = block => block.meta?.match(/title="([^"]+)"/)?.[1];
 const isVue = block => titleOf(block)?.endsWith('.vue');
@@ -52,10 +50,10 @@ const fileName = (block, i) => {
   return path.extname(title) ? title : title + EXT[block.lang];
 };
 /** Code that still exports its types to the example's other files, unchecked */
-const noCheck = ({ value }) =>
-  value.includes('<script') ?
-    value.replace(/<script\b[^>]*>/, '$&\n// @ts-nocheck')
-  : `// @ts-nocheck\n${value}`;
+const noCheck = ({ raw }) =>
+  raw.includes('<script') ?
+    raw.replace(/<script\b[^>]*>/, '$&\n// @ts-nocheck')
+  : `// @ts-nocheck\n${raw}`;
 const importsOf = value =>
   [
     ...value.matchAll(
@@ -63,58 +61,56 @@ const importsOf = value =>
     ),
   ].map(([, clause, from]) => ({ clause, from }));
 const isRelative = from => /^\.{1,2}\//.test(from);
+/** Where a stub for a relative import goes */
+const stubFile = target =>
+  target.endsWith('.vue') ? target : `${target.replace(/\.ts$/, '')}.ts`;
 
-/** Module typing every name an import asks for as `any` */
+/** Module typing every name its imports ask for as `any` */
 function stub(clauses) {
-  const names = new Set();
-  let lines = [];
-  for (const clause of clauses) {
-    const named = clause.match(/\{([^}]*)\}/)?.[1] ?? '';
-    for (const spec of named.split(',')) {
-      const name = spec
-        .replace(/^\s*type\s+/, '')
-        .split(/\s+as\s+/)[0]
-        .trim();
-      if (name) names.add(name);
-    }
-    if (/^\s*\*/.test(clause)) lines.push('export {};');
-    if (/^\s*[\w$]+/.test(clause.replace(/^\s*\*.*/, '')))
-      lines.push('declare const _default: any;\nexport default _default;');
-  }
-  for (const name of names)
-    lines.push(
-      `declare const ${name}: any;\ntype ${name} = any;\nexport { ${name} };`,
-    );
-  return [...new Set(lines)].join('\n') + '\n';
+  const names = clauses.flatMap(clause =>
+    (clause.match(/\{([^}]*)\}/)?.[1] ?? '')
+      .split(',')
+      .map(spec =>
+        spec
+          .replace(/^\s*type\s+/, '')
+          .split(/\s+as\s+/)[0]
+          .trim(),
+      )
+      .filter(Boolean),
+  );
+  return [
+    ...(clauses.some(clause => /^\s*[\w$]/.test(clause)) ?
+      ['declare const _default: any;\nexport default _default;']
+    : []),
+    ...[...new Set(names)].map(
+      name =>
+        `declare const ${name}: any;\ntype ${name} = any;\nexport { ${name} };`,
+    ),
+  ].join('\n');
 }
 
 /** Whether an import's package is installed */
-const installed = from => {
-  const pkg = from
-    .split('/')
-    .slice(0, from.startsWith('@') ? 2 : 1)
-    .join('/');
-  return (
-    pkg === '@data-client' ||
-    from.startsWith('@data-client/') ||
-    fs.existsSync(path.join(ROOT, 'node_modules', pkg)) ||
-    fs.existsSync(path.join(ROOT, 'website/node_modules', pkg))
+const installed = from =>
+  from.startsWith('@data-client/') ||
+  fs.existsSync(
+    path.join(
+      ROOT,
+      'node_modules',
+      ...from.split('/').slice(0, from.startsWith('@') ? 2 : 1),
+    ),
   );
-};
 
-const walk = dir =>
-  fs.readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
-    const file = path.join(dir, entry.name);
-    if (entry.isDirectory()) return walk(file);
-    // partials render inside their pages; overrides through their base page
-    if (entry.name.startsWith('_') || /\.(react|vue)\.mdx?$/.test(entry.name))
-      return [];
-    return /\.mdx?$/.test(entry.name) ? [file] : [];
-  });
+const docs = [...new Set(DOCS_INSTANCES.map(d => d.path))].flatMap(dir =>
+  walk(path.join(ROOT, dir))
+    // partials render inside their pages
+    .filter(f => /\.mdx?$/.test(f) && !f.split('/').at(-1).startsWith('_'))
+    .filter(f => !OVERRIDE.test(f))
+    .map(f => path.join(ROOT, dir, f)),
+);
 
 /** Example apps: files to write, each mapped back to its fence */
 const examples = [];
-for (const doc of DOCS.flatMap(dir => walk(path.join(ROOT, dir)))) {
+for (const doc of docs) {
   const blocks = docCodeBlocks(doc, 'vue')?.filter(checked);
   if (!blocks?.length) continue;
   const playgrounds = Map.groupBy(
@@ -125,14 +121,24 @@ for (const doc of DOCS.flatMap(dir => walk(path.join(ROOT, dir)))) {
     if (group.some(isVue)) examples.push({ doc, blocks: group });
   // the page's titled blocks, for loose examples to import
   const titled = blocks.filter(b => !b.playground && titleOf(b));
-  blocks.forEach((block, i) => {
-    if (block.playground || block.nocheck) return;
-    if (!isVue(block) && !block.value.includes("'@data-client/vue'")) return;
+  let before = 0;
+  for (const block of blocks) {
+    if (block === titled[before]) before++;
+    if (block.playground || block.nocheck) continue;
+    if (
+      !isVue(block) &&
+      !importsOf(block.value).some(({ from }) =>
+        from.startsWith('@data-client/vue'),
+      )
+    )
+      continue;
     // of blocks sharing a title, the closest one before this block wins
-    const before = titled.filter(b => blocks.indexOf(b) < i).reverse();
-    const after = titled.filter(b => blocks.indexOf(b) > i);
-    examples.push({ doc, blocks: [block, ...before, ...after], loose: true });
-  });
+    const others = [
+      ...titled.slice(0, before).reverse(),
+      ...titled.slice(before),
+    ].filter(b => b !== block);
+    examples.push({ doc, blocks: [block, ...others], loose: true });
+  }
 }
 
 // inside the repo, so examples resolve its node_modules
@@ -143,7 +149,7 @@ const OUT = fs.mkdtempSync(
 /** written file -> its fence */
 const sources = new Map();
 /** Imports with no types here: the app's own modules (`resources/Post`) and libraries we don't install */
-const untyped = new Set(['@data-client/vue/test']);
+const untyped = new Set();
 examples.forEach(({ doc, blocks, loose }, n) => {
   const dir = path.join(OUT, rel(doc).replace(/\.mdx?$/, ''), String(n));
   const files = new Map();
@@ -152,16 +158,14 @@ examples.forEach(({ doc, blocks, loose }, n) => {
   });
   // loose examples only bring the page's blocks they import
   const used = loose ? [fileName(blocks[0], 0)] : [...files.keys()];
+  /** stub file -> import clauses */
   const stubs = new Map();
   for (let i = 0; i < used.length; i++) {
     const name = used[i];
     const block = files.get(name);
     const file = path.join(dir, name);
     fs.mkdirSync(path.dirname(file), { recursive: true });
-    fs.writeFileSync(
-      file,
-      (block.nocheck ? noCheck(block) : block.value) + '\n',
-    );
+    fs.writeFileSync(file, block.nocheck ? noCheck(block) : block.raw);
     sources.set(file, block);
     for (const { clause, from } of importsOf(block.value)) {
       if (!isRelative(from)) {
@@ -173,23 +177,20 @@ examples.forEach(({ doc, blocks, loose }, n) => {
       const match = [...files.keys()].find(
         f => f === target || f.replace(/\.[^./]+$/, '') === target,
       );
-      if (match) {
-        if (!used.includes(match)) used.push(match);
-      } else {
-        stubs.set(target, [...(stubs.get(target) ?? []), clause]);
-      }
+      if (!match)
+        stubs.set(stubFile(target), [
+          ...(stubs.get(stubFile(target)) ?? []),
+          clause,
+        ]);
+      else if (!used.includes(match)) used.push(match);
     }
   }
   for (const [target, clauses] of stubs) {
-    const file = path.join(
-      dir,
-      target.endsWith('.vue') ? target : `${target.replace(/\.ts$/, '')}.ts`,
-    );
-    if (fs.existsSync(file)) continue;
+    const file = path.join(dir, target);
     fs.mkdirSync(path.dirname(file), { recursive: true });
     fs.writeFileSync(
       file,
-      file.endsWith('.vue') ?
+      target.endsWith('.vue') ?
         '<script lang="ts">\nexport default {} as any;\n</script>\n'
       : stub(clauses),
     );
@@ -213,30 +214,27 @@ fs.writeFileSync(
 );
 fs.writeFileSync(
   path.join(OUT, 'tsconfig.json'),
-  JSON.stringify(
-    {
-      compilerOptions: {
-        target: 'esnext',
-        module: 'esnext',
-        moduleResolution: 'bundler',
-        lib: ['dom', 'es2024'],
-        types: ['jest'],
-        strict: true,
-        // examples leave out types readers don't need
-        noImplicitAny: false,
-        noEmit: true,
-        skipLibCheck: true,
-        jsx: 'preserve',
-        paths: {
-          '@data-client/*': [`${EDITOR_TYPES}/@data-client/*.d.ts`],
-        },
+  JSON.stringify({
+    compilerOptions: {
+      target: 'esnext',
+      module: 'esnext',
+      moduleResolution: 'bundler',
+      // no esnext: Temporal needs its polyfill import
+      lib: ['dom', 'es2024'],
+      types: ['jest'],
+      strict: true,
+      // examples leave out types readers don't need
+      noImplicitAny: false,
+      noEmit: true,
+      skipLibCheck: true,
+      jsx: 'preserve',
+      paths: {
+        '@data-client/*': [`${PLAYGROUND}/editor-types/@data-client/*.d.ts`],
       },
-      vueCompilerOptions: { strictTemplates: true },
-      include: ['**/*.ts', '**/*.tsx', '**/*.vue'],
     },
-    null,
-    2,
-  ),
+    vueCompilerOptions: { strictTemplates: true },
+    include: ['**/*.ts', '**/*.tsx', '**/*.vue'],
+  }),
 );
 
 let output = '';
@@ -247,7 +245,7 @@ try {
     { cwd: OUT, encoding: 'utf8', stdio: 'pipe' },
   );
 } catch (error) {
-  output = error.stdout + error.stderr;
+  output = (error.stdout ?? '') + (error.stderr ?? error.message);
 } finally {
   fs.rmSync(OUT, { recursive: true, force: true });
 }
@@ -266,7 +264,7 @@ const errors = new Set(
         return `${rel(path.resolve(OUT, file))}:${row}:${column}: ${message}`;
       const where =
         block.line ?
-          `${rel(block.file)}:${block.line + 1 + block.lines[row - 1]}:${column}`
+          `${rel(block.file)}:${block.line + Number(row)}:${column}`
         : `${rel(block.file)} (${titleOf(block) ?? 'CodeBlock'}:${row}:${column})`;
       return `${where}: ${message}`;
     }),

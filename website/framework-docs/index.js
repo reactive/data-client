@@ -240,4 +240,5 @@ module.exports = {
   pageFrameworks,
   rewriteFrontMatter,
   frontMatterValue,
+  walk,
 };
