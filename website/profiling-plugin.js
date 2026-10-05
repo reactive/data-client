@@ -27,8 +27,8 @@ module.exports = function (context, options) {
       };
       if (process.env.PROFILE === 'true') {
         return {
+          // No patchDevToolsCheck: profiling the site wants DevTools timings.
           plugins: [reactDomProfiling],
-          module: patchDevToolsCheck,
           optimization: {
             ...config.optimization,
             minimizer: [
