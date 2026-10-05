@@ -287,7 +287,9 @@ async function main() {
     options: { force: { type: 'boolean' } },
   });
   const postFile = findPost(positionals[0]);
-  const post = parsePost(fs.readFileSync(postFile, 'utf8'));
+  const post = parsePost(
+    fs.readFileSync(postFile, 'utf8').replace(/\r\n/g, '\n'),
+  );
   const outFile = path.join(OUT_DIR, `${post.version}-card.png`);
   if (fs.existsSync(outFile) && !values.force)
     throw new Error(
