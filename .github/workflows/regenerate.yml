@@ -121,8 +121,9 @@ jobs:
             commit --quiet -m 'chore: Regenerate generated files' \
             -m "Reran yarn copy:websitetypes, yarn build:skills and yarn build:agent-rules on the merge with master. ${RUN_URL}"
           git push origin "HEAD:refs/heads/${HEAD_REF}"
-          # Pushes with GITHUB_TOKEN start no workflows, so report this run's
-          # result on the new head (CircleCI still runs on it).
+          # Workflow runs for a GITHUB_TOKEN push never execute: GitHub parks
+          # them as "action_required" (awaiting approval; don't approve them).
+          # This status is the signal on the new head; CircleCI still runs.
           gh api "repos/${GITHUB_REPOSITORY}/statuses/$(git rev-parse HEAD)" \
             -f state=success -f context=regenerate -f target_url="${RUN_URL}" \
             -f description='Generated files regenerated and committed' > /dev/null
