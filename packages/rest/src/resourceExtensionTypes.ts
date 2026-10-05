@@ -14,6 +14,7 @@ import type {
   RestInstanceBase,
   RestEndpointOptions,
 } from './RestEndpoint.js';
+import type { IsUnion } from './utiltypes.js';
 
 export type ResourceExtension<
   R extends { [K in ExtendKey]: RestInstanceBase },
@@ -96,10 +97,3 @@ type EndpointExtensionOptions<
 type SingleArgsFunction<F extends FetchFunction> = (
   ...args: IsUnion<Parameters<F>> extends false ? Parameters<F> : any
 ) => ReturnType<F>;
-
-type IsUnion<T, U = T> =
-  T extends unknown ?
-    [U] extends [T] ?
-      false
-    : true
-  : never;

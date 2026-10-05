@@ -1585,6 +1585,10 @@ type ResultEntry<E extends FetchFunction & {
     schema: any;
 }> = E['schema'] extends undefined | null ? ResolveType<E> : Normalize<E['schema']>;
 
+type IsUnion<T, U = T> = T extends any ? [
+    U
+] extends [T] ? false : true : never;
+
 type ContentType = 'json' | 'blob' | 'text' | 'arrayBuffer' | 'stream';
 interface ContentTypeMap {
     blob: Blob;
@@ -1741,14 +1745,11 @@ type RestEndpointExtendOptions<O extends PartialRestGenerics, E extends {
  * Only for contextually typing an options callback: TypeScript can't infer callback parameters from a
  * union of tuples. The instance `process()` keeps `Parameters<F>`, the stricter signature for callers.
  */
-type ProcessArgs<A extends readonly any[]> = number extends A['length'] ? A : [A['length']] extends [0] ? A : [A['length']] extends [1] ? A : [A['length']] extends [2] ? A : IsUnion$1<A> extends false ? A : [] extends A ? [
+type ProcessArgs<A extends readonly any[]> = number extends A['length'] ? A : [A['length']] extends [0] ? A : [A['length']] extends [1] ? A : [A['length']] extends [2] ? A : IsUnion<A> extends false ? A : [] extends A ? [
     ArgAt1<A>
 ] extends [never] ? [
     params?: ArgAt0<A>
 ] : [params?: ArgAt0<A>, body?: ArgAt1<A>] : [params: ArgAt0<A>, body?: ArgAt1<A>];
-type IsUnion$1<T, U = T> = T extends any ? [
-    U
-] extends [T] ? false : true : never;
 type ArgAt0<A extends readonly any[]> = A extends unknown ? A['length'] extends 0 ? never : A[0] : never;
 type ArgAt1<A extends readonly any[]> = A extends unknown ? A['length'] extends 0 | 1 ? never : A[1] : never;
 type ExtendOmitKeys = KeyofRestEndpoint | keyof PartialRestGenerics | keyof RestEndpointOptions;
@@ -2080,9 +2081,6 @@ interface ResourceEndpointExtensions<R extends ResourceInterface, Get extends Pa
  */
 type EndpointExtensionOptions<E extends RestInstanceBase, O extends PartialRestGenerics> = RestEndpointOptions<unknown extends O ? EndpointToFunction<E> : PartialRestGenerics extends O ? SingleArgsFunction<EndpointToFunction<E>> : OptionsToFunction<O, E, EndpointToFunction<E>>, E['schema']> & Readonly<O> & O;
 type SingleArgsFunction<F extends FetchFunction> = (...args: IsUnion<Parameters<F>> extends false ? Parameters<F> : any) => ReturnType<F>;
-type IsUnion<T, U = T> = T extends unknown ? [
-    U
-] extends [T] ? false : true : never;
 
 interface Extendable<O extends ResourceGenerics = {
     path: ResourcePath;

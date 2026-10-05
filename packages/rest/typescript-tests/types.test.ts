@@ -1840,7 +1840,6 @@ it('should allow concrete body types when subclassing RestEndpoint with O=any', 
     method: 'PUT',
     body: {} as { name: string },
     getOptimisticResponse(snap, ...args) {
-      args[args.length - 1];
       return { username: 'bob' };
     },
   });
@@ -1856,7 +1855,6 @@ it('should allow concrete body types when subclassing RestEndpoint with O=any', 
     searchParams: {} as { q?: string },
     body: {} as { filters: string[] },
     getOptimisticResponse(snap, ...args) {
-      args[args.length - 1];
       return { username: 'bob' };
     },
   });

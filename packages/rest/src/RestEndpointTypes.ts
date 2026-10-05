@@ -14,6 +14,7 @@ import {
 } from './OptionsToFunction.js';
 import { PathArgs, SoftPathArgs } from './pathTypes.js';
 import { EndpointUpdateFunction } from './RestEndpointTypeHelp.js';
+import type { IsUnion } from './utiltypes.js';
 
 export type ContentType = 'json' | 'blob' | 'text' | 'arrayBuffer' | 'stream';
 
@@ -307,12 +308,6 @@ type ProcessArgs<A extends readonly any[]> =
       [params?: ArgAt0<A>]
     : [params?: ArgAt0<A>, body?: ArgAt1<A>]
   : [params: ArgAt0<A>, body?: ArgAt1<A>];
-type IsUnion<T, U = T> =
-  T extends any ?
-    [U] extends [T] ?
-      false
-    : true
-  : never;
 // Distribute over the union; the length check gives never for a position a call omits
 type ArgAt0<A extends readonly any[]> =
   A extends unknown ?
