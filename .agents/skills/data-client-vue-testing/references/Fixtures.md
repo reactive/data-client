@@ -4,7 +4,7 @@
 
 Fixtures and Interceptors allow universal data mocking without the need for monkeypatching
 fetch behaviors. Fixtures define static responses to specific endpoint arg combinations. This
-allows them to be used in static contexts like [mockInitialState()](https://dataclient.io/vue/api/mockInitialState).
+allows them to be used in static contexts like [mockInitialState()](./mockInitialState.md).
 Interceptors are functions run and match a fetch pattern. This restricts them to being used only
 in dynamic response contexts like `MockPlugin`.
 

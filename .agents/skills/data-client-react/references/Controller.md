@@ -91,7 +91,7 @@ function PostListItem({ post }: { post: PostResource }) {
       await ctrl.fetch(PostResource.delete, { id: post.id });
       history.push('/');
     },
-    [ctrl, id],
+    [ctrl, post.id],
   );
 
   return (
@@ -109,7 +109,7 @@ function PostListItem({ post }: { post: PostResource }) {
 > When using schemas, the denormalized value is returned
 >
 > ```ts
-> import { useController } from '@data-client/react';
+> const controller = useController();
 >
 > const post = await controller.fetch(
 >   PostResource.getList.push,
@@ -175,7 +175,7 @@ when there are many parameterizations in cache.
 import { type Controller, useController } from '@data-client/react';
 
 const createTradeHandler = (ctrl: Controller) => async trade => {
-  await ctrl.fetch(TradeResource.getList.push({ user: user.id }, trade));
+  await ctrl.fetch(TradeResource.getList.push, { user: user.id }, trade);
   ctrl.expireAll(AccountResource.get);
   ctrl.expireAll(AccountResource.getList);
 };
@@ -200,7 +200,7 @@ function CreateTrade({ id }: { id: string }) {
 
 ### invalidate(endpoint, ...args) {#invalidate}
 
-Forces refetching and suspense on [useSuspense](./useSuspense.md) with the same Endpoint
+Forces refetching and suspenseon [useSuspense](./useSuspense.md) with the same Endpoint
 and parameters.
 
 ```tsx
@@ -210,8 +210,10 @@ function ArticleName({ id }: { id: string }) {
 
   return (
     <div>
-      <h1>{article.title}<h1>
-      <button onClick={() => ctrl.invalidate(ArticleResource.get, { id })}>Fetch &amp; suspend</button>
+      <h1>{article.title}</h1>
+      <button onClick={() => ctrl.invalidate(ArticleResource.get, { id })}>
+        Fetch &amp; suspend
+      </button>
     </div>
   );
 }
@@ -229,7 +231,7 @@ function ArticleName({ id }: { id: string }) {
 >
 > ```ts
 > // deletes MyResource(5)
-> // this will resuspend MyResource.get({id: '5'})
+> // this will refetch MyResource.get({id: '5'})
 > // and remove it from MyResource.getList
 > controller.setResponse(MyResource.delete, { id: '5' }, { id: '5' });
 > ```
@@ -245,8 +247,10 @@ function ArticleName({ id }: { id: string }) {
 
   return (
     <div>
-      <h1>{article.title}<h1>
-      <button onClick={() => ctrl.invalidateAll(ArticleResource.get)}>Fetch &amp; suspend</button>
+      <h1>{article.title}</h1>
+      <button onClick={() => ctrl.invalidateAll(ArticleResource.get)}>
+        Fetch &amp; suspend
+      </button>
     </div>
   );
 }
@@ -258,7 +262,7 @@ function ArticleName({ id }: { id: string }) {
 
 Here we clear only GET endpoints using the test.com domain. This means other domains remain in cache.
 
-```tsx
+```ts
 const myDomain = 'http://test.com';
 const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
 
@@ -271,11 +275,16 @@ function useLogout() {
 It's usually a good idea to also clear cache on 401 (unauthorized) with [LogoutManager](https://dataclient.io/docs/api/LogoutManager)
 as well.
 
-```ts
-import { DataProvider, LogoutManager, getDefaultManagers } from '@data-client/react';
+```tsx
+import {
+  DataProvider,
+  LogoutManager,
+  getDefaultManagers,
+} from '@data-client/react';
 import { createRoot } from 'react-dom/client';
 import { unAuth } from '../authentication';
 
+const myDomain = 'http://test.com';
 const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
 
 const managers = [
@@ -304,7 +313,7 @@ Resets/clears the entire Reactive Data Client cache. All inflight requests will 
 This is typically used when logging out or changing authenticated users.
 
 ```tsx
-const USER_NUMBER_ONE: string = "1111";
+const USER_NUMBER_ONE: string = '1111';
 
 function UserName() {
   const user = useSuspense(CurrentUserResource.get);
@@ -317,7 +326,7 @@ function UserName() {
   }, [ctrl]);
   return (
     <div>
-      <h1>{user.name}<h1>
+      <h1>{user.name}</h1>
       <button onClick={becomeAdmin}>Be Number One</button>
     </div>
   );
@@ -555,18 +564,19 @@ This is used in [useQuery](./useQuery.md) and can be used in
 ```tsx title="useQuery.ts"
 import {
   useController,
-  useCacheState,
+  StateContext,
   type Queryable,
   type SchemaArgs,
   type DenormalizeNullable,
-} from '@data-client/core';
+} from '@data-client/react';
+import { useContext } from 'react';
 
 /** Oversimplified useQuery */
 function useQuery<S extends Queryable>(
   schema: S,
   ...args: SchemaArgs<S>
 ): DenormalizeNullable<S> | undefined {
-  const state = useCacheState();
+  const state = useContext(StateContext);
   const controller = useController();
 
   return controller.get(schema, ...args, state);
@@ -627,11 +637,12 @@ This is used in [useCache](./useCache.md), [useSuspense](./useSuspense.md) and c
 import {
   useController,
   StateContext,
-  EndpointInterface,
-} from '@data-client/core';
+  type EndpointInterface,
+} from '@data-client/react';
+import { useContext } from 'react';
 
 /** Oversimplified useCache */
-function useCache<E extends EntityInterface>(
+function useCache<E extends EndpointInterface>(
   endpoint: E,
   ...args: readonly [...Parameters<E>]
 ) {
