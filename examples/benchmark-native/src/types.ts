@@ -56,6 +56,13 @@ export interface GCAndroidMeasurement {
   /** Aggregate sum of frame durations/intervals (ms). */
   uiTotalFrameDurationMs: number;
   uiMissedFrames: number;
+  /**
+   * FrameMetrics `dropCountSinceLastInvocation` summed over the capture.
+   * Lost reports, not jank. Not included in `missedFrames` or `uiMissedFrames`.
+   */
+  uiDroppedFrameMetrics: number;
+  /** True when `uiDroppedFrameMetrics` is non-zero. */
+  uiFrameMetricsDropped: boolean;
   uiRefreshPeriodMs: number;
   uiRefreshRateHz: number;
   processPssBeforeKb?: number;

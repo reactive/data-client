@@ -54,6 +54,9 @@ export function summarizeGCSamples(
       samples.map(s => s.uiTotalFrameDurationMs),
     ),
     uiMissedFrames: summarizeNumbers(samples.map(s => s.uiMissedFrames)),
+    uiDroppedFrameMetrics: summarizeNumbers(
+      samples.map(s => s.uiDroppedFrameMetrics),
+    ),
     uiRefreshPeriodMs: summarizeNumbers(samples.map(s => s.uiRefreshPeriodMs)),
   };
 
@@ -132,6 +135,10 @@ export const REPORT_UNITS: Record<string, string> = {
     'milliseconds (sum of FrameMetrics durations or Choreographer intervals)',
   uiMissedFrames:
     'count (FrameMetrics: ceil(duration/period)−1; Choreographer: round(interval/period)−1)',
+  uiDroppedFrameMetrics:
+    'count (FrameMetrics dropCountSinceLastInvocation; not missed frames)',
+  uiFrameMetricsDropped:
+    'boolean (true when uiDroppedFrameMetrics is non-zero)',
   uiRefreshPeriodMs: 'milliseconds',
   uiRefreshRateHz: 'hertz',
   processPssBeforeKb: 'kilobytes (Android Debug.MemoryInfo totalPss)',

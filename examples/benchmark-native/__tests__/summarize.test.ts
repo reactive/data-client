@@ -23,6 +23,8 @@ function baseSample(
     uiMaxFrameDurationMs: 16,
     uiTotalFrameDurationMs: 160,
     uiMissedFrames: 0,
+    uiDroppedFrameMetrics: 0,
+    uiFrameMetricsDropped: false,
     uiRefreshPeriodMs: 16.67,
     uiRefreshRateHz: 60,
     ...overrides,
@@ -37,6 +39,8 @@ describe('summarizeGCSamples', () => {
         uiMaxFrameDurationMs: 20,
         uiTotalFrameDurationMs: 160,
         uiMissedFrames: 1,
+        uiDroppedFrameMetrics: 2,
+        uiFrameMetricsDropped: true,
         processPssBeforeKb: 100,
         processPssAfterKb: 90,
         processPssDeltaKb: -10,
@@ -52,6 +56,8 @@ describe('summarizeGCSamples', () => {
         uiMaxFrameDurationMs: 22,
         uiTotalFrameDurationMs: 180,
         uiMissedFrames: 0,
+        uiDroppedFrameMetrics: 0,
+        uiFrameMetricsDropped: false,
         processPssBeforeKb: 110,
         processPssAfterKb: 95,
         processPssDeltaKb: -15,
@@ -68,6 +74,7 @@ describe('summarizeGCSamples', () => {
     expect(summary.uiTotalFrameDurationMs?.min).toBe(160);
     expect(summary.uiMaxFrameDurationMs?.max).toBe(22);
     expect(summary.uiMissedFrames?.median).toBe(0.5);
+    expect(summary.uiDroppedFrameMetrics?.median).toBe(1);
     expect(summary.processPssBeforeKb?.median).toBe(105);
     expect(summary.processPssAfterKb?.median).toBe(92.5);
     expect(summary.processPssDeltaKb?.median).toBe(-12.5);

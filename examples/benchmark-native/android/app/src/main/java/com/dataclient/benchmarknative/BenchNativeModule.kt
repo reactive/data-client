@@ -31,6 +31,7 @@ import kotlin.math.roundToInt
  * process memory snapshots, launch extras, report I/O, and embedded build manifest.
  *
  * FrameMetrics TOTAL_DURATION is a duration → ceil(duration/period)−1.
+ * dropCountSinceLastInvocation is a separate loss count, not a missed frame.
  * Choreographer deltas are intervals → round(interval/period)−1.
  */
 class BenchNativeModule(
@@ -51,6 +52,8 @@ class BenchNativeModule(
   private var maxFrameDurationNs = 0L
   private var totalFrameDurationNs = 0L
   private var missedFrames = 0
+  /** Sum of FrameMetrics dropCountSinceLastInvocation. Not added to missedFrames. */
+  private var droppedFrameMetrics = 0
   private var refreshPeriodNs = 16_666_666L
   private var refreshRateHz = 60.0
 
@@ -196,7 +199,8 @@ class BenchNativeModule(
         val window = activity.window
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && window != null) {
           val listener =
-            Window.OnFrameMetricsAvailableListener { _, frameMetrics, _ ->
+            Window.OnFrameMetricsAvailableListener { _, frameMetrics, dropCountSinceLastInvocation ->
+              recordFrameMetricsDrop(dropCountSinceLastInvocation)
               val totalNs = frameMetrics.getMetric(FrameMetrics.TOTAL_DURATION)
               recordFrameMetricsDuration(totalNs)
             }
@@ -344,6 +348,8 @@ class BenchNativeModule(
     map.putDouble("maxFrameDurationMs", maxFrameDurationNs / 1_000_000.0)
     map.putDouble("totalFrameDurationMs", totalFrameDurationNs / 1_000_000.0)
     map.putInt("missedFrames", missedFrames)
+    map.putInt("droppedFrameMetrics", droppedFrameMetrics)
+    map.putBoolean("frameMetricsDropped", droppedFrameMetrics > 0)
     map.putDouble("refreshPeriodMs", refreshPeriodNs / 1_000_000.0)
     map.putDouble("refreshRateHz", refreshRateHz)
     map.putBoolean("wasCapturing", frameCount > 0 || captureSource != "none")
@@ -371,6 +377,15 @@ class BenchNativeModule(
     result.putBoolean("started", true)
     result.putString("source", captureSource)
     promise.resolve(result)
+  }
+
+  /**
+   * Lost FrameMetrics reports since the previous callback.
+   * Kept separate from missedFrames / the Choreographer interval count.
+   */
+  private fun recordFrameMetricsDrop(dropCount: Int) {
+    if (dropCount <= 0) return
+    droppedFrameMetrics += dropCount
   }
 
   /** FrameMetrics TOTAL_DURATION — duration semantics (ceil). */
@@ -406,6 +421,7 @@ class BenchNativeModule(
     maxFrameDurationNs = 0L
     totalFrameDurationNs = 0L
     missedFrames = 0
+    droppedFrameMetrics = 0
     lastChoreographerNs = 0L
     captureSource = "none"
     captureWindowRef = null

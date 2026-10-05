@@ -63,6 +63,34 @@ export function missedFramesFromTimestamps(
 }
 
 /**
+ * FrameMetrics dropCountSinceLastInvocation is a loss count, not jank.
+ * The flag is set when the summed count is non-zero. Callers must not add
+ * the count to missedFrames or uiMissedFrames.
+ */
+export function withFrameMetricsLoss<
+  T extends { missedFrames: number; uiMissedFrames: number },
+>(
+  sample: T,
+  droppedFrameMetrics: number,
+): T & {
+  uiDroppedFrameMetrics: number;
+  uiFrameMetricsDropped: boolean;
+} {
+  if (!Number.isInteger(droppedFrameMetrics) || droppedFrameMetrics < 0) {
+    throw new Error(
+      `invalid FrameMetrics drop count: ${String(droppedFrameMetrics)}`,
+    );
+  }
+  return {
+    ...sample,
+    missedFrames: sample.missedFrames,
+    uiMissedFrames: sample.uiMissedFrames,
+    uiDroppedFrameMetrics: droppedFrameMetrics,
+    uiFrameMetricsDropped: droppedFrameMetrics > 0,
+  };
+}
+
+/**
  * Reject invalid refresh period or zero/insufficient native frames.
  * Missed-frame math must match capture source semantics.
  */
@@ -97,5 +125,13 @@ export function validateUiFrameCapture(
   }
   if (result.source !== 'FrameMetrics' && result.source !== 'Choreographer') {
     throw new Error(`unknown ui capture source: ${String(result.source)}`);
+  }
+  if (
+    !Number.isInteger(result.droppedFrameMetrics) ||
+    result.droppedFrameMetrics < 0
+  ) {
+    throw new Error(
+      `invalid FrameMetrics drop count: ${String(result.droppedFrameMetrics)}`,
+    );
   }
 }

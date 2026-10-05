@@ -14,6 +14,10 @@ export interface UiFrameCaptureResult {
   maxFrameDurationMs: number;
   totalFrameDurationMs: number;
   missedFrames: number;
+  /** Sum of FrameMetrics dropCountSinceLastInvocation. Zero for Choreographer. */
+  droppedFrameMetrics: number;
+  /** True when droppedFrameMetrics is non-zero. */
+  frameMetricsDropped: boolean;
   refreshPeriodMs: number;
   refreshRateHz: number;
   wasCapturing?: boolean;

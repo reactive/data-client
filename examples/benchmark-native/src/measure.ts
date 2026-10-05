@@ -15,6 +15,7 @@ import {
   frameIntervalsFromTimestamps,
   measureDisplayPeriodMs,
   validateUiFrameCapture,
+  withFrameMetricsLoss,
 } from './frames';
 import {
   countRemaining,
@@ -154,28 +155,31 @@ export async function runGCScenario(): Promise<GCAndroidMeasurement> {
       displayPeriodMs,
     );
 
-    const measurement: GCAndroidMeasurement = {
-      schemaVersion: 1,
-      totalMs: sequence.totalMs,
-      sliceDurationsMs: config.control === 'gc' ? [sequence.totalMs] : [],
-      actionCount: sequence.actionCount,
-      queueEntries: expected.queueEntries,
-      uniqueTargets: expected.uniqueTargets,
-      actionTargetCount,
-      deletionCount,
-      timerDelayMs: sequence.timerDelayMs,
-      frameIntervalsMs,
-      displayPeriodMs,
-      missedFrames,
-      maxInputDelayMs,
-      uiCaptureSource: uiFrames.source,
-      uiFrameCount: uiFrames.frameCount,
-      uiMaxFrameDurationMs: uiFrames.maxFrameDurationMs,
-      uiTotalFrameDurationMs: uiFrames.totalFrameDurationMs,
-      uiMissedFrames: uiFrames.missedFrames,
-      uiRefreshPeriodMs: uiFrames.refreshPeriodMs,
-      uiRefreshRateHz: uiFrames.refreshRateHz,
-    };
+    const measurement: GCAndroidMeasurement = withFrameMetricsLoss(
+      {
+        schemaVersion: 1 as const,
+        totalMs: sequence.totalMs,
+        sliceDurationsMs: config.control === 'gc' ? [sequence.totalMs] : [],
+        actionCount: sequence.actionCount,
+        queueEntries: expected.queueEntries,
+        uniqueTargets: expected.uniqueTargets,
+        actionTargetCount,
+        deletionCount,
+        timerDelayMs: sequence.timerDelayMs,
+        frameIntervalsMs,
+        displayPeriodMs,
+        missedFrames,
+        maxInputDelayMs,
+        uiCaptureSource: uiFrames.source,
+        uiFrameCount: uiFrames.frameCount,
+        uiMaxFrameDurationMs: uiFrames.maxFrameDurationMs,
+        uiTotalFrameDurationMs: uiFrames.totalFrameDurationMs,
+        uiMissedFrames: uiFrames.missedFrames,
+        uiRefreshPeriodMs: uiFrames.refreshPeriodMs,
+        uiRefreshRateHz: uiFrames.refreshRateHz,
+      },
+      uiFrames.droppedFrameMetrics,
+    );
 
     validateMeasurement(config, harness, measurement);
 
