@@ -120,14 +120,14 @@ for (const doc of DOCS.flatMap(dir => walk(path.join(ROOT, dir)))) {
     if (group.some(isVue)) examples.push({ doc, blocks: group });
   // the page's titled blocks, for loose examples to import
   const titled = blocks.filter(b => !b.playground && titleOf(b));
-  for (const block of blocks.filter(b => !b.playground)) {
-    if (!isVue(block) && !block.value.includes("'@data-client/vue'")) continue;
-    examples.push({
-      doc,
-      blocks: [block, ...titled.filter(b => b !== block)],
-      loose: true,
-    });
-  }
+  blocks.forEach((block, i) => {
+    if (block.playground) return;
+    if (!isVue(block) && !block.value.includes("'@data-client/vue'")) return;
+    // of blocks sharing a title, the closest one before this block wins
+    const before = titled.filter(b => blocks.indexOf(b) < i).reverse();
+    const after = titled.filter(b => blocks.indexOf(b) > i);
+    examples.push({ doc, blocks: [block, ...before, ...after], loose: true });
+  });
 }
 
 // inside the repo, so examples resolve its node_modules
@@ -141,7 +141,10 @@ const sources = new Map();
 const untyped = new Set(['@data-client/vue/test']);
 examples.forEach(({ doc, blocks, loose }, n) => {
   const dir = path.join(OUT, rel(doc).replace(/\.mdx?$/, ''), String(n));
-  const files = new Map(blocks.map((b, i) => [fileName(b, i), b]));
+  const files = new Map();
+  blocks.forEach((b, i) => {
+    if (!files.has(fileName(b, i))) files.set(fileName(b, i), b);
+  });
   // loose examples only bring the page's blocks they import
   const used = loose ? [fileName(blocks[0], 0)] : [...files.keys()];
   const stubs = new Map();
