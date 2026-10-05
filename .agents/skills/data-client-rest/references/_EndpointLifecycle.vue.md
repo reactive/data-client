@@ -4,7 +4,7 @@
 
 Custom data cache lifetime for the fetched resource. Will override the value set in NetworkManager.
 
-[Learn more about expiry time](./expiry-policy.md#expiry-time)
+[Learn more about expiry time](./expiry-policy.vue.md#expiry-time)
 
 ### errorExpiryLength?: number {#errorexpirylength}
 
@@ -15,7 +15,7 @@ Custom data error lifetime for the fetched resource. Will override the value set
 'soft' will use stale data (if exists) in case of error; undefined or not providing option will result
 in error.
 
-[Learn more about errorPolicy](./error-policy.md)
+[Learn more about errorPolicy](./error-policy.vue.md)
 
 ```ts
 errorPolicy(error) {

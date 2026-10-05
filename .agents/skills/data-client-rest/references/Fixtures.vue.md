@@ -81,7 +81,7 @@ const countErrorFixture = {
 
 ## Interceptor
 
-Interceptors will match a request based on its [`testKey()`](./RestEndpoint.md#testKey) method, then
+Interceptors will match a request based on its [`testKey()`](./RestEndpoint.vue.md#testKey) method, then
 compute the response dynamically using the `response()` method.
 
 ```ts
@@ -179,7 +179,7 @@ Function running is called 'collapsing' after the mechanism in [Quantum Mechanic
 ### fetchResponse(input, init) {#fetchResponse}
 
 When provided, will construct a response() method to be used based on overriding
-(by calling [.extend](./RestEndpoint.md#extend)) [fetchResponse](./RestEndpoint.md#fetchResponse).
+(by calling [.extend](./RestEndpoint.vue.md#extend)) [fetchResponse](./RestEndpoint.vue.md#fetchResponse).
 
 Simply return the value expected, rather than an actual HTTP [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response).
 
@@ -199,7 +199,7 @@ const incrementInterceptor = {
 };
 ```
 
-This can be useful when you want to use the body generated in a custom [getRequestInit()](./RestEndpoint.md#getRequestInit)
+This can be useful when you want to use the body generated in a custom [getRequestInit()](./RestEndpoint.vue.md#getRequestInit)
 
 ### delay: number {#delay}
 

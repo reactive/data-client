@@ -2,9 +2,9 @@
 
 # getDefaultManagers()
 
-`getDefaultManagers` returns an Array of [Managers](./Manager.md) to be sent to [DataClientPlugin](https://dataclient.io/vue/getting-started/installation#add-provider-at-top-level-component).
+`getDefaultManagers` returns an Array of [Managers](./Manager.vue.md) to be sent to [DataClientPlugin](https://dataclient.io/vue/getting-started/installation#add-provider-at-top-level-component).
 
-This makes it simple to configure and add custom [Managers](./Manager.md), while remaining robust against
+This makes it simple to configure and add custom [Managers](./Manager.vue.md), while remaining robust against
 any potential changes to the default managers.
 
 Currently returns \[[DevToolsManager](https://dataclient.io/vue/api/DevToolsManager)\*, [NetworkManager](https://dataclient.io/vue/api/NetworkManager), [SubscriptionManager](https://dataclient.io/vue/api/SubscriptionManager)].

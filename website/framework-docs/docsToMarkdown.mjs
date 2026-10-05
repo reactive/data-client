@@ -415,6 +415,8 @@ function render(file, framework, props = {}) {
         ];
       case 'br':
         return [{ type: 'break' }];
+      case 'table':
+        return [convertTable(node)];
     }
     if (HTML.includes(name))
       return [
@@ -426,6 +428,51 @@ function render(file, framework, props = {}) {
       return [{ type: INLINE[name], children: convertAll(node.children) }];
     // Playgrounds, layout and other wrappers: keep what's inside
     return convertAll(node.children);
+  }
+
+  /** A GFM table; row and column spans repeat the cell so each row stands alone */
+  function convertTable(node) {
+    const jsx = n => n.type?.startsWith('mdxJsx');
+    const rows = [];
+    const collect = n =>
+      n.name === 'tr' ? rows.push(n) : n.children?.filter(jsx).forEach(collect);
+    node.children.filter(jsx).forEach(collect);
+    /** column -> { cell, rows left } carried down from a rowSpan above */
+    const spans = [];
+    const cellContent = cell =>
+      convertAll(cell.children).flatMap(c =>
+        c.type === 'paragraph' ? c.children : [c],
+      );
+    const out = rows.map(row => {
+      const cells = [];
+      const take = () => {
+        while (spans[cells.length]?.left > 0) {
+          spans[cells.length].left--;
+          cells.push(structuredClone(spans[cells.length].cell));
+        }
+      };
+      // cells on their own lines parse into a paragraph inside the row
+      const tds = row.children
+        .flatMap(c => (c.type === 'paragraph' ? c.children : [c]))
+        .filter(c => jsx(c) && (c.name === 'td' || c.name === 'th'));
+      for (const td of tds) {
+        take();
+        const attrs = attributesOf(td, props, source);
+        const cell = { type: 'tableCell', children: cellContent(td) };
+        for (let i = 0; i < (Number(attrs.colSpan) || 1); i++) {
+          if (Number(attrs.rowSpan) > 1)
+            spans[cells.length] = { cell, left: Number(attrs.rowSpan) - 1 };
+          cells.push(structuredClone(cell));
+        }
+      }
+      take();
+      return { type: 'tableRow', children: cells };
+    });
+    const width = Math.max(...out.map(r => r.children.length));
+    for (const row of out)
+      while (row.children.length < width)
+        row.children.push({ type: 'tableCell', children: [] });
+    return { type: 'table', align: [], children: out };
   }
 
   function convertAll(children) {

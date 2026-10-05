@@ -2,13 +2,13 @@
 
 # Controller
 
-`Controller` is a singleton providing safe access to the Reactive Data Client [flux store and lifecycle](./Manager.md#control-flow).
+`Controller` is a singleton providing safe access to the Reactive Data Client [flux store and lifecycle](./Manager.vue.md#control-flow).
 `Controller` memoizes all store access, allowing a global referential equality guarantee and the fastest rendering
 and retrieval performance.
 
 `Controller` is provided:
 
-- [Managers](./Manager.md) as the first argument in [Manager.middleware](./Manager.md#middleware)
+- [Managers](./Manager.vue.md) as the first argument in [Manager.middleware](./Manager.vue.md#middleware)
 - Vue with [useController()](https://dataclient.io/vue/api/useController)
 - Unit testing composables with `renderDataCompose()` from `@data-client/vue/test`
 
@@ -411,7 +411,7 @@ ctrl.set(new schema.Values(Todo), {
 Array and Values schemas take no `args` (so [Entity.pk()](https://dataclient.io/rest/api/Entity#pk) and [Entity.process()](https://dataclient.io/rest/api/Entity#process)
 receive `[]`) and no updater function. Rows that share a pk merge in list order, without
 [Entity.shouldReorder()](https://dataclient.io/rest/api/Entity#shouldreorder). Use this instead of calling `set()` once per row, such as when
-[batching high-frequency stream updates](./managers.md#batching).
+[batching high-frequency stream updates](./managers.vue.md#batching).
 
 ### setResponse(endpoint, ...args, response) {#setResponse}
 
@@ -438,7 +438,7 @@ useEffect(() => {
 });
 ```
 
-This shows a proof of concept in React; however a [Manager websockets implementation](./managers.md#data-stream)
+This shows a proof of concept in React; however a [Manager websockets implementation](./managers.vue.md#data-stream)
 would be much more robust.
 
 ### setError(endpoint, ...args, error) {#setError}
@@ -489,7 +489,7 @@ Looks up any [Queryable](https://dataclient.io/rest/api/schema#queryable) [Schem
 #### Example
 
 This is used in [useQuery](https://dataclient.io/vue/api/useQuery) and can be used in
-[Managers](./Manager.md) to safely access the store.
+[Managers](./Manager.vue.md) to safely access the store.
 
 ```tsx title="useQuery.ts"
 import {
@@ -560,7 +560,7 @@ A number representing time when it expires. Compare to Date.now().
 #### Example
 
 This is used in [useCache](https://dataclient.io/vue/api/useCache), [useSuspense](https://dataclient.io/vue/api/useSuspense) and can be used in
-[Managers](./Manager.md) to lookup a response with the state provided.
+[Managers](./Manager.vue.md) to lookup a response with the state provided.
 
 ```tsx title="useCache.ts"
 import {
@@ -621,7 +621,7 @@ Gets the internal state of Reactive Data Client that has _already been [committe
 
 > **Warning**
 >
-> This should only be used in event handlers or [Managers](./Manager.md).
+> This should only be used in event handlers or [Managers](./Manager.vue.md).
 >
 > Using getState() in React's render lifecycle can result in data tearing.
 

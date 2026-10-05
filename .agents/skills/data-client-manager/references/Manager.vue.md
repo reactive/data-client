@@ -6,7 +6,7 @@
 store.
 
 The default managers orchestrate the complex asynchronous behavior that Data Client
-provides out of the box. These can easily be configured with [getDefaultManagers()](./getDefaultManagers.md), and
+provides out of the box. These can easily be configured with [getDefaultManagers()](./getDefaultManagers.vue.md), and
 extended with your own custom `Managers`.
 
 Managers must implement [middleware](#middleware), which hooks them into the central store's
@@ -169,13 +169,13 @@ export default function RootLayout() {
 ## Control flow
 
 Managers integrate with the DataProvider store with their lifecycles and middleware. They orchestrate complex control
-flows by interfacing via intercepting and dispatching [actions](./Actions.md), as well as reading the internal state.
+flows by interfacing via intercepting and dispatching [actions](./Actions.vue.md), as well as reading the internal state.
 
-The job of `middleware` is to dispatch actions, respond to [actions](./Actions.md), or both.
+The job of `middleware` is to dispatch actions, respond to [actions](./Actions.vue.md), or both.
 
 ### Dispatching Actions
 
-[Controller](./Controller.md) provides type-safe action dispatchers.
+[Controller](./Controller.vue.md) provides type-safe action dispatchers.
 
 ```ts title="CurrentTime"
 import { Entity } from '@data-client/endpoint';
@@ -209,7 +209,7 @@ export default class TimeManager implements Manager {
 
 ### Reading and Consuming Actions
 
-`actionTypes` includes all constants to distinguish between different [actions](./Actions.md).
+`actionTypes` includes all constants to distinguish between different [actions](./Actions.vue.md).
 
 ```ts
 import type { Manager, Middleware } from '@data-client/react';
@@ -247,7 +247,7 @@ export default class LoggingManager implements Manager {
 In conditional blocks, the action [type narrows](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#working-with-union-types),
 encouraging safe access to its members.
 
-In case we want to 'handle' a certain [action](./Actions.md), we can 'consume' it by not calling next.
+In case we want to 'handle' a certain [action](./Actions.vue.md), we can 'consume' it by not calling next.
 
 ```ts title="isEntity"
 import type { Schema, EntityInterface } from '@data-client/core';
@@ -294,24 +294,24 @@ export default class CustomSubsManager implements Manager {
 ```
 
 By `return Promise.resolve();` instead of calling `next(action)`, we prevent managers listed
-after this one from seeing that [action](./Actions.md).
+after this one from seeing that [action](./Actions.vue.md).
 
-Types: [`FETCH`](./Actions.md#fetch), [`SET`](./Actions.md#set), [`SET_RESPONSE`](./Actions.md#set_response),
-[`RESET`](./Actions.md#reset), [`SUBSCRIBE`](./Actions.md#subscribe), [`UNSUBSCRIBE`](./Actions.md#unsubscribe),
-[`INVALIDATE`](./Actions.md#invalidate), [`INVALIDATEALL`](./Actions.md#invalidateall), [`EXPIREALL`](./Actions.md#expireall)
+Types: [`FETCH`](./Actions.vue.md#fetch), [`SET`](./Actions.vue.md#set), [`SET_RESPONSE`](./Actions.vue.md#set_response),
+[`RESET`](./Actions.vue.md#reset), [`SUBSCRIBE`](./Actions.vue.md#subscribe), [`UNSUBSCRIBE`](./Actions.vue.md#unsubscribe),
+[`INVALIDATE`](./Actions.vue.md#invalidate), [`INVALIDATEALL`](./Actions.vue.md#invalidateall), [`EXPIREALL`](./Actions.vue.md#expireall)
 
 ## Use cases
 
 Minimal examples for common Manager use cases:
 
-- [Logging](./managers.md#middleware-logging)
-- [Error reporting (monitoring)](./managers.md#error-reporting)
-- [Metrics (fetch timing)](./managers.md#metrics)
-- [Notifications (toasts)](./managers.md#notifications)
-- [Refresh on focus or reconnect](./managers.md#refresh-on-focus)
-- [Cross-tab synchronization](./managers.md#cross-tab-sync)
-- [Offline persistence](./managers.md#persistence)
-- [Data streams (websockets/SSE)](./managers.md#data-stream)
+- [Logging](./managers.vue.md#middleware-logging)
+- [Error reporting (monitoring)](./managers.vue.md#error-reporting)
+- [Metrics (fetch timing)](./managers.vue.md#metrics)
+- [Notifications (toasts)](./managers.vue.md#notifications)
+- [Refresh on focus or reconnect](./managers.vue.md#refresh-on-focus)
+- [Cross-tab synchronization](./managers.vue.md#cross-tab-sync)
+- [Offline persistence](./managers.vue.md#persistence)
+- [Data streams (websockets/SSE)](./managers.vue.md#data-stream)
 - [Authentication: logout on 401](./LogoutManager.md)
 - [Periodic updates (interval/ticker)](#dispatching-actions)
 - [Custom transport subscriptions](#reading-and-consuming-actions)

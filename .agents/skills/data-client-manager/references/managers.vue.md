@@ -13,7 +13,7 @@ For instance, [NetworkManager](https://dataclient.io/vue/api/NetworkManager) orc
 keeps track of which resources are subscribed with [useLive](https://dataclient.io/vue/api/useLive) or [useSubscription](https://dataclient.io/vue/api/useSubscription). By centralizing control, [NetworkManager](https://dataclient.io/vue/api/NetworkManager) automatically deduplicates fetches, and [SubscriptionManager](https://dataclient.io/vue/api/SubscriptionManager)
 will keep only actively rendered resources updated.
 
-This makes [Managers](./Manager.md) the best way to integrate additional side-effects like
+This makes [Managers](./Manager.vue.md) the best way to integrate additional side-effects like
 [logging](#middleware-logging), [error reporting](#error-reporting), [metrics](#metrics),
 [notifications](#notifications), [data streams](#data-stream), [refreshing on focus or reconnect](#refresh-on-focus),
 [cross-tab synchronization](#cross-tab-sync), and [offline persistence](#persistence).
@@ -30,7 +30,7 @@ They can also be customized to change core behaviors.
 ## Examples
 
 Reactive Data Client improves type-safety and ergonomics by performing dispatches and store access with
-its [Controller](./Controller.md)
+its [Controller](./Controller.vue.md)
 
 ### Middleware logging
 
@@ -51,7 +51,7 @@ export default class LoggingManager implements Manager {
 ### Error reporting {#error-reporting}
 
 Report failed fetches to monitoring services like [Sentry](https://sentry.io) by inspecting
-[SET\_RESPONSE](./Actions.md#set_response) actions with `error` set.
+[SET\_RESPONSE](./Actions.vue.md#set_response) actions with `error` set.
 
 ```typescript
 import {
@@ -76,7 +76,7 @@ export default class ErrorReportManager implements Manager {
 
 ### Metrics {#metrics}
 
-Track fetch timing by observing [FETCH](./Actions.md#fetch) actions. `action.meta.promise`
+Track fetch timing by observing [FETCH](./Actions.vue.md#fetch) actions. `action.meta.promise`
 resolves when the fetch completes.
 
 ```typescript
@@ -132,9 +132,9 @@ export default class ToastManager implements Manager {
 
 ### Refresh on focus or reconnect {#refresh-on-focus}
 
-[Controller.expireAll()](./Controller.md#expireAll) marks data as [Stale](https://dataclient.io/vue/concepts/expiry-policy#stale),
+[Controller.expireAll()](./Controller.vue.md#expireAll) marks data as [Stale](https://dataclient.io/vue/concepts/expiry-policy#stale),
 triggering refetch of any _actively rendered_ data without suspending ([stale-while-revalidate](https://dataclient.io/vue/concepts/expiry-policy)).
-[init()](./Manager.md#init) and [cleanup()](./Manager.md#cleanup) manage the event listeners.
+[init()](./Manager.vue.md#init) and [cleanup()](./Manager.vue.md#cleanup) manage the event listeners.
 
 ```typescript
 import type { Manager, Middleware, Controller } from '@data-client/react';
@@ -296,14 +296,14 @@ export default class StreamManager implements Manager {
 }
 ```
 
-[Controller.set()](./Controller.md#set) allows directly updating [Querable Schemas](https://dataclient.io/rest/api/schema#queryable)
+[Controller.set()](./Controller.vue.md#set) allows directly updating [Querable Schemas](https://dataclient.io/rest/api/schema#queryable)
 directly with `event.data`.
 
 #### Batching high-frequency updates {#batching}
 
 Streams like exchange tickers can send hundreds of messages per second, and connections often start with a large snapshot.
 Rather than calling `set()` per message, buffer them and write each batch with an [Array](https://dataclient.io/rest/api/Array) schema.
-[Controller.set(\[Entity\], rows)](./Controller.md#set-array) normalizes every row in one store update.
+[Controller.set(\[Entity\], rows)](./Controller.vue.md#set-array) normalizes every row in one store update.
 
 ```typescript
 export default class StreamManager implements Manager {
