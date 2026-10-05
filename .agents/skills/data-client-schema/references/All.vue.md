@@ -54,16 +54,19 @@ export const createUser = new RestEndpoint({
 ```
 
 ```html title="UsersPage.vue"
-<script setup lang="ts">
+<script lang="ts">
   import { RestEndpoint, All } from '@data-client/rest';
-  import { useSuspense } from '@data-client/vue';
   import { User } from './api/User';
-  import NewUser from './NewUser.vue';
 
   const getUsers = new RestEndpoint({
     path: '/users',
     schema: new All(User),
   });
+</script>
+
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import NewUser from './NewUser.vue';
 
   const users = await useSuspense(getUsers);
 </script>

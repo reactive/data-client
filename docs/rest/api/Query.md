@@ -296,6 +296,7 @@ render(<TodosPage />);
   import { useQuery, useFetch, useSuspense } from '@data-client/vue';
   import TodoByUser from './TodoByUser.vue';
 
+  // start both fetches in parallel
   useFetch(UserResource.getList);
   await useSuspense(TodoResource.getList);
   await useSuspense(UserResource.getList);

@@ -203,6 +203,9 @@ const createUser = new RestEndpoint({
 More updates:
 
 ```typescript title="Component.vue"
+// start both fetches in parallel
+useFetch(userList);
+useFetch(userList, { admin: true });
 const allusers = await useSuspense(userList);
 const adminUsers = await useSuspense(userList, { admin: true });
 ```

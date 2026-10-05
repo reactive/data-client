@@ -20,6 +20,8 @@ const isDev = process.env.NODE_ENV === 'development';
 // docs/core is shared by React (/docs) and Vue (/vue); see framework-docs/
 const frameworkDocs = require('./framework-docs/index.js');
 const remarkFramework = require('./framework-docs/remarkFramework.js');
+// Non-Vue instances render React; :::vue reaches Vue agents via skill references
+const reactRemarkPlugins = [[remarkFramework, { framework: 'react' }]];
 const vueDocs = frameworkDocs.generate('vue');
 if (isDev) frameworkDocs.watch('vue');
 
@@ -221,9 +223,7 @@ const config: Config = {
           ],
           //routeBasePath: 'core',
           sidebarPath: require.resolve('./framework-docs/sidebars-react.js'),
-          beforeDefaultRemarkPlugins: [
-            [remarkFramework, { framework: 'react' }],
-          ],
+          beforeDefaultRemarkPlugins: reactRemarkPlugins,
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
           editUrl: ({ locale, docPath }) => {
@@ -300,8 +300,7 @@ const config: Config = {
         path: '../docs/rest',
         routeBasePath: 'rest',
         sidebarPath: require.resolve('./sidebars-rest.js'),
-        // React content only; :::vue blocks reach Vue agents via skill references
-        beforeDefaultRemarkPlugins: [[remarkFramework, { framework: 'react' }]],
+        beforeDefaultRemarkPlugins: reactRemarkPlugins,
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
         editUrl: ({ locale, docPath }) => {
@@ -330,6 +329,7 @@ const config: Config = {
         path: '../docs/graphql',
         routeBasePath: 'graphql',
         sidebarPath: require.resolve('./sidebars-graphql.js'),
+        beforeDefaultRemarkPlugins: reactRemarkPlugins,
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
         editUrl: ({ locale, docPath }) => {

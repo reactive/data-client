@@ -9,7 +9,6 @@ sidebar_label: hookifyResource
 </head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
-import HooksPlayground from '@site/src/components/HooksPlayground';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 # hookifyResource

@@ -91,14 +91,13 @@ export const getPrice = new RestEndpoint({
   const currentPrice = await useSuspense(getPrice, {
     exchangePair: 'btc-usd',
   });
-  const formatDate = (date: Temporal.Instant) =>
-    DateTimeFormat('en-US', { dateStyle: 'medium' }).format(date);
+  const dateFormat = DateTimeFormat('en-US', { dateStyle: 'medium' });
 </script>
 
 <template>
   <div>
     ${{ currentPrice.price.toFormat(2) }} as of
-    <time>{{ formatDate(currentPrice.updatedAt) }}</time>
+    <time>{{ dateFormat.format(currentPrice.updatedAt) }}</time>
   </div>
 </template>
 ```

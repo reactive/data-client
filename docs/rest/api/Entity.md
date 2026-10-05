@@ -361,14 +361,13 @@ render(<PostPage />);
   import { useSuspense } from '@data-client/vue';
 
   const post = await useSuspense(getPost, { id: '123' });
-  const formatDate = (date: Temporal.Instant) =>
-    DateTimeFormat('en-US', { dateStyle: 'medium' }).format(date);
+  const dateFormat = DateTimeFormat('en-US', { dateStyle: 'medium' });
 </script>
 
 <template>
   <div>
     <p>{{ post.content }} - <cite>{{ post.author.name }}</cite></p>
-    <time>{{ formatDate(post.createdAt) }}</time>
+    <time>{{ dateFormat.format(post.createdAt) }}</time>
   </div>
 </template>
 ```
