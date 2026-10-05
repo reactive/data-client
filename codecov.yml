@@ -1,0 +1,6 @@
+codecov:
+  # Report as soon as the coverage upload is processed, instead of holding
+  # the status until every other CI job has finished.
+  require_ci_to_pass: false
+  notify:
+    wait_for_ci: false

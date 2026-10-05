@@ -21,12 +21,14 @@ alwaysApply: false
 - `typecheck` also runs `yarn check:typeperf` ([scripts/typeperf](../../scripts/typeperf/README.md)), which reads the `ci:build:types` output from `setup`'s workspace.
 - Never `git fetch --depth` the base branch in the relevance check: a shallow fetch severs the merge base and the three-dot diff fails.
 - Changing root `package.json` `workspaces` requires updating the `setup` job's workspace trimming step.
+- The yarn cache (`.yarn/cache`) stays out of `setup`'s workspace to keep its upload short; only jobs that re-resolve dependencies (`yarn up`/`add`: `unit_tests` except `latest`, `node_matrix`, `esmodule-types`) run `restore-yarn-cache`, before `attach_workspace` so the workspace's `install-state.gz` wins. `setup` keys it on the manifests as committed (before trimming and `yarn up` rewrite them), so restore and save use the same key; downstream jobs restore the newest entry by prefix.
 
 ## GitHub Actions (`.github/workflows/`)
 
 - Workflows install only needed workspaces via `./scripts/ci-install.sh [extra-workspace ...]`.
 - `skills.yml` `paths` must cover every input of `website/framework-docs/skillReferences.mjs` (docs, skill manifests, the generator and its deps).
 - `editor-types.yml` reruns `yarn copy:websitetypes` and fails if `website/src/components/Playground/editor-types` changes. It needs the `website` workspace (for deps like `bignumber.js`), which CircleCI's `setup` drops. Its `paths` must cover every input of `scripts/copywebsitetypes.sh`.
+- `site-preview.yml` `build` builds the site directly (no Vercel CLI, only the packages it imports, `VERCEL_ENV=preview` to include drafts), caches Docusaurus' webpack cache, and fails on any `[WARNING]`/`[ERROR]` line. Broken links are `warn` in `docusaurus.config.ts` so this check catches them without failing Vercel deploys.
 - `site-preview.yml`/`site-release.yml` `paths` (`website/**`, `docs/{core,rest,graphql}/**`) must match `SITE_PATHS` in `website/scripts/vercel-ignore.sh`.
 - `benchmark-react.yml` caches Playwright browsers keyed on the resolved `playwright` version from `examples/benchmark-react`; bumping playwright invalidates the cache automatically.
 - Benchmark workflows (`benchmark.yml`, `benchmark-react.yml`) tune the host (CPU governor, swapoff) and pin CPUs with `taskset` — they must run directly on the runner, not in a `container:`.
