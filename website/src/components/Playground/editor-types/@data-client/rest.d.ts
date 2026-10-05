@@ -391,7 +391,7 @@ type ExtendedEndpoint<O extends EndpointExtendOptions<F>, E extends EndpointInst
  * @see https://dataclient.io/docs/api/Endpoint
  */
 interface EndpointInstance<F extends (...args: any) => Promise<any> = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends boolean | undefined = boolean | undefined> extends EndpointInstanceInterface<F, S, M> {
-    extend<E extends EndpointInstance<(...args: any) => Promise<any>, Schema | undefined, boolean | undefined>, O extends EndpointExtendOptions<F> & Partial<Omit<E, keyof EndpointInstance<FetchFunction>>> & Record<string, unknown>>(this: E, options: Readonly<O>): ExtendedEndpoint<typeof options, E, F>;
+    extend<E extends EndpointInstance<(...args: any) => Promise<any>, Schema | undefined, boolean | undefined>, O extends EndpointExtendOptions<F> & Partial<Omit<E, keyof EndpointInstance<FetchFunction>>> & Record<string, unknown>>(this: E, options: Readonly<O> & O): ExtendedEndpoint<Readonly<O>, E, F>;
 }
 /**
  * Defines an async data source.
@@ -1478,8 +1478,8 @@ type ExtractCollection<S extends Schema | undefined> = S extends ({
     [K: string]: Schema;
 } ? ExtractObject<S> : never;
 
-type CleanKey<S extends string> = S extends `"${infer K}"` ? K : S;
-type KeyName<K extends string> = CleanKey<K extends `*${infer N}}` ? N : K extends `*${infer N}` ? N : K extends `${infer N}}` ? N : K>;
+type CleanKey<S extends string> = S extends `"${string}"` ? S extends `"${infer K}"` ? K : S : S;
+type KeyName<K extends string> = K extends `*${string}` | `${string}}` ? CleanKey<K extends `*${infer N}}` ? N : K extends `*${infer N}` ? N : K extends `${infer N}}` ? N : K> : CleanKey<K>;
 type KeyVal<K extends string> = K extends `*${string}` ? string[] : string | number;
 /** Parameters for a given path */
 type PathArgs<S extends string> = unknown extends S ? any : PathKeys<S> extends never ? unknown : KeysToArgs<PathKeys<S>>;
@@ -1487,13 +1487,39 @@ type PathArgs<S extends string> = unknown extends S ? any : PathKeys<S> extends 
  *  preventing `(params, body) | (body)` union overloads in ParamFetchWithBody. */
 type SoftPathArgs<P extends string> = unknown extends P ? any : string extends P ? unknown : PathArgs<P>;
 /** Computes the union of keys for a path string */
-type PathKeys<S extends string> = string extends S ? string : S extends `${infer A}\\${':' | '*' | '}'}${infer B}` ? PathKeys<A> | PathKeys<B> : Splits<S, ':'> | Splits<S, '*'>;
-type Splits<S extends string, M extends ':' | '*'> = S extends `${string}${M}${infer K}${M}${infer R}` ? Splits<`${M}${K}`, M> | Splits<`${M}${R}`, M> : S extends (`${string}${M}${infer K}${'/' | '\\' | '%' | '&' | '*' | ':' | '{' | ';' | ',' | '!' | '@'}${infer R}`) ? Splits<`${M}${K}`, M> | Splits<R, M> : S extends `${string}${M}${infer K}` ? M extends '*' ? `*${K}` : K : never;
-type KeysToArgs<Key extends string> = {
+type PathKeys<S extends string> = string extends S ? string : S extends `${string}\\${string}` ? S extends `${infer A}\\${':' | '*' | '}'}${infer B}` ? PathKeys<A> | PathKeys<B> : ColonSplits<S> | StarSplits<S> : ColonSplits<S> | StarSplits<S>;
+/** Characters that end a :param or *wildcard token */
+type PathDelimiter = '/' | '\\' | '%' | '&' | '*' | ':' | '{' | ';' | ',' | '!' | '@';
+/** Token after every ':' in S */
+type ColonSplits<S extends string> = S extends `${string}:${infer K}` ? PathToken<K> | ColonSplits<K> : never;
+/** `*`-prefixed token after every '*' in S */
+type StarSplits<S extends string> = S extends `${string}*${infer K}` ? `*${PathToken<K>}` | StarSplits<K> : never;
+/** Prefix of K up to (excluding) its first PathDelimiter.
+ *
+ * Fast path: no delimiter at all, or the first '/' ends a delimiter-free token.
+ * The delimiter-union templates without `infer` are matched without instantiation. */
+type PathToken<K extends string> = K extends `${string}${PathDelimiter}${string}` ? K extends `${infer H}/${string}` ? H extends `${string}${PathDelimiter}${string}` ? PathTokenSlow<H> : H : PathTokenSlow<K> : K;
+/** Cuts at the first occurrence of each delimiter (union); recursing on each
+ * candidate converges on the shortest, delimiter-free prefix. */
+type PathTokenSlow<K extends string> = K extends `${infer H}${PathDelimiter}${string}` ? PathToken<H> : K;
+type KeysToArgs<Key extends string> = OptionalArgs<Key> & (RequiredPathKeys<Key> extends never ? unknown : RequiredArgs<Key>);
+/** Wide keys (`string`, template patterns) keep the original key-remapping
+ * form so index signatures (and their `keyof`) stay exactly the same. */
+type HasWideKey<Key extends string> = true extends (Key extends string ? {} extends {
+    [P in Key]: 1;
+} ? true : never : never) ? true : false;
+type OptionalArgs<Key extends string> = HasWideKey<Key> extends true ? {
     [K in Key as K extends `${string}}` ? KeyName<K> : never]?: KeyVal<K>;
-} & (Exclude<Key, `${string}}`> extends never ? unknown : {
+} : {
+    [N in KeyName<OptionalPathKeys<Key>>]?: (N extends KeyName<Extract<OptionalPathKeys<Key>, `*${string}`>> ? string[] : never) | (N extends KeyName<Exclude<OptionalPathKeys<Key>, `*${string}`>> ? string | number : never);
+};
+type RequiredArgs<Key extends string> = HasWideKey<Key> extends true ? {
     [K in Key as K extends `${string}}` ? never : KeyName<K>]: KeyVal<K>;
-});
+} : {
+    [N in KeyName<RequiredPathKeys<Key>>]: (N extends KeyName<Extract<RequiredPathKeys<Key>, `*${string}`>> ? string[] : never) | (N extends KeyName<Exclude<RequiredPathKeys<Key>, `*${string}`>> ? string | number : never);
+};
+type OptionalPathKeys<Key extends string> = Extract<Key, `${string}}`>;
+type RequiredPathKeys<Key extends string> = Exclude<Key, `${string}}`>;
 type PathArgsAndSearch<S extends string> = unknown extends S ? any : Exclude<PathKeys<S>, `${string}}`> extends never ? Record<string, number | string | boolean> | undefined : {
     [K in PathKeys<S> as K extends `${string}}` ? never : KeyName<K>]: KeyVal<K>;
 } & Record<string, number | string | string[]>;
@@ -1534,6 +1560,19 @@ type ContentSchemaGuard<O> = O extends {
 } ? {
     schema?: undefined;
 } : {};
+interface RestInstanceExtenders {
+    /** Creates a child endpoint that inherits from this while overriding provided `options`.
+     * @see https://dataclient.io/rest/api/RestEndpoint#extend
+     */
+    extend<E extends RestInstanceBase, ExtendOptions extends ExtendableRestGenerics | {}>(this: E, options: Readonly<RestEndpointExtendOptions<ExtendOptions, E, E['fetch']> & ExtendOptions> & ExtendOptions & ContentSchemaGuard<ExtendOptions>): RestExtendedEndpoint<ExtendOptions, E>;
+}
+interface RestInstancePaginators {
+    /** Creates an Endpoint to append the next page extending a list for pagination
+     * @see https://dataclient.io/rest/api/RestEndpoint#paginated
+     */
+    paginated<E extends RestInstanceBase<FetchFunction, any, undefined>, A extends any[]>(this: E, removeCursor: (...args: A) => readonly [...Parameters<E>]): PaginationEndpoint<E, A>;
+    paginated<E extends RestInstanceBase<FetchFunction, any, undefined>, C extends string>(this: E, cursorField: C): PaginationFieldEndpoint<E, C>;
+}
 interface RestInstanceBase<F extends FetchFunction = FetchFunction, S extends Schema | undefined = any, M extends boolean | undefined = boolean | undefined, O extends {
     path: string;
     body?: any;
@@ -1541,7 +1580,7 @@ interface RestInstanceBase<F extends FetchFunction = FetchFunction, S extends Sc
     method?: string;
 } = {
     path: string;
-}> extends EndpointInstanceInterface<F, S, M> {
+}> extends EndpointInstanceInterface<F, S, M>, RestInstanceExtenders {
     /** @see https://dataclient.io/rest/api/RestEndpoint#body */
     readonly body?: 'body' extends keyof O ? O['body'] : any;
     /** @see https://dataclient.io/rest/api/RestEndpoint#searchParams */
@@ -1598,10 +1637,6 @@ interface RestInstanceBase<F extends FetchFunction = FetchFunction, S extends Sc
      * @see https://dataclient.io/rest/api/RestEndpoint#testKey
      */
     testKey(key: string): boolean;
-    /** Creates a child endpoint that inherits from this while overriding provided `options`.
-     * @see https://dataclient.io/rest/api/RestEndpoint#extend
-     */
-    extend<E extends RestInstanceBase, ExtendOptions extends PartialRestGenerics | {}>(this: E, options: Readonly<RestEndpointExtendOptions<ExtendOptions, E, F> & ExtendOptions> & ContentSchemaGuard<ExtendOptions>): RestExtendedEndpoint<ExtendOptions, E>;
 }
 interface RestInstance<F extends FetchFunction = FetchFunction, S extends Schema | undefined = any, M extends boolean | undefined = boolean | undefined, O extends {
     path: string;
@@ -1611,16 +1646,11 @@ interface RestInstance<F extends FetchFunction = FetchFunction, S extends Schema
     paginationField?: string;
 } = {
     path: string;
-}> extends RestInstanceBase<F, S, M, O> {
-    /** Creates an Endpoint to append the next page extending a list for pagination
-     * @see https://dataclient.io/rest/api/RestEndpoint#paginated
-     */
-    paginated<E extends RestInstanceBase<FetchFunction, any, undefined>, A extends any[]>(this: E, removeCursor: (...args: A) => readonly [...Parameters<E>]): PaginationEndpoint<E, A>;
-    paginated<E extends RestInstanceBase<FetchFunction, any, undefined>, C extends string>(this: E, cursorField: C): PaginationFieldEndpoint<E, C>;
+}> extends RestInstanceBase<F, S, M, O>, RestInstancePaginators {
     /** Concatinate the next page of results (GET)
      * @see https://dataclient.io/rest/api/RestEndpoint#getPage
      */
-    getPage: 'paginationField' extends keyof O ? O['paginationField'] extends string ? PaginationFieldEndpoint<F & {
+    getPage: 'paginationField' extends keyof O ? O['paginationField'] extends string ? PaginationFieldEndpoint<([keyof F] extends [never] ? (...args: any) => ReturnType<F> : F) & {
         schema: S;
         sideEffect: M;
     } & O, Extract<O['paginationField'], string>> : undefined : undefined;
@@ -1661,7 +1691,32 @@ type RestEndpointExtendOptions<O extends PartialRestGenerics, E extends {
     path?: string;
     schema?: Schema;
     method?: string;
-}, F extends FetchFunction> = RestEndpointOptions<OptionsToFunction<O, E, F>, 'schema' extends keyof O ? Extract<O['schema'], Schema | undefined> : E['schema']> & Partial<Omit<E, KeyofRestEndpoint | keyof PartialRestGenerics | keyof RestEndpointOptions>>;
+}, F extends FetchFunction> = RestEndpointOptions<OptionsToFunction<O, E, F>, 'schema' extends keyof O ? Extract<O['schema'], Schema | undefined> : E['schema']> & {
+    /** @see https://dataclient.io/rest/api/RestEndpoint#process */
+    process?(value: any, ...args: ProcessArgs<Parameters<OptionsToFunction<O, E, F>>>): any;
+} & PartialPick<E, keyof E extends ExtendOmitKeys ? never : Exclude<keyof E, ExtendOmitKeys>>;
+/** Parameters<F> as a single tuple, so process() accepts every way the endpoint can be called.
+ * Endpoints with optional params or body have a union like `[params] | []` or `[params, body] | [body]`
+ * (see ParamFetchNoBody/ParamFetchWithBody); it merges position-wise, with an element optional when
+ * some call omits it. A single tuple (like a custom `fetch(params?)`) is kept as is.
+ * Only for contextually typing an options callback: TypeScript can't infer callback parameters from a
+ * union of tuples. The instance `process()` keeps `Parameters<F>`, the stricter signature for callers.
+ */
+type ProcessArgs<A extends readonly any[]> = number extends A['length'] ? A : [A['length']] extends [0] ? A : [A['length']] extends [1] ? A : [A['length']] extends [2] ? A : IsUnion<A> extends false ? A : [] extends A ? [
+    ArgAt1<A>
+] extends [never] ? [
+    params?: ArgAt0<A>
+] : [params?: ArgAt0<A>, body?: ArgAt1<A>] : [params: ArgAt0<A>, body?: ArgAt1<A>];
+type IsUnion<T, U = T> = T extends any ? [
+    U
+] extends [T] ? false : true : never;
+type ArgAt0<A extends readonly any[]> = A extends unknown ? A['length'] extends 0 ? never : A[0] : never;
+type ArgAt1<A extends readonly any[]> = A extends unknown ? A['length'] extends 0 | 1 ? never : A[1] : never;
+type ExtendOmitKeys = KeyofRestEndpoint | keyof PartialRestGenerics | keyof RestEndpointOptions;
+/** Partial<Pick<T, K>> as a single homomorphic mapped type */
+type PartialPick<T, K extends keyof T> = {
+    [P in K]?: T[P];
+};
 type OptionsToRestEndpoint<O extends PartialRestGenerics, E extends RestInstanceBase & {
     body?: any;
     paginationField?: string;
@@ -1704,8 +1759,11 @@ type RestExtendedEndpoint<O extends PartialRestGenerics, E extends RestInstanceB
     };
 } ? {
     paginationField: E['getPage']['paginationField'];
-} : unknown), RestInstance<(...args: Parameters<E>) => O['process'] extends {} ? Promise<ReturnType<O['process']>> : 'content' extends keyof O ? Promise<ContentReturnType<O['content'] & ContentType>> : ReturnType<E>, 'schema' extends keyof O ? O['schema'] : E['schema'], 'sideEffect' extends keyof O ? Extract<O['sideEffect'], boolean | undefined> : 'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect']>> & Omit<O, KeyofRestEndpoint> & Omit<E, KeyofRestEndpoint | keyof O>;
-interface PartialRestGenerics {
+} : unknown), RestInstance<(...args: Parameters<E>) => O['process'] extends {} ? Promise<ReturnType<O['process']>> : 'content' extends keyof O ? Promise<ContentReturnType<O['content'] & ContentType>> : ReturnType<E>, 'schema' extends keyof O ? O['schema'] : E['schema'], 'sideEffect' extends keyof O ? Extract<O['sideEffect'], boolean | undefined> : 'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect']>> & (keyof O extends KeyofRestEndpoint ? unknown : Omit<O, KeyofRestEndpoint>) & (keyof E extends KeyofRestEndpoint ? unknown : Omit<E, KeyofRestEndpoint | keyof O>);
+/** PartialRestGenerics without `process`. extend() constrains its options to this, so the
+ * `process` member of RestEndpointExtendOptions is the only contextual type for process() params.
+ */
+interface ExtendableRestGenerics {
     /** @see https://dataclient.io/rest/api/RestEndpoint#path */
     readonly path?: string;
     /** @see https://dataclient.io/rest/api/RestEndpoint#schema */
@@ -1720,10 +1778,12 @@ interface PartialRestGenerics {
     searchParams?: any;
     /** @see https://dataclient.io/rest/api/RestEndpoint#paginationfield */
     readonly paginationField?: string;
-    /** @see https://dataclient.io/rest/api/RestEndpoint#process */
-    process?(value: any, ...args: any): any;
     /** @see https://dataclient.io/rest/api/RestEndpoint#content */
     readonly content?: ContentType;
+}
+interface PartialRestGenerics extends ExtendableRestGenerics {
+    /** @see https://dataclient.io/rest/api/RestEndpoint#process */
+    process?(value: any, ...args: any): any;
 }
 /** Generic types when constructing a RestEndpoint
  *
@@ -1863,7 +1923,7 @@ interface RestEndpointConstructor {
      *
      * @see https://dataclient.io/rest/api/RestEndpoint
      */
-    new <O extends RestGenerics = any>({ method, sideEffect, name, ...options }: RestEndpointConstructorOptions<O> & Readonly<O> & ContentSchemaGuard<O>): RestEndpoint$1<O>;
+    new <O extends RestGenerics = any>({ method, sideEffect, name, ...options }: RestEndpointConstructorOptions<O> & Readonly<O> & O & ContentSchemaGuard<O>): RestEndpoint$1<O>;
     readonly prototype: RestInstanceBase;
 }
 type MethodToSide<M> = M extends string ? M extends 'GET' ? undefined : true : undefined;
@@ -1968,11 +2028,11 @@ interface CustomResource<R extends ResourceInterface, O extends ResourceGenerics
 }
 type ExtendedResource<R extends ResourceInterface, T extends Record<string, EndpointInterface>> = Omit<R, keyof T> & T;
 interface ResourceEndpointExtensions<R extends ResourceInterface, Get extends PartialRestGenerics = {}, GetList extends PartialRestGenerics = {}, Update extends PartialRestGenerics = {}, PartialUpdate extends PartialRestGenerics = {}, Delete extends PartialRestGenerics = {}> {
-    readonly get?: RestEndpointOptions<unknown extends Get ? EndpointToFunction<R['get']> : OptionsToFunction<Get, R['get'], EndpointToFunction<R['get']>>, R['get']['schema']> & Readonly<Get>;
-    readonly getList?: RestEndpointOptions<unknown extends GetList ? EndpointToFunction<R['getList']> : OptionsToFunction<GetList, R['getList'], EndpointToFunction<R['getList']>>, R['getList']['schema']> & Readonly<GetList>;
-    readonly update?: RestEndpointOptions<unknown extends Update ? EndpointToFunction<R['update']> : OptionsToFunction<Update, R['update'], EndpointToFunction<R['update']>>, R['update']['schema']> & Readonly<Update>;
-    readonly partialUpdate?: RestEndpointOptions<unknown extends PartialUpdate ? EndpointToFunction<R['partialUpdate']> : OptionsToFunction<PartialUpdate, R['partialUpdate'], EndpointToFunction<R['partialUpdate']>>, R['partialUpdate']['schema']> & Readonly<PartialUpdate>;
-    readonly delete?: RestEndpointOptions<unknown extends Delete ? EndpointToFunction<R['delete']> : OptionsToFunction<Delete, R['delete'], EndpointToFunction<R['delete']>>, R['delete']['schema']> & Readonly<Delete>;
+    readonly get?: RestEndpointOptions<unknown extends Get ? EndpointToFunction<R['get']> : OptionsToFunction<Get, R['get'], EndpointToFunction<R['get']>>, R['get']['schema']> & Readonly<Get> & Get;
+    readonly getList?: RestEndpointOptions<unknown extends GetList ? EndpointToFunction<R['getList']> : OptionsToFunction<GetList, R['getList'], EndpointToFunction<R['getList']>>, R['getList']['schema']> & Readonly<GetList> & GetList;
+    readonly update?: RestEndpointOptions<unknown extends Update ? EndpointToFunction<R['update']> : OptionsToFunction<Update, R['update'], EndpointToFunction<R['update']>>, R['update']['schema']> & Readonly<Update> & Update;
+    readonly partialUpdate?: RestEndpointOptions<unknown extends PartialUpdate ? EndpointToFunction<R['partialUpdate']> : OptionsToFunction<PartialUpdate, R['partialUpdate'], EndpointToFunction<R['partialUpdate']>>, R['partialUpdate']['schema']> & Readonly<PartialUpdate> & PartialUpdate;
+    readonly delete?: RestEndpointOptions<unknown extends Delete ? EndpointToFunction<R['delete']> : OptionsToFunction<Delete, R['delete'], EndpointToFunction<R['delete']>>, R['delete']['schema']> & Readonly<Delete> & Delete;
 }
 
 interface Extendable<O extends ResourceGenerics = {
@@ -1985,10 +2045,10 @@ interface Extendable<O extends ResourceGenerics = {
      */
     extend<R extends {
         [K in ExtendKey]: RestInstanceBase;
-    }, const ExtendKey extends Exclude<Extract<keyof R, string>, 'extend'>, ExtendOptions extends PartialRestGenerics | {}>(this: R, key: ExtendKey, options: Readonly<RestEndpointExtendOptions<ExtendOptions, R[ExtendKey], EndpointToFunction<R[ExtendKey]>> & ExtendOptions>): ResourceExtension<R, ExtendKey, ExtendOptions>;
+    }, const ExtendKey extends Exclude<Extract<keyof R, string>, 'extend'>, ExtendOptions extends ExtendableRestGenerics | {}>(this: R, key: ExtendKey, options: Readonly<RestEndpointExtendOptions<ExtendOptions, R[ExtendKey], EndpointToFunction<R[ExtendKey]>> & ExtendOptions> & ExtendOptions): ResourceExtension<R, ExtendKey, ExtendOptions>;
     extend<R extends {
         get: RestInstanceBase;
-    }, const ExtendKey extends string, ExtendOptions extends PartialRestGenerics | {}>(this: R, key: ExtendKey, options: Readonly<RestEndpointExtendOptions<ExtendOptions, R['get'], EndpointToFunction<R['get']>> & ExtendOptions>): R & {
+    }, const ExtendKey extends string, ExtendOptions extends ExtendableRestGenerics | {}>(this: R, key: ExtendKey, options: Readonly<RestEndpointExtendOptions<ExtendOptions, R['get'], EndpointToFunction<R['get']>> & ExtendOptions> & ExtendOptions): R & {
         [key in ExtendKey]: RestExtendedEndpoint<ExtendOptions, R['get']>;
     };
     extend<R extends ResourceInterface, Get extends PartialRestGenerics = {}, GetList extends PartialRestGenerics = {}, Update extends PartialRestGenerics = {}, PartialUpdate extends PartialRestGenerics = {}, Delete extends PartialRestGenerics = {}>(this: R, options: ResourceEndpointExtensions<R, Get, GetList, Update, PartialUpdate, Delete>): CustomResource<R, O, Get, GetList, Update, PartialUpdate, Delete>;
@@ -2141,7 +2201,7 @@ interface ResourceInterface {
  *
  * @see https://dataclient.io/rest/api/resource
  */
-declare function resource<O extends ResourceGenerics>({ path, schema, Endpoint, Collection, nonFilterArgumentKeys, optimistic, paginationField, ...extraOptions }: Readonly<O> & ResourceOptions): Resource<O>;
+declare function resource<O extends ResourceGenerics>({ path, schema, Endpoint, Collection, nonFilterArgumentKeys, optimistic, paginationField, ...extraOptions }: Readonly<O> & O & ResourceOptions): Resource<O>;
 
 interface HookableEndpointInterface extends EndpointInterface {
     extend(...args: any): HookableEndpointInterface;
@@ -2179,4 +2239,4 @@ declare class NetworkError extends Error {
     };
 }
 
-export { type AbstractInstanceType, type AddEndpoint, All, Array$1 as Array, type CheckLoop, Collection, type CollectionOptions, type ContentType, type CustomResource, type DefaultArgs, type Defaults, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, type EntitiesInterface, type EntitiesPath, Entity, type EntityFields, type EntityInterface, type EntityMap, EntityMixin, type EntityPath, type EntityTable, type ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type ExtendedResource, type FetchFunction, type FetchGet, type FetchMutate, type FromFallBack, type GetEndpoint, type GetEntity, type GetIndex, type HookResource, type HookableEndpointInterface, type IDenormalizeDelegate, type IEntityClass, type IEntityInstance, type INormalizeDelegate, type IQueryDelegate, type RestEndpoint$1 as IRestEndpoint, type IndexPath, Invalidate, type KeyofEndpointInstance, type KeyofRestEndpoint, type KeysToArgs, Lazy, type Mergeable, type MethodToSide, type MoveEndpoint, type MutateEndpoint, type NI, NetworkError, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedIndex, type NormalizedNullableObject, Object$1 as Object, type ObjectArgs, type OptionsToFunction, type PaginationEndpoint, type PaginationFieldEndpoint, type ParamFetchNoBody, type ParamFetchWithBody, type ParamToArgs, type PartialRestGenerics, type PathArgs, type PathArgsAndSearch, type PathKeys, type PolymorphicInterface, Query, type Queryable, type ReadEndpoint, type RecordClass, type RemoveEndpoint, type ResolveType, type Resource, type ResourceEndpointExtensions, type ResourceExtension, type ResourceGenerics, type ResourceInterface, type ResourceOptions, RestEndpoint, type RestEndpointConstructor, type RestEndpointConstructorOptions, type RestEndpointExtendOptions, type RestEndpointOptions, type RestExtendedEndpoint, type RestFetch, type RestGenerics, type RestInstance, type RestInstanceBase, type RestType, type RestTypeNoBody, type RestTypeWithBody, Scalar, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type ShortenPath, type SnapshotInterface, Union, type UnknownError, Values, type Visit, resource as createResource, getUrlBase, getUrlTokens, hookifyResource, resource, schema_d as schema, unshift, validateRequired };
+export { type AbstractInstanceType, type AddEndpoint, All, Array$1 as Array, type CheckLoop, Collection, type CollectionOptions, type ContentType, type CustomResource, type DefaultArgs, type Defaults, type Denormalize, type DenormalizeNullable, type DenormalizeNullableObject, type DenormalizeObject, Endpoint, type EndpointExtendOptions, type EndpointExtraOptions, type EndpointInstance, type EndpointInstanceInterface, type EndpointInterface, type EndpointOptions, type EndpointParam, type EndpointToFunction, type EntitiesInterface, type EntitiesPath, Entity, type EntityFields, type EntityInterface, type EntityMap, EntityMixin, type EntityPath, type EntityTable, type ErrorTypes, type ExpiryStatusInterface, ExtendableEndpoint, type ExtendableRestGenerics, type ExtendedResource, type FetchFunction, type FetchGet, type FetchMutate, type FromFallBack, type GetEndpoint, type GetEntity, type GetIndex, type HookResource, type HookableEndpointInterface, type IDenormalizeDelegate, type IEntityClass, type IEntityInstance, type INormalizeDelegate, type IQueryDelegate, type RestEndpoint$1 as IRestEndpoint, type IndexPath, Invalidate, type KeyofEndpointInstance, type KeyofRestEndpoint, type KeysToArgs, Lazy, type Mergeable, type MethodToSide, type MoveEndpoint, type MutateEndpoint, type NI, NetworkError, type Normalize, type NormalizeNullable, type NormalizeObject, type NormalizedEntity, type NormalizedIndex, type NormalizedNullableObject, Object$1 as Object, type ObjectArgs, type OptionsToFunction, type PaginationEndpoint, type PaginationFieldEndpoint, type ParamFetchNoBody, type ParamFetchWithBody, type ParamToArgs, type PartialRestGenerics, type PathArgs, type PathArgsAndSearch, type PathKeys, type PolymorphicInterface, Query, type Queryable, type ReadEndpoint, type RecordClass, type RemoveEndpoint, type ResolveType, type Resource, type ResourceEndpointExtensions, type ResourceExtension, type ResourceGenerics, type ResourceInterface, type ResourceOptions, RestEndpoint, type RestEndpointConstructor, type RestEndpointConstructorOptions, type RestEndpointExtendOptions, type RestEndpointOptions, type RestExtendedEndpoint, type RestFetch, type RestGenerics, type RestInstance, type RestInstanceBase, type RestType, type RestTypeNoBody, type RestTypeWithBody, Scalar, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type ShortenPath, type SnapshotInterface, Union, type UnknownError, Values, type Visit, resource as createResource, getUrlBase, getUrlTokens, hookifyResource, resource, schema_d as schema, unshift, validateRequired };

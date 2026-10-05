@@ -1,4 +1,9 @@
-export { Controller, ExpiryStatus, actionTypes } from '@data-client/core';
+export {
+  Controller,
+  ExpiryStatus,
+  GCPolicy,
+  actionTypes,
+} from '@data-client/core';
 export type {
   EndpointExtraOptions,
   FetchFunction,

@@ -24,6 +24,8 @@ const {
 } = require('./framework-docs/docsInstances.js');
 const frameworkDocs = require('./framework-docs/index.js');
 const remarkFramework = require('./framework-docs/remarkFramework.js');
+// Non-Vue instances render React; :::vue reaches Vue agents via skill references
+const reactRemarkPlugins = [[remarkFramework, { framework: 'react' }]];
 const vueDocs = frameworkDocs.generate('vue');
 if (isDev) frameworkDocs.watch('vue');
 const vueInstance = frameworkInstance('vue');
@@ -229,9 +231,7 @@ const config: Config = {
             '**/*.vue.{md,mdx}',
           ],
           sidebarPath: require.resolve('./framework-docs/sidebars-react.js'),
-          beforeDefaultRemarkPlugins: [
-            [remarkFramework, { framework: 'react' }],
-          ],
+          beforeDefaultRemarkPlugins: reactRemarkPlugins,
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
           editUrl: ({ locale, docPath }) => {
@@ -306,6 +306,7 @@ const config: Config = {
       {
         ...docsLocation('rest'),
         sidebarPath: require.resolve('./sidebars-rest.js'),
+        beforeDefaultRemarkPlugins: reactRemarkPlugins,
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
         editUrl: ({ locale, docPath }) => {
@@ -332,6 +333,7 @@ const config: Config = {
       {
         ...docsLocation('graphql'),
         sidebarPath: require.resolve('./sidebars-graphql.js'),
+        beforeDefaultRemarkPlugins: reactRemarkPlugins,
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
         editUrl: ({ locale, docPath }) => {

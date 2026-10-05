@@ -40,7 +40,7 @@ type ContentSchemaGuard<O> =
  * `E['fetch']` instead of `F` so it doesn't depend on the outer generics.
  */
 interface RestInstanceExtenders {
-  // TODO: `ExtendOptions extends PartialRestGenerics | {}` is a hack for options with no
+  // TODO: `ExtendOptions extends ExtendableRestGenerics | {}` is a hack for options with no
   //       PartialRestGenerics members. Overloads (like paginated) can't tell the cases apart
   //       since every member is optional.
   /** Creates a child endpoint that inherits from this while overriding provided `options`.
@@ -48,7 +48,7 @@ interface RestInstanceExtenders {
    */
   extend<
     E extends RestInstanceBase,
-    ExtendOptions extends PartialRestGenerics | {},
+    ExtendOptions extends ExtendableRestGenerics | {},
   >(
     this: E,
     options: Readonly<
@@ -272,7 +272,13 @@ export type RestEndpointExtendOptions<
   OptionsToFunction<O, E, F>,
   'schema' extends keyof O ? Extract<O['schema'], Schema | undefined>
   : E['schema']
-> &
+> & {
+  /** @see https://dataclient.io/rest/api/RestEndpoint#process */
+  process?(
+    value: any,
+    ...args: ProcessArgs<Parameters<OptionsToFunction<O, E, F>>>
+  ): any;
+} &
   // Same as Partial<Omit<E, ExtendOmitKeys>>, but skips the per-key Exclude<> work
   // (and the double mapped type) when E has no members beyond the standard ones.
   // Keep the guard inside the mapped type's keys: a `? unknown : ...` conditional
@@ -281,6 +287,45 @@ export type RestEndpointExtendOptions<
     E,
     keyof E extends ExtendOmitKeys ? never : Exclude<keyof E, ExtendOmitKeys>
   >;
+
+/** Parameters<F> as a single tuple, so process() accepts every way the endpoint can be called.
+ * Endpoints with optional params or body have a union like `[params] | []` or `[params, body] | [body]`
+ * (see ParamFetchNoBody/ParamFetchWithBody); it merges position-wise, with an element optional when
+ * some call omits it. A single tuple (like a custom `fetch(params?)`) is kept as is.
+ * Only for contextually typing an options callback: TypeScript can't infer callback parameters from a
+ * union of tuples. The instance `process()` keeps `Parameters<F>`, the stricter signature for callers.
+ */
+type ProcessArgs<A extends readonly any[]> =
+  // fast path for fixed-length tuples; [A['length']] can't be checked against a union of lengths
+  number extends A['length'] ? A
+  : [A['length']] extends [0] ? A
+  : [A['length']] extends [1] ? A
+  : [A['length']] extends [2] ? A
+  : IsUnion<A> extends false ? A
+  : [] extends A ?
+    [ArgAt1<A>] extends [never] ?
+      [params?: ArgAt0<A>]
+    : [params?: ArgAt0<A>, body?: ArgAt1<A>]
+  : [params: ArgAt0<A>, body?: ArgAt1<A>];
+type IsUnion<T, U = T> =
+  T extends any ?
+    [U] extends [T] ?
+      false
+    : true
+  : never;
+// Distribute over the union; the length check gives never for a position a call omits
+type ArgAt0<A extends readonly any[]> =
+  A extends unknown ?
+    A['length'] extends 0 ?
+      never
+    : A[0]
+  : never;
+type ArgAt1<A extends readonly any[]> =
+  A extends unknown ?
+    A['length'] extends 0 | 1 ?
+      never
+    : A[1]
+  : never;
 
 type ExtendOmitKeys =
   KeyofRestEndpoint | keyof PartialRestGenerics | keyof RestEndpointOptions;
@@ -430,7 +475,10 @@ export type RestExtendedEndpoint<
   (keyof E extends KeyofRestEndpoint ? unknown
   : Omit<E, KeyofRestEndpoint | keyof O>);
 
-export interface PartialRestGenerics {
+/** PartialRestGenerics without `process`. extend() constrains its options to this, so the
+ * `process` member of RestEndpointExtendOptions is the only contextual type for process() params.
+ */
+export interface ExtendableRestGenerics {
   /** @see https://dataclient.io/rest/api/RestEndpoint#path */
   readonly path?: string;
   /** @see https://dataclient.io/rest/api/RestEndpoint#schema */
@@ -445,10 +493,12 @@ export interface PartialRestGenerics {
   searchParams?: any;
   /** @see https://dataclient.io/rest/api/RestEndpoint#paginationfield */
   readonly paginationField?: string;
-  /** @see https://dataclient.io/rest/api/RestEndpoint#process */
-  process?(value: any, ...args: any): any;
   /** @see https://dataclient.io/rest/api/RestEndpoint#content */
   readonly content?: ContentType;
+}
+export interface PartialRestGenerics extends ExtendableRestGenerics {
+  /** @see https://dataclient.io/rest/api/RestEndpoint#process */
+  process?(value: any, ...args: any): any;
 }
 /** Generic types when constructing a RestEndpoint
  *

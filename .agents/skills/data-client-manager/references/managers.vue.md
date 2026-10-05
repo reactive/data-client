@@ -5,7 +5,7 @@
 Reactive Data Client uses the [flux store](https://facebookarchive.github.io/flux/docs/in-depth-overview/) pattern, which is
 characterized by an easy to [understand and debug](https://dataclient.io/vue/getting-started/debugging) the store's [undirectional data flow](https://en.wikipedia.org/wiki/Unidirectional_Data_Flow_\(computer_science\)). State updates are performed by a [reducer function](https://github.com/reactive/data-client/blob/master/packages/core/src/state/reducer/createReducer.ts#L19).
 
-In flux architectures, it is critical all functions in the flux loop are [pure](https://react.dev/learn/keeping-components-pure).
+In flux architectures, it is critical all functions in the flux loop are [pure](https://en.wikipedia.org/wiki/Pure_function).
 Managers provide centralized orchestration of side effects. In other words, they are the means to interface
 with the world outside Data Client.
 
@@ -35,7 +35,7 @@ its [Controller](./Controller.vue.md)
 ### Middleware logging
 
 ```typescript
-import type { Manager, Middleware } from '@data-client/core';
+import type { Manager, Middleware } from '@data-client/vue';
 
 export default class LoggingManager implements Manager {
   middleware: Middleware = controller => next => async action => {
@@ -58,8 +58,8 @@ import {
   type Manager,
   type Middleware,
   actionTypes,
-} from '@data-client/react';
-import { captureException } from '@sentry/react';
+} from '@data-client/vue';
+import { captureException } from '@sentry/vue';
 
 export default class ErrorReportManager implements Manager {
   middleware: Middleware = controller => next => async action => {
@@ -84,7 +84,7 @@ import {
   type Manager,
   type Middleware,
   actionTypes,
-} from '@data-client/react';
+} from '@data-client/vue';
 import { trackTiming } from './analytics';
 
 export default class MetricsManager implements Manager {
@@ -111,7 +111,7 @@ import {
   type Manager,
   type Middleware,
   actionTypes,
-} from '@data-client/react';
+} from '@data-client/vue';
 import { toast } from './toast';
 
 export default class ToastManager implements Manager {
@@ -137,7 +137,7 @@ triggering refetch of any _actively rendered_ data without suspending ([stale-wh
 [init()](./Manager.vue.md#init) and [cleanup()](./Manager.vue.md#cleanup) manage the event listeners.
 
 ```typescript
-import type { Manager, Middleware, Controller } from '@data-client/react';
+import type { Manager, Middleware, Controller } from '@data-client/vue';
 
 export default class RefreshManager implements Manager {
   declare protected controller: Controller;
@@ -171,7 +171,7 @@ import {
   type Manager,
   type Middleware,
   actionTypes,
-} from '@data-client/react';
+} from '@data-client/vue';
 
 export default class TabSyncManager implements Manager {
   protected channel = new BroadcastChannel('data-client');
@@ -200,14 +200,14 @@ export default class TabSyncManager implements Manager {
 
 Persist the store with [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
 (here via [idb-keyval](https://www.npmjs.com/package/idb-keyval)); restore it with
-DataClientPlugin's `initialState` option. IndexedDB writes are
+[DataClientPlugin's `initialState` option](https://dataclient.io/vue/api/DataClientPlugin#initialState). IndexedDB writes are
 asynchronous and use [structured clone](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm)
 instead of blocking the main thread with JSON serialization like `localStorage` would.
 Debouncing writes keeps rapid action bursts cheap. Consider [expiry times](https://dataclient.io/vue/concepts/expiry-policy)
 when restoring.
 
 ```typescript
-import type { Manager, Middleware } from '@data-client/react';
+import type { Manager, Middleware } from '@data-client/vue';
 import { set } from 'idb-keyval';
 
 export default class PersistManager implements Manager {
@@ -230,16 +230,19 @@ export default class PersistManager implements Manager {
 }
 ```
 
-```tsx
+```ts title="main.ts"
+import { createApp } from 'vue';
+import { DataClientPlugin, getDefaultManagers } from '@data-client/vue';
 import { get } from 'idb-keyval';
+import App from './App.vue';
+import PersistManager from './PersistManager';
 
+const managers = [...getDefaultManagers(), new PersistManager()];
 const initialState = await get('data-client');
 
-createRoot(document.body).render(
-  <DataProvider initialState={initialState} managers={managers}>
-    <App />
-  </DataProvider>,
-);
+const app = createApp(App);
+app.use(DataClientPlugin, { initialState, managers });
+app.mount('#app');
 ```
 
 ### Middleware data stream (push-based) {#data-stream}
@@ -250,14 +253,18 @@ we can maintain fresh data when the data updates are independent of user action.
 price, or a real-time collaborative editor.
 
 ```typescript
-import { type Manager, type Middleware, Controller } from '@data-client/react';
-import type { Entity } from '@data-client/rest';
+import type {
+  Manager,
+  Middleware,
+  Controller,
+  EntityInterface,
+} from '@data-client/vue';
 
 export default class StreamManager implements Manager {
   declare protected controller: Controller;
   declare protected evtSource: WebSocket; // | EventSource;
   declare protected createEventSource: () => WebSocket | EventSource;
-  declare protected entities: Record<string, typeof Entity>;
+  declare protected entities: Record<string, EntityInterface>;
 
   constructor(
     createEventSource: () => WebSocket | EventSource,
@@ -270,7 +277,7 @@ export default class StreamManager implements Manager {
   middleware: Middleware = controller => {
     this.controller = controller;
     return next => async action => next(action);
-  }
+  };
 
   connect() {
     this.evtSource = this.createEventSource();
@@ -278,7 +285,11 @@ export default class StreamManager implements Manager {
       try {
         const msg = JSON.parse(event.data);
         if (msg.type in this.entities)
-          this.controller.set(this.entities[msg.type], ...msg.args, msg.data);
+          this.controller.set(
+            this.entities[msg.type],
+            ...msg.args,
+            msg.data,
+          );
       } catch (e) {
         console.error('Failed to handle message');
         console.error(e);
@@ -350,16 +361,15 @@ certain high-frequency actions to [DevToolsManager](https://dataclient.io/vue/ap
 overwhelming the browser extension.
 
 ```typescript
-import { getDefaultManagers, actionTypes } from '@data-client/react';
+import { getDefaultManagers, actionTypes } from '@data-client/vue';
 import StreamManager from './StreamManager';
 import { Ticker } from './Ticker';
 
 export default function getManagers() {
   return [
-    new StreamManager(
-      () => new WebSocket('wss://ws-feed.example.com'),
-      { ticker: Ticker },
-    ),
+    new StreamManager(() => new WebSocket('wss://ws-feed.example.com'), {
+      ticker: Ticker,
+    }),
     ...getDefaultManagers({
       devToolsManager: {
         // Increase latency buffer for high-frequency updates
@@ -374,7 +384,3 @@ export default function getManagers() {
   ];
 }
 ```
-
-### Coin App
-
-Example app: [coin-app](https://github.com/reactive/data-client/tree/master/examples/coin-app) ([`src/getManagers.ts`](https://github.com/reactive/data-client/blob/master/examples/coin-app/src/getManagers.ts), [`src/resources/Ticker.ts`](https://github.com/reactive/data-client/blob/master/examples/coin-app/src/resources/Ticker.ts), [`src/pages/AssetDetail/AssetPrice.tsx`](https://github.com/reactive/data-client/blob/master/examples/coin-app/src/pages/AssetDetail/AssetPrice.tsx), [`src/resources/StreamManager.ts`](https://github.com/reactive/data-client/blob/master/examples/coin-app/src/resources/StreamManager.ts))

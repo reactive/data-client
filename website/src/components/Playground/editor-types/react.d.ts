@@ -408,7 +408,7 @@ declare namespace React {
      *
      * Where {@link ReactElement} only represents JSX, `ReactNode` represents everything that can be rendered.
      *
-     * @see {@link https://react-typescript-cheatsheet.netlify.app/docs/react-types/reactnode/ React TypeScript Cheatsheet}
+     * @see {@link https://react-typescript-cheatsheet.netlify.app/docs/reference/reactnode/ React TypeScript Cheatsheet}
      *
      * @example
      *
@@ -732,8 +732,15 @@ declare namespace React {
         toArray(children: ReactNode | ReactNode[]): Array<Exclude<ReactNode, boolean | null | undefined>>;
     };
 
+    /**
+     * The value of a ref on a `<Fragment>`.
+     * Empty by default; renderers (e.g. `react-dom`) augment this interface via `declare module "react"`.
+     */
+    export interface FragmentInstance {}
+
     export interface FragmentProps {
         children?: React.ReactNode;
+        ref?: Ref<FragmentInstance> | undefined;
     }
     /**
      * Lets you group elements without a wrapper node.
@@ -1431,7 +1438,7 @@ declare namespace React {
      * instead of this type, as they let you be explicit about whether or not to include
      * the `ref` prop.
      *
-     * @see {@link https://react-typescript-cheatsheet.netlify.app/docs/react-types/componentprops/ React TypeScript Cheatsheet}
+     * @see {@link https://react-typescript-cheatsheet.netlify.app/docs/reference/ComponentProps React TypeScript Cheatsheet}
      *
      * @example
      *
@@ -1459,7 +1466,7 @@ declare namespace React {
      * passed a string, indicating a DOM element (e.g. 'div', 'span', etc.) or the
      * type of a React component.
      *
-     * @see {@link https://react-typescript-cheatsheet.netlify.app/docs/react-types/componentprops/ React TypeScript Cheatsheet}
+     * @see {@link https://react-typescript-cheatsheet.netlify.app/docs/reference/ComponentProps React TypeScript Cheatsheet}
      *
      * @example
      *
@@ -1509,7 +1516,7 @@ declare namespace React {
      * passed a string, indicating a DOM element (e.g. 'div', 'span', etc.) or the
      * type of a React component.
      *
-     * @see {@link https://react-typescript-cheatsheet.netlify.app/docs/react-types/componentprops/ React TypeScript Cheatsheet}
+     * @see {@link https://react-typescript-cheatsheet.netlify.app/docs/reference/ComponentProps React TypeScript Cheatsheet}
      *
      * @example
      *
@@ -1959,7 +1966,16 @@ declare namespace React {
         | FulfilledReactPromise<T>
         | RejectedReactPromise<T>;
 
-    export type Usable<T> = ReactPromise<T> | Context<T>;
+    /**
+     * A registry of renderer-specific {@link Usable} types.
+     *
+     * Renderers (e.g. `react-dom`) augment this interface via `declare module "react"`,
+     * adding an entry keyed by a renderer-specific string whose type becomes a valid
+     * argument to {@link use}. Only renderers should augment this interface.
+     */
+    export interface RendererUsable<T> {}
+
+    export type Usable<T> = ReactPromise<T> | Context<T> | RendererUsable<T>[keyof RendererUsable<T>];
 
     export function use<T>(usable: Usable<T>): T;
 
@@ -2004,6 +2020,85 @@ declare namespace React {
      * @version 19.2.0
      */
     export const Activity: ExoticComponent<ActivityProps>;
+
+    export interface ViewTransitionInstance {
+        /**
+         * The {@link ViewTransitionProps name} that was used in the corresponding {@link ViewTransition} component or `"auto"` if the `name` prop was omitted.
+         */
+        name: string;
+    }
+
+    export type ViewTransitionClassPerType = Record<"default" | (string & {}), "none" | "auto" | (string & {})>;
+    export type ViewTransitionClass = ViewTransitionClassPerType | ViewTransitionClassPerType[string];
+
+    export interface ViewTransitionProps {
+        children?: ReactNode | undefined;
+        /**
+         * Assigns the {@link https://developer.chrome.com/blog/view-transitions-update-io24#view-transition-class `view-transition-class`} class to the underlying DOM node.
+         */
+        default?: ViewTransitionClass | undefined;
+        /**
+         * Combined with {@link className} if this `<ViewTransition>` or its parent Component is mounted and there's no other with the same name being deleted.
+         * `"none"` is a special value that deactivates the view transition name under that condition.
+         */
+        enter?: ViewTransitionClass | undefined;
+        /**
+         * Combined with {@link className} if this `<ViewTransition>` or its parent Component is unmounted and there's no other with the same name being deleted.
+         * `"none"` is a special value that deactivates the view transition name under that condition.
+         */
+        exit?: ViewTransitionClass | undefined;
+        /**
+         * "auto" will automatically assign a view-transition-name to the inner DOM node.
+         * That way you can add a View Transition to a Component without controlling its DOM nodes styling otherwise.
+         *
+         * A difference between this and the browser's built-in view-transition-name: auto is that switching the DOM nodes within the `<ViewTransition>` component preserves the same name so this example cross-fades between the DOM nodes instead of causing an exit and enter.
+         * @default "auto"
+         */
+        name?: "auto" | (string & {}) | undefined;
+        /**
+         * The `<ViewTransition>` or its parent Component is mounted and there's no other `<ViewTransition>` with the same name being deleted.
+         */
+        onEnter?: (instance: ViewTransitionInstance, types: Array<string>) => void | (() => void);
+        /**
+         * The `<ViewTransition>` or its parent Component is unmounted and there's no other with the same name being deleted.
+         */
+        onExit?: (instance: ViewTransitionInstance, types: Array<string>) => void | (() => void);
+        /**
+         * This `<ViewTransition>` is being mounted and another `<ViewTransition>` instance with the same name is being unmounted elsewhere.
+         */
+        onShare?: (instance: ViewTransitionInstance, types: Array<string>) => void | (() => void);
+        /**
+         * The content of `<ViewTransition>` has changed either due to DOM mutations or because an inner child `<ViewTransition>` has resized.
+         */
+        onUpdate?: (instance: ViewTransitionInstance, types: Array<string>) => void | (() => void);
+        ref?: Ref<ViewTransitionInstance> | undefined;
+        /**
+         * Combined with {@link className} if this `<ViewTransition>` is being mounted and another instance with the same name is being unmounted elsewhere.
+         * `"none"` is a special value that deactivates the view transition name under that condition.
+         */
+        share?: ViewTransitionClass | undefined;
+        /**
+         * Combined with {@link className} if the content of this `<ViewTransition>` has changed either due to DOM mutations or because an inner child has resized.
+         * `"none"` is a special value that deactivates the view transition name under that condition.
+         */
+        update?: ViewTransitionClass | undefined;
+    }
+
+    /**
+     * Opt-in for using {@link https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API View Transitions} in React.
+     * View Transitions only trigger for async updates like {@link startTransition}, {@link useDeferredValue}, Actions or <{@link Suspense}> revealing from fallback to content.
+     * Synchronous updates provide an opt-out but also guarantee that they commit immediately which View Transitions can't.
+     *
+     * @see {@link https://react.dev/reference/react/ViewTransition `<ViewTransition>` reference documentation}
+     * @version 19.3.0
+     */
+    export const ViewTransition: ExoticComponent<ViewTransitionProps>;
+
+    /**
+     * @see {@link https://react.dev/reference/react/addTransitionType `addTransitionType` reference documentation}
+     * @version 19.3.0
+     */
+    export function addTransitionType(type: string): void;
 
     /**
      * Warning: Only available in development builds.
@@ -2166,8 +2261,7 @@ declare namespace React {
     }
 
     interface SubmitEvent<T = Element> extends SyntheticEvent<T, NativeSubmitEvent> {
-        // `submitter` is available in react@canary
-        // submitter: HTMLElement | null;
+        submitter: HTMLElement | null;
         // SubmitEvents are always targetted at HTMLFormElements.
         target: EventTarget & HTMLFormElement;
     }
@@ -3166,7 +3260,7 @@ declare namespace React {
         alt?: string | undefined;
         crossOrigin?: CrossOrigin;
         decoding?: "async" | "auto" | "sync" | undefined;
-        fetchPriority?: "high" | "low" | "auto";
+        fetchPriority?: "high" | "low" | "auto" | undefined;
         height?: number | string | undefined;
         loading?: "eager" | "lazy" | undefined;
         referrerPolicy?: HTMLAttributeReferrerPolicy | undefined;
@@ -3339,7 +3433,7 @@ declare namespace React {
         as?: string | undefined;
         blocking?: "render" | (string & {}) | undefined;
         crossOrigin?: CrossOrigin;
-        fetchPriority?: "high" | "low" | "auto";
+        fetchPriority?: "high" | "low" | "auto" | undefined;
         href?: string | undefined;
         hrefLang?: string | undefined;
         integrity?: string | undefined;
@@ -4129,7 +4223,6 @@ declare namespace React {
         componentStack?: string | null;
     }
 
-    // Keep in sync with JSX namespace in ./jsx-runtime.d.ts and ./jsx-dev-runtime.d.ts
     namespace JSX {
         // We don't just alias React.ElementType because React.ElementType
         // historically does more than we need it to.

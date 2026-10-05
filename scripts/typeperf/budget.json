@@ -1,0 +1,16 @@
+{
+  "instantiations": {
+    "resources": 121763,
+    "bigEntity": 12783,
+    "union": 16142,
+    "paths": 345562,
+    "nested": 2895,
+    "vue": 47288,
+    "schemas": 99251,
+    "typical": 13038,
+    "setValues": 26029,
+    "setUpdaters": 66033,
+    "patheq": 935715
+  },
+  "typescript": "6.0.3"
+}

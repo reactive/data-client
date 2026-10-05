@@ -131,9 +131,7 @@ When using [WebSockets](../concepts/managers.md#data-stream) or other real-time 
 high-frequency updates can overwhelm the DevTools extension. Use the `predicate` option to
 filter out specific action types or schemas:
 
-:::react
-
-```tsx title="index.tsx"
+```ts title="managers.ts" framework-imports
 import { getDefaultManagers, actionTypes } from '@data-client/react';
 import { Ticker } from './resources/Ticker';
 
@@ -151,31 +149,6 @@ const managers = getDefaultManagers({
   },
 });
 ```
-
-:::
-
-:::vue
-
-```ts title="managers.ts"
-import { getDefaultManagers, actionTypes } from '@data-client/vue';
-import { Ticker } from './resources/Ticker';
-
-const managers = getDefaultManagers({
-  devToolsManager: {
-    // Increase latency buffer for high-frequency updates
-    latency: 1000,
-    // Skip WebSocket SET actions for Ticker to reduce log spam
-    // (including batched set([Ticker], rows) writes)
-    // highlight-start
-    predicate: (state, action) =>
-      action.type !== actionTypes.SET ||
-      (action.schema !== Ticker && action.schema[0] !== Ticker),
-    // highlight-end
-  },
-});
-```
-
-:::
 
 ## Programmatic store access {#controllers}
 
@@ -196,7 +169,7 @@ __DC_CONTROLLERS__.get('Data Client: My App').getState();
 
 This is useful for AI coding assistants using the [Chrome DevTools MCP](https://developer.chrome.com/blog/chrome-devtools-mcp)
 or [Expo MCP](https://docs.expo.dev/eas/ai/mcp/) to programmatically inspect and interact
-with the store. Each :react[[DataProvider](/docs/api/DataProvider)]:vue[installed DataClientPlugin] registers independently, so
+with the store. Each :react[[DataProvider](/docs/api/DataProvider)]:vue[installed [DataClientPlugin](./DataClientPlugin.md)] registers independently, so
 multiple :react[providers]:vue[apps] on the same page are fully supported.
 
 Controllers are removed from the map when `cleanup()` is called.

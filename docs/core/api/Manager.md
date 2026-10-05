@@ -57,7 +57,7 @@ managers that perform work after the DOM is updated and also with the newly comp
 :::vue
 
 This promise resolves when the reducer update is committed to the
-[DataClientPlugin](../getting-started/installation.md) store. This enables building managers that perform work with the
+[DataClientPlugin](./DataClientPlugin.md) store. This enables building managers that perform work with the
 newly computed state.
 
 :::
@@ -89,7 +89,7 @@ have internal state, so it is important to not constantly recreate them.
 
 :::vue
 
-Use the `managers` option of [DataClientPlugin](../getting-started/installation.md). The plugin is
+Use the [managers](./DataClientPlugin.md#managers) option of [DataClientPlugin](./DataClientPlugin.md). The plugin is
 installed once per app, so managers are created once.
 
 :::
@@ -273,7 +273,7 @@ The job of `middleware` is to dispatch actions, respond to [actions](./Actions.m
 <TypeScriptEditor>
 
 ```ts title="CurrentTime" collapsed
-import { Entity } from '@data-client/endpoint';
+import { Entity } from '@data-client/rest';
 
 export default class CurrentTime extends Entity {
   id = 0;
@@ -281,12 +281,12 @@ export default class CurrentTime extends Entity {
 }
 ```
 
-```ts title="TimeManager"
-import type { Manager, Middleware } from '@data-client/core';
+```ts title="TimeManager" framework-imports
+import type { Manager, Middleware } from '@data-client/react';
 import CurrentTime from './CurrentTime';
 
 export default class TimeManager implements Manager {
-  protected declare intervalID?: ReturnType<typeof setInterval>;
+  declare protected intervalID?: ReturnType<typeof setInterval>;
 
   middleware: Middleware = controller => {
     this.intervalID = setInterval(() => {
@@ -310,7 +310,7 @@ export default class TimeManager implements Manager {
 
 <TypeScriptEditor>
 
-```ts
+```ts framework-imports
 import type { Manager, Middleware } from '@data-client/react';
 import { actionTypes } from '@data-client/react';
 
@@ -352,22 +352,27 @@ In case we want to 'handle' a certain [action](./Actions.md), we can 'consume' i
 
 <TypeScriptEditor>
 
-```ts title="isEntity" collapsed
-import type { Schema, EntityInterface } from '@data-client/core';
+```ts title="isEntity" collapsed framework-imports
+import type { Schema, EntityInterface } from '@data-client/react';
 
-export default function isEntity(schema: Schema): schema is EntityInterface {
+export default function isEntity(
+  schema: Schema,
+): schema is EntityInterface {
   return schema !== null && (schema as any).pk !== undefined;
 }
 ```
 
-
-```ts title="SubsManager"
-import type { Manager, Middleware, EntityInterface } from '@data-client/react';
+```ts title="SubsManager" framework-imports
+import type {
+  Manager,
+  Middleware,
+  EntityInterface,
+} from '@data-client/react';
 import { actionTypes } from '@data-client/react';
 import isEntity from './isEntity';
 
 export default class CustomSubsManager implements Manager {
-  protected declare entities: Record<string, EntityInterface>;
+  declare protected entities: Record<string, EntityInterface>;
 
   middleware: Middleware = controller => next => async action => {
     switch (action.type) {
