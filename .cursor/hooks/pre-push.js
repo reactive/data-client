@@ -119,14 +119,15 @@ function regenerate({ what, from, script, yarn, ci, isInput, outputs }) {
 
 /** `eslint --fix` the branch's JS/TS files; reports the ones it changed */
 function lintFix() {
-  // eslint reads the working tree, so like `regenerate()` it skips files with
-  // uncommitted edits unless this command commits them; CI lint covers those
-  const files = (
+  // eslint reads the working tree, so skip files with uncommitted edits unless
+  // this command commits them (per file, since eslint reads only those)
+  const pushed =
     commits ?
       [...new Set([...committed, ...dirty])]
-    : committed.filter(file => !dirty.includes(file))).filter(
+    : committed.filter(file => !dirty.includes(file));
+  const files = pushed.filter(
     file =>
-      /\.(c|m)?[jt]sx?$/.test(file) &&
+      /\.[cm]?[jt]sx?$/.test(file) &&
       fs.existsSync(path.join(projectDir, file)),
   );
   if (!files.length) return [];
@@ -135,17 +136,18 @@ function lintFix() {
   try {
     execFileSync(
       path.join(projectDir, 'node_modules/.bin/eslint'),
-      ['--fix', '--no-warn-ignored', '--', ...files],
+      ['--fix', '--cache', '--no-warn-ignored', '--', ...files],
       { cwd: projectDir, stdio: 'ignore' },
     );
   } catch {
     // unfixable lint errors are left to CI, like a missing install
   }
   const fixed = files.filter((file, i) => read(file) !== before[i]);
-  return [
-    fixed.length &&
-      `\`eslint --fix\` changed files this push would include. Commit them, then push again:\n${fixed.join('\n')}`,
-  ];
+  return fixed.length ?
+      [
+        `\`eslint --fix\` changed files this push would include. Commit them, then push again:\n${fixed.join('\n')}`,
+      ]
+    : [];
 }
 
 const message = [
