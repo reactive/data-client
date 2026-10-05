@@ -2,7 +2,9 @@ import CodeBlock from '@theme/CodeBlock';
 import type { ReactNode } from 'react';
 
 import { parseCodeDocuments } from './Playground/editor/codeModel';
-import providerSetup, { type Platform } from './providerSetup.mjs';
+import providerSetup, {
+  type Platform,
+} from '../../framework-docs/providerSetup.mjs';
 
 /**
  * App setup file that renders DataProvider (React) or DataClientPlugin (Vue),

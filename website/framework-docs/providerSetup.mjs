@@ -1,6 +1,6 @@
 /**
  * App setup files that render DataProvider (React) or DataClientPlugin (Vue).
- * Shared by ProviderSetupCode (site) and framework-docs/docsToMarkdown.mjs
+ * Shared by src/components/ProviderSetupCode (site) and docsToMarkdown.mjs
  * (skill references, llms.txt), so both print the same code.
  */
 
