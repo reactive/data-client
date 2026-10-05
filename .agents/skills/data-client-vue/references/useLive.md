@@ -110,4 +110,4 @@ If that fetch fails, reading the result throws the error (per its [error policy]
 ### Bitcoin Price (polling)
 
 When our component with `useLive` is rendered, `getTicker` will fetch at [pollFrequency](https://dataclient.io/rest/api/RestEndpoint#pollfrequency)
-miliseconds.
+milliseconds.

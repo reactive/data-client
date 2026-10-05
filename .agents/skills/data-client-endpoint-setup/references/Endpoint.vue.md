@@ -68,7 +68,7 @@ export interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
   readonly dataExpiryLength?: number;
   /** Default error expiry length, will fall back to NetworkManager default if not defined */
   readonly errorExpiryLength?: number;
-  /** Poll with at least this frequency in miliseconds */
+  /** Poll with at least this frequency in milliseconds */
   readonly pollFrequency?: number;
   /** Marks cached resources as invalid if they are stale */
   readonly invalidIfStale?: boolean;
@@ -475,9 +475,12 @@ const createUser = new RestEndpoint({
 
 More updates:
 
-```typescript title="Component.tsx"
-const allusers = useSuspense(userList);
-const adminUsers = useSuspense(userList, { admin: true });
+```typescript title="Component.vue"
+// start both fetches in parallel
+useFetch(userList);
+useFetch(userList, { admin: true });
+const allusers = await useSuspense(userList);
+const adminUsers = await useSuspense(userList, { admin: true });
 ```
 
 The endpoint below ensures the new user shows up immediately in the usages above.

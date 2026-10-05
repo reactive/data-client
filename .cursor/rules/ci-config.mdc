@@ -18,6 +18,7 @@ alwaysApply: false
   - `scripts/build-legacy-types.sh` builds each TS version concurrently; each `ts<version>/` gets the downleveled `lib` (with `abstract new` rewritten to `new` below 4.2, which `downlevel-dts` misses), then every newer version's `src-*-types` overlay, then its own. Keep overlays to small single-purpose modules (like `NoInfer.ts`, `tupleTypes.ts`) so whole-file copies can't go stale.
   - `esmodule-types` also runs `examples/todo-app/tsconfig.typetest-libcheck.json` (`skipLibCheck: false`, `types: []`) so errors inside the legacy outputs fail CI, and `esmodule-types-latest` runs it with `--moduleResolution bundler` (TS 7 removed `node`) to cover `lib/`; the other typetests use `skipLibCheck: true`.
   - Any change to legacy types building must leave `ts*/` output byte-identical to master (diff it) unless it intentionally changes published types (then add a changeset).
+- `typecheck` also runs `yarn check:typeperf` ([scripts/typeperf](../../scripts/typeperf/README.md)), which reads the `ci:build:types` output from `setup`'s workspace.
 - Never `git fetch --depth` the base branch in the relevance check: a shallow fetch severs the merge base and the three-dot diff fails.
 - Changing root `package.json` `workspaces` requires updating the `setup` job's workspace trimming step.
 
@@ -25,6 +26,7 @@ alwaysApply: false
 
 - Workflows install only needed workspaces via `./scripts/ci-install.sh [extra-workspace ...]`.
 - `skills.yml` `paths` must cover every input of `website/framework-docs/skillReferences.mjs` (docs, skill manifests, the generator and its deps).
+- `editor-types.yml` reruns `yarn copy:websitetypes` and fails if `website/src/components/Playground/editor-types` changes. It needs the `website` workspace (for deps like `bignumber.js`), which CircleCI's `setup` drops. Its `paths` must cover every input of `scripts/copywebsitetypes.sh`.
 - `site-preview.yml`/`site-release.yml` `paths` (`website/**`, `docs/{core,rest,graphql}/**`) must match `SITE_PATHS` in `website/scripts/vercel-ignore.sh`.
 - `benchmark-react.yml` caches Playwright browsers keyed on the resolved `playwright` version from `examples/benchmark-react`; bumping playwright invalidates the cache automatically.
 - Benchmark workflows (`benchmark.yml`, `benchmark-react.yml`) tune the host (CPU governor, swapoff) and pin CPUs with `taskset` — they must run directly on the runner, not in a `container:`.

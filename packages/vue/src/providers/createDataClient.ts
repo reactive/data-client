@@ -4,6 +4,7 @@ import {
   applyManager,
   initManager,
   createReducer,
+  GCPolicy,
 } from '@data-client/core';
 import type { State, Manager, GCInterface } from '@data-client/core';
 import { provide, shallowRef, type ShallowRef, type App } from 'vue';
@@ -11,14 +12,17 @@ import { provide, shallowRef, type ShallowRef, type App } from 'vue';
 import { ControllerKey, StateKey } from '../context.js';
 import { getDefaultManagers } from './getDefaultManagers.js';
 
+/** Options for `app.use(DataClientPlugin, options)` */
 export interface ProvideOptions {
   managers?: Manager[];
   initialState?: State<unknown>;
   Controller?: typeof DataController;
   gcPolicy?: GCInterface;
+  /** @internal Set by DataClientPlugin */
   app?: App;
 }
 
+/** @deprecated Internal to DataClientPlugin; will stop being exported */
 export interface ProvidedDataClient {
   controller: InstanceType<typeof DataController>;
   /** Optimistic overlay state ref provided to consumers */
@@ -30,13 +34,18 @@ export interface ProvidedDataClient {
 }
 
 /**
- * Core provider logic that can be used by both composable and plugin.
- * This function handles the actual setup of the data client without Vue-specific concerns.
+ * Core provider logic used by DataClientPlugin.
+ *
+ * @deprecated Internal to DataClientPlugin; will stop being exported. Use DataClientPlugin instead.
  */
 export function createDataClient(
   options: ProvideOptions = {},
 ): ProvidedDataClient {
-  const { Controller = DataController, gcPolicy, app } = options;
+  const {
+    Controller = DataController,
+    gcPolicy = new GCPolicy(),
+    app,
+  } = options;
 
   // stable singletons for this provider scope
   const controller = new Controller({ gcPolicy });

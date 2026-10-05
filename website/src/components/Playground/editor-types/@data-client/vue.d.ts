@@ -1,5 +1,5 @@
 import { EndpointInterface, FetchFunction, Schema, ResolveType, Denormalize, DenormalizeNullable, Queryable, SchemaArgs, ErrorTypes, Controller, DevToolsManager, DevToolsConfig, NetworkManager, SubscriptionManager, Manager, State, GCInterface } from '@data-client/core';
-export { AbstractInstanceType, ActionTypes, Controller, CreateCountRef, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, EntityInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GCInterface, GCOptions, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, Queryable, ResetAction, ResolveType, Schema, SchemaArgs, SchemaClass, SetAction, SetResponseAction, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
+export { AbstractInstanceType, ActionTypes, Controller, CreateCountRef, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, EntityInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GCInterface, GCOptions, GCPolicy, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, Queryable, ResetAction, ResolveType, Schema, SchemaArgs, SchemaClass, SetAction, SetResponseAction, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
 import { MaybeRefOrGetter, DeepReadonly, ComputedRef, Ref, App, ShallowRef } from 'vue';
 
 /** Maps each parameter to accept raw value, Ref, ComputedRef, or getter */
@@ -131,13 +131,16 @@ type ConstructorArgs<T extends {
     new (...args: any): any;
 }> = T extends new (options: infer O) => any ? O : never;
 
+/** Options for `app.use(DataClientPlugin, options)` */
 interface ProvideOptions {
     managers?: Manager[];
     initialState?: State<unknown>;
     Controller?: typeof Controller;
     gcPolicy?: GCInterface;
+    /** @internal Set by DataClientPlugin */
     app?: App;
 }
+/** @deprecated Internal to DataClientPlugin; will stop being exported */
 interface ProvidedDataClient {
     controller: InstanceType<typeof Controller>;
     /** Optimistic overlay state ref provided to consumers */
@@ -148,8 +151,9 @@ interface ProvidedDataClient {
     stop: () => void;
 }
 /**
- * Core provider logic that can be used by both composable and plugin.
- * This function handles the actual setup of the data client without Vue-specific concerns.
+ * Core provider logic used by DataClientPlugin.
+ *
+ * @deprecated Internal to DataClientPlugin; will stop being exported. Use DataClientPlugin instead.
  */
 declare function createDataClient(options?: ProvideOptions): ProvidedDataClient;
 

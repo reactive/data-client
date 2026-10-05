@@ -91,6 +91,7 @@ interface ProviderProps {
   managers?: Manager[];
   initialState?: State<unknown>;
   Controller?: typeof Controller;
+  gcPolicy?: GCInterface;
   devButton?:
     | 'bottom-right'
     | 'bottom-left'
@@ -114,9 +115,10 @@ export interface State<T> {
   readonly meta: {
     readonly [key: string]: {
       readonly date: number;
-      readonly error?: ErrorTypes;
+      readonly fetchedAt: number;
       readonly expiresAt: number;
       readonly prevExpiresAt?: number;
+      readonly error?: ErrorTypes;
       readonly invalidated?: boolean;
       readonly errorPolicy?: 'hard' | 'soft' | undefined;
     };
@@ -177,6 +179,35 @@ const RealApp = (
     <App />
   </DataProvider>
 );
+```
+
+### gcPolicy?: GCInterface {#gcPolicy}
+
+Removes data from the store once no component uses it and it has gone stale. Defaults to
+`new GCPolicy()`.
+
+```tsx
+import { DataProvider, GCPolicy } from '@data-client/react';
+
+const gcPolicy = new GCPolicy({ intervalMS: 60 * 1000 * 10 });
+
+const RealApp = (
+  <DataProvider gcPolicy={gcPolicy}>
+    <App />
+  </DataProvider>
+);
+```
+
+```ts title="GCPolicy options"
+new GCPolicy({
+  // how often to sweep (default 5 minutes)
+  intervalMS: 60 * 1000 * 5,
+  // how many stale lifetimes before data is removed (default 2)
+  expiryMultiplier: 2,
+  // or choose when unused data is removed (replaces expiryMultiplier)
+  // here: one minute after it goes stale
+  expiresAt: ({ expiresAt }) => expiresAt + 60 * 1000,
+});
 ```
 
 ### devButton

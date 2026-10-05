@@ -26,6 +26,7 @@ const require = createRequire(import.meta.url);
 const preprocessContent =
   require('@docusaurus/mdx-loader/lib/preprocessor').default;
 
+const { DOCS_INSTANCES, frameworkInstance } = require('./docsInstances.js');
 const {
   docIds,
   docIdOf,
@@ -37,12 +38,13 @@ const remarkFramework = require('./remarkFramework.js');
 
 export { ROOT, SITE, rel };
 
-/** docs folder -> route base per framework; keep in sync with docusaurus.config.ts */
-const ROUTES = [
-  ['docs/core/', { react: '/docs/', vue: '/vue/' }],
-  ['docs/rest/', { react: '/rest/', vue: '/rest/' }],
-  ['docs/graphql/', { react: '/graphql/', vue: '/graphql/' }],
-];
+/** Docs instance rendering `relPath` (from the repo root) for a framework */
+const instanceOf = (relPath, framework) =>
+  DOCS_INSTANCES.find(
+    d =>
+      relPath.startsWith(`${d.path}/`) &&
+      (d.framework ?? framework) === framework,
+  );
 const vueIds = docIds('vue');
 const MD = /\.mdx?$/;
 
@@ -107,16 +109,18 @@ const parse = memoize(file => {
 /** Site route (no host) of a doc for a framework */
 export const routeOf = memoize((file, framework) => {
   const relPath = rel(file).replace(/\.(react|vue)(\.mdx?)$/, '$2');
-  const match = ROUTES.find(([dir]) => relPath.startsWith(dir));
-  if (!match) return;
-  const [dir, bases] = match;
-  const docId = docIdOf(relPath.slice(dir.length), contentFor(file, framework));
+  const instance = instanceOf(relPath, framework);
+  if (!instance) return;
+  const docId = docIdOf(
+    relPath.slice(instance.path.length + 1),
+    contentFor(file, framework),
+  );
   // Vue links to pages without a Vue version go to the React docs
-  const base =
-    dir === 'docs/core/' && framework === 'vue' && !vueIds.has(docId) ?
-      bases.react
-    : bases[framework];
-  return `${base}${docId}`.replace(/\/index$/, '/');
+  const { routeBasePath } =
+    instance.framework === 'vue' && !vueIds.has(docId) ?
+      frameworkInstance('react')
+    : instance;
+  return `/${routeBasePath}/${docId}`.replace(/\/index$/, '/');
 });
 
 /** Relative doc links become site routes; absolute ones are left to remarkFramework */
@@ -482,7 +486,11 @@ function render(file, framework, props = {}) {
   tree.children = convertAll(tree.children);
   // absolute /docs links point at this framework's docs, as on the site
   if (framework === 'vue')
-    remarkFramework({ framework, routeBasePath: 'vue', docIds: vueIds })(tree);
+    remarkFramework({
+      framework,
+      routeBasePath: frameworkInstance('vue').routeBasePath,
+      docIds: vueIds,
+    })(tree);
   tree.title = frontMatterValue(content, 'title');
   return tree;
 }

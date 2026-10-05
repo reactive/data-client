@@ -662,12 +662,12 @@ takes the input of the schema it wraps, since `set()` normalizes that schema rat
 ctrl.set(TodoResource.getList.schema, [{ id: '5', completed: true }]);
 ```
 
-:::note Type checking limits
+:::note Unions
 
-To keep type checking fast for large [Unions](/rest/api/Union), a Union row is checked against the
-combined fields of all its members rather than against one member. Each field's type is still checked,
-but a row that mixes fields from different members (like `{ type: 'first', secondField: 1 }`) is not
-an error. Make sure the fields you set belong to the member the row's discriminator selects.
+When each member declares its discriminator as a literal (like `readonly type = 'first'`), a
+[Union](/rest/api/Union) row is checked against the member it selects, so `{ type: 'first', secondField: 1 }` is an
+error. Only declared fields are accepted, so a key read by a
+`schemaAttribute` function must be declared on each member.
 
 :::
 

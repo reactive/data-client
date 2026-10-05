@@ -1,7 +1,7 @@
 import type * as Preset from '@docusaurus/preset-classic';
 import type * as PresetMermaid from '@docusaurus/theme-mermaid';
 import type { Config } from '@docusaurus/types';
-import { GlobExcludeDefault } from '@docusaurus/utils';
+import { GlobExcludeDefault, getVcsPreset } from '@docusaurus/utils';
 import { createRequire } from 'module';
 import path from 'path';
 import { themes } from 'prism-react-renderer';
@@ -18,10 +18,30 @@ require('./scripts/generateMonacoPreloads.cjs').ensureMonacoPreloadManifest();
 const isDev = process.env.NODE_ENV === 'development';
 
 // docs/core is shared by React (/docs) and Vue (/vue); see framework-docs/
+const {
+  docsInstance,
+  frameworkInstance,
+} = require('./framework-docs/docsInstances.js');
 const frameworkDocs = require('./framework-docs/index.js');
 const remarkFramework = require('./framework-docs/remarkFramework.js');
+// Non-Vue instances render React; :::vue reaches Vue agents via skill references
+const reactRemarkPlugins = [[remarkFramework, { framework: 'react' }]];
 const vueDocs = frameworkDocs.generate('vue');
 if (isDev) frameworkDocs.watch('vue');
+const vueInstance = frameworkInstance('vue');
+const gitVcs = getVcsPreset('default-v1');
+const editRoot = 'https://github.com/reactive/data-client/edit/master';
+/** Plugin options locating a docs instance (framework-docs/docsInstances.js) */
+const docsLocation = (id: string) => {
+  const { path: docsPath, routeBasePath } = docsInstance(id);
+  return {
+    id,
+    path: `../${docsPath}`,
+    routeBasePath,
+    editUrl: ({ docPath }: { docPath: string }) =>
+      `${editRoot}/${docsPath}/${docPath}`,
+  };
+};
 
 const config: Config = {
   title: 'Data Client',
@@ -206,35 +226,32 @@ const config: Config = {
     repoUrl: 'https://github.com/reactive/data-client',
   },
   onBrokenLinks: 'log',
+  future: {
+    // Generated Vue mirror pages have no git history; read their source's
+    experimental_vcs: {
+      ...gitVcs,
+      getFileCreationInfo: file =>
+        gitVcs.getFileCreationInfo(vueDocs.sourceOf(file)),
+      getFileLastUpdateInfo: file =>
+        gitVcs.getFileLastUpdateInfo(vueDocs.sourceOf(file)),
+    },
+  },
   presets: [
     [
       '@docusaurus/preset-classic',
       {
         docs: {
-          //id: 'core',
-          path: '../docs/core',
+          ...docsLocation('default'),
           // `exclude` replaces Docusaurus' defaults; keep them so `_` partials aren't published
           exclude: [
             ...GlobExcludeDefault,
             'getting-started/README.md',
             '**/*.vue.{md,mdx}',
           ],
-          //routeBasePath: 'core',
           sidebarPath: require.resolve('./framework-docs/sidebars-react.js'),
-          beforeDefaultRemarkPlugins: [
-            [remarkFramework, { framework: 'react' }],
-          ],
+          beforeDefaultRemarkPlugins: reactRemarkPlugins,
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
-          editUrl: ({ locale, docPath }) => {
-            /*if (locale !== 'en') {
-              return `https://crowdin.com/project/docusaurus-v2/${locale}`;
-            }*/
-            // We want users to submit doc updates to the upstream/next version!
-            // Otherwise we risk losing the update on the next release.
-            const nextVersionDocsDirPath = 'docs';
-            return `https://github.com/reactive/data-client/edit/master/${nextVersionDocsDirPath}/${docPath}`;
-          },
           lastVersion: 'current',
           includeCurrentVersion: true,
           versions: {
@@ -271,46 +288,34 @@ const config: Config = {
     [
       '@docusaurus/plugin-content-docs',
       {
-        id: 'vue',
+        ...docsLocation('vue'),
         path: vueDocs.outDir,
         exclude: [...GlobExcludeDefault, 'getting-started/README.md'],
-        routeBasePath: 'vue',
         sidebarPath: require.resolve('./framework-docs/sidebars-vue.js'),
         beforeDefaultRemarkPlugins: [
           [
             remarkFramework,
             {
               framework: 'vue',
-              routeBasePath: 'vue',
+              routeBasePath: vueInstance.routeBasePath,
               docIds: frameworkDocs.docIds('vue'),
             },
           ],
         ],
-        // generated files have no git history
-        showLastUpdateAuthor: false,
-        showLastUpdateTime: false,
+        showLastUpdateAuthor: true,
+        showLastUpdateTime: true,
         editUrl: ({ docPath }) =>
-          `https://github.com/reactive/data-client/edit/master/docs/core/${frameworkDocs.sourcePath('vue', docPath)}`,
+          `${editRoot}/${vueInstance.path}/${frameworkDocs.sourcePath('vue', docPath)}`,
       },
     ],
     [
       '@docusaurus/plugin-content-docs',
       {
-        id: 'rest',
-        path: '../docs/rest',
-        routeBasePath: 'rest',
+        ...docsLocation('rest'),
         sidebarPath: require.resolve('./sidebars-rest.js'),
+        beforeDefaultRemarkPlugins: reactRemarkPlugins,
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
-        editUrl: ({ locale, docPath }) => {
-          /*if (locale !== 'en') {
-            return `https://crowdin.com/project/docusaurus-v2/${locale}`;
-          }*/
-          // We want users to submit doc updates to the upstream/next version!
-          // Otherwise we risk losing the update on the next release.
-          const nextVersionDocsDirPath = 'docs/rest';
-          return `https://github.com/reactive/data-client/edit/master/${nextVersionDocsDirPath}/${docPath}`;
-        },
         lastVersion: 'current',
         includeCurrentVersion: true,
         versions: {
@@ -324,21 +329,11 @@ const config: Config = {
     [
       '@docusaurus/plugin-content-docs',
       {
-        id: 'graphql',
-        path: '../docs/graphql',
-        routeBasePath: 'graphql',
+        ...docsLocation('graphql'),
         sidebarPath: require.resolve('./sidebars-graphql.js'),
+        beforeDefaultRemarkPlugins: reactRemarkPlugins,
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
-        editUrl: ({ locale, docPath }) => {
-          /*if (locale !== 'en') {
-            return `https://crowdin.com/project/docusaurus-v2/${locale}`;
-          }*/
-          // We want users to submit doc updates to the upstream/next version!
-          // Otherwise we risk losing the update on the next release.
-          const nextVersionDocsDirPath = 'docs/graphql';
-          return `https://github.com/reactive/data-client/edit/master/${nextVersionDocsDirPath}/${docPath}`;
-        },
         lastVersion: 'current',
         includeCurrentVersion: true,
         versions: {
@@ -354,7 +349,8 @@ const config: Config = {
       {
         // Vue docs briefly lived at /docs/vue
         createRedirects(existingPath: string) {
-          if (existingPath === '/vue' || existingPath.startsWith('/vue/'))
+          const vue = `/${vueInstance.routeBasePath}`;
+          if (existingPath === vue || existingPath.startsWith(`${vue}/`))
             return `/docs${existingPath}`;
         },
         redirects: [
@@ -422,16 +418,7 @@ const config: Config = {
     path.resolve(__dirname, './node-plugin'),
     path.resolve(__dirname, './profiling-plugin'),
     path.resolve(__dirname, './raw-plugin'),
-    [
-      path.resolve(__dirname, './llms-plugin'),
-      {
-        frameworks: {
-          react: { id: 'default', path: '/', name: 'React' },
-          vue: { id: 'vue', path: '/vue/', name: 'Vue' },
-        },
-        shared: { rest: 'REST', graphql: 'GraphQL' },
-      },
-    ],
+    path.resolve(__dirname, './llms-plugin'),
   ],
   themeConfig: {
     mermaid: {

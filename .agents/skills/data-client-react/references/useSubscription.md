@@ -107,7 +107,7 @@ us to access the [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document
 
 ### Crypto prices (websockets)
 
-We implemented our own `StreamManager` to handle our custom websocket protocol. Here we listen to the [subcribe/unsubcribe
+We implemented our own `StreamManager` to handle our custom websocket protocol. Here we listen to the [subscribe/unsubscribe
 actions](./Actions.md#subscribe) sent by `useSubscription` to ensure we only listen to updates for components that are rendered.
 
 Example app: [coin-app](https://github.com/reactive/data-client/tree/master/examples/coin-app) ([`src/resources/StreamManager.ts`](https://github.com/reactive/data-client/blob/master/examples/coin-app/src/resources/StreamManager.ts), [`src/resources/Ticker.ts`](https://github.com/reactive/data-client/blob/master/examples/coin-app/src/resources/Ticker.ts), [`src/pages/Home/AssetPrice.tsx`](https://github.com/reactive/data-client/blob/master/examples/coin-app/src/pages/Home/AssetPrice.tsx))

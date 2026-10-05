@@ -57,7 +57,7 @@ managers that perform work after the DOM is updated and also with the newly comp
 :::vue
 
 This promise resolves when the reducer update is committed to the
-[DataClientPlugin](../getting-started/installation.md) store. This enables building managers that perform work with the
+[DataClientPlugin](./DataClientPlugin.md) store. This enables building managers that perform work with the
 newly computed state.
 
 :::
@@ -89,7 +89,7 @@ have internal state, so it is important to not constantly recreate them.
 
 :::vue
 
-Use the `managers` option of [DataClientPlugin](../getting-started/installation.md). The plugin is
+Use the [managers](./DataClientPlugin.md#managers) option of [DataClientPlugin](./DataClientPlugin.md). The plugin is
 installed once per app, so managers are created once.
 
 :::
