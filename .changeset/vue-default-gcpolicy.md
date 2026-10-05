@@ -4,11 +4,9 @@
 
 Fix `DataClientPlugin` never garbage collecting by default
 
-Without a `gcPolicy` option, data was kept in the store forever. It now defaults to `new GCPolicy()`, matching
-`DataProvider` in `@data-client/react`: data no component uses is removed once it is stale.
+Without a `gcPolicy` option, every response stayed in the store for the life of the app, so long-running
+pages kept growing. It now defaults to `new GCPolicy()`, matching `DataProvider` in `@data-client/react`.
 
-```ts
-app.use(DataClientPlugin);
-// Before: unused data stays in the store forever
-// After: unused data is removed after it goes stale (swept every 5 minutes)
-```
+Data that no mounted component uses is removed once it is stale (checked every 5 minutes). A component that
+mounts after that refetches it with `useSuspense()`, while `useCache()` returns `undefined` until something fetches
+it again. Pass your own `gcPolicy` to keep unused data longer or sweep less often.
