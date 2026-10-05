@@ -7,14 +7,15 @@ const fs = require('fs');
 const path = require('path');
 
 const projectDir = process.env.CLAUDE_PROJECT_DIR || process.cwd();
+// written only once every command succeeds, so a failed setup reruns
+const done = path.join(projectDir, 'node_modules/.worktree-setup-done');
 // a linked worktree has a `.git` file; the main checkout has a directory
 const isWorktree = fs
   .statSync(path.join(projectDir, '.git'), {
     throwIfNoEntry: false,
   })
   ?.isFile();
-if (!isWorktree || fs.existsSync(path.join(projectDir, 'node_modules')))
-  process.exit(0);
+if (!isWorktree || fs.existsSync(done)) process.exit(0);
 
 const commands =
   JSON.parse(
@@ -31,4 +32,6 @@ for (const command of commands) {
     process.exit(0);
   }
 }
+fs.mkdirSync(path.dirname(done), { recursive: true });
+fs.writeFileSync(done, '');
 console.log(`Worktree set up: ${commands.join(' && ')}`);
