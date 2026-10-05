@@ -45,7 +45,7 @@ import AutoPlayVideo from '@site/src/components/AutoPlayVideo';
 <AutoPlayVideo
   src={useBaseUrl('/videos/blog/<name>.webm')}
   type="video/webm"
-  width="100%"
+  style={{ width: '100%' }}
   alt="What the clip shows, step by step"
 />
 ```
