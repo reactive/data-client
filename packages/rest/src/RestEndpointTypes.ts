@@ -290,30 +290,38 @@ export type RestEndpointExtendOptions<
 
 /** Parameters<F> as a single tuple, so process() accepts every way the endpoint can be called.
  * Endpoints with optional params or body have a union like `[params] | []` or `[params, body] | [body]`
- * (see ParamFetchNoBody/ParamFetchWithBody);
- * it merges position-wise, with an element optional when some call omits it.
+ * (see ParamFetchNoBody/ParamFetchWithBody); it merges position-wise, with an element optional when
+ * some call omits it. A single tuple (like a custom `fetch(params?)`) is kept as is.
  * Only for contextually typing an options callback: TypeScript can't infer callback parameters from a
  * union of tuples. The instance `process()` keeps `Parameters<F>`, the stricter signature for callers.
  */
 type ProcessArgs<A extends readonly any[]> =
+  // fast path for fixed-length tuples; [A['length']] can't be checked against a union of lengths
   number extends A['length'] ? A
   : [A['length']] extends [0] ? A
   : [A['length']] extends [1] ? A
   : [A['length']] extends [2] ? A
+  : IsUnion<A> extends false ? A
   : [] extends A ?
     [ArgAt1<A>] extends [never] ?
       [params?: ArgAt0<A>]
     : [params?: ArgAt0<A>, body?: ArgAt1<A>]
   : [params: ArgAt0<A>, body?: ArgAt1<A>];
-// Optional-element patterns, so a custom `fetch(params?)` keeps its element types
-type ArgAt0<A> =
-  A extends readonly [any?, ...any[]] ?
+type IsUnion<T, U = T> =
+  T extends any ?
+    [U] extends [T] ?
+      false
+    : true
+  : never;
+// Distribute over the union; the length check gives never for a position a call omits
+type ArgAt0<A extends readonly any[]> =
+  A extends unknown ?
     A['length'] extends 0 ?
       never
     : A[0]
   : never;
-type ArgAt1<A> =
-  A extends readonly [any?, any?, ...any[]] ?
+type ArgAt1<A extends readonly any[]> =
+  A extends unknown ?
     A['length'] extends 0 | 1 ?
       never
     : A[1]

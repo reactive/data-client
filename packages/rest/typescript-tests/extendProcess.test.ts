@@ -150,3 +150,22 @@ export const optionalBodyChild = new OptionalBodyEndpoint({
     return [id, name];
   },
 });
+
+// a single custom fetch signature is kept as is, including a third argument
+class ExtraArgEndpoint extends RestEndpoint<{ path: '/users/:id' }> {
+  fetch = async (
+    params: { id: string | number },
+    body?: undefined,
+    extra?: number,
+  ) => this.process([], params);
+}
+export const extraArgChild = new ExtraArgEndpoint({
+  path: '/users/:id',
+}).extend({
+  process(value, params, body, extra) {
+    const e: number | undefined = extra;
+    // @ts-expect-error extra may be undefined
+    extra.toFixed();
+    return [params.id, e];
+  },
+});
