@@ -249,13 +249,14 @@ jobs:
             elif [ "<< parameters.react-version >>" == "19.3" ]; then
               yarn test:ci --maxWorkers=4 --selectProjects ReactDOM --testPathPatterns 'packages/react/src/__tests__/concurrent-.*\.web\.tsx' 'packages/react/src/hooks/__tests__/useCacheState.web.tsx'
             else
-              curl -Os https://uploader.codecov.io/latest/linux/codecov;
-              chmod +x codecov;
+              curl -fsSO https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov || echo "Codecov uploader download failed; skipping coverage upload";
               yarn run test:coverage --ci --maxWorkers=4 --selectProjects ReactDOM Node --coverageReporters=text-lcov > ./lcov.info;
-              if [ "$CODECOV_TOKEN" != "" ]; then
-                ./codecov -t ${CODECOV_TOKEN} < ./lcov.info || true;
-              else
-                ./codecov < ./lcov.info || true;
+              if [ -x ./codecov ]; then
+                if [ "$CODECOV_TOKEN" != "" ]; then
+                  ./codecov -t ${CODECOV_TOKEN} < ./lcov.info || true;
+                else
+                  ./codecov < ./lcov.info || true;
+                fi
               fi
             fi
 
