@@ -37,7 +37,7 @@ Organize content by package layer. Both feature sections and migration guides fo
 **Details (after truncate):**
 1. Major features (with `<StackBlitz>`, `<HooksPlayground>` demos)
 2. New/changed APIs (with `<TypeScriptEditor>` examples)
-3. Performance (with mermaid charts if benchmarked)
+3. Performance (with `<PerfChart>` if benchmarked)
 4. Other improvements
 5. Migration guide
 
@@ -103,7 +103,7 @@ import PerfChart from '@site/src/components/PerfChart';
 ```
 
 `unit` defaults to `ms`, with lower being better; set `higherIsBetter` and `unit="ops/sec"` for throughput.
-Bar lengths switch to a log scale on their own when speedups differ by more than 10x.
+Bar lengths switch to a log scale on their own when speedups differ by more than 10x, and the chart labels it.
 
 ## Conventions
 

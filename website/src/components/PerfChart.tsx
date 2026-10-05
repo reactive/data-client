@@ -43,12 +43,17 @@ export default function PerfChart({
     <figure className={styles.perfChart}>
       <figcaption className="text--center text--bold margin-bottom--sm">
         {title}
+        {log && (
+          <div className="text--normal">
+            <small>Bar lengths use a log scale</small>
+          </div>
+        )}
       </figcaption>
       <div className={styles.bars} aria-hidden="true">
         {data.map(({ label, speedup, multiplier }) => (
           <Fragment key={label}>
             <span className={styles.label}>{label}</span>
-            <span className={styles.track}>
+            <span>
               <span
                 className={styles.bar}
                 style={{ width: `${(scale(speedup) / scaledMax) * 100}%` }}
@@ -58,7 +63,7 @@ export default function PerfChart({
           </Fragment>
         ))}
       </div>
-      <table className={styles.table}>
+      <table className={`${styles.table} margin-bottom--none`}>
         <thead>
           <tr>
             <th />
