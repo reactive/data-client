@@ -16,7 +16,8 @@
     "swizzle": "docusaurus swizzle",
     "deploy": "USE_SSH=true docusaurus deploy",
     "docusaurus": "docusaurus",
-    "build:skills": "node framework-docs/skillReferences.mjs"
+    "build:skills": "node framework-docs/skillReferences.mjs",
+    "social-card": "node scripts/socialCard.mjs"
   },
   "engines": {
     "node": ">=18.0"
@@ -36,6 +37,7 @@
     "@types/uuid": "^11.0.0",
     "esbuild": "~0.28.0",
     "mdast-util-phrasing": "^4.0.0",
+    "mermaid": ">=11.6.0",
     "playwright": "1.61.1",
     "raw-loader": "^4.0.2",
     "react-redux": "^9.2.0",

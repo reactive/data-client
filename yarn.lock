@@ -23926,6 +23926,7 @@ __metadata:
     clsx: "npm:2.1.1"
     esbuild: "npm:~0.28.0"
     mdast-util-phrasing: "npm:^4.0.0"
+    mermaid: "npm:>=11.6.0"
     monaco-editor: "npm:^0.57.0"
     parse-numeric-range: "npm:^1.3.0"
     playwright: "npm:1.61.1"
