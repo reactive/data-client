@@ -33,4 +33,5 @@ alwaysApply: false
 
 - Vercel's ignore step: exit 0 skips, anything else builds, so fail open. Never diff only `HEAD^`: a master merge or multi-commit push makes it wrong. Run `vercel-ignore.test.sh` after changes.
 - `git.deploymentEnabled: false` doesn't stick (dashboard overrides it); skipped pushes still show as canceled deployments.
+- Vercel's clone can have a `master`/`origin/master` ref at the commit being built, so always fetch master and never use a ref equal to `HEAD` as the base (it makes every preview skip).
 - Previews on `renovate/*` skip when the only site changes are website `package.json` or lockfiles; production is unchanged.
