@@ -58,6 +58,13 @@ To install every skill for your framework now instead, without letting your agen
 
 Browse the full catalog at [skills.sh/reactive/data-client](https://skills.sh/reactive/data-client).
 
+## Debugging with agents
+
+With [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) connected, the
+:react[`/data-client-react`]:vue[`/data-client-vue`] skill can inspect your running app's store,
+dispatched actions and network requests. See
+[Debugging with Chrome DevTools MCP](../guides/devtools-debugging.md) for what it does.
+
 ## Docs for LLMs
 
 Agents without skills can read these docs as plain markdown, following the [llms.txt](https://llmstxt.org) convention:
