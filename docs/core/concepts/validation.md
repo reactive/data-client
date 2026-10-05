@@ -45,6 +45,8 @@ delay: 150,
 ]}>
 
 ```typescript title="api/Article"
+import { Entity, RestEndpoint } from '@data-client/rest';
+
 export class Article extends Entity {
   id = '';
   title = '';
@@ -121,6 +123,8 @@ delay: 150,
 ]}>
 
 ```tsx title="api/Article"
+import { Entity, RestEndpoint, validateRequired } from '@data-client/rest';
+
 export class Article extends Entity {
   id = '';
   title = '';
@@ -212,6 +216,9 @@ delay: 150,
 ]}>
 
 ```typescript title="api/Article"
+import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
+
 export class ArticlePreview extends Entity {
   id = '';
   title = '';

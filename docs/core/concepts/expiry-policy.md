@@ -76,6 +76,7 @@ delay: () => 150,
 
 ```ts title="api/lastUpdated" collapsed
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -270,6 +271,7 @@ delay: () => 150,
 
 ```ts title="api/lastUpdated" collapsed
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -419,6 +421,7 @@ delay: () => 150,
 
 ```ts title="api/lastUpdated" collapsed
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -507,6 +510,7 @@ delay: () => 150,
 
 ```ts title="api/lastUpdated" collapsed
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -667,6 +671,7 @@ delay: () => 150,
 
 ```ts title="api/lastUpdated" collapsed
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -827,6 +832,7 @@ delay: () => 150,
 
 ```ts title="api/lastUpdated" collapsed
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -976,7 +982,7 @@ render(<ShowTime />);
     >
       Invalidate (without fetching DELETE)
     </button>
-    <button @click="ctrl.set(InvalidateTimedEntity, { id: '1' }, { id: '1' })">
+    <button @click="ctrl.set([InvalidateTimedEntity], [{ id: '1' }])">
       Invalidate Entity with ctrl.set
     </button>
   </div>

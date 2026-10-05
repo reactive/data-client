@@ -277,11 +277,11 @@ render(<Navigation />);
 </script>
 
 <template>
-  <center v-if="canLoadMore">
+  <div v-if="canLoadMore" style="text-align: center">
     <button @click="nextPage">
       {{ isPending ? '...' : 'Load more' }}
     </button>
-  </center>
+  </div>
 </template>
 ```
 

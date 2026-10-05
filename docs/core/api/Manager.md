@@ -241,6 +241,7 @@ export default function RootLayout() {
 import { createApp } from 'vue';
 import { DataClientPlugin, getDefaultManagers } from '@data-client/vue';
 import App from './App.vue';
+import MyManager from './MyManager';
 
 const managers = [...getDefaultManagers(), new MyManager()];
 

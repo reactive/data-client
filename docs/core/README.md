@@ -112,9 +112,10 @@ export default function TodoDetail({ id }: { id: number }) {
 
 :::vue
 
-```html title="TodoDetail.vue" {5}
+```html title="TodoDetail.vue" {6}
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
+  import { getTodo } from './api/Todo';
 
   const props = defineProps<{ id: number }>();
   const todo = await useSuspense(getTodo, () => ({ id: props.id }));
@@ -172,9 +173,11 @@ Errors are caught with [onErrorCaptured()](https://vuejs.org/api/composition-api
 
 Typically these are placed at or above navigational boundaries like pages, routes or modals.
 
-```html title="App.vue" {5-8,13,18-20}
+```html title="App.vue" {7-10,15,20-22}
 <script setup lang="ts">
   import { onErrorCaptured, ref } from 'vue';
+  import AnotherRoute from './AnotherRoute.vue';
+  import TodoDetail from './TodoDetail.vue';
 
   const error = ref<Error | null>(null);
   onErrorCaptured(err => {
@@ -349,6 +352,8 @@ function ArticleEdit() {
 ```html title="ArticleEdit.vue"
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
+  import { TodoResource } from './resources/Todo';
+  import ArticleForm from './ArticleForm.vue';
 
   const props = defineProps<{ id: number }>();
   const ctrl = useController();
@@ -365,6 +370,8 @@ function ArticleEdit() {
 ```html title="ArticleEdit.vue"
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
+  import { TodoResource } from './resources/Todo';
+  import ArticleForm from './ArticleForm.vue';
 
   const props = defineProps<{ id: number }>();
   const ctrl = useController();
@@ -410,6 +417,8 @@ function ArticleEdit() {
 ```html title="ArticleEdit.vue"
 <script setup lang="ts">
   import { useController, useLoading } from '@data-client/vue';
+  import { TodoResource } from './resources/Todo';
+  import ArticleForm from './ArticleForm.vue';
 
   const props = defineProps<{ id: number }>();
   const ctrl = useController();
@@ -476,9 +485,10 @@ export default function TodoList() {
 
 :::vue
 
-```html title="TodoList.vue" {5}
+```html title="TodoList.vue" {6}
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
+  import { TodoResource } from './resources/Todo';
   import TodoListItem from './TodoListItem.vue';
 
   const todos = await useSuspense(TodoResource.getList);
@@ -684,8 +694,8 @@ export default class StreamManager implements Manager {
     this.evtSource.onmessage = event => {
       try {
         const msg = JSON.parse(event.data);
-        if (msg.type in this.endpoints)
-          controller.set(this.entities[msg.type], ...msg.args, msg.data);
+        if (msg.type in this.entities)
+          controller.set(this.entities[msg.type], msg.args, msg.data);
       } catch (e) {
         console.error('Failed to handle message');
         console.error(e);

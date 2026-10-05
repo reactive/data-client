@@ -211,7 +211,7 @@ fs.writeFileSync(
         target: 'esnext',
         module: 'esnext',
         moduleResolution: 'bundler',
-        lib: ['dom', 'esnext'],
+        lib: ['dom', 'es2024'],
         types: ['jest'],
         strict: true,
         // examples leave out types readers don't need

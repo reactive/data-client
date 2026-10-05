@@ -162,7 +162,7 @@ render(<TodoList />);
         :checked="todo.completed"
         @change="handleChange"
       />
-      <strike v-if="todo.completed">{{ todo.title }}</strike>
+      <s v-if="todo.completed">{{ todo.title }}</s>
       <template v-else>{{ todo.title }}</template>
     </label>
     <CancelButton @click="handleDelete" />

@@ -316,6 +316,7 @@ function useWebsocket(url: string) {
 ```ts title="useWebsocket.ts"
 import { onMounted, onUnmounted } from 'vue';
 import { useController } from '@data-client/vue';
+import { EntityMap } from './resources';
 
 export function useWebsocket(url: string) {
   const ctrl = useController();
