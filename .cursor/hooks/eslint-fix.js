@@ -40,13 +40,15 @@ const dirtyFiles = () =>
     .map(line => line.slice(3));
 
 /**
- * Fixes the JS/TS `files` that exist; returns the ones eslint changed, the
- * mtime of each fix still on disk, and the errors it couldn't fix, one
- * `file:line:col message (rule)` each
+ * Fixes the JS/TS `files` that exist; returns whether eslint ran, the ones it
+ * changed, the mtime of each fix still on disk, and the errors it couldn't
+ * fix, one `file:line:col message (rule)` each
  */
 function eslintFix(files) {
   files = files.filter(file => isLintable(file) && mtime(file) !== undefined);
-  if (!files.length) return { fixed: [], fixedMtimes: {}, errors: [] };
+  if (!files.length)
+    return { ok: true, fixed: [], fixedMtimes: {}, errors: [] };
+  let ok = true;
   let report = '[]';
   try {
     report = execFileSync(
@@ -73,6 +75,7 @@ function eslintFix(files) {
     // exit 1 means lint errors are left; a crash or missing install is left
     // to CI
     if (err.status === 1) report = err.stdout;
+    else ok = false;
   }
   let results = [];
   try {
@@ -103,6 +106,8 @@ function eslintFix(files) {
     }
   }
   return {
+    // false when eslint crashed or isn't installed
+    ok,
     // eslint reports `output` only for files its fixes changed
     fixed,
     fixedMtimes,
@@ -148,7 +153,9 @@ if (require.main === module) {
       mtimes[file] = modified;
       return true;
     });
-    const { fixedMtimes, errors } = eslintFix(files);
+    const { ok, fixedMtimes, errors } = eslintFix(files);
+    // keep the old marker, so these files are tried again next turn
+    if (!ok) process.exit(0);
     Object.assign(mtimes, fixedMtimes);
     fs.mkdirSync(path.dirname(LAST_RUN), { recursive: true });
     fs.writeFileSync(LAST_RUN, JSON.stringify(mtimes));

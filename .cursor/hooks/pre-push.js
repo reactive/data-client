@@ -34,7 +34,8 @@ const commits = gitCommand('commit').test(command);
 const commitsAll =
   commits &&
   /(?:^|[;&|(]\s*)git\b[^;&|]*\scommit\b[^;&|]*\s(?:--all\b|-[A-Za-z]*a)/m.test(
-    command,
+    // not a commit message mentioning `-a` or `--all`
+    command.replace(/"(?:\\.|[^"\\])*"|'[^']*'/g, "''"),
   );
 
 /** Docs some skill renders; partials (`_foo.mdx`) may be inlined anywhere */
@@ -111,6 +112,8 @@ function regenerate({ what, from, script, check, isInput, outputs }) {
   ];
 }
 
+const PENDING = path.join(projectDir, 'node_modules/.cache/pre-push-fixed');
+
 /** `eslint --fix` the JS/TS files this push includes */
 function lintFix() {
   // eslint reads the working tree, so lint an uncommitted file only when this
@@ -135,9 +138,29 @@ function lintFix() {
     ...committing,
   ];
   const { fixed } = eslintFix(pushed);
-  return fixed.length ?
+  // fixes an earlier push's run left uncommitted: those files are dirty now,
+  // so they aren't linted above, but the push would still go without them
+  let pending = [];
+  try {
+    pending = JSON.parse(fs.readFileSync(PENDING, 'utf8'));
+  } catch {
+    // none yet
+  }
+  const unpushed = [
+    ...new Set([
+      ...fixed,
+      ...pending.filter(file => dirty.includes(file) && !committing.has(file)),
+    ]),
+  ];
+  try {
+    fs.mkdirSync(path.dirname(PENDING), { recursive: true });
+    fs.writeFileSync(PENDING, JSON.stringify(unpushed));
+  } catch {
+    // no install
+  }
+  return unpushed.length ?
       [
-        `\`eslint --fix\` changed files this push would include. Commit them, then push again:\n${fixed.join('\n')}`,
+        `\`eslint --fix\` changed files this push would include. Commit them, then push again:\n${unpushed.join('\n')}`,
       ]
     : [];
 }

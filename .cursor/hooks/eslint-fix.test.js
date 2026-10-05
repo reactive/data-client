@@ -20,6 +20,7 @@ const prev = fs.existsSync(log) ? JSON.parse(fs.readFileSync(log, 'utf8')) : [];
 prev.push(targets);
 fs.writeFileSync(log, JSON.stringify(prev));
 const mode = JSON.parse(process.env.ESLINT_FAKE || '{}');
+if (mode.crash) process.exit(2);
 const when = new Date('2030-01-01T00:00:00Z');
 const results = targets.map(file => {
   const filePath = path.resolve(process.cwd(), file);
@@ -135,5 +136,15 @@ test('an edit after the run is linted on the next turn', () => {
     fs.utimesSync(path.join(root, 'src/quiet.js'), future, future);
     run(root, {});
     assert.equal(invocations(root).length, 2);
+  });
+});
+
+test('files eslint crashed on are tried again next turn', () => {
+  withRepo(root => {
+    write(root, 'src/retry.js');
+    run(root, { crash: true });
+    assert.equal(fs.existsSync(marker(root)), false);
+    run(root, {});
+    assert.deepEqual(invocations(root), [['src/retry.js'], ['src/retry.js']]);
   });
 });
