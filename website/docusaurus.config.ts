@@ -413,6 +413,16 @@ const config: Config = {
     path.resolve(__dirname, './node-plugin'),
     path.resolve(__dirname, './profiling-plugin'),
     path.resolve(__dirname, './raw-plugin'),
+    [
+      path.resolve(__dirname, './llms-plugin'),
+      {
+        frameworks: {
+          react: { id: 'default', path: '/', name: 'React' },
+          vue: { id: 'vue', path: '/vue/', name: 'Vue' },
+        },
+        shared: { rest: 'REST', graphql: 'GraphQL' },
+      },
+    ],
   ],
   themeConfig: {
     mermaid: {
