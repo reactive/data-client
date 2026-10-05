@@ -2,6 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import dts from 'rollup-plugin-dts';
 
+import { typeConfig } from './rollup-utils.js';
+
 // Bundles a package's .d.ts into one file for the playground editor
 // (website/src/components/Playground/monaco/typeLibs.ts)
 
@@ -39,4 +41,9 @@ export default [
     '@number-flow/react.d.ts',
     ['react'],
   ),
+  {
+    ...typeConfig,
+    input: './scripts/globals.ts',
+    output: { file: `${EDITOR_TYPES}/globals.d.ts`, format: 'es' },
+  },
 ];
