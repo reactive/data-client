@@ -70,12 +70,9 @@ async function bundle(entryPoint) {
       {
         name: 'data-client-src',
         setup(build) {
-          // same mapping as moduleNameMapper in jest.config.js
+          // workspace sources, like moduleNameMapper in jest.config.js
           build.onResolve({ filter: /^@data-client\// }, args => {
-            const src =
-              args.path === '@data-client/react/redux' ?
-                'react/src/server/redux'
-              : args.path.replace(/^@data-client\/([^/]+)/, '$1/src');
+            const src = args.path.replace(/^@data-client\/([^/]+)/, '$1/src');
             return build.resolve(`./packages/${src}`, {
               kind: args.kind,
               resolveDir: root,

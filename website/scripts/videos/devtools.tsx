@@ -25,7 +25,6 @@ interface Connection {
   store: ReturnType<typeof createConnectionStore>;
   /** actions received from DevToolsManager, by type */
   counts: Map<string, number>;
-  listeners: Set<() => void>;
 }
 
 const connections = new Map<string, Connection>();
@@ -39,7 +38,7 @@ function getConnection(name: string): Connection {
       type: '@@redux-devtools-inspector-monitor/UPDATE_MONITOR_STATE',
       monitorState: { tabName: 'Action' },
     } as any);
-    connection = { store, counts: new Map(), listeners: new Set() };
+    connection = { store, counts: new Map() };
     connections.set(name, connection);
   }
   return connection;
@@ -62,12 +61,12 @@ function getConnection(name: string): Connection {
         );
         // not serialized: the replacer is too slow to run on every state
         sanitized[STATE] = state;
-        connection.store.dispatch(sanitized);
+        // count first: dispatch notifies useActionCount
         connection.counts.set(
           sanitized.type,
           (connection.counts.get(sanitized.type) ?? 0) + 1,
         );
-        connection.listeners.forEach(listener => listener());
+        connection.store.dispatch(sanitized);
       },
     };
   },
@@ -107,10 +106,7 @@ export function DevToolsPanel({ name }: { name: string }) {
 export function useActionCount(name: string, type: string) {
   const connection = getConnection(name);
   return useSyncExternalStore(
-    listener => {
-      connection.listeners.add(listener);
-      return () => connection.listeners.delete(listener);
-    },
+    connection.store.subscribe,
     () => connection.counts.get(type) ?? 0,
   );
 }
