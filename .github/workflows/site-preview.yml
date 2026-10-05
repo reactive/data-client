@@ -10,6 +10,16 @@ on:
       - 'docs/rest/**'
       - 'docs/graphql/**'
       - '.github/workflows/site-preview.yml'
+  # Refreshes the webpack cache that PRs restore from
+  push:
+    branches:
+      - master
+    paths:
+      - 'website/**'
+      - 'docs/core/**'
+      - 'docs/rest/**'
+      - 'docs/graphql/**'
+      - '.github/workflows/site-preview.yml'
 
 concurrency:
   group: site-preview-${{ github.head_ref || github.ref }}
@@ -36,14 +46,16 @@ jobs:
         run: yarn ci:build:website
       - name: Typecheck website
         run: yarn workspace rdc-website typecheck
-      # Docusaurus' webpack cache (~600 MiB). Caches are scoped to the PR, so
-      # its first build saves one entry that later pushes reuse; stale modules
-      # just miss.
-      - uses: actions/cache@v6
+      # Docusaurus' webpack cache (~73 MiB compressed). Only master saves it, so
+      # PRs share one fresh entry instead of each storing their own; stale
+      # modules just miss.
+      - uses: actions/cache/restore@v6
         with:
           path: website/node_modules/.cache
           key: website-build-${{ hashFiles('yarn.lock') }}
-          restore-keys: website-build-
+          restore-keys: |
+            website-build-${{ hashFiles('yarn.lock') }}-
+            website-build-
       - name: Build website
         env:
           # Build drafts like the Vercel preview does
@@ -58,3 +70,9 @@ jobs:
             echo "::error::Website build logged warnings (listed above)"
             exit 1
           fi
+      - if: github.event_name == 'push'
+        uses: actions/cache/save@v6
+        with:
+          path: website/node_modules/.cache
+          # Unique per run: an existing key can't be overwritten
+          key: website-build-${{ hashFiles('yarn.lock') }}-${{ github.run_id }}
