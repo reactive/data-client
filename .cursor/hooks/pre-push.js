@@ -11,7 +11,7 @@ const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const { eslintFix } = require('./eslint-fix');
+const { projectDir, dirtyFiles, eslintFix } = require('./eslint-fix');
 
 let payload = {};
 try {
@@ -31,10 +31,6 @@ const gitCommand = sub =>
 if (!gitCommand('push').test(command)) process.exit(0);
 const commits = gitCommand('commit').test(command);
 
-const projectDir =
-  process.env.CURSOR_PROJECT_DIR ||
-  process.env.CLAUDE_PROJECT_DIR ||
-  process.cwd();
 const git = (...args) =>
   execFileSync('git', args, {
     cwd: projectDir,
@@ -70,9 +66,7 @@ const isSkillInput = file =>
 // renames as delete + add, so the old path counts too
 let dirty, committed;
 try {
-  dirty = git('status', '--porcelain', '--no-renames', '--untracked-files=all')
-    .split('\n')
-    .map(line => line.slice(3));
+  dirty = dirtyFiles();
   committed = git(
     'diff',
     '--name-only',
@@ -127,7 +121,7 @@ function lintFix() {
     commits ?
       [...new Set([...committed, ...dirty])]
     : committed.filter(file => !dirty.includes(file));
-  const fixed = eslintFix(projectDir, pushed);
+  const fixed = eslintFix(pushed);
   return fixed.length ?
       [
         `\`eslint --fix\` changed files this push would include. Commit them, then push again:\n${fixed.join('\n')}`,
