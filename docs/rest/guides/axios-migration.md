@@ -323,24 +323,7 @@ export default class ApiEndpoint<
 
 :::
 
-Response interceptors that transform the body map to [`process()`](../api/RestEndpoint.md#process):
-
-```ts title="Before (axios)"
-api.interceptors.response.use(response => {
-  response.data = camelizeKeys(response.data);
-  return response;
-});
-```
-
-```ts title="After (data-client)"
-export default class ApiEndpoint<
-  O extends RestGenerics = any,
-> extends RestEndpoint<O> {
-  process(value: any, ...args: any) {
-    return camelizeKeys(value);
-  }
-}
-```
+Response interceptors that transform the body, such as converting `snake_case` keys, belong in [`process()`](../api/RestEndpoint.md#process). See [snakes to camels](./network-transform.md#snakes-to-camels) for a complete example.
 
 ### Error handling
 
@@ -388,40 +371,7 @@ try {
 
 #### Server error messages
 
-Axios codebases commonly surface `error.response.data.error` or `.message` to the user. Read it from the `Response` body instead:
-
-<Tabs
-defaultValue="before"
-values={[
-{ label: 'Before (axios)', value: 'before' },
-{ label: 'After (data-client)', value: 'after' },
-]}>
-<TabItem value="before">
-
-```ts
-import { isAxiosError } from 'axios';
-
-if (isAxiosError(error) && error.response) {
-  throw new Error(error.response.data.error);
-}
-```
-
-</TabItem>
-<TabItem value="after">
-
-```ts
-import { NetworkError } from '@data-client/rest';
-
-if (error instanceof NetworkError) {
-  const body = await error.response.clone().json();
-  throw new Error(body.error ?? error.response.statusText);
-}
-```
-
-</TabItem>
-</Tabs>
-
-When this is repeated across many call sites, centralize it in the base class's [`fetchResponse()`](../api/RestEndpoint.md#fetchResponse) so they no longer need `try`/`catch`:
+Axios codebases commonly surface `error.response.data.error` or `.message` to the user. Read it from the `Response` body instead, once, in the base class's [`fetchResponse()`](../api/RestEndpoint.md#fetchResponse), so call sites don't need `try`/`catch`:
 
 ```ts title="ApiEndpoint.ts"
 import {
@@ -527,15 +477,7 @@ const getUsers = new RestEndpoint({
 axios.get('/files/1', { responseType: 'blob' });
 ```
 
-```ts title="After (data-client)"
-const downloadFile = new RestEndpoint({
-  path: '/files/:id',
-  content: 'blob',
-  dataExpiryLength: 0,
-});
-```
-
-[`content`](../api/RestEndpoint.md#content) also accepts `'arrayBuffer'` and `'text'`. See [file download](./network-transform.md#file-download) for triggering a browser download and reading `Content-Disposition`.
+Set [`content`](../api/RestEndpoint.md#content) to `'blob'`, `'arrayBuffer'` or `'text'`. See [file download](./network-transform.md#file-download) for the full endpoint and triggering a browser download.
 
 ### Query serialization
 
@@ -547,18 +489,7 @@ axios.get('/users', {
 });
 ```
 
-```ts title="After (data-client)"
-const getUsers = new RestEndpoint({
-  path: '/users',
-  searchParams: {} as { ids: number[] },
-  searchToString(searchParams: Record<string, any>) {
-    return qs.stringify(searchParams, { arrayFormat: 'repeat' });
-  },
-});
-getUsers({ ids: [1, 2, 3] });
-```
-
-See [`searchToString()`](../api/RestEndpoint.md#searchToString).
+Override [`searchToString()`](../api/RestEndpoint.md#searchToString) to serialize with `qs`; see [using the `qs` library](../api/RestEndpoint.md#searchToString).
 
 ### Basic auth
 
@@ -614,22 +545,7 @@ axios.create({
 });
 ```
 
-```ts title="After (data-client)"
-export default class CsrfEndpoint<
-  O extends RestGenerics = any,
-> extends RestEndpoint<O> {
-  getHeaders(headers: HeadersInit) {
-    if (this.method === 'GET') return headers;
-    const match = document.cookie.match(/csrftoken=([^;]+)/);
-    return {
-      ...headers,
-      'X-CSRFToken': match ? match[1] : '',
-    };
-  }
-}
-```
-
-See [Django Integration](./django.md) for a complete cookie auth + CSRF setup.
+Read the cookie in [`getHeaders()`](../api/RestEndpoint.md#getHeaders) for non-`GET` requests. See [Django Integration](./django.md) for the complete endpoint class.
 
 ### Upload progress
 
@@ -730,7 +646,7 @@ The codemod does **not** handle:
 
 - Interceptors — see [lifecycle methods](#interceptors--lifecycle-methods)
 - Error handling (`isAxiosError`, `error.response`) — see [error handling](#error-handling)
-- `timeout`, `cancelToken`, `responseType`, `paramsSerializer`, `auth`, `validateStatus`, `onUploadProgress` / `onDownloadProgress` — see the [migration examples](#migration-examples) above
+- `timeout`, `cancelToken`, `responseType`, `paramsSerializer`, `auth`, `validateStatus`, `onUploadProgress` — see the [migration examples](#migration-examples) above
 - [Entity](../api/Entity.md) schema definitions and converting call sites to hooks — see [below](#after-the-codemod)
 
 ### Finding remaining axios usage
@@ -870,31 +786,7 @@ Loading and error states move to [`AsyncBoundary`](/docs/api/AsyncBoundary). See
 
 ### Context-based auth
 
-When tokens come from React context (Okta, Auth0) rather than storage, [`hookifyResource()`](../api/hookifyResource.md) injects headers through a hook:
-
-```ts
-import { hookifyResource, resource } from '@data-client/rest';
-import ApiEndpoint from './ApiEndpoint';
-import { Article } from './Article';
-
-export const ArticleResource = hookifyResource(
-  resource({
-    path: '/articles/:id',
-    schema: Article,
-    Endpoint: ApiEndpoint,
-  }),
-  function useInit() {
-    const { accessToken } = useAuth();
-    return { headers: { Authorization: `Bearer ${accessToken}` } };
-  },
-);
-```
-
-```tsx
-const article = useSuspense(ArticleResource.useGet(), { id });
-```
-
-See the [authentication guide](./auth.md) for other patterns.
+When tokens come from React context (Okta, Auth0) rather than storage, use [`hookifyResource()`](../api/hookifyResource.md) to inject headers through a hook. See the [authentication guide](./auth.md) for this and other patterns.
 
 ### Gradual migration
 

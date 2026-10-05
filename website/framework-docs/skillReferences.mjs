@@ -157,21 +157,16 @@ if (process.argv.includes('--check')) {
   console.log(`Updated ${changes.length} skill reference files.`);
 }
 
-/** Reference name -> the doc it renders, so hand-written copies of docs get caught */
+/** Reference name -> the doc it would render, to catch hand-written copies */
 const docNames = new Map(
   fs
     .readdirSync(path.join(ROOT, 'docs'), { recursive: true })
     .filter(f => MD.test(f))
     .map(f => [
-      path.basename(f).replace(MD, '.md'),
+      path.basename(f).replace(/(\.(react|vue))?\.mdx?$/, '.md'),
       rel(path.join(ROOT, 'docs', f)),
     ]),
 );
-for (const skill of fs.readdirSync(SKILLS))
-  for (const [name, doc] of Object.entries(
-    readManifest(path.join(SKILLS, skill))?.docs ?? {},
-  ))
-    docNames.set(name, doc);
 
 /** Every reference file (repo-relative) -> whether it's generated */
 const references = new Map();
@@ -184,6 +179,7 @@ const problems = fs.readdirSync(SKILLS).flatMap(skill => {
     if (fs.statSync(f).isFile())
       references.set(rel(f), fs.readFileSync(f, 'utf8').startsWith(HEADER));
   const { frameworks = [] } = readManifest(path.join(SKILLS, skill)) ?? {};
+  const isLink = f => fs.lstatSync(path.join(refs, f)).isSymbolicLink();
   return [
     // links to references that no longer exist (renamed or removed docs)
     ...[...text.matchAll(/\]\((references\/[^)#\s]+)/g)]
@@ -192,17 +188,17 @@ const problems = fs.readdirSync(SKILLS).flatMap(skill => {
       .map(link => `${rel(skillMd)} links to missing ${link}`),
     // symlinked docs ship raw MDX; list them in references.json instead
     ...files
-      .filter(
-        f => MD.test(f) && fs.lstatSync(path.join(refs, f)).isSymbolicLink(),
-      )
+      .filter(f => MD.test(f) && isLink(f))
       .map(f => `${rel(refs)}/${f} is a symlink; add it to ${MANIFEST}`),
     // hand-written copies of docs drift from them
     ...files
-      .filter(f => docNames.has(f) && !references.get(`${rel(refs)}/${f}`))
-      .filter(f => !fs.lstatSync(path.join(refs, f)).isSymbolicLink())
+      .map(f => [f, docNames.get(f.replace(/\.(react|vue)\.md$/, '.md'))])
+      .filter(
+        ([f, doc]) => doc && !isLink(f) && !references.get(`${rel(refs)}/${f}`),
+      )
       .map(
-        f =>
-          `${rel(refs)}/${f} is a hand-written copy of ${docNames.get(f)}; list it in ${MANIFEST}`,
+        ([f, doc]) =>
+          `${rel(refs)}/${f} is a hand-written copy of ${doc}; list it in ${MANIFEST}`,
       ),
     // agents only find framework variants if SKILL.md tells them to look
     ...frameworks
