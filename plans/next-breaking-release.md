@@ -10,3 +10,10 @@ Type and API cleanups deferred because they would break users or mixed package v
   - Breaks: `static pk()` overrides that annotate `args` as a mutable array. Migration: change the annotation to `readonly any[]` (the v0.19 blog already recommends this).
 - **Readonly `args` in endpoint's `EntityInterface`**: `packages/endpoint/src/interface.ts` still declares `pk(..., args: any[])`, while normalizr's `EntityInterface` takes `readonly any[]`. Make them match, or have endpoint re-export normalizr's.
   - Breaks: Entity subclasses with a mutable-`args` `static pk()` override assigned to endpoint's `EntityInterface`.
+
+## Vue `createDataClient` export
+
+`@data-client/vue` exports `createDataClient()` and its `ProvidedDataClient` return type, but they are `DataClientPlugin` internals (marked `@deprecated` in `packages/vue/src/providers/createDataClient.ts`). `ProvideOptions` stays public since it types the plugin options; only its `app` field is internal.
+
+- **Stop exporting `createDataClient` and `ProvidedDataClient`** from `packages/vue/src/providers/index.ts`, drop `app` from `ProvideOptions` (pass it to `createDataClient` separately), remove the now-unused `provide()` branch for calls outside the plugin, and type `DataClientPlugin.install()` as returning `void` so `ProvidedDataClient` isn't reachable through it.
+  - Breaks: code that calls `createDataClient()` directly or imports `ProvidedDataClient`. Migration: install the store with `app.use(DataClientPlugin, options)` and read the controller with `useController()`.
