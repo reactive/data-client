@@ -38,22 +38,25 @@ concurrency:
   group: regenerate-${{ github.head_ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: write
-  pull-requests: read
-  statuses: write
+permissions: {}
 
 jobs:
-  regenerate:
+  # Runs dependency code (install scripts, generators), so it gets a read-only
+  # token; only the commit job, on a fresh runner, can write.
+  generate:
     # GITHUB_TOKEN can't push to forks
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      changed: ${{ steps.diff.outputs.changed }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
         with:
           fetch-depth: 1
-          # install and generators run dependency code; only the push gets the token
           persist-credentials: false
       - uses: actions/setup-node@v6
         with:
@@ -100,12 +103,8 @@ jobs:
       - name: Regenerate Claude Code rules
         # needs no install
         run: node scripts/agent-rules.mjs
-      - name: Commit changes to the PR branch
-        env:
-          GH_TOKEN: ${{ github.token }}
-          HEAD_REF: ${{ github.head_ref }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      - name: Diff generated files
+        id: diff
         run: |
           OUTPUTS=(
             website/src/components/Playground/editor-types
@@ -119,8 +118,40 @@ jobs:
             exit 0
           fi
           git diff --cached --stat
-          # the changes the merge needs, applied to the PR head itself
+          # the changes the merge needs, for the commit job to apply to the PR head
           git diff --cached --binary --full-index > "${RUNNER_TEMP}/regenerated.patch"
+          echo changed=true >> "${GITHUB_OUTPUT}"
+      - uses: actions/upload-artifact@v4
+        if: steps.diff.outputs.changed
+        with:
+          name: regenerated
+          path: ${{ runner.temp }}/regenerated.patch
+
+  commit:
+    needs: generate
+    if: needs.generate.outputs.changed
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      statuses: write
+    steps:
+      # no setup-node or install: nothing from the PR's dependencies runs here
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/download-artifact@v4
+        with:
+          name: regenerated
+          path: ${{ runner.temp }}
+      - name: Commit changes to the PR branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_REF: ${{ github.head_ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
           git fetch --depth=1 origin "${HEAD_SHA}"
           git checkout --force --detach "${HEAD_SHA}"
           if ! git apply --3way --index "${RUNNER_TEMP}/regenerated.patch"; then
