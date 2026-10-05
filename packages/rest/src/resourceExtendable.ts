@@ -16,6 +16,7 @@ import type {
   ResourceInterface,
 } from './resourceTypes.js';
 import type {
+  ExtendableRestGenerics,
   PartialRestGenerics,
   RestEndpointExtendOptions,
   RestExtendedEndpoint,
@@ -35,7 +36,7 @@ export interface Extendable<
     },
     const ExtendKey extends Exclude<Extract<keyof R, string>, 'extend'>,
     // TODO: see RestEndpoint.extend TODO
-    ExtendOptions extends PartialRestGenerics | {},
+    ExtendOptions extends ExtendableRestGenerics | {},
   >(
     this: R,
     key: ExtendKey,
@@ -53,7 +54,7 @@ export interface Extendable<
     R extends { get: RestInstanceBase },
     const ExtendKey extends string,
     // TODO: see RestEndpoint.extend TODO
-    ExtendOptions extends PartialRestGenerics | {},
+    ExtendOptions extends ExtendableRestGenerics | {},
   >(
     this: R,
     key: ExtendKey,

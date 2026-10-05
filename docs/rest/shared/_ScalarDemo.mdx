@@ -1,7 +1,7 @@
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import { companyFixtures } from '@site/src/fixtures/companies';
 
-<HooksPlayground fixtures={companyFixtures} row={props.row ?? false} groupId="schema" defaultOpen={props.defaultOpen ?? "y"} defaultTab={props.defaultTab}>
+<FrameworkPlayground fixtures={companyFixtures} row={props.row ?? false} groupId="schema" defaultOpen={props.defaultOpen ?? "y"} defaultTab={props.defaultTab} renderCount={props.renderCount}>
 
 ```ts title="api/Company" {11-20,26-28,34-36}
 import { Collection, Entity, RestEndpoint, Scalar } from '@data-client/rest';
@@ -42,6 +42,8 @@ export const getPortfolioColumns = new RestEndpoint({
   }),
 });
 ```
+
+:::react
 
 ```tsx title="CompanyGrid" collapsed
 import { type Company } from './api/Company';
@@ -120,4 +122,84 @@ function PortfolioGrid() {
 render(<PortfolioGrid />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="CompanyGrid.vue" collapsed
+<script setup lang="ts">
+  import { type Company } from './api/Company';
+
+  defineProps<{ companies: Company[] }>();
+
+  function formatPercent(value: number | undefined) {
+    return value === undefined ? 'loading...' : `${(value * 100).toFixed(1)}%`;
+  }
+
+  function formatShares(value: number | undefined) {
+    return value === undefined ? 'loading...' : value.toLocaleString();
+  }
+</script>
+
+<template>
+  <table style="margin-top: 8px; width: 100%">
+    <thead>
+      <tr>
+        <th align="left">Name</th>
+        <th align="right">Price</th>
+        <th align="right">% Equity</th>
+        <th align="right">Shares</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="c in companies" :key="c.pk()">
+        <td>{{ c.name }}</td>
+        <td align="right">${{ c.price.toFixed(2) }}</td>
+        <td align="right">{{ formatPercent(c.pct_equity) }}</td>
+        <td align="right">{{ formatShares(c.shares) }}</td>
+      </tr>
+    </tbody>
+  </table>
+</template>
+```
+
+```html title="PortfolioGrid.vue" collapsed
+<script setup lang="ts">
+  import { ref } from 'vue';
+  import { useSuspense, useFetch } from '@data-client/vue';
+  import { getCompanies, getPortfolioColumns } from './api/Company';
+  import CompanyGrid from './CompanyGrid.vue';
+
+  const portfolio = ref('A');
+  // Fetches on first render, then re-denormalizes from cache on every
+  // portfolio switch. The Collection's `queryKey()` ignores `portfolio`,
+  // so there is no endpoint refetch on switch.
+  const companies = await useSuspense(getCompanies, () => ({
+    portfolio: portfolio.value,
+  }));
+  // The first `useSuspense` already populated `Scalar(portfolio)`
+  // for `firstPortfolio`, so we only fetch columns when the user switches
+  // away. `useFetch` then dedupes later revisits via its endpoint cache.
+  const firstPortfolio = portfolio.value;
+  useFetch(getPortfolioColumns, () =>
+    portfolio.value === firstPortfolio ? null : { portfolio: portfolio.value },
+  );
+</script>
+
+<template>
+  <div>
+    <label>
+      Portfolio:
+      <select v-model="portfolio">
+        <option value="A">Portfolio A</option>
+        <option value="B">Portfolio B</option>
+      </select>
+    </label>
+    <CompanyGrid :companies="companies" />
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>

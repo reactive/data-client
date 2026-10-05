@@ -258,6 +258,7 @@ import { DataProvider } from '@data-client/react/nextjs';
 ### Provider Not at Root
 
 The `DataProvider` must wrap all components that use data-client hooks. Place it at the topmost level possible.
+In Vue, call `app.use(DataClientPlugin)` on the root app before `app.mount()`.
 
 ## Next Steps
 
@@ -272,6 +273,6 @@ Vue projects: read `<name>.vue.md` instead of `<name>.md` when it exists.
 
 For detailed API documentation, see the [references](references/) directory:
 
-- [DataProvider](references/DataProvider.md) - Root provider component
+- [DataProvider](references/DataProvider.md) - React root provider component (Vue installs `DataClientPlugin` instead; see installation)
 - [installation](references/installation.md) - Installation guide
 - [getDefaultManagers](references/getDefaultManagers.md) - Default managers

@@ -292,7 +292,7 @@ function NewsList() {
         ctrl.fetch(PostResource.getList.getPage, { cursor })
       }
     >
-      <NewsList data={results} />
+      <PostList posts={results} />
     </Pagination>
   );
 }

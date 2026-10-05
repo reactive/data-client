@@ -31,6 +31,9 @@ Wrap framework-specific content instead, so shared prose and resources stay in o
 - `:react[...]` / `:vue[...]` for inline words or links
 - `<FrameworkPlayground>` instead of `<HooksPlayground>`, with shared resource code blocks
   directly inside and component code blocks in `:::react` / `:::vue`
+- `framework-imports` on a code fence for framework-agnostic code (managers, middleware): write
+  `@data-client/react` imports and Vue pages show `@data-client/vue`. Examples never import
+  `@data-client/core`; apps only install the react or vue package
 - `vue_title:`, `vue_description:` (any `vue_<key>:`) front matter overrides
 - `frameworks: [react]` front matter for pages with no Vue equivalent
 - `foo.vue.md` replaces `foo.md` for Vue; only for Vue-only pages or when nothing is shareable

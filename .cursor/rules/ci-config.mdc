@@ -18,6 +18,7 @@ alwaysApply: false
   - `scripts/build-legacy-types.sh` builds each TS version concurrently; each `ts<version>/` gets the downleveled `lib` (with `abstract new` rewritten to `new` below 4.2, which `downlevel-dts` misses), then every newer version's `src-*-types` overlay, then its own. Keep overlays to small single-purpose modules (like `NoInfer.ts`, `tupleTypes.ts`) so whole-file copies can't go stale.
   - `esmodule-types` also runs `examples/todo-app/tsconfig.typetest-libcheck.json` (`skipLibCheck: false`, `types: []`) so errors inside the legacy outputs fail CI, and `esmodule-types-latest` runs it with `--moduleResolution bundler` (TS 7 removed `node`) to cover `lib/`; the other typetests use `skipLibCheck: true`.
   - Any change to legacy types building must leave `ts*/` output byte-identical to master (diff it) unless it intentionally changes published types (then add a changeset).
+- `typecheck` also runs `yarn check:typeperf` ([scripts/typeperf](../../scripts/typeperf/README.md)), which reads the `ci:build:types` output from `setup`'s workspace.
 - Never `git fetch --depth` the base branch in the relevance check: a shallow fetch severs the merge base and the three-dot diff fails.
 - Changing root `package.json` `workspaces` requires updating the `setup` job's workspace trimming step.
 

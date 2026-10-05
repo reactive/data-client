@@ -54,7 +54,7 @@ ctrl.fetch(), ctrl.fetchIfStale(), ctrl.expireAll(), ctrl.invalidate(), ctrl.inv
 ctrl.setError(), ctrl.resetEntireStore(), ctrl.subscribe(), ctrl.unsubscribe().
 
 ```ts
-import type { Manager, Middleware } from '@data-client/core';
+import type { Manager, Middleware } from '@data-client/react'; // or '@data-client/vue'
 import CurrentTime from './CurrentTime';
 
 export default class TimeManager implements Manager {

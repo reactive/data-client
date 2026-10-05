@@ -5,9 +5,9 @@ import {
 } from '@monaco-editor/react';
 import clsx from 'clsx';
 import { type editor } from 'monaco-editor';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useState } from 'react';
 
-import type { CodeDocument } from './Playground/editor/codeModel';
+import type { DiffSide } from './Playground/editor/callouts';
 import { extensionToMonacoLanguage } from './Playground/monaco/language';
 import { options } from './Playground/monaco/options';
 import './Playground/monaco/setup';
@@ -16,11 +16,9 @@ import useAutoHeight from './Playground/monaco/useAutoHeight';
 import styles from './Playground/styles.module.css';
 import { isMobileOrBot } from './Playground/userAgent';
 
-export default function DiffEditor({ documents, fallback }: DiffMonacoProps) {
-  const [original, modified] = useMemo(
-    () => documents.map(({ value }) => value.replaceAll(HIGHLIGHT_COMMENT, '')),
-    [documents],
-  );
+export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
+  const original = sides[0].editorValue;
+  const modified = sides[1].editorValue;
 
   const { height, handleMount } = useAutoHeight({
     initialContentHeight:
@@ -52,8 +50,30 @@ export default function DiffEditor({ documents, fallback }: DiffMonacoProps) {
       updateOffsets();
       // Both panes lay out together; disposed along with the pane
       panes[1].onDidLayoutChange(updateOffsets);
+
+      // Mark each callout's line with the marker its legend entry uses. Monaco
+      // doesn't render injected `after` text here, so DiffEditor.module.css
+      // draws the marker as ::after content.
+      panes.forEach((pane, i) => {
+        const model = pane.getModel();
+        if (!model) return;
+        pane.createDecorationsCollection(
+          sides[i].callouts.map(({ line, index }) => {
+            const column = model.getLineMaxColumn(line);
+            return {
+              range: {
+                startLineNumber: line,
+                startColumn: column,
+                endLineNumber: line,
+                endColumn: column,
+              },
+              options: { afterContentClassName: `diff-callout-${index}` },
+            };
+          }),
+        );
+      });
     },
-    [handleMount],
+    [handleMount, sides],
   );
 
   return (
@@ -73,20 +93,20 @@ export default function DiffEditor({ documents, fallback }: DiffMonacoProps) {
             >
               <div className={styles.playgroundTextEdit}>
                 <div className={styles.diffLabels} aria-hidden>
-                  {documents.map(({ title }, i) => (
+                  {sides.map(({ title }, i) => (
                     <span
                       key={i}
                       style={{
                         left: labelOffsets?.[i] ?? (i ? '50%' : undefined),
                       }}
                     >
-                      {title || (i ? 'After' : 'Before')}
+                      {title}
                     </span>
                   ))}
                 </div>
                 <div className={styles.playgroundEditor}>
                   <BaseDiffEditor
-                    language={extensionToMonacoLanguage(documents[0].language)}
+                    language={extensionToMonacoLanguage(sides[0].language)}
                     original={original}
                     modified={modified}
                     options={DIFF_OPTIONS}
@@ -111,10 +131,8 @@ export default function DiffEditor({ documents, fallback }: DiffMonacoProps) {
 
 export type DiffMonacoProps = {
   fallback: React.ReactNode;
-  documents: readonly CodeDocument[];
+  sides: readonly [DiffSide, DiffSide];
 };
-
-const HIGHLIGHT_COMMENT = /^\s*\/\/ highlight-(next-line|start|end)\n/gm;
 
 const DIFF_OPTIONS: editor.IDiffEditorConstructionOptions = {
   ...options,
