@@ -47,6 +47,12 @@ app.use(DataClientPlugin, {
 });
 ```
 
+Default Production:
+
+```typescript
+[new NetworkManager(), new SubscriptionManager(PollingSubscription)];
+```
+
 Default Development:
 
 ```typescript
@@ -118,8 +124,15 @@ class MyController extends Controller {
 app.use(DataClientPlugin, { Controller: MyController });
 ```
 
-[useController()](https://dataclient.io/vue/api/useController) and `$dataClient` then return a `MyController` instance;
-cast to use its additional members.
+[useController()](https://dataclient.io/vue/api/useController) and `$dataClient` then return a `MyController` instance,
+but they are still typed as `Controller`. Cast to reach the added members:
+
+```ts
+import { useController } from '@data-client/vue';
+
+const ctrl = useController() as MyController;
+ctrl.doSomething();
+```
 
 ### gcPolicy?: GCInterface {#gcPolicy}
 
@@ -150,7 +163,8 @@ new GCPolicy({
 ## $dataClient {#dataclient}
 
 The plugin also adds the [Controller](https://dataclient.io/vue/api/Controller) as the `$dataClient` global property, so
-templates and Options API components can use it without [useController()](https://dataclient.io/vue/api/useController).
+templates and Options API components (as `this.$dataClient`) can use it without
+[useController()](https://dataclient.io/vue/api/useController). It is typed as [Controller](https://dataclient.io/vue/api/Controller) with no extra setup.
 
 ```html title="DeleteTodo.vue"
 <script setup lang="ts">
