@@ -11,7 +11,11 @@
  * Requires a Chromium for Playwright (`npx playwright install chromium`), or
  * set CHROMIUM_PATH to an existing Chromium binary.
  */
-import { createSlugger, DEFAULT_PARSE_FRONT_MATTER } from '@docusaurus/utils';
+import {
+  createSlugger,
+  DEFAULT_PARSE_FRONT_MATTER,
+  parseMarkdownHeadingId,
+} from '@docusaurus/utils';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
@@ -134,14 +138,24 @@ function featureVisual(headline, bullets, details) {
 // Sections for the title's comma-separated parts (by shared heading words),
 // then the sections the new bullets link to; else the first section with a visual
 function headlineSections(headline, bullets, details) {
+  // anchors as Docusaurus makes them: one slugger over every heading in order,
+  // so explicit {#id}s and repeated titles get the same -1 suffixes
   const slugger = createSlugger();
-  const headings = [...details.matchAll(/^## (.+?)(?:\s*\{#([\w-]+)\})?\s*$/gm)]
+  const headings = [...details.matchAll(/^(#{2,6}) (.+)$/gm)]
     .map(m => {
-      const title = m[1].replace(/`/g, '');
-      // explicit {#id}, else the anchor Docusaurus generates from the heading
-      return { title, id: m[2] ?? slugger.slug(title), index: m.index };
+      const { text, id } = parseMarkdownHeadingId(m[2]);
+      const title = text.replace(/`/g, '');
+      return {
+        level: m[1].length,
+        title,
+        id: id ? slugger.slug(id, { maintainCase: true }) : slugger.slug(title),
+        index: m.index,
+      };
     })
-    .filter(h => !/migration|other improvements|upgrade/i.test(h.title));
+    .filter(
+      h =>
+        h.level === 2 && !/migration|other improvements|upgrade/i.test(h.title),
+    );
   const words = s =>
     new Set(
       s
@@ -165,7 +179,7 @@ function headlineSections(headline, bullets, details) {
     .filter(b => b.tag === 'new')
     .map(b => {
       const anchor = b.text.match(/\]\([^)#]*#([\w-]+)\)/)?.[1];
-      const h = headings.find(h => anchor && h.id === anchor);
+      const h = headings.find(h => h.id === anchor);
       return h && { ...h, title: bulletLabel(b.text) };
     });
   const sectionAt = index => details.slice(index).split(/\n## /)[0];
