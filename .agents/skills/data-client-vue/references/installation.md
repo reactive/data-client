@@ -31,6 +31,8 @@ app.use(DataClientPlugin, {
 app.mount('#app');
 ```
 
+See [DataClientPlugin](./DataClientPlugin.md) for all options.
+
 [Next: Define Data »](https://dataclient.io/vue/getting-started/resource)
 
 ## Example

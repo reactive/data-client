@@ -6,6 +6,8 @@ description: High performance, globally consistent data management in React
 ---
 
 import Installation from '../shared/\_installation.mdx';
+import StateType from '../shared/_state_type.mdx';
+import GCPolicyOptions from '../shared/_gc_policy.mdx';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
@@ -25,6 +27,7 @@ interface ProviderProps {
   managers?: Manager[];
   initialState?: State<unknown>;
   Controller?: typeof Controller;
+  gcPolicy?: GCInterface;
   devButton?:
     | 'bottom-right'
     | 'bottom-left'
@@ -36,38 +39,7 @@ interface ProviderProps {
 
 ### initialState: State&lt;unknown\> {#initialState}
 
-```typescript
-export interface State<T> {
-  readonly entities: {
-    readonly [entityKey: string]: { readonly [pk: string]: T } | undefined;
-  };
-  readonly endpoints: {
-    readonly [key: string]: unknown | PK[] | PK | undefined;
-  };
-  readonly indexes: NormalizedIndex;
-  readonly meta: {
-    readonly [key: string]: {
-      readonly date: number;
-      readonly error?: ErrorTypes;
-      readonly expiresAt: number;
-      readonly prevExpiresAt?: number;
-      readonly invalidated?: boolean;
-      readonly errorPolicy?: 'hard' | 'soft' | undefined;
-    };
-  };
-  readonly entitiesMeta: {
-    readonly [entityKey: string]: {
-      readonly [pk: string]: {
-        readonly date: number;
-        readonly expiresAt: number;
-        readonly fetchedAt: number;
-      };
-    };
-  };
-  readonly optimistic: (SetResponseAction | OptimisticAction)[];
-  readonly lastReset: number;
-}
-```
+<StateType />
 
 Instead of starting with an empty cache, you can provide your own initial state. This can
 be useful for testing, or rehydrating the cache state when using server side rendering.
@@ -112,6 +84,25 @@ const RealApp = (
   </DataProvider>
 );
 ```
+
+### gcPolicy?: GCInterface {#gcPolicy}
+
+Removes data from the store once no component uses it and it has gone stale. Defaults to
+`new GCPolicy()`.
+
+```tsx
+import { DataProvider, GCPolicy } from '@data-client/react';
+
+const gcPolicy = new GCPolicy({ intervalMS: 60 * 1000 * 10 });
+
+const RealApp = (
+  <DataProvider gcPolicy={gcPolicy}>
+    <App />
+  </DataProvider>
+);
+```
+
+<GCPolicyOptions />
 
 ### devButton
 

@@ -274,5 +274,6 @@ Vue projects: read `<name>.vue.md` instead of `<name>.md` when it exists.
 For detailed API documentation, see the [references](references/) directory:
 
 - [DataProvider](references/DataProvider.md) - React root provider component (Vue installs `DataClientPlugin` instead; see installation)
+- [DataClientPlugin](references/DataClientPlugin.md) - Plugin options (Vue)
 - [installation](references/installation.md) - Installation guide
 - [getDefaultManagers](references/getDefaultManagers.md) - Default managers

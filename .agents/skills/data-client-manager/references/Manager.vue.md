@@ -33,7 +33,7 @@ interface Manager {
 The only differences is that the `next()` function returns a `Promise`.
 
 This promise resolves when the reducer update is committed to the
-[DataClientPlugin](https://dataclient.io/vue/getting-started/installation) store. This enables building managers that perform work with the
+[DataClientPlugin](https://dataclient.io/vue/api/DataClientPlugin) store. This enables building managers that perform work with the
 newly computed state.
 
 Since redux is fully synchronous, an adapter must be placed in front of Reactive Data Client style middleware to
@@ -53,7 +53,7 @@ Provides any cleanup of dangling resources after manager is no longer in use.
 
 ## Adding managers to Reactive Data Client {#adding}
 
-Use the `managers` option of [DataClientPlugin](https://dataclient.io/vue/getting-started/installation). The plugin is
+Use the [managers](https://dataclient.io/vue/api/DataClientPlugin#managers) option of [DataClientPlugin](https://dataclient.io/vue/api/DataClientPlugin). The plugin is
 installed once per app, so managers are created once.
 
 ```ts title="main.ts"

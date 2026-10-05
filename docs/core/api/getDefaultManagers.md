@@ -8,7 +8,7 @@ import StackBlitz from '@site/src/components/StackBlitz';
 
 # getDefaultManagers()
 
-`getDefaultManagers` returns an Array of [Managers](./Manager.md) to be sent to :react[[&lt;DataProvider />](./DataProvider.md)]:vue[[DataClientPlugin](../getting-started/installation.md#add-provider-at-top-level-component)].
+`getDefaultManagers` returns an Array of [Managers](./Manager.md) to be sent to :react[[&lt;DataProvider />](./DataProvider.md)]:vue[[DataClientPlugin](./DataClientPlugin.md)].
 
 This makes it simple to configure and add custom [Managers](./Manager.md), while remaining robust against
 any potential changes to the default managers.
@@ -63,8 +63,8 @@ app.mount('#app');
 ```
 
 When `managers` is omitted, `DataClientPlugin` uses `getDefaultManagers()` with no arguments.
-See [installation](../getting-started/installation.md#add-provider-at-top-level-component) for the
-other `DataClientPlugin` options.
+See [DataClientPlugin](./DataClientPlugin.md#options) for the
+other options.
 
 :::
 
