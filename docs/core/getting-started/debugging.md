@@ -16,14 +16,6 @@ For many debugging tasks, the fastest path is to use an agent that already knows
 Install the :react[[`data-client-react` skill](https://skills.sh/reactive/data-client/data-client-react)]:vue[[`data-client-vue` skill](https://skills.sh/reactive/data-client/data-client-vue)]
 in your coding agent, then ask it to inspect the current page or app state.
 
-:::vue
-
-The skill is named for React, but its `devtools-debugging` workflow only uses the
-[Controller](../api/Controller.md), so it works the same with `@data-client/vue`. Ask your agent
-to follow that reference.
-
-:::
-
 ### How agent debugging works
 
 In dev mode, [DevToolsManager](../api/DevToolsManager.md) exposes live `Controller` instances so an agent can inspect
