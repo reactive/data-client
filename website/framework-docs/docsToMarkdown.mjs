@@ -20,8 +20,8 @@ import remarkStringify from 'remark-stringify';
 import { unified } from 'unified';
 import { visit } from 'unist-util-visit';
 
-import providerSetup from '../src/components/providerSetup.mjs';
 import { ROOT, SITE, rel } from './site.mjs';
+import providerSetup from '../src/components/providerSetup.mjs';
 
 const require = createRequire(import.meta.url);
 const preprocessContent =
