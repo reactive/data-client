@@ -1,0 +1,102 @@
+name: regenerate
+# Same-repo PRs (Renovate's included): reruns the generators whose output is
+# committed, on the merge ref, and commits any changes to the PR branch.
+# Fork PRs and master keep the editor-types, skills and agent-rules checks.
+on:
+  pull_request:
+    branches:
+      - master
+    # Union of the editor-types, skills and agent-rules workflows' paths
+    paths:
+      - 'packages/**'
+      - '!packages/**/__tests__/**'
+      - '!packages/*/typescript-tests/**'
+      - '!packages/*/src-*-types/**'
+      - '!packages/**/*.md'
+      - 'scripts/copywebsitetypes.sh'
+      - 'scripts/strip-dts-comments.mjs'
+      - 'scripts/globals.ts'
+      - 'scripts/rollup-plugins/**'
+      - 'website/src/components/Playground/editor-types/**'
+      - 'website/package.json'
+      - 'package.json'
+      - 'yarn.lock'
+      - 'tsconfig*.json'
+      - 'docs/**'
+      - '.agents/skills/**'
+      - 'website/framework-docs/**'
+      - '.gitattributes'
+      - '**/.cursor/rules/**'
+      - '**/.claude/rules/**'
+      - '.claude/skills'
+      - 'scripts/agent-rules.mjs'
+      - '.github/workflows/regenerate.yml'
+
+concurrency:
+  group: regenerate-${{ github.head_ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  statuses: write
+
+jobs:
+  regenerate:
+    # GITHUB_TOKEN can't push to forks
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '26'
+          cache: 'yarn'
+      - name: Install packages
+        # website provides bignumber.js, @number-flow/react, etc.
+        run: ./scripts/ci-install.sh website
+      - name: Regenerate
+        run: |
+          yarn copy:websitetypes
+          yarn build:skills
+          node scripts/agent-rules.mjs
+      - name: Commit changes to the PR branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_REF: ${{ github.head_ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          OUTPUTS=(
+            website/src/components/Playground/editor-types
+            ':(glob).agents/skills/*/references/**'
+            ':(glob)**/.claude/rules/**'
+            .claude/skills
+          )
+          git add -A -- "${OUTPUTS[@]}"
+          if git diff --cached --quiet; then
+            echo "Generated files are up to date."
+            exit 0
+          fi
+          git diff --cached --stat
+          # the changes the merge needs, applied to the PR head itself
+          git diff --cached --binary --full-index > "${RUNNER_TEMP}/regenerated.patch"
+          git fetch --depth=1 origin "${HEAD_SHA}"
+          git checkout --force --detach "${HEAD_SHA}"
+          if ! git apply --3way --index "${RUNNER_TEMP}/regenerated.patch"; then
+            echo "::error::Generated files conflict with this branch: merge master, run 'yarn copy:websitetypes', 'yarn build:skills' and 'yarn build:agent-rules', and commit the result."
+            exit 1
+          fi
+          git -c user.name='github-actions[bot]' \
+            -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+            commit --quiet -m 'chore: Regenerate generated files' \
+            -m "Reran yarn copy:websitetypes, yarn build:skills and yarn build:agent-rules on the merge with master. ${RUN_URL}"
+          git push origin "HEAD:refs/heads/${HEAD_REF}"
+          # Pushes with GITHUB_TOKEN start no workflows, so report this run's
+          # result on the new head (CircleCI still runs on it).
+          gh api "repos/${GITHUB_REPOSITORY}/statuses/$(git rev-parse HEAD)" \
+            -f state=success -f context=regenerate -f target_url="${RUN_URL}" \
+            -f description='Generated files regenerated and committed' > /dev/null
+          echo "::notice::Committed regenerated files to ${HEAD_REF}; pull before your next push."
