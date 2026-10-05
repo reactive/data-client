@@ -19,7 +19,8 @@ import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 
-import { ROOT, SITE, docToMarkdown, rel, routeOf } from './docsToMarkdown.mjs';
+import { docToMarkdown, routeOf } from './docsToMarkdown.mjs';
+import { ROOT, SITE, rel } from './site.mjs';
 
 const { FM } = createRequire(import.meta.url)('./index.js');
 
@@ -52,9 +53,24 @@ const walk = dir =>
 const isGenerated = content =>
   content.split('\n', 2).some(line => line.includes(GENERATED));
 
-/** Content ignoring the header and which framework's docs links point to */
+/**
+ * Content ignoring the header, which framework's docs links point to, and the
+ * table padding those links' lengths change
+ */
 const comparable = content =>
-  content?.replace(/^.*\n/, '').replaceAll(`${SITE}/vue/`, `${SITE}/docs/`);
+  content
+    ?.replace(/^.*\n/, '')
+    .replaceAll(`${SITE}/vue/`, `${SITE}/docs/`)
+    .replace(/ {2,}/g, ' ')
+    .replace(/-{3,}/g, '---');
+
+/** Route of each skill doc -> its reference name, so links between them stay local */
+const localRoutesFor = (docs, framework) =>
+  new Map(
+    Object.entries(docs)
+      .filter(([, doc]) => !path.basename(doc).startsWith('_'))
+      .map(([name, doc]) => [routeOf(path.join(ROOT, doc), framework), name]),
+  );
 
 const generated = new Map();
 
@@ -72,19 +88,15 @@ function generateUncached(skillDir) {
     skills = [],
   } = JSON.parse(fs.readFileSync(path.join(skillDir, MANIFEST), 'utf8'));
   const out = new Map();
+  for (const doc of Object.values(docs)) {
+    // generated references aren't sources: they may not be regenerated yet
+    if (!doc.startsWith('docs/'))
+      throw new Error(`${rel(skillDir)}/${MANIFEST}: ${doc} is not in docs/`);
+    if (!fs.existsSync(path.join(ROOT, doc)))
+      throw new Error(`${rel(skillDir)}/${MANIFEST}: ${doc} does not exist`);
+  }
   for (const framework of frameworks) {
-    // links between pages in the same skill stay local
-    const localRoutes = new Map();
-    for (const [name, doc] of Object.entries(docs)) {
-      const file = path.join(ROOT, doc);
-      // generated references aren't sources: they may not be regenerated yet
-      if (!doc.startsWith('docs/'))
-        throw new Error(`${rel(skillDir)}/${MANIFEST}: ${doc} is not in docs/`);
-      if (!fs.existsSync(file))
-        throw new Error(`${rel(skillDir)}/${MANIFEST}: ${doc} does not exist`);
-      if (!path.basename(file).startsWith('_'))
-        localRoutes.set(routeOf(file, framework), name);
-    }
+    const localRoutes = localRoutesFor(docs, framework);
     const resolveRoute = url => {
       const [, route, hash = ''] = url.match(/^([^#]*)(#.*)?$/);
       return localRoutes.has(route) ?
@@ -103,6 +115,25 @@ function generateUncached(skillDir) {
       else if (comparable(out.get(primary)) !== comparable(content))
         out.set(primary.replace(MD, `.${framework}.md`), content);
     }
+  }
+  // a framework's page links to that framework's version of other pages
+  for (const [file, content] of out) {
+    const framework = file.match(/\.(\w+)\.md$/)?.[1];
+    if (!frameworks.includes(framework)) continue;
+    out.set(
+      file,
+      content.replace(
+        /(\]\(\.\/)([^)#\s]+)\.md(?=[)#])/g,
+        (link, open, name) =>
+          (
+            out.has(
+              path.join(skillDir, 'references', `${name}.${framework}.md`),
+            )
+          ) ?
+            `${open}${name}.${framework}.md`
+          : link,
+      ),
+    );
   }
   for (const skill of skills)
     bundleSkill(path.join(SKILLS, skill), skillDir, out);

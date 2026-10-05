@@ -4,16 +4,17 @@ import React from 'react';
 import Header from '../Header';
 import styles from '../styles.module.css';
 
-export default function PreviewWrapper({ children }: Props) {
+export default function PreviewWrapper({ children, headerControls }: Props) {
   return (
     <div className={styles.previewWrapper}>
-      <Header>
+      <Header className={styles.previewHeader}>
         <Translate
           id="theme.Playground.result"
           description="The result label of the live codeblocks"
         >
           🔴 Live Preview
         </Translate>
+        {headerControls}
       </Header>
       <div className={styles.playgroundResult}>{children}</div>
     </div>
@@ -21,4 +22,5 @@ export default function PreviewWrapper({ children }: Props) {
 }
 interface Props {
   children: React.ReactNode;
+  headerControls?: React.ReactNode;
 }

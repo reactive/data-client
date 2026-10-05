@@ -15,7 +15,15 @@ try {
   process.exit(0);
 }
 const command = payload.command ?? payload.tool_input?.command ?? '';
-if (!/\bgit\b[^;&|\n]*\bpush\b/.test(command)) process.exit(0);
+// a git subcommand as a command (`git push`, `git -C dir push`, `cd x && git
+// push`); not `git stash push`, `git -c commit.gpgsign=false`, a branch named
+// fix-commit or a commit message mentioning push
+const gitCommand = sub =>
+  new RegExp(
+    `(?:^|[;&|(]\\s*)git(?:\\s+-[cC]\\s+\\S+|\\s+--?[\\w-]+(?:=\\S+)?)*\\s+${sub}(?![\\w.-])`,
+    'm',
+  );
+if (!gitCommand('push').test(command)) process.exit(0);
 
 const projectDir =
   process.env.CURSOR_PROJECT_DIR ||
@@ -26,7 +34,7 @@ const git = (...args) =>
     cwd: projectDir,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'ignore'],
-  }).trim();
+  }).trimEnd();
 
 let manifestCache;
 /** Every skill's references.json */
@@ -64,15 +72,34 @@ const isInput = file =>
   // symlinked into skills that others bundle
   file.startsWith('website/static/codemods/');
 
-// files the branch changes relative to master
-let changed;
+// files the branch changes relative to master, plus uncommitted ones when
+// the same command commits before pushing (`git commit -am x && git push`)
 try {
-  const base = git('merge-base', 'HEAD', 'origin/master');
-  changed = git('diff', '--name-only', base, 'HEAD').split('\n');
+  // renames as delete + add, so the old path counts too
+  const dirty = git(
+    'status',
+    '--porcelain',
+    '--no-renames',
+    '--untracked-files=all',
+  )
+    .split('\n')
+    .map(line => line.slice(3))
+    .some(isInput);
+  // the generator reads the working tree, so it can only vouch for what's
+  // pushed when that includes these edits; otherwise leave it to CI
+  if (dirty && !gitCommand('commit').test(command)) process.exit(0);
+  const committed = git(
+    'diff',
+    '--name-only',
+    '--no-renames',
+    'origin/master...HEAD',
+  )
+    .split('\n')
+    .some(isInput);
+  if (!dirty && !committed) process.exit(0);
 } catch {
   process.exit(0);
 }
-if (!changed.some(isInput)) process.exit(0);
 
 let problems = '';
 try {
@@ -90,11 +117,8 @@ const uncommitted = git(
   '--porcelain',
   '--untracked-files=all',
   '--',
-  '.agents/skills',
-)
-  .split('\n')
-  .filter(line => line.includes('/references/'))
-  .join('\n');
+  '.agents/skills/*/references/*',
+);
 if (!uncommitted && !problems) process.exit(0);
 
 const message = [

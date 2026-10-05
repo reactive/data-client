@@ -251,70 +251,17 @@ interface Queryable {
 
 ## Schema Overview
 
-Data Type
-Mutable
-Schema
-Description
-[Queryable](./schema.md#queryable)
-
-[Object](https://en.wikipedia.org/wiki/Object_\(computer_science\))
-✅
-[Entity](./Entity.md)
-single _unique_ object
-✅
-
-✅
-[Union(Entity)](https://dataclient.io/rest/api/Union)
-polymorphic objects (`A | B`)
-✅
-
-🛑
-[Object](https://dataclient.io/rest/api/Object)
-statically known keys
-🛑
-
-[Invalidate(Entity)](https://dataclient.io/rest/api/Invalidate)
-[delete an entity](./expiry-policy.md#invalidate-entity)
-🛑
-
-[List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))
-✅
-[Collection(Array)](./Collection.md)
-growable lists
-✅
-
-🛑
-[Array](https://dataclient.io/rest/api/Array)
-immutable lists
-🛑
-
-[All](https://dataclient.io/rest/api/All)
-list of all entities of a kind
-✅
-
-[Map](https://en.wikipedia.org/wiki/Associative_array)
-✅
-[Collection(Values)](./Collection.md)
-growable maps
-✅
-
-🛑
-[Values](https://dataclient.io/rest/api/Values)
-immutable maps
-🛑
-
-[Scalar](https://en.wikipedia.org/wiki/Scalar_\(mathematics\))
-✅
-[Scalar](https://dataclient.io/rest/api/Scalar)
-lens-dependent entity fields
-✅
-
-any
-
-[Query(Queryable)](https://dataclient.io/rest/api/Query)
-memoized custom transforms
-✅
-
-[Lazy(Schema)](https://dataclient.io/rest/api/Lazy)
-deferred denormalization
-✅
+| Data Type                                                           | Mutable | Schema                                                          | Description                                              | [Queryable](./schema.md#queryable) |
+| ------------------------------------------------------------------- | ------- | --------------------------------------------------------------- | -------------------------------------------------------- | ---------------------------------- |
+| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | ✅       | [Entity](./Entity.md)                                           | single _unique_ object                                   | ✅                                  |
+| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | ✅       | [Union(Entity)](https://dataclient.io/rest/api/Union)           | polymorphic objects (`A \| B`)                           | ✅                                  |
+| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) | 🛑      | [Object](https://dataclient.io/rest/api/Object)                 | statically known keys                                    | 🛑                                 |
+| [Object](https://en.wikipedia.org/wiki/Object_\(computer_science\)) |         | [Invalidate(Entity)](https://dataclient.io/rest/api/Invalidate) | [delete an entity](./expiry-policy.md#invalidate-entity) | 🛑                                 |
+| [List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))   | ✅       | [Collection(Array)](./Collection.md)                            | growable lists                                           | ✅                                  |
+| [List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))   | 🛑      | [Array](https://dataclient.io/rest/api/Array)                   | immutable lists                                          | 🛑                                 |
+| [List](https://en.wikipedia.org/wiki/List_\(abstract_data_type\))   |         | [All](https://dataclient.io/rest/api/All)                       | list of all entities of a kind                           | ✅                                  |
+| [Map](https://en.wikipedia.org/wiki/Associative_array)              | ✅       | [Collection(Values)](./Collection.md)                           | growable maps                                            | ✅                                  |
+| [Map](https://en.wikipedia.org/wiki/Associative_array)              | 🛑      | [Values](https://dataclient.io/rest/api/Values)                 | immutable maps                                           | 🛑                                 |
+| [Scalar](https://en.wikipedia.org/wiki/Scalar_\(mathematics\))      | ✅       | [Scalar](https://dataclient.io/rest/api/Scalar)                 | lens-dependent entity fields                             | ✅                                  |
+| any                                                                 |         | [Query(Queryable)](https://dataclient.io/rest/api/Query)        | memoized custom transforms                               | ✅                                  |
+| any                                                                 |         | [Lazy(Schema)](https://dataclient.io/rest/api/Lazy)             | deferred denormalization                                 | ✅                                  |

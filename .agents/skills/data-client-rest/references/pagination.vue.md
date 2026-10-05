@@ -129,7 +129,7 @@ export const PostResource = resource({
 
 ### Github Issues Demo
 
-Our `NextPage` component has a click handler that calls [RestEndpoint.getPage](./RestEndpoint.md#getpage).
+Our `NextPage` component has a click handler that calls [RestEndpoint.getPage](./RestEndpoint.vue.md#getpage).
 Scroll to the bottom of the preview to click _"Load more"_ to append the next page of issues.
 
 Example app: [github-app](https://github.com/reactive/data-client/tree/master/examples/github-app) ([`src/resources/Issue.tsx`](https://github.com/reactive/data-client/blob/master/examples/github-app/src/resources/Issue.tsx), [`src/pages/NextPage.tsx`](https://github.com/reactive/data-client/blob/master/examples/github-app/src/pages/NextPage.tsx))
@@ -138,7 +138,7 @@ Example app: [github-app](https://github.com/reactive/data-client/tree/master/ex
 
 Here we explore a real world example using [cosmos validators list](https://rest.cosmos.directory/stargaze/cosmos/staking/v1beta1/validators).
 
-Since validators only have one Endpoint, we use [RestEndpoint](./RestEndpoint.md) instead of [resource](./resource.md). By using [Collections](./Collection.md) and [paginationField](./RestEndpoint.md#paginationfield), we can call [RestEndpoint.getPage](./RestEndpoint.md#getpage)
+Since validators only have one Endpoint, we use [RestEndpoint](./RestEndpoint.vue.md) instead of [resource](./resource.md). By using [Collections](./Collection.md) and [paginationField](./RestEndpoint.vue.md#paginationfield), we can call [RestEndpoint.getPage](./RestEndpoint.vue.md#getpage)
 to append the next page of validators to our list.
 
 ```ts title="Validator" {46-50}
@@ -298,7 +298,7 @@ function NewsList() {
 ## Tokens in HTTP Headers
 
 In some cases the pagination tokens will be embeded in HTTP headers, rather than part of the payload. In this
-case you'll need to customize the [parseResponse()](./RestEndpoint.md#parseResponse) function
+case you'll need to customize the [parseResponse()](./RestEndpoint.vue.md#parseResponse) function
 for [getList](./resource.md#getlist) so the pagination headers are included fetch object.
 
 We show the custom `getList` below. All other parts of the above example remain the same.

@@ -66,7 +66,7 @@ export const MyResource = resource({
 });
 ```
 
-```ts title="Request" column
+```ts title="Usage" column
 import { MyResource } from './MyResource';
 MyResource.get({ id: 1 });
 ```

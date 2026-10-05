@@ -36,6 +36,15 @@ const config: Config = {
     hooks: {
       onBrokenMarkdownLinks: 'log',
     },
+    // Vercel preview deploys publish `draft: true` pages so PRs can review them;
+    // production (VERCEL_ENV=production) and local builds still drop them.
+    ...(process.env.VERCEL_ENV === 'preview' && {
+      parseFrontMatter: async params => {
+        const result = await params.defaultParseFrontMatter(params);
+        if (result.frontMatter.draft) result.frontMatter.draft = false;
+        return result;
+      },
+    }),
   },
   headTags: [
     {
@@ -413,6 +422,16 @@ const config: Config = {
     path.resolve(__dirname, './node-plugin'),
     path.resolve(__dirname, './profiling-plugin'),
     path.resolve(__dirname, './raw-plugin'),
+    [
+      path.resolve(__dirname, './llms-plugin'),
+      {
+        frameworks: {
+          react: { id: 'default', path: '/', name: 'React' },
+          vue: { id: 'vue', path: '/vue/', name: 'Vue' },
+        },
+        shared: { rest: 'REST', graphql: 'GraphQL' },
+      },
+    ],
   ],
   themeConfig: {
     mermaid: {

@@ -2,11 +2,11 @@
 
 # Manager
 
-`Managers` are singletons that handle global side-effects. Kind of like [useEffect()](https://react.dev/reference/react/useEffect) for the central data
+`Managers` are singletons that handle global side-effects. Kind of like [watchEffect()](https://vuejs.org/api/reactivity-core.html#watcheffect) for the central data
 store.
 
 The default managers orchestrate the complex asynchronous behavior that Data Client
-provides out of the box. These can easily be configured with [getDefaultManagers()](./getDefaultManagers.md), and
+provides out of the box. These can easily be configured with [getDefaultManagers()](./getDefaultManagers.vue.md), and
 extended with your own custom `Managers`.
 
 Managers must implement [middleware](#middleware), which hooks them into the central store's
@@ -30,10 +30,11 @@ interface Manager {
 ### middleware
 
 `middleware` is very similar to a [redux middleware](https://redux.js.org/advanced/middleware).
-The only differences is that the `next()` function returns a `Promise`. This promise resolves when the reducer update is
-[committed](https://indepth.dev/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react/#general-algorithm)
-when using \<DataProvider />. This is necessary since the commit phase is asynchronously scheduled. This enables building
-managers that perform work after the DOM is updated and also with the newly computed state.
+The only differences is that the `next()` function returns a `Promise`.
+
+This promise resolves when the reducer update is committed to the
+[DataClientPlugin](https://dataclient.io/vue/getting-started/installation) store. This enables building managers that perform work with the
+newly computed state.
 
 Since redux is fully synchronous, an adapter must be placed in front of Reactive Data Client style middleware to
 ensure they can consume a promise. Conversely, redux middleware must be changed to pass through promises.
@@ -55,127 +56,28 @@ Provides any cleanup of dangling resources after manager is no longer in use.
 Use the `managers` option of [DataClientPlugin](https://dataclient.io/vue/getting-started/installation). The plugin is
 installed once per app, so managers are created once.
 
-**Web**
-
-```tsx title="/index.tsx"
-import { DataProvider, getDefaultManagers } from '@data-client/react';
-import { createRoot } from 'react-dom/client';
-
-const managers = [...getDefaultManagers(), new MyManager()];
-
-createRoot(document.body).render(
-  <DataProvider managers={managers}>
-    <App />
-  </DataProvider>,
-);
-```
-
-**React Native**
-
-```tsx title="/index.tsx"
-import { DataProvider, getDefaultManagers } from '@data-client/react';
-import { AppRegistry } from 'react-native';
+```ts title="main.ts"
+import { createApp } from 'vue';
+import { DataClientPlugin, getDefaultManagers } from '@data-client/vue';
+import App from './App.vue';
 
 const managers = [...getDefaultManagers(), new MyManager()];
 
-const Root = () => (
-  <DataProvider managers={managers}>
-    <App />
-  </DataProvider>
-);
-AppRegistry.registerComponent('MyApp', () => Root);
-```
-
-**NextJS**
-
-```tsx title="app/Provider.tsx"
-'use client';
-import { getDefaultManagers } from '@data-client/react';
-import { DataProvider } from '@data-client/react/nextjs';
-
-const managers = [...getDefaultManagers(), new MyManager()];
-
-export default function Provider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return <DataProvider managers={managers}>{children}</DataProvider>;
-}
-```
-
-```tsx title="app/_layout.tsx"
-import Provider from './Provider';
-
-export default function RootLayout({ children }) {
-  return (
-    <html>
-      <body>
-        <Provider>{children}</Provider>
-      </body>
-    </html>
-  );
-}
-```
-
-**Expo**
-
-```tsx title="app/Provider.tsx"
-import { getDefaultManagers, DataProvider } from '@data-client/react';
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from '@react-navigation/native';
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-const managers = [...getDefaultManagers(), new MyManager()];
-
-export default function Provider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const colorScheme = useColorScheme();
-
-  return (
-    <ThemeProvider
-      value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
-    >
-      <DataProvider managers={managers}>{children}</DataProvider>
-    </ThemeProvider>
-  );
-}
-```
-
-```tsx title="app/_layout.tsx"
-import { Stack } from 'expo-router';
-import 'react-native-reanimated';
-
-import Provider from './Provider';
-
-export default function RootLayout() {
-  return (
-    <Provider>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </Provider>
-  );
-}
+const app = createApp(App);
+app.use(DataClientPlugin, { managers });
+app.mount('#app');
 ```
 
 ## Control flow
 
-Managers integrate with the DataProvider store with their lifecycles and middleware. They orchestrate complex control
-flows by interfacing via intercepting and dispatching [actions](./Actions.md), as well as reading the internal state.
+Managers integrate with the DataClientPlugin store with their lifecycles and middleware. They orchestrate complex control
+flows by interfacing via intercepting and dispatching [actions](./Actions.vue.md), as well as reading the internal state.
 
-The job of `middleware` is to dispatch actions, respond to [actions](./Actions.md), or both.
+The job of `middleware` is to dispatch actions, respond to [actions](./Actions.vue.md), or both.
 
 ### Dispatching Actions
 
-[Controller](./Controller.md) provides type-safe action dispatchers.
+[Controller](./Controller.vue.md) provides type-safe action dispatchers.
 
 ```ts title="CurrentTime"
 import { Entity } from '@data-client/endpoint';
@@ -209,7 +111,7 @@ export default class TimeManager implements Manager {
 
 ### Reading and Consuming Actions
 
-`actionTypes` includes all constants to distinguish between different [actions](./Actions.md).
+`actionTypes` includes all constants to distinguish between different [actions](./Actions.vue.md).
 
 ```ts
 import type { Manager, Middleware } from '@data-client/react';
@@ -223,7 +125,7 @@ export default class LoggingManager implements Manager {
           console.info(
             `${action.endpoint.name} ${JSON.stringify(action.response)}`,
           );
-          // wait for state update to be committed to React
+          // wait for state update to be committed
           await next(action);
           // get the data from the store, which may be merged with existing state
           const { data } = controller.getResponse(
@@ -247,7 +149,7 @@ export default class LoggingManager implements Manager {
 In conditional blocks, the action [type narrows](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#working-with-union-types),
 encouraging safe access to its members.
 
-In case we want to 'handle' a certain [action](./Actions.md), we can 'consume' it by not calling next.
+In case we want to 'handle' a certain [action](./Actions.vue.md), we can 'consume' it by not calling next.
 
 ```ts title="isEntity"
 import type { Schema, EntityInterface } from '@data-client/core';
@@ -294,24 +196,24 @@ export default class CustomSubsManager implements Manager {
 ```
 
 By `return Promise.resolve();` instead of calling `next(action)`, we prevent managers listed
-after this one from seeing that [action](./Actions.md).
+after this one from seeing that [action](./Actions.vue.md).
 
-Types: [`FETCH`](./Actions.md#fetch), [`SET`](./Actions.md#set), [`SET_RESPONSE`](./Actions.md#set_response),
-[`RESET`](./Actions.md#reset), [`SUBSCRIBE`](./Actions.md#subscribe), [`UNSUBSCRIBE`](./Actions.md#unsubscribe),
-[`INVALIDATE`](./Actions.md#invalidate), [`INVALIDATEALL`](./Actions.md#invalidateall), [`EXPIREALL`](./Actions.md#expireall)
+Types: [`FETCH`](./Actions.vue.md#fetch), [`SET`](./Actions.vue.md#set), [`SET_RESPONSE`](./Actions.vue.md#set_response),
+[`RESET`](./Actions.vue.md#reset), [`SUBSCRIBE`](./Actions.vue.md#subscribe), [`UNSUBSCRIBE`](./Actions.vue.md#unsubscribe),
+[`INVALIDATE`](./Actions.vue.md#invalidate), [`INVALIDATEALL`](./Actions.vue.md#invalidateall), [`EXPIREALL`](./Actions.vue.md#expireall)
 
 ## Use cases
 
 Minimal examples for common Manager use cases:
 
-- [Logging](./managers.md#middleware-logging)
-- [Error reporting (monitoring)](./managers.md#error-reporting)
-- [Metrics (fetch timing)](./managers.md#metrics)
-- [Notifications (toasts)](./managers.md#notifications)
-- [Refresh on focus or reconnect](./managers.md#refresh-on-focus)
-- [Cross-tab synchronization](./managers.md#cross-tab-sync)
-- [Offline persistence](./managers.md#persistence)
-- [Data streams (websockets/SSE)](./managers.md#data-stream)
-- [Authentication: logout on 401](./LogoutManager.md)
+- [Logging](./managers.vue.md#middleware-logging)
+- [Error reporting (monitoring)](./managers.vue.md#error-reporting)
+- [Metrics (fetch timing)](./managers.vue.md#metrics)
+- [Notifications (toasts)](./managers.vue.md#notifications)
+- [Refresh on focus or reconnect](./managers.vue.md#refresh-on-focus)
+- [Cross-tab synchronization](./managers.vue.md#cross-tab-sync)
+- [Offline persistence](./managers.vue.md#persistence)
+- [Data streams (websockets/SSE)](./managers.vue.md#data-stream)
+- [Authentication: logout on 401](./LogoutManager.vue.md)
 - [Periodic updates (interval/ticker)](#dispatching-actions)
 - [Custom transport subscriptions](#reading-and-consuming-actions)

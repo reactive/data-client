@@ -7,7 +7,13 @@ import {
 import { MockResolver } from '@data-client/test/browser';
 import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
 import clsx from 'clsx';
-import React, { memo, useCallback, useMemo, lazy } from 'react';
+import React, {
+  memo,
+  useCallback,
+  useMemo,
+  lazy,
+  type ProfilerOnRenderCallback,
+} from 'react';
 
 import Boundary from '../Boundary';
 import StoreInspector from './StoreInspector';
@@ -21,7 +27,11 @@ function Preview<T>({
   row,
   fixtures,
   getInitialInterceptorData,
-}: PreviewProps<T>) {
+  onCommit,
+}: PreviewProps<T> & {
+  /** Called on every React commit of the live result (enables a `<Profiler>`) */
+  onCommit?: ProfilerOnRenderCallback;
+}) {
   const [choice, setTabGroupChoice] = useTabStorage(groupId);
   const selectedValue = choice === 'y' || choice === 'n' ? choice : defaultOpen;
   const { blockElementScrollPositionUntilNextRender } =
@@ -59,7 +69,7 @@ function Preview<T>({
           })}
         >
           <Boundary fallback={null}>
-            <PreviewBlockLazy />
+            <PreviewBlockLazy onCommit={onCommit} />
           </Boundary>
         </div>
         <StoreInspector selectedValue={selectedValue} toggle={toggle} />

@@ -559,7 +559,7 @@ updateSite({ slug: 'cool' }, { url: '/' });
 
 ### paginationField
 
-If specified, will add [getPage](#getpage) method on the `RestEndpoint`. [Pagination guide](./pagination.md). Schema
+If specified, will add [getPage](#getpage) method on the `RestEndpoint`. [Pagination guide](./pagination.vue.md). Schema
 must also contain a [Collection](./Collection.md).
 
 ### urlPrefix: string = '' {#urlPrefix}
@@ -854,7 +854,7 @@ This is used for mock interceptors with with [\<MockResolver />](https://datacli
 
 Custom data cache lifetime for the fetched resource. Will override the value set in NetworkManager.
 
-[Learn more about expiry time](./expiry-policy.md#expiry-time)
+[Learn more about expiry time](./expiry-policy.vue.md#expiry-time)
 
 ### errorExpiryLength?: number {#errorexpirylength}
 
@@ -865,7 +865,7 @@ Custom data error lifetime for the fetched resource. Will override the value set
 'soft' will use stale data (if exists) in case of error; undefined or not providing option will result
 in error.
 
-[Learn more about errorPolicy](./error-policy.md)
+[Learn more about errorPolicy](./error-policy.vue.md)
 
 ```ts
 errorPolicy(error) {
@@ -1359,12 +1359,12 @@ return (
 );
 ```
 
-See [pagination guide](./pagination.md) for more info.
+See [pagination guide](./pagination.vue.md) for more info.
 
 ### paginated(paginationfield) {#paginated}
 
 Creates a new endpoint with an extra `paginationfield` string that will be used to find the specific
-page, to append to this endpoint. See [Infinite Scrolling Pagination](./pagination.md#infinite-scrolling) for more info.
+page, to append to this endpoint. See [Infinite Scrolling Pagination](./pagination.vue.md#infinite-scrolling) for more info.
 
 ```ts
 const getNextPage = getList.paginated('cursor');

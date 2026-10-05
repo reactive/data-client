@@ -1,7 +1,7 @@
 import HooksPlayground from '@site/src/components/HooksPlayground';
 import { companyFixtures } from '@site/src/fixtures/companies';
 
-<HooksPlayground fixtures={companyFixtures} row={props.row ?? false} groupId="schema" defaultOpen={props.defaultOpen ?? "y"} defaultTab={props.defaultTab}>
+<HooksPlayground fixtures={companyFixtures} row={props.row ?? false} groupId="schema" defaultOpen={props.defaultOpen ?? "y"} defaultTab={props.defaultTab} renderCount={props.renderCount}>
 
 ```ts title="api/Company" {11-20,26-28,34-36}
 import { Collection, Entity, RestEndpoint, Scalar } from '@data-client/rest';

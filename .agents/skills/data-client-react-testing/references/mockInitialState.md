@@ -26,18 +26,14 @@ This can be used as the initialState prop for [\<DataProvider />](https://datacl
 
 ## Example
 
-```typescript
-import { DataProvider } from '@data-client/react';
-import { mockInitialState } from '@data-client/test';
-
+```ts title="fixtures.ts"
 import ArticleResource from 'resources/ArticleResource';
-import MyComponentToTest from 'components/MyComponentToTest';
 
-const results = [
+export const results = [
   {
-    request: ArticleResource.getList,
-    params: { maxResults: 10 },
-    result: [
+    endpoint: ArticleResource.getList,
+    args: [{ maxResults: 10 }],
+    response: [
       {
         id: 5,
         content: 'have a merry christmas',
@@ -53,6 +49,14 @@ const results = [
     ],
   },
 ];
+```
+
+```tsx
+import { DataProvider } from '@data-client/react';
+import { mockInitialState } from '@data-client/test';
+
+import MyComponentToTest from 'components/MyComponentToTest';
+import { results } from './fixtures';
 
 <DataProvider initialState={mockInitialState(results)}>
   <MyComponentToTest />

@@ -25,8 +25,8 @@ In these cases it will fetch if the data is considered stale.
 
 ### Invalid
 
-Data should not be shown. Any components needing this data will trigger fetch and suspense. If
-no components care about this data no action will be taken.
+Data should not be shown. Any components needing this data will trigger fetch and suspense. If no components care about this
+data no action will be taken.
 
 ## Expiry Time
 

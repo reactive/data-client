@@ -11,6 +11,7 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import StackBlitz from '@site/src/components/StackBlitz';
+import BatchSetDemo from '../shared/\_BatchSetDemo.mdx';
 
 # Controller
 
@@ -65,6 +66,8 @@ values={[
 ]}>
 <TabItem value="Create">
 
+:::react
+
 ```tsx
 function CreatePost() {
   const ctrl = useController();
@@ -81,8 +84,35 @@ function CreatePost() {
 }
 ```
 
+:::
+
+:::vue
+
+```html title="CreatePost.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { PostResource } from './PostResource';
+
+  const ctrl = useController();
+
+  const handleSubmit = (e: Event) =>
+    ctrl.fetch(
+      PostResource.getList.push,
+      new FormData(e.target as HTMLFormElement),
+    );
+</script>
+
+<template>
+  <form @submit.prevent="handleSubmit"><!-- ... --></form>
+</template>
+```
+
+:::
+
 </TabItem>
 <TabItem value="Update">
+
+:::react
 
 ```tsx
 function UpdatePost({ id }: { id: string }) {
@@ -100,8 +130,37 @@ function UpdatePost({ id }: { id: string }) {
 }
 ```
 
+:::
+
+:::vue
+
+```html title="UpdatePost.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { PostResource } from './PostResource';
+
+  const props = defineProps<{ id: string }>();
+  const ctrl = useController();
+
+  const handleSubmit = (e: Event) =>
+    ctrl.fetch(
+      PostResource.update,
+      { id: props.id },
+      new FormData(e.target as HTMLFormElement),
+    );
+</script>
+
+<template>
+  <form @submit.prevent="handleSubmit"><!-- ... --></form>
+</template>
+```
+
+:::
+
 </TabItem>
 <TabItem value="Delete">
+
+:::react
 
 ```tsx
 function PostListItem({ post }: { post: PostResource }) {
@@ -112,7 +171,7 @@ function PostListItem({ post }: { post: PostResource }) {
       await ctrl.fetch(PostResource.delete, { id: post.id });
       history.push('/');
     },
-    [ctrl, id],
+    [ctrl, post.id],
   );
 
   return (
@@ -124,6 +183,36 @@ function PostListItem({ post }: { post: PostResource }) {
 }
 ```
 
+:::
+
+:::vue
+
+```html title="PostListItem.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { useRouter } from 'vue-router';
+  import { PostResource } from './PostResource';
+
+  const props = defineProps<{ post: PostResource }>();
+  const ctrl = useController();
+  const router = useRouter();
+
+  const handleDelete = async () => {
+    await ctrl.fetch(PostResource.delete, { id: props.post.id });
+    router.push('/');
+  };
+</script>
+
+<template>
+  <div>
+    <h3>{{ post.title }}</h3>
+    <button @click="handleDelete">X</button>
+  </div>
+</template>
+```
+
+:::
+
 </TabItem>
 </Tabs>
 
@@ -133,8 +222,7 @@ function PostListItem({ post }: { post: PostResource }) {
 When using schemas, the denormalized value is returned
 
 ```ts
-// highlight-next-line
-import { useController } from '@data-client/react';
+const controller = useController();
 
 const post = await controller.fetch(
   PostResource.getList.push,
@@ -191,7 +279,11 @@ An [example](https://stackblitz.com/github/reactive/data-client/tree/master/exam
 },
 ```
 
+:::react
+
 <StackBlitz app="github-app" file="src/routing/routes.tsx" view="editor" />
+
+:::
 
 ### expireAll(\{ testKey }) {#expireAll}
 
@@ -200,11 +292,13 @@ Sets all responses' [expiry status](../concepts/expiry-policy.md) matching `test
 This is sometimes useful to trigger refresh of only data presently shown
 when there are many parameterizations in cache.
 
+:::react
+
 ```tsx
 import { type Controller, useController } from '@data-client/react';
 
 const createTradeHandler = (ctrl: Controller) => async trade => {
-  await ctrl.fetch(TradeResource.getList.push({ user: user.id }, trade));
+  await ctrl.fetch(TradeResource.getList.push, { user: user.id }, trade);
   // highlight-start
   ctrl.expireAll(AccountResource.get);
   ctrl.expireAll(AccountResource.getList);
@@ -224,6 +318,38 @@ function CreateTrade({ id }: { id: string }) {
 }
 ```
 
+:::
+
+:::vue
+
+```html title="CreateTrade.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { AccountResource, TradeResource } from './resources';
+
+  const props = defineProps<{ userId: string }>();
+  const ctrl = useController();
+
+  const handleTrade = async (trade: Trade) => {
+    await ctrl.fetch(
+      TradeResource.getList.push,
+      { user: props.userId },
+      trade,
+    );
+    // highlight-start
+    ctrl.expireAll(AccountResource.get);
+    ctrl.expireAll(AccountResource.getList);
+    // highlight-end
+  };
+</script>
+
+<template>
+  <TradeForm @submit="handleTrade" />
+</template>
+```
+
+:::
+
 :::tip
 
 To reduce load, improve performance, and improve state consistency; it can often be
@@ -233,8 +359,11 @@ better to [include mutation sideeffects in the mutation response](/rest/guides/s
 
 ### invalidate(endpoint, ...args) {#invalidate}
 
-Forces refetching and suspense on [useSuspense](./useSuspense.md) with the same Endpoint
-and parameters.
+Forces refetching :react[and suspense ]on [useSuspense](./useSuspense.md) with the same Endpoint
+and parameters.:vue[ Mounted components [keep showing their current data](../concepts/expiry-policy.md#invalidate)
+until the refetch resolves.]
+
+:::react
 
 ```tsx
 function ArticleName({ id }: { id: string }) {
@@ -243,18 +372,52 @@ function ArticleName({ id }: { id: string }) {
 
   return (
     <div>
-      <h1>{article.title}<h1>
-      <button onClick={() => ctrl.invalidate(ArticleResource.get, { id })}>Fetch &amp; suspend</button>
+      <h1>{article.title}</h1>
+      <button onClick={() => ctrl.invalidate(ArticleResource.get, { id })}>
+        Fetch &amp; suspend
+      </button>
     </div>
   );
 }
 ```
+
+:::
+
+:::vue
+
+```html title="ArticleName.vue"
+<script setup lang="ts">
+  import { useController, useSuspense } from '@data-client/vue';
+  import { ArticleResource } from './ArticleResource';
+
+  const props = defineProps<{ id: string }>();
+  const ctrl = useController();
+  const article = await useSuspense(ArticleResource.get, () => ({
+    id: props.id,
+  }));
+</script>
+
+<template>
+  <div>
+    <h1>{{ article.title }}</h1>
+    <button @click="ctrl.invalidate(ArticleResource.get, { id })">
+      Refetch
+    </button>
+  </div>
+</template>
+```
+
+:::
+
+::::react
 
 :::tip
 
 To refresh while continuing to display stale data - [Controller.fetch](#fetch).
 
 :::
+
+::::
 
 :::tip[Invalidate many endpoints at once]
 
@@ -264,7 +427,7 @@ For REST try using [Resource.delete](/rest/api/resource#delete)
 
 ```ts
 // deletes MyResource(5)
-// this will resuspend MyResource.get({id: '5'})
+// this will refetch MyResource.get({id: '5'})
 // and remove it from MyResource.getList
 controller.setResponse(MyResource.delete, { id: '5' }, { id: '5' });
 ```
@@ -275,6 +438,8 @@ controller.setResponse(MyResource.delete, { id: '5' }, { id: '5' });
 
 [Invalidates](../concepts/expiry-policy#invalid) all [endpoint keys](/rest/api/RestEndpoint#key) matching `testKey`.
 
+:::react
+
 ```tsx
 function ArticleName({ id }: { id: string }) {
   const article = useSuspense(ArticleResource.get, { id });
@@ -282,12 +447,44 @@ function ArticleName({ id }: { id: string }) {
 
   return (
     <div>
-      <h1>{article.title}<h1>
-      <button onClick={() => ctrl.invalidateAll(ArticleResource.get)}>Fetch &amp; suspend</button>
+      <h1>{article.title}</h1>
+      <button onClick={() => ctrl.invalidateAll(ArticleResource.get)}>
+        Fetch &amp; suspend
+      </button>
     </div>
   );
 }
 ```
+
+:::
+
+:::vue
+
+```html title="ArticleName.vue"
+<script setup lang="ts">
+  import { useController, useSuspense } from '@data-client/vue';
+  import { ArticleResource } from './ArticleResource';
+
+  const props = defineProps<{ id: string }>();
+  const ctrl = useController();
+  const article = await useSuspense(ArticleResource.get, () => ({
+    id: props.id,
+  }));
+</script>
+
+<template>
+  <div>
+    <h1>{{ article.title }}</h1>
+    <button @click="ctrl.invalidateAll(ArticleResource.get)">
+      Refetch
+    </button>
+  </div>
+</template>
+```
+
+:::
+
+::::react
 
 :::tip
 
@@ -295,9 +492,11 @@ To refresh while continuing to display stale data - [Controller.expireAll](#expi
 
 :::
 
+::::
+
 Here we clear only GET endpoints using the test.com domain. This means other domains remain in cache.
 
-```tsx
+```ts
 const myDomain = 'http://test.com';
 const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
 
@@ -310,11 +509,18 @@ function useLogout() {
 It's usually a good idea to also clear cache on 401 (unauthorized) with [LogoutManager](./LogoutManager.md)
 as well.
 
-```ts
-import { DataProvider, LogoutManager, getDefaultManagers } from '@data-client/react';
+:::react
+
+```tsx
+import {
+  DataProvider,
+  LogoutManager,
+  getDefaultManagers,
+} from '@data-client/react';
 import { createRoot } from 'react-dom/client';
 import { unAuth } from '../authentication';
 
+const myDomain = 'http://test.com';
 const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
 
 const managers = [
@@ -336,14 +542,52 @@ createRoot(document.body).render(
 );
 ```
 
+:::
+
+:::vue
+
+```ts title="main.ts"
+import { createApp } from 'vue';
+import {
+  DataClientPlugin,
+  LogoutManager,
+  getDefaultManagers,
+} from '@data-client/vue';
+import { unAuth } from '../authentication';
+import App from './App.vue';
+
+const myDomain = 'http://test.com';
+const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
+
+const managers = [
+  new LogoutManager({
+    handleLogout(controller) {
+      // call custom unAuth function we defined
+      unAuth();
+      // still reset the store
+      controller.invalidateAll({ testKey });
+    },
+  }),
+  ...getDefaultManagers(),
+];
+
+const app = createApp(App);
+app.use(DataClientPlugin, { managers });
+app.mount('#app');
+```
+
+:::
+
 ### resetEntireStore() {#resetEntireStore}
 
 Resets/clears the entire Reactive Data Client cache. All inflight requests will not resolve.
 
 This is typically used when logging out or changing authenticated users.
 
+:::react
+
 ```tsx
-const USER_NUMBER_ONE: string = "1111";
+const USER_NUMBER_ONE: string = '1111';
 
 function UserName() {
   const user = useSuspense(CurrentUserResource.get);
@@ -357,12 +601,44 @@ function UserName() {
   }, [ctrl]);
   return (
     <div>
-      <h1>{user.name}<h1>
+      <h1>{user.name}</h1>
       <button onClick={becomeAdmin}>Be Number One</button>
     </div>
   );
 }
 ```
+
+:::
+
+:::vue
+
+```html title="UserName.vue"
+<script setup lang="ts">
+  import { useController, useSuspense } from '@data-client/vue';
+  import { CurrentUserResource } from './CurrentUserResource';
+
+  const USER_NUMBER_ONE: string = '1111';
+
+  const user = await useSuspense(CurrentUserResource.get);
+  const ctrl = useController();
+
+  const becomeAdmin = () => {
+    // Changes the current user
+    impersonateUser(USER_NUMBER_ONE);
+    // highlight-next-line
+    ctrl.resetEntireStore();
+  };
+</script>
+
+<template>
+  <div>
+    <h1>{{ user.name }}</h1>
+    <button @click="becomeAdmin">Be Number One</button>
+  </div>
+</template>
+```
+
+:::
 
 ### set(queryable, ...args, value) {#set}
 
@@ -455,6 +731,12 @@ receive `[]`) and no updater function. Rows that share a pk merge in list order,
 [Entity.shouldReorder()](/rest/api/Entity#shouldreorder). Use this instead of calling `set()` once per row, such as when
 [batching high-frequency stream updates](../concepts/managers.md#batching).
 
+:::react
+
+<BatchSetDemo />
+
+:::
+
 ### setResponse(endpoint, ...args, response) {#setResponse}
 
 Stores `response` in cache for given [Endpoint](/rest/api/Endpoint) and args.
@@ -462,6 +744,8 @@ Stores `response` in cache for given [Endpoint](/rest/api/Endpoint) and args.
 Any components suspending for the given [Endpoint](/rest/api/Endpoint) and args will resolve.
 
 If data already exists for the given [Endpoint](/rest/api/Endpoint) and args, it will be updated.
+
+:::react
 
 ```tsx
 const ctrl = useController();
@@ -480,7 +764,31 @@ useEffect(() => {
 });
 ```
 
-This shows a proof of concept in React; however a [Manager websockets implementation](../concepts/managers.md#data-stream)
+:::
+
+:::vue
+
+```ts
+const ctrl = useController();
+let websocket: WebSocket;
+
+onMounted(() => {
+  websocket = new WebSocket(url);
+
+  websocket.onmessage = event =>
+    ctrl.setResponse(
+      EndpointLookup[event.endpoint],
+      ...event.args,
+      event.data,
+    );
+});
+
+onUnmounted(() => websocket.close());
+```
+
+:::
+
+This shows a proof of concept in :react[React]:vue[Vue]; however a [Manager websockets implementation](../concepts/managers.md#data-stream)
 would be much more robust.
 
 ### setError(endpoint, ...args, error) {#setError}
@@ -503,7 +811,9 @@ Marks a new subscription to a given [Endpoint](/rest/api/Endpoint). This should 
 
 [useSubscription](./useSubscription.md) and [useLive](./useLive.md) call this on mount.
 
-This might be useful for custom hooks to sub/unsub based on other factors.
+This might be useful for custom :react[hooks]:vue[composables] to sub/unsub based on other factors.
+
+:::react
 
 ```tsx
 const controller = useController();
@@ -514,6 +824,23 @@ useEffect(() => {
   return () => controller.unsubscribe(endpoint, ...args);
 }, [controller, key]);
 ```
+
+:::
+
+:::vue
+
+```ts
+const controller = useController();
+
+// args can be a ref, computed or getter; this re-runs when it changes
+watchEffect(onCleanup => {
+  const currentArgs = toValue(args);
+  controller.subscribe(endpoint, ...currentArgs);
+  onCleanup(() => controller.unsubscribe(endpoint, ...currentArgs));
+});
+```
+
+:::
 
 ### unsubscribe(endpoint, ...args) {#unsubscribe}
 
@@ -533,26 +860,47 @@ Looks up any [Queryable](/rest/api/schema#queryable) [Schema](/rest/api/schema#s
 This is used in [useQuery](./useQuery.md) and can be used in
 [Managers](./Manager.md) to safely access the store.
 
+:::react
+
 ```tsx title="useQuery.ts"
 import {
   useController,
-  useCacheState,
+  StateContext,
   type Queryable,
   type SchemaArgs,
   type DenormalizeNullable,
-} from '@data-client/core';
+} from '@data-client/react';
+import { useContext } from 'react';
 
 /** Oversimplified useQuery */
 function useQuery<S extends Queryable>(
   schema: S,
   ...args: SchemaArgs<S>
 ): DenormalizeNullable<S> | undefined {
-  const state = useCacheState();
+  const state = useContext(StateContext);
   const controller = useController();
 
   return controller.get(schema, ...args, state);
 }
 ```
+
+:::
+
+:::vue
+
+In components, [useQuery()](./useQuery.md) keeps the result reactive. In event handlers, pass
+[getState()](#getState) to read the latest store:
+
+```ts
+const ctrl = useController();
+
+const toggle = (id: string) => {
+  const todo = ctrl.get(Todo, { id }, ctrl.getState());
+  if (todo) ctrl.set(Todo, { id }, { id, completed: !todo.completed });
+};
+```
+
+:::
 
 ### getResponse(endpoint, ...args, state) {#getResponse}
 
@@ -604,15 +952,18 @@ A number representing time when it expires. Compare to Date.now().
 This is used in [useCache](./useCache.md), [useSuspense](./useSuspense.md) and can be used in
 [Managers](./Manager.md) to lookup a response with the state provided.
 
+:::react
+
 ```tsx title="useCache.ts"
 import {
   useController,
   StateContext,
-  EndpointInterface,
-} from '@data-client/core';
+  type EndpointInterface,
+} from '@data-client/react';
+import { useContext } from 'react';
 
 /** Oversimplified useCache */
-function useCache<E extends EntityInterface>(
+function useCache<E extends EndpointInterface>(
   endpoint: E,
   ...args: readonly [...Parameters<E>]
 ) {
@@ -621,6 +972,15 @@ function useCache<E extends EntityInterface>(
   return controller.getResponse(endpoint, ...args, state).data;
 }
 ```
+
+:::
+
+:::vue
+
+In event handlers, pass [getState()](#getState) to read the latest store, as in the
+[getState() example](#getState).
+
+:::
 
 ```tsx title="MyManager.ts"
 import type { Manager, Middleware, actionTypes } from '@data-client/core';
@@ -661,13 +1021,26 @@ Returns a [Snapshot](./Snapshot.md).
 
 Gets the internal state of Reactive Data Client that has _already been [committed](https://react.dev/learn/render-and-commit#step-3-react-commits-changes-to-the-dom)_.
 
-:::warning
+::::warning
 
 This should only be used in event handlers or [Managers](./Manager.md).
+
+:::react
 
 Using getState() in React's render lifecycle can result in data tearing.
 
 :::
+
+:::vue
+
+Using getState() in a `computed()` or template won't update when the store changes. Use
+[useQuery()](./useQuery.md) or [useCache()](./useCache.md) there instead.
+
+:::
+
+::::
+
+:::react
 
 ```tsx
 const controller = useController();
@@ -695,3 +1068,26 @@ const updateHandler = useCallback(
   [id],
 );
 ```
+
+:::
+
+:::vue
+
+```ts
+const controller = useController();
+
+const handleShare = () => {
+  // reads the latest store without making this handler reactive
+  const { data: article } = controller.getResponse(
+    ArticleResource.get,
+    { id: props.id },
+    controller.getState(),
+  );
+  if (article) navigator.share({ title: article.title, url: article.url });
+};
+```
+
+[Mutations](#endpointsideeffect) resolve _before_ the store is updated, so read their result from
+the value `fetch()` resolves with rather than `getState()`.
+
+:::
