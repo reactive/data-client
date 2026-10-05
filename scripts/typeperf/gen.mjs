@@ -2,9 +2,10 @@
 // usage: node scripts/typeperf/gen.mjs [scenario]  (N=2 scales every fixture up)
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import patheq from './patheq/gen.mjs';
-const dir = path.dirname(new URL(import.meta.url).pathname);
+const dir = path.dirname(fileURLToPath(import.meta.url));
 const out = path.join(dir, 'scenarios');
 const only = process.argv[2];
 if (!only) fs.rmSync(out, { recursive: true, force: true });
