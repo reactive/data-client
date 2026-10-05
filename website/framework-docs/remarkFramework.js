@@ -1,4 +1,4 @@
-/* global module */
+/* global module, require */
 /**
  * Remark plugin that resolves framework-specific content in shared docs.
  *
@@ -16,7 +16,8 @@
  * instance when the target doc exists in it (`docIds`), so Vue pages link to
  * Vue pages; links to React-only docs keep going to /docs.
  */
-const FRAMEWORKS = ['react', 'vue'];
+const { FRAMEWORKS } = require('./docsInstances.js');
+
 const DIRECTIVES = ['containerDirective', 'leafDirective', 'textDirective'];
 
 /** Heading left with no text (at most a `{#id}`) once the other framework's content is removed */

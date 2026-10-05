@@ -92,7 +92,7 @@ class Endpoint<F extends (...args: any) => Promise<any>> {
   readonly dataExpiryLength?: number;
   /** Default error expiry length, will fall back to NetworkManager default if not defined */
   readonly errorExpiryLength?: number;
-  /** Poll with at least this frequency in miliseconds */
+  /** Poll with at least this frequency in milliseconds */
   readonly pollFrequency?: number;
   /** Marks cached resources as invalid if they are stale */
   readonly invalidIfStale?: boolean;
