@@ -5,6 +5,7 @@
   "docs": {
     "Actions.md": "docs/core/api/Actions.md",
     "Controller.md": "docs/core/api/Controller.md",
+    "DataClientPlugin.md": "docs/core/api/DataClientPlugin.vue.md",
     "_AsyncBoundary.md": "docs/core/shared/_AsyncBoundary.mdx",
     "_VoteDemo.md": "docs/core/shared/_VoteDemo.mdx",
     "_pagination.md": "docs/core/shared/_pagination.mdx",
@@ -12,6 +13,7 @@
     "_useLoading.md": "docs/core/shared/_useLoading.mdx",
     "_vueArgs.md": "docs/core/shared/_vueArgs.mdx",
     "data-dependency.md": "docs/core/getting-started/data-dependency.md",
+    "devtools-debugging.md": "docs/core/getting-started/devtools-debugging.md",
     "getDefaultManagers.md": "docs/core/api/getDefaultManagers.md",
     "installation.md": "docs/core/getting-started/installation.md",
     "mutations.md": "docs/core/getting-started/mutations.md",

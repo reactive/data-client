@@ -68,7 +68,7 @@ class Endpoint<F extends (...args: any) => Promise<any>> {
   readonly dataExpiryLength?: number;
   /** Default error expiry length, will fall back to NetworkManager default if not defined */
   readonly errorExpiryLength?: number;
-  /** Poll with at least this frequency in miliseconds */
+  /** Poll with at least this frequency in milliseconds */
   readonly pollFrequency?: number;
   /** Marks cached resources as invalid if they are stale */
   readonly invalidIfStale?: boolean;
@@ -778,6 +778,20 @@ Override this for advanced cases like extracting headers alongside the body.
 
 Perform any transforms with the parsed result. Defaults to identity function (do nothing).
 
+`args` are the arguments the endpoint was called with. They are typed from the endpoint's [path](#path),
+[searchParams](#searchParams) and [body](#body), including those set in the same [extend()](#extend) call.
+
+```ts
+const getUser = new RestEndpoint({ path: '/users/:id' });
+
+const getUserWithId = getUser.extend({
+  process(value, params) {
+    // params is { id: string | number }
+    return { ...value, id: `${params.id}` };
+  },
+});
+```
+
 > **Tip**
 >
 > The return type of process can be used to set the return type of the endpoint fetch:
@@ -1353,12 +1367,13 @@ const getTodos = new RestEndpoint({
 });
 
 const todos = useSuspense(getTodos);
+const ctrl = useController();
 return (
   <PaginatedList
     items={todos}
     fetchNextPage={() =>
       // fetches url `/todos?page=${nextPage}`
-      ctrl.fetch(TodoResource.getList.getPage, { page: nextPage })
+      ctrl.fetch(getTodos.getPage, { page: nextPage })
     }
   />
 );

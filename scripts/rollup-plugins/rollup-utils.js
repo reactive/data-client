@@ -5,7 +5,7 @@ import dts from 'rollup-plugin-dts';
 
 const require = createRequire(import.meta.url);
 
-function isExternalTypes(id) {
+export function isExternalTypes(id) {
   if (id.startsWith('@data-client/core')) return true;
   if (id.startsWith('@data-client') || id.startsWith('data-client'))
     return false;

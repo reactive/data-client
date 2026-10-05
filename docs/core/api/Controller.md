@@ -25,7 +25,7 @@ and retrieval performance.
 
 - [Managers](./Manager.md) as the first argument in [Manager.middleware](./Manager.md#middleware)
 - :react[React]:vue[Vue] with [useController()](./useController.md)
-- :react[[Unit testing hooks](../guides/unit-testing-hooks.md) with [renderDataHook()](./renderDataHook.md#controller)]:vue[Unit testing composables with `renderDataCompose()` from `@data-client/vue/test`]
+- :react[[Unit testing hooks](../guides/unit-testing-hooks.md) with [renderDataHook()](./renderDataHook.md#controller)]:vue[[Unit testing composables](../guides/unit-testing-composables.md) with `renderDataCompose()` from `@data-client/vue/test`]
 
 ```ts
 class Controller {
@@ -618,12 +618,12 @@ takes the input of the schema it wraps, since `set()` normalizes that schema rat
 ctrl.set(TodoResource.getList.schema, [{ id: '5', completed: true }]);
 ```
 
-:::note Type checking limits
+:::note Unions
 
-To keep type checking fast for large [Unions](/rest/api/Union), a Union row is checked against the
-combined fields of all its members rather than against one member. Each field's type is still checked,
-but a row that mixes fields from different members (like `{ type: 'first', secondField: 1 }`) is not
-an error. Make sure the fields you set belong to the member the row's discriminator selects.
+When each member declares its discriminator as a literal (like `readonly type = 'first'`), a
+[Union](/rest/api/Union) row is checked against the member it selects, so `{ type: 'first', secondField: 1 }` is an
+error. Only declared fields are accepted, so a key read by a
+`schemaAttribute` function must be declared on each member.
 
 :::
 
@@ -938,9 +938,12 @@ In event handlers, pass [getState()](#getState) to read the latest store, as in 
 
 :::
 
-```tsx title="MyManager.ts"
-import type { Manager, Middleware, actionTypes } from '@data-client/core';
-import type { EndpointInterface } from '@data-client/endpoint';
+```tsx title="MyManager.ts" framework-imports
+import {
+  type Manager,
+  type Middleware,
+  actionTypes,
+} from '@data-client/react';
 
 export default class MyManager implements Manager {
   middleware: Middleware = controller => {

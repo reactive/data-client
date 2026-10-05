@@ -38,6 +38,8 @@ const TodoResource = resource({
 });
 ```
 
+:::react
+
 ```ts title="Resources start with 6 Endpoints"
 const todo = useSuspense(TodoResource.get, { id: '5' });
 const todos = useSuspense(TodoResource.getList);
@@ -56,6 +58,31 @@ controller.fetch(
 );
 controller.fetch(TodoResource.delete, { id: '5' });
 ```
+
+:::
+
+:::vue
+
+```ts title="Resources start with 6 Endpoints"
+const todo = await useSuspense(TodoResource.get, { id: '5' });
+const todos = await useSuspense(TodoResource.getList);
+controller.fetch(TodoResource.getList.push, {
+  title: 'finish installing reactive data client',
+});
+controller.fetch(
+  TodoResource.update,
+  { id: '5' },
+  { ...todo.value, completed: true },
+);
+controller.fetch(
+  TodoResource.partialUpdate,
+  { id: '5' },
+  { completed: true },
+);
+controller.fetch(TodoResource.delete, { id: '5' });
+```
+
+:::
 
 ## Arguments
 

@@ -11,6 +11,7 @@ on:
       - 'website/package.json'
       - 'yarn.lock'
       - '.github/workflows/skills.yml'
+      - '.gitattributes'
   pull_request:
     branches:
       - master
@@ -22,9 +23,12 @@ on:
       - 'website/package.json'
       - 'yarn.lock'
       - '.github/workflows/skills.yml'
+      - '.gitattributes'
 
+# PRs cancel superseded runs. Push runs get their own group, so master never
+# shows a cancelled (red) run.
 concurrency:
-  group: skills-${{ github.head_ref || github.ref }}
+  group: skills-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:

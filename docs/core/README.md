@@ -663,16 +663,14 @@ which can be used to [initiate data updates](./concepts/managers.md#data-stream)
 <details>
 <summary><b>StreamManager</b></summary>
 
-:::react
-
-```typescript
+```typescript framework-imports
 import type { Manager, Middleware, ActionTypes } from '@data-client/react';
 import { Controller, actionTypes } from '@data-client/react';
 import type { EntityInterface } from '@data-client/rest';
 
 export default class StreamManager implements Manager {
   declare protected evtSource: WebSocket | EventSource;
-  declare protected entities: Record<string, typeof EntityInterface>;
+  declare protected entities: Record<string, EntityInterface>;
 
   constructor(
     evtSource: WebSocket | EventSource,
@@ -701,49 +699,6 @@ export default class StreamManager implements Manager {
   }
 }
 ```
-
-:::
-
-:::vue
-
-```typescript
-import type { Manager, Middleware, ActionTypes } from '@data-client/vue';
-import { Controller, actionTypes } from '@data-client/vue';
-import type { EntityInterface } from '@data-client/rest';
-
-export default class StreamManager implements Manager {
-  declare protected evtSource: WebSocket | EventSource;
-  declare protected entities: Record<string, typeof EntityInterface>;
-
-  constructor(
-    evtSource: WebSocket | EventSource,
-    entities: Record<string, EntityInterface>,
-  ) {
-    this.evtSource = evtSource;
-    this.entities = entities;
-  }
-
-  middleware: Middleware = controller => {
-    this.evtSource.onmessage = event => {
-      try {
-        const msg = JSON.parse(event.data);
-        if (msg.type in this.endpoints)
-          controller.set(this.entities[msg.type], ...msg.args, msg.data);
-      } catch (e) {
-        console.error('Failed to handle message');
-        console.error(e);
-      }
-    };
-    return next => async action => next(action);
-  };
-
-  cleanup() {
-    this.evtSource.close();
-  }
-}
-```
-
-:::
 
 </details>
 
@@ -879,8 +834,8 @@ const incrementInterceptor: Interceptor = {
 </Tabs>
 
 - :react[[Mock data for storybook](./guides/storybook.md) with [MockResolver](./api/MockResolver.md)]:vue[Mock data with `MockPlugin` from `@data-client/vue/test`]
-- :react[[Test hooks](./guides/unit-testing-hooks.md) with [renderDataHook()](./api/renderDataHook.md)]:vue[Test composables with `renderDataCompose()`]
-- :react[[Test components](./guides/unit-testing-components.md) with [MockResolver](./api/MockResolver.md)]:vue[Test components with `mountDataClient()`] and [mockInitialState()](./api/mockInitialState.md)
+- :react[[Test hooks](./guides/unit-testing-hooks.md) with [renderDataHook()](./api/renderDataHook.md)]:vue[[Test composables](./guides/unit-testing-composables.md) with `renderDataCompose()`]
+- :react[[Test components](./guides/unit-testing-components.md) with [MockResolver](./api/MockResolver.md)]:vue[[Test components](./guides/unit-testing-components.md) with `mountDataClient()`] and [mockInitialState()](./api/mockInitialState.md)
 
 ## Demo
 

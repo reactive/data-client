@@ -15,6 +15,10 @@
         },
         {
           "type": "doc",
+          "id": "getting-started/devtools-debugging"
+        },
+        {
+          "type": "doc",
           "id": "getting-started/installation"
         },
         {
@@ -85,6 +89,10 @@
         {
           "type": "doc",
           "id": "guides/unit-testing-hooks"
+        },
+        {
+          "type": "doc",
+          "id": "guides/unit-testing-composables"
         },
         {
           "type": "doc",
@@ -200,6 +208,10 @@
           "id": "api/useCancelling"
         }
       ]
+    },
+    {
+      "type": "doc",
+      "id": "api/DataClientPlugin"
     },
     {
       "type": "doc",

@@ -393,7 +393,7 @@ type ExtendedEndpoint<O extends EndpointExtendOptions<F>, E extends EndpointInst
  * @see https://dataclient.io/docs/api/Endpoint
  */
 interface EndpointInstance<F extends (...args: any) => Promise<any> = FetchFunction, S extends Schema | undefined = Schema | undefined, M extends boolean | undefined = boolean | undefined> extends EndpointInstanceInterface<F, S, M> {
-    extend<E extends EndpointInstance<(...args: any) => Promise<any>, Schema | undefined, boolean | undefined>, O extends EndpointExtendOptions<F> & Partial<Omit<E, keyof EndpointInstance<FetchFunction>>> & Record<string, unknown>>(this: E, options: Readonly<O>): ExtendedEndpoint<typeof options, E, F>;
+    extend<E extends EndpointInstance<(...args: any) => Promise<any>, Schema | undefined, boolean | undefined>, O extends EndpointExtendOptions<F> & Partial<Omit<E, keyof EndpointInstance<FetchFunction>>> & Record<string, unknown>>(this: E, options: Readonly<O> & O): ExtendedEndpoint<Readonly<O>, E, F>;
 }
 /**
  * Defines an async data source.

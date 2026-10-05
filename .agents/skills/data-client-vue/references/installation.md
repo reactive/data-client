@@ -24,7 +24,7 @@ app.use(DataClientPlugin);
 app.mount('#app');
 ```
 
-`app.use(DataClientPlugin, options)` optionally overrides [`managers`](./getDefaultManagers.md), `initialState`, `Controller`, and `gcPolicy`.
+`app.use(DataClientPlugin, options)` optionally overrides [`managers`](./getDefaultManagers.md), `initialState`, `Controller`, and `gcPolicy`. See [DataClientPlugin](./DataClientPlugin.md) for all options.
 
 [Next: Define Data »](https://dataclient.io/vue/getting-started/resource)
 

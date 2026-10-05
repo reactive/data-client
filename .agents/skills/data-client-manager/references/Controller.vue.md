@@ -10,7 +10,7 @@ and retrieval performance.
 
 - [Managers](./Manager.vue.md) as the first argument in [Manager.middleware](./Manager.vue.md#middleware)
 - Vue with [useController()](https://dataclient.io/vue/api/useController)
-- Unit testing composables with `renderDataCompose()` from `@data-client/vue/test`
+- [Unit testing composables](https://dataclient.io/vue/guides/unit-testing-composables) with `renderDataCompose()` from `@data-client/vue/test`
 
 ```ts
 class Controller {
@@ -374,12 +374,12 @@ takes the input of the schema it wraps, since `set()` normalizes that schema rat
 ctrl.set(TodoResource.getList.schema, [{ id: '5', completed: true }]);
 ```
 
-> **Note: Type checking limits**
+> **Note: Unions**
 >
-> To keep type checking fast for large [Unions](https://dataclient.io/rest/api/Union), a Union row is checked against the
-> combined fields of all its members rather than against one member. Each field's type is still checked,
-> but a row that mixes fields from different members (like `{ type: 'first', secondField: 1 }`) is not
-> an error. Make sure the fields you set belong to the member the row's discriminator selects.
+> When each member declares its discriminator as a literal (like `readonly type = 'first'`), a
+> [Union](https://dataclient.io/rest/api/Union) row is checked against the member it selects, so `{ type: 'first', secondField: 1 }` is an
+> error. Only declared fields are accepted, so a key read by a
+> `schemaAttribute` function must be declared on each member.
 
 Functions can be used in the value when derived data is used. This [prevents race conditions](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state).
 
@@ -587,8 +587,11 @@ In event handlers, pass [getState()](#getState) to read the latest store, as in 
 [getState() example](#getState).
 
 ```tsx title="MyManager.ts"
-import type { Manager, Middleware, actionTypes } from '@data-client/core';
-import type { EndpointInterface } from '@data-client/endpoint';
+import {
+  type Manager,
+  type Middleware,
+  actionTypes,
+} from '@data-client/vue';
 
 export default class MyManager implements Manager {
   middleware: Middleware = controller => {

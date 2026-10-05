@@ -45,6 +45,7 @@ export interface RenderDataClientResult {
 /**
  * Renders a Vue component with DataClient plugin and fixtures for testing
  *
+ * @see https://dataclient.io/vue/guides/unit-testing-components
  * @param component - The Vue component to test
  * @param options - Configuration including optional reactive props ref, fixtures, managers, etc.
  */

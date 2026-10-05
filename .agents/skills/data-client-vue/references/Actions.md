@@ -6,7 +6,7 @@ Actions are minimal descriptions of store updates.
 
 They are [dispatched by Controller methods](./Controller.md#action-dispatchers) ->
 [read and consumed by Manager middleware](https://dataclient.io/vue/api/Manager#reading-and-consuming-actions) ->
-processed by [reducers](https://react.dev/reference/react/useReducer) registered with [DataClientPlugin](./installation.md)
+processed by [reducers](https://react.dev/reference/react/useReducer) registered with [DataClientPlugin](./DataClientPlugin.md)
 to update the store's state.
 
 Many actions use the same meta information:
@@ -131,7 +131,7 @@ interface SetResponseAction {
       completed: true
     }
   ],
-  endpoint: Endpont('Todo.partialUpdate'),
+  endpoint: Endpoint('Todo.partialUpdate'),
   meta: {
     fetchedAt: '5:18:26.394 PM',
     date: '5:18:26.636 PM',
