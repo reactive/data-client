@@ -5,6 +5,7 @@
 .agents/skills/*/references/** linguist-generated
 .agents/skills/data-client-rest/references/RestEndpoint.js -linguist-generated
 .agents/skills/data-client-rest-setup/references/*-migration.md -linguist-generated
+.agents/skills/data-client-rest-setup/references/axios-migration.md linguist-generated
 .agents/skills/data-client-vue-testing/references/nock-http-mocking.md -linguist-generated
 .agents/skills/data-client-vue-testing/references/polling-subscriptions.md -linguist-generated
 

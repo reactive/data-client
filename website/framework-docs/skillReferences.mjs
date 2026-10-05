@@ -26,6 +26,13 @@ const MD = /\.mdx?$/;
 const REACT_ROUTE = frameworkInstance('react').routeBasePath;
 const VUE_ROUTE = frameworkInstance('vue').routeBasePath;
 
+const readManifest = skillDir => {
+  const manifest = path.join(skillDir, MANIFEST);
+  return fs.existsSync(manifest) ?
+      JSON.parse(fs.readFileSync(manifest, 'utf8'))
+    : undefined;
+};
+
 /**
  * Content ignoring the header, which framework's docs links point to, and the
  * table padding those links' lengths change
@@ -47,9 +54,7 @@ const localRoutesFor = (docs, framework) =>
 
 /** Map of reference path -> content for one skill */
 function generateSkill(skillDir) {
-  const { frameworks, docs } = JSON.parse(
-    fs.readFileSync(path.join(skillDir, MANIFEST), 'utf8'),
-  );
+  const { frameworks, docs } = readManifest(skillDir);
   const out = new Map();
   // framework that rendered each file
   const renderedBy = new Map();
@@ -124,7 +129,7 @@ function generatedFiles(dir) {
 const changes = [];
 for (const skill of fs.readdirSync(SKILLS).sort()) {
   const skillDir = path.join(SKILLS, skill);
-  if (!fs.existsSync(path.join(skillDir, MANIFEST))) continue;
+  if (!readManifest(skillDir)) continue;
   const out = generateSkill(skillDir);
   const current = generatedFiles(path.join(skillDir, 'references'));
   for (const file of current.keys())
@@ -152,6 +157,22 @@ if (process.argv.includes('--check')) {
   console.log(`Updated ${changes.length} skill reference files.`);
 }
 
+/** Reference name -> the doc it renders, so hand-written copies of docs get caught */
+const docNames = new Map(
+  fs
+    .readdirSync(path.join(ROOT, 'docs'), { recursive: true })
+    .filter(f => MD.test(f))
+    .map(f => [
+      path.basename(f).replace(MD, '.md'),
+      rel(path.join(ROOT, 'docs', f)),
+    ]),
+);
+for (const skill of fs.readdirSync(SKILLS))
+  for (const [name, doc] of Object.entries(
+    readManifest(path.join(SKILLS, skill))?.docs ?? {},
+  ))
+    docNames.set(name, doc);
+
 /** Every reference file (repo-relative) -> whether it's generated */
 const references = new Map();
 const problems = fs.readdirSync(SKILLS).flatMap(skill => {
@@ -162,11 +183,7 @@ const problems = fs.readdirSync(SKILLS).flatMap(skill => {
   for (const f of files.map(f => path.join(refs, f)))
     if (fs.statSync(f).isFile())
       references.set(rel(f), fs.readFileSync(f, 'utf8').startsWith(HEADER));
-  const manifest = path.join(SKILLS, skill, MANIFEST);
-  const { frameworks = [] } =
-    fs.existsSync(manifest) ?
-      JSON.parse(fs.readFileSync(manifest, 'utf8'))
-    : {};
+  const { frameworks = [] } = readManifest(path.join(SKILLS, skill)) ?? {};
   return [
     // links to references that no longer exist (renamed or removed docs)
     ...[...text.matchAll(/\]\((references\/[^)#\s]+)/g)]
@@ -179,6 +196,14 @@ const problems = fs.readdirSync(SKILLS).flatMap(skill => {
         f => MD.test(f) && fs.lstatSync(path.join(refs, f)).isSymbolicLink(),
       )
       .map(f => `${rel(refs)}/${f} is a symlink; add it to ${MANIFEST}`),
+    // hand-written copies of docs drift from them
+    ...files
+      .filter(f => docNames.has(f) && !references.get(`${rel(refs)}/${f}`))
+      .filter(f => !fs.lstatSync(path.join(refs, f)).isSymbolicLink())
+      .map(
+        f =>
+          `${rel(refs)}/${f} is a hand-written copy of ${docNames.get(f)}; list it in ${MANIFEST}`,
+      ),
     // agents only find framework variants if SKILL.md tells them to look
     ...frameworks
       .slice(1)
