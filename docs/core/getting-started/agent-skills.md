@@ -11,7 +11,17 @@ The quickest way to get started is to let an [AI Agent](https://agentskills.io) 
 
 ## Install
 
-<SkillTabs repo="reactive/data-client" />
+:::react
+
+<SkillTabs repo="reactive/data-client" openSkills={['data-client-setup', 'data-client-rest-setup', 'data-client-endpoint-setup', 'data-client-graphql-setup', 'data-client-schema', 'data-client-rest', 'data-client-manager', 'data-client-react', 'data-client-react-testing']} />
+
+:::
+
+:::vue
+
+<SkillTabs repo="reactive/data-client" openSkills={['data-client-setup', 'data-client-rest-setup', 'data-client-endpoint-setup', 'data-client-graphql-setup', 'data-client-schema', 'data-client-rest', 'data-client-manager', 'data-client-vue', 'data-client-vue-testing']} />
+
+:::
 
 Then run skill `/data-client-setup` to install and wire up the provider for your
 project. It will automatically detect your framework (NextJS, Expo, React Native, Vue,
@@ -31,14 +41,26 @@ endpoints are found.
   and related schemas.
 - [**`/data-client-rest`**](https://skills.sh/reactive/data-client/data-client-rest) — defines REST APIs with `resource()`, `RestEndpoint`,
   CRUD methods, and response parsing.
+- [**`/data-client-manager`**](https://skills.sh/reactive/data-client/data-client-manager) — implements custom `Manager`s for websockets, SSE,
+  polling, subscriptions, logging, and middleware.
+
+:::react
+
 - [**`/data-client-react`**](https://skills.sh/reactive/data-client/data-client-react) — uses `useSuspense`, `useFetch`, `useQuery`, `useLive`,
   and mutation hooks.
 - [**`/data-client-react-testing`**](https://skills.sh/reactive/data-client/data-client-react-testing) — writes React tests with `renderDataHook`,
   fixtures, interceptors, and `nock`.
+
+:::
+
+:::vue
+
+- [**`/data-client-vue`**](https://skills.sh/reactive/data-client/data-client-vue) — uses `useSuspense`, `useFetch`, `useQuery`, `useLive`,
+  and mutation composables with `DataClientPlugin`.
 - [**`/data-client-vue-testing`**](https://skills.sh/reactive/data-client/data-client-vue-testing) — writes Vue tests with `renderDataCompose`,
   `mountDataClient`, fixtures, and `nock`.
-- [**`/data-client-manager`**](https://skills.sh/reactive/data-client/data-client-manager) — implements custom `Manager`s for websockets, SSE,
-  polling, subscriptions, logging, and middleware.
+
+:::
 
 Browse the full catalog at [skills.sh/reactive/data-client](https://skills.sh/reactive/data-client).
 
