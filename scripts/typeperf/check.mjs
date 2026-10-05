@@ -45,7 +45,9 @@ const host = options => {
 
 const failures = [];
 const lowered = [];
-let overBudget = false;
+let needsUpdate = false;
+// A full --update re-records from scratch, dropping removed fixtures
+if (update && !only.length) budget.instantiations = {};
 console.log(`TypeScript ${ts.version}\n`);
 console.log('scenario\tinstantiations\tbudget\tchange\ttime');
 for (const s of fs.readdirSync(path.join(dir, 'scenarios'))) {
@@ -82,8 +84,11 @@ for (const s of fs.readdirSync(path.join(dir, 'scenarios'))) {
   console.log(`${s}\t${count}\t${max ?? '-'}\t${pct}\t${seconds.toFixed(1)}s`);
   if (update) {
     budget.instantiations[s] = count;
+  } else if (!max) {
+    needsUpdate = true;
+    failures.push(`${s}: has no budget`);
   } else if (change > TOLERANCE) {
-    overBudget = true;
+    needsUpdate = true;
     failures.push(
       `${s}: ${count} instantiations is ${pct} over its budget of ${max}`,
     );
@@ -107,9 +112,9 @@ if (lowered.length)
   );
 if (failures.length) {
   console.error(`\n${failures.join('\n')}`);
-  if (overBudget)
+  if (needsUpdate)
     console.error(
-      '\nIf the increase is intended, run `yarn check:typeperf --update` and commit budget.json.',
+      '\nIf the change is intended, run `yarn check:typeperf --update` and commit budget.json.',
     );
   process.exit(1);
 }

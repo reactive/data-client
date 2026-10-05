@@ -2,6 +2,7 @@
   "instantiations": {
     "bigEntity": 17159,
     "nested": 2895,
+    "patheq": 935715,
     "paths": 341361,
     "resources": 134294,
     "schemas": 101186,
@@ -9,8 +10,7 @@
     "setValues": 89601,
     "typical": 12995,
     "union": 13578,
-    "vue": 47288,
-    "patheq": 935715
+    "vue": 47288
   },
   "typescript": "6.0.3"
 }
