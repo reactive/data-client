@@ -54,7 +54,7 @@ const config: Config = {
   markdown: {
     mermaid: true,
     hooks: {
-      onBrokenMarkdownLinks: 'log',
+      onBrokenMarkdownLinks: 'warn',
     },
     // Vercel preview deploys publish `draft: true` pages so PRs can review them;
     // production (VERCEL_ENV=production) and local builds still drop them.
@@ -224,8 +224,10 @@ const config: Config = {
   themes: ['@docusaurus/theme-live-codeblock', '@docusaurus/theme-mermaid'],
   customFields: {
     repoUrl: 'https://github.com/reactive/data-client',
+    // read by FrameworkSelector to switch between differently named pages
+    frameworkEquivalents: frameworkDocs.frameworkEquivalents(),
   },
-  onBrokenLinks: 'log',
+  onBrokenLinks: 'warn',
   future: {
     // Generated Vue mirror pages have no git history; read their source's
     experimental_vcs: {
@@ -298,7 +300,7 @@ const config: Config = {
             {
               framework: 'vue',
               routeBasePath: vueInstance.routeBasePath,
-              docIds: frameworkDocs.docIds('vue'),
+              docs: frameworkDocs.docsFor('vue'),
             },
           ],
         ],

@@ -127,7 +127,7 @@ export const getTodo = new RestEndpoint({
 export const updateTodo = getTodo.extend({ method: 'PUT' });
 ```
 
-Using a [Schema](./schema.md) enables [automatic data consistency](https://dataclient.io/vue/concepts/normalization) without the need to hurt performance with [refetching](https://dataclient.io/vue/api/Controller#expireAll).
+Using a [Schema](./schema.vue.md) enables [automatic data consistency](https://dataclient.io/vue/concepts/normalization) without the need to hurt performance with [refetching](https://dataclient.io/vue/api/Controller#expireAll).
 
 ### Typing
 
@@ -778,8 +778,8 @@ Override this for advanced cases like extracting headers alongside the body.
 
 Perform any transforms with the parsed result. Defaults to identity function (do nothing).
 
-`args` are the arguments the endpoint was called with. In [extend()](#extend), they are typed from the
-resulting endpoint's [path](#path), [searchParams](#searchParams) and [body](#body).
+`args` are the arguments the endpoint was called with. They are typed from the endpoint's [path](#path),
+[searchParams](#searchParams) and [body](#body), including those set in the same [extend()](#extend) call.
 
 ```ts
 const getUser = new RestEndpoint({ path: '/users/:id' });
@@ -826,9 +826,9 @@ const getUserWithId = getUser.extend({
 
 ### schema?: Schema {#schema}
 
-[Declarative data lifecycle](./schema.md)
+[Declarative data lifecycle](./schema.vue.md)
 
-- Global data consistency and performance with [DRY](https://www.plutora.com/blog/understanding-the-dry-dont-repeat-yourself-principle) state: [where](./schema.md) to expect [Entities](./Entity.vue.md)
+- Global data consistency and performance with [DRY](https://www.plutora.com/blog/understanding-the-dry-dont-repeat-yourself-principle) state: [where](./schema.vue.md) to expect [Entities](./Entity.vue.md)
 - Functions to [deserialize fields](./network-transform.vue.md#deserializing-fields)
 - [Race condition handling](./Entity.vue.md#shouldreorder)
 - [Validation](./Entity.vue.md#validate)

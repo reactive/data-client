@@ -11,6 +11,7 @@
  *
  * Usage: node website/framework-docs/skillReferences.mjs [--check]
  */
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -151,11 +152,16 @@ if (process.argv.includes('--check')) {
   console.log(`Updated ${changes.length} skill reference files.`);
 }
 
+/** Every reference file (repo-relative) -> whether it's generated */
+const references = new Map();
 const problems = fs.readdirSync(SKILLS).flatMap(skill => {
   const skillMd = path.join(SKILLS, skill, 'SKILL.md');
   const refs = path.join(SKILLS, skill, 'references');
   const text = fs.existsSync(skillMd) ? fs.readFileSync(skillMd, 'utf8') : '';
   const files = fs.existsSync(refs) ? fs.readdirSync(refs) : [];
+  for (const f of files.map(f => path.join(refs, f)))
+    if (fs.statSync(f).isFile())
+      references.set(rel(f), fs.readFileSync(f, 'utf8').startsWith(HEADER));
   const manifest = path.join(SKILLS, skill, MANIFEST);
   const { frameworks = [] } =
     fs.existsSync(manifest) ?
@@ -184,6 +190,19 @@ const problems = fs.readdirSync(SKILLS).flatMap(skill => {
       ),
   ];
 });
+// .gitattributes marks generated references linguist-generated (collapsed on GitHub)
+const generatedAttr = execFileSync(
+  'git',
+  ['check-attr', 'linguist-generated', '--', ...references.keys()],
+  { cwd: ROOT, encoding: 'utf8' },
+);
+for (const line of generatedAttr.split('\n').filter(Boolean)) {
+  const [file, , value] = line.split(': ');
+  if ((value === 'set') !== references.get(file))
+    problems.push(
+      `${file} is ${references.get(file) ? 'generated; remove its `-linguist-generated` line' : 'hand-written; add `-linguist-generated` for it'} in .gitattributes`,
+    );
+}
 if (problems.length) {
   console.error(`Skill problems:\n  ${[...new Set(problems)].join('\n  ')}`);
   process.exit(1);

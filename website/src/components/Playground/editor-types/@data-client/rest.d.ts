@@ -1691,27 +1691,15 @@ type RestEndpointExtendOptions<O extends PartialRestGenerics, E extends {
     path?: string;
     schema?: Schema;
     method?: string;
-}, F extends FetchFunction> = RestEndpointOptions<OptionsToFunction<O, E, F>, 'schema' extends keyof O ? Extract<O['schema'], Schema | undefined> : E['schema']> & {
-    /** @see https://dataclient.io/rest/api/RestEndpoint#process */
-    process?(value: any, ...args: ProcessArgs<Parameters<OptionsToFunction<O, E, F>>>): any;
-} & PartialPick<E, keyof E extends ExtendOmitKeys ? never : Exclude<keyof E, ExtendOmitKeys>>;
-/** Parameters<F> as a single tuple, so process() accepts every way the endpoint can be called.
- * Endpoints with optional params or body have a union like `[params] | []` or `[params, body] | [body]`
- * (see ParamFetchNoBody/ParamFetchWithBody); it merges position-wise, with an element optional when
- * some call omits it. A single tuple (like a custom `fetch(params?)`) is kept as is.
- * Only for contextually typing an options callback: TypeScript can't infer callback parameters from a
- * union of tuples. The instance `process()` keeps `Parameters<F>`, the stricter signature for callers.
+}, F extends FetchFunction> = RestEndpointOptions<OptionsToFunction<O, E, F>, 'schema' extends keyof O ? Extract<O['schema'], Schema | undefined> : E['schema']> & PartialPick<E, keyof E extends ExtendOmitKeys ? never : Exclude<keyof E, ExtendOmitKeys>>;
+/** Argument I passed to process(), from Parameters<F>.
+ * Indexing a union like `[params] | []` or `[params, body] | [body]` (see ParamFetchNoBody/ParamFetchWithBody)
+ * merges position-wise, giving `undefined` where some call omits the argument.
+ * Endpoints that take no args keep `any`, so process(value, params: any) and similar still compile.
  */
-type ProcessArgs<A extends readonly any[]> = number extends A['length'] ? A : [A['length']] extends [0] ? A : [A['length']] extends [1] ? A : [A['length']] extends [2] ? A : IsUnion<A> extends false ? A : [] extends A ? [
-    ArgAt1<A>
-] extends [never] ? [
-    params?: ArgAt0<A>
-] : [params?: ArgAt0<A>, body?: ArgAt1<A>] : [params: ArgAt0<A>, body?: ArgAt1<A>];
-type IsUnion<T, U = T> = T extends any ? [
-    U
-] extends [T] ? false : true : never;
-type ArgAt0<A extends readonly any[]> = A extends unknown ? A['length'] extends 0 ? never : A[0] : never;
-type ArgAt1<A extends readonly any[]> = A extends unknown ? A['length'] extends 0 | 1 ? never : A[1] : never;
+type ProcessArg<A extends readonly any[], I extends 0 | 1> = [
+    A['length']
+] extends [0] ? any : A[I];
 type ExtendOmitKeys = KeyofRestEndpoint | keyof PartialRestGenerics | keyof RestEndpointOptions;
 /** Partial<Pick<T, K>> as a single homomorphic mapped type */
 type PartialPick<T, K extends keyof T> = {
@@ -1760,8 +1748,9 @@ type RestExtendedEndpoint<O extends PartialRestGenerics, E extends RestInstanceB
 } ? {
     paginationField: E['getPage']['paginationField'];
 } : unknown), RestInstance<(...args: Parameters<E>) => O['process'] extends {} ? Promise<ReturnType<O['process']>> : 'content' extends keyof O ? Promise<ContentReturnType<O['content'] & ContentType>> : ReturnType<E>, 'schema' extends keyof O ? O['schema'] : E['schema'], 'sideEffect' extends keyof O ? Extract<O['sideEffect'], boolean | undefined> : 'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect']>> & (keyof O extends KeyofRestEndpoint ? unknown : Omit<O, KeyofRestEndpoint>) & (keyof E extends KeyofRestEndpoint ? unknown : Omit<E, KeyofRestEndpoint | keyof O>);
-/** PartialRestGenerics without `process`. extend() constrains its options to this, so the
- * `process` member of RestEndpointExtendOptions is the only contextual type for process() params.
+/** PartialRestGenerics without `process`. Options passed to the constructor, extend() and
+ * resource().extend() are constrained by this, so RestEndpointOptions' typed `process` member is
+ * the only contextual type for process() params.
  */
 interface ExtendableRestGenerics {
     /** @see https://dataclient.io/rest/api/RestEndpoint#path */
@@ -1790,6 +1779,10 @@ interface PartialRestGenerics extends ExtendableRestGenerics {
  * @see https://dataclient.io/rest/api/RestEndpoint#inheritance
  */
 interface RestGenerics extends PartialRestGenerics {
+    readonly path: string;
+}
+/** RestGenerics without `process`; see ExtendableRestGenerics */
+interface ConstructorRestGenerics extends ExtendableRestGenerics {
     readonly path: string;
 }
 type PaginationEndpoint<E extends FetchFunction & RestGenerics & {
@@ -1903,6 +1896,8 @@ interface RestEndpointOptions<F extends FetchFunction = FetchFunction, S extends
     fetch?: F;
     key?(...args: Parameters<F>): string;
     url?(...args: Parameters<F>): string;
+    /** @see https://dataclient.io/rest/api/RestEndpoint#process */
+    process?(value: any, params: ProcessArg<Parameters<F>, 0>, body: ProcessArg<Parameters<F>, 1>, ...rest: any[]): any;
     update?: EndpointUpdateFunction<F, S>;
 }
 type RestEndpointConstructorOptions<O extends RestGenerics = any> = RestEndpointOptions<RestFetch<unknown extends O ? any : 'searchParams' extends keyof O ? [
@@ -1923,7 +1918,7 @@ interface RestEndpointConstructor {
      *
      * @see https://dataclient.io/rest/api/RestEndpoint
      */
-    new <O extends RestGenerics = any>({ method, sideEffect, name, ...options }: RestEndpointConstructorOptions<O> & Readonly<O> & O & ContentSchemaGuard<O>): RestEndpoint$1<O>;
+    new <O extends ConstructorRestGenerics = any>({ method, sideEffect, name, ...options }: RestEndpointConstructorOptions<O> & Readonly<O> & O & ContentSchemaGuard<O>): RestEndpoint$1<O>;
     readonly prototype: RestInstanceBase;
 }
 type MethodToSide<M> = M extends string ? M extends 'GET' ? undefined : true : undefined;
@@ -2027,7 +2022,7 @@ interface CustomResource<R extends ResourceInterface, O extends ResourceGenerics
     delete: unknown extends Delete ? R['delete'] : PartialRestGenerics extends Delete ? R['delete'] : RestExtendedEndpoint<Delete, R['delete']>;
 }
 type ExtendedResource<R extends ResourceInterface, T extends Record<string, EndpointInterface>> = Omit<R, keyof T> & T;
-interface ResourceEndpointExtensions<R extends ResourceInterface, Get extends PartialRestGenerics = {}, GetList extends PartialRestGenerics = {}, Update extends PartialRestGenerics = {}, PartialUpdate extends PartialRestGenerics = {}, Delete extends PartialRestGenerics = {}> {
+interface ResourceEndpointExtensions<R extends ResourceInterface, Get extends ExtendableRestGenerics = {}, GetList extends ExtendableRestGenerics = {}, Update extends ExtendableRestGenerics = {}, PartialUpdate extends ExtendableRestGenerics = {}, Delete extends ExtendableRestGenerics = {}> {
     readonly get?: RestEndpointOptions<unknown extends Get ? EndpointToFunction<R['get']> : OptionsToFunction<Get, R['get'], EndpointToFunction<R['get']>>, R['get']['schema']> & Readonly<Get> & Get;
     readonly getList?: RestEndpointOptions<unknown extends GetList ? EndpointToFunction<R['getList']> : OptionsToFunction<GetList, R['getList'], EndpointToFunction<R['getList']>>, R['getList']['schema']> & Readonly<GetList> & GetList;
     readonly update?: RestEndpointOptions<unknown extends Update ? EndpointToFunction<R['update']> : OptionsToFunction<Update, R['update'], EndpointToFunction<R['update']>>, R['update']['schema']> & Readonly<Update> & Update;
@@ -2051,7 +2046,7 @@ interface Extendable<O extends ResourceGenerics = {
     }, const ExtendKey extends string, ExtendOptions extends ExtendableRestGenerics | {}>(this: R, key: ExtendKey, options: Readonly<RestEndpointExtendOptions<ExtendOptions, R['get'], EndpointToFunction<R['get']>> & ExtendOptions> & ExtendOptions): R & {
         [key in ExtendKey]: RestExtendedEndpoint<ExtendOptions, R['get']>;
     };
-    extend<R extends ResourceInterface, Get extends PartialRestGenerics = {}, GetList extends PartialRestGenerics = {}, Update extends PartialRestGenerics = {}, PartialUpdate extends PartialRestGenerics = {}, Delete extends PartialRestGenerics = {}>(this: R, options: ResourceEndpointExtensions<R, Get, GetList, Update, PartialUpdate, Delete>): CustomResource<R, O, Get, GetList, Update, PartialUpdate, Delete>;
+    extend<R extends ResourceInterface, Get extends ExtendableRestGenerics = {}, GetList extends ExtendableRestGenerics = {}, Update extends ExtendableRestGenerics = {}, PartialUpdate extends ExtendableRestGenerics = {}, Delete extends ExtendableRestGenerics = {}>(this: R, options: ResourceEndpointExtensions<R, Get, GetList, Update, PartialUpdate, Delete>): CustomResource<R, O, Get, GetList, Update, PartialUpdate, Delete> & Omit<R, keyof ResourceInterface | 'extend'>;
     extend<R extends ResourceInterface, T extends Record<string, EndpointInterface>>(this: R, extender: (baseResource: R) => T): ExtendedResource<R, T>;
 }
 

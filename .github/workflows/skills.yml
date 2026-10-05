@@ -11,6 +11,7 @@ on:
       - 'website/package.json'
       - 'yarn.lock'
       - '.github/workflows/skills.yml'
+      - '.gitattributes'
   pull_request:
     branches:
       - master
@@ -22,6 +23,7 @@ on:
       - 'website/package.json'
       - 'yarn.lock'
       - '.github/workflows/skills.yml'
+      - '.gitattributes'
 
 concurrency:
   group: skills-${{ github.head_ref || github.ref }}

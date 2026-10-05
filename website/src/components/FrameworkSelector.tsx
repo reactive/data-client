@@ -3,6 +3,7 @@ import {
   useAllDocsData,
 } from '@docusaurus/plugin-content-docs/client';
 import { useHistory, useLocation } from '@docusaurus/router';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import React, { useState, useRef, useEffect } from 'react';
 
 import styles from './FrameworkSelector.module.css';
@@ -34,22 +35,35 @@ const frameworks: { value: Framework; label: string; Logo: React.FC }[] = [
   { value: 'vue', label: 'Vue', Logo: VueLogo },
 ];
 
-/** Same page in each framework's docs, if it exists */
+/** `framework_equivalent:` front matter, both directions (framework-docs/index.js) */
+type Equivalents = Record<Framework, Record<string, string>>;
+
+/**
+ * Same page in each framework's docs, if it exists: the same doc id, or its
+ * `framework_equivalent`. The hash only carries over to the same doc.
+ */
 function useCounterparts(): Record<Framework, string | undefined> {
   const allDocs = useAllDocsData();
-  const { activeDoc } = useActiveDocContext(frameworkPluginId[useFramework()]);
-  const find = (fw: Framework) =>
-    allDocs[frameworkPluginId[fw]].versions[0].docs.find(
-      doc => doc.id === activeDoc?.id,
-    )?.path;
-  return { react: find('react'), vue: find('vue') };
+  const equivalents = useDocusaurusContext().siteConfig.customFields
+    ?.frameworkEquivalents as Equivalents;
+  const framework = useFramework();
+  const { activeDoc } = useActiveDocContext(frameworkPluginId[framework]);
+  const { hash } = useLocation();
+  const find = (fw: Framework, id: string | undefined) =>
+    allDocs[frameworkPluginId[fw]].versions[0].docs.find(doc => doc.id === id)
+      ?.path;
+  const counterpart = (fw: Framework) => {
+    if (!activeDoc) return;
+    const same = find(fw, activeDoc.id);
+    return same ? same + hash : find(fw, equivalents[framework][activeDoc.id]);
+  };
+  return { react: counterpart('react'), vue: counterpart('vue') };
 }
 
 export default function FrameworkSelector() {
   const framework = useFramework();
   const counterparts = useCounterparts();
   const history = useHistory();
-  const { hash } = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -68,7 +82,7 @@ export default function FrameworkSelector() {
   const handleSelect = (value: Framework) => {
     setIsOpen(false);
     const target = counterparts[value];
-    if (value !== framework && target) history.push(target + hash);
+    if (value !== framework && target) history.push(target);
   };
 
   return (
