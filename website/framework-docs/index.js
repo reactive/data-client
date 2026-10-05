@@ -130,7 +130,16 @@ function frameworkEquivalents() {
           `${framework} doc ${id}: framework_equivalent '${equivalent}' is not a doc in any other framework`,
         );
       equivalents[framework][id] = equivalent;
-      for (const other of others) equivalents[other][equivalent] ??= id;
+      // reverse lookup, only needed when this framework has no `equivalent`
+      if (docs[framework].has(equivalent)) continue;
+      for (const other of others) {
+        const existing = equivalents[other][equivalent];
+        if (existing && existing !== id)
+          throw new Error(
+            `${other} doc ${equivalent} would switch to both ${existing} and ${id}; give it its own framework_equivalent`,
+          );
+        equivalents[other][equivalent] = id;
+      }
     }
   }
   return equivalents;

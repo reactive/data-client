@@ -224,13 +224,13 @@ const data = memo.query(
 
 This enables their use in these additional cases:
 
-- [useQuery()](https://dataclient.io/vue/api/useQuery) - Rendering in React
+- [useQuery()](https://dataclient.io/vue/api/useQuery) - Rendering in Vue
 - [schema.Query()](./Query.vue.md) - As input to produce a computed memoization.
 - [ctrl.get](https://dataclient.io/vue/api/Controller#get)/[snap.get](https://dataclient.io/vue/api/Snapshot#get)
   - [Managers](https://dataclient.io/vue/concepts/managers)
-  - React with [useController()](https://dataclient.io/vue/api/useController)
+  - Vue with [useController()](https://dataclient.io/vue/api/useController)
   - [RestEndpoint.getOptimisticResponse](https://dataclient.io/rest/api/RestEndpoint#getoptimisticresponse)
-  - [Unit testing hooks](https://dataclient.io/vue/guides/unit-testing-composables) with [renderDataHook()](https://dataclient.io/docs/api/renderDataHook)
+  - [Unit testing composables](https://dataclient.io/vue/guides/unit-testing-composables) with `renderDataCompose()`
 - [memo.query()](#memoquery)
 - Improve performance of [useSuspense](https://dataclient.io/vue/api/useSuspense), [useDLE](https://dataclient.io/vue/api/useDLE) by rendering before endpoint resolution
 
