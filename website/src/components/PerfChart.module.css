@@ -107,3 +107,17 @@
     var(--ifm-color-primary) var(--perf-split, 0)
   );
 }
+
+.shortfall {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 0 4px 4px 0;
+  background: var(--ifm-color-danger-contrast-background);
+  border: 1px dashed var(--ifm-color-danger);
+}
+
+.worse {
+  font-weight: var(--ifm-font-weight-bold);
+  color: var(--ifm-color-danger);
+}

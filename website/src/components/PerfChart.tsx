@@ -34,7 +34,14 @@ export default function PerfChart({
   const data = rows.map(row => {
     const speedup =
       higherIsBetter ? row.value / row.baseline : row.baseline / row.value;
-    return { ...row, speedup, multiplier: formatSpeedup(speedup) };
+    const multiplier = formatSpeedup(speedup);
+    // a regression only once it shows below 1x, so 0.99x reads as no change
+    return {
+      ...row,
+      speedup,
+      multiplier,
+      worse: speedup < 1 && multiplier !== '1x',
+    };
   });
   const speedups = data.map(({ speedup }) => speedup);
   // log scale keeps a 3x row visible next to a 600x row; judged on this chart's rows alone
@@ -63,7 +70,7 @@ export default function PerfChart({
           <span />
           <span className={styles.oneLabel}>1x</span>
         </div>
-        {data.map(({ label, baseline, value, speedup, multiplier }) => (
+        {data.map(({ label, baseline, value, speedup, multiplier, worse }) => (
           <div key={label} {...tip(label, styles.row)}>
             <span className={styles.label}>{label}</span>
             <span className={styles.track} aria-hidden="true">
@@ -76,8 +83,20 @@ export default function PerfChart({
                   } as CSSProperties
                 }
               />
+              {worse && (
+                // a regression: shade the gap between the bar and 1x
+                <span
+                  className={styles.shortfall}
+                  style={{
+                    left: `${(scale(speedup) / scaledMax) * 100}%`,
+                    width: `${((scale(1) - scale(speedup)) / scaledMax) * 100}%`,
+                  }}
+                />
+              )}
             </span>
-            <span className="text--bold">{multiplier}</span>
+            <span className={worse ? styles.worse : 'text--bold'}>
+              {multiplier}
+            </span>
             {/* exact numbers stay in the DOM for crawlers and screen readers */}
             <span className={styles.tip}>
               {baselineLabel} {baseline} {unit} → {valueLabel}{' '}
