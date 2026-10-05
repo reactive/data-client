@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791188140550,
+  "lastUpdate": 1791220751626,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -6935,6 +6935,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 170.95,
             "range": "± 7.6%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "eb8aacdfc0ecd381c41165e5504f35f5eeaf88fe",
+          "message": "pkg: Update non-major dependencies (excluding React Native) (#4187)\n\nThe non-React Native half of Renovate's #4059. yarn.lock regenerated with\nyarn (dedupe --strategy highest); example npm lockfiles regenerated with\nnpm 11.\n\nCo-authored-by: Cursor Agent <cursoragent@cursor.com>",
+          "timestamp": "2026-10-05T13:16:00-04:00",
+          "tree_id": "ccad8ceb4d58738994c881bf3feb0afd7f42a72f",
+          "url": "https://github.com/reactive/data-client/commit/eb8aacdfc0ecd381c41165e5504f35f5eeaf88fe"
+        },
+        "date": 1791220747667,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 132.46,
+            "range": "± 4.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 43.29,
+            "range": "± 5.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 322.58,
+            "range": "± 7.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 333.33,
+            "range": "± 8.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 44.64,
+            "range": "± 9.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 303.03,
+            "range": "± 6.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 357.14,
+            "range": "± 9.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 9.23,
+            "range": "± 8.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 77.52,
+            "range": "± 14.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 34.42,
+            "range": "± 3.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 194.19,
+            "range": "± 7.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 243.9,
+            "range": "± 2.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 166.67,
+            "range": "± 9.3%",
             "unit": "ops/s"
           }
         ]
