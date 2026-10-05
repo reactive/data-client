@@ -16,9 +16,8 @@
  * instance when the target doc exists in it (`docIds`), so Vue pages link to
  * Vue pages; links to React-only docs keep going to /docs.
  */
-const { DOCS_INSTANCES } = require('./docsInstances.js');
+const { FRAMEWORKS } = require('./docsInstances.js');
 
-const FRAMEWORKS = DOCS_INSTANCES.flatMap(d => d.framework ?? []);
 const DIRECTIVES = ['containerDirective', 'leafDirective', 'textDirective'];
 
 /** Heading left with no text (at most a `{#id}`) once the other framework's content is removed */

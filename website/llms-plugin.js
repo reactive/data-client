@@ -14,16 +14,14 @@ const { aliasedSitePathToRelativePath } = require('@docusaurus/utils');
 const fs = require('fs');
 const path = require('path');
 
-const { DOCS_INSTANCES } = require('./framework-docs/docsInstances.js');
+const {
+  DOCS_INSTANCES,
+  FRAMEWORK_INSTANCES,
+  frameworkInstance,
+} = require('./framework-docs/docsInstances.js');
 
-/** framework -> the docs instance rendering docs/core for it */
-const frameworks = Object.fromEntries(
-  DOCS_INSTANCES.filter(d => d.framework).map(d => [d.framework, d]),
-);
-/** docs instance id -> title, for docs every framework includes */
-const shared = Object.fromEntries(
-  DOCS_INSTANCES.filter(d => !d.framework).map(d => [d.id, d.name]),
-);
+/** Docs every framework includes */
+const shared = DOCS_INSTANCES.filter(d => !d.framework);
 
 /** Route without trailing slash (`/docs/` -> `/docs`) */
 const trim = route => route.replace(/(.)\/$/, '$1');
@@ -66,10 +64,7 @@ module.exports = function llmsPlugin(context) {
 
       // docs instance id -> its folder and sidebar sections
       const instances = new Map(
-        [
-          ...Object.values(frameworks).map(({ id }) => [id, 'Core']),
-          ...Object.entries(shared),
-        ].map(([id, title]) => {
+        DOCS_INSTANCES.map(({ id, framework, name }) => {
           const plugin = plugins.find(
             p =>
               p.name === 'docusaurus-plugin-content-docs' &&
@@ -82,7 +77,8 @@ module.exports = function llmsPlugin(context) {
             id,
             {
               dir: path.resolve(context.siteDir, plugin.options.path),
-              sections: sections(version, title),
+              shared: !framework,
+              sections: sections(version, framework ? 'Core' : name),
             },
           ];
         }),
@@ -115,12 +111,13 @@ module.exports = function llmsPlugin(context) {
         );
         // the mirror has docs/core's layout; docToMarkdown applies `.vue.md`
         // overrides and front matter itself
+        const { dir, shared } = instances.get(id);
         const file =
-          id in shared ? source : (
+          shared ? source : (
             path.join(
               ROOT,
-              frameworks[framework].path,
-              path.relative(instances.get(id).dir, source),
+              frameworkInstance(framework).path,
+              path.relative(dir, source),
             )
           );
         const content = docToMarkdown(file, framework, { resolveRoute });
@@ -129,11 +126,12 @@ module.exports = function llmsPlugin(context) {
         return content;
       };
 
-      const [defaultFramework] = Object.keys(frameworks);
-      for (const [framework, site] of Object.entries(frameworks)) {
+      const [{ framework: defaultFramework }] = FRAMEWORK_INSTANCES;
+      for (const site of FRAMEWORK_INSTANCES) {
+        const { framework } = site;
         // Shared docs render per framework so their links stay in it. Their
         // one .md per URL is the default framework's, like the HTML page.
-        const all = [site.id, ...Object.keys(shared)].flatMap(id =>
+        const all = [site, ...shared].flatMap(({ id }) =>
           instances.get(id).sections.map(({ label, docs }) => ({
             label,
             pages: docs.map(doc => {
@@ -144,18 +142,18 @@ module.exports = function llmsPlugin(context) {
                 md: `${trim(doc.permalink)}.md`,
                 content: render(id, doc, framework),
               };
-              if (!(id in shared) || framework === defaultFramework)
+              if (!instances.get(id).shared || framework === defaultFramework)
                 write(page.md, page.content);
               return page;
             }),
           })),
         );
 
-        const others = Object.entries(frameworks)
-          .filter(([other]) => other !== framework)
-          .map(([, o]) => `Using ${o.name}? See ${url}${o.llms}llms.txt`);
+        const others = FRAMEWORK_INSTANCES.filter(o => o !== site).map(
+          o => `Using ${o.name}? See ${url}${o.llms}llms.txt`,
+        );
         // shared docs instance ids are their package names
-        const packages = [framework, ...Object.keys(shared)].map(
+        const packages = [framework, ...shared.map(d => d.id)].map(
           name => `@data-client/${name}`,
         );
         const file = parts =>

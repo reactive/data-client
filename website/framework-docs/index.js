@@ -9,9 +9,9 @@
 const fs = require('fs');
 const path = require('path');
 
-const { FRAMEWORKS } = require('./remarkFramework.js');
+const { FRAMEWORKS, frameworkInstance } = require('./docsInstances.js');
 
-const SRC = path.resolve(__dirname, '../../docs/core');
+const SRC = path.resolve(__dirname, '../..', frameworkInstance('react').path);
 const MD = /\.mdx?$/;
 /** `foo.vue.md` replaces `foo.md` for Vue */
 const VUE_OVERRIDE = /\.vue(\.mdx?)$/;

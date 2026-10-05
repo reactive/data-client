@@ -29,10 +29,17 @@ const reactRemarkPlugins = [[remarkFramework, { framework: 'react' }]];
 const vueDocs = frameworkDocs.generate('vue');
 if (isDev) frameworkDocs.watch('vue');
 const vueInstance = frameworkInstance('vue');
+const editRoot = 'https://github.com/reactive/data-client/edit/master';
 /** Plugin options locating a docs instance (framework-docs/docsInstances.js) */
 const docsLocation = (id: string) => {
   const { path: docsPath, routeBasePath } = docsInstance(id);
-  return { id, path: `../${docsPath}`, routeBasePath };
+  return {
+    id,
+    path: `../${docsPath}`,
+    routeBasePath,
+    editUrl: ({ docPath }: { docPath: string }) =>
+      `${editRoot}/${docsPath}/${docPath}`,
+  };
 };
 
 const config: Config = {
@@ -234,15 +241,6 @@ const config: Config = {
           beforeDefaultRemarkPlugins: reactRemarkPlugins,
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
-          editUrl: ({ locale, docPath }) => {
-            /*if (locale !== 'en') {
-              return `https://crowdin.com/project/docusaurus-v2/${locale}`;
-            }*/
-            // We want users to submit doc updates to the upstream/next version!
-            // Otherwise we risk losing the update on the next release.
-            const nextVersionDocsDirPath = 'docs';
-            return `https://github.com/reactive/data-client/edit/master/${nextVersionDocsDirPath}/${docPath}`;
-          },
           lastVersion: 'current',
           includeCurrentVersion: true,
           versions: {
@@ -279,10 +277,9 @@ const config: Config = {
     [
       '@docusaurus/plugin-content-docs',
       {
-        id: vueInstance.id,
+        ...docsLocation('vue'),
         path: vueDocs.outDir,
         exclude: [...GlobExcludeDefault, 'getting-started/README.md'],
-        routeBasePath: vueInstance.routeBasePath,
         sidebarPath: require.resolve('./framework-docs/sidebars-vue.js'),
         beforeDefaultRemarkPlugins: [
           [
@@ -298,7 +295,7 @@ const config: Config = {
         showLastUpdateAuthor: false,
         showLastUpdateTime: false,
         editUrl: ({ docPath }) =>
-          `https://github.com/reactive/data-client/edit/master/docs/core/${frameworkDocs.sourcePath('vue', docPath)}`,
+          `${editRoot}/${vueInstance.path}/${frameworkDocs.sourcePath('vue', docPath)}`,
       },
     ],
     [
@@ -309,15 +306,6 @@ const config: Config = {
         beforeDefaultRemarkPlugins: reactRemarkPlugins,
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
-        editUrl: ({ locale, docPath }) => {
-          /*if (locale !== 'en') {
-            return `https://crowdin.com/project/docusaurus-v2/${locale}`;
-          }*/
-          // We want users to submit doc updates to the upstream/next version!
-          // Otherwise we risk losing the update on the next release.
-          const nextVersionDocsDirPath = 'docs/rest';
-          return `https://github.com/reactive/data-client/edit/master/${nextVersionDocsDirPath}/${docPath}`;
-        },
         lastVersion: 'current',
         includeCurrentVersion: true,
         versions: {
@@ -336,15 +324,6 @@ const config: Config = {
         beforeDefaultRemarkPlugins: reactRemarkPlugins,
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
-        editUrl: ({ locale, docPath }) => {
-          /*if (locale !== 'en') {
-            return `https://crowdin.com/project/docusaurus-v2/${locale}`;
-          }*/
-          // We want users to submit doc updates to the upstream/next version!
-          // Otherwise we risk losing the update on the next release.
-          const nextVersionDocsDirPath = 'docs/graphql';
-          return `https://github.com/reactive/data-client/edit/master/${nextVersionDocsDirPath}/${docPath}`;
-        },
         lastVersion: 'current',
         includeCurrentVersion: true,
         versions: {
