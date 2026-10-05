@@ -9,10 +9,10 @@ export interface Extendable<O extends ResourceGenerics = {
 }> {
     extend<R extends {
         [K in ExtendKey]: RestInstanceBase;
-    }, ExtendKey extends Exclude<Extract<keyof R, string>, 'extend'>, ExtendOptions extends PartialRestGenerics | {}>(this: R, key: ExtendKey, options: Readonly<RestEndpointExtendOptions<ExtendOptions, R[ExtendKey], EndpointToFunction<R[ExtendKey]>> & ExtendOptions>): ResourceExtension<R, ExtendKey, ExtendOptions>;
+    }, ExtendKey extends Exclude<Extract<keyof R, string>, 'extend'>, ExtendOptions extends PartialRestGenerics | {}>(this: R, key: ExtendKey, options: Readonly<RestEndpointExtendOptions<ExtendOptions, R[ExtendKey], EndpointToFunction<R[ExtendKey]>> & ExtendOptions> & ExtendOptions): ResourceExtension<R, ExtendKey, ExtendOptions>;
     extend<R extends {
         get: RestInstanceBase;
-    }, ExtendKey extends string, ExtendOptions extends PartialRestGenerics | {}>(this: R, key: ExtendKey, options: Readonly<RestEndpointExtendOptions<ExtendOptions, R['get'], EndpointToFunction<R['get']>> & ExtendOptions>): R & {
+    }, ExtendKey extends string, ExtendOptions extends PartialRestGenerics | {}>(this: R, key: ExtendKey, options: Readonly<RestEndpointExtendOptions<ExtendOptions, R['get'], EndpointToFunction<R['get']>> & ExtendOptions> & ExtendOptions): R & {
         [key in ExtendKey]: RestExtendedEndpoint<ExtendOptions, R['get']>;
     };
     extend<R extends ResourceInterface, Get extends PartialRestGenerics = {}, GetList extends PartialRestGenerics = {}, Update extends PartialRestGenerics = {}, PartialUpdate extends PartialRestGenerics = {}, Delete extends PartialRestGenerics = {}>(this: R, options: ResourceEndpointExtensions<R, Get, GetList, Update, PartialUpdate, Delete>): CustomResource<R, O, Get, GetList, Update, PartialUpdate, Delete>;

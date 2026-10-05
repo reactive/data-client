@@ -11,6 +11,7 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import StackBlitz from '@site/src/components/StackBlitz';
+import BatchSetDemo from '../shared/\_BatchSetDemo.mdx';
 
 # Controller
 
@@ -378,6 +379,23 @@ ctrl.set(
 );
 ```
 
+The value is typed by the schema: an [Entity](/rest/api/Entity) takes its fields (numbers and strings may be either),
+while a [Collection](/rest/api/Collection) or [All](/rest/api/All) takes a list of rows. A [Query](/rest/api/Query)
+takes the input of the schema it wraps, since `set()` normalizes that schema rather than reversing `process()`.
+
+```ts
+ctrl.set(TodoResource.getList.schema, [{ id: '5', completed: true }]);
+```
+
+:::note Type checking limits
+
+To keep type checking fast for large [Unions](/rest/api/Union), a Union row is checked against the
+combined fields of all its members rather than against one member. Each field's type is still checked,
+but a row that mixes fields from different members (like `{ type: 'first', secondField: 1 }`) is not
+an error. Make sure the fields you set belong to the member the row's discriminator selects.
+
+:::
+
 Functions can be used in the value when derived data is used. This [prevents race conditions](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state).
 
 ```ts
@@ -437,6 +455,12 @@ Array and Values schemas take no `args` (so [Entity.pk()](/rest/api/Entity#pk) a
 receive `[]`) and no updater function. Rows that share a pk merge in list order, without
 [Entity.shouldReorder()](/rest/api/Entity#shouldreorder). Use this instead of calling `set()` once per row, such as when
 [batching high-frequency stream updates](../concepts/managers.md#batching).
+
+:::react
+
+<BatchSetDemo />
+
+:::
 
 ### setResponse(endpoint, ...args, response) {#setResponse}
 
