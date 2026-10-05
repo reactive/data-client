@@ -12,10 +12,11 @@ on:
       - 'yarn.lock'
       - '.github/workflows/skills.yml'
       - '.gitattributes'
+      - 'website/src/components/Playground/editor-types/**'
   pull_request:
     branches:
       - master
-    # Inputs of website/framework-docs/skillReferences.mjs
+    # Inputs of website/framework-docs/skillReferences.mjs and checkVueExamples.mjs
     paths:
       - 'docs/**'
       - '.agents/skills/**'
@@ -24,6 +25,7 @@ on:
       - 'yarn.lock'
       - '.github/workflows/skills.yml'
       - '.gitattributes'
+      - 'website/src/components/Playground/editor-types/**'
 
 # PRs cancel superseded runs. Push runs get their own group, so master never
 # shows a cancelled (red) run.
@@ -47,3 +49,6 @@ jobs:
         run: ./scripts/ci-install.sh website
       - name: Check skill references match the docs
         run: yarn build:skills --check
+      - name: Type-check Vue examples in the docs
+        if: ${{ !cancelled() }}
+        run: yarn check:vue-examples
