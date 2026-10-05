@@ -133,6 +133,8 @@ function frameworkEquivalents() {
       // reverse lookup, only needed when this framework has no `equivalent`
       if (docs[framework].has(equivalent)) continue;
       for (const other of others) {
+        // a page that names its own counterpart keeps it
+        if (docs[other].get(equivalent).equivalent) continue;
         const existing = equivalents[other][equivalent];
         if (existing && existing !== id)
           throw new Error(

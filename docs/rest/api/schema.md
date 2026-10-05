@@ -239,7 +239,7 @@ This enables their use in these additional cases:
   - [Managers](/docs/concepts/managers)
   - :react[React]:vue[Vue] with [useController()](/docs/api/useController)
   - [RestEndpoint.getOptimisticResponse](./RestEndpoint.md#getoptimisticresponse)
-  - :react[[Unit testing hooks](/docs/guides/unit-testing-hooks) with [renderDataHook()](/docs/api/renderDataHook)]:vue[[Unit testing composables](/docs/guides/unit-testing-hooks) with `renderDataCompose()`]
+  - :react[[Unit testing hooks](/docs/guides/unit-testing-hooks) with [renderDataHook()](/docs/api/renderDataHook)]:vue[[Unit testing composables](/docs/guides/unit-testing-composables) with `renderDataCompose()`]
 - [memo.query()](#memoquery)
 - Improve performance of [useSuspense](/docs/api/useSuspense), [useDLE](/docs/api/useDLE) by rendering before endpoint resolution
 

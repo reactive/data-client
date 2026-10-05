@@ -1,6 +1,6 @@
 ---
 title: Unit testing composables
-slug: /guides/unit-testing-composables
+framework_equivalent: guides/unit-testing-hooks
 ---
 
 Composables pull data logic out of components, so they are often the easiest place to test it.

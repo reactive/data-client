@@ -77,7 +77,7 @@ same `vue_<key>` overrides as front matter, e.g. `"vue_label": "Composables"` on
 When a framework-only page covers what the other framework documents under a different id (Vue's
 `DataClientPlugin` is React's `DataProvider`), name that doc id in `framework_equivalent:` on either
 page, so the framework selector switches between them. Declaring it on one page is enough; it works
-in both directions. The build fails if the id doesn't exist in the other framework.
+in both directions, unless the other page names its own `framework_equivalent`. The build fails if the id doesn't exist in the other framework.
 
 Give per-framework headings an explicit id so links to them work in both frameworks. A heading with
 no text left for a framework (e.g. only `:react[...]`) is dropped from that framework's page.
