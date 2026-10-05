@@ -87,7 +87,9 @@ export interface Extendable<
       PartialUpdate,
       Delete
     >,
-  ): CustomResource<R, O, Get, GetList, Update, PartialUpdate, Delete>;
+  ): CustomResource<R, O, Get, GetList, Update, PartialUpdate, Delete> &
+    // keeps members like those added by extend('key', options)
+    Omit<R, keyof ResourceInterface | 'extend'>;
   extend<
     R extends ResourceInterface,
     T extends Record<string, EndpointInterface>,
