@@ -4,7 +4,7 @@
 
 This guide configures `@data-client/rest` for a project. It handles both fresh setup and migration from existing HTTP libraries. Use it once the Data Client provider is set up and the project calls REST APIs.
 
-**First, apply the skill "data-client-rest"** for accurate implementation patterns.
+The [RestEndpoint](./data-client-rest-setup/references/RestEndpoint.md) and [resource](./data-client-rest-setup/references/resource.md) references cover the APIs this guide uses. If the skill "data-client-rest" is installed, also apply it for resource and endpoint patterns beyond setup.
 
 ## Step 1: Installation
 
