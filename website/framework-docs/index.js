@@ -115,7 +115,14 @@ function generate(framework) {
       if (!sources.has(file)) fs.rmSync(path.join(outDir, file));
     }
   }
-  return { outDir, sources };
+  /** Source of a mirror file (itself if not mirrored), for its git history */
+  const sourceOf = file => {
+    const src = sources.get(
+      path.relative(outDir, file).split(path.sep).join('/'),
+    );
+    return src ? path.join(SRC, src) : file;
+  };
+  return { outDir, sources, sourceOf };
 }
 
 /** Keep the mirror in sync during `docusaurus start` */

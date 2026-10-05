@@ -1,7 +1,7 @@
 import type * as Preset from '@docusaurus/preset-classic';
 import type * as PresetMermaid from '@docusaurus/theme-mermaid';
 import type { Config } from '@docusaurus/types';
-import { GlobExcludeDefault } from '@docusaurus/utils';
+import { GlobExcludeDefault, getVcsPreset } from '@docusaurus/utils';
 import { createRequire } from 'module';
 import path from 'path';
 import { themes } from 'prism-react-renderer';
@@ -29,6 +29,7 @@ const reactRemarkPlugins = [[remarkFramework, { framework: 'react' }]];
 const vueDocs = frameworkDocs.generate('vue');
 if (isDev) frameworkDocs.watch('vue');
 const vueInstance = frameworkInstance('vue');
+const gitVcs = getVcsPreset('default-v1');
 const editRoot = 'https://github.com/reactive/data-client/edit/master';
 /** Plugin options locating a docs instance (framework-docs/docsInstances.js) */
 const docsLocation = (id: string) => {
@@ -225,6 +226,16 @@ const config: Config = {
     repoUrl: 'https://github.com/reactive/data-client',
   },
   onBrokenLinks: 'log',
+  future: {
+    // Generated Vue mirror pages have no git history; read their source's
+    experimental_vcs: {
+      ...gitVcs,
+      getFileCreationInfo: file =>
+        gitVcs.getFileCreationInfo(vueDocs.sourceOf(file)),
+      getFileLastUpdateInfo: file =>
+        gitVcs.getFileLastUpdateInfo(vueDocs.sourceOf(file)),
+    },
+  },
   presets: [
     [
       '@docusaurus/preset-classic',
@@ -291,9 +302,8 @@ const config: Config = {
             },
           ],
         ],
-        // generated files have no git history
-        showLastUpdateAuthor: false,
-        showLastUpdateTime: false,
+        showLastUpdateAuthor: true,
+        showLastUpdateTime: true,
         editUrl: ({ docPath }) =>
           `${editRoot}/${vueInstance.path}/${frameworkDocs.sourcePath('vue', docPath)}`,
       },
