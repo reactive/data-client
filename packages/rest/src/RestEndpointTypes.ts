@@ -305,8 +305,19 @@ type ProcessArgs<A extends readonly any[]> =
       [params?: ArgAt0<A>]
     : [params?: ArgAt0<A>, body?: ArgAt1<A>]
   : [params: ArgAt0<A>, body?: ArgAt1<A>];
-type ArgAt0<A> = A extends readonly [infer X, ...any[]] ? X : never;
-type ArgAt1<A> = A extends readonly [any, infer X, ...any[]] ? X : never;
+// Optional-element patterns, so a custom `fetch(params?)` keeps its element types
+type ArgAt0<A> =
+  A extends readonly [any?, ...any[]] ?
+    A['length'] extends 0 ?
+      never
+    : A[0]
+  : never;
+type ArgAt1<A> =
+  A extends readonly [any?, any?, ...any[]] ?
+    A['length'] extends 0 | 1 ?
+      never
+    : A[1]
+  : never;
 
 type ExtendOmitKeys =
   KeyofRestEndpoint | keyof PartialRestGenerics | keyof RestEndpointOptions;

@@ -106,3 +106,47 @@ export const ExtendedUser = UserResource.extend('get', {
     return [value, s];
   },
 });
+
+// custom fetch with an optional (defaulted) params argument
+class PageEndpoint extends RestEndpoint<{
+  path: '/users';
+  searchParams: { page?: number };
+}> {
+  fetch = async (params: { page?: number } = {}) => this.process([], params);
+}
+const pageEp = new PageEndpoint({
+  path: '/users',
+  searchParams: {} as { page?: number },
+});
+export const pageChild = pageEp.extend({
+  process(value, params) {
+    // @ts-expect-error page is a number
+    params?.page?.toUpperCase();
+    return params?.page ?? value;
+  },
+});
+pageChild();
+pageChild({ page: 2 });
+
+// custom fetch with an optional body argument
+class OptionalBodyEndpoint extends RestEndpoint<{
+  path: '/users/:id';
+  method: 'POST';
+  body: { name: string };
+}> {
+  fetch = async (params: { id: string | number }, body?: { name: string }) =>
+    this.process([], params, body!);
+}
+export const optionalBodyChild = new OptionalBodyEndpoint({
+  path: '/users/:id',
+  method: 'POST',
+  body: {} as { name: string },
+}).extend({
+  process(value, params, body) {
+    const id: string | number = params.id;
+    const name: string | undefined = body?.name;
+    // @ts-expect-error body may be undefined
+    body.name;
+    return [id, name];
+  },
+});
