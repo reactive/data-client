@@ -11,24 +11,22 @@
 #
 name: "CodeQL"
 
+# Shipped source only: manifests, docs and tests can't add alerts that matter
 on:
   push:
     branches: [ master ]
-    # Shipped source only: manifests, docs and tests can't add alerts that matter
     paths:
       - 'packages/*/src/**'
-      - 'packages/*/*.mjs'
+      - 'packages/*/node.mjs'
       - '!packages/**/__tests__/**'
       - '.github/workflows/codeql-analysis.yml'
   pull_request:
-    # ready_for_review: drafts skip the job below, so run once marked ready
     types: [opened, synchronize, reopened, ready_for_review]
     # The branches below must be a subset of the branches above
     branches: [ master ]
-    # Shipped source only: manifests, docs and tests can't add alerts that matter
     paths:
       - 'packages/*/src/**'
-      - 'packages/*/*.mjs'
+      - 'packages/*/node.mjs'
       - '!packages/**/__tests__/**'
       - '.github/workflows/codeql-analysis.yml'
   schedule:

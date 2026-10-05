@@ -2,7 +2,6 @@ name: Benchmark React
 
 on:
   pull_request:
-    # ready_for_review: drafts skip the job below, so run once marked ready
     types: [opened, synchronize, reopened, ready_for_review]
     branches:
       - master

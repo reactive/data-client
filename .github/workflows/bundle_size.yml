@@ -3,7 +3,6 @@ name: Bundle Size
 on:
   # PR-only: on push the action measures but has nowhere to report
   pull_request:
-    # ready_for_review: drafts skip the job below, so run once marked ready
     types: [opened, synchronize, reopened, ready_for_review]
     branches: [ master ]
     paths:
@@ -12,12 +11,16 @@ on:
       - '!packages/*/typescript-tests/**'
       - '!packages/*/src-*-types/**'
       - '!packages/**/*.md'
+      # not bundled by examples/test-bundlesize
+      - '!packages/graphql/**'
+      - '!packages/test/**'
+      - '!packages/vue/**'
       - 'yarn.lock'
       - 'examples/test-bundlesize/**'
       - '.github/workflows/bundle_size.yml'
 
 concurrency:
-  group: bundle-size-${{ github.head_ref || github.ref }}
+  group: bundle-size-${{ github.head_ref }}
   cancel-in-progress: true
 
 jobs:
