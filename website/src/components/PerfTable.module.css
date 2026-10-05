@@ -1,4 +1,12 @@
+/* scroll in place on narrow screens instead of widening the page */
+.scroll {
+  overflow-x: auto;
+  margin-bottom: var(--ifm-leading);
+}
+
 .perfTable {
+  display: table;
+  margin-bottom: 0;
   font-size: 0.875rem;
 }
 
