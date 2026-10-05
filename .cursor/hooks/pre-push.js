@@ -119,7 +119,12 @@ function regenerate({ what, from, script, yarn, ci, isInput, outputs }) {
 
 /** `eslint --fix` the branch's JS/TS files; reports the ones it changed */
 function lintFix() {
-  const files = [...new Set([...committed, ...(commits ? dirty : [])])].filter(
+  // eslint reads the working tree, so like `regenerate()` it skips files with
+  // uncommitted edits unless this command commits them; CI lint covers those
+  const files = (
+    commits ?
+      [...new Set([...committed, ...dirty])]
+    : committed.filter(file => !dirty.includes(file))).filter(
     file =>
       /\.(c|m)?[jt]sx?$/.test(file) &&
       fs.existsSync(path.join(projectDir, file)),
