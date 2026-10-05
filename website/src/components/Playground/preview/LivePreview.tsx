@@ -2,6 +2,7 @@ import { LiveProvider } from 'react-live';
 
 import Preview from './Preview';
 import PreviewWrapper from './PreviewWrapper';
+import { useRenderCount } from './RenderCount';
 import { previewScope } from './scope';
 import transformCode from './transformCode';
 import { usePlaygroundConsoleDemotion } from './usePlaygroundConsoleDemotion';
@@ -9,6 +10,7 @@ import type { PreviewProps } from '../types';
 
 export interface LivePreviewProps<T> extends PreviewProps<T> {
   code: string;
+  renderCount: boolean;
 }
 
 export default function LivePreview<T>({
@@ -18,8 +20,10 @@ export default function LivePreview<T>({
   row,
   fixtures,
   getInitialInterceptorData,
+  renderCount,
 }: LivePreviewProps<T>) {
   usePlaygroundConsoleDemotion();
+  const { onCommit, badge } = useRenderCount(renderCount);
 
   return (
     <LiveProvider
@@ -30,13 +34,14 @@ export default function LivePreview<T>({
       noInline
       scope={previewScope}
     >
-      <PreviewWrapper>
+      <PreviewWrapper headerControls={badge}>
         <Preview
           groupId={groupId}
           defaultOpen={defaultOpen}
           row={row}
           fixtures={fixtures}
           getInitialInterceptorData={getInitialInterceptorData}
+          onCommit={onCommit}
         />
       </PreviewWrapper>
     </LiveProvider>

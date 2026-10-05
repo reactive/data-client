@@ -1,0 +1,14 @@
+{
+  "frameworks": [
+    "react"
+  ],
+  "docs": {
+    "Fixtures.md": "docs/core/api/Fixtures.md",
+    "MockResolver.md": "docs/core/api/MockResolver.md",
+    "makeRenderDataHook.md": "docs/core/api/makeRenderDataHook.md",
+    "mockInitialState.md": "docs/core/api/mockInitialState.md",
+    "renderDataHook.md": "docs/core/api/renderDataHook.md",
+    "unit-testing-components.md": "docs/core/guides/unit-testing-components.md",
+    "unit-testing-hooks.md": "docs/core/guides/unit-testing-hooks.md"
+  }
+}

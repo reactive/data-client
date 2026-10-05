@@ -36,9 +36,18 @@ const PostResource = resource({
 });
 PostResource.getList.getPage({ cursor: 'a' });
 const search = new RestEndpoint({ path: '/search' });
+// extend() methods' parameters aren't implicitly any on any TypeScript version,
+// including on a chained extend()
+const getPostTitle = new RestEndpoint({ path: '/posts/:id', schema: Post })
+  .extend({ dataExpiryLength: 5 })
+  .extend({
+    process(value, params) {
+      return `${params.id}: ${value.title}`;
+    },
+  });
 
 const memo = new MemoCache();
 const { result, entities } = normalize(Post, { id: '1', title: 'hi' });
 denormalize(Post, result, entities);
 
-export { getUser, feed, search, memo };
+export { getUser, feed, search, memo, getPostTitle };

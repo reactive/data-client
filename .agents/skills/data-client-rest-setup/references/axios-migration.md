@@ -477,6 +477,6 @@ Search patterns for locating axios usage in a codebase:
 - [Axios Migration Guide](https://dataclient.io/rest/guides/axios-migration) — full documentation with interactive examples
 - [RestEndpoint API](https://dataclient.io/rest/api/RestEndpoint) — lifecycle methods reference
 - [hookifyResource](https://dataclient.io/rest/api/hookifyResource) — context-based auth via hooks
-- [NetworkError](https://dataclient.io/rest/api/NetworkError) — error class
+- [NetworkError](https://dataclient.io/rest/api/RestEndpoint#fetchResponse) — error class
 - [Authentication guide](https://dataclient.io/rest/guides/auth) — token and cookie patterns
 - [Abort guide](https://dataclient.io/rest/guides/abort) — cancellation patterns

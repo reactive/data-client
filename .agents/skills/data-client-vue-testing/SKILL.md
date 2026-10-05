@@ -9,7 +9,7 @@ license: Apache 2.0
 ## Composable Testing with renderDataCompose()
 
 ```typescript
-import { renderDataCompose } from '../test';
+import { renderDataCompose } from '@data-client/vue/test';
 import { reactive, computed } from 'vue';
 
 it('useQuery() should return cached data', () => {
@@ -46,7 +46,7 @@ it('useQuery() should return cached data', () => {
 ## Component Testing with mountDataClient()
 
 ```typescript
-import { mountDataClient } from '../test';
+import { mountDataClient } from '@data-client/vue/test';
 import { defineComponent, h, reactive } from 'vue';
 
 it('should render article component', async () => {
@@ -362,14 +362,15 @@ expect(result.current?.value?.title).toBe('hi ho');
 - **useSuspense returns Promise → ComputedRef** - Await once, then access `.value`
 - **Test both empty and populated states** - Verify undefined behavior
 - **Test reactive prop changes** - Use `reactive()` and verify updates
-- **Don't test with async setup + prop changes** - Async setup only runs once; use non-async patterns or useFetch + watchEffect instead
+- **Pass prop-derived args as getters** - Async setup runs once, so `useSuspense(Resource.get, () => ({ id: props.id }))` follows prop changes; a plain `{ id: props.id }` is read once
 
 ## References
 
 For detailed API documentation, see the [references](references/) directory:
 
 - [Fixtures](references/Fixtures.md) - Fixture format reference
-- [unit-testing-hooks](references/unit-testing-hooks.md) - Hook/composable testing guide
+- [mockInitialState](references/mockInitialState.md) - Create initial state for `DataClientPlugin`
+- [vue-test-utilities](references/vue-test-utilities.md) - `renderDataCompose()` and `mountDataClient()` guide
 - [nock-http-mocking](references/nock-http-mocking.md) - Full nock setup, dynamic server state, request spying, errors, pitfalls
 - [polling-subscriptions](references/polling-subscriptions.md) - Fake-timer patterns for `useLive`/`useSubscription`/`pollFrequency`, unsubscribe verification, polling via nock
 

@@ -2,6 +2,8 @@
 name: pr
 description: Create a GitHub pull request from current working changes. Handles all git states - uncommitted changes, no branch, unpushed commits, etc. Analyzes diffs and changesets to generate a PR with filled-in template. Opens the PR in the browser when done. Use when the user asks to create a PR, open a PR, submit changes, or push for review.
 disable-model-invocation: true
+metadata:
+  internal: true
 ---
 
 # Create Pull Request

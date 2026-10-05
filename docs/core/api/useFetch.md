@@ -233,16 +233,16 @@ The returned `Ref` is updated with a new promise whenever a fetch is triggered: 
 
 :::
 
-:::react
+::::react
 
-::::info[React Native]
+:::info[React Native]
 
 When using React Navigation, useFetch() will trigger fetches on focus if the data is considered
 stale.
 
-::::
-
 :::
+
+::::
 
 <ConditionalDependencies hook="useFetch" />
 

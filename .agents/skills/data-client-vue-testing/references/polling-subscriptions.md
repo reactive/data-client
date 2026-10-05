@@ -23,7 +23,7 @@ Best for testing data-flow without involving the network layer.
 
 ```typescript
 import { computed, reactive, nextTick } from 'vue';
-import { renderDataCompose } from '../test';
+import { renderDataCompose } from '@data-client/vue/test';
 
 it('subscribes and re-renders on poll', async () => {
   jest.useFakeTimers();
