@@ -119,7 +119,7 @@ jobs:
           fi
           git diff --cached --stat
           # the changes the merge needs, for the commit job to apply to the PR head
-          git diff --cached --binary --full-index > "${RUNNER_TEMP}/regenerated.patch"
+          git diff --cached --binary --full-index --no-renames > "${RUNNER_TEMP}/regenerated.patch"
           echo changed=true >> "${GITHUB_OUTPUT}"
       - uses: actions/upload-artifact@v4
         if: steps.diff.outputs.changed
@@ -152,6 +152,12 @@ jobs:
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
+          # generate ran dependency code: only accept edits to generated files
+          if git apply --numstat "${RUNNER_TEMP}/regenerated.patch" | cut -f3 |
+            grep -Ev '^(website/src/components/Playground/editor-types/|\.agents/skills/[^/]+/references/|(.+/)?\.claude/rules/|\.claude/skills$)'; then
+            echo "::error::The regenerated patch touches files that aren't generated outputs."
+            exit 1
+          fi
           git fetch --depth=1 origin "${HEAD_SHA}"
           git checkout --force --detach "${HEAD_SHA}"
           if ! git apply --3way --index "${RUNNER_TEMP}/regenerated.patch"; then
