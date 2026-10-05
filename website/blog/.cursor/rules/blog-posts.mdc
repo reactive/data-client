@@ -105,6 +105,24 @@ import PerfChart from '@site/src/components/PerfChart';
 `unit` defaults to `ms`, with lower being better; set `higherIsBetter` and `unit="ops/sec"` for throughput.
 For metrics that aren't speed, like memory, set `ratioLabel` (for example `"Less memory"`) to rename the multiplier column.
 Bar lengths switch to a log scale on their own when speedups differ by more than 10x, and the chart labels it.
+Each bar is shaded up to a dashed 1x line (no change), so the bright part is the gain.
+
+For several metrics per row (like time and memory), use `<PerfTable>` instead of a markdown table. Each cell shows
+before → after, a colored percent-change badge and paired bars; lower is better.
+
+```mdx
+import PerfTable from '@site/src/components/PerfTable';
+
+<PerfTable
+  columns={[
+    { label: 'Check time', unit: 's' },
+    { label: 'Memory', unit: 'MB' },
+  ]}
+  rows={[
+    { label: 'Long paths', description: '150 RestEndpoints', values: [[3.13, 1.59], [345, 207]] },
+  ]}
+/>
+```
 
 ## Conventions
 

@@ -16,12 +16,41 @@
   color: var(--ifm-color-emphasis-700);
 }
 
+.track,
+.oneLabel {
+  position: relative;
+}
+
+/* dashed 1x marker across every row */
+.track::after {
+  content: '';
+  position: absolute;
+  top: -0.25rem;
+  bottom: -0.25rem;
+  left: var(--perf-one);
+  border-left: 2px dashed var(--ifm-color-emphasis-600);
+}
+
+.oneLabel {
+  left: var(--perf-one);
+  width: max-content;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  line-height: 1;
+  color: var(--ifm-color-emphasis-700);
+}
+
 .bar {
   display: block;
   height: 1.25rem;
   min-width: 2px;
   border-radius: 0 4px 4px 0;
-  background: var(--ifm-color-primary);
+  /* the part up to 1x is the baseline; the bright part is the gain */
+  background: linear-gradient(
+    to right,
+    var(--ifm-color-emphasis-300) var(--perf-split, 0),
+    var(--ifm-color-primary) var(--perf-split, 0)
+  );
 }
 
 .table {

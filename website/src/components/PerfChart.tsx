@@ -1,4 +1,4 @@
-import { Fragment } from 'react';
+import { type CSSProperties, Fragment } from 'react';
 
 import styles from './PerfChart.module.css';
 
@@ -41,6 +41,10 @@ export default function PerfChart({
   const log = max / Math.min(...speedups) > 10;
   const scale = (n: number) => (log ? Math.log(Math.max(n, 1)) : n);
   const scaledMax = scale(max) || 1;
+  // where 1x (no change) falls on the bar track, so bars read against it
+  const one = {
+    '--perf-one': `${(scale(1) / scaledMax) * 100}%`,
+  } as CSSProperties;
 
   return (
     <figure className={styles.perfChart}>
@@ -52,14 +56,22 @@ export default function PerfChart({
           </div>
         )}
       </figcaption>
-      <div className={styles.bars} aria-hidden="true">
+      <div className={styles.bars} style={one} aria-hidden="true">
+        <span />
+        <span className={styles.oneLabel}>1x</span>
+        <span />
         {data.map(({ label, speedup, multiplier }) => (
           <Fragment key={label}>
             <span className={styles.label}>{label}</span>
-            <span>
+            <span className={styles.track}>
               <span
                 className={styles.bar}
-                style={{ width: `${(scale(speedup) / scaledMax) * 100}%` }}
+                style={
+                  {
+                    width: `${(scale(speedup) / scaledMax) * 100}%`,
+                    '--perf-split': `${(scale(1) / (scale(speedup) || 1)) * 100}%`,
+                  } as CSSProperties
+                }
               />
             </span>
             <span className="text--bold">{multiplier}</span>
