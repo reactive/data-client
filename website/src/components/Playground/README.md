@@ -126,7 +126,9 @@ DesignSystem/       components injected into preview scope
   count in the preview header (written to the DOM, so counting adds no commits).
   `website/profiling-plugin.js` replaces `react-dom/client` with React's
   profiling build because production builds never call `onRender`; the badge
-  stays hidden if that ever stops working.
+  stays hidden if that ever stops working. `website/profiling-loader.js` pins
+  the build's DevTools check off, so only `<Profiler>` subtrees are ever timed
+  (otherwise DevTools users would profile every page).
 - Third-party console noise is demoted only while previews are mounted
   (`usePlaygroundConsoleDemotion`); never add first-party matchers.
 
