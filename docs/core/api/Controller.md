@@ -11,6 +11,7 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import StackBlitz from '@site/src/components/StackBlitz';
+import BatchSetDemo from '../shared/\_BatchSetDemo.mdx';
 
 # Controller
 
@@ -454,6 +455,12 @@ Array and Values schemas take no `args` (so [Entity.pk()](/rest/api/Entity#pk) a
 receive `[]`) and no updater function. Rows that share a pk merge in list order, without
 [Entity.shouldReorder()](/rest/api/Entity#shouldreorder). Use this instead of calling `set()` once per row, such as when
 [batching high-frequency stream updates](../concepts/managers.md#batching).
+
+:::react
+
+<BatchSetDemo />
+
+:::
 
 ### setResponse(endpoint, ...args, response) {#setResponse}
 

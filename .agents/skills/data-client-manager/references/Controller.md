@@ -413,6 +413,67 @@ receive `[]`) and no updater function. Rows that share a pk merge in list order,
 [Entity.shouldReorder()](https://dataclient.io/rest/api/Entity#shouldreorder). Use this instead of calling `set()` once per row, such as when
 [batching high-frequency stream updates](./managers.md#batching).
 
+Try both buttons below. This browser check starts from an empty store and times `Promise.all` of 500 `set()`
+calls against one batch `set()`. Both paths are one React commit, and each writes 500 new prices.
+
+```ts title="Ticker"
+import { Entity } from '@data-client/rest';
+
+export class Ticker extends Entity {
+  product_id = '';
+  price = 0;
+
+  pk() {
+    return this.product_id;
+  }
+  static key = 'Ticker';
+}
+
+export const newPrices = () =>
+  Array.from({ length: 500 }, (_, i) => ({
+    product_id: `COIN-${i}`,
+    price: Math.round(Math.random() * 10000) / 100,
+  }));
+```
+
+```tsx title="PriceStream"
+import { useController, useQuery } from '@data-client/react';
+import { Ticker, newPrices } from './Ticker';
+
+function PriceStream() {
+  const ctrl = useController();
+  const [timing, setTiming] = React.useState('');
+  const first = useQuery(Ticker, { product_id: 'COIN-0' });
+
+  const time = async (
+    label: string,
+    write: (rows: ReturnType<typeof newPrices>) => Promise<unknown>,
+  ) => {
+    const rows = newPrices();
+    const start = performance.now();
+    await write(rows);
+    setTiming(`${label}: ${(performance.now() - start).toFixed(1)} ms`);
+  };
+  const perRow = () =>
+    time('500 set() calls', rows =>
+      Promise.all(
+        rows.map(row => ctrl.set(Ticker, { product_id: row.product_id }, row)),
+      ),
+    );
+  const batch = () => time('1 batch set()', rows => ctrl.set([Ticker], rows));
+
+  return (
+    <div>
+      <button onClick={perRow}>set() per row</button>{' '}
+      <button onClick={batch}>batch set()</button>
+      <p>COIN-0: {first ? `$${first.price}` : 'no data yet'}</p>
+      <p>{timing}</p>
+    </div>
+  );
+}
+render(<PriceStream />);
+```
+
 ### setResponse(endpoint, ...args, response) {#setResponse}
 
 Stores `response` in cache for given [Endpoint](https://dataclient.io/rest/api/Endpoint) and args.
