@@ -56,7 +56,13 @@ if [[ "$(basename "${APK}")" != "app-release.apk" ]]; then
 fi
 
 # --- device selection ---
-mapfile -t _DEVICES < <(adb devices | awk 'NR>1 && $2=="device" {print $1}')
+# Bash 3.2 (stock macOS) has no mapfile. Keep an empty array when adb
+# lists no eligible devices.
+_DEVICES=()
+while IFS= read -r _device; do
+  [[ -n "${_device}" ]] || continue
+  _DEVICES+=("${_device}")
+done < <(adb devices | awk 'NR>1 && $2=="device" {print $1}')
 if [[ -n "${ANDROID_SERIAL:-}" ]]; then
   FOUND=0
   for d in "${_DEVICES[@]:-}"; do
