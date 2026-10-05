@@ -272,13 +272,7 @@ export type RestEndpointExtendOptions<
   OptionsToFunction<O, E, F>,
   'schema' extends keyof O ? Extract<O['schema'], Schema | undefined>
   : E['schema']
-> & {
-  /** @see https://dataclient.io/rest/api/RestEndpoint#process */
-  process?(
-    value: any,
-    ...args: ProcessArgs<Parameters<OptionsToFunction<O, E, F>>>
-  ): any;
-} &
+> &
   // Same as Partial<Omit<E, ExtendOmitKeys>>, but skips the per-key Exclude<> work
   // (and the double mapped type) when E has no members beyond the standard ones.
   // Keep the guard inside the mapped type's keys: a `? unknown : ...` conditional
@@ -298,7 +292,8 @@ export type RestEndpointExtendOptions<
 type ProcessArgs<A extends readonly any[]> =
   // fast path for fixed-length tuples; [A['length']] can't be checked against a union of lengths
   number extends A['length'] ? A
-  : [A['length']] extends [0] ? A
+  : // takes no args: keep accepting process(value, params: any) and similar
+  [A['length']] extends [0] ? any[]
   : [A['length']] extends [1] ? A
   : [A['length']] extends [2] ? A
   : IsUnion<A> extends false ? A
@@ -475,8 +470,9 @@ export type RestExtendedEndpoint<
   (keyof E extends KeyofRestEndpoint ? unknown
   : Omit<E, KeyofRestEndpoint | keyof O>);
 
-/** PartialRestGenerics without `process`. extend() constrains its options to this, so the
- * `process` member of RestEndpointExtendOptions is the only contextual type for process() params.
+/** PartialRestGenerics without `process`. Options passed to the constructor, extend() and
+ * resource().extend() are constrained by this, so RestEndpointOptions' typed `process` member is
+ * the only contextual type for process() params.
  */
 export interface ExtendableRestGenerics {
   /** @see https://dataclient.io/rest/api/RestEndpoint#path */
@@ -505,6 +501,10 @@ export interface PartialRestGenerics extends ExtendableRestGenerics {
  * @see https://dataclient.io/rest/api/RestEndpoint#inheritance
  */
 export interface RestGenerics extends PartialRestGenerics {
+  readonly path: string;
+}
+/** RestGenerics without `process`; see ExtendableRestGenerics */
+interface ConstructorRestGenerics extends ExtendableRestGenerics {
   readonly path: string;
 }
 
@@ -695,6 +695,15 @@ export interface RestEndpointOptions<
   fetch?: F;
   key?(...args: Parameters<F>): string;
   url?(...args: Parameters<F>): string;
+  /** @see https://dataclient.io/rest/api/RestEndpoint#process */
+  // Positional rather than `...args: ProcessArgs<>`: when F is generic (like a path type parameter),
+  // a deferred rest tuple would reject process(value, params) for having too many params.
+  process?(
+    value: any,
+    params: ProcessArgs<Parameters<F>>[0],
+    body: ProcessArgs<Parameters<F>>[1],
+    ...rest: any[]
+  ): any;
   update?: EndpointUpdateFunction<F, S>;
 }
 
@@ -754,7 +763,7 @@ export interface RestEndpointConstructor {
    *
    * @see https://dataclient.io/rest/api/RestEndpoint
    */
-  new <O extends RestGenerics = any>({
+  new <O extends ConstructorRestGenerics = any>({
     method,
     sideEffect,
     name,

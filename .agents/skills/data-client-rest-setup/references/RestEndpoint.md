@@ -778,8 +778,8 @@ Override this for advanced cases like extracting headers alongside the body.
 
 Perform any transforms with the parsed result. Defaults to identity function (do nothing).
 
-`args` are the arguments the endpoint was called with. In [extend()](#extend), they are typed from the
-resulting endpoint's [path](#path), [searchParams](#searchParams) and [body](#body).
+`args` are the arguments the endpoint was called with. They are typed from the endpoint's [path](#path),
+[searchParams](#searchParams) and [body](#body), including those set in the same [extend()](#extend) call.
 
 ```ts
 const getUser = new RestEndpoint({ path: '/users/:id' });

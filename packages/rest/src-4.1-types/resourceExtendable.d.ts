@@ -2,7 +2,7 @@ import type { EndpointInterface, EndpointToFunction } from '@data-client/endpoin
 import type { ResourcePath } from './pathTypes.js';
 import type { ResourceExtension, ResourceEndpointExtensions, CustomResource, ExtendedResource } from './resourceExtensionTypes.js';
 import type { ResourceGenerics, ResourceInterface } from './resourceTypes.js';
-import type { ExtendableRestGenerics, PartialRestGenerics, RestEndpointExtendOptions, RestExtendedEndpoint, RestInstanceBase } from './RestEndpoint.js';
+import type { ExtendableRestGenerics, RestEndpointExtendOptions, RestExtendedEndpoint, RestInstanceBase } from './RestEndpoint.js';
 export interface Extendable<O extends ResourceGenerics = {
     path: ResourcePath;
     schema: any;
@@ -15,7 +15,7 @@ export interface Extendable<O extends ResourceGenerics = {
     }, ExtendKey extends string, ExtendOptions extends ExtendableRestGenerics | {}>(this: R, key: ExtendKey, options: Readonly<RestEndpointExtendOptions<ExtendOptions, R['get'], EndpointToFunction<R['get']>> & ExtendOptions> & ExtendOptions): R & {
         [key in ExtendKey]: RestExtendedEndpoint<ExtendOptions, R['get']>;
     };
-    extend<R extends ResourceInterface, Get extends PartialRestGenerics = {}, GetList extends PartialRestGenerics = {}, Update extends PartialRestGenerics = {}, PartialUpdate extends PartialRestGenerics = {}, Delete extends PartialRestGenerics = {}>(this: R, options: ResourceEndpointExtensions<R, Get, GetList, Update, PartialUpdate, Delete>): CustomResource<R, O, Get, GetList, Update, PartialUpdate, Delete> & Omit<R, keyof ResourceInterface | 'extend'>;
+    extend<R extends ResourceInterface, Get extends ExtendableRestGenerics = {}, GetList extends ExtendableRestGenerics = {}, Update extends ExtendableRestGenerics = {}, PartialUpdate extends ExtendableRestGenerics = {}, Delete extends ExtendableRestGenerics = {}>(this: R, options: ResourceEndpointExtensions<R, Get, GetList, Update, PartialUpdate, Delete>): CustomResource<R, O, Get, GetList, Update, PartialUpdate, Delete> & Omit<R, keyof ResourceInterface | 'extend'>;
     extend<R extends ResourceInterface, T extends Record<string, EndpointInterface>>(this: R, extender: (baseResource: R) => T): ExtendedResource<R, T>;
 }
 //# sourceMappingURL=resourceExtendable.d.ts.map

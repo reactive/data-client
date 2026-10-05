@@ -1,4 +1,5 @@
-// Type-level regression tests for the params passed to process() in RestEndpoint.extend().
+// Type-level regression tests for the params passed to process() in RestEndpoint options
+// (constructor, .extend() and resource().extend()).
 // Each @ts-expect-error line must keep erroring; plain lines must keep compiling.
 import { Entity, RestEndpoint, resource } from '@data-client/rest';
 
@@ -151,7 +152,7 @@ export const optionalBodyChild = new OptionalBodyEndpoint({
   },
 });
 
-// a single custom fetch signature is kept as is, including a third argument
+// a custom fetch's params are kept as is; arguments after body are untyped
 class ExtraArgEndpoint extends RestEndpoint<{ path: '/users/:id' }> {
   fetch = async (
     params: { id: string | number },
@@ -163,9 +164,102 @@ export const extraArgChild = new ExtraArgEndpoint({
   path: '/users/:id',
 }).extend({
   process(value, params, body, extra) {
+    // @ts-expect-error id is string | number
+    params.id.toFixed();
     const e: number | undefined = extra;
-    // @ts-expect-error extra may be undefined
-    extra.toFixed();
     return [params.id, e];
   },
 });
+
+/* ---------------- constructor ---------------- */
+export const constructed = new RestEndpoint({
+  path: '/users/:id',
+  process(value, params) {
+    // @ts-expect-error id is string | number
+    params.id.toFixed();
+    return `${params.id}`;
+  },
+});
+export const constructedResult: Promise<string> = constructed({ id: 1 });
+
+export const constructedPost = new RestEndpoint({
+  path: '/users/:id',
+  method: 'POST',
+  body: {} as { name: string },
+  process(value, params, body) {
+    // @ts-expect-error not in body
+    body.age;
+    return body.name;
+  },
+});
+export const constructedPostResult: Promise<string> = constructedPost(
+  { id: 1 },
+  { name: 'a' },
+);
+
+export const constructedSearch = new RestEndpoint({
+  path: '/users',
+  searchParams: {} as { page?: number },
+  process(value, params) {
+    // @ts-expect-error page is a number
+    params?.page?.toUpperCase();
+    return params?.page;
+  },
+});
+
+/* ---------------- resource().extend({ ... }) ---------------- */
+export const CustomUser = UserResource.extend({
+  get: {
+    process(value, params) {
+      // @ts-expect-error id is string | number
+      params.id.toFixed();
+      return value;
+    },
+  },
+  getList: {
+    path: '/groups/:group/users',
+    process(value, params) {
+      const g: string | number = params.group;
+      // @ts-expect-error not a param of getList's new path
+      params.id;
+      return value;
+    },
+  },
+  update: {
+    process(value, params, body) {
+      const id: string | number = params.id;
+      return [id, body];
+    },
+  },
+});
+
+/* ---------------- existing code keeps compiling ---------------- */
+// annotated params on an endpoint that takes no args
+export const noArgs = new RestEndpoint({
+  path: '/users',
+  process(value: any, params: any) {
+    return value;
+  },
+});
+// generic path, as in a factory function
+export function makeEndpoint<P extends string>(path: P) {
+  return [
+    new RestEndpoint({
+      path,
+      process(value: any, params: any) {
+        return value;
+      },
+    }),
+    new RestEndpoint({
+      path,
+      process(value, params) {
+        return [value, params];
+      },
+    }),
+    new RestEndpoint({ path }).extend({
+      process(value: any, params: any) {
+        return value;
+      },
+    }),
+  ];
+}
