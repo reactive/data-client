@@ -1,8 +1,10 @@
 ---
-description: CircleCI and GitHub Actions conventions - Jest worker pinning, esmodule relevance flag, workspace trimming
-globs: .circleci/**, .github/workflows/*.yml
-alwaysApply: false
+paths:
+  - ".circleci/**"
+  - ".github/workflows/*.yml"
 ---
+<!-- Generated from .cursor/rules/ci-config.mdc by `yarn build:agent-rules`. Edit the source. -->
+
 
 # CI configuration
 

@@ -39,6 +39,7 @@
     "build:copy:ambient": "mkdirp ./packages/endpoint/lib && copyfiles --flat ./packages/endpoint/src/schema.d.ts ./packages/endpoint/lib/ && copyfiles --flat ./packages/endpoint/src/endpoint.d.ts ./packages/endpoint/lib/ && mkdirp ./packages/rest/lib && copyfiles --flat ./packages/rest/src/RestEndpoint.d.ts ./packages/rest/lib && copyfiles --flat ./packages/rest/src/next/RestEndpoint.d.ts ./packages/rest/lib/next && mkdirp ./packages/react/lib && copyfiles --flat ./packages/react/src/server/redux/redux.d.ts ./packages/react/lib/server/redux",
     "copy:websitetypes": "yarn ci:build:types && ./scripts/copywebsitetypes.sh",
     "build:skills": "yarn workspace rdc-website build:skills",
+    "build:agent-rules": "node scripts/agent-rules.mjs",
     "test": "NODE_ENV=test run jest",
     "test:ci": "ANANSI_JEST_TYPECHECK=false yarn test --ci",
     "test:coverage": "ANANSI_JEST_TYPECHECK=false yarn test --coverage --selectProjects ReactDOM Node --coverageThreshold='{\"global\":{\"statements\":98,\"branches\":96,\"functions\":90,\"lines\":98}}'",
