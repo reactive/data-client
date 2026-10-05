@@ -1,8 +1,9 @@
 /* global require */
 // Before an agent runs `git push` (Cursor `beforeShellExecution`, Claude Code
 // `PreToolUse` on Bash), regenerates agent skill references and Claude Code's
-// copy of the Cursor rules when the branch touches their inputs, and holds the
-// push until the result is committed.
+// copy of the Cursor rules when the branch touches their inputs, runs
+// `eslint --fix` on the JS/TS files it changes, and holds the push until the
+// result is committed.
 // Runs once per push instead of per edit or turn, so any number of local
 // commits can come first; CI's `skills` and `agent-rules` checks are the
 // backstop.
@@ -116,7 +117,34 @@ function regenerate({ what, from, script, yarn, ci, isInput, outputs }) {
   ];
 }
 
+/** `eslint --fix` the branch's JS/TS files; reports the ones it changed */
+function lintFix() {
+  const files = [...new Set([...committed, ...(commits ? dirty : [])])].filter(
+    file =>
+      /\.(c|m)?[jt]sx?$/.test(file) &&
+      fs.existsSync(path.join(projectDir, file)),
+  );
+  if (!files.length) return [];
+  const read = file => fs.readFileSync(path.join(projectDir, file), 'utf8');
+  const before = files.map(read);
+  try {
+    execFileSync(
+      path.join(projectDir, 'node_modules/.bin/eslint'),
+      ['--fix', '--no-warn-ignored', '--', ...files],
+      { cwd: projectDir, stdio: 'ignore' },
+    );
+  } catch {
+    // unfixable lint errors are left to CI, like a missing install
+  }
+  const fixed = files.filter((file, i) => read(file) !== before[i]);
+  return [
+    fixed.length &&
+      `\`eslint --fix\` changed files this push would include. Commit them, then push again:\n${fixed.join('\n')}`,
+  ];
+}
+
 const message = [
+  ...lintFix(),
   // dead links, missing variant notes or bad manifests
   ...regenerate({
     what: 'Skill references',

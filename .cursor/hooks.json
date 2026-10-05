@@ -1,11 +1,6 @@
 {
   "version": 1,
   "hooks": {
-    "afterFileEdit": [
-      {
-        "command": "node .cursor/hooks/eslint-fix.js"
-      }
-    ],
     "beforeShellExecution": [
       {
         "command": "node .cursor/hooks/pre-push.js"
