@@ -6,7 +6,7 @@ sidebar_label: All
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import { RestEndpoint } from '@data-client/rest';
 
 # All
@@ -27,7 +27,7 @@ Retrieves all entities in cache as an Array.
 
 To describe a simple array of a singular entity type:
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],
@@ -59,6 +59,8 @@ export const createUser = new RestEndpoint({
   method: 'POST'
 });
 ```
+
+:::react
 
 ```tsx title="NewUser" collapsed
 import { useController } from '@data-client/react';
@@ -104,7 +106,56 @@ function UsersPage() {
 render(<UsersPage />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="NewUser.vue" collapsed
+<script setup lang="ts">
+  import { ref } from 'vue';
+  import { useController } from '@data-client/vue';
+  import { createUser } from './api/User';
+
+  const ctrl = useController();
+  const name = ref('');
+
+  const handleEnter = () => {
+    ctrl.fetch(createUser, { name: name.value });
+    name.value = '';
+  };
+</script>
+
+<template>
+  <input v-model="name" @keyup.enter="handleEnter" />
+</template>
+```
+
+```html title="UsersPage.vue"
+<script setup lang="ts">
+  import { RestEndpoint, All } from '@data-client/rest';
+  import { useSuspense } from '@data-client/vue';
+  import { User } from './api/User';
+  import NewUser from './NewUser.vue';
+
+  const getUsers = new RestEndpoint({
+    path: '/users',
+    schema: new All(User),
+  });
+
+  const users = await useSuspense(getUsers);
+</script>
+
+<template>
+  <div>
+    <div v-for="user in users" :key="user.pk()">{{ user.name }}</div>
+    <NewUser />
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ### Polymorphic types
 
@@ -118,7 +169,7 @@ If your data returns an object that you did not provide a mapping for, the origi
 
 #### string schemaAttribute
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/feed'}),
 args: [],
@@ -158,6 +209,8 @@ export const getFeed = new RestEndpoint({
 });
 ```
 
+:::react
+
 ```tsx title="FeedList" collapsed
 import { useSuspense } from '@data-client/react';
 import { getFeed, Link, Post } from './api/Feed';
@@ -185,14 +238,64 @@ function PostItem({ post }: { post: Post }) {
 render(<FeedList />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="LinkItem.vue" collapsed
+<script setup lang="ts">
+  import { type Link } from './api/Feed';
+
+  defineProps<{ link: Link }>();
+</script>
+
+<template>
+  <a :href="link.url">{{ link.title }}</a>
+</template>
+```
+
+```html title="PostItem.vue" collapsed
+<script setup lang="ts">
+  import { type Post } from './api/Feed';
+
+  defineProps<{ post: Post }>();
+</script>
+
+<template>
+  <div>{{ post.content }}</div>
+</template>
+```
+
+```html title="FeedList.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getFeed } from './api/Feed';
+  import LinkItem from './LinkItem.vue';
+  import PostItem from './PostItem.vue';
+
+  const feedItems = await useSuspense(getFeed);
+</script>
+
+<template>
+  <div>
+    <template v-for="item in feedItems" :key="item.pk()">
+      <LinkItem v-if="item.type === 'link'" :link="item" />
+      <PostItem v-else :post="item" />
+    </template>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 #### function schemaAttribute
 
 The return values should match a key in the `definition`. Here we'll show the same behavior as the 'string'
 case, except we'll append an 's'.
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/feed'}),
 args: [],
@@ -232,6 +335,8 @@ export const getFeed = new RestEndpoint({
 });
 ```
 
+:::react
+
 ```tsx title="FeedList" collapsed
 import { useSuspense } from '@data-client/react';
 import { getFeed, Link, Post } from './api/Feed';
@@ -259,4 +364,54 @@ function PostItem({ post }: { post: Post }) {
 render(<FeedList />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="LinkItem.vue" collapsed
+<script setup lang="ts">
+  import { type Link } from './api/Feed';
+
+  defineProps<{ link: Link }>();
+</script>
+
+<template>
+  <a :href="link.url">{{ link.title }}</a>
+</template>
+```
+
+```html title="PostItem.vue" collapsed
+<script setup lang="ts">
+  import { type Post } from './api/Feed';
+
+  defineProps<{ post: Post }>();
+</script>
+
+<template>
+  <div>{{ post.content }}</div>
+</template>
+```
+
+```html title="FeedList.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getFeed } from './api/Feed';
+  import LinkItem from './LinkItem.vue';
+  import PostItem from './PostItem.vue';
+
+  const feedItems = await useSuspense(getFeed);
+</script>
+
+<template>
+  <div>
+    <template v-for="item in feedItems" :key="item.pk()">
+      <LinkItem v-if="item.type === 'link'" :link="item" />
+      <PostItem v-else :post="item" />
+    </template>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>

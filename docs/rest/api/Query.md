@@ -8,7 +8,7 @@ sidebar_label: Query
 </head>
 
 import { RestEndpoint } from '@data-client/rest';
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import SortDemo from '../shared/\_SortDemo.mdx';
 
 # Query
@@ -16,7 +16,7 @@ import SortDemo from '../shared/\_SortDemo.mdx';
 `Query` provides programmatic access to the Reactive Data Client cache while maintaining
 the same high performance and referential equality guarantees expected of Reactive Data Client.
 
-`Query` can be rendered using [schema lookup hook useQuery()](/docs/api/useQuery)
+`Query` can be rendered using [schema lookup :react[hook]:vue[composable] useQuery()](/docs/api/useQuery)
 
 ## Query members
 
@@ -40,7 +40,7 @@ response for use with [useQuery](/docs/api/useQuery)
 
 ### Aggregates
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],
@@ -66,6 +66,8 @@ export const UserResource = resource({
   schema: User,
 });
 ```
+
+:::react
 
 ```tsx title="UsersPage"
 import { All, Query } from '@data-client/rest';
@@ -96,11 +98,49 @@ function UsersPage() {
 render(<UsersPage />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="UsersPage.vue"
+<script lang="ts">
+  import { All, Query } from '@data-client/rest';
+  import { UserResource, User } from './resources/User';
+
+  const countUsers = new Query(
+    new All(User),
+    (entries, { isAdmin } = {}) => {
+      if (isAdmin !== undefined)
+        return entries.filter(user => user.isAdmin === isAdmin).length;
+      return entries.length;
+    },
+  );
+</script>
+
+<script setup lang="ts">
+  import { useQuery, useFetch } from '@data-client/vue';
+
+  useFetch(UserResource.getList);
+  const userCount = useQuery(countUsers);
+  const adminCount = useQuery(countUsers, { isAdmin: true });
+</script>
+
+<template>
+  <div v-if="userCount === undefined">No users in cache yet</div>
+  <div v-else>
+    <div>Total users: {{ userCount }}</div>
+    <div>Total admins: {{ adminCount }}</div>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ### Rearranging data with groupBy aggregations {#groupby}
 
-<HooksPlayground>
+<FrameworkPlayground>
 
 ```ts title="resources/User" collapsed
 import { Entity, resource } from '@data-client/rest';
@@ -144,6 +184,8 @@ export const TodoResource = resource({
   searchParams: {} as { userId?: string | number } | undefined,
 });
 ```
+
+:::react
 
 ```tsx title="TodoByUser" collapsed
 import { useQuery } from '@data-client/react';
@@ -209,13 +251,79 @@ function TodosPage() {
 render(<TodosPage />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="TodoByUser.vue" collapsed
+<script setup lang="ts">
+  import { useQuery } from '@data-client/vue';
+  import { User } from './resources/User';
+  import type { Todo } from './resources/Todo';
+
+  const props = defineProps<{ userId: string; todos: Todo[] }>();
+  const user = useQuery(User, () => ({ id: props.userId }));
+
+  function tasksRemaining(todos: Todo[]) {
+    return todos.filter(({ completed }) => !completed).length;
+  }
+</script>
+
+<template>
+  <!-- don't bother if no user is loaded yet -->
+  <div v-if="user">
+    <h3>{{ user.name }} has {{ tasksRemaining(todos) }} tasks left</h3>
+    <div v-for="todo in todos.slice(0, 3)" :key="todo.pk()">
+      {{ todo.title }} by {{ todo.user === user ? todo.user.name : '' }}
+    </div>
+  </div>
+</template>
+```
+
+```html title="TodoJoined.vue"
+<script lang="ts">
+  import { Query } from '@data-client/rest';
+  import { TodoResource } from './resources/Todo';
+  import { UserResource } from './resources/User';
+
+  const groupTodoByUser = new Query(
+    TodoResource.getList.schema,
+    todos => Object.groupBy(todos, todo => todo.userId),
+  );
+</script>
+
+<script setup lang="ts">
+  import { useQuery, useFetch, useSuspense } from '@data-client/vue';
+  import TodoByUser from './TodoByUser.vue';
+
+  useFetch(UserResource.getList);
+  await useSuspense(TodoResource.getList);
+  await useSuspense(UserResource.getList);
+  const todosByUser = useQuery(groupTodoByUser);
+</script>
+
+<template>
+  <div v-if="!todosByUser">Todos not found</div>
+  <div v-else>
+    <TodoByUser
+      v-for="userId in Object.keys(todosByUser).slice(5)"
+      :key="userId"
+      :userId="userId"
+      :todos="todosByUser[userId]"
+    />
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ### Object Schema Joins {#object-schema-joins}
 
 `Query` can take [Object Schemas](/rest/api/Object), enabling joins across multiple entity types. This allows you to combine data from different entities in a single query.
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/tickers/:product_id'}),
 args: [{ product_id: 'BTC-USD' }],
@@ -260,6 +368,8 @@ export const StatsResource = resource({
 });
 ```
 
+:::react
+
 ```tsx title="PriceDisplay"
 import { Query } from '@data-client/rest';
 import { useQuery, useFetch } from '@data-client/react';
@@ -284,7 +394,41 @@ function PriceDisplay({ productId }: { productId: string }) {
 render(<PriceDisplay productId="BTC-USD" />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="PriceDisplay.vue"
+<script lang="ts">
+  import { Query } from '@data-client/rest';
+  import { TickerResource, Ticker } from './resources/Ticker';
+  import { StatsResource, Stats } from './resources/Stats';
+
+  // Join Ticker and Stats by product_id
+  const queryPrice = new Query(
+    { ticker: Ticker, stats: Stats },
+    ({ ticker, stats }) => ticker?.price ?? stats?.last,
+  );
+</script>
+
+<script setup lang="ts">
+  import { useQuery, useFetch } from '@data-client/vue';
+
+  const props = defineProps<{ productId: string }>();
+  useFetch(TickerResource.get, () => ({ product_id: props.productId }));
+  useFetch(StatsResource.get, () => ({ product_id: props.productId }));
+  const price = useQuery(queryPrice, () => ({ product_id: props.productId }));
+</script>
+
+<template>
+  <div v-if="price === undefined">Loading...</div>
+  <div v-else>Price: ${{ price }}</div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ### Fallback joins
 

@@ -2,7 +2,7 @@
 title: Partial Entities
 ---
 
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import { Collection, RestEndpoint } from '@data-client/rest';
 import Grid from '@site/src/components/Grid';
 
@@ -32,7 +32,7 @@ a subset of fields needed to summarize.
 In this case we can override [Entity.validate()](../api/Entity.md#validate) using [validateRequired()](../api/validateRequired.md) to ensure
 we have the full and complete response when needed (detail views), while keeping our state [DRY](https://deviq.com/principles/dont-repeat-yourself) and normalized to ensure data integrity.
 
-<HooksPlayground fixtures={[
+<FrameworkPlayground fixtures={[
 {
 endpoint: new RestEndpoint({path: '/article'}),
 args: [],
@@ -100,6 +100,8 @@ export const ArticleResource = resource({
 });
 ```
 
+:::react
+
 ```tsx title="ArticleDetail" collapsed
 import { ArticleResource } from './resources/Article';
 
@@ -155,7 +157,68 @@ function ArticleList() {
 render(<ArticleList />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="ArticleDetail.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { ArticleResource } from './resources/Article';
+
+  const props = defineProps<{ id: string }>();
+  const emit = defineEmits<{ home: [] }>();
+  const article = await useSuspense(ArticleResource.get, () => ({
+    id: props.id,
+  }));
+  const dateFormat = DateTimeFormat('en-US', { dateStyle: 'medium' });
+</script>
+
+<template>
+  <div>
+    <h4>
+      <a @click="emit('home')" style="cursor: pointer">&lt;</a>
+      {{ article.title }}
+    </h4>
+    <div>
+      <p>{{ article.content }}</p>
+      <div>
+        Created: <time>{{ dateFormat.format(article.createdAt) }}</time>
+      </div>
+    </div>
+  </div>
+</template>
+```
+
+```html title="ArticleList.vue" collapsed
+<script setup lang="ts">
+  import { ref } from 'vue';
+  import { useSuspense } from '@data-client/vue';
+  import { ArticleResource } from './resources/Article';
+  import ArticleDetail from './ArticleDetail.vue';
+
+  const route = ref('');
+  const articles = await useSuspense(ArticleResource.getList);
+</script>
+
+<template>
+  <div v-if="!route">
+    <div
+      v-for="article in articles"
+      :key="article.pk()"
+      @click="route = article.id"
+      style="cursor: pointer; text-decoration: underline"
+    >
+      Click me: {{ article.title }}
+    </div>
+  </div>
+  <ArticleDetail v-else :id="route" @home="route = ''" />
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ## Detail data in nested entity
 

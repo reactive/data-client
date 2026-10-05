@@ -300,6 +300,8 @@ const config: Config = {
         path: '../docs/rest',
         routeBasePath: 'rest',
         sidebarPath: require.resolve('./sidebars-rest.js'),
+        // React content only; :::vue blocks reach Vue agents via skill references
+        beforeDefaultRemarkPlugins: [[remarkFramework, { framework: 'react' }]],
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
         editUrl: ({ locale, docPath }) => {

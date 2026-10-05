@@ -104,6 +104,8 @@ Now if when we use the [getList.push](../api/resource.md#push) Endpoint generato
 we will be happy knowing both the trade and account information will
 be updated in the cache after the `POST` request is complete.
 
+:::react
+
 ```typescript title="CreateTrade.tsx"
 export default function CreateTrade() {
   const ctrl = useController();
@@ -112,6 +114,24 @@ export default function CreateTrade() {
   //...
 }
 ```
+
+:::
+
+:::vue
+
+```html title="CreateTrade.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { TradeResource } from './resources/Trade';
+
+  const ctrl = useController();
+  const handleSubmit = payload =>
+    ctrl.fetch(TradeResource.create, payload);
+  //...
+</script>
+```
+
+:::
 
 :::note
 

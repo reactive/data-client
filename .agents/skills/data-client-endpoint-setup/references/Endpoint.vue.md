@@ -475,9 +475,9 @@ const createUser = new RestEndpoint({
 
 More updates:
 
-```typescript title="Component.tsx"
-const allusers = useSuspense(userList);
-const adminUsers = useSuspense(userList, { admin: true });
+```typescript title="Component.vue"
+const allusers = await useSuspense(userList);
+const adminUsers = await useSuspense(userList, { admin: true });
 ```
 
 The endpoint below ensures the new user shows up immediately in the usages above.

@@ -162,7 +162,7 @@ export const PostResource = resource({
 </template>
 ```
 
-[Optimistic update guide](./optimistic-updates.md)
+[Optimistic update guide](./optimistic-updates.vue.md)
 
 ### update() {#update}
 
@@ -173,7 +173,7 @@ export const PostResource = resource({
 
 > **Tip**
 >
-> Try using [Collections](./Collection.md) instead.
+> Try using [Collections](./Collection.vue.md) instead.
 >
 > They are much easier to use and more robust!
 
@@ -202,9 +202,9 @@ const createUser = new RestEndpoint({
 
 More updates:
 
-```typescript title="Component.tsx"
-const allusers = useSuspense(userList);
-const adminUsers = useSuspense(userList, { admin: true });
+```typescript title="Component.vue"
+const allusers = await useSuspense(userList);
+const adminUsers = await useSuspense(userList, { admin: true });
 ```
 
 The endpoint below ensures the new user shows up immediately in the usages above.

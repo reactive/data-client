@@ -242,10 +242,10 @@ export const PostResource = resource({
 </template>
 ```
 
-[getOptimisticResponse](./optimistic-updates.md) is just like [setState with an updater function](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state). [Snapshot](https://dataclient.io/vue/api/Snapshot) provides typesafe access to the previous store value,
+[getOptimisticResponse](./optimistic-updates.vue.md) is just like [setState with an updater function](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state). [Snapshot](https://dataclient.io/vue/api/Snapshot) provides typesafe access to the previous store value,
 which we use to return the _expected_ fetch response.
 
-Reactive Data Client ensures [data integrity against any possible networking failure or race condition](./optimistic-updates.md#optimistic-transforms), so don't
+Reactive Data Client ensures [data integrity against any possible networking failure or race condition](./optimistic-updates.vue.md#optimistic-transforms), so don't
 worry about network failures, multiple mutation calls editing the same data, or other common
 problems in asynchronous programming.
 

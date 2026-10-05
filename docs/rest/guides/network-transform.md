@@ -2,7 +2,7 @@
 title: Transforming data on fetch
 ---
 
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import { RestEndpoint } from '@data-client/rest';
 
 All network requests flow through the `fetch()` method, so any transforms needed can simply
@@ -65,7 +65,7 @@ or multiplying two numbers.
 
 In this case, simply use the [static schema](../api/Entity.md#schema) with [Temporal.Instant](https://tc39.es/proposal-temporal/) and [BigNumber](https://github.com/MikeMcl/bignumber.js)
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/price/:exchangePair'}),
 args: [{ exchangePair: 'btc-usd' }],
@@ -101,6 +101,8 @@ export const getPrice = new RestEndpoint({
 });
 ```
 
+:::react
+
 ```tsx title="PricePage"
 import { getPrice } from './api/Price';
 
@@ -122,7 +124,33 @@ function PricePage() {
 render(<PricePage />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="PricePage.vue"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getPrice } from './api/Price';
+
+  const currentPrice = await useSuspense(getPrice, {
+    exchangePair: 'btc-usd',
+  });
+  const formatDate = (date: Temporal.Instant) =>
+    DateTimeFormat('en-US', { dateStyle: 'medium' }).format(date);
+</script>
+
+<template>
+  <div>
+    ${{ currentPrice.price.toFormat(2) }} as of
+    <time>{{ formatDate(currentPrice.updatedAt) }}</time>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ### Deserializing Date
 
@@ -202,7 +230,7 @@ Here's a real world example of an API that does where ticket data does not inclu
 
 We use [RestEndpoint.process()](../api/RestEndpoint.md#process) to add the `product_id` member from its argument.
 
-<HooksPlayground row>
+<FrameworkPlayground row>
 
 ```typescript title="Ticker" {28-31}
 import { Entity, RestEndpoint } from '@data-client/rest';
@@ -240,6 +268,8 @@ export const getTicker = new RestEndpoint({
 });
 ```
 
+:::react
+
 ```tsx title="AssetPrice" {5} collapsed
 import { useLive } from '@data-client/react';
 import { getTicker } from './Ticker';
@@ -262,7 +292,36 @@ interface Props {
 render(<AssetPrice productId="BTC-USD" />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="AssetPrice.vue" {7} collapsed
+<script setup lang="ts">
+  import { useLive } from '@data-client/vue';
+  import { getTicker } from './Ticker';
+
+  const props = defineProps<{ productId: string }>();
+
+  const ticker = await useLive(getTicker, () => ({
+    productId: props.productId,
+  }));
+</script>
+
+<template>
+  <center>
+    {{ productId }}
+    <NumberFlow
+      :value="ticker.price"
+      :format="{ style: 'currency', currency: 'USD' }"
+    />
+  </center>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ## Using HTTP Headers
 
@@ -311,6 +370,8 @@ const downloadFile = new RestEndpoint({
 });
 ```
 
+:::react
+
 ```tsx title="DownloadButton.tsx"
 import { useController } from '@data-client/react';
 import { downloadFile } from './downloadFile';
@@ -331,6 +392,36 @@ function DownloadButton({ id }: { id: string }) {
   return <button onClick={handleDownload}>Download</button>;
 }
 ```
+
+:::
+
+:::vue
+
+```html title="DownloadButton.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { downloadFile } from './downloadFile';
+
+  const props = defineProps<{ id: string }>();
+  const ctrl = useController();
+
+  const handleDownload = async () => {
+    const blob: Blob = await ctrl.fetch(downloadFile, { id: props.id });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'download';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+</script>
+
+<template>
+  <button @click="handleDownload">Download</button>
+</template>
+```
+
+:::
 
 To extract the filename from the `Content-Disposition` header, override
 [parseResponse](../api/RestEndpoint.md#parseResponse):
