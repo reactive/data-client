@@ -18,6 +18,9 @@ on:
       - 'examples/benchmark/spread.js'
       - 'examples/benchmark/spread-scenarios.js'
       - 'examples/benchmark/schemas.js'
+      - 'yarn.lock'
+      - 'scripts/ci-deps-relevant.mjs'
+      - '.github/workflows/dependency-gate.yml'
       - '.github/workflows/benchmark-spread.yml'
   push:
     branches:
@@ -30,6 +33,9 @@ on:
       - 'examples/benchmark/spread.js'
       - 'examples/benchmark/spread-scenarios.js'
       - 'examples/benchmark/schemas.js'
+      - 'yarn.lock'
+      - 'scripts/ci-deps-relevant.mjs'
+      - '.github/workflows/dependency-gate.yml'
       - '.github/workflows/benchmark-spread.yml'
 permissions:
   contents: write
@@ -40,8 +46,28 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  benchmark-spread:
+  # Skips dependency bumps that can't change what this measures
+  changes:
     if: ${{ !github.event.pull_request.draft }}
+    uses: ./.github/workflows/dependency-gate.yml
+    with:
+      workspaces: examples/benchmark
+      # `paths` above, one per line
+      paths: |
+        packages/core/src/state/**
+        packages/normalizr/src/normalize/**
+        packages/endpoint/src/schemas/EntityMixin.ts
+        !packages/**/__tests__/**
+        examples/benchmark/spread.js
+        examples/benchmark/spread-scenarios.js
+        examples/benchmark/schemas.js
+        scripts/ci-deps-relevant.mjs
+        .github/workflows/dependency-gate.yml
+        .github/workflows/benchmark-spread.yml
+
+  benchmark-spread:
+    needs: changes
+    if: ${{ needs.changes.outputs.relevant == 'true' }}
     runs-on: ubuntu-latest
 
     steps:

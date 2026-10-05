@@ -1,0 +1,40 @@
+name: dependency gate
+# Reusable: tells a workflow whether its change can affect what it measures,
+# so dependency bumps of unrelated tooling skip it. See scripts/ci-deps-relevant.mjs.
+on:
+  workflow_call:
+    inputs:
+      workspaces:
+        description: Comma-separated workspaces the job builds and runs
+        required: true
+        type: string
+      paths:
+        description: The caller's `paths` filter, one glob per line
+        required: true
+        type: string
+    outputs:
+      relevant:
+        value: ${{ jobs.check.outputs.relevant }}
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      relevant: ${{ steps.deps.outputs.relevant }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+      - id: deps
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          WORKSPACES: ${{ inputs.workspaces }}
+          PATHS: ${{ inputs.paths }}
+        run: |
+          # A missing base makes the script fail open
+          git fetch -q --depth=1 origin "$BASE" || true
+          mapfile -t paths <<< "$PATHS"
+          node scripts/ci-deps-relevant.mjs "$BASE" "$WORKSPACES" "${paths[@]}"

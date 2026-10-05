@@ -17,6 +17,8 @@ on:
       - '!packages/vue/**'
       - 'yarn.lock'
       - 'examples/test-bundlesize/**'
+      - 'scripts/ci-deps-relevant.mjs'
+      - '.github/workflows/dependency-gate.yml'
       - '.github/workflows/bundle_size.yml'
 
 concurrency:
@@ -24,8 +26,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
+  # Skips dependency bumps that can't change what this measures
+  changes:
     if: ${{ !github.event.pull_request.draft }}
+    uses: ./.github/workflows/dependency-gate.yml
+    with:
+      workspaces: examples/test-bundlesize
+      # `paths` above, one per line
+      paths: |
+        packages/**
+        !packages/**/__tests__/**
+        !packages/*/typescript-tests/**
+        !packages/*/src-*-types/**
+        !packages/**/*.md
+        !packages/graphql/**
+        !packages/test/**
+        !packages/vue/**
+        examples/test-bundlesize/**
+        scripts/ci-deps-relevant.mjs
+        .github/workflows/dependency-gate.yml
+        .github/workflows/bundle_size.yml
+
+  build:
+    needs: changes
+    if: ${{ needs.changes.outputs.relevant == 'true' }}
     runs-on: ubuntu-latest
 
     steps:

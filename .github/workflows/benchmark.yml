@@ -12,6 +12,9 @@ on:
       - 'examples/benchmark/**'
       - '!packages/**/__tests__/**'
       - '!examples/benchmark/**/*.md'
+      - 'yarn.lock'
+      - 'scripts/ci-deps-relevant.mjs'
+      - '.github/workflows/dependency-gate.yml'
       - '.github/workflows/benchmark.yml'
   push:
     branches:
@@ -23,6 +26,9 @@ on:
       - 'examples/benchmark/**'
       - '!packages/**/__tests__/**'
       - '!examples/benchmark/**/*.md'
+      - 'yarn.lock'
+      - 'scripts/ci-deps-relevant.mjs'
+      - '.github/workflows/dependency-gate.yml'
       - '.github/workflows/benchmark.yml'
 permissions:
   contents: write
@@ -33,8 +39,27 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  benchmark:
+  # Skips dependency bumps that can't change what this measures
+  changes:
     if: ${{ !github.event.pull_request.draft }}
+    uses: ./.github/workflows/dependency-gate.yml
+    with:
+      workspaces: examples/benchmark
+      # `paths` above, one per line
+      paths: |
+        packages/normalizr/src/**
+        packages/endpoint/src/schemas/**
+        packages/core/src/**
+        examples/benchmark/**
+        !packages/**/__tests__/**
+        !examples/benchmark/**/*.md
+        scripts/ci-deps-relevant.mjs
+        .github/workflows/dependency-gate.yml
+        .github/workflows/benchmark.yml
+
+  benchmark:
+    needs: changes
+    if: ${{ needs.changes.outputs.relevant == 'true' }}
     runs-on: ubuntu-latest
 
     steps:
