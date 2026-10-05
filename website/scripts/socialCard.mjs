@@ -135,7 +135,17 @@ function featureVisual(headline, bullets, details) {
 // then the sections the new bullets link to; else the first section with a visual
 function headlineSections(headline, bullets, details) {
   const headings = [...details.matchAll(/^## (.+?)(?:\s*\{#([\w-]+)\})?\s*$/gm)]
-    .map(m => ({ title: m[1].replace(/`/g, ''), id: m[2], index: m.index }))
+    .map(m => {
+      const title = m[1].replace(/`/g, '');
+      // explicit {#id}, else the anchor Docusaurus generates from the heading
+      const id =
+        m[2] ??
+        title
+          .toLowerCase()
+          .replace(/[^\p{L}\p{N}\s_-]/gu, '')
+          .replace(/\s/g, '-');
+      return { title, id, index: m.index };
+    })
     .filter(h => !/migration|other improvements|upgrade/i.test(h.title));
   const words = s =>
     new Set(
