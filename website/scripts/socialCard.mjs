@@ -11,7 +11,7 @@
  * Requires a Chromium for Playwright (`npx playwright install chromium`), or
  * set CHROMIUM_PATH to an existing Chromium binary.
  */
-import { DEFAULT_PARSE_FRONT_MATTER } from '@docusaurus/utils';
+import { createSlugger, DEFAULT_PARSE_FRONT_MATTER } from '@docusaurus/utils';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
@@ -134,17 +134,12 @@ function featureVisual(headline, bullets, details) {
 // Sections for the title's comma-separated parts (by shared heading words),
 // then the sections the new bullets link to; else the first section with a visual
 function headlineSections(headline, bullets, details) {
+  const slugger = createSlugger();
   const headings = [...details.matchAll(/^## (.+?)(?:\s*\{#([\w-]+)\})?\s*$/gm)]
     .map(m => {
       const title = m[1].replace(/`/g, '');
       // explicit {#id}, else the anchor Docusaurus generates from the heading
-      const id =
-        m[2] ??
-        title
-          .toLowerCase()
-          .replace(/[^\p{L}\p{N}\s_-]/gu, '')
-          .replace(/\s/g, '-');
-      return { title, id, index: m.index };
+      return { title, id: m[2] ?? slugger.slug(title), index: m.index };
     })
     .filter(h => !/migration|other improvements|upgrade/i.test(h.title));
   const words = s =>
