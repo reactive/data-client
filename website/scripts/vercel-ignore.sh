@@ -12,7 +12,7 @@
 set -u
 
 # The published site: the Docusaurus app plus the doc trees it compiles.
-# Keep in sync with the `paths` of site-preview.yml and site-release.yml.
+# Keep in sync with the `paths` of site-preview.yml.
 SITE_PATHS=(
   website docs/core docs/rest docs/graphql
   ':(exclude)website/CHANGELOG.md'
