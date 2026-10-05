@@ -284,7 +284,8 @@ jobs:
                     && (cd "$DIR" && sha256sum -c codecov.SHA256SUM); then
                     chmod +x "$DIR/codecov"
                     # Fork PRs have no token; Codecov accepts tokenless uploads from them
-                    "$DIR/codecov" upload-coverage ${CODECOV_TOKEN:+-t "$CODECOV_TOKEN"} --file coverage/lcov.info --disable-search \
+                    "$DIR/codecov" upload-coverage ${CODECOV_TOKEN:+-t "$CODECOV_TOKEN"} --git-service github \
+                      --file coverage/lcov.info --disable-search --plugin noop \
                       || echo "Codecov upload failed"
                   else
                     echo "Codecov CLI download or signature check failed; skipping upload"
