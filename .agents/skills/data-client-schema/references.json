@@ -1,0 +1,28 @@
+{
+  "frameworks": [
+    "react",
+    "vue"
+  ],
+  "docs": {
+    "All.md": "docs/rest/api/All.md",
+    "Array.md": "docs/rest/api/Array.md",
+    "Collection.md": "docs/rest/api/Collection.md",
+    "Entity.md": "docs/rest/api/Entity.md",
+    "EntityMixin.md": "docs/rest/api/EntityMixin.md",
+    "Invalidate.md": "docs/rest/api/Invalidate.md",
+    "Lazy.md": "docs/rest/api/Lazy.md",
+    "Object.md": "docs/rest/api/Object.md",
+    "Query.md": "docs/rest/api/Query.md",
+    "Scalar.md": "docs/rest/api/Scalar.md",
+    "Union.md": "docs/rest/api/Union.md",
+    "Values.md": "docs/rest/api/Values.md",
+    "_ScalarDemo.md": "docs/rest/shared/_ScalarDemo.mdx",
+    "computed-properties.md": "docs/rest/guides/computed-properties.md",
+    "partial-entities.md": "docs/rest/guides/partial-entities.md",
+    "relational-data.md": "docs/rest/guides/relational-data.md",
+    "schema.md": "docs/rest/api/schema.md",
+    "side-effects.md": "docs/rest/guides/side-effects.md",
+    "sorting-client-side.md": "docs/rest/guides/sorting-client-side.md",
+    "validation.md": "docs/core/concepts/validation.md"
+  }
+}

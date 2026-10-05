@@ -15,16 +15,19 @@
     "rename-version": "docusaurus-rename-version",
     "swizzle": "docusaurus swizzle",
     "deploy": "USE_SSH=true docusaurus deploy",
-    "docusaurus": "docusaurus"
+    "docusaurus": "docusaurus",
+    "build:skills": "node framework-docs/skillReferences.mjs"
   },
   "engines": {
     "node": ">=18.0"
   },
   "devDependencies": {
+    "@docusaurus/mdx-loader": "^3.0.1",
     "@docusaurus/module-type-aliases": "^3.0.1",
     "@emotion/react": "^11.14.0",
     "@redux-devtools/core": "^5.0.0",
     "@redux-devtools/inspector-monitor": "^7.0.0",
+    "@slorber/remark-comment": "^1.0.0",
     "@tsconfig/docusaurus": "^2.0.0",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
@@ -32,11 +35,20 @@
     "@types/react-router-dom": "^5.3.3",
     "@types/uuid": "^11.0.0",
     "esbuild": "~0.28.0",
+    "mdast-util-phrasing": "^4.0.0",
     "playwright": "1.61.1",
     "raw-loader": "^4.0.2",
     "react-redux": "^9.2.0",
     "redux": "^5.0.1",
+    "remark-directive": "^3.0.0",
+    "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.0",
+    "remark-mdx": "^3.0.0",
+    "remark-parse": "^11.0.0",
+    "remark-stringify": "^11.0.0",
     "serve": "14.2.6",
+    "unified": "^11.0.4",
+    "unist-util-visit": "^5.0.0",
     "webpack": "^5.76.0"
   },
   "dependencies": {

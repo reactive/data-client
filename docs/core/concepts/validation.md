@@ -1,5 +1,6 @@
 ---
 title: Validating fetch responses in React
+vue_title: Validating fetch responses in Vue
 sidebar_label: Validation
 ---
 
@@ -7,7 +8,7 @@ sidebar_label: Validation
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import {RestEndpoint} from '@data-client/rest';
 
 # API Validation
@@ -22,7 +23,7 @@ thus operates on POJOs rather than an instance of the class.
 
 Here we can make sure the title field is included, and of the expected type.
 
-<HooksPlayground fixtures={[
+<FrameworkPlayground fixtures={[
 {
 endpoint: new RestEndpoint({path: '/article/:id'}),
 args: [{ id: 1 }],
@@ -60,6 +61,8 @@ export const getArticle = new RestEndpoint({
 });
 ```
 
+:::react
+
 ```tsx title="ArticlePage" collapsed
 import { getArticle } from './api/Article';
 
@@ -71,13 +74,32 @@ function ArticlePage({ id }: { id: string }) {
 render(<ArticlePage id="2" />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="ArticlePage.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getArticle } from './api/Article';
+
+  const article = await useSuspense(getArticle, { id: '2' });
+</script>
+
+<template>
+  <div>{{ article.title }}</div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ### All fields check
 
 [validateRequired()](/rest/api/validateRequired) can be used to check if all defined fields are present.
 
-<HooksPlayground fixtures={[
+<FrameworkPlayground fixtures={[
 {
 endpoint: new RestEndpoint({path: '/article/:id'}),
 args: [{ id: 1 }],
@@ -114,6 +136,8 @@ export const getArticle = new RestEndpoint({
 });
 ```
 
+:::react
+
 ```tsx title="ArticlePage" collapsed
 import { getArticle } from './api/Article';
 
@@ -125,7 +149,26 @@ function ArticlePage({ id }: { id: string }) {
 render(<ArticlePage id="2" />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="ArticlePage.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getArticle } from './api/Article';
+
+  const article = await useSuspense(getArticle, { id: '2' });
+</script>
+
+<template>
+  <div>{{ article.title }}</div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ## Partial results
 
@@ -134,7 +177,7 @@ useful when some fields consume lots of bandwidth or are computationally expensi
 
 Consider using [validateRequired](/rest/api/validateRequired) to reduce code.
 
-<HooksPlayground fixtures={[
+<FrameworkPlayground fixtures={[
 {
 endpoint: new RestEndpoint({path: '/article'}),
 args: [],
@@ -199,6 +242,8 @@ export const getArticle = new RestEndpoint({
 });
 ```
 
+:::react
+
 ```tsx title="ArticleDetail" collapsed
 import { getArticle, getArticleList } from './api/Article';
 
@@ -250,4 +295,68 @@ function ArticleList() {
 render(<ArticleList />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="ArticleDetail.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getArticle } from './api/Article';
+
+  const props = defineProps<{ id: string }>();
+  const emit = defineEmits<{ home: [] }>();
+  const article = await useSuspense(getArticle, () => ({ id: props.id }));
+</script>
+
+<template>
+  <div>
+    <h4>
+      <a @click="emit('home')" style="cursor: pointer">&lt;</a>
+      {{ article.title }}
+    </h4>
+    <div>
+      <p>{{ article.content }}</p>
+      <div>
+        Created:
+        <time>
+          {{ article.createdAt.toLocaleString('en-US', { dateStyle: 'medium' }) }}
+        </time>
+      </div>
+    </div>
+  </div>
+</template>
+```
+
+```html title="ArticleList.vue" collapsed
+<script setup lang="ts">
+  import { ref } from 'vue';
+  import { useSuspense } from '@data-client/vue';
+  import { getArticleList } from './api/Article';
+  import ArticleDetail from './ArticleDetail.vue';
+
+  const route = ref('');
+  const articles = await useSuspense(getArticleList);
+</script>
+
+<template>
+  <Suspense v-if="route">
+    <ArticleDetail :id="route" @home="route = ''" />
+    <template #fallback><div>loading...</div></template>
+  </Suspense>
+  <div v-else>
+    <div
+      v-for="article in articles"
+      :key="article.pk()"
+      @click="route = article.id"
+      style="cursor: pointer; text-decoration: underline"
+    >
+      Click me: {{ article.title }}
+    </div>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
