@@ -143,7 +143,7 @@ interface SetResponseAction {
 
 Sent by [Controller.setResponse()](./Controller.vue.md#setResponse), [NetworkManager](https://dataclient.io/vue/api/NetworkManager)
 
-Read by [NetworkManager](https://dataclient.io/vue/api/NetworkManager), [LogoutManager](./LogoutManager.md)
+Read by [NetworkManager](https://dataclient.io/vue/api/NetworkManager), [LogoutManager](./LogoutManager.vue.md)
 
 ## RESET
 

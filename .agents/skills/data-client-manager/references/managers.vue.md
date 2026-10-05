@@ -25,7 +25,7 @@ They can also be customized to change core behaviors.
 | [SubscriptionManager](https://dataclient.io/vue/api/SubscriptionManager) | Handles polling [subscriptions](https://dataclient.io/vue/getting-started/data-dependency#subscriptions) |
 | [DevToolsManager](https://dataclient.io/vue/api/DevToolsManager)         | Enables [debugging](https://dataclient.io/vue/getting-started/debugging)                                 |
 | Extra managers                                                           |                                                                                                          |
-| [LogoutManager](./LogoutManager.md)                                      | Handles HTTP `401` (or other logout conditions)                                                          |
+| [LogoutManager](./LogoutManager.vue.md)                                      | Handles HTTP `401` (or other logout conditions)                                                          |
 
 ## Examples
 

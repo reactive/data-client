@@ -158,6 +158,7 @@ const managers = [
 > ```ts
 > import { unAuth } from '../authentication';
 >
+> const myDomain = 'http://test.com';
 > const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
 >
 > const managers = [
