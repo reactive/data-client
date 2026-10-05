@@ -15,20 +15,23 @@ on:
   pull_request:
     branches:
       - master
-    paths:
-      - '**/.cursor/rules/**'
-      - '**/.claude/rules/**'
-      - '.claude/skills'
-      - '.cursor/hooks/**'
-      - 'scripts/agent-rules.mjs'
-      - '.github/workflows/agent-rules.yml'
+  # Required check: no `paths` here (merge_group ignores them); the gate
+  # skips the job unless a file in push `paths` changed
+  merge_group:
 
 concurrency:
   group: agent-rules-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
+  gate:
+    uses: ./.github/workflows/paths-gate.yml
+
   check:
+    # The required check's name
+    name: agent-rules
+    needs: gate
+    if: needs.gate.outputs.relevant == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
