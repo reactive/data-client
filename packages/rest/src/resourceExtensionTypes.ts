@@ -4,6 +4,7 @@ import type {
   FetchFunction,
 } from '@data-client/endpoint';
 
+import type { IsUnion } from './isUnion.js';
 import { OptionsToFunction } from './OptionsToFunction.js';
 import type { ResourcePath } from './pathTypes.js';
 import { Extendable } from './resourceExtendable.js';
@@ -14,7 +15,6 @@ import type {
   RestInstanceBase,
   RestEndpointOptions,
 } from './RestEndpoint.js';
-import type { IsUnion } from './utiltypes.js';
 
 export type ResourceExtension<
   R extends { [K in ExtendKey]: RestInstanceBase },

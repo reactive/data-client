@@ -8,13 +8,13 @@ import type {
 } from '@data-client/endpoint';
 
 import type { ExtractCollection } from './extractCollection.js';
+import type { IsUnion } from './isUnion.js';
 import {
   OptionsToBodyArgument,
   OptionsToFunction,
 } from './OptionsToFunction.js';
 import { PathArgs, SoftPathArgs } from './pathTypes.js';
 import { EndpointUpdateFunction } from './RestEndpointTypeHelp.js';
-import type { IsUnion } from './utiltypes.js';
 
 export type ContentType = 'json' | 'blob' | 'text' | 'arrayBuffer' | 'stream';
 
