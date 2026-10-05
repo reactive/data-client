@@ -111,15 +111,15 @@ export const routeOf = memoize((file, framework) => {
   const relPath = rel(file).replace(/\.(react|vue)(\.mdx?)$/, '$2');
   const instance = instanceOf(relPath, framework);
   if (!instance) return;
-  const docId = docIdOf(
-    relPath.slice(instance.path.length + 1),
-    contentFor(file, framework),
-  );
+  const content = contentFor(file, framework);
+  const docId = docIdOf(relPath.slice(instance.path.length + 1), content);
   // Vue links to pages without a Vue version go to the React docs
   const { routeBasePath } =
     instance.framework === 'vue' && !vueIds.has(docId) ?
       frameworkInstance('react')
     : instance;
+  const slug = frontMatterValue(content, 'slug');
+  if (slug?.startsWith('/')) return `/${routeBasePath}${slug}`;
   return `/${routeBasePath}/${docId}`.replace(/\/index$/, '/');
 });
 

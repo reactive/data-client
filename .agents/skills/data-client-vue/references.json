@@ -13,6 +13,7 @@
     "_useLoading.md": "docs/core/shared/_useLoading.mdx",
     "_vueArgs.md": "docs/core/shared/_vueArgs.mdx",
     "data-dependency.md": "docs/core/getting-started/data-dependency.md",
+    "devtools-debugging.md": "docs/core/getting-started/devtools-debugging.md",
     "getDefaultManagers.md": "docs/core/api/getDefaultManagers.md",
     "installation.md": "docs/core/getting-started/installation.md",
     "mutations.md": "docs/core/getting-started/mutations.md",

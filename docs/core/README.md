@@ -834,8 +834,8 @@ const incrementInterceptor: Interceptor = {
 </Tabs>
 
 - :react[[Mock data for storybook](./guides/storybook.md) with [MockResolver](./api/MockResolver.md)]:vue[Mock data with `MockPlugin` from `@data-client/vue/test`]
-- :react[[Test hooks](./guides/unit-testing-hooks.md) with [renderDataHook()](./api/renderDataHook.md)]:vue[Test composables with `renderDataCompose()`]
-- :react[[Test components](./guides/unit-testing-components.md) with [MockResolver](./api/MockResolver.md)]:vue[Test components with `mountDataClient()`] and [mockInitialState()](./api/mockInitialState.md)
+- :react[[Test hooks](./guides/unit-testing-hooks.md) with [renderDataHook()](./api/renderDataHook.md)]:vue[[Test composables](./guides/unit-testing-hooks.md) with `renderDataCompose()`]
+- :react[[Test components](./guides/unit-testing-components.md) with [MockResolver](./api/MockResolver.md)]:vue[[Test components](./guides/unit-testing-components.md) with `mountDataClient()`] and [mockInitialState()](./api/mockInitialState.md)
 
 ## Demo
 
