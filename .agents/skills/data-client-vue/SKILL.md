@@ -34,7 +34,7 @@ useFetch(CommentResource.getList, { postId: id });
 const post = await useSuspense(PostResource.get, { id });
 const comments = await useSuspense(CommentResource.getList, { postId: id });
 // conditional: null skips fetching and binding
-const user = await useSuspense(UserResource.get, computed(() => (userId.value ? { id: userId.value } : null)));
+const user = await useSuspense(UserResource.get, () => (userId.value ? { id: userId.value } : null));
 ```
 
 For API definitions (like TodoResource), apply the skill "data-client-rest".
@@ -48,14 +48,13 @@ For API definitions (like TodoResource), apply the skill "data-client-rest".
 
 ### Reactive arguments
 
-Arguments can be plain values, `ref`s, or `computed`s. A plain object is read once, so it will not
-refetch when a prop or route param changes. Whenever an argument depends on reactive state, pass a
-`computed()` or `ref()` (not a bare getter function like `() => ({ id })`):
+A plain object like `{ id: props.id }` is read once and won't follow prop or route changes. When an
+argument can change, pass a getter (or a `ref`/`computed`) ([arguments](references/_vueArgs.md)):
 
 ```ts
 const props = defineProps<{ id: number }>();
 // refetches when props.id changes
-const todo = await useSuspense(TodoResource.get, computed(() => ({ id: props.id })));
+const todo = await useSuspense(TodoResource.get, () => ({ id: props.id }));
 ```
 
 When arguments change, `useSuspense()` and `useLive()` keep the previous data until the new fetch resolves
@@ -167,10 +166,10 @@ This is useful for websockets, SSE, logging, etc. Pass them to `DataClientPlugin
 
 # References
 
-For detailed API documentation, see the [references](references/) directory. They cover React and Vue;
-read the `:::vue` sections.
+For detailed API documentation, see the [references](references/) directory:
 
 - [useSuspense](references/useSuspense.md);[_pagination.md](references/_pagination.md) - Fetch with Suspense
+- [_vueArgs](references/_vueArgs.md) - Plain, ref, computed, and getter arguments
 - [useFetch](references/useFetch.md) - Start fetches early for parallel loading
 - [useQuery](references/useQuery.md) - Read from cache without fetch
 - [useCache](references/useCache.md) - Read from cache (nullable)
