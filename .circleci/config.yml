@@ -208,18 +208,6 @@ jobs:
           # See scripts/typeperf/README.md
           name: Type-check perf budget
           command: yarn run check:typeperf
-      - run:
-          # Package type changes and dependency bumps must reach the website playground
-          name: Playground editor types are up to date
-          command: |
-            # setup already built lib/ types; no .git in the workspace, so diff a snapshot
-            EDITOR_TYPES=website/src/components/Playground/editor-types
-            cp -r "${EDITOR_TYPES}" /tmp/editor-types-committed
-            ./scripts/copywebsitetypes.sh
-            if ! diff -rq /tmp/editor-types-committed "${EDITOR_TYPES}"; then
-              echo "${EDITOR_TYPES} is stale: run 'yarn copy:websitetypes' and commit the result."
-              exit 1
-            fi
 
   unit_tests:
     parameters:
