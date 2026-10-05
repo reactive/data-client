@@ -6,7 +6,7 @@ similar to `@data-client/test` for React.
 - `mountDataClient()` mounts a component with `DataClientPlugin`, `<Suspense>` and fixtures:
   [Unit testing components](https://dataclient.io/vue/guides/unit-testing-components)
 - `renderDataCompose()` runs a composable the same way:
-  [Unit testing composables](https://dataclient.io/vue/guides/unit-testing-hooks)
+  [Unit testing composables](https://dataclient.io/vue/guides/unit-testing-composables)
 - `mockInitialState()` builds store state from fixtures:
   [mockInitialState](https://dataclient.io/vue/api/mockInitialState)
 - Fixture and interceptor formats: [Fixtures](https://dataclient.io/vue/api/Fixtures)
