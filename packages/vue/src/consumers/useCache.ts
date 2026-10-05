@@ -51,6 +51,9 @@ export default function useCache<
   : DenormalizeNullable<E['schema']>
 >;
 
-export default function useCache(endpoint: any, ...args: any[]): any {
+export default function useCache(
+  endpoint: any,
+  ...args: any[]
+): ComputedRef<unknown> {
   return useCacheResponse(endpoint, args).data;
 }
