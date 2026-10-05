@@ -22,24 +22,27 @@ function deepenGitHistory() {
     VERCEL_GIT_REPO_OWNER: owner,
     VERCEL_GIT_REPO_SLUG: slug,
   } = process.env;
-  if (!VERCEL || !ref || !owner || !slug) return;
+  if (!VERCEL) return;
+  const log = msg => console.log(`deepenGitHistory: ${msg}`);
+  if (!ref || !owner || !slug) return log('skipped, Vercel git env missing');
   const git = args =>
     execFileSync('git', args, {
       encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
+      stdio: ['ignore', 'pipe', 'pipe'],
       timeout: 60_000,
     }).trim();
+  const commits = () => git(['rev-list', '--count', 'HEAD']);
   try {
-    if (git(['rev-parse', '--is-shallow-repository']) !== 'true') return;
+    if (git(['rev-parse', '--is-shallow-repository']) !== 'true')
+      return log(`skipped, clone not shallow (${commits()} commits)`);
+    const before = commits();
     // Vercel's clone has no `origin` remote, so fetch the (public) repo by URL
     const url = `https://github.com/${owner}/${slug}.git`;
     git(['fetch', '-q', '--no-tags', `--deepen=${DEPTH}`, url, ref]);
-    console.log(
-      `Deepened git history by ${DEPTH} commits for last-update dates`,
-    );
+    log(`history deepened from ${before} to ${commits()} commits`);
   } catch (e) {
-    console.warn(
-      `Could not deepen git history; last-update dates may be off (${e.message.split('\n')[0]})`,
+    log(
+      `FAILED, last-update dates will be wrong (exit ${e.status ?? e.signal}): ${String(e.stderr || e.message).trim()}`,
     );
   }
 }
