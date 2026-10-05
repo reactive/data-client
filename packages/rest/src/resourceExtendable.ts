@@ -17,7 +17,6 @@ import type {
 } from './resourceTypes.js';
 import type {
   ExtendableRestGenerics,
-  PartialRestGenerics,
   RestEndpointExtendOptions,
   RestExtendedEndpoint,
   RestInstanceBase,
@@ -72,11 +71,11 @@ export interface Extendable<
   };
   extend<
     R extends ResourceInterface,
-    Get extends PartialRestGenerics = {},
-    GetList extends PartialRestGenerics = {},
-    Update extends PartialRestGenerics = {},
-    PartialUpdate extends PartialRestGenerics = {},
-    Delete extends PartialRestGenerics = {},
+    Get extends ExtendableRestGenerics = {},
+    GetList extends ExtendableRestGenerics = {},
+    Update extends ExtendableRestGenerics = {},
+    PartialUpdate extends ExtendableRestGenerics = {},
+    Delete extends ExtendableRestGenerics = {},
   >(
     this: R,
     options: ResourceEndpointExtensions<
@@ -87,7 +86,9 @@ export interface Extendable<
       PartialUpdate,
       Delete
     >,
-  ): CustomResource<R, O, Get, GetList, Update, PartialUpdate, Delete>;
+  ): CustomResource<R, O, Get, GetList, Update, PartialUpdate, Delete> &
+    // keeps members like those added by extend('key', options)
+    Omit<R, keyof ResourceInterface | 'extend'>;
   extend<
     R extends ResourceInterface,
     T extends Record<string, EndpointInterface>,
