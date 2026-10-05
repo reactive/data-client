@@ -3,9 +3,9 @@
 const assert = require('assert/strict');
 const { execFileSync } = require('child_process');
 const fs = require('fs');
+const { test } = require('node:test');
 const os = require('os');
 const path = require('path');
-const { test } = require('node:test');
 
 const hook = path.join(__dirname, 'eslint-fix.js');
 const future = new Date('2030-01-01T00:00:00Z');
@@ -97,7 +97,10 @@ test('an edit that lands during eslint is linted next turn', () => {
     assert.equal(stored['src/fixed.js'], mtime(root, 'src/fixed.js'));
     run(root, {});
     const calls = invocations(root);
-    assert.deepEqual(calls[0].slice().sort(), ['src/edited.js', 'src/fixed.js']);
+    assert.deepEqual(calls[0].slice().sort(), [
+      'src/edited.js',
+      'src/fixed.js',
+    ]);
     assert.deepEqual(calls[1], ['src/edited.js']);
   });
 });
