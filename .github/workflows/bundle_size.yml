@@ -1,30 +1,41 @@
 name: Bundle Size
 
 on:
+  # PR-only: on push the action measures but has nowhere to report
   pull_request:
-    # The branches below must be a subset of the branches above
+    types: [opened, synchronize, reopened, ready_for_review]
     branches: [ master ]
     paths:
       - 'packages/**'
+      - '!packages/**/__tests__/**'
+      - '!packages/*/typescript-tests/**'
+      - '!packages/*/src-*-types/**'
+      - '!packages/**/*.md'
+      # not bundled by examples/test-bundlesize
+      - '!packages/graphql/**'
+      - '!packages/test/**'
+      - '!packages/vue/**'
       - 'yarn.lock'
       - 'examples/test-bundlesize/**'
-      - '.github/workflows/bundle_size.yml'
-  push:
-    branches:
-      - master
-    paths:
-      - 'packages/**'
-      - 'yarn.lock'
-      - 'examples/test-bundlesize/**'
+      - 'scripts/ci-deps-relevant.mjs'
+      - '.github/workflows/dependency-gate.yml'
       - '.github/workflows/bundle_size.yml'
 
 concurrency:
-  group: bundle-size-${{ github.head_ref || github.ref }}
+  group: bundle-size-${{ github.head_ref }}
   cancel-in-progress: true
 
 jobs:
-  build:
+  # Skips dependency bumps that can't change what this measures
+  changes:
+    if: ${{ !github.event.pull_request.draft }}
+    uses: ./.github/workflows/dependency-gate.yml
+    with:
+      workspaces: examples/test-bundlesize
 
+  build:
+    needs: changes
+    if: ${{ needs.changes.outputs.relevant == 'true' }}
     runs-on: ubuntu-latest
 
     steps:
