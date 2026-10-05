@@ -1,0 +1,183 @@
+import CodeBlock from '@theme/CodeBlock';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import { RestEndpoint } from '@data-client/rest';
+
+<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
+{
+endpoint: new RestEndpoint({path: '/feed'}),
+args: [],
+response: [
+{ id: 1, type: 'link', url: 'https://ntucker.true.io', title: 'Nate site' },
+{ id: 10, type: 'post', content: 'good day!' },
+],
+delay: 150,
+},
+]}>
+
+<CodeBlock className="language-typescript" metastring='title="api/Feed"'>{`import { Entity, RestEndpoint, ${props.schema.split('.')[0]} } from '@data-client/rest';
+
+export abstract class FeedItem extends Entity {
+  readonly id: number = 0;
+  declare readonly type: 'link' | 'post';
+}
+export class Link extends FeedItem {
+  readonly type = 'link' as const;
+  readonly url: string = '';
+  readonly title: string = '';
+}
+export class Post extends FeedItem {
+  readonly type = 'post' as const;
+  readonly content: string = '';
+}
+export const getFeed = new RestEndpoint({
+  path: '/feed',
+  schema: new ${props.schema}(
+${props.attribute === 'function' ? `    {
+      links: Link,
+      posts: Post,
+    },
+    (input: Link | Post, parent: unknown, key: string) => \`\${input.type}s\`,` : `    {
+      link: Link,
+      post: Post,
+    },
+    'type',`}
+  ),
+});`}</CodeBlock>
+
+:::react
+
+{props.schema === 'Values' ? (
+<CodeBlock className="language-tsx" metastring='title="FeedList" collapsed'>{`import { useSuspense } from '@data-client/react';
+import { getFeed, Link, Post } from './api/Feed';
+
+function FeedList() {
+  const feedItems = useSuspense(getFeed);
+  return (
+    <div>
+      {Object.entries(feedItems).map(([key, item]) => (
+        <div key={item.pk()}>
+          {key}:{' '}
+          {item.type === 'link' ? (
+            <LinkItem link={item} />
+          ) : (
+            <PostItem post={item} />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+function LinkItem({ link }: { link: Link }) {
+  return <a href={link.url}>{link.title}</a>;
+}
+function PostItem({ post }: { post: Post }) {
+  return <span>{post.content}</span>;
+}
+render(<FeedList />);`}</CodeBlock>
+) : (
+<CodeBlock className="language-tsx" metastring='title="FeedList" collapsed'>{`import { useSuspense } from '@data-client/react';
+import { getFeed, Link, Post } from './api/Feed';
+
+function FeedList() {
+  const feedItems = useSuspense(getFeed);
+  return (
+    <div>
+      {feedItems.map(item =>
+        item.type === 'link' ? (
+          <LinkItem link={item} key={item.pk()} />
+        ) : (
+          <PostItem post={item} key={item.pk()} />
+        ),
+      )}
+    </div>
+  );
+}
+function LinkItem({ link }: { link: Link }) {
+  return <a href={link.url}>{link.title}</a>;
+}
+function PostItem({ post }: { post: Post }) {
+  return <div>{post.content}</div>;
+}
+render(<FeedList />);`}</CodeBlock>
+)}
+
+:::
+
+:::vue
+
+```html title="LinkItem.vue" collapsed
+<script setup lang="ts">
+  import { type Link } from './api/Feed';
+
+  defineProps<{ link: Link }>();
+</script>
+
+<template>
+  <a :href="link.url">{{ link.title }}</a>
+</template>
+```
+
+{props.schema === 'Values' ? (
+<CodeBlock className="language-html" metastring='title="PostItem.vue" collapsed'>{`<script setup lang="ts">
+  import { type Post } from './api/Feed';
+
+  defineProps<{ post: Post }>();
+</script>
+
+<template>
+  <span>{{ post.content }}</span>
+</template>`}</CodeBlock>
+) : (
+<CodeBlock className="language-html" metastring='title="PostItem.vue" collapsed'>{`<script setup lang="ts">
+  import { type Post } from './api/Feed';
+
+  defineProps<{ post: Post }>();
+</script>
+
+<template>
+  <div>{{ post.content }}</div>
+</template>`}</CodeBlock>
+)}
+
+{props.schema === 'Values' ? (
+<CodeBlock className="language-html" metastring='title="FeedList.vue" collapsed'>{`<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getFeed } from './api/Feed';
+  import LinkItem from './LinkItem.vue';
+  import PostItem from './PostItem.vue';
+
+  const feedItems = await useSuspense(getFeed);
+</script>
+
+<template>
+  <div>
+    <div v-for="(item, key) in feedItems" :key="item.pk()">
+      {{ key }}:
+      <LinkItem v-if="item.type === 'link'" :link="item" />
+      <PostItem v-else :post="item" />
+    </div>
+  </div>
+</template>`}</CodeBlock>
+) : (
+<CodeBlock className="language-html" metastring='title="FeedList.vue" collapsed'>{`<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getFeed } from './api/Feed';
+  import LinkItem from './LinkItem.vue';
+  import PostItem from './PostItem.vue';
+
+  const feedItems = await useSuspense(getFeed);
+</script>
+
+<template>
+  <div>
+    <template v-for="item in feedItems" :key="item.pk()">
+      <LinkItem v-if="item.type === 'link'" :link="item" />
+      <PostItem v-else :post="item" />
+    </template>
+  </div>
+</template>`}</CodeBlock>
+)}
+
+:::
+
+</FrameworkPlayground>
