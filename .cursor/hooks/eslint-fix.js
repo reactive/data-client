@@ -97,7 +97,9 @@ if (require.main === module) {
   const start = new Date();
   let payload = {};
   try {
-    payload = JSON.parse(fs.readFileSync(0, 'utf8') || '{}');
+    payload = JSON.parse(
+      (!process.stdin.isTTY && fs.readFileSync(0, 'utf8')) || '{}',
+    );
   } catch {
     // run by hand
   }
@@ -130,7 +132,7 @@ if (require.main === module) {
       payload.loop_count > 0 ||
       (payload.status && payload.status !== 'completed');
     if (errors.length && !followUp) {
-      const message = `ESLint found errors it couldn't fix in uncommitted files. Fix them:\n${errors.slice(0, 50).join('\n')}${errors.length > 50 ? `\n…and ${errors.length - 50} more` : ''}`;
+      const message = `ESLint found errors it couldn't fix in uncommitted files. Fix the ones in files you edited, and leave the rest to whoever is editing them:\n${errors.slice(0, 50).join('\n')}${errors.length > 50 ? `\n…and ${errors.length - 50} more` : ''}`;
       console.log(
         JSON.stringify(
           payload.hook_event_name === 'Stop' ?
