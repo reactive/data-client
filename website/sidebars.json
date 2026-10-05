@@ -92,6 +92,10 @@
         },
         {
           "type": "doc",
+          "id": "guides/unit-testing-composables"
+        },
+        {
+          "type": "doc",
           "id": "guides/unit-testing-components"
         }
       ]

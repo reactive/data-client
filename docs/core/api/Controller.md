@@ -23,7 +23,7 @@ and retrieval performance.
 
 - [Managers](./Manager.md) as the first argument in [Manager.middleware](./Manager.md#middleware)
 - :react[React]:vue[Vue] with [useController()](./useController.md)
-- :react[[Unit testing hooks](../guides/unit-testing-hooks.md) with [renderDataHook()](./renderDataHook.md#controller)]:vue[[Unit testing composables](../guides/unit-testing-hooks.md) with `renderDataCompose()` from `@data-client/vue/test`]
+- :react[[Unit testing hooks](../guides/unit-testing-hooks.md) with [renderDataHook()](./renderDataHook.md#controller)]:vue[[Unit testing composables](../guides/unit-testing-composables.md) with `renderDataCompose()` from `@data-client/vue/test`]
 
 ```ts
 class Controller {

@@ -17,7 +17,7 @@ Instead, load responses with [Fixtures](../api/Fixtures.md).
 `@data-client/vue/test` mounts components with [DataClientPlugin](../api/DataClientPlugin.md),
 a `<Suspense>` boundary and [Fixtures](../api/Fixtures.md), so tests can check what a component
 renders without a network fetch cycle. For composables on their own, see
-[Unit testing composables](./unit-testing-hooks.md).
+[Unit testing composables](./unit-testing-composables.md).
 
 ## Setup
 
@@ -197,7 +197,7 @@ Returns
 
 ### Options
 
-`mountDataClient()` and [renderDataCompose()](./unit-testing-hooks.md) take the same options.
+`mountDataClient()` and [renderDataCompose()](./unit-testing-composables.md) take the same options.
 
 ```typescript
 interface RenderDataClientOptions<P = any> {

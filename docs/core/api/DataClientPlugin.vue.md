@@ -1,5 +1,6 @@
 ---
 frameworks: [vue]
+framework_equivalent: api/DataProvider
 title: DataClientPlugin - Normalized async data management in Vue
 sidebar_label: DataClientPlugin
 description: High performance, globally consistent data management in Vue

@@ -224,6 +224,8 @@ const config: Config = {
   themes: ['@docusaurus/theme-live-codeblock', '@docusaurus/theme-mermaid'],
   customFields: {
     repoUrl: 'https://github.com/reactive/data-client',
+    // read by FrameworkSelector to switch between differently named pages
+    frameworkEquivalents: frameworkDocs.frameworkEquivalents(),
   },
   onBrokenLinks: 'warn',
   future: {
@@ -298,7 +300,7 @@ const config: Config = {
             {
               framework: 'vue',
               routeBasePath: vueInstance.routeBasePath,
-              docIds: frameworkDocs.docIds('vue'),
+              docs: frameworkDocs.docsFor('vue'),
             },
           ],
         ],
