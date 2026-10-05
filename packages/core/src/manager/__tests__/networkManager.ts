@@ -500,6 +500,26 @@ describe('NetworkManager while the controller awaits init()', () => {
     nm.cleanup();
   });
 
+  it('keeps a parked result through cleanup() until the next init()', async () => {
+    const { endpoint, getCalls } = counted(() => Promise.resolve(5));
+    const dispatch = jest.fn((_action: SetResponseAction) => Promise.resolve());
+    const controller = bind(dispatch);
+    const nm = new NetworkManager();
+    await start(nm, endpoint, controller);
+    initManager([nm], controller, initialState)()();
+    await Promise.resolve();
+    expect(dispatch).not.toHaveBeenCalled();
+    commit(nm, controller);
+    await Promise.resolve();
+    expect(dispatch).toHaveBeenCalledTimes(1);
+    expect(dispatch.mock.calls[0][0]).toMatchObject({
+      type: SET_RESPONSE,
+      response: 5,
+    });
+    expect(getCalls()).toBe(1);
+    nm.cleanup();
+  });
+
   it('does not park mutations', async () => {
     const { endpoint } = counted(() => Promise.resolve(5), true);
     const dispatch = jest.fn(() => Promise.resolve());

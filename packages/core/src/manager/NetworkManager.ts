@@ -110,6 +110,8 @@ export default class NetworkManager implements Manager {
     delete this.cleanupDate;
     // init() can run inside the host's commit; publish after it so resolve() never re-enters it
     Promise.resolve().then(() => {
+      // unmounted dispatch drops actions; leave results parked for the next init()
+      if (this.cleanupDate) return;
       for (const meta of this.fetching.values()) {
         if (meta.parked) {
           const [endpoint, resolution] = meta.parked;
