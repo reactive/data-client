@@ -8,7 +8,8 @@ module.exports = function (context, options) {
       if (isServer) return {};
       // React's profiling build calls <Profiler onRender> in production, which
       // the Playground `renderCount` badge relies on. Its timers only run
-      // inside a <Profiler> subtree (or site-wide while React DevTools is open).
+      // inside a <Profiler> subtree, or site-wide for visitors with the React
+      // DevTools extension installed (it marks the whole tree ProfileMode).
       // A replacement rather than an alias: Docusaurus' `react-dom` alias
       // would match `react-dom/client` first.
       const reactDomProfiling =
