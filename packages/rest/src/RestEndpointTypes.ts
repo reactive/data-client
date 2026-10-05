@@ -272,13 +272,7 @@ export type RestEndpointExtendOptions<
   OptionsToFunction<O, E, F>,
   'schema' extends keyof O ? Extract<O['schema'], Schema | undefined>
   : E['schema']
-> & {
-  /** @see https://dataclient.io/rest/api/RestEndpoint#process */
-  process?(
-    value: any,
-    ...args: ProcessArgs<Parameters<OptionsToFunction<O, E, F>>>
-  ): any;
-} &
+> &
   // Same as Partial<Omit<E, ExtendOmitKeys>>, but skips the per-key Exclude<> work
   // (and the double mapped type) when E has no members beyond the standard ones.
   // Keep the guard inside the mapped type's keys: a `? unknown : ...` conditional
@@ -288,44 +282,13 @@ export type RestEndpointExtendOptions<
     keyof E extends ExtendOmitKeys ? never : Exclude<keyof E, ExtendOmitKeys>
   >;
 
-/** Parameters<F> as a single tuple, so process() accepts every way the endpoint can be called.
- * Endpoints with optional params or body have a union like `[params] | []` or `[params, body] | [body]`
- * (see ParamFetchNoBody/ParamFetchWithBody); it merges position-wise, with an element optional when
- * some call omits it. A single tuple (like a custom `fetch(params?)`) is kept as is.
- * Only for contextually typing an options callback: TypeScript can't infer callback parameters from a
- * union of tuples. The instance `process()` keeps `Parameters<F>`, the stricter signature for callers.
+/** Argument I passed to process(), from Parameters<F>.
+ * Indexing a union like `[params] | []` or `[params, body] | [body]` (see ParamFetchNoBody/ParamFetchWithBody)
+ * merges position-wise, giving `undefined` where some call omits the argument.
+ * Endpoints that take no args keep `any`, so process(value, params: any) and similar still compile.
  */
-type ProcessArgs<A extends readonly any[]> =
-  // fast path for fixed-length tuples; [A['length']] can't be checked against a union of lengths
-  number extends A['length'] ? A
-  : [A['length']] extends [0] ? A
-  : [A['length']] extends [1] ? A
-  : [A['length']] extends [2] ? A
-  : IsUnion<A> extends false ? A
-  : [] extends A ?
-    [ArgAt1<A>] extends [never] ?
-      [params?: ArgAt0<A>]
-    : [params?: ArgAt0<A>, body?: ArgAt1<A>]
-  : [params: ArgAt0<A>, body?: ArgAt1<A>];
-type IsUnion<T, U = T> =
-  T extends any ?
-    [U] extends [T] ?
-      false
-    : true
-  : never;
-// Distribute over the union; the length check gives never for a position a call omits
-type ArgAt0<A extends readonly any[]> =
-  A extends unknown ?
-    A['length'] extends 0 ?
-      never
-    : A[0]
-  : never;
-type ArgAt1<A extends readonly any[]> =
-  A extends unknown ?
-    A['length'] extends 0 | 1 ?
-      never
-    : A[1]
-  : never;
+type ProcessArg<A extends readonly any[], I extends 0 | 1> =
+  [A['length']] extends [0] ? any : A[I];
 
 type ExtendOmitKeys =
   KeyofRestEndpoint | keyof PartialRestGenerics | keyof RestEndpointOptions;
@@ -475,8 +438,9 @@ export type RestExtendedEndpoint<
   (keyof E extends KeyofRestEndpoint ? unknown
   : Omit<E, KeyofRestEndpoint | keyof O>);
 
-/** PartialRestGenerics without `process`. extend() constrains its options to this, so the
- * `process` member of RestEndpointExtendOptions is the only contextual type for process() params.
+/** PartialRestGenerics without `process`. Options passed to the constructor, extend() and
+ * resource().extend() are constrained by this, so RestEndpointOptions' typed `process` member is
+ * the only contextual type for process() params.
  */
 export interface ExtendableRestGenerics {
   /** @see https://dataclient.io/rest/api/RestEndpoint#path */
@@ -505,6 +469,10 @@ export interface PartialRestGenerics extends ExtendableRestGenerics {
  * @see https://dataclient.io/rest/api/RestEndpoint#inheritance
  */
 export interface RestGenerics extends PartialRestGenerics {
+  readonly path: string;
+}
+/** RestGenerics without `process`; see ExtendableRestGenerics */
+interface ConstructorRestGenerics extends ExtendableRestGenerics {
   readonly path: string;
 }
 
@@ -695,6 +663,15 @@ export interface RestEndpointOptions<
   fetch?: F;
   key?(...args: Parameters<F>): string;
   url?(...args: Parameters<F>): string;
+  /** @see https://dataclient.io/rest/api/RestEndpoint#process */
+  // Positional rather than a rest tuple: when F is generic (like a path type parameter),
+  // a deferred rest tuple would reject process(value, params) for having too many params.
+  process?(
+    value: any,
+    params: ProcessArg<Parameters<F>, 0>,
+    body: ProcessArg<Parameters<F>, 1>,
+    ...rest: any[]
+  ): any;
   update?: EndpointUpdateFunction<F, S>;
 }
 
@@ -754,7 +731,7 @@ export interface RestEndpointConstructor {
    *
    * @see https://dataclient.io/rest/api/RestEndpoint
    */
-  new <O extends RestGenerics = any>({
+  new <O extends ConstructorRestGenerics = any>({
     method,
     sideEffect,
     name,

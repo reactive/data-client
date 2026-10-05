@@ -106,7 +106,7 @@ export const getPrice = new RestEndpoint({
 ### Deserializing Date
 
 In case you want to use legacy [Date](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date),
-you can turn the constructor into a function [schema](./schema.md).
+you can turn the constructor into a function [schema](./schema.vue.md).
 
 ```ts
 export class ExchangePrice extends Entity {
