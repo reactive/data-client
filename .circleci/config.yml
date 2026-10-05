@@ -253,8 +253,11 @@ jobs:
             elif [ "<< parameters.react-version >>" == "19.3" ]; then
               yarn test:ci --maxWorkers=4 --selectProjects ReactDOM --testPathPatterns 'packages/react/src/__tests__/concurrent-.*\.web\.tsx' 'packages/react/src/hooks/__tests__/useCacheState.web.tsx'
             elif [ "<< parameters.react-version >>" == "latest" ]; then
-              # Coverage floors live in the test:coverage script
-              yarn run test:coverage --ci --maxWorkers=4 --selectProjects ReactDOM Node --coverageReporters=lcovonly --coverageReporters=text-summary
+              # Coverage floors and projects live in the test:coverage script
+              yarn run test:coverage --ci --maxWorkers=4 --coverageReporters=lcovonly --coverageReporters=text-summary
+            else
+              echo "Unknown react-version << parameters.react-version >>"
+              exit 1
             fi
       - when:
           condition:
@@ -271,13 +274,16 @@ jobs:
                   # renovate: datasource=github-releases depName=codecov/codecov-cli
                   CLI=https://cli.codecov.io/v11.3.1/linux/codecov
                   KEY_FINGERPRINT=27034E7FDB850E0BBC2C62FF806BB28AED779869
+                  if [ ! -f coverage/lcov.info ]; then
+                    echo "No coverage report; skipping upload"
+                    exit 0
+                  fi
                   DIR="$(mktemp -d)"
-                  export GNUPGHOME="$DIR/gnupg"
-                  mkdir -m 700 "$GNUPGHOME"
+                  export GNUPGHOME="$DIR"
                   # gpg status goes to a file, not a pipe: CircleCI's pipefail would
                   # flip the check if an early-exiting grep SIGPIPEd gpg.
-                  if (cd "$DIR" && curl -fsS --retry 3 -O "$CLI" -O "$CLI.SHA256SUM" -O "$CLI.SHA256SUM.sig") \
-                    && curl -fsS --retry 3 -o "$DIR/key.asc" https://keybase.io/codecovsecops/pgp_keys.asc \
+                  if curl -fsS --retry 3 --output-dir "$DIR" -O "$CLI" -O "$CLI.SHA256SUM" -O "$CLI.SHA256SUM.sig" \
+                    -o key.asc https://keybase.io/codecovsecops/pgp_keys.asc \
                     && gpg --batch --import "$DIR/key.asc" \
                     && gpg --batch --status-file "$DIR/status" --verify "$DIR/codecov.SHA256SUM.sig" "$DIR/codecov.SHA256SUM" \
                     && grep -q "VALIDSIG .*$KEY_FINGERPRINT" "$DIR/status" \
