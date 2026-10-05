@@ -369,6 +369,7 @@ expect(result.current?.value?.title).toBe('hi ho');
 For detailed API documentation, see the [references](references/) directory:
 
 - [Fixtures](references/Fixtures.md) - Fixture format reference
+- [mockInitialState](references/mockInitialState.md) - Create initial state for `DataClientPlugin`
 - [vue-test-utilities](references/vue-test-utilities.md) - `renderDataCompose()` and `mountDataClient()` guide
 - [nock-http-mocking](references/nock-http-mocking.md) - Full nock setup, dynamic server state, request spying, errors, pitfalls
 - [polling-subscriptions](references/polling-subscriptions.md) - Fake-timer patterns for `useLive`/`useSubscription`/`pollFrequency`, unsubscribe verification, polling via nock

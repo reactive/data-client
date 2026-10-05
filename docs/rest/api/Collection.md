@@ -6,7 +6,7 @@ sidebar_label: Collection
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import { RestEndpoint } from '@data-client/rest';
 import { v4 as uuid } from 'uuid';
 import { postFixtures,getInitialInterceptorData } from '@site/src/fixtures/posts-collection';
@@ -24,7 +24,7 @@ and [.getPage](./RestEndpoint.md#getpage)/ [.paginated()](./RestEndpoint.md#pagi
 
 ## Usage
 
-<HooksPlayground row fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],
@@ -106,6 +106,8 @@ export const getUsers = new RestEndpoint({
 });
 ```
 
+:::react
+
 ```tsx title="NewTodo" {10-14}
 import { useController } from '@data-client/react';
 import { getTodos } from './api/Todo';
@@ -184,7 +186,81 @@ function UserList() {
 render(<UserList />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="NewTodo.vue" {12-16}
+<script setup lang="ts">
+  import { ref } from 'vue';
+  import { useController } from '@data-client/vue';
+  import { getTodos } from './api/Todo';
+
+  const props = defineProps<{ userId?: string }>();
+  const ctrl = useController();
+  const unshift = ref(false);
+
+  const handlePress = async e => {
+    if (e.key === 'Enter') {
+      const createTodo = unshift.value ? getTodos.unshift : getTodos.push;
+      ctrl.fetch(createTodo, {
+        title: e.currentTarget.value,
+        userId: props.userId,
+      });
+      e.currentTarget.value = '';
+    }
+  };
+</script>
+
+<template>
+  <div class="listItem nogap">
+    <TextInput size="small" @keydown="handlePress" />
+    <label>
+      <input type="checkbox" v-model="unshift" />
+      unshift
+    </label>
+  </div>
+</template>
+```
+
+```html title="TodoList.vue" collapsed
+<script setup lang="ts">
+  import { type Todo } from './api/Todo';
+  import NewTodo from './NewTodo.vue';
+
+  defineProps<{ todos: Todo[]; userId: string }>();
+</script>
+
+<template>
+  <div>
+    <div v-for="todo in todos" :key="todo.pk()">{{ todo.title }}</div>
+    <NewTodo :userId="userId" />
+  </div>
+</template>
+```
+
+```html title="UserList.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getUsers } from './api/User';
+  import TodoList from './TodoList.vue';
+
+  const users = await useSuspense(getUsers);
+</script>
+
+<template>
+  <div>
+    <section v-for="user in users" :key="user.pk()">
+      <h3>{{ user.name }}</h3>
+      <TodoList :todos="user.todos" :userId="user.id" />
+    </section>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ### Collection with Values
 
@@ -369,7 +445,7 @@ which means they will influence whether a newly created should be added
 to those lists. On the other hand, `orderBy` does not need to match
 when `push` is called.
 
-<HooksPlayground fixtures={postFixtures} getInitialInterceptorData={getInitialInterceptorData} row>
+<FrameworkPlayground fixtures={postFixtures} getInitialInterceptorData={getInitialInterceptorData} row>
 
 ```ts title="getPosts" {14}
 import { Entity, Query, Collection, RestEndpoint } from '@data-client/rest';
@@ -396,6 +472,8 @@ export const getPosts = new RestEndpoint({
   )
 });
 ```
+
+:::react
 
 ```tsx title="PostListLayout" collapsed
 import { useLoading } from '@data-client/react';
@@ -479,7 +557,94 @@ function PostList() {
 render(<PostList />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="PostListLayout.vue" collapsed
+<script setup lang="ts">
+  import { useLoading } from '@data-client/vue';
+
+  const props = defineProps(['postsByBob', 'postsSorted', 'addPost']);
+  const [handleSubmit, loading] = useLoading((e: Event) =>
+    props.addPost(e),
+  );
+</script>
+
+<template>
+  <div>
+    <h4>{group: 'react', author: 'bob'}</h4>
+    <ul>
+      <li v-for="post in postsByBob" :key="post.pk()">
+        {{ post.title }} by {{ post.author }}
+      </li>
+    </ul>
+    <h4>{group: 'react', orderBy: 'title'}</h4>
+    <ul>
+      <li v-for="post in postsSorted" :key="post.pk()">
+        {{ post.title }} by {{ post.author }}
+      </li>
+    </ul>
+    <form @submit="handleSubmit">
+      <div>Group: React</div>
+      Author:
+      <label>
+        <input type="radio" value="bob" name="author" checked />
+        Bob
+      </label>
+      <label>
+        <input type="radio" value="clara" name="author" />
+        Clara
+      </label>
+      <TextInput value="New Post" name="title" label="Title" />
+      <button type="submit">{{ loading ? 'loading...' : 'Push' }}</button>
+    </form>
+  </div>
+</template>
+```
+
+```html title="PostList.vue" collapsed
+<script setup lang="ts">
+  import { useFetch, useSuspense, useController } from '@data-client/vue';
+  import { getPosts } from './getPosts';
+  import PostListLayout from './PostListLayout.vue';
+
+  // start both fetches in parallel before awaiting
+  useFetch(getPosts, { group: 'react', author: 'bob' });
+  useFetch(getPosts, { group: 'react', orderBy: 'title' });
+  const postsByBob = await useSuspense(getPosts, {
+    group: 'react',
+    author: 'bob',
+  });
+  const postsSorted = await useSuspense(getPosts, {
+    group: 'react',
+    orderBy: 'title',
+  });
+
+  const ctrl = useController();
+
+  const addPost = (e: Event) => {
+    e.preventDefault();
+    return ctrl.fetch(
+      getPosts.push,
+      { group: 'react' },
+      new FormData(e.currentTarget as HTMLFormElement),
+    );
+  };
+</script>
+
+<template>
+  <PostListLayout
+    :postsByBob="postsByBob"
+    :postsSorted="postsSorted"
+    :addPost="addPost"
+  />
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ### createCollectionFilter?
 

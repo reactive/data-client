@@ -203,6 +203,10 @@
     },
     {
       "type": "doc",
+      "id": "api/DataClientPlugin"
+    },
+    {
+      "type": "doc",
       "id": "api/Controller"
     },
     {

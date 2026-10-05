@@ -1,5 +1,6 @@
 ---
 title: hookifyResource() - Collection of CRUD hook Endpoints
+vue_title: hookifyResource() - Collection of CRUD composable Endpoints
 sidebar_label: hookifyResource
 ---
 
@@ -8,13 +9,12 @@ sidebar_label: hookifyResource
 </head>
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
-import HooksPlayground from '@site/src/components/HooksPlayground';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 # hookifyResource
 
 `hookifyResource()` Turns any [Resource](./resource.md) (collection of [RestEndpoints](./RestEndpoint.md)) into a collection
-of hooks that return [RestEndpoints](./RestEndpoint.md).
+of :react[hooks]:vue[composables] that return [RestEndpoints](./RestEndpoint.md).
 
 :::info
 
@@ -23,6 +23,8 @@ TypeScript >=4.3 is required for generative types to work correctly.
 :::
 
 <TypeScriptEditor row={false}>
+
+:::react
 
 ```ts title="resources/Article"
 import React from 'react';
@@ -67,7 +69,69 @@ function ArticleDetail({ id }) {
 render(<ArticleDetail id="1" />);
 ```
 
+:::
+
+:::vue
+
+```ts title="resources/Article"
+import { inject } from 'vue';
+import { Collection, Entity, Invalidate, hookifyResource, resource } from '@data-client/rest';
+
+class Article extends Entity {
+  id = '';
+  title = '';
+  content = '';
+}
+export const AuthKey = Symbol('accessToken');
+
+const ArticleResourceBase = resource({
+  urlPrefix: 'http://test.com',
+  path: '/article/:id',
+  schema: Article,
+});
+export const ArticleResource = hookifyResource(
+  ArticleResourceBase,
+  function useInit() {
+    const accessToken = inject(AuthKey, '');
+    return {
+      headers: {
+        'Access-Token': accessToken,
+      },
+    };
+  },
+);
+```
+
+```html title="ArticleDetail.vue"
+<script setup lang="ts">
+  import { useSuspense, useController } from '@data-client/vue';
+  import { ArticleResource } from './resources/Article';
+
+  const props = defineProps<{ id: string }>();
+  const ctrl = useController();
+  const updateArticle = ArticleResource.useUpdate();
+  const article = await useSuspense(ArticleResource.useGet(), () => ({
+    id: props.id,
+  }));
+  const onSubmit = (body: any) =>
+    ctrl.fetch(updateArticle, { id: props.id }, body);
+</script>
+
+<template>
+  <ArticleForm @submit="onSubmit" :initialValues="article" />
+</template>
+```
+
+:::
+
 </TypeScriptEditor>
+
+:::vue
+
+Each `use*()` composable calls your function once, when the component is set up, so call them
+at the top level of `<script setup>` (never in a handler). Composables like `inject()` work there.
+
+:::
 
 ## Members
 

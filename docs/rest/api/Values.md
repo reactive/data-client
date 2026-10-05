@@ -1,10 +1,11 @@
 ---
 title: Values Schema - Declarative map data for React
+vue_title: Values Schema - Declarative map data for Vue
 sidebar_label: Values
 ---
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import { RestEndpoint, Values } from '@data-client/rest';
 
 # Values
@@ -40,7 +41,7 @@ its schemas are used for the value of an Object.
 
 ## Usage
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/items'}),
 args: [],
@@ -48,6 +49,8 @@ response: { firstThing: { id: 1 }, secondThing: { id: 2 } },
 delay: 150,
 },
 ]}>
+
+:::react
 
 ```tsx title="ItemPage.tsx"
 import { Entity, RestEndpoint, Values } from '@data-client/rest';
@@ -67,7 +70,38 @@ function ItemPage() {
 render(<ItemPage />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```ts title="api/Item"
+import { Entity, RestEndpoint, Values } from '@data-client/rest';
+
+export class Item extends Entity {
+  id = 0;
+}
+export const getItems = new RestEndpoint({
+  path: '/items',
+  schema: new Values(Item),
+});
+```
+
+```html title="ItemPage.vue"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getItems } from './api/Item';
+
+  const items = await useSuspense(getItems);
+</script>
+
+<template>
+  <pre>{{ JSON.stringify(items, undefined, 2) }}</pre>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ### Updating many entities
 
@@ -93,7 +127,7 @@ If your data returns an object that you did not provide a mapping for, the origi
 
 #### string schemaAttribute
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/feed'}),
 args: [],
@@ -133,6 +167,8 @@ export const getFeed = new RestEndpoint({
 });
 ```
 
+:::react
+
 ```tsx title="FeedList" collapsed
 import { useSuspense } from '@data-client/react';
 import { getFeed, Link, Post } from './api/Feed';
@@ -163,14 +199,65 @@ function PostItem({ post }: { post: Post }) {
 render(<FeedList />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="LinkItem.vue" collapsed
+<script setup lang="ts">
+  import { type Link } from './api/Feed';
+
+  defineProps<{ link: Link }>();
+</script>
+
+<template>
+  <a :href="link.url">{{ link.title }}</a>
+</template>
+```
+
+```html title="PostItem.vue" collapsed
+<script setup lang="ts">
+  import { type Post } from './api/Feed';
+
+  defineProps<{ post: Post }>();
+</script>
+
+<template>
+  <span>{{ post.content }}</span>
+</template>
+```
+
+```html title="FeedList.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getFeed } from './api/Feed';
+  import LinkItem from './LinkItem.vue';
+  import PostItem from './PostItem.vue';
+
+  const feedItems = await useSuspense(getFeed);
+</script>
+
+<template>
+  <div>
+    <div v-for="(item, key) in feedItems" :key="item.pk()">
+      {{ key }}:
+      <LinkItem v-if="item.type === 'link'" :link="item" />
+      <PostItem v-else :post="item" />
+    </div>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 #### function schemaAttribute
 
 The return values should match a key in the `definition`. Here we'll show the same behavior as the 'string'
 case, except we'll append an 's'.
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/feed'}),
 args: [],
@@ -210,6 +297,8 @@ export const getFeed = new RestEndpoint({
 });
 ```
 
+:::react
+
 ```tsx title="FeedList" collapsed
 import { useSuspense } from '@data-client/react';
 import { getFeed, Link, Post } from './api/Feed';
@@ -240,4 +329,55 @@ function PostItem({ post }: { post: Post }) {
 render(<FeedList />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="LinkItem.vue" collapsed
+<script setup lang="ts">
+  import { type Link } from './api/Feed';
+
+  defineProps<{ link: Link }>();
+</script>
+
+<template>
+  <a :href="link.url">{{ link.title }}</a>
+</template>
+```
+
+```html title="PostItem.vue" collapsed
+<script setup lang="ts">
+  import { type Post } from './api/Feed';
+
+  defineProps<{ post: Post }>();
+</script>
+
+<template>
+  <span>{{ post.content }}</span>
+</template>
+```
+
+```html title="FeedList.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getFeed } from './api/Feed';
+  import LinkItem from './LinkItem.vue';
+  import PostItem from './PostItem.vue';
+
+  const feedItems = await useSuspense(getFeed);
+</script>
+
+<template>
+  <div>
+    <div v-for="(item, key) in feedItems" :key="item.pk()">
+      {{ key }}:
+      <LinkItem v-if="item.type === 'link'" :link="item" />
+      <PostItem v-else :post="item" />
+    </div>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>

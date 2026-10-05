@@ -5,7 +5,7 @@
 ## Expanding Lists
 
 In case you want to append results to your existing list, rather than move to another page
-[Resource.getList.getPage](./resource.md#getpage) can be used as long as [paginationField](./resource.md#paginationfield) was provided.
+[Resource.getList.getPage](./resource.vue.md#getpage) can be used as long as [paginationField](./resource.vue.md#paginationfield) was provided.
 
 ```ts title="User"
 import { Entity } from '@data-client/rest';
@@ -114,8 +114,8 @@ export const PostResource = resource({
 </template>
 ```
 
-Don't forget to define our [Resource's](./resource.md) [paginationField](./resource.md#paginationfield) and
-correct [schema](./resource.md#schema)!
+Don't forget to define our [Resource's](./resource.vue.md) [paginationField](./resource.vue.md#paginationfield) and
+correct [schema](./resource.vue.md#schema)!
 
 ```ts title="Post"
 export const PostResource = resource({
@@ -138,7 +138,7 @@ Example app: [github-app](https://github.com/reactive/data-client/tree/master/ex
 
 Here we explore a real world example using [cosmos validators list](https://rest.cosmos.directory/stargaze/cosmos/staking/v1beta1/validators).
 
-Since validators only have one Endpoint, we use [RestEndpoint](./RestEndpoint.vue.md) instead of [resource](./resource.md). By using [Collections](./Collection.md) and [paginationField](./RestEndpoint.vue.md#paginationfield), we can call [RestEndpoint.getPage](./RestEndpoint.vue.md#getpage)
+Since validators only have one Endpoint, we use [RestEndpoint](./RestEndpoint.vue.md) instead of [resource](./resource.vue.md). By using [Collections](./Collection.vue.md) and [paginationField](./RestEndpoint.vue.md#paginationfield), we can call [RestEndpoint.getPage](./RestEndpoint.vue.md#getpage)
 to append the next page of validators to our list.
 
 ```ts title="Validator" {46-50}
@@ -195,78 +195,76 @@ export const getValidators = new RestEndpoint({
 });
 ```
 
-```tsx title="ValidatorItem"
-import { type Validator } from './Validator';
+```html title="ValidatorItem.vue"
+<script setup lang="ts">
+  import { type Validator } from './Validator';
 
-export default function ValidatorItem({ validator }: Props) {
-  return (
-    <div className="listItem spaced">
-      <div>
-        <h4>{validator.description.moniker}</h4>
-        <small>
-          <a href={validator.description.website} target="_blank">
-            {validator.description.website}
-          </a>
-        </small>
-        <p>{validator.description.details}</p>
-      </div>
+  defineProps<{ validator: Validator }>();
+</script>
+
+<template>
+  <div class="listItem spaced">
+    <div>
+      <h4>{{ validator.description.moniker }}</h4>
+      <small>
+        <a :href="validator.description.website" target="_blank">
+          {{ validator.description.website }}
+        </a>
+      </small>
+      <p>{{ validator.description.details }}</p>
     </div>
-  );
-}
-
-interface Props {
-  validator: Validator;
-}
+  </div>
+</template>
 ```
 
-```tsx title="LoadMore" {8-11}
-import { useController, useLoading } from '@data-client/react';
-import { getValidators } from './Validator';
+```html title="LoadMore.vue" {7-11}
+<script setup lang="ts">
+  import { useController, useLoading } from '@data-client/vue';
+  import { getValidators } from './Validator';
 
-export default function LoadMore({ next_key, limit }) {
+  const props = defineProps<{ next_key: string; limit: string }>();
   const ctrl = useController();
-  const [handleLoadMore, isPending] = useLoading(
-    () =>
-      ctrl.fetch(getValidators.getPage, {
-        'pagination.limit': limit,
-        'pagination.key': next_key,
-      }),
-    [next_key, limit],
+  const [handleLoadMore, isPending] = useLoading(() =>
+    ctrl.fetch(getValidators.getPage, {
+      'pagination.limit': props.limit,
+      'pagination.key': props.next_key,
+    }),
   );
-  if (!next_key) return null;
-  return (
-    <center>
-      <button onClick={handleLoadMore} disabled={isPending}>
-        {isPending ? '...' : 'Load more'}
-      </button>
-    </center>
-  );
-}
+</script>
+
+<template>
+  <center v-if="next_key">
+    <button @click="handleLoadMore" :disabled="isPending">
+      {{ isPending ? '...' : 'Load more' }}
+    </button>
+  </center>
+</template>
 ```
 
-```tsx title="ValidatorList"
-import { useSuspense } from '@data-client/react';
-import ValidatorItem from './ValidatorItem';
-import { getValidators } from './Validator';
-import LoadMore from './LoadMore';
+```html title="ValidatorList.vue"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import ValidatorItem from './ValidatorItem.vue';
+  import { getValidators } from './Validator';
+  import LoadMore from './LoadMore.vue';
 
-const PAGE_LIMIT = '3';
+  const PAGE_LIMIT = '3';
 
-export default function ValidatorList() {
-  const { validators, pagination } = useSuspense(getValidators, {
+  const data = await useSuspense(getValidators, {
     'pagination.limit': PAGE_LIMIT,
   });
+</script>
 
-  return (
-    <div>
-      {validators.map(validator => (
-        <ValidatorItem key={validator.pk()} validator={validator} />
-      ))}
-      <LoadMore next_key={pagination.next_key} limit={PAGE_LIMIT} />
-    </div>
-  );
-}
-render(<ValidatorList />);
+<template>
+  <div>
+    <ValidatorItem
+      v-for="validator in data.validators"
+      :key="validator.pk()"
+      :validator="validator"
+    />
+    <LoadMore :next_key="data.pagination.next_key" :limit="PAGE_LIMIT" />
+  </div>
+</template>
 ```
 
 ### Infinite Scrolling
@@ -275,31 +273,29 @@ Since UI behaviors vary widely, and implementations vary from platform (react-na
 we'll just assume a `Pagination` component is built, that uses a callback to trigger next
 page fetching. On web, it is recommended to use something based on [Intersection Observers](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)
 
-```tsx
-import { useSuspense, useController } from '@data-client/react';
-import { PostResource } from 'resources/Post';
+```html title="NewsList.vue"
+<script setup lang="ts">
+  import { useSuspense, useController } from '@data-client/vue';
+  import { PostResource } from 'resources/Post';
 
-function NewsList() {
-  const { results, cursor } = useSuspense(PostResource.getList);
+  const data = await useSuspense(PostResource.getList);
   const ctrl = useController();
+  const onPaginate = () =>
+    ctrl.fetch(PostResource.getList.getPage, { cursor: data.value.cursor });
+</script>
 
-  return (
-    <Pagination
-      onPaginate={() =>
-        ctrl.fetch(PostResource.getList.getPage, { cursor })
-      }
-    >
-      <NewsList data={results} />
-    </Pagination>
-  );
-}
+<template>
+  <Pagination @paginate="onPaginate">
+    <PostList :posts="data.results" />
+  </Pagination>
+</template>
 ```
 
 ## Tokens in HTTP Headers
 
 In some cases the pagination tokens will be embeded in HTTP headers, rather than part of the payload. In this
 case you'll need to customize the [parseResponse()](./RestEndpoint.vue.md#parseResponse) function
-for [getList](./resource.md#getlist) so the pagination headers are included fetch object.
+for [getList](./resource.vue.md#getlist) so the pagination headers are included fetch object.
 
 We show the custom `getList` below. All other parts of the above example remain the same.
 

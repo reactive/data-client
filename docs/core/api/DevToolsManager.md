@@ -29,6 +29,8 @@ to send to redux devtools.
 
 For example, we can enable the [trace](https://github.com/reduxjs/redux-devtools/blob/main/extension/docs/API/Arguments.md#trace) option to help track down where actions are dispatched from.
 
+:::react
+
 ```tsx title="index.tsx"
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
@@ -45,6 +47,27 @@ createRoot(document.body).render(
 );
 ```
 
+:::
+
+:::vue
+
+```ts title="main.ts"
+import { createApp } from 'vue';
+import { DataClientPlugin, getDefaultManagers } from '@data-client/vue';
+import App from './App.vue';
+
+const managers = getDefaultManagers({
+  // highlight-next-line
+  devToolsManager: { trace: true },
+});
+
+const app = createApp(App);
+app.use(DataClientPlugin, { managers });
+app.mount('#app');
+```
+
+:::
+
 ### skipLogging
 
 `(action: ActionTypes) => boolean`
@@ -52,6 +75,8 @@ createRoot(document.body).render(
 Can skip some actions to be registered in the browser devtool.
 
 By default will skip inflight [fetch actions](./Controller.md#fetch)
+
+:::react
 
 ```tsx title="index.tsx"
 import {
@@ -61,17 +86,11 @@ import {
 } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
 
-const managers =
-  process.env.NODE_ENV !== 'production'
-    ? [
-        // highlight-start
-        new DevToolsManager(undefined, () => true),
-        // highlight-end
-        ...getDefaultManagers().filter(
-          manager => manager.constructor.name !== 'DevToolsManager',
-        ),
-      ]
-    : getDefaultManagers();
+// production builds leave out DevToolsManager
+const managers = getDefaultManagers({
+  // highlight-next-line
+  devToolsManager: new DevToolsManager(undefined, () => true),
+});
 
 createRoot(document.body).render(
   <DataProvider managers={managers}>
@@ -80,13 +99,39 @@ createRoot(document.body).render(
 );
 ```
 
+:::
+
+:::vue
+
+```ts title="main.ts"
+import { createApp } from 'vue';
+import {
+  DevToolsManager,
+  DataClientPlugin,
+  getDefaultManagers,
+} from '@data-client/vue';
+import App from './App.vue';
+
+// production builds leave out DevToolsManager
+const managers = getDefaultManagers({
+  // highlight-next-line
+  devToolsManager: new DevToolsManager(undefined, () => true),
+});
+
+const app = createApp(App);
+app.use(DataClientPlugin, { managers });
+app.mount('#app');
+```
+
+:::
+
 #### Skipping high-frequency updates
 
 When using [WebSockets](../concepts/managers.md#data-stream) or other real-time data sources,
 high-frequency updates can overwhelm the DevTools extension. Use the `predicate` option to
 filter out specific action types or schemas:
 
-```tsx title="index.tsx"
+```ts title="managers.ts" framework-imports
 import { getDefaultManagers, actionTypes } from '@data-client/react';
 import { Ticker } from './resources/Ticker';
 
@@ -124,7 +169,7 @@ __DC_CONTROLLERS__.get('Data Client: My App').getState();
 
 This is useful for AI coding assistants using the [Chrome DevTools MCP](https://developer.chrome.com/blog/chrome-devtools-mcp)
 or [Expo MCP](https://docs.expo.dev/eas/ai/mcp/) to programmatically inspect and interact
-with the store. Each :react[[DataProvider](/docs/api/DataProvider)]:vue[installed DataClientPlugin] registers independently, so
+with the store. Each :react[[DataProvider](/docs/api/DataProvider)]:vue[installed [DataClientPlugin](./DataClientPlugin.md)] registers independently, so
 multiple :react[providers]:vue[apps] on the same page are fully supported.
 
 Controllers are removed from the map when `cleanup()` is called.

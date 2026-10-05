@@ -47,6 +47,8 @@ When a `Department` is denormalized, `dept.buildings` will contain raw primary k
 
 To resolve the buildings, use [useQuery](/docs/api/useQuery) with the `.query` accessor:
 
+:::react
+
 ```tsx
 function DepartmentBuildings({ dept }: { dept: Department }) {
   // dept.buildings contains raw IDs: ['bldg-1', 'bldg-2']
@@ -62,6 +64,34 @@ function DepartmentBuildings({ dept }: { dept: Department }) {
 }
 ```
 
+:::
+
+:::vue
+
+```html title="DepartmentBuildings.vue"
+<script setup lang="ts">
+  import { useQuery } from '@data-client/vue';
+  import { Department } from './Department';
+
+  const props = defineProps<{ dept: Department }>();
+
+  // dept.buildings contains raw IDs: ['bldg-1', 'bldg-2']
+  const buildings = useQuery(
+    Department.schema.buildings.query,
+    () => props.dept.buildings,
+  );
+  // buildings: ComputedRef<Building[] | undefined>
+</script>
+
+<template>
+  <ul v-if="buildings">
+    <li v-for="b in buildings" :key="b.id">{{ b.name }}</li>
+  </ul>
+</template>
+```
+
+:::
+
 ### Single entity relationship
 
 ```typescript
@@ -76,6 +106,8 @@ class Department extends Entity {
 }
 ```
 
+:::react
+
 ```tsx
 // dept.mainBuilding is a raw PK string: 'bldg-1'
 const building = useQuery(
@@ -83,6 +115,20 @@ const building = useQuery(
   { id: dept.mainBuilding },
 );
 ```
+
+:::
+
+:::vue
+
+```ts
+// dept.mainBuilding is a raw PK string: 'bldg-1'
+const building = useQuery(
+  Department.schema.mainBuilding.query,
+  () => ({ id: props.dept.mainBuilding }),
+);
+```
+
+:::
 
 When the inner schema is an [Entity](./Entity.md) (or any schema with `queryKey`), `LazyQuery` delegates to its `queryKey` — so you pass the same args you'd use to query that entity directly.
 
