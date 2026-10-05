@@ -549,6 +549,10 @@ div.fixtureJson {
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
+/* Match the space below the last line */
+.standaloneEditor .diffLabels + .playgroundEditor {
+  padding-top: 10px;
+}
 .diffLabels > span {
   position: absolute;
   left: 0.75rem;
