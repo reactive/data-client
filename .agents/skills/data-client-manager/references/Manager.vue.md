@@ -114,8 +114,8 @@ export default class TimeManager implements Manager {
 `actionTypes` includes all constants to distinguish between different [actions](./Actions.vue.md).
 
 ```ts
-import type { Manager, Middleware } from '@data-client/core';
-import { actionTypes } from '@data-client/core';
+import type { Manager, Middleware } from '@data-client/react';
+import { actionTypes } from '@data-client/react';
 
 export default class LoggingManager implements Manager {
   middleware: Middleware = controller => next => async action => {
@@ -160,8 +160,8 @@ export default function isEntity(schema: Schema): schema is EntityInterface {
 ```
 
 ```ts title="SubsManager"
-import type { Manager, Middleware, EntityInterface } from '@data-client/core';
-import { actionTypes } from '@data-client/core';
+import type { Manager, Middleware, EntityInterface } from '@data-client/react';
+import { actionTypes } from '@data-client/react';
 import isEntity from './isEntity';
 
 export default class CustomSubsManager implements Manager {
