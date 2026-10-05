@@ -42,8 +42,9 @@ When using React Navigation, [focus events](https://reactnavigation.org/docs/use
 
 ### Invalid
 
-Data should not be shown. Any components needing this data will trigger fetch and suspense. If
-no components care about this data no action will be taken.
+Data should not be shown. Any components needing this data will trigger fetch:react[ and suspense]:vue[
+([mounted components keep their data](#invalidate) until it resolves)]. If no components care about this
+data no action will be taken.
 
 ## Expiry Time
 

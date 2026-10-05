@@ -31,7 +31,11 @@ Use normal nested [schemas](./schema.md) for relationships to other entities.
 In this example, `pct_equity` and `shares` depend on the selected portfolio, while
 `name` and `price` are stable properties of the `Company` entity.
 
-<ScalarDemo />
+<ScalarDemo renderCount />
+
+The badge on the preview counts its React renders (click it to reset). Switching to a
+new portfolio renders twice, once for the switch and once when its columns arrive, while
+revisiting a cached portfolio renders once.
 
 On first render, `getCompanies` fetches once to populate the Company entities and
 the initial `Scalar(portfolio)` cells. Every later portfolio switch re-denormalizes

@@ -81,7 +81,9 @@ DesignSystem/       components injected into preview scope
 - Mobile: editable react-live editor instead of Monaco; live preview still runs.
 - Bots: same editor fallback; preview stays `previewLoading` (never loads
   `LivePreview`); StackBlitz embeds never load.
-- `DiffEditor` shows a two-`CodeBlock` grid instead of Monaco.
+- `DiffEditor` shows a two-`CodeBlock` grid instead of Monaco, with callout
+  markers appended as trailing comments; caption and callout legend are
+  outside the editor, so they render for everyone.
 
 ### Hidden playgrounds (homepage Demo protocol tabs)
 
@@ -124,6 +126,13 @@ DesignSystem/       components injected into preview scope
   `fixtures`); `memo(Preview)` keeps it from re-rendering on code edits.
 - Store inspector open state persists per `groupId` via tab storage and
   avoids scroll jumps; in `row` layout it replaces the result while open.
+- `renderCount` wraps the live result in a `<Profiler>` and shows its commit
+  count in the preview header (written to the DOM, so counting adds no commits).
+  `website/profiling-plugin.js` replaces `react-dom/client` with React's
+  profiling build because production builds never call `onRender`; the badge
+  stays hidden if that ever stops working. `website/profiling-loader.js` pins
+  the build's DevTools check off, so only `<Profiler>` subtrees are ever timed
+  (otherwise DevTools users would profile every page).
 - Third-party console noise is demoted only while previews are mounted
   (`usePlaygroundConsoleDemotion`); never add first-party matchers.
 

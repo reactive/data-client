@@ -9,6 +9,7 @@ image: /img/social/managers-card.png
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import StackBlitz from '@site/src/components/StackBlitz';
+import BatchSetDemo from '../shared/\_BatchSetDemo.mdx';
 
 <head>
   <meta name="docsearch:pagerank" content="40"/>
@@ -437,6 +438,12 @@ export default class StreamManager implements Manager {
 
 Rows in one batch that share a pk merge in order and skip [Entity.shouldReorder()](/rest/api/Entity#shouldreorder),
 so buffer only the latest message per pk when order matters.
+
+:::react
+
+<BatchSetDemo />
+
+:::
 
 #### Skipping DevTools for high-frequency updates
 

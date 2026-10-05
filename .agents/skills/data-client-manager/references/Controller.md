@@ -91,7 +91,7 @@ function PostListItem({ post }: { post: PostResource }) {
       await ctrl.fetch(PostResource.delete, { id: post.id });
       history.push('/');
     },
-    [ctrl, id],
+    [ctrl, post.id],
   );
 
   return (
@@ -109,7 +109,7 @@ function PostListItem({ post }: { post: PostResource }) {
 > When using schemas, the denormalized value is returned
 >
 > ```ts
-> import { useController } from '@data-client/react';
+> const controller = useController();
 >
 > const post = await controller.fetch(
 >   PostResource.getList.push,
@@ -175,7 +175,7 @@ when there are many parameterizations in cache.
 import { type Controller, useController } from '@data-client/react';
 
 const createTradeHandler = (ctrl: Controller) => async trade => {
-  await ctrl.fetch(TradeResource.getList.push({ user: user.id }, trade));
+  await ctrl.fetch(TradeResource.getList.push, { user: user.id }, trade);
   ctrl.expireAll(AccountResource.get);
   ctrl.expireAll(AccountResource.getList);
 };
@@ -200,7 +200,7 @@ function CreateTrade({ id }: { id: string }) {
 
 ### invalidate(endpoint, ...args) {#invalidate}
 
-Forces refetching and suspense on [useSuspense](https://dataclient.io/docs/api/useSuspense) with the same Endpoint
+Forces refetching and suspenseon [useSuspense](https://dataclient.io/docs/api/useSuspense) with the same Endpoint
 and parameters.
 
 ```tsx
@@ -210,8 +210,10 @@ function ArticleName({ id }: { id: string }) {
 
   return (
     <div>
-      <h1>{article.title}<h1>
-      <button onClick={() => ctrl.invalidate(ArticleResource.get, { id })}>Fetch &amp; suspend</button>
+      <h1>{article.title}</h1>
+      <button onClick={() => ctrl.invalidate(ArticleResource.get, { id })}>
+        Fetch &amp; suspend
+      </button>
     </div>
   );
 }
@@ -229,7 +231,7 @@ function ArticleName({ id }: { id: string }) {
 >
 > ```ts
 > // deletes MyResource(5)
-> // this will resuspend MyResource.get({id: '5'})
+> // this will refetch MyResource.get({id: '5'})
 > // and remove it from MyResource.getList
 > controller.setResponse(MyResource.delete, { id: '5' }, { id: '5' });
 > ```
@@ -245,8 +247,10 @@ function ArticleName({ id }: { id: string }) {
 
   return (
     <div>
-      <h1>{article.title}<h1>
-      <button onClick={() => ctrl.invalidateAll(ArticleResource.get)}>Fetch &amp; suspend</button>
+      <h1>{article.title}</h1>
+      <button onClick={() => ctrl.invalidateAll(ArticleResource.get)}>
+        Fetch &amp; suspend
+      </button>
     </div>
   );
 }
@@ -258,7 +262,7 @@ function ArticleName({ id }: { id: string }) {
 
 Here we clear only GET endpoints using the test.com domain. This means other domains remain in cache.
 
-```tsx
+```ts
 const myDomain = 'http://test.com';
 const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
 
@@ -271,11 +275,16 @@ function useLogout() {
 It's usually a good idea to also clear cache on 401 (unauthorized) with [LogoutManager](./LogoutManager.md)
 as well.
 
-```ts
-import { DataProvider, LogoutManager, getDefaultManagers } from '@data-client/react';
+```tsx
+import {
+  DataProvider,
+  LogoutManager,
+  getDefaultManagers,
+} from '@data-client/react';
 import { createRoot } from 'react-dom/client';
 import { unAuth } from '../authentication';
 
+const myDomain = 'http://test.com';
 const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
 
 const managers = [
@@ -304,7 +313,7 @@ Resets/clears the entire Reactive Data Client cache. All inflight requests will 
 This is typically used when logging out or changing authenticated users.
 
 ```tsx
-const USER_NUMBER_ONE: string = "1111";
+const USER_NUMBER_ONE: string = '1111';
 
 function UserName() {
   const user = useSuspense(CurrentUserResource.get);
@@ -317,7 +326,7 @@ function UserName() {
   }, [ctrl]);
   return (
     <div>
-      <h1>{user.name}<h1>
+      <h1>{user.name}</h1>
       <button onClick={becomeAdmin}>Be Number One</button>
     </div>
   );
@@ -413,6 +422,67 @@ receive `[]`) and no updater function. Rows that share a pk merge in list order,
 [Entity.shouldReorder()](https://dataclient.io/rest/api/Entity#shouldreorder). Use this instead of calling `set()` once per row, such as when
 [batching high-frequency stream updates](./managers.md#batching).
 
+Try both buttons below. This browser check starts from an empty store and times `Promise.all` of 500 `set()`
+calls against one batch `set()`. Both paths are one React commit, and each writes 500 new prices.
+
+```ts title="Ticker"
+import { Entity } from '@data-client/rest';
+
+export class Ticker extends Entity {
+  product_id = '';
+  price = 0;
+
+  pk() {
+    return this.product_id;
+  }
+  static key = 'Ticker';
+}
+
+export const newPrices = () =>
+  Array.from({ length: 500 }, (_, i) => ({
+    product_id: `COIN-${i}`,
+    price: Math.round(Math.random() * 10000) / 100,
+  }));
+```
+
+```tsx title="PriceStream"
+import { useController, useQuery } from '@data-client/react';
+import { Ticker, newPrices } from './Ticker';
+
+function PriceStream() {
+  const ctrl = useController();
+  const [timing, setTiming] = React.useState('');
+  const first = useQuery(Ticker, { product_id: 'COIN-0' });
+
+  const time = async (
+    label: string,
+    write: (rows: ReturnType<typeof newPrices>) => Promise<unknown>,
+  ) => {
+    const rows = newPrices();
+    const start = performance.now();
+    await write(rows);
+    setTiming(`${label}: ${(performance.now() - start).toFixed(1)} ms`);
+  };
+  const perRow = () =>
+    time('500 set() calls', rows =>
+      Promise.all(
+        rows.map(row => ctrl.set(Ticker, { product_id: row.product_id }, row)),
+      ),
+    );
+  const batch = () => time('1 batch set()', rows => ctrl.set([Ticker], rows));
+
+  return (
+    <div>
+      <button onClick={perRow}>set() per row</button>{' '}
+      <button onClick={batch}>batch set()</button>
+      <p>COIN-0: {first ? `$${first.price}` : 'no data yet'}</p>
+      <p>{timing}</p>
+    </div>
+  );
+}
+render(<PriceStream />);
+```
+
 ### setResponse(endpoint, ...args, response) {#setResponse}
 
 Stores `response` in cache for given [Endpoint](https://dataclient.io/rest/api/Endpoint) and args.
@@ -494,18 +564,19 @@ This is used in [useQuery](https://dataclient.io/docs/api/useQuery) and can be u
 ```tsx title="useQuery.ts"
 import {
   useController,
-  useCacheState,
+  StateContext,
   type Queryable,
   type SchemaArgs,
   type DenormalizeNullable,
 } from '@data-client/react';
+import { useContext } from 'react';
 
 /** Oversimplified useQuery */
 function useQuery<S extends Queryable>(
   schema: S,
   ...args: SchemaArgs<S>
 ): DenormalizeNullable<S> | undefined {
-  const state = useCacheState();
+  const state = useContext(StateContext);
   const controller = useController();
 
   return controller.get(schema, ...args, state);
@@ -566,11 +637,12 @@ This is used in [useCache](https://dataclient.io/docs/api/useCache), [useSuspens
 import {
   useController,
   StateContext,
-  EndpointInterface,
+  type EndpointInterface,
 } from '@data-client/react';
+import { useContext } from 'react';
 
 /** Oversimplified useCache */
-function useCache<E extends EntityInterface>(
+function useCache<E extends EndpointInterface>(
   endpoint: E,
   ...args: readonly [...Parameters<E>]
 ) {

@@ -15,7 +15,7 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 
 # Manager
 
-`Managers` are singletons that handle global side-effects. Kind of like [useEffect()](https://react.dev/reference/react/useEffect) for the central data
+`Managers` are singletons that handle global side-effects. Kind of like :react[[useEffect()](https://react.dev/reference/react/useEffect)]:vue[[watchEffect()](https://vuejs.org/api/reactivity-core.html#watcheffect)] for the central data
 store.
 
 The default managers orchestrate the complex asynchronous behavior that <abbr title="Reactive Data Client">Data Client</abbr>
@@ -43,10 +43,24 @@ interface Manager {
 ### middleware
 
 `middleware` is very similar to a [redux middleware](https://redux.js.org/advanced/middleware).
-The only differences is that the `next()` function returns a `Promise`. This promise resolves when the reducer update is
+The only differences is that the `next()` function returns a `Promise`.
+
+:::react
+
+This promise resolves when the reducer update is
 [committed](https://indepth.dev/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react/#general-algorithm)
 when using &lt;DataProvider /\>. This is necessary since the commit phase is asynchronously scheduled. This enables building
 managers that perform work after the DOM is updated and also with the newly computed state.
+
+:::
+
+:::vue
+
+This promise resolves when the reducer update is committed to the
+[DataClientPlugin](../getting-started/installation.md) store. This enables building managers that perform work with the
+newly computed state.
+
+:::
 
 Since redux is fully synchronous, an adapter must be placed in front of Reactive Data Client style middleware to
 ensure they can consume a promise. Conversely, redux middleware must be changed to pass through promises.
@@ -79,6 +93,8 @@ Use the `managers` option of [DataClientPlugin](../getting-started/installation.
 installed once per app, so managers are created once.
 
 :::
+
+:::react
 
 <Tabs
 defaultValue="web"
@@ -217,9 +233,27 @@ export default function RootLayout() {
 </TabItem>
 </Tabs>
 
+:::
+
+:::vue
+
+```ts title="main.ts"
+import { createApp } from 'vue';
+import { DataClientPlugin, getDefaultManagers } from '@data-client/vue';
+import App from './App.vue';
+
+const managers = [...getDefaultManagers(), new MyManager()];
+
+const app = createApp(App);
+app.use(DataClientPlugin, { managers });
+app.mount('#app');
+```
+
+:::
+
 ## Control flow
 
-Managers integrate with the DataProvider store with their lifecycles and middleware. They orchestrate complex control
+Managers integrate with the :react[DataProvider]:vue[DataClientPlugin] store with their lifecycles and middleware. They orchestrate complex control
 flows by interfacing via intercepting and dispatching [actions](./Actions.md), as well as reading the internal state.
 
 <ThemedImage
@@ -288,7 +322,7 @@ export default class LoggingManager implements Manager {
           console.info(
             `${action.endpoint.name} ${JSON.stringify(action.response)}`,
           );
-          // wait for state update to be committed to React
+          // wait for state update to be committed
           await next(action);
           // get the data from the store, which may be merged with existing state
           const { data } = controller.getResponse(

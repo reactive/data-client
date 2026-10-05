@@ -30,7 +30,9 @@ interface Manager {
 ### middleware
 
 `middleware` is very similar to a [redux middleware](https://redux.js.org/advanced/middleware).
-The only differences is that the `next()` function returns a `Promise`. This promise resolves when the reducer update is
+The only differences is that the `next()` function returns a `Promise`.
+
+This promise resolves when the reducer update is
 [committed](https://indepth.dev/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react/#general-algorithm)
 when using \<DataProvider />. This is necessary since the commit phase is asynchronously scheduled. This enables building
 managers that perform work after the DOM is updated and also with the newly computed state.
@@ -224,7 +226,7 @@ export default class LoggingManager implements Manager {
           console.info(
             `${action.endpoint.name} ${JSON.stringify(action.response)}`,
           );
-          // wait for state update to be committed to React
+          // wait for state update to be committed
           await next(action);
           // get the data from the store, which may be merged with existing state
           const { data } = controller.getResponse(

@@ -16,6 +16,8 @@ resource.
 
 :::
 
+:::react
+
 ```tsx
 import {
   SubscriptionManager,
@@ -37,10 +39,36 @@ createRoot(document.body).render(
 );
 ```
 
+:::
+
+:::vue
+
+```ts title="main.ts"
+import { createApp } from 'vue';
+import {
+  SubscriptionManager,
+  PollingSubscription,
+  DataClientPlugin,
+  NetworkManager,
+} from '@data-client/vue';
+import App from './App.vue';
+
+const managers = [
+  new NetworkManager(),
+  new SubscriptionManager(PollingSubscription),
+];
+
+const app = createApp(App);
+app.use(DataClientPlugin, { managers });
+app.mount('#app');
+```
+
+:::
+
 ## Dispatched Actions
 
 - 'rdc/fetch'
 
 > #### Note:
 >
-> This is already used by `DataProvider` by default.
+> This is already used by :react[`DataProvider`]:vue[`DataClientPlugin`] by default.
