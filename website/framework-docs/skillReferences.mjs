@@ -15,6 +15,7 @@
  *
  * Usage: node website/framework-docs/skillReferences.mjs [--check]
  */
+import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
@@ -140,6 +141,34 @@ function generateUncached(skillDir) {
   return out;
 }
 
+let gitLinks;
+/**
+ * A file's content, following symlinks git tracks even in checkouts that
+ * write them as plain files holding the target path (`core.symlinks=false`)
+ */
+function readFollowingLinks(file) {
+  if (!gitLinks) {
+    try {
+      gitLinks = new Set(
+        execFileSync('git', ['ls-files', '-s', '--', SKILLS], {
+          cwd: ROOT,
+          encoding: 'utf8',
+          stdio: ['ignore', 'pipe', 'ignore'],
+        })
+          .split('\n')
+          .filter(line => line.startsWith('120000 '))
+          .map(line => path.join(ROOT, line.split('\t')[1])),
+      );
+    } catch {
+      gitLinks = new Set();
+    }
+  }
+  const content = fs.readFileSync(file, 'utf8');
+  return gitLinks.has(file) && !fs.lstatSync(file).isSymbolicLink() ?
+      fs.readFileSync(path.resolve(path.dirname(file), content.trim()), 'utf8')
+    : content;
+}
+
 /** Adds a copy of sourceDir's skill to out, under skillDir's references */
 function bundleSkill(sourceDir, skillDir, out) {
   const skill = path.basename(sourceDir);
@@ -170,7 +199,7 @@ function bundleSkill(sourceDir, skillDir, out) {
     out.set(path.join(dest, path.relative(sourceDir, file)), content);
   for (const file of walk(sourceDir)) {
     const name = path.relative(sourceDir, file);
-    const content = fs.readFileSync(file, 'utf8');
+    const content = readFollowingLinks(file);
     if (name === 'SKILL.md' || name === MANIFEST || isGenerated(content))
       continue;
     out.set(path.join(dest, name), withHeader(file, content));
