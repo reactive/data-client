@@ -2080,7 +2080,7 @@ interface ResourceEndpointExtensions<R extends ResourceInterface, Get extends Pa
  * Then callbacks take `E`'s args, or `any` when those are a union of tuples, which TypeScript
  * can't infer callback parameters from.
  */
-type EndpointExtensionOptions<E extends RestInstanceBase, O extends PartialRestGenerics> = RestEndpointOptions<unknown extends O ? EndpointToFunction<E> : PartialRestGenerics extends O ? SingleArgsFunction<EndpointToFunction<E>> : OptionsToFunction<O, E, EndpointToFunction<E>>, E['schema']> & Readonly<O> & O;
+type EndpointExtensionOptions<E extends RestInstanceBase, O extends PartialRestGenerics> = RestEndpointOptions<unknown extends O ? EndpointToFunction<E> : PartialRestGenerics extends O ? SingleArgsFunction<EndpointToFunction<E>> : OptionsToFunction<O, E, EndpointToFunction<E>>, PartialRestGenerics extends O ? E['schema'] : 'schema' extends keyof O ? Extract<O['schema'], Schema | undefined> : E['schema']> & Readonly<O> & O;
 type SingleArgsFunction<F extends FetchFunction> = (...args: IsUnion<Parameters<F>> extends false ? Parameters<F> : any) => ReturnType<F>;
 
 interface Extendable<O extends ResourceGenerics = {
