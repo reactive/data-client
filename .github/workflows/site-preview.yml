@@ -21,8 +21,10 @@ on:
       - 'docs/graphql/**'
       - '.github/workflows/site-preview.yml'
 
+# PRs cancel superseded runs. Push runs get their own group, so master never
+# shows a cancelled (red) run.
 concurrency:
-  group: site-preview-${{ github.head_ref || github.ref }}
+  group: site-preview-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:

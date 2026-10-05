@@ -41,8 +41,10 @@ on:
       - 'tsconfig*.json'
       - '.github/workflows/editor-types.yml'
 
+# PRs cancel superseded runs. Push runs get their own group, so master never
+# shows a cancelled (red) run.
 concurrency:
-  group: editor-types-${{ github.head_ref || github.ref }}
+  group: editor-types-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
