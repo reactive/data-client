@@ -8,10 +8,6 @@ on:
         description: Comma-separated workspaces the job builds and runs
         required: true
         type: string
-      paths:
-        description: The caller's `paths` filter, one glob per line
-        required: true
-        type: string
     outputs:
       relevant:
         value: ${{ jobs.check.outputs.relevant }}
@@ -32,9 +28,11 @@ jobs:
         env:
           BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
           WORKSPACES: ${{ inputs.workspaces }}
-          PATHS: ${{ inputs.paths }}
         run: |
           # A missing base makes the script fail open
           git fetch -q --depth=1 origin "$BASE" || true
-          mapfile -t paths <<< "$PATHS"
+          # The caller's own `paths` filter (github.workflow_ref names the
+          # caller). Unreadable means none: any changed file counts.
+          workflow="${GITHUB_WORKFLOW_REF#*/*/}"
+          mapfile -t paths < <(yq -r ".on.${GITHUB_EVENT_NAME}.paths[]" "${workflow%@*}" || true)
           node scripts/ci-deps-relevant.mjs "$BASE" "$WORKSPACES" "${paths[@]}"

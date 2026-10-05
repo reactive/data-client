@@ -45,17 +45,6 @@ jobs:
     uses: ./.github/workflows/dependency-gate.yml
     with:
       workspaces: examples/benchmark
-      # `paths` above, one per line
-      paths: |
-        packages/normalizr/src/**
-        packages/endpoint/src/schemas/**
-        packages/core/src/**
-        examples/benchmark/**
-        !packages/**/__tests__/**
-        !examples/benchmark/**/*.md
-        scripts/ci-deps-relevant.mjs
-        .github/workflows/dependency-gate.yml
-        .github/workflows/benchmark.yml
 
   benchmark:
     needs: changes

@@ -32,20 +32,6 @@ jobs:
     uses: ./.github/workflows/dependency-gate.yml
     with:
       workspaces: examples/test-bundlesize
-      # `paths` above, one per line
-      paths: |
-        packages/**
-        !packages/**/__tests__/**
-        !packages/*/typescript-tests/**
-        !packages/*/src-*-types/**
-        !packages/**/*.md
-        !packages/graphql/**
-        !packages/test/**
-        !packages/vue/**
-        examples/test-bundlesize/**
-        scripts/ci-deps-relevant.mjs
-        .github/workflows/dependency-gate.yml
-        .github/workflows/bundle_size.yml
 
   build:
     needs: changes

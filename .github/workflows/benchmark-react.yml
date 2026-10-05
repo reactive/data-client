@@ -48,18 +48,6 @@ jobs:
     uses: ./.github/workflows/dependency-gate.yml
     with:
       workspaces: examples/benchmark-react
-      # `paths` above, one per line
-      paths: |
-        packages/react/src/**
-        packages/core/src/**
-        packages/endpoint/src/schemas/**
-        packages/normalizr/src/**
-        examples/benchmark-react/**
-        !packages/**/__tests__/**
-        !examples/benchmark-react/**/*.md
-        scripts/ci-deps-relevant.mjs
-        .github/workflows/dependency-gate.yml
-        .github/workflows/benchmark-react.yml
 
   benchmark-react:
     needs: changes

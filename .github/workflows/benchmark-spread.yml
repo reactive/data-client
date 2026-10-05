@@ -52,18 +52,6 @@ jobs:
     uses: ./.github/workflows/dependency-gate.yml
     with:
       workspaces: examples/benchmark
-      # `paths` above, one per line
-      paths: |
-        packages/core/src/state/**
-        packages/normalizr/src/normalize/**
-        packages/endpoint/src/schemas/EntityMixin.ts
-        !packages/**/__tests__/**
-        examples/benchmark/spread.js
-        examples/benchmark/spread-scenarios.js
-        examples/benchmark/schemas.js
-        scripts/ci-deps-relevant.mjs
-        .github/workflows/dependency-gate.yml
-        .github/workflows/benchmark-spread.yml
 
   benchmark-spread:
     needs: changes

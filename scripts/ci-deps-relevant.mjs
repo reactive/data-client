@@ -19,9 +19,10 @@
 import { execFileSync } from 'node:child_process';
 import { appendFileSync } from 'node:fs';
 
-// Root build tooling every package build uses (babel.config.js, browserslist)
+// Root build tooling every package build uses (babel.config.js, browserslist).
+// Add new root build dependencies here: root devDependencies aren't walked.
 const BUILD_TOOLS =
-  /^(@babel\/|core-js|browserslist$|caniuse-lite$|@anansi\/(babel-preset|browserslist-config)$)/;
+  /^(@babel\/|core-js|browserslist$|caniuse-lite$|babel-plugin-module-resolver$|@anansi\/(babel-preset|browserslist-config)$)/;
 // Type-only packages can't change built output or runtime behavior
 const IGNORED = /^(@types\/|typescript$|@typescript\/)/;
 const DEP_FIELDS = [
