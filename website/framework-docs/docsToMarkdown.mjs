@@ -180,21 +180,34 @@ const text = value => ({ type: 'text', value });
 const paragraph = children => ({ type: 'paragraph', children });
 const html = value => ({ type: 'html', value });
 
-/** Code without Docusaurus-only syntax (highlight markers, display options) */
+/**
+ * Code without Docusaurus-only syntax (highlight markers, display options).
+ * `data.lines` maps each line of the result to its line in `value`; `data.nocheck`
+ * marks fences the Vue example check skips.
+ */
 function codeBlock({ lang, value, title, meta = title && `title="${title}"` }) {
+  const kept = value
+    .split('\n')
+    .map((text, line) => ({ text, line }))
+    .filter(
+      ({ text }) =>
+        !/^\s*(\/\/|#|<!--|\{\/\*)\s*highlight-(next-line|start|end)/.test(
+          text,
+        ),
+    );
+  const code = kept.map(({ text }) => text).join('\n');
+  const leading = code.slice(0, code.length - code.trimStart().length);
   return {
     type: 'code',
     lang: lang ?? null,
     meta:
-      meta?.replace(/\s*\b(collapsed|showLineNumbers)\b/g, '').trim() || null,
-    value: value
-      .split('\n')
-      .filter(
-        l =>
-          !/^\s*(\/\/|#|<!--|\{\/\*)\s*highlight-(next-line|start|end)/.test(l),
-      )
-      .join('\n')
-      .trim(),
+      meta?.replace(/\s*\b(collapsed|showLineNumbers|nocheck)\b/g, '').trim() ||
+      null,
+    value: code.trim(),
+    data: {
+      lines: kept.slice(leading.split('\n').length - 1).map(({ line }) => line),
+      nocheck: /\bnocheck\b/.test(meta ?? ''),
+    },
   };
 }
 const codeLang = attrs =>
@@ -223,6 +236,9 @@ const INLINE = { b: 'strong', strong: 'strong', em: 'emphasis', i: 'emphasis' };
 const HTML = ['details', 'sup', 'sub', 'kbd'];
 /** Site-only embeds with nothing to read */
 const DROP = ['ThemedImage', 'SkillTabs', 'head'];
+
+/** Numbers each playground rendered, so its code blocks can be grouped */
+let playgrounds = 0;
 
 /** Rewrites one page (and its partials) into plain markdown nodes */
 function render(file, framework, props = {}) {
@@ -263,8 +279,14 @@ function render(file, framework, props = {}) {
       case 'definition':
         node.url = routeLink(node.url, source, framework);
         break;
-      case 'code':
-        return [codeBlock(node)];
+      case 'code': {
+        const code = codeBlock(node);
+        Object.assign(code.data, {
+          file: source,
+          line: node.position?.start.line,
+        });
+        return [code];
+      }
       case 'containerDirective': {
         if (!ADMONITIONS.includes(node.name)) break;
         const [first] = node.children;
@@ -438,7 +460,15 @@ function render(file, framework, props = {}) {
     if (INLINE[name] && !flow)
       return [{ type: INLINE[name], children: convertAll(node.children) }];
     // Playgrounds, layout and other wrappers: keep what's inside
-    return convertAll(node.children);
+    const children = convertAll(node.children);
+    // files of one playground make up one example app
+    if (name.endsWith('Playground')) {
+      const playground = ++playgrounds;
+      visit({ type: 'root', children }, 'code', code => {
+        code.data.playground = playground;
+      });
+    }
+    return children;
   }
 
   /** A GFM table; row and column spans repeat the cell so each row stands alone */
@@ -491,6 +521,10 @@ function render(file, framework, props = {}) {
   }
 
   tree.children = convertAll(tree.children);
+  // `<CodeBlock>`s have no position; partials already tagged their own
+  visit(tree, 'code', code => {
+    code.data.file ??= source;
+  });
   // absolute /docs links point at this framework's docs, as on the site
   if (framework === 'vue')
     remarkFramework({
@@ -500,6 +534,21 @@ function render(file, framework, props = {}) {
     })(tree);
   tree.title = frontMatterValue(content, 'title');
   return tree;
+}
+
+/**
+ * Code blocks of a doc for a framework, in page order, or undefined if the page isn't in it.
+ * Blocks from one playground share a `playground` number; `file` and `line` locate fences
+ * (blocks from `<CodeBlock>` only have `file`).
+ */
+export function docCodeBlocks(file, framework) {
+  const tree = render(file, framework);
+  if (!tree) return;
+  const blocks = [];
+  visit(tree, 'code', ({ lang, meta, value, data = {} }) => {
+    blocks.push({ lang, meta, value, ...data });
+  });
+  return blocks;
 }
 
 const FLOW_PARENTS = ['root', 'blockquote', 'listItem'];

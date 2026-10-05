@@ -82,6 +82,27 @@ in both directions, unless the other page names its own `framework_equivalent`. 
 Give per-framework headings an explicit id so links to them work in both frameworks. A heading with
 no text left for a framework (e.g. only `:react[...]`) is dropped from that framework's page.
 
+### Vue examples
+
+Vue code fences are copied verbatim into Vue skill references and into readers' apps, and the Vue
+playground doesn't run them, so `yarn check:vue-examples` (`checkVueExamples.mjs`, run by the
+`skills` workflow) type-checks them with `vue-tsc` against `@data-client/vue` and `@data-client/rest`.
+It checks each playground that has a `.vue` file as one app (files import each other by title:
+`./Resource` is the block titled `Resource`), and every other `.vue` block or ts block importing
+`@data-client/vue` on its own, where relative imports resolve to the page's titled blocks or to
+stubs typed `any`.
+
+- Import everything a block uses, including `@data-client/rest` schemas in shared blocks the React
+  playground would provide as globals, and child components (`import ArticleForm from './ArticleForm.vue'`).
+  Vue templates only see what `<script setup>` imports.
+- `Loading`, `Avatar`, `TextInput`, `TextArea`, `CancelButton` and `SearchIcon` stand for the app's own
+  design system and need no import, like `RouterLink` and `RouterView`.
+- Use HTML elements Vue knows: `<center>` and `<strike>` resolve as (missing) components.
+- Template expressions only see Vue's allowed globals, not `FormData` or `window`; move such code
+  into `<script setup>`.
+- Add `nocheck` to a fence's meta (` ```html title="Foo.vue" nocheck `) only for a deliberately
+  partial fragment; it's dropped from the rendered page and skill references.
+
 ## How it works
 
 - `remarkFramework.js` keeps the matching `:::react`/`:::vue` content and drops the rest. Each docs
