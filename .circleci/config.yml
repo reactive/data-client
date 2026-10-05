@@ -268,6 +268,7 @@ jobs:
                   # Pinned CLI, checked against Codecov's signing key fingerprint
                   # before it ever sees CODECOV_TOKEN.
                   # https://docs.codecov.com/docs/codecov-uploader#integrity-checking-the-uploader
+                  # renovate: datasource=github-releases depName=codecov/codecov-cli
                   CLI=https://cli.codecov.io/v11.3.1/linux/codecov
                   KEY_FINGERPRINT=27034E7FDB850E0BBC2C62FF806BB28AED779869
                   DIR="$(mktemp -d)"
