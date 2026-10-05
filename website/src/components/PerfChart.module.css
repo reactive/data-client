@@ -1,0 +1,38 @@
+.perfChart {
+  max-width: 500px;
+  margin: 0 auto var(--ifm-leading);
+}
+
+.bars {
+  display: grid;
+  grid-template-columns: max-content 1fr max-content;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.bar {
+  display: block;
+  height: 1.25rem;
+  min-width: 2px;
+  border-radius: 0 4px 4px 0;
+  background: var(--ifm-color-primary);
+}
+
+.table {
+  font-size: 0.875rem;
+}
+
+.table td {
+  text-align: right;
+}
+
+.table th[scope='row'] {
+  text-align: left;
+  white-space: nowrap;
+}

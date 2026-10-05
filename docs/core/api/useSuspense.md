@@ -20,6 +20,7 @@ import { RestEndpoint } from '@data-client/rest';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import StackBlitz from '@site/src/components/StackBlitz';
 import { detailFixtures, listFixtures } from '@site/src/fixtures/profiles';
+import VueArgs from '../shared/\_vueArgs.mdx';
 
 # useSuspense()
 
@@ -217,16 +218,16 @@ Cache policy is [Stale-While-Revalidate](https://tools.ietf.org/html/rfc5861) by
 
 :::
 
-:::react
+::::react
 
-::::info[React Native]
+:::info[React Native]
 
 When using React Navigation, useSuspense() will trigger fetches on focus if the data is considered
 stale.
 
-::::
-
 :::
+
+::::
 
 <ConditionalDependencies />
 
@@ -272,8 +273,9 @@ function useSuspense(
 ): Promise<DeepReadonly<ComputedRef<Denormalize<typeof endpoint.schema>>>>;
 ```
 
-Arguments can be plain values or [refs](https://vuejs.org/api/reactivity-core.html#ref) (including [computed](https://vuejs.org/api/reactivity-core.html#computed)); the result
-updates when they change.
+<VueArgs />
+
+The result updates when the arguments change.
 While data for new arguments loads, the result keeps the previous data instead of becoming `undefined`.
 If that fetch fails, reading the result throws the error (per its [error policy](../concepts/error-policy.md)), so it reaches
 [onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured).
@@ -391,11 +393,11 @@ function PostWithAuthor() {
   import { PostResource, UserResource } from './Resources';
 
   const props = defineProps<{ id: string }>();
-  const post = await useSuspense(PostResource.get, { id: props.id });
-  const author = await useSuspense(UserResource.get, {
+  const post = await useSuspense(PostResource.get, () => ({ id: props.id }));
+  const author = await useSuspense(UserResource.get, () => ({
   // highlight-next-line
     id: post.value.userId,
-  });
+  }));
 </script>
 ```
 
@@ -475,7 +477,7 @@ export default function PostWithAuthor({ id }: { id: string }) {
   import { PostResource, UserResource } from './Resources';
 
   const props = defineProps<{ id: string }>();
-  const post = await useSuspense(PostResource.get, { id: props.id });
+  const post = await useSuspense(PostResource.get, () => ({ id: props.id }));
   const author = await useSuspense(
     UserResource.get,
     computed(() =>
@@ -557,7 +559,7 @@ export default function ArticleList({ page }: { page: string }) {
   import { getPosts } from './api/Post';
 
   const props = defineProps<{ page: string }>();
-  const data = await useSuspense(getPosts, { page: props.page });
+  const data = await useSuspense(getPosts, () => ({ page: props.page }));
 </script>
 
 <template>

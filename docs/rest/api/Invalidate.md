@@ -140,7 +140,7 @@ export const PostResource = resource({
 });
 ```
 
-```typescript title="Request" column
+```typescript title="Usage" column
 import { PostResource } from './Resource';
 PostResource.deleteMany(['5', '13', '7']);
 ```
@@ -192,7 +192,7 @@ export const PostResource = resource({
 });
 ```
 
-```typescript title="Request" column
+```typescript title="Usage" column
 import { PostResource } from './Resource';
 PostResource.deleteMany(['5', '13', '7']);
 ```

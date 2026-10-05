@@ -1,0 +1,8 @@
+{
+  "frameworks": [
+    "vue"
+  ],
+  "docs": {
+    "Fixtures.md": "docs/core/api/Fixtures.md"
+  }
+}

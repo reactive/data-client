@@ -13,10 +13,7 @@ type Serializable<T extends {
     toJSON(): string;
 }> = (value: any) => T;
 interface SchemaSimple<T = any, Args extends readonly any[] = any[]> {
-    normalize(input: any, parent: any, key: any, args: any[], visit: (...args: any) => any, delegate: {
-        getEntity: any;
-        setEntity: any;
-    }, 
+    normalize(input: any, parent: any, key: any, delegate: INormalizeDelegate, 
     /** The nearest enclosing entity-like schema (one with `pk`), if any.
      * Tracked automatically by the visit walker. */
     parentEntity?: any): any;
@@ -52,6 +49,11 @@ interface NormalizedIndex {
             readonly [lookup: string]: string;
         };
     };
+}
+/** Visits next data + schema while recurisvely normalizing */
+interface Visit {
+    (schema: any, value: any, parent: any, key: any): any;
+    creating?: boolean;
 }
 /** Used in denormalize. Lookup to find an entity in the store table */
 interface EntityPath {
@@ -101,6 +103,10 @@ interface IDenormalizeDelegate {
 }
 /** Helpers during schema.normalize() */
 interface INormalizeDelegate {
+    /** Recursive normalize of nested schemas */
+    visit: Visit;
+    /** Raw endpoint args for this normalize call */
+    readonly args: readonly any[];
     /** Action meta-data for this normalize call */
     readonly meta: {
         fetchedAt: number;
@@ -411,22 +417,94 @@ type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Pr
 declare class AbortOptimistic extends Error {
 }
 
+/** Value types for `Controller.set()`, including batch `set([Entity], rows)` */
+
+/** What one row normalizes to: a reference to one stored entity */
+type EntityRef = string | {
+    readonly id: string;
+    readonly schema: string;
+};
+/** Schemas that write each row to one stored entity: Entity, Union, or Invalidate (batch delete).
+ * Query, All and Collection don't: they normalize to lists, or Collection keys by args batch set() lacks. */
+type SetEntitySchema = EntityInterface | {
+    _normalizeNullable(): EntityRef | undefined;
+    pk?: never;
+};
+/** `[Entity]`, `schema.Array(Entity)` or `schema.Values(Entity)` (or of a Union or Invalidate) */
+type SetManySchema = readonly SetEntitySchema[] | {
+    readonly schema: SetEntitySchema | Record<string, EntityInterface>;
+    schemaKey(): string;
+    queryKey(...args: any): undefined;
+    pk?: never;
+};
+type IsUnion<T, U = T> = T extends unknown ? [
+    U
+] extends [T] ? false : true : never;
+type FunctionKeys<U> = {
+    [K in keyof U]: U[K] extends (...args: any) => any ? K : never;
+}[keyof U];
+/** Raw input for one field: numbers and strings coerce (literals stay exact);
+ * objects are pre-normalize */
+type SetField<T> = T extends number ? number extends T ? T | string : T : T extends string ? string extends T ? T | number : T : T extends object ? unknown : T;
+/** Non-function keys of any member of U */
+type FieldKeys<U> = U extends unknown ? Exclude<keyof U, FunctionKeys<U>> : never;
+/** Input for field K, from each member of U that has it */
+type MemberField<U, K> = U extends unknown ? K extends keyof U ? SetField<U[K]> : never : never;
+/** Fields of one row (or a coerced primitive); like EntityFields, but without
+ * key remapping (TS 4.0). A Union's members merge into one object type: checking
+ * a row against it costs one comparison instead of one per member. */
+type SetRow<U> = 0 extends 1 & U ? {
+    readonly [k: string]: any;
+} : [U] extends [object] ? {
+    readonly [K in FieldKeys<U>]?: MemberField<U, K>;
+} : SetField<U>;
+/** Keeps S inferred from the schema alone: inferring it from the value too would
+ * walk the value's type against every conditional in SetValue (TS 5.4 has NoInfer) */
+type SkipInfer<T, S> = [T][S extends unknown ? 0 : never];
+type SetManyValue<S> = S extends readonly (infer E)[] ? true extends IsUnion<E> ? readonly {
+    'Use a Union schema for several Entity types': never;
+}[] : readonly SetItem<Denormalize<E>>[] : SetValue<S>;
+/** Raw input `set()` normalizes for a Queryable */
+type SetValue<S> = InputSchema<InputSchema<InputSchema<S>>> extends infer N ? N extends EntityInterface ? SetRow<Denormalize<N>> : SetInput<Denormalize<N>> : never;
+/** Query normalizes with its inner schema; its process() output is not input
+ *
+ * Applied three times in SetValue to unwrap nested Queries (TS 4.0 has no recursive aliases)
+ */
+type InputSchema<S> = S extends ({
+    readonly schema: infer Sch;
+    process(...args: any): any;
+    pk?: never;
+}) ? Sch : S;
+/** Raw input for a denormalized value, like a Collection's list or a Union's row */
+type SetInput<T> = 0 extends 1 & T ? any : [
+    T
+] extends [readonly (infer U)[]] ? readonly SetItem<U>[] : string extends keyof T ? {
+    readonly [k: string]: SetItem<T[keyof T]>;
+} : SetItem<T>;
+/**
+ * One member of a list or keyed object. Polymorphic rows may carry a
+ * discriminator that is not an Entity field.
+ */
+type SetItem<U> = true extends IsUnion<U> ? SetRow<U> & {
+    readonly [k: string]: unknown;
+} : SetRow<U>;
+
 type ResultEntry<E extends EndpointInterface> = E['schema'] extends undefined | null ? ResolveType<E> : Normalize<E['schema']>;
 type EndpointUpdateFunction<Source extends EndpointInterface, Updaters extends Record<string, any> = Record<string, any>> = (source: ResultEntry<Source>, ...args: any) => {
     [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K];
 };
 
-declare const FETCH: "rdc/fetch";
-declare const SET: "rdc/set";
-declare const SET_RESPONSE: "rdc/setresponse";
-declare const OPTIMISTIC: "rdc/optimistic";
-declare const RESET: "rdc/reset";
-declare const SUBSCRIBE: "rdc/subscribe";
-declare const UNSUBSCRIBE: "rdc/unsubscribe";
-declare const INVALIDATE: "rdc/invalidate";
-declare const INVALIDATEALL: "rdc/invalidateall";
-declare const EXPIREALL: "rdc/expireall";
-declare const GC: "rdc/gc";
+declare const FETCH: 'rdc/fetch';
+declare const SET: 'rdc/set';
+declare const SET_RESPONSE: 'rdc/setresponse';
+declare const OPTIMISTIC: 'rdc/optimistic';
+declare const RESET: 'rdc/reset';
+declare const SUBSCRIBE: 'rdc/subscribe';
+declare const UNSUBSCRIBE: 'rdc/unsubscribe';
+declare const INVALIDATE: 'rdc/invalidate';
+declare const INVALIDATEALL: 'rdc/invalidateall';
+declare const EXPIREALL: 'rdc/expireall';
+declare const GC: 'rdc/gc';
 declare const FETCH_TYPE: "rdc/fetch";
 declare const SET_TYPE: "rdc/set";
 declare const SET_RESPONSE_TYPE: "rdc/setresponse";
@@ -739,14 +817,14 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      */
     fetch: <E extends EndpointInterface & {
         update?: EndpointUpdateFunction<E>;
-    }>(endpoint: E, ...args: readonly [...Parameters<E>]) => E["schema"] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E["schema"]>>;
+    }>(endpoint: E, ...args: readonly [...Parameters<E>]) => E['schema'] extends undefined | null ? ReturnType<E> : Promise<Denormalize<E['schema']>>;
     /**
      * Fetches only if endpoint is considered 'stale'; otherwise returns undefined
      * @see https://dataclient.io/docs/api/Controller#fetchIfStale
      */
     fetchIfStale: <E extends EndpointInterface & {
         update?: EndpointUpdateFunction<E>;
-    }>(endpoint: E, ...args: readonly [...Parameters<E>]) => E["schema"] extends undefined | null ? ReturnType<E> | ResolveType<E> : Promise<Denormalize<E["schema"]>> | Denormalize<E["schema"]>;
+    }>(endpoint: E, ...args: readonly [...Parameters<E>]) => E['schema'] extends undefined | null ? ReturnType<E> | ResolveType<E> : Promise<Denormalize<E['schema']>> | Denormalize<E['schema']>;
     /**
      * Forces refetching and suspense on useSuspense with the same Endpoint and parameters.
      * @see https://dataclient.io/docs/api/Controller#invalidate
@@ -777,8 +855,15 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * Sets value for the Queryable and args.
      * @see https://dataclient.io/docs/api/Controller#set
      */
-    set<S extends Queryable>(schema: S, ...rest: readonly [...SchemaArgs<S>, (previousValue: Denormalize<S>) => {}]): Promise<void>;
-    set<S extends Queryable>(schema: S, ...rest: readonly [...SchemaArgs<S>, {}]): Promise<void>;
+    set<S extends Queryable>(schema: S, ...rest: readonly [
+        ...SchemaArgs<S>,
+        SkipInfer<SetValue<S> | ((previousValue: Denormalize<S>) => SetValue<S>), S>
+    ]): Promise<void>;
+    /**
+     * Sets every row of an Array or Values of one Entity (or Union) in one normalize.
+     * @see https://dataclient.io/docs/api/Controller#set-array
+     */
+    set<S extends SetManySchema>(schema: S, value: SkipInfer<SetManyValue<S>, S>): Promise<void>;
     /**
      * Sets response for the Endpoint and args.
      * @see https://dataclient.io/docs/api/Controller#setResponse

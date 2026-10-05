@@ -406,49 +406,54 @@ describe('vue useFetch()', () => {
     expect(promiseRef.value).toBeUndefined();
   });
 
-  it('should re-fetch when props change', async () => {
-    const fetchMock1 = jest.fn(() => payload);
-    const fetchMock2 = jest.fn(() => payload2);
+  it.each([
+    ['reactive object', (p: { id: number }) => p],
+    ['getter', (p: { id: number }) => () => ({ id: p.id })],
+  ] as const)(
+    'should re-fetch when props change (%s args)',
+    async (_, toArg) => {
+      const fetchMock1 = jest.fn(() => payload);
+      const fetchMock2 = jest.fn(() => payload2);
 
-    mynock
-      .get(`/article-cooler/${payload.id}`)
-      .reply(200, fetchMock1)
-      .get(`/article-cooler/${payload2.id}`)
-      .reply(200, fetchMock2);
+      mynock
+        .get(`/article-cooler/${payload.id}`)
+        .reply(200, fetchMock1)
+        .get(`/article-cooler/${payload2.id}`)
+        .reply(200, fetchMock2);
 
-    // Use a reactive object that will be shared
-    const params = reactive({ id: payload.id });
+      // Use a reactive object that will be shared
+      const params = reactive({ id: payload.id });
 
-    const ArticleWithReactiveParams = defineComponent({
-      name: 'ArticleWithReactiveParams',
-      setup() {
-        // Pass the reactive object - Vue will track property access
-        useFetch(CoolerArticleResource.get, params);
-        return () => h('div', { class: 'article' }, `Article ${params.id}`);
-      },
-    });
+      const ArticleWithReactiveParams = defineComponent({
+        name: 'ArticleWithReactiveParams',
+        setup() {
+          useFetch(CoolerArticleResource.get, toArg(params));
+          return () => h('div', { class: 'article' }, `Article ${params.id}`);
+        },
+      });
 
-    const wrapper = mount(TestWrapper, {
-      slots: { default: () => h(ArticleWithReactiveParams) },
-      global: {
-        plugins: [[DataClientPlugin]],
-      },
-    });
+      const wrapper = mount(TestWrapper, {
+        slots: { default: () => h(ArticleWithReactiveParams) },
+        global: {
+          plugins: [[DataClientPlugin]],
+        },
+      });
 
-    // Wait for the first fetch to happen
-    await flushUntil(wrapper, () => fetchMock1.mock.calls.length > 0);
-    expect(fetchMock1).toHaveBeenCalledTimes(1);
-    expect(fetchMock2).toHaveBeenCalledTimes(0);
+      // Wait for the first fetch to happen
+      await flushUntil(wrapper, () => fetchMock1.mock.calls.length > 0);
+      expect(fetchMock1).toHaveBeenCalledTimes(1);
+      expect(fetchMock2).toHaveBeenCalledTimes(0);
 
-    // Update the reactive object to trigger re-fetch
-    params.id = payload2.id;
-    await flush();
+      // Update the reactive object to trigger re-fetch
+      params.id = payload2.id;
+      await flush();
 
-    // Wait for the second fetch to happen
-    await flushUntil(wrapper, () => fetchMock2.mock.calls.length > 0);
-    expect(fetchMock1).toHaveBeenCalledTimes(1);
-    expect(fetchMock2).toHaveBeenCalledTimes(1);
-  });
+      // Wait for the second fetch to happen
+      await flushUntil(wrapper, () => fetchMock2.mock.calls.length > 0);
+      expect(fetchMock1).toHaveBeenCalledTimes(1);
+      expect(fetchMock2).toHaveBeenCalledTimes(1);
+    },
+  );
 
   it('should not refetch stale data on store updates that keep expiry unchanged', async () => {
     const fetchMock = jest.fn(async ({ id }: { id: number }) => ({
