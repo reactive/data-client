@@ -46,61 +46,72 @@ the response or error upon completion.
 
 **Create**
 
-```tsx
-function CreatePost() {
+```html title="CreatePost.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { PostResource } from './PostResource';
+
   const ctrl = useController();
 
-  return (
-    <form
-      onSubmit={e =>
-        ctrl.fetch(PostResource.getList.push, new FormData(e.target))
-      }
-    >
-      {/* ... */}
-    </form>
-  );
-}
+  const handleSubmit = (e: Event) =>
+    ctrl.fetch(
+      PostResource.getList.push,
+      new FormData(e.target as HTMLFormElement),
+    );
+</script>
+
+<template>
+  <form @submit.prevent="handleSubmit"><!-- ... --></form>
+</template>
 ```
 
 **Update**
 
-```tsx
-function UpdatePost({ id }: { id: string }) {
+```html title="UpdatePost.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { PostResource } from './PostResource';
+
+  const props = defineProps<{ id: string }>();
   const ctrl = useController();
 
-  return (
-    <form
-      onSubmit={e =>
-        ctrl.fetch(PostResource.update, { id }, new FormData(e.target))
-      }
-    >
-      {/* ... */}
-    </form>
-  );
-}
+  const handleSubmit = (e: Event) =>
+    ctrl.fetch(
+      PostResource.update,
+      { id: props.id },
+      new FormData(e.target as HTMLFormElement),
+    );
+</script>
+
+<template>
+  <form @submit.prevent="handleSubmit"><!-- ... --></form>
+</template>
 ```
 
 **Delete**
 
-```tsx
-function PostListItem({ post }: { post: PostResource }) {
+```html title="PostListItem.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { useRouter } from 'vue-router';
+  import { PostResource } from './PostResource';
+
+  const props = defineProps<{ post: PostResource }>();
   const ctrl = useController();
+  const router = useRouter();
 
-  const handleDelete = useCallback(
-    async e => {
-      await ctrl.fetch(PostResource.delete, { id: post.id });
-      history.push('/');
-    },
-    [ctrl, id],
-  );
+  const handleDelete = async () => {
+    await ctrl.fetch(PostResource.delete, { id: props.post.id });
+    router.push('/');
+  };
+</script>
 
-  return (
-    <div>
-      <h3>{post.title}</h3>
-      <button onClick={handleDelete}>X</button>
-    </div>
-  );
-}
+<template>
+  <div>
+    <h3>{{ post.title }}</h3>
+    <button @click="handleDelete">X</button>
+  </div>
+</template>
 ```
 
 > **Tip**
@@ -109,7 +120,7 @@ function PostListItem({ post }: { post: PostResource }) {
 > When using schemas, the denormalized value is returned
 >
 > ```ts
-> import { useController } from '@data-client/react';
+> const controller = useController();
 >
 > const post = await controller.fetch(
 >   PostResource.getList.push,
@@ -162,8 +173,6 @@ An [example](https://stackblitz.com/github/reactive/data-client/tree/master/exam
 },
 ```
 
-Example app: [github-app](https://github.com/reactive/data-client/tree/master/examples/github-app) ([`src/routing/routes.tsx`](https://github.com/reactive/data-client/blob/master/examples/github-app/src/routing/routes.tsx))
-
 ### expireAll({ testKey }) {#expireAll}
 
 Sets all responses' [expiry status](https://dataclient.io/vue/concepts/expiry-policy) matching `testKey` to [Stale](https://dataclient.io/vue/concepts/expiry-policy#stale).
@@ -171,26 +180,28 @@ Sets all responses' [expiry status](https://dataclient.io/vue/concepts/expiry-po
 This is sometimes useful to trigger refresh of only data presently shown
 when there are many parameterizations in cache.
 
-```tsx
-import { type Controller, useController } from '@data-client/react';
+```html title="CreateTrade.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { AccountResource, TradeResource } from './resources';
 
-const createTradeHandler = (ctrl: Controller) => async trade => {
-  await ctrl.fetch(TradeResource.getList.push({ user: user.id }, trade));
-  ctrl.expireAll(AccountResource.get);
-  ctrl.expireAll(AccountResource.getList);
-};
+  const props = defineProps<{ userId: string }>();
+  const ctrl = useController();
 
-function CreateTrade({ id }: { id: string }) {
-  const handleTrade = createTradeHandler(useController());
+  const handleTrade = async (trade: Trade) => {
+    await ctrl.fetch(
+      TradeResource.getList.push,
+      { user: props.userId },
+      trade,
+    );
+    ctrl.expireAll(AccountResource.get);
+    ctrl.expireAll(AccountResource.getList);
+  };
+</script>
 
-  return (
-    <Form onSubmit={handleTrade}>
-      <FormField name="ticker" />
-      <FormField name="amount" type="number" />
-      <FormField name="price" type="number" />
-    </Form>
-  );
-}
+<template>
+  <TradeForm @submit="handleTrade" />
+</template>
 ```
 
 > **Tip**
@@ -200,26 +211,31 @@ function CreateTrade({ id }: { id: string }) {
 
 ### invalidate(endpoint, ...args) {#invalidate}
 
-Forces refetching and suspense on [useSuspense](./useSuspense.md) with the same Endpoint
-and parameters.
+Forces refetching on [useSuspense](./useSuspense.md) with the same Endpoint
+and parameters. Vue can't suspend a component again after setup, so `useSuspense()` keeps returning the
+current data until the refetch resolves.
 
-```tsx
-function ArticleName({ id }: { id: string }) {
-  const article = useSuspense(ArticleResource.get, { id });
+```html title="ArticleName.vue"
+<script setup lang="ts">
+  import { useController, useSuspense } from '@data-client/vue';
+  import { ArticleResource } from './ArticleResource';
+
+  const props = defineProps<{ id: string }>();
   const ctrl = useController();
+  const article = await useSuspense(ArticleResource.get, () => ({
+    id: props.id,
+  }));
+</script>
 
-  return (
-    <div>
-      <h1>{article.title}<h1>
-      <button onClick={() => ctrl.invalidate(ArticleResource.get, { id })}>Fetch &amp; suspend</button>
-    </div>
-  );
-}
+<template>
+  <div>
+    <h1>{{ article.title }}</h1>
+    <button @click="ctrl.invalidate(ArticleResource.get, { id })">
+      Refetch
+    </button>
+  </div>
+</template>
 ```
-
-> **Tip**
->
-> To refresh while continuing to display stale data - [Controller.fetch](#fetch).
 
 > **Tip: Invalidate many endpoints at once**
 >
@@ -229,7 +245,7 @@ function ArticleName({ id }: { id: string }) {
 >
 > ```ts
 > // deletes MyResource(5)
-> // this will resuspend MyResource.get({id: '5'})
+> // this will refetch MyResource.get({id: '5'})
 > // and remove it from MyResource.getList
 > controller.setResponse(MyResource.delete, { id: '5' }, { id: '5' });
 > ```
@@ -238,27 +254,31 @@ function ArticleName({ id }: { id: string }) {
 
 [Invalidates](https://dataclient.io/vue/concepts/expiry-policy#invalid) all [endpoint keys](https://dataclient.io/rest/api/RestEndpoint#key) matching `testKey`.
 
-```tsx
-function ArticleName({ id }: { id: string }) {
-  const article = useSuspense(ArticleResource.get, { id });
+```html title="ArticleName.vue"
+<script setup lang="ts">
+  import { useController, useSuspense } from '@data-client/vue';
+  import { ArticleResource } from './ArticleResource';
+
+  const props = defineProps<{ id: string }>();
   const ctrl = useController();
+  const article = await useSuspense(ArticleResource.get, () => ({
+    id: props.id,
+  }));
+</script>
 
-  return (
-    <div>
-      <h1>{article.title}<h1>
-      <button onClick={() => ctrl.invalidateAll(ArticleResource.get)}>Fetch &amp; suspend</button>
-    </div>
-  );
-}
+<template>
+  <div>
+    <h1>{{ article.title }}</h1>
+    <button @click="ctrl.invalidateAll(ArticleResource.get)">
+      Refetch
+    </button>
+  </div>
+</template>
 ```
-
-> **Tip**
->
-> To refresh while continuing to display stale data - [Controller.expireAll](#expireAll) instead.
 
 Here we clear only GET endpoints using the test.com domain. This means other domains remain in cache.
 
-```tsx
+```ts
 const myDomain = 'http://test.com';
 const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
 
@@ -271,11 +291,17 @@ function useLogout() {
 It's usually a good idea to also clear cache on 401 (unauthorized) with [LogoutManager](https://dataclient.io/vue/api/LogoutManager)
 as well.
 
-```ts
-import { DataProvider, LogoutManager, getDefaultManagers } from '@data-client/react';
-import { createRoot } from 'react-dom/client';
+```ts title="main.ts"
+import { createApp } from 'vue';
+import {
+  DataClientPlugin,
+  LogoutManager,
+  getDefaultManagers,
+} from '@data-client/vue';
 import { unAuth } from '../authentication';
+import App from './App.vue';
 
+const myDomain = 'http://test.com';
 const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
 
 const managers = [
@@ -290,11 +316,9 @@ const managers = [
   ...getDefaultManagers(),
 ];
 
-createRoot(document.body).render(
-  <DataProvider managers={managers}>
-    <App />
-  </DataProvider>,
-);
+const app = createApp(App);
+app.use(DataClientPlugin, { managers });
+app.mount('#app');
 ```
 
 ### resetEntireStore() {#resetEntireStore}
@@ -303,25 +327,29 @@ Resets/clears the entire Reactive Data Client cache. All inflight requests will 
 
 This is typically used when logging out or changing authenticated users.
 
-```tsx
-const USER_NUMBER_ONE: string = "1111";
+```html title="UserName.vue"
+<script setup lang="ts">
+  import { useController, useSuspense } from '@data-client/vue';
+  import { CurrentUserResource } from './CurrentUserResource';
 
-function UserName() {
-  const user = useSuspense(CurrentUserResource.get);
+  const USER_NUMBER_ONE: string = '1111';
+
+  const user = await useSuspense(CurrentUserResource.get);
   const ctrl = useController();
 
-  const becomeAdmin = useCallback(() => {
+  const becomeAdmin = () => {
     // Changes the current user
     impersonateUser(USER_NUMBER_ONE);
     ctrl.resetEntireStore();
-  }, [ctrl]);
-  return (
-    <div>
-      <h1>{user.name}<h1>
-      <button onClick={becomeAdmin}>Be Number One</button>
-    </div>
-  );
-}
+  };
+</script>
+
+<template>
+  <div>
+    <h1>{{ user.name }}</h1>
+    <button @click="becomeAdmin">Be Number One</button>
+  </div>
+</template>
 ```
 
 ### set(queryable, ...args, value) {#set}
@@ -421,11 +449,12 @@ Any components suspending for the given [Endpoint](https://dataclient.io/rest/ap
 
 If data already exists for the given [Endpoint](https://dataclient.io/rest/api/Endpoint) and args, it will be updated.
 
-```tsx
+```ts
 const ctrl = useController();
+let websocket: WebSocket;
 
-useEffect(() => {
-  const websocket = new Websocket(url);
+onMounted(() => {
+  websocket = new WebSocket(url);
 
   websocket.onmessage = event =>
     ctrl.setResponse(
@@ -433,12 +462,12 @@ useEffect(() => {
       ...event.args,
       event.data,
     );
-
-  return () => websocket.close();
 });
+
+onUnmounted(() => websocket.close());
 ```
 
-This shows a proof of concept in React; however a [Manager websockets implementation](https://dataclient.io/vue/concepts/managers#data-stream)
+This shows a proof of concept in Vue; however a [Manager websockets implementation](https://dataclient.io/vue/concepts/managers#data-stream)
 would be much more robust.
 
 ### setError(endpoint, ...args, error) {#setError}
@@ -461,16 +490,17 @@ Marks a new subscription to a given [Endpoint](https://dataclient.io/rest/api/En
 
 [useSubscription](./useSubscription.md) and [useLive](./useLive.md) call this on mount.
 
-This might be useful for custom hooks to sub/unsub based on other factors.
+This might be useful for custom composables to sub/unsub based on other factors.
 
-```tsx
+```ts
 const controller = useController();
-const key = endpoint.key(...args);
 
-useEffect(() => {
-  controller.subscribe(endpoint, ...args);
-  return () => controller.unsubscribe(endpoint, ...args);
-}, [controller, key]);
+// args can be a ref, computed or getter; this re-runs when it changes
+watchEffect(onCleanup => {
+  const currentArgs = toValue(args);
+  controller.subscribe(endpoint, ...currentArgs);
+  onCleanup(() => controller.unsubscribe(endpoint, ...currentArgs));
+});
 ```
 
 ### unsubscribe(endpoint, ...args) {#unsubscribe}
@@ -491,25 +521,16 @@ Looks up any [Queryable](https://dataclient.io/rest/api/schema#queryable) [Schem
 This is used in [useQuery](./useQuery.md) and can be used in
 [Managers](https://dataclient.io/vue/api/Manager) to safely access the store.
 
-```tsx title="useQuery.ts"
-import {
-  useController,
-  useCacheState,
-  type Queryable,
-  type SchemaArgs,
-  type DenormalizeNullable,
-} from '@data-client/core';
+In components, [useQuery()](./useQuery.md) keeps the result reactive. In event handlers, pass
+[getState()](#getState) to read the latest store:
 
-/** Oversimplified useQuery */
-function useQuery<S extends Queryable>(
-  schema: S,
-  ...args: SchemaArgs<S>
-): DenormalizeNullable<S> | undefined {
-  const state = useCacheState();
-  const controller = useController();
+```ts
+const ctrl = useController();
 
-  return controller.get(schema, ...args, state);
-}
+const toggle = (id: string) => {
+  const todo = ctrl.get(Todo, { id }, ctrl.getState());
+  if (todo) ctrl.set(Todo, { id }, { id, completed: !todo.completed });
+};
 ```
 
 ### getResponse(endpoint, ...args, state) {#getResponse}
@@ -562,23 +583,8 @@ A number representing time when it expires. Compare to Date.now().
 This is used in [useCache](./useCache.md), [useSuspense](./useSuspense.md) and can be used in
 [Managers](https://dataclient.io/vue/api/Manager) to lookup a response with the state provided.
 
-```tsx title="useCache.ts"
-import {
-  useController,
-  StateContext,
-  EndpointInterface,
-} from '@data-client/core';
-
-/** Oversimplified useCache */
-function useCache<E extends EntityInterface>(
-  endpoint: E,
-  ...args: readonly [...Parameters<E>]
-) {
-  const state = useContext(StateContext);
-  const controller = useController();
-  return controller.getResponse(endpoint, ...args, state).data;
-}
-```
+In event handlers, pass [getState()](#getState) to read the latest store, as in the
+[getState() example](#getState).
 
 ```tsx title="MyManager.ts"
 import type { Manager, Middleware, actionTypes } from '@data-client/core';
@@ -623,31 +629,23 @@ Gets the internal state of Reactive Data Client that has _already been [committe
 >
 > This should only be used in event handlers or [Managers](https://dataclient.io/vue/api/Manager).
 >
-> Using getState() in React's render lifecycle can result in data tearing.
+> Using getState() in a `computed()` or template won't update when the store changes. Use
+> [useQuery()](./useQuery.md) or [useCache()](./useCache.md) there instead.
 
-```tsx
+```ts
 const controller = useController();
 
-const updateHandler = useCallback(
-  async updatePayload => {
-    const response = await controller.fetch(
-      MyResource.update,
-      { id },
-      updatePayload,
-    );
-    // the fetch has completed, but react has not yet re-rendered
-    // this lets use sequence after the next re-render
-    // we're working on a better solution to this specific case
-    setTimeout(() => {
-      const { data: denormalized } = controller.getResponse(
-        MyResource.update,
-        { id },
-        updatePayload,
-        controller.getState(),
-      );
-      redirect(denormalized.getterUrl);
-    }, 40);
-  },
-  [id],
-);
+const handleRefresh = () => {
+  const { expiryStatus } = controller.getResponse(
+    MyResource.get,
+    { id: props.id },
+    controller.getState(),
+  );
+  // only refetch if the data is no longer fresh
+  if (expiryStatus !== ExpiryStatus.Valid)
+    controller.fetch(MyResource.get, { id: props.id });
+};
 ```
+
+Mutations (`sideEffect: true`) resolve _before_ the store is updated, so read their result from the
+value `fetch()` resolves with rather than `getState()`.

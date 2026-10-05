@@ -330,7 +330,11 @@ function CreateTrade({ id }: { id: string }) {
   const ctrl = useController();
 
   const handleTrade = async (trade: Trade) => {
-    await ctrl.fetch(TradeResource.getList.push, { user: props.userId }, trade);
+    await ctrl.fetch(
+      TradeResource.getList.push,
+      { user: props.userId },
+      trade,
+    );
     // highlight-start
     ctrl.expireAll(AccountResource.get);
     ctrl.expireAll(AccountResource.getList);
@@ -368,7 +372,9 @@ function ArticleName({ id }: { id: string }) {
   return (
     <div>
       <h1>{article.title}</h1>
-      <button onClick={() => ctrl.invalidate(ArticleResource.get, { id })}>Fetch &amp; suspend</button>
+      <button onClick={() => ctrl.invalidate(ArticleResource.get, { id })}>
+        Fetch &amp; suspend
+      </button>
     </div>
   );
 }
@@ -380,16 +386,14 @@ function ArticleName({ id }: { id: string }) {
 
 ```html title="ArticleName.vue"
 <script setup lang="ts">
-  import { computed } from 'vue';
   import { useController, useSuspense } from '@data-client/vue';
   import { ArticleResource } from './ArticleResource';
 
   const props = defineProps<{ id: string }>();
   const ctrl = useController();
-  const article = await useSuspense(
-    ArticleResource.get,
-    computed(() => ({ id: props.id })),
-  );
+  const article = await useSuspense(ArticleResource.get, () => ({
+    id: props.id,
+  }));
 </script>
 
 <template>
@@ -443,7 +447,9 @@ function ArticleName({ id }: { id: string }) {
   return (
     <div>
       <h1>{article.title}</h1>
-      <button onClick={() => ctrl.invalidateAll(ArticleResource.get)}>Fetch &amp; suspend</button>
+      <button onClick={() => ctrl.invalidateAll(ArticleResource.get)}>
+        Fetch &amp; suspend
+      </button>
     </div>
   );
 }
@@ -455,16 +461,14 @@ function ArticleName({ id }: { id: string }) {
 
 ```html title="ArticleName.vue"
 <script setup lang="ts">
-  import { computed } from 'vue';
   import { useController, useSuspense } from '@data-client/vue';
   import { ArticleResource } from './ArticleResource';
 
   const props = defineProps<{ id: string }>();
   const ctrl = useController();
-  const article = await useSuspense(
-    ArticleResource.get,
-    computed(() => ({ id: props.id })),
-  );
+  const article = await useSuspense(ArticleResource.get, () => ({
+    id: props.id,
+  }));
 </script>
 
 <template>
@@ -507,7 +511,11 @@ as well.
 :::react
 
 ```tsx
-import { DataProvider, LogoutManager, getDefaultManagers } from '@data-client/react';
+import {
+  DataProvider,
+  LogoutManager,
+  getDefaultManagers,
+} from '@data-client/react';
 import { createRoot } from 'react-dom/client';
 import { unAuth } from '../authentication';
 
@@ -578,7 +586,7 @@ This is typically used when logging out or changing authenticated users.
 :::react
 
 ```tsx
-const USER_NUMBER_ONE: string = "1111";
+const USER_NUMBER_ONE: string = '1111';
 
 function UserName() {
   const user = useSuspense(CurrentUserResource.get);
@@ -817,9 +825,9 @@ useEffect(() => {
 ```ts
 const controller = useController();
 
-// args is a computed() so this re-runs when they change
+// args can be a ref, computed or getter; this re-runs when it changes
 watchEffect(onCleanup => {
-  const currentArgs = args.value;
+  const currentArgs = toValue(args);
   controller.subscribe(endpoint, ...currentArgs);
   onCleanup(() => controller.unsubscribe(endpoint, ...currentArgs));
 });

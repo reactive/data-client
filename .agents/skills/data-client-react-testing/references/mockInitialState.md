@@ -35,9 +35,9 @@ import MyComponentToTest from 'components/MyComponentToTest';
 
 const results = [
   {
-    request: ArticleResource.getList,
-    params: { maxResults: 10 },
-    result: [
+    endpoint: ArticleResource.getList,
+    args: [{ maxResults: 10 }],
+    response: [
       {
         id: 5,
         content: 'have a merry christmas',
