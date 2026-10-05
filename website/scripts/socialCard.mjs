@@ -307,8 +307,8 @@ function cardHtml({ version, headline, description, rows, feature }) {
   .headline .accent { color: #3b8cf5; }
   .rule { margin-top: 34px; width: 560px; height: 1px; background: linear-gradient(90deg, #2a3a55, transparent); }
   .tagline {
-    margin-top: 30px; width: 640px; font-size: 32px; font-weight: 300; line-height: 1.4; color: #b4bfd0;
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    margin-top: 26px; width: 680px; font-size: 28px; font-weight: 300; line-height: 1.35; color: #b4bfd0;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
   }
   .panel {
     position: absolute; right: 95px; top: 50%; width: 750px; transform: translateY(-50%) perspective(1600px) rotateY(-9deg);

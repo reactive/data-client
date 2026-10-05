@@ -11,26 +11,20 @@ The quickest way to get started is to let an [AI Agent](https://agentskills.io) 
 
 ## Install
 
-:::react
+<SkillTabs skill="data-client-setup" />
 
-<SkillTabs repo="reactive/data-client" openSkills={['data-client-setup', 'data-client-rest-setup', 'data-client-endpoint-setup', 'data-client-graphql-setup', 'data-client-schema', 'data-client-rest', 'data-client-manager', 'data-client-react', 'data-client-react-testing']} />
+Then run skill `/data-client-setup`. It detects your framework and API style (REST, GraphQL,
+custom), installs the matching skills below, wires up the provider, and migrates existing endpoints.
 
-:::
+### Install all skills up front
 
-:::vue
+To install every skill for your framework now instead, without letting your agent run installs:
 
-<SkillTabs repo="reactive/data-client" openSkills={['data-client-setup', 'data-client-rest-setup', 'data-client-endpoint-setup', 'data-client-graphql-setup', 'data-client-schema', 'data-client-rest', 'data-client-manager', 'data-client-vue', 'data-client-vue-testing']} />
-
-:::
-
-Then run skill `/data-client-setup` to install and wire up the provider for your
-project. It will automatically detect your framework (NextJS, Expo, React Native, Vue,
-plain React), perform installation, as well as do migrations when existing
-endpoints are found.
+<SkillTabs />
 
 ## Available Skills
 
-- [**`/data-client-setup`**](https://skills.sh/reactive/data-client/data-client-setup) — installs and configures Data Client for your framework and API style.
+- [**`/data-client-setup`**](https://skills.sh/reactive/data-client/data-client-setup) — installs and configures Data Client for your framework and API style, along with the skills it needs.
 - [**`/data-client-rest-setup`**](https://skills.sh/reactive/data-client/data-client-rest-setup) — sets up `@data-client/rest` and migrates existing
   `fetch`/`axios` clients.
 - [**`/data-client-endpoint-setup`**](https://skills.sh/reactive/data-client/data-client-endpoint-setup) — wraps custom async functions with `Endpoint`

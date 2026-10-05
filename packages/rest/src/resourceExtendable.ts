@@ -46,7 +46,8 @@ export interface Extendable<
         EndpointToFunction<R[ExtendKey]>
       > &
         ExtendOptions
-    >,
+    > &
+      ExtendOptions,
   ): ResourceExtension<R, ExtendKey, ExtendOptions>;
   extend<
     R extends { get: RestInstanceBase },
@@ -63,7 +64,8 @@ export interface Extendable<
         EndpointToFunction<R['get']>
       > &
         ExtendOptions
-    >,
+    > &
+      ExtendOptions,
   ): R & {
     [key in ExtendKey]: RestExtendedEndpoint<ExtendOptions, R['get']>;
   };

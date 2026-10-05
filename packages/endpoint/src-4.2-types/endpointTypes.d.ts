@@ -63,8 +63,8 @@ export interface EndpointInstance<
       Record<string, unknown>,
   >(
     this: E,
-    options: Readonly<O>,
-  ): ExtendedEndpoint<typeof options, E, F>;
+    options: Readonly<O> & O,
+  ): ExtendedEndpoint<Readonly<O>, E, F>;
 }
 /**
  * Defines an async data source.
