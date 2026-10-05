@@ -17,7 +17,7 @@ different lens args at the same time, each receiving the correct scalar values.
 > **Note**
 >
 > `Scalar` is for scalar values like numbers, strings, booleans, or date-derived values.
-> Use normal nested [schemas](./schema.md) for relationships to other entities.
+> Use normal nested [schemas](./schema.vue.md) for relationships to other entities.
 
 ## Usage
 
@@ -336,7 +336,7 @@ data.
 
 ### queryKey {#queryKey}
 
-`Scalar` is a [Queryable](./schema.md#queryable) schema. When used as a
+`Scalar` is a [Queryable](./schema.vue.md#queryable) schema. When used as a
 top-level endpoint schema — or passed to [useQuery](https://dataclient.io/vue/api/useQuery),
 [Controller.get](https://dataclient.io/vue/api/Controller#get), [schema.Query](./Query.vue.md), or any
 other Queryable consumer — it reports the cpks of all cells whose lens matches
@@ -376,4 +376,4 @@ entities['Scalar(portfolio)']['Company|1|portfolioB'] = {
 - [Entity](./Entity.vue.md) — defines the base entity that scalar fields attach to
 - [Values](./Values.vue.md) — used for column-only endpoints (dictionary keyed by entity pk)
 - [Union](./Union.vue.md) — similar wrapper pattern for polymorphic entities
-- [Queryable](./schema.md#queryable) — Scalar participates in [useQuery](https://dataclient.io/vue/api/useQuery), [Controller.get](https://dataclient.io/vue/api/Controller#get), and [schema.Query](./Query.vue.md)
+- [Queryable](./schema.vue.md#queryable) — Scalar participates in [useQuery](https://dataclient.io/vue/api/useQuery), [Controller.get](https://dataclient.io/vue/api/Controller#get), and [schema.Query](./Query.vue.md)

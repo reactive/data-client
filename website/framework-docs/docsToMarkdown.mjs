@@ -124,6 +124,7 @@ export const routeOf = memoize((file, framework) => {
     : instance;
   const route = frameworkDocs[target.framework]?.get(docId)?.route;
   if (route) return `/${target.routeBasePath}${route}`;
+  // instances docsFor() doesn't cover (rest, graphql)
   const slug = frontMatterValue(content, 'slug');
   if (slug?.startsWith('/')) return `/${target.routeBasePath}${slug}`;
   return `/${target.routeBasePath}/${docId}`.replace(/\/index$/, '/');

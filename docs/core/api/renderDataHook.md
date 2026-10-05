@@ -1,5 +1,6 @@
 ---
 frameworks: [react]
+framework_equivalent: guides/unit-testing-hooks
 title: renderDataHook()
 ---
 

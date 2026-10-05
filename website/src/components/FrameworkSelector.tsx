@@ -35,12 +35,11 @@ const frameworks: { value: Framework; label: string; Logo: React.FC }[] = [
   { value: 'vue', label: 'Vue', Logo: VueLogo },
 ];
 
-/** `framework_equivalent:` front matter (framework-docs/index.js) */
+/** `framework_equivalent:` front matter, both directions (framework-docs/index.js) */
 type Equivalents = Record<Framework, Record<string, string>>;
 
 /**
- * Same page in each framework's docs, if it exists: the same doc id, or the
- * page that names this one (or that this one names) as its
+ * Same page in each framework's docs, if it exists: the same doc id, or its
  * `framework_equivalent`. The hash only carries over to the same doc.
  */
 function useCounterparts(): Record<Framework, string | undefined> {
@@ -56,16 +55,7 @@ function useCounterparts(): Record<Framework, string | undefined> {
   const counterpart = (fw: Framework) => {
     if (!activeDoc) return;
     const same = find(fw, activeDoc.id);
-    if (same) return same + hash;
-    return (
-      find(fw, equivalents[framework][activeDoc.id]) ??
-      find(
-        fw,
-        Object.keys(equivalents[fw]).find(
-          id => equivalents[fw][id] === activeDoc.id,
-        ),
-      )
-    );
+    return same ? same + hash : find(fw, equivalents[framework][activeDoc.id]);
   };
   return { react: counterpart('react'), vue: counterpart('vue') };
 }

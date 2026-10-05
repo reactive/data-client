@@ -9,6 +9,9 @@
 const fs = require('fs');
 const path = require('path');
 
+// Docusaurus' own route rules (slug, category index), so links match its routes
+const getSlug = require('@docusaurus/plugin-content-docs/lib/slug.js').default;
+
 const { FRAMEWORKS, frameworkInstance } = require('./docsInstances.js');
 
 const SRC = path.resolve(__dirname, '../..', frameworkInstance('react').path);
@@ -96,42 +99,41 @@ function docsFor(framework) {
     if (!MD.test(out) || path.basename(out).startsWith('_')) continue;
     const content = rewriteFrontMatter(readSrc(src), framework);
     const id = docIdOf(out, content);
-    const slug = frontMatterValue(content, 'slug');
-    const route =
-      !slug ? `/${id}`
-      : slug.startsWith('/') ? slug
-      : `/${path.posix.join(path.posix.dirname(out), slug)}`;
     docs.set(id, {
-      route: route.replace(/\/(index|README)$/i, '/'),
+      route: getSlug({
+        baseID: path.posix.basename(id),
+        source: out,
+        sourceDirName: path.posix.dirname(out),
+        frontMatterSlug: frontMatterValue(content, 'slug'),
+      }),
       equivalent: frontMatterValue(content, 'framework_equivalent'),
     });
   }
   return docs;
 }
 
-/** Doc ids (as used in sidebars) that exist for a framework */
-const docIds = framework => new Set(docsFor(framework).keys());
-
 /**
- * `framework_equivalent:` front matter of every framework, for
+ * `framework_equivalent:` front matter in both directions, for
  * FrameworkSelector: { [framework]: { [doc id]: counterpart's doc id } }
  */
 function frameworkEquivalents() {
   const docs = Object.fromEntries(FRAMEWORKS.map(f => [f, docsFor(f)]));
-  return Object.fromEntries(
-    FRAMEWORKS.map(framework => {
-      const equivalents = {};
-      for (const [id, { equivalent }] of docs[framework]) {
-        if (!equivalent) continue;
-        if (!FRAMEWORKS.some(f => f !== framework && docs[f].has(equivalent)))
-          throw new Error(
-            `${framework} doc ${id}: framework_equivalent '${equivalent}' is not a doc in any other framework`,
-          );
-        equivalents[id] = equivalent;
-      }
-      return [framework, equivalents];
-    }),
-  );
+  const equivalents = Object.fromEntries(FRAMEWORKS.map(f => [f, {}]));
+  for (const framework of FRAMEWORKS) {
+    for (const [id, { equivalent }] of docs[framework]) {
+      if (!equivalent) continue;
+      const others = FRAMEWORKS.filter(
+        f => f !== framework && docs[f].has(equivalent),
+      );
+      if (!others.length)
+        throw new Error(
+          `${framework} doc ${id}: framework_equivalent '${equivalent}' is not a doc in any other framework`,
+        );
+      equivalents[framework][id] = equivalent;
+      for (const other of others) equivalents[other][equivalent] ??= id;
+    }
+  }
+  return equivalents;
 }
 
 /** Write the mirror for a framework; only touches files whose output changed */
@@ -202,7 +204,7 @@ function filterSidebar(items, ids, framework) {
 }
 
 function sidebarsFor(framework, sidebars) {
-  const ids = docIds(framework);
+  const ids = docsFor(framework);
   return Object.fromEntries(
     Object.entries(sidebars).map(([name, items]) => [
       name,
@@ -222,7 +224,6 @@ module.exports = {
   sidebarsFor,
   sourcePath,
   docsFor,
-  docIds,
   frameworkEquivalents,
   docIdOf,
   pageFrameworks,

@@ -3,7 +3,7 @@
 # Resource
 
 `Resources` are a collection of [RestEndpoints](./RestEndpoint.vue.md) that operate on a common
-data by sharing a [schema](./schema.md)
+data by sharing a [schema](./schema.vue.md)
 
 ## Usage
 
