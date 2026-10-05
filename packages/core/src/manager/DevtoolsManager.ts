@@ -32,7 +32,15 @@ if (process.env.NODE_ENV !== 'production') {
     return serial;
   }
 
-  const HASINTL = typeof Intl !== 'undefined';
+  const dateFormat =
+    typeof Intl !== 'undefined' ?
+      new Intl.DateTimeFormat('en-US', {
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        fractionalSecondDigits: 3,
+      })
+    : undefined;
   DEFAULT_CONFIG = {
     name: `Data Client: ${globalThis.document?.title}`,
     autoPause: true,
@@ -59,7 +67,7 @@ if (process.env.NODE_ENV !== 'production') {
       options: undefined,
       /* istanbul ignore next */
       replacer:
-        HASINTL ?
+        dateFormat ?
           (key: string | number | symbol, value: unknown) => {
             if (
               typeof value === 'number' &&
@@ -67,12 +75,7 @@ if (process.env.NODE_ENV !== 'production') {
               isFinite(value) &&
               (key === 'date' || key.endsWith('At'))
             ) {
-              return Intl.DateTimeFormat('en-US', {
-                hour: 'numeric',
-                minute: 'numeric',
-                second: 'numeric',
-                fractionalSecondDigits: 3,
-              }).format(value);
+              return dateFormat.format(value);
             }
             return value;
           }
