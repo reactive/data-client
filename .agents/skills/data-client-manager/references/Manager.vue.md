@@ -52,7 +52,7 @@ Provides any cleanup of dangling resources after manager is no longer in use.
 
 ## Adding managers to Reactive Data Client {#adding}
 
-Use the `managers` option of [DataClientPlugin](https://dataclient.io/vue/getting-started/installation). The plugin is
+Use the [managers](https://dataclient.io/vue/api/DataClientPlugin#managers) option of [DataClientPlugin](https://dataclient.io/vue/api/DataClientPlugin). The plugin is
 installed once per app, so managers are created once.
 
 **Web**

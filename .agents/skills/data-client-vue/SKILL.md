@@ -5,7 +5,7 @@ license: Apache 2.0
 ---
 ## Setup
 
-Install `DataClientPlugin` once with `app.use(DataClientPlugin)` ([installation](references/installation.md);
+Install [DataClientPlugin](references/DataClientPlugin.md) once with `app.use(DataClientPlugin)` ([installation](references/installation.md);
 apply the skill "data-client-setup" to set it up). Composables only work inside `<script setup>` of components
 below it. Awaiting composables (`await useSuspense()`) requires `<script setup>`: in a hand-written
 `async setup()`, composables called after the first `await` lose the component instance.
@@ -181,6 +181,7 @@ For detailed API documentation, see the [references](references/) directory:
 - [_AsyncBoundary.md](references/_AsyncBoundary.md) - Suspense and onErrorCaptured boundaries
 - [useLoading](references/useLoading.md);[_useLoading.md](references/_useLoading.md) - Track async mutation state
 - [useDebounce](references/useDebounce.md) - Debounce values
+- [DataClientPlugin](references/DataClientPlugin.md) - Plugin options (managers, initialState, gcPolicy) and `$dataClient`
 - [installation](references/installation.md) - Install `DataClientPlugin`
 - [getDefaultManagers](references/getDefaultManagers.md) - Configure `DataClientPlugin` managers
 - [data-dependency](references/data-dependency.md) - Rendering guide

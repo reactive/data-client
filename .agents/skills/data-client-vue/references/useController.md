@@ -29,8 +29,8 @@ and [setResponse](./Controller.md#setResponse)
 ```
 
 `useController()` must be called inside `<script setup>` (or `setup()`), and requires the
-[DataClientPlugin](./installation.md#add-provider-at-top-level-component) to be installed.
-The same [Controller](./Controller.md) is also available in templates and the Options API as `$dataClient`.
+[DataClientPlugin](./DataClientPlugin.md) to be installed.
+The same [Controller](./Controller.md) is also available in templates and the Options API as [`$dataClient`](./DataClientPlugin.md#dataclient).
 
 ## Examples
 
