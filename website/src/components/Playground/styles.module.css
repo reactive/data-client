@@ -90,7 +90,7 @@
 :root {
   --pg-bar: var(--ifm-color-emphasis-200);
   --pg-bar-edge: transparent;
-  --pg-tab: var(--ifm-color-emphasis-700);
+  --pg-tab: var(--ifm-color-content);
   --pg-tab-hover-bg: var(--ifm-color-emphasis-300);
   --pg-tab-hover: var(--ifm-color-emphasis-900);
   --pg-tab-selected: #e3e8f2;
@@ -99,7 +99,7 @@
 /* EndpointPlayground's right column is code, so it always uses the dark bar */
 .endpointPlayground {
   --pg-bar: hsl(229, 8%, 26%);
-  --pg-tab: rgba(191, 199, 213, 0.7);
+  --pg-tab: rgb(191, 199, 213);
   --pg-tab-hover-bg: hsl(229, 8%, 29%);
   --pg-tab-hover: #e3e8f2;
   --pg-bar-edge: hsl(229, 8%, 17%);
