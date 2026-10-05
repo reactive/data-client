@@ -30,22 +30,6 @@ const gitCommand = sub =>
   );
 if (!gitCommand('push').test(command)) process.exit(0);
 const commits = gitCommand('commit').test(command);
-// arguments to `git add`s in a command that also commits
-const added =
-  commits &&
-  [...command.matchAll(/(?:^|[;&|(]\s*)git\s+add\b([^;&|]*)/gm)]
-    .flatMap(([, args]) => args.trim().split(/\s+/))
-    .filter(Boolean)
-    .map(arg => arg.replace(/^(['"])(.*)\1$/, '$2'));
-const isAdded = file =>
-  added &&
-  added.some(
-    arg =>
-      /^(-[A-Za-z]*[Au][A-Za-z]*|--all|--update|\.\/?)$/.test(arg) ||
-      (!arg.startsWith('-') &&
-        (file === path.normalize(arg) ||
-          file.startsWith(path.normalize(arg).replace(/\/?$/, '/')))),
-  );
 // `git commit -a` / `-am` / `--all`
 const commitsAll =
   commits &&
@@ -194,10 +178,9 @@ function lintFix() {
   } catch {
     // no install
   }
-  // a `git add` this command commits with takes them; check again next push
-  const held = Object.keys(unpushed).filter(
-    file => fixed.includes(file) || !isAdded(file),
-  );
+  // a `git add` earlier in this command can't be told from here, so these
+  // are held until a commit has them; the agent then pushes on its own
+  const held = Object.keys(unpushed);
   return held.length ?
       [
         `\`eslint --fix\` changed files this push would include. Commit them, then push again:\n${held.join('\n')}`,
