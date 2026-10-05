@@ -1,5 +1,5 @@
 import { GCPolicy } from '@data-client/core';
-import { defineComponent, h } from 'vue';
+import { defineComponent, h, reactive } from 'vue';
 
 import { Article, ArticleResource } from '../../../../__tests__/new';
 import useFetch from '../consumers/useFetch';
@@ -16,6 +16,7 @@ describe('Integration Garbage Collection Web (Vue)', () => {
   });
   afterEach(() => {
     infoSpy.mockRestore();
+    jest.useRealTimers();
   });
 
   it('should initialize with GCPolicy', () => {
@@ -190,5 +191,48 @@ describe('Integration Garbage Collection Web (Vue)', () => {
     });
 
     cleanup2();
+  });
+
+  it('removes unused stale data without passing a gcPolicy', async () => {
+    jest.useFakeTimers();
+    const ArticleDetail = defineComponent({
+      name: 'ArticleDetail',
+      setup() {
+        const article = useQuery(Article, { id: 1 });
+        return () => h('div', article.value?.title ?? 'missing');
+      },
+    });
+    const props = reactive({ show: true });
+    const TestComp = defineComponent({
+      name: 'TestComp',
+      props: ['show'],
+      setup(props) {
+        return () => (props.show ? h(ArticleDetail) : h('div', 'blank'));
+      },
+    });
+
+    const { wrapper, controller, cleanup } = mountDataClient(TestComp, {
+      props,
+      initialFixtures: [
+        {
+          endpoint: ArticleResource.get,
+          args: [{ id: 1 }],
+          response: { id: 1, title: 'Test Article', content: 'Content' },
+        },
+      ],
+    });
+    await wrapper.vm.$nextTick();
+    expect(wrapper.text()).toContain('Test Article');
+
+    props.show = false;
+    await wrapper.vm.$nextTick();
+    expect(wrapper.text()).toContain('blank');
+
+    // default GCPolicy sweeps every 5 minutes; data must also be stale
+    jest.advanceTimersByTime(60 * 1000 * 5);
+    await Promise.resolve();
+    expect(controller.getState().entities.Article?.['1']).toBeUndefined();
+
+    cleanup();
   });
 });

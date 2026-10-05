@@ -136,8 +136,8 @@ ctrl.doSomething();
 
 ### gcPolicy?: GCInterface {#gcPolicy}
 
-Removes data from the store once no component uses it and it has gone stale. By default, nothing
-is ever removed.
+Removes data from the store once no component uses it and it has gone stale. Defaults to
+`new GCPolicy()`; pass one to change how often it sweeps or how long unused data is kept.
 
 ```ts title="main.ts"
 import { DataClientPlugin, GCPolicy } from '@data-client/vue';
