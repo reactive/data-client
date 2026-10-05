@@ -851,6 +851,20 @@ Override this for advanced cases like extracting headers alongside the body.
 
 Perform any transforms with the parsed result. Defaults to identity function (do nothing).
 
+`args` are the arguments the endpoint was called with. In [extend()](#extend), they are typed from the
+resulting endpoint's [path](#path), [searchParams](#searchParams) and [body](#body).
+
+```ts
+const getUser = new RestEndpoint({ path: '/users/:id' });
+
+const getUserWithId = getUser.extend({
+  process(value, params) {
+    // params is { id: string | number }
+    return { ...value, id: `${params.id}` };
+  },
+});
+```
+
 :::tip
 
 The return type of process can be used to set the return type of the endpoint fetch:
