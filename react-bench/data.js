@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791220751626,
+  "lastUpdate": 1791223413693,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -7037,6 +7037,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 166.67,
             "range": "± 9.3%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "10e15cccf43a2bdbc9b48a65d9d3f2cc72847a89",
+          "message": "enhance(core): Check set() Union rows per member (#4179)\n\n* enhance(core): Check set() Union rows per member\n\nA Union row is now checked against the member its discriminator selects,\nwithout the index signature that let a row fall through to another member.\nSpread updaters on a 30-member Union check about 3x faster than before\n(TS 6: 9.4s to 3.3s per 1000 calls), and rows that mix members' fields or\ncarry unknown keys are now errors.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01GzkTc2gisCbeWKi5F3v472\n\n* docs(blog): Link the set() updater speedup\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01GzkTc2gisCbeWKi5F3v472\n\n* docs: Note Union rows need literal discriminators to check per member\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01GzkTc2gisCbeWKi5F3v472\n\n* internal: Update type-check budget for per-member Union rows\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01GzkTc2gisCbeWKi5F3v472\n\n* docs(blog): Re-time Typical app row over 10 runs\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01GzkTc2gisCbeWKi5F3v472\n\n* docs(blog): Re-time every type-check benchmark over 10 runs\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01GzkTc2gisCbeWKi5F3v472\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-05T14:00:35-04:00",
+          "tree_id": "89aad3a637a6ae92691b04845f2725031c9decd5",
+          "url": "https://github.com/reactive/data-client/commit/10e15cccf43a2bdbc9b48a65d9d3f2cc72847a89"
+        },
+        "date": 1791223410353,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 173.93,
+            "range": "± 5.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 53.76,
+            "range": "± 4.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 434.78,
+            "range": "± 10.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 425.72,
+            "range": "± 10.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 55.26,
+            "range": "± 8.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 400,
+            "range": "± 7.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 408.33,
+            "range": "± 7.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 12.71,
+            "range": "± 7.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 84.03,
+            "range": "± 15.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 45.98,
+            "range": "± 4.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 263.16,
+            "range": "± 4.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 333.33,
+            "range": "± 6.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 204.17,
+            "range": "± 9.8%",
             "unit": "ops/s"
           }
         ]
