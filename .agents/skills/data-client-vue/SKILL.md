@@ -166,8 +166,7 @@ This is useful for websockets, SSE, logging, etc. Pass them to `DataClientPlugin
 
 # References
 
-For detailed API documentation, see the [references](references/) directory. They cover React and Vue;
-read the `:::vue` sections.
+For detailed API documentation, see the [references](references/) directory:
 
 - [useSuspense](references/useSuspense.md);[_pagination.md](references/_pagination.md) - Fetch with Suspense
 - [_vueArgs](references/_vueArgs.md) - Plain, ref, computed, and getter arguments
