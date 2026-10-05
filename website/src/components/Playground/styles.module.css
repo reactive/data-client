@@ -109,7 +109,7 @@
   --pg-preview-bg: hsl(229, 4%, 18%);
 }
 .endpointPlayground {
-  --pg-bar-edge: #23273a;
+  --pg-bar-edge: hsl(229, 8%, 17%);
 }
 
 .playgroundHeader.tabControls,
