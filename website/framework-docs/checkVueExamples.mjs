@@ -10,7 +10,7 @@
  *
  * `@data-client/*` types come from the playground's editor types, which CI
  * keeps in sync with the packages. Add `nocheck` to a fence's meta to skip an
- * illustrative fragment.
+ * illustrative fragment; other files can still import it.
  *
  * Usage: node website/framework-docs/checkVueExamples.mjs
  */
@@ -45,12 +45,17 @@ const PLACEHOLDERS = [
 const titleOf = block => block.meta?.match(/title="([^"]+)"/)?.[1];
 const isVue = block => titleOf(block)?.endsWith('.vue');
 const checked = block =>
-  EXT[block.lang] && !block.nocheck && (block.lang !== 'html' || isVue(block));
+  EXT[block.lang] && (block.lang !== 'html' || isVue(block));
 /** File name a block is imported by: `Resource` -> `Resource.ts` */
 const fileName = (block, i) => {
   const title = titleOf(block) ?? `untitled${i}`;
   return path.extname(title) ? title : title + EXT[block.lang];
 };
+/** Code that still exports its types to the example's other files, unchecked */
+const noCheck = ({ value }) =>
+  value.includes('<script') ?
+    value.replace(/<script\b[^>]*>/, '$&\n// @ts-nocheck')
+  : `// @ts-nocheck\n${value}`;
 const importsOf = value =>
   [
     ...value.matchAll(
@@ -121,7 +126,7 @@ for (const doc of DOCS.flatMap(dir => walk(path.join(ROOT, dir)))) {
   // the page's titled blocks, for loose examples to import
   const titled = blocks.filter(b => !b.playground && titleOf(b));
   blocks.forEach((block, i) => {
-    if (block.playground) return;
+    if (block.playground || block.nocheck) return;
     if (!isVue(block) && !block.value.includes("'@data-client/vue'")) return;
     // of blocks sharing a title, the closest one before this block wins
     const before = titled.filter(b => blocks.indexOf(b) < i).reverse();
@@ -153,7 +158,10 @@ examples.forEach(({ doc, blocks, loose }, n) => {
     const block = files.get(name);
     const file = path.join(dir, name);
     fs.mkdirSync(path.dirname(file), { recursive: true });
-    fs.writeFileSync(file, block.value + '\n');
+    fs.writeFileSync(
+      file,
+      (block.nocheck ? noCheck(block) : block.value) + '\n',
+    );
     sources.set(file, block);
     for (const { clause, from } of importsOf(block.value)) {
       if (!isRelative(from)) {

@@ -19,7 +19,7 @@ when data is [Invalid](https://dataclient.io/docs/concepts/expiry-policy#invalid
 ## Usage
 
 ```ts title="Post"
-import { Entity, schema } from '@data-client/rest';
+import { Entity, EntityMixin } from '@data-client/rest';
 
 export class Post extends Entity {
   id = 0;
@@ -190,6 +190,8 @@ interface Queryable {
 [Query](https://dataclient.io/rest/api/Query) provides programmatic access to the Reactive Data Client store.
 
 ```ts title="UserResource"
+import { Entity, resource } from '@data-client/rest';
+
 export class User extends Entity {
   id = '';
   name = '';
@@ -250,6 +252,8 @@ Example app: [todo-app](https://github.com/reactive/data-client/tree/master/exam
 isolating re-renders to only the components that need the related data.
 
 ```ts title="Resources"
+import { Entity, Lazy, resource } from '@data-client/rest';
+
 export class Building extends Entity {
   id = '';
   name = '';

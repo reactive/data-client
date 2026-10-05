@@ -115,7 +115,7 @@ Data Client reactively updates appropriate components using the fetch response.
 ## Optimistic mutations based on previous state {#optimistic-updates}
 
 ```ts title="Post"
-import { Entity, schema } from '@data-client/rest';
+import { Entity, EntityMixin } from '@data-client/rest';
 
 export class Post extends Entity {
   id = 0;

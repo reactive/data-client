@@ -81,11 +81,11 @@ export const PostResource = resource({
 </script>
 
 <template>
-  <center>
+  <div style="text-align: center">
     <button @click="loadPage" :disabled="isPending">
       {{ isPending ? '...' : 'Load more' }}
     </button>
-  </center>
+  </div>
 </template>
 ```
 

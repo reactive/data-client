@@ -354,8 +354,9 @@ ensures continual updates while a component is mounted. [useLive()](https://data
 [useSubscription()](https://dataclient.io/docs/api/useSubscription) and [useSuspense()](https://dataclient.io/docs/api/useSuspense), making it quite
 easy to use fresh data.
 
-```typescript title="Ticker" {32}
+```typescript title="Ticker" {33}
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class Ticker extends Entity {
   product_id = '';

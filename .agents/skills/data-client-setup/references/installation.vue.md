@@ -17,6 +17,7 @@ npm install @data-client/vue @data-client/rest
 ```ts title="main.ts"
 import { createApp } from 'vue';
 import { DataClientPlugin } from '@data-client/vue';
+import App from './App.vue';
 
 const app = createApp(App);
 

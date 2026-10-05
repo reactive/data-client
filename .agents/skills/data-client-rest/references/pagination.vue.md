@@ -88,11 +88,11 @@ export const PostResource = resource({
 </script>
 
 <template>
-  <center>
+  <div style="text-align: center">
     <button @click="loadPage" :disabled="isPending">
       {{ isPending ? '...' : 'Load more' }}
     </button>
-  </center>
+  </div>
 </template>
 ```
 
@@ -141,8 +141,9 @@ Here we explore a real world example using [cosmos validators list](https://rest
 Since validators only have one Endpoint, we use [RestEndpoint](./RestEndpoint.vue.md) instead of [resource](./resource.vue.md). By using [Collections](./Collection.vue.md) and [paginationField](./RestEndpoint.vue.md#paginationfield), we can call [RestEndpoint.getPage](./RestEndpoint.vue.md#getpage)
 to append the next page of validators to our list.
 
-```ts title="Validator" {46-50}
+```ts title="Validator" {47-51}
 import { Collection, Entity, RestEndpoint, schema } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class Validator extends Entity {
   operator_address = '';
@@ -233,11 +234,11 @@ export const getValidators = new RestEndpoint({
 </script>
 
 <template>
-  <center v-if="next_key">
+  <div v-if="next_key" style="text-align: center">
     <button @click="handleLoadMore" :disabled="isPending">
       {{ isPending ? '...' : 'Load more' }}
     </button>
-  </center>
+  </div>
 </template>
 ```
 
@@ -277,6 +278,8 @@ page fetching. On web, it is recommended to use something based on [Intersection
 <script setup lang="ts">
   import { useSuspense, useController } from '@data-client/vue';
   import { PostResource } from 'resources/Post';
+  import Pagination from './Pagination.vue';
+  import PostList from './PostList.vue';
 
   const data = await useSuspense(PostResource.getList);
   const ctrl = useController();
