@@ -9,25 +9,34 @@ import { parseCodeDocuments } from './Playground/editor/codeModel';
 
 export default function DiffEditor({ children, caption }: Props) {
   // Display-only: documents never change after parsing
-  const sides = useMemo(() => {
+  const { sides, callouts } = useMemo(() => {
     const [before, after] = parseCodeDocuments(children, 'Before');
     const original = parseCallouts(before.value);
     const modified = parseCallouts(after.value, original.callouts.length);
-    return [
-      { ...original, language: before.language, title: before.title },
-      { ...modified, language: after.language, title: after.title },
-    ] as const;
+    return {
+      sides: [
+        {
+          ...original,
+          language: before.language,
+          title: before.title || 'Before',
+        },
+        {
+          ...modified,
+          language: after.language,
+          title: after.title || 'After',
+        },
+      ] as const,
+      callouts: [...original.callouts, ...modified.callouts],
+    };
   }, [children]);
-  const callouts = sides.flatMap(side => side.callouts);
 
   const fallback = (
     <Grid wrap>
-      <CodeBlock language={sides[0].language} title="Before">
-        {sides[0].staticValue}
-      </CodeBlock>
-      <CodeBlock language={sides[1].language} title="After">
-        {sides[1].staticValue}
-      </CodeBlock>
+      {sides.map(({ language, title, staticValue }, i) => (
+        <CodeBlock key={i} language={language} title={title}>
+          {staticValue}
+        </CodeBlock>
+      ))}
     </Grid>
   );
 

@@ -14,7 +14,7 @@ export interface CalloutDocument {
   callouts: Callout[];
 }
 
-export type DiffSide = CalloutDocument & { language: string; title?: string };
+export type DiffSide = CalloutDocument & { language: string; title: string };
 
 const CALLOUT_COMMENT = /^\s*\/\/ callout: (.+)$/;
 const HIGHLIGHT_COMMENT = /^\s*\/\/ highlight-(next-line|start|end)\s*$/;

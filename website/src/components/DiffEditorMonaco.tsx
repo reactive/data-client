@@ -100,7 +100,7 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
                         left: labelOffsets?.[i] ?? (i ? '50%' : undefined),
                       }}
                     >
-                      {title || (i ? 'After' : 'Before')}
+                      {title}
                     </span>
                   ))}
                 </div>

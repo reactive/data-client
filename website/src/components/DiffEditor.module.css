@@ -23,8 +23,7 @@
   margin-top: 0.25rem;
 }
 
-.marker,
-.figure :global([class*='diff-callout-'])::after {
+.marker {
   color: var(--ifm-color-primary);
   font-weight: bold;
 }
@@ -32,6 +31,8 @@
 /* Monaco markers; must match calloutMarker() */
 .figure :global([class*='diff-callout-'])::after {
   margin-left: 1ch;
+  color: var(--ifm-color-primary);
+  font-weight: bold;
 }
 .figure :global(.diff-callout-0)::after {
   content: '①';
