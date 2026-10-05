@@ -3,6 +3,7 @@
     "vue"
   ],
   "docs": {
-    "Fixtures.md": "docs/core/api/Fixtures.md"
+    "Fixtures.md": "docs/core/api/Fixtures.md",
+    "mockInitialState.md": "docs/core/api/mockInitialState.md"
   }
 }
