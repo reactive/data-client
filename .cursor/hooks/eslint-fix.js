@@ -40,12 +40,13 @@ const dirtyFiles = () =>
     .map(line => line.slice(3));
 
 /**
- * Fixes the JS/TS `files` that exist; returns the ones eslint changed and the
- * errors it couldn't fix, one `file:line:col message (rule)` each
+ * Fixes the JS/TS `files` that exist; returns the ones eslint changed, the
+ * mtime of each fix still on disk, and the errors it couldn't fix, one
+ * `file:line:col message (rule)` each
  */
 function eslintFix(files) {
   files = files.filter(file => isLintable(file) && mtime(file) !== undefined);
-  if (!files.length) return { fixed: [], errors: [] };
+  if (!files.length) return { fixed: [], fixedMtimes: {}, errors: [] };
   let report = '[]';
   try {
     report = execFileSync(
@@ -79,12 +80,32 @@ function eslintFix(files) {
   } catch {
     // not eslint's report
   }
-  const relative = filePath => path.relative(projectDir, filePath);
+  if (!Array.isArray(results)) results = [];
+  // git paths use `/`, including on Windows where `path.relative` does not
+  const relative = filePath =>
+    path.relative(projectDir, filePath).split(path.sep).join('/');
+  const fixed = [];
+  // mtimes of fixes still on disk. A later edit is left out so it is not
+  // stored as already linted.
+  const fixedMtimes = {};
+  for (const { filePath, output } of results) {
+    if (output === undefined) continue;
+    const file = relative(filePath);
+    fixed.push(file);
+    const modified = mtime(file);
+    if (modified === undefined) continue;
+    try {
+      if (fs.readFileSync(path.join(projectDir, file), 'utf8') === output) {
+        fixedMtimes[file] = modified;
+      }
+    } catch {
+      // removed while eslint ran
+    }
+  }
   return {
     // eslint reports `output` only for files its fixes changed
-    fixed: results
-      .filter(({ output }) => output !== undefined)
-      .map(({ filePath }) => relative(filePath)),
+    fixed,
+    fixedMtimes,
     errors: results.flatMap(({ filePath, messages }) =>
       messages
         .filter(({ severity }) => severity === 2)
@@ -97,8 +118,11 @@ function eslintFix(files) {
 }
 
 if (require.main === module) {
-  // stamped with the start time, so edits made while eslint runs count next
-  // turn; holds the mtimes eslint left, so its own fixes don't
+  // LAST_RUN's mtime is this run's start, so edits made while eslint runs
+  // count next turn. Its contents are mtimes already linted: the mtime seen
+  // when a file was chosen, or, when eslint rewrote it, the mtime it left.
+  // Statting every chosen file after the run would store an edit that landed
+  // during it as already linted.
   const start = new Date();
   let payload = {};
   try {
@@ -117,18 +141,17 @@ if (require.main === module) {
     } catch {
       // first run
     }
+    const mtimes = {};
     const files = dirtyFiles().filter(file => {
       const modified = mtime(file);
-      return modified > lastRun && modified !== linted[file];
+      if (!(modified > lastRun && modified !== linted[file])) return false;
+      mtimes[file] = modified;
+      return true;
     });
-    const { errors } = eslintFix(files);
+    const { fixedMtimes, errors } = eslintFix(files);
+    Object.assign(mtimes, fixedMtimes);
     fs.mkdirSync(path.dirname(LAST_RUN), { recursive: true });
-    fs.writeFileSync(
-      LAST_RUN,
-      JSON.stringify(
-        Object.fromEntries(files.map(file => [file, mtime(file)])),
-      ),
-    );
+    fs.writeFileSync(LAST_RUN, JSON.stringify(mtimes));
     fs.utimesSync(LAST_RUN, start, start);
     // hand errors eslint can't fix back to the agent once per turn, so it
     // fixes them before finishing; the files it edits get linted again on
