@@ -1,8 +1,11 @@
 import BrowserOnly from '@docusaurus/BrowserOnly';
-import { DiffEditor as BaseDiffEditor } from '@monaco-editor/react';
+import {
+  DiffEditor as BaseDiffEditor,
+  type MonacoDiffEditor,
+} from '@monaco-editor/react';
 import clsx from 'clsx';
 import { type editor } from 'monaco-editor';
-import { useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import type { CodeDocument } from './Playground/editor/codeModel';
 import { extensionToMonacoLanguage } from './Playground/monaco/language';
@@ -25,6 +28,31 @@ export default function DiffEditor({ documents, fallback }: DiffMonacoProps) {
       options.lineHeight,
   });
 
+  // Left edge of each pane's code, so labels line up with the first column
+  const [labelOffsets, setLabelOffsets] = useState<number[]>();
+  const handleDiffMount = useCallback(
+    (editor: MonacoDiffEditor) => {
+      handleMount(editor);
+      const panes = [editor.getOriginalEditor(), editor.getModifiedEditor()];
+      const updateOffsets = () => {
+        const left = editor.getContainerDomNode().getBoundingClientRect().left;
+        const next = panes.map(
+          pane =>
+            (pane.getDomNode()?.getBoundingClientRect().left ?? left) -
+            left +
+            pane.getLayoutInfo().contentLeft,
+        );
+        setLabelOffsets(prev =>
+          prev?.every((offset, i) => offset === next[i]) ? prev : next,
+        );
+      };
+      updateOffsets();
+      // Both panes lay out together; disposed along with the pane
+      panes[1].onDidLayoutChange(updateOffsets);
+    },
+    [handleMount],
+  );
+
   return (
     <BrowserOnly fallback={fallback}>
       {() => {
@@ -41,13 +69,25 @@ export default function DiffEditor({ documents, fallback }: DiffMonacoProps) {
               )}
             >
               <div className={styles.playgroundTextEdit}>
+                <div className={styles.diffLabels} aria-hidden>
+                  {documents.map(({ title }, i) => (
+                    <span
+                      key={i}
+                      style={{
+                        left: labelOffsets?.[i] ?? (i ? '50%' : undefined),
+                      }}
+                    >
+                      {title || (i ? 'After' : 'Before')}
+                    </span>
+                  ))}
+                </div>
                 <div className={styles.playgroundEditor}>
                   <BaseDiffEditor
                     language={extensionToMonacoLanguage(documents[0].language)}
                     original={original}
                     modified={modified}
                     options={DIFF_OPTIONS}
-                    onMount={handleMount}
+                    onMount={handleDiffMount}
                     height={height}
                     theme={MONACO_THEME}
                     loading={fallback}
