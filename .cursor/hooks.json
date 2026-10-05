@@ -5,6 +5,11 @@
       {
         "command": "node .cursor/hooks/pre-push.js"
       }
+    ],
+    "stop": [
+      {
+        "command": "node .cursor/hooks/eslint-fix.js"
+      }
     ]
   }
 }

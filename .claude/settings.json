@@ -23,6 +23,16 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.cursor/hooks/eslint-fix.js\""
+          }
+        ]
+      }
     ]
   }
 }

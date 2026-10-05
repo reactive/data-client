@@ -11,6 +11,8 @@ const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
+const { eslintFix } = require('./eslint-fix');
+
 let payload = {};
 try {
   payload = JSON.parse(fs.readFileSync(0, 'utf8') || '{}');
@@ -117,7 +119,7 @@ function regenerate({ what, from, script, yarn, ci, isInput, outputs }) {
   ];
 }
 
-/** `eslint --fix` the branch's JS/TS files; reports the ones it changed */
+/** `eslint --fix` the JS/TS files this push includes */
 function lintFix() {
   // eslint reads the working tree, so skip files with uncommitted edits unless
   // this command commits them (per file, since eslint reads only those)
@@ -125,24 +127,7 @@ function lintFix() {
     commits ?
       [...new Set([...committed, ...dirty])]
     : committed.filter(file => !dirty.includes(file));
-  const files = pushed.filter(
-    file =>
-      /\.[cm]?[jt]sx?$/.test(file) &&
-      fs.existsSync(path.join(projectDir, file)),
-  );
-  if (!files.length) return [];
-  const read = file => fs.readFileSync(path.join(projectDir, file), 'utf8');
-  const before = files.map(read);
-  try {
-    execFileSync(
-      path.join(projectDir, 'node_modules/.bin/eslint'),
-      ['--fix', '--cache', '--no-warn-ignored', '--', ...files],
-      { cwd: projectDir, stdio: 'ignore' },
-    );
-  } catch {
-    // unfixable lint errors are left to CI, like a missing install
-  }
-  const fixed = files.filter((file, i) => read(file) !== before[i]);
+  const fixed = eslintFix(projectDir, pushed);
   return fixed.length ?
       [
         `\`eslint --fix\` changed files this push would include. Commit them, then push again:\n${fixed.join('\n')}`,
