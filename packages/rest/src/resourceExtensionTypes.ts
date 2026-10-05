@@ -70,7 +70,8 @@ export interface ResourceEndpointExtensions<
     : OptionsToFunction<Get, R['get'], EndpointToFunction<R['get']>>,
     R['get']['schema']
   > &
-    Readonly<Get>;
+    Readonly<Get> &
+    Get;
   readonly getList?: RestEndpointOptions<
     unknown extends GetList ? EndpointToFunction<R['getList']>
     : OptionsToFunction<
@@ -80,13 +81,15 @@ export interface ResourceEndpointExtensions<
       >,
     R['getList']['schema']
   > &
-    Readonly<GetList>;
+    Readonly<GetList> &
+    GetList;
   readonly update?: RestEndpointOptions<
     unknown extends Update ? EndpointToFunction<R['update']>
     : OptionsToFunction<Update, R['update'], EndpointToFunction<R['update']>>,
     R['update']['schema']
   > &
-    Readonly<Update>;
+    Readonly<Update> &
+    Update;
   readonly partialUpdate?: RestEndpointOptions<
     unknown extends PartialUpdate ? EndpointToFunction<R['partialUpdate']>
     : OptionsToFunction<
@@ -96,11 +99,13 @@ export interface ResourceEndpointExtensions<
       >,
     R['partialUpdate']['schema']
   > &
-    Readonly<PartialUpdate>;
+    Readonly<PartialUpdate> &
+    PartialUpdate;
   readonly delete?: RestEndpointOptions<
     unknown extends Delete ? EndpointToFunction<R['delete']>
     : OptionsToFunction<Delete, R['delete'], EndpointToFunction<R['delete']>>,
     R['delete']['schema']
   > &
-    Readonly<Delete>;
+    Readonly<Delete> &
+    Delete;
 }
