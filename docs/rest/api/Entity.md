@@ -358,10 +358,13 @@ render(<PostPage />);
 </script>
 
 <script setup lang="ts">
+  import { Intl } from 'temporal-polyfill';
   import { useSuspense } from '@data-client/vue';
 
   const post = await useSuspense(getPost, { id: '123' });
-  const dateFormat = DateTimeFormat('en-US', { dateStyle: 'medium' });
+  const dateFormat = new Intl.DateTimeFormat('en-US', {
+    dateStyle: 'medium',
+  });
 </script>
 
 <template>
