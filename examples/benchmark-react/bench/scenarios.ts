@@ -220,14 +220,14 @@ export const LIBRARIES = [
   'baseline',
 ] as const;
 
-export const SCENARIOS: Scenario[] = LIBRARIES.flatMap(lib =>
-  BASE_SCENARIOS.filter(
-    base => !base.onlyLibs || base.onlyLibs.includes(lib),
-  ).map(
-    ({ nameSuffix, onlyLibs, ...rest }): Scenario => ({
+export const SCENARIOS: Scenario[] = [
+  ...LIBRARIES.flatMap(lib =>
+    BASE_SCENARIOS.filter(
+      base => !base.onlyLibs || base.onlyLibs.includes(lib),
+    ).map(({ nameSuffix, onlyLibs, ...rest }): Scenario => ({
       name: `${lib}: ${nameSuffix}`,
       ...rest,
       ...(onlyLibs ? { onlyLibs: [...onlyLibs] } : {}),
-    }),
+    })),
   ),
-);
+];

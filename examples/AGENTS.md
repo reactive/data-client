@@ -4,7 +4,11 @@
 
 ### Monorepo workspace members
 
-`benchmark`, `benchmark-react`, `test-bundlesize`, `normalizr-*`, `coin-app` — listed in root `package.json` workspaces, managed by yarn. Most use `workspace:*` for `@data-client/*` deps.
+`benchmark`, `benchmark-react`, `benchmark-native`, `test-bundlesize`, `normalizr-*`, `coin-app` — listed in root `package.json` workspaces, managed by yarn. Most use `workspace:*` for `@data-client/*` deps. `benchmark-native` (React Native Android) uses the root Jest/ESLint/TypeScript toolchain and is not installed in CI.
+
+### Shared (non-workspace) code
+
+`gc-shared` — CommonJS `.js` + hand-written `.d.ts` shared by the GC harnesses in `benchmark`, `benchmark-react`, and `benchmark-native`. No `package.json` on purpose (see its README); include it in each harness's build-provenance inputs.
 
 ### Standalone (StackBlitz demos)
 
@@ -22,4 +26,4 @@
 
 ## Build Tooling
 
-Most examples use Webpack via `@anansi/webpack-config`. Exceptions: `nextjs` (Next.js), `vue-todo-app` (Vite), `normalizr-*` (Node scripts via `babel-node`).
+Most examples use Webpack via `@anansi/webpack-config`. Exceptions: `nextjs` (Next.js), `vue-todo-app` (Vite), `normalizr-*` (Node scripts via `babel-node`), `benchmark-native` (Metro).

@@ -1,461 +1,343 @@
-# Garbage Collection Direction
+# Garbage collection
 
-Status: draft
-Owner: TBD
+Status: exploring. No design is chosen, and production GC is unchanged.
 Related: [GOALS.md](../GOALS.md), `packages/core/src/state/GCPolicy.ts`
 
-## Priorities
+This is the working record for redesigning cache garbage collection (GC). It
+covers the goals, how GC works today, confirmed gaps, prior art, open
+decisions, one candidate design, and how to measure. Only the goals and
+constraints are settled. Everything from [Candidate design](#candidate-design-cooperative-slicing)
+onward is a hypothesis. If a simpler design meets the goals, prefer it.
 
-Garbage collection must follow the project-wide performance goals and the
-platform priorities adopted for this work:
+## Goals
 
-1. Preserve a continuous 60 FPS experience on mid-range hardware. Collection
-   must not create blocking stutters during critical updates or interactions.
-2. For this work, web prioritizes bundle size before retained cache memory.
-3. For this work, React Native prioritizes retained memory before bundle size.
-4. Continue minimizing network work. More aggressive collection can cause
-   refetches, so lower memory use is not automatically a net performance win.
-5. Keep the default path understandable, dependency-light, and portable across
-   React, React Native, Vue, and imperative `Controller` use.
+In priority order:
 
-These priorities imply different platform defaults or adapters over one shared
-correctness model. They do not imply different endpoint or schema definitions.
+1. **Interaction latency.** No dropped frames during critical updates: a
+   continuous 60 FPS on mid-range hardware, including while GC runs.
+2. **Web:** bundle size, then retained memory.
+3. **React Native:** retained memory, then bundle size. Bundle size barely
+   matters on React Native.
+4. **Avoid refetches.** Deleting more aggressively can cause refetches. Lower
+   memory is not automatically a win. ([GOALS.md](../GOALS.md) ranks network
+   cost above frame rate in general.)
 
-## Current system
+Web and React Native may pick different points on this tradeoff. Endpoint and
+schema definitions stay shared.
 
-The current policy is reference-counted and age-gated:
+## Constraints
 
-1. Read hooks obtain a `countRef` from `Controller.getResponseMeta()` or
-   `Controller.getQueryMeta()`.
-2. Mounting increments references for the endpoint key and every entity path
-   used by the denormalized result.
-3. Releasing the last reference queues those endpoint and entity candidates.
-4. By default, every five minutes, `GCPolicy` schedules a sweep.
-5. A queued candidate is eligible when it is still unreferenced and its GC
-   expiry has passed.
-6. One `GC` action deletes all eligible endpoint results, entities, and their
-   metadata in place.
+- **Keep React's built-in reducer.** It exists for concurrent rendering in
+  React 19+. Do not replace it with an external store to make GC easier.
+- **Keep GC bookkeeping out of rendered state.** Reference counts must not
+  update render-driving state on every mount and unmount.
+- **No render from GC alone.** If GC changes nothing a mounted consumer
+  renders, it must not by itself trigger a React render.
+- **Open question, not an approval:** attaching GC work to a later reducer
+  update must not slow that update, and the update must be unchanged when
+  nothing is reclaimable.
 
-The default GC expiry is:
+## How GC works today
 
-```ts
+**Reference counting.** Read hooks get a `countRef` from
+`Controller.getResponseMeta()` or `getQueryMeta()`. Mounting increments the
+endpoint key and every entity path in the denormalized result. Releasing the
+last reference queues those candidates: endpoints in a `Set`, entities in an
+array (so one entity can be queued many times).
+
+**Sweeping.** Every 5 minutes (`intervalMS`), `GCPolicy` calls
+`requestIdleCallback(..., { timeout: 1000 })`, or runs the sweep synchronously
+if that API is missing. It ignores `timeRemaining()` and `didTimeout`. The
+sweep scans the whole queue and dispatches **one** `GC` action for everything
+eligible. A candidate is eligible when unreferenced and past:
+
+```text
 max((expiresAt - fetchedAt) * expiryMultiplier, 120_000) + fetchedAt
 ```
 
-`expiryMultiplier` defaults to `2`. This is deletion policy, not fetch expiry:
-staleness and invalidation may cause a refetch without removing normalized data.
-
-The policy currently exposes:
-
-- `intervalMS`
-- `expiryMultiplier`
-- a custom `expiresAt(meta)` function
-- complete replacement through `GCInterface`
-- `ImmortalGCPolicy` for no automatic deletion
-
-React `DataProvider` installs `GCPolicy` by default. Its React Native build
-substitutes `NativeGCPolicy`. A bare `Controller` and the Vue provider currently
-fall back to `ImmortalGCPolicy` unless a policy is supplied. Imperative use must
-also own policy lifecycle: constructing a `Controller` with a `GCPolicy` does
-not call `init()` or `cleanup()`; providers do that through `initManager`.
-
-There is no LRU, maximum entry count, or retained-byte limit.
-
-## Current limitations
-
-### Unbounded synchronous work
-
-`runSweep()` scans the complete endpoint and entity candidate queues. It then
-dispatches every eligible deletion in one action, whose reducer synchronously
-deletes the complete batch. Both phases are unbounded.
-
-Idle scheduling only changes when this monolithic work begins. It does not make
-the work interruptible. On web:
-
-- `requestIdleCallback(..., { timeout: 1000 })` may run because the timeout
-  elapsed even when no meaningful idle budget remains.
-- The fallback runs the complete sweep synchronously.
-- The callback ignores `IdleDeadline.timeRemaining()` and `didTimeout`.
-
-A sufficiently large queue can therefore produce a long task and dropped
-frames.
-
-### React Native scheduling is deprecated and unbounded
-
-`NativeGCPolicy` uses `InteractionManager.runAfterInteractions()` and
-`InteractionManager.setDeadline()`. In React Native 0.86, `InteractionManager`
-is deprecated, `runAfterInteractions()` is implemented using `setImmediate()`,
-and `setDeadline()` is a no-op. It defers a sweep but does not protect an active
-interaction or bound the resulting task.
-
-React Native 0.86 officially recommends refactoring long tasks into smaller
-units and scheduling them with `requestIdleCallback()`. That is the supported
-migration path and should be the native host primitive. It remains a
-cooperative idle hint, not a frame-safety guarantee: once a callback or one GC
-unit starts, React Native cannot preempt it. The GC must therefore enforce its
-own bounded units, elapsed-time/count budgets, yielding, and cancellation.
-
-### Candidate queue amplification
-
-Endpoint candidates use a `Set`, but entity candidates use an array. Repeated
-mount/release cycles can queue the same entity multiple times before it becomes
-eligible, increasing retained queue memory and future sweep work.
-
-### Incomplete deletion
-
-Entity GC removes `entities` and `entitiesMeta` entries but does not remove
-corresponding entries from `state.indexes`. This retains stale mappings and
-some memory. Correct index cleanup needs a bounded design: blindly scanning all
-indexes while deleting one entity could itself create an unbounded unit.
-
-### Lifecycle and race gaps
-
-- `cleanup()` cancels the interval but not an already scheduled idle callback.
-- Eligibility is checked before dispatch. A store integration with asynchronous
-  dispatch can reacquire a candidate before its deletion is reduced.
-- Hook references are installed in effects, leaving a render-to-effect window.
-- A subscription by itself does not hold a GC reference. `useLive`, which also
-  reads the result, normally does.
-
-These need explicit invariants and tests before making collection more
-aggressive.
-
-### Memory cannot be bounded
-
-Age-based collection gives no hard upper memory bound. Active data is retained,
-and unreferenced data remains until both its retention threshold and a sweep
-pass. JavaScript also lacks a portable, reliable retained-byte measurement API,
-so a byte-precise cross-platform policy is not currently realistic.
-
-### Configuration and documentation are inconsistent
-
-React enables GC automatically, while Vue and direct `Controller` usage do not.
-The provider option and policy settings have little public documentation. The
-behavior should be made deliberate and documented before adding more profiles.
-
-## Cooperative collection model
-
-JavaScript cannot suspend arbitrary synchronous work. Frame-safe collection
-requires the algorithm to expose bounded, resumable units and the scheduler to
-run those units within a budget.
-
-The reusable part is a small internal scheduling shell:
-
-- schedule another slice;
-- decide when the current slice should yield;
-- cap elapsed time and work count;
-- make progress after prolonged starvation;
-- cancel pending callbacks;
-- provide platform-specific scheduling;
-- allow deterministic test scheduling.
-
-The GC-specific part owns:
-
-- candidate traversal state;
-- expiry and reference validation;
-- deduplication;
-- construction of bounded deletion batches;
-- revalidation around dispatch;
-- bounded index cleanup.
-
-For the current implementation, a natural scan unit is checking one endpoint
-or entity candidate. Deleting one entity and its metadata is a plausible
-mutation unit, but index cleanup is not yet naturally bounded: the current GC
-action carries only the entity type and primary key, while `GCPolicy` has no
-schema/index-name information. The index design must prove how relevant work is
-identified, resumed, and bounded without scanning every index in one step. A
-slice should process multiple proven-bounded units only while both time and
-count budgets remain.
-
-This is not graph reference-counting GC. Entities do not own references to their
-children, entity deletion does not decrement child references, and there is no
-cascading traversal. Consumer reads independently retain all entity paths used
-by a denormalized result. Any future graph ownership model would be a separate,
-much larger semantic change.
-
-## Direction
-
-### 1. Bound scanning and deletion
-
-Make candidate traversal resumable and cap both:
-
-- candidates examined per slice; and
-- records deleted per dispatched action.
-
-Time budgets adapt to device speed, while count limits protect against timer
-quirks and unexpectedly expensive batches. A single unit must also remain
-bounded; the scheduler cannot compensate for one deletion that scans an entire
-store or synchronously notifies unbounded work.
-
-### 2. Use a small internal cooperative scheduler
-
-Prefer a small internal executor over a runtime dependency:
-
-- React's `scheduler` package exposes `unstable_` APIs and would couple core
-  data behavior to a React implementation package.
-- generic coroutine or iterator dependencies do not identify domain-specific
-  safe yield boundaries;
-- the required scheduling shell is small compared with the GC correctness
-  logic;
-- avoiding a dependency protects bundle size and wide platform compatibility.
-
-The scheduler should remain internal initially. Deterministic tests should use
-a private test factory or internal host adapter. Constructor injection or a new
-protected hook on exported `GCPolicy` would still become observable public and
-subclass surface even if `GCInterface` remained unchanged.
-
-Do not copy a `requestIdleCallback` loop without handling starvation. When a
-callback fires with `didTimeout` and no remaining idle time, the executor must
-still perform a tightly bounded amount of work before yielding again; otherwise
-it can reschedule forever without progress.
-
-### 3. Keep the public policy seam small
-
-Preserve `GCInterface` and provider/controller injection. Begin with internal
-scan, deletion, and time budgets selected by benchmarks. Add public
-`GCOptions` controls only if concrete application needs demonstrate stable,
-understandable semantics beyond platform defaults.
-
-Scheduling strategy, callback handles, continuation state, and platform host
-APIs should not become endpoint, schema, or hook configuration.
-
-### 4. Use platform-specific policy defaults
-
-Initial target profiles:
-
-| Concern | Web | React Native |
-| --- | --- | --- |
-| Scheduling | Browser `requestIdleCallback` with yielding async fallback | React Native `requestIdleCallback` with explicit bounded units |
-| Slice size | Conservative | Conservative, validated on mid-range Android |
-| Sweep cadence | Current five-minute baseline | More frequent candidate processing |
-| Retention | Current baseline | Start unchanged; lower only with refetch and memory evidence |
-| Memory pressure | Optional/manual aggressive collection | Research optional application/native bridge |
-| Bundle cost | Strictly constrained | Secondary to measured retained-memory improvement |
-
-An aggressive collection request may shorten retention but must never override
-an active reference. Platform profiles should be thin adapters or options, not
-LRU logic on every cache access.
-
-### 5. Do not add default LRU bookkeeping
-
-LRU or hard entry limits add work to hot reads/writes, increase bundle size,
-and do not make eviction itself frame-safe. They also use entry count or recency
-as weak proxies for actual memory. Keep such policies optional unless measured
-applications demonstrate that age-based cooperative collection is insufficient.
-
-### 6. Fix correctness and lifecycle gaps
-
-Before increasing collection frequency:
-
-- deduplicate entity candidates;
-- cancel pending scheduled slices;
-- define reacquisition behavior through deletion commit;
-- make index cleanup correct and bounded;
-- test effect/subscription lifecycle behavior;
-- reconcile and document provider defaults.
-
-## Evaluation of scheduler alternatives
-
-The cooperative-scheduling proposal contributes several useful conclusions:
-
-- the scheduling shell and yield boundaries are separate concerns;
-- an arbitrary synchronous sweep cannot be made interruptible by wrapping it;
-- a queue already provides continuation state;
-- cancellation, starvation behavior, and per-slice elapsed-time caps belong in
-  the scheduler;
-- a single step must be bounded;
-- an internal executor is preferable to React's unstable scheduler dependency.
-
-It does not change the overall direction of bounded cooperative GC. It sharpens
-the design by favoring a reusable internal scheduling shell instead of embedding
-platform timing directly into `runSweep()`.
-
-Parts that require qualification or do not transfer directly:
-
-- `requestIdleCallback` is React Native's supported migration path from
-  `InteractionManager`, but it cannot by itself guarantee frame safety. The
-  supplied executor is safe only if every `task.step()` is bounded and its
-  continuation yields as designed.
-- Its loop can starve when a timeout fires with no `timeRemaining()`, because it
-  performs no mandatory bounded step.
-- The proposed child-reference decrements and cascading deletion describe graph
-  GC, not the current consumer-reference model.
-- A `CooperativeTask`/`CooperativeScheduler` public interface is unnecessary at
-  this stage. Keeping it internal avoids premature API and bundle commitments.
-- Scheduling one candidate at a time is insufficient if the eventual reducer
-  still receives and deletes an unbounded batch; scanning and mutation must
-  both be sliced.
-
-## Validation gates
-
-Before changing defaults, establish a measurement protocol and calibrate it
-against the current monolithic GC. Exact time, count, cadence, and retention
-defaults remain open until variance is measured. The gates below freeze *how*
-we measure; they do not invent pass/fail numbers yet.
-
-### Measurement layers
-
-Measurement is layered. v1 uses three harnesses with one shared documented JSON
-vocabulary and **no** shared runtime package or dependency in this phase:
-
-| Layer | Runtime | Role |
-| --- | --- | --- |
-| Node | Node.js | Stable, repeatable totals, slice summaries, action/queue cardinality |
-| Browser | Chromium | Long tasks, interaction latency, heap snapshots, bundle-adjacent checks |
-| Android | Release Hermes | Mid-range device frame stalls and retained memory under navigation/gestures |
-
-Each harness may keep a local typed mirror of the result schema. Emitted JSON
-must conform **semantically** to the shared vocabulary; cross-harness type
-sharing is explicitly out of scope for this phase.
-
-### Scenario axes
-
-Every run is identified by a stable, deterministic scenario ID derived from:
-
-| Axis | Values |
-| --- | --- |
-| `platform` | `node` \| `browser` \| `android` |
-| `candidateKind` | `entity` \| `endpoint` \| `mixed` |
-| `pattern` | `unique` \| `duplicate` |
-| `count` | Canonical `1000`, `10000`, `100000` |
-| `mode` | `scan` \| `reducer` \| `end-to-end` \| `interaction` \| `memory` |
-| `control` | `gc` \| `no-gc` |
-
-IDs must be stable across machines and commits so medians can be compared. The
-canonical large gate remains at least 100,000 queued candidates; smaller counts
-exist for calibration and CI cost control.
-
-### Lifecycle boundaries
-
-Timing windows are explicit. Never conflate V8/Hermes **engine** GC with
-data-client **cache** GC.
-
-1. **Prepare** — build the fixture and queue outside the timed window.
-2. **Warmup** — optional; not part of reported totals when used.
-3. **Timed cache-GC work** — the measured collection (or no-op control).
-4. **Event-loop settling** — allow queued microtasks/macrotasks to drain before
-   interaction or heap observations that depend on quiescence.
-5. **Forced engine GC** — only after interaction timing, and only when taking
-   heap snapshots. Engine GC pauses are optional metrics, not substitutes for
-   cache-GC slice timing.
-6. **Teardown** — discard fixture state; do not include in samples.
-
-### Aggregated result vocabulary
-
-Each run emits one aggregated JSON report. Units are explicit in field names or
-documented once per schema version. Do **not** log, mark, or bridge per
-candidate; instrumentation cost must not dominate the work being measured.
-
-Core fields:
-
-- `schemaVersion`
-- commit / build label
-- environment fingerprint (runtime, OS, device class as available)
-- scenario descriptor (the axes above)
-- `samples` and `summary`
-
-Core metrics:
-
-- `totalMs`
-- optional `sliceDurationsMs`-derived `max` / `p95` / `p99`
-- `actionCount`
-- targets / deletions
-- queue cardinality
-
-Optional platform metrics (when the harness can collect them):
-
-- `maxInputDelayMs`
-- `missedFrames`
-- `displayPeriodMs`
-- `longTaskCount` / `longTaskTotalMs`
-- `heapBefore` / `heapAfter` / `heapDelta`
-- `engineGCPauseMs`
-- artifact sizes (for example heap snapshot or trace bytes)
-
-### Honest representation of monolithic GC
-
-The current implementation is one unbounded scan plus one deletion action for
-eligible candidates. Reports must represent that honestly:
-
-- normally **one** timed slice and **one** deletion action;
-- do **not** fabricate per-candidate or synthetic slice samples.
-
-When a future cooperative implementation lands, slice boundaries may come from
-**benchmark-internal** instrumentation only. This measurement phase does not
-add a new public GC API solely to expose slice markers.
-
-### Fixture setup
-
-Fixtures are deterministic:
-
-- fixed seed / data generation;
-- `expiresAt` overridden to zero so queued candidates are immediately eligible;
-- timerless explicit benchmark policy (no five-minute interval driving the run);
-- **unique** pattern: distinct endpoint keys or entity `key`+`pk` pairs;
-- **duplicate** pattern: repeat one candidate and report queue entries versus
-  unique targets.
-
-Self-validation after each run verifies expected queue cardinality and final
-deletion count before the report is accepted.
-
-### Calibration
-
-1. Establish the current monolithic baseline **before** cooperative
-   implementation changes land.
-2. Repeat runs on the same machine or device; compare medians for totals and
-   `p95` / `p99` / `max` for stalls.
-3. Alternate baseline and change builds on the same host to reduce drift.
-4. Always include a `no-gc` control alongside `gc`.
-5. Frame judgment uses measured `displayPeriodMs` and **excess** stalls over the
-   control — not a hardcoded 16.67 ms assumption.
-6. Raw machine reports are **artifacts**, not committed universal baselines.
-7. Exact pass thresholds freeze only after measured variance is known.
-
-### Gate priorities
-
-Order of judgment when trade-offs appear:
-
-1. **Interaction / frame impact** is the primary hard gate. Prove that
-   input/timer callbacks can execute between collection slices; measure browser
-   long tasks, interaction latency, and React Native JS/UI frame stalls on
-   mid-range Android during navigation and sustained gestures.
-2. **Total collection time** and **action count** may rise under cooperative
-   slicing within calibrated ceilings. Report worst slice duration, total
-   duration, and deletion action count.
-3. **Web bundle delta** is next (`yarn ci:build:bundlesize`); any increase needs
-   a measured interaction-latency justification.
-4. **React Native retained memory** is next; measure heap during mount/unmount
-   churn and continuous entity updates where the harness supports it.
-5. **Network / refetch impact** from cadence or retention changes is deferred.
-   This measurement phase does not change those defaults.
-
-Also required before aggressive default changes:
-
-- Jest coverage for reacquisition, cancellation, duplicate candidates, index
-  reuse, and starvation behavior (logic only; see automation boundary).
-- Existing core and React benchmark suites remain within noise for foreground
-  reads and writes.
-
-### Automation boundary
-
-| Class | Examples | Automation |
-| --- | --- | --- |
-| Stable | Node totals; Chromium interaction/long-task runs after calibration | Eligible as CI gates once variance and thresholds exist |
-| Expensive / device | Heap snapshots; release-Hermes Android frame and memory | Start as manual; promote only with cost justification |
-| Unit tests | Jest correctness for GC policy and reducer behavior | Required for logic; **not** a substitute for idle or frame measurement |
-
-### Planned commands and artifacts
-
-Commands and artifact paths are planned, not claimed as already present:
-
-- Node GC scenarios under the existing benchmark workspace (canonical counts,
-  `gc` / `no-gc` controls).
-- Browser Chromium harness for interaction, long-task, and optional heap modes.
-- Android release-Hermes runs on mid-range hardware for frame and retained-memory
-  modes.
-- Aggregated JSON reports plus optional traces/heap snapshots as CI or local
-  artifacts.
-- Calibration notes that record host fingerprint, medians, and variance before
-  any threshold is frozen.
-
-Exact script names and directory layout land with the harness implementation.
+`expiryMultiplier` defaults to `2`. This is deletion, separate from fetch
+expiry (`dataExpiryLength`, invalidation, `expireAll`).
+
+**Deleting.** The reducer's `case GC` deletes from `entities`, `entitiesMeta`,
+`endpoints`, and `meta` **in place** and returns the **same state object**. It
+does not touch `indexes` or `optimistic`.
+
+**Hooks.** Read hooks call `countRef` in `useEffect`, so there is no reference
+between render and the passive effect. `useSubscription` alone holds no
+reference; `useLive` does, because it also reads.
+
+**Defaults.** React `DataProvider` uses `GCPolicy`, and `NativeGCPolicy` on
+React Native. Vue and a bare `Controller` use `ImmortalGCPolicy` unless one is
+passed. `Controller` does not call `gcPolicy.init()`; providers do, via
+`initManager`. Public knobs: `intervalMS`, `expiryMultiplier`, a custom
+`expiresAt(meta)`, or a whole `GCInterface`. GC options are barely documented.
+
+**React Native.** `NativeGCPolicy` uses `InteractionManager`, which React
+Native 0.86 deprecates: `runAfterInteractions` is `setImmediate`, and
+`setDeadline` is a no-op. The supported replacement is `requestIdleCallback`.
+It is only a cooperative hint; once a callback starts, React Native cannot
+preempt it.
+
+**React commit timing.** Cache state lives in `useReducer`, through
+`useEnhancedReducer` in `DataStore.tsx`. `usePromisifiedDispatch` resolves a
+dispatch after its state commits, and `Controller.getState()` returns the last
+committed snapshot, so it lags in-flight dispatches. Vue applies the reducer
+synchronously inside `realDispatch`, so React's timing gaps do not
+automatically apply to Vue.
+
+## Confirmed gaps
+
+### Synchronous, unbounded work
+
+One sweep scans the full queue, and one reducer call deletes the full batch.
+Idle scheduling only delays the start; it cannot interrupt the work. A large
+queue can therefore drop frames. See [Baselines](#baselines) for sizes.
+
+### Entities deleted under surviving results
+
+Test: [`GCPolicy-dangling.ts`](../packages/core/src/state/__tests__/GCPolicy-dangling.ts)
+
+A result written without a mounted consumer is never queued: `setResponse`,
+prefetch, hydrated `initialState`, or a fetch nobody mounted. An entity it
+names is still swept when another consumer releases that entity. List schemas
+filter missing entities (`filterEmpty` in `schemas/Array.ts`), so the
+surviving list silently shrinks. A surviving detail reads `undefined`. Both stay
+`Valid`, so nothing refetches.
+
+Those never-mounted results are also never collected themselves.
+
+### Deleting a mounted consumer's data
+
+Test: [`integration-garbage-collection-race.web.tsx`](../packages/react/src/__tests__/integration-garbage-collection-race.web.tsx),
+passing on React 17, 18, and 19.
+
+A sweep that runs after a consumer commits but before its `countRef` effect
+sees a zero count and deletes the entity. Because the reducer returns the same
+state object, nothing re-renders. The consumer shows stale data until an
+unrelated update, then suspends and refetches. In an app this needs an idle
+callback to fire between a non-sync commit and React's passive-effect flush.
+How often that happens is unmeasured.
+
+A related hypothesis did **not** reproduce on React 19.2: a GC update queued
+ahead of a synchronous mount is applied in the same render, so the new
+consumer suspends and refetches instead of losing counted data. A GC
+dispatched at transition or idle priority is untested; a pure
+`(state, action)` reducer cannot see a count incremented after the action was
+queued.
+
+### Leftover memory after deletion
+
+- `state.indexes` keeps `indexes[key][indexName][value] = pk` rows. Deleting
+  one row is cheap from the dying entity's field value (delete only if it
+  still maps to that pk). Scanning every index is unbounded.
+- `normalizr/src/memo/entitiesCache.ts` keeps a strong `Map` of key → pk →
+  `WeakMap`. Values can be collected by JS GC, but the map entries cannot.
+
+### Lifecycle
+
+- `cleanup()` clears the interval but not an already scheduled idle callback.
+- There is no memory bound, LRU, or entry limit. JavaScript has no portable
+  retained-byte API, so a byte-precise policy is not realistic.
+
+## Prior art
+
+Checked against official docs (not source), 2026-07-18:
+
+| Library            | What survives                                                                                                                          | Cost                                                          |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| RTK Query          | Whole document per endpoint+args; removed after `keepUnusedDataFor` (60s). Never collects an entity out from under a query.            | Duplicate copies; tag-driven refetch instead of normalization |
+| Relay              | Retains queries and mark-sweeps records unreachable from them. A record a retained query references stays. Release buffer: 10 queries. | Needs explicit references and compiler-known selections       |
+| Apollo `gc()`      | Traces from roots and keeps reachable objects.                                                                                         | Tracing cost                                                  |
+| Apollo `evict(id)` | May leave dangling refs. Lists filter them, like our silent shrink; singular refs need a custom `read`.                                | Correctness is left to the app                                |
+
+## Open decisions
+
+1. **What is a GC root?** Per-consumer counts allow
+   [entities deleted under surviving results](#entities-deleted-under-surviving-results).
+   The alternatives are whole-document eviction (RTK Query, which gives up
+   normalization), reachability from retained queries (Relay, Apollo `gc`), or
+   accepting dangling refs (Apollo `evict`, today).
+2. **When may GC change a React snapshot?** Immutable deletion committed
+   alone renders. In-place mutation avoids the render but conflicts with
+   concurrent reducer replay. Swapping in a prebuilt table on a later real
+   update avoids an extra render but must stay off that update's critical
+   path. Never collecting while idle retains memory. React Native may accept a
+   standalone low-priority commit more readily than web.
+3. **How is "still referenced" known at deletion time?** Options:
+   - read live counts inside the GC reducer (impure, but closes the race);
+   - count in `useLayoutEffect` instead of `useEffect`;
+   - commit GC synchronously;
+   - accept rare deletion of newly mounted data.
+
+   Settle this with a concurrent-rendering test.
+
+4. **What runs during interaction versus idle?** Unmount must stay cheap. Do
+   not insert into a heavy structure, walk `Object.keys` of a large store, or
+   delete inside the reducer on the critical path. One option is a cheap inbox
+   drained later.
+5. **Is the never-mounted leak in scope?** A periodic census, or enqueueing
+   when data is written, would find never-mounted results. Enqueueing at write
+   time taxes normalize.
+6. **Index rows and memo map entries.** Clean them up as part of whichever
+   deletion model is chosen, not bolted on first.
+7. **Platform policy versus shared mechanism.** One option is shared
+   correctness with per-platform cadence, retention, and whether idle commits
+   are allowed. The other is a separate collector per platform.
+
+## Candidate design: cooperative slicing
+
+A prior draft. Not chosen. It mainly addresses
+[synchronous, unbounded work](#synchronous-unbounded-work), and does not by
+itself answer open decisions 1–3.
+
+JavaScript cannot suspend synchronous work, so frame-safe collection needs
+bounded, resumable units and a scheduler that runs them within a budget.
+
+- **Bound scanning and deletion.** Make queue traversal resumable. Cap both
+  candidates examined per slice and records deleted per action, by elapsed
+  time and by count. Each single unit must also be bounded, including index
+  cleanup.
+- **A small internal scheduler, not a dependency.** It schedules slices,
+  yields on time or count budgets, cancels pending callbacks, and allows
+  deterministic tests. Avoid React's `scheduler`: it is `unstable_` and ties
+  core to React. A `requestIdleCallback` loop must still do a small amount of
+  work when it fires with `didTimeout` and no time left, or it can reschedule
+  forever.
+- **Keep the public surface small.** Keep `GCInterface` and provider
+  injection. Keep budgets internal until real apps need public knobs.
+- **Per-platform defaults.**
+
+  | Concern     | Web                                          | React Native                                  |
+  | ----------- | -------------------------------------------- | --------------------------------------------- |
+  | Scheduling  | `requestIdleCallback` plus an async fallback | `requestIdleCallback` plus bounded units      |
+  | Cadence     | Current 5 minutes                            | More frequent                                 |
+  | Retention   | Current                                      | Unchanged until refetch and memory data exist |
+  | Bundle cost | Strictly limited                             | Secondary to memory                           |
+
+- **No default LRU.** It taxes every read and write, grows the bundle, and
+  does not make eviction frame-safe.
+- **Prerequisites** before collecting more often: deduplicate entity
+  candidates, cancel pending slices, define behavior when a candidate is
+  re-referenced before its deletion commits, bound index cleanup, and document
+  provider defaults.
+
+A disposable Node spike compared queue structures at 100k candidates (one
+machine, 7 samples):
+
+| Workload                   | Flat re-scan | Calendar buckets |
+| -------------------------- | -----------: | ---------------: |
+| 0% due                     |     ~11.5 ms |         ~0.01 ms |
+| 10 ticks, mostly unexpired |      ~110 ms |          ~0.6 ms |
+| 100% due                   |      ~7.8 ms |           ~25 ms |
+| Insert 100k                |      ~5.9 ms |           ~30 ms |
+
+Buckets win when little is due but cost more at insert time, which happens
+during unmount. A min-heap was worse on time and memory. `Object.keys` over
+~100k meta took ~4 ms and ~2.7 MiB. Resumable `for...in` slices of 256 took
+~0.02 ms.
+
+## Measuring
+
+Three opt-in harnesses, not in CI, share one JSON report vocabulary and, via
+`examples/gc-shared`, the fixture, scenario axes/IDs, filter syntax, frame
+helpers, and summary stats:
+
+| Harness                              | Command              | Measures                                                            |
+| ------------------------------------ | -------------------- | ------------------------------------------------------------------- |
+| Node, `examples/benchmark`           | `start:gc`           | Scan, reducer, and end-to-end totals                                |
+| Chromium, `examples/benchmark-react` | `bench:gc`           | Input delay, frames, Long Tasks, heap                               |
+| Android, `examples/benchmark-native` | `matrix` / `collect` | Release-Hermes frames and memory over `adb` (never run on a device) |
+
+Each report is tied to a build manifest of source and artifact hashes; stale
+or tampered reports are rejected. Harness-only policies disable the interval
+and force expiry to zero so one sweep can be timed. They are fixtures, not
+proposed defaults.
+
+### Protocol
+
+- **Scenario ID:** `platform` × `candidateKind` (`entity` | `endpoint` |
+  `mixed`) × `pattern` (`unique` | `duplicate`) × `count` (1k, 10k, 100k) ×
+  `mode` (`scan` | `reducer` | `end-to-end` | `interaction` | `memory`) ×
+  `control` (`gc` | `no-gc`). The 100k run is the main one. Every harness
+  filters IDs the same way: slash-bounded segments (`/100000/`,
+  `entity/unique/1000`) or a `^prefix`.
+- **Timing window:** build fixtures before timing. Time only the cache-GC
+  work, let the event loop settle, and force engine GC only for heap
+  snapshots. Never confuse JS engine GC with cache GC.
+- **Reports:** one aggregated JSON per run. Fields include `totalMs`, slice
+  `max`/`p95`/`p99`, `actionCount`, deletions, and queue size, plus optional
+  `maxInputDelayMs`, `missedFrames`, `displayPeriodMs`, Long Tasks, and heap.
+  No per-candidate logging. Today's GC reports one slice and one action;
+  never fabricate slices.
+- **Calibration:** repeat on one host, alternate baseline and candidate
+  builds, and always run `no-gc` beside `gc`. Judge frames by **excess** over
+  the control against the measured `displayPeriodMs`, not a hardcoded 16.67 ms.
+  Freeze thresholds only after variance is known.
+- **Judgment order:** interaction and frame impact first; then total time and
+  action count, which may rise under slicing; then web bundle delta (about
+  1 KiB needs a 5–10% measured win); then React Native memory. Foreground
+  `core` and React benchmarks must stay within noise.
+- **Automation:** Jest covers logic only. Node and Chromium could become CI
+  gates after CI variance runs. Android stays manual.
+
+### Baselines
+
+Captured 2026-07-18 on Linux WSL2, Node 24.5, headless Chromium 149 (~16.7 ms
+display period), before the harness was committed. Single host, 3–5 samples:
+evidence, not thresholds. Raw reports were local and are not in git.
+
+Node, 100k, median / p95 `totalMs` (5 samples):
+
+| Scenario         | Scan        | End-to-end  |
+| ---------------- | ----------- | ----------- |
+| entity unique    | 5.2 / 6.6   | 13.0 / 14.5 |
+| endpoint unique  | 14.7 / 16.6 | 33.7 / 39.1 |
+| mixed unique     | 9.0 / 9.9   | 21.1 / 21.5 |
+| entity duplicate | 2.2 / 2.3   | 5.9 / 6.0   |
+
+Chromium, 100k `gc`, medians (3 samples):
+
+| Scenario         | `totalMs` | `maxInputDelayMs` | Heap delta |
+| ---------------- | --------- | ----------------- | ---------- |
+| entity unique    | 9.0       | 9.1               | −10.7 MB   |
+| endpoint unique  | 16.7      | 16.8              | −15.0 MB   |
+| mixed unique     | 13.5      | 13.5              | −12.8 MB   |
+| entity duplicate | 6.8       | 6.8               | −0.4 MB    |
+
+`no-gc` input delay was 0–0.1 ms. Long Tasks stayed at 0 because Chromium only
+reports tasks of 50 ms or more. The endpoint sweep still uses about one full
+60 Hz frame. A synthetic 45 ms block measured ~45.1 ms max frame interval and
+2 missed frames, which confirms the frame probe works. `rdcClient.js` was
+33.8 KiB minified (absolute size, not a delta).
+
+### Rerun
+
+```bash
+# Node
+yarn build:benchmark
+yarn workspace example-benchmark start:gc /100000/ --samples=5 --no-table
+
+# Chromium (preview must be serving dist/)
+yarn build:benchmark-react
+BENCH_GC_OUTPUT=/tmp/gc-browser.json yarn workspace example-benchmark-react \
+  bench:gc --samples 3 --scenario 100000
+
+# Android (needs a device and a release APK)
+yarn workspace example-benchmark-native build:android:release
+SAMPLES=5 yarn workspace example-benchmark-native matrix entity/unique/100000
+
+# Foreground controls and bundle
+yarn workspace example-benchmark start core '^get'
+yarn workspace example-benchmark start core '^set'
+yarn workspace example-benchmark-react bench:small --lib data-client
+yarn ci:build:bundlesize
+```
+
+## Future work
+
+- **Android on-device calibration.** Not planned soon. Without it there is no
+  React Native frame or memory baseline, so do not change React Native GC
+  defaults on Node or Chromium numbers alone. A design can land on web first.
+  When this is picked up, run the release app on a named mid-range device
+  (see `examples/benchmark-native/README.md`).
+- **Benchmarks in CI.** Only after repeated CI runs show acceptable variance.

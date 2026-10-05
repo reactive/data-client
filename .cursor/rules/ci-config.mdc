@@ -19,7 +19,7 @@ alwaysApply: false
   - `esmodule-types` also runs `examples/todo-app/tsconfig.typetest-libcheck.json` (`skipLibCheck: false`, `types: []`) so errors inside the legacy outputs fail CI, and `esmodule-types-latest` runs it with `--moduleResolution bundler` (TS 7 removed `node`) to cover `lib/`; the other typetests use `skipLibCheck: true`.
   - Any change to legacy types building must leave `ts*/` output byte-identical to master (diff it) unless it intentionally changes published types (then add a changeset).
 - Never `git fetch --depth` the base branch in the relevance check: a shallow fetch severs the merge base and the three-dot diff fails.
-- Changing root `package.json` `workspaces` requires updating the `setup` job's workspace trimming step.
+- The `setup` job trims root `workspaces` by name (drops `examples/*` and `website`, keeps the rest). A new workspace outside those is kept in every CircleCI job; update the filter if it should not be.
 
 ## GitHub Actions (`.github/workflows/`)
 

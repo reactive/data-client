@@ -9,6 +9,7 @@ on:
       - 'packages/endpoint/src/schemas/**'
       - 'packages/core/src/**'
       - 'examples/benchmark/**'
+      - 'examples/gc-shared/**'
       - '.github/workflows/benchmark.yml'
   push:
     branches:
@@ -18,6 +19,7 @@ on:
       - 'packages/endpoint/src/schemas/**'
       - 'packages/core/src/**'
       - 'examples/benchmark/**'
+      - 'examples/gc-shared/**'
       - '.github/workflows/benchmark.yml'
 permissions:
   contents: write

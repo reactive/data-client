@@ -1,0 +1,42 @@
+{
+  "name": "example-benchmark-native",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "android": "react-native run-android --mode=release",
+    "android:debug": "react-native run-android",
+    "build:android:release": "bash scripts/build-android-release.sh",
+    "build:android:release:gradle": "cd android && ./gradlew assembleRelease",
+    "lint": "yarn g:lint --ignore-pattern android --ignore-pattern artifacts .",
+    "start": "react-native start",
+    "test": "jest",
+    "typecheck": "tsc --noEmit",
+    "collect": "bash scripts/collect-report.sh",
+    "matrix": "bash scripts/run-matrix.sh"
+  },
+  "dependencies": {
+    "@data-client/core": "workspace:*",
+    "react": "19.2.3",
+    "react-native": "0.86.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@babel/preset-env": "^7.25.3",
+    "@babel/runtime": "^7.25.0",
+    "@react-native-community/cli": "20.1.0",
+    "@react-native-community/cli-platform-android": "20.1.0",
+    "@react-native/babel-preset": "0.86.2",
+    "@react-native/metro-config": "0.86.2",
+    "@react-native/typescript-config": "0.86.2",
+    "@types/jest": "30.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-test-renderer": "^19.1.0",
+    "@typescript/native": "npm:typescript@7.0.2",
+    "jest": "^30.0.0",
+    "react-test-renderer": "19.2.3",
+    "typescript": "npm:@typescript/typescript6@6.0.2"
+  },
+  "engines": {
+    "node": ">= 22.11.0"
+  }
+}

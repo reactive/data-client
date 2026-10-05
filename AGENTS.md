@@ -22,12 +22,14 @@ Monorepo for `@data-client` high performance npm packages.
 
 **Targeted tests**: `yarn test --selectProjects ReactDOM --testPathPatterns packages/react` (project names: `ReactDOM`, `Node`, `ReactNative`)
 
+**Other React versions** (CI runs `^17`, `^18`, `19.3`): never swap versions in the main checkout. In a throwaway `git worktree`: `yarn install`, `yarn run ci:build:setup`, then the matching `npm pkg delete resolutions.*` + `yarn up ...` lines from the `unit_tests` job in `.circleci/config.yml`, then `yarn test --no-cache ...`. Without `--no-cache`, transforms cached before types were built leave `const enum` members (e.g. `ExpiryStatus.Valid`) undefined; that looks like a version failure but isn't. React 17's legacy Suspense keeps hidden content beside the fallback in `textContent`.
+
 ## CI
 
 - **CircleCI** (`.circleci/config.yml`) — PR validation: lint, typecheck, unit tests (React 17/18/native/latest), Node matrix, ESM type checks (TS 4.0–5.3+), browser build.
 - **GitHub Actions** (`.github/workflows/`) — release (`changesets`), bundle size PR comments, benchmark regression detection.
 
-Changing root `package.json` `workspaces` requires updating `.circleci/config.yml` (`setup` job) and `.github/workflows/` install steps.
+Adding a root `package.json` workspace outside `examples/` or `website` requires updating `.circleci/config.yml` (`setup` job trims by name) and `.github/workflows/` install steps.
 
 ## Changesets
 
