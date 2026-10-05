@@ -27,6 +27,29 @@ const managers = [new LogoutManager(), ...getDefaultManagers()];
 
 </ProviderManagers>
 
+:::
+
+:::vue
+
+```ts title="main.ts"
+import { createApp } from 'vue';
+import {
+  DataClientPlugin,
+  LogoutManager,
+  getDefaultManagers,
+} from '@data-client/vue';
+import App from './App.vue';
+
+// highlight-next-line
+const managers = [new LogoutManager(), ...getDefaultManagers()];
+
+const app = createApp(App);
+app.use(DataClientPlugin, { managers });
+app.mount('#app');
+```
+
+:::
+
 ### Custom logout handler
 
 ```ts

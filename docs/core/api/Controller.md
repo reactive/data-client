@@ -13,6 +13,7 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import StackBlitz from '@site/src/components/StackBlitz';
+import BatchSetDemo from '../shared/\_BatchSetDemo.mdx';
 
 # Controller
 
@@ -332,7 +333,11 @@ function CreateTrade({ id }: { id: string }) {
   const ctrl = useController();
 
   const handleTrade = async (trade: Trade) => {
-    await ctrl.fetch(TradeResource.getList.push, { user: props.userId }, trade);
+    await ctrl.fetch(
+      TradeResource.getList.push,
+      { user: props.userId },
+      trade,
+    );
     // highlight-start
     ctrl.expireAll(AccountResource.get);
     ctrl.expireAll(AccountResource.getList);
@@ -356,8 +361,9 @@ better to [include mutation sideeffects in the mutation response](/rest/guides/s
 
 ### invalidate(endpoint, ...args) {#invalidate}
 
-Forces refetching and suspense on [useSuspense](./useSuspense.md) with the same Endpoint
-and parameters.
+Forces refetching :react[and suspense ]on [useSuspense](./useSuspense.md) with the same Endpoint
+and parameters.:vue[ Mounted components [keep showing their current data](../concepts/expiry-policy.md#invalidate)
+until the refetch resolves.]
 
 :::react
 
@@ -369,7 +375,9 @@ function ArticleName({ id }: { id: string }) {
   return (
     <div>
       <h1>{article.title}</h1>
-      <button onClick={() => ctrl.invalidate(ArticleResource.get, { id })}>Fetch &amp; suspend</button>
+      <button onClick={() => ctrl.invalidate(ArticleResource.get, { id })}>
+        Fetch &amp; suspend
+      </button>
     </div>
   );
 }
@@ -381,23 +389,21 @@ function ArticleName({ id }: { id: string }) {
 
 ```html title="ArticleName.vue"
 <script setup lang="ts">
-  import { computed } from 'vue';
   import { useController, useSuspense } from '@data-client/vue';
   import { ArticleResource } from './ArticleResource';
 
   const props = defineProps<{ id: string }>();
   const ctrl = useController();
-  const article = await useSuspense(
-    ArticleResource.get,
-    computed(() => ({ id: props.id })),
-  );
+  const article = await useSuspense(ArticleResource.get, () => ({
+    id: props.id,
+  }));
 </script>
 
 <template>
   <div>
     <h1>{{ article.title }}</h1>
     <button @click="ctrl.invalidate(ArticleResource.get, { id })">
-      Fetch &amp; suspend
+      Refetch
     </button>
   </div>
 </template>
@@ -405,11 +411,15 @@ function ArticleName({ id }: { id: string }) {
 
 :::
 
+::::react
+
 :::tip
 
 To refresh while continuing to display stale data - [Controller.fetch](#fetch).
 
 :::
+
+::::
 
 :::tip[Invalidate many endpoints at once]
 
@@ -419,7 +429,7 @@ For REST try using [Resource.delete](/rest/api/resource#delete)
 
 ```ts
 // deletes MyResource(5)
-// this will resuspend MyResource.get({id: '5'})
+// this will refetch MyResource.get({id: '5'})
 // and remove it from MyResource.getList
 controller.setResponse(MyResource.delete, { id: '5' }, { id: '5' });
 ```
@@ -440,7 +450,9 @@ function ArticleName({ id }: { id: string }) {
   return (
     <div>
       <h1>{article.title}</h1>
-      <button onClick={() => ctrl.invalidateAll(ArticleResource.get)}>Fetch &amp; suspend</button>
+      <button onClick={() => ctrl.invalidateAll(ArticleResource.get)}>
+        Fetch &amp; suspend
+      </button>
     </div>
   );
 }
@@ -452,23 +464,21 @@ function ArticleName({ id }: { id: string }) {
 
 ```html title="ArticleName.vue"
 <script setup lang="ts">
-  import { computed } from 'vue';
   import { useController, useSuspense } from '@data-client/vue';
   import { ArticleResource } from './ArticleResource';
 
   const props = defineProps<{ id: string }>();
   const ctrl = useController();
-  const article = await useSuspense(
-    ArticleResource.get,
-    computed(() => ({ id: props.id })),
-  );
+  const article = await useSuspense(ArticleResource.get, () => ({
+    id: props.id,
+  }));
 </script>
 
 <template>
   <div>
     <h1>{{ article.title }}</h1>
     <button @click="ctrl.invalidateAll(ArticleResource.get)">
-      Fetch &amp; suspend
+      Refetch
     </button>
   </div>
 </template>
@@ -476,11 +486,15 @@ function ArticleName({ id }: { id: string }) {
 
 :::
 
+::::react
+
 :::tip
 
 To refresh while continuing to display stale data - [Controller.expireAll](#expireAll) instead.
 
 :::
+
+::::
 
 Here we clear only GET endpoints using the test.com domain. This means other domains remain in cache.
 
@@ -529,7 +543,7 @@ This is typically used when logging out or changing authenticated users.
 :::react
 
 ```tsx
-const USER_NUMBER_ONE: string = "1111";
+const USER_NUMBER_ONE: string = '1111';
 
 function UserName() {
   const user = useSuspense(CurrentUserResource.get);
@@ -596,6 +610,23 @@ ctrl.set(
 );
 ```
 
+The value is typed by the schema: an [Entity](/rest/api/Entity) takes its fields (numbers and strings may be either),
+while a [Collection](/rest/api/Collection) or [All](/rest/api/All) takes a list of rows. A [Query](/rest/api/Query)
+takes the input of the schema it wraps, since `set()` normalizes that schema rather than reversing `process()`.
+
+```ts
+ctrl.set(TodoResource.getList.schema, [{ id: '5', completed: true }]);
+```
+
+:::note Type checking limits
+
+To keep type checking fast for large [Unions](/rest/api/Union), a Union row is checked against the
+combined fields of all its members rather than against one member. Each field's type is still checked,
+but a row that mixes fields from different members (like `{ type: 'first', secondField: 1 }`) is not
+an error. Make sure the fields you set belong to the member the row's discriminator selects.
+
+:::
+
 Functions can be used in the value when derived data is used. This [prevents race conditions](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state).
 
 ```ts
@@ -655,6 +686,12 @@ Array and Values schemas take no `args` (so [Entity.pk()](/rest/api/Entity#pk) a
 receive `[]`) and no updater function. Rows that share a pk merge in list order, without
 [Entity.shouldReorder()](/rest/api/Entity#shouldreorder). Use this instead of calling `set()` once per row, such as when
 [batching high-frequency stream updates](../concepts/managers.md#batching).
+
+:::react
+
+<BatchSetDemo />
+
+:::
 
 ### setResponse(endpoint, ...args, response) {#setResponse}
 
@@ -751,9 +788,9 @@ useEffect(() => {
 ```ts
 const controller = useController();
 
-// args is a computed() so this re-runs when they change
+// args can be a ref, computed or getter; this re-runs when it changes
 watchEffect(onCleanup => {
-  const currentArgs = args.value;
+  const currentArgs = toValue(args);
   controller.subscribe(endpoint, ...currentArgs);
   onCleanup(() => controller.unsubscribe(endpoint, ...currentArgs));
 });
@@ -995,19 +1032,18 @@ const updateHandler = useCallback(
 ```ts
 const controller = useController();
 
-const handleRefresh = () => {
-  const { expiryStatus } = controller.getResponse(
-    MyResource.get,
+const handleShare = () => {
+  // reads the latest store without making this handler reactive
+  const { data: article } = controller.getResponse(
+    ArticleResource.get,
     { id: props.id },
     controller.getState(),
   );
-  // only refetch if the data is no longer fresh
-  if (expiryStatus !== ExpiryStatus.Valid)
-    controller.fetch(MyResource.get, { id: props.id });
+  if (article) navigator.share({ title: article.title, url: article.url });
 };
 ```
 
-Mutations (`sideEffect: true`) resolve _before_ the store is updated, so read their result from the
-value `fetch()` resolves with rather than `getState()`.
+[Mutations](#endpointsideeffect) resolve _before_ the store is updated, so read their result from
+the value `fetch()` resolves with rather than `getState()`.
 
 :::

@@ -1,10 +1,10 @@
 import classnames from 'clsx';
-import React, { type InputHTMLAttributes } from 'react';
+import React, { type TextareaHTMLAttributes } from 'react';
 
 export function TextArea({
   label,
   ...props
-}: InputHTMLAttributes<HTMLTextAreaElement> & {
+}: TextareaHTMLAttributes<HTMLTextAreaElement> & {
   label?: React.ReactNode;
 }) {
   return (

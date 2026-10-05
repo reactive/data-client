@@ -16,6 +16,7 @@ import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import {RestEndpoint} from '@data-client/rest';
 import StackBlitz from '@site/src/components/StackBlitz';
 import UseLive from '../shared/\_useLive.mdx';
+import VueArgs from '../shared/\_vueArgs.mdx';
 
 # useLive()
 
@@ -109,16 +110,16 @@ The subscription is removed automatically when the component unmounts.
 
 <ConditionalDependencies hook="useLive" />
 
-:::react
+::::react
 
-::::info[React Native]
+:::info[React Native]
 
 When using React Navigation, useLive() will trigger fetches on focus if the data is considered
 stale. useLive() will also sub/unsub with focus/unfocus respectively.
 
-::::
-
 :::
+
+::::
 
 ## Types
 
@@ -162,8 +163,9 @@ function useLive(
 ): Promise<DeepReadonly<ComputedRef<Denormalize<typeof endpoint.schema>>>>;
 ```
 
-Arguments can be plain values or [refs](https://vuejs.org/api/reactivity-core.html#ref) (including [computed](https://vuejs.org/api/reactivity-core.html#computed)); the result
-updates (and the subscription is re-established) when they change.
+<VueArgs />
+
+The result updates (and the subscription is re-established) when the arguments change.
 While data for new arguments loads, the result keeps the previous data instead of becoming `undefined`.
 If that fetch fails, reading the result throws the error (per its [error policy](../concepts/error-policy.md)), so it reaches
 [onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured).

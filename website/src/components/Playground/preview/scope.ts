@@ -14,13 +14,13 @@ function randomFloatInRange(min: number, max: number, decimals: number) {
   return parseFloat((Math.random() * (max - min) + min).toFixed(decimals));
 }
 
-function mockFetch(
-  getResponse: (...args: any[]) => unknown,
+function mockFetch<T>(
+  getResponse: (...args: any[]) => T,
   name?: string,
   delay = 150,
 ) {
   const fetch = (...args: any[]) =>
-    new Promise(resolve =>
+    new Promise<T>(resolve =>
       setTimeout(() => resolve(getResponse(...args)), delay),
     );
   if (name)
