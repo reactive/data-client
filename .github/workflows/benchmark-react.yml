@@ -2,6 +2,7 @@ name: Benchmark React
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches:
       - master
     paths:
@@ -10,6 +11,11 @@ on:
       - 'packages/endpoint/src/schemas/**'
       - 'packages/normalizr/src/**'
       - 'examples/benchmark-react/**'
+      - '!packages/**/__tests__/**'
+      - '!examples/benchmark-react/**/*.md'
+      - 'yarn.lock'
+      - 'scripts/ci-deps-relevant.mjs'
+      - '.github/workflows/dependency-gate.yml'
       - '.github/workflows/benchmark-react.yml'
   push:
     branches:
@@ -20,6 +26,11 @@ on:
       - 'packages/endpoint/src/schemas/**'
       - 'packages/normalizr/src/**'
       - 'examples/benchmark-react/**'
+      - '!packages/**/__tests__/**'
+      - '!examples/benchmark-react/**/*.md'
+      - 'yarn.lock'
+      - 'scripts/ci-deps-relevant.mjs'
+      - '.github/workflows/dependency-gate.yml'
       - '.github/workflows/benchmark-react.yml'
 
 concurrency:
@@ -31,7 +42,16 @@ permissions:
   pull-requests: write
 
 jobs:
+  # Skips dependency bumps that can't change what this measures
+  changes:
+    if: ${{ !github.event.pull_request.draft }}
+    uses: ./.github/workflows/dependency-gate.yml
+    with:
+      workspaces: examples/benchmark-react
+
   benchmark-react:
+    needs: changes
+    if: ${{ needs.changes.outputs.relevant == 'true' }}
     runs-on: ubuntu-latest
 
     steps:

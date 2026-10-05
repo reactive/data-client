@@ -4,6 +4,7 @@
   "commitMessagePrefix": "pkg: ",
   "commitMessageTopic": "`{{depName}}`",
   "dependencyDashboardApproval": true,
+  "rebaseWhen": "conflicted",
   "rangeStrategy": "auto",
   "ignoreDeps": [
     "whatwg-fetch",

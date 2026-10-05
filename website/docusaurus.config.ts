@@ -12,6 +12,8 @@ import versions from './versions.json';
 // Keep Monaco CDN preload hashes in sync with the installed monaco-editor package.
 const require = createRequire(path.join(__dirname, 'package.json'));
 require('./scripts/generateMonacoPreloads.cjs').ensureMonacoPreloadManifest();
+// Real history for "Last updated" dates (Vercel clones shallow)
+require('./scripts/deepenGitHistory.cjs').deepenGitHistory();
 
 //const versionsRest = require('./rest_versions.json');
 
