@@ -37,9 +37,9 @@ export default function PerfChart({
     return { ...row, speedup, multiplier: formatSpeedup(speedup) };
   });
   const speedups = data.map(({ speedup }) => speedup);
+  // log scale keeps a 3x row visible next to a 600x row; judged on this chart's rows alone
+  const log = Math.max(...speedups) / Math.min(...speedups) > 10;
   const max = Math.max(...speedups, scaleMax ?? 0);
-  // log scale keeps a 3x row visible next to a 600x row
-  const log = max / Math.min(...speedups) > 10;
   const scale = (n: number) => (log ? Math.log(Math.max(n, 1)) : n);
   const scaledMax = scale(max) || 1;
   // where 1x (no change) falls on the bar track, so bars read against it
