@@ -12,8 +12,8 @@ license: Apache 2.0
 import { renderDataCompose } from '@data-client/vue/test';
 import { reactive, computed } from 'vue';
 
-it('useQuery() should return cached data', () => {
-  const { result } = renderDataCompose(
+it('useQuery() should return cached data', async () => {
+  const { result } = await renderDataCompose(
     () => useQuery(Article, { id: 5 }),
     {
       initialFixtures: [
@@ -25,7 +25,7 @@ it('useQuery() should return cached data', () => {
       ],
     },
   );
-  expect(result.current?.value).toEqual(Article.fromJS({ id: 5, title: 'hi ho', content: 'whatever' }));
+  expect(result.value).toEqual(Article.fromJS({ id: 5, title: 'hi ho', content: 'whatever' }));
 });
 ```
 
@@ -35,8 +35,8 @@ it('useQuery() should return cached data', () => {
 - `props` - Reactive props object (use `reactive()`)
 - `managers`, `initialState`, `gcPolicy` - Custom configuration
 
-**Return values:**
-- `result.current` - Composable return value (undefined when suspended, Promise when resolved for useSuspense)
+**Return values** (`renderDataCompose()` is async; always `await` it):
+- `result` - Whatever the composable returned (a `ComputedRef` for useQuery/useCache, a Promise of one for useSuspense)
 - `controller` - Controller instance for manual actions
 - `wrapper` - Vue Test Utils wrapper
 - `cleanup()` - Cleanup function (always call in afterEach/after test)
@@ -82,7 +82,7 @@ it('should render article component', async () => {
 **Features:**
 - Suspense is automatically integrated (shows fallback while loading)
 - Use `data-testid="suspense-fallback"` to test loading state
-- Returns same utilities as `renderDataCompose()` plus `wrapper`
+- Synchronous; returns `wrapper`, `controller`, `app`, `cleanup()` and `allSettled()`
 
 ## Async Waiting Patterns
 
@@ -102,19 +102,15 @@ await flushUntil(wrapper, () => wrapper.find('h3').exists());
 await flushUntil(wrapper, () => wrapper.find('h3').text() === 'Expected Title');
 ```
 
-**waitForNextUpdate (for composable tests):**
+**Awaiting useSuspense() (for composable tests):**
 ```typescript
-const { result, waitForNextUpdate } = renderDataCompose(() => useSuspense(...));
+const { result } = await renderDataCompose(() => useSuspense(...));
 
-// Initially suspended
-expect(result.current).toBeUndefined();
-
-// Wait for resolution
-await waitForNextUpdate();
-expect(result.current).toBeInstanceOf(Promise);
+// useSuspense() returns a Promise
+expect(result).toBeInstanceOf(Promise);
 
 // Await the promise to get the reactive ComputedRef
-const dataRef = await result.current;
+const dataRef = await result;
 expect(dataRef.value.title).toBe('hi ho');
 ```
 
@@ -123,7 +119,7 @@ expect(dataRef.value.title).toBe('hi ho');
 **Pattern 1: Testing prop changes:**
 ```typescript
 const props = reactive({ id: 1 });
-const { result } = renderDataCompose(
+const { result } = await renderDataCompose(
   () => useQuery(Article, computed(() => ({ id: props.id }))),
   {
     initialFixtures: [
@@ -133,24 +129,24 @@ const { result } = renderDataCompose(
   },
 );
 
-expect(result.current?.value?.title).toBe('First');
+expect(result.value?.title).toBe('First');
 
-// Change props - result automatically updates
+// Change props - result updates after a tick
 props.id = 2;
-expect(result.current?.value?.title).toBe('Second');
+await nextTick();
+expect(result.value?.title).toBe('Second');
 ```
 
 **Pattern 2: Conditional arguments (null handling):**
 ```typescript
 const props = reactive({ id: 1 as number | null });
-const { result } = renderDataCompose(
+const { result } = await renderDataCompose(
   (props: { id: number | null }) => 
     useSuspense(ArticleResource.get, computed(() => props.id !== null ? { id: props.id } : null)),
   { props },
 );
 
-await waitForNextUpdate();
-const articleRef = await result.current;
+const articleRef = await result;
 expect(articleRef.value).toBeDefined();
 
 // Set to null - becomes undefined
@@ -194,7 +190,7 @@ resolverFixtures: [
 
 ```typescript
 it('should update collection when pushed', async () => {
-  const { result, controller, waitForNextUpdate } = renderDataCompose(
+  const { result, controller } = await renderDataCompose(
     () => useQuery(ArticleResource.getList.schema, {}),
     {
       initialFixtures: [
@@ -206,16 +202,16 @@ it('should update collection when pushed', async () => {
     },
   );
 
-  expect(result.current?.value?.length).toBe(1);
+  expect(result.value?.length).toBe(1);
 
   await controller.fetch(ArticleResource.getList.push, {
     id: 2,
     title: 'Second',
     content: 'new',
   });
-  await waitForNextUpdate();
+  await nextTick();
 
-  expect(result.current?.value?.length).toBe(2);
+  expect(result.value?.length).toBe(2);
 });
 ```
 
@@ -223,9 +219,8 @@ it('should update collection when pushed', async () => {
 
 **setResponse() for instant updates:**
 ```typescript
-const { controller } = renderDataCompose(...);
-await waitForNextUpdate();
-const dataRef = await result.current;
+const { result, controller } = await renderDataCompose(() => useSuspense(...));
+const dataRef = await result;
 
 expect(dataRef.value.title).toBe('Original');
 
@@ -312,21 +307,15 @@ For unsubscribe patterns, component-level polling tests, fake-timer-safe `flushU
 
 **useSuspense() returns Promise → ComputedRef:**
 ```typescript
-const { result, waitForNextUpdate } = renderDataCompose(() =>
+const { result } = await renderDataCompose(() =>
   useSuspense(ArticleResource.get, { id: 5 })
 );
 
-// Initially suspended (undefined)
-expect(result.current).toBeUndefined();
-
-// Wait for resolution
-await waitForNextUpdate();
-
-// Now it's a Promise
-expect(result.current).toBeInstanceOf(Promise);
+// A Promise until the data is available
+expect(result).toBeInstanceOf(Promise);
 
 // Await once to get reactive ComputedRef
-const articleRef = await result.current;
+const articleRef = await result;
 
 // The ref is reactive - updates automatically
 expect(articleRef.value.title).toBe('hi ho');
@@ -338,11 +327,11 @@ expect(articleRef.value.title).toBe('Updated'); // Auto-updated!
 
 **useQuery() returns ComputedRef directly:**
 ```typescript
-const { result } = renderDataCompose(() => useQuery(Article, { id: 5 }));
+const { result } = await renderDataCompose(() => useQuery(Article, { id: 5 }), { initialFixtures });
 
 // Synchronously available (or undefined if not in store)
-expect(result.current?.value).toBeDefined();
-expect(result.current?.value?.title).toBe('hi ho');
+expect(result.value).toBeDefined();
+expect(result.value?.title).toBe('hi ho');
 
 // Also reactive - updates automatically
 ```
@@ -355,7 +344,7 @@ expect(result.current?.value?.title).toBe('hi ho');
 - **Use reactive() for props** - Enables testing prop changes
 - **Use computed() when passing reactive props to composables** - Ensures proper reactivity tracking
 - **Use flushUntil() in component tests** - More reliable than fixed delays
-- **Use waitForNextUpdate() in composable tests** - Wait for suspension to resolve
+- **Await renderDataCompose()** - It resolves once the composable ran; `result` is its return value
 - **Remember nextTick()** - After mutations/setResponse to allow Vue reactivity to propagate
 - **Use initialFixtures for initial state** - Pre-populate the store
 - **Use resolverFixtures for dynamic responses** - Intercept requests with functions
@@ -370,7 +359,8 @@ For detailed API documentation, see the [references](references/) directory:
 
 - [Fixtures](references/Fixtures.md) - Fixture format reference
 - [mockInitialState](references/mockInitialState.md) - Create initial state for `DataClientPlugin`
-- [vue-test-utilities](references/vue-test-utilities.md) - `renderDataCompose()` and `mountDataClient()` guide
+- [unit-testing-components](references/unit-testing-components.md) - `mountDataClient()` guide, setup and options
+- [unit-testing-composables](references/unit-testing-composables.md) - `renderDataCompose()` guide
 - [nock-http-mocking](references/nock-http-mocking.md) - Full nock setup, dynamic server state, request spying, errors, pitfalls
 - [polling-subscriptions](references/polling-subscriptions.md) - Fake-timer patterns for `useLive`/`useSubscription`/`pollFrequency`, unsubscribe verification, polling via nock
 
@@ -378,18 +368,19 @@ For detailed API documentation, see the [references](references/) directory:
 
 **Empty state test:**
 ```typescript
-const { result } = renderDataCompose(() => useQuery(Article, { id: 5 }), {});
-expect(result.current?.value).toBe(undefined);
+const { result } = await renderDataCompose(() => useQuery(Article, { id: 5 }));
+expect(result.value).toBe(undefined);
 ```
 
 **Changing to non-existent entity:**
 ```typescript
 const props = reactive({ id: 1 });
 // ... initial setup ...
-expect(result.current?.value?.id).toBe(1);
+expect(result.value?.id).toBe(1);
 
 props.id = 999; // Not in store
-expect(result.current?.value).toBe(undefined);
+await nextTick();
+expect(result.value).toBe(undefined);
 ```
 
 **Testing nested collections:**
@@ -398,11 +389,11 @@ const userTodos = new Collection(new schema.Array(Todo), {
   argsKey: ({ userId }) => ({ userId }),
 });
 
-const { result } = renderDataCompose(
+const { result } = await renderDataCompose(
   () => useQuery(userTodos, { userId: '1' }),
   { initialFixtures: [/* ... */] },
 );
 
-expect(result.current?.value?.length).toBe(2);
-expect(result.current?.value?.[0]).toBeInstanceOf(Todo);
+expect(result.value?.length).toBe(2);
+expect(result.value?.[0]).toBeInstanceOf(Todo);
 ```

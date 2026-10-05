@@ -193,7 +193,7 @@ Determines what the response for this mock should be. If a function it will be r
 
 Function running is called 'collapsing' after the mechanism in [Quantum Mechanics](https://www.wondriumdaily.com/copenhagen-interpretation-of-quantum-mechanics/)
 
-`this` can be used to store simulated server-side data. It is initialized using :react[[getInitialInterceptorData](./MockResolver.md#getinitialinterceptordata)]:vue[`getInitialInterceptorData`]. It's important to not use arrow functions when using this as they disallow `this` binding.
+`this` can be used to store simulated server-side data. It is initialized using :react[[getInitialInterceptorData](./MockResolver.md#getinitialinterceptordata)]:vue[[getInitialInterceptorData](../guides/unit-testing-components.md#options)]. It's important to not use arrow functions when using this as they disallow `this` binding.
 
 ### fetchResponse(input, init) {#fetchResponse}
 

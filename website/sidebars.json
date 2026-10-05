@@ -89,6 +89,10 @@
         {
           "type": "doc",
           "id": "guides/unit-testing-components"
+        },
+        {
+          "type": "doc",
+          "id": "guides/devtools-debugging"
         }
       ]
     },

@@ -10,7 +10,7 @@ import {
 /**
  * Renders a Vue composable with DataClient provider for testing
  *
- * @see https://dataclient.io/docs/api/renderDataCompose
+ * @see https://dataclient.io/vue/guides/unit-testing-hooks
  * @param composable - The composable function to test
  * @param options - Configuration including optional reactive props ref, fixtures, managers, etc.
  */
