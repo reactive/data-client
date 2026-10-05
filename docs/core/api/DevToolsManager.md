@@ -131,9 +131,7 @@ When using [WebSockets](../concepts/managers.md#data-stream) or other real-time 
 high-frequency updates can overwhelm the DevTools extension. Use the `predicate` option to
 filter out specific action types or schemas:
 
-:::react
-
-```tsx title="index.tsx"
+```ts title="managers.ts" framework-imports
 import { getDefaultManagers, actionTypes } from '@data-client/react';
 import { Ticker } from './resources/Ticker';
 
@@ -151,31 +149,6 @@ const managers = getDefaultManagers({
   },
 });
 ```
-
-:::
-
-:::vue
-
-```ts title="managers.ts"
-import { getDefaultManagers, actionTypes } from '@data-client/vue';
-import { Ticker } from './resources/Ticker';
-
-const managers = getDefaultManagers({
-  devToolsManager: {
-    // Increase latency buffer for high-frequency updates
-    latency: 1000,
-    // Skip WebSocket SET actions for Ticker to reduce log spam
-    // (including batched set([Ticker], rows) writes)
-    // highlight-start
-    predicate: (state, action) =>
-      action.type !== actionTypes.SET ||
-      (action.schema !== Ticker && action.schema[0] !== Ticker),
-    // highlight-end
-  },
-});
-```
-
-:::
 
 ## Programmatic store access {#controllers}
 

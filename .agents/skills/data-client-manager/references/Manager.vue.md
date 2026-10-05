@@ -80,7 +80,7 @@ The job of `middleware` is to dispatch actions, respond to [actions](./Actions.v
 [Controller](./Controller.vue.md) provides type-safe action dispatchers.
 
 ```ts title="CurrentTime"
-import { Entity } from '@data-client/endpoint';
+import { Entity } from '@data-client/rest';
 
 export default class CurrentTime extends Entity {
   id = 0;
@@ -89,11 +89,11 @@ export default class CurrentTime extends Entity {
 ```
 
 ```ts title="TimeManager"
-import type { Manager, Middleware } from '@data-client/core';
+import type { Manager, Middleware } from '@data-client/vue';
 import CurrentTime from './CurrentTime';
 
 export default class TimeManager implements Manager {
-  protected declare intervalID?: ReturnType<typeof setInterval>;
+  declare protected intervalID?: ReturnType<typeof setInterval>;
 
   middleware: Middleware = controller => {
     this.intervalID = setInterval(() => {
@@ -114,8 +114,8 @@ export default class TimeManager implements Manager {
 `actionTypes` includes all constants to distinguish between different [actions](./Actions.vue.md).
 
 ```ts
-import type { Manager, Middleware } from '@data-client/react';
-import { actionTypes } from '@data-client/react';
+import type { Manager, Middleware } from '@data-client/vue';
+import { actionTypes } from '@data-client/vue';
 
 export default class LoggingManager implements Manager {
   middleware: Middleware = controller => next => async action => {
@@ -152,20 +152,26 @@ encouraging safe access to its members.
 In case we want to 'handle' a certain [action](./Actions.vue.md), we can 'consume' it by not calling next.
 
 ```ts title="isEntity"
-import type { Schema, EntityInterface } from '@data-client/core';
+import type { Schema, EntityInterface } from '@data-client/vue';
 
-export default function isEntity(schema: Schema): schema is EntityInterface {
+export default function isEntity(
+  schema: Schema,
+): schema is EntityInterface {
   return schema !== null && (schema as any).pk !== undefined;
 }
 ```
 
 ```ts title="SubsManager"
-import type { Manager, Middleware, EntityInterface } from '@data-client/react';
-import { actionTypes } from '@data-client/react';
+import type {
+  Manager,
+  Middleware,
+  EntityInterface,
+} from '@data-client/vue';
+import { actionTypes } from '@data-client/vue';
 import isEntity from './isEntity';
 
 export default class CustomSubsManager implements Manager {
-  protected declare entities: Record<string, EntityInterface>;
+  declare protected entities: Record<string, EntityInterface>;
 
   middleware: Middleware = controller => next => async action => {
     switch (action.type) {

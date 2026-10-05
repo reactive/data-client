@@ -653,8 +653,11 @@ function useCache<E extends EndpointInterface>(
 ```
 
 ```tsx title="MyManager.ts"
-import type { Manager, Middleware, actionTypes } from '@data-client/core';
-import type { EndpointInterface } from '@data-client/endpoint';
+import {
+  type Manager,
+  type Middleware,
+  actionTypes,
+} from '@data-client/react';
 
 export default class MyManager implements Manager {
   middleware: Middleware = controller => {
