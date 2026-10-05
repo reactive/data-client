@@ -12,15 +12,11 @@
  * Usage: node website/framework-docs/skillReferences.mjs [--check]
  */
 import fs from 'node:fs';
-import { createRequire } from 'node:module';
 import path from 'node:path';
 
+import { frameworkInstance } from './docsInstances.js';
 import { docToMarkdown, routeOf } from './docsToMarkdown.mjs';
 import { ROOT, SITE, rel } from './site.mjs';
-
-const { frameworkInstance } = createRequire(import.meta.url)(
-  './docsInstances.js',
-);
 
 const SKILLS = path.join(ROOT, '.agents/skills');
 const MANIFEST = 'references.json';
