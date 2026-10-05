@@ -25,13 +25,16 @@ const isLintable = file => /\.[cm]?[jt]sx?$/.test(file);
 const mtime = file =>
   fs.statSync(path.join(projectDir, file), { throwIfNoEntry: false })?.mtimeMs;
 
+const git = (...args) =>
+  execFileSync('git', args, {
+    cwd: projectDir,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'ignore'],
+  }).trimEnd();
+
 /** Uncommitted files; renames as delete + add, so the old path counts too */
 const dirtyFiles = () =>
-  execFileSync(
-    'git',
-    ['status', '--porcelain', '--no-renames', '--untracked-files=all'],
-    { cwd: projectDir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] },
-  )
+  git('status', '--porcelain', '--no-renames', '--untracked-files=all')
     .split('\n')
     .filter(Boolean)
     .map(line => line.slice(3));
@@ -43,8 +46,6 @@ const dirtyFiles = () =>
 function eslintFix(files) {
   files = files.filter(file => isLintable(file) && mtime(file) !== undefined);
   if (!files.length) return { fixed: [], errors: [] };
-  const read = file => fs.readFileSync(path.join(projectDir, file), 'utf8');
-  const before = files.map(read);
   let report = '[]';
   try {
     report = execFileSync(
@@ -72,22 +73,26 @@ function eslintFix(files) {
     // to CI
     if (err.status === 1) report = err.stdout;
   }
-  let errors = [];
+  let results = [];
   try {
-    errors = JSON.parse(report).flatMap(({ filePath, messages }) =>
+    results = JSON.parse(report);
+  } catch {
+    // not eslint's report
+  }
+  const relative = filePath => path.relative(projectDir, filePath);
+  return {
+    // eslint reports `output` only for files its fixes changed
+    fixed: results
+      .filter(({ output }) => output !== undefined)
+      .map(({ filePath }) => relative(filePath)),
+    errors: results.flatMap(({ filePath, messages }) =>
       messages
         .filter(({ severity }) => severity === 2)
         .map(
           ({ line, column, message, ruleId }) =>
-            `${path.relative(projectDir, filePath)}:${line}:${column} ${message}${ruleId ? ` (${ruleId})` : ''}`,
+            `${relative(filePath)}:${line}:${column} ${message}${ruleId ? ` (${ruleId})` : ''}`,
         ),
-    );
-  } catch {
-    // not eslint's report
-  }
-  return {
-    fixed: files.filter((file, i) => read(file) !== before[i]),
-    errors,
+    ),
   };
 }
 
@@ -112,9 +117,10 @@ if (require.main === module) {
     } catch {
       // first run
     }
-    const files = dirtyFiles().filter(
-      file => mtime(file) > lastRun && mtime(file) !== linted[file],
-    );
+    const files = dirtyFiles().filter(file => {
+      const modified = mtime(file);
+      return modified > lastRun && modified !== linted[file];
+    });
     const { errors } = eslintFix(files);
     fs.mkdirSync(path.dirname(LAST_RUN), { recursive: true });
     fs.writeFileSync(
@@ -146,4 +152,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { projectDir, dirtyFiles, eslintFix };
+module.exports = { projectDir, git, dirtyFiles, eslintFix };

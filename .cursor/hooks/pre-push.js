@@ -11,7 +11,7 @@ const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const { projectDir, dirtyFiles, eslintFix } = require('./eslint-fix');
+const { projectDir, git, dirtyFiles, eslintFix } = require('./eslint-fix');
 
 let payload = {};
 try {
@@ -30,13 +30,6 @@ const gitCommand = sub =>
   );
 if (!gitCommand('push').test(command)) process.exit(0);
 const commits = gitCommand('commit').test(command);
-
-const git = (...args) =>
-  execFileSync('git', args, {
-    cwd: projectDir,
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'ignore'],
-  }).trimEnd();
 
 /** Docs some skill renders; partials (`_foo.mdx`) may be inlined anywhere */
 let skillDocs;
@@ -78,11 +71,11 @@ try {
 }
 
 /**
- * Runs the generator `script` when the branch changes a file `isInput`
- * matches, then reports problems it printed and `outputs` (pathspecs) left
- * uncommitted
+ * Runs the generator `script` (`yarn build:<check>`, CI check `<check>`) when
+ * the branch changes a file `isInput` matches, then reports problems it
+ * printed and `outputs` (pathspecs) left uncommitted
  */
-function regenerate({ what, from, script, yarn, ci, isInput, outputs }) {
+function regenerate({ what, from, script, check, isInput, outputs }) {
   const isDirty = dirty.some(isInput);
   // the generator reads the working tree, so it can only vouch for what's
   // pushed when that includes these edits; otherwise leave it to CI
@@ -109,7 +102,7 @@ function regenerate({ what, from, script, yarn, ci, isInput, outputs }) {
     uncommitted &&
       `${what} generated from this branch's ${from} changes aren't committed. Commit them, then push again:\n${uncommitted}`,
     problems &&
-      `\`yarn ${yarn}\` found problems the ${ci} CI check will fail on. Fix them, commit, then push again:\n${problems}`,
+      `\`yarn build:${check}\` found problems the ${check} CI check will fail on. Fix them, commit, then push again:\n${problems}`,
   ];
 }
 
@@ -136,8 +129,7 @@ const message = [
     what: 'Skill references',
     from: 'docs',
     script: 'website/framework-docs/skillReferences.mjs',
-    yarn: 'build:skills',
-    ci: 'skills',
+    check: 'skills',
     isInput: isSkillInput,
     outputs: ['.agents/skills/*/references/*'],
   }),
@@ -145,8 +137,7 @@ const message = [
     what: 'Claude Code rules',
     from: 'Cursor rules',
     script: 'scripts/agent-rules.mjs',
-    yarn: 'build:agent-rules',
-    ci: 'agent-rules',
+    check: 'agent-rules',
     // sources only; a hand edit to the output is left to CI
     isInput: file =>
       /(^|\/)\.cursor\/rules\//.test(file) ||
