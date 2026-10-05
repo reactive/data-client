@@ -430,7 +430,7 @@ describe('NetworkManager while the controller awaits init()', () => {
     void Promise.resolve(action.meta.promise).catch(() => {});
     await Promise.resolve(
       nm.middleware(controller)(() => Promise.resolve())(action),
-    ).catch(() => {});
+    );
     await new Promise(resolve => setTimeout(resolve, 0));
   }
 
@@ -453,7 +453,7 @@ describe('NetworkManager while the controller awaits init()', () => {
 
   it('parks a response until init(), then publishes it from a microtask', async () => {
     const { endpoint, getCalls } = counted(() => Promise.resolve(5));
-    const dispatch = jest.fn((_action: any) => Promise.resolve());
+    const dispatch = jest.fn((_action: SetResponseAction) => Promise.resolve());
     const controller = bind(dispatch);
     const nm = new NetworkManager();
     await start(nm, endpoint, controller);
@@ -477,8 +477,12 @@ describe('NetworkManager while the controller awaits init()', () => {
   it('publishes into the controller bound when init() runs', async () => {
     const failure = new Error('nope');
     const { endpoint, getCalls } = counted(() => Promise.reject(failure));
-    const discarded = jest.fn((_action: any) => Promise.resolve());
-    const committed = jest.fn((_action: any) => Promise.resolve());
+    const discarded = jest.fn((_action: SetResponseAction) =>
+      Promise.resolve(),
+    );
+    const committed = jest.fn((_action: SetResponseAction) =>
+      Promise.resolve(),
+    );
     const nm = new NetworkManager();
     await start(nm, endpoint, bind(discarded));
     const controller = bind(committed);
