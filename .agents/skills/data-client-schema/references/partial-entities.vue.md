@@ -60,7 +60,6 @@ export const ArticleResource = resource({
 
 ```html title="ArticleDetail.vue"
 <script setup lang="ts">
-  import { Intl } from 'temporal-polyfill';
   import { useSuspense } from '@data-client/vue';
   import { ArticleResource } from './resources/Article';
 
@@ -69,9 +68,6 @@ export const ArticleResource = resource({
   const article = await useSuspense(ArticleResource.get, () => ({
     id: props.id,
   }));
-  const dateFormat = new Intl.DateTimeFormat('en-US', {
-    dateStyle: 'medium',
-  });
 </script>
 
 <template>
@@ -83,7 +79,10 @@ export const ArticleResource = resource({
     <div>
       <p>{{ article.content }}</p>
       <div>
-        Created: <time>{{ dateFormat.format(article.createdAt) }}</time>
+        Created:
+        <time>
+          {{ article.createdAt.toLocaleString('en-US', { dateStyle: 'medium' }) }}
+        </time>
       </div>
     </div>
   </div>

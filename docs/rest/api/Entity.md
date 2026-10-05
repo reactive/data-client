@@ -358,19 +358,17 @@ render(<PostPage />);
 </script>
 
 <script setup lang="ts">
-  import { Intl } from 'temporal-polyfill';
   import { useSuspense } from '@data-client/vue';
 
   const post = await useSuspense(getPost, { id: '123' });
-  const dateFormat = new Intl.DateTimeFormat('en-US', {
-    dateStyle: 'medium',
-  });
 </script>
 
 <template>
   <div>
     <p>{{ post.content }} - <cite>{{ post.author.name }}</cite></p>
-    <time>{{ dateFormat.format(post.createdAt) }}</time>
+    <time>
+      {{ post.createdAt.toLocaleString('en-US', { dateStyle: 'medium' }) }}
+    </time>
   </div>
 </template>
 ```

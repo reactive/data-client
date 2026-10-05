@@ -130,22 +130,20 @@ render(<PricePage />);
 
 ```html title="PricePage.vue"
 <script setup lang="ts">
-  import { Intl } from 'temporal-polyfill';
   import { useSuspense } from '@data-client/vue';
   import { getPrice } from './api/Price';
 
   const currentPrice = await useSuspense(getPrice, {
     exchangePair: 'btc-usd',
   });
-  const dateFormat = new Intl.DateTimeFormat('en-US', {
-    dateStyle: 'medium',
-  });
 </script>
 
 <template>
   <div>
     ${{ currentPrice.price.toFormat(2) }} as of
-    <time>{{ dateFormat.format(currentPrice.updatedAt) }}</time>
+    <time>
+      {{ currentPrice.updatedAt.toLocaleString('en-US', { dateStyle: 'medium' }) }}
+    </time>
   </div>
 </template>
 ```
