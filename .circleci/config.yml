@@ -45,6 +45,15 @@ commands:
               echo "No relevance flag found; failing open (continuing job)."
             fi
 
+  restore-yarn-cache:
+    # The workspace skips the yarn cache (~130 MiB) to keep setup's upload
+    # short; only jobs that re-resolve dependencies (`yarn up`/`add`) need it.
+    steps:
+      - restore_cache:
+          keys:
+            - v16-dependencies-{{ checksum ".ci-deps-key" }}
+            - v16-dependencies-
+
 jobs:
   setup:
     executor: node
@@ -132,11 +141,13 @@ jobs:
             npm pkg set 'workspaces[]'='examples/todo-app'
             npm pkg set 'workspaces[]'='examples/github-app'
             npm pkg set 'workspaces[]'='examples/normalizr-relationships'
-      - restore_cache:
-          keys:
-            - v14-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}-{{ checksum "examples/todo-app/package.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v14-dependencies-
+      - run:
+          # Hash the manifests before trimming and `yarn up` rewrite them,
+          # so the same key restores and saves.
+          name: Compute dependency cache key
+          command: |
+            git show HEAD:package.json HEAD:yarn.lock HEAD:examples/todo-app/package.json HEAD:examples/github-app/package.json HEAD:examples/normalizr-relationships/package.json | sha256sum > .ci-deps-key
+      - restore-yarn-cache
       - run:
           name: yarn install
           command: |
@@ -144,8 +155,7 @@ jobs:
       - save_cache:
           paths:
             - .yarn/cache
-            - .yarn/install-state.gz
-          key: v14-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}-{{ checksum "examples/todo-app/package.json" }}
+          key: v16-dependencies-{{ checksum ".ci-deps-key" }}
       - run:
           # These are independent (babel/rollup compile from src, not tsc output),
           # so run them concurrently to shorten the critical path. Legacy types
@@ -162,7 +172,11 @@ jobs:
           root: ~/
           paths:
             # explicitly list so we can ignore some directories that are not needed
-            - project/.yarn
+            # .yarn/cache is left out; see restore-yarn-cache
+            - project/.yarn/releases
+            - project/.yarn/plugins
+            - project/.yarn/install-state.gz
+            - project/.ci-deps-key
             - project/__tests__
             - project/examples/todo-app
             - project/examples/github-app
@@ -220,6 +234,12 @@ jobs:
           flag: tests
       - attach_workspace:
           at: ~/
+      - unless:
+          # `latest` uses the installed React as-is
+          condition:
+            equal: ["latest", << parameters.react-version >>]
+          steps:
+            - restore-yarn-cache
       - run:
           name: Installing React Version
           command: |
@@ -309,6 +329,7 @@ jobs:
           flag: tests
       - attach_workspace:
           at: ~/
+      - restore-yarn-cache
       - run:
           command: |
             node --version
@@ -334,6 +355,7 @@ jobs:
           flag: esmodule
       - attach_workspace:
           at: ~/
+      - restore-yarn-cache
       - run:
           name: Install TypeScript Version
           command: |

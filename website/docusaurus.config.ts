@@ -54,7 +54,7 @@ const config: Config = {
   markdown: {
     mermaid: true,
     hooks: {
-      onBrokenMarkdownLinks: 'log',
+      onBrokenMarkdownLinks: 'warn',
     },
     // Vercel preview deploys publish `draft: true` pages so PRs can review them;
     // production (VERCEL_ENV=production) and local builds still drop them.
@@ -225,7 +225,7 @@ const config: Config = {
   customFields: {
     repoUrl: 'https://github.com/reactive/data-client',
   },
-  onBrokenLinks: 'log',
+  onBrokenLinks: 'warn',
   future: {
     // Generated Vue mirror pages have no git history; read their source's
     experimental_vcs: {
