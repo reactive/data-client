@@ -98,7 +98,9 @@
 }
 /* Dark mode: the editor column sits a step above the code, darker than the
    neutral preview headers, so the two sides read apart without a divider */
-:root[data-theme='dark'] :not(.endpointPlayground) > .playgroundTextEdit {
+:root[data-theme='dark']
+  .playgroundContainer:not(.endpointPlayground)
+  .playgroundTextEdit {
   --pg-bar: hsl(229, 14%, 21%);
   --pg-tab-hover-bg: hsl(229, 14%, 26%);
 }
@@ -550,7 +552,7 @@ div.fixtureJson {
   text-transform: uppercase;
 }
 /* Match the space below the last line */
-.standaloneEditor .diffLabels + .playgroundEditor {
+.playgroundContainer.standaloneEditor .diffLabels + .playgroundEditor {
   padding-top: 10px;
 }
 .diffLabels > span {
