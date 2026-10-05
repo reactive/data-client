@@ -19619,7 +19619,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mermaid@npm:>=11.6.0":
+"mermaid@npm:11.16.1, mermaid@npm:>=11.6.0":
   version: 11.16.1
   resolution: "mermaid@npm:11.16.1"
   dependencies:
@@ -24002,6 +24002,7 @@ __metadata:
     esbuild: "npm:~0.28.0"
     js-yaml: "npm:^4.1.1"
     mdast-util-phrasing: "npm:^4.0.0"
+    mermaid: "npm:11.16.1"
     monaco-editor: "npm:^0.56.0"
     parse-numeric-range: "npm:^1.3.0"
     playwright: "npm:1.61.1"

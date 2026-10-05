@@ -38,6 +38,7 @@
     "esbuild": "~0.28.0",
     "js-yaml": "^4.1.1",
     "mdast-util-phrasing": "^4.0.0",
+    "mermaid": "11.16.1",
     "playwright": "1.61.1",
     "raw-loader": "^4.0.2",
     "react-redux": "^9.2.0",
