@@ -11,7 +11,7 @@
  * Requires a Chromium for Playwright (`npx playwright install chromium`), or
  * set CHROMIUM_PATH to an existing Chromium binary.
  */
-import yaml from 'js-yaml';
+import { DEFAULT_PARSE_FRONT_MATTER } from '@docusaurus/utils';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
@@ -44,9 +44,12 @@ function findPost(arg) {
   return path.join(BLOG_DIR, match);
 }
 
-function parsePost(source) {
-  const [, front, body] = source.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
-  const { title, description = '', image } = yaml.load(front);
+async function parsePost(postFile) {
+  const { frontMatter, content: body } = await DEFAULT_PARSE_FRONT_MATTER({
+    filePath: postFile,
+    fileContent: fs.readFileSync(postFile, 'utf8').replace(/\r\n/g, '\n'),
+  });
+  const { title, description = '', image } = frontMatter;
   const [, version, headline] = title.match(/^v(\d+\.\d+):?\s*(.*)$/);
   const [summary, details = ''] = body.split(
     /\{\/\*\s*truncate\s*\*\/\}|<!--\s*truncate\s*-->/,
@@ -87,7 +90,7 @@ const MAX_CODE_LINES = 8;
 const MAX_CHART_ROWS = 4;
 // Put {/* card */} right before a chart, diagram, image or code block in a
 // feature section to pick what the card shows for that feature
-const CARD_MARKER = /\{\/\*\s*card\s*\*\/\}/;
+const CARD_MARKER = /\{\/\*\s*card\s*\*\/\}/g;
 const PERF = /fast|perf|speed|parallel/i;
 
 // One visual per headline feature (the title's comma-separated parts, else the
@@ -96,8 +99,9 @@ const PERF = /fast|perf|speed|parallel/i;
 function featureVisual(headline, bullets, details) {
   const sections = headlineSections(headline, bullets, details);
   if (!sections.length) return;
+  const speedupIn = text => text?.match(/(\d+(?:\.\d+)?)x faster/i)?.[1];
   const visuals = sections
-    .map(({ title, section }) => {
+    .map(({ title, id, section }) => {
       const found = findVisuals(section);
       const order =
         PERF.test(title) ?
@@ -106,23 +110,25 @@ function featureVisual(headline, bullets, details) {
       const pick =
         found.find(v => v.marked) ??
         order.map(k => found.find(v => v.kind === k)).find(Boolean);
-      return pick && { ...pick, title };
+      // the section's own claim, else the claim in the bullet linking to it
+      const speedup =
+        speedupIn(section) ??
+        speedupIn(bullets.find(b => id && b.text.includes(`#${id})`))?.text);
+      return pick && { ...pick, title, speedup };
     })
     .filter(Boolean);
   if (!visuals.length) return;
   const [first] = visuals;
-  // A lone feature with Before/After code shows both sides
+  // A lone feature with Before/After code shows both sides, with a big badge
+  const pair = visuals.length === 1 && first.before;
   const panels =
-    visuals.length === 1 && first.before ?
+    pair ?
       [
         { kind: 'code', title: 'Before', code: first.before, diff: 'before' },
-        { ...first, title: 'After', diff: 'after' },
+        { ...first, title: 'After', diff: 'after', speedup: undefined },
       ]
     : visuals;
-  const speedup = `${bullets[0]?.text ?? ''} ${sections[0].section}`.match(
-    /(\d+(?:\.\d+)?)x faster/i,
-  )?.[1];
-  return { panels, speedup };
+  return { panels, speedup: pair && first.speedup };
 }
 
 // Sections for the title's comma-separated parts (by shared heading words),
@@ -139,13 +145,15 @@ function headlineSections(headline, bullets, details) {
         .filter(w => w.length > 2)
         .map(w => w.replace(/s$/, '')),
     );
-  const overlap = (a, b) => [...words(a)].filter(w => words(b).has(w)).length;
   const byTitle = headline.split(/,\s*/).map(part => {
-    const best = headings.reduce(
-      (top, h) =>
-        overlap(part, h.title) > overlap(part, top?.title ?? '') ? h : top,
-      undefined,
-    );
+    const partWords = [...words(part)];
+    let best,
+      bestScore = 0;
+    for (const h of headings) {
+      const hWords = words(h.title);
+      const score = partWords.filter(w => hWords.has(w)).length;
+      if (score > bestScore) [best, bestScore] = [h, score];
+    }
     return best && { ...best, title: part };
   });
   const byBullet = bullets
@@ -159,13 +167,13 @@ function headlineSections(headline, bullets, details) {
   const chosen = [...byTitle, ...byBullet].filter(
     (h, i, all) => h && all.findIndex(o => o?.index === h.index) === i,
   );
-  if (!chosen.length) {
-    const first = headings.find(h => findVisuals(sectionAt(h.index)).length);
-    if (first) chosen.push(first);
-  }
-  return chosen
+  const picked =
+    chosen.length ? chosen : (
+      headings.filter(h => findVisuals(sectionAt(h.index)).length).slice(0, 1)
+    );
+  return picked
     .slice(0, 3)
-    .map(({ title, index }) => ({ title, section: sectionAt(index) }));
+    .map(({ title, id, index }) => ({ title, id, section: sectionAt(index) }));
 }
 
 // Every chart, diagram, image and code block in a section, in source order
@@ -173,28 +181,23 @@ function findVisuals(section) {
   const patterns = [
     [/<PerfChart([\s\S]*?)\/>/g, perfChart],
     [/```mermaid\n([\s\S]*?)\n```/g, mermaidVisual],
-    [
-      /!\[[^\]]*\]\((\/img\/[^)\s]+)\)|<img[^>]*src="(\/img\/[^"]+)"/g,
-      imageVisual,
-    ],
+    [/(?:!\[[^\]]*\]\(|<img[^>]*src=")(\/img\/[^)\s"]+)/g, imageVisual],
     [/```(?!mermaid)\w*([^\n]*)\n([\s\S]*?)\n```/g, codeVisual],
   ];
   const visuals = patterns
     .flatMap(([re, parse]) =>
       [...section.matchAll(re)].map(m => {
         const visual = parse(...m.slice(1));
-        return (
-          visual && {
-            ...visual,
-            index: m.index,
-            marked: CARD_MARKER.test(
-              section.slice(Math.max(0, m.index - 30), m.index),
-            ),
-          }
-        );
+        return visual && { ...visual, index: m.index };
       }),
     )
     .filter(Boolean);
+  // each {/* card */} marks the first visual after it
+  visuals.sort((a, b) => a.index - b.index);
+  for (const { index } of section.matchAll(CARD_MARKER)) {
+    const next = visuals.find(v => v.index > index);
+    if (next) next.marked = true;
+  }
   const before = visuals.find(v => v.kind === 'code' && v.title === 'Before');
   return visuals
     .filter(v => v !== before)
@@ -202,8 +205,7 @@ function findVisuals(section) {
       before && v.kind === 'code' && v.title === 'After' ?
         { ...v, before: before.code }
       : v,
-    )
-    .sort((a, b) => a.index - b.index);
+    );
 }
 
 function perfChart(props) {
@@ -247,8 +249,8 @@ function mermaidVisual(source) {
   };
 }
 
-function imageVisual(markdownSrc, htmlSrc) {
-  const file = path.join(WEBSITE_ROOT, 'static', markdownSrc ?? htmlSrc);
+function imageVisual(src) {
+  const file = path.join(WEBSITE_ROOT, 'static', src);
   return fs.existsSync(file) ? { kind: 'image', file } : undefined;
 }
 
@@ -339,20 +341,23 @@ function panelBody(panel, maxLines) {
 }
 
 function panelsHtml({ panels, speedup }) {
+  const n = panels.length;
+  const maxLines = n > 2 ? 5 : MAX_CODE_LINES;
   const html = panels
-    .map(
-      (panel, i) =>
-        `<div class="editor ${panel.diff ?? ''} w${i + 1}-of-${panels.length}"><div class="chrome"><i></i><i></i><i></i><span>${escape(panel.chartTitle && panels.length === 1 ? panel.chartTitle : panel.title)}</span></div>${panelBody(panel, panels.length > 2 ? 5 : MAX_CODE_LINES)}</div>`,
-    )
+    .map((panel, i) => {
+      const title = (n === 1 && panel.chartTitle) || panel.title;
+      // the After side, else the first window, gets the accent title
+      const primary = panel.diff ? panel.diff === 'after' : i === 0;
+      const chip =
+        panel.speedup ?
+          `<em class="speed">${escape(panel.speedup)}× faster</em>`
+        : '';
+      return `<div class="editor ${panel.diff ?? ''} ${primary ? 'primary' : ''} w${i + 1}-of-${n}"><div class="chrome"><i></i><i></i><i></i><span>${escape(title)}</span>${chip}</div>${panelBody(panel, maxLines)}</div>`;
+    })
     .join('');
-  // a big badge beside Before/After, else a chip on the first panel
-  if (!speedup) return html;
-  return panels[0].diff ?
+  return speedup ?
       `${html}<div class="stat"><div class="big">${escape(speedup)}<small>×</small></div><div class="unit">faster</div></div>`
-    : html.replace(
-        '</span>',
-        `</span><em class="speed">${escape(speedup)}× faster</em>`,
-      );
+    : html;
 }
 
 // A leading link's text, else the bullet's first clause
@@ -396,23 +401,23 @@ function prng(seed) {
 // schemas and data relationships, a grid for types, else flowing streams
 const THEMES = [
   {
-    name: 'speed',
     match: PERF,
+    draw: speedMotif,
     colors: ['#3e96db', '#4fc3f7', '#22d3ee', '#f59e0b'],
   },
   {
-    name: 'network',
+    draw: networkMotif,
     match: /schema|normaliz|entit|relation|graph|collection|union|query/i,
     colors: ['#7c6cf0', '#a78bfa', '#3e96db', '#22d3ee'],
   },
   {
-    name: 'grid',
+    draw: gridMotif,
     match: /type|typescript/i,
     colors: ['#2dd4bf', '#3e96db', '#5eead4', '#7c6cf0'],
   },
 ];
 const FLOW = {
-  name: 'flow',
+  draw: flowMotif,
   colors: ['#3e96db', '#4fc3f7', '#7c6cf0', '#22d3ee'],
 };
 
@@ -424,75 +429,88 @@ function pickTheme(headline, description) {
   );
 }
 
-function background({ name, colors }, random) {
+const fixed = (v, d = 1) => v.toFixed(d);
+const GLOW = `<defs><filter id="glow" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+
+function background({ colors, draw }, random) {
   const pick = () => colors[Math.floor(random() * colors.length)];
-  const glow = `<defs><filter id="glow" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
-  const svg = body =>
-    `<svg class="bg" viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg">${glow}${body}</svg>`;
-  const n = (v, d = 1) => v.toFixed(d);
+  return `<svg class="bg" viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg">${GLOW}${draw(random, pick, colors)}</svg>`;
+}
+
+function speedMotif(random, pick) {
   let body = '';
-  if (name === 'speed') {
-    // motion streaks rushing left, each with a bright head
-    for (let i = 0; i < 60; i++) {
-      const y = HEIGHT * random();
-      const x = WIDTH * (0.45 + random() * 0.5);
-      const len = 80 + random() * 380;
-      const c = pick();
-      body += `<line x1="${n(x)}" y1="${n(y)}" x2="${n(x + len)}" y2="${n(y)}" stroke="${c}" stroke-width="${n(1 + random() * 1.5)}" opacity="${n(0.2 + random() * 0.5, 2)}" stroke-linecap="round"/><circle cx="${n(x)}" cy="${n(y)}" r="${n(1.5 + random() * 2)}" fill="${c}" filter="url(#glow)"/>`;
-    }
-  } else if (name === 'network') {
-    // nodes linked to their nearest neighbors
-    const nodes = Array.from({ length: 34 }, () => [
-      WIDTH * (0.5 + random() * 0.5),
-      HEIGHT * random(),
-    ]);
-    for (const [i, [x, y]] of nodes.entries()) {
-      const near = nodes
-        .map(([x2, y2], j) => [Math.hypot(x2 - x, y2 - y), j])
-        .filter(([, j]) => j > i)
-        .sort((a, b) => a[0] - b[0])
-        .slice(0, 2);
-      for (const [, j] of near)
-        body += `<line x1="${n(x)}" y1="${n(y)}" x2="${n(nodes[j][0])}" y2="${n(nodes[j][1])}" stroke="${pick()}" stroke-width="1.2" opacity="0.35"/>`;
-    }
-    for (const [x, y] of nodes)
-      body += `<circle cx="${n(x)}" cy="${n(y)}" r="${n(2.5 + random() * 3.5)}" fill="${pick()}" filter="url(#glow)"/>`;
-  } else if (name === 'grid') {
-    // a perspective floor grid with a few lit nodes
-    const horizon = HEIGHT * 0.38;
-    const vx = WIDTH * 0.78;
-    for (let i = -14; i <= 14; i++)
-      body += `<line x1="${vx}" y1="${horizon}" x2="${n(vx + i * 160)}" y2="${HEIGHT}" stroke="${colors[0]}" stroke-width="1" opacity="0.25"/>`;
-    for (let i = 1; i <= 12; i++) {
-      const y = horizon + (HEIGHT - horizon) * (i / 12) ** 2;
-      body += `<line x1="0" y1="${n(y)}" x2="${WIDTH}" y2="${n(y)}" stroke="${colors[1]}" stroke-width="1" opacity="${n(0.1 + i * 0.02, 2)}"/>`;
-    }
-    for (let i = 0; i < 18; i++)
-      body += `<circle cx="${n(WIDTH * (0.5 + random() * 0.5))}" cy="${n(horizon + (HEIGHT - horizon) * random())}" r="${n(2 + random() * 2)}" fill="${pick()}" filter="url(#glow)"/>`;
-  } else {
-    // light streams fanning out to the right edge
-    for (let i = 0; i < 46; i++) {
-      const c = pick();
-      const p0 = [WIDTH * 0.68, HEIGHT * (0.4 + random() * 0.2)];
-      const p3 = [WIDTH, HEIGHT * (-0.05 + random() * 1.1)];
-      const p1 = [WIDTH * 0.8, p0[1]];
-      const p2 = [WIDTH * 0.86, p3[1]];
-      const at = t =>
-        [0, 1].map(
-          k =>
-            (1 - t) ** 3 * p0[k] +
-            3 * (1 - t) ** 2 * t * p1[k] +
-            3 * (1 - t) * t ** 2 * p2[k] +
-            t ** 3 * p3[k],
-        );
-      body += `<path d="M${p0} C${p1} ${p2} ${p3}" stroke="${c}" stroke-width="${n(0.6 + random() * 1.2)}" fill="none" opacity="${n(0.15 + random() * 0.5, 2)}"/>`;
-      for (let j = 0; j < 3; j++) {
-        const [x, y] = at(0.45 + random() * 0.55);
-        body += `<circle cx="${n(x)}" cy="${n(y)}" r="${n(1.5 + random() * 2.5)}" fill="${c}" filter="url(#glow)"/>`;
-      }
+  // motion streaks rushing left, each with a bright head
+  for (let i = 0; i < 60; i++) {
+    const y = HEIGHT * random();
+    const x = WIDTH * (0.45 + random() * 0.5);
+    const len = 80 + random() * 380;
+    const c = pick();
+    body += `<line x1="${fixed(x)}" y1="${fixed(y)}" x2="${fixed(x + len)}" y2="${fixed(y)}" stroke="${c}" stroke-width="${fixed(1 + random() * 1.5)}" opacity="${fixed(0.2 + random() * 0.5, 2)}" stroke-linecap="round"/><circle cx="${fixed(x)}" cy="${fixed(y)}" r="${fixed(1.5 + random() * 2)}" fill="${c}" filter="url(#glow)"/>`;
+  }
+  return body;
+}
+
+function networkMotif(random, pick) {
+  let body = '';
+  // nodes linked to their nearest neighbors
+  const nodes = Array.from({ length: 34 }, () => [
+    WIDTH * (0.5 + random() * 0.5),
+    HEIGHT * random(),
+  ]);
+  for (const [i, [x, y]] of nodes.entries()) {
+    const near = nodes
+      .map(([x2, y2], j) => [Math.hypot(x2 - x, y2 - y), j])
+      .filter(([, j]) => j > i)
+      .sort((a, b) => a[0] - b[0])
+      .slice(0, 2);
+    for (const [, j] of near)
+      body += `<line x1="${fixed(x)}" y1="${fixed(y)}" x2="${fixed(nodes[j][0])}" y2="${fixed(nodes[j][1])}" stroke="${pick()}" stroke-width="1.2" opacity="0.35"/>`;
+  }
+  for (const [x, y] of nodes)
+    body += `<circle cx="${fixed(x)}" cy="${fixed(y)}" r="${fixed(2.5 + random() * 3.5)}" fill="${pick()}" filter="url(#glow)"/>`;
+  return body;
+}
+
+function gridMotif(random, pick, colors) {
+  let body = '';
+  // a perspective floor grid with a few lit nodes
+  const horizon = HEIGHT * 0.38;
+  const vx = WIDTH * 0.78;
+  for (let i = -14; i <= 14; i++)
+    body += `<line x1="${vx}" y1="${horizon}" x2="${fixed(vx + i * 160)}" y2="${HEIGHT}" stroke="${colors[0]}" stroke-width="1" opacity="0.25"/>`;
+  for (let i = 1; i <= 12; i++) {
+    const y = horizon + (HEIGHT - horizon) * (i / 12) ** 2;
+    body += `<line x1="0" y1="${fixed(y)}" x2="${WIDTH}" y2="${fixed(y)}" stroke="${colors[1]}" stroke-width="1" opacity="${fixed(0.1 + i * 0.02, 2)}"/>`;
+  }
+  for (let i = 0; i < 18; i++)
+    body += `<circle cx="${fixed(WIDTH * (0.5 + random() * 0.5))}" cy="${fixed(horizon + (HEIGHT - horizon) * random())}" r="${fixed(2 + random() * 2)}" fill="${pick()}" filter="url(#glow)"/>`;
+  return body;
+}
+
+function flowMotif(random, pick) {
+  let body = '';
+  // light streams fanning out to the right edge
+  for (let i = 0; i < 46; i++) {
+    const c = pick();
+    const p0 = [WIDTH * 0.68, HEIGHT * (0.4 + random() * 0.2)];
+    const p3 = [WIDTH, HEIGHT * (-0.05 + random() * 1.1)];
+    const p1 = [WIDTH * 0.8, p0[1]];
+    const p2 = [WIDTH * 0.86, p3[1]];
+    const at = t =>
+      [0, 1].map(
+        k =>
+          (1 - t) ** 3 * p0[k] +
+          3 * (1 - t) ** 2 * t * p1[k] +
+          3 * (1 - t) * t ** 2 * p2[k] +
+          t ** 3 * p3[k],
+      );
+    body += `<path d="M${p0} C${p1} ${p2} ${p3}" stroke="${c}" stroke-width="${fixed(0.6 + random() * 1.2)}" fill="none" opacity="${fixed(0.15 + random() * 0.5, 2)}"/>`;
+    for (let j = 0; j < 3; j++) {
+      const [x, y] = at(0.45 + random() * 0.55);
+      body += `<circle cx="${fixed(x)}" cy="${fixed(y)}" r="${fixed(1.5 + random() * 2.5)}" fill="${c}" filter="url(#glow)"/>`;
     }
   }
-  return svg(body);
+  return body;
 }
 
 // Inline the site's fonts so rendering is offline and reproducible
@@ -550,7 +568,7 @@ function cardHtml({ version, headline, description, rows, feature }) {
     border: 2.5px solid #2f7cf0; border-radius: 999px; padding: 10px 28px;
     color: #4aa3ff; font-size: 30px; font-weight: 500; letter-spacing: 0.18em;
   }
-  .headline { margin-top: 30px; height: 250px; font-weight: 600; line-height: 1.05; letter-spacing: -0.01em; }
+  .headline { margin-top: 30px; height: 250px; font-size: 120px; font-weight: 600; line-height: 1.05; letter-spacing: -0.01em; }
   .headline .accent { color: #3b8cf5; }
   .rule { margin-top: 34px; width: 560px; height: 1px; background: linear-gradient(90deg, #2a3a55, transparent); }
   .tagline {
@@ -596,8 +614,8 @@ function cardHtml({ version, headline, description, rows, feature }) {
   .chrome { display: flex; align-items: center; gap: 9px; padding: 14px 20px; background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.06); }
   .chrome i { width: 13px; height: 13px; border-radius: 50%; background: #2c3a55; }
   .chrome span { margin-left: 14px; font: 500 20px 'Roboto Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; color: #8aa0c0; }
-  .after .chrome span, .w1-of-1 .chrome span, .w1-of-3 .chrome span { color: #5eead4; }
-  .editor pre { padding: 20px 26px 24px 0; font: 400 24px/1.55 'Roboto Mono', monospace; color: #d6deeb; white-space: pre; overflow: hidden; }
+  .primary .chrome span { color: #5eead4; }
+  .editor pre { padding: 20px 26px 24px 0; font: 400 26px/1.55 'Roboto Mono', monospace; color: #d6deeb; white-space: pre; overflow: hidden; }
   .line::before { content: ''; display: inline-block; width: 26px; text-align: center; }
   .before .line::before { content: '−'; width: 52px; color: #f87171; }
   .after .line::before { content: '+'; width: 52px; color: #4ade80; }
@@ -615,8 +633,9 @@ function cardHtml({ version, headline, description, rows, feature }) {
   .value { background: linear-gradient(90deg, #3b8cf5, #5eead4); box-shadow: 0 0 14px rgba(94,234,212,0.45); }
   .diagram, .image { padding: 22px; display: flex; justify-content: center; }
   .diagram-src { width: 100%; }
-  .diagram svg { width: 100%; max-width: none !important; height: auto; max-height: 520px; }
-  .image img { max-width: 100%; max-height: 520px; }
+  .diagram svg { width: 100%; max-width: none !important; height: auto; max-height: 260px; }
+  .image img { max-width: 100%; max-height: 260px; }
+  .w1-of-1 .diagram svg, .w1-of-1 .image img { max-height: 560px; }
   .chrome .speed { margin-left: auto; font: 600 20px Rubik, sans-serif; font-style: normal; color: #5eead4; border: 1.5px solid rgba(94,234,212,0.45); border-radius: 999px; padding: 3px 14px; }
   .stat {
     position: absolute; right: 50px; bottom: 45px; padding: 18px 30px 20px; border-radius: 22px;
@@ -641,15 +660,10 @@ ${
     `<div class="panel"><h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4z"/><path d="M19 17l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg>WHAT'S NEW</h2>${panelRows}</div>`
   : ''
 }
-${
-  feature?.panels.some(p => p.kind === 'diagram') ?
-    `<script>${fs.readFileSync(require.resolve('mermaid/dist/mermaid.min.js'), 'utf8')}</script>`
-  : ''
-}
 </body></html>`;
 }
 
-async function render(html, outFile) {
+async function render(html, outFile, feature) {
   const browser = await chromium.launch({
     executablePath: process.env.CHROMIUM_PATH,
   });
@@ -668,33 +682,36 @@ async function render(html, outFile) {
       ).every(faces => faces.length),
     );
     if (!fontsLoaded) throw new Error('Rubik/Roboto Mono failed to load');
-    await page.evaluate(async () => {
-      if (!window.mermaid) return;
-      window.mermaid.initialize({
-        startOnLoad: false,
-        theme: 'base',
-        // svg text measures with the loaded fonts; html labels clip
-        htmlLabels: false,
-        flowchart: { htmlLabels: false },
-        themeVariables: {
-          fontFamily: 'Rubik',
-          fontSize: '22px',
-          primaryColor: '#16213a',
-          primaryTextColor: '#e6edf7',
-          primaryBorderColor: '#4aa3ff',
-          lineColor: '#5eead4',
-          secondaryColor: '#1d2b4a',
-          tertiaryColor: '#0f1830',
-        },
+    if (feature?.panels.some(p => p.kind === 'diagram')) {
+      // added after load, so mermaid doesn't render before this config
+      await page.addScriptTag({
+        path: require.resolve('mermaid/dist/mermaid.min.js'),
       });
-      // not class="mermaid", which mermaid renders on load before this config
-      await window.mermaid.run({ querySelector: '.diagram-src' });
-    });
+      await page.evaluate(async () => {
+        window.mermaid.initialize({
+          startOnLoad: false,
+          theme: 'base',
+          // svg text measures with the loaded fonts; html labels clip
+          htmlLabels: false,
+          flowchart: { htmlLabels: false },
+          themeVariables: {
+            fontFamily: 'Rubik',
+            fontSize: '22px',
+            primaryColor: '#16213a',
+            primaryTextColor: '#e6edf7',
+            primaryBorderColor: '#4aa3ff',
+            lineColor: '#5eead4',
+            secondaryColor: '#1d2b4a',
+            tertiaryColor: '#0f1830',
+          },
+        });
+        await window.mermaid.run({ querySelector: '.diagram-src' });
+      });
+    }
     // Shrink the headline and code until every line fits, with real font metrics
     await page.evaluate(() => {
       for (const box of document.querySelectorAll('#headline, pre')) {
-        let size = box.id ? 120 : 26;
-        box.style.fontSize = size + 'px';
+        let size = parseFloat(getComputedStyle(box).fontSize);
         while (
           size > 14 &&
           (box.scrollHeight > box.clientHeight ||
@@ -715,16 +732,13 @@ async function main() {
     options: { force: { type: 'boolean' } },
   });
   const postFile = findPost(positionals[0]);
-  const post = parsePost(
-    fs.readFileSync(postFile, 'utf8').replace(/\r\n/g, '\n'),
-  );
+  const post = await parsePost(postFile);
   const outFile = path.join(OUT_DIR, `${post.version}-card.png`);
+  const rel = path.relative(process.cwd(), outFile);
   if (fs.existsSync(outFile) && !values.force)
-    throw new Error(
-      `${path.relative(process.cwd(), outFile)} exists; pass --force to overwrite`,
-    );
-  await render(cardHtml(post), outFile);
-  console.log(`Wrote ${path.relative(process.cwd(), outFile)}`);
+    throw new Error(`${rel} exists; pass --force to overwrite`);
+  await render(cardHtml(post), outFile, post.feature);
+  console.log(`Wrote ${rel}`);
   const image = `/img/social/${post.version}-card.png`;
   if (post.image !== image)
     console.log(
