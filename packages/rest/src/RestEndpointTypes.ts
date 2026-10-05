@@ -8,6 +8,7 @@ import type {
 } from '@data-client/endpoint';
 
 import type { ExtractCollection } from './extractCollection.js';
+import type { IsUnion } from './isUnion.js';
 import {
   OptionsToBodyArgument,
   OptionsToFunction,
@@ -307,12 +308,6 @@ type ProcessArgs<A extends readonly any[]> =
       [params?: ArgAt0<A>]
     : [params?: ArgAt0<A>, body?: ArgAt1<A>]
   : [params: ArgAt0<A>, body?: ArgAt1<A>];
-type IsUnion<T, U = T> =
-  T extends any ?
-    [U] extends [T] ?
-      false
-    : true
-  : never;
 // Distribute over the union; the length check gives never for a position a call omits
 type ArgAt0<A extends readonly any[]> =
   A extends unknown ?
@@ -664,7 +659,7 @@ type OptionsToAdderBodyArgument<O extends { body?: any }, EntitySchema = any> =
 export interface RestEndpointOptions<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = undefined,
-> extends EndpointExtraOptions<F> {
+> extends EndpointExtraOptions<F, S> {
   /** Prepended to all urls
    * @see https://dataclient.io/rest/api/RestEndpoint#urlPrefix
    */

@@ -1771,7 +1771,7 @@ it('should allow concrete body types when subclassing RestEndpoint with O=any', 
     schema: User,
     body: {} as { phrase: string },
     getOptimisticResponse(snap, body) {
-      return body;
+      return { username: body.phrase };
     },
   });
   // @ts-expect-error - body strongly defined means it is required
@@ -1786,7 +1786,7 @@ it('should allow concrete body types when subclassing RestEndpoint with O=any', 
     schema: User,
     body: {} as { phrase: string },
     getOptimisticResponse(snap, body) {
-      return body;
+      return { username: body.phrase };
     },
   });
   // @ts-expect-error - body strongly defined means it is required
@@ -1840,7 +1840,7 @@ it('should allow concrete body types when subclassing RestEndpoint with O=any', 
     method: 'PUT',
     body: {} as { name: string },
     getOptimisticResponse(snap, ...args) {
-      return args[args.length - 1];
+      return { username: 'bob' };
     },
   });
   // @ts-expect-error - body required even when path is widened
@@ -1855,7 +1855,7 @@ it('should allow concrete body types when subclassing RestEndpoint with O=any', 
     searchParams: {} as { q?: string },
     body: {} as { filters: string[] },
     getOptimisticResponse(snap, ...args) {
-      return args[args.length - 1];
+      return { username: 'bob' };
     },
   });
   widenedSearch({ filters: ['a'] });
@@ -1982,6 +1982,116 @@ it('should type resource using RestEndpoint subclass with O=any', () => {
     }),
   }));
   () => FnExtended.current();
+});
+
+it('getOptimisticResponse returns raw input for the schema', () => {
+  const UserRes = resource({ path: '/users/:id', schema: User });
+  const createUser = new RestEndpoint({
+    path: '/users',
+    method: 'POST',
+    schema: User,
+  });
+
+  new RestEndpoint({
+    path: '/users/:id',
+    method: 'PUT',
+    schema: User,
+    getOptimisticResponse(snap, params, body) {
+      // numbers and strings coerce
+      return { id: params.id, username: 'bob' };
+    },
+  });
+  new RestEndpoint({
+    path: '/users/:id',
+    method: 'PUT',
+    schema: User,
+    // @ts-expect-error isAdmin is a boolean
+    getOptimisticResponse(snap, params, body) {
+      return { id: params.id, isAdmin: 'yes' };
+    },
+  });
+  createUser.extend({
+    // @ts-expect-error isAdmin is a boolean
+    getOptimisticResponse(snap, body) {
+      return { isAdmin: 'yes' };
+    },
+  });
+  createUser.extend({
+    path: '/groups/:group/users',
+    // @ts-expect-error isAdmin is a boolean
+    getOptimisticResponse(snap, params, body) {
+      return { isAdmin: 'yes' };
+    },
+  });
+  // @ts-expect-error isAdmin is a boolean
+  UserRes.extend('update', {
+    getOptimisticResponse(snap, params, body) {
+      return { id: params.id, isAdmin: 'yes' };
+    },
+  });
+  UserRes.extend({
+    // @ts-expect-error isAdmin is a boolean
+    update: {
+      getOptimisticResponse(snap, params, body) {
+        return { id: params.id, isAdmin: 'yes' };
+      },
+    },
+  });
+  // overridden schema is used
+  UserRes.extend({
+    update: {
+      schema: [User],
+      getOptimisticResponse(snap, params, body) {
+        return [{ id: 5, isAdmin: true }];
+      },
+    },
+  });
+  UserRes.extend({
+    // @ts-expect-error schema is now a list
+    update: {
+      schema: [User],
+      getOptimisticResponse(snap, params, body) {
+        return { id: 5, isAdmin: true };
+      },
+    },
+  });
+  // Collection takes a list of rows
+  UserRes.extend('getList', {
+    getOptimisticResponse(snap) {
+      return [{ id: 5, isAdmin: true }];
+    },
+  });
+  // @ts-expect-error Collection takes a list of rows
+  UserRes.extend('getList', {
+    getOptimisticResponse(snap) {
+      return { id: 5, isAdmin: true };
+    },
+  });
+  UserRes.getList.push.extend({
+    // @ts-expect-error isAdmin is a boolean
+    getOptimisticResponse(snap, body) {
+      return { isAdmin: 'yes' };
+    },
+  });
+
+  // process() return type is checked instead
+  createUser.extend({
+    process(value): { ok: boolean } {
+      return value;
+    },
+    getOptimisticResponse(snap, body) {
+      return { ok: true };
+    },
+  });
+  createUser.extend({
+    process(value): { ok: boolean } {
+      return value;
+    },
+    // @ts-expect-error ok is a boolean
+    getOptimisticResponse(snap, body) {
+      return { ok: 'yes' };
+    },
+  });
 });
 
 it('content property: return type inference', () => {

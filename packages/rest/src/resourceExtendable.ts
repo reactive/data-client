@@ -57,7 +57,8 @@ export interface Extendable<
     ExtendOptions extends ExtendableRestGenerics | {},
   >(
     this: R,
-    key: ExtendKey,
+    // existing keys are typed by the overload above; don't retype them from `get` when it fails
+    key: ExtendKey extends keyof R ? never : ExtendKey,
     options: Readonly<
       RestEndpointExtendOptions<
         ExtendOptions,

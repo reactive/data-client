@@ -11,7 +11,7 @@ export interface EndpointOptions<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = undefined,
   M extends boolean | undefined = false,
-> extends EndpointExtraOptions<F> {
+> extends EndpointExtraOptions<F, S> {
   key?: (...args: Parameters<F>) => string;
   sideEffect?: M;
   schema?: S;

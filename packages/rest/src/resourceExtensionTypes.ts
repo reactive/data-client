@@ -1,8 +1,11 @@
 import type {
   EndpointInterface,
   EndpointToFunction,
+  FetchFunction,
+  Schema,
 } from '@data-client/endpoint';
 
+import type { IsUnion } from './isUnion.js';
 import { OptionsToFunction } from './OptionsToFunction.js';
 import type { ResourcePath } from './pathTypes.js';
 import { Extendable } from './resourceExtendable.js';
@@ -65,47 +68,35 @@ export interface ResourceEndpointExtensions<
   PartialUpdate extends PartialRestGenerics = {},
   Delete extends PartialRestGenerics = {},
 > {
-  readonly get?: RestEndpointOptions<
-    unknown extends Get ? EndpointToFunction<R['get']>
-    : OptionsToFunction<Get, R['get'], EndpointToFunction<R['get']>>,
-    R['get']['schema']
-  > &
-    Readonly<Get> &
-    Get;
-  readonly getList?: RestEndpointOptions<
-    unknown extends GetList ? EndpointToFunction<R['getList']>
-    : OptionsToFunction<
-        GetList,
-        R['getList'],
-        EndpointToFunction<R['getList']>
-      >,
-    R['getList']['schema']
-  > &
-    Readonly<GetList> &
-    GetList;
-  readonly update?: RestEndpointOptions<
-    unknown extends Update ? EndpointToFunction<R['update']>
-    : OptionsToFunction<Update, R['update'], EndpointToFunction<R['update']>>,
-    R['update']['schema']
-  > &
-    Readonly<Update> &
-    Update;
-  readonly partialUpdate?: RestEndpointOptions<
-    unknown extends PartialUpdate ? EndpointToFunction<R['partialUpdate']>
-    : OptionsToFunction<
-        PartialUpdate,
-        R['partialUpdate'],
-        EndpointToFunction<R['partialUpdate']>
-      >,
-    R['partialUpdate']['schema']
-  > &
-    Readonly<PartialUpdate> &
-    PartialUpdate;
-  readonly delete?: RestEndpointOptions<
-    unknown extends Delete ? EndpointToFunction<R['delete']>
-    : OptionsToFunction<Delete, R['delete'], EndpointToFunction<R['delete']>>,
-    R['delete']['schema']
-  > &
-    Readonly<Delete> &
-    Delete;
+  readonly get?: EndpointExtensionOptions<R['get'], Get>;
+  readonly getList?: EndpointExtensionOptions<R['getList'], GetList>;
+  readonly update?: EndpointExtensionOptions<R['update'], Update>;
+  readonly partialUpdate?: EndpointExtensionOptions<
+    R['partialUpdate'],
+    PartialUpdate
+  >;
+  readonly delete?: EndpointExtensionOptions<R['delete'], Delete>;
 }
+
+/** Options extending endpoint `E`. `O` is PartialRestGenerics when TypeScript couldn't infer it:
+ * options without any of its members (like only getOptimisticResponse) fail its weak type check.
+ * Then callbacks take `E`'s args, or `any` when those are a union of tuples, which TypeScript
+ * can't infer callback parameters from.
+ */
+type EndpointExtensionOptions<
+  E extends RestInstanceBase,
+  O extends PartialRestGenerics,
+> = RestEndpointOptions<
+  unknown extends O ? EndpointToFunction<E>
+  : PartialRestGenerics extends O ? SingleArgsFunction<EndpointToFunction<E>>
+  : OptionsToFunction<O, E, EndpointToFunction<E>>,
+  PartialRestGenerics extends O ? E['schema']
+  : 'schema' extends keyof O ? Extract<O['schema'], Schema | undefined>
+  : E['schema']
+> &
+  Readonly<O> &
+  O;
+
+type SingleArgsFunction<F extends FetchFunction> = (
+  ...args: IsUnion<Parameters<F>> extends false ? Parameters<F> : any
+) => ReturnType<F>;
