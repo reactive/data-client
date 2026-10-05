@@ -4,11 +4,12 @@ on:
   push:
     branches:
       - master
-    # Inputs and outputs of scripts/agent-rules.mjs
+    # Inputs and outputs of scripts/agent-rules.mjs, and the hook tests
     paths:
       - '**/.cursor/rules/**'
       - '**/.claude/rules/**'
       - '.claude/skills'
+      - '.cursor/hooks/**'
       - 'scripts/agent-rules.mjs'
       - '.github/workflows/agent-rules.yml'
   pull_request:
@@ -18,6 +19,7 @@ on:
       - '**/.cursor/rules/**'
       - '**/.claude/rules/**'
       - '.claude/skills'
+      - '.cursor/hooks/**'
       - 'scripts/agent-rules.mjs'
       - '.github/workflows/agent-rules.yml'
 
@@ -36,6 +38,8 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: '26'
-      # no install: the script only needs node and git
+      # no install: these only need node and git
       - name: Check Claude Code rules match the Cursor rules
         run: node scripts/agent-rules.mjs --check
+      - name: Test agent hooks
+        run: node --test .cursor/hooks/
