@@ -1,5 +1,5 @@
 import { ExpiryStatus } from '@data-client/core';
-import { computed, unref } from 'vue';
+import { computed, toValue } from 'vue';
 
 import { useController, injectState } from '../context.js';
 import useCountRef from './useCountRef.js';
@@ -12,8 +12,8 @@ export default function useResponseMeta(endpoint: any, args: any[]) {
   const stateRef = injectState();
   const controller = useController();
 
-  // Track top-level reactive args (Refs are unwrapped). This allows props/refs to trigger updates.
-  const resolvedArgs = computed(() => args.map(a => unref(a as any)) as any);
+  // Track top-level reactive args (refs and getters are resolved). This allows props/refs/getters to trigger updates.
+  const resolvedArgs = computed(() => args.map(a => toValue(a)) as any);
 
   // Compute a key that changes when args change (including reactive props)
   const argsKey = computed(() =>

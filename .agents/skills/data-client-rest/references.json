@@ -1,0 +1,31 @@
+{
+  "frameworks": [
+    "react",
+    "vue"
+  ],
+  "docs": {
+    "Collection.md": "docs/rest/api/Collection.md",
+    "Entity.md": "docs/rest/api/Entity.md",
+    "Fixtures.md": "docs/core/api/Fixtures.md",
+    "RestEndpoint.md": "docs/rest/api/RestEndpoint.md",
+    "_AsyncBoundary.md": "docs/core/shared/_AsyncBoundary.mdx",
+    "_EndpointLifecycle.md": "docs/rest/api/_EndpointLifecycle.mdx",
+    "_VoteDemo.md": "docs/core/shared/_VoteDemo.mdx",
+    "_entity_lifecycle_methods.md": "docs/rest/shared/_entity_lifecycle_methods.mdx",
+    "_optimisticTransform.md": "docs/rest/shared/_optimisticTransform.mdx",
+    "_pagination.md": "docs/core/shared/_pagination.mdx",
+    "_useLive.md": "docs/core/shared/_useLive.mdx",
+    "_useLoading.md": "docs/core/shared/_useLoading.mdx",
+    "auth.md": "docs/rest/guides/auth.md",
+    "data-dependency.md": "docs/core/getting-started/data-dependency.md",
+    "error-policy.md": "docs/core/concepts/error-policy.md",
+    "expiry-policy.md": "docs/core/concepts/expiry-policy.md",
+    "hookifyResource.md": "docs/rest/api/hookifyResource.md",
+    "mutations.md": "docs/core/getting-started/mutations.md",
+    "network-transform.md": "docs/rest/guides/network-transform.md",
+    "optimistic-updates.md": "docs/rest/guides/optimistic-updates.md",
+    "pagination.md": "docs/rest/guides/pagination.md",
+    "resource.md": "docs/rest/api/resource.md",
+    "schema.md": "docs/rest/api/schema.md"
+  }
+}

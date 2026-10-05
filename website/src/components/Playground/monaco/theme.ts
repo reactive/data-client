@@ -28,6 +28,14 @@ export function definePrismTheme(monaco: typeof Monaco) {
       'editor.foreground': '#bfc7d5',
       //'editor.lineHighlightBorder': '#33384d',
       'editor.inactiveSelectionBackground': '#484d5b',
+      // Diffs: highlight only the changed characters, never whole lines
+      'diffEditor.insertedLineBackground': '#00000000',
+      'diffEditor.removedLineBackground': '#00000000',
+      'diffEditorGutter.insertedLineBackground': '#00000000',
+      'diffEditorGutter.removedLineBackground': '#00000000',
+      'diffEditor.insertedTextBackground': '#3fb95040',
+      'diffEditor.removedTextBackground': '#f8514955',
+      'diffEditor.diagonalFill': '#00000000',
     },
   });
 }

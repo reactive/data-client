@@ -115,7 +115,7 @@ export const getUser = new RestEndpoint({
 });
 ```
 
-```ts title="Request" column
+```ts title="Usage" column
 import { getUser } from './api';
 getUser({ id: '1' });
 ```
@@ -190,7 +190,7 @@ export const PostResource = resource({
 });
 ```
 
-```ts title="Request" column
+```ts title="Usage" column
 import { PostResource } from './PostResource';
 PostResource.get({ id: '1' });
 ```
@@ -244,7 +244,7 @@ export const PostResource = resource({
 });
 ```
 
-```ts title="Request" column
+```ts title="Usage" column
 import { PostResource } from './PostResource';
 PostResource.getList.push({
   title: 'New Post',

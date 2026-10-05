@@ -1,6 +1,6 @@
 import { Endpoint } from '@data-client/endpoint';
 import nock from 'nock';
-import { computed, nextTick, reactive } from 'vue';
+import { computed, nextTick, reactive, type MaybeRefOrGetter } from 'vue';
 
 import {
   CoolerArticle,
@@ -11,6 +11,12 @@ import {
 } from '../../../../__tests__/new';
 import useDLE from '../consumers/useDLE';
 import { renderDataCompose } from '../test';
+
+// Each arg form a composable accepts that should re-evaluate reactively
+const argForms: [string, <T>(fn: () => T) => MaybeRefOrGetter<T>][] = [
+  ['computed', fn => computed(fn)],
+  ['getter', fn => fn],
+];
 
 // Minimal shared fixtures (copied from React test fixtures)
 const payload = {
@@ -247,43 +253,46 @@ describe('vue useDLE()', () => {
     cleanup();
   });
 
-  it('should fetch anew with param changes', async () => {
-    const props = reactive({ id: payload.id });
-    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
-      (props: { id: number }) => {
-        return useDLE(
-          CoolerArticleResource.get,
-          computed(() => ({ id: props.id })),
-        );
-      },
-      { props },
-    );
+  it.each(argForms)(
+    'should fetch anew with param changes (%s args)',
+    async (_, toArg) => {
+      const props = reactive({ id: payload.id });
+      const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
+        (props: { id: number }) => {
+          return useDLE(
+            CoolerArticleResource.get,
+            toArg(() => ({ id: props.id })),
+          );
+        },
+        { props },
+      );
 
-    expect(result.data.value).toBe(undefined);
-    expect(result.error.value).toBe(undefined);
-    expect(result.loading.value).toBe(true);
+      expect(result.data.value).toBe(undefined);
+      expect(result.error.value).toBe(undefined);
+      expect(result.loading.value).toBe(true);
 
-    await waitForNextUpdate();
+      await waitForNextUpdate();
 
-    expect(result.loading.value).toBe(false);
-    expect(result.error.value).toBeUndefined();
-    expect(result.data.value).toEqual(CoolerArticle.fromJS(payload));
+      expect(result.loading.value).toBe(false);
+      expect(result.error.value).toBeUndefined();
+      expect(result.data.value).toEqual(CoolerArticle.fromJS(payload));
 
-    props.id = payload2.id;
-    await nextTick();
+      props.id = payload2.id;
+      await nextTick();
 
-    expect(result.data.value).toBe(undefined);
-    expect(result.error.value).toBe(undefined);
-    expect(result.loading.value).toBe(true);
+      expect(result.data.value).toBe(undefined);
+      expect(result.error.value).toBe(undefined);
+      expect(result.loading.value).toBe(true);
 
-    await waitForNextUpdate();
+      await waitForNextUpdate();
 
-    expect(result.loading.value).toBe(false);
-    expect(result.error.value).toBeUndefined();
-    expect(result.data.value).toEqual(CoolerArticle.fromJS(payload2));
+      expect(result.loading.value).toBe(false);
+      expect(result.error.value).toBeUndefined();
+      expect(result.data.value).toEqual(CoolerArticle.fromJS(payload2));
 
-    cleanup();
-  });
+      cleanup();
+    },
+  );
 
   it('should not be loading with null params', async () => {
     const { result, cleanup } = await renderDataCompose(() => {

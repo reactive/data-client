@@ -1,0 +1,123 @@
+/* scroll in place on narrow screens instead of widening the page */
+.scroll {
+  overflow-x: auto;
+  margin-bottom: var(--ifm-leading);
+}
+
+.perfTable {
+  display: table;
+  margin-bottom: 0;
+  font-size: 0.875rem;
+}
+
+.perfTable th[scope='row'] {
+  text-align: left;
+  min-width: 12rem;
+}
+
+.description {
+  font-weight: normal;
+  font-size: 0.8125rem;
+  color: var(--ifm-color-emphasis-700);
+}
+
+.perfTable td {
+  position: relative;
+  min-width: 8rem;
+  vertical-align: middle;
+  cursor: default;
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* exact numbers, revealed on hover, tap or keyboard focus */
+.tip {
+  position: absolute;
+  z-index: 1;
+  bottom: calc(100% - 0.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ifm-global-radius);
+  white-space: nowrap;
+  color: var(--ifm-color-emphasis-900);
+  background: var(--ifm-background-surface-color);
+  box-shadow: var(--ifm-global-shadow-md);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+
+.perfTable td:focus-visible .tip,
+.perfTable td.active .tip {
+  opacity: 1;
+}
+
+.perfTable td:focus-visible,
+.perfTable td.active {
+  outline: none;
+  background: var(--ifm-color-emphasis-100);
+}
+
+/* only devices that really hover; on touch, a tap toggles .active instead */
+@media (hover: hover) {
+  .perfTable td:hover {
+    background: var(--ifm-color-emphasis-100);
+  }
+
+  .perfTable td:hover .tip {
+    opacity: 1;
+  }
+}
+
+.better,
+.worse,
+.same {
+  min-width: 3.25rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  text-align: center;
+  font-size: 0.8125rem;
+  font-weight: var(--ifm-font-weight-bold);
+}
+
+.better {
+  color: var(--ifm-color-success-contrast-foreground);
+  background: var(--ifm-color-success-contrast-background);
+}
+
+.worse {
+  color: var(--ifm-color-danger-contrast-foreground);
+  background: var(--ifm-color-danger-contrast-background);
+}
+
+.same {
+  color: var(--ifm-color-emphasis-700);
+  background: var(--ifm-color-emphasis-200);
+}
+
+.bars {
+  display: grid;
+  flex: 1;
+  gap: 3px;
+}
+
+.barBefore,
+.barAfter {
+  display: block;
+  height: 0.5rem;
+  border-radius: 0 3px 3px 0;
+}
+
+.barBefore {
+  background: var(--ifm-color-emphasis-400);
+}
+
+.barAfter {
+  background: var(--ifm-color-primary);
+}

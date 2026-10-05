@@ -1,0 +1,9 @@
+{
+  "frameworks": [
+    "react",
+    "vue"
+  ],
+  "docs": {
+    "Endpoint.md": "docs/rest/api/Endpoint.md"
+  }
+}

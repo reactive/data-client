@@ -1,6 +1,6 @@
 import * as _data_client_core from '@data-client/core';
 import { Manager, State, Controller } from '@data-client/core';
-import * as react_jsx_runtime from 'react/jsx-runtime';
+import * as react from 'react';
 
 /**
  * An *action* is a plain object that represents an intention to change the
@@ -156,7 +156,7 @@ interface Store<S = any, A extends Action = UnknownAction, StateExt = unknown> {
 
 declare function createPersistedStore(managers?: Manager[], hasDevManager?: boolean): readonly [({ children }: {
     children: React.ReactNode;
-}) => react_jsx_runtime.JSX.Element, () => State<unknown>, Controller<_data_client_core.DataClientDispatch>, Store<State<unknown>, _data_client_core.ActionTypes, unknown> & {
+}) => react.JSX.Element, () => State<unknown>, Controller<_data_client_core.DataClientDispatch>, Store<State<unknown>, _data_client_core.ActionTypes, unknown> & {
     dispatch: unknown;
 }];
 
@@ -165,12 +165,12 @@ declare const getInitialData: (id?: string) => any;
 
 declare function createServerDataComponent(useReadyCacheState: () => State<unknown>, id?: string): ({ nonce }: {
     nonce?: string | undefined;
-}) => react_jsx_runtime.JSX.Element;
+}) => react.JSX.Element;
 
 declare const ServerData: ({ data, nonce, id, }: {
     data: State<unknown>;
     id?: string;
     nonce?: string | undefined;
-}) => react_jsx_runtime.JSX.Element | null;
+}) => react.JSX.Element | null;
 
 export { ServerData, awaitInitialData, createPersistedStore, createServerDataComponent, getInitialData };
