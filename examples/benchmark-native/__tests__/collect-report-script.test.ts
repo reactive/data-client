@@ -33,4 +33,29 @@ describe('collect-report.sh report I/O', () => {
       /content delete --uri content:\/\/media\/external\/downloads/,
     );
   });
+
+  it('force-stops successfully before clearing reports, then starts', () => {
+    const forceStop = executable.lastIndexOf('am force-stop');
+    const clearCall = executable.lastIndexOf('clear_device_reports');
+    const absentCall = executable.lastIndexOf('assert_device_reports_absent');
+    const start = executable.lastIndexOf('am start');
+    expect(forceStop).toBeGreaterThan(-1);
+    expect(clearCall).toBeGreaterThan(forceStop);
+    expect(absentCall).toBeGreaterThan(clearCall);
+    expect(start).toBeGreaterThan(absentCall);
+    const forceStopLine = executable
+      .split('\n')
+      .find((line: string) => line.includes('am force-stop'));
+    expect(forceStopLine).toBeDefined();
+    expect(forceStopLine).not.toMatch(/\|\|\s*true/);
+  });
+
+  it('checks the pulled report axes and sample count', () => {
+    expect(executable).toMatch(/accept-collected-report\.cjs/);
+    expect(executable).toMatch(/"\$\{CANDIDATE_KIND\}"/);
+    expect(executable).toMatch(/"\$\{PATTERN\}"/);
+    expect(executable).toMatch(/"\$\{COUNT\}"/);
+    expect(executable).toMatch(/"\$\{CONTROL\}"/);
+    expect(executable).toMatch(/"\$\{SAMPLES\}"/);
+  });
 });

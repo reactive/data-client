@@ -226,6 +226,11 @@ if [[ "${INSTALLED_SHA}" != "${SIDECAR_APK_SHA}" ]]; then
 fi
 echo "installedApkSha256=${INSTALLED_SHA}"
 
+# Stop a previous run before deleting its report. A still-running app can
+# write after the absence check (INSTALL=0, or a retry after timeout).
+echo "Stopping ${APP_ID} before clearing leftover reports…"
+"${ADB[@]}" shell am force-stop "${APP_ID}"
+
 # Clear previous report (externalFilesDir + Downloads mirror; no run-as).
 # Verify gone so a leftover cannot complete wait for the wrong scenario.
 clear_device_reports
@@ -233,7 +238,6 @@ assert_device_reports_absent
 
 echo "Starting ${ACTIVITY} with axes ${CANDIDATE_KIND}/${PATTERN}/${COUNT}/interaction/${CONTROL}…"
 "${ADB[@]}" logcat -c || true
-"${ADB[@]}" shell am force-stop "${APP_ID}" || true
 
 START_ARGS=(
   am start -n "${ACTIVITY}"
@@ -278,29 +282,10 @@ if ! pull_device_report; then
 fi
 echo "Wrote ${OUT}"
 
-# Verify embedded buildId matches sidecar; attach sidecar provenance + installed hash.
-node -e '
-const fs=require("fs");
-const out=process.argv[1], sidecarPath=process.argv[2], installedSha=process.argv[3];
-const report=JSON.parse(fs.readFileSync(out,"utf8"));
-const sidecar=JSON.parse(fs.readFileSync(sidecarPath,"utf8"));
-const embedded=report.build && report.build.buildId;
-if (!embedded || embedded !== sidecar.buildId) {
-  console.error("error: report buildId", embedded, "!= sidecar", sidecar.buildId);
-  process.exit(1);
-}
-report.build = report.build || {};
-report.build.sidecar = {
-  buildId: sidecar.buildId,
-  sourceDigest: sidecar.sourceDigest,
-  apkSha256: sidecar.apkSha256,
-  apkPath: sidecar.apkPath,
-  sidecarId: sidecar.sidecarId,
-};
-report.build.installedApkSha256 = installedSha;
-report.build.apkSizeBytes = sidecar.apkSizeBytes;
-fs.writeFileSync(out, JSON.stringify(report, null, 2));
-console.log("provenance ok buildId="+sidecar.buildId+" sidecarId="+sidecar.sidecarId);
-' "${OUT}" "${SIDECAR}" "${INSTALLED_SHA}"
+# Reject another scenario from this APK (buildId alone is not enough), then
+# attach sidecar provenance + installed hash.
+node "${ROOT}/scripts/accept-collected-report.cjs" \
+  "${OUT}" "${SIDECAR}" "${INSTALLED_SHA}" \
+  "${CANDIDATE_KIND}" "${PATTERN}" "${COUNT}" "${CONTROL}" "${SAMPLES}"
 
 echo "Done."
