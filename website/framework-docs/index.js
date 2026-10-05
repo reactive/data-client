@@ -17,11 +17,12 @@ const MD = /\.mdx?$/;
 const VUE_OVERRIDE = /\.vue(\.mdx?)$/;
 const FM = /^---\n([\s\S]*?)\n---\n/;
 
+/** Files under `dir`, relative to it, with forward slashes (as `docIdOf` expects) */
 function walk(dir, base = dir) {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) return walk(full, base);
-    return [path.relative(base, full)];
+    return [path.relative(base, full).split(path.sep).join('/')];
   });
 }
 
