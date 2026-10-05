@@ -71,7 +71,10 @@ export default function useDLE<
     Schema | undefined,
     undefined | false
   >,
->(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): any {
+>(
+  endpoint: E,
+  ...args: readonly [...Parameters<E>] | readonly [null]
+): { data: unknown; loading: boolean; error: ErrorTypes | undefined } {
   const state = useCacheState();
   const controller = useController();
 
@@ -80,8 +83,12 @@ export default function useDLE<
   const meta = state.meta[key];
 
   // Compute denormalized value
-  // eslint-disable-next-line prefer-const
-  let { data, expiryStatus, expiresAt, countRef } = useMemo(() => {
+  const {
+    data: cachedData,
+    expiryStatus,
+    expiresAt,
+    countRef,
+  } = useMemo(() => {
     return controller.getResponseMeta(endpoint, ...args, state);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -100,7 +107,9 @@ export default function useDLE<
     // null params mean don't do anything
     if ((Date.now() <= expiresAt && !forceFetch) || !key) return;
 
-    return controller.fetch(endpoint, ...(args as any)).catch(() => {});
+    return controller
+      .fetch(endpoint, ...(args as Parameters<E>))
+      .catch(() => {});
     // we need to check against serialized params, since params can change frequently
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [expiresAt, controller, key, forceFetch, state.lastReset]);
@@ -119,7 +128,7 @@ export default function useDLE<
     return () => task.cancel();
   }, []);
 
-  data = useMemo(() => {
+  const data = useMemo(() => {
     // if useSuspense() would suspend, don't include entities from cache
     if (loading) {
       if (!endpoint.schema) return undefined;
@@ -127,13 +136,13 @@ export default function useDLE<
       return controller.getResponseMeta(endpoint, ...args, {
         ...state,
         entities: {},
-      }).data as any;
+      }).data;
     }
-    return data;
+    return cachedData;
     // key substitutes args + endpoint
     // we only need cacheResults, as entities are not used in this case
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, data, loading, cacheResults]);
+  }, [key, cachedData, loading, cacheResults]);
 
   const error = controller.getError(endpoint, ...args, state);
 

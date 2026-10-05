@@ -1,6 +1,7 @@
 import type * as Preset from '@docusaurus/preset-classic';
 import type * as PresetMermaid from '@docusaurus/theme-mermaid';
 import type { Config } from '@docusaurus/types';
+import { GlobExcludeDefault } from '@docusaurus/utils';
 import { createRequire } from 'module';
 import path from 'path';
 import { themes } from 'prism-react-renderer';
@@ -203,7 +204,12 @@ const config: Config = {
         docs: {
           //id: 'core',
           path: '../docs/core',
-          exclude: ['getting-started/README.md', '**/*.vue.{md,mdx}'],
+          // `exclude` replaces Docusaurus' defaults; keep them so `_` partials aren't published
+          exclude: [
+            ...GlobExcludeDefault,
+            'getting-started/README.md',
+            '**/*.vue.{md,mdx}',
+          ],
           //routeBasePath: 'core',
           sidebarPath: require.resolve('./framework-docs/sidebars-react.js'),
           beforeDefaultRemarkPlugins: [
@@ -258,7 +264,7 @@ const config: Config = {
       {
         id: 'vue',
         path: vueDocs.outDir,
-        exclude: ['getting-started/README.md'],
+        exclude: [...GlobExcludeDefault, 'getting-started/README.md'],
         routeBasePath: 'vue',
         sidebarPath: require.resolve('./framework-docs/sidebars-vue.js'),
         beforeDefaultRemarkPlugins: [

@@ -27,6 +27,19 @@ function walk(dir, base = dir) {
 
 const readSrc = file => fs.readFileSync(path.join(SRC, file), 'utf8');
 const frontMatter = content => content.match(FM)?.[1] ?? '';
+/** One front matter value, unquoted */
+const frontMatterValue = (content, key) =>
+  frontMatter(content)
+    .match(new RegExp(`^${key}:\\s*(.*?)\\s*$`, 'm'))?.[1]
+    .replace(/^(['"])(.*)\1$/, '$2');
+
+/** Doc id (as used in sidebars) of a page at `file`, relative to its docs folder */
+const docIdOf = (file, content) =>
+  path.posix.join(
+    path.posix.dirname(file),
+    frontMatterValue(content, 'id') ??
+      path.posix.basename(file).replace(MD, ''),
+  );
 
 /** Which frameworks a source page renders for (`frameworks: [react]`) */
 function pageFrameworks(content) {
@@ -75,9 +88,7 @@ function docIds(framework) {
   const ids = new Set();
   for (const [out, src] of resolveSources(framework)) {
     if (!MD.test(out) || path.basename(out).startsWith('_')) continue;
-    const id = frontMatter(readSrc(src)).match(/^id:\s*(\S+)\s*$/m);
-    const name = id ? id[1] : path.basename(out).replace(MD, '');
-    ids.add(path.posix.join(path.dirname(out), name));
+    ids.add(docIdOf(out, readSrc(src)));
   }
   return ids;
 }
@@ -157,4 +168,14 @@ function sourcePath(framework, docPath) {
   return resolveSources(framework).get(docPath) ?? docPath;
 }
 
-module.exports = { generate, watch, sidebarsFor, sourcePath, docIds };
+module.exports = {
+  generate,
+  watch,
+  sidebarsFor,
+  sourcePath,
+  docIds,
+  docIdOf,
+  pageFrameworks,
+  rewriteFrontMatter,
+  frontMatterValue,
+};
