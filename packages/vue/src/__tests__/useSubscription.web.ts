@@ -58,30 +58,28 @@ describe('vue useSubscription()', () => {
     const responseMock = jest.fn(() => payload);
     const propsRef = reactive({ active: true });
 
-    const { result, waitForNextUpdate, allSettled, cleanup } =
-      await renderDataCompose(
-        ({ active }: { active: boolean }) => {
-          const args = computed(() => (active ? { id: payload.id } : null));
-          useSubscription(PollingArticleResource.get, args);
-          return useSuspense(PollingArticleResource.get, {
-            id: payload.id,
-          });
-        },
-        {
-          props: propsRef,
-          resolverFixtures: [
-            {
-              endpoint: PollingArticleResource.get,
-              response: responseMock,
-            },
-          ],
-        },
-      );
+    const { result, allSettled, cleanup } = await renderDataCompose(
+      ({ active }: { active: boolean }) => {
+        const args = computed(() => (active ? { id: payload.id } : null));
+        useSubscription(PollingArticleResource.get, args);
+        return useSuspense(PollingArticleResource.get, {
+          id: payload.id,
+        });
+      },
+      {
+        props: propsRef,
+        resolverFixtures: [
+          {
+            endpoint: PollingArticleResource.get,
+            response: responseMock,
+          },
+        ],
+      },
+    );
 
     // Wait for initial render
     jest.advanceTimersByTime(frequency);
     await allSettled();
-    await waitForNextUpdate();
 
     // Verify initial values
     const initialArticleRef = await result;
@@ -119,32 +117,28 @@ describe('vue useSubscription()', () => {
       const responseMock = jest.fn(() => payload);
       const propsRef = reactive({ active: true });
 
-      const { result, waitForNextUpdate, allSettled, cleanup } =
-        await renderDataCompose(
-          (props: { active: boolean }) => {
-            const args = toArg(() =>
-              props.active ? { id: payload.id } : null,
-            );
-            useSubscription(PollingArticleResource.get, args);
-            return useSuspense(PollingArticleResource.get, {
-              id: payload.id,
-            });
-          },
-          {
-            props: propsRef,
-            resolverFixtures: [
-              {
-                endpoint: PollingArticleResource.get,
-                response: responseMock,
-              },
-            ],
-          },
-        );
+      const { result, allSettled, cleanup } = await renderDataCompose(
+        (props: { active: boolean }) => {
+          const args = toArg(() => (props.active ? { id: payload.id } : null));
+          useSubscription(PollingArticleResource.get, args);
+          return useSuspense(PollingArticleResource.get, {
+            id: payload.id,
+          });
+        },
+        {
+          props: propsRef,
+          resolverFixtures: [
+            {
+              endpoint: PollingArticleResource.get,
+              response: responseMock,
+            },
+          ],
+        },
+      );
 
       // Wait for initial render
       jest.advanceTimersByTime(frequency);
       await allSettled();
-      await waitForNextUpdate();
 
       // Verify initial values
       const initialArticleRef = await result;

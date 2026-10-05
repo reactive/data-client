@@ -41,7 +41,7 @@ it('useQuery() should return cached data', async () => {
 - `wrapper` - Vue Test Utils wrapper
 - `cleanup()` - Cleanup function (always call in afterEach/after test)
 - `allSettled()` - Wait for all pending promises
-- `waitForNextUpdate()` - Wait for a pending Promise `result` (1 second cap); prefer `await result`
+- `waitForNextUpdate()` - Deprecated: it gives up silently after 1 second, so a test can pass while still suspended, and can hang under fake timers. Use `await result` for a Promise result, then after changing props or calling the controller `await nextTick()`, `await allSettled()` and `await nextTick()` again (the first tick lets watchers start the new fetch)
 
 ## Component Testing with mountDataClient()
 
@@ -251,14 +251,13 @@ Quick example:
 jest.useFakeTimers();
 const responseMock = jest.fn(() => payload);
 
-const { result, allSettled, waitForNextUpdate, cleanup } = await renderDataCompose(
+const { result, allSettled, cleanup } = await renderDataCompose(
   () => useSuspense(PollingArticleResource.get, { id: payload.id }),
   { resolverFixtures: [{ endpoint: PollingArticleResource.get, response: responseMock }] },
 );
 
 jest.advanceTimersByTime(frequency);
 await allSettled();
-await waitForNextUpdate();
 const articleRef = await result;
 
 responseMock.mockReturnValue({ ...payload, title: 'updated' });

@@ -23,6 +23,12 @@ export async function renderDataCompose<P = any, R = any>(
   controller: Controller;
   cleanup: () => void;
   allSettled: () => Promise<PromiseSettledResult<unknown>[]>;
+  /**
+   * @deprecated Gives up silently after 1 second, so a test can pass while the composable is
+   * still suspended. Use `await result` for a Promise result. After changing props or calling the
+   * controller, `await nextTick()`, then `await allSettled()` and `await nextTick()` again.
+   * @see https://dataclient.io/vue/guides/unit-testing-composables#renderdatacompose-api
+   */
   waitForNextUpdate: () => Promise<void>;
 }> {
   // Extract props from options, or create empty ref if not provided

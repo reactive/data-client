@@ -182,7 +182,7 @@ it('push() adds to the list', async () => {
 Resolves, once the composable has run, to the same `controller`, `wrapper`, `cleanup()` and
 `allSettled()` as [mountDataClient()](./unit-testing-components.md#mountdataclient-api), plus:
 
-| Member                | Description                                                                                            |
-| --------------------- | ------------------------------------------------------------------------------------------------------ |
-| `result`              | What the composable returned                                                                           |
-| `waitForNextUpdate()` | Prefer `await result` or `allSettled()`; this waits for a pending Promise `result` with a 1 second cap |
+| Member                | Description                                                                                                                                                                                                                      |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `result`              | What the composable returned                                                                                                                                                                                                     |
+| `waitForNextUpdate()` | **Deprecated.** Gives up silently after 1 second, so a test can pass while still suspended. Use `await result` for a Promise `result`, then after a change `await nextTick()`, `await allSettled()` and `await nextTick()` again |
