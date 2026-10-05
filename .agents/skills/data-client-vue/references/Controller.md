@@ -212,8 +212,8 @@ when there are many parameterizations in cache.
 ### invalidate(endpoint, ...args) {#invalidate}
 
 Forces refetching on [useSuspense](./useSuspense.md) with the same Endpoint
-and parameters. Vue can't suspend a component again after setup, so `useSuspense()` keeps returning the
-current data until the refetch resolves.
+and parameters. Mounted components [keep showing their current data](https://dataclient.io/vue/concepts/expiry-policy#invalidate)
+until the refetch resolves.
 
 ```html title="ArticleName.vue"
 <script setup lang="ts">
@@ -635,17 +635,16 @@ Gets the internal state of Reactive Data Client that has _already been [committe
 ```ts
 const controller = useController();
 
-const handleRefresh = () => {
-  const { expiryStatus } = controller.getResponse(
-    MyResource.get,
+const handleShare = () => {
+  // reads the latest store without making this handler reactive
+  const { data: article } = controller.getResponse(
+    ArticleResource.get,
     { id: props.id },
     controller.getState(),
   );
-  // only refetch if the data is no longer fresh
-  if (expiryStatus !== ExpiryStatus.Valid)
-    controller.fetch(MyResource.get, { id: props.id });
+  if (article) navigator.share({ title: article.title, url: article.url });
 };
 ```
 
-Mutations (`sideEffect: true`) resolve _before_ the store is updated, so read their result from the
-value `fetch()` resolves with rather than `getState()`.
+[Mutations](#endpointsideeffect) resolve _before_ the store is updated, so read their result from
+the value `fetch()` resolves with rather than `getState()`.

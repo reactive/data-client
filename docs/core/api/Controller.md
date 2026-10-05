@@ -359,8 +359,8 @@ better to [include mutation sideeffects in the mutation response](/rest/guides/s
 ### invalidate(endpoint, ...args) {#invalidate}
 
 Forces refetching :react[and suspense ]on [useSuspense](./useSuspense.md) with the same Endpoint
-and parameters.:vue[ Vue can't suspend a component again after setup, so `useSuspense()` keeps returning the
-current data until the refetch resolves.]
+and parameters.:vue[ Mounted components [keep showing their current data](../concepts/expiry-policy.md#invalidate)
+until the refetch resolves.]
 
 :::react
 
@@ -1069,19 +1069,18 @@ const updateHandler = useCallback(
 ```ts
 const controller = useController();
 
-const handleRefresh = () => {
-  const { expiryStatus } = controller.getResponse(
-    MyResource.get,
+const handleShare = () => {
+  // reads the latest store without making this handler reactive
+  const { data: article } = controller.getResponse(
+    ArticleResource.get,
     { id: props.id },
     controller.getState(),
   );
-  // only refetch if the data is no longer fresh
-  if (expiryStatus !== ExpiryStatus.Valid)
-    controller.fetch(MyResource.get, { id: props.id });
+  if (article) navigator.share({ title: article.title, url: article.url });
 };
 ```
 
-Mutations (`sideEffect: true`) resolve _before_ the store is updated, so read their result from the
-value `fetch()` resolves with rather than `getState()`.
+[Mutations](#endpointsideeffect) resolve _before_ the store is updated, so read their result from
+the value `fetch()` resolves with rather than `getState()`.
 
 :::

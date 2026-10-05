@@ -26,15 +26,10 @@ This can be used as the `initialState` option for [DataClientPlugin](https://dat
 
 ## Example
 
-```ts
-import { createApp } from 'vue';
-import { DataClientPlugin } from '@data-client/vue';
-import { mockInitialState } from '@data-client/vue/test';
-
+```ts title="fixtures.ts"
 import ArticleResource from 'resources/ArticleResource';
-import MyComponentToTest from 'components/MyComponentToTest.vue';
 
-const results = [
+export const results = [
   {
     endpoint: ArticleResource.getList,
     args: [{ maxResults: 10 }],
@@ -54,6 +49,15 @@ const results = [
     ],
   },
 ];
+```
+
+```ts
+import { createApp } from 'vue';
+import { DataClientPlugin } from '@data-client/vue';
+import { mockInitialState } from '@data-client/vue/test';
+
+import MyComponentToTest from 'components/MyComponentToTest.vue';
+import { results } from './fixtures';
 
 const app = createApp(MyComponentToTest);
 app.use(DataClientPlugin, { initialState: mockInitialState(results) });
