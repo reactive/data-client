@@ -357,9 +357,7 @@ function render(file, framework, props = {}) {
     const flow = node.type === 'mdxJsxFlowElement';
     const attrs = attributesOf(node, props, source);
     if (partials[name]) {
-      // a partial's children are its page's code, e.g. ProviderManagers' managers
-      const code = node.children.find(child => child.type === 'code');
-      if (code) attrs.children = code.value;
+      attrs.children = node.children;
       return render(partials[name], framework, attrs)?.children ?? [];
     }
     switch (name) {
@@ -372,11 +370,8 @@ function render(file, framework, props = {}) {
           }),
         ];
       case 'ProviderSetupCode': {
-        const { language, code, title } = providerSetup({
-          platform: attrs.platform,
-          imports: attrs.imports,
-          managers: attrs.children,
-        });
+        const managers = attrs.children?.find(c => c.type === 'code')?.value;
+        const { language, code, title } = providerSetup({ ...attrs, managers });
         return [codeBlock({ lang: language, value: code, title })];
       }
       case 'PkgTabs':
