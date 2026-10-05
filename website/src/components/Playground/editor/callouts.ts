@@ -14,7 +14,7 @@ export interface CalloutDocument {
   callouts: Callout[];
 }
 
-export type DiffSide = CalloutDocument & { language: string };
+export type DiffSide = CalloutDocument & { language: string; title?: string };
 
 const CALLOUT_COMMENT = /^\s*\/\/ callout: (.+)$/;
 const HIGHLIGHT_COMMENT = /^\s*\/\/ highlight-(next-line|start|end)\s*$/;
@@ -26,8 +26,9 @@ export function calloutMarker(index: number) {
 
 /**
  * Pulls `// callout: text` comments out of a fence; each annotates the next
- * code line, and consecutive ones join into a single callout. Markers continue numbering from `startIndex` so callouts across
- * both sides of a diff share one legend.
+ * code line, and consecutive ones join into a single callout. Markers
+ * continue numbering from `startIndex` so callouts across both sides of a
+ * diff share one legend.
  */
 export function parseCallouts(code: string, startIndex = 0): CalloutDocument {
   const editorLines: string[] = [];

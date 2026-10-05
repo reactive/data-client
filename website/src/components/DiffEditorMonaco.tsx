@@ -5,6 +5,7 @@ import {
 } from '@monaco-editor/react';
 import clsx from 'clsx';
 import { type editor } from 'monaco-editor';
+import { useCallback, useState } from 'react';
 
 import type { DiffSide } from './Playground/editor/callouts';
 import { extensionToMonacoLanguage } from './Playground/monaco/language';
@@ -25,16 +26,38 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
       options.lineHeight,
   });
 
-  // Mark each callout's line with the marker its legend entry uses. Monaco
-  // doesn't render injected `after` text here, so DiffEditor.module.css draws
-  // the marker as ::after content.
-  const handleDiffMount = (diffEditor: MonacoDiffEditor) => {
-    handleMount(diffEditor);
-    [diffEditor.getOriginalEditor(), diffEditor.getModifiedEditor()].forEach(
-      (editor, i) => {
-        const model = editor.getModel();
+  // Left edge of each pane's code, so labels line up with the first column
+  const [labelOffsets, setLabelOffsets] = useState<number[]>();
+  const handleDiffMount = useCallback(
+    (editor: MonacoDiffEditor) => {
+      handleMount(editor);
+      const panes = [editor.getOriginalEditor(), editor.getModifiedEditor()];
+      // Side-by-side forces a glyph margin on the original pane; nothing
+      // renders there in this read-only diff, so it only indents the code
+      panes[0].updateOptions({ glyphMargin: false });
+      const updateOffsets = () => {
+        const left = editor.getContainerDomNode().getBoundingClientRect().left;
+        const next = panes.map(
+          pane =>
+            (pane.getDomNode()?.getBoundingClientRect().left ?? left) -
+            left +
+            pane.getLayoutInfo().contentLeft,
+        );
+        setLabelOffsets(prev =>
+          prev?.every((offset, i) => offset === next[i]) ? prev : next,
+        );
+      };
+      updateOffsets();
+      // Both panes lay out together; disposed along with the pane
+      panes[1].onDidLayoutChange(updateOffsets);
+
+      // Mark each callout's line with the marker its legend entry uses. Monaco
+      // doesn't render injected `after` text here, so DiffEditor.module.css
+      // draws the marker as ::after content.
+      panes.forEach((pane, i) => {
+        const model = pane.getModel();
         if (!model) return;
-        editor.createDecorationsCollection(
+        pane.createDecorationsCollection(
           sides[i].callouts.map(({ line, index }) => {
             const column = model.getLineMaxColumn(line);
             return {
@@ -48,9 +71,10 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
             };
           }),
         );
-      },
-    );
-  };
+      });
+    },
+    [handleMount, sides],
+  );
 
   return (
     <BrowserOnly fallback={fallback}>
@@ -68,6 +92,18 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
               )}
             >
               <div className={styles.playgroundTextEdit}>
+                <div className={styles.diffLabels} aria-hidden>
+                  {sides.map(({ title }, i) => (
+                    <span
+                      key={i}
+                      style={{
+                        left: labelOffsets?.[i] ?? (i ? '50%' : undefined),
+                      }}
+                    >
+                      {title || (i ? 'After' : 'Before')}
+                    </span>
+                  ))}
+                </div>
                 <div className={styles.playgroundEditor}>
                   <BaseDiffEditor
                     language={extensionToMonacoLanguage(sides[0].language)}

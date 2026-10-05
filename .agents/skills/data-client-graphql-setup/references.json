@@ -1,0 +1,9 @@
+{
+  "frameworks": [
+    "react",
+    "vue"
+  ],
+  "docs": {
+    "auth.md": "docs/graphql/auth.md"
+  }
+}

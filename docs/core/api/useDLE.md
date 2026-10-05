@@ -13,6 +13,7 @@ import GenericsTabs from '@site/src/components/GenericsTabs';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import StackBlitz from '@site/src/components/StackBlitz';
+import VueArgs from '../shared/\_vueArgs.mdx';
 
 # useDLE() - [D]ata [L]oading [E]rror
 
@@ -126,16 +127,16 @@ below describes their `.value`.
 
 :::
 
-:::react
+::::react
 
-::::info[React Native]
+:::info[React Native]
 
 When using React Navigation, useDLE() will trigger fetches on focus if the data is considered
 stale.
 
-::::
-
 :::
+
+::::
 
 <ConditionalDependencies hook="useDLE" />
 
@@ -191,8 +192,9 @@ function useDLE(
 };
 ```
 
-Arguments can be plain values, [refs](https://vuejs.org/api/reactivity-core.html#ref) (including [computed](https://vuejs.org/api/reactivity-core.html#computed)), or getter
-functions like `() => ({ id: props.id })`; the results update when they change.
+<VueArgs />
+
+The results update when the arguments change.
 
 :::
 
@@ -363,7 +365,7 @@ export default function PostWithAuthor({ id }: { id: string }) {
     data: post,
     loading: postLoading,
     error: postError,
-  } = useDLE(PostResource.get, { id: props.id });
+  } = useDLE(PostResource.get, () => ({ id: props.id }));
   const {
     data: author,
     loading: authorLoading,
@@ -450,7 +452,7 @@ export default function ArticleList({ page }: { page: string }) {
   import { getPosts } from './api/Post';
 
   const props = defineProps<{ page: string }>();
-  const { data, loading, error } = useDLE(getPosts, { page: props.page });
+  const { data, loading, error } = useDLE(getPosts, () => ({ page: props.page }));
 </script>
 
 <template>

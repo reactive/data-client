@@ -1,6 +1,7 @@
 import type * as Preset from '@docusaurus/preset-classic';
 import type * as PresetMermaid from '@docusaurus/theme-mermaid';
 import type { Config } from '@docusaurus/types';
+import { GlobExcludeDefault } from '@docusaurus/utils';
 import { createRequire } from 'module';
 import path from 'path';
 import { themes } from 'prism-react-renderer';
@@ -35,6 +36,15 @@ const config: Config = {
     hooks: {
       onBrokenMarkdownLinks: 'log',
     },
+    // Vercel preview deploys publish `draft: true` pages so PRs can review them;
+    // production (VERCEL_ENV=production) and local builds still drop them.
+    ...(process.env.VERCEL_ENV === 'preview' && {
+      parseFrontMatter: async params => {
+        const result = await params.defaultParseFrontMatter(params);
+        if (result.frontMatter.draft) result.frontMatter.draft = false;
+        return result;
+      },
+    }),
   },
   headTags: [
     {
@@ -203,7 +213,12 @@ const config: Config = {
         docs: {
           //id: 'core',
           path: '../docs/core',
-          exclude: ['getting-started/README.md', '**/*.vue.{md,mdx}'],
+          // `exclude` replaces Docusaurus' defaults; keep them so `_` partials aren't published
+          exclude: [
+            ...GlobExcludeDefault,
+            'getting-started/README.md',
+            '**/*.vue.{md,mdx}',
+          ],
           //routeBasePath: 'core',
           sidebarPath: require.resolve('./framework-docs/sidebars-react.js'),
           beforeDefaultRemarkPlugins: [
@@ -258,7 +273,7 @@ const config: Config = {
       {
         id: 'vue',
         path: vueDocs.outDir,
-        exclude: ['getting-started/README.md'],
+        exclude: [...GlobExcludeDefault, 'getting-started/README.md'],
         routeBasePath: 'vue',
         sidebarPath: require.resolve('./framework-docs/sidebars-vue.js'),
         beforeDefaultRemarkPlugins: [
@@ -407,6 +422,16 @@ const config: Config = {
     path.resolve(__dirname, './node-plugin'),
     path.resolve(__dirname, './profiling-plugin'),
     path.resolve(__dirname, './raw-plugin'),
+    [
+      path.resolve(__dirname, './llms-plugin'),
+      {
+        frameworks: {
+          react: { id: 'default', path: '/', name: 'React' },
+          vue: { id: 'vue', path: '/vue/', name: 'Vue' },
+        },
+        shared: { rest: 'REST', graphql: 'GraphQL' },
+      },
+    ],
   ],
   themeConfig: {
     mermaid: {

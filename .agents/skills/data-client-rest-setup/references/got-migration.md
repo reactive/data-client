@@ -145,5 +145,5 @@ const UserResource = resource({
 ## Reference
 
 - [RestEndpoint API](https://dataclient.io/rest/api/RestEndpoint) — lifecycle methods reference
-- [NetworkError](https://dataclient.io/rest/api/NetworkError) — error class
+- [NetworkError](https://dataclient.io/rest/api/RestEndpoint#fetchResponse) — error class
 - [Pagination guide](https://dataclient.io/rest/guides/pagination) — cursor/offset pagination patterns

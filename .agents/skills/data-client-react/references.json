@@ -1,0 +1,28 @@
+{
+  "frameworks": [
+    "react"
+  ],
+  "docs": {
+    "Actions.md": "docs/core/api/Actions.md",
+    "AsyncBoundary.md": "docs/core/api/AsyncBoundary.md",
+    "Controller.md": "docs/core/api/Controller.md",
+    "DataProvider.md": "docs/core/api/DataProvider.md",
+    "_AsyncBoundary.md": "docs/core/shared/_AsyncBoundary.mdx",
+    "_VoteDemo.md": "docs/core/shared/_VoteDemo.mdx",
+    "_pagination.md": "docs/core/shared/_pagination.mdx",
+    "_useLive.md": "docs/core/shared/_useLive.mdx",
+    "_useLoading.md": "docs/core/shared/_useLoading.mdx",
+    "data-dependency.md": "docs/core/getting-started/data-dependency.md",
+    "mutations.md": "docs/core/getting-started/mutations.md",
+    "useCache.md": "docs/core/api/useCache.md",
+    "useController.md": "docs/core/api/useController.md",
+    "useDLE.md": "docs/core/api/useDLE.md",
+    "useDebounce.md": "docs/core/api/useDebounce.md",
+    "useFetch.md": "docs/core/api/useFetch.md",
+    "useLive.md": "docs/core/api/useLive.md",
+    "useLoading.md": "docs/core/api/useLoading.md",
+    "useQuery.md": "docs/core/api/useQuery.md",
+    "useSubscription.md": "docs/core/api/useSubscription.md",
+    "useSuspense.md": "docs/core/api/useSuspense.md"
+  }
+}

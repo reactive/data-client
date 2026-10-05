@@ -134,20 +134,20 @@ export default function Home() {
       <main>
         <Demo />
         <HomepageFeatures />
-        <div className="container">
-          <div className="row">
-            <div className="col">
-              <StackBlitz
-                app="github-app"
-                width="100%"
-                height="750"
-                style={{ maxHeight: 'calc(100vh - 64px)', height: '800px' }}
-                file="src/resources/Issue.tsx,src/pages/IssueList.tsx"
-                view="both"
-              />
-            </div>
-          </div>
-        </div>
+        <section className="container">
+          <h2 className={styles.sectionHeading}>A complete app</h2>
+          <p className={styles.sectionLede}>
+            A GitHub issues and pull request browser on the live GitHub API,
+            built with REST resources and Suspense.
+          </p>
+          <StackBlitz
+            app="github-app"
+            width="100%"
+            height="800"
+            file="src/resources/Issue.tsx,src/pages/IssueList.tsx"
+            view="both"
+          />
+        </section>
         <HomepageEnder />
       </main>
     </Layout>

@@ -14,8 +14,8 @@ export default function DiffEditor({ children, caption }: Props) {
     const original = parseCallouts(before.value);
     const modified = parseCallouts(after.value, original.callouts.length);
     return [
-      { ...original, language: before.language },
-      { ...modified, language: after.language },
+      { ...original, language: before.language, title: before.title },
+      { ...modified, language: after.language, title: after.title },
     ] as const;
   }, [children]);
   const callouts = sides.flatMap(side => side.callouts);
