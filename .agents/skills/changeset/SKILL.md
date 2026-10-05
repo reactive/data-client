@@ -2,6 +2,8 @@
 name: changeset
 description: Create user-focused changesets (changelog entries) for semver bumps, release notes, breaking changes, and docs; prefer impact and code examples over implementation detail
 disable-model-invocation: true
+metadata:
+  internal: true
 ---
 
 # Create Changesets
