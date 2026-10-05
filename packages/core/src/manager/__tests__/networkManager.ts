@@ -4,6 +4,7 @@ import { Article, ArticleResource } from '__tests__/new';
 import { SET_RESPONSE } from '../../actionTypes';
 import { createFetch, createReset } from '../../controller/actions';
 import Controller from '../../controller/Controller';
+import initManager from '../../manager/initManager';
 import NetworkManager from '../../manager/NetworkManager';
 import { initialState } from '../../state/reducer/createReducer';
 import { Middleware, SetResponseAction } from '../../types';
@@ -399,12 +400,12 @@ describe('NetworkManager', () => {
 });
 
 describe('NetworkManager while the controller awaits init()', () => {
-  function bind(dispatch: jest.Mock, awaitingInit = true): Controller {
+  function bind(dispatch: jest.Mock): Controller {
     const controller = new Controller({
       dispatch,
       getState: () => initialState,
     });
-    if (awaitingInit) controller.awaitingInit = true;
+    controller.awaitingInit = true;
     return controller;
   }
 
@@ -417,12 +418,12 @@ describe('NetworkManager while the controller awaits init()', () => {
       },
       { name: 'counted', sideEffect },
     );
-    return { endpoint, calls: () => calls };
+    return { endpoint, getCalls: () => calls };
   }
 
   async function start(
     nm: NetworkManager,
-    { endpoint }: ReturnType<typeof counted>,
+    endpoint: ReturnType<typeof counted>['endpoint'],
     controller: Controller,
   ) {
     const action = createFetch(endpoint, { args: [] });
@@ -434,25 +435,28 @@ describe('NetworkManager while the controller awaits init()', () => {
   }
 
   function commit(nm: NetworkManager, controller: Controller) {
-    delete controller.awaitingInit;
-    nm.init();
+    initManager([nm], controller, initialState)();
   }
 
   it('resolves immediately when nothing awaits init()', async () => {
-    const fetcher = counted(() => Promise.resolve(5));
+    const { endpoint } = counted(() => Promise.resolve(5));
     const dispatch = jest.fn(() => Promise.resolve());
     const nm = new NetworkManager();
-    await start(nm, fetcher, bind(dispatch, false));
+    await start(
+      nm,
+      endpoint,
+      new Controller({ dispatch, getState: () => initialState }),
+    );
     expect(dispatch).toHaveBeenCalledTimes(1);
     nm.cleanup();
   });
 
   it('parks a response until init(), then publishes it from a microtask', async () => {
-    const fetcher = counted(() => Promise.resolve(5));
+    const { endpoint, getCalls } = counted(() => Promise.resolve(5));
     const dispatch = jest.fn((_action: any) => Promise.resolve());
     const controller = bind(dispatch);
     const nm = new NetworkManager();
-    await start(nm, fetcher, controller);
+    await start(nm, endpoint, controller);
     expect(dispatch).not.toHaveBeenCalled();
     commit(nm, controller);
     expect(dispatch).not.toHaveBeenCalled();
@@ -466,17 +470,17 @@ describe('NetworkManager while the controller awaits init()', () => {
     nm.init();
     await Promise.resolve();
     expect(dispatch).toHaveBeenCalledTimes(1);
-    expect(fetcher.calls()).toBe(1);
+    expect(getCalls()).toBe(1);
     nm.cleanup();
   });
 
   it('publishes into the controller bound when init() runs', async () => {
     const failure = new Error('nope');
-    const fetcher = counted(() => Promise.reject(failure));
+    const { endpoint, getCalls } = counted(() => Promise.reject(failure));
     const discarded = jest.fn((_action: any) => Promise.resolve());
     const committed = jest.fn((_action: any) => Promise.resolve());
     const nm = new NetworkManager();
-    await start(nm, fetcher, bind(discarded));
+    await start(nm, endpoint, bind(discarded));
     const controller = bind(committed);
     nm.middleware(controller);
     commit(nm, controller);
@@ -488,25 +492,25 @@ describe('NetworkManager while the controller awaits init()', () => {
       response: failure,
       error: true,
     });
-    expect(fetcher.calls()).toBe(1);
+    expect(getCalls()).toBe(1);
     nm.cleanup();
   });
 
   it('does not park mutations', async () => {
-    const fetcher = counted(() => Promise.resolve(5), true);
+    const { endpoint } = counted(() => Promise.resolve(5), true);
     const dispatch = jest.fn(() => Promise.resolve());
     const nm = new NetworkManager();
-    await start(nm, fetcher, bind(dispatch));
+    await start(nm, endpoint, bind(dispatch));
     expect(dispatch).toHaveBeenCalledTimes(1);
     nm.cleanup();
   });
 
   it('drops a parked result on RESET', async () => {
-    const fetcher = counted(() => Promise.resolve(5));
+    const { endpoint } = counted(() => Promise.resolve(5));
     const dispatch = jest.fn(() => Promise.resolve());
     const controller = bind(dispatch);
     const nm = new NetworkManager();
-    await start(nm, fetcher, controller);
+    await start(nm, endpoint, controller);
     await nm.middleware(controller)(() => Promise.resolve())(createReset());
     commit(nm, controller);
     await Promise.resolve();
