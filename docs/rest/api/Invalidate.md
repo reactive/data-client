@@ -3,7 +3,7 @@ title: Invalidate Schema - Invalidating Entities
 sidebar_label: Invalidate
 ---
 
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import { RestEndpoint } from '@data-client/rest';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 
@@ -31,7 +31,7 @@ new Invalidate(entityMap, schemaAttribute)
 
 ## Usage
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],
@@ -69,6 +69,8 @@ export const deleteUser = new RestEndpoint({
 });
 ```
 
+:::react
+
 ```tsx title="UserPage"
 import { useSuspense, useController } from '@data-client/react';
 import { getUsers, deleteUser } from './api/User';
@@ -95,7 +97,37 @@ function UsersPage() {
 render(<UsersPage />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="UsersPage.vue"
+<script setup lang="ts">
+  import { useSuspense, useController } from '@data-client/vue';
+  import { getUsers, deleteUser } from './api/User';
+
+  const users = await useSuspense(getUsers);
+  const ctrl = useController();
+</script>
+
+<template>
+  <div>
+    <div v-for="user in users" :key="user.pk()">
+      {{ user.name }}
+      <span
+        style="cursor: pointer"
+        @click="ctrl.fetch(deleteUser, { id: user.id })"
+      >
+        ❌
+      </span>
+    </div>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ### Batch Invalidation
 
@@ -276,7 +308,7 @@ const deleteMember = new RestEndpoint({
 
 ### Impact on useSuspense()
 
-When entities are invalidated in a result currently being presented in React, useSuspense()
+When entities are invalidated in a result currently being presented in :react[React]:vue[Vue], useSuspense()
 will consider them invalid
 
 - For optional Entities, they are simply removed

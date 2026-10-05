@@ -256,7 +256,7 @@ import { MyResource } from './MyResource';
 MyResource.get({ id: 1 });
 ```
 
-## Auth Headers from React Context
+## Auth Headers from React Context {#auth-headers-from-react-context}
 
 > **Warning**
 >

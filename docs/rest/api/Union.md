@@ -1,10 +1,11 @@
 ---
 title: Union Schema - Declarative polymorphic data for React
+vue_title: Union Schema - Declarative polymorphic data for Vue
 sidebar_label: Union
 ---
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import { RestEndpoint } from '@data-client/rest';
 import StackBlitz from '@site/src/components/StackBlitz';
 
@@ -37,7 +38,7 @@ If your data returns an object that you did not provide a mapping for, the origi
 
 :::
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/feed'}),
 args: [],
@@ -80,6 +81,8 @@ export const feed = new RestEndpoint({
 });
 ```
 
+:::react
+
 ```tsx title="FeedList" collapsed
 import { useSuspense } from '@data-client/react';
 import { feed, Link, Post } from './api/Feed';
@@ -107,13 +110,63 @@ function PostItem({ post }: { post: Post }) {
 render(<FeedList />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="LinkItem.vue" collapsed
+<script setup lang="ts">
+  import { type Link } from './api/Feed';
+
+  defineProps<{ link: Link }>();
+</script>
+
+<template>
+  <a :href="link.url">{{ link.title }}</a>
+</template>
+```
+
+```html title="PostItem.vue" collapsed
+<script setup lang="ts">
+  import { type Post } from './api/Feed';
+
+  defineProps<{ post: Post }>();
+</script>
+
+<template>
+  <div>{{ post.content }}</div>
+</template>
+```
+
+```html title="FeedList.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { feed } from './api/Feed';
+  import LinkItem from './LinkItem.vue';
+  import PostItem from './PostItem.vue';
+
+  const feedItems = await useSuspense(feed);
+</script>
+
+<template>
+  <div>
+    <template v-for="item in feedItems" :key="item.pk()">
+      <LinkItem v-if="item.type === 'link'" :link="item" />
+      <PostItem v-else :post="item" />
+    </template>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ### Function schemaAttribute
 
 When the discriminator value doesn't directly match schema keys, use a function to compute which schema to use.
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/feed'}),
 args: [],
@@ -156,6 +209,8 @@ export const feed = new RestEndpoint({
 });
 ```
 
+:::react
+
 ```tsx title="FeedList" collapsed
 import { useSuspense } from '@data-client/react';
 import { feed, LinkItem, PostItem } from './api/Feed';
@@ -183,7 +238,59 @@ function PostComponent({ post }: { post: PostItem }) {
 render(<FeedList />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="LinkComponent.vue" collapsed
+<script setup lang="ts">
+  import { type LinkItem } from './api/Feed';
+
+  defineProps<{ link: LinkItem }>();
+</script>
+
+<template>
+  <a :href="link.url">{{ link.title }}</a>
+</template>
+```
+
+```html title="PostComponent.vue" collapsed
+<script setup lang="ts">
+  import { type PostItem } from './api/Feed';
+
+  defineProps<{ post: PostItem }>();
+</script>
+
+<template>
+  <div>{{ post.content }}</div>
+</template>
+```
+
+```html title="FeedList.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { feed } from './api/Feed';
+  import LinkComponent from './LinkComponent.vue';
+  import PostComponent from './PostComponent.vue';
+
+  const feedItems = await useSuspense(feed);
+</script>
+
+<template>
+  <div>
+    <template v-for="item in feedItems" :key="item.pk()">
+      <LinkComponent v-if="item.type === 'link'" :link="item" />
+      <PostComponent v-else :post="item" />
+    </template>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
+
+:::react
 
 ### Github Events
 
@@ -191,3 +298,5 @@ Contribution activity comes from grouping github events by their type. Each type
 own distinct schema, which is why we use `Union`
 
 <StackBlitz app="github-app" file="src/pages/ProfileDetail/UserEvents.tsx,src/resources/Event.tsx" view="preview" initialpath="/users/ntucker" height="700" />
+
+:::

@@ -1353,12 +1353,13 @@ const getTodos = new RestEndpoint({
 });
 
 const todos = useSuspense(getTodos);
+const ctrl = useController();
 return (
   <PaginatedList
     items={todos}
     fetchNextPage={() =>
       // fetches url `/todos?page=${nextPage}`
-      ctrl.fetch(TodoResource.getList.getPage, { page: nextPage })
+      ctrl.fetch(getTodos.getPage, { page: nextPage })
     }
   />
 );
