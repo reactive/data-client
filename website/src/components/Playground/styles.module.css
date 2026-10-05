@@ -54,8 +54,8 @@
   padding: 0.75rem;
   text-transform: uppercase;
   font-weight: bold;
-  background: var(--ifm-color-emphasis-200);
-  color: var(--ifm-color-content);
+  background: var(--pg-bar);
+  color: var(--pg-tab);
   font-size: var(--ifm-code-font-size);
 }
 .playgroundHeader.small {
@@ -85,8 +85,9 @@
   padding: 0.75rem var(--ifm-pre-padding);
 }
 
-/* Editor tab bar. Light mode shares the Live Preview header grey so the top
-   row reads as one band; dark mode sits one step lighter than the code. */
+/* Playground chrome. Every header (editor tabs, Live Preview, Store) shares
+   one bar color so the top row reads as one band. Dark mode bars sit one step
+   lighter than the code, and the preview body takes the same slate tint. */
 :root {
   --pg-bar: var(--ifm-color-emphasis-200);
   --pg-bar-edge: transparent;
@@ -100,10 +101,15 @@
 /* EndpointPlayground's right column is code, so it always uses the dark bar */
 .endpointPlayground {
   --pg-bar: #343a52;
-  --pg-bar-edge: #23273a;
   --pg-tab: rgba(191, 199, 213, 0.7);
   --pg-tab-hover-bg: #3b415b;
   --pg-tab-hover: #e3e8f2;
+}
+:root[data-theme='dark'] {
+  --pg-preview-bg: hsl(229, 16%, 19%);
+}
+.endpointPlayground {
+  --pg-bar-edge: #23273a;
 }
 
 .playgroundHeader.tabControls,
@@ -176,7 +182,7 @@ div.playgroundTextEdit > .playgroundHeader,
 
 :global(.col) .playgroundPreview {
   padding: 1rem;
-  background-color: var(--ifm-pre-background);
+  background-color: var(--pg-preview-bg, var(--ifm-pre-background));
   flex: 1 4 30%;
   overflow: auto;
 }
@@ -204,8 +210,8 @@ div.playgroundTextEdit > .playgroundHeader,
   line-height: 1.05;
   text-transform: uppercase;
   font-weight: 500;
-  background: var(--ifm-color-emphasis-200);
-  color: var(--ifm-color-content);
+  background: var(--pg-bar);
+  color: var(--pg-tab);
   font-size: var(--ifm-code-font-size);
   padding: 0.7em 0.1em 1em 0.1em;
   cursor: pointer;
@@ -213,7 +219,8 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 
 .debugToggle:hover {
-  background-color: var(--ifm-color-emphasis-300);
+  background-color: var(--pg-tab-hover-bg);
+  color: var(--pg-tab-hover);
 }
 
 .hidden {
