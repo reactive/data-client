@@ -78,7 +78,7 @@ return (
 
 Prefer using [AsyncBoundary](references/AsyncBoundary.md) for error handling and loading states unless the codebase has
 a custom AsyncBoundary that already combines Suspense and ErrorBoundary.
-Its props are `fallback`, `errorComponent`, and `errorClassName` and `listen`. It can be used to wrap any component that fetches data.
+Its props are `fallback`, `errorComponent`, `errorClassName`, and `listen`. It can be used to wrap any component that fetches data.
 
 ```tsx
 <AsyncBoundary listen={history.listen}>
@@ -126,7 +126,7 @@ available in dev mode.
 ## Managers
 
 Custom [Managers](https://dataclient.io/docs/api/Manager) allow for global side effect handling.
-This is useful for webosckets, SSE, logging, etc. Always use the skill "data-client-manager" when writing managers.
+This is useful for websockets, SSE, logging, etc. Always use the skill "data-client-manager" when writing managers.
 
 ## Best Practices & Notes
 
@@ -135,6 +135,7 @@ This is useful for webosckets, SSE, logging, etc. Always use the skill "data-cli
 - Prefer smaller React components that do one thing
 - **Co-locate data bindings**: call useSuspense/useDLE/useCache/useQuery in the component that renders the data — don't prop drill
 - **Don't hide data bindings inside custom hooks**: wrapping them obfuscates a component's data dependencies and couples data logic to view code, causing drift. Put tightly coupled data transformations in a `Query` schema (with the data model, e.g. `src/resources/`) so they stay reusable and evolve independently of views
+- For tests, apply the skill "data-client-react-testing"
 
 # References
 

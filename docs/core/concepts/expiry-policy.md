@@ -50,7 +50,7 @@ data no action will be taken.
 
 ### Endpoint.dataExpiryLength
 
-[Endpoint.dataExpiryLength](/rest/api/Endpoint#dataexpirylength) sets how long (in miliseconds) it takes for data
+[Endpoint.dataExpiryLength](/rest/api/Endpoint#dataexpirylength) sets how long (in milliseconds) it takes for data
 to transition from '[fresh](#fresh)' to '[stale](#stale)' status. Try setting it to a very low number like '50'
 to make it becomes [stale](#stale) almost instantly; or a very large number to stay around for a long time.
 

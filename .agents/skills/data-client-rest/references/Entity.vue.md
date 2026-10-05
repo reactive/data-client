@@ -750,7 +750,7 @@ During normalization a validation failure will result in an error for that fetch
 During denormalization a validation failure will mark that result as 'invalid' and thus
 will block on fetching a result.
 
-By **default** does some basic field existance checks in development mode only. Override to
+By **default** does some basic field existence checks in development mode only. Override to
 disable or customize.
 
 [Using validation for endpoints with incomplete fields](https://dataclient.io/rest/guides/partial-entities)

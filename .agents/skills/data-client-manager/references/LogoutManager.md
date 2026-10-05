@@ -180,7 +180,7 @@ const managers = [
 
 By default simply calls [controller.resetEntireStore()](./Controller.md#resetEntireStore)
 
-This should be sufficient if login state is determined by a user entity existance in the Reactive Data Client store. However,
+This should be sufficient if login state is determined by a user entity existence in the Reactive Data Client store. However,
 you can override this method via inheritance if more should be done.
 
 ### shouldLogout(error)

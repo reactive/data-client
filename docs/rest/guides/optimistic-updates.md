@@ -244,7 +244,7 @@ For creates (push/unshift) this typically results in no `id` in the response to 
 
 Until the object is actually created, doing mutations on that object generally does not work.
 Therefore, it may be prudent in these cases to disable further mutations until the actual
-`POST` is completed. One way to determine this is to simply look for the existance of
+`POST` is completed. One way to determine this is to simply look for the existence of
 a real `id` in the entity.
 
 ### partialUpdate

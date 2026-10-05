@@ -114,6 +114,6 @@ function useLive<
 ### Bitcoin Price (polling)
 
 When our component with `useLive` is rendered, `getTicker` will fetch at [pollFrequency](https://dataclient.io/rest/api/RestEndpoint#pollfrequency)
-miliseconds.
+milliseconds.
 
 Example app: [nextjs](https://github.com/reactive/data-client/tree/master/examples/nextjs) ([`resources/Ticker.ts`](https://github.com/reactive/data-client/blob/master/examples/nextjs/resources/Ticker.ts), [`components/AssetPrice.tsx`](https://github.com/reactive/data-client/blob/master/examples/nextjs/components/AssetPrice.tsx))
