@@ -204,6 +204,10 @@ jobs:
       - run:
           command: |
             yarn run tsc --project tsconfig.test.json --noEmit
+      - run:
+          # See scripts/typeperf/README.md
+          name: Type-check perf budget
+          command: yarn run check:typeperf
 
   unit_tests:
     parameters:

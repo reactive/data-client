@@ -363,7 +363,7 @@ if it is deemed 'valid'.
 `undefined` return will result in [Invalid expiry status](/docs/concepts/expiry-policy#expiry-status),
 like [Invalidate](/rest/api/Invalidate).
 
-[`Invalid`](/docs/concepts/expiry-policy#expiry-status) expiry generally means hooks will enter a loading state and attempt a new fetch.
+[`Invalid`](/docs/concepts/expiry-policy#expiry-status) expiry generally means :react[hooks]:vue[composables] will enter a loading state and attempt a new fetch.
 
 ```ts
 static createIfValid(props): AbstractInstanceType<this> | undefined {

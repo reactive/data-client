@@ -982,9 +982,12 @@ In event handlers, pass [getState()](#getState) to read the latest store, as in 
 
 :::
 
-```tsx title="MyManager.ts"
-import type { Manager, Middleware, actionTypes } from '@data-client/core';
-import type { EndpointInterface } from '@data-client/endpoint';
+```tsx title="MyManager.ts" framework-imports
+import {
+  type Manager,
+  type Middleware,
+  actionTypes,
+} from '@data-client/react';
 
 export default class MyManager implements Manager {
   middleware: Middleware = controller => {

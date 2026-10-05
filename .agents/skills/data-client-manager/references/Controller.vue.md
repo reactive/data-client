@@ -587,8 +587,11 @@ In event handlers, pass [getState()](#getState) to read the latest store, as in 
 [getState() example](#getState).
 
 ```tsx title="MyManager.ts"
-import type { Manager, Middleware, actionTypes } from '@data-client/core';
-import type { EndpointInterface } from '@data-client/endpoint';
+import {
+  type Manager,
+  type Middleware,
+  actionTypes,
+} from '@data-client/vue';
 
 export default class MyManager implements Manager {
   middleware: Middleware = controller => {

@@ -96,6 +96,7 @@ const DATA_CLIENT_ENTRIES = [
   'core/next',
   'core',
   'react',
+  'vue',
   'endpoint',
   'normalizr',
   'graphql',

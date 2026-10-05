@@ -16,6 +16,7 @@
     "changeset:version:beta": "run changeset version --snapshot beta && YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install",
     "changeset:publish:beta": "run build && yarn workspaces foreach -A --no-private --topological npm publish --tolerate-republish --access public --tag beta",
     "lint": "eslint",
+    "check:typeperf": "node scripts/typeperf/check.mjs",
     "format": "eslint --fix \"packages/*/src/**/*.{js,ts,tsx,cts}\"",
     "clean:types": "rimraf packages/*/*.tsbuildinfo",
     "build": "yarn build:types && yarn workspaces foreach -Wptiv --no-private run build",
