@@ -46,20 +46,7 @@ Browse the full catalog at [skills.sh/reactive/data-client](https://skills.sh/re
 
 Agents without skills can read these docs as plain markdown, following the [llms.txt](https://llmstxt.org) convention:
 
-:::react
+- :react[[llms.txt](https://dataclient.io/llms.txt)]:vue[[llms.txt](https://dataclient.io/vue/llms.txt)] — index of every page, with links to each page's markdown
+- :react[[llms-full.txt](https://dataclient.io/llms-full.txt)]:vue[[llms-full.txt](https://dataclient.io/vue/llms-full.txt)] — all :react[React]:vue[Vue], REST and GraphQL docs in one file
 
-- [llms.txt](https://dataclient.io/llms.txt) — index of every page, with links to each page's markdown
-- [llms-full.txt](https://dataclient.io/llms-full.txt) — all React, REST and GraphQL docs in one file
-
-Any docs page is also available as markdown by adding `.md` to its URL, like [/docs/api/useSuspense.md](https://dataclient.io/docs/api/useSuspense.md).
-
-:::
-
-:::vue
-
-- [llms.txt](https://dataclient.io/vue/llms.txt) — index of every page, with links to each page's markdown
-- [llms-full.txt](https://dataclient.io/vue/llms-full.txt) — all Vue, REST and GraphQL docs in one file
-
-Any docs page is also available as markdown by adding `.md` to its URL, like [/vue/api/useSuspense.md](https://dataclient.io/vue/api/useSuspense.md).
-
-:::
+Any docs page is also available as markdown by adding `.md` to its URL, like :react[[/docs/api/useSuspense.md](https://dataclient.io/docs/api/useSuspense.md)]:vue[[/vue/api/useSuspense.md](https://dataclient.io/vue/api/useSuspense.md)].
