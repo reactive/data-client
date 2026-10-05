@@ -206,11 +206,15 @@ export default class NetworkManager implements Manager {
 
           // don't update state with promises started before last clear
           if (fetchedAt >= lastReset) {
-            this.publish(action, {
-              args: action.args,
-              response,
-              fetchedAt,
-            });
+            this.publish(
+              action,
+              {
+                args: action.args,
+                response,
+                fetchedAt,
+              },
+              throttle,
+            );
           }
           return response;
         })
@@ -218,12 +222,16 @@ export default class NetworkManager implements Manager {
           const lastReset = this.getLastReset();
           // don't update state with promises started before last clear
           if (fetchedAt >= lastReset) {
-            this.publish(action, {
-              args: action.args,
-              response: error,
-              fetchedAt,
-              error: true,
-            });
+            this.publish(
+              action,
+              {
+                args: action.args,
+                response: error,
+                fetchedAt,
+                error: true,
+              },
+              throttle,
+            );
           }
           throw error;
         });
@@ -240,11 +248,13 @@ export default class NetworkManager implements Manager {
   }
 
   /** Resolves a fetch, or parks a throttled result on its record until init() if the controller awaits it */
-  protected publish(action: FetchAction, resolution: Resolution) {
+  protected publish(
+    action: FetchAction,
+    resolution: Resolution,
+    throttle: boolean,
+  ) {
     const meta =
-      !action.endpoint.sideEffect &&
-      this.controller.awaitingInit &&
-      this.fetching.get(action.key);
+      throttle && this.controller.awaitingInit && this.fetching.get(action.key);
     if (meta && meta.fetchedAt === resolution.fetchedAt)
       meta.parked = [action.endpoint, resolution];
     else this.controller.resolve(action.endpoint, resolution);
