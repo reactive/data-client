@@ -10,6 +10,7 @@
     "_pagination.md": "docs/core/shared/_pagination.mdx",
     "_useLive.md": "docs/core/shared/_useLive.mdx",
     "_useLoading.md": "docs/core/shared/_useLoading.mdx",
+    "_vueArgs.md": "docs/core/shared/_vueArgs.mdx",
     "data-dependency.md": "docs/core/getting-started/data-dependency.md",
     "getDefaultManagers.md": "docs/core/api/getDefaultManagers.md",
     "installation.md": "docs/core/getting-started/installation.md",
