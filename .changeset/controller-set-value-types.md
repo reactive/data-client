@@ -21,7 +21,8 @@ ctrl.set(TodoResource.getList.schema, [{ id: '5', completed: true }]);
 ctrl.set(new schema.All(Todo), [{ id: '5', completed: true }]);
 ```
 
-A [Union](https://dataclient.io/rest/api/Union) row is checked against the member its discriminator selects. Only
+When each member declares its discriminator as a literal (like `readonly type = 'post'`), a
+[Union](https://dataclient.io/rest/api/Union) row is checked against the member it selects. Only
 declared fields are accepted, so a key read by a `schemaAttribute` function must be declared on each member.
 
 ```ts

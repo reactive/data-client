@@ -388,8 +388,9 @@ ctrl.set(TodoResource.getList.schema, [{ id: '5', completed: true }]);
 
 :::note Unions
 
-A [Union](/rest/api/Union) row is checked against the member its discriminator selects, so
-`{ type: 'first', secondField: 1 }` is an error. Only declared fields are accepted, so a key read by a
+When each member declares its discriminator as a literal (like `readonly type = 'first'`), a
+[Union](/rest/api/Union) row is checked against the member it selects, so `{ type: 'first', secondField: 1 }` is an
+error. Only declared fields are accepted, so a key read by a
 `schemaAttribute` function must be declared on each member.
 
 :::
