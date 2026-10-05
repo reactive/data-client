@@ -13,11 +13,13 @@
  */
 import yaml from 'js-yaml';
 import fs from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { chromium } from 'playwright';
 
+const require = createRequire(import.meta.url);
 const WEBSITE_ROOT = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
   '..',
@@ -58,7 +60,7 @@ function parsePost(source) {
     rows: bullets
       .slice(0, MAX_ROWS)
       .map(({ tag, text }) => ({ tag, label: bulletLabel(text) })),
-    feature: featureVisual(bullets, details),
+    feature: featureVisual(headline, bullets, details),
   };
 }
 
@@ -82,62 +84,191 @@ function summaryBullets(summary) {
 }
 
 const MAX_CODE_LINES = 8;
+const MAX_CHART_ROWS = 4;
+// Put {/* card */} right before a chart, diagram, image or code block in a
+// feature section to pick what the card shows for that feature
+const CARD_MARKER = /\{\/\*\s*card\s*\*\/\}/;
+const PERF = /fast|perf|speed|parallel/i;
 
-// Code windows for the headline features: a Before/After pair from the first
-// feature's section, else the first code block of each new feature's section
-function featureVisual(bullets, details) {
-  const features = bullets
-    .filter(b => b.tag === 'new')
-    .slice(0, 3)
-    .map(b => ({ ...b, ...featureSection(b.text, details) }))
-    // bullets that link to the same section show its code once
-    .filter(
-      (f, i, all) =>
-        f.blocks?.length && all.findIndex(o => o.section === f.section) === i,
-    );
-  if (!features.length) return;
-  const [first] = features;
-  const before = first.blocks.find(b => b.title === 'Before');
-  const after = first.blocks.find(b => b.title === 'After');
-  const windows =
-    before && after ?
+// One visual per headline feature (the title's comma-separated parts, else the
+// new bullets' sections): the marked one, else a chart for performance
+// features, else a diagram, image, code or chart, in that order
+function featureVisual(headline, bullets, details) {
+  const sections = headlineSections(headline, bullets, details);
+  if (!sections.length) return;
+  const visuals = sections
+    .map(({ title, section }) => {
+      const found = findVisuals(section);
+      const order =
+        PERF.test(title) ?
+          ['chart', 'diagram', 'image', 'code']
+        : ['diagram', 'image', 'code', 'chart'];
+      const pick =
+        found.find(v => v.marked) ??
+        order.map(k => found.find(v => v.kind === k)).find(Boolean);
+      return pick && { ...pick, title };
+    })
+    .filter(Boolean);
+  if (!visuals.length) return;
+  const [first] = visuals;
+  // A lone feature with Before/After code shows both sides
+  const panels =
+    visuals.length === 1 && first.before ?
       [
-        { ...before, kind: 'before' },
-        { ...after, kind: 'after' },
+        { kind: 'code', title: 'Before', code: first.before, diff: 'before' },
+        { ...first, title: 'After', diff: 'after' },
       ]
-    : features.map(f => ({
-        title: bulletLabel(f.text),
-        code: f.blocks[0].code,
-      }));
-  const speedup = (first.text + first.section).match(
+    : visuals;
+  const speedup = `${bullets[0]?.text ?? ''} ${sections[0].section}`.match(
     /(\d+(?:\.\d+)?)x faster/i,
   )?.[1];
-  return { windows, speedup };
+  return { panels, speedup };
 }
 
-// The section a bullet's #anchor links to, and its fenced code blocks
-function featureSection(bullet, details) {
-  const anchor = bullet.match(/\]\([^)#]*#([\w-]+)\)/)?.[1];
-  const start =
-    anchor ? details.search(new RegExp(`^##.*\\{#${anchor}\\}`, 'm')) : -1;
-  if (start < 0) return;
-  const section = details.slice(start).split(/\n## /)[0];
-  const blocks = [...section.matchAll(/```\w*([^\n]*)\n([\s\S]*?)\n```/g)].map(
-    ([, meta, code]) => ({
-      title: meta.match(/title="([^"]+)"/)?.[1],
-      code: firstLines(code.replace(/^\s*\/\/ highlight-next-line\n/gm, '')),
-    }),
+// Sections for the title's comma-separated parts (by shared heading words),
+// then the sections the new bullets link to; else the first section with a visual
+function headlineSections(headline, bullets, details) {
+  const headings = [...details.matchAll(/^## (.+?)(?:\s*\{#([\w-]+)\})?\s*$/gm)]
+    .map(m => ({ title: m[1].replace(/`/g, ''), id: m[2], index: m.index }))
+    .filter(h => !/migration|other improvements|upgrade/i.test(h.title));
+  const words = s =>
+    new Set(
+      s
+        .toLowerCase()
+        .split(/[^a-z0-9]+/)
+        .filter(w => w.length > 2)
+        .map(w => w.replace(/s$/, '')),
+    );
+  const overlap = (a, b) => [...words(a)].filter(w => words(b).has(w)).length;
+  const byTitle = headline.split(/,\s*/).map(part => {
+    const best = headings.reduce(
+      (top, h) =>
+        overlap(part, h.title) > overlap(part, top?.title ?? '') ? h : top,
+      undefined,
+    );
+    return best && { ...best, title: part };
+  });
+  const byBullet = bullets
+    .filter(b => b.tag === 'new')
+    .map(b => {
+      const anchor = b.text.match(/\]\([^)#]*#([\w-]+)\)/)?.[1];
+      const h = headings.find(h => anchor && h.id === anchor);
+      return h && { ...h, title: bulletLabel(b.text) };
+    });
+  const sectionAt = index => details.slice(index).split(/\n## /)[0];
+  const chosen = [...byTitle, ...byBullet].filter(
+    (h, i, all) => h && all.findIndex(o => o?.index === h.index) === i,
   );
-  return { section, blocks };
+  if (!chosen.length) {
+    const first = headings.find(h => findVisuals(sectionAt(h.index)).length);
+    if (first) chosen.push(first);
+  }
+  return chosen
+    .slice(0, 3)
+    .map(({ title, index }) => ({ title, section: sectionAt(index) }));
+}
+
+// Every chart, diagram, image and code block in a section, in source order
+function findVisuals(section) {
+  const patterns = [
+    [/<PerfChart([\s\S]*?)\/>/g, perfChart],
+    [/```mermaid\n([\s\S]*?)\n```/g, mermaidVisual],
+    [
+      /!\[[^\]]*\]\((\/img\/[^)\s]+)\)|<img[^>]*src="(\/img\/[^"]+)"/g,
+      imageVisual,
+    ],
+    [/```(?!mermaid)\w*([^\n]*)\n([\s\S]*?)\n```/g, codeVisual],
+  ];
+  const visuals = patterns
+    .flatMap(([re, parse]) =>
+      [...section.matchAll(re)].map(m => {
+        const visual = parse(...m.slice(1));
+        return (
+          visual && {
+            ...visual,
+            index: m.index,
+            marked: CARD_MARKER.test(
+              section.slice(Math.max(0, m.index - 30), m.index),
+            ),
+          }
+        );
+      }),
+    )
+    .filter(Boolean);
+  const before = visuals.find(v => v.kind === 'code' && v.title === 'Before');
+  return visuals
+    .filter(v => v !== before)
+    .map(v =>
+      before && v.kind === 'code' && v.title === 'After' ?
+        { ...v, before: before.code }
+      : v,
+    )
+    .sort((a, b) => a.index - b.index);
+}
+
+function perfChart(props) {
+  const prop = name => props.match(new RegExp(`${name}="([^"]*)"`))?.[1];
+  const rows = [
+    ...props.matchAll(
+      /label:\s*'([^']*)',\s*baseline:\s*([\d.]+),\s*value:\s*([\d.]+)/g,
+    ),
+  ].map(([, label, baseline, value]) => ({
+    label,
+    baseline: +baseline,
+    value: +value,
+  }));
+  if (!rows.length) return;
+  return {
+    kind: 'chart',
+    chartTitle: prop('title'),
+    baselineLabel: prop('baselineLabel'),
+    valueLabel: prop('valueLabel'),
+    higherIsBetter: /higherIsBetter(?!=\{false\})/.test(props),
+    rows,
+  };
+}
+
+// xychart-beta "% of baseline" bars become a chart; other mermaid is a diagram
+function mermaidVisual(source) {
+  if (!/^\s*xychart/.test(source)) return { kind: 'diagram', source };
+  const labels = source.match(/x-axis\s*\[([^\]]*)\]/)?.[1];
+  const bars = source.match(/bar\s*\[([^\]]*)\]/)?.[1];
+  if (!labels || !bars) return;
+  const values = bars.split(',').map(Number);
+  return {
+    kind: 'chart',
+    chartTitle: source.match(/title\s+"([^"]*)"/)?.[1],
+    higherIsBetter: true,
+    rows: labels.split(',').map((l, i) => ({
+      label: l.trim().replace(/^"|"$/g, ''),
+      baseline: 100,
+      value: values[i],
+    })),
+  };
+}
+
+function imageVisual(markdownSrc, htmlSrc) {
+  const file = path.join(WEBSITE_ROOT, 'static', markdownSrc ?? htmlSrc);
+  return fs.existsSync(file) ? { kind: 'image', file } : undefined;
+}
+
+function codeVisual(meta, code) {
+  return {
+    kind: 'code',
+    title: meta.match(/title="([^"]+)"/)?.[1],
+    code: code.replace(/^\s*\/\/ highlight-next-line\n/gm, ''),
+  };
 }
 
 // Up to MAX_CODE_LINES, ending at a blank line when cut so statements stay whole
-function firstLines(code) {
-  const lines = code.split('\n');
-  if (lines.length <= MAX_CODE_LINES) return code;
-  const head = lines.slice(0, MAX_CODE_LINES);
+function firstLines(code, max = MAX_CODE_LINES) {
+  // imports say little on a card, so skip them when other code follows
+  const body = code.replace(/^(import [^;]*;\s*\n)+\s*/, '');
+  const lines = (body.trim() ? body : code).split('\n');
+  if (lines.length <= max) return lines.join('\n');
+  const head = lines.slice(0, max);
   const blank = head.lastIndexOf('');
-  return head.slice(0, blank > 0 ? blank : MAX_CODE_LINES).join('\n');
+  return head.slice(0, blank > 0 ? blank : max).join('\n');
 }
 
 const KEYWORDS =
@@ -167,19 +298,61 @@ function highlight(code) {
   return html + escape(code.slice(last));
 }
 
-function windowsHtml({ windows, speedup }) {
-  const html = windows
+const fmt = n => (n >= 10 ? Math.round(n) : +n.toFixed(1));
+
+// Before vs after bars per row, with each row's multiplier
+function chartBody({
+  rows: allRows,
+  baselineLabel = 'Before',
+  valueLabel = 'After',
+  higherIsBetter,
+}) {
+  const rows = allRows.slice(0, MAX_CHART_ROWS);
+  const max = Math.max(...rows.flatMap(r => [r.baseline, r.value]));
+  const bar = (n, cls) =>
+    `<div class="bar ${cls}" style="width: ${Math.max((n / max) * 100, 1.5)}%"></div>`;
+  return `<div class="legend"><span class="key base"></span>${escape(baselineLabel)}<span class="key value"></span>${escape(valueLabel)}</div>${rows
+    .map(({ label, baseline, value }) => {
+      const speedup = higherIsBetter ? value / baseline : baseline / value;
+      return `<div class="chart-row"><div class="chart-label">${escape(label)}<b>${fmt(speedup)}×</b></div>${bar(baseline, 'base')}${bar(value, 'value')}</div>`;
+    })
+    .join('')}`;
+}
+
+function panelBody(panel, maxLines) {
+  switch (panel.kind) {
+    case 'chart':
+      return `<div class="chart">${chartBody(panel)}</div>`;
+    case 'diagram':
+      return `<div class="diagram"><div class="diagram-src">${escape(panel.source)}</div></div>`;
+    case 'image': {
+      const ext = path.extname(panel.file);
+      const type = { '.svg': 'svg+xml', '.jpg': 'jpeg' }[ext] ?? ext.slice(1);
+      return `<div class="image"><img src="data:image/${type};base64,${fs.readFileSync(panel.file, 'base64')}"></div>`;
+    }
+    default:
+      return `<pre>${firstLines(panel.code, maxLines)
+        .split('\n')
+        .map(line => `<div class="line">${highlight(line) || ' '}</div>`)
+        .join('')}</pre>`;
+  }
+}
+
+function panelsHtml({ panels, speedup }) {
+  const html = panels
     .map(
-      ({ title, code, kind = '' }, i) =>
-        `<div class="editor ${kind} w${i + 1}-of-${windows.length}"><div class="chrome"><i></i><i></i><i></i><span>${escape(title ?? '')}</span></div><pre>${code
-          .split('\n')
-          .map(line => `<div class="line">${highlight(line) || ' '}</div>`)
-          .join('')}</pre></div>`,
+      (panel, i) =>
+        `<div class="editor ${panel.diff ?? ''} w${i + 1}-of-${panels.length}"><div class="chrome"><i></i><i></i><i></i><span>${escape(panel.chartTitle && panels.length === 1 ? panel.chartTitle : panel.title)}</span></div>${panelBody(panel, panels.length > 2 ? 5 : MAX_CODE_LINES)}</div>`,
     )
     .join('');
-  return speedup ?
+  // a big badge beside Before/After, else a chip on the first panel
+  if (!speedup) return html;
+  return panels[0].diff ?
       `${html}<div class="stat"><div class="big">${escape(speedup)}<small>×</small></div><div class="unit">faster</div></div>`
-    : html;
+    : html.replace(
+        '</span>',
+        `</span><em class="speed">${escape(speedup)}× faster</em>`,
+      );
 }
 
 // A leading link's text, else the bullet's first clause
@@ -218,35 +391,108 @@ function prng(seed) {
   return () => (s = (s * 1664525 + 1013904223) >>> 0) / 2 ** 32;
 }
 
-// Light streams fanning out from behind the panel to the right edge
-function lightStreams(random) {
-  const colors = ['#3e96db', '#4fc3f7', '#7c6cf0', '#22d3ee'];
-  let paths = '';
-  let dots = '';
-  for (let i = 0; i < 46; i++) {
-    const color = i % 11 === 5 ? '#f59e0b' : colors[Math.floor(random() * 4)];
-    const p0 = [WIDTH * 0.68, HEIGHT * (0.4 + random() * 0.2)];
-    const p3 = [WIDTH, HEIGHT * (-0.05 + random() * 1.1)];
-    const p1 = [WIDTH * 0.8, p0[1]];
-    const p2 = [WIDTH * 0.86, p3[1]];
-    // cubic bezier point at t
-    const at = t =>
-      [0, 1].map(
-        k =>
-          (1 - t) ** 3 * p0[k] +
-          3 * (1 - t) ** 2 * t * p1[k] +
-          3 * (1 - t) * t ** 2 * p2[k] +
-          t ** 3 * p3[k],
-      );
-    paths += `<path d="M${p0} C${p1} ${p2} ${p3}" stroke="${color}" stroke-width="${(0.6 + random() * 1.2).toFixed(1)}" fill="none" opacity="${(0.15 + random() * 0.5).toFixed(2)}"/>`;
-    for (let j = 0; j < 3; j++) {
-      const [x, y] = at(0.45 + random() * 0.55);
-      dots += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(1.5 + random() * 2.5).toFixed(1)}" fill="${color}" filter="url(#glow)"/>`;
+// Background motif and accent colors that fit the release's theme, picked from
+// its title then description: speed streaks for performance, a node graph for
+// schemas and data relationships, a grid for types, else flowing streams
+const THEMES = [
+  {
+    name: 'speed',
+    match: PERF,
+    colors: ['#3e96db', '#4fc3f7', '#22d3ee', '#f59e0b'],
+  },
+  {
+    name: 'network',
+    match: /schema|normaliz|entit|relation|graph|collection|union|query/i,
+    colors: ['#7c6cf0', '#a78bfa', '#3e96db', '#22d3ee'],
+  },
+  {
+    name: 'grid',
+    match: /type|typescript/i,
+    colors: ['#2dd4bf', '#3e96db', '#5eead4', '#7c6cf0'],
+  },
+];
+const FLOW = {
+  name: 'flow',
+  colors: ['#3e96db', '#4fc3f7', '#7c6cf0', '#22d3ee'],
+};
+
+function pickTheme(headline, description) {
+  return (
+    THEMES.find(t => t.match.test(headline)) ??
+    THEMES.find(t => t.match.test(description)) ??
+    FLOW
+  );
+}
+
+function background({ name, colors }, random) {
+  const pick = () => colors[Math.floor(random() * colors.length)];
+  const glow = `<defs><filter id="glow" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
+  const svg = body =>
+    `<svg class="bg" viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg">${glow}${body}</svg>`;
+  const n = (v, d = 1) => v.toFixed(d);
+  let body = '';
+  if (name === 'speed') {
+    // motion streaks rushing left, each with a bright head
+    for (let i = 0; i < 60; i++) {
+      const y = HEIGHT * random();
+      const x = WIDTH * (0.45 + random() * 0.5);
+      const len = 80 + random() * 380;
+      const c = pick();
+      body += `<line x1="${n(x)}" y1="${n(y)}" x2="${n(x + len)}" y2="${n(y)}" stroke="${c}" stroke-width="${n(1 + random() * 1.5)}" opacity="${n(0.2 + random() * 0.5, 2)}" stroke-linecap="round"/><circle cx="${n(x)}" cy="${n(y)}" r="${n(1.5 + random() * 2)}" fill="${c}" filter="url(#glow)"/>`;
+    }
+  } else if (name === 'network') {
+    // nodes linked to their nearest neighbors
+    const nodes = Array.from({ length: 34 }, () => [
+      WIDTH * (0.5 + random() * 0.5),
+      HEIGHT * random(),
+    ]);
+    for (const [i, [x, y]] of nodes.entries()) {
+      const near = nodes
+        .map(([x2, y2], j) => [Math.hypot(x2 - x, y2 - y), j])
+        .filter(([, j]) => j > i)
+        .sort((a, b) => a[0] - b[0])
+        .slice(0, 2);
+      for (const [, j] of near)
+        body += `<line x1="${n(x)}" y1="${n(y)}" x2="${n(nodes[j][0])}" y2="${n(nodes[j][1])}" stroke="${pick()}" stroke-width="1.2" opacity="0.35"/>`;
+    }
+    for (const [x, y] of nodes)
+      body += `<circle cx="${n(x)}" cy="${n(y)}" r="${n(2.5 + random() * 3.5)}" fill="${pick()}" filter="url(#glow)"/>`;
+  } else if (name === 'grid') {
+    // a perspective floor grid with a few lit nodes
+    const horizon = HEIGHT * 0.38;
+    const vx = WIDTH * 0.78;
+    for (let i = -14; i <= 14; i++)
+      body += `<line x1="${vx}" y1="${horizon}" x2="${n(vx + i * 160)}" y2="${HEIGHT}" stroke="${colors[0]}" stroke-width="1" opacity="0.25"/>`;
+    for (let i = 1; i <= 12; i++) {
+      const y = horizon + (HEIGHT - horizon) * (i / 12) ** 2;
+      body += `<line x1="0" y1="${n(y)}" x2="${WIDTH}" y2="${n(y)}" stroke="${colors[1]}" stroke-width="1" opacity="${n(0.1 + i * 0.02, 2)}"/>`;
+    }
+    for (let i = 0; i < 18; i++)
+      body += `<circle cx="${n(WIDTH * (0.5 + random() * 0.5))}" cy="${n(horizon + (HEIGHT - horizon) * random())}" r="${n(2 + random() * 2)}" fill="${pick()}" filter="url(#glow)"/>`;
+  } else {
+    // light streams fanning out to the right edge
+    for (let i = 0; i < 46; i++) {
+      const c = pick();
+      const p0 = [WIDTH * 0.68, HEIGHT * (0.4 + random() * 0.2)];
+      const p3 = [WIDTH, HEIGHT * (-0.05 + random() * 1.1)];
+      const p1 = [WIDTH * 0.8, p0[1]];
+      const p2 = [WIDTH * 0.86, p3[1]];
+      const at = t =>
+        [0, 1].map(
+          k =>
+            (1 - t) ** 3 * p0[k] +
+            3 * (1 - t) ** 2 * t * p1[k] +
+            3 * (1 - t) * t ** 2 * p2[k] +
+            t ** 3 * p3[k],
+        );
+      body += `<path d="M${p0} C${p1} ${p2} ${p3}" stroke="${c}" stroke-width="${n(0.6 + random() * 1.2)}" fill="none" opacity="${n(0.15 + random() * 0.5, 2)}"/>`;
+      for (let j = 0; j < 3; j++) {
+        const [x, y] = at(0.45 + random() * 0.55);
+        body += `<circle cx="${n(x)}" cy="${n(y)}" r="${n(1.5 + random() * 2.5)}" fill="${c}" filter="url(#glow)"/>`;
+      }
     }
   }
-  return `<svg class="streams" viewBox="0 0 ${WIDTH} ${HEIGHT}" xmlns="http://www.w3.org/2000/svg">
-    <defs><filter id="glow" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-    ${paths}${dots}</svg>`;
+  return svg(body);
 }
 
 // Inline the site's fonts so rendering is offline and reproducible
@@ -259,6 +505,7 @@ function fontFace(family, file) {
 }
 
 function cardHtml({ version, headline, description, rows, feature }) {
+  const theme = pickTheme(headline, description);
   const logo = fs
     .readFileSync(path.join(WEBSITE_ROOT, 'static/img/client-logo.svg'), 'utf8')
     .replace(/<\?xml[^>]*>|<!--[\s\S]*?-->/g, '');
@@ -288,7 +535,7 @@ function cardHtml({ version, headline, description, rows, feature }) {
       radial-gradient(ellipse 50% 60% at 10% 10%, #0b1d3a 0%, transparent 70%),
       #050b17;
   }
-  .streams { position: absolute; inset: 0; -webkit-mask-image: linear-gradient(90deg, transparent 70%, #000 90%); }
+  .bg { position: absolute; inset: 0; -webkit-mask-image: linear-gradient(90deg, transparent 70%, #000 90%); }
   .left { position: absolute; left: 88px; top: 80px; width: 760px; }
   .brand { display: flex; align-items: center; gap: 26px; }
   .brand svg { width: 150px; height: auto; }
@@ -342,9 +589,10 @@ function cardHtml({ version, headline, description, rows, feature }) {
   .w1-of-1 { top: 50%; translate: 0 -50%; }
   .w1-of-2 { top: 90px; right: 150px; width: 620px; }
   .w2-of-2 { bottom: 150px; }
-  .w1-of-3 { top: 60px; right: 60px; width: 600px; }
-  .w2-of-3 { top: 300px; right: 330px; width: 520px; }
-  .w3-of-3 { bottom: 60px; right: 90px; width: 620px; }
+  .w1-of-3, .w2-of-3, .w3-of-3 { width: 640px; }
+  .w1-of-3 { top: 30px; right: 70px; }
+  .w2-of-3 { top: 310px; right: 160px; }
+  .w3-of-3 { top: 590px; right: 70px; }
   .chrome { display: flex; align-items: center; gap: 9px; padding: 14px 20px; background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.06); }
   .chrome i { width: 13px; height: 13px; border-radius: 50%; background: #2c3a55; }
   .chrome span { margin-left: 14px; font: 500 20px 'Roboto Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; color: #8aa0c0; }
@@ -355,6 +603,21 @@ function cardHtml({ version, headline, description, rows, feature }) {
   .after .line::before { content: '+'; width: 52px; color: #4ade80; }
   .t-keyword { color: #c792ea; } .t-string { color: #c3e88d; } .t-number { color: #f78c6c; }
   .t-type { color: #ffcb6b; } .t-call { color: #82aaff; } .t-comment { color: #637777; font-style: italic; }
+  .chart { padding: 22px 30px 28px; }
+  .legend { display: flex; align-items: center; gap: 12px; font-size: 20px; color: #8aa0c0; margin-bottom: 8px; }
+  .legend .value { margin-left: 18px; }
+  .key { width: 18px; height: 10px; border-radius: 3px; }
+  .chart-row { margin-top: 16px; }
+  .chart-label { display: flex; justify-content: space-between; font-size: 24px; color: #e6edf7; margin-bottom: 8px; }
+  .chart-label b { font-weight: 700; color: #5eead4; }
+  .bar { height: 12px; border-radius: 6px; margin-top: 5px; }
+  .base { background: #3a4a66; }
+  .value { background: linear-gradient(90deg, #3b8cf5, #5eead4); box-shadow: 0 0 14px rgba(94,234,212,0.45); }
+  .diagram, .image { padding: 22px; display: flex; justify-content: center; }
+  .diagram-src { width: 100%; }
+  .diagram svg { width: 100%; max-width: none !important; height: auto; max-height: 520px; }
+  .image img { max-width: 100%; max-height: 520px; }
+  .chrome .speed { margin-left: auto; font: 600 20px Rubik, sans-serif; font-style: normal; color: #5eead4; border: 1.5px solid rgba(94,234,212,0.45); border-radius: 999px; padding: 3px 14px; }
   .stat {
     position: absolute; right: 50px; bottom: 45px; padding: 18px 30px 20px; border-radius: 22px;
     background: linear-gradient(160deg, rgba(20,60,120,0.95), rgba(10,26,58,0.97));
@@ -364,7 +627,7 @@ function cardHtml({ version, headline, description, rows, feature }) {
   .stat .big small { font-size: 0.55em; }
   .stat .unit { font-size: 30px; font-weight: 500; letter-spacing: 0.12em; color: #cfe3ff; text-transform: uppercase; margin-top: 4px; }
 </style></head><body>
-${lightStreams(prng(version))}
+${background(theme, prng(version))}
 <div class="left">
   <div class="brand">${logo}<div><div class="name">REACTIVE</div><div class="sub">DATA CLIENT</div></div></div>
   <div class="version"><span class="num">v${escape(version)}</span><span class="pill">RELEASE</span></div>
@@ -373,9 +636,14 @@ ${lightStreams(prng(version))}
   <div class="tagline">${escape(description)}</div>
 </div>
 ${
-  feature ? windowsHtml(feature)
+  feature ? panelsHtml(feature)
   : panelRows ?
     `<div class="panel"><h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4z"/><path d="M19 17l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg>WHAT'S NEW</h2>${panelRows}</div>`
+  : ''
+}
+${
+  feature?.panels.some(p => p.kind === 'diagram') ?
+    `<script>${fs.readFileSync(require.resolve('mermaid/dist/mermaid.min.js'), 'utf8')}</script>`
   : ''
 }
 </body></html>`;
@@ -400,6 +668,28 @@ async function render(html, outFile) {
       ).every(faces => faces.length),
     );
     if (!fontsLoaded) throw new Error('Rubik/Roboto Mono failed to load');
+    await page.evaluate(async () => {
+      if (!window.mermaid) return;
+      window.mermaid.initialize({
+        startOnLoad: false,
+        theme: 'base',
+        // svg text measures with the loaded fonts; html labels clip
+        htmlLabels: false,
+        flowchart: { htmlLabels: false },
+        themeVariables: {
+          fontFamily: 'Rubik',
+          fontSize: '22px',
+          primaryColor: '#16213a',
+          primaryTextColor: '#e6edf7',
+          primaryBorderColor: '#4aa3ff',
+          lineColor: '#5eead4',
+          secondaryColor: '#1d2b4a',
+          tertiaryColor: '#0f1830',
+        },
+      });
+      // not class="mermaid", which mermaid renders on load before this config
+      await window.mermaid.run({ querySelector: '.diagram-src' });
+    });
     // Shrink the headline and code until every line fits, with real font metrics
     await page.evaluate(() => {
       for (const box of document.querySelectorAll('#headline, pre')) {
