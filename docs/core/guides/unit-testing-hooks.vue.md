@@ -178,15 +178,12 @@ it('push() adds to the list', async () => {
 
 ### renderDataCompose(composable, options?) {#renderdatacompose-api}
 
-Resolves (once the composable has run) to
+Resolves, once the composable has run, to the same `controller`, `wrapper`, `cleanup()` and
+`allSettled()` as [mountDataClient()](./unit-testing-components.md#mountdataclient-api), plus:
 
-| Member                | Description                                                                          |
-| --------------------- | ------------------------------------------------------------------------------------ |
-| `result`              | What the composable returned                                                         |
-| `controller`          | The app's [Controller](../api/Controller.md)                                         |
-| `wrapper`             | Vue Test Utils [VueWrapper](https://test-utils.vuejs.org/api/#wrapper-methods)       |
-| `cleanup()`           | Unmounts and stops the managers                                                      |
-| `allSettled()`        | Resolves once every in-flight fetch settles                                          |
-| `waitForNextUpdate()` | Waits for a pending Promise `result` to settle (at most 1 second); otherwise for `allSettled()` and a tick |
+| Member                | Description                                                                                       |
+| --------------------- | ------------------------------------------------------------------------------------------------- |
+| `result`              | What the composable returned                                                                      |
+| `waitForNextUpdate()` | Prefer `await result` or `allSettled()`; this waits for a pending Promise `result` with a 1 second cap |
 
 `options` are the same as [mountDataClient()'s](./unit-testing-components.md#options).

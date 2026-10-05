@@ -36,12 +36,12 @@ it('useQuery() should return cached data', async () => {
 - `managers`, `initialState`, `gcPolicy` - Custom configuration
 
 **Return values** (`renderDataCompose()` is async; always `await` it):
-- `result` - Whatever the composable returned (a `ComputedRef` for useQuery/useCache, a Promise of one for useSuspense)
+- `result` - Whatever the composable returned: useQuery/useCache give a `ComputedRef` (`.value` is `undefined` when not in the store); useSuspense gives a Promise of one, so `await result` once, then read `.value`, which stays reactive
 - `controller` - Controller instance for manual actions
 - `wrapper` - Vue Test Utils wrapper
 - `cleanup()` - Cleanup function (always call in afterEach/after test)
 - `allSettled()` - Wait for all pending promises
-- `waitForNextUpdate()` - Wait for composable to resolve from suspended state
+- `waitForNextUpdate()` - Wait for a pending Promise `result` (1 second cap); prefer `await result`
 
 ## Component Testing with mountDataClient()
 
@@ -73,7 +73,7 @@ it('should render article component', async () => {
     ],
   });
 
-  await flushUntil(wrapper, () => wrapper.find('h3').exists());
+  await flushUntil(() => wrapper.find('h3').exists());
   expect(wrapper.find('h3').text()).toBe('hi ho');
   cleanup();
 });
@@ -86,20 +86,12 @@ it('should render article component', async () => {
 
 ## Async Waiting Patterns
 
-**flushUntil helper (for component tests):**
+**flushUntil(predicate) (for component tests):** copy the helper from
+[waiting for renders](references/unit-testing-components.md#waiting-for-renders); it throws if the
+condition never holds.
 ```typescript
-async function flushUntil(wrapper: any, predicate: () => boolean, tries = 100) {
-  for (let i = 0; i < tries; i++) {
-    if (predicate()) return;
-    await Promise.resolve();
-    await nextTick();
-    await new Promise(resolve => setTimeout(resolve, 0));
-  }
-}
-
-// Usage:
-await flushUntil(wrapper, () => wrapper.find('h3').exists());
-await flushUntil(wrapper, () => wrapper.find('h3').text() === 'Expected Title');
+await flushUntil(() => wrapper.find('h3').exists());
+await flushUntil(() => wrapper.find('h3').text() === 'Expected Title');
 ```
 
 **Awaiting useSuspense() (for composable tests):**
@@ -136,6 +128,8 @@ props.id = 2;
 await nextTick();
 expect(result.value?.title).toBe('Second');
 ```
+
+An id that isn't in the store gives `result.value === undefined`.
 
 **Pattern 2: Conditional arguments (null handling):**
 ```typescript
@@ -303,55 +297,18 @@ cleanup();
 
 For unsubscribe patterns, component-level polling tests, fake-timer-safe `flushUntil`, polling via nock, and common pitfalls, see [references/polling-subscriptions.md](references/polling-subscriptions.md).
 
-## Vue Suspense Behavior
-
-**useSuspense() returns Promise → ComputedRef:**
-```typescript
-const { result } = await renderDataCompose(() =>
-  useSuspense(ArticleResource.get, { id: 5 })
-);
-
-// A Promise until the data is available
-expect(result).toBeInstanceOf(Promise);
-
-// Await once to get reactive ComputedRef
-const articleRef = await result;
-
-// The ref is reactive - updates automatically
-expect(articleRef.value.title).toBe('hi ho');
-
-// After controller.setResponse() or controller.fetch():
-await nextTick();
-expect(articleRef.value.title).toBe('Updated'); // Auto-updated!
-```
-
-**useQuery() returns ComputedRef directly:**
-```typescript
-const { result } = await renderDataCompose(() => useQuery(Article, { id: 5 }), { initialFixtures });
-
-// Synchronously available (or undefined if not in store)
-expect(result.value).toBeDefined();
-expect(result.value?.title).toBe('hi ho');
-
-// Also reactive - updates automatically
-```
-
 ## Best Practices
 
 - **Always call cleanup()** - Prevents memory leaks and test pollution
-- **Use renderDataCompose()** for composables (useQuery, useSuspense, useLive)
-- **Use mountDataClient()** for components
 - **Use reactive() for props** - Enables testing prop changes
-- **Use computed() when passing reactive props to composables** - Ensures proper reactivity tracking
 - **Use flushUntil() in component tests** - More reliable than fixed delays
 - **Await renderDataCompose()** - It resolves once the composable ran; `result` is its return value
 - **Remember nextTick()** - After mutations/setResponse to allow Vue reactivity to propagate
 - **Use initialFixtures for initial state** - Pre-populate the store
 - **Use resolverFixtures for dynamic responses** - Intercept requests with functions
-- **useSuspense returns Promise → ComputedRef** - Await once, then access `.value`
 - **Test both empty and populated states** - Verify undefined behavior
 - **Test reactive prop changes** - Use `reactive()` and verify updates
-- **Pass prop-derived args as getters** - Async setup runs once, so `useSuspense(Resource.get, () => ({ id: props.id }))` follows prop changes; a plain `{ id: props.id }` is read once
+- **Pass prop-derived args as getters or computed()** - Async setup runs once, so `useSuspense(Resource.get, () => ({ id: props.id }))` follows prop changes; a plain `{ id: props.id }` is read once
 
 ## References
 
@@ -369,17 +326,6 @@ For detailed API documentation, see the [references](references/) directory:
 **Empty state test:**
 ```typescript
 const { result } = await renderDataCompose(() => useQuery(Article, { id: 5 }));
-expect(result.value).toBe(undefined);
-```
-
-**Changing to non-existent entity:**
-```typescript
-const props = reactive({ id: 1 });
-// ... initial setup ...
-expect(result.value?.id).toBe(1);
-
-props.id = 999; // Not in store
-await nextTick();
 expect(result.value).toBe(undefined);
 ```
 

@@ -10,7 +10,7 @@ and retrieval performance.
 
 - [Managers](https://dataclient.io/vue/api/Manager) as the first argument in [Manager.middleware](https://dataclient.io/vue/api/Manager#middleware)
 - Vue with [useController()](./useController.md)
-- Unit testing composables with `renderDataCompose()` from `@data-client/vue/test`
+- [Unit testing composables](https://dataclient.io/vue/guides/unit-testing-hooks) with `renderDataCompose()` from `@data-client/vue/test`
 
 ```ts
 class Controller {
