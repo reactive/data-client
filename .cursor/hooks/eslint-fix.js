@@ -1,7 +1,7 @@
 /* global require, module */
 // `eslint --fix` for agent hooks. Run directly, it's the end-of-turn hook
 // (Cursor `stop`, Claude Code `Stop`): fixes the uncommitted JS/TS files
-// changed since eslint last ran, so edits from the agent and from someone
+// changed since this hook last ran, so edits from the agent and from someone
 // editing alongside it are batched into one run per turn instead of one per
 // edit, and a turn that changed none skips eslint. `pre-push.js` also uses it
 // for the files a push includes.
@@ -14,6 +14,12 @@ const projectDir =
   process.env.CLAUDE_PROJECT_DIR ||
   process.cwd();
 const CACHE = path.join(projectDir, '.eslintcache');
+// written only by the end-of-turn run, unlike eslint's cache, which pre-push
+// and other `eslint --cache` runs also touch
+const LAST_RUN = path.join(
+  projectDir,
+  'node_modules/.cache/eslint-fix-last-run',
+);
 const isLintable = file => /\.[cm]?[jt]sx?$/.test(file);
 const mtime = file =>
   fs.statSync(path.join(projectDir, file), { throwIfNoEntry: false })?.mtimeMs;
@@ -56,10 +62,30 @@ function eslintFix(files) {
 }
 
 if (require.main === module) {
+  // stamped with the start time, so edits made while eslint runs count next
+  // turn; holds the mtimes eslint left, so its own fixes don't
+  const start = new Date();
   try {
-    // eslint rewrites its cache on every run, so older files were already fixed
-    const lastRun = fs.statSync(CACHE, { throwIfNoEntry: false })?.mtimeMs ?? 0;
-    eslintFix(dirtyFiles().filter(file => mtime(file) > lastRun));
+    const lastRun =
+      fs.statSync(LAST_RUN, { throwIfNoEntry: false })?.mtimeMs ?? 0;
+    let linted = {};
+    try {
+      linted = JSON.parse(fs.readFileSync(LAST_RUN, 'utf8'));
+    } catch {
+      // first run
+    }
+    const files = dirtyFiles().filter(
+      file => mtime(file) > lastRun && mtime(file) !== linted[file],
+    );
+    eslintFix(files);
+    fs.mkdirSync(path.dirname(LAST_RUN), { recursive: true });
+    fs.writeFileSync(
+      LAST_RUN,
+      JSON.stringify(
+        Object.fromEntries(files.map(file => [file, mtime(file)])),
+      ),
+    );
+    fs.utimesSync(LAST_RUN, start, start);
   } catch {
     // not a git checkout
   }
