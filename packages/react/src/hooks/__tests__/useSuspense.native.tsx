@@ -36,7 +36,6 @@ import { createEntityMeta } from '__tests__/utils';
 import nock from 'nock';
 import React, { Suspense } from 'react';
 import { Text, View } from 'react-native';
-import { InteractionManager } from 'react-native';
 import { Temporal } from 'temporal-polyfill';
 
 // relative imports to avoid circular dependency in tsconfig references
@@ -287,22 +286,14 @@ describe('useSuspense()', () => {
 
       const { getByText, getByTestId } = render(tree);
       expect(fbmock).not.toHaveBeenCalled();
-      await new Promise(resolve =>
-        InteractionManager.runAfterInteractions(() => {
-          resolve(null);
-        }),
-      );
+      await new Promise(resolve => setTimeout(resolve, 0));
       // still should revalidate
       expect(dispatch.mock.calls.length).toBe(1);
       act(() => thenavigation.navigate('Home'));
       expect(getByText('Home')).toBeDefined();
 
       act(() => thenavigation.goBack());
-      await new Promise(resolve =>
-        InteractionManager.runAfterInteractions(() => {
-          resolve(null);
-        }),
-      );
+      await new Promise(resolve => setTimeout(resolve, 0));
       expect(getByTestId('article')).toBeDefined();
       // since we got focus back we should have called again
       expect(dispatch.mock.calls.length).toBe(2);

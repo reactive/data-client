@@ -8,13 +8,7 @@ import { MockResolver } from '@data-client/test';
 import { render, screen, act, fireEvent } from '@testing-library/react-native';
 import { ArticleResource } from '__tests__/new';
 import { useState } from 'react';
-import {
-  View,
-  Text,
-  Button,
-  TouchableOpacity,
-  InteractionManager,
-} from 'react-native';
+import { View, Text, Button, TouchableOpacity } from 'react-native';
 
 const mockGetList = jest.fn();
 const mockGet = jest.fn();
@@ -114,7 +108,6 @@ describe('Integration Garbage Collection React Native', () => {
 
     await act(async () => {
       jest.advanceTimersByTime(1000);
-      InteractionManager.setDeadline(0);
       await jest.runOnlyPendingTimersAsync();
     });
 
@@ -132,7 +125,6 @@ describe('Integration Garbage Collection React Native', () => {
     // Jest time pass to trigger sweep but not expired
     act(() => {
       jest.advanceTimersByTime(GC_INTERVAL);
-      InteractionManager.setDeadline(0);
     });
 
     // Switch back to list view
@@ -156,7 +148,6 @@ describe('Integration Garbage Collection React Native', () => {
           GC_INTERVAL,
         ),
       );
-      InteractionManager.setDeadline(0);
       await jest.runOnlyPendingTimersAsync();
     });
 

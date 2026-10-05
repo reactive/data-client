@@ -1,29 +1,34 @@
-import { IdlingNetworkManager } from '..';
 describe('RequestIdleCallback', () => {
-  let warnSpy: jest.SpyInstance;
-  beforeEach(() => {
-    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-  });
   afterEach(() => {
-    warnSpy.mockRestore();
+    delete (global as any).requestIdleCallback;
+    jest.useRealTimers();
   });
 
-  it('should run using InteractionManager', async () => {
+  it('should still run when requestIdleCallback is not available', async () => {
+    jest.resetModules();
+    const { IdlingNetworkManager } = await import('..');
     const fn = jest.fn();
-    jest.useFakeTimers();
     // @ts-expect-error this is protected member
     new IdlingNetworkManager().idleCallback(fn, {});
-    jest.runAllTimers();
     expect(fn).toHaveBeenCalled();
-    jest.useRealTimers();
   });
-  it('should run with timeout using InteractionManager', async () => {
-    const fn = jest.fn();
+
+  it('should run through requestIdleCallback with timeout', async () => {
     jest.useFakeTimers();
+    (global as any).requestIdleCallback = jest.fn(
+      (cb: () => void, options?: IdleRequestOptions) =>
+        setTimeout(cb, options?.timeout ?? 0),
+    );
+    jest.resetModules();
+    const { IdlingNetworkManager } = await import('..');
+    const fn = jest.fn();
     // @ts-expect-error this is protected member
     new IdlingNetworkManager().idleCallback(fn, { timeout: 500 });
+    expect(fn).not.toHaveBeenCalled();
+    expect((global as any).requestIdleCallback).toHaveBeenCalledWith(fn, {
+      timeout: 500,
+    });
     jest.runAllTimers();
     expect(fn).toHaveBeenCalled();
-    jest.useRealTimers();
   });
 });
