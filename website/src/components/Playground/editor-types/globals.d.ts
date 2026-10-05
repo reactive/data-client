@@ -1517,6 +1517,11 @@ type ExtractCollection<S extends Schema | undefined> = S extends ({
     [K: string]: Schema;
 } ? ExtractObject<S> : never;
 
+/** true when T is a union */
+type IsUnion<T, U = T> = T extends any ? [
+    U
+] extends [T] ? false : true : never;
+
 type CleanKey<S extends string> = S extends `"${string}"` ? S extends `"${infer K}"` ? K : S : S;
 type KeyName<K extends string> = K extends `*${string}` | `${string}}` ? CleanKey<K extends `*${infer N}}` ? N : K extends `*${infer N}` ? N : K extends `${infer N}}` ? N : K> : CleanKey<K>;
 type KeyVal<K extends string> = K extends `*${string}` ? string[] : string | number;
@@ -1584,10 +1589,6 @@ type EndpointUpdateFunction<Source extends FetchFunction, Schema, Updaters exten
 type ResultEntry<E extends FetchFunction & {
     schema: any;
 }> = E['schema'] extends undefined | null ? ResolveType<E> : Normalize<E['schema']>;
-
-type IsUnion<T, U = T> = T extends any ? [
-    U
-] extends [T] ? false : true : never;
 
 type ContentType = 'json' | 'blob' | 'text' | 'arrayBuffer' | 'stream';
 interface ContentTypeMap {
