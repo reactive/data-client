@@ -66,11 +66,13 @@ upstream() {
 }
 
 # Vercel clones about 10 commits deep. Fetch more of this branch and master
-# when a comparison base is out of reach.
+# when a comparison base is out of reach. One fetch per ref: when both go in
+# one call, newer git (2.55) can leave master at its old depth.
 deepen() {
-  [ -n "${VERCEL_GIT_COMMIT_REF:-}" ] &&
-    timeout 30 git fetch -q --no-tags --deepen=300 origin "$VERCEL_GIT_COMMIT_REF" \
-      '+refs/heads/master:refs/remotes/origin/master' 2>/dev/null
+  [ -n "${VERCEL_GIT_COMMIT_REF:-}" ] || return 1
+  timeout 30 git fetch -q --no-tags --deepen=300 origin "$VERCEL_GIT_COMMIT_REF" 2>/dev/null
+  timeout 30 git fetch -q --no-tags --deepen=300 origin \
+    '+refs/heads/master:refs/remotes/origin/master' 2>/dev/null
 }
 
 merge_base() {
