@@ -1,5 +1,5 @@
 import type { SetValue as NormalizrSetValue } from '../../../normalizr/src/setTypes';
-import { Collection, Entity, Query, Union } from '../index';
+import { Collection, Entity, Invalidate, Query, Union } from '../index';
 import type { SetValue } from '../setTypes';
 
 // endpoint mirrors normalizr's SetValue (getOptimisticResponse() vs Controller.set()); fails when they drift
@@ -41,5 +41,6 @@ it('endpoint SetValue matches normalizr SetValue', () => {
   expect(assertSame<typeof todos>(true)).toBe(true);
   expect(assertSame<typeof feed>(true)).toBe(true);
   expect(assertSame<typeof doneCount>(true)).toBe(true);
+  expect(assertSame<Invalidate<typeof Todo>>(true)).toBe(true);
   expect(assertSame<{ todo: typeof Todo; tags: string[] }>(true)).toBe(true);
 });
