@@ -4,6 +4,7 @@ import {
   applyManager,
   initManager,
   createReducer,
+  GCPolicy,
 } from '@data-client/core';
 import type { State, Manager, GCInterface } from '@data-client/core';
 import { provide, shallowRef, type ShallowRef, type App } from 'vue';
@@ -40,7 +41,11 @@ export interface ProvidedDataClient {
 export function createDataClient(
   options: ProvideOptions = {},
 ): ProvidedDataClient {
-  const { Controller = DataController, gcPolicy, app } = options;
+  const {
+    Controller = DataController,
+    gcPolicy = new GCPolicy(),
+    app,
+  } = options;
 
   // stable singletons for this provider scope
   const controller = new Controller({ gcPolicy });
