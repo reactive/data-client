@@ -212,4 +212,25 @@ git -C "$repo" checkout master >/dev/null 2>&1
 commit "master bump" website/package.json website/yarn.lock
 expect build "master website manifest" master "$(parent)"
 
+# --- Vercel-like shallow clone: fork point far behind master, and the clone
+# carries a master ref at HEAD. deepen() must reach the real merge-base.
+git -C "$repo" checkout -b far-pkg master >/dev/null 2>&1
+commit "far pkg" packages/core/src/far.ts
+git -C "$repo" checkout -b far-site master >/dev/null 2>&1
+commit "far site" docs/core/api/Far.md
+git -C "$repo" checkout master >/dev/null 2>&1
+for i in $(seq 1 100); do commit "master filler $i" packages/rest/src/filler.ts; done
+origin_repo="$repo"
+for branch in far-pkg far-site; do
+  clone="$(mktemp -d)"
+  git clone -q --depth=10 --branch "$branch" "file://$origin_repo" "$clone"
+  git -C "$clone" branch -f master HEAD
+  repo="$clone"
+  want=skip
+  [ "$branch" = far-site ] && want=build
+  expect "$want" "shallow clone, fork far behind master ($branch)" "$branch"
+  repo="$origin_repo"
+  rm -rf "$clone"
+done
+
 echo "all vercel-ignore cases passed"

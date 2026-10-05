@@ -51,13 +51,10 @@ is_ancestor() {
   [ -n "$1" ] && git merge-base --is-ancestor "$1" "$2" 2>/dev/null
 }
 
-# Prints master's sha. Always fetch it: Vercel's clone can carry a `master` or
-# `origin/master` ref that points at the commit being built, which makes every
-# preview diff empty. The timeout keeps a hung network call from holding the
-# build machine. A ref equal to HEAD is never trusted as master.
+# Prints master's sha. A ref equal to HEAD is never trusted as master: Vercel's
+# clone can carry one at the commit being built, which empties every diff.
 upstream() {
   local head ref sha
-  timeout 15 git fetch -q --no-tags --depth=80 origin +master:refs/remotes/origin/master 2>/dev/null
   head="$(git rev-parse HEAD)"
   for ref in origin/master master; do
     sha="$(git rev-parse --verify -q "$ref^{commit}")" && [ "$sha" != "$head" ] && {
@@ -89,6 +86,11 @@ if [[ "${VERCEL_GIT_COMMIT_REF:-}" =~ ^(master|rest-hooks-site)$ || "${VERCEL_EN
   is_ancestor "$prev" HEAD && decide "$prev" HEAD "production changes since ${prev:0:12}"
   build "no previous production deploy to compare"
 fi
+
+# Previews need the real master. Fetch it once, forced, so a clone-provided
+# ref is replaced; refetching later with --depth would undo deepen(). The
+# timeout keeps a hung network call from holding the build machine.
+timeout 15 git fetch -q --no-tags --depth=80 origin +master:refs/remotes/origin/master 2>/dev/null
 
 # Renovate previews skip when only website dependency manifests or lockfiles
 # changed. Site or docs source changes still build.
