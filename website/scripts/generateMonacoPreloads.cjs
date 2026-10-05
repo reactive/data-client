@@ -163,17 +163,14 @@ function resolveAmdDependency(fromRel, dep) {
     const absolute = path.normalize(
       path.join(VS_ROOT, path.dirname(fromRel), dep),
     );
-    const withJs =
-      absolute.endsWith('.js') ? absolute : `${absolute}.js`;
+    const withJs = absolute.endsWith('.js') ? absolute : `${absolute}.js`;
     return path.relative(VS_ROOT, withJs);
   }
   if (dep.startsWith('vs/')) {
     const rel = dep.slice(3);
     return rel.endsWith('.js') ? rel : `${rel}.js`;
   }
-  throw new Error(
-    `Unrecognized AMD dependency from ${fromRel}: ${dep}`,
-  );
+  throw new Error(`Unrecognized AMD dependency from ${fromRel}: ${dep}`);
 }
 
 /** @param {string} dir @param {RegExp} pattern */
