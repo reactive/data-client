@@ -50,7 +50,10 @@ export default function useLive<
     Schema | undefined,
     undefined | false
   >,
->(endpoint: E, ...args: readonly [...Parameters<E>] | readonly [null]): any {
+>(
+  endpoint: E,
+  ...args: readonly [...Parameters<E>] | readonly [null]
+): unknown {
   useSubscription(endpoint, ...args);
   return useSuspense(endpoint, ...args);
 }

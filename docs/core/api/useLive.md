@@ -110,16 +110,16 @@ The subscription is removed automatically when the component unmounts.
 
 <ConditionalDependencies hook="useLive" />
 
-:::react
+::::react
 
-::::info[React Native]
+:::info[React Native]
 
 When using React Navigation, useLive() will trigger fetches on focus if the data is considered
 stale. useLive() will also sub/unsub with focus/unfocus respectively.
 
-::::
-
 :::
+
+::::
 
 ## Types
 

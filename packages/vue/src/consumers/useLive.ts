@@ -62,7 +62,7 @@ export default function useLive<
 export default async function useLive(
   endpoint: any,
   ...args: any[]
-): Promise<any> {
+): Promise<DeepReadonly<ComputedRef<unknown>>> {
   useSubscription(endpoint, ...args);
   return useSuspense(endpoint, ...args);
 }

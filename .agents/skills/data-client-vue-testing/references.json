@@ -1,0 +1,9 @@
+{
+  "frameworks": [
+    "vue"
+  ],
+  "docs": {
+    "Fixtures.md": "docs/core/api/Fixtures.md",
+    "vue-test-utilities.md": "packages/vue/src/test/README.md"
+  }
+}
