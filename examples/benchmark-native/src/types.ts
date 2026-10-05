@@ -109,7 +109,7 @@ export interface BuildManifestV1 {
   buildId: string;
   gitCommit: string;
   gitDirty: boolean;
-  /** Content digest of sorted app + packages/core/src inputs. */
+  /** Content digest of the app tree plus Metro-resolved package lib inputs. */
   sourceDigest: string;
   createdAt: string;
 }

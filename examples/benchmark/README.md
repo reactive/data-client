@@ -97,7 +97,8 @@ Every `yarn build:benchmark` / workspace `build` runs webpack then writes
 `dist/gc-build-manifest.json` (BuildManifest v1: `schemaVersion`, `buildId`,
 `commit`, `dirty`, `sourceDigest`, `artifacts`). `sourceDigest` hashes sorted
 relevant inputs on disk (`packages/{core,normalizr,endpoint}/src/**`,
-`examples/gc-shared/**`, GC harness/runner/config/package files), so dirty or
+`examples/gc-shared/**`, repo `babel.config.js` — webpack loads it with
+`rootMode: 'upward'` — and GC harness/runner/config/package files), so dirty or
 untracked relevant files change it. `artifacts`
 maps each emitted `dist/*` file (except the manifest) to sha256. `buildId` is
 the digest of those canonical fields excluding itself.

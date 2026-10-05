@@ -10,7 +10,10 @@
  * verify   — verify manifest and/or sidecar identity
  *
  * Inputs: sorted paths under this app (tracked+untracked contents) plus
- * packages/{core,normalizr,endpoint}/src and examples/gc-shared, excluding build/node_modules/artifacts/.jdk/generated.
+ * the Metro-resolved lib of packages/{core,normalizr,endpoint} (react-native
+ * export condition → lib/, the bytes the release APK bundles — not package
+ * src or the legacy main field) and examples/gc-shared, excluding
+ * build/node_modules/artifacts/.jdk/generated.
  */
 const { execSync } = require('child_process');
 const crypto = require('crypto');
@@ -60,18 +63,57 @@ function walkFiles(dir, out) {
   }
 }
 
+/**
+ * Packages the release bundle loads through Metro's react-native condition.
+ * Metro (`unstable_conditionNames: ["react-native"]`, package exports on)
+ * resolves these to lib/, not src/ and not the legacy "react-native" field.
+ */
+const BUNDLED_PACKAGES = [
+  'packages/core',
+  'packages/normalizr',
+  'packages/endpoint',
+];
+
+function bundleRootForPackage(packageRel) {
+  const pkgPath = path.join(REPO, packageRel, 'package.json');
+  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+  const dot = pkg.exports && pkg.exports['.'];
+  const rel = dot && dot['react-native'];
+  if (typeof rel !== 'string' || rel.length === 0) {
+    throw new Error(
+      `${packageRel} has no exports["."].react-native (Metro condition)`,
+    );
+  }
+  const entry = path.resolve(path.join(REPO, packageRel), rel);
+  if (!fs.existsSync(entry)) {
+    throw new Error(
+      `Metro react-native entry missing: ${path.relative(REPO, entry)} (run that package's build:lib)`,
+    );
+  }
+  return path.dirname(entry);
+}
+
+/** .js files under a Metro lib root. Declarations and external maps are not bundled. */
+function walkJsFiles(dir, out) {
+  if (!fs.existsSync(dir)) return;
+  for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, ent.name);
+    if (ent.isDirectory()) {
+      if (shouldSkipDir(ent.name)) continue;
+      walkJsFiles(full, out);
+    } else if (ent.isFile() && ent.name.endsWith('.js')) {
+      out.push(full);
+    }
+  }
+}
+
 function collectInputFiles() {
   const files = [];
   walkFiles(ROOT, files);
-  // Packages bundled into the APK (core → normalizr) plus shared GC code
-  for (const dir of [
-    'packages/core/src',
-    'packages/normalizr/src',
-    'packages/endpoint/src',
-    'examples/gc-shared',
-  ]) {
-    walkFiles(path.join(REPO, dir), files);
+  for (const packageRel of BUNDLED_PACKAGES) {
+    walkJsFiles(bundleRootForPackage(packageRel), files);
   }
+  walkFiles(path.join(REPO, 'examples/gc-shared'), files);
   return files.map(f => path.resolve(f)).sort((a, b) => a.localeCompare(b));
 }
 
@@ -81,9 +123,12 @@ function sha256File(filePath) {
   return h.digest('hex');
 }
 
-function sourceDigest() {
+function hashInputFiles(files) {
   const h = crypto.createHash('sha256');
-  for (const file of collectInputFiles()) {
+  const sorted = files
+    .map(f => path.resolve(f))
+    .sort((a, b) => a.localeCompare(b));
+  for (const file of sorted) {
     const rel = path.relative(REPO, file).split(path.sep).join('/');
     h.update(rel);
     h.update('\0');
@@ -91,6 +136,10 @@ function sourceDigest() {
     h.update('\0');
   }
   return h.digest('hex');
+}
+
+function sourceDigest() {
+  return hashInputFiles(collectInputFiles());
 }
 
 function gitMeta() {
@@ -214,6 +263,14 @@ function verify() {
   }
 }
 
+module.exports = {
+  BUNDLED_PACKAGES,
+  bundleRootForPackage,
+  collectInputFiles,
+  hashInputFiles,
+  sourceDigest,
+};
+
 function main() {
   const cmd = process.argv[2] || 'digest';
   if (cmd === 'prepare') {
@@ -239,4 +296,6 @@ function main() {
   }
 }
 
-main();
+if (require.main === module) {
+  main();
+}

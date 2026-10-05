@@ -45,6 +45,12 @@ const BENCH_SOURCE_FILES = [
   'examples/benchmark/tsconfig.json',
 ];
 
+/**
+ * Repo Babel config. Webpack's babel-loader uses rootMode: 'upward', so this
+ * file is what compiles the benchmark bundle. A change must change sourceDigest.
+ */
+const ROOT_CONFIG_FILES = ['babel.config.js'];
+
 const CORE_SRC_DIR = 'packages/core/src';
 /**
  * Source directories walked recursively (relative to repo root): every
@@ -97,8 +103,8 @@ export function listRelevantSourcePaths() {
   const benchFiles = BENCH_SOURCE_FILES.filter(rel =>
     existsSync(path.join(REPO_ROOT, rel)),
   );
-  return [...new Set([...dirFiles, ...benchFiles])].sort((a, b) =>
-    a.localeCompare(b),
+  return [...new Set([...dirFiles, ...benchFiles, ...ROOT_CONFIG_FILES])].sort(
+    (a, b) => a.localeCompare(b),
   );
 }
 
@@ -167,7 +173,11 @@ export function gitCommitFull() {
 export function computeDirty() {
   try {
     // Pathspecs already scope status to relevant inputs.
-    const pathspecs = [...SOURCE_DIRS, ...BENCH_SOURCE_FILES];
+    const pathspecs = [
+      ...SOURCE_DIRS,
+      ...BENCH_SOURCE_FILES,
+      ...ROOT_CONFIG_FILES,
+    ];
     const out = execFileSync(
       'git',
       ['status', '--porcelain', '-u', '--', ...pathspecs],
