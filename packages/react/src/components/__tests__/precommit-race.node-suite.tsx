@@ -1,6 +1,7 @@
 /**
  * Race: a fetch resolves while DataProvider has not committed, because a
- * sibling `use()` is still pending.
+ * sibling `use()` is still pending, or because the provider's first render
+ * is a lazy layout's retry that React restarts.
  *
  * The filename contains `.node-` so Jest does not collect this module.
  * ReactDOM skips paths containing `.node`, and the Node project only
@@ -12,7 +13,7 @@
  */
 import { Endpoint } from '@data-client/endpoint';
 import { makeGate, type GatePromise } from '__tests__/streamingHarness';
-import { use, startTransition, Suspense, Component } from 'react';
+import { use, lazy, startTransition, Suspense, Component } from 'react';
 import type { ReactElement, ReactNode } from 'react';
 
 import { useFetch, useSuspense } from '../../hooks';
@@ -121,7 +122,8 @@ function Blocker({ gate }: { gate: GatePromise }) {
   return null;
 }
 
-type Where = 'outside' | 'inside' | 'none';
+// 'lazy': DataProvider is inside a React.lazy layout, like Expo Router's root layout
+type Where = 'outside' | 'inside' | 'none' | 'lazy';
 type ReaderKind = 'suspense' | 'fetch';
 
 async function runRace(
@@ -149,23 +151,36 @@ async function runRace(
   const managers = shared ? getDefaultManagers() : undefined;
   const Text = host.Text;
   const Reader = reader === 'fetch' ? FetchReader : SuspenseReader;
-  const tree = (
-    <>
-      <DataProvider managers={managers} devButton={null}>
-        <ErrorBox Text={Text}>
-          <Suspense fallback={<Text>fallback</Text>}>
-            <Reader endpoint={endpoint} Text={Text} />
-          </Suspense>
-          {where === 'inside' ?
-            <Blocker gate={gate} />
-          : null}
-        </ErrorBox>
-      </DataProvider>
-      {where === 'outside' ?
-        <Blocker gate={gate} />
-      : null}
-    </>
+  const provider = (
+    <DataProvider managers={managers} devButton={null}>
+      <ErrorBox Text={Text}>
+        <Suspense fallback={<Text>fallback</Text>}>
+          <Reader endpoint={endpoint} Text={Text} />
+        </Suspense>
+        {where === 'inside' ?
+          <Blocker gate={gate} />
+        : null}
+      </ErrorBox>
+    </DataProvider>
   );
+  let tree: ReactElement;
+  if (where === 'lazy') {
+    const Layout = lazy(() => gate.then(() => ({ default: () => provider })));
+    tree = (
+      <Suspense fallback={<Text>route fallback</Text>}>
+        <Layout />
+      </Suspense>
+    );
+  } else {
+    tree = (
+      <>
+        {provider}
+        {where === 'outside' ?
+          <Blocker gate={gate} />
+        : null}
+      </>
+    );
+  }
   // legacy roots throw when a component suspends outside every boundary
   const element =
     LegacyReact ?
@@ -177,7 +192,8 @@ async function runRace(
     if (transition) startTransition(() => renderer.render(element));
     else renderer.render(element);
     // the extra tick lets the fetch settle while the render is still parked
-    await waitUntil(() => getCalls() > 0);
+    // a lazy layout cannot fetch before it loads
+    if (where !== 'lazy') await waitUntil(() => getCalls() > 0);
     await tick();
     const beforeRelease = renderer.read();
     gate.release();
@@ -202,7 +218,9 @@ function expectResolved(
   }: { shared: boolean; where: Where; settle: 'value' | 'error' },
 ) {
   const expected = settle === 'error' ? 'error nope' : 'value 5';
-  if (LegacyReact) {
+  if (where === 'lazy') {
+    expect(result.beforeRelease).toContain('route fallback');
+  } else if (LegacyReact) {
     expect(result.beforeRelease).toContain(expected);
   } else if (where !== 'none') {
     expect(result.beforeRelease).not.toContain(expected);
@@ -219,7 +237,7 @@ function expectResolved(
 }
 
 export function registerPrecommitRaceTests(host: RaceHost) {
-  describe('pre-commit fetch while a sibling use() is pending', () => {
+  describe('fetch that settles before DataProvider commits', () => {
     let prevAct: boolean | undefined;
 
     beforeAll(() => {
@@ -260,6 +278,8 @@ export function registerPrecommitRaceTests(host: RaceHost) {
       { shared: true, where: 'outside', transition: false, reader: 'fetch' },
       { shared: true, where: 'outside', transition: true, reader: 'fetch' },
       { shared: false, where: 'outside', transition: false, reader: 'fetch' },
+      { shared: true, where: 'lazy', transition: false, reader: 'suspense' },
+      { shared: true, where: 'lazy', transition: true, reader: 'suspense' },
     ];
 
     for (const spec of cases) {
@@ -274,7 +294,7 @@ export function registerPrecommitRaceTests(host: RaceHost) {
       );
     }
 
-    it('re-resolves a rejected fetch without calling the endpoint again', async () => {
+    it('shows a rejected fetch without calling the endpoint again', async () => {
       const spec = {
         shared: true,
         where: 'outside',
