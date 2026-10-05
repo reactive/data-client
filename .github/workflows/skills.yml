@@ -13,6 +13,7 @@ on:
       - '.github/workflows/skills.yml'
       - '.gitattributes'
       - 'website/src/components/Playground/editor-types/**'
+      - 'website/src/components/Playground/DesignSystem/index.ts'
   pull_request:
     branches:
       - master
@@ -26,6 +27,7 @@ on:
       - '.github/workflows/skills.yml'
       - '.gitattributes'
       - 'website/src/components/Playground/editor-types/**'
+      - 'website/src/components/Playground/DesignSystem/index.ts'
 
 # PRs cancel superseded runs. Push runs get their own group, so master never
 # shows a cancelled (red) run.
