@@ -13,8 +13,9 @@
  * they are not bundled.
  *
  * With `routeBasePath`, absolute `/docs/...` links are pointed at this
- * instance when the target doc exists in it (`docIds`), so Vue pages link to
- * Vue pages; links to React-only docs keep going to /docs.
+ * instance's route for the target doc when it exists there (`docs`, from
+ * `docsFor()` in index.js, which honors `slug`), so Vue pages link to Vue
+ * pages; links to React-only docs keep going to /docs.
  */
 const { FRAMEWORKS } = require('./docsInstances.js');
 
@@ -94,26 +95,22 @@ function pruneImports(tree) {
 
 const DOCS_LINK = /^\/docs(?:\/([^#?]*))?([#?].*)?$/;
 
-function rewriteLinks(node, routeBasePath, docIds) {
+function rewriteLinks(node, routeBasePath, docs) {
   if (node.type === 'link' || node.type === 'definition') {
     const match = node.url.match(DOCS_LINK);
     const id = match?.[1]?.replace(/\.mdx?$/, '').replace(/\/$/, '');
-    if (match && (!id || docIds.has(id)))
-      node.url = `/${routeBasePath}${id ? `/${id}` : ''}${match[2] ?? ''}`;
+    if (match && (!id || docs.has(id)))
+      node.url = `/${routeBasePath}${id ? docs.get(id).route : ''}${match[2] ?? ''}`;
   }
-  node.children?.forEach(child => rewriteLinks(child, routeBasePath, docIds));
+  node.children?.forEach(child => rewriteLinks(child, routeBasePath, docs));
 }
 
-module.exports = function remarkFramework({
-  framework,
-  routeBasePath,
-  docIds,
-}) {
+module.exports = function remarkFramework({ framework, routeBasePath, docs }) {
   return tree => {
     filterChildren(tree, framework);
     rewriteImports(tree, framework);
     pruneImports(tree);
-    if (routeBasePath) rewriteLinks(tree, routeBasePath, docIds);
+    if (routeBasePath) rewriteLinks(tree, routeBasePath, docs);
   };
 };
 module.exports.FRAMEWORKS = FRAMEWORKS;

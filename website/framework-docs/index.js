@@ -84,14 +84,54 @@ function resolveSources(framework) {
   return sources;
 }
 
-/** Doc ids (as used in sidebars) that exist for a framework */
-function docIds(framework) {
-  const ids = new Set();
+/**
+ * Docs that exist for a framework, by doc id (as used in sidebars):
+ * - route: site route relative to the instance's routeBasePath, honoring `slug`
+ * - equivalent: `framework_equivalent:` front matter, the doc id of the same
+ *   concept in the other framework's docs when it has a different name
+ */
+function docsFor(framework) {
+  const docs = new Map();
   for (const [out, src] of resolveSources(framework)) {
     if (!MD.test(out) || path.basename(out).startsWith('_')) continue;
-    ids.add(docIdOf(out, readSrc(src)));
+    const content = rewriteFrontMatter(readSrc(src), framework);
+    const id = docIdOf(out, content);
+    const slug = frontMatterValue(content, 'slug');
+    const route =
+      !slug ? `/${id}`
+      : slug.startsWith('/') ? slug
+      : `/${path.posix.join(path.posix.dirname(out), slug)}`;
+    docs.set(id, {
+      route: route.replace(/\/(index|README)$/i, '/'),
+      equivalent: frontMatterValue(content, 'framework_equivalent'),
+    });
   }
-  return ids;
+  return docs;
+}
+
+/** Doc ids (as used in sidebars) that exist for a framework */
+const docIds = framework => new Set(docsFor(framework).keys());
+
+/**
+ * `framework_equivalent:` front matter of every framework, for
+ * FrameworkSelector: { [framework]: { [doc id]: counterpart's doc id } }
+ */
+function frameworkEquivalents() {
+  const docs = Object.fromEntries(FRAMEWORKS.map(f => [f, docsFor(f)]));
+  return Object.fromEntries(
+    FRAMEWORKS.map(framework => {
+      const equivalents = {};
+      for (const [id, { equivalent }] of docs[framework]) {
+        if (!equivalent) continue;
+        if (!FRAMEWORKS.some(f => f !== framework && docs[f].has(equivalent)))
+          throw new Error(
+            `${framework} doc ${id}: framework_equivalent '${equivalent}' is not a doc in any other framework`,
+          );
+        equivalents[id] = equivalent;
+      }
+      return [framework, equivalents];
+    }),
+  );
 }
 
 /** Write the mirror for a framework; only touches files whose output changed */
@@ -181,7 +221,9 @@ module.exports = {
   watch,
   sidebarsFor,
   sourcePath,
+  docsFor,
   docIds,
+  frameworkEquivalents,
   docIdOf,
   pageFrameworks,
   rewriteFrontMatter,

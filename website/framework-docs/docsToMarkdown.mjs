@@ -26,9 +26,13 @@ const require = createRequire(import.meta.url);
 const preprocessContent =
   require('@docusaurus/mdx-loader/lib/preprocessor').default;
 
-const { DOCS_INSTANCES, frameworkInstance } = require('./docsInstances.js');
 const {
-  docIds,
+  DOCS_INSTANCES,
+  FRAMEWORKS,
+  frameworkInstance,
+} = require('./docsInstances.js');
+const {
+  docsFor,
   docIdOf,
   pageFrameworks,
   rewriteFrontMatter,
@@ -45,7 +49,7 @@ const instanceOf = (relPath, framework) =>
       relPath.startsWith(`${d.path}/`) &&
       (d.framework ?? framework) === framework,
   );
-const vueIds = docIds('vue');
+const frameworkDocs = Object.fromEntries(FRAMEWORKS.map(f => [f, docsFor(f)]));
 const MD = /\.mdx?$/;
 
 const processor = unified()
@@ -114,13 +118,15 @@ export const routeOf = memoize((file, framework) => {
   const content = contentFor(file, framework);
   const docId = docIdOf(relPath.slice(instance.path.length + 1), content);
   // Vue links to pages without a Vue version go to the React docs
-  const { routeBasePath } =
-    instance.framework === 'vue' && !vueIds.has(docId) ?
+  const target =
+    instance.framework === 'vue' && !frameworkDocs.vue.has(docId) ?
       frameworkInstance('react')
     : instance;
+  const route = frameworkDocs[target.framework]?.get(docId)?.route;
+  if (route) return `/${target.routeBasePath}${route}`;
   const slug = frontMatterValue(content, 'slug');
-  if (slug?.startsWith('/')) return `/${routeBasePath}${slug}`;
-  return `/${routeBasePath}/${docId}`.replace(/\/index$/, '/');
+  if (slug?.startsWith('/')) return `/${target.routeBasePath}${slug}`;
+  return `/${target.routeBasePath}/${docId}`.replace(/\/index$/, '/');
 });
 
 /** Relative doc links become site routes; absolute ones are left to remarkFramework */
@@ -489,7 +495,7 @@ function render(file, framework, props = {}) {
     remarkFramework({
       framework,
       routeBasePath: frameworkInstance('vue').routeBasePath,
-      docIds: vueIds,
+      docs: frameworkDocs.vue,
     })(tree);
   tree.title = frontMatterValue(content, 'title');
   return tree;
