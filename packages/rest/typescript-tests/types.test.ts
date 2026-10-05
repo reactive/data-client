@@ -2037,6 +2037,24 @@ it('getOptimisticResponse returns raw input for the schema', () => {
       },
     },
   });
+  // overridden schema is used
+  UserRes.extend({
+    update: {
+      schema: [User],
+      getOptimisticResponse(snap, params, body) {
+        return [{ id: 5, isAdmin: true }];
+      },
+    },
+  });
+  UserRes.extend({
+    // @ts-expect-error schema is now a list
+    update: {
+      schema: [User],
+      getOptimisticResponse(snap, params, body) {
+        return { id: 5, isAdmin: true };
+      },
+    },
+  });
   // Collection takes a list of rows
   UserRes.extend('getList', {
     getOptimisticResponse(snap) {

@@ -2,6 +2,7 @@ import type {
   EndpointInterface,
   EndpointToFunction,
   FetchFunction,
+  Schema,
 } from '@data-client/endpoint';
 
 import type { IsUnion } from './isUnion.js';
@@ -89,7 +90,9 @@ type EndpointExtensionOptions<
   unknown extends O ? EndpointToFunction<E>
   : PartialRestGenerics extends O ? SingleArgsFunction<EndpointToFunction<E>>
   : OptionsToFunction<O, E, EndpointToFunction<E>>,
-  E['schema']
+  PartialRestGenerics extends O ? E['schema']
+  : 'schema' extends keyof O ? Extract<O['schema'], Schema | undefined>
+  : E['schema']
 > &
   Readonly<O> &
   O;
