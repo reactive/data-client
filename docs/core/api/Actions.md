@@ -146,7 +146,7 @@ interface SetResponseAction {
       completed: true
     }
   ],
-  endpoint: Endpont('Todo.partialUpdate'),
+  endpoint: Endpoint('Todo.partialUpdate'),
   meta: {
     fetchedAt: '5:18:26.394 PM',
     date: '5:18:26.636 PM',
