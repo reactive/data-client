@@ -47,13 +47,16 @@ the response or error upon completion.
 **Create**
 
 ```tsx
+import { useController } from '@data-client/react';
+import { PostResource } from './PostResource';
+
 function CreatePost() {
   const ctrl = useController();
 
   return (
     <form
       onSubmit={e =>
-        ctrl.fetch(PostResource.getList.push, new FormData(e.target))
+        ctrl.fetch(PostResource.getList.push, new FormData(e.currentTarget))
       }
     >
       {/* ... */}
@@ -65,13 +68,16 @@ function CreatePost() {
 **Update**
 
 ```tsx
+import { useController } from '@data-client/react';
+import { PostResource } from './PostResource';
+
 function UpdatePost({ id }: { id: string }) {
   const ctrl = useController();
 
   return (
     <form
       onSubmit={e =>
-        ctrl.fetch(PostResource.update, { id }, new FormData(e.target))
+        ctrl.fetch(PostResource.update, { id }, new FormData(e.currentTarget))
       }
     >
       {/* ... */}
@@ -83,13 +89,19 @@ function UpdatePost({ id }: { id: string }) {
 **Delete**
 
 ```tsx
-function PostListItem({ post }: { post: PostResource }) {
+import { useController } from '@data-client/react';
+import { useCallback } from 'react';
+import { useNavigate } from 'react-router';
+import { Post, PostResource } from './PostResource';
+
+function PostListItem({ post }: { post: Post }) {
   const ctrl = useController();
+  const navigate = useNavigate();
 
   const handleDelete = useCallback(
     async e => {
       await ctrl.fetch(PostResource.delete, { id: post.id });
-      history.push('/');
+      navigate('/');
     },
     [ctrl, post.id],
   );
@@ -173,15 +185,18 @@ when there are many parameterizations in cache.
 
 ```tsx
 import { type Controller, useController } from '@data-client/react';
+import { AccountResource, TradeResource, type Trade } from './resources';
+import { Form, FormField } from './Form';
 
-const createTradeHandler = (ctrl: Controller) => async trade => {
-  await ctrl.fetch(TradeResource.getList.push, { user: user.id }, trade);
-  ctrl.expireAll(AccountResource.get);
-  ctrl.expireAll(AccountResource.getList);
-};
+const createTradeHandler =
+  (ctrl: Controller, userId: string) => async (trade: Trade) => {
+    await ctrl.fetch(TradeResource.getList.push, { user: userId }, trade);
+    ctrl.expireAll(AccountResource.get);
+    ctrl.expireAll(AccountResource.getList);
+  };
 
-function CreateTrade({ id }: { id: string }) {
-  const handleTrade = createTradeHandler(useController());
+function CreateTrade({ userId }: { userId: string }) {
+  const handleTrade = createTradeHandler(useController(), userId);
 
   return (
     <Form onSubmit={handleTrade}>
@@ -204,6 +219,9 @@ Forces refetching and suspenseon [useSuspense](./useSuspense.md) with the same E
 and parameters.
 
 ```tsx
+import { useController, useSuspense } from '@data-client/react';
+import { ArticleResource } from './ArticleResource';
+
 function ArticleName({ id }: { id: string }) {
   const article = useSuspense(ArticleResource.get, { id });
   const ctrl = useController();
@@ -241,6 +259,9 @@ function ArticleName({ id }: { id: string }) {
 [Invalidates](https://dataclient.io/docs/concepts/expiry-policy#invalid) all [endpoint keys](https://dataclient.io/rest/api/RestEndpoint#key) matching `testKey`.
 
 ```tsx
+import { useController, useSuspense } from '@data-client/react';
+import { ArticleResource } from './ArticleResource';
+
 function ArticleName({ id }: { id: string }) {
   const article = useSuspense(ArticleResource.get, { id });
   const ctrl = useController();
@@ -275,13 +296,16 @@ function useLogout() {
 It's usually a good idea to also clear cache on 401 (unauthorized) with [LogoutManager](https://dataclient.io/docs/api/LogoutManager)
 as well.
 
-```tsx
+**Web**
+
+```tsx title="index.tsx"
 import {
   DataProvider,
   LogoutManager,
   getDefaultManagers,
 } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
+import App from './App';
 import { unAuth } from '../authentication';
 
 const myDomain = 'http://test.com';
@@ -306,6 +330,124 @@ createRoot(document.body).render(
 );
 ```
 
+**React Native**
+
+```tsx title="index.tsx"
+import {
+  DataProvider,
+  LogoutManager,
+  getDefaultManagers,
+} from '@data-client/react';
+import { AppRegistry } from 'react-native';
+import App from './App';
+import { unAuth } from '../authentication';
+
+const myDomain = 'http://test.com';
+const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
+
+const managers = [
+  new LogoutManager({
+    handleLogout(controller) {
+      // call custom unAuth function we defined
+      unAuth();
+      // still reset the store
+      controller.invalidateAll({ testKey });
+    },
+  }),
+  ...getDefaultManagers(),
+];
+
+const Root = () => (
+  <DataProvider managers={managers}>
+    <App />
+  </DataProvider>
+);
+AppRegistry.registerComponent('MyApp', () => Root);
+```
+
+**NextJS**
+
+```tsx title="app/Provider.tsx"
+'use client';
+import { LogoutManager, getDefaultManagers } from '@data-client/react';
+import { DataProvider } from '@data-client/react/nextjs';
+import { unAuth } from '../authentication';
+
+const myDomain = 'http://test.com';
+const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
+
+const managers = [
+  new LogoutManager({
+    handleLogout(controller) {
+      // call custom unAuth function we defined
+      unAuth();
+      // still reset the store
+      controller.invalidateAll({ testKey });
+    },
+  }),
+  ...getDefaultManagers(),
+];
+
+export default function Provider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <DataProvider managers={managers}>{children}</DataProvider>;
+}
+```
+
+```tsx title="app/layout.tsx"
+import Provider from './Provider';
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <Provider>{children}</Provider>
+      </body>
+    </html>
+  );
+}
+```
+
+**Expo**
+
+```tsx title="app/_layout.tsx"
+import { Stack } from 'expo-router';
+import {
+  DataProvider,
+  LogoutManager,
+  getDefaultManagers,
+} from '@data-client/react';
+import { unAuth } from '../authentication';
+
+const myDomain = 'http://test.com';
+const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
+
+const managers = [
+  new LogoutManager({
+    handleLogout(controller) {
+      // call custom unAuth function we defined
+      unAuth();
+      // still reset the store
+      controller.invalidateAll({ testKey });
+    },
+  }),
+  ...getDefaultManagers(),
+];
+
+export default function RootLayout() {
+  return (
+    <DataProvider managers={managers}>
+      <Stack>
+        <Stack.Screen name="index" />
+      </Stack>
+    </DataProvider>
+  );
+}
+```
+
 ### resetEntireStore() {#resetEntireStore}
 
 Resets/clears the entire Reactive Data Client cache. All inflight requests will not resolve.
@@ -313,6 +455,11 @@ Resets/clears the entire Reactive Data Client cache. All inflight requests will 
 This is typically used when logging out or changing authenticated users.
 
 ```tsx
+import { useController, useSuspense } from '@data-client/react';
+import { useCallback } from 'react';
+import { CurrentUserResource } from './CurrentUserResource';
+import { impersonateUser } from './auth';
+
 const USER_NUMBER_ONE: string = '1111';
 
 function UserName() {
@@ -408,6 +555,12 @@ fields:
 ctrl.set([new schema.Invalidate(Todo)], [{ id: '5' }, { id: '6' }]);
 ```
 
+To delete one, pass the Invalidate schema and its row:
+
+```ts
+ctrl.set(new schema.Invalidate(Todo), { id: '5' });
+```
+
 [Values](https://dataclient.io/rest/api/Values) schemas take an object of rows instead:
 
 ```ts
@@ -417,7 +570,7 @@ ctrl.set(new schema.Values(Todo), {
 });
 ```
 
-Array and Values schemas take no `args` (so [Entity.pk()](https://dataclient.io/rest/api/Entity#pk) and [Entity.process()](https://dataclient.io/rest/api/Entity#process)
+Array, Values and Invalidate schemas take no `args` (so [Entity.pk()](https://dataclient.io/rest/api/Entity#pk) and [Entity.process()](https://dataclient.io/rest/api/Entity#process)
 receive `[]`) and no updater function. Rows that share a pk merge in list order, without
 [Entity.shouldReorder()](https://dataclient.io/rest/api/Entity#shouldreorder). Use this instead of calling `set()` once per row, such as when
 [batching high-frequency stream updates](https://dataclient.io/docs/concepts/managers#batching).
@@ -446,6 +599,7 @@ export const newPrices = () =>
 ```
 
 ```tsx title="PriceStream"
+import React from 'react';
 import { useController, useQuery } from '@data-client/react';
 import { Ticker, newPrices } from './Ticker';
 
@@ -492,20 +646,24 @@ Any components suspending for the given [Endpoint](https://dataclient.io/rest/ap
 If data already exists for the given [Endpoint](https://dataclient.io/rest/api/Endpoint) and args, it will be updated.
 
 ```tsx
-const ctrl = useController();
+import { useController } from '@data-client/react';
+import { useEffect } from 'react';
+import { EndpointLookup } from './EndpointLookup';
 
-useEffect(() => {
-  const websocket = new Websocket(url);
+function useWebsocketUpdates(url: string) {
+  const ctrl = useController();
 
-  websocket.onmessage = event =>
-    ctrl.setResponse(
-      EndpointLookup[event.endpoint],
-      ...event.args,
-      event.data,
-    );
+  useEffect(() => {
+    const websocket = new WebSocket(url);
 
-  return () => websocket.close();
-});
+    websocket.onmessage = event => {
+      const { endpoint, args, data } = JSON.parse(event.data);
+      ctrl.setResponse(EndpointLookup[endpoint], ...args, data);
+    };
+
+    return () => websocket.close();
+  }, [ctrl, url]);
+}
 ```
 
 This shows a proof of concept in React; however a [Manager websockets implementation](https://dataclient.io/docs/concepts/managers#data-stream)
@@ -534,13 +692,27 @@ Marks a new subscription to a given [Endpoint](https://dataclient.io/rest/api/En
 This might be useful for custom hooks to sub/unsub based on other factors.
 
 ```tsx
-const controller = useController();
-const key = endpoint.key(...args);
+import {
+  useController,
+  type EndpointInterface,
+  type FetchFunction,
+  type Schema,
+} from '@data-client/react';
+import { useEffect } from 'react';
 
-useEffect(() => {
-  controller.subscribe(endpoint, ...args);
-  return () => controller.unsubscribe(endpoint, ...args);
-}, [controller, key]);
+function useSubscribe<
+  E extends EndpointInterface<FetchFunction, Schema | undefined, false | undefined>,
+>(endpoint: E, ...args: readonly [...Parameters<E>]) {
+  const controller = useController();
+  const key = endpoint.key(...args);
+
+  useEffect(() => {
+    controller.subscribe(endpoint, ...args);
+    return () => {
+      controller.unsubscribe(endpoint, ...args);
+    };
+  }, [controller, key]);
+}
 ```
 
 ### unsubscribe(endpoint, ...args) {#unsubscribe}
@@ -660,6 +832,8 @@ import {
 } from '@data-client/react';
 
 export default class MyManager implements Manager {
+  declare protected websocket: WebSocket;
+
   middleware: Middleware = controller => {
     return next => async action => {
       if (action.type === actionTypes.FETCH) {
@@ -667,7 +841,7 @@ export default class MyManager implements Manager {
         console.log(
           controller.getResponse(
             action.endpoint,
-            ...(action.meta.args as Parameters<typeof action.endpoint>),
+            ...action.args,
             controller.getState(),
           ).data,
         );
@@ -701,28 +875,35 @@ Gets the internal state of Reactive Data Client that has _already been [committe
 > Using getState() in React's render lifecycle can result in data tearing.
 
 ```tsx
-const controller = useController();
+import { useController } from '@data-client/react';
+import { useCallback } from 'react';
+import { MyResource } from './resources/MyResource';
+import { redirect } from './routing';
 
-const updateHandler = useCallback(
-  async updatePayload => {
-    const response = await controller.fetch(
-      MyResource.update,
-      { id },
-      updatePayload,
-    );
-    // the fetch has completed, but react has not yet re-rendered
-    // this lets use sequence after the next re-render
-    // we're working on a better solution to this specific case
-    setTimeout(() => {
-      const { data: denormalized } = controller.getResponse(
+function useUpdateHandler(id: string) {
+  const controller = useController();
+
+  return useCallback(
+    async updatePayload => {
+      const response = await controller.fetch(
         MyResource.update,
         { id },
         updatePayload,
-        controller.getState(),
       );
-      redirect(denormalized.getterUrl);
-    }, 40);
-  },
-  [id],
-);
+      // the fetch has completed, but react has not yet re-rendered
+      // this lets use sequence after the next re-render
+      // we're working on a better solution to this specific case
+      setTimeout(() => {
+        const { data: denormalized } = controller.getResponse(
+          MyResource.update,
+          { id },
+          updatePayload,
+          controller.getState(),
+        );
+        redirect(denormalized.getterUrl);
+      }, 40);
+    },
+    [id],
+  );
+}
 ```

@@ -14,6 +14,7 @@ Files: `YYYY-MM-DD-vX.Y-short-description.md`
 - Title format: `vX.Y: Feature1, Feature2, Feature3` or `vX.Y Feature-focused Title`
 - Include `releases` tag plus relevant feature tags from [tags.yml](./tags.yml)
 - `draft: true` for unpublished/WIP posts
+- Publish a draft with `yarn blog:publish website/blog/<post>.md` (removes `draft: true`, re-dates the filename to today, fixes links). CI fails posts published with a stale date.
 
 ## Package Layers
 

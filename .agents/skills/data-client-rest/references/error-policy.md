@@ -19,6 +19,7 @@ Hard errors always reject with `error` - even when data has previously made avai
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -55,6 +56,7 @@ export const createError = (status: number) =>
 ```
 
 ```tsx title="TimePage"
+import { useSuspense } from '@data-client/react';
 import { getUpdated } from './getUpdated';
 
 export default function TimePage({ id }) {
@@ -63,9 +65,7 @@ export default function TimePage({ id }) {
     <div>
       API time:{' '}
       <time>
-        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(
-          updatedAt,
-        )}
+        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
       </time>
     </div>
   );
@@ -73,6 +73,7 @@ export default function TimePage({ id }) {
 ```
 
 ```tsx title="ShowTime"
+import { AsyncBoundary, useController } from '@data-client/react';
 import { getUpdated, createError } from './getUpdated';
 import TimePage from './TimePage';
 

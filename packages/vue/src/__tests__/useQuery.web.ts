@@ -1,6 +1,7 @@
 import { schema, All, Collection } from '@data-client/endpoint';
 import { resource } from '@data-client/rest';
-import { reactive, computed, type MaybeRefOrGetter } from 'vue';
+import { reactive, computed } from 'vue';
+import type { MaybeRefOrGetter } from 'vue';
 
 import {
   ArticleWithSlug,
@@ -174,7 +175,7 @@ describe('vue useQuery()', () => {
         },
       },
     ];
-    const { result, controller, waitForNextUpdate } = await renderDataCompose(
+    const { result, controller, allSettled } = await renderDataCompose(
       () => {
         return useQuery(ArticleResource.getList.schema, {});
       },
@@ -188,7 +189,7 @@ describe('vue useQuery()', () => {
       title: 'newly added',
       content: 'this one is pushed',
     });
-    await waitForNextUpdate();
+    await allSettled();
     expect(result.value.length).toBe(nested.length + 1);
   });
 
@@ -327,7 +328,7 @@ describe('vue useQuery()', () => {
       schema: UnionSchema,
     });
 
-    const { result, controller, waitForNextUpdate } = await renderDataCompose(
+    const { result, controller, allSettled } = await renderDataCompose(
       () => {
         return useQuery(UnionResource.getList.schema);
       },
@@ -368,7 +369,7 @@ describe('vue useQuery()', () => {
       type: 'second',
       id: '100',
     });
-    await waitForNextUpdate();
+    await allSettled();
     expect(result.value[4]).toBeInstanceOf(SecondUnion);
     expect(result.value).toMatchSnapshot();
     warnSpy.mockRestore();

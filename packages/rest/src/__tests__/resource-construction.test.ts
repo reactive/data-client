@@ -1177,6 +1177,9 @@ describe('resource()', () => {
       );
       expect(response.id).toEqual(3);
     });
+    // create takes FormData too
+    () =>
+      controller.fetch(TaskResource.create, { status: 'backlog' }, formData);
 
     // task should be removed from backlog
     expect(result.current.backlog).toHaveLength(1);

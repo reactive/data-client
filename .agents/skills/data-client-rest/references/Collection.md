@@ -18,7 +18,7 @@ import { Entity, RestEndpoint, Collection } from '@data-client/rest';
 
 export class Todo extends Entity {
   id = '';
-  userId = 0;
+  userId = '';
   title = '';
   completed = false;
 
@@ -59,7 +59,8 @@ export const getUsers = new RestEndpoint({
 });
 ```
 
-```tsx title="NewTodo" {10-14}
+```tsx title="NewTodo" {11-15}
+import React from 'react';
 import { useController } from '@data-client/react';
 import { getTodos } from './api/Todo';
 

@@ -2,10 +2,6 @@
 
 # Getting Started with Reactive Data Client
 
-> **Tip: Use Agent Skills**
->
-> Prefer to scaffold via your AI agent? See [Agent Skills](https://dataclient.io/vue/getting-started/agent-skills) and run `/data-client-setup`.
-
 ## Install the plugin {#add-provider-at-top-level-component}
 
 Install the [Vue plugin](https://vuejs.org/guide/reusability/plugins.html) when creating your app.
@@ -17,21 +13,14 @@ npm install @data-client/vue @data-client/rest
 ```ts title="main.ts"
 import { createApp } from 'vue';
 import { DataClientPlugin } from '@data-client/vue';
+import App from './App.vue';
 
 const app = createApp(App);
-
-app.use(DataClientPlugin, {
-  // optional overrides
-  // managers: getDefaultManagers(),
-  // initialState,
-  // Controller,
-  // gcPolicy,
-});
-
+app.use(DataClientPlugin);
 app.mount('#app');
 ```
 
-See [DataClientPlugin](./DataClientPlugin.md) for all options.
+`app.use(DataClientPlugin, options)` optionally overrides [`managers`](./getDefaultManagers.md), `initialState`, `Controller`, and `gcPolicy`. See [DataClientPlugin](./DataClientPlugin.md) for all options.
 
 [Next: Define Data »](https://dataclient.io/vue/getting-started/resource)
 
@@ -46,6 +35,8 @@ Example app: [vue-todo-app](https://github.com/reactive/data-client/tree/master/
 <summary>TypeScript 4.0+</summary>
 
 TypeScript is optional, but requires at least version [4.0](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-0.html#variadic-tuple-types) and [strictNullChecks](https://www.typescriptlang.org/tsconfig#strictNullChecks) for full type enforcement.
+
+`@data-client/vue` needs TypeScript 4.5 or later, since Vue's own types do.
 
 </details>
 

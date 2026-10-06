@@ -35,7 +35,7 @@ export const ProfileResource = resource({
 import { useSuspense } from '@data-client/react';
 import { ProfileResource } from './ProfileResource';
 
-function ProfileDetail(): JSX.Element {
+function ProfileDetail() {
   const profile = useSuspense(ProfileResource.get, { id: 1 });
   return (
     <div className="listItem">
@@ -75,7 +75,7 @@ export const getProfile = new Endpoint(
 import { useSuspense } from '@data-client/react';
 import { getProfile } from './Profile';
 
-function ProfileDetail(): JSX.Element {
+function ProfileDetail() {
   const profile = useSuspense(getProfile, 1);
   return (
     <div className="listItem">
@@ -171,7 +171,7 @@ export const ProfileResource = resource({
 import { useSuspense } from '@data-client/react';
 import { ProfileResource } from './ProfileResource';
 
-function ProfileList(): JSX.Element {
+function ProfileList() {
   const profiles = useSuspense(ProfileResource.getList);
   return (
     <div>
@@ -309,7 +309,10 @@ render(<PostList />);
 When fetch parameters depend on data from another resource.
 
 ```tsx
-function PostWithAuthor() {
+import { useSuspense } from '@data-client/react';
+import { PostResource, UserResource } from './resources';
+
+function PostWithAuthor({ id }: { id: string }) {
   const post = useSuspense(PostResource.get, { id });
   const author = useSuspense(UserResource.get, {
     id: post.userId,
@@ -358,7 +361,8 @@ export const UserResource = resource({
 });
 ```
 
-```tsx title="PostWithAuthor" {7-11}
+```tsx title="PostWithAuthor" {8-12}
+import { useSuspense } from '@data-client/react';
 import { PostResource, UserResource } from './Resources';
 
 export default function PostWithAuthor({ id }: { id: string }) {
@@ -380,7 +384,9 @@ export default function PostWithAuthor({ id }: { id: string }) {
 
 When entities are stored in [nested structures](https://dataclient.io/rest/guides/relational-data#nesting), that structure will remain.
 
-```typescript title="api/Post" {12-16}
+```typescript title="api/Post" {14-18}
+import { Entity, RestEndpoint, Collection } from '@data-client/rest';
+
 export class PaginatedPost extends Entity {
   id = '';
   title = '';
@@ -400,7 +406,8 @@ export const getPosts = new RestEndpoint({
 });
 ```
 
-```tsx title="ArticleList" {5-7}
+```tsx title="ArticleList" {6-8}
+import { useSuspense } from '@data-client/react';
 import { getPosts } from './api/Post';
 
 export default function ArticleList({ page }: { page: string }) {

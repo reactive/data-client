@@ -37,6 +37,7 @@ import { mountDataClient } from '@data-client/vue/test';
 import { useSuspense } from '@data-client/vue';
 import { defineComponent, h } from 'vue';
 import { ArticleResource } from './resources';
+import { flushUntil } from './flushUntil';
 
 const ArticleDetail = defineComponent({
   props: { id: { type: Number, required: true } },
@@ -193,7 +194,7 @@ Returns
 | `controller`   | The app's [Controller](../api/Controller.md)                 |
 | `app`          | The Vue app instance                                         |
 | `cleanup()`    | Unmounts and stops the managers                              |
-| `allSettled()` | Resolves once every in-flight fetch settles                  |
+| `allSettled()` | Resolves once every in-flight fetch settles, including fetches a prop change just started, and the component has re-rendered |
 
 ### Options
 

@@ -5,6 +5,11 @@
  * Usage (from repo root):
  *   yarn workspace rdc-website social-card blog/2026-10-03-v0.19-batch-set.md
  *   yarn workspace rdc-website social-card 0.19 --force   # overwrite existing
+ *   yarn workspace rdc-website social-card coding-agents  # non-release post, by slug
+ *
+ * Release posts (titled `vX.Y: ...`) write X.Y-card.png with a RELEASE pill and
+ * a visual per headline feature. Other posts write <slug>-card.png with their
+ * first tag's label as the pill and their summary bullets listed beside it.
  *
  * Cards before v0.19 are hand-made; don't --force over them.
  *
@@ -34,18 +39,46 @@ const OUT_DIR = path.join(WEBSITE_ROOT, 'static/img/social');
 const WIDTH = 1731;
 const HEIGHT = 909;
 const MAX_ROWS = 4;
+// Non-release cards list features instead of showing visuals, so fit more
+const MAX_FEATURE_ROWS = 6;
+// simple-icons brand marks (CC0): single-path, monochrome, 24x24
+const ICON_DIR = path.join(WEBSITE_ROOT, 'scripts/card-icons');
+// Agents the skills CLI (`npx skills add`) installs into, shown under the
+// tagline of posts tagged `agents`
+const AGENT_ICONS = [
+  'claude',
+  'cursor',
+  'githubcopilot',
+  'windsurf',
+  'googlegemini',
+  'cline',
+];
 
 function findPost(arg) {
-  if (!arg) throw new Error('Pass a blog post path or a version like 0.19');
+  if (!arg)
+    throw new Error('Pass a blog post path, a version like 0.19, or a slug');
   if (fs.existsSync(arg)) return arg;
   const inBlog = path.join(WEBSITE_ROOT, arg);
   if (fs.existsSync(inBlog)) return inBlog;
   const version = arg.replace(/^v/, '');
-  const match = fs
-    .readdirSync(BLOG_DIR)
-    .find(f => f.includes(`-v${version}-`) && /\.mdx?$/.test(f));
-  if (!match) throw new Error(`No blog post found for v${version}`);
+  const posts = fs.readdirSync(BLOG_DIR).filter(f => /\.mdx?$/.test(f));
+  const match =
+    posts.find(f => f.includes(`-v${version}-`)) ??
+    posts.find(f => postSlug(f) === arg);
+  if (!match) throw new Error(`No blog post found for ${arg}`);
   return path.join(BLOG_DIR, match);
+}
+
+// File name without its date prefix and extension, as Docusaurus slugs it
+const postSlug = file =>
+  path.basename(file).replace(/^\d{4}-\d{2}-\d{2}-|\.mdx?$/g, '');
+
+// A tag's label from tags.yml, like 'AI Agents' for `agents`
+function tagLabel(tag) {
+  const tags = fs.readFileSync(path.join(BLOG_DIR, 'tags.yml'), 'utf8');
+  return tags.match(
+    new RegExp(`^${tag}:\\s*\\n\\s*label: '([^']+)'`, 'm'),
+  )?.[1];
 }
 
 async function parsePost(postFile) {
@@ -53,22 +86,66 @@ async function parsePost(postFile) {
     filePath: postFile,
     fileContent: fs.readFileSync(postFile, 'utf8').replace(/\r\n/g, '\n'),
   });
-  const { title, description = '', image } = frontMatter;
-  const [, version, headline] = title.match(/^v(\d+\.\d+):?\s*(.*)$/);
+  const { title, description = '', image, tags = [] } = frontMatter;
+  const [, version, headline = title] =
+    title.match(/^v(\d+\.\d+):?\s*(.*)$/) ?? [];
+  const name = version ?? postSlug(postFile);
+  const pill =
+    version ? 'RELEASE' : (tagLabel(tags[0]) ?? tags[0] ?? '').toUpperCase();
   const [summary, details = ''] = body.split(
     /\{\/\*\s*truncate\s*\*\/\}|<!--\s*truncate\s*-->/,
   );
   const bullets = summaryBullets(summary);
   return {
     version,
+    name,
+    pill,
     headline,
     description,
     image,
     rows: bullets
-      .slice(0, MAX_ROWS)
+      .slice(0, version ? MAX_ROWS : MAX_FEATURE_ROWS)
       .map(({ tag, text }) => ({ tag, label: bulletLabel(text) })),
-    feature: featureVisual(headline, bullets, details),
+    feature: version && featureVisual(headline, bullets, details),
+    agents: tags.includes('agents') && AGENT_ICONS,
   };
+}
+
+// Stroked glyphs for rows without a brand
+const GLYPHS = {
+  sparkles:
+    '<path d="M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4z"/><path d="M19 17l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/>',
+  upgrade:
+    '<circle cx="12" cy="12" r="9"/><path d="M12 16V8m-3.5 3.5L12 8l3.5 3.5"/>',
+};
+// A row's icon by label keyword: a brand mark in its brand color (the site
+// accent for black-on-white marks), else a glyph. Brands go before `skill`
+// since most labels end in it.
+const ROW_ICONS = [
+  [/claude/i, 'claude', '#e08a6c'],
+  [/vue/i, 'vuedotjs', '#4fc08d'],
+  [/chrome|devtools/i, 'googlechrome', '#4285f4'],
+  [/expo|react native/i, 'expo', '#e6edf7'],
+  [/llms|markdown/i, 'markdown', '#4aa3ff'],
+  [/upgrade|migrat|codemod/i, 'upgrade', '#a78bfa'],
+  [/skill|agent/i, 'sparkles', '#f5c76b'],
+];
+
+function brandIcon(name, color = 'currentColor') {
+  return fs
+    .readFileSync(path.join(ICON_DIR, `${name}.svg`), 'utf8')
+    .replace(/<title>.*?<\/title>/, '')
+    .replace('<svg ', `<svg fill="${color}" `);
+}
+
+function rowIcon(label) {
+  const [, name, color] = ROW_ICONS.find(([re]) => re.test(label)) ?? [];
+  if (!name) return '';
+  const svg =
+    GLYPHS[name] ?
+      `<svg viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${GLYPHS[name]}</svg>`
+    : brandIcon(name, color);
+  return `<span class="icon" style="--c: ${color}">${svg}</span>`;
 }
 
 // Bullets under **Bold section:** headings in the summary, new features first
@@ -81,6 +158,7 @@ function summaryBullets(summary) {
       tag =
         /breaking/i.test(heading[1]) ? undefined
         : /new/i.test(heading[1]) ? 'new'
+        : /available/i.test(heading[1]) ? 'available'
         : 'improved';
       continue;
     }
@@ -409,7 +487,7 @@ function headlineLines(headline) {
     : words;
 }
 
-// Deterministic per-version so re-running produces the same image
+// Deterministic per-post so re-running produces the same image
 function prng(seed) {
   let s = [...seed].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
   return () => (s = (s * 1664525 + 1013904223) >>> 0) / 2 ** 32;
@@ -417,7 +495,8 @@ function prng(seed) {
 
 // Background motif and accent colors that fit the release's theme, picked from
 // its title then description: speed streaks for performance, a node graph for
-// schemas and data relationships, a grid for types, else flowing streams
+// schemas and data relationships, a grid for types, a constellation converging
+// on a core for agents, else flowing streams
 const THEMES = [
   {
     match: PERF,
@@ -433,6 +512,11 @@ const THEMES = [
     draw: gridMotif,
     match: /type|typescript/i,
     colors: ['#2dd4bf', '#3e96db', '#5eead4', '#7c6cf0'],
+  },
+  {
+    draw: agentMotif,
+    match: /\bagents?\b|\bllms?\b|skill|\bmcp\b/i,
+    colors: ['#4fc3f7', '#5eead4', '#a78bfa', '#f5c76b'],
   },
 ];
 const FLOW = {
@@ -532,6 +616,39 @@ function flowMotif(random, pick) {
   return body;
 }
 
+function agentMotif(random, pick, colors) {
+  let body = '';
+  // satellite nodes converge on a glowing core at the right edge, each trace
+  // carrying a packet, with prompt glyphs drifting between them
+  const core = [WIDTH * 0.965, HEIGHT * 0.5];
+  const at = (x, y) => `cx="${fixed(x)}" cy="${fixed(y)}"`;
+  for (let i = 1; i <= 6; i++)
+    body += `<circle ${at(...core)} r="${i * 44}" fill="none" stroke="${colors[0]}" stroke-width="${i % 2 ? 1.2 : 1}" stroke-dasharray="${i % 2 ? '' : '5 9'}" opacity="${fixed(0.5 - i * 0.06, 2)}"/>`;
+  body += `<circle ${at(...core)} r="34" fill="${colors[1]}" opacity="0.3" filter="url(#glow)"/><circle ${at(...core)} r="11" fill="#fff" filter="url(#glow)"/>`;
+  for (let i = 0; i < 64; i++) {
+    const c = pick();
+    // denser toward the right edge, where the mask lets the motif show
+    const p0 = [WIDTH * (0.5 + 0.5 * Math.sqrt(random())), HEIGHT * random()];
+    // bend each trace so they fan in instead of piling onto one line
+    const p1 = [
+      (p0[0] + core[0]) / 2 + (random() - 0.5) * 180,
+      (p0[1] + core[1]) / 2 + (random() - 0.5) * 180,
+    ];
+    const along = t =>
+      [0, 1].map(
+        k => (1 - t) ** 2 * p0[k] + 2 * (1 - t) * t * p1[k] + t ** 2 * core[k],
+      );
+    body += `<path d="M${p0.map(v => fixed(v))} Q${p1.map(v => fixed(v))} ${core.map(v => fixed(v))}" stroke="${c}" stroke-width="${fixed(0.8 + random() * 1.2)}" fill="none" opacity="${fixed(0.18 + random() * 0.4, 2)}"/>`;
+    body += `<circle ${at(...p0)} r="${fixed(2 + random() * 3.5)}" fill="${c}" filter="url(#glow)"/>`;
+    // a packet in flight along the trace
+    body += `<circle ${at(...along(0.3 + random() * 0.6))} r="2.2" fill="#fff" opacity="${fixed(0.5 + random() * 0.5, 2)}"/>`;
+  }
+  const glyphs = ['>_', '$', '{ }', '</>', '>_', '$'];
+  for (const [i, glyph] of glyphs.entries())
+    body += `<text x="${fixed(WIDTH * (0.74 + random() * 0.2))}" y="${fixed(HEIGHT * ((i + 0.5) / glyphs.length))}" text-anchor="middle" font-family="'Roboto Mono', monospace" font-size="${fixed(22 + random() * 12)}" fill="${pick()}" opacity="${fixed(0.35 + random() * 0.3, 2)}">${escape(glyph)}</text>`;
+  return body;
+}
+
 // Inline the site's fonts so rendering is offline and reproducible
 function fontFace(family, file) {
   const woff2 = fs.readFileSync(
@@ -541,7 +658,16 @@ function fontFace(family, file) {
   return `@font-face { font-family: '${family}'; font-weight: 100 900; src: url(data:font/woff2;base64,${woff2}) format('woff2'); }`;
 }
 
-function cardHtml({ version, headline, description, rows, feature }) {
+function cardHtml({
+  version,
+  name,
+  pill,
+  headline,
+  description,
+  rows,
+  feature,
+  agents,
+}) {
   const theme = pickTheme(headline, description);
   const logo = fs
     .readFileSync(path.join(WEBSITE_ROOT, 'static/img/client-logo.svg'), 'utf8')
@@ -555,9 +681,13 @@ function cardHtml({ version, headline, description, rows, feature }) {
   const panelRows = rows
     .map(
       ({ tag, label }) =>
-        `<div class="row"><span class="chip ${tag}">${tag}</span><span class="label">${escape(label)}</span></div>`,
+        `<div class="row">${rowIcon(label)}<span class="chip ${tag}">${tag}</span><span class="label">${escape(label)}</span></div>`,
     )
     .join('');
+  const worksWith =
+    agents ?
+      `<div class="agents"><span>WORKS WITH</span>${agents.map(a => brandIcon(a)).join('')}</div>`
+    : '';
 
   return `<!doctype html><html><head><meta charset="utf-8">
 <style>
@@ -594,6 +724,9 @@ function cardHtml({ version, headline, description, rows, feature }) {
     margin-top: 26px; width: 680px; font-size: 28px; font-weight: 300; line-height: 1.35; color: #b4bfd0;
     display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
   }
+  .agents { display: flex; align-items: center; gap: 26px; margin-top: 30px; color: #b4bfd0; }
+  .agents span { font-size: 18px; font-weight: 500; letter-spacing: 0.2em; color: #6f82a0; margin-right: 6px; }
+  .agents svg { width: 36px; height: 36px; opacity: 0.85; }
   .panel {
     position: absolute; right: 95px; top: 50%; width: 750px; transform: translateY(-50%) perspective(1600px) rotateY(-9deg);
     padding: 36px 34px 30px; border-radius: 26px;
@@ -607,12 +740,17 @@ function cardHtml({ version, headline, description, rows, feature }) {
     display: flex; align-items: center; gap: 22px; padding: 18px 20px; margin-top: 12px;
     border-radius: 12px; background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.06);
   }
+  .icon {
+    flex: none; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+    background: color-mix(in srgb, var(--c) 14%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 32%, transparent);
+  }
+  .icon svg { width: 28px; height: 28px; }
   .chip {
     flex: none; width: 128px; text-align: center; padding: 7px 0; border-radius: 8px;
     font: 500 21px 'Roboto Mono', monospace; text-transform: uppercase; letter-spacing: 0.04em;
   }
   .chip.new { color: #5eead4; background: rgba(20,184,166,0.16); border: 1px solid rgba(94,234,212,0.35); }
-  .chip.improved { color: #a5b4fc; background: rgba(99,102,241,0.18); border: 1px solid rgba(165,180,252,0.35); font-size: 18px; }
+  .chip.improved, .chip.available { color: #a5b4fc; background: rgba(99,102,241,0.18); border: 1px solid rgba(165,180,252,0.35); font-size: 18px; }
   .label { font-size: 26px; color: #e6edf7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .editor {
     position: absolute; right: 90px; width: 740px; border-radius: 18px; overflow: hidden;
@@ -665,18 +803,18 @@ function cardHtml({ version, headline, description, rows, feature }) {
   .stat .big small { font-size: 0.55em; }
   .stat .unit { font-size: 30px; font-weight: 500; letter-spacing: 0.12em; color: #cfe3ff; text-transform: uppercase; margin-top: 4px; }
 </style></head><body>
-${background(theme, prng(version))}
+${background(theme, prng(name))}
 <div class="left">
   <div class="brand">${logo}<div><div class="name">REACTIVE</div><div class="sub">DATA CLIENT</div></div></div>
-  <div class="version"><span class="num">v${escape(version)}</span><span class="pill">RELEASE</span></div>
+  <div class="version">${version ? `<span class="num">v${escape(version)}</span>` : ''}<span class="pill">${escape(pill)}</span></div>
   <div class="headline" id="headline">${lines}</div>
   <div class="rule"></div>
-  <div class="tagline">${escape(description)}</div>
+  <div class="tagline">${escape(description)}</div>${worksWith}
 </div>
 ${
   feature ? panelsHtml(feature)
   : panelRows ?
-    `<div class="panel"><h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4z"/><path d="M19 17l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg>WHAT'S NEW</h2>${panelRows}</div>`
+    `<div class="panel"><h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4z"/><path d="M19 17l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg>${version ? "WHAT'S NEW" : 'AT A GLANCE'}</h2>${panelRows}</div>`
   : ''
 }
 </body></html>`;
@@ -752,13 +890,13 @@ async function main() {
   });
   const postFile = findPost(positionals[0]);
   const post = await parsePost(postFile);
-  const outFile = path.join(OUT_DIR, `${post.version}-card.png`);
+  const outFile = path.join(OUT_DIR, `${post.name}-card.png`);
   const rel = path.relative(process.cwd(), outFile);
   if (fs.existsSync(outFile) && !values.force)
     throw new Error(`${rel} exists; pass --force to overwrite`);
   await render(cardHtml(post), outFile, post.feature);
   console.log(`Wrote ${rel}`);
-  const image = `/img/social/${post.version}-card.png`;
+  const image = `/img/social/${post.name}-card.png`;
   if (post.image !== image)
     console.log(
       `Add to ${path.basename(postFile)} frontmatter:\n  image: ${image}`,

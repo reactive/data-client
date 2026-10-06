@@ -79,12 +79,12 @@ export const PostResource = resource({
       defaultValue="My New Post"
       required
     />
-    <textarea name="body" :rows="12" label="Body" required>
+    <TextArea name="body" :rows="12" label="Body" required>
       After clicking 'save', the button will be disabled until the POST
       is completed. Upon completion the newly created post is displayed
       immediately as Reactive Data Client is able to use the fetch
       response to populate the store.
-    </textarea>
+    </TextArea>
     <div v-if="error" class="alert alert--danger">{{ error.message }}</div>
     <div>
       <button type="submit" :disabled="loading">
@@ -130,9 +130,9 @@ export const PostResource = resource({
     <Suspense>
       <PostDetail :id="id" />
     </Suspense>
-    <center>
+    <div style="text-align: center">
       <button @click="id = undefined">New Post</button>
-    </center>
+    </div>
   </div>
   <PostCreate v-else @navigate-to-post="id = $event" />
 </template>

@@ -264,11 +264,11 @@ export const PostResource = resource({
 </script>
 
 <template>
-  <center>
+  <div style="text-align: center">
     <button @click="loadPage" :disabled="isPending">
       {{ isPending ? '...' : 'Load more' }}
     </button>
-  </center>
+  </div>
 </template>
 ```
 
@@ -381,7 +381,9 @@ export const UserResource = resource({
 
 When entities are stored in [nested structures](https://dataclient.io/rest/guides/relational-data#nesting), that structure will remain.
 
-```typescript title="api/Post" {12-16}
+```typescript title="api/Post" {14-18}
+import { Entity, RestEndpoint, Collection } from '@data-client/rest';
+
 export class PaginatedPost extends Entity {
   id = '';
   title = '';

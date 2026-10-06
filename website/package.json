@@ -17,6 +17,7 @@
     "deploy": "USE_SSH=true docusaurus deploy",
     "docusaurus": "docusaurus",
     "build:skills": "node framework-docs/skillReferences.mjs",
+    "check:doc-examples": "node framework-docs/checkExamples.mjs",
     "social-card": "node scripts/socialCard.mjs"
   },
   "engines": {
@@ -26,6 +27,7 @@
     "@docusaurus/mdx-loader": "^3.0.1",
     "@docusaurus/module-type-aliases": "^3.0.1",
     "@emotion/react": "^11.14.0",
+    "@number-flow/vue": "^0.5.0",
     "@redux-devtools/core": "^5.0.0",
     "@redux-devtools/inspector-monitor": "^7.0.0",
     "@slorber/remark-comment": "^1.0.0",
@@ -51,6 +53,8 @@
     "serve": "14.2.6",
     "unified": "^11.0.4",
     "unist-util-visit": "^5.0.0",
+    "vue": "^3.4.0",
+    "vue-tsc": "^3.1.2",
     "webpack": "^5.76.0"
   },
   "dependencies": {

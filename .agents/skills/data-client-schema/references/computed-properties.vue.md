@@ -70,6 +70,8 @@ class User extends Entity {
 one entity. We generally call these aggregates.
 
 ```ts title="resources/User"
+import { Entity, resource } from '@data-client/rest';
+
 export class User extends Entity {
   id = '';
   name = '';

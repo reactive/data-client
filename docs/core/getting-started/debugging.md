@@ -37,7 +37,7 @@ This is useful when you want a quick answer to questions like "why didn't this r
 "what is in the cache right now?", or "which action updated this entity?" without manually
 clicking through each inspector panel.
 
-To run these steps yourself, or see exactly what the agent does, follow [Debugging with Chrome DevTools MCP](./devtools-debugging.md).
+The skill drives this through [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp).
 
 ## Manual debugging
 
@@ -149,6 +149,7 @@ by setting the trace option to `true` with [getDefaultManagers](../api/getDefaul
 ```tsx title="index.tsx"
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
+import App from './App';
 
 const managers = getDefaultManagers({
   // highlight-next-line

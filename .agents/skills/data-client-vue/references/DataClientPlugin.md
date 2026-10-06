@@ -28,7 +28,7 @@ app.use(DataClientPlugin, options);
 interface ProvideOptions {
   managers?: Manager[];
   initialState?: State<unknown>;
-  Controller?: typeof Controller;
+  Controller?: new (props: { gcPolicy: GCInterface }) => Controller;
   gcPolicy?: GCInterface;
 }
 ```
@@ -40,8 +40,12 @@ List of [Managers](https://dataclient.io/vue/api/Manager) to use. This is the ma
 Defaults to [getDefaultManagers()](./getDefaultManagers.md), which can also be used to extend the defaults.
 
 ```ts title="main.ts"
+import { createApp } from 'vue';
 import { DataClientPlugin, getDefaultManagers } from '@data-client/vue';
+import App from './App.vue';
+import MyManager from './MyManager';
 
+const app = createApp(App);
 app.use(DataClientPlugin, {
   managers: [...getDefaultManagers(), new MyManager()],
 });
@@ -107,20 +111,23 @@ export interface State<T> {
 }
 ```
 
-### Controller?: typeof Controller {#Controller}
+### Controller?: Controller class {#Controller}
 
 This allows you to extend [Controller](./Controller.md) to provide additional functionality.
 This might be useful if you have additional actions you want to dispatch to custom [Managers](https://dataclient.io/vue/api/Manager).
 
 ```ts title="main.ts"
+import { createApp } from 'vue';
 import { Controller, DataClientPlugin } from '@data-client/vue';
+import App from './App.vue';
 
-class MyController extends Controller {
+export class MyController extends Controller {
   doSomething = () => {
     console.log('hi');
   };
 }
 
+const app = createApp(App);
 app.use(DataClientPlugin, { Controller: MyController });
 ```
 
@@ -129,6 +136,7 @@ but they are still typed as `Controller`. Cast to reach the added members:
 
 ```ts
 import { useController } from '@data-client/vue';
+import type { MyController } from './main';
 
 const ctrl = useController() as MyController;
 ctrl.doSomething();
@@ -140,8 +148,11 @@ Removes data from the store once no component uses it and it has gone stale. Def
 `new GCPolicy()`; pass one to change how often it sweeps or how long unused data is kept.
 
 ```ts title="main.ts"
+import { createApp } from 'vue';
 import { DataClientPlugin, GCPolicy } from '@data-client/vue';
+import App from './App.vue';
 
+const app = createApp(App);
 app.use(DataClientPlugin, {
   // sweep every 10 minutes
   gcPolicy: new GCPolicy({ intervalMS: 60 * 1000 * 10 }),

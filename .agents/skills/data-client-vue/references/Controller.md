@@ -94,9 +94,9 @@ the response or error upon completion.
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
   import { useRouter } from 'vue-router';
-  import { PostResource } from './PostResource';
+  import { Post, PostResource } from './PostResource';
 
-  const props = defineProps<{ post: PostResource }>();
+  const props = defineProps<{ post: Post }>();
   const ctrl = useController();
   const router = useRouter();
 
@@ -183,7 +183,8 @@ when there are many parameterizations in cache.
 ```html title="CreateTrade.vue"
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
-  import { AccountResource, TradeResource } from './resources';
+  import { AccountResource, TradeResource, type Trade } from './resources';
+  import TradeForm from './TradeForm.vue';
 
   const props = defineProps<{ userId: string }>();
   const ctrl = useController();
@@ -298,8 +299,8 @@ import {
   LogoutManager,
   getDefaultManagers,
 } from '@data-client/vue';
-import { unAuth } from '../authentication';
 import App from './App.vue';
+import { unAuth } from '../authentication';
 
 const myDomain = 'http://test.com';
 const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
@@ -331,6 +332,7 @@ This is typically used when logging out or changing authenticated users.
 <script setup lang="ts">
   import { useController, useSuspense } from '@data-client/vue';
   import { CurrentUserResource } from './CurrentUserResource';
+  import { impersonateUser } from './auth';
 
   const USER_NUMBER_ONE: string = '1111';
 
@@ -427,6 +429,12 @@ fields:
 ctrl.set([new schema.Invalidate(Todo)], [{ id: '5' }, { id: '6' }]);
 ```
 
+To delete one, pass the Invalidate schema and its row:
+
+```ts
+ctrl.set(new schema.Invalidate(Todo), { id: '5' });
+```
+
 [Values](https://dataclient.io/rest/api/Values) schemas take an object of rows instead:
 
 ```ts
@@ -436,7 +444,7 @@ ctrl.set(new schema.Values(Todo), {
 });
 ```
 
-Array and Values schemas take no `args` (so [Entity.pk()](https://dataclient.io/rest/api/Entity#pk) and [Entity.process()](https://dataclient.io/rest/api/Entity#process)
+Array, Values and Invalidate schemas take no `args` (so [Entity.pk()](https://dataclient.io/rest/api/Entity#pk) and [Entity.process()](https://dataclient.io/rest/api/Entity#process)
 receive `[]`) and no updater function. Rows that share a pk merge in list order, without
 [Entity.shouldReorder()](https://dataclient.io/rest/api/Entity#shouldreorder). Use this instead of calling `set()` once per row, such as when
 [batching high-frequency stream updates](https://dataclient.io/vue/concepts/managers#batching).
@@ -594,6 +602,8 @@ import {
 } from '@data-client/vue';
 
 export default class MyManager implements Manager {
+  declare protected websocket: WebSocket;
+
   middleware: Middleware = controller => {
     return next => async action => {
       if (action.type === actionTypes.FETCH) {
@@ -601,7 +611,7 @@ export default class MyManager implements Manager {
         console.log(
           controller.getResponse(
             action.endpoint,
-            ...(action.meta.args as Parameters<typeof action.endpoint>),
+            ...action.args,
             controller.getState(),
           ).data,
         );

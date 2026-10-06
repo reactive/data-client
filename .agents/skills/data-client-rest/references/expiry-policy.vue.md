@@ -38,6 +38,7 @@ you will continue to see the old time without any refresh.
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -160,6 +161,7 @@ within the expiry time it just continues to display it.
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -236,6 +238,7 @@ the previous data. This can be done even with 'fresh' data.
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -275,6 +278,7 @@ export const lastUpdated = new RestEndpoint({
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -346,6 +350,7 @@ In this example [invalidating the endpoint](https://dataclient.io/vue/api/Contro
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -409,6 +414,7 @@ response. If the endpoint uses the entity in an [Array](https://dataclient.io/re
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -476,7 +482,7 @@ export const lastUpdated = new RestEndpoint({
     >
       Invalidate (without fetching DELETE)
     </button>
-    <button @click="ctrl.set(InvalidateTimedEntity, { id: '1' }, { id: '1' })">
+    <button @click="ctrl.set([InvalidateTimedEntity], [{ id: '1' }])">
       Invalidate Entity with ctrl.set
     </button>
   </div>

@@ -12,13 +12,14 @@ Logs out based on fetch responses. By default this is triggered by [401 (Unautho
 
 **Web**
 
-```tsx title="/index.tsx"
+```tsx title="index.tsx"
 import {
   DataProvider,
   LogoutManager,
   getDefaultManagers,
 } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
+import App from './App';
 
 const managers = [new LogoutManager(), ...getDefaultManagers()];
 
@@ -31,13 +32,14 @@ createRoot(document.body).render(
 
 **React Native**
 
-```tsx title="/index.tsx"
+```tsx title="index.tsx"
 import {
   DataProvider,
   LogoutManager,
   getDefaultManagers,
 } from '@data-client/react';
 import { AppRegistry } from 'react-native';
+import App from './App';
 
 const managers = [new LogoutManager(), ...getDefaultManagers()];
 
@@ -67,7 +69,7 @@ export default function Provider({
 }
 ```
 
-```tsx title="app/_layout.tsx"
+```tsx title="app/layout.tsx"
 import Provider from './Provider';
 
 export default function RootLayout({ children }) {
@@ -83,52 +85,23 @@ export default function RootLayout({ children }) {
 
 **Expo**
 
-```tsx title="app/Provider.tsx"
+```tsx title="app/_layout.tsx"
+import { Stack } from 'expo-router';
 import {
+  DataProvider,
   LogoutManager,
   getDefaultManagers,
-  DataProvider,
 } from '@data-client/react';
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from '@react-navigation/native';
-import { useColorScheme } from '@/hooks/useColorScheme';
 
 const managers = [new LogoutManager(), ...getDefaultManagers()];
 
-export default function Provider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const colorScheme = useColorScheme();
-
-  return (
-    <ThemeProvider
-      value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
-    >
-      <DataProvider managers={managers}>{children}</DataProvider>
-    </ThemeProvider>
-  );
-}
-```
-
-```tsx title="app/_layout.tsx"
-import { Stack } from 'expo-router';
-import 'react-native-reanimated';
-
-import Provider from './Provider';
-
 export default function RootLayout() {
   return (
-    <Provider>
+    <DataProvider managers={managers}>
       <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
+        <Stack.Screen name="index" />
       </Stack>
-    </Provider>
+    </DataProvider>
   );
 }
 ```

@@ -10,8 +10,9 @@ Async rendering of remotely triggered data mutations.
 
 ## Usage
 
-```typescript title="Ticker" {32}
+```typescript title="Ticker" {33}
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class Ticker extends Entity {
   product_id = '';
@@ -48,6 +49,7 @@ export const getTicker = new RestEndpoint({
 
 ```tsx title="AssetPrice" {5}
 import { useLive } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
 import { getTicker } from './Ticker';
 
 function AssetPrice({ productId }: Props) {

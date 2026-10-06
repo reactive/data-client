@@ -19,6 +19,7 @@ Hard errors always reject with `error` - even when data has previously made avai
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -87,7 +88,8 @@ export const createError = (status: number) =>
 
   const fail = (action: 'fetch' | 'invalidate', status: number) => {
     getUpdated.FAKE_ERROR = createError(status);
-    ctrl[action](getUpdated, { id: '1' });
+    if (action === 'fetch') ctrl.fetch(getUpdated, { id: '1' });
+    else ctrl.invalidate(getUpdated, { id: '1' });
   };
 </script>
 

@@ -96,7 +96,7 @@ delay: 150,
 ]}>
 
 ```typescript title="resources/Post"
-import { Collection, Entity } from '@data-client/rest';
+import { Collection, Entity, resource } from '@data-client/rest';
 
 export class User extends Entity {
   id = '';
@@ -138,6 +138,7 @@ export const PostResource = resource({
 :::react
 
 ```tsx title="PostPage" collapsed
+import { useSuspense } from '@data-client/react';
 import { PostResource } from './resources/Post';
 
 function PostPage() {
@@ -216,6 +217,8 @@ the relationship in [Entity.schema](../api/Entity.md#schema)
 <FrameworkPlayground>
 
 ```ts title="resources/User" collapsed
+import { Entity, resource } from '@data-client/rest';
+
 export class User extends Entity {
   id = 0;
   username = '';
@@ -231,6 +234,7 @@ export const UserResource = resource({
 ```
 
 ```ts title="resources/Todo"
+import { Entity, resource } from '@data-client/rest';
 import { User } from './User';
 
 export class Todo extends Entity {
@@ -256,6 +260,7 @@ export const TodoResource = resource({
 :::react
 
 ```tsx title="TodoJoined" collapsed
+import { useFetch, useSuspense } from '@data-client/react';
 import { TodoResource } from './resources/Todo';
 import { UserResource } from './resources/User';
 
@@ -442,7 +447,7 @@ delay: 150,
 ]}>
 
 ```typescript title="resources/Post"
-import { Collection, Entity } from '@data-client/rest';
+import { Entity, resource, type Schema } from '@data-client/rest';
 
 export class User extends Entity {
   id = '';
@@ -524,6 +529,7 @@ export const UserResource = resource({
 :::react
 
 ```tsx title="UserPage" collapsed
+import { useSuspense } from '@data-client/react';
 import { UserResource } from './resources/Post';
 
 export default function UserPage({ setRoute, id }) {
@@ -558,6 +564,7 @@ export default function UserPage({ setRoute, id }) {
 ```
 
 ```tsx title="PostPage" collapsed
+import { useSuspense } from '@data-client/react';
 import { PostResource } from './resources/Post';
 
 export default function PostPage({ setRoute }) {
@@ -604,6 +611,7 @@ export default function PostPage({ setRoute }) {
 ```
 
 ```tsx title="Navigation" collapsed
+import React from 'react';
 import PostPage from './PostPage';
 import UserPage from './UserPage';
 

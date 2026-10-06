@@ -59,7 +59,7 @@ export const getPortfolioColumns = new RestEndpoint({
   path: '/companies/columns',
   searchParams: {} as { portfolio: string },
   schema: new Collection([PortfolioScalar], {
-    argsKey: ({ portfolio }) => ({ portfolio }),
+    argsKey: ({ portfolio }: { portfolio: string }) => ({ portfolio }),
   }),
 });
 ```
@@ -102,6 +102,7 @@ function formatShares(value: number | undefined) {
 ```
 
 ```tsx title="PortfolioGrid"
+import React from 'react';
 import { useSuspense, useFetch } from '@data-client/react';
 import { getCompanies, getPortfolioColumns } from './api/Company';
 import CompanyGrid from './CompanyGrid';

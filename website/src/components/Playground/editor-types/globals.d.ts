@@ -1,5 +1,5 @@
 import { PathFunction, ParamData } from 'path-to-regexp';
-import { Manager, State, Controller, GCInterface, EndpointInterface as EndpointInterface$1, FetchFunction as FetchFunction$1, Schema as Schema$1, ResolveType as ResolveType$1, Denormalize as Denormalize$1, DenormalizeNullable as DenormalizeNullable$1, Queryable as Queryable$1, NI as NI$1, SchemaArgs as SchemaArgs$1, NetworkError as NetworkError$2, UnknownError as UnknownError$1, ErrorTypes as ErrorTypes$2 } from '@data-client/core';
+import { Manager, State, GCInterface, Controller, EndpointInterface as EndpointInterface$1, FetchFunction as FetchFunction$1, Schema as Schema$1, ResolveType as ResolveType$1, Denormalize as Denormalize$1, DenormalizeNullable as DenormalizeNullable$1, Queryable as Queryable$1, NI as NI$1, SchemaArgs as SchemaArgs$1, NetworkError as NetworkError$2, UnknownError as UnknownError$1, ErrorTypes as ErrorTypes$2 } from '@data-client/core';
 export { Manager } from '@data-client/core';
 import * as React from 'react';
 import React__default, { JSX } from 'react';
@@ -486,7 +486,7 @@ interface IEntityClass<TBase extends Constructor = any> {
      * @see https://dataclient.io/rest/api/Entity#indexes
      */
     indexes?: readonly string[] | undefined;
-    /** Maximum entity nesting depth for denormalization (default: 128)
+    /** Maximum entity nesting depth for denormalization (default: 64)
      *
      * Set a lower value to truncate deep bidirectional entity graphs earlier.
      * @see https://dataclient.io/rest/api/Entity#maxEntityDepth
@@ -1470,13 +1470,20 @@ type ExtractObject<S extends Record<string, any>> = {
     [K in keyof S]: S[K] extends Schema ? ExtractCollection<S[K]> : never;
 }[keyof S];
 
+/** Searches wrappers like Query and Lazy through their `schema` (Entity classes have a `prototype`) */
 type ExtractCollection<S extends Schema | undefined> = S extends ({
     push: any;
     unshift: any;
     assign: any;
     remove: any;
     schema: Schema;
-}) ? S : S extends Object$1<infer T> ? ExtractObject<T> : S extends Exclude<Schema, {
+}) ? S : S extends Object$1<infer T> ? ExtractObject<T> : S extends {
+    schema: infer Q;
+    denormalize: any;
+    prototype?: undefined;
+} ? ExtractObject<{
+    schema: Q;
+}> : S extends Exclude<Schema, {
     [K: string]: any;
 }> ? never : S extends {
     [K: string]: Schema;
@@ -2145,12 +2152,12 @@ interface Resource<O extends ResourceGenerics = {
     create: 'searchParams' extends keyof O ? MutateEndpoint<{
         path: ShortenPath<O['path']>;
         schema: Collection<[O['schema']]>['push'];
-        body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
+        body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>> | FormData;
         searchParams: O['searchParams'];
     }> : MutateEndpoint<{
         path: ShortenPath<O['path']>;
         schema: Collection<[O['schema']]>['push'];
-        body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
+        body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>> | FormData;
     }>;
     /** Update an item (PUT)
      *
@@ -2244,7 +2251,9 @@ interface ProviderProps {
     children: React__default.ReactNode;
     managers?: Manager[];
     initialState?: State<unknown>;
-    Controller?: typeof Controller;
+    Controller?: new (props: {
+        gcPolicy: GCInterface;
+    }) => Controller;
     gcPolicy?: GCInterface;
     devButton?: DevToolsPosition | null | undefined;
 }

@@ -532,6 +532,8 @@ search({ q: 'test', page: 1 });
 The actual **value is not used** in any way - this only determines [typing](#typing).
 
 ```typescript title="getFoo"
+import { RestEndpoint } from '@data-client/rest';
+
 const getReactSite = new RestEndpoint({
   path: 'https\\://site.com/:slug',
   searchParams: {} as { isReact: boolean },
@@ -547,7 +549,9 @@ used** in any way - this only determines [typing](#typing).
 
 This is only used by endpoings with a method that uses body: 'POST', 'PUT', 'PATCH'.
 
-```ts {4}
+```ts {6}
+import { RestEndpoint } from '@data-client/rest';
+
 const updateSite = new RestEndpoint({
   path: 'https\\://site.com/:slug',
   method: 'POST',
@@ -904,7 +908,7 @@ from this function was a succesful network response. When the actual fetch compl
 of failure or success), the optimistic update will be replaced with the actual network response.
 
 ```ts title="Post"
-import { Entity, schema } from '@data-client/rest';
+import { Entity, EntityMixin } from '@data-client/rest';
 
 export class Post extends Entity {
   id = 0;
@@ -1001,9 +1005,9 @@ export const PostResource = resource({
 </script>
 
 <template>
-  <center>
+  <div style="text-align: center">
     <small>{{ totalVotes }} votes total</small>
-  </center>
+  </div>
 </template>
 ```
 
@@ -1066,12 +1070,17 @@ const createUser = new RestEndpoint({
 
 More updates:
 
-```typescript title="Component.vue"
-// start both fetches in parallel
-useFetch(userList);
-useFetch(userList, { admin: true });
-const allusers = await useSuspense(userList);
-const adminUsers = await useSuspense(userList, { admin: true });
+```html title="Component.vue"
+<script setup lang="ts">
+  import { useFetch, useSuspense } from '@data-client/vue';
+  import { userList } from './resources';
+
+  // start both fetches in parallel
+  useFetch(userList);
+  useFetch(userList, { admin: true });
+  const allusers = await useSuspense(userList);
+  const adminUsers = await useSuspense(userList, { admin: true });
+</script>
 ```
 
 The endpoint below ensures the new user shows up immediately in the usages above.
@@ -1123,11 +1132,16 @@ Creates a POST endpoint that places newly created Entities at the _end_ of a [Co
 Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.push](./Collection.vue.md#push)
 
 ```tsx
+import { RestEndpoint, Collection } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { Todo } from './resources';
+
 const getTodos = new RestEndpoint({
   path: '/todos',
   searchParams: {} as { userId?: string },
   schema: new Collection([Todo]),
 });
+const ctrl = useController();
 
 // POST /todos - adds new Todo to the end of the list
 const newTodo = await ctrl.fetch(
@@ -1138,10 +1152,15 @@ const newTodo = await ctrl.fetch(
 ```
 
 ```tsx
+import { resource } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { User } from './resources';
+
 const UserResource = resource({
   path: '/groups/:group/users/:id',
   schema: User,
 });
+const ctrl = useController();
 
 // POST /groups/five/users - adds new User to the end of the list
 const newUser = await ctrl.fetch(
@@ -1158,11 +1177,16 @@ Creates a POST endpoint that places newly created Entities at the _start_ of a [
 Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.unshift](./Collection.vue.md#unshift)
 
 ```tsx
+import { RestEndpoint, Collection } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { Todo } from './resources';
+
 const getTodos = new RestEndpoint({
   path: '/todos',
   searchParams: {} as { userId?: string },
   schema: new Collection([Todo]),
 });
+const ctrl = useController();
 
 // POST /todos - adds new Todo to the beginning of the list
 const newTodo = await ctrl.fetch(
@@ -1173,10 +1197,15 @@ const newTodo = await ctrl.fetch(
 ```
 
 ```tsx
+import { resource } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { User } from './resources';
+
 const UserResource = resource({
   path: '/groups/:group/users/:id',
   schema: User,
 });
+const ctrl = useController();
 
 // POST /groups/five/users - adds new User to the start of the list
 const newUser = await ctrl.fetch(
@@ -1193,10 +1222,15 @@ Creates a POST endpoint that merges Entities into a [Values](https://dataclient.
 Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.assign](./Collection.vue.md#assign)
 
 ```tsx
+import { RestEndpoint, Collection, Values } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { Stats } from './resources';
+
 const getStats = new RestEndpoint({
   path: '/products/stats',
   schema: new Collection(new Values(Stats)),
 });
+const ctrl = useController();
 
 // POST /products/stats - add/update entries in the Values collection
 await ctrl.fetch(getStats.assign, {
@@ -1206,6 +1240,10 @@ await ctrl.fetch(getStats.assign, {
 ```
 
 ```tsx
+import { resource, Collection, Values } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { Stats } from './resources';
+
 const StatsResource = resource({
   urlPrefix: 'https://api.exchange.example.com',
   path: '/products/:product_id/stats',
@@ -1216,6 +1254,7 @@ const StatsResource = resource({
     schema: new Collection(new Values(Stats)),
   },
 });
+const ctrl = useController();
 
 // POST /products/stats - add/update entries
 await ctrl.fetch(StatsResource.getList.assign, {
@@ -1230,20 +1269,30 @@ Creates a PATCH endpoint that removes Entities from a [Collection](./Collection.
 Returns a new RestEndpoint with [method](#method): 'PATCH' and schema: [Collection.remove](./Collection.vue.md#remove)
 
 ```tsx
+import { RestEndpoint, Collection } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { Todo } from './resources';
+
 const getTodos = new RestEndpoint({
   path: '/todos',
   schema: new Collection([Todo]),
 });
+const ctrl = useController();
 
 // PATCH /todos - removes Todo from collection AND updates the entity
-await ctrl.fetch(getTodos.remove, {}, { id: '123', completed: true });
+await ctrl.fetch(getTodos.remove, { id: '123', completed: true });
 ```
 
 ```tsx
+import { resource } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { User } from './resources';
+
 const UserResource = resource({
   path: '/groups/:group/users/:id',
   schema: User,
 });
+const ctrl = useController();
 
 // PATCH /groups/five/users - removes user from 'five' group list
 // AND updates the user entity with response data (e.g., new group)
@@ -1353,10 +1402,15 @@ The add filter is based on the merged entity values (existing + body).
 This uses the same [createCollectionFilter](./Collection.vue.md#createcollectionfilter) logic as push/remove.
 
 ```tsx
+import { resource } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { User } from './resources';
+
 const UserResource = resource({
   path: '/groups/:group/users/:id',
   schema: User,
 });
+const ctrl = useController();
 
 // PATCH /groups/five/users/5 - moves user 5 from 'five' group to 'ten' group
 await ctrl.fetch(
@@ -1373,6 +1427,9 @@ must also contain a [Collection](./Collection.vue.md)
 
 ```html
 <script lang="ts">
+  import { RestEndpoint } from '@data-client/rest';
+  import { Todo } from './resources';
+
   const getTodos = new RestEndpoint({
     path: '/todos',
     schema: Todo,
@@ -1381,10 +1438,13 @@ must also contain a [Collection](./Collection.vue.md)
 </script>
 
 <script setup lang="ts">
+  import { useController, useSuspense } from '@data-client/vue';
+  import PaginatedList from './PaginatedList.vue';
+
   const todos = await useSuspense(getTodos);
   const ctrl = useController();
   // fetches url `/todos?page=${nextPage}`
-  const fetchNextPage = () =>
+  const fetchNextPage = (nextPage: number) =>
     ctrl.fetch(getTodos.getPage, { page: nextPage });
 </script>
 

@@ -50,6 +50,9 @@ To resolve the buildings, use [useQuery](/docs/api/useQuery) with the `.query` a
 :::react
 
 ```tsx
+import { useQuery } from '@data-client/react';
+import { Department } from './Department';
+
 function DepartmentBuildings({ dept }: { dept: Department }) {
   // dept.buildings contains raw IDs: ['bldg-1', 'bldg-2']
   const buildings = useQuery(Department.schema.buildings.query, dept.buildings);
@@ -108,7 +111,7 @@ class Department extends Entity {
 
 :::react
 
-```tsx
+```tsx nocheck
 // dept.mainBuilding is a raw PK string: 'bldg-1'
 const building = useQuery(
   Department.schema.mainBuilding.query,
@@ -143,7 +146,7 @@ class Department extends Entity {
 }
 ```
 
-```tsx
+```tsx nocheck
 const buildings = useQuery(
   Department.schema.buildings.query,
   ...collectionArgs,

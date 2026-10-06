@@ -31,6 +31,13 @@ const reactRemarkPlugins = [[remarkFramework, { framework: 'react' }]];
 const vueDocs = frameworkDocs.generate('vue');
 if (isDev) frameworkDocs.watch('vue');
 const vueInstance = frameworkInstance('vue');
+// Shared by light and dark so SSR (`theme`) and the client (`darkTheme`)
+// agree. Transparent plain background lets `.theme-code-block` own the color.
+const prismPalenight = {
+  ...themes.palenight,
+  plain: { ...themes.palenight.plain, backgroundColor: 'transparent' },
+};
+
 const gitVcs = getVcsPreset('default-v1');
 const editRoot = 'https://github.com/reactive/data-client/edit/master';
 /** Plugin options locating a docs instance (framework-docs/docsInstances.js) */
@@ -359,6 +366,14 @@ const config: Config = {
         },
         redirects: [
           {
+            to: '/docs/getting-started/debugging',
+            from: ['/docs/getting-started/devtools-debugging'],
+          },
+          {
+            to: '/vue/getting-started/debugging',
+            from: ['/vue/getting-started/devtools-debugging'],
+          },
+          {
             to: '/rest/guides/side-effects',
             from: ['/rest/guides/rpc'],
           },
@@ -369,6 +384,10 @@ const config: Config = {
           {
             to: '/rest/api/resource',
             from: ['/rest/api/createResource', '/rest/api/Resource'],
+          },
+          {
+            to: '/rest/api/SchemaSimple',
+            from: ['/rest/api/CustomSchema'],
           },
           {
             to: '/docs/api/makeRenderDataHook',
@@ -440,12 +459,15 @@ const config: Config = {
       disableSwitch: false,
       respectPrefersColorScheme: true,
     },
+    // Color mode isn't known at build time, so SSR always emits `theme`.
+    // Both modes use palenight with a transparent plain background (keeping
+    // palenight's text color) so `.theme-code-block` is the only thing that
+    // paints the background — a solid color on `<pre>` would cover the dark
+    // div until hydration.
     prism: {
       additionalLanguages: ['bash', /*'diff', */ 'json'],
-      darkTheme: {
-        ...themes.palenight,
-        plain: { backgroundColor: 'transparent' },
-      },
+      theme: prismPalenight,
+      darkTheme: prismPalenight,
     },
     // Open Graph and Twitter card images.
     image: 'img/social/data-client-logo.png',

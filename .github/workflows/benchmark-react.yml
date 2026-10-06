@@ -36,6 +36,8 @@ on:
 concurrency:
   group: ${{ github.event_name == 'push' && 'gh-pages-bench-react-push' || format('benchmark-react-{0}', github.head_ref) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  # Master pushes queue every run (a cancelled one marks master red); PRs keep one
+  queue: ${{ github.event_name == 'push' && 'max' || 'single' }}
 
 permissions:
   contents: write

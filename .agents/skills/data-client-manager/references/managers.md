@@ -91,9 +91,12 @@ export default class MetricsManager implements Manager {
   middleware: Middleware = controller => next => async action => {
     if (action.type === actionTypes.FETCH) {
       const start = performance.now();
-      action.meta.promise.finally(() => {
-        trackTiming(action.endpoint.name, performance.now() - start);
-      });
+      action.meta.promise
+        .finally(() => {
+          trackTiming(action.endpoint.name, performance.now() - start);
+        })
+        // the fetch's caller handles errors; this only observes timing
+        .catch(() => {});
     }
     return next(action);
   };
@@ -264,7 +267,7 @@ import type {
 
 export default class StreamManager implements Manager {
   declare protected controller: Controller;
-  declare protected evtSource: WebSocket; // | EventSource;
+  declare protected evtSource: WebSocket | EventSource;
   declare protected createEventSource: () => WebSocket | EventSource;
   declare protected entities: Record<string, EntityInterface>;
 
@@ -283,9 +286,11 @@ export default class StreamManager implements Manager {
 
   connect() {
     this.evtSource = this.createEventSource();
-    this.evtSource.onmessage = event => {
+    this.evtSource.onmessage = (event: MessageEvent) => {
       try {
-        const msg = JSON.parse(event.data);
+        const msg: { type: string; args: [any]; data: any } = JSON.parse(
+          event.data,
+        );
         if (msg.type in this.entities)
           this.controller.set(
             this.entities[msg.type],
@@ -380,6 +385,7 @@ export const newPrices = () =>
 ```
 
 ```tsx title="PriceStream"
+import React from 'react';
 import { useController, useQuery } from '@data-client/react';
 import { Ticker, newPrices } from './Ticker';
 

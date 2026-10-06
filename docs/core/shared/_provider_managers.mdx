@@ -1,0 +1,64 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import ProviderSetupCode from '@site/src/components/ProviderSetupCode';
+
+::::react
+
+<Tabs
+defaultValue="web"
+groupId="platform"
+values={[
+{ label: 'Web', value: 'web' },
+{ label: 'React Native', value: 'native' },
+{ label: 'NextJS', value: 'nextjs' },
+{ label: 'Expo', value: 'expo' },
+]}>
+
+<TabItem value="web">
+
+<ProviderSetupCode platform="web" {...props} />
+
+</TabItem>
+
+<TabItem value="native">
+
+<ProviderSetupCode platform="native" {...props} />
+
+</TabItem>
+
+<TabItem value="nextjs">
+
+<ProviderSetupCode platform="nextjs" {...props} />
+
+```tsx title="app/layout.tsx"
+// highlight-next-line
+import Provider from './Provider';
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        // highlight-next-line
+        <Provider>{children}</Provider>
+      </body>
+    </html>
+  );
+}
+```
+
+</TabItem>
+
+<TabItem value="expo">
+
+<ProviderSetupCode platform="expo" {...props} />
+
+</TabItem>
+</Tabs>
+
+::::
+
+::::vue
+
+<ProviderSetupCode platform="vue" {...props} />
+
+::::

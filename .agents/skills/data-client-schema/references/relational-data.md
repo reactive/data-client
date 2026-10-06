@@ -26,7 +26,7 @@ erDiagram
 </details>
 
 ```typescript title="resources/Post"
-import { Collection, Entity } from '@data-client/rest';
+import { Collection, Entity, resource } from '@data-client/rest';
 
 export class User extends Entity {
   id = '';
@@ -66,6 +66,7 @@ export const PostResource = resource({
 ```
 
 ```tsx title="PostPage"
+import { useSuspense } from '@data-client/react';
 import { PostResource } from './resources/Post';
 
 function PostPage() {
@@ -106,6 +107,8 @@ Even if the network responses don't nest data, we can perform client-side joins 
 the relationship in [Entity.schema](./Entity.md#schema)
 
 ```ts title="resources/User"
+import { Entity, resource } from '@data-client/rest';
+
 export class User extends Entity {
   id = 0;
   username = '';
@@ -121,6 +124,7 @@ export const UserResource = resource({
 ```
 
 ```ts title="resources/Todo"
+import { Entity, resource } from '@data-client/rest';
 import { User } from './User';
 
 export class Todo extends Entity {
@@ -144,6 +148,7 @@ export const TodoResource = resource({
 ```
 
 ```tsx title="TodoJoined"
+import { useFetch, useSuspense } from '@data-client/react';
 import { TodoResource } from './resources/Todo';
 import { UserResource } from './resources/User';
 
@@ -242,7 +247,7 @@ This allows you to traverse the relationship after processing only one fetch req
 each time you want access to a different view.
 
 ```typescript title="resources/Post"
-import { Collection, Entity } from '@data-client/rest';
+import { Entity, resource, type Schema } from '@data-client/rest';
 
 export class User extends Entity {
   id = '';
@@ -322,6 +327,7 @@ export const UserResource = resource({
 ```
 
 ```tsx title="UserPage"
+import { useSuspense } from '@data-client/react';
 import { UserResource } from './resources/Post';
 
 export default function UserPage({ setRoute, id }) {
@@ -356,6 +362,7 @@ export default function UserPage({ setRoute, id }) {
 ```
 
 ```tsx title="PostPage"
+import { useSuspense } from '@data-client/react';
 import { PostResource } from './resources/Post';
 
 export default function PostPage({ setRoute }) {
@@ -402,6 +409,7 @@ export default function PostPage({ setRoute }) {
 ```
 
 ```tsx title="Navigation"
+import React from 'react';
 import PostPage from './PostPage';
 import UserPage from './UserPage';
 

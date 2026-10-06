@@ -121,7 +121,8 @@ export interface Todo {
 }
 ```
 
-```ts title="api" {11}
+```ts title="api" {12}
+import { Endpoint } from '@data-client/rest';
 import { Todo } from './interface';
 
 const getTodoOriginal = (id: number): Promise<Todo> =>
@@ -136,6 +137,7 @@ export const getTodo = new Endpoint(getTodoOriginal);
 ```
 
 ```tsx title="React"
+import { useSuspense } from '@data-client/react';
 import { getTodo } from './api';
 
 function TodoDetail() {
@@ -229,8 +231,7 @@ Declarative definition of how to [process responses](./schema)
 Not providing this option means no entities will be extracted.
 
 ```tsx
-import { Entity } from '@data-client/normalizr';
-import { Endpoint } from '@data-client/endpoint';
+import { Endpoint, Entity } from '@data-client/endpoint';
 
 class User extends Entity {
   id = '';
@@ -238,7 +239,7 @@ class User extends Entity {
 }
 
 const getUser = new Endpoint(
-    ({ id }) ⇒ fetch(`/users/${id}`),
+    ({ id }) => fetch(`/users/${id}`),
     { schema: User }
 );
 ```
@@ -252,7 +253,7 @@ import EndpointLifecycle from './_EndpointLifecycle.mdx';
 Can be used to further customize the endpoint definition
 
 ```typescript
-const getUser = new Endpoint(({ id }) ⇒ fetch(`/users/${id}`));
+const getUser = new Endpoint(({ id }) => fetch(`/users/${id}`));
 
 
 const getUserNormalized = getUser.extend({ schema: User });
@@ -275,7 +276,7 @@ values={[
 import { Endpoint } from '@data-client/endpoint';
 
 const UserDetail = new Endpoint(
-  ({ id }) ⇒ fetch(`/users/${id}`).then(res => res.json())
+  ({ id }) => fetch(`/users/${id}`).then(res => res.json())
 );
 ```
 
@@ -291,7 +292,7 @@ class User extends Entity {
 }
 
 const UserDetail = new Endpoint(
-  ({ id }) ⇒ fetch(`/users/${id}`).then(res => res.json()),
+  ({ id }) => fetch(`/users/${id}`).then(res => res.json()),
   { schema: User }
 );
 ```
@@ -308,7 +309,7 @@ class User extends Entity {
 }
 
 const UserList = new Endpoint(
-  () ⇒ fetch(`/users/`).then(res => res.json()),
+  () => fetch(`/users/`).then(res => res.json()),
   { schema: [User] }
 );
 ```
@@ -325,7 +326,11 @@ values={[
 <TabItem value="React">
 
 ```tsx
-function UserProfile() {
+import { useSuspense, useController } from '@data-client/react';
+import { UserDetail } from './api/User';
+import UserForm from './UserForm';
+
+function UserProfile({ id }: { id: string }) {
   const user = useSuspense(UserDetail, { id });
   const ctrl = useController();
 

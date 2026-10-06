@@ -31,8 +31,16 @@ skip() {
 }
 
 [[ "${VERCEL_GIT_COMMIT_REF:-}" == gh-pages* ]] && skip "gh-pages branch"
+# The merge queue tests a PR already previewed on its own branch
+[[ "${VERCEL_GIT_COMMIT_REF:-}" == gh-readonly-queue/* ]] && skip "merge queue branch"
 
 cd "$(git rev-parse --show-toplevel)" || build "cannot find repo root"
+
+# Vercel's clone has no `origin` remote, so every fetch below would fail. Add
+# one for the (public) repo; the clone is thrown away after the build.
+git remote get-url origin >/dev/null 2>&1 ||
+  { [ -n "${VERCEL_GIT_REPO_OWNER:-}" ] && [ -n "${VERCEL_GIT_REPO_SLUG:-}" ] &&
+    git remote add origin "https://github.com/$VERCEL_GIT_REPO_OWNER/$VERCEL_GIT_REPO_SLUG.git"; }
 
 # Builds if site paths changed between $1 and $2 (or the diff fails); else skips.
 decide() {

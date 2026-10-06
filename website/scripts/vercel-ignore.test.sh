@@ -182,6 +182,9 @@ git -C "$repo" update-ref refs/heads/master "$real_master"
 # gh-pages branches never build, even if website files differ.
 expect skip "gh-pages branch" gh-pages-bench
 
+# Merge queue branches never build: each PR was previewed on its own branch.
+expect skip "merge queue branch" gh-readonly-queue/master/pr-1-0123456789abcdef0123456789abcdef01234567
+
 # Last production deploy is outside the clone (shallow history): the tip
 # alone can't prove earlier commits in the push left the site unchanged.
 git -C "$repo" checkout master >/dev/null 2>&1
@@ -232,10 +235,16 @@ for branch in far-pkg far-site; do
   clone="$(mktemp -d)"
   git clone -q --depth=10 --branch "$branch" "file://$origin_repo" "$clone"
   git -C "$clone" branch -f master HEAD
+  # Like Vercel's clone: no `origin` remote, so the script must fetch by URL.
+  git -C "$clone" remote remove origin
   repo="$clone"
   want=skip
   [ "$branch" = far-site ] && want=build
-  expect "$want" "shallow clone, fork far behind master ($branch)" "$branch"
+  GIT_CONFIG_COUNT=3 \
+    GIT_CONFIG_KEY_2="url.file://$origin_repo.insteadOf" \
+    GIT_CONFIG_VALUE_2=https://github.com/test-owner/test-repo.git \
+    VERCEL_GIT_REPO_OWNER=test-owner VERCEL_GIT_REPO_SLUG=test-repo \
+    expect "$want" "shallow clone without origin, fork far behind master ($branch)" "$branch"
   repo="$origin_repo"
   rm -rf "$clone"
 done

@@ -56,7 +56,7 @@ export default function TodoItem({ todo }: { todo: Todo }) {
           checked={todo.completed}
           onChange={handleChange}
         />
-        {todo.completed ? <strike>{todo.title}</strike> : todo.title}
+        {todo.completed ? <s>{todo.title}</s> : todo.title}
       </label>
       <CancelButton onClick={handleDelete} />
     </div>
@@ -184,6 +184,8 @@ The simplest examples of this are toggling a boolean, or incrementing a counter;
 more complicated transforms. To make it more obvious we're using a simple counter here.
 
 ```ts title="count"
+import { Entity, RestEndpoint } from '@data-client/rest';
+
 export class CountEntity extends Entity {
   count = 0;
 
@@ -198,7 +200,8 @@ export const getCount = new RestEndpoint({
 });
 ```
 
-```ts title="increment" {9-15}
+```ts title="increment" {10-16}
+import { RestEndpoint } from '@data-client/rest';
 import { CountEntity, getCount } from './count';
 
 export const increment = new RestEndpoint({
@@ -218,7 +221,8 @@ export const increment = new RestEndpoint({
 ```
 
 ```tsx title="CounterPage"
-import { useLoading } from '@data-client/react';
+import React from 'react';
+import { useController, useSuspense, useLoading } from '@data-client/react';
 import { getCount } from './count';
 import { increment } from './increment';
 
@@ -330,7 +334,9 @@ server timestamp.
 
 We use [snap.fetchedAt](https://dataclient.io/docs/api/Snapshot#fetchedat) in our [getOptimisticResponse](./RestEndpoint.md#getoptimisticresponse). This respresents the moment the fetch is triggered, which will be the same time the `updatedAt` header is computed.
 
-```ts title="count" {9-11}
+```ts title="count" {11-13}
+import { Entity, RestEndpoint } from '@data-client/rest';
+
 export class CountEntity extends Entity {
   count = 0;
   updatedAt = 0;
@@ -350,7 +356,8 @@ export const getCount = new RestEndpoint({
 });
 ```
 
-```ts title="increment" {9-15,21}
+```ts title="increment" {10-16,22}
+import { RestEndpoint } from '@data-client/rest';
 import { CountEntity } from './count';
 
 export const increment = new RestEndpoint({
@@ -378,7 +385,8 @@ export const increment = new RestEndpoint({
 ```
 
 ```tsx title="CounterPage"
-import { useLoading } from '@data-client/react';
+import React from 'react';
+import { useController, useSuspense, useLoading } from '@data-client/react';
 import { getCount } from './count';
 import { increment } from './increment';
 

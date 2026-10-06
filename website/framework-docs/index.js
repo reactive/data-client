@@ -230,6 +230,7 @@ function sourcePath(framework, docPath) {
 }
 
 module.exports = {
+  FM,
   generate,
   watch,
   sidebarsFor,
@@ -240,4 +241,6 @@ module.exports = {
   pageFrameworks,
   rewriteFrontMatter,
   frontMatterValue,
+  walk,
+  VUE_OVERRIDE,
 };

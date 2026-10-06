@@ -126,7 +126,7 @@ Since `pk()` is unique, it provides a consistent way of defining :react[[JSX lis
 
 :::react
 
-```tsx
+```tsx nocheck
 //....
 return (
   <div>
@@ -141,7 +141,7 @@ return (
 
 :::vue
 
-```html
+```html nocheck
 <template>
   <div>
     <TheThing
@@ -219,7 +219,7 @@ pk() {
 }
 ```
 
-In case you have 
+In case you have
 
 ```typescript
 const get = new RestEndpoint({
@@ -229,7 +229,7 @@ const get = new RestEndpoint({
 export const OptionsResource = {
   get,
   partialUpdate: get.extend({ method: 'PATCH' }),
-}
+};
 ```
 
 ### static key: string {#key}
@@ -292,8 +292,9 @@ export class User extends Entity {
 }
 ```
 
-```ts title="Post" {16-20}
+```ts title="Post" {17-21}
 import { Entity } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 import { User } from './User';
 
 export class Post extends Entity {
@@ -318,6 +319,8 @@ export class Post extends Entity {
 :::react
 
 ```tsx title="PostPage" collapsed
+import { RestEndpoint } from '@data-client/rest';
+import { useSuspense } from '@data-client/react';
 import { Post } from './Post';
 
 export const getPost = new RestEndpoint({
@@ -331,11 +334,7 @@ function PostPage() {
       <p>
         {post.content} - <cite>{post.author.name}</cite>
       </p>
-      <time>
-        {DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
-          post.createdAt,
-        )}
-      </time>
+      <time>{post.createdAt.toLocaleString('en-US', { dateStyle: 'medium' })}</time>
     </div>
   );
 }
@@ -431,6 +430,9 @@ export const UserResource = resource({
 :::react
 
 ```tsx
+import { useSuspense } from '@data-client/react';
+import { UserResource } from './resources/User';
+
 const user = useSuspense(UserResource.get, { username: 'bob' });
 ```
 
@@ -479,6 +481,9 @@ Some top level component:
 :::react
 
 ```tsx
+import { useSuspense } from '@data-client/react';
+import { getAssets } from './resources/Asset';
+
 const assets = useSuspense(getAssets);
 ```
 
@@ -495,13 +500,16 @@ const assets = await useSuspense(getAssets);
 Nested below:
 
 ```tsx
+import { useQuery } from '@data-client/react';
+import { LatestPrice } from './resources/LatestPrice';
+
 const price = useQuery(LatestPrice, { symbol: 'BTC' });
 ```
 
 ### static maxEntityDepth?: number {#maxEntityDepth}
 
 Limits entity nesting depth during denormalization to prevent stack overflow
-in large bidirectional entity graphs. **Default: 128**
+in large bidirectional entity graphs. **Default: 64**
 
 When bidirectional relationships create chains with many unique entities
 (e.g., `Department → Building → Department → ...`), denormalization can recurse
@@ -515,7 +523,9 @@ class Department extends Entity {
   name = '';
   buildings: Building[] = [];
 
-  pk() { return this.id; }
+  pk() {
+    return this.id;
+  }
   static key = 'Department';
   // highlight-next-line
   static maxEntityDepth = 16;

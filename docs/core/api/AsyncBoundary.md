@@ -71,6 +71,7 @@ Component to handle caught errors
 ```tsx
 import React from 'react';
 import { DataProvider, AsyncBoundary } from '@data-client/react';
+import Router from './Router';
 
 function ErrorPage({
   error,
@@ -112,11 +113,11 @@ An example using [Anansi Router](https://www.npmjs.com/package/@anansi/router), 
 [history](https://www.npmjs.com/package/history) subscription.
 
 ```tsx
-import { useController } from '@anansi/router';
+import { useRouter, Link, MatchedRoute } from '@anansi/router';
 import { AsyncBoundary } from '@data-client/react';
 
 function App() {
-  const { history } = useController();
+  const { history } = useRouter();
   return (
     <div>
       <nav>
