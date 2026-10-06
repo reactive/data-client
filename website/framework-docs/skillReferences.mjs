@@ -17,15 +17,12 @@
  */
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
-import { createRequire } from 'node:module';
 import path from 'node:path';
 
 import { frameworkInstance } from './docsInstances.js';
 import { docToMarkdown, routeOf } from './docsToMarkdown.mjs';
-import { walk } from './index.js';
+import { FM, walk } from './index.js';
 import { ROOT, SITE, rel } from './site.mjs';
-
-const { FM } = createRequire(import.meta.url)('./index.js');
 
 const SKILLS = path.join(ROOT, '.agents/skills');
 const MANIFEST = 'references.json';
@@ -51,15 +48,6 @@ function withHeader(file, content) {
   const [, shebang = '', rest] = content.match(/^(#!.*\n)?([\s\S]*)$/);
   return `${shebang}// ${text}\n${rest}`;
 }
-
-/** Every file under dir (absolute paths), recursively, following symlinks */
-const filesUnder = dir =>
-  fs.existsSync(dir) ?
-    fs
-      .readdirSync(dir, { recursive: true })
-      .map(f => path.join(dir, f))
-      .filter(f => fs.statSync(f).isFile())
-  : [];
 
 /** The header is the first line, or the second after a shebang */
 const isGenerated = content =>
@@ -87,7 +75,7 @@ const localRoutesFor = (docs, framework) =>
 const generated = new Map();
 
 /** Map of reference path -> content for one skill */
-function generateSkill(skillDir, manifest = readManifest(skillDir)) {
+function generateSkill(skillDir, manifest) {
   if (!generated.has(skillDir))
     generated.set(skillDir, generateUncached(skillDir, manifest));
   return generated.get(skillDir);
@@ -204,14 +192,17 @@ function bundleSkill(sourceDir, skillDir, out) {
   out.set(`${dest}.md`, withHeader(skillMd, body));
   // its generated references come from their sources, so they can't be stale
   const manifest = readManifest(sourceDir);
-  const sourceGenerated = manifest ? generateSkill(sourceDir, manifest) : [];
+  const sourceGenerated =
+    manifest ? generateSkill(sourceDir, manifest) : new Map();
   for (const [file, content] of sourceGenerated)
     out.set(path.join(dest, path.relative(sourceDir, file)), content);
-  for (const file of filesUnder(sourceDir)) {
-    const name = path.relative(sourceDir, file);
-    const content = readFollowingLinks(file);
-    if (name === 'SKILL.md' || name === MANIFEST || isGenerated(content))
+  for (const name of walk(sourceDir)) {
+    const file = path.join(sourceDir, name);
+    if (name === 'SKILL.md' || name === MANIFEST || sourceGenerated.has(file))
       continue;
+    const content = readFollowingLinks(file);
+    // a generated reference its manifest no longer lists
+    if (isGenerated(content)) continue;
     out.set(path.join(dest, name), withHeader(file, content));
   }
 }
@@ -219,7 +210,8 @@ function bundleSkill(sourceDir, skillDir, out) {
 /** Generated files currently on disk, by path */
 const generatedFiles = dir =>
   new Map(
-    filesUnder(dir)
+    (fs.existsSync(dir) ? walk(dir) : [])
+      .map(f => path.join(dir, f))
       .filter(f => !fs.lstatSync(f).isSymbolicLink())
       .map(f => [f, fs.readFileSync(f, 'utf8')])
       .filter(([, content]) => isGenerated(content)),
