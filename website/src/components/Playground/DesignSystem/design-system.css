@@ -18,9 +18,7 @@ html[data-theme='dark'] .playground-preview {
   margin-bottom:1ex;
 }
 html[data-theme='dark'] .rt-TextFieldRoot,
-html[data-theme='dark'] .rt-TextAreaRoot,
-html[data-theme='dark'] .small.rt-TextFieldRoot:hover,
-html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
+html[data-theme='dark'] .rt-TextAreaRoot {
   background-color: var(--ifm-color-emphasis-100);
 }
 
@@ -124,9 +122,33 @@ html[data-theme='dark'] .small.rt-TextFieldRoot {
 .small.rt-TextFieldRoot:focus-within {
   border-color: var(--ifm-color-formfield-active);                  /* Make all borders visible */
 }
+/* Dark: a faint lift over the panel instead of a near-black well, and the
+   same blue as the checked checkboxes for focus */
+html[data-theme='dark'] .small.rt-TextFieldRoot:hover,
+html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
+  border-color: var(--ifm-color-primary);
+}
+/* Typed text matches the todo titles beside it */
+.small .rt-TextFieldInput {
+  font: inherit;
+}
 
-.listItem .rt-TextFieldRoot {
-  width: calc(100% - 21px);
+/* Checkbox + text field rows (new todo): the field fills the rest of the row,
+   whatever size the checkbox is styled at */
+.listItem > label:has(> .rt-TextFieldRoot) {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.listItem > label > .rt-TextFieldRoot {
+  flex: 1;
+  min-width: 0;
+}
+.listItem > label .rt-TextFieldInput {
+  min-width: 0;
 }
 
 
