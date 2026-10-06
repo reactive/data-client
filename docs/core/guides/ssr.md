@@ -59,6 +59,7 @@ To keep your data fresh and performant, you can use client components and [useSu
 'use client';
 import { useSuspense } from '@data-client/react';
 import { TodoResource } from '@/resources/Todo';
+import TodoList from '@/components/TodoList';
 
 export default function InteractivePage({ params }: { params: { userId: number } }) {
   const todos = useSuspense(TodoResource.getList, params);
@@ -76,6 +77,7 @@ using a server component. Simply `await` the endpoint:
 
 ```tsx title="app/todos/[userId]/page.tsx"
 import { TodoResource } from '@/resources/Todo';
+import TodoList from '@/components/TodoList';
 
 export default async function StaticPage({ params }: { params: { userId: number } }) {
   const todos = await TodoResource.getList(params);
@@ -226,10 +228,17 @@ import {
   createServerDataComponent,
 } from '@data-client/react/ssr';
 
+import App from './App';
+import Document from './Document';
+import assets from './assets';
+import { NeededForPage } from './resources/NeededForPage';
+
 const rootId = 'react-root';
+const PORT = 3000;
 
 const app = express();
 app.get('/*', (req: any, res: any) => {
+  let didError = false;
   const [ServerDataProvider, useReadyCacheState, controller] =
     createPersistedStore();
   const ServerDataComponent =
@@ -243,11 +252,13 @@ app.get('/*', (req: any, res: any) => {
       scripts={[<ServerDataComponent key="server-data" />]}
       rootId={rootId}
     >
-      <ServerDataProvider>{children}</ServerDataProvider>
+      <ServerDataProvider>
+        <App />
+      </ServerDataProvider>
     </Document>,
 
     {
-      onCompleteShell() {
+      onShellReady() {
         // If something errored before we started streaming, we set the error code appropriately.
         res.statusCode = didError ? 500 : 200;
         res.setHeader('Content-type', 'text/html');
@@ -266,7 +277,7 @@ app.get('/*', (req: any, res: any) => {
   setTimeout(abort, 1000);
 });
 
-app.listen(3000, () => {
+app.listen(PORT, () => {
   console.log(`Listening at ${PORT}...`);
 });
 ```
@@ -278,12 +289,16 @@ import { hydrateRoot } from 'react-dom/client';
 import { DataProvider } from '@data-client/react';
 import { awaitInitialData } from '@data-client/react/ssr';
 
+import App from './App';
+
 const rootId = 'react-root';
 
 awaitInitialData().then(initialState => {
   hydrateRoot(
-    document.getElementById(rootId),
-    <DataProvider initialState={initialState}>{children}</DataProvider>,
+    document.getElementById(rootId)!,
+    <DataProvider initialState={initialState}>
+      <App />
+    </DataProvider>,
   );
 });
 ```

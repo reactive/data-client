@@ -43,6 +43,10 @@ import { Controller } from '@data-client/react';
 import { lazy, Route } from '@anansi/router';
 import { getImage } from '@data-client/img';
 
+import { lazyPage } from './lazyPage';
+import { PostResource } from '@/resources/Post';
+import { UserResource } from '@/resources/User';
+
 export const routes: Route<Controller>[] = [
   {
     name: 'UserDetail',

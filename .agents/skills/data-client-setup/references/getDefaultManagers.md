@@ -18,6 +18,7 @@ Currently returns \[[DevToolsManager](https://dataclient.io/docs/api/DevToolsMan
 ```tsx title="index.tsx"
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
+import App from './App';
 
 const managers = getDefaultManagers({
   // set fallback expiry time to an hour
@@ -36,6 +37,7 @@ createRoot(document.body).render(
 ```tsx title="index.tsx"
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { AppRegistry } from 'react-native';
+import App from './App';
 
 const managers = getDefaultManagers({
   // set fallback expiry time to an hour
@@ -159,7 +161,7 @@ const managers = getDefaultManagers({
 Sending manager instances allows us to customize managers using inheritance.
 
 ```ts
-import { IdlingNetworkManager } from '@data-client/react';
+import { getDefaultManagers, IdlingNetworkManager } from '@data-client/react';
 
 const managers = getDefaultManagers({
   networkManager: new IdlingNetworkManager(),

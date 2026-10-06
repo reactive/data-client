@@ -53,7 +53,7 @@ export default function TodoItem({ todo }: { todo: Todo }) {
           checked={todo.completed}
           onChange={handleChange}
         />
-        {todo.completed ? <strike>{todo.title}</strike> : todo.title}
+        {todo.completed ? <s>{todo.title}</s> : todo.title}
       </label>
       <CancelButton onClick={handleDelete} />
     </div>
@@ -350,6 +350,7 @@ export default function PostCreate({ navigateToPost }) {
 ```
 
 ```tsx title="Navigation"
+import React from 'react';
 import PostCreate from './PostCreate';
 import PostDetail from './PostDetail';
 

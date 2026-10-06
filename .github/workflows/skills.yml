@@ -18,7 +18,7 @@ on:
   pull_request:
     branches:
       - master
-    # Inputs of website/framework-docs/skillReferences.mjs and checkVueExamples.mjs
+    # Inputs of website/framework-docs/skillReferences.mjs and checkExamples.mjs
     paths:
       - 'docs/**'
       - '.agents/skills/**'
@@ -53,6 +53,6 @@ jobs:
         run: ./scripts/ci-install.sh website
       - name: Check skill references match the docs
         run: yarn build:skills --check
-      - name: Type-check Vue examples in the docs
+      - name: Type-check React and Vue examples in the docs
         if: ${{ !cancelled() }}
-        run: yarn check:vue-examples
+        run: yarn check:doc-examples

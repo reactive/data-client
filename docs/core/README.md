@@ -320,7 +320,7 @@ We can [useController](./api/useController.md) to access it in :react[React]:vue
 ```tsx
 import { useController } from '@data-client/react';
 
-function ArticleEdit() {
+function ArticleEdit({ id }: { id: number }) {
   const ctrl = useController();
   // highlight-next-line
   const handleSubmit = data =>
@@ -332,7 +332,7 @@ function ArticleEdit() {
 ```tsx
 import { useController } from '@data-client/react';
 
-function ArticleEdit() {
+function ArticleEdit({ id }: { id: number }) {
   const ctrl = useController();
   // highlight-next-line
   const handleSubmit = data =>
@@ -399,7 +399,7 @@ function ArticleEdit() {
 ```tsx
 import { useController, useLoading } from '@data-client/react';
 
-function ArticleEdit() {
+function ArticleEdit({ id }: { id: number }) {
   const ctrl = useController();
   // highlight-next-line
   const [handleSubmit, loading, error] = useLoading(

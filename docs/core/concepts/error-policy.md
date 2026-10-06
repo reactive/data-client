@@ -87,6 +87,7 @@ export const createError = (status: number) =>
 :::react
 
 ```tsx title="TimePage"
+import { useSuspense } from '@data-client/react';
 import { getUpdated } from './getUpdated';
 
 export default function TimePage({ id }) {
@@ -95,9 +96,7 @@ export default function TimePage({ id }) {
     <div>
       API time:{' '}
       <time>
-        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(
-          updatedAt,
-        )}
+        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
       </time>
     </div>
   );
@@ -105,6 +104,7 @@ export default function TimePage({ id }) {
 ```
 
 ```tsx title="ShowTime" collapsed
+import { AsyncBoundary, useController } from '@data-client/react';
 import { getUpdated, createError } from './getUpdated';
 import TimePage from './TimePage';
 

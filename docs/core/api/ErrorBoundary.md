@@ -17,7 +17,8 @@ Place `ErrorBoundary` [at or above navigational boundaries](../getting-started/d
 
 ```tsx
 import React from 'react';
-import { ErrorBoundary } from '@data-client/react';
+import { ErrorBoundary, useSuspense } from '@data-client/react';
+import { MyEndpoint } from './MyEndpoint';
 
 export default function MyPage() {
   return (
@@ -37,7 +38,7 @@ function SuspendingComponent() {
 ## Props
 
 ```tsx
-interface Props {
+interface Props<E extends Error> {
   children: React.ReactNode;
   className?: string;
   fallbackComponent: React.ComponentType<{
@@ -54,6 +55,7 @@ interface Props {
 ```tsx
 import React from 'react';
 import { DataProvider, ErrorBoundary } from '@data-client/react';
+import Router from './Router';
 
 function ErrorPage({
   error,
@@ -91,7 +93,7 @@ An example using [Anansi Router](https://www.npmjs.com/package/@anansi/router), 
 [history](https://www.npmjs.com/package/history) subscription.
 
 ```tsx
-import { useController } from '@anansi/router';
+import { useController, Link, MatchedRoute } from '@anansi/router';
 import { ErrorBoundary } from '@data-client/react';
 
 function App() {

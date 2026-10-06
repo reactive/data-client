@@ -71,13 +71,16 @@ values={[
 :::react
 
 ```tsx
+import { useController } from '@data-client/react';
+import { PostResource } from './PostResource';
+
 function CreatePost() {
   const ctrl = useController();
 
   return (
     <form
       onSubmit={e =>
-        ctrl.fetch(PostResource.getList.push, new FormData(e.target))
+        ctrl.fetch(PostResource.getList.push, new FormData(e.currentTarget))
       }
     >
       {/* ... */}
@@ -117,13 +120,16 @@ function CreatePost() {
 :::react
 
 ```tsx
+import { useController } from '@data-client/react';
+import { PostResource } from './PostResource';
+
 function UpdatePost({ id }: { id: string }) {
   const ctrl = useController();
 
   return (
     <form
       onSubmit={e =>
-        ctrl.fetch(PostResource.update, { id }, new FormData(e.target))
+        ctrl.fetch(PostResource.update, { id }, new FormData(e.currentTarget))
       }
     >
       {/* ... */}
@@ -165,13 +171,19 @@ function UpdatePost({ id }: { id: string }) {
 :::react
 
 ```tsx
-function PostListItem({ post }: { post: PostResource }) {
+import { useController } from '@data-client/react';
+import { useCallback } from 'react';
+import { useNavigate } from 'react-router';
+import { Post, PostResource } from './PostResource';
+
+function PostListItem({ post }: { post: Post }) {
   const ctrl = useController();
+  const navigate = useNavigate();
 
   const handleDelete = useCallback(
     async e => {
       await ctrl.fetch(PostResource.delete, { id: post.id });
-      history.push('/');
+      navigate('/');
     },
     [ctrl, post.id],
   );
@@ -193,9 +205,9 @@ function PostListItem({ post }: { post: PostResource }) {
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
   import { useRouter } from 'vue-router';
-  import { PostResource } from './PostResource';
+  import { Post, PostResource } from './PostResource';
 
-  const props = defineProps<{ post: PostResource }>();
+  const props = defineProps<{ post: Post }>();
   const ctrl = useController();
   const router = useRouter();
 
@@ -298,17 +310,20 @@ when there are many parameterizations in cache.
 
 ```tsx
 import { type Controller, useController } from '@data-client/react';
+import { AccountResource, TradeResource, type Trade } from './resources';
+import { Form, FormField } from './Form';
 
-const createTradeHandler = (ctrl: Controller) => async trade => {
-  await ctrl.fetch(TradeResource.getList.push, { user: user.id }, trade);
-  // highlight-start
-  ctrl.expireAll(AccountResource.get);
-  ctrl.expireAll(AccountResource.getList);
-  // highlight-end
-};
+const createTradeHandler =
+  (ctrl: Controller, userId: string) => async (trade: Trade) => {
+    await ctrl.fetch(TradeResource.getList.push, { user: userId }, trade);
+    // highlight-start
+    ctrl.expireAll(AccountResource.get);
+    ctrl.expireAll(AccountResource.getList);
+    // highlight-end
+  };
 
-function CreateTrade({ id }: { id: string }) {
-  const handleTrade = createTradeHandler(useController());
+function CreateTrade({ userId }: { userId: string }) {
+  const handleTrade = createTradeHandler(useController(), userId);
 
   return (
     <Form onSubmit={handleTrade}>
@@ -369,6 +384,9 @@ until the refetch resolves.]
 :::react
 
 ```tsx
+import { useController, useSuspense } from '@data-client/react';
+import { ArticleResource } from './ArticleResource';
+
 function ArticleName({ id }: { id: string }) {
   const article = useSuspense(ArticleResource.get, { id });
   const ctrl = useController();
@@ -444,6 +462,9 @@ controller.setResponse(MyResource.delete, { id: '5' }, { id: '5' });
 :::react
 
 ```tsx
+import { useController, useSuspense } from '@data-client/react';
+import { ArticleResource } from './ArticleResource';
+
 function ArticleName({ id }: { id: string }) {
   const article = useSuspense(ArticleResource.get, { id });
   const ctrl = useController();
@@ -544,6 +565,11 @@ This is typically used when logging out or changing authenticated users.
 :::react
 
 ```tsx
+import { useController, useSuspense } from '@data-client/react';
+import { useCallback } from 'react';
+import { CurrentUserResource } from './CurrentUserResource';
+import { impersonateUser } from './auth';
+
 const USER_NUMBER_ONE: string = '1111';
 
 function UserName() {
@@ -712,20 +738,24 @@ If data already exists for the given [Endpoint](/rest/api/Endpoint) and args, it
 :::react
 
 ```tsx
-const ctrl = useController();
+import { useController } from '@data-client/react';
+import { useEffect } from 'react';
+import { EndpointLookup } from './EndpointLookup';
 
-useEffect(() => {
-  const websocket = new Websocket(url);
+function useWebsocketUpdates(url: string) {
+  const ctrl = useController();
 
-  websocket.onmessage = event =>
-    ctrl.setResponse(
-      EndpointLookup[event.endpoint],
-      ...event.args,
-      event.data,
-    );
+  useEffect(() => {
+    const websocket = new WebSocket(url);
 
-  return () => websocket.close();
-});
+    websocket.onmessage = event => {
+      const { endpoint, args, data } = JSON.parse(event.data);
+      ctrl.setResponse(EndpointLookup[endpoint], ...args, data);
+    };
+
+    return () => websocket.close();
+  }, [ctrl, url]);
+}
 ```
 
 :::
@@ -780,13 +810,27 @@ This might be useful for custom :react[hooks]:vue[composables] to sub/unsub base
 :::react
 
 ```tsx
-const controller = useController();
-const key = endpoint.key(...args);
+import {
+  useController,
+  type EndpointInterface,
+  type FetchFunction,
+  type Schema,
+} from '@data-client/react';
+import { useEffect } from 'react';
 
-useEffect(() => {
-  controller.subscribe(endpoint, ...args);
-  return () => controller.unsubscribe(endpoint, ...args);
-}, [controller, key]);
+function useSubscribe<
+  E extends EndpointInterface<FetchFunction, Schema | undefined, false | undefined>,
+>(endpoint: E, ...args: readonly [...Parameters<E>]) {
+  const controller = useController();
+  const key = endpoint.key(...args);
+
+  useEffect(() => {
+    controller.subscribe(endpoint, ...args);
+    return () => {
+      controller.unsubscribe(endpoint, ...args);
+    };
+  }, [controller, key]);
+}
 ```
 
 :::
@@ -1012,30 +1056,37 @@ Using getState() in a `computed()` or template won't update when the store chang
 :::react
 
 ```tsx
-const controller = useController();
+import { useController } from '@data-client/react';
+import { useCallback } from 'react';
+import { MyResource } from './resources/MyResource';
+import { redirect } from './routing';
 
-const updateHandler = useCallback(
-  async updatePayload => {
-    const response = await controller.fetch(
-      MyResource.update,
-      { id },
-      updatePayload,
-    );
-    // the fetch has completed, but react has not yet re-rendered
-    // this lets use sequence after the next re-render
-    // we're working on a better solution to this specific case
-    setTimeout(() => {
-      const { data: denormalized } = controller.getResponse(
+function useUpdateHandler(id: string) {
+  const controller = useController();
+
+  return useCallback(
+    async updatePayload => {
+      const response = await controller.fetch(
         MyResource.update,
         { id },
         updatePayload,
-        controller.getState(),
       );
-      redirect(denormalized.getterUrl);
-    }, 40);
-  },
-  [id],
-);
+      // the fetch has completed, but react has not yet re-rendered
+      // this lets use sequence after the next re-render
+      // we're working on a better solution to this specific case
+      setTimeout(() => {
+        const { data: denormalized } = controller.getResponse(
+          MyResource.update,
+          { id },
+          updatePayload,
+          controller.getState(),
+        );
+        redirect(denormalized.getterUrl);
+      }, 40);
+    },
+    [id],
+  );
+}
 ```
 
 :::

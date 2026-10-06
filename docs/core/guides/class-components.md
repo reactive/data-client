@@ -19,24 +19,23 @@ to easily replace any existing HOC with ease.
 ## Use with class
 
 ```tsx
+import { PureComponent } from 'react';
 import withHook from 'hook-hoc';
 import { useSuspense } from '@data-client/react';
 
-import UserResource from 'resources/user';
+import { User, UserResource } from './resources/User';
 
-class Profile extends React.PureComponent<{
+class Profile extends PureComponent<{
   id: number;
-  user: UserResource;
-  friends: UserResource[];
+  user: User;
+  friends: User[];
 }> {
   //...
 }
 
 export default withHook(({ id }: { id: number }) => {
-  const [user, friends] = useSuspense(
-    [UserResource.get, { id }],
-    [UserResource.getList, { friendid: id }],
-  );
+  const user = useSuspense(UserResource.get, { id });
+  const friends = useSuspense(UserResource.getList, { friendid: id });
   return { user, friends };
 })(Profile);
 ```
@@ -51,23 +50,22 @@ hooks. That makes it a hook by definition. To make this detectable by the [rules
 and also potentially reusable, let's move it out to a named function:
 
 ```tsx
+import { PureComponent } from 'react';
 import withHook from 'hook-hoc';
 import { useSuspense } from '@data-client/react';
 
-import UserResource from 'resources/user';
+import { User, UserResource } from './resources/User';
 
 function useProfile({ id }: { id: number }) {
-  const [user, friends] = useSuspense(
-    [UserResource.get, { id }],
-    [UserResource.getList, { friendid: id }],
-  );
+  const user = useSuspense(UserResource.get, { id });
+  const friends = useSuspense(UserResource.getList, { friendid: id });
   return { user, friends };
 }
 
-class Profile extends React.PureComponent<{
+class Profile extends PureComponent<{
   id: number;
-  user: UserResource;
-  friends: UserResource[];
+  user: User;
+  friends: User[];
 }> {
   //...
 }
@@ -84,17 +82,15 @@ client-side filtering as well as [debouncing](https://usehooks.com/useDebounce/)
 You can combine any hooks here - the sky's the limit.
 
 ```tsx
-import { useSuspense } from '@data-client/react';
+import { useSuspense, useDebounce } from '@data-client/react';
 
-import UserResource from 'resources/user';
+import { UserResource } from './resources/User';
 
 function useProfile({ id }: { id: number }) {
   const debouncedId = useDebounce(id, 150);
 
-  const [user, friends] = useSuspense(
-    [UserResource.get, { id }],
-    [UserResource.getList, { friendid: id }],
-  );
+  const user = useSuspense(UserResource.get, { id });
+  const friends = useSuspense(UserResource.getList, { friendid: id });
   const realFriends = friends.filter(friend => friend.isReal);
 
   return { user, friends: realFriends };

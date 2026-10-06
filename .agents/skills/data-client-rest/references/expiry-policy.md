@@ -65,6 +65,7 @@ export const getUpdated = lastUpdated.extend({ dataExpiryLength: 10000 });
 ```
 
 ```tsx title="TimePage"
+import { useSuspense } from '@data-client/react';
 import { getUpdated } from './getUpdated';
 
 export default function TimePage({ id }) {
@@ -73,9 +74,7 @@ export default function TimePage({ id }) {
     <div>
       API time for {id}:{' '}
       <time>
-        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(
-          updatedAt,
-        )}
+        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
       </time>
     </div>
   );
@@ -83,6 +82,8 @@ export default function TimePage({ id }) {
 ```
 
 ```tsx title="Navigator"
+import React from 'react';
+import { AsyncBoundary } from '@data-client/react';
 import TimePage from './TimePage';
 
 function Navigator() {
@@ -197,6 +198,7 @@ export const getUpdated = lastUpdated.extend({
 ```
 
 ```tsx title="TimePage"
+import { useSuspense } from '@data-client/react';
 import { getUpdated } from './getUpdated';
 
 export default function TimePage({ id }) {
@@ -205,9 +207,7 @@ export default function TimePage({ id }) {
     <div>
       API time for {id}:{' '}
       <time>
-        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(
-          updatedAt,
-        )}
+        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
       </time>
     </div>
   );
@@ -215,6 +215,8 @@ export default function TimePage({ id }) {
 ```
 
 ```tsx title="Navigator"
+import React from 'react';
+import { AsyncBoundary } from '@data-client/react';
 import TimePage from './TimePage';
 
 function Navigator() {
@@ -271,6 +273,7 @@ export const lastUpdated = new RestEndpoint({
 ```
 
 ```tsx title="ShowTime"
+import { useSuspense, useController } from '@data-client/react';
 import { lastUpdated } from './api/lastUpdated';
 
 function ShowTime() {
@@ -279,9 +282,7 @@ function ShowTime() {
   return (
     <div>
       <time>
-        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(
-          updatedAt,
-        )}
+        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
       </time>{' '}
       <button onClick={() => ctrl.fetch(lastUpdated, { id: '1' })}>
         Refresh
@@ -316,6 +317,7 @@ export const lastUpdated = new RestEndpoint({
 ```
 
 ```tsx title="ShowTime"
+import { useSuspense, useController } from '@data-client/react';
 import { lastUpdated } from './api/lastUpdated';
 
 export default function ShowTime({ id }: { id: string }) {
@@ -325,9 +327,7 @@ export default function ShowTime({ id }: { id: string }) {
     <div>
       <b>{id}</b>{' '}
       <time>
-        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(
-          updatedAt,
-        )}
+        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
       </time>
     </div>
   );
@@ -341,7 +341,7 @@ export default function Loading({ id }: { id: string }) {
 ```
 
 ```tsx title="Demo"
-import { AsyncBoundary } from '@data-client/react';
+import { AsyncBoundary, useController } from '@data-client/react';
 
 import { lastUpdated } from './api/lastUpdated';
 import ShowTime from './ShowTime';
@@ -401,6 +401,7 @@ export const lastUpdated = new RestEndpoint({
 ```
 
 ```tsx title="ShowTime"
+import { useSuspense, useController } from '@data-client/react';
 import { lastUpdated } from './api/lastUpdated';
 
 export default function ShowTime({ id }: { id: string }) {
@@ -410,9 +411,7 @@ export default function ShowTime({ id }: { id: string }) {
     <div>
       <b>{id}</b>{' '}
       <time>
-        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(
-          updatedAt,
-        )}
+        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
       </time>
     </div>
   );
@@ -426,7 +425,7 @@ export default function Loading({ id }: { id: string }) {
 ```
 
 ```tsx title="Demo"
-import { AsyncBoundary } from '@data-client/react';
+import { AsyncBoundary, useController } from '@data-client/react';
 
 import { lastUpdated } from './api/lastUpdated';
 import ShowTime from './ShowTime';
@@ -485,6 +484,7 @@ export const lastUpdated = new RestEndpoint({
 ```
 
 ```tsx title="TimePage"
+import { useSuspense } from '@data-client/react';
 import { lastUpdated } from './api/lastUpdated';
 
 export default function TimePage({ id }) {
@@ -493,9 +493,7 @@ export default function TimePage({ id }) {
     <div>
       API time for {id}:{' '}
       <time>
-        {DateTimeFormat('en-US', { timeStyle: 'long' }).format(
-          updatedAt,
-        )}
+        {updatedAt.toLocaleString('en-US', { timeStyle: 'long' })}
       </time>
     </div>
   );
@@ -503,8 +501,8 @@ export default function TimePage({ id }) {
 ```
 
 ```tsx title="ShowTime"
-import { Invalidate } from '@data-client/rest';
-import { useLoading } from '@data-client/react';
+import { Invalidate, RestEndpoint } from '@data-client/rest';
+import { AsyncBoundary, useController, useLoading } from '@data-client/react';
 import { TimedEntity } from './api/lastUpdated';
 import TimePage from './TimePage';
 

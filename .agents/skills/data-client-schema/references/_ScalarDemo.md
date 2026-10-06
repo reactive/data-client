@@ -78,6 +78,7 @@ function formatShares(value: number | undefined) {
 ```
 
 ```tsx title="PortfolioGrid"
+import React from 'react';
 import { useSuspense, useFetch } from '@data-client/react';
 import { getCompanies, getPortfolioColumns } from './api/Company';
 import CompanyGrid from './CompanyGrid';

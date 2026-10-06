@@ -108,7 +108,8 @@ export const getUsers = new RestEndpoint({
 
 :::react
 
-```tsx title="NewTodo" {10-14}
+```tsx title="NewTodo" {11-15}
+import React from 'react';
 import { useController } from '@data-client/react';
 import { getTodos } from './api/Todo';
 

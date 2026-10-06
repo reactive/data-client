@@ -83,7 +83,7 @@ export const ProfileResource = resource({
 import { useSuspense } from '@data-client/react';
 import { ProfileResource } from './ProfileResource';
 
-function ProfileDetail(): JSX.Element {
+function ProfileDetail() {
   const profile = useSuspense(ProfileResource.get, { id: 1 });
   return (
     <div className="listItem">
@@ -155,7 +155,7 @@ export const getProfile = new Endpoint(
 import { useSuspense } from '@data-client/react';
 import { getProfile } from './Profile';
 
-function ProfileDetail(): JSX.Element {
+function ProfileDetail() {
   const profile = useSuspense(getProfile, 1);
   return (
     <div className="listItem">
@@ -312,7 +312,7 @@ export const ProfileResource = resource({
 import { useSuspense } from '@data-client/react';
 import { ProfileResource } from './ProfileResource';
 
-function ProfileList(): JSX.Element {
+function ProfileList() {
   const profiles = useSuspense(ProfileResource.getList);
   return (
     <div>
@@ -373,7 +373,10 @@ When fetch parameters depend on data from another resource.
 :::react
 
 ```tsx
-function PostWithAuthor() {
+import { useSuspense } from '@data-client/react';
+import { PostResource, UserResource } from './resources';
+
+function PostWithAuthor({ id }: { id: string }) {
   const post = useSuspense(PostResource.get, { id });
   const author = useSuspense(UserResource.get, {
     // highlight-next-line
@@ -448,7 +451,8 @@ export const UserResource = resource({
 
 :::react
 
-```tsx title="PostWithAuthor" {7-11}
+```tsx title="PostWithAuthor" {8-12}
+import { useSuspense } from '@data-client/react';
 import { PostResource, UserResource } from './Resources';
 
 export default function PostWithAuthor({ id }: { id: string }) {
@@ -532,7 +536,8 @@ export const getPosts = new RestEndpoint({
 
 :::react
 
-```tsx title="ArticleList" {5-7}
+```tsx title="ArticleList" {6-8}
+import { useSuspense } from '@data-client/react';
 import { getPosts } from './api/Post';
 
 export default function ArticleList({ page }: { page: string }) {

@@ -188,7 +188,7 @@ const html = value => ({ type: 'html', value });
 
 /**
  * Code without Docusaurus-only syntax (highlight markers, display options).
- * `data.raw` keeps the fence's own lines, so the Vue example check can map
+ * `data.raw` keeps the fence's own lines, so the docs example check can map
  * errors back to them; `data.nocheck` marks fences that check skips.
  */
 function codeBlock({ lang, value, title, meta = title && `title="${title}"` }) {

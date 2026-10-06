@@ -82,27 +82,44 @@ in both directions, unless the other page names its own `framework_equivalent`. 
 Give per-framework headings an explicit id so links to them work in both frameworks. A heading with
 no text left for a framework (e.g. only `:react[...]`) is dropped from that framework's page.
 
-### Vue examples
+### Code examples
 
-Vue code fences are copied verbatim into Vue skill references and into readers' apps, and the Vue
-playground doesn't run them, so `yarn check:vue-examples` (`checkVueExamples.mjs`, run by the
-`skills` workflow) type-checks them with `vue-tsc` against `@data-client/vue` and `@data-client/rest`.
-It checks each playground that has a `.vue` file as one app (files import each other by title:
-`./Resource` is the block titled `Resource`), and every other ` ```html ` single file component
-(titled or not) or ts block importing `@data-client/vue` on its own, where relative imports
-resolve to the page's titled blocks or to stubs typed `any`.
+Code fences are copied verbatim into skill references and into readers' apps, so
+`yarn check:doc-examples` (`checkExamples.mjs`, run by the `skills` workflow) type-checks each
+framework's rendering of the docs against the playground's editor types (`@data-client/react`,
+`@data-client/vue`, `@data-client/rest`, ...): React with TypeScript, Vue with `vue-tsc`. Pass
+`react` or `vue` to check one. It checks each playground as one app (for Vue, each that has a `.vue`
+file; files import each other by title: `./Resource` is the block titled `Resource`), and every
+other React ` ```tsx ` block, Vue ` ```html ` single file component (titled or not) or ts block
+importing the framework's package on its own, where relative imports resolve to the page's titled
+blocks or to stubs typed `any`.
 
-- Import everything a block uses, including `@data-client/rest` schemas in shared blocks the React
-  playground would provide as globals, and child components (`import ArticleForm from './ArticleForm.vue'`).
-  Vue templates only see what `<script setup>` imports.
+- Import everything a block uses: `@data-client/rest` schemas and `@data-client/react` hooks the
+  React playground would provide as globals, `Temporal` from `temporal-polyfill`, and the app's own
+  modules (`import { ArticleResource } from './resources/Article'`).
 - The playground's design system (`website/src/components/Playground/DesignSystem`: `Loading`,
   `Avatar`, `TextInput`, ...) stands for the app's own components and needs no import, like
-  `RouterLink` and `RouterView`. `NumberFlow` is a real library: import it from `@number-flow/vue`.
+  `render()`, which mounts a React playground's app, and Vue's `RouterLink` and `RouterView`.
+  `NumberFlow` is a real library: import it from `@number-flow/react` or `@number-flow/vue`.
+- Overview pages (`README.md`, like `docs/core/README.md`) may leave imports out of snippets for
+  readability, so only their playgrounds are checked.
+- Add `nocheck` to a fence's meta (` ```tsx title="Foo" nocheck `) only for a deliberately partial
+  fragment; it's dropped from the rendered page and skill references.
+
+React:
+
+- The React playground strips imports and provides only `React` and `use` from `react`, so
+  playground blocks use `import React from 'react'` and `React.useState()`. Other blocks import
+  hooks by name.
+- Format `Temporal` values with `toLocaleString()`, not the playground's `DateTimeFormat`.
+
+Vue:
+
+- Import child components (`import ArticleForm from './ArticleForm.vue'`). Vue templates only see
+  what `<script setup>` imports.
 - Use HTML elements Vue knows: `<center>` and `<strike>` resolve as (missing) components.
 - Template expressions only see Vue's allowed globals, not `FormData` or `window`; move such code
   into `<script setup>`.
-- Add `nocheck` to a fence's meta (` ```html title="Foo.vue" nocheck `) only for a deliberately
-  partial fragment; it's dropped from the rendered page and skill references.
 
 ## How it works
 

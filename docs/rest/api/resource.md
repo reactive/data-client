@@ -295,6 +295,8 @@ Retrieve a singular entity.
 <EndpointPlayground input="/react/posts/1" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}} status={200} response={{  "id": "1","group": "react","title": "this post",author: 'clara',}}>
 
 ```typescript title="Post" collapsed
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -304,7 +306,9 @@ export default class Post extends Entity {
 ```
 
 ```typescript title="Resource"
+import { resource } from '@data-client/rest';
 import Post from './Post';
+
 export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
@@ -337,6 +341,8 @@ Retrieve a list of entities.
 <EndpointPlayground input="/react/posts?author=clara" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}} status={200} response={[{ "id": "1","group": "react","title": "this post",author: 'clara',}]}>
 
 ```typescript title="Post" collapsed
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -346,7 +352,9 @@ export default class Post extends Entity {
 ```
 
 ```typescript title="Resource"
+import { resource } from '@data-client/rest';
 import Post from './Post';
+
 export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
@@ -390,6 +398,8 @@ to place at the beginning instead.
 <EndpointPlayground input="/react/posts?author=clara" init={{method: 'POST', headers: {'Content-Type': 'application/json'},body: JSON.stringify({ "title": "winning" })}} status={201} response={{  "id": "2","group": "react","title": "winning",author: 'clara',}}>
 
 ```typescript title="Post" collapsed
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -399,7 +409,9 @@ export default class Post extends Entity {
 ```
 
 ```typescript title="Resource"
+import { resource } from '@data-client/rest';
 import Post from './Post';
+
 export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
@@ -434,6 +446,8 @@ Commonly used with [Controller.fetch](/docs/api/Controller#fetch)
 <EndpointPlayground input="/react/posts?author=clara" init={{method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "title": "winning" })}} status={201} response={{  "id": "2","group": "react","title": "winning",author: 'clara',}}>
 
 ```typescript title="Post" collapsed
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -443,7 +457,9 @@ export default class Post extends Entity {
 ```
 
 ```typescript title="Resource"
+import { resource } from '@data-client/rest';
 import Post from './Post';
+
 export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
@@ -480,6 +496,8 @@ This member is only available when [paginationField](#paginationfield) is specif
 <EndpointPlayground input="/react/posts?author=clara&page=2" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}} status={200} response={[{ "id": "5","group": "react","title": "second page",author: 'clara',}]}>
 
 ```typescript title="Post" collapsed
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -489,7 +507,9 @@ export default class Post extends Entity {
 ```
 
 ```typescript title="Resource"
+import { resource } from '@data-client/rest';
 import Post from './Post';
+
 export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
@@ -529,6 +549,8 @@ collections matching its old state and adding it to collections matching the new
 <EndpointPlayground input="/react/posts/1" init={{method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "group": "vue" })}} status={200} response={{  "id": "1","group": "vue","title": "this post",author: 'clara',}}>
 
 ```typescript title="Post" collapsed
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -538,7 +560,9 @@ export default class Post extends Entity {
 ```
 
 ```typescript title="Resource"
+import { resource } from '@data-client/rest';
 import Post from './Post';
+
 export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
@@ -572,6 +596,8 @@ Update an entity.
 <EndpointPlayground input="/react/posts/1" init={{method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "title": "updated title", author: 'clara' })}} status={200} response={{  "id": "1","group": "react","title": "updated title",author: 'clara',}}>
 
 ```typescript title="Post" collapsed
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -581,7 +607,9 @@ export default class Post extends Entity {
 ```
 
 ```typescript title="Resource"
+import { resource } from '@data-client/rest';
 import Post from './Post';
+
 export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
@@ -615,6 +643,8 @@ Update some subset of fields of an entity.
 <EndpointPlayground input="/react/posts/1" init={{method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ "title": "updated title" })}} status={200} response={{  "id": "1","group": "react","title": "updated title",author: 'clara',}}>
 
 ```typescript title="Post" collapsed
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -624,7 +654,9 @@ export default class Post extends Entity {
 ```
 
 ```typescript title="Resource"
+import { resource } from '@data-client/rest';
 import Post from './Post';
+
 export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
@@ -658,6 +690,8 @@ Deletes an entity.
 <EndpointPlayground input="/react/posts/1" init={{method: 'DELETE', headers: {'Content-Type': 'application/json', }}} status={200} response={{ "id": "1" }}>
 
 ```typescript title="Post" collapsed
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -667,7 +701,9 @@ export default class Post extends Entity {
 ```
 
 ```typescript title="Resource"
+import { resource } from '@data-client/rest';
 import Post from './Post';
+
 export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',

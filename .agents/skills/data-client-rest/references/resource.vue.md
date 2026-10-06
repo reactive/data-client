@@ -249,6 +249,8 @@ const PostResource = resource({
 Retrieve a singular entity.
 
 ```typescript title="Post"
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -258,7 +260,9 @@ export default class Post extends Entity {
 ```
 
 ```typescript title="Resource"
+import { resource } from '@data-client/rest';
 import Post from './Post';
+
 export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
@@ -287,6 +291,8 @@ Commonly used with [useSuspense()](https://dataclient.io/vue/api/useSuspense), [
 Retrieve a list of entities.
 
 ```typescript title="Post"
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -296,7 +302,9 @@ export default class Post extends Entity {
 ```
 
 ```typescript title="Resource"
+import { resource } from '@data-client/rest';
 import Post from './Post';
+
 export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
@@ -334,6 +342,8 @@ Commonly used with [useSuspense()](https://dataclient.io/vue/api/useSuspense), [
 to place at the beginning instead.
 
 ```typescript title="Post"
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -343,7 +353,9 @@ export default class Post extends Entity {
 ```
 
 ```typescript title="Resource"
+import { resource } from '@data-client/rest';
 import Post from './Post';
+
 export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
@@ -374,6 +386,8 @@ Commonly used with [Controller.fetch](https://dataclient.io/vue/api/Controller#f
 [RestEndpoint.unshift](./RestEndpoint.vue.md#unshift) creates a new entity and pushes it to the beginning of getList.
 
 ```typescript title="Post"
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -383,7 +397,9 @@ export default class Post extends Entity {
 ```
 
 ```typescript title="Resource"
+import { resource } from '@data-client/rest';
 import Post from './Post';
+
 export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
@@ -416,6 +432,8 @@ Commonly used with [Controller.fetch](https://dataclient.io/vue/api/Controller#f
 This member is only available when [paginationField](#paginationfield) is specified.
 
 ```typescript title="Post"
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -425,7 +443,9 @@ export default class Post extends Entity {
 ```
 
 ```typescript title="Resource"
+import { resource } from '@data-client/rest';
 import Post from './Post';
+
 export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
@@ -461,6 +481,8 @@ Commonly used with [Controller.fetch](https://dataclient.io/vue/api/Controller#f
 collections matching its old state and adding it to collections matching the new values from the body.
 
 ```typescript title="Post"
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -470,7 +492,9 @@ export default class Post extends Entity {
 ```
 
 ```typescript title="Resource"
+import { resource } from '@data-client/rest';
 import Post from './Post';
+
 export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
@@ -500,6 +524,8 @@ Commonly used with [Controller.fetch](https://dataclient.io/vue/api/Controller#f
 Update an entity.
 
 ```typescript title="Post"
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -509,7 +535,9 @@ export default class Post extends Entity {
 ```
 
 ```typescript title="Resource"
+import { resource } from '@data-client/rest';
 import Post from './Post';
+
 export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
@@ -539,6 +567,8 @@ Commonly used with [Controller.fetch](https://dataclient.io/vue/api/Controller#f
 Update some subset of fields of an entity.
 
 ```typescript title="Post"
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -548,7 +578,9 @@ export default class Post extends Entity {
 ```
 
 ```typescript title="Resource"
+import { resource } from '@data-client/rest';
 import Post from './Post';
+
 export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
@@ -578,6 +610,8 @@ Commonly used with [Controller.fetch](https://dataclient.io/vue/api/Controller#f
 Deletes an entity.
 
 ```typescript title="Post"
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -587,7 +621,9 @@ export default class Post extends Entity {
 ```
 
 ```typescript title="Resource"
+import { resource } from '@data-client/rest';
 import Post from './Post';
+
 export const PostResource = resource({
   schema: Post,
   path: '/:group/posts/:id',
