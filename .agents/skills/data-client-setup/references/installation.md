@@ -6,10 +6,6 @@
 npm install @data-client/react @data-client/test @data-client/rest
 ```
 
-> **Tip: Use Agent Skills**
->
-> Prefer to scaffold via your AI agent? See [Agent Skills](https://dataclient.io/docs/getting-started/agent-skills) and run `/data-client-setup`.
-
 ## Add provider at top-level component {#add-provider-at-top-level-component}
 
 **Web**
