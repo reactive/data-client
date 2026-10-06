@@ -1,5 +1,6 @@
 ---
 title: Centralized side-effect orchestration with React
+vue_title: Centralized side-effect orchestration with Vue
 sidebar_label: Managers and Middleware
 description: Safe programmatic access to the global store. Enables fully extensible and scalable side-effects.
 image: /img/social/managers-card.png
@@ -31,7 +32,7 @@ sources={{
   }}
 />
 
-In flux architectures, it is critical all functions in the flux loop are [pure](https://react.dev/learn/keeping-components-pure).
+In flux architectures, it is critical all functions in the flux loop are :react[[pure](https://react.dev/learn/keeping-components-pure)]:vue[[pure](https://en.wikipedia.org/wiki/Pure_function)].
 Managers provide centralized orchestration of side effects. In other words, they are the means to interface
 with the world outside <abbr title="Reactive Data Client">Data Client</abbr>.
 
@@ -60,8 +61,8 @@ its [Controller](../api/Controller.md)
 
 ### Middleware logging
 
-```typescript
-import type { Manager, Middleware } from '@data-client/core';
+```typescript framework-imports
+import type { Manager, Middleware } from '@data-client/react';
 
 export default class LoggingManager implements Manager {
   middleware: Middleware = controller => next => async action => {
@@ -78,6 +79,8 @@ export default class LoggingManager implements Manager {
 
 Report failed fetches to monitoring services like [Sentry](https://sentry.io) by inspecting
 [SET_RESPONSE](../api/Actions.md#set_response) actions with `error` set.
+
+:::react
 
 ```typescript
 import {
@@ -100,12 +103,39 @@ export default class ErrorReportManager implements Manager {
 }
 ```
 
+:::
+
+:::vue
+
+```typescript
+import {
+  type Manager,
+  type Middleware,
+  actionTypes,
+} from '@data-client/vue';
+import { captureException } from '@sentry/vue';
+
+export default class ErrorReportManager implements Manager {
+  middleware: Middleware = controller => next => async action => {
+    if (action.type === actionTypes.SET_RESPONSE && action.error)
+      captureException(action.response, {
+        extra: { endpoint: action.endpoint.name, args: action.args },
+      });
+    return next(action);
+  };
+
+  cleanup() {}
+}
+```
+
+:::
+
 ### Metrics {#metrics}
 
 Track fetch timing by observing [FETCH](../api/Actions.md#fetch) actions. `action.meta.promise`
 resolves when the fetch completes.
 
-```typescript
+```typescript framework-imports
 import {
   type Manager,
   type Middleware,
@@ -117,9 +147,9 @@ export default class MetricsManager implements Manager {
   middleware: Middleware = controller => next => async action => {
     if (action.type === actionTypes.FETCH) {
       const start = performance.now();
-      action.meta.promise.finally(() => {
+      const track = () =>
         trackTiming(action.endpoint.name, performance.now() - start);
-      });
+      action.meta.promise.then(track, track);
     }
     return next(action);
   };
@@ -132,7 +162,7 @@ export default class MetricsManager implements Manager {
 
 Show a toast when any [mutation](/rest/guides/side-effects) succeeds or fails.
 
-```typescript
+```typescript framework-imports
 import {
   type Manager,
   type Middleware,
@@ -162,7 +192,7 @@ export default class ToastManager implements Manager {
 triggering refetch of any _actively rendered_ data without suspending ([stale-while-revalidate](./expiry-policy.md)).
 [init()](../api/Manager.md#init) and [cleanup()](../api/Manager.md#cleanup) manage the event listeners.
 
-```typescript
+```typescript framework-imports
 import type { Manager, Middleware, Controller } from '@data-client/react';
 
 export default class RefreshManager implements Manager {
@@ -192,7 +222,7 @@ export default class RefreshManager implements Manager {
 When a mutation succeeds in one tab, mark data stale in all other tabs using
 [BroadcastChannel](https://developer.mozilla.org/en-US/docs/Web/API/BroadcastChannel).
 
-```typescript
+```typescript framework-imports
 import {
   type Manager,
   type Middleware,
@@ -226,13 +256,13 @@ export default class TabSyncManager implements Manager {
 
 Persist the store with [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
 (here via [idb-keyval](https://www.npmjs.com/package/idb-keyval)); restore it with
-:react[[DataProvider's initialState](../api/DataProvider.md#initialState)]:vue[DataClientPlugin's `initialState` option]. IndexedDB writes are
+:react[[DataProvider's initialState](../api/DataProvider.md#initialState)]:vue[[DataClientPlugin's `initialState` option](../api/DataClientPlugin.md#initialState)]. IndexedDB writes are
 asynchronous and use [structured clone](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm)
 instead of blocking the main thread with JSON serialization like `localStorage` would.
 Debouncing writes keeps rapid action bursts cheap. Consider [expiry times](./expiry-policy.md)
 when restoring.
 
-```typescript
+```typescript framework-imports
 import type { Manager, Middleware } from '@data-client/react';
 import { set } from 'idb-keyval';
 
@@ -256,9 +286,16 @@ export default class PersistManager implements Manager {
 }
 ```
 
-```tsx
-import { get } from 'idb-keyval';
+:::react
 
+```tsx title="index.tsx"
+import { DataProvider, getDefaultManagers } from '@data-client/react';
+import { createRoot } from 'react-dom/client';
+import { get } from 'idb-keyval';
+import App from './App';
+import PersistManager from './PersistManager';
+
+const managers = [...getDefaultManagers(), new PersistManager()];
 const initialState = await get('data-client');
 
 createRoot(document.body).render(
@@ -268,6 +305,27 @@ createRoot(document.body).render(
 );
 ```
 
+:::
+
+:::vue
+
+```ts title="main.ts"
+import { createApp } from 'vue';
+import { DataClientPlugin, getDefaultManagers } from '@data-client/vue';
+import { get } from 'idb-keyval';
+import App from './App.vue';
+import PersistManager from './PersistManager';
+
+const managers = [...getDefaultManagers(), new PersistManager()];
+const initialState = await get('data-client');
+
+const app = createApp(App);
+app.use(DataClientPlugin, { initialState, managers });
+app.mount('#app');
+```
+
+:::
+
 ### Middleware data stream (push-based) {#data-stream}
 
 Adding a manager to process data pushed from the server by [websockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)
@@ -275,15 +333,19 @@ or [Server Sent Events](https://developer.mozilla.org/en-US/docs/Web/API/Server-
 we can maintain fresh data when the data updates are independent of user action. For example, a trading app's
 price, or a real-time collaborative editor.
 
-```typescript
-import { type Manager, type Middleware, Controller } from '@data-client/react';
-import type { Entity } from '@data-client/rest';
+```typescript framework-imports
+import type {
+  Manager,
+  Middleware,
+  Controller,
+  EntityInterface,
+} from '@data-client/react';
 
 export default class StreamManager implements Manager {
   declare protected controller: Controller;
-  declare protected evtSource: WebSocket; // | EventSource;
+  declare protected evtSource: WebSocket | EventSource;
   declare protected createEventSource: () => WebSocket | EventSource;
-  declare protected entities: Record<string, typeof Entity>;
+  declare protected entities: Record<string, EntityInterface>;
 
   constructor(
     createEventSource: () => WebSocket | EventSource,
@@ -296,16 +358,22 @@ export default class StreamManager implements Manager {
   middleware: Middleware = controller => {
     this.controller = controller;
     return next => async action => next(action);
-  }
+  };
 
   connect() {
     this.evtSource = this.createEventSource();
     // highlight-start
-    this.evtSource.onmessage = event => {
+    this.evtSource.onmessage = (event: MessageEvent) => {
       try {
-        const msg = JSON.parse(event.data);
+        const msg: { type: string; args: [any]; data: any } = JSON.parse(
+          event.data,
+        );
         if (msg.type in this.entities)
-          this.controller.set(this.entities[msg.type], ...msg.args, msg.data);
+          this.controller.set(
+            this.entities[msg.type],
+            ...msg.args,
+            msg.data,
+          );
       } catch (e) {
         console.error('Failed to handle message');
         console.error(e);
@@ -385,17 +453,16 @@ When using WebSockets or other real-time data sources, you may want to skip logg
 certain high-frequency actions to [DevToolsManager](../api/DevToolsManager.md) to avoid
 overwhelming the browser extension.
 
-```typescript
+```typescript framework-imports
 import { getDefaultManagers, actionTypes } from '@data-client/react';
 import StreamManager from './StreamManager';
 import { Ticker } from './Ticker';
 
 export default function getManagers() {
   return [
-    new StreamManager(
-      () => new WebSocket('wss://ws-feed.example.com'),
-      { ticker: Ticker },
-    ),
+    new StreamManager(() => new WebSocket('wss://ws-feed.example.com'), {
+      ticker: Ticker,
+    }),
     ...getDefaultManagers({
       devToolsManager: {
         // Increase latency buffer for high-frequency updates
@@ -411,6 +478,10 @@ export default function getManagers() {
 }
 ```
 
+:::react
+
 ### Coin App
 
 <StackBlitz app="coin-app" file="src/getManagers.ts,src/resources/Ticker.ts,src/pages/AssetDetail/AssetPrice.tsx,src/resources/StreamManager.ts" height="600" />
+
+:::

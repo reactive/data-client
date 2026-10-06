@@ -14,6 +14,15 @@ const { aliasedSitePathToRelativePath } = require('@docusaurus/utils');
 const fs = require('fs');
 const path = require('path');
 
+const {
+  DOCS_INSTANCES,
+  FRAMEWORK_INSTANCES,
+  frameworkInstance,
+} = require('./framework-docs/docsInstances.js');
+
+/** Docs every framework includes */
+const shared = DOCS_INSTANCES.filter(d => !d.framework);
+
 /** Route without trailing slash (`/docs/` -> `/docs`) */
 const trim = route => route.replace(/(.)\/$/, '$1');
 
@@ -45,26 +54,17 @@ function sections(version, title) {
   return [...byLabel].map(([label, docs]) => ({ label, docs }));
 }
 
-/**
- * @param {object} options
- * @param {Record<string, { id: string, path: string, name: string }>} options.frameworks
- *   framework -> its docs instance id, site path, and display name
- * @param {Record<string, string>} options.shared docs instance id -> title, for docs every framework includes
- */
-module.exports = function llmsPlugin(context, { frameworks, shared }) {
+/** Docs instances come from framework-docs/docsInstances.js */
+module.exports = function llmsPlugin(context) {
   return {
     name: 'llms-plugin',
     async postBuild({ outDir, plugins, siteConfig: { url } }) {
       const { docToMarkdown, ROOT } =
         await import('./framework-docs/docsToMarkdown.mjs');
-      const core = path.join(ROOT, 'docs/core');
 
       // docs instance id -> its folder and sidebar sections
       const instances = new Map(
-        [
-          ...Object.values(frameworks).map(({ id }) => [id, 'Core']),
-          ...Object.entries(shared),
-        ].map(([id, title]) => {
+        DOCS_INSTANCES.map(({ id, framework, name }) => {
           const plugin = plugins.find(
             p =>
               p.name === 'docusaurus-plugin-content-docs' &&
@@ -77,7 +77,8 @@ module.exports = function llmsPlugin(context, { frameworks, shared }) {
             id,
             {
               dir: path.resolve(context.siteDir, plugin.options.path),
-              sections: sections(version, title),
+              shared: !framework,
+              sections: sections(version, framework ? 'Core' : name),
             },
           ];
         }),
@@ -102,7 +103,7 @@ module.exports = function llmsPlugin(context, { frameworks, shared }) {
         fs.writeFileSync(target, content);
       };
 
-      /** A doc as markdown; framework instances render from docs/core (Vue via its mirror) */
+      /** A doc as markdown; framework instances render from their source (Vue via its mirror) */
       const render = (id, doc, framework) => {
         const source = path.resolve(
           context.siteDir,
@@ -110,9 +111,14 @@ module.exports = function llmsPlugin(context, { frameworks, shared }) {
         );
         // the mirror has docs/core's layout; docToMarkdown applies `.vue.md`
         // overrides and front matter itself
+        const { dir, shared } = instances.get(id);
         const file =
-          id in shared ? source : (
-            path.join(core, path.relative(instances.get(id).dir, source))
+          shared ? source : (
+            path.join(
+              ROOT,
+              frameworkInstance(framework).path,
+              path.relative(dir, source),
+            )
           );
         const content = docToMarkdown(file, framework, { resolveRoute });
         if (content === undefined)
@@ -120,11 +126,12 @@ module.exports = function llmsPlugin(context, { frameworks, shared }) {
         return content;
       };
 
-      const [defaultFramework] = Object.keys(frameworks);
-      for (const [framework, site] of Object.entries(frameworks)) {
+      const [{ framework: defaultFramework }] = FRAMEWORK_INSTANCES;
+      for (const site of FRAMEWORK_INSTANCES) {
+        const { framework } = site;
         // Shared docs render per framework so their links stay in it. Their
         // one .md per URL is the default framework's, like the HTML page.
-        const all = [site.id, ...Object.keys(shared)].flatMap(id =>
+        const all = [site, ...shared].flatMap(({ id }) =>
           instances.get(id).sections.map(({ label, docs }) => ({
             label,
             pages: docs.map(doc => {
@@ -135,18 +142,18 @@ module.exports = function llmsPlugin(context, { frameworks, shared }) {
                 md: `${trim(doc.permalink)}.md`,
                 content: render(id, doc, framework),
               };
-              if (!(id in shared) || framework === defaultFramework)
+              if (!instances.get(id).shared || framework === defaultFramework)
                 write(page.md, page.content);
               return page;
             }),
           })),
         );
 
-        const others = Object.entries(frameworks)
-          .filter(([other]) => other !== framework)
-          .map(([, o]) => `Using ${o.name}? See ${url}${o.path}llms.txt`);
+        const others = FRAMEWORK_INSTANCES.filter(o => o !== site).map(
+          o => `Using ${o.name}? See ${url}${o.llms}llms.txt`,
+        );
         // shared docs instance ids are their package names
-        const packages = [framework, ...Object.keys(shared)].map(
+        const packages = [framework, ...shared.map(d => d.id)].map(
           name => `@data-client/${name}`,
         );
         const file = parts =>
@@ -158,7 +165,7 @@ module.exports = function llmsPlugin(context, { frameworks, shared }) {
           ].join('\n\n')}\n`;
 
         write(
-          `${site.path}llms.txt`,
+          `${site.llms}llms.txt`,
           file(
             all.map(
               ({ label, pages }) =>
@@ -172,7 +179,7 @@ module.exports = function llmsPlugin(context, { frameworks, shared }) {
           ),
         );
         write(
-          `${site.path}llms-full.txt`,
+          `${site.llms}llms-full.txt`,
           file(
             all
               .flatMap(s => s.pages)

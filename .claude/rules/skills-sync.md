@@ -1,0 +1,21 @@
+---
+paths:
+  - "docs/**"
+  - ".agents/skills/**"
+  - "packages/*/src/index.ts"
+---
+<!-- Generated from .cursor/rules/skills-sync.mdc by `yarn build:agent-rules`. Edit the source. -->
+
+
+# Skills sync
+
+Skill `references/*.md` files listed in a skill's `references.json` are generated from `docs/` by `yarn build:skills` (an agent hook runs it before `git push`; the `skills` CI check fails on drift and on dead `references/` links in `SKILL.md`). Everything else in a skill (`SKILL.md`, references without the generated header) is hand-written and only changes when you change it.
+
+- **Editing a doc**: never edit the generated reference. Edit the doc; references regenerate.
+- **Adding a doc**: if a skill covers that API or topic (match by skill `description`), add the page to its `references.json` and link it from the skill's reference list in `SKILL.md`. New partials (`_foo.mdx`) need nothing; they're inlined.
+- **Renaming, moving or deleting a doc**: update every `references.json` entry and `SKILL.md` link to it (`grep -rn '<old path or name>' .agents/skills`). The generator fails on a missing source.
+- **Changing a public API** (rename, signature, new option, deprecation): grep `.agents/skills` for the old name and update `SKILL.md` examples and hand-written references in the same PR. Generated references only follow the docs.
+- **Agent-only references** (instructions for agents, not readers of the site): put the source in `docs/core/_agents/`. Docusaurus never publishes `_` folders, but `yarn build:skills` still renders the `:react[]`/`:vue[]` markers and resolves doc links, so one source serves both frameworks.
+- **Adding a hand-written reference**: `.gitattributes` marks `references/**` as `linguist-generated` (collapsed in GitHub diffs); add a `-linguist-generated` line for it. `yarn build:skills` fails until you do.
+- **Framework-specific pages**: a `frameworks: [react]` page is skipped for Vue; a skill whose `frameworks` lists `vue` must not rely on it. Skills covering both frameworks link `name.md`; `name.vue.md` exists only where Vue differs.
+- App-level examples in skills import from `@data-client/react` or `@data-client/vue` (and `/test` subpaths), never `@data-client/core`.

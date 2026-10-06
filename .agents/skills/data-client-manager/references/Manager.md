@@ -60,9 +60,10 @@ have internal state, so it is important to not constantly recreate them.
 
 **Web**
 
-```tsx title="/index.tsx"
+```tsx title="index.tsx"
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
+import MyManager from './MyManager';
 
 const managers = [...getDefaultManagers(), new MyManager()];
 
@@ -75,9 +76,10 @@ createRoot(document.body).render(
 
 **React Native**
 
-```tsx title="/index.tsx"
+```tsx title="index.tsx"
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { AppRegistry } from 'react-native';
+import MyManager from './MyManager';
 
 const managers = [...getDefaultManagers(), new MyManager()];
 
@@ -95,6 +97,7 @@ AppRegistry.registerComponent('MyApp', () => Root);
 'use client';
 import { getDefaultManagers } from '@data-client/react';
 import { DataProvider } from '@data-client/react/nextjs';
+import MyManager from './MyManager';
 
 const managers = [...getDefaultManagers(), new MyManager()];
 
@@ -107,7 +110,7 @@ export default function Provider({
 }
 ```
 
-```tsx title="app/_layout.tsx"
+```tsx title="app/layout.tsx"
 import Provider from './Provider';
 
 export default function RootLayout({ children }) {
@@ -123,48 +126,20 @@ export default function RootLayout({ children }) {
 
 **Expo**
 
-```tsx title="app/Provider.tsx"
-import { getDefaultManagers, DataProvider } from '@data-client/react';
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from '@react-navigation/native';
-import { useColorScheme } from '@/hooks/useColorScheme';
+```tsx title="app/_layout.tsx"
+import { Stack } from 'expo-router';
+import { DataProvider, getDefaultManagers } from '@data-client/react';
+import MyManager from './MyManager';
 
 const managers = [...getDefaultManagers(), new MyManager()];
 
-export default function Provider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const colorScheme = useColorScheme();
-
-  return (
-    <ThemeProvider
-      value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
-    >
-      <DataProvider managers={managers}>{children}</DataProvider>
-    </ThemeProvider>
-  );
-}
-```
-
-```tsx title="app/_layout.tsx"
-import { Stack } from 'expo-router';
-import 'react-native-reanimated';
-
-import Provider from './Provider';
-
 export default function RootLayout() {
   return (
-    <Provider>
+    <DataProvider managers={managers}>
       <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
+        <Stack.Screen name="index" />
       </Stack>
-    </Provider>
+    </DataProvider>
   );
 }
 ```
@@ -181,7 +156,7 @@ The job of `middleware` is to dispatch actions, respond to [actions](./Actions.m
 [Controller](./Controller.md) provides type-safe action dispatchers.
 
 ```ts title="CurrentTime"
-import { Entity } from '@data-client/endpoint';
+import { Entity } from '@data-client/rest';
 
 export default class CurrentTime extends Entity {
   id = 0;
@@ -190,11 +165,11 @@ export default class CurrentTime extends Entity {
 ```
 
 ```ts title="TimeManager"
-import type { Manager, Middleware } from '@data-client/core';
+import type { Manager, Middleware } from '@data-client/react';
 import CurrentTime from './CurrentTime';
 
 export default class TimeManager implements Manager {
-  protected declare intervalID?: ReturnType<typeof setInterval>;
+  declare protected intervalID?: ReturnType<typeof setInterval>;
 
   middleware: Middleware = controller => {
     this.intervalID = setInterval(() => {
@@ -253,20 +228,26 @@ encouraging safe access to its members.
 In case we want to 'handle' a certain [action](./Actions.md), we can 'consume' it by not calling next.
 
 ```ts title="isEntity"
-import type { Schema, EntityInterface } from '@data-client/core';
+import type { Schema, EntityInterface } from '@data-client/react';
 
-export default function isEntity(schema: Schema): schema is EntityInterface {
+export default function isEntity(
+  schema: Schema,
+): schema is EntityInterface {
   return schema !== null && (schema as any).pk !== undefined;
 }
 ```
 
 ```ts title="SubsManager"
-import type { Manager, Middleware, EntityInterface } from '@data-client/react';
+import type {
+  Manager,
+  Middleware,
+  EntityInterface,
+} from '@data-client/react';
 import { actionTypes } from '@data-client/react';
 import isEntity from './isEntity';
 
 export default class CustomSubsManager implements Manager {
-  protected declare entities: Record<string, EntityInterface>;
+  declare protected entities: Record<string, EntityInterface>;
 
   middleware: Middleware = controller => next => async action => {
     switch (action.type) {

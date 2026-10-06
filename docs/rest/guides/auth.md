@@ -79,7 +79,7 @@ export const login = async (data: FormData) =>
 ```
 
 ```ts title="AuthdEndpoint" {7,15,22}
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 import { login } from './login';
 
 export default class AuthdEndpoint<
@@ -104,6 +104,8 @@ export const handleLogin = async e => {
 };
 ```
 
+:::react
+
 ```tsx title="Auth" collapsed
 import { handleLogin } from './AuthdEndpoint';
 
@@ -111,6 +113,23 @@ export default function Auth() {
   return <AuthForm onSubmit={handleLogin} />;
 }
 ```
+
+:::
+
+:::vue
+
+```html title="Auth.vue" collapsed nocheck
+<script setup lang="ts">
+  import { handleLogin } from './AuthdEndpoint';
+  import AuthForm from './AuthForm.vue';
+</script>
+
+<template>
+  <AuthForm @submit="handleLogin" />
+</template>
+```
+
+:::
 
 ```ts title="MyResource" collapsed
 import { resource, Entity } from '@data-client/rest';
@@ -157,7 +176,7 @@ export const setAuthToken = (accessToken: string) => {
 ```
 
 ```ts title="AuthdEndpoint" {10,17}
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 import { getAuthToken, setAuthToken, login } from './login';
 
 export default class AuthdEndpoint<
@@ -177,6 +196,8 @@ export const handleLogin = async e => {
 };
 ```
 
+:::react
+
 ```tsx title="Auth" collapsed
 import { handleLogin } from './AuthdEndpoint';
 
@@ -184,6 +205,23 @@ export default function Auth() {
   return <AuthForm onSubmit={handleLogin} />;
 }
 ```
+
+:::
+
+:::vue
+
+```html title="Auth.vue" collapsed nocheck
+<script setup lang="ts">
+  import { handleLogin } from './AuthdEndpoint';
+  import AuthForm from './AuthForm.vue';
+</script>
+
+<template>
+  <AuthForm @submit="handleLogin" />
+</template>
+```
+
+:::
 
 ```ts title="MyResource" collapsed
 import { resource, Entity } from '@data-client/rest';
@@ -232,7 +270,7 @@ export const setAuthToken = (accessToken: string) => {
 ```
 
 ```ts title="AuthdEndpoint" {10,17}
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 import { getAuthToken, setAuthToken, login } from './login';
 
 export default class AuthdEndpoint<
@@ -252,6 +290,8 @@ export const handleLogin = async e => {
 };
 ```
 
+:::react
+
 ```tsx title="Auth" collapsed
 import { handleLogin } from './AuthdEndpoint';
 
@@ -259,6 +299,23 @@ export default function Auth() {
   return <AuthForm onSubmit={handleLogin} />;
 }
 ```
+
+:::
+
+:::vue
+
+```html title="Auth.vue" collapsed nocheck
+<script setup lang="ts">
+  import { handleLogin } from './AuthdEndpoint';
+  import AuthForm from './AuthForm.vue';
+</script>
+
+<template>
+  <AuthForm @submit="handleLogin" />
+</template>
+```
+
+:::
 
 ```ts title="MyResource" collapsed
 import { resource, Entity } from '@data-client/rest';
@@ -289,11 +346,11 @@ MyResource.get({ id: 1 });
 </TabItem>
 </Tabs>
 
-## Auth Headers from React Context
+## Auth Headers from :react[React Context]:vue[provide/inject] {#auth-headers-from-react-context}
 
 :::warning
 
-Using React Context for state that is not displayed (like auth tokens) is not recommended.
+Using :react[React Context]:vue[provide/inject] for state that is not displayed (like auth tokens) is not recommended.
 This will result in unnecessary re-renders and application complexity.
 
 :::
@@ -306,8 +363,10 @@ values={[
 ]}>
 <TabItem value="resource">
 
-We can transform any [Resource](../api/resource.md) into one that uses hooks to create endpoints
+We can transform any [Resource](../api/resource.md) into one that uses :react[hooks]:vue[composables] to create endpoints
 by using [hookifyResource](../api/hookifyResource.md)
+
+:::react
 
 ```ts title="resources/Post.ts"
 import { resource, hookifyResource } from '@data-client/rest';
@@ -339,9 +398,56 @@ function PostDetail({ id }) {
 }
 ```
 
-:::warning
+:::
 
-Using this means all endpoint calls must only occur during a function render.
+:::vue
+
+```ts title="resources/Post.ts"
+import { inject } from 'vue';
+import { resource, hookifyResource } from '@data-client/rest';
+
+// Post defined here
+
+export const AuthKey = Symbol('accessToken');
+
+export const PostResource = hookifyResource(
+  resource({ path: '/posts/:id', schema: Post }),
+  function useInit(): RequestInit {
+    const accessToken = inject(AuthKey, '');
+    return {
+      headers: {
+        'Access-Token': accessToken,
+      },
+    };
+  },
+);
+```
+
+Then we can get the endpoints as composables in our Vue Components
+
+```html title="PostDetail.vue"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { PostResource } from 'resources/Post';
+
+  const props = defineProps<{ id: string }>();
+  const post = await useSuspense(PostResource.useGet(), () => ({
+    id: props.id,
+  }));
+</script>
+
+<template>
+  <div>{{ post.title }}</div>
+</template>
+```
+
+:::
+
+::::warning
+
+Using this means all endpoint calls must only occur :react[during a function render]:vue[at the top level of `<script setup>`].
+
+:::react
 
 ```tsx
 function CreatePost() {
@@ -361,13 +467,38 @@ function CreatePost() {
 
 :::
 
+:::vue
+
+```html title="CreatePost.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { PostResource } from 'resources/Post';
+
+  const controller = useController();
+  //highlight-next-line
+  const createPost = PostResource.useCreate();
+  const onSubmit = (e: Event) =>
+    controller.fetch(createPost, new FormData(e.target as HTMLFormElement));
+</script>
+
+<template>
+  <form @submit="onSubmit">
+    <!-- ... -->
+  </form>
+</template>
+```
+
+:::
+
+::::
+
 </TabItem>
 <TabItem value="endpoint">
 
 We will first provide an easy way of using the context to alter the fetch headers.
 
 ```ts title="api/AuthdEndpoint.ts"
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 
 export default class AuthdEndpoint<
   O extends RestGenerics = any,
@@ -387,6 +518,8 @@ export default class AuthdEndpoint<
 
 Next we will [extend](../api/RestEndpoint.md#extend) to generate a new endpoint with this context injected.
 
+:::react
+
 ```tsx
 function useEndpoint(endpoint: RestEndpoint) {
   const accessToken = useAuthContext();
@@ -397,9 +530,26 @@ function useEndpoint(endpoint: RestEndpoint) {
 }
 ```
 
-:::warning
+:::
 
-Using this means all endpoint calls must only occur during a function render.
+:::vue
+
+```ts
+import { inject } from 'vue';
+
+function useEndpoint(endpoint: RestEndpoint) {
+  const accessToken = inject(AuthKey, '');
+  return endpoint.extend({ accessToken });
+}
+```
+
+:::
+
+::::warning
+
+Using this means all endpoint calls must only occur :react[during a function render]:vue[at the top level of `<script setup>`].
+
+:::react
 
 ```tsx
 function CreatePost() {
@@ -420,6 +570,32 @@ function CreatePost() {
 ```
 
 :::
+
+:::vue
+
+```html title="CreatePost.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { PostResource } from 'resources/Post';
+  import { useEndpoint } from './useEndpoint';
+
+  const controller = useController();
+  //highlight-next-line
+  const createPost = useEndpoint(PostResource.create);
+  const onSubmit = (e: Event) =>
+    controller.fetch(createPost, {}, new FormData(e.target as HTMLFormElement));
+</script>
+
+<template>
+  <form @submit="onSubmit">
+    <!-- ... -->
+  </form>
+</template>
+```
+
+:::
+
+::::
 
 </TabItem>
 </Tabs>

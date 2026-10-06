@@ -6,10 +6,10 @@
 </div>
 </h1>
 
-The scalable way to build applications with [dynamic data](https://dataclient.io/docs/getting-started/mutations).
+The scalable way to build applications with [dynamic data](https://dataclient.io/vue/getting-started/mutations).
 
-[Declarative resouce definitons](https://dataclient.io/docs/getting-started/resource) for [REST](https://dataclient.io/rest), [GraphQL](https://dataclient.io/graphql), [Websockets+SSE](https://dataclient.io/docs/concepts/managers#data-stream) and [more](https://dataclient.io/rest/api/Endpoint)
-<br/>[Performant rendering](https://dataclient.io/docs/getting-started/data-dependency) in [Vue 3](https://vuejs.org/)
+[Declarative resource definitions](https://dataclient.io/vue/getting-started/resource) for [REST](https://dataclient.io/rest), [GraphQL](https://dataclient.io/graphql), [Websockets+SSE](https://dataclient.io/vue/concepts/managers#data-stream) and [more](https://dataclient.io/rest/api/Endpoint)
+<br/>[Performant rendering](https://dataclient.io/vue/getting-started/data-dependency) in [Vue 3](https://vuejs.org/)
 
 Schema driven. Zero updater functions.
 
@@ -24,7 +24,7 @@ Schema driven. Zero updater functions.
 [![Agent Skills](https://img.shields.io/badge/Agent_Skills-cc785c?style=flat-square&logo=claude&logoColor=white)](https://skills.sh/reactive/data-client)
 [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/35nb8Mz)
 
-**[📖Read The Docs](https://dataclient.io/docs)** &nbsp;|&nbsp; [🏁Getting Started](https://dataclient.io/docs/getting-started/agent-skills) &nbsp;|&nbsp; [🤖Agent Skills](https://skills.sh/reactive/data-client) &nbsp;|&nbsp; [🎮Todo Demo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/vue-todo-app?file=src%2Fcomponents%2FTodoListContent.vue)
+**[📖Read The Docs](https://dataclient.io/vue)** &nbsp;|&nbsp; [🏁Getting Started](https://dataclient.io/vue/getting-started/agent-skills) &nbsp;|&nbsp; [🤖Agent Skills](https://skills.sh/reactive/data-client) &nbsp;|&nbsp; [🎮Todo Demo](https://stackblitz.com/github/reactive/data-client/tree/master/examples/vue-todo-app?file=src%2Fcomponents%2FTodoListContent.vue)
 
 </div>
 
@@ -34,7 +34,19 @@ Schema driven. Zero updater functions.
 npm install --save @data-client/vue @data-client/rest
 ```
 
-For more details, see [the Getting Started docs page](https://dataclient.io/docs/getting-started/agent-skills).
+Install [DataClientPlugin](https://dataclient.io/vue/api/DataClientPlugin) when creating your app:
+
+```typescript
+import { createApp } from 'vue';
+import { DataClientPlugin } from '@data-client/vue';
+import App from './App.vue';
+
+const app = createApp(App);
+app.use(DataClientPlugin);
+app.mount('#app');
+```
+
+For more details, see [the Getting Started docs page](https://dataclient.io/vue/getting-started/installation).
 
 ### Skills
 
@@ -68,7 +80,7 @@ class Article extends Entity {
 }
 ```
 
-### Create [collection of API Endpoints](https://dataclient.io/docs/getting-started/resource)
+### Create [collection of API Endpoints](https://dataclient.io/vue/getting-started/resource)
 
 ```typescript
 const UserResource = resource({
@@ -86,7 +98,7 @@ const ArticleResource = resource({
 });
 ```
 
-### One line [data binding](https://dataclient.io/docs/getting-started/data-dependency)
+### One line [data binding](https://dataclient.io/vue/getting-started/data-dependency)
 
 ```vue
 <template>
@@ -104,7 +116,9 @@ const article = await useSuspense(ArticleResource.get, { id: props.id });
 </script>
 ```
 
-### [Reactive Mutations](https://dataclient.io/docs/getting-started/mutations)
+Components that `await` data render inside Vue's [&lt;Suspense>](https://vuejs.org/guide/built-ins/suspense.html), which shows a fallback while [loading](https://dataclient.io/vue/getting-started/data-dependency#async-fallbacks).
+
+### [Reactive Mutations](https://dataclient.io/vue/getting-started/mutations)
 
 ```vue
 <template>
@@ -120,7 +134,7 @@ const props = defineProps<{ id: string; article: Article }>();
 const ctrl = useController();
 
 const handleCreateArticle = (article: Partial<Article>) =>
-  ctrl.fetch(ArticleResource.getList.push, { id: props.id }, article);
+  ctrl.fetch(ArticleResource.getList.push, article);
 
 const handleUpdateProfile = (user: Partial<User>) =>
   ctrl.fetch(UserResource.update, { id: props.article.author.id }, user);
@@ -130,7 +144,7 @@ const handleDeleteArticle = () =>
 </script>
 ```
 
-### [Subscriptions](https://dataclient.io/docs/api/useLive)
+### [Subscriptions](https://dataclient.io/vue/api/useLive)
 
 ```vue
 <template>
@@ -139,11 +153,11 @@ const handleDeleteArticle = () =>
 
 <script setup lang="ts">
 const props = defineProps<{ symbol: string }>();
-const price = useLive(PriceResource.get, { symbol: props.symbol });
+const price = await useLive(PriceResource.get, { symbol: props.symbol });
 </script>
 ```
 
-### [Type-safe Imperative Actions](https://dataclient.io/docs/api/Controller)
+### [Type-safe Imperative Actions](https://dataclient.io/vue/api/Controller)
 
 ```typescript
 const ctrl = useController();
@@ -176,7 +190,7 @@ const groupTodoByUser = new Query(
 const todosByUser = useQuery(groupTodoByUser);
 ```
 
-### [Powerful Middlewares](https://dataclient.io/docs/concepts/managers)
+### [Powerful Middlewares](https://dataclient.io/vue/concepts/managers)
 
 ```ts
 class LoggingManager implements Manager {
@@ -212,7 +226,7 @@ class TickerStream implements Manager {
 }
 ```
 
-### [Integrated data mocking](https://dataclient.io/docs/api/Fixtures)
+### [Integrated data mocking](https://dataclient.io/vue/api/Fixtures)
 
 ```typescript
 import { createApp } from 'vue';
@@ -221,12 +235,12 @@ import { MockPlugin } from '@data-client/vue/test';
 
 const app = createApp(App);
 app.use(DataClientPlugin);
-if (process.env.NODE_ENV !== 'production') {
+if (import.meta.env.DEV) {
   app.use(MockPlugin, {
     fixtures: [
       {
         endpoint: ArticleResource.getList,
-        args: [{ maxResults: 10 }] as const,
+        args: [{ author: '10' }] as const,
         response: [
           {
             id: '5',
@@ -259,46 +273,77 @@ app.mount('#app');
 
 **Note:** `MockPlugin` must be installed after `DataClientPlugin` and before mounting the app.
 
+### [Testing composables](https://dataclient.io/vue/guides/unit-testing-composables)
+
+```typescript
+import { renderDataCompose } from '@data-client/vue/test';
+
+it('useSuspense() resolves an article', async () => {
+  const { result, cleanup } = await renderDataCompose(
+    () => useSuspense(ArticleResource.get, { id: '5' }),
+    {
+      initialFixtures: [
+        {
+          endpoint: ArticleResource.get,
+          args: [{ id: '5' }],
+          response: { id: '5', title: 'first post', body: 'hi' },
+        },
+      ],
+    },
+  );
+  const article = await result;
+  expect(article.value.title).toBe('first post');
+  cleanup();
+});
+```
+
 ### ...all typed ...fast ...and consistent
 
-For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://dataclient.io/docs/getting-started/agent-skills)
+For the small price of 9kb gzipped. &nbsp;&nbsp; [🏁Get started now](https://dataclient.io/vue/getting-started/agent-skills)
 
 ## Features
 
 - [x] ![TS](https://raw.githubusercontent.com/reactive/data-client/master/packages/vue/typescript.svg?sanitize=true) Strong [Typescript](https://www.typescriptlang.org/) inference
 - [x] 🔄 Vue 3 [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html) composables
-- [x] 🎣 [Declarative API](https://dataclient.io/docs/getting-started/data-dependency)
+- [x] 🛌 Vue [Suspense](https://dataclient.io/vue/getting-started/data-dependency#boundaries) support
+- [x] 🎣 [Declarative API](https://dataclient.io/vue/getting-started/data-dependency)
 - [x] 📝 Composition over configuration
-- [x] 💰 [Normalized](https://dataclient.io/docs/concepts/normalization) caching
+- [x] 💰 [Normalized](https://dataclient.io/vue/concepts/normalization) caching
 - [x] 💥 Tiny bundle footprint
 - [x] 🛑 Automatic overfetching elimination
 - [x] ✨ Fast [optimistic updates](https://dataclient.io/rest/guides/optimistic-updates)
-- [x] 🧘 [Flexible](https://dataclient.io/docs/getting-started/resource) to fit any API design (one size fits all)
-- [x] 🔧 [Debugging and inspection](https://dataclient.io/docs/getting-started/debugging) via browser extension
+- [x] 🧘 [Flexible](https://dataclient.io/vue/getting-started/resource) to fit any API design (one size fits all)
+- [x] 🔧 [Debugging and inspection](https://dataclient.io/vue/getting-started/debugging) via browser extension
 - [x] 🌳 Tree-shakable (only use what you need)
-- [x] 🔁 [Subscriptions](https://dataclient.io/docs/api/useSubscription)
-- [x] 📙 [Storybook mocking](https://dataclient.io/docs/guides/storybook)
-- [x] 🚯 [Declarative cache lifetime policy](https://dataclient.io/docs/concepts/expiry-policy)
-- [x] 🧅 [Composable middlewares](https://dataclient.io/docs/api/Manager)
+- [x] 🔁 [Subscriptions](https://dataclient.io/vue/api/useSubscription)
+- [x] 🧪 [Fixture mocking](https://dataclient.io/vue/api/Fixtures) for [tests](https://dataclient.io/vue/guides/unit-testing-components) and development
+- [x] 🚯 [Declarative cache lifetime policy](https://dataclient.io/vue/concepts/expiry-policy)
+- [x] 🗑️ Automatic [garbage collection](https://dataclient.io/vue/api/DataClientPlugin#gcPolicy) of unused data
+- [x] 🧅 [Composable middlewares](https://dataclient.io/vue/api/Manager)
 - [x] 💽 Global data consistency guarantees
 - [x] 🏇 Automatic race condition elimination
 - [x] 👯 Global referential equality guarantees
 
+## Examples
+
+- Todo: [![GitHub](https://badgen.net/badge/icon/github?icon=github&label)](https://github.com/reactive/data-client/tree/master/examples/vue-todo-app) | [![Sandbox](https://developer.stackblitz.com/img/open_in_stackblitz_small.svg)](https://stackblitz.com/github/reactive/data-client/tree/master/examples/vue-todo-app?file=src%2Fcomponents%2FTodoListContent.vue)
+
 ## API
 
-- Rendering: `useSuspense()`, `useLive()`, `useCache()`, `useDLE()`, `useQuery()`, `useLoading()`, `useDebounce()`, `useCancelling()`
-- Event handling: `useController()` returns [Controller](https://dataclient.io/docs/api/Controller)
-  - `ctrl.fetch`
-  - `ctrl.fetchIfStale`
-  - `ctrl.expireAll`
-  - `ctrl.invalidate`
-  - `ctrl.invalidateAll`
-  - `ctrl.resetEntireStore`
-  - `ctrl.set`
-  - `ctrl.setResponse`
-  - `ctrl.setError`
-  - `ctrl.resolve`
-  - `ctrl.subscribe`
-  - `ctrl.unsubscribe`
-- Components: `<AsyncBoundary/>`, `<ErrorBoundary/>`
-- Middleware: `LogoutManager`, `NetworkManager`, `SubscriptionManager`, `PollingSubscription`, `DevToolsManager`
+- Setup: [DataClientPlugin](https://dataclient.io/vue/api/DataClientPlugin), [getDefaultManagers()](https://dataclient.io/vue/api/getDefaultManagers)
+- Rendering: [useSuspense()](https://dataclient.io/vue/api/useSuspense), [useLive()](https://dataclient.io/vue/api/useLive), [useCache()](https://dataclient.io/vue/api/useCache), [useDLE()](https://dataclient.io/vue/api/useDLE), [useQuery()](https://dataclient.io/vue/api/useQuery), [useFetch()](https://dataclient.io/vue/api/useFetch), [useSubscription()](https://dataclient.io/vue/api/useSubscription), [useLoading()](https://dataclient.io/vue/api/useLoading), [useDebounce()](https://dataclient.io/vue/api/useDebounce)
+- Event handling: [useController()](https://dataclient.io/vue/api/useController) returns [Controller](https://dataclient.io/vue/api/Controller)
+  - [ctrl.fetch](https://dataclient.io/vue/api/Controller#fetch)
+  - [ctrl.fetchIfStale](https://dataclient.io/vue/api/Controller#fetchIfStale)
+  - [ctrl.expireAll](https://dataclient.io/vue/api/Controller#expireAll)
+  - [ctrl.invalidate](https://dataclient.io/vue/api/Controller#invalidate)
+  - [ctrl.invalidateAll](https://dataclient.io/vue/api/Controller#invalidateAll)
+  - [ctrl.resetEntireStore](https://dataclient.io/vue/api/Controller#resetEntireStore)
+  - [ctrl.set](https://dataclient.io/vue/api/Controller#set)
+  - [ctrl.setResponse](https://dataclient.io/vue/api/Controller#setResponse)
+  - [ctrl.setError](https://dataclient.io/vue/api/Controller#setError)
+  - [ctrl.resolve](https://dataclient.io/vue/api/Controller#resolve)
+  - [ctrl.subscribe](https://dataclient.io/vue/api/Controller#subscribe)
+  - [ctrl.unsubscribe](https://dataclient.io/vue/api/Controller#unsubscribe)
+- Middleware: [LogoutManager](https://dataclient.io/vue/api/LogoutManager), [NetworkManager](https://dataclient.io/vue/api/NetworkManager), [SubscriptionManager](https://dataclient.io/vue/api/SubscriptionManager), [PollingSubscription](https://dataclient.io/vue/api/PollingSubscription), [DevToolsManager](https://dataclient.io/vue/api/DevToolsManager)
+- Testing (`@data-client/vue/test`): [mountDataClient()](https://dataclient.io/vue/guides/unit-testing-components), [renderDataCompose()](https://dataclient.io/vue/guides/unit-testing-composables), `MockPlugin`, [mockInitialState()](https://dataclient.io/vue/api/mockInitialState)

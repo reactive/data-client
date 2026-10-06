@@ -40,7 +40,7 @@ type ContentSchemaGuard<O> =
  * `E['fetch']` instead of `F` so it doesn't depend on the outer generics.
  */
 interface RestInstanceExtenders {
-  // TODO: `ExtendOptions extends PartialRestGenerics | {}` is a hack for options with no
+  // TODO: `ExtendOptions extends ExtendableRestGenerics | {}` is a hack for options with no
   //       PartialRestGenerics members. Overloads (like paginated) can't tell the cases apart
   //       since every member is optional.
   /** Creates a child endpoint that inherits from this while overriding provided `options`.
@@ -48,7 +48,7 @@ interface RestInstanceExtenders {
    */
   extend<
     E extends RestInstanceBase,
-    ExtendOptions extends PartialRestGenerics | {},
+    ExtendOptions extends ExtendableRestGenerics | {},
   >(
     this: E,
     options: Readonly<
@@ -282,6 +282,14 @@ export type RestEndpointExtendOptions<
     keyof E extends ExtendOmitKeys ? never : Exclude<keyof E, ExtendOmitKeys>
   >;
 
+/** Argument I passed to process(), from Parameters<F>.
+ * Indexing a union like `[params] | []` or `[params, body] | [body]` (see ParamFetchNoBody/ParamFetchWithBody)
+ * merges position-wise, giving `undefined` where some call omits the argument.
+ * Endpoints that take no args keep `any`, so process(value, params: any) and similar still compile.
+ */
+type ProcessArg<A extends readonly any[], I extends 0 | 1> =
+  [A['length']] extends [0] ? any : A[I];
+
 type ExtendOmitKeys =
   KeyofRestEndpoint | keyof PartialRestGenerics | keyof RestEndpointOptions;
 
@@ -430,7 +438,11 @@ export type RestExtendedEndpoint<
   (keyof E extends KeyofRestEndpoint ? unknown
   : Omit<E, KeyofRestEndpoint | keyof O>);
 
-export interface PartialRestGenerics {
+/** PartialRestGenerics without `process`. Options passed to the constructor, extend() and
+ * resource().extend() are constrained by this, so RestEndpointOptions' typed `process` member is
+ * the only contextual type for process() params.
+ */
+export interface ExtendableRestGenerics {
   /** @see https://dataclient.io/rest/api/RestEndpoint#path */
   readonly path?: string;
   /** @see https://dataclient.io/rest/api/RestEndpoint#schema */
@@ -445,16 +457,22 @@ export interface PartialRestGenerics {
   searchParams?: any;
   /** @see https://dataclient.io/rest/api/RestEndpoint#paginationfield */
   readonly paginationField?: string;
-  /** @see https://dataclient.io/rest/api/RestEndpoint#process */
-  process?(value: any, ...args: any): any;
   /** @see https://dataclient.io/rest/api/RestEndpoint#content */
   readonly content?: ContentType;
+}
+export interface PartialRestGenerics extends ExtendableRestGenerics {
+  /** @see https://dataclient.io/rest/api/RestEndpoint#process */
+  process?(value: any, ...args: any): any;
 }
 /** Generic types when constructing a RestEndpoint
  *
  * @see https://dataclient.io/rest/api/RestEndpoint#inheritance
  */
 export interface RestGenerics extends PartialRestGenerics {
+  readonly path: string;
+}
+/** RestGenerics without `process`; see ExtendableRestGenerics */
+interface ConstructorRestGenerics extends ExtendableRestGenerics {
   readonly path: string;
 }
 
@@ -645,6 +663,15 @@ export interface RestEndpointOptions<
   fetch?: F;
   key?(...args: Parameters<F>): string;
   url?(...args: Parameters<F>): string;
+  /** @see https://dataclient.io/rest/api/RestEndpoint#process */
+  // Positional rather than a rest tuple: when F is generic (like a path type parameter),
+  // a deferred rest tuple would reject process(value, params) for having too many params.
+  process?(
+    value: any,
+    params: ProcessArg<Parameters<F>, 0>,
+    body: ProcessArg<Parameters<F>, 1>,
+    ...rest: any[]
+  ): any;
   update?: EndpointUpdateFunction<F, S>;
 }
 
@@ -704,7 +731,7 @@ export interface RestEndpointConstructor {
    *
    * @see https://dataclient.io/rest/api/RestEndpoint
    */
-  new <O extends RestGenerics = any>({
+  new <O extends ConstructorRestGenerics = any>({
     method,
     sideEffect,
     name,

@@ -253,8 +253,11 @@ export const TodoResource = {
   <TabItem value="sse">
 
 ```ts
-import type { Manager, Middleware } from '@data-client/core';
-import type { EndpointInterface } from '@data-client/endpoint';
+import type {
+  Manager,
+  Middleware,
+  EndpointInterface,
+} from '@data-client/react';
 
 export default class StreamManager implements Manager {
   protected declare middleware: Middleware;

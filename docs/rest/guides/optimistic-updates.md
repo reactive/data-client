@@ -1,5 +1,6 @@
 ---
 title: 100x faster React with Optimistic Updates
+vue_title: 100x faster Vue with Optimistic Updates
 sidebar_label: Optimistic Updates
 ---
 
@@ -7,7 +8,7 @@ sidebar_label: Optimistic Updates
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import {RestEndpoint} from '@data-client/rest';
 import { todoFixtures } from '@site/src/fixtures/todos';
 import OptimisticTransform from '../shared/\_optimisticTransform.mdx';
@@ -24,7 +25,7 @@ handles these for you.
 
 [resource()](../api/resource.md) can be configured by setting [optimistic: true](../api/resource.md#optimistic).
 
-<HooksPlayground defaultOpen="n" row fixtures={todoFixtures}>
+<FrameworkPlayground defaultOpen="n" row fixtures={todoFixtures}>
 
 ```ts title="TodoResource" {16}
 import { Entity, resource } from '@data-client/rest';
@@ -45,6 +46,8 @@ export const TodoResource = resource({
   optimistic: true,
 });
 ```
+
+:::react
 
 ```tsx title="TodoItem" collapsed
 import { useController } from '@data-client/react';
@@ -126,7 +129,92 @@ function TodoList() {
 render(<TodoList />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="TodoItem.vue" collapsed
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { TodoResource, type Todo } from './TodoResource';
+
+  const props = defineProps<{ todo: Todo }>();
+  const ctrl = useController();
+  const handleChange = e =>
+    ctrl.fetch(
+      TodoResource.partialUpdate,
+      { id: props.todo.id },
+      { completed: e.currentTarget.checked },
+    );
+  const handleDelete = () =>
+    ctrl.fetch(TodoResource.delete, {
+      id: props.todo.id,
+    });
+</script>
+
+<template>
+  <div class="listItem nogap">
+    <label>
+      <input type="checkbox" :checked="todo.completed" @change="handleChange" />
+      <s v-if="todo.completed">{{ todo.title }}</s>
+      <template v-else>{{ todo.title }}</template>
+    </label>
+    <CancelButton @click="handleDelete" />
+  </div>
+</template>
+```
+
+```html title="CreateTodo.vue" collapsed
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { TodoResource } from './TodoResource';
+
+  const props = defineProps<{ userId: number }>();
+  const ctrl = useController();
+  const handleKeyDown = async e => {
+    if (e.key === 'Enter') {
+      ctrl.fetch(TodoResource.getList.push, {
+        userId: props.userId,
+        title: e.currentTarget.value,
+      });
+      e.currentTarget.value = '';
+    }
+  };
+</script>
+
+<template>
+  <div class="listItem nogap">
+    <label>
+      <input type="checkbox" name="new" :checked="false" disabled />
+      <TextInput size="small" @keydown="handleKeyDown" />
+    </label>
+    <CancelButton />
+  </div>
+</template>
+```
+
+```html title="TodoList.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { TodoResource } from './TodoResource';
+  import TodoItem from './TodoItem.vue';
+  import CreateTodo from './CreateTodo.vue';
+
+  const userId = 1;
+  const todos = await useSuspense(TodoResource.getList, { userId });
+</script>
+
+<template>
+  <div>
+    <TodoItem v-for="todo in todos" :key="todo.pk()" :todo="todo" />
+    <CreateTodo :userId="userId" />
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 This makes all mutations optimistic using some sensible default implementations that handle most cases.
 
@@ -156,7 +244,7 @@ For creates (push/unshift) this typically results in no `id` in the response to 
 
 Until the object is actually created, doing mutations on that object generally does not work.
 Therefore, it may be prudent in these cases to disable further mutations until the actual
-`POST` is completed. One way to determine this is to simply look for the existance of
+`POST` is completed. One way to determine this is to simply look for the existence of
 a real `id` in the entity.
 
 ### partialUpdate
@@ -263,7 +351,7 @@ server timestamp.
 
 We use [snap.fetchedAt](/docs/api/Snapshot#fetchedat) in our [getOptimisticResponse](../api/RestEndpoint.md#getoptimisticresponse). This respresents the moment the fetch is triggered, which will be the same time the `updatedAt` header is computed.
 
-<HooksPlayground fixtures={[
+<FrameworkPlayground fixtures={[
 {
 endpoint: new RestEndpoint({path: '/api/count'}),
 args: [],
@@ -289,7 +377,9 @@ getInitialInterceptorData={() => ({ count: 0 })}
 row
 >
 
-```ts title="count" {9-11} collapsed
+```ts title="count" {11-13} collapsed
+import { Entity, RestEndpoint } from '@data-client/rest';
+
 export class CountEntity extends Entity {
   count = 0;
   updatedAt = 0;
@@ -309,7 +399,8 @@ export const getCount = new RestEndpoint({
 });
 ```
 
-```ts title="increment" {9-15,21}
+```ts title="increment" {10-16,22}
+import { RestEndpoint } from '@data-client/rest';
 import { CountEntity } from './count';
 
 export const increment = new RestEndpoint({
@@ -335,6 +426,8 @@ export const increment = new RestEndpoint({
   },
 });
 ```
+
+:::react
 
 ```tsx title="CounterPage" collapsed
 import { useLoading } from '@data-client/react';
@@ -368,4 +461,43 @@ function CounterPage() {
 render(<CounterPage />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="CounterPage.vue" collapsed
+<script setup lang="ts">
+  import { ref } from 'vue';
+  import { useController, useSuspense, useLoading } from '@data-client/vue';
+  import { getCount } from './count';
+  import { increment } from './increment';
+
+  const ctrl = useController();
+  const data = await useSuspense(getCount);
+  const n = ref(data.value.count);
+  const [clickHandler, loading, error] = useLoading(() => {
+    n.value += 1;
+    return ctrl.fetch(increment);
+  });
+</script>
+
+<template>
+  <div>
+    <p>
+      Click the button multiple times quickly to trigger the
+      potential race condition. This time our vector clock protects
+      us.
+    </p>
+    <div>
+      Data Client: {{ data.count }} Should be: {{ n }}
+      <br />
+      <button @click="clickHandler">+</button>
+      {{ loading ? ' ...loading' : '' }}
+    </div>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>

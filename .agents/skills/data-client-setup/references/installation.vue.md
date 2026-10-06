@@ -14,22 +14,17 @@ Install the [Vue plugin](https://vuejs.org/guide/reusability/plugins.html) when 
 npm install @data-client/vue @data-client/rest
 ```
 
-```tsx title="main.ts"
+```ts title="main.ts"
 import { createApp } from 'vue';
 import { DataClientPlugin } from '@data-client/vue';
+import App from './App.vue';
 
 const app = createApp(App);
-
-app.use(DataClientPlugin, {
-  // optional overrides
-  // managers: getDefaultManagers(),
-  // initialState,
-  // Controller,
-  // gcPolicy,
-});
-
+app.use(DataClientPlugin);
 app.mount('#app');
 ```
+
+`app.use(DataClientPlugin, options)` optionally overrides [`managers`](./getDefaultManagers.vue.md), `initialState`, `Controller`, and `gcPolicy`. See [DataClientPlugin](./DataClientPlugin.md) for all options.
 
 [Next: Define Data »](https://dataclient.io/vue/getting-started/resource)
 

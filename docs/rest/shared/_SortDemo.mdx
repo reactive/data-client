@@ -1,10 +1,10 @@
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import {
   postFixtures,
   getInitialInterceptorData,
 } from '@site/src/fixtures/posts-collection';
 
-<HooksPlayground fixtures={postFixtures} getInitialInterceptorData={getInitialInterceptorData} row defaultTab={props.defaultTab}>
+<FrameworkPlayground fixtures={postFixtures} getInitialInterceptorData={getInitialInterceptorData} row defaultTab={props.defaultTab}>
 
 ```ts title="getPosts" {17-24}
 import { Collection, Entity, Query, RestEndpoint } from '@data-client/rest';
@@ -34,6 +34,8 @@ export const getPosts = new RestEndpoint({
   ),
 });
 ```
+
+:::react
 
 ```tsx title="NewPost" collapsed
 import { useLoading } from '@data-client/react';
@@ -108,4 +110,79 @@ function UserList() {
 render(<UserList />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="NewPost.vue" collapsed nocheck
+<script setup lang="ts">
+  import { useController, useLoading } from '@data-client/vue';
+  import { getPosts } from './getPosts';
+
+  const props = defineProps<{ author: string }>();
+  const ctrl = useController();
+
+  const [handlePress, loading] = useLoading(async (e: KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      const input = e.currentTarget as HTMLInputElement;
+      const title = input.value;
+      input.value = '';
+      await ctrl.fetch(
+        getPosts.push,
+        { group: 'react' },
+        {
+          title,
+          author: props.author,
+        },
+      );
+    }
+  });
+</script>
+
+<template>
+  <TextInput @keydown="handlePress" :loading="loading" placeholder="Post title" />
+</template>
+```
+
+```html title="PostList.vue" collapsed {9}
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getPosts } from './getPosts';
+  import NewPost from './NewPost.vue';
+
+  const props = defineProps<{ author: string }>();
+  const posts = await useSuspense(getPosts, () => ({
+    author: props.author,
+    orderBy: 'title',
+    group: 'react',
+  }));
+</script>
+
+<template>
+  <div>
+    <div v-for="post in posts" :key="post.pk()">{{ post.title }}</div>
+    <NewPost :author="author" />
+  </div>
+</template>
+```
+
+```html title="UserList.vue" collapsed
+<script setup lang="ts">
+  import PostList from './PostList.vue';
+
+  const users = ['bob', 'clara'];
+</script>
+
+<template>
+  <div>
+    <section v-for="user in users" :key="user">
+      <h3>{{ user }}</h3>
+      <PostList :author="user" />
+    </section>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>

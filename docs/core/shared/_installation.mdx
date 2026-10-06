@@ -3,6 +3,7 @@ import TabItem from '@theme/TabItem';
 import PkgTabs from '@site/src/components/PkgTabs';
 import PkgInstall from '@site/src/components/PkgInstall';
 import Link from '@docusaurus/Link';
+import ProviderSetupCode from '@site/src/components/ProviderSetupCode';
 
 ::::react
 
@@ -19,16 +20,7 @@ values={[
 
 <TabItem value="web">
 
-```tsx title="index.tsx"
-import { DataProvider } from '@data-client/react';
-import { createRoot } from 'react-dom/client';
-
-createRoot(document.body).render(
-  <DataProvider>
-    <App />
-  </DataProvider>,
-);
-```
+<ProviderSetupCode platform="web" />
 
 Alternatively [integrate state with redux](../guides/redux.md)
 
@@ -36,17 +28,7 @@ Alternatively [integrate state with redux](../guides/redux.md)
 
 <TabItem value="native">
 
-```tsx title="index.tsx"
-import { DataProvider } from '@data-client/react';
-import { AppRegistry } from 'react-native';
-
-const Root = () => (
-  <DataProvider>
-    <App />
-  </DataProvider>
-);
-AppRegistry.registerComponent('MyApp', () => Root);
-```
+<ProviderSetupCode platform="native" />
 
 Alternatively [integrate state with redux](../guides/redux.md)
 
@@ -58,43 +40,13 @@ Alternatively [integrate state with redux](../guides/redux.md)
   <Link className="button button--primary" to="../guides/ssr#nextjs">Full NextJS Guide</Link>
 </div>
 
-```tsx title="app/layout.tsx"
-// highlight-next-line
-import { DataProvider } from '@data-client/react/nextjs';
-
-export default function RootLayout({ children }) {
-  return (
-    <html>
-      <body>
-        // highlight-next-line
-        <DataProvider>{children}</DataProvider>
-      </body>
-    </html>
-  );
-}
-```
+<ProviderSetupCode platform="nextjs" />
 
 </TabItem>
+
 <TabItem value="expo">
 
-```tsx title="app/_layout.tsx"
-import { Stack } from 'expo-router';
-import { DataProvider } from '@data-client/react';
-
-export default function RootLayout() {
-  return (
-    // highlight-start
-    <DataProvider>
-      // highlight-end
-      <Stack>
-        <Stack.Screen name="index" />
-      </Stack>
-      // highlight-start
-    </DataProvider>
-    // highlight-end
-  );
-}
-```
+<ProviderSetupCode platform="expo" />
 
 </TabItem>
 
@@ -118,21 +70,8 @@ Anansi includes Reactive Data Client automatically.
 
 <PkgInstall pkgs="@data-client/vue @data-client/rest" />
 
-```tsx title="main.ts"
-import { createApp } from 'vue';
-import { DataClientPlugin } from '@data-client/vue';
+<ProviderSetupCode platform="vue" />
 
-const app = createApp(App);
-
-app.use(DataClientPlugin, {
-  // optional overrides
-  // managers: getDefaultManagers(),
-  // initialState,
-  // Controller,
-  // gcPolicy,
-});
-
-app.mount('#app');
-```
+`app.use(DataClientPlugin, options)` optionally overrides [`managers`](../api/getDefaultManagers.md), `initialState`, `Controller`, and `gcPolicy`. See [DataClientPlugin](../api/DataClientPlugin.md) for all options.
 
 ::::

@@ -1,11 +1,12 @@
 ---
 title: Values Schema - Declarative map data for React
+vue_title: Values Schema - Declarative map data for Vue
 sidebar_label: Values
 ---
 
-import LanguageTabs from '@site/src/components/LanguageTabs';
-import HooksPlayground from '@site/src/components/HooksPlayground';
-import { RestEndpoint, Values } from '@data-client/rest';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import PolymorphicFeedDemo from '../shared/\_PolymorphicFeedDemo.mdx';
+import { RestEndpoint } from '@data-client/rest';
 
 # Values
 
@@ -40,7 +41,7 @@ its schemas are used for the value of an Object.
 
 ## Usage
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/items'}),
 args: [],
@@ -48,6 +49,8 @@ response: { firstThing: { id: 1 }, secondThing: { id: 2 } },
 delay: 150,
 },
 ]}>
+
+:::react
 
 ```tsx title="ItemPage.tsx"
 import { Entity, RestEndpoint, Values } from '@data-client/rest';
@@ -67,7 +70,38 @@ function ItemPage() {
 render(<ItemPage />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```ts title="api/Item"
+import { Entity, RestEndpoint, Values } from '@data-client/rest';
+
+export class Item extends Entity {
+  id = 0;
+}
+export const getItems = new RestEndpoint({
+  path: '/items',
+  schema: new Values(Item),
+});
+```
+
+```html title="ItemPage.vue"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getItems } from './api/Item';
+
+  const items = await useSuspense(getItems);
+</script>
+
+<template>
+  <pre>{{ JSON.stringify(items, undefined, 2) }}</pre>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ### Updating many entities
 
@@ -93,151 +127,11 @@ If your data returns an object that you did not provide a mapping for, the origi
 
 #### string schemaAttribute
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
-{
-endpoint: new RestEndpoint({path: '/feed'}),
-args: [],
-response: [
-{ id: 1, type: 'link', url: 'https://ntucker.true.io', title: 'Nate site' },
-{ id: 10, type: 'post', content: 'good day!' },
-],
-delay: 150,
-},
-]}>
-
-```typescript title="api/Feed"
-import { Entity, RestEndpoint, Values } from '@data-client/rest';
-
-export abstract class FeedItem extends Entity {
-  id = 0;
-  declare readonly type: 'link' | 'post';
-}
-export class Link extends FeedItem {
-  readonly type = 'link' as const;
-  readonly url: string = '';
-  readonly title: string = '';
-}
-export class Post extends FeedItem {
-  readonly type = 'post' as const;
-  readonly content: string = '';
-}
-export const getFeed = new RestEndpoint({
-  path: '/feed',
-  schema: new Values(
-    {
-      link: Link,
-      post: Post,
-    },
-    'type',
-  ),
-});
-```
-
-```tsx title="FeedList" collapsed
-import { useSuspense } from '@data-client/react';
-import { getFeed, Link, Post } from './api/Feed';
-
-function FeedList() {
-  const feedItems = useSuspense(getFeed);
-  return (
-    <div>
-      {Object.entries(feedItems).map(([key, item]) => (
-        <div key={item.pk()}>
-          {key}:{' '}
-          {item.type === 'link' ? (
-            <LinkItem link={item} />
-          ) : (
-            <PostItem post={item} />
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-function LinkItem({ link }: { link: Link }) {
-  return <a href={link.url}>{link.title}</a>;
-}
-function PostItem({ post }: { post: Post }) {
-  return <span>{post.content}</span>;
-}
-render(<FeedList />);
-```
-
-</HooksPlayground>
+<PolymorphicFeedDemo schema="Values" attribute="string" />
 
 #### function schemaAttribute
 
 The return values should match a key in the `definition`. Here we'll show the same behavior as the 'string'
 case, except we'll append an 's'.
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
-{
-endpoint: new RestEndpoint({path: '/feed'}),
-args: [],
-response: [
-{ id: 1, type: 'link', url: 'https://ntucker.true.io', title: 'Nate site' },
-{ id: 10, type: 'post', content: 'good day!' },
-],
-delay: 150,
-},
-]}>
-
-```typescript title="api/Feed"
-import { Entity, RestEndpoint, Values } from '@data-client/rest';
-
-export abstract class FeedItem extends Entity {
-  id = 0;
-  declare readonly type: 'link' | 'post';
-}
-export class Link extends FeedItem {
-  readonly type = 'link' as const;
-  readonly url: string = '';
-  readonly title: string = '';
-}
-export class Post extends FeedItem {
-  readonly type = 'post' as const;
-  readonly content: string = '';
-}
-export const getFeed = new RestEndpoint({
-  path: '/feed',
-  schema: new Values(
-    {
-      links: Link,
-      posts: Post,
-    },
-    (input: Link | Post, parent: unknown, key: string) => `${input.type}s`,
-  ),
-});
-```
-
-```tsx title="FeedList" collapsed
-import { useSuspense } from '@data-client/react';
-import { getFeed, Link, Post } from './api/Feed';
-
-function FeedList() {
-  const feedItems = useSuspense(getFeed);
-  return (
-    <div>
-      {Object.entries(feedItems).map(([key, item]) => (
-        <div key={item.pk()}>
-          {key}:{' '}
-          {item.type === 'link' ? (
-            <LinkItem link={item} />
-          ) : (
-            <PostItem post={item} />
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-function LinkItem({ link }: { link: Link }) {
-  return <a href={link.url}>{link.title}</a>;
-}
-function PostItem({ post }: { post: Post }) {
-  return <span>{post.content}</span>;
-}
-render(<FeedList />);
-```
-
-</HooksPlayground>
+<PolymorphicFeedDemo schema="Values" attribute="function" />

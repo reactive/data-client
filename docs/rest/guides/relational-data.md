@@ -1,9 +1,10 @@
 ---
 title: Simplified relational data rendering in React
+vue_title: Simplified relational data rendering in Vue
 sidebar_label: Relational data
 ---
 
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import { Collection, RestEndpoint } from '@data-client/rest';
 import StackBlitz from '@site/src/components/StackBlitz';
 
@@ -33,7 +34,7 @@ erDiagram
 <div style={{clear: 'both'}}>&nbsp;</div>
 </details>
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
 endpoint: new RestEndpoint({ path: '/posts' }),
 response: [
@@ -95,7 +96,7 @@ delay: 150,
 ]}>
 
 ```typescript title="resources/Post"
-import { Collection, Entity } from '@data-client/rest';
+import { Collection, Entity, resource } from '@data-client/rest';
 
 export class User extends Entity {
   id = '';
@@ -134,6 +135,8 @@ export const PostResource = resource({
 });
 ```
 
+:::react
+
 ```tsx title="PostPage" collapsed
 import { PostResource } from './resources/Post';
 
@@ -167,7 +170,41 @@ function PostPage() {
 render(<PostPage />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="PostPage.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { PostResource } from './resources/Post';
+
+  const posts = await useSuspense(PostResource.getList);
+</script>
+
+<template>
+  <div>
+    <div v-for="post in posts" :key="post.pk()">
+      <h4>{{ post.title }} - <cite>{{ post.author.name }}</cite></h4>
+      <ul>
+        <li v-for="comment in post.comments" :key="comment.pk()">
+          {{ comment.content }}
+          <small>
+            <cite>
+              {{ comment.commenter.name }}{{ comment.commenter ===
+              post.author ? ' [OP]' : '' }}
+            </cite>
+          </small>
+        </li>
+      </ul>
+    </div>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ## Client side joins
 
@@ -176,9 +213,11 @@ Nesting data when your endpoint doesn't.
 Even if the network responses don't nest data, we can perform client-side joins by specifying
 the relationship in [Entity.schema](../api/Entity.md#schema)
 
-<HooksPlayground>
+<FrameworkPlayground>
 
 ```ts title="resources/User" collapsed
+import { Entity, resource } from '@data-client/rest';
+
 export class User extends Entity {
   id = 0;
   username = '';
@@ -194,6 +233,7 @@ export const UserResource = resource({
 ```
 
 ```ts title="resources/Todo"
+import { Entity, resource } from '@data-client/rest';
 import { User } from './User';
 
 export class Todo extends Entity {
@@ -216,6 +256,8 @@ export const TodoResource = resource({
 });
 ```
 
+:::react
+
 ```tsx title="TodoJoined" collapsed
 import { TodoResource } from './resources/Todo';
 import { UserResource } from './resources/User';
@@ -236,7 +278,32 @@ function TodosPage() {
 render(<TodosPage />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="TodoJoined.vue" collapsed
+<script setup lang="ts">
+  import { useFetch, useSuspense } from '@data-client/vue';
+  import { TodoResource } from './resources/Todo';
+  import { UserResource } from './resources/User';
+
+  useFetch(UserResource.getList);
+  const todos = await useSuspense(TodoResource.getList);
+</script>
+
+<template>
+  <div>
+    <div v-for="todo in todos.slice(17, 24)" :key="todo.pk()">
+      {{ todo.title }} by <small>{{ todo.user?.name }}</small>
+    </div>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ### Key-based joins
 
@@ -316,7 +383,7 @@ may need overriding to ensure deep merging of those expected fields.
 This allows you to traverse the relationship after processing only one fetch request, rather than having to fetch
 each time you want access to a different view.
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
 endpoint: new RestEndpoint({ path: '/posts' }),
 response: [
@@ -378,7 +445,7 @@ delay: 150,
 ]}>
 
 ```typescript title="resources/Post"
-import { Collection, Entity } from '@data-client/rest';
+import { Entity, resource, type Schema } from '@data-client/rest';
 
 export class User extends Entity {
   id = '';
@@ -456,6 +523,8 @@ export const UserResource = resource({
   schema: User,
 });
 ```
+
+:::react
 
 ```tsx title="UserPage" collapsed
 import { UserResource } from './resources/Post';
@@ -551,7 +620,108 @@ function Navigation() {
 render(<Navigation />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="UserPage.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { UserResource } from './resources/Post';
+
+  const props = defineProps<{ id: string }>();
+  const emit = defineEmits<{ setRoute: [route: string] }>();
+  const user = await useSuspense(UserResource.get, () => ({
+    id: props.id,
+  }));
+</script>
+
+<template>
+  <div>
+    <h4>
+      <a @click="emit('setRoute', 'page')" style="cursor: pointer">&lt;</a>
+      {{ user.name }}
+    </h4>
+    <template v-if="user.posts.length">
+      <h5>Posts</h5>
+      <ul>
+        <li v-for="post in user.posts" :key="post.pk()">
+          {{ post.title }}
+        </li>
+      </ul>
+    </template>
+    <h5>Comments</h5>
+    <ul>
+      <li v-for="comment in user.comments" :key="comment.pk()">
+        {{ comment.content }}
+      </li>
+    </ul>
+  </div>
+</template>
+```
+
+```html title="PostPage.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { PostResource } from './resources/Post';
+
+  const emit = defineEmits<{ setRoute: [route: string] }>();
+  const posts = await useSuspense(PostResource.getList);
+</script>
+
+<template>
+  <div>
+    <div v-for="post in posts" :key="post.pk()">
+      <h4>
+        {{ post.title }} -
+        <cite
+          @click="emit('setRoute', `user/${post.author.id}`)"
+          style="cursor: pointer; text-decoration: underline"
+        >
+          {{ post.author.name }}
+        </cite>
+      </h4>
+      <ul>
+        <li v-for="comment in post.comments" :key="comment.pk()">
+          {{ comment.content }}
+          <small>
+            <cite
+              @click="emit('setRoute', `user/${comment.commenter.id}`)"
+              style="cursor: pointer; text-decoration: underline"
+            >
+              {{ comment.commenter.name }}{{ comment.commenter ===
+              post.author ? ' [OP]' : '' }}
+            </cite>
+          </small>
+        </li>
+      </ul>
+    </div>
+  </div>
+</template>
+```
+
+```html title="Navigation.vue" collapsed
+<script setup lang="ts">
+  import { ref } from 'vue';
+  import PostPage from './PostPage.vue';
+  import UserPage from './UserPage.vue';
+
+  const route = ref('posts');
+</script>
+
+<template>
+  <UserPage
+    v-if="route.startsWith('user')"
+    :id="route.split('/')[1]"
+    @setRoute="route = $event"
+  />
+  <PostPage v-else @setRoute="route = $event" />
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ### Circular dependencies
 

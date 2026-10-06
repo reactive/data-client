@@ -32,7 +32,7 @@ data no action will be taken.
 
 ### Endpoint.dataExpiryLength
 
-[Endpoint.dataExpiryLength](https://dataclient.io/rest/api/Endpoint#dataexpirylength) sets how long (in miliseconds) it takes for data
+[Endpoint.dataExpiryLength](https://dataclient.io/rest/api/Endpoint#dataexpirylength) sets how long (in milliseconds) it takes for data
 to transition from '[fresh](#fresh)' to '[stale](#stale)' status. Try setting it to a very low number like '50'
 to make it becomes [stale](#stale) almost instantly; or a very large number to stay around for a long time.
 
@@ -41,6 +41,7 @@ you will continue to see the old time without any refresh.
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -169,6 +170,7 @@ within the expiry time it just continues to display it.
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -251,6 +253,7 @@ the previous data. This can be done even with 'fresh' data.
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -295,6 +298,7 @@ render(<ShowTime />);
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -379,6 +383,7 @@ In this example [invalidating the endpoint](https://dataclient.io/docs/api/Contr
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -462,6 +467,7 @@ response. If the endpoint uses the entity in an [Array](https://dataclient.io/re
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -538,13 +544,7 @@ function ShowTime() {
         Invalidate (without fetching DELETE)
       </button>
       <button
-        onClick={() =>
-          ctrl.set(
-            InvalidateTimedEntity,
-            { id: '1' },
-            { id: '1' },
-          )
-        }
+        onClick={() => ctrl.set([InvalidateTimedEntity], [{ id: '1' }])}
       >
         Invalidate Entity with ctrl.set
       </button>

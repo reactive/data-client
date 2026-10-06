@@ -68,7 +68,7 @@ class Endpoint<F extends (...args: any) => Promise<any>> {
   readonly dataExpiryLength?: number;
   /** Default error expiry length, will fall back to NetworkManager default if not defined */
   readonly errorExpiryLength?: number;
-  /** Poll with at least this frequency in miliseconds */
+  /** Poll with at least this frequency in milliseconds */
   readonly pollFrequency?: number;
   /** Marks cached resources as invalid if they are stale */
   readonly invalidIfStale?: boolean;
@@ -127,7 +127,7 @@ export const getTodo = new RestEndpoint({
 export const updateTodo = getTodo.extend({ method: 'PUT' });
 ```
 
-Using a [Schema](./schema.md) enables [automatic data consistency](https://dataclient.io/vue/concepts/normalization) without the need to hurt performance with [refetching](https://dataclient.io/vue/api/Controller#expireAll).
+Using a [Schema](./schema.vue.md) enables [automatic data consistency](https://dataclient.io/vue/concepts/normalization) without the need to hurt performance with [refetching](https://dataclient.io/vue/api/Controller#expireAll).
 
 ### Typing
 
@@ -152,7 +152,7 @@ const getComments = new RestEndpoint({
 });
 
 // Hover your mouse over 'comments' to see its type
-const comments = useSuspense(getComments, {
+const comments = await useSuspense(getComments, {
   postId: '5',
   sortBy: 'votes',
 });
@@ -164,7 +164,7 @@ const createComment = async data =>
 
 #### Resolution/Return
 
-[schema](#schema) determines the return value when used with data-binding hooks like [useSuspense](https://dataclient.io/vue/api/useSuspense), [useDLE](https://dataclient.io/vue/api/useDLE), [useCache](https://dataclient.io/vue/api/useCache)
+[schema](#schema) determines the return value when used with data-binding composables like [useSuspense](https://dataclient.io/vue/api/useSuspense), [useDLE](https://dataclient.io/vue/api/useDLE), [useCache](https://dataclient.io/vue/api/useCache)
 or when used with [Controller.fetch](https://dataclient.io/vue/api/Controller#fetch)
 
 ```ts title="Todo.ts"
@@ -182,7 +182,7 @@ import { Todo } from './Todo';
 
 const getTodo = new RestEndpoint({ path: '/', schema: Todo });
 // Hover your mouse over 'todo' to see its type
-const todo = useSuspense(getTodo);
+const todo = await useSuspense(getTodo);
 
 async () => {
   const ctrl = useController();
@@ -191,7 +191,7 @@ async () => {
 ```
 
 [process](#process) determines the resolution value when the endpoint is called directly. For
-`RestEndpoints` without a schema, it also determines the return type of [hooks](https://dataclient.io/vue/api/useSuspense) and [Controller.fetch](https://dataclient.io/vue/api/Controller#fetch).
+`RestEndpoints` without a schema, it also determines the return type of [composables](https://dataclient.io/vue/api/useSuspense) and [Controller.fetch](https://dataclient.io/vue/api/Controller#fetch).
 
 ```ts path="process.ts"
 interface TodoInterface {
@@ -560,7 +560,7 @@ updateSite({ slug: 'cool' }, { url: '/' });
 ### paginationField
 
 If specified, will add [getPage](#getpage) method on the `RestEndpoint`. [Pagination guide](./pagination.vue.md). Schema
-must also contain a [Collection](./Collection.md).
+must also contain a [Collection](./Collection.vue.md).
 
 ### urlPrefix: string = '' {#urlPrefix}
 
@@ -670,11 +670,11 @@ This is sent to [fetchResponse](#fetchResponse)
 
 Called by [getRequestInit](#getRequestInit) to determine [HTTP Headers](https://developer.mozilla.org/en-US/docs/Web/API/Request/headers)
 
-This is often useful for [authentication](./auth.md)
+This is often useful for [authentication](./auth.vue.md)
 
 > **Warning**
 >
-> Don't use hooks here. If you need to use hooks, try using [hookifyResource](./hookifyResource.md)
+> Don't use composables here. If you need to use composables, try using [hookifyResource](./hookifyResource.vue.md)
 
 > **Tip: async**
 >
@@ -758,7 +758,7 @@ const downloadFile = new RestEndpoint({
 });
 ```
 
-See [file download guide](./network-transform.md#file-download) for complete usage with browser download trigger.
+See [file download guide](./network-transform.vue.md#file-download) for complete usage with browser download trigger.
 
 ### parseResponse(response): Promise {#parseResponse}
 
@@ -777,6 +777,20 @@ Override this for advanced cases like extracting headers alongside the body.
 ### process(value, ...args): any {#process}
 
 Perform any transforms with the parsed result. Defaults to identity function (do nothing).
+
+`args` are the arguments the endpoint was called with. They are typed from the endpoint's [path](#path),
+[searchParams](#searchParams) and [body](#body), including those set in the same [extend()](#extend) call.
+
+```ts
+const getUser = new RestEndpoint({ path: '/users/:id' });
+
+const getUserWithId = getUser.extend({
+  process(value, params) {
+    // params is { id: string | number }
+    return { ...value, id: `${params.id}` };
+  },
+});
+```
 
 > **Tip**
 >
@@ -812,12 +826,12 @@ Perform any transforms with the parsed result. Defaults to identity function (do
 
 ### schema?: Schema {#schema}
 
-[Declarative data lifecycle](./schema.md)
+[Declarative data lifecycle](./schema.vue.md)
 
-- Global data consistency and performance with [DRY](https://www.plutora.com/blog/understanding-the-dry-dont-repeat-yourself-principle) state: [where](./schema.md) to expect [Entities](./Entity.md)
-- Functions to [deserialize fields](./network-transform.md#deserializing-fields)
-- [Race condition handling](./Entity.md#shouldreorder)
-- [Validation](./Entity.md#validate)
+- Global data consistency and performance with [DRY](https://www.plutora.com/blog/understanding-the-dry-dont-repeat-yourself-principle) state: [where](./schema.vue.md) to expect [Entities](./Entity.vue.md)
+- Functions to [deserialize fields](./network-transform.vue.md#deserializing-fields)
+- [Race condition handling](./Entity.vue.md#shouldreorder)
+- [Validation](./Entity.vue.md#validate)
 
 ```tsx
 import { Entity, RestEndpoint } from '@data-client/rest';
@@ -890,7 +904,7 @@ from this function was a succesful network response. When the actual fetch compl
 of failure or success), the optimistic update will be replaced with the actual network response.
 
 ```ts title="Post"
-import { Entity, schema } from '@data-client/rest';
+import { Entity, EntityMixin } from '@data-client/rest';
 
 export class Post extends Entity {
   id = 0;
@@ -987,9 +1001,9 @@ export const PostResource = resource({
 </script>
 
 <template>
-  <center>
+  <div style="text-align: center">
     <small>{{ totalVotes }} votes total</small>
-  </center>
+  </div>
 </template>
 ```
 
@@ -1012,7 +1026,7 @@ export const PostResource = resource({
 </template>
 ```
 
-[Optimistic update guide](./optimistic-updates.md)
+[Optimistic update guide](./optimistic-updates.vue.md)
 
 ### update() {#update}
 
@@ -1023,7 +1037,7 @@ export const PostResource = resource({
 
 > **Tip**
 >
-> Try using [Collections](./Collection.md) instead.
+> Try using [Collections](./Collection.vue.md) instead.
 >
 > They are much easier to use and more robust!
 
@@ -1052,9 +1066,17 @@ const createUser = new RestEndpoint({
 
 More updates:
 
-```typescript title="Component.tsx"
-const allusers = useSuspense(userList);
-const adminUsers = useSuspense(userList, { admin: true });
+```html title="Component.vue"
+<script setup lang="ts">
+  import { useFetch, useSuspense } from '@data-client/vue';
+  import { userList } from './resources';
+
+  // start both fetches in parallel
+  useFetch(userList);
+  useFetch(userList, { admin: true });
+  const allusers = await useSuspense(userList);
+  const adminUsers = await useSuspense(userList, { admin: true });
+</script>
 ```
 
 The endpoint below ensures the new user shows up immediately in the usages above.
@@ -1096,14 +1118,14 @@ const UserDetailNormalized = getUser.extend({
 
 ## Specialized extenders
 
-These convenience accessors create new endpoints for common [Collection](./Collection.md) operations.
-They only work when the `RestEndpoint`'s schema contains a [Collection](./Collection.md).
+These convenience accessors create new endpoints for common [Collection](./Collection.vue.md) operations.
+They only work when the `RestEndpoint`'s schema contains a [Collection](./Collection.vue.md).
 
 ### push
 
-Creates a POST endpoint that places newly created Entities at the _end_ of a [Collection](./Collection.md).
+Creates a POST endpoint that places newly created Entities at the _end_ of a [Collection](./Collection.vue.md).
 
-Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.push](./Collection.md#push)
+Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.push](./Collection.vue.md#push)
 
 ```tsx
 const getTodos = new RestEndpoint({
@@ -1136,9 +1158,9 @@ const newUser = await ctrl.fetch(
 
 ### unshift
 
-Creates a POST endpoint that places newly created Entities at the _start_ of a [Collection](./Collection.md).
+Creates a POST endpoint that places newly created Entities at the _start_ of a [Collection](./Collection.vue.md).
 
-Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.unshift](./Collection.md#unshift)
+Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.unshift](./Collection.vue.md#unshift)
 
 ```tsx
 const getTodos = new RestEndpoint({
@@ -1171,9 +1193,9 @@ const newUser = await ctrl.fetch(
 
 ### assign
 
-Creates a POST endpoint that merges Entities into a [Values](https://dataclient.io/rest/api/Values) [Collection](./Collection.md).
+Creates a POST endpoint that merges Entities into a [Values](https://dataclient.io/rest/api/Values) [Collection](./Collection.vue.md).
 
-Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.assign](./Collection.md#assign)
+Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.assign](./Collection.vue.md#assign)
 
 ```tsx
 const getStats = new RestEndpoint({
@@ -1208,9 +1230,9 @@ await ctrl.fetch(StatsResource.getList.assign, {
 
 ### remove
 
-Creates a PATCH endpoint that removes Entities from a [Collection](./Collection.md) and updates them with the response.
+Creates a PATCH endpoint that removes Entities from a [Collection](./Collection.vue.md) and updates them with the response.
 
-Returns a new RestEndpoint with [method](#method): 'PATCH' and schema: [Collection.remove](./Collection.md#remove)
+Returns a new RestEndpoint with [method](#method): 'PATCH' and schema: [Collection.remove](./Collection.vue.md#remove)
 
 ```tsx
 const getTodos = new RestEndpoint({
@@ -1247,11 +1269,11 @@ const deleteAndRemove = MyResource.delete.extend({
 
 ### move
 
-Creates a PATCH endpoint that moves Entities between [Collections](./Collection.md). It removes from
+Creates a PATCH endpoint that moves Entities between [Collections](./Collection.vue.md). It removes from
 collections matching the entity's existing state and adds to collections matching the new values
 (from the body/last arg).
 
-Returns a new RestEndpoint with [method](#method): 'PATCH' and schema: [Collection.move](./Collection.md#move)
+Returns a new RestEndpoint with [method](#method): 'PATCH' and schema: [Collection.move](./Collection.vue.md#move)
 
 ```ts title="TaskResource"
 import { Entity, resource } from '@data-client/rest';
@@ -1271,55 +1293,69 @@ export const TaskResource = resource({
 });
 ```
 
-```tsx title="TaskCard" {5-9}
-import { useController } from '@data-client/react';
-import { TaskResource, type Task } from './TaskResource';
+```html title="TaskCard.vue" {7-16}
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { TaskResource, type Task } from './TaskResource';
 
-export default function TaskCard({ task }: { task: Task }) {
-  const handleMove = () => ctrl.fetch(
-    TaskResource.getList.move,
-    { id: task.id },
-    { id: task.id, status: task.status === 'backlog' ? 'in-progress' : 'backlog' },
-  );
+  const props = defineProps<{ task: Task }>();
   const ctrl = useController();
-  return (
-    <div className="listItem">
-      <span style={{ flex: 1 }}>{task.title}</span>
-      <button onClick={handleMove}>
-        {task.status === 'backlog' ? '\u25bc' : '\u25b2'}
-      </button>
-    </div>
-  );
-}
+  const handleMove = () =>
+    ctrl.fetch(
+      TaskResource.getList.move,
+      { id: props.task.id },
+      {
+        id: props.task.id,
+        status:
+          props.task.status === 'backlog' ? 'in-progress' : 'backlog',
+      },
+    );
+</script>
+
+<template>
+  <div class="listItem">
+    <span style="flex: 1">{{ task.title }}</span>
+    <button @click="handleMove">
+      {{ task.status === 'backlog' ? '\u25bc' : '\u25b2' }}
+    </button>
+  </div>
+</template>
 ```
 
-```tsx title="TaskBoard"
-import { useSuspense } from '@data-client/react';
-import { TaskResource } from './TaskResource';
-import TaskCard from './TaskCard';
+```html title="TaskBoard.vue"
+<script setup lang="ts">
+  import { useFetch, useSuspense } from '@data-client/vue';
+  import { TaskResource } from './TaskResource';
+  import TaskCard from './TaskCard.vue';
 
-function TaskBoard() {
-  const backlog = useSuspense(TaskResource.getList, { status: 'backlog' });
-  const inProgress = useSuspense(TaskResource.getList, { status: 'in-progress' });
-  return (
-    <div>
-      <div className="boardColumn">
-        <h4>Backlog</h4>
-        {backlog.map(task => <TaskCard key={task.pk()} task={task} />)}
-      </div>
-      <div className="boardColumn">
-        <h4>Active</h4>
-        {inProgress.map(task => <TaskCard key={task.pk()} task={task} />)}
-      </div>
+  // start both fetches in parallel before awaiting
+  useFetch(TaskResource.getList, { status: 'backlog' });
+  useFetch(TaskResource.getList, { status: 'in-progress' });
+  const backlog = await useSuspense(TaskResource.getList, {
+    status: 'backlog',
+  });
+  const inProgress = await useSuspense(TaskResource.getList, {
+    status: 'in-progress',
+  });
+</script>
+
+<template>
+  <div>
+    <div class="boardColumn">
+      <h4>Backlog</h4>
+      <TaskCard v-for="task in backlog" :key="task.pk()" :task="task" />
     </div>
-  );
-}
-render(<TaskBoard />);
+    <div class="boardColumn">
+      <h4>Active</h4>
+      <TaskCard v-for="task in inProgress" :key="task.pk()" :task="task" />
+    </div>
+  </div>
+</template>
 ```
 
 The remove filter is based on the entity's **existing** values in the store.
 The add filter is based on the merged entity values (existing + body).
-This uses the same [createCollectionFilter](./Collection.md#createcollectionfilter) logic as push/remove.
+This uses the same [createCollectionFilter](./Collection.vue.md#createcollectionfilter) logic as push/remove.
 
 ```tsx
 const UserResource = resource({
@@ -1338,25 +1374,34 @@ await ctrl.fetch(
 ### getPage
 
 An endpoint to retrieve the next page using [paginationField](#paginationfield) as the searchParameter key. Schema
-must also contain a [Collection](./Collection.md)
+must also contain a [Collection](./Collection.vue.md)
 
-```tsx
-const getTodos = new RestEndpoint({
-  path: '/todos',
-  schema: Todo,
-  paginationField: 'page',
-});
+```html
+<script lang="ts">
+  import { RestEndpoint } from '@data-client/rest';
+  import { Todo } from './resources';
 
-const todos = useSuspense(getTodos);
-return (
-  <PaginatedList
-    items={todos}
-    fetchNextPage={() =>
-      // fetches url `/todos?page=${nextPage}`
-      ctrl.fetch(TodoResource.getList.getPage, { page: nextPage })
-    }
-  />
-);
+  const getTodos = new RestEndpoint({
+    path: '/todos',
+    schema: Todo,
+    paginationField: 'page',
+  });
+</script>
+
+<script setup lang="ts">
+  import { useController, useSuspense } from '@data-client/vue';
+  import PaginatedList from './PaginatedList.vue';
+
+  const todos = await useSuspense(getTodos);
+  const ctrl = useController();
+  // fetches url `/todos?page=${nextPage}`
+  const fetchNextPage = (nextPage: number) =>
+    ctrl.fetch(getTodos.getPage, { page: nextPage });
+</script>
+
+<template>
+  <PaginatedList :items="todos" :fetchNextPage="fetchNextPage" />
+</template>
 ```
 
 See [pagination guide](./pagination.vue.md) for more info.
@@ -1370,7 +1415,7 @@ page, to append to this endpoint. See [Infinite Scrolling Pagination](./paginati
 const getNextPage = getList.paginated('cursor');
 ```
 
-Schema must also contain a [Collection](./Collection.md)
+Schema must also contain a [Collection](./Collection.vue.md)
 
 ### paginated(removeCursor) {#paginated-function}
 
@@ -1393,7 +1438,7 @@ const getNextPage = getList.paginated(
 `removeCusor` is a function that takes the arguments sent in fetch of `getNextPage` and returns
 the arguments to update `getList`.
 
-Schema must also contain a [Collection](./Collection.md)
+Schema must also contain a [Collection](./Collection.vue.md)
 
 ## Inheritance
 

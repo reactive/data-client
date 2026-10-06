@@ -1,9 +1,11 @@
-/* global module */
+/* global module, require */
 /**
  * Remark plugin that resolves framework-specific content in shared docs.
  *
  * Block:   :::react ... :::   or   :::vue ... :::
  * Inline:  :react[Suspense boundary] / :vue[<Suspense>]
+ * Code:    ```ts framework-imports  (imports of '@data-client/react' become
+ *          '@data-client/vue' on Vue pages)
  *
  * Matching blocks are unwrapped, the rest are removed. Runs per docs instance,
  * so the same source file renders once for React and once for Vue. Imports
@@ -11,10 +13,12 @@
  * they are not bundled.
  *
  * With `routeBasePath`, absolute `/docs/...` links are pointed at this
- * instance when the target doc exists in it (`docIds`), so Vue pages link to
- * Vue pages; links to React-only docs keep going to /docs.
+ * instance's route for the target doc when it exists there (`docs`, from
+ * `docsFor()` in index.js, which honors `slug`), so Vue pages link to Vue
+ * pages; links to React-only docs keep going to /docs.
  */
-const FRAMEWORKS = ['react', 'vue'];
+const { FRAMEWORKS } = require('./docsInstances.js');
+
 const DIRECTIVES = ['containerDirective', 'leafDirective', 'textDirective'];
 
 /** Heading left with no text (at most a `{#id}`) once the other framework's content is removed */
@@ -35,6 +39,21 @@ function filterChildren(node, framework) {
     // container label (:::vue[label]) is a paragraph flagged as directiveLabel
     return child.children.filter(c => !c.data?.directiveLabel);
   });
+}
+
+const FRAMEWORK_IMPORTS = /(^|\s)framework-imports(?=\s|$)/;
+const REACT_PACKAGE = /(['"])@data-client\/react\1/g;
+
+/** Point framework-agnostic code (managers, middleware) at this framework's package */
+function rewriteImports(node, framework) {
+  if (node.type === 'code' && FRAMEWORK_IMPORTS.test(node.meta ?? '')) {
+    node.meta = node.meta.replace(FRAMEWORK_IMPORTS, '$1').trim() || null;
+    node.value = node.value.replace(
+      REACT_PACKAGE,
+      `$1@data-client/${framework}$1`,
+    );
+  }
+  node.children?.forEach(child => rewriteImports(child, framework));
 }
 
 /** Names a tree may reference (over-approximated: any identifier counts) */
@@ -76,25 +95,22 @@ function pruneImports(tree) {
 
 const DOCS_LINK = /^\/docs(?:\/([^#?]*))?([#?].*)?$/;
 
-function rewriteLinks(node, routeBasePath, docIds) {
+function rewriteLinks(node, routeBasePath, docs) {
   if (node.type === 'link' || node.type === 'definition') {
     const match = node.url.match(DOCS_LINK);
     const id = match?.[1]?.replace(/\.mdx?$/, '').replace(/\/$/, '');
-    if (match && (!id || docIds.has(id)))
-      node.url = `/${routeBasePath}${id ? `/${id}` : ''}${match[2] ?? ''}`;
+    if (match && (!id || docs.has(id)))
+      node.url = `/${routeBasePath}${id ? docs.get(id).route : ''}${match[2] ?? ''}`;
   }
-  node.children?.forEach(child => rewriteLinks(child, routeBasePath, docIds));
+  node.children?.forEach(child => rewriteLinks(child, routeBasePath, docs));
 }
 
-module.exports = function remarkFramework({
-  framework,
-  routeBasePath,
-  docIds,
-}) {
+module.exports = function remarkFramework({ framework, routeBasePath, docs }) {
   return tree => {
     filterChildren(tree, framework);
+    rewriteImports(tree, framework);
     pruneImports(tree);
-    if (routeBasePath) rewriteLinks(tree, routeBasePath, docIds);
+    if (routeBasePath) rewriteLinks(tree, routeBasePath, docs);
   };
 };
 module.exports.FRAMEWORKS = FRAMEWORKS;

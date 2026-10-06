@@ -14,7 +14,7 @@ import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 import Grid from '@site/src/components/Grid';
 import Link from '@docusaurus/Link';
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 
 # RestEndpoint
 
@@ -92,7 +92,7 @@ class Endpoint<F extends (...args: any) => Promise<any>> {
   readonly dataExpiryLength?: number;
   /** Default error expiry length, will fall back to NetworkManager default if not defined */
   readonly errorExpiryLength?: number;
-  /** Poll with at least this frequency in miliseconds */
+  /** Poll with at least this frequency in milliseconds */
   readonly pollFrequency?: number;
   /** Marks cached resources as invalid if they are stale */
   readonly invalidIfStale?: boolean;
@@ -179,6 +179,8 @@ export class Comment extends Entity {
 }
 ```
 
+:::react
+
 ```ts title="Usage"
 import { Comment } from './Comment';
 
@@ -199,11 +201,37 @@ const createComment = async data =>
   ctrl.fetch(getComments.push, { postId: '5' }, data);
 ```
 
+:::
+
+:::vue
+
+```ts title="Usage"
+import { Comment } from './Comment';
+
+const getComments = new RestEndpoint({
+  path: '/posts/:postId/comments',
+  schema: new Collection([Comment]),
+  searchParams: {} as { sortBy?: 'votes' | 'recent' } | undefined,
+});
+
+// Hover your mouse over 'comments' to see its type
+const comments = await useSuspense(getComments, {
+  postId: '5',
+  sortBy: 'votes',
+});
+
+const ctrl = useController();
+const createComment = async data =>
+  ctrl.fetch(getComments.push, { postId: '5' }, data);
+```
+
+:::
+
 </TypeScriptEditor>
 
 #### Resolution/Return
 
-[schema](#schema) determines the return value when used with data-binding hooks like [useSuspense](/docs/api/useSuspense), [useDLE](/docs/api/useDLE), [useCache](/docs/api/useCache)
+[schema](#schema) determines the return value when used with data-binding :react[hooks]:vue[composables] like [useSuspense](/docs/api/useSuspense), [useDLE](/docs/api/useDLE), [useCache](/docs/api/useCache)
 or when used with [Controller.fetch](/docs/api/Controller#fetch)
 
 <TypeScriptEditor>
@@ -218,6 +246,8 @@ export class Todo extends Entity {
 }
 ```
 
+:::react
+
 ```ts title="getTodo.ts"
 import { Todo } from './Todo';
 
@@ -231,10 +261,29 @@ async () => {
 };
 ```
 
+:::
+
+:::vue
+
+```ts title="getTodo.ts"
+import { Todo } from './Todo';
+
+const getTodo = new RestEndpoint({ path: '/', schema: Todo });
+// Hover your mouse over 'todo' to see its type
+const todo = await useSuspense(getTodo);
+
+async () => {
+  const ctrl = useController();
+  const todo2 = await ctrl.fetch(getTodo);
+};
+```
+
+:::
+
 </TypeScriptEditor>
 
 [process](#process) determines the resolution value when the endpoint is called directly. For
-`RestEndpoints` without a schema, it also determines the return type of [hooks](/docs/api/useSuspense) and [Controller.fetch](/docs/api/Controller#fetch).
+`RestEndpoints` without a schema, it also determines the return type of :react[[hooks](/docs/api/useSuspense)]:vue[[composables](/docs/api/useSuspense)] and [Controller.fetch](/docs/api/Controller#fetch).
 
 <TypeScriptEditor>
 
@@ -739,7 +788,7 @@ This is often useful for [authentication](../guides/auth)
 
 :::warning
 
-Don't use hooks here. If you need to use hooks, try using [hookifyResource](./hookifyResource.md)
+Don't use :react[hooks]:vue[composables] here. If you need to use :react[hooks]:vue[composables], try using [hookifyResource](./hookifyResource.md)
 
 :::
 
@@ -850,6 +899,20 @@ Override this for advanced cases like extracting headers alongside the body.
 ### process(value, ...args): any {#process}
 
 Perform any transforms with the parsed result. Defaults to identity function (do nothing).
+
+`args` are the arguments the endpoint was called with. They are typed from the endpoint's [path](#path),
+[searchParams](#searchParams) and [body](#body), including those set in the same [extend()](#extend) call.
+
+```ts
+const getUser = new RestEndpoint({ path: '/users/:id' });
+
+const getUserWithId = getUser.extend({
+  process(value, params) {
+    // params is { id: string | number }
+    return { ...value, id: `${params.id}` };
+  },
+});
+```
 
 :::tip
 
@@ -1112,7 +1175,7 @@ Returns a new RestEndpoint with [method](#method): 'PATCH' and schema: [Collecti
 
 import { kanbanFixtures, getInitialInterceptorData } from '@site/src/fixtures/kanban';
 
-<HooksPlayground defaultOpen="n" row fixtures={kanbanFixtures} getInitialInterceptorData={getInitialInterceptorData}>
+<FrameworkPlayground defaultOpen="n" row fixtures={kanbanFixtures} getInitialInterceptorData={getInitialInterceptorData}>
 
 ```ts title="TaskResource" collapsed
 import { Entity, resource } from '@data-client/rest';
@@ -1131,6 +1194,8 @@ export const TaskResource = resource({
   optimistic: true,
 });
 ```
+
+:::react
 
 ```tsx title="TaskCard" {5-9}
 import { useController } from '@data-client/react';
@@ -1178,7 +1243,73 @@ function TaskBoard() {
 render(<TaskBoard />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="TaskCard.vue" {7-16}
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { TaskResource, type Task } from './TaskResource';
+
+  const props = defineProps<{ task: Task }>();
+  const ctrl = useController();
+  const handleMove = () =>
+    ctrl.fetch(
+      TaskResource.getList.move,
+      { id: props.task.id },
+      {
+        id: props.task.id,
+        status:
+          props.task.status === 'backlog' ? 'in-progress' : 'backlog',
+      },
+    );
+</script>
+
+<template>
+  <div class="listItem">
+    <span style="flex: 1">{{ task.title }}</span>
+    <button @click="handleMove">
+      {{ task.status === 'backlog' ? '\u25bc' : '\u25b2' }}
+    </button>
+  </div>
+</template>
+```
+
+```html title="TaskBoard.vue" collapsed
+<script setup lang="ts">
+  import { useFetch, useSuspense } from '@data-client/vue';
+  import { TaskResource } from './TaskResource';
+  import TaskCard from './TaskCard.vue';
+
+  // start both fetches in parallel before awaiting
+  useFetch(TaskResource.getList, { status: 'backlog' });
+  useFetch(TaskResource.getList, { status: 'in-progress' });
+  const backlog = await useSuspense(TaskResource.getList, {
+    status: 'backlog',
+  });
+  const inProgress = await useSuspense(TaskResource.getList, {
+    status: 'in-progress',
+  });
+</script>
+
+<template>
+  <div>
+    <div class="boardColumn">
+      <h4>Backlog</h4>
+      <TaskCard v-for="task in backlog" :key="task.pk()" :task="task" />
+    </div>
+    <div class="boardColumn">
+      <h4>Active</h4>
+      <TaskCard v-for="task in inProgress" :key="task.pk()" :task="task" />
+    </div>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 The remove filter is based on the entity's **existing** values in the store.
 The add filter is based on the merged entity values (existing + body).
@@ -1203,6 +1334,8 @@ await ctrl.fetch(
 An endpoint to retrieve the next page using [paginationField](#paginationfield) as the searchParameter key. Schema
 must also contain a [Collection](./Collection.md)
 
+:::react
+
 ```tsx
 const getTodos = new RestEndpoint({
   path: '/todos',
@@ -1211,16 +1344,51 @@ const getTodos = new RestEndpoint({
 });
 
 const todos = useSuspense(getTodos);
+const ctrl = useController();
 return (
   <PaginatedList
     items={todos}
     fetchNextPage={() =>
       // fetches url `/todos?page=${nextPage}`
-      ctrl.fetch(TodoResource.getList.getPage, { page: nextPage })
+      ctrl.fetch(getTodos.getPage, { page: nextPage })
     }
   />
 );
 ```
+
+:::
+
+:::vue
+
+```html
+<script lang="ts">
+  import { RestEndpoint } from '@data-client/rest';
+  import { Todo } from './resources';
+
+  const getTodos = new RestEndpoint({
+    path: '/todos',
+    schema: Todo,
+    paginationField: 'page',
+  });
+</script>
+
+<script setup lang="ts">
+  import { useController, useSuspense } from '@data-client/vue';
+  import PaginatedList from './PaginatedList.vue';
+
+  const todos = await useSuspense(getTodos);
+  const ctrl = useController();
+  // fetches url `/todos?page=${nextPage}`
+  const fetchNextPage = (nextPage: number) =>
+    ctrl.fetch(getTodos.getPage, { page: nextPage });
+</script>
+
+<template>
+  <PaginatedList :items="todos" :fetchNextPage="fetchNextPage" />
+</template>
+```
+
+:::
 
 See [pagination guide](../guides/pagination.md) for more info.
 

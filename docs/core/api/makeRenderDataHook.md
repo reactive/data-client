@@ -1,5 +1,6 @@
 ---
 frameworks: [react]
+framework_equivalent: guides/unit-testing-composables
 title: makeRenderDataHook()
 ---
 
@@ -32,7 +33,6 @@ The Reactive Data Client [&lt;DataProvider /&gt;](./DataProvider.md)
 - `import { DataProvider } from @data-client/react/redux;`
 
 ## Example
-
 
 ```typescript
 import { DataProvider } from '@data-client/react/redux';

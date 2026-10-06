@@ -7,15 +7,20 @@ name: Benchmark Spread
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches:
       - master
     paths:
       - 'packages/core/src/state/**'
       - 'packages/normalizr/src/normalize/**'
       - 'packages/endpoint/src/schemas/EntityMixin.ts'
+      - '!packages/**/__tests__/**'
       - 'examples/benchmark/spread.js'
       - 'examples/benchmark/spread-scenarios.js'
       - 'examples/benchmark/schemas.js'
+      - 'yarn.lock'
+      - 'scripts/ci-deps-relevant.mjs'
+      - '.github/workflows/dependency-gate.yml'
       - '.github/workflows/benchmark-spread.yml'
   push:
     branches:
@@ -24,9 +29,13 @@ on:
       - 'packages/core/src/state/**'
       - 'packages/normalizr/src/normalize/**'
       - 'packages/endpoint/src/schemas/EntityMixin.ts'
+      - '!packages/**/__tests__/**'
       - 'examples/benchmark/spread.js'
       - 'examples/benchmark/spread-scenarios.js'
       - 'examples/benchmark/schemas.js'
+      - 'yarn.lock'
+      - 'scripts/ci-deps-relevant.mjs'
+      - '.github/workflows/dependency-gate.yml'
       - '.github/workflows/benchmark-spread.yml'
 permissions:
   contents: write
@@ -35,10 +44,20 @@ permissions:
 concurrency:
   group: ${{ github.event_name == 'push' && 'gh-pages-bench-spread-push' || format('benchmark-spread-{0}', github.head_ref) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  # Master pushes queue every run (a cancelled one marks master red); PRs keep one
+  queue: ${{ github.event_name == 'push' && 'max' || 'single' }}
 
 jobs:
-  benchmark-spread:
+  # Skips dependency bumps that can't change what this measures
+  changes:
+    if: ${{ !github.event.pull_request.draft }}
+    uses: ./.github/workflows/dependency-gate.yml
+    with:
+      workspaces: examples/benchmark
 
+  benchmark-spread:
+    needs: changes
+    if: ${{ needs.changes.outputs.relevant == 'true' }}
     runs-on: ubuntu-latest
 
     steps:

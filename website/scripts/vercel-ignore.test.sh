@@ -7,6 +7,13 @@ script="$root/website/scripts/vercel-ignore.sh"
 repo="$(mktemp -d)"
 trap 'rm -rf "$repo"' EXIT
 
+# git fetch (in vercel-ignore.sh) starts auto maintenance, which newer git
+# detaches. It can still be writing packs when a temp repo is removed, so
+# `rm -rf` fails with "Directory not empty". Disable it for every git call.
+export GIT_CONFIG_COUNT=2
+export GIT_CONFIG_KEY_0=maintenance.auto GIT_CONFIG_VALUE_0=false
+export GIT_CONFIG_KEY_1=gc.auto GIT_CONFIG_VALUE_1=0
+
 git -C "$repo" init -b master >/dev/null
 git -C "$repo" config user.email "vercel-ignore-test@example.com"
 git -C "$repo" config user.name "vercel-ignore-test"
@@ -225,10 +232,16 @@ for branch in far-pkg far-site; do
   clone="$(mktemp -d)"
   git clone -q --depth=10 --branch "$branch" "file://$origin_repo" "$clone"
   git -C "$clone" branch -f master HEAD
+  # Like Vercel's clone: no `origin` remote, so the script must fetch by URL.
+  git -C "$clone" remote remove origin
   repo="$clone"
   want=skip
   [ "$branch" = far-site ] && want=build
-  expect "$want" "shallow clone, fork far behind master ($branch)" "$branch"
+  GIT_CONFIG_COUNT=3 \
+    GIT_CONFIG_KEY_2="url.file://$origin_repo.insteadOf" \
+    GIT_CONFIG_VALUE_2=https://github.com/test-owner/test-repo.git \
+    VERCEL_GIT_REPO_OWNER=test-owner VERCEL_GIT_REPO_SLUG=test-repo \
+    expect "$want" "shallow clone without origin, fork far behind master ($branch)" "$branch"
   repo="$origin_repo"
   rm -rf "$clone"
 done

@@ -1,0 +1,158 @@
+---
+paths:
+  - "**"
+---
+<!-- Generated from website/blog/.cursor/rules/blog-posts.mdc by `yarn build:agent-rules`. Edit the source. -->
+
+
+## Naming Convention
+
+Files: `YYYY-MM-DD-vX.Y-short-description.md`
+
+## Frontmatter
+
+- Title format: `vX.Y: Feature1, Feature2, Feature3` or `vX.Y Feature-focused Title`
+- Include `releases` tag plus relevant feature tags from [tags.yml](./tags.yml)
+- `draft: true` for unpublished/WIP posts
+
+## Package Layers
+
+Organize content by package layer. Both feature sections and migration guides follow this order:
+
+| Layer | Packages | Content |
+|-------|----------|---------|
+| **Platforms** | Integration | NextJS, Expo, React Native, Vue, React versions |
+| **Client/Platform** | react, vue, core | Hooks, composables, Controller, Managers, Provider |
+| **API Definition** | rest, endpoint, graphql | Resource, RestEndpoint, Entity, Collection, schemas |
+| **Internal** | normalizr, core | State structure, normalization, typing |
+
+## Blog Structure
+
+**Summary (before `{/* truncate */}`):**
+1. Platforms/major features (highest visibility)
+2. Package consolidations (import path changes)
+3. New APIs (hooks, controller methods, schemas)
+4. Other Improvements (bulleted list)
+5. Breaking Changes (with anchor links to migration sections)
+
+**Details (after truncate):**
+1. Major features (with `<StackBlitz>`, `<HooksPlayground>` demos)
+2. New/changed APIs (with `<TypeScriptEditor>` examples)
+3. Performance (with `<PerfChart>` if benchmarked)
+4. Other improvements
+5. Migration guide
+
+Within each section: explanation → code example → PR/commit links
+
+## Migration Guide
+
+Start with `<PkgTabs pkgs="..." upgrade />`, end with Upgrade support blurb.
+
+**By Package** - Group changes by package when multiple packages have breaking changes:
+- `### @data-client/react X.Y` - Client/Platform changes
+- `### @data-client/rest X.Y` - API Definition changes
+
+**By Audience** - Within packages (or standalone), group by who's affected:
+- `### For all users` / `#### For all users`
+- `### For custom Manager authors {#custom-managers}` - Action/middleware changes
+- `### For custom Schema authors {#custom-schemas}` - normalize/denormalize changes
+
+Add skip guidance for specialized sections: "Skip this section if you don't have custom [Managers](/docs/concepts/managers)."
+
+Use `<DiffEditor>` for before/after. End with:
+
+```md
+### Upgrade support
+
+As usual, if you have any troubles or questions, feel free to join our [![Chat](https://img.shields.io/discord/768254430381735967.svg?style=flat-square&colorB=758ED3)](https://discord.gg/wXGV27xm6t) or [file a bug](https://github.com/reactive/data-client/issues/new/choose)
+```
+
+## Components
+
+| Component | Use For |
+|-----------|---------|
+| `<HooksPlayground>` | Interactive demos with fixtures |
+| `<StackBlitz>` | Embedded app demos (todo-app, coin-app) |
+| `<TypeScriptEditor>` | Type-safe code examples |
+| `<DiffEditor>` | Before/After migration changes (with `caption` and `// callout:` annotations) |
+| `<PkgTabs pkgs="..." upgrade />` | Package installation |
+| `<AutoPlayVideo>` | Recorded clips (SSR/navigation, DevTools). Record with [scripts/videos](../../scripts/videos/README.md); pass `alt` and put the code it shows in a fenced block next to it |
+
+## DiffEditor Annotations
+
+Let the diff carry its reason instead of a paragraph of prose above it:
+
+- `caption="..."` - one line on why the change is needed, shown above the diff. Backticks render as code.
+- `// callout: reason` - on its own line inside a fence; annotates the next code line with a numbered marker (①, ②, …) and lists the reason under the diff. Consecutive `// callout:` lines join into one callout. Use for the *why* of a specific line, instead of trailing code comments that would show up in the diff.
+
+````mdx
+<DiffEditor caption="The codemod cannot infer this dependency, so update these schemas by hand.">
+
+```ts title="After"
+class LensSchema {
+  constructor({ lens }) {
+    // callout: The function reference is the cache key, so set it once here.
+    this.lensSelector = lens;
+  }
+}
+```
+
+</DiffEditor>
+````
+
+Caption and callout text render as plain HTML outside the editor, so they are in the static page for search engines. Keep each to one sentence; anything longer belongs in the prose.
+
+## Performance Sections
+
+1. Explain what was optimized
+2. Quantify with multipliers ("2x", "16x")
+3. Link PR and docs
+4. Visualize with `<PerfChart>`, not mermaid `xychart-beta` (it has no legend, so overlaid bars are unlabeled)
+5. Link to [benchmarks](https://reactive.github.io/data-client/dev/bench/)
+
+`<PerfChart>` renders a bar chart of each row's speedup. The raw numbers appear on hover or tap, and stay in the
+page text for crawlers and screen readers. Pass raw measurements, not percentages; the component computes the multiplier.
+
+```mdx
+import PerfChart from '@site/src/components/PerfChart';
+
+<PerfChart
+  title="Writing rows into a 500-entity store"
+  baselineLabel="One set() per row"
+  valueLabel="set([Ticker], rows)"
+  rows={[
+    { label: '50 rows', baseline: 10.8, value: 0.54 },
+    { label: '500 rows', baseline: 103, value: 1.08 },
+  ]}
+/>
+```
+
+`unit` defaults to `ms`, with lower being better; set `higherIsBetter` and `unit="ops/sec"` for throughput.
+Bar lengths switch to a log scale on their own when speedups differ by more than 10x, and the chart labels it.
+Each bar is shaded up to a dashed 1x line (no change), so the bright part is the gain. A row that got slower shows a red,
+dashed gap between its bar and 1x; include regressions rather than dropping them. When charts sit next to each other, pass
+the same `scaleMax` (the largest speedup among them) so their 1x lines line up.
+
+For several metrics per row (like time and memory), use `<PerfTable>` instead of a markdown table. Each cell shows
+paired before/after bars and a colored percent-change badge, with exact numbers on hover or tap; lower is better.
+
+```mdx
+import PerfTable from '@site/src/components/PerfTable';
+
+<PerfTable
+  columns={[
+    { label: 'Check time', unit: 's' },
+    { label: 'Memory', unit: 'MB' },
+  ]}
+  rows={[
+    { label: 'Long paths', description: '150 RestEndpoints', values: [[3.13, 1.59], [345, 207]] },
+  ]}
+/>
+```
+
+## Conventions
+
+- Each change links to PR `[#1234](https://github.com/reactive/data-client/pull/1234)` and relevant docs
+- Use `:::note` / `:::tip` / `:::warning` for callouts
+- Use `// highlight-next-line` for code emphasis
+- Imports go after frontmatter; place migration-only imports after truncate

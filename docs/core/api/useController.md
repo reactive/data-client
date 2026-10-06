@@ -57,6 +57,7 @@ function MyComponent({ id }) {
 ```html
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
+  import { MyResource } from './resources';
 
   const props = defineProps<{ id: string }>();
   const ctrl = useController();
@@ -76,8 +77,8 @@ function MyComponent({ id }) {
 ```
 
 `useController()` must be called inside `<script setup>` (or `setup()`), and requires the
-[DataClientPlugin](../getting-started/installation.md#add-provider-at-top-level-component) to be installed.
-The same [Controller](./Controller.md) is also available in templates and the Options API as `$dataClient`.
+[DataClientPlugin](./DataClientPlugin.md) to be installed.
+The same [Controller](./Controller.md) is also available in templates and the Options API as [`$dataClient`](./DataClientPlugin.md#dataclient).
 
 :::
 
@@ -316,6 +317,7 @@ function useWebsocket(url: string) {
 ```ts title="useWebsocket.ts"
 import { onMounted, onUnmounted } from 'vue';
 import { useController } from '@data-client/vue';
+import { EntityMap } from './resources';
 
 export function useWebsocket(url: string) {
   const ctrl = useController();

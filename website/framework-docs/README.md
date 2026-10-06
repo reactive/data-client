@@ -55,11 +55,17 @@ Errors are caught by :react[[Error Boundaries](./AsyncBoundary.md)]:vue[`onError
 | -------------------------------------- | --------------------------------------------- |
 | Different block of content             | `:::react` / `:::vue`                         |
 | Different word or link inline          | `:react[...]` / `:vue[...]`                   |
+| Same code, framework's package         | ` ```ts framework-imports ` (see below)       |
 | Different front matter value           | `vue_<key>:` overrides `<key>:`               |
 | Different sidebar category value       | `"vue_<key>"` overrides `"<key>"`             |
 | Different heading text                 | `## :react[...]:vue[...] {#stable-id}`        |
 | Page has no Vue equivalent             | `frameworks: [react]` in front matter         |
 | Vue-only page, or nothing is shareable | `foo.vue.md` next to (or instead of) `foo.md` |
+| Same concept under another doc id      | `framework_equivalent: <doc id>` (see below)  |
+
+Framework-agnostic code (managers, middleware, types) imports from `@data-client/react` and adds
+`framework-imports` to the fence; Vue pages show `@data-client/vue` instead. Never import
+`@data-client/core` in examples: apps only install `@data-client/react` or `@data-client/vue`.
 
 Nest inside an admonition by giving the outer one more colons (`::::tip` ... `::::`).
 
@@ -68,8 +74,35 @@ in a framework are dropped automatically, so Vue-only docs can be listed there t
 same `vue_<key>` overrides as front matter, e.g. `"vue_label": "Composables"` on the `Hooks` category
 (docs are relabeled with `vue_sidebar_label:` in their front matter).
 
+When a framework-only page covers what the other framework documents under a different id (Vue's
+`DataClientPlugin` is React's `DataProvider`), name that doc id in `framework_equivalent:` on either
+page, so the framework selector switches between them. Declaring it on one page is enough; it works
+in both directions, unless the other page names its own `framework_equivalent`. The build fails if the id doesn't exist in the other framework.
+
 Give per-framework headings an explicit id so links to them work in both frameworks. A heading with
 no text left for a framework (e.g. only `:react[...]`) is dropped from that framework's page.
+
+### Vue examples
+
+Vue code fences are copied verbatim into Vue skill references and into readers' apps, and the Vue
+playground doesn't run them, so `yarn check:vue-examples` (`checkVueExamples.mjs`, run by the
+`skills` workflow) type-checks them with `vue-tsc` against `@data-client/vue` and `@data-client/rest`.
+It checks each playground that has a `.vue` file as one app (files import each other by title:
+`./Resource` is the block titled `Resource`), and every other ` ```html ` single file component
+(titled or not) or ts block importing `@data-client/vue` on its own, where relative imports
+resolve to the page's titled blocks or to stubs typed `any`.
+
+- Import everything a block uses, including `@data-client/rest` schemas in shared blocks the React
+  playground would provide as globals, and child components (`import ArticleForm from './ArticleForm.vue'`).
+  Vue templates only see what `<script setup>` imports.
+- The playground's design system (`website/src/components/Playground/DesignSystem`: `Loading`,
+  `Avatar`, `TextInput`, ...) stands for the app's own components and needs no import, like
+  `RouterLink` and `RouterView`. `NumberFlow` is a real library: import it from `@number-flow/vue`.
+- Use HTML elements Vue knows: `<center>` and `<strike>` resolve as (missing) components.
+- Template expressions only see Vue's allowed globals, not `FormData` or `window`; move such code
+  into `<script setup>`.
+- Add `nocheck` to a fence's meta (` ```html title="Foo.vue" nocheck `) only for a deliberately
+  partial fragment; it's dropped from the rendered page and skill references.
 
 ## How it works
 
@@ -79,8 +112,14 @@ no text left for a framework (e.g. only `:react[...]`) is dropped from that fram
 - Docusaurus can't point two docs instances at one folder, so `index.js` mirrors `docs/core` into
   `docs/.core-vue` (gitignored; a sibling so relative imports into `docs/rest` keep working), applying `.vue.md` overrides, `vue_` front matter and
   `frameworks:` filtering. It runs on config load and re-syncs on change during `yarn start`.
-- `FrameworkSelector` (in the breadcrumbs) switches to the same page in the other docs instance,
-  and disables a framework when the page doesn't exist there.
+- `docsInstances.js` lists every docs instance (id, source folder, route, `llms.txt` path).
+  `docusaurus.config.ts`, `docsToMarkdown.mjs`, `llms-plugin.js` and `remarkFramework.js`
+  (`FRAMEWORKS`) read routes and frameworks from it.
+- `index.js` `docsFor()` lists each framework's docs with their routes (honoring `slug`) and
+  `framework_equivalent`; `remarkFramework.js` and `docsToMarkdown.mjs` link with those routes.
+- `FrameworkSelector` (in the breadcrumbs) switches to the same page in the other docs instance, or
+  its `framework_equivalent` (`customFields.frameworkEquivalents`), and disables a framework when
+  neither exists there.
 
 ## Agent skill references
 
@@ -99,3 +138,6 @@ when docs are added, renamed or deleted.
 Partials can use `props` in `{...}` expressions; the generator evaluates them with the props passed
 where the partial is used. JSX inside an expression is only supported for `<CodeBlock>`; anything
 else fails the build so it can't silently drop content.
+A `<CodeBlock>` inside a playground passes its fence meta as `metastring`
+(`metastring='title="api/Feed" collapsed'`), which both the playground and the generator read; see
+`docs/rest/shared/_PolymorphicFeedDemo.mdx`.

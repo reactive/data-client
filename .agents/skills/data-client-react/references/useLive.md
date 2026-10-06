@@ -10,8 +10,9 @@ Async rendering of remotely triggered data mutations.
 
 ## Usage
 
-```typescript title="Ticker" {32}
+```typescript title="Ticker" {33}
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class Ticker extends Entity {
   product_id = '';
@@ -114,6 +115,6 @@ function useLive<
 ### Bitcoin Price (polling)
 
 When our component with `useLive` is rendered, `getTicker` will fetch at [pollFrequency](https://dataclient.io/rest/api/RestEndpoint#pollfrequency)
-miliseconds.
+milliseconds.
 
 Example app: [nextjs](https://github.com/reactive/data-client/tree/master/examples/nextjs) ([`resources/Ticker.ts`](https://github.com/reactive/data-client/blob/master/examples/nextjs/resources/Ticker.ts), [`components/AssetPrice.tsx`](https://github.com/reactive/data-client/blob/master/examples/nextjs/components/AssetPrice.tsx))

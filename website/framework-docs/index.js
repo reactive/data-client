@@ -9,19 +9,23 @@
 const fs = require('fs');
 const path = require('path');
 
-const { FRAMEWORKS } = require('./remarkFramework.js');
+// Docusaurus' own route rules (slug, category index), so links match its routes
+const getSlug = require('@docusaurus/plugin-content-docs/lib/slug.js').default;
 
-const SRC = path.resolve(__dirname, '../../docs/core');
+const { FRAMEWORKS, frameworkInstance } = require('./docsInstances.js');
+
+const SRC = path.resolve(__dirname, '../..', frameworkInstance('react').path);
 const MD = /\.mdx?$/;
 /** `foo.vue.md` replaces `foo.md` for Vue */
 const VUE_OVERRIDE = /\.vue(\.mdx?)$/;
-const FM = /^---\n([\s\S]*?)\n---\n/;
+const FM = /^---\r?\n([\s\S]*?)\r?\n---\r?\n/;
 
+/** Files under `dir`, relative to it, with forward slashes (as `docIdOf` expects) */
 function walk(dir, base = dir) {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) return walk(full, base);
-    return [path.relative(base, full)];
+    return [path.relative(base, full).split(path.sep).join('/')];
   });
 }
 
@@ -83,14 +87,64 @@ function resolveSources(framework) {
   return sources;
 }
 
-/** Doc ids (as used in sidebars) that exist for a framework */
-function docIds(framework) {
-  const ids = new Set();
+/**
+ * Docs that exist for a framework, by doc id (as used in sidebars):
+ * - route: site route relative to the instance's routeBasePath, honoring `slug`
+ * - equivalent: `framework_equivalent:` front matter, the doc id of the same
+ *   concept in the other framework's docs when it has a different name
+ */
+function docsFor(framework) {
+  const docs = new Map();
   for (const [out, src] of resolveSources(framework)) {
     if (!MD.test(out) || path.basename(out).startsWith('_')) continue;
-    ids.add(docIdOf(out, readSrc(src)));
+    const content = rewriteFrontMatter(readSrc(src), framework);
+    const id = docIdOf(out, content);
+    docs.set(id, {
+      route: getSlug({
+        baseID: path.posix.basename(id),
+        source: out,
+        sourceDirName: path.posix.dirname(out),
+        frontMatterSlug: frontMatterValue(content, 'slug'),
+      }),
+      equivalent: frontMatterValue(content, 'framework_equivalent'),
+    });
   }
-  return ids;
+  return docs;
+}
+
+/**
+ * `framework_equivalent:` front matter in both directions, for
+ * FrameworkSelector: { [framework]: { [doc id]: counterpart's doc id } }
+ */
+function frameworkEquivalents() {
+  const docs = Object.fromEntries(FRAMEWORKS.map(f => [f, docsFor(f)]));
+  const equivalents = Object.fromEntries(FRAMEWORKS.map(f => [f, {}]));
+  for (const framework of FRAMEWORKS) {
+    for (const [id, { equivalent }] of docs[framework]) {
+      if (!equivalent) continue;
+      const others = FRAMEWORKS.filter(
+        f => f !== framework && docs[f].has(equivalent),
+      );
+      if (!others.length)
+        throw new Error(
+          `${framework} doc ${id}: framework_equivalent '${equivalent}' is not a doc in any other framework`,
+        );
+      equivalents[framework][id] = equivalent;
+      // reverse lookup, only needed when this framework has no `equivalent`
+      if (docs[framework].has(equivalent)) continue;
+      for (const other of others) {
+        // a page that names its own counterpart keeps it
+        if (docs[other].get(equivalent).equivalent) continue;
+        const existing = equivalents[other][equivalent];
+        if (existing && existing !== id)
+          throw new Error(
+            `${other} doc ${equivalent} would switch to both ${existing} and ${id}; give it its own framework_equivalent`,
+          );
+        equivalents[other][equivalent] = id;
+      }
+    }
+  }
+  return equivalents;
 }
 
 /** Write the mirror for a framework; only touches files whose output changed */
@@ -114,7 +168,14 @@ function generate(framework) {
       if (!sources.has(file)) fs.rmSync(path.join(outDir, file));
     }
   }
-  return { outDir, sources };
+  /** Source of a mirror file (itself if not mirrored), for its git history */
+  const sourceOf = file => {
+    const src = sources.get(
+      path.relative(outDir, file).split(path.sep).join('/'),
+    );
+    return src ? path.join(SRC, src) : file;
+  };
+  return { outDir, sources, sourceOf };
 }
 
 /** Keep the mirror in sync during `docusaurus start` */
@@ -154,7 +215,7 @@ function filterSidebar(items, ids, framework) {
 }
 
 function sidebarsFor(framework, sidebars) {
-  const ids = docIds(framework);
+  const ids = docsFor(framework);
   return Object.fromEntries(
     Object.entries(sidebars).map(([name, items]) => [
       name,
@@ -173,9 +234,12 @@ module.exports = {
   watch,
   sidebarsFor,
   sourcePath,
-  docIds,
+  docsFor,
+  frameworkEquivalents,
   docIdOf,
   pageFrameworks,
   rewriteFrontMatter,
   frontMatterValue,
+  walk,
+  VUE_OVERRIDE,
 };

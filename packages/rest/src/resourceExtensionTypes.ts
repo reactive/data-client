@@ -8,6 +8,7 @@ import type { ResourcePath } from './pathTypes.js';
 import { Extendable } from './resourceExtendable.js';
 import { ResourceGenerics, ResourceInterface } from './resourceTypes.js';
 import type {
+  ExtendableRestGenerics,
   PartialRestGenerics,
   RestExtendedEndpoint,
   RestInstanceBase,
@@ -59,11 +60,11 @@ export type ExtendedResource<
 
 export interface ResourceEndpointExtensions<
   R extends ResourceInterface,
-  Get extends PartialRestGenerics = {},
-  GetList extends PartialRestGenerics = {},
-  Update extends PartialRestGenerics = {},
-  PartialUpdate extends PartialRestGenerics = {},
-  Delete extends PartialRestGenerics = {},
+  Get extends ExtendableRestGenerics = {},
+  GetList extends ExtendableRestGenerics = {},
+  Update extends ExtendableRestGenerics = {},
+  PartialUpdate extends ExtendableRestGenerics = {},
+  Delete extends ExtendableRestGenerics = {},
 > {
   readonly get?: RestEndpointOptions<
     unknown extends Get ? EndpointToFunction<R['get']>

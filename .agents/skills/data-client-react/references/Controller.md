@@ -275,7 +275,9 @@ function useLogout() {
 It's usually a good idea to also clear cache on 401 (unauthorized) with [LogoutManager](https://dataclient.io/docs/api/LogoutManager)
 as well.
 
-```tsx
+**Web**
+
+```tsx title="index.tsx"
 import {
   DataProvider,
   LogoutManager,
@@ -304,6 +306,123 @@ createRoot(document.body).render(
     <App />
   </DataProvider>,
 );
+```
+
+**React Native**
+
+```tsx title="index.tsx"
+import {
+  DataProvider,
+  LogoutManager,
+  getDefaultManagers,
+} from '@data-client/react';
+import { AppRegistry } from 'react-native';
+import { unAuth } from '../authentication';
+
+const myDomain = 'http://test.com';
+const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
+
+const managers = [
+  new LogoutManager({
+    handleLogout(controller) {
+      // call custom unAuth function we defined
+      unAuth();
+      // still reset the store
+      controller.invalidateAll({ testKey });
+    },
+  }),
+  ...getDefaultManagers(),
+];
+
+const Root = () => (
+  <DataProvider managers={managers}>
+    <App />
+  </DataProvider>
+);
+AppRegistry.registerComponent('MyApp', () => Root);
+```
+
+**NextJS**
+
+```tsx title="app/Provider.tsx"
+'use client';
+import { LogoutManager, getDefaultManagers } from '@data-client/react';
+import { DataProvider } from '@data-client/react/nextjs';
+import { unAuth } from '../authentication';
+
+const myDomain = 'http://test.com';
+const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
+
+const managers = [
+  new LogoutManager({
+    handleLogout(controller) {
+      // call custom unAuth function we defined
+      unAuth();
+      // still reset the store
+      controller.invalidateAll({ testKey });
+    },
+  }),
+  ...getDefaultManagers(),
+];
+
+export default function Provider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <DataProvider managers={managers}>{children}</DataProvider>;
+}
+```
+
+```tsx title="app/layout.tsx"
+import Provider from './Provider';
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <Provider>{children}</Provider>
+      </body>
+    </html>
+  );
+}
+```
+
+**Expo**
+
+```tsx title="app/_layout.tsx"
+import { Stack } from 'expo-router';
+import {
+  DataProvider,
+  LogoutManager,
+  getDefaultManagers,
+} from '@data-client/react';
+import { unAuth } from '../authentication';
+
+const myDomain = 'http://test.com';
+const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
+
+const managers = [
+  new LogoutManager({
+    handleLogout(controller) {
+      // call custom unAuth function we defined
+      unAuth();
+      // still reset the store
+      controller.invalidateAll({ testKey });
+    },
+  }),
+  ...getDefaultManagers(),
+];
+
+export default function RootLayout() {
+  return (
+    <DataProvider managers={managers}>
+      <Stack>
+        <Stack.Screen name="index" />
+      </Stack>
+    </DataProvider>
+  );
+}
 ```
 
 ### resetEntireStore() {#resetEntireStore}
@@ -355,12 +474,12 @@ takes the input of the schema it wraps, since `set()` normalizes that schema rat
 ctrl.set(TodoResource.getList.schema, [{ id: '5', completed: true }]);
 ```
 
-> **Note: Type checking limits**
+> **Note: Unions**
 >
-> To keep type checking fast for large [Unions](https://dataclient.io/rest/api/Union), a Union row is checked against the
-> combined fields of all its members rather than against one member. Each field's type is still checked,
-> but a row that mixes fields from different members (like `{ type: 'first', secondField: 1 }`) is not
-> an error. Make sure the fields you set belong to the member the row's discriminator selects.
+> When each member declares its discriminator as a literal (like `readonly type = 'first'`), a
+> [Union](https://dataclient.io/rest/api/Union) row is checked against the member it selects, so `{ type: 'first', secondField: 1 }` is an
+> error. Only declared fields are accepted, so a key read by a
+> `schemaAttribute` function must be declared on each member.
 
 Functions can be used in the value when derived data is used. This [prevents race conditions](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state).
 
@@ -653,10 +772,15 @@ function useCache<E extends EndpointInterface>(
 ```
 
 ```tsx title="MyManager.ts"
-import type { Manager, Middleware, actionTypes } from '@data-client/core';
-import type { EndpointInterface } from '@data-client/endpoint';
+import {
+  type Manager,
+  type Middleware,
+  actionTypes,
+} from '@data-client/react';
 
 export default class MyManager implements Manager {
+  declare protected websocket: WebSocket;
+
   middleware: Middleware = controller => {
     return next => async action => {
       if (action.type === actionTypes.FETCH) {
@@ -664,7 +788,7 @@ export default class MyManager implements Manager {
         console.log(
           controller.getResponse(
             action.endpoint,
-            ...(action.meta.args as Parameters<typeof action.endpoint>),
+            ...action.args,
             controller.getState(),
           ).data,
         );

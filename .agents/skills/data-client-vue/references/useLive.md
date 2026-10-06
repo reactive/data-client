@@ -10,8 +10,9 @@ Async rendering of remotely triggered data mutations.
 
 ## Usage
 
-```typescript title="Ticker" {32}
+```typescript title="Ticker" {33}
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class Ticker extends Entity {
   product_id = '';
@@ -51,6 +52,7 @@ export const getTicker = new RestEndpoint({
   import { computed } from 'vue';
   import { useLive } from '@data-client/vue';
   import { getTicker } from './Ticker';
+  import NumberFlow from '@number-flow/vue';
 
   const props = defineProps<{ productId: string }>();
   const ticker = await useLive(getTicker, computed(() => ({
@@ -59,13 +61,13 @@ export const getTicker = new RestEndpoint({
 </script>
 
 <template>
-  <center>
+  <div style="text-align: center">
     {{ productId }}
     <NumberFlow
       :value="ticker.price"
       :format="{ style: 'currency', currency: 'USD' }"
     />
-  </center>
+  </div>
 </template>
 ```
 
@@ -110,4 +112,4 @@ If that fetch fails, reading the result throws the error (per its [error policy]
 ### Bitcoin Price (polling)
 
 When our component with `useLive` is rendered, `getTicker` will fetch at [pollFrequency](https://dataclient.io/rest/api/RestEndpoint#pollfrequency)
-miliseconds.
+milliseconds.
