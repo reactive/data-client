@@ -5,20 +5,14 @@ import {
   NetworkManager,
   SubscriptionManager,
   PollingSubscription,
-  type GCInterface,
 } from '@data-client/core';
+import type { GCInterface } from '@data-client/core';
 import type { Interceptor, Fixture } from '@data-client/core/mock';
 import { MockController } from '@data-client/core/mock';
-import { mount, type VueWrapper } from '@vue/test-utils';
-import {
-  defineComponent,
-  h,
-  Suspense,
-  inject,
-  nextTick,
-  type Reactive,
-  reactive,
-} from 'vue';
+import { mount } from '@vue/test-utils';
+import type { VueWrapper } from '@vue/test-utils';
+import { defineComponent, h, Suspense, inject, nextTick, reactive } from 'vue';
+import type { Reactive } from 'vue';
 
 import mockInitialState from './mockState.js';
 import { ControllerKey } from '../context.js';

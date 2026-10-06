@@ -106,6 +106,8 @@ discussions.
 
 `@data-client/vue` supports Vue 3 and is built on the [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html).
 
+With TypeScript, use version 4.5 or later, which Vue's own types require.
+
 </details>
 
 :::

@@ -7,8 +7,8 @@ import {
   nextTick,
   onErrorCaptured,
   reactive,
-  type MaybeRefOrGetter,
 } from 'vue';
+import type { MaybeRefOrGetter } from 'vue';
 
 import {
   CoolerArticleResource,
