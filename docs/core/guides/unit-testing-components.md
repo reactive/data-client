@@ -25,11 +25,13 @@ Testing user interactions that trigger mutations can be aided with the use of [&
 and [Interceptors](../api/Fixtures.md#interceptor)
 
 ```typescript title="__tests__/fixtures.ts"
+import { ArticleResource } from '../resources/Article';
+
 export default {
   full: [
     {
       endpoint: ArticleResource.getList,
-      args: [{ maxResults: 10 }] as const,
+      args: [{ maxResults: 10 }],
       response: [
         {
           id: 5,
@@ -47,7 +49,7 @@ export default {
     },
     {
       endpoint: ArticleResource.update,
-      args: [{ id: 532 }] as const,
+      args: [{ id: 532 }],
       response({ id }, body) {
         return {
           id,
@@ -59,14 +61,14 @@ export default {
   empty: [
     {
       endpoint: ArticleResource.getList,
-      args: [{ maxResults: 10 }] as const,
+      args: [{ maxResults: 10 }],
       response: [],
     },
   ],
   error: [
     {
       endpoint: ArticleResource.getList,
-      args: [{ maxResults: 10 }] as const,
+      args: [{ maxResults: 10 }],
       response: { message: 'Bad request', status: 400, name: 'Not Found' },
       error: true,
     },
@@ -91,7 +93,7 @@ describe('<ArticleList />', () => {
       </DataProvider>
     );
     const { findByText } = render(tree);
-    const content = findByText(results.full.result[0].content);
+    const content = findByText(results.full[0].response[0].content);
     expect(content).toBeDefined();
   });
 
@@ -108,7 +110,9 @@ describe('<ArticleList />', () => {
     const { findByText } = render(tree);
     expect(findByText('loading')).toBeDefined();
 
-    await waitFor(expect(findByText(results.full.result[0].content)).toBeDefined());
+    await waitFor(() =>
+      expect(findByText(results.full[0].response[0].content)).toBeDefined(),
+    );
   })
 });
 ```

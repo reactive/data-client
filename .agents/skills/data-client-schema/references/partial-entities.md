@@ -60,6 +60,8 @@ export const ArticleResource = resource({
 ```
 
 ```tsx title="ArticleDetail"
+import React from 'react';
+import { useSuspense } from '@data-client/react';
 import { ArticleResource } from './resources/Article';
 
 function ArticleDetail({ id, onHome }: Props) {
@@ -77,9 +79,7 @@ function ArticleDetail({ id, onHome }: Props) {
         <div>
           Created:{' '}
           <time>
-            {DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
-              article.createdAt,
-            )}
+            {article.createdAt.toLocaleString('en-US', { dateStyle: 'medium' })}
           </time>
         </div>
       </div>

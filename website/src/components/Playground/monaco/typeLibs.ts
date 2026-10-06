@@ -88,19 +88,82 @@ const MODULE_LIBS: readonly [
   ],
 ];
 
-/** `@data-client/<entry>` libs; one lazy-once chunk for the whole directory */
-const DATA_CLIENT_ENTRIES = [
-  'rest',
-  'rest/next',
-  'react/next',
-  'core/next',
-  'core',
-  'react',
-  'vue',
-  'endpoint',
-  'normalizr',
-  'graphql',
-] as const;
+/**
+ * `@data-client/<entry>` libs; sharing one chunk name merges them into a single
+ * chunk, so check-only editor types (e.g. `vue/test`) never ship with it.
+ */
+const DATA_CLIENT_LIBS: readonly [entry: string, load: () => RawModule][] = [
+  [
+    'rest',
+    () =>
+      import(
+        /* webpackChunkName: 'dataClientDTS' */ '!!raw-loader?esModule=false!../editor-types/@data-client/rest.d.ts'
+      ),
+  ],
+  [
+    'rest/next',
+    () =>
+      import(
+        /* webpackChunkName: 'dataClientDTS' */ '!!raw-loader?esModule=false!../editor-types/@data-client/rest/next.d.ts'
+      ),
+  ],
+  [
+    'react/next',
+    () =>
+      import(
+        /* webpackChunkName: 'dataClientDTS' */ '!!raw-loader?esModule=false!../editor-types/@data-client/react/next.d.ts'
+      ),
+  ],
+  [
+    'core/next',
+    () =>
+      import(
+        /* webpackChunkName: 'dataClientDTS' */ '!!raw-loader?esModule=false!../editor-types/@data-client/core/next.d.ts'
+      ),
+  ],
+  [
+    'core',
+    () =>
+      import(
+        /* webpackChunkName: 'dataClientDTS' */ '!!raw-loader?esModule=false!../editor-types/@data-client/core.d.ts'
+      ),
+  ],
+  [
+    'react',
+    () =>
+      import(
+        /* webpackChunkName: 'dataClientDTS' */ '!!raw-loader?esModule=false!../editor-types/@data-client/react.d.ts'
+      ),
+  ],
+  [
+    'vue',
+    () =>
+      import(
+        /* webpackChunkName: 'dataClientDTS' */ '!!raw-loader?esModule=false!../editor-types/@data-client/vue.d.ts'
+      ),
+  ],
+  [
+    'endpoint',
+    () =>
+      import(
+        /* webpackChunkName: 'dataClientDTS' */ '!!raw-loader?esModule=false!../editor-types/@data-client/endpoint.d.ts'
+      ),
+  ],
+  [
+    'normalizr',
+    () =>
+      import(
+        /* webpackChunkName: 'dataClientDTS' */ '!!raw-loader?esModule=false!../editor-types/@data-client/normalizr.d.ts'
+      ),
+  ],
+  [
+    'graphql',
+    () =>
+      import(
+        /* webpackChunkName: 'dataClientDTS' */ '!!raw-loader?esModule=false!../editor-types/@data-client/graphql.d.ts'
+      ),
+  ],
+];
 
 /** Playground-only globals (editor-types/globals.d.ts) */
 const loadGlobals = (): RawModule =>
@@ -191,15 +254,7 @@ export function fetchTypeLibs(): Promise<TypeLibs> {
   return Promise.all([
     settled(MODULE_LIBS.map(([, , load]) => load())),
     settled([loadGlobals()]),
-    settled(
-      DATA_CLIENT_ENTRIES.map(
-        entry =>
-          import(
-            // webpack bundles every file the template matches; leave out entries the editor never loads
-            /* webpackChunkName: '[request]', webpackMode: "lazy-once", webpackExclude: /(core\/mock|vue\/test|react\/(ssr|redux|nextjs))\.d\.ts$/ */ `!!raw-loader?esModule=false!../editor-types/@data-client/${entry}.d.ts`
-          ),
-      ),
-    ),
+    settled(DATA_CLIENT_LIBS.map(([, load]) => load())),
   ]).then(([modules, [globals], dataClient]) => ({
     modules,
     dataClient,
@@ -233,7 +288,7 @@ export function addTypeLibs(
     );
   });
 
-  DATA_CLIENT_ENTRIES.forEach((entry, i) => {
+  DATA_CLIENT_LIBS.forEach(([entry], i) => {
     typescriptDefaults.addExtraLib(
       `declare module "@data-client/${entry}" { ${dataClient[i]} }`,
       `file:///node_modules/@data-client/${entry}/index.d.ts`,

@@ -54,7 +54,7 @@ export const UserResource = resource({
 :::react
 
 ```tsx title="Unauthed" collapsed
-import { useLoading } from '@data-client/react';
+import { useController, useLoading } from '@data-client/react';
 import { UserResource } from './UserResource';
 
 export default function Unauthed() {
@@ -77,6 +77,7 @@ export default function Unauthed() {
 ```
 
 ```tsx title="Authorized" collapsed
+import { useController } from '@data-client/react';
 import { User, UserResource } from './UserResource';
 
 export default function Authorized({ user }: { user: User }) {
@@ -93,6 +94,7 @@ export default function Authorized({ user }: { user: User }) {
 ```
 
 ```tsx title="Entry"
+import { useCache } from '@data-client/react';
 import { UserResource } from './UserResource';
 import Unauthed from './Unauthed';
 import Authorized from './Authorized';

@@ -72,6 +72,9 @@ This allows you to extend [Controller](./Controller.md) to provide additional fu
 This might be useful if you have additional actions you want to dispatch to custom [Managers](./Manager.md)
 
 ```tsx
+import { DataProvider, Controller } from '@data-client/react';
+import App from './App';
+
 class MyController extends Controller {
   doSomething = () => {
     console.log('hi');
@@ -92,6 +95,7 @@ Removes data from the store once no component uses it and it has gone stale. Def
 
 ```tsx
 import { DataProvider, GCPolicy } from '@data-client/react';
+import App from './App';
 
 const gcPolicy = new GCPolicy({ intervalMS: 60 * 1000 * 10 });
 
@@ -114,12 +118,18 @@ installed. This option configures where it shows up, or if null will disable it 
 `'bottom-right' | 'bottom-left' | 'top-right'| 'top-left' | null` = `'bottom-right'`
 
 ```tsx title="Disable button"
+import { DataProvider } from '@data-client/react';
+import App from './App';
+
 <DataProvider devButton={null}>
   <App/>
 </DataProvider>
 ```
 
 ```tsx title="Place in top right corner"
+import { DataProvider } from '@data-client/react';
+import App from './App';
+
 <DataProvider devButton="top-right">
   <App/>
 </DataProvider>

@@ -42,6 +42,13 @@ jobs:
         with:
           node-version: '26'
           cache: 'yarn'
+      - name: Check published blog posts are dated today
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git fetch --depth=1 origin "$BASE_SHA"
+          node website/scripts/blog-publish.mjs --check "$BASE_SHA"
       - name: Install packages
         run: ./scripts/ci-install.sh website
       - name: Build package types and the packages the website imports

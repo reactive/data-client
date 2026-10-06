@@ -7,10 +7,13 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 import SkillTabs from '@site/src/components/SkillTabs';
+import SiteOnly from '@site/src/components/SiteOnly';
 
 # Migrating from Axios
 
 [`@data-client/rest`](/rest) replaces axios with a declarative, type-safe approach to REST APIs.
+
+<SiteOnly>
 
 ## AI-assisted migration {#skill}
 
@@ -19,6 +22,8 @@ Install the REST setup skill to automate the migration with your AI coding assis
 <SkillTabs repo="reactive/data-client" skills={['data-client-schema', 'data-client-rest-setup', 'data-client-rest']} />
 
 Then run skill `/data-client-rest-setup` to start the migration. It will detect axios and apply the appropriate migration sub-procedure automatically.
+
+</SiteOnly>
 
 ## Why migrate?
 
@@ -97,6 +102,8 @@ const { data } = await getUser('1');
 <EndpointPlayground input="https://api.example.com/users/1" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}} status={200} response={{ "id": "1", "username": "alice", "email": "alice@example.com" }}>
 
 ```ts title="User" collapsed
+import { Entity } from '@data-client/rest';
+
 export default class User extends Entity {
   id = '';
   username = '';
@@ -154,6 +161,8 @@ export const createPost = (data: any) => api.post('/posts', data);
 <EndpointPlayground input="https://api.example.com/posts/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'X-API-Key': 'my-key'}}} status={200} response={{ "id": "1", "title": "Hello World", "body": "First post" }}>
 
 ```ts title="Post" collapsed
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -226,6 +235,8 @@ export const createPost = (data: { title: string; body: string }) =>
 <EndpointPlayground input="https://api.example.com/posts" init={{method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{"title":"New Post","body":"Content"}'}} status={201} response={{ "id": "2", "title": "New Post", "body": "Content" }}>
 
 ```ts title="Post" collapsed
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -435,6 +446,8 @@ Both map to an [AbortController](https://developer.mozilla.org/en-US/docs/Web/AP
 ```tsx
 import { useSuspense } from '@data-client/react';
 import { useCancelling } from '@data-client/react';
+import { searchEndpoint } from './api/search';
+import ResultsList from './ResultsList';
 
 function SearchResults({ query }: { query: string }) {
   const results = useSuspense(useCancelling(searchEndpoint), { q: query });
@@ -628,7 +641,7 @@ const uploadFile = new UploadEndpoint({
 
 ## Codemod {#codemod}
 
-For non-AI workflows, a standalone [jscodeshift](https://github.com/facebook/jscodeshift) codemod handles the mechanical parts of migration. (The [AI skill](#skill) above runs this automatically as its first step.)
+A standalone [jscodeshift](https://github.com/facebook/jscodeshift) codemod handles the mechanical parts of migration.<SiteOnly> Run it yourself for non-AI workflows; the [AI skill](#skill) above runs it automatically as its first step.</SiteOnly>
 
 ```bash
 npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=ts,tsx,js,jsx src/
@@ -757,6 +770,11 @@ values={[
 <TabItem value="before">
 
 ```tsx
+import { useEffect, useState } from 'react';
+import api from './lib/api';
+import { Spinner } from './Spinner';
+import type { User } from './User';
+
 function UserProfile({ id }: { id: string }) {
   const [user, setUser] = useState<User | null>(null);
   useEffect(() => {
@@ -796,6 +814,8 @@ If the app uses TanStack Query or SWR and can't convert everything at once, keep
 ```ts
 import { useController } from '@data-client/react';
 import { useQuery } from '@tanstack/react-query';
+import ApiEndpoint from './ApiEndpoint';
+import { Project } from './Project';
 
 export const getProject = new ApiEndpoint({
   path: '/projects/:id',

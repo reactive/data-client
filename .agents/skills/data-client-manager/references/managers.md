@@ -385,6 +385,7 @@ export const newPrices = () =>
 ```
 
 ```tsx title="PriceStream"
+import React from 'react';
 import { useController, useQuery } from '@data-client/react';
 import { Ticker, newPrices } from './Ticker';
 

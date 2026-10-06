@@ -63,6 +63,7 @@ have internal state, so it is important to not constantly recreate them.
 ```tsx title="index.tsx"
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
+import App from './App';
 import MyManager from './MyManager';
 
 const managers = [...getDefaultManagers(), new MyManager()];
@@ -79,6 +80,7 @@ createRoot(document.body).render(
 ```tsx title="index.tsx"
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { AppRegistry } from 'react-native';
+import App from './App';
 import MyManager from './MyManager';
 
 const managers = [...getDefaultManagers(), new MyManager()];

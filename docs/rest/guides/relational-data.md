@@ -138,6 +138,7 @@ export const PostResource = resource({
 :::react
 
 ```tsx title="PostPage" collapsed
+import { useSuspense } from '@data-client/react';
 import { PostResource } from './resources/Post';
 
 function PostPage() {
@@ -259,6 +260,7 @@ export const TodoResource = resource({
 :::react
 
 ```tsx title="TodoJoined" collapsed
+import { useFetch, useSuspense } from '@data-client/react';
 import { TodoResource } from './resources/Todo';
 import { UserResource } from './resources/User';
 
@@ -527,6 +529,7 @@ export const UserResource = resource({
 :::react
 
 ```tsx title="UserPage" collapsed
+import { useSuspense } from '@data-client/react';
 import { UserResource } from './resources/Post';
 
 export default function UserPage({ setRoute, id }) {
@@ -561,6 +564,7 @@ export default function UserPage({ setRoute, id }) {
 ```
 
 ```tsx title="PostPage" collapsed
+import { useSuspense } from '@data-client/react';
 import { PostResource } from './resources/Post';
 
 export default function PostPage({ setRoute }) {
@@ -607,6 +611,7 @@ export default function PostPage({ setRoute }) {
 ```
 
 ```tsx title="Navigation" collapsed
+import React from 'react';
 import PostPage from './PostPage';
 import UserPage from './UserPage';
 

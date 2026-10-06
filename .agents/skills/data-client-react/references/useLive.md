@@ -49,6 +49,7 @@ export const getTicker = new RestEndpoint({
 
 ```tsx title="AssetPrice" {5}
 import { useLive } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
 import { getTicker } from './Ticker';
 
 function AssetPrice({ productId }: Props) {

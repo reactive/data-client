@@ -98,7 +98,7 @@ Sending manager instances allows us to customize managers using inheritance.
 :::react
 
 ```ts
-import { IdlingNetworkManager } from '@data-client/react';
+import { getDefaultManagers, IdlingNetworkManager } from '@data-client/react';
 
 const managers = getDefaultManagers({
   networkManager: new IdlingNetworkManager(),

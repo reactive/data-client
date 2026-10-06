@@ -149,6 +149,7 @@ by setting the trace option to `true` with [getDefaultManagers](../api/getDefaul
 ```tsx title="index.tsx"
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
+import App from './App';
 
 const managers = getDefaultManagers({
   // highlight-next-line

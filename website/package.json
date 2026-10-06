@@ -17,7 +17,7 @@
     "deploy": "USE_SSH=true docusaurus deploy",
     "docusaurus": "docusaurus",
     "build:skills": "node framework-docs/skillReferences.mjs",
-    "check:vue-examples": "node framework-docs/checkVueExamples.mjs",
+    "check:doc-examples": "node framework-docs/checkExamples.mjs",
     "social-card": "node scripts/socialCard.mjs"
   },
   "engines": {

@@ -61,6 +61,7 @@ Function that initializes the `this` attribute for all interceptors.
 
 ```tsx
 import { MockResolver } from '@data-client/test';
+import type { Story } from '@storybook/react';
 
 import ArticleResource from 'resources/ArticleResource';
 import MyComponentToTest from 'components/MyComponentToTest';
@@ -69,7 +70,7 @@ const results = [
   // fixture
   {
     endpoint: ArticleResource.getList,
-    args: [{ maxResults: 10 }] as const,
+    args: [{ maxResults: 10 }],
     response: [
       {
         id: 5,

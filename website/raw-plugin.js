@@ -1,19 +1,10 @@
+/* global module */
 module.exports = function (context, options) {
   return {
     name: 'raw-plugin',
     // to support running babel transformer we need to polyfill node api 'fs'
     configureWebpack(config, isServer, utils) {
       return {
-        ignoreWarnings: [
-          // Suppress warning about dynamic import expressions in
-          // Playground/monaco/typeLibs.ts. This is expected behavior for
-          // dynamic TypeScript definition loading
-          {
-            module: /Playground[\\/]monaco[\\/]typeLibs\.ts/,
-            message:
-              /Critical dependency: the request of a dependency is an expression/,
-          },
-        ],
         module: {
           rules: [
             {

@@ -1466,13 +1466,20 @@ type ExtractObject<S extends Record<string, any>> = {
     [K in keyof S]: S[K] extends Schema ? ExtractCollection<S[K]> : never;
 }[keyof S];
 
+/** Searches wrappers like Query and Lazy through their `schema` (Entity classes have a `prototype`) */
 type ExtractCollection<S extends Schema | undefined> = S extends ({
     push: any;
     unshift: any;
     assign: any;
     remove: any;
     schema: Schema;
-}) ? S : S extends Object$1<infer T> ? ExtractObject<T> : S extends Exclude<Schema, {
+}) ? S : S extends Object$1<infer T> ? ExtractObject<T> : S extends {
+    schema: infer Q;
+    denormalize: any;
+    prototype?: undefined;
+} ? ExtractObject<{
+    schema: Q;
+}> : S extends Exclude<Schema, {
     [K: string]: any;
 }> ? never : S extends {
     [K: string]: Schema;
@@ -2141,12 +2148,12 @@ interface Resource<O extends ResourceGenerics = {
     create: 'searchParams' extends keyof O ? MutateEndpoint<{
         path: ShortenPath<O['path']>;
         schema: Collection<[O['schema']]>['push'];
-        body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
+        body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>> | FormData;
         searchParams: O['searchParams'];
     }> : MutateEndpoint<{
         path: ShortenPath<O['path']>;
         schema: Collection<[O['schema']]>['push'];
-        body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
+        body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>> | FormData;
     }>;
     /** Update an item (PUT)
      *

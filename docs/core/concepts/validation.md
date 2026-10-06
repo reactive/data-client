@@ -66,6 +66,7 @@ export const getArticle = new RestEndpoint({
 :::react
 
 ```tsx title="ArticlePage" collapsed
+import { useSuspense } from '@data-client/react';
 import { getArticle } from './api/Article';
 
 function ArticlePage({ id }: { id: string }) {
@@ -143,6 +144,7 @@ export const getArticle = new RestEndpoint({
 :::react
 
 ```tsx title="ArticlePage" collapsed
+import { useSuspense } from '@data-client/react';
 import { getArticle } from './api/Article';
 
 function ArticlePage({ id }: { id: string }) {
@@ -252,6 +254,8 @@ export const getArticle = new RestEndpoint({
 :::react
 
 ```tsx title="ArticleDetail" collapsed
+import React from 'react';
+import { useSuspense } from '@data-client/react';
 import { getArticle, getArticleList } from './api/Article';
 
 function ArticleDetail({ id, onHome }: { id: string; onHome: () => void }) {
@@ -269,9 +273,7 @@ function ArticleDetail({ id, onHome }: { id: string; onHome: () => void }) {
         <div>
           Created:{' '}
           <time>
-            {DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
-              article.createdAt,
-            )}
+            {article.createdAt.toLocaleString('en-US', { dateStyle: 'medium' })}
           </time>
         </div>
       </div>

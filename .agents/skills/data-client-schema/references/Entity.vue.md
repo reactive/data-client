@@ -373,6 +373,9 @@ const assets = await useSuspense(getAssets);
 Nested below:
 
 ```tsx
+import { useQuery } from '@data-client/react';
+import { LatestPrice } from './resources/LatestPrice';
+
 const price = useQuery(LatestPrice, { symbol: 'BTC' });
 ```
 

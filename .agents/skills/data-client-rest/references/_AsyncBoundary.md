@@ -43,9 +43,12 @@ export default function DashboardLayout({
 
 **Expo**
 
-```tsx {15,17} title="app/dashboard/_layout.tsx"
+```tsx {18,20} title="app/dashboard/_layout.tsx"
 import { AsyncBoundary } from '@data-client/react';
 import { Slot } from 'expo-router';
+import { Image, StyleSheet } from 'react-native';
+
+import ParallaxScrollView from '@/components/ParallaxScrollView';
 
 export default function DashboardLayout() {
   return (
@@ -64,15 +67,26 @@ export default function DashboardLayout() {
     </ParallaxScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  logo: { height: 178, width: 290 },
+});
 ```
 
 **Antd Modal**
 
 ```tsx title="ModalOpen.tsx"
 import { AsyncBoundary } from '@data-client/react';
+import { useState } from 'react';
 import { Button, Modal } from 'antd';
 
+import MyModalBody from './MyModalBody';
+
 export default function ModalOpen() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const showModal = () => setIsModalOpen(true);
+  const handleOk = () => setIsModalOpen(false);
+  const handleCancel = () => setIsModalOpen(false);
   return (
     <>
       <Button type="primary" onClick={showModal}>

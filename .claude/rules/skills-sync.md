@@ -9,13 +9,14 @@ paths:
 
 # Skills sync
 
-Skill `references/*.md` files listed in a skill's `references.json` are generated from `docs/` by `yarn build:skills` (an agent hook runs it before `git push`; CI's `regenerate` workflow commits drift on same-repo PRs, fails on it elsewhere, and fails on dead `references/` links in `SKILL.md`). Everything else in a skill (`SKILL.md`, references without the generated header) is hand-written and only changes when you change it.
+Skill `references/*.md` files listed in a skill's `references.json` are generated from `docs/` by `yarn build:skills` (an agent hook runs it before `git push`; CI's `regenerate` workflow commits drift on same-repo PRs, fails on it elsewhere, and fails on dead `references/` links in `SKILL.md`). Everything else in a skill (`SKILL.md`, references without the generated header) is hand-written and only changes when you change it. A skill's `references.json` can also list `skills` to bundle: their `SKILL.md`, references and scripts are copied (with the generated header) under its `references/`, so edit the source skill and regenerate.
 
 - **Editing a doc**: never edit the generated reference. Edit the doc; references regenerate.
 - **Adding a doc**: if a skill covers that API or topic (match by skill `description`), add the page to its `references.json` and link it from the skill's reference list in `SKILL.md`. New partials (`_foo.mdx`) need nothing; they're inlined.
 - **Renaming, moving or deleting a doc**: update every `references.json` entry and `SKILL.md` link to it (`grep -rn '<old path or name>' .agents/skills`). The generator fails on a missing source.
 - **Changing a public API** (rename, signature, new option, deprecation): grep `.agents/skills` for the old name and update `SKILL.md` examples and hand-written references in the same PR. Generated references only follow the docs.
 - **Agent-only references** (instructions for agents, not readers of the site): put the source in `docs/core/_agents/`. Docusaurus never publishes `_` folders, but `yarn build:skills` still renders the `:react[]`/`:vue[]` markers and resolves doc links, so one source serves both frameworks.
+- **Site-only prose** (e.g. "install the skill and run `/data-client-setup`"): wrap it in `<SiteOnly>` so references don't tell an agent to install or invoke the skill it's running.
 - **Adding a hand-written reference**: `.gitattributes` marks `references/**` as `linguist-generated` (collapsed in GitHub diffs); add a `-linguist-generated` line for it. `yarn build:skills` fails until you do.
 - **Never copy a doc into a reference**: the build fails on a hand-written reference named after a `docs/` page. List the page in `references.json`, and put what it lacks in the doc, or in an `_agents/` source if only agents need it.
 - **Framework-specific pages**: a `frameworks: [react]` page is skipped for Vue; a skill whose `frameworks` lists `vue` must not rely on it. Skills covering both frameworks link `name.md`; `name.vue.md` exists only where Vue differs.
