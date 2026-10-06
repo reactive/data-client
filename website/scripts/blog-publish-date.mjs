@@ -29,7 +29,7 @@ const git = (...args) => execFileSync('git', args, { encoding: 'utf8' });
 function frontMatter(source) {
   const block = source.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
   return {
-    draft: /^draft:\s*true\s*$/m.test(block),
+    draft: /^draft:\s*true\s*(#.*)?$/m.test(block),
     date: block.match(/^date:\s*['"]?([^'"\n]+)/m)?.[1],
   };
 }
@@ -44,12 +44,23 @@ const publishedAtBase = new Set(
     ),
 );
 
+// A published post that was only renamed (slug fix, .md -> .mdx) stays published
+const renamedFrom = new Map(
+  git('diff', '--name-status', '-M', '--diff-filter=R', base, '--', BLOG_DIR)
+    .split('\n')
+    .filter(Boolean)
+    .map(line => {
+      const [, from, to] = line.split('\t');
+      return [to.slice(BLOG_DIR.length + 1), from.slice(BLOG_DIR.length + 1)];
+    }),
+);
+
 const today = new Date().toISOString().slice(0, 10);
 let failed = false;
 
 for (const file of readdirSync(BLOG_DIR)) {
   const match = file.match(POST);
-  if (!match || publishedAtBase.has(file)) continue;
+  if (!match || publishedAtBase.has(renamedFrom.get(file) ?? file)) continue;
   const path = `${BLOG_DIR}/${file}`;
   const { draft, date } = frontMatter(readFileSync(path, 'utf8'));
   if (draft) continue;
