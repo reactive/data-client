@@ -418,7 +418,9 @@ type EntityRef = string | {
 };
 /** Schemas that write each row to one stored entity: Entity, Union, or Invalidate (batch delete).
  * Query, All and Collection don't: they normalize to lists, or Collection keys by args batch set() lacks. */
-type SetEntitySchema = EntityInterface | {
+type SetEntitySchema = EntityInterface | EntityRefSchema;
+/** Union or Invalidate */
+type EntityRefSchema = {
     _normalizeNullable(): EntityRef | undefined;
     pk?: never;
 };
@@ -428,6 +430,11 @@ type SetManySchema = readonly SetEntitySchema[] | {
     schemaKey(): string;
     queryKey(...args: any): undefined;
     pk?: never;
+};
+/** `new Invalidate(Entity)` (or of a Union): not Queryable, since its queryKey() returns undefined */
+type SetInvalidateSchema = EntityRefSchema & {
+    queryKey(...args: any): undefined;
+    query?: never;
 };
 type IsUnion<T, U = T> = T extends unknown ? [
     U
@@ -737,10 +744,11 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
         SkipInfer<SetValue<S> | ((previousValue: Denormalize$1<S>) => SetValue<S>), S>
     ]): Promise<void>;
     /**
-     * Sets every row of an Array or Values of one Entity (or Union) in one normalize.
+     * Sets every row of an Array or Values of one Entity (or Union) in one normalize,
+     * or invalidates the one Entity an Invalidate schema's value identifies.
      * @see https://dataclient.io/docs/api/Controller#set-array
      */
-    set<S extends SetManySchema>(schema: S, value: SkipInfer<SetManyValue<S>, S>): Promise<void>;
+    set<S extends SetManySchema | SetInvalidateSchema>(schema: S, value: SkipInfer<SetManyValue<S>, S>): Promise<void>;
     /**
      * Sets response for the Endpoint and args.
      * @see https://dataclient.io/docs/api/Controller#setResponse
