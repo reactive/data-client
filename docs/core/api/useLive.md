@@ -38,8 +38,9 @@ Async rendering of remotely triggered data mutations.
 
 <FrameworkPlayground row>
 
-```typescript title="Ticker" {32} collapsed
+```typescript title="Ticker" {33} collapsed
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class Ticker extends Entity {
   product_id = '';
@@ -79,6 +80,7 @@ export const getTicker = new RestEndpoint({
   import { computed } from 'vue';
   import { useLive } from '@data-client/vue';
   import { getTicker } from './Ticker';
+  import NumberFlow from '@number-flow/vue';
 
   const props = defineProps<{ productId: string }>();
   // highlight-next-line
@@ -88,13 +90,13 @@ export const getTicker = new RestEndpoint({
 </script>
 
 <template>
-  <center>
+  <div style="text-align: center">
     {{ productId }}
     <NumberFlow
       :value="ticker.price"
       :format="{ style: 'currency', currency: 'USD' }"
     />
-  </center>
+  </div>
 </template>
 ```
 

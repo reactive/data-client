@@ -66,8 +66,9 @@ delay: 150,
 },
 ]} row>
 
-```typescript title="resources/Article" {12,24}
+```typescript title="resources/Article" {13,25}
 import { validateRequired, Collection, Entity, resource } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class ArticleSummary extends Entity {
   id = '';

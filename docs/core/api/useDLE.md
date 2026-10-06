@@ -402,6 +402,8 @@ When entities are stored in [nested structures](/rest/guides/relational-data#nes
 <TypeScriptEditor row={false}>
 
 ```typescript title="api/Post"
+import { Entity, RestEndpoint, Collection } from '@data-client/rest';
+
 export class PaginatedPost extends Entity {
   id = '';
   title = '';

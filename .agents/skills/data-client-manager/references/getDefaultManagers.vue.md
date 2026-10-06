@@ -84,7 +84,11 @@ const managers = getDefaultManagers({
 Sending manager instances allows us to customize managers using inheritance.
 
 ```ts
-import { NetworkManager, type FetchAction } from '@data-client/vue';
+import {
+  NetworkManager,
+  getDefaultManagers,
+  type FetchAction,
+} from '@data-client/vue';
 
 class LoggingNetworkManager extends NetworkManager {
   protected handleFetch(action: FetchAction) {

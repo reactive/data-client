@@ -228,6 +228,8 @@ export default function PostWithAuthor({ id }: { id: string }) {
 When entities are stored in [nested structures](https://dataclient.io/rest/guides/relational-data#nesting), that structure will remain.
 
 ```typescript title="api/Post"
+import { Entity, RestEndpoint, Collection } from '@data-client/rest';
+
 export class PaginatedPost extends Entity {
   id = '';
   title = '';

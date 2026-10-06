@@ -18,7 +18,7 @@ import { Entity, RestEndpoint, Collection } from '@data-client/rest';
 
 export class Todo extends Entity {
   id = '';
-  userId = 0;
+  userId = '';
   title = '';
   completed = false;
 

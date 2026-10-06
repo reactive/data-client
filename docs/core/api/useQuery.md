@@ -117,6 +117,8 @@ delay: 150,
 ]} row>
 
 ```ts title="UserResource" collapsed
+import { Entity, resource } from '@data-client/rest';
+
 export class User extends Entity {
   id = '';
   name = '';
@@ -244,6 +246,8 @@ delay: 150,
 ]} row>
 
 ```ts title="Resources" collapsed
+import { Entity, Lazy, resource } from '@data-client/rest';
+
 export class Building extends Entity {
   id = '';
   name = '';

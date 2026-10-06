@@ -230,8 +230,9 @@ export class User extends Entity {
 }
 ```
 
-```ts title="Post" {16-20}
+```ts title="Post" {17-21}
 import { Entity } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 import { User } from './User';
 
 export class Post extends Entity {

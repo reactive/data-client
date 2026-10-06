@@ -28,7 +28,7 @@ paths:
 ## GitHub Actions (`.github/workflows/`)
 
 - Workflows install only needed workspaces via `./scripts/ci-install.sh [extra-workspace ...]`.
-- `skills.yml` `paths` must cover every input of `website/framework-docs/skillReferences.mjs` (docs, skill manifests, the generator and its deps).
+- `skills.yml` `paths` must cover every input of `website/framework-docs/skillReferences.mjs` (docs, skill manifests, the generator and its deps) and `checkVueExamples.mjs` (also the playground editor types it checks against and `Playground/DesignSystem/index.ts`, its global components), plus the root `package.json` whose scripts and dev dependencies they run.
 - `agent-rules.yml` runs `scripts/agent-rules.mjs --check` and the agent hook tests (`node --test '.cursor/hooks/*.test.js'`; a bare directory runs nothing on Node 22) with no install (node and git only). Its `paths` must cover every input and output of that script, and `.cursor/hooks/`.
 - `editor-types.yml` reruns `yarn copy:websitetypes` and fails if `website/src/components/Playground/editor-types` changes. It needs the `website` workspace (for deps like `bignumber.js`), which CircleCI's `setup` drops. Its `paths` must cover every input of `scripts/copywebsitetypes.sh`.
 - `site-preview.yml` runs one `build` job (one install for the typecheck and the build). It builds the site directly (no Vercel CLI, only the packages it imports via `ci:build:website`, `VERCEL_ENV=preview` to include drafts), restores Docusaurus' webpack cache (only master pushes save it, so PRs share one entry), and fails on any `[WARNING]`/`[ERROR]` line. Broken links are `warn` in `docusaurus.config.ts` so this check catches them without failing Vercel deploys.

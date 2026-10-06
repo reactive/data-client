@@ -59,7 +59,7 @@ export const getPortfolioColumns = new RestEndpoint({
   path: '/companies/columns',
   searchParams: {} as { portfolio: string },
   schema: new Collection([PortfolioScalar], {
-    argsKey: ({ portfolio }) => ({ portfolio }),
+    argsKey: ({ portfolio }: { portfolio: string }) => ({ portfolio }),
   }),
 });
 ```

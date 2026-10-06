@@ -40,7 +40,7 @@ from this function was a succesful network response. When the actual fetch compl
 of failure or success), the optimistic update will be replaced with the actual network response.
 
 ```ts title="Post"
-import { Entity, schema } from '@data-client/rest';
+import { Entity, EntityMixin } from '@data-client/rest';
 
 export class Post extends Entity {
   id = 0;
