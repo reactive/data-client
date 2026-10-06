@@ -206,7 +206,8 @@ export const paged = ArticleResource.getList.paginated('page');
   return s;
 };
 
-// 9. #4133's set() cases: values and updaters on a 30-member Union, a Collection of it, and a 300-field Entity
+// 9. #4133's set() cases: values and updaters on a 30-member Union, a Collection of it, and a 300-field Entity;
+// and #4230's Invalidate rows, single and batch
 const setHeader =
   () => `import { Entity, schema, Collection } from '@data-client/rest';
 import { useController } from '@data-client/react';
@@ -220,6 +221,18 @@ scen.setValues = () => {
     s += `  ctrl.set(Un, { id: '${i}', type: 'u${i % M}' }, { id: '${i}', type: 'u${i % M}', m${i % M}_0: 'x' });
   ctrl.set(Feed, [{ id: '${i}', type: 'u${i % M}', m${i % M}_0: 'x' }]);
   ctrl.set(Big, { id: '${i}' }, { f${(i * 3) % BIG}: '' });\n`;
+  return s + '}\n';
+};
+scen.setInvalidate = () => {
+  let s =
+    setHeader() +
+    `  const InvUn = new schema.Invalidate(Un);
+  const InvBig = new schema.Invalidate(Big);
+`;
+  for (let i = 0; i < 333 * N; i++)
+    s += `  ctrl.set(InvUn, { id: '${i}', type: 'u${i % M}' });
+  ctrl.set([InvUn], [{ id: '${i}', type: 'u${i % M}' }]);
+  ctrl.set(InvBig, { id: '${i}' });\n`;
   return s + '}\n';
 };
 scen.setUpdaters = () => {
