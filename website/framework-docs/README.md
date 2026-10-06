@@ -116,3 +116,6 @@ when docs are added, renamed or deleted.
 Partials can use `props` in `{...}` expressions; the generator evaluates them with the props passed
 where the partial is used. JSX inside an expression is only supported for `<CodeBlock>`; anything
 else fails the build so it can't silently drop content.
+A `<CodeBlock>` inside a playground passes its fence meta as `metastring`
+(`metastring='title="api/Feed" collapsed'`), which both the playground and the generator read; see
+`docs/rest/shared/_PolymorphicFeedDemo.mdx`.

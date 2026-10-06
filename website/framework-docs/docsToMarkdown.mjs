@@ -343,7 +343,12 @@ function render(file, framework, props = {}) {
           .map(c => (c.type === 'JSXText' ? c.value : run(c.expression)))
           .join('');
         return [
-          codeBlock({ lang: codeLang(attrs), value, title: attrs.title }),
+          codeBlock({
+            lang: codeLang(attrs),
+            value,
+            title: attrs.title,
+            meta: attrs.metastring,
+          }),
         ];
       }
     }
@@ -367,6 +372,7 @@ function render(file, framework, props = {}) {
             lang: codeLang(attrs),
             value: jsxText(node.children, props, source),
             title: attrs.title,
+            meta: attrs.metastring,
           }),
         ];
       case 'ProviderSetupCode': {

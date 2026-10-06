@@ -80,7 +80,7 @@ If your input data is an object that has values of more than one type of entity,
 import { Entity, RestEndpoint, Values } from '@data-client/rest';
 
 export abstract class FeedItem extends Entity {
-  id = 0;
+  readonly id: number = 0;
   declare readonly type: 'link' | 'post';
 }
 export class Link extends FeedItem {
@@ -158,7 +158,7 @@ case, except we'll append an 's'.
 import { Entity, RestEndpoint, Values } from '@data-client/rest';
 
 export abstract class FeedItem extends Entity {
-  id = 0;
+  readonly id: number = 0;
   declare readonly type: 'link' | 'post';
 }
 export class Link extends FeedItem {
