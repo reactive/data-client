@@ -74,14 +74,16 @@ const localRoutesFor = (docs, framework) =>
 
 const generated = new Map();
 
-/** Map of reference path -> content for one skill */
-function generateSkill(skillDir, manifest) {
-  if (!generated.has(skillDir))
-    generated.set(skillDir, generateUncached(skillDir, manifest));
+/** Map of reference path -> content for one skill; undefined without a manifest */
+function generateSkill(skillDir) {
+  if (!generated.has(skillDir)) {
+    const manifest = readManifest(skillDir);
+    generated.set(skillDir, manifest && buildSkill(skillDir, manifest));
+  }
   return generated.get(skillDir);
 }
 
-function generateUncached(skillDir, { frameworks, docs, skills = [] }) {
+function buildSkill(skillDir, { frameworks, docs, skills = [] }) {
   const out = new Map();
   // framework that rendered each file
   const renderedBy = new Map();
@@ -141,28 +143,22 @@ function generateUncached(skillDir, { frameworks, docs, skills = [] }) {
   return out;
 }
 
-let gitLinks;
+const git = (...args) =>
+  execFileSync('git', args, { cwd: ROOT, encoding: 'utf8' });
+
+/** Symlinks git tracks under the skills, even where checked out as plain files */
+const gitLinks = new Set(
+  git('ls-files', '-s', '--', SKILLS)
+    .split('\n')
+    .filter(line => line.startsWith('120000 '))
+    .map(line => path.join(ROOT, line.split('\t')[1])),
+);
+
 /**
- * A file's content, following symlinks git tracks even in checkouts that
- * write them as plain files holding the target path (`core.symlinks=false`)
+ * A file's content, following symlinks even in checkouts that write them as
+ * plain files holding the target path (`core.symlinks=false`)
  */
 function readFollowingLinks(file) {
-  if (!gitLinks) {
-    try {
-      gitLinks = new Set(
-        execFileSync('git', ['ls-files', '-s', '--', SKILLS], {
-          cwd: ROOT,
-          encoding: 'utf8',
-          stdio: ['ignore', 'pipe', 'ignore'],
-        })
-          .split('\n')
-          .filter(line => line.startsWith('120000 '))
-          .map(line => path.join(ROOT, line.split('\t')[1])),
-      );
-    } catch {
-      gitLinks = new Set();
-    }
-  }
   const content = fs.readFileSync(file, 'utf8');
   return gitLinks.has(file) && !fs.lstatSync(file).isSymbolicLink() ?
       fs.readFileSync(path.resolve(path.dirname(file), content.trim()), 'utf8')
@@ -191,9 +187,7 @@ function bundleSkill(sourceDir, skillDir, out) {
     .join('');
   out.set(`${dest}.md`, withHeader(skillMd, body));
   // its generated references come from their sources, so they can't be stale
-  const manifest = readManifest(sourceDir);
-  const sourceGenerated =
-    manifest ? generateSkill(sourceDir, manifest) : new Map();
+  const sourceGenerated = generateSkill(sourceDir) ?? new Map();
   for (const [file, content] of sourceGenerated)
     out.set(path.join(dest, path.relative(sourceDir, file)), content);
   for (const name of walk(sourceDir)) {
@@ -221,9 +215,8 @@ const generatedFiles = dir =>
 const changes = [];
 for (const skill of fs.readdirSync(SKILLS).sort()) {
   const skillDir = path.join(SKILLS, skill);
-  const manifest = readManifest(skillDir);
-  if (!manifest) continue;
-  const out = generateSkill(skillDir, manifest);
+  const out = generateSkill(skillDir);
+  if (!out) continue;
   const current = generatedFiles(path.join(skillDir, 'references'));
   for (const file of current.keys())
     if (!out.has(file)) changes.push([file, null]);
@@ -305,10 +298,11 @@ const problems = fs.readdirSync(SKILLS).flatMap(skill => {
   ];
 });
 // .gitattributes marks generated references linguist-generated (collapsed on GitHub)
-const generatedAttr = execFileSync(
-  'git',
-  ['check-attr', 'linguist-generated', '--', ...references.keys()],
-  { cwd: ROOT, encoding: 'utf8' },
+const generatedAttr = git(
+  'check-attr',
+  'linguist-generated',
+  '--',
+  ...references.keys(),
 );
 for (const line of generatedAttr.split('\n').filter(Boolean)) {
   const [file, , value] = line.split(': ');
