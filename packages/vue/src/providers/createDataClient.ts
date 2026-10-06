@@ -7,7 +7,8 @@ import {
   GCPolicy,
 } from '@data-client/core';
 import type { State, Manager, GCInterface } from '@data-client/core';
-import { provide, shallowRef, type ShallowRef, type App } from 'vue';
+import { provide, shallowRef } from 'vue';
+import type { ShallowRef, App } from 'vue';
 
 import { ControllerKey, StateKey } from '../context.js';
 import { getDefaultManagers } from './getDefaultManagers.js';

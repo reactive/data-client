@@ -1,16 +1,17 @@
 {
   "instantiations": {
-    "resources": 123569,
+    "resources": 135194,
     "bigEntity": 12790,
     "union": 16394,
     "paths": 345603,
     "nested": 3001,
     "vue": 47903,
-    "schemas": 109095,
+    "schemas": 200197,
     "typical": 13109,
     "setValues": 26027,
     "setUpdaters": 66031,
     "redux": 12986,
+    "setInvalidate": 7325,
     "patheq": 934395
   },
   "typescript": "7.0.2"

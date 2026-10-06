@@ -122,14 +122,14 @@ export interface Resource<
       path: ShortenPath<O['path']>;
       schema: schema.Collection<[O['schema']]>['push'];
       body: 'body' extends keyof O ? O['body']
-      : Partial<Denormalize<O['schema']>>;
+      : Partial<Denormalize<O['schema']>> | FormData;
       searchParams: O['searchParams'];
     }>
   : MutateEndpoint<{
       path: ShortenPath<O['path']>;
       schema: schema.Collection<[O['schema']]>['push'];
       body: 'body' extends keyof O ? O['body']
-      : Partial<Denormalize<O['schema']>>;
+      : Partial<Denormalize<O['schema']>> | FormData;
     }>;
   /** Update an item (PUT)
    *

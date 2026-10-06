@@ -1,6 +1,7 @@
 import { schema, All, Collection } from '@data-client/endpoint';
 import { resource } from '@data-client/rest';
-import { reactive, computed, type MaybeRefOrGetter } from 'vue';
+import { reactive, computed } from 'vue';
+import type { MaybeRefOrGetter } from 'vue';
 
 import {
   ArticleWithSlug,

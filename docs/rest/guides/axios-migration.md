@@ -7,10 +7,13 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 import SkillTabs from '@site/src/components/SkillTabs';
+import SiteOnly from '@site/src/components/SiteOnly';
 
 # Migrating from Axios
 
 [`@data-client/rest`](/rest) replaces axios with a declarative, type-safe approach to REST APIs.
+
+<SiteOnly>
 
 ## AI-assisted migration {#skill}
 
@@ -19,6 +22,8 @@ Install the REST setup skill to automate the migration with your AI coding assis
 <SkillTabs repo="reactive/data-client" skills={['data-client-schema', 'data-client-rest-setup', 'data-client-rest']} />
 
 Then run skill `/data-client-rest-setup` to start the migration. It will detect axios and apply the appropriate migration sub-procedure automatically.
+
+</SiteOnly>
 
 ## Why migrate?
 
@@ -628,7 +633,7 @@ const uploadFile = new UploadEndpoint({
 
 ## Codemod {#codemod}
 
-For non-AI workflows, a standalone [jscodeshift](https://github.com/facebook/jscodeshift) codemod handles the mechanical parts of migration. (The [AI skill](#skill) above runs this automatically as its first step.)
+A standalone [jscodeshift](https://github.com/facebook/jscodeshift) codemod handles the mechanical parts of migration.<SiteOnly> Run it yourself for non-AI workflows; the [AI skill](#skill) above runs it automatically as its first step.</SiteOnly>
 
 ```bash
 npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=ts,tsx,js,jsx src/

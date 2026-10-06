@@ -76,6 +76,7 @@ function generateSkill(skillDir, { frameworks, docs }) {
     for (const [name, doc] of Object.entries(docs)) {
       const body = docToMarkdown(path.join(ROOT, doc), framework, {
         resolveRoute,
+        skipSiteOnly: true,
       });
       if (!body) continue;
       const content = `${HEADER} ${doc} (${framework}). Edit the source doc, not this file. -->\n\n${body}`;

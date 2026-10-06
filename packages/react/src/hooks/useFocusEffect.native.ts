@@ -1,10 +1,6 @@
 import type { useNavigation, NavigationProp } from '@react-navigation/native';
-import {
-  type DependencyList,
-  type EffectCallback,
-  useEffect,
-  useRef,
-} from 'react';
+import { useEffect, useRef } from 'react';
+import type { DependencyList, EffectCallback } from 'react';
 
 const fakeNavigation = { addListener(name: string) {} } as any;
 let _useNavigation: typeof useNavigation = () => fakeNavigation;

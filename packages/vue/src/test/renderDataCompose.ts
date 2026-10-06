@@ -1,11 +1,9 @@
-import { type Controller } from '@data-client/core';
-import { type VueWrapper } from '@vue/test-utils';
+import type { Controller } from '@data-client/core';
+import type { VueWrapper } from '@vue/test-utils';
 import { defineComponent, h, watch, reactive, nextTick, isRef } from 'vue';
 
-import {
-  mountDataClient,
-  type RenderDataClientOptions,
-} from './mountDataClient.js';
+import { mountDataClient } from './mountDataClient.js';
+import type { RenderDataClientOptions } from './mountDataClient.js';
 
 /**
  * Renders a Vue composable with DataClient provider for testing

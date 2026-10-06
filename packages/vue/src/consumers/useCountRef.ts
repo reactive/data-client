@@ -1,4 +1,5 @@
-import { watch, type Ref } from 'vue';
+import { watch } from 'vue';
+import type { Ref } from 'vue';
 
 /** Keeps a store response's entities from being garbage collected while mounted. */
 export default function useCountRef(
