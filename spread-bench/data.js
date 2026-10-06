@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791127308821,
+  "lastUpdate": 1791246038391,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark Spread": [
@@ -91,6 +91,37 @@ window.BENCHMARK_DATA = {
             "name": "setOneEntity in 10k entity store",
             "value": 155,
             "range": "±0.95%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "94f82a6ed5a53bf478845a2b3260b2750b8d94cc",
+          "message": "docs: Type-check the Vue code examples (#4215)\n\n* internal: Type-check Vue docs examples (WIP)\n\n* ci: Run the Vue docs example check in the skills workflow\n\n* internal: Loose Vue examples import the nearest same-titled block\n\n* docs: Fix imports and Vue-only issues in docs/core Vue examples\n\n* docs: Fix imports and Vue-only issues in docs/rest Vue examples; regenerate skill references\n\n* internal: Simplify the Vue example check; type-check @data-client/vue/test examples\n\n- Reuse index.js walk() and docsInstances paths; derive placeholders from the playground DesignSystem\n- Map errors through the fence's raw lines instead of a per-line map\n- Group playgrounds by node instead of a module counter\n- Add @data-client/vue/test and core/mock editor types so Vue testing examples are checked\n- React expiry-policy demo uses the same typed set([Invalidate]) form as Vue\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NhTHFsx27AbMsxqkSuCvFe\n\n* ci: Run the Vue example check when the playground design system changes; keep check-only editor types out of the playground chunk\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NhTHFsx27AbMsxqkSuCvFe\n\n* Check Vue-only doc pages' examples too\n\nThe checker skipped every foo.vue.md as an override of foo.md, so pages\nthat only exist for Vue (DataClientPlugin, unit-testing-composables) were\nnever type-checked. Skip an override only when its base page exists, and\nadd the imports those pages' examples were missing.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NhTHFsx27AbMsxqkSuCvFe\n\n* Check untitled Vue SFC fences; fix Codex review findings\n\n- Treat any html fence with <script> or <template> as a Vue SFC, titled or\n  not, and fix the examples that surfaced (useController, RestEndpoint\n  pagination, Entity fragment marked nocheck)\n- Name a file by its fence language when the title's extension differs;\n  rewrite the _EndpointLifecycle Component.vue snippet as an SFC\n- Don't report success when vue-tsc exits without diagnostics\n- Run the skills workflow when the root package.json changes\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NhTHFsx27AbMsxqkSuCvFe\n\n* Keep the StreamManager spread; support Node 18 in the Vue check\n\n- Restore ...msg.args in the README StreamManager (args is variadic),\n  typing msg like the Managers page does\n- Group playground blocks without Map.groupBy, which Node 18 and 20 lack\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NhTHFsx27AbMsxqkSuCvFe\n\n* Simplify the Vue examples check\n\n- List pages the way the site resolves them: foo.vue.md stands for foo.md\n  (reusing index.js VUE_OVERRIDE), instead of a third override rule\n- Only root-level <script>/<template> make an html fence an SFC\n- A code title's extension is replaced by the fence language's\n- One grouping helper for playgrounds and stubs; rewrap README\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NhTHFsx27AbMsxqkSuCvFe\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-05T20:19:25-04:00",
+          "tree_id": "ce0a6955c08057201fa08a0158131a4f92b7d75e",
+          "url": "https://github.com/reactive/data-client/commit/94f82a6ed5a53bf478845a2b3260b2750b8d94cc"
+        },
+        "date": 1791246035107,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "setOneEntity in 10k entity store",
+            "value": 154,
+            "range": "±0.99%",
             "unit": "ops/sec",
             "extra": "87 samples"
           }
