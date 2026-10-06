@@ -10,20 +10,10 @@ description: Build custom schemas for normalization, denormalization, and query 
 to teach `@data-client/rest` how to normalize, denormalize, and query a value
 the built-in schemas can't express.
 
-Most apps never need one. Reach for a custom schema only when you need runtime
-logic the built-ins don't have, such as output that depends on endpoint args,
-or bounded traversal of deep entity graphs.
-
-| You want to                                   | Use                                          |
-| --------------------------------------------- | -------------------------------------------- |
-| Wrapped responses like `{ data: User, meta }` | Plain object: `schema: { data: User }`       |
-| A list that stays in sync                     | [Collection](/rest/api/Collection)           |
-| A keyed map                                   | [Values](/rest/api/Values)                   |
-| Polymorphic items                             | [Union](/rest/api/Union)                     |
-| Fix up a response's shape                     | [Entity.process()](/rest/api/Entity#process) |
-| Look up by a field other than pk              | [Entity.indexes](/rest/api/Entity#indexes)   |
-| Derived or computed data                      | [Query](/rest/api/Query)                     |
-| Break up deep or cyclic graphs                | [Lazy](/rest/api/Lazy)                       |
+Most apps never need one, so check the
+[Schema Overview](/rest/api/schema#schema-overview) first. Reach for a custom
+schema only when you need runtime logic the built-ins don't have, such as output
+that depends on endpoint args, or bounded traversal of deep entity graphs.
 
 ## Usage
 
