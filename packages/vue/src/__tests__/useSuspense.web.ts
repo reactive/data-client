@@ -352,10 +352,7 @@ describe('vue useSuspense()', () => {
     expect(articleRef.value.title).toBe(payload.title);
 
     props.id = payload2.id;
-    // the refetch watcher runs on the next tick; then wait for its fetch to settle
-    await nextTick();
     await allSettled();
-    await nextTick();
 
     expect(() => articleRef.value).toThrow('Not Found');
     // every read throws, not just the first
@@ -605,7 +602,6 @@ describe('vue useSuspense()', () => {
 
       // Wait for the fetch to complete
       await allSettled();
-      await nextTick();
 
       // The ComputedRef should now have the new article data
       expect(articleRef).toBeDefined();

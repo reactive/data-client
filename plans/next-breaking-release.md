@@ -24,4 +24,4 @@ Type and API cleanups deferred because they would break users or mixed package v
 `renderDataCompose()` from `@data-client/vue/test` still returns `waitForNextUpdate()`, marked `@deprecated` in `packages/vue/src/test/renderDataCompose.ts`. It resolves silently after a 1 second cap, so tests can pass while still suspended.
 
 - **Remove `waitForNextUpdate`** from `renderDataCompose()`'s return value, along with the `resolveNextUpdate` bookkeeping in its test component.
-  - Breaks: tests that destructure or call `waitForNextUpdate()`. Migration: `await result` for a Promise result; after changing props or calling the controller, `await nextTick()`, `await allSettled()`, then `await nextTick()`.
+  - Breaks: tests that destructure or call `waitForNextUpdate()`. Migration: `await result` for a Promise result; after changing props or calling the controller, `await allSettled()`.

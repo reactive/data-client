@@ -193,7 +193,7 @@ Returns
 | `controller`   | The app's [Controller](../api/Controller.md)                 |
 | `app`          | The Vue app instance                                         |
 | `cleanup()`    | Unmounts and stops the managers                              |
-| `allSettled()` | Resolves once every in-flight fetch settles                  |
+| `allSettled()` | Resolves once every in-flight fetch settles, including fetches a prop change just started, and the component has re-rendered |
 
 ### Options
 

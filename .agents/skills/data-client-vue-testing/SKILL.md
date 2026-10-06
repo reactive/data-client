@@ -40,8 +40,8 @@ it('useQuery() should return cached data', async () => {
 - `controller` - Controller instance for manual actions
 - `wrapper` - Vue Test Utils wrapper
 - `cleanup()` - Cleanup function (always call in afterEach/after test)
-- `allSettled()` - Wait for all pending promises
-- `waitForNextUpdate()` - Deprecated: it gives up silently after 1 second, so a test can pass while still suspended, and can hang under fake timers. Use `await result` for a Promise result, then after changing props or calling the controller `await nextTick()`, `await allSettled()` and `await nextTick()` again (the first tick lets watchers start the new fetch)
+- `allSettled()` - Wait for all in-flight fetches (including ones a prop change just started) and the re-render
+- `waitForNextUpdate()` - Deprecated: it gives up silently after 1 second, so a test can pass while still suspended, and can hang under fake timers. Use `await result` for a Promise result, and `await allSettled()` after changing props or calling the controller
 
 ## Component Testing with mountDataClient()
 

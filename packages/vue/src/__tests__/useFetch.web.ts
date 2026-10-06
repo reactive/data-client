@@ -470,7 +470,6 @@ describe('vue useFetch()', () => {
       useFetch(staleEndpoint, { id: 77 }),
     );
     await result.value;
-    await flushUntil(null, () => fetchMock.mock.calls.length > 0);
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
     // let data become stale

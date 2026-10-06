@@ -181,5 +181,5 @@ Assert both the call count of the resolver mock and the rendered DOM to confirm 
 - **Forgetting `jest.useRealTimers()` in `afterEach`** → other tests see fake timers and time-based behavior breaks unpredictably.
 - **Calling `jest.useFakeTimers()` after mount** → the polling interval was scheduled with the real clock; advancing fake timers does nothing. Always set fake timers first.
 - **No `await allSettled()` between `advanceTimersByTime` and assertions** → the fetch promise hasn't resolved yet, and the store/ref hasn't updated.
-- **`waitForNextUpdate()` under fake timers** → it waits on a 1 second `setTimeout` when the Promise `result` already settled, so it hangs. It's deprecated; `await result` once, then `await allSettled()` and `await nextTick()` after each advance.
+- **`waitForNextUpdate()` under fake timers** → it waits on a 1 second `setTimeout` when the Promise `result` already settled, so it hangs. It's deprecated; `await result` once, then `await allSettled()` after each advance.
 - **Polling with `initialFixtures` only** → static fixtures don't re-resolve. Use `resolverFixtures` (function response) or nock for anything that needs to change over time.

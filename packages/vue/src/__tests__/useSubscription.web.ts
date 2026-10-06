@@ -96,7 +96,6 @@ describe('vue useSubscription()', () => {
     // Advance time to trigger another poll
     jest.advanceTimersByTime(frequency);
     await allSettled();
-    await nextTick();
 
     // Verify the article was updated
     const updatedArticleRef = await result;
@@ -154,7 +153,6 @@ describe('vue useSubscription()', () => {
       // Advance time to trigger another poll
       jest.advanceTimersByTime(frequency);
       await allSettled();
-      await nextTick();
 
       // Verify the article was updated
       const updatedArticleRef = await result;
@@ -174,7 +172,6 @@ describe('vue useSubscription()', () => {
       // Advance time - subscription should not trigger
       jest.advanceTimersByTime(frequency);
       await allSettled();
-      await nextTick();
 
       // Verify the article was NOT updated (still has old value)
       const finalArticleRef = await result;
@@ -261,7 +258,6 @@ describe('vue useSubscription()', () => {
     // Advance time to trigger poll
     jest.advanceTimersByTime(frequency);
     await allSettled();
-    await nextTick();
 
     // Verify the article was updated
     expect(wrapper.find('h3').text()).toBe('first update');
@@ -280,7 +276,6 @@ describe('vue useSubscription()', () => {
     // Advance time - subscription should not trigger
     jest.advanceTimersByTime(frequency);
     await allSettled();
-    await nextTick();
 
     // The reading component should still show old data since no subscription is active
     expect(wrapper.find('h3').text()).toBe('first update');

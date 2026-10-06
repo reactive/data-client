@@ -15,6 +15,7 @@ import {
   h,
   Suspense,
   inject,
+  nextTick,
   type Reactive,
   reactive,
 } from 'vue';
@@ -155,9 +156,13 @@ export function mountDataClient<P = any>(
     wrapper_instance.unmount();
   };
 
-  // All settled function
-  const allSettled = (): Promise<PromiseSettledResult<unknown>[]> => {
-    return nm.allSettled() ?? Promise.resolve([]);
+  // Ticks before and after so fetches that watchers start on a prop change are included, and
+  // the component has re-rendered with their results
+  const allSettled = async (): Promise<PromiseSettledResult<unknown>[]> => {
+    await nextTick();
+    const results = (await nm.allSettled()) ?? [];
+    await nextTick();
+    return results;
   };
 
   return {

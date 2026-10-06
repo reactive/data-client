@@ -111,8 +111,6 @@ describe('vue useDLE()', () => {
 
     await allSettled();
 
-    await nextTick();
-
     expect(result.loading.value).toBe(false);
     expect(result.error.value).toBeUndefined();
     expect(result.data.value).toEqual(CoolerArticle.fromJS(payload));
@@ -133,8 +131,6 @@ describe('vue useDLE()', () => {
 
     await allSettled();
 
-    await nextTick();
-
     expect(result.loading.value).toBe(false);
     expect(result.error.value).toBeUndefined();
     expect(result.data.value).toEqual(payload);
@@ -152,8 +148,6 @@ describe('vue useDLE()', () => {
     expect(result.loading.value).toBe(true);
 
     await allSettled();
-
-    await nextTick();
 
     expect(result.loading.value).toBe(false);
     expect(result.error.value).toBeUndefined();
@@ -194,8 +188,6 @@ describe('vue useDLE()', () => {
 
     await allSettled();
 
-    await nextTick();
-
     expect(result.loading.value).toBe(false);
     expect(result.error.value).toBeDefined();
     expect((result.error.value as any).status).toBe(403);
@@ -211,8 +203,6 @@ describe('vue useDLE()', () => {
     expect(result.data.value).toBeUndefined();
 
     await allSettled();
-
-    await nextTick();
 
     // type discrimination forces it to be resolved
     if (
@@ -241,8 +231,6 @@ describe('vue useDLE()', () => {
     expect(result.loading.value).toBe(true);
 
     await allSettled();
-
-    await nextTick();
 
     expect(result.loading.value).toBe(false);
     expect(result.error.value).toBeDefined();
@@ -273,8 +261,6 @@ describe('vue useDLE()', () => {
 
       await allSettled();
 
-      await nextTick();
-
       expect(result.loading.value).toBe(false);
       expect(result.error.value).toBeUndefined();
       expect(result.data.value).toEqual(CoolerArticle.fromJS(payload));
@@ -287,8 +273,6 @@ describe('vue useDLE()', () => {
       expect(result.loading.value).toBe(true);
 
       await allSettled();
-
-      await nextTick();
 
       expect(result.loading.value).toBe(false);
       expect(result.error.value).toBeUndefined();
@@ -342,8 +326,6 @@ describe('vue useDLE()', () => {
     );
 
     await allSettled();
-
-    await nextTick();
     expect(result.data.value).toBeDefined();
 
     Date.now = jest.fn(() => 999999999 * 3);
@@ -358,8 +340,6 @@ describe('vue useDLE()', () => {
     expect(result.loading.value).toBe(true);
 
     await allSettled();
-
-    await nextTick();
     expect(result.data.value).toBeDefined();
     expect(result.loading.value).toBe(false);
 
@@ -375,8 +355,6 @@ describe('vue useDLE()', () => {
     );
 
     await allSettled();
-
-    await nextTick();
 
     expect(result.data.value).toEqual(CoolerArticle.fromJS(payload));
     expect(result.loading.value).toBe(false);
@@ -428,15 +406,11 @@ describe('vue useDLE()', () => {
     );
 
     await allSettled();
-
-    await nextTick();
     expect(result.data.value?.title).toBe(payload.title);
 
     // Change props - result automatically updates
     props.id = payload2.id;
-    await nextTick();
     await allSettled();
-    await nextTick();
 
     expect(result.data.value?.title).toBe(payload2.title);
 
@@ -464,8 +438,6 @@ describe('vue useDLE()', () => {
     );
 
     await allSettled();
-
-    await nextTick();
     expect(result.data.value).toBeDefined();
     expect(result.data.value?.title).toBe(payload.title);
 
@@ -518,8 +490,6 @@ describe('vue useDLE()', () => {
     );
 
     await allSettled();
-
-    await nextTick();
     expect(result.data.value).toBeDefined();
     expect(result.loading.value).toBe(false);
 
@@ -548,8 +518,6 @@ describe('vue useDLE()', () => {
     );
 
     await allSettled();
-
-    await nextTick();
     expect(result.data.value).toBeDefined();
     expect(result.loading.value).toBe(false);
 
@@ -564,8 +532,6 @@ describe('vue useDLE()', () => {
     expect(result.loading.value).toBe(true);
 
     await allSettled();
-
-    await nextTick();
 
     expect(result.loading.value).toBe(false);
     expect(result.data.value).toBeDefined();
@@ -596,8 +562,6 @@ describe('vue useDLE()', () => {
     expect(result.loading.value).toBe(true);
 
     await allSettled();
-
-    await nextTick();
 
     expect(result.loading.value).toBe(false);
     expect(result.data.value).toBeDefined();
@@ -669,8 +633,6 @@ describe('vue useDLE()', () => {
     );
 
     await allSettled();
-
-    await nextTick();
     expect(result.data.value).toBeDefined();
     expect(result.loading.value).toBe(false);
 
@@ -714,7 +676,6 @@ describe('vue useDLE()', () => {
       () => useDLE(staleEndpoint, { id: 77 }),
     );
     await allSettled();
-    await nextTick();
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
@@ -754,7 +715,6 @@ describe('vue useDLE()', () => {
       const { result, controller, allSettled, cleanup } =
         await renderDataCompose(() => useDLE(staleEndpoint, { id: 78 }));
       await allSettled();
-      await nextTick();
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(result.loading.value).toBe(false);
 

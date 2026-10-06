@@ -1,6 +1,6 @@
 import { schema, All, Collection } from '@data-client/endpoint';
 import { resource } from '@data-client/rest';
-import { reactive, computed, nextTick, type MaybeRefOrGetter } from 'vue';
+import { reactive, computed, type MaybeRefOrGetter } from 'vue';
 
 import {
   ArticleWithSlug,
@@ -189,7 +189,6 @@ describe('vue useQuery()', () => {
       content: 'this one is pushed',
     });
     await allSettled();
-    await nextTick();
     expect(result.value.length).toBe(nested.length + 1);
   });
 
@@ -370,7 +369,6 @@ describe('vue useQuery()', () => {
       id: '100',
     });
     await allSettled();
-    await nextTick();
     expect(result.value[4]).toBeInstanceOf(SecondUnion);
     expect(result.value).toMatchSnapshot();
     warnSpy.mockRestore();
