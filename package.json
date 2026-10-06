@@ -41,6 +41,7 @@
     "build:skills": "yarn workspace rdc-website build:skills",
     "check:doc-examples": "yarn workspace rdc-website check:doc-examples",
     "build:agent-rules": "node scripts/agent-rules.mjs",
+    "blog:publish": "node website/scripts/blog-publish.mjs",
     "test": "NODE_ENV=test run jest",
     "test:ci": "ANANSI_JEST_TYPECHECK=false yarn test --ci",
     "test:coverage": "ANANSI_JEST_TYPECHECK=false yarn test --coverage --selectProjects ReactDOM Node --coverageThreshold='{\"global\":{\"statements\":98,\"branches\":96,\"functions\":90,\"lines\":98}}'",
