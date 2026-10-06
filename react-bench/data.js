@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791247046306,
+  "lastUpdate": 1791247442712,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -7547,6 +7547,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 188.68,
             "range": "± 7.5%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "46f1f24bcb04824805747ed2a1effe7baece337c",
+          "message": "fix(core): Type controller.set() with a single Invalidate (#4230)\n\n* fix(core): Type controller.set() with a single Invalidate\n\n`ctrl.set(new Invalidate(Post), { id: '5' })` worked at runtime but\nfailed to type-check, since Invalidate isn't Queryable. The batch set()\noverload now also accepts Invalidate schemas, typing the row by the\nEntity's fields. It takes no args and no updater, like batch set().\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Qp3vZmf4Z7EDq4zKUvfDfJ\n\n* chore(website): Regenerate playground editor types\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01Qp3vZmf4Z7EDq4zKUvfDfJ\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-05T20:40:43-04:00",
+          "tree_id": "56f1fea2096a6327d7cd6bca34e229ddfe945a04",
+          "url": "https://github.com/reactive/data-client/commit/46f1f24bcb04824805747ed2a1effe7baece337c"
+        },
+        "date": 1791247440207,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 138.89,
+            "range": "± 5.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 42.64,
+            "range": "± 5.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 322.58,
+            "range": "± 7.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 322.58,
+            "range": "± 7.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 45.15,
+            "range": "± 8.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 289.92,
+            "range": "± 6.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 277.78,
+            "range": "± 8.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 8.31,
+            "range": "± 9.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 76.63,
+            "range": "± 11.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 34.9,
+            "range": "± 5.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 200,
+            "range": "± 6.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 270.27,
+            "range": "± 5.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 158.73,
+            "range": "± 9.2%",
             "unit": "ops/s"
           }
         ]
