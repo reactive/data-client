@@ -96,11 +96,9 @@
   --pg-tab-selected: #e3e8f2;
   --pg-tab-selected-bg: var(--monoco-code-background);
 }
-/* Dark mode: the editor column sits a step above the code, darker than the
-   neutral preview headers, so the two sides read apart without a divider */
-:root[data-theme='dark']
-  .playgroundContainer:not(.endpointPlayground)
-  .playgroundTextEdit {
+/* Dark mode: the whole frame takes the code's indigo. Bars sit a step above
+   the code, and the preview a half step, so the top row reads as one band */
+:root[data-theme='dark'] .playgroundContainer:not(.endpointPlayground) {
   --pg-bar: hsl(229, 14%, 21%);
   --pg-tab-hover-bg: hsl(229, 14%, 26%);
 }
@@ -280,6 +278,27 @@ div.playgroundTextEdit > .playgroundHeader.subtabs {
   --pg-tab-selected: var(--pg-tab-hover);
 }
 
+:root[data-theme='dark'] .playgroundPreview {
+  --pg-preview-bg: hsl(229, 17%, 19%);
+  background-color: var(--pg-preview-bg);
+  /* Controls read these for fills and borders: wells in the code color */
+  --ifm-background-surface-color: var(--monoco-code-background);
+  --ifm-color-emphasis-400: hsl(229, 12%, 31%);
+}
+/* DesignSystem gives dark fields a neutral emphasis-100 fill instead */
+:root[data-theme='dark']
+  .playgroundPreview
+  :global(.rt-TextFieldRoot:not(.small)),
+:root[data-theme='dark'] .playgroundPreview :global(.rt-TextAreaRoot) {
+  background-color: var(--monoco-code-background);
+}
+/* The floating label straddles the field's top edge, so it blends into both */
+:root[data-theme='dark'] .playgroundPreview :global(.rt-TextFieldLabel) {
+  background: linear-gradient(
+    var(--pg-preview-bg) 50%,
+    var(--monoco-code-background) 50%
+  );
+}
 :root .playgroundPreview {
   --ifm-heading-margin-bottom: 0.3ex;
   --ifm-heading-font-weight: 500;
