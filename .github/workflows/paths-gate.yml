@@ -27,6 +27,8 @@ jobs:
           # The caller's push `paths` (github.workflow_ref names the caller)
           workflow="${GITHUB_WORKFLOW_REF#*/*/}"
           mapfile -t paths < <(yq -r '.on.push.paths[]' "${workflow%@*}")
+          # Unlike GitHub `paths`, git excludes apply regardless of order, so a
+          # later pattern can't re-include an excluded path
           pathspecs=()
           for p in "${paths[@]}"; do
             if [[ "$p" == '!'* ]]; then pathspecs+=(":(exclude,glob)${p:1}"); else pathspecs+=(":(glob)$p"); fi
