@@ -246,7 +246,28 @@ scen.setUpdaters = () => {
   return s + '}\n';
 };
 
-// 10. path types vs their frozen pre-#4173 implementation (a type error is a mismatch)
+// 10. prepareStore()'s redux Store passed to react-redux's Provider and ExternalDataProvider
+scen.redux = () => {
+  let s = `import { Controller, getDefaultManagers } from '@data-client/react';
+import { prepareStore, ExternalDataProvider, initialState } from '@data-client/react/redux';
+import type { ProviderProps } from 'react-redux';
+declare function provide<A extends { type: string }, S>(props: ProviderProps<A, S>): void;
+`;
+  for (let i = 0; i < 100 * N; i++)
+    s += `export function store${i}() {
+  const reducers = { r${i}: (s: { n${i}: number } = { n${i}: 0 }, a: { type: string }) => s, list: (s: string[] = []) => s };
+  const { store, selector, controller } = prepareStore(initialState, getDefaultManagers(), Controller, reducers);
+  const n: number = store.getState().r${i}.n${i} + store.getState().list.length;
+  store.dispatch({ type: 'a${i}' });
+  provide({ store, children: null });
+  ExternalDataProvider({ store, selector, controller, children: null });
+  return n;
+}
+`;
+  return s;
+};
+
+// 11. path types vs their frozen pre-#4173 implementation (a type error is a mismatch)
 scen.patheq = patheq;
 
 /** Writes scenarios/<name>/ for the named fixtures (all when empty); returns the names */
