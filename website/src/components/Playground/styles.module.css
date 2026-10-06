@@ -590,6 +590,23 @@ div.fixtureJson {
   left: 0.75rem;
 }
 
+/* Live Preview label: a drawn dot renders the same on every OS, unlike 🔴 */
+.liveLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+}
+.liveDot {
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 50%;
+  flex: none;
+  /* keep the ring inside the header's padding */
+  margin-inline-start: 3px;
+  background: #ff5f56;
+  box-shadow: 0 0 0 3px rgba(255, 95, 86, 0.2);
+}
+
 /* Preview header badge (Playground `renderCount`) */
 .previewHeader {
   display: flex;
