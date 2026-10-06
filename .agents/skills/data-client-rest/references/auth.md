@@ -10,7 +10,7 @@ defined in your [RestEndpoint](./RestEndpoint.md).
 Here's an example using simple [cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies) auth by sending [fetch credentials](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#sending_a_request_with_credentials_included):
 
 ```ts title="AuthdEndpoint" {9}
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 
 export default class AuthdEndpoint<
   O extends RestGenerics = any,
@@ -269,9 +269,13 @@ We can transform any [Resource](./resource.md) into one that uses hooks to creat
 by using [hookifyResource](./hookifyResource.md)
 
 ```ts title="resources/Post.ts"
-import { resource, hookifyResource } from '@data-client/rest';
+import { Entity, resource, hookifyResource } from '@data-client/rest';
+import { useAuthContext } from '../AuthContext';
 
-// Post defined here
+class Post extends Entity {
+  id = '';
+  title = '';
+}
 
 export const PostResource = hookifyResource(
   resource({ path: '/posts/:id', schema: Post }),
@@ -303,6 +307,9 @@ function PostDetail({ id }) {
 > Using this means all endpoint calls must only occur during a function render.
 >
 > ```tsx
+> import { useController } from '@data-client/react';
+> import { PostResource } from './resources/Post';
+>
 > function CreatePost() {
 >   const controller = useController();
 >   const createPost = PostResource.useCreate();
@@ -341,7 +348,11 @@ export default class AuthdEndpoint<
 Next we will [extend](./RestEndpoint.md#extend) to generate a new endpoint with this context injected.
 
 ```tsx
-function useEndpoint(endpoint: RestEndpoint) {
+import { useMemo } from 'react';
+import type { IRestEndpoint } from '@data-client/rest';
+import { useAuthContext } from './AuthContext';
+
+function useEndpoint(endpoint: IRestEndpoint) {
   const accessToken = useAuthContext();
   return useMemo(
     () => endpoint.extend({ accessToken }),
@@ -355,6 +366,10 @@ function useEndpoint(endpoint: RestEndpoint) {
 > Using this means all endpoint calls must only occur during a function render.
 >
 > ```tsx
+> import { useController } from '@data-client/react';
+> import { PostResource } from './api/Post';
+> import { useEndpoint } from './useEndpoint';
+>
 > function CreatePost() {
 >   const controller = useController();
 >   const createPost = useEndpoint(PostResource.create);

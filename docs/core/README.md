@@ -98,8 +98,9 @@ Make your components reusable by binding the data [where you need it](./getting-
 
 :::react
 
-```tsx {4}
+```tsx {5}
 import { useSuspense } from '@data-client/react';
+import { getTodo } from './api/Todo';
 
 export default function TodoDetail({ id }: { id: number }) {
   const todo = useSuspense(getTodo, { id });
@@ -147,8 +148,10 @@ Avoid 100s of loading spinners by placing [AsyncBoundary](./api/AsyncBoundary.md
 
 Typically these are placed at or above navigational boundaries like pages, routes or modals.
 
-```tsx {5,8}
+```tsx {7,10}
 import { AsyncBoundary } from '@data-client/react';
+import AnotherRoute from './AnotherRoute';
+import TodoDetail from './TodoDetail';
 
 function App() {
   return (
@@ -319,8 +322,10 @@ We can [useController](./api/useController.md) to access it in :react[React]:vue
 
 ```tsx
 import { useController } from '@data-client/react';
+import { TodoResource } from './resources/Todo';
+import ArticleForm from './ArticleForm';
 
-function ArticleEdit() {
+function ArticleEdit({ id }: { id: number }) {
   const ctrl = useController();
   // highlight-next-line
   const handleSubmit = data =>
@@ -331,8 +336,10 @@ function ArticleEdit() {
 
 ```tsx
 import { useController } from '@data-client/react';
+import { TodoResource } from './resources/Todo';
+import ArticleForm from './ArticleForm';
 
-function ArticleEdit() {
+function ArticleEdit({ id }: { id: number }) {
   const ctrl = useController();
   // highlight-next-line
   const handleSubmit = data =>
@@ -398,8 +405,10 @@ function ArticleEdit() {
 
 ```tsx
 import { useController, useLoading } from '@data-client/react';
+import { TodoResource } from './resources/Todo';
+import ArticleForm from './ArticleForm';
 
-function ArticleEdit() {
+function ArticleEdit({ id }: { id: number }) {
   const ctrl = useController();
   // highlight-next-line
   const [handleSubmit, loading, error] = useLoading(
@@ -465,8 +474,10 @@ the variable `todos` will be typed precisely.
 
 :::react
 
-```tsx {4}
+```tsx {6}
 import { useSuspense } from '@data-client/react';
+import { TodoResource } from './resources/Todo';
+import TodoListItem from './TodoListItem';
 
 export default function TodoList() {
   const todos = useSuspense(TodoResource.getList);

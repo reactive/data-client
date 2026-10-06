@@ -55,7 +55,7 @@ export const getPosts = new RestEndpoint({
 ```
 
 ```tsx title="NewPost"
-import { useLoading } from '@data-client/react';
+import { useController, useLoading } from '@data-client/react';
 import { getPosts } from './getPosts';
 
 export default function NewPost({ author }: Props) {

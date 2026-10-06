@@ -215,8 +215,9 @@ Returns a `Promise` that resolves the next time the hook renders, commonly when 
 ## Examples
 
 ```typescript
-import { DataProvider } from '@data-client/react';
+import { useSuspense } from '@data-client/react';
 import { renderDataHook } from '@data-client/test';
+import { ArticleResource } from './resources/Article';
 
 const response = {
   id: 5,
@@ -226,7 +227,7 @@ const response = {
 };
 
 it('should resolve useSuspense()', async () => {
-  const { result, waitFor } = renderDataHook(
+  const { result, waitFor, controller } = renderDataHook(
     () => {
       return useSuspense(ArticleResource.get, response);
     },

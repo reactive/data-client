@@ -86,6 +86,7 @@ export const getPrice = new RestEndpoint({
 ```
 
 ```tsx title="PricePage"
+import { useSuspense } from '@data-client/react';
 import { getPrice } from './api/Price';
 
 function PricePage() {
@@ -96,9 +97,7 @@ function PricePage() {
     <div>
       ${currentPrice.price.toFormat(2)} as of{' '}
       <time>
-        {DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
-          currentPrice.updatedAt,
-        )}
+        {currentPrice.updatedAt.toLocaleString('en-US', { dateStyle: 'medium' })}
       </time>
     </div>
   );
@@ -218,8 +217,9 @@ export const getTicker = new RestEndpoint({
 });
 ```
 
-```tsx title="AssetPrice" {5}
+```tsx title="AssetPrice" {6}
 import { useLive } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
 import { getTicker } from './Ticker';
 
 function AssetPrice({ productId }: Props) {

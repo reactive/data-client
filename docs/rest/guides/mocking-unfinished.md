@@ -13,6 +13,7 @@ you won't need to make major changes to your code.
 
 ```typescript title="resources/Rating"
 import { Entity, resource } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class Rating extends Entity {
   id = '';
@@ -37,7 +38,7 @@ export const RatingResource = resource({
       return Promise.resolve(
         ['Morningstar', 'Seekingalpha', 'Morningstar', 'CNBC'].map(author => ({
           id: `${Math.random()}`,
-          rating: randomFloatInRange(2, 5).toFixed(1),
+          rating: (2 + Math.random() * 3).toFixed(1),
           author,
           date: '1990-01-01T00:00:00Z',
         })),
@@ -48,6 +49,7 @@ export const RatingResource = resource({
 ```
 
 ```tsx title="Demo" collapsed
+import { useSuspense } from '@data-client/react';
 import { RatingResource } from './resources/Rating';
 
 function Demo() {
@@ -58,9 +60,7 @@ function Demo() {
         <div key={rating.pk()}>
           {rating.author}: {rating.rating}{' '}
           <time>
-            {DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
-              rating.date,
-            )}
+            {rating.date.toLocaleString('en-US', { dateStyle: 'medium' })}
           </time>
         </div>
       ))}

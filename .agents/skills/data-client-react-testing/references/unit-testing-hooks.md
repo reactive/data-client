@@ -58,7 +58,9 @@ require('whatwg-fetch');
 
 ```typescript
 import nock from 'nock';
+import { useSuspense } from '@data-client/react';
 import { renderDataHook } from '@data-client/test';
+import { ArticleResource } from '../resources/Article';
 
 describe('useSuspense()', () => {
   beforeEach(() => {
@@ -96,8 +98,10 @@ describe('useSuspense()', () => {
 
 ```typescript
 import nock from 'nock';
+import { useSuspense } from '@data-client/react';
 import { makeRenderDataHook } from '@data-client/test';
 import { DataProvider } from '@data-client/react/redux';
+import { ArticleResource } from '../resources/Article';
 
 describe('useSuspense()', () => {
   let renderDataHook: ReturnType<typeof makeRenderDataHook>;

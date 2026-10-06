@@ -17,6 +17,7 @@ npm install @data-client/react @data-client/test @data-client/rest
 ```tsx title="index.tsx"
 import { DataProvider } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
+import App from './App';
 
 createRoot(document.body).render(
   <DataProvider>
@@ -32,6 +33,7 @@ Alternatively [integrate state with redux](https://dataclient.io/docs/guides/red
 ```tsx title="index.tsx"
 import { DataProvider } from '@data-client/react';
 import { AppRegistry } from 'react-native';
+import App from './App';
 
 const Root = () => (
   <DataProvider>

@@ -96,6 +96,8 @@ const { data } = await getUser('1');
 <EndpointPlayground input="https://api.example.com/users/1" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}} status={200} response={{ "id": "1", "username": "alice", "email": "alice@example.com" }}>
 
 ```ts title="User" collapsed
+import { Entity } from '@data-client/rest';
+
 export default class User extends Entity {
   id = '';
   username = '';
@@ -153,6 +155,8 @@ export const createPost = (data: any) => api.post('/posts', data);
 <EndpointPlayground input="https://api.example.com/posts/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'X-API-Key': 'my-key'}}} status={200} response={{ "id": "1", "title": "Hello World", "body": "First post" }}>
 
 ```ts title="Post" collapsed
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -225,6 +229,8 @@ export const createPost = (data: { title: string; body: string }) =>
 <EndpointPlayground input="https://api.example.com/posts" init={{method: 'POST', headers: {'Content-Type': 'application/json'}, body: '{"title":"New Post","body":"Content"}'}} status={201} response={{ "id": "2", "title": "New Post", "body": "Content" }}>
 
 ```ts title="Post" collapsed
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -392,6 +398,8 @@ The [`useCancelling()`](/docs/api/useCancelling) hook automatically cancels in-f
 ```tsx
 import { useSuspense } from '@data-client/react';
 import { useCancelling } from '@data-client/react';
+import { searchEndpoint } from './api/search';
+import ResultsList from './ResultsList';
 
 function SearchResults({ query }: { query: string }) {
   const results = useSuspense(

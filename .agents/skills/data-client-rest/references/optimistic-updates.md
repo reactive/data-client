@@ -56,7 +56,7 @@ export default function TodoItem({ todo }: { todo: Todo }) {
           checked={todo.completed}
           onChange={handleChange}
         />
-        {todo.completed ? <strike>{todo.title}</strike> : todo.title}
+        {todo.completed ? <s>{todo.title}</s> : todo.title}
       </label>
       <CancelButton onClick={handleDelete} />
     </div>
@@ -221,7 +221,8 @@ export const increment = new RestEndpoint({
 ```
 
 ```tsx title="CounterPage"
-import { useLoading } from '@data-client/react';
+import React from 'react';
+import { useController, useSuspense, useLoading } from '@data-client/react';
 import { getCount } from './count';
 import { increment } from './increment';
 
@@ -384,7 +385,8 @@ export const increment = new RestEndpoint({
 ```
 
 ```tsx title="CounterPage"
-import { useLoading } from '@data-client/react';
+import React from 'react';
+import { useController, useSuspense, useLoading } from '@data-client/react';
 import { getCount } from './count';
 import { increment } from './increment';
 

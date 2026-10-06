@@ -135,7 +135,7 @@ export const UserResource = resource({
 :::react
 
 ```tsx title="UsersPage" {22}
-import { Query } from '@data-client/rest';
+import { All, Query } from '@data-client/rest';
 import { useQuery, useFetch } from '@data-client/react';
 import { UserResource, User } from './UserResource';
 
@@ -274,7 +274,8 @@ export const DepartmentResource = resource({
 
 :::react
 
-```tsx title="DepartmentsPage" {7}
+```tsx title="DepartmentsPage" {8}
+import { All } from '@data-client/rest';
 import { useQuery, useFetch } from '@data-client/react';
 import { DepartmentResource, Department } from './Resources';
 

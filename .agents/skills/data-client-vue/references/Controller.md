@@ -94,9 +94,9 @@ the response or error upon completion.
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
   import { useRouter } from 'vue-router';
-  import { PostResource } from './PostResource';
+  import { Post, PostResource } from './PostResource';
 
-  const props = defineProps<{ post: PostResource }>();
+  const props = defineProps<{ post: Post }>();
   const ctrl = useController();
   const router = useRouter();
 

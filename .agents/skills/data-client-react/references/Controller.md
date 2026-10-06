@@ -47,13 +47,16 @@ the response or error upon completion.
 **Create**
 
 ```tsx
+import { useController } from '@data-client/react';
+import { PostResource } from './PostResource';
+
 function CreatePost() {
   const ctrl = useController();
 
   return (
     <form
       onSubmit={e =>
-        ctrl.fetch(PostResource.getList.push, new FormData(e.target))
+        ctrl.fetch(PostResource.getList.push, new FormData(e.currentTarget))
       }
     >
       {/* ... */}
@@ -65,13 +68,16 @@ function CreatePost() {
 **Update**
 
 ```tsx
+import { useController } from '@data-client/react';
+import { PostResource } from './PostResource';
+
 function UpdatePost({ id }: { id: string }) {
   const ctrl = useController();
 
   return (
     <form
       onSubmit={e =>
-        ctrl.fetch(PostResource.update, { id }, new FormData(e.target))
+        ctrl.fetch(PostResource.update, { id }, new FormData(e.currentTarget))
       }
     >
       {/* ... */}
@@ -83,13 +89,19 @@ function UpdatePost({ id }: { id: string }) {
 **Delete**
 
 ```tsx
-function PostListItem({ post }: { post: PostResource }) {
+import { useController } from '@data-client/react';
+import { useCallback } from 'react';
+import { useNavigate } from 'react-router';
+import { Post, PostResource } from './PostResource';
+
+function PostListItem({ post }: { post: Post }) {
   const ctrl = useController();
+  const navigate = useNavigate();
 
   const handleDelete = useCallback(
     async e => {
       await ctrl.fetch(PostResource.delete, { id: post.id });
-      history.push('/');
+      navigate('/');
     },
     [ctrl, post.id],
   );
@@ -173,15 +185,18 @@ when there are many parameterizations in cache.
 
 ```tsx
 import { type Controller, useController } from '@data-client/react';
+import { AccountResource, TradeResource, type Trade } from './resources';
+import { Form, FormField } from './Form';
 
-const createTradeHandler = (ctrl: Controller) => async trade => {
-  await ctrl.fetch(TradeResource.getList.push, { user: user.id }, trade);
-  ctrl.expireAll(AccountResource.get);
-  ctrl.expireAll(AccountResource.getList);
-};
+const createTradeHandler =
+  (ctrl: Controller, userId: string) => async (trade: Trade) => {
+    await ctrl.fetch(TradeResource.getList.push, { user: userId }, trade);
+    ctrl.expireAll(AccountResource.get);
+    ctrl.expireAll(AccountResource.getList);
+  };
 
-function CreateTrade({ id }: { id: string }) {
-  const handleTrade = createTradeHandler(useController());
+function CreateTrade({ userId }: { userId: string }) {
+  const handleTrade = createTradeHandler(useController(), userId);
 
   return (
     <Form onSubmit={handleTrade}>
@@ -204,6 +219,9 @@ Forces refetching and suspenseon [useSuspense](./useSuspense.md) with the same E
 and parameters.
 
 ```tsx
+import { useController, useSuspense } from '@data-client/react';
+import { ArticleResource } from './ArticleResource';
+
 function ArticleName({ id }: { id: string }) {
   const article = useSuspense(ArticleResource.get, { id });
   const ctrl = useController();
@@ -241,6 +259,9 @@ function ArticleName({ id }: { id: string }) {
 [Invalidates](https://dataclient.io/docs/concepts/expiry-policy#invalid) all [endpoint keys](https://dataclient.io/rest/api/RestEndpoint#key) matching `testKey`.
 
 ```tsx
+import { useController, useSuspense } from '@data-client/react';
+import { ArticleResource } from './ArticleResource';
+
 function ArticleName({ id }: { id: string }) {
   const article = useSuspense(ArticleResource.get, { id });
   const ctrl = useController();
@@ -284,6 +305,7 @@ import {
   getDefaultManagers,
 } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
+import App from './App';
 import { unAuth } from '../authentication';
 
 const myDomain = 'http://test.com';
@@ -317,6 +339,7 @@ import {
   getDefaultManagers,
 } from '@data-client/react';
 import { AppRegistry } from 'react-native';
+import App from './App';
 import { unAuth } from '../authentication';
 
 const myDomain = 'http://test.com';
@@ -432,6 +455,11 @@ Resets/clears the entire Reactive Data Client cache. All inflight requests will 
 This is typically used when logging out or changing authenticated users.
 
 ```tsx
+import { useController, useSuspense } from '@data-client/react';
+import { useCallback } from 'react';
+import { CurrentUserResource } from './CurrentUserResource';
+import { impersonateUser } from './auth';
+
 const USER_NUMBER_ONE: string = '1111';
 
 function UserName() {
@@ -565,6 +593,7 @@ export const newPrices = () =>
 ```
 
 ```tsx title="PriceStream"
+import React from 'react';
 import { useController, useQuery } from '@data-client/react';
 import { Ticker, newPrices } from './Ticker';
 
@@ -611,20 +640,24 @@ Any components suspending for the given [Endpoint](https://dataclient.io/rest/ap
 If data already exists for the given [Endpoint](https://dataclient.io/rest/api/Endpoint) and args, it will be updated.
 
 ```tsx
-const ctrl = useController();
+import { useController } from '@data-client/react';
+import { useEffect } from 'react';
+import { EndpointLookup } from './EndpointLookup';
 
-useEffect(() => {
-  const websocket = new Websocket(url);
+function useWebsocketUpdates(url: string) {
+  const ctrl = useController();
 
-  websocket.onmessage = event =>
-    ctrl.setResponse(
-      EndpointLookup[event.endpoint],
-      ...event.args,
-      event.data,
-    );
+  useEffect(() => {
+    const websocket = new WebSocket(url);
 
-  return () => websocket.close();
-});
+    websocket.onmessage = event => {
+      const { endpoint, args, data } = JSON.parse(event.data);
+      ctrl.setResponse(EndpointLookup[endpoint], ...args, data);
+    };
+
+    return () => websocket.close();
+  }, [ctrl, url]);
+}
 ```
 
 This shows a proof of concept in React; however a [Manager websockets implementation](https://dataclient.io/docs/concepts/managers#data-stream)
@@ -653,13 +686,27 @@ Marks a new subscription to a given [Endpoint](https://dataclient.io/rest/api/En
 This might be useful for custom hooks to sub/unsub based on other factors.
 
 ```tsx
-const controller = useController();
-const key = endpoint.key(...args);
+import {
+  useController,
+  type EndpointInterface,
+  type FetchFunction,
+  type Schema,
+} from '@data-client/react';
+import { useEffect } from 'react';
 
-useEffect(() => {
-  controller.subscribe(endpoint, ...args);
-  return () => controller.unsubscribe(endpoint, ...args);
-}, [controller, key]);
+function useSubscribe<
+  E extends EndpointInterface<FetchFunction, Schema | undefined, false | undefined>,
+>(endpoint: E, ...args: readonly [...Parameters<E>]) {
+  const controller = useController();
+  const key = endpoint.key(...args);
+
+  useEffect(() => {
+    controller.subscribe(endpoint, ...args);
+    return () => {
+      controller.unsubscribe(endpoint, ...args);
+    };
+  }, [controller, key]);
+}
 ```
 
 ### unsubscribe(endpoint, ...args) {#unsubscribe}
@@ -822,28 +869,35 @@ Gets the internal state of Reactive Data Client that has _already been [committe
 > Using getState() in React's render lifecycle can result in data tearing.
 
 ```tsx
-const controller = useController();
+import { useController } from '@data-client/react';
+import { useCallback } from 'react';
+import { MyResource } from './resources/MyResource';
+import { redirect } from './routing';
 
-const updateHandler = useCallback(
-  async updatePayload => {
-    const response = await controller.fetch(
-      MyResource.update,
-      { id },
-      updatePayload,
-    );
-    // the fetch has completed, but react has not yet re-rendered
-    // this lets use sequence after the next re-render
-    // we're working on a better solution to this specific case
-    setTimeout(() => {
-      const { data: denormalized } = controller.getResponse(
+function useUpdateHandler(id: string) {
+  const controller = useController();
+
+  return useCallback(
+    async updatePayload => {
+      const response = await controller.fetch(
         MyResource.update,
         { id },
         updatePayload,
-        controller.getState(),
       );
-      redirect(denormalized.getterUrl);
-    }, 40);
-  },
-  [id],
-);
+      // the fetch has completed, but react has not yet re-rendered
+      // this lets use sequence after the next re-render
+      // we're working on a better solution to this specific case
+      setTimeout(() => {
+        const { data: denormalized } = controller.getResponse(
+          MyResource.update,
+          { id },
+          updatePayload,
+          controller.getState(),
+        );
+        redirect(denormalized.getterUrl);
+      }, 40);
+    },
+    [id],
+  );
+}
 ```

@@ -92,6 +92,9 @@ class Presentation extends Entity {
 :::react
 
 ```tsx
+import { useSuspense } from '@data-client/react';
+import { getPresentations } from './api/Presentation';
+
 export function PresentationsPage() {
   const presentation = useSuspense(getPresentations);
   return presentation.map(presentation => (
@@ -170,6 +173,9 @@ const todoCreate = new RestEndpoint({
 
 ```tsx
 import { useController } from '@data-client/react';
+import { todoCreate } from './api/Todo';
+import Form from './Form';
+import FormField from './FormField';
 
 export default function NewTodoForm() {
   const ctrl = useController();
@@ -230,7 +236,10 @@ const todoUpdate = new RestEndpoint({
 :::react
 
 ```tsx
-import { useController } from '@data-client/react';
+import { useController, useSuspense } from '@data-client/react';
+import { todoDetail, todoUpdate } from './api/Todo';
+import Form from './Form';
+import FormField from './FormField';
 
 export default function UpdateTodoForm({ id }: { id: number }) {
   const todo = useSuspense(todoDetail, { id });
@@ -302,6 +311,7 @@ const todoDelete = new RestEndpoint({
 
 ```tsx
 import { useController } from '@data-client/react';
+import { todoDelete, type Todo } from './api/Todo';
 
 export default function TodoWithDelete({ todo }: { todo: Todo }) {
   const ctrl = useController();

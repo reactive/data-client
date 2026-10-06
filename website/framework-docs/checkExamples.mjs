@@ -54,11 +54,12 @@ const FRAMEWORKS = {
     isApp: () => true,
     compiler: ['@typescript/native', 'bin/tsc'],
     jsx: 'react-jsx',
-    // `render()` mounts a playground's app
+    // `render()` mounts a playground's app, which can reset its errors with ResetableErrorBoundary
     globals: `import type { FC, ReactNode } from 'react';
 
 declare global {
   function render(app: ReactNode): void;
+  const ResetableErrorBoundary: FC<{ children: ReactNode }>;
 ${PLACEHOLDERS.map(name => `  const ${name}: FC<any>;`).join('\n')}
 }
 `,
@@ -129,14 +130,17 @@ function stub(clauses) {
     : []),
     ...[...new Set(names)].map(
       name =>
-        `declare const ${name}: any;\ntype ${name} = any;\nexport { ${name} };`,
+        `declare const ${name}: any;\ntype ${name}<A = any, B = any, C = any> = any;\nexport { ${name} };`,
     ),
   ].join('\n');
 }
 
+/** Hoisted for the website at a major the docs don't use (react-router 5) */
+const WRONG_VERSION = ['react-router', 'react-router-dom'];
 /** Whether an import has types here: its editor types, or its installed package */
 const installed = from =>
-  from.startsWith('@data-client/') ?
+  WRONG_VERSION.includes(from) ? false
+  : from.startsWith('@data-client/') ?
     fs.existsSync(path.join(PLAYGROUND, 'editor-types', `${from}.d.ts`))
   : fs.existsSync(
       path.join(
@@ -161,9 +165,9 @@ function examplesOf(framework) {
   const { own, isApp } = FRAMEWORKS[framework];
   const pkg = `@data-client/${framework}`;
   const checked = block =>
-    block.lang === 'html' ? framework === 'vue' && isVue(block) : (
-      Boolean(EXT[block.lang])
-    );
+    block.lang === 'html' ?
+      framework === 'vue' && isVue(block)
+    : Boolean(EXT[block.lang]);
   const examples = [];
   for (const doc of docs) {
     // only Vue renders a page that's just a `.vue.md` override
@@ -207,7 +211,7 @@ function check(framework, examples) {
   /** written file -> its fence */
   const sources = new Map();
   /** Imports with no types here: the app's own modules (`resources/Post`) and libraries we don't install */
-  const untyped = new Set();
+  const untyped = new Map();
   examples.forEach(({ doc, blocks, loose }, n) => {
     const dir = path.join(OUT, rel(doc).replace(/\.mdx?$/, ''), String(n));
     const files = new Map();
@@ -227,7 +231,7 @@ function check(framework, examples) {
       sources.set(file, block);
       for (const { clause, from } of importsOf(block.value)) {
         if (!isRelative(from)) {
-          if (!installed(from)) untyped.add(from);
+          if (!installed(from)) add(untyped, from, clause);
           continue;
         }
         if (!loose) continue;
@@ -254,7 +258,14 @@ function check(framework, examples) {
   fs.writeFileSync(path.join(OUT, 'globals.d.ts'), globals);
   fs.writeFileSync(
     path.join(OUT, 'untyped.d.ts'),
-    [...untyped].map(from => `declare module '${from}';\n`).join(''),
+    [...untyped]
+      .map(([from, clauses]) =>
+        // typed like a relative stub, so its imports work as types too
+        clauses.some(clause => clause.includes('*')) ?
+          `declare module '${from}';\n`
+        : `declare module '${from}' {\n${stub(clauses).replace(/^declare /gm, '')}\n}\n`,
+      )
+      .join(''),
   );
   fs.writeFileSync(
     path.join(OUT, 'tsconfig.json'),
@@ -327,8 +338,11 @@ function check(framework, examples) {
 
 const frameworks = process.argv.slice(2);
 let failed = false;
-for (const framework of frameworks.length ? frameworks : Object.keys(FRAMEWORKS)) {
-  if (!FRAMEWORKS[framework]) throw new Error(`Unknown framework: ${framework}`);
+for (const framework of frameworks.length ? frameworks : (
+  Object.keys(FRAMEWORKS)
+)) {
+  if (!FRAMEWORKS[framework])
+    throw new Error(`Unknown framework: ${framework}`);
   const { name } = FRAMEWORKS[framework];
   const examples = examplesOf(framework);
   const errors = check(framework, examples);
@@ -340,8 +354,6 @@ for (const framework of frameworks.length ? frameworks : Object.keys(FRAMEWORKS)
   } else console.log(`${examples.length} ${name} examples type-check.`);
 }
 if (failed) {
-  console.error(
-    'See "Code examples" in website/framework-docs/README.md.',
-  );
+  console.error('See "Code examples" in website/framework-docs/README.md.');
   process.exit(1);
 }

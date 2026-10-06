@@ -93,6 +93,7 @@ export default function UserDetail({ name }: { name: string }) {
 import { useSuspense } from '@data-client/react';
 import User from 'schema/User';
 import gql from 'schema/endpoint';
+import UserSummary from './UserSummary';
 
 const userList = gql.query(
   `{
@@ -136,6 +137,7 @@ suspends.
 <HooksPlayground>
 
 ```tsx
+import { useSuspense } from '@data-client/react';
 import { GQLEndpoint, GQLEntity } from '@data-client/graphql';
 
 const gql = new GQLEndpoint(
@@ -196,6 +198,7 @@ We're using [SWAPI](https://graphql.org/swapi-graphql) as our example, since it 
 ```tsx title="pages/CreateReview.tsx"
 import { useController } from '@data-client/react';
 import { GQLEndpoint, GQLEntity } from '@data-client/graphql';
+import { Form, FormField } from '../components/Form';
 
 const gql = new GQLEndpoint(
   'https://swapi-graphql.netlify.app/graphql',
@@ -222,9 +225,7 @@ const createReview = gql.mutation(
 export default function NewReviewForm() {
   const ctrl = useController();
   return (
-    <Form
-      onSubmit={e => ctrl.fetch(createReview, new FormData(e.target))}
-    >
+    <Form onSubmit={variables => ctrl.fetch(createReview, variables)}>
       <FormField name="ep" />
       <FormField name="review" type="compound" />
     </Form>
