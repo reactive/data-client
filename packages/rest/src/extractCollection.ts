@@ -20,6 +20,7 @@ export default function extractCollection<
   }
 }
 
+/** Searches wrappers like Query and Lazy through their `schema` (Entity classes have a `prototype`) */
 export type ExtractCollection<S extends Schema | undefined> =
   S extends (
     {
@@ -32,7 +33,8 @@ export type ExtractCollection<S extends Schema | undefined> =
   ) ?
     S
   : S extends schema.Object<infer T> ? ExtractObject<T>
-  : S extends schema.Query<infer Q, any> ? ExtractObject<{ schema: Q }>
+  : S extends { schema: infer Q; denormalize: any; prototype?: undefined } ?
+    ExtractObject<{ schema: Q }>
   : S extends Exclude<Schema, { [K: string]: any }> ? never
   : S extends { [K: string]: Schema } ? ExtractObject<S>
   : never;

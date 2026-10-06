@@ -2146,18 +2146,11 @@ it('content property: extend and subclass', () => {
   expect(subclassed.content).toBe('blob');
 });
 
-// --- Collection wrapped in Query ---
+// --- Collection wrapped in Query or Lazy ---
 () => {
   const getArticles = new RestEndpoint({
     path: '/:group/articles',
-    searchParams: {} as { orderBy?: keyof Article },
-    schema: new schema.Query(
-      new Collection([Article], { nonFilterArgumentKeys: /orderBy/ }),
-      (articles, { orderBy = 'title' }: { orderBy?: keyof Article } = {}) =>
-        [...articles].sort((a, b) =>
-          String(a[orderBy]).localeCompare(String(b[orderBy])),
-        ),
-    ),
+    schema: new schema.Query(new Collection([Article]), articles => articles),
   });
   getArticles.push({ group: 'react' }, { title: 'hi' });
   getArticles.unshift({ group: 'react' }, { title: 'hi' });
@@ -2166,4 +2159,12 @@ it('content property: extend and subclass', () => {
   getArticles.push({ group: 'react' }, { title: 5 });
   // @ts-expect-error - group is required
   getArticles.push({ title: 'hi' });
+
+  const getLazyArticles = new RestEndpoint({
+    path: '/articles',
+    schema: new schema.Lazy(new Collection([Article])),
+  });
+  getLazyArticles.push({ title: 'hi' });
+  // @ts-expect-error - title must be a string
+  getLazyArticles.push({ title: 5 });
 };
