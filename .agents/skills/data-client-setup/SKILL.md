@@ -68,6 +68,8 @@ Protocol setup guides are bundled in this skill, but defining and using data aft
 | React (NextJS, Expo, React Native, plain React) | `data-client-react`, `data-client-react-testing` |
 | Vue | `data-client-vue`, `data-client-vue-testing` |
 | REST | `data-client-rest` |
+| GraphQL | None beyond Always (`data-client-schema` covers `@data-client/graphql`) |
+| Custom async | None beyond Always (`data-client-schema` covers `@data-client/endpoint`) |
 
 Use the installer that installed this skill. For OpenSkills and the skills CLI, add `-g` if this skill lives under your home directory rather than the project.
 
