@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791247641305,
+  "lastUpdate": 1791250335177,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -7751,6 +7751,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 165.3,
             "range": "± 9.7%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "31b182033106d5ce44352481577d3c321e39ebe9",
+          "message": "fix: Parse declarations on TypeScript 4.0–4.4 (#4232)\n\n* fix: Parse @data-client declarations on TypeScript 4.0-4.4\n\nEmit separate `import type` statements instead of inline `type`\nspecifiers, which TypeScript < 4.5 can't parse even with skipLibCheck.\nLint against inline type specifiers, type-check react subpaths and\n@data-client/test on every TS in CI, and add a Vue typetest (TS >= 4.5).\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01RcdHPq6pDjEct8MLnsMeSf\n\n* internal: Parse every published declaration on each matrix TypeScript\n\nCatches syntax newer than the supported TypeScript on entry points no\ntypetest imports. Also reuse the libcheck tsconfig for the Vue typetest\nand move the Vue TypeScript note into the TypeScript section.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01RcdHPq6pDjEct8MLnsMeSf\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-05T21:28:48-04:00",
+          "tree_id": "b2ac419b32f8ab9c003b6dd79c493ef37c062837",
+          "url": "https://github.com/reactive/data-client/commit/31b182033106d5ce44352481577d3c321e39ebe9"
+        },
+        "date": 1791250332116,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 132.46,
+            "range": "± 3.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 42.46,
+            "range": "± 4.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 322.58,
+            "range": "± 7.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 307.77,
+            "range": "± 6.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 38.91,
+            "range": "± 9.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 294.12,
+            "range": "± 4.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 303.03,
+            "range": "± 8.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 7.91,
+            "range": "± 9.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 74.07,
+            "range": "± 13.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 35.65,
+            "range": "± 4.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 200,
+            "range": "± 4.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 256.41,
+            "range": "± 4.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 166.67,
+            "range": "± 9.1%",
             "unit": "ops/s"
           }
         ]
