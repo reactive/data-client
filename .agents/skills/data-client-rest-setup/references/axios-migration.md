@@ -293,11 +293,11 @@ try {
 }
 ```
 
-[`NetworkError`](./RestEndpoint.md#fetchResponse) provides `.status` and `.response` (the raw [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) object). To read the body, use `await err.response.clone().json()` or `.text()` — always `.clone()` first, since a body can only be consumed once. For soft retries on server errors, see [`errorPolicy`](./RestEndpoint.md#errorpolicy).
+[`NetworkError`](./RestEndpoint.md#fetchResponse) provides `.status` and `.response` (the raw [Response](https://developer.mozilla.org/en-US/docs/Web/API/Response) object). For soft retries on server errors, see [`errorPolicy`](./RestEndpoint.md#errorpolicy).
 
 #### Server error messages
 
-Axios codebases commonly surface `error.response.data.error` or `.message` to the user. Read it from the `Response` body instead, once, in the base class's [`fetchResponse()`](./RestEndpoint.md#fetchResponse), so call sites don't need `try`/`catch`:
+Axios codebases commonly surface `error.response.data.error` or `.message` to the user. Read it from the `Response` body instead, once, in the base class's [`fetchResponse()`](./RestEndpoint.md#fetchResponse), so call sites get it from `error.message` without parsing the body:
 
 ```ts title="ApiEndpoint.ts"
 import {
@@ -489,8 +489,6 @@ export default class UploadEndpoint<
     return new Promise<Response>((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       const abort = () => xhr.abort();
-      const cleanup = () =>
-        init.signal?.removeEventListener('abort', abort);
       const abortError = () =>
         new DOMException('The operation was aborted.', 'AbortError');
       if (init.signal?.aborted) return reject(abortError());
@@ -503,11 +501,12 @@ export default class UploadEndpoint<
       new Headers(init.headers).forEach((value, key) =>
         xhr.setRequestHeader(key, value),
       );
+      xhr.onloadend = () =>
+        init.signal?.removeEventListener('abort', abort);
       xhr.upload.onprogress = e => {
         if (e.lengthComputable) this.onProgress?.(e.loaded / e.total);
       };
       xhr.onload = () => {
-        cleanup();
         const headers = new Headers();
         for (const line of xhr
           .getAllResponseHeaders()
@@ -528,14 +527,8 @@ export default class UploadEndpoint<
         if (response.ok) resolve(response);
         else reject(new NetworkError(response));
       };
-      xhr.onerror = () => {
-        cleanup();
-        reject(new TypeError('Network request failed'));
-      };
-      xhr.onabort = () => {
-        cleanup();
-        reject(abortError());
-      };
+      xhr.onerror = () => reject(new TypeError('Network request failed'));
+      xhr.onabort = () => reject(abortError());
       xhr.send(init.body as XMLHttpRequestBodyInit | null);
     });
   }
@@ -570,7 +563,7 @@ The codemod does **not** handle:
 
 - Interceptors — see [lifecycle methods](#interceptors--lifecycle-methods)
 - Error handling (`isAxiosError`, `error.response`) — see [error handling](#error-handling)
-- `timeout`, `cancelToken`, `responseType`, `paramsSerializer`, `auth`, `validateStatus`, `onUploadProgress` — see the [migration examples](#migration-examples) above
+- The rest of the [quick reference](#quick-reference) — see the [migration examples](#migration-examples) above
 - [Entity](https://dataclient.io/rest/api/Entity) schema definitions and converting call sites to hooks — see [below](#after-the-codemod)
 
 ### Finding remaining axios usage
@@ -655,7 +648,7 @@ If the codebase already validates responses with Zod or Yup, choose one approach
 
 ### Body typing
 
-Type the body of standalone `POST`/`PUT`/`PATCH` endpoints with `body: {} as BodyType`. Don't use `undefined as unknown as BodyType`: `RestEndpoint` uses the truthiness of [`body`](./RestEndpoint.md#body) to decide whether a body argument exists.
+Type the body of standalone `POST`/`PUT`/`PATCH` endpoints with `body: {} as BodyType`. Don't use `undefined as unknown as BodyType`: `RestEndpoint` treats [`body`](./RestEndpoint.md#body)`: undefined` as having no body argument.
 
 ```ts
 const createUser = new ApiEndpoint({

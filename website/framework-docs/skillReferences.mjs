@@ -17,6 +17,7 @@ import path from 'node:path';
 
 import { frameworkInstance } from './docsInstances.js';
 import { docToMarkdown, routeOf } from './docsToMarkdown.mjs';
+import { walk } from './index.js';
 import { ROOT, SITE, rel } from './site.mjs';
 
 const SKILLS = path.join(ROOT, '.agents/skills');
@@ -53,8 +54,7 @@ const localRoutesFor = (docs, framework) =>
   );
 
 /** Map of reference path -> content for one skill */
-function generateSkill(skillDir) {
-  const { frameworks, docs } = readManifest(skillDir);
+function generateSkill(skillDir, { frameworks, docs }) {
   const out = new Map();
   // framework that rendered each file
   const renderedBy = new Map();
@@ -129,8 +129,9 @@ function generatedFiles(dir) {
 const changes = [];
 for (const skill of fs.readdirSync(SKILLS).sort()) {
   const skillDir = path.join(SKILLS, skill);
-  if (!readManifest(skillDir)) continue;
-  const out = generateSkill(skillDir);
+  const manifest = readManifest(skillDir);
+  if (!manifest) continue;
+  const out = generateSkill(skillDir, manifest);
   const current = generatedFiles(path.join(skillDir, 'references'));
   for (const file of current.keys())
     if (!out.has(file)) changes.push([file, null]);
@@ -157,15 +158,15 @@ if (process.argv.includes('--check')) {
   console.log(`Updated ${changes.length} skill reference files.`);
 }
 
+/** A doc or reference's name without its framework variant suffix */
+const baseName = f =>
+  path.basename(f).replace(/(\.(react|vue))?\.mdx?$/, '.md');
+
 /** Reference name -> the doc it would render, to catch hand-written copies */
 const docNames = new Map(
-  fs
-    .readdirSync(path.join(ROOT, 'docs'), { recursive: true })
+  walk(path.join(ROOT, 'docs'))
     .filter(f => MD.test(f))
-    .map(f => [
-      path.basename(f).replace(/(\.(react|vue))?\.mdx?$/, '.md'),
-      rel(path.join(ROOT, 'docs', f)),
-    ]),
+    .map(f => [baseName(f), `docs/${f}`]),
 );
 
 /** Every reference file (repo-relative) -> whether it's generated */
@@ -192,7 +193,7 @@ const problems = fs.readdirSync(SKILLS).flatMap(skill => {
       .map(f => `${rel(refs)}/${f} is a symlink; add it to ${MANIFEST}`),
     // hand-written copies of docs drift from them
     ...files
-      .map(f => [f, docNames.get(f.replace(/\.(react|vue)\.md$/, '.md'))])
+      .map(f => [f, docNames.get(baseName(f))])
       .filter(
         ([f, doc]) => doc && !isLink(f) && !references.get(`${rel(refs)}/${f}`),
       )
