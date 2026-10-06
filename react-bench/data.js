@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791247442712,
+  "lastUpdate": 1791247641305,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -7649,6 +7649,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 158.73,
             "range": "± 9.2%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b55696c72ad3e73e0a2f50d3751c7104cd4ad9ee",
+          "message": "fix: Accept Controller subclasses in DataProvider and DataClientPlugin types (#4228)\n\n* fix: Accept Controller subclasses in DataProvider and DataClientPlugin types\n\nA plain `class MyController extends Controller` failed to type-check as\nthe Controller option, since `typeof Controller` has a generic\nconstructor. Type the option as a constructor taking { gcPolicy } and\nreturning a Controller, and drop the generic workaround in ActController.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01RQRrz45Jpij7MBho8N4Xj5\n\n* fix: Accept Controller subclasses in MockController(); blog entry\n\nAlso align the Controller option headings in the DataProvider and\nDataClientPlugin docs with their interface blocks.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01RQRrz45Jpij7MBho8N4Xj5\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-05T20:43:59-04:00",
+          "tree_id": "9dd4a7d841c65b6c1390cb46796fefb9a47747df",
+          "url": "https://github.com/reactive/data-client/commit/b55696c72ad3e73e0a2f50d3751c7104cd4ad9ee"
+        },
+        "date": 1791247638265,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 133.33,
+            "range": "± 4.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 45.05,
+            "range": "± 3.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 327.96,
+            "range": "± 8.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 333.33,
+            "range": "± 8.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 39.14,
+            "range": "± 8.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 357.14,
+            "range": "± 7.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 350.99,
+            "range": "± 10.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 9.38,
+            "range": "± 8.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 77.82,
+            "range": "± 14.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 37.38,
+            "range": "± 5.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 212.77,
+            "range": "± 6.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 294.12,
+            "range": "± 5.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 165.3,
+            "range": "± 9.7%",
             "unit": "ops/s"
           }
         ]
