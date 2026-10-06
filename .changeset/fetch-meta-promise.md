@@ -15,7 +15,10 @@ const track = () =>
 action.meta.promise.then(track, track);
 
 // After
-action.meta.promise.finally(() => {
-  trackTiming(action.endpoint.name, performance.now() - start);
-});
+action.meta.promise
+  .finally(() => {
+    trackTiming(action.endpoint.name, performance.now() - start);
+  })
+  // the fetch's caller handles errors; this only observes timing
+  .catch(() => {});
 ```
