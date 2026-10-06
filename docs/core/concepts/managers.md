@@ -147,9 +147,9 @@ export default class MetricsManager implements Manager {
   middleware: Middleware = controller => next => async action => {
     if (action.type === actionTypes.FETCH) {
       const start = performance.now();
-      const track = () =>
+      action.meta.promise.finally(() => {
         trackTiming(action.endpoint.name, performance.now() - start);
-      action.meta.promise.then(track, track);
+      });
     }
     return next(action);
   };
