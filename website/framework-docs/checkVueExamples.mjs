@@ -120,10 +120,13 @@ const examples = [];
 for (const doc of docs) {
   const blocks = docCodeBlocks(doc, 'vue')?.filter(checked);
   if (!blocks?.length) continue;
-  const playgrounds = Map.groupBy(
-    blocks.filter(b => b.playground),
-    b => b.playground,
-  );
+  // no Map.groupBy: website supports Node 18
+  const playgrounds = new Map();
+  for (const b of blocks.filter(b => b.playground))
+    playgrounds.set(b.playground, [
+      ...(playgrounds.get(b.playground) ?? []),
+      b,
+    ]);
   for (const group of playgrounds.values())
     if (group.some(isVue)) examples.push({ doc, blocks: group });
   // the page's titled blocks, for loose examples to import

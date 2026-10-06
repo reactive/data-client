@@ -693,9 +693,11 @@ export default class StreamManager implements Manager {
   middleware: Middleware = controller => {
     this.evtSource.onmessage = event => {
       try {
-        const msg = JSON.parse(event.data);
+        const msg: { type: string; args: [any]; data: any } = JSON.parse(
+          event.data,
+        );
         if (msg.type in this.entities)
-          controller.set(this.entities[msg.type], msg.args, msg.data);
+          controller.set(this.entities[msg.type], ...msg.args, msg.data);
       } catch (e) {
         console.error('Failed to handle message');
         console.error(e);
