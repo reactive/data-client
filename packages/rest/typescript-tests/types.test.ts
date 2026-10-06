@@ -2148,3 +2148,25 @@ it('content property: extend and subclass', () => {
   });
   expect(subclassed.content).toBe('blob');
 });
+
+// --- Collection wrapped in Query ---
+() => {
+  const getArticles = new RestEndpoint({
+    path: '/:group/articles',
+    searchParams: {} as { orderBy?: keyof Article },
+    schema: new schema.Query(
+      new Collection([Article], { nonFilterArgumentKeys: /orderBy/ }),
+      (articles, { orderBy = 'title' }: { orderBy?: keyof Article } = {}) =>
+        [...articles].sort((a, b) =>
+          String(a[orderBy]).localeCompare(String(b[orderBy])),
+        ),
+    ),
+  });
+  getArticles.push({ group: 'react' }, { title: 'hi' });
+  getArticles.unshift({ group: 'react' }, { title: 'hi' });
+  getArticles.remove({ group: 'react' }, { id: 5 });
+  // @ts-expect-error - title must be a string
+  getArticles.push({ group: 'react' }, { title: 5 });
+  // @ts-expect-error - group is required
+  getArticles.push({ title: 'hi' });
+};

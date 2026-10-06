@@ -1472,7 +1472,9 @@ type ExtractCollection<S extends Schema | undefined> = S extends ({
     assign: any;
     remove: any;
     schema: Schema;
-}) ? S : S extends Object$1<infer T> ? ExtractObject<T> : S extends Exclude<Schema, {
+}) ? S : S extends Object$1<infer T> ? ExtractObject<T> : S extends Query<infer Q, any> ? ExtractObject<{
+    schema: Q;
+}> : S extends Exclude<Schema, {
     [K: string]: any;
 }> ? never : S extends {
     [K: string]: Schema;
