@@ -113,12 +113,16 @@ CI convergence targets: 2% (small scenarios), 3% (large scenarios). Reported mar
 
 ## Reading the CI comment
 
-The "Benchmark React" PR comment (and the Node "Benchmark" and "Benchmark Spread" comments) compares one run on one GitHub `ubuntu-latest` runner against the last stored master run, which ran on a different runner, usually on a different day. The variance numbers above are same-machine; the comment is not.
+The "Benchmark React", "Benchmark", and "Benchmark Spread" PR comments compare one GitHub runner against the last master run on another, so runner speed alone can shift a whole run by up to ~1.7×. The thresholds above and the comment's ± ranges hold only within one machine.
 
-- **Runner speed varies a lot.** Across 56 PR runs on 9 PRs, runners fell into a fast and a slow group about 1.4× apart, and master's own stored runs span about 1.7×. A ratio of 1.25–1.35 against one baseline is within that noise. The ± ranges in the comment only reflect variation within one runner.
-- **Signs it's the runner, not the code:** every suite moves together, including paths the PR doesn't touch; the React and Node comments move in opposite directions; the job's "Build packages" step is longer or shorter in step with the slowdown.
-- **To check a suspected regression**, run an interleaved A/B on one machine: build base and PR in two worktrees ([Running locally](#running-locally)), serve each with `preview` on its own `BENCH_PORT`, then alternate `CI=true yarn bench` runs (base, PR, base, PR, …, 5+ rounds) and compare medians.
-- **Known gaps:** no CPU fingerprint is logged, `taskset -c 0,1` may land on two hyperthreads of one core, and the path filter misses some bundled code (`packages/rest/src`, most of `packages/endpoint/src`), so the stored master baseline can lag.
+| Comment shows | Do |
+|---|---|
+| Every suite shifts together, React and Node comments disagree, or "Build packages" time moved with the scores | Treat as runner noise |
+| Only suites on code the PR changes shift | Run an A/B |
+
+A/B: build base and PR in separate worktrees (`yarn build:benchmark-react` or `yarn build:benchmark`); for React, serve each with `BENCH_PORT=<port> yarn workspace example-benchmark-react preview`. Alternate base and PR for 5+ rounds (`CI=true BENCH_PORT=<port> yarn bench` or `yarn workspace example-benchmark start <suite> [filter]`) and compare medians; interleaving cancels machine drift.
+
+The path filter skips `packages/rest/src` and most of `packages/endpoint/src`, so for changes there the stored baseline may predate master.
 
 ## Adding a new library
 

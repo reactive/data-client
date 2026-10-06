@@ -99,9 +99,7 @@ BENCH_V8_TRACE=true yarn workspace example-benchmark-react bench --scenario upda
 - **Schema changes** (Entity, Query, All): Run both — Node benchmark for raw throughput, React benchmark for rendering impact.
 - **Performance investigation**: Start with Node benchmark to isolate the JS layer, then validate with React benchmark for end-to-end confirmation.
 
-### Reading CI benchmark comments
-
-The "Benchmark React", "Benchmark", and "Benchmark Spread" PR comments compare one run on one `ubuntu-latest` runner against the last stored master run from a different runner and day. Runners differ by about 1.4× and master's own history spans about 1.7×, so a 1.25–1.35 ratio is noise, and the variance tables and thresholds in this file only apply to same-machine comparisons. Before calling a regression, check the signs listed in `@examples/benchmark-react/README.md` ("Reading the CI comment") and confirm with an interleaved base-vs-PR A/B on one machine.
+Before acting on a CI benchmark comment, follow "Reading the CI comment" in `@examples/benchmark-react/README.md`; the variance thresholds in this file hold only within one machine.
 
 ---
 
