@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791246173297,
+  "lastUpdate": 1791246368678,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -7343,6 +7343,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 168.08,
             "range": "± 10.0%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a403df8f22dadb0dbd9a6cf72a65f9187ae63176",
+          "message": "docs(rest): Make SchemaSimple page concise and human-oriented (#4224)\n\n* docs(rest): Make SchemaSimple page concise and human-oriented\n\nCut library-internal implementation snippets, replace per-member delegate\nsections with tables, lead with a realistic args-dependent schema, and add\nverified caveats (primitives skip normalize, entity-like requirements,\nDepthLimited memoization). Fix maxEntityDepth default (64, not 128) in\nEntity docs and JSDoc.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01HcaXWVmRV1cJxpNfotPufC\n\n* docs(rest): Address review on SchemaSimple wording; add maxEntityDepth changeset\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01HcaXWVmRV1cJxpNfotPufC\n\n* docs(website): Redirect old /rest/api/CustomSchema URL to SchemaSimple\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01HcaXWVmRV1cJxpNfotPufC\n\n* docs(rest): Point SchemaSimple to Schema Overview instead of its own table\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01HcaXWVmRV1cJxpNfotPufC\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-05T20:20:49-04:00",
+          "tree_id": "eb28d5d111b55ef4ff1e1f01870edc6bea4b11e5",
+          "url": "https://github.com/reactive/data-client/commit/a403df8f22dadb0dbd9a6cf72a65f9187ae63176"
+        },
+        "date": 1791246366056,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 140.85,
+            "range": "± 4.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 43.86,
+            "range": "± 4.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 350.99,
+            "range": "± 7.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 357.14,
+            "range": "± 9.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 42.51,
+            "range": "± 9.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 312.5,
+            "range": "± 6.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 322.58,
+            "range": "± 6.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 9.31,
+            "range": "± 9.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 76.63,
+            "range": "± 14.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 36.3,
+            "range": "± 5.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 215.08,
+            "range": "± 4.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 294.12,
+            "range": "± 5.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 173.93,
+            "range": "± 10.5%",
             "unit": "ops/s"
           }
         ]
