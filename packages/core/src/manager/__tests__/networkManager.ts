@@ -1,4 +1,4 @@
-import { Endpoint } from '@data-client/endpoint';
+import { Endpoint, type EndpointInterface } from '@data-client/endpoint';
 import { Article, ArticleResource } from '__tests__/new';
 
 import { SET_RESPONSE } from '../../actionTypes';
@@ -423,7 +423,7 @@ describe('NetworkManager while the controller awaits init()', () => {
 
   async function start(
     nm: NetworkManager,
-    endpoint: ReturnType<typeof counted>['endpoint'],
+    endpoint: EndpointInterface<() => Promise<unknown>>,
     controller: Controller,
   ) {
     const action = createFetch(endpoint, { args: [] });
@@ -432,6 +432,7 @@ describe('NetworkManager while the controller awaits init()', () => {
       nm.middleware(controller)(() => Promise.resolve())(action),
     );
     await new Promise(resolve => setTimeout(resolve, 0));
+    return action;
   }
 
   function commit(nm: NetworkManager, controller: Controller) {
@@ -540,6 +541,45 @@ describe('NetworkManager while the controller awaits init()', () => {
     cleanup();
   });
 
+  it('schedules nothing from init() when nothing is parked', async () => {
+    const nm = new NetworkManager();
+    const { endpoint } = counted(() => new Promise(() => {}));
+    const controller = bind(jest.fn(() => Promise.resolve()));
+    await start(nm, endpoint, controller);
+    const resolveSpy = jest.spyOn(Promise, 'resolve');
+    try {
+      commit(nm, controller);
+      expect(resolveSpy).not.toHaveBeenCalled();
+    } finally {
+      resolveSpy.mockRestore();
+      nm.cleanup();
+    }
+  });
+
+  it('publishes a parked result that a middleware throws on as its error', async () => {
+    const failure = new Error('boom');
+    const a = new Endpoint(() => Promise.resolve(5), { name: 'A' });
+    const b = new Endpoint(() => Promise.resolve(6), { name: 'B' });
+    const nm = new NetworkManager();
+    let thrown = false;
+    const controller = bind(
+      jest.fn((action: SetResponseAction) => {
+        if (action.type === SET_RESPONSE && action.endpoint === a && !thrown) {
+          thrown = true;
+          throw failure;
+        }
+        return nm.middleware(controller)(() => Promise.resolve())(action);
+      }),
+    );
+    const fetchA = await start(nm, a, controller);
+    const fetchB = await start(nm, b, controller);
+    commit(nm, controller);
+    await expect(fetchA.meta.promise).rejects.toBe(failure);
+    await expect(fetchB.meta.promise).resolves.toBe(6);
+    expect(nm['fetching'].size).toBe(0);
+    nm.cleanup();
+  });
+
   it('does not park mutations', async () => {
     const { endpoint } = counted(() => Promise.resolve(5), true);
     const dispatch = jest.fn(() => Promise.resolve());
@@ -557,6 +597,19 @@ describe('NetworkManager while the controller awaits init()', () => {
     await start(nm, endpoint, controller);
     await nm.middleware(controller)(() => Promise.resolve())(createReset());
     commit(nm, controller);
+    await Promise.resolve();
+    expect(dispatch).not.toHaveBeenCalled();
+    nm.cleanup();
+  });
+
+  it('drops a parked result on a RESET between init() and its publish', async () => {
+    const { endpoint } = counted(() => Promise.resolve(5));
+    const dispatch = jest.fn(() => Promise.resolve());
+    const controller = bind(dispatch);
+    const nm = new NetworkManager();
+    await start(nm, endpoint, controller);
+    commit(nm, controller);
+    void nm.middleware(controller)(() => Promise.resolve())(createReset());
     await Promise.resolve();
     expect(dispatch).not.toHaveBeenCalled();
     nm.cleanup();

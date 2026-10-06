@@ -108,18 +108,39 @@ export default class NetworkManager implements Manager {
   /** On mount */
   init() {
     delete this.cleanupDate;
-    // init() can run inside the host's commit; publish after it so resolve() never re-enters it
-    Promise.resolve().then(() => {
-      // unmounted dispatch drops actions; leave results parked for the next init()
-      if (this.cleanupDate) return;
-      for (const meta of this.fetching.values()) {
-        if (meta.parked) {
-          const [endpoint, resolution] = meta.parked;
-          meta.parked = undefined;
-          this.controller.resolve(endpoint, resolution);
-        }
+    for (const meta of this.fetching.values()) {
+      if (meta.parked) {
+        // init() can run inside the host's commit, where resolve() overrides such as act() throw
+        Promise.resolve().then(() => this.publishParked());
+        return;
       }
-    });
+    }
+  }
+
+  /** Publishes parked results; scans again here so a RESET before this job drops them */
+  protected publishParked() {
+    // unmounted dispatch drops actions; leave results parked for the next init()
+    if (this.cleanupDate) return;
+    for (const meta of this.fetching.values()) {
+      if (!meta.parked) continue;
+      const [endpoint, resolution] = meta.parked;
+      meta.parked = undefined;
+      try {
+        this.controller.resolve(endpoint, resolution);
+      } catch (error) {
+        // same as an unparked settle: a failed publish becomes the fetch's error
+        if (!resolution.error)
+          try {
+            this.controller.resolve(endpoint, {
+              ...resolution,
+              response: error as Error,
+              error: true,
+            });
+          } catch {
+            // like throttle()'s fetch().catch(), a failed error publish has nowhere left to go
+          }
+      }
+    }
   }
 
   /** Ensures all promises are completed by rejecting remaining. */
