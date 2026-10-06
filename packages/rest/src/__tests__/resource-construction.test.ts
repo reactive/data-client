@@ -1177,6 +1177,9 @@ describe('resource()', () => {
       );
       expect(response.id).toEqual(3);
     });
+    // create takes FormData too
+    () =>
+      controller.fetch(TaskResource.create, { status: 'backlog' }, formData);
 
     // task should be removed from backlog
     expect(result.current.backlog).toHaveLength(1);
@@ -1190,47 +1193,6 @@ describe('resource()', () => {
 
     // entity should be updated
     expect(result.current.task3?.status).toEqual('in-progress');
-  });
-
-  it('create should accept FormData body', async () => {
-    class Task extends Entity {
-      readonly id: number | undefined = undefined;
-      readonly title: string = '';
-
-      pk() {
-        return this.id?.toString();
-      }
-    }
-
-    const TaskResource = resource({
-      path: 'http\\://test.com/tasks/:id',
-      schema: Task,
-    });
-
-    mynock.post(`/tasks`).reply(200, { id: 4, title: 'New Task' });
-
-    const { result, controller } = renderDataClient(
-      () => useCache(TaskResource.getList),
-      {
-        initialFixtures: [
-          {
-            endpoint: TaskResource.getList,
-            args: [],
-            response: [{ id: 1, title: 'Task 1' }],
-          },
-        ],
-      },
-    );
-
-    const formData = new FormData();
-    formData.append('title', 'New Task');
-
-    await act(async () => {
-      const response = await controller.fetch(TaskResource.create, formData);
-      expect(response.id).toEqual(4);
-    });
-
-    expect(result.current?.map(t => t.title)).toEqual(['Task 1', 'New Task']);
   });
 
   it('getList.move should work optimistically with path-based collections', async () => {
