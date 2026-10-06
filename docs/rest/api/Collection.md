@@ -65,7 +65,7 @@ import { Entity, RestEndpoint, Collection } from '@data-client/rest';
 
 export class Todo extends Entity {
   id = '';
-  userId = 0;
+  userId = '';
   title = '';
   completed = false;
 
@@ -228,7 +228,7 @@ render(<UserList />);
   import { type Todo } from './api/Todo';
   import NewTodo from './NewTodo.vue';
 
-  defineProps<{ todos: Todo[]; userId: string }>();
+  defineProps<{ todos: readonly Todo[]; userId: string }>();
 </script>
 
 <template>

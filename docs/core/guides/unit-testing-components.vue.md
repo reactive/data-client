@@ -37,6 +37,7 @@ import { mountDataClient } from '@data-client/vue/test';
 import { useSuspense } from '@data-client/vue';
 import { defineComponent, h } from 'vue';
 import { ArticleResource } from './resources';
+import { flushUntil } from './flushUntil';
 
 const ArticleDetail = defineComponent({
   props: { id: { type: Number, required: true } },

@@ -1,6 +1,5 @@
 ---
 title: Debugging with Chrome DevTools MCP
-sidebar_label: Chrome DevTools MCP
 ---
 
 Debug :react[`@data-client/react`]:vue[`@data-client/vue`] state and actions programmatically via [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp) `evaluate_script`. The app's [DevToolsManager](../api/DevToolsManager.md) exposes the [Controller](../api/Controller.md) on [`globalThis.__DC_CONTROLLERS__`](../api/DevToolsManager.md#controllers) (a `Map` keyed by `devtoolsName`) in dev mode.

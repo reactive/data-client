@@ -182,7 +182,7 @@ export const getFeed = new RestEndpoint({
       links: Link,
       posts: Post,
     },
-    (input: Link | Post, parent, key) => `${input.type}s`,
+    (input: Link | Post, parent: unknown, key: string) => `${input.type}s`,
   ),
 });
 ```

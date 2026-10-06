@@ -43,6 +43,7 @@ the input changes until the debounced value is updated.
 
 ```ts title="IssueQuery" collapsed
 import { RestEndpoint, Entity, Collection } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class Issue extends Entity {
   number = 0;

@@ -48,6 +48,7 @@ delay: () => 150,
 
 ```ts title="api/lastUpdated" collapsed
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -196,7 +197,8 @@ render(
 
   const fail = (action: 'fetch' | 'invalidate', status: number) => {
     getUpdated.FAKE_ERROR = createError(status);
-    ctrl[action](getUpdated, { id: '1' });
+    if (action === 'fetch') ctrl.fetch(getUpdated, { id: '1' });
+    else ctrl.invalidate(getUpdated, { id: '1' });
   };
 </script>
 

@@ -96,7 +96,7 @@ delay: 150,
 ]}>
 
 ```typescript title="resources/Post"
-import { Collection, Entity } from '@data-client/rest';
+import { Collection, Entity, resource } from '@data-client/rest';
 
 export class User extends Entity {
   id = '';
@@ -216,6 +216,8 @@ the relationship in [Entity.schema](../api/Entity.md#schema)
 <FrameworkPlayground>
 
 ```ts title="resources/User" collapsed
+import { Entity, resource } from '@data-client/rest';
+
 export class User extends Entity {
   id = 0;
   username = '';
@@ -231,6 +233,7 @@ export const UserResource = resource({
 ```
 
 ```ts title="resources/Todo"
+import { Entity, resource } from '@data-client/rest';
 import { User } from './User';
 
 export class Todo extends Entity {
@@ -442,7 +445,7 @@ delay: 150,
 ]}>
 
 ```typescript title="resources/Post"
-import { Collection, Entity } from '@data-client/rest';
+import { Entity, resource, type Schema } from '@data-client/rest';
 
 export class User extends Entity {
   id = '';

@@ -186,13 +186,18 @@ const text = value => ({ type: 'text', value });
 const paragraph = children => ({ type: 'paragraph', children });
 const html = value => ({ type: 'html', value });
 
-/** Code without Docusaurus-only syntax (highlight markers, display options) */
+/**
+ * Code without Docusaurus-only syntax (highlight markers, display options).
+ * `data.raw` keeps the fence's own lines, so the Vue example check can map
+ * errors back to them; `data.nocheck` marks fences that check skips.
+ */
 function codeBlock({ lang, value, title, meta = title && `title="${title}"` }) {
   return {
     type: 'code',
     lang: lang ?? null,
     meta:
-      meta?.replace(/\s*\b(collapsed|showLineNumbers)\b/g, '').trim() || null,
+      meta?.replace(/\s*\b(collapsed|showLineNumbers|nocheck)\b/g, '').trim() ||
+      null,
     value: value
       .split('\n')
       .filter(
@@ -201,6 +206,7 @@ function codeBlock({ lang, value, title, meta = title && `title="${title}"` }) {
       )
       .join('\n')
       .trim(),
+    data: { raw: value, nocheck: /\bnocheck\b/.test(meta ?? '') },
   };
 }
 const codeLang = attrs =>
@@ -269,8 +275,11 @@ function render(file, framework, props = {}) {
       case 'definition':
         node.url = routeLink(node.url, source, framework);
         break;
-      case 'code':
-        return [codeBlock(node)];
+      case 'code': {
+        const code = codeBlock(node);
+        code.data.line = node.position?.start.line;
+        return [code];
+      }
       case 'containerDirective': {
         if (!ADMONITIONS.includes(node.name)) break;
         const [first] = node.children;
@@ -343,7 +352,12 @@ function render(file, framework, props = {}) {
           .map(c => (c.type === 'JSXText' ? c.value : run(c.expression)))
           .join('');
         return [
-          codeBlock({ lang: codeLang(attrs), value, title: attrs.title }),
+          codeBlock({
+            lang: codeLang(attrs),
+            value,
+            title: attrs.title,
+            meta: attrs.metastring,
+          }),
         ];
       }
     }
@@ -367,6 +381,7 @@ function render(file, framework, props = {}) {
             lang: codeLang(attrs),
             value: jsxText(node.children, props, source),
             title: attrs.title,
+            meta: attrs.metastring,
           }),
         ];
       case 'ProviderSetupCode': {
@@ -451,7 +466,13 @@ function render(file, framework, props = {}) {
     if (INLINE[name] && !flow)
       return [{ type: INLINE[name], children: convertAll(node.children) }];
     // Playgrounds, layout and other wrappers: keep what's inside
-    return convertAll(node.children);
+    const children = convertAll(node.children);
+    // files of one playground make up one example app
+    if (name.endsWith('Playground'))
+      visit({ type: 'root', children }, 'code', code => {
+        code.data.playground = node;
+      });
+    return children;
   }
 
   /** A GFM table; row and column spans repeat the cell so each row stands alone */
@@ -504,6 +525,10 @@ function render(file, framework, props = {}) {
   }
 
   tree.children = convertAll(tree.children);
+  // partials already tagged their own
+  visit(tree, 'code', code => {
+    code.data.file ??= source;
+  });
   // absolute /docs links point at this framework's docs, as on the site
   if (framework === 'vue')
     remarkFramework({
@@ -513,6 +538,21 @@ function render(file, framework, props = {}) {
     })(tree);
   tree.title = frontMatterValue(content, 'title');
   return tree;
+}
+
+/**
+ * Code blocks of a doc for a framework, in page order, or undefined if the page isn't in it.
+ * Blocks from one playground share its `playground` node; `file` and `line` locate fences
+ * (blocks from `<CodeBlock>` only have `file`).
+ */
+export function docCodeBlocks(file, framework) {
+  const tree = render(file, framework);
+  if (!tree) return;
+  const blocks = [];
+  visit(tree, 'code', ({ lang, meta, value, data = {} }) => {
+    blocks.push({ lang, meta, value, ...data });
+  });
+  return blocks;
 }
 
 const FLOW_PARENTS = ['root', 'blockquote', 'listItem'];
