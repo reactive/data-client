@@ -38,28 +38,39 @@ const commitsAll =
     command.replace(/"(?:\\.|[^"\\])*"|'[^']*'/g, "''"),
   );
 
-/** Docs some skill renders; partials (`_foo.mdx`) may be inlined anywhere */
-let skillDocs;
+/** Docs some skill renders, and skills another bundles */
+let skillDocs, bundledSkills;
+function readManifests() {
+  const skills = path.join(projectDir, '.agents/skills');
+  const manifests = fs
+    .readdirSync(skills)
+    .map(skill => path.join(skills, skill, 'references.json'))
+    .filter(manifest => fs.existsSync(manifest))
+    .map(manifest => JSON.parse(fs.readFileSync(manifest, 'utf8')));
+  skillDocs = new Set(manifests.flatMap(({ docs }) => Object.values(docs)));
+  bundledSkills = new Set(manifests.flatMap(({ skills = [] }) => skills));
+}
+/** partials (`_foo.mdx`) may be inlined anywhere */
 function isSkillDoc(file) {
   if (!/^docs\/.*\.mdx?$/.test(file)) return false;
   if (path.basename(file).startsWith('_')) return true;
-  if (!skillDocs) {
-    const skills = path.join(projectDir, '.agents/skills');
-    skillDocs = new Set(
-      fs.readdirSync(skills).flatMap(skill => {
-        const manifest = path.join(skills, skill, 'references.json');
-        return fs.existsSync(manifest) ?
-            Object.values(JSON.parse(fs.readFileSync(manifest, 'utf8')).docs)
-          : [];
-      }),
-    );
-  }
+  if (!skillDocs) readManifests();
   return skillDocs.has(file.replace(/\.(react|vue)(\.mdx?)$/, '$2'));
+}
+/** any file of a bundled skill is copied into the skill bundling it */
+function isBundledSkillFile(file) {
+  const [, skill] = file.match(/^\.agents\/skills\/([^/]+)\//) ?? [];
+  if (!skill) return false;
+  if (!bundledSkills) readManifests();
+  return bundledSkills.has(skill);
 }
 const isSkillInput = file =>
   isSkillDoc(file) ||
   /^\.agents\/skills\/[^/]+\/(references\.json|SKILL\.md)$/.test(file) ||
-  file.startsWith('website/framework-docs/');
+  isBundledSkillFile(file) ||
+  file.startsWith('website/framework-docs/') ||
+  // symlinked into skills that others bundle
+  file.startsWith('website/static/codemods/');
 
 // files the branch changes relative to master and uncommitted ones; renames
 // as delete + add, so the old path counts too

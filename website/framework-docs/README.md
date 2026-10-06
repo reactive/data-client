@@ -153,6 +153,11 @@ workflow runs `yarn build:skills --check`, which also fails when a `SKILL.md` li
 `SKILL.md` never mentions. See `.cursor/rules/skills-sync.mdc` for what to update
 when docs are added, renamed or deleted.
 
+A `skills` list in `references.json` bundles other skills, so one skill works without the others
+installed (`data-client-setup` carries the REST, GraphQL and endpoint setup skills). Each bundled
+skill's `SKILL.md` body becomes `references/<skill>.md`, with its relative links pointing into
+`references/<skill>/`, which holds copies of its references and scripts.
+
 Prose only for readers of the site, such as how to install or run a skill, goes in `<SiteOnly>`
 (`@site/src/components/SiteOnly`, around blocks or inline): skill references drop it, so a skill
 never tells an agent to install the skill it's running (`llms.txt` keeps it). Content only agents need goes in `docs/core/_agents/`.

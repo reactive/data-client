@@ -8,6 +8,8 @@ on:
       - 'docs/**'
       - '.agents/skills/**'
       - 'website/framework-docs/**'
+      # symlinked into skills that others bundle
+      - 'website/static/codemods/**'
       - 'package.json'
       - 'website/package.json'
       - 'yarn.lock'
@@ -23,6 +25,8 @@ on:
       - 'docs/**'
       - '.agents/skills/**'
       - 'website/framework-docs/**'
+      # symlinked into skills that others bundle
+      - 'website/static/codemods/**'
       - 'package.json'
       - 'website/package.json'
       - 'yarn.lock'
