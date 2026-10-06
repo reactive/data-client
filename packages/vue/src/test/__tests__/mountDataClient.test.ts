@@ -1,5 +1,7 @@
 import { defineComponent, h, computed, watch, reactive, nextTick } from 'vue';
 
+import { NetworkManager } from '@data-client/core';
+
 import { CoolerArticleResource } from '../../../../../__tests__/new';
 import { mountDataClient } from '../mountDataClient';
 
@@ -155,6 +157,43 @@ describe('mountDataClient', () => {
       const result = await allSettled();
 
       expect(Array.isArray(result)).toBe(true);
+
+      cleanup();
+    });
+
+    it('allSettled() waits on a NetworkManager passed in managers', async () => {
+      const TestComponent = defineComponent({
+        name: 'TestComponent',
+        setup() {
+          return () => h('div', 'Test');
+        },
+      });
+
+      const { allSettled, controller, cleanup } = mountDataClient(
+        TestComponent,
+        {
+          managers: [new NetworkManager()],
+          resolverFixtures: [
+            {
+              endpoint: CoolerArticleResource.get,
+              response: ({ id }: { id: number }) => ({ ...payload, id }),
+              delay: 50,
+            },
+          ],
+        },
+      );
+
+      controller.fetch(CoolerArticleResource.get, { id: payload.id });
+      const results = await allSettled();
+
+      expect(results).toHaveLength(1);
+      expect(
+        controller.get(
+          CoolerArticleResource.get.schema,
+          { id: payload.id },
+          controller.getState(),
+        )?.title,
+      ).toBe(payload.title);
 
       cleanup();
     });

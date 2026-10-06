@@ -79,10 +79,15 @@ export function mountDataClient<P = any>(
   );
 
   // Create managers
-  const nm = new NetworkManager();
-  const sm = new SubscriptionManager(PollingSubscription);
-  const defaultManagers = [nm, sm];
-  const finalManagers = managers ?? defaultManagers;
+  const finalManagers = managers ?? [
+    new NetworkManager(),
+    new SubscriptionManager(PollingSubscription),
+  ];
+  // allSettled() and cleanup() track the NetworkManager actually in use
+  const nm =
+    finalManagers.find(
+      (manager): manager is NetworkManager => manager instanceof NetworkManager,
+    ) ?? new NetworkManager();
 
   // Create initial state
   const mockState = mockInitialState([...initialFixtures]);

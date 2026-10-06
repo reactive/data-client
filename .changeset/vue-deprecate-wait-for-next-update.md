@@ -9,7 +9,8 @@ had already resolved, it waited the full second for nothing, and under `jest.use
 result directly instead, and use `allSettled()` after changing props or calling the controller.
 
 `allSettled()` from `renderDataCompose()` and `mountDataClient()` now also waits for fetches that a prop change starts,
-and for the component to re-render, so you no longer need `nextTick()` around it.
+and for the component to re-render, so you no longer need `nextTick()` around it. It also waits on a `NetworkManager`
+you pass in `managers`, instead of returning right away.
 
 #### Before
 
