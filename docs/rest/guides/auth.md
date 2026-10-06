@@ -453,7 +453,7 @@ Using this means all endpoint calls must only occur :react[during a function ren
 
 :::react
 
-```tsx nocheck
+```tsx
 import { useController } from '@data-client/react';
 import { PostResource } from './resources/Post';
 
@@ -464,7 +464,9 @@ function CreatePost() {
 
   return (
     <form
-      onSubmit={e => controller.fetch(createPost, new FormData(e.target))}
+      onSubmit={e =>
+        controller.fetch(createPost, new FormData(e.currentTarget))
+      }
     >
       {/* ... */}
     </form>

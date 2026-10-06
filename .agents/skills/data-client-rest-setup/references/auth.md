@@ -316,7 +316,9 @@ function PostDetail({ id }) {
 >
 >   return (
 >     <form
->       onSubmit={e => controller.fetch(createPost, new FormData(e.target))}
+>       onSubmit={e =>
+>         controller.fetch(createPost, new FormData(e.currentTarget))
+>       }
 >     >
 >       {/* ... */}
 >     </form>
