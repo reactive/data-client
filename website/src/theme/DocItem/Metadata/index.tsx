@@ -5,11 +5,7 @@ import type MetadataType from '@theme/DocItem/Metadata';
 import Metadata from '@theme-original/DocItem/Metadata';
 import React from 'react';
 
-import {
-  llmsTxtRoute,
-  mdRoute,
-} from '../../../../framework-docs/docsInstances.js';
-import useFramework from '../../../components/useFramework';
+import { mdRoute } from '../../../../framework-docs/docsInstances.js';
 
 type Props = WrapperProps<typeof MetadataType>;
 
@@ -26,7 +22,7 @@ export default function MetadataWrapper(props: Props): React.ReactElement {
         {title && <title>{title}</title>}
         {title && <meta property="og:title" content={title} />}
         {image && <meta name="twitter:card" content="summary_large_image" />}
-        {/* https://llmstxt.org discovery; llms-plugin.js emits these files */}
+        {/* https://llmstxt.org discovery (llms.txt itself is linked in Root) */}
         {!metadata.unlisted && (
           <link
             rel="alternate"
@@ -34,7 +30,6 @@ export default function MetadataWrapper(props: Props): React.ReactElement {
             href={mdRoute(metadata.permalink)}
           />
         )}
-        <link rel="describedby" href={llmsTxtRoute(useFramework())} />
       </Head>
     </>
   );
