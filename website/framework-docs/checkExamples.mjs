@@ -176,6 +176,8 @@ function examplesOf(framework) {
     for (const b of blocks) if (b.playground) add(playgrounds, b.playground, b);
     for (const group of playgrounds.values())
       if (isApp(group)) examples.push({ doc, blocks: group });
+    // overview pages trim imports from snippets for readability; only their playgrounds must run
+    if (path.basename(doc) === 'README.md') continue;
     // the page's titled blocks, for loose examples to import
     const titled = blocks.filter(b => !b.playground && titleOf(b));
     let before = 0;

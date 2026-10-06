@@ -98,9 +98,8 @@ Make your components reusable by binding the data [where you need it](./getting-
 
 :::react
 
-```tsx {5}
+```tsx {4}
 import { useSuspense } from '@data-client/react';
-import { getTodo } from './api/Todo';
 
 export default function TodoDetail({ id }: { id: number }) {
   const todo = useSuspense(getTodo, { id });
@@ -148,10 +147,8 @@ Avoid 100s of loading spinners by placing [AsyncBoundary](./api/AsyncBoundary.md
 
 Typically these are placed at or above navigational boundaries like pages, routes or modals.
 
-```tsx {7,10}
+```tsx {5,8}
 import { AsyncBoundary } from '@data-client/react';
-import AnotherRoute from './AnotherRoute';
-import TodoDetail from './TodoDetail';
 
 function App() {
   return (
@@ -322,8 +319,6 @@ We can [useController](./api/useController.md) to access it in :react[React]:vue
 
 ```tsx
 import { useController } from '@data-client/react';
-import { TodoResource } from './resources/Todo';
-import ArticleForm from './ArticleForm';
 
 function ArticleEdit({ id }: { id: number }) {
   const ctrl = useController();
@@ -336,8 +331,6 @@ function ArticleEdit({ id }: { id: number }) {
 
 ```tsx
 import { useController } from '@data-client/react';
-import { TodoResource } from './resources/Todo';
-import ArticleForm from './ArticleForm';
 
 function ArticleEdit({ id }: { id: number }) {
   const ctrl = useController();
@@ -405,8 +398,6 @@ function ArticleEdit({ id }: { id: number }) {
 
 ```tsx
 import { useController, useLoading } from '@data-client/react';
-import { TodoResource } from './resources/Todo';
-import ArticleForm from './ArticleForm';
 
 function ArticleEdit({ id }: { id: number }) {
   const ctrl = useController();
@@ -474,10 +465,8 @@ the variable `todos` will be typed precisely.
 
 :::react
 
-```tsx {6}
+```tsx {4}
 import { useSuspense } from '@data-client/react';
-import { TodoResource } from './resources/Todo';
-import TodoListItem from './TodoListItem';
 
 export default function TodoList() {
   const todos = useSuspense(TodoResource.getList);

@@ -101,6 +101,8 @@ blocks or to stubs typed `any`.
   `Avatar`, `TextInput`, ...) stands for the app's own components and needs no import, like
   `render()`, which mounts a React playground's app, and Vue's `RouterLink` and `RouterView`.
   `NumberFlow` is a real library: import it from `@number-flow/react` or `@number-flow/vue`.
+- Overview pages (`README.md`, like `docs/core/README.md`) may leave imports out of snippets for
+  readability, so only their playgrounds are checked.
 - Add `nocheck` to a fence's meta (` ```tsx title="Foo" nocheck `) only for a deliberately partial
   fragment; it's dropped from the rendered page and skill references.
 
