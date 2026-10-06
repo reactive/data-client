@@ -1,6 +1,5 @@
-import { defineComponent, h, computed, watch, reactive, nextTick } from 'vue';
-
 import { NetworkManager } from '@data-client/core';
+import { defineComponent, h, computed, watch, reactive, nextTick } from 'vue';
 
 import { CoolerArticleResource } from '../../../../../__tests__/new';
 import { mountDataClient } from '../mountDataClient';
