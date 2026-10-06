@@ -1074,6 +1074,8 @@ declare class NetworkManager implements Manager {
     middleware: Middleware;
     /** On mount */
     init(): void;
+    /** Publishes parked results; scans again here so a RESET before this job drops them */
+    protected publishParked(): void;
     /** Ensures all promises are completed by rejecting remaining. */
     cleanup(): void;
     /** Used by DevtoolsManager to determine whether to log an action */

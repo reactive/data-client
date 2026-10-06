@@ -680,6 +680,8 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * Handles garbage collection
      */
     readonly gcPolicy: GCInterface;
+    /** Internal: set by a provider that will call initManager() for this controller, until it does */
+    awaitingInit?: boolean;
     constructor({ dispatch, getState, memo, gcPolicy, }?: ControllerConstructorProps<D>);
     set dispatch(dispatch: D);
     get dispatch(): D;
