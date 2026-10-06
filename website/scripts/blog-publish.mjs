@@ -16,7 +16,7 @@ const BLOG_DIR = 'website/blog';
 const MAX_DAYS = 3;
 const POST = /^(\d{4})-(\d{2})-(\d{2})-(.+)\.mdx?$/;
 const FRONT_MATTER = /^---\r?\n([\s\S]*?)\r?\n---/;
-const DRAFT = /^draft:\s*true[^\S\r\n]*(#.*)?(\r?\n|$)/m;
+const DRAFT = /^draft:\s*(true|True|TRUE)[^\S\r\n]*(#.*)?(\r?\n|$)/m;
 
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8' });
 const today = new Date().toISOString().slice(0, 10);
@@ -73,7 +73,7 @@ function rewriteLinks(oldUrl, newUrl) {
   );
   let linking = [];
   try {
-    linking = git('grep', '--untracked', '-lF', oldUrl)
+    linking = git('grep', '--untracked', '-IlF', oldUrl)
       .split('\n')
       .filter(Boolean);
   } catch (error) {
@@ -84,6 +84,9 @@ function rewriteLinks(oldUrl, newUrl) {
     const text = readFileSync(linked, 'utf8');
     writeFileSync(linked, text.replace(oldUrlPattern, newUrl));
   }
+  // Stage the rewrites so the commit has no broken links; -u leaves untracked
+  // files for their author to add
+  if (linking.length) git('add', '-u', '--', ...linking);
 }
 
 function check(base) {
