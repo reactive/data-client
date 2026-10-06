@@ -7,7 +7,8 @@ import type {
   Schema,
   ResolveType,
 } from '@data-client/core';
-import { computed, watch, markRaw, type ComputedRef } from 'vue';
+import { computed, watch, markRaw } from 'vue';
+import type { ComputedRef } from 'vue';
 
 import type {
   MaybeRefsOrGetters,

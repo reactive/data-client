@@ -6,6 +6,8 @@ description: High performance, globally consistent data management in React
 ---
 
 import Installation from '../shared/\_installation.mdx';
+import StateType from '../shared/_state_type.mdx';
+import GCPolicyOptions from '../shared/_gc_policy.mdx';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
@@ -24,7 +26,8 @@ interface ProviderProps {
   children: ReactNode;
   managers?: Manager[];
   initialState?: State<unknown>;
-  Controller?: typeof Controller;
+  Controller?: new (props: { gcPolicy: GCInterface }) => Controller;
+  gcPolicy?: GCInterface;
   devButton?:
     | 'bottom-right'
     | 'bottom-left'
@@ -36,38 +39,7 @@ interface ProviderProps {
 
 ### initialState: State&lt;unknown\> {#initialState}
 
-```typescript
-export interface State<T> {
-  readonly entities: {
-    readonly [entityKey: string]: { readonly [pk: string]: T } | undefined;
-  };
-  readonly endpoints: {
-    readonly [key: string]: unknown | PK[] | PK | undefined;
-  };
-  readonly indexes: NormalizedIndex;
-  readonly meta: {
-    readonly [key: string]: {
-      readonly date: number;
-      readonly error?: ErrorTypes;
-      readonly expiresAt: number;
-      readonly prevExpiresAt?: number;
-      readonly invalidated?: boolean;
-      readonly errorPolicy?: 'hard' | 'soft' | undefined;
-    };
-  };
-  readonly entitiesMeta: {
-    readonly [entityKey: string]: {
-      readonly [pk: string]: {
-        readonly date: number;
-        readonly expiresAt: number;
-        readonly fetchedAt: number;
-      };
-    };
-  };
-  readonly optimistic: (SetResponseAction | OptimisticAction)[];
-  readonly lastReset: number;
-}
-```
+<StateType />
 
 Instead of starting with an empty cache, you can provide your own initial state. This can
 be useful for testing, or rehydrating the cache state when using server side rendering.
@@ -94,12 +66,15 @@ Default Development:
 ];
 ```
 
-### Controller: typeof Controller {#Controller}
+### Controller?: Controller class {#Controller}
 
 This allows you to extend [Controller](./Controller.md) to provide additional functionality.
 This might be useful if you have additional actions you want to dispatch to custom [Managers](./Manager.md)
 
 ```tsx
+import { DataProvider, Controller } from '@data-client/react';
+import App from './App';
+
 class MyController extends Controller {
   doSomething = () => {
     console.log('hi');
@@ -113,6 +88,26 @@ const RealApp = (
 );
 ```
 
+### gcPolicy?: GCInterface {#gcPolicy}
+
+Removes data from the store once no component uses it and it has gone stale. Defaults to
+`new GCPolicy()`.
+
+```tsx
+import { DataProvider, GCPolicy } from '@data-client/react';
+import App from './App';
+
+const gcPolicy = new GCPolicy({ intervalMS: 60 * 1000 * 10 });
+
+const RealApp = (
+  <DataProvider gcPolicy={gcPolicy}>
+    <App />
+  </DataProvider>
+);
+```
+
+<GCPolicyOptions />
+
 ### devButton
 
 <img src="/img/client-logo.svg" style={{float:'right',width:'40px'}} />
@@ -123,12 +118,18 @@ installed. This option configures where it shows up, or if null will disable it 
 `'bottom-right' | 'bottom-left' | 'top-right'| 'top-left' | null` = `'bottom-right'`
 
 ```tsx title="Disable button"
+import { DataProvider } from '@data-client/react';
+import App from './App';
+
 <DataProvider devButton={null}>
   <App/>
 </DataProvider>
 ```
 
 ```tsx title="Place in top right corner"
+import { DataProvider } from '@data-client/react';
+import App from './App';
+
 <DataProvider devButton="top-right">
   <App/>
 </DataProvider>

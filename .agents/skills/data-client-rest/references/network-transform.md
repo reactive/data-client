@@ -61,6 +61,8 @@ or multiplying two numbers.
 In this case, simply use the [static schema](./Entity.md#schema) with [Temporal.Instant](https://tc39.es/proposal-temporal/) and [BigNumber](https://github.com/MikeMcl/bignumber.js)
 
 ```tsx title="api/Price"
+import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 import BigNumber from 'bignumber.js';
 
 export class ExchangePrice extends Entity {
@@ -84,6 +86,7 @@ export const getPrice = new RestEndpoint({
 ```
 
 ```tsx title="PricePage"
+import { useSuspense } from '@data-client/react';
 import { getPrice } from './api/Price';
 
 function PricePage() {
@@ -94,9 +97,7 @@ function PricePage() {
     <div>
       ${currentPrice.price.toFormat(2)} as of{' '}
       <time>
-        {DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
-          currentPrice.updatedAt,
-        )}
+        {currentPrice.updatedAt.toLocaleString('en-US', { dateStyle: 'medium' })}
       </time>
     </div>
   );
@@ -179,8 +180,9 @@ Here's a real world example of an API that does where ticket data does not inclu
 
 We use [RestEndpoint.process()](./RestEndpoint.md#process) to add the `product_id` member from its argument.
 
-```typescript title="Ticker" {28-31}
+```typescript title="Ticker" {29-32}
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class Ticker extends Entity {
   product_id = '';
@@ -215,8 +217,9 @@ export const getTicker = new RestEndpoint({
 });
 ```
 
-```tsx title="AssetPrice" {5}
+```tsx title="AssetPrice" {6}
 import { useLive } from '@data-client/react';
+import NumberFlow from '@number-flow/react';
 import { getTicker } from './Ticker';
 
 function AssetPrice({ productId }: Props) {
@@ -277,7 +280,7 @@ to avoid caching large blobs in memory.
 ```typescript title="downloadFile.ts"
 import { RestEndpoint } from '@data-client/rest';
 
-const downloadFile = new RestEndpoint({
+export const downloadFile = new RestEndpoint({
   path: '/files/:id/download',
   content: 'blob',
   dataExpiryLength: 0,
@@ -311,7 +314,7 @@ To extract the filename from the `Content-Disposition` header, override
 ```typescript title="downloadFile.ts"
 import { RestEndpoint } from '@data-client/rest';
 
-const downloadFile = new RestEndpoint({
+export const downloadFile = new RestEndpoint({
   path: '/files/:id/download',
   content: 'blob',
   dataExpiryLength: 0,

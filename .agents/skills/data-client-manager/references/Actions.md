@@ -26,7 +26,7 @@ interface FetchMeta {
   fetchedAt: number;
   resolve: (value?: any | PromiseLike<any>) => void;
   reject: (reason?: any) => void;
-  promise: PromiseLike<any>;
+  promise: Promise<any>;
 }
 
 interface FetchAction {
@@ -131,7 +131,7 @@ interface SetResponseAction {
       completed: true
     }
   ],
-  endpoint: Endpont('Todo.partialUpdate'),
+  endpoint: Endpoint('Todo.partialUpdate'),
   meta: {
     fetchedAt: '5:18:26.394 PM',
     date: '5:18:26.636 PM',

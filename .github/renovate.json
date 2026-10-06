@@ -4,6 +4,7 @@
   "commitMessagePrefix": "pkg: ",
   "commitMessageTopic": "`{{depName}}`",
   "dependencyDashboardApproval": true,
+  "rebaseWhen": "conflicted",
   "rangeStrategy": "auto",
   "ignoreDeps": [
     "whatwg-fetch",
@@ -176,6 +177,16 @@
       "matchUpdateTypes": ["major"],
       "groupName": "node",
       "groupSlug": "node"
+    }
+  ],
+  "customManagers": [
+    {
+      "description": "Codecov CLI pinned in CircleCI's coverage upload step",
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.circleci/config\\.yml$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+CLI=https://cli\\.codecov\\.io/(?<currentValue>v[^/]+)/"
+      ]
     }
   ]
 }

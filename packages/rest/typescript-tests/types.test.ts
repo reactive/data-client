@@ -2054,6 +2054,7 @@ it('content property: schema constraint', () => {
   // @ts-expect-error - schema incompatible with content: 'text'
   new RestEndpoint({ path: '/x' as const, content: 'text', schema: Article });
 
+  // prettier-ignore
   // @ts-expect-error - schema incompatible with content: 'arrayBuffer'
   new RestEndpoint({ path: '/x' as const, content: 'arrayBuffer', schema: Article });
 
@@ -2132,12 +2133,8 @@ it('content property: extend and subclass', () => {
     content: 'blob',
   });
   const contentVal:
-    | 'json'
-    | 'blob'
-    | 'text'
-    | 'arrayBuffer'
-    | 'stream'
-    | undefined = ep.content;
+    'json' | 'blob' | 'text' | 'arrayBuffer' | 'stream' | undefined =
+    ep.content;
 
   // subclass pattern
   class BlobEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
@@ -2148,3 +2145,26 @@ it('content property: extend and subclass', () => {
   });
   expect(subclassed.content).toBe('blob');
 });
+
+// --- Collection wrapped in Query or Lazy ---
+() => {
+  const getArticles = new RestEndpoint({
+    path: '/:group/articles',
+    schema: new schema.Query(new Collection([Article]), articles => articles),
+  });
+  getArticles.push({ group: 'react' }, { title: 'hi' });
+  getArticles.unshift({ group: 'react' }, { title: 'hi' });
+  getArticles.remove({ group: 'react' }, { id: 5 });
+  // @ts-expect-error - title must be a string
+  getArticles.push({ group: 'react' }, { title: 5 });
+  // @ts-expect-error - group is required
+  getArticles.push({ title: 'hi' });
+
+  const getLazyArticles = new RestEndpoint({
+    path: '/articles',
+    schema: new schema.Lazy(new Collection([Article])),
+  });
+  getLazyArticles.push({ title: 'hi' });
+  // @ts-expect-error - title must be a string
+  getLazyArticles.push({ title: 5 });
+};

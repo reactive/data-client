@@ -40,7 +40,7 @@ from this function was a succesful network response. When the actual fetch compl
 of failure or success), the optimistic update will be replaced with the actual network response.
 
 ```ts title="Post"
-import { Entity, schema } from '@data-client/rest';
+import { Entity, EntityMixin } from '@data-client/rest';
 
 export class Post extends Entity {
   id = 0;
@@ -137,9 +137,9 @@ export const PostResource = resource({
 </script>
 
 <template>
-  <center>
+  <div style="text-align: center">
     <small>{{ totalVotes }} votes total</small>
-  </center>
+  </div>
 </template>
 ```
 
@@ -162,7 +162,7 @@ export const PostResource = resource({
 </template>
 ```
 
-[Optimistic update guide](./optimistic-updates.md)
+[Optimistic update guide](./optimistic-updates.vue.md)
 
 ### update() {#update}
 
@@ -173,7 +173,7 @@ export const PostResource = resource({
 
 > **Tip**
 >
-> Try using [Collections](./Collection.md) instead.
+> Try using [Collections](./Collection.vue.md) instead.
 >
 > They are much easier to use and more robust!
 
@@ -202,9 +202,17 @@ const createUser = new RestEndpoint({
 
 More updates:
 
-```typescript title="Component.tsx"
-const allusers = useSuspense(userList);
-const adminUsers = useSuspense(userList, { admin: true });
+```html title="Component.vue"
+<script setup lang="ts">
+  import { useFetch, useSuspense } from '@data-client/vue';
+  import { userList } from './resources';
+
+  // start both fetches in parallel
+  useFetch(userList);
+  useFetch(userList, { admin: true });
+  const allusers = await useSuspense(userList);
+  const adminUsers = await useSuspense(userList, { admin: true });
+</script>
 ```
 
 The endpoint below ensures the new user shows up immediately in the usages above.

@@ -20,6 +20,7 @@ import remarkStringify from 'remark-stringify';
 import { unified } from 'unified';
 import { visit } from 'unist-util-visit';
 
+import providerSetup from './providerSetup.mjs';
 import { ROOT, SITE, rel } from './site.mjs';
 
 const require = createRequire(import.meta.url);
@@ -27,7 +28,12 @@ const preprocessContent =
   require('@docusaurus/mdx-loader/lib/preprocessor').default;
 
 const {
-  docIds,
+  DOCS_INSTANCES,
+  FRAMEWORKS,
+  frameworkInstance,
+} = require('./docsInstances.js');
+const {
+  docsFor,
   docIdOf,
   pageFrameworks,
   rewriteFrontMatter,
@@ -37,13 +43,14 @@ const remarkFramework = require('./remarkFramework.js');
 
 export { ROOT, SITE, rel };
 
-/** docs folder -> route base per framework; keep in sync with docusaurus.config.ts */
-const ROUTES = [
-  ['docs/core/', { react: '/docs/', vue: '/vue/' }],
-  ['docs/rest/', { react: '/rest/', vue: '/rest/' }],
-  ['docs/graphql/', { react: '/graphql/', vue: '/graphql/' }],
-];
-const vueIds = docIds('vue');
+/** Docs instance rendering `relPath` (from the repo root) for a framework */
+const instanceOf = (relPath, framework) =>
+  DOCS_INSTANCES.find(
+    d =>
+      relPath.startsWith(`${d.path}/`) &&
+      (d.framework ?? framework) === framework,
+  );
+const frameworkDocs = Object.fromEntries(FRAMEWORKS.map(f => [f, docsFor(f)]));
 const MD = /\.mdx?$/;
 
 const processor = unified()
@@ -107,16 +114,21 @@ const parse = memoize(file => {
 /** Site route (no host) of a doc for a framework */
 export const routeOf = memoize((file, framework) => {
   const relPath = rel(file).replace(/\.(react|vue)(\.mdx?)$/, '$2');
-  const match = ROUTES.find(([dir]) => relPath.startsWith(dir));
-  if (!match) return;
-  const [dir, bases] = match;
-  const docId = docIdOf(relPath.slice(dir.length), contentFor(file, framework));
+  const instance = instanceOf(relPath, framework);
+  if (!instance) return;
+  const content = contentFor(file, framework);
+  const docId = docIdOf(relPath.slice(instance.path.length + 1), content);
   // Vue links to pages without a Vue version go to the React docs
-  const base =
-    dir === 'docs/core/' && framework === 'vue' && !vueIds.has(docId) ?
-      bases.react
-    : bases[framework];
-  return `${base}${docId}`.replace(/\/index$/, '/');
+  const target =
+    instance.framework === 'vue' && !frameworkDocs.vue.has(docId) ?
+      frameworkInstance('react')
+    : instance;
+  const route = frameworkDocs[target.framework]?.get(docId)?.route;
+  if (route) return `/${target.routeBasePath}${route}`;
+  // instances docsFor() doesn't cover (rest, graphql)
+  const slug = frontMatterValue(content, 'slug');
+  if (slug?.startsWith('/')) return `/${target.routeBasePath}${slug}`;
+  return `/${target.routeBasePath}/${docId}`.replace(/\/index$/, '/');
 });
 
 /** Relative doc links become site routes; absolute ones are left to remarkFramework */
@@ -156,6 +168,11 @@ function attrValue(attribute, props, file) {
 function attributesOf(node, props, file) {
   const attrs = {};
   for (const attribute of node.attributes ?? []) {
+    if (attribute.type === 'mdxJsxExpressionAttribute') {
+      // spread, e.g. a partial forwarding `{...props}`
+      Object.assign(attrs, evaluate(`{${attribute.value}}`, props, file));
+      continue;
+    }
     if (attribute.type !== 'mdxJsxAttribute') continue;
     Object.defineProperty(attrs, attribute.name, {
       enumerable: true,
@@ -169,13 +186,18 @@ const text = value => ({ type: 'text', value });
 const paragraph = children => ({ type: 'paragraph', children });
 const html = value => ({ type: 'html', value });
 
-/** Code without Docusaurus-only syntax (highlight markers, display options) */
+/**
+ * Code without Docusaurus-only syntax (highlight markers, display options).
+ * `data.raw` keeps the fence's own lines, so the docs example check can map
+ * errors back to them; `data.nocheck` marks fences that check skips.
+ */
 function codeBlock({ lang, value, title, meta = title && `title="${title}"` }) {
   return {
     type: 'code',
     lang: lang ?? null,
     meta:
-      meta?.replace(/\s*\b(collapsed|showLineNumbers)\b/g, '').trim() || null,
+      meta?.replace(/\s*\b(collapsed|showLineNumbers|nocheck)\b/g, '').trim() ||
+      null,
     value: value
       .split('\n')
       .filter(
@@ -184,6 +206,7 @@ function codeBlock({ lang, value, title, meta = title && `title="${title}"` }) {
       )
       .join('\n')
       .trim(),
+    data: { raw: value, nocheck: /\bnocheck\b/.test(meta ?? '') },
   };
 }
 const codeLang = attrs =>
@@ -214,7 +237,7 @@ const HTML = ['details', 'sup', 'sub', 'kbd'];
 const DROP = ['ThemedImage', 'SkillTabs', 'head'];
 
 /** Rewrites one page (and its partials) into plain markdown nodes */
-function render(file, framework, props = {}) {
+function render(file, framework, props = {}, drop = DROP) {
   const content = contentFor(file, framework);
   if (!pageFrameworks(content).includes(framework)) return;
   const source = sourceFor(file, framework);
@@ -252,8 +275,11 @@ function render(file, framework, props = {}) {
       case 'definition':
         node.url = routeLink(node.url, source, framework);
         break;
-      case 'code':
-        return [codeBlock(node)];
+      case 'code': {
+        const code = codeBlock(node);
+        code.data.line = node.position?.start.line;
+        return [code];
+      }
       case 'containerDirective': {
         if (!ADMONITIONS.includes(node.name)) break;
         const [first] = node.children;
@@ -326,7 +352,12 @@ function render(file, framework, props = {}) {
           .map(c => (c.type === 'JSXText' ? c.value : run(c.expression)))
           .join('');
         return [
-          codeBlock({ lang: codeLang(attrs), value, title: attrs.title }),
+          codeBlock({
+            lang: codeLang(attrs),
+            value,
+            title: attrs.title,
+            meta: attrs.metastring,
+          }),
         ];
       }
     }
@@ -336,11 +367,13 @@ function render(file, framework, props = {}) {
 
   function convertJsx(node) {
     const { name } = node;
-    if (!name || DROP.includes(name)) return [];
+    if (!name || drop.includes(name)) return [];
     const flow = node.type === 'mdxJsxFlowElement';
     const attrs = attributesOf(node, props, source);
-    if (partials[name])
-      return render(partials[name], framework, attrs)?.children ?? [];
+    if (partials[name]) {
+      attrs.children = node.children;
+      return render(partials[name], framework, attrs, drop)?.children ?? [];
+    }
     switch (name) {
       case 'CodeBlock':
         return [
@@ -348,8 +381,14 @@ function render(file, framework, props = {}) {
             lang: codeLang(attrs),
             value: jsxText(node.children, props, source),
             title: attrs.title,
+            meta: attrs.metastring,
           }),
         ];
+      case 'ProviderSetupCode': {
+        const managers = attrs.children?.find(c => c.type === 'code')?.value;
+        const { language, code, title } = providerSetup({ ...attrs, managers });
+        return [codeBlock({ lang: language, value: code, title })];
+      }
       case 'PkgTabs':
       case 'PkgInstall':
         return [
@@ -427,7 +466,13 @@ function render(file, framework, props = {}) {
     if (INLINE[name] && !flow)
       return [{ type: INLINE[name], children: convertAll(node.children) }];
     // Playgrounds, layout and other wrappers: keep what's inside
-    return convertAll(node.children);
+    const children = convertAll(node.children);
+    // files of one playground make up one example app
+    if (name.endsWith('Playground'))
+      visit({ type: 'root', children }, 'code', code => {
+        code.data.playground = node;
+      });
+    return children;
   }
 
   /** A GFM table; row and column spans repeat the cell so each row stands alone */
@@ -480,11 +525,34 @@ function render(file, framework, props = {}) {
   }
 
   tree.children = convertAll(tree.children);
+  // partials already tagged their own
+  visit(tree, 'code', code => {
+    code.data.file ??= source;
+  });
   // absolute /docs links point at this framework's docs, as on the site
   if (framework === 'vue')
-    remarkFramework({ framework, routeBasePath: 'vue', docIds: vueIds })(tree);
+    remarkFramework({
+      framework,
+      routeBasePath: frameworkInstance('vue').routeBasePath,
+      docs: frameworkDocs.vue,
+    })(tree);
   tree.title = frontMatterValue(content, 'title');
   return tree;
+}
+
+/**
+ * Code blocks of a doc for a framework, in page order, or undefined if the page isn't in it.
+ * Blocks from one playground share its `playground` node; `file` and `line` locate fences
+ * (blocks from `<CodeBlock>` only have `file`).
+ */
+export function docCodeBlocks(file, framework) {
+  const tree = render(file, framework);
+  if (!tree) return;
+  const blocks = [];
+  visit(tree, 'code', ({ lang, meta, value, data = {} }) => {
+    blocks.push({ lang, meta, value, ...data });
+  });
+  return blocks;
 }
 
 const FLOW_PARENTS = ['root', 'blockquote', 'listItem'];
@@ -505,13 +573,19 @@ function wrapPhrasing(tree) {
 /**
  * Markdown of a doc for a framework, or undefined if the page isn't in it.
  * `resolveRoute(route)` picks the URL for links to site pages (default: the site).
+ * `skipSiteOnly` drops `<SiteOnly>` prose (how to install or run a skill) for skill references.
  */
 export function docToMarkdown(
   file,
   framework,
-  { resolveRoute = route => SITE + route } = {},
+  { resolveRoute = route => SITE + route, skipSiteOnly = false } = {},
 ) {
-  const tree = render(file, framework);
+  const tree = render(
+    file,
+    framework,
+    {},
+    skipSiteOnly ? [...DROP, 'SiteOnly'] : DROP,
+  );
   if (!tree) return;
   visit(tree, ['link', 'definition'], node => {
     if (node.url.startsWith('/'))

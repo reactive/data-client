@@ -35,7 +35,7 @@ its [Controller](./Controller.md)
 ### Middleware logging
 
 ```typescript
-import type { Manager, Middleware } from '@data-client/core';
+import type { Manager, Middleware } from '@data-client/react';
 
 export default class LoggingManager implements Manager {
   middleware: Middleware = controller => next => async action => {
@@ -91,9 +91,12 @@ export default class MetricsManager implements Manager {
   middleware: Middleware = controller => next => async action => {
     if (action.type === actionTypes.FETCH) {
       const start = performance.now();
-      action.meta.promise.finally(() => {
-        trackTiming(action.endpoint.name, performance.now() - start);
-      });
+      action.meta.promise
+        .finally(() => {
+          trackTiming(action.endpoint.name, performance.now() - start);
+        })
+        // the fetch's caller handles errors; this only observes timing
+        .catch(() => {});
     }
     return next(action);
   };
@@ -230,9 +233,14 @@ export default class PersistManager implements Manager {
 }
 ```
 
-```tsx
+```tsx title="index.tsx"
+import { DataProvider, getDefaultManagers } from '@data-client/react';
+import { createRoot } from 'react-dom/client';
 import { get } from 'idb-keyval';
+import App from './App';
+import PersistManager from './PersistManager';
 
+const managers = [...getDefaultManagers(), new PersistManager()];
 const initialState = await get('data-client');
 
 createRoot(document.body).render(
@@ -250,14 +258,18 @@ we can maintain fresh data when the data updates are independent of user action.
 price, or a real-time collaborative editor.
 
 ```typescript
-import { type Manager, type Middleware, Controller } from '@data-client/react';
-import type { Entity } from '@data-client/rest';
+import type {
+  Manager,
+  Middleware,
+  Controller,
+  EntityInterface,
+} from '@data-client/react';
 
 export default class StreamManager implements Manager {
   declare protected controller: Controller;
-  declare protected evtSource: WebSocket; // | EventSource;
+  declare protected evtSource: WebSocket | EventSource;
   declare protected createEventSource: () => WebSocket | EventSource;
-  declare protected entities: Record<string, typeof Entity>;
+  declare protected entities: Record<string, EntityInterface>;
 
   constructor(
     createEventSource: () => WebSocket | EventSource,
@@ -270,15 +282,21 @@ export default class StreamManager implements Manager {
   middleware: Middleware = controller => {
     this.controller = controller;
     return next => async action => next(action);
-  }
+  };
 
   connect() {
     this.evtSource = this.createEventSource();
-    this.evtSource.onmessage = event => {
+    this.evtSource.onmessage = (event: MessageEvent) => {
       try {
-        const msg = JSON.parse(event.data);
+        const msg: { type: string; args: [any]; data: any } = JSON.parse(
+          event.data,
+        );
         if (msg.type in this.entities)
-          this.controller.set(this.entities[msg.type], ...msg.args, msg.data);
+          this.controller.set(
+            this.entities[msg.type],
+            ...msg.args,
+            msg.data,
+          );
       } catch (e) {
         console.error('Failed to handle message');
         console.error(e);
@@ -367,6 +385,7 @@ export const newPrices = () =>
 ```
 
 ```tsx title="PriceStream"
+import React from 'react';
 import { useController, useQuery } from '@data-client/react';
 import { Ticker, newPrices } from './Ticker';
 
@@ -417,10 +436,9 @@ import { Ticker } from './Ticker';
 
 export default function getManagers() {
   return [
-    new StreamManager(
-      () => new WebSocket('wss://ws-feed.example.com'),
-      { ticker: Ticker },
-    ),
+    new StreamManager(() => new WebSocket('wss://ws-feed.example.com'), {
+      ticker: Ticker,
+    }),
     ...getDefaultManagers({
       devToolsManager: {
         // Increase latency buffer for high-frequency updates

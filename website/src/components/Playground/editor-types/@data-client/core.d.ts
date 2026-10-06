@@ -426,7 +426,9 @@ type EntityRef = string | {
 };
 /** Schemas that write each row to one stored entity: Entity, Union, or Invalidate (batch delete).
  * Query, All and Collection don't: they normalize to lists, or Collection keys by args batch set() lacks. */
-type SetEntitySchema = EntityInterface | {
+type SetEntitySchema = EntityInterface | EntityRefSchema;
+/** Union or Invalidate */
+type EntityRefSchema = {
     _normalizeNullable(): EntityRef | undefined;
     pk?: never;
 };
@@ -437,6 +439,11 @@ type SetManySchema = readonly SetEntitySchema[] | {
     queryKey(...args: any): undefined;
     pk?: never;
 };
+/** `new Invalidate(Entity)` (or of a Union): not Queryable, since its queryKey() returns undefined */
+type SetInvalidateSchema = EntityRefSchema & {
+    queryKey(...args: any): undefined;
+    query?: never;
+};
 type IsUnion<T, U = T> = T extends unknown ? [
     U
 ] extends [T] ? false : true : never;
@@ -446,24 +453,20 @@ type FunctionKeys<U> = {
 /** Raw input for one field: numbers and strings coerce (literals stay exact);
  * objects are pre-normalize */
 type SetField<T> = T extends number ? number extends T ? T | string : T : T extends string ? string extends T ? T | number : T : T extends object ? unknown : T;
-/** Non-function keys of any member of U */
-type FieldKeys<U> = U extends unknown ? Exclude<keyof U, FunctionKeys<U>> : never;
-/** Input for field K, from each member of U that has it */
-type MemberField<U, K> = U extends unknown ? K extends keyof U ? SetField<U[K]> : never : never;
-/** Fields of one row (or a coerced primitive); like EntityFields, but without
- * key remapping (TS 4.0). A Union's members merge into one object type: checking
- * a row against it costs one comparison instead of one per member. */
+/** Fields of one row (or a coerced primitive); like EntityFields, but distributive
+ * and without key remapping (TS 4.0). A Union gets one row per member, so a
+ * discriminator like `type` selects the member the other fields are checked against. */
 type SetRow<U> = 0 extends 1 & U ? {
     readonly [k: string]: any;
-} : [U] extends [object] ? {
-    readonly [K in FieldKeys<U>]?: MemberField<U, K>;
+} : U extends object ? {
+    readonly [K in Exclude<keyof U, FunctionKeys<U>>]?: SetField<U[K]>;
 } : SetField<U>;
 /** Keeps S inferred from the schema alone: inferring it from the value too would
  * walk the value's type against every conditional in SetValue (TS 5.4 has NoInfer) */
 type SkipInfer<T, S> = [T][S extends unknown ? 0 : never];
 type SetManyValue<S> = S extends readonly (infer E)[] ? true extends IsUnion<E> ? readonly {
     'Use a Union schema for several Entity types': never;
-}[] : readonly SetItem<Denormalize<E>>[] : SetValue<S>;
+}[] : readonly SetRow<Denormalize<E>>[] : SetValue<S>;
 /** Raw input `set()` normalizes for a Queryable */
 type SetValue<S> = InputSchema<InputSchema<InputSchema<S>>> extends infer N ? N extends EntityInterface ? SetRow<Denormalize<N>> : SetInput<Denormalize<N>> : never;
 /** Query normalizes with its inner schema; its process() output is not input
@@ -478,16 +481,9 @@ type InputSchema<S> = S extends ({
 /** Raw input for a denormalized value, like a Collection's list or a Union's row */
 type SetInput<T> = 0 extends 1 & T ? any : [
     T
-] extends [readonly (infer U)[]] ? readonly SetItem<U>[] : string extends keyof T ? {
-    readonly [k: string]: SetItem<T[keyof T]>;
-} : SetItem<T>;
-/**
- * One member of a list or keyed object. Polymorphic rows may carry a
- * discriminator that is not an Entity field.
- */
-type SetItem<U> = true extends IsUnion<U> ? SetRow<U> & {
-    readonly [k: string]: unknown;
-} : SetRow<U>;
+] extends [readonly (infer U)[]] ? readonly SetRow<U>[] : string extends keyof T ? {
+    readonly [k: string]: SetRow<T[keyof T]>;
+} : SetRow<T>;
 
 type ResultEntry<E extends EndpointInterface> = E['schema'] extends undefined | null ? ResolveType<E> : Normalize<E['schema']>;
 type EndpointUpdateFunction<Source extends EndpointInterface, Updaters extends Record<string, any> = Record<string, any>> = (source: ResultEntry<Source>, ...args: any) => {
@@ -584,7 +580,7 @@ interface FetchMeta {
     fetchedAt: number;
     resolve: (value?: any | PromiseLike<any>) => void;
     reject: (reason?: any) => void;
-    promise: PromiseLike<any>;
+    promise: Promise<any>;
 }
 /** Action for Controller.fetch() */
 interface FetchAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
@@ -860,10 +856,11 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
         SkipInfer<SetValue<S> | ((previousValue: Denormalize<S>) => SetValue<S>), S>
     ]): Promise<void>;
     /**
-     * Sets every row of an Array or Values of one Entity (or Union) in one normalize.
+     * Sets every row of an Array or Values of one Entity (or Union) in one normalize,
+     * or invalidates the one Entity an Invalidate schema's value identifies.
      * @see https://dataclient.io/docs/api/Controller#set-array
      */
-    set<S extends SetManySchema>(schema: S, value: SkipInfer<SetManyValue<S>, S>): Promise<void>;
+    set<S extends SetManySchema | SetInvalidateSchema>(schema: S, value: SkipInfer<SetManyValue<S>, S>): Promise<void>;
     /**
      * Sets response for the Endpoint and args.
      * @see https://dataclient.io/docs/api/Controller#setResponse

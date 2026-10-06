@@ -32,7 +32,7 @@ import ErrorLifecycle from '../../rest/diagrams/\_endpoint_error_lifecycle.mdx';
 
 ### constructor(\{ dataExpiryLength = 60000, errorExpiryLength = 1000 }) {#constructor}
 
-Arguments represent the default time (in miliseconds) before a resource is considered 'stale'.
+Arguments represent the default time (in milliseconds) before a resource is considered 'stale'.
 
 ### middleware
 

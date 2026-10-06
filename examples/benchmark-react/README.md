@@ -111,6 +111,19 @@ CI convergence targets: 2% (small scenarios), 3% (large scenarios). Reported mar
 - **React commit:** Reported as `(react commit)` suffix entries. These measure React Profiler `actualDuration` and isolate React reconciliation cost from layout/paint.
 - **Report viewer:** Toggle the "Base metrics", "React commit", and "Trace" checkboxes to filter the comparison table. Use "Load history" to compare multiple runs over time.
 
+## Reading the CI comment
+
+The "Benchmark React", "Benchmark", and "Benchmark Spread" PR comments compare one GitHub runner against the last master run on another, so runner speed alone can shift a whole run by up to ~1.7×. The thresholds above and the comment's ± ranges hold only within one machine.
+
+| Comment shows | Do |
+|---|---|
+| Every suite shifts together, React and Node comments disagree, or "Build packages" time moved with the scores | Treat as runner noise |
+| Only suites on code the PR changes shift | Run an A/B |
+
+A/B: build base and PR in separate worktrees (`yarn build:benchmark-react` or `yarn build:benchmark`); for React, serve each with `BENCH_PORT=<port> yarn workspace example-benchmark-react preview`. Alternate base and PR for 5+ rounds (`CI=true BENCH_PORT=<port> yarn bench` or `yarn workspace example-benchmark start <suite> [filter]`) and compare medians; interleaving cancels machine drift.
+
+The path filter skips `packages/rest/src` and most of `packages/endpoint/src`, so for changes there the stored baseline may predate master.
+
 ## Adding a new library
 
 1. Add a new app under `src/<lib>/index.tsx` (e.g. `src/urql/index.tsx`).

@@ -1,5 +1,6 @@
 ---
 frameworks: [react]
+framework_equivalent: guides/unit-testing-composables
 title: renderDataHook()
 ---
 
@@ -55,7 +56,9 @@ type RenderDataHook = {
 ## Usage
 
 ```typescript
+import { useSuspense } from '@data-client/react';
 import { renderDataHook } from '@data-client/test';
+import { Article, ArticleResource } from './resources/Article';
 
 const response = {
   id: 5,
@@ -79,8 +82,8 @@ it('useSuspense() should render the response', async () => {
       ],
     },
   );
-  expect(result.current instanceof ArticleResource).toBe(true);
-  expect(result.current.title).toBe(payload.title);
+  expect(result.current instanceof Article).toBe(true);
+  expect(result.current.title).toBe(response.title);
 });
 ```
 
@@ -122,6 +125,11 @@ Pass a React Component as the wrapper option to have it rendered around the inne
 [Controller](./Controller.md) to dispatch imperative effects
 
 ```ts
+import { act } from '@testing-library/react';
+import { useSuspense } from '@data-client/react';
+import { renderDataHook } from '@data-client/test';
+import { Todo, TodoResource } from './resources/Todo';
+
 it('should update', async () => {
   const id = 5;
   const payload = { title: 'first item', id, completed: false };
@@ -138,19 +146,22 @@ it('should update', async () => {
           response: [payload],
         },
       ],
-      {
-        endpoint: TodoResource.update,
-        response: body => body,
-      },
+      resolverFixtures: [
+        {
+          endpoint: TodoResource.update,
+          response: ({ id }, body) => ({ ...body, id }),
+        },
+      ],
     },
   );
-  expect(result.current).toEqual([TodoResource.fromJS(payload)]);
+  expect(result.current).toEqual([Todo.fromJS(payload)]);
   // highlight-start
-  await act(() => {
-    await controller.fetch(TodoResource.update, {
-      id,
-      title: 'updated title',
-    });
+  await act(async () => {
+    await controller.fetch(
+      TodoResource.update,
+      { id },
+      { title: 'updated title' },
+    );
   });
   // highlight-end
   expect(result.current[0].title).toBe('updated title');
@@ -214,8 +225,9 @@ Returns a `Promise` that resolves the next time the hook renders, commonly when 
 ## Examples
 
 ```typescript
-import { DataProvider } from '@data-client/react';
+import { useSuspense } from '@data-client/react';
 import { renderDataHook } from '@data-client/test';
+import { Article, ArticleResource } from './resources/Article';
 
 const response = {
   id: 5,
@@ -225,7 +237,7 @@ const response = {
 };
 
 it('should resolve useSuspense()', async () => {
-  const { result, waitFor } = renderDataHook(
+  const { result, waitFor, controller } = renderDataHook(
     () => {
       return useSuspense(ArticleResource.get, response);
     },
@@ -245,7 +257,7 @@ it('should resolve useSuspense()', async () => {
   // this indicates suspense
   expect(result.current).toBeUndefined();
   await waitFor(() => expect(result.current).toBeDefined());
-  expect(result.current instanceof ArticleResource).toBe(true);
+  expect(result.current instanceof Article).toBe(true);
   expect(result.current.title).toBe(response.title);
   await controller.fetch(
     ArticleResource.partialUpdate,

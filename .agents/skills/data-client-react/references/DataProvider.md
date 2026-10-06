@@ -11,6 +11,7 @@ in the React tree.
 ```tsx title="index.tsx"
 import { DataProvider } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
+import App from './App';
 
 createRoot(document.body).render(
   <DataProvider>
@@ -26,6 +27,7 @@ Alternatively [integrate state with redux](https://dataclient.io/docs/guides/red
 ```tsx title="index.tsx"
 import { DataProvider } from '@data-client/react';
 import { AppRegistry } from 'react-native';
+import App from './App';
 
 const Root = () => (
   <DataProvider>
@@ -90,7 +92,8 @@ interface ProviderProps {
   children: ReactNode;
   managers?: Manager[];
   initialState?: State<unknown>;
-  Controller?: typeof Controller;
+  Controller?: new (props: { gcPolicy: GCInterface }) => Controller;
+  gcPolicy?: GCInterface;
   devButton?:
     | 'bottom-right'
     | 'bottom-left'
@@ -114,9 +117,10 @@ export interface State<T> {
   readonly meta: {
     readonly [key: string]: {
       readonly date: number;
-      readonly error?: ErrorTypes;
+      readonly fetchedAt: number;
       readonly expiresAt: number;
       readonly prevExpiresAt?: number;
+      readonly error?: ErrorTypes;
       readonly invalidated?: boolean;
       readonly errorPolicy?: 'hard' | 'soft' | undefined;
     };
@@ -160,12 +164,15 @@ Default Development:
 ];
 ```
 
-### Controller: typeof Controller {#Controller}
+### Controller?: Controller class {#Controller}
 
 This allows you to extend [Controller](./Controller.md) to provide additional functionality.
 This might be useful if you have additional actions you want to dispatch to custom [Managers](https://dataclient.io/docs/api/Manager)
 
 ```tsx
+import { DataProvider, Controller } from '@data-client/react';
+import App from './App';
+
 class MyController extends Controller {
   doSomething = () => {
     console.log('hi');
@@ -179,6 +186,36 @@ const RealApp = (
 );
 ```
 
+### gcPolicy?: GCInterface {#gcPolicy}
+
+Removes data from the store once no component uses it and it has gone stale. Defaults to
+`new GCPolicy()`.
+
+```tsx
+import { DataProvider, GCPolicy } from '@data-client/react';
+import App from './App';
+
+const gcPolicy = new GCPolicy({ intervalMS: 60 * 1000 * 10 });
+
+const RealApp = (
+  <DataProvider gcPolicy={gcPolicy}>
+    <App />
+  </DataProvider>
+);
+```
+
+```ts title="GCPolicy options"
+new GCPolicy({
+  // how often to sweep (default 5 minutes)
+  intervalMS: 60 * 1000 * 5,
+  // how many stale lifetimes before data is removed (default 2)
+  expiryMultiplier: 2,
+  // or choose when unused data is removed (replaces expiryMultiplier)
+  // here: one minute after it goes stale
+  expiresAt: ({ expiresAt }) => expiresAt + 60 * 1000,
+});
+```
+
 ### devButton
 
 In development, a small button will appear that gives easy access to [browser devtools](https://dataclient.io/docs/getting-started/debugging) if
@@ -187,12 +224,18 @@ installed. This option configures where it shows up, or if null will disable it 
 `'bottom-right' | 'bottom-left' | 'top-right'| 'top-left' | null` = `'bottom-right'`
 
 ```tsx title="Disable button"
+import { DataProvider } from '@data-client/react';
+import App from './App';
+
 <DataProvider devButton={null}>
   <App/>
 </DataProvider>
 ```
 
 ```tsx title="Place in top right corner"
+import { DataProvider } from '@data-client/react';
+import App from './App';
+
 <DataProvider devButton="top-right">
   <App/>
 </DataProvider>

@@ -53,7 +53,7 @@ export default function TodoItem({ todo }: { todo: Todo }) {
           checked={todo.completed}
           onChange={handleChange}
         />
-        {todo.completed ? <strike>{todo.title}</strike> : todo.title}
+        {todo.completed ? <s>{todo.title}</s> : todo.title}
       </label>
       <CancelButton onClick={handleDelete} />
     </div>
@@ -115,7 +115,7 @@ Data Client reactively updates appropriate components using the fetch response.
 ## Optimistic mutations based on previous state {#optimistic-updates}
 
 ```ts title="Post"
-import { Entity, schema } from '@data-client/rest';
+import { Entity, EntityMixin } from '@data-client/rest';
 
 export class Post extends Entity {
   id = 0;
@@ -350,6 +350,7 @@ export default function PostCreate({ navigateToPost }) {
 ```
 
 ```tsx title="Navigation"
+import React from 'react';
 import PostCreate from './PostCreate';
 import PostDetail from './PostDetail';
 

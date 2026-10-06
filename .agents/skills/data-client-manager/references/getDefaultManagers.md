@@ -13,9 +13,12 @@ Currently returns \[[DevToolsManager](https://dataclient.io/docs/api/DevToolsMan
 
 ## Usage
 
-```tsx
+**Web**
+
+```tsx title="index.tsx"
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
+import App from './App';
 
 const managers = getDefaultManagers({
   // set fallback expiry time to an hour
@@ -29,7 +32,82 @@ createRoot(document.body).render(
 );
 ```
 
-See [DataProvider](https://dataclient.io/docs/api/DataProvider) for details on usage in different environments.
+**React Native**
+
+```tsx title="index.tsx"
+import { DataProvider, getDefaultManagers } from '@data-client/react';
+import { AppRegistry } from 'react-native';
+import App from './App';
+
+const managers = getDefaultManagers({
+  // set fallback expiry time to an hour
+  networkManager: { dataExpiryLength: 1000 * 60 * 60 },
+});
+
+const Root = () => (
+  <DataProvider managers={managers}>
+    <App />
+  </DataProvider>
+);
+AppRegistry.registerComponent('MyApp', () => Root);
+```
+
+**NextJS**
+
+```tsx title="app/Provider.tsx"
+'use client';
+import { getDefaultManagers } from '@data-client/react';
+import { DataProvider } from '@data-client/react/nextjs';
+
+const managers = getDefaultManagers({
+  // set fallback expiry time to an hour
+  networkManager: { dataExpiryLength: 1000 * 60 * 60 },
+});
+
+export default function Provider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <DataProvider managers={managers}>{children}</DataProvider>;
+}
+```
+
+```tsx title="app/layout.tsx"
+import Provider from './Provider';
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <Provider>{children}</Provider>
+      </body>
+    </html>
+  );
+}
+```
+
+**Expo**
+
+```tsx title="app/_layout.tsx"
+import { Stack } from 'expo-router';
+import { DataProvider, getDefaultManagers } from '@data-client/react';
+
+const managers = getDefaultManagers({
+  // set fallback expiry time to an hour
+  networkManager: { dataExpiryLength: 1000 * 60 * 60 },
+});
+
+export default function RootLayout() {
+  return (
+    <DataProvider managers={managers}>
+      <Stack>
+        <Stack.Screen name="index" />
+      </Stack>
+    </DataProvider>
+  );
+}
+```
 
 ## Arguments
 
@@ -83,7 +161,7 @@ const managers = getDefaultManagers({
 Sending manager instances allows us to customize managers using inheritance.
 
 ```ts
-import { IdlingNetworkManager } from '@data-client/react';
+import { getDefaultManagers, IdlingNetworkManager } from '@data-client/react';
 
 const managers = getDefaultManagers({
   networkManager: new IdlingNetworkManager(),

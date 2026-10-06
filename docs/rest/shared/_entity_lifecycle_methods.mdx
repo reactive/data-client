@@ -363,7 +363,7 @@ if it is deemed 'valid'.
 `undefined` return will result in [Invalid expiry status](/docs/concepts/expiry-policy#expiry-status),
 like [Invalidate](/rest/api/Invalidate).
 
-[`Invalid`](/docs/concepts/expiry-policy#expiry-status) expiry generally means hooks will enter a loading state and attempt a new fetch.
+[`Invalid`](/docs/concepts/expiry-policy#expiry-status) expiry generally means :react[hooks]:vue[composables] will enter a loading state and attempt a new fetch.
 
 ```ts
 static createIfValid(props): AbstractInstanceType<this> | undefined {
@@ -383,7 +383,7 @@ During normalization a validation failure will result in an error for that fetch
 During denormalization a validation failure will mark that result as 'invalid' and thus
 will block on fetching a result.
 
-By **default** does some basic field existance checks in development mode only. Override to
+By **default** does some basic field existence checks in development mode only. Override to
 disable or customize.
 
 [Using validation for endpoints with incomplete fields](../guides/partial-entities.md)

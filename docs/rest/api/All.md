@@ -3,10 +3,8 @@ title: All Schema - Access every entity in the Reactive Data Client store
 sidebar_label: All
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-import LanguageTabs from '@site/src/components/LanguageTabs';
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import PolymorphicFeedDemo from '../shared/\_PolymorphicFeedDemo.mdx';
 import { RestEndpoint } from '@data-client/rest';
 
 # All
@@ -27,7 +25,7 @@ Retrieves all entities in cache as an Array.
 
 To describe a simple array of a singular entity type:
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],
@@ -60,7 +58,10 @@ export const createUser = new RestEndpoint({
 });
 ```
 
+:::react
+
 ```tsx title="NewUser" collapsed
+import React from 'react';
 import { useController } from '@data-client/react';
 import { createUser } from './api/User';
 
@@ -73,7 +74,7 @@ export default function NewUser() {
         e.currentTarget.value = '';
       }
     },
-    [fetch],
+    [ctrl],
   );
   return <input onKeyPress={handlePress}/>;
 }
@@ -104,7 +105,59 @@ function UsersPage() {
 render(<UsersPage />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="NewUser.vue" collapsed
+<script setup lang="ts">
+  import { ref } from 'vue';
+  import { useController } from '@data-client/vue';
+  import { createUser } from './api/User';
+
+  const ctrl = useController();
+  const name = ref('');
+
+  const handleEnter = () => {
+    ctrl.fetch(createUser, { name: name.value });
+    name.value = '';
+  };
+</script>
+
+<template>
+  <input v-model="name" @keyup.enter="handleEnter" />
+</template>
+```
+
+```html title="UsersPage.vue"
+<script lang="ts">
+  import { RestEndpoint, All } from '@data-client/rest';
+  import { User } from './api/User';
+
+  const getUsers = new RestEndpoint({
+    path: '/users',
+    schema: new All(User),
+  });
+</script>
+
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import NewUser from './NewUser.vue';
+
+  const users = await useSuspense(getUsers);
+</script>
+
+<template>
+  <div>
+    <div v-for="user in users" :key="user.pk()">{{ user.name }}</div>
+    <NewUser />
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ### Polymorphic types
 
@@ -118,145 +171,11 @@ If your data returns an object that you did not provide a mapping for, the origi
 
 #### string schemaAttribute
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
-{
-endpoint: new RestEndpoint({path: '/feed'}),
-args: [],
-response: [
-{ id: 1, type: 'link', url: 'https://ntucker.true.io', title: 'Nate site' },
-{ id: 10, type: 'post', content: 'good day!' },
-],
-delay: 150,
-},
-]}>
-
-```typescript title="api/Feed"
-import { Entity, RestEndpoint, All } from '@data-client/rest';
-
-export abstract class FeedItem extends Entity {
-  readonly id: number = 0;
-  declare readonly type: 'link' | 'post';
-}
-export class Link extends FeedItem {
-  readonly type = 'link' as const;
-  readonly url: string = '';
-  readonly title: string = '';
-}
-export class Post extends FeedItem {
-  readonly type = 'post' as const;
-  readonly content: string = '';
-}
-export const getFeed = new RestEndpoint({
-  path: '/feed',
-  schema: new All(
-    {
-      link: Link,
-      post: Post,
-    },
-    'type',
-  ),
-});
-```
-
-```tsx title="FeedList" collapsed
-import { useSuspense } from '@data-client/react';
-import { getFeed, Link, Post } from './api/Feed';
-
-function FeedList() {
-  const feedItems = useSuspense(getFeed);
-  return (
-    <div>
-      {feedItems.map(item =>
-        item.type === 'link' ? (
-          <LinkItem link={item} key={item.pk()} />
-        ) : (
-          <PostItem post={item} key={item.pk()} />
-        ),
-      )}
-    </div>
-  );
-}
-function LinkItem({ link }: { link: Link }) {
-  return <a href={link.url}>{link.title}</a>;
-}
-function PostItem({ post }: { post: Post }) {
-  return <div>{post.content}</div>;
-}
-render(<FeedList />);
-```
-
-</HooksPlayground>
+<PolymorphicFeedDemo schema="All" attribute="string" />
 
 #### function schemaAttribute
 
 The return values should match a key in the `definition`. Here we'll show the same behavior as the 'string'
 case, except we'll append an 's'.
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
-{
-endpoint: new RestEndpoint({path: '/feed'}),
-args: [],
-response: [
-{ id: 1, type: 'link', url: 'https://ntucker.true.io', title: 'Nate site' },
-{ id: 10, type: 'post', content: 'good day!' },
-],
-delay: 150,
-},
-]}>
-
-```typescript title="api/Feed"
-import { Entity, RestEndpoint, All } from '@data-client/rest';
-
-export abstract class FeedItem extends Entity {
-  readonly id: number = 0;
-  declare readonly type: 'link' | 'post';
-}
-export class Link extends FeedItem {
-  readonly type = 'link' as const;
-  readonly url: string = '';
-  readonly title: string = '';
-}
-export class Post extends FeedItem {
-  readonly type = 'post' as const;
-  readonly content: string = '';
-}
-export const getFeed = new RestEndpoint({
-  path: '/feed',
-  schema: new All(
-    {
-      links: Link,
-      posts: Post,
-    },
-    (input: Link | Post, parent, key) => `${input.type}s`,
-  ),
-});
-```
-
-```tsx title="FeedList" collapsed
-import { useSuspense } from '@data-client/react';
-import { getFeed, Link, Post } from './api/Feed';
-
-function FeedList() {
-  const feedItems = useSuspense(getFeed);
-  return (
-    <div>
-      {feedItems.map(item =>
-        item.type === 'link' ? (
-          <LinkItem link={item} key={item.pk()} />
-        ) : (
-          <PostItem post={item} key={item.pk()} />
-        ),
-      )}
-    </div>
-  );
-}
-function LinkItem({ link }: { link: Link }) {
-  return <a href={link.url}>{link.title}</a>;
-}
-function PostItem({ post }: { post: Post }) {
-  return <div>{post.content}</div>;
-}
-render(<FeedList />);
-```
-
-</HooksPlayground>
+<PolymorphicFeedDemo schema="All" attribute="function" />

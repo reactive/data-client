@@ -1,11 +1,10 @@
 ---
 title: Union Schema - Declarative polymorphic data for React
+vue_title: Union Schema - Declarative polymorphic data for Vue
 sidebar_label: Union
 ---
 
-import LanguageTabs from '@site/src/components/LanguageTabs';
-import HooksPlayground from '@site/src/components/HooksPlayground';
-import { RestEndpoint } from '@data-client/rest';
+import PolymorphicFeedDemo from '../shared/\_PolymorphicFeedDemo.mdx';
 import StackBlitz from '@site/src/components/StackBlitz';
 
 # Union
@@ -37,153 +36,15 @@ If your data returns an object that you did not provide a mapping for, the origi
 
 :::
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
-{
-endpoint: new RestEndpoint({path: '/feed'}),
-args: [],
-response: [
-    { id: 1, type: 'link', url: 'https://ntucker.true.io', title: 'Nate site' },
-    { id: 10, type: 'post', content: 'good day!' },
-  ],
-delay: 150,
-},
-]}>
-
-```typescript title="api/Feed"
-import { Entity, RestEndpoint, Union } from '@data-client/rest';
-
-export abstract class FeedItem extends Entity {
-  id = 0;
-  declare type: 'link' | 'post';
-}
-export class Link extends FeedItem {
-  type = 'link' as const;
-  url = '';
-  title = '';
-}
-export class Post extends FeedItem {
-  type = 'post' as const;
-  content = '';
-}
-
-export const feed = new RestEndpoint({
-  path: '/feed',
-  schema: [
-    new Union(
-      {
-        link: Link,
-        post: Post,
-      },
-      'type',
-    ),
-  ],
-});
-```
-
-```tsx title="FeedList" collapsed
-import { useSuspense } from '@data-client/react';
-import { feed, Link, Post } from './api/Feed';
-
-function FeedList() {
-  const feedItems = useSuspense(feed);
-  return (
-    <div>
-      {feedItems.map(item =>
-        item.type === 'link' ? (
-          <LinkItem link={item} key={item.pk()} />
-        ) : (
-          <PostItem post={item} key={item.pk()} />
-        ),
-      )}
-    </div>
-  );
-}
-function LinkItem({ link }: { link: Link }) {
-  return <a href={link.url}>{link.title}</a>;
-}
-function PostItem({ post }: { post: Post }) {
-  return <div>{post.content}</div>;
-}
-render(<FeedList />);
-```
-
-</HooksPlayground>
+<PolymorphicFeedDemo schema="Union" attribute="string" />
 
 ### Function schemaAttribute
 
 When the discriminator value doesn't directly match schema keys, use a function to compute which schema to use.
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
-{
-endpoint: new RestEndpoint({path: '/feed'}),
-args: [],
-response: [
-    { id: 1, type: 'link', url: 'https://ntucker.true.io', title: 'Nate site' },
-    { id: 10, type: 'post', content: 'good day!' },
-  ],
-delay: 150,
-},
-]}>
+<PolymorphicFeedDemo schema="Union" attribute="function" />
 
-```typescript title="api/Feed"
-import { Entity, RestEndpoint, Union } from '@data-client/rest';
-
-export abstract class FeedItem extends Entity {
-  id = 0;
-  declare type: 'link' | 'post';
-}
-export class LinkItem extends FeedItem {
-  type = 'link' as const;
-  url = '';
-  title = '';
-}
-export class PostItem extends FeedItem {
-  type = 'post' as const;
-  content = '';
-}
-
-export const feed = new RestEndpoint({
-  path: '/feed',
-  schema: [
-    new Union(
-      {
-        links: LinkItem,
-        posts: PostItem,
-      },
-      (input: LinkItem | PostItem, parent: unknown, key: string) => `${input.type}s`,
-    ),
-  ],
-});
-```
-
-```tsx title="FeedList" collapsed
-import { useSuspense } from '@data-client/react';
-import { feed, LinkItem, PostItem } from './api/Feed';
-
-function FeedList() {
-  const feedItems = useSuspense(feed);
-  return (
-    <div>
-      {feedItems.map(item =>
-        item.type === 'link' ? (
-          <LinkComponent link={item} key={item.pk()} />
-        ) : (
-          <PostComponent post={item} key={item.pk()} />
-        ),
-      )}
-    </div>
-  );
-}
-function LinkComponent({ link }: { link: LinkItem }) {
-  return <a href={link.url}>{link.title}</a>;
-}
-function PostComponent({ post }: { post: PostItem }) {
-  return <div>{post.content}</div>;
-}
-render(<FeedList />);
-```
-
-</HooksPlayground>
+:::react
 
 ### Github Events
 
@@ -191,3 +52,5 @@ Contribution activity comes from grouping github events by their type. Each type
 own distinct schema, which is why we use `Union`
 
 <StackBlitz app="github-app" file="src/pages/ProfileDetail/UserEvents.tsx,src/resources/Event.tsx" view="preview" initialpath="/users/ntucker" height="700" />
+
+:::

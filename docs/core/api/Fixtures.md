@@ -40,7 +40,7 @@ export interface SuccessFixture<
     | ResolveType<E>
     | ((...args: Parameters<E>) => ResolveType<E>);
   readonly error?: false;
-  /** Number of miliseconds to wait before resolving */
+  /** Number of milliseconds to wait before resolving */
   readonly delay?: number;
 }
 ```
@@ -77,7 +77,7 @@ export interface ErrorFixture<E extends EndpointInterface = EndpointInterface> {
   readonly args: Parameters<E>;
   readonly response: any;
   readonly error: true;
-  /** Number of miliseconds to wait before resolving */
+  /** Number of milliseconds to wait before resolving */
   readonly delay?: number;
 }
 ```
@@ -129,7 +129,7 @@ interface ResponseInterceptor<
 > {
   readonly endpoint: E;
   response(this: T, ...args: Parameters<E>): ResolveType<E>;
-  /** Number of miliseconds (or function that returns) to wait before resolving */
+  /** Number of milliseconds (or function that returns) to wait before resolving */
   readonly delay?: number | ((...args: Parameters<E>) => number);
   /** Waits to run `response()` after `delay` time */
   readonly delayCollapse?: boolean;
@@ -150,7 +150,7 @@ interface FetchInterceptor<
 > {
   readonly endpoint: E;
   fetchResponse(this: T, input: RequestInfo, init: RequestInit): ResolveType<E>;
-  /** Number of miliseconds (or function that returns) to wait before resolving */
+  /** Number of milliseconds (or function that returns) to wait before resolving */
   readonly delay?: number | ((...args: Parameters<E>) => number);
   /** Waits to run `response()` after `delay` time */
   readonly delayCollapse?: boolean;
@@ -193,7 +193,7 @@ Determines what the response for this mock should be. If a function it will be r
 
 Function running is called 'collapsing' after the mechanism in [Quantum Mechanics](https://www.wondriumdaily.com/copenhagen-interpretation-of-quantum-mechanics/)
 
-`this` can be used to store simulated server-side data. It is initialized using :react[[getInitialInterceptorData](./MockResolver.md#getinitialinterceptordata)]:vue[`getInitialInterceptorData`]. It's important to not use arrow functions when using this as they disallow `this` binding.
+`this` can be used to store simulated server-side data. It is initialized using :react[[getInitialInterceptorData](./MockResolver.md#getinitialinterceptordata)]:vue[[getInitialInterceptorData](../guides/unit-testing-components.md#options)]. It's important to not use arrow functions when using this as they disallow `this` binding.
 
 ### fetchResponse(input, init) {#fetchResponse}
 
@@ -222,10 +222,10 @@ This can be useful when you want to use the body generated in a custom [getReque
 
 ### delay: number {#delay}
 
-This is the number of miliseconds to wait before resolving the promise. This can be useful
+This is the number of milliseconds to wait before resolving the promise. This can be useful
 when simulating race conditions.
 
-When a function is sent, its return value is used as the number of miliseconds.
+When a function is sent, its return value is used as the number of milliseconds.
 
 ### delayCollapse: boolean {#delayCollapse}
 

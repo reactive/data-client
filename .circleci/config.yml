@@ -6,7 +6,7 @@ version: 2.1
 executors:
   node:
     docker: &docker
-      - image: cimg/node:26.7
+      - image: cimg/node:26.10
     environment:
       # the whole CI is reset each time anyway, so only track local cache
       YARN_ENABLE_GLOBAL_CACHE: false
@@ -44,6 +44,15 @@ commands:
             else
               echo "No relevance flag found; failing open (continuing job)."
             fi
+
+  restore-yarn-cache:
+    # The workspace skips the yarn cache (~130 MiB) to keep setup's upload
+    # short; only jobs that re-resolve dependencies (`yarn up`/`add`) need it.
+    steps:
+      - restore_cache:
+          keys:
+            - v16-dependencies-{{ checksum ".ci-deps-key" }}
+            - v16-dependencies-
 
 jobs:
   setup:
@@ -132,11 +141,13 @@ jobs:
             npm pkg set 'workspaces[]'='examples/todo-app'
             npm pkg set 'workspaces[]'='examples/github-app'
             npm pkg set 'workspaces[]'='examples/normalizr-relationships'
-      - restore_cache:
-          keys:
-            - v14-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}-{{ checksum "examples/todo-app/package.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v14-dependencies-
+      - run:
+          # Hash the manifests before trimming and `yarn up` rewrite them,
+          # so the same key restores and saves.
+          name: Compute dependency cache key
+          command: |
+            git show HEAD:package.json HEAD:yarn.lock HEAD:examples/todo-app/package.json HEAD:examples/github-app/package.json HEAD:examples/normalizr-relationships/package.json | sha256sum > .ci-deps-key
+      - restore-yarn-cache
       - run:
           name: yarn install
           command: |
@@ -144,8 +155,7 @@ jobs:
       - save_cache:
           paths:
             - .yarn/cache
-            - .yarn/install-state.gz
-          key: v14-dependencies-{{ checksum "yarn.lock" }}-{{ checksum "examples/github-app/package.json" }}-{{ checksum "examples/todo-app/package.json" }}
+          key: v16-dependencies-{{ checksum ".ci-deps-key" }}
       - run:
           # These are independent (babel/rollup compile from src, not tsc output),
           # so run them concurrently to shorten the critical path. Legacy types
@@ -162,7 +172,11 @@ jobs:
           root: ~/
           paths:
             # explicitly list so we can ignore some directories that are not needed
-            - project/.yarn
+            # .yarn/cache is left out; see restore-yarn-cache
+            - project/.yarn/releases
+            - project/.yarn/plugins
+            - project/.yarn/install-state.gz
+            - project/.ci-deps-key
             - project/__tests__
             - project/examples/todo-app
             - project/examples/github-app
@@ -204,6 +218,10 @@ jobs:
       - run:
           command: |
             yarn run tsc --project tsconfig.test.json --noEmit
+      - run:
+          # See scripts/typeperf/README.md
+          name: Type-check perf budget
+          command: yarn run check:typeperf
 
   unit_tests:
     parameters:
@@ -216,6 +234,12 @@ jobs:
           flag: tests
       - attach_workspace:
           at: ~/
+      - unless:
+          # `latest` uses the installed React as-is
+          condition:
+            equal: ["latest", << parameters.react-version >>]
+          steps:
+            - restore-yarn-cache
       - run:
           name: Installing React Version
           command: |
@@ -248,17 +272,50 @@ jobs:
               yarn test:ci --selectProjects ReactNative
             elif [ "<< parameters.react-version >>" == "19.3" ]; then
               yarn test:ci --maxWorkers=4 --selectProjects ReactDOM --testPathPatterns 'packages/react/src/__tests__/concurrent-.*\.web\.tsx' 'packages/react/src/hooks/__tests__/useCacheState.web.tsx'
+            elif [ "<< parameters.react-version >>" == "latest" ]; then
+              # Coverage floors and projects live in the test:coverage script
+              yarn run test:coverage --ci --maxWorkers=4 --coverageReporters=lcovonly --coverageReporters=text-summary
             else
-              curl -fsSO --connect-timeout 10 --max-time 60 https://uploader.codecov.io/latest/linux/codecov && chmod +x codecov || echo "Codecov uploader download failed; skipping coverage upload";
-              yarn run test:coverage --ci --maxWorkers=4 --selectProjects ReactDOM Node --coverageReporters=text-lcov > ./lcov.info;
-              if [ -x ./codecov ]; then
-                if [ "$CODECOV_TOKEN" != "" ]; then
-                  ./codecov -t ${CODECOV_TOKEN} < ./lcov.info || true;
-                else
-                  ./codecov < ./lcov.info || true;
-                fi
-              fi
+              echo "Unknown react-version << parameters.react-version >>"
+              exit 1
             fi
+      - when:
+          condition:
+            equal: [latest, << parameters.react-version >>]
+          steps:
+            - run:
+                name: Upload coverage to Codecov
+                # Upload even when the coverage floors fail, so Codecov shows what dropped
+                when: always
+                command: |
+                  # Pinned CLI, checked against Codecov's signing key fingerprint
+                  # before it ever sees CODECOV_TOKEN.
+                  # https://docs.codecov.com/docs/codecov-uploader#integrity-checking-the-uploader
+                  # renovate: datasource=github-releases depName=codecov/codecov-cli
+                  CLI=https://cli.codecov.io/v11.3.1/linux/codecov
+                  KEY_FINGERPRINT=27034E7FDB850E0BBC2C62FF806BB28AED779869
+                  if [ ! -f coverage/lcov.info ]; then
+                    echo "No coverage report; skipping upload"
+                    exit 0
+                  fi
+                  DIR="$(mktemp -d)"
+                  export GNUPGHOME="$DIR"
+                  # gpg status goes to a file, not a pipe: CircleCI's pipefail would
+                  # flip the check if an early-exiting grep SIGPIPEd gpg.
+                  if curl -fsS --retry 3 --output-dir "$DIR" -O "$CLI" -O "$CLI.SHA256SUM" -O "$CLI.SHA256SUM.sig" \
+                    -o key.asc https://keybase.io/codecovsecops/pgp_keys.asc \
+                    && gpg --batch --import "$DIR/key.asc" \
+                    && gpg --batch --status-file "$DIR/status" --verify "$DIR/codecov.SHA256SUM.sig" "$DIR/codecov.SHA256SUM" \
+                    && grep -q "VALIDSIG .*$KEY_FINGERPRINT" "$DIR/status" \
+                    && (cd "$DIR" && sha256sum -c codecov.SHA256SUM); then
+                    chmod +x "$DIR/codecov"
+                    # Fork PRs have no token; Codecov accepts tokenless uploads from them
+                    "$DIR/codecov" upload-coverage ${CODECOV_TOKEN:+-t "$CODECOV_TOKEN"} --git-service github \
+                      --file coverage/lcov.info --disable-search --plugin noop \
+                      || echo "Codecov upload failed"
+                  else
+                    echo "Codecov CLI download or signature check failed; skipping upload"
+                  fi
 
   node_matrix:
     parameters:
@@ -272,6 +329,7 @@ jobs:
           flag: tests
       - attach_workspace:
           at: ~/
+      - restore-yarn-cache
       - run:
           command: |
             node --version
@@ -297,6 +355,7 @@ jobs:
           flag: esmodule
       - attach_workspace:
           at: ~/
+      - restore-yarn-cache
       - run:
           name: Install TypeScript Version
           command: |
@@ -332,6 +391,12 @@ jobs:
             yarn run tsc --project examples/github-app/tsconfig.typetest.json
             # skipLibCheck: false, so the legacy typesVersions outputs get checked too
             yarn run tsc --project examples/todo-app/tsconfig.typetest-libcheck.json
+            # Every published entry point's declarations must parse on this TypeScript
+            node scripts/check-dts-parse.mjs
+            # Vue's own types need TypeScript 4.5+
+            if [[ ! "<< parameters.typescript-version >>" < "4.5" ]]; then
+            yarn run tsc --project examples/todo-app/tsconfig.typetest-vue.json
+            fi
 
   esmodule-types-latest:
     executor: node
@@ -358,6 +423,7 @@ jobs:
             yarn run tsc --project examples/todo-app/tsconfig.typetest41.json --exactOptionalPropertyTypes true
             # skipLibCheck: false on lib/ too (TS 7 removed moduleResolution node)
             yarn run tsc --project examples/todo-app/tsconfig.typetest-libcheck.json --moduleResolution bundler
+            yarn run tsc --project examples/todo-app/tsconfig.typetest-vue.json --moduleResolution bundler
 
   validate-esmodule-browser-build:
     executor: node

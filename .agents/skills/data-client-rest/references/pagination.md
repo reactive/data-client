@@ -144,8 +144,9 @@ Here we explore a real world example using [cosmos validators list](https://rest
 Since validators only have one Endpoint, we use [RestEndpoint](./RestEndpoint.md) instead of [resource](./resource.md). By using [Collections](./Collection.md) and [paginationField](./RestEndpoint.md#paginationfield), we can call [RestEndpoint.getPage](./RestEndpoint.md#getpage)
 to append the next page of validators to our list.
 
-```ts title="Validator" {46-50}
+```ts title="Validator" {47-51}
 import { Collection, Entity, RestEndpoint, schema } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class Validator extends Entity {
   operator_address = '';
@@ -281,6 +282,8 @@ page fetching. On web, it is recommended to use something based on [Intersection
 ```tsx
 import { useSuspense, useController } from '@data-client/react';
 import { PostResource } from 'resources/Post';
+import Pagination from './Pagination';
+import PostList from './PostList';
 
 function NewsList() {
   const { results, cursor } = useSuspense(PostResource.getList);
@@ -292,7 +295,7 @@ function NewsList() {
         ctrl.fetch(PostResource.getList.getPage, { cursor })
       }
     >
-      <NewsList data={results} />
+      <PostList posts={results} />
     </Pagination>
   );
 }

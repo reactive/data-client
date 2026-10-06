@@ -3,7 +3,7 @@ title: Computed Properties
 ---
 
 import { All, Query, RestEndpoint } from '@data-client/rest';
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 
 ## Singular computations
 
@@ -78,7 +78,7 @@ class User extends Entity {
 [Query](../api/Query.md) can be used for computations of derived data from more than
 one entity. We generally call these aggregates.
 
-<HooksPlayground row fixtures={[
+<FrameworkPlayground row fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],
@@ -92,6 +92,8 @@ delay: 150,
 ]}>
 
 ```ts title="resources/User" collapsed
+import { Entity, resource } from '@data-client/rest';
+
 export class User extends Entity {
   id = '';
   name = '';
@@ -102,6 +104,8 @@ export const UserResource = resource({
   schema: User,
 });
 ```
+
+:::react
 
 ```tsx title="UsersPage"
 import { All, Query, schema } from '@data-client/rest';
@@ -133,4 +137,42 @@ function UsersPage() {
 render(<UsersPage />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="UsersPage.vue"
+<script lang="ts">
+  import { All, Query, schema } from '@data-client/rest';
+  import { UserResource, User } from './resources/User';
+
+  const getUserCount = new Query(
+    new All(User),
+    (entries, { isAdmin } = {}) => {
+      if (isAdmin !== undefined)
+        return entries.filter(user => user.isAdmin === isAdmin).length;
+      return entries.length;
+    },
+  );
+</script>
+
+<script setup lang="ts">
+  import { useQuery, useSuspense } from '@data-client/vue';
+
+  await useSuspense(UserResource.getList);
+  const userCount = useQuery(getUserCount);
+  const adminCount = useQuery(getUserCount, { isAdmin: true });
+</script>
+
+<template>
+  <!-- userCount is never undefined since we suspense, but typescript does not know that -->
+  <div v-if="userCount !== undefined">
+    <div>Total users: {{ userCount }}</div>
+    <div>Total admins: {{ adminCount }}</div>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>

@@ -6,13 +6,14 @@ type EntityRef = string | { readonly id: string; readonly schema: string };
 
 /** Schemas that write each row to one stored entity: Entity, Union, or Invalidate (batch delete).
  * Query, All and Collection don't: they normalize to lists, or Collection keys by args batch set() lacks. */
-type SetEntitySchema =
-  | EntityInterface
-  | {
-      _normalizeNullable(): EntityRef | undefined;
-      // excludes Collection
-      pk?: never;
-    };
+type SetEntitySchema = EntityInterface | EntityRefSchema;
+
+/** Union or Invalidate */
+type EntityRefSchema = {
+  _normalizeNullable(): EntityRef | undefined;
+  // excludes Entity and Collection
+  pk?: never;
+};
 
 /** `[Entity]`, `schema.Array(Entity)` or `schema.Values(Entity)` (or of a Union or Invalidate) */
 export type SetManySchema =
@@ -25,6 +26,14 @@ export type SetManySchema =
       // excludes Entity, whose `any` returns match the members above
       pk?: never;
     };
+
+/** `new Invalidate(Entity)` (or of a Union): not Queryable, since its queryKey() returns undefined */
+export type SetInvalidateSchema = EntityRefSchema & {
+  // excludes Union
+  queryKey(...args: any): undefined;
+  // excludes Lazy
+  query?: never;
+};
 
 type IsUnion<T, U = T> =
   T extends unknown ?
@@ -51,25 +60,14 @@ type SetField<T> =
   : T extends object ? unknown
   : T;
 
-/** Non-function keys of any member of U */
-type FieldKeys<U> =
-  U extends unknown ? Exclude<keyof U, FunctionKeys<U>> : never;
-
-/** Input for field K, from each member of U that has it */
-type MemberField<U, K> =
-  U extends unknown ?
-    K extends keyof U ?
-      SetField<U[K]>
-    : never
-  : never;
-
-/** Fields of one row (or a coerced primitive); like EntityFields, but without
- * key remapping (TS 4.0). A Union's members merge into one object type: checking
- * a row against it costs one comparison instead of one per member. */
+/** Fields of one row (or a coerced primitive); like EntityFields, but distributive
+ * and without key remapping (TS 4.0). A Union gets one row per member, so a
+ * discriminator like `type` selects the member the other fields are checked against. */
 type SetRow<U> =
   // EntityMixin and other untyped entities
   0 extends 1 & U ? { readonly [k: string]: any }
-  : [U] extends [object] ? { readonly [K in FieldKeys<U>]?: MemberField<U, K> }
+  : U extends object ?
+    { readonly [K in Exclude<keyof U, FunctionKeys<U>>]?: SetField<U[K]> }
   : SetField<U>;
 
 /** Keeps S inferred from the schema alone: inferring it from the value too would
@@ -80,7 +78,7 @@ export type SetManyValue<S> =
   S extends readonly (infer E)[] ?
     true extends IsUnion<E> ?
       readonly { 'Use a Union schema for several Entity types': never }[]
-    : readonly SetItem<Denormalize<E>>[]
+    : readonly SetRow<Denormalize<E>>[]
   : SetValue<S>;
 
 /** Raw input `set()` normalizes for a Queryable */
@@ -110,15 +108,7 @@ type InputSchema<S> =
 /** Raw input for a denormalized value, like a Collection's list or a Union's row */
 type SetInput<T> =
   0 extends 1 & T ? any
-  : // not distributive, so a Union's members stay together for SetItem
-  [T] extends [readonly (infer U)[]] ? readonly SetItem<U>[]
-  : string extends keyof T ? { readonly [k: string]: SetItem<T[keyof T]> }
-  : SetItem<T>;
-
-/**
- * One member of a list or keyed object. Polymorphic rows may carry a
- * discriminator that is not an Entity field.
- */
-type SetItem<U> =
-  true extends IsUnion<U> ? SetRow<U> & { readonly [k: string]: unknown }
-  : SetRow<U>;
+  : // not distributive: SetRow splits a Union into its members itself
+  [T] extends [readonly (infer U)[]] ? readonly SetRow<U>[]
+  : string extends keyof T ? { readonly [k: string]: SetRow<T[keyof T]> }
+  : SetRow<T>;

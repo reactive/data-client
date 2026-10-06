@@ -235,31 +235,98 @@ describe('set', () => {
     () => {
       // @ts-expect-error body is a string
       controller.set([UnionSchema], [{ id: '1', body: false }]);
-      // discriminators read by a schemaAttribute function need not be fields
+      // each row is checked against the member its discriminator selects
+      // @ts-expect-error secondeOnlyField is not a field of FirstUnion
+      controller.set([UnionSchema], [{ type: 'first', secondeOnlyField: 1 }]);
+      // @ts-expect-error firstOnlyField is a number
+      controller.set([UnionSchema], [{ firstOnlyField: false }]);
+      // @ts-expect-error unknown field
+      controller.set([UnionSchema], [{ id: '1', bogus: 1 }]);
+      // discriminators read by a schemaAttribute function must be fields too
       const byKind = new schema.Union(
         { first: FirstUnion, second: SecondUnion },
-        (input: any) => input.kind,
+        (input: any) => input.type,
       );
+      controller.set([byKind], [{ id: '1', type: 'first' }]);
+      // @ts-expect-error kind is not a field
       controller.set([byKind], [{ id: '1', kind: 'first' }]);
       controller.set(
         new schema.Array(
           { first: FirstUnion, second: SecondUnion },
-          (input: any) => input.kind,
+          (input: any) => input.type,
         ),
-        [{ id: '1', kind: 'first' }],
+        [{ id: '1', type: 'first' }],
       );
       controller.set(new schema.Array(new schema.Invalidate(UnionSchema)), [
         { id: '1', type: 'first' },
       ]);
       // @ts-expect-error id is a number
       controller.set([new schema.Invalidate(CoolerArticle)], [{ id: false }]);
-      controller.set(byKind, { id: '1' }, { id: '1', kind: 'first' });
+      controller.set(byKind, { id: '1' }, { id: '1', type: 'first' });
       // @ts-expect-error body is a string
       controller.set(byKind, { id: '1' }, { id: '1', body: false });
+      controller.set(UnionSchema, { id: '1', type: 'first' }, prev => ({
+        ...prev,
+        body: 'updated',
+      }));
+      controller.set(
+        UnionSchema,
+        { id: '1', type: 'first' },
+        // @ts-expect-error firstOnlyField is a number
+        prev => ({ ...prev, firstOnlyField: false }),
+      );
+      controller.set(
+        UnionSchema,
+        { id: '1', type: 'first' },
+        // @ts-expect-error secondeOnlyField is not a field of FirstUnion
+        { type: 'first', secondeOnlyField: 1 },
+      );
       // EntityMixin rows
       controller.set([ArticleFromMixin], [{ id: 5, title: 'mixin' }]);
       // @ts-expect-error title is a string
       controller.set(new schema.Values(CoolerArticle), { a: { title: false } });
+    };
+  });
+
+  it('should invalidate one entity with an Invalidate schema', async () => {
+    const { controller } = renderDataClient(() => null);
+    const invalidate = new schema.Invalidate(CoolerArticle);
+    let promise: any;
+    act(() => {
+      controller.set(CoolerArticle, { id: 5 }, payload);
+      controller.set(CoolerArticle, { id: 1 }, createPayload);
+    });
+    act(() => {
+      promise = controller.set(invalidate, { id: 5 });
+    });
+    await act(() => promise);
+    expect(
+      controller.get(CoolerArticle, { id: 5 }, controller.getState()),
+    ).toBeUndefined();
+    expect(
+      controller.get(CoolerArticle, { id: 1 }, controller.getState())?.title,
+    ).toBe(createPayload.title);
+
+    // type tests
+    () => {
+      controller.set(new schema.Invalidate(UnionSchema), {
+        id: '1',
+        type: 'first',
+      });
+      // @ts-expect-error title is a string
+      controller.set(invalidate, { id: 5, title: false });
+      // @ts-expect-error unknown field
+      controller.set(invalidate, { id: 5, bogus: 1 });
+      // @ts-expect-error Invalidate takes no args
+      controller.set(invalidate, { id: 5 }, { id: 5 });
+      // @ts-expect-error one row, not a list; use set([invalidate], rows) for many
+      controller.set(invalidate, [{ id: 5 }]);
+      // @ts-expect-error invalid entities have no previous value to update
+      controller.set(invalidate, (article: any) => article);
+      // @ts-expect-error value is required
+      controller.set(invalidate);
+      // @ts-expect-error Lazy only stores references
+      controller.set(new schema.Lazy(CoolerArticle), { id: 5 });
     };
   });
 

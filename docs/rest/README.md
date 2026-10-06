@@ -268,7 +268,7 @@ resolves to the new Resource created by the API. It will automatically be added 
 <TabItem value="Update">
 
 ```tsx title="UpdateArticleForm.tsx"
-import { useController } from '@data-client/react';
+import { useController, useSuspense } from '@data-client/react';
 import { ArticleResource } from '@/resources/Article';
 
 export default function UpdateArticleForm({ slug }: { slug: string }) {

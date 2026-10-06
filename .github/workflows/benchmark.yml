@@ -2,6 +2,7 @@ name: Benchmark
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches:
       - master
     paths:
@@ -9,6 +10,11 @@ on:
       - 'packages/endpoint/src/schemas/**'
       - 'packages/core/src/**'
       - 'examples/benchmark/**'
+      - '!packages/**/__tests__/**'
+      - '!examples/benchmark/**/*.md'
+      - 'yarn.lock'
+      - 'scripts/ci-deps-relevant.mjs'
+      - '.github/workflows/dependency-gate.yml'
       - '.github/workflows/benchmark.yml'
   push:
     branches:
@@ -18,6 +24,11 @@ on:
       - 'packages/endpoint/src/schemas/**'
       - 'packages/core/src/**'
       - 'examples/benchmark/**'
+      - '!packages/**/__tests__/**'
+      - '!examples/benchmark/**/*.md'
+      - 'yarn.lock'
+      - 'scripts/ci-deps-relevant.mjs'
+      - '.github/workflows/dependency-gate.yml'
       - '.github/workflows/benchmark.yml'
 permissions:
   contents: write
@@ -26,10 +37,20 @@ permissions:
 concurrency:
   group: ${{ github.event_name == 'push' && 'gh-pages-bench-node-push' || format('benchmark-node-{0}', github.head_ref) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  # Master pushes queue every run (a cancelled one marks master red); PRs keep one
+  queue: ${{ github.event_name == 'push' && 'max' || 'single' }}
 
 jobs:
-  benchmark:
+  # Skips dependency bumps that can't change what this measures
+  changes:
+    if: ${{ !github.event.pull_request.draft }}
+    uses: ./.github/workflows/dependency-gate.yml
+    with:
+      workspaces: examples/benchmark
 
+  benchmark:
+    needs: changes
+    if: ${{ needs.changes.outputs.relevant == 'true' }}
     runs-on: ubuntu-latest
 
     steps:

@@ -35,6 +35,7 @@ import {
 import ensurePojo from './ensurePojo.js';
 import type {
   SkipInfer,
+  SetInvalidateSchema,
   SetManySchema,
   SetManyValue,
   SetValue,
@@ -241,10 +242,11 @@ export default class Controller<
   ): Promise<void>;
 
   /**
-   * Sets every row of an Array or Values of one Entity (or Union) in one normalize.
+   * Sets every row of an Array or Values of one Entity (or Union) in one normalize,
+   * or invalidates the one Entity an Invalidate schema's value identifies.
    * @see https://dataclient.io/docs/api/Controller#set-array
    */
-  set<S extends SetManySchema>(
+  set<S extends SetManySchema | SetInvalidateSchema>(
     schema: S,
     value: SkipInfer<SetManyValue<S>, S>,
   ): Promise<void>;

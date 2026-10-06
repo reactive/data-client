@@ -1,10 +1,11 @@
 ---
 title: schema.Object - Declarative Object data for React
+vue_title: schema.Object - Declarative Object data for Vue
 sidebar_label: schema.Object
 ---
 
 import LanguageTabs from '@site/src/components/LanguageTabs';
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import { RestEndpoint } from '@data-client/rest';
 
 # schema.Object
@@ -26,7 +27,7 @@ Define a plain object mapping that has values needing to be normalized into Enti
 
 #### Usage
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/users'}),
 args: [],
@@ -34,6 +35,8 @@ response: { users: [{ id: '123', name: 'Beth' }] },
 delay: 150,
 },
 ]}>
+
+:::react
 
 ```tsx title="UsersPage.tsx"
 import { Entity, RestEndpoint, schema } from '@data-client/rest';
@@ -60,4 +63,38 @@ function UsersPage() {
 render(<UsersPage />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```ts title="api/User"
+import { Entity, RestEndpoint, schema } from '@data-client/rest';
+
+class User extends Entity {
+  id = '';
+  name = '';
+}
+export const getUsers = new RestEndpoint({
+  path: '/users',
+  schema: new schema.Object({ users: new schema.Array(User) }),
+});
+```
+
+```html title="UsersPage.vue"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getUsers } from './api/User';
+
+  const data = await useSuspense(getUsers);
+</script>
+
+<template>
+  <div>
+    <div v-for="user in data.users" :key="user.pk()">{{ user.name }}</div>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>

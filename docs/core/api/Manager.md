@@ -3,11 +3,10 @@ title: Manager - Powerful middlewares with global store knowledge
 sidebar_label: Manager
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
+import ProviderManagers from '../shared/_provider_managers.mdx';
 
 <head>
   <meta name="docsearch:pagerank" content="20"/>
@@ -57,7 +56,7 @@ managers that perform work after the DOM is updated and also with the newly comp
 :::vue
 
 This promise resolves when the reducer update is committed to the
-[DataClientPlugin](../getting-started/installation.md) store. This enables building managers that perform work with the
+[DataClientPlugin](./DataClientPlugin.md) store. This enables building managers that perform work with the
 newly computed state.
 
 :::
@@ -89,167 +88,21 @@ have internal state, so it is important to not constantly recreate them.
 
 :::vue
 
-Use the `managers` option of [DataClientPlugin](../getting-started/installation.md). The plugin is
+Use the [managers](./DataClientPlugin.md#managers) option of [DataClientPlugin](./DataClientPlugin.md). The plugin is
 installed once per app, so managers are created once.
 
 :::
 
-:::react
+<ProviderManagers imports={['getDefaultManagers']}>
 
-<Tabs
-defaultValue="web"
-groupId="platform"
-values={[
-{ label: 'Web', value: 'web' },
-{ label: 'React Native', value: 'native' },
-{ label: 'NextJS', value: 'nextjs' },
-{ label: 'Expo', value: 'expo' },
-]}>
-
-<TabItem value="web">
-
-```tsx title="/index.tsx"
-import { DataProvider, getDefaultManagers } from '@data-client/react';
-import { createRoot } from 'react-dom/client';
-
-const managers = [...getDefaultManagers(), new MyManager()];
-
-createRoot(document.body).render(
-  <DataProvider managers={managers}>
-    <App />
-  </DataProvider>,
-);
-```
-
-</TabItem>
-
-<TabItem value="native">
-
-```tsx title="/index.tsx"
-import { DataProvider, getDefaultManagers } from '@data-client/react';
-import { AppRegistry } from 'react-native';
-
-const managers = [...getDefaultManagers(), new MyManager()];
-
-const Root = () => (
-  <DataProvider managers={managers}>
-    <App />
-  </DataProvider>
-);
-AppRegistry.registerComponent('MyApp', () => Root);
-```
-
-</TabItem>
-
-<TabItem value="nextjs">
-
-```tsx title="app/Provider.tsx"
-'use client';
-import { getDefaultManagers } from '@data-client/react';
-import { DataProvider } from '@data-client/react/nextjs';
+```ts
+import MyManager from './MyManager';
 
 // highlight-next-line
 const managers = [...getDefaultManagers(), new MyManager()];
-
-export default function Provider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return <DataProvider managers={managers}>{children}</DataProvider>;
-}
 ```
 
-```tsx title="app/_layout.tsx"
-import Provider from './Provider';
-
-export default function RootLayout({ children }) {
-  return (
-    <html>
-      <body>
-        <Provider>{children}</Provider>
-      </body>
-    </html>
-  );
-}
-```
-
-</TabItem>
-<TabItem value="expo">
-
-```tsx title="app/Provider.tsx"
-import { getDefaultManagers, DataProvider } from '@data-client/react';
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from '@react-navigation/native';
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// highlight-next-line
-const managers = [...getDefaultManagers(), new MyManager()];
-
-export default function Provider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const colorScheme = useColorScheme();
-
-  return (
-    <ThemeProvider
-      value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}
-    >
-      // highlight-next-line
-      <DataProvider managers={managers}>{children}</DataProvider>
-    </ThemeProvider>
-  );
-}
-```
-
-```tsx title="app/_layout.tsx"
-import { Stack } from 'expo-router';
-import 'react-native-reanimated';
-
-// highlight-next-line
-import Provider from './Provider';
-
-export default function RootLayout() {
-  return (
-    // highlight-start
-    <Provider>
-      // highlight-end
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      // highlight-start
-    </Provider>
-    // highlight-end
-  );
-}
-```
-
-</TabItem>
-</Tabs>
-
-:::
-
-:::vue
-
-```ts title="main.ts"
-import { createApp } from 'vue';
-import { DataClientPlugin, getDefaultManagers } from '@data-client/vue';
-import App from './App.vue';
-
-const managers = [...getDefaultManagers(), new MyManager()];
-
-const app = createApp(App);
-app.use(DataClientPlugin, { managers });
-app.mount('#app');
-```
-
-:::
+</ProviderManagers>
 
 ## Control flow
 
@@ -273,7 +126,7 @@ The job of `middleware` is to dispatch actions, respond to [actions](./Actions.m
 <TypeScriptEditor>
 
 ```ts title="CurrentTime" collapsed
-import { Entity } from '@data-client/endpoint';
+import { Entity } from '@data-client/rest';
 
 export default class CurrentTime extends Entity {
   id = 0;
@@ -281,12 +134,12 @@ export default class CurrentTime extends Entity {
 }
 ```
 
-```ts title="TimeManager"
-import type { Manager, Middleware } from '@data-client/core';
+```ts title="TimeManager" framework-imports
+import type { Manager, Middleware } from '@data-client/react';
 import CurrentTime from './CurrentTime';
 
 export default class TimeManager implements Manager {
-  protected declare intervalID?: ReturnType<typeof setInterval>;
+  declare protected intervalID?: ReturnType<typeof setInterval>;
 
   middleware: Middleware = controller => {
     this.intervalID = setInterval(() => {
@@ -310,7 +163,7 @@ export default class TimeManager implements Manager {
 
 <TypeScriptEditor>
 
-```ts
+```ts framework-imports
 import type { Manager, Middleware } from '@data-client/react';
 import { actionTypes } from '@data-client/react';
 
@@ -352,22 +205,27 @@ In case we want to 'handle' a certain [action](./Actions.md), we can 'consume' i
 
 <TypeScriptEditor>
 
-```ts title="isEntity" collapsed
-import type { Schema, EntityInterface } from '@data-client/core';
+```ts title="isEntity" collapsed framework-imports
+import type { Schema, EntityInterface } from '@data-client/react';
 
-export default function isEntity(schema: Schema): schema is EntityInterface {
+export default function isEntity(
+  schema: Schema,
+): schema is EntityInterface {
   return schema !== null && (schema as any).pk !== undefined;
 }
 ```
 
-
-```ts title="SubsManager"
-import type { Manager, Middleware, EntityInterface } from '@data-client/react';
+```ts title="SubsManager" framework-imports
+import type {
+  Manager,
+  Middleware,
+  EntityInterface,
+} from '@data-client/react';
 import { actionTypes } from '@data-client/react';
 import isEntity from './isEntity';
 
 export default class CustomSubsManager implements Manager {
-  protected declare entities: Record<string, EntityInterface>;
+  declare protected entities: Record<string, EntityInterface>;
 
   middleware: Middleware = controller => next => async action => {
     switch (action.type) {

@@ -2,7 +2,7 @@
 
 # getDefaultManagers()
 
-`getDefaultManagers` returns an Array of [Managers](./Manager.vue.md) to be sent to [DataClientPlugin](https://dataclient.io/vue/getting-started/installation#add-provider-at-top-level-component).
+`getDefaultManagers` returns an Array of [Managers](./Manager.vue.md) to be sent to [DataClientPlugin](https://dataclient.io/vue/api/DataClientPlugin).
 
 This makes it simple to configure and add custom [Managers](./Manager.vue.md), while remaining robust against
 any potential changes to the default managers.
@@ -29,8 +29,8 @@ app.mount('#app');
 ```
 
 When `managers` is omitted, `DataClientPlugin` uses `getDefaultManagers()` with no arguments.
-See [installation](https://dataclient.io/vue/getting-started/installation#add-provider-at-top-level-component) for the
-other `DataClientPlugin` options.
+See [DataClientPlugin](https://dataclient.io/vue/api/DataClientPlugin#options) for the
+other options.
 
 ## Arguments
 
@@ -84,7 +84,11 @@ const managers = getDefaultManagers({
 Sending manager instances allows us to customize managers using inheritance.
 
 ```ts
-import { NetworkManager, type FetchAction } from '@data-client/vue';
+import {
+  NetworkManager,
+  getDefaultManagers,
+  type FetchAction,
+} from '@data-client/vue';
 
 class LoggingNetworkManager extends NetworkManager {
   protected handleFetch(action: FetchAction) {

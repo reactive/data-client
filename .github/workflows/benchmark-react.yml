@@ -2,6 +2,7 @@ name: Benchmark React
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     branches:
       - master
     paths:
@@ -10,6 +11,11 @@ on:
       - 'packages/endpoint/src/schemas/**'
       - 'packages/normalizr/src/**'
       - 'examples/benchmark-react/**'
+      - '!packages/**/__tests__/**'
+      - '!examples/benchmark-react/**/*.md'
+      - 'yarn.lock'
+      - 'scripts/ci-deps-relevant.mjs'
+      - '.github/workflows/dependency-gate.yml'
       - '.github/workflows/benchmark-react.yml'
   push:
     branches:
@@ -20,18 +26,34 @@ on:
       - 'packages/endpoint/src/schemas/**'
       - 'packages/normalizr/src/**'
       - 'examples/benchmark-react/**'
+      - '!packages/**/__tests__/**'
+      - '!examples/benchmark-react/**/*.md'
+      - 'yarn.lock'
+      - 'scripts/ci-deps-relevant.mjs'
+      - '.github/workflows/dependency-gate.yml'
       - '.github/workflows/benchmark-react.yml'
 
 concurrency:
   group: ${{ github.event_name == 'push' && 'gh-pages-bench-react-push' || format('benchmark-react-{0}', github.head_ref) }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  # Master pushes queue every run (a cancelled one marks master red); PRs keep one
+  queue: ${{ github.event_name == 'push' && 'max' || 'single' }}
 
 permissions:
   contents: write
   pull-requests: write
 
 jobs:
+  # Skips dependency bumps that can't change what this measures
+  changes:
+    if: ${{ !github.event.pull_request.draft }}
+    uses: ./.github/workflows/dependency-gate.yml
+    with:
+      workspaces: examples/benchmark-react
+
   benchmark-react:
+    needs: changes
+    if: ${{ needs.changes.outputs.relevant == 'true' }}
     runs-on: ubuntu-latest
 
     steps:

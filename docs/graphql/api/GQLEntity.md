@@ -317,7 +317,7 @@ During normalization a validation failure will result in an error for that fetch
 During denormalization a validation failure will mark that result as 'invalid' and thus
 will block on fetching a result.
 
-By **default** does some basic field existance checks in development mode only. Override to
+By **default** does some basic field existence checks in development mode only. Override to
 disable or customize.
 
 [Using validation for endpoints with incomplete fields](/rest/guides/partial-entities)
@@ -358,6 +358,7 @@ export class User extends GQLEntity {
 
 ```ts title="Post"
 import { GQLEntity } from '@data-client/graphql';
+import { Temporal } from 'temporal-polyfill';
 import { User } from './User';
 
 export class Post extends GQLEntity {
@@ -375,6 +376,7 @@ export class Post extends GQLEntity {
 ```
 
 ```tsx title="PostPage" collapsed
+import { useSuspense } from '@data-client/react';
 import { GQLEndpoint } from '@data-client/graphql';
 import { Post } from './Post';
 
@@ -400,9 +402,7 @@ function PostPage() {
         {post.content} - <cite>{post.author.name}</cite>
       </p>
       <time>
-        {DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
-          post.createdAt,
-        )}
+        {post.createdAt.toLocaleString('en-US', { dateStyle: 'medium' })}
       </time>
     </div>
   );

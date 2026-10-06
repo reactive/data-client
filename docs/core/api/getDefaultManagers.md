@@ -5,10 +5,11 @@ sidebar_label: getDefaultManagers
 ---
 
 import StackBlitz from '@site/src/components/StackBlitz';
+import ProviderManagers from '../shared/_provider_managers.mdx';
 
 # getDefaultManagers()
 
-`getDefaultManagers` returns an Array of [Managers](./Manager.md) to be sent to :react[[&lt;DataProvider />](./DataProvider.md)]:vue[[DataClientPlugin](../getting-started/installation.md#add-provider-at-top-level-component)].
+`getDefaultManagers` returns an Array of [Managers](./Manager.md) to be sent to :react[[&lt;DataProvider />](./DataProvider.md)]:vue[[DataClientPlugin](./DataClientPlugin.md)].
 
 This makes it simple to configure and add custom [Managers](./Manager.md), while remaining robust against
 any potential changes to the default managers.
@@ -19,52 +20,24 @@ Currently returns \[[DevToolsManager](./DevToolsManager.md)\*, [NetworkManager](
 
 ## Usage
 
-:::react
+<ProviderManagers imports={['getDefaultManagers']}>
 
-```tsx
-import { DataProvider, getDefaultManagers } from '@data-client/react';
-import { createRoot } from 'react-dom/client';
-
+```ts
 // highlight-start
 const managers = getDefaultManagers({
   // set fallback expiry time to an hour
   networkManager: { dataExpiryLength: 1000 * 60 * 60 },
 });
 // highlight-end
-
-createRoot(document.body).render(
-  <DataProvider managers={managers}>
-    <App />
-  </DataProvider>,
-);
 ```
 
-See [DataProvider](./DataProvider.md) for details on usage in different environments.
-
-:::
+</ProviderManagers>
 
 :::vue
 
-```ts title="main.ts"
-import { createApp } from 'vue';
-import { DataClientPlugin, getDefaultManagers } from '@data-client/vue';
-import App from './App.vue';
-
-// highlight-start
-const managers = getDefaultManagers({
-  // set fallback expiry time to an hour
-  networkManager: { dataExpiryLength: 1000 * 60 * 60 },
-});
-// highlight-end
-
-const app = createApp(App);
-app.use(DataClientPlugin, { managers });
-app.mount('#app');
-```
-
 When `managers` is omitted, `DataClientPlugin` uses `getDefaultManagers()` with no arguments.
-See [installation](../getting-started/installation.md#add-provider-at-top-level-component) for the
-other `DataClientPlugin` options.
+See [DataClientPlugin](./DataClientPlugin.md#options) for the
+other options.
 
 :::
 
@@ -125,7 +98,7 @@ Sending manager instances allows us to customize managers using inheritance.
 :::react
 
 ```ts
-import { IdlingNetworkManager } from '@data-client/react';
+import { getDefaultManagers, IdlingNetworkManager } from '@data-client/react';
 
 const managers = getDefaultManagers({
   networkManager: new IdlingNetworkManager(),
@@ -140,7 +113,11 @@ until animations are complete. This works in web using [requestIdleCallback](htt
 :::vue
 
 ```ts
-import { NetworkManager, type FetchAction } from '@data-client/vue';
+import {
+  NetworkManager,
+  getDefaultManagers,
+  type FetchAction,
+} from '@data-client/vue';
 
 class LoggingNetworkManager extends NetworkManager {
   protected handleFetch(action: FetchAction) {

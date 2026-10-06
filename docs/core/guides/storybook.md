@@ -53,6 +53,7 @@ export let ArticleFixtures: Record<string, Fixture> = {};
 <TabItem value="ArticleList.tsx">
 
 ```tsx title="ArticleList.tsx"
+import { useSuspense } from '@data-client/react';
 import { ArticleResource } from 'resources/ArticleResource';
 import ArticleSummary from './ArticleSummary';
 
@@ -186,11 +187,11 @@ export default {
   },
 };
 
-export const FullArticleList: StoryObj<{ result: keyof typeof options }> =
+export const FullArticleList: StoryObj<{ result: keyof typeof ArticleFixtures }> =
   {
     render: ({ result }) => (
       // highlight-next-line
-      <MockResolver fixtures={options[result]}>
+      <MockResolver fixtures={ArticleFixtures[result]}>
         <ArticleList maxResults={10} />
         // highlight-next-line
       </MockResolver>

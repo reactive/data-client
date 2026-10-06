@@ -1,0 +1,38 @@
+name: dependency gate
+# Reusable: tells a workflow whether its change can affect what it measures,
+# so dependency bumps of unrelated tooling skip it. See scripts/ci-deps-relevant.mjs.
+on:
+  workflow_call:
+    inputs:
+      workspaces:
+        description: Comma-separated workspaces the job builds and runs
+        required: true
+        type: string
+    outputs:
+      relevant:
+        value: ${{ jobs.check.outputs.relevant }}
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      relevant: ${{ steps.deps.outputs.relevant }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+      - id: deps
+        env:
+          BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          WORKSPACES: ${{ inputs.workspaces }}
+        run: |
+          # A missing base makes the script fail open
+          git fetch -q --depth=1 origin "$BASE" || true
+          # The caller's own `paths` filter (github.workflow_ref names the
+          # caller). Unreadable means none: any changed file counts.
+          workflow="${GITHUB_WORKFLOW_REF#*/*/}"
+          mapfile -t paths < <(yq -r ".on.${GITHUB_EVENT_NAME}.paths[]" "${workflow%@*}" || true)
+          node scripts/ci-deps-relevant.mjs "$BASE" "$WORKSPACES" "${paths[@]}"

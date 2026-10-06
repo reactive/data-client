@@ -1,6 +1,7 @@
 import { initialState, Controller } from '@data-client/core';
 import type { State } from '@data-client/core';
-import { inject, type InjectionKey, shallowRef, type ShallowRef } from 'vue';
+import { inject, shallowRef } from 'vue';
+import type { InjectionKey, ShallowRef } from 'vue';
 
 export const StateKey: InjectionKey<ShallowRef<State<unknown>>> = Symbol(
   'DataClientState',
@@ -20,7 +21,7 @@ export function useController(): Controller {
     if (process.env.NODE_ENV !== 'production') {
       console.error(
         'Reactive Data Client (Vue) composables dependency injection failed. Either you are missing the DataClientPlugin or you are using composables outside of script setup.\n' +
-          'Adding DataClientPlugin: https://dataclient.io/docs/getting-started/installation#add-provider-at-top-level-component\n' +
+          'Adding DataClientPlugin: https://dataclient.io/vue/api/DataClientPlugin\n' +
           'Comosables only work in script setup: https://vuejs.org/guide/reusability/composables.html#usage-restrictions',
       );
     }
@@ -36,7 +37,7 @@ export function injectState(): ShallowRef<State<unknown>> {
     if (process.env.NODE_ENV !== 'production') {
       console.error(
         'Reactive Data Client (Vue) composables dependency injection failed. Either you are missing the DataClientPlugin or you are using composables outside of script setup.\n' +
-          'Adding DataClientPlugin: https://dataclient.io/docs/getting-started/installation#add-provider-at-top-level-component\n' +
+          'Adding DataClientPlugin: https://dataclient.io/vue/api/DataClientPlugin\n' +
           'Comosables only work in script setup: https://vuejs.org/guide/reusability/composables.html#usage-restrictions',
       );
     }

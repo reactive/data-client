@@ -1,5 +1,6 @@
 ---
 title: Entity - Declarative unique objects for React
+vue_title: Entity - Declarative unique objects for Vue
 sidebar_label: Entity
 ---
 
@@ -7,7 +8,7 @@ sidebar_label: Entity
   <meta name="docsearch:pagerank" content="10"/>
 </head>
 
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import { RestEndpoint } from '@data-client/rest';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
@@ -121,9 +122,11 @@ and thus will not be kept in the cache.
 
 #### Other uses
 
-Since `pk()` is unique, it provides a consistent way of defining [JSX list keys](https://react.dev/learn/rendering-lists#keeping-list-items-in-order-with-key)
+Since `pk()` is unique, it provides a consistent way of defining :react[[JSX list keys](https://react.dev/learn/rendering-lists#keeping-list-items-in-order-with-key)]:vue[[`v-for` keys](https://vuejs.org/guide/essentials/list.html#maintaining-state-with-key)]
 
-```tsx
+:::react
+
+```tsx nocheck
 //....
 return (
   <div>
@@ -133,6 +136,24 @@ return (
   </div>
 );
 ```
+
+:::
+
+:::vue
+
+```html nocheck
+<template>
+  <div>
+    <TheThing
+      v-for="result in results"
+      :key="result.pk()"
+      :thing="result"
+    />
+  </div>
+</template>
+```
+
+:::
 
 #### Composite Primary Keys
 
@@ -198,7 +219,7 @@ pk() {
 }
 ```
 
-In case you have 
+In case you have
 
 ```typescript
 const get = new RestEndpoint({
@@ -208,7 +229,7 @@ const get = new RestEndpoint({
 export const OptionsResource = {
   get,
   partialUpdate: get.extend({ method: 'PATCH' }),
-}
+};
 ```
 
 ### static key: string {#key}
@@ -243,7 +264,7 @@ class User extends Entity {
 Defines [related entity](/rest/guides/relational-data) members, or
 [field deserialization](/rest/guides/network-transform#deserializing-fields) like Date and BigNumber.
 
-<HooksPlayground groupId="schema" defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
 endpoint: new RestEndpoint({path: '/posts/:id'}),
 args: [{ id: '123' }],
@@ -271,8 +292,9 @@ export class User extends Entity {
 }
 ```
 
-```ts title="Post" {16-20}
+```ts title="Post" {17-21}
 import { Entity } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 import { User } from './User';
 
 export class Post extends Entity {
@@ -294,7 +316,11 @@ export class Post extends Entity {
 }
 ```
 
+:::react
+
 ```tsx title="PostPage" collapsed
+import { RestEndpoint } from '@data-client/rest';
+import { useSuspense } from '@data-client/react';
 import { Post } from './Post';
 
 export const getPost = new RestEndpoint({
@@ -308,18 +334,47 @@ function PostPage() {
       <p>
         {post.content} - <cite>{post.author.name}</cite>
       </p>
-      <time>
-        {DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
-          post.createdAt,
-        )}
-      </time>
+      <time>{post.createdAt.toLocaleString('en-US', { dateStyle: 'medium' })}</time>
     </div>
   );
 }
 render(<PostPage />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="PostPage.vue" collapsed
+<script lang="ts">
+  import { RestEndpoint } from '@data-client/rest';
+  import { Post } from './Post';
+
+  const getPost = new RestEndpoint({
+    path: '/posts/:id',
+    schema: Post,
+  });
+</script>
+
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+
+  const post = await useSuspense(getPost, { id: '123' });
+</script>
+
+<template>
+  <div>
+    <p>{{ post.content }} - <cite>{{ post.author.name }}</cite></p>
+    <time>
+      {{ post.createdAt.toLocaleString('en-US', { dateStyle: 'medium' }) }}
+    </time>
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 #### Optional members
 
@@ -372,9 +427,24 @@ export const UserResource = resource({
 });
 ```
 
+:::react
+
 ```tsx
+import { useSuspense } from '@data-client/react';
+import { UserResource } from './resources/User';
+
 const user = useSuspense(UserResource.get, { username: 'bob' });
 ```
+
+:::
+
+:::vue
+
+```ts
+const user = await useSuspense(UserResource.get, { username: 'bob' });
+```
+
+:::
 
 #### useQuery()
 
@@ -408,20 +478,38 @@ const getAssets = new RestEndpoint({
 
 Some top level component:
 
+:::react
+
 ```tsx
+import { useSuspense } from '@data-client/react';
+import { getAssets } from './resources/Asset';
+
 const assets = useSuspense(getAssets);
 ```
+
+:::
+
+:::vue
+
+```ts
+const assets = await useSuspense(getAssets);
+```
+
+:::
 
 Nested below:
 
 ```tsx
+import { useQuery } from '@data-client/react';
+import { LatestPrice } from './resources/LatestPrice';
+
 const price = useQuery(LatestPrice, { symbol: 'BTC' });
 ```
 
 ### static maxEntityDepth?: number {#maxEntityDepth}
 
 Limits entity nesting depth during denormalization to prevent stack overflow
-in large bidirectional entity graphs. **Default: 128**
+in large bidirectional entity graphs. **Default: 64**
 
 When bidirectional relationships create chains with many unique entities
 (e.g., `Department → Building → Department → ...`), denormalization can recurse
@@ -435,7 +523,9 @@ class Department extends Entity {
   name = '';
   buildings: Building[] = [];
 
-  pk() { return this.id; }
+  pk() {
+    return this.id;
+  }
   static key = 'Department';
   // highlight-next-line
   static maxEntityDepth = 16;

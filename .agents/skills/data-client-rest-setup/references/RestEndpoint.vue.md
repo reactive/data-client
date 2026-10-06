@@ -68,7 +68,7 @@ class Endpoint<F extends (...args: any) => Promise<any>> {
   readonly dataExpiryLength?: number;
   /** Default error expiry length, will fall back to NetworkManager default if not defined */
   readonly errorExpiryLength?: number;
-  /** Poll with at least this frequency in miliseconds */
+  /** Poll with at least this frequency in milliseconds */
   readonly pollFrequency?: number;
   /** Marks cached resources as invalid if they are stale */
   readonly invalidIfStale?: boolean;
@@ -152,7 +152,7 @@ const getComments = new RestEndpoint({
 });
 
 // Hover your mouse over 'comments' to see its type
-const comments = useSuspense(getComments, {
+const comments = await useSuspense(getComments, {
   postId: '5',
   sortBy: 'votes',
 });
@@ -164,7 +164,7 @@ const createComment = async data =>
 
 #### Resolution/Return
 
-[schema](#schema) determines the return value when used with data-binding hooks like [useSuspense](https://dataclient.io/vue/api/useSuspense), [useDLE](https://dataclient.io/vue/api/useDLE), [useCache](https://dataclient.io/vue/api/useCache)
+[schema](#schema) determines the return value when used with data-binding composables like [useSuspense](https://dataclient.io/vue/api/useSuspense), [useDLE](https://dataclient.io/vue/api/useDLE), [useCache](https://dataclient.io/vue/api/useCache)
 or when used with [Controller.fetch](https://dataclient.io/vue/api/Controller#fetch)
 
 ```ts title="Todo.ts"
@@ -182,7 +182,7 @@ import { Todo } from './Todo';
 
 const getTodo = new RestEndpoint({ path: '/', schema: Todo });
 // Hover your mouse over 'todo' to see its type
-const todo = useSuspense(getTodo);
+const todo = await useSuspense(getTodo);
 
 async () => {
   const ctrl = useController();
@@ -191,7 +191,7 @@ async () => {
 ```
 
 [process](#process) determines the resolution value when the endpoint is called directly. For
-`RestEndpoints` without a schema, it also determines the return type of [hooks](https://dataclient.io/vue/api/useSuspense) and [Controller.fetch](https://dataclient.io/vue/api/Controller#fetch).
+`RestEndpoints` without a schema, it also determines the return type of [composables](https://dataclient.io/vue/api/useSuspense) and [Controller.fetch](https://dataclient.io/vue/api/Controller#fetch).
 
 ```ts path="process.ts"
 interface TodoInterface {
@@ -532,6 +532,8 @@ search({ q: 'test', page: 1 });
 The actual **value is not used** in any way - this only determines [typing](#typing).
 
 ```typescript title="getFoo"
+import { RestEndpoint } from '@data-client/rest';
+
 const getReactSite = new RestEndpoint({
   path: 'https\\://site.com/:slug',
   searchParams: {} as { isReact: boolean },
@@ -547,7 +549,9 @@ used** in any way - this only determines [typing](#typing).
 
 This is only used by endpoings with a method that uses body: 'POST', 'PUT', 'PATCH'.
 
-```ts {4}
+```ts {6}
+import { RestEndpoint } from '@data-client/rest';
+
 const updateSite = new RestEndpoint({
   path: 'https\\://site.com/:slug',
   method: 'POST',
@@ -670,11 +674,11 @@ This is sent to [fetchResponse](#fetchResponse)
 
 Called by [getRequestInit](#getRequestInit) to determine [HTTP Headers](https://developer.mozilla.org/en-US/docs/Web/API/Request/headers)
 
-This is often useful for [authentication](./auth.md)
+This is often useful for [authentication](./auth.vue.md)
 
 > **Warning**
 >
-> Don't use hooks here. If you need to use hooks, try using [hookifyResource](./hookifyResource.md)
+> Don't use composables here. If you need to use composables, try using [hookifyResource](./hookifyResource.vue.md)
 
 > **Tip: async**
 >
@@ -777,6 +781,20 @@ Override this for advanced cases like extracting headers alongside the body.
 ### process(value, ...args): any {#process}
 
 Perform any transforms with the parsed result. Defaults to identity function (do nothing).
+
+`args` are the arguments the endpoint was called with. They are typed from the endpoint's [path](#path),
+[searchParams](#searchParams) and [body](#body), including those set in the same [extend()](#extend) call.
+
+```ts
+const getUser = new RestEndpoint({ path: '/users/:id' });
+
+const getUserWithId = getUser.extend({
+  process(value, params) {
+    // params is { id: string | number }
+    return { ...value, id: `${params.id}` };
+  },
+});
+```
 
 > **Tip**
 >
@@ -890,7 +908,7 @@ from this function was a succesful network response. When the actual fetch compl
 of failure or success), the optimistic update will be replaced with the actual network response.
 
 ```ts title="Post"
-import { Entity, schema } from '@data-client/rest';
+import { Entity, EntityMixin } from '@data-client/rest';
 
 export class Post extends Entity {
   id = 0;
@@ -987,9 +1005,9 @@ export const PostResource = resource({
 </script>
 
 <template>
-  <center>
+  <div style="text-align: center">
     <small>{{ totalVotes }} votes total</small>
-  </center>
+  </div>
 </template>
 ```
 
@@ -1052,9 +1070,17 @@ const createUser = new RestEndpoint({
 
 More updates:
 
-```typescript title="Component.tsx"
-const allusers = useSuspense(userList);
-const adminUsers = useSuspense(userList, { admin: true });
+```html title="Component.vue"
+<script setup lang="ts">
+  import { useFetch, useSuspense } from '@data-client/vue';
+  import { userList } from './resources';
+
+  // start both fetches in parallel
+  useFetch(userList);
+  useFetch(userList, { admin: true });
+  const allusers = await useSuspense(userList);
+  const adminUsers = await useSuspense(userList, { admin: true });
+</script>
 ```
 
 The endpoint below ensures the new user shows up immediately in the usages above.
@@ -1106,11 +1132,16 @@ Creates a POST endpoint that places newly created Entities at the _end_ of a [Co
 Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.push](https://dataclient.io/rest/api/Collection#push)
 
 ```tsx
+import { RestEndpoint, Collection } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { Todo } from './resources';
+
 const getTodos = new RestEndpoint({
   path: '/todos',
   searchParams: {} as { userId?: string },
   schema: new Collection([Todo]),
 });
+const ctrl = useController();
 
 // POST /todos - adds new Todo to the end of the list
 const newTodo = await ctrl.fetch(
@@ -1121,10 +1152,15 @@ const newTodo = await ctrl.fetch(
 ```
 
 ```tsx
+import { resource } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { User } from './resources';
+
 const UserResource = resource({
   path: '/groups/:group/users/:id',
   schema: User,
 });
+const ctrl = useController();
 
 // POST /groups/five/users - adds new User to the end of the list
 const newUser = await ctrl.fetch(
@@ -1141,11 +1177,16 @@ Creates a POST endpoint that places newly created Entities at the _start_ of a [
 Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.unshift](https://dataclient.io/rest/api/Collection#unshift)
 
 ```tsx
+import { RestEndpoint, Collection } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { Todo } from './resources';
+
 const getTodos = new RestEndpoint({
   path: '/todos',
   searchParams: {} as { userId?: string },
   schema: new Collection([Todo]),
 });
+const ctrl = useController();
 
 // POST /todos - adds new Todo to the beginning of the list
 const newTodo = await ctrl.fetch(
@@ -1156,10 +1197,15 @@ const newTodo = await ctrl.fetch(
 ```
 
 ```tsx
+import { resource } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { User } from './resources';
+
 const UserResource = resource({
   path: '/groups/:group/users/:id',
   schema: User,
 });
+const ctrl = useController();
 
 // POST /groups/five/users - adds new User to the start of the list
 const newUser = await ctrl.fetch(
@@ -1176,10 +1222,15 @@ Creates a POST endpoint that merges Entities into a [Values](https://dataclient.
 Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.assign](https://dataclient.io/rest/api/Collection#assign)
 
 ```tsx
+import { RestEndpoint, Collection, Values } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { Stats } from './resources';
+
 const getStats = new RestEndpoint({
   path: '/products/stats',
   schema: new Collection(new Values(Stats)),
 });
+const ctrl = useController();
 
 // POST /products/stats - add/update entries in the Values collection
 await ctrl.fetch(getStats.assign, {
@@ -1189,6 +1240,10 @@ await ctrl.fetch(getStats.assign, {
 ```
 
 ```tsx
+import { resource, Collection, Values } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { Stats } from './resources';
+
 const StatsResource = resource({
   urlPrefix: 'https://api.exchange.example.com',
   path: '/products/:product_id/stats',
@@ -1199,6 +1254,7 @@ const StatsResource = resource({
     schema: new Collection(new Values(Stats)),
   },
 });
+const ctrl = useController();
 
 // POST /products/stats - add/update entries
 await ctrl.fetch(StatsResource.getList.assign, {
@@ -1213,20 +1269,30 @@ Creates a PATCH endpoint that removes Entities from a [Collection](https://datac
 Returns a new RestEndpoint with [method](#method): 'PATCH' and schema: [Collection.remove](https://dataclient.io/rest/api/Collection#remove)
 
 ```tsx
+import { RestEndpoint, Collection } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { Todo } from './resources';
+
 const getTodos = new RestEndpoint({
   path: '/todos',
   schema: new Collection([Todo]),
 });
+const ctrl = useController();
 
 // PATCH /todos - removes Todo from collection AND updates the entity
-await ctrl.fetch(getTodos.remove, {}, { id: '123', completed: true });
+await ctrl.fetch(getTodos.remove, { id: '123', completed: true });
 ```
 
 ```tsx
+import { resource } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { User } from './resources';
+
 const UserResource = resource({
   path: '/groups/:group/users/:id',
   schema: User,
 });
+const ctrl = useController();
 
 // PATCH /groups/five/users - removes user from 'five' group list
 // AND updates the user entity with response data (e.g., new group)
@@ -1271,50 +1337,64 @@ export const TaskResource = resource({
 });
 ```
 
-```tsx title="TaskCard" {5-9}
-import { useController } from '@data-client/react';
-import { TaskResource, type Task } from './TaskResource';
+```html title="TaskCard.vue" {7-16}
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { TaskResource, type Task } from './TaskResource';
 
-export default function TaskCard({ task }: { task: Task }) {
-  const handleMove = () => ctrl.fetch(
-    TaskResource.getList.move,
-    { id: task.id },
-    { id: task.id, status: task.status === 'backlog' ? 'in-progress' : 'backlog' },
-  );
+  const props = defineProps<{ task: Task }>();
   const ctrl = useController();
-  return (
-    <div className="listItem">
-      <span style={{ flex: 1 }}>{task.title}</span>
-      <button onClick={handleMove}>
-        {task.status === 'backlog' ? '\u25bc' : '\u25b2'}
-      </button>
-    </div>
-  );
-}
+  const handleMove = () =>
+    ctrl.fetch(
+      TaskResource.getList.move,
+      { id: props.task.id },
+      {
+        id: props.task.id,
+        status:
+          props.task.status === 'backlog' ? 'in-progress' : 'backlog',
+      },
+    );
+</script>
+
+<template>
+  <div class="listItem">
+    <span style="flex: 1">{{ task.title }}</span>
+    <button @click="handleMove">
+      {{ task.status === 'backlog' ? '\u25bc' : '\u25b2' }}
+    </button>
+  </div>
+</template>
 ```
 
-```tsx title="TaskBoard"
-import { useSuspense } from '@data-client/react';
-import { TaskResource } from './TaskResource';
-import TaskCard from './TaskCard';
+```html title="TaskBoard.vue"
+<script setup lang="ts">
+  import { useFetch, useSuspense } from '@data-client/vue';
+  import { TaskResource } from './TaskResource';
+  import TaskCard from './TaskCard.vue';
 
-function TaskBoard() {
-  const backlog = useSuspense(TaskResource.getList, { status: 'backlog' });
-  const inProgress = useSuspense(TaskResource.getList, { status: 'in-progress' });
-  return (
-    <div>
-      <div className="boardColumn">
-        <h4>Backlog</h4>
-        {backlog.map(task => <TaskCard key={task.pk()} task={task} />)}
-      </div>
-      <div className="boardColumn">
-        <h4>Active</h4>
-        {inProgress.map(task => <TaskCard key={task.pk()} task={task} />)}
-      </div>
+  // start both fetches in parallel before awaiting
+  useFetch(TaskResource.getList, { status: 'backlog' });
+  useFetch(TaskResource.getList, { status: 'in-progress' });
+  const backlog = await useSuspense(TaskResource.getList, {
+    status: 'backlog',
+  });
+  const inProgress = await useSuspense(TaskResource.getList, {
+    status: 'in-progress',
+  });
+</script>
+
+<template>
+  <div>
+    <div class="boardColumn">
+      <h4>Backlog</h4>
+      <TaskCard v-for="task in backlog" :key="task.pk()" :task="task" />
     </div>
-  );
-}
-render(<TaskBoard />);
+    <div class="boardColumn">
+      <h4>Active</h4>
+      <TaskCard v-for="task in inProgress" :key="task.pk()" :task="task" />
+    </div>
+  </div>
+</template>
 ```
 
 The remove filter is based on the entity's **existing** values in the store.
@@ -1322,10 +1402,15 @@ The add filter is based on the merged entity values (existing + body).
 This uses the same [createCollectionFilter](https://dataclient.io/rest/api/Collection#createcollectionfilter) logic as push/remove.
 
 ```tsx
+import { resource } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { User } from './resources';
+
 const UserResource = resource({
   path: '/groups/:group/users/:id',
   schema: User,
 });
+const ctrl = useController();
 
 // PATCH /groups/five/users/5 - moves user 5 from 'five' group to 'ten' group
 await ctrl.fetch(
@@ -1340,23 +1425,32 @@ await ctrl.fetch(
 An endpoint to retrieve the next page using [paginationField](#paginationfield) as the searchParameter key. Schema
 must also contain a [Collection](https://dataclient.io/rest/api/Collection)
 
-```tsx
-const getTodos = new RestEndpoint({
-  path: '/todos',
-  schema: Todo,
-  paginationField: 'page',
-});
+```html
+<script lang="ts">
+  import { RestEndpoint } from '@data-client/rest';
+  import { Todo } from './resources';
 
-const todos = useSuspense(getTodos);
-return (
-  <PaginatedList
-    items={todos}
-    fetchNextPage={() =>
-      // fetches url `/todos?page=${nextPage}`
-      ctrl.fetch(TodoResource.getList.getPage, { page: nextPage })
-    }
-  />
-);
+  const getTodos = new RestEndpoint({
+    path: '/todos',
+    schema: Todo,
+    paginationField: 'page',
+  });
+</script>
+
+<script setup lang="ts">
+  import { useController, useSuspense } from '@data-client/vue';
+  import PaginatedList from './PaginatedList.vue';
+
+  const todos = await useSuspense(getTodos);
+  const ctrl = useController();
+  // fetches url `/todos?page=${nextPage}`
+  const fetchNextPage = (nextPage: number) =>
+    ctrl.fetch(getTodos.getPage, { page: nextPage });
+</script>
+
+<template>
+  <PaginatedList :items="todos" :fetchNextPage="fetchNextPage" />
+</template>
 ```
 
 See [pagination guide](https://dataclient.io/rest/guides/pagination) for more info.

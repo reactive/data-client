@@ -140,7 +140,7 @@ describe('context', () => {
       expect(consoleErrorSpy.mock.calls[0][0]).toMatchSnapshot();
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         expect.stringContaining(
-          'https://dataclient.io/docs/getting-started/installation',
+          'https://dataclient.io/vue/api/DataClientPlugin',
         ),
       );
     });

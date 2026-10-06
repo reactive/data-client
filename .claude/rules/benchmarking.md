@@ -1,0 +1,320 @@
+---
+paths:
+  - "examples/benchmark/**"
+  - "examples/benchmark-react/**"
+  - ".github/workflows/benchmark.yml"
+  - ".github/workflows/benchmark-react.yml"
+  - "packages/normalizr/src/**"
+  - "packages/core/src/**"
+  - "packages/endpoint/src/schemas/**"
+  - "packages/react/src/**"
+---
+<!-- Generated from .cursor/rules/benchmarking.mdc by `yarn build:agent-rules`. Edit the source. -->
+
+
+# Benchmarking
+
+## Node benchmark (`@examples/benchmark`)
+
+When working on performance investigations or changes that might impact **core, normalizr, or endpoint** (no browser, no React), use **`@examples/benchmark`** as the canonical harness.
+
+## React benchmark (`@examples/benchmark-react`)
+
+When working on **`packages/react`** or comparing data-client to other React data libraries (TanStack Query, SWR), use **`@examples/benchmark-react`**.
+
+- **Where it lives**: `examples/benchmark-react/`
+- **How to run**: From repo root: `yarn build:benchmark-react`, then `yarn workspace example-benchmark-react preview &` and in another terminal `cd examples/benchmark-react && yarn bench`
+- **What it measures**: Browser-based init/update duration, ref-stability counts, sorted-view (Query memoization), optional memory (heap delta), startup metrics (FCP/TBT), and React Profiler commit times. Compares data-client, TanStack Query, and SWR.
+- **CI**: `.github/workflows/benchmark-react.yml` runs on changes to `packages/react/src/**`, `packages/core/src/**`, `packages/endpoint/src/schemas/**`, `packages/normalizr/src/**`, or `examples/benchmark-react/**` and reports via `rhysd/github-action-benchmark` (customBiggerIsBetter). CI runs **data-client only** (hot-path scenarios) to track regressions; competitor libraries (TanStack Query, SWR) are for local comparison only.
+- **Report viewer**: Open `examples/benchmark-react/bench/report-viewer.html` in a browser and paste `react-bench-output.json` to view a comparison table and charts. Toggle "React commit" and "Trace" filters. Use "Load history" for time-series.
+
+See `@examples/benchmark-react/README.md` for methodology, adding a new library, and interpreting results.
+
+### Scenarios and what they exercise
+
+Use this mapping when deciding which React benchmark scenarios are relevant to a change:
+
+- **Get list scenarios** (`getlist-100`, `getlist-500`)
+  - Exercises: full fetch + normalization + render pipeline (ListView auto-fetches from list endpoint)
+  - Relevant for: `@data-client/react` hooks, `@data-client/core` store initialization
+  - All libraries
+
+- **Update propagation** (`update-entity`, `update-user`, `update-user-10000`)
+  - Exercises: store update → React rerender → DOM mutation
+  - Relevant for: `@data-client/core` dispatch/reducer, `@data-client/react` subscription/selector
+  - All libraries (normalization advantage shows with shared user at scale)
+
+- **Ref-stability** (`ref-stability-issue-changed`, `ref-stability-user-changed`)
+  - Exercises: referential equality preservation through normalization
+  - Relevant for: `@data-client/normalizr` denormalize memoization, Entity identity
+  - All libraries (data-client should show fewest changed refs)
+
+- **Multi-view entity update** (`update-entity-multi-view`)
+  - Exercises: cross-query entity propagation — one update to a shared entity reflected in list, detail panel, and pinned cards
+  - Relevant for: `@data-client/normalizr` normalized cache, `@data-client/core` subscription fan-out
+  - All libraries (normalization advantage: one store write vs. multiple query invalidations + refetches)
+
+- **Sorted/derived view** (`getlist-500-sorted`, `update-entity-sorted`)
+  - Exercises: `Query` schema memoization via `useQuery` (data-client) vs `useMemo` sort (competitors)
+  - Relevant for: `@data-client/endpoint` Query, `@data-client/normalizr` MemoCache, `@data-client/react` useQuery
+  - All libraries
+
+- **Optimistic update** (`optimistic-update`) — data-client only
+  - Exercises: `getOptimisticResponse` + `controller.fetch` pipeline
+  - Relevant for: `@data-client/core` optimistic dispatch
+
+- **Invalidation** (`invalidate-and-resolve`) — data-client only
+  - Exercises: `controller.invalidate` → Suspense fallback → `controller.setResponse` re-resolve
+  - Relevant for: `@data-client/core` invalidation, `@data-client/react` Suspense integration
+
+### Expected variance
+
+| Category | Scenarios | Typical run-to-run spread |
+|---|---|---|
+| **Stable** | `getlist-*`, `update-entity`, `ref-stability-*` | <2% |
+| **Moderate** | `update-user-*`, `update-entity-sorted`, `update-entity-multi-view`, `move-item` | 2–4% |
+| **Volatile** | `memory-mount-unmount-cycle`, `startup-*`, `(react commit)` suffixes | 5–15% |
+
+CI convergence targets: 2% (small scenarios), 3% (large scenarios). Reported margins should not exceed 5%. Regressions >5% on stable scenarios or >10% on moderate scenarios are worth investigating.
+
+### Profiling / tracing (opt + deopt investigation)
+
+The React benchmark supports the same V8 opt/deopt investigation as the Node benchmark, via Chromium's `--js-flags`:
+
+- **`bench:trace`** (`BENCH_V8_TRACE=true`): launches Chromium with `--trace-opt --trace-deopt`; browser process output piped to `v8-trace.log`. Equivalent to `examples/benchmark`'s `start:trace`.
+- **`bench:deopt`** (`BENCH_V8_DEOPT=true`): launches Chromium with `--prof`; V8 writes per-process logs to `v8-logs/v8-<pid>.log`. Process the renderer log (largest file) with `node --prof-process`.
+
+Both default to `--lib data-client --size small` for focused runs. Override with additional flags:
+
+```bash
+yarn workspace example-benchmark-react bench:trace
+yarn workspace example-benchmark-react bench:deopt
+BENCH_V8_TRACE=true yarn workspace example-benchmark-react bench --scenario update-entity
+```
+
+### When to use Node vs React benchmark
+
+- **Core/normalizr/endpoint changes only** (no rendering impact): Run `examples/benchmark` (Node). Faster iteration, no browser needed.
+- **React hook or Provider changes**: Run `examples/benchmark-react`. Captures real rendering cost.
+- **Schema changes** (Entity, Query, All): Run both — Node benchmark for raw throughput, React benchmark for rendering impact.
+- **Performance investigation**: Start with Node benchmark to isolate the JS layer, then validate with React benchmark for end-to-end confirmation.
+
+Before acting on a CI benchmark comment, follow "Reading the CI comment" in `@examples/benchmark-react/README.md`; the variance thresholds in this file hold only within one machine.
+
+---
+
+# Node benchmark details (`@examples/benchmark`)
+
+## Optimization workflow
+
+Before implementing any performance optimization:
+
+1. **Create an isolated microbenchmark** in `@examples/benchmark/micro.js` that targets the specific operation being optimized
+2. **Run the microbenchmark** to establish a baseline measurement
+3. **Implement the optimization**
+4. **Re-run the microbenchmark** to validate the improvement in isolation
+5. **Run relevant suite benchmarks** (`normalizr`, `core`, etc.) to confirm no regressions
+6. **Analyze bundlesize impact** (see below)
+
+This workflow ensures optimizations are validated in isolation before measuring their effect on the broader system.
+
+### Microbenchmarks (`micro` suite)
+
+Use `@examples/benchmark/micro.js` to add isolated benchmarks that:
+- Test a single function or code path with minimal setup
+- Compare different implementation approaches side-by-side
+- Measure specific optimizations before integrating into larger suites
+
+```bash
+yarn workspace example-benchmark start micro [filter]
+```
+
+Microbenchmarks should be small and focused. Once an optimization is validated, consider whether it warrants a permanent benchmark in one of the main suites.
+
+### Bundlesize impact analysis
+
+Every optimization must include a bundlesize impact assessment. Run from repo root:
+
+```bash
+yarn ci:build:bundlesize
+```
+
+This builds all packages and generates size comparison data. Document the bundlesize delta in your PR:
+- **Acceptable**: Size-neutral or size-reducing optimizations
+- **Requires justification**: Any size increase must be justified by measurable performance gains
+- **Rule of thumb**: A 1KB increase should yield at least 5-10% improvement on relevant benchmarks
+
+## Where to look
+
+- **Entry point / suite selection**: `@examples/benchmark/index.js`
+- **Suite implementations**:
+  - `@examples/benchmark/micro.js` (isolated microbenchmarks)
+  - `@examples/benchmark/entity.js`
+  - `@examples/benchmark/normalizr.js`
+  - `@examples/benchmark/core.js`
+  - `@examples/benchmark/spread.js` (degenerate-case store-size-scaling writes; scenarios in `@examples/benchmark/spread-scenarios.js`)
+  - `@examples/benchmark/old-normalizr/normalizr.js`
+- **Memory pressure script**: `@examples/benchmark/memory.js` (allocation rate, GC churn, retained heap for the spread scenarios)
+- **Schemas/data used by multiple suites**:
+  - `@examples/benchmark/schemas.js`
+  - `@examples/benchmark/data.json`
+  - `@examples/benchmark/user.json`
+- **CI benchmark runners**: `@.github/workflows/benchmark.yml` (default suites), `@.github/workflows/benchmark-spread.yml` (single spread case, store-write triggers only)
+
+## How to run
+
+From repo root:
+
+```bash
+yarn build:benchmark
+yarn workspace example-benchmark start [suite-name] [filter]
+```
+
+From `examples/benchmark/`:
+
+```bash
+yarn start [suite-name] [filter]
+```
+
+Both arguments are optional:
+- **No arguments**: runs `normalizr` + `core` suites with all benchmarks
+- **Suite only**: `yarn start normalizr` runs all benchmarks in that suite
+- **Suite + filter**: `yarn start normalizr denormalize` runs only benchmarks containing "denormalize"
+
+Filter syntax:
+- `text` → substring match (contains "text")
+- `^text` → starts with "text"
+
+**When benchmarking specific changes, use filters to focus on relevant benchmarks** (see "Suites and what they exercise" below for recommended filters):
+
+Examples:
+- `yarn start normalizr "^normalize"` → only "normalizeLong" (not denormalize*)
+- `yarn start normalizr "^denormalize"` → all denormalize* benchmarks
+- `yarn start core "^set"` → all setResponse* benchmarks (setLong, setSmallResponse, etc.)
+- `yarn start core "^get"` → all getResponse/get benchmarks (getResponse, getSmallResponse, get Collection, etc.)
+- `yarn start normalizr withCache` → benchmarks containing "withCache"
+
+## Profiling / tracing (opt + deopt investigation)
+
+When you need to go beyond “is it faster/slower?” and understand **why** (V8 optimization decisions, unexpected deopts, hot path shapes), use the `@examples/benchmark/package.json` profiling scripts:
+
+- **`start:trace`** (`@examples/benchmark/package.json:16`): use when you want **console trace output** for V8 optimizations/deoptimizations (adds `--trace_opt --trace_deopt` to the normal benchmark run).
+- **`start:deopt`** (`@examples/benchmark/package.json:17`): use when you want **dexnode/V8 log artifacts** to inspect deopt reasons and code traces (writes `v8.log` and redirects code traces to `/tmp/codetrace`).
+
+Notes:
+- Passing no suite name runs **`normalizr` + `core`** (see `@examples/benchmark/index.js`).
+- The harness forces `--expose_gc` and calls `gc()` between cycles for more consistent results.
+
+## Suites and what they exercise
+
+Use this mapping when deciding which suite(s) to run for a change:
+
+- **`micro`** (`@examples/benchmark/micro.js`)
+  - **Primary focus**: isolated microbenchmarks for validating specific optimizations
+  - **Packages exercised**: depends on what's being tested
+  - **Recommended filters**: target specific benchmark names you've added
+
+- **`entity`** (`@examples/benchmark/entity.js`)
+  - **Primary focus**: entity instance operations like `pk()` and `fromJS()`, plus `EntityMixin`.
+  - **Packages exercised**:
+    - **`@data-client/endpoint`**: `Entity`, `EntityMixin` (re-exported via `@examples/benchmark/dist/index.js`)
+  - **Recommended filters**: Run all benchmarks (suite is small and focused)
+
+- **`normalizr`** (`@examples/benchmark/normalizr.js`)
+  - **Primary focus**: `normalize()` / `denormalize()` throughput, memoization, and query/key building.
+  - **Packages exercised**:
+    - **`@data-client/normalizr`**: `normalize`, `denormalize`, `MemoCache`, `WeakDependencyMap`
+    - **`@data-client/endpoint`**: schema helpers used in `@examples/benchmark/schemas.js` (`schema.All`, `schema.Query`, `schema.Collection`) and entity definitions
+  - **Recommended filters**:
+    - Changes to normalization: `^normalize`
+    - Changes to denormalization: `^denormalize`
+    - Changes to query/key building: `query` or `buildQueryKey`
+
+- **`core`** (`@examples/benchmark/core.js`)
+  - **Primary focus**: end-to-end store/controller costs (`Controller.setResponse()`, `Controller.getResponse()`, reducer updates).
+  - **Packages exercised**:
+    - **`@data-client/core`**: `Controller`, `createReducer`, `initialState`
+    - **`@data-client/endpoint`**: `Endpoint`, `Entity`, schema definitions used by endpoints
+    - **`@data-client/normalizr`**: normalization work triggered by `setResponse()` and `getResponse()` paths
+  - **Recommended filters**:
+    - Changes to `setResponse()` or reducer updates: `^set`
+    - Changes to `getResponse()` or cache retrieval: `^get`
+    - Changes to `Controller.set()` or batch writes: `setMany` (one `set()` per row vs one `set([Entity], rows)`, into a 500-entity store)
+
+- **`spread`** (`@examples/benchmark/spread.js`, scenarios shared with `memory.js` via `@examples/benchmark/spread-scenarios.js`)
+  - **Primary focus**: degenerate cases where spread-operation cost scales with **store size** rather than payload size — single-entity `setResponse` into 1k/10k/100k entity stores (per-type entity map clone in `NormalizeDelegate`), writes with 10k cached endpoint keys (`endpoints`/`meta` spreads in `setResponseReducer`), collection push onto 10k items (`pushMerge`), and `invalidateAll`/`expireAll` over 10k endpoints.
+  - **Packages exercised**:
+    - **`@data-client/core`**: `Controller`, `createReducer` write paths
+    - **`@data-client/normalizr`**: `normalize` store-copy behavior
+    - **`@data-client/endpoint`**: `Entity.merge`, `Collection` push
+  - **Recommended filters**: `setOneEntity` (store-size sweep + control), `collection push`, `invalidateAll`
+  - **CI**: only `setOneEntity in 10k entity store` is tracked over time, via its own workflow `@.github/workflows/benchmark-spread.yml` (separate `spread-bench` history dir on `gh-pages-bench`). It triggers on **store-write paths only**: `packages/core/src/state/**`, `packages/normalizr/src/normalize/**`, `packages/endpoint/src/schemas/EntityMixin.ts`, and the spread suite files. All other spread benchmarks are manual-only. The `setOneEntity` sweep should scale near-linearly with store size while the `control` benchmark stays flat.
+  - Scenario fixtures are built lazily per matching filter (`buildScenarios(filter)` in `spread-scenarios.js`), so filtered runs skip the expensive 100k-store construction.
+  - **Memory pressure**: run `yarn workspace example-benchmark start:memory [filter]` to measure allocation/op, GC counts and pause time, and retained heap for the same scenarios. Copies are transient, so expect high allocation + GC churn with ~0 retained.
+
+- **`old-normalizr`** (`@examples/benchmark/old-normalizr/normalizr.js`)
+  - **Primary focus**: baseline comparison against the legacy `normalizr` npm package.
+  - **Packages exercised**:
+    - **`normalizr` (npm)**: `normalize`, `denormalize`, `schema.Entity`
+    - **`@data-client/core`**: `initialState` only (used to shape a "store-like" state for merge behavior)
+  - **Recommended filters**: Run all benchmarks (baseline comparison)
+
+## Adding or changing benchmarks
+
+- **Keep suite names stable**: output is tracked over time in CI; renaming benchmarks makes history harder to interpret.
+- **Update both code and docs**:
+  - Add/update suite module (e.g. `core.js`)
+  - Wire it in `@examples/benchmark/index.js` (argv dispatch)
+  - Update `@examples/benchmark/README.md` “Suites” section if the suite list changes
+- **Avoid measuring unrelated work**:
+  - Don’t log inside benchmark bodies (except suite cycle output via `Benchmark.js`).
+  - Keep fixtures/data constant unless the benchmark’s goal is to measure data-shape changes.
+
+## CI behavior
+
+CI runs:
+
+```bash
+yarn build:benchmark
+yarn workspace example-benchmark start | tee output.txt
+```
+
+The output is parsed as **benchmark.js** format and reported by `rhysd/github-action-benchmark` (see `@.github/workflows/benchmark.yml`).
+
+A second workflow, `@.github/workflows/benchmark-spread.yml`, runs only:
+
+```bash
+yarn workspace example-benchmark start spread "setOneEntity in 10k entity store"
+```
+
+with narrower path triggers (store-write code: `packages/core/src/state/**`, `packages/normalizr/src/normalize/**`, `packages/endpoint/src/schemas/EntityMixin.ts`, spread suite files) and reports to a separate `spread-bench` history dir on the same `gh-pages-bench` branch.
+
+## Expected variance
+
+Benchmark results have two types of variance to consider:
+
+### Within-run variance (reported as ±X%)
+
+The `±X%` shown after each result is the **margin of error** for samples within that run. Most benchmarks show:
+- **Low variance (±0.1–0.3%)**: Cache-hit benchmarks with stable hot paths (`buildQueryKey`, `setSmallResponse`, `denormalizeShort donotcache`)
+- **Moderate variance (±0.5–1.5%)**: Most normalize/denormalize operations, entity operations
+- **Higher variance (±1.5–2.5%)**: Complex operations with GC pressure (`getResponse`, `getResponse Collection`)
+
+### Run-to-run variance
+
+When comparing results across separate benchmark runs, expect additional variance:
+
+| Category | Examples | Typical run-to-run spread |
+|----------|----------|---------------------------|
+| **Very stable** | `denormalizeShort donotcache 500x`, `no-defaults pk()` | <1% |
+| **Stable** | `normalizeLong`, `setLong`, `setLongWithMerge`, `mixin pk()` | 1–3% |
+| **Moderate** | `getSmallResponse`, `fromJS()`, `get Collection` | 3–7% |
+| **Volatile** | `query All withCache`, `denormalizeLong withCache`, `denormalizeLong All withCache` | 10–20% |
+
+### Interpreting results
+
+- **Performance regressions**: Require >5% degradation on stable benchmarks, or >15% on volatile ones, to be considered significant.
+- **Cache-path benchmarks** (those with `withCache` suffix) show higher variance because cache state and GC timing affect results more.
+- **Run multiple times**: For performance investigations, run benchmarks 3+ times and compare the median or best result, not single runs.
+- **The `gc()` calls** between cycles help but don't eliminate variance from JIT warmup and memory pressure.
+

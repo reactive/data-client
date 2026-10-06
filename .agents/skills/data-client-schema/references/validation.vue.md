@@ -2,17 +2,19 @@
 
 # API Validation
 
-[Entity.validate()](./Entity.md#validate) is called during normalization and denormalization.
+[Entity.validate()](./Entity.vue.md#validate) is called during normalization and denormalization.
 `undefined` indicates no error, and a string error message if there is an error.
 
 ## Field check
 
-Validation happens after [Entity.process()](./Entity.md#process) but before [Entity.fromJS()](./Entity.md#fromJS),
+Validation happens after [Entity.process()](./Entity.vue.md#process) but before [Entity.fromJS()](./Entity.vue.md#fromJS),
 thus operates on POJOs rather than an instance of the class.
 
 Here we can make sure the title field is included, and of the expected type.
 
 ```typescript title="api/Article"
+import { Entity, RestEndpoint } from '@data-client/rest';
+
 export class Article extends Entity {
   id = '';
   title = '';
@@ -47,6 +49,8 @@ export const getArticle = new RestEndpoint({
 [validateRequired()](https://dataclient.io/rest/api/validateRequired) can be used to check if all defined fields are present.
 
 ```tsx title="api/Article"
+import { Entity, RestEndpoint, validateRequired } from '@data-client/rest';
+
 export class Article extends Entity {
   id = '';
   title = '';
@@ -77,12 +81,15 @@ export const getArticle = new RestEndpoint({
 
 ## Partial results
 
-Another great use of validation is mixing endpoints that return [incomplete objects](./partial-entities.md). This is often
+Another great use of validation is mixing endpoints that return [incomplete objects](./partial-entities.vue.md). This is often
 useful when some fields consume lots of bandwidth or are computationally expensive for the backend.
 
 Consider using [validateRequired](https://dataclient.io/rest/api/validateRequired) to reduce code.
 
 ```typescript title="api/Article"
+import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
+
 export class ArticlePreview extends Entity {
   id = '';
   title = '';

@@ -3,7 +3,8 @@ import type {
   Queryable,
   SchemaArgs,
 } from '@data-client/core';
-import { computed, toValue, type ComputedRef } from 'vue';
+import { computed, toValue } from 'vue';
+import type { ComputedRef } from 'vue';
 
 import { useController, injectState } from '../context.js';
 import type { MaybeRefsOrGetters } from '../types.js';

@@ -1,6 +1,6 @@
 ---
-description: Interface design principles for package APIs — where configuration, behavior, and state belong across schema, endpoint, and hook layers
-alwaysApply: false
+name: interface-design
+description: Interface design principles for package APIs — where configuration, behavior, and state belong across schema, endpoint, and hook layers. Use when adding or changing options, behavior, or state in packages/*.
 ---
 # Interface Design
 

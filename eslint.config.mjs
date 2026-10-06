@@ -24,6 +24,7 @@ export default [
     },
   },
   {
+    // Published declarations are emitted from these sources (tests follow the same style).
     // An overload implementation signature is not visible to callers, so `any`
     // there only disables checking the overloads against the body.
     // Use the real container type with `unknown` inner values instead.
@@ -37,7 +38,13 @@ export default [
           message:
             'Overload implementation signatures must not return `any`; it hides mismatches between the overloads and the body. Use the real return type (with `unknown` inner values).',
         },
+        {
+          selector: 'ExportSpecifier[exportKind="type"]',
+          message:
+            'Inline `type` export specifiers are emitted into .d.ts files, which TypeScript < 4.5 cannot parse. Use a separate `export type { ... }`.',
+        },
       ],
+      'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
     },
   },
   {

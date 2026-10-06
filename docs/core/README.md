@@ -112,9 +112,10 @@ export default function TodoDetail({ id }: { id: number }) {
 
 :::vue
 
-```html title="TodoDetail.vue" {5}
+```html title="TodoDetail.vue" {6}
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
+  import { getTodo } from './api/Todo';
 
   const props = defineProps<{ id: number }>();
   const todo = await useSuspense(getTodo, () => ({ id: props.id }));
@@ -172,9 +173,11 @@ Errors are caught with [onErrorCaptured()](https://vuejs.org/api/composition-api
 
 Typically these are placed at or above navigational boundaries like pages, routes or modals.
 
-```html title="App.vue" {5-8,13,18-20}
+```html title="App.vue" {7-10,15,20-22}
 <script setup lang="ts">
   import { onErrorCaptured, ref } from 'vue';
+  import AnotherRoute from './AnotherRoute.vue';
+  import TodoDetail from './TodoDetail.vue';
 
   const error = ref<Error | null>(null);
   onErrorCaptured(err => {
@@ -317,7 +320,7 @@ We can [useController](./api/useController.md) to access it in :react[React]:vue
 ```tsx
 import { useController } from '@data-client/react';
 
-function ArticleEdit() {
+function ArticleEdit({ id }: { id: number }) {
   const ctrl = useController();
   // highlight-next-line
   const handleSubmit = data =>
@@ -329,7 +332,7 @@ function ArticleEdit() {
 ```tsx
 import { useController } from '@data-client/react';
 
-function ArticleEdit() {
+function ArticleEdit({ id }: { id: number }) {
   const ctrl = useController();
   // highlight-next-line
   const handleSubmit = data =>
@@ -349,6 +352,8 @@ function ArticleEdit() {
 ```html title="ArticleEdit.vue"
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
+  import { TodoResource } from './resources/Todo';
+  import ArticleForm from './ArticleForm.vue';
 
   const props = defineProps<{ id: number }>();
   const ctrl = useController();
@@ -365,6 +370,8 @@ function ArticleEdit() {
 ```html title="ArticleEdit.vue"
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
+  import { TodoResource } from './resources/Todo';
+  import ArticleForm from './ArticleForm.vue';
 
   const props = defineProps<{ id: number }>();
   const ctrl = useController();
@@ -392,7 +399,7 @@ function ArticleEdit() {
 ```tsx
 import { useController, useLoading } from '@data-client/react';
 
-function ArticleEdit() {
+function ArticleEdit({ id }: { id: number }) {
   const ctrl = useController();
   // highlight-next-line
   const [handleSubmit, loading, error] = useLoading(
@@ -410,6 +417,8 @@ function ArticleEdit() {
 ```html title="ArticleEdit.vue"
 <script setup lang="ts">
   import { useController, useLoading } from '@data-client/vue';
+  import { TodoResource } from './resources/Todo';
+  import ArticleForm from './ArticleForm.vue';
 
   const props = defineProps<{ id: number }>();
   const ctrl = useController();
@@ -476,9 +485,10 @@ export default function TodoList() {
 
 :::vue
 
-```html title="TodoList.vue" {5}
+```html title="TodoList.vue" {6}
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
+  import { TodoResource } from './resources/Todo';
   import TodoListItem from './TodoListItem.vue';
 
   const todos = await useSuspense(TodoResource.getList);
@@ -663,16 +673,14 @@ which can be used to [initiate data updates](./concepts/managers.md#data-stream)
 <details>
 <summary><b>StreamManager</b></summary>
 
-:::react
-
-```typescript
+```typescript framework-imports
 import type { Manager, Middleware, ActionTypes } from '@data-client/react';
 import { Controller, actionTypes } from '@data-client/react';
 import type { EntityInterface } from '@data-client/rest';
 
 export default class StreamManager implements Manager {
   declare protected evtSource: WebSocket | EventSource;
-  declare protected entities: Record<string, typeof EntityInterface>;
+  declare protected entities: Record<string, EntityInterface>;
 
   constructor(
     evtSource: WebSocket | EventSource,
@@ -685,8 +693,10 @@ export default class StreamManager implements Manager {
   middleware: Middleware = controller => {
     this.evtSource.onmessage = event => {
       try {
-        const msg = JSON.parse(event.data);
-        if (msg.type in this.endpoints)
+        const msg: { type: string; args: [any]; data: any } = JSON.parse(
+          event.data,
+        );
+        if (msg.type in this.entities)
           controller.set(this.entities[msg.type], ...msg.args, msg.data);
       } catch (e) {
         console.error('Failed to handle message');
@@ -701,49 +711,6 @@ export default class StreamManager implements Manager {
   }
 }
 ```
-
-:::
-
-:::vue
-
-```typescript
-import type { Manager, Middleware, ActionTypes } from '@data-client/vue';
-import { Controller, actionTypes } from '@data-client/vue';
-import type { EntityInterface } from '@data-client/rest';
-
-export default class StreamManager implements Manager {
-  declare protected evtSource: WebSocket | EventSource;
-  declare protected entities: Record<string, typeof EntityInterface>;
-
-  constructor(
-    evtSource: WebSocket | EventSource,
-    entities: Record<string, EntityInterface>,
-  ) {
-    this.evtSource = evtSource;
-    this.entities = entities;
-  }
-
-  middleware: Middleware = controller => {
-    this.evtSource.onmessage = event => {
-      try {
-        const msg = JSON.parse(event.data);
-        if (msg.type in this.endpoints)
-          controller.set(this.entities[msg.type], ...msg.args, msg.data);
-      } catch (e) {
-        console.error('Failed to handle message');
-        console.error(e);
-      }
-    };
-    return next => async action => next(action);
-  };
-
-  cleanup() {
-    this.evtSource.close();
-  }
-}
-```
-
-:::
 
 </details>
 
@@ -879,8 +846,8 @@ const incrementInterceptor: Interceptor = {
 </Tabs>
 
 - :react[[Mock data for storybook](./guides/storybook.md) with [MockResolver](./api/MockResolver.md)]:vue[Mock data with `MockPlugin` from `@data-client/vue/test`]
-- :react[[Test hooks](./guides/unit-testing-hooks.md) with [renderDataHook()](./api/renderDataHook.md)]:vue[Test composables with `renderDataCompose()`]
-- :react[[Test components](./guides/unit-testing-components.md) with [MockResolver](./api/MockResolver.md)]:vue[Test components with `mountDataClient()`] and [mockInitialState()](./api/mockInitialState.md)
+- :react[[Test hooks](./guides/unit-testing-hooks.md) with [renderDataHook()](./api/renderDataHook.md)]:vue[[Test composables](./guides/unit-testing-composables.md) with `renderDataCompose()`]
+- :react[[Test components](./guides/unit-testing-components.md) with [MockResolver](./api/MockResolver.md)]:vue[[Test components](./guides/unit-testing-components.md) with `mountDataClient()`] and [mockInitialState()](./api/mockInitialState.md)
 
 ## Demo
 

@@ -1,12 +1,6 @@
 'use client';
-import {
-  DevToolsManager,
-  GCInterface,
-  initManager,
-  type Controller,
-  type Manager,
-  type State,
-} from '@data-client/core';
+import { DevToolsManager, GCInterface, initManager } from '@data-client/core';
+import type { Controller, Manager, State } from '@data-client/core';
 import React, { useEffect, useMemo } from 'react';
 
 import ExternalCacheProvider from './ExternalDataProvider.js';
@@ -59,7 +53,7 @@ interface Props {
   children: React.ReactNode;
   managers: Manager[];
   initialState: State<unknown>;
-  Controller: typeof Controller;
+  Controller: new (props: { gcPolicy: GCInterface }) => Controller;
   gcPolicy?: GCInterface;
   devButton?: DevToolsPosition | null | undefined;
 }

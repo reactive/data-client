@@ -88,6 +88,10 @@
         },
         {
           "type": "doc",
+          "id": "guides/unit-testing-composables"
+        },
+        {
+          "type": "doc",
           "id": "guides/unit-testing-components"
         }
       ]
@@ -200,6 +204,10 @@
           "id": "api/useCancelling"
         }
       ]
+    },
+    {
+      "type": "doc",
+      "id": "api/DataClientPlugin"
     },
     {
       "type": "doc",

@@ -3,11 +3,8 @@ import { Entity, schema, Invalidate, Values } from '@data-client/endpoint';
 import { fromJS } from 'immutable';
 
 import { INVALID } from '..';
-import {
-  normalize as normalizeImm,
-  denormalize,
-  type ImmutableStoreData,
-} from '../imm';
+import { normalize as normalizeImm, denormalize } from '../imm';
+import type { ImmutableStoreData } from '../imm';
 
 // Helper to create ImmutableJS state from plain objects
 function createImmutableState(state: {

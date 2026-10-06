@@ -13,6 +13,8 @@ thus operates on POJOs rather than an instance of the class.
 Here we can make sure the title field is included, and of the expected type.
 
 ```typescript title="api/Article"
+import { Entity, RestEndpoint } from '@data-client/rest';
+
 export class Article extends Entity {
   id = '';
   title = '';
@@ -30,6 +32,7 @@ export const getArticle = new RestEndpoint({
 ```
 
 ```tsx title="ArticlePage"
+import { useSuspense } from '@data-client/react';
 import { getArticle } from './api/Article';
 
 function ArticlePage({ id }: { id: string }) {
@@ -45,6 +48,8 @@ render(<ArticlePage id="2" />);
 [validateRequired()](https://dataclient.io/rest/api/validateRequired) can be used to check if all defined fields are present.
 
 ```tsx title="api/Article"
+import { Entity, RestEndpoint, validateRequired } from '@data-client/rest';
+
 export class Article extends Entity {
   id = '';
   title = '';
@@ -61,6 +66,7 @@ export const getArticle = new RestEndpoint({
 ```
 
 ```tsx title="ArticlePage"
+import { useSuspense } from '@data-client/react';
 import { getArticle } from './api/Article';
 
 function ArticlePage({ id }: { id: string }) {
@@ -79,6 +85,9 @@ useful when some fields consume lots of bandwidth or are computationally expensi
 Consider using [validateRequired](https://dataclient.io/rest/api/validateRequired) to reduce code.
 
 ```typescript title="api/Article"
+import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
+
 export class ArticlePreview extends Entity {
   id = '';
   title = '';
@@ -110,6 +119,8 @@ export const getArticle = new RestEndpoint({
 ```
 
 ```tsx title="ArticleDetail"
+import React from 'react';
+import { useSuspense } from '@data-client/react';
 import { getArticle, getArticleList } from './api/Article';
 
 function ArticleDetail({ id, onHome }: { id: string; onHome: () => void }) {
@@ -127,9 +138,7 @@ function ArticleDetail({ id, onHome }: { id: string; onHome: () => void }) {
         <div>
           Created:{' '}
           <time>
-            {DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
-              article.createdAt,
-            )}
+            {article.createdAt.toLocaleString('en-US', { dateStyle: 'medium' })}
           </time>
         </div>
       </div>

@@ -46,6 +46,9 @@ When a `Department` is denormalized, `dept.buildings` will contain raw primary k
 To resolve the buildings, use [useQuery](https://dataclient.io/docs/api/useQuery) with the `.query` accessor:
 
 ```tsx
+import { useQuery } from '@data-client/react';
+import { Department } from './Department';
+
 function DepartmentBuildings({ dept }: { dept: Department }) {
   // dept.buildings contains raw IDs: ['bldg-1', 'bldg-2']
   const buildings = useQuery(Department.schema.buildings.query, dept.buildings);

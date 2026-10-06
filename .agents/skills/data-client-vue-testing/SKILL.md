@@ -12,8 +12,8 @@ license: Apache 2.0
 import { renderDataCompose } from '@data-client/vue/test';
 import { reactive, computed } from 'vue';
 
-it('useQuery() should return cached data', () => {
-  const { result } = renderDataCompose(
+it('useQuery() should return cached data', async () => {
+  const { result } = await renderDataCompose(
     () => useQuery(Article, { id: 5 }),
     {
       initialFixtures: [
@@ -25,7 +25,7 @@ it('useQuery() should return cached data', () => {
       ],
     },
   );
-  expect(result.current?.value).toEqual(Article.fromJS({ id: 5, title: 'hi ho', content: 'whatever' }));
+  expect(result.value).toEqual(Article.fromJS({ id: 5, title: 'hi ho', content: 'whatever' }));
 });
 ```
 
@@ -35,13 +35,13 @@ it('useQuery() should return cached data', () => {
 - `props` - Reactive props object (use `reactive()`)
 - `managers`, `initialState`, `gcPolicy` - Custom configuration
 
-**Return values:**
-- `result.current` - Composable return value (undefined when suspended, Promise when resolved for useSuspense)
+**Return values** (`renderDataCompose()` is async; always `await` it):
+- `result` - Whatever the composable returned: useQuery/useCache give a `ComputedRef` (`.value` is `undefined` when not in the store); useSuspense gives a Promise of one, so `await result` once, then read `.value`, which stays reactive
 - `controller` - Controller instance for manual actions
 - `wrapper` - Vue Test Utils wrapper
 - `cleanup()` - Cleanup function (always call in afterEach/after test)
-- `allSettled()` - Wait for all pending promises
-- `waitForNextUpdate()` - Wait for composable to resolve from suspended state
+- `allSettled()` - Wait for all in-flight fetches (including ones a prop change just started) and the re-render
+- `waitForNextUpdate()` - Deprecated: it gives up silently after 1 second, so a test can pass while still suspended, and can hang under fake timers. Use `await result` for a Promise result, and `await allSettled()` after changing props or calling the controller
 
 ## Component Testing with mountDataClient()
 
@@ -73,7 +73,7 @@ it('should render article component', async () => {
     ],
   });
 
-  await flushUntil(wrapper, () => wrapper.find('h3').exists());
+  await flushUntil(() => wrapper.find('h3').exists());
   expect(wrapper.find('h3').text()).toBe('hi ho');
   cleanup();
 });
@@ -82,40 +82,16 @@ it('should render article component', async () => {
 **Features:**
 - Suspense is automatically integrated (shows fallback while loading)
 - Use `data-testid="suspense-fallback"` to test loading state
-- Returns same utilities as `renderDataCompose()` plus `wrapper`
+- Synchronous; returns `wrapper`, `controller`, `app`, `cleanup()` and `allSettled()`
 
 ## Async Waiting Patterns
 
-**flushUntil helper (for component tests):**
+**flushUntil(predicate) (for component tests):** copy the helper from
+[waiting for renders](references/unit-testing-components.md#waiting-for-renders); it throws if the
+condition never holds.
 ```typescript
-async function flushUntil(wrapper: any, predicate: () => boolean, tries = 100) {
-  for (let i = 0; i < tries; i++) {
-    if (predicate()) return;
-    await Promise.resolve();
-    await nextTick();
-    await new Promise(resolve => setTimeout(resolve, 0));
-  }
-}
-
-// Usage:
-await flushUntil(wrapper, () => wrapper.find('h3').exists());
-await flushUntil(wrapper, () => wrapper.find('h3').text() === 'Expected Title');
-```
-
-**waitForNextUpdate (for composable tests):**
-```typescript
-const { result, waitForNextUpdate } = renderDataCompose(() => useSuspense(...));
-
-// Initially suspended
-expect(result.current).toBeUndefined();
-
-// Wait for resolution
-await waitForNextUpdate();
-expect(result.current).toBeInstanceOf(Promise);
-
-// Await the promise to get the reactive ComputedRef
-const dataRef = await result.current;
-expect(dataRef.value.title).toBe('hi ho');
+await flushUntil(() => wrapper.find('h3').exists());
+await flushUntil(() => wrapper.find('h3').text() === 'Expected Title');
 ```
 
 ## Reactive Props Testing
@@ -123,7 +99,7 @@ expect(dataRef.value.title).toBe('hi ho');
 **Pattern 1: Testing prop changes:**
 ```typescript
 const props = reactive({ id: 1 });
-const { result } = renderDataCompose(
+const { result } = await renderDataCompose(
   () => useQuery(Article, computed(() => ({ id: props.id }))),
   {
     initialFixtures: [
@@ -133,24 +109,24 @@ const { result } = renderDataCompose(
   },
 );
 
-expect(result.current?.value?.title).toBe('First');
+expect(result.value?.title).toBe('First');
 
-// Change props - result automatically updates
+// Change props - result updates after a tick
 props.id = 2;
-expect(result.current?.value?.title).toBe('Second');
+await nextTick();
+expect(result.value?.title).toBe('Second');
 ```
 
 **Pattern 2: Conditional arguments (null handling):**
 ```typescript
 const props = reactive({ id: 1 as number | null });
-const { result } = renderDataCompose(
+const { result } = await renderDataCompose(
   (props: { id: number | null }) => 
     useSuspense(ArticleResource.get, computed(() => props.id !== null ? { id: props.id } : null)),
   { props },
 );
 
-await waitForNextUpdate();
-const articleRef = await result.current;
+const articleRef = await result;
 expect(articleRef.value).toBeDefined();
 
 // Set to null - becomes undefined
@@ -194,7 +170,7 @@ resolverFixtures: [
 
 ```typescript
 it('should update collection when pushed', async () => {
-  const { result, controller, waitForNextUpdate } = renderDataCompose(
+  const { result, controller } = await renderDataCompose(
     () => useQuery(ArticleResource.getList.schema, {}),
     {
       initialFixtures: [
@@ -206,16 +182,16 @@ it('should update collection when pushed', async () => {
     },
   );
 
-  expect(result.current?.value?.length).toBe(1);
+  expect(result.value?.length).toBe(1);
 
   await controller.fetch(ArticleResource.getList.push, {
     id: 2,
     title: 'Second',
     content: 'new',
   });
-  await waitForNextUpdate();
+  await nextTick();
 
-  expect(result.current?.value?.length).toBe(2);
+  expect(result.value?.length).toBe(2);
 });
 ```
 
@@ -223,9 +199,8 @@ it('should update collection when pushed', async () => {
 
 **setResponse() for instant updates:**
 ```typescript
-const { controller } = renderDataCompose(...);
-await waitForNextUpdate();
-const dataRef = await result.current;
+const { result, controller } = await renderDataCompose(() => useSuspense(...));
+const dataRef = await result;
 
 expect(dataRef.value.title).toBe('Original');
 
@@ -237,16 +212,6 @@ controller.setResponse(
 
 await nextTick();
 expect(dataRef.value.title).toBe('Updated'); // Reactive!
-```
-
-**fetch() for mutations:**
-```typescript
-await controller.fetch(
-  ArticleResource.update,
-  { id: 5 },
-  { title: 'Mutated', content: 'mutated content' }
-);
-await nextTick();
 ```
 
 ## Testing with nock (HTTP Mocking)
@@ -286,14 +251,13 @@ Quick example:
 jest.useFakeTimers();
 const responseMock = jest.fn(() => payload);
 
-const { result, allSettled, waitForNextUpdate, cleanup } = await renderDataCompose(
+const { result, allSettled, cleanup } = await renderDataCompose(
   () => useSuspense(PollingArticleResource.get, { id: payload.id }),
   { resolverFixtures: [{ endpoint: PollingArticleResource.get, response: responseMock }] },
 );
 
 jest.advanceTimersByTime(frequency);
 await allSettled();
-await waitForNextUpdate();
 const articleRef = await result;
 
 responseMock.mockReturnValue({ ...payload, title: 'updated' });
@@ -308,61 +272,16 @@ cleanup();
 
 For unsubscribe patterns, component-level polling tests, fake-timer-safe `flushUntil`, polling via nock, and common pitfalls, see [references/polling-subscriptions.md](references/polling-subscriptions.md).
 
-## Vue Suspense Behavior
-
-**useSuspense() returns Promise → ComputedRef:**
-```typescript
-const { result, waitForNextUpdate } = renderDataCompose(() =>
-  useSuspense(ArticleResource.get, { id: 5 })
-);
-
-// Initially suspended (undefined)
-expect(result.current).toBeUndefined();
-
-// Wait for resolution
-await waitForNextUpdate();
-
-// Now it's a Promise
-expect(result.current).toBeInstanceOf(Promise);
-
-// Await once to get reactive ComputedRef
-const articleRef = await result.current;
-
-// The ref is reactive - updates automatically
-expect(articleRef.value.title).toBe('hi ho');
-
-// After controller.setResponse() or controller.fetch():
-await nextTick();
-expect(articleRef.value.title).toBe('Updated'); // Auto-updated!
-```
-
-**useQuery() returns ComputedRef directly:**
-```typescript
-const { result } = renderDataCompose(() => useQuery(Article, { id: 5 }));
-
-// Synchronously available (or undefined if not in store)
-expect(result.current?.value).toBeDefined();
-expect(result.current?.value?.title).toBe('hi ho');
-
-// Also reactive - updates automatically
-```
-
 ## Best Practices
 
 - **Always call cleanup()** - Prevents memory leaks and test pollution
-- **Use renderDataCompose()** for composables (useQuery, useSuspense, useLive)
-- **Use mountDataClient()** for components
 - **Use reactive() for props** - Enables testing prop changes
-- **Use computed() when passing reactive props to composables** - Ensures proper reactivity tracking
 - **Use flushUntil() in component tests** - More reliable than fixed delays
-- **Use waitForNextUpdate() in composable tests** - Wait for suspension to resolve
 - **Remember nextTick()** - After mutations/setResponse to allow Vue reactivity to propagate
 - **Use initialFixtures for initial state** - Pre-populate the store
 - **Use resolverFixtures for dynamic responses** - Intercept requests with functions
-- **useSuspense returns Promise → ComputedRef** - Await once, then access `.value`
 - **Test both empty and populated states** - Verify undefined behavior
-- **Test reactive prop changes** - Use `reactive()` and verify updates
-- **Pass prop-derived args as getters** - Async setup runs once, so `useSuspense(Resource.get, () => ({ id: props.id }))` follows prop changes; a plain `{ id: props.id }` is read once
+- **Pass prop-derived args as getters or computed()** - Async setup runs once, so `useSuspense(Resource.get, () => ({ id: props.id }))` follows prop changes; a plain `{ id: props.id }` is read once
 
 ## References
 
@@ -370,7 +289,8 @@ For detailed API documentation, see the [references](references/) directory:
 
 - [Fixtures](references/Fixtures.md) - Fixture format reference
 - [mockInitialState](references/mockInitialState.md) - Create initial state for `DataClientPlugin`
-- [vue-test-utilities](references/vue-test-utilities.md) - `renderDataCompose()` and `mountDataClient()` guide
+- [unit-testing-components](references/unit-testing-components.md) - `mountDataClient()` guide, setup and options
+- [unit-testing-composables](references/unit-testing-composables.md) - `renderDataCompose()` guide
 - [nock-http-mocking](references/nock-http-mocking.md) - Full nock setup, dynamic server state, request spying, errors, pitfalls
 - [polling-subscriptions](references/polling-subscriptions.md) - Fake-timer patterns for `useLive`/`useSubscription`/`pollFrequency`, unsubscribe verification, polling via nock
 
@@ -378,18 +298,8 @@ For detailed API documentation, see the [references](references/) directory:
 
 **Empty state test:**
 ```typescript
-const { result } = renderDataCompose(() => useQuery(Article, { id: 5 }), {});
-expect(result.current?.value).toBe(undefined);
-```
-
-**Changing to non-existent entity:**
-```typescript
-const props = reactive({ id: 1 });
-// ... initial setup ...
-expect(result.current?.value?.id).toBe(1);
-
-props.id = 999; // Not in store
-expect(result.current?.value).toBe(undefined);
+const { result } = await renderDataCompose(() => useQuery(Article, { id: 5 }));
+expect(result.value).toBe(undefined);
 ```
 
 **Testing nested collections:**
@@ -398,11 +308,11 @@ const userTodos = new Collection(new schema.Array(Todo), {
   argsKey: ({ userId }) => ({ userId }),
 });
 
-const { result } = renderDataCompose(
+const { result } = await renderDataCompose(
   () => useQuery(userTodos, { userId: '1' }),
   { initialFixtures: [/* ... */] },
 );
 
-expect(result.current?.value?.length).toBe(2);
-expect(result.current?.value?.[0]).toBeInstanceOf(Todo);
+expect(result.value?.length).toBe(2);
+expect(result.value?.[0]).toBeInstanceOf(Todo);
 ```

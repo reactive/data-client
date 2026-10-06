@@ -8,7 +8,7 @@ sidebar_label: Pagination
 </head>
 
 import StackBlitz from '@site/src/components/StackBlitz';
-import HooksPlayground from '@site/src/components/HooksPlayground';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import PaginationDemo from '../../core/shared/\_pagination.mdx';
 
 # Rest Pagination
@@ -49,10 +49,11 @@ Here we explore a real world example using [cosmos validators list](https://rest
 Since validators only have one Endpoint, we use [RestEndpoint](../api/RestEndpoint.md) instead of [resource](../api/resource.md). By using [Collections](../api/Collection.md) and [paginationField](../api/RestEndpoint.md#paginationfield), we can call [RestEndpoint.getPage](../api/RestEndpoint.md#getpage)
 to append the next page of validators to our list.
 
-<HooksPlayground defaultOpen="n" row>
+<FrameworkPlayground defaultOpen="n" row>
 
-```ts title="Validator" {46-50} collapsed
+```ts title="Validator" {47-51} collapsed
 import { Collection, Entity, RestEndpoint, schema } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class Validator extends Entity {
   operator_address = '';
@@ -104,6 +105,8 @@ export const getValidators = new RestEndpoint({
   },
 });
 ```
+
+:::react
 
 ```tsx title="ValidatorItem" collapsed
 import { type Validator } from './Validator';
@@ -179,7 +182,85 @@ export default function ValidatorList() {
 render(<ValidatorList />);
 ```
 
-</HooksPlayground>
+:::
+
+:::vue
+
+```html title="ValidatorItem.vue" collapsed
+<script setup lang="ts">
+  import { type Validator } from './Validator';
+
+  defineProps<{ validator: Validator }>();
+</script>
+
+<template>
+  <div class="listItem spaced">
+    <div>
+      <h4>{{ validator.description.moniker }}</h4>
+      <small>
+        <a :href="validator.description.website" target="_blank">
+          {{ validator.description.website }}
+        </a>
+      </small>
+      <p>{{ validator.description.details }}</p>
+    </div>
+  </div>
+</template>
+```
+
+```html title="LoadMore.vue" {7-11}
+<script setup lang="ts">
+  import { useController, useLoading } from '@data-client/vue';
+  import { getValidators } from './Validator';
+
+  const props = defineProps<{ next_key: string; limit: string }>();
+  const ctrl = useController();
+  const [handleLoadMore, isPending] = useLoading(() =>
+    ctrl.fetch(getValidators.getPage, {
+      'pagination.limit': props.limit,
+      'pagination.key': props.next_key,
+    }),
+  );
+</script>
+
+<template>
+  <div v-if="next_key" style="text-align: center">
+    <button @click="handleLoadMore" :disabled="isPending">
+      {{ isPending ? '...' : 'Load more' }}
+    </button>
+  </div>
+</template>
+```
+
+```html title="ValidatorList.vue" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import ValidatorItem from './ValidatorItem.vue';
+  import { getValidators } from './Validator';
+  import LoadMore from './LoadMore.vue';
+
+  const PAGE_LIMIT = '3';
+
+  const data = await useSuspense(getValidators, {
+    'pagination.limit': PAGE_LIMIT,
+  });
+</script>
+
+<template>
+  <div>
+    <ValidatorItem
+      v-for="validator in data.validators"
+      :key="validator.pk()"
+      :validator="validator"
+    />
+    <LoadMore :next_key="data.pagination.next_key" :limit="PAGE_LIMIT" />
+  </div>
+</template>
+```
+
+:::
+
+</FrameworkPlayground>
 
 ### Infinite Scrolling
 
@@ -187,9 +268,13 @@ Since UI behaviors vary widely, and implementations vary from platform (react-na
 we'll just assume a `Pagination` component is built, that uses a callback to trigger next
 page fetching. On web, it is recommended to use something based on [Intersection Observers](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API)
 
+:::react
+
 ```tsx
 import { useSuspense, useController } from '@data-client/react';
 import { PostResource } from 'resources/Post';
+import Pagination from './Pagination';
+import PostList from './PostList';
 
 function NewsList() {
   const { results, cursor } = useSuspense(PostResource.getList);
@@ -201,11 +286,37 @@ function NewsList() {
         ctrl.fetch(PostResource.getList.getPage, { cursor })
       }
     >
-      <NewsList data={results} />
+      <PostList posts={results} />
     </Pagination>
   );
 }
 ```
+
+:::
+
+:::vue
+
+```html title="NewsList.vue"
+<script setup lang="ts">
+  import { useSuspense, useController } from '@data-client/vue';
+  import { PostResource } from 'resources/Post';
+  import Pagination from './Pagination.vue';
+  import PostList from './PostList.vue';
+
+  const data = await useSuspense(PostResource.getList);
+  const ctrl = useController();
+  const onPaginate = () =>
+    ctrl.fetch(PostResource.getList.getPage, { cursor: data.value.cursor });
+</script>
+
+<template>
+  <Pagination @paginate="onPaginate">
+    <PostList :posts="data.results" />
+  </Pagination>
+</template>
+```
+
+:::
 
 ## Tokens in HTTP Headers
 

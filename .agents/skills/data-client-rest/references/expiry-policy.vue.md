@@ -29,7 +29,7 @@ data no action will be taken.
 
 ### Endpoint.dataExpiryLength
 
-[Endpoint.dataExpiryLength](https://dataclient.io/rest/api/Endpoint#dataexpirylength) sets how long (in miliseconds) it takes for data
+[Endpoint.dataExpiryLength](https://dataclient.io/rest/api/Endpoint#dataexpirylength) sets how long (in milliseconds) it takes for data
 to transition from '[fresh](#fresh)' to '[stale](#stale)' status. Try setting it to a very low number like '50'
 to make it becomes [stale](#stale) almost instantly; or a very large number to stay around for a long time.
 
@@ -38,6 +38,7 @@ you will continue to see the old time without any refresh.
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -160,6 +161,7 @@ within the expiry time it just continues to display it.
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -236,6 +238,7 @@ the previous data. This can be done even with 'fresh' data.
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -275,6 +278,7 @@ export const lastUpdated = new RestEndpoint({
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -333,7 +337,7 @@ export const lastUpdated = new RestEndpoint({
 
 ## Invalidate {#invalidate}
 
-Both [endpoints](https://dataclient.io/rest/api/Endpoint) and [entities](./Entity.md) can be targetted to be invalidated.
+Both [endpoints](https://dataclient.io/rest/api/Endpoint) and [entities](./Entity.vue.md) can be targetted to be invalidated.
 
 Invalidated data always refetches, even when it is fresh. Vue can't suspend a component again once its
 setup has run, so mounted components keep showing their previous data until the refetch resolves.
@@ -346,6 +350,7 @@ In this example [invalidating the endpoint](https://dataclient.io/vue/api/Contro
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -404,11 +409,12 @@ export const lastUpdated = new RestEndpoint({
 
 ### Any endpoint with an entity {#invalidate-entity}
 
-Using the [Invalidate schema](https://dataclient.io/rest/api/Invalidate) allows us to invalidate _any_ endpoint that includes that relies on that [entity](./Entity.md) in their
+Using the [Invalidate schema](https://dataclient.io/rest/api/Invalidate) allows us to invalidate _any_ endpoint that includes that relies on that [entity](./Entity.vue.md) in their
 response. If the endpoint uses the entity in an [Array](https://dataclient.io/rest/api/Array), it will simply be removed from that [Array](https://dataclient.io/rest/api/Array).
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';
@@ -476,7 +482,7 @@ export const lastUpdated = new RestEndpoint({
     >
       Invalidate (without fetching DELETE)
     </button>
-    <button @click="ctrl.set(InvalidateTimedEntity, { id: '1' }, { id: '1' })">
+    <button @click="ctrl.set([InvalidateTimedEntity], [{ id: '1' }])">
       Invalidate Entity with ctrl.set
     </button>
   </div>
@@ -490,7 +496,7 @@ when we want to change the local store directly.
 #### Conditional Invalidation based on data
 
 If `invalidation` should happen only sometimes, based on the response data, we can
-return `undefined` from [Entity.process](./Entity.md#process).
+return `undefined` from [Entity.process](./Entity.vue.md#process).
 
 ```ts
 class PriceLevel extends Entity {

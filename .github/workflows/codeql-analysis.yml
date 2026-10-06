@@ -11,24 +11,34 @@
 #
 name: "CodeQL"
 
+# Shipped source only: manifests, docs and tests can't add alerts that matter
 on:
   push:
     branches: [ master ]
     paths:
-      - 'packages/**'
+      - 'packages/*/src/**'
+      - 'packages/*/node.mjs'
+      - '!packages/**/__tests__/**'
+      - '.github/workflows/codeql-analysis.yml'
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     # The branches below must be a subset of the branches above
     branches: [ master ]
     paths:
-      - 'packages/**'
+      - 'packages/*/src/**'
+      - 'packages/*/node.mjs'
+      - '!packages/**/__tests__/**'
+      - '.github/workflows/codeql-analysis.yml'
   schedule:
     - cron: '25 22 * * 5'
 
 permissions:
   contents: read
 
+# PRs cancel superseded runs. Push runs get their own group, so master never
+# shows a cancelled (red) run.
 concurrency:
-  group: codeql-${{ github.head_ref || github.ref }}
+  group: codeql-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
@@ -38,6 +48,7 @@ jobs:
       contents: read # for actions/checkout to fetch code
       security-events: write # for github/codeql-action/autobuild to send a status report
     name: Analyze
+    if: ${{ !github.event.pull_request.draft }}
     runs-on: ubuntu-latest
 
     strategy:

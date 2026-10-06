@@ -22,7 +22,7 @@ export type Fixture = SuccessFixture | ErrorFixture;
 This prop specifies the [fixtures](./Fixtures.md) to use data from. Each item represents a fetch defined by the
 [Endpoint](https://dataclient.io/rest/api/Endpoint) and params. `Result` contains the JSON response expected from said fetch.
 
-This can be used as the `initialState` option for [DataClientPlugin](https://dataclient.io/vue/getting-started/installation)
+This can be used as the [initialState option](https://dataclient.io/vue/api/DataClientPlugin#initialState) for [DataClientPlugin](https://dataclient.io/vue/api/DataClientPlugin)
 
 ## Example
 

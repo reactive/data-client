@@ -30,11 +30,14 @@ import {
 } from '@data-client/react/redux';
 import { getDefaultManagers, Controller } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
+import App from './App';
 
 const managers = getDefaultManagers();
 // be sure to include your other reducers here
 const otherReducers = {};
-const extraMiddlewares: Middleware = [];
+const extraMiddlewares: Middleware[] = [];
+// for instance, state serialized from the server
+const initialState = {};
 
 const { store, selector, controller } = prepareStore(
   initialState,
@@ -58,7 +61,7 @@ createRoot(document.body).render(
 </TabItem>
 <TabItem value="react-redux">
 
-```tsx title="index.tsx"
+```tsx title="index.tsx" nocheck
 import {
   ExternalDataProvider,
   prepareStore,
@@ -67,11 +70,14 @@ import {
 import { getDefaultManagers, Controller } from '@data-client/react';
 import { Provider } from 'react-redux';
 import { createRoot } from 'react-dom/client';
+import App from './App';
 
 const managers = getDefaultManagers();
 // be sure to include your other reducers here
 const otherReducers = {};
-const extraMiddlewares: Middleware = [];
+const extraMiddlewares: Middleware[] = [];
+// for instance, state serialized from the server
+const initialState = {};
 
 const { store, selector, controller } = prepareStore(
   initialState,

@@ -40,9 +40,8 @@ import {
   recordConsoleErrors,
   replayRest,
   HydratedProbe,
-  type GatePromise,
-  type PendingBoundary,
 } from '__tests__/streamingHarness';
+import type { GatePromise, PendingBoundary } from '__tests__/streamingHarness';
 import React, {
   StrictMode,
   Suspense,
