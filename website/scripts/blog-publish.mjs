@@ -84,9 +84,13 @@ function rewriteLinks(oldUrl, newUrl) {
     const text = readFileSync(linked, 'utf8');
     writeFileSync(linked, text.replace(oldUrlPattern, newUrl));
   }
-  // Stage the rewrites so the commit has no broken links; -u leaves untracked
-  // files for their author to add
-  if (linking.length) git('add', '-u', '--', ...linking);
+  if (!linking.length) return;
+  // Stage the rewrites so the commit has no broken links. Untracked files are
+  // left for their author to add (`git add -u` rejects them on newer git)
+  const tracked = git('ls-files', '-z', '--', ...linking)
+    .split('\0')
+    .filter(Boolean);
+  if (tracked.length) git('add', '--', ...tracked);
 }
 
 function check(base) {
