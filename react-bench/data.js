@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791223413693,
+  "lastUpdate": 1791244823104,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -7139,6 +7139,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 204.17,
             "range": "± 9.8%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0ca688fa18f02fc120ab5722aeab5a2e56b1ae6e",
+          "message": "ci: Queue benchmark master push runs instead of cancelling them (#4211)\n\nBenchmark workflows share one concurrency group for master pushes. With\nGitHub's default single pending slot, a third quick push cancels the\npending one and marks master red. Push runs now use queue: max; PR runs\nkeep cancel-in-progress.\n\n\nClaude-Session: https://claude.ai/code/session_01FbcU32urUKzbRdg672xQUG\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-05T19:57:04-04:00",
+          "tree_id": "54e9afa7ab7bb474602d2387108db5b1dc63fe31",
+          "url": "https://github.com/reactive/data-client/commit/0ca688fa18f02fc120ab5722aeab5a2e56b1ae6e"
+        },
+        "date": 1791244819980,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 138.89,
+            "range": "± 5.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 43.96,
+            "range": "± 3.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 322.58,
+            "range": "± 8.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 322.58,
+            "range": "± 8.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 44.95,
+            "range": "± 10.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 294.12,
+            "range": "± 6.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 312.5,
+            "range": "± 7.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 8.86,
+            "range": "± 9.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 69.93,
+            "range": "± 14.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 34.85,
+            "range": "± 5.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 208.33,
+            "range": "± 5.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 263.16,
+            "range": "± 6.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 172.47,
+            "range": "± 10.1%",
             "unit": "ops/s"
           }
         ]
