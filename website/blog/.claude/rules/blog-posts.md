@@ -14,7 +14,7 @@ Files: `YYYY-MM-DD-vX.Y-short-description.md`
 - Title format: `vX.Y: Feature1, Feature2, Feature3` or `vX.Y Feature-focused Title`
 - Include `releases` tag plus relevant feature tags from [tags.yml](./tags.yml)
 - `draft: true` for unpublished/WIP posts
-- Publishing: run `yarn blog:publish website/blog/<post>.md`. The filename date is the post's date and URL, so it removes `draft: true`, renames the post to today and rewrites its `/blog/YYYY/MM/DD/...` links. The `website` CI check fails a newly published post dated more than 3 days from today, or dated by a `date:` field instead of its filename.
+- Publish a draft with `yarn blog:publish website/blog/<post>.md` (removes `draft: true`, re-dates the filename to today, fixes links). CI fails posts published with a stale date.
 
 ## Package Layers
 
