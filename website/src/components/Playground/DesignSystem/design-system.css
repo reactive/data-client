@@ -125,8 +125,14 @@ html[data-theme='dark'] .small.rt-TextFieldRoot {
   border-color: var(--ifm-color-formfield-active);                  /* Make all borders visible */
 }
 
-.listItem .rt-TextFieldRoot {
-  width: calc(100% - 21px);
+/* Checkbox + text field rows (new todo): the field fills the rest of the row,
+   whatever size the checkbox is styled at */
+.listItem > label:has(> .rt-TextFieldRoot) {
+  display: flex;
+  align-items: center;
+}
+.listItem > label > .rt-TextFieldRoot {
+  flex: 1;
 }
 
 
