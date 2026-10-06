@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791250335177,
+  "lastUpdate": 1791257266481,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -7853,6 +7853,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 166.67,
             "range": "± 9.1%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "954b1e9041ba47b39b9ffdd53a55b0b16adc8675",
+          "message": "fix(react): Type prepareStore()'s store as a redux Store (#4238)\n\n* fix(react): Type prepareStore()'s store as a redux Store\n\nreact-redux's <Provider> rejected prepareStore()'s store, typed as a\nminimal { getState, subscribe }. Type it as the vendored redux Store and\nrestore replaceReducer() and [Symbol.observable]() in the vendored\ncreateStore so the type matches what it returns.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01YY2pHnmcWHzdQTJcPopPKQ\n\n* test(react): Run react-redux Provider test on React 18+; simplify\n\nreact-redux 9 needs React 18, so the React 17 CI job can't render\n<Provider>. Drop a redundant typed local and keep the vendored\nobservable() verbatim from redux 5.0.1.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01YY2pHnmcWHzdQTJcPopPKQ\n\n* fix(react): Stub replaceReducer and observable instead of vendoring them\n\nreact-redux's types need the members but never call them, so throwing\nstubs typed as never keep the type honest without the extra bytes.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01YY2pHnmcWHzdQTJcPopPKQ\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-05T23:24:30-04:00",
+          "tree_id": "e013867055510a8d5db2a336601189ef633104ec",
+          "url": "https://github.com/reactive/data-client/commit/954b1e9041ba47b39b9ffdd53a55b0b16adc8675"
+        },
+        "date": 1791257264003,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 173.93,
+            "range": "± 4.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 51.95,
+            "range": "± 5.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 408.33,
+            "range": "± 7.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 363.76,
+            "range": "± 8.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 50.3,
+            "range": "± 9.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 333.33,
+            "range": "± 7.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 370.37,
+            "range": "± 5.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 14,
+            "range": "± 9.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 81,
+            "range": "± 15.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 43.67,
+            "range": "± 5.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 238.1,
+            "range": "± 4.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 322.58,
+            "range": "± 5.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 200,
+            "range": "± 10.9%",
             "unit": "ops/s"
           }
         ]
