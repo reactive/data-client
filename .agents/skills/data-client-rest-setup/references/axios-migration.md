@@ -730,26 +730,26 @@ Later, replace `useProject(id)` with `useSuspense(getProject, { id })`.
 Codebases that already have a custom endpoint class wrapping axios (say, one with `path`, `method` and a `toDynamicUrl()` helper) can extend `RestEndpoint` instead of replacing it, keeping backward-compatible methods while gaining [`url()`](./RestEndpoint.md#url), [`getRequestInit()`](./RestEndpoint.md#getRequestInit), [`fetchResponse()`](./RestEndpoint.md#fetchResponse) and [`parseResponse()`](./RestEndpoint.md#parseResponse):
 
 ```ts
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, RestGenerics } from '@data-client/rest';
 
-export class LegacyEndpoint extends RestEndpoint {
-  queryKey: string;
-
-  constructor(params: { path: string; method: string; queryKey: string }) {
-    super({
-      path: params.path,
-      method: params.method,
-      urlPrefix: API_ROOT,
-    });
-    this.queryKey = params.queryKey;
-  }
+export class LegacyEndpoint<
+  O extends RestGenerics = any,
+> extends RestEndpoint<O> {
+  urlPrefix = API_ROOT;
+  declare queryKey?: string;
 
   /** @deprecated use url() */
-  toDynamicUrl(segments: Record<string, string>) {
-    return this.url(segments);
-  }
+  toDynamicUrl = this.url;
 }
+
+const getUser = new LegacyEndpoint({
+  path: '/users/:id',
+  queryKey: 'user',
+  schema: User,
+});
 ```
+
+Pass extra members like `queryKey` as options rather than through a custom constructor, so [`extend()`](./RestEndpoint.md#extend) (used by `resource()`, `hookifyResource()` and `useCancelling()`) keeps working.
 
 ## Related guides
 
