@@ -46,7 +46,7 @@ export const ArticleResource = resource({
   searchParams: {} as { maxResults: number },
 });
 
-export let ArticleFixtures: Record<string, Fixture> = {};
+export let ArticleFixtures: Record<string, Fixture[]> = {};
 ```
 
 </TabItem>

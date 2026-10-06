@@ -9,18 +9,18 @@ import { isExternalTypes, typeConfig } from './rollup-utils.js';
 
 const EDITOR_TYPES = './website/src/components/Playground/editor-types';
 
-// rollup-plugin-dts can't resolve relative imports written as './x.js' or './x'
+// rollup-plugin-dts can't resolve relative imports written as './x.js', './x.cjs' or './x'
 const resolveRelativeDts = {
   name: 'resolve-relative-dts',
   resolveId(source, importer) {
     if (!importer || !source.startsWith('.')) return null;
     const base = path.resolve(
       path.dirname(importer),
-      source.replace(/\.js$/, ''),
+      source.replace(/\.c?js$/, ''),
     );
     return (
-      [`${base}.d.ts`, path.join(base, 'index.d.ts')].find(file =>
-        fs.existsSync(file),
+      [`${base}.d.ts`, `${base}.d.cts`, path.join(base, 'index.d.ts')].find(
+        file => fs.existsSync(file),
       ) ?? null
     );
   },
@@ -36,11 +36,11 @@ const editorTypes = (input, output, external = []) => ({
 // Bundles straight from each package's tsc output (lib/), so this only needs
 // `tsc --build`, not the packages' full js + bundle builds.
 // Mirrors the type configs in packages/*/rollup.config.mjs
-const packageTypes = (pkg, entry, output) =>
+const packageTypes = (pkg, entry, output, external = isExternalTypes) =>
   editorTypes(
     `./packages/${pkg}/lib/${entry}`,
     `@data-client/${output}`,
-    isExternalTypes,
+    external,
   );
 
 export default [
@@ -59,6 +59,14 @@ export default [
   packageTypes('react', 'server/redux/index.d.ts', 'react/redux.d.ts'),
   packageTypes('vue', 'index.d.ts', 'vue.d.ts'),
   packageTypes('vue', 'test/index.d.ts', 'vue/test.d.ts'),
+  // @data-client/react has its own editor types, so it stays external; react/mock
+  // has none and only re-exports core/mock, so it's inlined down to that import
+  packageTypes(
+    'test',
+    'index.d.ts',
+    'test.d.ts',
+    id => id === '@data-client/react' || isExternalTypes(id),
+  ),
   editorTypes('./node_modules/uuid/dist/index.d.ts', 'uuid.d.ts'),
   // inlines number-flow/lite and number-flow/plugins
   editorTypes(

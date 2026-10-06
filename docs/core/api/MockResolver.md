@@ -70,7 +70,7 @@ const results = [
   // fixture
   {
     endpoint: ArticleResource.getList,
-    args: [{ maxResults: 10 }] as const,
+    args: [{ maxResults: 10 }],
     response: [
       {
         id: 5,

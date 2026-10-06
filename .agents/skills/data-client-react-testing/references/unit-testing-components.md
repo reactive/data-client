@@ -28,7 +28,7 @@ export default {
   full: [
     {
       endpoint: ArticleResource.getList,
-      args: [{ maxResults: 10 }] as const,
+      args: [{ maxResults: 10 }],
       response: [
         {
           id: 5,
@@ -46,7 +46,7 @@ export default {
     },
     {
       endpoint: ArticleResource.update,
-      args: [{ id: 532 }] as const,
+      args: [{ id: 532 }],
       response({ id }, body) {
         return {
           id,
@@ -58,14 +58,14 @@ export default {
   empty: [
     {
       endpoint: ArticleResource.getList,
-      args: [{ maxResults: 10 }] as const,
+      args: [{ maxResults: 10 }],
       response: [],
     },
   ],
   error: [
     {
       endpoint: ArticleResource.getList,
-      args: [{ maxResults: 10 }] as const,
+      args: [{ maxResults: 10 }],
       response: { message: 'Bad request', status: 400, name: 'Not Found' },
       error: true,
     },
