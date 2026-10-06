@@ -4,12 +4,6 @@
 
 [`@data-client/rest`](https://dataclient.io/rest) replaces axios with a declarative, type-safe approach to REST APIs.
 
-## AI-assisted migration {#skill}
-
-Install the REST setup skill to automate the migration with your AI coding assistant. It auto-detects axios in your project and runs the [codemod](#codemod) for deterministic transforms, then guides you through the manual steps that require judgment (interceptors, error handling, schema definitions, etc.).
-
-Then run skill `/data-client-rest-setup` to start the migration. It will detect axios and apply the appropriate migration sub-procedure automatically.
-
 ## Why migrate?
 
 ### Type-safe paths
@@ -552,7 +546,7 @@ const uploadFile = new UploadEndpoint({
 
 ## Codemod {#codemod}
 
-For non-AI workflows, a standalone [jscodeshift](https://github.com/facebook/jscodeshift) codemod handles the mechanical parts of migration. (The [AI skill](#skill) above runs this automatically as its first step.)
+A standalone [jscodeshift](https://github.com/facebook/jscodeshift) codemod handles the mechanical parts of migration.
 
 ```bash
 npx jscodeshift -t https://dataclient.io/codemods/axios-to-rest.js --extensions=ts,tsx,js,jsx src/

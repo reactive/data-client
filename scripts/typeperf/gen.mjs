@@ -143,7 +143,7 @@ import { useSuspense, useController, useCache, useQuery, useLive, useDLE, useFet
   return s + '}\n';
 };
 
-// 7. Query/All/Scalar/Invalidate/Lazy grab bag
+// 7. Query/All/Scalar/Invalidate/Lazy grab bag, incl. Collections wrapped in Query/Lazy
 scen.schemas = () => {
   let s = `import { Entity, resource, schema, Collection, Query, RestEndpoint } from '@data-client/rest';
 import { useSuspense, useQuery, useController } from '@data-client/react';
@@ -156,11 +156,13 @@ export const q${i} = new Query(all${i}, (rows, { min }: { min?: number }) => row
 export const inv${i} = new RestEndpoint({ path: '/s${i}/:id', method: 'DELETE', schema: new schema.Invalidate(S${i}) });
 export const arr${i} = new RestEndpoint({ path: '/arr${i}', schema: new schema.Array(S${i}) });
 export const obj${i} = new RestEndpoint({ path: '/obj${i}', schema: new schema.Object({ list: [S${i}], one: S${i}, coll: new Collection([S${i}], { argsKey: ({ g }: { g: string }) => ({ g }) }) }) });
+export const sorted${i} = new RestEndpoint({ path: '/:g/sorted${i}', searchParams: {} as { by?: 'a' | 'b' }, schema: new Query(new Collection([S${i}], { nonFilterArgumentKeys: /by/ }), (rows, { by }: { by?: 'a' | 'b' } = {}) => (by ? [...rows].sort((x, y) => String(x[by]).localeCompare(String(y[by]))) : rows)) });
+export const lazy${i} = new RestEndpoint({ path: '/lazy${i}', schema: new schema.Lazy(new Collection([S${i}])) });
 `;
   }
   s += `export function useS() { const ctrl = useController();\n`;
   for (let i = 0; i < 40 * N; i++)
-    s += `  { const r = useQuery(q${i}, { min: 2 }); const a = useQuery(all${i}); const o = useSuspense(obj${i}); const ar = useSuspense(arr${i}); ctrl.fetch(inv${i}, { id: '1' }); ctrl.set(all${i}, [{ id: '1', a: 1 }]); void r, a, o, ar; }\n`;
+    s += `  { const r = useQuery(q${i}, { min: 2 }); const a = useQuery(all${i}); const o = useSuspense(obj${i}); const ar = useSuspense(arr${i}); ctrl.fetch(inv${i}, { id: '1' }); ctrl.set(all${i}, [{ id: '1', a: 1 }]); const so = useSuspense(sorted${i}, { g: 'x', by: 'a' }); ctrl.fetch(sorted${i}.push, { g: 'x' }, { a: 1 }); ctrl.fetch(sorted${i}.unshift, { g: 'x' }, { b: 'y' }); ctrl.fetch(sorted${i}.remove, { g: 'x' }, { id: '1' }); ctrl.fetch(lazy${i}.push, { a: 1 }); void r, a, o, ar, so; }\n`;
   return s + '}\n';
 };
 
