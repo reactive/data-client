@@ -35,7 +35,7 @@ const git = (...args) => execFileSync('git', args, { encoding: 'utf8' });
 // Front matter is read with regexes rather than @docusaurus/utils so CI can
 // run this before installing packages.
 function frontMatter(source) {
-  const block = source.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
+  const block = source.match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1] ?? '';
   return {
     draft: /^draft:\s*true\s*(#.*)?$/m.test(block),
     hasDate: /^date:/m.test(block),
@@ -98,15 +98,13 @@ for (const entry of readdirSync(BLOG_DIR, { withFileTypes: true })) {
 
   if (fix) {
     const newFile = today + file.slice(today.length);
-    // Not `git mv`: a new post may not be tracked yet
     if (existsSync(`${BLOG_DIR}/${newFile}`)) {
       console.error(`${path}: can't rename, ${newFile} already exists`);
       failed = true;
       continue;
     }
+    // Not `git mv`: a new post may not be tracked yet
     renameSync(path, `${BLOG_DIR}/${newFile}`);
-    git('add', '--', `${BLOG_DIR}/${newFile}`);
-    git('rm', '--cached', '-q', '--ignore-unmatch', '--', path);
     const oldUrl = `/blog/${year}/${month}/${day}/${slug}`;
     const newUrl = oldUrl.replace(
       `${year}/${month}/${day}`,
@@ -130,6 +128,9 @@ for (const entry of readdirSync(BLOG_DIR, { withFileTypes: true })) {
       const text = readFileSync(linked, 'utf8');
       writeFileSync(linked, text.replace(oldUrlPattern, newUrl));
     }
+    // Stage after the rewrite so the commit gets the updated self-links
+    git('add', '--', `${BLOG_DIR}/${newFile}`);
+    git('rm', '--cached', '-q', '--ignore-unmatch', '--', path);
     console.log(
       `renamed ${file} -> ${newFile}; updated links in ${linking.length} file(s)`,
     );
