@@ -528,7 +528,7 @@ interface FetchMeta {
     fetchedAt: number;
     resolve: (value?: any | PromiseLike<any>) => void;
     reject: (reason?: any) => void;
-    promise: PromiseLike<any>;
+    promise: Promise<any>;
 }
 /** Action for Controller.fetch() */
 interface FetchAction<E extends EndpointAndUpdate<E> = EndpointDefault> {
