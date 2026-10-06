@@ -62,6 +62,8 @@ Performance compared to normalizr package (higher is better):
 
 Not only is denormalize faster, but it is more feature-rich as well.
 
+Before acting on a CI benchmark comment, follow [Reading the CI comment](../benchmark-react/README.md#reading-the-ci-comment).
+
 ### Memory pressure
 
 The `spread` scenarios allocate transient copies proportional to store size, so

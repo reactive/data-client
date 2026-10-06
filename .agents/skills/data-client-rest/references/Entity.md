@@ -184,7 +184,7 @@ const get = new RestEndpoint({
 export const OptionsResource = {
   get,
   partialUpdate: get.extend({ method: 'PATCH' }),
-}
+};
 ```
 
 ### static key: string {#key}
@@ -383,7 +383,7 @@ const price = useQuery(LatestPrice, { symbol: 'BTC' });
 ### static maxEntityDepth?: number {#maxEntityDepth}
 
 Limits entity nesting depth during denormalization to prevent stack overflow
-in large bidirectional entity graphs. **Default: 128**
+in large bidirectional entity graphs. **Default: 64**
 
 When bidirectional relationships create chains with many unique entities
 (e.g., `Department → Building → Department → ...`), denormalization can recurse
@@ -397,7 +397,9 @@ class Department extends Entity {
   name = '';
   buildings: Building[] = [];
 
-  pk() { return this.id; }
+  pk() {
+    return this.id;
+  }
   static key = 'Department';
   static maxEntityDepth = 16;
 
