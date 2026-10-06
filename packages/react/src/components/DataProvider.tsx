@@ -22,7 +22,7 @@ export interface ProviderProps {
   children: React.ReactNode;
   managers?: Manager[];
   initialState?: State<unknown>;
-  Controller?: typeof DataController;
+  Controller?: new (props: { gcPolicy: GCInterface }) => DataController;
   gcPolicy?: GCInterface;
   devButton?: DevToolsPosition | null | undefined;
 }

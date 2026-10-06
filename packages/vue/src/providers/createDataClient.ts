@@ -16,7 +16,7 @@ import { getDefaultManagers } from './getDefaultManagers.js';
 export interface ProvideOptions {
   managers?: Manager[];
   initialState?: State<unknown>;
-  Controller?: typeof DataController;
+  Controller?: new (props: { gcPolicy: GCInterface }) => DataController;
   gcPolicy?: GCInterface;
   /** @internal Set by DataClientPlugin */
   app?: App;
