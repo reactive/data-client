@@ -75,7 +75,8 @@ jobs:
       - name: Diff generated files
         id: diff
         env:
-          SAME_REPO: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+          # Dependabot runs get a read-only token, like forks
+          CAN_PUSH: ${{ github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]' }}
         run: |
           OUTPUTS=(
             website/src/components/Playground/editor-types
@@ -87,8 +88,8 @@ jobs:
             exit 0
           fi
           git diff --cached --stat
-          # GITHUB_TOKEN can't push to forks, and master isn't fixed in place
-          if [ "${SAME_REPO}" != true ]; then
+          # master isn't fixed in place
+          if [ "${CAN_PUSH}" != true ]; then
             echo "::error::Generated files are stale: run 'yarn copy:websitetypes' and 'yarn build:skills', and commit the result."
             exit 1
           fi
