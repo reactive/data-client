@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791300496101,
+  "lastUpdate": 1791303574465,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -8057,6 +8057,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 168.08,
             "range": "± 9.9%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "fc4b015ca0899a2685af881d17f765dce27ffc1a",
+          "message": "fix(test): Fixture args accept readonly tuples (#4250)\n\nFixtures written with `args: [...] as const` were rejected because\n`args` was typed as the mutable `Parameters<E>`. Type it as\n`Readonly<Parameters<E>>` in @data-client/core/mock and @data-client/test,\nrestore `as const` in the docs examples #4246 dropped, and add a\n`fixtures` typeperf scenario.\n\n\nClaude-Session: https://claude.ai/code/session_01K9dm6BAco8rRjbd6aLcJZB\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-06T12:15:55-04:00",
+          "tree_id": "66dde639d9ebf8e2fe87c9815e4de35db520bd95",
+          "url": "https://github.com/reactive/data-client/commit/fc4b015ca0899a2685af881d17f765dce27ffc1a"
+        },
+        "date": 1791303570780,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 169.49,
+            "range": "± 4.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 51.95,
+            "range": "± 4.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 416.67,
+            "range": "± 7.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 370.37,
+            "range": "± 7.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 53.62,
+            "range": "± 8.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 344.83,
+            "range": "± 6.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 416.67,
+            "range": "± 7.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 13.38,
+            "range": "± 7.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 80.65,
+            "range": "± 15.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 46.73,
+            "range": "± 5.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 250,
+            "range": "± 6.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 322.58,
+            "range": "± 4.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 192.31,
+            "range": "± 8.0%",
             "unit": "ops/s"
           }
         ]
