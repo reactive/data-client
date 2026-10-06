@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791244906915,
+  "lastUpdate": 1791246262855,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -125701,6 +125701,324 @@ window.BENCHMARK_DATA = {
             "range": "±0.25%",
             "unit": "ops/sec",
             "extra": "96 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "94f82a6ed5a53bf478845a2b3260b2750b8d94cc",
+          "message": "docs: Type-check the Vue code examples (#4215)\n\n* internal: Type-check Vue docs examples (WIP)\n\n* ci: Run the Vue docs example check in the skills workflow\n\n* internal: Loose Vue examples import the nearest same-titled block\n\n* docs: Fix imports and Vue-only issues in docs/core Vue examples\n\n* docs: Fix imports and Vue-only issues in docs/rest Vue examples; regenerate skill references\n\n* internal: Simplify the Vue example check; type-check @data-client/vue/test examples\n\n- Reuse index.js walk() and docsInstances paths; derive placeholders from the playground DesignSystem\n- Map errors through the fence's raw lines instead of a per-line map\n- Group playgrounds by node instead of a module counter\n- Add @data-client/vue/test and core/mock editor types so Vue testing examples are checked\n- React expiry-policy demo uses the same typed set([Invalidate]) form as Vue\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NhTHFsx27AbMsxqkSuCvFe\n\n* ci: Run the Vue example check when the playground design system changes; keep check-only editor types out of the playground chunk\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NhTHFsx27AbMsxqkSuCvFe\n\n* Check Vue-only doc pages' examples too\n\nThe checker skipped every foo.vue.md as an override of foo.md, so pages\nthat only exist for Vue (DataClientPlugin, unit-testing-composables) were\nnever type-checked. Skip an override only when its base page exists, and\nadd the imports those pages' examples were missing.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NhTHFsx27AbMsxqkSuCvFe\n\n* Check untitled Vue SFC fences; fix Codex review findings\n\n- Treat any html fence with <script> or <template> as a Vue SFC, titled or\n  not, and fix the examples that surfaced (useController, RestEndpoint\n  pagination, Entity fragment marked nocheck)\n- Name a file by its fence language when the title's extension differs;\n  rewrite the _EndpointLifecycle Component.vue snippet as an SFC\n- Don't report success when vue-tsc exits without diagnostics\n- Run the skills workflow when the root package.json changes\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NhTHFsx27AbMsxqkSuCvFe\n\n* Keep the StreamManager spread; support Node 18 in the Vue check\n\n- Restore ...msg.args in the README StreamManager (args is variadic),\n  typing msg like the Managers page does\n- Group playground blocks without Map.groupBy, which Node 18 and 20 lack\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NhTHFsx27AbMsxqkSuCvFe\n\n* Simplify the Vue examples check\n\n- List pages the way the site resolves them: foo.vue.md stands for foo.md\n  (reusing index.js VUE_OVERRIDE), instead of a third override rule\n- Only root-level <script>/<template> make an html fence an SFC\n- A code title's extension is replaced by the fence language's\n- One grouping helper for playgrounds and stubs; rewrap README\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NhTHFsx27AbMsxqkSuCvFe\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-05T20:19:25-04:00",
+          "tree_id": "ce0a6955c08057201fa08a0158131a4f92b7d75e",
+          "url": "https://github.com/reactive/data-client/commit/94f82a6ed5a53bf478845a2b3260b2750b8d94cc"
+        },
+        "date": 1791246259210,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 431,
+            "range": "±4.12%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 392,
+            "range": "±0.22%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "normalizeLong Scalar",
+            "value": 357,
+            "range": "±3.52%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "normalizeLong Scalar update",
+            "value": 893,
+            "range": "±0.21%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 228,
+            "range": "±6.39%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 221,
+            "range": "±5.07%",
+            "unit": "ops/sec",
+            "extra": "75 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 979,
+            "range": "±0.85%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 733,
+            "range": "±0.17%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar donotcache",
+            "value": 1040,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 1381,
+            "range": "±0.07%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 642,
+            "range": "±6.17%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 6860,
+            "range": "±0.09%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 3132,
+            "range": "±0.08%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 59263,
+            "range": "±1.29%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 6266,
+            "range": "±2.26%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 215,
+            "range": "±5.97%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 6419,
+            "range": "±0.32%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong withCache (Scalar churn)",
+            "value": 6383,
+            "range": "±0.75%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 5203,
+            "range": "±1.77%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar withCache",
+            "value": 7774,
+            "range": "±0.25%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar update withCache",
+            "value": 4075,
+            "range": "±0.20%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 6387,
+            "range": "±0.31%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 6511,
+            "range": "±2.06%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 1679,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50",
+            "value": 4434,
+            "range": "±10.81%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50 donotcache",
+            "value": 40737,
+            "range": "±0.44%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 4317,
+            "range": "±4.66%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 9959548,
+            "range": "±1.74%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 187,
+            "range": "±9.10%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 3483,
+            "range": "±0.17%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 2851,
+            "range": "±0.25%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 4325,
+            "range": "±3.14%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 2976,
+            "range": "±0.38%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 5069,
+            "range": "±1.31%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 433,
+            "range": "±0.26%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 248,
+            "range": "±1.21%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 269,
+            "range": "±0.21%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 909,
+            "range": "±1.62%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "setMany 50x one-per-row",
+            "value": 148,
+            "range": "±0.38%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "setMany 50 batch",
+            "value": 3571,
+            "range": "±0.47%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "setMany 500x one-per-row",
+            "value": 15.09,
+            "range": "±1.02%",
+            "unit": "ops/sec",
+            "extra": "42 samples"
+          },
+          {
+            "name": "setMany 500 batch",
+            "value": 1394,
+            "range": "±3.25%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
           }
         ]
       }
