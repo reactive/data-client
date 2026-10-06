@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791246038391,
+  "lastUpdate": 1791246103972,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark Spread": [
@@ -124,6 +124,37 @@ window.BENCHMARK_DATA = {
             "range": "±0.99%",
             "unit": "ops/sec",
             "extra": "87 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a403df8f22dadb0dbd9a6cf72a65f9187ae63176",
+          "message": "docs(rest): Make SchemaSimple page concise and human-oriented (#4224)\n\n* docs(rest): Make SchemaSimple page concise and human-oriented\n\nCut library-internal implementation snippets, replace per-member delegate\nsections with tables, lead with a realistic args-dependent schema, and add\nverified caveats (primitives skip normalize, entity-like requirements,\nDepthLimited memoization). Fix maxEntityDepth default (64, not 128) in\nEntity docs and JSDoc.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01HcaXWVmRV1cJxpNfotPufC\n\n* docs(rest): Address review on SchemaSimple wording; add maxEntityDepth changeset\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01HcaXWVmRV1cJxpNfotPufC\n\n* docs(website): Redirect old /rest/api/CustomSchema URL to SchemaSimple\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01HcaXWVmRV1cJxpNfotPufC\n\n* docs(rest): Point SchemaSimple to Schema Overview instead of its own table\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01HcaXWVmRV1cJxpNfotPufC\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-05T20:20:49-04:00",
+          "tree_id": "eb28d5d111b55ef4ff1e1f01870edc6bea4b11e5",
+          "url": "https://github.com/reactive/data-client/commit/a403df8f22dadb0dbd9a6cf72a65f9187ae63176"
+        },
+        "date": 1791246100976,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "setOneEntity in 10k entity store",
+            "value": 264,
+            "range": "±1.76%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
           }
         ]
       }
