@@ -14,16 +14,16 @@ Most apps never need one. Reach for a custom schema only when you need runtime
 logic the built-ins don't have, such as output that depends on endpoint args,
 or bounded traversal of deep entity graphs.
 
-| You want to                      | Use                                          |
-| -------------------------------- | -------------------------------------------- |
-| Unwrap `{ data: User, meta }`    | Plain object: `schema: { data: User }`       |
-| A list that stays in sync        | [Collection](/rest/api/Collection)           |
-| A keyed map                      | [Values](/rest/api/Values)                   |
-| Polymorphic items                | [Union](/rest/api/Union)                     |
-| Fix up a response's shape        | [Entity.process()](/rest/api/Entity#process) |
-| Look up by a field other than pk | [Entity.indexes](/rest/api/Entity#indexes)   |
-| Derived or computed data         | [Query](/rest/api/Query)                     |
-| Break up deep or cyclic graphs   | [Lazy](/rest/api/Lazy)                       |
+| You want to                                   | Use                                          |
+| --------------------------------------------- | -------------------------------------------- |
+| Wrapped responses like `{ data: User, meta }` | Plain object: `schema: { data: User }`       |
+| A list that stays in sync                     | [Collection](/rest/api/Collection)           |
+| A keyed map                                   | [Values](/rest/api/Values)                   |
+| Polymorphic items                             | [Union](/rest/api/Union)                     |
+| Fix up a response's shape                     | [Entity.process()](/rest/api/Entity#process) |
+| Look up by a field other than pk              | [Entity.indexes](/rest/api/Entity#indexes)   |
+| Derived or computed data                      | [Query](/rest/api/Query)                     |
+| Break up deep or cyclic graphs                | [Lazy](/rest/api/Lazy)                       |
 
 ## Usage
 
@@ -102,9 +102,10 @@ For a wrapper whose `schema` is `User`, a
 `{ data: { id: '5', name: 'Ada' }, requestId: 'abc' }` response is stored as
 `{ data: '5', requestId: 'abc' }`, with the `User` in the entity table.
 
-`normalize()` only runs for object input. Primitives pass through unchanged
-unless the schema sets `acceptsPrimitives = true`, so a wrapper around an entity
-stores a bare id exactly as the API sent it. `denormalize()` likewise never
+`normalize()` only runs for object input. For a schema without `pk`, primitives
+pass through unchanged unless it sets `acceptsPrimitives = true`, so a wrapper
+around an entity stores a bare id exactly as the API sent it. (A bare
+[Entity](/rest/api/Entity) stores truthy ids as strings, so `5` becomes `'5'`.) `denormalize()` likewise never
 receives `null` or `undefined`.
 
 `parentEntity` is the nearest enclosing entity schema (the class whose field
@@ -198,7 +199,7 @@ instead of building this yourself.
 
 Deep bidirectional graphs (`Department ↔ Building ↔ Room`) make denormalization
 expensive. [Lazy](/rest/api/Lazy) is the recommended fix and
-[maxEntityDepth](/rest/api/Entity#maxEntityDepth) caps nesting per entity type;
+[maxEntityDepth](/rest/api/Entity#maxEntityDepth) caps total entity nesting depth;
 a custom schema can instead cap traversal per relationship, resolving exactly N
 levels.
 
