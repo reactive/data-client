@@ -48,7 +48,7 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           git fetch --depth=1 origin "$BASE_SHA"
-          node website/scripts/blog-publish-date.mjs "$BASE_SHA"
+          node website/scripts/blog-publish.mjs --check "$BASE_SHA"
       - name: Install packages
         run: ./scripts/ci-install.sh website
       - name: Build package types and the packages the website imports
