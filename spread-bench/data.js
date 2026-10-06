@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791246103972,
+  "lastUpdate": 1791300393064,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark Spread": [
@@ -155,6 +155,37 @@ window.BENCHMARK_DATA = {
             "range": "±1.76%",
             "unit": "ops/sec",
             "extra": "91 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f992c212a20fb20323b9ed0770e1efe7f7c35332",
+          "message": "pkg(security): Bump patched releases for security advisories (#4248)\n\nRefresh in-range lockfile resolutions and pin transitive packages\nwhose parents still depend on a vulnerable version.\n\nCo-authored-by: Cursor Agent <cursoragent@cursor.com>",
+          "timestamp": "2026-10-06T11:24:49-04:00",
+          "tree_id": "477d963bafafdaaac99e1abf0fd0e89d3e580013",
+          "url": "https://github.com/reactive/data-client/commit/f992c212a20fb20323b9ed0770e1efe7f7c35332"
+        },
+        "date": 1791300390512,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "setOneEntity in 10k entity store",
+            "value": 154,
+            "range": "±0.67%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
           }
         ]
       }
