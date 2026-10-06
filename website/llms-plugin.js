@@ -1,9 +1,10 @@
 /* global require, module */
 /**
- * Emits https://llmstxt.org files after build, per framework:
+ * Emits https://llmstxt.org files after build, per docs instance:
  *
  *   /llms.txt, /llms-full.txt          React docs + shared (REST, GraphQL)
  *   /vue/llms.txt, /vue/llms-full.txt  Vue docs + shared
+ *   /rest/llms.txt, /graphql/llms.txt  just that shared instance (and -full)
  *   <page URL>.md                      every doc page as plain markdown
  *
  * Markdown comes from docsToMarkdown, the same renderer the agent skills use, so
@@ -126,46 +127,12 @@ module.exports = function llmsPlugin(context) {
         return content;
       };
 
-      const [{ framework: defaultFramework }] = FRAMEWORK_INSTANCES;
-      for (const site of FRAMEWORK_INSTANCES) {
-        const { framework } = site;
-        // Shared docs render per framework so their links stay in it. Their
-        // one .md per URL is the default framework's, like the HTML page.
-        const all = [site, ...shared].flatMap(({ id }) =>
-          instances.get(id).sections.map(({ label, docs }) => ({
-            label,
-            pages: docs.map(doc => {
-              const page = {
-                title: doc.title,
-                // Docusaurus falls back to the first paragraph, often a fragment
-                description: doc.frontMatter.description,
-                md: mdRoute(doc.permalink),
-                content: render(id, doc, framework),
-              };
-              if (!instances.get(id).shared || framework === defaultFramework)
-                write(page.md, page.content);
-              return page;
-            }),
-          })),
-        );
-
-        const others = FRAMEWORK_INSTANCES.filter(o => o !== site).map(
-          o => `Using ${o.name}? See ${url}${llmsTxtRoute(o.framework)}`,
-        );
-        // shared docs instance ids are their package names
-        const packages = [framework, ...shared.map(d => d.id)].map(
-          name => `@data-client/${name}`,
-        );
+      /** Writes llms.txt and llms-full.txt for a docs instance */
+      const writeLlms = ({ id, name, llms }, summary, intro, all) => {
         const file = parts =>
-          `${[
-            `# Data Client for ${site.name}`,
-            `> Reactive Data Client: async state management for ${site.name} with normalized, type-safe data from REST, GraphQL, and any other source.`,
-            [`Packages: ${packages.join(', ')}.`, ...others].join(' '),
-            ...parts,
-          ].join('\n\n')}\n`;
-
+          `${[`# Data Client for ${name}`, `> ${summary}`, intro, ...parts].join('\n\n')}\n`;
         write(
-          llmsTxtRoute(framework),
+          llmsTxtRoute(id),
           file(
             all.map(
               ({ label, pages }) =>
@@ -179,7 +146,7 @@ module.exports = function llmsPlugin(context) {
           ),
         );
         write(
-          `${site.llms}llms-full.txt`,
+          `${llms}llms-full.txt`,
           file(
             all
               .flatMap(s => s.pages)
@@ -187,6 +154,65 @@ module.exports = function llmsPlugin(context) {
                 p => `<!-- Source: ${url}${p.md} -->\n\n${p.content.trim()}`,
               ),
           ),
+        );
+      };
+      const seeFrameworks = except =>
+        FRAMEWORK_INSTANCES.filter(o => o !== except).map(
+          o => `Using ${o.name}? See ${url}${llmsTxtRoute(o.id)}`,
+        );
+
+      const [defaultSite] = FRAMEWORK_INSTANCES;
+      /** shared instance id -> its sections, rendered for the default framework */
+      const sharedSections = new Map();
+      for (const site of FRAMEWORK_INSTANCES) {
+        const { framework } = site;
+        // Shared docs render per framework so their links stay in it. Their
+        // one .md per URL is the default framework's, like the HTML page.
+        const all = [site, ...shared].flatMap(({ id }) => {
+          const rendered = instances
+            .get(id)
+            .sections.map(({ label, docs }) => ({
+              label,
+              pages: docs.map(doc => {
+                const page = {
+                  title: doc.title,
+                  // Docusaurus falls back to the first paragraph, often a fragment
+                  description: doc.frontMatter.description,
+                  md: mdRoute(doc.permalink),
+                  content: render(id, doc, framework),
+                };
+                if (!instances.get(id).shared || site === defaultSite)
+                  write(page.md, page.content);
+                return page;
+              }),
+            }));
+          if (instances.get(id).shared && site === defaultSite)
+            sharedSections.set(id, rendered);
+          return rendered;
+        });
+
+        // shared docs instance ids are their package names
+        const packages = [framework, ...shared.map(d => d.id)].map(
+          name => `@data-client/${name}`,
+        );
+        writeLlms(
+          site,
+          `Reactive Data Client: async state management for ${site.name} with normalized, type-safe data from REST, GraphQL, and any other source.`,
+          [`Packages: ${packages.join(', ')}.`, ...seeFrameworks(site)].join(
+            ' ',
+          ),
+          all,
+        );
+      }
+      // each shared package on its own, for agents that only need its API
+      for (const instance of shared) {
+        writeLlms(
+          instance,
+          `@data-client/${instance.id}: ${instance.name} endpoints and schemas for Reactive Data Client. Its full docs, with framework hooks, are in the framework llms.txt files.`,
+          [`Package: @data-client/${instance.id}.`, ...seeFrameworks()].join(
+            ' ',
+          ),
+          sharedSections.get(instance.id),
         );
       }
     },
