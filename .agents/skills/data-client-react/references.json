@@ -13,7 +13,7 @@
     "_useLive.md": "docs/core/shared/_useLive.mdx",
     "_useLoading.md": "docs/core/shared/_useLoading.mdx",
     "data-dependency.md": "docs/core/getting-started/data-dependency.md",
-    "devtools-debugging.md": "docs/core/getting-started/devtools-debugging.md",
+    "devtools-debugging.md": "docs/core/_agents/devtools-debugging.md",
     "mutations.md": "docs/core/getting-started/mutations.md",
     "useCache.md": "docs/core/api/useCache.md",
     "useController.md": "docs/core/api/useController.md",
