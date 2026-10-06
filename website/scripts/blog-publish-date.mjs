@@ -10,7 +10,13 @@
 // --fix renames the file and rewrites its /blog/YYYY/MM/DD/slug links repo-wide.
 // A newly published post must be dated by its filename alone (no `date:`).
 import { execFileSync } from 'node:child_process';
-import { readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  readdirSync,
+  readFileSync,
+  renameSync,
+  writeFileSync,
+} from 'node:fs';
 
 const BLOG_DIR = 'website/blog';
 const MAX_DAYS = 3;
@@ -60,7 +66,16 @@ const renamedFrom = new Map(
 const today = new Date().toISOString().slice(0, 10);
 let failed = false;
 
-for (const file of readdirSync(BLOG_DIR)) {
+for (const entry of readdirSync(BLOG_DIR, { withFileTypes: true })) {
+  const file = entry.name;
+  // Docusaurus also builds posts from folders, which this check can't date
+  if (entry.isDirectory() && !file.startsWith('.')) {
+    console.error(
+      `${BLOG_DIR}/${file}: use a YYYY-MM-DD-slug.md file, not a post folder`,
+    );
+    failed = true;
+    continue;
+  }
   if (!MARKDOWN.test(file)) continue;
   if (publishedAtBase.has(renamedFrom.get(file) ?? file)) continue;
   const path = `${BLOG_DIR}/${file}`;
@@ -84,6 +99,11 @@ for (const file of readdirSync(BLOG_DIR)) {
   if (fix) {
     const newFile = today + file.slice(today.length);
     // Not `git mv`: a new post may not be tracked yet
+    if (existsSync(`${BLOG_DIR}/${newFile}`)) {
+      console.error(`${path}: can't rename, ${newFile} already exists`);
+      failed = true;
+      continue;
+    }
     renameSync(path, `${BLOG_DIR}/${newFile}`);
     git('add', '--', `${BLOG_DIR}/${newFile}`);
     git('rm', '--cached', '-q', '--ignore-unmatch', '--', path);
@@ -92,14 +112,16 @@ for (const file of readdirSync(BLOG_DIR)) {
       `${year}/${month}/${day}`,
       today.replaceAll('-', '/'),
     );
-    // Stop at the slug's end so a sibling like `${slug}-notes` is untouched
+    // Stop at the slug's end so siblings like `${slug}-notes` are untouched
     const oldUrlPattern = new RegExp(
-      `${oldUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\w-])`,
+      `${oldUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\w.-])`,
       'g',
     );
     let linking = [];
     try {
-      linking = git('grep', '-lF', oldUrl).split('\n').filter(Boolean);
+      linking = git('grep', '--untracked', '-lF', oldUrl)
+        .split('\n')
+        .filter(Boolean);
     } catch (error) {
       // git grep exits 1 when nothing links to the post
       if (error.status !== 1) throw error;
