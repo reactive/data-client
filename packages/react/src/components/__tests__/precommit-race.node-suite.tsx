@@ -12,7 +12,11 @@
  * is suspended, so the race cannot happen there. `use()` exists from 19.
  */
 import { Endpoint } from '@data-client/endpoint';
-import { makeGate, type GatePromise } from '__tests__/streamingHarness';
+import {
+  makeGate,
+  recordConsoleErrors,
+  type GatePromise,
+} from '__tests__/streamingHarness';
 import {
   use,
   lazy,
@@ -20,12 +24,12 @@ import {
   Activity,
   StrictMode,
   Suspense,
-  Component,
 } from 'react';
 import type { ReactElement, ReactNode } from 'react';
 
 import { useFetch, useSuspense } from '../../hooks';
 import DataProvider from '../DataProvider';
+import ErrorBoundary from '../ErrorBoundary';
 import { getDefaultManagers } from '../getDefaultManagers';
 import { LegacyReact } from '../LegacyReact';
 
@@ -82,26 +86,6 @@ function makeEndpoint(settle: 'value' | 'error') {
   return { endpoint, getCalls: () => calls };
 }
 
-class ErrorBox extends Component<
-  { children?: ReactNode; Text: RaceHost['Text'] },
-  { message: string }
-> {
-  state = { message: '' };
-
-  static getDerivedStateFromError(error: unknown) {
-    const message = error instanceof Error ? error.message : String(error);
-    return { message };
-  }
-
-  render() {
-    const { Text } = this.props;
-    if (this.state.message) {
-      return <Text>{`error ${this.state.message}`}</Text>;
-    }
-    return this.props.children;
-  }
-}
-
 function SuspenseReader({
   endpoint,
   Text,
@@ -152,10 +136,7 @@ async function runRace(
     strict?: boolean;
   },
 ) {
-  const errors: unknown[][] = [];
-  const spy = jest.spyOn(console, 'error').mockImplementation((...args) => {
-    errors.push(args);
-  });
+  const errors = recordConsoleErrors();
   const { endpoint, getCalls } = makeEndpoint(settle);
   const gate = makeGate();
   const managers = shared ? getDefaultManagers() : undefined;
@@ -163,14 +144,18 @@ async function runRace(
   const Reader = reader === 'fetch' ? FetchReader : SuspenseReader;
   const provider = (
     <DataProvider managers={managers} devButton={null}>
-      <ErrorBox Text={Text}>
+      <ErrorBoundary
+        fallbackComponent={({ error }) => (
+          <Text>{`error ${error.message}`}</Text>
+        )}
+      >
         <Suspense fallback={<Text>fallback</Text>}>
           <Reader endpoint={endpoint} Text={Text} />
         </Suspense>
         {where === 'inside' ?
           <Blocker gate={gate} />
         : null}
-      </ErrorBox>
+      </ErrorBoundary>
     </DataProvider>
   );
   let tree: ReactElement;
@@ -210,33 +195,34 @@ async function runRace(
     gate.release();
     await waitUntil(() => renderer.read().includes(expected));
     await waitUntilStable(getCalls);
-    const warned = errors.some(args =>
+    const warned = errors.unexpected.some(args =>
       args.join(' ').includes("hasn't mounted yet"),
     );
     return { beforeRelease, text: renderer.read(), calls: getCalls(), warned };
   } finally {
     renderer.unmount();
-    spy.mockRestore();
+    errors.restore();
   }
 }
 
 // a hidden Activity renders its tree without mounting Effects, so DataProvider stays uncommitted until shown
 async function runHiddenActivity(host: RaceHost, settle: 'value' | 'error') {
-  const errors: unknown[][] = [];
-  const spy = jest.spyOn(console, 'error').mockImplementation((...args) => {
-    errors.push(args);
-  });
+  const errors = recordConsoleErrors();
   const { endpoint, getCalls } = makeEndpoint(settle);
   const managers = getDefaultManagers();
   const Text = host.Text;
   const tree = (mode: 'hidden' | 'visible') => (
     <Activity mode={mode}>
       <DataProvider managers={managers} devButton={null}>
-        <ErrorBox Text={Text}>
+        <ErrorBoundary
+          fallbackComponent={({ error }) => (
+            <Text>{`error ${error.message}`}</Text>
+          )}
+        >
           <Suspense fallback={<Text>fallback</Text>}>
             <SuspenseReader endpoint={endpoint} Text={Text} />
           </Suspense>
-        </ErrorBox>
+        </ErrorBoundary>
       </DataProvider>
     </Activity>
   );
@@ -251,7 +237,7 @@ async function runHiddenActivity(host: RaceHost, settle: 'value' | 'error') {
     renderer.render(tree('visible'));
     await waitUntil(() => renderer.read().includes(expected));
     await waitUntilStable(getCalls);
-    const warned = errors.some(args =>
+    const warned = errors.unexpected.some(args =>
       args.join(' ').includes("hasn't mounted yet"),
     );
     return {
@@ -263,7 +249,7 @@ async function runHiddenActivity(host: RaceHost, settle: 'value' | 'error') {
     };
   } finally {
     renderer.unmount();
-    spy.mockRestore();
+    errors.restore();
   }
 }
 
