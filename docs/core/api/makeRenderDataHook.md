@@ -23,7 +23,7 @@ interface ProviderProps {
   children: React.ReactNode;
   managers: Manager[];
   initialState: State<unknown>;
-  Controller: typeof Controller;
+  Controller: new (props: { gcPolicy: GCInterface }) => Controller;
 }
 ```
 

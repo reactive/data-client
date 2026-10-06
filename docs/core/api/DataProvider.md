@@ -26,7 +26,7 @@ interface ProviderProps {
   children: ReactNode;
   managers?: Manager[];
   initialState?: State<unknown>;
-  Controller?: typeof Controller;
+  Controller?: new (props: { gcPolicy: GCInterface }) => Controller;
   gcPolicy?: GCInterface;
   devButton?:
     | 'bottom-right'
@@ -66,7 +66,7 @@ Default Development:
 ];
 ```
 
-### Controller: typeof Controller {#Controller}
+### Controller?: typeof Controller {#Controller}
 
 This allows you to extend [Controller](./Controller.md) to provide additional functionality.
 This might be useful if you have additional actions you want to dispatch to custom [Managers](./Manager.md)

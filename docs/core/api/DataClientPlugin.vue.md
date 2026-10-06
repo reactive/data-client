@@ -37,7 +37,7 @@ app.use(DataClientPlugin, options);
 interface ProvideOptions {
   managers?: Manager[];
   initialState?: State<unknown>;
-  Controller?: typeof Controller;
+  Controller?: new (props: { gcPolicy: GCInterface }) => Controller;
   gcPolicy?: GCInterface;
 }
 ```
@@ -93,7 +93,7 @@ app.use(DataClientPlugin, { initialState: window.__INITIAL_STATE__ });
 This allows you to extend [Controller](./Controller.md) to provide additional functionality.
 This might be useful if you have additional actions you want to dispatch to custom [Managers](./Manager.md).
 
-```ts title="main.ts" nocheck
+```ts title="main.ts"
 import { createApp } from 'vue';
 import { Controller, DataClientPlugin } from '@data-client/vue';
 import App from './App.vue';
