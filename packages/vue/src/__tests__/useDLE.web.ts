@@ -101,17 +101,15 @@ describe('vue useDLE()', () => {
   });
 
   it('should work on good network', async () => {
-    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
-      () => {
-        return useDLE(CoolerArticleResource.get, { id: payload.id });
-      },
-    );
+    const { result, allSettled, cleanup } = await renderDataCompose(() => {
+      return useDLE(CoolerArticleResource.get, { id: payload.id });
+    });
 
     expect(result.data.value).toBe(undefined);
     expect(result.error.value).toBe(undefined);
     expect(result.loading.value).toBe(true);
 
-    await waitForNextUpdate();
+    await allSettled();
 
     expect(result.loading.value).toBe(false);
     expect(result.error.value).toBeUndefined();
@@ -121,19 +119,17 @@ describe('vue useDLE()', () => {
   });
 
   it('should work with no schema', async () => {
-    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
-      () => {
-        return useDLE(CoolerArticleResource.get.extend({ schema: undefined }), {
-          id: payload.id,
-        });
-      },
-    );
+    const { result, allSettled, cleanup } = await renderDataCompose(() => {
+      return useDLE(CoolerArticleResource.get.extend({ schema: undefined }), {
+        id: payload.id,
+      });
+    });
 
     expect(result.data.value).toBe(undefined);
     expect(result.error.value).toBe(undefined);
     expect(result.loading.value).toBe(true);
 
-    await waitForNextUpdate();
+    await allSettled();
 
     expect(result.loading.value).toBe(false);
     expect(result.error.value).toBeUndefined();
@@ -143,17 +139,15 @@ describe('vue useDLE()', () => {
   });
 
   it('should work on good network with endpoint', async () => {
-    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
-      () => {
-        return useDLE(TypedArticleResource.get, { id: payload.id });
-      },
-    );
+    const { result, allSettled, cleanup } = await renderDataCompose(() => {
+      return useDLE(TypedArticleResource.get, { id: payload.id });
+    });
 
     expect(result.data.value).toBe(undefined);
     expect(result.error.value).toBe(undefined);
     expect(result.loading.value).toBe(true);
 
-    await waitForNextUpdate();
+    await allSettled();
 
     expect(result.loading.value).toBe(false);
     expect(result.error.value).toBeUndefined();
@@ -184,17 +178,15 @@ describe('vue useDLE()', () => {
   });
 
   it('should return errors on bad network', async () => {
-    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
-      () => {
-        return useDLE(CoolerArticleResource.get, { title: '0' });
-      },
-    );
+    const { result, allSettled, cleanup } = await renderDataCompose(() => {
+      return useDLE(CoolerArticleResource.get, { title: '0' });
+    });
 
     expect(result.data.value).toBe(undefined);
     expect(result.error.value).toBe(undefined);
     expect(result.loading.value).toBe(true);
 
-    await waitForNextUpdate();
+    await allSettled();
 
     expect(result.loading.value).toBe(false);
     expect(result.error.value).toBeDefined();
@@ -204,15 +196,13 @@ describe('vue useDLE()', () => {
   });
 
   it('should pass with exact params', async () => {
-    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
-      () => {
-        return useDLE(TypedArticleResource.get, { id: payload.id });
-      },
-    );
+    const { result, allSettled, cleanup } = await renderDataCompose(() => {
+      return useDLE(TypedArticleResource.get, { id: payload.id });
+    });
 
     expect(result.data.value).toBeUndefined();
 
-    await waitForNextUpdate();
+    await allSettled();
 
     // type discrimination forces it to be resolved
     if (
@@ -229,20 +219,18 @@ describe('vue useDLE()', () => {
   });
 
   it('should fail with improperly typed param', async () => {
-    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
-      () => {
-        // @ts-expect-error
-        return useDLE(TypedArticleResource.get, {
-          id: "{ a: 'five' }" as any as Date,
-        });
-      },
-    );
+    const { result, allSettled, cleanup } = await renderDataCompose(() => {
+      // @ts-expect-error
+      return useDLE(TypedArticleResource.get, {
+        id: "{ a: 'five' }" as any as Date,
+      });
+    });
 
     expect(result.data.value).toBeUndefined();
     expect(result.error.value).toBeUndefined();
     expect(result.loading.value).toBe(true);
 
-    await waitForNextUpdate();
+    await allSettled();
 
     expect(result.loading.value).toBe(false);
     expect(result.error.value).toBeDefined();
@@ -257,7 +245,7 @@ describe('vue useDLE()', () => {
     'should fetch anew with param changes (%s args)',
     async (_, toArg) => {
       const props = reactive({ id: payload.id });
-      const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
+      const { result, allSettled, cleanup } = await renderDataCompose(
         (props: { id: number }) => {
           return useDLE(
             CoolerArticleResource.get,
@@ -271,7 +259,7 @@ describe('vue useDLE()', () => {
       expect(result.error.value).toBe(undefined);
       expect(result.loading.value).toBe(true);
 
-      await waitForNextUpdate();
+      await allSettled();
 
       expect(result.loading.value).toBe(false);
       expect(result.error.value).toBeUndefined();
@@ -284,7 +272,7 @@ describe('vue useDLE()', () => {
       expect(result.error.value).toBe(undefined);
       expect(result.loading.value).toBe(true);
 
-      await waitForNextUpdate();
+      await allSettled();
 
       expect(result.loading.value).toBe(false);
       expect(result.error.value).toBeUndefined();
@@ -327,7 +315,7 @@ describe('vue useDLE()', () => {
     Date.now = jest.fn(() => 999999999);
 
     const props = reactive({ id: payload.id as number | null });
-    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
+    const { result, allSettled, cleanup } = await renderDataCompose(
       (props: { id: number | null }) => {
         return useDLE(
           InvalidIfStaleArticleResource.get,
@@ -337,7 +325,7 @@ describe('vue useDLE()', () => {
       { props },
     );
 
-    await waitForNextUpdate();
+    await allSettled();
     expect(result.data.value).toBeDefined();
 
     Date.now = jest.fn(() => 999999999 * 3);
@@ -351,7 +339,7 @@ describe('vue useDLE()', () => {
     expect(result.data.value).toBeUndefined();
     expect(result.loading.value).toBe(true);
 
-    await waitForNextUpdate();
+    await allSettled();
     expect(result.data.value).toBeDefined();
     expect(result.loading.value).toBe(false);
 
@@ -360,12 +348,13 @@ describe('vue useDLE()', () => {
   });
 
   it('should reactively update data when controller.setResponse() is called', async () => {
-    const { result, controller, waitForNextUpdate, cleanup } =
-      await renderDataCompose(() => {
+    const { result, controller, allSettled, cleanup } = await renderDataCompose(
+      () => {
         return useDLE(CoolerArticleResource.get, { id: payload.id });
-      });
+      },
+    );
 
-    await waitForNextUpdate();
+    await allSettled();
 
     expect(result.data.value).toEqual(CoolerArticle.fromJS(payload));
     expect(result.loading.value).toBe(false);
@@ -392,7 +381,7 @@ describe('vue useDLE()', () => {
 
   it('should be reactive with prop changes', async () => {
     const props = reactive({ id: payload.id });
-    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
+    const { result, allSettled, cleanup } = await renderDataCompose(
       (props: { id: number }) => {
         return useDLE(
           CoolerArticleResource.get,
@@ -416,13 +405,12 @@ describe('vue useDLE()', () => {
       },
     );
 
-    await waitForNextUpdate();
+    await allSettled();
     expect(result.data.value?.title).toBe(payload.title);
 
     // Change props - result automatically updates
     props.id = payload2.id;
-    await nextTick();
-    await waitForNextUpdate();
+    await allSettled();
 
     expect(result.data.value?.title).toBe(payload2.title);
 
@@ -431,7 +419,7 @@ describe('vue useDLE()', () => {
 
   it('should handle conditional null arguments', async () => {
     const props = reactive({ id: payload.id as number | null });
-    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
+    const { result, allSettled, cleanup } = await renderDataCompose(
       (props: { id: number | null }) =>
         useDLE(
           CoolerArticleResource.get,
@@ -449,7 +437,7 @@ describe('vue useDLE()', () => {
       },
     );
 
-    await waitForNextUpdate();
+    await allSettled();
     expect(result.data.value).toBeDefined();
     expect(result.data.value?.title).toBe(payload.title);
 
@@ -491,7 +479,7 @@ describe('vue useDLE()', () => {
     Date.now = jest.fn(() => 1000000);
 
     const props = reactive({ id: payload.id });
-    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
+    const { result, allSettled, cleanup } = await renderDataCompose(
       (props: { id: number }) => {
         return useDLE(
           CoolerArticleResource.get,
@@ -501,7 +489,7 @@ describe('vue useDLE()', () => {
       { props },
     );
 
-    await waitForNextUpdate();
+    await allSettled();
     expect(result.data.value).toBeDefined();
     expect(result.loading.value).toBe(false);
 
@@ -523,12 +511,13 @@ describe('vue useDLE()', () => {
     const realDate = global.Date.now;
     Date.now = jest.fn(() => 1000000);
 
-    const { result, waitForNextUpdate, cleanup, controller } =
-      await renderDataCompose(() => {
+    const { result, allSettled, cleanup, controller } = await renderDataCompose(
+      () => {
         return useDLE(InvalidIfStaleArticleResource.get, { id: payload.id });
-      });
+      },
+    );
 
-    await waitForNextUpdate();
+    await allSettled();
     expect(result.data.value).toBeDefined();
     expect(result.loading.value).toBe(false);
 
@@ -542,7 +531,7 @@ describe('vue useDLE()', () => {
     // Should be loading due to invalidation (force fetch)
     expect(result.loading.value).toBe(true);
 
-    await waitForNextUpdate();
+    await allSettled();
 
     expect(result.loading.value).toBe(false);
     expect(result.data.value).toBeDefined();
@@ -553,7 +542,7 @@ describe('vue useDLE()', () => {
 
   it('should handle switching from null to valid args', async () => {
     const props = reactive({ id: null as number | null });
-    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
+    const { result, allSettled, cleanup } = await renderDataCompose(
       (props: { id: number | null }) =>
         useDLE(
           CoolerArticleResource.get,
@@ -572,7 +561,7 @@ describe('vue useDLE()', () => {
 
     expect(result.loading.value).toBe(true);
 
-    await waitForNextUpdate();
+    await allSettled();
 
     expect(result.loading.value).toBe(false);
     expect(result.data.value).toBeDefined();
@@ -637,12 +626,13 @@ describe('vue useDLE()', () => {
     const realDate = global.Date.now;
     Date.now = jest.fn(() => 1000000);
 
-    const { result, waitForNextUpdate, cleanup, controller } =
-      await renderDataCompose(() => {
+    const { result, allSettled, cleanup, controller } = await renderDataCompose(
+      () => {
         return useDLE(InvalidIfStaleArticleResource.get, { id: payload.id });
-      });
+      },
+    );
 
-    await waitForNextUpdate();
+    await allSettled();
     expect(result.data.value).toBeDefined();
     expect(result.loading.value).toBe(false);
 
@@ -682,9 +672,10 @@ describe('vue useDLE()', () => {
       name: 'staleArticle',
     });
 
-    const { result, controller, waitForNextUpdate, cleanup } =
-      await renderDataCompose(() => useDLE(staleEndpoint, { id: 77 }));
-    await waitForNextUpdate();
+    const { result, controller, allSettled, cleanup } = await renderDataCompose(
+      () => useDLE(staleEndpoint, { id: 77 }),
+    );
+    await allSettled();
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
@@ -721,9 +712,9 @@ describe('vue useDLE()', () => {
         name: 'invalidIfStaleArticle',
       });
 
-      const { result, controller, waitForNextUpdate, cleanup } =
+      const { result, controller, allSettled, cleanup } =
         await renderDataCompose(() => useDLE(staleEndpoint, { id: 78 }));
-      await waitForNextUpdate();
+      await allSettled();
       expect(fetchMock).toHaveBeenCalledTimes(1);
       expect(result.loading.value).toBe(false);
 

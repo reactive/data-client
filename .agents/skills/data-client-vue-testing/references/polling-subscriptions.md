@@ -32,25 +32,23 @@ it('subscribes and re-renders on poll', async () => {
   const responseMock = jest.fn(() => payload);
   const propsRef = reactive({ active: true });
 
-  const { result, waitForNextUpdate, allSettled, cleanup } =
-    await renderDataCompose(
-      ({ active }: { active: boolean }) => {
-        const args = computed(() => (active ? { id: payload.id } : null));
-        useSubscription(PollingArticleResource.get, args);
-        return useSuspense(PollingArticleResource.get, { id: payload.id });
-      },
-      {
-        props: propsRef,
-        resolverFixtures: [
-          { endpoint: PollingArticleResource.get, response: responseMock },
-        ],
-      },
-    );
+  const { result, allSettled, cleanup } = await renderDataCompose(
+    ({ active }: { active: boolean }) => {
+      const args = computed(() => (active ? { id: payload.id } : null));
+      useSubscription(PollingArticleResource.get, args);
+      return useSuspense(PollingArticleResource.get, { id: payload.id });
+    },
+    {
+      props: propsRef,
+      resolverFixtures: [
+        { endpoint: PollingArticleResource.get, response: responseMock },
+      ],
+    },
+  );
 
   // Initial fetch
   jest.advanceTimersByTime(frequency);
   await allSettled();
-  await waitForNextUpdate();
 
   const articleRef = await result;
   expect(articleRef!.value.title).toBe(payload.title);
@@ -183,4 +181,5 @@ Assert both the call count of the resolver mock and the rendered DOM to confirm 
 - **Forgetting `jest.useRealTimers()` in `afterEach`** → other tests see fake timers and time-based behavior breaks unpredictably.
 - **Calling `jest.useFakeTimers()` after mount** → the polling interval was scheduled with the real clock; advancing fake timers does nothing. Always set fake timers first.
 - **No `await allSettled()` between `advanceTimersByTime` and assertions** → the fetch promise hasn't resolved yet, and the store/ref hasn't updated.
+- **`waitForNextUpdate()` under fake timers** → it waits on a 1 second `setTimeout` when the Promise `result` already settled, so it hangs. It's deprecated; `await result` once, then `await allSettled()` after each advance.
 - **Polling with `initialFixtures` only** → static fixtures don't re-resolve. Use `resolverFixtures` (function response) or nock for anything that needs to change over time.

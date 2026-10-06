@@ -43,6 +43,12 @@ declare function renderDataCompose<P = any, R = any>(composable: (props: P) => R
     controller: Controller;
     cleanup: () => void;
     allSettled: () => Promise<PromiseSettledResult<unknown>[]>;
+    /**
+     * @deprecated Gives up silently after 1 second, so a test can pass while the composable is
+     * still suspended. Use `await result` for a Promise result, and `await allSettled()` after changing
+     * props or calling the controller.
+     * @see https://dataclient.io/vue/guides/unit-testing-composables#renderdatacompose-api
+     */
     waitForNextUpdate: () => Promise<void>;
 }>;
 

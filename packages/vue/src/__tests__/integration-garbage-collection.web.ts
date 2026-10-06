@@ -55,7 +55,7 @@ describe('Integration Garbage Collection Web (Vue)', () => {
       content: 'Test Content',
     };
 
-    const { result, cleanup, waitForNextUpdate } = await renderDataCompose(
+    const { result, cleanup } = await renderDataCompose(
       () => useSuspense(ArticleResource.get, { id: 1 }),
       {
         initialFixtures: [
@@ -71,8 +71,6 @@ describe('Integration Garbage Collection Web (Vue)', () => {
         }),
       },
     );
-
-    await waitForNextUpdate();
 
     const articleRef = await result;
     expect(articleRef?.value.title).toBe(articleData.title);

@@ -466,11 +466,10 @@ describe('vue useFetch()', () => {
       name: 'staleArticle',
     });
 
-    const { controller, waitForNextUpdate, cleanup } = await renderDataCompose(
-      () => useFetch(staleEndpoint, { id: 77 }),
+    const { result, controller, cleanup } = await renderDataCompose(() =>
+      useFetch(staleEndpoint, { id: 77 }),
     );
-    await waitForNextUpdate();
-    await flushUntil(null, () => fetchMock.mock.calls.length > 0);
+    await result.value;
     expect(fetchMock).toHaveBeenCalledTimes(1);
 
     // let data become stale

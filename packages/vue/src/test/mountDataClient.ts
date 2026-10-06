@@ -15,6 +15,7 @@ import {
   h,
   Suspense,
   inject,
+  nextTick,
   type Reactive,
   reactive,
 } from 'vue';
@@ -78,10 +79,15 @@ export function mountDataClient<P = any>(
   );
 
   // Create managers
-  const nm = new NetworkManager();
-  const sm = new SubscriptionManager(PollingSubscription);
-  const defaultManagers = [nm, sm];
-  const finalManagers = managers ?? defaultManagers;
+  const finalManagers = managers ?? [
+    new NetworkManager(),
+    new SubscriptionManager(PollingSubscription),
+  ];
+  // allSettled() and cleanup() track the NetworkManager actually in use
+  const nm =
+    finalManagers.find(
+      (manager): manager is NetworkManager => manager instanceof NetworkManager,
+    ) ?? new NetworkManager();
 
   // Create initial state
   const mockState = mockInitialState([...initialFixtures]);
@@ -155,9 +161,13 @@ export function mountDataClient<P = any>(
     wrapper_instance.unmount();
   };
 
-  // All settled function
-  const allSettled = (): Promise<PromiseSettledResult<unknown>[]> => {
-    return nm.allSettled() ?? Promise.resolve([]);
+  // Ticks before and after so fetches that watchers start on a prop change are included, and
+  // the component has re-rendered with their results
+  const allSettled = async (): Promise<PromiseSettledResult<unknown>[]> => {
+    await nextTick();
+    const results = (await nm.allSettled()) ?? [];
+    await nextTick();
+    return results;
   };
 
   return {
