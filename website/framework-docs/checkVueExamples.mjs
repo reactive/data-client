@@ -23,8 +23,8 @@ import { docCodeBlocks } from './docsToMarkdown.mjs';
 import { ROOT, rel } from './site.mjs';
 
 const require = createRequire(import.meta.url);
-const { DOCS_INSTANCES, FRAMEWORKS } = require('./docsInstances.js');
-const { walk } = require('./index.js');
+const { DOCS_INSTANCES } = require('./docsInstances.js');
+const { walk, VUE_OVERRIDE } = require('./index.js');
 
 const PLAYGROUND = path.join(ROOT, 'website/src/components/Playground');
 const EXT = { ts: '.ts', typescript: '.ts', tsx: '.tsx', html: '.vue' };
@@ -37,19 +37,21 @@ const PLACEHOLDERS = [
     .readFileSync(path.join(PLAYGROUND, 'DesignSystem/index.ts'), 'utf8')
     .matchAll(/^export \{ (\w+) \}/gm),
 ].map(([, name]) => name);
-/** `foo.react.md` and `foo.vue.md` render through `foo.md`, when it exists */
-const OVERRIDE = new RegExp(`\\.(${FRAMEWORKS.join('|')})\\.mdx?$`);
 
 const titleOf = block => block.meta?.match(/title="([^"]+)"/)?.[1];
 /** A single file component, titled or not */
 const isVue = block =>
-  block.lang === 'html' && /<(script|template)\b/.test(block.raw);
+  block.lang === 'html' && /^<(script|template)\b/m.test(block.raw);
 const checked = block =>
-  EXT[block.lang] && (block.lang !== 'html' || isVue(block));
+  block.lang === 'html' ? isVue(block) : Boolean(EXT[block.lang]);
 /** File name a block is imported by: `Resource` -> `Resource.ts` */
 const fileName = (block, i) => {
   const title = titleOf(block) ?? `untitled${i}`;
-  return title.endsWith(EXT[block.lang]) ? title : title + EXT[block.lang];
+  const ext = path.extname(title);
+  // the fence's language decides: `useQuery.ts` in a tsx fence is `useQuery.tsx`
+  return Object.values(EXT).includes(ext) ?
+      title.slice(0, -ext.length) + EXT[block.lang]
+    : title + EXT[block.lang];
 };
 /** Code that still exports its types to the example's other files, unchecked */
 const noCheck = ({ raw }) =>
@@ -62,6 +64,11 @@ const importsOf = value =>
       /^\s*import\s+(?:type\s+)?([^'";]*?)\s+from\s+['"]([^'"]+)['"]/gm,
     ),
   ].map(([, clause, from]) => ({ clause, from }));
+/** `Map.groupBy` without it: website supports Node 18 */
+const add = (map, key, value) => {
+  if (!map.has(key)) map.set(key, []);
+  map.get(key).push(value);
+};
 const isRelative = from => /^\.{1,2}\//.test(from);
 /** Where a stub for a relative import goes */
 const stubFile = target =>
@@ -102,31 +109,23 @@ const installed = from =>
     ),
   );
 
-const docs = [...new Set(DOCS_INSTANCES.map(d => d.path))].flatMap(dir =>
-  walk(path.join(ROOT, dir))
-    // partials render inside their pages
-    .filter(f => /\.mdx?$/.test(f) && !f.split('/').at(-1).startsWith('_'))
-    .map(f => path.join(ROOT, dir, f))
-    // framework-only pages (no base file) render on their own
-    .filter(
-      f =>
-        !OVERRIDE.test(f) ||
-        !['.md', '.mdx'].some(ext => fs.existsSync(f.replace(OVERRIDE, ext))),
-    ),
-);
+const docs = [...new Set(DOCS_INSTANCES.map(d => d.path))].flatMap(dir => [
+  ...new Set(
+    walk(path.join(ROOT, dir))
+      // partials render inside their pages
+      .filter(f => /\.mdx?$/.test(f) && !path.basename(f).startsWith('_'))
+      // `foo.vue.md` renders as `foo.md`, which needn't exist (docCodeBlocks picks the override)
+      .map(f => path.join(ROOT, dir, f.replace(VUE_OVERRIDE, '$1'))),
+  ),
+]);
 
 /** Example apps: files to write, each mapped back to its fence */
 const examples = [];
 for (const doc of docs) {
   const blocks = docCodeBlocks(doc, 'vue')?.filter(checked);
   if (!blocks?.length) continue;
-  // no Map.groupBy: website supports Node 18
   const playgrounds = new Map();
-  for (const b of blocks.filter(b => b.playground))
-    playgrounds.set(b.playground, [
-      ...(playgrounds.get(b.playground) ?? []),
-      b,
-    ]);
+  for (const b of blocks) if (b.playground) add(playgrounds, b.playground, b);
   for (const group of playgrounds.values())
     if (group.some(isVue)) examples.push({ doc, blocks: group });
   // the page's titled blocks, for loose examples to import
@@ -187,11 +186,7 @@ examples.forEach(({ doc, blocks, loose }, n) => {
       const match = [...files.keys()].find(
         f => f === target || f.replace(/\.[^./]+$/, '') === target,
       );
-      if (!match)
-        stubs.set(stubFile(target), [
-          ...(stubs.get(stubFile(target)) ?? []),
-          clause,
-        ]);
+      if (!match) add(stubs, stubFile(target), clause);
       else if (!used.includes(match)) used.push(match);
     }
   }

@@ -241,4 +241,5 @@ module.exports = {
   rewriteFrontMatter,
   frontMatterValue,
   walk,
+  VUE_OVERRIDE,
 };
