@@ -99,32 +99,6 @@ declare global {
   }
 }
 /**
- * A minimal observable of state changes.
- * For more information, see the observable proposal:
- * https://github.com/tc39/proposal-observable
- */
-type Observable<T> = {
-  /**
-   * The minimal observable subscription method.
-   * @param {Object} observer Any object that can be used as an observer.
-   * The observer object should have a `next` method.
-   * @returns {subscription} An object with an `unsubscribe` method that can
-   * be used to unsubscribe the observable from the store, and prevent further
-   * emission of values from the observable.
-   */
-  subscribe: (observer: Observer<T>) => {
-    unsubscribe: Unsubscribe;
-  };
-  [Symbol.observable](): Observable<T>;
-};
-/**
- * An Observer is used to receive data from an Observable, and is supplied as
- * an argument to subscribe.
- */
-type Observer<T> = {
-  next?(value: T): void;
-};
-/**
  * A store is an object that holds the application's state tree.
  * There should only be a single store in a Redux app, as the composition
  * happens on the reducer level.
@@ -193,22 +167,15 @@ interface Store$1<S = any, A extends Action = UnknownAction, StateExt = unknown>
    */
   subscribe(listener: ListenerCallback): Unsubscribe;
   /**
-   * Replaces the reducer currently used by the store to calculate the state.
-   *
-   * You might need this if your app implements code splitting and you want to
-   * load some of the reducers dynamically. You might also need this if you
-   * implement a hot reloading mechanism for Redux.
-   *
-   * @param nextReducer The reducer for the store to use instead.
+   * Not supported: throws. Present so the store satisfies redux's `Store` type
+   * (for example react-redux's `<Provider>`).
    */
-  replaceReducer(nextReducer: Reducer<S, A>): void;
+  replaceReducer(nextReducer: Reducer<S, A>): never;
   /**
-   * Interoperability point for observable/reactive libraries.
-   * @returns {observable} A minimal observable of state changes.
-   * For more information, see the observable proposal:
-   * https://github.com/tc39/proposal-observable
+   * Not supported: throws. Present so the store satisfies redux's `Store` type
+   * (for example react-redux's `<Provider>`).
    */
-  [Symbol.observable](): Observable<S & StateExt>;
+  [Symbol.observable](): never;
 }
 
 interface MiddlewareAPI<D extends Dispatch = Dispatch, S = any> {

@@ -224,55 +224,6 @@ function createStore(reducer, preloadedState, enhancer) {
     });
     return action;
   }
-  function replaceReducer(nextReducer) {
-    if (typeof nextReducer !== 'function') {
-      throw new Error(
-        process.env.NODE_ENV === 'production' ?
-          formatProdErrorMessage(10)
-        : `Expected the nextReducer to be a function. Instead, received: '${kindOf(nextReducer)}`,
-      );
-    }
-    currentReducer = nextReducer;
-    dispatch({
-      type: actionTypes_default.REPLACE,
-    });
-  }
-  function observable() {
-    const outerSubscribe = subscribe;
-    return {
-      /**
-       * The minimal observable subscription method.
-       * @param observer Any object that can be used as an observer.
-       * The observer object should have a `next` method.
-       * @returns An object with an `unsubscribe` method that can
-       * be used to unsubscribe the observable from the store, and prevent further
-       * emission of values from the observable.
-       */
-      subscribe(observer) {
-        if (typeof observer !== 'object' || observer === null) {
-          throw new Error(
-            process.env.NODE_ENV === 'production' ?
-              formatProdErrorMessage(11)
-            : `Expected the observer to be an object. Instead, received: '${kindOf(observer)}'`,
-          );
-        }
-        function observeState() {
-          const observerAsObserver = observer;
-          if (observerAsObserver.next) {
-            observerAsObserver.next(getState());
-          }
-        }
-        observeState();
-        const unsubscribe = outerSubscribe(observeState);
-        return {
-          unsubscribe,
-        };
-      },
-      [symbol_observable_default]() {
-        return this;
-      },
-    };
-  }
   dispatch({
     type: actionTypes_default.INIT,
   });
@@ -280,10 +231,19 @@ function createStore(reducer, preloadedState, enhancer) {
     dispatch,
     subscribe,
     getState,
-    replaceReducer,
-    [symbol_observable_default]: observable,
+    replaceReducer: notSupported,
+    [symbol_observable_default]: notSupported,
   };
   return store;
+}
+
+// trimmed from this copy; present so the store matches redux's Store type
+function notSupported() {
+  throw new Error(
+    process.env.NODE_ENV === 'production' ?
+      'Not supported'
+    : 'replaceReducer() and [Symbol.observable]() are not supported by the @data-client/react/redux store',
+  );
 }
 
 // src/compose.ts

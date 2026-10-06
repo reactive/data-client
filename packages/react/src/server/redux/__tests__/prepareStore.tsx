@@ -43,25 +43,14 @@ describe('prepareStore()', () => {
     expect(seen).toEqual(['first']);
   });
 
-  it('replaceReducer() swaps the reducer', () => {
+  it('replaceReducer() and [Symbol.observable]() throw', () => {
     const { store } = makeStore();
-    store.replaceReducer(state => ({ ...state!, todos: ['replaced'] }));
-    expect(store.getState().todos).toEqual(['replaced']);
-  });
-
-  it('[Symbol.observable]() emits state', () => {
-    const { store } = makeStore();
-    // redux keys it by '@@observable' when Symbol.observable isn't polyfilled
-    const observable = (store as any)[Symbol.observable ?? '@@observable']();
-    const next = jest.fn();
-    const { unsubscribe } = observable.subscribe({ next });
-    expect(next).toHaveBeenLastCalledWith(store.getState());
-    store.dispatch({ type: 'add' });
-    expect(next).toHaveBeenLastCalledWith(
-      expect.objectContaining({ todos: ['first', 'added'] }),
+    expect(() => store.replaceReducer(state => state!)).toThrow(
+      'not supported',
     );
-    unsubscribe();
-    store.dispatch({ type: 'add' });
-    expect(next).toHaveBeenCalledTimes(2);
+    // redux keys it by '@@observable' when Symbol.observable isn't polyfilled
+    expect(() => (store as any)[Symbol.observable ?? '@@observable']()).toThrow(
+      'not supported',
+    );
   });
 });
