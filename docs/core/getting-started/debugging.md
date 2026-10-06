@@ -37,7 +37,7 @@ This is useful when you want a quick answer to questions like "why didn't this r
 "what is in the cache right now?", or "which action updated this entity?" without manually
 clicking through each inspector panel.
 
-The skill drives this through [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp); its [step-by-step instructions](./devtools-debugging.md) are published for reference.
+The skill drives this through [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp).
 
 ## Manual debugging
 

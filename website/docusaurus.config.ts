@@ -359,6 +359,14 @@ const config: Config = {
         },
         redirects: [
           {
+            to: '/docs/getting-started/debugging',
+            from: ['/docs/getting-started/devtools-debugging'],
+          },
+          {
+            to: '/vue/getting-started/debugging',
+            from: ['/vue/getting-started/devtools-debugging'],
+          },
+          {
             to: '/rest/guides/side-effects',
             from: ['/rest/guides/rpc'],
           },
