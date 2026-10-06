@@ -18,13 +18,13 @@ const {
   DOCS_INSTANCES,
   FRAMEWORK_INSTANCES,
   frameworkInstance,
+  trimRoute: trim,
+  mdRoute,
+  llmsTxtRoute,
 } = require('./framework-docs/docsInstances.js');
 
 /** Docs every framework includes */
 const shared = DOCS_INSTANCES.filter(d => !d.framework);
-
-/** Route without trailing slash (`/docs/` -> `/docs`) */
-const trim = route => route.replace(/(.)\/$/, '$1');
 
 /** Sidebar items -> [{ label, docs: [doc] }] in sidebar order */
 function sections(version, title) {
@@ -139,7 +139,7 @@ module.exports = function llmsPlugin(context) {
                 title: doc.title,
                 // Docusaurus falls back to the first paragraph, often a fragment
                 description: doc.frontMatter.description,
-                md: `${trim(doc.permalink)}.md`,
+                md: mdRoute(doc.permalink),
                 content: render(id, doc, framework),
               };
               if (!instances.get(id).shared || framework === defaultFramework)
@@ -150,7 +150,7 @@ module.exports = function llmsPlugin(context) {
         );
 
         const others = FRAMEWORK_INSTANCES.filter(o => o !== site).map(
-          o => `Using ${o.name}? See ${url}${o.llms}llms.txt`,
+          o => `Using ${o.name}? See ${url}${llmsTxtRoute(o.framework)}`,
         );
         // shared docs instance ids are their package names
         const packages = [framework, ...shared.map(d => d.id)].map(
@@ -165,7 +165,7 @@ module.exports = function llmsPlugin(context) {
           ].join('\n\n')}\n`;
 
         write(
-          `${site.llms}llms.txt`,
+          llmsTxtRoute(framework),
           file(
             all.map(
               ({ label, pages }) =>

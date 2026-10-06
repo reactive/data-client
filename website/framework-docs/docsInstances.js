@@ -46,10 +46,21 @@ const docsInstance = id => DOCS_INSTANCES.find(d => d.id === id);
 const frameworkInstance = framework =>
   FRAMEWORK_INSTANCES.find(d => d.framework === framework);
 
+/** Route without trailing slash (`/docs/` -> `/docs`) */
+const trimRoute = route => route.replace(/(.)\/$/, '$1');
+/** Where llms-plugin.js serves a doc page's markdown */
+const mdRoute = permalink => `${trimRoute(permalink)}.md`;
+/** Where llms-plugin.js serves a framework's llms.txt */
+const llmsTxtRoute = framework =>
+  `${frameworkInstance(framework).llms}llms.txt`;
+
 module.exports = {
   DOCS_INSTANCES,
   FRAMEWORK_INSTANCES,
   FRAMEWORKS,
   docsInstance,
   frameworkInstance,
+  trimRoute,
+  mdRoute,
+  llmsTxtRoute,
 };
