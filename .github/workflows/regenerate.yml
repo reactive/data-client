@@ -1,13 +1,15 @@
 name: regenerate
-# Same-repo PRs (Renovate's included): reruns the generators whose output is
-# committed, on the merge ref, and commits any changes to the PR branch.
-# Fork PRs and master keep the editor-types, skills and agent-rules checks.
+# Reruns the generators whose output is committed: playground editor types
+# (yarn copy:websitetypes) and skill references (yarn build:skills).
+# Same-repo PRs (Renovate's included) get any changes committed to the branch;
+# fork PRs and master fail instead. Claude Code rules are left to agent-rules.yml,
+# which needs no install.
 on:
-  pull_request:
+  push:
     branches:
       - master
-    # Union of the editor-types, skills and agent-rules workflows' paths
-    paths:
+    # Inputs of scripts/copywebsitetypes.sh and website/framework-docs/skillReferences.mjs
+    paths: &paths
       - 'packages/**'
       - '!packages/**/__tests__/**'
       - '!packages/*/typescript-tests/**'
@@ -18,24 +20,24 @@ on:
       - 'scripts/globals.ts'
       - 'scripts/rollup-plugins/**'
       - 'website/src/components/Playground/editor-types/**'
-      - 'website/package.json'
-      - 'package.json'
-      - 'yarn.lock'
       - 'tsconfig*.json'
       - 'docs/**'
       - '.agents/skills/**'
       - 'website/framework-docs/**'
       - '.gitattributes'
-      - '**/.cursor/rules/**'
-      - '**/.claude/rules/**'
-      - '.claude/skills'
-      - 'scripts/agent-rules.mjs'
+      - 'website/package.json'
+      - 'package.json'
+      - 'yarn.lock'
       - '.github/workflows/regenerate.yml'
-      - '.github/workflows/editor-types.yml'
-      - '.github/workflows/skills.yml'
+  pull_request:
+    branches:
+      - master
+    paths: *paths
 
+# PRs cancel superseded runs. Push runs get their own group, so master never
+# shows a cancelled (red) run.
 concurrency:
-  group: regenerate-${{ github.head_ref }}
+  group: regenerate-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 permissions: {}
@@ -44,12 +46,9 @@ jobs:
   # Runs dependency code (install scripts, generators), so it gets a read-only
   # token; only the commit job, on a fresh runner, can write.
   generate:
-    # GITHUB_TOKEN can't push to forks
-    if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: read
     outputs:
       changed: ${{ steps.diff.outputs.changed }}
     steps:
@@ -62,56 +61,21 @@ jobs:
         with:
           node-version: '26'
           cache: 'yarn'
-      - name: Pick generators
-        # only the ones whose inputs the PR changes; the types build is slow
-        id: pick
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR: ${{ github.event.pull_request.number }}
-        run: |
-          gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR}/files" --paginate \
-            --jq '.[] | .filename, (.previous_filename // empty)' > "${RUNNER_TEMP}/files"
-          while read -r file; do
-            case "${file}" in
-              packages/*/__tests__/* | packages/*/typescript-tests/* | packages/*/src-*-types/* | packages/*.md) ;;
-              packages/* | scripts/copywebsitetypes.sh | scripts/strip-dts-comments.mjs | scripts/globals.ts | \
-                scripts/rollup-plugins/* | website/src/components/Playground/editor-types/* | tsconfig*.json)
-                echo types=true ;;
-            esac
-            case "${file}" in
-              .github/workflows/editor-types.yml) echo types=true ;;
-              docs/* | .agents/skills/* | website/framework-docs/* | .gitattributes | .github/workflows/skills.yml)
-                echo skills=true ;;
-              package.json | website/package.json | yarn.lock | .github/workflows/regenerate.yml)
-                echo types=true
-                echo skills=true ;;
-            esac
-          done < "${RUNNER_TEMP}/files" | sort -u >> "${GITHUB_OUTPUT}"
-          # the API lists at most 3000 files: run everything
-          if [ "$(wc -l < "${RUNNER_TEMP}/files")" -ge 3000 ]; then
-            printf 'types=true\nskills=true\n' >> "${GITHUB_OUTPUT}"
-          fi
       - name: Install packages
-        if: steps.pick.outputs.types || steps.pick.outputs.skills
         # website provides bignumber.js, @number-flow/react, etc.
         run: ./scripts/ci-install.sh website
       - name: Regenerate playground editor types
-        if: steps.pick.outputs.types
         run: yarn copy:websitetypes
       - name: Regenerate skill references
-        if: steps.pick.outputs.skills
         run: yarn build:skills
-      - name: Regenerate Claude Code rules
-        # needs no install
-        run: node scripts/agent-rules.mjs
       - name: Diff generated files
         id: diff
+        env:
+          SAME_REPO: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
         run: |
           OUTPUTS=(
             website/src/components/Playground/editor-types
             ':(glob).agents/skills/*/references/**'
-            ':(glob)**/.claude/rules/**'
-            .claude/skills
           )
           git add -A -- "${OUTPUTS[@]}"
           if git diff --cached --quiet; then
@@ -119,6 +83,11 @@ jobs:
             exit 0
           fi
           git diff --cached --stat
+          # GITHUB_TOKEN can't push to forks, and master isn't fixed in place
+          if [ "${SAME_REPO}" != true ]; then
+            echo "::error::Generated files are stale: run 'yarn copy:websitetypes' and 'yarn build:skills', and commit the result."
+            exit 1
+          fi
           # the changes the merge needs, for the commit job to apply to the PR head
           git diff --cached --binary --full-index --no-renames > "${RUNNER_TEMP}/regenerated.patch"
           echo changed=true >> "${GITHUB_OUTPUT}"
@@ -155,20 +124,20 @@ jobs:
         run: |
           # generate ran dependency code: only accept edits to generated files
           if git apply --numstat "${RUNNER_TEMP}/regenerated.patch" | cut -f3 |
-            grep -Ev '^(website/src/components/Playground/editor-types/|\.agents/skills/[^/]+/references/|(.+/)?\.claude/rules/|\.claude/skills$)'; then
+            grep -Ev '^(website/src/components/Playground/editor-types/|\.agents/skills/[^/]+/references/)'; then
             echo "::error::The regenerated patch touches files that aren't generated outputs."
             exit 1
           fi
           git fetch --depth=1 origin "${HEAD_SHA}"
           git checkout --force --detach "${HEAD_SHA}"
           if ! git apply --3way --index "${RUNNER_TEMP}/regenerated.patch"; then
-            echo "::error::Generated files conflict with this branch: merge master, run 'yarn copy:websitetypes', 'yarn build:skills' and 'yarn build:agent-rules', and commit the result."
+            echo "::error::Generated files conflict with this branch: merge master, run 'yarn copy:websitetypes' and 'yarn build:skills', and commit the result."
             exit 1
           fi
           git -c user.name='github-actions[bot]' \
             -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
             commit --quiet -m 'chore: Regenerate generated files' \
-            -m "Reran yarn copy:websitetypes, yarn build:skills and yarn build:agent-rules on the merge with master. ${RUN_URL}"
+            -m "Reran yarn copy:websitetypes and yarn build:skills on the merge with master. ${RUN_URL}"
           # only if the branch is still where generate saw it (not moved or deleted)
           git push --force-with-lease="refs/heads/${HEAD_REF}:${HEAD_SHA}" \
             "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/${HEAD_REF}"

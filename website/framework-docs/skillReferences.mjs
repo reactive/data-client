@@ -9,7 +9,7 @@
  * The first framework with the page writes `<name>.md`; later ones write
  * `<name>.<framework>.md` only when their page differs.
  *
- * Usage: node website/framework-docs/skillReferences.mjs [--check]
+ * Usage: node website/framework-docs/skillReferences.mjs
  */
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -133,24 +133,14 @@ for (const skill of fs.readdirSync(SKILLS).sort()) {
     if (current.get(file) !== content) changes.push([file, content]);
 }
 
-if (process.argv.includes('--check')) {
-  if (changes.length) {
-    console.error(
-      `Skill references are out of date with the docs:\n  ${changes.map(([f]) => rel(f)).join('\n  ')}\nRun \`yarn build:skills\` and commit the result.`,
-    );
-    process.exit(1);
-  }
-  console.log('Skill references are up to date.');
-} else {
-  for (const [file, content] of changes) {
-    // also replaces a symlink left from before references were generated
-    fs.rmSync(file, { force: true });
-    if (content === null) continue;
-    fs.mkdirSync(path.dirname(file), { recursive: true });
-    fs.writeFileSync(file, content);
-  }
-  console.log(`Updated ${changes.length} skill reference files.`);
+for (const [file, content] of changes) {
+  // also replaces a symlink left from before references were generated
+  fs.rmSync(file, { force: true });
+  if (content === null) continue;
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, content);
 }
+console.log(`Updated ${changes.length} skill reference files.`);
 
 /** Every reference file (repo-relative) -> whether it's generated */
 const references = new Map();

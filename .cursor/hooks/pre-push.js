@@ -5,8 +5,8 @@
 // `eslint --fix` on the JS/TS files it changes, and holds the push until the
 // result is committed.
 // Runs once per push instead of per edit or turn, so any number of local
-// commits can come first; CI's `skills` and `agent-rules` checks are the
-// backstop.
+// commits can come first; CI's `regenerate` and `agent-rules` workflows are
+// the backstop.
 const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
@@ -77,7 +77,7 @@ try {
 }
 
 /**
- * Runs the generator `script` (`yarn build:<check>`, CI check `<check>`) when
+ * Runs the generator `script` (`yarn build:<check>`) when
  * the branch changes a file `isInput` matches, then reports problems it
  * printed and `outputs` (pathspecs) left uncommitted
  */
@@ -108,7 +108,7 @@ function regenerate({ what, from, script, check, isInput, outputs }) {
     uncommitted &&
       `${what} generated from this branch's ${from} changes aren't committed. Commit them, then push again:\n${uncommitted}`,
     problems &&
-      `\`yarn build:${check}\` found problems the ${check} CI check will fail on. Fix them, commit, then push again:\n${problems}`,
+      `\`yarn build:${check}\` found problems CI will fail on. Fix them, commit, then push again:\n${problems}`,
   ];
 }
 

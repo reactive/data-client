@@ -107,8 +107,8 @@ content resolved the same way (`remarkFramework.js`, front matter and `.vue.md` 
 `index.js`), Docusaurus' own MDX preprocessing, partials inlined, and playgrounds, tabs and embeds
 reduced to their code. The
 first framework in `frameworks` writes `<name>.md`; later ones write `<name>.<framework>.md` only when
-the page differs. Output is committed because skills install straight from the repo; the `skills`
-workflow runs `yarn build:skills --check`, which also fails when a `SKILL.md` links to a
+the page differs. Output is committed because skills install straight from the repo; the `regenerate`
+workflow reruns `yarn build:skills`, which also fails when a `SKILL.md` links to a
 `references/` file that no longer exists, a reference is a symlink, or a skill has `.vue.md` variants its
 `SKILL.md` never mentions. See `.cursor/rules/skills-sync.mdc` for what to update
 when docs are added, renamed or deleted.
