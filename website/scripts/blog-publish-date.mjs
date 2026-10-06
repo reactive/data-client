@@ -72,7 +72,13 @@ for (const file of readdirSync(BLOG_DIR)) {
       `${year}/${month}/${day}`,
       today.replaceAll('-', '/'),
     );
-    const linking = git('grep', '-lF', oldUrl).split('\n').filter(Boolean);
+    let linking = [];
+    try {
+      linking = git('grep', '-lF', oldUrl).split('\n').filter(Boolean);
+    } catch (error) {
+      // git grep exits 1 when nothing links to the post
+      if (error.status !== 1) throw error;
+    }
     for (const linked of linking) {
       const text = readFileSync(linked, 'utf8');
       writeFileSync(linked, text.replaceAll(oldUrl, newUrl));
