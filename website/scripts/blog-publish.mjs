@@ -9,24 +9,18 @@
 //     (CI) fails when a post published since <base-ref> isn't dated within
 //     MAX_DAYS of today, or is dated any way but its filename
 import { execFileSync } from 'node:child_process';
-import {
-  existsSync,
-  readdirSync,
-  readFileSync,
-  renameSync,
-  writeFileSync,
-} from 'node:fs';
+import { existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { basename } from 'node:path';
 
 const BLOG_DIR = 'website/blog';
 const MAX_DAYS = 3;
-const MARKDOWN = /\.mdx?$/;
 const POST = /^(\d{4})-(\d{2})-(\d{2})-(.+)\.mdx?$/;
 const FRONT_MATTER = /^---\r?\n([\s\S]*?)\r?\n---/;
-const DRAFT = /^draft:\s*true\s*(#.*)?$/m;
+const DRAFT = /^draft:\s*true[^\S\r\n]*(#.*)?(\r?\n|$)/m;
 
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8' });
 const today = new Date().toISOString().slice(0, 10);
+const urlDate = date => date.replaceAll('-', '/');
 
 // Front matter is read with regexes rather than @docusaurus/utils so CI can
 // run this before installing packages.
@@ -35,13 +29,13 @@ function frontMatter(source) {
   return { draft: DRAFT.test(block), hasDate: /^date:/m.test(block) };
 }
 
-function publish(path) {
-  const file = basename(path);
-  const match = file.match(POST);
-  if (!existsSync(`${BLOG_DIR}/${file}`) || !match) {
-    throw new Error(`${path}: expected ${BLOG_DIR}/YYYY-MM-DD-slug.md`);
+function publish(arg) {
+  const file = basename(arg);
+  const path = `${BLOG_DIR}/${file}`;
+  const slug = file.match(POST)?.[4];
+  if (!slug || !existsSync(path)) {
+    throw new Error(`${arg}: expected ${BLOG_DIR}/YYYY-MM-DD-slug.md`);
   }
-  path = `${BLOG_DIR}/${file}`;
   const source = readFileSync(path, 'utf8');
   if (frontMatter(source).hasDate) {
     throw new Error(
@@ -50,30 +44,25 @@ function publish(path) {
   }
   writeFileSync(
     path,
-    source.replace(FRONT_MATTER, block =>
-      block.replace(/^draft:\s*true\s*(#.*)?\r?\n/m, ''),
-    ),
+    source.replace(FRONT_MATTER, block => block.replace(DRAFT, '')),
   );
 
-  const [, year, month, day, slug] = match;
-  const newFile = today + file.slice(today.length);
-  if (newFile !== file) {
-    if (existsSync(`${BLOG_DIR}/${newFile}`)) {
-      throw new Error(`${path}: can't rename, ${newFile} already exists`);
+  const newPath = `${BLOG_DIR}/${today}${file.slice(today.length)}`;
+  if (newPath !== path) {
+    if (existsSync(newPath)) {
+      throw new Error(`${path}: can't rename, ${newPath} already exists`);
     }
     // Not `git mv`: a new post may not be tracked yet
-    renameSync(path, `${BLOG_DIR}/${newFile}`);
+    renameSync(path, newPath);
     rewriteLinks(
-      `/blog/${year}/${month}/${day}/${slug}`,
-      `/blog/${today.replaceAll('-', '/')}/${slug}`,
+      `/blog/${urlDate(file.slice(0, 10))}/${slug}`,
+      `/blog/${urlDate(today)}/${slug}`,
     );
-  }
-  // Stage after the rewrite so the commit gets the updated self-links
-  git('add', '--', `${BLOG_DIR}/${newFile}`);
-  if (newFile !== file) {
     git('rm', '--cached', '-q', '--ignore-unmatch', '--', path);
   }
-  console.log(`published ${BLOG_DIR}/${newFile}`);
+  // Stage after the rewrite so the commit gets the updated self-links
+  git('add', '--', newPath);
+  console.log(`published ${newPath}`);
 }
 
 function rewriteLinks(oldUrl, newUrl) {
@@ -98,57 +87,44 @@ function rewriteLinks(oldUrl, newUrl) {
 }
 
 function check(base) {
-  const publishedAtBase = new Set(
-    git('ls-tree', '--name-only', base, `${BLOG_DIR}/`)
-      .split('\n')
-      .map(path => path.slice(BLOG_DIR.length + 1))
-      .filter(file => MARKDOWN.test(file))
-      .filter(
-        file => !frontMatter(git('show', `${base}:${BLOG_DIR}/${file}`)).draft,
-      ),
-  );
-  // A published post that was only renamed (slug fix, .md -> .mdx) stays published
-  const renamedFrom = new Map(
-    git('diff', '--name-status', '-M', '--diff-filter=R', base, '--', BLOG_DIR)
-      .split('\n')
-      .filter(Boolean)
-      .map(line => {
-        const [, from, to] = line.split('\t');
-        return [to.slice(BLOG_DIR.length + 1), from.slice(BLOG_DIR.length + 1)];
-      }),
-  );
-
   let failed = false;
   const fail = message => {
     console.error(message);
     failed = true;
   };
-  for (const entry of readdirSync(BLOG_DIR, { withFileTypes: true })) {
-    const file = entry.name;
-    const path = `${BLOG_DIR}/${file}`;
-    // Docusaurus also builds posts from folders, which this check can't date
-    if (entry.isDirectory() && !file.startsWith('.')) {
-      fail(`${path}: use a YYYY-MM-DD-slug.md file, not a post folder`);
+  // Only added, modified or renamed posts can have gone from draft to published
+  const changes = git('diff', '--name-status', '-M', base, '--', BLOG_DIR)
+    .split('\n')
+    .filter(Boolean)
+    .map(line => line.split('\t'));
+  for (const [status, from, to = from] of changes) {
+    const file = to.slice(BLOG_DIR.length + 1);
+    if (status === 'D' || file.startsWith('.') || !/\.mdx?$/.test(file)) {
       continue;
     }
-    if (!MARKDOWN.test(file)) continue;
-    if (publishedAtBase.has(renamedFrom.get(file) ?? file)) continue;
-    const { draft, hasDate } = frontMatter(readFileSync(path, 'utf8'));
+    // Docusaurus also builds posts from folders, which this check can't date
+    if (file.includes('/')) {
+      fail(`${to}: use a YYYY-MM-DD-slug.md file, not a post folder`);
+      continue;
+    }
+    const { draft, hasDate } = frontMatter(readFileSync(to, 'utf8'));
     if (draft) continue;
+    if (status !== 'A' && !frontMatter(git('show', `${base}:${from}`)).draft) {
+      continue;
+    }
 
-    const match = file.match(POST);
-    if (!match || hasDate) {
+    if (!POST.test(file) || hasDate) {
       fail(
-        `${path}: name published posts YYYY-MM-DD-slug.md, without a \`date:\` front matter field`,
+        `${to}: name published posts YYYY-MM-DD-slug.md, without a \`date:\` front matter field`,
       );
       continue;
     }
-    const postDate = `${match[1]}-${match[2]}-${match[3]}`;
+    const postDate = file.slice(0, 10);
     const days = Math.abs(Date.parse(postDate) - Date.parse(today)) / 864e5;
     if (days > MAX_DAYS) {
       fail(
-        `${path}: published with date ${postDate}, but today is ${today}. ` +
-          `Run \`yarn blog:publish ${path}\` to date it today and fix its links.`,
+        `${to}: published with date ${postDate}, but today is ${today}. ` +
+          `Run \`yarn blog:publish ${to}\` to date it today and fix its links.`,
       );
     }
   }
