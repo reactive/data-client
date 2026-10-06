@@ -69,9 +69,9 @@ DesignSystem/       components injected into preview scope
   `loader.init()` and the type-lib chunk downloads in parallel.
   `preloadManifest.ts` is regenerated on every docusaurus config load.
 - Type libs: one webpack chunk per third-party `.d.ts` (`reactDTS`, …) and a
-  single `lazy-once` chunk for `editor-types/@data-client/*`. Failed fetches
-  degrade to empty libs. `website/raw-plugin.js` silences the expected
-  "expression in import" warning for `monaco/typeLibs.ts` by path.
+  single `dataClientDTS` chunk holding exactly the `DATA_CLIENT_LIBS` entries
+  (check-only editor types such as `vue/test` stay out). Failed fetches
+  degrade to empty libs.
 - Preview code is a lazy chunk (`PreviewWithScope`, prefetched) and
   `PreviewBlock` a nested lazy chunk (preloaded with its parent).
 - Mobile and bots download none of Monaco or the type libs.
