@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
 import { useQuery, useController, useSuspense } from '@data-client/react';
+// Subpath and @data-client/test declarations must parse on every supported TypeScript
+import { DataProvider as NextDataProvider } from '@data-client/react/nextjs';
+import { DataProvider as ReduxDataProvider } from '@data-client/react/redux';
 import { Invalidate } from '@data-client/rest';
+import { renderDataHook } from '@data-client/test';
 
 import {
   queryRemainingTodos,
@@ -38,3 +42,5 @@ function useTest() {
     user.name;
   });
 }
+
+export { NextDataProvider, ReduxDataProvider, renderDataHook };

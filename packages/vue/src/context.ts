@@ -1,6 +1,7 @@
 import { initialState, Controller } from '@data-client/core';
 import type { State } from '@data-client/core';
-import { inject, type InjectionKey, shallowRef, type ShallowRef } from 'vue';
+import { inject, shallowRef } from 'vue';
+import type { InjectionKey, ShallowRef } from 'vue';
 
 export const StateKey: InjectionKey<ShallowRef<State<unknown>>> = Symbol(
   'DataClientState',

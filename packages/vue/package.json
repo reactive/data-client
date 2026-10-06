@@ -49,6 +49,19 @@
   "module": "lib/index.js",
   "unpkg": "dist/index.umd.min.js",
   "types": "lib/index.d.ts",
+  "typesVersions": {
+    ">=4.0": {
+      "": [
+        "lib/index.d.ts"
+      ],
+      "test": [
+        "lib/test/index.d.ts"
+      ],
+      "*": [
+        "lib/index.d.ts"
+      ]
+    }
+  },
   "exports": {
     ".": {
       "types": "./lib/index.d.ts",

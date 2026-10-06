@@ -9,12 +9,8 @@ import {
 } from '@data-client/react';
 import React, { memo, Suspense, useLayoutEffect, useState } from 'react';
 
-import {
-  renderHook,
-  act,
-  RenderHookResult,
-  type RenderHookOptions,
-} from './renderHook.cjs';
+import { renderHook, act, RenderHookResult } from './renderHook.cjs';
+import type { RenderHookOptions } from './renderHook.cjs';
 import { Interceptor, Fixture } from '../fixtureTypes.js';
 import { MockController } from '../MockController.js';
 import mockInitialState from '../mockState.js';
