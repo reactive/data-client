@@ -1,4 +1,16 @@
 {
   "cleanUrls": true,
-  "ignoreCommand": "bash scripts/vercel-ignore.sh"
+  "ignoreCommand": "bash scripts/vercel-ignore.sh",
+  "redirects": [
+    {
+      "source": "/docs/getting-started/devtools-debugging.md",
+      "destination": "/docs/getting-started/debugging.md",
+      "permanent": true
+    },
+    {
+      "source": "/vue/getting-started/devtools-debugging.md",
+      "destination": "/vue/getting-started/debugging.md",
+      "permanent": true
+    }
+  ]
 }

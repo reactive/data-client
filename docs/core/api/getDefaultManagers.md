@@ -113,7 +113,11 @@ until animations are complete. This works in web using [requestIdleCallback](htt
 :::vue
 
 ```ts
-import { NetworkManager, type FetchAction } from '@data-client/vue';
+import {
+  NetworkManager,
+  getDefaultManagers,
+  type FetchAction,
+} from '@data-client/vue';
 
 class LoggingNetworkManager extends NetworkManager {
   protected handleFetch(action: FetchAction) {

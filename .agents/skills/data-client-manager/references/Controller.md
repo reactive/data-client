@@ -779,6 +779,8 @@ import {
 } from '@data-client/react';
 
 export default class MyManager implements Manager {
+  declare protected websocket: WebSocket;
+
   middleware: Middleware = controller => {
     return next => async action => {
       if (action.type === actionTypes.FETCH) {
@@ -786,7 +788,7 @@ export default class MyManager implements Manager {
         console.log(
           controller.getResponse(
             action.endpoint,
-            ...(action.meta.args as Parameters<typeof action.endpoint>),
+            ...action.args,
             controller.getState(),
           ).data,
         );

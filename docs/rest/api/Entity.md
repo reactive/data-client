@@ -141,7 +141,7 @@ return (
 
 :::vue
 
-```html
+```html nocheck
 <template>
   <div>
     <TheThing
@@ -219,7 +219,7 @@ pk() {
 }
 ```
 
-In case you have 
+In case you have
 
 ```typescript
 const get = new RestEndpoint({
@@ -229,7 +229,7 @@ const get = new RestEndpoint({
 export const OptionsResource = {
   get,
   partialUpdate: get.extend({ method: 'PATCH' }),
-}
+};
 ```
 
 ### static key: string {#key}
@@ -292,8 +292,9 @@ export class User extends Entity {
 }
 ```
 
-```ts title="Post" {16-20}
+```ts title="Post" {17-21}
 import { Entity } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 import { User } from './User';
 
 export class Post extends Entity {
@@ -501,7 +502,7 @@ const price = useQuery(LatestPrice, { symbol: 'BTC' });
 ### static maxEntityDepth?: number {#maxEntityDepth}
 
 Limits entity nesting depth during denormalization to prevent stack overflow
-in large bidirectional entity graphs. **Default: 128**
+in large bidirectional entity graphs. **Default: 64**
 
 When bidirectional relationships create chains with many unique entities
 (e.g., `Department → Building → Department → ...`), denormalization can recurse
@@ -515,7 +516,9 @@ class Department extends Entity {
   name = '';
   buildings: Building[] = [];
 
-  pk() { return this.id; }
+  pk() {
+    return this.id;
+  }
   static key = 'Department';
   // highlight-next-line
   static maxEntityDepth = 16;

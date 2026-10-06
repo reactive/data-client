@@ -10,8 +10,9 @@ Async rendering of remotely triggered data mutations.
 
 ## Usage
 
-```typescript title="Ticker" {32}
+```typescript title="Ticker" {33}
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class Ticker extends Entity {
   product_id = '';

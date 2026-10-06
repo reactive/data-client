@@ -63,6 +63,7 @@ have internal state, so it is important to not constantly recreate them.
 ```tsx title="index.tsx"
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { createRoot } from 'react-dom/client';
+import MyManager from './MyManager';
 
 const managers = [...getDefaultManagers(), new MyManager()];
 
@@ -78,6 +79,7 @@ createRoot(document.body).render(
 ```tsx title="index.tsx"
 import { DataProvider, getDefaultManagers } from '@data-client/react';
 import { AppRegistry } from 'react-native';
+import MyManager from './MyManager';
 
 const managers = [...getDefaultManagers(), new MyManager()];
 
@@ -95,6 +97,7 @@ AppRegistry.registerComponent('MyApp', () => Root);
 'use client';
 import { getDefaultManagers } from '@data-client/react';
 import { DataProvider } from '@data-client/react/nextjs';
+import MyManager from './MyManager';
 
 const managers = [...getDefaultManagers(), new MyManager()];
 
@@ -126,6 +129,7 @@ export default function RootLayout({ children }) {
 ```tsx title="app/_layout.tsx"
 import { Stack } from 'expo-router';
 import { DataProvider, getDefaultManagers } from '@data-client/react';
+import MyManager from './MyManager';
 
 const managers = [...getDefaultManagers(), new MyManager()];
 

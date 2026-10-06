@@ -79,6 +79,8 @@ delay: 150,
 ]}>
 
 ```tsx title="api/Price"
+import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 import BigNumber from 'bignumber.js';
 
 export class ExchangePrice extends Entity {
@@ -232,8 +234,9 @@ We use [RestEndpoint.process()](../api/RestEndpoint.md#process) to add the `prod
 
 <FrameworkPlayground row>
 
-```typescript title="Ticker" {28-31}
+```typescript title="Ticker" {29-32}
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class Ticker extends Entity {
   product_id = '';
@@ -296,9 +299,10 @@ render(<AssetPrice productId="BTC-USD" />);
 
 :::vue
 
-```html title="AssetPrice.vue" {7} collapsed
+```html title="AssetPrice.vue" {8} collapsed
 <script setup lang="ts">
   import { useLive } from '@data-client/vue';
+  import NumberFlow from '@number-flow/vue';
   import { getTicker } from './Ticker';
 
   const props = defineProps<{ productId: string }>();
@@ -309,13 +313,13 @@ render(<AssetPrice productId="BTC-USD" />);
 </script>
 
 <template>
-  <center>
+  <div style="text-align: center">
     {{ productId }}
     <NumberFlow
       :value="ticker.price"
       :format="{ style: 'currency', currency: 'USD' }"
     />
-  </center>
+  </div>
 </template>
 ```
 
@@ -363,7 +367,7 @@ to avoid caching large blobs in memory.
 ```typescript title="downloadFile.ts"
 import { RestEndpoint } from '@data-client/rest';
 
-const downloadFile = new RestEndpoint({
+export const downloadFile = new RestEndpoint({
   path: '/files/:id/download',
   content: 'blob',
   dataExpiryLength: 0,
@@ -429,7 +433,7 @@ To extract the filename from the `Content-Disposition` header, override
 ```typescript title="downloadFile.ts"
 import { RestEndpoint } from '@data-client/rest';
 
-const downloadFile = new RestEndpoint({
+export const downloadFile = new RestEndpoint({
   path: '/files/:id/download',
   content: 'blob',
   dataExpiryLength: 0,

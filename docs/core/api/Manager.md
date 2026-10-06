@@ -96,6 +96,8 @@ installed once per app, so managers are created once.
 <ProviderManagers imports={['getDefaultManagers']}>
 
 ```ts
+import MyManager from './MyManager';
+
 // highlight-next-line
 const managers = [...getDefaultManagers(), new MyManager()];
 ```

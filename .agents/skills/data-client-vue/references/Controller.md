@@ -183,7 +183,8 @@ when there are many parameterizations in cache.
 ```html title="CreateTrade.vue"
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
-  import { AccountResource, TradeResource } from './resources';
+  import { AccountResource, TradeResource, type Trade } from './resources';
+  import TradeForm from './TradeForm.vue';
 
   const props = defineProps<{ userId: string }>();
   const ctrl = useController();
@@ -331,6 +332,7 @@ This is typically used when logging out or changing authenticated users.
 <script setup lang="ts">
   import { useController, useSuspense } from '@data-client/vue';
   import { CurrentUserResource } from './CurrentUserResource';
+  import { impersonateUser } from './auth';
 
   const USER_NUMBER_ONE: string = '1111';
 
@@ -594,6 +596,8 @@ import {
 } from '@data-client/vue';
 
 export default class MyManager implements Manager {
+  declare protected websocket: WebSocket;
+
   middleware: Middleware = controller => {
     return next => async action => {
       if (action.type === actionTypes.FETCH) {
@@ -601,7 +605,7 @@ export default class MyManager implements Manager {
         console.log(
           controller.getResponse(
             action.endpoint,
-            ...(action.meta.args as Parameters<typeof action.endpoint>),
+            ...action.args,
             controller.getState(),
           ).data,
         );

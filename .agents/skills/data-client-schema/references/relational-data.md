@@ -26,7 +26,7 @@ erDiagram
 </details>
 
 ```typescript title="resources/Post"
-import { Collection, Entity } from '@data-client/rest';
+import { Collection, Entity, resource } from '@data-client/rest';
 
 export class User extends Entity {
   id = '';
@@ -106,6 +106,8 @@ Even if the network responses don't nest data, we can perform client-side joins 
 the relationship in [Entity.schema](./Entity.md#schema)
 
 ```ts title="resources/User"
+import { Entity, resource } from '@data-client/rest';
+
 export class User extends Entity {
   id = 0;
   username = '';
@@ -121,6 +123,7 @@ export const UserResource = resource({
 ```
 
 ```ts title="resources/Todo"
+import { Entity, resource } from '@data-client/rest';
 import { User } from './User';
 
 export class Todo extends Entity {
@@ -242,7 +245,7 @@ This allows you to traverse the relationship after processing only one fetch req
 each time you want access to a different view.
 
 ```typescript title="resources/Post"
-import { Collection, Entity } from '@data-client/rest';
+import { Entity, resource, type Schema } from '@data-client/rest';
 
 export class User extends Entity {
   id = '';

@@ -46,6 +46,7 @@ const packageTypes = (pkg, entry, output) =>
 export default [
   packageTypes('core', 'index.d.ts', 'core.d.ts'),
   packageTypes('core', 'next/index.d.ts', 'core/next.d.ts'),
+  packageTypes('core', 'mock/index.d.ts', 'core/mock.d.ts'),
   packageTypes('endpoint', 'index.d.ts', 'endpoint.d.ts'),
   packageTypes('normalizr', 'index.d.ts', 'normalizr.d.ts'),
   packageTypes('graphql', 'index.d.ts', 'graphql.d.ts'),
@@ -57,6 +58,7 @@ export default [
   packageTypes('react', 'server/index.d.ts', 'react/ssr.d.ts'),
   packageTypes('react', 'server/redux/index.d.ts', 'react/redux.d.ts'),
   packageTypes('vue', 'index.d.ts', 'vue.d.ts'),
+  packageTypes('vue', 'test/index.d.ts', 'vue/test.d.ts'),
   editorTypes('./node_modules/uuid/dist/index.d.ts', 'uuid.d.ts'),
   // inlines number-flow/lite and number-flow/plugins
   editorTypes(

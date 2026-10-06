@@ -13,6 +13,8 @@ thus operates on POJOs rather than an instance of the class.
 Here we can make sure the title field is included, and of the expected type.
 
 ```typescript title="api/Article"
+import { Entity, RestEndpoint } from '@data-client/rest';
+
 export class Article extends Entity {
   id = '';
   title = '';
@@ -45,6 +47,8 @@ render(<ArticlePage id="2" />);
 [validateRequired()](https://dataclient.io/rest/api/validateRequired) can be used to check if all defined fields are present.
 
 ```tsx title="api/Article"
+import { Entity, RestEndpoint, validateRequired } from '@data-client/rest';
+
 export class Article extends Entity {
   id = '';
   title = '';
@@ -79,6 +83,9 @@ useful when some fields consume lots of bandwidth or are computationally expensi
 Consider using [validateRequired](https://dataclient.io/rest/api/validateRequired) to reduce code.
 
 ```typescript title="api/Article"
+import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
+
 export class ArticlePreview extends Entity {
   id = '';
   title = '';

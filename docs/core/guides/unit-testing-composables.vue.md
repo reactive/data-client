@@ -47,8 +47,10 @@ Always call `cleanup()` at the end of a test; it unmounts the app and its manage
 data is available. `await` it once, then read `.value`; the ref stays reactive as the store changes.
 
 ```typescript
+import { renderDataCompose } from '@data-client/vue/test';
 import { useSuspense } from '@data-client/vue';
 import { nextTick } from 'vue';
+import { ArticleResource } from './resources';
 
 it('useSuspense() follows store updates', async () => {
   const { result, controller, cleanup } = await renderDataCompose(

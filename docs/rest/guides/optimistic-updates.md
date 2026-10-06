@@ -156,7 +156,7 @@ render(<TodoList />);
   <div class="listItem nogap">
     <label>
       <input type="checkbox" :checked="todo.completed" @change="handleChange" />
-      <strike v-if="todo.completed">{{ todo.title }}</strike>
+      <s v-if="todo.completed">{{ todo.title }}</s>
       <template v-else>{{ todo.title }}</template>
     </label>
     <CancelButton @click="handleDelete" />
@@ -377,7 +377,9 @@ getInitialInterceptorData={() => ({ count: 0 })}
 row
 >
 
-```ts title="count" {9-11} collapsed
+```ts title="count" {11-13} collapsed
+import { Entity, RestEndpoint } from '@data-client/rest';
+
 export class CountEntity extends Entity {
   count = 0;
   updatedAt = 0;
@@ -397,7 +399,8 @@ export const getCount = new RestEndpoint({
 });
 ```
 
-```ts title="increment" {9-15,21}
+```ts title="increment" {10-16,22}
+import { RestEndpoint } from '@data-client/rest';
 import { CountEntity } from './count';
 
 export const increment = new RestEndpoint({

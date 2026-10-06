@@ -195,7 +195,8 @@ export function fetchTypeLibs(): Promise<TypeLibs> {
       DATA_CLIENT_ENTRIES.map(
         entry =>
           import(
-            /* webpackChunkName: '[request]', webpackMode: "lazy-once" */ `!!raw-loader?esModule=false!../editor-types/@data-client/${entry}.d.ts`
+            // webpack bundles every file the template matches; leave out entries the editor never loads
+            /* webpackChunkName: '[request]', webpackMode: "lazy-once", webpackExclude: /(core\/mock|vue\/test|react\/(ssr|redux|nextjs))\.d\.ts$/ */ `!!raw-loader?esModule=false!../editor-types/@data-client/${entry}.d.ts`
           ),
       ),
     ),
