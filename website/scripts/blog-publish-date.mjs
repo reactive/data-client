@@ -10,7 +10,7 @@
 // --fix renames the file and rewrites its /blog/YYYY/MM/DD/slug links repo-wide.
 // A newly published post must be dated by its filename alone (no `date:`).
 import { execFileSync } from 'node:child_process';
-import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 
 const BLOG_DIR = 'website/blog';
 const MAX_DAYS = 3;
@@ -83,11 +83,19 @@ for (const file of readdirSync(BLOG_DIR)) {
 
   if (fix) {
     const newFile = today + file.slice(today.length);
-    git('mv', path, `${BLOG_DIR}/${newFile}`);
+    // Not `git mv`: a new post may not be tracked yet
+    renameSync(path, `${BLOG_DIR}/${newFile}`);
+    git('add', '--', `${BLOG_DIR}/${newFile}`);
+    git('rm', '--cached', '-q', '--ignore-unmatch', '--', path);
     const oldUrl = `/blog/${year}/${month}/${day}/${slug}`;
     const newUrl = oldUrl.replace(
       `${year}/${month}/${day}`,
       today.replaceAll('-', '/'),
+    );
+    // Stop at the slug's end so a sibling like `${slug}-notes` is untouched
+    const oldUrlPattern = new RegExp(
+      `${oldUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![\\w-])`,
+      'g',
     );
     let linking = [];
     try {
@@ -98,7 +106,7 @@ for (const file of readdirSync(BLOG_DIR)) {
     }
     for (const linked of linking) {
       const text = readFileSync(linked, 'utf8');
-      writeFileSync(linked, text.replaceAll(oldUrl, newUrl));
+      writeFileSync(linked, text.replace(oldUrlPattern, newUrl));
     }
     console.log(
       `renamed ${file} -> ${newFile}; updated links in ${linking.length} file(s)`,
