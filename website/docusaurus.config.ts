@@ -379,6 +379,10 @@ const config: Config = {
             from: ['/rest/api/createResource', '/rest/api/Resource'],
           },
           {
+            to: '/rest/api/SchemaSimple',
+            from: ['/rest/api/CustomSchema'],
+          },
+          {
             to: '/docs/api/makeRenderDataHook',
             from: [
               '/docs/api/makeRenderDataClient',
