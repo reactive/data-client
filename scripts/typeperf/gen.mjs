@@ -267,7 +267,40 @@ declare function provide<A extends { type: string }, S>(props: ProviderProps<A, 
   return s;
 };
 
-// 11. path types vs their frozen pre-#4173 implementation (a type error is a mismatch)
+// 11. @data-client/test fixtures and interceptors (mutable and `as const` args) passed to MockResolver
+scen.fixtures = () => {
+  let s = `import { Entity, resource } from '@data-client/rest';
+import { MockResolver, mockInitialState } from '@data-client/test';
+import type { Fixture, Interceptor } from '@data-client/test';
+`;
+  // a few resources, so the count tracks Fixture/Interceptor/MockResolver typing rather than resource()
+  const R = 4;
+  for (let r = 0; r < R; r++)
+    s += `export class E${r} extends Entity {\n  id = '';\n${fields(20)}\n  static key = 'E${r}';\n}
+export const R${r} = resource({ path: '/e${r}/:id', schema: E${r}, searchParams: {} as { q?: string } | undefined });
+`;
+  for (let i = 0; i < 100 * N; i++) {
+    const r = `R${i % R}`;
+    s += `export const fixtures${i} = [
+  { endpoint: ${r}.get, args: [{ id: '${i}' }] as const, response: { id: '${i}', f0: 'a' } },
+  { endpoint: ${r}.getList, args: [{ q: 'x${i}' }], response: [{ id: '${i}' }] },
+  { endpoint: ${r}.update, args: [{ id: '${i}' }, { f0: 'b' }] as const, response: { id: '${i}', f0: 'b' } },
+  { endpoint: ${r}.delete, args: [{ id: '${i}' }] as const, response: { message: 'nope' }, error: true },
+];
+export const typed${i}: Fixture<typeof ${r}.get> = { endpoint: ${r}.get, args: [{ id: '${i}' }] as const, response: { id: '${i}' } };
+export const interceptor${i}: Interceptor<{ n: number }> = {
+  endpoint: ${r}.get,
+  response({ id }) { return { id, f0: \`\${this.n++}\` }; },
+  delay: () => ${i},
+};
+MockResolver({ fixtures: [...fixtures${i}, typed${i}, interceptor${i}], getInitialInterceptorData: () => ({ n: 0 }), children: null });
+mockInitialState([...fixtures${i}, typed${i}]);
+`;
+  }
+  return s;
+};
+
+// 12. path types vs their frozen pre-#4173 implementation (a type error is a mismatch)
 scen.patheq = patheq;
 
 /** Writes scenarios/<name>/ for the named fixtures (all when empty); returns the names */
