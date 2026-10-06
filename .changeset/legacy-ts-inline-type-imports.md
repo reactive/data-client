@@ -18,4 +18,4 @@ import { renderDataHook } from '@data-client/test';
 // After: no errors
 ```
 
-`@data-client/vue/test` types now also resolve with `moduleResolution: "node"`. `@data-client/vue` needs TypeScript 4.5 or later, since Vue's own types do.
+`@data-client/vue/test` types now also resolve with `moduleResolution: "node"`.

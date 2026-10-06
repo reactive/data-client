@@ -1,14 +1,8 @@
 {
-  // Standalone (no React types). Vue's own types need TypeScript 4.5+.
+  // No React types. Vue's own types need TypeScript 4.5+.
+  "extends": "./tsconfig.typetest-libcheck.json",
   "compilerOptions": {
-    "target": "es2020",
-    "module": "esnext",
-    "lib": ["dom", "esnext"],
-    "moduleResolution": "node",
-    "strict": true,
-    "skipLibCheck": true,
-    "types": [],
-    "noEmit": true
+    "skipLibCheck": true
   },
   "files": ["typetest-vue.ts"]
 }

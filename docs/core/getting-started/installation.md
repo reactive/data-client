@@ -61,6 +61,12 @@ Install the [Vue plugin](https://vuejs.org/guide/reusability/plugins.html) when 
 
 TypeScript is optional, but requires at least version [4.0](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-0.html#variadic-tuple-types) and [strictNullChecks](https://www.typescriptlang.org/tsconfig#strictNullChecks) for full type enforcement.
 
+:::vue
+
+`@data-client/vue` needs TypeScript 4.5 or later, since Vue's own types do.
+
+:::
+
 </details>
 
 <details>
@@ -105,8 +111,6 @@ discussions.
 <summary><b>Vue 3</b></summary>
 
 `@data-client/vue` supports Vue 3 and is built on the [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html).
-
-With TypeScript, use version 4.5 or later, which Vue's own types require.
 
 </details>
 

@@ -391,6 +391,8 @@ jobs:
             yarn run tsc --project examples/github-app/tsconfig.typetest.json
             # skipLibCheck: false, so the legacy typesVersions outputs get checked too
             yarn run tsc --project examples/todo-app/tsconfig.typetest-libcheck.json
+            # Every published entry point's declarations must parse on this TypeScript
+            node scripts/check-dts-parse.mjs
             # Vue's own types need TypeScript 4.5+
             if [[ ! "<< parameters.typescript-version >>" < "4.5" ]]; then
             yarn run tsc --project examples/todo-app/tsconfig.typetest-vue.json

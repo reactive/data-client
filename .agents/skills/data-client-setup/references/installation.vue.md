@@ -40,6 +40,8 @@ Example app: [vue-todo-app](https://github.com/reactive/data-client/tree/master/
 
 TypeScript is optional, but requires at least version [4.0](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-0.html#variadic-tuple-types) and [strictNullChecks](https://www.typescriptlang.org/tsconfig#strictNullChecks) for full type enforcement.
 
+`@data-client/vue` needs TypeScript 4.5 or later, since Vue's own types do.
+
 </details>
 
 <details>
@@ -70,7 +72,5 @@ follow the instructions to [add legacy browser support to packages](https://data
 <summary>Vue 3</summary>
 
 `@data-client/vue` supports Vue 3 and is built on the [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html).
-
-With TypeScript, use version 4.5 or later, which Vue's own types require.
 
 </details>
