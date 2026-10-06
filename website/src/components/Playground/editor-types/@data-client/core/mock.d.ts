@@ -1282,7 +1282,7 @@ interface MockProps<T = any> {
     getInitialInterceptorData?: () => T;
 }
 
-declare function MockController<TBase extends typeof Controller, T>(Base: TBase, { fixtures, getInitialInterceptorData, }: MockProps<T>): TBase;
+declare function MockController<TBase extends new (...args: any[]) => Controller<any>, T>(Base: TBase, { fixtures, getInitialInterceptorData, }: MockProps<T>): TBase;
 
 declare function collapseFixture(fixture: Fixture | ResponseInterceptor, args: any[], interceptorData: any): Promise<{
     response: any;

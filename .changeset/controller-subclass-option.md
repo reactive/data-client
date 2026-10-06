@@ -1,4 +1,5 @@
 ---
+'@data-client/core': patch
 '@data-client/react': patch
 '@data-client/vue': patch
 '@data-client/test': patch
@@ -6,7 +7,7 @@
 
 Fix TypeScript error passing a `Controller` subclass to `DataProvider` or `DataClientPlugin`
 
-A plain `class MyController extends Controller` failed to typecheck as the `Controller` option of [DataProvider](https://dataclient.io/docs/api/DataProvider#Controller), Vue's [DataClientPlugin](https://dataclient.io/vue/api/DataClientPlugin#Controller), and the `@data-client/react/redux` `DataProvider`, so the documented example needed a cast. It now typechecks, and you can drop the cast.
+A plain `class MyController extends Controller` failed to typecheck as the `Controller` option of [DataProvider](https://dataclient.io/docs/api/DataProvider#Controller), Vue's [DataClientPlugin](https://dataclient.io/vue/api/DataClientPlugin#Controller), and the `@data-client/react/redux` `DataProvider`, so the documented example needed a cast. `MockController()` from `@data-client/core/mock` had the same error when wrapping your subclass. These now typecheck, and you can drop the casts.
 
 ```tsx
 class MyController extends Controller {

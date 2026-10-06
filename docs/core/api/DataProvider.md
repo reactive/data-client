@@ -66,7 +66,7 @@ Default Development:
 ];
 ```
 
-### Controller?: typeof Controller {#Controller}
+### Controller?: Controller class {#Controller}
 
 This allows you to extend [Controller](./Controller.md) to provide additional functionality.
 This might be useful if you have additional actions you want to dispatch to custom [Managers](./Manager.md)
