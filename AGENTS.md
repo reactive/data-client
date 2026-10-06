@@ -29,7 +29,7 @@ Monorepo for `@data-client` high performance npm packages.
 
 - **CircleCI** (`.circleci/config.yml`) — PR validation: lint, typecheck, unit tests (React 17/18/native/latest), Node matrix, ESM type checks (TS 4.0–5.3+), browser build.
 - **GitHub Actions** (`.github/workflows/`) — release (`changesets`), bundle size PR comments, benchmark regression detection.
-- On same-repo PRs, `regenerate.yml` commits stale editor-types and skill references to the PR branch: `git pull` before your next push.
+- On same-repo PRs, `regenerate.yml` commits stale editor-types and skill references to the PR branch: `git pull` before your next push. It generates them on the merge with master, so if the pre-push hook then changes them back, merge master instead of committing the hook's output.
 
 Changing root `package.json` `workspaces` requires updating `.circleci/config.yml` (`setup` job) and `.github/workflows/` install steps.
 
