@@ -31,17 +31,17 @@ export class Post extends FeedItem {
 }
 export const getFeed = new RestEndpoint({
   path: '/feed',
-  schema: new ${props.schema}(
-${props.attribute === 'function' ? `    {
-      links: Link,
-      posts: Post,
-    },
-    (input: Link | Post, parent: unknown, key: string) => \`\${input.type}s\`,` : `    {
-      link: Link,
-      post: Post,
-    },
-    'type',`}
-  ),
+  schema: ${props.schema === 'Union' ? '[\n    new Union(' : `new ${props.schema}(`}
+${(props.attribute === 'function' ? `{
+  links: Link,
+  posts: Post,
+},
+(input: Link | Post, parent: unknown, key: string) => \`\${input.type}s\`,` : `{
+  link: Link,
+  post: Post,
+},
+'type',`).replace(/^/gm, props.schema === 'Union' ? '      ' : '    ')}
+  ${props.schema === 'Union' ? '  ),\n  ],' : '),'}
 });`}</CodeBlock>
 
 :::react
@@ -117,7 +117,6 @@ render(<FeedList />);`}</CodeBlock>
 </template>
 ```
 
-{props.schema === 'Values' ? (
 <CodeBlock className="language-html" metastring='title="PostItem.vue" collapsed'>{`<script setup lang="ts">
   import { type Post } from './api/Feed';
 
@@ -125,19 +124,8 @@ render(<FeedList />);`}</CodeBlock>
 </script>
 
 <template>
-  <span>{{ post.content }}</span>
+  <${props.schema === 'Values' ? 'span' : 'div'}>{{ post.content }}</${props.schema === 'Values' ? 'span' : 'div'}>
 </template>`}</CodeBlock>
-) : (
-<CodeBlock className="language-html" metastring='title="PostItem.vue" collapsed'>{`<script setup lang="ts">
-  import { type Post } from './api/Feed';
-
-  defineProps<{ post: Post }>();
-</script>
-
-<template>
-  <div>{{ post.content }}</div>
-</template>`}</CodeBlock>
-)}
 
 {props.schema === 'Values' ? (
 <CodeBlock className="language-html" metastring='title="FeedList.vue" collapsed'>{`<script setup lang="ts">

@@ -4,10 +4,9 @@ vue_title: Values Schema - Declarative map data for Vue
 sidebar_label: Values
 ---
 
-import LanguageTabs from '@site/src/components/LanguageTabs';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import PolymorphicFeedDemo from '../shared/\_PolymorphicFeedDemo.mdx';
-import { RestEndpoint, Values } from '@data-client/rest';
+import { RestEndpoint } from '@data-client/rest';
 
 # Values
 

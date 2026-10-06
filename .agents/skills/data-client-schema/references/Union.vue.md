@@ -29,20 +29,19 @@ Describe a schema which is a union of multiple schemas. This is useful if you ne
 import { Entity, RestEndpoint, Union } from '@data-client/rest';
 
 export abstract class FeedItem extends Entity {
-  id = 0;
-  declare type: 'link' | 'post';
+  readonly id: number = 0;
+  declare readonly type: 'link' | 'post';
 }
 export class Link extends FeedItem {
-  type = 'link' as const;
-  url = '';
-  title = '';
+  readonly type = 'link' as const;
+  readonly url: string = '';
+  readonly title: string = '';
 }
 export class Post extends FeedItem {
-  type = 'post' as const;
-  content = '';
+  readonly type = 'post' as const;
+  readonly content: string = '';
 }
-
-export const feed = new RestEndpoint({
+export const getFeed = new RestEndpoint({
   path: '/feed',
   schema: [
     new Union(
@@ -83,11 +82,11 @@ export const feed = new RestEndpoint({
 ```html title="FeedList.vue"
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
-  import { feed } from './api/Feed';
+  import { getFeed } from './api/Feed';
   import LinkItem from './LinkItem.vue';
   import PostItem from './PostItem.vue';
 
-  const feedItems = await useSuspense(feed);
+  const feedItems = await useSuspense(getFeed);
 </script>
 
 <template>
@@ -108,38 +107,37 @@ When the discriminator value doesn't directly match schema keys, use a function 
 import { Entity, RestEndpoint, Union } from '@data-client/rest';
 
 export abstract class FeedItem extends Entity {
-  id = 0;
-  declare type: 'link' | 'post';
+  readonly id: number = 0;
+  declare readonly type: 'link' | 'post';
 }
-export class LinkItem extends FeedItem {
-  type = 'link' as const;
-  url = '';
-  title = '';
+export class Link extends FeedItem {
+  readonly type = 'link' as const;
+  readonly url: string = '';
+  readonly title: string = '';
 }
-export class PostItem extends FeedItem {
-  type = 'post' as const;
-  content = '';
+export class Post extends FeedItem {
+  readonly type = 'post' as const;
+  readonly content: string = '';
 }
-
-export const feed = new RestEndpoint({
+export const getFeed = new RestEndpoint({
   path: '/feed',
   schema: [
     new Union(
       {
-        links: LinkItem,
-        posts: PostItem,
+        links: Link,
+        posts: Post,
       },
-      (input: LinkItem | PostItem, parent: unknown, key: string) => `${input.type}s`,
+      (input: Link | Post, parent: unknown, key: string) => `${input.type}s`,
     ),
   ],
 });
 ```
 
-```html title="LinkComponent.vue"
+```html title="LinkItem.vue"
 <script setup lang="ts">
-  import { type LinkItem } from './api/Feed';
+  import { type Link } from './api/Feed';
 
-  defineProps<{ link: LinkItem }>();
+  defineProps<{ link: Link }>();
 </script>
 
 <template>
@@ -147,11 +145,11 @@ export const feed = new RestEndpoint({
 </template>
 ```
 
-```html title="PostComponent.vue"
+```html title="PostItem.vue"
 <script setup lang="ts">
-  import { type PostItem } from './api/Feed';
+  import { type Post } from './api/Feed';
 
-  defineProps<{ post: PostItem }>();
+  defineProps<{ post: Post }>();
 </script>
 
 <template>
@@ -162,18 +160,18 @@ export const feed = new RestEndpoint({
 ```html title="FeedList.vue"
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
-  import { feed } from './api/Feed';
-  import LinkComponent from './LinkComponent.vue';
-  import PostComponent from './PostComponent.vue';
+  import { getFeed } from './api/Feed';
+  import LinkItem from './LinkItem.vue';
+  import PostItem from './PostItem.vue';
 
-  const feedItems = await useSuspense(feed);
+  const feedItems = await useSuspense(getFeed);
 </script>
 
 <template>
   <div>
     <template v-for="item in feedItems" :key="item.pk()">
-      <LinkComponent v-if="item.type === 'link'" :link="item" />
-      <PostComponent v-else :post="item" />
+      <LinkItem v-if="item.type === 'link'" :link="item" />
+      <PostItem v-else :post="item" />
     </template>
   </div>
 </template>

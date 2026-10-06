@@ -4,9 +4,6 @@ vue_title: schema.Array - Declarative list data for Vue
 sidebar_label: schema.Array
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-import LanguageTabs from '@site/src/components/LanguageTabs';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import PolymorphicFeedDemo from '../shared/\_PolymorphicFeedDemo.mdx';
 import { RestEndpoint } from '@data-client/rest';

@@ -3,9 +3,6 @@ title: All Schema - Access every entity in the Reactive Data Client store
 sidebar_label: All
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-import LanguageTabs from '@site/src/components/LanguageTabs';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import PolymorphicFeedDemo from '../shared/\_PolymorphicFeedDemo.mdx';
 import { RestEndpoint } from '@data-client/rest';
