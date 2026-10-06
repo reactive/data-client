@@ -41,6 +41,7 @@ When a count drops more than 10% below its budget, the check says so; re-record 
 | typical | a small, realistic app |
 | setValues | `ctrl.set()` values on a Union, Collection and big Entity |
 | setUpdaters | `ctrl.set()` updaters spreading `prev` on a 30-member Union |
+| setInvalidate | `ctrl.set()` single and batch Invalidate rows on a 30-member Union and big Entity |
 | patheq | path types against [patheq/orig.ts](./patheq/orig.ts) on fixed-seed fuzzed paths |
 
 To compare with TypeScript 6 or dig into one fixture, run a compiler on it directly:
