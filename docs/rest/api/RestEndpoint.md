@@ -1362,6 +1362,9 @@ return (
 
 ```html
 <script lang="ts">
+  import { RestEndpoint } from '@data-client/rest';
+  import { Todo } from './resources';
+
   const getTodos = new RestEndpoint({
     path: '/todos',
     schema: Todo,
@@ -1370,10 +1373,13 @@ return (
 </script>
 
 <script setup lang="ts">
+  import { useController, useSuspense } from '@data-client/vue';
+  import PaginatedList from './PaginatedList.vue';
+
   const todos = await useSuspense(getTodos);
   const ctrl = useController();
   // fetches url `/todos?page=${nextPage}`
-  const fetchNextPage = () =>
+  const fetchNextPage = (nextPage: number) =>
     ctrl.fetch(getTodos.getPage, { page: nextPage });
 </script>
 

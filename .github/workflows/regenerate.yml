@@ -2,13 +2,14 @@ name: regenerate
 # Reruns the generators whose output is committed: playground editor types
 # (yarn copy:websitetypes) and skill references (yarn build:skills).
 # Same-repo PRs (Renovate's included) get any changes committed to the branch;
-# fork PRs and master fail instead. Claude Code rules are left to agent-rules.yml,
-# which needs no install.
+# fork PRs and master fail instead. Also type-checks the docs' Vue examples.
+# Claude Code rules are left to agent-rules.yml, which needs no install.
 on:
   push:
     branches:
       - master
-    # Inputs of scripts/copywebsitetypes.sh and website/framework-docs/skillReferences.mjs
+    # Inputs of scripts/copywebsitetypes.sh, website/framework-docs/skillReferences.mjs
+    # and checkVueExamples.mjs
     paths: &paths
       - 'packages/**'
       - '!packages/**/__tests__/**'
@@ -20,6 +21,7 @@ on:
       - 'scripts/globals.ts'
       - 'scripts/rollup-plugins/**'
       - 'website/src/components/Playground/editor-types/**'
+      - 'website/src/components/Playground/DesignSystem/index.ts'
       - 'tsconfig*.json'
       - 'docs/**'
       - '.agents/skills/**'
@@ -96,6 +98,9 @@ jobs:
         with:
           name: regenerated
           path: ${{ runner.temp }}/regenerated.patch
+      - name: Type-check Vue examples in the docs
+        if: ${{ !cancelled() }}
+        run: yarn check:vue-examples
 
   commit:
     needs: generate

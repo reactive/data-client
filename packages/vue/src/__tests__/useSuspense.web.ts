@@ -105,13 +105,9 @@ describe('vue useSuspense()', () => {
   });
 
   it('re-renders when controller.setResponse() updates data', async () => {
-    const { result, controller, waitForNextUpdate, cleanup } =
-      await renderDataCompose(() =>
-        useSuspense(CoolerArticleResource.get, { id: payload.id }),
-      );
-
-    // Wait for initial render
-    await waitForNextUpdate();
+    const { result, controller, cleanup } = await renderDataCompose(() =>
+      useSuspense(CoolerArticleResource.get, { id: payload.id }),
+    );
 
     // Await the promise once to get the reactive ComputedRef
     const articleRef = await result;
@@ -140,13 +136,9 @@ describe('vue useSuspense()', () => {
   });
 
   it('re-renders when controller.fetch() mutates data', async () => {
-    const { result, controller, waitForNextUpdate, cleanup } =
-      await renderDataCompose(() =>
-        useSuspense(CoolerArticleResource.get, { id: payload.id }),
-      );
-
-    // Wait for initial render
-    await waitForNextUpdate();
+    const { result, controller, cleanup } = await renderDataCompose(() =>
+      useSuspense(CoolerArticleResource.get, { id: payload.id }),
+    );
 
     // Await the promise once to get the reactive ComputedRef
     const articleRef = await result;
@@ -333,7 +325,7 @@ describe('vue useSuspense()', () => {
 
   it('throws fetch errors for new args from the returned ref', async () => {
     const props = reactive({ id: payload.id });
-    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
+    const { result, allSettled, cleanup } = await renderDataCompose(
       (props: { id: number }) =>
         useSuspense(
           CoolerArticleResource.get,
@@ -360,7 +352,7 @@ describe('vue useSuspense()', () => {
     expect(articleRef.value.title).toBe(payload.title);
 
     props.id = payload2.id;
-    await waitForNextUpdate();
+    await allSettled();
 
     expect(() => articleRef.value).toThrow('Not Found');
     // every read throws, not just the first
@@ -459,9 +451,9 @@ describe('vue useSuspense()', () => {
   async function mountArticle(
     endpoint: ReturnType<typeof heldRefetchEndpoint>['endpoint'],
   ) {
-    const { result, controller, waitForNextUpdate, cleanup } =
-      await renderDataCompose(() => useSuspense(endpoint, { id: payload.id }));
-    await waitForNextUpdate();
+    const { result, controller, cleanup } = await renderDataCompose(() =>
+      useSuspense(endpoint, { id: payload.id }),
+    );
     const articleRef = await result;
     expect(articleRef.value.title).toBe(payload.title);
     return { articleRef, controller, cleanup };
@@ -498,7 +490,7 @@ describe('vue useSuspense()', () => {
       { schema: CoolerArticle, name: 'LazyEndpoint', ...staleOptions },
     );
     const props = reactive({ id: payload.id });
-    const { result, waitForNextUpdate, cleanup } = await renderDataCompose(
+    const { result, cleanup } = await renderDataCompose(
       (props: { id: number }) =>
         useSuspense(
           LazyEndpoint,
@@ -506,7 +498,6 @@ describe('vue useSuspense()', () => {
         ),
       { props },
     );
-    await waitForNextUpdate();
     const articleRef = await result;
     expect(articleRef.value.title).toBe(payload.title);
 
@@ -580,18 +571,14 @@ describe('vue useSuspense()', () => {
     'should initially resolve, then when args are null should return undefined, then back to resolving (%s args)',
     async (_, toArg) => {
       const props = reactive({ id: payload.id as number | null });
-      const { result, allSettled, waitForNextUpdate, cleanup } =
-        await renderDataCompose(
-          (props: { id: number | null }) =>
-            useSuspense(
-              CoolerArticleResource.get,
-              toArg(() => (props.id !== null ? { id: props.id } : null)),
-            ),
-          { props },
-        );
-
-      // Wait for initial render
-      await waitForNextUpdate();
+      const { result, allSettled, cleanup } = await renderDataCompose(
+        (props: { id: number | null }) =>
+          useSuspense(
+            CoolerArticleResource.get,
+            toArg(() => (props.id !== null ? { id: props.id } : null)),
+          ),
+        { props },
+      );
 
       // Await the promise once to get the reactive ComputedRef
       const articleRef = await result;
@@ -615,7 +602,6 @@ describe('vue useSuspense()', () => {
 
       // Wait for the fetch to complete
       await allSettled();
-      await nextTick();
 
       // The ComputedRef should now have the new article data
       expect(articleRef).toBeDefined();
@@ -697,9 +683,9 @@ describe('vue useSuspense()', () => {
       name: 'staleArticle',
     });
 
-    const { result, controller, waitForNextUpdate, cleanup } =
-      await renderDataCompose(() => useSuspense(staleEndpoint, { id: 77 }));
-    await waitForNextUpdate();
+    const { result, controller, cleanup } = await renderDataCompose(() =>
+      useSuspense(staleEndpoint, { id: 77 }),
+    );
     const articleRef = await result;
     expect(fetchMock).toHaveBeenCalledTimes(1);
 

@@ -61,7 +61,7 @@ export const login = async (data: FormData) =>
 ```
 
 ```ts title="AuthdEndpoint" {7,15,22}
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 import { login } from './login';
 
 export default class AuthdEndpoint<
@@ -89,6 +89,7 @@ export const handleLogin = async e => {
 ```html title="Auth.vue"
 <script setup lang="ts">
   import { handleLogin } from './AuthdEndpoint';
+  import AuthForm from './AuthForm.vue';
 </script>
 
 <template>
@@ -136,7 +137,7 @@ export const setAuthToken = (accessToken: string) => {
 ```
 
 ```ts title="AuthdEndpoint" {10,17}
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 import { getAuthToken, setAuthToken, login } from './login';
 
 export default class AuthdEndpoint<
@@ -159,6 +160,7 @@ export const handleLogin = async e => {
 ```html title="Auth.vue"
 <script setup lang="ts">
   import { handleLogin } from './AuthdEndpoint';
+  import AuthForm from './AuthForm.vue';
 </script>
 
 <template>
@@ -208,7 +210,7 @@ export const setAuthToken = (accessToken: string) => {
 ```
 
 ```ts title="AuthdEndpoint" {10,17}
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 import { getAuthToken, setAuthToken, login } from './login';
 
 export default class AuthdEndpoint<
@@ -231,6 +233,7 @@ export const handleLogin = async e => {
 ```html title="Auth.vue"
 <script setup lang="ts">
   import { handleLogin } from './AuthdEndpoint';
+  import AuthForm from './AuthForm.vue';
 </script>
 
 <template>
@@ -319,14 +322,17 @@ Then we can get the endpoints as composables in our Vue Components
 >
 > ```html title="CreatePost.vue"
 > <script setup lang="ts">
+>   import { useController } from '@data-client/vue';
+>   import { PostResource } from 'resources/Post';
+>
 >   const controller = useController();
 >   const createPost = PostResource.useCreate();
+>   const onSubmit = (e: Event) =>
+>     controller.fetch(createPost, new FormData(e.target as HTMLFormElement));
 > </script>
 >
 > <template>
->   <form
->     @submit="e => controller.fetch(createPost, new FormData(e.target))"
->   >
+>   <form @submit="onSubmit">
 >     <!-- ... -->
 >   </form>
 > </template>
@@ -337,7 +343,7 @@ Then we can get the endpoints as composables in our Vue Components
 We will first provide an easy way of using the context to alter the fetch headers.
 
 ```ts title="api/AuthdEndpoint.ts"
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 
 export default class AuthdEndpoint<
   O extends RestGenerics = any,
@@ -370,14 +376,18 @@ function useEndpoint(endpoint: RestEndpoint) {
 >
 > ```html title="CreatePost.vue"
 > <script setup lang="ts">
+>   import { useController } from '@data-client/vue';
+>   import { PostResource } from 'resources/Post';
+>   import { useEndpoint } from './useEndpoint';
+>
 >   const controller = useController();
 >   const createPost = useEndpoint(PostResource.create);
+>   const onSubmit = (e: Event) =>
+>     controller.fetch(createPost, {}, new FormData(e.target as HTMLFormElement));
 > </script>
 >
 > <template>
->   <form
->     @submit="e => controller.fetch(createPost, {}, new FormData(e.target))"
->   >
+>   <form @submit="onSubmit">
 >     <!-- ... -->
 >   </form>
 > </template>

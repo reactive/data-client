@@ -275,7 +275,9 @@ function useLogout() {
 It's usually a good idea to also clear cache on 401 (unauthorized) with [LogoutManager](https://dataclient.io/docs/api/LogoutManager)
 as well.
 
-```tsx
+**Web**
+
+```tsx title="index.tsx"
 import {
   DataProvider,
   LogoutManager,
@@ -304,6 +306,123 @@ createRoot(document.body).render(
     <App />
   </DataProvider>,
 );
+```
+
+**React Native**
+
+```tsx title="index.tsx"
+import {
+  DataProvider,
+  LogoutManager,
+  getDefaultManagers,
+} from '@data-client/react';
+import { AppRegistry } from 'react-native';
+import { unAuth } from '../authentication';
+
+const myDomain = 'http://test.com';
+const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
+
+const managers = [
+  new LogoutManager({
+    handleLogout(controller) {
+      // call custom unAuth function we defined
+      unAuth();
+      // still reset the store
+      controller.invalidateAll({ testKey });
+    },
+  }),
+  ...getDefaultManagers(),
+];
+
+const Root = () => (
+  <DataProvider managers={managers}>
+    <App />
+  </DataProvider>
+);
+AppRegistry.registerComponent('MyApp', () => Root);
+```
+
+**NextJS**
+
+```tsx title="app/Provider.tsx"
+'use client';
+import { LogoutManager, getDefaultManagers } from '@data-client/react';
+import { DataProvider } from '@data-client/react/nextjs';
+import { unAuth } from '../authentication';
+
+const myDomain = 'http://test.com';
+const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
+
+const managers = [
+  new LogoutManager({
+    handleLogout(controller) {
+      // call custom unAuth function we defined
+      unAuth();
+      // still reset the store
+      controller.invalidateAll({ testKey });
+    },
+  }),
+  ...getDefaultManagers(),
+];
+
+export default function Provider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <DataProvider managers={managers}>{children}</DataProvider>;
+}
+```
+
+```tsx title="app/layout.tsx"
+import Provider from './Provider';
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <Provider>{children}</Provider>
+      </body>
+    </html>
+  );
+}
+```
+
+**Expo**
+
+```tsx title="app/_layout.tsx"
+import { Stack } from 'expo-router';
+import {
+  DataProvider,
+  LogoutManager,
+  getDefaultManagers,
+} from '@data-client/react';
+import { unAuth } from '../authentication';
+
+const myDomain = 'http://test.com';
+const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
+
+const managers = [
+  new LogoutManager({
+    handleLogout(controller) {
+      // call custom unAuth function we defined
+      unAuth();
+      // still reset the store
+      controller.invalidateAll({ testKey });
+    },
+  }),
+  ...getDefaultManagers(),
+];
+
+export default function RootLayout() {
+  return (
+    <DataProvider managers={managers}>
+      <Stack>
+        <Stack.Screen name="index" />
+      </Stack>
+    </DataProvider>
+  );
+}
 ```
 
 ### resetEntireStore() {#resetEntireStore}
@@ -408,6 +527,12 @@ fields:
 ctrl.set([new schema.Invalidate(Todo)], [{ id: '5' }, { id: '6' }]);
 ```
 
+To delete one, pass the Invalidate schema and its row:
+
+```ts
+ctrl.set(new schema.Invalidate(Todo), { id: '5' });
+```
+
 [Values](https://dataclient.io/rest/api/Values) schemas take an object of rows instead:
 
 ```ts
@@ -417,7 +542,7 @@ ctrl.set(new schema.Values(Todo), {
 });
 ```
 
-Array and Values schemas take no `args` (so [Entity.pk()](https://dataclient.io/rest/api/Entity#pk) and [Entity.process()](https://dataclient.io/rest/api/Entity#process)
+Array, Values and Invalidate schemas take no `args` (so [Entity.pk()](https://dataclient.io/rest/api/Entity#pk) and [Entity.process()](https://dataclient.io/rest/api/Entity#process)
 receive `[]`) and no updater function. Rows that share a pk merge in list order, without
 [Entity.shouldReorder()](https://dataclient.io/rest/api/Entity#shouldreorder). Use this instead of calling `set()` once per row, such as when
 [batching high-frequency stream updates](https://dataclient.io/docs/concepts/managers#batching).
@@ -660,6 +785,8 @@ import {
 } from '@data-client/react';
 
 export default class MyManager implements Manager {
+  declare protected websocket: WebSocket;
+
   middleware: Middleware = controller => {
     return next => async action => {
       if (action.type === actionTypes.FETCH) {
@@ -667,7 +794,7 @@ export default class MyManager implements Manager {
         console.log(
           controller.getResponse(
             action.endpoint,
-            ...(action.meta.args as Parameters<typeof action.endpoint>),
+            ...action.args,
             controller.getState(),
           ).data,
         );

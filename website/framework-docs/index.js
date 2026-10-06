@@ -240,4 +240,6 @@ module.exports = {
   pageFrameworks,
   rewriteFrontMatter,
   frontMatterValue,
+  walk,
+  VUE_OVERRIDE,
 };

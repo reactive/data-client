@@ -359,6 +359,14 @@ const config: Config = {
         },
         redirects: [
           {
+            to: '/docs/getting-started/debugging',
+            from: ['/docs/getting-started/devtools-debugging'],
+          },
+          {
+            to: '/vue/getting-started/debugging',
+            from: ['/vue/getting-started/devtools-debugging'],
+          },
+          {
             to: '/rest/guides/side-effects',
             from: ['/rest/guides/rpc'],
           },
@@ -369,6 +377,10 @@ const config: Config = {
           {
             to: '/rest/api/resource',
             from: ['/rest/api/createResource', '/rest/api/Resource'],
+          },
+          {
+            to: '/rest/api/SchemaSimple',
+            from: ['/rest/api/CustomSchema'],
           },
           {
             to: '/docs/api/makeRenderDataHook',

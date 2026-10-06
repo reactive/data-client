@@ -1,5 +1,5 @@
 import { PathFunction, ParamData } from 'path-to-regexp';
-import { Manager, State, Controller, GCInterface, EndpointInterface as EndpointInterface$1, FetchFunction as FetchFunction$1, Schema as Schema$1, ResolveType as ResolveType$1, Denormalize as Denormalize$1, DenormalizeNullable as DenormalizeNullable$1, Queryable as Queryable$1, NI as NI$1, SchemaArgs as SchemaArgs$1, NetworkError as NetworkError$2, UnknownError as UnknownError$1, ErrorTypes as ErrorTypes$2 } from '@data-client/core';
+import { Manager, State, GCInterface, Controller, EndpointInterface as EndpointInterface$1, FetchFunction as FetchFunction$1, Schema as Schema$1, ResolveType as ResolveType$1, Denormalize as Denormalize$1, DenormalizeNullable as DenormalizeNullable$1, Queryable as Queryable$1, NI as NI$1, SchemaArgs as SchemaArgs$1, NetworkError as NetworkError$2, UnknownError as UnknownError$1, ErrorTypes as ErrorTypes$2 } from '@data-client/core';
 export { Manager } from '@data-client/core';
 import * as React from 'react';
 import React__default, { JSX } from 'react';
@@ -486,7 +486,7 @@ interface IEntityClass<TBase extends Constructor = any> {
      * @see https://dataclient.io/rest/api/Entity#indexes
      */
     indexes?: readonly string[] | undefined;
-    /** Maximum entity nesting depth for denormalization (default: 128)
+    /** Maximum entity nesting depth for denormalization (default: 64)
      *
      * Set a lower value to truncate deep bidirectional entity graphs earlier.
      * @see https://dataclient.io/rest/api/Entity#maxEntityDepth
@@ -2244,7 +2244,9 @@ interface ProviderProps {
     children: React__default.ReactNode;
     managers?: Manager[];
     initialState?: State<unknown>;
-    Controller?: typeof Controller;
+    Controller?: new (props: {
+        gcPolicy: GCInterface;
+    }) => Controller;
     gcPolicy?: GCInterface;
     devButton?: DevToolsPosition | null | undefined;
 }

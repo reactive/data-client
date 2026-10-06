@@ -18,3 +18,10 @@ Type and API cleanups deferred because they would break users or mixed package v
 - **Stop exporting `createDataClient` and `ProvidedDataClient`** from `packages/vue/src/providers/index.ts`, drop `app` from `ProvideOptions` (pass it to `createDataClient` separately), remove the now-unused `provide()` branch for calls outside the plugin, and type `DataClientPlugin.install()` as returning `void` so `ProvidedDataClient` isn't reachable through it.
   - Decide first: that `provide()` branch is the only way to scope a separate store to a component subtree (calling `createDataClient()` in a component's `setup()` shadows the app-level store for its descendants, like nesting `DataProvider` in React). Either drop subtree scoping on purpose, or keep it as a small supported composable.
   - Breaks: code that calls `createDataClient()` directly or imports `ProvidedDataClient`. Migration: install the store with `app.use(DataClientPlugin, options)` and read the controller with `useController()`.
+
+## Vue `waitForNextUpdate()`
+
+`renderDataCompose()` from `@data-client/vue/test` still returns `waitForNextUpdate()`, marked `@deprecated` in `packages/vue/src/test/renderDataCompose.ts`. It resolves silently after a 1 second cap, so tests can pass while still suspended.
+
+- **Remove `waitForNextUpdate`** from `renderDataCompose()`'s return value, along with the `resolveNextUpdate` bookkeeping in its test component.
+  - Breaks: tests that destructure or call `waitForNextUpdate()`. Migration: `await result` for a Promise result; after changing props or calling the controller, `await allSettled()`.

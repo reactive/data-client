@@ -19,7 +19,7 @@ when data is [Invalid](https://dataclient.io/vue/concepts/expiry-policy#invalid)
 ## Usage
 
 ```ts title="Post"
-import { Entity, schema } from '@data-client/rest';
+import { Entity, EntityMixin } from '@data-client/rest';
 
 export class Post extends Entity {
   id = 0;
@@ -116,9 +116,9 @@ export const PostResource = resource({
 </script>
 
 <template>
-  <center>
+  <div style="text-align: center">
     <small>{{ totalVotes }} votes total</small>
-  </center>
+  </div>
 </template>
 ```
 
@@ -184,6 +184,8 @@ interface Queryable {
 [Query](https://dataclient.io/rest/api/Query) provides programmatic access to the Reactive Data Client store.
 
 ```ts title="UserResource"
+import { Entity, resource } from '@data-client/rest';
+
 export class User extends Entity {
   id = '';
   name = '';
@@ -238,6 +240,8 @@ export const UserResource = resource({
 isolating re-renders to only the components that need the related data.
 
 ```ts title="Resources"
+import { Entity, Lazy, resource } from '@data-client/rest';
+
 export class Building extends Entity {
   id = '';
   name = '';

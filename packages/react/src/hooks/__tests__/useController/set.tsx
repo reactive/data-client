@@ -288,6 +288,48 @@ describe('set', () => {
     };
   });
 
+  it('should invalidate one entity with an Invalidate schema', async () => {
+    const { controller } = renderDataClient(() => null);
+    const invalidate = new schema.Invalidate(CoolerArticle);
+    let promise: any;
+    act(() => {
+      controller.set(CoolerArticle, { id: 5 }, payload);
+      controller.set(CoolerArticle, { id: 1 }, createPayload);
+    });
+    act(() => {
+      promise = controller.set(invalidate, { id: 5 });
+    });
+    await act(() => promise);
+    expect(
+      controller.get(CoolerArticle, { id: 5 }, controller.getState()),
+    ).toBeUndefined();
+    expect(
+      controller.get(CoolerArticle, { id: 1 }, controller.getState())?.title,
+    ).toBe(createPayload.title);
+
+    // type tests
+    () => {
+      controller.set(new schema.Invalidate(UnionSchema), {
+        id: '1',
+        type: 'first',
+      });
+      // @ts-expect-error title is a string
+      controller.set(invalidate, { id: 5, title: false });
+      // @ts-expect-error unknown field
+      controller.set(invalidate, { id: 5, bogus: 1 });
+      // @ts-expect-error Invalidate takes no args
+      controller.set(invalidate, { id: 5 }, { id: 5 });
+      // @ts-expect-error one row, not a list; use set([invalidate], rows) for many
+      controller.set(invalidate, [{ id: 5 }]);
+      // @ts-expect-error invalid entities have no previous value to update
+      controller.set(invalidate, (article: any) => article);
+      // @ts-expect-error value is required
+      controller.set(invalidate);
+      // @ts-expect-error Lazy only stores references
+      controller.set(new schema.Lazy(CoolerArticle), { id: 5 });
+    };
+  });
+
   it('should type values by the schema', async () => {
     const { controller } = renderDataClient(() => null);
     const list = CoolerArticleResource.getList.schema;

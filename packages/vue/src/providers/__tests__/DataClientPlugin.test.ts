@@ -608,4 +608,24 @@ describe('DataClientPlugin', () => {
 
     wrapper.unmount();
   });
+
+  it('should accept a Controller subclass with its own members in app.use()', () => {
+    class MyController extends Controller {
+      doSomething = () => 'hi';
+    }
+    let controller: Controller | undefined;
+    const app = createApp({
+      setup() {
+        controller = inject(ControllerKey);
+        return () => null;
+      },
+    });
+    app.use(DataClientPlugin, { Controller: MyController });
+    app.mount(document.createElement('div'));
+
+    expect(controller).toBeInstanceOf(MyController);
+    expect((controller as MyController).doSomething()).toBe('hi');
+
+    app.unmount();
+  });
 });

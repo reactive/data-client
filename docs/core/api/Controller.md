@@ -3,6 +3,8 @@ title: Controller - Typesafe imperative store access
 sidebar_label: Controller
 ---
 
+import ProviderManagers from '../shared/_provider_managers.mdx';
+
 <head>
   <meta name="docsearch:pagerank" content="30"/>
 </head>
@@ -325,7 +327,8 @@ function CreateTrade({ id }: { id: string }) {
 ```html title="CreateTrade.vue"
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
-  import { AccountResource, TradeResource } from './resources';
+  import { AccountResource, TradeResource, type Trade } from './resources';
+  import TradeForm from './TradeForm.vue';
 
   const props = defineProps<{ userId: string }>();
   const ctrl = useController();
@@ -509,15 +512,9 @@ function useLogout() {
 It's usually a good idea to also clear cache on 401 (unauthorized) with [LogoutManager](./LogoutManager.md)
 as well.
 
-:::react
+<ProviderManagers imports={['LogoutManager', 'getDefaultManagers']}>
 
-```tsx
-import {
-  DataProvider,
-  LogoutManager,
-  getDefaultManagers,
-} from '@data-client/react';
-import { createRoot } from 'react-dom/client';
+```ts
 import { unAuth } from '../authentication';
 
 const myDomain = 'http://test.com';
@@ -534,49 +531,9 @@ const managers = [
   }),
   ...getDefaultManagers(),
 ];
-
-createRoot(document.body).render(
-  <DataProvider managers={managers}>
-    <App />
-  </DataProvider>,
-);
 ```
 
-:::
-
-:::vue
-
-```ts title="main.ts"
-import { createApp } from 'vue';
-import {
-  DataClientPlugin,
-  LogoutManager,
-  getDefaultManagers,
-} from '@data-client/vue';
-import { unAuth } from '../authentication';
-import App from './App.vue';
-
-const myDomain = 'http://test.com';
-const testKey = (key: string) => key.startsWith(`GET ${myDomain}`);
-
-const managers = [
-  new LogoutManager({
-    handleLogout(controller) {
-      // call custom unAuth function we defined
-      unAuth();
-      // still reset the store
-      controller.invalidateAll({ testKey });
-    },
-  }),
-  ...getDefaultManagers(),
-];
-
-const app = createApp(App);
-app.use(DataClientPlugin, { managers });
-app.mount('#app');
-```
-
-:::
+</ProviderManagers>
 
 ### resetEntireStore() {#resetEntireStore}
 
@@ -616,6 +573,7 @@ function UserName() {
 <script setup lang="ts">
   import { useController, useSuspense } from '@data-client/vue';
   import { CurrentUserResource } from './CurrentUserResource';
+  import { impersonateUser } from './auth';
 
   const USER_NUMBER_ONE: string = '1111';
 
@@ -717,6 +675,12 @@ fields:
 ctrl.set([new schema.Invalidate(Todo)], [{ id: '5' }, { id: '6' }]);
 ```
 
+To delete one, pass the Invalidate schema and its row:
+
+```ts
+ctrl.set(new schema.Invalidate(Todo), { id: '5' });
+```
+
 [Values](/rest/api/Values) schemas take an object of rows instead:
 
 ```ts
@@ -726,7 +690,7 @@ ctrl.set(new schema.Values(Todo), {
 });
 ```
 
-Array and Values schemas take no `args` (so [Entity.pk()](/rest/api/Entity#pk) and [Entity.process()](/rest/api/Entity#process)
+Array, Values and Invalidate schemas take no `args` (so [Entity.pk()](/rest/api/Entity#pk) and [Entity.process()](/rest/api/Entity#process)
 receive `[]`) and no updater function. Rows that share a pk merge in list order, without
 [Entity.shouldReorder()](/rest/api/Entity#shouldreorder). Use this instead of calling `set()` once per row, such as when
 [batching high-frequency stream updates](../concepts/managers.md#batching).
@@ -990,6 +954,8 @@ import {
 } from '@data-client/react';
 
 export default class MyManager implements Manager {
+  declare protected websocket: WebSocket;
+
   middleware: Middleware = controller => {
     return next => async action => {
       if (action.type === actionTypes.FETCH) {
@@ -997,7 +963,7 @@ export default class MyManager implements Manager {
         console.log(
           controller.getResponse(
             action.endpoint,
-            ...(action.meta.args as Parameters<typeof action.endpoint>),
+            ...action.args,
             controller.getState(),
           ).data,
         );

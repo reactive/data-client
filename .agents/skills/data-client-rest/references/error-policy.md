@@ -19,6 +19,7 @@ Hard errors always reject with `error` - even when data has previously made avai
 
 ```ts title="api/lastUpdated"
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class TimedEntity extends Entity {
   id = '';

@@ -21,7 +21,7 @@ export function prepareStore<
 >(
   initialState: DeepPartialWithUnknown<State<any>>,
   managers: Manager[],
-  Ctrl: typeof Controller,
+  Ctrl: new (props: { gcPolicy: GCInterface }) => Controller,
   reducers: R = {} as any,
   middlewares: Middleware[] = [] as any,
   gcPolicy: GCInterface = new GCPolicy(),
