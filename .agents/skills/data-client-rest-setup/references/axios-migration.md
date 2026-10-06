@@ -318,8 +318,8 @@ export default class ApiEndpoint<
           .clone()
           .json()
           .catch(() => null);
-        if (body?.error) throw new Error(body.error);
-        if (body?.message) throw new Error(body.message);
+        // keep the NetworkError so `status` and `errorPolicy()` still work
+        error.message = body?.error ?? body?.message ?? error.message;
       }
       throw error;
     }
@@ -474,7 +474,11 @@ axios.post('/upload', formData, {
 ```
 
 ```ts title="After (data-client)"
-import { RestEndpoint, RestGenerics } from '@data-client/rest';
+import {
+  NetworkError,
+  RestEndpoint,
+  RestGenerics,
+} from '@data-client/rest';
 
 export default class UploadEndpoint<
   O extends RestGenerics = any,
@@ -512,13 +516,17 @@ export default class UploadEndpoint<
           const [key, ...rest] = line.split(': ');
           if (key) headers.append(key, rest.join(': '));
         }
-        resolve(
-          new Response(xhr.response, {
-            status: xhr.status,
-            statusText: xhr.statusText,
-            headers,
-          }),
-        );
+        // 204, 205 and 304 responses can't have a body
+        const body = [204, 205, 304].includes(xhr.status)
+          ? null
+          : xhr.response;
+        const response = new Response(body, {
+          status: xhr.status,
+          statusText: xhr.statusText,
+          headers,
+        });
+        if (response.ok) resolve(response);
+        else reject(new NetworkError(response));
       };
       xhr.onerror = () => {
         cleanup();
@@ -537,7 +545,7 @@ const uploadFile = new UploadEndpoint({
   path: '/upload',
   method: 'POST',
   body: {} as FormData,
-  onProgress: progress => console.log(progress),
+  onProgress: (progress: number) => console.log(progress),
 });
 ```
 
@@ -625,9 +633,7 @@ Nested paths like `/projects/:projectId/tasks/:taskId` get their own resource. R
 
 If the codebase already validates responses with Zod or Yup, choose one approach per type:
 
-- **Entity replaces Zod** (recommended): move the field shape into the Entity class and remove the Zod schema. Entity handles both typing and normalization.
-
-- **Zod in `process()`**: keep strict runtime validation by parsing in [`process()`](./RestEndpoint.md#process):
+- **Zod in `process()`** (recommended): keep runtime validation by parsing in [`process()`](./RestEndpoint.md#process), and let the Entity handle normalization:
 
   ```ts
   const getUser = new ApiEndpoint({
@@ -638,6 +644,8 @@ If the codebase already validates responses with Zod or Yup, choose one approach
     },
   });
   ```
+
+- **Entity replaces Zod**: move the field shape into the Entity class and remove the Zod schema. Entity fields provide types, not runtime checks, so add [`static validate()`](https://dataclient.io/rest/api/Entity#validate) for any fields the server might send malformed.
 
 - **Zod only, no Entity**: leave `schema` unset and parse manually. Only do this for endpoints that don't benefit from normalization (auth tokens, one-off responses).
 
@@ -695,21 +703,27 @@ When tokens come from React context (Okta, Auth0) rather than storage, use [`hoo
 
 ### Gradual migration
 
-If the app uses TanStack Query or SWR and can't convert everything at once, keep the imperative wrappers temporarily but give the endpoints schemas so data is normalized from day one:
+If the app uses TanStack Query or SWR and can't convert everything at once, keep those hooks temporarily but fetch through [`controller.fetch()`](https://dataclient.io/docs/api/Controller#fetch). Calling an endpoint directly only runs its fetch; going through the Controller also normalizes the response into the shared cache, so data is consistent from day one:
 
 ```ts
+import { useController } from '@data-client/react';
+import { useQuery } from '@tanstack/react-query';
+
 export const getProject = new ApiEndpoint({
   path: '/projects/:id',
   schema: Project,
 });
 
-/** Kept for TanStack Query `queryFn` compatibility */
-export async function fetchProject(id: string) {
-  return getProject({ id });
+export function useProject(id: string) {
+  const ctrl = useController();
+  return useQuery({
+    queryKey: ['project', id],
+    queryFn: () => ctrl.fetch(getProject, { id }),
+  });
 }
 ```
 
-Later, replace `useQuery({ queryFn: () => fetchProject(id) })` with `useSuspense(getProject, { id })`.
+Later, replace `useProject(id)` with `useSuspense(getProject, { id })`.
 
 ### Existing endpoint abstractions
 
