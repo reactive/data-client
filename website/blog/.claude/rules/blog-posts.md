@@ -14,7 +14,7 @@ Files: `YYYY-MM-DD-vX.Y-short-description.md`
 - Title format: `vX.Y: Feature1, Feature2, Feature3` or `vX.Y Feature-focused Title`
 - Include `releases` tag plus relevant feature tags from [tags.yml](./tags.yml)
 - `draft: true` for unpublished/WIP posts
-- Publishing: the filename date is the post's date and URL, so when removing `draft: true` run `node website/scripts/blog-publish-date.mjs origin/master --fix` to rename the post to today and rewrite its `/blog/YYYY/MM/DD/...` links. The `website` CI check fails a newly published post dated more than 3 days from today.
+- Publishing: the filename date is the post's date and URL, so when removing `draft: true` run `node website/scripts/blog-publish-date.mjs origin/master --fix` to rename the post to today and rewrite its `/blog/YYYY/MM/DD/...` links. The `website` CI check fails a newly published post dated more than 3 days from today, or dated by a `date:` field instead of its filename.
 
 ## Package Layers
 
