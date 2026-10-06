@@ -61,7 +61,7 @@ createRoot(document.body).render(
 </TabItem>
 <TabItem value="react-redux">
 
-```tsx title="index.tsx" nocheck
+```tsx title="index.tsx"
 import {
   ExternalDataProvider,
   prepareStore,
