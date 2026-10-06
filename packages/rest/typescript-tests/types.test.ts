@@ -2054,6 +2054,7 @@ it('content property: schema constraint', () => {
   // @ts-expect-error - schema incompatible with content: 'text'
   new RestEndpoint({ path: '/x' as const, content: 'text', schema: Article });
 
+  // prettier-ignore
   // @ts-expect-error - schema incompatible with content: 'arrayBuffer'
   new RestEndpoint({ path: '/x' as const, content: 'arrayBuffer', schema: Article });
 
@@ -2132,12 +2133,8 @@ it('content property: extend and subclass', () => {
     content: 'blob',
   });
   const contentVal:
-    | 'json'
-    | 'blob'
-    | 'text'
-    | 'arrayBuffer'
-    | 'stream'
-    | undefined = ep.content;
+    'json' | 'blob' | 'text' | 'arrayBuffer' | 'stream' | undefined =
+    ep.content;
 
   // subclass pattern
   class BlobEndpoint<O extends RestGenerics = any> extends RestEndpoint<O> {
