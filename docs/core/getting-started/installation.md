@@ -11,6 +11,7 @@ import PkgTabs from '@site/src/components/PkgTabs';
 import Installation from '../shared/\_installation.mdx';
 import StackBlitz from '@site/src/components/StackBlitz';
 import Link from '@docusaurus/Link';
+import SiteOnly from '@site/src/components/SiteOnly';
 
 :::react
 
@@ -18,11 +19,15 @@ import Link from '@docusaurus/Link';
 
 :::
 
+<SiteOnly>
+
 :::tip[Use Agent Skills]
 
 Prefer to scaffold via your AI agent? See [Agent Skills](./agent-skills.md) and run `/data-client-setup`.
 
 :::
+
+</SiteOnly>
 
 ## :react[Add provider at top-level component]:vue[Install the plugin] {#add-provider-at-top-level-component}
 

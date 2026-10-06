@@ -2,10 +2,6 @@
 
 # Getting Started with Reactive Data Client
 
-> **Tip: Use Agent Skills**
->
-> Prefer to scaffold via your AI agent? See [Agent Skills](https://dataclient.io/vue/getting-started/agent-skills) and run `/data-client-setup`.
-
 ## Install the plugin {#add-provider-at-top-level-component}
 
 Install the [Vue plugin](https://vuejs.org/guide/reusability/plugins.html) when creating your app.
