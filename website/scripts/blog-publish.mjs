@@ -42,16 +42,16 @@ function publish(arg) {
       `${path}: remove its \`date:\` field; the filename dates it`,
     );
   }
+  const newPath = `${BLOG_DIR}/${today}${file.slice(today.length)}`;
+  if (newPath !== path && existsSync(newPath)) {
+    throw new Error(`${path}: can't rename, ${newPath} already exists`);
+  }
   writeFileSync(
     path,
     source.replace(FRONT_MATTER, block => block.replace(DRAFT, '')),
   );
 
-  const newPath = `${BLOG_DIR}/${today}${file.slice(today.length)}`;
   if (newPath !== path) {
-    if (existsSync(newPath)) {
-      throw new Error(`${path}: can't rename, ${newPath} already exists`);
-    }
     // Not `git mv`: a new post may not be tracked yet
     renameSync(path, newPath);
     rewriteLinks(
