@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // Parses every @data-client declaration file the installed TypeScript loads
 // from each published entry point (via the `typesVersions` matching its
-// version), so syntax that version can't parse fails CI on every entry point,
-// even ones no typetest imports. Users see these errors even with
-// `skipLibCheck`.
+// version), so syntax that version can't parse, or a relative import it can't
+// resolve, fails CI on every entry point, even ones no typetest imports. Users
+// see these errors even with `skipLibCheck` (an unresolved import becomes `any`).
 //
 // Usage: node scripts/check-dts-parse.mjs
 import fs from 'node:fs';
@@ -48,8 +48,8 @@ for (const name of fs.readdirSync(path.join(root, 'packages'))) {
   }
 }
 
-// Only syntax is checked, so the files each entry point imports are loaded
-// but nothing is type-checked.
+// Only syntax and relative import resolution are checked, so the files each
+// entry point imports are loaded but nothing is type-checked.
 const program = ts.createProgram(rootNames, {
   types: [],
   moduleResolution: ts.ModuleResolutionKind.NodeJs,
@@ -64,6 +64,24 @@ for (const source of program.getSourceFiles()) {
   )
     continue;
   files++;
+  // A relative import this TypeScript can't resolve silently becomes `any`
+  for (const statement of source.statements) {
+    const specifier = statement.moduleSpecifier?.text;
+    if (!specifier?.startsWith('.')) continue;
+    if (
+      !ts.resolveModuleName(
+        specifier,
+        file,
+        program.getCompilerOptions(),
+        ts.sys,
+      ).resolvedModule
+    ) {
+      process.exitCode = 1;
+      console.error(
+        `${path.relative(root, file)}: error: Cannot resolve '${specifier}' on TypeScript ${ts.version}`,
+      );
+    }
+  }
   for (const diagnostic of program.getSyntacticDiagnostics(source)) {
     process.exitCode = 1;
     const { line, character } = source.getLineAndCharacterOfPosition(

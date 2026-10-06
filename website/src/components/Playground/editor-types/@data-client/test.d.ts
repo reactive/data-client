@@ -130,12 +130,6 @@ type RenderHookOptions<Props, Q extends Queries = typeof queries, Container exte
 type RendererableContainer = ReactDOMClient.Container;
 type HydrateableContainer = Parameters<(typeof ReactDOMClient)['hydrateRoot']>[0];
 
-/**
- * Provides an abstraction over react 17 and 18 compatible libraries
- */
-
-declare const renderHook: RenderHook;
-
 declare const UNDEFINED_VOID_ONLY: unique symbol;
 type VoidOrUndefinedOnly = void | {
     [UNDEFINED_VOID_ONLY]: never;
@@ -144,8 +138,6 @@ interface ActType {
     (callback: () => VoidOrUndefinedOnly): void;
     <T>(callback: () => T | Promise<T>): Promise<T>;
 }
-declare const act: ActType;
-
 type RenderHook = <Result, Props, Q extends Queries = Queries, Container extends Element | DocumentFragment = HTMLElement, BaseElement extends Element | DocumentFragment = Container>(render: (initialProps: Props) => Result, options?: RenderHookOptions<Props, Q, Container, BaseElement>) => RenderHookResult<Result, Props>;
 interface RenderHookResult<Result, Props> {
     /**
@@ -205,5 +197,8 @@ type RenderDataHook = (<P, R>(callback: (props: P) => R, options?: {
  * @see https://dataclient.io/docs/api/renderDataHook
  */
 declare const renderDataHook: RenderDataHook;
+
+declare const act: ActType;
+declare const renderHook: RenderHook;
 
 export { type DataProviderProps, type ErrorFixture, type ErrorFixtureEndpoint, type Fixture, type FixtureEndpoint, type Interceptor, MockResolver, type RenderDataHook, type RenderDataHookResult, type RenderHookOptions, type SuccessFixture, type SuccessFixtureEndpoint, act, makeRenderDataHook as makeRenderDataClient, makeRenderDataHook, renderDataHook, renderHook };
