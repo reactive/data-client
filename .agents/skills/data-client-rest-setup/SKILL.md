@@ -67,6 +67,7 @@ When multiple HTTP libraries are detected, run each sub-procedure on the relevan
 Each migration is a self-contained reference. Read only the relevant one(s) based on detection results above. After completing migrations, return here for base class setup.
 
 - **Axios** → [references/axios-migration.md](references/axios-migration.md) — codemod, interceptors, error handling, timeout, cancelToken, responseType, paramsSerializer, auth, validateStatus, CSRF, upload progress
+  - Run its codemod before any manual edits, from this skill's own copy: `npx jscodeshift -t <this skill's dir>/scripts/axios-to-rest.js --extensions=ts,tsx,js,jsx src/`.
 - **Raw fetch** → [references/fetch-migration.md](references/fetch-migration.md) — fetch wrappers, headers, status checks, POST patterns, error handling
 - **Ky** → [references/ky-migration.md](references/ky-migration.md) — prefixUrl, hooks, HTTPError, instance config
 - **SuperAgent** → [references/superagent-migration.md](references/superagent-migration.md) — chained API, plugins, agents, file uploads
