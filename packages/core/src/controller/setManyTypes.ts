@@ -6,13 +6,14 @@ type EntityRef = string | { readonly id: string; readonly schema: string };
 
 /** Schemas that write each row to one stored entity: Entity, Union, or Invalidate (batch delete).
  * Query, All and Collection don't: they normalize to lists, or Collection keys by args batch set() lacks. */
-type SetEntitySchema =
-  | EntityInterface
-  | {
-      _normalizeNullable(): EntityRef | undefined;
-      // excludes Collection
-      pk?: never;
-    };
+type SetEntitySchema = EntityInterface | EntityRefSchema;
+
+/** Union or Invalidate */
+type EntityRefSchema = {
+  _normalizeNullable(): EntityRef | undefined;
+  // excludes Entity and Collection
+  pk?: never;
+};
 
 /** `[Entity]`, `schema.Array(Entity)` or `schema.Values(Entity)` (or of a Union or Invalidate) */
 export type SetManySchema =
@@ -25,6 +26,14 @@ export type SetManySchema =
       // excludes Entity, whose `any` returns match the members above
       pk?: never;
     };
+
+/** `new Invalidate(Entity)` (or of a Union): not Queryable, since its queryKey() returns undefined */
+export type SetInvalidateSchema = EntityRefSchema & {
+  // excludes Union
+  queryKey(...args: any): undefined;
+  // excludes Lazy
+  query?: never;
+};
 
 type IsUnion<T, U = T> =
   T extends unknown ?

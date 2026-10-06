@@ -59,7 +59,7 @@ interface Props {
   children: React.ReactNode;
   managers: Manager[];
   initialState: State<unknown>;
-  Controller: typeof Controller;
+  Controller: new (props: { gcPolicy: GCInterface }) => Controller;
   gcPolicy?: GCInterface;
   devButton?: DevToolsPosition | null | undefined;
 }

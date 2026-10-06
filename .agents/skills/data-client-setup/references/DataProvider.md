@@ -92,7 +92,7 @@ interface ProviderProps {
   children: ReactNode;
   managers?: Manager[];
   initialState?: State<unknown>;
-  Controller?: typeof Controller;
+  Controller?: new (props: { gcPolicy: GCInterface }) => Controller;
   gcPolicy?: GCInterface;
   devButton?:
     | 'bottom-right'
@@ -164,7 +164,7 @@ Default Development:
 ];
 ```
 
-### Controller: typeof Controller {#Controller}
+### Controller?: Controller class {#Controller}
 
 This allows you to extend [Controller](https://dataclient.io/docs/api/Controller) to provide additional functionality.
 This might be useful if you have additional actions you want to dispatch to custom [Managers](https://dataclient.io/docs/api/Manager)

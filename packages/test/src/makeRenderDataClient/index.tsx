@@ -5,8 +5,7 @@ import {
   NetworkManager,
   PollingSubscription,
   Controller,
-  GenericDispatch,
-  DataClientDispatch,
+  GCInterface,
 } from '@data-client/react';
 import React, { memo, Suspense, useLayoutEffect, useState } from 'react';
 
@@ -19,7 +18,6 @@ import {
 import { Interceptor, Fixture } from '../fixtureTypes.js';
 import { MockController } from '../MockController.js';
 import mockInitialState from '../mockState.js';
-import { MockProps } from '../mockTypes.js';
 
 const activeCleanups = new Set<() => void>();
 
@@ -61,10 +59,7 @@ export default function makeRenderDataHook(
     } & Omit<RenderHookOptions<P>, 'initialProps' | 'wrapper'> = {} as any,
   ): RenderDataHookResult<R, P> => {
     /** Wraps dispatches that are typically called declaratively in act() */
-    class ActController<
-      D extends GenericDispatch = DataClientDispatch,
-      T = {},
-    > extends MockController(
+    class ActController extends MockController(
       Controller,
       resolverFixtures ?
         {
@@ -72,11 +67,9 @@ export default function makeRenderDataHook(
           getInitialInterceptorData,
         }
       : {},
-    )<D> {
-      constructor(
-        options: MockProps<T> & ConstructorParameters<typeof Controller<D>>[0],
-      ) {
-        super(options);
+    ) {
+      constructor(...args: ConstructorParameters<typeof Controller>) {
+        super(...args);
         const { setResponse, resolve } = this;
         this.setResponse = (...args) => {
           let promise: any;
@@ -182,7 +175,7 @@ export interface DataProviderProps {
   children: React.ReactNode;
   managers: Manager[];
   initialState: State<unknown>;
-  Controller: typeof Controller<any>;
+  Controller: new (props: { gcPolicy: GCInterface }) => Controller<any>;
   devButton: any;
 }
 

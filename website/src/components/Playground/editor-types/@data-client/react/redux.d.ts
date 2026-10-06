@@ -1,5 +1,5 @@
 import * as _data_client_core from '@data-client/core';
-import { ActionTypes, State, Manager, Controller, GCInterface, Dispatch as Dispatch$1 } from '@data-client/core';
+import { ActionTypes, State, Manager, GCInterface, Controller, Dispatch as Dispatch$1 } from '@data-client/core';
 export { applyManager, createReducer, initialState } from '@data-client/core';
 import React from 'react';
 
@@ -126,7 +126,9 @@ interface Store$1<S> {
     uninitialized?: boolean;
 }
 
-declare function prepareStore<R extends ReducersMapObject<any, ActionTypes> = {}>(initialState: DeepPartialWithUnknown<State<any>>, managers: Manager[], Ctrl: typeof Controller, reducers?: R, middlewares?: Middleware[], gcPolicy?: GCInterface): {
+declare function prepareStore<R extends ReducersMapObject<any, ActionTypes> = {}>(initialState: DeepPartialWithUnknown<State<any>>, managers: Manager[], Ctrl: new (props: {
+    gcPolicy: GCInterface;
+}) => Controller, reducers?: R, middlewares?: Middleware[], gcPolicy?: GCInterface): {
     selector: (s: {
         dataclient: State<unknown>;
     }) => State<unknown>;
@@ -155,7 +157,9 @@ interface Props$1 {
     children: React.ReactNode;
     managers: Manager[];
     initialState: State<unknown>;
-    Controller: typeof Controller;
+    Controller: new (props: {
+        gcPolicy: GCInterface;
+    }) => Controller;
     gcPolicy?: GCInterface;
     devButton?: DevToolsPosition | null | undefined;
 }

@@ -135,7 +135,9 @@ type ConstructorArgs<T extends {
 interface ProvideOptions {
     managers?: Manager[];
     initialState?: State<unknown>;
-    Controller?: typeof Controller;
+    Controller?: new (props: {
+        gcPolicy: GCInterface;
+    }) => Controller;
     gcPolicy?: GCInterface;
     /** @internal Set by DataClientPlugin */
     app?: App;
