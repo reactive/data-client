@@ -165,9 +165,7 @@ function examplesOf(framework) {
   const { own, isApp } = FRAMEWORKS[framework];
   const pkg = `@data-client/${framework}`;
   const checked = block =>
-    block.lang === 'html' ?
-      framework === 'vue' && isVue(block)
-    : Boolean(EXT[block.lang]);
+    block.lang === 'html' ? own(block) : Boolean(EXT[block.lang]);
   const examples = [];
   for (const doc of docs) {
     // only Vue renders a page that's just a `.vue.md` override
@@ -216,7 +214,8 @@ function check(framework, examples) {
     const dir = path.join(OUT, rel(doc).replace(/\.mdx?$/, ''), String(n));
     const files = new Map();
     blocks.forEach((b, i) => {
-      if (!files.has(fileName(b, i))) files.set(fileName(b, i), b);
+      const name = fileName(b, i);
+      if (!files.has(name)) files.set(name, b);
     });
     // loose examples only bring the page's blocks they import
     const used = loose ? [fileName(blocks[0], 0)] : [...files.keys()];
@@ -324,9 +323,9 @@ function check(framework, examples) {
         const match = line.match(/^(.+?)\((\d+),(\d+)\): (.*)$/s);
         if (!match) return line;
         const [, file, row, column, message] = match;
-        const block = sources.get(path.resolve(OUT, file));
-        if (!block)
-          return `${rel(path.resolve(OUT, file))}:${row}:${column}: ${message}`;
+        const written = path.resolve(OUT, file);
+        const block = sources.get(written);
+        if (!block) return `${rel(written)}:${row}:${column}: ${message}`;
         const where =
           block.line ?
             `${rel(block.file)}:${block.line + Number(row)}:${column}`
