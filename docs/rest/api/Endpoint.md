@@ -238,7 +238,7 @@ class User extends Entity {
 }
 
 const getUser = new Endpoint(
-    ({ id }) ⇒ fetch(`/users/${id}`),
+    ({ id }) => fetch(`/users/${id}`),
     { schema: User }
 );
 ```
@@ -252,7 +252,7 @@ import EndpointLifecycle from './_EndpointLifecycle.mdx';
 Can be used to further customize the endpoint definition
 
 ```typescript
-const getUser = new Endpoint(({ id }) ⇒ fetch(`/users/${id}`));
+const getUser = new Endpoint(({ id }) => fetch(`/users/${id}`));
 
 
 const getUserNormalized = getUser.extend({ schema: User });
@@ -275,7 +275,7 @@ values={[
 import { Endpoint } from '@data-client/endpoint';
 
 const UserDetail = new Endpoint(
-  ({ id }) ⇒ fetch(`/users/${id}`).then(res => res.json())
+  ({ id }) => fetch(`/users/${id}`).then(res => res.json())
 );
 ```
 
@@ -291,7 +291,7 @@ class User extends Entity {
 }
 
 const UserDetail = new Endpoint(
-  ({ id }) ⇒ fetch(`/users/${id}`).then(res => res.json()),
+  ({ id }) => fetch(`/users/${id}`).then(res => res.json()),
   { schema: User }
 );
 ```
@@ -308,7 +308,7 @@ class User extends Entity {
 }
 
 const UserList = new Endpoint(
-  () ⇒ fetch(`/users/`).then(res => res.json()),
+  () => fetch(`/users/`).then(res => res.json()),
   { schema: [User] }
 );
 ```
