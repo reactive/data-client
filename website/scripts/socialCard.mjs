@@ -7,8 +7,9 @@
  *   yarn workspace rdc-website social-card 0.19 --force   # overwrite existing
  *   yarn workspace rdc-website social-card coding-agents  # non-release post, by slug
  *
- * Release posts (titled `vX.Y: ...`) write X.Y-card.png with a RELEASE pill;
- * other posts write <slug>-card.png with their first tag's label as the pill.
+ * Release posts (titled `vX.Y: ...`) write X.Y-card.png with a RELEASE pill and
+ * a visual per headline feature. Other posts write <slug>-card.png with their
+ * first tag's label as the pill and their summary bullets listed beside it.
  *
  * Cards before v0.19 are hand-made; don't --force over them.
  *
@@ -38,6 +39,8 @@ const OUT_DIR = path.join(WEBSITE_ROOT, 'static/img/social');
 const WIDTH = 1731;
 const HEIGHT = 909;
 const MAX_ROWS = 4;
+// Non-release cards list features instead of showing visuals, so fit more
+const MAX_FEATURE_ROWS = 6;
 
 function findPost(arg) {
   if (!arg)
@@ -89,9 +92,9 @@ async function parsePost(postFile) {
     description,
     image,
     rows: bullets
-      .slice(0, MAX_ROWS)
+      .slice(0, version ? MAX_ROWS : MAX_FEATURE_ROWS)
       .map(({ tag, text }) => ({ tag, label: bulletLabel(text) })),
-    feature: featureVisual(headline, bullets, details),
+    feature: version && featureVisual(headline, bullets, details),
   };
 }
 
@@ -105,6 +108,7 @@ function summaryBullets(summary) {
       tag =
         /breaking/i.test(heading[1]) ? undefined
         : /new/i.test(heading[1]) ? 'new'
+        : /available/i.test(heading[1]) ? 'available'
         : 'improved';
       continue;
     }
@@ -644,7 +648,7 @@ function cardHtml({
     font: 500 21px 'Roboto Mono', monospace; text-transform: uppercase; letter-spacing: 0.04em;
   }
   .chip.new { color: #5eead4; background: rgba(20,184,166,0.16); border: 1px solid rgba(94,234,212,0.35); }
-  .chip.improved { color: #a5b4fc; background: rgba(99,102,241,0.18); border: 1px solid rgba(165,180,252,0.35); font-size: 18px; }
+  .chip.improved, .chip.available { color: #a5b4fc; background: rgba(99,102,241,0.18); border: 1px solid rgba(165,180,252,0.35); font-size: 18px; }
   .label { font-size: 26px; color: #e6edf7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .editor {
     position: absolute; right: 90px; width: 740px; border-radius: 18px; overflow: hidden;
@@ -708,7 +712,7 @@ ${background(theme, prng(name))}
 ${
   feature ? panelsHtml(feature)
   : panelRows ?
-    `<div class="panel"><h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4z"/><path d="M19 17l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg>WHAT'S NEW</h2>${panelRows}</div>`
+    `<div class="panel"><h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.6L19.5 10l-5.6 1.9L12 17.5l-1.9-5.6L4.5 10l5.6-1.4z"/><path d="M19 17l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></svg>${version ? "WHAT'S NEW" : 'AT A GLANCE'}</h2>${panelRows}</div>`
   : ''
 }
 </body></html>`;

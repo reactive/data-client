@@ -1,6 +1,6 @@
 ---
 title: Data Client for Coding Agents
-description: Install Data Client's agent skills as a Claude Code plugin, give Vue projects their own skills, and let any agent read the docs through llms.txt
+description: Agent skills, a Claude Code plugin, Chrome DevTools MCP debugging and llms.txt help coding agents write, debug and upgrade Data Client apps
 image: /img/social/coding-agents-card.png
 authors: [ntucker]
 tags: [agents, vue]
@@ -15,15 +15,13 @@ workflows instead of guessing from older releases. This release cycle makes that
 **New:**
 
 - [Claude Code plugin](/blog/2026/10/06/coding-agents#claude-plugin) - `claude plugin install react@data-client` installs the skills for your framework
-- [Setup installs what you need](/blog/2026/10/06/coding-agents#setup) - `/data-client-setup` detects React or Vue and your API style, then installs the matching skills
 - [Vue skills](/blog/2026/10/06/coding-agents#vue-skills) - Vue projects get Vue composables and tests, not React hooks
 - [llms.txt](/blog/2026/10/06/coding-agents#llms-txt) - Any agent can read the docs as markdown, and every page tells it where to look
-- [Skills match the docs](/blog/2026/10/06/coding-agents#generated-references) - Skill references are generated from these docs, so they stay current
 
 **Also available:**
 
-- [Skills for each task](/blog/2026/10/06/coding-agents#skills) - Define REST APIs, design schemas, write Managers, and test, plus migrating from `fetch` or axios
-- [Debug a running app](/blog/2026/10/06/coding-agents#debugging) - Agents inspect the live store through Chrome DevTools MCP or Expo MCP
+- [Agent skills](/blog/2026/10/06/coding-agents#skills) - Define REST APIs, design schemas, write Managers, and test; [/data-client-setup](/blog/2026/10/06/coding-agents#setup) now installs just the ones you need, and they're [generated from these docs](/blog/2026/10/06/coding-agents#generated-references)
+- [Chrome DevTools MCP](/blog/2026/10/06/coding-agents#debugging) - Agents inspect your running app's store, or use Expo MCP for React Native
 - [Upgrade skills](/blog/2026/10/06/coding-agents#upgrades) - Migration skills upgrade your code, including what codemods can't
 
 {/* truncate */}
