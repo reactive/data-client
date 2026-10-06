@@ -78,6 +78,8 @@ const { data } = await getUser('1');
 **After (data-client)**
 
 ```ts title="User"
+import { Entity } from '@data-client/rest';
+
 export default class User extends Entity {
   id = '';
   username = '';
@@ -121,6 +123,8 @@ export const createPost = (data: any) => api.post('/posts', data);
 **After (data-client)**
 
 ```ts title="Post"
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -179,6 +183,8 @@ export const createPost = (data: { title: string; body: string }) =>
 **After (data-client)**
 
 ```ts title="Post"
+import { Entity } from '@data-client/rest';
+
 export default class Post extends Entity {
   id = '';
   title = '';
@@ -354,6 +360,8 @@ Both map to an [AbortController](https://developer.mozilla.org/en-US/docs/Web/AP
 ```tsx
 import { useSuspense } from '@data-client/react';
 import { useCancelling } from '@data-client/react';
+import { searchEndpoint } from './api/search';
+import ResultsList from './ResultsList';
 
 function SearchResults({ query }: { query: string }) {
   const results = useSuspense(useCancelling(searchEndpoint), { q: query });
@@ -666,6 +674,11 @@ const createUser = new ApiEndpoint({
 **Before (axios)**
 
 ```tsx
+import { useEffect, useState } from 'react';
+import api from './lib/api';
+import { Spinner } from './Spinner';
+import type { User } from './User';
+
 function UserProfile({ id }: { id: string }) {
   const [user, setUser] = useState<User | null>(null);
   useEffect(() => {
@@ -701,6 +714,8 @@ If the app uses TanStack Query or SWR and can't convert everything at once, keep
 ```ts
 import { useController } from '@data-client/react';
 import { useQuery } from '@tanstack/react-query';
+import ApiEndpoint from './ApiEndpoint';
+import { Project } from './Project';
 
 export const getProject = new ApiEndpoint({
   path: '/projects/:id',

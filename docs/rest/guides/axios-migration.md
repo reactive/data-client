@@ -765,6 +765,11 @@ values={[
 <TabItem value="before">
 
 ```tsx
+import { useEffect, useState } from 'react';
+import api from './lib/api';
+import { Spinner } from './Spinner';
+import type { User } from './User';
+
 function UserProfile({ id }: { id: string }) {
   const [user, setUser] = useState<User | null>(null);
   useEffect(() => {
@@ -804,6 +809,8 @@ If the app uses TanStack Query or SWR and can't convert everything at once, keep
 ```ts
 import { useController } from '@data-client/react';
 import { useQuery } from '@tanstack/react-query';
+import ApiEndpoint from './ApiEndpoint';
+import { Project } from './Project';
 
 export const getProject = new ApiEndpoint({
   path: '/projects/:id',
