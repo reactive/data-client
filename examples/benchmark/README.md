@@ -62,6 +62,10 @@ Performance compared to normalizr package (higher is better):
 
 Not only is denormalize faster, but it is more feature-rich as well.
 
+### Reading the CI comment
+
+The "Benchmark" and "Benchmark Spread" PR comments compare one GitHub runner against the last stored master run on a different runner, so whole-run shifts of 25–35% are often runner speed, not code. See [Reading the CI comment](../benchmark-react/README.md#reading-the-ci-comment) for how to tell. To check a suspected regression, run `yarn build:benchmark` in a base and a PR worktree on one machine, then alternate `yarn workspace example-benchmark start <suite> [filter]` between them (5+ rounds each) and compare medians.
+
 ### Memory pressure
 
 The `spread` scenarios allocate transient copies proportional to store size, so
