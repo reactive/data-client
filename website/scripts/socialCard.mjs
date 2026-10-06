@@ -5,6 +5,10 @@
  * Usage (from repo root):
  *   yarn workspace rdc-website social-card blog/2026-10-03-v0.19-batch-set.md
  *   yarn workspace rdc-website social-card 0.19 --force   # overwrite existing
+ *   yarn workspace rdc-website social-card coding-agents  # non-release post, by slug
+ *
+ * Release posts (titled `vX.Y: ...`) write X.Y-card.png with a RELEASE pill;
+ * other posts write <slug>-card.png with their first tag's label as the pill.
  *
  * Cards before v0.19 are hand-made; don't --force over them.
  *
@@ -36,16 +40,30 @@ const HEIGHT = 909;
 const MAX_ROWS = 4;
 
 function findPost(arg) {
-  if (!arg) throw new Error('Pass a blog post path or a version like 0.19');
+  if (!arg)
+    throw new Error('Pass a blog post path, a version like 0.19, or a slug');
   if (fs.existsSync(arg)) return arg;
   const inBlog = path.join(WEBSITE_ROOT, arg);
   if (fs.existsSync(inBlog)) return inBlog;
   const version = arg.replace(/^v/, '');
-  const match = fs
-    .readdirSync(BLOG_DIR)
-    .find(f => f.includes(`-v${version}-`) && /\.mdx?$/.test(f));
-  if (!match) throw new Error(`No blog post found for v${version}`);
+  const posts = fs.readdirSync(BLOG_DIR).filter(f => /\.mdx?$/.test(f));
+  const match =
+    posts.find(f => f.includes(`-v${version}-`)) ??
+    posts.find(f => postSlug(f) === arg);
+  if (!match) throw new Error(`No blog post found for ${arg}`);
   return path.join(BLOG_DIR, match);
+}
+
+// File name without its date prefix and extension, as Docusaurus slugs it
+const postSlug = file =>
+  path.basename(file).replace(/^\d{4}-\d{2}-\d{2}-|\.mdx?$/g, '');
+
+// A tag's label from tags.yml, like 'AI Agents' for `agents`
+function tagLabel(tag) {
+  const tags = fs.readFileSync(path.join(BLOG_DIR, 'tags.yml'), 'utf8');
+  return tags.match(
+    new RegExp(`^${tag}:\\s*\\n\\s*label: '([^']+)'`, 'm'),
+  )?.[1];
 }
 
 async function parsePost(postFile) {
@@ -53,14 +71,20 @@ async function parsePost(postFile) {
     filePath: postFile,
     fileContent: fs.readFileSync(postFile, 'utf8').replace(/\r\n/g, '\n'),
   });
-  const { title, description = '', image } = frontMatter;
-  const [, version, headline] = title.match(/^v(\d+\.\d+):?\s*(.*)$/);
+  const { title, description = '', image, tags = [] } = frontMatter;
+  const [, version, headline = title] =
+    title.match(/^v(\d+\.\d+):?\s*(.*)$/) ?? [];
+  const name = version ?? postSlug(postFile);
+  const pill =
+    version ? 'RELEASE' : (tagLabel(tags[0]) ?? tags[0] ?? '').toUpperCase();
   const [summary, details = ''] = body.split(
     /\{\/\*\s*truncate\s*\*\/\}|<!--\s*truncate\s*-->/,
   );
   const bullets = summaryBullets(summary);
   return {
     version,
+    name,
+    pill,
     headline,
     description,
     image,
@@ -409,7 +433,7 @@ function headlineLines(headline) {
     : words;
 }
 
-// Deterministic per-version so re-running produces the same image
+// Deterministic per-post so re-running produces the same image
 function prng(seed) {
   let s = [...seed].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
   return () => (s = (s * 1664525 + 1013904223) >>> 0) / 2 ** 32;
@@ -541,7 +565,15 @@ function fontFace(family, file) {
   return `@font-face { font-family: '${family}'; font-weight: 100 900; src: url(data:font/woff2;base64,${woff2}) format('woff2'); }`;
 }
 
-function cardHtml({ version, headline, description, rows, feature }) {
+function cardHtml({
+  version,
+  name,
+  pill,
+  headline,
+  description,
+  rows,
+  feature,
+}) {
   const theme = pickTheme(headline, description);
   const logo = fs
     .readFileSync(path.join(WEBSITE_ROOT, 'static/img/client-logo.svg'), 'utf8')
@@ -665,10 +697,10 @@ function cardHtml({ version, headline, description, rows, feature }) {
   .stat .big small { font-size: 0.55em; }
   .stat .unit { font-size: 30px; font-weight: 500; letter-spacing: 0.12em; color: #cfe3ff; text-transform: uppercase; margin-top: 4px; }
 </style></head><body>
-${background(theme, prng(version))}
+${background(theme, prng(name))}
 <div class="left">
   <div class="brand">${logo}<div><div class="name">REACTIVE</div><div class="sub">DATA CLIENT</div></div></div>
-  <div class="version"><span class="num">v${escape(version)}</span><span class="pill">RELEASE</span></div>
+  <div class="version">${version ? `<span class="num">v${escape(version)}</span>` : ''}<span class="pill">${escape(pill)}</span></div>
   <div class="headline" id="headline">${lines}</div>
   <div class="rule"></div>
   <div class="tagline">${escape(description)}</div>
@@ -752,13 +784,13 @@ async function main() {
   });
   const postFile = findPost(positionals[0]);
   const post = await parsePost(postFile);
-  const outFile = path.join(OUT_DIR, `${post.version}-card.png`);
+  const outFile = path.join(OUT_DIR, `${post.name}-card.png`);
   const rel = path.relative(process.cwd(), outFile);
   if (fs.existsSync(outFile) && !values.force)
     throw new Error(`${rel} exists; pass --force to overwrite`);
   await render(cardHtml(post), outFile, post.feature);
   console.log(`Wrote ${rel}`);
-  const image = `/img/social/${post.version}-card.png`;
+  const image = `/img/social/${post.name}-card.png`;
   if (post.image !== image)
     console.log(
       `Add to ${path.basename(postFile)} frontmatter:\n  image: ${image}`,

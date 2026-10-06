@@ -1,6 +1,7 @@
 ---
 title: Data Client for Coding Agents
 description: Install Data Client's agent skills as a Claude Code plugin, give Vue projects their own skills, and let any agent read the docs through llms.txt
+image: /img/social/coding-agents-card.png
 authors: [ntucker]
 tags: [agents, vue]
 draft: true
