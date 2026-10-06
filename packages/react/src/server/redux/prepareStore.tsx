@@ -12,8 +12,7 @@ import { combineReducers } from './combineReducers.js';
 import { default as mapMiddleware } from './mapMiddleware.js';
 import { default as PromiseifyMiddleware } from './PromiseifyMiddleware.js';
 import { createStore, applyMiddleware } from './redux.js';
-import type { Reducer, Middleware } from './redux.js';
-import type { Store } from '../../context.js';
+import type { Reducer, Middleware, Store } from './redux.js';
 import GCPolicy from '../../state/GCPolicy.js';
 
 export function prepareStore<

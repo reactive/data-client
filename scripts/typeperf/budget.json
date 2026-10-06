@@ -10,6 +10,7 @@
     "typical": 13109,
     "setValues": 26027,
     "setUpdaters": 66031,
+    "redux": 15406,
     "patheq": 934395
   },
   "typescript": "7.0.2"
