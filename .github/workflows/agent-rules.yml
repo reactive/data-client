@@ -12,6 +12,7 @@ on:
       - '.cursor/hooks/**'
       - 'scripts/agent-rules.mjs'
       - '.github/workflows/agent-rules.yml'
+      - '.github/workflows/paths-gate.yml'
   pull_request:
     branches:
       - master

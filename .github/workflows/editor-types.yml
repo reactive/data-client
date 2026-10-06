@@ -21,6 +21,7 @@ on:
       - 'yarn.lock'
       - 'tsconfig*.json'
       - '.github/workflows/editor-types.yml'
+      - '.github/workflows/paths-gate.yml'
   pull_request:
     branches:
       - master
