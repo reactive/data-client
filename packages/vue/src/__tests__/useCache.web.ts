@@ -1,13 +1,7 @@
 import { Endpoint } from '@data-client/endpoint';
 import nock from 'nock';
-import {
-  computed,
-  defineComponent,
-  h,
-  nextTick,
-  reactive,
-  type MaybeRefOrGetter,
-} from 'vue';
+import { computed, defineComponent, h, nextTick, reactive } from 'vue';
+import type { MaybeRefOrGetter } from 'vue';
 
 import {
   CoolerArticle,

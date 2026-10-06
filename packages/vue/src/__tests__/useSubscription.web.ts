@@ -1,12 +1,6 @@
 import { VueWrapper } from '@vue/test-utils';
-import {
-  computed,
-  defineComponent,
-  h,
-  nextTick,
-  reactive,
-  type MaybeRefOrGetter,
-} from 'vue';
+import { computed, defineComponent, h, nextTick, reactive } from 'vue';
+import type { MaybeRefOrGetter } from 'vue';
 
 // Endpoints/entities from React subscriptions test
 import { PollingArticleResource } from '../../../../__tests__/new';

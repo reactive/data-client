@@ -1,0 +1,8 @@
+{
+  // No React types. Vue's own types need TypeScript 4.5+.
+  "extends": "./tsconfig.typetest-libcheck.json",
+  "compilerOptions": {
+    "skipLibCheck": true
+  },
+  "files": ["typetest-vue.ts"]
+}
