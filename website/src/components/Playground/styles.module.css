@@ -96,11 +96,12 @@
   --pg-tab-selected: #e3e8f2;
   --pg-tab-selected-bg: var(--monoco-code-background);
 }
-/* Dark mode: the whole frame takes the code's indigo. Bars sit a step above
-   the code, and the preview a half step, so the top row reads as one band */
+/* Dark mode: the frame is a muted slate of the code's indigo, so the code
+   (and the active tab, which matches it) keeps the color. Bars sit a step
+   above the code, and the preview a half step, so the top row reads as one band */
 :root[data-theme='dark'] .playgroundContainer:not(.endpointPlayground) {
-  --pg-bar: hsl(229, 14%, 21%);
-  --pg-tab-hover-bg: hsl(229, 14%, 26%);
+  --pg-bar: hsl(229, 9%, 21%);
+  --pg-tab-hover-bg: hsl(229, 9%, 26%);
 }
 /* EndpointPlayground's right column is code, so it always uses the dark bar */
 .endpointPlayground {
@@ -279,12 +280,12 @@ div.playgroundTextEdit > .playgroundHeader.subtabs {
 }
 
 :root[data-theme='dark'] .playgroundPreview {
-  --pg-preview-bg: hsl(229, 17%, 19%);
+  --pg-preview-bg: hsl(229, 11%, 19%);
   background-color: var(--pg-preview-bg);
   /* Controls read these for fills and borders: wells in the code color */
   --ifm-background-surface-color: var(--monoco-code-background);
   --ifm-color-emphasis-100: var(--monoco-code-background);
-  --ifm-color-emphasis-400: hsl(229, 12%, 31%);
+  --ifm-color-emphasis-400: hsl(229, 8%, 31%);
 }
 /* The floating label straddles the field's top edge, so it blends into both */
 :root[data-theme='dark'] .playgroundPreview :global(.rt-TextFieldLabel) {
