@@ -1,8 +1,9 @@
 /// <reference types="jest" />
 import { Collection, Entity, schema } from '@data-client/endpoint';
-import type { State } from '@data-client/react';
+import { actionTypes, type State } from '@data-client/react';
 
 import { buildModel, changedIds, entityId, splitKey } from '../store/model';
+import { resolveRow } from '../store/refs';
 import { resolve } from '../store/refs';
 import SchemaRegistry from '../store/schemaRegistry';
 
@@ -107,6 +108,31 @@ describe('store model', () => {
     });
   });
 
+  it('falls back to plain values when the stored shape does not match', () => {
+    const val = (v: unknown) => ({ t: 'val', v });
+    expect(resolve('x', new schema.Values(User))).toEqual(val('x'));
+    expect(resolve('x', new schema.Array(User))).toEqual(val('x'));
+    expect(resolve('x', [User])).toEqual(val('x'));
+    expect(resolve({ id: '1' }, User)).toEqual({
+      t: 'obj',
+      entries: [['id', val('1')]],
+    });
+    const union = new schema.Union({ users: User }, (i: any) => i.type);
+    expect(resolve({ id: '1', schema: 'nope' }, union)).toEqual({
+      t: 'obj',
+      entries: [
+        ['id', val('1')],
+        ['schema', val('nope')],
+      ],
+    });
+    expect(resolveRow('x', undefined)).toEqual(val('x'));
+    expect(resolveRow('x', User)).toEqual(val('x'));
+    expect(resolveRow(['249'], Post.schema.comments)).toEqual({
+      t: 'arr',
+      items: [{ t: 'ref', key: 'Comment', pk: '249' }],
+    });
+  });
+
   it('indexes who references each entity', () => {
     const model = buildModel(
       state,
@@ -134,6 +160,36 @@ describe('store model', () => {
     expect(model.referrers.size).toBe(0);
   });
 
+  it('guesses table kinds without a schema', () => {
+    const model = buildModel(
+      {
+        ...state,
+        entities: { Thing: { a: { n: 1 } }, '[Thing]': { '{}': ['a'] } },
+      } as unknown as State<unknown>,
+      new SchemaRegistry(),
+    );
+    expect(model.tables.map(t => t.kind)).toEqual(['unknown', 'collection']);
+  });
+
+  it('records endpoints and schemas from actions', async () => {
+    const registry = new SchemaRegistry();
+    const next = jest.fn(() => Promise.resolve());
+    const dispatch = registry.middleware({} as any)(next);
+    await dispatch({
+      type: actionTypes.SET_RESPONSE,
+      key: 'k',
+      endpoint: { schema: [Post] },
+      args: [1],
+    } as any);
+    await dispatch({ type: actionTypes.SET, schema: Comment } as any);
+    await dispatch({ type: actionTypes.RESET } as any);
+    expect(next).toHaveBeenCalledTimes(3);
+    expect(registry.endpoints.get('k')?.args).toEqual([1]);
+    expect(registry.entities.get('Comment')).toBe(Comment);
+    registry.learn(null);
+    registry.cleanup();
+  });
+
   it('finds changed rows', () => {
     const next = {
       ...state,
@@ -146,6 +202,10 @@ describe('store model', () => {
   });
 
   it('splits endpoint keys', () => {
+    expect(splitKey('GET /relative')).toEqual({
+      method: 'GET',
+      path: '/relative',
+    });
     expect(splitKey('GET https://example.com/posts?page=2')).toEqual({
       method: 'GET',
       path: '/posts?page=2',

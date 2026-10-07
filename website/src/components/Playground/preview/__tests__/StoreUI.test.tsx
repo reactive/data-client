@@ -3,7 +3,15 @@ import { act, render } from '@testing-library/react';
 import React from 'react';
 
 import type { EntityTable, StoreModel } from '../store/model';
-import { groupId, StoreUIProvider, useStoreUI } from '../store/StoreUI';
+import { entityId } from '../store/model';
+import {
+  groupId,
+  ROW_LIMIT,
+  sectionId,
+  showAllId,
+  StoreUIProvider,
+  useStoreUI,
+} from '../store/StoreUI';
 
 const table = (key: string): EntityTable => ({
   key,
@@ -19,8 +27,9 @@ function Probe() {
   ui = useStoreUI();
   return null;
 }
+const onReveal = jest.fn();
 const mount = (m: StoreModel) => (
-  <StoreUIProvider model={m} onReveal={() => {}}>
+  <StoreUIProvider model={m} onReveal={onReveal}>
     <Probe />
   </StoreUIProvider>
 );
@@ -37,5 +46,31 @@ describe('StoreUI', () => {
     expect(ui.isOpen(groupId('Post'))).toBe(false);
     expect(ui.isOpen(groupId('[Comment]'))).toBe(true);
     expect(ui.isOpen(groupId('Comment'))).toBe(false);
+  });
+
+  it('reveal opens everything leading to a row', () => {
+    const rows = Array.from({ length: ROW_LIMIT + 1 }, (_, i) => ({
+      id: entityId('Late', `${i}`),
+    }));
+    const m = {
+      endpoints: [],
+      tables: ['A', 'B', 'C'].map(table).concat({ ...table('Late'), rows }),
+    } as unknown as StoreModel;
+    render(mount(m));
+    act(() => ui.toggle(sectionId('entities')));
+    const target = entityId('Late', `${ROW_LIMIT}`);
+    act(() => ui.reveal(target));
+    expect(ui.selected).toBe(target);
+    expect(onReveal).toHaveBeenCalledWith(target);
+    for (const id of [
+      target,
+      sectionId('entities'),
+      groupId('Late'),
+      showAllId('Late'),
+    ])
+      expect(ui.isOpen(id)).toBe(true);
+
+    act(() => ui.reveal('e\u001fGET /x'));
+    expect(ui.isOpen(sectionId('endpoints'))).toBe(true);
   });
 });
