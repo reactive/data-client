@@ -261,11 +261,9 @@ jobs:
       - attach_workspace:
           at: ~/
       - unless:
-          # `latest` and `native` use the installed React as-is
+          # `latest` uses the installed React as-is
           condition:
-            or:
-              - equal: ["latest", << parameters.react-version >>]
-              - equal: ["native", << parameters.react-version >>]
+            equal: ["latest", << parameters.react-version >>]
           steps:
             - restore-yarn-cache
       - run:
@@ -279,6 +277,11 @@ jobs:
             npm pkg delete resolutions.react resolutions.react-dom resolutions.react-test-renderer
             yarn up react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
             yarn workspace @data-client/test add --dev @testing-library/react-hooks
+            elif [ "<< parameters.react-version >>" == "native" ]; then
+            # React Native 0.86 bundles the React 19.2.3 renderer; React 19.3 pairs with RN 0.88
+            npm pkg delete resolutions.react resolutions.react-dom resolutions.react-test-renderer
+            yarn up react@19.2.3 react-test-renderer@19.2.3
+            node -e "for (const p of ['react','react-test-renderer']) { const v=require(p+'/package.json').version; if (v !== '19.2.3') throw new Error(p+' resolved to '+v) }"
             elif [ "<< parameters.react-version >>" == "19.2.3" ]; then
             npm pkg delete resolutions.react resolutions.react-dom resolutions.react-test-renderer
             yarn up react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
