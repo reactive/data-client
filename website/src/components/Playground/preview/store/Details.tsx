@@ -57,7 +57,14 @@ function useNow(until: number | undefined) {
 const seconds = (ms: number) =>
   ms < 60_000 ? `${Math.ceil(ms / 1000)}s` : `${Math.round(ms / 60_000)}m`;
 
-export function EndpointDetail({ row }: { row: EndpointRow }) {
+export function EndpointDetail({
+  row,
+  collapsedMeta,
+}: {
+  row: EndpointRow;
+  /** Meta behind a disclosure (the tree view) instead of always shown */
+  collapsedMeta?: boolean;
+}) {
   const [view, setView] = useState<'stored' | 'returns'>('stored');
   const { record } = row;
   return (
@@ -73,13 +80,13 @@ export function EndpointDetail({ row }: { row: EndpointRow }) {
       {view === 'returns' && record ?
         <Returns record={record} />
       : <Block node={row.value} />}
-      <div className={styles.metaList}>
+      <MetaBlock collapsed={collapsedMeta} summary={metaSummary(row.meta)}>
         <Field name="key" node={{ t: 'val', v: row.key }} />
         {record?.args.length ?
           <Field name="args" node={plain(record.args)} />
         : null}
-        {row.meta && <Field name="meta" node={plain(row.meta)} />}
-      </div>
+        <MetaFields meta={row.meta} />
+      </MetaBlock>
     </div>
   );
 }
@@ -130,26 +137,41 @@ function Returns({ record }: { record: EndpointRecord }) {
 export function EntityDetail({
   row,
   model,
+  collapsedMeta,
 }: {
   row: EntityRow;
   model: StoreModel;
+  /** Meta behind a disclosure (the tree view) instead of always shown */
+  collapsedMeta?: boolean;
 }) {
   return (
     <div className={styles.detail}>
       <Block node={row.value} />
-      <RowMeta row={row} model={model} />
+      <RowMeta row={row} model={model} collapsed={collapsedMeta} />
     </div>
   );
 }
 
 /** When a row was fetched and what references it */
-export function RowMeta({ row, model }: { row: EntityRow; model: StoreModel }) {
+export function RowMeta({
+  row,
+  model,
+  collapsed,
+}: {
+  row: EntityRow;
+  model: StoreModel;
+  collapsed?: boolean;
+}) {
   const referrers = referrersOf(model, row.id);
+  const summary = metaSummary(row.meta);
+  if (referrers.length) summary.push(`used by ${referrers.length}`);
   return (
-    <div className={styles.metaList}>
-      {row.meta && <Field name="meta" node={plain(row.meta)} />}
+    <MetaBlock collapsed={collapsed} summary={summary}>
+      <MetaFields meta={row.meta} />
       <div className={styles.field}>
-        <span className={styles.label}>used by</span>
+        <span className={styles.key}>
+          used by<span className={styles.dim}>:</span>
+        </span>
         {referrers.length ?
           <RefList
             chips={referrers.map(r => (
@@ -163,6 +185,54 @@ export function RowMeta({ row, model }: { row: EntityRow; model: StoreModel }) {
           />
         : <span className={styles.dim}>nothing</span>}
       </div>
-    </div>
+    </MetaBlock>
   );
+}
+
+/** The quieter rows below a record's data: always shown, or (`collapsed`)
+ * behind a `meta` disclosure that sums them up on one line */
+function MetaBlock({
+  collapsed,
+  summary,
+  children,
+}: {
+  collapsed?: boolean;
+  summary: readonly string[];
+  children: React.ReactNode;
+}) {
+  const list = (
+    <div className={clsx(styles.fields, styles.metaList)}>{children}</div>
+  );
+  if (!collapsed) return list;
+  return (
+    <details className={styles.metaDetails}>
+      <summary>
+        <span className={styles.chevron}>▶</span>
+        meta
+        <span className={styles.metaSummary}>{summary.join(' · ')}</span>
+      </summary>
+      {list}
+    </details>
+  );
+}
+
+/** One row per meta field: fetchedAt, date, expiresAt, error... */
+function MetaFields({ meta }: { meta: Meta | EntityRow['meta'] }) {
+  const node = plain(meta);
+  if (node.t !== 'obj') return null;
+  return node.entries.map(([k, v]) => <Field key={k} name={k} node={v} />);
+}
+
+/** `fetched 12:11:13.045 PM · expires 12:12:13.045 PM · error` */
+function metaSummary(meta: Meta | EntityRow['meta']) {
+  if (!meta) return [];
+  const parts = [`fetched ${formatTime(meta.fetchedAt || meta.date)}`];
+  parts.push(
+    isFinite(meta.expiresAt) ?
+      `expires ${formatTime(meta.expiresAt)}`
+    : 'never expires',
+  );
+  if ('error' in meta && meta.error) parts.push('error');
+  if ('invalidated' in meta && meta.invalidated) parts.push('invalidated');
+  return parts;
 }

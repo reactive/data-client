@@ -245,11 +245,8 @@ export function Block({ node, name }: { node: VNode; name?: string }) {
 }
 
 export function Field({ name, node }: { name: string; node: VNode }) {
-  const nested =
-    (node.t === 'obj' && node.entries.length > 0) ||
-    (node.t === 'arr' && node.items.some(i => i.t === 'obj'));
   return (
-    <div className={clsx(styles.field, nested && styles.nested)}>
+    <div className={styles.field}>
       <span className={styles.key}>
         {name}
         <span className={styles.dim}>:</span>

@@ -4,7 +4,6 @@ import React from 'react';
 import { EndpointDetail, EntityDetail, Status } from './Details';
 import {
   optimisticId,
-  PK_FIELD,
   prettyPk,
   splitKey,
   type EndpointRow,
@@ -192,7 +191,7 @@ function EndpointTreeRow({ row }: { row: EndpointRow }) {
         <EndpointLabel row={row} open={open} />
         <Status meta={row.meta} />
       </div>
-      {open && <EndpointDetail row={row} />}
+      {open && <EndpointDetail row={row} collapsedMeta />}
     </>
   );
 }
@@ -225,7 +224,7 @@ function EntityTreeGroup({
       {open && (
         <div className={styles.indent}>
           {shown.map(row => (
-            <EntityTreeRow key={row.id} row={row} model={model} />
+            <EntityTreeRow key={row.id} row={row} table={table} model={model} />
           ))}
           {footer}
         </div>
@@ -234,14 +233,22 @@ function EntityTreeGroup({
   );
 }
 
-function EntityTreeRow({ row, model }: { row: EntityRow; model: StoreModel }) {
+function EntityTreeRow({
+  row,
+  table,
+  model,
+}: {
+  row: EntityRow;
+  table: EntityTable;
+  model: StoreModel;
+}) {
   const { open, props } = useRowProps(row.id);
   // the pk is the row's key, so its field would only repeat it
   const preview =
-    row.value.t === 'obj' ?
+    row.value.t === 'obj' && table.pkField ?
       {
         ...row.value,
-        entries: row.value.entries.filter(([k]) => k !== PK_FIELD),
+        entries: row.value.entries.filter(([k]) => k !== table.pkField),
       }
     : row.value;
   return (
@@ -255,7 +262,7 @@ function EntityTreeRow({ row, model }: { row: EntityRow; model: StoreModel }) {
       </div>
       {open && (
         <div className={styles.indent}>
-          <EntityDetail row={row} model={model} />
+          <EntityDetail row={row} model={model} collapsedMeta />
         </div>
       )}
     </>

@@ -2,6 +2,8 @@
 .store {
   --store-fg: rgb(191, 199, 213);
   --store-dim: rgb(105, 112, 152);
+  /* secondary text that stays AA on the code background */
+  --store-muted: rgb(146, 154, 186);
   --store-key: rgb(130, 170, 255);
   --store-string: rgb(195, 232, 141);
   --store-number: rgb(247, 140, 108);
@@ -346,7 +348,8 @@ div.row {
     opacity: 1;
     pointer-events: auto;
   }
-  .moreCell:hover {
+  .moreCell:hover,
+  .metaDetails > summary:hover {
     color: var(--store-fg);
   }
   .moreCell:hover::after {
@@ -561,9 +564,6 @@ div.row {
   width: fit-content;
   margin-bottom: 0.25rem;
 }
-.fields {
-  flex-basis: 100%;
-}
 .field {
   display: flex;
   flex-wrap: wrap;
@@ -571,17 +571,86 @@ div.row {
   gap: 0 0.4rem;
   min-width: 0;
 }
-.field.nested > .fields {
-  padding-left: 1rem;
+/* an object's fields: names right-aligned against one value column. A
+   nested object aligns its own names in a sub-column of that value */
+.fields {
+  display: grid;
+  grid-template-columns: minmax(6rem, max-content) minmax(0, 1fr);
+  column-gap: 0.5rem;
+  align-items: baseline;
+  flex-basis: 100%;
+  min-width: 0;
 }
+.fields .fields {
+  grid-template-columns: max-content minmax(0, 1fr);
+}
+.fields > .field {
+  display: contents;
+}
+.fields > .field > .key {
+  max-width: 10rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: end;
+}
+.fields > .more {
+  grid-column: 2;
+  justify-self: start;
+}
+
+/* meta: the quieter rows below a record's data */
 .metaList {
-  margin-top: 0.3rem;
-  padding-top: 0.25rem;
-  border-top: 1px dashed var(--store-line);
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
+  border-top: 1px dashed var(--store-line-strong);
+  font-size: 11px;
+  color: var(--store-muted);
 }
 .metaList .key,
-.label {
-  color: var(--store-dim);
+.metaList .string,
+.metaList .number,
+.metaList .null {
+  color: inherit;
+}
+/* tree view: meta behind a disclosure that sums it up on one line */
+.metaDetails {
+  margin-top: 0.25rem;
+  font-size: 11px;
+  color: var(--store-muted);
+}
+.metaDetails > summary {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  min-width: 0;
+  padding: 0.2rem 0;
+  border-radius: 4px;
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+}
+.metaDetails > summary::-webkit-details-marker {
+  display: none;
+}
+.metaDetails > summary:focus-visible {
+  outline: 2px solid var(--store-key);
+  outline-offset: -2px;
+}
+.metaDetails[open] > summary > .chevron {
+  transform: rotate(90deg);
+}
+.metaSummary {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.metaDetails > .metaList {
+  margin: 0 0 0.2rem;
+  padding: 0;
+  border: 0;
 }
 .wrapList {
   display: inline-flex;
@@ -701,38 +770,16 @@ div.row {
   border-color: rgba(199, 146, 234, 0.4);
 }
 
-
-
 /* a record: inline below its row, or as its own level */
 .recordRow .detail,
 .record > .detail {
   padding: 0.5rem 0.75rem 0.6rem;
-}
-/* each field of a record: name column, then its value */
-.recordRow .detail > .fields > .field,
-.record > .detail > .fields > .field {
-  display: grid;
-  grid-template-columns: 6rem minmax(0, 1fr);
-  gap: 0 0.5rem;
-}
-.recordRow .detail > .fields > .field > .key,
-.record > .detail > .fields > .field > .key {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-/* NARROW_WIDTH in columns.ts: narrower panels also get narrower columns */
-@container (min-width: 480px) {
-  .recordRow .detail > .fields,
-  .record > .detail > .fields {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0 1.25rem;
-  }
 }
 
 /* a Collection's own meta, above its member table */
 .memberMeta > .metaList {
   margin: 0;
   padding: 0.4rem 0.75rem 0.5rem;
+  border-top: 0;
+  border-bottom: 1px dashed var(--store-line-strong);
 }
