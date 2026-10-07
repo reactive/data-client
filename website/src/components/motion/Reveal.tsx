@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { isGliding } from './glide';
+import { activeGlide } from './glide';
 import { useMember } from './MotionGroup';
 
 /**
@@ -39,10 +39,22 @@ export default function Reveal({
     },
     [memberRef],
   );
-  // no group slid it out (none around it, or its layoutDependency didn't
-  // change with `show`): leave now instead of staying stuck on screen
+  // Leave on its own when no group slides it out (none around it, or its
+  // layoutDependency didn't change with `show`): now if it is still, or once
+  // whatever glide is moving it settles, so it never stays stuck on screen
   useEffect(() => {
-    if (!show && !(el.current && isGliding(el.current))) setMounted(false);
+    if (show) return;
+    let reopened = false;
+    const leave = () => reopened || setMounted(false);
+    const moving = el.current && activeGlide(el.current);
+    if (moving)
+      moving.finished.then(leave, () => {
+        // cancelled: the group took over and moves it next
+      });
+    else leave();
+    return () => {
+      reopened = true;
+    };
   }, [show]);
   return mounted ?
       <div

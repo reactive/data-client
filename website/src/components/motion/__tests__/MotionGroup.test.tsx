@@ -23,14 +23,26 @@ beforeEach(() => {
     .spyOn(HTMLElement.prototype, 'clientWidth', 'get')
     .mockReturnValue(PARENT_WIDTH);
   HTMLElement.prototype.animate = function (keyframes: any) {
+    let settle!: (finished: boolean) => void;
     const animation: FakeAnimation = {
       playState: 'running',
       currentTime: null,
       cancel: jest.fn(() => {
         animation.playState = 'idle';
+        settle(false);
       }),
       onfinish: null,
+      finished: new Promise<Animation>((resolve, reject) => {
+        settle = finished =>
+          finished ? resolve(animation as Animation) : reject(new Error());
+      }),
+      finish: () => {
+        animation.playState = 'finished';
+        settle(true);
+      },
     };
+    // like a browser's, a cancelled glide's rejection is fine to ignore
+    animation.finished?.catch(() => undefined);
     animations.push({ el: this, keyframes, animation });
     return animation as unknown as Animation;
   };
@@ -226,4 +238,39 @@ it('stops glides in flight when reduced motion turns on', () => {
   rerender(<Drawer open={false} />);
   expect(enter?.animation.cancel).toHaveBeenCalled();
   delete (window as any).matchMedia;
+});
+
+it('leaves once its entrance settles when the group ignores the close', async () => {
+  // the group only animates opening; closing doesn't change layoutDependency
+  function OpensOnly({ open, opened }: { open: boolean; opened: number }) {
+    return (
+      <MotionGroup layoutDependency={opened}>
+        <Reveal show={open}>panel</Reveal>
+      </MotionGroup>
+    );
+  }
+  const { rerender } = render(<OpensOnly open={false} opened={0} />);
+  rerender(<OpensOnly open opened={1} />);
+  const enter = animations.find(({ el }) => el === screen.getByText('panel'));
+  rerender(<OpensOnly open={false} opened={1} />);
+  expect(screen.getByText('panel')).toBeTruthy();
+  await act(async () => enter?.animation.finish?.());
+  expect(screen.queryByText('panel')).toBeNull();
+});
+
+it('stays when reopened before a settling glide finishes', async () => {
+  function OpensOnly({ open, opened }: { open: boolean; opened: number }) {
+    return (
+      <MotionGroup layoutDependency={opened}>
+        <Reveal show={open}>panel</Reveal>
+      </MotionGroup>
+    );
+  }
+  const { rerender } = render(<OpensOnly open={false} opened={0} />);
+  rerender(<OpensOnly open opened={1} />);
+  const enter = animations.find(({ el }) => el === screen.getByText('panel'));
+  rerender(<OpensOnly open={false} opened={1} />);
+  rerender(<OpensOnly open opened={1} />);
+  await act(async () => enter?.animation.finish?.());
+  expect(screen.getByText('panel')).toBeTruthy();
 });
