@@ -153,6 +153,19 @@ export function useMember(presence?: Presence): RefCallback<HTMLElement> {
   );
 }
 
+/**
+ * Whether the nearest `<MotionGroup>` would glide `el` when the layout
+ * changes; if not, changes land at once
+ */
+export function useWillGlide(): (el: HTMLElement) => boolean {
+  const members = useContext(GroupContext);
+  return useCallback(
+    el =>
+      !!members && typeof el.animate === 'function' && !prefersReducedMotion(),
+    [members],
+  );
+}
+
 // members are mounted while the group measures them, so they have a parent
 function parentOf(el: HTMLElement) {
   return el.parentElement as HTMLElement;

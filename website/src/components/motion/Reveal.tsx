@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 
 import { settled } from './glide';
-import { useMember } from './MotionGroup';
+import { useMember, useWillGlide } from './MotionGroup';
 
 /**
  * Shows `children` while `show`, sliding in from and back out past the end of
@@ -28,6 +28,7 @@ export default function Reveal({
   const shown = useRef(children);
   if (show) shown.current = children;
   const memberRef = useMember({ exiting: !show });
+  const willGlide = useWillGlide();
   const el = useRef<HTMLDivElement | null>(null);
   const ref = useCallback(
     (node: HTMLDivElement | null) => {
@@ -36,16 +37,24 @@ export default function Reveal({
     },
     [memberRef],
   );
-  // leaves once it comes to rest: after the group slides it out, or at once
-  // if nothing moves it (no group, or one that ignored this change)
-  useEffect(() => {
-    if (show || !el.current) return;
+  // leaves once it comes to rest: at once (before it paints in flow) if
+  // nothing will slide it out, else after the group's glide settles
+  useLayoutEffect(() => {
+    const node = el.current;
+    if (show || !node) return;
+    if (!willGlide(node)) {
+      setMounted(false);
+      return;
+    }
     let reopened = false;
-    settled(el.current).then(() => reopened || setMounted(false));
+    // the group starts its glide later in this commit
+    queueMicrotask(() =>
+      settled(node).then(() => reopened || setMounted(false)),
+    );
     return () => {
       reopened = true;
     };
-  }, [show]);
+  }, [show, willGlide]);
   return mounted ?
       <div
         ref={ref}

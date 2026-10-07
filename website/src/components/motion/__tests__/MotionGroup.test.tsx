@@ -97,6 +97,8 @@ it('keeps an exiting element, with its last content, until it slides out', async
   const exit = animations.find(({ el }) => el.textContent === 'first');
   expect(exit?.keyframes.at(-1)?.translate).toBe(`${PARENT_WIDTH}px 0px`);
   expect((exit?.el as HTMLElement).style.position).toBe('absolute');
+  await settledReveals();
+  expect(screen.getByText('first')).toBeTruthy();
 
   await act(async () => exit?.animation.finish?.());
   expect(screen.queryByText('first')).toBeNull();
@@ -118,19 +120,17 @@ it('only measures when layoutDependency changes', () => {
   expect(rect).not.toHaveBeenCalled();
 });
 
-it('lands in place when the user prefers reduced motion', async () => {
+it('lands in place when the user prefers reduced motion', () => {
   window.matchMedia = jest.fn().mockReturnValue({ matches: true });
   const { rerender } = render(<Drawer open />);
   rerender(<Drawer open={false} />);
   expect(animations).toEqual([]);
-  await settledReveals();
   expect(screen.queryByText('panel')).toBeNull();
 });
 
-it('leaves on its own when no group slides it out', async () => {
+it('leaves at once when no group slides it out', () => {
   const { rerender } = render(<Reveal show>alone</Reveal>);
   rerender(<Reveal show={false}>alone</Reveal>);
-  await settledReveals();
   expect(screen.queryByText('alone')).toBeNull();
 });
 
@@ -174,11 +174,10 @@ it('slides along a column container vertically', () => {
   expect(enter?.keyframes[0].translate).toBe('0px 200px');
 });
 
-it('lands in place without Web Animations', async () => {
+it('lands in place without Web Animations', () => {
   delete (HTMLElement.prototype as any).animate;
   const { rerender } = render(<Drawer open />);
   rerender(<Drawer open={false} />);
-  await settledReveals();
   expect(screen.queryByText('panel')).toBeNull();
 });
 
@@ -252,6 +251,7 @@ it('leaves once its entrance settles when the group ignores the close', async ()
   rerender(<OpensOnly open opened={1} />);
   const enter = animations.find(({ el }) => el === screen.getByText('panel'));
   rerender(<OpensOnly open={false} opened={1} />);
+  await settledReveals();
   expect(screen.getByText('panel')).toBeTruthy();
   await act(async () => enter?.animation.finish?.());
   expect(screen.queryByText('panel')).toBeNull();
@@ -263,8 +263,27 @@ it('stays when reopened before a settling glide finishes', async () => {
   const enter = animations.find(({ el }) => el === screen.getByText('panel'));
   rerender(<OpensOnly open={false} opened={1} />);
   rerender(<OpensOnly open opened={1} />);
+  await settledReveals();
   await act(async () => enter?.animation.finish?.());
   expect(screen.getByText('panel')).toBeTruthy();
+});
+
+it('leaves once the glide that retargets its exit settles', async () => {
+  function Steps({ step }: { step: number }) {
+    return (
+      <MotionGroup layoutDependency={step}>
+        <Reveal show={step === 0}>panel</Reveal>
+      </MotionGroup>
+    );
+  }
+  const { rerender } = render(<Steps step={0} />);
+  rerender(<Steps step={1} />);
+  await settledReveals();
+  rerender(<Steps step={2} />);
+  await settledReveals();
+  expect(screen.getByText('panel')).toBeTruthy();
+  await act(async () => animations.at(-1)?.animation.finish?.());
+  expect(screen.queryByText('panel')).toBeNull();
 });
 
 it('rejoins the layout when reopened mid-exit under reduced motion', () => {
