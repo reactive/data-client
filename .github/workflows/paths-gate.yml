@@ -2,8 +2,9 @@ name: paths gate
 # Reusable: lets a required check report on every PR and merge queue entry.
 # merge_group ignores `paths`, and a required check that never runs blocks the
 # PR, so callers trigger without `paths` (push excepted) and skip their job
-# unless a file in their `on.push.paths` changed. A skipped job passes.
-# dependency-gate.yml reads `paths` the same way.
+# (which passes) unless a file in their `on.push.paths` changed. Callers skip
+# this gate on push, which `paths` already filters, and run unless it outputs
+# `false`, so a failed gate fails open.
 on:
   workflow_call:
     outputs:

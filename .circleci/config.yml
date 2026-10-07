@@ -31,7 +31,7 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - ci-relevant-v2-{{ .Environment.CIRCLE_SHA1 }}
+            - ci-relevant-v3-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
       - run:
           name: Skip job if only non-<< parameters.flag >> paths changed
           command: |
@@ -134,7 +134,7 @@ jobs:
             # Later setup steps read these; the files are for downstream jobs.
             echo "export ESMODULE_RELEVANT=${ESMODULE_RELEVANT} TESTS_RELEVANT=${TESTS_RELEVANT}" >> "${BASH_ENV}"
       - save_cache:
-          key: ci-relevant-v2-{{ .Environment.CIRCLE_SHA1 }}
+          key: ci-relevant-v3-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
           paths:
             - .ci-esmodule-relevant
             - .ci-tests-relevant
@@ -465,18 +465,18 @@ jobs:
     docker: *docker
     resource_class: small
     steps:
-      - restore_cache:
-          keys:
-            - ci-relevant-v2-{{ .Environment.CIRCLE_SHA1 }}
+      # Only vouch for trees whose jobs all ran: a path-filtered run only
+      # proves the change was irrelevant
+      - halt-unless-relevant-change:
+          flag: tests
+      - halt-unless-relevant-change:
+          flag: esmodule
       - run:
           name: Mark tree passed
           command: |
-            # Only vouch for trees whose jobs all ran (a path-filtered run only
-            # proves the change is irrelevant) and never for fork PRs
-            # (CIRCLE_PR_NUMBER is only set on those)
-            if [ -n "${CIRCLE_PR_NUMBER:-}" ] \
-              || grep -qx false ~/project/.ci-tests-relevant ~/project/.ci-esmodule-relevant; then
-              echo "Not marking this tree passed."
+            # Never for fork PRs (CIRCLE_PR_NUMBER is only set on those)
+            if [ -n "${CIRCLE_PR_NUMBER:-}" ]; then
+              echo "Fork PR; not marking this tree passed."
               circleci-agent step halt
               exit 0
             fi

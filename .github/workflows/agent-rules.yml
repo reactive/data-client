@@ -25,14 +25,12 @@ concurrency:
 
 jobs:
   gate:
-    # push already filters by `paths`
     if: github.event_name != 'push'
     uses: ./.github/workflows/paths-gate.yml
 
   check:
     name: agent-rules
     needs: gate
-    # Fail open: runs unless the gate (skipped on push) says nothing changed
     if: ${{ !cancelled() && needs.gate.outputs.relevant != 'false' }}
     runs-on: ubuntu-latest
     steps:

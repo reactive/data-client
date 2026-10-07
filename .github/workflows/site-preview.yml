@@ -1,5 +1,11 @@
 name: website
 on:
+  pull_request:
+    branches:
+      - master
+  # Required check: no `paths` (see paths-gate.yml). Vercel skips queue
+  # branches, so this is the queue's only build of the merged site.
+  merge_group:
   # Refreshes the webpack cache that PRs restore from
   push:
     branches:
@@ -12,12 +18,6 @@ on:
       - 'docs/graphql/**'
       - '.github/workflows/site-preview.yml'
       - '.github/workflows/paths-gate.yml'
-  pull_request:
-    branches:
-      - master
-  # Required check: no `paths` (see paths-gate.yml). Vercel skips queue
-  # branches, so this is the queue's only build of the merged site.
-  merge_group:
 
 # PRs cancel superseded runs. Push runs get their own group, so master never
 # shows a cancelled (red) run.
@@ -27,7 +27,6 @@ concurrency:
 
 jobs:
   gate:
-    # push already filters by `paths`
     if: github.event_name != 'push'
     uses: ./.github/workflows/paths-gate.yml
 
@@ -35,7 +34,6 @@ jobs:
   build:
     name: website
     needs: gate
-    # Fail open: runs unless the gate (skipped on push) says nothing changed
     if: ${{ !cancelled() && needs.gate.outputs.relevant != 'false' }}
     runs-on: ubuntu-latest
     steps:
