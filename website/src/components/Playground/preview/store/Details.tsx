@@ -3,24 +3,17 @@ import clsx from 'clsx';
 import React, { useContext, useEffect, useState } from 'react';
 
 import {
-  isEndpointId,
+  errorText,
+  referrersOf,
   type EndpointRow,
   type EntityRow,
-  type Referrer,
+  type StoreModel,
 } from './model';
-import { useNav } from './nav';
 import { plain } from './refs';
 import type { EndpointRecord } from './schemaRegistry';
 import { Segmented } from './Sections';
 import styles from './store.module.css';
-import {
-  Block,
-  CountChip,
-  Field,
-  formatTime,
-  RECORD_REFS,
-  RefChip,
-} from './Value';
+import { Block, Field, formatTime, RefList, RowChip } from './Value';
 
 type Meta = EndpointRow['meta'];
 
@@ -98,60 +91,40 @@ function Returns({ record }: { record: EndpointRecord }) {
   try {
     data = controller.getResponse(record.endpoint, ...record.args, state).data;
   } catch (e) {
-    data = e instanceof Error ? e.message : e;
+    data = errorText(e);
   }
   return <Block node={plain(data)} />;
 }
 
 export function EntityDetail({
   row,
-  referrers,
+  model,
 }: {
   row: EntityRow;
-  referrers: readonly Referrer[] | undefined;
+  model: StoreModel;
 }) {
+  const referrers = referrersOf(model, row.id);
   return (
     <div className={styles.detail}>
       <Block node={row.value} />
       <div className={styles.metaList}>
         {row.meta && <Field name="meta" node={plain(row.meta)} />}
-        <ReferencedBy referrers={referrers} />
-      </div>
-    </div>
-  );
-}
-
-function ReferencedBy({
-  referrers = [],
-}: {
-  referrers: readonly Referrer[] | undefined;
-}) {
-  // the table view dives into long lists instead of listing them all
-  const nav = useNav();
-  const shown =
-    nav && referrers.length > RECORD_REFS ?
-      referrers.slice(0, RECORD_REFS)
-    : referrers;
-  return (
-    <div className={styles.field}>
-      <span className={styles.label}>used by</span>
-      {referrers.length ?
-        <span className={styles.wrapList}>
-          {shown.map(r => (
-            <RefChip
-              key={r.id}
-              id={r.id}
-              label={r.label}
-              className={isEndpointId(r.id) ? styles.endpointRef : undefined}
+        <div className={styles.field}>
+          <span className={styles.label}>used by</span>
+          {referrers.length ?
+            <RefList
+              chips={referrers.map(r => (
+                <RowChip key={r.id} row={r} />
+              ))}
+              list={() => ({
+                kind: 'list',
+                label: 'used by',
+                ids: referrers.map(r => r.id),
+              })}
             />
-          ))}
-          {shown.length < referrers.length && (
-            <CountChip ids={referrers.map(r => r.id)} label="used by">
-              +{referrers.length - shown.length}
-            </CountChip>
-          )}
-        </span>
-      : <span className={styles.dim}>nothing</span>}
+          : <span className={styles.dim}>nothing</span>}
+        </div>
+      </div>
     </div>
   );
 }

@@ -11,15 +11,15 @@ import React, {
 } from 'react';
 
 import { crumbLabel, ListView, RecordView } from './DiveViews';
-import { buildModel, changedIds, type StoreModel } from './model';
-import { NavContext, type Nav, type View } from './nav';
+import { buildModel, isChanged, type StoreModel } from './model';
+import { NavContext, offsetIn, type Nav, type View } from './nav';
 import RootView from './RootView';
 import type SchemaRegistry from './schemaRegistry';
 import styles from './store.module.css';
 import { StoreUIProvider } from './StoreUI';
 import TreeView from './TreeView';
 import { useTabStorage } from '../../../../utils/tabStorage';
-import { springEasing, springs } from '../../../motion';
+import { prefersReducedMotion, springEasing, springs } from '../../../motion';
 
 interface Entry {
   readonly key: number;
@@ -147,42 +147,46 @@ function Levels({ model, width }: { model: StoreModel; width: number }) {
   };
 
   return (
-    <NavContext.Provider value={nav}>
-      <div className={styles.levels}>
-        {stack.map((entry, depth) => (
-          <Level
-            key={entry.key}
-            depth={depth}
-            top={depth === stack.length - 1}
-            onBack={back}
-            returnTo={returnTo}
-          >
-            {scroller =>
-              entry.view.kind === 'root' ? <RootView />
-              : entry.view.kind === 'list' ?
-                <ListView
-                  view={entry.view}
-                  scroller={scroller}
-                  header={tools => crumbs(depth, tools)}
-                />
-              : <RecordView id={entry.view.id} header={() => crumbs(depth)} />
-            }
-          </Level>
-        ))}
-      </div>
-    </NavContext.Provider>
+    <div className={styles.levels}>
+      {stack.map(({ key, view }, depth) => (
+        <Level
+          key={key}
+          nav={nav}
+          depth={depth}
+          top={depth === stack.length - 1}
+          onBack={back}
+          returnTo={returnTo}
+        >
+          {scroller =>
+            view.kind === 'root' ? <RootView scroller={scroller} />
+            : view.kind === 'list' ?
+              <ListView
+                view={view}
+                scroller={scroller}
+                header={tools => crumbs(depth, tools)}
+              />
+            : <>
+                {crumbs(depth)}
+                <RecordView id={view.id} />
+              </>
+          }
+        </Level>
+      ))}
+    </div>
   );
 }
 
 /** One scrolling level; slides in when pushed, and back in from the other
  * side when what covered it closes */
 function Level({
+  nav,
   depth,
   top,
   onBack,
   returnTo,
   children,
 }: {
+  nav: Nav;
   depth: number;
   top: boolean;
   onBack: (depth: number) => void;
@@ -192,6 +196,18 @@ function Level({
   ) => React.ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  // a covered level keeps what it showed, so store updates cost it nothing
+  // until it is uncovered
+  const shown = useRef(nav);
+  if (top) shown.current = nav;
+  const current = shown.current;
+  const content = useMemo(
+    () => (
+      <NavContext.Provider value={current}>{children(ref)}</NavContext.Provider>
+    ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `children` is new each render; what it shows only changes with `current`
+    [current],
+  );
   const wasTop = useRef<boolean | null>(null);
   useLayoutEffect(() => {
     const el = ref.current;
@@ -201,8 +217,9 @@ function Level({
     // keyboard focus follows, so Escape goes back
     el.focus({ preventScroll: true });
     slide(el, before === null ? 1 : -1);
-    if (before === false && returnTo.current) {
-      flash(el, new Set([returnTo.current]));
+    const from = returnTo.current;
+    if (before === false && from) {
+      flash(el, id => id === from);
       returnTo.current = null;
     }
   }, [top, depth, returnTo]);
@@ -221,14 +238,14 @@ function Level({
         }
       }}
     >
-      {children(ref)}
+      {content}
     </div>
   );
 }
 
 /** Moves in from `direction` (1: the right, -1: the left) */
 function slide(el: HTMLElement, direction: 1 | -1) {
-  if (typeof el.animate !== 'function' || reducedMotion()) return;
+  if (typeof el.animate !== 'function' || prefersReducedMotion()) return;
   el.animate(
     [
       { opacity: 0, translate: `${direction * 24}px 0` },
@@ -238,15 +255,12 @@ function slide(el: HTMLElement, direction: 1 | -1) {
   );
 }
 const smooth = springEasing(springs.smooth);
-const reducedMotion = () =>
-  matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/** Highlights the rows of `ids` in `scope` for a moment */
-function flash(scope: HTMLElement, ids: ReadonlySet<string>) {
-  if (!ids.size || typeof scope.animate !== 'function' || reducedMotion())
-    return;
+/** Highlights the rows in `scope` whose id passes `test`, for a moment */
+function flash(scope: HTMLElement, test: (id: string) => boolean) {
+  if (typeof scope.animate !== 'function' || prefersReducedMotion()) return;
   for (const row of scope.querySelectorAll<HTMLElement>('[data-id]')) {
-    if (!ids.has(row.dataset.id!)) continue;
+    if (!test(row.dataset.id!)) continue;
     row.animate(
       [
         { backgroundColor: 'var(--store-flash)' },
@@ -269,7 +283,7 @@ function TreeLevel({ model }: { model: StoreModel }) {
   return (
     <StoreUIProvider model={model} onReveal={setPending}>
       <div className={styles.levels}>
-        <div className={styles.level} ref={scroller}>
+        <div className={styles.level} ref={scroller} data-level>
           <TreeView model={model} />
         </div>
       </div>
@@ -292,7 +306,8 @@ function useWidth(ref: React.RefObject<HTMLElement | null>) {
   return width;
 }
 
-/** Briefly highlights rows whose stored value changed since the last state */
+/** Briefly highlights rows on screen whose stored value changed since the
+ * last state (only those: a big store has far more rows than the screen) */
 function useFlashChanges(
   ref: React.RefObject<HTMLElement | null>,
   state: State<unknown>,
@@ -301,9 +316,11 @@ function useFlashChanges(
   useEffect(() => {
     const before = prev.current;
     prev.current = state;
-    const el = ref.current;
+    const el = ref.current?.querySelector<HTMLElement>(
+      '[data-level]:not([data-covered])',
+    );
     if (!el || before === state) return;
-    flash(el, changedIds(before, state));
+    flash(el, id => isChanged(before, state, id));
   }, [ref, state]);
 }
 
@@ -312,12 +329,11 @@ function scrollToRow(scroller: HTMLElement, id: string) {
     `[data-id="${CSS.escape(id)}"]`,
   );
   if (!row) return;
-  const top =
-    row.getBoundingClientRect().top -
-    scroller.getBoundingClientRect().top +
-    scroller.scrollTop;
   // leave room for the section header
-  scroller.scrollTo({ top: Math.max(0, top - 32), behavior: 'smooth' });
+  scroller.scrollTo({
+    top: Math.max(0, offsetIn(scroller, row) - 32),
+    behavior: 'smooth',
+  });
   row.focus({ preventScroll: true });
 }
 

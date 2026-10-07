@@ -6,7 +6,7 @@ import { optimisticId, splitKey } from './model';
 import { plain } from './refs';
 import styles from './store.module.css';
 import { ROW_LIMIT, sectionId, showAllId, useStoreUI } from './StoreUI';
-import { Field } from './Value';
+import { EndpointKey, Field } from './Value';
 
 /** Every view shows the same sections; only how rows lay out differs */
 export function StoreSections({
@@ -47,24 +47,26 @@ export function EndpointLabel({
   return (
     <>
       <Chevron open={open} />
-      <span className={styles.method}>{row.method}</span>{' '}
-      <span className={styles.trunc}>{row.path}</span>
+      <span className={styles.trunc}>
+        <EndpointKey method={row.method} path={row.path} />
+      </span>
     </>
   );
 }
 
+/** `Post 312`, with a disclosure arrow when `open` is given */
 export function GroupLabel({
   table,
   open,
 }: {
   table: EntityTable;
-  open: boolean;
+  open?: boolean;
 }) {
   return (
     <>
-      <Chevron open={open} />
+      {open !== undefined && <Chevron open={open} />}
       <span className={styles.type}>{table.key}</span>
-      <span className={styles.count}>{table.rows.length}</span>
+      <span className={styles.count}>{table.rows.length.toLocaleString()}</span>
       {table.kind === 'collection' && (
         <span className={styles.kind}>Collection</span>
       )}
@@ -108,32 +110,53 @@ export function Chevron({ open }: { open: boolean }) {
   );
 }
 
-/** Collapsible block with a sticky header */
+/** Collapsible block with a sticky header; the tree view's open state */
 export function Section({
   name,
-  title,
-  count,
-  children,
-}: {
+  ...props
+}: Omit<React.ComponentProps<typeof SectionBlock>, 'open' | 'onToggle'> & {
   name: string;
-  title: string;
-  count?: number;
-  children: React.ReactNode;
 }) {
   const { isOpen, toggle } = useStoreUI();
   const id = sectionId(name);
-  const open = isOpen(id);
+  return (
+    <SectionBlock
+      {...props}
+      open={isOpen(id)}
+      onToggle={() => toggle(id)}
+      chevron
+    />
+  );
+}
+
+export function SectionBlock({
+  title,
+  count,
+  open,
+  onToggle,
+  chevron = false,
+  children,
+}: {
+  title: string;
+  count?: number;
+  open: boolean;
+  onToggle: () => void;
+  chevron?: boolean;
+  children: React.ReactNode;
+}) {
   return (
     <section className={styles.section}>
       <button
         type="button"
-        className={styles.sectionHeader}
+        className={clsx(styles.sectionHeader, !open && styles.closed)}
         aria-expanded={open}
-        onClick={() => toggle(id)}
+        onClick={onToggle}
       >
-        <Chevron open={open} />
+        {chevron && <Chevron open={open} />}
         {title}
-        {count !== undefined && <span className={styles.count}>{count}</span>}
+        {count !== undefined && (
+          <span className={styles.count}>{count.toLocaleString()}</span>
+        )}
       </button>
       {open && children}
     </section>
@@ -232,10 +255,16 @@ function OptimisticRow({
 function InternalsSection({ model }: { model: StoreModel }) {
   return (
     <Section name="internals" title="Internals">
-      <div className={styles.detail}>
-        <Field name="lastReset" node={{ t: 'val', v: model.lastReset }} />
-        <Field name="indexes" node={plain(model.indexes)} />
-      </div>
+      <Internals model={model} />
     </Section>
+  );
+}
+
+export function Internals({ model }: { model: StoreModel }) {
+  return (
+    <div className={styles.detail}>
+      <Field name="lastReset" node={{ t: 'val', v: model.lastReset }} />
+      <Field name="indexes" node={plain(model.indexes)} />
+    </div>
   );
 }

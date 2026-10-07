@@ -1,17 +1,17 @@
-import clsx from 'clsx';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
+import { TIME_WIDTH } from './columns';
 import { EntityDetail } from './Details';
 import {
   optimisticId,
-  referrersOf,
   splitKey,
   type EntityRow,
   type EntityTable,
   type StoreModel,
 } from './model';
-import { useNav } from './nav';
+import { offsetIn, useNav } from './nav';
 import { plain } from './refs';
+import { GroupLabel, Internals, SectionBlock } from './Sections';
 import styles from './store.module.css';
 import {
   endpointColumns,
@@ -20,7 +20,7 @@ import {
   tableColumns,
   type Column,
 } from './Table';
-import { Field, Inline, Primitive } from './Value';
+import { EndpointKey, Inline, Primitive } from './Value';
 
 /** Rows a table shows before "N more"; tables this short show them all */
 const PREVIEW_ROWS = 5;
@@ -32,20 +32,23 @@ const preview = <T,>(rows: readonly T[]) =>
   rows.length > SHOW_ALL_UNDER ? rows.slice(0, PREVIEW_ROWS) : rows;
 
 /** The whole store at a glance: a few rows of everything */
-export default function RootView() {
+export default function RootView({
+  scroller,
+}: {
+  scroller: React.RefObject<HTMLElement | null>;
+}) {
   const { model, width, push } = useNav()!;
   const [closed, setClosed] = useState<ReadonlySet<string>>(
-    () => new Set(['internals']),
+    () => new Set(['Internals']),
   );
-  const section = (name: string, title: string, count: number | undefined) => ({
-    name,
+  const section = (title: string, count?: number) => ({
     title,
     count,
-    open: !closed.has(name),
+    open: !closed.has(title),
     onToggle: () =>
       setClosed(prev => {
         const next = new Set(prev);
-        if (!next.delete(name)) next.add(name);
+        if (!next.delete(title)) next.add(title);
         return next;
       }),
   });
@@ -55,13 +58,14 @@ export default function RootView() {
   return (
     <>
       {model.optimistic.length > 0 && (
-        <Section
-          {...section('optimistic', 'Optimistic', model.optimistic.length)}
-        >
-          <OptimisticTable model={model} />
-        </Section>
+        <SectionBlock {...section('Optimistic', model.optimistic.length)}>
+          <RowsTable
+            columns={optimisticColumns}
+            rows={model.optimistic.map(o => ({ ...o, id: optimisticId(o) }))}
+          />
+        </SectionBlock>
       )}
-      <Section {...section('endpoints', 'Endpoints', model.endpoints.length)}>
+      <SectionBlock {...section('Endpoints', model.endpoints.length)}>
         {endpoints.length > 0 && (
           <RowsTable
             columns={endpointColumns(width)}
@@ -85,84 +89,46 @@ export default function RootView() {
             }
           />
         )}
-      </Section>
-      <Section {...section('entities', 'Entities', entityCount)}>
-        {model.tables.length > INDEX_OVER && <TableIndex model={model} />}
+      </SectionBlock>
+      <SectionBlock {...section('Entities', entityCount)}>
+        {model.tables.length > INDEX_OVER && (
+          <TableIndex model={model} scroller={scroller} />
+        )}
         {model.tables.map(table => (
           <Group key={table.key} table={table} />
         ))}
-      </Section>
-      <Section {...section('internals', 'Internals', undefined)}>
-        <div className={styles.detail}>
-          <Field name="lastReset" node={{ t: 'val', v: model.lastReset }} />
-          <Field name="indexes" node={plain(model.indexes)} />
-        </div>
-      </Section>
+      </SectionBlock>
+      <SectionBlock {...section('Internals')}>
+        <Internals model={model} />
+      </SectionBlock>
     </>
   );
 }
 
-function Section({
-  name,
-  title,
-  count,
-  open,
-  onToggle,
-  children,
-}: {
-  name: string;
-  title: string;
-  count: number | undefined;
-  open: boolean;
-  onToggle: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className={styles.section} data-section={name}>
-      <button
-        type="button"
-        className={clsx(styles.sectionHeader, !open && styles.closed)}
-        aria-expanded={open}
-        onClick={onToggle}
-      >
-        {title}
-        {count !== undefined && (
-          <span className={styles.count}>{count.toLocaleString()}</span>
-        )}
-      </button>
-      {open && children}
-    </section>
-  );
-}
-
 /** Jumps to a table further down */
-function TableIndex({ model }: { model: StoreModel }) {
+function TableIndex({
+  model,
+  scroller,
+}: {
+  model: StoreModel;
+  scroller: React.RefObject<HTMLElement | null>;
+}) {
   return (
     <div className={styles.tableIndex}>
       {model.tables.map(table => (
         <button
           key={table.key}
           type="button"
-          onClick={e => {
-            const scroller =
-              e.currentTarget.closest<HTMLElement>('[data-level]');
-            const group = scroller?.querySelector<HTMLElement>(
-              `[data-table="${CSS.escape(table.key)}"]`,
+          onClick={() => {
+            const el = scroller.current;
+            const group = el?.querySelector<HTMLElement>(
+              `[data-table="${table.key.replace(/["\\]/g, '\\$&')}"]`,
             );
-            if (!scroller || !group) return;
-            scroller.scrollTo({
-              top:
-                group.getBoundingClientRect().top -
-                scroller.getBoundingClientRect().top +
-                scroller.scrollTop,
-              behavior: 'smooth',
-            });
+            if (el && group)
+              el.scrollTo({ top: offsetIn(el, group), behavior: 'smooth' });
           }}
         >
-          {table.key}
-          <span className={styles.count}>
-            {table.rows.length.toLocaleString()}
-          </span>
+          <GroupLabel table={table} />
         </button>
       ))}
     </div>
@@ -177,7 +143,10 @@ function Group({ table }: { table: EntityTable }) {
   const [inline, setInline] = useState<string | null>(null);
   const [active, setActive] = useState(false);
   const rows = preview(table.rows);
-  const { columns, pages, more } = tableColumns(table, table.rows, width, page);
+  const { columns, pages, more } = useMemo(
+    () => tableColumns(table, table.rows, width, page),
+    [table, width, page],
+  );
   const hidden = table.rows.length - rows.length;
   return (
     <div
@@ -186,13 +155,7 @@ function Group({ table }: { table: EntityTable }) {
       data-active={active || undefined}
     >
       <div className={styles.groupHeader} onClick={() => setActive(a => !a)}>
-        <span className={styles.type}>{table.key}</span>
-        <span className={styles.count}>
-          {table.rows.length.toLocaleString()}
-        </span>
-        {table.kind === 'collection' && (
-          <span className={styles.kind}>Collection</span>
-        )}
+        <GroupLabel table={table} />
         <span className={styles.tool}>
           <Pager pages={pages} page={page} onChange={setPage} />
         </span>
@@ -204,9 +167,7 @@ function Group({ table }: { table: EntityTable }) {
         more={more}
         inline={inline}
         onInline={setInline}
-        record={row => (
-          <EntityDetail row={row} referrers={referrersOf(model).get(row.id)} />
-        )}
+        record={row => <EntityDetail row={row} model={model} />}
         foot={
           hidden > 0 && (
             <button
@@ -227,40 +188,26 @@ function Group({ table }: { table: EntityTable }) {
 type Optimistic = StoreModel['optimistic'][number] & { id: string };
 
 /** Updates applied ahead of their response */
-function OptimisticTable({ model }: { model: StoreModel }) {
-  const columns: Column<Optimistic>[] = [
-    {
-      id: 'key',
-      header: 'key',
-      width: '40%',
-      cell: ({ key }) => {
-        const { method, path } = splitKey(key);
-        return (
-          <span title={key}>
-            <span className={clsx(styles.method, styles.optimistic)}>
-              {method}
-            </span>{' '}
-            {path}
-          </span>
-        );
-      },
-    },
-    {
-      id: 'args',
-      header: 'args',
-      cell: ({ args }) => <Inline node={plain(args)} />,
-    },
-    {
-      id: 'fetchedAt',
-      header: 'sent',
-      width: 124,
-      cell: ({ fetchedAt }) => <Primitive value={fetchedAt} name="fetchedAt" />,
-    },
-  ];
-  return (
-    <RowsTable
-      columns={columns}
-      rows={model.optimistic.map(o => ({ ...o, id: optimisticId(o) }))}
-    />
-  );
-}
+const optimisticColumns: Column<Optimistic>[] = [
+  {
+    id: 'key',
+    header: 'key',
+    width: '40%',
+    cell: ({ key }) => (
+      <span className={styles.optimistic} title={key}>
+        <EndpointKey {...splitKey(key)} />
+      </span>
+    ),
+  },
+  {
+    id: 'args',
+    header: 'args',
+    cell: ({ args }) => <Inline node={plain(args)} />,
+  },
+  {
+    id: 'fetchedAt',
+    header: 'sent',
+    width: TIME_WIDTH,
+    cell: ({ fetchedAt }) => <Primitive value={fetchedAt} name="fetchedAt" />,
+  },
+];

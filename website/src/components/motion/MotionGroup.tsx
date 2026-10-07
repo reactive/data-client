@@ -213,7 +213,7 @@ function unpin(el: HTMLElement) {
 }
 
 // same as @docusaurus/theme-common's, but safe without matchMedia (jsdom)
-function prefersReducedMotion() {
+export function prefersReducedMotion() {
   return !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 }
 

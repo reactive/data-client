@@ -119,6 +119,7 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   outline: none;
+  container-type: inline-size;
 }
 .level[data-covered] {
   visibility: hidden;
@@ -509,9 +510,6 @@ div.row {
 .record {
   padding: 0.5rem 0;
 }
-.record > .detail {
-  padding-left: 0.75rem;
-}
 .showAll,
 .more {
   border: 0;
@@ -538,9 +536,23 @@ div.row {
 .indent .detail {
   padding-left: 1rem;
 }
-.detailRow .detail {
-  padding-left: 1.25rem;
-  padding-right: 0;
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--store-line);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.seg button {
+  font: 500 11px / 1.6 var(--ifm-font-family-base);
+  background: none;
+  border: 0;
+  color: var(--store-dim);
+  padding: 0.05rem 0.6rem;
+  cursor: pointer;
+}
+.seg button[aria-pressed='true'] {
+  background: rgba(130, 170, 255, 0.16);
+  color: var(--store-fg);
 }
 .detail > .seg {
   display: flex;
@@ -693,9 +705,6 @@ div.row {
 .recordRow .detail,
 .record > .detail {
   padding: 0.5rem 0.75rem 0.6rem;
-}
-.level {
-  container-type: inline-size;
 }
 /* each field of a record: name column, then its value */
 .recordRow .detail > .fields > .field,

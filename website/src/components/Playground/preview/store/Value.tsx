@@ -1,8 +1,9 @@
 import clsx from 'clsx';
 import React, { useState } from 'react';
 
-import { entityId, prettyPk } from './model';
-import { useNav } from './nav';
+import { chipWidth } from './columns';
+import { entityId, isEndpointRow, prettyPk, type AnyRow } from './model';
+import { useNav, type ListView } from './nav';
 import { CIRCULAR, type VNode } from './refs';
 import styles from './store.module.css';
 import { useStoreUI } from './StoreUI';
@@ -40,28 +41,50 @@ export function RefChip({
   );
 }
 
-function EntityRef({ entityKey, pk }: { entityKey: string; pk: string }) {
+/** `GET /posts` */
+export function EndpointKey({
+  method,
+  path,
+}: {
+  method: string;
+  path: string;
+}) {
   return (
-    <RefChip
-      id={entityId(entityKey, pk)}
-      label={
-        <>
-          {entityKey} <b>{prettyPk(pk)}</b>
-        </>
-      }
-    />
+    <>
+      <span className={styles.method}>{method}</span> {path}
+    </>
   );
+}
+
+/** `Post 1` */
+export function EntityKey({ table, pk }: { table: string; pk: string }) {
+  return (
+    <>
+      {table} <b>{prettyPk(pk)}</b>
+    </>
+  );
+}
+
+/** A chip for any row, endpoint or stored */
+export function RowChip({ row }: { row: AnyRow }) {
+  return isEndpointRow(row) ?
+      <RefChip
+        id={row.id}
+        className={styles.endpointRef}
+        label={<EndpointKey method={row.method} path={row.path} />}
+      />
+    : <RefChip
+        id={row.id}
+        label={<EntityKey table={row.table} pk={row.pk} />}
+      />;
 }
 
 /** Dives into a list of rows: `+79`, or `Comment · 80` when none fit */
 export function CountChip({
-  ids,
-  label,
+  list,
   children,
 }: {
-  ids: readonly string[];
-  /** Breadcrumb for the list */
-  label: string;
+  list: ListView;
   children: React.ReactNode;
 }) {
   const nav = useNav();
@@ -71,7 +94,7 @@ export function CountChip({
       className={clsx(styles.ref, styles.countRef)}
       onClick={e => {
         e.stopPropagation();
-        nav?.push({ kind: 'list', ids, label });
+        nav?.push(list);
       }}
     >
       {children}
@@ -79,9 +102,6 @@ export function CountChip({
   );
 }
 
-/** Rough rendered width of a ref chip, in px */
-export const chipWidth = (key: string, pk: string) =>
-  (key.length + 1 + prettyPk(pk).length) * 6.6 + 14;
 /** Room for a `+79` chip and the separators around it */
 const COUNT_WIDTH = 44;
 
@@ -92,8 +112,34 @@ const isRefList = (
   node.t === 'arr' &&
   node.items.length > 0 &&
   node.items.every(i => i.t === 'ref');
-const refIds = (items: readonly RefNode[]) =>
-  items.map(i => entityId(i.key, i.pk));
+
+/** The list a count chip dives into: one table's rows when they share one */
+function refsList(items: readonly RefNode[], label: string): ListView {
+  const table = items[0].key;
+  return items.every(i => i.key === table) ?
+      { kind: 'list', label, table, pks: items.map(i => i.pk) }
+    : { kind: 'list', label, ids: items.map(i => entityId(i.key, i.pk)) };
+}
+
+/** The first `RECORD_REFS` chips; the table view dives into the rest */
+export function RefList({
+  chips,
+  list,
+}: {
+  chips: readonly React.ReactNode[];
+  list: () => ListView;
+}) {
+  const nav = useNav();
+  const cut = nav && chips.length > RECORD_REFS;
+  return (
+    <span className={styles.wrapList}>
+      {cut ? chips.slice(0, RECORD_REFS) : chips}
+      {cut && (
+        <CountChip list={list()}>+{chips.length - RECORD_REFS}</CountChip>
+      )}
+    </span>
+  );
+}
 
 /** Table cell: lists of refs show the chips that fit in `width`, then a
  * count chip for the rest */
@@ -114,39 +160,24 @@ export function Cell({
   let used = 16;
   let fit = 0;
   for (const item of items) {
-    const w = chipWidth(item.key, item.pk) + 8;
     const room = fit + 1 < items.length ? width - COUNT_WIDTH : width;
-    if (used + w > room) break;
-    used += w;
+    used += chipWidth(item.key, item.pk) + 8;
+    if (used > room) break;
     fit++;
   }
-  const label = `${owner} ${name}`;
+  const list = refsList(items, `${owner} ${name}`);
   if (!fit)
     return (
-      <CountChip ids={refIds(items)} label={label}>
+      <CountChip list={list}>
         {items[0].key} · {items.length}
       </CountChip>
     );
-  const rest = items.length - fit;
   return (
-    <span className={styles.inlineList}>
-      <span className={styles.dim}>[</span>
-      {items.slice(0, fit).map((item, i) => (
-        <React.Fragment key={i}>
-          {i > 0 && <span className={styles.dim}>, </span>}
-          <Inline node={item} />
-        </React.Fragment>
-      ))}
-      {rest > 0 && (
-        <>
-          <span className={styles.dim}>, </span>
-          <CountChip ids={refIds(items)} label={label}>
-            +{rest}
-          </CountChip>
-        </>
-      )}
-      <span className={styles.dim}>]</span>
-    </span>
+    <Inline
+      node={node}
+      limit={fit}
+      more={<CountChip list={list}>+{items.length - fit}</CountChip>}
+    />
   );
 }
 
@@ -155,19 +186,30 @@ export function Inline({
   node,
   name,
   bare = false,
+  limit = INLINE_LIMIT,
+  more,
 }: {
   node: VNode;
   name?: string;
   /** Top-level object without braces, every field (the row truncates) */
   bare?: boolean;
+  /** Array items shown */
+  limit?: number;
+  /** Stands for the items past `limit` (default: a dim `+N`) */
+  more?: React.ReactNode;
 }) {
   switch (node.t) {
     case 'ref':
-      return <EntityRef entityKey={node.key} pk={node.pk} />;
+      return (
+        <RefChip
+          id={entityId(node.key, node.pk)}
+          label={<EntityKey table={node.key} pk={node.pk} />}
+        />
+      );
     case 'val':
       return <Primitive value={node.v} name={name} />;
     case 'arr': {
-      const shown = node.items.slice(0, INLINE_LIMIT);
+      const shown = node.items.slice(0, limit);
       const rest = node.items.length - shown.length;
       return (
         <span className={styles.inlineList}>
@@ -178,7 +220,12 @@ export function Inline({
               <Inline node={item} />
             </React.Fragment>
           ))}
-          {rest > 0 && <span className={styles.dim}>, +{rest}</span>}
+          {rest > 0 && (
+            <>
+              <span className={styles.dim}>, </span>
+              {more ?? <span className={styles.dim}>+{rest}</span>}
+            </>
+          )}
           <span className={styles.dim}>]</span>
         </span>
       );
@@ -246,16 +293,14 @@ function BlockList({
   const [all, setAll] = useState(false);
   const nav = useNav();
   // the table view dives into long lists of refs instead of growing them
-  if (nav && isRefList(node) && node.items.length > RECORD_REFS)
+  if (nav && isRefList(node))
     return (
-      <span className={styles.wrapList}>
-        {node.items.slice(0, RECORD_REFS).map((item, i) => (
+      <RefList
+        chips={node.items.map((item, i) => (
           <Inline key={i} node={item} />
         ))}
-        <CountChip ids={refIds(node.items)} label={name}>
-          +{node.items.length - RECORD_REFS}
-        </CountChip>
-      </span>
+        list={() => refsList(node.items, name)}
+      />
     );
   const shown = all ? node.items : node.items.slice(0, BLOCK_LIMIT);
   const rest = node.items.length - shown.length;

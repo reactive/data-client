@@ -47,14 +47,12 @@ export interface EntityTable {
   readonly get: (pk: string) => EntityRow | undefined;
 }
 
-export interface Referrer {
-  readonly id: string;
-  readonly label: string;
-}
+export type AnyRow = EndpointRow | EntityRow;
 
 export interface StoreModel {
   readonly endpoints: readonly EndpointRow[];
   readonly tables: readonly EntityTable[];
+  readonly table: (key: string) => EntityTable | undefined;
   readonly optimistic: readonly PendingOptimistic[];
   readonly indexes: State<unknown>['indexes'];
   readonly lastReset: number;
@@ -67,33 +65,36 @@ const FIELD_SAMPLE = 500;
 /** Stored objects keep their identity until they change, so their resolved
  * values (and tables, below) are reused across states. Per schema, since one
  * can be learned after its rows were stored */
-const resolved = new WeakMap<object, WeakMap<object, VNode>>();
-const unknownSchema = {};
-function resolveCached(raw: unknown, schema: unknown): VNode {
-  if (!raw || typeof raw !== 'object') return resolveRow(raw, schema);
-  const scope = (schema as object | undefined) ?? unknownSchema;
-  let cache = resolved.get(scope);
-  if (!cache) resolved.set(scope, (cache = new WeakMap()));
-  let node = cache.get(raw);
-  if (!node) cache.set(raw, (node = resolveRow(raw, schema)));
-  return node;
+function cached(resolver: (raw: unknown, schema: any) => VNode) {
+  const bySchema = new WeakMap<object, WeakMap<object, VNode>>();
+  const unknownSchema = {};
+  return (raw: unknown, schema: unknown): VNode => {
+    if (!raw || typeof raw !== 'object') return resolver(raw, schema);
+    const scope = (schema as object | undefined) ?? unknownSchema;
+    let cache = bySchema.get(scope);
+    if (!cache) bySchema.set(scope, (cache = new WeakMap()));
+    let node = cache.get(raw);
+    if (!node) cache.set(raw, (node = resolver(raw, schema)));
+    return node;
+  };
 }
+const resolveStored = cached(resolveRow);
+const resolveEndpoint = cached(resolve);
 
 class StoredRow implements EntityRow {
+  readonly id: string;
   constructor(
     readonly table: string,
     readonly pk: string,
     readonly raw: unknown,
     readonly meta: EntityRow['meta'],
     private readonly schema: unknown,
-  ) {}
-
-  get id() {
-    return entityId(this.table, this.pk);
+  ) {
+    this.id = entityId(table, pk);
   }
 
   get value() {
-    return resolveCached(this.raw, this.schema);
+    return resolveStored(this.raw, this.schema);
   }
 }
 
@@ -109,8 +110,8 @@ function buildTable(
 ): EntityTable {
   const hit = tableCache.get(rows);
   if (hit && hit.schema === schema && hit.meta === meta) return hit.table;
-  const kind = tableKind(schema, rows);
   const pks = Object.keys(rows);
+  const kind = tableKind(schema, rows[pks[0]]);
   const fields = new Set<string>();
   if (kind === 'entity')
     for (const pk of pks.slice(0, FIELD_SAMPLE)) {
@@ -118,16 +119,15 @@ function buildTable(
       if (raw && typeof raw === 'object')
         for (const f of Object.keys(raw)) if (f !== 'id') fields.add(f);
     }
-  const get = (pk: string) =>
-    pk in rows ?
-      new StoredRow(key, pk, rows[pk], meta?.[pk], schema)
-    : undefined;
+  const byPk = new Map(
+    pks.map(pk => [pk, new StoredRow(key, pk, rows[pk], meta?.[pk], schema)]),
+  );
   const table: EntityTable = {
     key,
     kind,
-    rows: pks.map(pk => new StoredRow(key, pk, rows[pk], meta?.[pk], schema)),
+    rows: [...byPk.values()],
     fields: [...fields],
-    get,
+    get: pk => byPk.get(pk),
   };
   tableCache.set(rows, { schema, meta, table });
   return table;
@@ -148,20 +148,29 @@ export function buildModel(
       id: endpointId(key),
       key,
       ...splitKey(key),
-      value: resolve(state.endpoints[key], record?.endpoint.schema),
+      value: resolveEndpoint(state.endpoints[key], record?.endpoint.schema),
       meta: state.meta[key],
       record,
     };
     return row;
   });
 
-  const tables = Object.entries(state.entities).map(([key, rows = {}]) =>
-    buildTable(key, rows, state.entitiesMeta[key], registry.entities.get(key)),
+  const tables = new Map(
+    Object.entries(state.entities).map(([key, rows = {}]) => [
+      key,
+      buildTable(
+        key,
+        rows,
+        state.entitiesMeta[key],
+        registry.entities.get(key),
+      ),
+    ]),
   );
 
   return {
     endpoints,
     tables: orderTables(tables),
+    table: key => tables.get(key),
     optimistic: registry.optimistic,
     indexes: state.indexes,
     lastReset: state.lastReset,
@@ -170,83 +179,92 @@ export function buildModel(
 
 /** Each Collection right after the Entity it holds (`[Todo]` after `Todo`),
  * then Collections of anything else, then Scalar cells */
-function orderTables(tables: EntityTable[]) {
+function orderTables(tables: ReadonlyMap<string, EntityTable>) {
   const held = new Map<string, EntityTable[]>();
   const rest: EntityTable[] = [];
-  for (const table of tables) {
+  for (const table of tables.values()) {
     if (table.kind !== 'collection') continue;
     const member = memberKey(table.key);
-    if (tables.some(t => t.key === member && t.kind !== 'collection'))
+    const kind = tables.get(member)?.kind;
+    if (kind === 'entity' || kind === 'unknown')
       held.set(member, [...(held.get(member) ?? []), table]);
     else rest.push(table);
   }
   const ordered: EntityTable[] = [];
-  for (const table of tables) {
+  const scalars: EntityTable[] = [];
+  for (const table of tables.values()) {
     if (table.kind === 'entity' || table.kind === 'unknown')
       ordered.push(table, ...(held.get(table.key) ?? []));
+    else if (table.kind === 'scalar') scalars.push(table);
   }
-  return [...ordered, ...rest, ...tables.filter(t => t.kind === 'scalar')];
+  return [...ordered, ...rest, ...scalars];
 }
 
 /** `[Todo]`, `{Todo}` or `(Todo)` → `Todo` */
 const memberKey = (key: string) => key.replace(/^[[{(](.*)[\]})]$/, '$1');
 
-const referrerCache = new WeakMap<StoreModel, Map<string, Referrer[]>>();
-/** Row id → everything that references it. Built on first use (opening a
- * record), since it reads every stored row */
-export function referrersOf(
-  model: StoreModel,
-): ReadonlyMap<string, readonly Referrer[]> {
-  let referrers = referrerCache.get(model);
-  if (referrers) return referrers;
-  const map = new Map<string, Referrer[]>();
-  const addRefs = (from: Referrer, node: VNode) =>
-    forEachRef(node, (key, pk) => {
+/** Ref target id → the rows in `rows` that reference it; cached per table
+ * (and endpoint list), which keep their identity until they change */
+const refIndex = new WeakMap<object, Map<string, AnyRow[]>>();
+function indexRefs(owner: object, rows: readonly AnyRow[]) {
+  let map = refIndex.get(owner);
+  if (map) return map;
+  map = new Map();
+  for (const row of rows)
+    forEachRef(row.value, (key, pk) => {
       const to = entityId(key, pk);
-      const list = map.get(to);
-      if (!list) map.set(to, [from]);
+      const list = map!.get(to);
+      if (!list) map!.set(to, [row]);
       // a row's refs arrive together, so a repeat is always the last entry
-      else if (list[list.length - 1].id !== from.id) list.push(from);
+      else if (list[list.length - 1] !== row) list.push(row);
     });
-  for (const row of model.endpoints)
-    addRefs(
-      { id: row.id, label: `${row.method} ${row.path}`.trim() },
-      row.value,
-    );
-  for (const table of model.tables)
-    for (const row of table.rows)
-      addRefs(
-        { id: row.id, label: `${table.key} ${prettyPk(row.pk)}` },
-        row.value,
-      );
-  referrerCache.set(model, (referrers = map));
-  return referrers;
+  refIndex.set(owner, map);
+  return map;
+}
+
+/** Every row that references row `id`. Indexes a table on first use (opening
+ * a record) and again only once that table changes */
+export function referrersOf(model: StoreModel, id: string): AnyRow[] {
+  return [model.endpoints, ...model.tables].flatMap(
+    owner =>
+      indexRefs(owner, 'rows' in owner ? owner.rows : owner).get(id) ?? [],
+  );
 }
 
 /** The endpoint or stored row an id names */
-export function findRow(
-  model: StoreModel,
-  id: string,
-): EndpointRow | EntityRow | undefined {
+export function findRow(model: StoreModel, id: string): AnyRow | undefined {
   if (isEndpointId(id)) return model.endpoints.find(r => r.id === id);
   const [, key, ...pk] = id.split('\u001f');
-  return model.tables.find(t => t.key === key)?.get(pk.join('\u001f'));
+  return model.table(key)?.get(pk.join('\u001f'));
 }
 
-function tableKind(
-  table: any,
-  rows: Record<string, unknown>,
-): EntityTable['kind'] {
+export const isEndpointRow = (row: AnyRow): row is EndpointRow => 'key' in row;
+
+/** `GET /posts` or `Post 1` */
+export const rowLabel = (row: AnyRow) =>
+  isEndpointRow(row) ?
+    `${row.method} ${row.path}`.trim()
+  : `${row.table} ${prettyPk(row.pk)}`;
+
+export const errorText = (error: unknown) =>
+  error instanceof Error ? error.message : String(error);
+
+function tableKind(table: any, first: unknown): EntityTable['kind'] {
   if (typeof table === 'function') return 'entity';
   if (table instanceof s.Collection) return 'collection';
   if (table instanceof s.Scalar) return 'scalar';
   // Unknown schema (e.g. state seeded without an action): guess from the rows
-  const first = Object.values(rows)[0];
   return Array.isArray(first) ? 'collection' : 'unknown';
 }
 
+const splitCache = new Map<string, { method: string; path: string }>();
 /** `GET https://host/posts?x=1` → method and path (host dropped) */
 export function splitKey(key: string) {
+  let split = splitCache.get(key);
+  if (!split) splitCache.set(key, (split = parseKey(key)));
+  return split;
+}
+function parseKey(key: string) {
   const match = /^([A-Z]+) (\S+)(.*)$/.exec(key);
   if (!match) return { method: '', path: key };
   const [, method, url, rest] = match;
@@ -258,28 +276,22 @@ export function splitKey(key: string) {
   }
 }
 
-/** Ids whose stored value changed between two states */
-export function changedIds(prev: State<unknown>, next: State<unknown>) {
-  const ids = new Set<string>();
-  if (prev === next) return ids;
-  for (const key of new Set([
-    ...Object.keys(next.endpoints),
-    ...Object.keys(next.meta),
-  ])) {
-    if (
+/** Whether row `id`'s stored value (or meta) differs between two states */
+export function isChanged(
+  prev: State<unknown>,
+  next: State<unknown>,
+  id: string,
+) {
+  if (isEndpointId(id)) {
+    const key = id.slice(2);
+    return (
       prev.endpoints[key] !== next.endpoints[key] ||
       prev.meta[key] !== next.meta[key]
-    )
-      ids.add(endpointId(key));
+    );
   }
-  for (const [key, rows] of Object.entries(next.entities)) {
-    const before = prev.entities[key];
-    if (before === rows || !rows) continue;
-    for (const [pk, row] of Object.entries(rows)) {
-      if (before?.[pk] !== row) ids.add(entityId(key, pk));
-    }
-  }
-  return ids;
+  const [, key, ...rest] = id.split('\u001f');
+  const pk = rest.join('\u001f');
+  return prev.entities[key]?.[pk] !== next.entities[key]?.[pk];
 }
 
 /** Collection pks are serialized args: `{"userId":"1"}` → `userId: 1` */

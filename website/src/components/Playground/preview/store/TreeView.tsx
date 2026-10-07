@@ -3,7 +3,6 @@ import React from 'react';
 import { EndpointDetail, EntityDetail, Status } from './Details';
 import {
   prettyPk,
-  referrersOf,
   type EndpointRow,
   type EntityRow,
   type EntityTable,
@@ -92,7 +91,7 @@ function EntityTreeRow({ row, model }: { row: EntityRow; model: StoreModel }) {
       </div>
       {open && (
         <div className={styles.indent}>
-          <EntityDetail row={row} referrers={referrersOf(model).get(row.id)} />
+          <EntityDetail row={row} model={model} />
         </div>
       )}
     </>

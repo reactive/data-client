@@ -4,9 +4,10 @@ import { actionTypes, type State } from '@data-client/react';
 
 import {
   buildModel,
-  changedIds,
   entityId,
+  isChanged,
   referrersOf,
+  rowLabel,
   splitKey,
 } from '../store/model';
 import { CIRCULAR, plain, resolve, resolveRow } from '../store/refs';
@@ -174,7 +175,10 @@ describe('store model', () => {
       'GET https://example.com/posts',
       'GET /broken',
     ]);
-    expect([...changedIds(state, failed)]).toEqual(['e\u001fGET /broken']);
+    expect(isChanged(state, failed, 'e\u001fGET /broken')).toBe(true);
+    expect(
+      isChanged(state, failed, 'e\u001fGET https://example.com/posts'),
+    ).toBe(false);
   });
 
   it('falls back to plain values when the stored shape does not match', () => {
@@ -208,9 +212,7 @@ describe('store model', () => {
       registryFor('GET https://example.com/posts', [Post]),
     );
     const labels = (key: string, pk: string) =>
-      referrersOf(model)
-        .get(entityId(key, pk))
-        ?.map(r => r.label);
+      referrersOf(model, entityId(key, pk)).map(rowLabel);
     expect(labels('Post', '1')).toEqual(['GET /posts']);
     expect(labels('User', '123')).toEqual(['Comment 249', 'Post 1']);
     expect(labels('Comment', '249')).toEqual(['[Comment] postId: 1']);
@@ -228,7 +230,7 @@ describe('store model', () => {
       t: 'arr',
       items: [{ t: 'val', v: '1' }],
     });
-    expect(referrersOf(model).size).toBe(0);
+    expect(referrersOf(model, entityId('User', '123'))).toEqual([]);
   });
 
   it('guesses table kinds without a schema', () => {
@@ -304,7 +306,8 @@ describe('store model', () => {
         User: { 123: { id: '123', name: 'Paul Jones' } },
       },
     };
-    expect([...changedIds(state, next)]).toEqual([entityId('User', '123')]);
+    expect(isChanged(state, next, entityId('User', '123'))).toBe(true);
+    expect(isChanged(state, next, entityId('Post', '1'))).toBe(false);
   });
 
   it('splits endpoint keys', () => {

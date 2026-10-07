@@ -6,21 +6,21 @@ import {
   idWidth,
   MORE_WIDTH,
   pageColumns,
-  type ColumnSize,
+  STATUS_WIDTH,
+  TIME_WIDTH,
 } from './columns';
 import { Status } from './Details';
 import {
-  isEndpointId,
+  errorText,
   prettyPk,
+  type AnyRow,
   type EndpointRow,
   type EntityRow,
   type EntityTable,
 } from './model';
 import type { VNode } from './refs';
 import styles from './store.module.css';
-import { Cell, Inline, Primitive, RefChip } from './Value';
-
-export type AnyRow = EndpointRow | EntityRow;
+import { Cell, EndpointKey, Inline, Primitive, RowChip } from './Value';
 
 export interface Column<R> {
   readonly id: string;
@@ -54,7 +54,8 @@ export function RowsTable<R extends { readonly id: string }>({
   onInline?: (id: string | null) => void;
   record?: (row: R) => React.ReactNode;
   foot?: React.ReactNode;
-  /** Heights (px) of rows left out above and below a window */
+  /** Heights (px) of rows left out above and below a window, which
+   * `beforeRef` measures from */
   before?: number;
   after?: number;
   beforeRef?: React.Ref<HTMLTableRowElement>;
@@ -79,11 +80,13 @@ export function RowsTable<R extends { readonly id: string }>({
         </tr>
       </thead>
       <tbody>
-        <tr
-          ref={beforeRef}
-          className={styles.spacer}
-          style={{ height: before }}
-        />
+        {beforeRef && (
+          <tr
+            ref={beforeRef}
+            className={styles.spacer}
+            style={{ height: before }}
+          />
+        )}
         {rows.map(row => {
           const open = inline === row.id;
           return (
@@ -126,7 +129,9 @@ export function RowsTable<R extends { readonly id: string }>({
             </React.Fragment>
           );
         })}
-        <tr className={styles.spacer} style={{ height: after }} />
+        {beforeRef && (
+          <tr className={styles.spacer} style={{ height: after }} />
+        )}
         {foot && (
           <tr className={styles.foot}>
             <td colSpan={span}>{foot}</td>
@@ -216,11 +221,6 @@ export function Pager({
   );
 }
 
-const VALUE = '';
-/** A time of day, `3:38:36.875 PM` */
-const TIME_WIDTH = 124;
-const META = 'meta\u001f';
-const metaFields = { fetchedAt: 'fetched', expiresAt: 'expires' } as const;
 const keyLabel = {
   entity: 'id',
   collection: 'args',
@@ -228,16 +228,78 @@ const keyLabel = {
   unknown: 'key',
 } as const;
 
+/** A column before it is fitted: what it wants, and its cell at a width */
+interface Spec {
+  readonly id: string;
+  readonly header: string;
+  readonly want: number;
+  readonly cell: (row: EntityRow, width: number) => React.ReactNode;
+  /** Data the row has that this column shows (counted by `+N` when hidden) */
+  readonly has?: (row: EntityRow) => boolean;
+}
+
 function field(node: VNode, name: string): VNode | undefined {
-  if (name === VALUE) return node;
   if (node.t !== 'obj') return;
   return node.entries.find(([k]) => k === name)?.[1];
 }
 
+/** One column per field (entities) or for the whole value (other tables) */
+function dataSpecs(
+  table: EntityTable,
+  rows: readonly EntityRow[],
+  width: number,
+): Spec[] {
+  const owner = (row: EntityRow) => `${table.key} ${prettyPk(row.pk)}`;
+  if (table.kind !== 'entity') {
+    const name = table.kind === 'collection' ? 'items' : 'value';
+    return [
+      {
+        id: name,
+        header: name,
+        want: columnWidth(rows, row => row.value, name, width),
+        cell: (row, w) => (
+          <Cell node={row.value} name={name} width={w} owner={owner(row)} />
+        ),
+        has: () => true,
+      },
+    ];
+  }
+  return table.fields.map(name => {
+    const value = (row: EntityRow) => field(row.value, name);
+    return {
+      id: name,
+      header: name,
+      want: columnWidth(rows, value, name, width),
+      cell: (row, w) => {
+        const node = value(row);
+        return (
+          node && <Cell node={node} name={name} width={w} owner={owner(row)} />
+        );
+      },
+      has: row => value(row) !== undefined,
+    };
+  });
+}
+
+/** When each row was fetched and expires */
+const metaSpecs: Spec[] = (
+  [
+    ['fetchedAt', 'fetched'],
+    ['expiresAt', 'expires'],
+  ] as const
+).map(([name, header]) => ({
+  id: name,
+  header,
+  want: TIME_WIDTH,
+  cell: row => {
+    const v = row.meta?.[name];
+    return v === undefined ? null : <Primitive value={v} name={name} />;
+  },
+}));
+
 /**
- * Columns of `table` that fit `width`, as pages. Entities get a column per
- * field, other tables one value column; `withMeta` adds when each row was
- * fetched and expires.
+ * Columns of `table` that fit `width`, as pages; `withMeta` adds when each
+ * row was fetched and expires.
  */
 export function tableColumns(
   table: EntityTable,
@@ -246,26 +308,18 @@ export function tableColumns(
   page: number,
   withMeta = false,
 ) {
-  const narrow = width < 480;
-  const fields = table.kind === 'entity' ? table.fields : [VALUE];
-  const sizes: ColumnSize[] = fields.map(f => ({
-    id: f,
-    width: columnWidth(rows, row => field(row.value, f), f, narrow),
-  }));
-  if (withMeta)
-    for (const f of Object.keys(metaFields))
-      sizes.push({ id: META + f, width: TIME_WIDTH });
+  const specs = dataSpecs(table, rows, width);
+  if (withMeta) specs.push(...metaSpecs);
   const keyWidth =
     table.kind === 'entity' ?
       idWidth(rows)
     : Math.min(idWidth(rows) + 40, Math.round(width * 0.4));
-  const pages = pageColumns(sizes, keyWidth, width);
+  const pages = pageColumns(specs, keyWidth, width);
   const current = pages[Math.min(page, pages.length - 1)];
   // columns share the room left by the key (and +N) in proportion to what
   // they want; the last one has no width, so it absorbs rounding
   const room = width - keyWidth - (pages.length > 1 ? MORE_WIDTH : 0);
-  const scale = room / current.reduce((w, c) => w + c.width, 0);
-  const shown = new Set(current.map(c => c.id));
+  const scale = room / current.reduce((w, c) => w + c.want, 0);
   const columns: Column<EntityRow>[] = [
     {
       id: 'key',
@@ -274,50 +328,26 @@ export function tableColumns(
       className: styles.key,
       cell: row => prettyPk(row.pk),
     },
-    ...current.map((c): Column<EntityRow> => ({
-      id: c.id,
-      header:
-        c.id.startsWith(META) ?
-          metaFields[c.id.slice(META.length) as keyof typeof metaFields]
-        : c.id || (table.kind === 'collection' ? 'items' : 'value'),
-      width: c === current[current.length - 1] ? undefined : c.width * scale,
-      cell:
-        c.id.startsWith(META) ?
-          row => {
-            const name = c.id.slice(META.length);
-            const v = row.meta?.[name as keyof typeof metaFields];
-            return v === undefined ? null : <Primitive value={v} name={name} />;
-          }
-        : row => {
-            const node = field(row.value, c.id);
-            return (
-              node && (
-                <Cell
-                  node={node}
-                  name={c.id || 'items'}
-                  width={c.width * scale}
-                  owner={`${table.key} ${prettyPk(row.pk)}`}
-                />
-              )
-            );
-          },
-    })),
+    ...current.map((c, i) => {
+      const w = c.want * scale;
+      return {
+        id: c.id,
+        header: c.header,
+        width: i === current.length - 1 ? undefined : w,
+        cell: (row: EntityRow) => c.cell(row, w),
+      };
+    }),
   ];
+  const hidden = specs.filter(c => c.has && !current.includes(c));
   const more =
     pages.length > 1 ?
-      (row: EntityRow) => {
-        if (table.kind !== 'entity') return shown.has(VALUE) ? 0 : 1;
-        if (row.value.t !== 'obj') return 0;
-        return row.value.entries.filter(([k]) => k !== 'id' && !shown.has(k))
-          .length;
-      }
+      (row: EntityRow) => hidden.filter(c => c.has!(row)).length
     : undefined;
   return { columns, pages, more };
 }
 
 export function endpointColumns(width: number): Column<EndpointRow>[] {
   const keyWidth = Math.round(width * 0.4);
-  const statusWidth = 96;
   return [
     {
       id: 'key',
@@ -325,14 +355,14 @@ export function endpointColumns(width: number): Column<EndpointRow>[] {
       width: keyWidth,
       cell: row => (
         <span title={row.key}>
-          <span className={styles.method}>{row.method}</span> {row.path}
+          <EndpointKey method={row.method} path={row.path} />
         </span>
       ),
     },
     {
       id: 'status',
       header: 'status',
-      width: statusWidth,
+      width: STATUS_WIDTH,
       cell: row => <Status meta={row.meta} />,
     },
     {
@@ -344,15 +374,11 @@ export function endpointColumns(width: number): Column<EndpointRow>[] {
         : <Cell
             node={row.value}
             name="value"
-            width={width - keyWidth - statusWidth}
+            width={width - keyWidth - STATUS_WIDTH}
             owner={`${row.method} ${row.path}`}
           />,
     },
   ];
-}
-
-function errorText(error: unknown) {
-  return error instanceof Error ? error.message : String(error);
 }
 
 /** For lists that mix tables: each row as a ref, then its value */
@@ -362,22 +388,7 @@ export function mixedColumns(width: number): Column<AnyRow>[] {
       id: 'ref',
       header: 'row',
       width: Math.round(width * 0.35),
-      cell: row =>
-        isEndpointId(row.id) ?
-          <RefChip
-            id={row.id}
-            className={styles.endpointRef}
-            label={`${(row as EndpointRow).method} ${(row as EndpointRow).path}`}
-          />
-        : <RefChip
-            id={row.id}
-            label={
-              <>
-                {(row as EntityRow).table}{' '}
-                <b>{prettyPk((row as EntityRow).pk)}</b>
-              </>
-            }
-          />,
+      cell: row => <RowChip row={row} />,
     },
     {
       id: 'value',

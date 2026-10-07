@@ -9,14 +9,13 @@ import React, {
 import { EndpointDetail, EntityDetail } from './Details';
 import {
   findRow,
-  isEndpointId,
+  isEndpointRow,
   prettyPk,
-  referrersOf,
-  type EndpointRow,
-  type EntityRow,
+  type AnyRow,
+  type EntityTable,
   type StoreModel,
 } from './model';
-import { useNav, type View } from './nav';
+import { offsetIn, useNav, type ListView, type View } from './nav';
 import styles from './store.module.css';
 import {
   endpointColumns,
@@ -24,12 +23,12 @@ import {
   Pager,
   RowsTable,
   tableColumns,
-  type AnyRow,
   type Column,
 } from './Table';
+import { EndpointKey, EntityKey } from './Value';
 
-type ListViewProps = Extract<View, { kind: 'list' }>;
-type Header = (tools?: React.ReactNode) => React.ReactNode;
+type Scroller = React.RefObject<HTMLElement | null>;
+type Header = (tools: React.ReactNode) => React.ReactNode;
 
 /** Rows rendered beyond the visible ones, on each side */
 const OVERSCAN = 20;
@@ -43,46 +42,125 @@ export function ListView({
   scroller,
   header,
 }: {
-  view: ListViewProps;
-  scroller: React.RefObject<HTMLElement | null>;
+  view: ListView;
+  scroller: Scroller;
   header: Header;
 }) {
-  const { model, width, push } = useNav()!;
+  const { model } = useNav()!;
+  if ('table' in view) {
+    const table = model.table(view.table);
+    return table ?
+        <TableList
+          table={table}
+          pks={view.pks}
+          scroller={scroller}
+          header={header}
+        />
+      : <>
+          {header(null)}
+          <Gone />
+        </>;
+  }
+  return <IdList ids={view.ids} scroller={scroller} header={header} />;
+}
+
+/** Rows of one table: its columns, paged, with `+N` and meta columns */
+function TableList({
+  table,
+  pks,
+  scroller,
+  header,
+}: {
+  table: EntityTable;
+  pks: readonly string[] | undefined;
+  scroller: Scroller;
+  header: Header;
+}) {
+  const { model, width } = useNav()!;
+  const [page, setPage] = useState(0);
+  const rows = useMemo(
+    () => (pks ? pks.flatMap(pk => table.get(pk) ?? []) : table.rows),
+    [table, pks],
+  );
+  const { columns, pages, more } = useMemo(
+    () => tableColumns(table, rows, width, page, true),
+    [table, rows, width, page],
+  );
+  return (
+    <FilteredRows
+      rows={rows}
+      columns={columns}
+      more={more}
+      record={row => <EntityDetail row={row} model={model} />}
+      scroller={scroller}
+      header={header}
+      tools={<Pager pages={pages} page={page} onChange={setPage} />}
+    />
+  );
+}
+
+/** Rows by id: endpoints, or a mix of tables */
+function IdList({
+  ids,
+  scroller,
+  header,
+}: {
+  ids: readonly string[];
+  scroller: Scroller;
+  header: Header;
+}) {
+  const { model, width } = useNav()!;
+  const rows = useMemo(
+    () => ids.flatMap(id => findRow(model, id) ?? []),
+    [model, ids],
+  );
+  const columns = useMemo(
+    () =>
+      rows.every(isEndpointRow) ?
+        (endpointColumns(width) as Column<AnyRow>[])
+      : mixedColumns(width),
+    [rows, width],
+  );
+  return (
+    <FilteredRows
+      rows={rows}
+      columns={columns}
+      scroller={scroller}
+      header={header}
+    />
+  );
+}
+
+/** A filter box over a windowed table of `rows` */
+function FilteredRows<R extends AnyRow>({
+  rows,
+  columns,
+  more,
+  record,
+  scroller,
+  header,
+  tools,
+}: {
+  rows: readonly R[];
+  columns: readonly Column<R>[];
+  more?: (row: R) => number;
+  record?: (row: R) => React.ReactNode;
+  scroller: Scroller;
+  header: Header;
+  tools?: React.ReactNode;
+}) {
+  const { push } = useNav()!;
   const [filter, setFilter] = useState('');
   const query = useDeferredValue(filter.trim().toLowerCase());
-  const [page, setPage] = useState(0);
   const [inline, setInline] = useState<string | null>(null);
-
-  const table = model.tables.find(
-    t => t.key === (view.table ?? tableOf(view.ids)),
-  );
-  const rows = useMemo(
-    () =>
-      view.ids ?
-        view.ids.flatMap(id => findRow(model, id) ?? [])
-      : (table?.rows ?? []),
-    [model, view.ids, table],
-  );
   const matches = useMemo(
     () => (query ? rows.filter(row => searchText(row).includes(query)) : rows),
     [rows, query],
   );
-
-  let columns: readonly Column<AnyRow>[];
-  let more: ((row: AnyRow) => number) | undefined;
-  let pages: readonly (readonly unknown[])[] = [];
-  if (table) {
-    const fit = tableColumns(table, rows as EntityRow[], width, page, true);
-    columns = fit.columns as unknown as Column<AnyRow>[];
-    more = fit.more as ((row: AnyRow) => number) | undefined;
-    pages = fit.pages;
-  } else if (rows.every(row => isEndpointId(row.id))) {
-    columns = endpointColumns(width) as Column<AnyRow>[];
-  } else {
-    columns = mixedColumns(width);
-  }
-
-  const openIndex = inline ? matches.findIndex(row => row.id === inline) : -1;
+  const openIndex = useMemo(
+    () => (inline ? matches.findIndex(row => row.id === inline) : -1),
+    [matches, inline],
+  );
   const { start, end, before, after, spacer } = useWindow(
     scroller,
     matches.length,
@@ -104,10 +182,10 @@ export function ListView({
             placeholder="filter"
             aria-label="Filter rows"
           />
-          <Pager pages={pages} page={page} onChange={setPage} />
+          {tools}
         </>,
       )}
-      <RowsTable<AnyRow>
+      <RowsTable
         columns={columns}
         rows={matches.slice(start, end)}
         before={before}
@@ -117,12 +195,7 @@ export function ListView({
         more={more}
         inline={inline}
         onInline={setInline}
-        record={row => (
-          <EntityDetail
-            row={row as EntityRow}
-            referrers={referrersOf(model).get(row.id)}
-          />
-        )}
+        record={record}
         foot={
           query ?
             <span>
@@ -137,18 +210,16 @@ export function ListView({
   );
 }
 
-/** The one table every id of `ids` is in, if they share one */
-function tableOf(ids: readonly string[] | undefined) {
-  const [first] = ids ?? [];
-  if (!first || isEndpointId(first)) return;
-  const prefix = first.slice(0, first.indexOf('\u001f', 2) + 1);
-  if (ids!.every(id => id.startsWith(prefix))) return prefix.slice(2, -1);
-}
+const Gone = () => (
+  <div className={styles.record}>
+    <span className={styles.dim}>No longer in the store</span>
+  </div>
+);
 
 /** Lowercase text a filter matches against, cached with the stored object */
 const searchCache = new WeakMap<object, string>();
 function searchText(row: AnyRow) {
-  if ('key' in row) return row.key.toLowerCase();
+  if (isEndpointRow(row)) return row.key.toLowerCase();
   const key = row.raw && typeof row.raw === 'object' ? row.raw : null;
   let text = key && searchCache.get(key);
   if (text) return text;
@@ -172,7 +243,8 @@ function useWindow(
   // measure after each render: a row's height, and the open record's
   useLayoutEffect(() => {
     const row = spacer.current?.nextElementSibling as HTMLElement | null;
-    if (row?.offsetHeight) rowHeight.current = row.offsetHeight;
+    if (row?.dataset.id && row.offsetHeight)
+      rowHeight.current = row.offsetHeight;
     const record = spacer.current?.parentElement?.querySelector<HTMLElement>(
       `.${styles.recordRow}`,
     );
@@ -185,11 +257,7 @@ function useWindow(
     const update = () => {
       const top = spacer.current;
       if (!top) return;
-      const base =
-        top.getBoundingClientRect().top -
-        el.getBoundingClientRect().top +
-        el.scrollTop;
-      const y = el.scrollTop - base;
+      const y = el.scrollTop - offsetIn(el, top);
       const h = rowHeight.current;
       let first = y / h;
       if (openIndex >= 0 && first > openIndex + 1)
@@ -230,24 +298,16 @@ function useWindow(
 }
 
 /** One row with everything about it */
-export function RecordView({ id, header }: { id: string; header: Header }) {
+export function RecordView({ id }: { id: string }) {
   const { model } = useNav()!;
   const row = findRow(model, id);
+  if (!row) return <Gone />;
   return (
-    <>
-      {header()}
-      <div className={styles.record}>
-        {!row ?
-          <span className={styles.dim}>No longer in the store</span>
-        : isEndpointId(id) ?
-          <EndpointDetail row={row as EndpointRow} />
-        : <EntityDetail
-            row={row as EntityRow}
-            referrers={referrersOf(model).get(id)}
-          />
-        }
-      </div>
-    </>
+    <div className={styles.record}>
+      {isEndpointRow(row) ?
+        <EndpointDetail row={row} />
+      : <EntityDetail row={row} model={model} />}
+    </div>
   );
 }
 
@@ -258,9 +318,9 @@ export function crumbLabel(view: View, model: StoreModel): React.ReactNode {
       return 'State';
     case 'list': {
       const count =
-        view.ids?.length ??
-        model.tables.find(t => t.key === view.table)?.rows.length ??
-        0;
+        'ids' in view ? view.ids.length
+        : view.pks ? view.pks.length
+        : (model.table(view.table)?.rows.length ?? 0);
       return (
         <>
           <span className={styles.crumbName}>{view.label}</span>
@@ -271,18 +331,11 @@ export function crumbLabel(view: View, model: StoreModel): React.ReactNode {
     case 'record': {
       const row = findRow(model, view.id);
       if (!row) return '…';
-      if ('key' in row)
-        return (
-          <>
-            <span className={styles.method}>{row.method}</span> {row.path}
-          </>
-        );
-      return (
-        <>
-          <span className={styles.crumbName}>{row.table}</span>{' '}
-          <b>{prettyPk(row.pk)}</b>
-        </>
-      );
+      return isEndpointRow(row) ?
+          <EndpointKey method={row.method} path={row.path} />
+        : <span className={styles.crumbName}>
+            <EntityKey table={row.table} pk={row.pk} />
+          </span>;
     }
   }
 }
