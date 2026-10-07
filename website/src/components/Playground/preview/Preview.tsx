@@ -3,6 +3,7 @@ import {
   PollingSubscription,
   SubscriptionManager,
   NetworkManager,
+  type State,
 } from '@data-client/react';
 import { MockResolver } from '@data-client/test/browser';
 import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
@@ -17,6 +18,7 @@ import React, {
 
 import { MotionGroup } from '../../motion';
 import Boundary from '../Boundary';
+import type { PreviewErrorProps } from './PreviewError';
 import StoreInspector from './StoreInspector';
 import { useTabStorage } from '../../../utils/tabStorage';
 import styles from '../styles.module.css';
@@ -29,10 +31,17 @@ function Preview<T>({
   fixtures,
   getInitialInterceptorData,
   onCommit,
-}: PreviewProps<T> & {
-  /** Called on every React commit of the live result (enables a `<Profiler>`) */
-  onCommit?: ProfilerOnRenderCallback;
-}) {
+  initialState,
+  onInteract,
+  ...errorProps
+}: PreviewProps<T> &
+  PreviewErrorProps & {
+    /** Called on every React commit of the live result (enables a `<Profiler>`) */
+    onCommit?: ProfilerOnRenderCallback;
+    initialState?: State<unknown>;
+    /** User pointer/keyboard input inside the result */
+    onInteract: () => void;
+  }) {
   const [choice, setTabGroupChoice] = useTabStorage(groupId);
   const selectedValue = choice === 'y' || choice === 'n' ? choice : defaultOpen;
   const { blockElementScrollPositionUntilNextRender } =
@@ -58,7 +67,7 @@ function Preview<T>({
 
   const coveredResult = row && selectedValue === 'y';
   return (
-    <DataProvider managers={managers}>
+    <DataProvider managers={managers} initialState={initialState}>
       <MockResolver
         fixtures={fixtures}
         silenceMissing={true}
@@ -70,9 +79,11 @@ function Preview<T>({
               [styles.covered]: coveredResult,
             })}
             inert={coveredResult}
+            onPointerDownCapture={onInteract}
+            onKeyDownCapture={onInteract}
           >
             <Boundary fallback={null}>
-              <PreviewBlockLazy onCommit={onCommit} />
+              <PreviewBlockLazy onCommit={onCommit} {...errorProps} />
             </Boundary>
           </div>
           <StoreInspector selectedValue={selectedValue} toggle={toggle} />
