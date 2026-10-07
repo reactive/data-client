@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791300393064,
+  "lastUpdate": 1791414533870,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark Spread": [
@@ -186,6 +186,37 @@ window.BENCHMARK_DATA = {
             "range": "±0.67%",
             "unit": "ops/sec",
             "extra": "86 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6ed4f01feefc9c3e8b0831f359db74553fef624b",
+          "message": "chore: Bump React to 19.3.0 (#4264)\n\n* chore: Bump React to 19.3.0\n\nPin react, react-dom and react-test-renderer at 19.3.0 everywhere they\nwere pinned at 19.2.3. CI's extra React job now covers 19.2 (the\nprevious minor) instead of 19.3, and the native job runs the installed\nReact like latest does.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SHijwZ57GWD8EtGYd7WWry\n\n* ci: Pass the pinned previous-minor React through the matrix parameter\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SHijwZ57GWD8EtGYd7WWry\n\n* ci: Keep the React Native job on React 19.2.3, which RN 0.86 pairs with\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SHijwZ57GWD8EtGYd7WWry\n\n* chore: Regenerate standalone example lockfiles for React 19.3.0\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SHijwZ57GWD8EtGYd7WWry\n\n* ci: Cover the previous React minor in the native job instead of a separate job\n\nBoth jobs installed React 19.2.3, so the native job now also runs the\nper-minor ReactDOM suites, dropping one job per pipeline.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SHijwZ57GWD8EtGYd7WWry\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-07T23:04:46Z",
+          "tree_id": "94c62e65a8feb652c0e8cdb146446ac7357f7208",
+          "url": "https://github.com/reactive/data-client/commit/6ed4f01feefc9c3e8b0831f359db74553fef624b"
+        },
+        "date": 1791414530634,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "setOneEntity in 10k entity store",
+            "value": 151,
+            "range": "±0.94%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
           }
         ]
       }
