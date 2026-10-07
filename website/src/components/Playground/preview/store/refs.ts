@@ -26,10 +26,10 @@ function isPlainObject(value: any): value is Record<string, unknown> {
 }
 
 /** `push`, `unshift`, `remove`, `assign`, `move`: made with Object.create from
- * their Collection */
+ * their Collection, so they inherit the `key` a constructed one (subclassed
+ * or not) sets on itself */
 const isCollectionAdder = (schema: any) =>
-  schema instanceof s.Collection &&
-  Object.getPrototypeOf(schema) instanceof s.Collection;
+  schema instanceof s.Collection && !Object.hasOwn(schema, 'key');
 
 function isPolymorphic(schema: any) {
   return (

@@ -112,11 +112,14 @@ describe('store model', () => {
         t: 'obj',
         entries: [['a', { t: 'ref', key: 'Comment', pk: '249' }]],
       });
-    expect(resolve('{"postId":"1"}', comments)).toEqual({
-      t: 'ref',
-      key: '[Comment]',
-      pk: '{"postId":"1"}',
-    });
+    // subclassed Collections are still stored by their own pk
+    class MyCollection extends Collection<any> {}
+    for (const collection of [comments, new MyCollection([Comment])])
+      expect(resolve('{"postId":"1"}', collection)).toEqual({
+        t: 'ref',
+        key: '[Comment]',
+        pk: '{"postId":"1"}',
+      });
   });
 
   it('still drops the id field when a row was deleted', () => {
