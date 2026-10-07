@@ -340,7 +340,13 @@ export function tableColumns(
       header: keyLabel[table.kind],
       width: keyWidth,
       className: styles.key,
-      cell: row => prettyPk(row.pk),
+      // with no field columns to say so, the key marks a deleted row
+      cell: row =>
+        !current.length && isDeleted(row) ?
+          <>
+            {prettyPk(row.pk)} <Primitive value={DELETED} />
+          </>
+        : prettyPk(row.pk),
     },
     ...current.map((c, i) => {
       const w = c.want * scale;
@@ -348,7 +354,7 @@ export function tableColumns(
         id: c.id,
         header: c.header,
         width: i === current.length - 1 ? undefined : w,
-        // a deleted row has no fields; its first column says so
+        // a deleted row has no fields; the first column says so
         cell: (row: EntityRow) =>
           i === 0 && isDeleted(row) ?
             <Primitive value={DELETED} />

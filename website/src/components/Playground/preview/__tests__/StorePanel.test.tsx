@@ -143,12 +143,17 @@ describe('StorePanel table view', () => {
             2: Symbol('INVALID'),
             [long]: { id: long, name: 'Al' },
           },
+          // every row deleted: no field columns
+          Comment: { 1: Symbol('INVALID') },
         },
       } as unknown as State<unknown>,
       r,
     );
     const users = within(top().querySelector('[data-table=User]')!);
     expect(users.getByText('deleted')).toBeTruthy();
+    // a table with no field columns marks it by the key
+    const comments = within(top().querySelector('[data-table=Comment]')!);
+    expect(comments.getByText('deleted')).toBeTruthy();
     const endpoint = byData(
       top(),
       'id',
