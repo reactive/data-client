@@ -190,7 +190,6 @@ const PREVIEW_SCOPE_DECLARATIONS = `declare function render(component:JSX.Elemen
         declare function CancelButton(props: { onClick?: () => void }):JSX.Element;
         declare function Avatar(props: { src: string }):JSX.Element;
         declare function Formatted({ downColor, formatter, formatterFn, timeout, transition, transitionLength, upColor, value, stylePrefix, }: NumberProps):JSX.Element
-        declare function ResetableErrorBoundary(props: { children: React.ReactNode }):JSX.Element;
         declare function TextInput(props:Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> & { label?: React.ReactNode; loading?: boolean; size?: 'large' | 'medium' | 'small'; }):JSX.Element;
         declare function TextArea(props:React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label?: React.ReactNode;}):JSX.Element;
         declare function SearchIcon():JSX.Element;

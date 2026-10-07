@@ -149,9 +149,10 @@ DesignSystem/       components injected into preview scope
   second, so typing through a typo costs at most one retry. Compile and
   evaluation errors never reset.
 - Errors show in one `ErrorPanel` card (`Playground/ErrorPanel.tsx`) labeled by the stage that failed: amber
-  "Compile error" for react-live's `SyntaxError`s (the code never ran), red
-  "Runtime error" for anything thrown while running, and "Network error" for
-  `ResetableErrorBoundary`.
+  "Compile error" for react-live's `SyntaxError`s (the code never ran) and red
+  "Runtime error" for anything thrown while running. Demos rely on the reset
+  above to recover rather than encoding their own (e.g. a store-clearing error
+  fallback); say so in the prose next to a demo that needs it.
 - Third-party console noise is demoted only while previews are mounted
   (`usePlaygroundConsoleDemotion`); never add first-party matchers.
 
