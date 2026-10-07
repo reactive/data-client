@@ -126,6 +126,15 @@ export const isRefList = (
   node.items.length > 0 &&
   node.items.every(i => i.t === 'ref');
 
+/** The refs a Collection row holds: its array, or a Values collection's
+ * object of refs */
+export function memberRefs(node: VNode): readonly RefNode[] | undefined {
+  if (isRefList(node)) return node.items;
+  if (node.t !== 'obj' || !node.entries.length) return undefined;
+  const items = node.entries.map(([, v]) => v);
+  return items.every(i => i.t === 'ref') ? (items as RefNode[]) : undefined;
+}
+
 /** Stands in for an object that contains itself (denormalized cycles) */
 export const CIRCULAR = Symbol('circular');
 

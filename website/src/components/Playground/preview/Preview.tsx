@@ -65,14 +65,17 @@ function Preview<T>({
     ],
   );
 
-  const managers = useMemo<Manager[]>(
-    () => [
+  const managers = useMemo<Manager[]>(() => {
+    // this mount is a new store: drop the last one's pending optimistic
+    // updates before the Store panel first renders (DataStore's init()
+    // only runs after it)
+    registry.init();
+    return [
       registry,
       new NetworkManager(),
       new SubscriptionManager(PollingSubscription),
-    ],
-    [registry],
-  );
+    ];
+  }, [registry]);
 
   const coveredResult = row && selectedValue === 'y';
   return (

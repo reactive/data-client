@@ -14,6 +14,7 @@ import {
   rowLabel,
   splitKey,
 } from '../store/model';
+import { membersOf } from '../store/nav';
 import { CIRCULAR, plain, resolve, resolveRow } from '../store/refs';
 import SchemaRegistry from '../store/schemaRegistry';
 
@@ -106,6 +107,57 @@ describe('store model', () => {
     } as any);
     const after = { ...before } as State<unknown>;
     expect(buildModel(after, registry).table('User')?.rows).toHaveLength(0);
+  });
+
+  it('keeps id as data when an Entity is keyed by another field', () => {
+    class Article extends Entity {
+      id = 0;
+      slug = '';
+      title = '';
+      pk() {
+        return this.slug;
+      }
+    }
+    const registry = registryFor('k', [Article]);
+    registry.learn([User]);
+    const model = buildModel(
+      {
+        ...state,
+        entities: {
+          Article: { intro: { id: 7, slug: 'intro', title: 'Hi' } },
+          User: state.entities.User,
+        },
+      } as unknown as State<unknown>,
+      registry,
+    );
+    expect(model.table('Article')?.fields).toEqual(['id', 'slug', 'title']);
+    expect(model.table('User')?.fields).toEqual(['name']);
+  });
+
+  it('lists the members of array and Values Collections', () => {
+    const byId = new Collection(new schema.Values(Comment));
+    const registry = registryFor('GET https://example.com/posts', [Post]);
+    registry.learn(byId);
+    const model = buildModel(
+      {
+        ...state,
+        entities: {
+          ...state.entities,
+          [byId.key]: { '{}': { a: '249' } },
+        },
+      } as unknown as State<unknown>,
+      registry,
+    );
+    const members = (key: string, pk: string) =>
+      membersOf(model, model.table(key)!.get(pk)!);
+    expect(members('[Comment]', '{"postId":"1"}')).toEqual({
+      kind: 'list',
+      label: '[Comment]',
+      table: 'Comment',
+      pks: ['249'],
+    });
+    expect(members(byId.key, '{}')).toMatchObject({ pks: ['249'] });
+    expect(members('User', '123')).toBeUndefined();
   });
 
   it('resolves Values, Object, Lazy and Invalidate members', () => {

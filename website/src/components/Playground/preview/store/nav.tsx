@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 
 import { entityId, isEndpointRow, type AnyRow, type StoreModel } from './model';
-import { isRefList, type RefNode } from './refs';
+import { memberRefs, type RefNode } from './refs';
 
 /** Rows of one table (all, or just `pks`), or rows of any kind by id */
 export type ListView =
@@ -32,9 +32,9 @@ export function membersOf(
 ): ListView | undefined {
   if (isEndpointRow(row) || model.table(row.table)?.kind !== 'collection')
     return undefined;
-  const value = row.value;
-  if (!isRefList(value)) return undefined;
-  const list = refsList(value.items, row.table);
+  const refs = memberRefs(row.value);
+  if (!refs) return undefined;
+  const list = refsList(refs, row.table);
   // members whose table never arrived still show as a plain record
   return 'table' in list && !model.table(list.table) ? undefined : list;
 }

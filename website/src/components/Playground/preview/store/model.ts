@@ -38,8 +38,8 @@ export function parseRowId(id: string): RowId | undefined {
   }
 }
 
-/** The field holding an entity's pk: shown as the row's key, not a field */
-export const PK_FIELD = 'id';
+/** The usual field holding an entity's pk, shown as the row's key instead */
+const PK_FIELD = 'id';
 
 export interface EndpointRow {
   readonly id: string;
@@ -67,8 +67,11 @@ export interface EntityTable {
   readonly key: string;
   readonly kind: 'entity' | 'collection' | 'scalar' | 'unknown';
   readonly rows: readonly EntityRow[];
-  /** Field names in first-seen order, without `id` (entities only) */
+  /** Field names in first-seen order, without `pkField` (entities only) */
   readonly fields: readonly string[];
+  /** The field that repeats the row key (`id`), when every row's matches;
+   * entities keyed by another field (a custom `pk()`) keep `id` as data */
+  readonly pkField?: string;
   readonly get: (pk: string) => EntityRow | undefined;
 }
 
@@ -140,11 +143,19 @@ function buildTable(
   const pks = Object.keys(rows);
   const kind = tableKind(schema, rows[pks[0]]);
   const fields = new Set<string>();
+  const sample = pks.slice(0, FIELD_SAMPLE);
+  const pkField =
+    (
+      kind === 'entity' &&
+      sample.every(pk => String((rows[pk] as any)?.[PK_FIELD]) === pk)
+    ) ?
+      PK_FIELD
+    : undefined;
   if (kind === 'entity')
-    for (const pk of pks.slice(0, FIELD_SAMPLE)) {
+    for (const pk of sample) {
       const raw = rows[pk];
       if (raw && typeof raw === 'object')
-        for (const f of Object.keys(raw)) if (f !== PK_FIELD) fields.add(f);
+        for (const f of Object.keys(raw)) if (f !== pkField) fields.add(f);
     }
   const byPk = new Map(
     pks.map(pk => [pk, new StoredRow(key, pk, rows[pk], meta?.[pk], schema)]),
@@ -152,6 +163,7 @@ function buildTable(
   const table: EntityTable = {
     key,
     kind,
+    pkField,
     rows: [...byPk.values()],
     fields: [...fields],
     get: pk => byPk.get(pk),
