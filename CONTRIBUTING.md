@@ -42,6 +42,11 @@ If your idea requires design considerations, it's best to [start a discussion][4
   * Use the `/changeset` skill to generate changesets, update docs, and prepare a PR description.
   * If doing manually: run `yarn changeset` from repo root once per distinct change.
 
+* If you changed package types, docs or skills, regenerate the committed
+  outputs: merge master, run `yarn copy:websitetypes` and `yarn build:skills`,
+  and commit the result. The `regenerate` check fails on pull requests from
+  forks until they're up to date.
+
 * Submit your pull request!
 
 ## Support Requests
