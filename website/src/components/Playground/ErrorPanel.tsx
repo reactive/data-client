@@ -2,7 +2,7 @@ import React, { type ReactNode } from 'react';
 
 import styles from './styles.module.css';
 
-export type ErrorKind = 'compile' | 'runtime' | 'network';
+export type ErrorKind = 'compile' | 'runtime';
 
 /** Each kind's label and icon paths (24×24, stroked) */
 const KINDS: Record<ErrorKind, { label: string; icon: string[] }> = {
@@ -19,18 +19,9 @@ const KINDS: Record<ErrorKind, { label: string; icon: string[] }> = {
       'm9 9 6 6M15 9l-6 6',
     ],
   },
-  // broken link
-  network: {
-    label: 'Network error',
-    icon: [
-      'M10.5 13.5a4 4 0 0 0 5.66 0l2.84-2.84a4 4 0 0 0-5.66-5.66L12 6.34',
-      'M13.5 10.5a4 4 0 0 0-5.66 0L5 13.34A4 4 0 0 0 10.66 19L12 17.66',
-      'M4 4l16 16',
-    ],
-  },
 };
 
-/** Card framing a preview failure: what stage failed (compile, runtime, network) and the message */
+/** Card framing a preview failure: what stage failed (compile or runtime) and the message */
 export default function ErrorPanel({
   kind,
   children,

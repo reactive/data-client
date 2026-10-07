@@ -6,7 +6,6 @@ import BigNumber from 'bignumber.js';
 import { use } from 'react';
 import { v4 as uuid } from 'uuid';
 
-import ResetableErrorBoundary from '../../ResettableErrorBoundary';
 import * as designSystem from '../DesignSystem';
 import { Temporal, Intl, DateTimeFormat } from './temporal';
 
@@ -38,7 +37,6 @@ export const previewScope = {
   randomFloatInRange,
   mockFetch,
   BigNumber,
-  ResetableErrorBoundary,
   Temporal,
   Intl,
   DateTimeFormat,

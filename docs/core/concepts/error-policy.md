@@ -10,6 +10,7 @@ description: Controlling how errors affect revalidation strategies in Reactive D
 </head>
 
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import SiteOnly from '@site/src/components/SiteOnly';
 import {RestEndpoint} from '@data-client/rest';
 
 # Endpoint Error Policy
@@ -28,6 +29,16 @@ error to be caught by the nearest :react[[ErrorBoundary](../api/ErrorBoundary.md
 Hard errors always reject with `error` - even when data has previously made available.
 
 'hard' | `undefined` can both be used to indicate this state.
+
+<SiteOnly>
+
+:::react
+
+Once an error shows, **Reset preview** (↻ in the preview header) starts the demo over with a fresh store.
+
+:::
+
+</SiteOnly>
 
 <FrameworkPlayground fixtures={[
 {
@@ -62,36 +73,19 @@ export class TimedEntity extends Entity {
 export const lastUpdated = new RestEndpoint({
   path: '/api/currentTime/:id',
   schema: TimedEntity,
-});
-```
-
-```ts title="getUpdated"
-import { lastUpdated } from './api/lastUpdated';
-
-export const getUpdated = lastUpdated.extend({
-  fetch(this: any, arg) {
-    // fail once with FAKE_ERROR when it is set
-    const error = this.FAKE_ERROR;
-    this.FAKE_ERROR = undefined;
-    return error ? Promise.reject(error) : lastUpdated(arg);
-  },
   errorPolicy: error =>
     error.status >= 500 ? ('soft' as const) : ('hard' as const),
-  FAKE_ERROR: undefined as Error | undefined,
 });
-
-export const createError = (status: number) =>
-  Object.assign(new Error('fake error'), { status });
 ```
 
 :::react
 
 ```tsx title="TimePage"
 import { useSuspense } from '@data-client/react';
-import { getUpdated } from './getUpdated';
+import { lastUpdated } from './api/lastUpdated';
 
 export default function TimePage({ id }) {
-  const { updatedAt } = useSuspense(getUpdated, { id });
+  const { updatedAt } = useSuspense(lastUpdated, { id });
   return (
     <div>
       API time:{' '}
@@ -105,59 +99,36 @@ export default function TimePage({ id }) {
 
 ```tsx title="ShowTime" collapsed
 import { AsyncBoundary, useController } from '@data-client/react';
-import { getUpdated, createError } from './getUpdated';
+import { lastUpdated } from './api/lastUpdated';
 import TimePage from './TimePage';
 
 function ShowTime() {
   const ctrl = useController();
+  // stores a rejected fetch, as if the server answered with `status`
+  const fail = (status: number, invalidate = false) => {
+    if (invalidate) ctrl.invalidate(lastUpdated, { id: '1' });
+    ctrl.setError(
+      lastUpdated,
+      { id: '1' },
+      Object.assign(new Error(`fake ${status} error`), { status }),
+    );
+  };
   return (
     <div>
       <AsyncBoundary fallback={<div>loading...</div>}>
         <TimePage id="1" />
       </AsyncBoundary>
       <div>
-        <button
-          onClick={() => {
-            getUpdated.FAKE_ERROR = createError(500);
-            ctrl.fetch(getUpdated, { id: '1' });
-          }}
-        >
-          Fetch Soft
-        </button>
-        <button
-          onClick={() => {
-            getUpdated.FAKE_ERROR = createError(400);
-            ctrl.fetch(getUpdated, { id: '1' });
-          }}
-        >
-          Fetch Hard
-        </button>
-        <button
-          onClick={() => {
-            getUpdated.FAKE_ERROR = createError(500);
-            ctrl.invalidate(getUpdated, { id: '1' });
-          }}
-        >
-          Invalidate Soft
-        </button>
-        <button
-          onClick={() => {
-            getUpdated.FAKE_ERROR = createError(400);
-            ctrl.invalidate(getUpdated, { id: '1' });
-          }}
-        >
-          Invalidate Hard
-        </button>
+        <button onClick={() => fail(500)}>Fail Soft</button>
+        <button onClick={() => fail(400)}>Fail Hard</button>
+        <button onClick={() => fail(500, true)}>Invalidate Soft</button>
+        <button onClick={() => fail(400, true)}>Invalidate Hard</button>
       </div>
     </div>
   );
 }
 
-render(
-  <ResetableErrorBoundary>
-    <ShowTime />
-  </ResetableErrorBoundary>,
-);
+render(<ShowTime />);
 ```
 
 :::
@@ -167,10 +138,10 @@ render(
 ```html title="TimePage.vue"
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
-  import { getUpdated } from './getUpdated';
+  import { lastUpdated } from './api/lastUpdated';
 
   const props = defineProps<{ id: string }>();
-  const time = await useSuspense(getUpdated, () => ({ id: props.id }));
+  const time = await useSuspense(lastUpdated, () => ({ id: props.id }));
 </script>
 
 <template>
@@ -185,7 +156,7 @@ render(
 <script setup lang="ts">
   import { onErrorCaptured, ref } from 'vue';
   import { useController } from '@data-client/vue';
-  import { getUpdated, createError } from './getUpdated';
+  import { lastUpdated } from './api/lastUpdated';
   import TimePage from './TimePage.vue';
 
   const ctrl = useController();
@@ -195,10 +166,14 @@ render(
     return false;
   });
 
-  const fail = (action: 'fetch' | 'invalidate', status: number) => {
-    getUpdated.FAKE_ERROR = createError(status);
-    if (action === 'fetch') ctrl.fetch(getUpdated, { id: '1' });
-    else ctrl.invalidate(getUpdated, { id: '1' });
+  // stores a rejected fetch, as if the server answered with `status`
+  const fail = (status: number, invalidate = false) => {
+    if (invalidate) ctrl.invalidate(lastUpdated, { id: '1' });
+    ctrl.setError(
+      lastUpdated,
+      { id: '1' },
+      Object.assign(new Error(`fake ${status} error`), { status }),
+    );
   };
 </script>
 
@@ -213,10 +188,10 @@ render(
       <template #fallback><div>loading...</div></template>
     </Suspense>
     <div>
-      <button @click="fail('fetch', 500)">Fetch Soft</button>
-      <button @click="fail('fetch', 400)">Fetch Hard</button>
-      <button @click="fail('invalidate', 500)">Invalidate Soft</button>
-      <button @click="fail('invalidate', 400)">Invalidate Hard</button>
+      <button @click="fail(500)">Fail Soft</button>
+      <button @click="fail(400)">Fail Hard</button>
+      <button @click="fail(500, true)">Invalidate Soft</button>
+      <button @click="fail(400, true)">Invalidate Hard</button>
     </div>
   </div>
 </template>

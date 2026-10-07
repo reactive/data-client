@@ -185,7 +185,7 @@ div.playgroundTextEdit > .playgroundHeader,
   overflow: auto;
 }
 /* Preview errors: one card, colored by the stage that failed. Amber means the
-   code never ran (compile); red means it ran and threw (runtime, network).
+   code never ran (compile); red means it ran and threw (runtime).
    --pe-accent paints the edge bar and controls; --pe-text the label and name. */
 .previewError {
   --pe-accent: var(--ifm-color-danger);
