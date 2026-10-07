@@ -49,7 +49,12 @@ export function resolve(value: unknown, schema: any): VNode {
     return Array.isArray(value) ?
         { t: 'arr', items: value.map(v => resolve(v, schema[0])) }
       : plain(value);
-  if (schema instanceof s.Scalar) return plain(value);
+  // Standalone cells are stored by compound pk; entity-field tuples need
+  // endpoint args to find their cell, so they stay plain
+  if (schema instanceof s.Scalar)
+    return typeof value === 'string' ?
+        { t: 'ref', key: schema.key, pk: value }
+      : plain(value);
   if (isEntityLike(schema))
     return typeof value === 'string' || typeof value === 'number' ?
         { t: 'ref', key: schema.key, pk: `${value}` }
@@ -112,6 +117,17 @@ export function resolveRow(row: unknown, table: any): VNode {
 
 export function plain(value: unknown): VNode {
   if (Array.isArray(value)) return { t: 'arr', items: value.map(plain) };
+  // name, message and stack are not enumerable
+  if (value instanceof Error)
+    return {
+      t: 'obj',
+      entries: [
+        ['name', plain(value.name)],
+        ['message', plain(value.message)],
+        ...Object.entries(value).map(([k, v]) => [k, plain(v)] as const),
+        ['stack', plain(value.stack)],
+      ],
+    };
   if (value && typeof value === 'object' && !(value instanceof Date))
     return {
       t: 'obj',

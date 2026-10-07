@@ -223,10 +223,7 @@ function OptimisticRow({
         <div className={styles.detail}>
           <Field name="key" node={{ t: 'val', v: action.key }} />
           <Field name="args" node={plain(action.args)} />
-          <Field
-            name="fetchedAt"
-            node={{ t: 'val', v: action.meta.fetchedAt }}
-          />
+          <Field name="fetchedAt" node={{ t: 'val', v: action.fetchedAt }} />
         </div>
       )}
     </>

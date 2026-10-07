@@ -4,6 +4,7 @@ import type { State } from '@data-client/react';
 import { forEachRef, resolve, resolveRow, type VNode } from './refs';
 import type {
   EndpointRecord,
+  PendingOptimistic,
   default as SchemaRegistry,
 } from './schemaRegistry';
 
@@ -48,7 +49,7 @@ export interface StoreModel {
   readonly tables: readonly EntityTable[];
   /** Row id → everything that references it */
   readonly referrers: ReadonlyMap<string, readonly Referrer[]>;
-  readonly optimistic: State<unknown>['optimistic'];
+  readonly optimistic: readonly PendingOptimistic[];
   readonly indexes: State<unknown>['indexes'];
   readonly lastReset: number;
 }
@@ -67,9 +68,14 @@ export function buildModel(
       else if (list[list.length - 1].id !== from.id) list.push(from);
     });
 
-  const endpoints = Object.entries(state.endpoints).map(([key, raw]) => {
+  // errors and invalidations can leave meta without a stored response
+  const endpointKeys = new Set([
+    ...Object.keys(state.endpoints),
+    ...Object.keys(state.meta),
+  ]);
+  const endpoints = [...endpointKeys].map(key => {
     const record = registry.endpoints.get(key);
-    const value = resolve(raw, record?.endpoint.schema);
+    const value = resolve(state.endpoints[key], record?.endpoint.schema);
     const row: EndpointRow = {
       id: endpointId(key),
       key,
@@ -108,7 +114,7 @@ export function buildModel(
     endpoints,
     tables,
     referrers,
-    optimistic: state.optimistic,
+    optimistic: registry.optimistic,
     indexes: state.indexes,
     lastReset: state.lastReset,
   };
@@ -143,8 +149,14 @@ export function splitKey(key: string) {
 export function changedIds(prev: State<unknown>, next: State<unknown>) {
   const ids = new Set<string>();
   if (prev === next) return ids;
-  for (const [key, value] of Object.entries(next.endpoints)) {
-    if (prev.endpoints[key] !== value || prev.meta[key] !== next.meta[key])
+  for (const key of new Set([
+    ...Object.keys(next.endpoints),
+    ...Object.keys(next.meta),
+  ])) {
+    if (
+      prev.endpoints[key] !== next.endpoints[key] ||
+      prev.meta[key] !== next.meta[key]
+    )
       ids.add(endpointId(key));
   }
   for (const [key, rows] of Object.entries(next.entities)) {

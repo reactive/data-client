@@ -3,8 +3,7 @@ import { Collection, Entity, schema } from '@data-client/endpoint';
 import { actionTypes, type State } from '@data-client/react';
 
 import { buildModel, changedIds, entityId, splitKey } from '../store/model';
-import { resolveRow } from '../store/refs';
-import { resolve } from '../store/refs';
+import { plain, resolve, resolveRow } from '../store/refs';
 import SchemaRegistry from '../store/schemaRegistry';
 
 class User extends Entity {
@@ -96,16 +95,43 @@ describe('store model', () => {
     expect(resolve('1', new schema.Invalidate(Post))).toEqual(ref('Post', '1'));
   });
 
-  it('shows Scalar cells as plain values', () => {
+  it('links standalone Scalar cells and shows entity-field tuples plainly', () => {
     const scalar = new schema.Scalar({
       lens: (args: any) => args[0]?.portfolio,
       key: 'portfolio',
       entity: User,
     });
+    expect(resolve(['User|1|a'], [scalar])).toEqual({
+      t: 'arr',
+      items: [{ t: 'ref', key: scalar.key, pk: 'User|1|a' }],
+    });
     expect(resolve(['1', 'pct', 'User'], scalar)).toEqual({
       t: 'arr',
       items: ['1', 'pct', 'User'].map(v => ({ t: 'val', v })),
     });
+  });
+
+  it('keeps error details', () => {
+    const error = Object.assign(new TypeError('boom'), { status: 500 });
+    const entries = (plain(error) as any).entries.map(([k]: any) => k);
+    expect(entries).toEqual(['name', 'message', 'status', 'stack']);
+    expect((plain(error) as any).entries[1][1]).toEqual({
+      t: 'val',
+      v: 'boom',
+    });
+  });
+
+  it('lists endpoints that only have meta', () => {
+    const failed = {
+      ...state,
+      meta: { 'GET /broken': { error: new Error('x'), date: 1 } },
+    } as unknown as State<unknown>;
+    const model = buildModel(failed, new SchemaRegistry());
+    expect(model.endpoints.map(e => e.key)).toEqual([
+      'GET https://example.com/posts',
+      'GET /broken',
+    ]);
+    expect([...changedIds(state, failed)]).toEqual(['e\u001fGET /broken']);
   });
 
   it('falls back to plain values when the stored shape does not match', () => {
@@ -188,6 +214,41 @@ describe('store model', () => {
     expect(registry.entities.get('Comment')).toBe(Comment);
     registry.learn(null);
     registry.cleanup();
+  });
+
+  it('tracks optimistic updates until their response arrives', () => {
+    const registry = new SchemaRegistry();
+    const dispatch = registry.middleware({} as any)(() => Promise.resolve());
+    const endpoint = { getOptimisticResponse: () => 1, sideEffect: true };
+    const fetch = (fetchedAt: number) =>
+      dispatch({
+        type: actionTypes.FETCH,
+        key: 'k',
+        endpoint,
+        args: [fetchedAt],
+        meta: { fetchedAt },
+      } as any);
+    fetch(1);
+    fetch(2);
+    dispatch({
+      type: actionTypes.FETCH,
+      key: 'plain',
+      endpoint: {},
+      args: [],
+      meta: { fetchedAt: 3 },
+    } as any);
+    expect(registry.optimistic.map(o => o.fetchedAt)).toEqual([1, 2]);
+    dispatch({
+      type: actionTypes.SET_RESPONSE,
+      key: 'k',
+      endpoint,
+      args: [1],
+      meta: { fetchedAt: 1 },
+    } as any);
+    expect(registry.optimistic.map(o => o.fetchedAt)).toEqual([2]);
+    expect(buildModel(state, registry).optimistic).toBe(registry.optimistic);
+    dispatch({ type: actionTypes.RESET } as any);
+    expect(registry.optimistic).toEqual([]);
   });
 
   it('finds changed rows', () => {
