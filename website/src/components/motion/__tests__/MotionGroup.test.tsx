@@ -11,8 +11,11 @@ const PARENT_WIDTH = 300;
 const animations: {
   el: Element;
   keyframes: Keyframe[];
-  animation: Partial<Animation>;
+  animation: FakeAnimation;
 }[] = [];
+type FakeAnimation = Partial<Omit<Animation, 'playState'>> & {
+  playState: AnimationPlayState;
+};
 beforeEach(() => {
   animations.length = 0;
   jest.spyOn(HTMLElement.prototype, 'offsetWidth', 'get').mockReturnValue(100);
@@ -20,19 +23,29 @@ beforeEach(() => {
     .spyOn(HTMLElement.prototype, 'clientWidth', 'get')
     .mockReturnValue(PARENT_WIDTH);
   HTMLElement.prototype.animate = function (keyframes: any) {
-    const animation: Partial<Animation> = {
+    const animation: FakeAnimation = {
       playState: 'running',
       currentTime: 0,
-      cancel: jest.fn(),
+      cancel: jest.fn(() => {
+        animation.playState = 'idle';
+      }),
       onfinish: null,
     };
     animations.push({ el: this, keyframes, animation });
-    return animation as Animation;
+    return animation as unknown as Animation;
+  };
+  HTMLElement.prototype.getAnimations = function () {
+    return animations
+      .filter(
+        ({ el, animation }) => el === this && animation.playState === 'running',
+      )
+      .map(({ animation }) => animation as unknown as Animation);
   };
 });
 afterEach(() => {
   jest.restoreAllMocks();
   delete (HTMLElement.prototype as any).animate;
+  delete (HTMLElement.prototype as any).getAnimations;
 });
 
 function Handle() {
@@ -96,4 +109,23 @@ it('lands in place when the user prefers reduced motion', () => {
   expect(animations).toEqual([]);
   expect(screen.queryByText('panel')).toBeNull();
   delete (window as any).matchMedia;
+});
+
+it('leaves on its own when no group slides it out', () => {
+  const { rerender } = render(<Reveal show>alone</Reveal>);
+  rerender(<Reveal show={false}>alone</Reveal>);
+  expect(screen.queryByText('alone')).toBeNull();
+});
+
+it('leaves on its own when the group ignores the change', () => {
+  function Mismatched({ show }: { show: boolean }) {
+    return (
+      <MotionGroup layoutDependency="constant">
+        <Reveal show={show}>panel</Reveal>
+      </MotionGroup>
+    );
+  }
+  const { rerender } = render(<Mismatched show />);
+  rerender(<Mismatched show={false} />);
+  expect(screen.queryByText('panel')).toBeNull();
 });

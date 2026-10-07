@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { useMember } from './MotionGroup';
 
@@ -26,7 +26,20 @@ export default function Reveal({
   // keep showing what it had while it slides out
   const shown = useRef(children);
   if (show) shown.current = children;
-  const ref = useMember({ exiting: !show, onExited: () => setMounted(false) });
+  const memberRef = useMember({
+    exiting: !show,
+    onExited: () => setMounted(false),
+  });
+  const el = useRef<HTMLDivElement | null>(null);
+  const ref = (node: HTMLDivElement | null) => {
+    el.current = node;
+    return memberRef(node);
+  };
+  // no group slid it out (none around it, or its layoutDependency didn't
+  // change with `show`): leave now instead of staying stuck on screen
+  useEffect(() => {
+    if (!show && !el.current?.getAnimations?.().length) setMounted(false);
+  }, [show]);
   return mounted ?
       <div ref={ref} className={clsx('motion-reveal', className)}>
         {shown.current}
