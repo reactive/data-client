@@ -258,6 +258,7 @@
 .section + .section {
   border-top: 1px solid var(--store-line);
 }
+/* ~32px tall: HEADER_HEIGHT in dom.ts, what scrollToRow leaves above a row */
 .sectionHeader {
   position: sticky;
   top: 0;
@@ -395,6 +396,7 @@ div.row {
 .crumbs ~ .table th {
   top: 1.9rem;
 }
+/* a row is ~28px tall: ROW_GUESS in DiveViews.tsx, until one is measured */
 .table td {
   padding: 0.25rem 0.5rem;
   border-bottom: 1px solid var(--store-line);
@@ -719,6 +721,7 @@ div.row {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* NARROW_WIDTH in columns.ts: narrower panels also get narrower columns */
 @container (min-width: 480px) {
   .recordRow .detail > .fields,
   .record > .detail > .fields {

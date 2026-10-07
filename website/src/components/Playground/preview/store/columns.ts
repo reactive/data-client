@@ -10,7 +10,15 @@ const HEADER_CHAR = 7.5;
 const PAD = 20;
 /** The `+N` column that opens a row's other fields below it */
 export const MORE_WIDTH = 38;
-/** A time of day, `3:38:36.875 PM` */
+/** Items shown inline (table cells, tree previews) before "+N" */
+export const INLINE_LIMIT = 3;
+/** Room for a `+79` chip and the separators around it */
+export const COUNT_WIDTH = 44;
+/** Characters in a time of day, `3:38:36.875 PM` (what `isTimeField`
+ * values show as) */
+const TIME_CHARS = 14;
+/** A time of day column: `TIME_CHARS * CHAR` plus `PAD`, rounded up to what
+ * the proportional digits of the 12px font need */
 export const TIME_WIDTH = 124;
 /** A status pill, `fresh 57s` */
 export const STATUS_WIDTH = 96;
@@ -20,9 +28,30 @@ export const NARROW_WIDTH = 480;
 /** Rows sampled to size columns */
 const SAMPLE = 20;
 
+/** Fields holding a timestamp, shown as a time of day */
+export const isTimeField = (name: string) =>
+  name === 'date' || name === 'lastReset' || /[a-z]At$/.test(name);
+
 /** Rough rendered width of a ref chip, in px */
 export const chipWidth = (key: string, pk: string) =>
   (key.length + 1 + prettyPk(pk).length) * CHIP_CHAR + 14;
+
+/** How many of `items`' chips fit in a `width` px cell, leaving room for a
+ * count chip whenever some are left over */
+export function fitChips(
+  items: readonly { readonly key: string; readonly pk: string }[],
+  width: number,
+) {
+  let used = 16;
+  let fit = 0;
+  for (const item of items) {
+    const room = fit + 1 < items.length ? width - COUNT_WIDTH : width;
+    used += chipWidth(item.key, item.pk) + 8;
+    if (used > room) break;
+    fit++;
+  }
+  return fit;
+}
 
 /** Natural single-line width of a value, in px */
 function naturalWidth(node: VNode | undefined, name: string): number {
@@ -34,13 +63,13 @@ function naturalWidth(node: VNode | undefined, name: string): number {
       const { v } = node;
       if (typeof v === 'string') return (v.length + 2) * CHAR;
       // timestamps show as a time of day
-      if (typeof v === 'number' && /(^date|At)$/.test(name)) return 14 * CHAR;
+      if (typeof v === 'number' && isTimeField(name)) return TIME_CHARS * CHAR;
       return String(v).length * CHAR;
     }
     case 'arr': {
-      const shown = node.items.slice(0, 3);
+      const shown = node.items.slice(0, INLINE_LIMIT);
       const items = shown.reduce((w, i) => w + naturalWidth(i, '') + 16, 16);
-      return node.items.length > shown.length ? items + 44 : items;
+      return node.items.length > shown.length ? items + COUNT_WIDTH : items;
     }
     case 'obj':
       return 30 * CHAR;

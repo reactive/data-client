@@ -11,7 +11,6 @@ import {
 } from './model';
 import { plain } from './refs';
 import type { EndpointRecord } from './schemaRegistry';
-import { Segmented } from './Sections';
 import styles from './store.module.css';
 import { Block, Field, formatTime, RefList, RowChip } from './Value';
 
@@ -79,6 +78,36 @@ export function EndpointDetail({ row }: { row: EndpointRow }) {
         : null}
         {row.meta && <Field name="meta" node={plain(row.meta)} />}
       </div>
+    </div>
+  );
+}
+
+function Segmented<V extends string>({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: Record<V, string>;
+  value: V;
+  onChange: (value: V) => void;
+}) {
+  return (
+    <div className={styles.seg} role="group" aria-label={label}>
+      {(Object.keys(options) as V[]).map(v => (
+        <button
+          key={v}
+          type="button"
+          aria-pressed={value === v}
+          onClick={e => {
+            e.stopPropagation();
+            onChange(v);
+          }}
+        >
+          {options[v]}
+        </button>
+      ))}
     </div>
   );
 }

@@ -6,11 +6,11 @@ import {
   NARROW_WIDTH,
   pageColumns,
 } from '../store/columns';
-import type { EntityRow } from '../store/model';
+import { entityId, type EntityRow } from '../store/model';
 import { plain, type VNode } from '../store/refs';
 
 const row = (pk: string, raw: unknown): EntityRow => ({
-  id: `n\u001fT\u001f${pk}`,
+  id: entityId('T', pk),
   pk,
   table: 'T',
   raw,

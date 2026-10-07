@@ -115,6 +115,16 @@ export function resolveRow(row: unknown, table: any): VNode {
   return plain(row);
 }
 
+export type RefNode = Extract<VNode, { t: 'ref' }>;
+
+/** A non-empty list made only of references */
+export const isRefList = (
+  node: VNode,
+): node is { readonly t: 'arr'; readonly items: readonly RefNode[] } =>
+  node.t === 'arr' &&
+  node.items.length > 0 &&
+  node.items.every(i => i.t === 'ref');
+
 /** Stands in for an object that contains itself (denormalized cycles) */
 export const CIRCULAR = Symbol('circular');
 

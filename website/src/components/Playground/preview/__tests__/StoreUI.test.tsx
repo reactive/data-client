@@ -3,7 +3,7 @@ import { act, render } from '@testing-library/react';
 import React from 'react';
 
 import type { EntityTable, StoreModel } from '../store/model';
-import { entityId } from '../store/model';
+import { endpointId, entityId } from '../store/model';
 import {
   groupId,
   ROW_LIMIT,
@@ -71,7 +71,7 @@ describe('StoreUI', () => {
     ])
       expect(ui.isOpen(id)).toBe(true);
 
-    act(() => ui.reveal('e\u001fGET /x'));
+    act(() => ui.reveal(endpointId('GET /x')));
     expect(ui.isOpen(sectionId('endpoints'))).toBe(true);
   });
 });

@@ -1,58 +1,10 @@
 import clsx from 'clsx';
 import React from 'react';
 
-import type { EndpointRow, EntityTable, StoreModel } from './model';
-import { optimisticId, splitKey } from './model';
+import type { EntityTable, StoreModel } from './model';
 import { plain } from './refs';
 import styles from './store.module.css';
-import { ROW_LIMIT, sectionId, showAllId, useStoreUI } from './StoreUI';
-import { EndpointKey, Field } from './Value';
-
-/** Every view shows the same sections; only how rows lay out differs */
-export function StoreSections({
-  model,
-  endpoints,
-  renderTable,
-}: {
-  model: StoreModel;
-  endpoints: React.ReactNode;
-  renderTable: (table: EntityTable) => React.ReactNode;
-}) {
-  const entityCount = model.tables.reduce((n, t) => n + t.rows.length, 0);
-  return (
-    <>
-      <OptimisticSection model={model} />
-      <Section
-        name="endpoints"
-        title="Endpoints"
-        count={model.endpoints.length}
-      >
-        {endpoints}
-      </Section>
-      <Section name="entities" title="Entities" count={entityCount}>
-        {model.tables.map(renderTable)}
-      </Section>
-      <InternalsSection model={model} />
-    </>
-  );
-}
-
-export function EndpointLabel({
-  row,
-  open,
-}: {
-  row: EndpointRow;
-  open: boolean;
-}) {
-  return (
-    <>
-      <Chevron open={open} />
-      <span className={styles.trunc}>
-        <EndpointKey method={row.method} path={row.path} />
-      </span>
-    </>
-  );
-}
+import { Field } from './Value';
 
 /** `Post 312`, with a disclosure arrow when `open` is given */
 export function GroupLabel({
@@ -74,61 +26,13 @@ export function GroupLabel({
   );
 }
 
-export function Segmented<V extends string>({
-  label,
-  options,
-  value,
-  onChange,
-}: {
-  label: string;
-  options: Record<V, string>;
-  value: V;
-  onChange: (value: V) => void;
-}) {
-  return (
-    <div className={styles.seg} role="group" aria-label={label}>
-      {(Object.keys(options) as V[]).map(v => (
-        <button
-          key={v}
-          type="button"
-          aria-pressed={value === v}
-          onClick={e => {
-            e.stopPropagation();
-            onChange(v);
-          }}
-        >
-          {options[v]}
-        </button>
-      ))}
-    </div>
-  );
-}
-
 export function Chevron({ open }: { open: boolean }) {
   return (
     <span className={clsx(styles.chevron, open && styles.chevronOpen)}>▶</span>
   );
 }
 
-/** Collapsible block with a sticky header; the tree view's open state */
-export function Section({
-  name,
-  ...props
-}: Omit<React.ComponentProps<typeof SectionBlock>, 'open' | 'onToggle'> & {
-  name: string;
-}) {
-  const { isOpen, toggle } = useStoreUI();
-  const id = sectionId(name);
-  return (
-    <SectionBlock
-      {...props}
-      open={isOpen(id)}
-      onToggle={() => toggle(id)}
-      chevron
-    />
-  );
-}
-
+/** Collapsible block with a sticky header */
 export function SectionBlock({
   title,
   count,
@@ -163,103 +67,7 @@ export function SectionBlock({
   );
 }
 
-/** Props making a row (tr or div) expand on click or Enter/Space */
-export function useRowProps(id: string, className?: string) {
-  const { isOpen, toggle, selected } = useStoreUI();
-  const open = isOpen(id);
-  return {
-    open,
-    props: {
-      'data-id': id,
-      tabIndex: 0,
-      'aria-expanded': open,
-      className: clsx(
-        styles.row,
-        className,
-        selected === id && styles.selected,
-      ),
-      onClick: () => toggle(id),
-      onKeyDown: (e: React.KeyboardEvent) => {
-        if (e.target !== e.currentTarget) return;
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          toggle(id);
-        }
-      },
-    },
-  };
-}
-
-/** Rows of a table, capped at ROW_LIMIT until "Show all" */
-export function useLimitedRows<T>(tableKey: string, rows: readonly T[]) {
-  const { isOpen, toggle } = useStoreUI();
-  const all = isOpen(showAllId(tableKey));
-  const shown = all ? rows : rows.slice(0, ROW_LIMIT);
-  const footer =
-    rows.length > ROW_LIMIT ?
-      <button
-        type="button"
-        className={styles.showAll}
-        onClick={() => toggle(showAllId(tableKey))}
-      >
-        {all ? 'Show fewer' : `Show all ${rows.length}`}
-      </button>
-    : null;
-  return { shown, footer };
-}
-
-function OptimisticSection({ model }: { model: StoreModel }) {
-  if (!model.optimistic.length) return null;
-  return (
-    <Section
-      name="optimistic"
-      title="Optimistic"
-      count={model.optimistic.length}
-    >
-      {model.optimistic.map(action => (
-        <OptimisticRow key={optimisticId(action)} action={action} />
-      ))}
-    </Section>
-  );
-}
-
-function OptimisticRow({
-  action,
-}: {
-  action: StoreModel['optimistic'][number];
-}) {
-  const { open, props } = useRowProps(optimisticId(action));
-  const { method, path } = splitKey(action.key);
-  return (
-    <>
-      <div {...props}>
-        <Chevron open={open} />
-        <span className={clsx(styles.method, styles.optimistic)}>{method}</span>
-        <span className={styles.trunc}>{path}</span>
-        <span className={clsx(styles.pill, styles.optimistic)}>
-          waiting for server
-        </span>
-      </div>
-      {open && (
-        <div className={styles.detail}>
-          <Field name="key" node={{ t: 'val', v: action.key }} />
-          <Field name="args" node={plain(action.args)} />
-          <Field name="fetchedAt" node={{ t: 'val', v: action.fetchedAt }} />
-        </div>
-      )}
-    </>
-  );
-}
-
-/** Bookkeeping most people never need, collapsed by default */
-function InternalsSection({ model }: { model: StoreModel }) {
-  return (
-    <Section name="internals" title="Internals">
-      <Internals model={model} />
-    </Section>
-  );
-}
-
+/** Bookkeeping most people never need */
 export function Internals({ model }: { model: StoreModel }) {
   return (
     <div className={styles.detail}>

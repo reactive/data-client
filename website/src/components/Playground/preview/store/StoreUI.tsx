@@ -7,7 +7,7 @@ import React, {
   useState,
 } from 'react';
 
-import { isEndpointId, type StoreModel } from './model';
+import { isEndpointId, nodeId, type StoreModel } from './model';
 
 /** Rows shown per table before "Show all" */
 export const ROW_LIMIT = 8;
@@ -28,9 +28,9 @@ const StoreUIContext = createContext<StoreUIValue>({
 });
 export const useStoreUI = () => useContext(StoreUIContext);
 
-export const groupId = (key: string) => `g\u001f${key}`;
-export const showAllId = (key: string) => `a\u001f${key}`;
-export const sectionId = (name: string) => `s\u001f${name}`;
+export const groupId = (key: string) => nodeId('g', key);
+export const showAllId = (key: string) => nodeId('a', key);
+export const sectionId = (name: string) => nodeId('s', name);
 
 /** Sections (but Internals) and the first few Entity types to appear start
  * open; rows start closed */

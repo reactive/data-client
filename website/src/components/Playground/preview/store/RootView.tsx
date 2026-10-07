@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 
 import { TIME_WIDTH } from './columns';
 import { EntityDetail } from './Details';
+import { attrSelector, offsetIn } from './dom';
 import {
   optimisticId,
   splitKey,
@@ -9,7 +10,7 @@ import {
   type EntityTable,
   type StoreModel,
 } from './model';
-import { offsetIn, useNav } from './nav';
+import { useNav } from './nav';
 import { plain } from './refs';
 import { GroupLabel, Internals, SectionBlock } from './Sections';
 import styles from './store.module.css';
@@ -122,7 +123,7 @@ function TableIndex({
           onClick={() => {
             const el = scroller.current;
             const group = el?.querySelector<HTMLElement>(
-              `[data-table="${table.key.replace(/["\\]/g, '\\$&')}"]`,
+              attrSelector('data-table', table.key),
             );
             if (el && group)
               el.scrollTo({ top: offsetIn(el, group), behavior: 'smooth' });

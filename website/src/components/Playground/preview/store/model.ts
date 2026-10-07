@@ -8,13 +8,38 @@ import type {
   default as SchemaRegistry,
 } from './schemaRegistry';
 
+/** Keeps a node's kind and parts apart in its id: no key or pk contains it */
+const SEP = '\u001f';
+/** Id of a node both views share (rows, groups, sections): a one-letter
+ * kind, then its parts */
+export const nodeId = (kind: string, ...parts: readonly string[]) =>
+  [kind, ...parts].join(SEP);
+
 /** Row ids shared by both views, selection and flashes */
-export const endpointId = (key: string) => `e\u001f${key}`;
-export const isEndpointId = (id: string) => id.startsWith('e\u001f');
-export const entityId = (key: string, pk: string) => `n\u001f${key}\u001f${pk}`;
+export const endpointId = (key: string) => nodeId('e', key);
+export const isEndpointId = (id: string) => id.startsWith(`e${SEP}`);
+export const entityId = (key: string, pk: string) => nodeId('n', key, pk);
 /** Stable while other optimistic updates settle around it */
 export const optimisticId = (o: PendingOptimistic) =>
-  `o\u001f${o.key}\u001f${o.fetchedAt}`;
+  nodeId('o', o.key, `${o.fetchedAt}`);
+
+export type RowId =
+  | { readonly kind: 'endpoint'; readonly key: string }
+  | { readonly kind: 'entity'; readonly table: string; readonly pk: string };
+
+/** What a row id names; undefined for ids of other nodes (groups, sections) */
+export function parseRowId(id: string): RowId | undefined {
+  const [kind, ...parts] = id.split(SEP);
+  if (!parts.length) return;
+  if (kind === 'e') return { kind: 'endpoint', key: parts.join(SEP) };
+  if (kind === 'n') {
+    const [table = '', ...pk] = parts;
+    return { kind: 'entity', table, pk: pk.join(SEP) };
+  }
+}
+
+/** The field holding an entity's pk: shown as the row's key, not a field */
+export const PK_FIELD = 'id';
 
 export interface EndpointRow {
   readonly id: string;
@@ -117,7 +142,7 @@ function buildTable(
     for (const pk of pks.slice(0, FIELD_SAMPLE)) {
       const raw = rows[pk];
       if (raw && typeof raw === 'object')
-        for (const f of Object.keys(raw)) if (f !== 'id') fields.add(f);
+        for (const f of Object.keys(raw)) if (f !== PK_FIELD) fields.add(f);
     }
   const byPk = new Map(
     pks.map(pk => [pk, new StoredRow(key, pk, rows[pk], meta?.[pk], schema)]),
@@ -233,9 +258,11 @@ export function referrersOf(model: StoreModel, id: string): AnyRow[] {
 
 /** The endpoint or stored row an id names */
 export function findRow(model: StoreModel, id: string): AnyRow | undefined {
-  if (isEndpointId(id)) return model.endpoints.find(r => r.id === id);
-  const [, key, ...pk] = id.split('\u001f');
-  return model.table(key)?.get(pk.join('\u001f'));
+  const ref = parseRowId(id);
+  if (!ref) return;
+  return ref.kind === 'endpoint' ?
+      model.endpoints.find(r => r.id === id)
+    : model.table(ref.table)?.get(ref.pk);
 }
 
 export const isEndpointRow = (row: AnyRow): row is EndpointRow => 'key' in row;
@@ -282,16 +309,17 @@ export function isChanged(
   next: State<unknown>,
   id: string,
 ) {
-  if (isEndpointId(id)) {
-    const key = id.slice(2);
+  const ref = parseRowId(id);
+  if (!ref) return false;
+  if (ref.kind === 'endpoint') {
+    const { key } = ref;
     return (
       prev.endpoints[key] !== next.endpoints[key] ||
       prev.meta[key] !== next.meta[key]
     );
   }
-  const [, key, ...rest] = id.split('\u001f');
-  const pk = rest.join('\u001f');
-  return prev.entities[key]?.[pk] !== next.entities[key]?.[pk];
+  const { table, pk } = ref;
+  return prev.entities[table]?.[pk] !== next.entities[table]?.[pk];
 }
 
 /** Collection pks are serialized args: `{"userId":"1"}` → `userId: 1` */

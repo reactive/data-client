@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react';
 
-import type { StoreModel } from './model';
+import { entityId, type StoreModel } from './model';
+import type { RefNode } from './refs';
 
 /** Rows of one table (all, or just `pks`), or rows of any kind by id */
 export type ListView =
@@ -15,6 +16,14 @@ export type ListView =
       readonly label: string;
       readonly ids: readonly string[];
     };
+
+/** The list a count chip dives into: one table's rows when they share one */
+export function refsList(items: readonly RefNode[], label: string): ListView {
+  const table = items[0].key;
+  return items.every(i => i.key === table) ?
+      { kind: 'list', label, table, pks: items.map(i => i.pk) }
+    : { kind: 'list', label, ids: items.map(i => entityId(i.key, i.pk)) };
+}
 
 /** One level of the table view's navigation stack */
 export type View =
@@ -32,9 +41,3 @@ export interface Nav {
 /** Set by the table view only; the tree view expands in place instead */
 export const NavContext = createContext<Nav | null>(null);
 export const useNav = () => useContext(NavContext);
-
-/** Where `el` sits in `scroller`'s scrolled content, in px */
-export const offsetIn = (scroller: HTMLElement, el: Element) =>
-  el.getBoundingClientRect().top -
-  scroller.getBoundingClientRect().top +
-  scroller.scrollTop;

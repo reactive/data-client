@@ -1,19 +1,17 @@
 import clsx from 'clsx';
 import React, { useState } from 'react';
 
-import { chipWidth } from './columns';
+import { fitChips, INLINE_LIMIT, isTimeField } from './columns';
 import { entityId, isEndpointRow, prettyPk, type AnyRow } from './model';
-import { useNav, type ListView } from './nav';
-import { CIRCULAR, type VNode } from './refs';
+import { refsList, useNav, type ListView } from './nav';
+import { CIRCULAR, isRefList, type VNode } from './refs';
 import styles from './store.module.css';
 import { useStoreUI } from './StoreUI';
 
 /** Items shown before a "N more" button in expanded values */
 const BLOCK_LIMIT = 20;
 /** Refs listed in a record before a count chip that dives into all of them */
-export const RECORD_REFS = 10;
-/** Items shown inline (table cells, tree previews) before "+N" */
-const INLINE_LIMIT = 3;
+const RECORD_REFS = 10;
 
 export function RefChip({
   id,
@@ -65,18 +63,22 @@ export function EntityKey({ table, pk }: { table: string; pk: string }) {
   );
 }
 
+/** The key of any row: `GET /posts` or `Post 1` */
+export function RowKey({ row }: { row: AnyRow }) {
+  return isEndpointRow(row) ?
+      <EndpointKey method={row.method} path={row.path} />
+    : <EntityKey table={row.table} pk={row.pk} />;
+}
+
 /** A chip for any row, endpoint or stored */
 export function RowChip({ row }: { row: AnyRow }) {
-  return isEndpointRow(row) ?
-      <RefChip
-        id={row.id}
-        className={styles.endpointRef}
-        label={<EndpointKey method={row.method} path={row.path} />}
-      />
-    : <RefChip
-        id={row.id}
-        label={<EntityKey table={row.table} pk={row.pk} />}
-      />;
+  return (
+    <RefChip
+      id={row.id}
+      className={isEndpointRow(row) ? styles.endpointRef : undefined}
+      label={<RowKey row={row} />}
+    />
+  );
 }
 
 /** Dives into a list of rows: `+79`, or `Comment · 80` when none fit */
@@ -100,25 +102,6 @@ export function CountChip({
       {children}
     </button>
   );
-}
-
-/** Room for a `+79` chip and the separators around it */
-const COUNT_WIDTH = 44;
-
-type RefNode = Extract<VNode, { t: 'ref' }>;
-const isRefList = (
-  node: VNode,
-): node is { t: 'arr'; items: readonly RefNode[] } =>
-  node.t === 'arr' &&
-  node.items.length > 0 &&
-  node.items.every(i => i.t === 'ref');
-
-/** The list a count chip dives into: one table's rows when they share one */
-function refsList(items: readonly RefNode[], label: string): ListView {
-  const table = items[0].key;
-  return items.every(i => i.key === table) ?
-      { kind: 'list', label, table, pks: items.map(i => i.pk) }
-    : { kind: 'list', label, ids: items.map(i => entityId(i.key, i.pk)) };
 }
 
 /** The first `RECORD_REFS` chips; the table view dives into the rest */
@@ -157,14 +140,7 @@ export function Cell({
 }) {
   if (!isRefList(node)) return <Inline node={node} name={name} />;
   const { items } = node;
-  let used = 16;
-  let fit = 0;
-  for (const item of items) {
-    const room = fit + 1 < items.length ? width - COUNT_WIDTH : width;
-    used += chipWidth(item.key, item.pk) + 8;
-    if (used > room) break;
-    fit++;
-  }
+  const fit = fitChips(items, width);
   const list = refsList(items, `${owner} ${name}`);
   if (!fit)
     return (
@@ -360,9 +336,6 @@ export function Primitive({ value, name }: { value: unknown; name?: string }) {
     return <span className={styles.dim}>{JSON.stringify(value)}</span>;
   return <span className={styles.number}>{String(value)}</span>;
 }
-
-const isTimeField = (name: string) =>
-  name === 'date' || name === 'lastReset' || /[a-z]At$/.test(name);
 
 const timeFormatter = Intl.DateTimeFormat('en-US', {
   hour: 'numeric',

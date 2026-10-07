@@ -13,6 +13,7 @@ import { Status } from './Details';
 import {
   errorText,
   prettyPk,
+  rowLabel,
   type AnyRow,
   type EndpointRow,
   type EntityRow,
@@ -249,7 +250,6 @@ function dataSpecs(
   rows: readonly EntityRow[],
   width: number,
 ): Spec[] {
-  const owner = (row: EntityRow) => `${table.key} ${prettyPk(row.pk)}`;
   if (table.kind !== 'entity') {
     const name = table.kind === 'collection' ? 'items' : 'value';
     return [
@@ -258,7 +258,7 @@ function dataSpecs(
         header: name,
         want: columnWidth(rows, row => row.value, name, width),
         cell: (row, w) => (
-          <Cell node={row.value} name={name} width={w} owner={owner(row)} />
+          <Cell node={row.value} name={name} width={w} owner={rowLabel(row)} />
         ),
         has: () => true,
       },
@@ -273,7 +273,9 @@ function dataSpecs(
       cell: (row, w) => {
         const node = value(row);
         return (
-          node && <Cell node={node} name={name} width={w} owner={owner(row)} />
+          node && (
+            <Cell node={node} name={name} width={w} owner={rowLabel(row)} />
+          )
         );
       },
       has: row => value(row) !== undefined,
@@ -375,7 +377,7 @@ export function endpointColumns(width: number): Column<EndpointRow>[] {
             node={row.value}
             name="value"
             width={width - keyWidth - STATUS_WIDTH}
-            owner={`${row.method} ${row.path}`}
+            owner={rowLabel(row)}
           />,
     },
   ];

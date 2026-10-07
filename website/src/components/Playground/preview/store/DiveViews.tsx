@@ -7,15 +7,15 @@ import React, {
 } from 'react';
 
 import { EndpointDetail, EntityDetail } from './Details';
+import { offsetIn } from './dom';
 import {
   findRow,
   isEndpointRow,
   prettyPk,
   type AnyRow,
   type EntityTable,
-  type StoreModel,
 } from './model';
-import { offsetIn, useNav, type ListView, type View } from './nav';
+import { useNav, type ListView } from './nav';
 import styles from './store.module.css';
 import {
   endpointColumns,
@@ -25,7 +25,6 @@ import {
   tableColumns,
   type Column,
 } from './Table';
-import { EndpointKey, EntityKey } from './Value';
 
 type Scroller = React.RefObject<HTMLElement | null>;
 type Header = (tools: React.ReactNode) => React.ReactNode;
@@ -309,33 +308,4 @@ export function RecordView({ id }: { id: string }) {
       : <EntityDetail row={row} model={model} />}
     </div>
   );
-}
-
-/** What a breadcrumb shows for a view */
-export function crumbLabel(view: View, model: StoreModel): React.ReactNode {
-  switch (view.kind) {
-    case 'root':
-      return 'State';
-    case 'list': {
-      const count =
-        'ids' in view ? view.ids.length
-        : view.pks ? view.pks.length
-        : (model.table(view.table)?.rows.length ?? 0);
-      return (
-        <>
-          <span className={styles.crumbName}>{view.label}</span>
-          <span className={styles.count}>{count.toLocaleString()}</span>
-        </>
-      );
-    }
-    case 'record': {
-      const row = findRow(model, view.id);
-      if (!row) return '…';
-      return isEndpointRow(row) ?
-          <EndpointKey method={row.method} path={row.path} />
-        : <span className={styles.crumbName}>
-            <EntityKey table={row.table} pk={row.pk} />
-          </span>;
-    }
-  }
 }

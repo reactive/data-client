@@ -4,6 +4,7 @@ import { StateContext, type State } from '@data-client/react';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
+import { parseRowId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
 
@@ -139,9 +140,10 @@ describe('StorePanel table view', () => {
     fireEvent.click(screen.getByText('7 more'));
     expect(crumbs()).toEqual(['State', '›', 'Post12']);
     const rows = () =>
-      [...top().querySelectorAll('tr[data-id]')].map(
-        r => r.getAttribute('data-id')?.split('\u001f')[2],
-      );
+      [...top().querySelectorAll('tr[data-id]')].map(r => {
+        const ref = parseRowId(r.getAttribute('data-id')!);
+        return ref?.kind === 'entity' ? ref.pk : undefined;
+      });
     expect(rows()).toHaveLength(12);
     fireEvent.change(within(top()).getByLabelText('Filter rows'), {
       target: { value: 'number 1' },

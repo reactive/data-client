@@ -10,16 +10,23 @@ import React, {
   useState,
 } from 'react';
 
-import { crumbLabel, ListView, RecordView } from './DiveViews';
-import { buildModel, isChanged, type StoreModel } from './model';
-import { NavContext, offsetIn, type Nav, type View } from './nav';
+import { ListView, RecordView } from './DiveViews';
+import { flash, scrollToRow, slide } from './dom';
+import {
+  buildModel,
+  findRow,
+  isChanged,
+  isEndpointRow,
+  type StoreModel,
+} from './model';
+import { NavContext, type Nav, type View } from './nav';
 import RootView from './RootView';
 import type SchemaRegistry from './schemaRegistry';
 import styles from './store.module.css';
 import { StoreUIProvider } from './StoreUI';
 import TreeView from './TreeView';
+import { RowKey } from './Value';
 import { useTabStorage } from '../../../../utils/tabStorage';
-import { prefersReducedMotion, springEasing, springs } from '../../../motion';
 
 interface Entry {
   readonly key: number;
@@ -243,31 +250,32 @@ function Level({
   );
 }
 
-/** Moves in from `direction` (1: the right, -1: the left) */
-function slide(el: HTMLElement, direction: 1 | -1) {
-  if (typeof el.animate !== 'function' || prefersReducedMotion()) return;
-  el.animate(
-    [
-      { opacity: 0, translate: `${direction * 24}px 0` },
-      { opacity: 1, translate: '0 0' },
-    ],
-    smooth,
-  );
-}
-const smooth = springEasing(springs.smooth);
-
-/** Highlights the rows in `scope` whose id passes `test`, for a moment */
-function flash(scope: HTMLElement, test: (id: string) => boolean) {
-  if (typeof scope.animate !== 'function' || prefersReducedMotion()) return;
-  for (const row of scope.querySelectorAll<HTMLElement>('[data-id]')) {
-    if (!test(row.dataset.id!)) continue;
-    row.animate(
-      [
-        { backgroundColor: 'var(--store-flash)' },
-        { backgroundColor: 'transparent' },
-      ],
-      { duration: 1400, easing: 'ease-out' },
-    );
+/** What a breadcrumb shows for a view */
+function crumbLabel(view: View, model: StoreModel): React.ReactNode {
+  switch (view.kind) {
+    case 'root':
+      return 'State';
+    case 'list': {
+      const count =
+        'ids' in view ? view.ids.length
+        : view.pks ? view.pks.length
+        : (model.table(view.table)?.rows.length ?? 0);
+      return (
+        <>
+          <span className={styles.crumbName}>{view.label}</span>
+          <span className={styles.count}>{count.toLocaleString()}</span>
+        </>
+      );
+    }
+    case 'record': {
+      const row = findRow(model, view.id);
+      if (!row) return '…';
+      return isEndpointRow(row) ?
+          <RowKey row={row} />
+        : <span className={styles.crumbName}>
+            <RowKey row={row} />
+          </span>;
+    }
   }
 }
 
@@ -322,19 +330,6 @@ function useFlashChanges(
     if (!el || before === state) return;
     flash(el, id => isChanged(before, state, id));
   }, [ref, state]);
-}
-
-function scrollToRow(scroller: HTMLElement, id: string) {
-  const row = scroller.querySelector<HTMLElement>(
-    `[data-id="${CSS.escape(id)}"]`,
-  );
-  if (!row) return;
-  // leave room for the section header
-  scroller.scrollTo({
-    top: Math.max(0, offsetIn(scroller, row) - 32),
-    behavior: 'smooth',
-  });
-  row.focus({ preventScroll: true });
 }
 
 function TableIcon() {

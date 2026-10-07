@@ -4,8 +4,11 @@ import { actionTypes, type State } from '@data-client/react';
 
 import {
   buildModel,
+  endpointId,
   entityId,
+  findRow,
   isChanged,
+  parseRowId,
   prettyPk,
   referrersOf,
   rowLabel,
@@ -176,10 +179,28 @@ describe('store model', () => {
       'GET https://example.com/posts',
       'GET /broken',
     ]);
-    expect(isChanged(state, failed, 'e\u001fGET /broken')).toBe(true);
+    expect(isChanged(state, failed, endpointId('GET /broken'))).toBe(true);
     expect(
-      isChanged(state, failed, 'e\u001fGET https://example.com/posts'),
+      isChanged(state, failed, endpointId('GET https://example.com/posts')),
     ).toBe(false);
+  });
+
+  it('reads row ids back', () => {
+    expect(parseRowId(endpointId('GET /posts'))).toEqual({
+      kind: 'endpoint',
+      key: 'GET /posts',
+    });
+    expect(parseRowId(entityId('[Comment]', '{"postId":"1"}'))).toEqual({
+      kind: 'entity',
+      table: '[Comment]',
+      pk: '{"postId":"1"}',
+    });
+    expect(parseRowId('something else')).toBeUndefined();
+    const model = buildModel(state, new SchemaRegistry());
+    expect(findRow(model, entityId('User', '123'))?.id).toBe(
+      entityId('User', '123'),
+    );
+    expect(findRow(model, endpointId('GET /nope'))).toBeUndefined();
   });
 
   it('falls back to plain values when the stored shape does not match', () => {

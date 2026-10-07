@@ -4,7 +4,7 @@ import { StateContext, type State } from '@data-client/react';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
-import { entityId } from '../store/model';
+import { endpointId, entityId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
 
@@ -206,7 +206,7 @@ describe('StorePanel navigation', () => {
     expect(crumbs()).toEqual(['State', '›', 'Endpoints11']);
     expect(headers()).toEqual(['key', 'status', 'value']);
     expect(top().querySelectorAll('tr[data-id]')).toHaveLength(11);
-    const target = row(`e\u001f${NUMBERS}`);
+    const target = row(endpointId(NUMBERS));
     // keys from a chip inside the row are its own
     fireEvent.keyDown(within(target).getByText('0'), { key: 'Enter' });
     expect(crumbs()).toEqual(['State', '›', 'Endpoints11']);
@@ -216,7 +216,7 @@ describe('StorePanel navigation', () => {
 
   it('shows an endpoint record with what was stored and what it returns', () => {
     mount();
-    fireEvent.click(row(`e\u001f${POSTS}`));
+    fireEvent.click(row(endpointId(POSTS)));
     const show = within(top()).getByRole('group', { name: 'Show' });
     expect(within(show).getByText('Stored').getAttribute('aria-pressed')).toBe(
       'true',
@@ -239,7 +239,7 @@ describe('StorePanel navigation', () => {
 
   it('explains when what an endpoint returns cannot be computed', () => {
     mount();
-    fireEvent.click(row(`e\u001f${COMMENTS}`));
+    fireEvent.click(row(endpointId(COMMENTS)));
     fireEvent.click(within(top()).getByText('Returns'));
     expect(within(top()).getByText(/is not a function/)).toBeTruthy();
     expect(within(top()).queryByText('args')).toBeNull();
@@ -247,21 +247,21 @@ describe('StorePanel navigation', () => {
 
   it('grows long lists on request and indexes lists of objects', () => {
     mount();
-    fireEvent.click(row(`e\u001f${NUMBERS}`));
+    fireEvent.click(row(endpointId(NUMBERS)));
     expect(within(top()).queryByText('24')).toBeNull();
     fireEvent.click(within(top()).getByText('5 more'));
     expect(within(top()).getByText('24')).toBeTruthy();
     // an endpoint without a known schema shows no Stored/Returns choice
     expect(within(top()).queryByRole('group', { name: 'Show' })).toBeNull();
     fireEvent.click(within(top()).getByLabelText('Back'));
-    fireEvent.click(row(`e\u001f${OBJECTS}`));
+    fireEvent.click(row(endpointId(OBJECTS)));
     expect(within(top()).getByText('0')).toBeTruthy();
     expect(within(top()).getByText('b')).toBeTruthy();
   });
 
   it('dives from a mixed list of refs into rows of several tables', () => {
     mount();
-    fireEvent.click(row(`e\u001f${FEED}`));
+    fireEvent.click(row(endpointId(FEED)));
     fireEvent.click(chip('+2'));
     expect(crumbs().at(-1)).toBe('items12');
     expect(headers()).toEqual(['row', 'value']);
