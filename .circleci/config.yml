@@ -261,9 +261,11 @@ jobs:
       - attach_workspace:
           at: ~/
       - unless:
-          # `latest` uses the installed React as-is
+          # `latest` and `native` use the installed React as-is
           condition:
-            equal: ["latest", << parameters.react-version >>]
+            or:
+              - equal: ["latest", << parameters.react-version >>]
+              - equal: ["native", << parameters.react-version >>]
           steps:
             - restore-yarn-cache
       - run:
@@ -277,12 +279,10 @@ jobs:
             npm pkg delete resolutions.react resolutions.react-dom resolutions.react-test-renderer
             yarn up react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
             yarn workspace @data-client/test add --dev @testing-library/react-hooks
-            elif [ "<< parameters.react-version >>" == "native" ]; then
-            yarn up react@19.2.3 react-test-renderer@19.2.3
-            elif [ "<< parameters.react-version >>" == "19.3" ]; then
+            elif [ "<< parameters.react-version >>" == "19.2" ]; then
             npm pkg delete resolutions.react resolutions.react-dom resolutions.react-test-renderer
-            yarn up react@19.3.0 react-dom@19.3.0 react-test-renderer@19.3.0
-            node -e "for (const p of ['react','react-dom','react-test-renderer']) { const v=require(p+'/package.json').version; if (v !== '19.3.0') throw new Error(p+' resolved to '+v) }"
+            yarn up react@19.2.3 react-dom@19.2.3 react-test-renderer@19.2.3
+            node -e "for (const p of ['react','react-dom','react-test-renderer']) { const v=require(p+'/package.json').version; if (v !== '19.2.3') throw new Error(p+' resolved to '+v) }"
             fi
       - run:
           name: Running Jest
@@ -296,7 +296,7 @@ jobs:
               # fake-timer waits, and capping workers makes the heavy hook
               # suites contend enough to flake 5s test timeouts.
               yarn test:ci --selectProjects ReactNative
-            elif [ "<< parameters.react-version >>" == "19.3" ]; then
+            elif [ "<< parameters.react-version >>" == "19.2" ]; then
               yarn test:ci --maxWorkers=4 --selectProjects ReactDOM --testPathPatterns 'packages/react/src/__tests__/concurrent-.*\.web\.tsx' 'packages/react/src/hooks/__tests__/useCacheState.web.tsx'
             elif [ "<< parameters.react-version >>" == "latest" ]; then
               # Coverage floors and projects live in the test:coverage script
@@ -506,7 +506,7 @@ workflows:
       - unit_tests:
           matrix:
             parameters:
-              react-version: ["^17", "^18", "native", "latest", "19.3"]
+              react-version: ["^17", "^18", "native", "latest", "19.2"]
           requires:
             - setup
       - node_matrix:
