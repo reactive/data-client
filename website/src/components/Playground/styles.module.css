@@ -280,7 +280,7 @@ div.playgroundTextEdit > .playgroundHeader.subtabs {
 }
 
 :root[data-theme='dark'] .playgroundPreview {
-  --pg-preview-bg: hsl(229, 11%, 19%);
+  --pg-preview-bg: hsl(229, 7%, 19%);
   background-color: var(--pg-preview-bg);
   /* Controls read these for fills and borders: wells in the code color */
   --ifm-background-surface-color: var(--monoco-code-background);
