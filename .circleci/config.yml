@@ -126,9 +126,9 @@ jobs:
                 ESMODULE_RELEVANT=false
               fi
               # Docs/website/tooling-only changes can't affect lint, typecheck or
-              # unit tests (Playground has unit tests, so it stays relevant).
+              # unit tests (Playground and motion have unit tests, so they stay relevant).
               if ! grep -Evq "^(${DOCS_ONLY})" /tmp/ci-changed-files \
-                && ! grep -q '^website/src/components/Playground/' /tmp/ci-changed-files; then
+                && ! grep -Eq '^website/src/components/(Playground|motion)/' /tmp/ci-changed-files; then
                 echo "Only docs/website/tooling paths changed; test jobs will halt."
                 TESTS_RELEVANT=false
               fi
@@ -208,8 +208,9 @@ jobs:
             - project/node_modules
             - project/packages
             - project/scripts
-            # Playground unit tests (transformCode, codeModel); rest of website omitted
+            # Playground and motion unit tests; rest of website omitted
             - project/website/src/components/Playground
+            - project/website/src/components/motion
             - project/.yarnrc.yml
             - project/babel.config.js
             - project/eslint.config.mjs

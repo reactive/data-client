@@ -6,6 +6,7 @@ import type { Queries, waitForOptions } from '@testing-library/react';
 import { Suspense } from 'react';
 
 import { act, waitFor, renderHook, RenderHookOptions } from './render18Hook.js';
+import type { RenderHookResult } from './renderHookTypes.js';
 
 export { act };
 
@@ -118,33 +119,4 @@ export function render18Wrapper<
   });
 
   return ret;
-}
-
-export interface RenderHookResult<Result, Props> {
-  /**
-   * Triggers a re-render. The props will be passed to your renderHook callback.
-   */
-  rerender: (props?: Props) => void;
-  /**
-   * This is a stable reference to the latest value returned by your renderHook
-   * callback
-   */
-  result: {
-    /**
-     * The value returned by your renderHook callback
-     */
-    current: Result;
-    error?: Error;
-  };
-  /**
-   * Unmounts the test component. This is useful for when you need to test
-   * any cleanup your useEffects have.
-   */
-  unmount: () => void;
-  /* @deprecated use waitFor */
-  waitForNextUpdate: (options?: waitForOptions) => Promise<void>;
-  waitFor<T>(
-    callback: () => Promise<T> | T,
-    options?: waitForOptions,
-  ): Promise<T>;
 }

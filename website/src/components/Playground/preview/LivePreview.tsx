@@ -1,11 +1,14 @@
+import { useMemo } from 'react';
 import { LiveProvider } from 'react-live';
 
 import Preview from './Preview';
+import { ResetButton } from './PreviewError';
 import PreviewWrapper from './PreviewWrapper';
 import { useRenderCount } from './RenderCount';
 import { previewScope } from './scope';
 import transformCode from './transformCode';
 import { usePlaygroundConsoleDemotion } from './usePlaygroundConsoleDemotion';
+import { usePreviewReset } from './usePreviewReset';
 import type { PreviewProps } from '../types';
 
 export interface LivePreviewProps<T> extends PreviewProps<T> {
@@ -24,24 +27,42 @@ export default function LivePreview<T>({
 }: LivePreviewProps<T>) {
   usePlaygroundConsoleDemotion();
   const { onCommit, badge } = useRenderCount(renderCount);
+  const { key, restored, reset, ...handlers } = usePreviewReset(code);
+  const getInterceptorData = useMemo(
+    () =>
+      restored ?
+        () => restored.interceptorData as T
+      : getInitialInterceptorData,
+    [restored, getInitialInterceptorData],
+  );
 
   return (
     <LiveProvider
-      key="preview"
+      key={key}
       code={code}
       transformCode={transformCode}
       enableTypeScript
       noInline
       scope={previewScope}
     >
-      <PreviewWrapper headerControls={badge}>
+      <PreviewWrapper
+        headerControls={
+          <>
+            {badge}
+            <ResetButton onClick={reset} />
+          </>
+        }
+      >
         <Preview
           groupId={groupId}
           defaultOpen={defaultOpen}
           row={row}
           fixtures={fixtures}
-          getInitialInterceptorData={getInitialInterceptorData}
+          getInitialInterceptorData={getInterceptorData}
           onCommit={onCommit}
+          initialState={restored?.state}
+          onReset={reset}
+          {...handlers}
         />
       </PreviewWrapper>
     </LiveProvider>
