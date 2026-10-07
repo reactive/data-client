@@ -259,7 +259,19 @@ function dataSpecs(
         header: name,
         want: columnWidth(rows, row => row.value, name, width),
         cell: (row, w) => (
-          <Cell node={row.value} name={name} width={w} owner={rowLabel(row)} />
+          <Cell
+            node={row.value}
+            name={name}
+            width={w}
+            owner={rowLabel(row)}
+            // a Collection holds nothing but its members, so its own record
+            // (their table, with its meta) is the list to dive into
+            dive={
+              table.kind === 'collection' ?
+                { kind: 'record', id: row.id }
+              : undefined
+            }
+          />
         ),
         has: () => true,
       },

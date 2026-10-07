@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 
 import { fitChips, INLINE_LIMIT, isTimeField } from './columns';
 import { entityId, isEndpointRow, prettyPk, type AnyRow } from './model';
-import { refsList, useNav, type ListView } from './nav';
+import { refsList, useNav, type ListView, type View } from './nav';
 import { CIRCULAR, isRefList, type VNode } from './refs';
 import styles from './store.module.css';
 import { useStoreUI } from './StoreUI';
@@ -81,12 +81,12 @@ export function RowChip({ row }: { row: AnyRow }) {
   );
 }
 
-/** Dives into a list of rows: `+79`, or `Comment · 80` when none fit */
+/** Dives into the rest: `+79`, or `Comment · 80` when none fit */
 export function CountChip({
   list,
   children,
 }: {
-  list: ListView;
+  list: View;
   children: React.ReactNode;
 }) {
   const nav = useNav();
@@ -131,17 +131,20 @@ export function Cell({
   name,
   width,
   owner,
+  dive,
 }: {
   node: VNode;
   name: string;
   width: number;
   /** Row label, for the breadcrumb of a list it dives into */
   owner: string;
+  /** Where the count chip goes instead of a list of just these refs */
+  dive?: View;
 }) {
   if (!isRefList(node)) return <Inline node={node} name={name} />;
   const { items } = node;
   const fit = fitChips(items, width);
-  const list = refsList(items, `${owner} ${name}`);
+  const list = dive ?? refsList(items, `${owner} ${name}`);
   if (!fit)
     return (
       <CountChip list={list}>

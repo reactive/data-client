@@ -182,9 +182,11 @@ describe('StorePanel table view', () => {
   it('dives into long lists of refs and endpoint lists', () => {
     mount();
     const collection = within(top().querySelector('[data-table="[Comment]"]')!);
+    // a Collection's +N opens its own record: the member table and its meta
     fireEvent.click(collection.getByText(/^\+\d+$/));
-    expect(crumbs()[2]).toMatch(/^\[Comment\] all items40$/);
+    expect(crumbs()[2]).toMatch(/^\[Comment\] all$/);
     expect(top().querySelectorAll('tr[data-id]').length).toBeGreaterThan(0);
+    expect(within(top()).getByText('used by')).toBeTruthy();
   });
 
   it('opens a Collection as a table of its members', () => {

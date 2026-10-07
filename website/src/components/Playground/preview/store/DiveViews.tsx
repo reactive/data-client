@@ -40,13 +40,13 @@ export function ListView({
   view,
   scroller,
   header,
-  intro,
+  footer,
 }: {
   view: ListView;
   scroller: Scroller;
   header: Header;
-  /** Shown between the header and the rows */
-  intro?: React.ReactNode;
+  /** Shown below the rows, at the bottom of the level */
+  footer?: React.ReactNode;
 }) {
   const { model } = useNav()!;
   if ('table' in view) {
@@ -57,7 +57,7 @@ export function ListView({
           pks={view.pks}
           scroller={scroller}
           header={header}
-          intro={intro}
+          footer={footer}
         />
       : <>
           {header(null)}
@@ -65,7 +65,12 @@ export function ListView({
         </>;
   }
   return (
-    <IdList ids={view.ids} scroller={scroller} header={header} intro={intro} />
+    <IdList
+      ids={view.ids}
+      scroller={scroller}
+      header={header}
+      footer={footer}
+    />
   );
 }
 
@@ -75,13 +80,13 @@ function TableList({
   pks,
   scroller,
   header,
-  intro,
+  footer,
 }: {
   table: EntityTable;
   pks: readonly string[] | undefined;
   scroller: Scroller;
   header: Header;
-  intro: React.ReactNode;
+  footer: React.ReactNode;
 }) {
   const { model, width } = useNav()!;
   const [page, setPage] = useState(0);
@@ -101,7 +106,7 @@ function TableList({
       record={row => <EntityDetail row={row} model={model} />}
       scroller={scroller}
       header={header}
-      intro={intro}
+      footer={footer}
       tools={<Pager pages={pages} page={page} onChange={setPage} />}
     />
   );
@@ -112,12 +117,12 @@ function IdList({
   ids,
   scroller,
   header,
-  intro,
+  footer,
 }: {
   ids: readonly string[];
   scroller: Scroller;
   header: Header;
-  intro: React.ReactNode;
+  footer: React.ReactNode;
 }) {
   const { model, width } = useNav()!;
   const rows = useMemo(
@@ -137,7 +142,7 @@ function IdList({
       columns={columns}
       scroller={scroller}
       header={header}
-      intro={intro}
+      footer={footer}
     />
   );
 }
@@ -151,7 +156,7 @@ function FilteredRows<R extends AnyRow>({
   scroller,
   header,
   tools,
-  intro,
+  footer,
 }: {
   rows: readonly R[];
   columns: readonly Column<R>[];
@@ -160,7 +165,7 @@ function FilteredRows<R extends AnyRow>({
   scroller: Scroller;
   header: Header;
   tools?: React.ReactNode;
-  intro?: React.ReactNode;
+  footer?: React.ReactNode;
 }) {
   const { push } = useNav()!;
   const [filter, setFilter] = useState('');
@@ -198,7 +203,6 @@ function FilteredRows<R extends AnyRow>({
           {tools}
         </>,
       )}
-      {intro}
       <RowsTable
         columns={columns}
         rows={matches.slice(start, end)}
@@ -220,6 +224,7 @@ function FilteredRows<R extends AnyRow>({
           : null
         }
       />
+      {footer}
     </>
   );
 }
@@ -348,7 +353,7 @@ export function RecordLevel({
       view={members}
       scroller={scroller}
       header={header}
-      intro={
+      footer={
         <div className={styles.memberMeta}>
           <RowMeta row={row} model={model} />
         </div>
