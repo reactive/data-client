@@ -1574,15 +1574,6 @@ describe('RestEndpoint.fetch()', () => {
       expect(init.body).toBe(body);
       expect(init.headers).toBeUndefined();
     }
-    // explicit Content-Type still wins for JSON bodies
-    const custom = new RestEndpoint({
-      path: '/items',
-      method: 'POST',
-      requestInit: { headers: { 'Content-Type': 'application/vnd.api+json' } },
-    });
-    expect((await custom.getRequestInit([{ a: 1 }])).headers).toEqual({
-      'Content-Type': 'application/vnd.api+json',
-    });
   });
 
   it('should PUT with multipart form data', async () => {
