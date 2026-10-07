@@ -1,8 +1,8 @@
-import type * as Monaco from 'monaco-editor';
+import type * as Monaco from './monaco';
 
 /**
  * Type definitions for editor intellisense. Each is a separate webpack chunk
- * (raw text) fetched in parallel with Monaco's CDN bootstrap; a failed fetch
+ * (raw text) fetched in parallel with the Monaco chunk; a failed fetch
  * degrades to an empty lib rather than breaking the editor.
  */
 

@@ -3,10 +3,10 @@ import type * as Monaco from 'monaco-editor';
 import rangeParser from 'parse-numeric-range';
 import { memo, useCallback, useMemo } from 'react';
 
-import '../monaco/setup';
 import { highlightSelections } from '../monaco/highlightSelections';
 import { extensionToMonacoLanguage } from '../monaco/language';
 import { options } from '../monaco/options';
+import { useMonacoReady } from '../monaco/setup';
 import { MONACO_THEME } from '../monaco/theme';
 import useAutoHeight from '../monaco/useAutoHeight';
 import PlaygroundLiveEditor from '../PlaygroundLiveEditor';
@@ -48,6 +48,7 @@ function InteractiveEditor({
   language,
   readOnly = false,
 }: InteractiveEditorProps) {
+  const monacoReady = useMonacoReady();
   const editorOptions = useMemo(() => ({ ...options, readOnly }), [readOnly]);
   const { height, handleMount: handleAutoMount } = useAutoHeight({
     initialContentHeight: code.split('\n').length * editorOptions.lineHeight,
@@ -81,6 +82,7 @@ function InteractiveEditor({
   if (isMobileOrBot()) {
     return <PlaygroundLiveEditor onChange={onChange} code={code} />;
   }
+  if (!monacoReady) return loading;
 
   return (
     <Editor

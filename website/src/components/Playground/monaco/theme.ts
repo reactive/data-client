@@ -1,4 +1,4 @@
-import type * as Monaco from 'monaco-editor';
+import type * as Monaco from './monaco';
 
 /** Monaco theme name matching the site's Prism (palenight) code blocks. */
 export const MONACO_THEME = 'prism';
