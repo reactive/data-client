@@ -339,7 +339,7 @@ Commonly used with [useSuspense()](https://dataclient.io/vue/api/useSuspense), [
 ### getList.push {#push}
 
 [RestEndpoint.push](./RestEndpoint.vue.md#push) creates a new entity and pushes it to the end of getList. Use [getList.unshift](#unshift)
-to place at the beginning instead.
+to place at the beginning instead. Pass an array as the body to create several at once.
 
 ```typescript title="Post"
 import { Entity } from '@data-client/rest';

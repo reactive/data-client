@@ -757,6 +757,10 @@ to indicate there is no body.
 Prepares [RequestInit](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) used in fetch.
 This is sent to [fetchResponse](#fetchResponse)
 
+A plain object or array `body` is JSON-encoded, with a `Content-Type: application/json` header unless
+`requestInit` or [getHeaders](#getHeaders) sets one. Any other `body`, like `FormData`, `Blob`,
+`URLSearchParams` or a string, is passed to `fetch()` as-is.
+
 :::tip async
 
 <TypeScriptEditor>
@@ -1065,6 +1069,13 @@ const newUser = await ctrl.fetch(
   UserResource.getList.push,
   { group: 'five' },
   { username: 'newuser', email: 'new@example.com' },
+);
+
+// Send an array to create several at once; they're added to the end in order
+await ctrl.fetch(
+  UserResource.getList.push,
+  { group: 'five' },
+  [{ username: 'ana' }, { username: 'bo' }],
 );
 ```
 

@@ -35,8 +35,9 @@ const PostResource = resource({
   paginationField: 'cursor',
 });
 PostResource.getList.getPage({ cursor: 'a' });
-// create accepts FormData, like update and getList.push
+// create accepts FormData and arrays, like update and getList.push
 PostResource.create(new FormData());
+PostResource.create([{ title: 'a' }, { title: 'b' }]);
 const search = new RestEndpoint({ path: '/search' });
 // extend() methods' parameters aren't implicitly any on any TypeScript version,
 // including on a chained extend()
