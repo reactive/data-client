@@ -14,7 +14,7 @@ import {
   rowLabel,
   splitKey,
 } from '../store/model';
-import { membersOf } from '../store/nav';
+import { membersOf, refsList } from '../store/nav';
 import { CIRCULAR, plain, resolve, resolveRow } from '../store/refs';
 import SchemaRegistry from '../store/schemaRegistry';
 
@@ -446,6 +446,30 @@ describe('store model', () => {
     };
     expect(isChanged(state, next, entityId('User', '123'))).toBe(true);
     expect(isChanged(state, next, entityId('Post', '1'))).toBe(false);
+    // shouldUpdate() can keep the row but still refresh its meta
+    const refetched = {
+      ...state,
+      entitiesMeta: {
+        ...state.entitiesMeta,
+        Post: { 1: { date: 1, fetchedAt: 1, expiresAt: 2 } },
+      },
+    };
+    expect(isChanged(state, refetched, entityId('Post', '1'))).toBe(true);
+  });
+
+  it('learns recursive schemas', () => {
+    const tree = new schema.Object({});
+    tree.define({ children: [tree], author: User });
+    const registry = new SchemaRegistry();
+    registry.learn(tree);
+    expect(registry.entities.get('User')).toBe(User);
+  });
+
+  it('lists a referenced row once', () => {
+    const ref = (pk: string) => ({ t: 'ref', key: 'User', pk }) as const;
+    expect(refsList([ref('1'), ref('2'), ref('1')], 'x')).toMatchObject({
+      pks: ['1', '2'],
+    });
   });
 
   it('splits endpoint keys', () => {

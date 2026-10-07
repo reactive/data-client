@@ -29,6 +29,7 @@ export const useStoreUI = () => useContext(StoreUIContext);
 
 export const groupId = (key: string) => nodeId('g', key);
 export const showAllId = (key: string) => nodeId('a', key);
+export const showAllEndpointsId = nodeId('A');
 export const sectionId = (name: string) => nodeId('s', name);
 
 /** Sections (but Internals) and the first few Entity types to appear start
@@ -89,7 +90,11 @@ export function StoreUIProvider({
   const reveal = useCallback(
     (id: string) => {
       const ancestors = [id];
-      if (isEndpointId(id)) ancestors.push(sectionId('endpoints'));
+      if (isEndpointId(id)) {
+        ancestors.push(sectionId('endpoints'));
+        if (model.endpoints.findIndex(row => row.id === id) >= ROW_LIMIT)
+          ancestors.push(showAllEndpointsId);
+      }
       for (const table of model.tables) {
         const index = table.rows.findIndex(row => row.id === id);
         if (index < 0) continue;

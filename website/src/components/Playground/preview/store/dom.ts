@@ -9,7 +9,13 @@ export const attrSelector = (name: string, value: string) =>
   `[${name}="${
     typeof CSS !== 'undefined' && typeof CSS.escape === 'function' ?
       CSS.escape(value)
-    : value.replace(/["\\]/g, '\\$&')
+      // row ids hold the U+001F separator, which CSS needs as a hex escape
+      // eslint-disable-next-line no-control-regex
+    : value.replace(/["\\]|[\0-\x1f\x7f]/g, c =>
+        c === '"' || c === '\\' ?
+          `\\${c}`
+        : `\\${c.charCodeAt(0).toString(16)} `,
+      )
   }"]`;
 
 /** The element showing row (or other node) `id` */

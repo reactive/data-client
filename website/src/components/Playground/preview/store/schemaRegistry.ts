@@ -82,13 +82,16 @@ export default class SchemaRegistry implements Manager<ActionTypes> {
     }
   }
 
-  learn(schema: any) {
+  /** `seen` stops recursive schemas (an Object holding itself) */
+  learn(schema: any, seen = new WeakSet<object>()) {
     if (!schema || (typeof schema !== 'object' && typeof schema !== 'function'))
       return;
+    if (seen.has(schema)) return;
+    seen.add(schema);
     if (isEntityLike(schema)) {
       if (this.entities.get(schema.key) === schema) return;
       this.entities.set(schema.key, schema);
     }
-    forEachChildSchema(schema, child => this.learn(child));
+    forEachChildSchema(schema, child => this.learn(child, seen));
   }
 }

@@ -8,6 +8,8 @@ import { CIRCULAR, isRefList, type VNode } from './refs';
 import styles from './store.module.css';
 import { useStoreUI } from './StoreUI';
 
+/** Fields a bare preview shows (the row truncates long before) */
+const BARE_LIMIT = 20;
 /** Items shown before a "N more" button in expanded values */
 const BLOCK_LIMIT = 20;
 /** Refs listed in a record before a count chip that dives into all of them */
@@ -170,7 +172,7 @@ export function Inline({
 }: {
   node: VNode;
   name?: string;
-  /** Top-level object without braces, every field (the row truncates) */
+  /** Top-level object without braces, its first BARE_LIMIT fields */
   bare?: boolean;
   /** Array items shown */
   limit?: number;
@@ -210,7 +212,7 @@ export function Inline({
       );
     }
     case 'obj': {
-      const shown = bare ? node.entries : node.entries.slice(0, 2);
+      const shown = node.entries.slice(0, bare ? BARE_LIMIT : 2);
       const rest = node.entries.length - shown.length;
       return (
         <span className={styles.inlineList}>

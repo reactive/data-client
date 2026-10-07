@@ -20,9 +20,14 @@ export type ListView =
 /** The list a count chip dives into: one table's rows when they share one */
 export function refsList(items: readonly RefNode[], label: string): ListView {
   const table = items[0].key;
+  // a row lists once however often it is referenced
   return items.every(i => i.key === table) ?
-      { kind: 'list', label, table, pks: items.map(i => i.pk) }
-    : { kind: 'list', label, ids: items.map(i => entityId(i.key, i.pk)) };
+      { kind: 'list', label, table, pks: [...new Set(items.map(i => i.pk))] }
+    : {
+        kind: 'list',
+        label,
+        ids: [...new Set(items.map(i => entityId(i.key, i.pk)))],
+      };
 }
 
 /** A Collection row's members, which its record shows as their own table */

@@ -18,6 +18,7 @@ import {
   groupId,
   ROW_LIMIT,
   sectionId,
+  showAllEndpointsId,
   showAllId,
   useStoreUI,
 } from './StoreUI';
@@ -28,9 +29,7 @@ export default function TreeView({ model }: { model: StoreModel }) {
   return (
     <StoreSections
       model={model}
-      endpoints={model.endpoints.map(row => (
-        <EndpointTreeRow key={row.id} row={row} />
-      ))}
+      endpoints={<EndpointTreeRows rows={model.endpoints} />}
       renderTable={table => (
         <EntityTreeGroup key={table.key} table={table} model={model} />
       )}
@@ -113,17 +112,29 @@ function useRowProps(id: string, className?: string) {
   };
 }
 
-/** Rows of a table, capped at ROW_LIMIT until "Show all" */
-function useLimitedRows<T>(tableKey: string, rows: readonly T[]) {
+function EndpointTreeRows({ rows }: { rows: readonly EndpointRow[] }) {
+  const { shown, footer } = useLimitedRows(showAllEndpointsId, rows);
+  return (
+    <>
+      {shown.map(row => (
+        <EndpointTreeRow key={row.id} row={row} />
+      ))}
+      {footer}
+    </>
+  );
+}
+
+/** Rows capped at ROW_LIMIT until "Show all" (`showAll` toggles it) */
+function useLimitedRows<T>(showAll: string, rows: readonly T[]) {
   const { isOpen, toggle } = useStoreUI();
-  const all = isOpen(showAllId(tableKey));
+  const all = isOpen(showAll);
   const shown = all ? rows : rows.slice(0, ROW_LIMIT);
   const footer =
     rows.length > ROW_LIMIT ?
       <button
         type="button"
         className={styles.showAll}
-        onClick={() => toggle(showAllId(tableKey))}
+        onClick={() => toggle(showAll)}
       >
         {all ? 'Show fewer' : `Show all ${rows.length}`}
       </button>
@@ -215,7 +226,7 @@ function EntityTreeGroup({
   model: StoreModel;
 }) {
   const { open, props } = useRowProps(groupId(table.key));
-  const { shown, footer } = useLimitedRows(table.key, table.rows);
+  const { shown, footer } = useLimitedRows(showAllId(table.key), table.rows);
   return (
     <>
       <div {...props}>

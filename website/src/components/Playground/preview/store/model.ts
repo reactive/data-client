@@ -334,7 +334,10 @@ export function isChanged(
     );
   }
   const { table, pk } = ref;
-  return prev.entities[table]?.[pk] !== next.entities[table]?.[pk];
+  return (
+    prev.entities[table]?.[pk] !== next.entities[table]?.[pk] ||
+    prev.entitiesMeta[table]?.[pk] !== next.entitiesMeta[table]?.[pk]
+  );
 }
 
 /** Collection pks are serialized args: `{"userId":"1"}` → `userId: 1` */
