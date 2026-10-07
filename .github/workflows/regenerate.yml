@@ -1,8 +1,9 @@
 name: regenerate
 # Reruns the generators whose output is committed: playground editor types
 # (yarn copy:websitetypes) and skill references (yarn build:skills).
-# Same-repo PRs (Renovate's included) get any changes committed to the branch;
-# fork PRs and master fail instead. Also type-checks the docs' React and Vue examples.
+# Same-repo PRs (Renovate's included) get any changes committed to the branch.
+# Fork PRs, Dependabot and master only warn, so community contributions never
+# fail on them; the next same-repo PR commits the fix. Also type-checks the docs' React and Vue examples.
 # Claude Code rules are left to agent-rules.yml, which needs no install.
 on:
   push:
@@ -90,8 +91,8 @@ jobs:
           git diff --cached --stat
           # master isn't fixed in place
           if [ "${CAN_PUSH}" != true ]; then
-            echo "::error::Generated files are stale: run 'yarn copy:websitetypes' and 'yarn build:skills', and commit the result."
-            exit 1
+            echo "::warning::Generated files are stale: run 'yarn copy:websitetypes' and 'yarn build:skills', and commit the result."
+            exit 0
           fi
           # the changes the merge needs, for the commit job to apply to the PR head
           git diff --cached --binary --full-index --no-renames > "${RUNNER_TEMP}/regenerated.patch"
