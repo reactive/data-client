@@ -280,12 +280,13 @@ div.playgroundTextEdit > .playgroundHeader.subtabs {
 }
 
 :root[data-theme='dark'] .playgroundPreview {
+  /* The demo's content is quieter than the frame: a hint of the code's hue */
   --pg-preview-bg: hsl(229, 7%, 19%);
   background-color: var(--pg-preview-bg);
-  /* Controls read these for fills and borders: wells in the code color */
-  --ifm-background-surface-color: var(--monoco-code-background);
-  --ifm-color-emphasis-100: var(--monoco-code-background);
-  --ifm-color-emphasis-400: hsl(229, 8%, 31%);
+  /* Controls read these for fills and borders: wells a step below the body */
+  --ifm-background-surface-color: hsl(229, 7%, 15%);
+  --ifm-color-emphasis-100: var(--ifm-background-surface-color);
+  --ifm-color-emphasis-400: hsl(229, 5%, 31%);
 }
 /* The floating label straddles the field's top edge, so it blends into both */
 :root[data-theme='dark'] .playgroundPreview :global(.rt-TextFieldLabel) {
@@ -420,13 +421,13 @@ div.playgroundTextEdit > .playgroundHeader.subtabs {
   padding: 0.25rem 0.5rem;
   margin-bottom: 0.3rem;
 }
-/* Dark: cards lift to the bar off the code-colored column, as light mode
-   lifts white cards off a grey one */
+/* Dark: cards lift off the well-colored column, as light mode lifts white
+   cards off a grey one */
 :root[data-theme='dark']
   .playgroundPreview
   :global(.boardColumn)
   :global(.listItem) {
-  background: var(--pg-bar);
+  background: hsl(229, 7%, 22%);
 }
 .playgroundPreview :global(.boardColumn) button {
   margin: 0;
