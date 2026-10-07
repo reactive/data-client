@@ -28,6 +28,10 @@ commands:
       flag:
         type: enum
         enum: ["esmodule", "tests"]
+      on-missing:
+        type: enum
+        enum: ["continue", "halt"]
+        default: "continue"
     steps:
       - restore_cache:
           keys:
@@ -41,6 +45,9 @@ commands:
               circleci-agent step halt
             elif [ "${FLAG}" = "true" ]; then
               echo "Relevant changes detected; continuing job."
+            elif [ "<< parameters.on-missing >>" = "halt" ]; then
+              echo "No relevance flag found; halting this job."
+              circleci-agent step halt
             else
               echo "No relevance flag found; failing open (continuing job)."
             fi
@@ -138,9 +145,7 @@ jobs:
           paths:
             - .ci-esmodule-relevant
             - .ci-tests-relevant
-            # Keep with the flags: on a miss, tree-passed's flag checks fail
-            # open, and only the missing .ci-tree stops a false marker
-            - .ci-tree
+            - .ci-tree # tree-passed marks this
       - run:
           name: Halt setup if nothing downstream is relevant
           command: |
@@ -468,11 +473,13 @@ jobs:
     resource_class: small
     steps:
       # Only vouch for trees whose jobs all ran: a path-filtered run only
-      # proves the change was irrelevant
+      # proves the change was irrelevant, and missing flags prove nothing
       - halt-unless-relevant-change:
           flag: tests
+          on-missing: halt
       - halt-unless-relevant-change:
           flag: esmodule
+          on-missing: halt
       - run:
           name: Mark tree passed
           command: |
