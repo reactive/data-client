@@ -345,11 +345,13 @@ describe('endpoint status', () => {
     expect(screen.getByText('fresh 5s')).toBeTruthy();
     expect(screen.getByText('fresh 2m')).toBeTruthy();
     expect(screen.getByText('invalid')).toBeTruthy();
-    expect(screen.getByTitle('Expires at Infinity')).toBeTruthy();
+    // never expires: fresh without a countdown
+    expect(screen.getByText('fresh')).toBeTruthy();
     act(() => jest.advanceTimersByTime(1000));
     expect(screen.getByText('fresh 4s')).toBeTruthy();
     act(() => jest.advanceTimersByTime(5000));
     expect(screen.queryByText(/fresh \ds/)).toBeNull();
     expect(screen.getAllByText('stale').length).toBeGreaterThan(0);
+    expect(screen.getByText('fresh')).toBeTruthy();
   });
 });

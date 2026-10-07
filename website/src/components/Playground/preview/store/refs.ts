@@ -74,7 +74,8 @@ export function resolve(value: unknown, schema: any): VNode {
         : plain(value);
     return member(value);
   }
-  if (schema instanceof s.Lazy) return resolve(value, schema.schema);
+  if (schema instanceof s.Lazy || schema instanceof s.Query)
+    return resolve(value, schema.schema);
   const fields =
     isPlainObject(schema) ? schema
     : schema instanceof s.Object ? schema.schema

@@ -188,6 +188,7 @@ export function Pager({
   onChange: (page: number) => void;
 }) {
   if (pages.length < 2) return null;
+  page = Math.min(page, pages.length - 1);
   const first = pages.slice(0, page).reduce((n, p) => n + p.length, 1);
   const total = pages.reduce((n, p) => n + p.length, 0);
   return (

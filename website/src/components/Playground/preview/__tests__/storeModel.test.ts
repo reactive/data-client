@@ -84,6 +84,30 @@ describe('store model', () => {
     });
   });
 
+  it('resolves a Query through the schema it wraps', () => {
+    const comments = Post.schema.comments;
+    const query = new schema.Query(comments, (entries: any) => entries);
+    expect(resolve('{"postId":"1"}', query)).toEqual({
+      t: 'ref',
+      key: '[Comment]',
+      pk: '{"postId":"1"}',
+    });
+  });
+
+  it('drops rows garbage collection deleted in place', () => {
+    const registry = registryFor('GET https://example.com/posts', [Post]);
+    const entities = { ...state.entities, User: { ...state.entities.User } };
+    const before = { ...state, entities } as State<unknown>;
+    expect(buildModel(before, registry).table('User')?.rows).toHaveLength(1);
+    // GC mutates the table and keeps its identity
+    delete (entities.User as any)[123];
+    registry.middleware({} as any)((a: any) => a)({
+      type: actionTypes.GC,
+    } as any);
+    const after = { ...before } as State<unknown>;
+    expect(buildModel(after, registry).table('User')?.rows).toHaveLength(0);
+  });
+
   it('resolves Values, Object, Lazy and Invalidate members', () => {
     const ref = (key: string, pk: string) => ({ t: 'ref', key, pk });
     expect(resolve({ a: '123' }, new schema.Values(User))).toEqual({

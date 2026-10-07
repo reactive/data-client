@@ -217,12 +217,22 @@ const Gone = () => (
 
 /** Lowercase text a filter matches against, cached with the stored object */
 const searchCache = new WeakMap<object, string>();
+/** JSON for searching; values JSON can't encode (bigint, cycles) fall back
+ * to their pk alone */
+function stringify(value: unknown) {
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return '';
+  }
+}
+
 function searchText(row: AnyRow) {
   if (isEndpointRow(row)) return row.key.toLowerCase();
   const key = row.raw && typeof row.raw === 'object' ? row.raw : null;
   let text = key && searchCache.get(key);
   if (text) return text;
-  text = `${prettyPk(row.pk)} ${JSON.stringify(row.raw)}`.toLowerCase();
+  text = `${prettyPk(row.pk)} ${stringify(row.raw)}`.toLowerCase();
   if (key) searchCache.set(key, text);
   return text;
 }

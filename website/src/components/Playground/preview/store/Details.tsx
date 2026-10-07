@@ -24,6 +24,8 @@ export function Status({ meta }: { meta: Meta }) {
     return <span className={clsx(styles.pill, styles.error)}>error</span>;
   if (meta.invalidated)
     return <span className={clsx(styles.pill, styles.stale)}>invalid</span>;
+  if (!isFinite(meta.expiresAt))
+    return <span className={clsx(styles.pill, styles.fresh)}>fresh</span>;
   const left = meta.expiresAt - now;
   return left > 0 ?
       <span
@@ -41,7 +43,7 @@ function useNow(until: number | undefined) {
   useEffect(() => {
     // a new deadline may already have passed
     setNow(Date.now());
-    if (until === undefined || until <= Date.now()) return;
+    if (until === undefined || !isFinite(until) || until <= Date.now()) return;
     const timer = setInterval(() => {
       const t = Date.now();
       setNow(t);
