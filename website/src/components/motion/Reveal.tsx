@@ -1,4 +1,3 @@
-import clsx from 'clsx';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { isGliding } from './glide';
@@ -46,7 +45,10 @@ export default function Reveal({
     if (!show && !(el.current && isGliding(el.current))) setMounted(false);
   }, [show]);
   return mounted ?
-      <div ref={ref} className={clsx('motion-reveal', className)}>
+      <div
+        ref={ref}
+        className={className ? `motion-reveal ${className}` : 'motion-reveal'}
+      >
         {shown.current}
       </div>
     : null;
