@@ -82,10 +82,7 @@ export const lastUpdated = new RestEndpoint({
 
 <template>
   <div>
-    <div v-if="error">
-      {{ error.message }}
-      <button @click="error = null">Reset</button>
-    </div>
+    <div v-if="error">{{ error.message }}</div>
     <Suspense v-else>
       <TimePage id="1" />
       <template #fallback><div>loading...</div></template>

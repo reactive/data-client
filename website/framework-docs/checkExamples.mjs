@@ -54,12 +54,11 @@ const FRAMEWORKS = {
     isApp: () => true,
     compiler: ['@typescript/native', 'bin/tsc'],
     jsx: 'react-jsx',
-    // `render()` mounts a playground's app, which can reset its errors with ResetableErrorBoundary
+    // `render()` mounts a playground's app
     globals: `import type { FC, ReactNode } from 'react';
 
 declare global {
   function render(app: ReactNode): void;
-  const ResetableErrorBoundary: FC<{ children: ReactNode }>;
 ${PLACEHOLDERS.map(name => `  const ${name}: FC<any>;`).join('\n')}
 }
 `,

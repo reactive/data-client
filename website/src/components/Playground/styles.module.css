@@ -736,7 +736,7 @@ div.fixtureJson {
     color: var(--pg-tab-hover);
   }
 }
-/* Error card action (Reset preview, Clear Error): outlined in the card's accent */
+/* Error card action (Reset preview): outlined in the card's accent */
 .previewError .errorAction {
   display: inline-flex;
   align-items: center;
