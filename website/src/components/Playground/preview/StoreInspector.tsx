@@ -1,23 +1,25 @@
-import { StateContext } from '@data-client/react';
 import clsx from 'clsx';
-import React, { useContext, memo, useMemo } from 'react';
+import React, { memo } from 'react';
 
 import styles from '../styles.module.css';
-import Tree from './Tree';
+import type SchemaRegistry from './store/schemaRegistry';
+import StorePanel from './store/StorePanel';
 
 function StoreInspector({
   toggle,
   selectedValue,
+  registry,
 }: {
   selectedValue: 'y' | 'n';
   toggle: React.MouseEventHandler<HTMLDivElement>;
+  registry: SchemaRegistry;
 }) {
   const isSelected = selectedValue === 'y';
   return (
     <>
       <StoreToggle onClick={toggle} open={isSelected} />
       {isSelected ?
-        <StoreTreeM />
+        <StorePanel registry={registry} />
       : null}
     </>
   );
@@ -47,13 +49,3 @@ export function StoreToggle({
     </div>
   );
 }
-
-function StoreTree() {
-  const state = useContext(StateContext);
-  const simplifiedState = useMemo(() => {
-    const { optimistic, ...ret } = state;
-    return ret;
-  }, [state]);
-  return <Tree value={simplifiedState} />;
-}
-const StoreTreeM = memo(StoreTree);

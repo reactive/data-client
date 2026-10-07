@@ -3,6 +3,7 @@ import {
   PollingSubscription,
   SubscriptionManager,
   NetworkManager,
+  type Manager,
 } from '@data-client/react';
 import { MockResolver } from '@data-client/test/browser';
 import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
@@ -16,6 +17,7 @@ import React, {
 } from 'react';
 
 import Boundary from '../Boundary';
+import SchemaRegistry from './store/schemaRegistry';
 import StoreInspector from './StoreInspector';
 import { useTabStorage } from '../../../utils/tabStorage';
 import styles from '../styles.module.css';
@@ -50,10 +52,15 @@ function Preview<T>({
     ],
   );
 
-  const managers = useMemo(
-    () => [new NetworkManager(), new SubscriptionManager(PollingSubscription)],
-    [],
-  );
+  const [registry, managers] = useMemo(() => {
+    const registry = new SchemaRegistry();
+    const managers: Manager[] = [
+      registry,
+      new NetworkManager(),
+      new SubscriptionManager(PollingSubscription),
+    ];
+    return [registry, managers] as const;
+  }, []);
 
   const hiddenResult = row && selectedValue === 'y';
   return (
@@ -72,7 +79,11 @@ function Preview<T>({
             <PreviewBlockLazy onCommit={onCommit} />
           </Boundary>
         </div>
-        <StoreInspector selectedValue={selectedValue} toggle={toggle} />
+        <StoreInspector
+          selectedValue={selectedValue}
+          toggle={toggle}
+          registry={registry}
+        />
       </MockResolver>
     </DataProvider>
   );

@@ -578,3 +578,26 @@ div.fixtureJson {
   color: inherit;
   cursor: pointer;
 }
+
+/* Narrow playgrounds: the Store stacks under the preview at full width */
+@container playground (max-width: 559px) {
+  .playgroundResult {
+    flex-direction: column;
+  }
+  .playgroundResult > * {
+    flex: none;
+  }
+  .debugToggle {
+    writing-mode: horizontal-tb;
+    text-orientation: mixed;
+    letter-spacing: 0.08rem;
+    line-height: inherit;
+    padding: 0.3rem 0.75rem;
+  }
+  .debugToggle .arrow.right {
+    transform: rotateZ(90deg);
+  }
+  .debugToggle .arrow.left {
+    transform: rotateZ(0deg);
+  }
+}
