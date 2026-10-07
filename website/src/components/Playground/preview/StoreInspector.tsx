@@ -1,6 +1,7 @@
 import clsx from 'clsx';
-import React, { memo } from 'react';
+import React, { useDeferredValue, memo } from 'react';
 
+import { Reveal, useLayoutMotion } from '../../motion';
 import styles from '../styles.module.css';
 import type SchemaRegistry from './store/schemaRegistry';
 import StorePanel from './store/StorePanel';
@@ -15,12 +16,16 @@ function StoreInspector({
   registry: SchemaRegistry;
 }) {
   const isSelected = selectedValue === 'y';
+  // the empty drawer starts moving at once; the tree renders a frame later
+  const showTree = useDeferredValue(isSelected);
   return (
     <>
       <StoreToggle onClick={toggle} open={isSelected} />
-      {isSelected ?
-        <StorePanel registry={registry} />
-      : null}
+      <Reveal show={isSelected} className={styles.storePanel}>
+        {showTree ?
+          <StorePanel registry={registry} />
+        : null}
+      </Reveal>
     </>
   );
 }
@@ -34,8 +39,9 @@ export function StoreToggle({
   onClick?: React.MouseEventHandler<HTMLDivElement>;
   open?: boolean;
 }) {
+  const ref = useLayoutMotion();
   return (
-    <div className={styles.debugToggle} onClick={onClick}>
+    <div className={styles.debugToggle} onClick={onClick} ref={ref}>
       Store
       <span
         className={clsx(

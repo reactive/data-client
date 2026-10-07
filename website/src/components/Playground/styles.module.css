@@ -96,13 +96,12 @@
   --pg-tab-selected: #e3e8f2;
   --pg-tab-selected-bg: var(--monoco-code-background);
 }
-/* Dark mode: the editor column sits a step above the code, darker than the
-   neutral preview headers, so the two sides read apart without a divider */
-:root[data-theme='dark']
-  .playgroundContainer:not(.endpointPlayground)
-  .playgroundTextEdit {
-  --pg-bar: hsl(229, 14%, 21%);
-  --pg-tab-hover-bg: hsl(229, 14%, 26%);
+/* Dark mode: the frame is a muted slate of the code's indigo, so the code
+   (and the active tab, which matches it) keeps the color. Bars sit a step
+   above the code, and the preview a half step, so the top row reads as one band */
+:root[data-theme='dark'] .playgroundContainer:not(.endpointPlayground) {
+  --pg-bar: hsl(229, 9%, 21%);
+  --pg-tab-hover-bg: hsl(229, 9%, 26%);
 }
 /* EndpointPlayground's right column is code, so it always uses the dark bar */
 .endpointPlayground {
@@ -153,7 +152,7 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 
 .arrow {
-  transition: all 200ms ease 0s;
+  transition: transform var(--motion-snappy);
   transform-origin: 45% 50% 0px;
   position: relative;
   display: inline-block;
@@ -185,11 +184,79 @@ div.playgroundTextEdit > .playgroundHeader,
   flex: 1 4 30%;
   overflow: auto;
 }
-:global(.col) .playgroundError {
-  overflow: visible;
+/* Preview errors: one card, colored by the stage that failed. Amber means the
+   code never ran (compile); red means it ran and threw (runtime, network).
+   --pe-accent paints the edge bar and controls; --pe-text the label and name. */
+.previewError {
+  --pe-accent: var(--ifm-color-danger);
+  --pe-text: var(--ifm-color-danger-darkest);
+  --pe-bg: var(--ifm-color-danger-contrast-background);
+  padding: 0.6rem 0.75rem 0.7rem 0.95rem;
+  border: 1px solid color-mix(in srgb, var(--pe-accent) 35%, transparent);
+  border-radius: var(--ifm-global-radius);
+  /* the edge bar: inset so the radius clips it */
+  box-shadow: inset 3px 0 0 var(--pe-accent);
+  background: var(--pe-bg);
+  animation: previewErrorIn 160ms ease-out;
+}
+.previewError[data-kind='compile'] {
+  --pe-accent: var(--ifm-color-warning-dark);
+  /* 5:1 on the amber tint; Infima's warning scale has no text-safe step */
+  --pe-text: hsl(40, 100%, 27%);
+  --pe-bg: var(--ifm-color-warning-contrast-background);
+}
+/* Dark: tints of the accent over the slate preview, not Infima's solid wells */
+:root[data-theme='dark'] .previewError {
+  --pe-text: var(--ifm-color-danger-lightest);
+  --pe-bg: color-mix(in srgb, var(--pe-accent) 11%, transparent);
+}
+:root[data-theme='dark'] .previewError[data-kind='compile'] {
+  --pe-accent: var(--ifm-color-warning);
+  --pe-text: var(--ifm-color-warning-light);
+  --pe-bg: color-mix(in srgb, var(--pe-accent) 9%, transparent);
+}
+@keyframes previewErrorIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .previewError {
+    animation: none;
+  }
+}
+.errorKind {
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+  margin-bottom: 0.4rem;
+  font: 700 11px / 1 var(--ifm-font-family-base);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pe-text);
+}
+.errorIcon {
+  flex: none;
+  font-size: 15px;
+}
+.previewError .playgroundError {
+  margin: 0;
   padding: 0;
-  color: var(--ifm-color-danger-contrast-foreground);
+  border-radius: 0;
+  background: none;
+  overflow: visible;
+  font: 13px / 19px var(--ifm-font-family-monospace);
+  color: var(--ifm-font-color-base);
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.errorName {
+  font-weight: 600;
+  color: var(--pe-text);
+}
+.errorLocation {
+  opacity: 0.6;
 }
 
 .previewWrapper {
@@ -200,6 +267,9 @@ div.playgroundTextEdit > .playgroundHeader,
 .playgroundResult {
   display: flex;
   height: 100%;
+  /* frame for the Store drawer as it slides in and out */
+  position: relative;
+  isolation: isolate;
 }
 
 .debugToggle {
@@ -215,6 +285,26 @@ div.playgroundTextEdit > .playgroundHeader,
   padding: 0.7em 0.1em 1em 0.1em;
   cursor: pointer;
   flex: 0 0 auto;
+}
+
+/* The Store drawer (painted before its contents render) */
+.storePanel {
+  flex: 4 1 40%;
+  min-width: 0;
+  background: var(--monoco-code-background);
+}
+[data-theme='dark'] .storePanel {
+  /* opaque, so the covered result never shows through; the tree inside
+     adds the translucent code tint on top */
+  background: var(--ifm-background-color);
+}
+
+/* Row layout with the Store open: the result stays underneath, so the Store
+   slides over real content instead of an empty frame */
+.covered {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
 }
 
 .debugToggle:hover {
@@ -280,6 +370,23 @@ div.playgroundTextEdit > .playgroundHeader.subtabs {
   --pg-tab-selected: var(--pg-tab-hover);
 }
 
+:root[data-theme='dark'] .playgroundPreview {
+  /* The demo's content is quieter than the frame: a hint of the code's hue */
+  --pg-preview-bg: hsl(229, 7%, 19%);
+  background-color: var(--pg-preview-bg);
+  /* Controls read these for fills and borders: wells a step below the body */
+  --ifm-background-surface-color: hsl(229, 7%, 15%);
+  --ifm-color-emphasis-100: var(--ifm-background-surface-color);
+  /* 3:1 against both the well and the body, so field edges stay legible */
+  --ifm-color-emphasis-400: hsl(229, 5%, 48%);
+}
+/* The floating label straddles the field's top edge, so it blends into both */
+:root[data-theme='dark'] .playgroundPreview :global(.rt-TextFieldLabel) {
+  background: linear-gradient(
+    var(--pg-preview-bg) 50%,
+    var(--ifm-color-emphasis-100) 50%
+  );
+}
 :root .playgroundPreview {
   --ifm-heading-margin-bottom: 0.3ex;
   --ifm-heading-font-weight: 500;
@@ -405,6 +512,14 @@ div.playgroundTextEdit > .playgroundHeader.subtabs {
   border-radius: calc(var(--ifm-global-radius) * 0.75);
   padding: 0.25rem 0.5rem;
   margin-bottom: 0.3rem;
+}
+/* Dark: cards lift off the well-colored column, as light mode lifts white
+   cards off a grey one */
+:root[data-theme='dark']
+  .playgroundPreview
+  :global(.boardColumn)
+  :global(.listItem) {
+  background: hsl(229, 7%, 22%);
 }
 .playgroundPreview :global(.boardColumn) button {
   margin: 0;
@@ -560,6 +675,24 @@ div.fixtureJson {
   left: 0.75rem;
 }
 
+/* Live Preview label: a drawn dot renders the same on every OS, unlike 🔴 */
+.liveLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+}
+.liveLabel::before {
+  content: '';
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 50%;
+  flex: none;
+  /* optical nudge: the ring's outer edge lines up with the text inset */
+  margin-inline-start: 3px;
+  background: #ff5f56;
+  box-shadow: 0 0 0 3px rgba(255, 95, 86, 0.2);
+}
+
 /* Preview header badge (Playground `renderCount`) */
 .previewHeader {
   display: flex;
@@ -577,6 +710,64 @@ div.fixtureJson {
   background: var(--ifm-color-emphasis-300);
   color: inherit;
   cursor: pointer;
+}
+.previewControls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+/* Negative margin keeps a touch-sized target without growing the header */
+.resetButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  margin: -0.5rem -0.5rem -0.5rem 0;
+  border-radius: var(--ifm-global-radius);
+  font-size: 1rem;
+}
+.resetButton:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+}
+@media (hover: hover) {
+  .resetButton:hover {
+    background-color: var(--pg-tab-hover-bg);
+    color: var(--pg-tab-hover);
+  }
+}
+/* Error card action (Reset preview, Clear Error): outlined in the card's accent */
+.previewError .errorAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  margin: 0.65rem 0 0;
+  padding: 0.3rem 0.75rem;
+  min-height: 2rem;
+  border: 1px solid color-mix(in srgb, var(--pe-accent) 55%, transparent);
+  border-radius: var(--ifm-global-radius);
+  background: transparent;
+  color: var(--pe-text);
+  font: 500 0.85rem / 1.3 var(--ifm-font-family-base);
+  cursor: pointer;
+  transition:
+    background-color 120ms ease-out,
+    border-color 120ms ease-out;
+}
+.previewError .errorAction:focus-visible {
+  outline: 2px solid var(--pe-accent);
+  outline-offset: 2px;
+}
+@media (hover: hover) {
+  .previewError .errorAction:hover {
+    background-color: color-mix(in srgb, var(--pe-accent) 14%, transparent);
+    border-color: var(--pe-accent);
+  }
+}
+/* after hover so a pressed pointer reads darker than a resting one */
+.previewError .errorAction:active {
+  background-color: color-mix(in srgb, var(--pe-accent) 22%, transparent);
+  border-color: var(--pe-accent);
 }
 
 /* Narrow playgrounds: the Store stacks under the preview at full width */

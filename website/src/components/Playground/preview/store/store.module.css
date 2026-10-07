@@ -15,7 +15,6 @@
   --store-flash: rgba(255, 203, 107, 0.3);
   --store-bg: var(--monoco-code-background);
 
-  flex: 4 1 40%;
   min-width: 0;
   max-height: 32rem;
   overflow: auto;

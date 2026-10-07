@@ -25288,6 +25288,7 @@ __metadata:
     prettier: "npm:3.9.5"
     react: "npm:19.2.3"
     react-dom: "npm:19.2.3"
+    react-live: "npm:^4.0.0"
     react-native: "npm:0.86.2"
     react-native-safe-area-context: "npm:^5.0.0"
     react-native-screens: "npm:^4.1.0"
