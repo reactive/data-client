@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { useDeferredValue, memo } from 'react';
+import React, { useDeferredValue, useState, memo } from 'react';
 
 import { Reveal, useLayoutMotion } from '../../motion';
 import styles from '../styles.module.css';
@@ -16,8 +16,11 @@ function StoreInspector({
   registry: SchemaRegistry;
 }) {
   const isSelected = selectedValue === 'y';
-  // the empty drawer starts moving at once; the tree renders a frame later
-  const showTree = useDeferredValue(isSelected);
+  // the empty drawer starts moving at once; the tree renders a frame later,
+  // then stays, so reopening finds the Store as it was left
+  const ready = useDeferredValue(isSelected);
+  const [showTree, setShowTree] = useState(false);
+  if (ready && !showTree) setShowTree(true);
   return (
     <>
       <StoreToggle onClick={toggle} open={isSelected} />

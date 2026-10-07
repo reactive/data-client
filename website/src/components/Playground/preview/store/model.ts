@@ -144,7 +144,15 @@ function buildTable(
   const pkField =
     (
       kind === 'entity' &&
-      sample.every(pk => String((rows[pk] as any)?.[PK_FIELD]) === pk)
+      // deleted rows store a marker instead of an object
+      sample.every(pk => {
+        const raw = rows[pk];
+        return (
+          !raw ||
+          typeof raw !== 'object' ||
+          String((raw as any)[PK_FIELD]) === pk
+        );
+      })
     ) ?
       PK_FIELD
     : undefined;

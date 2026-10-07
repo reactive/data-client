@@ -25,6 +25,12 @@ function isPlainObject(value: any): value is Record<string, unknown> {
   return proto === Object.prototype || proto === null;
 }
 
+/** `push`, `unshift`, `remove`, `assign`, `move`: made with Object.create from
+ * their Collection */
+const isCollectionAdder = (schema: any) =>
+  schema instanceof s.Collection &&
+  Object.getPrototypeOf(schema) instanceof s.Collection;
+
 function isPolymorphic(schema: any) {
   return (
     schema instanceof s.Array ||
@@ -55,6 +61,9 @@ export function resolve(value: unknown, schema: any): VNode {
     return typeof value === 'string' ?
         { t: 'ref', key: schema.key, pk: value }
       : plain(value);
+  // Collection.push and friends store what their members normalize to (the
+  // new pks); only the Collection itself is stored by its own pk
+  if (isCollectionAdder(schema)) return resolve(value, schema.schema);
   if (isEntityLike(schema))
     return typeof value === 'string' || typeof value === 'number' ?
         { t: 'ref', key: schema.key, pk: `${value}` }

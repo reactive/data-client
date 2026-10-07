@@ -1,4 +1,10 @@
-import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import React, {
+  Activity,
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { settled } from './glide';
 import { useMember, useWillGlide } from './MotionGroup';
@@ -6,9 +12,10 @@ import { useMember, useWillGlide } from './MotionGroup';
 /**
  * Shows `children` while `show`, sliding in from and back out past the end of
  * its flex container (so it follows the layout: sideways in a row, up from
- * the bottom when stacked). Stays mounted until its exit finishes, so
+ * the bottom when stacked). Once its exit finishes it is hidden (an
+ * `<Activity>`), not unmounted, so reopening finds its state as it was left;
  * reopening mid-exit just turns it around. The motion comes from the nearest
- * `<MotionGroup>`; without one it just mounts and unmounts.
+ * `<MotionGroup>`; without one it just shows and hides.
  *
  * It slides over its siblings; clip it with `overflow: hidden` on an ancestor.
  */
@@ -22,8 +29,13 @@ export default function Reveal({
   className?: string;
   children: React.ReactNode;
 }) {
+  const [visible, setVisible] = useState(show);
+  // renders nothing until first shown
   const [mounted, setMounted] = useState(show);
-  if (show && !mounted) setMounted(true);
+  if (show && !visible) {
+    setVisible(true);
+    setMounted(true);
+  }
   // keep showing what it had while it slides out
   const shown = useRef(children);
   if (show) shown.current = children;
@@ -37,30 +49,32 @@ export default function Reveal({
     },
     [memberRef],
   );
-  // leaves once it comes to rest: at once (before it paints in flow) if
+  // hides once it comes to rest: at once (before it paints in flow) if
   // nothing will slide it out, else after the group's glide settles
   useLayoutEffect(() => {
     const node = el.current;
     if (show || !node) return;
     if (!willGlide(node)) {
-      setMounted(false);
+      setVisible(false);
       return;
     }
     let reopened = false;
     // the group starts its glide later in this commit
     queueMicrotask(() =>
-      settled(node).then(() => reopened || setMounted(false)),
+      settled(node).then(() => reopened || setVisible(false)),
     );
     return () => {
       reopened = true;
     };
   }, [show, willGlide]);
   return mounted ?
-      <div
-        ref={ref}
-        className={className ? `motion-reveal ${className}` : 'motion-reveal'}
-      >
-        {shown.current}
-      </div>
+      <Activity mode={visible ? 'visible' : 'hidden'}>
+        <div
+          ref={ref}
+          className={className ? `motion-reveal ${className}` : 'motion-reveal'}
+        >
+          {shown.current}
+        </div>
+      </Activity>
     : null;
 }

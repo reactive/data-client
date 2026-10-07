@@ -95,6 +95,45 @@ describe('store model', () => {
     });
   });
 
+  it('resolves what Collection adders store to the members they change', () => {
+    const comments = Post.schema.comments;
+    const refs = { t: 'arr', items: [{ t: 'ref', key: 'Comment', pk: '249' }] };
+    for (const adder of [
+      comments.push,
+      comments.unshift,
+      comments.remove,
+      comments.move,
+      comments.addWith(() => true),
+    ])
+      expect(resolve(['249'], adder)).toEqual(refs);
+    const byId = new Collection(new schema.Values(Comment));
+    for (const adder of [byId.assign, byId.remove])
+      expect(resolve({ a: '249' }, adder)).toEqual({
+        t: 'obj',
+        entries: [['a', { t: 'ref', key: 'Comment', pk: '249' }]],
+      });
+    expect(resolve('{"postId":"1"}', comments)).toEqual({
+      t: 'ref',
+      key: '[Comment]',
+      pk: '{"postId":"1"}',
+    });
+  });
+
+  it('still drops the id field when a row was deleted', () => {
+    const registry = registryFor('k', [User]);
+    const model = buildModel(
+      {
+        ...state,
+        entities: {
+          User: { ...state.entities.User, 9: Symbol('INVALID') },
+        },
+      } as unknown as State<unknown>,
+      registry,
+    );
+    expect(model.table('User')?.pkField).toBe('id');
+    expect(model.table('User')?.fields).toEqual(['name']);
+  });
+
   it('keeps id as data when an Entity is keyed by another field', () => {
     class Article extends Entity {
       id = 0;
