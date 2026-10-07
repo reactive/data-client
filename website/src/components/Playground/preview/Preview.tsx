@@ -3,8 +3,6 @@ import {
   PollingSubscription,
   SubscriptionManager,
   NetworkManager,
-  useController,
-  type Controller,
   type State,
 } from '@data-client/react';
 import { MockResolver } from '@data-client/test/browser';
@@ -13,7 +11,6 @@ import clsx from 'clsx';
 import React, {
   memo,
   useCallback,
-  useImperativeHandle,
   useMemo,
   lazy,
   type ProfilerOnRenderCallback,
@@ -34,7 +31,6 @@ function Preview<T>({
   getInitialInterceptorData,
   onCommit,
   initialState,
-  controller,
   onInteract,
   ...errorProps
 }: PreviewProps<T> &
@@ -42,7 +38,6 @@ function Preview<T>({
     /** Called on every React commit of the live result (enables a `<Profiler>`) */
     onCommit?: ProfilerOnRenderCallback;
     initialState?: State<unknown>;
-    controller: React.Ref<Controller>;
     /** User pointer/keyboard input inside the result */
     onInteract: () => void;
   }) {
@@ -72,7 +67,6 @@ function Preview<T>({
   const hiddenResult = row && selectedValue === 'y';
   return (
     <DataProvider managers={managers} initialState={initialState}>
-      <ControllerHandle handle={controller} />
       <MockResolver
         fixtures={fixtures}
         silenceMissing={true}
@@ -95,12 +89,6 @@ function Preview<T>({
   );
 }
 export default memo(Preview);
-
-function ControllerHandle({ handle }: { handle: React.Ref<Controller> }) {
-  const controller = useController();
-  useImperativeHandle(handle, () => controller, [controller]);
-  return null;
-}
 
 const PreviewBlockLazy = lazy(
   () =>

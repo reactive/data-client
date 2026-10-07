@@ -1,4 +1,4 @@
-import type { Controller, State } from '@data-client/react';
+import type { State } from '@data-client/react';
 import { useCallback, useRef, useState } from 'react';
 
 interface PreviewStore {
@@ -22,7 +22,6 @@ interface PreviewStore {
  * works again (typing through a typo retries at most once).
  */
 export function usePreviewReset(code: string) {
-  const controller = useRef<Controller>(null);
   const [store, setStore] = useState<PreviewStore>({
     key: 0,
     code,
@@ -41,25 +40,26 @@ export function usePreviewReset(code: string) {
     [],
   );
 
-  const onRenderError = useCallback((errorCode: string) => {
-    const state = controller.current?.getState();
-    setStore(s => {
-      if (s.replaced && s.code === errorCode)
+  const onRenderError = useCallback(
+    (errorCode: string, state: State<unknown>) =>
+      setStore(s => {
+        if (s.replaced && s.code === errorCode)
+          return {
+            key: s.key + 1,
+            code: s.replaced.code,
+            initialState: s.replaced.state,
+            canAutoReset: false,
+          };
+        if (s.code === errorCode || !s.canAutoReset) return s;
         return {
           key: s.key + 1,
-          code: s.replaced.code,
-          initialState: s.replaced.state,
+          code: errorCode,
+          replaced: { state, code: s.code },
           canAutoReset: false,
         };
-      if (s.code === errorCode || !s.canAutoReset || !state) return s;
-      return {
-        key: s.key + 1,
-        code: errorCode,
-        replaced: { state, code: s.code },
-        canAutoReset: false,
-      };
-    });
-  }, []);
+      }),
+    [],
+  );
 
   const onHealthy = useCallback(
     () => setStore(s => (s.canAutoReset ? s : { ...s, canAutoReset: true })),
@@ -75,7 +75,6 @@ export function usePreviewReset(code: string) {
   return {
     key: store.key,
     initialState: store.initialState,
-    controller,
     reset,
     onRenderError,
     onHealthy,

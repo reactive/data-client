@@ -2,8 +2,8 @@ import React, { memo, Profiler, type ProfilerOnRenderCallback } from 'react';
 import { LivePreview } from 'react-live';
 
 import Boundary from '../Boundary';
-import { Loading } from '../DesignSystem/Loading';
 import PreviewError, { type PreviewErrorProps } from './PreviewError';
+import { Loading } from '../DesignSystem/Loading';
 
 function PreviewBlock({
   onCommit,

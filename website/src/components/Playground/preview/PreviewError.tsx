@@ -1,29 +1,31 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import { useController, type State } from '@data-client/react';
+import clsx from 'clsx';
+import React, { useContext, useEffect } from 'react';
 import { LiveContext } from 'react-live';
 
 import styles from '../styles.module.css';
 
 /** react-live's error, plus a reset when it came from rendering (a fresh store may fix it).
  *
- * Compile and evaluation errors never render the new code, so only errors after
- * the current code rendered count as render errors.
+ * react-live sets `newCode` only once code reaches render, so compile and
+ * evaluation errors leave it at older code.
  */
 export default function PreviewError({
   onReset,
   onRenderError,
   onHealthy,
 }: PreviewErrorProps) {
-  const { error, element, code, newCode } = useContext(LiveContext);
-  const rendered = useRef<string>(undefined);
-  if (!error && element && newCode === code) rendered.current = code;
-  const isRenderError = !!error && rendered.current === code;
-
-  const isHealthy = !error && rendered.current === code;
+  const { error, code, newCode } = useContext(LiveContext);
+  const controller = useController();
+  const rendered = newCode === code;
+  const isRenderError = !!error && rendered;
+  const isHealthy = !error && rendered;
 
   useEffect(() => {
-    if (isRenderError) onRenderError(code);
-  }, [isRenderError, code, onRenderError]);
-  // A render that throws commits once before its error arrives; waiting skips that.
+    if (isRenderError) onRenderError(code, controller.getState());
+  }, [isRenderError, code, onRenderError, controller]);
+  // react-live commits a throwing render once before reporting its error, so
+  // "healthy" means no error for a while.
   useEffect(() => {
     if (!isHealthy) return;
     const timer = setTimeout(onHealthy, HEALTHY_AFTER_MS);
@@ -47,8 +49,8 @@ const HEALTHY_AFTER_MS = 1000;
 
 export interface PreviewErrorProps {
   onReset: () => void;
-  /** Called with the code whose render threw */
-  onRenderError: (code: string) => void;
+  /** Called with the code whose render threw and the store it threw with */
+  onRenderError: (code: string, state: State<unknown>) => void;
   /** Called once the current code has rendered without error for a while */
   onHealthy: () => void;
 }
@@ -57,7 +59,7 @@ export function ResetButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       type="button"
-      className={styles.resetButton}
+      className={clsx('clean-btn', styles.resetButton)}
       title="Reset preview"
       aria-label="Reset preview"
       onClick={onClick}

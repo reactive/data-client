@@ -591,13 +591,8 @@ div.fixtureJson {
   width: 2rem;
   height: 2rem;
   margin: -0.5rem -0.5rem -0.5rem 0;
-  padding: 0;
-  border: none;
   border-radius: var(--ifm-global-radius);
-  background: none;
-  color: inherit;
   font-size: 1rem;
-  cursor: pointer;
 }
 .resetButton:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
@@ -613,21 +608,4 @@ div.fixtureJson {
   align-items: center;
   gap: 0.4em;
   margin-top: 0.25rem;
-  padding: 0.35rem 0.75rem;
-  border: 1px solid var(--ifm-color-emphasis-400);
-  border-radius: var(--ifm-global-radius);
-  background: none;
-  color: inherit;
-  font: inherit;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-@media (hover: hover) {
-  .previewError button:hover {
-    background-color: var(--ifm-color-emphasis-200);
-  }
-}
-.previewError button:focus-visible {
-  outline: 2px solid var(--ifm-color-primary);
 }

@@ -26,8 +26,7 @@ export default function LivePreview<T>({
 }: LivePreviewProps<T>) {
   usePlaygroundConsoleDemotion();
   const { onCommit, badge } = useRenderCount(renderCount);
-  const { key, initialState, controller, reset, ...handlers } =
-    usePreviewReset(code);
+  const { key, initialState, reset, ...handlers } = usePreviewReset(code);
 
   return (
     <LiveProvider
@@ -54,7 +53,6 @@ export default function LivePreview<T>({
           getInitialInterceptorData={getInitialInterceptorData}
           onCommit={onCommit}
           initialState={initialState}
-          controller={controller}
           onReset={reset}
           {...handlers}
         />
