@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791303574465,
+  "lastUpdate": 1791414702026,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -8159,6 +8159,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 192.31,
             "range": "± 8.0%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6ed4f01feefc9c3e8b0831f359db74553fef624b",
+          "message": "chore: Bump React to 19.3.0 (#4264)\n\n* chore: Bump React to 19.3.0\n\nPin react, react-dom and react-test-renderer at 19.3.0 everywhere they\nwere pinned at 19.2.3. CI's extra React job now covers 19.2 (the\nprevious minor) instead of 19.3, and the native job runs the installed\nReact like latest does.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SHijwZ57GWD8EtGYd7WWry\n\n* ci: Pass the pinned previous-minor React through the matrix parameter\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SHijwZ57GWD8EtGYd7WWry\n\n* ci: Keep the React Native job on React 19.2.3, which RN 0.86 pairs with\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SHijwZ57GWD8EtGYd7WWry\n\n* chore: Regenerate standalone example lockfiles for React 19.3.0\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SHijwZ57GWD8EtGYd7WWry\n\n* ci: Cover the previous React minor in the native job instead of a separate job\n\nBoth jobs installed React 19.2.3, so the native job now also runs the\nper-minor ReactDOM suites, dropping one job per pipeline.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SHijwZ57GWD8EtGYd7WWry\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-07T23:04:46Z",
+          "tree_id": "94c62e65a8feb652c0e8cdb146446ac7357f7208",
+          "url": "https://github.com/reactive/data-client/commit/6ed4f01feefc9c3e8b0831f359db74553fef624b"
+        },
+        "date": 1791414698317,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 135.14,
+            "range": "± 4.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 41.24,
+            "range": "± 5.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 392.31,
+            "range": "± 9.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 363.76,
+            "range": "± 8.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 45.05,
+            "range": "± 8.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 333.33,
+            "range": "± 8.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 344.83,
+            "range": "± 6.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 9.47,
+            "range": "± 10.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 78.13,
+            "range": "± 14.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 36.3,
+            "range": "± 5.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 217.39,
+            "range": "± 3.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 289.92,
+            "range": "± 6.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 181.82,
+            "range": "± 8.7%",
             "unit": "ops/s"
           }
         ]
