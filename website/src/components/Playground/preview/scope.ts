@@ -3,7 +3,7 @@ import * as rhReact from '@data-client/react';
 import * as rhReactNext from '@data-client/react/next';
 import * as rest from '@data-client/rest';
 import BigNumber from 'bignumber.js';
-import { use } from 'react';
+import { Suspense, use } from 'react';
 import { v4 as uuid } from 'uuid';
 
 import * as designSystem from '../DesignSystem';
@@ -33,6 +33,7 @@ export const previewScope = {
   ...graphql,
   ...rest,
   use,
+  Suspense,
   uuid,
   randomFloatInRange,
   mockFetch,

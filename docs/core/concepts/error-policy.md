@@ -34,7 +34,7 @@ Hard errors always reject with `error` - even when data has previously made avai
 
 :::react
 
-Once an error shows, **Reset preview** (↻ in the preview header) starts the demo over with a fresh store.
+A soft error keeps showing the last data. Hard errors (and soft ones with nothing to show) are left uncaught, so the preview shows them with **Reset preview** to start over.
 
 :::
 
@@ -98,7 +98,8 @@ export default function TimePage({ id }) {
 ```
 
 ```tsx title="ShowTime" collapsed
-import { AsyncBoundary, useController } from '@data-client/react';
+import { useController } from '@data-client/react';
+import { Suspense } from 'react';
 import { lastUpdated } from './api/lastUpdated';
 import TimePage from './TimePage';
 
@@ -115,9 +116,9 @@ function ShowTime() {
   };
   return (
     <div>
-      <AsyncBoundary fallback={<div>loading...</div>}>
+      <Suspense fallback={<Loading />}>
         <TimePage id="1" />
-      </AsyncBoundary>
+      </Suspense>
       <div>
         <button onClick={() => fail(500)}>Fail Soft</button>
         <button onClick={() => fail(400)}>Fail Hard</button>

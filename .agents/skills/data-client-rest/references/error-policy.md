@@ -56,7 +56,8 @@ export default function TimePage({ id }) {
 ```
 
 ```tsx title="ShowTime"
-import { AsyncBoundary, useController } from '@data-client/react';
+import { useController } from '@data-client/react';
+import { Suspense } from 'react';
 import { lastUpdated } from './api/lastUpdated';
 import TimePage from './TimePage';
 
@@ -73,9 +74,9 @@ function ShowTime() {
   };
   return (
     <div>
-      <AsyncBoundary fallback={<div>loading...</div>}>
+      <Suspense fallback={<Loading />}>
         <TimePage id="1" />
-      </AsyncBoundary>
+      </Suspense>
       <div>
         <button onClick={() => fail(500)}>Fail Soft</button>
         <button onClick={() => fail(400)}>Fail Hard</button>
