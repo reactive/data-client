@@ -138,6 +138,8 @@ jobs:
           paths:
             - .ci-esmodule-relevant
             - .ci-tests-relevant
+            # Keep with the flags: on a miss, tree-passed's flag checks fail
+            # open, and only the missing .ci-tree stops a false marker
             - .ci-tree
       - run:
           name: Halt setup if nothing downstream is relevant
