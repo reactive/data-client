@@ -9,7 +9,6 @@ export default function PreviewWrapper({ children, headerControls }: Props) {
     <div className={styles.previewWrapper}>
       <Header className={styles.previewHeader}>
         <span className={styles.liveLabel}>
-          <span className={styles.liveDot} aria-hidden="true" />
           <Translate
             id="theme.Playground.result"
             description="The result label of the live codeblocks"

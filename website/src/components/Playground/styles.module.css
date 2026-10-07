@@ -283,20 +283,14 @@ div.playgroundTextEdit > .playgroundHeader.subtabs {
   background-color: var(--pg-preview-bg);
   /* Controls read these for fills and borders: wells in the code color */
   --ifm-background-surface-color: var(--monoco-code-background);
+  --ifm-color-emphasis-100: var(--monoco-code-background);
   --ifm-color-emphasis-400: hsl(229, 12%, 31%);
-}
-/* DesignSystem gives dark fields a neutral emphasis-100 fill instead */
-:root[data-theme='dark']
-  .playgroundPreview
-  :global(.rt-TextFieldRoot:not(.small)),
-:root[data-theme='dark'] .playgroundPreview :global(.rt-TextAreaRoot) {
-  background-color: var(--monoco-code-background);
 }
 /* The floating label straddles the field's top edge, so it blends into both */
 :root[data-theme='dark'] .playgroundPreview :global(.rt-TextFieldLabel) {
   background: linear-gradient(
     var(--pg-preview-bg) 50%,
-    var(--monoco-code-background) 50%
+    var(--ifm-color-emphasis-100) 50%
   );
 }
 :root .playgroundPreview {
@@ -425,11 +419,8 @@ div.playgroundTextEdit > .playgroundHeader.subtabs {
   padding: 0.25rem 0.5rem;
   margin-bottom: 0.3rem;
 }
-/* Dark: a well in the code color with cards lifted to the bar, as light
-   mode lifts white cards off a grey column */
-:root[data-theme='dark'] .playgroundPreview :global(.boardColumn) {
-  background: var(--monoco-code-background);
-}
+/* Dark: cards lift to the bar off the code-colored column, as light mode
+   lifts white cards off a grey one */
 :root[data-theme='dark']
   .playgroundPreview
   :global(.boardColumn)
@@ -596,12 +587,13 @@ div.fixtureJson {
   align-items: center;
   gap: 0.6em;
 }
-.liveDot {
+.liveLabel::before {
+  content: '';
   width: 0.55em;
   height: 0.55em;
   border-radius: 50%;
   flex: none;
-  /* keep the ring inside the header's padding */
+  /* optical nudge: the ring's outer edge lines up with the text inset */
   margin-inline-start: 3px;
   background: #ff5f56;
   box-shadow: 0 0 0 3px rgba(255, 95, 86, 0.2);
