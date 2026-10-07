@@ -9,12 +9,12 @@ import { springs } from './tokens';
  * - `<Reveal>`'s box, which its contents fill
  */
 export function motionCss() {
-  const names = Object.keys(springs) as (keyof typeof springs)[];
-  const vars = names.map(name => {
-    const { duration, easing } = springEasing(springs[name]);
+  const tokens = Object.entries(springs);
+  const vars = tokens.map(([name, spring]) => {
+    const { duration, easing } = springEasing(spring);
     return `--motion-${name}: ${duration}ms ${easing};`;
   });
-  const instant = names.map(name => `--motion-${name}: 0s;`);
+  const instant = tokens.map(([name]) => `--motion-${name}: 0s;`);
   return [
     `:root { ${vars.join(' ')} }`,
     `@media (prefers-reduced-motion: reduce) { :root { ${instant.join(' ')} } }`,

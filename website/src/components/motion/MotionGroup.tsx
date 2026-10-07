@@ -26,7 +26,7 @@ interface Snapshot {
   at: Point;
   velocity: Point;
   /** Layout box (no transforms), to pin a presence where it was if it exits */
-  box?: Box;
+  box: Box;
 }
 interface Box {
   left: number;
@@ -72,19 +72,16 @@ export default class MotionGroup extends Component<Props> {
     const snapshots = new Map<HTMLElement, Snapshot>();
     // reduced motion: nothing to measure, everything lands in place
     if (prefersReducedMotion()) return snapshots;
-    for (const [el, presence] of this.members) {
+    for (const el of this.members.keys()) {
       snapshots.set(el, {
         at: parentRelative(el),
         velocity: velocityOf(el),
-        box:
-          presence.current ?
-            {
-              left: el.offsetLeft,
-              top: el.offsetTop,
-              width: el.offsetWidth,
-              height: el.offsetHeight,
-            }
-          : undefined,
+        box: {
+          left: el.offsetLeft,
+          top: el.offsetTop,
+          width: el.offsetWidth,
+          height: el.offsetHeight,
+        },
       });
     }
     return snapshots;
@@ -105,7 +102,7 @@ export default class MotionGroup extends Component<Props> {
     // settle the final layout before measuring anything
     for (const [el, { box }] of snapshots) {
       stop(el);
-      if (box && this.members.get(el)?.current?.exiting) pin(el, box);
+      if (this.members.get(el)?.current?.exiting) pin(el, box);
       else unpin(el);
     }
     // measure everything, then start animations (one style recalc)
