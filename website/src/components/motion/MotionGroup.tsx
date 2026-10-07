@@ -92,7 +92,11 @@ export default class MotionGroup extends Component<Props> {
   ) {
     if (!snapshots) return;
     if (prefersReducedMotion()) {
-      for (const el of this.members.keys()) stop(el);
+      // land in place; a reopened exit rejoins the layout
+      for (const [el, { current }] of this.members) {
+        stop(el);
+        if (!current?.exiting) unpin(el);
+      }
       return;
     }
     const { spring = springs.smooth } = this.props;

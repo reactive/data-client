@@ -266,3 +266,13 @@ it('stays when reopened before a settling glide finishes', async () => {
   await act(async () => enter?.animation.finish?.());
   expect(screen.getByText('panel')).toBeTruthy();
 });
+
+it('rejoins the layout when reopened mid-exit under reduced motion', () => {
+  const { rerender } = render(<Drawer open />);
+  rerender(<Drawer open={false} />);
+  const panel = screen.getByText('panel');
+  expect(panel.style.position).toBe('absolute');
+  window.matchMedia = jest.fn().mockReturnValue({ matches: true });
+  rerender(<Drawer open />);
+  expect(panel.style.position).toBe('');
+});
