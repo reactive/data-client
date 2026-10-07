@@ -1,11 +1,19 @@
 import { NetworkErrorBoundary, useController } from '@data-client/react';
 import React from 'react';
 
-import { ErrorPanel } from './Playground/preview/PreviewError';
+import ErrorPanel from './Playground/ErrorPanel';
 import styles from './Playground/styles.module.css';
 
 interface Props {
   children: React.ReactNode;
+}
+
+export default function ResetableErrorBoundary({ children }: Props) {
+  return (
+    <NetworkErrorBoundary fallbackComponent={NetworkErrorFallback}>
+      {children}
+    </NetworkErrorBoundary>
+  );
 }
 
 interface ErrorLike {
@@ -13,44 +21,36 @@ interface ErrorLike {
   status?: number | string;
 }
 
-export default function ResetableErrorBoundary({ children }: Props) {
-  const [i, setI] = React.useState(0);
+function NetworkErrorFallback({
+  error,
+  resetErrorBoundary,
+}: {
+  error: ErrorLike;
+  resetErrorBoundary: () => void;
+}) {
   const { resetEntireStore } = useController();
-
   return (
-    <NetworkErrorBoundary
-      key={i}
-      fallbackComponent={({ error }) => {
-        const networkError = error as ErrorLike;
-        return (
-          <ErrorPanel
-            kind="network"
-            action={
-              <button
-                type="button"
-                className={styles.errorAction}
-                onClick={() => {
-                  resetEntireStore();
-                  setI(i => i + 1);
-                }}
-              >
-                Clear Error
-              </button>
-            }
-          >
-            <div className={styles.playgroundError}>
-              {networkError.status !== undefined ?
-                <strong className={styles.errorName}>
-                  {networkError.status}
-                </strong>
-              : null}{' '}
-              {networkError.message}
-            </div>
-          </ErrorPanel>
-        );
-      }}
+    <ErrorPanel
+      kind="network"
+      action={
+        <button
+          type="button"
+          className={styles.errorAction}
+          onClick={() => {
+            resetEntireStore();
+            resetErrorBoundary();
+          }}
+        >
+          Clear Error
+        </button>
+      }
     >
-      {children}
-    </NetworkErrorBoundary>
+      <div className={styles.playgroundError}>
+        {error.status !== undefined && (
+          <strong className={styles.errorName}>{error.status} </strong>
+        )}
+        {error.message}
+      </div>
+    </ErrorPanel>
   );
 }

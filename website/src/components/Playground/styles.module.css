@@ -191,14 +191,12 @@ div.playgroundTextEdit > .playgroundHeader,
   --pe-accent: var(--ifm-color-danger);
   --pe-text: var(--ifm-color-danger-darkest);
   --pe-bg: var(--ifm-color-danger-contrast-background);
-  margin: 0;
   padding: 0.6rem 0.75rem 0.7rem 0.95rem;
   border: 1px solid color-mix(in srgb, var(--pe-accent) 35%, transparent);
   border-radius: var(--ifm-global-radius);
   /* the edge bar: inset so the radius clips it */
   box-shadow: inset 3px 0 0 var(--pe-accent);
   background: var(--pe-bg);
-  color: var(--ifm-font-color-base);
   animation: previewErrorIn 160ms ease-out;
 }
 .previewError[data-kind='compile'] {
@@ -208,8 +206,7 @@ div.playgroundTextEdit > .playgroundHeader,
   --pe-bg: var(--ifm-color-warning-contrast-background);
 }
 /* Dark: tints of the accent over the slate preview, not Infima's solid wells */
-:root[data-theme='dark'] .previewError[data-kind='runtime'],
-:root[data-theme='dark'] .previewError[data-kind='network'] {
+:root[data-theme='dark'] .previewError {
   --pe-text: var(--ifm-color-danger-lightest);
   --pe-bg: color-mix(in srgb, var(--pe-accent) 11%, transparent);
 }

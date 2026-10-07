@@ -140,7 +140,7 @@ DesignSystem/       components injected into preview scope
   persists. It retries again only after the preview has rendered cleanly for a
   second, so typing through a typo costs at most one retry. Compile and
   evaluation errors never reset.
-- Errors show in one `ErrorPanel` card labeled by the stage that failed: amber
+- Errors show in one `ErrorPanel` card (`Playground/ErrorPanel.tsx`) labeled by the stage that failed: amber
   "Compile error" for react-live's `SyntaxError`s (the code never ran), red
   "Runtime error" for anything thrown while running, and "Network error" for
   `ResetableErrorBoundary`.
