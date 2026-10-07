@@ -67,7 +67,9 @@ DesignSystem/       components injected into preview scope
 - `monaco/setup.ts` runs once when the editor chunk evaluates: injects
   preload/prefetch `<link>`s for the version-matched CDN files, starts
   `loader.init()` and the type-lib chunk downloads in parallel.
-  `preloadManifest.ts` is regenerated on every docusaurus config load.
+  `preloadManifest.ts` is generated from the installed `monaco-editor` on
+  install and every docusaurus config load, so it is gitignored and can't go
+  stale.
 - Type libs: one webpack chunk per third-party `.d.ts` (`reactDTS`, …) and a
   single `dataClientDTS` chunk holding exactly the `DATA_CLIENT_LIBS` entries
   (check-only editor types such as `vue/test` stay out). Failed fetches
