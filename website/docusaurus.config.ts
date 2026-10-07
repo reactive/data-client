@@ -7,6 +7,7 @@ import path from 'path';
 import { themes } from 'prism-react-renderer';
 
 import gqlRedirects from './gqlRedirects';
+import { motionCss } from './src/components/motion/css';
 import versions from './versions.json';
 
 // Keep Monaco CDN preload hashes in sync with the installed monaco-editor package.
@@ -299,6 +300,13 @@ const config: Config = {
     ],
   ],
   plugins: [
+    // global motion styles (spring tokens, <Reveal>): website/src/components/motion/css.ts
+    () => ({
+      name: 'motion-css',
+      injectHtmlTags: () => ({
+        headTags: [{ tagName: 'style', innerHTML: motionCss() }],
+      }),
+    }),
     [
       '@docusaurus/plugin-content-docs',
       {

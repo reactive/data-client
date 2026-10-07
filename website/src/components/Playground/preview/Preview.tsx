@@ -16,6 +16,7 @@ import React, {
   type ProfilerOnRenderCallback,
 } from 'react';
 
+import { MotionGroup } from '../../motion';
 import Boundary from '../Boundary';
 import type { PreviewErrorProps } from './PreviewError';
 import StoreInspector from './StoreInspector';
@@ -64,7 +65,7 @@ function Preview<T>({
     [],
   );
 
-  const hiddenResult = row && selectedValue === 'y';
+  const coveredResult = row && selectedValue === 'y';
   return (
     <DataProvider managers={managers} initialState={initialState}>
       <MockResolver
@@ -72,18 +73,21 @@ function Preview<T>({
         silenceMissing={true}
         getInitialInterceptorData={getInitialInterceptorData}
       >
-        <div
-          className={clsx('playground-preview', styles.playgroundPreview, {
-            [styles.hidden]: hiddenResult,
-          })}
-          onPointerDownCapture={onInteract}
-          onKeyDownCapture={onInteract}
-        >
-          <Boundary fallback={null}>
-            <PreviewBlockLazy onCommit={onCommit} {...errorProps} />
-          </Boundary>
-        </div>
-        <StoreInspector selectedValue={selectedValue} toggle={toggle} />
+        <MotionGroup layoutDependency={selectedValue}>
+          <div
+            className={clsx('playground-preview', styles.playgroundPreview, {
+              [styles.covered]: coveredResult,
+            })}
+            inert={coveredResult}
+            onPointerDownCapture={onInteract}
+            onKeyDownCapture={onInteract}
+          >
+            <Boundary fallback={null}>
+              <PreviewBlockLazy onCommit={onCommit} {...errorProps} />
+            </Boundary>
+          </div>
+          <StoreInspector selectedValue={selectedValue} toggle={toggle} />
+        </MotionGroup>
       </MockResolver>
     </DataProvider>
   );
