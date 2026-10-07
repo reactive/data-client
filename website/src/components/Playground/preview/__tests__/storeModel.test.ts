@@ -6,6 +6,7 @@ import {
   buildModel,
   entityId,
   isChanged,
+  prettyPk,
   referrersOf,
   rowLabel,
   splitKey,
@@ -233,6 +234,42 @@ describe('store model', () => {
     expect(referrersOf(model, entityId('User', '123'))).toEqual([]);
   });
 
+  it('orders Collections after their Entity, orphans next, then Scalars', () => {
+    const cell = new schema.Scalar({
+      lens: (args: any) => args[0]?.portfolio,
+      key: 'portfolio',
+      entity: User,
+    });
+    const registry = registryFor('GET https://example.com/posts', [Post]);
+    registry.learn(cell);
+    const model = buildModel(
+      {
+        ...state,
+        entities: {
+          'Scalar(portfolio)': { 'User|123|a': 1 },
+          '[Orphan]': { '{}': ['x'] },
+          ...state.entities,
+        },
+      } as unknown as State<unknown>,
+      registry,
+    );
+    expect(model.tables.map(t => `${t.key}:${t.kind}`)).toEqual([
+      'User:entity',
+      'Comment:entity',
+      '[Comment]:collection',
+      'Post:entity',
+      '[Orphan]:collection',
+      'Scalar(portfolio):scalar',
+    ]);
+  });
+
+  it('prints Collection args as labels', () => {
+    expect(prettyPk('{}')).toBe('all');
+    expect(prettyPk('{"userId":"1","page":2}')).toBe('userId: 1, page: 2');
+    expect(prettyPk('{not json')).toBe('{not json');
+    expect(prettyPk('plain')).toBe('plain');
+  });
+
   it('guesses table kinds without a schema', () => {
     const model = buildModel(
       {
@@ -295,6 +332,10 @@ describe('store model', () => {
     expect(registry.optimistic.map(o => o.fetchedAt)).toEqual([2]);
     expect(buildModel(state, registry).optimistic).toBe(registry.optimistic);
     dispatch({ type: actionTypes.RESET } as any);
+    expect(registry.optimistic).toEqual([]);
+    // a remounted preview starts over without pending updates
+    fetch(4);
+    registry.init();
     expect(registry.optimistic).toEqual([]);
   });
 

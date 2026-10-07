@@ -364,17 +364,14 @@ export function Primitive({ value, name }: { value: unknown; name?: string }) {
 const isTimeField = (name: string) =>
   name === 'date' || name === 'lastReset' || /[a-z]At$/.test(name);
 
-const timeFormatter =
-  typeof Intl !== 'undefined' ?
-    Intl.DateTimeFormat('en-US', {
-      hour: 'numeric',
-      minute: 'numeric',
-      second: 'numeric',
-      fractionalSecondDigits: 3,
-    })
-  : undefined;
+const timeFormatter = Intl.DateTimeFormat('en-US', {
+  hour: 'numeric',
+  minute: 'numeric',
+  second: 'numeric',
+  fractionalSecondDigits: 3,
+});
 
 export function formatTime(ms: number) {
   if (!isFinite(ms)) return String(ms);
-  return timeFormatter ? timeFormatter.format(ms) : new Date(ms).toISOString();
+  return timeFormatter.format(ms);
 }
