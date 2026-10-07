@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791303642267,
+  "lastUpdate": 1791414764922,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -128245,6 +128245,324 @@ window.BENCHMARK_DATA = {
             "range": "±1.84%",
             "unit": "ops/sec",
             "extra": "96 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6ed4f01feefc9c3e8b0831f359db74553fef624b",
+          "message": "chore: Bump React to 19.3.0 (#4264)\n\n* chore: Bump React to 19.3.0\n\nPin react, react-dom and react-test-renderer at 19.3.0 everywhere they\nwere pinned at 19.2.3. CI's extra React job now covers 19.2 (the\nprevious minor) instead of 19.3, and the native job runs the installed\nReact like latest does.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SHijwZ57GWD8EtGYd7WWry\n\n* ci: Pass the pinned previous-minor React through the matrix parameter\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SHijwZ57GWD8EtGYd7WWry\n\n* ci: Keep the React Native job on React 19.2.3, which RN 0.86 pairs with\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SHijwZ57GWD8EtGYd7WWry\n\n* chore: Regenerate standalone example lockfiles for React 19.3.0\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SHijwZ57GWD8EtGYd7WWry\n\n* ci: Cover the previous React minor in the native job instead of a separate job\n\nBoth jobs installed React 19.2.3, so the native job now also runs the\nper-minor ReactDOM suites, dropping one job per pipeline.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01SHijwZ57GWD8EtGYd7WWry\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-07T23:04:46Z",
+          "tree_id": "94c62e65a8feb652c0e8cdb146446ac7357f7208",
+          "url": "https://github.com/reactive/data-client/commit/6ed4f01feefc9c3e8b0831f359db74553fef624b"
+        },
+        "date": 1791414762169,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 430,
+            "range": "±4.05%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 399,
+            "range": "±0.24%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "normalizeLong Scalar",
+            "value": 363,
+            "range": "±3.46%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "normalizeLong Scalar update",
+            "value": 874,
+            "range": "±1.39%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 226,
+            "range": "±6.41%",
+            "unit": "ops/sec",
+            "extra": "74 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 217,
+            "range": "±5.07%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 995,
+            "range": "±1.14%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 740,
+            "range": "±0.18%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar donotcache",
+            "value": 1047,
+            "range": "±0.24%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 1427,
+            "range": "±0.13%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 634,
+            "range": "±6.34%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 6736,
+            "range": "±0.19%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 3240,
+            "range": "±0.79%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 57733,
+            "range": "±1.17%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 5609,
+            "range": "±3.07%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 205,
+            "range": "±6.90%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 6325,
+            "range": "±0.31%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong withCache (Scalar churn)",
+            "value": 6311,
+            "range": "±0.81%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 5167,
+            "range": "±1.30%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar withCache",
+            "value": 7782,
+            "range": "±0.32%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar update withCache",
+            "value": 4081,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 5958,
+            "range": "±1.05%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 6125,
+            "range": "±1.62%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 1693,
+            "range": "±0.35%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50",
+            "value": 4601,
+            "range": "±10.75%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50 donotcache",
+            "value": 39723,
+            "range": "±0.25%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 4496,
+            "range": "±3.53%",
+            "unit": "ops/sec",
+            "extra": "83 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 10113282,
+            "range": "±1.15%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 191,
+            "range": "±9.89%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 3428,
+            "range": "±1.49%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 2870,
+            "range": "±0.19%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 4347,
+            "range": "±4.21%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 2637,
+            "range": "±0.38%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 5001,
+            "range": "±1.73%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 448,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 255,
+            "range": "±0.29%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 270,
+            "range": "±0.22%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 899,
+            "range": "±1.58%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "setMany 50x one-per-row",
+            "value": 149,
+            "range": "±0.40%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "setMany 50 batch",
+            "value": 3486,
+            "range": "±2.78%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "setMany 500x one-per-row",
+            "value": 15.06,
+            "range": "±0.78%",
+            "unit": "ops/sec",
+            "extra": "41 samples"
+          },
+          {
+            "name": "setMany 500 batch",
+            "value": 1375,
+            "range": "±3.32%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
           }
         ]
       }
