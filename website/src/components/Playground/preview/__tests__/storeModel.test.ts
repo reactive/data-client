@@ -95,20 +95,6 @@ describe('store model', () => {
     });
   });
 
-  it('drops rows garbage collection deleted in place', () => {
-    const registry = registryFor('GET https://example.com/posts', [Post]);
-    const entities = { ...state.entities, User: { ...state.entities.User } };
-    const before = { ...state, entities } as State<unknown>;
-    expect(buildModel(before, registry).table('User')?.rows).toHaveLength(1);
-    // GC mutates the table and keeps its identity
-    delete (entities.User as any)[123];
-    registry.middleware({} as any)((a: any) => a)({
-      type: actionTypes.GC,
-    } as any);
-    const after = { ...before } as State<unknown>;
-    expect(buildModel(after, registry).table('User')?.rows).toHaveLength(0);
-  });
-
   it('keeps id as data when an Entity is keyed by another field', () => {
     class Article extends Entity {
       id = 0;

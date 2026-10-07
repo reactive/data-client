@@ -30,8 +30,6 @@ export default class SchemaRegistry implements Manager<ActionTypes> {
   /** Optimistic updates awaiting their response. The store's own queue is
    * already applied (and so emptied) in the state components can read. */
   optimistic: readonly PendingOptimistic[] = [];
-  /** Bumped by each GC, which deletes rows in place (keeping table identity) */
-  gcCount = 0;
 
   middleware: Middleware<ActionTypes> = () => next => action => {
     switch (action.type) {
@@ -47,9 +45,6 @@ export default class SchemaRegistry implements Manager<ActionTypes> {
         break;
       case actionTypes.RESET:
         this.optimistic = [];
-        break;
-      case actionTypes.GC:
-        this.gcCount++;
         break;
       case actionTypes.SET:
         this.learn(action.schema);

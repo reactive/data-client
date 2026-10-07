@@ -128,18 +128,16 @@ class StoredRow implements EntityRow {
 
 const tableCache = new WeakMap<
   object,
-  { schema: unknown; meta: unknown; gc: number; table: EntityTable }
+  { schema: unknown; meta: unknown; table: EntityTable }
 >();
 function buildTable(
   key: string,
   rows: Record<string, unknown>,
   meta: State<unknown>['entitiesMeta'][string] | undefined,
   schema: unknown,
-  gc: number,
 ): EntityTable {
   const hit = tableCache.get(rows);
-  if (hit && hit.schema === schema && hit.meta === meta && hit.gc === gc)
-    return hit.table;
+  if (hit && hit.schema === schema && hit.meta === meta) return hit.table;
   const pks = Object.keys(rows);
   const kind = tableKind(schema, rows[pks[0]]);
   const fields = new Set<string>();
@@ -168,7 +166,7 @@ function buildTable(
     fields: [...fields],
     get: pk => byPk.get(pk),
   };
-  tableCache.set(rows, { schema, meta, gc, table });
+  tableCache.set(rows, { schema, meta, table });
   return table;
 }
 
@@ -202,7 +200,6 @@ export function buildModel(
         rows,
         state.entitiesMeta[key],
         registry.entities.get(key),
-        registry.gcCount,
       ),
     ]),
   );
