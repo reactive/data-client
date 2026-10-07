@@ -68,6 +68,14 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Check tree-passed requires every job
+          # Otherwise a tree gets marked passed without the missing job, and
+          # the merge queue and master skip it
+          command: |
+            yq '[.workflows.validation.jobs[] | (select(tag == "!!str"), (select(tag == "!!map") | keys | .[0]))] - ["setup", "tree-passed"] | sort | .[]' .circleci/config.yml > /tmp/ci-jobs
+            yq '.workflows.validation.jobs[] | select(has("tree-passed")) | .["tree-passed"].requires | sort | .[]' .circleci/config.yml > /tmp/ci-tree-passed-requires
+            diff -u --label 'workflow jobs' --label 'tree-passed requires' /tmp/ci-jobs /tmp/ci-tree-passed-requires
+      - run:
           name: Hash source tree
           # File contents, not the commit: a squash merge and the merge queue
           # commit it came from share a tree, so the same code runs once
