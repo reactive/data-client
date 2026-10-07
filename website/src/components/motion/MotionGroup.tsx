@@ -94,8 +94,10 @@ export default class MotionGroup extends Component<Props> {
   ) {
     if (!snapshots) return;
     if (prefersReducedMotion()) {
-      for (const { current } of this.members.values())
+      for (const [el, { current }] of this.members) {
+        stop(el);
         if (current?.exiting) current.onExited();
+      }
       return;
     }
     const { spring = springs.smooth } = this.props;
@@ -170,12 +172,19 @@ function parentRelative(el: HTMLElement): Point {
   return { x: rect.left - parent.left, y: rect.top - parent.top };
 }
 
-/** Just past the end of the parent's main axis */
+/** Just past the end of the parent's main axis (reversed and RTL aware) */
 function exitOffset(el: HTMLElement): Point {
   const parent = parentOf(el);
-  return getComputedStyle(parent).flexDirection.startsWith('column') ?
-      { x: 0, y: Math.max(parent.clientHeight - el.offsetTop, el.offsetHeight) }
-    : { x: Math.max(parent.clientWidth - el.offsetLeft, el.offsetWidth), y: 0 };
+  const { flexDirection, direction } = getComputedStyle(parent);
+  const column = flexDirection.startsWith('column');
+  const towardStart =
+    flexDirection.endsWith('reverse') !== (!column && direction === 'rtl');
+  const [pos, size, extent] =
+    column ?
+      [el.offsetTop, el.offsetHeight, parent.clientHeight]
+    : [el.offsetLeft, el.offsetWidth, parent.clientWidth];
+  const distance = towardStart ? -(pos + size) : Math.max(extent - pos, size);
+  return column ? { x: 0, y: distance } : { x: distance, y: 0 };
 }
 
 const unpinned = new WeakMap<HTMLElement, string>();

@@ -198,3 +198,32 @@ it('keeps its own class alongside the one it is given', () => {
   );
   expect(screen.getByText('styled').className).toBe('motion-reveal panel');
 });
+
+it.each([
+  ['a reversed row', { flexDirection: 'row-reverse' }],
+  ['a right-to-left row', { direction: 'rtl' }],
+] as const)('slides toward the start in %s', (_, style) => {
+  function Reversed({ open }: { open: boolean }) {
+    return (
+      <div style={style}>
+        <Drawer open={open} />
+      </div>
+    );
+  }
+  const { rerender } = render(<Reversed open={false} />);
+  rerender(<Reversed open />);
+  const panel = screen.getByText('panel');
+  const enter = animations.find(({ el }) => el === panel);
+  // offsetLeft is 0 in jsdom, so it starts one width (100px) past the start
+  expect(enter?.keyframes[0].translate).toBe('-100px 0px');
+});
+
+it('stops glides in flight when reduced motion turns on', () => {
+  const { rerender } = render(<Drawer open={false} />);
+  rerender(<Drawer open />);
+  const enter = animations.find(({ el }) => el === screen.getByText('panel'));
+  window.matchMedia = jest.fn().mockReturnValue({ matches: true });
+  rerender(<Drawer open={false} />);
+  expect(enter?.animation.cancel).toHaveBeenCalled();
+  delete (window as any).matchMedia;
+});
