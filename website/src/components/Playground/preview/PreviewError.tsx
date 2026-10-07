@@ -86,7 +86,7 @@ export interface PreviewErrorProps {
 
 /** "TypeError: msg (3:12)" → name "TypeError", message ": msg ", location "(3:12)" */
 function splitError(error: string) {
-  const named = /^([A-Z][A-Za-z]*Error)(:[\s\S]*)?$/.exec(error);
+  const named = /^((?:[A-Z][A-Za-z]*)?Error)(:[\s\S]*)?$/.exec(error);
   let name = '';
   let message = error;
   if (named) {

@@ -39,6 +39,7 @@ it('offers a reset for render errors', async () => {
   const code = `function A() { throw new Error('boom'); }\nrender(<A />);`;
   const onRenderError = renderPreview(code);
   expect(await screen.findByText(/boom/)).toBeTruthy();
+  expect(screen.getByText('Error').tagName).toBe('STRONG');
   expect(screen.getByText('Runtime error')).toBeTruthy();
   expect(screen.getByRole('button', { name: /Reset preview/ })).toBeTruthy();
   await waitFor(() =>
