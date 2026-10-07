@@ -15,6 +15,7 @@ import React, {
   type ProfilerOnRenderCallback,
 } from 'react';
 
+import { MotionGroup } from '../../motion';
 import Boundary from '../Boundary';
 import StoreInspector from './StoreInspector';
 import { useTabStorage } from '../../../utils/tabStorage';
@@ -55,7 +56,7 @@ function Preview<T>({
     [],
   );
 
-  const hiddenResult = row && selectedValue === 'y';
+  const coveredResult = row && selectedValue === 'y';
   return (
     <DataProvider managers={managers}>
       <MockResolver
@@ -63,16 +64,19 @@ function Preview<T>({
         silenceMissing={true}
         getInitialInterceptorData={getInitialInterceptorData}
       >
-        <div
-          className={clsx('playground-preview', styles.playgroundPreview, {
-            [styles.hidden]: hiddenResult,
-          })}
-        >
-          <Boundary fallback={null}>
-            <PreviewBlockLazy onCommit={onCommit} />
-          </Boundary>
-        </div>
-        <StoreInspector selectedValue={selectedValue} toggle={toggle} />
+        <MotionGroup layoutDependency={selectedValue}>
+          <div
+            className={clsx('playground-preview', styles.playgroundPreview, {
+              [styles.covered]: coveredResult,
+            })}
+            inert={coveredResult}
+          >
+            <Boundary fallback={null}>
+              <PreviewBlockLazy onCommit={onCommit} />
+            </Boundary>
+          </div>
+          <StoreInspector selectedValue={selectedValue} toggle={toggle} />
+        </MotionGroup>
       </MockResolver>
     </DataProvider>
   );

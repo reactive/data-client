@@ -153,7 +153,7 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 
 .arrow {
-  transition: all 200ms ease 0s;
+  transition: transform var(--motion-snappy);
   transform-origin: 45% 50% 0px;
   position: relative;
   display: inline-block;
@@ -200,6 +200,9 @@ div.playgroundTextEdit > .playgroundHeader,
 .playgroundResult {
   display: flex;
   height: 100%;
+  /* frame for the Store drawer as it slides in and out */
+  position: relative;
+  isolation: isolate;
 }
 
 .debugToggle {
@@ -215,6 +218,24 @@ div.playgroundTextEdit > .playgroundHeader,
   padding: 0.7em 0.1em 1em 0.1em;
   cursor: pointer;
   flex: 0 0 auto;
+}
+
+/* The Store drawer (painted before its contents render) */
+.storePanel {
+  flex: 4 1 40%;
+  min-width: 0;
+  background: var(--monoco-code-background);
+}
+[data-theme='dark'] .storePanel {
+  background: var(--ifm-pre-background);
+}
+
+/* Row layout with the Store open: the result stays underneath, so the Store
+   slides over real content instead of an empty frame */
+.covered {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
 }
 
 .debugToggle:hover {

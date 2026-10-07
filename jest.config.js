@@ -57,17 +57,17 @@ const packages = [
   'test',
 ];
 
-// CircleCI persist_to_workspace omits most of website/; only include this root
-// when the tree is present (full checkout / when CI persists Playground).
-const playgroundRoot = path.join(
-  __dirname,
+// CircleCI persist_to_workspace omits most of website/; only include these
+// roots when the tree is present (full checkout / when CI persists them).
+const websiteRoots = [
   'website/src/components/Playground',
-);
+  'website/src/components/motion',
+];
 const reactDomRoots = [
   ...packages.map(pkgName => `<rootDir>/packages/${pkgName}/src`),
-  ...(fs.existsSync(playgroundRoot) ?
-    ['<rootDir>/website/src/components/Playground']
-  : []),
+  ...websiteRoots
+    .filter(root => fs.existsSync(path.join(__dirname, root)))
+    .map(root => `<rootDir>/${root}`),
 ];
 
 const projects = [
