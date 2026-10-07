@@ -49,6 +49,18 @@ it('never retries errors of code that already rendered cleanly', () => {
   expect(result.current.key).toBe(0);
 });
 
+it('drops the old store once other code renders cleanly', () => {
+  const { result, rerender } = setup();
+  act(() => result.current.onHealthy('v1'));
+  rerender({ code: 'v2' });
+  act(() => result.current.onRenderError('v2', oldState));
+  rerender({ code: 'v3' });
+  act(() => result.current.onHealthy('v3'));
+  act(() => result.current.onRenderError('v3', oldState));
+  expect(result.current.key).toBe(1);
+  expect(result.current.initialState).toBeUndefined();
+});
+
 it('never retries errors of the code the store was created with', () => {
   const { result } = setup();
   act(() => result.current.onHealthy('v1'));

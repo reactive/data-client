@@ -61,13 +61,19 @@ export function usePreviewReset(code: string) {
     [],
   );
 
+  // A clean render of other code ends any retry: its old store no longer applies.
   const onHealthy = useCallback(
     (healthyCode: string) =>
-      setStore(s =>
-        s.canAutoReset && s.code === healthyCode ?
-          s
-        : { ...s, code: healthyCode, canAutoReset: true },
-      ),
+      setStore(s => {
+        if (s.code !== healthyCode)
+          return {
+            ...s,
+            code: healthyCode,
+            replaced: undefined,
+            canAutoReset: true,
+          };
+        return s.canAutoReset ? s : { ...s, canAutoReset: true };
+      }),
     [],
   );
 
