@@ -12,7 +12,7 @@ import {
 import { Status } from './Details';
 import {
   errorText,
-  isDeleted,
+  isInvalidated,
   prettyPk,
   type AnyRow,
   type EndpointRow,
@@ -20,7 +20,7 @@ import {
   type EntityTable,
 } from './model';
 import { cellDive } from './nav';
-import { DELETED, type VNode } from './refs';
+import { INVALIDATED, type VNode } from './refs';
 import styles from './store.module.css';
 import { Cell, EndpointKey, Inline, Primitive, RowChip } from './Value';
 
@@ -340,11 +340,11 @@ export function tableColumns(
       header: keyLabel[table.kind],
       width: keyWidth,
       className: styles.key,
-      // with no field columns to say so, the key marks a deleted row
+      // with no field columns to say so, the key marks an invalidated row
       cell: row =>
-        !current.length && isDeleted(row) ?
+        !current.length && isInvalidated(row) ?
           <>
-            {prettyPk(row.pk)} <Primitive value={DELETED} />
+            {prettyPk(row.pk)} <Primitive value={INVALIDATED} />
           </>
         : prettyPk(row.pk),
     },
@@ -354,10 +354,10 @@ export function tableColumns(
         id: c.id,
         header: c.header,
         width: i === current.length - 1 ? undefined : w,
-        // a deleted row has no fields; the first column says so
+        // an invalidated row has no fields; the first column says so
         cell: (row: EntityRow) =>
-          i === 0 && isDeleted(row) ?
-            <Primitive value={DELETED} />
+          i === 0 && isInvalidated(row) ?
+            <Primitive value={INVALIDATED} />
           : c.cell(row, w),
       };
     }),

@@ -8,7 +8,7 @@ import {
   entityId,
   findRow,
   isChanged,
-  isDeleted,
+  isInvalidated,
   parseRowId,
   prettyPk,
   referrersOf,
@@ -123,7 +123,7 @@ describe('store model', () => {
       });
   });
 
-  it('marks deleted rows, which keep the id field dropped', () => {
+  it('marks invalidated rows, which keep the id field dropped', () => {
     const registry = registryFor('k', [User]);
     const model = buildModel(
       {
@@ -137,8 +137,8 @@ describe('store model', () => {
     const users = model.table('User')!;
     expect(users.pkField).toBe('id');
     expect(users.fields).toEqual(['name']);
-    expect(isDeleted(users.get('9')!)).toBe(true);
-    expect(isDeleted(users.get('123')!)).toBe(false);
+    expect(isInvalidated(users.get('9')!)).toBe(true);
+    expect(isInvalidated(users.get('123')!)).toBe(false);
   });
 
   it('keeps id as data when an Entity is keyed by another field', () => {

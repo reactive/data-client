@@ -1,7 +1,13 @@
 import { schema as s } from '@data-client/endpoint';
 import type { State } from '@data-client/react';
 
-import { DELETED, forEachRef, resolve, resolveRow, type VNode } from './refs';
+import {
+  INVALIDATED,
+  forEachRef,
+  resolve,
+  resolveRow,
+  type VNode,
+} from './refs';
 import type {
   EndpointRecord,
   PendingOptimistic,
@@ -144,7 +150,7 @@ function buildTable(
   const pkField =
     (
       kind === 'entity' &&
-      // deleted rows store a marker instead of an object
+      // invalidated rows store a marker instead of an object
       sample.every(pk => {
         const raw = rows[pk];
         return (
@@ -286,9 +292,9 @@ export function findRow(model: StoreModel, id: string): AnyRow | undefined {
 
 export const isEndpointRow = (row: AnyRow): row is EndpointRow => 'key' in row;
 
-/** Removed by a `schema.Invalidate` (a delete), but still in the store */
-export const isDeleted = (row: EntityRow) =>
-  row.value.t === 'val' && row.value.v === DELETED;
+/** Invalidated by a `schema.Invalidate`, but still in the store */
+export const isInvalidated = (row: EntityRow) =>
+  row.value.t === 'val' && row.value.v === INVALIDATED;
 
 /** `GET /posts` or `Post 1` */
 export const rowLabel = (row: AnyRow) =>

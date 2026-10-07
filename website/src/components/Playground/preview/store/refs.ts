@@ -116,13 +116,13 @@ function resolveFields(
   };
 }
 
-/** Stands in for a deleted row: `schema.Invalidate` stores the `INVALID`
- * symbol in its place, the only symbol the store holds */
-export const DELETED = Symbol('deleted');
+/** Stands in for an invalidated row: `schema.Invalidate` stores the
+ * `INVALID` symbol in its place, the only symbol the store holds */
+export const INVALIDATED = Symbol('invalidated');
 
 /** Annotates one stored row of `state.entities[key]` */
 export function resolveRow(row: unknown, table: any): VNode {
-  if (typeof row === 'symbol') return { t: 'val', v: DELETED };
+  if (typeof row === 'symbol') return { t: 'val', v: INVALIDATED };
   if (!table) return plain(row);
   if (table instanceof s.Collection) return resolve(row, table.schema);
   if (typeof table === 'function' && isPlainObject(row))

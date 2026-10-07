@@ -122,7 +122,7 @@ describe('StorePanel table view', () => {
     expect(screen.getByText('404 Not Found')).toBeTruthy();
   });
 
-  it('marks deleted rows and shows a lone ref however long its pk', () => {
+  it('marks invalidated rows and shows a lone ref however long its pk', () => {
     const long = '38200029883820002988382000298838200029883820002988';
     const r = registry();
     r.endpoints.set('POST https://example.com/users', {
@@ -143,17 +143,17 @@ describe('StorePanel table view', () => {
             2: Symbol('INVALID'),
             [long]: { id: long, name: 'Al' },
           },
-          // every row deleted: no field columns
+          // every row invalidated: no field columns
           Comment: { 1: Symbol('INVALID') },
         },
       } as unknown as State<unknown>,
       r,
     );
     const users = within(top().querySelector('[data-table=User]')!);
-    expect(users.getByText('deleted')).toBeTruthy();
+    expect(users.getByText('invalid')).toBeTruthy();
     // a table with no field columns marks it by the key
     const comments = within(top().querySelector('[data-table=Comment]')!);
-    expect(comments.getByText('deleted')).toBeTruthy();
+    expect(comments.getByText('invalid')).toBeTruthy();
     const endpoint = byData(
       top(),
       'id',

@@ -4,7 +4,13 @@ import React, { useState } from 'react';
 import { fitChips, INLINE_LIMIT, isTimeField } from './columns';
 import { entityId, isEndpointRow, prettyPk, type AnyRow } from './model';
 import { refsList, useNav, type ListView, type View } from './nav';
-import { CIRCULAR, DELETED, isRefList, type RefNode, type VNode } from './refs';
+import {
+  CIRCULAR,
+  INVALIDATED,
+  isRefList,
+  type RefNode,
+  type VNode,
+} from './refs';
 import styles from './store.module.css';
 import { useStoreUI } from './StoreUI';
 
@@ -153,6 +159,7 @@ export function Cell({
     <Inline
       node={node}
       limit={fit}
+      shrink
       more={<CountChip list={list}>+{items.length - fit}</CountChip>}
     />
   );
@@ -165,6 +172,7 @@ export function Inline({
   bare = false,
   limit = INLINE_LIMIT,
   more,
+  shrink = false,
 }: {
   node: VNode;
   name?: string;
@@ -174,6 +182,8 @@ export function Inline({
   limit?: number;
   /** Stands for the items past `limit` (default: a dim `+N`) */
   more?: React.ReactNode;
+  /** A list's chips shrink (truncating their pk) to fit its cell */
+  shrink?: boolean;
 }) {
   switch (node.t) {
     case 'ref':
@@ -189,7 +199,7 @@ export function Inline({
       const shown = node.items.slice(0, limit);
       const rest = node.items.length - shown.length;
       return (
-        <span className={styles.inlineList}>
+        <span className={clsx(styles.inlineList, shrink && styles.shrinkList)}>
           <span className={styles.dim}>[</span>
           {shown.map((item, i) => (
             <React.Fragment key={i}>
@@ -314,8 +324,10 @@ function BlockList({
 
 export function Primitive({ value, name }: { value: unknown; name?: string }) {
   if (value === CIRCULAR) return <span className={styles.dim}>[Circular]</span>;
-  if (value === DELETED)
-    return <span className={clsx(styles.pill, styles.deleted)}>deleted</span>;
+  if (value === INVALIDATED)
+    return (
+      <span className={clsx(styles.pill, styles.invalidated)}>invalid</span>
+    );
   if (value === null || value === undefined)
     return <span className={styles.null}>{String(value)}</span>;
   if (typeof value === 'string')

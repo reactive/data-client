@@ -696,6 +696,19 @@ div.row {
 .inlineList {
   white-space: nowrap;
 }
+/* a cell's chips shrink before the cell's ellipsis would hide one whole */
+.shrinkList {
+  display: inline-flex;
+  align-items: baseline;
+  max-width: 100%;
+}
+.shrinkList > * {
+  flex: none;
+}
+.shrinkList > .ref:not(.countRef) {
+  flex-shrink: 1;
+  min-width: 0;
+}
 .method {
   flex: none;
   font: 600 10px var(--ifm-font-family-base);
@@ -722,6 +735,10 @@ div.row {
   cursor: pointer;
 }
 .ref b {
+  /* the pk truncates; the type before it stays */
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-weight: 500;
   color: var(--store-fg);
 }
@@ -771,7 +788,7 @@ div.row {
   color: var(--store-null);
   border-color: rgba(255, 88, 116, 0.4);
 }
-.deleted {
+.invalidated {
   margin-left: 0;
   color: var(--store-dim);
   border-color: var(--store-line-strong);
