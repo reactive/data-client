@@ -1,7 +1,7 @@
 import type * as Monaco from 'monaco-editor';
 import { useCallback, useEffect, useState } from 'react';
 
-import { prefersReducedMotion } from '../../motion/reducedMotion';
+import { prefersReducedMotion } from '../../motion';
 
 interface OpenRequest {
   editor: Monaco.editor.ICodeEditor;

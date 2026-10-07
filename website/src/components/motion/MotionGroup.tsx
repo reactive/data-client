@@ -10,13 +10,12 @@ import React, {
 } from 'react';
 
 import { glide, velocityOf, stop, ORIGIN, type Point } from './glide';
-import { prefersReducedMotion } from './reducedMotion';
 import type { Spring } from './spring';
 import { springs } from './tokens';
 
 /** How a member enters and leaves; absent for members that only move */
 interface Presence {
-  /** Leaving: slides out past the end of its container; its owner unmounts it */
+  /** Leaving: slides out past the end of its container; its owner hides it */
   exiting: boolean;
 }
 type Members = Map<HTMLElement, RefObject<Presence | undefined>>;
@@ -101,10 +100,12 @@ export default class MotionGroup extends Component<Props> {
       return;
     }
     const { spring = springs.smooth } = this.props;
-    // settle the final layout before measuring anything
-    for (const [el, { box }] of snapshots) {
+    // settle the final layout before measuring anything; a presence shown
+    // again (it was hidden, not unmounted) rejoins the layout
+    for (const [el, { current }] of this.members) {
       stop(el);
-      if (this.members.get(el)?.current?.exiting) pin(el, box);
+      const before = snapshots.get(el);
+      if (before && current?.exiting) pin(el, before.box);
       else unpin(el);
     }
     // measure everything, then start animations (one style recalc)
@@ -211,6 +212,11 @@ function unpin(el: HTMLElement) {
   if (cssText === undefined) return;
   el.style.cssText = cssText;
   unpinned.delete(el);
+}
+
+// same as @docusaurus/theme-common's, but safe without matchMedia (jsdom)
+export function prefersReducedMotion() {
+  return !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 }
 
 /** Ref for an element that glides to its new place instead of jumping */

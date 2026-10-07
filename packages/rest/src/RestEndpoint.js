@@ -128,8 +128,9 @@ export default class RestEndpoint extends Endpoint {
 
   /** Init options for fetch - run at fetch */
   async getRequestInit(body) {
-    const bodyIsPojo = isPojo(body);
-    if (bodyIsPojo) {
+    // plain objects and arrays are JSON; FormData, Blob, strings, etc pass through to fetch
+    const bodyIsJSON = isPojo(body) || Array.isArray(body);
+    if (bodyIsJSON) {
       body = JSON.stringify(body);
     }
     const init = {
@@ -138,7 +139,7 @@ export default class RestEndpoint extends Endpoint {
       signal: this.signal,
       body,
     };
-    if (!body || bodyIsPojo) {
+    if (!body || bodyIsJSON) {
       init.headers = {
         // default to application/json but allow user explicit overrides
         'Content-Type': 'application/json',

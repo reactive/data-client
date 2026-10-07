@@ -73,8 +73,8 @@ function InteractiveEditor({
       });
       handleAutoMount(editor);
       handleOpenerMount(editor, monaco);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
 

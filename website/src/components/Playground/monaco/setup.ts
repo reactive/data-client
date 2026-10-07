@@ -12,11 +12,13 @@ import { isMobileOrBot } from '../userAgent';
 import { registerImportCompletions } from './navigation';
 import { MONACO_CDN_VS } from './preloadManifest';
 import { injectMonacoResourceHints } from './resourceHints';
+import { shieldEditorsFromSearchHotkey } from './searchHotkey';
 import { definePrismTheme } from './theme';
 import { addTypeLibs, fetchTypeLibs } from './typeLibs';
 
 if (typeof window !== 'undefined' && !isMobileOrBot()) {
   injectMonacoResourceHints();
+  shieldEditorsFromSearchHotkey();
   loader.config({
     paths: {
       vs: MONACO_CDN_VS,

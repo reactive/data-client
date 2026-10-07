@@ -52,8 +52,9 @@ export default function Playground<T>({
 
   const model = useCodeDocuments(children, defaultTab);
   // Defer preview transpilation so editor input remains responsive.
+  // `;` keeps a half-typed statement from absorbing the next document.
   const code = useDeferredValue(
-    model.documents.map(document => document.value).join('\n'),
+    model.documents.map(document => document.value).join('\n;\n'),
   );
 
   // Hydrate Monaco on first show and keep it (preserves undo / go-to-def).
