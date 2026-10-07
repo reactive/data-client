@@ -4,9 +4,6 @@
   "commitMessagePrefix": "pkg: ",
   "commitMessageTopic": "`{{depName}}`",
   "dependencyDashboardApproval": true,
-  "gitIgnoredAuthors": [
-    "41898282+github-actions[bot]@users.noreply.github.com"
-  ],
   "rangeStrategy": "auto",
   "ignoreDeps": [
     "whatwg-fetch",

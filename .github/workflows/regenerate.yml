@@ -1,8 +1,8 @@
 name: regenerate
 # Reruns the generators whose output is committed: playground editor types
 # (yarn copy:websitetypes) and skill references (yarn build:skills).
-# Same-repo PRs (Renovate's included) get any changes committed to the branch;
-# fork PRs, Dependabot and master fail instead. Also type-checks the docs' React and Vue examples.
+# Fails when the committed output is stale: PR authors regenerate and commit it.
+# Also type-checks the docs' React and Vue examples.
 # Claude Code rules are left to agent-rules.yml, which needs no install.
 on:
   push:
@@ -46,26 +46,19 @@ concurrency:
   group: regenerate-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
-permissions: {}
+permissions:
+  contents: read
 
 jobs:
   gate:
     if: github.event_name != 'push'
-    permissions:
-      contents: read
     uses: ./.github/workflows/paths-gate.yml
 
-  # Runs dependency code (install scripts, generators), so it gets a read-only
-  # token; only the commit job, on a fresh runner, can write.
-  generate:
+  regenerate:
     name: regenerate
     needs: gate
     if: ${{ !cancelled() && needs.gate.outputs.relevant != 'false' }}
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    outputs:
-      changed: ${{ steps.diff.outputs.changed }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -84,86 +77,18 @@ jobs:
       - name: Regenerate skill references
         run: yarn build:skills
       - name: Diff generated files
-        id: diff
-        env:
-          # Dependabot runs get a read-only token, like forks
-          CAN_PUSH: ${{ github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]' }}
         run: |
           OUTPUTS=(
             website/src/components/Playground/editor-types
             ':(glob).agents/skills/*/references/**'
           )
           git add -A -- "${OUTPUTS[@]}"
-          if git diff --cached --quiet; then
-            echo "Generated files are up to date."
-            exit 0
-          fi
-          git diff --cached --stat
-          # master isn't fixed in place
-          if [ "${CAN_PUSH}" != true ]; then
+          if ! git diff --cached --quiet; then
+            git diff --cached --stat
             echo "::error::Generated files are stale: merge master, run 'yarn copy:websitetypes' and 'yarn build:skills', and commit the result."
             exit 1
           fi
-          # the changes the merge needs, for the commit job to apply to the PR head
-          git diff --cached --binary --full-index --no-renames > "${RUNNER_TEMP}/regenerated.patch"
-          echo changed=true >> "${GITHUB_OUTPUT}"
-      - uses: actions/upload-artifact@v4
-        if: steps.diff.outputs.changed
-        with:
-          name: regenerated
-          path: ${{ runner.temp }}/regenerated.patch
       - name: Type-check React and Vue examples in the docs
         if: ${{ !cancelled() }}
         run: yarn check:doc-examples
 
-  commit:
-    needs: generate
-    if: needs.generate.outputs.changed
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      statuses: write
-    steps:
-      # no setup-node or install: nothing from the PR's dependencies runs here
-      - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 1
-          persist-credentials: false
-      - uses: actions/download-artifact@v4
-        with:
-          name: regenerated
-          path: ${{ runner.temp }}
-      - name: Commit changes to the PR branch
-        env:
-          GH_TOKEN: ${{ github.token }}
-          HEAD_REF: ${{ github.head_ref }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: |
-          # generate ran dependency code: only accept edits to generated files
-          if git apply --numstat "${RUNNER_TEMP}/regenerated.patch" | cut -f3 |
-            grep -Ev '^(website/src/components/Playground/editor-types/|\.agents/skills/[^/]+/references/)'; then
-            echo "::error::The regenerated patch touches files that aren't generated outputs."
-            exit 1
-          fi
-          git fetch --depth=1 origin "${HEAD_SHA}"
-          git checkout --force --detach "${HEAD_SHA}"
-          if ! git apply --3way --index "${RUNNER_TEMP}/regenerated.patch"; then
-            echo "::error::Generated files conflict with this branch: merge master, run 'yarn copy:websitetypes' and 'yarn build:skills', and commit the result."
-            exit 1
-          fi
-          git -c user.name='github-actions[bot]' \
-            -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
-            commit --quiet -m 'chore: Regenerate generated files' \
-            -m "Reran yarn copy:websitetypes and yarn build:skills on the merge with master. ${RUN_URL}"
-          # only if the branch is still where generate saw it (not moved or deleted)
-          git push --force-with-lease="refs/heads/${HEAD_REF}:${HEAD_SHA}" \
-            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/${HEAD_REF}"
-          # Workflow runs for a GITHUB_TOKEN push never execute: GitHub parks
-          # them as "action_required" (awaiting approval; don't approve them).
-          # This status is the signal on the new head; CircleCI still runs.
-          gh api "repos/${GITHUB_REPOSITORY}/statuses/$(git rev-parse HEAD)" \
-            -f state=success -f context=regenerate -f target_url="${RUN_URL}" \
-            -f description='Generated files regenerated and committed' > /dev/null
-          echo "::notice::Committed regenerated files to ${HEAD_REF}; pull before your next push."

@@ -5,8 +5,8 @@
 // `eslint --fix` on the JS/TS files it changes, and holds the push until the
 // result is committed.
 // Runs once per push instead of per edit or turn, so any number of local
-// commits can come first; CI's `regenerate` and `agent-rules` workflows are
-// the backstop.
+// commits can come first; CI's `regenerate` and `agent-rules` checks are the
+// backstop.
 const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');

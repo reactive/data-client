@@ -85,7 +85,7 @@ no text left for a framework (e.g. only `:react[...]`) is dropped from that fram
 ### Code examples
 
 Code fences are copied verbatim into skill references and into readers' apps, so
-`yarn check:doc-examples` (`checkExamples.mjs`, run by the `regenerate` workflow) type-checks each
+`yarn check:doc-examples` (`checkExamples.mjs`, run by the `regenerate` check) type-checks each
 framework's rendering of the docs against the playground's editor types (`@data-client/react`,
 `@data-client/vue`, `@data-client/rest`, ...): React with TypeScript, Vue with `vue-tsc`. Pass
 `react` or `vue` to check one. It checks each playground as one app (for Vue, each that has a `.vue`
@@ -147,7 +147,7 @@ content resolved the same way (`remarkFramework.js`, front matter and `.vue.md` 
 reduced to their code. The
 first framework in `frameworks` writes `<name>.md`; later ones write `<name>.<framework>.md` only when
 the page differs. Output is committed because skills install straight from the repo; the `regenerate`
-workflow reruns `yarn build:skills`, which also fails when a `SKILL.md` links to a
+check reruns `yarn build:skills` and fails on drift; the generator also fails when a `SKILL.md` links to a
 `references/` file that no longer exists, a reference is a symlink or a hand-written copy of a doc (named after a
 `docs/` page), or a skill has `.vue.md` variants its
 `SKILL.md` never mentions. See `.cursor/rules/skills-sync.mdc` for what to update
