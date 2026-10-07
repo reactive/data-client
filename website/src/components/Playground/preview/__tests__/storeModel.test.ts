@@ -73,6 +73,40 @@ describe('store model', () => {
     });
   });
 
+  it('resolves Values, Object, Lazy and Invalidate members', () => {
+    const ref = (key: string, pk: string) => ({ t: 'ref', key, pk });
+    expect(resolve({ a: '123' }, new schema.Values(User))).toEqual({
+      t: 'obj',
+      entries: [['a', ref('User', '123')]],
+    });
+    expect(
+      resolve({ user: '123', n: 1 }, new schema.Object({ user: User })),
+    ).toEqual({
+      t: 'obj',
+      entries: [
+        ['user', ref('User', '123')],
+        ['n', { t: 'val', v: 1 }],
+      ],
+    });
+    expect(resolve(['123'], new schema.Lazy([User]))).toEqual({
+      t: 'arr',
+      items: [ref('User', '123')],
+    });
+    expect(resolve('1', new schema.Invalidate(Post))).toEqual(ref('Post', '1'));
+  });
+
+  it('shows Scalar cells as plain values', () => {
+    const scalar = new schema.Scalar({
+      lens: (args: any) => args[0]?.portfolio,
+      key: 'portfolio',
+      entity: User,
+    });
+    expect(resolve(['1', 'pct', 'User'], scalar)).toEqual({
+      t: 'arr',
+      items: ['1', 'pct', 'User'].map(v => ({ t: 'val', v })),
+    });
+  });
+
   it('indexes who references each entity', () => {
     const model = buildModel(
       state,

@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useContext,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 
@@ -31,10 +32,12 @@ export const groupId = (key: string) => `g\u001f${key}`;
 export const showAllId = (key: string) => `a\u001f${key}`;
 export const sectionId = (name: string) => `s\u001f${name}`;
 
-/** Sections (but Internals) and the first few Entity types start open;
- * rows start closed */
+/** Sections (but Internals) and the first few Entity types to appear start
+ * open; rows start closed */
 const OPEN_GROUPS = 3;
-const openSections = ['optimistic', 'endpoints', 'entities'].map(sectionId);
+const openSections = new Set(
+  ['optimistic', 'endpoints', 'entities'].map(sectionId),
+);
 
 export function StoreUIProvider({
   model,
@@ -45,29 +48,39 @@ export function StoreUIProvider({
   onReveal: (id: string) => void;
   children: React.ReactNode;
 }) {
-  /** ids the user flipped away from their default */
-  const [flipped, setFlipped] = useState<ReadonlySet<string>>(new Set());
+  /** the user's explicit open/closed choices */
+  const [overrides, setOverrides] = useState<ReadonlyMap<string, boolean>>(
+    new Map(),
+  );
   const [selected, setSelected] = useState<string | null>(null);
 
-  const defaultOpen = useMemo(
-    () =>
-      new Set([
-        ...openSections,
-        ...model.tables.slice(0, OPEN_GROUPS).map(t => groupId(t.key)),
-      ]),
-    [model.tables],
-  );
+  // A group's default is fixed when it first appears, so tables arriving
+  // later (Suspense loads them one by one) never reshuffle what is open
+  const groupDefaults = useRef(new Map<string, boolean>()).current;
+  for (const table of model.tables) {
+    const id = groupId(table.key);
+    if (!groupDefaults.has(id))
+      groupDefaults.set(id, groupDefaults.size < OPEN_GROUPS);
+  }
+
   const isOpen = useCallback(
-    (id: string) => defaultOpen.has(id) !== flipped.has(id),
-    [defaultOpen, flipped],
+    (id: string) =>
+      overrides.get(id) ?? (openSections.has(id) || !!groupDefaults.get(id)),
+    [overrides, groupDefaults],
   );
-  const toggle = useCallback((id: string) => {
-    setFlipped(prev => {
-      const next = new Set(prev);
-      if (!next.delete(id)) next.add(id);
-      return next;
-    });
-  }, []);
+  const setOpen = useCallback(
+    (ids: readonly string[], open: boolean) =>
+      setOverrides(prev => {
+        const next = new Map(prev);
+        for (const id of ids) next.set(id, open);
+        return next;
+      }),
+    [],
+  );
+  const toggle = useCallback(
+    (id: string) => setOpen([id], !isOpen(id)),
+    [setOpen, isOpen],
+  );
 
   const reveal = useCallback(
     (id: string) => {
@@ -79,17 +92,11 @@ export function StoreUIProvider({
         ancestors.push(sectionId('entities'), groupId(table.key));
         if (index >= ROW_LIMIT) ancestors.push(showAllId(table.key));
       }
-      setFlipped(prev => {
-        const next = new Set(prev);
-        for (const a of ancestors)
-          if (defaultOpen.has(a)) next.delete(a);
-          else next.add(a);
-        return next;
-      });
+      setOpen(ancestors, true);
       setSelected(id);
       onReveal(id);
     },
-    [model, defaultOpen, onReveal],
+    [model, setOpen, onReveal],
   );
 
   const value = useMemo(
