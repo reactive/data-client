@@ -13,5 +13,3 @@
 
 # `yarn copy:websitetypes`
 website/src/components/Playground/editor-types/** linguist-generated
-# website/scripts/generateMonacoPreloads.cjs
-website/src/components/Playground/monaco/preloadManifest.ts linguist-generated
