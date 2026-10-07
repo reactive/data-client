@@ -227,7 +227,10 @@ div.playgroundTextEdit > .playgroundHeader,
   background: var(--monoco-code-background);
 }
 [data-theme='dark'] .storePanel {
-  background: var(--ifm-pre-background);
+  /* the dark code tint is translucent: lay it over the container's color so
+     the result covered underneath never shows through */
+  background:
+    linear-gradient(var(--ifm-pre-background) 0 0), var(--ifm-background-color);
 }
 
 /* Row layout with the Store open: the result stays underneath, so the Store

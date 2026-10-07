@@ -189,3 +189,12 @@ it('keeps an exiting element pinned through further changes', () => {
   rerender(<Steps step={0} />);
   expect(panel.style.position).toBe('');
 });
+
+it('keeps its own class alongside the one it is given', () => {
+  render(
+    <Reveal show className="panel">
+      styled
+    </Reveal>,
+  );
+  expect(screen.getByText('styled').className).toBe('motion-reveal panel');
+});
