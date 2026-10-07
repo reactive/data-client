@@ -116,7 +116,8 @@ DesignSystem/       components injected into preview scope
 
 ### Preview
 
-- All documents are concatenated (deferred with `useDeferredValue`),
+- All documents are concatenated with a `;` between them (so a half-typed
+  statement can't absorb the next document), deferred with `useDeferredValue`,
   stripped of imports/exports by `transformCode`, and run `noInline`
   (`render(<App />)`) with `preview/scope.ts` as globals. Keep
   `monaco/typeLibs.ts` declarations in sync with the scope: `globalScopeLib()`
