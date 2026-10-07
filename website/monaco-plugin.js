@@ -11,8 +11,9 @@ module.exports = function () {
   return {
     name: 'monaco-plugin',
     configureWebpack(config, isServer, utils) {
-      // The server bundle never evaluates Monaco; Docusaurus' rule is fine there
-      if (isServer) return {};
+      // The server bundle never evaluates Monaco, and the package's `require`
+      // export is its AMD build, which webpack can't bundle
+      if (isServer) return { resolve: { alias: { 'monaco-editor': false } } };
       const cssRule = config.module.rules.find(
         rule => String(rule.test) === String(/\.css$/i) && rule.exclude,
       );

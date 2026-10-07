@@ -1,4 +1,4 @@
-import type * as Monaco from './monaco';
+import type * as Monaco from 'monaco-editor';
 
 /**
  * Type definitions for editor intellisense. Each is a separate webpack chunk

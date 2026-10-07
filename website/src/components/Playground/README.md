@@ -32,7 +32,7 @@ editor/             code model + editor UI
   InteractiveEditor.tsx  client-only: Monaco, or editable react-live on mobile/bots
 monaco/             everything Monaco-specific
   setup.ts            side-effect init: loads Monaco, compiler options, theme, types; useMonacoReady
-  monaco.ts           the bundled Monaco ESM entry (lazy chunk; only setup.ts imports it)
+  monaco.ts           loadMonaco(): Monaco's ESM build in three lazy stages
   workers.ts          MonacoEnvironment.getWorker: one webpack worker chunk per language service
   typeLibs.ts         raw .d.ts chunks from editor-types/ → addExtraLib
   navigation.ts       cross-tab go-to-definition + import completions
@@ -65,12 +65,14 @@ DesignSystem/       components injected into preview scope
 
 ### Incremental JS delivery
 
-- Monaco is bundled from `monaco-editor`'s ESM build into a lazy `monaco`
-  chunk (plus split chunks); nothing loads from a CDN. `monaco/setup.ts` runs
-  once when the editor chunk evaluates and starts `import('./monaco')` and the
-  type-lib chunk downloads in parallel. When Monaco arrives it starts the
-  TypeScript worker, then hands Monaco to `@monaco-editor/react` via
-  `loader.config({ monaco })`.
+- Monaco is bundled from `monaco-editor`'s ESM build; nothing loads from a
+  CDN. `monaco/setup.ts` runs once when the editor chunk evaluates and starts
+  `loadMonaco()` and the type-lib chunk downloads in parallel. `loadMonaco()`
+  imports Monaco's own entry points in three lazy chunks (`monaco-editor/editor`,
+  `features/register.all`, then `monaco-editor`), yielding to the main thread
+  between them: evaluated at once they are one ~250 ms long task. It resolves
+  to the full `monaco-editor` namespace, which `setup.ts` hands to
+  `@monaco-editor/react` via `loader.config({ monaco })`.
 - Editors render their loading view until `useMonacoReady()`: an editor that
   mounted before `loader.config` would make `@monaco-editor/react` fetch its
   own Monaco from jsDelivr.
@@ -78,7 +80,7 @@ DesignSystem/       components injected into preview scope
   Docusaurus' single extracted stylesheet for style-loader there).
 - Language services and their workers (`monaco/workers.ts`) are separate
   chunks fetched only when a model of that language exists; the TS worker is
-  created as soon as Monaco loads rather than when the first editor mounts.
+  created once the core stage loads rather than when the first editor mounts.
 - Type libs: one webpack chunk per third-party `.d.ts` (`reactDTS`, …) and a
   single `dataClientDTS` chunk holding exactly the `DATA_CLIENT_LIBS` entries
   (check-only editor types such as `vue/test` stay out). Failed fetches

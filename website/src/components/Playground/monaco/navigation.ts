@@ -1,5 +1,6 @@
+import type * as Monaco from 'monaco-editor';
+
 import { siblingFilePaths } from './modelPath';
-import type * as Monaco from './monaco';
 
 /** Packages offered when completing a bare `from '…'` specifier. */
 const SUGGESTED_DEPENDENCIES = [
