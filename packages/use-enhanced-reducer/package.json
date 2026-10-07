@@ -94,6 +94,6 @@
     "rollup-plugins": "workspace:*"
   },
   "dependencies": {
-    "@babel/runtime": "^7.20.0"
+    "@babel/runtime": "^8.0.0"
   }
 }
