@@ -89,25 +89,27 @@ export default function StorePanel({ registry }: { registry: SchemaRegistry }) {
 /** The table view: a stack of full-panel levels. Covered levels stay
  * mounted (hidden), so going back keeps their scroll, pages and filters */
 function Levels({ model, width }: { model: StoreModel; width: number }) {
-  const [stack, setStack] = useState<readonly Entry[]>([
-    { key: 0, view: { kind: 'root' } },
-  ]);
+  // the record a level was opened from flashes once that level is back on top
+  const [{ stack, returnTo }, setLevels] = useState<{
+    readonly stack: readonly Entry[];
+    readonly returnTo: string | null;
+  }>({ stack: [{ key: 0, view: { kind: 'root' } }], returnTo: null });
   const nextKey = useRef(1);
   const push = useCallback((view: View) => {
     const key = nextKey.current++;
-    setStack(prev => [...prev, { key, view }]);
+    setLevels(prev => ({ ...prev, stack: [...prev.stack, { key, view }] }));
   }, []);
   const nav = useMemo<Nav>(
     () => ({ model, width, push }),
     [model, width, push],
   );
-  // the row a record was opened from flashes once you're back
-  const returnTo = useRef<string | null>(null);
   const back = useCallback((depth: number) => {
-    setStack(prev => {
-      const left = prev[depth];
-      returnTo.current = left?.view.kind === 'record' ? left.view.id : null;
-      return prev.slice(0, Math.max(1, depth));
+    setLevels(({ stack }) => {
+      const left = stack[depth]?.view;
+      return {
+        stack: stack.slice(0, Math.max(1, depth)),
+        returnTo: left?.kind === 'record' ? left.id : null,
+      };
     });
   }, []);
 
@@ -198,7 +200,8 @@ function Level({
   depth: number;
   top: boolean;
   onBack: (depth: number) => void;
-  returnTo: React.RefObject<string | null>;
+  /** Row to flash when this level is uncovered */
+  returnTo: string | null;
   children: (
     scroller: React.RefObject<HTMLDivElement | null>,
   ) => React.ReactNode;
@@ -206,9 +209,9 @@ function Level({
   const ref = useRef<HTMLDivElement>(null);
   // a covered level keeps what it showed, so store updates cost it nothing
   // until it is uncovered
-  const shown = useRef(nav);
-  if (top) shown.current = nav;
-  const current = shown.current;
+  const [shown, setShown] = useState(nav);
+  if (top && shown !== nav) setShown(nav);
+  const current = top ? nav : shown;
   const content = useMemo(
     () => (
       <NavContext.Provider value={current}>{children(ref)}</NavContext.Provider>
@@ -225,11 +228,7 @@ function Level({
     // keyboard focus follows, so Escape goes back
     el.focus({ preventScroll: true });
     slide(el, before === null ? 1 : -1);
-    const from = returnTo.current;
-    if (before === false && from) {
-      flash(el, id => id === from);
-      returnTo.current = null;
-    }
+    if (before === false && returnTo) flash(el, id => id === returnTo);
   }, [top, depth, returnTo]);
   return (
     <div

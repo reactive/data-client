@@ -3,7 +3,6 @@ import React, {
   useCallback,
   useContext,
   useMemo,
-  useRef,
   useState,
 } from 'react';
 
@@ -56,11 +55,16 @@ export function StoreUIProvider({
 
   // A group's default is fixed when it first appears, so tables arriving
   // later (Suspense loads them one by one) never reshuffle what is open
-  const groupDefaults = useRef(new Map<string, boolean>()).current;
-  for (const table of model.tables) {
-    const id = groupId(table.key);
-    if (!groupDefaults.has(id))
-      groupDefaults.set(id, groupDefaults.size < OPEN_GROUPS);
+  const [groupDefaults, setGroupDefaults] = useState<
+    ReadonlyMap<string, boolean>
+  >(new Map());
+  if (model.tables.some(table => !groupDefaults.has(groupId(table.key)))) {
+    const next = new Map(groupDefaults);
+    for (const table of model.tables) {
+      const id = groupId(table.key);
+      if (!next.has(id)) next.set(id, next.size < OPEN_GROUPS);
+    }
+    setGroupDefaults(next);
   }
 
   const isOpen = useCallback(
