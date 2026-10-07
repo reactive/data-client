@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 
 import { TIME_WIDTH } from './columns';
 import { EntityDetail } from './Details';
-import { attrSelector, offsetIn } from './dom';
+import { byData, offsetIn } from './dom';
 import {
   optimisticId,
   splitKey,
@@ -122,9 +122,7 @@ function TableIndex({
           type="button"
           onClick={() => {
             const el = scroller.current;
-            const group = el?.querySelector<HTMLElement>(
-              attrSelector('data-table', table.key),
-            );
+            const group = el && byData(el, 'table', table.key);
             if (el && group)
               el.scrollTo({ top: offsetIn(el, group), behavior: 'smooth' });
           }}

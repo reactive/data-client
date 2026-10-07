@@ -17,7 +17,6 @@ export const nodeId = (kind: string, ...parts: readonly string[]) =>
 
 /** Row ids shared by both views, selection and flashes */
 export const endpointId = (key: string) => nodeId('e', key);
-export const isEndpointId = (id: string) => id.startsWith(`e${SEP}`);
 export const entityId = (key: string, pk: string) => nodeId('n', key, pk);
 /** Stable while other optimistic updates settle around it */
 export const optimisticId = (o: PendingOptimistic) =>

@@ -782,26 +782,12 @@ div.row {
   padding: 0.5rem 0.75rem 0.6rem;
 }
 
-/* a record level fills the panel, and its meta (or a Collection's, below its
-   member table) sits at the bottom */
-.level > .record {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-}
-.record > .detail {
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
-}
-.record > .detail > .fields {
-  flex-basis: auto;
-}
-.record > .detail > .metaList,
-.memberMeta {
+/* a record level's meta (or a Collection's, below its member table) sits
+   at the bottom */
+.levelFoot {
   margin-top: auto;
 }
-.memberMeta > .metaList {
+.levelFoot > .metaList {
   margin: 0;
   padding: 0.4rem 0.75rem 0.5rem;
 }

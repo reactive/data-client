@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 
-import { EndpointDetail, EntityDetail, RowMeta } from './Details';
+import { EndpointBody, EndpointMeta, EntityDetail, RowMeta } from './Details';
 import { offsetIn } from './dom';
 import {
   findRow,
@@ -25,6 +25,7 @@ import {
   tableColumns,
   type Column,
 } from './Table';
+import { Block } from './Value';
 
 type Scroller = React.RefObject<HTMLElement | null>;
 type Header = (tools: React.ReactNode) => React.ReactNode;
@@ -40,13 +41,10 @@ export function ListView({
   view,
   scroller,
   header,
-  footer,
 }: {
   view: ListView;
   scroller: Scroller;
   header: Header;
-  /** Shown below the rows, at the bottom of the level */
-  footer?: React.ReactNode;
 }) {
   const { model } = useNav()!;
   if ('table' in view) {
@@ -57,21 +55,13 @@ export function ListView({
           pks={view.pks}
           scroller={scroller}
           header={header}
-          footer={footer}
         />
       : <>
           {header(null)}
           <Gone />
         </>;
   }
-  return (
-    <IdList
-      ids={view.ids}
-      scroller={scroller}
-      header={header}
-      footer={footer}
-    />
-  );
+  return <IdList ids={view.ids} scroller={scroller} header={header} />;
 }
 
 /** Rows of one table: its columns, paged, with `+N` and meta columns */
@@ -80,13 +70,11 @@ function TableList({
   pks,
   scroller,
   header,
-  footer,
 }: {
   table: EntityTable;
   pks: readonly string[] | undefined;
   scroller: Scroller;
   header: Header;
-  footer: React.ReactNode;
 }) {
   const { model, width } = useNav()!;
   const [page, setPage] = useState(0);
@@ -106,7 +94,6 @@ function TableList({
       record={row => <EntityDetail row={row} model={model} />}
       scroller={scroller}
       header={header}
-      footer={footer}
       tools={<Pager pages={pages} page={page} onChange={setPage} />}
     />
   );
@@ -117,12 +104,10 @@ function IdList({
   ids,
   scroller,
   header,
-  footer,
 }: {
   ids: readonly string[];
   scroller: Scroller;
   header: Header;
-  footer: React.ReactNode;
 }) {
   const { model, width } = useNav()!;
   const rows = useMemo(
@@ -142,7 +127,6 @@ function IdList({
       columns={columns}
       scroller={scroller}
       header={header}
-      footer={footer}
     />
   );
 }
@@ -156,7 +140,6 @@ function FilteredRows<R extends AnyRow>({
   scroller,
   header,
   tools,
-  footer,
 }: {
   rows: readonly R[];
   columns: readonly Column<R>[];
@@ -165,7 +148,6 @@ function FilteredRows<R extends AnyRow>({
   scroller: Scroller;
   header: Header;
   tools?: React.ReactNode;
-  footer?: React.ReactNode;
 }) {
   const { push } = useNav()!;
   const [filter, setFilter] = useState('');
@@ -224,7 +206,6 @@ function FilteredRows<R extends AnyRow>({
           : null
         }
       />
-      {footer}
     </>
   );
 }
@@ -327,8 +308,8 @@ function useWindow(
 }
 
 /** One row with everything about it */
-/** A row's own level: a Collection lists its members as a table, with its
- * own meta above them; any other row shows its record */
+/** A row's own level: its record, or a Collection's members as a table,
+ * with the row's meta at the bottom */
 export function RecordLevel({
   id,
   scroller,
@@ -340,37 +321,34 @@ export function RecordLevel({
 }) {
   const { model } = useNav()!;
   const row = findRow(model, id);
-  const members = row && membersOf(model, row);
-  if (!members || !row || isEndpointRow(row))
+  const members = useMemo(() => row && membersOf(model, row), [model, row]);
+  if (!row)
     return (
       <>
         {header(null)}
-        <RecordView id={id} />
+        <Gone />
       </>
     );
   return (
-    <ListView
-      view={members}
-      scroller={scroller}
-      header={header}
-      footer={
-        <div className={styles.memberMeta}>
-          <RowMeta row={row} model={model} />
-        </div>
+    <>
+      {members ?
+        <ListView view={members} scroller={scroller} header={header} />
+      : <>
+          {header(null)}
+          <div className={styles.record}>
+            <div className={styles.detail}>
+              {isEndpointRow(row) ?
+                <EndpointBody row={row} />
+              : <Block node={row.value} />}
+            </div>
+          </div>
+        </>
       }
-    />
-  );
-}
-
-function RecordView({ id }: { id: string }) {
-  const { model } = useNav()!;
-  const row = findRow(model, id);
-  if (!row) return <Gone />;
-  return (
-    <div className={styles.record}>
-      {isEndpointRow(row) ?
-        <EndpointDetail row={row} />
-      : <EntityDetail row={row} model={model} />}
-    </div>
+      <div className={styles.levelFoot}>
+        {isEndpointRow(row) ?
+          <EndpointMeta row={row} />
+        : <RowMeta row={row} model={model} />}
+      </div>
+    </>
   );
 }

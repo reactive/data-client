@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { fitChips, INLINE_LIMIT, isTimeField } from './columns';
 import { entityId, isEndpointRow, prettyPk, type AnyRow } from './model';
 import { refsList, useNav, type ListView, type View } from './nav';
-import { CIRCULAR, isRefList, type VNode } from './refs';
+import { CIRCULAR, isRefList, type RefNode, type VNode } from './refs';
 import styles from './store.module.css';
 import { useStoreUI } from './StoreUI';
 
@@ -88,7 +88,7 @@ export function CountChip({
   list,
   children,
 }: {
-  list: View;
+  list: () => View;
   children: React.ReactNode;
 }) {
   const nav = useNav();
@@ -98,7 +98,7 @@ export function CountChip({
       className={clsx(styles.ref, styles.countRef)}
       onClick={e => {
         e.stopPropagation();
-        nav?.push(list);
+        nav?.push(list());
       }}
     >
       {children}
@@ -119,9 +119,7 @@ export function RefList({
   return (
     <span className={styles.wrapList}>
       {cut ? chips.slice(0, RECORD_REFS) : chips}
-      {cut && (
-        <CountChip list={list()}>+{chips.length - RECORD_REFS}</CountChip>
-      )}
+      {cut && <CountChip list={list}>+{chips.length - RECORD_REFS}</CountChip>}
     </span>
   );
 }
@@ -132,21 +130,18 @@ export function Cell({
   node,
   name,
   width,
-  owner,
   dive,
 }: {
   node: VNode;
   name: string;
   width: number;
-  /** Row label, for the breadcrumb of a list it dives into */
-  owner: string;
-  /** Where the count chip goes instead of a list of just these refs */
-  dive?: View;
+  /** Where the count chip goes (nav's `cellDive`) */
+  dive: (items: readonly RefNode[]) => View;
 }) {
   if (!isRefList(node)) return <Inline node={node} name={name} />;
   const { items } = node;
   const fit = fitChips(items, width);
-  const list = dive ?? refsList(items, `${owner} ${name}`);
+  const list = () => dive(items);
   if (!fit)
     return (
       <CountChip list={list}>

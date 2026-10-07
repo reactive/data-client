@@ -13,12 +13,12 @@ import { Status } from './Details';
 import {
   errorText,
   prettyPk,
-  rowLabel,
   type AnyRow,
   type EndpointRow,
   type EntityRow,
   type EntityTable,
 } from './model';
+import { cellDive } from './nav';
 import type { VNode } from './refs';
 import styles from './store.module.css';
 import { Cell, EndpointKey, Inline, Primitive, RowChip } from './Value';
@@ -263,14 +263,7 @@ function dataSpecs(
             node={row.value}
             name={name}
             width={w}
-            owner={rowLabel(row)}
-            // a Collection holds nothing but its members, so its own record
-            // (their table, with its meta) is the list to dive into
-            dive={
-              table.kind === 'collection' ?
-                { kind: 'record', id: row.id }
-              : undefined
-            }
+            dive={cellDive(table, row, name)}
           />
         ),
         has: () => true,
@@ -287,7 +280,12 @@ function dataSpecs(
         const node = value(row);
         return (
           node && (
-            <Cell node={node} name={name} width={w} owner={rowLabel(row)} />
+            <Cell
+              node={node}
+              name={name}
+              width={w}
+              dive={cellDive(table, row, name)}
+            />
           )
         );
       },
@@ -390,7 +388,7 @@ export function endpointColumns(width: number): Column<EndpointRow>[] {
             node={row.value}
             name="value"
             width={width - keyWidth - STATUS_WIDTH}
-            owner={rowLabel(row)}
+            dive={cellDive(undefined, row, 'value')}
           />,
     },
   ];

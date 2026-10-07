@@ -65,10 +65,20 @@ export function EndpointDetail({
   /** Meta behind a disclosure (the tree view) instead of always shown */
   collapsedMeta?: boolean;
 }) {
+  return (
+    <div className={styles.detail}>
+      <EndpointBody row={row} />
+      <EndpointMeta row={row} collapsed={collapsedMeta} />
+    </div>
+  );
+}
+
+/** An endpoint's stored value, or what useSuspense() returns for it */
+export function EndpointBody({ row }: { row: EndpointRow }) {
   const [view, setView] = useState<'stored' | 'returns'>('stored');
   const { record } = row;
   return (
-    <div className={styles.detail}>
+    <>
       {record && (
         <Segmented
           label="Show"
@@ -80,14 +90,27 @@ export function EndpointDetail({
       {view === 'returns' && record ?
         <Returns record={record} />
       : <Block node={row.value} />}
-      <MetaBlock collapsed={collapsedMeta} summary={metaSummary(row.meta)}>
-        <Field name="key" node={{ t: 'val', v: row.key }} />
-        {record?.args.length ?
-          <Field name="args" node={plain(record.args)} />
-        : null}
-        <MetaFields meta={row.meta} />
-      </MetaBlock>
-    </div>
+    </>
+  );
+}
+
+/** An endpoint's key, args and fetch meta */
+export function EndpointMeta({
+  row,
+  collapsed,
+}: {
+  row: EndpointRow;
+  collapsed?: boolean;
+}) {
+  const { record } = row;
+  return (
+    <MetaBlock collapsed={collapsed} summary={metaSummary(row.meta)}>
+      <Field name="key" node={{ t: 'val', v: row.key }} />
+      {record?.args.length ?
+        <Field name="args" node={plain(record.args)} />
+      : null}
+      <MetaFields meta={row.meta} />
+    </MetaBlock>
   );
 }
 

@@ -18,7 +18,6 @@ import {
   groupId,
   ROW_LIMIT,
   sectionId,
-  showAllEndpointsId,
   showAllId,
   useStoreUI,
 } from './StoreUI';
@@ -113,7 +112,10 @@ function useRowProps(id: string, className?: string) {
 }
 
 function EndpointTreeRows({ rows }: { rows: readonly EndpointRow[] }) {
-  const { shown, footer } = useLimitedRows(showAllEndpointsId, rows);
+  const { shown, footer } = useLimitedRows(
+    showAllId(sectionId('endpoints')),
+    rows,
+  );
   return (
     <>
       {shown.map(row => (
@@ -226,7 +228,10 @@ function EntityTreeGroup({
   model: StoreModel;
 }) {
   const { open, props } = useRowProps(groupId(table.key));
-  const { shown, footer } = useLimitedRows(showAllId(table.key), table.rows);
+  const { shown, footer } = useLimitedRows(
+    showAllId(groupId(table.key)),
+    table.rows,
+  );
   return (
     <>
       <div {...props}>

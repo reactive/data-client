@@ -54,7 +54,7 @@ describe('StoreUI', () => {
       id: entityId('Late', `${i}`),
     })) as unknown as EntityTable['rows'];
     const m = {
-      endpoints: [],
+      endpoints: [{ id: endpointId('GET /x') }],
       tables: ['A', 'B', 'C'].map(table).concat({ ...table('Late'), rows }),
     } as unknown as StoreModel;
     render(mount(m));
@@ -67,7 +67,7 @@ describe('StoreUI', () => {
       target,
       sectionId('entities'),
       groupId('Late'),
-      showAllId('Late'),
+      showAllId(groupId('Late')),
     ])
       expect(ui.isOpen(id)).toBe(true);
 

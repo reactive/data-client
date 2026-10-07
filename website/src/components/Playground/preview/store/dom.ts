@@ -4,22 +4,12 @@ import { prefersReducedMotion, springEasing, springs } from '../../../motion';
  * header (`.sectionHeader` in store.module.css) */
 const HEADER_HEIGHT = 32;
 
-/** `[name="value"]`; CSS.escape where the browser has it (jsdom doesn't) */
-export const attrSelector = (name: string, value: string) =>
-  `[${name}="${
-    typeof CSS !== 'undefined' && typeof CSS.escape === 'function' ?
-      CSS.escape(value)
-      // row ids hold the U+001F separator, which CSS needs as a hex escape
-      // eslint-disable-next-line no-control-regex
-    : value.replace(/["\\]|[\0-\x1f\x7f]/g, c =>
-        c === '"' || c === '\\' ?
-          `\\${c}`
-        : `\\${c.charCodeAt(0).toString(16)} `,
-      )
-  }"]`;
-
-/** The element showing row (or other node) `id` */
-export const rowSelector = (id: string) => attrSelector('data-id', id);
+/** The element in `scope` whose `data-<key>` is `value`; compares the
+ * attribute, so ids need no selector escaping */
+export const byData = (scope: ParentNode, key: 'id' | 'table', value: string) =>
+  [...scope.querySelectorAll<HTMLElement>(`[data-${key}]`)].find(
+    el => el.dataset[key] === value,
+  );
 
 /** Where `el` sits in `scroller`'s scrolled content, in px */
 export const offsetIn = (scroller: HTMLElement, el: Element) =>
@@ -58,7 +48,7 @@ export function flash(scope: HTMLElement, test: (id: string) => boolean) {
 
 /** Scrolls row `id` into view below the section header and focuses it */
 export function scrollToRow(scroller: HTMLElement, id: string) {
-  const row = scroller.querySelector<HTMLElement>(rowSelector(id));
+  const row = byData(scroller, 'id', id);
   if (!row) return;
   scroller.scrollTo({
     top: Math.max(0, offsetIn(scroller, row) - HEADER_HEIGHT),

@@ -211,7 +211,7 @@ function Level({
   // until it is uncovered
   const [shown, setShown] = useState(nav);
   if (top && shown !== nav) setShown(nav);
-  const current = top ? nav : shown;
+  const current = shown;
   const content = useMemo(
     () => (
       <NavContext.Provider value={current}>{children(ref)}</NavContext.Provider>
