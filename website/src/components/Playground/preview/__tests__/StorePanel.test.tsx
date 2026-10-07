@@ -4,7 +4,8 @@ import { StateContext, type State } from '@data-client/react';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
-import { parseRowId } from '../store/model';
+import { byData } from '../store/dom';
+import { endpointId, parseRowId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
 
@@ -119,6 +120,41 @@ describe('StorePanel table view', () => {
     expect(post.getByText('7 more')).toBeTruthy();
     // the error endpoint shows its message
     expect(screen.getByText('404 Not Found')).toBeTruthy();
+  });
+
+  it('marks deleted rows and shows a lone ref however long its pk', () => {
+    const long = '38200029883820002988382000298838200029883820002988';
+    const r = registry();
+    r.endpoints.set('POST https://example.com/users', {
+      endpoint: { schema: [User] },
+      args: [],
+    });
+    mount(
+      {
+        ...state,
+        endpoints: {
+          ...state.endpoints,
+          'POST https://example.com/users': [long],
+        },
+        entities: {
+          ...state.entities,
+          User: {
+            ...state.entities.User,
+            2: Symbol('INVALID'),
+            [long]: { id: long, name: 'Al' },
+          },
+        },
+      } as unknown as State<unknown>,
+      r,
+    );
+    const users = within(top().querySelector('[data-table=User]')!);
+    expect(users.getByText('deleted')).toBeTruthy();
+    const endpoint = byData(
+      top(),
+      'id',
+      endpointId('POST https://example.com/users'),
+    );
+    expect(endpoint?.textContent).toContain(long);
   });
 
   it('dives into a record and back', () => {

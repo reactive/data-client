@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { fitChips, INLINE_LIMIT, isTimeField } from './columns';
 import { entityId, isEndpointRow, prettyPk, type AnyRow } from './model';
 import { refsList, useNav, type ListView, type View } from './nav';
-import { CIRCULAR, isRefList, type RefNode, type VNode } from './refs';
+import { CIRCULAR, DELETED, isRefList, type RefNode, type VNode } from './refs';
 import styles from './store.module.css';
 import { useStoreUI } from './StoreUI';
 
@@ -140,7 +140,8 @@ export function Cell({
 }) {
   if (!isRefList(node)) return <Inline node={node} name={name} />;
   const { items } = node;
-  const fit = fitChips(items, width);
+  // a lone chip shows (truncated if it must) rather than a count of one
+  const fit = Math.max(fitChips(items, width), items.length === 1 ? 1 : 0);
   const list = () => dive(items);
   if (!fit)
     return (
@@ -313,6 +314,8 @@ function BlockList({
 
 export function Primitive({ value, name }: { value: unknown; name?: string }) {
   if (value === CIRCULAR) return <span className={styles.dim}>[Circular]</span>;
+  if (value === DELETED)
+    return <span className={clsx(styles.pill, styles.deleted)}>deleted</span>;
   if (value === null || value === undefined)
     return <span className={styles.null}>{String(value)}</span>;
   if (typeof value === 'string')

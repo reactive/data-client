@@ -12,6 +12,7 @@ import {
 import { Status } from './Details';
 import {
   errorText,
+  isDeleted,
   prettyPk,
   type AnyRow,
   type EndpointRow,
@@ -19,7 +20,7 @@ import {
   type EntityTable,
 } from './model';
 import { cellDive } from './nav';
-import type { VNode } from './refs';
+import { DELETED, type VNode } from './refs';
 import styles from './store.module.css';
 import { Cell, EndpointKey, Inline, Primitive, RowChip } from './Value';
 
@@ -347,7 +348,11 @@ export function tableColumns(
         id: c.id,
         header: c.header,
         width: i === current.length - 1 ? undefined : w,
-        cell: (row: EntityRow) => c.cell(row, w),
+        // a deleted row has no fields; its first column says so
+        cell: (row: EntityRow) =>
+          i === 0 && isDeleted(row) ?
+            <Primitive value={DELETED} />
+          : c.cell(row, w),
       };
     }),
   ];

@@ -771,6 +771,11 @@ div.row {
   color: var(--store-null);
   border-color: rgba(255, 88, 116, 0.4);
 }
+.deleted {
+  margin-left: 0;
+  color: var(--store-dim);
+  border-color: var(--store-line-strong);
+}
 .optimistic {
   color: var(--store-type);
   border-color: rgba(199, 146, 234, 0.4);
