@@ -184,11 +184,82 @@ div.playgroundTextEdit > .playgroundHeader,
   flex: 1 4 30%;
   overflow: auto;
 }
-:global(.col) .playgroundError {
-  overflow: visible;
+/* Preview errors: one card, colored by the stage that failed. Amber means the
+   code never ran (compile); red means it ran and threw (runtime, network).
+   --pe-accent paints the edge bar and controls; --pe-text the label and name. */
+.previewError {
+  --pe-accent: var(--ifm-color-danger);
+  --pe-text: var(--ifm-color-danger-darkest);
+  --pe-bg: var(--ifm-color-danger-contrast-background);
+  margin: 0;
+  padding: 0.6rem 0.75rem 0.7rem 0.95rem;
+  border: 1px solid color-mix(in srgb, var(--pe-accent) 35%, transparent);
+  border-radius: var(--ifm-global-radius);
+  /* the edge bar: inset so the radius clips it */
+  box-shadow: inset 3px 0 0 var(--pe-accent);
+  background: var(--pe-bg);
+  color: var(--ifm-font-color-base);
+  animation: previewErrorIn 160ms ease-out;
+}
+.previewError[data-kind='compile'] {
+  --pe-accent: var(--ifm-color-warning-dark);
+  /* 5:1 on the amber tint; Infima's warning scale has no text-safe step */
+  --pe-text: hsl(40, 100%, 27%);
+  --pe-bg: var(--ifm-color-warning-contrast-background);
+}
+/* Dark: tints of the accent over the slate preview, not Infima's solid wells */
+:root[data-theme='dark'] .previewError[data-kind='runtime'],
+:root[data-theme='dark'] .previewError[data-kind='network'] {
+  --pe-text: var(--ifm-color-danger-lightest);
+  --pe-bg: color-mix(in srgb, var(--pe-accent) 11%, transparent);
+}
+:root[data-theme='dark'] .previewError[data-kind='compile'] {
+  --pe-accent: var(--ifm-color-warning);
+  --pe-text: var(--ifm-color-warning-light);
+  --pe-bg: color-mix(in srgb, var(--pe-accent) 9%, transparent);
+}
+@keyframes previewErrorIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .previewError {
+    animation: none;
+  }
+}
+.errorKind {
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+  margin-bottom: 0.4rem;
+  font: 700 11px / 1 var(--ifm-font-family-base);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--pe-text);
+}
+.errorIcon {
+  flex: none;
+  font-size: 15px;
+}
+.previewError .playgroundError {
+  margin: 0;
   padding: 0;
-  color: var(--ifm-color-danger-contrast-foreground);
+  border-radius: 0;
+  background: none;
+  overflow: visible;
+  font: 13px / 19px var(--ifm-font-family-monospace);
+  color: var(--ifm-font-color-base);
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.errorName {
+  font-weight: 600;
+  color: var(--pe-text);
+}
+.errorLocation {
+  opacity: 0.6;
 }
 
 .previewWrapper {
@@ -645,9 +716,36 @@ div.fixtureJson {
     color: var(--pg-tab-hover);
   }
 }
-.previewError button {
+/* Error card action (Reset preview, Clear Error): outlined in the card's accent */
+.previewError .errorAction {
   display: inline-flex;
   align-items: center;
   gap: 0.4em;
-  margin-top: 0.25rem;
+  margin: 0.65rem 0 0;
+  padding: 0.3rem 0.75rem;
+  min-height: 2rem;
+  border: 1px solid color-mix(in srgb, var(--pe-accent) 55%, transparent);
+  border-radius: var(--ifm-global-radius);
+  background: transparent;
+  color: var(--pe-text);
+  font: 500 0.85rem / 1.3 var(--ifm-font-family-base);
+  cursor: pointer;
+  transition:
+    background-color 120ms ease-out,
+    border-color 120ms ease-out;
+}
+.previewError .errorAction:focus-visible {
+  outline: 2px solid var(--pe-accent);
+  outline-offset: 2px;
+}
+@media (hover: hover) {
+  .previewError .errorAction:hover {
+    background-color: color-mix(in srgb, var(--pe-accent) 14%, transparent);
+    border-color: var(--pe-accent);
+  }
+}
+/* after hover so a pressed pointer reads darker than a resting one */
+.previewError .errorAction:active {
+  background-color: color-mix(in srgb, var(--pe-accent) 22%, transparent);
+  border-color: var(--pe-accent);
 }

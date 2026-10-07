@@ -39,6 +39,7 @@ it('offers a reset for render errors', async () => {
   const code = `function A() { throw new Error('boom'); }\nrender(<A />);`;
   const onRenderError = renderPreview(code);
   expect(await screen.findByText(/boom/)).toBeTruthy();
+  expect(screen.getByText('Runtime error')).toBeTruthy();
   expect(screen.getByRole('button', { name: /Reset preview/ })).toBeTruthy();
   await waitFor(() =>
     expect(onRenderError).toHaveBeenCalledWith(code, {
@@ -52,6 +53,7 @@ it('offers a reset for render errors', async () => {
 it('never resets compile errors', async () => {
   const onRenderError = renderPreview('render(<div>);');
   expect(await screen.findByText(/SyntaxError/)).toBeTruthy();
+  expect(screen.getByText('Compile error')).toBeTruthy();
   expect(screen.queryByRole('button')).toBeNull();
   expect(onRenderError).not.toHaveBeenCalled();
 });
@@ -61,6 +63,8 @@ it('never resets evaluation errors', async () => {
     `throw new Error('eval');\nrender(<div />);`,
   );
   expect(await screen.findByText(/eval/)).toBeTruthy();
+  // threw while running, though before anything rendered
+  expect(screen.getByText('Runtime error')).toBeTruthy();
   expect(screen.queryByRole('button')).toBeNull();
   expect(onRenderError).not.toHaveBeenCalled();
 });

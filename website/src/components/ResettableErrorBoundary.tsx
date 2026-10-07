@@ -1,6 +1,7 @@
 import { NetworkErrorBoundary, useController } from '@data-client/react';
 import React from 'react';
 
+import { ErrorPanel } from './Playground/preview/PreviewError';
 import styles from './Playground/styles.module.css';
 
 interface Props {
@@ -22,19 +23,30 @@ export default function ResetableErrorBoundary({ children }: Props) {
       fallbackComponent={({ error }) => {
         const networkError = error as ErrorLike;
         return (
-          <>
+          <ErrorPanel
+            kind="network"
+            action={
+              <button
+                type="button"
+                className={styles.errorAction}
+                onClick={() => {
+                  resetEntireStore();
+                  setI(i => i + 1);
+                }}
+              >
+                Clear Error
+              </button>
+            }
+          >
             <div className={styles.playgroundError}>
-              {networkError.message} <i>{networkError.status}</i>
+              {networkError.status !== undefined ?
+                <strong className={styles.errorName}>
+                  {networkError.status}
+                </strong>
+              : null}{' '}
+              {networkError.message}
             </div>
-            <button
-              onClick={() => {
-                resetEntireStore();
-                setI(i => i + 1);
-              }}
-            >
-              Clear Error
-            </button>
-          </>
+          </ErrorPanel>
         );
       }}
     >
