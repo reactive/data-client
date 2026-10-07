@@ -28,7 +28,7 @@ export default function PreviewError({
   // "healthy" means no error for a while.
   useEffect(() => {
     if (!isHealthy) return;
-    const timer = setTimeout(onHealthy, HEALTHY_AFTER_MS);
+    const timer = setTimeout(() => onHealthy(code), HEALTHY_AFTER_MS);
     return () => clearTimeout(timer);
   }, [isHealthy, code, onHealthy]);
 
@@ -52,7 +52,7 @@ export interface PreviewErrorProps {
   /** Called with the code whose render threw and the store it threw with */
   onRenderError: (code: string, state: State<unknown>) => void;
   /** Called once the current code has rendered without error for a while */
-  onHealthy: () => void;
+  onHealthy: (code: string) => void;
 }
 
 export function ResetButton({ onClick }: { onClick: () => void }) {

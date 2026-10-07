@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from 'react';
 interface PreviewStore {
   /** Remounts the preview (and its store) when it changes */
   key: number;
-  /** Code this store's data was written under */
+  /** Code this store last rendered cleanly under (or was created with) */
   code: string;
   initialState?: State<unknown>;
   /** While trying a fresh store: the store it replaced, restored if the error persists */
@@ -62,7 +62,12 @@ export function usePreviewReset(code: string) {
   );
 
   const onHealthy = useCallback(
-    () => setStore(s => (s.canAutoReset ? s : { ...s, canAutoReset: true })),
+    (healthyCode: string) =>
+      setStore(s =>
+        s.canAutoReset && s.code === healthyCode ?
+          s
+        : { ...s, code: healthyCode, canAutoReset: true },
+      ),
     [],
   );
 
