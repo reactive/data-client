@@ -1,8 +1,9 @@
-import { useController, type State } from '@data-client/react';
+import { useController } from '@data-client/react';
 import clsx from 'clsx';
 import React, { useContext, useEffect } from 'react';
 import { LiveContext } from 'react-live';
 
+import type { PreviewSnapshot } from './usePreviewReset';
 import styles from '../styles.module.css';
 
 /** react-live's error, plus a reset when it came from rendering (a fresh store may fix it).
@@ -22,7 +23,14 @@ export default function PreviewError({
   const isHealthy = !error && rendered;
 
   useEffect(() => {
-    if (isRenderError) onRenderError(code, controller.getState());
+    if (!isRenderError) return;
+    onRenderError(code, {
+      // The old store's in-flight requests die with it, so drop their optimistic updates
+      state: { ...controller.getState(), optimistic: [] },
+      // MockResolver's controller holds the simulated server's data
+      interceptorData: (controller as { interceptorData?: unknown })
+        .interceptorData,
+    });
   }, [isRenderError, code, onRenderError, controller]);
   // react-live commits a throwing render once before reporting its error, so
   // "healthy" means no error for a while.
@@ -49,8 +57,8 @@ const HEALTHY_AFTER_MS = 1000;
 
 export interface PreviewErrorProps {
   onReset: () => void;
-  /** Called with the code whose render threw and the store it threw with */
-  onRenderError: (code: string, state: State<unknown>) => void;
+  /** Called with the code whose render threw and the preview it threw in */
+  onRenderError: (code: string, snapshot: PreviewSnapshot) => void;
   /** Called once the current code has rendered without error for a while */
   onHealthy: (code: string) => void;
 }

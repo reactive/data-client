@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { LiveProvider } from 'react-live';
 
 import Preview from './Preview';
@@ -26,7 +27,14 @@ export default function LivePreview<T>({
 }: LivePreviewProps<T>) {
   usePlaygroundConsoleDemotion();
   const { onCommit, badge } = useRenderCount(renderCount);
-  const { key, initialState, reset, ...handlers } = usePreviewReset(code);
+  const { key, restored, reset, ...handlers } = usePreviewReset(code);
+  const getInterceptorData = useMemo(
+    () =>
+      restored ?
+        () => restored.interceptorData as T
+      : getInitialInterceptorData,
+    [restored, getInitialInterceptorData],
+  );
 
   return (
     <LiveProvider
@@ -50,9 +58,9 @@ export default function LivePreview<T>({
           defaultOpen={defaultOpen}
           row={row}
           fixtures={fixtures}
-          getInitialInterceptorData={getInitialInterceptorData}
+          getInitialInterceptorData={getInterceptorData}
           onCommit={onCommit}
-          initialState={initialState}
+          initialState={restored?.state}
           onReset={reset}
           {...handlers}
         />

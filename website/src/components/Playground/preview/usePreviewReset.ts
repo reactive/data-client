@@ -1,14 +1,20 @@
 import type { State } from '@data-client/react';
 import { useCallback, useRef, useState } from 'react';
 
+/** What a preview needs to come back as it was: the store and the simulated server */
+export interface PreviewSnapshot {
+  state: State<unknown>;
+  interceptorData: unknown;
+}
+
 interface PreviewStore {
   /** Remounts the preview (and its store) when it changes */
   key: number;
   /** Code this store last rendered cleanly under (or was created with) */
   code: string;
-  initialState?: State<unknown>;
+  restored?: PreviewSnapshot;
   /** While trying a fresh store: the store it replaced, restored if the error persists */
-  replaced?: { state: State<unknown>; code: string };
+  replaced?: { snapshot: PreviewSnapshot; code: string };
   /** Set once the preview renders without error; spent by an automatic reset */
   canAutoReset: boolean;
 }
@@ -41,20 +47,20 @@ export function usePreviewReset(code: string) {
   );
 
   const onRenderError = useCallback(
-    (errorCode: string, state: State<unknown>) =>
+    (errorCode: string, snapshot: PreviewSnapshot) =>
       setStore(s => {
         if (s.replaced && s.code === errorCode)
           return {
             key: s.key + 1,
             code: s.replaced.code,
-            initialState: s.replaced.state,
+            restored: s.replaced.snapshot,
             canAutoReset: false,
           };
         if (s.code === errorCode || !s.canAutoReset) return s;
         return {
           key: s.key + 1,
           code: errorCode,
-          replaced: { state, code: s.code },
+          replaced: { snapshot, code: s.code },
           canAutoReset: false,
         };
       }),
@@ -85,7 +91,7 @@ export function usePreviewReset(code: string) {
 
   return {
     key: store.key,
-    initialState: store.initialState,
+    restored: store.restored,
     reset,
     onRenderError,
     onHealthy,
