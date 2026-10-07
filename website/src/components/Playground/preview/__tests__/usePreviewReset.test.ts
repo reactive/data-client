@@ -63,3 +63,15 @@ it('reset remounts with a fresh store', () => {
   act(() => result.current.reset());
   expect(result.current.key).toBe(1);
 });
+
+it('keeps state identity when nothing changes', () => {
+  const { result } = setup();
+  act(() => result.current.onHealthy());
+  const before = result.current.onInteract;
+  act(() => {
+    result.current.onHealthy();
+    result.current.onInteract();
+  });
+  expect(result.current.key).toBe(0);
+  expect(result.current.onInteract).toBe(before);
+});
