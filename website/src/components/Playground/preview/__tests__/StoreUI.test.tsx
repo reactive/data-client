@@ -51,7 +51,7 @@ describe('StoreUI', () => {
   it('reveal opens everything leading to a row', () => {
     const rows = Array.from({ length: ROW_LIMIT + 1 }, (_, i) => ({
       id: entityId('Late', `${i}`),
-    }));
+    })) as unknown as EntityTable['rows'];
     const m = {
       endpoints: [],
       tables: ['A', 'B', 'C'].map(table).concat({ ...table('Late'), rows }),
