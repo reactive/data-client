@@ -12,6 +12,9 @@ import type {
 export const endpointId = (key: string) => `e\u001f${key}`;
 export const isEndpointId = (id: string) => id.startsWith('e\u001f');
 export const entityId = (key: string, pk: string) => `n\u001f${key}\u001f${pk}`;
+/** Stable while other optimistic updates settle around it */
+export const optimisticId = (o: PendingOptimistic) =>
+  `o\u001f${o.key}\u001f${o.fetchedAt}`;
 
 export interface EndpointRow {
   readonly id: string;

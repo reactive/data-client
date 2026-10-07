@@ -306,7 +306,11 @@ export function Primitive({ value, name }: { value: unknown; name?: string }) {
       </span>
     );
   if (value instanceof Date)
-    return <span className={styles.number}>{value.toISOString()}</span>;
+    return (
+      <span className={styles.number}>
+        {isNaN(value.getTime()) ? 'Invalid Date' : value.toISOString()}
+      </span>
+    );
   if (typeof value === 'object')
     return <span className={styles.dim}>{JSON.stringify(value)}</span>;
   return <span className={styles.number}>{String(value)}</span>;

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 
 import { EntityDetail } from './Details';
 import {
+  optimisticId,
   referrersOf,
   splitKey,
   type EntityRow,
@@ -259,7 +260,7 @@ function OptimisticTable({ model }: { model: StoreModel }) {
   return (
     <RowsTable
       columns={columns}
-      rows={model.optimistic.map((o, i) => ({ ...o, id: `o\u001f${i}` }))}
+      rows={model.optimistic.map(o => ({ ...o, id: optimisticId(o) }))}
     />
   );
 }

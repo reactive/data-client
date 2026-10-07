@@ -47,6 +47,8 @@ export function Status({ meta }: { meta: Meta }) {
 function useNow(until: number | undefined) {
   const [now, setNow] = useState(Date.now);
   useEffect(() => {
+    // a new deadline may already have passed
+    setNow(Date.now());
     if (until === undefined || until <= Date.now()) return;
     const timer = setInterval(() => {
       const t = Date.now();

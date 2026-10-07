@@ -20,7 +20,7 @@ export interface PendingOptimistic {
 
 /** Remembers each endpoint (and every entity schema reachable from it) as
  * actions pass through, since the store only holds keys and ids.
- * Lives in the preview's DataProvider; extend this manager (rather than
+ * Lives as long as the live preview (across store remounts); extend this manager (rather than
  * adding another) when the preview starts tracking actions.
  * Never prunes: fine for a playground session, not for a long-lived app. */
 export default class SchemaRegistry implements Manager<ActionTypes> {
@@ -52,6 +52,12 @@ export default class SchemaRegistry implements Manager<ActionTypes> {
     }
     return next(action);
   };
+
+  /** A remounted preview starts a new store; schemas carry over (a restored
+   * store still holds their rows), pending optimistic updates don't */
+  init() {
+    this.optimistic = [];
+  }
 
   cleanup() {}
 

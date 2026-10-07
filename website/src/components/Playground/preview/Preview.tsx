@@ -34,6 +34,7 @@ function Preview<T>({
   getInitialInterceptorData,
   onCommit,
   initialState,
+  registry,
   onInteract,
   ...errorProps
 }: PreviewProps<T> &
@@ -41,6 +42,8 @@ function Preview<T>({
     /** Called on every React commit of the live result (enables a `<Profiler>`) */
     onCommit?: ProfilerOnRenderCallback;
     initialState?: State<unknown>;
+    /** Schemas the Store inspector has seen */
+    registry: SchemaRegistry;
     /** User pointer/keyboard input inside the result */
     onInteract: () => void;
   }) {
@@ -62,15 +65,14 @@ function Preview<T>({
     ],
   );
 
-  const [registry, managers] = useMemo(() => {
-    const registry = new SchemaRegistry();
-    const managers: Manager[] = [
+  const managers = useMemo<Manager[]>(
+    () => [
       registry,
       new NetworkManager(),
       new SubscriptionManager(PollingSubscription),
-    ];
-    return [registry, managers] as const;
-  }, []);
+    ],
+    [registry],
+  );
 
   const coveredResult = row && selectedValue === 'y';
   return (

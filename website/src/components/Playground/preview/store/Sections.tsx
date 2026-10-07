@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import React from 'react';
 
 import type { EndpointRow, EntityTable, StoreModel } from './model';
-import { splitKey } from './model';
+import { optimisticId, splitKey } from './model';
 import { plain } from './refs';
 import styles from './store.module.css';
 import { ROW_LIMIT, sectionId, showAllId, useStoreUI } from './StoreUI';
@@ -193,8 +193,8 @@ function OptimisticSection({ model }: { model: StoreModel }) {
       title="Optimistic"
       count={model.optimistic.length}
     >
-      {model.optimistic.map((action, i) => (
-        <OptimisticRow key={`${action.key}${i}`} action={action} index={i} />
+      {model.optimistic.map(action => (
+        <OptimisticRow key={optimisticId(action)} action={action} />
       ))}
     </Section>
   );
@@ -202,12 +202,10 @@ function OptimisticSection({ model }: { model: StoreModel }) {
 
 function OptimisticRow({
   action,
-  index,
 }: {
   action: StoreModel['optimistic'][number];
-  index: number;
 }) {
-  const { open, props } = useRowProps(`o\u001f${index}`);
+  const { open, props } = useRowProps(optimisticId(action));
   const { method, path } = splitKey(action.key);
   return (
     <>
