@@ -25,7 +25,7 @@ beforeEach(() => {
   HTMLElement.prototype.animate = function (keyframes: any) {
     const animation: FakeAnimation = {
       playState: 'running',
-      currentTime: 0,
+      currentTime: null,
       cancel: jest.fn(() => {
         animation.playState = 'idle';
       }),
@@ -128,4 +128,72 @@ it('leaves on its own when the group ignores the change', () => {
   const { rerender } = render(<Mismatched show />);
   rerender(<Mismatched show={false} />);
   expect(screen.queryByText('panel')).toBeNull();
+});
+
+it('reverses with the momentum it had mid-flight', () => {
+  const { rerender } = render(<Drawer open={false} />);
+  rerender(<Drawer open />);
+  const panel = screen.getByText('panel');
+  const enter = animations.find(({ el }) => el === panel);
+  // 100ms into sliding in (moving towards the start)
+  (enter as any).animation.currentTime = 100;
+  rerender(<Drawer open={false} />);
+  const exit = animations.at(-1);
+  expect(exit?.el).toBe(panel);
+  const x = (i: number) => parseFloat(exit?.keyframes[i].translate as string);
+  // keeps moving the way it was going before turning around
+  expect(x(1)).toBeLessThan(x(0));
+  expect(x(exit!.keyframes.length - 1)).toBe(PARENT_WIDTH);
+});
+
+it('slides along a column container vertically', () => {
+  jest.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(200);
+  function Column({ open }: { open: boolean }) {
+    return (
+      <div style={{ flexDirection: 'column' }}>
+        <Drawer open={open} />
+      </div>
+    );
+  }
+  const { rerender, container } = render(<Column open={false} />);
+  (container.firstChild as HTMLElement).style.display = 'flex';
+  rerender(<Column open />);
+  const panel = screen.getByText('panel');
+  const enter = animations.find(({ el }) => el === panel);
+  expect(enter?.keyframes[0].translate).toBe('0px 200px');
+});
+
+it('lands in place without Web Animations', () => {
+  delete (HTMLElement.prototype as any).animate;
+  const { rerender } = render(<Drawer open />);
+  rerender(<Drawer open={false} />);
+  expect(screen.queryByText('panel')).toBeNull();
+});
+
+it('does not slide in members that only move', () => {
+  function Late({ open }: { open: boolean }) {
+    return (
+      <MotionGroup layoutDependency={open}>{open && <Handle />}</MotionGroup>
+    );
+  }
+  const { rerender } = render(<Late open={false} />);
+  rerender(<Late open />);
+  expect(animations).toEqual([]);
+});
+
+it('keeps an exiting element pinned through further changes', () => {
+  function Steps({ step }: { step: number }) {
+    return (
+      <MotionGroup layoutDependency={step}>
+        <Reveal show={step === 0}>panel</Reveal>
+      </MotionGroup>
+    );
+  }
+  const { rerender } = render(<Steps step={0} />);
+  rerender(<Steps step={1} />);
+  rerender(<Steps step={2} />);
+  const panel = screen.getByText('panel');
+  expect(panel.style.position).toBe('absolute');
+  rerender(<Steps step={0} />);
+  expect(panel.style.position).toBe('');
 });

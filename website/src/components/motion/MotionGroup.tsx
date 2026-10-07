@@ -162,16 +162,20 @@ export function useMember(presence?: Presence): RefCallback<HTMLElement> {
   );
 }
 
+// members are mounted while the group measures them, so they have a parent
+function parentOf(el: HTMLElement) {
+  return el.parentElement as HTMLElement;
+}
+
 function parentRelative(el: HTMLElement): Point {
   const rect = el.getBoundingClientRect();
-  const parent = el.parentElement?.getBoundingClientRect() ?? rect;
+  const parent = parentOf(el).getBoundingClientRect();
   return { x: rect.left - parent.left, y: rect.top - parent.top };
 }
 
 /** Just past the end of the parent's main axis */
 function exitOffset(el: HTMLElement): Point {
-  const parent = el.parentElement;
-  if (!parent) return ORIGIN;
+  const parent = parentOf(el);
   return getComputedStyle(parent).flexDirection.startsWith('column') ?
       { x: 0, y: Math.max(parent.clientHeight - el.offsetTop, el.offsetHeight) }
     : { x: Math.max(parent.clientWidth - el.offsetLeft, el.offsetWidth), y: 0 };
