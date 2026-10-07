@@ -2,6 +2,7 @@
 /// <reference types="@docusaurus/module-type-aliases" />
 
 import { DataProvider } from '@data-client/react';
+import { MockResolver } from '@data-client/test';
 import { render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { LivePreview, LiveProvider } from 'react-live';
@@ -13,14 +14,19 @@ function renderPreview(code: string) {
   const onRenderError = jest.fn();
   render(
     <DataProvider>
-      <LiveProvider code={code} noInline>
-        <LivePreview />
-        <PreviewError
-          onReset={() => {}}
-          onRenderError={onRenderError}
-          onHealthy={() => {}}
-        />
-      </LiveProvider>
+      <MockResolver
+        fixtures={[]}
+        getInitialInterceptorData={() => ({ votes: 1 })}
+      >
+        <LiveProvider code={code} noInline>
+          <LivePreview />
+          <PreviewError
+            onReset={() => {}}
+            onRenderError={onRenderError}
+            onHealthy={() => {}}
+          />
+        </LiveProvider>
+      </MockResolver>
     </DataProvider>,
   );
   return onRenderError;
@@ -35,7 +41,11 @@ it('offers a reset for render errors', async () => {
   expect(await screen.findByText(/boom/)).toBeTruthy();
   expect(screen.getByRole('button', { name: /Reset preview/ })).toBeTruthy();
   await waitFor(() =>
-    expect(onRenderError).toHaveBeenCalledWith(code, expect.anything()),
+    expect(onRenderError).toHaveBeenCalledWith(code, {
+      // in-flight requests die with the store, so their optimistic updates go too
+      state: expect.objectContaining({ optimistic: [] }),
+      interceptorData: { votes: 1 },
+    }),
   );
 });
 
