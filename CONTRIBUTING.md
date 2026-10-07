@@ -44,8 +44,8 @@ If your idea requires design considerations, it's best to [start a discussion][4
 
 * If you changed package types, docs or skills, regenerate the committed
   outputs: merge master, run `yarn copy:websitetypes` and `yarn build:skills`,
-  and commit the result. The `regenerate` check fails on pull requests from
-  forks until they're up to date.
+  and commit the result. The `regenerate` check fails until they're up to
+  date.
 
 * Submit your pull request!
 
