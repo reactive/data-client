@@ -8,12 +8,14 @@ export default function PreviewWrapper({ children, headerControls }: Props) {
   return (
     <div className={styles.previewWrapper}>
       <Header className={styles.previewHeader}>
-        <Translate
-          id="theme.Playground.result"
-          description="The result label of the live codeblocks"
-        >
-          🔴 Live Preview
-        </Translate>
+        <span className={styles.liveLabel}>
+          <Translate
+            id="theme.Playground.result"
+            description="The result label of the live codeblocks"
+          >
+            Live Preview
+          </Translate>
+        </span>
         <span className={styles.previewControls}>{headerControls}</span>
       </Header>
       <div className={styles.playgroundResult}>{children}</div>

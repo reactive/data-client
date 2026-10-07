@@ -96,13 +96,12 @@
   --pg-tab-selected: #e3e8f2;
   --pg-tab-selected-bg: var(--monoco-code-background);
 }
-/* Dark mode: the editor column sits a step above the code, darker than the
-   neutral preview headers, so the two sides read apart without a divider */
-:root[data-theme='dark']
-  .playgroundContainer:not(.endpointPlayground)
-  .playgroundTextEdit {
-  --pg-bar: hsl(229, 14%, 21%);
-  --pg-tab-hover-bg: hsl(229, 14%, 26%);
+/* Dark mode: the frame is a muted slate of the code's indigo, so the code
+   (and the active tab, which matches it) keeps the color. Bars sit a step
+   above the code, and the preview a half step, so the top row reads as one band */
+:root[data-theme='dark'] .playgroundContainer:not(.endpointPlayground) {
+  --pg-bar: hsl(229, 9%, 21%);
+  --pg-tab-hover-bg: hsl(229, 9%, 26%);
 }
 /* EndpointPlayground's right column is code, so it always uses the dark bar */
 .endpointPlayground {
@@ -280,6 +279,23 @@ div.playgroundTextEdit > .playgroundHeader.subtabs {
   --pg-tab-selected: var(--pg-tab-hover);
 }
 
+:root[data-theme='dark'] .playgroundPreview {
+  /* The demo's content is quieter than the frame: a hint of the code's hue */
+  --pg-preview-bg: hsl(229, 7%, 19%);
+  background-color: var(--pg-preview-bg);
+  /* Controls read these for fills and borders: wells a step below the body */
+  --ifm-background-surface-color: hsl(229, 7%, 15%);
+  --ifm-color-emphasis-100: var(--ifm-background-surface-color);
+  /* 3:1 against both the well and the body, so field edges stay legible */
+  --ifm-color-emphasis-400: hsl(229, 5%, 48%);
+}
+/* The floating label straddles the field's top edge, so it blends into both */
+:root[data-theme='dark'] .playgroundPreview :global(.rt-TextFieldLabel) {
+  background: linear-gradient(
+    var(--pg-preview-bg) 50%,
+    var(--ifm-color-emphasis-100) 50%
+  );
+}
 :root .playgroundPreview {
   --ifm-heading-margin-bottom: 0.3ex;
   --ifm-heading-font-weight: 500;
@@ -405,6 +421,14 @@ div.playgroundTextEdit > .playgroundHeader.subtabs {
   border-radius: calc(var(--ifm-global-radius) * 0.75);
   padding: 0.25rem 0.5rem;
   margin-bottom: 0.3rem;
+}
+/* Dark: cards lift off the well-colored column, as light mode lifts white
+   cards off a grey one */
+:root[data-theme='dark']
+  .playgroundPreview
+  :global(.boardColumn)
+  :global(.listItem) {
+  background: hsl(229, 7%, 22%);
 }
 .playgroundPreview :global(.boardColumn) button {
   margin: 0;
@@ -558,6 +582,24 @@ div.fixtureJson {
 .diffLabels > span {
   position: absolute;
   left: 0.75rem;
+}
+
+/* Live Preview label: a drawn dot renders the same on every OS, unlike 🔴 */
+.liveLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+}
+.liveLabel::before {
+  content: '';
+  width: 0.55em;
+  height: 0.55em;
+  border-radius: 50%;
+  flex: none;
+  /* optical nudge: the ring's outer edge lines up with the text inset */
+  margin-inline-start: 3px;
+  background: #ff5f56;
+  box-shadow: 0 0 0 3px rgba(255, 95, 86, 0.2);
 }
 
 /* Preview header badge (Playground `renderCount`) */
