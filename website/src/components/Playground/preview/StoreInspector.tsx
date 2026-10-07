@@ -1,27 +1,32 @@
-import { StateContext } from '@data-client/react';
 import clsx from 'clsx';
-import React, { useContext, useDeferredValue, memo, useMemo } from 'react';
+import React, { useDeferredValue, useState, memo } from 'react';
 
 import { Reveal, useLayoutMotion } from '../../motion';
 import styles from '../styles.module.css';
-import Tree from './Tree';
+import type SchemaRegistry from './store/schemaRegistry';
+import StorePanel from './store/StorePanel';
 
 function StoreInspector({
   toggle,
   selectedValue,
+  registry,
 }: {
   selectedValue: 'y' | 'n';
   toggle: React.MouseEventHandler<HTMLDivElement>;
+  registry: SchemaRegistry;
 }) {
   const isSelected = selectedValue === 'y';
-  // the empty drawer starts moving at once; the tree renders a frame later
-  const showTree = useDeferredValue(isSelected);
+  // the empty drawer starts moving at once; the tree renders a frame later,
+  // then stays, so reopening finds the Store as it was left
+  const ready = useDeferredValue(isSelected);
+  const [showTree, setShowTree] = useState(false);
+  if (ready && !showTree) setShowTree(true);
   return (
     <>
       <StoreToggle onClick={toggle} open={isSelected} />
       <Reveal show={isSelected} className={styles.storePanel}>
         {showTree ?
-          <StoreTreeM />
+          <StorePanel registry={registry} />
         : null}
       </Reveal>
     </>
@@ -53,13 +58,3 @@ export function StoreToggle({
     </div>
   );
 }
-
-function StoreTree() {
-  const state = useContext(StateContext);
-  const simplifiedState = useMemo(() => {
-    const { optimistic, ...ret } = state;
-    return ret;
-  }, [state]);
-  return <Tree value={simplifiedState} />;
-}
-const StoreTreeM = memo(StoreTree);

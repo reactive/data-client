@@ -6,6 +6,7 @@ import { ResetButton } from './PreviewError';
 import PreviewWrapper from './PreviewWrapper';
 import { useRenderCount } from './RenderCount';
 import { previewScope } from './scope';
+import SchemaRegistry from './store/schemaRegistry';
 import transformCode from './transformCode';
 import { usePlaygroundConsoleDemotion } from './usePlaygroundConsoleDemotion';
 import { usePreviewReset } from './usePreviewReset';
@@ -28,6 +29,8 @@ export default function LivePreview<T>({
   usePlaygroundConsoleDemotion();
   const { onCommit, badge } = useRenderCount(renderCount);
   const { key, restored, reset, ...handlers } = usePreviewReset(code);
+  // outlives remounts, so a restored store keeps its schemas
+  const registry = useMemo(() => new SchemaRegistry(), []);
   const getInterceptorData = useMemo(
     () =>
       restored ?
@@ -61,6 +64,7 @@ export default function LivePreview<T>({
           getInitialInterceptorData={getInterceptorData}
           onCommit={onCommit}
           initialState={restored?.state}
+          registry={registry}
           onReset={reset}
           {...handlers}
         />
