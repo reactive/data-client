@@ -182,6 +182,9 @@ git -C "$repo" update-ref refs/heads/master "$real_master"
 # gh-pages branches never build, even if website files differ.
 expect skip "gh-pages branch" gh-pages-bench
 
+# Merge queue branches never build: each PR was previewed on its own branch.
+expect skip "merge queue branch" gh-readonly-queue/master/pr-1-0123456789abcdef0123456789abcdef01234567
+
 # Last production deploy is outside the clone (shallow history): the tip
 # alone can't prove earlier commits in the push left the site unchanged.
 git -C "$repo" checkout master >/dev/null 2>&1

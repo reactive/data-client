@@ -12,23 +12,26 @@ on:
       - '.cursor/hooks/**'
       - 'scripts/agent-rules.mjs'
       - '.github/workflows/agent-rules.yml'
+      - '.github/workflows/paths-gate.yml'
   pull_request:
     branches:
       - master
-    paths:
-      - '**/.cursor/rules/**'
-      - '**/.claude/rules/**'
-      - '.claude/skills'
-      - '.cursor/hooks/**'
-      - 'scripts/agent-rules.mjs'
-      - '.github/workflows/agent-rules.yml'
+  # Required check: no `paths` (see paths-gate.yml)
+  merge_group:
 
 concurrency:
   group: agent-rules-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
+  gate:
+    if: github.event_name != 'push'
+    uses: ./.github/workflows/paths-gate.yml
+
   check:
+    name: agent-rules
+    needs: gate
+    if: ${{ !cancelled() && needs.gate.outputs.relevant != 'false' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

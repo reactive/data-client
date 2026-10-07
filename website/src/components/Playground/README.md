@@ -125,7 +125,10 @@ DesignSystem/       components injected into preview scope
 - Each playground gets its own `DataProvider` store (`MockResolver` serves
   `fixtures`); `memo(Preview)` keeps it from re-rendering on code edits.
 - Store inspector open state persists per `groupId` via tab storage and
-  avoids scroll jumps; in `row` layout it replaces the result while open.
+  avoids scroll jumps; in `row` layout it covers the result while open (the
+  result stays rendered underneath, `inert`). It opens and closes as a
+  drawer (`../motion`: the toggle glides, the panel `Reveal`s); the panel's
+  contents render a frame after it starts moving (`useDeferredValue`).
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
   count in the preview header (written to the DOM, so counting adds no commits).
   `website/profiling-plugin.js` replaces `react-dom/client` with React's
@@ -133,10 +136,23 @@ DesignSystem/       components injected into preview scope
   stays hidden if that ever stops working. `website/profiling-loader.js` pins
   the build's DevTools check off, so only `<Profiler>` subtrees are ever timed
   (otherwise DevTools users would profile every page).
+- Reset: the header icon and the button under a render error remount the
+  preview with a fresh store (`usePreviewReset`). When a render error follows an
+  edit (e.g. a changed `Entity.key` leaves old data unreadable), the preview
+  retries once with a fresh store and restores the old store if the error
+  persists. It retries again only after the preview has rendered cleanly for a
+  second, so typing through a typo costs at most one retry. Compile and
+  evaluation errors never reset.
+- Errors show in one `ErrorPanel` card (`Playground/ErrorPanel.tsx`) labeled by the stage that failed: amber
+  "Compile error" for react-live's `SyntaxError`s (the code never ran), red
+  "Runtime error" for anything thrown while running, and "Network error" for
+  `ResetableErrorBoundary`.
 - Third-party console noise is demoted only while previews are mounted
   (`usePlaygroundConsoleDemotion`); never add first-party matchers.
 
 ## Tests
 
 `yarn test --selectProjects ReactDOM --testPathPatterns website/src/components/Playground`
-(CI persists only this directory of the website for these tests.)
+(CI persists only this directory of the website for these tests, without the
+website's dependencies. `react-live` is also a root devDependency so the
+`PreviewError` test can pin the react-live behavior it relies on.)

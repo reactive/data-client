@@ -12,6 +12,7 @@
     "setUpdaters": 66031,
     "redux": 12986,
     "setInvalidate": 7325,
+    "fixtures": 76837,
     "patheq": 934395
   },
   "typescript": "7.0.2"

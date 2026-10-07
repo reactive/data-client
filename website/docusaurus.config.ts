@@ -7,6 +7,7 @@ import path from 'path';
 import { themes } from 'prism-react-renderer';
 
 import gqlRedirects from './gqlRedirects';
+import { motionCss } from './src/components/motion/css';
 import versions from './versions.json';
 
 // Keep Monaco CDN preload hashes in sync with the installed monaco-editor package.
@@ -32,7 +33,10 @@ const vueDocs = frameworkDocs.generate('vue');
 if (isDev) frameworkDocs.watch('vue');
 const vueInstance = frameworkInstance('vue');
 // Shared by light and dark so SSR (`theme`) and the client (`darkTheme`)
-// agree. Transparent plain background lets `.theme-code-block` own the color.
+// agree; color mode isn't known at build time, so SSR always emits `theme`.
+// Transparent plain background lets the container own the color
+// (`.theme-code-block`, and the Playground editor via `usePrismTheme()`); a
+// solid color on `<pre>` would cover the dark container until hydration.
 const prismPalenight = {
   ...themes.palenight,
   plain: { ...themes.palenight.plain, backgroundColor: 'transparent' },
@@ -296,6 +300,13 @@ const config: Config = {
     ],
   ],
   plugins: [
+    // global motion styles (spring tokens, <Reveal>): website/src/components/motion/css.ts
+    () => ({
+      name: 'motion-css',
+      injectHtmlTags: () => ({
+        headTags: [{ tagName: 'style', innerHTML: motionCss() }],
+      }),
+    }),
     [
       '@docusaurus/plugin-content-docs',
       {
@@ -459,11 +470,6 @@ const config: Config = {
       disableSwitch: false,
       respectPrefersColorScheme: true,
     },
-    // Color mode isn't known at build time, so SSR always emits `theme`.
-    // Both modes use palenight with a transparent plain background (keeping
-    // palenight's text color) so `.theme-code-block` is the only thing that
-    // paints the background — a solid color on `<pre>` would cover the dark
-    // div until hydration.
     prism: {
       additionalLanguages: ['bash', /*'diff', */ 'json'],
       theme: prismPalenight,

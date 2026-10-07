@@ -9,7 +9,7 @@ export interface SuccessFixtureEndpoint<
   E extends EndpointInterface & { update?: Updater } = EndpointInterface,
 > {
   readonly endpoint: E;
-  readonly args: Parameters<E>;
+  readonly args: Readonly<Parameters<E>>;
   readonly response:
     ResolveType<E> | ((...args: Parameters<E>) => ResolveType<E>);
   readonly error?: false;
@@ -84,7 +84,7 @@ export interface ErrorFixtureEndpoint<
   E extends EndpointInterface & { update?: Updater } = EndpointInterface,
 > {
   readonly endpoint: E;
-  readonly args: Parameters<E>;
+  readonly args: Readonly<Parameters<E>>;
   readonly response: any;
   readonly error: true;
   /** Number of miliseconds to wait before resolving */

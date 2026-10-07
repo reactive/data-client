@@ -10,7 +10,7 @@ on:
       - master
     # Inputs of scripts/copywebsitetypes.sh, website/framework-docs/skillReferences.mjs
     # and checkExamples.mjs
-    paths: &paths
+    paths:
       - 'packages/**'
       - '!packages/**/__tests__/**'
       - '!packages/*/typescript-tests/**'
@@ -33,10 +33,12 @@ on:
       - 'package.json'
       - 'yarn.lock'
       - '.github/workflows/regenerate.yml'
+      - '.github/workflows/paths-gate.yml'
   pull_request:
     branches:
       - master
-    paths: *paths
+  # Required check: no `paths` (see paths-gate.yml)
+  merge_group:
 
 # PRs cancel superseded runs. Push runs get their own group, so master never
 # shows a cancelled (red) run.
@@ -47,9 +49,18 @@ concurrency:
 permissions: {}
 
 jobs:
+  gate:
+    if: github.event_name != 'push'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/paths-gate.yml
+
   # Runs dependency code (install scripts, generators), so it gets a read-only
   # token; only the commit job, on a fresh runner, can write.
   generate:
+    name: regenerate
+    needs: gate
+    if: ${{ !cancelled() && needs.gate.outputs.relevant != 'false' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read

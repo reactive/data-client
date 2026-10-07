@@ -4,7 +4,7 @@ import { useQuery, useController, useSuspense } from '@data-client/react';
 import { DataProvider as NextDataProvider } from '@data-client/react/nextjs';
 import { DataProvider as ReduxDataProvider } from '@data-client/react/redux';
 import { Invalidate } from '@data-client/rest';
-import { renderDataHook } from '@data-client/test';
+import { act, renderDataHook, renderHook } from '@data-client/test';
 
 import {
   queryRemainingTodos,
@@ -43,4 +43,15 @@ function useTest() {
   });
 }
 
-export { NextDataProvider, ReduxDataProvider, renderDataHook };
+// @data-client/test's act and renderHook stay typed (not any) on every supported TypeScript
+async function testHooks() {
+  const { result } = renderHook(() => 5);
+  // @ts-expect-error current is a number
+  const title: string = result.current;
+  // @ts-expect-error act with a sync callback returns void
+  const count: number = act(() => undefined);
+  const resolved: number = await act(() => Promise.resolve(5));
+  return [title, count, resolved];
+}
+
+export { NextDataProvider, ReduxDataProvider, renderDataHook, testHooks };

@@ -31,6 +31,8 @@ skip() {
 }
 
 [[ "${VERCEL_GIT_COMMIT_REF:-}" == gh-pages* ]] && skip "gh-pages branch"
+# The merge queue tests a PR already previewed on its own branch
+[[ "${VERCEL_GIT_COMMIT_REF:-}" == gh-readonly-queue/* ]] && skip "merge queue branch"
 
 cd "$(git rev-parse --show-toplevel)" || build "cannot find repo root"
 
