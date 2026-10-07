@@ -146,4 +146,6 @@ DesignSystem/       components injected into preview scope
 ## Tests
 
 `yarn test --selectProjects ReactDOM --testPathPatterns website/src/components/Playground`
-(CI persists only this directory of the website for these tests.)
+(CI persists only this directory of the website for these tests, without the
+website's dependencies. `react-live` is also a root devDependency so the
+`PreviewError` test can pin the react-live behavior it relies on.)
