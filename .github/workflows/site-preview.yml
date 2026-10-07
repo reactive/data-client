@@ -1,6 +1,7 @@
 name: website
 on:
-  pull_request:
+  # Refreshes the webpack cache that PRs restore from
+  push:
     branches:
       - master
     # Published site only. Keep in sync with website/scripts/vercel-ignore.sh.
@@ -10,16 +11,13 @@ on:
       - 'docs/rest/**'
       - 'docs/graphql/**'
       - '.github/workflows/site-preview.yml'
-  # Refreshes the webpack cache that PRs restore from
-  push:
+      - '.github/workflows/paths-gate.yml'
+  pull_request:
     branches:
       - master
-    paths:
-      - 'website/**'
-      - 'docs/core/**'
-      - 'docs/rest/**'
-      - 'docs/graphql/**'
-      - '.github/workflows/site-preview.yml'
+  # Required check: no `paths` (see paths-gate.yml). Vercel skips queue
+  # branches, so this is the queue's only build of the merged site.
+  merge_group:
 
 # PRs cancel superseded runs. Push runs get their own group, so master never
 # shows a cancelled (red) run.
@@ -28,8 +26,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  gate:
+    # push already filters by `paths`
+    if: github.event_name != 'push'
+    uses: ./.github/workflows/paths-gate.yml
+
   # One job so the install happens once: the typecheck is short next to it
   build:
+    name: website
+    needs: gate
+    # Fail open: runs unless the gate (skipped on push) says nothing changed
+    if: ${{ !cancelled() && needs.gate.outputs.relevant != 'false' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
