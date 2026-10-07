@@ -47,7 +47,8 @@ export function springAt(
 
 /** Frame rate keyframes and `linear()` easings are sampled at */
 export const SAMPLE_RATE = 60;
-const MAX_SECONDS = 3;
+/** Safety cap for springs that barely settle (bounce near 1), in durations */
+const MAX_DURATIONS = 12;
 
 /**
  * Offsets sampled at SAMPLE_RATE until the spring rests within `precision`
@@ -59,7 +60,8 @@ export function sampleSpring(
   precision: number,
 ): number[] {
   const samples = [start.offset];
-  for (let frame = 1; frame < MAX_SECONDS * SAMPLE_RATE; frame++) {
+  const maxFrames = MAX_DURATIONS * spring.duration * SAMPLE_RATE;
+  for (let frame = 1; frame < maxFrames; frame++) {
     const { offset, velocity } = springAt(spring, start, frame / SAMPLE_RATE);
     if (
       Math.abs(offset) < precision &&

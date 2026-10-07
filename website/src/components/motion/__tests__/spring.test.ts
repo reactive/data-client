@@ -52,6 +52,12 @@ describe('sampleSpring', () => {
     expect(seconds).toBeLessThan(smooth.duration * 2);
   });
 
+  it('lets a long spring settle instead of snapping to the end', () => {
+    const slow = { duration: 10, bounce: 0 };
+    const samples = sampleSpring(slow, { offset: 300, velocity: 0 }, 0.25);
+    expect(Math.abs(samples.at(-2)!)).toBeLessThan(0.5);
+  });
+
   it('is a single frame when already at rest', () => {
     expect(sampleSpring(smooth, { offset: 0, velocity: 0 }, 0.25)).toEqual([
       0, 0,

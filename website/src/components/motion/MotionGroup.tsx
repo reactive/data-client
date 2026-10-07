@@ -15,9 +15,8 @@ import { springs } from './tokens';
 
 /** How a member enters and leaves; absent for members that only move */
 interface Presence {
-  /** Leaving: slides out, then `onExited` should unmount it */
+  /** Leaving: slides out past the end of its container; its owner unmounts it */
   exiting: boolean;
-  onExited: () => void;
 }
 type Members = Map<HTMLElement, RefObject<Presence | undefined>>;
 
@@ -37,7 +36,6 @@ interface Box {
 
 interface Move {
   el: HTMLElement;
-  presence?: Presence;
   from: Point;
   to: Point;
   velocity?: Point;
@@ -94,10 +92,7 @@ export default class MotionGroup extends Component<Props> {
   ) {
     if (!snapshots) return;
     if (prefersReducedMotion()) {
-      for (const [el, { current }] of this.members) {
-        stop(el);
-        if (current?.exiting) current.onExited();
-      }
+      for (const el of this.members.keys()) stop(el);
       return;
     }
     const { spring = springs.smooth } = this.props;
@@ -119,19 +114,12 @@ export default class MotionGroup extends Component<Props> {
       const at = parentRelative(el);
       moves.push({
         el,
-        presence,
         from: { x: before.at.x - at.x, y: before.at.y - at.y },
         to: presence?.exiting ? exitOffset(el) : ORIGIN,
         velocity: before.velocity,
       });
     }
-    for (const { el, presence, ...path } of moves) {
-      const animation = glide(el, spring, path);
-      if (presence?.exiting) {
-        if (animation) animation.onfinish = presence.onExited;
-        else presence.onExited();
-      }
-    }
+    for (const { el, ...path } of moves) glide(el, spring, path);
   }
 
   render() {

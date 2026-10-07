@@ -62,10 +62,17 @@ export function velocityOf(el: Element): Point {
   return { x, y };
 }
 
-/** The glide moving `el` right now, if any */
-export function activeGlide(el: Element): Animation | undefined {
+/**
+ * Resolves once nothing moves `el`: now if it is still, else when its glide
+ * finishes. A glide cancelled for another (a retarget) hands over to it.
+ */
+export function settled(el: Element): Promise<void> {
   const animation = glides.get(el)?.animation;
-  return animation?.playState === 'running' ? animation : undefined;
+  if (animation?.playState !== 'running') return Promise.resolve();
+  return animation.finished.then(
+    () => undefined,
+    () => settled(el),
+  );
 }
 
 /** Ends `el`'s glide, snapping it back to its layout position */

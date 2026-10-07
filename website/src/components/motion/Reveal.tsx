@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { activeGlide } from './glide';
+import { settled } from './glide';
 import { useMember } from './MotionGroup';
 
 /**
@@ -27,10 +27,7 @@ export default function Reveal({
   // keep showing what it had while it slides out
   const shown = useRef(children);
   if (show) shown.current = children;
-  const memberRef = useMember({
-    exiting: !show,
-    onExited: () => setMounted(false),
-  });
+  const memberRef = useMember({ exiting: !show });
   const el = useRef<HTMLDivElement | null>(null);
   const ref = useCallback(
     (node: HTMLDivElement | null) => {
@@ -39,19 +36,12 @@ export default function Reveal({
     },
     [memberRef],
   );
-  // Leave on its own when no group slides it out (none around it, or its
-  // layoutDependency didn't change with `show`): now if it is still, or once
-  // whatever glide is moving it settles, so it never stays stuck on screen
+  // leaves once it comes to rest: after the group slides it out, or at once
+  // if nothing moves it (no group, or one that ignored this change)
   useEffect(() => {
-    if (show) return;
+    if (show || !el.current) return;
     let reopened = false;
-    const leave = () => reopened || setMounted(false);
-    const moving = el.current && activeGlide(el.current);
-    if (moving)
-      moving.finished.then(leave, () => {
-        // cancelled: the group took over and moves it next
-      });
-    else leave();
+    settled(el.current).then(() => reopened || setMounted(false));
     return () => {
       reopened = true;
     };

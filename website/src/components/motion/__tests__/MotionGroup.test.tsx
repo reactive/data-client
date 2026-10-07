@@ -24,36 +24,48 @@ beforeEach(() => {
     .mockReturnValue(PARENT_WIDTH);
   HTMLElement.prototype.animate = function (keyframes: any) {
     let settle!: (finished: boolean) => void;
+    const finished = new Promise<Animation>((resolve, reject) => {
+      settle = done =>
+        done ? resolve(animation as Animation) : reject(new Error());
+    });
+    // like a browser's, a cancelled glide's rejection is fine to ignore
+    finished.catch(() => undefined);
     const animation: FakeAnimation = {
       playState: 'running',
       currentTime: null,
+      finished,
       cancel: jest.fn(() => {
         animation.playState = 'idle';
         settle(false);
-      }),
-      onfinish: null,
-      finished: new Promise<Animation>((resolve, reject) => {
-        settle = finished =>
-          finished ? resolve(animation as Animation) : reject(new Error());
       }),
       finish: () => {
         animation.playState = 'finished';
         settle(true);
       },
     };
-    // like a browser's, a cancelled glide's rejection is fine to ignore
-    animation.finished?.catch(() => undefined);
     animations.push({ el: this, keyframes, animation });
     return animation as unknown as Animation;
   };
 });
 afterEach(() => {
   jest.restoreAllMocks();
+  delete (window as any).matchMedia;
   delete (HTMLElement.prototype as any).animate;
 });
 
 function Handle() {
   return <div data-testid="handle" ref={useLayoutMotion()} />;
+}
+/** Reveals leave once at rest, a microtask after the commit */
+const settledReveals = () => act(() => Promise.resolve());
+
+// a group that animates opening, but closing doesn't change layoutDependency
+function OpensOnly({ open, opened }: { open: boolean; opened: number }) {
+  return (
+    <MotionGroup layoutDependency={opened}>
+      <Reveal show={open}>panel</Reveal>
+    </MotionGroup>
+  );
 }
 function Drawer({ open, label = 'panel' }: { open: boolean; label?: string }) {
   return (
@@ -79,14 +91,14 @@ it('slides a revealed element in from the end of its container', () => {
   expect(enter?.keyframes.at(-1)?.translate).toBe('0px 0px');
 });
 
-it('keeps an exiting element, with its last content, until it slides out', () => {
+it('keeps an exiting element, with its last content, until it slides out', async () => {
   const { rerender } = render(<Drawer open label="first" />);
   rerender(<Drawer open={false} label="second" />);
   const exit = animations.find(({ el }) => el.textContent === 'first');
   expect(exit?.keyframes.at(-1)?.translate).toBe(`${PARENT_WIDTH}px 0px`);
   expect((exit?.el as HTMLElement).style.position).toBe('absolute');
 
-  act(() => (exit?.animation.onfinish as any)());
+  await act(async () => exit?.animation.finish?.());
   expect(screen.queryByText('first')).toBeNull();
 });
 
@@ -106,31 +118,26 @@ it('only measures when layoutDependency changes', () => {
   expect(rect).not.toHaveBeenCalled();
 });
 
-it('lands in place when the user prefers reduced motion', () => {
+it('lands in place when the user prefers reduced motion', async () => {
   window.matchMedia = jest.fn().mockReturnValue({ matches: true });
   const { rerender } = render(<Drawer open />);
   rerender(<Drawer open={false} />);
   expect(animations).toEqual([]);
+  await settledReveals();
   expect(screen.queryByText('panel')).toBeNull();
-  delete (window as any).matchMedia;
 });
 
-it('leaves on its own when no group slides it out', () => {
+it('leaves on its own when no group slides it out', async () => {
   const { rerender } = render(<Reveal show>alone</Reveal>);
   rerender(<Reveal show={false}>alone</Reveal>);
+  await settledReveals();
   expect(screen.queryByText('alone')).toBeNull();
 });
 
-it('leaves on its own when the group ignores the change', () => {
-  function Mismatched({ show }: { show: boolean }) {
-    return (
-      <MotionGroup layoutDependency="constant">
-        <Reveal show={show}>panel</Reveal>
-      </MotionGroup>
-    );
-  }
-  const { rerender } = render(<Mismatched show />);
-  rerender(<Mismatched show={false} />);
+it('leaves on its own when the group ignores the change', async () => {
+  const { rerender } = render(<OpensOnly open opened={0} />);
+  rerender(<OpensOnly open={false} opened={0} />);
+  await settledReveals();
   expect(screen.queryByText('panel')).toBeNull();
 });
 
@@ -167,10 +174,11 @@ it('slides along a column container vertically', () => {
   expect(enter?.keyframes[0].translate).toBe('0px 200px');
 });
 
-it('lands in place without Web Animations', () => {
+it('lands in place without Web Animations', async () => {
   delete (HTMLElement.prototype as any).animate;
   const { rerender } = render(<Drawer open />);
   rerender(<Drawer open={false} />);
+  await settledReveals();
   expect(screen.queryByText('panel')).toBeNull();
 });
 
@@ -237,18 +245,9 @@ it('stops glides in flight when reduced motion turns on', () => {
   window.matchMedia = jest.fn().mockReturnValue({ matches: true });
   rerender(<Drawer open={false} />);
   expect(enter?.animation.cancel).toHaveBeenCalled();
-  delete (window as any).matchMedia;
 });
 
 it('leaves once its entrance settles when the group ignores the close', async () => {
-  // the group only animates opening; closing doesn't change layoutDependency
-  function OpensOnly({ open, opened }: { open: boolean; opened: number }) {
-    return (
-      <MotionGroup layoutDependency={opened}>
-        <Reveal show={open}>panel</Reveal>
-      </MotionGroup>
-    );
-  }
   const { rerender } = render(<OpensOnly open={false} opened={0} />);
   rerender(<OpensOnly open opened={1} />);
   const enter = animations.find(({ el }) => el === screen.getByText('panel'));
@@ -259,13 +258,6 @@ it('leaves once its entrance settles when the group ignores the close', async ()
 });
 
 it('stays when reopened before a settling glide finishes', async () => {
-  function OpensOnly({ open, opened }: { open: boolean; opened: number }) {
-    return (
-      <MotionGroup layoutDependency={opened}>
-        <Reveal show={open}>panel</Reveal>
-      </MotionGroup>
-    );
-  }
   const { rerender } = render(<OpensOnly open={false} opened={0} />);
   rerender(<OpensOnly open opened={1} />);
   const enter = animations.find(({ el }) => el === screen.getByText('panel'));
