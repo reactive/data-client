@@ -43,12 +43,14 @@ export default function EditorSurface({
   const colFlags = useRef(documents.map(({ col }) => col)).current;
   const handleTabSwitch = useCallback(
     (index: number) => {
-      setClosed(closed =>
-        closed.map((previous, documentIndex) => {
+      setClosed(closed => {
+        const next = closed.map((previous, documentIndex) => {
           if (colFlags[documentIndex]) return previous;
           return documentIndex !== index;
-        }),
-      );
+        });
+        // keep identity when already selected so focusing it doesn't re-render
+        return next.every((value, i) => value === closed[i]) ? closed : next;
+      });
     },
     [colFlags],
   );
