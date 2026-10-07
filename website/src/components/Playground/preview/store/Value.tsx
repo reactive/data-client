@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import React, { useState } from 'react';
 
 import { entityId } from './model';
-import type { VNode } from './refs';
+import { CIRCULAR, type VNode } from './refs';
 import styles from './store.module.css';
 import { useStoreUI } from './StoreUI';
 
@@ -173,6 +173,7 @@ function BlockList({ node }: { node: Extract<VNode, { t: 'arr' }> }) {
 }
 
 function Primitive({ value, name }: { value: unknown; name?: string }) {
+  if (value === CIRCULAR) return <span className={styles.dim}>[Circular]</span>;
   if (value === null || value === undefined)
     return <span className={styles.null}>{String(value)}</span>;
   if (typeof value === 'string')

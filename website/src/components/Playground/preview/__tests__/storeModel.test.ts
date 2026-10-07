@@ -3,7 +3,7 @@ import { Collection, Entity, schema } from '@data-client/endpoint';
 import { actionTypes, type State } from '@data-client/react';
 
 import { buildModel, changedIds, entityId, splitKey } from '../store/model';
-import { plain, resolve, resolveRow } from '../store/refs';
+import { CIRCULAR, plain, resolve, resolveRow } from '../store/refs';
 import SchemaRegistry from '../store/schemaRegistry';
 
 class User extends Entity {
@@ -118,6 +118,43 @@ describe('store model', () => {
     expect((plain(error) as any).entries[1][1]).toEqual({
       t: 'val',
       v: 'boom',
+    });
+  });
+
+  it('keeps own error fields once and stops at cycles', () => {
+    const error = Object.assign(new Error('boom'), { name: 'HttpError' });
+    const keys = (plain(error) as any).entries.map(([k]: any) => k);
+    expect(keys).toEqual(['name', 'message', 'stack']);
+    const post: any = { id: '1', tags: [] };
+    post.author = { id: '2', posts: [post] };
+    post.tags.push(post.tags);
+    const shared = { n: 1 };
+    expect(plain({ post, a: shared, b: shared })).toEqual({
+      t: 'obj',
+      entries: [
+        [
+          'post',
+          {
+            t: 'obj',
+            entries: [
+              ['id', { t: 'val', v: '1' }],
+              ['tags', { t: 'arr', items: [{ t: 'val', v: CIRCULAR }] }],
+              [
+                'author',
+                {
+                  t: 'obj',
+                  entries: [
+                    ['id', { t: 'val', v: '2' }],
+                    ['posts', { t: 'arr', items: [{ t: 'val', v: CIRCULAR }] }],
+                  ],
+                },
+              ],
+            ],
+          },
+        ],
+        ['a', { t: 'obj', entries: [['n', { t: 'val', v: 1 }]] }],
+        ['b', { t: 'obj', entries: [['n', { t: 'val', v: 1 }]] }],
+      ],
     });
   });
 

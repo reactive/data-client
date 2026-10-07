@@ -115,25 +115,34 @@ export function resolveRow(row: unknown, table: any): VNode {
   return plain(row);
 }
 
-export function plain(value: unknown): VNode {
-  if (Array.isArray(value)) return { t: 'arr', items: value.map(plain) };
-  // name, message and stack are not enumerable
-  if (value instanceof Error)
-    return {
-      t: 'obj',
-      entries: [
-        ['name', plain(value.name)],
-        ['message', plain(value.message)],
-        ...Object.entries(value).map(([k, v]) => [k, plain(v)] as const),
-        ['stack', plain(value.stack)],
-      ],
-    };
-  if (value && typeof value === 'object' && !(value instanceof Date))
-    return {
-      t: 'obj',
-      entries: Object.entries(value).map(([k, v]) => [k, plain(v)]),
-    };
-  return { t: 'val', v: value };
+/** Stands in for an object that contains itself (denormalized cycles) */
+export const CIRCULAR = Symbol('circular');
+
+export function plain(value: unknown, ancestors = new Set<object>()): VNode {
+  if (!value || typeof value !== 'object' || value instanceof Date)
+    return { t: 'val', v: value };
+  if (ancestors.has(value)) return { t: 'val', v: CIRCULAR };
+  ancestors.add(value);
+  const child = (v: unknown) => plain(v, ancestors);
+  let node: VNode;
+  if (Array.isArray(value)) node = { t: 'arr', items: value.map(child) };
+  else {
+    let entries = Object.entries(value);
+    // an Error's name, message and stack are usually not enumerable; a Map
+    // keeps each key once, in first-seen order
+    if (value instanceof Error)
+      entries = [
+        ...new Map([
+          ['name', value.name],
+          ['message', value.message],
+          ...entries,
+          ['stack', value.stack],
+        ]),
+      ];
+    node = { t: 'obj', entries: entries.map(([k, v]) => [k, child(v)]) };
+  }
+  ancestors.delete(value);
+  return node;
 }
 
 export function forEachRef(
