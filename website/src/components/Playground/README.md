@@ -133,10 +133,23 @@ DesignSystem/       components injected into preview scope
   stays hidden if that ever stops working. `website/profiling-loader.js` pins
   the build's DevTools check off, so only `<Profiler>` subtrees are ever timed
   (otherwise DevTools users would profile every page).
+- Reset: the header icon and the button under a render error remount the
+  preview with a fresh store (`usePreviewReset`). When a render error follows an
+  edit (e.g. a changed `Entity.key` leaves old data unreadable), the preview
+  retries once with a fresh store and restores the old store if the error
+  persists. It retries again only after the preview has rendered cleanly for a
+  second, so typing through a typo costs at most one retry. Compile and
+  evaluation errors never reset.
+- Errors show in one `ErrorPanel` card (`Playground/ErrorPanel.tsx`) labeled by the stage that failed: amber
+  "Compile error" for react-live's `SyntaxError`s (the code never ran), red
+  "Runtime error" for anything thrown while running, and "Network error" for
+  `ResetableErrorBoundary`.
 - Third-party console noise is demoted only while previews are mounted
   (`usePlaygroundConsoleDemotion`); never add first-party matchers.
 
 ## Tests
 
 `yarn test --selectProjects ReactDOM --testPathPatterns website/src/components/Playground`
-(CI persists only this directory of the website for these tests.)
+(CI persists only this directory of the website for these tests, without the
+website's dependencies. `react-live` is also a root devDependency so the
+`PreviewError` test can pin the react-live behavior it relies on.)
