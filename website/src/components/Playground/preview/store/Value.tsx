@@ -1,13 +1,16 @@
 import clsx from 'clsx';
 import React, { useState } from 'react';
 
-import { entityId } from './model';
+import { entityId, prettyPk } from './model';
+import { useNav } from './nav';
 import { CIRCULAR, type VNode } from './refs';
 import styles from './store.module.css';
 import { useStoreUI } from './StoreUI';
 
 /** Items shown before a "N more" button in expanded values */
 const BLOCK_LIMIT = 20;
+/** Refs listed in a record before a count chip that dives into all of them */
+export const RECORD_REFS = 10;
 /** Items shown inline (table cells, tree previews) before "+N" */
 const INLINE_LIMIT = 3;
 
@@ -21,13 +24,15 @@ export function RefChip({
   className?: string;
 }) {
   const { reveal } = useStoreUI();
+  const nav = useNav();
   return (
     <button
       type="button"
       className={clsx(styles.ref, className)}
       onClick={e => {
         e.stopPropagation();
-        reveal(id);
+        if (nav) nav.push({ kind: 'record', id });
+        else reveal(id);
       }}
     >
       {label}
@@ -45,6 +50,103 @@ function EntityRef({ entityKey, pk }: { entityKey: string; pk: string }) {
         </>
       }
     />
+  );
+}
+
+/** Dives into a list of rows: `+79`, or `Comment · 80` when none fit */
+export function CountChip({
+  ids,
+  label,
+  children,
+}: {
+  ids: readonly string[];
+  /** Breadcrumb for the list */
+  label: string;
+  children: React.ReactNode;
+}) {
+  const nav = useNav();
+  return (
+    <button
+      type="button"
+      className={clsx(styles.ref, styles.countRef)}
+      onClick={e => {
+        e.stopPropagation();
+        nav?.push({ kind: 'list', ids, label });
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+/** Rough rendered width of a ref chip, in px */
+export const chipWidth = (key: string, pk: string) =>
+  (key.length + 1 + prettyPk(pk).length) * 6.6 + 14;
+/** Room for a `+79` chip and the separators around it */
+const COUNT_WIDTH = 44;
+
+type RefNode = Extract<VNode, { t: 'ref' }>;
+const isRefList = (
+  node: VNode,
+): node is { t: 'arr'; items: readonly RefNode[] } =>
+  node.t === 'arr' &&
+  node.items.length > 0 &&
+  node.items.every(i => i.t === 'ref');
+const refIds = (items: readonly RefNode[]) =>
+  items.map(i => entityId(i.key, i.pk));
+
+/** Table cell: lists of refs show the chips that fit in `width`, then a
+ * count chip for the rest */
+export function Cell({
+  node,
+  name,
+  width,
+  owner,
+}: {
+  node: VNode;
+  name: string;
+  width: number;
+  /** Row label, for the breadcrumb of a list it dives into */
+  owner: string;
+}) {
+  if (!isRefList(node)) return <Inline node={node} name={name} />;
+  const { items } = node;
+  let used = 16;
+  let fit = 0;
+  for (const item of items) {
+    const w = chipWidth(item.key, item.pk) + 8;
+    const room = fit + 1 < items.length ? width - COUNT_WIDTH : width;
+    if (used + w > room) break;
+    used += w;
+    fit++;
+  }
+  const label = `${owner} ${name}`;
+  if (!fit)
+    return (
+      <CountChip ids={refIds(items)} label={label}>
+        {items[0].key} · {items.length}
+      </CountChip>
+    );
+  const rest = items.length - fit;
+  return (
+    <span className={styles.inlineList}>
+      <span className={styles.dim}>[</span>
+      {items.slice(0, fit).map((item, i) => (
+        <React.Fragment key={i}>
+          {i > 0 && <span className={styles.dim}>, </span>}
+          <Inline node={item} />
+        </React.Fragment>
+      ))}
+      {rest > 0 && (
+        <>
+          <span className={styles.dim}>, </span>
+          <CountChip ids={refIds(items)} label={label}>
+            +{rest}
+          </CountChip>
+        </>
+      )}
+      <span className={styles.dim}>]</span>
+    </span>
   );
 }
 
@@ -115,7 +217,7 @@ export function Block({ node, name }: { node: VNode; name?: string }) {
       </div>
     );
   }
-  if (node.t === 'arr') return <BlockList node={node} />;
+  if (node.t === 'arr') return <BlockList node={node} name={name} />;
   return <Inline node={node} name={name} />;
 }
 
@@ -134,8 +236,27 @@ export function Field({ name, node }: { name: string; node: VNode }) {
   );
 }
 
-function BlockList({ node }: { node: Extract<VNode, { t: 'arr' }> }) {
+function BlockList({
+  node,
+  name = 'items',
+}: {
+  node: Extract<VNode, { t: 'arr' }>;
+  name?: string;
+}) {
   const [all, setAll] = useState(false);
+  const nav = useNav();
+  // the table view dives into long lists of refs instead of growing them
+  if (nav && isRefList(node) && node.items.length > RECORD_REFS)
+    return (
+      <span className={styles.wrapList}>
+        {node.items.slice(0, RECORD_REFS).map((item, i) => (
+          <Inline key={i} node={item} />
+        ))}
+        <CountChip ids={refIds(node.items)} label={name}>
+          +{node.items.length - RECORD_REFS}
+        </CountChip>
+      </span>
+    );
   const shown = all ? node.items : node.items.slice(0, BLOCK_LIMIT);
   const rest = node.items.length - shown.length;
   const more =
@@ -172,7 +293,7 @@ function BlockList({ node }: { node: Extract<VNode, { t: 'arr' }> }) {
   );
 }
 
-function Primitive({ value, name }: { value: unknown; name?: string }) {
+export function Primitive({ value, name }: { value: unknown; name?: string }) {
   if (value === CIRCULAR) return <span className={styles.dim}>[Circular]</span>;
   if (value === null || value === undefined)
     return <span className={styles.null}>{String(value)}</span>;
@@ -207,18 +328,4 @@ const timeFormatter =
 export function formatTime(ms: number) {
   if (!isFinite(ms)) return String(ms);
   return timeFormatter ? timeFormatter.format(ms) : new Date(ms).toISOString();
-}
-
-/** Collection pks are serialized args: `{"userId":"1"}` → `userId: 1` */
-export function prettyPk(pk: string) {
-  if (!pk.startsWith('{')) return pk;
-  try {
-    const args = JSON.parse(pk);
-    const entries = Object.entries(args);
-    return entries.length ?
-        entries.map(([k, v]) => `${k}: ${String(v)}`).join(', ')
-      : 'all';
-  } catch {
-    return pk;
-  }
 }

@@ -1,7 +1,14 @@
 import React from 'react';
 
 import { EndpointDetail, EntityDetail, Status } from './Details';
-import type { EndpointRow, EntityRow, EntityTable, StoreModel } from './model';
+import {
+  prettyPk,
+  referrersOf,
+  type EndpointRow,
+  type EntityRow,
+  type EntityTable,
+  type StoreModel,
+} from './model';
 import {
   Chevron,
   EndpointLabel,
@@ -12,7 +19,7 @@ import {
 } from './Sections';
 import styles from './store.module.css';
 import { groupId } from './StoreUI';
-import { Inline, prettyPk } from './Value';
+import { Inline } from './Value';
 
 /** Explorer: one line per row with a preview of its fields */
 export default function TreeView({ model }: { model: StoreModel }) {
@@ -85,7 +92,7 @@ function EntityTreeRow({ row, model }: { row: EntityRow; model: StoreModel }) {
       </div>
       {open && (
         <div className={styles.indent}>
-          <EntityDetail row={row} referrers={model.referrers.get(row.id)} />
+          <EntityDetail row={row} referrers={referrersOf(model).get(row.id)} />
         </div>
       )}
     </>

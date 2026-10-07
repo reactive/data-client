@@ -8,11 +8,19 @@ import {
   type EntityRow,
   type Referrer,
 } from './model';
+import { useNav } from './nav';
 import { plain } from './refs';
 import type { EndpointRecord } from './schemaRegistry';
 import { Segmented } from './Sections';
 import styles from './store.module.css';
-import { Block, Field, formatTime, RefChip } from './Value';
+import {
+  Block,
+  CountChip,
+  Field,
+  formatTime,
+  RECORD_REFS,
+  RefChip,
+} from './Value';
 
 type Meta = EndpointRow['meta'];
 
@@ -112,16 +120,22 @@ export function EntityDetail({
 }
 
 function ReferencedBy({
-  referrers,
+  referrers = [],
 }: {
   referrers: readonly Referrer[] | undefined;
 }) {
+  // the table view dives into long lists instead of listing them all
+  const nav = useNav();
+  const shown =
+    nav && referrers.length > RECORD_REFS ?
+      referrers.slice(0, RECORD_REFS)
+    : referrers;
   return (
     <div className={styles.field}>
       <span className={styles.label}>used by</span>
-      {referrers?.length ?
+      {referrers.length ?
         <span className={styles.wrapList}>
-          {referrers.map(r => (
+          {shown.map(r => (
             <RefChip
               key={r.id}
               id={r.id}
@@ -129,6 +143,11 @@ function ReferencedBy({
               className={isEndpointId(r.id) ? styles.endpointRef : undefined}
             />
           ))}
+          {shown.length < referrers.length && (
+            <CountChip ids={referrers.map(r => r.id)} label="used by">
+              +{referrers.length - shown.length}
+            </CountChip>
+          )}
         </span>
       : <span className={styles.dim}>nothing</span>}
     </div>

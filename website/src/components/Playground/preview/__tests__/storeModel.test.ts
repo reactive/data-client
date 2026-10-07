@@ -2,7 +2,13 @@
 import { Collection, Entity, schema } from '@data-client/endpoint';
 import { actionTypes, type State } from '@data-client/react';
 
-import { buildModel, changedIds, entityId, splitKey } from '../store/model';
+import {
+  buildModel,
+  changedIds,
+  entityId,
+  referrersOf,
+  splitKey,
+} from '../store/model';
 import { CIRCULAR, plain, resolve, resolveRow } from '../store/refs';
 import SchemaRegistry from '../store/schemaRegistry';
 
@@ -202,15 +208,17 @@ describe('store model', () => {
       registryFor('GET https://example.com/posts', [Post]),
     );
     const labels = (key: string, pk: string) =>
-      model.referrers.get(entityId(key, pk))?.map(r => r.label);
+      referrersOf(model)
+        .get(entityId(key, pk))
+        ?.map(r => r.label);
     expect(labels('Post', '1')).toEqual(['GET /posts']);
     expect(labels('User', '123')).toEqual(['Comment 249', 'Post 1']);
-    expect(labels('Comment', '249')).toEqual(['[Comment] {"postId":"1"}']);
+    expect(labels('Comment', '249')).toEqual(['[Comment] postId: 1']);
     expect(model.tables.map(t => [t.key, t.kind])).toEqual([
       ['User', 'entity'],
       ['Comment', 'entity'],
-      ['Post', 'entity'],
       ['[Comment]', 'collection'],
+      ['Post', 'entity'],
     ]);
   });
 
@@ -220,7 +228,7 @@ describe('store model', () => {
       t: 'arr',
       items: [{ t: 'val', v: '1' }],
     });
-    expect(model.referrers.size).toBe(0);
+    expect(referrersOf(model).size).toBe(0);
   });
 
   it('guesses table kinds without a schema', () => {

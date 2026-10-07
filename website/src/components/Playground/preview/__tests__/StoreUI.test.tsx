@@ -18,6 +18,7 @@ const table = (key: string): EntityTable => ({
   kind: 'entity',
   rows: [],
   fields: [],
+  get: () => undefined,
 });
 const model = (...keys: string[]) =>
   ({ endpoints: [], tables: keys.map(table) }) as unknown as StoreModel;
