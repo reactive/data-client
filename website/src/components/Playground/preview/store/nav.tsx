@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 
-import { entityId, type StoreModel } from './model';
-import type { RefNode } from './refs';
+import { entityId, isEndpointRow, type AnyRow, type StoreModel } from './model';
+import { isRefList, type RefNode } from './refs';
 
 /** Rows of one table (all, or just `pks`), or rows of any kind by id */
 export type ListView =
@@ -23,6 +23,20 @@ export function refsList(items: readonly RefNode[], label: string): ListView {
   return items.every(i => i.key === table) ?
       { kind: 'list', label, table, pks: items.map(i => i.pk) }
     : { kind: 'list', label, ids: items.map(i => entityId(i.key, i.pk)) };
+}
+
+/** A Collection row's members, which its record shows as their own table */
+export function membersOf(
+  model: StoreModel,
+  row: AnyRow,
+): ListView | undefined {
+  if (isEndpointRow(row) || model.table(row.table)?.kind !== 'collection')
+    return undefined;
+  const value = row.value;
+  if (!isRefList(value)) return undefined;
+  const list = refsList(value.items, row.table);
+  // members whose table never arrived still show as a plain record
+  return 'table' in list && !model.table(list.table) ? undefined : list;
 }
 
 /** One level of the table view's navigation stack */

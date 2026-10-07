@@ -730,3 +730,9 @@ div.row {
     gap: 0 1.25rem;
   }
 }
+
+/* a Collection's own meta, above its member table */
+.memberMeta > .metaList {
+  margin: 0;
+  padding: 0.4rem 0.75rem 0.5rem;
+}

@@ -134,27 +134,34 @@ export function EntityDetail({
   row: EntityRow;
   model: StoreModel;
 }) {
-  const referrers = referrersOf(model, row.id);
   return (
     <div className={styles.detail}>
       <Block node={row.value} />
-      <div className={styles.metaList}>
-        {row.meta && <Field name="meta" node={plain(row.meta)} />}
-        <div className={styles.field}>
-          <span className={styles.label}>used by</span>
-          {referrers.length ?
-            <RefList
-              chips={referrers.map(r => (
-                <RowChip key={r.id} row={r} />
-              ))}
-              list={() => ({
-                kind: 'list',
-                label: 'used by',
-                ids: referrers.map(r => r.id),
-              })}
-            />
-          : <span className={styles.dim}>nothing</span>}
-        </div>
+      <RowMeta row={row} model={model} />
+    </div>
+  );
+}
+
+/** When a row was fetched and what references it */
+export function RowMeta({ row, model }: { row: EntityRow; model: StoreModel }) {
+  const referrers = referrersOf(model, row.id);
+  return (
+    <div className={styles.metaList}>
+      {row.meta && <Field name="meta" node={plain(row.meta)} />}
+      <div className={styles.field}>
+        <span className={styles.label}>used by</span>
+        {referrers.length ?
+          <RefList
+            chips={referrers.map(r => (
+              <RowChip key={r.id} row={r} />
+            ))}
+            list={() => ({
+              kind: 'list',
+              label: 'used by',
+              ids: referrers.map(r => r.id),
+            })}
+          />
+        : <span className={styles.dim}>nothing</span>}
       </div>
     </div>
   );

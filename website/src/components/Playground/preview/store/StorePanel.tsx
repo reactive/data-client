@@ -10,7 +10,7 @@ import React, {
   useState,
 } from 'react';
 
-import { ListView, RecordView } from './DiveViews';
+import { ListView, RecordLevel } from './DiveViews';
 import { flash, scrollToRow, slide } from './dom';
 import {
   buildModel,
@@ -172,10 +172,11 @@ function Levels({ model, width }: { model: StoreModel; width: number }) {
                 scroller={scroller}
                 header={tools => crumbs(depth, tools)}
               />
-            : <>
-                {crumbs(depth)}
-                <RecordView id={view.id} />
-              </>
+            : <RecordLevel
+                id={view.id}
+                scroller={scroller}
+                header={tools => crumbs(depth, tools)}
+              />
           }
         </Level>
       ))}

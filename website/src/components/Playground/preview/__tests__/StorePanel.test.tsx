@@ -187,6 +187,16 @@ describe('StorePanel table view', () => {
     expect(top().querySelectorAll('tr[data-id]').length).toBeGreaterThan(0);
   });
 
+  it('opens a Collection as a table of its members', () => {
+    mount();
+    const collection = top().querySelector('[data-table="[Comment]"]')!;
+    fireEvent.click(collection.querySelector('tr[data-id]')!);
+    // the member table, with the Collection's own meta above it
+    expect(top().querySelectorAll('tr[data-id]').length).toBeGreaterThan(0);
+    expect(within(top()).getByText('used by')).toBeTruthy();
+    expect(within(top()).getByLabelText('Filter rows')).toBeTruthy();
+  });
+
   it('switches to the tree view', () => {
     mount();
     fireEvent.click(screen.getByLabelText('Tree view'));
