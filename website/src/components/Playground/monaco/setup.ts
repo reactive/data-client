@@ -1,35 +1,30 @@
 /**
- * Side-effect module: import it from any component that renders Monaco.
+ * Side-effect module: import it from any component that renders Monaco, and
+ * render that editor only once `useMonacoReady()` is true.
  *
  * It runs once per page load, as soon as the importing chunk evaluates (before
- * any editor mounts), so Monaco's CDN files and our type libs download while
- * the page hydrates. Mobile and bots never render Monaco (see ../userAgent.ts),
- * so they skip all of these downloads.
+ * any editor mounts), so Monaco, its TypeScript worker and our type libs
+ * download while the page hydrates. Mobile and bots never render Monaco (see
+ * ../userAgent.ts), so they skip all of these downloads.
  */
 import { loader } from '@monaco-editor/react';
+import { useEffect, useState } from 'react';
 
 import { isMobileOrBot } from '../userAgent';
+import { loadMonaco } from './monaco';
 import { registerEditorOpener, registerImportCompletions } from './navigation';
-import { MONACO_CDN_VS } from './preloadManifest';
-import { injectMonacoResourceHints } from './resourceHints';
 import { definePrismTheme } from './theme';
 import { addTypeLibs, fetchTypeLibs } from './typeLibs';
 
+let monacoReady = false;
+let monacoPromise: Promise<unknown> | undefined;
+
 if (typeof window !== 'undefined' && !isMobileOrBot()) {
-  injectMonacoResourceHints();
-  loader.config({
-    paths: {
-      vs: MONACO_CDN_VS,
-    },
-  });
-  const monacoPromise = loader.init();
-
-  // Fetch type libs in parallel with Monaco CDN bootstrap (no webpackPreload —
-  // that raced high-priority against editor.main). Apply them only after init.
+  // Both start downloading now, in parallel; type libs apply once Monaco is ready
   const typeLibsPromise = fetchTypeLibs();
-
-  monacoPromise.then(async monaco => {
-    if (!monaco) return;
+  monacoPromise = loadMonaco().then(monaco => {
+    // @monaco-editor/react uses this instance instead of its CDN loader
+    loader.config({ monaco });
     monaco.typescript.typescriptDefaults.setCompilerOptions({
       allowNonTsExtensions: true,
       target: monaco.typescript.ScriptTarget.ES2017,
@@ -48,8 +43,24 @@ if (typeof window !== 'undefined' && !isMobileOrBot()) {
     definePrismTheme(monaco);
     registerEditorOpener(monaco);
     registerImportCompletions(monaco);
+    monacoReady = true;
 
-    addTypeLibs(monaco, await typeLibsPromise);
-    monaco.typescript.typescriptDefaults.setEagerModelSync(true);
+    typeLibsPromise.then(libs => {
+      addTypeLibs(monaco, libs);
+      monaco.typescript.typescriptDefaults.setEagerModelSync(true);
+    });
   });
+}
+
+/**
+ * Whether Monaco is loaded and configured. Until then render the loading
+ * view: an editor mounted earlier would make @monaco-editor/react fetch its
+ * own copy of Monaco from a CDN.
+ */
+export function useMonacoReady() {
+  const [ready, setReady] = useState(monacoReady);
+  useEffect(() => {
+    if (!ready) monacoPromise?.then(() => setReady(true));
+  }, [ready]);
+  return ready;
 }

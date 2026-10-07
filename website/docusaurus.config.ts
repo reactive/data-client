@@ -10,9 +10,7 @@ import gqlRedirects from './gqlRedirects';
 import { motionCss } from './src/components/motion/css';
 import versions from './versions.json';
 
-// Keep Monaco CDN preload hashes in sync with the installed monaco-editor package.
 const require = createRequire(path.join(__dirname, 'package.json'));
-require('./scripts/generateMonacoPreloads.cjs').ensureMonacoPreloadManifest();
 // Real history for "Last updated" dates (Vercel clones shallow)
 require('./scripts/deepenGitHistory.cjs').deepenGitHistory();
 
@@ -93,14 +91,6 @@ const config: Config = {
       attributes: {
         rel: 'preconnect',
         href: 'https://fonts.googleapis.com',
-        crossOrigin: 'anonymous',
-      },
-    },
-    {
-      tagName: 'link',
-      attributes: {
-        rel: 'preconnect',
-        href: 'https://cdn.jsdelivr.net',
         crossOrigin: 'anonymous',
       },
     },
@@ -452,6 +442,7 @@ const config: Config = {
     path.resolve(__dirname, './node-plugin'),
     path.resolve(__dirname, './profiling-plugin'),
     path.resolve(__dirname, './raw-plugin'),
+    path.resolve(__dirname, './monaco-plugin'),
     path.resolve(__dirname, './llms-plugin'),
   ],
   themeConfig: {

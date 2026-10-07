@@ -10,13 +10,14 @@ import { useCallback, useState } from 'react';
 import type { DiffSide } from './Playground/editor/callouts';
 import { extensionToMonacoLanguage } from './Playground/monaco/language';
 import { options } from './Playground/monaco/options';
-import './Playground/monaco/setup';
+import { useMonacoReady } from './Playground/monaco/setup';
 import { MONACO_THEME } from './Playground/monaco/theme';
 import useAutoHeight from './Playground/monaco/useAutoHeight';
 import styles from './Playground/styles.module.css';
 import { isMobileOrBot } from './Playground/userAgent';
 
 export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
+  const monacoReady = useMonacoReady();
   const original = sides[0].editorValue;
   const modified = sides[1].editorValue;
 
@@ -79,8 +80,8 @@ export default function DiffEditor({ sides, fallback }: DiffMonacoProps) {
   return (
     <BrowserOnly fallback={fallback}>
       {() => {
-        // Skip Monaco for mobile/bots - use static fallback
-        if (isMobileOrBot()) {
+        // Static fallback for mobile/bots, and until Monaco has loaded
+        if (isMobileOrBot() || !monacoReady) {
           return fallback;
         }
         return (
@@ -145,7 +146,7 @@ const DIFF_OPTIONS: editor.IDiffEditorConstructionOptions = {
   enableSplitViewResizing: false,
   readOnly: true,
   compactMode: true,
-  // Built-in advanced (default). advanced-wasm / advanced-external need
-  // @vscode/diff via VS Code module resolution — not available on CDN AMD.
+  // advanced-wasm would import @vscode/diff (prerelease-only) at runtime from
+  // a node_modules URL that bundled builds don't serve, so it can't load here.
   diffAlgorithm: 'advanced',
 };
