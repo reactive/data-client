@@ -4,22 +4,6 @@ on:
   push:
     branches:
       - master
-    paths:
-      - 'docs/**'
-      - '.agents/skills/**'
-      - 'website/framework-docs/**'
-      # symlinked into skills that others bundle
-      - 'website/static/codemods/**'
-      - 'package.json'
-      - 'website/package.json'
-      - 'yarn.lock'
-      - '.github/workflows/skills.yml'
-      - '.gitattributes'
-      - 'website/src/components/Playground/editor-types/**'
-      - 'website/src/components/Playground/DesignSystem/index.ts'
-  pull_request:
-    branches:
-      - master
     # Inputs of website/framework-docs/skillReferences.mjs and checkExamples.mjs
     paths:
       - 'docs/**'
@@ -31,9 +15,15 @@ on:
       - 'website/package.json'
       - 'yarn.lock'
       - '.github/workflows/skills.yml'
+      - '.github/workflows/paths-gate.yml'
       - '.gitattributes'
       - 'website/src/components/Playground/editor-types/**'
       - 'website/src/components/Playground/DesignSystem/index.ts'
+  pull_request:
+    branches:
+      - master
+  # Required check: no `paths` (see paths-gate.yml)
+  merge_group:
 
 # PRs cancel superseded runs. Push runs get their own group, so master never
 # shows a cancelled (red) run.
@@ -42,7 +32,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  gate:
+    if: github.event_name != 'push'
+    uses: ./.github/workflows/paths-gate.yml
+
   references:
+    name: skills
+    needs: gate
+    if: ${{ !cancelled() && needs.gate.outputs.relevant != 'false' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

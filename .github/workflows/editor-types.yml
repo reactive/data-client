@@ -21,25 +21,12 @@ on:
       - 'yarn.lock'
       - 'tsconfig*.json'
       - '.github/workflows/editor-types.yml'
+      - '.github/workflows/paths-gate.yml'
   pull_request:
     branches:
       - master
-    paths:
-      - 'packages/**'
-      - '!packages/**/__tests__/**'
-      - '!packages/*/typescript-tests/**'
-      - '!packages/*/src-*-types/**'
-      - '!packages/**/*.md'
-      - 'scripts/copywebsitetypes.sh'
-      - 'scripts/strip-dts-comments.mjs'
-      - 'scripts/globals.ts'
-      - 'scripts/rollup-plugins/**'
-      - 'website/src/components/Playground/editor-types/**'
-      - 'website/package.json'
-      - 'package.json'
-      - 'yarn.lock'
-      - 'tsconfig*.json'
-      - '.github/workflows/editor-types.yml'
+  # Required check: no `paths` (see paths-gate.yml)
+  merge_group:
 
 # PRs cancel superseded runs. Push runs get their own group, so master never
 # shows a cancelled (red) run.
@@ -48,7 +35,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  gate:
+    if: github.event_name != 'push'
+    uses: ./.github/workflows/paths-gate.yml
+
   check:
+    name: editor-types
+    needs: gate
+    if: ${{ !cancelled() && needs.gate.outputs.relevant != 'false' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
