@@ -34,18 +34,10 @@ beforeEach(() => {
     animations.push({ el: this, keyframes, animation });
     return animation as unknown as Animation;
   };
-  HTMLElement.prototype.getAnimations = function () {
-    return animations
-      .filter(
-        ({ el, animation }) => el === this && animation.playState === 'running',
-      )
-      .map(({ animation }) => animation as unknown as Animation);
-  };
 });
 afterEach(() => {
   jest.restoreAllMocks();
   delete (HTMLElement.prototype as any).animate;
-  delete (HTMLElement.prototype as any).getAnimations;
 });
 
 function Handle() {

@@ -62,6 +62,11 @@ export function velocityOf(el: Element): Point {
   return { x, y };
 }
 
+/** Whether a glide is moving `el` right now */
+export function isGliding(el: Element) {
+  return glides.get(el)?.animation.playState === 'running';
+}
+
 /** Ends `el`'s glide, snapping it back to its layout position */
 export function stop(el: Element) {
   glides.get(el)?.animation.cancel();
