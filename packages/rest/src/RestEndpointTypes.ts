@@ -135,7 +135,7 @@ export interface RestInstanceBase<
    */
   getRequestInit(
     this: any,
-    body?: RequestInit['body'] | Record<string, unknown>,
+    body?: RequestInit['body'] | Record<string, unknown> | readonly unknown[],
   ): Promise<RequestInit> | RequestInit;
   /** Called by getRequestInit to determine HTTP Headers
    * @see https://dataclient.io/rest/api/RestEndpoint#getHeaders

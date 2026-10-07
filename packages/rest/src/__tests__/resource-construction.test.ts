@@ -1108,6 +1108,60 @@ describe('resource()', () => {
     expect(result.current.task3?.status).toEqual('in-progress');
   });
 
+  it('getList.push and create should send an array of items as JSON', async () => {
+    const BulkUserResource = resource({
+      path: 'http\\://test.com/groups/:group/users/:id',
+      schema: User,
+    });
+    const requests: { body: unknown; contentType: unknown }[] = [];
+    mynock
+      .post(`/groups/five/users`)
+      .times(2)
+      .reply(201, function (uri, body: any) {
+        requests.push({ body, contentType: this.req.headers['content-type'] });
+        return body.map((user: any, i: number) => ({ id: 10 + i, ...user }));
+      });
+
+    const { result, waitForNextUpdate } = renderDataClient(() => {
+      return [
+        useSuspense(BulkUserResource.getList, { group: 'five' }),
+        useController(),
+      ] as const;
+    });
+    await waitForNextUpdate();
+    const controller = result.current[1];
+    const newUsers = [{ username: 'a' }, { username: 'b' }];
+
+    await act(async () => {
+      const created = await controller.fetch(
+        BulkUserResource.getList.push,
+        { group: 'five' },
+        newUsers,
+      );
+      // push's type resolves one item even for an array body (CollectionArrayAdder TODO)
+      expect((created as unknown as User[]).map(user => user.username)).toEqual(
+        ['a', 'b'],
+      );
+    });
+    expect(result.current[0].map(user => user.username)).toEqual([
+      'ntucker',
+      'a',
+      'b',
+    ]);
+
+    // create is getList.push, so it takes arrays too
+    await act(async () => {
+      await controller.fetch(BulkUserResource.create, { group: 'five' }, [
+        { username: 'c' },
+      ]);
+    });
+
+    expect(requests).toEqual([
+      { body: newUsers, contentType: 'application/json' },
+      { body: [{ username: 'c' }], contentType: 'application/json' },
+    ]);
+  });
+
   it('getList.move should work with FormData body', async () => {
     class Task extends Entity {
       readonly id: number | undefined = undefined;

@@ -1555,6 +1555,36 @@ describe('RestEndpoint.fetch()', () => {
     expect(article).toMatchObject(payload2);
   });
 
+  it('getRequestInit() should JSON-encode objects and arrays, but pass other bodies through', async () => {
+    const endpoint = new RestEndpoint({ path: '/items', method: 'POST' });
+    const json = { 'Content-Type': 'application/json' };
+    for (const body of [{ a: 1 }, [{ a: 1 }, { a: 2 }], [], ['a', 5]]) {
+      const init = await endpoint.getRequestInit(body);
+      expect(init.body).toBe(JSON.stringify(body));
+      expect(init.headers).toEqual(json);
+    }
+    for (const body of [
+      new FormData(),
+      new URLSearchParams('a=1'),
+      new Blob(['a']),
+      new Uint8Array([1, 2]),
+      'raw',
+    ]) {
+      const init = await endpoint.getRequestInit(body);
+      expect(init.body).toBe(body);
+      expect(init.headers).toBeUndefined();
+    }
+    // explicit Content-Type still wins for JSON bodies
+    const custom = new RestEndpoint({
+      path: '/items',
+      method: 'POST',
+      requestInit: { headers: { 'Content-Type': 'application/vnd.api+json' } },
+    });
+    expect((await custom.getRequestInit([{ a: 1 }])).headers).toEqual({
+      'Content-Type': 'application/vnd.api+json',
+    });
+  });
+
   it('should PUT with multipart form data', async () => {
     const payload2 = { id: 500, content: 'another' };
     let lastRequest: any;

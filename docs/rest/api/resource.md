@@ -393,7 +393,7 @@ Commonly used with [useSuspense()](/docs/api/useSuspense), [Controller.invalidat
 ### getList.push {#push}
 
 [RestEndpoint.push](./RestEndpoint.md#push) creates a new entity and pushes it to the end of getList. Use [getList.unshift](#unshift)
-to place at the beginning instead.
+to place at the beginning instead. Pass an array as the body to create several at once.
 
 <EndpointPlayground input="/react/posts?author=clara" init={{method: 'POST', headers: {'Content-Type': 'application/json'},body: JSON.stringify({ "title": "winning" })}} status={201} response={{  "id": "2","group": "react","title": "winning",author: 'clara',}}>
 

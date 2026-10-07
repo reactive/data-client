@@ -53,6 +53,7 @@ import { useSuspense, useController, useCache, useQuery, useLive, useDLE, useFet
     ctrl.fetch(R${i}.getList.push, { f0: 'y' });
     ctrl.fetch(R${i}.create, { f0: 'y' });
     ctrl.fetch(R${i}.create, new FormData());
+    ctrl.fetch(R${i}.create, [{ f0: 'y' }, { f1: 2 }]);
     ctrl.fetch(R${i}.getList.getPage, { cursor: '2' });
     ctrl.fetch(R${i}.delete, { id: '1' });
     ctrl.set(E${i}, { id: '1' }, { f0: 'z' });
