@@ -2,10 +2,12 @@ import Editor from '@monaco-editor/react';
 import type * as Monaco from 'monaco-editor';
 import rangeParser from 'parse-numeric-range';
 import { memo, useCallback, useMemo } from 'react';
+import { flushSync } from 'react-dom';
 
 import '../monaco/setup';
 import { highlightSelections } from '../monaco/highlightSelections';
 import { extensionToMonacoLanguage } from '../monaco/language';
+import { setTabRevealer } from '../monaco/navigation';
 import { options } from '../monaco/options';
 import { MONACO_THEME } from '../monaco/theme';
 import useAutoHeight from '../monaco/useAutoHeight';
@@ -61,10 +63,11 @@ function InteractiveEditor({
       const selections = highlightSelections(rangeParser(highlights));
       if (selections.length) editor.setSelections(selections);
     }
-    // Focus reveals this tab (also how cross-tab go to definition lands)
-    editor.onDidFocusEditorText(() => {
-      onFocus(tabIndex);
-    });
+    // Clicking into the editor reveals its tab; cross-tab go to definition
+    // reveals it before focusing, since a hidden tab can't take focus
+    const reveal = () => onFocus(tabIndex);
+    editor.onDidFocusEditorText(reveal);
+    setTabRevealer(editor, () => flushSync(reveal));
     handleAutoMount(editor);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

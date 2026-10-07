@@ -12,8 +12,22 @@ const SUGGESTED_DEPENDENCIES = [
 ];
 
 /**
- * Cross-tab go-to-definition: focus the editor that owns the target model.
- * Focusing it makes EditorSurface reveal that tab (see its onFocus handlers).
+ * How each editor shows its own tab. Focus can't do this for a closed tab:
+ * browsers won't focus inside a display:none subtree. `reveal` must show the
+ * tab synchronously (e.g. via flushSync) so the editor can be focused next.
+ */
+const tabRevealers = new WeakMap<Monaco.editor.ICodeEditor, () => void>();
+
+export function setTabRevealer(
+  editor: Monaco.editor.ICodeEditor,
+  reveal: () => void,
+) {
+  tabRevealers.set(editor, reveal);
+}
+
+/**
+ * Cross-tab go-to-definition: reveal the tab of the editor that owns the
+ * target model, then select the definition and focus it.
  */
 export function registerEditorOpener(monaco: typeof Monaco) {
   monaco.editor.registerEditorOpener({
@@ -31,8 +45,7 @@ export function registerEditorOpener(monaco: typeof Monaco) {
           (editor: Monaco.editor.ICodeEditor) => editor.getModel() === model,
         );
       if (!destinationEditor) return false;
-      // focus event is handled by editor to show that tab
-      destinationEditor.focus();
+      tabRevealers.get(destinationEditor)?.();
       requestIdleCallback(() => {
         if (monaco.Range.isIRange(selectionOrPosition)) {
           destinationEditor.revealRangeInCenterIfOutsideViewport(
@@ -46,11 +59,26 @@ export function registerEditorOpener(monaco: typeof Monaco) {
           destinationEditor.setPosition(selectionOrPosition);
         }
         destinationEditor.focus();
+        revealCursorOnPage(destinationEditor);
       });
 
       return true;
     },
   });
+}
+
+/**
+ * Playground editors grow to fit their content, so the page scrolls rather
+ * than the editor; center the cursor line in the window when it's offscreen.
+ */
+function revealCursorOnPage(editor: Monaco.editor.ICodeEditor) {
+  const position = editor.getPosition();
+  const cursor = position && editor.getScrolledVisiblePosition(position);
+  const node = editor.getDomNode();
+  if (!cursor || !node) return;
+  const top = node.getBoundingClientRect().top + cursor.top;
+  if (top >= 0 && top + cursor.height <= window.innerHeight) return;
+  window.scrollBy({ top: top - window.innerHeight / 2, behavior: 'smooth' });
 }
 
 /**
