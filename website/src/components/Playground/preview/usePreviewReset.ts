@@ -1,0 +1,84 @@
+import type { Controller, State } from '@data-client/react';
+import { useCallback, useRef, useState } from 'react';
+
+interface PreviewStore {
+  /** Remounts the preview (and its store) when it changes */
+  key: number;
+  /** Code this store's data was written under */
+  code: string;
+  initialState?: State<unknown>;
+  /** While trying a fresh store: the store it replaced, restored if the error persists */
+  replaced?: { state: State<unknown>; code: string };
+  /** Set once the preview renders without error; spent by an automatic reset */
+  canAutoReset: boolean;
+}
+
+/** Store lifecycle of one live preview.
+ *
+ * An edit can leave data the old code wrote unreadable by the new code (e.g. a
+ * changed `Entity.key`). When a render error follows an edit, the preview
+ * retries once with a fresh store. If the error persists, the store was not the
+ * cause, so the old store comes back and no retry happens until the preview
+ * works again (typing through a typo retries at most once).
+ */
+export function usePreviewReset(code: string) {
+  const controller = useRef<Controller>(null);
+  const [store, setStore] = useState<PreviewStore>({
+    key: 0,
+    code,
+    canAutoReset: false,
+  });
+  const codeRef = useRef(code);
+  codeRef.current = code;
+
+  const reset = useCallback(
+    () =>
+      setStore(s => ({
+        key: s.key + 1,
+        code: codeRef.current,
+        canAutoReset: false,
+      })),
+    [],
+  );
+
+  const onRenderError = useCallback((errorCode: string) => {
+    const state = controller.current?.getState();
+    setStore(s => {
+      if (s.replaced && s.code === errorCode)
+        return {
+          key: s.key + 1,
+          code: s.replaced.code,
+          initialState: s.replaced.state,
+          canAutoReset: false,
+        };
+      if (s.code === errorCode || !s.canAutoReset || !state) return s;
+      return {
+        key: s.key + 1,
+        code: errorCode,
+        replaced: { state, code: s.code },
+        canAutoReset: false,
+      };
+    });
+  }, []);
+
+  const onHealthy = useCallback(
+    () => setStore(s => (s.canAutoReset ? s : { ...s, canAutoReset: true })),
+    [],
+  );
+
+  // Once the user interacts with the fresh store, its errors are their own.
+  const onInteract = useCallback(
+    () => setStore(s => (s.replaced ? { ...s, replaced: undefined } : s)),
+    [],
+  );
+
+  return {
+    key: store.key,
+    initialState: store.initialState,
+    controller,
+    reset,
+    onRenderError,
+    onHealthy,
+    onInteract,
+  };
+}

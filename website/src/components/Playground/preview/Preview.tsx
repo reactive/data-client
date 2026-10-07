@@ -3,6 +3,9 @@ import {
   PollingSubscription,
   SubscriptionManager,
   NetworkManager,
+  useController,
+  type Controller,
+  type State,
 } from '@data-client/react';
 import { MockResolver } from '@data-client/test/browser';
 import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
@@ -10,12 +13,14 @@ import clsx from 'clsx';
 import React, {
   memo,
   useCallback,
+  useImperativeHandle,
   useMemo,
   lazy,
   type ProfilerOnRenderCallback,
 } from 'react';
 
 import Boundary from '../Boundary';
+import type { PreviewErrorProps } from './PreviewError';
 import StoreInspector from './StoreInspector';
 import { useTabStorage } from '../../../utils/tabStorage';
 import styles from '../styles.module.css';
@@ -28,10 +33,19 @@ function Preview<T>({
   fixtures,
   getInitialInterceptorData,
   onCommit,
-}: PreviewProps<T> & {
-  /** Called on every React commit of the live result (enables a `<Profiler>`) */
-  onCommit?: ProfilerOnRenderCallback;
-}) {
+  initialState,
+  controller,
+  onInteract,
+  ...errorProps
+}: PreviewProps<T> &
+  PreviewErrorProps & {
+    /** Called on every React commit of the live result (enables a `<Profiler>`) */
+    onCommit?: ProfilerOnRenderCallback;
+    initialState?: State<unknown>;
+    controller: React.Ref<Controller>;
+    /** User pointer/keyboard input inside the result */
+    onInteract: () => void;
+  }) {
   const [choice, setTabGroupChoice] = useTabStorage(groupId);
   const selectedValue = choice === 'y' || choice === 'n' ? choice : defaultOpen;
   const { blockElementScrollPositionUntilNextRender } =
@@ -57,7 +71,8 @@ function Preview<T>({
 
   const hiddenResult = row && selectedValue === 'y';
   return (
-    <DataProvider managers={managers}>
+    <DataProvider managers={managers} initialState={initialState}>
+      <ControllerHandle handle={controller} />
       <MockResolver
         fixtures={fixtures}
         silenceMissing={true}
@@ -67,9 +82,11 @@ function Preview<T>({
           className={clsx('playground-preview', styles.playgroundPreview, {
             [styles.hidden]: hiddenResult,
           })}
+          onPointerDownCapture={onInteract}
+          onKeyDownCapture={onInteract}
         >
           <Boundary fallback={null}>
-            <PreviewBlockLazy onCommit={onCommit} />
+            <PreviewBlockLazy onCommit={onCommit} {...errorProps} />
           </Boundary>
         </div>
         <StoreInspector selectedValue={selectedValue} toggle={toggle} />
@@ -78,6 +95,12 @@ function Preview<T>({
   );
 }
 export default memo(Preview);
+
+function ControllerHandle({ handle }: { handle: React.Ref<Controller> }) {
+  const controller = useController();
+  useImperativeHandle(handle, () => controller, [controller]);
+  return null;
+}
 
 const PreviewBlockLazy = lazy(
   () =>

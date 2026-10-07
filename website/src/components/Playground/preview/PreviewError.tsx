@@ -1,0 +1,87 @@
+import React, { useContext, useEffect, useRef } from 'react';
+import { LiveContext } from 'react-live';
+
+import styles from '../styles.module.css';
+
+/** react-live's error, plus a reset when it came from rendering (a fresh store may fix it).
+ *
+ * Compile and evaluation errors never render the new code, so only errors after
+ * the current code rendered count as render errors.
+ */
+export default function PreviewError({
+  onReset,
+  onRenderError,
+  onHealthy,
+}: PreviewErrorProps) {
+  const { error, element, code, newCode } = useContext(LiveContext);
+  const rendered = useRef<string>(undefined);
+  if (!error && element && newCode === code) rendered.current = code;
+  const isRenderError = !!error && rendered.current === code;
+
+  const isHealthy = !error && rendered.current === code;
+
+  useEffect(() => {
+    if (isRenderError) onRenderError(code);
+  }, [isRenderError, code, onRenderError]);
+  // A render that throws commits once before its error arrives; waiting skips that.
+  useEffect(() => {
+    if (!isHealthy) return;
+    const timer = setTimeout(onHealthy, HEALTHY_AFTER_MS);
+    return () => clearTimeout(timer);
+  }, [isHealthy, code, onHealthy]);
+
+  if (!error) return null;
+  return (
+    <div className={styles.previewError}>
+      <pre className={styles.playgroundError}>{error}</pre>
+      {isRenderError ?
+        <button type="button" onClick={onReset}>
+          <ResetIcon /> Reset preview
+        </button>
+      : null}
+    </div>
+  );
+}
+
+const HEALTHY_AFTER_MS = 1000;
+
+export interface PreviewErrorProps {
+  onReset: () => void;
+  /** Called with the code whose render threw */
+  onRenderError: (code: string) => void;
+  /** Called once the current code has rendered without error for a while */
+  onHealthy: () => void;
+}
+
+export function ResetButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      className={styles.resetButton}
+      title="Reset preview"
+      aria-label="Reset preview"
+      onClick={onClick}
+    >
+      <ResetIcon />
+    </button>
+  );
+}
+
+function ResetIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="1em"
+      height="1em"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.25"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M3 12a9 9 0 1 0 2.64-6.36L3 8.3" />
+      <path d="M3 3v5.3h5.3" />
+    </svg>
+  );
+}

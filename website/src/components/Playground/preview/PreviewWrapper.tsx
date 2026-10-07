@@ -14,7 +14,7 @@ export default function PreviewWrapper({ children, headerControls }: Props) {
         >
           🔴 Live Preview
         </Translate>
-        {headerControls}
+        <span className={styles.previewControls}>{headerControls}</span>
       </Header>
       <div className={styles.playgroundResult}>{children}</div>
     </div>

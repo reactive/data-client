@@ -133,6 +133,13 @@ DesignSystem/       components injected into preview scope
   stays hidden if that ever stops working. `website/profiling-loader.js` pins
   the build's DevTools check off, so only `<Profiler>` subtrees are ever timed
   (otherwise DevTools users would profile every page).
+- Reset: the header icon and the button under a render error remount the
+  preview with a fresh store (`usePreviewReset`). When a render error follows an
+  edit (e.g. a changed `Entity.key` leaves old data unreadable), the preview
+  retries once with a fresh store and restores the old store if the error
+  persists. It retries again only after the preview has rendered cleanly for a
+  second, so typing through a typo costs at most one retry. Compile and
+  evaluation errors never reset.
 - Third-party console noise is demoted only while previews are mounted
   (`usePlaygroundConsoleDemotion`); never add first-party matchers.
 
