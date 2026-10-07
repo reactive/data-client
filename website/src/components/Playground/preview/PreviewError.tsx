@@ -86,12 +86,12 @@ export interface PreviewErrorProps {
 
 /** "TypeError: msg (3:12)" → name "TypeError", message ": msg ", location "(3:12)" */
 function splitError(error: string) {
-  const named = /^((?:[A-Z][A-Za-z]*)?Error)(:[\s\S]*)?$/.exec(error);
+  const named = /^((?:[A-Z][A-Za-z]*)?Error)((?::[\s\S]*)?)$/.exec(error);
   let name = '';
   let message = error;
   if (named) {
     name = named[1];
-    message = named[2] ?? '';
+    message = named[2];
   }
   let location = '';
   // sucrase appends the position in the concatenated document
