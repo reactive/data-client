@@ -31,7 +31,7 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - ci-relevant-v3-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
+            - ci-relevant-v4-{{ .Environment.CIRCLE_WORKFLOW_ID }}
       - run:
           name: Skip job if only non-<< parameters.flag >> paths changed
           command: |
@@ -134,7 +134,7 @@ jobs:
             # Later setup steps read these; the files are for downstream jobs.
             echo "export ESMODULE_RELEVANT=${ESMODULE_RELEVANT} TESTS_RELEVANT=${TESTS_RELEVANT}" >> "${BASH_ENV}"
       - save_cache:
-          key: ci-relevant-v3-{{ .Branch }}-{{ .Environment.CIRCLE_SHA1 }}
+          key: ci-relevant-v4-{{ .Environment.CIRCLE_WORKFLOW_ID }}
           paths:
             - .ci-esmodule-relevant
             - .ci-tests-relevant
