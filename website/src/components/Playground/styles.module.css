@@ -286,7 +286,8 @@ div.playgroundTextEdit > .playgroundHeader.subtabs {
   /* Controls read these for fills and borders: wells a step below the body */
   --ifm-background-surface-color: hsl(229, 7%, 15%);
   --ifm-color-emphasis-100: var(--ifm-background-surface-color);
-  --ifm-color-emphasis-400: hsl(229, 5%, 31%);
+  /* 3:1 against both the well and the body, so field edges stay legible */
+  --ifm-color-emphasis-400: hsl(229, 5%, 48%);
 }
 /* The floating label straddles the field's top edge, so it blends into both */
 :root[data-theme='dark'] .playgroundPreview :global(.rt-TextFieldLabel) {
