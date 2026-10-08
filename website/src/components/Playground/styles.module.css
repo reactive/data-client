@@ -704,6 +704,20 @@ div.fixtureJson {
   .storeHost > .storePanel > * {
     max-height: min(32rem, 70svh);
   }
+  /* the toggle spans the preview's top edge, where the Store opens from */
+  .playgroundContainer.row .playgroundResult {
+    flex-direction: column;
+  }
+  .playgroundContainer.row .playgroundResult > * {
+    flex: none;
+  }
+  .playgroundContainer.row .debugToggle {
+    writing-mode: horizontal-tb;
+    text-orientation: mixed;
+    letter-spacing: 0.08rem;
+    line-height: inherit;
+    padding: 0.3rem 0.75rem;
+  }
   .playgroundContainer.row .debugToggle .arrow.left {
     transform: rotateZ(270deg);
   }
