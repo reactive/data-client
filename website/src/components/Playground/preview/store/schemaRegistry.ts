@@ -5,7 +5,7 @@ import {
   type Middleware,
 } from '@data-client/react';
 
-import ActionLog from './actionLog';
+import ActionLog, { type LogOptions } from './actionLog';
 import { forEachChildSchema, isEntityLike } from './refs';
 
 export interface EndpointRecord {
@@ -23,7 +23,11 @@ export default class SchemaRegistry implements Manager<ActionTypes> {
   /** Entity table key (`state.entities[key]`) → Entity class, Collection or Scalar */
   readonly entities = new Map<string, any>();
   /** Each store connects to it with its own managers */
-  readonly log = new ActionLog();
+  readonly log: ActionLog;
+
+  constructor(logOptions?: LogOptions) {
+    this.log = new ActionLog(logOptions);
+  }
 
   middleware: Middleware<ActionTypes> = () => next => action => {
     switch (action.type) {

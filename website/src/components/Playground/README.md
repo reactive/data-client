@@ -146,7 +146,12 @@ DesignSystem/       components injected into preview scope
   the state right after each one (the store only commits in batches). Keep the
   tail last when adding managers. `connect`'s third argument (wired to
   `NetworkManager.skipLogging`) marks fetches the network will share with one
-  already held, so the log groups them the same way. `usePreviewReset` owns the `history` id: each
+  already held, so the log groups them the same way. It keeps 500 actions and
+  20 updates per row (a subscription's polls, or one entity's pushed `set`s),
+  trimming in batches of 50 since trimming regroups the log; the oldest kept
+  update counts the ones dropped before it. Playground's `actionLog` prop
+  passes `LogOptions`, e.g. `{ recordFrom: 'open' }` to record nothing until
+  the Store panel first opens. `usePreviewReset` owns the `history` id: each
   fresh store (Reset, or an error's automatic retry) starts a new one, and a
   store the retry gives back continues its own (from its `init`, if it mounts
   without dispatching). The Store panel shows that

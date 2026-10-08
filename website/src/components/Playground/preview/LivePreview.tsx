@@ -6,6 +6,7 @@ import { ResetButton } from './PreviewError';
 import PreviewWrapper from './PreviewWrapper';
 import { useRenderCount } from './RenderCount';
 import { previewScope } from './scope';
+import type { LogOptions } from './store/actionLog';
 import SchemaRegistry from './store/schemaRegistry';
 import transformCode from './transformCode';
 import { usePlaygroundConsoleDemotion } from './usePlaygroundConsoleDemotion';
@@ -15,6 +16,7 @@ import type { PreviewProps } from '../types';
 export interface LivePreviewProps<T> extends PreviewProps<T> {
   code: string;
   renderCount: boolean;
+  actionLog?: LogOptions;
 }
 
 export default function LivePreview<T>({
@@ -26,13 +28,14 @@ export default function LivePreview<T>({
   fixtures,
   getInitialInterceptorData,
   renderCount,
+  actionLog,
 }: LivePreviewProps<T>) {
   usePlaygroundConsoleDemotion();
   const { onCommit, badge } = useRenderCount(renderCount);
   const { key, history, replacedHistory, restored, reset, ...handlers } =
     usePreviewReset(code);
   // outlives remounts, so a restored store keeps its schemas and actions
-  const [registry] = useState(() => new SchemaRegistry());
+  const [registry] = useState(() => new SchemaRegistry(actionLog));
   const getInterceptorData = useMemo(
     () =>
       restored ?

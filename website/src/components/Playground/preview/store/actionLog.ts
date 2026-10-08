@@ -21,6 +21,21 @@ export const LOG_LIMIT = 500;
 /** Updates kept per row (`updateLimit`): a subscription's polls, or pushed
  * `set`s of one entity and `setResponse`s of one endpoint */
 export const UPDATE_LIMIT = 20;
+/** Actions logged between trims (`trimEvery`): trimming regroups the whole
+ * log, so it runs in batches, and the log runs up to this far past its
+ * limits in between */
+export const TRIM_EVERY = 50;
+
+export interface LogOptions {
+  /** Updates kept per row (default `UPDATE_LIMIT`) */
+  readonly updateLimit?: number;
+  /** Actions logged between trims (default `TRIM_EVERY`) */
+  readonly trimEvery?: number;
+  /** When to start recording: as the preview loads (default), or once the
+   * Store panel first opens, which saves a fast stream's bookkeeping until
+   * someone looks */
+  readonly recordFrom?: 'load' | 'open';
+}
 
 export interface LogEntry {
   readonly seq: number;
@@ -56,6 +71,8 @@ export interface History {
   /** Where its current store began, when that store started before
    * dispatching anything */
   readonly storeFrom?: number;
+  /** How many entries it had right after its last trim */
+  readonly trimmed?: number;
 }
 
 const EMPTY: History = { entries: [], since: 0 };
@@ -69,8 +86,10 @@ export const findEntry = (entries: readonly LogEntry[], seq: number) =>
  * The store only commits in batches, so (like DevToolsManager) the log runs
  * the store's reducer itself to know the state right after each action. */
 export default class ActionLog {
-  /** Updates kept per row before older ones drop (see `UPDATE_LIMIT`) */
   private readonly updateLimit: number;
+  private readonly trimEvery: number;
+  /** Off until the Store panel first listens, with `recordFrom: 'open'` */
+  private recording: boolean;
   private readonly histories = new Map<number, History>();
   private nextSeq = 1;
   /** Applies pending optimistic updates for `view` */
@@ -81,8 +100,14 @@ export default class ActionLog {
   /** A notification is due this task */
   private queued = false;
 
-  constructor({ updateLimit = UPDATE_LIMIT }: { updateLimit?: number } = {}) {
+  constructor({
+    updateLimit = UPDATE_LIMIT,
+    trimEvery = TRIM_EVERY,
+    recordFrom = 'load',
+  }: LogOptions = {}) {
     this.updateLimit = updateLimit;
+    this.trimEvery = trimEvery;
+    this.recording = recordFrom === 'load';
   }
 
   /** Managers that log one store's actions into history `id`: `head` goes
@@ -107,6 +132,8 @@ export default class ActionLog {
     };
     const head: Manager<ActionTypes> = {
       middleware: () => next => action => {
+        if (!this.recording) return next(action);
+        // the first action recorded starts the history
         if (first) dropOthers();
         const entry: LogEntry = {
           seq: this.nextSeq++,
@@ -128,7 +155,7 @@ export default class ActionLog {
       // (its first reads may already be recorded, as NetworkManager holds
       // them back from the store)
       init: (state: State<unknown>) => {
-        if (reached) return;
+        if (reached || !this.recording) return;
         if (first) dropOthers();
         this.histories.set(id, {
           ...this.history(id),
@@ -144,6 +171,7 @@ export default class ActionLog {
         const reduce = createReducer(controller as Controller);
         let state: State<unknown> | undefined;
         return next => action => {
+          if (!this.recording) return next(action);
           // managers' init runs in an effect, possibly after the store's
           // first actions
           reached = true;
@@ -207,6 +235,7 @@ export default class ActionLog {
   }
 
   subscribe = (listener: () => void) => {
+    this.recording = true;
     this.listeners.add(listener);
     return () => {
       this.listeners.delete(listener);
@@ -217,11 +246,15 @@ export default class ActionLog {
     const history = this.histories.get(id);
     // only a store's first action starts a history; a dropped one stays gone
     if (!history && !entry.newStore) return;
-    const { entries, since } = history ?? EMPTY;
+    const { entries, since, trimmed = 0 } = history ?? EMPTY;
+    const appended = [...entries, entry];
+    const due = appended.length - trimmed >= this.trimEvery;
+    const kept = due ? trim(capUpdates(appended, this.updateLimit)) : appended;
     this.histories.set(id, {
       ...history,
-      entries: trim(capUpdates([...entries, entry], this.updateLimit)),
+      entries: kept,
       since: entries.length ? since : entry.at,
+      ...(due && { trimmed: kept.length }),
     });
     // Components read while they render. If the panel heard about a read it
     // would render too, which retries a suspended component, which reads
@@ -264,19 +297,11 @@ export default class ActionLog {
   }
 }
 
-const UPDATES: readonly string[] = [
-  actionTypes.FETCH,
-  actionTypes.SET,
-  actionTypes.SET_RESPONSE,
-];
-
 /** `entries` without the updates past `limit` in any row, oldest first: a
  * subscription's polls, or the pushed `set`s of one entity or
  * `setResponse`s of one endpoint. A store's first action stays, as it marks
  * where the store began */
 function capUpdates(entries: LogEntry[], limit: number): LogEntry[] {
-  if (!UPDATES.includes(entries[entries.length - 1].action.type))
-    return entries;
   const updates: (readonly LogEntry[])[][] = [];
   const pushed = new Map<string, (readonly LogEntry[])[]>();
   for (const group of groupEntries(entries)) {

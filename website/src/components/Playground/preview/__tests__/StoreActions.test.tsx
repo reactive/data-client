@@ -69,7 +69,7 @@ const updatePost = new Endpoint(
 
 /** `preview` renders beside the panel, as the live preview does */
 function mount(preview?: React.ReactNode) {
-  const registry = new SchemaRegistry();
+  const registry = new SchemaRegistry({ trimEvery: 1 });
   const log = registry.log.connect(0);
   const managers = [
     log.head,
@@ -667,7 +667,7 @@ describe('ActionLog', () => {
   const subscribe = () => ({ type: actionTypes.SUBSCRIBE, key: 'k' });
 
   it('collects garbage without touching earlier states', () => {
-    const log = new ActionLog();
+    const log = new ActionLog({ trimEvery: 1 });
     connect(
       log,
       0,
@@ -683,7 +683,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps what the store collects in place', () => {
-    const log = new ActionLog();
+    const log = new ActionLog({ trimEvery: 1 });
     const state = {
       ...initialState,
       entities: { Post: { 1: { id: '1' } } },
@@ -708,7 +708,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps each store’s history, which a restored store continues', () => {
-    const log = new ActionLog();
+    const log = new ActionLog({ trimEvery: 1 });
     const first = connect(log, 0);
     first(subscribe());
     first(subscribe());
@@ -736,7 +736,7 @@ describe('ActionLog', () => {
   });
 
   it('starts a restored store that dispatches nothing', () => {
-    const log = new ActionLog();
+    const log = new ActionLog({ trimEvery: 1 });
     connect(
       log,
       0,
@@ -756,7 +756,7 @@ describe('ActionLog', () => {
   });
 
   it('starts a restored store whose first reads the network holds', () => {
-    const log = new ActionLog();
+    const log = new ActionLog({ trimEvery: 1 });
     connect(log, 0, { keep: 0 })(subscribe());
     // the restored store reads while it renders, before its managers start;
     // NetworkManager keeps the fetch from the store
@@ -774,7 +774,7 @@ describe('ActionLog', () => {
   });
 
   it('follows each store’s own state', () => {
-    const log = new ActionLog();
+    const log = new ActionLog({ trimEvery: 1 });
     const set = () => ({
       type: actionTypes.SET_RESPONSE,
       key: 'b',
@@ -797,7 +797,7 @@ describe('ActionLog', () => {
   });
 
   it('shows a fetch with the store change after it', async () => {
-    const log = new ActionLog();
+    const log = new ActionLog({ trimEvery: 1 });
     const heard = jest.fn();
     log.subscribe(heard);
     const store = { getState: () => empty } as any;
@@ -826,7 +826,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps only the newest actions', () => {
-    const log = new ActionLog();
+    const log = new ActionLog({ trimEvery: 1 });
     const dispatch = connect(log, 0);
     for (let i = 0; i < 255; i++) {
       dispatch(subscribe());
@@ -838,7 +838,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps a request’s fetch past a reset and a shared fetch time', () => {
-    const log = new ActionLog();
+    const log = new ActionLog({ trimEvery: 1 });
     const dispatch = connect(log, 0);
     const fetch = (key: string) =>
       dispatch({
@@ -876,7 +876,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps the fetch still waiting when mutations share a fetch time', () => {
-    const log = new ActionLog();
+    const log = new ActionLog({ trimEvery: 1 });
     const dispatch = connect(log, 0);
     const meta = { fetchedAt: 1, date: 1, expiresAt: 2 };
     const fetch = (id: number) =>
@@ -906,7 +906,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps the response of a request a kept fetch joined', () => {
-    const log = new ActionLog();
+    const log = new ActionLog({ trimEvery: 1 });
     const { head, tail } = log.connect(
       0,
       undefined,
@@ -945,7 +945,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps a subscription that ended before a poll it started resolved', () => {
-    const log = new ActionLog();
+    const log = new ActionLog({ trimEvery: 1 });
     const dispatch = connect(log, 0);
     dispatch(subscribe());
     dispatch({
@@ -972,7 +972,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps the subscribers that held a subscription open over its polls', () => {
-    const log = new ActionLog();
+    const log = new ActionLog({ trimEvery: 1 });
     // each poll its own fetch
     const dispatch = connect(log, 0, { skipLogging: () => false });
     const poll = (fetchedAt: number) =>
@@ -997,7 +997,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps a subscription’s newest polls', () => {
-    const log = new ActionLog();
+    const log = new ActionLog({ trimEvery: 1 });
     const dispatch = connect(log, 0);
     dispatch(subscribe());
     for (let fetchedAt = 1; fetchedAt <= 25; fetchedAt++) {
@@ -1025,7 +1025,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps as many pushed sets of each entity as updateLimit says', () => {
-    const log = new ActionLog({ updateLimit: 2 });
+    const log = new ActionLog({ updateLimit: 2, trimEvery: 1 });
     const dispatch = connect(log, 0);
     dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other' });
     const set = (schema: typeof Post, id: string, title: string) =>
@@ -1061,8 +1061,38 @@ describe('ActionLog', () => {
     ).toEqual([undefined, 2, undefined]);
   });
 
-  it('keeps the subscribers still polling past the limit', () => {
+  it('trims in batches', () => {
     const log = new ActionLog();
+    const dispatch = connect(log, 0);
+    const other = () =>
+      dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other' });
+    for (let i = 0; i < 549; i++) other();
+    expect(log.history(0).entries).toHaveLength(549);
+    other();
+    expect(log.history(0).entries).toHaveLength(500);
+  });
+
+  it('records once the Store panel listens, with recordFrom open', () => {
+    const log = new ActionLog({ recordFrom: 'open' });
+    const dispatch = connect(log, 0);
+    dispatch(subscribe());
+    expect(log.history(0).entries).toHaveLength(0);
+    log.subscribe(() => {});
+    dispatch({
+      type: actionTypes.SET_RESPONSE,
+      key: 'k',
+      response: 1,
+      meta: { fetchedAt: 1, date: 1, expiresAt: 2 },
+      endpoint: { schema: undefined },
+    });
+    const { entries } = log.history(0);
+    expect(entries).toHaveLength(1);
+    expect(entries[0]).toMatchObject({ newStore: true });
+    expect(entries[0].store?.after.endpoints).toMatchObject({ k: 1 });
+  });
+
+  it('keeps the subscribers still polling past the limit', () => {
+    const log = new ActionLog({ trimEvery: 1 });
     const dispatch = connect(log, 0);
     const poll = (type: string, pollFrequency: number) =>
       dispatch({ type, key: 'k', endpoint: { pollFrequency } });
@@ -1080,7 +1110,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps a fetch whose response a restored store kept', () => {
-    const log = new ActionLog();
+    const log = new ActionLog({ trimEvery: 1 });
     const first = connect(log, 0);
     first({
       type: actionTypes.FETCH,
@@ -1104,7 +1134,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps the fetch of a response kept past the limit', () => {
-    const log = new ActionLog();
+    const log = new ActionLog({ trimEvery: 1 });
     const dispatch = connect(log, 0);
     dispatch({
       type: actionTypes.FETCH,
@@ -1130,7 +1160,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps the subscribes of subscriptions still open past the limit', () => {
-    const log = new ActionLog();
+    const log = new ActionLog({ trimEvery: 1 });
     const dispatch = connect(log, 0);
     dispatch(subscribe());
     dispatch(subscribe());
