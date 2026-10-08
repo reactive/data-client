@@ -55,14 +55,8 @@ export default class ActionLog {
       this.apply(action, controller as Controller);
       return next(action);
     },
-    init: state => this.start(state),
     cleanup() {},
   };
-
-  /** A store mounted with `state` (fresh, or restored by error recovery) */
-  private start(state: State<unknown>) {
-    this.state = state;
-  }
 
   /** First in the manager chain: every dispatch, in order */
   record(action: ActionTypes) {
@@ -117,11 +111,15 @@ export default class ActionLog {
   getSnapshot = () => this.entries;
 
   private apply(action: ActionTypes, controller: Controller) {
-    if (controller !== this.controller || !this.reducer) {
+    // a new store (fresh, or restored by error recovery) starts from its own
+    // state; managers' init runs in an effect, possibly after its first
+    // actions
+    if (controller !== this.controller || !this.reducer || !this.state) {
       this.controller = controller;
       this.reducer = createReducer(controller);
+      this.state = controller.getState();
     }
-    const before = this.state ?? controller.getState();
+    const before = this.state;
     const after =
       action.type === actionTypes.GC ?
         collect(before, action)

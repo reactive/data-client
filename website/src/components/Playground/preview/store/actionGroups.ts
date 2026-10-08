@@ -187,7 +187,8 @@ export type ActionGroup = RequestGroup | SubscriptionGroup | SingleGroup;
 /** Folds the log into rows: oldest first, each where its first action was */
 export function groupEntries(entries: readonly LogEntry[]): ActionGroup[] {
   const groups: ActionGroup[] = [];
-  const requests = new Map<string, RequestGroup>();
+  /** By fetch time and key: two fetches can share both */
+  const requests = new Map<string, RequestGroup[]>();
   /** By endpoint key: the request still waiting for its response */
   const pending = new Map<string, RequestGroup>();
   const subscriptions = new Map<string, SubscriptionGroup>();
@@ -244,7 +245,8 @@ export function groupEntries(entries: readonly LogEntry[]): ActionGroup[] {
           key: action.key,
           entries: [entry],
         };
-        requests.set(requestId(action.key, action.meta.fetchedAt), request);
+        const id = requestId(action.key, action.meta.fetchedAt);
+        requests.set(id, [...(requests.get(id) ?? []), request]);
         if (!sideEffect) pending.set(action.key, request);
         const sub = subscriptions.get(action.key);
         if (sub) sub.requests.push(request);
@@ -252,10 +254,10 @@ export function groupEntries(entries: readonly LogEntry[]): ActionGroup[] {
         break;
       }
       case actionTypes.SET_RESPONSE: {
-        const request = requests.get(
-          requestId(action.key, action.meta.fetchedAt),
-        );
-        if (!request || request.response) {
+        const request = requests
+          .get(requestId(action.key, action.meta.fetchedAt))
+          ?.find(r => !r.response);
+        if (!request) {
           single(entry);
           break;
         }

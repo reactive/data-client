@@ -240,6 +240,25 @@ describe('groupEntries', () => {
     expect(sub.kind === 'subscription' && sub.open).toBe(0);
   });
 
+  it('keeps mutations made in the same millisecond apart', () => {
+    const write = { key: 'PATCH /a', endpoint: { sideEffect: true } };
+    const fetch = (seq: number) =>
+      entry(seq, { type: actionTypes.FETCH, ...write, meta: { fetchedAt: 1 } });
+    const response = (seq: number) =>
+      entry(seq, {
+        type: actionTypes.SET_RESPONSE,
+        ...write,
+        meta: { fetchedAt: 1 },
+      });
+    const groups = groupEntries([fetch(1), fetch(2), response(3), response(4)]);
+    expect(
+      groups.map(g => g.kind === 'request' && g.entries.map(e => e.seq)),
+    ).toEqual([
+      [1, 3],
+      [2, 4],
+    ]);
+  });
+
   it('folds reads made while one is in flight into it', () => {
     const read = { key: 'GET /a', endpoint: {} };
     const groups = groupEntries([
@@ -279,7 +298,6 @@ describe('ActionLog', () => {
 
   it('collects garbage without touching earlier states', () => {
     const log = new ActionLog();
-    log.tail.init!(empty);
     run(log, {
       type: actionTypes.GC,
       entities: [{ key: 'Post', pk: '1' }],
@@ -293,7 +311,6 @@ describe('ActionLog', () => {
 
   it('keeps only the newest actions', () => {
     const log = new ActionLog();
-    log.tail.init!(empty);
     for (let i = 0; i < 510; i++)
       log.record({ type: actionTypes.SUBSCRIBE } as any);
     expect(log.entries).toHaveLength(500);
