@@ -9,14 +9,16 @@
 import { loader } from '@monaco-editor/react';
 
 import { isMobileOrBot } from '../userAgent';
-import { registerEditorOpener, registerImportCompletions } from './navigation';
+import { registerImportCompletions } from './navigation';
 import { MONACO_CDN_VS } from './preloadManifest';
 import { injectMonacoResourceHints } from './resourceHints';
+import { shieldEditorsFromSearchHotkey } from './searchHotkey';
 import { definePrismTheme } from './theme';
 import { addTypeLibs, fetchTypeLibs } from './typeLibs';
 
 if (typeof window !== 'undefined' && !isMobileOrBot()) {
   injectMonacoResourceHints();
+  shieldEditorsFromSearchHotkey();
   loader.config({
     paths: {
       vs: MONACO_CDN_VS,
@@ -46,7 +48,6 @@ if (typeof window !== 'undefined' && !isMobileOrBot()) {
       noImplicitAny: false,
     });
     definePrismTheme(monaco);
-    registerEditorOpener(monaco);
     registerImportCompletions(monaco);
 
     addTypeLibs(monaco, await typeLibsPromise);

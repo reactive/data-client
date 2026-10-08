@@ -9,6 +9,7 @@ import { extensionToMonacoLanguage } from '../monaco/language';
 import { options } from '../monaco/options';
 import { MONACO_THEME } from '../monaco/theme';
 import useAutoHeight from '../monaco/useAutoHeight';
+import useDefinitionOpener from '../monaco/useDefinitionOpener';
 import PlaygroundLiveEditor from '../PlaygroundLiveEditor';
 import { isMobileOrBot } from '../userAgent';
 import StaticEditor from './StaticEditor';
@@ -53,21 +54,29 @@ function InteractiveEditor({
     initialContentHeight: code.split('\n').length * editorOptions.lineHeight,
     isFocused,
   });
+  const handleOpenerMount = useDefinitionOpener({
+    isVisible: isFocused,
+    onOpen: () => onFocus(tabIndex),
+  });
 
   // Mount-time setup only: props read here are fixed for the editor's life
-  const handleMount = useCallback((editor: Monaco.editor.ICodeEditor) => {
-    if (autoFocus) editor.focus();
-    if (highlights) {
-      const selections = highlightSelections(rangeParser(highlights));
-      if (selections.length) editor.setSelections(selections);
-    }
-    // Focus reveals this tab (also how cross-tab go to definition lands)
-    editor.onDidFocusEditorText(() => {
-      onFocus(tabIndex);
-    });
-    handleAutoMount(editor);
+  const handleMount = useCallback(
+    (editor: Monaco.editor.ICodeEditor, monaco: typeof Monaco) => {
+      if (autoFocus) editor.focus();
+      if (highlights) {
+        const selections = highlightSelections(rangeParser(highlights));
+        if (selections.length) editor.setSelections(selections);
+      }
+      // Focus reveals this tab
+      editor.onDidFocusEditorText(() => {
+        onFocus(tabIndex);
+      });
+      handleAutoMount(editor);
+      handleOpenerMount(editor, monaco);
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    [],
+  );
 
   // loading only shows the initial snapshot, so it need not track code changes
   const loading = useMemo(

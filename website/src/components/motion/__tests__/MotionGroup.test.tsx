@@ -101,7 +101,7 @@ it('keeps an exiting element, with its last content, until it slides out', async
   expect(screen.getByText('first')).toBeTruthy();
 
   await act(async () => exit?.animation.finish?.());
-  expect(screen.queryByText('first')).toBeNull();
+  expectHidden('first');
 });
 
 it('turns around mid-exit instead of remounting', () => {
@@ -125,20 +125,20 @@ it('lands in place when the user prefers reduced motion', () => {
   const { rerender } = render(<Drawer open />);
   rerender(<Drawer open={false} />);
   expect(animations).toEqual([]);
-  expect(screen.queryByText('panel')).toBeNull();
+  expectHidden('panel');
 });
 
-it('leaves at once when no group slides it out', () => {
+it('hides at once when no group slides it out', () => {
   const { rerender } = render(<Reveal show>alone</Reveal>);
   rerender(<Reveal show={false}>alone</Reveal>);
-  expect(screen.queryByText('alone')).toBeNull();
+  expectHidden('alone');
 });
 
-it('leaves on its own when the group ignores the change', async () => {
+it('hides on its own when the group ignores the change', async () => {
   const { rerender } = render(<OpensOnly open opened={0} />);
   rerender(<OpensOnly open={false} opened={0} />);
   await settledReveals();
-  expect(screen.queryByText('panel')).toBeNull();
+  expectHidden('panel');
 });
 
 it('reverses with the momentum it had mid-flight', () => {
@@ -178,7 +178,7 @@ it('lands in place without Web Animations', () => {
   delete (HTMLElement.prototype as any).animate;
   const { rerender } = render(<Drawer open />);
   rerender(<Drawer open={false} />);
-  expect(screen.queryByText('panel')).toBeNull();
+  expectHidden('panel');
 });
 
 it('does not slide in members that only move', () => {
@@ -246,7 +246,7 @@ it('stops glides in flight when reduced motion turns on', () => {
   expect(enter?.animation.cancel).toHaveBeenCalled();
 });
 
-it('leaves once its entrance settles when the group ignores the close', async () => {
+it('hides once its entrance settles when the group ignores the close', async () => {
   const { rerender } = render(<OpensOnly open={false} opened={0} />);
   rerender(<OpensOnly open opened={1} />);
   const enter = animations.find(({ el }) => el === screen.getByText('panel'));
@@ -254,7 +254,7 @@ it('leaves once its entrance settles when the group ignores the close', async ()
   await settledReveals();
   expect(screen.getByText('panel')).toBeTruthy();
   await act(async () => enter?.animation.finish?.());
-  expect(screen.queryByText('panel')).toBeNull();
+  expectHidden('panel');
 });
 
 it('stays when reopened before a settling glide finishes', async () => {
@@ -268,7 +268,7 @@ it('stays when reopened before a settling glide finishes', async () => {
   expect(screen.getByText('panel')).toBeTruthy();
 });
 
-it('leaves once the glide that retargets its exit settles', async () => {
+it('hides once the glide that retargets its exit settles', async () => {
   function Steps({ step }: { step: number }) {
     return (
       <MotionGroup layoutDependency={step}>
@@ -283,7 +283,7 @@ it('leaves once the glide that retargets its exit settles', async () => {
   await settledReveals();
   expect(screen.getByText('panel')).toBeTruthy();
   await act(async () => animations.at(-1)?.animation.finish?.());
-  expect(screen.queryByText('panel')).toBeNull();
+  expectHidden('panel');
 });
 
 it('rejoins the layout when reopened mid-exit under reduced motion', () => {
@@ -295,3 +295,40 @@ it('rejoins the layout when reopened mid-exit under reduced motion', () => {
   rerender(<Drawer open />);
   expect(panel.style.position).toBe('');
 });
+
+it('keeps its state while hidden and slides back in when reopened', async () => {
+  function Counter() {
+    const [n, setN] = React.useState(0);
+    return <button onClick={() => setN(n + 1)}>{`count ${n}`}</button>;
+  }
+  function Toggle({ open }: { open: boolean }) {
+    return (
+      <MotionGroup layoutDependency={open}>
+        <Reveal show={open}>
+          <Counter />
+        </Reveal>
+      </MotionGroup>
+    );
+  }
+  const { rerender } = render(<Toggle open />);
+  act(() => screen.getByText('count 0').click());
+  rerender(<Toggle open={false} />);
+  await act(async () => animations.at(-1)?.animation.finish?.());
+  expectHidden('count 1');
+  rerender(<Toggle open />);
+  const panel = screen.getByText('count 1').parentElement!;
+  expect(panel.style.display).toBe('');
+  expect(panel.style.position).toBe('');
+  expect(animations.at(-1)?.el).toBe(panel);
+  expect(animations.at(-1)?.keyframes[0].translate).toBe(
+    `${PARENT_WIDTH}px 0px`,
+  );
+});
+
+/** Hidden by its `<Reveal>` (kept mounted, so its state survives) */
+function expectHidden(text: string) {
+  expect(screen.getByText(text).closest('.motion-reveal')).toHaveProperty(
+    'style.display',
+    'none',
+  );
+}

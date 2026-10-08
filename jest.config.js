@@ -35,6 +35,8 @@ const baseConfig = {
     'packages/react/src/next',
     'packages/react/src/server',
     'packages/react/src/components/DevToolsButton.tsx',
+    // website code is tested but not published, so it isn't tracked
+    '<rootDir>/website/',
   ],
   /** TODO: Remove once we move to 'publishConfig' */
   moduleNameMapper: {

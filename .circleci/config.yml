@@ -68,6 +68,15 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Check tree-passed requires every job
+          # Otherwise a tree gets marked passed without the missing job, and
+          # the merge queue and master skip it
+          command: |
+            # Temp files, not <(...): a failed yq must fail the step
+            yq '[.workflows.validation.jobs[] | (select(tag == "!!map") | keys | .[0]) // .] - ["setup", "tree-passed"] | sort | .[]' .circleci/config.yml > /tmp/ci-jobs
+            yq '.workflows.validation.jobs[].["tree-passed"].requires | select(.) | sort | .[]' .circleci/config.yml > /tmp/ci-tree-passed-requires
+            diff -u --label 'workflow jobs' --label 'tree-passed requires' /tmp/ci-jobs /tmp/ci-tree-passed-requires
+      - run:
           name: Hash source tree
           # File contents, not the commit: a squash merge and the merge queue
           # commit it came from share a tree, so the same code runs once
@@ -211,6 +220,7 @@ jobs:
             # Playground and motion unit tests; rest of website omitted
             - project/website/src/components/Playground
             - project/website/src/components/motion
+            - project/website/src/utils
             - project/.yarnrc.yml
             - project/babel.config.js
             - project/eslint.config.mjs
@@ -277,11 +287,12 @@ jobs:
             yarn up react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
             yarn workspace @data-client/test add --dev @testing-library/react-hooks
             elif [ "<< parameters.react-version >>" == "native" ]; then
-            yarn up react@19.2.3 react-test-renderer@19.2.3
-            elif [ "<< parameters.react-version >>" == "19.3" ]; then
+            # React Native 0.86 bundles the React 19.2.3 renderer (React 19.3 pairs with RN 0.88).
+            # This job also covers the previous React minor for the ReactDOM suites below.
+            V=19.2.3
             npm pkg delete resolutions.react resolutions.react-dom resolutions.react-test-renderer
-            yarn up react@19.3.0 react-dom@19.3.0 react-test-renderer@19.3.0
-            node -e "for (const p of ['react','react-dom','react-test-renderer']) { const v=require(p+'/package.json').version; if (v !== '19.3.0') throw new Error(p+' resolved to '+v) }"
+            yarn up react@$V react-dom@$V react-test-renderer@$V
+            V=$V node -e "for (const p of ['react','react-dom','react-test-renderer']) { const v=require(p+'/package.json').version; if (v !== process.env.V) throw new Error(p+' resolved to '+v) }"
             fi
       - run:
           name: Running Jest
@@ -295,7 +306,7 @@ jobs:
               # fake-timer waits, and capping workers makes the heavy hook
               # suites contend enough to flake 5s test timeouts.
               yarn test:ci --selectProjects ReactNative
-            elif [ "<< parameters.react-version >>" == "19.3" ]; then
+              # Previous React minor: these suites assert per-minor React behavior
               yarn test:ci --maxWorkers=4 --selectProjects ReactDOM --testPathPatterns 'packages/react/src/__tests__/concurrent-.*\.web\.tsx' 'packages/react/src/hooks/__tests__/useCacheState.web.tsx'
             elif [ "<< parameters.react-version >>" == "latest" ]; then
               # Coverage floors and projects live in the test:coverage script
@@ -505,7 +516,7 @@ workflows:
       - unit_tests:
           matrix:
             parameters:
-              react-version: ["^17", "^18", "native", "latest", "19.3"]
+              react-version: ["^17", "^18", "native", "latest"]
           requires:
             - setup
       - node_matrix:

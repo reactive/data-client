@@ -185,7 +185,7 @@ div.playgroundTextEdit > .playgroundHeader,
   overflow: auto;
 }
 /* Preview errors: one card, colored by the stage that failed. Amber means the
-   code never ran (compile); red means it ran and threw (runtime, network).
+   code never ran (compile); red means it ran and threw (runtime).
    --pe-accent paints the edge bar and controls; --pe-text the label and name. */
 .previewError {
   --pe-accent: var(--ifm-color-danger);
@@ -736,7 +736,7 @@ div.fixtureJson {
     color: var(--pg-tab-hover);
   }
 }
-/* Error card action (Reset preview, Clear Error): outlined in the card's accent */
+/* Error card action (Reset preview): outlined in the card's accent */
 .previewError .errorAction {
   display: inline-flex;
   align-items: center;
@@ -768,4 +768,27 @@ div.fixtureJson {
 .previewError .errorAction:active {
   background-color: color-mix(in srgb, var(--pe-accent) 22%, transparent);
   border-color: var(--pe-accent);
+}
+
+/* Narrow playgrounds: the Store stacks under the preview at full width */
+@container playground (max-width: 559px) {
+  .playgroundResult {
+    flex-direction: column;
+  }
+  .playgroundResult > * {
+    flex: none;
+  }
+  .debugToggle {
+    writing-mode: horizontal-tb;
+    text-orientation: mixed;
+    letter-spacing: 0.08rem;
+    line-height: inherit;
+    padding: 0.3rem 0.75rem;
+  }
+  .debugToggle .arrow.right {
+    transform: rotateZ(90deg);
+  }
+  .debugToggle .arrow.left {
+    transform: rotateZ(0deg);
+  }
 }

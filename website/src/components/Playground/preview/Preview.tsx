@@ -3,6 +3,7 @@ import {
   PollingSubscription,
   SubscriptionManager,
   NetworkManager,
+  type Manager,
   type State,
 } from '@data-client/react';
 import { MockResolver } from '@data-client/test/browser';
@@ -19,6 +20,7 @@ import React, {
 import { MotionGroup } from '../../motion';
 import Boundary from '../Boundary';
 import type { PreviewErrorProps } from './PreviewError';
+import SchemaRegistry from './store/schemaRegistry';
 import StoreInspector from './StoreInspector';
 import { useTabStorage } from '../../../utils/tabStorage';
 import styles from '../styles.module.css';
@@ -32,6 +34,7 @@ function Preview<T>({
   getInitialInterceptorData,
   onCommit,
   initialState,
+  registry,
   onInteract,
   ...errorProps
 }: PreviewProps<T> &
@@ -39,6 +42,8 @@ function Preview<T>({
     /** Called on every React commit of the live result (enables a `<Profiler>`) */
     onCommit?: ProfilerOnRenderCallback;
     initialState?: State<unknown>;
+    /** Schemas the Store inspector has seen */
+    registry: SchemaRegistry;
     /** User pointer/keyboard input inside the result */
     onInteract: () => void;
   }) {
@@ -60,10 +65,17 @@ function Preview<T>({
     ],
   );
 
-  const managers = useMemo(
-    () => [new NetworkManager(), new SubscriptionManager(PollingSubscription)],
-    [],
-  );
+  const managers = useMemo<Manager[]>(() => {
+    // this mount is a new store: drop the last one's pending optimistic
+    // updates before the Store panel first renders (DataStore's init()
+    // only runs after it)
+    registry.init();
+    return [
+      registry,
+      new NetworkManager(),
+      new SubscriptionManager(PollingSubscription),
+    ];
+  }, [registry]);
 
   const coveredResult = row && selectedValue === 'y';
   return (
@@ -86,7 +98,11 @@ function Preview<T>({
               <PreviewBlockLazy onCommit={onCommit} {...errorProps} />
             </Boundary>
           </div>
-          <StoreInspector selectedValue={selectedValue} toggle={toggle} />
+          <StoreInspector
+            selectedValue={selectedValue}
+            toggle={toggle}
+            registry={registry}
+          />
         </MotionGroup>
       </MockResolver>
     </DataProvider>

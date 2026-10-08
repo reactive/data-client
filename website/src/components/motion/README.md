@@ -86,7 +86,7 @@ css.ts            global CSS (springs as custom properties, Reveal's box),
                   injected into every page by a plugin in docusaurus.config.ts
 glide.ts          runs and retargets one element's translate (Web Animations)
 MotionGroup.tsx   measures before/after a commit; drives members; useLayoutMotion
-Reveal.tsx        presence: mount, slide in, slide out, unmount
+Reveal.tsx        presence: mount, slide in, slide out, hide (state kept)
 ```
 
 Tests: `yarn test --selectProjects ReactDOM --testPathPatterns website/src/components/motion`

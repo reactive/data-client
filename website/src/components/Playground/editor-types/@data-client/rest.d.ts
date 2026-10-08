@@ -1623,7 +1623,7 @@ interface RestInstanceBase<F extends FetchFunction = FetchFunction, S extends Sc
     /** Prepares RequestInit used in fetch. This is sent to fetchResponse()
      * @see https://dataclient.io/rest/api/RestEndpoint#getRequestInit
      */
-    getRequestInit(this: any, body?: RequestInit['body'] | Record<string, unknown>): Promise<RequestInit> | RequestInit;
+    getRequestInit(this: any, body?: RequestInit['body'] | Record<string, unknown> | readonly unknown[]): Promise<RequestInit> | RequestInit;
     /** Called by getRequestInit to determine HTTP Headers
      * @see https://dataclient.io/rest/api/RestEndpoint#getHeaders
      */
@@ -2148,12 +2148,12 @@ interface Resource<O extends ResourceGenerics = {
     create: 'searchParams' extends keyof O ? MutateEndpoint<{
         path: ShortenPath<O['path']>;
         schema: Collection<[O['schema']]>['push'];
-        body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>> | FormData;
+        body: CreateBody<O> | CreateBody<O>[] | FormData;
         searchParams: O['searchParams'];
     }> : MutateEndpoint<{
         path: ShortenPath<O['path']>;
         schema: Collection<[O['schema']]>['push'];
-        body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>> | FormData;
+        body: CreateBody<O> | CreateBody<O>[] | FormData;
     }>;
     /** Update an item (PUT)
      *
@@ -2198,6 +2198,11 @@ interface ResourceInterface {
     partialUpdate: RestInstanceBase;
     delete: RestInstanceBase;
 }
+/** Matches getList.push's body, since create is getList.push at runtime */
+type CreateBody<O extends {
+    body?: any;
+    schema: Schema;
+}> = 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
 
 /** Creates collection of Endpoints for common operations on a given data/schema.
  *

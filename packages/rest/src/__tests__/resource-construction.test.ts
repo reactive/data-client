@@ -1108,6 +1108,50 @@ describe('resource()', () => {
     expect(result.current.task3?.status).toEqual('in-progress');
   });
 
+  it('getList.push should send an array of items as JSON', async () => {
+    const BulkUserResource = resource({
+      path: 'http\\://test.com/groups/:group/users/:id',
+      schema: User,
+    });
+    let contentType: unknown;
+    mynock.post(`/groups/five/users`).reply(201, function (uri, body: any) {
+      contentType = this.req.headers['content-type'];
+      return body.map((user: any, i: number) => ({ id: 10 + i, ...user }));
+    });
+
+    const { result, waitForNextUpdate } = renderDataClient(() => {
+      return [
+        useSuspense(BulkUserResource.getList, { group: 'five' }),
+        useController(),
+      ] as const;
+    });
+    await waitForNextUpdate();
+    const controller = result.current[1];
+
+    await act(async () => {
+      const created = await controller.fetch(
+        BulkUserResource.getList.push,
+        { group: 'five' },
+        [{ username: 'a' }, { username: 'b' }],
+      );
+      // push's type resolves one item even for an array body (CollectionArrayAdder TODO)
+      expect((created as unknown as User[]).map(user => user.username)).toEqual(
+        ['a', 'b'],
+      );
+    });
+    expect(contentType).toBe('application/json');
+    expect(result.current[0].map(user => user.username)).toEqual([
+      'ntucker',
+      'a',
+      'b',
+    ]);
+    // create is getList.push, so it takes arrays too
+    () =>
+      controller.fetch(BulkUserResource.create, { group: 'five' }, [
+        { username: 'c' },
+      ]);
+  });
+
   it('getList.move should work with FormData body', async () => {
     class Task extends Entity {
       readonly id: number | undefined = undefined;

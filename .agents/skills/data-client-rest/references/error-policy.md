@@ -33,34 +33,17 @@ export class TimedEntity extends Entity {
 export const lastUpdated = new RestEndpoint({
   path: '/api/currentTime/:id',
   schema: TimedEntity,
-});
-```
-
-```ts title="getUpdated"
-import { lastUpdated } from './api/lastUpdated';
-
-export const getUpdated = lastUpdated.extend({
-  fetch(this: any, arg) {
-    // fail once with FAKE_ERROR when it is set
-    const error = this.FAKE_ERROR;
-    this.FAKE_ERROR = undefined;
-    return error ? Promise.reject(error) : lastUpdated(arg);
-  },
   errorPolicy: error =>
     error.status >= 500 ? ('soft' as const) : ('hard' as const),
-  FAKE_ERROR: undefined as Error | undefined,
 });
-
-export const createError = (status: number) =>
-  Object.assign(new Error('fake error'), { status });
 ```
 
 ```tsx title="TimePage"
 import { useSuspense } from '@data-client/react';
-import { getUpdated } from './getUpdated';
+import { lastUpdated } from './api/lastUpdated';
 
 export default function TimePage({ id }) {
-  const { updatedAt } = useSuspense(getUpdated, { id });
+  const { updatedAt } = useSuspense(lastUpdated, { id });
   return (
     <div>
       API time:{' '}
@@ -73,60 +56,38 @@ export default function TimePage({ id }) {
 ```
 
 ```tsx title="ShowTime"
-import { AsyncBoundary, useController } from '@data-client/react';
-import { getUpdated, createError } from './getUpdated';
+import { useController } from '@data-client/react';
+import { Suspense } from 'react';
+import { lastUpdated } from './api/lastUpdated';
 import TimePage from './TimePage';
 
 function ShowTime() {
   const ctrl = useController();
+  // stores a rejected fetch, as if the server answered with `status`
+  const fail = (status: number, invalidate = false) => {
+    if (invalidate) ctrl.invalidate(lastUpdated, { id: '1' });
+    ctrl.setError(
+      lastUpdated,
+      { id: '1' },
+      Object.assign(new Error(`fake ${status} error`), { status }),
+    );
+  };
   return (
     <div>
-      <AsyncBoundary fallback={<div>loading...</div>}>
+      <Suspense fallback={<Loading />}>
         <TimePage id="1" />
-      </AsyncBoundary>
+      </Suspense>
       <div>
-        <button
-          onClick={() => {
-            getUpdated.FAKE_ERROR = createError(500);
-            ctrl.fetch(getUpdated, { id: '1' });
-          }}
-        >
-          Fetch Soft
-        </button>
-        <button
-          onClick={() => {
-            getUpdated.FAKE_ERROR = createError(400);
-            ctrl.fetch(getUpdated, { id: '1' });
-          }}
-        >
-          Fetch Hard
-        </button>
-        <button
-          onClick={() => {
-            getUpdated.FAKE_ERROR = createError(500);
-            ctrl.invalidate(getUpdated, { id: '1' });
-          }}
-        >
-          Invalidate Soft
-        </button>
-        <button
-          onClick={() => {
-            getUpdated.FAKE_ERROR = createError(400);
-            ctrl.invalidate(getUpdated, { id: '1' });
-          }}
-        >
-          Invalidate Hard
-        </button>
+        <button onClick={() => fail(500)}>Fail Soft</button>
+        <button onClick={() => fail(400)}>Fail Hard</button>
+        <button onClick={() => fail(500, true)}>Invalidate Soft</button>
+        <button onClick={() => fail(400, true)}>Invalidate Hard</button>
       </div>
     </div>
   );
 }
 
-render(
-  <ResetableErrorBoundary>
-    <ShowTime />
-  </ResetableErrorBoundary>,
-);
+render(<ShowTime />);
 ```
 
 ### Policy for RestEndpoint

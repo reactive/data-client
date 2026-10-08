@@ -12,48 +12,6 @@ const SUGGESTED_DEPENDENCIES = [
 ];
 
 /**
- * Cross-tab go-to-definition: focus the editor that owns the target model.
- * Focusing it makes EditorSurface reveal that tab (see its onFocus handlers).
- */
-export function registerEditorOpener(monaco: typeof Monaco) {
-  monaco.editor.registerEditorOpener({
-    openCodeEditor(
-      _sourceEditor: Monaco.editor.ICodeEditor,
-      resource: Monaco.Uri,
-      selectionOrPosition?: Monaco.IRange | Monaco.IPosition,
-    ) {
-      if (!resource.path.startsWith('/')) return false;
-
-      const model = monaco.editor.getModel(resource);
-      const destinationEditor = monaco.editor
-        .getEditors()
-        .find(
-          (editor: Monaco.editor.ICodeEditor) => editor.getModel() === model,
-        );
-      if (!destinationEditor) return false;
-      // focus event is handled by editor to show that tab
-      destinationEditor.focus();
-      requestIdleCallback(() => {
-        if (monaco.Range.isIRange(selectionOrPosition)) {
-          destinationEditor.revealRangeInCenterIfOutsideViewport(
-            selectionOrPosition,
-          );
-          destinationEditor.setSelection(selectionOrPosition);
-        } else if (selectionOrPosition) {
-          destinationEditor.revealPositionInCenterIfOutsideViewport(
-            selectionOrPosition,
-          );
-          destinationEditor.setPosition(selectionOrPosition);
-        }
-        destinationEditor.focus();
-      });
-
-      return true;
-    },
-  });
-}
-
-/**
  * Completes import specifiers: relative paths list the other files in the
  * same playground, bare specifiers list SUGGESTED_DEPENDENCIES.
  */
