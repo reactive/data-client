@@ -75,7 +75,7 @@ describe('timeScale', () => {
     expect(c - b).toBeCloseTo(16);
     expect(d - c).toBe(56);
     expect(scale.breaks).toEqual([c + 28]);
-    expect(scale.width).toBe(d + 12);
+    expect(scale.width).toBe(d + 24);
   });
 });
 

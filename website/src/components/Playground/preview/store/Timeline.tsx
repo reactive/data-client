@@ -19,7 +19,7 @@ const MIN_GAP = 10;
 /** Farthest two actions get (px): an idle stretch shows as a break */
 const MAX_GAP = 56;
 /** Space before the first action and after the last (px) */
-const PAD = 12;
+const PAD = 24;
 /** Closest two axis labels get (px) */
 const LABEL_GAP = 64;
 /** Distance from the right end (px) that still counts as following */
