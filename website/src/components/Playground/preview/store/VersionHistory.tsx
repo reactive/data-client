@@ -39,17 +39,11 @@ interface Refreshes {
 }
 type TimelineItem = Version | Refreshes;
 
-/** Every logged action that stored row `id`, oldest first, up to action
- * `until`; unchanged stores in a row share one item */
-function rowTimeline(
-  log: ActionLog,
-  entries: readonly LogEntry[],
-  id: string,
-  until?: number,
-) {
+/** Every logged action that stored row `id`, oldest first; unchanged
+ * stores in a row share one item */
+function rowTimeline(log: ActionLog, entries: readonly LogEntry[], id: string) {
   const items: TimelineItem[] = [];
   for (const entry of entries) {
-    if (until !== undefined && entry.seq > until) break;
     const change = log.changes(entry).find(c => c.id === id);
     if (!change) continue;
     const last = items.at(-1);
@@ -63,6 +57,14 @@ function rowTimeline(
 
 const isVersion = (item: TimelineItem): item is Version =>
   item.kind === 'version';
+
+/** Every logged version of row `id`, oldest first */
+function useVersions({ log, history }: Actions, id: string) {
+  return useMemo(
+    () => rowTimeline(log, history.entries, id).filter(isVersion),
+    [log, history.entries, id],
+  );
+}
 
 /** Opens record `id`'s history, at the version this level shows */
 function openHistory(nav: Nav, { until }: Actions, id: string) {
@@ -89,12 +91,12 @@ function LastChange({
   actions: Actions;
   nav: Nav;
 }) {
-  const { log, history, until } = actions;
-  const changes = useMemo(
-    () => rowTimeline(log, history.entries, id, until).filter(isVersion),
-    [log, history.entries, id, until],
+  const changes = useVersions(actions, id);
+  // as of the store this level shows
+  const { until } = actions;
+  const last = changes.findLast(
+    v => until === undefined || v.entry.seq <= until,
   );
-  const last = changes.at(-1);
   if (!last) return null;
   const { seq } = last.entry;
   return (
@@ -132,14 +134,21 @@ function LastChange({
 export function HistoryButton({ id }: { id: string }) {
   const actions = useContext(ActionsContext);
   const nav = useNav();
-  if (!actions || !nav) return null;
-  const { log, history, until } = actions;
-  const changed = history.entries.some(
-    e =>
-      (until === undefined || e.seq <= until) &&
-      log.changes(e).some(c => c.id === id && c.kind !== 'refreshed'),
-  );
-  if (!changed) return null;
+  return actions && nav ?
+      <HistoryButtonOf id={id} actions={actions} nav={nav} />
+    : null;
+}
+
+function HistoryButtonOf({
+  id,
+  actions,
+  nav,
+}: {
+  id: string;
+  actions: Actions;
+  nav: Nav;
+}) {
+  if (!useVersions(actions, id).length) return null;
   return (
     <button
       type="button"
@@ -191,8 +200,10 @@ export function RowHistory({
       ?.scrollIntoView?.({ block: 'nearest' });
   }, []);
 
-  // ↑ ↓ step through the versions, opening each
+  // ↑ ↓ step through the versions, opening each (from a version's head, so
+  // arrows inside the open one still scroll)
   const onKeyDown = (e: React.KeyboardEvent) => {
+    if (!(e.target as HTMLElement).dataset.version) return;
     const step =
       e.key === 'ArrowDown' ? 1
       : e.key === 'ArrowUp' ? -1

@@ -1,8 +1,4 @@
-import {
-  actionTypes,
-  StateContext,
-  type ActionTypes,
-} from '@data-client/react';
+import { actionTypes, StateContext } from '@data-client/react';
 import clsx from 'clsx';
 import React, {
   createContext,

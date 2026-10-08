@@ -385,8 +385,8 @@ function Levels({
         width,
         // what it opens shows the same store; a history shows each version
         // at its own
-        push: (view: View, next = view.kind === 'history' ? undefined : at) =>
-          push(view, next),
+        push: (view: View, next = at) =>
+          push(view, view.kind === 'history' ? undefined : next),
       },
       then: shown,
     };

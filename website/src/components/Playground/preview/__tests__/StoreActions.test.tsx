@@ -267,6 +267,14 @@ describe('Store Actions tab', () => {
     expect(document.activeElement).toBe(versions()[1]);
     fireEvent.keyDown(versions()[1], { key: 'ArrowDown' });
     expect(versions()[1].getAttribute('aria-expanded')).toBe('true');
+    // arrows inside the open version leave it open
+    fireEvent.keyDown(
+      within(body()).getByRole('button', { name: 'Open action' }),
+      {
+        key: 'ArrowUp',
+      },
+    );
+    expect(versions()[1].getAttribute('aria-expanded')).toBe('true');
   });
 
   it('opens State after a version, and back to that version', async () => {

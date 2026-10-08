@@ -12,7 +12,6 @@ import {
   useActions,
 } from './ActionsView';
 import type { Header } from './DiveViews';
-import { onActivateKey } from './dom';
 import { errorText } from './model';
 import { ActionSpanContext } from './nav';
 import { plain } from './refs';
