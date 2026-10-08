@@ -9,9 +9,11 @@ import {
 
 import {
   diffStates,
+  groupEntries,
+  groupEntriesOf,
   mergeChanges,
-  requestId,
   type Change,
+  type RequestGroup,
 } from './actionGroups';
 
 /** Actions kept; older ones drop off the front */
@@ -247,71 +249,39 @@ export default class ActionLog {
   }
 }
 
-/** The newest `LOG_LIMIT` entries, plus the older ones they need to group:
- * subscribes of subscriptions still open, so a long poll keeps its row, and
- * fetches still waiting or whose response is kept */
+/** The newest `LOG_LIMIT` entries, plus the older ones their groups start
+ * from: the fetch of a request still waiting or with entries kept, and the
+ * subscribes of a subscription still open, so a long poll keeps its row */
 function trim(entries: LogEntry[]): LogEntry[] {
   const drop = entries.length - LOG_LIMIT;
   if (drop <= 0) return entries;
-  // subscribers each key still has: overall, and among the kept entries
-  const open = new Map<string, number>();
-  const kept = new Map<string, number>();
-  // fetches each request id still needs: waiting for a response, or
-  // answered by a kept one (mutations can share an id)
-  const waiting = new Map<string, number>();
-  const answered = new Map<string, number>();
-  entries.forEach((e, i) => {
-    if (e.newStore) {
-      open.clear();
-      kept.clear();
-      waiting.clear();
-      answered.clear();
+  const cut = entries[drop].seq;
+  const dropped = (e: LogEntry) => e.seq < cut;
+  const anchors = new Set<LogEntry>();
+  const anchorRequest = (request: RequestGroup) => {
+    const [fetch] = request.entries;
+    const waiting = !request.response && !request.cancelled;
+    if (dropped(fetch) && (waiting || !request.entries.every(dropped)))
+      anchors.add(fetch);
+  };
+  for (const group of groupEntries(entries)) {
+    if (group.kind === 'request') anchorRequest(group);
+    if (group.kind !== 'subscription') continue;
+    group.requests.forEach(anchorRequest);
+    if (!group.open && groupEntriesOf(group).every(dropped)) continue;
+    // the latest dropped subscribes, one per subscriber still there at the cut
+    let open = 0;
+    const subscribes: LogEntry[] = [];
+    for (const entry of group.entries.filter(dropped)) {
+      if (entry.action.type === actionTypes.SUBSCRIBE) {
+        open++;
+        subscribes.push(entry);
+      } else open--;
     }
-    const { action } = e;
-    if (action.type === actionTypes.FETCH && !e.deduped)
-      add(waiting, requestId(action.key, action.meta.fetchedAt), 1);
-    if (action.type === actionTypes.SET_RESPONSE) {
-      const id = requestId(action.key, action.meta.fetchedAt);
-      if (waiting.get(id)) add(waiting, id, -1);
-      if (i >= drop) add(answered, id, 1);
-    }
-    // NetworkManager rejects everything in flight; no response follows
-    if (action.type === actionTypes.RESET) waiting.clear();
-    if (
-      action.type !== actionTypes.SUBSCRIBE &&
-      action.type !== actionTypes.UNSUBSCRIBE
-    )
-      return;
-    const step = action.type === actionTypes.SUBSCRIBE ? 1 : -1;
-    add(open, action.key, step);
-    if (i >= drop) add(kept, action.key, step);
-  });
-  // the latest dropped subscribes make up what the kept entries lack
-  const anchors: LogEntry[] = [];
-  for (let i = drop - 1; i >= 0; i--) {
-    const { action, newStore, deduped } = entries[i];
-    if (
-      action.type === actionTypes.SUBSCRIBE &&
-      (open.get(action.key) ?? 0) > (kept.get(action.key) ?? 0)
-    ) {
-      add(kept, action.key, 1);
-      anchors.unshift(entries[i]);
-    } else if (action.type === actionTypes.FETCH && !deduped) {
-      const id = requestId(action.key, action.meta.fetchedAt);
-      const needs = waiting.get(id) ? waiting : answered.get(id) && answered;
-      if (needs) {
-        add(needs, id, -1);
-        anchors.unshift(entries[i]);
-      }
-    }
-    // what came before belonged to the store before
-    if (newStore) break;
+    if (open > 0) subscribes.slice(-open).forEach(e => anchors.add(e));
   }
-  return [...anchors, ...entries.slice(drop)];
+  return entries.filter(e => !dropped(e) || anchors.has(e));
 }
-
-const add = (counts: Map<string, number>, key: string, step: number) =>
-  counts.set(key, (counts.get(key) ?? 0) + step);
 
 /** `state` with tables of its own: the store's reducer deletes garbage from
  * its tables in place, which states built from them share */

@@ -80,11 +80,23 @@ export default function StorePanel({
   const [snapshotSeq, setSnapshot] = useState<number | null>(null);
   const found =
     snapshotSeq === null ? undefined : findEntry(entries, snapshotSeq);
-  // stays shown once its action drops off the front of the log
-  const [kept, setKept] = useState<LogEntry>();
-  if (found && found !== kept) setKept(found);
-  const snapshot =
-    found ?? (kept && kept.seq === snapshotSeq ? kept : undefined);
+  // stays shown once its action drops off the front of the log, along with
+  // the actions before it, which say what changed each row
+  const [kept, setKept] = useState<{
+    entry: LogEntry;
+    entries: readonly LogEntry[];
+  }>();
+  if (found && (found !== kept?.entry || entries !== kept.entries))
+    setKept({ entry: found, entries });
+  const gone = !found && kept?.entry.seq === snapshotSeq ? kept : undefined;
+  const snapshot = found ?? gone?.entry;
+  const known = useMemo(() => {
+    if (!gone) return entries;
+    const live = new Set(entries.map(e => e.seq));
+    return [...gone.entries.filter(e => !live.has(e.seq)), ...entries].sort(
+      (a, b) => a.seq - b.seq,
+    );
+  }, [gone, entries]);
   const state = snapshot?.store ? log.view(snapshot.store.after) : live;
   // the store commits and the log notifies in separate renders: the rows
   // rebuild only when the store commits
@@ -107,7 +119,7 @@ export default function StorePanel({
   const [thens] = useState(() => new WeakMap<State<unknown>, Then>());
   const then = useCallback(
     ({ seq, before }: Moment): Then | undefined => {
-      const store = findEntry(entries, seq)?.store;
+      const store = findEntry(known, seq)?.store;
       if (!store) return undefined;
       const raw = before ? store.before : store.after;
       let found = thens.get(raw);
@@ -122,7 +134,7 @@ export default function StorePanel({
       }
       return found;
     },
-    [entries, log, registry, thens],
+    [known, log, registry, thens],
   );
 
   // a cache: rows that didn't change keep their group, so they skip rendering
@@ -149,8 +161,15 @@ export default function StorePanel({
   );
   // only State shows the past; the Actions tab's records are live
   const stateActions = useMemo<Actions>(
-    () => (snapshot ? { ...actions, until: snapshot.seq } : actions),
-    [actions, snapshot],
+    () =>
+      snapshot ?
+        {
+          ...actions,
+          history: { ...history, entries: known },
+          until: snapshot.seq,
+        }
+      : actions,
+    [actions, history, known, snapshot],
   );
 
   const panel = useRef<HTMLDivElement>(null);

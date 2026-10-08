@@ -377,8 +377,7 @@ export function groupEntries(
   return groups;
 }
 
-export const requestId = (key: string, fetchedAt: number) =>
-  `${fetchedAt} ${key}`;
+const requestId = (key: string, fetchedAt: number) => `${fetchedAt} ${key}`;
 
 /** `next`, with each group that hasn't changed since `prev` kept as it was,
  * so its row can skip rendering */

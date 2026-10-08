@@ -174,6 +174,14 @@ describe('Store Actions tab', () => {
     expect(bar.textContent).toContain('setResponse');
     const next = within(bar).getByRole('button', { name: 'Next change' });
     expect((next as HTMLButtonElement).disabled).toBe(false);
+    // its records still say what changed them
+    const statePanel = bar.parentElement!;
+    fireEvent.click(
+      statePanel.querySelector<HTMLElement>(
+        `tr[data-id="${entityId('Post', '1')}"]`,
+      )!,
+    );
+    expect(statePanel.textContent).toContain('changed by');
   });
 
   it('shows an optimistic update, its diff, and State as it was then', async () => {
@@ -791,6 +799,60 @@ describe('ActionLog', () => {
     // cancels only what is still in flight
     dispatch({ type: actionTypes.RESET, date: 2 });
     expect(fetches()).toEqual(['k']);
+  });
+
+  it('keeps the fetch still waiting when mutations share a fetch time', () => {
+    const log = new ActionLog();
+    const dispatch = connect(log, 0);
+    const meta = { fetchedAt: 1, date: 1, expiresAt: 2 };
+    const fetch = (id: number) =>
+      dispatch({
+        type: actionTypes.FETCH,
+        key: 'm',
+        args: [{ id }],
+        endpoint: { sideEffect: true },
+        meta,
+      });
+    fetch(1);
+    fetch(2);
+    // the second resolves first
+    dispatch({
+      type: actionTypes.SET_RESPONSE,
+      key: 'm',
+      args: [{ id: 2 }],
+      response: 2,
+      meta,
+      endpoint: { schema: undefined },
+    });
+    for (let i = 0; i < 500; i++)
+      dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other' });
+    const { entries } = log.history(0);
+    expect(entries).toHaveLength(501);
+    expect(entries[0].action).toMatchObject({ args: [{ id: 1 }] });
+  });
+
+  it('keeps a fetch whose response a restored store kept', () => {
+    const log = new ActionLog();
+    const first = connect(log, 0);
+    first({
+      type: actionTypes.FETCH,
+      key: 'k',
+      endpoint: {},
+      meta: { fetchedAt: 1 },
+    });
+    first({
+      type: actionTypes.SET_RESPONSE,
+      key: 'k',
+      response: 1,
+      meta: { fetchedAt: 1, date: 1, expiresAt: 2 },
+      endpoint: { schema: undefined },
+    });
+    const restored = connect(log, 0);
+    for (let i = 0; i < 499; i++)
+      restored({ type: actionTypes.UNSUBSCRIBE, key: 'other' });
+    const [request] = groupEntries(log.history(0).entries);
+    expect(request).toMatchObject({ kind: 'request', key: 'k' });
+    expect(request.entries).toHaveLength(2);
   });
 
   it('keeps the fetch of a response kept past the limit', () => {
