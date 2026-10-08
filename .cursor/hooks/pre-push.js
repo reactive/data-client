@@ -5,7 +5,7 @@
 // `eslint --fix` on the JS/TS files it changes, and holds the push until the
 // result is committed.
 // Runs once per push instead of per edit or turn, so any number of local
-// commits can come first; CI's `skills` and `agent-rules` checks are the
+// commits can come first; CI's `regenerate` and `agent-rules` checks are the
 // backstop.
 const { execFileSync } = require('child_process');
 const fs = require('fs');
@@ -88,11 +88,11 @@ try {
 }
 
 /**
- * Runs the generator `script` (`yarn build:<check>`, CI check `<check>`) when
+ * Runs the generator `script` (`yarn build:<build>`) when
  * the branch changes a file `isInput` matches, then reports problems it
  * printed and `outputs` (pathspecs) left uncommitted
  */
-function regenerate({ what, from, script, check, isInput, outputs }) {
+function regenerate({ what, from, script, build, isInput, outputs }) {
   const isDirty = dirty.some(isInput);
   // the generator reads the working tree, so it can only vouch for what's
   // pushed when that includes these edits; otherwise leave it to CI
@@ -119,7 +119,7 @@ function regenerate({ what, from, script, check, isInput, outputs }) {
     uncommitted &&
       `${what} generated from this branch's ${from} changes aren't committed. Commit them, then push again:\n${uncommitted}`,
     problems &&
-      `\`yarn build:${check}\` found problems the ${check} CI check will fail on. Fix them, commit, then push again:\n${problems}`,
+      `\`yarn build:${build}\` found problems CI will fail on. Fix them, commit, then push again:\n${problems}`,
   ];
 }
 
@@ -206,7 +206,7 @@ const message = [
     what: 'Skill references',
     from: 'docs',
     script: 'website/framework-docs/skillReferences.mjs',
-    check: 'skills',
+    build: 'skills',
     isInput: isSkillInput,
     outputs: ['.agents/skills/*/references/*'],
   }),
@@ -214,7 +214,7 @@ const message = [
     what: 'Claude Code rules',
     from: 'Cursor rules',
     script: 'scripts/agent-rules.mjs',
-    check: 'agent-rules',
+    build: 'agent-rules',
     // sources only; a hand edit to the output is left to CI
     isInput: file =>
       /(^|\/)\.cursor\/rules\//.test(file) ||

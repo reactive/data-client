@@ -196,7 +196,8 @@ describe('Store Actions tab', () => {
     expect(within(statePanel).getAllByText('"Edited!"').length).toBeGreaterThan(
       0,
     );
-    expect(statePanel.textContent).not.toContain('Optimistic');
+    // the section stays once seen, so settling doesn't shift what's below
+    expect(statePanel.textContent).toContain('None pending');
   });
 
   it('shows the new row next to an update in the same table', async () => {

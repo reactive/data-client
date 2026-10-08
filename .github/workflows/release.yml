@@ -10,6 +10,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   queue: max
 
+permissions:
+  contents: read
+
 jobs:
   release:
     name: Release

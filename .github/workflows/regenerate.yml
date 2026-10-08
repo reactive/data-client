@@ -1,0 +1,91 @@
+name: regenerate
+# Reruns the generators whose output is committed: playground editor types
+# (yarn copy:websitetypes) and skill references (yarn build:skills).
+# Fails when the committed output is stale: PR authors regenerate and commit it.
+# Also type-checks the docs' React and Vue examples.
+# Claude Code rules are left to agent-rules.yml, which needs no install.
+on:
+  push:
+    branches:
+      - master
+    # Inputs of scripts/copywebsitetypes.sh, website/framework-docs/skillReferences.mjs
+    # and checkExamples.mjs
+    paths:
+      - 'packages/**'
+      - '!packages/**/__tests__/**'
+      - '!packages/*/typescript-tests/**'
+      - '!packages/*/src-*-types/**'
+      - '!packages/**/*.md'
+      - 'scripts/copywebsitetypes.sh'
+      - 'scripts/strip-dts-comments.mjs'
+      - 'scripts/globals.ts'
+      - 'scripts/rollup-plugins/**'
+      - 'website/src/components/Playground/editor-types/**'
+      - 'website/src/components/Playground/DesignSystem/index.ts'
+      - 'tsconfig*.json'
+      - 'docs/**'
+      - '.agents/skills/**'
+      - 'website/framework-docs/**'
+      # symlinked into skills that others bundle
+      - 'website/static/codemods/**'
+      - '.gitattributes'
+      - 'website/package.json'
+      - 'package.json'
+      - 'yarn.lock'
+      - '.github/workflows/regenerate.yml'
+      - '.github/workflows/paths-gate.yml'
+  pull_request:
+    branches:
+      - master
+  # Required check: no `paths` (see paths-gate.yml)
+  merge_group:
+
+# PRs cancel superseded runs. Push runs get their own group, so master never
+# shows a cancelled (red) run.
+concurrency:
+  group: regenerate-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    if: github.event_name != 'push'
+    uses: ./.github/workflows/paths-gate.yml
+
+  regenerate:
+    name: regenerate
+    needs: gate
+    if: ${{ !cancelled() && needs.gate.outputs.relevant != 'false' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '26'
+          cache: 'yarn'
+      - name: Install packages
+        # website provides bignumber.js, @number-flow/react, etc.
+        run: ./scripts/ci-install.sh website
+      - name: Regenerate playground editor types
+        run: yarn copy:websitetypes
+      - name: Regenerate skill references
+        run: yarn build:skills
+      - name: Diff generated files
+        run: |
+          STALE="$(git status --porcelain --untracked-files=all -- \
+            website/src/components/Playground/editor-types '.agents/skills/*/references/*')"
+          if [ -n "$STALE" ]; then
+            echo "$STALE"
+            echo "::error::Generated files are stale: merge master, run 'yarn copy:websitetypes' and 'yarn build:skills', and commit the result."
+            exit 1
+          fi
+      - name: Type-check React and Vue examples in the docs
+        if: ${{ !cancelled() }}
+        run: yarn check:doc-examples
+

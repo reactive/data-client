@@ -7,11 +7,8 @@ import {
   type State,
 } from '@data-client/react';
 import { MockResolver } from '@data-client/test/browser';
-import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
-import clsx from 'clsx';
 import React, {
   memo,
-  useCallback,
   useMemo,
   lazy,
   type ProfilerOnRenderCallback,
@@ -22,14 +19,14 @@ import Boundary from '../Boundary';
 import type { PreviewErrorProps } from './PreviewError';
 import SchemaRegistry from './store/schemaRegistry';
 import StoreInspector from './StoreInspector';
-import { useTabStorage } from '../../../utils/tabStorage';
 import styles from '../styles.module.css';
 import type { PreviewProps } from '../types';
 
 function Preview<T>({
-  groupId,
-  defaultOpen,
+  storeOpen,
+  toggleStore,
   row,
+  storeHost,
   fixtures,
   getInitialInterceptorData,
   onCommit,
@@ -53,24 +50,6 @@ function Preview<T>({
     /** User pointer/keyboard input inside the result */
     onInteract: () => void;
   }) {
-  const [choice, setTabGroupChoice] = useTabStorage(groupId);
-  const selectedValue = choice === 'y' || choice === 'n' ? choice : defaultOpen;
-  const { blockElementScrollPositionUntilNextRender } =
-    useScrollPositionBlocker();
-
-  const toggle = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
-      blockElementScrollPositionUntilNextRender(event.currentTarget);
-      const next = selectedValue === 'y' ? 'n' : 'y';
-      setTabGroupChoice(next);
-    },
-    [
-      blockElementScrollPositionUntilNextRender,
-      selectedValue,
-      setTabGroupChoice,
-    ],
-  );
-
   const managers = useMemo<Manager[]>(() => {
     const log = registry.log.connect(history, replacedHistory);
     return [
@@ -82,7 +61,6 @@ function Preview<T>({
     ];
   }, [registry, history, replacedHistory]);
 
-  const coveredResult = row && selectedValue === 'y';
   return (
     <DataProvider managers={managers} initialState={initialState}>
       <MockResolver
@@ -90,12 +68,9 @@ function Preview<T>({
         silenceMissing={true}
         getInitialInterceptorData={getInitialInterceptorData}
       >
-        <MotionGroup layoutDependency={selectedValue}>
+        <MotionGroup layoutDependency={storeOpen}>
           <div
-            className={clsx('playground-preview', styles.playgroundPreview, {
-              [styles.covered]: coveredResult,
-            })}
-            inert={coveredResult}
+            className={`playground-preview ${styles.playgroundPreview}`}
             onPointerDownCapture={onInteract}
             onKeyDownCapture={onInteract}
           >
@@ -104,10 +79,12 @@ function Preview<T>({
             </Boundary>
           </div>
           <StoreInspector
-            selectedValue={selectedValue}
-            toggle={toggle}
+            open={storeOpen}
+            toggle={toggleStore}
             registry={registry}
             history={history}
+            row={row}
+            host={storeHost}
           />
         </MotionGroup>
       </MockResolver>

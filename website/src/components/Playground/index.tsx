@@ -1,4 +1,3 @@
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useIsomorphicLayoutEffect from '@docusaurus/useIsomorphicLayoutEffect';
 import clsx from 'clsx';
 import React, { lazy, useDeferredValue, useState } from 'react';
@@ -10,7 +9,7 @@ import EditorSurface from './editor/EditorSurface';
 import FixturePreview from './preview/FixturePreview';
 import type LivePreviewType from './preview/LivePreview';
 import PreviewWrapper from './preview/PreviewWrapper';
-import { StoreToggle } from './preview/StoreInspector';
+import { StoreToggle, useStoreOpen } from './preview/StoreInspector';
 import styles from './styles.module.css';
 import type { FixtureOrInterceptor } from './types';
 import { isBot } from './userAgent';
@@ -46,16 +45,20 @@ export default function Playground<T>({
   headerControls,
   renderCount = false,
 }: PlaygroundProps<T>) {
-  const { playgroundPosition } = (
-    useDocusaurusContext().siteConfig.themeConfig as any
-  ).liveCodeBlock;
-
   const model = useCodeDocuments(children, defaultTab);
   // Defer preview transpilation so editor input remains responsive.
   // `;` keeps a half-typed statement from absorbing the next document.
   const code = useDeferredValue(
     model.documents.map(document => document.value).join('\n;\n'),
   );
+
+  const [storeOpen, toggleStore, closeStore] = useStoreOpen(
+    groupId,
+    defaultOpen,
+  );
+  // Row layout: the Store slides over the code, leaving the preview usable
+  const [storeHost, setStoreHost] = useState<HTMLDivElement | null>(null);
+  const codeCovered = row && storeOpen;
 
   // Hydrate Monaco on first show and keep it (preserves undo / go-to-def).
   const [editorInteractive, setEditorInteractive] = useState(!hidden);
@@ -64,7 +67,7 @@ export default function Playground<T>({
   }, [hidden]);
 
   const editor = (
-    <EditorShell key="editor">
+    <EditorShell>
       <EditorSurface
         {...model}
         interactive={editorInteractive}
@@ -74,18 +77,25 @@ export default function Playground<T>({
           fixtures.length ? <FixturePreview fixtures={fixtures} /> : undefined
         }
         headerControls={headerControls}
+        cover={
+          row ? <div ref={setStoreHost} className={styles.storeHost} /> : null
+        }
+        covered={codeCovered}
+        // switching files asks for the code back (when the tabs stay visible)
+        onTabSelect={codeCovered ? closeStore : undefined}
       />
     </EditorShell>
   );
   // Live preview only while visible — unmounts when hidden (resets store).
   const preview =
     hidden ? previewLoading : (
-      <Boundary key="preview" fallback={previewLoading}>
+      <Boundary fallback={previewLoading}>
         <LivePreview
           code={code}
-          groupId={groupId}
-          defaultOpen={defaultOpen}
+          storeOpen={storeOpen}
+          toggleStore={toggleStore}
           row={row}
+          storeHost={storeHost}
           fixtures={fixtures}
           getInitialInterceptorData={getInitialInterceptorData}
           renderCount={renderCount}
@@ -104,7 +114,8 @@ export default function Playground<T>({
           [styles.row]: row,
         })}
       >
-        {playgroundPosition === 'top' ? [preview, editor] : [editor, preview]}
+        {editor}
+        {preview}
       </div>
     </div>
   );
@@ -112,7 +123,7 @@ export default function Playground<T>({
 
 /** SSR, crawler, hidden and loading state: empty preview frame + Store toggle */
 const previewLoading = (
-  <PreviewWrapper key="preview">
+  <PreviewWrapper>
     <div className={styles.playgroundPreview} />
     <StoreToggle />
   </PreviewWrapper>
