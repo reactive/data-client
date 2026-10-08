@@ -297,7 +297,7 @@ export function TypeName({ entry }: { entry: LogEntry }) {
   );
 }
 
-function typeClass(entry: LogEntry) {
+export function typeClass(entry: LogEntry) {
   const { action } = entry;
   switch (action.type) {
     case actionTypes.FETCH:

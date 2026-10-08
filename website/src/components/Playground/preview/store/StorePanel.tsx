@@ -1,4 +1,5 @@
 import { StateContext, type State } from '@data-client/react';
+import clsx from 'clsx';
 import React, {
   useCallback,
   useContext,
@@ -40,6 +41,7 @@ import RootView from './RootView';
 import type SchemaRegistry from './schemaRegistry';
 import styles from './store.module.css';
 import { StoreUIProvider } from './StoreUI';
+import Timeline from './Timeline';
 import TreeView from './TreeView';
 import { RowKey } from './Value';
 import { useTabStorage } from '../../../../utils/tabStorage';
@@ -60,6 +62,8 @@ interface Then {
 }
 /** Breadcrumbs shown before the middle ones collapse to `…` */
 const CRUMBS = 4;
+/** Panel width (px) below which the timeline's lane labels shrink */
+const NARROW = 480;
 
 export default function StorePanel({
   registry,
@@ -76,6 +80,8 @@ export default function StorePanel({
   const { entries } = history;
   const [stored, setView] = useTabStorage('playgroundStoreView');
   const tree = stored === 'tree';
+  const [actionsView, setActionsView] = useTabStorage('playgroundActionsView');
+  const timeline = actionsView === 'timeline';
   const [tab, setTab] = useState<'state' | 'actions'>('state');
   // the Actions tab mounts on first visit, then stays (scroll, open rows)
   const [actionsShown, setActionsShown] = useState(false);
@@ -186,6 +192,15 @@ export default function StorePanel({
     snapshot?.store && log.view(snapshot.store.before),
   );
 
+  // shown by State, and below the timeline at the moment it picks
+  const stateView = (
+    <StateContext.Provider value={state}>
+      {tree ?
+        <TreeLevel model={model} />
+      : <Levels model={model} width={width} root={STATE_ROOT} then={then} />}
+    </StateContext.Provider>
+  );
+
   return (
     <ActionsContext.Provider value={actions}>
       <LogContext.Provider value={logContext}>
@@ -214,6 +229,32 @@ export default function StorePanel({
                 </span>
               )}
             </button>
+            {tab === 'actions' && (
+              <span
+                className={styles.viewButtons}
+                role="group"
+                aria-label="Actions view"
+              >
+                <button
+                  type="button"
+                  aria-label="List view"
+                  title="List view"
+                  aria-pressed={!timeline}
+                  onClick={() => setActionsView('list')}
+                >
+                  <ListIcon />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Timeline view"
+                  title="Timeline view"
+                  aria-pressed={timeline}
+                  onClick={() => setActionsView('timeline')}
+                >
+                  <TimelineIcon />
+                </button>
+              </span>
+            )}
             {tab === 'state' && (
               <span
                 className={styles.viewButtons}
@@ -256,27 +297,38 @@ export default function StorePanel({
                   }
                 />
               )}
-              <StateContext.Provider value={state}>
-                {tree ?
-                  <TreeLevel model={model} />
-                : <Levels
-                    model={model}
-                    width={width}
-                    root={STATE_ROOT}
-                    then={then}
-                  />
-                }
-              </StateContext.Provider>
+              {stateView}
             </ActionsContext.Provider>
           </div>
           {actionsShown && (
             <div className={styles.tabPanel} hidden={tab !== 'actions'}>
-              <Levels
-                model={liveModel}
-                width={width}
-                root={ACTIONS_ROOT}
-                then={then}
-              />
+              <div className={styles.tabPanel} hidden={timeline}>
+                <Levels
+                  model={liveModel}
+                  width={width}
+                  root={ACTIONS_ROOT}
+                  then={then}
+                />
+              </div>
+              {timeline && (
+                <ActionsContext.Provider value={stateActions}>
+                  <Timeline
+                    entries={known}
+                    storeFrom={history.storeFrom}
+                    since={history.since}
+                    selected={snapshot?.seq ?? null}
+                    onSelect={setSnapshot}
+                    narrow={width < NARROW}
+                  />
+                  {snapshot ?
+                    <SnapshotBar entry={snapshot} onShow={setSnapshot} />
+                  : <div className={clsx(styles.snapshot, styles.tlLive)}>
+                      Live. Pick an action to see State right after it.
+                    </div>
+                  }
+                  {stateView}
+                </ActionsContext.Provider>
+              )}
             </div>
           )}
         </div>
@@ -708,6 +760,22 @@ function TableIcon() {
     <svg viewBox="0 0 16 16" aria-hidden="true">
       <rect x="2" y="3" width="12" height="10" rx="1" />
       <path d="M2 6.5h12M2 9.5h12M6 3v10" />
+    </svg>
+  );
+}
+function ListIcon() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M2.5 4h11M2.5 8h11M2.5 12h11" />
+    </svg>
+  );
+}
+function TimelineIcon() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M2 5h5M5 11h9M2 8h12" />
+      <circle cx="7" cy="5" r="1.4" />
+      <circle cx="14" cy="11" r="1.4" />
     </svg>
   );
 }
