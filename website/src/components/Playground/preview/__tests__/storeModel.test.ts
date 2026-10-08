@@ -133,7 +133,6 @@ describe('store model', () => {
         },
       } as unknown as State<unknown>,
       registry,
-      [],
     );
     const users = model.table('User')!;
     expect(users.pkField).toBe('id');
@@ -162,7 +161,6 @@ describe('store model', () => {
         },
       } as unknown as State<unknown>,
       registry,
-      [],
     );
     expect(model.table('Article')?.fields).toEqual(['id', 'slug', 'title']);
     expect(model.table('User')?.fields).toEqual(['name']);
@@ -181,7 +179,6 @@ describe('store model', () => {
         },
       } as unknown as State<unknown>,
       registry,
-      [],
     );
     const members = (key: string, pk: string) =>
       membersOf(model, model.table(key)!.get(pk)!);
@@ -285,7 +282,7 @@ describe('store model', () => {
       ...state,
       meta: { 'GET /broken': { error: new Error('x'), date: 1 } },
     } as unknown as State<unknown>;
-    const model = buildModel(failed, new SchemaRegistry(), []);
+    const model = buildModel(failed, new SchemaRegistry());
     expect(model.endpoints.map(e => e.key)).toEqual([
       'GET https://example.com/posts',
       'GET /broken',
@@ -307,7 +304,7 @@ describe('store model', () => {
       pk: '{"postId":"1"}',
     });
     expect(parseRowId('something else')).toBeUndefined();
-    const model = buildModel(state, new SchemaRegistry(), []);
+    const model = buildModel(state, new SchemaRegistry());
     expect(findRow(model, entityId('User', '123'))?.id).toBe(
       entityId('User', '123'),
     );
@@ -343,7 +340,6 @@ describe('store model', () => {
     const model = buildModel(
       state,
       registryFor('GET https://example.com/posts', [Post]),
-      [],
     );
     const labels = (key: string, pk: string) =>
       referrersOf(model, entityId(key, pk)).map(rowLabel);
@@ -359,7 +355,7 @@ describe('store model', () => {
   });
 
   it('shows unknown schemas as plain values', () => {
-    const model = buildModel(state, new SchemaRegistry(), []);
+    const model = buildModel(state, new SchemaRegistry());
     expect(model.endpoints[0].value).toEqual({
       t: 'arr',
       items: [{ t: 'val', v: '1' }],
@@ -385,7 +381,6 @@ describe('store model', () => {
         },
       } as unknown as State<unknown>,
       registry,
-      [],
     );
     expect(model.tables.map(t => `${t.key}:${t.kind}`)).toEqual([
       'User:entity',
@@ -411,7 +406,6 @@ describe('store model', () => {
         entities: { Thing: { a: { n: 1 } }, '[Thing]': { '{}': ['a'] } },
       } as unknown as State<unknown>,
       new SchemaRegistry(),
-      [],
     );
     expect(model.tables.map(t => t.kind)).toEqual(['unknown', 'collection']);
   });

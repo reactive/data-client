@@ -402,8 +402,12 @@ describe('ActionLog', () => {
     endpoints: { a: '1' },
   };
   /** A store whose actions go to `history` */
-  const connect = (log: ActionLog, history: number, state = empty) => {
-    const { head, tail } = log.connect(history);
+  const connect = (
+    log: ActionLog,
+    history: number,
+    { keep, state = empty }: { keep?: number; state?: State<unknown> } = {},
+  ) => {
+    const { head, tail } = log.connect(history, keep);
     const store = { getState: () => state } as any;
     return head.middleware!(store)(
       tail.middleware!(store)(() => Promise.resolve()),
@@ -432,14 +436,14 @@ describe('ActionLog', () => {
     const first = connect(log, 0);
     first(subscribe());
     first(subscribe());
-    // an automatic retry with a fresh store
-    const retry = connect(log, 1);
+    // an automatic retry with a fresh store, keeping the first's history
+    const retry = connect(log, 1, { keep: 0 });
     retry(subscribe());
     // the replaced store unmounting
     first({ type: actionTypes.UNSUBSCRIBE, key: 'k' });
     expect(log.history(0).entries).toHaveLength(3);
     expect(log.history(1).entries).toHaveLength(1);
-    // the error persists: the first store comes back
+    // the error persists: the first store comes back, the retry's is gone
     connect(log, 0)(subscribe());
     expect(log.history(0).entries.map(e => !!e.newStore)).toEqual([
       true,
@@ -447,12 +451,12 @@ describe('ActionLog', () => {
       false,
       true,
     ]);
-    // a reset: only the history it replaced could come back
-    connect(log, 3)(subscribe());
-    expect(log.history(0).entries).toHaveLength(4);
     expect(log.history(1).entries).toHaveLength(0);
     retry(subscribe());
     expect(log.history(1).entries).toHaveLength(0);
+    // a reset
+    connect(log, 3)(subscribe());
+    expect(log.history(0).entries).toHaveLength(0);
   });
 
   it('follows each store’s own state', () => {
@@ -465,7 +469,7 @@ describe('ActionLog', () => {
       endpoint: { schema: undefined },
     });
     const old = connect(log, 0);
-    const next = connect(log, 1, initialState);
+    const next = connect(log, 1, { keep: 0, state: initialState });
     old(set());
     next(set());
     // the old store's actions don't move the new one's state

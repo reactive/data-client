@@ -61,13 +61,17 @@ export default class ActionLog {
 
   /** Managers that log one store's actions into history `id`: `head` goes
    * first in the manager chain, `tail` last (it sees what actually reaches
-   * the store) */
-  connect(id: number) {
+   * the store). Once the store dispatches, histories other than `id` and
+   * `keep` (one that may still come back) are dropped */
+  connect(id: number, keep?: number) {
     /** Each action's entry, for the tail to find what the head recorded */
     const recorded = new WeakMap<ActionTypes, LogEntry>();
     let first = true;
     const head: Manager<ActionTypes> = {
       middleware: () => next => action => {
+        if (first)
+          for (const old of this.histories.keys())
+            if (old !== id && old !== keep) this.histories.delete(old);
         const entry: LogEntry = {
           seq: this.nextSeq++,
           action,
@@ -138,14 +142,8 @@ export default class ActionLog {
 
   private append(id: number, entry: LogEntry) {
     const history = this.histories.get(id);
-    if (entry.newStore) {
-      // a store mounting starts its history, or continues the one it was
-      // restored from; only the newest other one can still come back
-      const others = [...this.histories.keys()].filter(k => k !== id);
-      for (const old of others.slice(0, -1)) this.histories.delete(old);
-      // re-added as the newest
-      this.histories.delete(id);
-    } else if (!history) return;
+    // only a store's first action starts a history; a dropped one stays gone
+    if (!history && !entry.newStore) return;
     const { entries, since } = history ?? EMPTY;
     this.set(id, {
       ...history,

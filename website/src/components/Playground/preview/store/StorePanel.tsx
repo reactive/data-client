@@ -70,14 +70,18 @@ export default function StorePanel({
   const snapshot =
     snapshotSeq === null ? undefined : findEntry(entries, snapshotSeq);
   const state = snapshot?.store ? log.view(snapshot.store.after) : live;
+  // the store commits and the log notifies in separate renders: the rows
+  // rebuild only when the store commits
+  const liveRows = useMemo(() => buildModel(live, registry), [live, registry]);
+  const queue = history.state?.optimistic;
   const liveModel = useMemo(
-    () => buildModel(live, registry, pendingIn(history.state)),
-    [live, registry, history.state],
+    () => ({ ...liveRows, optimistic: pendingIn(queue) }),
+    [liveRows, queue],
   );
   const model = useMemo(
     () =>
       snapshot?.store ?
-        buildModel(state, registry, pendingIn(snapshot.store.after))
+        buildModel(state, registry, pendingIn(snapshot.store.after.optimistic))
       : liveModel,
     [snapshot, state, liveModel, registry],
   );
@@ -85,15 +89,14 @@ export default function StorePanel({
   const actions = useMemo<Actions>(
     () => ({
       log,
-      entries,
-      since: history.since,
+      history,
       groups: groupEntries(entries),
       showState: seq => {
         setSnapshot(seq);
         setTab('state');
       },
     }),
-    [log, entries, history.since],
+    [log, history, entries],
   );
   // only State shows the past; the Actions tab's records are live
   const stateActions = useMemo<Actions>(
@@ -195,7 +198,8 @@ function SnapshotBar({
   entry: LogEntry;
   onShow: (seq: number | null) => void;
 }) {
-  const { log, entries } = useActions();
+  const { log, history } = useActions();
+  const { entries } = history;
   const changing = useMemo(
     () => entries.filter(e => log.changes(e).length),
     [log, entries],

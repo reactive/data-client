@@ -19,7 +19,7 @@ import {
   type RequestGroup,
 } from './actionGroups';
 import type ActionLog from './actionLog';
-import type { LogEntry } from './actionLog';
+import type { History, LogEntry } from './actionLog';
 import { onActivateKey } from './dom';
 import { splitKey } from './model';
 import { useNav } from './nav';
@@ -28,10 +28,9 @@ import { CountChip, EndpointKey, EntityKey, RefChip } from './Value';
 
 export interface Actions {
   readonly log: ActionLog;
-  readonly entries: readonly LogEntry[];
-  /** When the first of `entries` was dispatched */
-  readonly since: number;
-  /** `entries` as the Actions tab's rows */
+  /** The shown store's actions */
+  readonly history: History;
+  /** `history.entries` as the Actions tab's rows */
   readonly groups: readonly ActionGroup[];
   /** Opens the State tab as it was right after action `seq` */
   readonly showState: (seq: number) => void;
@@ -273,7 +272,7 @@ export function KeyLabel({ value }: { value: string }) {
 }
 
 function Time({ at }: { at: number }) {
-  const { since } = useActions();
+  const { since } = useActions().history;
   const s = (at - since) / 1000;
   return (
     <span className={styles.actTime}>

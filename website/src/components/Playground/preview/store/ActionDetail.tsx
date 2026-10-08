@@ -30,8 +30,8 @@ export function ActionDetail({
   /** After switching State to just after this action */
   onShowState?: () => void;
 }) {
-  const { log, entries, showState } = useActions();
-  const entry = findEntry(entries, seq);
+  const { log, history, showState } = useActions();
+  const entry = findEntry(history.entries, seq);
   if (!entry)
     return (
       <>
@@ -250,7 +250,8 @@ export function ChangedBy({ id }: { id: string }) {
 
 /** The newest action (up to the one State is shown after) that changed
  * row `id` */
-function lastChange({ log, entries, until }: Actions, id: string) {
+function lastChange({ log, history, until }: Actions, id: string) {
+  const { entries } = history;
   for (let i = entries.length - 1; i >= 0; i--) {
     const entry = entries[i];
     if (until !== undefined && entry.seq > until) continue;
@@ -261,7 +262,7 @@ function lastChange({ log, entries, until }: Actions, id: string) {
 
 /** Breadcrumb for an action's level: `setResponse GET /posts` */
 export function ActionCrumb({ seq }: { seq: number }) {
-  const entry = findEntry(useActions().entries, seq);
+  const entry = findEntry(useActions().history.entries, seq);
   if (!entry) return <>…</>;
   return (
     <>

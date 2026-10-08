@@ -99,6 +99,8 @@ export function usePreviewReset(code: string) {
   return {
     key: store.key,
     history: store.history,
+    /** The only other history that can still come back */
+    replacedHistory: store.replaced?.history,
     restored: store.restored,
     reset,
     onRenderError,

@@ -36,6 +36,7 @@ function Preview<T>({
   initialState,
   registry,
   history,
+  replacedHistory,
   onInteract,
   ...errorProps
 }: PreviewProps<T> &
@@ -47,6 +48,8 @@ function Preview<T>({
     registry: SchemaRegistry;
     /** Where this store's actions go in `registry.log` */
     history: number;
+    /** A history that may still come back; the log drops any other */
+    replacedHistory?: number;
     /** User pointer/keyboard input inside the result */
     onInteract: () => void;
   }) {
@@ -69,7 +72,7 @@ function Preview<T>({
   );
 
   const managers = useMemo<Manager[]>(() => {
-    const log = registry.log.connect(history);
+    const log = registry.log.connect(history, replacedHistory);
     return [
       log.head,
       registry,
@@ -77,7 +80,7 @@ function Preview<T>({
       new SubscriptionManager(PollingSubscription),
       log.tail,
     ];
-  }, [registry, history]);
+  }, [registry, history, replacedHistory]);
 
   const coveredResult = row && selectedValue === 'y';
   return (

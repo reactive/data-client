@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { LiveProvider } from 'react-live';
 
 import Preview from './Preview';
@@ -28,9 +28,10 @@ export default function LivePreview<T>({
 }: LivePreviewProps<T>) {
   usePlaygroundConsoleDemotion();
   const { onCommit, badge } = useRenderCount(renderCount);
-  const { key, history, restored, reset, ...handlers } = usePreviewReset(code);
+  const { key, history, replacedHistory, restored, reset, ...handlers } =
+    usePreviewReset(code);
   // outlives remounts, so a restored store keeps its schemas and actions
-  const registry = useMemo(() => new SchemaRegistry(), []);
+  const [registry] = useState(() => new SchemaRegistry());
   const getInterceptorData = useMemo(
     () =>
       restored ?
@@ -66,6 +67,7 @@ export default function LivePreview<T>({
           initialState={restored?.state}
           registry={registry}
           history={history}
+          replacedHistory={replacedHistory}
           onReset={reset}
           {...handlers}
         />

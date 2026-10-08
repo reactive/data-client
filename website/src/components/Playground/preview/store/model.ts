@@ -22,8 +22,8 @@ export interface PendingOptimistic {
 
 /** The optimistic updates still waiting in the store's own state (the state
  * components read has them applied, and so emptied) */
-export const pendingIn = (state: State<unknown> | undefined) =>
-  (state?.optimistic ?? []).flatMap<PendingOptimistic>(o =>
+export const pendingIn = (queue: State<unknown>['optimistic'] = []) =>
+  queue.flatMap<PendingOptimistic>(o =>
     o.type === actionTypes.OPTIMISTIC ?
       [{ key: o.key, args: o.args, fetchedAt: o.meta.fetchedAt }]
     : [],
@@ -201,8 +201,8 @@ function buildTable(
 export function buildModel(
   state: State<unknown>,
   registry: SchemaRegistry,
-  /** Pending when `state` was */
-  optimistic: readonly PendingOptimistic[],
+  /** Pending when `state` was (see `pendingIn`) */
+  optimistic: readonly PendingOptimistic[] = [],
 ): StoreModel {
   // errors and invalidations can leave meta without a stored response
   const endpointKeys = new Set([
