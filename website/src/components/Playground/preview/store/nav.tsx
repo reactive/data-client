@@ -70,7 +70,9 @@ export type View =
   | { readonly kind: 'history'; readonly id: string }
   | { readonly kind: 'action'; readonly seq: number };
 
-/** The store as an action left it, or (`before`) found it */
+/** The store as an action left it, or (`before`) found it (a removed row
+ * shows as it was). A level pushed at a Moment shows that store, and so does
+ * every level it opens */
 export interface Moment {
   readonly seq: number;
   readonly before?: true;
