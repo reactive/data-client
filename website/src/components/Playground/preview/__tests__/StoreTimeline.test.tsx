@@ -171,9 +171,10 @@ describe('Store Timeline tab', () => {
     fireEvent.click(screen.getByRole('tab', { name: 'Timeline' }));
     expect(screen.getByText(/^Live\./)).toBeTruthy();
 
-    // the Actions tab is the list alone
+    // the Actions tab is the list alone, without State's view switch
     fireEvent.click(screen.getByRole('tab', { name: /Actions/ }));
     expect(screen.queryByRole('group', { name: /^Timeline/ })).toBeNull();
+    expect(screen.queryByRole('group', { name: 'Store view' })).toBeNull();
   });
 
   it('stays on a picked action as new ones come in', async () => {
@@ -197,7 +198,7 @@ describe('Store Timeline tab', () => {
     expect(timeline.scrollLeft).toBe(900);
   });
 
-  it('drops the way back to the list once the timeline moves', async () => {
+  it('drops the way back to the Actions list once the timeline moves', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
     await act(() => ctrl().fetch(getPosts));
@@ -217,6 +218,10 @@ describe('Store Timeline tab', () => {
     ).toBeTruthy();
 
     fireEvent.click(screen.getByRole('tab', { name: 'Timeline' }));
+    // Back belongs to the State tab
+    expect(
+      screen.queryByRole('button', { name: 'Back to the action' }),
+    ).toBeNull();
     // on to the newer response, so State still shows a snapshot
     fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
     expect(screen.getByText('After')).toBeTruthy();

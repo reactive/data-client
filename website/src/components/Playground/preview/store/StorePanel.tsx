@@ -229,7 +229,7 @@ export default function StorePanel({
               type="button"
               role="tab"
               className={styles.tab}
-              aria-selected={scrubbing}
+              aria-selected={tab === 'timeline'}
               onClick={() => setTab('timeline')}
             >
               Timeline
@@ -261,24 +261,11 @@ export default function StorePanel({
               </span>
             )}
           </div>
-          {actionsShown && (
-            <div className={styles.tabPanel} hidden={tab !== 'actions'}>
-              <Levels
-                model={liveModel}
-                width={width}
-                root={ACTIONS_ROOT}
-                then={then}
-              />
-            </div>
-          )}
           <ActionsContext.Provider value={stateActions}>
             {scrubbing && (
               <Timeline selected={snapshotSeq} onSelect={pick} width={width} />
             )}
-            <div
-              className={styles.tabPanel}
-              hidden={tab !== 'state' && !scrubbing}
-            >
+            <div className={styles.tabPanel} hidden={tab === 'actions'}>
               {(snapshot || scrubbing) && (
                 <SnapshotBar
                   entry={snapshot}
@@ -307,6 +294,16 @@ export default function StorePanel({
               </StateContext.Provider>
             </div>
           </ActionsContext.Provider>
+          {actionsShown && (
+            <div className={styles.tabPanel} hidden={tab !== 'actions'}>
+              <Levels
+                model={liveModel}
+                width={width}
+                root={ACTIONS_ROOT}
+                then={then}
+              />
+            </div>
+          )}
         </div>
       </LogContext.Provider>
     </ActionsContext.Provider>
@@ -327,19 +324,16 @@ function SnapshotBar({
   /** The action State is shown after; missing while live */
   entry?: LogEntry;
   onShow: (seq: number | null) => void;
-  /** › past the newest change goes live, as the timeline's → does (the bar
-   * stays, as the timeline shows it live too) */
+  /** › past the newest change goes live, as the timeline's right arrow key
+   * does (the bar stays, as the timeline shows it live too) */
   stepsToLive?: boolean;
   /** Back to the action it was opened from */
   onBack?: () => void;
 }) {
   const { log, history } = useActions();
   const seq = entry?.seq ?? null;
-  const [earlier, later] = useMemo(
-    () =>
-      [-1, 1].map(by => nearestChange(log, history.entries, seq, by as -1 | 1)),
-    [log, history.entries, seq],
-  );
+  const earlier = nearestChange(log, history.entries, seq, -1);
+  const later = nearestChange(log, history.entries, seq, 1);
   return (
     <div className={clsx(styles.snapshot, !entry && styles.tlLive)}>
       {onBack && (

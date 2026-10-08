@@ -29,7 +29,7 @@
   font: 12px / 1.6 var(--ifm-font-family-monospace);
 }
 
-/* State | Actions, then the view switch; the same band as the other headers */
+/* State | Actions | Timeline, then the view switch; the same band as the other headers */
 .bar {
   flex: none;
   display: flex;
@@ -1105,7 +1105,7 @@ div.joined {
   font-weight: 500;
 }
 
-/* Actions as a timeline: a lane per key, scrolling sideways; labels stay
+/* The Timeline tab: a lane per key, scrolling sideways; labels stay
    pinned on the left and times on top */
 .timeline {
   --tl-label: 8.5rem;

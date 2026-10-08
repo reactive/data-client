@@ -148,6 +148,8 @@ DesignSystem/       components injected into preview scope
   store (see Reset) starts a new history, a store the retry restores continues
   its own, and the panel shows only the current one. An action's chips open the
   store as that action left it (see `Moment` in `preview/store/nav.tsx`).
+  The Timeline tab (`preview/store/Timeline.tsx`) puts the same history on one
+  time axis; picking an action sets the snapshot State shows.
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
   count in the preview header (written to the DOM, so counting adds no commits).
   `website/profiling-plugin.js` replaces `react-dom/client` with React's
