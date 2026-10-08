@@ -145,7 +145,7 @@ export function useFollow(
     const el = scroller.current;
     const { size, scroll } = AXES[axis];
     // off, not just skipped, so showing a hidden tab doesn't catch up either;
-    // scrolling while paused leaves it off
+    // scrolls are ignored while paused, so it stays off
     if (paused) follow.current = false;
     else if (el?.clientHeight && follow.current) el[scroll] = el[size];
   }, [scroller, rows, axis, paused]);

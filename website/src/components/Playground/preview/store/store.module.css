@@ -1109,11 +1109,14 @@ div.joined {
    pinned on the left and times on top */
 .timeline {
   --tl-label: 8.5rem;
+  /* the time axis and each lane */
+  --tl-row: 18px;
   flex: none;
   max-height: 10rem;
   overflow: auto;
   /* a mark scrolled into view clears the sticky lane labels and axis */
-  scroll-padding: 18px 0 0 var(--tl-label);
+  scroll-padding-top: var(--tl-row);
+  scroll-padding-left: var(--tl-label);
   overscroll-behavior: contain;
   box-shadow: inset 0 -1px 0 var(--store-line-strong);
   outline: none;
@@ -1134,7 +1137,7 @@ div.joined {
 .tlAxis,
 .tlLane {
   display: flex;
-  height: 18px;
+  height: var(--tl-row);
 }
 .tlAxis {
   position: sticky;
@@ -1143,7 +1146,7 @@ div.joined {
   background: var(--store-bg);
   color: var(--store-dim);
   font-size: 10px;
-  line-height: 18px;
+  line-height: var(--tl-row);
 }
 .tlLabel {
   position: sticky;
@@ -1156,7 +1159,7 @@ div.joined {
   background: var(--store-bg);
   box-shadow: inset -1px 0 0 var(--store-line);
   font-size: 11px;
-  line-height: 18px;
+  line-height: var(--tl-row);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -1243,7 +1246,7 @@ button.tlMark:hover {
 .tlBreak,
 .tlPlayhead {
   position: absolute;
-  top: 18px;
+  top: var(--tl-row);
   bottom: 0;
   left: calc(var(--tl-label) + var(--tl-x));
   pointer-events: none;
