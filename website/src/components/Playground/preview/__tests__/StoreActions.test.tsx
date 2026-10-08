@@ -1298,6 +1298,38 @@ describe('ActionLog', () => {
     expect(items.map(i => i.kind)).toEqual(['version', 'version']);
   });
 
+  it('notes each stretch the log dropped on its own', () => {
+    const log = newLog();
+    const dispatch = connect(log, 0);
+    let at = 0;
+    const set = (id: string, title: string) =>
+      dispatch({
+        type: actionTypes.SET,
+        schema: Post,
+        args: [],
+        value: { id, title },
+        meta: { fetchedAt: ++at, date: at, expiresAt: at + 1 },
+      });
+    set('3', 'a');
+    set('3', 'b');
+    set('4', 'x');
+    set('3', 'c');
+    set('3', 'd');
+    // drop the sets of 'b' and 'c', with a set of another record between them
+    const kept = log
+      .history(0)
+      .entries.filter(
+        ({ action }) => !['b', 'c'].includes((action as any).value?.title),
+      );
+    const items = rowTimeline(log, kept, entityId('Post', '3'));
+    expect(items.map(i => i.kind)).toEqual([
+      'version',
+      'missing',
+      'missing',
+      'version',
+    ]);
+  });
+
   it('keeps as many pushed sets of each entity as updateLimit says', () => {
     const log = newLog({ updateLimit: 2 });
     const dispatch = connect(log, 0);
