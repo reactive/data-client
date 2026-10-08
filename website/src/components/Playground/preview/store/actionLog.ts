@@ -271,24 +271,40 @@ function trim(entries: LogEntry[]): LogEntry[] {
     if (group.kind !== 'subscription') continue;
     group.requests.forEach(anchorRequest);
     if (!group.open && groupEntriesOf(group).every(dropped)) continue;
-    // subscribers still there at the cut, from its earliest subscribes, so
-    // its requests come after one
-    const subscribes = group.entries.filter(
-      e => dropped(e) && e.action.type === actionTypes.SUBSCRIBE,
-    );
-    const unsubscribes = group.entries.filter(
-      e => dropped(e) && e.action.type === actionTypes.UNSUBSCRIBE,
-    );
-    const open = subscribes.length - unsubscribes.length;
-    if (open > 0) subscribes.slice(0, open).forEach(e => anchors.add(e));
-    // ended before the cut with a request still kept: its whole span
-    else if (subscribes.length && !group.entries.some(e => !dropped(e))) {
-      anchors.add(subscribes[0]);
-      anchors.add(unsubscribes[unsubscribes.length - 1]);
+    // the subscribers still there at the cut, pairing each unsubscribe with
+    // a subscribe of its poll frequency as SubscriptionManager does
+    const open: LogEntry[] = [];
+    const pairs = new Map<LogEntry, LogEntry>();
+    for (const entry of group.entries.filter(dropped)) {
+      if (entry.action.type === actionTypes.SUBSCRIBE) {
+        open.push(entry);
+        continue;
+      }
+      const i = open.findIndex(
+        e => frequency(e.action) === frequency(entry.action),
+      );
+      if (i >= 0) pairs.set(open.splice(i, 1)[0], entry);
+    }
+    open.forEach(e => anchors.add(e));
+    // and a subscriber from before its first kept request, so the request
+    // stays under it
+    const [first] = group.entries;
+    const firstRequest = group.requests.find(r => anchors.has(r.entries[0]));
+    if (
+      dropped(first) &&
+      firstRequest &&
+      (!open.length || open[0].seq > firstRequest.entries[0].seq)
+    ) {
+      anchors.add(first);
+      const end = pairs.get(first);
+      if (end) anchors.add(end);
     }
   }
   return entries.filter(e => !dropped(e) || anchors.has(e));
 }
+
+const frequency = (action: ActionTypes): unknown =>
+  (action as { endpoint?: { pollFrequency?: number } }).endpoint?.pollFrequency;
 
 /** `state` with tables of its own: the store's reducer deletes garbage from
  * its tables in place, which states built from them share */

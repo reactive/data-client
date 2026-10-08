@@ -84,9 +84,9 @@ function entityChange(
   )
     return;
   const id = entityId(table, pk);
-  if (a === undefined) return { kind: 'added', id, table, pk };
   if (b === undefined) return { kind: 'removed', id, table, pk };
-  // invalidated rows hold a marker in place of their object
+  // invalidated rows hold a marker in place of their object, even ones
+  // Invalidate adds
   if (typeof b === 'symbol')
     return {
       kind: typeof a === 'symbol' ? 'refreshed' : 'invalidated',
@@ -94,6 +94,7 @@ function entityChange(
       table,
       pk,
     };
+  if (a === undefined) return { kind: 'added', id, table, pk };
   const fields = changedFields(a, b);
   return fields.length ?
       { kind: 'updated', id, table, pk, fields }

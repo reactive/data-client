@@ -911,6 +911,24 @@ describe('ActionLog', () => {
     expect((sub as any).requests[0].response).toBeTruthy();
   });
 
+  it('keeps the subscribers still polling past the limit', () => {
+    const log = new ActionLog();
+    const dispatch = connect(log, 0);
+    const poll = (type: string, pollFrequency: number) =>
+      dispatch({ type, key: 'k', endpoint: { pollFrequency } });
+    poll(actionTypes.SUBSCRIBE, 5000);
+    poll(actionTypes.SUBSCRIBE, 1000);
+    poll(actionTypes.UNSUBSCRIBE, 5000);
+    for (let i = 0; i < 500; i++)
+      dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other' });
+    const [first] = log.history(0).entries;
+    expect(first.action).toMatchObject({
+      type: actionTypes.SUBSCRIBE,
+      endpoint: { pollFrequency: 1000 },
+    });
+    expect(log.history(0).entries).toHaveLength(501);
+  });
+
   it('keeps a fetch whose response a restored store kept', () => {
     const log = new ActionLog();
     const first = connect(log, 0);
@@ -1036,6 +1054,16 @@ describe('diffStates', () => {
   });
   const kinds = (prev: object, next: object) =>
     diffStates(state(prev), state(next)).map(c => c.kind);
+
+  it('calls a row Invalidate adds invalidated', () => {
+    const posts = (rows: Record<string, unknown>): State<unknown> => ({
+      ...initialState,
+      entities: { Post: rows },
+    });
+    expect(
+      diffStates(posts({}), posts({ 1: Symbol('INVALID') })).map(c => c.kind),
+    ).toEqual(['invalidated']);
+  });
 
   it('tells a refetch, an expiry and a recovery apart', () => {
     expect(kinds({}, { date: 2, expiresAt: 20 })).toEqual(['refreshed']);
