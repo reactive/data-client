@@ -114,6 +114,7 @@
 
 .playgroundHeader.tabControls,
 div.playgroundTextEdit > .playgroundHeader,
+.editorDocs > .playgroundHeader,
 .endpointPlayground .playgroundHeader {
   box-shadow: inset 0 -1px 0 var(--pg-bar-edge);
 }
