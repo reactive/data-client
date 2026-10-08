@@ -87,7 +87,7 @@ export default [
   {
     // The eager files themselves must not reach into the lazy rest of preview/
     files: EAGER_PREVIEW.map(
-      f => `website/src/components/Playground/preview/${f}.tsx`,
+      f => `website/src/components/Playground/preview/${f}.ts?(x)`,
     ),
     rules: {
       '@typescript-eslint/no-restricted-imports': lazyPreviewImports(
