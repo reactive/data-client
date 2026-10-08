@@ -692,6 +692,18 @@ div.fixtureJson {
 }
 /* Stacked row layout: the Store opens upward over the code */
 @container playground (max-width: 719px) {
+  /* and takes the code's place: as tall as its contents, scrolling past a
+     cap, rather than as tall as the code */
+  .editorDocs[inert] {
+    max-height: 0;
+    overflow: hidden;
+  }
+  .storeHost:has(> .storePanel[data-visible]) {
+    min-height: 0;
+  }
+  .storeHost > .storePanel > * {
+    max-height: min(32rem, 70svh);
+  }
   .playgroundContainer.row .debugToggle .arrow.left {
     transform: rotateZ(270deg);
   }
