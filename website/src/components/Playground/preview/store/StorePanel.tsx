@@ -11,6 +11,7 @@ import React, {
 } from 'react';
 
 import { ActionCrumb, ActionDetail } from './ActionDetail';
+import { groupEntries } from './actionGroups';
 import type { LogEntry } from './actionLog';
 import {
   ActionsContext,
@@ -76,6 +77,7 @@ export default function StorePanel({ registry }: { registry: SchemaRegistry }) {
     () => ({
       log,
       entries,
+      groups: groupEntries(entries),
       showState: seq => {
         setSnapshot(seq);
         setTab('state');
@@ -119,9 +121,9 @@ export default function StorePanel({ registry }: { registry: SchemaRegistry }) {
             onClick={() => setTab('actions')}
           >
             Actions
-            {entries.length > 0 && (
+            {actions.groups.length > 0 && (
               <span className={styles.count}>
-                {entries.length.toLocaleString()}
+                {actions.groups.length.toLocaleString()}
               </span>
             )}
           </button>

@@ -91,9 +91,13 @@ const rows = () =>
 describe('Store Actions tab', () => {
   it('folds a fetch and its response into one row with what it added', async () => {
     const { ctrl } = mount();
-    await act(() => ctrl().fetch(getPosts));
+    // a second read while the first is in flight is deduped into it
+    await act(() =>
+      Promise.all([ctrl().fetch(getPosts), ctrl().fetch(getPosts)]),
+    );
     fireEvent.click(actionsTab());
-    expect(actionsTab().textContent).toContain('2');
+    // counts rows, not actions
+    expect(actionsTab().textContent).toBe('Actions1');
     const [row] = rows();
     expect(row.textContent).toContain('GET');
     expect(row.textContent).toContain('/posts');
@@ -101,6 +105,12 @@ describe('Store Actions tab', () => {
     expect(
       within(row).getByRole('button', { name: /^\+ ?2 Post$/ }),
     ).toBeTruthy();
+    expect(row.textContent).toContain('×2');
+    fireEvent.click(row);
+    expect(
+      screen.getByText('1 more fetch deduped into this request'),
+    ).toBeTruthy();
+    fireEvent.click(row);
 
     // the same data again changes nothing
     await act(() => ctrl().fetch(getPosts));

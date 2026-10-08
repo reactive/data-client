@@ -288,6 +288,20 @@ export function groupEntriesOf(group: ActionGroup): readonly LogEntry[] {
   );
 }
 
+/** Fetches NetworkManager deduped into a request already in flight, by the
+ * request they joined */
+export function joinedFetches(group: ActionGroup) {
+  const requests =
+    group.kind === 'subscription' ? group.requests
+    : group.kind === 'request' ? [group]
+    : [];
+  const joined = new Map<LogEntry, RequestGroup>();
+  for (const request of requests)
+    for (const entry of request.entries.slice(1))
+      if (entry.action.type === actionTypes.FETCH) joined.set(entry, request);
+  return joined;
+}
+
 /** What an action is about: an endpoint key, or a schema's key for `set` */
 export function actionKey(action: ActionTypes): string {
   if ('key' in action && typeof action.key === 'string') return action.key;

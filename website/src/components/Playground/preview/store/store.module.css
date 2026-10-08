@@ -966,6 +966,9 @@ div.stepRow {
 .stepRow .actSum {
   flex: 1 1 12rem;
 }
+div.joined {
+  cursor: default;
+}
 
 .markAdded,
 .markUpdated,

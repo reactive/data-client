@@ -11,8 +11,8 @@ import React, {
 
 import {
   actionName,
-  groupEntries,
   groupEntriesOf,
+  joinedFetches,
   mergeChanges,
   type ActionGroup,
   type Change,
@@ -29,6 +29,8 @@ import { CountChip, EndpointKey, EntityKey, RefChip } from './Value';
 export interface Actions {
   readonly log: ActionLog;
   readonly entries: readonly LogEntry[];
+  /** `entries` as the Actions tab's rows */
+  readonly groups: readonly ActionGroup[];
   /** Opens the State tab as it was right after action `seq` */
   readonly showState: (seq: number) => void;
   /** The action State is shown after, while it shows the past */
@@ -51,8 +53,7 @@ export function ActionsRoot({
 }: {
   scroller: React.RefObject<HTMLElement | null>;
 }) {
-  const { entries } = useActions();
-  const groups = useMemo(() => groupEntries(entries), [entries]);
+  const { groups } = useActions();
   const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set());
   useFollow(scroller, groups);
   if (!groups.length)
@@ -141,13 +142,43 @@ function GroupRow({
           <ChangeChips changes={changes} own={group.key} />
         </span>
       </div>
-      {open && (
-        <div className={styles.steps}>
-          {all.map(entry => (
-            <StepRow key={entry.seq} entry={entry} own={group.key} />
-          ))}
-        </div>
-      )}
+      {open && <Steps group={group} all={all} />}
+    </div>
+  );
+}
+
+/** An open row's actions; fetches deduped into a request in flight show as
+ * one line */
+function Steps({
+  group,
+  all,
+}: {
+  group: ActionGroup;
+  all: readonly LogEntry[];
+}) {
+  const joined = joinedFetches(group);
+  const counted = new Set<RequestGroup>();
+  return (
+    <div className={styles.steps}>
+      {all.map(entry => {
+        const request = joined.get(entry);
+        if (!request)
+          return <StepRow key={entry.seq} entry={entry} own={group.key} />;
+        if (counted.has(request)) return null;
+        counted.add(request);
+        const n = request.entries.filter(e => joined.has(e)).length;
+        return (
+          <div
+            key={entry.seq}
+            className={clsx(styles.row, styles.stepRow, styles.joined)}
+          >
+            <Time at={entry.at} />
+            <span className={styles.dim}>
+              {n} more fetch{n === 1 ? '' : 'es'} deduped into this request
+            </span>
+          </div>
+        );
+      })}
     </div>
   );
 }
