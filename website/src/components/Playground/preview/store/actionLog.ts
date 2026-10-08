@@ -85,6 +85,8 @@ export default class ActionLog {
     /** Each action's entry, for the tail to find what the head recorded */
     const recorded = new WeakMap<ActionTypes, LogEntry>();
     let first = true;
+    /** An action reached the tail, which keeps the history's state since */
+    let reached = false;
     const dropOthers = () => {
       for (const old of this.histories.keys())
         if (old !== id && old !== keep) this.histories.delete(old);
@@ -109,13 +111,15 @@ export default class ActionLog {
       },
       // a store can start without dispatching (one restored after an error,
       // with its pending updates cleared): it starts here instead
+      // (its first reads may already be recorded, as NetworkManager holds
+      // them back from the store)
       init: (state: State<unknown>) => {
-        if (!first) return;
-        dropOthers();
+        if (reached) return;
+        if (first) dropOthers();
         this.histories.set(id, {
           ...this.history(id),
-          state,
-          storeFrom: this.nextSeq,
+          state: detach(state),
+          ...(first && { storeFrom: this.nextSeq }),
         });
         this.notify();
       },
@@ -128,7 +132,8 @@ export default class ActionLog {
         return next => action => {
           // managers' init runs in an effect, possibly after the store's
           // first actions
-          const before = (state ??= controller.getState());
+          reached = true;
+          const before = (state ??= detach(controller.getState()));
           state =
             action.type === actionTypes.GC ?
               collect(before, action)
@@ -251,32 +256,35 @@ function trim(entries: LogEntry[]): LogEntry[] {
   // subscribers each key still has: overall, and among the kept entries
   const open = new Map<string, number>();
   const kept = new Map<string, number>();
-  const requests = new Set<string>();
+  // fetches each request id still needs: waiting for a response, or
+  // answered by a kept one (mutations can share an id)
+  const waiting = new Map<string, number>();
+  const answered = new Map<string, number>();
   entries.forEach((e, i) => {
     if (e.newStore) {
       open.clear();
       kept.clear();
-      requests.clear();
+      waiting.clear();
+      answered.clear();
     }
     const { action } = e;
-    // requests still waiting, and those whose response is kept
     if (action.type === actionTypes.FETCH && !e.deduped)
-      requests.add(requestId(action.key, action.meta.fetchedAt));
+      add(waiting, requestId(action.key, action.meta.fetchedAt), 1);
     if (action.type === actionTypes.SET_RESPONSE) {
       const id = requestId(action.key, action.meta.fetchedAt);
-      if (i < drop) requests.delete(id);
-      else requests.add(id);
+      if (waiting.get(id)) add(waiting, id, -1);
+      if (i >= drop) add(answered, id, 1);
     }
     // NetworkManager rejects everything in flight; no response follows
-    if (action.type === actionTypes.RESET) requests.clear();
+    if (action.type === actionTypes.RESET) waiting.clear();
     if (
       action.type !== actionTypes.SUBSCRIBE &&
       action.type !== actionTypes.UNSUBSCRIBE
     )
       return;
     const step = action.type === actionTypes.SUBSCRIBE ? 1 : -1;
-    open.set(action.key, (open.get(action.key) ?? 0) + step);
-    if (i >= drop) kept.set(action.key, (kept.get(action.key) ?? 0) + step);
+    add(open, action.key, step);
+    if (i >= drop) add(kept, action.key, step);
   });
   // the latest dropped subscribes make up what the kept entries lack
   const anchors: LogEntry[] = [];
@@ -286,18 +294,39 @@ function trim(entries: LogEntry[]): LogEntry[] {
       action.type === actionTypes.SUBSCRIBE &&
       (open.get(action.key) ?? 0) > (kept.get(action.key) ?? 0)
     ) {
-      kept.set(action.key, (kept.get(action.key) ?? 0) + 1);
+      add(kept, action.key, 1);
       anchors.unshift(entries[i]);
-    } else if (
-      action.type === actionTypes.FETCH &&
-      !deduped &&
-      requests.delete(requestId(action.key, action.meta.fetchedAt))
-    )
-      anchors.unshift(entries[i]);
+    } else if (action.type === actionTypes.FETCH && !deduped) {
+      const id = requestId(action.key, action.meta.fetchedAt);
+      const needs = waiting.get(id) ? waiting : answered.get(id) && answered;
+      if (needs) {
+        add(needs, id, -1);
+        anchors.unshift(entries[i]);
+      }
+    }
     // what came before belonged to the store before
     if (newStore) break;
   }
   return [...anchors, ...entries.slice(drop)];
+}
+
+const add = (counts: Map<string, number>, key: string, step: number) =>
+  counts.set(key, (counts.get(key) ?? 0) + step);
+
+/** `state` with tables of its own: the store's reducer deletes garbage from
+ * its tables in place, which states built from them share */
+function detach(state: State<unknown>): State<unknown> {
+  const copy = <T>(tables: Record<string, T>) =>
+    Object.fromEntries(
+      Object.entries(tables).map(([key, table]) => [key, { ...table }]),
+    );
+  return {
+    ...state,
+    entities: copy(state.entities),
+    entitiesMeta: copy(state.entitiesMeta),
+    endpoints: { ...state.endpoints },
+    meta: { ...state.meta },
+  };
 }
 
 /** The reducer deletes garbage in place; earlier states share those tables */

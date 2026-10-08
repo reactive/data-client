@@ -1,5 +1,5 @@
 /// <reference types="jest" />
-import { initialState } from '@data-client/core';
+import { createReducer, initialState } from '@data-client/core';
 import { Endpoint, Entity } from '@data-client/endpoint';
 import {
   actionTypes,
@@ -10,6 +10,7 @@ import {
   SubscriptionManager,
   useController,
   useSuspense,
+  type ActionTypes,
   type State,
 } from '@data-client/react';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
@@ -577,6 +578,31 @@ describe('ActionLog', () => {
     expect(log.changes(gc).map(c => c.kind)).toEqual(['removed', 'removed']);
   });
 
+  it('keeps what the store collects in place', () => {
+    const log = new ActionLog();
+    const state = {
+      ...initialState,
+      entities: { Post: { 1: { id: '1' } } },
+    } as State<unknown>;
+    const store = { getState: () => state } as any;
+    const reduce = createReducer(new Controller());
+    const { head, tail } = log.connect(0);
+    head.middleware!(store)(
+      tail.middleware!(store)((action: ActionTypes) => {
+        reduce(state, action);
+        return Promise.resolve();
+      }),
+    )({
+      type: actionTypes.GC,
+      entities: [{ key: 'Post', pk: '1' }],
+      endpoints: [],
+    });
+    expect(state.entities.Post).not.toHaveProperty('1');
+    const [gc] = log.history(0).entries;
+    expect(gc.store?.before.entities.Post).toHaveProperty('1');
+    expect(log.changes(gc).map(c => c.kind)).toEqual(['removed']);
+  });
+
   it('keeps each store’s history, which a restored store continues', () => {
     const log = new ActionLog();
     const first = connect(log, 0);
@@ -620,9 +646,27 @@ describe('ActionLog', () => {
     const restored = { ...initialState, optimistic: [] };
     log.connect(0).head.init!(restored);
     const history = log.history(0);
-    expect(history.state).toBe(restored);
+    expect(history.state).toEqual(restored);
     const [request] = groupEntries(history.entries, history.storeFrom);
     expect(request).toMatchObject({ kind: 'request', cancelled: true });
+  });
+
+  it('starts a restored store whose first reads the network holds', () => {
+    const log = new ActionLog();
+    connect(log, 0, { keep: 0 })(subscribe());
+    // the restored store reads while it renders, before its managers start;
+    // NetworkManager keeps the fetch from the store
+    const { head } = log.connect(0);
+    head.middleware!({} as any)(() => Promise.resolve())({
+      type: actionTypes.FETCH,
+      key: 'k',
+      endpoint: {},
+      meta: { fetchedAt: 1 },
+    });
+    const restored = { ...initialState, optimistic: [] };
+    head.init!(restored);
+    expect(log.history(0).state).toEqual(restored);
+    expect(log.history(0).storeFrom).toBeUndefined();
   });
 
   it('follows each store’s own state', () => {
@@ -687,6 +731,44 @@ describe('ActionLog', () => {
     const { entries } = log.history(0);
     expect(entries).toHaveLength(500);
     expect(entries[0].seq).toBe(11);
+  });
+
+  it('keeps a request’s fetch past a reset and a shared fetch time', () => {
+    const log = new ActionLog();
+    const dispatch = connect(log, 0);
+    const fetch = (key: string) =>
+      dispatch({
+        type: actionTypes.FETCH,
+        key,
+        endpoint: { sideEffect: true },
+        meta: { fetchedAt: 1 },
+      });
+    const respond = (key: string) =>
+      dispatch({
+        type: actionTypes.SET_RESPONSE,
+        key,
+        response: 1,
+        meta: { fetchedAt: 1, date: 1, expiresAt: 2 },
+        endpoint: { schema: undefined },
+      });
+    // two mutations sharing a fetch time; one answered right away
+    fetch('m');
+    fetch('m');
+    respond('m');
+    fetch('k');
+    for (let i = 0; i < 500; i++)
+      dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other' });
+    respond('k');
+    const fetches = () =>
+      log
+        .history(0)
+        .entries.flatMap(({ action }) =>
+          action.type === actionTypes.FETCH ? [action.key] : [],
+        );
+    expect(fetches()).toEqual(['m', 'k']);
+    // cancels only what is still in flight
+    dispatch({ type: actionTypes.RESET, date: 2 });
+    expect(fetches()).toEqual(['k']);
   });
 
   it('keeps the fetch of a response kept past the limit', () => {
