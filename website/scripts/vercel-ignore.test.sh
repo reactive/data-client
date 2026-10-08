@@ -199,24 +199,9 @@ expect build "production env site tip" other-branch "$(parent)" production
 commit "prod pkg" packages/normalizr/src/index.ts
 expect skip "production env package tip" other-branch "$(parent)" production
 
-# --- Renovate previews ignore website dependency manifests and lockfiles ---
-git -C "$repo" checkout -b renovate/docusaurus master >/dev/null 2>&1
-commit "bump docusaurus" website/package.json
-expect skip "renovate website package.json" renovate/docusaurus
-expect build "renovate ref in production env" renovate/docusaurus "$(parent)" production
-commit "bump lockfiles" website/yarn.lock website/examples/demo/package.json website/examples/demo/pnpm-lock.yaml
-expect skip "renovate nested manifests and lockfiles since last deploy" renovate/docusaurus "$(parent)"
-git -C "$repo" checkout master >/dev/null 2>&1
-commit "master site for renovate" docs/core/api/Renovate.md
-git -C "$repo" checkout renovate/docusaurus >/dev/null 2>&1
-git -C "$repo" merge --no-edit master >/dev/null
-expect skip "renovate merge of master" renovate/docusaurus
-commit "renovate site source" website/src/pages/index.js
-expect build "renovate with site source" renovate/docusaurus "$(parent)"
-
 git -C "$repo" checkout -b deps master >/dev/null 2>&1
 commit "manual bump" website/package.json
-expect build "non-renovate website package.json" deps
+expect build "preview website package.json" deps
 
 git -C "$repo" checkout master >/dev/null 2>&1
 commit "master bump" website/package.json website/yarn.lock
@@ -248,5 +233,23 @@ for branch in far-pkg far-site; do
   repo="$origin_repo"
   rm -rf "$clone"
 done
+
+# GitHub Actions checks out full history (fetch-depth: 0) for "Last updated"
+# dates. The script must decide from it without making the clone shallow.
+clone="$(mktemp -d)"
+git clone -q --branch far-site "file://$origin_repo" "$clone"
+repo="$clone"
+expect build "full clone preview" far-site
+if [ "$(git -C "$clone" rev-parse --is-shallow-repository)" != false ]; then
+  echo "FAIL full clone stays full: the script made it shallow" >&2
+  exit 1
+fi
+printf 'ok   %s\n' "full clone stays full"
+repo="$origin_repo"
+rm -rf "$clone"
+
+first="$(bash "$script" --paths | tr '\0' '\n' | head -n1)"
+[ "$first" = website ] || { echo "FAIL --paths printed '$first' first" >&2; exit 1; }
+printf 'ok   %s\n' "--paths prints SITE_PATHS"
 
 echo "all vercel-ignore cases passed"

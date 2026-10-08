@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Decide whether Vercel should build the docs site.
+# Decide whether site-preview.yml deploys the docs site to Vercel.
 #
-# Exit 0 skips the build. Exit 1 builds. Vercel treats every non-zero status
-# as "build", so this script exits 0 only when it can see that the published
-# site is unchanged. If git history is missing, it builds (fail open).
+# Exit 0 skips the deploy. Exit 1 deploys, as does every other non-zero
+# status, so this script exits 0 only when it can see that the published
+# site is unchanged. If git history is missing, it deploys (fail open).
 #
 # Preview branches must not use `git diff HEAD^ HEAD`. Merging master into a
 # pull request makes that diff the incoming master tree, so a site commit
@@ -19,6 +19,12 @@ SITE_PATHS=(
   ':(exclude,glob)website/**/__tests__/**'
   ':(exclude,glob)website/**/*.test.*'
 )
+
+# site-preview.yml diffs newer master commits with these
+if [ "${1:-}" = --paths ]; then
+  printf '%s\0' "${SITE_PATHS[@]}"
+  exit 0
+fi
 
 build() {
   echo "vercel-ignore: build — $*"
@@ -59,6 +65,12 @@ is_ancestor() {
   [ -n "$1" ] && git merge-base --is-ancestor "$1" "$2" 2>/dev/null
 }
 
+# A full clone already has every commit; a --depth or --deepen fetch would
+# make it shallow and cut the history Docusaurus dates pages with.
+shallow() {
+  [ "$(git rev-parse --is-shallow-repository 2>/dev/null)" = true ]
+}
+
 # Prints master's sha. A ref equal to HEAD is never trusted as master: Vercel's
 # clone can carry one at the commit being built, which empties every diff.
 upstream() {
@@ -77,6 +89,7 @@ upstream() {
 # when a comparison base is out of reach. One fetch per ref: when both go in
 # one call, newer git (2.55) can leave master at its old depth.
 deepen() {
+  shallow || return 1
   [ -n "${VERCEL_GIT_COMMIT_REF:-}" ] || return 1
   timeout 30 git fetch -q --no-tags --deepen=300 origin "$VERCEL_GIT_COMMIT_REF" 2>/dev/null
   timeout 30 git fetch -q --no-tags --deepen=300 origin \
@@ -98,16 +111,13 @@ if [[ "${VERCEL_GIT_COMMIT_REF:-}" =~ ^(master|rest-hooks-site)$ || "${VERCEL_EN
 fi
 
 # Previews need the real master. Fetch it once, forced, so a clone-provided
-# ref is replaced; refetching later with --depth would undo deepen(). The
-# timeout keeps a hung network call from holding the build machine.
-timeout 15 git fetch -q --no-tags --depth=80 origin +master:refs/remotes/origin/master 2>/dev/null
-
-# Renovate previews skip when only website dependency manifests or lockfiles
-# changed. Site or docs source changes still build.
-if [[ "${VERCEL_GIT_COMMIT_REF:-}" == renovate/* ]]; then
-  for f in package.json yarn.lock package-lock.json pnpm-lock.yaml npm-shrinkwrap.json; do
-    SITE_PATHS+=(":(exclude,glob)website/**/$f")
-  done
+# ref is replaced. A --depth fetch would make a full clone shallow, which cuts
+# the history Docusaurus dates pages with, so only an already-shallow clone
+# (Vercel's) uses one. The timeout keeps a hung network call from holding the job.
+if shallow; then
+  timeout 15 git fetch -q --no-tags --depth=80 origin +master:refs/remotes/origin/master 2>/dev/null
+else
+  timeout 60 git fetch -q --no-tags origin +master:refs/remotes/origin/master 2>/dev/null
 fi
 
 # Previews compare the branch's changes, not commits merged in from upstream.
