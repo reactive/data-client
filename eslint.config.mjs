@@ -48,8 +48,9 @@ export default [
     },
   },
   {
-    // The Store UI belongs in the lazy PreviewWithScope chunk; a static import
-    // from outside preview/ copies it into every docs page that has a Playground
+    // Playground/preview/ is the lazy PreviewWithScope chunk (live execution,
+    // Store inspector). A static import from outside copies it into every docs
+    // page with a Playground, so only the eager files listed here may be imported.
     files: ['website/src/**/*.?(m|c)ts?(x)'],
     ignores: ['website/src/components/Playground/preview/**'],
     rules: {
@@ -59,17 +60,19 @@ export default [
           patterns: [
             {
               group: [
-                '**/preview/LivePreview',
-                '**/preview/LivePreview.*',
-                '**/preview/Preview',
-                '**/preview/Preview.*',
-                '**/preview/StoreInspector',
-                '**/preview/StoreInspector.*',
-                '**/preview/store/**',
+                '**/Playground/preview/**',
+                './preview/**',
+                // eager: SSR and loading-state chrome
+                '!**/preview/FixturePreview',
+                '!**/preview/FixturePreview.*',
+                '!**/preview/PreviewWrapper',
+                '!**/preview/PreviewWrapper.*',
+                '!**/preview/StoreToggle',
+                '!**/preview/StoreToggle.*',
               ],
               allowTypeImports: true,
               message:
-                'Store UI must stay in the lazy preview chunk: use import() or `import type`, and take toggles from preview/StoreToggle.',
+                'Playground/preview/ loads lazily: use import() or `import type`, or add a deliberately eager file to the allowlist in eslint.config.mjs.',
             },
           ],
         },

@@ -78,10 +78,11 @@ DesignSystem/       components injected into preview scope
   degrade to empty libs.
 - Preview code is a lazy chunk (`PreviewWithScope`, prefetched) and
   `PreviewBlock` a nested lazy chunk (preloaded with its parent). The Store
-  inspector (`preview/StoreInspector.tsx`, `preview/store/`) lives in it, so
-  nothing outside `preview/` may statically import those or the modules that
-  reach them (`Preview`, `LivePreview`); ESLint enforces this. `index.tsx`
-  gets the toggles from `preview/StoreToggle.tsx`.
+  inspector (`preview/StoreInspector.tsx`, `preview/store/`) lives in it.
+  ESLint treats all of `preview/` as lazy: from outside it, only `import()`,
+  `import type`, or an allowlisted eager file (`StoreToggle`,
+  `PreviewWrapper`, `FixturePreview`, which render in SSR and loading states)
+  may be imported. Keep allowlisted files free of static imports of the rest.
 - Docusaurus only shares modules used by half of all pages, so
   `website/chunks-plugin.js` splits site source used by 2+ pages (the eagerly
   loaded Playground modules among it) into shared chunks instead of a copy
