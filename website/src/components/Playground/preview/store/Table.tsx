@@ -10,6 +10,7 @@ import {
   TIME_WIDTH,
 } from './columns';
 import { Status } from './Details';
+import { onActivateKey } from './dom';
 import {
   errorText,
   isInvalidated,
@@ -102,13 +103,7 @@ export function RowsTable<R extends { readonly id: string }>({
                   open && styles.selected,
                 )}
                 onClick={onOpen && (() => onOpen(row))}
-                onKeyDown={
-                  onOpen &&
-                  (e => {
-                    if (e.target === e.currentTarget && e.key === 'Enter')
-                      onOpen(row);
-                  })
-                }
+                onKeyDown={onOpen && onActivateKey(() => onOpen(row))}
               >
                 {columns.map(c => (
                   <td key={c.id} className={c.className}>

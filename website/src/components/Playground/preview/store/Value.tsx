@@ -1,13 +1,21 @@
 import clsx from 'clsx';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 
 import { fitChips, INLINE_LIMIT, isTimeField } from './columns';
 import { entityId, isEndpointRow, prettyPk, type AnyRow } from './model';
-import { refsList, useNav, type ListView, type View } from './nav';
+import {
+  ActionSpanContext,
+  refsList,
+  useNav,
+  type ListView,
+  type Moment,
+  type View,
+} from './nav';
 import {
   CIRCULAR,
   INVALIDATED,
   isRefList,
+  temporalType,
   type RefNode,
   type VNode,
 } from './refs';
@@ -25,20 +33,28 @@ export function RefChip({
   id,
   label,
   className,
+  title,
+  at,
 }: {
   id: string;
   label: React.ReactNode;
   className?: string;
+  title?: string;
+  /** The store the record shows; by default as the actions this chip
+   * summarizes left it */
+  at?: Moment;
 }) {
   const { reveal } = useStoreUI();
   const nav = useNav();
+  const spanAt = useSpanEnd();
   return (
     <button
       type="button"
       className={clsx(styles.ref, className)}
+      title={title}
       onClick={e => {
         e.stopPropagation();
-        if (nav) nav.push({ kind: 'record', id });
+        if (nav) nav.push({ kind: 'record', id }, at ?? spanAt);
         else reveal(id);
       }}
     >
@@ -93,18 +109,21 @@ export function RowChip({ row }: { row: AnyRow }) {
 export function CountChip({
   list,
   children,
+  className = styles.countRef,
 }: {
   list: () => View;
   children: React.ReactNode;
+  className?: string;
 }) {
   const nav = useNav();
+  const at = useSpanEnd();
   return (
     <button
       type="button"
-      className={clsx(styles.ref, styles.countRef)}
+      className={clsx(styles.ref, className)}
       onClick={e => {
         e.stopPropagation();
-        nav?.push(list());
+        nav?.push(list(), at);
       }}
     >
       {children}
@@ -340,8 +359,14 @@ export function Primitive({ value, name }: { value: unknown; name?: string }) {
     );
   if (value instanceof Date)
     return (
-      <span className={styles.number}>
-        {isNaN(value.getTime()) ? 'Invalid Date' : value.toISOString()}
+      <span className={styles.number} title={String(value)}>
+        {isNaN(value.getTime()) ? 'Invalid Date' : dateFormatter.format(value)}
+      </span>
+    );
+  if (typeof value === 'object' && temporalType(value))
+    return (
+      <span className={styles.number} title={String(value)}>
+        {formatTemporal(value)}
       </span>
     );
   if (typeof value === 'object')
@@ -356,7 +381,34 @@ const timeFormatter = Intl.DateTimeFormat('en-US', {
   fractionalSecondDigits: 3,
 });
 
+const dateFormatter = Intl.DateTimeFormat('en-US', {
+  dateStyle: 'medium',
+  timeStyle: 'medium',
+});
+
+/** An instant like a Date; other kinds (a plain date, a duration) as the
+ * locale writes them, or their ISO string where it can't */
+function formatTemporal(value: object) {
+  const { epochMilliseconds } = value as { epochMilliseconds?: unknown };
+  if (
+    temporalType(value) === 'Temporal.Instant' &&
+    typeof epochMilliseconds === 'number'
+  )
+    return dateFormatter.format(epochMilliseconds);
+  try {
+    return (value as Date).toLocaleString('en-US');
+  } catch {
+    return String(value);
+  }
+}
+
 export function formatTime(ms: number) {
   if (!isFinite(ms)) return String(ms);
   return timeFormatter.format(ms);
+}
+
+/** The store as the actions chips summarize left it, if they summarize any */
+function useSpanEnd(): Moment | undefined {
+  const span = useContext(ActionSpanContext);
+  return span && { seq: span.last };
 }

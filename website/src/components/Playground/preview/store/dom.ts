@@ -1,3 +1,5 @@
+import type React from 'react';
+
 import { prefersReducedMotion, springEasing, springs } from '../../../motion';
 
 /** What `scrollToRow` leaves above a revealed row, for the sticky section
@@ -56,3 +58,14 @@ export function scrollToRow(scroller: HTMLElement, id: string) {
   });
   row.focus({ preventScroll: true });
 }
+
+/** keydown for an element acting as a button: Enter or Space on the element
+ * itself (not on a chip inside it) runs `activate` */
+export const onActivateKey =
+  (activate: () => void) => (e: React.KeyboardEvent) => {
+    if (e.target !== e.currentTarget) return;
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      activate();
+    }
+  };
