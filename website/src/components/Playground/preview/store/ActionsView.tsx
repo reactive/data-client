@@ -92,16 +92,33 @@ function useFollow(
   useLayoutEffect(() => {
     const el = scroller.current;
     if (!el) return;
+    // a hidden tab has no height; its scroll position says nothing
+    let hidden = !el.clientHeight;
     const onScroll = () => {
+      if (hidden) return;
       follow.current =
         el.scrollHeight - el.scrollTop - el.clientHeight < FOLLOW_SLACK;
     };
     el.addEventListener('scroll', onScroll, { passive: true });
-    return () => el.removeEventListener('scroll', onScroll);
+    // rows added while hidden: catch up once the tab shows again
+    const observer =
+      typeof ResizeObserver === 'undefined' ? undefined : (
+        new ResizeObserver(() => {
+          const wasHidden = hidden;
+          hidden = !el.clientHeight;
+          if (wasHidden && !hidden && follow.current)
+            el.scrollTop = el.scrollHeight;
+        })
+      );
+    observer?.observe(el);
+    return () => {
+      el.removeEventListener('scroll', onScroll);
+      observer?.disconnect();
+    };
   }, [scroller]);
   useLayoutEffect(() => {
     const el = scroller.current;
-    if (el && follow.current) el.scrollTop = el.scrollHeight;
+    if (el?.clientHeight && follow.current) el.scrollTop = el.scrollHeight;
   }, [scroller, rows]);
 }
 
@@ -213,19 +230,20 @@ export function TypeName({ entry }: { entry: LogEntry }) {
   const optimistic =
     action.type === actionTypes.FETCH && log.changes(entry).length > 0;
   return (
-    <span className={clsx(styles.actType, typeClass(action))}>
+    <span className={clsx(styles.actType, typeClass(entry))}>
       {actionName(action)}
       {optimistic && <span className={styles.dim}> optimistic</span>}
     </span>
   );
 }
 
-function typeClass(action: ActionTypes) {
+function typeClass(entry: LogEntry) {
+  const { action } = entry;
   switch (action.type) {
     case actionTypes.FETCH:
       return styles.tFetch;
     case actionTypes.SET_RESPONSE:
-      return action.error ? styles.tError : styles.tResponse;
+      return failed(entry) ? styles.tError : styles.tResponse;
     case actionTypes.SET:
       return styles.tSet;
     case actionTypes.INVALIDATE:
@@ -302,10 +320,8 @@ function Status({ group }: { group: ActionGroup }) {
   if (group.cancelled) return <span className={styles.tQuiet}>cancelled</span>;
   if (!response) return <span className={styles.tFetch}>pending</span>;
   return (
-    <span className={typeClass(response.action)}>
-      {(response.action as any).error ?
-        'error'
-      : `${response.at - group.entries[0].at} ms`}
+    <span className={typeClass(response)}>
+      {failed(response) ? 'error' : `${response.at - group.entries[0].at} ms`}
     </span>
   );
 }
@@ -316,7 +332,7 @@ function Lifecycle({ group }: { group: ActionGroup }) {
   if (group.kind === 'single')
     return (
       <span className={styles.life} aria-hidden="true">
-        <i className={typeClass(group.entries[0].action)} />
+        <i className={typeClass(group.entries[0])} />
       </span>
     );
   if (group.kind === 'subscription') {
@@ -354,7 +370,7 @@ function Lifecycle({ group }: { group: ActionGroup }) {
       <s />
       <i
         className={
-          response ? typeClass(response.action)
+          response ? typeClass(response)
           : group.cancelled ?
             styles.tQuiet
           : styles.waiting
@@ -364,12 +380,18 @@ function Lifecycle({ group }: { group: ActionGroup }) {
   );
 }
 
+/** An error response, or a response the store failed to process */
+const failed = ({ action, store }: LogEntry) =>
+  action.type === actionTypes.SET_RESPONSE &&
+  (action.error || !!store?.after.meta[action.key]?.error);
+
 const MARK: Partial<Record<Change['kind'], [string, string]>> = {
   added: ['+', styles.markAdded],
   updated: ['~', styles.markUpdated],
   removed: ['−', styles.markRemoved],
   invalidated: ['✕', styles.markRemoved],
   error: ['!', styles.markRemoved],
+  expired: ['◔', styles.markUpdated],
 };
 
 /** What changed, as chips that open the row (several new rows of one table

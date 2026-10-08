@@ -17,6 +17,9 @@ export interface LogEntry {
   readonly action: ActionTypes;
   /** When it was dispatched (`Date.now()`) */
   readonly at: number;
+  /** The first action of another store mounted onto this history: what the
+   * last one had open was dropped without an action */
+  readonly newStore?: true;
   /** The store's own state (pending optimistic updates not yet applied)
    * right before and after this action. Missing when a manager handled the
    * action without passing it on (a plain fetch, a subscribe) */
@@ -51,6 +54,8 @@ export default class ActionLog {
   /** The store (its controller) whose actions are being recorded */
   private store: object | undefined;
   private readonly retired = new WeakSet<object>();
+  /** The next action is the new store's first */
+  private fresh = false;
   /** History of the store an automatic retry replaced */
   private stash:
     | { readonly entries: readonly LogEntry[]; readonly since: number }
@@ -74,7 +79,13 @@ export default class ActionLog {
     this.store = store;
     const at = Date.now();
     if (!this.entries.length) this.since = at;
-    const entry: LogEntry = { seq: this.nextSeq++, action, at };
+    const entry: LogEntry = {
+      seq: this.nextSeq++,
+      action,
+      at,
+      ...(this.fresh && { newStore: true as const }),
+    };
+    this.fresh = false;
     this.recorded.set(action, entry);
     this.update([...this.entries, entry].slice(-LOG_LIMIT));
   }
@@ -85,6 +96,7 @@ export default class ActionLog {
   newStore(how: 'reset' | 'retry' | 'restore') {
     if (this.store) this.retired.add(this.store);
     this.store = undefined;
+    this.fresh = true;
     const { stash } = this;
     this.stash =
       how === 'retry' ?

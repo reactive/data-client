@@ -10,7 +10,9 @@ export type ChangeKind =
   | 'invalidated'
   | 'error'
   /** Stored again (new fetch time), same data */
-  | 'refreshed';
+  | 'refreshed'
+  /** Marked stale; the data stays */
+  | 'expired';
 
 /** One row an action changed */
 export type Change =
@@ -102,7 +104,13 @@ function endpointChange(
   if (meta?.error && meta.error !== prevMeta?.error) return 'error';
   if (meta?.invalidated && !prevMeta?.invalidated) return 'invalidated';
   if (!had) return 'added';
-  return equal(value, prevValue) ? 'refreshed' : 'updated';
+  if (!equal(value, prevValue)) return 'updated';
+  if (meta?.date !== prevMeta?.date)
+    // a response that clears an error or invalidation changes the row
+    return prevMeta?.error || prevMeta?.invalidated ? 'updated' : 'refreshed';
+  // expireAll() moves expiresAt into the past
+  if ((meta?.expiresAt ?? 0) < (prevMeta?.expiresAt ?? 0)) return 'expired';
+  return 'updated';
 }
 
 function changedFields(a: unknown, b: unknown): string[] {
@@ -201,9 +209,24 @@ export function groupEntries(entries: readonly LogEntry[]): ActionGroup[] {
       key: actionKey(entry.action),
       entries: [entry],
     });
+  /** Requests still waiting will get no response */
+  const cancelOpen = () => {
+    for (const list of requests.values())
+      for (const request of list)
+        if (!request.response) request.cancelled = true;
+    requests.clear();
+    pending.clear();
+  };
 
   for (const entry of entries) {
     const { action } = entry;
+    if (entry.newStore) {
+      // a remounted store: the one before it dropped its subscriptions and
+      // requests without dispatching anything
+      for (const sub of subscriptions.values()) sub.open = 0;
+      subscriptions.clear();
+      cancelOpen();
+    }
     switch (action.type) {
       case actionTypes.SUBSCRIBE: {
         let sub = subscriptions.get(action.key);
@@ -256,9 +279,13 @@ export function groupEntries(entries: readonly LogEntry[]): ActionGroup[] {
         break;
       }
       case actionTypes.SET_RESPONSE: {
-        const request = requests
+        const waiting = requests
           .get(requestId(action.key, action.meta.fetchedAt))
-          ?.find(r => !r.response);
+          ?.filter(r => !r.response);
+        // mutations sharing a fetch time can resolve in any order
+        const request =
+          waiting?.find(r => sameArgs(r.entries[0].action, action)) ??
+          waiting?.[0];
         if (!request) {
           single(entry);
           break;
@@ -270,11 +297,7 @@ export function groupEntries(entries: readonly LogEntry[]): ActionGroup[] {
       }
       case actionTypes.RESET:
         // NetworkManager rejects everything in flight; no response follows
-        for (const list of requests.values())
-          for (const request of list)
-            if (!request.response) request.cancelled = true;
-        requests.clear();
-        pending.clear();
+        cancelOpen();
         single(entry);
         break;
       default:
@@ -285,6 +308,9 @@ export function groupEntries(entries: readonly LogEntry[]): ActionGroup[] {
 }
 
 const requestId = (key: string, fetchedAt: number) => `${fetchedAt} ${key}`;
+
+const sameArgs = (fetch: ActionTypes, response: ActionTypes) =>
+  'args' in fetch && 'args' in response && equal(fetch.args, response.args);
 
 /** Every action of a group, in dispatch order */
 export function groupEntriesOf(group: ActionGroup): readonly LogEntry[] {

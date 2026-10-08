@@ -14,7 +14,7 @@ import {
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
-import { groupEntries } from '../store/actionGroups';
+import { diffStates, groupEntries } from '../store/actionGroups';
 import ActionLog, { type LogEntry } from '../store/actionLog';
 import { entityId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
@@ -213,6 +213,24 @@ describe('Store Actions tab', () => {
     ).toBeTruthy();
   });
 
+  it('shows a response the store failed to process as an error', async () => {
+    const { ctrl } = mount();
+    // normalizing it throws inside the reducer
+    const broken = new Endpoint(async () => 'not a post', {
+      schema: Post,
+      key: () => 'GET https://example.com/broken',
+    });
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    await act(() =>
+      ctrl()
+        .fetch(broken)
+        .catch(() => {}),
+    );
+    fireEvent.click(actionsTab());
+    expect(rows()[0].textContent).toContain('error');
+    expect(rows()[0].textContent).not.toMatch(/\d+ ms/);
+  });
+
   it('lists a set on its own, and starts over when cleared', async () => {
     const { ctrl, registry } = mount();
     await act(() => ctrl().set(Post, { id: '3' }, { id: '3', title: 'New' }));
@@ -273,6 +291,55 @@ describe('groupEntries', () => {
     ).toEqual([
       [1, 3],
       [2, 4],
+    ]);
+  });
+
+  it('matches mutations sharing a fetch time to their own responses', () => {
+    const write = { key: 'PATCH /a', endpoint: { sideEffect: true } };
+    const action = (type: string, seq: number, title: string) =>
+      entry(seq, {
+        type,
+        ...write,
+        args: [{ id: 'a' }, { title }],
+        meta: { fetchedAt: 1 },
+      });
+    const groups = groupEntries([
+      action(actionTypes.FETCH, 1, 'x'),
+      action(actionTypes.FETCH, 2, 'y'),
+      // the second resolves first
+      action(actionTypes.SET_RESPONSE, 3, 'y'),
+      action(actionTypes.SET_RESPONSE, 4, 'x'),
+    ]);
+    expect(
+      groups.map(g => g.kind === 'request' && g.entries.map(e => e.seq)),
+    ).toEqual([
+      [1, 4],
+      [2, 3],
+    ]);
+  });
+
+  it('closes what the store before a remounted one had open', () => {
+    const read = { key: 'GET /a', endpoint: {} };
+    const groups = groupEntries([
+      entry(1, { type: actionTypes.SUBSCRIBE, ...poll }),
+      entry(2, { type: actionTypes.FETCH, ...read, meta: { fetchedAt: 2 } }),
+      // the restored store subscribes again; its first unsubscribe ends it
+      { ...entry(3, { type: actionTypes.SUBSCRIBE, ...poll }), newStore: true },
+      entry(4, { type: actionTypes.UNSUBSCRIBE, ...poll }),
+      entry(5, { type: actionTypes.FETCH, ...read, meta: { fetchedAt: 5 } }),
+    ]);
+    expect(
+      groups.map(g => [
+        g.kind,
+        g.kind === 'subscription' ? g.open
+        : g.kind === 'request' ? !!g.cancelled
+        : null,
+      ]),
+    ).toEqual([
+      ['subscription', 0],
+      ['request', true],
+      ['subscription', 0],
+      ['request', false],
     ]);
   });
 
@@ -360,6 +427,9 @@ describe('ActionLog', () => {
     expect(log.entries).toHaveLength(1);
     log.newStore('restore');
     expect(log.entries.map(e => e.seq)).toEqual([1, 2]);
+    // where the restored store's own actions begin
+    log.record(subscribe, {});
+    expect(log.entries.map(e => !!e.newStore)).toEqual([false, false, true]);
     log.newStore('reset');
     expect(log.entries).toHaveLength(0);
     log.newStore('restore');
@@ -400,5 +470,23 @@ describe('ActionLog', () => {
       log.record({ type: actionTypes.SUBSCRIBE } as any, store);
     expect(log.entries).toHaveLength(500);
     expect(log.entries[0].seq).toBe(11);
+  });
+});
+
+describe('diffStates', () => {
+  const state = (meta: object): State<unknown> => ({
+    ...initialState,
+    endpoints: { a: [1] },
+    meta: { a: { date: 1, fetchedAt: 1, expiresAt: 10, ...meta } },
+  });
+  const kinds = (prev: object, next: object) =>
+    diffStates(state(prev), state(next)).map(c => c.kind);
+
+  it('tells a refetch, an expiry and a recovery apart', () => {
+    expect(kinds({}, { date: 2, expiresAt: 20 })).toEqual(['refreshed']);
+    // expireAll()
+    expect(kinds({}, { expiresAt: 1 })).toEqual(['expired']);
+    expect(kinds({ error: new Error('x') }, { date: 2 })).toEqual(['updated']);
+    expect(kinds({ invalidated: true }, { date: 2 })).toEqual(['updated']);
   });
 });

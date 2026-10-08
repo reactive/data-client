@@ -150,6 +150,10 @@ function ChangeBody({
         return (
           <span className={styles.dim}>invalid; the next read refetches</span>
         );
+      case 'expired':
+        return (
+          <span className={styles.dim}>stale; the next read refetches</span>
+        );
       case 'removed':
         return <span className={styles.dim}>removed</span>;
       default:
