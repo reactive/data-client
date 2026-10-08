@@ -41,10 +41,6 @@ export interface History {
 
 const EMPTY: History = { entries: [], since: 0 };
 
-/** Histories kept: the shown one, and the one an automatic retry replaced
- * (restored if the error persists) */
-const HISTORY_LIMIT = 2;
-
 export const findEntry = (entries: readonly LogEntry[], seq: number) =>
   entries.find(e => e.seq === seq);
 
@@ -144,18 +140,17 @@ export default class ActionLog {
     const history = this.histories.get(id);
     if (entry.newStore) {
       // a store mounting starts its history, or continues the one it was
-      // restored from; older ones can no longer come back
+      // restored from; only the newest other one can still come back
       const others = [...this.histories.keys()].filter(k => k !== id);
-      for (const old of others.slice(0, 1 - HISTORY_LIMIT))
-        this.histories.delete(old);
+      for (const old of others.slice(0, -1)) this.histories.delete(old);
       // re-added as the newest
       this.histories.delete(id);
     } else if (!history) return;
-    const entries = history?.entries ?? [];
+    const { entries, since } = history ?? EMPTY;
     this.set(id, {
       ...history,
       entries: [...entries, entry].slice(-LOG_LIMIT),
-      since: entries.length ? history!.since : entry.at,
+      since: entries.length ? since : entry.at,
     });
   }
 
@@ -167,19 +162,11 @@ export default class ActionLog {
   ) {
     const history = this.histories.get(id);
     if (!history) return;
-    const { entries } = history;
-    // almost always the action just recorded
-    const i =
-      entries.at(-1) === entry ?
-        entries.length - 1
-      : entries.lastIndexOf(entry!);
-    if (!entry || i < 0) {
-      this.set(id, { ...history, state: store.after });
-      return;
-    }
-    const next = [...entries];
-    next[i] = { ...entry, store };
-    this.set(id, { ...history, entries: next, state: store.after });
+    this.set(id, {
+      ...history,
+      entries: history.entries.map(e => (e === entry ? { ...e, store } : e)),
+      state: store.after,
+    });
   }
 
   /** Listeners hear once per task: actions dispatched while a component
