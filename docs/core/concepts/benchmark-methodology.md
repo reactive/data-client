@@ -25,7 +25,7 @@ so you can run it yourself, change it, or point it at your own workload.
   - The other libraries wait for the mutation response, then invalidate and refetch.
 - Ratios on the [Performance page](./performance.md) are relative to the plain React baseline.
   Against TanStack Query and SWR directly, navigation is **10.6x** and **10.9x**, and the
-  `update-entity` mutation is **95x** and **94x**.
+  `update-entity` mutation is **95.5x** and **94x**.
 
 ## Environment
 
@@ -103,7 +103,7 @@ but no run without it was published.
   detail; the baseline also refetches the list on every return.
 - **Mutations** (`update-entity`): with 1,000 issues stored and 100 rendered, change one issue's title.
 - **Scaling (10k)** (`update-user-10000`): with 10,000 issues stored and 100 rendered,
-  rename the user who authored them.
+  rename one of the 20 users, who authored 500 of them.
 
 Other scenarios (initial list load, sorted views, create, delete, move, multi-view) are in the
 table below. Scenario definitions are in
@@ -124,7 +124,8 @@ table below. Scenario definitions are in
   | Large (everything else, including navigation and 10k scaling) | 3 | 5 to 40 | ±12% |
 
 - Outliers beyond 1.5× the interquartile range are trimmed. The result is the median of the rest.
-  The margin uses Student's t critical value (1.96 above 30 samples) times the standard error.
+  The margin is Student's t critical value times a robust standard error (scaled median absolute
+  deviation ÷ √n).
 - The number of samples each scenario took before stopping was not saved, only the bounds above.
 
 ## Results
@@ -164,7 +165,7 @@ Baseline times were 1,370 ms, 138 ms and 641 ms. Navigation times cover all ten 
 
 Across the seven mutation scenarios, Data Client ranged from **48×** (`move-item`) to **116×**
 (`delete-item`) faster than the baseline. On the initial list loads, all four libraries were
-within 2% of each other.
+within 3% of each other.
 
 ## How to read these numbers
 
