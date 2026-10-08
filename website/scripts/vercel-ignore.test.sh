@@ -33,11 +33,15 @@ commit() {
   git -C "$repo" commit -m "$msg" >/dev/null
 }
 
-# expect <skip|build|exit-code> <name> <ref> [previous-sha] [vercel-env] [script args...]
+# expect <skip|build|N> <name> <ref> [previous-sha] [vercel-env] [script args...]
 expect() {
   local want="$1" name="$2" ref="$3" prev="${4-}" env="${5-}" out rc code="$1"
   shift $(($# < 5 ? $# : 5))
-  case "$want" in skip) code=0 ;; build) code=1 ;; esac
+  case "$want" in
+    skip) code=0 ;;
+    build) code=1 ;;
+    '' | *[!0-9]*) echo "FAIL $name: bad expectation '$want'" >&2 && exit 1 ;;
+  esac
   set +e
   out="$(
     cd "$repo" &&
@@ -224,7 +228,7 @@ repo="$origin_repo"
 rm -rf "$clone"
 
 # --- --superseded: a queued production deploy of an older master commit ---
-# expect_superseded <skip|build|exit-code> <name> <sha> [origin-url]: HEAD at
+# expect_superseded <skip|build|N> <name> <sha> [origin-url]: HEAD at
 # <sha> in a clone of master
 expect_superseded() {
   local want="$1" name="$2" clone
