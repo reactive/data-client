@@ -470,15 +470,16 @@ const NAMES: Record<string, string> = {
   [actionTypes.GC]: 'gc',
 };
 
-/** The Controller method that dispatches it: `setResponse` */
 /** A subscribe's or unsubscribe's poll frequency (ms) */
 export const pollFrequencyOf = (action: ActionTypes): number | undefined =>
   (
     action.type === actionTypes.SUBSCRIBE ||
     action.type === actionTypes.UNSUBSCRIBE
   ) ?
-    action.endpoint.pollFrequency
+    // a user's manager may dispatch one by hand: the log never throws
+    action.endpoint?.pollFrequency
   : undefined;
 
+/** The Controller method that dispatches it: `setResponse` */
 export const actionName = (action: ActionTypes) =>
   NAMES[action.type] ?? action.type;

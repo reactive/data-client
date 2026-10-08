@@ -99,6 +99,11 @@ function mount(preview?: React.ReactNode) {
   };
 }
 
+const unsubscribe = (key = 'other') => ({
+  type: actionTypes.UNSUBSCRIBE,
+  key,
+  endpoint: {},
+});
 const actionsTab = () => screen.getByRole('tab', { name: /Actions/ });
 const rows = () =>
   [...document.querySelectorAll<HTMLElement>('[aria-expanded]')].filter(
@@ -755,7 +760,7 @@ describe('ActionLog', () => {
     const retry = connect(log, 1, { keep: 0 });
     retry(subscribe());
     // the replaced store unmounting
-    first({ type: actionTypes.UNSUBSCRIBE, key: 'k', endpoint: {} });
+    first(unsubscribe('k'));
     expect(log.history(0).entries).toHaveLength(3);
     expect(log.history(1).entries).toHaveLength(1);
     // the error persists: the first store comes back, the retry's is gone
@@ -869,7 +874,7 @@ describe('ActionLog', () => {
     const dispatch = connect(log, 0);
     for (let i = 0; i < 255; i++) {
       dispatch(subscribe());
-      dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'k', endpoint: {} });
+      dispatch(unsubscribe('k'));
     }
     const { entries } = log.history(0);
     expect(entries).toHaveLength(500);
@@ -899,8 +904,7 @@ describe('ActionLog', () => {
     fetch('m');
     respond('m');
     fetch('k');
-    for (let i = 0; i < 500; i++)
-      dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other', endpoint: {} });
+    for (let i = 0; i < 500; i++) dispatch(unsubscribe());
     respond('k');
     const fetches = () =>
       log
@@ -937,8 +941,7 @@ describe('ActionLog', () => {
       meta,
       endpoint: { schema: undefined },
     });
-    for (let i = 0; i < 500; i++)
-      dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other', endpoint: {} });
+    for (let i = 0; i < 500; i++) dispatch(unsubscribe());
     const { entries } = log.history(0);
     expect(entries).toHaveLength(501);
     expect(entries[0].action).toMatchObject({ args: [{ id: 1 }] });
@@ -973,8 +976,7 @@ describe('ActionLog', () => {
     });
     // joins while the store commits the response
     fetch(2);
-    for (let i = 0; i < 499; i++)
-      dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other', endpoint: {} });
+    for (let i = 0; i < 499; i++) dispatch(unsubscribe());
     const [request] = groupEntries(log.history(0).entries);
     expect(request).toMatchObject({
       kind: 'request',
@@ -993,9 +995,8 @@ describe('ActionLog', () => {
       endpoint: {},
       meta: { fetchedAt: 1 },
     });
-    dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'k', endpoint: {} });
-    for (let i = 0; i < 498; i++)
-      dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other', endpoint: {} });
+    dispatch(unsubscribe('k'));
+    for (let i = 0; i < 498; i++) dispatch(unsubscribe());
     dispatch({
       type: actionTypes.SET_RESPONSE,
       key: 'k',
@@ -1003,8 +1004,7 @@ describe('ActionLog', () => {
       meta: { fetchedAt: 1, date: 1, expiresAt: 2 },
       endpoint: { schema: undefined },
     });
-    for (let i = 0; i < 3; i++)
-      dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other', endpoint: {} });
+    for (let i = 0; i < 3; i++) dispatch(unsubscribe());
     const [sub] = groupEntries(log.history(0).entries);
     expect(sub).toMatchObject({ kind: 'subscription', key: 'k', open: 0 });
     expect((sub as any).requests[0].response).toBeTruthy();
@@ -1025,11 +1025,10 @@ describe('ActionLog', () => {
     poll(1);
     dispatch(subscribe());
     // the first subscriber leaves before the second poll
-    dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'k', endpoint: {} });
+    dispatch(unsubscribe('k'));
     poll(2);
-    dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'k', endpoint: {} });
-    for (let i = 0; i < 500; i++)
-      dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other', endpoint: {} });
+    dispatch(unsubscribe('k'));
+    for (let i = 0; i < 500; i++) dispatch(unsubscribe());
     const [sub] = groupEntries(log.history(0).entries);
     expect(sub).toMatchObject({ kind: 'subscription', key: 'k', open: 0 });
     expect((sub as any).requests).toHaveLength(2);
@@ -1096,7 +1095,7 @@ describe('ActionLog', () => {
   it('keeps as many pushed sets of each entity as updateLimit says', () => {
     const log = newLog({ updateLimit: 2 });
     const dispatch = connect(log, 0);
-    dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other', endpoint: {} });
+    dispatch(unsubscribe());
     const set = (schema: typeof Post, id: string, title: string) =>
       dispatch({
         type: actionTypes.SET,
@@ -1130,8 +1129,7 @@ describe('ActionLog', () => {
   it('trims in batches', () => {
     const log = new ActionLog();
     const dispatch = connect(log, 0);
-    const other = () =>
-      dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other', endpoint: {} });
+    const other = () => dispatch(unsubscribe());
     for (let i = 0; i < 549; i++) other();
     expect(log.history(0).entries).toHaveLength(549);
     other();
@@ -1180,8 +1178,7 @@ describe('ActionLog', () => {
     poll(actionTypes.SUBSCRIBE, 5000);
     poll(actionTypes.SUBSCRIBE, 1000);
     poll(actionTypes.UNSUBSCRIBE, 5000);
-    for (let i = 0; i < 500; i++)
-      dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other', endpoint: {} });
+    for (let i = 0; i < 500; i++) dispatch(unsubscribe());
     const [first] = log.history(0).entries;
     expect(first.action).toMatchObject({
       type: actionTypes.SUBSCRIBE,
@@ -1207,8 +1204,7 @@ describe('ActionLog', () => {
       endpoint: { schema: undefined },
     });
     const restored = connect(log, 0);
-    for (let i = 0; i < 499; i++)
-      restored({ type: actionTypes.UNSUBSCRIBE, key: 'other', endpoint: {} });
+    for (let i = 0; i < 499; i++) restored(unsubscribe());
     const [request] = groupEntries(log.history(0).entries);
     expect(request).toMatchObject({ kind: 'request', key: 'k' });
     expect(request.entries).toHaveLength(2);
@@ -1223,8 +1219,7 @@ describe('ActionLog', () => {
       endpoint: {},
       meta: { fetchedAt: 1 },
     });
-    for (let i = 0; i < 500; i++)
-      dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other', endpoint: {} });
+    for (let i = 0; i < 500; i++) dispatch(unsubscribe());
     dispatch({
       type: actionTypes.SET_RESPONSE,
       key: 'k',
@@ -1245,9 +1240,8 @@ describe('ActionLog', () => {
     const dispatch = connect(log, 0);
     dispatch(subscribe());
     dispatch(subscribe());
-    for (let i = 0; i < 500; i++)
-      dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other', endpoint: {} });
-    dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'k', endpoint: {} });
+    for (let i = 0; i < 500; i++) dispatch(unsubscribe());
+    dispatch(unsubscribe('k'));
     const { entries } = log.history(0);
     // one dropped subscribe still pairs with the kept unsubscribe; the other
     // keeps the subscription open

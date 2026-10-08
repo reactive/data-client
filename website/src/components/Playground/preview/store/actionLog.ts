@@ -20,7 +20,8 @@ import {
 /** Actions kept; older ones drop off the front */
 const LOG_LIMIT = 500;
 /** Updates kept per row (`updateLimit`): a subscription's polls, or pushed
- * `set`s of one entity and `setResponse`s of one endpoint */
+ * `set`s of one entity and `setResponse`s of one endpoint. A poll still
+ * waiting for its response stays without counting */
 const UPDATE_LIMIT = 20;
 /** Actions logged between trims (`trimEvery`): trimming regroups the whole
  * log, so it runs in batches, and the log runs up to this far past its
@@ -28,7 +29,8 @@ const UPDATE_LIMIT = 20;
 const TRIM_EVERY = 50;
 
 export interface LogOptions {
-  /** Updates kept per row (default `UPDATE_LIMIT`) */
+  /** Updates kept per row, besides polls still waiting (default
+   * `UPDATE_LIMIT`) */
   readonly updateLimit?: number;
   /** Actions logged between trims (default `TRIM_EVERY`) */
   readonly trimEvery?: number;
@@ -187,7 +189,7 @@ export default class ActionLog {
           reached = true;
           const before = (state ??= detach(controller.getState()));
           // the store's reducer deletes garbage in place, from tables earlier
-          // states share
+          // states share (copying them all is fine: GC runs rarely)
           state = reduce(
             action.type === actionTypes.GC ? detach(before) : before,
             action,

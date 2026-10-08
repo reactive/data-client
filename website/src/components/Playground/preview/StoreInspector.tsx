@@ -90,8 +90,8 @@ export function StoreToggle({
 }
 
 /** The Store toggle in the preview's header, which narrow playgrounds show
- * instead of the side strip (see styles.module.css); also rendered (inert)
- * by the preview loading fallback in ../index.tsx */
+ * instead of the side strip (see styles.module.css); also rendered, disabled,
+ * by the preview loading fallback in ../index.tsx to hold the layout */
 export function StoreHeaderToggle({
   onClick,
   open = false,
@@ -110,7 +110,6 @@ export function StoreHeaderToggle({
       title={open ? 'Hide Store' : 'Show Store'}
       aria-label="Store"
       aria-pressed={open}
-      // without a handler it only holds the header's layout while loading
       disabled={!onClick}
       onClick={onClick}
     >
