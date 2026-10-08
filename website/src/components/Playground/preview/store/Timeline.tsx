@@ -115,11 +115,11 @@ export default memo(function Timeline({
       ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
   }, [selected, toNewest]);
 
-  // the arrow keys step as the snapshot bar's ‹ › do; past the newest is live
-  // live already, it still brings the newest back into view
+  // the arrow keys step as the snapshot bar's ‹ › do; past the newest is live.
+  // Live already, End still brings the newest back into view
   const toLive = () => {
-    onSelect(null);
-    toNewest();
+    if (selected === null) toNewest();
+    else onSelect(null);
   };
   const step = (by: -1 | 1) => {
     const next = nearestChange(log, entries, selected, by);

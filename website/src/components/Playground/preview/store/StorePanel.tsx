@@ -156,7 +156,7 @@ export default function StorePanel({
       )),
     [entries, history.storeFrom],
   );
-  // a pick on the timeline has no action to go back to
+  // a pick or step on the timeline has no action to go back to
   const pick = useCallback((seq: number | null) => {
     setSnapshot(seq);
     setOrigin(undefined);
@@ -265,7 +265,7 @@ export default function StorePanel({
               {(snapshot || scrubbing) && (
                 <SnapshotBar
                   entry={snapshot}
-                  onShow={setSnapshot}
+                  onShow={scrubbing ? pick : setSnapshot}
                   stepsToLive={scrubbing}
                   onBack={
                     tab === 'state' && origin ?

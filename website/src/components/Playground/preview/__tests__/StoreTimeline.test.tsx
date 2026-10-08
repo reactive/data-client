@@ -177,4 +177,34 @@ describe('Store Actions timeline', () => {
     fireEvent.click(screen.getByRole('button', { name: 'List view' }));
     expect(screen.queryByRole('group', { name: /^Timeline/ })).toBeNull();
   });
+
+  it('drops the way back to the list once the timeline moves', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() => ctrl().fetch(getPosts));
+    fireEvent.click(screen.getByRole('tab', { name: /Actions/ }));
+    const row = [
+      ...document.querySelectorAll<HTMLElement>('[aria-expanded]'),
+    ].find(el => !el.closest('[hidden]'))!;
+    fireEvent.click(row);
+    fireEvent.click(
+      screen.getAllByText('setResponse')[0].closest('[role="button"]')!,
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: 'View State after this' }),
+    );
+    expect(
+      screen.getByRole('button', { name: 'Back to the action' }),
+    ).toBeTruthy();
+
+    fireEvent.click(screen.getByRole('tab', { name: /Actions/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline view' }));
+    // on to the newer response, so State still shows a snapshot
+    fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
+    expect(screen.getByText('After')).toBeTruthy();
+    fireEvent.click(screen.getByRole('tab', { name: 'State' }));
+    expect(
+      screen.queryByRole('button', { name: 'Back to the action' }),
+    ).toBeNull();
+  });
 });
