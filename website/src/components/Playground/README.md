@@ -130,21 +130,6 @@ DesignSystem/       components injected into preview scope
 - Each playground gets its own `DataProvider` store (`MockResolver` serves
   `fixtures`); `memo(Preview)` keeps it from re-rendering on code edits.
 - Store inspector open state persists per `groupId` via tab storage and
-<<<<<<< HEAD
-  avoids scroll jumps; in `row` layout it covers the result while open (the
-  result stays rendered underneath, `inert`). It opens and closes as a
-  drawer (`../motion`: the toggle glides, the panel `Reveal`s); the panel's
-  contents render a frame after it starts moving (`useDeferredValue`).
-- The Store inspector's Actions tab logs every dispatch (`preview/store/actionLog.ts`).
-  Each store mount gets its own `registry.log.connect(history)` managers:
-  `head` goes first in the manager chain and `tail` last, so the log knows
-  which actions reached the store and runs the store's reducer itself to keep
-  the state right after each one (the store only commits in batches). Keep the
-  tail last when adding managers. `usePreviewReset` owns the `history` id: each
-  fresh store (Reset, or an error's automatic retry) starts a new one, and a
-  store the retry gives back continues its own. The Store panel shows that
-  history only.
-=======
   avoids scroll jumps. In `row` layout it slides over the code from the
   preview's edge (portaled into a layer `EditorSurface` stacks on the code,
   which goes `inert`), so the preview stays usable beside it; when the
@@ -154,7 +139,15 @@ DesignSystem/       components injected into preview scope
   It opens and closes as a drawer (`../motion`: the toggle glides, the panel
   `Reveal`s); the panel's contents render a frame after it starts moving
   (`useDeferredValue`).
->>>>>>> origin/master
+- The Store inspector's Actions tab logs every dispatch (`preview/store/actionLog.ts`).
+  Each store mount gets its own `registry.log.connect(history)` managers:
+  `head` goes first in the manager chain and `tail` last, so the log knows
+  which actions reached the store and runs the store's reducer itself to keep
+  the state right after each one (the store only commits in batches). Keep the
+  tail last when adding managers. `usePreviewReset` owns the `history` id: each
+  fresh store (Reset, or an error's automatic retry) starts a new one, and a
+  store the retry gives back continues its own. The Store panel shows that
+  history only.
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
   count in the preview header (written to the DOM, so counting adds no commits).
   `website/profiling-plugin.js` replaces `react-dom/client` with React's
