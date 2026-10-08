@@ -66,6 +66,8 @@ export type View =
   | { readonly kind: 'actions' }
   | ListView
   | { readonly kind: 'record'; readonly id: string }
+  /** Every logged change to record `id` */
+  | { readonly kind: 'history'; readonly id: string }
   | { readonly kind: 'action'; readonly seq: number };
 
 /** The store as an action left it, or (`before`) found it */

@@ -10,7 +10,12 @@ import React, {
   useSyncExternalStore,
 } from 'react';
 
-import { ActionCrumb, ActionDetail, ActionName } from './ActionDetail';
+import {
+  ActionCrumb,
+  ActionDetail,
+  ActionName,
+  RowHistory,
+} from './ActionDetail';
 import { groupEntries, keepUnchanged, type ActionGroup } from './actionGroups';
 import { findEntry, type LogEntry } from './actionLog';
 import {
@@ -506,6 +511,8 @@ function Levels({
                   }
                   onStep={seq => replace(depth, { kind: 'action', seq })}
                 />
+              : view.kind === 'history' ?
+                <RowHistory id={view.id} header={() => crumbs(depth)} />
               : view.kind === 'list' ?
                 <ListView
                   view={view}
@@ -614,6 +621,8 @@ function crumbLabel(view: View, model: StoreModel): React.ReactNode {
       return 'Actions';
     case 'action':
       return <ActionCrumb seq={view.seq} />;
+    case 'history':
+      return 'History';
     case 'list': {
       const count =
         'ids' in view ? view.ids.length

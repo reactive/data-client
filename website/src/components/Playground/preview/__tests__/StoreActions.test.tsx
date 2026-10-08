@@ -178,6 +178,41 @@ describe('Store Actions tab', () => {
     ).toBeTruthy();
   });
 
+  it('shows how a record changed, linking each change to its action', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+    );
+    const top = () =>
+      [...document.querySelectorAll<HTMLElement>('[data-level]')].find(
+        el => !el.closest('[hidden]') && !el.hasAttribute('data-covered'),
+      )!;
+    fireEvent.click(
+      top().querySelector<HTMLElement>(
+        `tr[data-id="${entityId('Post', '1')}"]`,
+      )!,
+    );
+    fireEvent.click(within(top()).getByRole('button', { name: '2 changes' }));
+    const current = () =>
+      within(top())
+        .getByRole('navigation', { name: 'Store location' })
+        .querySelector('[aria-current="page"]')!.textContent;
+    expect(current()).toBe('History');
+    const history = top();
+    expect(history.textContent).toContain('setResponse');
+    expect(history.textContent).toMatch(/title: "One" → "Edited"/);
+    // each change opens its action on the same stack
+    fireEvent.click(
+      within(history)
+        .getAllByRole('button', { name: /^.*set/ })
+        .at(-1)!,
+    );
+    expect(current()).toMatch(/^set Post/);
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    expect(current()).toBe('History');
+  });
+
   it('steps through the actions of a row, and back from State', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));

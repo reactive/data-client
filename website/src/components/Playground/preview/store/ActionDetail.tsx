@@ -10,10 +10,12 @@ import {
   ChangeChip,
   KeyLabel,
   spanOf,
+  Time,
   TypeName,
   useActions,
 } from './ActionsView';
 import type { Header } from './DiveViews';
+import { onActivateKey } from './dom';
 import { errorText } from './model';
 import { ActionSpanContext, useNav } from './nav';
 import { plain } from './refs';
@@ -266,20 +268,25 @@ function withoutFunctions(value: unknown) {
   );
 }
 
-/** A record's last change, linking to the action that made it (the table
- * view only: the tree view has no levels to open it in) */
+/** A record's last change, linking to the action that made it, and to all
+ * its changes (the table view only: the tree view has no levels to open them
+ * in) */
 export function ChangedBy({ id }: { id: string }) {
   const actions = useContext(ActionsContext);
   const nav = useNav();
-  const last = useMemo(() => actions && lastChange(actions, id), [actions, id]);
+  const changes = useMemo(
+    () => (actions ? rowHistory(actions, id) : []),
+    [actions, id],
+  );
+  const last = changes.at(-1);
   if (!nav || !last) return null;
-  const { seq } = last;
+  const { seq } = last.entry;
   return (
     <div className={styles.field}>
       <span className={styles.key}>
         changed by<span className={styles.dim}>:</span>
       </span>
-      <span>
+      <span className={styles.changedBy}>
         <button
           type="button"
           className={clsx(styles.ref, styles.countRef)}
@@ -288,23 +295,85 @@ export function ChangedBy({ id }: { id: string }) {
             nav.push({ kind: 'action', seq });
           }}
         >
-          <ActionCrumb seq={last.seq} />
+          <ActionCrumb seq={seq} />
+        </button>
+        <button
+          type="button"
+          className={clsx(styles.ref, styles.countRef)}
+          onClick={e => {
+            e.stopPropagation();
+            nav.push({ kind: 'history', id });
+          }}
+        >
+          {changes.length} change{changes.length === 1 ? '' : 's'}
         </button>
       </span>
     </div>
   );
 }
 
-/** The newest action (up to the one State is shown after) that changed
- * row `id` */
-function lastChange({ log, history, until }: Actions, id: string) {
-  const { entries } = history;
-  for (let i = entries.length - 1; i >= 0; i--) {
-    const entry = entries[i];
-    if (until !== undefined && entry.seq > until) continue;
-    if (log.changes(entry).some(c => c.id === id && c.kind !== 'refreshed'))
-      return entry;
+/** Each logged change to row `id`, oldest first, up to the action State is
+ * shown after */
+export function rowHistory({ log, history, until }: Actions, id: string) {
+  const found: { entry: LogEntry; change: Change }[] = [];
+  for (const entry of history.entries) {
+    if (until !== undefined && entry.seq > until) break;
+    const change = log
+      .changes(entry)
+      .find(c => c.id === id && c.kind !== 'refreshed');
+    if (change) found.push({ entry, change });
   }
+  return found;
+}
+
+/** How a record's value evolved: each change with the action that made it.
+ * A change's chip opens the record as that action left it; its action opens
+ * on this stack, as everything here does */
+export function RowHistory({ id, header }: { id: string; header: Header }) {
+  const actions = useActions();
+  const nav = useNav()!;
+  const changes = useMemo(() => rowHistory(actions, id), [actions, id]);
+  return (
+    <>
+      {header(null)}
+      <div className={styles.record}>
+        {!changes.length && (
+          <div className={styles.detail}>
+            <span className={styles.dim}>No changes in the log</span>
+          </div>
+        )}
+        {changes.map(({ entry, change }) => {
+          const open = () => nav.push({ kind: 'action', seq: entry.seq });
+          const { store } = entry;
+          return (
+            <div key={entry.seq} className={styles.historyItem}>
+              <div
+                role="button"
+                tabIndex={0}
+                className={clsx(styles.row, styles.stepRow)}
+                onClick={open}
+                onKeyDown={onActivateKey(open)}
+              >
+                <Time at={entry.at} />
+                <ActionName entry={entry} />
+              </div>
+              {store && (
+                <div className={styles.historyChange}>
+                  <ActionSpanContext.Provider value={spanOf([entry])}>
+                    <ChangeLine
+                      change={change}
+                      before={actions.log.view(store.before)}
+                      after={actions.log.view(store.after)}
+                    />
+                  </ActionSpanContext.Provider>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
 }
 
 /** Breadcrumb for an action's level: `setResponse GET /posts` */

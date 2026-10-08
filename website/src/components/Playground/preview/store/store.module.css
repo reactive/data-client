@@ -1004,6 +1004,18 @@ div.joined {
   align-items: flex-start;
   gap: 0.45rem;
 }
+.changedBy {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+/* A record's history: each change under the action that made it */
+.historyItem + .historyItem {
+  box-shadow: inset 0 1px 0 var(--store-line);
+}
+.historyChange {
+  padding: 0 0.75rem 0.45rem 2rem;
+}
 .actChange {
   display: grid;
   grid-template-columns: minmax(0, max-content) minmax(0, 1fr);

@@ -309,7 +309,7 @@ export function KeyLabel({ value }: { value: string }) {
   );
 }
 
-function Time({ at }: { at: number }) {
+export function Time({ at }: { at: number }) {
   const { since } = useLog();
   const s = (at - since) / 1000;
   return (

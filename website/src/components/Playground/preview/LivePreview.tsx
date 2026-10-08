@@ -4,15 +4,15 @@ import { LiveProvider } from 'react-live';
 import Preview from './Preview';
 import { ResetButton } from './PreviewError';
 import PreviewWrapper from './PreviewWrapper';
-import { StoreHeaderToggle } from './StoreInspector';
 import { useRenderCount } from './RenderCount';
 import { previewScope } from './scope';
+import type { PreviewProps } from '../types';
 import type { LogOptions } from './store/actionLog';
 import SchemaRegistry from './store/schemaRegistry';
+import { StoreHeaderToggle } from './StoreInspector';
 import transformCode from './transformCode';
 import { usePlaygroundConsoleDemotion } from './usePlaygroundConsoleDemotion';
 import { usePreviewReset } from './usePreviewReset';
-import type { PreviewProps } from '../types';
 
 export interface LivePreviewProps<T> extends PreviewProps<T> {
   code: string;

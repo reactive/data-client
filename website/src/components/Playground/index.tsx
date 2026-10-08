@@ -8,8 +8,8 @@ import EditorShell from './editor/EditorShell';
 import EditorSurface from './editor/EditorSurface';
 import FixturePreview from './preview/FixturePreview';
 import type LivePreviewType from './preview/LivePreview';
-import type { LogOptions } from './preview/store/actionLog';
 import PreviewWrapper from './preview/PreviewWrapper';
+import type { LogOptions } from './preview/store/actionLog';
 import {
   StoreHeaderToggle,
   StoreToggle,
