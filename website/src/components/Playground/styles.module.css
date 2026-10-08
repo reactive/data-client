@@ -320,8 +320,9 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 /* room to inspect even when the code is short, kept while the drawer slides
    out (until its <Activity> hides it) */
-/* holds its height while visible, including while it slides out */
-.storeHost > .storePanel[data-visible] {
+/* holds its height while visible, including while it slides out (when the
+   panel itself is pinned out of flow) */
+.storeHost:has(> .storePanel[data-visible]) {
   min-height: 20rem;
 }
 .storeHost {
