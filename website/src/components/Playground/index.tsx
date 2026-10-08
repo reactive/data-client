@@ -10,7 +10,7 @@ import EditorSurface from './editor/EditorSurface';
 import FixturePreview from './preview/FixturePreview';
 import type LivePreviewType from './preview/LivePreview';
 import PreviewWrapper from './preview/PreviewWrapper';
-import { StoreToggle } from './preview/StoreInspector';
+import { StoreToggle, useStoreOpen } from './preview/StoreInspector';
 import styles from './styles.module.css';
 import type { FixtureOrInterceptor } from './types';
 import { isBot } from './userAgent';
@@ -57,6 +57,10 @@ export default function Playground<T>({
     model.documents.map(document => document.value).join('\n;\n'),
   );
 
+  const [storeOpen, toggleStore] = useStoreOpen(groupId, defaultOpen);
+  // Row layout: the Store slides over the code, leaving the preview usable
+  const [storeHost, setStoreHost] = useState<HTMLDivElement | null>(null);
+
   // Hydrate Monaco on first show and keep it (preserves undo / go-to-def).
   const [editorInteractive, setEditorInteractive] = useState(!hidden);
   useIsomorphicLayoutEffect(() => {
@@ -74,6 +78,10 @@ export default function Playground<T>({
           fixtures.length ? <FixturePreview fixtures={fixtures} /> : undefined
         }
         headerControls={headerControls}
+        cover={
+          row ? <div ref={setStoreHost} className={styles.storeHost} /> : null
+        }
+        covered={row && storeOpen && !hidden}
       />
     </EditorShell>
   );
@@ -83,9 +91,9 @@ export default function Playground<T>({
       <Boundary key="preview" fallback={previewLoading}>
         <LivePreview
           code={code}
-          groupId={groupId}
-          defaultOpen={defaultOpen}
-          row={row}
+          storeOpen={storeOpen}
+          toggleStore={toggleStore}
+          storeHost={row ? storeHost : undefined}
           fixtures={fixtures}
           getInitialInterceptorData={getInitialInterceptorData}
           renderCount={renderCount}

@@ -114,6 +114,7 @@
 
 .playgroundHeader.tabControls,
 div.playgroundTextEdit > .playgroundHeader,
+.editorDocs > .playgroundHeader,
 .endpointPlayground .playgroundHeader {
   box-shadow: inset 0 -1px 0 var(--pg-bar-edge);
 }
@@ -294,17 +295,49 @@ div.playgroundTextEdit > .playgroundHeader,
   background: var(--monoco-code-background);
 }
 [data-theme='dark'] .storePanel {
-  /* opaque, so the covered result never shows through; the tree inside
+  /* opaque, so the covered code never shows through; the tree inside
      adds the translucent code tint on top */
   background: var(--ifm-background-color);
 }
 
-/* Row layout with the Store open: the result stays underneath, so the Store
-   slides over real content instead of an empty frame */
-.covered {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
+/* Row layout: the Store slides over the code from the preview's edge, so the
+   preview stays usable beside it (click, watch the store change) */
+.playgroundContainer.row .debugToggle {
+  order: -1;
+}
+.playgroundTextEdit:has(> .editorBody) {
+  display: flex;
+  flex-direction: column;
+}
+/* the code and the Store's layer share one cell; the taller sets its height */
+.editorBody {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+.editorBody > * {
+  grid-area: 1 / 1;
+}
+/* room to inspect even when the code is short */
+.editorCovered {
+  min-height: 20rem;
+}
+.storeHost {
+  /* slides up from the preview below; sideways once side by side */
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.storePanel.storeCover {
+  flex: 1 1 100%;
+  pointer-events: auto;
+}
+/* fills the code's height instead of its usual cap */
+.storeHost .storeCover > * {
+  max-height: none;
 }
 
 .debugToggle:hover {
@@ -635,6 +668,19 @@ div.fixtureJson {
   }
   .playgroundContainer.row .playgroundHeader.tabControls:first-of-type {
     border-top-right-radius: 0;
+  }
+  .storeHost {
+    flex-direction: row;
+    border-bottom-left-radius: var(--ifm-global-radius);
+  }
+}
+/* Stacked row layout: the Store opens upward over the code */
+@container playground (max-width: 719px) {
+  .playgroundContainer.row .debugToggle .arrow.left {
+    transform: rotateZ(270deg);
+  }
+  .playgroundContainer.row .debugToggle .arrow.right {
+    transform: rotateZ(90deg);
   }
 }
 

@@ -19,6 +19,10 @@ export interface EditorSurfaceProps extends CodeModel {
   interactive?: boolean;
   fixtureContent?: React.ReactNode;
   headerControls?: React.ReactNode;
+  /** Layer over the code, below the headers (the Store drawer's host) */
+  cover?: React.ReactNode;
+  /** Whether `cover` hides the code (which goes inert) */
+  covered?: boolean;
 }
 
 export default function EditorSurface({
@@ -29,6 +33,8 @@ export default function EditorSurface({
   interactive = true,
   fixtureContent,
   headerControls,
+  cover,
+  covered = false,
 }: EditorSurfaceProps) {
   const id = useModelId();
   const row = layout === 'row';
@@ -75,6 +81,35 @@ export default function EditorSurface({
     [documents.length, update],
   );
 
+  const code = documents.map((document, index) => (
+    <React.Fragment key={`${document.path}:${index}`}>
+      {(!row || document.col) && document.title ?
+        <CodeTabHeader
+          onClick={() => handleTabToggle(index)}
+          closed={closedList[index]}
+          title={document.title}
+          collapsible={documents.length > 1 || fixtureContent != null}
+        />
+      : null}
+      <TextEditTab
+        hidden={closedList[index]}
+        interactive={interactive}
+        tabIndex={index}
+        onFocus={
+          row && !document.col && documents.length > 1 ?
+            handleTabSwitch
+          : handleTabOpen
+        }
+        onChange={handleChanges[index]}
+        code={document.value}
+        path={modelPath(id, document.path)}
+        isFocused={!closedList[index]}
+        language={document.language}
+        highlights={document.highlights}
+        autoFocus={document.autoFocus}
+      />
+    </React.Fragment>
+  ));
   return (
     <div className={styles.playgroundTextEdit}>
       <EditorHeader
@@ -91,35 +126,19 @@ export default function EditorSurface({
           hasHeaderControls={headerControls != null}
         />
       : null}
-      {documents.map((document, index) => (
-        <React.Fragment key={`${document.path}:${index}`}>
-          {(!row || document.col) && document.title ?
-            <CodeTabHeader
-              onClick={() => handleTabToggle(index)}
-              closed={closedList[index]}
-              title={document.title}
-              collapsible={documents.length > 1 || fixtureContent != null}
-            />
-          : null}
-          <TextEditTab
-            hidden={closedList[index]}
-            interactive={interactive}
-            tabIndex={index}
-            onFocus={
-              row && !document.col && documents.length > 1 ?
-                handleTabSwitch
-              : handleTabOpen
-            }
-            onChange={handleChanges[index]}
-            code={document.value}
-            path={modelPath(id, document.path)}
-            isFocused={!closedList[index]}
-            language={document.language}
-            highlights={document.highlights}
-            autoFocus={document.autoFocus}
-          />
-        </React.Fragment>
-      ))}
+      {cover == null ?
+        code
+      : <div
+          className={clsx(styles.editorBody, {
+            [styles.editorCovered]: covered,
+          })}
+        >
+          <div className={styles.editorDocs} inert={covered}>
+            {code}
+          </div>
+          {cover}
+        </div>
+      }
     </div>
   );
 }

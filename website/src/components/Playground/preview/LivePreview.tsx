@@ -19,9 +19,9 @@ export interface LivePreviewProps<T> extends PreviewProps<T> {
 
 export default function LivePreview<T>({
   code,
-  groupId,
-  defaultOpen,
-  row,
+  storeOpen,
+  toggleStore,
+  storeHost,
   fixtures,
   getInitialInterceptorData,
   renderCount,
@@ -57,9 +57,9 @@ export default function LivePreview<T>({
         }
       >
         <Preview
-          groupId={groupId}
-          defaultOpen={defaultOpen}
-          row={row}
+          storeOpen={storeOpen}
+          toggleStore={toggleStore}
+          storeHost={storeHost}
           fixtures={fixtures}
           getInitialInterceptorData={getInterceptorData}
           onCommit={onCommit}

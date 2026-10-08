@@ -130,8 +130,10 @@ DesignSystem/       components injected into preview scope
 - Each playground gets its own `DataProvider` store (`MockResolver` serves
   `fixtures`); `memo(Preview)` keeps it from re-rendering on code edits.
 - Store inspector open state persists per `groupId` via tab storage and
-  avoids scroll jumps; in `row` layout it covers the result while open (the
-  result stays rendered underneath, `inert`). It opens and closes as a
+  avoids scroll jumps. In `row` layout it slides over the code from the
+  preview's edge (portaled into a layer `EditorSurface` stacks on the code,
+  which goes `inert`), so the preview stays usable beside it; when the
+  layout stacks it opens upward over the code. It opens and closes as a
   drawer (`../motion`: the toggle glides, the panel `Reveal`s); the panel's
   contents render a frame after it starts moving (`useDeferredValue`).
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
