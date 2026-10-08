@@ -7,7 +7,12 @@ import {
   type State,
 } from '@data-client/react';
 
-import { diffStates, type Change } from './actionGroups';
+import {
+  diffStates,
+  mergeChanges,
+  requestId,
+  type Change,
+} from './actionGroups';
 
 /** Actions kept; older ones drop off the front */
 export const LOG_LIMIT = 500;
@@ -164,6 +169,24 @@ export default class ActionLog {
     return changes;
   }
 
+  /** Rows several actions changed, as they ended up */
+  mergedChanges(entries: readonly LogEntry[]): Change[] {
+    return mergeChanges(
+      entries.flatMap(e =>
+        e.store ?
+          [
+            {
+              seq: e.seq,
+              before: this.view(e.store.before),
+              after: this.view(e.store.after),
+              changes: this.changes(e),
+            },
+          ]
+        : [],
+      ),
+    );
+  }
+
   subscribe = (listener: () => void) => {
     this.listeners.add(listener);
     return () => {
@@ -219,20 +242,33 @@ export default class ActionLog {
   }
 }
 
-/** The newest `LOG_LIMIT` entries, and the subscribes of subscriptions still
- * open, so a long poll keeps its row */
+/** The newest `LOG_LIMIT` entries, plus the older ones they need to group:
+ * subscribes of subscriptions still open, so a long poll keeps its row, and
+ * fetches still waiting or whose response is kept */
 function trim(entries: LogEntry[]): LogEntry[] {
   const drop = entries.length - LOG_LIMIT;
   if (drop <= 0) return entries;
   // subscribers each key still has: overall, and among the kept entries
   const open = new Map<string, number>();
   const kept = new Map<string, number>();
+  const requests = new Set<string>();
   entries.forEach((e, i) => {
     if (e.newStore) {
       open.clear();
       kept.clear();
+      requests.clear();
     }
     const { action } = e;
+    // requests still waiting, and those whose response is kept
+    if (action.type === actionTypes.FETCH && !e.deduped)
+      requests.add(requestId(action.key, action.meta.fetchedAt));
+    if (action.type === actionTypes.SET_RESPONSE) {
+      const id = requestId(action.key, action.meta.fetchedAt);
+      if (i < drop) requests.delete(id);
+      else requests.add(id);
+    }
+    // NetworkManager rejects everything in flight; no response follows
+    if (action.type === actionTypes.RESET) requests.clear();
     if (
       action.type !== actionTypes.SUBSCRIBE &&
       action.type !== actionTypes.UNSUBSCRIBE
@@ -245,14 +281,19 @@ function trim(entries: LogEntry[]): LogEntry[] {
   // the latest dropped subscribes make up what the kept entries lack
   const anchors: LogEntry[] = [];
   for (let i = drop - 1; i >= 0; i--) {
-    const { action, newStore } = entries[i];
+    const { action, newStore, deduped } = entries[i];
     if (
       action.type === actionTypes.SUBSCRIBE &&
       (open.get(action.key) ?? 0) > (kept.get(action.key) ?? 0)
     ) {
       kept.set(action.key, (kept.get(action.key) ?? 0) + 1);
       anchors.unshift(entries[i]);
-    }
+    } else if (
+      action.type === actionTypes.FETCH &&
+      !deduped &&
+      requests.delete(requestId(action.key, action.meta.fetchedAt))
+    )
+      anchors.unshift(entries[i]);
     // what came before belonged to the store before
     if (newStore) break;
   }

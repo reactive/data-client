@@ -63,32 +63,54 @@ export function diffStates(
     if (before === after && metaBefore === metaAfter) continue;
     const pks = new Set([...Object.keys(before), ...Object.keys(after)]);
     for (const pk of pks) {
-      const a = before[pk];
-      const b = after[pk];
-      if (a === b && metaBefore[pk] === metaAfter[pk]) continue;
-      const id = entityId(table, pk);
-      if (a === undefined) changes.push({ kind: 'added', id, table, pk });
-      else if (b === undefined)
-        changes.push({ kind: 'removed', id, table, pk });
-      // invalidated rows hold a marker in place of their object
-      else if (typeof b === 'symbol')
-        changes.push({
-          kind: typeof a === 'symbol' ? 'refreshed' : 'invalidated',
-          id,
-          table,
-          pk,
-        });
-      else {
-        const fields = changedFields(a, b);
-        changes.push(
-          fields.length ?
-            { kind: 'updated', id, table, pk, fields }
-          : { kind: 'refreshed', id, table, pk },
-        );
-      }
+      const change = entityChange(prev, next, table, pk);
+      if (change) changes.push(change);
     }
   }
   return changes;
+}
+
+function entityChange(
+  prev: State<unknown>,
+  next: State<unknown>,
+  table: string,
+  pk: string,
+): Change | undefined {
+  const a = prev.entities[table]?.[pk];
+  const b = next.entities[table]?.[pk];
+  if (
+    a === b &&
+    prev.entitiesMeta[table]?.[pk] === next.entitiesMeta[table]?.[pk]
+  )
+    return;
+  const id = entityId(table, pk);
+  if (a === undefined) return { kind: 'added', id, table, pk };
+  if (b === undefined) return { kind: 'removed', id, table, pk };
+  // invalidated rows hold a marker in place of their object
+  if (typeof b === 'symbol')
+    return {
+      kind: typeof a === 'symbol' ? 'refreshed' : 'invalidated',
+      id,
+      table,
+      pk,
+    };
+  const fields = changedFields(a, b);
+  return fields.length ?
+      { kind: 'updated', id, table, pk, fields }
+    : { kind: 'refreshed', id, table, pk };
+}
+
+/** How one row differs between two states */
+function rowChange(
+  prev: State<unknown>,
+  next: State<unknown>,
+  row: Change,
+): Change | undefined {
+  if ('endpoint' in row) {
+    const kind = endpointChange(prev, next, row.endpoint);
+    return kind && { kind, id: row.id, endpoint: row.endpoint };
+  }
+  return entityChange(prev, next, row.table, row.pk);
 }
 
 function endpointChange(
@@ -146,40 +168,42 @@ function equal(a: unknown, b: unknown, depth = 0): boolean {
   return keys.every(k => k in b && equal(a[k], b[k], depth + 1));
 }
 
-/** Several actions' changes as one: what the rows ended up as */
-export function mergeChanges(
-  lists: readonly {
-    readonly seq: number;
-    readonly changes: readonly Change[];
-  }[],
-) {
-  const merged = new Map<string, Change>();
-  for (const { seq, changes } of lists)
-    for (const action of changes) {
-      const change =
-        action.kind === 'removed' ? { ...action, removedBy: seq } : action;
-      const prev = merged.get(change.id);
-      if (!prev) merged.set(change.id, change);
-      else if (change.kind === 'refreshed') continue;
-      // added, then rolled back (a failed optimistic create): no change
-      else if (prev.kind === 'added' && change.kind === 'removed')
-        merged.delete(change.id);
-      else if (prev.kind === 'added') continue;
-      else if (
-        prev.kind === 'updated' &&
-        change.kind === 'updated' &&
-        'fields' in prev &&
-        'fields' in change
-      )
-        merged.set(change.id, {
-          ...change,
-          fields: [
-            ...new Set([...(prev.fields ?? []), ...(change.fields ?? [])]),
-          ],
-        });
-      else merged.set(change.id, change);
+/** One action's changes, with the states it went between */
+export interface ActionChanges {
+  readonly seq: number;
+  readonly before: State<unknown>;
+  readonly after: State<unknown>;
+  readonly changes: readonly Change[];
+}
+
+/** Several actions' changes as one: each row as it ended up compared to before
+ * the first of them touched it, so a rolled back change cancels out */
+export function mergeChanges(actions: readonly ActionChanges[]): Change[] {
+  const rows = new Map<
+    string,
+    {
+      row: Change;
+      from: State<unknown>;
+      to: State<unknown>;
+      removedBy?: number;
     }
-  return [...merged.values()];
+  >();
+  for (const { seq, before, after, changes } of actions)
+    for (const row of changes) {
+      let seen = rows.get(row.id);
+      if (seen) seen.to = after;
+      else rows.set(row.id, (seen = { row, from: before, to: after }));
+      if (row.kind === 'removed') seen.removedBy = seq;
+    }
+  const merged: Change[] = [];
+  for (const { row, from, to, removedBy } of rows.values()) {
+    const change = rowChange(from, to, row);
+    if (change)
+      merged.push(
+        change.kind === 'removed' ? { ...change, removedBy } : change,
+      );
+  }
+  return merged;
 }
 
 /** A fetch with everything that belongs to it: its optimistic update,
@@ -353,7 +377,8 @@ export function groupEntries(
   return groups;
 }
 
-const requestId = (key: string, fetchedAt: number) => `${fetchedAt} ${key}`;
+export const requestId = (key: string, fetchedAt: number) =>
+  `${fetchedAt} ${key}`;
 
 /** `next`, with each group that hasn't changed since `prev` kept as it was,
  * so its row can skip rendering */

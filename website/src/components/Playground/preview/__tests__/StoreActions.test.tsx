@@ -689,6 +689,32 @@ describe('ActionLog', () => {
     expect(entries[0].seq).toBe(11);
   });
 
+  it('keeps the fetch of a response kept past the limit', () => {
+    const log = new ActionLog();
+    const dispatch = connect(log, 0);
+    dispatch({
+      type: actionTypes.FETCH,
+      key: 'k',
+      endpoint: {},
+      meta: { fetchedAt: 1 },
+    });
+    for (let i = 0; i < 500; i++)
+      dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other' });
+    dispatch({
+      type: actionTypes.SET_RESPONSE,
+      key: 'k',
+      response: 1,
+      meta: { fetchedAt: 1, date: 1, expiresAt: 2 },
+      endpoint: { schema: undefined },
+    });
+    const { entries } = log.history(0);
+    expect(entries).toHaveLength(501);
+    expect(entries[0].seq).toBe(1);
+    expect(groupEntries(entries).find(g => g.kind === 'request')).toMatchObject(
+      { response: entries[500] },
+    );
+  });
+
   it('keeps the subscribes of subscriptions still open past the limit', () => {
     const log = new ActionLog();
     const dispatch = connect(log, 0);
@@ -710,26 +736,49 @@ describe('ActionLog', () => {
 });
 
 describe('mergeChanges', () => {
-  it('drops an add that a later action removed', () => {
-    const add = { kind: 'added', id: 'Post:1', endpoint: 'e' } as const;
-    const remove = { kind: 'removed', id: 'Post:1', endpoint: 'e' } as const;
+  const post = { id: '1', title: 'a' };
+  const posts = (rows: Record<string, object>): State<unknown> => ({
+    ...initialState,
+    entities: { Post: rows },
+  });
+  const steps = (...states: State<unknown>[]) =>
+    states.slice(1).map((after, i) => ({
+      seq: i + 1,
+      before: states[i],
+      after,
+      changes: diffStates(states[i], after),
+    }));
+
+  it('cancels a change a later action rolled back', () => {
+    const before = posts({ 1: post });
+    // a failed optimistic create, update and delete
+    expect(mergeChanges(steps(posts({}), before, posts({})))).toEqual([]);
     expect(
-      mergeChanges([
-        { seq: 1, changes: [add] },
-        { seq: 2, changes: [remove] },
-      ]),
+      mergeChanges(
+        steps(before, posts({ 1: { ...post, title: 'b' } }), before),
+      ),
     ).toEqual([]);
+    expect(mergeChanges(steps(before, posts({}), before))).toEqual([]);
   });
 
   it('remembers which action removed a row', () => {
-    const update = { kind: 'updated', id: 'Post:1', endpoint: 'e' } as const;
-    const remove = { kind: 'removed', id: 'Post:1', endpoint: 'e' } as const;
     expect(
-      mergeChanges([
-        { seq: 1, changes: [update] },
-        { seq: 2, changes: [remove] },
-      ]),
-    ).toEqual([{ ...remove, removedBy: 2 }]);
+      mergeChanges(
+        steps(
+          posts({ 1: post }),
+          posts({ 1: { ...post, title: 'b' } }),
+          posts({}),
+        ),
+      ),
+    ).toEqual([
+      {
+        kind: 'removed',
+        id: entityId('Post', '1'),
+        table: 'Post',
+        pk: '1',
+        removedBy: 2,
+      },
+    ]);
   });
 });
 

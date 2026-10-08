@@ -15,7 +15,6 @@ import {
   actionName,
   groupEntriesOf,
   joinedFetches,
-  mergeChanges,
   type ActionGroup,
   type Change,
   type RequestGroup,
@@ -149,9 +148,7 @@ const GroupRow = memo(function GroupRow({
   const { log } = useLog();
   const onToggle = () => toggle(group.id);
   const all = groupEntriesOf(group);
-  const changes = mergeChanges(
-    all.map(e => ({ seq: e.seq, changes: log.changes(e) })),
-  );
+  const changes = log.mergedChanges(all);
   const first = all[0];
   return (
     <div className={styles.actGroup} data-open={open || undefined}>
