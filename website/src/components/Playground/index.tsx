@@ -81,7 +81,7 @@ export default function Playground<T>({
           row ? <div ref={setStoreHost} className={styles.storeHost} /> : null
         }
         covered={codeCovered}
-        // switching files asks for the code back
+        // switching files asks for the code back (when the tabs stay visible)
         onTabSelect={codeCovered ? closeStore : undefined}
       />
     </EditorShell>

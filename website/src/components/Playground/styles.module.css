@@ -333,13 +333,14 @@ div.playgroundTextEdit > .playgroundHeader,
   pointer-events: none;
 }
 /* under the header, the file tabs are no longer the top corner */
-.editorBody:not(:first-child) .editorDocs > .tabControls {
+.playgroundContainer .editorBody:not(:first-child) .editorDocs > .tabControls {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
 /* with no header, the Store takes the corner */
 .editorBody:first-child .storeHost {
-  border-top-left-radius: var(--ifm-global-radius);
+  border-top-left-radius: calc(var(--ifm-global-radius) * 2);
+  border-top-right-radius: var(--ifm-global-radius);
 }
 .storeHost > .storePanel {
   flex: 1 1 100%;
@@ -683,6 +684,9 @@ div.fixtureJson {
   .storeHost {
     flex-direction: row;
     border-bottom-left-radius: var(--ifm-global-radius);
+  }
+  .editorBody:first-child .storeHost {
+    border-top-right-radius: 0;
   }
 }
 /* Stacked row layout: the Store opens upward over the code */
