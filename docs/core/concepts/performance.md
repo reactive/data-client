@@ -30,7 +30,7 @@ sources={{
   }}
 />
 
-[View benchmark source](https://github.com/reactive/data-client/tree/master/examples/benchmark-react) · [Methodology and raw results](https://github.com/reactive/data-client/blob/master/examples/benchmark-react/METHODOLOGY.md) · [Performance over time](https://reactive.github.io/data-client/react-bench/)
+[View benchmark source](https://github.com/reactive/data-client/tree/master/examples/benchmark-react) · [Methodology and results](https://github.com/reactive/data-client/blob/master/examples/benchmark-react/METHODOLOGY.md) · [Performance over time](https://reactive.github.io/data-client/react-bench/)
 
 </center>
 
