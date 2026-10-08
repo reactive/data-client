@@ -23,7 +23,7 @@ export interface EditorSurfaceProps extends CodeModel {
   cover?: React.ReactNode;
   /** Whether `cover` hides the code (which goes inert) */
   covered?: boolean;
-  /** Called after the user picks a file tab */
+  /** Called when the user switches to another file tab */
   onTabSelect?: () => void;
 }
 
@@ -131,8 +131,9 @@ export default function EditorSurface({
           onClick={
             onTabSelect ?
               index => {
+                // focus also selects, so only a different file counts
+                if (closedList[index]) onTabSelect();
                 handleTabSwitch(index);
-                onTabSelect();
               }
             : handleTabSwitch
           }

@@ -63,6 +63,7 @@ export default function Playground<T>({
   );
   // Row layout: the Store slides over the code, leaving the preview usable
   const [storeHost, setStoreHost] = useState<HTMLDivElement | null>(null);
+  const codeCovered = row && storeOpen;
 
   // Hydrate Monaco on first show and keep it (preserves undo / go-to-def).
   const [editorInteractive, setEditorInteractive] = useState(!hidden);
@@ -84,9 +85,9 @@ export default function Playground<T>({
         cover={
           row ? <div ref={setStoreHost} className={styles.storeHost} /> : null
         }
-        covered={row && storeOpen}
+        covered={codeCovered}
         // picking a file asks for its code back
-        onTabSelect={row && storeOpen ? closeStore : undefined}
+        onTabSelect={codeCovered ? closeStore : undefined}
       />
     </EditorShell>
   );
