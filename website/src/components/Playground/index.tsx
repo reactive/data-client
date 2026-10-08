@@ -84,8 +84,9 @@ export default function Playground<T>({
         cover={
           row ? <div ref={setStoreHost} className={styles.storeHost} /> : null
         }
-        covered={row && storeOpen && !hidden}
-        onUncover={closeStore}
+        covered={row && storeOpen}
+        // picking a file asks for its code back
+        onTabSelect={row && storeOpen ? closeStore : undefined}
       />
     </EditorShell>
   );
@@ -97,7 +98,8 @@ export default function Playground<T>({
           code={code}
           storeOpen={storeOpen}
           toggleStore={toggleStore}
-          storeHost={row ? storeHost : undefined}
+          row={row}
+          storeHost={storeHost}
           fixtures={fixtures}
           getInitialInterceptorData={getInitialInterceptorData}
           renderCount={renderCount}

@@ -23,8 +23,8 @@ export interface EditorSurfaceProps extends CodeModel {
   cover?: React.ReactNode;
   /** Whether `cover` hides the code (which goes inert) */
   covered?: boolean;
-  /** Picking a file tab while covered asks for the code back */
-  onUncover?: () => void;
+  /** Called after the user picks a file tab */
+  onTabSelect?: () => void;
 }
 
 export default function EditorSurface({
@@ -37,7 +37,7 @@ export default function EditorSurface({
   headerControls,
   cover,
   covered = false,
-  onUncover,
+  onTabSelect,
 }: EditorSurfaceProps) {
   const id = useModelId();
   const row = layout === 'row';
@@ -114,7 +114,11 @@ export default function EditorSurface({
     </React.Fragment>
   ));
   return (
-    <div className={styles.playgroundTextEdit}>
+    <div
+      className={clsx(styles.playgroundTextEdit, {
+        [styles.withCover]: cover != null,
+      })}
+    >
       <EditorHeader
         fixtureContent={!row ? fixtureContent : undefined}
         title={row && documents.length === 1 ? documents[0].title : undefined}
@@ -125,10 +129,10 @@ export default function EditorSurface({
           documents={documents}
           closedList={closedList}
           onClick={
-            covered && onUncover ?
+            onTabSelect ?
               index => {
-                onUncover();
                 handleTabSwitch(index);
+                onTabSelect();
               }
             : handleTabSwitch
           }

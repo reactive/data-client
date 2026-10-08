@@ -7,7 +7,6 @@ import {
   type State,
 } from '@data-client/react';
 import { MockResolver } from '@data-client/test/browser';
-import clsx from 'clsx';
 import React, {
   memo,
   useMemo,
@@ -26,6 +25,7 @@ import type { PreviewProps } from '../types';
 function Preview<T>({
   storeOpen,
   toggleStore,
+  row,
   storeHost,
   fixtures,
   getInitialInterceptorData,
@@ -65,7 +65,7 @@ function Preview<T>({
       >
         <MotionGroup layoutDependency={storeOpen}>
           <div
-            className={clsx('playground-preview', styles.playgroundPreview)}
+            className={`playground-preview ${styles.playgroundPreview}`}
             onPointerDownCapture={onInteract}
             onKeyDownCapture={onInteract}
           >
@@ -77,6 +77,7 @@ function Preview<T>({
             open={storeOpen}
             toggle={toggleStore}
             registry={registry}
+            row={row}
             host={storeHost}
           />
         </MotionGroup>

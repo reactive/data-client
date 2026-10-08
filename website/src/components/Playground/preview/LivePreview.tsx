@@ -21,6 +21,7 @@ export default function LivePreview<T>({
   code,
   storeOpen,
   toggleStore,
+  row,
   storeHost,
   fixtures,
   getInitialInterceptorData,
@@ -59,6 +60,7 @@ export default function LivePreview<T>({
         <Preview
           storeOpen={storeOpen}
           toggleStore={toggleStore}
+          row={row}
           storeHost={storeHost}
           fixtures={fixtures}
           getInitialInterceptorData={getInterceptorData}

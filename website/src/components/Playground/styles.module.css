@@ -305,7 +305,7 @@ div.playgroundTextEdit > .playgroundHeader,
 .playgroundContainer.row .debugToggle {
   order: -1;
 }
-.playgroundTextEdit:has(> .editorBody) {
+.playgroundTextEdit.withCover {
   display: flex;
   flex-direction: column;
 }
@@ -331,12 +331,12 @@ div.playgroundTextEdit > .playgroundHeader,
   overflow: hidden;
   pointer-events: none;
 }
-.storePanel.storeCover {
+.storeHost > .storePanel {
   flex: 1 1 100%;
   pointer-events: auto;
 }
 /* fills the code's height instead of its usual cap */
-.storeHost .storeCover > * {
+.storeHost > .storePanel > * {
   max-height: none;
 }
 

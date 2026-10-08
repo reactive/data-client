@@ -13,13 +13,15 @@ function StoreInspector({
   toggle,
   open,
   registry,
+  row,
   host,
 }: {
   open: boolean;
   toggle: React.MouseEventHandler<HTMLDivElement>;
   registry: SchemaRegistry;
-  /** Row layout: the layer over the code the drawer slides into (null until mounted) */
-  host?: HTMLElement | null;
+  /** Slides over the code (into `host`) instead of beside the result */
+  row: boolean;
+  host: HTMLElement | null;
 }) {
   // the empty drawer starts moving at once; the tree renders a frame later,
   // then stays, so reopening finds the Store as it was left
@@ -27,13 +29,7 @@ function StoreInspector({
   const [showTree, setShowTree] = useState(false);
   if (ready && !showTree) setShowTree(true);
   const panel = (
-    <Reveal
-      show={open}
-      className={clsx(
-        styles.storePanel,
-        host !== undefined && styles.storeCover,
-      )}
-    >
+    <Reveal show={open} className={styles.storePanel}>
       {showTree ?
         <StorePanel registry={registry} />
       : null}
@@ -42,7 +38,7 @@ function StoreInspector({
   return (
     <>
       <StoreToggle onClick={toggle} open={open} />
-      {host === undefined ? panel : host && createPortal(panel, host)}
+      {row ? host && createPortal(panel, host) : panel}
     </>
   );
 }

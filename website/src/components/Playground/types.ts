@@ -6,8 +6,9 @@ export type FixtureOrInterceptor<T = any> = Fixture | Interceptor<T>;
 export interface PreviewProps<T = any> {
   storeOpen: boolean;
   toggleStore: MouseEventHandler<HTMLDivElement>;
-  /** Row layout: the layer over the code the Store slides into (null until mounted) */
-  storeHost?: HTMLElement | null;
+  row: boolean;
+  /** Row layout: the layer over the code the Store slides into */
+  storeHost: HTMLElement | null;
   fixtures: FixtureOrInterceptor<T>[];
   getInitialInterceptorData?: () => T;
 }
