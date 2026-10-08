@@ -596,9 +596,17 @@ describe('ActionLog', () => {
   const connect = (
     log: ActionLog,
     history: number,
-    { keep, state = empty }: { keep?: number; state?: State<unknown> } = {},
+    {
+      keep,
+      state = empty,
+      skipLogging,
+    }: {
+      keep?: number;
+      state?: State<unknown>;
+      skipLogging?: (action: ActionTypes) => boolean;
+    } = {},
   ) => {
-    const { head, tail } = log.connect(history, keep);
+    const { head, tail } = log.connect(history, keep, skipLogging);
     const store = { getState: () => state } as any;
     return head.middleware!(store)(
       tail.middleware!(store)(() => Promise.resolve()),
@@ -909,6 +917,31 @@ describe('ActionLog', () => {
     const [sub] = groupEntries(log.history(0).entries);
     expect(sub).toMatchObject({ kind: 'subscription', key: 'k', open: 0 });
     expect((sub as any).requests[0].response).toBeTruthy();
+  });
+
+  it('keeps the subscribers that held a subscription open over its polls', () => {
+    const log = new ActionLog();
+    // each poll its own fetch
+    const dispatch = connect(log, 0, { skipLogging: () => false });
+    const poll = (fetchedAt: number) =>
+      dispatch({
+        type: actionTypes.FETCH,
+        key: 'k',
+        endpoint: {},
+        meta: { fetchedAt },
+      });
+    dispatch(subscribe());
+    poll(1);
+    dispatch(subscribe());
+    // the first subscriber leaves before the second poll
+    dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'k' });
+    poll(2);
+    dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'k' });
+    for (let i = 0; i < 500; i++)
+      dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other' });
+    const [sub] = groupEntries(log.history(0).entries);
+    expect(sub).toMatchObject({ kind: 'subscription', key: 'k', open: 0 });
+    expect((sub as any).requests).toHaveLength(2);
   });
 
   it('keeps the subscribers still polling past the limit', () => {

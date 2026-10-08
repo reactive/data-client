@@ -251,7 +251,8 @@ export default class ActionLog {
 
 /** The newest `LOG_LIMIT` entries, plus the older ones their groups start
  * from: a request's fetch and response while it waits or has entries kept, and the
- * subscribes of a subscription still open, so a long poll keeps its row */
+ * subscribes of a subscription still open or holding a kept request, so a
+ * long poll keeps its row */
 function trim(entries: LogEntry[]): LogEntry[] {
   const drop = entries.length - LOG_LIMIT;
   if (drop <= 0) return entries;
@@ -270,7 +271,9 @@ function trim(entries: LogEntry[]): LogEntry[] {
     if (group.kind === 'request') anchorRequest(group);
     if (group.kind !== 'subscription') continue;
     group.requests.forEach(anchorRequest);
-    if (!group.open && groupEntriesOf(group).every(dropped)) continue;
+    const requests = group.requests.filter(r => anchors.has(r.entries[0]));
+    const gone = groupEntriesOf(group).every(dropped);
+    if (!group.open && gone && !requests.length) continue;
     // the subscribers still there at the cut, pairing each unsubscribe with
     // a subscribe of its poll frequency as SubscriptionManager does
     const open: LogEntry[] = [];
@@ -286,18 +289,21 @@ function trim(entries: LogEntry[]): LogEntry[] {
       if (i >= 0) pairs.set(open.splice(i, 1)[0], entry);
     }
     open.forEach(e => anchors.add(e));
-    // and a subscriber from before its first kept request, so the request
-    // stays under it
-    const [first] = group.entries;
-    const firstRequest = group.requests.find(r => anchors.has(r.entries[0]));
-    if (
-      dropped(first) &&
-      firstRequest &&
-      (!open.length || open[0].seq > firstRequest.entries[0].seq)
-    ) {
-      anchors.add(first);
-      const end = pairs.get(first);
-      if (end) anchors.add(end);
+    // and the subscribers that held it open from its first kept request on,
+    // so its requests stay under it
+    if (!requests.length) continue;
+    const end = (start: LogEntry) => pairs.get(start)?.seq ?? Infinity;
+    const until = gone ? requests[requests.length - 1].entries[0].seq : cut;
+    for (let reach = requests[0].entries[0].seq; reach <= until;) {
+      let held: LogEntry | undefined;
+      for (const start of [...open, ...pairs.keys()])
+        if (start.seq < reach && end(start) > (held ? end(held) : reach))
+          held = start;
+      if (!held) break;
+      anchors.add(held);
+      const unsubscribe = pairs.get(held);
+      if (unsubscribe) anchors.add(unsubscribe);
+      reach = end(held);
     }
   }
   return entries.filter(e => !dropped(e) || anchors.has(e));
