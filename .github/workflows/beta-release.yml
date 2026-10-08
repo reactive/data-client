@@ -17,6 +17,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   queue: max
 
+permissions:
+  contents: read
+
 jobs:
   beta-release:
     name: Beta Release

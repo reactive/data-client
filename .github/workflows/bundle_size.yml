@@ -25,6 +25,9 @@ concurrency:
   group: bundle-size-${{ github.head_ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   # Skips dependency bumps that can't change what this measures
   changes:
@@ -37,6 +40,9 @@ jobs:
     needs: changes
     if: ${{ needs.changes.outputs.relevant == 'true' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # size comment
 
     steps:
     - uses: actions/checkout@v7

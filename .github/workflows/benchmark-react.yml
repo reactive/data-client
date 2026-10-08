@@ -40,8 +40,7 @@ concurrency:
   queue: ${{ github.event_name == 'push' && 'max' || 'single' }}
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
   # Skips dependency bumps that can't change what this measures
@@ -55,6 +54,9 @@ jobs:
     needs: changes
     if: ${{ needs.changes.outputs.relevant == 'true' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # master pushes results to gh-pages-bench
+      pull-requests: write # PR result review
 
     steps:
       - uses: actions/checkout@v7
