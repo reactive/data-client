@@ -48,6 +48,8 @@ jobs:
     - uses: actions/checkout@v7
       with:
         fetch-depth: 2
+        # PR code runs here; the action's git fetches need no token (public repo)
+        persist-credentials: false
     - uses: actions/setup-node@v6
       with:
         node-version: '26'
