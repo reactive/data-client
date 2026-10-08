@@ -1,4 +1,3 @@
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import useIsomorphicLayoutEffect from '@docusaurus/useIsomorphicLayoutEffect';
 import clsx from 'clsx';
 import React, { lazy, useDeferredValue, useState } from 'react';
@@ -46,10 +45,6 @@ export default function Playground<T>({
   headerControls,
   renderCount = false,
 }: PlaygroundProps<T>) {
-  const { playgroundPosition } = (
-    useDocusaurusContext().siteConfig.themeConfig as any
-  ).liveCodeBlock;
-
   const model = useCodeDocuments(children, defaultTab);
   // Defer preview transpilation so editor input remains responsive.
   // `;` keeps a half-typed statement from absorbing the next document.
@@ -72,7 +67,7 @@ export default function Playground<T>({
   }, [hidden]);
 
   const editor = (
-    <EditorShell key="editor">
+    <EditorShell>
       <EditorSurface
         {...model}
         interactive={editorInteractive}
@@ -94,7 +89,7 @@ export default function Playground<T>({
   // Live preview only while visible — unmounts when hidden (resets store).
   const preview =
     hidden ? previewLoading : (
-      <Boundary key="preview" fallback={previewLoading}>
+      <Boundary fallback={previewLoading}>
         <LivePreview
           code={code}
           storeOpen={storeOpen}
@@ -119,7 +114,8 @@ export default function Playground<T>({
           [styles.row]: row,
         })}
       >
-        {playgroundPosition === 'top' ? [preview, editor] : [editor, preview]}
+        {editor}
+        {preview}
       </div>
     </div>
   );
@@ -127,7 +123,7 @@ export default function Playground<T>({
 
 /** SSR, crawler, hidden and loading state: empty preview frame + Store toggle */
 const previewLoading = (
-  <PreviewWrapper key="preview">
+  <PreviewWrapper>
     <div className={styles.playgroundPreview} />
     <StoreToggle />
   </PreviewWrapper>
