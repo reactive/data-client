@@ -5,7 +5,7 @@ export type FixtureOrInterceptor<T = any> = Fixture | Interceptor<T>;
 
 export interface PreviewProps<T = any> {
   storeOpen: boolean;
-  toggleStore: MouseEventHandler<HTMLDivElement>;
+  toggleStore: MouseEventHandler<HTMLElement>;
   row: boolean;
   /** Row layout: the layer over the code the Store slides into */
   storeHost: HTMLElement | null;

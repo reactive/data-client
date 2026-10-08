@@ -429,45 +429,6 @@ describe('store model', () => {
     registry.cleanup();
   });
 
-  it('tracks optimistic updates until their response arrives', () => {
-    const registry = new SchemaRegistry();
-    const dispatch = registry.middleware({} as any)(() => Promise.resolve());
-    const endpoint = { getOptimisticResponse: () => 1, sideEffect: true };
-    const fetch = (fetchedAt: number) =>
-      dispatch({
-        type: actionTypes.FETCH,
-        key: 'k',
-        endpoint,
-        args: [fetchedAt],
-        meta: { fetchedAt },
-      } as any);
-    fetch(1);
-    fetch(2);
-    dispatch({
-      type: actionTypes.FETCH,
-      key: 'plain',
-      endpoint: {},
-      args: [],
-      meta: { fetchedAt: 3 },
-    } as any);
-    expect(registry.optimistic.map(o => o.fetchedAt)).toEqual([1, 2]);
-    dispatch({
-      type: actionTypes.SET_RESPONSE,
-      key: 'k',
-      endpoint,
-      args: [1],
-      meta: { fetchedAt: 1 },
-    } as any);
-    expect(registry.optimistic.map(o => o.fetchedAt)).toEqual([2]);
-    expect(buildModel(state, registry).optimistic).toBe(registry.optimistic);
-    dispatch({ type: actionTypes.RESET } as any);
-    expect(registry.optimistic).toEqual([]);
-    // a remounted preview starts over without pending updates
-    fetch(4);
-    registry.init();
-    expect(registry.optimistic).toEqual([]);
-  });
-
   it('finds changed rows', () => {
     const next = {
       ...state,

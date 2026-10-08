@@ -82,3 +82,6 @@ docs/.core-*
 # Claude Code
 .claude/worktrees/
 .claude/settings.local.json
+
+# Vercel CLI (vercel pull / vercel build)
+.vercel

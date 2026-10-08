@@ -692,11 +692,24 @@ div.fixtureJson {
 }
 /* Stacked row layout: the Store opens upward over the code */
 @container playground (max-width: 719px) {
-  .playgroundContainer.row .debugToggle .arrow.left {
-    transform: rotateZ(270deg);
+  /* and takes the code's place: as tall as its contents, scrolling past a
+     cap, rather than as tall as the code */
+  .editorDocs[inert] {
+    max-height: 0;
+    overflow: hidden;
   }
-  .playgroundContainer.row .debugToggle .arrow.right {
-    transform: rotateZ(90deg);
+  .storeHost:has(> .storePanel[data-visible]) {
+    min-height: 0;
+  }
+  .storeHost > .storePanel > * {
+    max-height: min(32rem, 70svh);
+  }
+  /* the Store toggle moves into the preview's header */
+  .playgroundContainer.row .debugToggle {
+    display: none;
+  }
+  .playgroundContainer.row .storeHeaderToggle {
+    display: inline-flex;
   }
 }
 
@@ -779,24 +792,36 @@ div.fixtureJson {
   gap: 0.5rem;
 }
 /* Negative margin keeps a touch-sized target without growing the header */
-.resetButton {
+.headerButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 2rem;
   height: 2rem;
-  margin: -0.5rem -0.5rem -0.5rem 0;
+  margin: -0.5rem 0;
   border-radius: var(--ifm-global-radius);
   font-size: 1rem;
 }
-.resetButton:focus-visible {
+.headerButton:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
 }
 @media (hover: hover) {
-  .resetButton:hover {
+  .headerButton:hover {
     background-color: var(--pg-tab-hover-bg);
     color: var(--pg-tab-hover);
   }
+}
+.resetButton {
+  margin-right: -0.5rem;
+}
+/* Narrow playgrounds' Store toggle (in place of the side strip): an icon
+   that reads pressed while the Store is open */
+.storeHeaderToggle {
+  display: none;
+}
+.storeHeaderToggle[aria-pressed='true'] {
+  background-color: var(--pg-tab-hover-bg);
+  color: var(--ifm-color-primary);
 }
 /* Error card action (Reset preview): outlined in the card's accent */
 .previewError .errorAction {
@@ -841,16 +866,9 @@ div.fixtureJson {
     flex: none;
   }
   .debugToggle {
-    writing-mode: horizontal-tb;
-    text-orientation: mixed;
-    letter-spacing: 0.08rem;
-    line-height: inherit;
-    padding: 0.3rem 0.75rem;
+    display: none;
   }
-  .debugToggle .arrow.right {
-    transform: rotateZ(90deg);
-  }
-  .debugToggle .arrow.left {
-    transform: rotateZ(0deg);
+  .storeHeaderToggle {
+    display: inline-flex;
   }
 }

@@ -107,7 +107,7 @@ export function ResetButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       type="button"
-      className={clsx('clean-btn', styles.resetButton)}
+      className={clsx('clean-btn', styles.headerButton, styles.resetButton)}
       title="Reset preview"
       aria-label="Reset preview"
       onClick={onClick}

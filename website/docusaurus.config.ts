@@ -13,8 +13,6 @@ import versions from './versions.json';
 // Keep Monaco CDN preload hashes in sync with the installed monaco-editor package.
 const require = createRequire(path.join(__dirname, 'package.json'));
 require('./scripts/generateMonacoPreloads.cjs').ensureMonacoPreloadManifest();
-// Real history for "Last updated" dates (Vercel clones shallow)
-require('./scripts/deepenGitHistory.cjs').deepenGitHistory();
 
 //const versionsRest = require('./rest_versions.json');
 
@@ -69,8 +67,9 @@ const config: Config = {
     hooks: {
       onBrokenMarkdownLinks: 'warn',
     },
-    // Vercel preview deploys publish `draft: true` pages so PRs can review them;
-    // production (VERCEL_ENV=production) and local builds still drop them.
+    // Preview deploys (VERCEL_ENV=preview, set by site-preview.yml) publish
+    // `draft: true` pages so PRs can review them; production and local builds
+    // still drop them.
     ...(process.env.VERCEL_ENV === 'preview' && {
       parseFrontMatter: async params => {
         const result = await params.defaultParseFrontMatter(params);
@@ -453,6 +452,7 @@ const config: Config = {
     path.resolve(__dirname, './profiling-plugin'),
     path.resolve(__dirname, './raw-plugin'),
     path.resolve(__dirname, './llms-plugin'),
+    path.resolve(__dirname, './chunks-plugin'),
   ],
   themeConfig: {
     mermaid: {

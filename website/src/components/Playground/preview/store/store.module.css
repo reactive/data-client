@@ -46,8 +46,28 @@
   align-items: center;
   gap: 0.4rem;
   padding: 0 0.6rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+  transition: opacity var(--motion-snappy);
 }
-.tab[aria-current]::after {
+.tab[aria-selected='true'],
+.tab:hover {
+  opacity: 1;
+}
+.tab:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -4px;
+}
+.tab .count {
+  color: inherit;
+  opacity: 0.65;
+  font-size: 10.5px;
+}
+.tab[aria-selected='true']::after {
   content: '';
   position: absolute;
   left: 0.5rem;
@@ -57,16 +77,15 @@
   border-radius: 1px 1px 0 0;
   background: var(--ifm-color-primary);
 }
-.later {
-  opacity: 0.55;
-  cursor: default;
+/* State and Actions; both stay mounted, so each keeps its place */
+.tabPanel {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
-.laterTag {
-  padding: 2px 4px;
-  border: 1px solid currentColor;
-  border-radius: 3px;
-  font-size: 9px;
-  letter-spacing: 0.04em;
+.tabPanel[hidden] {
+  display: none;
 }
 .viewButtons {
   display: flex;
@@ -812,4 +831,276 @@ div.row {
 .levelFoot > .metaList {
   margin: 0;
   padding: 0.4rem 0.75rem 0.5rem;
+}
+
+/* ---- Actions tab ---- */
+.empty {
+  margin: 0;
+  padding: 1rem 0.75rem;
+  color: var(--store-dim);
+  font-family: var(--ifm-font-family-base);
+}
+.actGroup + .actGroup {
+  border-top: 1px solid var(--store-line);
+}
+.actGroup[data-open] {
+  background: var(--store-record);
+}
+div.actRow {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.1rem;
+  padding: 0.35rem 0.75rem;
+}
+.actHead {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.actKey {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.actMeta {
+  flex: none;
+  display: flex;
+  gap: 0.6rem;
+  margin-left: auto;
+  font-size: 11px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.actTime {
+  flex: none;
+  color: var(--store-dim);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.actSum {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3px 5px;
+  min-width: 0;
+}
+.actType {
+  flex: none;
+  font-size: 11px;
+}
+.tFetch {
+  color: var(--store-key);
+}
+.tResponse {
+  color: var(--store-fresh);
+}
+.tSet {
+  color: var(--store-type);
+}
+.tError {
+  color: var(--store-null);
+}
+.tQuiet {
+  color: var(--store-muted);
+}
+
+/* sent ● ◆ ● resolved, or a subscription's poll ticks */
+.life {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 0.2rem;
+}
+.life i {
+  display: block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.life s {
+  display: block;
+  width: 12px;
+  height: 1px;
+  background: var(--store-line-strong);
+}
+.life s.short {
+  width: 5px;
+}
+.life i.diamond {
+  border-radius: 1px;
+  background: var(--store-stale);
+  transform: rotate(45deg) scale(0.85);
+}
+.life i.waiting {
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--store-key);
+}
+.life i.tick {
+  width: 5px;
+  height: 5px;
+  margin-right: 4px;
+  background: var(--store-muted);
+}
+.life i.tickChanged {
+  width: 7px;
+  height: 7px;
+  background: var(--store-stale);
+}
+
+/* an open row's actions; a long-running poll scrolls on its own */
+.steps {
+  margin: 0 0.75rem 0.35rem 1.05rem;
+  border-left: 1px solid var(--store-line-strong);
+  max-height: 16rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+div.stepRow {
+  flex-wrap: wrap;
+  gap: 0.1rem 0.6rem;
+  padding: 0.15rem 0.5rem 0.15rem 0.6rem;
+}
+.stepRow .actTime {
+  min-width: 3.2em;
+  text-align: right;
+}
+.stepRow .actSum {
+  flex: 1 1 12rem;
+}
+div.joined {
+  cursor: default;
+}
+
+.markAdded,
+.markUpdated,
+.markRemoved {
+  font-weight: 600;
+}
+.markAdded {
+  color: var(--store-fresh);
+}
+.markUpdated {
+  color: var(--store-stale);
+}
+.markRemoved {
+  color: var(--store-null);
+}
+.goneRef {
+  cursor: default;
+  opacity: 0.7;
+  text-decoration: line-through;
+  text-decoration-color: var(--store-dim);
+}
+.goneRef:hover {
+  background: rgba(199, 146, 234, 0.12);
+}
+
+/* an action's own level */
+.actDetail {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+}
+.changedBy {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+/* A record's history: each change under the action that made it */
+.historyItem + .historyItem {
+  box-shadow: inset 0 1px 0 var(--store-line);
+}
+.historyChange {
+  padding: 0 0.75rem 0.45rem 2rem;
+}
+.actChange {
+  display: grid;
+  grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
+  gap: 0 0.6rem;
+  align-items: baseline;
+  width: 100%;
+}
+.actChangeBody {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.actField {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.was {
+  opacity: 0.6;
+  text-decoration: line-through;
+  text-decoration-color: var(--store-dim);
+}
+.showState {
+  margin-top: 0.2rem;
+  padding: 2px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--store-selected);
+  color: var(--store-key);
+  font: 500 11px / 1.6 var(--ifm-font-family-base);
+  cursor: pointer;
+}
+.showState:hover {
+  background: rgba(130, 170, 255, 0.26);
+}
+.showState:focus-visible {
+  outline: 2px solid var(--store-key);
+}
+@container (max-width: 480px) {
+  .actChange {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* State shown as it was after one action */
+.snapshot {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 1.9rem;
+  padding: 2px 0.5rem 2px 0.4rem;
+  background: rgba(255, 203, 107, 0.09);
+  box-shadow: inset 0 -1px 0 rgba(255, 203, 107, 0.28);
+  color: var(--store-stale);
+  font-size: 11px;
+}
+.snapshot button {
+  flex: none;
+  padding: 0 0.4rem;
+  border: 1px solid var(--store-line-strong);
+  border-radius: 4px;
+  background: none;
+  color: var(--store-fg);
+  font: inherit;
+  line-height: 1.6;
+  cursor: pointer;
+}
+.snapshot button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.snapshotLabel {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.snapshot .snapshotBack {
+  font-family: var(--ifm-font-family-base);
+}
+.snapshot .liveButton {
+  border-color: rgba(127, 209, 160, 0.45);
+  color: var(--store-fresh);
+  font-family: var(--ifm-font-family-base);
+  font-weight: 500;
 }

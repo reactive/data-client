@@ -10,11 +10,14 @@ export interface PreviewSnapshot {
 interface PreviewStore {
   /** Remounts the preview (and its store) when it changes */
   key: number;
+  /** The Actions log history this store writes to: a fresh store starts its
+   * own (its first key); a restored one continues the one it was saved from */
+  history: number;
   /** Code this store last rendered cleanly under (or was created with) */
   code: string;
   restored?: PreviewSnapshot;
   /** While trying a fresh store: the store it replaced, restored if the error persists */
-  replaced?: { snapshot: PreviewSnapshot; code: string };
+  replaced?: { snapshot: PreviewSnapshot; code: string; history: number };
   /** Set once the preview renders without error; spent by an automatic reset */
   canAutoReset: boolean;
 }
@@ -30,6 +33,7 @@ interface PreviewStore {
 export function usePreviewReset(code: string) {
   const [store, setStore] = useState<PreviewStore>({
     key: 0,
+    history: 0,
     code,
     canAutoReset: false,
   });
@@ -40,6 +44,7 @@ export function usePreviewReset(code: string) {
     () =>
       setStore(s => ({
         key: s.key + 1,
+        history: s.key + 1,
         code: codeRef.current,
         canAutoReset: false,
       })),
@@ -52,6 +57,7 @@ export function usePreviewReset(code: string) {
         if (s.replaced && s.code === errorCode)
           return {
             key: s.key + 1,
+            history: s.replaced.history,
             code: s.replaced.code,
             restored: s.replaced.snapshot,
             canAutoReset: false,
@@ -59,8 +65,9 @@ export function usePreviewReset(code: string) {
         if (s.code === errorCode || !s.canAutoReset) return s;
         return {
           key: s.key + 1,
+          history: s.key + 1,
           code: errorCode,
-          replaced: { snapshot, code: s.code },
+          replaced: { snapshot, code: s.code, history: s.history },
           canAutoReset: false,
         };
       }),
@@ -91,6 +98,9 @@ export function usePreviewReset(code: string) {
 
   return {
     key: store.key,
+    history: store.history,
+    /** The only other history that can still come back */
+    replacedHistory: store.replaced?.history,
     restored: store.restored,
     reset,
     onRenderError,

@@ -9,7 +9,12 @@ import EditorSurface from './editor/EditorSurface';
 import FixturePreview from './preview/FixturePreview';
 import type LivePreviewType from './preview/LivePreview';
 import PreviewWrapper from './preview/PreviewWrapper';
-import { StoreToggle, useStoreOpen } from './preview/StoreInspector';
+import type { LogOptions } from './preview/store/actionLog';
+import {
+  StoreHeaderToggle,
+  StoreToggle,
+  useStoreOpen,
+} from './preview/StoreToggle';
 import styles from './styles.module.css';
 import type { FixtureOrInterceptor } from './types';
 import { isBot } from './userAgent';
@@ -31,6 +36,9 @@ export interface PlaygroundProps<T = any> {
   headerControls?: React.ReactNode;
   /** Show a badge counting the preview's React commits (e.g. one notification vs N) */
   renderCount?: boolean;
+  /** How the Store's Actions tab records (e.g. `{ recordFrom: 'open' }` for
+   * a fast stream) */
+  actionLog?: LogOptions;
 }
 
 export default function Playground<T>({
@@ -44,6 +52,7 @@ export default function Playground<T>({
   defaultTab,
   headerControls,
   renderCount = false,
+  actionLog,
 }: PlaygroundProps<T>) {
   const model = useCodeDocuments(children, defaultTab);
   // Defer preview transpilation so editor input remains responsive.
@@ -99,6 +108,7 @@ export default function Playground<T>({
           fixtures={fixtures}
           getInitialInterceptorData={getInitialInterceptorData}
           renderCount={renderCount}
+          actionLog={actionLog}
         />
       </Boundary>
     );
@@ -123,7 +133,7 @@ export default function Playground<T>({
 
 /** SSR, crawler, hidden and loading state: empty preview frame + Store toggle */
 const previewLoading = (
-  <PreviewWrapper>
+  <PreviewWrapper headerControls={<StoreHeaderToggle />}>
     <div className={styles.playgroundPreview} />
     <StoreToggle />
   </PreviewWrapper>

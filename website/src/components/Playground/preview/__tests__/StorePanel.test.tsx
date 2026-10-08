@@ -103,7 +103,7 @@ const press = (key: string) =>
 function mount(s = state, r = registry()) {
   return render(
     <StateContext.Provider value={s}>
-      <StorePanel registry={r} />
+      <StorePanel registry={r} history={0} />
     </StateContext.Provider>,
   );
 }

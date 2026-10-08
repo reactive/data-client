@@ -1,6 +1,22 @@
-import { EndpointInterface, FetchFunction, Schema, ResolveType, Denormalize, DenormalizeNullable, Queryable, SchemaArgs, ErrorTypes, Controller, DevToolsManager, DevToolsConfig, NetworkManager, SubscriptionManager, Manager, State, GCInterface } from '@data-client/core';
+import * as _data_client_core from '@data-client/core';
+import { __INTERNAL__, actions, applyManager, createReducer, initManager, EndpointInterface, FetchFunction, Schema, ResolveType, Denormalize, DenormalizeNullable, Queryable, SchemaArgs, ErrorTypes, Controller, DevToolsManager, DevToolsConfig, NetworkManager, SubscriptionManager, Manager, State, GCInterface } from '@data-client/core';
 export { AbstractInstanceType, ActionTypes, Controller, CreateCountRef, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, EntityInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GCInterface, GCOptions, GCPolicy, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, Queryable, ResetAction, ResolveType, Schema, SchemaArgs, SchemaClass, SetAction, SetResponseAction, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
 import { MaybeRefOrGetter, DeepReadonly, ComputedRef, Ref, App, ShallowRef } from 'vue';
+
+declare const initialState: _data_client_core.State<unknown>;
+declare const INVALID: symbol;
+declare const MemoCache: typeof __INTERNAL__.MemoCache;
+
+declare const internal_d_INVALID: typeof INVALID;
+declare const internal_d_MemoCache: typeof MemoCache;
+declare const internal_d_actions: typeof actions;
+declare const internal_d_applyManager: typeof applyManager;
+declare const internal_d_createReducer: typeof createReducer;
+declare const internal_d_initManager: typeof initManager;
+declare const internal_d_initialState: typeof initialState;
+declare namespace internal_d {
+  export { internal_d_INVALID as INVALID, internal_d_MemoCache as MemoCache, internal_d_actions as actions, internal_d_applyManager as applyManager, internal_d_createReducer as createReducer, internal_d_initManager as initManager, internal_d_initialState as initialState };
+}
 
 /** Maps each parameter to accept raw value, Ref, ComputedRef, or getter */
 type MaybeRefsOrGetters<T extends readonly any[]> = {
@@ -184,4 +200,4 @@ declare module 'vue' {
     }
 }
 
-export { DataClientPlugin, type MaybeRefsOrGetters, type MaybeRefsOrGettersNullable, type ProvideOptions, type ProvidedDataClient, createDataClient, getDefaultManagers, useCache, useController, useDLE, useDebounce, useFetch, useLive, useLoading, useQuery, useSubscription, useSuspense };
+export { DataClientPlugin, type MaybeRefsOrGetters, type MaybeRefsOrGettersNullable, type ProvideOptions, type ProvidedDataClient, internal_d as __INTERNAL__, createDataClient, getDefaultManagers, useCache, useController, useDLE, useDebounce, useFetch, useLive, useLoading, useQuery, useSubscription, useSuspense };

@@ -33,15 +33,20 @@ commit() {
   git -C "$repo" commit -m "$msg" >/dev/null
 }
 
-# expect <skip|build> <name> <ref> [previous-sha] [vercel-env]
+# expect <skip|build|N> <name> <ref> [previous-sha] [vercel-env] [script args...]
 expect() {
-  local want="$1" name="$2" ref="$3" out rc code=1
-  [ "$want" = skip ] && code=0
+  local want="$1" name="$2" ref="$3" prev="${4-}" env="${5-}" out rc code="$1"
+  shift $(($# < 5 ? $# : 5))
+  case "$want" in
+    skip) code=0 ;;
+    build) code=1 ;;
+    '' | *[!0-9]*) echo "FAIL $name: bad expectation '$want'" >&2 && exit 1 ;;
+  esac
   set +e
   out="$(
     cd "$repo" &&
-      VERCEL_GIT_COMMIT_REF="$ref" VERCEL_GIT_PREVIOUS_SHA="${4-}" VERCEL_ENV="${5-}" \
-        bash "$script" 2>&1
+      VERCEL_GIT_COMMIT_REF="$ref" VERCEL_GIT_PREVIOUS_SHA="$prev" VERCEL_ENV="$env" \
+        bash "$script" "$@" 2>&1
   )"
   rc=$?
   set -e
@@ -170,8 +175,8 @@ commit "unrelated site" website/src/pages/index.js
 commit "unrelated pkg" packages/core/src/index.ts
 expect build "preview without merge-base builds" unrelated
 
-# Vercel's clone can carry a master ref at the commit being built. Comparing
-# HEAD with itself would always skip, so that ref is not a base.
+# A clone can carry a master ref at the commit being built. Comparing HEAD
+# with itself would always skip, so that ref is not a base.
 git -C "$repo" checkout -b clone-master master >/dev/null 2>&1
 commit "clone-master page" docs/core/api/CloneMaster.md
 real_master="$(git -C "$repo" rev-parse master)"
@@ -179,13 +184,7 @@ git -C "$repo" update-ref refs/heads/master HEAD
 expect build "preview when the clone's master ref is HEAD" clone-master
 git -C "$repo" update-ref refs/heads/master "$real_master"
 
-# gh-pages branches never build, even if website files differ.
-expect skip "gh-pages branch" gh-pages-bench
-
-# Merge queue branches never build: each PR was previewed on its own branch.
-expect skip "merge queue branch" gh-readonly-queue/master/pr-1-0123456789abcdef0123456789abcdef01234567
-
-# Last production deploy is outside the clone (shallow history): the tip
+# Last production deploy is unreachable (e.g. a force push): the tip
 # alone can't prove earlier commits in the push left the site unchanged.
 git -C "$repo" checkout master >/dev/null 2>&1
 commit "rebase-merged docs" docs/rest/api/Rebased.md
@@ -199,54 +198,56 @@ expect build "production env site tip" other-branch "$(parent)" production
 commit "prod pkg" packages/normalizr/src/index.ts
 expect skip "production env package tip" other-branch "$(parent)" production
 
-# --- Renovate previews ignore website dependency manifests and lockfiles ---
-git -C "$repo" checkout -b renovate/docusaurus master >/dev/null 2>&1
-commit "bump docusaurus" website/package.json
-expect skip "renovate website package.json" renovate/docusaurus
-expect build "renovate ref in production env" renovate/docusaurus "$(parent)" production
-commit "bump lockfiles" website/yarn.lock website/examples/demo/package.json website/examples/demo/pnpm-lock.yaml
-expect skip "renovate nested manifests and lockfiles since last deploy" renovate/docusaurus "$(parent)"
-git -C "$repo" checkout master >/dev/null 2>&1
-commit "master site for renovate" docs/core/api/Renovate.md
-git -C "$repo" checkout renovate/docusaurus >/dev/null 2>&1
-git -C "$repo" merge --no-edit master >/dev/null
-expect skip "renovate merge of master" renovate/docusaurus
-commit "renovate site source" website/src/pages/index.js
-expect build "renovate with site source" renovate/docusaurus "$(parent)"
-
 git -C "$repo" checkout -b deps master >/dev/null 2>&1
 commit "manual bump" website/package.json
-expect build "non-renovate website package.json" deps
+expect build "preview website package.json" deps
 
 git -C "$repo" checkout master >/dev/null 2>&1
 commit "master bump" website/package.json website/yarn.lock
 expect build "master website manifest" master "$(parent)"
 
-# --- Vercel-like shallow clone: fork point far behind master, and the clone
-# carries a master ref at HEAD. deepen() must reach the real merge-base.
-git -C "$repo" checkout -b far-pkg master >/dev/null 2>&1
-commit "far pkg" packages/core/src/far.ts
+# --- fork point far behind master ---
 git -C "$repo" checkout -b far-site master >/dev/null 2>&1
 commit "far site" docs/core/api/Far.md
 git -C "$repo" checkout master >/dev/null 2>&1
 for i in $(seq 1 100); do commit "master filler $i" packages/rest/src/filler.ts; done
 origin_repo="$repo"
-for branch in far-pkg far-site; do
+
+# GitHub Actions checks out full history (fetch-depth: 0) for "Last updated"
+# dates. The script must decide from it without making the clone shallow.
+clone="$(mktemp -d)"
+git clone -q --branch far-site "file://$origin_repo" "$clone"
+repo="$clone"
+expect build "full clone preview" far-site
+if [ "$(git -C "$clone" rev-parse --is-shallow-repository)" != false ]; then
+  echo "FAIL full clone stays full: the script made it shallow" >&2
+  exit 1
+fi
+printf 'ok   %s\n' "full clone stays full"
+repo="$origin_repo"
+rm -rf "$clone"
+
+# --- --superseded: a queued production deploy of an older master commit ---
+# expect_superseded <skip|build|N> <name> <sha> [origin-url]: HEAD at
+# <sha> in a clone of master
+expect_superseded() {
+  local want="$1" name="$2" clone
   clone="$(mktemp -d)"
-  git clone -q --depth=10 --branch "$branch" "file://$origin_repo" "$clone"
-  git -C "$clone" branch -f master HEAD
-  # Like Vercel's clone: no `origin` remote, so the script must fetch by URL.
-  git -C "$clone" remote remove origin
+  git clone -q --branch master "file://$origin_repo" "$clone"
+  git -C "$clone" reset -q --hard "$3"
+  [ -z "${4-}" ] || git -C "$clone" remote set-url origin "$4"
   repo="$clone"
-  want=skip
-  [ "$branch" = far-site ] && want=build
-  GIT_CONFIG_COUNT=3 \
-    GIT_CONFIG_KEY_2="url.file://$origin_repo.insteadOf" \
-    GIT_CONFIG_VALUE_2=https://github.com/test-owner/test-repo.git \
-    VERCEL_GIT_REPO_OWNER=test-owner VERCEL_GIT_REPO_SLUG=test-repo \
-    expect "$want" "shallow clone without origin, fork far behind master ($branch)" "$branch"
+  expect "$want" "$name" master "" production --superseded
   repo="$origin_repo"
   rm -rf "$clone"
-done
+}
+git -C "$repo" checkout master >/dev/null 2>&1
+old="$(git -C "$repo" rev-parse HEAD)"
+expect_superseded build "superseded: HEAD is master's tip" "$old"
+commit "newer pkg" packages/core/src/newer.ts
+expect_superseded build "superseded: newer master leaves the site unchanged" "$old"
+commit "newer site" docs/core/api/Newer.md
+expect_superseded skip "superseded: newer master changed the site" "$old"
+expect_superseded 2 "superseded: unreachable master exits 2" "$old" "file://$repo/missing"
 
 echo "all vercel-ignore cases passed"
