@@ -1112,6 +1112,8 @@ div.joined {
   flex: none;
   max-height: 10rem;
   overflow: auto;
+  /* a mark scrolled into view clears the sticky lane labels */
+  scroll-padding-left: var(--tl-label);
   overscroll-behavior: contain;
   box-shadow: inset 0 -1px 0 var(--store-line-strong);
   outline: none;

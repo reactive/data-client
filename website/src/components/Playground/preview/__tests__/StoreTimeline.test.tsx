@@ -178,6 +178,28 @@ describe('Store Actions timeline', () => {
     expect(screen.queryByRole('group', { name: /^Timeline/ })).toBeNull();
   });
 
+  it('stays on a picked action as new ones come in', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    fireEvent.click(screen.getByRole('tab', { name: /Actions/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline view' }));
+    const timeline = screen.getByRole('group', { name: /^Timeline/ });
+    Object.defineProperty(timeline, 'clientHeight', { value: 100 });
+    Object.defineProperty(timeline, 'scrollWidth', { value: 900 });
+    const [mark] = within(timeline).getAllByRole('button', {
+      name: /^setResponse at/,
+    });
+    fireEvent.click(mark);
+    timeline.scrollLeft = 0;
+    await act(() => ctrl().fetch(getPosts));
+    expect(timeline.scrollLeft).toBe(0);
+    // back to live, it follows again
+    fireEvent.keyDown(timeline, { key: 'Escape' });
+    timeline.scrollLeft = 0;
+    await act(() => ctrl().fetch(getPosts));
+    expect(timeline.scrollLeft).toBe(900);
+  });
+
   it('drops the way back to the list once the timeline moves', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));

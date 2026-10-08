@@ -106,11 +106,13 @@ const AXES = {
 } as const;
 
 /** Keeps the newest row in view, unless the reader scrolled up (or, on
- * the `x` axis, back). Returns what scrolls to the newest and follows again */
+ * the `x` axis, back) or it is `paused`. Returns what scrolls to the newest
+ * and follows again */
 export function useFollow(
   scroller: React.RefObject<HTMLElement | null>,
   rows: unknown,
   axis: 'x' | 'y' = 'y',
+  paused = false,
 ) {
   const follow = useRef(true);
   useLayoutEffect(() => {
@@ -142,8 +144,9 @@ export function useFollow(
   useLayoutEffect(() => {
     const el = scroller.current;
     const { size, scroll } = AXES[axis];
-    if (el?.clientHeight && follow.current) el[scroll] = el[size];
-  }, [scroller, rows, axis]);
+    if (paused) follow.current = false;
+    else if (el?.clientHeight && follow.current) el[scroll] = el[size];
+  }, [scroller, rows, axis, paused]);
   return useCallback(() => {
     const el = scroller.current;
     if (!el) return;

@@ -105,7 +105,8 @@ export default memo(function Timeline({
   const at = selected === null ? undefined : scale.x.get(selected);
 
   const scroller = useRef<HTMLDivElement>(null);
-  const toNewest = useFollow(scroller, scale.width, 'x');
+  // a picked action stays put as new ones come in
+  const toNewest = useFollow(scroller, scale.width, 'x', selected !== null);
   // the picked action comes into view; back to live, the newest does, and
   // the timeline follows it again
   useLayoutEffect(() => {
