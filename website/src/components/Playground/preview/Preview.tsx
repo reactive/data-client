@@ -35,6 +35,7 @@ function Preview<T>({
   onCommit,
   initialState,
   registry,
+  history,
   onInteract,
   ...errorProps
 }: PreviewProps<T> &
@@ -44,6 +45,8 @@ function Preview<T>({
     initialState?: State<unknown>;
     /** Schemas the Store inspector has seen */
     registry: SchemaRegistry;
+    /** Where this store's actions go in `registry.log` */
+    history: number;
     /** User pointer/keyboard input inside the result */
     onInteract: () => void;
   }) {
@@ -66,17 +69,15 @@ function Preview<T>({
   );
 
   const managers = useMemo<Manager[]>(() => {
-    // this mount is a new store: drop the last one's pending optimistic
-    // updates before the Store panel first renders (DataStore's init()
-    // only runs after it)
-    registry.init();
+    const log = registry.log.connect(history);
     return [
+      log.head,
       registry,
       new NetworkManager(),
       new SubscriptionManager(PollingSubscription),
-      registry.log.tail,
+      log.tail,
     ];
-  }, [registry]);
+  }, [registry, history]);
 
   const coveredResult = row && selectedValue === 'y';
   return (
@@ -103,6 +104,7 @@ function Preview<T>({
             selectedValue={selectedValue}
             toggle={toggle}
             registry={registry}
+            history={history}
           />
         </MotionGroup>
       </MockResolver>

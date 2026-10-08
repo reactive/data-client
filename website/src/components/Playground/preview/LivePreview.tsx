@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from 'react';
+import { useMemo } from 'react';
 import { LiveProvider } from 'react-live';
 
 import Preview from './Preview';
@@ -28,26 +28,9 @@ export default function LivePreview<T>({
 }: LivePreviewProps<T>) {
   usePlaygroundConsoleDemotion();
   const { onCommit, badge } = useRenderCount(renderCount);
-  const { key, restored, reset, ...handlers } = usePreviewReset(code);
-  // outlives remounts, so a restored store keeps its schemas
+  const { key, history, restored, reset, ...handlers } = usePreviewReset(code);
+  // outlives remounts, so a restored store keeps its schemas and actions
   const registry = useMemo(() => new SchemaRegistry(), []);
-  // a fresh store starts the Actions log over; restoring one brings its
-  // history back
-  const manualReset = useRef(false);
-  const mountedKey = useRef(key);
-  if (mountedKey.current !== key) {
-    mountedKey.current = key;
-    registry.log.newStore(
-      restored ? 'restore'
-      : manualReset.current ? 'reset'
-      : 'retry',
-    );
-    manualReset.current = false;
-  }
-  const resetAll = useCallback(() => {
-    manualReset.current = true;
-    reset();
-  }, [reset]);
   const getInterceptorData = useMemo(
     () =>
       restored ?
@@ -69,7 +52,7 @@ export default function LivePreview<T>({
         headerControls={
           <>
             {badge}
-            <ResetButton onClick={resetAll} />
+            <ResetButton onClick={reset} />
           </>
         }
       >
@@ -82,7 +65,8 @@ export default function LivePreview<T>({
           onCommit={onCommit}
           initialState={restored?.state}
           registry={registry}
-          onReset={resetAll}
+          history={history}
+          onReset={reset}
           {...handlers}
         />
       </PreviewWrapper>

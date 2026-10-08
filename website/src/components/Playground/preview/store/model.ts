@@ -1,5 +1,5 @@
 import { schema as s } from '@data-client/endpoint';
-import type { State } from '@data-client/react';
+import { actionTypes, type State } from '@data-client/react';
 
 import {
   INVALIDATED,
@@ -10,9 +10,24 @@ import {
 } from './refs';
 import type {
   EndpointRecord,
-  PendingOptimistic,
   default as SchemaRegistry,
 } from './schemaRegistry';
+
+/** An optimistic update awaiting its response */
+export interface PendingOptimistic {
+  readonly key: string;
+  readonly args: readonly unknown[];
+  readonly fetchedAt: number;
+}
+
+/** The optimistic updates still waiting in the store's own state (the state
+ * components read has them applied, and so emptied) */
+export const pendingIn = (state: State<unknown> | undefined) =>
+  (state?.optimistic ?? []).flatMap<PendingOptimistic>(o =>
+    o.type === actionTypes.OPTIMISTIC ?
+      [{ key: o.key, args: o.args, fetchedAt: o.meta.fetchedAt }]
+    : [],
+  );
 
 /** Keeps a node's kind and parts apart in its id: no key or pk contains it */
 const SEP = '\u001f';
@@ -186,8 +201,8 @@ function buildTable(
 export function buildModel(
   state: State<unknown>,
   registry: SchemaRegistry,
-  /** Pending when `state` was: a past state's own, else the live ones */
-  optimistic: readonly PendingOptimistic[] = registry.optimistic,
+  /** Pending when `state` was */
+  optimistic: readonly PendingOptimistic[],
 ): StoreModel {
   // errors and invalidations can leave meta without a stored response
   const endpointKeys = new Set([

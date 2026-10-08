@@ -135,13 +135,14 @@ DesignSystem/       components injected into preview scope
   drawer (`../motion`: the toggle glides, the panel `Reveal`s); the panel's
   contents render a frame after it starts moving (`useDeferredValue`).
 - The Store inspector's Actions tab logs every dispatch (`preview/store/actionLog.ts`).
-  `SchemaRegistry` records each action first in the manager chain and
-  `registry.log.tail` goes last, so the log knows which actions reached the
-  store and runs the store's reducer itself to keep the state right after each
-  one (the store only commits in batches). Keep the tail last when adding
-  managers. Each fresh store (Reset, or an error's automatic retry) starts
-  the log over, and the old store's last actions are left out; when the retry
-  gives the old store back, its history comes back too (`LivePreview`).
+  Each store mount gets its own `registry.log.connect(history)` managers:
+  `head` goes first in the manager chain and `tail` last, so the log knows
+  which actions reached the store and runs the store's reducer itself to keep
+  the state right after each one (the store only commits in batches). Keep the
+  tail last when adding managers. `usePreviewReset` owns the `history` id: each
+  fresh store (Reset, or an error's automatic retry) starts a new one, and a
+  store the retry gives back continues its own. The Store panel shows that
+  history only.
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
   count in the preview header (written to the DOM, so counting adds no commits).
   `website/profiling-plugin.js` replaces `react-dom/client` with React's

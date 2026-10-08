@@ -1,8 +1,8 @@
 import { createReducer } from '@data-client/core';
 import {
   actionTypes,
+  Controller,
   type ActionTypes,
-  type Controller,
   type Manager,
   type State,
 } from '@data-client/react';
@@ -17,8 +17,8 @@ export interface LogEntry {
   readonly action: ActionTypes;
   /** When it was dispatched (`Date.now()`) */
   readonly at: number;
-  /** The first action of another store mounted onto this history: what the
-   * last one had open was dropped without an action */
+  /** A store's first action. A store restored from this history starts
+   * without what the last one had in flight */
   readonly newStore?: true;
   /** The store's own state (pending optimistic updates not yet applied)
    * right before and after this action. Missing when a manager handled the
@@ -29,91 +29,88 @@ export interface LogEntry {
   };
 }
 
-type Reducer = (state: State<unknown>, action: ActionTypes) => State<unknown>;
+/** One store's actions, continued by a store that error recovery restores
+ * from it */
+export interface History {
+  readonly entries: readonly LogEntry[];
+  /** When its first action was dispatched */
+  readonly since: number;
+  /** The store's own state after its latest action */
+  readonly state?: State<unknown>;
+}
 
-/** Every action dispatched in the preview, with the store state it left.
- * Lives as long as the live preview; each fresh store starts it over
- * (`newStore`).
+const EMPTY: History = { entries: [], since: 0 };
+
+/** Histories kept: the shown one, and the one an automatic retry replaced
+ * (restored if the error persists) */
+const HISTORY_LIMIT = 2;
+
+export const findEntry = (entries: readonly LogEntry[], seq: number) =>
+  entries.find(e => e.seq === seq);
+
+/** Every action dispatched in the preview, with the store state it left, by
+ * history. Lives as long as the live preview.
  *
  * The store only commits in batches, so (like DevToolsManager) the log runs
  * the store's reducer itself to know the state right after each action. */
 export default class ActionLog {
-  entries: readonly LogEntry[] = [];
-  /** When the first action since the last clear was dispatched */
-  since = 0;
+  private readonly histories = new Map<number, History>();
   private nextSeq = 1;
-  private state: State<unknown> | undefined;
-  private reducer: Reducer | undefined;
-  private controller: Controller | undefined;
+  /** Applies pending optimistic updates for `view` */
+  private readonly reducer = createReducer(new Controller());
   private readonly views = new WeakMap<State<unknown>, State<unknown>>();
   private readonly diffs = new WeakMap<LogEntry, readonly Change[]>();
-  /** Each action's entry, for the tail to find what the head recorded */
-  private readonly recorded = new WeakMap<ActionTypes, LogEntry>();
   private readonly listeners = new Set<() => void>();
   private queued = false;
-  /** The store (its controller) whose actions are being recorded */
-  private store: object | undefined;
-  private readonly retired = new WeakSet<object>();
-  /** The next action is the new store's first */
-  private fresh = false;
-  /** History of the store an automatic retry replaced */
-  private stash:
-    | { readonly entries: readonly LogEntry[]; readonly since: number }
-    | undefined;
 
-  /** Last in the manager chain: applies what actually reaches the store */
-  readonly tail: Manager<ActionTypes> = {
-    middleware: controller => next => action => {
-      // a replaced store's late actions would reset the state it follows
-      if (!this.retired.has(controller))
-        this.apply(action, controller as Controller);
-      return next(action);
-    },
-    cleanup() {},
-  };
-
-  /** First in the manager chain: every dispatch, in order. A replaced
-   * store's last actions (unsubscribes as it unmounts) are left out */
-  record(action: ActionTypes, store: object) {
-    if (this.retired.has(store)) return;
-    this.store = store;
-    const at = Date.now();
-    if (!this.entries.length) this.since = at;
-    const entry: LogEntry = {
-      seq: this.nextSeq++,
-      action,
-      at,
-      ...(this.fresh && { newStore: true as const }),
+  /** Managers that log one store's actions into history `id`: `head` goes
+   * first in the manager chain, `tail` last (it sees what actually reaches
+   * the store) */
+  connect(id: number) {
+    /** Each action's entry, for the tail to find what the head recorded */
+    const recorded = new WeakMap<ActionTypes, LogEntry>();
+    let first = true;
+    const head: Manager<ActionTypes> = {
+      middleware: () => next => action => {
+        const entry: LogEntry = {
+          seq: this.nextSeq++,
+          action,
+          at: Date.now(),
+          ...(first && { newStore: true as const }),
+        };
+        first = false;
+        recorded.set(action, entry);
+        this.append(id, entry);
+        return next(action);
+      },
+      cleanup() {},
     };
-    this.fresh = false;
-    this.recorded.set(action, entry);
-    this.update([...this.entries, entry].slice(-LOG_LIMIT));
+    const tail: Manager<ActionTypes> = {
+      middleware: controller => {
+        const reduce = createReducer(controller as Controller);
+        let state: State<unknown> | undefined;
+        return next => action => {
+          // managers' init runs in an effect, possibly after the store's
+          // first actions
+          const before = (state ??= controller.getState());
+          state =
+            action.type === actionTypes.GC ?
+              collect(before, action)
+            : reduce(before, action);
+          this.settle(id, recorded.get(action), { before, after: state });
+          return next(action);
+        };
+      },
+      cleanup() {},
+    };
+    return { head, tail };
   }
 
-  /** The preview is about to mount another store. Its history starts over
-   * with a fresh store; an automatic `retry` keeps the replaced history in
-   * case the store comes back (`restore`) */
-  newStore(how: 'reset' | 'retry' | 'restore') {
-    if (this.store) this.retired.add(this.store);
-    this.store = undefined;
-    this.fresh = true;
-    const { stash } = this;
-    this.stash =
-      how === 'retry' ?
-        { entries: this.entries, since: this.since }
-      : undefined;
-    if (how === 'restore' && stash) {
-      this.since = stash.since;
-      this.update(stash.entries);
-    } else if (how !== 'restore') {
-      this.since = 0;
-      this.update([]);
-    }
-  }
+  history = (id: number): History => this.histories.get(id) ?? EMPTY;
 
   /** State as components read it: pending optimistic updates applied */
   view(state: State<unknown>): State<unknown> {
-    if (!state.optimistic.length || !this.reducer) return state;
+    if (!state.optimistic.length) return state;
     let view = this.views.get(state);
     if (!view) {
       view = state.optimistic.reduce(this.reducer, state);
@@ -136,10 +133,6 @@ export default class ActionLog {
     return changes;
   }
 
-  find(seq: number) {
-    return this.entries.find(e => e.seq === seq);
-  }
-
   subscribe = (listener: () => void) => {
     this.listeners.add(listener);
     return () => {
@@ -147,39 +140,52 @@ export default class ActionLog {
     };
   };
 
-  getSnapshot = () => this.entries;
+  private append(id: number, entry: LogEntry) {
+    const history = this.histories.get(id);
+    if (entry.newStore) {
+      // a store mounting starts its history, or continues the one it was
+      // restored from; older ones can no longer come back
+      const others = [...this.histories.keys()].filter(k => k !== id);
+      for (const old of others.slice(0, 1 - HISTORY_LIMIT))
+        this.histories.delete(old);
+      // re-added as the newest
+      this.histories.delete(id);
+    } else if (!history) return;
+    const entries = history?.entries ?? [];
+    this.set(id, {
+      ...history,
+      entries: [...entries, entry].slice(-LOG_LIMIT),
+      since: entries.length ? history!.since : entry.at,
+    });
+  }
 
-  private apply(action: ActionTypes, controller: Controller) {
-    // a new store (fresh, or restored by error recovery) starts from its own
-    // state; managers' init runs in an effect, possibly after its first
-    // actions
-    if (controller !== this.controller || !this.reducer || !this.state) {
-      this.controller = controller;
-      this.reducer = createReducer(controller);
-      this.state = controller.getState();
-    }
-    const before = this.state;
-    const after =
-      action.type === actionTypes.GC ?
-        collect(before, action)
-      : this.reducer(before, action);
-    this.state = after;
-    const entry = this.recorded.get(action);
+  /** The store state an action left */
+  private settle(
+    id: number,
+    entry: LogEntry | undefined,
+    store: Required<LogEntry>['store'],
+  ) {
+    const history = this.histories.get(id);
+    if (!history) return;
+    const { entries } = history;
     // almost always the action just recorded
     const i =
-      this.entries.at(-1) === entry ?
-        this.entries.length - 1
-      : this.entries.lastIndexOf(entry!);
-    if (!entry || i < 0) return;
-    const entries = [...this.entries];
-    entries[i] = { ...entry, store: { before, after } };
-    this.update(entries);
+      entries.at(-1) === entry ?
+        entries.length - 1
+      : entries.lastIndexOf(entry!);
+    if (!entry || i < 0) {
+      this.set(id, { ...history, state: store.after });
+      return;
+    }
+    const next = [...entries];
+    next[i] = { ...entry, store };
+    this.set(id, { ...history, entries: next, state: store.after });
   }
 
   /** Listeners hear once per task: actions dispatched while a component
    * renders must not update the panel during that render */
-  private update(entries: readonly LogEntry[]) {
-    this.entries = entries;
+  private set(id: number, history: History) {
+    this.histories.set(id, history);
     if (this.queued) return;
     this.queued = true;
     queueMicrotask(() => {

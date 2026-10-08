@@ -62,24 +62,31 @@ const updatePost = new Endpoint(
 
 function mount() {
   const registry = new SchemaRegistry();
+  const log = registry.log.connect(0);
   const managers = [
+    log.head,
     registry,
     new NetworkManager(),
     new SubscriptionManager(PollingSubscription),
-    registry.log.tail,
+    log.tail,
   ];
   const ref: { ctrl?: Controller } = {};
   function Grab() {
     ref.ctrl = useController();
     return null;
   }
-  render(
+  const ui = (history: number) => (
     <DataProvider managers={managers} devButton={null}>
       <Grab />
-      <StorePanel registry={registry} />
-    </DataProvider>,
+      <StorePanel registry={registry} history={history} />
+    </DataProvider>
   );
-  return { registry, ctrl: () => ref.ctrl! };
+  const { rerender } = render(ui(0));
+  return {
+    ctrl: () => ref.ctrl!,
+    /** Shows another store's history */
+    show: (history: number) => rerender(ui(history)),
+  };
 }
 
 const actionsTab = () => screen.getByRole('tab', { name: /Actions/ });
@@ -231,8 +238,8 @@ describe('Store Actions tab', () => {
     expect(rows()[0].textContent).not.toMatch(/\d+ ms/);
   });
 
-  it('lists a set on its own, and starts over when cleared', async () => {
-    const { ctrl, registry } = mount();
+  it('lists a set on its own, and only its own store’s actions', async () => {
+    const { ctrl, show } = mount();
     await act(() => ctrl().set(Post, { id: '3' }, { id: '3', title: 'New' }));
     fireEvent.click(actionsTab());
     const [row] = rows();
@@ -241,7 +248,7 @@ describe('Store Actions tab', () => {
       within(row).getByRole('button', { name: /^\+ ?Post 3$/ }),
     ).toBeTruthy();
 
-    await act(async () => registry.log.newStore('reset'));
+    await act(async () => show(1));
     expect(rows()).toHaveLength(0);
     expect(screen.getByText(/Nothing dispatched yet/)).toBeTruthy();
   });
@@ -394,82 +401,90 @@ describe('ActionLog', () => {
     entities: { Post: { 1: { id: '1' }, 2: { id: '2' } } },
     endpoints: { a: '1' },
   };
-  const store = { getState: () => empty } as any;
-  const run = (log: ActionLog, action: any) => {
-    log.record(action, store);
-    log.tail.middleware!(store)(() => Promise.resolve())(action);
+  /** A store whose actions go to `history` */
+  const connect = (log: ActionLog, history: number, state = empty) => {
+    const { head, tail } = log.connect(history);
+    const store = { getState: () => state } as any;
+    return head.middleware!(store)(
+      tail.middleware!(store)(() => Promise.resolve()),
+    ) as (action: any) => Promise<void>;
   };
+  const subscribe = () => ({ type: actionTypes.SUBSCRIBE, key: 'k' });
 
   it('collects garbage without touching earlier states', () => {
     const log = new ActionLog();
-    run(log, {
+    connect(
+      log,
+      0,
+    )({
       type: actionTypes.GC,
       entities: [{ key: 'Post', pk: '1' }],
       endpoints: ['a'],
     });
     expect(empty.entities.Post).toHaveProperty('1');
     expect(empty.endpoints).toHaveProperty('a');
-    const [gc] = log.entries;
+    const [gc] = log.history(0).entries;
     expect(log.changes(gc).map(c => c.kind)).toEqual(['removed', 'removed']);
   });
 
-  it('starts over with each fresh store, and brings a restored one back', () => {
+  it('keeps each store’s history, which a restored store continues', () => {
     const log = new ActionLog();
-    const subscribe = { type: actionTypes.SUBSCRIBE } as any;
-    const first = {};
-    log.record(subscribe, first);
-    log.record(subscribe, first);
-    log.newStore('retry');
+    const first = connect(log, 0);
+    first(subscribe());
+    first(subscribe());
+    // an automatic retry with a fresh store
+    const retry = connect(log, 1);
+    retry(subscribe());
     // the replaced store unmounting
-    log.record(subscribe, first);
-    expect(log.entries).toHaveLength(0);
-    log.record(subscribe, {});
-    expect(log.entries).toHaveLength(1);
-    log.newStore('restore');
-    expect(log.entries.map(e => e.seq)).toEqual([1, 2]);
-    // where the restored store's own actions begin
-    log.record(subscribe, {});
-    expect(log.entries.map(e => !!e.newStore)).toEqual([false, false, true]);
-    log.newStore('reset');
-    expect(log.entries).toHaveLength(0);
-    log.newStore('restore');
-    expect(log.entries).toHaveLength(0);
+    first({ type: actionTypes.UNSUBSCRIBE, key: 'k' });
+    expect(log.history(0).entries).toHaveLength(3);
+    expect(log.history(1).entries).toHaveLength(1);
+    // the error persists: the first store comes back
+    connect(log, 0)(subscribe());
+    expect(log.history(0).entries.map(e => !!e.newStore)).toEqual([
+      true,
+      false,
+      false,
+      true,
+    ]);
+    // a reset: only the history it replaced could come back
+    connect(log, 3)(subscribe());
+    expect(log.history(0).entries).toHaveLength(4);
+    expect(log.history(1).entries).toHaveLength(0);
+    retry(subscribe());
+    expect(log.history(1).entries).toHaveLength(0);
   });
 
-  it('ignores what a replaced store still dispatches', () => {
+  it('follows each store’s own state', () => {
     const log = new ActionLog();
-    const old = { getState: () => empty } as any;
-    const next = { getState: () => initialState } as any;
-    const set = (store: any) => {
-      const action = {
-        type: actionTypes.SET_RESPONSE,
-        key: 'b',
-        response: 1,
-        meta: { fetchedAt: 1, date: 1, expiresAt: 2 },
-        endpoint: { schema: undefined },
-      } as any;
-      log.record(action, store);
-      log.tail.middleware!(store)(() => Promise.resolve())(action);
-    };
-    set(old);
-    log.newStore('reset');
-    set(next);
-    // the old store's response arrives late
-    set(old);
-    set(next);
-    const [, second] = log.entries;
-    expect(log.entries).toHaveLength(2);
-    // picks up where the new store's last action left it (its getState()
-    // lags behind, as the real store commits in batches)
+    const set = () => ({
+      type: actionTypes.SET_RESPONSE,
+      key: 'b',
+      response: 1,
+      meta: { fetchedAt: 1, date: 1, expiresAt: 2 },
+      endpoint: { schema: undefined },
+    });
+    const old = connect(log, 0);
+    const next = connect(log, 1, initialState);
+    old(set());
+    next(set());
+    // the old store's actions don't move the new one's state
+    old(set());
+    next(set());
+    const [, second] = log.history(1).entries;
+    expect(log.history(1).entries).toHaveLength(2);
+    // picks up where its last action left it (its getState() lags behind,
+    // as the real store commits in batches)
     expect(second.store?.before.endpoints).toHaveProperty('b');
   });
 
   it('keeps only the newest actions', () => {
     const log = new ActionLog();
-    for (let i = 0; i < 510; i++)
-      log.record({ type: actionTypes.SUBSCRIBE } as any, store);
-    expect(log.entries).toHaveLength(500);
-    expect(log.entries[0].seq).toBe(11);
+    const dispatch = connect(log, 0);
+    for (let i = 0; i < 510; i++) dispatch(subscribe());
+    const { entries } = log.history(0);
+    expect(entries).toHaveLength(500);
+    expect(entries[0].seq).toBe(11);
   });
 });
 

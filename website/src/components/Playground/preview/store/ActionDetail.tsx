@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import React, { useContext, useMemo } from 'react';
 
 import { actionKey, type Change } from './actionGroups';
-import type { LogEntry } from './actionLog';
+import { findEntry, type LogEntry } from './actionLog';
 import {
   ActionsContext,
   type Actions,
@@ -30,8 +30,8 @@ export function ActionDetail({
   /** After switching State to just after this action */
   onShowState?: () => void;
 }) {
-  const { log, showState } = useActions();
-  const entry = log.find(seq);
+  const { log, entries, showState } = useActions();
+  const entry = findEntry(entries, seq);
   if (!entry)
     return (
       <>
@@ -261,7 +261,7 @@ function lastChange({ log, entries, until }: Actions, id: string) {
 
 /** Breadcrumb for an action's level: `setResponse GET /posts` */
 export function ActionCrumb({ seq }: { seq: number }) {
-  const entry = useActions().log.find(seq);
+  const entry = findEntry(useActions().entries, seq);
   if (!entry) return <>…</>;
   return (
     <>

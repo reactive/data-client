@@ -21,6 +21,7 @@ it('retries an edit-caused render error once with a fresh store', () => {
   rerender({ code: 'v2' });
   act(() => result.current.onRenderError('v2', oldSnapshot));
   expect(result.current.key).toBe(1);
+  expect(result.current.history).toBe(1);
   expect(result.current.restored).toBeUndefined();
 });
 
@@ -32,6 +33,8 @@ it('restores the old store when the fresh store errors too', () => {
   act(() => result.current.onRenderError('v2', oldSnapshot));
   expect(result.current.key).toBe(2);
   expect(result.current.restored).toBe(oldSnapshot);
+  // its actions continue where they left off
+  expect(result.current.history).toBe(0);
 
   // further typo keystrokes don't retry until the preview works again
   rerender({ code: 'v3' });
@@ -98,4 +101,12 @@ it('keeps state identity when nothing changes', () => {
   });
   expect(result.current.key).toBe(0);
   expect(result.current.onInteract).toBe(before);
+});
+
+it('starts a new history on reset', () => {
+  const { result } = setup();
+  act(() => result.current.reset());
+  act(() => result.current.reset());
+  expect(result.current.key).toBe(2);
+  expect(result.current.history).toBe(2);
 });

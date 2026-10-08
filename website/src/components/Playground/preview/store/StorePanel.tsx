@@ -1,4 +1,4 @@
-import { actionTypes, StateContext, type State } from '@data-client/react';
+import { StateContext, type State } from '@data-client/react';
 import React, {
   useCallback,
   useContext,
@@ -12,7 +12,7 @@ import React, {
 
 import { ActionCrumb, ActionDetail } from './ActionDetail';
 import { groupEntries } from './actionGroups';
-import type { LogEntry } from './actionLog';
+import { findEntry, type LogEntry } from './actionLog';
 import {
   ActionsContext,
   ActionsRoot,
@@ -26,12 +26,12 @@ import {
   findRow,
   isChanged,
   isEndpointRow,
+  pendingIn,
   type StoreModel,
 } from './model';
 import { NavContext, type Nav, type View } from './nav';
 import RootView from './RootView';
 import type SchemaRegistry from './schemaRegistry';
-import type { PendingOptimistic } from './schemaRegistry';
 import styles from './store.module.css';
 import { StoreUIProvider } from './StoreUI';
 import TreeView from './TreeView';
@@ -45,14 +45,19 @@ interface Entry {
 /** Breadcrumbs shown before the middle ones collapse to `…` */
 const CRUMBS = 4;
 
-export default function StorePanel({ registry }: { registry: SchemaRegistry }) {
+export default function StorePanel({
+  registry,
+  history: id,
+}: {
+  registry: SchemaRegistry;
+  /** Whose actions to show (see `ActionLog`) */
+  history: number;
+}) {
   const live = useContext(StateContext);
   const { log } = registry;
-  const entries = useSyncExternalStore(
-    log.subscribe,
-    log.getSnapshot,
-    log.getSnapshot,
-  );
+  const getHistory = () => log.history(id);
+  const history = useSyncExternalStore(log.subscribe, getHistory, getHistory);
+  const { entries } = history;
   const [stored, setView] = useTabStorage('playgroundStoreView');
   const tree = stored === 'tree';
   const [tab, setTab] = useState<'state' | 'actions'>('state');
@@ -62,9 +67,13 @@ export default function StorePanel({ registry }: { registry: SchemaRegistry }) {
 
   // State as it was right after one action, until "Live"
   const [snapshotSeq, setSnapshot] = useState<number | null>(null);
-  const snapshot = snapshotSeq === null ? undefined : log.find(snapshotSeq);
+  const snapshot =
+    snapshotSeq === null ? undefined : findEntry(entries, snapshotSeq);
   const state = snapshot?.store ? log.view(snapshot.store.after) : live;
-  const liveModel = useMemo(() => buildModel(live, registry), [live, registry]);
+  const liveModel = useMemo(
+    () => buildModel(live, registry, pendingIn(history.state)),
+    [live, registry, history.state],
+  );
   const model = useMemo(
     () =>
       snapshot?.store ?
@@ -77,13 +86,14 @@ export default function StorePanel({ registry }: { registry: SchemaRegistry }) {
     () => ({
       log,
       entries,
+      since: history.since,
       groups: groupEntries(entries),
       showState: seq => {
         setSnapshot(seq);
         setTab('state');
       },
     }),
-    [log, entries],
+    [log, entries, history.since],
   );
   // only State shows the past; the Actions tab's records are live
   const stateActions = useMemo<Actions>(
@@ -175,14 +185,6 @@ export default function StorePanel({ registry }: { registry: SchemaRegistry }) {
 }
 
 const STATE_ROOT: View = { kind: 'root' };
-
-/** The optimistic updates still waiting in a stored state */
-const pendingIn = (state: State<unknown>): PendingOptimistic[] =>
-  state.optimistic.flatMap(o =>
-    o.type === actionTypes.OPTIMISTIC ?
-      [{ key: o.key, args: o.args, fetchedAt: o.meta.fetchedAt }]
-    : [],
-  );
 const ACTIONS_ROOT: View = { kind: 'actions' };
 
 /** Says State is in the past; steps through the actions that changed it */

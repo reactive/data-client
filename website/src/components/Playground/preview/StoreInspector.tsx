@@ -10,10 +10,12 @@ function StoreInspector({
   toggle,
   selectedValue,
   registry,
+  history,
 }: {
   selectedValue: 'y' | 'n';
   toggle: React.MouseEventHandler<HTMLDivElement>;
   registry: SchemaRegistry;
+  history: number;
 }) {
   const isSelected = selectedValue === 'y';
   // the empty drawer starts moving at once; the tree renders a frame later,
@@ -26,7 +28,7 @@ function StoreInspector({
       <StoreToggle onClick={toggle} open={isSelected} />
       <Reveal show={isSelected} className={styles.storePanel}>
         {showTree ?
-          <StorePanel registry={registry} />
+          <StorePanel registry={registry} history={history} />
         : null}
       </Reveal>
     </>
