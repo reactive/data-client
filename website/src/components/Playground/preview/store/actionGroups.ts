@@ -182,8 +182,8 @@ export interface ActionChanges {
 
 /** Several actions' changes as one: each row as it ended up compared to before
  * the first of them touched it, so a rolled back change cancels out. A row
- * only ever updated keeps just the fields these actions changed, so another
- * request's update in between isn't counted as theirs */
+ * they only updated or refreshed keeps just the fields they changed, so
+ * another request's update in between isn't counted as theirs */
 export function mergeChanges(actions: readonly ActionChanges[]): Change[] {
   const rows = new Map<
     string,
@@ -217,8 +217,10 @@ export function mergeChanges(actions: readonly ActionChanges[]): Change[] {
     const change = rowChange(from, to, row);
     if (!change) continue;
     if (change.kind === 'removed') merged.push({ ...change, removedBy });
-    else if (fields && 'fields' in change && change.fields) {
-      const own = change.fields.filter(f => fields.has(f));
+    else if (fields && change.kind === 'updated') {
+      const own = (('fields' in change && change.fields) || []).filter(f =>
+        fields.has(f),
+      );
       if (own.length) merged.push({ ...change, fields: own });
       else if (refreshed)
         merged.push({ ...change, kind: 'refreshed', fields: undefined });

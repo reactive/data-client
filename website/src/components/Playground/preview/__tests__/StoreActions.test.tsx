@@ -1316,6 +1316,22 @@ describe('mergeChanges', () => {
     ]);
   });
 
+  it('keeps a row the group only refreshed as refreshed', () => {
+    const stored = (value: number, date: number): State<unknown> => ({
+      ...initialState,
+      endpoints: { k: value },
+      meta: { k: { date, fetchedAt: date, expiresAt: date + 10 } },
+    });
+    // polls in between another request's update
+    const [poll, , again] = steps(
+      stored(1, 1),
+      stored(1, 2),
+      stored(2, 2),
+      stored(2, 3),
+    );
+    expect(mergeChanges([poll, again])).toMatchObject([{ kind: 'refreshed' }]);
+  });
+
   it('remembers which action removed a row', () => {
     expect(
       mergeChanges(
