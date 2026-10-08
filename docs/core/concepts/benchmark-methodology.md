@@ -190,6 +190,7 @@ git checkout 57b2f975c81e9fa9d4d9d2f36dbc93e719549e05
 yarn install
 yarn build:benchmark-react
 yarn workspace example-benchmark-react preview &
+sleep 5 # wait for the preview server
 cd examples/benchmark-react
 env -u CI yarn bench --network-sim true
 ```
