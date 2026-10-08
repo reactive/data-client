@@ -33,6 +33,9 @@ export interface LogEntry {
   /** A fetch's: whether NetworkManager shared it with the request it already
    * had for its key, instead of fetching. Missing when the log can't tell */
   readonly deduped?: boolean;
+  /** Earlier updates of its row that `updateLimit` dropped (see
+   * `capUpdates`) */
+  readonly dropped?: number;
   /** The store's own state (pending optimistic updates not yet applied)
    * right before and after this action. Missing when a manager handled the
    * action without passing it on (a plain fetch, a subscribe) */
@@ -240,7 +243,10 @@ export default class ActionLog {
     if (!history) return;
     this.histories.set(id, {
       ...history,
-      entries: history.entries.map(e => (e === entry ? { ...e, store } : e)),
+      // by seq: the cap may have marked the entry since it was recorded
+      entries: history.entries.map(e =>
+        e.seq === entry?.seq ? { ...e, store } : e,
+      ),
       state: store.after,
     });
     this.notify();
@@ -289,10 +295,26 @@ function capUpdates(entries: LogEntry[], limit: number): LogEntry[] {
   }
   updates.push(...pushed.values());
   const extra = new Set<LogEntry>();
-  for (const row of updates)
-    for (const update of row.slice(0, Math.max(0, row.length - limit)))
-      if (!update.some(e => e.newStore)) update.forEach(e => extra.add(e));
-  return extra.size ? entries.filter(e => !extra.has(e)) : entries;
+  // the oldest update a row keeps counts the ones before it
+  const marked = new Map<LogEntry, LogEntry>();
+  for (const row of updates) {
+    const cut = row.length - limit;
+    if (cut <= 0) continue;
+    let dropped = 0;
+    for (const update of row.slice(0, cut)) {
+      if (update.some(e => e.newStore)) continue;
+      update.forEach(e => extra.add(e));
+      dropped += 1 + (update[0].dropped ?? 0);
+    }
+    const [oldest] = row[cut];
+    if (dropped)
+      marked.set(oldest, {
+        ...oldest,
+        dropped: (oldest.dropped ?? 0) + dropped,
+      });
+  }
+  if (!extra.size) return entries;
+  return entries.flatMap(e => (extra.has(e) ? [] : [marked.get(e) ?? e]));
 }
 
 /** The newest `LOG_LIMIT` entries, plus the older ones their groups start

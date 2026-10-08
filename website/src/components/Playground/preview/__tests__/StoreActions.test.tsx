@@ -160,6 +160,24 @@ describe('Store Actions tab', () => {
     ).toBeNull();
   });
 
+  it('says how many earlier updates a row no longer has', async () => {
+    const { ctrl } = mount();
+    await act(async () => {
+      for (let i = 0; i < 25; i++)
+        await ctrl().set(Post, { id: '1' }, { id: '1', title: `t${i}` });
+    });
+    fireEvent.click(actionsTab());
+    // the store's first action stays, as it marks where the store began
+    const oldest = rows().find(row =>
+      row.textContent?.includes('4 earlier sets not kept'),
+    )!;
+    expect(oldest).toBeTruthy();
+    fireEvent.click(oldest);
+    expect(
+      screen.getByText('4 earlier sets not kept: the log keeps the newest'),
+    ).toBeTruthy();
+  });
+
   it('steps through the actions of a row, and back from State', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
@@ -1002,6 +1020,8 @@ describe('ActionLog', () => {
     const { requests } = sub as any;
     expect(requests).toHaveLength(20);
     expect(requests[0].response.action.response).toBe(6);
+    // and the oldest kept says how many came before it
+    expect(requests[0].entries[0].dropped).toBe(5);
   });
 
   it('keeps as many pushed sets of each entity as updateLimit says', () => {
@@ -1027,6 +1047,18 @@ describe('ActionLog', () => {
         action.type === actionTypes.SET ? [(action.value as any).title] : [],
       );
     expect(titles).toEqual(['x', 'b', 'c']);
+    const sets = log
+      .history(0)
+      .entries.filter(({ action }) => action.type === actionTypes.SET);
+    expect(sets.map(e => e.dropped)).toEqual([undefined, 1, undefined]);
+    // a dropped update's own count carries over
+    set(Post, '1', 'd');
+    expect(
+      log
+        .history(0)
+        .entries.filter(({ action }) => action.type === actionTypes.SET)
+        .map(e => e.dropped),
+    ).toEqual([undefined, 2, undefined]);
   });
 
   it('keeps the subscribers still polling past the limit', () => {

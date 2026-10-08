@@ -172,6 +172,7 @@ const GroupRow = memo(function GroupRow({
         </span>
         <span className={styles.actSum}>
           <Lifecycle group={group} />
+          <Dropped group={group} all={all} />
           <ActionSpanContext.Provider value={spanOf(all)}>
             <ChangeChips
               changes={changes}
@@ -203,8 +204,22 @@ function Steps({
     <div className={styles.steps} ref={scroller}>
       {all.map(entry => {
         const request = joined.get(entry);
+        const dropped =
+          entry.dropped ?
+            <div
+              key={`dropped ${entry.seq}`}
+              className={clsx(styles.row, styles.stepRow, styles.joined)}
+            >
+              <span className={styles.dim}>
+                {droppedText(group, entry.dropped)}: the log keeps the newest
+              </span>
+            </div>
+          : null;
         if (!request)
-          return <StepRow key={entry.seq} entry={entry} own={group.key} />;
+          return [
+            dropped,
+            <StepRow key={entry.seq} entry={entry} own={group.key} />,
+          ];
         if (counted.has(request)) return null;
         counted.add(request);
         const n = request.entries.filter(e => joined.has(e)).length;
@@ -376,6 +391,28 @@ function Status({ group }: { group: ActionGroup }) {
       {failed(response) ? 'error' : `${response.at - group.entries[0].at} ms`}
     </span>
   );
+}
+
+/** How many earlier updates of the row the log no longer has, so its
+ * history reads as partial */
+function Dropped({
+  group,
+  all,
+}: {
+  group: ActionGroup;
+  all: readonly LogEntry[];
+}) {
+  const n = all.reduce((sum, e) => sum + (e.dropped ?? 0), 0);
+  return n ? <span className={styles.dim}>{droppedText(group, n)}</span> : null;
+}
+
+/** `40 earlier polls not kept` */
+function droppedText(group: ActionGroup, n: number) {
+  const noun =
+    group.kind === 'subscription' ? 'poll'
+    : group.entries[0].action.type === actionTypes.SET ? 'set'
+    : 'response';
+  return `${n.toLocaleString()} earlier ${noun}${n === 1 ? '' : 's'} not kept`;
 }
 
 /** Sent, optimistic, then resolved; or a subscription's poll ticks */
