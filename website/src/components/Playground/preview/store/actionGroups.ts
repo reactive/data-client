@@ -192,7 +192,8 @@ export function mergeChanges(actions: readonly ActionChanges[]): Change[] {
       from: State<unknown>;
       to: State<unknown>;
       removedBy?: number;
-      /** Fields these actions changed; none when one did more than update */
+      /** Fields these actions updated (empty when they only refreshed it);
+       * undefined once one did anything else to the row */
       fields?: Set<string>;
       refreshed?: boolean;
     }
