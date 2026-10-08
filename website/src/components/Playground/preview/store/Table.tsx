@@ -19,6 +19,7 @@ import {
   type EntityRow,
   type EntityTable,
 } from './model';
+import { onActivateKey } from './dom';
 import { cellDive } from './nav';
 import { INVALIDATED, type VNode } from './refs';
 import styles from './store.module.css';
@@ -102,13 +103,7 @@ export function RowsTable<R extends { readonly id: string }>({
                   open && styles.selected,
                 )}
                 onClick={onOpen && (() => onOpen(row))}
-                onKeyDown={
-                  onOpen &&
-                  (e => {
-                    if (e.target === e.currentTarget && e.key === 'Enter')
-                      onOpen(row);
-                  })
-                }
+                onKeyDown={onOpen && onActivateKey(() => onOpen(row))}
               >
                 {columns.map(c => (
                   <td key={c.id} className={c.className}>

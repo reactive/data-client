@@ -44,6 +44,8 @@ export default class ActionLog {
   private controller: Controller | undefined;
   private readonly views = new WeakMap<State<unknown>, State<unknown>>();
   private readonly diffs = new WeakMap<LogEntry, readonly Change[]>();
+  /** Each action's entry, for the tail to find what the head recorded */
+  private readonly recorded = new WeakMap<ActionTypes, LogEntry>();
   private readonly listeners = new Set<() => void>();
   private queued = false;
 
@@ -53,11 +55,12 @@ export default class ActionLog {
       this.apply(action, controller as Controller);
       return next(action);
     },
+    init: state => this.start(state),
     cleanup() {},
   };
 
   /** A store mounted with `state` (fresh, or restored by error recovery) */
-  start(state: State<unknown>) {
+  private start(state: State<unknown>) {
     this.state = state;
   }
 
@@ -66,11 +69,8 @@ export default class ActionLog {
     const at = Date.now();
     if (!this.entries.length) this.since = at;
     const entry: LogEntry = { seq: this.nextSeq++, action, at };
-    const kept =
-      this.entries.length >= LOG_LIMIT ?
-        this.entries.slice(this.entries.length - LOG_LIMIT + 1)
-      : this.entries;
-    this.update([...kept, entry]);
+    this.recorded.set(action, entry);
+    this.update([...this.entries, entry].slice(-LOG_LIMIT));
   }
 
   clear() {
@@ -127,11 +127,15 @@ export default class ActionLog {
         collect(before, action)
       : this.reducer(before, action);
     this.state = after;
-    // most recent first: the action was just recorded
-    const i = this.entries.findLastIndex(e => e.action === action);
-    if (i < 0) return;
+    const entry = this.recorded.get(action);
+    // almost always the action just recorded
+    const i =
+      this.entries.at(-1) === entry ?
+        this.entries.length - 1
+      : this.entries.lastIndexOf(entry!);
+    if (!entry || i < 0) return;
     const entries = [...this.entries];
-    entries[i] = { ...entries[i], store: { before, after } };
+    entries[i] = { ...entry, store: { before, after } };
     this.update(entries);
   }
 

@@ -1,28 +1,28 @@
 import { actionTypes, type ActionTypes, type State } from '@data-client/react';
 import clsx from 'clsx';
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 
 import { actionKey, type Change } from './actionGroups';
 import type { LogEntry } from './actionLog';
 import {
   ActionsContext,
+  type Actions,
   ChangeChip,
   KeyLabel,
   TypeName,
   useActions,
 } from './ActionsView';
+import type { Header } from './DiveViews';
 import { errorText } from './model';
 import { useNav } from './nav';
 import { plain } from './refs';
 import styles from './store.module.css';
 import { Field, Inline } from './Value';
 
-type Header = (tools: React.ReactNode) => React.ReactNode;
-
 /** One action: what it changed, then the action itself */
 export function ActionDetail({ seq, header }: { seq: number; header: Header }) {
-  const { log, entries, showState } = useActions();
-  const entry = entries.find(e => e.seq === seq);
+  const { log, showState } = useActions();
+  const entry = log.find(seq);
   if (!entry)
     return (
       <>
@@ -208,16 +208,8 @@ function withoutFunctions(value: unknown) {
 export function ChangedBy({ id }: { id: string }) {
   const actions = useContext(ActionsContext);
   const nav = useNav();
-  if (!actions || !nav) return null;
-  const { log, entries, until } = actions;
-  let last: LogEntry | undefined;
-  for (let i = entries.length - 1; i >= 0 && !last; i--) {
-    const entry = entries[i];
-    if (until !== undefined && entry.seq > until) continue;
-    if (log.changes(entry).some(c => c.id === id && c.kind !== 'refreshed'))
-      last = entry;
-  }
-  if (!last) return null;
+  const last = useMemo(() => actions && lastChange(actions, id), [actions, id]);
+  if (!nav || !last) return null;
   const { seq } = last;
   return (
     <div className={styles.field}>
@@ -233,15 +225,27 @@ export function ChangedBy({ id }: { id: string }) {
             nav.push({ kind: 'action', seq });
           }}
         >
-          <ActionCrumb entry={last} />
+          <ActionCrumb seq={last.seq} />
         </button>
       </span>
     </div>
   );
 }
 
+/** The newest action (up to the one State is shown after) that changed
+ * row `id` */
+function lastChange({ log, entries, until }: Actions, id: string) {
+  for (let i = entries.length - 1; i >= 0; i--) {
+    const entry = entries[i];
+    if (until !== undefined && entry.seq > until) continue;
+    if (log.changes(entry).some(c => c.id === id && c.kind !== 'refreshed'))
+      return entry;
+  }
+}
+
 /** Breadcrumb for an action's level: `setResponse GET /posts` */
-export function ActionCrumb({ entry }: { entry: LogEntry | undefined }) {
+export function ActionCrumb({ seq }: { seq: number }) {
+  const entry = useActions().log.find(seq);
   if (!entry) return <>…</>;
   return (
     <>

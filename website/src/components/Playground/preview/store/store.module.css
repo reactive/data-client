@@ -54,7 +54,7 @@
   cursor: pointer;
   transition: opacity var(--motion-snappy);
 }
-.tab[aria-current],
+.tab[aria-selected='true'],
 .tab:hover {
   opacity: 1;
 }
@@ -67,7 +67,7 @@
   opacity: 0.65;
   font-size: 10.5px;
 }
-.tab[aria-current]::after {
+.tab[aria-selected='true']::after {
   content: '';
   position: absolute;
   left: 0.5rem;
@@ -969,9 +969,7 @@ div.stepRow {
 
 .markAdded,
 .markUpdated,
-.markRemoved,
-.markInvalidated,
-.markError {
+.markRemoved {
   font-weight: 600;
 }
 .markAdded {
@@ -980,14 +978,8 @@ div.stepRow {
 .markUpdated {
   color: var(--store-stale);
 }
-.markRemoved,
-.markInvalidated,
-.markError {
+.markRemoved {
   color: var(--store-null);
-}
-/* `+6 Todo`: a table's chip, listing its new rows */
-.addedRef b {
-  font-weight: inherit;
 }
 .goneRef {
   cursor: default;

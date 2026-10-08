@@ -286,8 +286,11 @@ export function actionKey(action: ActionTypes): string {
   if ('key' in action && typeof action.key === 'string') return action.key;
   if (action.type === actionTypes.SET)
     return schemaName(action.schema) ?? 'set';
-  if (action.type === actionTypes.INVALIDATEALL) return 'matching keys';
-  if (action.type === actionTypes.EXPIREALL) return 'matching keys';
+  if (
+    action.type === actionTypes.INVALIDATEALL ||
+    action.type === actionTypes.EXPIREALL
+  )
+    return 'matching keys';
   return '';
 }
 

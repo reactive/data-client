@@ -60,16 +60,12 @@ export default function StorePanel({ registry }: { registry: SchemaRegistry }) {
 
   // State as it was right after one action, until "Live"
   const [snapshotSeq, setSnapshot] = useState<number | null>(null);
-  const snapshot = entries.find(e => e.seq === snapshotSeq && e.store);
+  const snapshot = snapshotSeq === null ? undefined : log.find(snapshotSeq);
   const state = snapshot?.store ? log.view(snapshot.store.after) : live;
   const liveModel = useMemo(() => buildModel(live, registry), [live, registry]);
   const model = useMemo(
     () => (state === live ? liveModel : buildModel(state, registry)),
     [state, live, liveModel, registry],
-  );
-  const changed = useMemo(
-    () => snapshot && new Set(log.changes(snapshot).map(c => c.id)),
-    [log, snapshot],
   );
 
   const actions = useMemo<Actions>(
@@ -87,7 +83,12 @@ export default function StorePanel({ registry }: { registry: SchemaRegistry }) {
 
   const panel = useRef<HTMLDivElement>(null);
   const width = useWidth(panel);
-  useFlashChanges(panel, state, changed);
+  // a snapshot flashes what its action changed
+  useFlashChanges(
+    panel,
+    state,
+    snapshot?.store && log.view(snapshot.store.before),
+  );
 
   return (
     <ActionsContext.Provider value={actions}>
@@ -98,7 +99,6 @@ export default function StorePanel({ registry }: { registry: SchemaRegistry }) {
             role="tab"
             className={styles.tab}
             aria-selected={tab === 'state'}
-            aria-current={tab === 'state' ? 'page' : undefined}
             onClick={() => setTab('state')}
           >
             State
@@ -108,7 +108,6 @@ export default function StorePanel({ registry }: { registry: SchemaRegistry }) {
             role="tab"
             className={styles.tab}
             aria-selected={tab === 'actions'}
-            aria-current={tab === 'actions' ? 'page' : undefined}
             onClick={() => setTab('actions')}
           >
             Actions
@@ -146,13 +145,7 @@ export default function StorePanel({ registry }: { registry: SchemaRegistry }) {
           )}
         </div>
         <div className={styles.tabPanel} hidden={tab !== 'state'}>
-          {snapshot && (
-            <SnapshotBar
-              entry={snapshot}
-              entries={entries}
-              onShow={setSnapshot}
-            />
-          )}
+          {snapshot && <SnapshotBar entry={snapshot} onShow={setSnapshot} />}
           <StateContext.Provider value={state}>
             {tree ?
               <TreeLevel model={model} />
@@ -175,15 +168,16 @@ const ACTIONS_ROOT: View = { kind: 'actions' };
 /** Says State is in the past; steps through the actions that changed it */
 function SnapshotBar({
   entry,
-  entries,
   onShow,
 }: {
   entry: LogEntry;
-  entries: readonly LogEntry[];
   onShow: (seq: number | null) => void;
 }) {
-  const { log } = useActions();
-  const changing = entries.filter(e => log.changes(e).length);
+  const { log, entries } = useActions();
+  const changing = useMemo(
+    () => entries.filter(e => log.changes(e).length),
+    [log, entries],
+  );
   const i = changing.indexOf(entry);
   const step = (by: number) => {
     const to = changing[i + by];
@@ -208,7 +202,7 @@ function SnapshotBar({
         ›
       </button>
       <span className={styles.snapshotLabel}>
-        After <ActionCrumb entry={entry} />
+        After <ActionCrumb seq={entry.seq} />
       </span>
       <button
         type="button"
@@ -233,7 +227,6 @@ function Levels({
   /** The bottom level: State's overview, or the Actions list */
   root: View;
 }) {
-  const actions = useActions();
   // the record a level was opened from flashes once that level is back on top
   const [{ stack, returnTo }, setLevels] = useState<{
     readonly stack: readonly Entry[];
@@ -282,14 +275,14 @@ function Levels({
                 <span className={styles.sep}>…</span>
               : i === depth ?
                 <span className={styles.crumbCurrent} aria-current="page">
-                  {crumbLabel(shown[i].view, model, actions)}
+                  {crumbLabel(shown[i].view, model)}
                 </span>
               : <button
                   type="button"
                   className={styles.crumb}
                   onClick={() => back(i + 1)}
                 >
-                  {crumbLabel(shown[i].view, model, actions)}
+                  {crumbLabel(shown[i].view, model)}
                 </button>
               }
             </React.Fragment>
@@ -399,18 +392,14 @@ function Level({
 }
 
 /** What a breadcrumb shows for a view */
-function crumbLabel(
-  view: View,
-  model: StoreModel,
-  { log }: Actions,
-): React.ReactNode {
+function crumbLabel(view: View, model: StoreModel): React.ReactNode {
   switch (view.kind) {
     case 'root':
       return 'State';
     case 'actions':
       return 'Actions';
     case 'action':
-      return <ActionCrumb entry={log.find(view.seq)} />;
+      return <ActionCrumb seq={view.seq} />;
     case 'list': {
       const count =
         'ids' in view ? view.ids.length
@@ -471,26 +460,24 @@ function useWidth(ref: React.RefObject<HTMLElement | null>) {
 }
 
 /** Briefly highlights rows on screen whose stored value changed since the
- * last state (only those: a big store has far more rows than the screen).
- * A snapshot highlights the rows its action `changed` instead */
+ * last state, or `since` a given one (only those: a big store has far more
+ * rows than the screen) */
 function useFlashChanges(
   ref: React.RefObject<HTMLElement | null>,
   state: State<unknown>,
-  changed: ReadonlySet<string> | undefined,
+  since: State<unknown> | undefined,
 ) {
   const prev = useRef(state);
   useEffect(() => {
-    const before = prev.current;
+    const before = since ?? prev.current;
+    const moved = prev.current !== state;
     prev.current = state;
     const el = ref.current?.querySelector<HTMLElement>(
       `.${styles.tabPanel}:not([hidden]) [data-level]:not([data-covered])`,
     );
-    if (!el || before === state) return;
-    flash(
-      el,
-      changed ? id => changed.has(id) : id => isChanged(before, state, id),
-    );
-  }, [ref, state, changed]);
+    if (!el || !moved) return;
+    flash(el, id => isChanged(before, state, id));
+  }, [ref, state, since]);
 }
 
 function TableIcon() {

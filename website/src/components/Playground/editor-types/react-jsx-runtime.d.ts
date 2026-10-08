@@ -1,5 +1,5 @@
-import * as React from "react";
-export { Fragment, JSX } from "react";
+import * as React from 'react';
+export { Fragment, JSX } from 'react';
 
 /**
  * Create a React element.
@@ -7,9 +7,9 @@ export { Fragment, JSX } from "react";
  * You should not use this function directly. Use JSX and a transpiler instead.
  */
 export function jsx(
-    type: React.ElementType,
-    props: unknown,
-    key?: React.Key,
+  type: React.ElementType,
+  props: unknown,
+  key?: React.Key,
 ): React.ReactElement;
 
 /**
@@ -18,7 +18,7 @@ export function jsx(
  * You should not use this function directly. Use JSX and a transpiler instead.
  */
 export function jsxs(
-    type: React.ElementType,
-    props: unknown,
-    key?: React.Key,
+  type: React.ElementType,
+  props: unknown,
+  key?: React.Key,
 ): React.ReactElement;

@@ -3,7 +3,6 @@ import {
   type ActionTypes,
   type Manager,
   type Middleware,
-  type State,
 } from '@data-client/react';
 
 import ActionLog from './actionLog';
@@ -60,9 +59,8 @@ export default class SchemaRegistry implements Manager<ActionTypes> {
 
   /** A remounted preview starts a new store; schemas carry over (a restored
    * store still holds their rows), pending optimistic updates don't */
-  init(state?: State<unknown>) {
+  init() {
     this.optimistic = [];
-    if (state) this.log.start(state);
   }
 
   cleanup() {}

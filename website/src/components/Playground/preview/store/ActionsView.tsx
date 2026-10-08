@@ -20,6 +20,7 @@ import {
 } from './actionGroups';
 import type ActionLog from './actionLog';
 import type { LogEntry } from './actionLog';
+import { onActivateKey } from './dom';
 import { splitKey } from './model';
 import { useNav } from './nav';
 import styles from './store.module.css';
@@ -124,13 +125,7 @@ function GroupRow({
         aria-expanded={open}
         className={clsx(styles.row, styles.actRow)}
         onClick={onToggle}
-        onKeyDown={e => {
-          if (e.target !== e.currentTarget) return;
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            onToggle();
-          }
-        }}
+        onKeyDown={onActivateKey(onToggle)}
       >
         <span className={styles.actHead}>
           {group.kind === 'single' && <TypeName entry={first} />}
@@ -168,9 +163,7 @@ function StepRow({ entry, own }: { entry: LogEntry; own: string }) {
       tabIndex={0}
       className={clsx(styles.row, styles.stepRow)}
       onClick={open}
-      onKeyDown={e => {
-        if (e.target === e.currentTarget && e.key === 'Enter') open();
-      }}
+      onKeyDown={onActivateKey(open)}
     >
       <Time at={entry.at} />
       <TypeName entry={entry} />
@@ -276,11 +269,11 @@ function Status({ group }: { group: ActionGroup }) {
   if (group.kind !== 'request') return null;
   const { response } = group;
   if (!response) return <span className={styles.tFetch}>pending</span>;
-  if ((response.action as any).error)
-    return <span className={styles.tError}>error</span>;
   return (
-    <span className={styles.tResponse}>
-      {response.at - group.entries[0].at} ms
+    <span className={typeClass(response.action)}>
+      {(response.action as any).error ?
+        'error'
+      : `${response.at - group.entries[0].at} ms`}
     </span>
   );
 }
@@ -327,24 +320,17 @@ function Lifecycle({ group }: { group: ActionGroup }) {
         </>
       )}
       <s />
-      <i
-        className={
-          !response ? styles.waiting
-          : (response.action as any).error ?
-            styles.tError
-          : styles.tResponse
-        }
-      />
+      <i className={response ? typeClass(response.action) : styles.waiting} />
     </span>
   );
 }
 
-const MARK: Partial<Record<Change['kind'], string>> = {
-  added: '+',
-  updated: '~',
-  removed: '−',
-  invalidated: '✕',
-  error: '!',
+const MARK: Partial<Record<Change['kind'], [string, string]>> = {
+  added: ['+', styles.markAdded],
+  updated: ['~', styles.markUpdated],
+  removed: ['−', styles.markRemoved],
+  invalidated: ['✕', styles.markRemoved],
+  error: ['!', styles.markRemoved],
 };
 
 /** What changed, as chips that open the row (several new rows of one table
@@ -370,38 +356,45 @@ export function ChangeChips({
     return changes.length && changes.every(c => c.kind === 'refreshed') ?
         <span className={styles.dim}>stored again, unchanged</span>
       : null;
-  const chips: React.ReactNode[] = [];
+  // a table's new rows share one chip, where its first one would be
   const added = new Map<string, string[]>();
-  for (const c of shown)
-    if (c.kind === 'added' && 'table' in c)
-      added.set(c.table, [...(added.get(c.table) ?? []), c.pk]);
-  const listed = new Set<string>();
+  const items: (Change | string)[] = [];
   for (const c of shown) {
-    if (c.kind === 'added' && 'table' in c) {
-      const pks = added.get(c.table)!;
-      if (pks.length > 1) {
-        if (listed.has(c.table)) continue;
-        listed.add(c.table);
-        chips.push(
-          <CountChip
-            key={`+${c.table}`}
-            className={styles.addedRef}
-            list={() => ({
-              kind: 'list',
-              label: `new ${c.table}`,
-              table: c.table,
-              pks,
-            })}
-          >
-            <span className={styles.markAdded}>+</span>
-            {pks.length} {c.table}
-          </CountChip>,
-        );
-        continue;
-      }
+    if (c.kind !== 'added' || !('table' in c)) items.push(c);
+    else if (added.has(c.table)) added.get(c.table)!.push(c.pk);
+    else {
+      added.set(c.table, [c.pk]);
+      items.push(c.table);
     }
-    chips.push(<ChangeChip key={c.id} change={c} />);
   }
+  const chips = items.map(item => {
+    if (typeof item !== 'string')
+      return <ChangeChip key={item.id} change={item} />;
+    const pks = added.get(item)!;
+    if (pks.length === 1)
+      return (
+        <ChangeChip
+          key={item}
+          change={shown.find(c => 'table' in c && c.table === item)!}
+        />
+      );
+    return (
+      <CountChip
+        key={item}
+        // styled as a row's chip, not a dim count
+        className=""
+        list={() => ({
+          kind: 'list',
+          label: `new ${item}`,
+          table: item,
+          pks,
+        })}
+      >
+        <span className={styles.markAdded}>+</span>
+        {pks.length} {item}
+      </CountChip>
+    );
+  });
   const rest = chips.length - CHIP_LIMIT;
   return (
     <>
@@ -416,11 +409,8 @@ export function ChangeChip({ change }: { change: Change }) {
     'endpoint' in change ?
       <EndpointKey {...splitKey(change.endpoint)} />
     : <EntityKey table={change.table} pk={change.pk} />;
-  const mark = MARK[change.kind] && (
-    <span className={styles[`mark${capital(change.kind)}`]}>
-      {MARK[change.kind]}
-    </span>
-  );
+  const [char, markClass] = MARK[change.kind] ?? [];
+  const mark = char && <span className={markClass}>{char}</span>;
   const title =
     'fields' in change && change.fields?.length ?
       `${change.kind}: ${change.fields.join(', ')}`
@@ -450,5 +440,3 @@ export function ChangeChip({ change }: { change: Change }) {
     />
   );
 }
-
-const capital = (s: string) => s[0].toUpperCase() + s.slice(1);

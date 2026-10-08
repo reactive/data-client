@@ -1,5 +1,12 @@
 import * as _data_client_core from '@data-client/core';
-import { ActionTypes, State, Manager, GCInterface, Controller, Dispatch as Dispatch$1 } from '@data-client/core';
+import {
+  ActionTypes,
+  State,
+  Manager,
+  GCInterface,
+  Controller,
+  Dispatch as Dispatch$1,
+} from '@data-client/core';
 export { applyManager, createReducer, initialState } from '@data-client/core';
 import React from 'react';
 
@@ -107,7 +114,11 @@ declare global {
  * @template A the type of actions which may be dispatched by this store.
  * @template StateExt any extension to state from store enhancers
  */
-interface Store$1<S = any, A extends Action = UnknownAction, StateExt = unknown> {
+interface Store$1<
+  S = any,
+  A extends Action = UnknownAction,
+  StateExt = unknown,
+> {
   /**
    * Dispatches an action. It is the only way to trigger a state change.
    *
@@ -206,68 +217,119 @@ interface Middleware<
   ): (next: (action: unknown) => unknown) => (action: unknown) => unknown;
 }
 
-declare function prepareStore<R extends ReducersMapObject<any, ActionTypes> = {}>(initialState: DeepPartialWithUnknown<State<any>>, managers: Manager[], Ctrl: new (props: {
-    gcPolicy: GCInterface;
-}) => Controller, reducers?: R, middlewares?: Middleware[], gcPolicy?: GCInterface): {
-    selector: (s: {
-        dataclient: State<unknown>;
-    }) => State<unknown>;
-    store: Store$1<StateFromReducersMapObject<R> & {
-        dataclient: State<unknown>;
-    }, UnknownAction, unknown>;
-    controller: Controller<_data_client_core.DataClientDispatch>;
+declare function prepareStore<
+  R extends ReducersMapObject<any, ActionTypes> = {},
+>(
+  initialState: DeepPartialWithUnknown<State<any>>,
+  managers: Manager[],
+  Ctrl: new (props: { gcPolicy: GCInterface }) => Controller,
+  reducers?: R,
+  middlewares?: Middleware[],
+  gcPolicy?: GCInterface,
+): {
+  selector: (s: { dataclient: State<unknown> }) => State<unknown>;
+  store: Store$1<
+    StateFromReducersMapObject<R> & {
+      dataclient: State<unknown>;
+    },
+    UnknownAction,
+    unknown
+  >;
+  controller: Controller<_data_client_core.DataClientDispatch>;
 };
 type DeepPartialWithUnknown<T> = {
-    [K in keyof T]?: T[K] extends unknown ? any : T[K] extends object ? DeepPartialWithUnknown<T[K]> : T[K];
+  [K in keyof T]?: T[K] extends unknown ? any
+  : T[K] extends object ? DeepPartialWithUnknown<T[K]>
+  : T[K];
 };
-type StateFromReducersMapObject<M> = M[keyof M] extends Reducer<any, any, any> | undefined ? {
-    [P in keyof M]: M[P] extends Reducer<infer S, any, any> ? S : never;
-} : never;
-type ReducersMapObject<S = any, A extends {
+type StateFromReducersMapObject<M> =
+  M[keyof M] extends Reducer<any, any, any> | undefined ?
+    {
+      [P in keyof M]: M[P] extends Reducer<infer S, any, any> ? S : never;
+    }
+  : never;
+type ReducersMapObject<
+  S = any,
+  A extends {
     type: string;
-} = any, PreloadedState = S> = keyof PreloadedState extends keyof S ? {
-    [K in keyof S]: Reducer<S[K], A, K extends keyof PreloadedState ? PreloadedState[K] : never>;
-} : never;
+  } = any,
+  PreloadedState = S,
+> =
+  keyof PreloadedState extends keyof S ?
+    {
+      [K in keyof S]: Reducer<
+        S[K],
+        A,
+        K extends keyof PreloadedState ? PreloadedState[K] : never
+      >;
+    }
+  : never;
 
-type DevToolsPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
+type DevToolsPosition =
+  'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 
 /** For usage with https://dataclient.io/docs/api/makeRenderDataHook */
-declare function TestExternalDataProvider({ children, managers, initialState, Controller, gcPolicy, devButton, }: Props$1): React.JSX.Element;
+declare function TestExternalDataProvider({
+  children,
+  managers,
+  initialState,
+  Controller,
+  gcPolicy,
+  devButton,
+}: Props$1): React.JSX.Element;
 interface Props$1 {
-    children: React.ReactNode;
-    managers: Manager[];
-    initialState: State<unknown>;
-    Controller: new (props: {
-        gcPolicy: GCInterface;
-    }) => Controller;
-    gcPolicy?: GCInterface;
-    devButton?: DevToolsPosition | null | undefined;
+  children: React.ReactNode;
+  managers: Manager[];
+  initialState: State<unknown>;
+  Controller: new (props: { gcPolicy: GCInterface }) => Controller;
+  gcPolicy?: GCInterface;
+  devButton?: DevToolsPosition | null | undefined;
 }
 
 interface Store<S> {
-    subscribe(listener: () => void): () => void;
-    getState(): S;
+  subscribe(listener: () => void): () => void;
+  getState(): S;
 }
 interface Props<S> {
-    children: React.ReactNode;
-    store: Store<S>;
-    selector: (state: S) => State<unknown>;
-    controller: Controller;
-    devButton?: DevToolsPosition | null | undefined;
-    hasDevManager?: boolean;
+  children: React.ReactNode;
+  store: Store<S>;
+  selector: (state: S) => State<unknown>;
+  controller: Controller;
+  devButton?: DevToolsPosition | null | undefined;
+  hasDevManager?: boolean;
 }
 /**
  * Like DataProvider, but for an external store
  * @see https://dataclient.io/docs/api/ExternalDataProvider
  */
-declare function ExternalDataProvider<S>({ children, store, selector, controller, devButton, hasDevManager, }: Props<S>): React.JSX.Element;
+declare function ExternalDataProvider<S>({
+  children,
+  store,
+  selector,
+  controller,
+  devButton,
+  hasDevManager,
+}: Props<S>): React.JSX.Element;
 
-declare const mapMiddleware: <M extends Middleware[]>(selector: (state: any) => State<unknown>) => (...middlewares: Middleware[]) => M;
+declare const mapMiddleware: <M extends Middleware[]>(
+  selector: (state: any) => State<unknown>,
+) => (...middlewares: Middleware[]) => M;
 //# sourceMappingURL=mapMiddleware.d.ts.map
 
-declare const PromiseifyMiddleware: <R extends React.Reducer<any, any>>(_: unknown) => (next: Dispatch$1<R>) => (action: ReducerAction<R>) => Promise<void>;
+declare const PromiseifyMiddleware: <R extends React.Reducer<any, any>>(
+  _: unknown,
+) => (next: Dispatch$1<R>) => (action: ReducerAction<R>) => Promise<void>;
 
-type ReducerAction<R extends React.Reducer<any, any>> = R extends React.Reducer<any, infer A> ? A : never;
+type ReducerAction<R extends React.Reducer<any, any>> =
+  R extends React.Reducer<any, infer A> ? A : never;
 //# sourceMappingURL=PromiseifyMiddleware.d.ts.map
 
-export { TestExternalDataProvider as DataProvider, ExternalDataProvider, type Middleware, PromiseifyMiddleware, type Reducer, mapMiddleware, prepareStore };
+export {
+  TestExternalDataProvider as DataProvider,
+  ExternalDataProvider,
+  type Middleware,
+  PromiseifyMiddleware,
+  type Reducer,
+  mapMiddleware,
+  prepareStore,
+};

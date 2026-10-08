@@ -1,4 +1,5 @@
 /// <reference types="jest" />
+import { initialState } from '@data-client/core';
 import { Endpoint, Entity } from '@data-client/endpoint';
 import {
   actionTypes,
@@ -240,13 +241,9 @@ describe('groupEntries', () => {
 
 describe('ActionLog', () => {
   const empty: State<unknown> = {
+    ...initialState,
     entities: { Post: { 1: { id: '1' }, 2: { id: '2' } } },
-    entitiesMeta: {},
     endpoints: { a: '1' },
-    meta: {},
-    indexes: {},
-    optimistic: [],
-    lastReset: 0,
   };
   const run = (log: ActionLog, action: any) => {
     log.record(action);
@@ -257,7 +254,7 @@ describe('ActionLog', () => {
 
   it('collects garbage without touching earlier states', () => {
     const log = new ActionLog();
-    log.start(empty);
+    log.tail.init!(empty);
     run(log, {
       type: actionTypes.GC,
       entities: [{ key: 'Post', pk: '1' }],
@@ -271,7 +268,7 @@ describe('ActionLog', () => {
 
   it('keeps only the newest actions', () => {
     const log = new ActionLog();
-    log.start(empty);
+    log.tail.init!(empty);
     for (let i = 0; i < 510; i++)
       log.record({ type: actionTypes.SUBSCRIBE } as any);
     expect(log.entries).toHaveLength(500);

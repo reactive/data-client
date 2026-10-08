@@ -11,6 +11,10 @@
  const list = useSuspense(getThings, { query: debouncedQuery });
  ```
  */
-declare function useDebounce<T>(value: T, delay: number, updatable?: boolean): [T, boolean];
+declare function useDebounce<T>(
+  value: T,
+  delay: number,
+  updatable?: boolean,
+): [T, boolean];
 
 export { useDebounce };
