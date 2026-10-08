@@ -318,23 +318,21 @@ div.playgroundTextEdit > .playgroundHeader,
 .editorBody > * {
   grid-area: 1 / 1;
 }
-/* room to inspect even when the code is short, kept while the drawer slides
-   out (until its <Activity> hides it) */
-/* holds its height while visible, including while it slides out (when the
-   panel itself is pinned out of flow) */
+/* room to inspect even when the code is short, held while visible, including
+   while it slides out (when the panel itself is pinned out of flow) */
 .storeHost:has(> .storePanel[data-visible]) {
   min-height: 20rem;
 }
 .storeHost {
   /* slides up from the preview below; sideways once side by side */
   display: flex;
-  /* the code alone sets the cell's height, so the Store scrolls within it */
-  contain: size;
   flex-direction: column;
   position: relative;
   z-index: 1;
   overflow: hidden;
   pointer-events: none;
+  /* the code alone sets the cell's height, so the Store scrolls within it */
+  contain: size;
 }
 /* under the header, the file tabs are no longer the top corner */
 .playgroundContainer .editorBody:not(:first-child) .editorDocs > .tabControls {
@@ -699,8 +697,8 @@ div.fixtureJson {
 }
 /* Stacked row layout: the Store opens upward over the code */
 @container playground (max-width: 719px) {
-  /* and takes the code's place: as tall as its contents, scrolling past a
-     cap, rather than as tall as the code */
+  /* and takes the code's place: as tall as its contents (so not contained),
+     scrolling past a cap, rather than as tall as the code */
   .editorDocs[inert] {
     max-height: 0;
     overflow: hidden;
