@@ -21,12 +21,12 @@ import {
   groupEntries,
   keepUnchanged,
   mergeChanges,
+  rowTimeline,
 } from '../store/actionGroups';
 import ActionLog, { type LogEntry, type LogOptions } from '../store/actionLog';
 import { entityId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
-import { rowTimeline } from '../store/VersionHistory';
 
 jest.mock('../../../../utils/tabStorage', () => ({
   useTabStorage: () => require('react').useState(null),
@@ -122,6 +122,14 @@ const current = () =>
   within(top())
     .getByRole('navigation', { name: 'Store location' })
     .querySelector('[aria-current="page"]')!.textContent;
+/** Opens Post `pk`'s History from the table; its text */
+const postHistory = (pk: string) => {
+  fireEvent.click(
+    top().querySelector<HTMLElement>(`tr[data-id="${entityId('Post', pk)}"]`)!,
+  );
+  fireEvent.click(within(top()).getByRole('button', { name: 'History' }));
+  return top().textContent;
+};
 /** The shown level */
 const top = () =>
   [...document.querySelectorAll<HTMLElement>('[data-level]')].find(
@@ -286,20 +294,11 @@ describe('Store Actions tab', () => {
       for (let i = 0; i < 25; i++)
         await ctrl().set(Post, { id: '2' }, { id: '2', title: `t${i}` });
     });
-    const history = (pk: string) => {
-      fireEvent.click(
-        top().querySelector<HTMLElement>(
-          `tr[data-id="${entityId('Post', pk)}"]`,
-        )!,
-      );
-      fireEvent.click(within(top()).getByRole('button', { name: 'History' }));
-      return top().textContent;
-    };
-    expect(history('2')).toContain('Changed by actions not kept');
+    expect(postHistory('2')).toContain('Changed by actions not kept');
     for (let i = 0; i < 2; i++)
       fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
     // Post 1's own set is still there
-    expect(history('1')).not.toContain('not kept');
+    expect(postHistory('1')).not.toContain('not kept');
   });
 
   it.each([
@@ -320,13 +319,7 @@ describe('Store Actions tab', () => {
       for (let i = 0; i < 25; i++) await ctrl().fetch(polled);
       await ctrl().unsubscribe(polled);
     });
-    fireEvent.click(
-      top().querySelector<HTMLElement>(
-        `tr[data-id="${entityId('Post', '1')}"]`,
-      )!,
-    );
-    fireEvent.click(within(top()).getByRole('button', { name: 'History' }));
-    expect(top().textContent).toContain(`${says} by actions not kept`);
+    expect(postHistory('1')).toContain(`${says} by actions not kept`);
   });
 
   it('says when actions the log dropped changed a record last', async () => {
@@ -338,12 +331,7 @@ describe('Store Actions tab', () => {
       for (let i = 0; i < 25; i++)
         await ctrl().set(Post, { id: '2' }, { id: '2', title: `t${i}` });
     });
-    fireEvent.click(
-      top().querySelector<HTMLElement>(
-        `tr[data-id="${entityId('Post', '1')}"]`,
-      )!,
-    );
-    fireEvent.click(within(top()).getByRole('button', { name: 'History' }));
+    postHistory('1');
     const items = within(top()).getAllByRole('listitem');
     expect(items.at(-1)!.textContent).toBe(
       'Changed by actions not kept: the log keeps the newest',
@@ -1289,6 +1277,7 @@ describe('ActionLog', () => {
 
   it('finds no gap where a restored store starts from its own copy of the state', () => {
     const log = newLog();
+    let at = 0;
     const set = (dispatch: (action: any) => unknown, title: string) =>
       dispatch({
         type: actionTypes.SET,
@@ -1297,7 +1286,6 @@ describe('ActionLog', () => {
         value: { id: '3', title },
         meta: { fetchedAt: ++at, date: at, expiresAt: at + 1 },
       });
-    let at = 0;
     set(connect(log, 0), 'a');
     // the store's own state: equal, but not the log's objects
     const restored = structuredClone(log.history(0).state!);

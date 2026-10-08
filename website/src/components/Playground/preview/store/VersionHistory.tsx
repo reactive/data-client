@@ -1,4 +1,3 @@
-import { __INTERNAL__, type State } from '@data-client/react';
 import clsx from 'clsx';
 import React, {
   memo,
@@ -9,8 +8,12 @@ import React, {
 } from 'react';
 
 import { ActionCrumb, ActionName, ChangeBody } from './ActionDetail';
-import { rowChange, type Change, type ChangeKind } from './actionGroups';
-import type ActionLog from './actionLog';
+import {
+  rowTimeline,
+  type ChangeKind,
+  type TimelineItem,
+  type Version,
+} from './actionGroups';
 import type { LogEntry } from './actionLog';
 import {
   ActionsContext,
@@ -26,79 +29,6 @@ import { findRow, isEndpointRow } from './model';
 import { NavContext, useNav, type Moment, type Nav } from './nav';
 import styles from './store.module.css';
 import { Block } from './Value';
-
-const { initialState } = __INTERNAL__;
-
-/** A change to one record, and the action that made it */
-interface Version {
-  readonly kind: 'version';
-  readonly entry: LogEntry;
-  readonly change: Change;
-}
-/** Actions in a row that stored the record again, unchanged */
-interface Refreshes {
-  readonly kind: 'refreshed';
-  readonly entries: LogEntry[];
-}
-/** Where actions the log didn't keep changed the record */
-interface Missing {
-  readonly kind: 'missing';
-  readonly seq: number;
-  /** What they did to it, all told */
-  readonly change: ChangeKind;
-}
-type TimelineItem = Version | Refreshes | Missing;
-
-/** Every logged action that stored row `id`, oldest first; unchanged
- * stores in a row share one item. Where the record differs from how the
- * last of them left it, actions the log dropped changed it */
-export function rowTimeline(
-  log: ActionLog,
-  entries: readonly LogEntry[],
-  id: string,
-) {
-  const items: TimelineItem[] = [];
-  // how the logged actions left the record so far: from each store's start,
-  // or (once a trim drops the start) from an empty store, so a record that
-  // predates the log's front shows that actions before it are gone
-  let left = initialState as State<unknown>;
-  let row: Change | undefined;
-  let started = false;
-  const gap = (seq: number, now: State<unknown>) => {
-    const change = row && rowChange(left, log.view(now), row);
-    if (change)
-      items.push({
-        kind: 'missing',
-        seq,
-        change: change.kind,
-      });
-  };
-  for (const entry of entries) {
-    // each store (a restored one too) starts from its own state
-    if (entry.newStore) started = true;
-    if (!entry.store) continue;
-    const { before, after } = entry.store;
-    if (started) {
-      left = log.view(before);
-      started = false;
-    }
-    const change = log.changes(entry).find(c => c.id === id);
-    if (!change) continue;
-    // the row this record is, to compare as gap() does
-    row = change;
-    gap(entry.seq, before);
-    left = log.view(after);
-    const last = items.at(-1);
-    if (change.kind !== 'refreshed')
-      items.push({ kind: 'version', entry, change });
-    else if (last?.kind === 'refreshed') last.entries.push(entry);
-    else items.push({ kind: 'refreshed', entries: [entry] });
-  }
-  // and since its last logged change (between seqs, to sort after it)
-  const latest = entries.findLast(e => e.store);
-  if (latest) gap(latest.seq + 0.5, latest.store!.after);
-  return items;
-}
 
 const isVersion = (item: TimelineItem): item is Version =>
   item.kind === 'version';

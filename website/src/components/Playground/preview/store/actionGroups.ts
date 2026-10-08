@@ -1,7 +1,13 @@
-import { actionTypes, type ActionTypes, type State } from '@data-client/react';
+import {
+  __INTERNAL__,
+  actionTypes,
+  type ActionTypes,
+  type State,
+} from '@data-client/react';
 
+import type ActionLog from './actionLog';
 import type { LogEntry } from './actionLog';
-import { endpointId, entityId } from './model';
+import { endpointId, entityId, parseRowId } from './model';
 import { isPlainObject, temporalType } from './refs';
 
 export type ChangeKind =
@@ -103,7 +109,7 @@ function entityChange(
 }
 
 /** How one row differs between two states */
-export function rowChange(
+function rowChange(
   prev: State<unknown>,
   next: State<unknown>,
   row: Change,
@@ -506,3 +512,67 @@ export const pollFrequencyOf = (action: ActionTypes): number | undefined =>
 /** The Controller method that dispatches it: `setResponse` */
 export const actionName = (action: ActionTypes) =>
   NAMES[action.type] ?? action.type;
+
+/** A change to one record, and the action that made it */
+export interface Version {
+  readonly kind: 'version';
+  readonly entry: LogEntry;
+  readonly change: Change;
+}
+/** Actions in a row that stored the record again, unchanged */
+interface Refreshes {
+  readonly kind: 'refreshed';
+  readonly entries: LogEntry[];
+}
+/** Where actions the log didn't keep changed the record */
+interface Missing {
+  readonly kind: 'missing';
+  readonly seq: number;
+  /** What they did to it, all told */
+  readonly change: ChangeKind;
+}
+export type TimelineItem = Version | Refreshes | Missing;
+
+/** Every logged action that stored row `id`, oldest first; unchanged
+ * stores in a row share one item. Each logged action starts from the store
+ * the one before it left, so where the record differs between them, actions
+ * the log dropped changed it */
+export function rowTimeline(
+  log: ActionLog,
+  entries: readonly LogEntry[],
+  id: string,
+) {
+  const items: TimelineItem[] = [];
+  const row = rowOf(id);
+  // an empty store until the log reaches a store's start (one a trim cut
+  // off shows as a gap), which starts from its own state
+  let left: State<unknown> | undefined =
+    __INTERNAL__.initialState as State<unknown>;
+  for (const entry of entries) {
+    if (entry.newStore) left = undefined;
+    if (!entry.store) continue;
+    const before = log.view(entry.store.before);
+    const gap = row && left && rowChange(left, before, row);
+    // one note for each stretch the log dropped
+    if (gap && items.at(-1)?.kind !== 'missing')
+      items.push({ kind: 'missing', seq: entry.seq, change: gap.kind });
+    left = log.view(entry.store.after);
+    const change = log.changes(entry).find(c => c.id === id);
+    if (!change) continue;
+    const last = items.at(-1);
+    if (change.kind !== 'refreshed')
+      items.push({ kind: 'version', entry, change });
+    else if (last?.kind === 'refreshed') last.entries.push(entry);
+    else items.push({ kind: 'refreshed', entries: [entry] });
+  }
+  return items;
+}
+
+/** Row `id` as diffs name it, to compare it between two stores */
+function rowOf(id: string): Change | undefined {
+  const row = parseRowId(id);
+  if (row?.kind === 'endpoint')
+    return { kind: 'updated', id, endpoint: row.key };
+  if (row?.kind === 'entity')
+    return { kind: 'updated', id, table: row.table, pk: row.pk };
+}
