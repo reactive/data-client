@@ -143,11 +143,7 @@ export default function EditorSurface({
       : null}
       {cover == null ?
         code
-      : <div
-          className={clsx(styles.editorBody, {
-            [styles.editorCovered]: covered,
-          })}
-        >
+      : <div className={styles.editorBody}>
           <div className={styles.editorDocs} inert={covered}>
             {code}
           </div>

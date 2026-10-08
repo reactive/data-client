@@ -318,8 +318,9 @@ div.playgroundTextEdit > .playgroundHeader,
 .editorBody > * {
   grid-area: 1 / 1;
 }
-/* room to inspect even when the code is short */
-.editorCovered {
+/* room to inspect even when the code is short, kept while the drawer slides
+   out (until its <Activity> hides it) */
+.editorBody:has(> .storeHost > .storePanel:not([style*='display: none'])) {
   min-height: 20rem;
 }
 .storeHost {
