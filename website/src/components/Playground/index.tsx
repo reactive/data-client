@@ -9,7 +9,7 @@ import EditorSurface from './editor/EditorSurface';
 import FixturePreview from './preview/FixturePreview';
 import type LivePreviewType from './preview/LivePreview';
 import PreviewWrapper from './preview/PreviewWrapper';
-import { StoreToggle, useStoreOpen } from './preview/StoreInspector';
+import { StoreToggle, useStoreOpen } from './preview/StoreToggle';
 import styles from './styles.module.css';
 import type { FixtureOrInterceptor } from './types';
 import { isBot } from './userAgent';
