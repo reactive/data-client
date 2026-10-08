@@ -3,17 +3,20 @@ import React, { memo, useLayoutEffect, useMemo, useRef } from 'react';
 
 import {
   actionName,
+  groupEntriesOf,
   joinedFetches,
   type ActionGroup,
   type RequestGroup,
 } from './actionGroups';
 import { nearestChange, type LogEntry } from './actionLog';
 import {
+  droppedText,
   KeyLabel,
   seconds,
   typeClass,
   useActions,
   useFollow,
+  useLog,
 } from './ActionsView';
 import { NARROW_WIDTH } from './columns';
 import styles from './store.module.css';
@@ -254,7 +257,10 @@ export default memo(function Timeline({
                 <KeyLabel value={lane.key} />
               : <span className={styles.dim}>store</span>}
             </span>
-            <span className={styles.tlTrack}>{lane.groups.flatMap(drawn)}</span>
+            <span className={styles.tlTrack}>
+              <LaneDropped lane={lane} />
+              {lane.groups.flatMap(drawn)}
+            </span>
           </div>
         ))}
         {scale.breaks.map(x => (
@@ -267,6 +273,33 @@ export default memo(function Timeline({
     </div>
   );
 });
+
+/** Leads a lane whose earlier actions the log no longer has, as the list
+ * says it of a row */
+function LaneDropped({ lane }: { lane: Lane }) {
+  const { dropped } = useLog();
+  let first: ActionGroup | undefined;
+  let n = 0;
+  for (const group of lane.groups) {
+    const count = groupEntriesOf(group).reduce(
+      (sum, e) => sum + (dropped?.get(e.seq) ?? 0),
+      0,
+    );
+    if (count && !first) first = group;
+    n += count;
+  }
+  if (!first) return null;
+  const label = `${droppedText(first, n)}: the log keeps the newest`;
+  return (
+    <span
+      className={clsx(styles.tlDropped, styles.dim)}
+      title={label}
+      aria-label={label}
+    >
+      …
+    </span>
+  );
+}
 
 /** Entries to label on the axis, at least `LABEL_GAP` apart */
 function axisLabels(entries: readonly LogEntry[], scale: TimeScale) {

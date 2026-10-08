@@ -51,7 +51,7 @@ export const LogContext = createContext<{
   /** Its `dropped` counts */
   readonly dropped?: ReadonlyMap<number, number>;
 } | null>(null);
-const useLog = () => useContext(LogContext)!;
+export const useLog = () => useContext(LogContext)!;
 
 /** Chips a row shows before `+N` */
 const CHIP_LIMIT = 6;
@@ -445,7 +445,7 @@ function Dropped({
 }
 
 /** `40 earlier polls not kept` */
-function droppedText(group: ActionGroup, n: number) {
+export function droppedText(group: ActionGroup, n: number) {
   const noun =
     group.kind === 'subscription' ? 'poll'
     : group.entries[0].action.type === actionTypes.SET ? 'set'

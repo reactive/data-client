@@ -177,6 +177,20 @@ describe('Store Timeline tab', () => {
     expect(screen.queryByRole('group', { name: 'Store view' })).toBeNull();
   });
 
+  it('says when earlier actions of a lane are no longer kept, as the list does', async () => {
+    const { ctrl } = mount();
+    await act(async () => {
+      for (let i = 0; i < 25; i++)
+        await ctrl().set(Post, { id: '1' }, { id: '1', title: `t${i}` });
+    });
+    fireEvent.click(screen.getByRole('tab', { name: 'Timeline' }));
+    expect(
+      screen.getByLabelText(
+        '4 earlier sets not kept: the log keeps the newest',
+      ),
+    ).toBeTruthy();
+  });
+
   it('stays on a picked action as new ones come in', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));

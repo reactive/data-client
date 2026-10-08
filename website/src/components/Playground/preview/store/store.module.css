@@ -1172,6 +1172,16 @@ div.joined {
   flex: none;
   width: var(--tl-width);
 }
+.tlDropped {
+  position: absolute;
+  left: 2px;
+  top: 0;
+  z-index: 1;
+  padding: 0 2px;
+  background: var(--store-bg);
+  font-size: 11px;
+  line-height: var(--tl-row);
+}
 .tlLane .tlTrack::before {
   content: '';
   position: absolute;
