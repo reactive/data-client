@@ -116,6 +116,11 @@ const rows = () =>
   [...document.querySelectorAll<HTMLElement>('[aria-expanded]')].filter(
     el => !el.closest('[hidden]'),
   );
+/** The shown level's breadcrumb */
+const current = () =>
+  within(top())
+    .getByRole('navigation', { name: 'Store location' })
+    .querySelector('[aria-current="page"]')!.textContent;
 /** The shown level */
 const top = () =>
   [...document.querySelectorAll<HTMLElement>('[data-level]')].find(
@@ -203,23 +208,118 @@ describe('Store Actions tab', () => {
       )!,
     );
     fireEvent.click(within(top()).getByRole('button', { name: '2 changes' }));
-    const current = () =>
-      within(top())
-        .getByRole('navigation', { name: 'Store location' })
-        .querySelector('[aria-current="page"]')!.textContent;
     expect(current()).toBe('History');
     const history = top();
     expect(history.textContent).toContain('setResponse');
     expect(history.textContent).toMatch(/title: "One" → "Edited"/);
-    // each change opens its action on the same stack
+    // each version opens its action on the same stack
     fireEvent.click(
-      within(history)
-        .getAllByRole('button', { name: /^.*set/ })
-        .at(-1)!,
+      within(history).getByRole('button', { name: 'Open action' }),
     );
     expect(current()).toMatch(/^set Post/);
     fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
     expect(current()).toBe('History');
+  });
+
+  it('lists a record’s versions as a timeline, one open at a time', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    // stored again unchanged, twice in a row
+    await act(() => ctrl().fetch(getPosts));
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+    );
+    fireEvent.click(
+      top().querySelector<HTMLElement>(
+        `tr[data-id="${entityId('Post', '1')}"]`,
+      )!,
+    );
+    // the record's header opens its history
+    fireEvent.click(within(top()).getByRole('button', { name: 'History' }));
+    expect(current()).toBe('History');
+    const timeline = within(top()).getByRole('list', { name: 'Versions' });
+    const items = within(timeline).getAllByRole('listitem');
+    expect(items).toHaveLength(3);
+    expect(items[1].textContent).toContain('stored again, unchanged ×2');
+    const versions = () => [
+      ...timeline.querySelectorAll<HTMLElement>('[data-version]'),
+    ];
+    // the latest version starts open, showing the whole record then
+    expect(versions().map(v => v.getAttribute('aria-expanded'))).toEqual([
+      'false',
+      'true',
+    ]);
+    const body = () => items.find(i => i.textContent?.includes('Open action'))!;
+    expect(body()).toBe(items[2]);
+    expect(body().textContent).toContain('title:"Edited"');
+    // opening another closes it, and shows the record as it was then
+    fireEvent.click(versions()[0]);
+    expect(versions().map(v => v.getAttribute('aria-expanded'))).toEqual([
+      'true',
+      'false',
+    ]);
+    expect(body()).toBe(items[0]);
+    expect(body().textContent).toContain('title:"One"');
+    // arrows step through the versions
+    fireEvent.keyDown(versions()[0], { key: 'ArrowDown' });
+    expect(versions()[1].getAttribute('aria-expanded')).toBe('true');
+    expect(document.activeElement).toBe(versions()[1]);
+    fireEvent.keyDown(versions()[1], { key: 'ArrowDown' });
+    expect(versions()[1].getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('opens State after a version, and back to that version', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+    );
+    fireEvent.click(
+      top().querySelector<HTMLElement>(
+        `tr[data-id="${entityId('Post', '1')}"]`,
+      )!,
+    );
+    fireEvent.click(within(top()).getByRole('button', { name: 'History' }));
+    const first = () => top().querySelector<HTMLElement>('[data-version]')!;
+    fireEvent.click(first());
+    fireEvent.click(
+      within(top()).getByRole('button', { name: 'View State after this' }),
+    );
+    // State as the first version left it, on the record it came from
+    expect(screen.getByRole('button', { name: 'Live' })).toBeTruthy();
+    expect(current()).not.toBe('History');
+    expect(top().textContent).toContain('"One"');
+    // its history shows the versions up to then, the last one open
+    fireEvent.click(screen.getByRole('button', { name: 'Back to the action' }));
+    expect(current()).toBe('History');
+    expect(first().getAttribute('aria-expanded')).toBe('true');
+  });
+
+  it('opens the whole history from a record shown as an action left it', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+    );
+    fireEvent.click(actionsTab());
+    // the response's new rows open as it left them
+    fireEvent.click(
+      within(rows()[0]).getByRole('button', { name: '+ 2 Post' }),
+    );
+    fireEvent.click(
+      top().querySelector<HTMLElement>(
+        `tr[data-id="${entityId('Post', '1')}"]`,
+      )!,
+    );
+    expect(top().textContent).toContain('after this action');
+    fireEvent.click(within(top()).getByRole('button', { name: 'History' }));
+    const versions = [
+      ...top().querySelectorAll<HTMLElement>('[data-version]'),
+    ].map(v => v.getAttribute('aria-expanded'));
+    // every version, with the one that level showed open
+    expect(versions).toEqual(['true', 'false']);
+    expect(top().textContent).not.toContain('after this action');
   });
 
   it('steps through the actions of a row, and back from State', async () => {

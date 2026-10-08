@@ -25,7 +25,13 @@ import type ActionLog from './actionLog';
 import type { History, LogEntry } from './actionLog';
 import { onActivateKey } from './dom';
 import { splitKey } from './model';
-import { ActionSpanContext, useNav, type ActionSpan } from './nav';
+import {
+  ActionSpanContext,
+  useNav,
+  type ActionSpan,
+  type Moment,
+  type Then,
+} from './nav';
 import styles from './store.module.css';
 import { CountChip, EndpointKey, EntityKey, RefChip } from './Value';
 
@@ -40,6 +46,8 @@ export interface Actions {
   readonly showState: (seq: number, back?: () => void) => void;
   /** The action State is shown after, while it shows the past */
   readonly until?: number;
+  /** The store as an action left (or found) it, while the log has it */
+  readonly then: (at: Moment) => Then | undefined;
 }
 export const ActionsContext = createContext<Actions | null>(null);
 export const useActions = () => useContext(ActionsContext)!;
@@ -328,7 +336,7 @@ export function KeyLabel({ value }: { value: string }) {
   );
 }
 
-function Time({ at }: { at: number }) {
+export function Time({ at }: { at: number }) {
   const { since } = useLog();
   const s = (at - since) / 1000;
   return (

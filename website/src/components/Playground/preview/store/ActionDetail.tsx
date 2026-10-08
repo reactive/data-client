@@ -1,13 +1,10 @@
 import { actionTypes, type ActionTypes, type State } from '@data-client/react';
 import clsx from 'clsx';
-import React, { useContext, useMemo } from 'react';
+import React, { useMemo } from 'react';
 
 import { actionKey, groupEntriesOf, type Change } from './actionGroups';
 import { findEntry, type LogEntry } from './actionLog';
 import {
-  ActionsContext,
-  ActionStep,
-  type Actions,
   ChangeChip,
   KeyLabel,
   spanOf,
@@ -17,7 +14,7 @@ import {
 import type { Header } from './DiveViews';
 import { onActivateKey } from './dom';
 import { errorText } from './model';
-import { ActionSpanContext, type Nav, useNav } from './nav';
+import { ActionSpanContext } from './nav';
 import { plain } from './refs';
 import styles from './store.module.css';
 import { Field, Inline } from './Value';
@@ -196,7 +193,7 @@ function ChangeLine({
   );
 }
 
-function ChangeBody({
+export function ChangeBody({
   change,
   before,
   after,
@@ -280,105 +277,6 @@ function withoutFunctions(value: unknown) {
     Object.entries(value).filter(
       ([, v]) => typeof v !== 'function' && !(v instanceof Promise),
     ),
-  );
-}
-
-/** A record's last change, linking to the action that made it, and to all
- * its changes (the table view only: the tree view has no levels to open them
- * in) */
-export function ChangedBy({ id }: { id: string }) {
-  const actions = useContext(ActionsContext);
-  const nav = useNav();
-  return actions && nav ?
-      <LastChange id={id} actions={actions} nav={nav} />
-    : null;
-}
-
-function LastChange({
-  id,
-  actions,
-  nav,
-}: {
-  id: string;
-  actions: Actions;
-  nav: Nav;
-}) {
-  const changes = useMemo(() => rowHistory(actions, id), [actions, id]);
-  const last = changes.at(-1);
-  if (!last) return null;
-  const { seq } = last.entry;
-  return (
-    <div className={styles.field}>
-      <span className={styles.key}>
-        changed by<span className={styles.dim}>:</span>
-      </span>
-      <span className={styles.changedBy}>
-        <button
-          type="button"
-          className={clsx(styles.ref, styles.countRef)}
-          onClick={e => {
-            e.stopPropagation();
-            nav.push({ kind: 'action', seq });
-          }}
-        >
-          <ActionCrumb seq={seq} />
-        </button>
-        <button
-          type="button"
-          className={clsx(styles.ref, styles.countRef)}
-          onClick={e => {
-            e.stopPropagation();
-            nav.push({ kind: 'history', id });
-          }}
-        >
-          {changes.length} change{changes.length === 1 ? '' : 's'}
-        </button>
-      </span>
-    </div>
-  );
-}
-
-/** Each logged change to row `id`, oldest first, up to the action State is
- * shown after */
-export function rowHistory({ log, history, until }: Actions, id: string) {
-  const found: { entry: LogEntry; change: Change }[] = [];
-  for (const entry of history.entries) {
-    if (until !== undefined && entry.seq > until) break;
-    const change = log
-      .changes(entry)
-      .find(c => c.id === id && c.kind !== 'refreshed');
-    if (change) found.push({ entry, change });
-  }
-  return found;
-}
-
-/** How a record's value evolved: each change with the action that made it.
- * A change's chip opens the record as that action left it; its action opens
- * on this stack, as everything here does */
-export function RowHistory({ id, header }: { id: string; header: Header }) {
-  const actions = useActions();
-  const changes = useMemo(() => rowHistory(actions, id), [actions, id]);
-  return (
-    <>
-      {header(null)}
-      <div className={styles.record}>
-        {!changes.length && (
-          <div className={styles.detail}>
-            <span className={styles.dim}>No changes in the log</span>
-          </div>
-        )}
-        {changes.map(({ entry, change }) => (
-          <div key={entry.seq} className={styles.historyItem}>
-            <ActionStep entry={entry}>
-              <ActionName entry={entry} />
-            </ActionStep>
-            <div className={styles.historyChange}>
-              <EntryChanges entry={entry} changes={[change]} />
-            </div>
-          </div>
-        ))}
-      </div>
-    </>
   );
 }
 

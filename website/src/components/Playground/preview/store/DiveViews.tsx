@@ -26,6 +26,7 @@ import {
   type Column,
 } from './Table';
 import { Block } from './Value';
+import { HistoryButton } from './VersionHistory';
 
 type Scroller = React.RefObject<HTMLElement | null>;
 export type Header = (tools: React.ReactNode) => React.ReactNode;
@@ -329,12 +330,19 @@ export function RecordLevel({
         <Gone />
       </>
     );
+  const withHistory: Header = tools =>
+    header(
+      <>
+        {tools}
+        <HistoryButton id={id} />
+      </>,
+    );
   return (
     <>
       {members ?
-        <ListView view={members} scroller={scroller} header={header} />
+        <ListView view={members} scroller={scroller} header={withHistory} />
       : <>
-          {header(null)}
+          {withHistory(null)}
           <div className={styles.record}>
             <div className={styles.detail}>
               {isEndpointRow(row) ?

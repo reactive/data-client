@@ -10,12 +10,7 @@ import React, {
   useSyncExternalStore,
 } from 'react';
 
-import {
-  ActionCrumb,
-  ActionDetail,
-  ActionName,
-  RowHistory,
-} from './ActionDetail';
+import { ActionCrumb, ActionDetail, ActionName } from './ActionDetail';
 import { groupEntries, keepUnchanged, type ActionGroup } from './actionGroups';
 import { findEntry, type LogEntry } from './actionLog';
 import {
@@ -35,13 +30,14 @@ import {
   pendingIn,
   type StoreModel,
 } from './model';
-import { NavContext, type Moment, type Nav, type View } from './nav';
+import { NavContext, type Moment, type Nav, type Then, type View } from './nav';
 import RootView from './RootView';
 import type SchemaRegistry from './schemaRegistry';
 import styles from './store.module.css';
 import { StoreUIProvider } from './StoreUI';
 import TreeView from './TreeView';
 import { RowKey } from './Value';
+import { RowHistory } from './VersionHistory';
 import { useTabStorage } from '../../../../utils/tabStorage';
 
 interface Entry {
@@ -51,13 +47,6 @@ interface Entry {
   readonly at?: Moment;
 }
 
-/** The store at a `Moment` */
-interface Then {
-  readonly state: State<unknown>;
-  readonly model: StoreModel;
-  /** The last action it includes */
-  readonly until: number;
-}
 /** Breadcrumbs shown before the middle ones collapse to `…` */
 const CRUMBS = 4;
 
@@ -157,8 +146,8 @@ export default function StorePanel({
     setOrigin({ back: back ?? (() => setTab('actions')) });
   }, []);
   const actions = useMemo<Actions>(
-    () => ({ log, history, groups, showState }),
-    [log, history, groups, showState],
+    () => ({ log, history, groups, showState, then }),
+    [log, history, groups, showState, then],
   );
   const logContext = useMemo(
     () => ({ log, since: history.since, dropped: history.dropped }),
@@ -259,24 +248,13 @@ export default function StorePanel({
               <StateContext.Provider value={state}>
                 {tree ?
                   <TreeLevel model={model} />
-                : <Levels
-                    model={model}
-                    width={width}
-                    root={STATE_ROOT}
-                    then={then}
-                  />
-                }
+                : <Levels model={model} width={width} root={STATE_ROOT} />}
               </StateContext.Provider>
             </ActionsContext.Provider>
           </div>
           {actionsShown && (
             <div className={styles.tabPanel} hidden={tab !== 'actions'}>
-              <Levels
-                model={liveModel}
-                width={width}
-                root={ACTIONS_ROOT}
-                then={then}
-              />
+              <Levels model={liveModel} width={width} root={ACTIONS_ROOT} />
             </div>
           )}
         </div>
@@ -357,14 +335,13 @@ function Levels({
   model,
   width,
   root,
-  then,
 }: {
   model: StoreModel;
   width: number;
   /** The bottom level: State's overview, or the Actions list */
   root: View;
-  then: (at: Moment) => Then | undefined;
 }) {
+  const { then } = useActions();
   // the record a level was opened from flashes once that level is back on top
   const [{ stack, returnTo }, setLevels] = useState<{
     readonly stack: readonly Entry[];
@@ -406,7 +383,8 @@ function Levels({
         model: shown?.model ?? model,
         width,
         // what it opens shows the same store
-        push: (view: View, next = at) => push(view, next),
+        push: (view: View, next: Moment | null | undefined = at) =>
+          push(view, next ?? undefined),
       },
       then: shown,
     };
@@ -512,7 +490,21 @@ function Levels({
                   onStep={seq => replace(depth, { kind: 'action', seq })}
                 />
               : view.kind === 'history' ?
-                <RowHistory id={view.id} header={() => crumbs(depth)} />
+                <RowHistory
+                  id={view.id}
+                  focus={view.seq}
+                  header={tools => crumbs(depth, tools)}
+                  // in State, uncover State as it was then
+                  onShowState={
+                    root.kind === 'root' ?
+                      seq => {
+                        back(depth);
+                        // back to the version shown
+                        return () => push({ ...view, seq }, entry.at);
+                      }
+                    : undefined
+                  }
+                />
               : view.kind === 'list' ?
                 <ListView
                   view={view}
