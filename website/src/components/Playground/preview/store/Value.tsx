@@ -15,6 +15,7 @@ import {
   CIRCULAR,
   INVALIDATED,
   isRefList,
+  temporalType,
   type RefNode,
   type VNode,
 } from './refs';
@@ -358,8 +359,14 @@ export function Primitive({ value, name }: { value: unknown; name?: string }) {
     );
   if (value instanceof Date)
     return (
-      <span className={styles.number}>
-        {isNaN(value.getTime()) ? 'Invalid Date' : value.toISOString()}
+      <span className={styles.number} title={String(value)}>
+        {isNaN(value.getTime()) ? 'Invalid Date' : dateFormatter.format(value)}
+      </span>
+    );
+  if (typeof value === 'object' && temporalType(value))
+    return (
+      <span className={styles.number} title={String(value)}>
+        {formatTemporal(value)}
       </span>
     );
   if (typeof value === 'object')
@@ -373,6 +380,27 @@ const timeFormatter = Intl.DateTimeFormat('en-US', {
   second: 'numeric',
   fractionalSecondDigits: 3,
 });
+
+const dateFormatter = Intl.DateTimeFormat('en-US', {
+  dateStyle: 'medium',
+  timeStyle: 'medium',
+});
+
+/** An instant like a Date; other kinds (a plain date, a duration) as the
+ * locale writes them, or their ISO string where it can't */
+function formatTemporal(value: object) {
+  const { epochMilliseconds } = value as { epochMilliseconds?: unknown };
+  if (
+    temporalType(value) === 'Temporal.Instant' &&
+    typeof epochMilliseconds === 'number'
+  )
+    return dateFormatter.format(epochMilliseconds);
+  try {
+    return (value as Date).toLocaleString('en-US');
+  } catch {
+    return String(value);
+  }
+}
 
 export function formatTime(ms: number) {
   if (!isFinite(ms)) return String(ms);

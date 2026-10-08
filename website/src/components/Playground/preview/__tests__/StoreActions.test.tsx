@@ -155,7 +155,9 @@ describe('Store Actions tab', () => {
     // and back reopens the action
     fireEvent.click(screen.getByRole('button', { name: 'Back to the action' }));
     expect(top().textContent).toContain('View State after this');
-    expect(screen.queryByRole('button', { name: 'Back to the action' })).toBeNull();
+    expect(
+      screen.queryByRole('button', { name: 'Back to the action' }),
+    ).toBeNull();
   });
 
   it('steps through the actions of a row, and back from State', async () => {

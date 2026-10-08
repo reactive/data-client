@@ -2,6 +2,7 @@ import { actionTypes, type ActionTypes, type State } from '@data-client/react';
 
 import type { LogEntry } from './actionLog';
 import { endpointId, entityId } from './model';
+import { temporalType } from './refs';
 
 export type ChangeKind =
   | 'added'
@@ -161,6 +162,9 @@ function equal(a: unknown, b: unknown, depth = 0): boolean {
     return (
       a instanceof Date && b instanceof Date && a.getTime() === b.getTime()
     );
+  const temporal = temporalType(a);
+  if (temporal || temporalType(b))
+    return temporal === temporalType(b) && String(a) === String(b);
   if (Array.isArray(a) !== Array.isArray(b)) return false;
   // a Blob, Map or class instance keeps its data out of its fields
   if (!isPlain(a) || !isPlain(b)) return false;
