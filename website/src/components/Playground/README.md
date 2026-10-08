@@ -139,7 +139,9 @@ DesignSystem/       components injected into preview scope
   `registry.log.tail` goes last, so the log knows which actions reached the
   store and runs the store's reducer itself to keep the state right after each
   one (the store only commits in batches). Keep the tail last when adding
-  managers. The log survives error-recovery remounts; Reset clears it.
+  managers. Each fresh store (Reset, or an error's automatic retry) starts
+  the log over, and the old store's last actions are left out; when the retry
+  gives the old store back, its history comes back too (`LivePreview`).
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
   count in the preview header (written to the DOM, so counting adds no commits).
   `website/profiling-plugin.js` replaces `react-dom/client` with React's

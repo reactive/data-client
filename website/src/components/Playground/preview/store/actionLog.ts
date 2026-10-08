@@ -29,8 +29,8 @@ export interface LogEntry {
 type Reducer = (state: State<unknown>, action: ActionTypes) => State<unknown>;
 
 /** Every action dispatched in the preview, with the store state it left.
- * Lives as long as the live preview, so an error-recovery remount keeps the
- * log; `clear()` on Reset.
+ * Lives as long as the live preview; each fresh store starts it over
+ * (`newStore`).
  *
  * The store only commits in batches, so (like DevToolsManager) the log runs
  * the store's reducer itself to know the state right after each action. */
@@ -48,6 +48,13 @@ export default class ActionLog {
   private readonly recorded = new WeakMap<ActionTypes, LogEntry>();
   private readonly listeners = new Set<() => void>();
   private queued = false;
+  /** The store (its controller) whose actions are being recorded */
+  private store: object | undefined;
+  private readonly retired = new WeakSet<object>();
+  /** History of the store an automatic retry replaced */
+  private stash:
+    | { readonly entries: readonly LogEntry[]; readonly since: number }
+    | undefined;
 
   /** Last in the manager chain: applies what actually reaches the store */
   readonly tail: Manager<ActionTypes> = {
@@ -58,8 +65,11 @@ export default class ActionLog {
     cleanup() {},
   };
 
-  /** First in the manager chain: every dispatch, in order */
-  record(action: ActionTypes) {
+  /** First in the manager chain: every dispatch, in order. A replaced
+   * store's last actions (unsubscribes as it unmounts) are left out */
+  record(action: ActionTypes, store: object) {
+    if (this.retired.has(store)) return;
+    this.store = store;
     const at = Date.now();
     if (!this.entries.length) this.since = at;
     const entry: LogEntry = { seq: this.nextSeq++, action, at };
@@ -67,9 +77,24 @@ export default class ActionLog {
     this.update([...this.entries, entry].slice(-LOG_LIMIT));
   }
 
-  clear() {
-    this.since = 0;
-    this.update([]);
+  /** The preview is about to mount another store. Its history starts over
+   * with a fresh store; an automatic `retry` keeps the replaced history in
+   * case the store comes back (`restore`) */
+  newStore(how: 'reset' | 'retry' | 'restore') {
+    if (this.store) this.retired.add(this.store);
+    this.store = undefined;
+    const { stash } = this;
+    this.stash =
+      how === 'retry' ?
+        { entries: this.entries, since: this.since }
+      : undefined;
+    if (how === 'restore' && stash) {
+      this.since = stash.since;
+      this.update(stash.entries);
+    } else if (how !== 'restore') {
+      this.since = 0;
+      this.update([]);
+    }
   }
 
   /** State as components read it: pending optimistic updates applied */

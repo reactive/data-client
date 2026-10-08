@@ -213,7 +213,7 @@ describe('Store Actions tab', () => {
       within(row).getByRole('button', { name: /^\+ ?Post 3$/ }),
     ).toBeTruthy();
 
-    await act(async () => registry.log.clear());
+    await act(async () => registry.log.newStore('reset'));
     expect(rows()).toHaveLength(0);
     expect(screen.getByText(/Nothing dispatched yet/)).toBeTruthy();
   });
@@ -315,11 +315,10 @@ describe('ActionLog', () => {
     entities: { Post: { 1: { id: '1' }, 2: { id: '2' } } },
     endpoints: { a: '1' },
   };
+  const store = { getState: () => empty } as any;
   const run = (log: ActionLog, action: any) => {
-    log.record(action);
-    log.tail.middleware!({ getState: () => empty } as any)(() =>
-      Promise.resolve(),
-    )(action);
+    log.record(action, store);
+    log.tail.middleware!(store)(() => Promise.resolve())(action);
   };
 
   it('collects garbage without touching earlier states', () => {
@@ -335,10 +334,30 @@ describe('ActionLog', () => {
     expect(log.changes(gc).map(c => c.kind)).toEqual(['removed', 'removed']);
   });
 
+  it('starts over with each fresh store, and brings a restored one back', () => {
+    const log = new ActionLog();
+    const subscribe = { type: actionTypes.SUBSCRIBE } as any;
+    const first = {};
+    log.record(subscribe, first);
+    log.record(subscribe, first);
+    log.newStore('retry');
+    // the replaced store unmounting
+    log.record(subscribe, first);
+    expect(log.entries).toHaveLength(0);
+    log.record(subscribe, {});
+    expect(log.entries).toHaveLength(1);
+    log.newStore('restore');
+    expect(log.entries.map(e => e.seq)).toEqual([1, 2]);
+    log.newStore('reset');
+    expect(log.entries).toHaveLength(0);
+    log.newStore('restore');
+    expect(log.entries).toHaveLength(0);
+  });
+
   it('keeps only the newest actions', () => {
     const log = new ActionLog();
     for (let i = 0; i < 510; i++)
-      log.record({ type: actionTypes.SUBSCRIBE } as any);
+      log.record({ type: actionTypes.SUBSCRIBE } as any, store);
     expect(log.entries).toHaveLength(500);
     expect(log.entries[0].seq).toBe(11);
   });

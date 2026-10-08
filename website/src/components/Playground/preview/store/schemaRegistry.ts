@@ -34,8 +34,8 @@ export default class SchemaRegistry implements Manager<ActionTypes> {
   /** Its `tail` goes last in the manager chain */
   readonly log = new ActionLog();
 
-  middleware: Middleware<ActionTypes> = () => next => action => {
-    this.log.record(action);
+  middleware: Middleware<ActionTypes> = controller => next => action => {
+    this.log.record(action, controller);
     switch (action.type) {
       case actionTypes.FETCH:
       case actionTypes.SET_RESPONSE:
