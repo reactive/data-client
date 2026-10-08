@@ -2,9 +2,9 @@ import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
 import clsx from 'clsx';
 import React, { useCallback } from 'react';
 
+import { useTabStorage } from '../../../utils/tabStorage';
 import { useLayoutMotion } from '../../motion';
 import styles from '../styles.module.css';
-import { useTabStorage } from '../../../utils/tabStorage';
 
 // Kept apart from StoreInspector: ../index.tsx is statically in every page
 // chunk that embeds a Playground, while the Store UI loads with LivePreview
