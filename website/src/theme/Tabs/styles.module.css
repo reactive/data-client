@@ -6,7 +6,8 @@
   margin-top: 0 !important;
   position: relative;
 }
-/* the indicator below draws the active underline, so it can slide */
+/* the indicator below draws the active underline (Infima's 3px border), so
+it can slide */
 .tabItem:global(.tabs__item--active) {
   border-bottom-color: transparent;
 }
@@ -28,35 +29,29 @@
   animation-duration: var(--motion-smooth-duration);
   animation-timing-function: var(--motion-smooth-easing);
 }
-::view-transition-old(.next) {
-  animation: toStart var(--motion-smooth) both;
-}
-::view-transition-new(.next) {
-  animation: fromEnd var(--motion-smooth) both;
-}
+::view-transition-old(.next),
 ::view-transition-old(.prev) {
-  animation: toEnd var(--motion-smooth) both;
+  animation: slideOut var(--motion-smooth) both;
 }
+::view-transition-new(.next),
 ::view-transition-new(.prev) {
-  animation: fromStart var(--motion-smooth) both;
+  animation: slideIn var(--motion-smooth) both;
 }
-@keyframes toStart {
+::view-transition-old(.next),
+::view-transition-new(.prev) {
+  --offscreen: -100%;
+}
+::view-transition-old(.prev),
+::view-transition-new(.next) {
+  --offscreen: 100%;
+}
+@keyframes slideOut {
   to {
-    translate: -100% 0;
+    translate: var(--offscreen) 0;
   }
 }
-@keyframes fromEnd {
+@keyframes slideIn {
   from {
-    translate: 100% 0;
-  }
-}
-@keyframes toEnd {
-  to {
-    translate: 100% 0;
-  }
-}
-@keyframes fromStart {
-  from {
-    translate: -100% 0;
+    translate: var(--offscreen) 0;
   }
 }

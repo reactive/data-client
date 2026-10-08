@@ -1,7 +1,11 @@
 /**
- * Docusaurus's Tabs (theme-classic), with motion like native tabs: the
+ * Docusaurus's Tabs (theme-classic 3.10.2), with motion like native tabs: the
  * underline slides to the picked tab and the content slides in from its
  * side, as when swiping between tabs on Android.
+ *
+ * Changed from upstream: the indicator in `TabList`, the `<ViewTransition>`
+ * in `TabContent`, and `useAnimatedTabs`. It is a fork, not a wrapper,
+ * because upstream `Tabs` builds its own context value.
  *
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
@@ -25,7 +29,6 @@ import React, {
   startTransition,
   useEffect,
   useId,
-  useMemo,
   useState,
   ViewTransition,
   type ReactNode,
@@ -37,8 +40,9 @@ import styles from './styles.module.css';
 const NEXT = 'tab-next';
 const PREV = 'tab-prev';
 
-function TabList({ className, id }: { className?: string; id: string }) {
+function TabList({ className }: { className?: string }) {
   const { selectedValue, selectValue, tabValues, block } = useTabs();
+  const id = useId();
 
   const tabRefs: (HTMLLIElement | null)[] = [];
   const { blockElementScrollPositionUntilNextRender } =
@@ -148,11 +152,9 @@ function TabContent({ children }: { children: ReactNode }) {
 
 function TabsContainer({
   className,
-  id,
   children,
 }: {
   className?: string;
-  id: string;
   children: ReactNode;
 }): ReactNode {
   return (
@@ -169,7 +171,6 @@ function TabsContainer({
         // Surprising but historical
         // className is applied on TabList, not on TabsContainer
         className={className}
-        id={id}
       />
       <TabContent>{children}</TabContent>
     </div>
@@ -177,40 +178,40 @@ function TabsContainer({
 }
 
 /**
- * Picking a tab is a transition, so it animates. Docusaurus also stores the
- * pick (syncing the tab group), but storage updates are synchronous and
- * would land the pick at once, so that waits until the transition commits.
+ * Picking a tab is a transition, so it animates: `picked` shows it until
+ * Docusaurus's own selection catches up. Docusaurus also stores the pick
+ * (syncing the tab group), but storage updates are synchronous and would land
+ * the pick at once, so that waits for an effect, which React runs once the
+ * view transition is done.
  */
 function useAnimatedTabs(props: Props) {
   const synced = useTabsContextValue(props);
+  const { selectValue } = synced;
   const [picked, setPicked] = useState<string | null>(null);
   useEffect(() => {
     if (picked === null) return;
-    synced.selectValue(picked);
+    selectValue(picked);
     setPicked(null);
-  }, [picked, synced]);
-  return useMemo(() => {
-    const selectedValue = picked ?? synced.selectedValue;
-    const indexOf = (value: string) =>
-      synced.tabValues.findIndex(tab => tab.value === value);
-    return {
-      ...synced,
-      selectedValue,
-      selectValue: (value: string) =>
-        startTransition(() => {
-          addTransitionType(
-            indexOf(value) > indexOf(selectedValue) ? NEXT : PREV,
-          );
-          setPicked(value);
-        }),
-    };
-  }, [synced, picked]);
+  }, [picked, selectValue]);
+  const selectedValue = picked ?? synced.selectedValue;
+  const indexOf = (value: string) =>
+    synced.tabValues.findIndex(tab => tab.value === value);
+  return {
+    ...synced,
+    selectedValue,
+    selectValue: (value: string) =>
+      startTransition(() => {
+        addTransitionType(
+          indexOf(value) > indexOf(selectedValue) ? NEXT : PREV,
+        );
+        setPicked(value);
+      }),
+  };
 }
 
 export default function Tabs(props: Props): ReactNode {
   const isBrowser = useIsBrowser();
   const value = useAnimatedTabs(props);
-  const id = useId();
   return (
     <TabsProvider
       value={value}
@@ -218,7 +219,7 @@ export default function Tabs(props: Props): ReactNode {
       // Temporary fix for https://github.com/facebook/docusaurus/issues/5653
       key={String(isBrowser)}
     >
-      <TabsContainer className={props.className} id={id}>
+      <TabsContainer className={props.className}>
         {sanitizeTabsChildren(props.children)}
       </TabsContainer>
     </TabsProvider>

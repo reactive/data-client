@@ -85,9 +85,11 @@ instantly, in CSS and JS alike.
   oscillator in closed form from a perceptual `duration` and `bounce`.
   Knowing the exact position and velocity at any instant is what lets an
   interruption continue smoothly.
-- **Not React `<ViewTransition>`** (React 19.3): it animates snapshots, blocks
-  input while running, can't hand velocity to a reversal, and only runs for
-  transition updates (the Store's open state is a synchronous store).
+- **Not React `<ViewTransition>` for layout** (React 19.3): it animates
+  snapshots, blocks clicks while running, can't hand velocity to a reversal,
+  and only runs for transition updates (the Store's open state is a
+  synchronous store). It suits discrete switches that needn't be interrupted,
+  like docs tabs.
 - **Not Motion (framer-motion) `layout`**: it computes layout animations on
   the main thread every frame, and adds tens of KB.
 
