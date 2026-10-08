@@ -97,9 +97,8 @@ export function nearestChange(
   const changed = (e: LogEntry) => log.changes(e).length > 0;
   if (by < 0)
     return entries.findLast(e => (seq === null || e.seq < seq) && changed(e));
-  return seq === null ? undefined : (
-      entries.find(e => e.seq > seq && changed(e))
-    );
+  if (seq === null) return undefined;
+  return entries.find(e => e.seq > seq && changed(e));
 }
 
 /** Every action dispatched in the preview, with the store state it left, by

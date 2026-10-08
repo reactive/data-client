@@ -15,6 +15,7 @@ import {
   useActions,
   useFollow,
 } from './ActionsView';
+import { NARROW_WIDTH } from './columns';
 import styles from './store.module.css';
 
 /** Pixels per millisecond between two actions */
@@ -27,8 +28,6 @@ const MAX_GAP = 56;
 const PAD = 24;
 /** Closest two axis labels get (px) */
 const LABEL_GAP = 64;
-/** Panel width (px) below which lane labels shrink */
-const NARROW = 480;
 
 /** Where each action sits along the timeline */
 export interface TimeScale {
@@ -107,11 +106,17 @@ export default memo(function Timeline({
 
   const scroller = useRef<HTMLDivElement>(null);
   useFollow(scroller, scale.width, 'x');
+  // the picked action comes into view; back to live, so does the newest
+  // (whose scroll resumes following it)
   useLayoutEffect(() => {
-    if (selected === null) return;
-    scroller.current
-      ?.querySelector('[data-selected]')
-      ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+    const el = scroller.current;
+    if (!el) return;
+    if (selected === null) el.scrollLeft = el.scrollWidth;
+    else
+      el.querySelector('[data-selected]')?.scrollIntoView?.({
+        block: 'nearest',
+        inline: 'nearest',
+      });
   }, [selected]);
 
   if (!entries.length)
@@ -215,7 +220,7 @@ export default memo(function Timeline({
     <div
       ref={scroller}
       className={styles.timeline}
-      data-narrow={width < NARROW || undefined}
+      data-narrow={width < NARROW_WIDTH || undefined}
       tabIndex={0}
       role="group"
       aria-label="Timeline: arrow keys step through changes, End returns to live"

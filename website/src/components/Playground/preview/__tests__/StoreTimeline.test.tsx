@@ -139,6 +139,17 @@ describe('Store Actions timeline', () => {
     expect(panel.getByText(/^Live\./)).toBeTruthy();
     fireEvent.keyDown(timeline, { key: 'ArrowLeft' });
     expect(marks[1].hasAttribute('data-selected')).toBe(true);
+    // and so does the snapshot bar's ›
+    fireEvent.click(panel.getByRole('button', { name: 'Next change' }));
+    expect(panel.getByText(/^Live\./)).toBeTruthy();
+
+    // back to live, it scrolls to the newest again, from wherever a pick left it
+    Object.defineProperty(timeline, 'scrollWidth', { value: 900 });
+    fireEvent.click(marks[0]);
+    timeline.scrollLeft = 0;
+    fireEvent.keyDown(timeline, { key: 'Escape' });
+    expect(timeline.scrollLeft).toBe(900);
+    fireEvent.keyDown(timeline, { key: 'ArrowLeft' });
 
     // State shows the same moment
     fireEvent.click(screen.getByRole('tab', { name: 'State' }));

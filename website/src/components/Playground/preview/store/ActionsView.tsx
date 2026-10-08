@@ -100,6 +100,11 @@ export function ActionsRoot({
   );
 }
 
+const AXES = {
+  x: { size: 'scrollWidth', scroll: 'scrollLeft', client: 'clientWidth' },
+  y: { size: 'scrollHeight', scroll: 'scrollTop', client: 'clientHeight' },
+} as const;
+
 /** Keeps the newest row in view, unless the reader scrolled up (or, on
  * the `x` axis, back) */
 export function useFollow(
@@ -140,10 +145,6 @@ export function useFollow(
     if (el?.clientHeight && follow.current) el[scroll] = el[size];
   }, [scroller, rows, axis]);
 }
-const AXES = {
-  x: { size: 'scrollWidth', scroll: 'scrollLeft', client: 'clientWidth' },
-  y: { size: 'scrollHeight', scroll: 'scrollTop', client: 'clientHeight' },
-} as const;
 
 /** Renders only when its group changes (see `keepUnchanged`) */
 const GroupRow = memo(function GroupRow({

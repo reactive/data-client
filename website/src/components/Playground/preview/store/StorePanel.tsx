@@ -221,58 +221,20 @@ export default function StorePanel({
                 </span>
               )}
             </button>
-            {tab === 'actions' && (
-              <span
-                className={styles.viewButtons}
-                role="group"
-                aria-label="Actions view"
-              >
-                <button
-                  type="button"
-                  aria-label="List view"
-                  title="List view"
-                  aria-pressed={actionsView !== 'timeline'}
-                  onClick={() => setActionsView('list')}
-                >
-                  <ListIcon />
-                </button>
-                <button
-                  type="button"
-                  aria-label="Timeline view"
-                  title="Timeline view"
-                  aria-pressed={actionsView === 'timeline'}
-                  onClick={() => setActionsView('timeline')}
-                >
-                  <TimelineIcon />
-                </button>
-              </span>
-            )}
-            {tab === 'state' && (
-              <span
-                className={styles.viewButtons}
-                role="group"
-                aria-label="Store view"
-              >
-                <button
-                  type="button"
-                  aria-label="Table view"
-                  title="Table view"
-                  aria-pressed={!tree}
-                  onClick={() => setView('table')}
-                >
-                  <TableIcon />
-                </button>
-                <button
-                  type="button"
-                  aria-label="Tree view"
-                  title="Tree view"
-                  aria-pressed={tree}
-                  onClick={() => setView('tree')}
-                >
-                  <TreeIcon />
-                </button>
-              </span>
-            )}
+            {tab === 'actions' ?
+              <ViewToggle
+                label="Actions view"
+                options={ACTIONS_VIEWS}
+                value={actionsView === 'timeline' ? 'timeline' : 'list'}
+                onChange={setActionsView}
+              />
+            : <ViewToggle
+                label="Store view"
+                options={STATE_VIEWS}
+                value={tree ? 'tree' : 'table'}
+                onChange={setView}
+              />
+            }
           </div>
           {actionsShown && (
             <div
@@ -332,6 +294,49 @@ export default function StorePanel({
   );
 }
 
+/** Buttons that switch a tab between its views */
+function ViewToggle({
+  label,
+  options,
+  value,
+  onChange,
+}: {
+  label: string;
+  options: readonly ViewOption[];
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <span className={styles.viewButtons} role="group" aria-label={label}>
+      {options.map(({ value: option, label, Icon }) => (
+        <button
+          key={option}
+          type="button"
+          aria-label={label}
+          title={label}
+          aria-pressed={value === option}
+          onClick={() => onChange(option)}
+        >
+          <Icon />
+        </button>
+      ))}
+    </span>
+  );
+}
+interface ViewOption {
+  readonly value: string;
+  readonly label: string;
+  readonly Icon: () => React.ReactElement;
+}
+const STATE_VIEWS: readonly ViewOption[] = [
+  { value: 'table', label: 'Table view', Icon: TableIcon },
+  { value: 'tree', label: 'Tree view', Icon: TreeIcon },
+];
+const ACTIONS_VIEWS: readonly ViewOption[] = [
+  { value: 'list', label: 'List view', Icon: ListIcon },
+  { value: 'timeline', label: 'Timeline view', Icon: TimelineIcon },
+];
+
 const STATE_ROOT: View = { kind: 'root' };
 const ACTIONS_ROOT: View = { kind: 'actions' };
 
@@ -373,11 +378,12 @@ function SnapshotBar({
       >
         ‹
       </button>
+      {/* past the newest change is live */}
       <button
         type="button"
         aria-label="Next change"
-        disabled={!later}
-        onClick={() => later && onShow(later.seq)}
+        disabled={!entry}
+        onClick={() => onShow(later?.seq ?? null)}
       >
         ›
       </button>
