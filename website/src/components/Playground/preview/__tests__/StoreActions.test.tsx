@@ -152,6 +152,38 @@ describe('Store Actions tab', () => {
     expect(top().textContent).not.toContain('View State after this');
     expect(top().textContent).toContain('changed by');
     expect(screen.getByRole('button', { name: 'Live' })).toBeTruthy();
+    // and back reopens the action
+    fireEvent.click(screen.getByRole('button', { name: 'Back to the action' }));
+    expect(top().textContent).toContain('View State after this');
+    expect(screen.queryByRole('button', { name: 'Back to the action' })).toBeNull();
+  });
+
+  it('steps through the actions of a row, and back from State', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    fireEvent.click(actionsTab());
+    fireEvent.click(rows()[0]);
+    fireEvent.click(screen.getByText('fetch').closest('[role="button"]')!);
+    const crumbs = () =>
+      screen.getByRole('navigation', { name: 'Store location' }).parentElement!;
+    expect(crumbs().textContent).toContain('1 of 2');
+    expect(crumbs().textContent).toContain('fetch');
+    fireEvent.click(
+      within(crumbs()).getByRole('button', {
+        name: 'Next action in this row',
+      }),
+    );
+    expect(crumbs().textContent).toContain('2 of 2');
+    expect(crumbs().textContent).toContain('setResponse');
+    fireEvent.click(
+      screen.getByRole('button', { name: 'View State after this' }),
+    );
+    expect(
+      screen.getByRole('tab', { name: 'State' }).getAttribute('aria-selected'),
+    ).toBe('true');
+    fireEvent.click(screen.getByRole('button', { name: 'Back to the action' }));
+    expect(actionsTab().getAttribute('aria-selected')).toBe('true');
+    expect(crumbs().textContent).toContain('setResponse');
   });
 
   it('keeps a snapshot, and steps from it, once its action drops off', async () => {

@@ -2,7 +2,7 @@ import { actionTypes, type ActionTypes, type State } from '@data-client/react';
 import clsx from 'clsx';
 import React, { useContext, useMemo } from 'react';
 
-import { actionKey, type Change } from './actionGroups';
+import { actionKey, groupEntriesOf, type Change } from './actionGroups';
 import { findEntry, type LogEntry } from './actionLog';
 import {
   ActionsContext,
@@ -25,18 +25,29 @@ export function ActionDetail({
   seq,
   header,
   onShowState,
+  onStep,
 }: {
   seq: number;
   header: Header;
-  /** After switching State to just after this action */
-  onShowState?: () => void;
+  /** After switching State to just after this action; returns what reopens
+   * this action from there */
+  onShowState?: () => () => void;
+  /** Shows another action of the same row in its place */
+  onStep: (seq: number) => void;
 }) {
-  const { log, history, showState } = useActions();
+  const { log, history, groups, showState } = useActions();
   const entry = findEntry(history.entries, seq);
+  const row = useMemo(() => {
+    const group = groups.find(g => groupEntriesOf(g).some(e => e.seq === seq));
+    return group ? groupEntriesOf(group) : [];
+  }, [groups, seq]);
+  const step = row.length > 1 && (
+    <GroupStep row={row} seq={seq} onStep={onStep} />
+  );
   if (!entry)
     return (
       <>
-        {header(null)}
+        {header(step)}
         <div className={styles.record}>
           <span className={styles.dim}>No longer in the log</span>
         </div>
@@ -48,7 +59,7 @@ export function ActionDetail({
   const { store } = entry;
   return (
     <>
-      {header(null)}
+      {header(step)}
       <div className={styles.record}>
         <div className={clsx(styles.detail, styles.actDetail)}>
           {store ?
@@ -76,10 +87,7 @@ export function ActionDetail({
                 <button
                   type="button"
                   className={styles.showState}
-                  onClick={() => {
-                    showState(seq);
-                    onShowState?.();
-                  }}
+                  onClick={() => showState(seq, onShowState?.())}
                 >
                   View State after this
                 </button>
@@ -97,6 +105,42 @@ export function ActionDetail({
         </div>
       </div>
     </>
+  );
+}
+
+/** Steps through the actions of the row this one belongs to */
+function GroupStep({
+  row,
+  seq,
+  onStep,
+}: {
+  row: readonly LogEntry[];
+  seq: number;
+  onStep: (seq: number) => void;
+}) {
+  const i = row.findIndex(e => e.seq === seq);
+  const earlier = row[i - 1];
+  const later = row[i + 1];
+  return (
+    <span className={styles.pager}>
+      <button
+        type="button"
+        aria-label="Previous action in this row"
+        disabled={!earlier}
+        onClick={() => onStep(earlier.seq)}
+      >
+        ‹
+      </button>
+      {i + 1} of {row.length}
+      <button
+        type="button"
+        aria-label="Next action in this row"
+        disabled={!later}
+        onClick={() => onStep(later.seq)}
+      >
+        ›
+      </button>
+    </span>
   );
 }
 

@@ -85,8 +85,11 @@ export default function StorePanel({
     live: readonly LogEntry[];
     all: readonly LogEntry[];
   }>();
+  // where "View State after this" was pressed, to go back to
+  const [origin, setOrigin] = useState<{ readonly back: () => void }>();
   if (snapshotSeq === null) {
     if (kept) setKept(undefined);
+    if (origin) setOrigin(undefined);
   } else if (kept?.live !== entries) {
     setKept({ live: entries, all: withDropped(kept?.all, entries) });
   }
@@ -143,9 +146,10 @@ export default function StorePanel({
       )),
     [entries, history.storeFrom],
   );
-  const showState = useCallback((seq: number) => {
+  const showState = useCallback((seq: number, back?: () => void) => {
     setSnapshot(seq);
     setTab('state');
+    setOrigin({ back: back ?? (() => setTab('actions')) });
   }, []);
   const actions = useMemo<Actions>(
     () => ({ log, history, groups, showState }),
@@ -235,7 +239,17 @@ export default function StorePanel({
           <div className={styles.tabPanel} hidden={tab !== 'state'}>
             <ActionsContext.Provider value={stateActions}>
               {snapshot && (
-                <SnapshotBar entry={snapshot} onShow={setSnapshot} />
+                <SnapshotBar
+                  entry={snapshot}
+                  onShow={setSnapshot}
+                  onBack={
+                    origin &&
+                    (() => {
+                      setOrigin(undefined);
+                      origin.back();
+                    })
+                  }
+                />
               )}
               <StateContext.Provider value={state}>
                 {tree ?
@@ -273,9 +287,12 @@ const ACTIONS_ROOT: View = { kind: 'actions' };
 function SnapshotBar({
   entry,
   onShow,
+  onBack,
 }: {
   entry: LogEntry;
   onShow: (seq: number | null) => void;
+  /** Back to the action it was opened from */
+  onBack?: () => void;
 }) {
   const { log, history } = useActions();
   const { entries } = history;
@@ -288,6 +305,17 @@ function SnapshotBar({
   const earlier = changing.findLast(e => e.seq < entry.seq);
   return (
     <div className={styles.snapshot}>
+      {onBack && (
+        <button
+          type="button"
+          className={styles.snapshotBack}
+          aria-label="Back to the action"
+          title="Back to the action"
+          onClick={onBack}
+        >
+          ↩ Back
+        </button>
+      )}
       <button
         type="button"
         aria-label="Previous change"
@@ -343,6 +371,13 @@ function Levels({
     setLevels(prev => ({
       ...prev,
       stack: [...prev.stack, { key, view, at }],
+    }));
+  }, []);
+  /** Shows `view` in level `depth`'s place, keeping its store */
+  const replace = useCallback((depth: number, view: View) => {
+    setLevels(prev => ({
+      ...prev,
+      stack: prev.stack.map((e, i) => (i === depth ? { ...e, view } : e)),
     }));
   }, []);
   // each level's nav; one showing an action's store keeps its own as the
@@ -445,6 +480,7 @@ function Levels({
         return (
           <Level
             key={key}
+            view={view}
             nav={level.nav}
             then={level.then}
             depth={depth}
@@ -458,11 +494,17 @@ function Levels({
               : view.kind === 'action' ?
                 <ActionDetail
                   seq={view.seq}
-                  header={() => crumbs(depth)}
+                  header={tools => crumbs(depth, tools)}
                   // in State, uncover State as it was then
                   onShowState={
-                    root.kind === 'root' ? () => back(depth) : undefined
+                    root.kind === 'root' ?
+                      () => {
+                        back(depth);
+                        return () => push(view, entry.at);
+                      }
+                    : undefined
                   }
+                  onStep={seq => replace(depth, { kind: 'action', seq })}
                 />
               : view.kind === 'list' ?
                 <ListView
@@ -486,6 +528,7 @@ function Levels({
 /** One scrolling level; slides in when pushed, and back in from the other
  * side when what covered it closes */
 function Level({
+  view,
   nav,
   then,
   depth,
@@ -494,6 +537,7 @@ function Level({
   returnTo,
   children,
 }: {
+  view: View;
   nav: Nav;
   /** The store this level shows, when not the one `StateContext` holds */
   then?: Then;
@@ -516,8 +560,8 @@ function Level({
     () => (
       <NavContext.Provider value={current}>{children(ref)}</NavContext.Provider>
     ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `children` is new each render; what it shows only changes with `current`
-    [current],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `children` is new each render; what it shows only changes with `current` and `view`
+    [current, view],
   );
   const actions = useActions();
   const thenActions = useMemo(

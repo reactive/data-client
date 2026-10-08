@@ -1083,6 +1083,9 @@ div.joined {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.snapshot .snapshotBack {
+  font-family: var(--ifm-font-family-base);
+}
 .snapshot .liveButton {
   border-color: rgba(127, 209, 160, 0.45);
   color: var(--store-fresh);
