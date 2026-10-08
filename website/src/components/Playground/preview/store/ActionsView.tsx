@@ -122,7 +122,7 @@ export function useFollow(
     // a hidden tab has no height; its scroll position says nothing
     let hidden = !el.clientHeight;
     const onScroll = () => {
-      if (hidden) return;
+      if (hidden || paused) return;
       follow.current = el[size] - el[scroll] - el[client] < FOLLOW_SLACK;
     };
     el.addEventListener('scroll', onScroll, { passive: true });
@@ -140,10 +140,12 @@ export function useFollow(
       el.removeEventListener('scroll', onScroll);
       observer?.disconnect();
     };
-  }, [scroller, axis]);
+  }, [scroller, axis, paused]);
   useLayoutEffect(() => {
     const el = scroller.current;
     const { size, scroll } = AXES[axis];
+    // off, not just skipped, so showing a hidden tab doesn't catch up either;
+    // scrolling while paused leaves it off
     if (paused) follow.current = false;
     else if (el?.clientHeight && follow.current) el[scroll] = el[size];
   }, [scroller, rows, axis, paused]);
