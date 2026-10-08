@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791414533870,
+  "lastUpdate": 1791429631028,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark Spread": [
@@ -217,6 +217,37 @@ window.BENCHMARK_DATA = {
             "range": "±0.94%",
             "unit": "ops/sec",
             "extra": "85 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "6d35253a942df0c31e40dc6d9a07b0e5717318a7",
+          "message": "internal: Default GitHub Actions tokens to read-only (#4271)\n\n* internal: Default GitHub Actions tokens to read-only\n\nEvery workflow now sets top-level contents: read. Jobs that write\n(benchmark result pushes and reviews, bundle size comments, releases)\ndeclare their own permissions, so gates and reusable workflows no longer\ninherit write scopes.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01FkN6kekrEGTUVwjWuJSKiP\n\n* internal: Keep the write token out of benchmark PR code\n\nBenchmark jobs run PR code with a write-scoped token, so don't persist\nit in .git/config; github-action-benchmark passes its own token to git.\nDrop the rule sentence restating GitHub's reusable workflow behavior.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01FkN6kekrEGTUVwjWuJSKiP\n\n* internal: Keep the write token out of bundle size PR code\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01FkN6kekrEGTUVwjWuJSKiP\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-08T03:18:33Z",
+          "tree_id": "7c2916d93cd5675a6696e4016f8eecf1c15ecb9e",
+          "url": "https://github.com/reactive/data-client/commit/6d35253a942df0c31e40dc6d9a07b0e5717318a7"
+        },
+        "date": 1791429628075,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "setOneEntity in 10k entity store",
+            "value": 150,
+            "range": "±1.18%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
           }
         ]
       }
