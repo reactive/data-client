@@ -20,6 +20,9 @@ export interface LogEntry {
   /** A store's first action. A store restored from this history starts
    * without what the last one had in flight */
   readonly newStore?: true;
+  /** A response's: the seq due when NetworkManager let go of its request
+   * (after the store committed it). Reads before then were deduped into it */
+  readonly releasedAt?: number;
   /** The store's own state (pending optimistic updates not yet applied)
    * right before and after this action. Missing when a manager handled the
    * action without passing it on (a plain fetch, a subscribe) */
@@ -37,6 +40,9 @@ export interface History {
   readonly since: number;
   /** The store's own state after its latest action */
   readonly state?: State<unknown>;
+  /** Where its current store began, when that store started before
+   * dispatching anything */
+  readonly storeFrom?: number;
 }
 
 const EMPTY: History = { entries: [], since: 0 };
@@ -68,11 +74,13 @@ export default class ActionLog {
     /** Each action's entry, for the tail to find what the head recorded */
     const recorded = new WeakMap<ActionTypes, LogEntry>();
     let first = true;
+    const dropOthers = () => {
+      for (const old of this.histories.keys())
+        if (old !== id && old !== keep) this.histories.delete(old);
+    };
     const head: Manager<ActionTypes> = {
       middleware: () => next => action => {
-        if (first)
-          for (const old of this.histories.keys())
-            if (old !== id && old !== keep) this.histories.delete(old);
+        if (first) dropOthers();
         const entry: LogEntry = {
           seq: this.nextSeq++,
           action,
@@ -82,7 +90,24 @@ export default class ActionLog {
         first = false;
         recorded.set(action, entry);
         this.append(id, entry);
-        return next(action);
+        const result = next(action);
+        if (action.type === actionTypes.SET_RESPONSE) {
+          const release = () => this.release(id, entry.seq);
+          result.then(release, release);
+        }
+        return result;
+      },
+      // a store can start without dispatching (one restored after an error,
+      // with its pending updates cleared): it starts here instead
+      init: (state: State<unknown>) => {
+        if (!first) return;
+        dropOthers();
+        this.histories.set(id, {
+          ...this.history(id),
+          state,
+          storeFrom: this.nextSeq,
+        });
+        this.notify();
       },
       cleanup() {},
     };
@@ -175,6 +200,20 @@ export default class ActionLog {
       state: store.after,
     });
     this.notify();
+  }
+
+  /** Reads dispatched from here on start their own request */
+  private release(id: number, seq: number) {
+    const history = this.histories.get(id);
+    if (!history) return;
+    const releasedAt = this.nextSeq;
+    // shown with the next change: only reads before it are affected
+    this.histories.set(id, {
+      ...history,
+      entries: history.entries.map(e =>
+        e.seq === seq ? { ...e, releasedAt } : e,
+      ),
+    });
   }
 
   /** Listeners hear once per task, never during the render that

@@ -121,6 +121,11 @@ function changedFields(a: unknown, b: unknown): string[] {
 
 const isObject = (v: unknown): v is Record<string, unknown> =>
   !!v && typeof v === 'object';
+/** An array or plain object: its fields are all its data */
+const isPlain = (v: Record<string, unknown>) => {
+  const proto = Object.getPrototypeOf(v);
+  return proto === Object.prototype || proto === Array.prototype || !proto;
+};
 
 /** Same data, whatever the identity (a refetch stores equal copies) */
 function equal(a: unknown, b: unknown, depth = 0): boolean {
@@ -131,6 +136,8 @@ function equal(a: unknown, b: unknown, depth = 0): boolean {
       a instanceof Date && b instanceof Date && a.getTime() === b.getTime()
     );
   if (Array.isArray(a) !== Array.isArray(b)) return false;
+  // a Blob, Map or class instance keeps its data out of its fields
+  if (!isPlain(a) || !isPlain(b)) return false;
   const keys = Object.keys(a);
   if (keys.length !== Object.keys(b).length) return false;
   return keys.every(k => k in b && equal(a[k], b[k], depth + 1));
@@ -194,13 +201,24 @@ export interface SingleGroup {
 
 export type ActionGroup = RequestGroup | SubscriptionGroup | SingleGroup;
 
-/** Folds the log into rows: oldest first, each where its first action was */
-export function groupEntries(entries: readonly LogEntry[]): ActionGroup[] {
+/** Folds the log into rows: oldest first, each where its first action was.
+ * `storeFrom`: where a store that started without dispatching began (see
+ * `History`) */
+export function groupEntries(
+  entries: readonly LogEntry[],
+  storeFrom?: number,
+): ActionGroup[] {
   const groups: ActionGroup[] = [];
   /** By fetch time and key: two fetches can share both */
   const requests = new Map<string, RequestGroup[]>();
   /** By endpoint key: the request still waiting for its response */
   const pending = new Map<string, RequestGroup>();
+  /** By endpoint key: an answered request NetworkManager still holds (until
+   * the store commits its response), so reads join it */
+  const held = new Map<
+    string,
+    { readonly request: RequestGroup; readonly until: number }
+  >();
   const subscriptions = new Map<string, SubscriptionGroup>();
   const single = (entry: LogEntry) =>
     groups.push({
@@ -216,17 +234,25 @@ export function groupEntries(entries: readonly LogEntry[]): ActionGroup[] {
         if (!request.response) request.cancelled = true;
     requests.clear();
     pending.clear();
+    held.clear();
   };
+
+  /** A remounted store: the one before it dropped its subscriptions and
+   * requests without dispatching anything */
+  const newStore = () => {
+    for (const sub of subscriptions.values()) sub.open = 0;
+    subscriptions.clear();
+    cancelOpen();
+  };
+  let started = storeFrom === undefined;
 
   for (const entry of entries) {
     const { action } = entry;
-    if (entry.newStore) {
-      // a remounted store: the one before it dropped its subscriptions and
-      // requests without dispatching anything
-      for (const sub of subscriptions.values()) sub.open = 0;
-      subscriptions.clear();
-      cancelOpen();
+    if (!started && entry.seq >= storeFrom!) {
+      started = true;
+      newStore();
     }
+    if (entry.newStore) newStore();
     switch (action.type) {
       case actionTypes.SUBSCRIBE: {
         let sub = subscriptions.get(action.key);
@@ -259,7 +285,13 @@ export function groupEntries(entries: readonly LogEntry[]): ActionGroup[] {
       case actionTypes.FETCH: {
         const sideEffect = !!action.endpoint.sideEffect;
         // NetworkManager shares a read already in flight
-        const shared = !sideEffect && pending.get(action.key);
+        const answered = held.get(action.key);
+        const shared =
+          !sideEffect &&
+          (pending.get(action.key) ??
+            (answered && entry.seq < answered.until ?
+              answered.request
+            : undefined));
         if (shared) {
           shared.entries.push(entry);
           break;
@@ -292,7 +324,13 @@ export function groupEntries(entries: readonly LogEntry[]): ActionGroup[] {
         }
         request.entries.push(entry);
         request.response = entry;
-        if (pending.get(action.key) === request) pending.delete(action.key);
+        if (pending.get(action.key) === request) {
+          pending.delete(action.key);
+          held.set(action.key, {
+            request,
+            until: entry.releasedAt ?? Infinity,
+          });
+        }
         break;
       }
       case actionTypes.RESET:
@@ -304,6 +342,7 @@ export function groupEntries(entries: readonly LogEntry[]): ActionGroup[] {
         single(entry);
     }
   }
+  if (!started) newStore();
   return groups;
 }
 

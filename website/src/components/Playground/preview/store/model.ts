@@ -18,14 +18,32 @@ export interface PendingOptimistic {
   readonly key: string;
   readonly args: readonly unknown[];
   readonly fetchedAt: number;
+  /** Tells apart updates sharing a key and fetch time */
+  readonly serial: number;
 }
+
+/** Each queued update keeps its action object from state to state */
+const serials = new WeakMap<object, number>();
+let nextSerial = 0;
+const serialOf = (action: object) => {
+  let serial = serials.get(action);
+  if (serial === undefined) serials.set(action, (serial = nextSerial++));
+  return serial;
+};
 
 /** The optimistic updates still waiting in the store's own state (the state
  * components read has them applied, and so emptied) */
 export const pendingIn = (queue: State<unknown>['optimistic'] = []) =>
   queue.flatMap<PendingOptimistic>(o =>
     o.type === actionTypes.OPTIMISTIC ?
-      [{ key: o.key, args: o.args, fetchedAt: o.meta.fetchedAt }]
+      [
+        {
+          key: o.key,
+          args: o.args,
+          fetchedAt: o.meta.fetchedAt,
+          serial: serialOf(o),
+        },
+      ]
     : [],
   );
 
@@ -41,7 +59,7 @@ export const endpointId = (key: string) => nodeId('e', key);
 export const entityId = (key: string, pk: string) => nodeId('n', key, pk);
 /** Stable while other optimistic updates settle around it */
 export const optimisticId = (o: PendingOptimistic) =>
-  nodeId('o', o.key, `${o.fetchedAt}`);
+  nodeId('o', o.key, `${o.fetchedAt}`, `${o.serial}`);
 
 export type RowId =
   | { readonly kind: 'endpoint'; readonly key: string }

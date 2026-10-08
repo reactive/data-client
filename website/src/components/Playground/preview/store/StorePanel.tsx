@@ -126,9 +126,9 @@ export default function StorePanel({
     () =>
       (lastGroups.current = keepUnchanged(
         lastGroups.current,
-        groupEntries(entries),
+        groupEntries(entries, history.storeFrom),
       )),
-    [entries],
+    [entries, history.storeFrom],
   );
   const showState = useCallback((seq: number) => {
     setSnapshot(seq);

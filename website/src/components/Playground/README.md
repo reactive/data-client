@@ -146,7 +146,8 @@ DesignSystem/       components injected into preview scope
   the state right after each one (the store only commits in batches). Keep the
   tail last when adding managers. `usePreviewReset` owns the `history` id: each
   fresh store (Reset, or an error's automatic retry) starts a new one, and a
-  store the retry gives back continues its own. The Store panel shows that
+  store the retry gives back continues its own (from its `init`, if it mounts
+  without dispatching). The Store panel shows that
   history only. What an action's chips open shows the store as that action
   left it (a removed row: as it was just before); a level pushed with a
   `Moment` gets that store's model and `StateContext`, and what it opens

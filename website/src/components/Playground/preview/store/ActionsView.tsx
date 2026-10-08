@@ -19,6 +19,7 @@ import {
   type ActionGroup,
   type Change,
   type RequestGroup,
+  type SubscriptionGroup,
 } from './actionGroups';
 import type ActionLog from './actionLog';
 import type { History, LogEntry } from './actionLog';
@@ -172,7 +173,11 @@ const GroupRow = memo(function GroupRow({
         <span className={styles.actSum}>
           <Lifecycle group={group} />
           <ActionSpanContext.Provider value={spanOf(all)}>
-            <ChangeChips changes={changes} own={group.key} />
+            <ChangeChips
+              changes={changes}
+              own={group.key}
+              ownError={statusFailed(group)}
+            />
           </ActionSpanContext.Provider>
         </span>
       </div>
@@ -304,12 +309,31 @@ function Time({ at }: { at: number }) {
   );
 }
 
+/** What SubscriptionManager polls at: the fastest of the subscribers still
+ * active (or, once all left, the last ones) */
+function pollFrequency(group: SubscriptionGroup): number | undefined {
+  let active: number[] = [];
+  let last: number[] = [];
+  for (const { action } of group.entries) {
+    const frequency = (action as any).endpoint?.pollFrequency;
+    if (typeof frequency !== 'number') continue;
+    if (action.type === actionTypes.SUBSCRIBE) active.push(frequency);
+    else {
+      const i = active.indexOf(frequency);
+      if (i >= 0) active.splice(i, 1);
+    }
+    if (active.length) last = [...active];
+  }
+  if (!active.length) active = last;
+  return active.length ? Math.min(...active) : undefined;
+}
+
 const fetches = (group: RequestGroup) =>
   group.entries.filter(e => e.action.type === actionTypes.FETCH);
 
 function Tag({ group }: { group: ActionGroup }) {
   if (group.kind === 'subscription') {
-    const frequency = (group.entries[0].action as any).endpoint?.pollFrequency;
+    const frequency = pollFrequency(group);
     return (
       <span className={styles.dim}>
         {frequency ? `polls ${frequency / 1000}s` : 'subscribed'}
@@ -327,6 +351,13 @@ function Tag({ group }: { group: ActionGroup }) {
       </span>
     : null;
 }
+
+/** Whether `Status` reports the request failed */
+const statusFailed = (group: ActionGroup) =>
+  group.kind === 'request' &&
+  !group.cancelled &&
+  !!group.response &&
+  failed(group.response);
 
 function Status({ group }: { group: ActionGroup }) {
   if (group.kind === 'subscription') {
@@ -420,10 +451,13 @@ const MARK: Partial<Record<Change['kind'], [string, string]>> = {
 export function ChangeChips({
   changes,
   own,
+  ownError = false,
 }: {
   changes: readonly Change[];
   /** The row's own endpoint, whose status shows elsewhere */
   own?: string;
+  /** Whether that status says the endpoint failed */
+  ownError?: boolean;
 }) {
   const shown = changes.filter(
     c =>
@@ -431,7 +465,9 @@ export function ChangeChips({
       !(
         'endpoint' in c &&
         c.endpoint === own &&
-        (c.kind === 'added' || c.kind === 'updated' || c.kind === 'error')
+        (c.kind === 'added' ||
+          c.kind === 'updated' ||
+          (c.kind === 'error' && ownError))
       ),
   );
   if (!shown.length)

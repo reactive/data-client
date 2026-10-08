@@ -349,8 +349,32 @@ describe('groupEntries', () => {
     seq,
     action,
     at: seq,
+    // NetworkManager lets go of a request once its response commits
+    ...(action.type === actionTypes.SET_RESPONSE && { releasedAt: seq + 1 }),
   });
   const poll = { key: 'GET /price', endpoint: { pollFrequency: 5000 } };
+
+  it('joins a read to the request NetworkManager still holds', () => {
+    const read = { key: 'GET /a', endpoint: {} };
+    const groups = groupEntries([
+      entry(1, { type: actionTypes.FETCH, ...read, meta: { fetchedAt: 1 } }),
+      {
+        ...entry(2, {
+          type: actionTypes.SET_RESPONSE,
+          ...read,
+          meta: { fetchedAt: 1 },
+        }),
+        releasedAt: 4,
+      },
+      // an effect reacting to the response, before the request is let go
+      entry(3, { type: actionTypes.FETCH, ...read, meta: { fetchedAt: 3 } }),
+      entry(4, { type: actionTypes.FETCH, ...read, meta: { fetchedAt: 4 } }),
+    ]);
+    expect(groups.map(g => g.entries.map(e => e.seq))).toEqual([
+      [1, 2, 3],
+      [4],
+    ]);
+  });
 
   it('puts a subscription’s fetches under it until the last unsubscribe', () => {
     const groups = groupEntries([
@@ -572,6 +596,26 @@ describe('ActionLog', () => {
     expect(log.history(0).entries).toHaveLength(0);
   });
 
+  it('starts a restored store that dispatches nothing', () => {
+    const log = new ActionLog();
+    connect(
+      log,
+      0,
+    )({
+      type: actionTypes.FETCH,
+      key: 'k',
+      endpoint: {},
+      meta: { fetchedAt: 1 },
+    });
+    // error recovery gives the store back, its pending updates cleared
+    const restored = { ...initialState, optimistic: [] };
+    log.connect(0).head.init!(restored);
+    const history = log.history(0);
+    expect(history.state).toBe(restored);
+    const [request] = groupEntries(history.entries, history.storeFrom);
+    expect(request).toMatchObject({ kind: 'request', cancelled: true });
+  });
+
   it('follows each store’s own state', () => {
     const log = new ActionLog();
     const set = () => ({
@@ -649,5 +693,17 @@ describe('diffStates', () => {
     expect(kinds({}, { expiresAt: 1 })).toEqual(['expired']);
     expect(kinds({ error: new Error('x') }, { date: 2 })).toEqual(['updated']);
     expect(kinds({ invalidated: true }, { date: 2 })).toEqual(['updated']);
+  });
+
+  it('counts a refetched Blob or Map as a change', () => {
+    const stored = (value: unknown, date: number): State<unknown> => ({
+      ...state({ date }),
+      endpoints: { a: value },
+    });
+    const refetch = (a: unknown, b: unknown) =>
+      diffStates(stored(a, 1), stored(b, 2)).map(c => c.kind);
+    // their contents aren't in their fields, so equal fields say nothing
+    expect(refetch(new Map([[1, 1]]), new Map([[1, 2]]))).toEqual(['updated']);
+    expect(refetch({ a: [1] }, { a: [1] })).toEqual(['refreshed']);
   });
 });
