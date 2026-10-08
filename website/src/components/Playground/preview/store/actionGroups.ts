@@ -209,8 +209,8 @@ export function mergeChanges(actions: readonly ActionChanges[]): Change[] {
         );
       if (row.kind === 'removed') seen.removedBy = seq;
       if (row.kind === 'refreshed') seen.refreshed = true;
-      else if (row.kind === 'updated' && 'fields' in row && row.fields)
-        for (const field of row.fields) seen.fields?.add(field);
+      else if (row.kind === 'updated')
+        for (const field of fieldsOf(row)) seen.fields?.add(field);
       else seen.fields = undefined;
     }
   const merged: Change[] = [];
@@ -219,9 +219,7 @@ export function mergeChanges(actions: readonly ActionChanges[]): Change[] {
     if (!change) continue;
     if (change.kind === 'removed') merged.push({ ...change, removedBy });
     else if (fields && change.kind === 'updated') {
-      const own = (('fields' in change && change.fields) || []).filter(f =>
-        fields.has(f),
-      );
+      const own = fieldsOf(change).filter(f => fields.has(f));
       if (own.length) merged.push({ ...change, fields: own });
       else if (refreshed)
         merged.push({ ...change, kind: 'refreshed', fields: undefined });
@@ -229,6 +227,9 @@ export function mergeChanges(actions: readonly ActionChanges[]): Change[] {
   }
   return merged;
 }
+
+const fieldsOf = (change: Change) =>
+  ('fields' in change && change.fields) || [];
 
 /** A fetch with everything that belongs to it: its optimistic update,
  * fetches that joined it while in flight, and its response */

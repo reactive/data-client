@@ -113,7 +113,7 @@ export default class ActionLog {
     trimEvery = TRIM_EVERY,
     recordFrom = 'load',
   }: LogOptions = {}) {
-    this.updateLimit = Math.max(1, updateLimit);
+    this.updateLimit = updateLimit;
     this.trimEvery = trimEvery;
     this.recording = recordFrom === 'load';
   }
@@ -371,7 +371,8 @@ function capUpdates(
   const countOf = (update: readonly LogEntry[]) =>
     dropped.get(update[0].seq) ?? 0;
   for (const row of updates) {
-    const cut = row.length - limit;
+    // the oldest kept carries the count, so one always stays
+    const cut = row.length - Math.max(1, limit);
     if (cut <= 0) continue;
     let n = 0;
     for (const update of row.slice(0, cut)) {
