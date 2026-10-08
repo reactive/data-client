@@ -9,10 +9,11 @@ import {
   PollingSubscription,
   SubscriptionManager,
   useController,
+  useSuspense,
   type State,
 } from '@data-client/react';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
-import React from 'react';
+import React, { Suspense } from 'react';
 
 import { diffStates, groupEntries, keepUnchanged } from '../store/actionGroups';
 import ActionLog, { type LogEntry } from '../store/actionLog';
@@ -60,7 +61,8 @@ const updatePost = new Endpoint(
   },
 );
 
-function mount() {
+/** `preview` renders beside the panel, as the live preview does */
+function mount(preview?: React.ReactNode) {
   const registry = new SchemaRegistry();
   const log = registry.log.connect(0);
   const managers = [
@@ -78,12 +80,14 @@ function mount() {
   const ui = (history: number) => (
     <DataProvider managers={managers} devButton={null}>
       <Grab />
+      {preview}
       <StorePanel registry={registry} history={history} />
     </DataProvider>
   );
   const { rerender } = render(ui(0));
   return {
     ctrl: () => ref.ctrl!,
+    history: () => registry.log.history(0),
     /** Shows another store's history */
     show: (history: number) => rerender(ui(history)),
   };
@@ -218,6 +222,50 @@ describe('Store Actions tab', () => {
     expect(
       within(row).getByRole('button', { name: /^\+ ?Post 3$/ }),
     ).toBeTruthy();
+  });
+
+  it('lets a suspended component wait without fetching again', async () => {
+    let respond = () => {};
+    const getSlow = new Endpoint(
+      () =>
+        new Promise<void>(resolve => {
+          respond = resolve;
+        }).then(() => [{ id: '1', title: 'One' }]),
+      { schema: [Post], key: () => 'GET https://example.com/slow' },
+    );
+    function Reader() {
+      return <>{useSuspense(getSlow).length} posts</>;
+    }
+    let read = () => {};
+    function Later() {
+      const [reading, setReading] = React.useState(false);
+      read = () => setReading(true);
+      return reading ?
+          <Suspense fallback="loading">
+            <Reader />
+          </Suspense>
+        : null;
+    }
+    const fetches = () =>
+      history().entries.filter(e => e.action.type === actionTypes.FETCH);
+    const { history } = mount(<Later />);
+    fireEvent.click(actionsTab());
+    // React schedules on its own, as it does in the browser
+    const env = globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean };
+    const actEnvironment = env.IS_REACT_ACT_ENVIRONMENT;
+    env.IS_REACT_ACT_ENVIRONMENT = false;
+    try {
+      read();
+      await new Promise(resolve => setTimeout(resolve, 100));
+      // React retries a suspended component once or twice on its own; were
+      // the panel to render on each fetch, every render would fetch again
+      expect(fetches().length).toBeLessThanOrEqual(3);
+      respond();
+      await screen.findByText('1 posts');
+    } finally {
+      env.IS_REACT_ACT_ENVIRONMENT = actEnvironment;
+    }
+    expect(actionsTab().textContent).toBe('Actions1');
   });
 
   it('shows a response the store failed to process as an error', async () => {
@@ -523,6 +571,15 @@ describe('ActionLog', () => {
     dispatch(subscribe());
     await Promise.resolve();
     expect(heard).toHaveBeenCalledTimes(1);
+    // a mutation never comes from a render, so it shows while in flight
+    dispatch({
+      type: actionTypes.FETCH,
+      key: 'm',
+      endpoint: { sideEffect: true },
+      meta: {},
+    });
+    await Promise.resolve();
+    expect(heard).toHaveBeenCalledTimes(2);
   });
 
   it('keeps only the newest actions', () => {

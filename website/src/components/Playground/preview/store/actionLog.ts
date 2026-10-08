@@ -151,12 +151,14 @@ export default class ActionLog {
       entries: [...entries, entry].slice(-LOG_LIMIT),
       since: entries.length ? since : entry.at,
     });
-    // Components fetch while they render. If the panel heard about a fetch
-    // it would render too, which retries a suspended component, which
-    // fetches again. So a fetch shows with the store change that follows it
-    // (its response, or `settle` for an optimistic one), and data only flows
-    // from the preview to the panel
-    if (entry.action.type !== actionTypes.FETCH) this.notify();
+    // Components read while they render. If the panel heard about a read it
+    // would render too, which retries a suspended component, which reads
+    // again. So a read shows with the store change that follows it, and data
+    // only flows from the preview to the panel. Mutations never come from a
+    // render, so they show right away
+    const { action } = entry;
+    if (action.type !== actionTypes.FETCH || action.endpoint.sideEffect)
+      this.notify();
   }
 
   /** The store state an action left */
