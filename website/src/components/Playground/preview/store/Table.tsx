@@ -10,6 +10,7 @@ import {
   TIME_WIDTH,
 } from './columns';
 import { Status } from './Details';
+import { onActivateKey } from './dom';
 import {
   errorText,
   isInvalidated,
@@ -19,7 +20,6 @@ import {
   type EntityRow,
   type EntityTable,
 } from './model';
-import { onActivateKey } from './dom';
 import { cellDive } from './nav';
 import { INVALIDATED, type VNode } from './refs';
 import styles from './store.module.css';
