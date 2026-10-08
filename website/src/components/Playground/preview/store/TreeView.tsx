@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import React from 'react';
 
 import { EndpointDetail, EntityDetail, Status } from './Details';
+import { onActivateKey } from './dom';
 import {
   optimisticId,
   prettyPk,
@@ -100,13 +101,7 @@ function useRowProps(id: string, className?: string) {
         selected === id && styles.selected,
       ),
       onClick: () => toggle(id),
-      onKeyDown: (e: React.KeyboardEvent) => {
-        if (e.target !== e.currentTarget) return;
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          toggle(id);
-        }
-      },
+      onKeyDown: onActivateKey(() => toggle(id)),
     },
   };
 }

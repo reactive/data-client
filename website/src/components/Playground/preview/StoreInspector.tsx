@@ -11,12 +11,14 @@ function StoreInspector({
   toggle,
   open,
   registry,
+  history,
   row,
   host,
 }: {
   open: boolean;
-  toggle: React.MouseEventHandler<HTMLDivElement>;
+  toggle: React.MouseEventHandler<HTMLElement>;
   registry: SchemaRegistry;
+  history: number;
   /** Slides over the code (into `host`) instead of beside the result */
   row: boolean;
   host: HTMLElement | null;
@@ -29,7 +31,7 @@ function StoreInspector({
   const panel = (
     <Reveal show={open} className={styles.storePanel}>
       {showTree ?
-        <StorePanel registry={registry} />
+        <StorePanel registry={registry} history={history} />
       : null}
     </Reveal>
   );

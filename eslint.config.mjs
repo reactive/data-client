@@ -48,6 +48,27 @@ export default [
     },
   },
   {
+    // The Store UI belongs in the lazy PreviewWithScope chunk; a static import
+    // from outside preview/ copies it into every docs page that has a Playground
+    files: ['website/src/**/*.?(m|c)ts?(x)'],
+    ignores: ['website/src/components/Playground/preview/**'],
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/preview/StoreInspector', '**/preview/store/*'],
+              allowTypeImports: true,
+              message:
+                'Store UI must stay in the lazy preview chunk; import toggles from preview/StoreToggle.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ['**/__tests__/**/*.?(m|c)ts?(x)', '**/*.test?(.*).?(m|c)ts?(x)'],
     rules: {
       '@typescript-eslint/no-unused-expressions': 'off',
