@@ -180,6 +180,9 @@ export interface ActionChanges {
   readonly changes: readonly Change[];
 }
 
+const fieldsOf = (change: Change) =>
+  ('fields' in change && change.fields) || [];
+
 /** Several actions' changes as one: each row as it ended up compared to before
  * the first of them touched it, so a rolled back change cancels out. A row
  * they only updated or refreshed keeps just the fields they changed, so
@@ -209,7 +212,7 @@ export function mergeChanges(actions: readonly ActionChanges[]): Change[] {
         );
       if (row.kind === 'removed') seen.removedBy = seq;
       if (row.kind === 'refreshed') seen.refreshed = true;
-      else if (row.kind === 'updated')
+      else if (row.kind === 'updated' && 'fields' in row)
         for (const field of fieldsOf(row)) seen.fields?.add(field);
       else seen.fields = undefined;
     }
@@ -227,9 +230,6 @@ export function mergeChanges(actions: readonly ActionChanges[]): Change[] {
   }
   return merged;
 }
-
-const fieldsOf = (change: Change) =>
-  ('fields' in change && change.fields) || [];
 
 /** A fetch with everything that belongs to it: its optimistic update,
  * fetches that joined it while in flight, and its response */

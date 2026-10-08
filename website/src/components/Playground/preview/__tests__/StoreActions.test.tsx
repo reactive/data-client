@@ -1330,6 +1330,14 @@ describe('mergeChanges', () => {
       stored(2, 3),
     );
     expect(mergeChanges([poll, again])).toMatchObject([{ kind: 'refreshed' }]);
+    // and one it updated as updated
+    const [, , update] = steps(
+      stored(1, 1),
+      stored(1, 2),
+      stored(2, 2),
+      stored(3, 3),
+    );
+    expect(mergeChanges([poll, update])).toMatchObject([{ kind: 'updated' }]);
   });
 
   it('remembers which action removed a row', () => {
