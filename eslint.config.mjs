@@ -69,7 +69,7 @@ export default [
               ],
               allowTypeImports: true,
               message:
-                'Store UI must stay in the lazy preview chunk; import toggles from preview/StoreToggle.',
+                'Store UI must stay in the lazy preview chunk: use import() or `import type`, and take toggles from preview/StoreToggle.',
             },
           ],
         },
