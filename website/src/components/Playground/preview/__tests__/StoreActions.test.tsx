@@ -277,6 +277,22 @@ describe('Store Actions tab', () => {
     expect(versions()[1].getAttribute('aria-expanded')).toBe('true');
   });
 
+  it('says when the log no longer has a record’s earlier versions', async () => {
+    const { ctrl } = mount();
+    await act(async () => {
+      for (let i = 0; i < 25; i++)
+        await ctrl().set(Post, { id: '1' }, { id: '1', title: `t${i}` });
+    });
+    fireEvent.click(
+      top().querySelector<HTMLElement>(
+        `tr[data-id="${entityId('Post', '1')}"]`,
+      )!,
+    );
+    fireEvent.click(within(top()).getByRole('button', { name: 'History' }));
+    expect(top().textContent).toContain('4 earlier updates not kept');
+    expect(top().textContent).not.toContain('no longer in the log');
+  });
+
   it('opens State after a version, and back to that version', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
