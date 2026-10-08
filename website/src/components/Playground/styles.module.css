@@ -328,6 +328,8 @@ div.playgroundTextEdit > .playgroundHeader,
 .storeHost {
   /* slides up from the preview below; sideways once side by side */
   display: flex;
+  /* the code alone sets the cell's height, so the Store scrolls within it */
+  contain: size;
   flex-direction: column;
   position: relative;
   z-index: 1;
@@ -346,10 +348,15 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 .storeHost > .storePanel {
   flex: 1 1 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   pointer-events: auto;
 }
 /* fills the code's height instead of its usual cap */
 .storeHost > .storePanel > * {
+  flex: 1 1 auto;
+  min-height: 0;
   max-height: none;
 }
 
@@ -697,6 +704,9 @@ div.fixtureJson {
   .editorDocs[inert] {
     max-height: 0;
     overflow: hidden;
+  }
+  .storeHost {
+    contain: none;
   }
   .storeHost:has(> .storePanel[data-visible]) {
     min-height: 0;
