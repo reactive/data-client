@@ -83,6 +83,8 @@ DesignSystem/       components injected into preview scope
   `import type`, or an allowlisted eager file (`StoreToggle`,
   `PreviewWrapper`, `FixturePreview`, which render in SSR and loading states)
   may be imported, and those files may not statically import the rest.
+  `website/scripts/check-lazy-chunks.mjs` (run by the `website` CI job)
+  backs this up on the build: the Store UI must ship only in `PreviewWithScope`.
 - Docusaurus only shares modules used by half of all pages, so
   `website/chunks-plugin.js` splits site source used by 2+ pages (the eagerly
   loaded Playground modules among it) into shared chunks instead of a copy
