@@ -58,7 +58,12 @@ export default [
         {
           patterns: [
             {
-              group: ['**/preview/StoreInspector', '**/preview/store/*'],
+              group: [
+                '**/preview/LivePreview',
+                '**/preview/Preview',
+                '**/preview/StoreInspector',
+                '**/preview/store/**',
+              ],
               allowTypeImports: true,
               message:
                 'Store UI must stay in the lazy preview chunk; import toggles from preview/StoreToggle.',
