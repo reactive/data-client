@@ -106,7 +106,7 @@ const AXES = {
 } as const;
 
 /** Keeps the newest row in view, unless the reader scrolled up (or, on
- * the `x` axis, back) */
+ * the `x` axis, back). Returns what scrolls to the newest and follows again */
 export function useFollow(
   scroller: React.RefObject<HTMLElement | null>,
   rows: unknown,
@@ -144,6 +144,13 @@ export function useFollow(
     const { size, scroll } = AXES[axis];
     if (el?.clientHeight && follow.current) el[scroll] = el[size];
   }, [scroller, rows, axis]);
+  return useCallback(() => {
+    const el = scroller.current;
+    if (!el) return;
+    const { size, scroll } = AXES[axis];
+    follow.current = true;
+    el[scroll] = el[size];
+  }, [scroller, axis]);
 }
 
 /** Renders only when its group changes (see `keepUnchanged`) */

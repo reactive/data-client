@@ -105,33 +105,26 @@ export default memo(function Timeline({
   const at = selected === null ? undefined : scale.x.get(selected);
 
   const scroller = useRef<HTMLDivElement>(null);
-  useFollow(scroller, scale.width, 'x');
-  // the picked action comes into view; back to live, so does the newest
-  // (whose scroll resumes following it)
+  const toNewest = useFollow(scroller, scale.width, 'x');
+  // the picked action comes into view; back to live, the newest does, and
+  // the timeline follows it again
   useLayoutEffect(() => {
-    const el = scroller.current;
-    if (!el) return;
-    if (selected === null) el.scrollLeft = el.scrollWidth;
-    else
-      el.querySelector('[data-selected]')?.scrollIntoView?.({
-        block: 'nearest',
-        inline: 'nearest',
-      });
-  }, [selected]);
-
-  if (!entries.length)
-    return (
-      <p className={styles.empty}>
-        Nothing dispatched yet. Actions show on the timeline as the preview
-        runs.
-      </p>
-    );
+    if (selected === null) return toNewest();
+    scroller.current
+      ?.querySelector('[data-selected]')
+      ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+  }, [selected, toNewest]);
 
   // the arrow keys step as the snapshot bar's ‹ › do; past the newest is live
+  // live already, it still brings the newest back into view
+  const toLive = () => {
+    onSelect(null);
+    toNewest();
+  };
   const step = (by: -1 | 1) => {
     const next = nearestChange(log, entries, selected, by);
     if (next) onSelect(next.seq);
-    else if (by > 0) onSelect(null);
+    else if (by > 0) toLive();
   };
   const onKeyDown = (e: React.KeyboardEvent) => {
     switch (e.key) {
@@ -143,7 +136,7 @@ export default memo(function Timeline({
         break;
       case 'End':
       case 'Escape':
-        onSelect(null);
+        toLive();
         break;
       default:
         return;
@@ -226,8 +219,17 @@ export default memo(function Timeline({
       aria-label="Timeline: arrow keys step through changes, End returns to live"
       onKeyDown={onKeyDown}
     >
+      {/* the scroller stays mounted, so following starts with the first
+      action */}
+      {!entries.length && (
+        <p className={styles.empty}>
+          Nothing dispatched yet. Actions show on the timeline as the preview
+          runs.
+        </p>
+      )}
       <div
         className={styles.tlBody}
+        hidden={!entries.length}
         style={{ '--tl-width': `${scale.width}px` } as React.CSSProperties}
       >
         <div className={styles.tlAxis}>

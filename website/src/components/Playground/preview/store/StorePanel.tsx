@@ -156,6 +156,11 @@ export default function StorePanel({
       )),
     [entries, history.storeFrom],
   );
+  // a pick on the timeline has no action to go back to
+  const pick = useCallback((seq: number | null) => {
+    setSnapshot(seq);
+    setOrigin(undefined);
+  }, []);
   const showState = useCallback((seq: number, back?: () => void) => {
     setSnapshot(seq);
     setTab('state');
@@ -251,11 +256,7 @@ export default function StorePanel({
           )}
           <ActionsContext.Provider value={stateActions}>
             {scrubbing && (
-              <Timeline
-                selected={snapshotSeq}
-                onSelect={setSnapshot}
-                width={width}
-              />
+              <Timeline selected={snapshotSeq} onSelect={pick} width={width} />
             )}
             <div
               className={styles.tabPanel}
@@ -265,6 +266,7 @@ export default function StorePanel({
                 <SnapshotBar
                   entry={snapshot}
                   onShow={setSnapshot}
+                  stepsToLive={scrubbing}
                   onBack={
                     tab === 'state' && origin ?
                       () => {
@@ -294,6 +296,11 @@ export default function StorePanel({
   );
 }
 
+interface ViewOption {
+  readonly value: string;
+  readonly label: string;
+  readonly Icon: () => React.ReactElement;
+}
 /** Buttons that switch a tab between its views */
 function ViewToggle({
   label,
@@ -308,25 +315,20 @@ function ViewToggle({
 }) {
   return (
     <span className={styles.viewButtons} role="group" aria-label={label}>
-      {options.map(({ value: option, label, Icon }) => (
+      {options.map(option => (
         <button
-          key={option}
+          key={option.value}
           type="button"
-          aria-label={label}
-          title={label}
-          aria-pressed={value === option}
-          onClick={() => onChange(option)}
+          aria-label={option.label}
+          title={option.label}
+          aria-pressed={value === option.value}
+          onClick={() => onChange(option.value)}
         >
-          <Icon />
+          <option.Icon />
         </button>
       ))}
     </span>
   );
-}
-interface ViewOption {
-  readonly value: string;
-  readonly label: string;
-  readonly Icon: () => React.ReactElement;
 }
 const STATE_VIEWS: readonly ViewOption[] = [
   { value: 'table', label: 'Table view', Icon: TableIcon },
@@ -346,17 +348,24 @@ function SnapshotBar({
   entry,
   onShow,
   onBack,
+  stepsToLive,
 }: {
   /** The action State is shown after; missing while live */
   entry?: LogEntry;
   onShow: (seq: number | null) => void;
+  /** › past the newest change goes live, as the timeline's → does (the bar
+   * stays, as the timeline shows it live too) */
+  stepsToLive?: boolean;
   /** Back to the action it was opened from */
   onBack?: () => void;
 }) {
   const { log, history } = useActions();
   const seq = entry?.seq ?? null;
-  const later = nearestChange(log, history.entries, seq, 1);
-  const earlier = nearestChange(log, history.entries, seq, -1);
+  const [earlier, later] = useMemo(
+    () =>
+      [-1, 1].map(by => nearestChange(log, history.entries, seq, by as -1 | 1)),
+    [log, history.entries, seq],
+  );
   return (
     <div className={clsx(styles.snapshot, !entry && styles.tlLive)}>
       {onBack && (
@@ -378,11 +387,10 @@ function SnapshotBar({
       >
         ‹
       </button>
-      {/* past the newest change is live */}
       <button
         type="button"
         aria-label="Next change"
-        disabled={!entry}
+        disabled={!later && !(stepsToLive && entry)}
         onClick={() => onShow(later?.seq ?? null)}
       >
         ›

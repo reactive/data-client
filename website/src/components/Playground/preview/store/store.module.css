@@ -1236,8 +1236,8 @@ button.tlMark:hover {
   background: rgba(146, 154, 186, 0.1);
   box-shadow: inset 0 0 0 1px rgba(146, 154, 186, 0.22);
 }
-/* an idle stretch, cut short */
-/* below the axis, which stays on top as the lanes scroll */
+/* an idle stretch cut short, and the picked action; both below the axis,
+   which stays on top as the lanes scroll */
 .tlBreak,
 .tlPlayhead {
   position: absolute;

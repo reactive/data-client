@@ -103,6 +103,17 @@ describe('lanesOf', () => {
 });
 
 describe('Store Actions timeline', () => {
+  it('keeps its scroller from before the first action, so it follows from it', async () => {
+    const { ctrl } = mount();
+    fireEvent.click(screen.getByRole('tab', { name: /Actions/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline view' }));
+    const timeline = screen.getByRole('group', { name: /^Timeline/ });
+    expect(timeline.textContent).toContain('Nothing dispatched yet');
+    await act(() => ctrl().fetch(getPosts));
+    expect(screen.getByRole('group', { name: /^Timeline/ })).toBe(timeline);
+    expect(timeline.textContent).not.toContain('Nothing dispatched yet');
+  });
+
   it('shows State as it was after the action picked on the timeline', async () => {
     const { ctrl } = mount();
     title = 'One';
@@ -148,6 +159,10 @@ describe('Store Actions timeline', () => {
     fireEvent.click(marks[0]);
     timeline.scrollLeft = 0;
     fireEvent.keyDown(timeline, { key: 'Escape' });
+    expect(timeline.scrollLeft).toBe(900);
+    // live already, End still brings the newest back
+    timeline.scrollLeft = 0;
+    fireEvent.keyDown(timeline, { key: 'End' });
     expect(timeline.scrollLeft).toBe(900);
     fireEvent.keyDown(timeline, { key: 'ArrowLeft' });
 
