@@ -161,8 +161,8 @@ export default function StorePanel({
     [log, history, groups, showState],
   );
   const logContext = useMemo(
-    () => ({ log, since: history.since }),
-    [log, history.since],
+    () => ({ log, since: history.since, dropped: history.dropped }),
+    [log, history.since, history.dropped],
   );
   // only State shows the past; the Actions tab's records are live
   const stateActions = useMemo<Actions>(

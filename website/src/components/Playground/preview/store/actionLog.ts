@@ -48,9 +48,6 @@ export interface LogEntry {
   /** A fetch's: whether NetworkManager shared it with the request it already
    * had for its key, instead of fetching. Missing when the log can't tell */
   readonly deduped?: boolean;
-  /** Earlier updates of its row that `updateLimit` dropped (see
-   * `capUpdates`) */
-  readonly dropped?: number;
   /** The store's own state (pending optimistic updates not yet applied)
    * right before and after this action. Missing when a manager handled the
    * action without passing it on (a plain fetch, a subscribe) */
@@ -73,6 +70,9 @@ export interface History {
   readonly storeFrom?: number;
   /** How many entries it had right after its last trim */
   readonly trimmed?: number;
+  /** By an entry's seq: how many earlier updates of its row `updateLimit`
+   * dropped (see `capUpdates`) */
+  readonly dropped?: ReadonlyMap<number, number>;
 }
 
 const EMPTY: History = { entries: [], since: 0 };
@@ -262,12 +262,11 @@ export default class ActionLog {
     const { entries, since, trimmed = 0 } = history ?? EMPTY;
     const appended = [...entries, entry];
     const due = appended.length - trimmed >= this.trimEvery;
-    const kept = due ? trim(capUpdates(appended, this.updateLimit)) : appended;
     this.histories.set(id, {
       ...history,
-      entries: kept,
+      entries: appended,
       since: entries.length ? since : entry.at,
-      ...(due && { trimmed: kept.length }),
+      ...(due && this.compact(appended, history?.dropped)),
     });
     // Components read while they render. If the panel heard about a read it
     // would render too, which retries a suspended component, which reads
@@ -277,6 +276,26 @@ export default class ActionLog {
     const { action } = entry;
     if (action.type !== actionTypes.FETCH || action.endpoint.sideEffect)
       this.notify();
+  }
+
+  /** `entries` within `updateLimit` and `LOG_LIMIT` */
+  private compact(
+    entries: readonly LogEntry[],
+    dropped: ReadonlyMap<number, number> = new Map(),
+  ): Pick<History, 'entries' | 'trimmed' | 'dropped'> {
+    const capped = capUpdates(entries, this.updateLimit, dropped);
+    const kept = trim(capped.entries);
+    return {
+      entries: kept,
+      trimmed: kept.length,
+      // the counts of the entries still kept
+      dropped: new Map(
+        kept.flatMap(e => {
+          const n = capped.dropped.get(e.seq);
+          return n ? [[e.seq, n]] : [];
+        }),
+      ),
+    };
   }
 
   /** The store state an action left */
@@ -289,10 +308,7 @@ export default class ActionLog {
     if (!history) return;
     this.histories.set(id, {
       ...history,
-      // by seq: the cap may have marked the entry since it was recorded
-      entries: history.entries.map(e =>
-        e.seq === entry?.seq ? { ...e, store } : e,
-      ),
+      entries: history.entries.map(e => (e === entry ? { ...e, store } : e)),
       state: store.after,
     });
     this.notify();
@@ -314,7 +330,11 @@ export default class ActionLog {
  * subscription's polls, or the pushed `set`s of one entity or
  * `setResponse`s of one endpoint. A store's first action stays, as it marks
  * where the store began */
-function capUpdates(entries: LogEntry[], limit: number): LogEntry[] {
+function capUpdates(
+  entries: readonly LogEntry[],
+  limit: number,
+  counts: ReadonlyMap<number, number>,
+) {
   const updates: (readonly LogEntry[])[][] = [];
   const pushed = new Map<string, (readonly LogEntry[])[]>();
   for (const group of groupEntries(entries)) {
@@ -334,25 +354,21 @@ function capUpdates(entries: LogEntry[], limit: number): LogEntry[] {
   updates.push(...pushed.values());
   const extra = new Set<LogEntry>();
   // the oldest update a row keeps counts the ones before it
-  const marked = new Map<LogEntry, LogEntry>();
+  const dropped = new Map(counts);
+  const countOf = (update: readonly LogEntry[]) =>
+    dropped.get(update[0].seq) ?? 0;
   for (const row of updates) {
     const cut = row.length - limit;
     if (cut <= 0) continue;
-    let dropped = 0;
+    let n = 0;
     for (const update of row.slice(0, cut)) {
       if (update.some(e => e.newStore)) continue;
       update.forEach(e => extra.add(e));
-      dropped += 1 + (update[0].dropped ?? 0);
+      n += 1 + countOf(update);
     }
-    const [oldest] = row[cut];
-    if (dropped)
-      marked.set(oldest, {
-        ...oldest,
-        dropped: (oldest.dropped ?? 0) + dropped,
-      });
+    if (n) dropped.set(row[cut][0].seq, countOf(row[cut]) + n);
   }
-  if (!extra.size) return entries;
-  return entries.flatMap(e => (extra.has(e) ? [] : [marked.get(e) ?? e]));
+  return { entries: entries.filter(e => !extra.has(e)), dropped };
 }
 
 /** The newest `LOG_LIMIT` entries, plus the older ones their groups start

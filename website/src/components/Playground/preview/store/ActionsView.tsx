@@ -47,6 +47,8 @@ export const LogContext = createContext<{
   readonly log: ActionLog;
   /** When the shown history's first action was dispatched */
   readonly since: number;
+  /** Its `dropped` counts */
+  readonly dropped?: ReadonlyMap<number, number>;
 } | null>(null);
 const useLog = () => useContext(LogContext)!;
 
@@ -196,6 +198,7 @@ function Steps({
   group: ActionGroup;
   all: readonly LogEntry[];
 }) {
+  const { dropped } = useLog();
   const joined = joinedFetches(group);
   const counted = new Set<RequestGroup>();
   const scroller = useRef<HTMLDivElement>(null);
@@ -204,22 +207,22 @@ function Steps({
     <div className={styles.steps} ref={scroller}>
       {all.map(entry => {
         const request = joined.get(entry);
-        const dropped =
-          entry.dropped ?
-            <div
-              key={`dropped ${entry.seq}`}
-              className={clsx(styles.row, styles.stepRow, styles.joined)}
-            >
-              <span className={styles.dim}>
-                {droppedText(group, entry.dropped)}: the log keeps the newest
-              </span>
-            </div>
-          : null;
-        if (!request)
+        if (!request) {
+          const n = dropped?.get(entry.seq);
           return [
-            dropped,
+            n && (
+              <div
+                key={`dropped ${entry.seq}`}
+                className={clsx(styles.row, styles.stepRow, styles.joined)}
+              >
+                <span className={styles.dim}>
+                  {droppedText(group, n)}: the log keeps the newest
+                </span>
+              </div>
+            ),
             <StepRow key={entry.seq} entry={entry} own={group.key} />,
           ];
+        }
         if (counted.has(request)) return null;
         counted.add(request);
         const n = request.entries.filter(e => joined.has(e)).length;
@@ -239,9 +242,29 @@ function Steps({
   );
 }
 
-/** One action of an open row; opens its own level */
+/** One action of an open row */
 function StepRow({ entry, own }: { entry: LogEntry; own: string }) {
   const { log } = useLog();
+  return (
+    <ActionStep entry={entry}>
+      <TypeName entry={entry} />
+      <span className={styles.actSum}>
+        <ActionSpanContext.Provider value={spanOf([entry])}>
+          <ChangeChips changes={log.changes(entry)} own={own} />
+        </ActionSpanContext.Provider>
+      </span>
+    </ActionStep>
+  );
+}
+
+/** An action's line, after its time; opens the action's own level */
+export function ActionStep({
+  entry,
+  children,
+}: {
+  entry: LogEntry;
+  children: React.ReactNode;
+}) {
   const nav = useNav()!;
   const open = () => nav.push({ kind: 'action', seq: entry.seq });
   return (
@@ -253,12 +276,7 @@ function StepRow({ entry, own }: { entry: LogEntry; own: string }) {
       onKeyDown={onActivateKey(open)}
     >
       <Time at={entry.at} />
-      <TypeName entry={entry} />
-      <span className={styles.actSum}>
-        <ActionSpanContext.Provider value={spanOf([entry])}>
-          <ChangeChips changes={log.changes(entry)} own={own} />
-        </ActionSpanContext.Provider>
-      </span>
+      {children}
     </div>
   );
 }
@@ -309,7 +327,7 @@ export function KeyLabel({ value }: { value: string }) {
   );
 }
 
-export function Time({ at }: { at: number }) {
+function Time({ at }: { at: number }) {
   const { since } = useLog();
   const s = (at - since) / 1000;
   return (
@@ -402,7 +420,8 @@ function Dropped({
   group: ActionGroup;
   all: readonly LogEntry[];
 }) {
-  const n = all.reduce((sum, e) => sum + (e.dropped ?? 0), 0);
+  const { dropped } = useLog();
+  const n = all.reduce((sum, e) => sum + (dropped?.get(e.seq) ?? 0), 0);
   return n ? <span className={styles.dim}>{droppedText(group, n)}</span> : null;
 }
 

@@ -22,7 +22,7 @@ import {
   keepUnchanged,
   mergeChanges,
 } from '../store/actionGroups';
-import ActionLog, { type LogEntry } from '../store/actionLog';
+import ActionLog, { type LogEntry, type LogOptions } from '../store/actionLog';
 import { entityId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
@@ -104,6 +104,11 @@ const rows = () =>
   [...document.querySelectorAll<HTMLElement>('[aria-expanded]')].filter(
     el => !el.closest('[hidden]'),
   );
+/** The shown level */
+const top = () =>
+  [...document.querySelectorAll<HTMLElement>('[data-level]')].find(
+    el => !el.closest('[hidden]') && !el.hasAttribute('data-covered'),
+  )!;
 
 describe('Store Actions tab', () => {
   it('folds a fetch and its response into one row with what it added', async () => {
@@ -136,10 +141,6 @@ describe('Store Actions tab', () => {
 
     // a State record links back to the action that last changed it
     fireEvent.click(screen.getByRole('tab', { name: 'State' }));
-    const top = () =>
-      [...document.querySelectorAll<HTMLElement>('[data-level]')].find(
-        el => !el.closest('[hidden]') && !el.hasAttribute('data-covered'),
-      )!;
     fireEvent.click(
       top().querySelector<HTMLElement>(
         `tr[data-id="${entityId('Post', '1')}"]`,
@@ -184,10 +185,6 @@ describe('Store Actions tab', () => {
     await act(() =>
       ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
     );
-    const top = () =>
-      [...document.querySelectorAll<HTMLElement>('[data-level]')].find(
-        el => !el.closest('[hidden]') && !el.hasAttribute('data-covered'),
-      )!;
     fireEvent.click(
       top().querySelector<HTMLElement>(
         `tr[data-id="${entityId('Post', '1')}"]`,
@@ -387,10 +384,6 @@ describe('Store Actions tab', () => {
       });
     });
     fireEvent.click(actionsTab());
-    const top = () =>
-      [...document.querySelectorAll<HTMLElement>('[data-level]')].find(
-        el => !el.closest('[hidden]') && !el.hasAttribute('data-covered'),
-      )!;
     // as the first fetch left it, though a later one changed it
     fireEvent.click(within(rows()[0]).getByRole('button', { name: /Post 1/ }));
     expect(top().textContent).toContain('after this action');
@@ -674,6 +667,9 @@ describe('groupEntries', () => {
 });
 
 describe('ActionLog', () => {
+  /** A log that compacts on every action, unless a test is about batching */
+  const newLog = (options?: LogOptions) =>
+    new ActionLog({ trimEvery: 1, ...options });
   const empty: State<unknown> = {
     ...initialState,
     entities: { Post: { 1: { id: '1' }, 2: { id: '2' } } },
@@ -702,7 +698,7 @@ describe('ActionLog', () => {
   const subscribe = () => ({ type: actionTypes.SUBSCRIBE, key: 'k' });
 
   it('collects garbage without touching earlier states', () => {
-    const log = new ActionLog({ trimEvery: 1 });
+    const log = newLog();
     connect(
       log,
       0,
@@ -718,7 +714,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps what the store collects in place', () => {
-    const log = new ActionLog({ trimEvery: 1 });
+    const log = newLog();
     const state = {
       ...initialState,
       entities: { Post: { 1: { id: '1' } } },
@@ -743,7 +739,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps each store’s history, which a restored store continues', () => {
-    const log = new ActionLog({ trimEvery: 1 });
+    const log = newLog();
     const first = connect(log, 0);
     first(subscribe());
     first(subscribe());
@@ -771,7 +767,7 @@ describe('ActionLog', () => {
   });
 
   it('starts a restored store that dispatches nothing', () => {
-    const log = new ActionLog({ trimEvery: 1 });
+    const log = newLog();
     connect(
       log,
       0,
@@ -791,7 +787,7 @@ describe('ActionLog', () => {
   });
 
   it('starts a restored store whose first reads the network holds', () => {
-    const log = new ActionLog({ trimEvery: 1 });
+    const log = newLog();
     connect(log, 0, { keep: 0 })(subscribe());
     // the restored store reads while it renders, before its managers start;
     // NetworkManager keeps the fetch from the store
@@ -809,7 +805,7 @@ describe('ActionLog', () => {
   });
 
   it('follows each store’s own state', () => {
-    const log = new ActionLog({ trimEvery: 1 });
+    const log = newLog();
     const set = () => ({
       type: actionTypes.SET_RESPONSE,
       key: 'b',
@@ -832,7 +828,7 @@ describe('ActionLog', () => {
   });
 
   it('shows a fetch with the store change after it', async () => {
-    const log = new ActionLog({ trimEvery: 1 });
+    const log = newLog();
     const heard = jest.fn();
     log.subscribe(heard);
     const store = { getState: () => empty } as any;
@@ -861,7 +857,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps only the newest actions', () => {
-    const log = new ActionLog({ trimEvery: 1 });
+    const log = newLog();
     const dispatch = connect(log, 0);
     for (let i = 0; i < 255; i++) {
       dispatch(subscribe());
@@ -873,7 +869,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps a request’s fetch past a reset and a shared fetch time', () => {
-    const log = new ActionLog({ trimEvery: 1 });
+    const log = newLog();
     const dispatch = connect(log, 0);
     const fetch = (key: string) =>
       dispatch({
@@ -911,7 +907,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps the fetch still waiting when mutations share a fetch time', () => {
-    const log = new ActionLog({ trimEvery: 1 });
+    const log = newLog();
     const dispatch = connect(log, 0);
     const meta = { fetchedAt: 1, date: 1, expiresAt: 2 };
     const fetch = (id: number) =>
@@ -941,7 +937,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps the response of a request a kept fetch joined', () => {
-    const log = new ActionLog({ trimEvery: 1 });
+    const log = newLog();
     const { head, tail } = log.connect(
       0,
       undefined,
@@ -980,7 +976,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps a subscription that ended before a poll it started resolved', () => {
-    const log = new ActionLog({ trimEvery: 1 });
+    const log = newLog();
     const dispatch = connect(log, 0);
     dispatch(subscribe());
     dispatch({
@@ -1007,7 +1003,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps the subscribers that held a subscription open over its polls', () => {
-    const log = new ActionLog({ trimEvery: 1 });
+    const log = newLog();
     // each poll its own fetch
     const dispatch = connect(log, 0, { skipLogging: () => false });
     const poll = (fetchedAt: number) =>
@@ -1032,7 +1028,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps a subscription’s newest polls', () => {
-    const log = new ActionLog({ trimEvery: 1 });
+    const log = newLog();
     const dispatch = connect(log, 0);
     dispatch(subscribe());
     for (let fetchedAt = 1; fetchedAt <= 25; fetchedAt++) {
@@ -1056,11 +1052,11 @@ describe('ActionLog', () => {
     expect(requests).toHaveLength(20);
     expect(requests[0].response.action.response).toBe(6);
     // and the oldest kept says how many came before it
-    expect(requests[0].entries[0].dropped).toBe(5);
+    expect(log.history(0).dropped?.get(requests[0].entries[0].seq)).toBe(5);
   });
 
   it('keeps as many pushed sets of each entity as updateLimit says', () => {
-    const log = new ActionLog({ updateLimit: 2, trimEvery: 1 });
+    const log = newLog({ updateLimit: 2 });
     const dispatch = connect(log, 0);
     dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other' });
     const set = (schema: typeof Post, id: string, title: string) =>
@@ -1082,18 +1078,15 @@ describe('ActionLog', () => {
         action.type === actionTypes.SET ? [(action.value as any).title] : [],
       );
     expect(titles).toEqual(['x', 'b', 'c']);
-    const sets = log
-      .history(0)
-      .entries.filter(({ action }) => action.type === actionTypes.SET);
-    expect(sets.map(e => e.dropped)).toEqual([undefined, 1, undefined]);
-    // a dropped update's own count carries over
-    set(Post, '1', 'd');
-    expect(
+    const dropped = () =>
       log
         .history(0)
         .entries.filter(({ action }) => action.type === actionTypes.SET)
-        .map(e => e.dropped),
-    ).toEqual([undefined, 2, undefined]);
+        .map(e => log.history(0).dropped?.get(e.seq));
+    expect(dropped()).toEqual([undefined, 1, undefined]);
+    // a dropped update's own count carries over
+    set(Post, '1', 'd');
+    expect(dropped()).toEqual([undefined, 2, undefined]);
   });
 
   it('trims in batches', () => {
@@ -1142,7 +1135,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps the subscribers still polling past the limit', () => {
-    const log = new ActionLog({ trimEvery: 1 });
+    const log = newLog();
     const dispatch = connect(log, 0);
     const poll = (type: string, pollFrequency: number) =>
       dispatch({ type, key: 'k', endpoint: { pollFrequency } });
@@ -1160,7 +1153,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps a fetch whose response a restored store kept', () => {
-    const log = new ActionLog({ trimEvery: 1 });
+    const log = newLog();
     const first = connect(log, 0);
     first({
       type: actionTypes.FETCH,
@@ -1184,7 +1177,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps the fetch of a response kept past the limit', () => {
-    const log = new ActionLog({ trimEvery: 1 });
+    const log = newLog();
     const dispatch = connect(log, 0);
     dispatch({
       type: actionTypes.FETCH,
@@ -1210,7 +1203,7 @@ describe('ActionLog', () => {
   });
 
   it('keeps the subscribes of subscriptions still open past the limit', () => {
-    const log = new ActionLog({ trimEvery: 1 });
+    const log = newLog();
     const dispatch = connect(log, 0);
     dispatch(subscribe());
     dispatch(subscribe());

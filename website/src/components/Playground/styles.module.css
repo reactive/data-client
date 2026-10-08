@@ -792,20 +792,8 @@ div.fixtureJson {
   gap: 0.5rem;
 }
 /* Negative margin keeps a touch-sized target without growing the header */
-.resetButton {
+.headerButton {
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  margin: -0.5rem -0.5rem -0.5rem 0;
-  border-radius: var(--ifm-global-radius);
-  font-size: 1rem;
-}
-/* Narrow playgrounds' Store toggle (in place of the side strip): an icon
-   that reads pressed while the Store is open */
-.storeHeaderToggle {
-  display: none;
   align-items: center;
   justify-content: center;
   width: 2rem;
@@ -814,20 +802,26 @@ div.fixtureJson {
   border-radius: var(--ifm-global-radius);
   font-size: 1rem;
 }
-.storeHeaderToggle[aria-pressed='true'] {
-  background-color: var(--pg-tab-hover-bg);
-  color: var(--ifm-color-primary);
-}
-.resetButton:focus-visible,
-.storeHeaderToggle:focus-visible {
+.headerButton:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
 }
 @media (hover: hover) {
-  .storeHeaderToggle:hover,
-  .resetButton:hover {
+  .headerButton:hover {
     background-color: var(--pg-tab-hover-bg);
     color: var(--pg-tab-hover);
   }
+}
+.resetButton {
+  margin-right: -0.5rem;
+}
+/* Narrow playgrounds' Store toggle (in place of the side strip): an icon
+   that reads pressed while the Store is open */
+.storeHeaderToggle {
+  display: none;
+}
+.storeHeaderToggle[aria-pressed='true'] {
+  background-color: var(--pg-tab-hover-bg);
+  color: var(--ifm-color-primary);
 }
 /* Error card action (Reset preview): outlined in the card's accent */
 .previewError .errorAction {

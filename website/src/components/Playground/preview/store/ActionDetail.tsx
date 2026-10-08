@@ -6,11 +6,11 @@ import { actionKey, groupEntriesOf, type Change } from './actionGroups';
 import { findEntry, type LogEntry } from './actionLog';
 import {
   ActionsContext,
+  ActionStep,
   type Actions,
   ChangeChip,
   KeyLabel,
   spanOf,
-  Time,
   TypeName,
   useActions,
 } from './ActionsView';
@@ -58,24 +58,14 @@ export function ActionDetail({
   const changes = log.changes(entry);
   const changed = changes.filter(c => c.kind !== 'refreshed');
   const refreshed = changes.length - changed.length;
-  const { store } = entry;
   return (
     <>
       {header(step)}
       <div className={styles.record}>
         <div className={clsx(styles.detail, styles.actDetail)}>
-          {store ?
+          {entry.store ?
             <>
-              <ActionSpanContext.Provider value={spanOf([entry])}>
-                {changed.map(change => (
-                  <ChangeLine
-                    key={change.id}
-                    change={change}
-                    before={log.view(store.before)}
-                    after={log.view(store.after)}
-                  />
-                ))}
-              </ActionSpanContext.Provider>
+              <EntryChanges entry={entry} changes={changed} />
               {refreshed > 0 && (
                 <span className={styles.dim}>
                   {changed.length ? 'Also stored' : 'Stored'} {refreshed} row
@@ -157,6 +147,31 @@ function unappliedNote(action: ActionTypes) {
     default:
       return 'A manager handled this without passing it to the store';
   }
+}
+
+/** Rows `entry` changed, and how */
+function EntryChanges({
+  entry,
+  changes,
+}: {
+  entry: LogEntry;
+  changes: readonly Change[];
+}) {
+  const { log } = useActions();
+  const { store } = entry;
+  if (!store) return null;
+  return (
+    <ActionSpanContext.Provider value={spanOf([entry])}>
+      {changes.map(change => (
+        <ChangeLine
+          key={change.id}
+          change={change}
+          before={log.view(store.before)}
+          after={log.view(store.after)}
+        />
+      ))}
+    </ActionSpanContext.Provider>
+  );
 }
 
 /** A changed row and how: its new value, or each changed field */
@@ -331,7 +346,6 @@ export function rowHistory({ log, history, until }: Actions, id: string) {
  * on this stack, as everything here does */
 export function RowHistory({ id, header }: { id: string; header: Header }) {
   const actions = useActions();
-  const nav = useNav()!;
   const changes = useMemo(() => rowHistory(actions, id), [actions, id]);
   return (
     <>
@@ -342,35 +356,16 @@ export function RowHistory({ id, header }: { id: string; header: Header }) {
             <span className={styles.dim}>No changes in the log</span>
           </div>
         )}
-        {changes.map(({ entry, change }) => {
-          const open = () => nav.push({ kind: 'action', seq: entry.seq });
-          const { store } = entry;
-          return (
-            <div key={entry.seq} className={styles.historyItem}>
-              <div
-                role="button"
-                tabIndex={0}
-                className={clsx(styles.row, styles.stepRow)}
-                onClick={open}
-                onKeyDown={onActivateKey(open)}
-              >
-                <Time at={entry.at} />
-                <ActionName entry={entry} />
-              </div>
-              {store && (
-                <div className={styles.historyChange}>
-                  <ActionSpanContext.Provider value={spanOf([entry])}>
-                    <ChangeLine
-                      change={change}
-                      before={actions.log.view(store.before)}
-                      after={actions.log.view(store.after)}
-                    />
-                  </ActionSpanContext.Provider>
-                </div>
-              )}
+        {changes.map(({ entry, change }) => (
+          <div key={entry.seq} className={styles.historyItem}>
+            <ActionStep entry={entry}>
+              <ActionName entry={entry} />
+            </ActionStep>
+            <div className={styles.historyChange}>
+              <EntryChanges entry={entry} changes={[change]} />
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
     </>
   );

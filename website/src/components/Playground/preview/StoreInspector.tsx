@@ -102,7 +102,11 @@ export function StoreHeaderToggle({
   return (
     <button
       type="button"
-      className={clsx('clean-btn', styles.storeHeaderToggle)}
+      className={clsx(
+        'clean-btn',
+        styles.headerButton,
+        styles.storeHeaderToggle,
+      )}
       title={open ? 'Hide Store' : 'Show Store'}
       aria-label="Store"
       aria-pressed={open}
