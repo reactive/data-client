@@ -177,8 +177,10 @@ function Steps({
 }) {
   const joined = joinedFetches(group);
   const counted = new Set<RequestGroup>();
+  const scroller = useRef<HTMLDivElement>(null);
+  useFollow(scroller, all);
   return (
-    <div className={styles.steps}>
+    <div className={styles.steps} ref={scroller}>
       {all.map(entry => {
         const request = joined.get(entry);
         if (!request)

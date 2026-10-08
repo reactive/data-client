@@ -949,10 +949,13 @@ div.actRow {
   background: var(--store-stale);
 }
 
-/* an open row's actions */
+/* an open row's actions; a long-running poll scrolls on its own */
 .steps {
   margin: 0 0.75rem 0.35rem 1.05rem;
   border-left: 1px solid var(--store-line-strong);
+  max-height: 16rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 div.stepRow {
   flex-wrap: wrap;
