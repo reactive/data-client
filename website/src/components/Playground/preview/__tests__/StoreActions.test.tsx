@@ -1089,6 +1089,23 @@ describe('ActionLog', () => {
     expect(fetched).toEqual([0, 2, 3]);
   });
 
+  it('keeps at least one update of a row, whatever updateLimit says', () => {
+    const log = newLog({ updateLimit: 0 });
+    const dispatch = connect(log, 0);
+    for (let response = 1; response <= 3; response++)
+      dispatch({
+        type: actionTypes.SET_RESPONSE,
+        key: 'k',
+        response,
+        meta: { fetchedAt: response, date: response, expiresAt: response + 1 },
+        endpoint: { schema: undefined },
+      });
+    // the first stays as the store it started from
+    const { entries, dropped } = log.history(0);
+    expect(entries.map(e => e.seq)).toEqual([1, 3]);
+    expect(dropped?.get(3)).toBe(1);
+  });
+
   it('keeps as many pushed sets of each entity as updateLimit says', () => {
     const log = newLog({ updateLimit: 2 });
     const dispatch = connect(log, 0);
@@ -1323,6 +1340,11 @@ describe('diffStates', () => {
     expect(kinds({}, { expiresAt: 1 })).toEqual(['expired']);
     expect(kinds({ error: new Error('x') }, { date: 2 })).toEqual(['updated']);
     expect(kinds({ invalidated: true }, { date: 2 })).toEqual(['updated']);
+  });
+
+  it('ignores invalidating or expiring a row again', () => {
+    expect(kinds({ invalidated: true }, { invalidated: true })).toEqual([]);
+    expect(kinds({ expiresAt: 1 }, { expiresAt: 1 })).toEqual([]);
   });
 
   it('counts a refetched Blob or Map as a change', () => {

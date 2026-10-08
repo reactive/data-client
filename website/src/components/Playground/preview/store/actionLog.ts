@@ -32,7 +32,7 @@ const TRIM_EVERY = 50;
 
 export interface LogOptions {
   /** Updates kept per row, besides polls still waiting (default
-   * `UPDATE_LIMIT`) */
+   * `UPDATE_LIMIT`, at least 1: the oldest kept says how many were dropped) */
   readonly updateLimit?: number;
   /** Actions logged between trims (default `TRIM_EVERY`) */
   readonly trimEvery?: number;
@@ -113,7 +113,7 @@ export default class ActionLog {
     trimEvery = TRIM_EVERY,
     recordFrom = 'load',
   }: LogOptions = {}) {
-    this.updateLimit = updateLimit;
+    this.updateLimit = Math.max(1, updateLimit);
     this.trimEvery = trimEvery;
     this.recording = recordFrom === 'load';
   }

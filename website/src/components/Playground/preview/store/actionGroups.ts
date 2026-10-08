@@ -137,6 +137,8 @@ function endpointChange(
     return prevMeta?.error || prevMeta?.invalidated ? 'updated' : 'refreshed';
   // expireAll() moves expiresAt into the past
   if ((meta?.expiresAt ?? 0) < (prevMeta?.expiresAt ?? 0)) return 'expired';
+  // invalidating or expiring it again stores an equal copy
+  if (equal(meta, prevMeta)) return;
   return 'updated';
 }
 
