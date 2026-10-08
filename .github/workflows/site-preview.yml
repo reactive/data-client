@@ -203,9 +203,15 @@ jobs:
         run: |
           # Checked here, not in `website`, so a re-run of this job can't roll
           # production back to an older master commit
-          if [ "$TARGET" = production ] && bash website/scripts/vercel-ignore.sh --superseded; then
-            echo "::notice title=Docs deploy skipped::master moved on to a newer site, whose run deploys it"
-            exit 0
+          if [ "$TARGET" = production ]; then
+            rc=0
+            bash website/scripts/vercel-ignore.sh --superseded || rc=$?
+            if [ "$rc" = 0 ]; then
+              echo "::notice title=Docs deploy skipped::master moved on to a newer site, whose run deploys it"
+              exit 0
+            fi
+            # 2: couldn't fetch master, so fail rather than risk a rollback
+            [ "$rc" = 1 ] || exit "$rc"
           fi
           meta=()
           # Ties the preview to its branch instead of the PR merge ref

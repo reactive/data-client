@@ -243,4 +243,12 @@ expect_superseded build "superseded: newer master leaves the site unchanged" "$o
 commit "newer site" docs/core/api/Newer.md
 expect_superseded skip "superseded: newer master changed the site" "$old"
 
+clone="$(mktemp -d)"
+git clone -q --branch master "file://$origin_repo" "$clone"
+git -C "$clone" remote set-url origin "file://$clone/missing"
+if (cd "$clone" && bash "$script" --superseded >/dev/null 2>&1); then rc=0; else rc=$?; fi
+rm -rf "$clone"
+[ "$rc" = 2 ] || { echo "FAIL superseded: unreachable master exits 2, got $rc" >&2; exit 1; }
+printf 'ok   %s\n' "superseded: unreachable master exits 2"
+
 echo "all vercel-ignore cases passed"

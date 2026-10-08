@@ -80,9 +80,10 @@ fetch_master() {
 
 # `--superseded` (docs deploy, just before a production deploy): skip when
 # master has moved on to a commit that changed the site. That commit's queued
-# run deploys it, so deploying HEAD would roll production back.
+# run deploys it, so deploying HEAD would roll production back. Exits 2 when
+# master can't be fetched: a re-run could be stale, so don't guess.
 if [ "${1:-}" = --superseded ]; then
-  fetch_master
+  fetch_master || { echo "vercel-ignore: cannot fetch master"; exit 2; }
   tip="$(upstream)" && is_ancestor HEAD "$tip" || build "master has no newer commit"
   files="$(site_files HEAD "$tip")" || build "could not diff HEAD..$tip"
   [ -n "$files" ] && skip "master moved on to ${tip:0:12}, which changed the site"
