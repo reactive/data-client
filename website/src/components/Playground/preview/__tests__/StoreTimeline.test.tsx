@@ -185,9 +185,9 @@ describe('Store Timeline tab', () => {
     });
     fireEvent.click(screen.getByRole('tab', { name: 'Timeline' }));
     expect(
-      screen.getByLabelText(
-        '4 earlier sets not kept: the log keeps the newest',
-      ),
+      screen.getByRole('img', {
+        name: '4 earlier sets not kept: the log keeps the newest',
+      }),
     ).toBeTruthy();
   });
 

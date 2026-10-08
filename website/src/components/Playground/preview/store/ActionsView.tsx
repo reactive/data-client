@@ -236,7 +236,7 @@ function Steps({
                 className={clsx(styles.row, styles.stepRow, styles.joined)}
               >
                 <span className={styles.dim}>
-                  {droppedText(group, n)}: the log keeps the newest
+                  {droppedText(group, n)}: {KEEPS_NEWEST}
                 </span>
               </div>
             ),
@@ -439,10 +439,19 @@ function Dropped({
   group: ActionGroup;
   all: readonly LogEntry[];
 }) {
-  const { dropped } = useLog();
-  const n = all.reduce((sum, e) => sum + (dropped?.get(e.seq) ?? 0), 0);
+  const n = droppedIn(all, useLog().dropped);
   return n ? <span className={styles.dim}>{droppedText(group, n)}</span> : null;
 }
+
+/** How many earlier updates of `entries` the log no longer has */
+export function droppedIn(
+  entries: readonly LogEntry[],
+  dropped: ReadonlyMap<number, number> | undefined,
+) {
+  return entries.reduce((sum, e) => sum + (dropped?.get(e.seq) ?? 0), 0);
+}
+/** Why `droppedText` counts are gone */
+export const KEEPS_NEWEST = 'the log keeps the newest';
 
 /** `40 earlier polls not kept` */
 export function droppedText(group: ActionGroup, n: number) {

@@ -10,7 +10,9 @@ import {
 } from './actionGroups';
 import { nearestChange, type LogEntry } from './actionLog';
 import {
+  droppedIn,
   droppedText,
+  KEEPS_NEWEST,
   KeyLabel,
   seconds,
   typeClass,
@@ -278,21 +280,17 @@ export default memo(function Timeline({
  * says it of a row */
 function LaneDropped({ lane }: { lane: Lane }) {
   const { dropped } = useLog();
-  let first: ActionGroup | undefined;
-  let n = 0;
-  for (const group of lane.groups) {
-    const count = groupEntriesOf(group).reduce(
-      (sum, e) => sum + (dropped?.get(e.seq) ?? 0),
-      0,
-    );
-    if (count && !first) first = group;
-    n += count;
-  }
-  if (!first) return null;
-  const label = `${droppedText(first, n)}: the log keeps the newest`;
+  // each row's own count, as the list words it
+  const counts = lane.groups.flatMap(group => {
+    const n = droppedIn(groupEntriesOf(group), dropped);
+    return n ? [droppedText(group, n)] : [];
+  });
+  if (!counts.length) return null;
+  const label = `${counts.join('; ')}: ${KEEPS_NEWEST}`;
   return (
     <span
       className={clsx(styles.tlDropped, styles.dim)}
+      role="img"
       title={label}
       aria-label={label}
     >
