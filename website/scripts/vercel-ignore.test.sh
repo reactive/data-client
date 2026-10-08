@@ -33,11 +33,11 @@ commit() {
   git -C "$repo" commit -m "$msg" >/dev/null
 }
 
-# expect <skip|build> <name> <ref> [previous-sha] [vercel-env] [script args...]
+# expect <skip|build|exit-code> <name> <ref> [previous-sha] [vercel-env] [script args...]
 expect() {
-  local want="$1" name="$2" ref="$3" prev="${4-}" env="${5-}" out rc code=1
+  local want="$1" name="$2" ref="$3" prev="${4-}" env="${5-}" out rc code="$1"
   shift $(($# < 5 ? $# : 5))
-  [ "$want" = skip ] && code=0
+  case "$want" in skip) code=0 ;; build) code=1 ;; esac
   set +e
   out="$(
     cd "$repo" &&
@@ -224,12 +224,14 @@ repo="$origin_repo"
 rm -rf "$clone"
 
 # --- --superseded: a queued production deploy of an older master commit ---
-# expect_superseded <skip|build> <name> <sha>: HEAD at <sha> in a clone of master
+# expect_superseded <skip|build|exit-code> <name> <sha> [origin-url]: HEAD at
+# <sha> in a clone of master
 expect_superseded() {
   local want="$1" name="$2" clone
   clone="$(mktemp -d)"
   git clone -q --branch master "file://$origin_repo" "$clone"
   git -C "$clone" reset -q --hard "$3"
+  [ -z "${4-}" ] || git -C "$clone" remote set-url origin "$4"
   repo="$clone"
   expect "$want" "$name" master "" production --superseded
   repo="$origin_repo"
@@ -242,13 +244,6 @@ commit "newer pkg" packages/core/src/newer.ts
 expect_superseded build "superseded: newer master leaves the site unchanged" "$old"
 commit "newer site" docs/core/api/Newer.md
 expect_superseded skip "superseded: newer master changed the site" "$old"
-
-clone="$(mktemp -d)"
-git clone -q --branch master "file://$origin_repo" "$clone"
-git -C "$clone" remote set-url origin "file://$clone/missing"
-if (cd "$clone" && bash "$script" --superseded >/dev/null 2>&1); then rc=0; else rc=$?; fi
-rm -rf "$clone"
-[ "$rc" = 2 ] || { echo "FAIL superseded: unreachable master exits 2, got $rc" >&2; exit 1; }
-printf 'ok   %s\n' "superseded: unreachable master exits 2"
+expect_superseded 2 "superseded: unreachable master exits 2" "$old" "file://$repo/missing"
 
 echo "all vercel-ignore cases passed"

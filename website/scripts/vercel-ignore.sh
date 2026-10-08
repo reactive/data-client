@@ -4,6 +4,7 @@
 # Exit 0 skips the deploy. Exit 1 deploys, as does every other non-zero
 # status, so this script exits 0 only when it can see that the published
 # site is unchanged. If git history is missing, it deploys (fail open).
+# `--superseded` is the exception: it exits 2 when it can't fetch master.
 #
 # Preview branches must not use `git diff HEAD^ HEAD`. Merging master into a
 # pull request makes that diff the incoming master tree, so a site commit
