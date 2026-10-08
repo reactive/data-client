@@ -183,16 +183,19 @@ describe('Store Actions tab', () => {
       )!,
     );
     expect(statePanel.textContent).toContain('changed by');
-    // to the refetch, which left the log too
+    // to the refetch, which left the log too, then to one still in it
+    const previous = () =>
+      within(bar).getByRole('button', {
+        name: 'Previous change',
+      }) as HTMLButtonElement;
     fireEvent.click(next);
     expect(screen.getByRole('button', { name: 'Live' })).toBeTruthy();
-    expect(
-      (
-        within(bar).getByRole('button', {
-          name: 'Previous change',
-        }) as HTMLButtonElement
-      ).disabled,
-    ).toBe(false);
+    expect(previous().disabled).toBe(false);
+    fireEvent.click(next);
+    expect(previous().disabled).toBe(false);
+    fireEvent.click(previous());
+    expect(screen.getByRole('button', { name: 'Live' })).toBeTruthy();
+    expect(bar.textContent).toContain('setResponse');
   });
 
   it('shows an optimistic update, its diff, and State as it was then', async () => {

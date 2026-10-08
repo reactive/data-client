@@ -78,25 +78,21 @@ export default function StorePanel({
 
   // State as it was right after one action, until "Live"
   const [snapshotSeq, setSnapshot] = useState<number | null>(null);
-  const found =
-    snapshotSeq === null ? undefined : findEntry(entries, snapshotSeq);
-  // the log as it last held the snapshot's action: the snapshot stays shown
-  // once its action drops off the front, and can still step through and
-  // say what changed each row from the actions before it
-  const [kept, setKept] = useState<readonly LogEntry[]>();
-  if (found && entries !== kept) setKept(entries);
-  const gone =
-    !found && snapshotSeq !== null && kept ?
-      findEntry(kept, snapshotSeq)
-    : undefined;
-  const snapshot = found ?? gone;
-  const known = useMemo(() => {
-    if (!gone || !kept) return entries;
-    const live = new Set(entries.map(e => e.seq));
-    return [...kept.filter(e => !live.has(e.seq)), ...entries].sort(
-      (a, b) => a.seq - b.seq,
-    );
-  }, [gone, kept, entries]);
+  // every action logged while State shows the past, so the snapshot, the
+  // actions it steps through and what changed each row stay as the log's
+  // front drops off. Let go on "Live"
+  const [kept, setKept] = useState<{
+    live: readonly LogEntry[];
+    all: readonly LogEntry[];
+  }>();
+  if (snapshotSeq === null) {
+    if (kept) setKept(undefined);
+  } else if (kept?.live !== entries) {
+    setKept({ live: entries, all: withDropped(kept?.all, entries) });
+  }
+  const known = (snapshotSeq !== null && kept?.all) || entries;
+  const snapshot =
+    snapshotSeq === null ? undefined : findEntry(known, snapshotSeq);
   const state = snapshot?.store ? log.view(snapshot.store.after) : live;
   // the store commits and the log notifies in separate renders: the rows
   // rebuild only when the store commits
@@ -668,4 +664,15 @@ function TreeIcon() {
       <path d="M3 3.5h10M4.5 5.5v7M4.5 8.5h8.5M4.5 12.5h8.5" />
     </svg>
   );
+}
+
+/** `live`, with the entries of `seen` it no longer holds */
+function withDropped(
+  seen: readonly LogEntry[] = [],
+  live: readonly LogEntry[],
+): readonly LogEntry[] {
+  const held = new Set(live.map(e => e.seq));
+  const dropped = seen.filter(e => !held.has(e.seq));
+  if (!dropped.length) return live;
+  return [...dropped, ...live].sort((a, b) => a.seq - b.seq);
 }
