@@ -301,13 +301,18 @@ describe('Store Actions tab', () => {
     expect(history('1')).not.toContain('no longer in the log');
   });
 
-  it('says where polls the log dropped changed a record', async () => {
+  it.each([
+    ['changed', (n: number) => `poll ${n}`, 'Changed'],
+    ['stored again', () => 'One', 'Stored again'],
+  ])('says where polls the log dropped %s a record', async (_, title, says) => {
     const { ctrl } = mount();
     let n = 0;
-    const polled = new Endpoint(
-      async () => [{ id: '1', title: `poll ${n++}` }],
-      { schema: [Post], key: () => POSTS, name: 'polled', pollFrequency: 1e6 },
-    );
+    const polled = new Endpoint(async () => [{ id: '1', title: title(n++) }], {
+      schema: [Post],
+      key: () => POSTS,
+      name: 'polled',
+      pollFrequency: 1e6,
+    });
     await act(async () => {
       await ctrl().fetch(getPosts);
       await ctrl().subscribe(polled);
@@ -321,7 +326,7 @@ describe('Store Actions tab', () => {
     );
     fireEvent.click(within(top()).getByRole('button', { name: 'History' }));
     expect(top().textContent).toContain(
-      'Changed by actions no longer in the log',
+      `${says} by actions no longer in the log`,
     );
   });
 

@@ -42,6 +42,8 @@ interface Refreshes {
 interface Missing {
   readonly kind: 'missing';
   readonly seq: number;
+  /** Only stored again, unchanged */
+  readonly refreshed: boolean;
 }
 type TimelineItem = Version | Refreshes | Missing;
 
@@ -65,8 +67,13 @@ function rowTimeline(log: ActionLog, entries: readonly LogEntry[], id: string) {
     const change = log.changes(entry).find(c => c.id === id);
     if (!change) continue;
     const { before, after } = entry.store!;
-    if (rowChange(left, log.view(before), change))
-      items.push({ kind: 'missing', seq: entry.seq });
+    const gap = rowChange(left, log.view(before), change);
+    if (gap)
+      items.push({
+        kind: 'missing',
+        seq: entry.seq,
+        refreshed: gap.kind === 'refreshed',
+      });
     left = log.view(after);
     const last = items.at(-1);
     if (change.kind !== 'refreshed')
@@ -267,7 +274,10 @@ export function RowHistory({
               />
             : item.kind === 'refreshed' ?
               <RefreshItem key={item.entries[0].seq} entries={item.entries} />
-            : <MissingItem key={`missing ${item.seq}`} />,
+            : <MissingItem
+                key={`missing ${item.seq}`}
+                refreshed={item.refreshed}
+              />,
           )}
         </ol>
       }
@@ -398,11 +408,11 @@ function RefreshItem({ entries }: { entries: readonly LogEntry[] }) {
 }
 
 /** Where actions the log no longer has changed the record */
-function MissingItem() {
+function MissingItem({ refreshed }: { refreshed: boolean }) {
   return (
     <li className={clsx(styles.version, styles.refreshItem)}>
       <span className={clsx(styles.versionLine, styles.dim)}>
-        Changed by actions no longer in the log
+        {refreshed ? 'Stored again' : 'Changed'} by actions no longer in the log
       </span>
     </li>
   );
