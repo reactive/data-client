@@ -944,6 +944,57 @@ describe('ActionLog', () => {
     expect((sub as any).requests).toHaveLength(2);
   });
 
+  it('keeps a subscription’s newest polls', () => {
+    const log = new ActionLog();
+    const dispatch = connect(log, 0);
+    dispatch(subscribe());
+    for (let fetchedAt = 1; fetchedAt <= 25; fetchedAt++) {
+      dispatch({
+        type: actionTypes.FETCH,
+        key: 'k',
+        endpoint: {},
+        meta: { fetchedAt },
+      });
+      dispatch({
+        type: actionTypes.SET_RESPONSE,
+        key: 'k',
+        response: fetchedAt,
+        meta: { fetchedAt, date: fetchedAt, expiresAt: fetchedAt + 1 },
+        endpoint: { schema: undefined },
+      });
+    }
+    const [sub] = groupEntries(log.history(0).entries);
+    expect(sub).toMatchObject({ kind: 'subscription', open: 1 });
+    const { requests } = sub as any;
+    expect(requests).toHaveLength(20);
+    expect(requests[0].response.action.response).toBe(6);
+  });
+
+  it('keeps as many pushed sets of each entity as updateLimit says', () => {
+    const log = new ActionLog({ updateLimit: 2 });
+    const dispatch = connect(log, 0);
+    dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other' });
+    const set = (schema: typeof Post, id: string, title: string) =>
+      dispatch({
+        type: actionTypes.SET,
+        schema,
+        args: [],
+        value: { id, title },
+        meta: { fetchedAt: 1, date: 1, expiresAt: 2 },
+      });
+    class Draft extends Post {}
+    set(Post, '1', 'a');
+    set(Draft, '1', 'x');
+    set(Post, '1', 'b');
+    set(Post, '1', 'c');
+    const titles = log
+      .history(0)
+      .entries.flatMap(({ action }) =>
+        action.type === actionTypes.SET ? [(action.value as any).title] : [],
+      );
+    expect(titles).toEqual(['x', 'b', 'c']);
+  });
+
   it('keeps the subscribers still polling past the limit', () => {
     const log = new ActionLog();
     const dispatch = connect(log, 0);

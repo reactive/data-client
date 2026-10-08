@@ -18,6 +18,9 @@ import {
 
 /** Actions kept; older ones drop off the front */
 export const LOG_LIMIT = 500;
+/** Updates kept per row (`updateLimit`): a subscription's polls, or pushed
+ * `set`s of one entity and `setResponse`s of one endpoint */
+export const UPDATE_LIMIT = 20;
 
 export interface LogEntry {
   readonly seq: number;
@@ -63,6 +66,8 @@ export const findEntry = (entries: readonly LogEntry[], seq: number) =>
  * The store only commits in batches, so (like DevToolsManager) the log runs
  * the store's reducer itself to know the state right after each action. */
 export default class ActionLog {
+  /** Updates kept per row before older ones drop (see `UPDATE_LIMIT`) */
+  private readonly updateLimit: number;
   private readonly histories = new Map<number, History>();
   private nextSeq = 1;
   /** Applies pending optimistic updates for `view` */
@@ -72,6 +77,10 @@ export default class ActionLog {
   private readonly listeners = new Set<() => void>();
   /** A notification is due this task */
   private queued = false;
+
+  constructor({ updateLimit = UPDATE_LIMIT }: { updateLimit?: number } = {}) {
+    this.updateLimit = updateLimit;
+  }
 
   /** Managers that log one store's actions into history `id`: `head` goes
    * first in the manager chain, `tail` last (it sees what actually reaches
@@ -208,7 +217,7 @@ export default class ActionLog {
     const { entries, since } = history ?? EMPTY;
     this.histories.set(id, {
       ...history,
-      entries: trim([...entries, entry]),
+      entries: trim(capUpdates([...entries, entry], this.updateLimit)),
       since: entries.length ? since : entry.at,
     });
     // Components read while they render. If the panel heard about a read it
@@ -247,6 +256,43 @@ export default class ActionLog {
       for (const listener of this.listeners) listener();
     });
   }
+}
+
+const UPDATES: readonly string[] = [
+  actionTypes.FETCH,
+  actionTypes.SET,
+  actionTypes.SET_RESPONSE,
+];
+
+/** `entries` without the updates past `limit` in any row, oldest first: a
+ * subscription's polls, or the pushed `set`s of one entity or
+ * `setResponse`s of one endpoint. A store's first action stays, as it marks
+ * where the store began */
+function capUpdates(entries: LogEntry[], limit: number): LogEntry[] {
+  if (!UPDATES.includes(entries[entries.length - 1].action.type))
+    return entries;
+  const updates: (readonly LogEntry[])[][] = [];
+  const pushed = new Map<string, (readonly LogEntry[])[]>();
+  for (const group of groupEntries(entries)) {
+    if (group.kind === 'subscription')
+      updates.push(group.requests.map(r => r.entries));
+    else if (
+      group.kind === 'single' &&
+      (group.entries[0].action.type === actionTypes.SET ||
+        group.entries[0].action.type === actionTypes.SET_RESPONSE)
+    ) {
+      const key = `${group.entries[0].action.type} ${group.key}`;
+      let row = pushed.get(key);
+      if (!row) pushed.set(key, (row = []));
+      row.push(group.entries);
+    }
+  }
+  updates.push(...pushed.values());
+  const extra = new Set<LogEntry>();
+  for (const row of updates)
+    for (const update of row.slice(0, Math.max(0, row.length - limit)))
+      if (!update.some(e => e.newStore)) update.forEach(e => extra.add(e));
+  return extra.size ? entries.filter(e => !extra.has(e)) : entries;
 }
 
 /** The newest `LOG_LIMIT` entries, plus the older ones their groups start
