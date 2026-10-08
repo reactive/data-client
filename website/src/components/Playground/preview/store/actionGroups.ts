@@ -266,6 +266,11 @@ export function groupEntries(entries: readonly LogEntry[]): ActionGroup[] {
         if (pending.get(action.key) === request) pending.delete(action.key);
         break;
       }
+      case actionTypes.RESET:
+        // NetworkManager drops the responses of everything in flight
+        pending.clear();
+        single(entry);
+        break;
       default:
         single(entry);
     }

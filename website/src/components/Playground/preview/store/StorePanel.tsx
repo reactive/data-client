@@ -1,4 +1,4 @@
-import { StateContext, type State } from '@data-client/react';
+import { actionTypes, StateContext, type State } from '@data-client/react';
 import React, {
   useCallback,
   useContext,
@@ -30,6 +30,7 @@ import {
 import { NavContext, type Nav, type View } from './nav';
 import RootView from './RootView';
 import type SchemaRegistry from './schemaRegistry';
+import type { PendingOptimistic } from './schemaRegistry';
 import styles from './store.module.css';
 import { StoreUIProvider } from './StoreUI';
 import TreeView from './TreeView';
@@ -64,8 +65,11 @@ export default function StorePanel({ registry }: { registry: SchemaRegistry }) {
   const state = snapshot?.store ? log.view(snapshot.store.after) : live;
   const liveModel = useMemo(() => buildModel(live, registry), [live, registry]);
   const model = useMemo(
-    () => (state === live ? liveModel : buildModel(state, registry)),
-    [state, live, liveModel, registry],
+    () =>
+      snapshot?.store ?
+        buildModel(state, registry, pendingIn(snapshot.store.after))
+      : liveModel,
+    [snapshot, state, liveModel, registry],
   );
 
   const actions = useMemo<Actions>(
@@ -76,9 +80,13 @@ export default function StorePanel({ registry }: { registry: SchemaRegistry }) {
         setSnapshot(seq);
         setTab('state');
       },
-      until: snapshot?.seq,
     }),
-    [log, entries, snapshot],
+    [log, entries],
+  );
+  // only State shows the past; the Actions tab's records are live
+  const stateActions = useMemo<Actions>(
+    () => (snapshot ? { ...actions, until: snapshot.seq } : actions),
+    [actions, snapshot],
   );
 
   const panel = useRef<HTMLDivElement>(null);
@@ -145,12 +153,14 @@ export default function StorePanel({ registry }: { registry: SchemaRegistry }) {
           )}
         </div>
         <div className={styles.tabPanel} hidden={tab !== 'state'}>
-          {snapshot && <SnapshotBar entry={snapshot} onShow={setSnapshot} />}
-          <StateContext.Provider value={state}>
-            {tree ?
-              <TreeLevel model={model} />
-            : <Levels model={model} width={width} root={STATE_ROOT} />}
-          </StateContext.Provider>
+          <ActionsContext.Provider value={stateActions}>
+            {snapshot && <SnapshotBar entry={snapshot} onShow={setSnapshot} />}
+            <StateContext.Provider value={state}>
+              {tree ?
+                <TreeLevel model={model} />
+              : <Levels model={model} width={width} root={STATE_ROOT} />}
+            </StateContext.Provider>
+          </ActionsContext.Provider>
         </div>
         {actionsShown && (
           <div className={styles.tabPanel} hidden={tab !== 'actions'}>
@@ -163,6 +173,14 @@ export default function StorePanel({ registry }: { registry: SchemaRegistry }) {
 }
 
 const STATE_ROOT: View = { kind: 'root' };
+
+/** The optimistic updates still waiting in a stored state */
+const pendingIn = (state: State<unknown>): PendingOptimistic[] =>
+  state.optimistic.flatMap(o =>
+    o.type === actionTypes.OPTIMISTIC ?
+      [{ key: o.key, args: o.args, fetchedAt: o.meta.fetchedAt }]
+    : [],
+  );
 const ACTIONS_ROOT: View = { kind: 'actions' };
 
 /** Says State is in the past; steps through the actions that changed it */
@@ -308,7 +326,14 @@ function Levels({
             view.kind === 'root' ? <RootView scroller={scroller} />
             : view.kind === 'actions' ? <ActionsRoot scroller={scroller} />
             : view.kind === 'action' ?
-              <ActionDetail seq={view.seq} header={() => crumbs(depth)} />
+              <ActionDetail
+                seq={view.seq}
+                header={() => crumbs(depth)}
+                // in State, uncover State as it was then
+                onShowState={
+                  root.kind === 'root' ? () => back(depth) : undefined
+                }
+              />
             : view.kind === 'list' ?
               <ListView
                 view={view}

@@ -20,7 +20,16 @@ import styles from './store.module.css';
 import { Field, Inline } from './Value';
 
 /** One action: what it changed, then the action itself */
-export function ActionDetail({ seq, header }: { seq: number; header: Header }) {
+export function ActionDetail({
+  seq,
+  header,
+  onShowState,
+}: {
+  seq: number;
+  header: Header;
+  /** After switching State to just after this action */
+  onShowState?: () => void;
+}) {
   const { log, showState } = useActions();
   const entry = log.find(seq);
   if (!entry)
@@ -64,7 +73,10 @@ export function ActionDetail({ seq, header }: { seq: number; header: Header }) {
                 <button
                   type="button"
                   className={styles.showState}
-                  onClick={() => showState(seq)}
+                  onClick={() => {
+                    showState(seq);
+                    onShowState?.();
+                  }}
                 >
                   View State after this
                 </button>

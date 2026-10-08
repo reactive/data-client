@@ -120,7 +120,11 @@ describe('Store Actions tab', () => {
     );
     expect(top().textContent).toContain('changed by');
     fireEvent.click(within(top()).getByRole('button', { name: /setResponse/ }));
-    expect(top().textContent).toContain('View State after this');
+    // from State, showing State then uncovers the record it came from
+    fireEvent.click(within(top()).getByRole('button', { name: /View State/ }));
+    expect(top().textContent).not.toContain('View State after this');
+    expect(top().textContent).toContain('changed by');
+    expect(screen.getByRole('button', { name: 'Live' })).toBeTruthy();
   });
 
   it('shows an optimistic update, its diff, and State as it was then', async () => {
@@ -163,12 +167,15 @@ describe('Store Actions tab', () => {
       0,
     );
     expect(within(statePanel).queryByText('"Edited!"')).toBeNull();
+    // with the request that was pending then
+    expect(statePanel.textContent).toContain('Optimistic');
 
     fireEvent.click(screen.getByRole('button', { name: 'Live' }));
     expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
     expect(within(statePanel).getAllByText('"Edited!"').length).toBeGreaterThan(
       0,
     );
+    expect(statePanel.textContent).not.toContain('Optimistic');
   });
 
   it('shows the new row next to an update in the same table', async () => {
@@ -256,6 +263,25 @@ describe('groupEntries', () => {
     ).toEqual([
       [1, 3],
       [2, 4],
+    ]);
+  });
+
+  it('starts reads over after a reset', () => {
+    const read = { key: 'GET /a', endpoint: {} };
+    const groups = groupEntries([
+      entry(1, { type: actionTypes.FETCH, ...read, meta: { fetchedAt: 1 } }),
+      entry(2, { type: actionTypes.RESET }),
+      entry(3, { type: actionTypes.FETCH, ...read, meta: { fetchedAt: 3 } }),
+      entry(4, {
+        type: actionTypes.SET_RESPONSE,
+        ...read,
+        meta: { fetchedAt: 3 },
+      }),
+    ]);
+    expect(groups.map(g => [g.kind, g.entries.map(e => e.seq)])).toEqual([
+      ['request', [1]],
+      ['single', [2]],
+      ['request', [3, 4]],
     ]);
   });
 

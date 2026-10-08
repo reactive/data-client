@@ -186,6 +186,8 @@ function buildTable(
 export function buildModel(
   state: State<unknown>,
   registry: SchemaRegistry,
+  /** Pending when `state` was: a past state's own, else the live ones */
+  optimistic: readonly PendingOptimistic[] = registry.optimistic,
 ): StoreModel {
   // errors and invalidations can leave meta without a stored response
   const endpointKeys = new Set([
@@ -221,7 +223,7 @@ export function buildModel(
     endpoints,
     tables: orderTables(tables),
     table: key => tables.get(key),
-    optimistic: registry.optimistic,
+    optimistic,
     indexes: state.indexes,
     lastReset: state.lastReset,
   };
