@@ -1238,16 +1238,16 @@ button.tlMark:hover {
 .tlBreak,
 .tlPlayhead {
   position: absolute;
-  top: 18px;
+  top: 0;
   bottom: 0;
   left: calc(var(--tl-label) + var(--tl-x));
   pointer-events: none;
 }
 .tlBreak {
+  top: 18px;
   border-left: 1px dashed var(--store-line-strong);
 }
 .tlPlayhead {
-  top: 0;
   width: 1px;
   background: var(--store-fg);
   opacity: 0.55;

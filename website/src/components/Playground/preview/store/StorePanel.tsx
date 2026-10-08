@@ -18,7 +18,7 @@ import {
   RowHistory,
 } from './ActionDetail';
 import { groupEntries, keepUnchanged, type ActionGroup } from './actionGroups';
-import { findEntry, type LogEntry } from './actionLog';
+import { findEntry, nearestChange, type LogEntry } from './actionLog';
 import {
   ActionsContext,
   ActionsRoot,
@@ -62,8 +62,6 @@ interface Then {
 }
 /** Breadcrumbs shown before the middle ones collapse to `…` */
 const CRUMBS = 4;
-/** Panel width (px) below which the timeline's lane labels shrink */
-const NARROW = 480;
 
 export default function StorePanel({
   registry,
@@ -81,8 +79,9 @@ export default function StorePanel({
   const [stored, setView] = useTabStorage('playgroundStoreView');
   const tree = stored === 'tree';
   const [actionsView, setActionsView] = useTabStorage('playgroundActionsView');
-  const timeline = actionsView === 'timeline';
   const [tab, setTab] = useState<'state' | 'actions'>('state');
+  // the Actions tab's timeline picks the moment State shows below it
+  const scrubbing = tab === 'actions' && actionsView === 'timeline';
   // the Actions tab mounts on first visit, then stays (scroll, open rows)
   const [actionsShown, setActionsShown] = useState(false);
   if (tab === 'actions' && !actionsShown) setActionsShown(true);
@@ -170,17 +169,19 @@ export default function StorePanel({
     () => ({ log, since: history.since, dropped: history.dropped }),
     [log, history.since, history.dropped],
   );
-  // only State shows the past; the Actions tab's records are live
+  // only State and the timeline show the past; the Actions list is live
   const stateActions = useMemo<Actions>(
     () =>
       snapshot ?
         {
           ...actions,
           history: { ...history, entries: known },
+          groups:
+            known === entries ? groups : groupEntries(known, history.storeFrom),
           until: snapshot.seq,
         }
       : actions,
-    [actions, history, known, snapshot],
+    [actions, history, known, entries, groups, snapshot],
   );
 
   const panel = useRef<HTMLDivElement>(null);
@@ -190,15 +191,6 @@ export default function StorePanel({
     panel,
     state,
     snapshot?.store && log.view(snapshot.store.before),
-  );
-
-  // shown by State, and below the timeline at the moment it picks
-  const stateView = (
-    <StateContext.Provider value={state}>
-      {tree ?
-        <TreeLevel model={model} />
-      : <Levels model={model} width={width} root={STATE_ROOT} then={then} />}
-    </StateContext.Provider>
   );
 
   return (
@@ -239,7 +231,7 @@ export default function StorePanel({
                   type="button"
                   aria-label="List view"
                   title="List view"
-                  aria-pressed={!timeline}
+                  aria-pressed={actionsView !== 'timeline'}
                   onClick={() => setActionsView('list')}
                 >
                   <ListIcon />
@@ -248,7 +240,7 @@ export default function StorePanel({
                   type="button"
                   aria-label="Timeline view"
                   title="Timeline view"
-                  aria-pressed={timeline}
+                  aria-pressed={actionsView === 'timeline'}
                   onClick={() => setActionsView('timeline')}
                 >
                   <TimelineIcon />
@@ -282,55 +274,58 @@ export default function StorePanel({
               </span>
             )}
           </div>
-          <div className={styles.tabPanel} hidden={tab !== 'state'}>
-            <ActionsContext.Provider value={stateActions}>
-              {snapshot && (
+          {actionsShown && (
+            <div
+              className={styles.tabPanel}
+              hidden={tab !== 'actions' || scrubbing}
+            >
+              <Levels
+                model={liveModel}
+                width={width}
+                root={ACTIONS_ROOT}
+                then={then}
+              />
+            </div>
+          )}
+          <ActionsContext.Provider value={stateActions}>
+            {scrubbing && (
+              <Timeline
+                selected={snapshotSeq}
+                onSelect={setSnapshot}
+                width={width}
+              />
+            )}
+            <div
+              className={styles.tabPanel}
+              hidden={tab !== 'state' && !scrubbing}
+            >
+              {(snapshot || scrubbing) && (
                 <SnapshotBar
                   entry={snapshot}
                   onShow={setSnapshot}
                   onBack={
-                    origin &&
-                    (() => {
-                      setOrigin(undefined);
-                      origin.back();
-                    })
+                    tab === 'state' && origin ?
+                      () => {
+                        setOrigin(undefined);
+                        origin.back();
+                      }
+                    : undefined
                   }
                 />
               )}
-              {stateView}
-            </ActionsContext.Provider>
-          </div>
-          {actionsShown && (
-            <div className={styles.tabPanel} hidden={tab !== 'actions'}>
-              <div className={styles.tabPanel} hidden={timeline}>
-                <Levels
-                  model={liveModel}
-                  width={width}
-                  root={ACTIONS_ROOT}
-                  then={then}
-                />
-              </div>
-              {timeline && (
-                <ActionsContext.Provider value={stateActions}>
-                  <Timeline
-                    entries={known}
-                    storeFrom={history.storeFrom}
-                    since={history.since}
-                    selected={snapshot?.seq ?? null}
-                    onSelect={setSnapshot}
-                    narrow={width < NARROW}
+              <StateContext.Provider value={state}>
+                {tree ?
+                  <TreeLevel model={model} />
+                : <Levels
+                    model={model}
+                    width={width}
+                    root={STATE_ROOT}
+                    then={then}
                   />
-                  {snapshot ?
-                    <SnapshotBar entry={snapshot} onShow={setSnapshot} />
-                  : <div className={clsx(styles.snapshot, styles.tlLive)}>
-                      Live. Pick an action to see State right after it.
-                    </div>
-                  }
-                  {stateView}
-                </ActionsContext.Provider>
-              )}
+                }
+              </StateContext.Provider>
             </div>
-          )}
+          </ActionsContext.Provider>
         </div>
       </LogContext.Provider>
     </ActionsContext.Provider>
@@ -340,28 +335,25 @@ export default function StorePanel({
 const STATE_ROOT: View = { kind: 'root' };
 const ACTIONS_ROOT: View = { kind: 'actions' };
 
-/** Says State is in the past; steps through the actions that changed it */
+/** Says State is in the past (or, under the timeline, live); steps through
+ * the actions that changed it */
 function SnapshotBar({
   entry,
   onShow,
   onBack,
 }: {
-  entry: LogEntry;
+  /** The action State is shown after; missing while live */
+  entry?: LogEntry;
   onShow: (seq: number | null) => void;
   /** Back to the action it was opened from */
   onBack?: () => void;
 }) {
   const { log, history } = useActions();
-  const { entries } = history;
-  const changing = useMemo(
-    () => entries.filter(e => log.changes(e).length),
-    [log, entries],
-  );
-  // by seq: the shown action may have dropped off the log
-  const later = changing.find(e => e.seq > entry.seq);
-  const earlier = changing.findLast(e => e.seq < entry.seq);
+  const seq = entry?.seq ?? null;
+  const later = nearestChange(log, history.entries, seq, 1);
+  const earlier = nearestChange(log, history.entries, seq, -1);
   return (
-    <div className={styles.snapshot}>
+    <div className={clsx(styles.snapshot, !entry && styles.tlLive)}>
       {onBack && (
         <button
           type="button"
@@ -389,16 +381,23 @@ function SnapshotBar({
       >
         ›
       </button>
-      <span className={styles.snapshotLabel}>
-        After <ActionName entry={entry} />
-      </span>
-      <button
-        type="button"
-        className={styles.liveButton}
-        onClick={() => onShow(null)}
-      >
-        Live
-      </button>
+      {entry ?
+        <>
+          <span className={styles.snapshotLabel}>
+            After <ActionName entry={entry} />
+          </span>
+          <button
+            type="button"
+            className={styles.liveButton}
+            onClick={() => onShow(null)}
+          >
+            Live
+          </button>
+        </>
+      : <span className={styles.snapshotLabel}>
+          Live. Pick an action to see State right after it.
+        </span>
+      }
     </div>
   );
 }

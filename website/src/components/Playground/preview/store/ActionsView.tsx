@@ -100,21 +100,23 @@ export function ActionsRoot({
   );
 }
 
-/** Keeps the newest row in view, unless the reader scrolled up */
-function useFollow(
+/** Keeps the newest row in view, unless the reader scrolled up (or, on
+ * the `x` axis, back) */
+export function useFollow(
   scroller: React.RefObject<HTMLElement | null>,
   rows: unknown,
+  axis: 'x' | 'y' = 'y',
 ) {
   const follow = useRef(true);
   useLayoutEffect(() => {
     const el = scroller.current;
     if (!el) return;
+    const { size, scroll, client } = AXES[axis];
     // a hidden tab has no height; its scroll position says nothing
     let hidden = !el.clientHeight;
     const onScroll = () => {
       if (hidden) return;
-      follow.current =
-        el.scrollHeight - el.scrollTop - el.clientHeight < FOLLOW_SLACK;
+      follow.current = el[size] - el[scroll] - el[client] < FOLLOW_SLACK;
     };
     el.addEventListener('scroll', onScroll, { passive: true });
     // rows added while hidden: catch up once the tab shows again
@@ -123,8 +125,7 @@ function useFollow(
         new ResizeObserver(() => {
           const wasHidden = hidden;
           hidden = !el.clientHeight;
-          if (wasHidden && !hidden && follow.current)
-            el.scrollTop = el.scrollHeight;
+          if (wasHidden && !hidden && follow.current) el[scroll] = el[size];
         })
       );
     observer?.observe(el);
@@ -132,12 +133,17 @@ function useFollow(
       el.removeEventListener('scroll', onScroll);
       observer?.disconnect();
     };
-  }, [scroller]);
+  }, [scroller, axis]);
   useLayoutEffect(() => {
     const el = scroller.current;
-    if (el?.clientHeight && follow.current) el.scrollTop = el.scrollHeight;
-  }, [scroller, rows]);
+    const { size, scroll } = AXES[axis];
+    if (el?.clientHeight && follow.current) el[scroll] = el[size];
+  }, [scroller, rows, axis]);
 }
+const AXES = {
+  x: { size: 'scrollWidth', scroll: 'scrollLeft', client: 'clientWidth' },
+  y: { size: 'scrollHeight', scroll: 'scrollTop', client: 'clientHeight' },
+} as const;
 
 /** Renders only when its group changes (see `keepUnchanged`) */
 const GroupRow = memo(function GroupRow({
@@ -330,16 +336,16 @@ export function KeyLabel({ value }: { value: string }) {
 
 function Time({ at }: { at: number }) {
   const { since } = useLog();
-  const s = (at - since) / 1000;
+  return <span className={styles.actTime}>{seconds(at - since)}s</span>;
+}
+
+/** Elapsed `ms` in seconds, to as many places as fit: `1.23`, `12.3`, `123` */
+export function seconds(ms: number) {
+  const s = ms / 1000;
   return (
-    <span className={styles.actTime}>
-      {s < 10 ?
-        s.toFixed(2)
-      : s < 100 ?
-        s.toFixed(1)
-      : Math.round(s)}
-      s
-    </span>
+    s < 10 ? s.toFixed(2)
+    : s < 100 ? s.toFixed(1)
+    : String(Math.round(s))
   );
 }
 

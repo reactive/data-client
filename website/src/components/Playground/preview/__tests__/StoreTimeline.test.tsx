@@ -49,7 +49,7 @@ function mount() {
       <StorePanel registry={registry} history={0} />
     </DataProvider>,
   );
-  return { ctrl: () => ref.ctrl!, history: () => registry.log.history(0) };
+  return { ctrl: () => ref.ctrl! };
 }
 
 const entry = (seq: number, at: number, action: any): LogEntry => ({
@@ -75,6 +75,7 @@ describe('timeScale', () => {
     expect(c - b).toBeCloseTo(16);
     expect(d - c).toBe(56);
     expect(scale.breaks).toEqual([c + 28]);
+    expect(scale.end).toBe(d);
     expect(scale.width).toBe(d + 24);
   });
 });
@@ -112,7 +113,6 @@ describe('Store Actions timeline', () => {
     fireEvent.click(screen.getByRole('tab', { name: /Actions/ }));
     fireEvent.click(screen.getByRole('button', { name: 'Timeline view' }));
     const timeline = screen.getByRole('group', { name: /^Timeline/ });
-    // the timeline's tab panel; State's stays mounted, hidden
     const panel = within(timeline.parentElement!);
     // one lane for the endpoint, both requests on it
     expect(timeline.textContent).toContain('/posts');
@@ -131,7 +131,7 @@ describe('Store Actions timeline', () => {
     expect(panel.queryAllByText('"Two"')).toHaveLength(0);
     expect(marks[0].hasAttribute('data-selected')).toBe(true);
 
-    // the arrow keys step through them, past the newest back to live
+    // the arrow keys step through changes, past the newest back to live
     fireEvent.keyDown(timeline, { key: 'ArrowRight' });
     expect(panel.getAllByText('"Two"').length).toBeGreaterThan(0);
     expect(marks[1].hasAttribute('data-selected')).toBe(true);

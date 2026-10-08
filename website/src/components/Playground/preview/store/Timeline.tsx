@@ -1,15 +1,20 @@
 import clsx from 'clsx';
-import React, { useLayoutEffect, useMemo, useRef } from 'react';
+import React, { memo, useLayoutEffect, useMemo, useRef } from 'react';
 
 import {
   actionName,
-  groupEntries,
   joinedFetches,
   type ActionGroup,
   type RequestGroup,
 } from './actionGroups';
-import type { LogEntry } from './actionLog';
-import { KeyLabel, typeClass } from './ActionsView';
+import { nearestChange, type LogEntry } from './actionLog';
+import {
+  KeyLabel,
+  seconds,
+  typeClass,
+  useActions,
+  useFollow,
+} from './ActionsView';
 import styles from './store.module.css';
 
 /** Pixels per millisecond between two actions */
@@ -22,13 +27,15 @@ const MAX_GAP = 56;
 const PAD = 24;
 /** Closest two axis labels get (px) */
 const LABEL_GAP = 64;
-/** Distance from the right end (px) that still counts as following */
-const FOLLOW_SLACK = 24;
+/** Panel width (px) below which lane labels shrink */
+const NARROW = 480;
 
 /** Where each action sits along the timeline */
 export interface TimeScale {
   /** By seq: px from the start */
   readonly x: ReadonlyMap<number, number>;
+  /** Px of the last action: where what is still open runs to */
+  readonly end: number;
   /** Px wide, padding included */
   readonly width: number;
   /** Px where an idle stretch was cut short */
@@ -52,7 +59,7 @@ export function timeScale(entries: readonly LogEntry[]): TimeScale {
     x.set(entry.seq, pos);
     prev = entry;
   }
-  return { x, width: pos + PAD, breaks };
+  return { x, end: pos, width: pos + PAD, breaks };
 }
 
 /** One row of the timeline: every group about one key */
@@ -72,47 +79,34 @@ export function lanesOf(groups: readonly ActionGroup[]): Lane[] {
   return [...lanes].map(([key, groups]) => ({ key, groups }));
 }
 
-/** Every action on one time axis, a lane per key: requests as spans from
- * fetch to response, everything else as marks. Picking an action that left
- * the store in a new state shows State as it was right after it */
-export default function Timeline({
-  entries,
-  storeFrom,
-  since,
+/** The shown store's actions on one time axis, a lane per key: requests as
+ * spans from fetch to response, everything else as marks. Picking an action
+ * the store saw shows State as it was right after it */
+export default memo(function Timeline({
   selected,
   onSelect,
-  narrow,
+  width,
 }: {
-  entries: readonly LogEntry[];
-  /** See `History` */
-  storeFrom?: number;
-  /** When the first action was dispatched */
-  since: number;
   /** The action State is shown after; `null` while live */
   selected: number | null;
   onSelect: (seq: number | null) => void;
-  /** A phone-width panel: shorter labels */
-  narrow?: boolean;
+  /** Panel width (px) */
+  width: number;
 }) {
-  const lanes = useMemo(
-    () => lanesOf(groupEntries(entries, storeFrom)),
-    [entries, storeFrom],
-  );
+  const { log, history, groups } = useActions();
+  const { entries, since } = history;
+  const lanes = useMemo(() => lanesOf(groups), [groups]);
   // fetches deduped into a request in flight add nothing to see
   const shown = useMemo(() => {
-    const joined = new Set<LogEntry>();
-    for (const { groups } of lanes)
-      for (const group of groups)
-        for (const entry of joinedFetches(group).keys()) joined.add(entry);
+    const joined = new Set(groups.flatMap(g => [...joinedFetches(g).keys()]));
     return entries.filter(e => !joined.has(e));
-  }, [entries, lanes]);
+  }, [entries, groups]);
   const scale = useMemo(() => timeScale(shown), [shown]);
-  // what picking and the arrow keys step through
-  const points = useMemo(() => shown.filter(e => e.store), [shown]);
+  const labels = useMemo(() => axisLabels(shown, scale), [shown, scale]);
   const at = selected === null ? undefined : scale.x.get(selected);
 
   const scroller = useRef<HTMLDivElement>(null);
-  useFollowEnd(scroller, scale.width, selected === null);
+  useFollow(scroller, scale.width, 'x');
   useLayoutEffect(() => {
     if (selected === null) return;
     scroller.current
@@ -128,41 +122,41 @@ export default function Timeline({
       </p>
     );
 
+  // the arrow keys step as the snapshot bar's ‹ › do; past the newest is live
   const step = (by: -1 | 1) => {
-    const i = points.findIndex(e => e.seq === selected);
-    const next =
-      i < 0 ?
-        by < 0 ?
-          points.at(-1)
-        : undefined
-      : points[i + by];
+    const next = nearestChange(log, entries, selected, by);
     if (next) onSelect(next.seq);
     else if (by > 0) onSelect(null);
   };
   const onKeyDown = (e: React.KeyboardEvent) => {
-    const handle = {
-      ArrowLeft: () => step(-1),
-      ArrowRight: () => step(1),
-      Home: () => points[0] && onSelect(points[0].seq),
-      End: () => onSelect(null),
-      Escape: () => onSelect(null),
-    }[e.key];
-    if (!handle) return;
+    switch (e.key) {
+      case 'ArrowLeft':
+        step(-1);
+        break;
+      case 'ArrowRight':
+        step(1);
+        break;
+      case 'End':
+      case 'Escape':
+        onSelect(null);
+        break;
+      default:
+        return;
+    }
     e.preventDefault();
-    handle();
   };
   const px = (x: number) => ({ '--tl-x': `${x}px` }) as React.CSSProperties;
   const mark = (entry: LogEntry, extra?: string) => {
     const label = `${actionName(entry.action)} at ${seconds(entry.at - since)}s`;
-    const className = clsx(styles.tlMark, typeClass(entry), extra);
+    const style = px(scale.x.get(entry.seq)!);
     // only an action the store saw has a state to show
     return entry.store ?
         <button
           key={entry.seq}
           type="button"
           tabIndex={-1}
-          className={className}
-          style={px(scale.x.get(entry.seq)!)}
+          className={clsx(styles.tlMark, typeClass(entry), extra)}
+          style={style}
           title={label}
           aria-label={label}
           data-selected={entry.seq === selected || undefined}
@@ -170,12 +164,16 @@ export default function Timeline({
         />
       : <span
           key={entry.seq}
-          className={clsx(className, styles.tlHollow)}
-          style={px(scale.x.get(entry.seq)!)}
+          className={clsx(
+            styles.tlMark,
+            styles.tlHollow,
+            typeClass(entry),
+            extra,
+          )}
+          style={style}
           title={label}
         />;
   };
-  const end = scale.width - PAD;
   const span = (from: number, to: number, className: string, key: string) => (
     <span
       key={key}
@@ -184,16 +182,19 @@ export default function Timeline({
     />
   );
   const request = (group: RequestGroup) => {
+    // without the fetches deduped into it
     const own = group.entries.filter(e => scale.x.has(e.seq));
-    const from = scale.x.get(own[0].seq)!;
+    const first = own[0];
     const to =
       group.response ? scale.x.get(group.response.seq)!
       : group.cancelled ? scale.x.get(own.at(-1)!.seq)!
-      : end;
+      : scale.end;
+    // as the list's lifecycle shows it: a fetch that changed the store
+    const optimistic = log.changes(first).length > 0;
     return [
-      span(from, to, styles.tlSpan, `span ${group.id}`),
+      span(scale.x.get(first.seq)!, to, styles.tlSpan, `span ${group.id}`),
       ...own.map(e =>
-        mark(e, e === own[0] && e.store ? styles.tlOptimistic : undefined),
+        mark(e, e === first && optimistic ? styles.tlOptimistic : undefined),
       ),
     ];
   };
@@ -201,7 +202,8 @@ export default function Timeline({
     if (group.kind === 'request') return request(group);
     if (group.kind === 'single') return [mark(group.entries[0])];
     const from = scale.x.get(group.entries[0].seq)!;
-    const to = group.open > 0 ? end : scale.x.get(group.entries.at(-1)!.seq)!;
+    const to =
+      group.open > 0 ? scale.end : scale.x.get(group.entries.at(-1)!.seq)!;
     return [
       span(from, to, styles.tlSubscription, `span ${group.id}`),
       ...group.entries.map(e => mark(e)),
@@ -213,10 +215,10 @@ export default function Timeline({
     <div
       ref={scroller}
       className={styles.timeline}
-      data-narrow={narrow || undefined}
+      data-narrow={width < NARROW || undefined}
       tabIndex={0}
       role="group"
-      aria-label="Timeline: arrow keys step through actions, End returns to live"
+      aria-label="Timeline: arrow keys step through changes, End returns to live"
       onKeyDown={onKeyDown}
     >
       <div
@@ -226,7 +228,7 @@ export default function Timeline({
         <div className={styles.tlAxis}>
           <span className={styles.tlLabel} />
           <span className={styles.tlTrack}>
-            {axisLabels(shown, scale).map(({ seq, x, at }) => (
+            {labels.map(({ seq, x, at }) => (
               <span key={seq} className={styles.tlTime} style={px(x)}>
                 {seconds(at - since)}s
               </span>
@@ -252,7 +254,7 @@ export default function Timeline({
       </div>
     </div>
   );
-}
+});
 
 /** Entries to label on the axis, at least `LABEL_GAP` apart */
 function axisLabels(entries: readonly LogEntry[], scale: TimeScale) {
@@ -263,34 +265,4 @@ function axisLabels(entries: readonly LogEntry[], scale: TimeScale) {
       labels.push({ seq, x, at });
   }
   return labels;
-}
-
-const seconds = (ms: number) => {
-  const s = ms / 1000;
-  return s < 10 ? s.toFixed(2) : s.toFixed(1);
-};
-
-/** Keeps the newest end in view while `live`, unless the reader scrolled
- * back */
-function useFollowEnd(
-  scroller: React.RefObject<HTMLElement | null>,
-  width: number,
-  live: boolean,
-) {
-  const follow = useRef(true);
-  useLayoutEffect(() => {
-    const el = scroller.current;
-    if (!el) return;
-    const onScroll = () => {
-      if (!el.clientWidth) return;
-      follow.current =
-        el.scrollWidth - el.scrollLeft - el.clientWidth < FOLLOW_SLACK;
-    };
-    el.addEventListener('scroll', onScroll, { passive: true });
-    return () => el.removeEventListener('scroll', onScroll);
-  }, [scroller]);
-  useLayoutEffect(() => {
-    const el = scroller.current;
-    if (el && live && follow.current) el.scrollLeft = el.scrollWidth;
-  }, [scroller, width, live]);
 }

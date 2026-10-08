@@ -85,6 +85,23 @@ const EMPTY: History = { entries: [], since: 0 };
 export const findEntry = (entries: readonly LogEntry[], seq: number) =>
   entries.find(e => e.seq === seq);
 
+/** The nearest action before (`-1`) or after (`1`) `seq` that changed the
+ * store, by seq (`seq` may have dropped off the log); `null` is live, after
+ * every action */
+export function nearestChange(
+  log: ActionLog,
+  entries: readonly LogEntry[],
+  seq: number | null,
+  by: -1 | 1,
+): LogEntry | undefined {
+  const changed = (e: LogEntry) => log.changes(e).length > 0;
+  if (by < 0)
+    return entries.findLast(e => (seq === null || e.seq < seq) && changed(e));
+  return seq === null ? undefined : (
+      entries.find(e => e.seq > seq && changed(e))
+    );
+}
+
 /** Every action dispatched in the preview, with the store state it left, by
  * history. Lives as long as the live preview.
  *
