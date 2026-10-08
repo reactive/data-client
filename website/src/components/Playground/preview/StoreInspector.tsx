@@ -110,6 +110,8 @@ export function StoreHeaderToggle({
       title={open ? 'Hide Store' : 'Show Store'}
       aria-label="Store"
       aria-pressed={open}
+      // without a handler it only holds the header's layout while loading
+      disabled={!onClick}
       onClick={onClick}
     >
       <StoreIcon />

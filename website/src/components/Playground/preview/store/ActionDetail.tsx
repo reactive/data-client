@@ -17,7 +17,7 @@ import {
 import type { Header } from './DiveViews';
 import { onActivateKey } from './dom';
 import { errorText } from './model';
-import { ActionSpanContext, useNav } from './nav';
+import { ActionSpanContext, type Nav, useNav } from './nav';
 import { plain } from './refs';
 import styles from './store.module.css';
 import { Field, Inline } from './Value';
@@ -289,12 +289,23 @@ function withoutFunctions(value: unknown) {
 export function ChangedBy({ id }: { id: string }) {
   const actions = useContext(ActionsContext);
   const nav = useNav();
-  const changes = useMemo(
-    () => (actions ? rowHistory(actions, id) : []),
-    [actions, id],
-  );
+  return actions && nav ?
+      <LastChange id={id} actions={actions} nav={nav} />
+    : null;
+}
+
+function LastChange({
+  id,
+  actions,
+  nav,
+}: {
+  id: string;
+  actions: Actions;
+  nav: Nav;
+}) {
+  const changes = useMemo(() => rowHistory(actions, id), [actions, id]);
   const last = changes.at(-1);
-  if (!nav || !last) return null;
+  if (!last) return null;
   const { seq } = last.entry;
   return (
     <div className={styles.field}>

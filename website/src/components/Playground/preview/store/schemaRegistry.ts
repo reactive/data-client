@@ -16,7 +16,7 @@ export interface EndpointRecord {
 /** Remembers each endpoint (and every entity schema reachable from it) as
  * actions pass through, since the store only holds keys and ids.
  * Lives as long as the live preview (across store remounts), as does the
- * `log` of every action it sees.
+ * `log`, which each store records into through the managers it connects.
  * Never prunes: fine for a playground session, not for a long-lived app. */
 export default class SchemaRegistry implements Manager<ActionTypes> {
   readonly endpoints = new Map<string, EndpointRecord>();

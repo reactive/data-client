@@ -14,6 +14,7 @@ import React, {
 import {
   actionName,
   groupEntriesOf,
+  pollFrequencyOf,
   joinedFetches,
   type ActionGroup,
   type Change,
@@ -348,8 +349,8 @@ function pollFrequency(group: SubscriptionGroup): number | undefined {
   let active: number[] = [];
   let last: number[] = [];
   for (const { action } of group.entries) {
-    const frequency = (action as any).endpoint?.pollFrequency;
-    if (typeof frequency !== 'number') continue;
+    const frequency = pollFrequencyOf(action);
+    if (frequency === undefined) continue;
     if (action.type === actionTypes.SUBSCRIBE) active.push(frequency);
     else {
       const i = active.indexOf(frequency);

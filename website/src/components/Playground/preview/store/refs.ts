@@ -19,7 +19,9 @@ export function isEntityLike(schema: any): boolean {
   );
 }
 
-function isPlainObject(value: any): value is Record<string, unknown> {
+export function isPlainObject(
+  value: unknown,
+): value is Record<string, unknown> {
   if (!value || typeof value !== 'object') return false;
   const proto = Object.getPrototypeOf(value);
   return proto === Object.prototype || proto === null;

@@ -11,20 +11,21 @@ import {
   diffStates,
   groupEntries,
   groupEntriesOf,
+  pollFrequencyOf,
   mergeChanges,
   type Change,
   type RequestGroup,
 } from './actionGroups';
 
 /** Actions kept; older ones drop off the front */
-export const LOG_LIMIT = 500;
+const LOG_LIMIT = 500;
 /** Updates kept per row (`updateLimit`): a subscription's polls, or pushed
  * `set`s of one entity and `setResponse`s of one endpoint */
-export const UPDATE_LIMIT = 20;
+const UPDATE_LIMIT = 20;
 /** Actions logged between trims (`trimEvery`): trimming regroups the whole
  * log, so it runs in batches, and the log runs up to this far past its
  * limits in between */
-export const TRIM_EVERY = 50;
+const TRIM_EVERY = 50;
 
 export interface LogOptions {
   /** Updates kept per row (default `UPDATE_LIMIT`) */
@@ -185,10 +186,12 @@ export default class ActionLog {
           // first actions
           reached = true;
           const before = (state ??= detach(controller.getState()));
-          state =
-            action.type === actionTypes.GC ?
-              collect(before, action)
-            : reduce(before, action);
+          // the store's reducer deletes garbage in place, from tables earlier
+          // states share
+          state = reduce(
+            action.type === actionTypes.GC ? detach(before) : before,
+            action,
+          );
           this.settle(id, recorded.get(action), { before, after: state });
           return next(action);
         };
@@ -266,7 +269,7 @@ export default class ActionLog {
       ...history,
       entries: appended,
       since: entries.length ? since : entry.at,
-      ...(due && this.compact(appended, history?.dropped)),
+      ...(due && this.compact(appended, history)),
     });
     // Components read while they render. If the panel heard about a read it
     // would render too, which retries a suspended component, which reads
@@ -281,10 +284,10 @@ export default class ActionLog {
   /** `entries` within `updateLimit` and `LOG_LIMIT` */
   private compact(
     entries: readonly LogEntry[],
-    dropped: ReadonlyMap<number, number> = new Map(),
+    { storeFrom, dropped = new Map() }: Partial<History> = {},
   ): Pick<History, 'entries' | 'trimmed' | 'dropped'> {
-    const capped = capUpdates(entries, this.updateLimit, dropped);
-    const kept = trim(capped.entries);
+    const capped = capUpdates(entries, this.updateLimit, dropped, storeFrom);
+    const kept = trim(capped.entries, storeFrom);
     return {
       entries: kept,
       trimmed: kept.length,
@@ -334,12 +337,18 @@ function capUpdates(
   entries: readonly LogEntry[],
   limit: number,
   counts: ReadonlyMap<number, number>,
+  storeFrom?: number,
 ) {
   const updates: (readonly LogEntry[])[][] = [];
   const pushed = new Map<string, (readonly LogEntry[])[]>();
-  for (const group of groupEntries(entries)) {
+  for (const group of groupEntries(entries, storeFrom)) {
+    // a request still waiting stays, as trim keeps it
     if (group.kind === 'subscription')
-      updates.push(group.requests.map(r => r.entries));
+      updates.push(
+        group.requests
+          .filter(r => r.response || r.cancelled)
+          .map(r => r.entries),
+      );
     else if (
       group.kind === 'single' &&
       (group.entries[0].action.type === actionTypes.SET ||
@@ -375,7 +384,7 @@ function capUpdates(
  * from: a request's fetch and response while it waits or has entries kept, and the
  * subscribes of a subscription still open or holding a kept request, so a
  * long poll keeps its row */
-function trim(entries: LogEntry[]): LogEntry[] {
+function trim(entries: LogEntry[], storeFrom?: number): LogEntry[] {
   const drop = entries.length - LOG_LIMIT;
   if (drop <= 0) return entries;
   const cut = entries[drop].seq;
@@ -389,7 +398,7 @@ function trim(entries: LogEntry[]): LogEntry[] {
     anchors.add(request.entries[0]);
     if (request.response) anchors.add(request.response);
   };
-  for (const group of groupEntries(entries)) {
+  for (const group of groupEntries(entries, storeFrom)) {
     if (group.kind === 'request') anchorRequest(group);
     if (group.kind !== 'subscription') continue;
     group.requests.forEach(anchorRequest);
@@ -406,7 +415,7 @@ function trim(entries: LogEntry[]): LogEntry[] {
         continue;
       }
       const i = open.findIndex(
-        e => frequency(e.action) === frequency(entry.action),
+        e => pollFrequencyOf(e.action) === pollFrequencyOf(entry.action),
       );
       if (i >= 0) pairs.set(open.splice(i, 1)[0], entry);
     }
@@ -431,9 +440,6 @@ function trim(entries: LogEntry[]): LogEntry[] {
   return entries.filter(e => !dropped(e) || anchors.has(e));
 }
 
-const frequency = (action: ActionTypes): unknown =>
-  (action as { endpoint?: { pollFrequency?: number } }).endpoint?.pollFrequency;
-
 /** `state` with tables of its own: the store's reducer deletes garbage from
  * its tables in place, which states built from them share */
 function detach(state: State<unknown>): State<unknown> {
@@ -448,30 +454,4 @@ function detach(state: State<unknown>): State<unknown> {
     endpoints: { ...state.endpoints },
     meta: { ...state.meta },
   };
-}
-
-/** The reducer deletes garbage in place; earlier states share those tables */
-function collect(
-  state: State<unknown>,
-  action: Extract<ActionTypes, { type: typeof actionTypes.GC }>,
-): State<unknown> {
-  const entities = { ...state.entities };
-  const entitiesMeta = { ...state.entitiesMeta };
-  for (const { key, pk } of action.entities) {
-    if (entities[key]) {
-      const { [pk]: _, ...rest } = entities[key];
-      entities[key] = rest;
-    }
-    if (entitiesMeta[key]) {
-      const { [pk]: _, ...rest } = entitiesMeta[key];
-      entitiesMeta[key] = rest;
-    }
-  }
-  const endpoints = { ...state.endpoints };
-  const meta = { ...state.meta };
-  for (const key of action.endpoints) {
-    delete endpoints[key];
-    delete meta[key];
-  }
-  return { ...state, entities, entitiesMeta, endpoints, meta };
 }

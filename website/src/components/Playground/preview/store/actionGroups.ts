@@ -2,7 +2,7 @@ import { actionTypes, type ActionTypes, type State } from '@data-client/react';
 
 import type { LogEntry } from './actionLog';
 import { endpointId, entityId } from './model';
-import { temporalType } from './refs';
+import { isPlainObject, temporalType } from './refs';
 
 export type ChangeKind =
   | 'added'
@@ -149,10 +149,7 @@ function changedFields(a: unknown, b: unknown): string[] {
 const isObject = (v: unknown): v is Record<string, unknown> =>
   !!v && typeof v === 'object';
 /** An array or plain object: its fields are all its data */
-const isPlain = (v: Record<string, unknown>) => {
-  const proto = Object.getPrototypeOf(v);
-  return proto === Object.prototype || proto === Array.prototype || !proto;
-};
+const isPlain = (v: unknown) => isPlainObject(v) || Array.isArray(v);
 
 /** Same data, whatever the identity (a refetch stores equal copies) */
 function equal(a: unknown, b: unknown, depth = 0): boolean {
@@ -474,5 +471,14 @@ const NAMES: Record<string, string> = {
 };
 
 /** The Controller method that dispatches it: `setResponse` */
+/** A subscribe's or unsubscribe's poll frequency (ms) */
+export const pollFrequencyOf = (action: ActionTypes): number | undefined =>
+  (
+    action.type === actionTypes.SUBSCRIBE ||
+    action.type === actionTypes.UNSUBSCRIBE
+  ) ?
+    action.endpoint.pollFrequency
+  : undefined;
+
 export const actionName = (action: ActionTypes) =>
   NAMES[action.type] ?? action.type;
