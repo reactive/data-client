@@ -309,8 +309,8 @@ div.playgroundTextEdit > .playgroundHeader,
   display: flex;
   flex-direction: column;
 }
-/* the files and the Store's layer share one cell; the files set its height
-   (the Store is size-contained beside them) */
+/* the files and the Store's layer share one cell; side by side the files set
+   its height, stacked the open Store does */
 .editorBody {
   flex: 1 1 auto;
   display: grid;
