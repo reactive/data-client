@@ -1338,6 +1338,10 @@ describe('mergeChanges', () => {
       stored(3, 3),
     );
     expect(mergeChanges([poll, update])).toMatchObject([{ kind: 'updated' }]);
+    // a response that changes the endpoint, alone
+    expect(mergeChanges(steps(stored(1, 1), stored(2, 2)))).toMatchObject([
+      { kind: 'updated' },
+    ]);
   });
 
   it('remembers which action removed a row', () => {
