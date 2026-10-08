@@ -68,11 +68,29 @@ export type View =
   | { readonly kind: 'record'; readonly id: string }
   | { readonly kind: 'action'; readonly seq: number };
 
+/** The store as an action left it, or (`before`) found it */
+export interface Moment {
+  readonly seq: number;
+  readonly before?: true;
+}
+
+/** The actions some chips summarize, by seq. What the chips open shows the
+ * store as those actions left it, not as it is now */
+export interface ActionSpan {
+  readonly first: number;
+  readonly last: number;
+}
+export const ActionSpanContext = createContext<ActionSpan | undefined>(
+  undefined,
+);
+
 export interface Nav {
   readonly model: StoreModel;
   /** Panel width in px, to fit columns and chips */
   readonly width: number;
-  readonly push: (view: View) => void;
+  /** Opens `view` over this level; at the store `at` shows, by default the
+   * one this level shows */
+  readonly push: (view: View, at?: Moment) => void;
 }
 
 /** Set by the table view and the Actions tab; the tree view expands in place

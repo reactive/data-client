@@ -24,7 +24,7 @@ import type ActionLog from './actionLog';
 import type { History, LogEntry } from './actionLog';
 import { onActivateKey } from './dom';
 import { splitKey } from './model';
-import { useNav } from './nav';
+import { ActionSpanContext, useNav, type ActionSpan } from './nav';
 import styles from './store.module.css';
 import { CountChip, EndpointKey, EntityKey, RefChip } from './Value';
 
@@ -171,7 +171,9 @@ const GroupRow = memo(function GroupRow({
         </span>
         <span className={styles.actSum}>
           <Lifecycle group={group} />
-          <ChangeChips changes={changes} own={group.key} />
+          <ActionSpanContext.Provider value={spanOf(all)}>
+            <ChangeChips changes={changes} own={group.key} />
+          </ActionSpanContext.Provider>
         </span>
       </div>
       {open && <Steps group={group} all={all} />}
@@ -233,7 +235,9 @@ function StepRow({ entry, own }: { entry: LogEntry; own: string }) {
       <Time at={entry.at} />
       <TypeName entry={entry} />
       <span className={styles.actSum}>
-        <ChangeChips changes={log.changes(entry)} own={own} />
+        <ActionSpanContext.Provider value={spanOf([entry])}>
+          <ChangeChips changes={log.changes(entry)} own={own} />
+        </ActionSpanContext.Provider>
       </span>
     </div>
   );
@@ -477,7 +481,16 @@ export function ChangeChips({
   );
 }
 
+/** The actions among `entries` that changed the store, if any did */
+export function spanOf(entries: readonly LogEntry[]): ActionSpan | undefined {
+  const stored = entries.filter(e => e.store);
+  return stored.length ?
+      { first: stored[0].seq, last: stored[stored.length - 1].seq }
+    : undefined;
+}
+
 export function ChangeChip({ change }: { change: Change }) {
+  const span = useContext(ActionSpanContext);
   const label =
     'endpoint' in change ?
       <EndpointKey {...splitKey(change.endpoint)} />
@@ -488,6 +501,22 @@ export function ChangeChip({ change }: { change: Change }) {
     'fields' in change && change.fields?.length ?
       `${change.kind}: ${change.fields.join(', ')}`
     : change.kind;
+  // a removed row opens as it was right before
+  if (change.kind === 'removed' && span)
+    return (
+      <RefChip
+        id={change.id}
+        className={styles.goneRef}
+        title={title}
+        at={{ seq: span.first, before: true }}
+        label={
+          <>
+            {mark}
+            {label}
+          </>
+        }
+      />
+    );
   if (change.kind === 'removed')
     return (
       <span

@@ -225,6 +225,47 @@ describe('Store Actions tab', () => {
     ).toBeTruthy();
   });
 
+  it('opens what an action changed as it left the store', async () => {
+    const { ctrl } = mount();
+    const posts = (key: string, rows: object[]) =>
+      new Endpoint(async () => rows, {
+        schema: [Post],
+        key: () => `GET https://example.com/${key}`,
+        name: key,
+      });
+    await act(() => ctrl().fetch(posts('a', [{ id: '1', title: 'Uno' }])));
+    await act(() =>
+      ctrl().fetch(
+        posts('b', [
+          { id: '1', title: 'Later' },
+          { id: '3', title: 'Three' },
+        ]),
+      ),
+    );
+    act(() => {
+      ctrl().dispatch({
+        type: actionTypes.GC,
+        entities: [{ key: 'Post', pk: '3' }],
+        endpoints: [],
+      });
+    });
+    fireEvent.click(actionsTab());
+    const top = () =>
+      [...document.querySelectorAll<HTMLElement>('[data-level]')].find(
+        el => !el.closest('[hidden]') && !el.hasAttribute('data-covered'),
+      )!;
+    // as the first fetch left it, though a later one changed it
+    fireEvent.click(within(rows()[0]).getByRole('button', { name: /Post 1/ }));
+    expect(top().textContent).toContain('after this action');
+    expect(top().textContent).toContain('"Uno"');
+    expect(top().textContent).not.toContain('"Later"');
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    // a collected row opens as it was before
+    fireEvent.click(within(rows()[2]).getByRole('button', { name: /Post 3/ }));
+    expect(top().textContent).toContain('before this action');
+    expect(top().textContent).toContain('"Three"');
+  });
+
   it('lets a suspended component wait without fetching again', async () => {
     let respond = () => {};
     const getSlow = new Endpoint(

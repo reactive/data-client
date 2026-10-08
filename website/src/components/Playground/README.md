@@ -147,7 +147,10 @@ DesignSystem/       components injected into preview scope
   tail last when adding managers. `usePreviewReset` owns the `history` id: each
   fresh store (Reset, or an error's automatic retry) starts a new one, and a
   store the retry gives back continues its own. The Store panel shows that
-  history only.
+  history only. What an action's chips open shows the store as that action
+  left it (a removed row: as it was just before); a level pushed with a
+  `Moment` gets that store's model and `StateContext`, and what it opens
+  inherits it.
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
   count in the preview header (written to the DOM, so counting adds no commits).
   `website/profiling-plugin.js` replaces `react-dom/client` with React's

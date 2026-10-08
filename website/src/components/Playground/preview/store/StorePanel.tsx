@@ -30,7 +30,7 @@ import {
   pendingIn,
   type StoreModel,
 } from './model';
-import { NavContext, type Nav, type View } from './nav';
+import { NavContext, type Moment, type Nav, type View } from './nav';
 import RootView from './RootView';
 import type SchemaRegistry from './schemaRegistry';
 import styles from './store.module.css';
@@ -42,6 +42,16 @@ import { useTabStorage } from '../../../../utils/tabStorage';
 interface Entry {
   readonly key: number;
   readonly view: View;
+  /** Shows the store as an action left it, instead of as it is */
+  readonly at?: Moment;
+}
+
+/** The store at a `Moment` */
+interface Then {
+  readonly state: State<unknown>;
+  readonly model: StoreModel;
+  /** The last action it includes */
+  readonly until: number;
 }
 /** Breadcrumbs shown before the middle ones collapse to `…` */
 const CRUMBS = 4;
@@ -85,6 +95,29 @@ export default function StorePanel({
         buildModel(state, registry, pendingIn(snapshot.store.after.optimistic))
       : liveModel,
     [snapshot, state, liveModel, registry],
+  );
+
+  // what an action's chips open: the store as it left it. Cached per state,
+  // so a level showing one keeps its rows as the log grows
+  const [thens] = useState(() => new WeakMap<State<unknown>, Then>());
+  const then = useCallback(
+    ({ seq, before }: Moment): Then | undefined => {
+      const store = findEntry(entries, seq)?.store;
+      if (!store) return undefined;
+      const raw = before ? store.before : store.after;
+      let found = thens.get(raw);
+      if (!found) {
+        const state = log.view(raw);
+        found = {
+          state,
+          model: buildModel(state, registry, pendingIn(raw.optimistic)),
+          until: before ? seq - 1 : seq,
+        };
+        thens.set(raw, found);
+      }
+      return found;
+    },
+    [entries, log, registry, thens],
   );
 
   // a cache: rows that didn't change keep their group, so they skip rendering
@@ -187,13 +220,24 @@ export default function StorePanel({
               <StateContext.Provider value={state}>
                 {tree ?
                   <TreeLevel model={model} />
-                : <Levels model={model} width={width} root={STATE_ROOT} />}
+                : <Levels
+                    model={model}
+                    width={width}
+                    root={STATE_ROOT}
+                    then={then}
+                  />
+                }
               </StateContext.Provider>
             </ActionsContext.Provider>
           </div>
           {actionsShown && (
             <div className={styles.tabPanel} hidden={tab !== 'actions'}>
-              <Levels model={liveModel} width={width} root={ACTIONS_ROOT} />
+              <Levels
+                model={liveModel}
+                width={width}
+                root={ACTIONS_ROOT}
+                then={then}
+              />
             </div>
           )}
         </div>
@@ -262,11 +306,13 @@ function Levels({
   model,
   width,
   root,
+  then,
 }: {
   model: StoreModel;
   width: number;
   /** The bottom level: State's overview, or the Actions list */
   root: View;
+  then: (at: Moment) => Then | undefined;
 }) {
   // the record a level was opened from flashes once that level is back on top
   const [{ stack, returnTo }, setLevels] = useState<{
@@ -274,16 +320,43 @@ function Levels({
     readonly returnTo: string | null;
   }>({ stack: [{ key: 0, view: root }], returnTo: null });
   const nextKey = useRef(1);
-  const push = useCallback((view: View) => {
+  const push = useCallback((view: View, at?: Moment) => {
     const key = nextKey.current++;
-    setLevels(prev => ({ ...prev, stack: [...prev.stack, { key, view }] }));
+    setLevels(prev => ({
+      ...prev,
+      stack: [...prev.stack, { key, view, at }],
+    }));
   }, []);
-  const nav = useMemo<Nav>(
-    () => ({ model, width, push }),
-    [model, width, push],
+  // each level's nav; one showing an action's store keeps its own as the
+  // live store changes
+  const [navs] = useState(
+    () => new Map<number, { readonly nav: Nav; readonly then?: Then }>(),
   );
+  const levelOf = ({ key, at }: Entry) => {
+    const shown = at && then(at);
+    const last = navs.get(key);
+    if (
+      last &&
+      last.then === shown &&
+      last.nav.width === width &&
+      (shown || last.nav.model === model)
+    )
+      return last;
+    const level = {
+      nav: {
+        model: shown?.model ?? model,
+        width,
+        // what it opens shows the same store
+        push: (view: View, next = at) => push(view, next),
+      },
+      then: shown,
+    };
+    navs.set(key, level);
+    return level;
+  };
   const back = useCallback((depth: number) => {
     setLevels(({ stack }) => {
+      for (const { key } of stack.slice(Math.max(1, depth))) navs.delete(key);
       const left = stack[depth]?.view;
       return {
         stack: stack.slice(0, Math.max(1, depth)),
@@ -294,6 +367,8 @@ function Levels({
 
   const crumbs = (depth: number, tools?: React.ReactNode) => {
     const shown = stack.slice(0, depth + 1);
+    const { at } = stack[depth];
+    const model = levelOf(stack[depth]).nav.model;
     const items =
       shown.length > CRUMBS ?
         [0, -1, shown.length - 2, shown.length - 1]
@@ -329,48 +404,62 @@ function Levels({
             </React.Fragment>
           ))}
         </nav>
-        {tools && <span className={styles.tools}>{tools}</span>}
+        {(at || tools) && (
+          <span className={styles.tools}>
+            {at && (
+              <span className={styles.dim}>
+                {at.before ? 'before' : 'after'} this action
+              </span>
+            )}
+            {tools}
+          </span>
+        )}
       </div>
     );
   };
 
   return (
     <div className={styles.levels}>
-      {stack.map(({ key, view }, depth) => (
-        <Level
-          key={key}
-          nav={nav}
-          depth={depth}
-          top={depth === stack.length - 1}
-          onBack={back}
-          returnTo={returnTo}
-        >
-          {scroller =>
-            view.kind === 'root' ? <RootView scroller={scroller} />
-            : view.kind === 'actions' ? <ActionsRoot scroller={scroller} />
-            : view.kind === 'action' ?
-              <ActionDetail
-                seq={view.seq}
-                header={() => crumbs(depth)}
-                // in State, uncover State as it was then
-                onShowState={
-                  root.kind === 'root' ? () => back(depth) : undefined
-                }
-              />
-            : view.kind === 'list' ?
-              <ListView
-                view={view}
-                scroller={scroller}
-                header={tools => crumbs(depth, tools)}
-              />
-            : <RecordLevel
-                id={view.id}
-                scroller={scroller}
-                header={tools => crumbs(depth, tools)}
-              />
-          }
-        </Level>
-      ))}
+      {stack.map((entry, depth) => {
+        const { key, view } = entry;
+        const level = levelOf(entry);
+        return (
+          <Level
+            key={key}
+            nav={level.nav}
+            then={level.then}
+            depth={depth}
+            top={depth === stack.length - 1}
+            onBack={back}
+            returnTo={returnTo}
+          >
+            {scroller =>
+              view.kind === 'root' ? <RootView scroller={scroller} />
+              : view.kind === 'actions' ? <ActionsRoot scroller={scroller} />
+              : view.kind === 'action' ?
+                <ActionDetail
+                  seq={view.seq}
+                  header={() => crumbs(depth)}
+                  // in State, uncover State as it was then
+                  onShowState={
+                    root.kind === 'root' ? () => back(depth) : undefined
+                  }
+                />
+              : view.kind === 'list' ?
+                <ListView
+                  view={view}
+                  scroller={scroller}
+                  header={tools => crumbs(depth, tools)}
+                />
+              : <RecordLevel
+                  id={view.id}
+                  scroller={scroller}
+                  header={tools => crumbs(depth, tools)}
+                />
+            }
+          </Level>
+        );
+      })}
     </div>
   );
 }
@@ -379,6 +468,7 @@ function Levels({
  * side when what covered it closes */
 function Level({
   nav,
+  then,
   depth,
   top,
   onBack,
@@ -386,6 +476,8 @@ function Level({
   children,
 }: {
   nav: Nav;
+  /** The store this level shows, when not the one `StateContext` holds */
+  then?: Then;
   depth: number;
   top: boolean;
   onBack: (depth: number) => void;
@@ -407,6 +499,11 @@ function Level({
     ),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `children` is new each render; what it shows only changes with `current`
     [current],
+  );
+  const actions = useActions();
+  const thenActions = useMemo(
+    () => then && { ...actions, until: then.until },
+    [actions, then],
   );
   const wasTop = useRef<boolean | null>(null);
   useLayoutEffect(() => {
@@ -434,7 +531,13 @@ function Level({
         }
       }}
     >
-      {content}
+      {then ?
+        <StateContext.Provider value={then.state}>
+          <ActionsContext.Provider value={thenActions!}>
+            {content}
+          </ActionsContext.Provider>
+        </StateContext.Provider>
+      : content}
     </div>
   );
 }

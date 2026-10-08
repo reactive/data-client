@@ -9,12 +9,13 @@ import {
   type Actions,
   ChangeChip,
   KeyLabel,
+  spanOf,
   TypeName,
   useActions,
 } from './ActionsView';
 import type { Header } from './DiveViews';
 import { errorText } from './model';
-import { useNav } from './nav';
+import { ActionSpanContext, useNav } from './nav';
 import { plain } from './refs';
 import styles from './store.module.css';
 import { Field, Inline } from './Value';
@@ -52,14 +53,16 @@ export function ActionDetail({
         <div className={clsx(styles.detail, styles.actDetail)}>
           {store ?
             <>
-              {changed.map(change => (
-                <ChangeLine
-                  key={change.id}
-                  change={change}
-                  before={log.view(store.before)}
-                  after={log.view(store.after)}
-                />
-              ))}
+              <ActionSpanContext.Provider value={spanOf([entry])}>
+                {changed.map(change => (
+                  <ChangeLine
+                    key={change.id}
+                    change={change}
+                    before={log.view(store.before)}
+                    after={log.view(store.after)}
+                  />
+                ))}
+              </ActionSpanContext.Provider>
               {refreshed > 0 && (
                 <span className={styles.dim}>
                   {changed.length ? 'Also stored' : 'Stored'} {refreshed} row

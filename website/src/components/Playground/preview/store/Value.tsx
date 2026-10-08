@@ -1,9 +1,16 @@
 import clsx from 'clsx';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 
 import { fitChips, INLINE_LIMIT, isTimeField } from './columns';
 import { entityId, isEndpointRow, prettyPk, type AnyRow } from './model';
-import { refsList, useNav, type ListView, type View } from './nav';
+import {
+  ActionSpanContext,
+  refsList,
+  useNav,
+  type ListView,
+  type Moment,
+  type View,
+} from './nav';
 import {
   CIRCULAR,
   INVALIDATED,
@@ -26,14 +33,19 @@ export function RefChip({
   label,
   className,
   title,
+  at,
 }: {
   id: string;
   label: React.ReactNode;
   className?: string;
   title?: string;
+  /** The store the record shows; by default as the actions this chip
+   * summarizes left it */
+  at?: Moment;
 }) {
   const { reveal } = useStoreUI();
   const nav = useNav();
+  const spanAt = useSpanEnd();
   return (
     <button
       type="button"
@@ -41,7 +53,7 @@ export function RefChip({
       title={title}
       onClick={e => {
         e.stopPropagation();
-        if (nav) nav.push({ kind: 'record', id });
+        if (nav) nav.push({ kind: 'record', id }, at ?? spanAt);
         else reveal(id);
       }}
     >
@@ -103,13 +115,14 @@ export function CountChip({
   className?: string;
 }) {
   const nav = useNav();
+  const at = useSpanEnd();
   return (
     <button
       type="button"
       className={clsx(styles.ref, className)}
       onClick={e => {
         e.stopPropagation();
-        nav?.push(list());
+        nav?.push(list(), at);
       }}
     >
       {children}
@@ -364,4 +377,10 @@ const timeFormatter = Intl.DateTimeFormat('en-US', {
 export function formatTime(ms: number) {
   if (!isFinite(ms)) return String(ms);
   return timeFormatter.format(ms);
+}
+
+/** The store as the actions chips summarize left it, if they summarize any */
+function useSpanEnd(): Moment | undefined {
+  const span = useContext(ActionSpanContext);
+  return span && { seq: span.last };
 }
