@@ -43,9 +43,9 @@ makes them most useful as comparisons between approaches, rather than as
 absolute measurements of an application's overall performance. We use them to
 guide library optimizations and catch performance regressions over time.
 
-[^setup]: Measured 2026-03-22 on a Ryzen 9 7950X (64 GB, Ubuntu on WSL2, Node 24.12.0, headless Chromium from Playwright 1.58.2), each request delayed 40 ms plus 1 ms per 20 records. Medians of 3 to 20 samples per scenario after warmup. [Full methodology](./benchmark-methodology.md).
+[^setup]: Measured 2026-03-22 on a Ryzen 9 7950X (64 GB, Ubuntu on WSL2, Node 24.12.0, headless Chromium from Playwright 1.58.2), each request delayed 40 ms plus 1 ms per 20 records. Medians of 5 to 50 samples per scenario after warmup. [Full methodology](./benchmark-methodology.md).
 [^config]: TanStack Query 5.62.7 (`staleTime` and `gcTime` set to `Infinity`), SWR 2.4.1 (revalidation on focus, reconnect and stale disabled), React 19.2.3. After a mutation, TanStack Query and SWR wait for the response and then invalidate and refetch; Data Client updates the store optimistically. [Configuration details](./benchmark-methodology.md#how-each-library-is-configured).
-[^nav]: `list-detail-switch-10`: 57.5 ms for Data Client, 610 ms TanStack Query, 629 ms SWR, 1,370 ms baseline. That is 23.8× the baseline and about 11× TanStack Query and SWR.
+[^nav]: `list-detail-switch-10`: 57.5 ms for Data Client, 610 ms TanStack Query, 629 ms SWR, 1,370 ms baseline. That is 23.8× the baseline, 10.6× TanStack Query and 10.9× SWR.
 [^mutation]: `update-entity`: 1.5 ms for Data Client, 143 ms TanStack Query, 141 ms SWR, 138 ms baseline. Other mutation scenarios range from 48× to 116× the baseline. [All results](./benchmark-methodology.md#results).
 [^scaling]: `update-user-10000`: 6.9 ms for Data Client, 671 ms TanStack Query, 641 ms SWR, 641 ms baseline.
 

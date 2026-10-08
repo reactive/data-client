@@ -17,22 +17,22 @@ so you can run it yourself, change it, or point it at your own workload.
 ## Summary
 
 - The charts come from one local run on **2026-03-22** at commit
-  [`2c98dde`](https://github.com/reactive/data-client/commit/2c98dde3d1522f78cdbd44cc55183cc89f46563f).
+  [`57b2f97`](https://github.com/reactive/data-client/commit/57b2f975c81e9fa9d4d9d2f36dbc93e719549e05).
 - Each simulated request costs **40 ms + 1 ms per 20 records**.
-  Most of the gap comes from requests Data Client never makes:
+  Most of the gap comes from requests Data Client doesn't wait for or repeat:
   - Navigation renders detail views from entities already in the list response.
   - Mutations update the store [optimistically](../getting-started/mutations.md) in one write.
   - The other libraries wait for the mutation response, then invalidate and refetch.
 - Ratios on the [Performance page](./performance.md) are relative to the plain React baseline.
-  Against TanStack Query and SWR directly, navigation is about **11x** and the `update-entity`
-  mutation about **95x**.
+  Against TanStack Query and SWR directly, navigation is **10.6x** and **10.9x**, and the
+  `update-entity` mutation is **95x** and **94x**.
 
 ## Environment
 
 | | |
 |---|---|
 | Date | 2026-03-22 |
-| Commit | [`2c98dde`](https://github.com/reactive/data-client/commit/2c98dde3d1522f78cdbd44cc55183cc89f46563f) |
+| Commit | [`57b2f97`](https://github.com/reactive/data-client/commit/57b2f975c81e9fa9d4d9d2f36dbc93e719549e05) |
 | CPU | AMD Ryzen 9 7950X |
 | Memory | 64 GB |
 | OS | Ubuntu on WSL2 (Windows host) |
@@ -64,7 +64,7 @@ Each app only wires its own data layer, following that library's documented patt
 | | Data Client | TanStack Query | SWR | Baseline |
 |---|---|---|---|---|
 | Reads | `useSuspense` / `useDLE` on [resource()](/rest/api/resource) endpoints | `useQuery` | `useSWR` | `useEffect` + `useState` |
-| Cache config | `dataExpiryLength: Infinity`; GC sweep disabled during timing | `staleTime: Infinity`, `gcTime: Infinity` | `revalidateOnFocus`, `revalidateOnReconnect`, `revalidateIfStale` all `false` | None (refetches on mount) |
+| Cache config | `dataExpiryLength: Infinity`; GC sweep disabled during timing | `staleTime: Infinity`, `gcTime: Infinity` | `revalidateOnFocus`, `revalidateOnReconnect`, `revalidateIfStale` `false`; `revalidateOnMount` `true`; `dedupingInterval: 0` | None (refetches on mount) |
 | After a mutation | Optimistic store write (`optimistic: true`); views re-render from the [normalized](./normalization.md) store | Await mutation response, then `invalidateQueries(['issues'])` (and `['issue']` for multi-view) | Await mutation response, then `mutate()` matching every list key | Await mutation response, then refetch |
 | Sorted views | [Query](/rest/api/Query) schema (memoized) | `useMemo` + sort | `useMemo` + sort | `useMemo` + sort |
 
@@ -74,10 +74,10 @@ the gap. They require writing each cache update by hand for every query an entit
 which is the work normalization does for you.
 
 See the implementations in
-[`src/data-client`](https://github.com/reactive/data-client/blob/2c98dde3d1522f78cdbd44cc55183cc89f46563f/examples/benchmark-react/src/data-client/index.tsx),
-[`src/tanstack-query`](https://github.com/reactive/data-client/blob/2c98dde3d1522f78cdbd44cc55183cc89f46563f/examples/benchmark-react/src/tanstack-query/index.tsx),
-[`src/swr`](https://github.com/reactive/data-client/blob/2c98dde3d1522f78cdbd44cc55183cc89f46563f/examples/benchmark-react/src/swr/index.tsx) and
-[`src/baseline`](https://github.com/reactive/data-client/blob/2c98dde3d1522f78cdbd44cc55183cc89f46563f/examples/benchmark-react/src/baseline/index.tsx).
+[`src/data-client`](https://github.com/reactive/data-client/blob/57b2f975c81e9fa9d4d9d2f36dbc93e719549e05/examples/benchmark-react/src/data-client/index.tsx),
+[`src/tanstack-query`](https://github.com/reactive/data-client/blob/57b2f975c81e9fa9d4d9d2f36dbc93e719549e05/examples/benchmark-react/src/tanstack-query/index.tsx),
+[`src/swr`](https://github.com/reactive/data-client/blob/57b2f975c81e9fa9d4d9d2f36dbc93e719549e05/examples/benchmark-react/src/swr/index.tsx) and
+[`src/baseline`](https://github.com/reactive/data-client/blob/57b2f975c81e9fa9d4d9d2f36dbc93e719549e05/examples/benchmark-react/src/baseline/index.tsx).
 
 ## What is measured
 
@@ -107,21 +107,24 @@ but no run without it was published.
 
 Other scenarios (initial list load, sorted views, create, delete, move, multi-view) are in the
 table below. Scenario definitions are in
-[`bench/scenarios.ts`](https://github.com/reactive/data-client/blob/2c98dde3d1522f78cdbd44cc55183cc89f46563f/examples/benchmark-react/bench/scenarios.ts).
+[`bench/scenarios.ts`](https://github.com/reactive/data-client/blob/57b2f975c81e9fa9d4d9d2f36dbc93e719549e05/examples/benchmark-react/bench/scenarios.ts).
 
 ## Sampling and statistics
 
-- Each round opens a fresh browser context per library, with library and scenario order shuffled,
-  and forces garbage collection before every scenario.
-- Rounds repeat until the 95% confidence interval falls within a target, or a cap is hit:
+- Each library gets a fresh browser context, and each scenario a fresh page load. Libraries run one
+  after another, and garbage collection is forced before every scenario and every 15 iterations.
+- Within that page, the scenario repeats: warmup iterations are discarded, then measured iterations
+  continue until the 95% confidence interval falls within a target, or a cap is hit.
+  Navigation and list-load iterations clear the library's cache first; mutation iterations reuse
+  the mounted list.
 
-  | Scenario size | Warmup rounds (discarded) | Measured samples | Stop when 95% CI within |
+  | Scenario size | Warmup iterations (discarded) | Measured samples | Stop when 95% CI within |
   |---|---|---|---|
-  | Small (`getlist-100`, `update-entity`, `unshift-item`, `delete-item`) | 3 | 5 to 20 | ±10% |
-  | Large (everything else, including navigation and 10k scaling) | 1 | 3 to 10 | ±15% |
+  | Small (`getlist-100`, `update-entity`, `unshift-item`, `delete-item`, `move-item`) | 5 | 5 to 50 | ±8% |
+  | Large (everything else, including navigation and 10k scaling) | 3 | 5 to 40 | ±12% |
 
 - Outliers beyond 1.5× the interquartile range are trimmed. The result is the median of the rest.
-  The margin is 1.96 × standard error.
+  The margin uses Student's t critical value (1.96 above 30 samples) times the standard error.
 - The number of samples each scenario took before stopping was not saved, only the bounds above.
 
 ## Results
@@ -181,13 +184,13 @@ You need Node 22+ and a Linux, macOS or WSL machine that can run Playwright's Ch
 ```bash
 git clone https://github.com/reactive/data-client.git
 cd data-client
-# Optional: match the published run exactly
-git checkout 2c98dde3d1522f78cdbd44cc55183cc89f46563f
+# Optional: match the published run's code and versions
+git checkout 57b2f975c81e9fa9d4d9d2f36dbc93e719549e05
 yarn install
 yarn build:benchmark-react
 yarn workspace example-benchmark-react preview &
 cd examples/benchmark-react
-yarn bench --network-sim true
+env -u CI yarn bench --network-sim true
 ```
 
 The runner prints JSON results; open `bench/report-viewer.html` to compare runs.
