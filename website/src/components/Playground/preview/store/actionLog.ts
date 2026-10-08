@@ -1,5 +1,5 @@
-import { createReducer } from '@data-client/core';
 import {
+  __INTERNAL__,
   actionTypes,
   Controller,
   type ActionTypes,
@@ -99,7 +99,7 @@ export default class ActionLog {
   private readonly histories = new Map<number, History>();
   private nextSeq = 1;
   /** Applies pending optimistic updates for `view` */
-  private readonly reducer = createReducer(new Controller());
+  private readonly reducer = __INTERNAL__.createReducer(new Controller());
   private readonly views = new WeakMap<State<unknown>, State<unknown>>();
   private readonly diffs = new WeakMap<LogEntry, readonly Change[]>();
   private readonly listeners = new Set<() => void>();
@@ -177,7 +177,7 @@ export default class ActionLog {
     };
     const tail: Manager<ActionTypes> = {
       middleware: controller => {
-        const reduce = createReducer(controller as Controller);
+        const reduce = __INTERNAL__.createReducer(controller as Controller);
         let state: State<unknown> | undefined;
         // with `recordFrom: 'open'`, the history starts when the panel opens,
         // with what is pending by then

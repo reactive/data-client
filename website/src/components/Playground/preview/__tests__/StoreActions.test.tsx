@@ -1,7 +1,7 @@
 /// <reference types="jest" />
-import { createReducer, initialState } from '@data-client/core';
 import { Endpoint, Entity } from '@data-client/endpoint';
 import {
+  __INTERNAL__,
   actionTypes,
   Controller,
   DataProvider,
@@ -30,6 +30,8 @@ import StorePanel from '../store/StorePanel';
 jest.mock('../../../../utils/tabStorage', () => ({
   useTabStorage: () => require('react').useState(null),
 }));
+
+const { createReducer, initialState } = __INTERNAL__;
 
 class Post extends Entity {
   id = '';
