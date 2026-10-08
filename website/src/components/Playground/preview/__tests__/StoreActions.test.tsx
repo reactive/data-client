@@ -171,6 +171,31 @@ describe('Store Actions tab', () => {
     );
   });
 
+  it('shows the new row next to an update in the same table', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    const getMore = new Endpoint(
+      async () => [
+        { id: '1', title: 'Uno' },
+        { id: '3', title: 'Three' },
+      ],
+      {
+        schema: [Post],
+        key: () => 'GET https://example.com/more',
+        name: 'more',
+      },
+    );
+    await act(() => ctrl().fetch(getMore));
+    fireEvent.click(actionsTab());
+    const row = rows()[1];
+    expect(
+      within(row).getByRole('button', { name: /^~ ?Post 1$/ }),
+    ).toBeTruthy();
+    expect(
+      within(row).getByRole('button', { name: /^\+ ?Post 3$/ }),
+    ).toBeTruthy();
+  });
+
   it('lists a set on its own, and starts over when cleared', async () => {
     const { ctrl, registry } = mount();
     await act(() => ctrl().set(Post, { id: '3' }, { id: '3', title: 'New' }));

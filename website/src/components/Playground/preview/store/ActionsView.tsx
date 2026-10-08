@@ -357,27 +357,22 @@ export function ChangeChips({
         <span className={styles.dim}>stored again, unchanged</span>
       : null;
   // a table's new rows share one chip, where its first one would be
-  const added = new Map<string, string[]>();
+  const added = new Map<string, Change[]>();
   const items: (Change | string)[] = [];
   for (const c of shown) {
     if (c.kind !== 'added' || !('table' in c)) items.push(c);
-    else if (added.has(c.table)) added.get(c.table)!.push(c.pk);
+    else if (added.has(c.table)) added.get(c.table)!.push(c);
     else {
-      added.set(c.table, [c.pk]);
+      added.set(c.table, [c]);
       items.push(c.table);
     }
   }
   const chips = items.map(item => {
     if (typeof item !== 'string')
       return <ChangeChip key={item.id} change={item} />;
-    const pks = added.get(item)!;
-    if (pks.length === 1)
-      return (
-        <ChangeChip
-          key={item}
-          change={shown.find(c => 'table' in c && c.table === item)!}
-        />
-      );
+    const rows = added.get(item)!;
+    if (rows.length === 1) return <ChangeChip key={item} change={rows[0]} />;
+    const pks = rows.map(c => ('pk' in c ? c.pk : c.id));
     return (
       <CountChip
         key={item}
