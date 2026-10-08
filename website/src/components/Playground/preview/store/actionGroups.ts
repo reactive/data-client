@@ -103,7 +103,7 @@ function entityChange(
 }
 
 /** How one row differs between two states */
-function rowChange(
+export function rowChange(
   prev: State<unknown>,
   next: State<unknown>,
   row: Change,

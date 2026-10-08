@@ -1,3 +1,4 @@
+import type { State } from '@data-client/react';
 import clsx from 'clsx';
 import React, {
   memo,
@@ -8,7 +9,7 @@ import React, {
 } from 'react';
 
 import { ActionCrumb, ActionName, ChangeBody } from './ActionDetail';
-import type { Change } from './actionGroups';
+import { rowChange, type Change } from './actionGroups';
 import type ActionLog from './actionLog';
 import type { LogEntry } from './actionLog';
 import {
@@ -37,15 +38,36 @@ interface Refreshes {
   readonly kind: 'refreshed';
   readonly entries: LogEntry[];
 }
-type TimelineItem = Version | Refreshes;
+/** Where actions the log no longer has changed the record */
+interface Missing {
+  readonly kind: 'missing';
+  readonly seq: number;
+}
+type TimelineItem = Version | Refreshes | Missing;
+
+/** A store with no rows */
+const EMPTY = {
+  entities: {},
+  entitiesMeta: {},
+  endpoints: {},
+  meta: {},
+} as State<unknown>;
 
 /** Every logged action that stored row `id`, oldest first; unchanged
- * stores in a row share one item */
+ * stores in a row share one item. Where the record differs from how the
+ * last of them left it, actions the log dropped changed it */
 function rowTimeline(log: ActionLog, entries: readonly LogEntry[], id: string) {
   const items: TimelineItem[] = [];
+  // as the store began, when the log still has its start
+  const start = entries[0]?.newStore && entries.find(e => e.store)?.store;
+  let left = start ? log.view(start.before) : EMPTY;
   for (const entry of entries) {
     const change = log.changes(entry).find(c => c.id === id);
     if (!change) continue;
+    const { before, after } = entry.store!;
+    if (rowChange(left, log.view(before), change))
+      items.push({ kind: 'missing', seq: entry.seq });
+    left = log.view(after);
     const last = items.at(-1);
     if (change.kind !== 'refreshed')
       items.push({ kind: 'version', entry, change });
@@ -183,19 +205,6 @@ export function RowHistory({
 }) {
   const actions = useActions();
   const { items, versions } = useTimeline(actions, id);
-  const { entries, storeFrom, dropped } = actions.history;
-  // the log's front dropped off, maybe with this record's first versions
-  const cut =
-    !!entries.length && !entries[0].newStore && entries[0].seq !== storeFrom;
-  /** Updates `updateLimit` dropped before the one at `seq` */
-  const before = (seq: number) => {
-    const n = dropped?.get(seq);
-    return n ?
-        <MissingItem key={`dropped ${seq}`}>
-          {n.toLocaleString()} earlier update{n === 1 ? '' : 's'} not kept
-        </MissingItem>
-      : null;
-  };
   const open = (
     versions.findLast(v => focus === undefined || v.entry.seq <= focus) ??
     versions[0]
@@ -246,29 +255,19 @@ export function RowHistory({
           aria-label="Versions"
           onKeyDown={onKeyDown}
         >
-          {cut && (
-            <MissingItem>Older actions are no longer in the log</MissingItem>
-          )}
-          {items.flatMap(item =>
+          {items.map(item =>
             item.kind === 'version' ?
-              [
-                before(item.entry.seq),
-                <VersionItem
-                  key={item.entry.seq}
-                  id={id}
-                  version={item}
-                  open={item.entry.seq === open}
-                  onOpen={onOpen}
-                  onShowState={onShowState}
-                />,
-              ]
-            : [
-                ...item.entries.map(e => before(e.seq)),
-                <RefreshItem
-                  key={item.entries[0].seq}
-                  entries={item.entries}
-                />,
-              ],
+              <VersionItem
+                key={item.entry.seq}
+                id={id}
+                version={item}
+                open={item.entry.seq === open}
+                onOpen={onOpen}
+                onShowState={onShowState}
+              />
+            : item.kind === 'refreshed' ?
+              <RefreshItem key={item.entries[0].seq} entries={item.entries} />
+            : <MissingItem key={`missing ${item.seq}`} />,
           )}
         </ol>
       }
@@ -398,11 +397,13 @@ function RefreshItem({ entries }: { entries: readonly LogEntry[] }) {
   );
 }
 
-/** Where the log no longer has some of the record's actions */
-function MissingItem({ children }: { children: React.ReactNode }) {
+/** Where actions the log no longer has changed the record */
+function MissingItem() {
   return (
     <li className={clsx(styles.version, styles.refreshItem)}>
-      <span className={clsx(styles.versionLine, styles.dim)}>{children}</span>
+      <span className={clsx(styles.versionLine, styles.dim)}>
+        Changed by actions no longer in the log
+      </span>
     </li>
   );
 }

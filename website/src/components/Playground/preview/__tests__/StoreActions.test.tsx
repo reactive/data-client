@@ -277,20 +277,28 @@ describe('Store Actions tab', () => {
     expect(versions()[1].getAttribute('aria-expanded')).toBe('true');
   });
 
-  it('says when the log no longer has a record’s earlier versions', async () => {
+  it('says where actions the log dropped changed a record', async () => {
     const { ctrl } = mount();
     await act(async () => {
+      await ctrl().set(Post, { id: '1' }, { id: '1', title: 'one' });
+      // past updateLimit: the oldest sets of Post drop off
       for (let i = 0; i < 25; i++)
-        await ctrl().set(Post, { id: '1' }, { id: '1', title: `t${i}` });
+        await ctrl().set(Post, { id: '2' }, { id: '2', title: `t${i}` });
     });
-    fireEvent.click(
-      top().querySelector<HTMLElement>(
-        `tr[data-id="${entityId('Post', '1')}"]`,
-      )!,
-    );
-    fireEvent.click(within(top()).getByRole('button', { name: 'History' }));
-    expect(top().textContent).toContain('4 earlier updates not kept');
-    expect(top().textContent).not.toContain('no longer in the log');
+    const history = (pk: string) => {
+      fireEvent.click(
+        top().querySelector<HTMLElement>(
+          `tr[data-id="${entityId('Post', pk)}"]`,
+        )!,
+      );
+      fireEvent.click(within(top()).getByRole('button', { name: 'History' }));
+      return top().textContent;
+    };
+    expect(history('2')).toContain('Changed by actions no longer in the log');
+    for (let i = 0; i < 2; i++)
+      fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    // Post 1's own set is still there
+    expect(history('1')).not.toContain('no longer in the log');
   });
 
   it('opens State after a version, and back to that version', async () => {
