@@ -157,6 +157,7 @@ describe('Store Actions tab', () => {
   it('keeps a snapshot, and steps from it, once its action drops off', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
+    await act(() => ctrl().fetch(getPosts));
     fireEvent.click(actionsTab());
     fireEvent.click(rows()[0]);
     fireEvent.click(
@@ -182,6 +183,16 @@ describe('Store Actions tab', () => {
       )!,
     );
     expect(statePanel.textContent).toContain('changed by');
+    // to the refetch, which left the log too
+    fireEvent.click(next);
+    expect(screen.getByRole('button', { name: 'Live' })).toBeTruthy();
+    expect(
+      (
+        within(bar).getByRole('button', {
+          name: 'Previous change',
+        }) as HTMLButtonElement
+      ).disabled,
+    ).toBe(false);
   });
 
   it('shows an optimistic update, its diff, and State as it was then', async () => {
@@ -868,6 +879,33 @@ describe('ActionLog', () => {
       response: expect.anything(),
     });
     expect(request.entries).toHaveLength(3);
+  });
+
+  it('keeps a subscription that ended before a poll it started resolved', () => {
+    const log = new ActionLog();
+    const dispatch = connect(log, 0);
+    dispatch(subscribe());
+    dispatch({
+      type: actionTypes.FETCH,
+      key: 'k',
+      endpoint: {},
+      meta: { fetchedAt: 1 },
+    });
+    dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'k' });
+    for (let i = 0; i < 498; i++)
+      dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other' });
+    dispatch({
+      type: actionTypes.SET_RESPONSE,
+      key: 'k',
+      response: 1,
+      meta: { fetchedAt: 1, date: 1, expiresAt: 2 },
+      endpoint: { schema: undefined },
+    });
+    for (let i = 0; i < 3; i++)
+      dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other' });
+    const [sub] = groupEntries(log.history(0).entries);
+    expect(sub).toMatchObject({ kind: 'subscription', key: 'k', open: 0 });
+    expect((sub as any).requests[0].response).toBeTruthy();
   });
 
   it('keeps a fetch whose response a restored store kept', () => {

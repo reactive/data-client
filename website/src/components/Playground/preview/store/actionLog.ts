@@ -271,16 +271,21 @@ function trim(entries: LogEntry[]): LogEntry[] {
     if (group.kind !== 'subscription') continue;
     group.requests.forEach(anchorRequest);
     if (!group.open && groupEntriesOf(group).every(dropped)) continue;
-    // the latest dropped subscribes, one per subscriber still there at the cut
-    let open = 0;
-    const subscribes: LogEntry[] = [];
-    for (const entry of group.entries.filter(dropped)) {
-      if (entry.action.type === actionTypes.SUBSCRIBE) {
-        open++;
-        subscribes.push(entry);
-      } else open--;
+    // subscribers still there at the cut, from its earliest subscribes, so
+    // its requests come after one
+    const subscribes = group.entries.filter(
+      e => dropped(e) && e.action.type === actionTypes.SUBSCRIBE,
+    );
+    const unsubscribes = group.entries.filter(
+      e => dropped(e) && e.action.type === actionTypes.UNSUBSCRIBE,
+    );
+    const open = subscribes.length - unsubscribes.length;
+    if (open > 0) subscribes.slice(0, open).forEach(e => anchors.add(e));
+    // ended before the cut with a request still kept: its whole span
+    else if (subscribes.length && !group.entries.some(e => !dropped(e))) {
+      anchors.add(subscribes[0]);
+      anchors.add(unsubscribes[unsubscribes.length - 1]);
     }
-    if (open > 0) subscribes.slice(-open).forEach(e => anchors.add(e));
   }
   return entries.filter(e => !dropped(e) || anchors.has(e));
 }

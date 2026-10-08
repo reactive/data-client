@@ -80,23 +80,23 @@ export default function StorePanel({
   const [snapshotSeq, setSnapshot] = useState<number | null>(null);
   const found =
     snapshotSeq === null ? undefined : findEntry(entries, snapshotSeq);
-  // stays shown once its action drops off the front of the log, along with
-  // the actions before it, which say what changed each row
-  const [kept, setKept] = useState<{
-    entry: LogEntry;
-    entries: readonly LogEntry[];
-  }>();
-  if (found && (found !== kept?.entry || entries !== kept.entries))
-    setKept({ entry: found, entries });
-  const gone = !found && kept?.entry.seq === snapshotSeq ? kept : undefined;
-  const snapshot = found ?? gone?.entry;
+  // the log as it last held the snapshot's action: the snapshot stays shown
+  // once its action drops off the front, and can still step through and
+  // say what changed each row from the actions before it
+  const [kept, setKept] = useState<readonly LogEntry[]>();
+  if (found && entries !== kept) setKept(entries);
+  const gone =
+    !found && snapshotSeq !== null && kept ?
+      findEntry(kept, snapshotSeq)
+    : undefined;
+  const snapshot = found ?? gone;
   const known = useMemo(() => {
-    if (!gone) return entries;
+    if (!gone || !kept) return entries;
     const live = new Set(entries.map(e => e.seq));
-    return [...gone.entries.filter(e => !live.has(e.seq)), ...entries].sort(
+    return [...kept.filter(e => !live.has(e.seq)), ...entries].sort(
       (a, b) => a.seq - b.seq,
     );
-  }, [gone, entries]);
+  }, [gone, kept, entries]);
   const state = snapshot?.store ? log.view(snapshot.store.after) : live;
   // the store commits and the log notifies in separate renders: the rows
   // rebuild only when the store commits
