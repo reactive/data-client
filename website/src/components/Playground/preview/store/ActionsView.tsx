@@ -1,4 +1,8 @@
-import { actionTypes, type ActionTypes } from '@data-client/react';
+import {
+  actionTypes,
+  StateContext,
+  type ActionTypes,
+} from '@data-client/react';
 import clsx from 'clsx';
 import React, {
   createContext,
@@ -51,6 +55,28 @@ export interface Actions {
 }
 export const ActionsContext = createContext<Actions | null>(null);
 export const useActions = () => useContext(ActionsContext)!;
+
+/** `children` see the store as `then` holds it, and the actions up to it */
+export function AtMoment({
+  then,
+  children,
+}: {
+  then: Then;
+  children: React.ReactNode;
+}) {
+  const actions = useActions();
+  const value = useMemo(
+    () => ({ ...actions, until: then.until }),
+    [actions, then],
+  );
+  return (
+    <StateContext.Provider value={then.state}>
+      <ActionsContext.Provider value={value}>
+        {children}
+      </ActionsContext.Provider>
+    </StateContext.Provider>
+  );
+}
 /** What rows need; unlike `Actions`, stays the same as actions arrive */
 export const LogContext = createContext<{
   readonly log: ActionLog;

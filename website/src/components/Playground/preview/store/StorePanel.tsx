@@ -16,6 +16,7 @@ import { findEntry, type LogEntry } from './actionLog';
 import {
   ActionsContext,
   ActionsRoot,
+  AtMoment,
   LogContext,
   useActions,
   type Actions,
@@ -382,9 +383,10 @@ function Levels({
       nav: {
         model: shown?.model ?? model,
         width,
-        // what it opens shows the same store
-        push: (view: View, next: Moment | null | undefined = at) =>
-          push(view, next ?? undefined),
+        // what it opens shows the same store; a history shows each version
+        // at its own
+        push: (view: View, next = view.kind === 'history' ? undefined : at) =>
+          push(view, next),
       },
       then: shown,
     };
@@ -460,6 +462,14 @@ function Levels({
       {stack.map((entry, depth) => {
         const { key, view } = entry;
         const level = levelOf(entry);
+        // in State, uncover State as it was then; returns what reopens this
+        const uncover =
+          root.kind === 'root' ?
+            () => {
+              back(depth);
+              return () => push(view, entry.at);
+            }
+          : undefined;
         return (
           <Level
             key={key}
@@ -478,15 +488,7 @@ function Levels({
                 <ActionDetail
                   seq={view.seq}
                   header={tools => crumbs(depth, tools)}
-                  // in State, uncover State as it was then
-                  onShowState={
-                    root.kind === 'root' ?
-                      () => {
-                        back(depth);
-                        return () => push(view, entry.at);
-                      }
-                    : undefined
-                  }
+                  onShowState={uncover}
                   onStep={seq => replace(depth, { kind: 'action', seq })}
                 />
               : view.kind === 'history' ?
@@ -494,16 +496,8 @@ function Levels({
                   id={view.id}
                   focus={view.seq}
                   header={tools => crumbs(depth, tools)}
-                  // in State, uncover State as it was then
-                  onShowState={
-                    root.kind === 'root' ?
-                      seq => {
-                        back(depth);
-                        // back to the version shown
-                        return () => push({ ...view, seq }, entry.at);
-                      }
-                    : undefined
-                  }
+                  onOpen={seq => replace(depth, { ...view, seq })}
+                  onShowState={uncover}
                 />
               : view.kind === 'list' ?
                 <ListView
@@ -562,11 +556,6 @@ function Level({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `children` is new each render; what it shows only changes with `current` and `view`
     [current, view],
   );
-  const actions = useActions();
-  const thenActions = useMemo(
-    () => then && { ...actions, until: then.until },
-    [actions, then],
-  );
   const wasTop = useRef<boolean | null>(null);
   useLayoutEffect(() => {
     const el = ref.current;
@@ -594,11 +583,7 @@ function Level({
       }}
     >
       {then ?
-        <StateContext.Provider value={then.state}>
-          <ActionsContext.Provider value={thenActions!}>
-            {content}
-          </ActionsContext.Provider>
-        </StateContext.Provider>
+        <AtMoment then={then}>{content}</AtMoment>
       : content}
     </div>
   );

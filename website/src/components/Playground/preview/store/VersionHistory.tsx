@@ -1,22 +1,28 @@
-import { StateContext } from '@data-client/react';
 import clsx from 'clsx';
 import React, {
+  memo,
   useContext,
   useLayoutEffect,
   useMemo,
   useRef,
-  useState,
 } from 'react';
 
 import { ActionCrumb, ActionName, ChangeBody } from './ActionDetail';
 import type { Change } from './actionGroups';
+import type ActionLog from './actionLog';
 import type { LogEntry } from './actionLog';
-import { ActionsContext, Time, useActions, type Actions } from './ActionsView';
+import {
+  ActionsContext,
+  AtMoment,
+  Time,
+  useActions,
+  type Actions,
+} from './ActionsView';
 import { EndpointBody } from './Details';
 import type { Header } from './DiveViews';
 import { onActivateKey } from './dom';
 import { findRow, isEndpointRow } from './model';
-import { NavContext, useNav, type Nav, type Then } from './nav';
+import { NavContext, useNav, type Moment, type Nav } from './nav';
 import styles from './store.module.css';
 import { Block } from './Value';
 
@@ -29,26 +35,27 @@ interface Version {
 /** Actions in a row that stored the record again, unchanged */
 interface Refreshes {
   readonly kind: 'refreshed';
-  readonly entries: readonly LogEntry[];
+  readonly entries: LogEntry[];
 }
 type TimelineItem = Version | Refreshes;
 
-/** Every logged action that stored row `id`, oldest first, up to the action
- * State is shown after; unchanged stores in a row share one item */
-function rowTimeline({ log, history, until }: Actions, id: string) {
+/** Every logged action that stored row `id`, oldest first, up to action
+ * `until`; unchanged stores in a row share one item */
+function rowTimeline(
+  log: ActionLog,
+  entries: readonly LogEntry[],
+  id: string,
+  until?: number,
+) {
   const items: TimelineItem[] = [];
-  for (const entry of history.entries) {
+  for (const entry of entries) {
     if (until !== undefined && entry.seq > until) break;
     const change = log.changes(entry).find(c => c.id === id);
     if (!change) continue;
     const last = items.at(-1);
     if (change.kind !== 'refreshed')
       items.push({ kind: 'version', entry, change });
-    else if (last?.kind === 'refreshed')
-      items[items.length - 1] = {
-        kind: 'refreshed',
-        entries: [...last.entries, entry],
-      };
+    else if (last?.kind === 'refreshed') last.entries.push(entry);
     else items.push({ kind: 'refreshed', entries: [entry] });
   }
   return items;
@@ -57,14 +64,9 @@ function rowTimeline({ log, history, until }: Actions, id: string) {
 const isVersion = (item: TimelineItem): item is Version =>
   item.kind === 'version';
 
-/** Each logged change to row `id`, oldest first */
-export const rowHistory = (actions: Actions, id: string) =>
-  rowTimeline(actions, id).filter(isVersion);
-
 /** Opens record `id`'s history, at the version this level shows */
 function openHistory(nav: Nav, { until }: Actions, id: string) {
-  // the whole history, whatever store this level shows
-  nav.push({ kind: 'history', id, seq: until }, null);
+  nav.push({ kind: 'history', id, seq: until });
 }
 
 /** A record's last change, linking to the action that made it, and to all
@@ -87,7 +89,11 @@ function LastChange({
   actions: Actions;
   nav: Nav;
 }) {
-  const changes = useMemo(() => rowHistory(actions, id), [actions, id]);
+  const { log, history, until } = actions;
+  const changes = useMemo(
+    () => rowTimeline(log, history.entries, id, until).filter(isVersion),
+    [log, history.entries, id, until],
+  );
   const last = changes.at(-1);
   if (!last) return null;
   const { seq } = last.entry;
@@ -126,11 +132,14 @@ function LastChange({
 export function HistoryButton({ id }: { id: string }) {
   const actions = useContext(ActionsContext);
   const nav = useNav();
-  const changed = useMemo(
-    () => !!actions && rowHistory(actions, id).length > 0,
-    [actions, id],
+  if (!actions || !nav) return null;
+  const { log, history, until } = actions;
+  const changed = history.entries.some(
+    e =>
+      (until === undefined || e.seq <= until) &&
+      log.changes(e).some(c => c.id === id && c.kind !== 'refreshed'),
   );
-  if (!actions || !nav || !changed) return null;
+  if (!changed) return null;
   return (
     <button
       type="button"
@@ -144,31 +153,35 @@ export function HistoryButton({ id }: { id: string }) {
   );
 }
 
-/** How a record evolved, as a timeline of its versions. One is open at a
- * time, showing the whole record as that action left it */
+/** How a record evolved, as a timeline of every logged version. One is open
+ * at a time, showing the whole record as that action left it */
 export function RowHistory({
   id,
   focus,
   header,
+  onOpen,
   onShowState,
 }: {
   id: string;
   /** Opens the version current at this action; by default the latest */
   focus?: number;
   header: Header;
-  /** After switching State to just after version `seq`; returns what
+  /** Opens version `seq` instead */
+  onOpen: (seq: number) => void;
+  /** After switching State to just after the open version; returns what
    * reopens this history from there */
-  onShowState?: (seq: number) => () => void;
+  onShowState?: () => () => void;
 }) {
-  const actions = useActions();
-  const items = useMemo(() => rowTimeline(actions, id), [actions, id]);
+  const { log, history } = useActions();
+  const items = useMemo(
+    () => rowTimeline(log, history.entries, id),
+    [log, history.entries, id],
+  );
   const versions = useMemo(() => items.filter(isVersion), [items]);
-  const [picked, setPicked] = useState<number>();
-  const open =
-    picked ??
-    versions.findLast(v => focus === undefined || v.entry.seq <= focus)?.entry
-      .seq ??
-    versions[0]?.entry.seq;
+  const open = (
+    versions.findLast(v => focus === undefined || v.entry.seq <= focus) ??
+    versions[0]
+  )?.entry.seq;
 
   // the open version starts in view
   const list = useRef<HTMLOListElement>(null);
@@ -184,12 +197,10 @@ export function RowHistory({
       e.key === 'ArrowDown' ? 1
       : e.key === 'ArrowUp' ? -1
       : 0;
-    if (!step) return;
-    const i = versions.findIndex(v => v.entry.seq === open);
-    const next = versions[i + step];
-    if (!next) return;
+    const next = versions[versions.findIndex(v => v.entry.seq === open) + step];
+    if (!step || !next) return;
     e.preventDefault();
-    setPicked(next.entry.seq);
+    onOpen(next.entry.seq);
     list.current
       ?.querySelector<HTMLElement>(`[data-version="${next.entry.seq}"]`)
       ?.focus();
@@ -211,7 +222,7 @@ export function RowHistory({
         </div>
       : <ol
           ref={list}
-          className={styles.timeline}
+          className={styles.versions}
           aria-label="Versions"
           onKeyDown={onKeyDown}
         >
@@ -222,7 +233,7 @@ export function RowHistory({
                 id={id}
                 version={item}
                 open={item.entry.seq === open}
-                onOpen={setPicked}
+                onOpen={onOpen}
                 onShowState={onShowState}
               />
             : <RefreshItem key={item.entries[0].seq} entries={item.entries} />,
@@ -232,6 +243,9 @@ export function RowHistory({
     </>
   );
 }
+
+/** What a version changed; the same each time the log grows */
+const VersionChange = memo(ChangeBody);
 
 /** One version: when, which action, and what it changed; opened, the whole
  * record as it left it */
@@ -246,7 +260,7 @@ function VersionItem({
   version: Version;
   open: boolean;
   onOpen: (seq: number) => void;
-  onShowState?: (seq: number) => () => void;
+  onShowState?: () => () => void;
 }) {
   const { log, showState } = useActions();
   const nav = useNav()!;
@@ -266,12 +280,12 @@ function VersionItem({
       >
         <span className={styles.versionLine}>
           <Time at={entry.at} />
-          <span className={styles.versionAction}>
+          <span className={styles.actChangeBody}>
             <ActionName entry={entry} />
           </span>
         </span>
-        <span className={styles.versionChange}>
-          <ChangeBody
+        <span className={styles.actChangeBody}>
+          <VersionChange
             change={change}
             before={log.view(store.before)}
             after={log.view(store.after)}
@@ -280,7 +294,10 @@ function VersionItem({
       </div>
       {open && (
         <div className={styles.versionBody}>
-          <VersionValue id={id} seq={seq} removed={change.kind === 'removed'} />
+          <VersionValue
+            id={id}
+            at={change.kind === 'removed' ? { seq, before: true } : { seq }}
+          />
           <div className={styles.versionTools}>
             <button
               type="button"
@@ -292,7 +309,7 @@ function VersionItem({
             <button
               type="button"
               className={styles.showState}
-              onClick={() => showState(seq, onShowState?.(seq))}
+              onClick={() => showState(seq, onShowState?.())}
             >
               View State after this
             </button>
@@ -303,43 +320,34 @@ function VersionItem({
   );
 }
 
-/** The whole record as action `seq` left it (or, once removed, as it was
- * before). What it links to opens at that store too */
-function VersionValue({
-  id,
-  seq,
-  removed,
-}: {
-  id: string;
-  seq: number;
-  removed: boolean;
-}) {
+/** The whole record in the store at `at` (as a removal found it). What it
+ * links to opens at that store too */
+function VersionValue({ id, at }: { id: string; at: Moment }) {
   const { then } = useActions();
   const nav = useNav()!;
-  const at = removed ? { seq, before: true as const } : { seq };
-  const shown: Then | undefined = then(at);
-  const versionNav = useMemo<Nav | undefined>(
+  const shown = then(at);
+  const { seq, before } = at;
+  const atNav = useMemo<Nav | undefined>(
     () =>
       shown && {
         ...nav,
         model: shown.model,
-        push: (view, next = at) => nav.push(view, next),
+        push: (view, next = { seq, before }) => nav.push(view, next),
       },
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `at` is new each render; it only changes with `seq` and `removed`
-    [nav, shown, seq, removed],
+    [nav, shown, seq, before],
   );
   const row = shown && findRow(shown.model, id);
-  if (!row || !versionNav)
+  if (!row || !atNav)
     return <span className={styles.dim}>No longer in the log</span>;
   return (
-    <StateContext.Provider value={shown.state}>
-      <NavContext.Provider value={versionNav}>
-        {removed && <span className={styles.dim}>Removed; it was:</span>}
+    <AtMoment then={shown}>
+      <NavContext.Provider value={atNav}>
+        {before && <span className={styles.dim}>Removed; it was:</span>}
         {isEndpointRow(row) ?
           <EndpointBody row={row} />
         : <Block node={row.value} />}
       </NavContext.Provider>
-    </StateContext.Provider>
+    </AtMoment>
   );
 }
 

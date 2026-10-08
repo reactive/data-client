@@ -290,7 +290,7 @@ describe('Store Actions tab', () => {
     expect(screen.getByRole('button', { name: 'Live' })).toBeTruthy();
     expect(current()).not.toBe('History');
     expect(top().textContent).toContain('"One"');
-    // its history shows the versions up to then, the last one open
+    // back reopens the history at that version
     fireEvent.click(screen.getByRole('button', { name: 'Back to the action' }));
     expect(current()).toBe('History');
     expect(first().getAttribute('aria-expanded')).toBe('true');

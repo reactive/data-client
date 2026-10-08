@@ -117,7 +117,8 @@
   background: var(--pg-tab-hover-bg);
   opacity: 1;
 }
-.viewButtons svg {
+.viewButtons svg,
+.historyButton svg {
   width: 15px;
   height: 15px;
   fill: none;
@@ -1009,13 +1010,6 @@ div.joined {
   flex-wrap: wrap;
   gap: 0.35rem;
 }
-/* A record's history: each change under the action that made it */
-.historyItem + .historyItem {
-  box-shadow: inset 0 1px 0 var(--store-line);
-}
-.historyChange {
-  padding: 0 0.75rem 0.45rem 2rem;
-}
 .actChange {
   display: grid;
   grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
@@ -1121,10 +1115,7 @@ div.joined {
 .historyButton svg {
   width: 12px;
   height: 12px;
-  fill: none;
-  stroke: currentColor;
   stroke-width: 1.4;
-  stroke-linecap: round;
   stroke-linejoin: round;
 }
 .historyButton:hover {
@@ -1133,7 +1124,7 @@ div.joined {
 .historyButton:focus-visible {
   outline: 2px solid var(--store-key);
 }
-.timeline {
+.versions {
   --rail: 1.05rem;
   position: relative;
   margin: 0;
@@ -1141,7 +1132,7 @@ div.joined {
   list-style: none;
 }
 /* the rail the versions hang off */
-.timeline::before {
+.versions::before {
   content: '';
   position: absolute;
   top: 0.9rem;
@@ -1151,6 +1142,7 @@ div.joined {
   background: var(--store-line-strong);
 }
 .version {
+  --dot: var(--store-key);
   position: relative;
   padding-left: 1.9rem;
 }
@@ -1165,7 +1157,7 @@ div.joined {
   height: 9px;
   border-radius: 50%;
   background: var(--store-bg);
-  box-shadow: inset 0 0 0 2px var(--dot, var(--store-key));
+  box-shadow: inset 0 0 0 2px var(--dot);
 }
 .version[data-kind='added'] {
   --dot: var(--store-fresh);
@@ -1180,7 +1172,7 @@ div.joined {
   --dot: var(--store-null);
 }
 .version:has([aria-expanded='true'])::before {
-  background: var(--dot, var(--store-key));
+  background: var(--dot);
 }
 .refreshItem::before {
   top: 0.55rem;
@@ -1202,13 +1194,10 @@ div.versionHead {
   padding: 0.3rem 0.5rem;
   border-radius: 5px;
 }
-.versionHead[aria-expanded='true'] {
+/* open, it stays selected under the pointer */
+.versionHead[aria-expanded='true'],
+.versionHead[aria-expanded='true']:hover {
   background: var(--store-selected);
-}
-@media (hover: hover) {
-  .versionHead[aria-expanded='true']:hover {
-    background: var(--store-selected);
-  }
 }
 .versionLine {
   display: flex;
@@ -1220,18 +1209,6 @@ div.versionHead {
   padding: 0 0.5rem;
   font-size: 11px;
 }
-.versionAction {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.versionChange {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 .versionBody {
   display: flex;
   flex-direction: column;
@@ -1239,11 +1216,9 @@ div.versionHead {
   gap: 0.35rem;
   margin: 0.2rem 0.4rem 0.45rem 0;
   padding: 0.4rem 0.5rem 0.5rem;
-  border-left: 2px solid var(--dot, var(--store-key));
+  border-left: 2px solid var(--dot);
   background: var(--store-record);
   border-radius: 0 5px 5px 0;
-  min-width: 0;
-  max-width: 100%;
 }
 .versionBody > :not(.versionTools) {
   align-self: stretch;
