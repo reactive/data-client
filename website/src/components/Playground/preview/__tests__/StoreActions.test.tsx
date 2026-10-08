@@ -26,6 +26,7 @@ import ActionLog, { type LogEntry, type LogOptions } from '../store/actionLog';
 import { entityId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
+import { rowTimeline } from '../store/VersionHistory';
 
 jest.mock('../../../../utils/tabStorage', () => ({
   useTabStorage: () => require('react').useState(null),
@@ -302,22 +303,48 @@ describe('Store Actions tab', () => {
   });
 
   it.each([
-    ['changed', (n: number) => `poll ${n}`, 'Changed'],
-    ['stored again', () => 'One', 'Stored again'],
-  ])('says where polls the log dropped %s a record', async (_, title, says) => {
+    ['changing', (n: number) => `poll ${n}`, 'Changed'],
+    ['unchanged', () => 'One', 'Stored again'],
+  ])(
+    'says where polls the log dropped stored a record, %s',
+    async (_, title, says) => {
+      const { ctrl } = mount();
+      let n = 0;
+      const polled = new Endpoint(
+        async () => [{ id: '1', title: title(n++) }],
+        {
+          schema: [Post],
+          key: () => POSTS,
+          name: 'polled',
+          pollFrequency: 1e6,
+        },
+      );
+      await act(async () => {
+        await ctrl().fetch(getPosts);
+        await ctrl().subscribe(polled);
+        for (let i = 0; i < 25; i++) await ctrl().fetch(polled);
+        await ctrl().unsubscribe(polled);
+      });
+      fireEvent.click(
+        top().querySelector<HTMLElement>(
+          `tr[data-id="${entityId('Post', '1')}"]`,
+        )!,
+      );
+      fireEvent.click(within(top()).getByRole('button', { name: 'History' }));
+      expect(top().textContent).toContain(
+        `${says} by actions no longer in the log`,
+      );
+    },
+  );
+
+  it('says when actions the log dropped changed a record last', async () => {
     const { ctrl } = mount();
-    let n = 0;
-    const polled = new Endpoint(async () => [{ id: '1', title: title(n++) }], {
-      schema: [Post],
-      key: () => POSTS,
-      name: 'polled',
-      pollFrequency: 1e6,
-    });
     await act(async () => {
       await ctrl().fetch(getPosts);
-      await ctrl().subscribe(polled);
-      for (let i = 0; i < 25; i++) await ctrl().fetch(polled);
-      await ctrl().unsubscribe(polled);
+      await ctrl().set(Post, { id: '1' }, { id: '1', title: 'last' });
+      // past updateLimit: Post 1's set drops with the oldest sets of Post
+      for (let i = 0; i < 25; i++)
+        await ctrl().set(Post, { id: '2' }, { id: '2', title: `t${i}` });
     });
     fireEvent.click(
       top().querySelector<HTMLElement>(
@@ -325,8 +352,9 @@ describe('Store Actions tab', () => {
       )!,
     );
     fireEvent.click(within(top()).getByRole('button', { name: 'History' }));
-    expect(top().textContent).toContain(
-      `${says} by actions no longer in the log`,
+    const items = within(top()).getAllByRole('listitem');
+    expect(items.at(-1)!.textContent).toBe(
+      'Changed by actions no longer in the log',
     );
   });
 
@@ -1265,6 +1293,29 @@ describe('ActionLog', () => {
     const { entries, dropped } = log.history(0);
     expect(entries.map(e => e.seq)).toEqual([1, 3]);
     expect(dropped?.get(3)).toBe(1);
+  });
+
+  it('sees no dropped actions between a store and the one restored from it', () => {
+    const log = newLog();
+    const set = (dispatch: (action: any) => unknown, title: string) =>
+      dispatch({
+        type: actionTypes.SET,
+        schema: Post,
+        args: [],
+        value: { id: '3', title },
+        meta: { fetchedAt: ++at, date: at, expiresAt: at + 1 },
+      });
+    let at = 0;
+    set(connect(log, 0), 'a');
+    // the store's own state: equal, but not the log's objects
+    const restored = structuredClone(log.history(0).state!);
+    set(connect(log, 0, { state: restored }), 'b');
+    const items = rowTimeline(
+      log,
+      log.history(0).entries,
+      entityId('Post', '3'),
+    );
+    expect(items.map(i => i.kind)).toEqual(['version', 'version']);
   });
 
   it('keeps as many pushed sets of each entity as updateLimit says', () => {
