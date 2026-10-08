@@ -19,7 +19,7 @@ export interface EditorSurfaceProps extends CodeModel {
   interactive?: boolean;
   fixtureContent?: React.ReactNode;
   headerControls?: React.ReactNode;
-  /** Layer over the code, below the headers (the Store drawer's host) */
+  /** Layer over the files, below the header rows (the Store drawer's host) */
   cover?: React.ReactNode;
   /** Whether `cover` hides the code (which goes inert) */
   covered?: boolean;
@@ -84,6 +84,27 @@ export default function EditorSurface({
     [documents.length, update],
   );
 
+  const tabs =
+    row && documents.length > 1 ?
+      <EditorTabs
+        documents={documents}
+        closedList={closedList}
+        onClick={
+          onTabSelect ?
+            index => {
+              // focus also selects, so only a different file counts
+              if (closedList[index]) onTabSelect();
+              handleTabSwitch(index);
+            }
+          : handleTabSwitch
+        }
+        compact={variant === 'standalone'}
+        hasHeaderControls={headerControls != null}
+      />
+    : null;
+  // under a demo-level header the file tabs belong to the files, so the
+  // Store covers them too; alone they stay as the header row
+  const tabsCovered = headerControls != null;
   const code = documents.map((document, index) => (
     <React.Fragment key={`${document.path}:${index}`}>
       {(!row || document.col) && document.title ?
@@ -124,27 +145,12 @@ export default function EditorSurface({
         title={row && documents.length === 1 ? documents[0].title : undefined}
         controls={headerControls}
       />
-      {row && documents.length > 1 ?
-        <EditorTabs
-          documents={documents}
-          closedList={closedList}
-          onClick={
-            onTabSelect ?
-              index => {
-                // focus also selects, so only a different file counts
-                if (closedList[index]) onTabSelect();
-                handleTabSwitch(index);
-              }
-            : handleTabSwitch
-          }
-          compact={variant === 'standalone'}
-          hasHeaderControls={headerControls != null}
-        />
-      : null}
+      {cover == null || !tabsCovered ? tabs : null}
       {cover == null ?
         code
       : <div className={styles.editorBody}>
           <div className={styles.editorDocs} inert={covered}>
+            {tabsCovered ? tabs : null}
             {code}
           </div>
           {cover}

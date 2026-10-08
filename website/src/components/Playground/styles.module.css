@@ -309,7 +309,7 @@ div.playgroundTextEdit > .playgroundHeader,
   display: flex;
   flex-direction: column;
 }
-/* the code and the Store's layer share one cell; the taller sets its height */
+/* the files and the Store's layer share one cell; the taller sets its height */
 .editorBody {
   flex: 1 1 auto;
   display: grid;
@@ -331,6 +331,15 @@ div.playgroundTextEdit > .playgroundHeader,
   z-index: 1;
   overflow: hidden;
   pointer-events: none;
+}
+/* under the header, the file tabs are no longer the top corner */
+.editorBody:not(:first-child) .editorDocs > .tabControls {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+/* with no header, the Store takes the corner */
+.editorBody:first-child .storeHost {
+  border-top-left-radius: var(--ifm-global-radius);
 }
 .storeHost > .storePanel {
   flex: 1 1 100%;
@@ -393,7 +402,8 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 /* With header controls (e.g. homepage demos) the selected control joins the
    file subtab row below it, and that row's selected file joins the code */
-div.playgroundTextEdit > .playgroundHeader.subtabs {
+div.playgroundTextEdit > .playgroundHeader.subtabs,
+.editorDocs > .playgroundHeader.subtabs {
   background: var(--pg-tab-hover-bg);
 }
 .subtabs .tab:not(.selected):hover {

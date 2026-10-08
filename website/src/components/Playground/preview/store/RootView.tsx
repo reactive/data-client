@@ -56,13 +56,18 @@ export default function RootView({
   const entityCount = model.tables.reduce((n, t) => n + t.rows.length, 0);
   const endpoints = preview(model.endpoints);
   const hiddenEndpoints = model.endpoints.length - endpoints.length;
+  // stays once seen (holding a row's space), so an optimistic update
+  // settling doesn't shove everything below back up
+  const [showOptimistic, setShowOptimistic] = useState(false);
+  if (model.optimistic.length > 0 && !showOptimistic) setShowOptimistic(true);
   return (
     <>
-      {model.optimistic.length > 0 && (
+      {showOptimistic && (
         <SectionBlock {...section('Optimistic', model.optimistic.length)}>
           <RowsTable
             columns={optimisticColumns}
             rows={model.optimistic.map(o => ({ ...o, id: optimisticId(o) }))}
+            foot={model.optimistic.length === 0 && 'None pending'}
           />
         </SectionBlock>
       )}
