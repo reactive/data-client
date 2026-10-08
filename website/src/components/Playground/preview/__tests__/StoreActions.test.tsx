@@ -1294,6 +1294,28 @@ describe('mergeChanges', () => {
     expect(mergeChanges(steps(before, posts({}), before))).toEqual([]);
   });
 
+  it("leaves out another request's update in between", () => {
+    const row = (title: string, count: number) =>
+      posts({ 1: { ...post, title, count } });
+    // ours sets title, another request sets count, then ours settles
+    const [own, , failed] = steps(
+      row('a', 0),
+      row('b', 0),
+      row('b', 1),
+      row('a', 1),
+    );
+    expect(mergeChanges([own, failed])).toEqual([]);
+    const [, , resolved] = steps(
+      row('a', 0),
+      row('b', 0),
+      row('b', 1),
+      row('c', 1),
+    );
+    expect(mergeChanges([own, resolved])).toMatchObject([
+      { kind: 'updated', fields: ['title'] },
+    ]);
+  });
+
   it('remembers which action removed a row', () => {
     expect(
       mergeChanges(

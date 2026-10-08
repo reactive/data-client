@@ -181,7 +181,9 @@ export interface ActionChanges {
 }
 
 /** Several actions' changes as one: each row as it ended up compared to before
- * the first of them touched it, so a rolled back change cancels out */
+ * the first of them touched it, so a rolled back change cancels out. A row
+ * only ever updated keeps just the fields these actions changed, so another
+ * request's update in between isn't counted as theirs */
 export function mergeChanges(actions: readonly ActionChanges[]): Change[] {
   const rows = new Map<
     string,
@@ -190,22 +192,37 @@ export function mergeChanges(actions: readonly ActionChanges[]): Change[] {
       from: State<unknown>;
       to: State<unknown>;
       removedBy?: number;
+      /** Fields these actions changed; none when one did more than update */
+      fields?: Set<string>;
+      refreshed?: boolean;
     }
   >();
   for (const { seq, before, after, changes } of actions)
     for (const row of changes) {
       let seen = rows.get(row.id);
       if (seen) seen.to = after;
-      else rows.set(row.id, (seen = { row, from: before, to: after }));
+      else
+        rows.set(
+          row.id,
+          (seen = { row, from: before, to: after, fields: new Set() }),
+        );
       if (row.kind === 'removed') seen.removedBy = seq;
+      if (row.kind === 'refreshed') seen.refreshed = true;
+      else if (row.kind === 'updated' && 'fields' in row && row.fields)
+        for (const field of row.fields) seen.fields?.add(field);
+      else seen.fields = undefined;
     }
   const merged: Change[] = [];
-  for (const { row, from, to, removedBy } of rows.values()) {
+  for (const { row, from, to, removedBy, fields, refreshed } of rows.values()) {
     const change = rowChange(from, to, row);
-    if (change)
-      merged.push(
-        change.kind === 'removed' ? { ...change, removedBy } : change,
-      );
+    if (!change) continue;
+    if (change.kind === 'removed') merged.push({ ...change, removedBy });
+    else if (fields && 'fields' in change && change.fields) {
+      const own = change.fields.filter(f => fields.has(f));
+      if (own.length) merged.push({ ...change, fields: own });
+      else if (refreshed)
+        merged.push({ ...change, kind: 'refreshed', fields: undefined });
+    } else merged.push(change);
   }
   return merged;
 }
