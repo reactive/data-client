@@ -23,6 +23,8 @@ export interface EditorSurfaceProps extends CodeModel {
   cover?: React.ReactNode;
   /** Whether `cover` hides the code (which goes inert) */
   covered?: boolean;
+  /** Picking a file tab while covered asks for the code back */
+  onUncover?: () => void;
 }
 
 export default function EditorSurface({
@@ -35,6 +37,7 @@ export default function EditorSurface({
   headerControls,
   cover,
   covered = false,
+  onUncover,
 }: EditorSurfaceProps) {
   const id = useModelId();
   const row = layout === 'row';
@@ -121,7 +124,14 @@ export default function EditorSurface({
         <EditorTabs
           documents={documents}
           closedList={closedList}
-          onClick={handleTabSwitch}
+          onClick={
+            covered && onUncover ?
+              index => {
+                onUncover();
+                handleTabSwitch(index);
+              }
+            : handleTabSwitch
+          }
           compact={variant === 'standalone'}
           hasHeaderControls={headerControls != null}
         />

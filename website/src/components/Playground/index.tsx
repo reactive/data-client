@@ -57,7 +57,10 @@ export default function Playground<T>({
     model.documents.map(document => document.value).join('\n;\n'),
   );
 
-  const [storeOpen, toggleStore] = useStoreOpen(groupId, defaultOpen);
+  const [storeOpen, toggleStore, closeStore] = useStoreOpen(
+    groupId,
+    defaultOpen,
+  );
   // Row layout: the Store slides over the code, leaving the preview usable
   const [storeHost, setStoreHost] = useState<HTMLDivElement | null>(null);
 
@@ -82,6 +85,7 @@ export default function Playground<T>({
           row ? <div ref={setStoreHost} className={styles.storeHost} /> : null
         }
         covered={row && storeOpen && !hidden}
+        onUncover={closeStore}
       />
     </EditorShell>
   );

@@ -133,7 +133,7 @@ DesignSystem/       components injected into preview scope
   avoids scroll jumps. In `row` layout it slides over the code from the
   preview's edge (portaled into a layer `EditorSurface` stacks on the code,
   which goes `inert`), so the preview stays usable beside it; when the
-  layout stacks it opens upward over the code. It opens and closes as a
+  layout stacks it opens upward over the code. Picking a file tab closes it. It opens and closes as a
   drawer (`../motion`: the toggle glides, the panel `Reveal`s); the panel's
   contents render a frame after it starts moving (`useDeferredValue`).
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
