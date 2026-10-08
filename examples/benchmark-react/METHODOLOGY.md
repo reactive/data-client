@@ -1,18 +1,9 @@
----
-title: Benchmark Methodology
-sidebar_label: Benchmark methodology
-description: Hardware, library versions, configuration, sample counts, variance and raw timings behind the React rendering benchmarks.
----
+# React Benchmark Methodology
 
-<head>
-  <meta name="docsearch:pagerank" content="10"/>
-</head>
-
-The full details behind the [React rendering benchmarks](./performance.md#react-rendering-benchmarks):
+The full details behind the [React rendering benchmarks](https://dataclient.io/docs/concepts/performance#react-rendering-benchmarks):
 the machine, versions, how each library is configured, how samples are taken, and every
-number the charts were drawn from. The source lives in
-[`examples/benchmark-react`](https://github.com/reactive/data-client/tree/master/examples/benchmark-react),
-so you can run it yourself, change it, or point it at your own workload.
+number the charts were drawn from. The benchmark source is in this directory, so you can run it
+yourself, change it, or point it at your own workload.
 
 ## Summary
 
@@ -21,9 +12,9 @@ so you can run it yourself, change it, or point it at your own workload.
 - Each simulated request costs **40 ms + 1 ms per 20 records**.
   Most of the gap comes from requests Data Client doesn't wait for or repeat:
   - Navigation renders detail views from entities already in the list response.
-  - Mutations update the store [optimistically](../getting-started/mutations.md) in one write.
+  - Mutations update the store [optimistically](https://dataclient.io/docs/getting-started/mutations) in one write.
   - The other libraries wait for the mutation response, then invalidate and refetch.
-- Ratios on the [Performance page](./performance.md) are relative to the plain React baseline.
+- Ratios on the [Performance page](https://dataclient.io/docs/concepts/performance) are relative to the plain React baseline.
   Against TanStack Query and SWR directly, navigation is **10.6x** and **10.9x**, and the
   `update-entity` mutation is **95.5x** and **94x**.
 
@@ -43,7 +34,7 @@ so you can run it yourself, change it, or point it at your own workload.
 
 The run was on a developer workstation, not an isolated machine. The exact Chromium version and
 WSL kernel were not recorded. The runner and dependencies have changed since; the charts have not been
-re-measured. See the [current README](https://github.com/reactive/data-client/tree/master/examples/benchmark-react#methodology)
+re-measured. See the [README](./README.md#methodology)
 for how the benchmark runs today.
 
 ### Library versions
@@ -63,10 +54,10 @@ Each app only wires its own data layer, following that library's documented patt
 
 | | Data Client | TanStack Query | SWR | Baseline |
 |---|---|---|---|---|
-| Reads | `useSuspense` / `useDLE` on [resource()](/rest/api/resource) endpoints | `useQuery` | `useSWR` | `useEffect` + `useState` |
+| Reads | `useSuspense` / `useDLE` on [resource()](https://dataclient.io/rest/api/resource) endpoints | `useQuery` | `useSWR` | `useEffect` + `useState` |
 | Cache config | `dataExpiryLength: Infinity`; GC sweep disabled during timing | `staleTime: Infinity`, `gcTime: Infinity` | `revalidateOnFocus`, `revalidateOnReconnect`, `revalidateIfStale` `false`; `revalidateOnMount` `true`; `dedupingInterval: 0` | None (refetches on mount) |
-| After a mutation | Optimistic store write (`optimistic: true`); views re-render from the [normalized](./normalization.md) store | Await mutation response, then `invalidateQueries(['issues'])` (and `['issue']` for multi-view) | Await mutation response, then `mutate()` matching every list key | Await mutation response, then refetch |
-| Sorted views | [Query](/rest/api/Query) schema (memoized) | `useMemo` + sort | `useMemo` + sort | `useMemo` + sort |
+| After a mutation | Optimistic store write (`optimistic: true`); views re-render from the [normalized](https://dataclient.io/docs/concepts/normalization) store | Await mutation response, then `invalidateQueries(['issues'])` (and `['issue']` for multi-view) | Await mutation response, then `mutate()` matching every list key | Await mutation response, then refetch |
+| Sorted views | [Query](https://dataclient.io/rest/api/Query) schema (memoized) | `useMemo` + sort | `useMemo` + sort | `useMemo` + sort |
 
 Neither TanStack Query nor SWR is configured with optimistic updates (`onMutate` / `setQueryData`)
 or with detail queries seeded from list data (`initialData`). Both are possible, and would narrow
@@ -197,15 +188,15 @@ env -u CI yarn bench --network-sim true
 
 The runner prints JSON results; open `bench/report-viewer.html` to compare runs.
 Flags such as `--lib` and `--scenario` narrow the run; see
-[Running locally](https://github.com/reactive/data-client/tree/master/examples/benchmark-react#running-locally).
+[Running locally](./README.md#running-locally).
 To try your own workload, edit the fixtures in `src/shared/data.ts` or add a scenario to
-`bench/scenarios.ts`; the [README](https://github.com/reactive/data-client/tree/master/examples/benchmark-react)
+`bench/scenarios.ts`; the [README](./README.md)
 covers adding scenarios and libraries.
 
 ## Normalization benchmarks
 
-The [denormalization chart](./performance.md#normalization-benchmarks) comes from the Node suite in
-[`examples/benchmark`](https://github.com/reactive/data-client/tree/master/examples/benchmark)
+The [denormalization chart](https://dataclient.io/docs/concepts/performance#normalization-benchmarks) comes from the Node suite in
+[`examples/benchmark`](../benchmark)
 (`yarn workspace example-benchmark start normalizr`, and `old-normalizr` for the comparison).
 It shows Data Client ÷ normalizr: single entity 6.3× (29.9× with the memo cache), large list 1.7× (11.5× cached).
 The run behind those values was not recorded in the repo. The suite's README lists a similar run on a
