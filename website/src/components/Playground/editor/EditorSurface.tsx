@@ -19,6 +19,12 @@ export interface EditorSurfaceProps extends CodeModel {
   interactive?: boolean;
   fixtureContent?: React.ReactNode;
   headerControls?: React.ReactNode;
+  /** Layer over the files, below the header rows (the Store drawer's host) */
+  cover?: React.ReactNode;
+  /** Whether `cover` hides the code (which goes inert) */
+  covered?: boolean;
+  /** Called when the user switches to another file tab */
+  onTabSelect?: () => void;
 }
 
 export default function EditorSurface({
@@ -29,6 +35,9 @@ export default function EditorSurface({
   interactive = true,
   fixtureContent,
   headerControls,
+  cover,
+  covered = false,
+  onTabSelect,
 }: EditorSurfaceProps) {
   const id = useModelId();
   const row = layout === 'row';
@@ -75,51 +84,74 @@ export default function EditorSurface({
     [documents.length, update],
   );
 
+  const tabs =
+    row && documents.length > 1 ?
+      <EditorTabs
+        documents={documents}
+        closedList={closedList}
+        onClick={index => {
+          // focus also selects, so only a different file counts
+          if (closedList[index]) onTabSelect?.();
+          handleTabSwitch(index);
+        }}
+        compact={variant === 'standalone'}
+        hasHeaderControls={headerControls != null}
+      />
+    : null;
+  // under a demo-level header the file tabs belong to the files, so the
+  // Store covers them too; alone they stay as the header row
+  const tabsCovered = cover != null && headerControls != null;
+  const code = documents.map((document, index) => (
+    <React.Fragment key={`${document.path}:${index}`}>
+      {(!row || document.col) && document.title ?
+        <CodeTabHeader
+          onClick={() => handleTabToggle(index)}
+          closed={closedList[index]}
+          title={document.title}
+          collapsible={documents.length > 1 || fixtureContent != null}
+        />
+      : null}
+      <TextEditTab
+        hidden={closedList[index]}
+        interactive={interactive}
+        tabIndex={index}
+        onFocus={
+          row && !document.col && documents.length > 1 ?
+            handleTabSwitch
+          : handleTabOpen
+        }
+        onChange={handleChanges[index]}
+        code={document.value}
+        path={modelPath(id, document.path)}
+        isFocused={!closedList[index]}
+        language={document.language}
+        highlights={document.highlights}
+        autoFocus={document.autoFocus}
+      />
+    </React.Fragment>
+  ));
   return (
-    <div className={styles.playgroundTextEdit}>
+    <div
+      className={clsx(styles.playgroundTextEdit, {
+        [styles.withCover]: cover != null,
+      })}
+    >
       <EditorHeader
         fixtureContent={!row ? fixtureContent : undefined}
         title={row && documents.length === 1 ? documents[0].title : undefined}
         controls={headerControls}
       />
-      {row && documents.length > 1 ?
-        <EditorTabs
-          documents={documents}
-          closedList={closedList}
-          onClick={handleTabSwitch}
-          compact={variant === 'standalone'}
-          hasHeaderControls={headerControls != null}
-        />
-      : null}
-      {documents.map((document, index) => (
-        <React.Fragment key={`${document.path}:${index}`}>
-          {(!row || document.col) && document.title ?
-            <CodeTabHeader
-              onClick={() => handleTabToggle(index)}
-              closed={closedList[index]}
-              title={document.title}
-              collapsible={documents.length > 1 || fixtureContent != null}
-            />
-          : null}
-          <TextEditTab
-            hidden={closedList[index]}
-            interactive={interactive}
-            tabIndex={index}
-            onFocus={
-              row && !document.col && documents.length > 1 ?
-                handleTabSwitch
-              : handleTabOpen
-            }
-            onChange={handleChanges[index]}
-            code={document.value}
-            path={modelPath(id, document.path)}
-            isFocused={!closedList[index]}
-            language={document.language}
-            highlights={document.highlights}
-            autoFocus={document.autoFocus}
-          />
-        </React.Fragment>
-      ))}
+      {tabsCovered ? null : tabs}
+      {cover == null ?
+        code
+      : <div className={styles.editorBody}>
+          <div className={styles.editorDocs} inert={covered}>
+            {tabsCovered ? tabs : null}
+            {code}
+          </div>
+          {cover}
+        </div>
+      }
     </div>
   );
 }
