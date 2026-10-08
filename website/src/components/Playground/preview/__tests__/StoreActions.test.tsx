@@ -1322,11 +1322,15 @@ describe('ActionLog', () => {
         ({ action }) => !['b', 'c'].includes((action as any).value?.title),
       );
     const items = rowTimeline(log, kept, entityId('Post', '3'));
-    expect(items.map(i => i.kind)).toEqual([
-      'version',
-      'missing',
-      'missing',
-      'version',
+    const seqOf = (title: string) =>
+      log
+        .history(0)
+        .entries.find(e => (e.action as any).value?.title === title)!.seq;
+    expect(items).toMatchObject([
+      { kind: 'version' },
+      { kind: 'missing', change: 'updated', seq: seqOf('x') },
+      { kind: 'missing', change: 'updated', seq: seqOf('d') },
+      { kind: 'version' },
     ]);
   });
 

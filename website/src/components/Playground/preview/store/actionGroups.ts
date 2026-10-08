@@ -553,7 +553,8 @@ export function rowTimeline(
     if (!entry.store) continue;
     const before = log.view(entry.store.before);
     const gap = row && left && rowChange(left, before, row);
-    // compared once per kept store, so each dropped stretch gets its own note
+    // compared once per kept entry, so each stretch the log dropped gets its
+    // own note, except one that ends where a new store starts
     if (gap) items.push({ kind: 'missing', seq: entry.seq, change: gap.kind });
     left = log.view(entry.store.after);
     const change = log.changes(entry).find(c => c.id === id);
