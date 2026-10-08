@@ -4,6 +4,7 @@ import { LiveProvider } from 'react-live';
 import Preview from './Preview';
 import { ResetButton } from './PreviewError';
 import PreviewWrapper from './PreviewWrapper';
+import { StoreHeaderToggle } from './StoreInspector';
 import { useRenderCount } from './RenderCount';
 import { previewScope } from './scope';
 import type { LogOptions } from './store/actionLog';
@@ -57,6 +58,7 @@ export default function LivePreview<T>({
         headerControls={
           <>
             {badge}
+            <StoreHeaderToggle open={storeOpen} onClick={toggleStore} />
             <ResetButton onClick={reset} />
           </>
         }

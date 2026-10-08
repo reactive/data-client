@@ -10,7 +10,11 @@ import FixturePreview from './preview/FixturePreview';
 import type LivePreviewType from './preview/LivePreview';
 import type { LogOptions } from './preview/store/actionLog';
 import PreviewWrapper from './preview/PreviewWrapper';
-import { StoreToggle, useStoreOpen } from './preview/StoreInspector';
+import {
+  StoreHeaderToggle,
+  StoreToggle,
+  useStoreOpen,
+} from './preview/StoreInspector';
 import styles from './styles.module.css';
 import type { FixtureOrInterceptor } from './types';
 import { isBot } from './userAgent';
@@ -129,7 +133,7 @@ export default function Playground<T>({
 
 /** SSR, crawler, hidden and loading state: empty preview frame + Store toggle */
 const previewLoading = (
-  <PreviewWrapper>
+  <PreviewWrapper headerControls={<StoreHeaderToggle />}>
     <div className={styles.playgroundPreview} />
     <StoreToggle />
   </PreviewWrapper>

@@ -704,25 +704,12 @@ div.fixtureJson {
   .storeHost > .storePanel > * {
     max-height: min(32rem, 70svh);
   }
-  /* the toggle spans the preview's top edge, where the Store opens from */
-  .playgroundContainer.row .playgroundResult {
-    flex-direction: column;
-  }
-  .playgroundContainer.row .playgroundResult > * {
-    flex: none;
-  }
+  /* the Store toggle moves into the preview's header */
   .playgroundContainer.row .debugToggle {
-    writing-mode: horizontal-tb;
-    text-orientation: mixed;
-    letter-spacing: 0.08rem;
-    line-height: inherit;
-    padding: 0.3rem 0.75rem;
+    display: none;
   }
-  .playgroundContainer.row .debugToggle .arrow.left {
-    transform: rotateZ(270deg);
-  }
-  .playgroundContainer.row .debugToggle .arrow.right {
-    transform: rotateZ(90deg);
+  .playgroundContainer.row .storeHeaderToggle {
+    display: inline-flex;
   }
 }
 
@@ -815,10 +802,28 @@ div.fixtureJson {
   border-radius: var(--ifm-global-radius);
   font-size: 1rem;
 }
-.resetButton:focus-visible {
+/* Narrow playgrounds' Store toggle (in place of the side strip): an icon
+   that reads pressed while the Store is open */
+.storeHeaderToggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  margin: -0.5rem 0;
+  border-radius: var(--ifm-global-radius);
+  font-size: 1rem;
+}
+.storeHeaderToggle[aria-pressed='true'] {
+  background-color: var(--pg-tab-hover-bg);
+  color: var(--ifm-color-primary);
+}
+.resetButton:focus-visible,
+.storeHeaderToggle:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
 }
 @media (hover: hover) {
+  .storeHeaderToggle:hover,
   .resetButton:hover {
     background-color: var(--pg-tab-hover-bg);
     color: var(--pg-tab-hover);
@@ -867,16 +872,9 @@ div.fixtureJson {
     flex: none;
   }
   .debugToggle {
-    writing-mode: horizontal-tb;
-    text-orientation: mixed;
-    letter-spacing: 0.08rem;
-    line-height: inherit;
-    padding: 0.3rem 0.75rem;
+    display: none;
   }
-  .debugToggle .arrow.right {
-    transform: rotateZ(90deg);
-  }
-  .debugToggle .arrow.left {
-    transform: rotateZ(0deg);
+  .storeHeaderToggle {
+    display: inline-flex;
   }
 }
