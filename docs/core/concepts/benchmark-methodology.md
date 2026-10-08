@@ -18,8 +18,6 @@ so you can run it yourself, change it, or point it at your own workload.
 
 - The charts come from one local run on **2026-03-22** at commit
   [`2c98dde`](https://github.com/reactive/data-client/commit/2c98dde3d1522f78cdbd44cc55183cc89f46563f).
-- Every library shares the same components, fixture data, simulated server and timing harness.
-  Only the data-layer wiring differs.
 - Each simulated request costs **40 ms + 1 ms per 20 records**.
   Most of the gap comes from requests Data Client never makes:
   - Navigation renders detail views from entities already in the list response.
@@ -44,7 +42,9 @@ so you can run it yourself, change it, or point it at your own workload.
 | Build | Webpack production build with React Compiler enabled for all four apps |
 
 The run was on a developer workstation, not an isolated machine. The exact Chromium version and
-WSL kernel were not recorded.
+WSL kernel were not recorded. The runner and dependencies have changed since; the charts have not been
+re-measured. See the [current README](https://github.com/reactive/data-client/tree/master/examples/benchmark-react#methodology)
+for how the benchmark runs today.
 
 ### Library versions
 
@@ -54,9 +54,6 @@ WSL kernel were not recorded.
 | `@tanstack/react-query` | 5.62.7 |
 | `swr` | 2.4.1 |
 | `react` / `react-dom` | 19.2.3 |
-
-The benchmark app has since moved to newer versions (for example TanStack Query 5.96 and
-React 19.3), but the charts have not been re-measured with them.
 
 ## How each library is configured
 
@@ -127,10 +124,6 @@ table below. Scenario definitions are in
   The margin is 1.96 × standard error.
 - The number of samples each scenario took before stopping was not saved, only the bounds above.
 
-The runner has since moved to longer runs (5 to 8 warmups and up to 50 to 60 samples per
-scenario in a single page load); see the
-[current README](https://github.com/reactive/data-client/tree/master/examples/benchmark-react#methodology).
-
 ## Results
 
 Median operations per second, higher is better. The ± value is the 95% CI margin as a percentage
@@ -197,13 +190,9 @@ cd examples/benchmark-react
 yarn bench --network-sim true
 ```
 
-Useful flags:
-
-- `--lib data-client,tanstack-query`: only some libraries
-- `--scenario list-detail-switch`: filter by scenario name
-- `--size small` or `--size large`: one cost group
-
-The runner prints JSON results. Open `bench/report-viewer.html` to compare runs.
+The runner prints JSON results; open `bench/report-viewer.html` to compare runs.
+Flags such as `--lib` and `--scenario` narrow the run; see
+[Running locally](https://github.com/reactive/data-client/tree/master/examples/benchmark-react#running-locally).
 To try your own workload, edit the fixtures in `src/shared/data.ts` or add a scenario to
 `bench/scenarios.ts`; the [README](https://github.com/reactive/data-client/tree/master/examples/benchmark-react)
 covers adding scenarios and libraries.
