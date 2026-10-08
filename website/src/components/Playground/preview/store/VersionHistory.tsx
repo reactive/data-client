@@ -58,12 +58,12 @@ function rowTimeline(log: ActionLog, entries: readonly LogEntry[], id: string) {
 const isVersion = (item: TimelineItem): item is Version =>
   item.kind === 'version';
 
-/** Every logged version of row `id`, oldest first */
-function useVersions({ log, history }: Actions, id: string) {
-  return useMemo(
-    () => rowTimeline(log, history.entries, id).filter(isVersion),
-    [log, history.entries, id],
-  );
+/** Row `id`'s timeline, and just its versions, oldest first */
+function useTimeline({ log, history }: Actions, id: string) {
+  return useMemo(() => {
+    const items = rowTimeline(log, history.entries, id);
+    return { items, versions: items.filter(isVersion) };
+  }, [log, history.entries, id]);
 }
 
 /** Opens record `id`'s history, at the version this level shows */
@@ -91,7 +91,7 @@ function LastChange({
   actions: Actions;
   nav: Nav;
 }) {
-  const changes = useVersions(actions, id);
+  const changes = useTimeline(actions, id).versions;
   // as of the store this level shows
   const { until } = actions;
   const last = changes.findLast(
@@ -148,7 +148,7 @@ function HistoryButtonOf({
   actions: Actions;
   nav: Nav;
 }) {
-  if (!useVersions(actions, id).length) return null;
+  if (!useTimeline(actions, id).versions.length) return null;
   return (
     <button
       type="button"
@@ -181,12 +181,7 @@ export function RowHistory({
    * reopens this history from there */
   onShowState?: () => () => void;
 }) {
-  const { log, history } = useActions();
-  const items = useMemo(
-    () => rowTimeline(log, history.entries, id),
-    [log, history.entries, id],
-  );
-  const versions = useMemo(() => items.filter(isVersion), [items]);
+  const { items, versions } = useTimeline(useActions(), id);
   const open = (
     versions.findLast(v => focus === undefined || v.entry.seq <= focus) ??
     versions[0]

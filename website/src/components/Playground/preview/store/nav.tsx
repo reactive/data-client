@@ -103,7 +103,8 @@ export interface Nav {
   /** Panel width in px, to fit columns and chips */
   readonly width: number;
   /** Opens `view` over this level; at the store `at` shows, by default the
-   * one this level shows */
+   * one this level shows. A history ignores it: each version shows at its
+   * own */
   readonly push: (view: View, at?: Moment) => void;
 }
 
