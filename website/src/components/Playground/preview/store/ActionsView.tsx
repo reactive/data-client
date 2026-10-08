@@ -149,7 +149,9 @@ const GroupRow = memo(function GroupRow({
   const { log } = useLog();
   const onToggle = () => toggle(group.id);
   const all = groupEntriesOf(group);
-  const changes = mergeChanges(all.map(e => log.changes(e)));
+  const changes = mergeChanges(
+    all.map(e => ({ seq: e.seq, changes: log.changes(e) })),
+  );
   const first = all[0];
   return (
     <div className={styles.actGroup} data-open={open || undefined}>
@@ -537,14 +539,14 @@ export function ChangeChip({ change }: { change: Change }) {
     'fields' in change && change.fields?.length ?
       `${change.kind}: ${change.fields.join(', ')}`
     : change.kind;
-  // a removed row opens as it was right before
+  // a removed row opens as it was right before the action that removed it
   if (change.kind === 'removed' && span)
     return (
       <RefChip
         id={change.id}
         className={styles.goneRef}
         title={title}
-        at={{ seq: span.first, before: true }}
+        at={{ seq: change.removedBy ?? span.first, before: true }}
         label={
           <>
             {mark}

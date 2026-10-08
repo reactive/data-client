@@ -20,10 +20,13 @@ export type Change =
       readonly kind: ChangeKind;
       readonly id: string;
       readonly endpoint: string;
+      /** The action that removed it, when merged from several */
+      readonly removedBy?: number;
     }
   | {
       readonly kind: ChangeKind;
       readonly id: string;
+      readonly removedBy?: number;
       readonly table: string;
       readonly pk: string;
       /** Fields whose value changed (`updated` only) */
@@ -144,10 +147,17 @@ function equal(a: unknown, b: unknown, depth = 0): boolean {
 }
 
 /** Several actions' changes as one: what the rows ended up as */
-export function mergeChanges(lists: readonly (readonly Change[])[]) {
+export function mergeChanges(
+  lists: readonly {
+    readonly seq: number;
+    readonly changes: readonly Change[];
+  }[],
+) {
   const merged = new Map<string, Change>();
-  for (const list of lists)
-    for (const change of list) {
+  for (const { seq, changes } of lists)
+    for (const action of changes) {
+      const change =
+        action.kind === 'removed' ? { ...action, removedBy: seq } : action;
       const prev = merged.get(change.id);
       if (!prev) merged.set(change.id, change);
       else if (change.kind === 'refreshed') continue;

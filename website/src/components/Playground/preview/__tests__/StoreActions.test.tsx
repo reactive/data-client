@@ -713,7 +713,23 @@ describe('mergeChanges', () => {
   it('drops an add that a later action removed', () => {
     const add = { kind: 'added', id: 'Post:1', endpoint: 'e' } as const;
     const remove = { kind: 'removed', id: 'Post:1', endpoint: 'e' } as const;
-    expect(mergeChanges([[add], [remove]])).toEqual([]);
+    expect(
+      mergeChanges([
+        { seq: 1, changes: [add] },
+        { seq: 2, changes: [remove] },
+      ]),
+    ).toEqual([]);
+  });
+
+  it('remembers which action removed a row', () => {
+    const update = { kind: 'updated', id: 'Post:1', endpoint: 'e' } as const;
+    const remove = { kind: 'removed', id: 'Post:1', endpoint: 'e' } as const;
+    expect(
+      mergeChanges([
+        { seq: 1, changes: [update] },
+        { seq: 2, changes: [remove] },
+      ]),
+    ).toEqual([{ ...remove, removedBy: 2 }]);
   });
 });
 
