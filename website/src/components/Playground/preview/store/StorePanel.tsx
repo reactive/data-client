@@ -10,7 +10,7 @@ import React, {
   useSyncExternalStore,
 } from 'react';
 
-import { ActionCrumb, ActionDetail } from './ActionDetail';
+import { ActionCrumb, ActionDetail, ActionName } from './ActionDetail';
 import { groupEntries, keepUnchanged, type ActionGroup } from './actionGroups';
 import { findEntry, type LogEntry } from './actionLog';
 import {
@@ -268,31 +268,29 @@ function SnapshotBar({
     () => entries.filter(e => log.changes(e).length),
     [log, entries],
   );
-  const i = changing.indexOf(entry);
-  const step = (by: number) => {
-    const to = changing[i + by];
-    if (to) onShow(to.seq);
-  };
+  // by seq: the shown action may have dropped off the log
+  const later = changing.find(e => e.seq > entry.seq);
+  const earlier = changing.findLast(e => e.seq < entry.seq);
   return (
     <div className={styles.snapshot}>
       <button
         type="button"
         aria-label="Previous change"
-        disabled={i <= 0}
-        onClick={() => step(-1)}
+        disabled={!earlier}
+        onClick={() => earlier && onShow(earlier.seq)}
       >
         ‹
       </button>
       <button
         type="button"
         aria-label="Next change"
-        disabled={i < 0 || i >= changing.length - 1}
-        onClick={() => step(1)}
+        disabled={!later}
+        onClick={() => later && onShow(later.seq)}
       >
         ›
       </button>
       <span className={styles.snapshotLabel}>
-        After <ActionCrumb seq={entry.seq} />
+        After <ActionName entry={entry} />
       </span>
       <button
         type="button"

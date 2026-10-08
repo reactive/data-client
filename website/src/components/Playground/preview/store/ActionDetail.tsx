@@ -266,7 +266,10 @@ function lastChange({ log, history, until }: Actions, id: string) {
 /** Breadcrumb for an action's level: `setResponse GET /posts` */
 export function ActionCrumb({ seq }: { seq: number }) {
   const entry = findEntry(useActions().history.entries, seq);
-  if (!entry) return <>…</>;
+  return entry ? <ActionName entry={entry} /> : <>…</>;
+}
+
+export function ActionName({ entry }: { entry: LogEntry }) {
   return (
     <>
       <TypeName entry={entry} /> <KeyLabel value={actionKey(entry.action)} />

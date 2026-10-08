@@ -154,6 +154,28 @@ describe('Store Actions tab', () => {
     expect(screen.getByRole('button', { name: 'Live' })).toBeTruthy();
   });
 
+  it('keeps a snapshot, and steps from it, once its action drops off', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    fireEvent.click(actionsTab());
+    fireEvent.click(rows()[0]);
+    fireEvent.click(
+      screen.getByText('setResponse').closest('[role="button"]')!,
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: 'View State after this' }),
+    );
+    act(() => {
+      for (let i = 0; i < 510; i++)
+        ctrl().dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other' } as any);
+    });
+    await act(() => ctrl().fetch(getPosts));
+    const bar = screen.getByRole('button', { name: 'Live' }).parentElement!;
+    expect(bar.textContent).toContain('setResponse');
+    const next = within(bar).getByRole('button', { name: 'Next change' });
+    expect((next as HTMLButtonElement).disabled).toBe(false);
+  });
+
   it('shows an optimistic update, its diff, and State as it was then', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
