@@ -85,8 +85,9 @@ jobs:
             website-build-
       - name: Build website
         env:
-          # Production drops drafts; previews and the check build them
-          VERCEL_ENV: ${{ github.event_name != 'pull_request' && github.event_name != 'merge_group' && github.ref == 'refs/heads/master' && 'production' || 'preview' }}
+          # PRs build drafts. The queue and master build production, so a link
+          # to a draft fails here instead of on the master push.
+          VERCEL_ENV: ${{ github.event_name == 'pull_request' && 'preview' || 'production' }}
         # explicit `shell: bash` adds pipefail, so a failed build isn't masked by tee
         shell: bash
         run: |
@@ -182,8 +183,10 @@ jobs:
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       VERCEL_TELEMETRY_DISABLED: '1'
     steps:
-      # vercel build reads only these. vercel.json skips the install and the
-      # build, so this job never runs repo code while it holds the token.
+      # vercel build reads only these. It runs no npm install or repo scripts;
+      # vercel build only runs vercel.json's guard command. The token is still
+      # as exposed as same-repo push access, since that file can change the
+      # command.
       - uses: actions/checkout@v7
         with:
           sparse-checkout: |
