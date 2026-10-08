@@ -299,6 +299,7 @@ function Status({ group }: { group: ActionGroup }) {
   }
   if (group.kind !== 'request') return null;
   const { response } = group;
+  if (group.cancelled) return <span className={styles.tQuiet}>cancelled</span>;
   if (!response) return <span className={styles.tFetch}>pending</span>;
   return (
     <span className={typeClass(response.action)}>
@@ -351,7 +352,14 @@ function Lifecycle({ group }: { group: ActionGroup }) {
         </>
       )}
       <s />
-      <i className={response ? typeClass(response.action) : styles.waiting} />
+      <i
+        className={
+          response ? typeClass(response.action)
+          : group.cancelled ?
+            styles.tQuiet
+          : styles.waiting
+        }
+      />
     </span>
   );
 }

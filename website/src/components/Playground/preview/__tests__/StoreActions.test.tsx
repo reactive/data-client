@@ -293,6 +293,8 @@ describe('groupEntries', () => {
       ['single', [2]],
       ['request', [3, 4]],
     ]);
+    // cancelled, not left pending
+    expect(groups[0].kind === 'request' && groups[0].cancelled).toBe(true);
   });
 
   it('folds reads made while one is in flight into it', () => {
@@ -362,6 +364,34 @@ describe('ActionLog', () => {
     expect(log.entries).toHaveLength(0);
     log.newStore('restore');
     expect(log.entries).toHaveLength(0);
+  });
+
+  it('ignores what a replaced store still dispatches', () => {
+    const log = new ActionLog();
+    const old = { getState: () => empty } as any;
+    const next = { getState: () => initialState } as any;
+    const set = (store: any) => {
+      const action = {
+        type: actionTypes.SET_RESPONSE,
+        key: 'b',
+        response: 1,
+        meta: { fetchedAt: 1, date: 1, expiresAt: 2 },
+        endpoint: { schema: undefined },
+      } as any;
+      log.record(action, store);
+      log.tail.middleware!(store)(() => Promise.resolve())(action);
+    };
+    set(old);
+    log.newStore('reset');
+    set(next);
+    // the old store's response arrives late
+    set(old);
+    set(next);
+    const [, second] = log.entries;
+    expect(log.entries).toHaveLength(2);
+    // picks up where the new store's last action left it (its getState()
+    // lags behind, as the real store commits in batches)
+    expect(second.store?.before.endpoints).toHaveProperty('b');
   });
 
   it('keeps only the newest actions', () => {

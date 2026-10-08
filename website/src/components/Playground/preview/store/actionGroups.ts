@@ -162,6 +162,8 @@ export interface RequestGroup {
   readonly key: string;
   readonly entries: LogEntry[];
   response?: LogEntry;
+  /** A reset cancelled it before its response */
+  cancelled?: true;
 }
 
 /** A subscription and the fetches it made while open */
@@ -267,7 +269,11 @@ export function groupEntries(entries: readonly LogEntry[]): ActionGroup[] {
         break;
       }
       case actionTypes.RESET:
-        // NetworkManager drops the responses of everything in flight
+        // NetworkManager rejects everything in flight; no response follows
+        for (const list of requests.values())
+          for (const request of list)
+            if (!request.response) request.cancelled = true;
+        requests.clear();
         pending.clear();
         single(entry);
         break;

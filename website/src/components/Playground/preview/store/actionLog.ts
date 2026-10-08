@@ -59,7 +59,9 @@ export default class ActionLog {
   /** Last in the manager chain: applies what actually reaches the store */
   readonly tail: Manager<ActionTypes> = {
     middleware: controller => next => action => {
-      this.apply(action, controller as Controller);
+      // a replaced store's late actions would reset the state it follows
+      if (!this.retired.has(controller))
+        this.apply(action, controller as Controller);
       return next(action);
     },
     cleanup() {},
