@@ -15,7 +15,7 @@ import {
   type AnyRow,
   type EntityTable,
 } from './model';
-import { membersOf, useNav, type ListView } from './nav';
+import { membersOf, useNav, type ListView as List } from './nav';
 import styles from './store.module.css';
 import {
   endpointColumns,
@@ -42,7 +42,7 @@ export function ListView({
   scroller,
   header,
 }: {
-  view: ListView;
+  view: List;
   scroller: Scroller;
   header: Header;
 }) {

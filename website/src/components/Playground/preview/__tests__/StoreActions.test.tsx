@@ -1126,6 +1126,21 @@ describe('ActionLog', () => {
     expect(entries[0].store?.after.endpoints).toMatchObject({ k: 1 });
   });
 
+  it('starts with what is pending when the Store panel opens, with recordFrom open', () => {
+    const log = new ActionLog({ recordFrom: 'open' });
+    const pending = {
+      type: actionTypes.OPTIMISTIC,
+      key: 'k',
+      endpoint: { schema: undefined },
+      meta: { fetchedAt: 1 },
+    } as any;
+    connect(log, 0, { state: { ...empty, optimistic: [pending] } });
+    expect(log.history(0).state).toBeUndefined();
+    log.subscribe(() => {});
+    expect(log.history(0).state?.optimistic).toEqual([pending]);
+    expect(log.history(0).entries).toHaveLength(0);
+  });
+
   it('keeps the subscribers still polling past the limit', () => {
     const log = new ActionLog({ trimEvery: 1 });
     const dispatch = connect(log, 0);

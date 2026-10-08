@@ -90,6 +90,9 @@ export default class ActionLog {
   private readonly trimEvery: number;
   /** Off until the Store panel first listens, with `recordFrom: 'open'` */
   private recording: boolean;
+  /** Starts the latest store's history where it stands, once recording
+   * starts */
+  private start?: () => void;
   private readonly histories = new Map<number, History>();
   private nextSeq = 1;
   /** Applies pending optimistic updates for `view` */
@@ -130,6 +133,16 @@ export default class ActionLog {
       for (const old of this.histories.keys())
         if (old !== id && old !== keep) this.histories.delete(old);
     };
+    /** Starts the history at `state`, with no action yet */
+    const begin = (state: State<unknown>) => {
+      if (first) dropOthers();
+      this.histories.set(id, {
+        ...this.history(id),
+        state: detach(state),
+        ...(first && { storeFrom: this.nextSeq }),
+      });
+      this.notify();
+    };
     const head: Manager<ActionTypes> = {
       middleware: () => next => action => {
         if (!this.recording) return next(action);
@@ -155,14 +168,7 @@ export default class ActionLog {
       // (its first reads may already be recorded, as NetworkManager holds
       // them back from the store)
       init: (state: State<unknown>) => {
-        if (reached || !this.recording) return;
-        if (first) dropOthers();
-        this.histories.set(id, {
-          ...this.history(id),
-          state: detach(state),
-          ...(first && { storeFrom: this.nextSeq }),
-        });
-        this.notify();
+        if (!reached && this.recording) begin(state);
       },
       cleanup() {},
     };
@@ -170,6 +176,9 @@ export default class ActionLog {
       middleware: controller => {
         const reduce = createReducer(controller as Controller);
         let state: State<unknown> | undefined;
+        // with `recordFrom: 'open'`, the history starts when the panel opens,
+        // with what is pending by then
+        if (!this.recording) this.start = () => begin(controller.getState());
         return next => action => {
           if (!this.recording) return next(action);
           // managers' init runs in an effect, possibly after the store's
@@ -235,7 +244,11 @@ export default class ActionLog {
   }
 
   subscribe = (listener: () => void) => {
-    this.recording = true;
+    if (!this.recording) {
+      this.recording = true;
+      this.start?.();
+      this.start = undefined;
+    }
     this.listeners.add(listener);
     return () => {
       this.listeners.delete(listener);
