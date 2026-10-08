@@ -139,26 +139,15 @@ DesignSystem/       components injected into preview scope
   It opens and closes as a drawer (`../motion`: the toggle glides, the panel
   `Reveal`s); the panel's contents render a frame after it starts moving
   (`useDeferredValue`).
-- The Store inspector's Actions tab logs every dispatch (`preview/store/actionLog.ts`).
-  Each store mount gets its own `registry.log.connect(history)` managers:
-  `head` goes first in the manager chain and `tail` last, so the log knows
-  which actions reached the store and runs the store's reducer itself to keep
-  the state right after each one (the store only commits in batches). Keep the
-  tail last when adding managers. `connect`'s third argument (wired to
-  `NetworkManager.skipLogging`) marks fetches the network will share with one
-  already held, so the log groups them the same way. It keeps 500 actions and
-  20 updates per row (a subscription's polls, or one entity's pushed `set`s),
-  trimming in batches of 50 since trimming regroups the log; the oldest kept
-  update counts the ones dropped before it. Playground's `actionLog` prop
-  passes `LogOptions`, e.g. `{ recordFrom: 'open' }` to record nothing until
-  the Store panel first opens. `usePreviewReset` owns the `history` id: each
-  fresh store (Reset, or an error's automatic retry) starts a new one, and a
-  store the retry gives back continues its own (from its `init`, if it mounts
-  without dispatching). The Store panel shows that
-  history only. What an action's chips open shows the store as that action
-  left it (a removed row: as it was just before); a level pushed with a
-  `Moment` gets that store's model and `StateContext`, and what it opens
-  inherits it.
+- The Store inspector's Actions tab logs every dispatch through
+  `preview/store/actionLog.ts`, which documents its limits and `LogOptions`
+  (the Playground's `actionLog` prop). Preview.tsx gives each store mount its
+  own `registry.log.connect(history, replacedHistory, deduped)` managers. Keep
+  `head` first and `tail` last when adding managers: the tail must see exactly
+  what reaches the store. `usePreviewReset` owns the `history` id: a fresh
+  store (see Reset) starts a new history, a store the retry restores continues
+  its own, and the panel shows only the current one. An action's chips open the
+  store as that action left it (see `Moment` in `preview/store/nav.tsx`).
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
   count in the preview header (written to the DOM, so counting adds no commits).
   `website/profiling-plugin.js` replaces `react-dom/client` with React's
