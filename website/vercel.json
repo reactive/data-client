@@ -1,6 +1,11 @@
 {
   "cleanUrls": true,
   "ignoreCommand": "bash scripts/vercel-ignore.sh",
+  "git": {
+    "deploymentEnabled": {
+      "renovate/**": false
+    }
+  },
   "redirects": [
     {
       "source": "/docs/getting-started/devtools-debugging.md",
