@@ -151,7 +151,10 @@ export function mergeChanges(lists: readonly (readonly Change[])[]) {
       const prev = merged.get(change.id);
       if (!prev) merged.set(change.id, change);
       else if (change.kind === 'refreshed') continue;
-      else if (prev.kind === 'added' && change.kind !== 'removed') continue;
+      // added, then rolled back (a failed optimistic create): no change
+      else if (prev.kind === 'added' && change.kind === 'removed')
+        merged.delete(change.id);
+      else if (prev.kind === 'added') continue;
       else if (
         prev.kind === 'updated' &&
         change.kind === 'updated' &&
@@ -213,12 +216,9 @@ export function groupEntries(
   const requests = new Map<string, RequestGroup[]>();
   /** By endpoint key: the request still waiting for its response */
   const pending = new Map<string, RequestGroup>();
-  /** By endpoint key: an answered request NetworkManager still holds (until
-   * the store commits its response), so reads join it */
-  const held = new Map<
-    string,
-    { readonly request: RequestGroup; readonly until: number }
-  >();
+  /** By endpoint key: the latest read, which NetworkManager may still hold
+   * after its response arrives (until the store commits it) */
+  const lastRead = new Map<string, RequestGroup>();
   const subscriptions = new Map<string, SubscriptionGroup>();
   const single = (entry: LogEntry) =>
     groups.push({
@@ -234,7 +234,7 @@ export function groupEntries(
         if (!request.response) request.cancelled = true;
     requests.clear();
     pending.clear();
-    held.clear();
+    lastRead.clear();
   };
 
   /** A remounted store: the one before it dropped its subscriptions and
@@ -284,14 +284,14 @@ export function groupEntries(
       }
       case actionTypes.FETCH: {
         const sideEffect = !!action.endpoint.sideEffect;
-        // NetworkManager shares a read already in flight
-        const answered = held.get(action.key);
+        // NetworkManager shares a read already in flight, which it holds
+        // until the store commits the response; when the log can't say, a
+        // read still waiting for its response is shared
         const shared =
           !sideEffect &&
-          (pending.get(action.key) ??
-            (answered && entry.seq < answered.until ?
-              answered.request
-            : undefined));
+          (entry.deduped === undefined ? pending.get(action.key)
+          : entry.deduped ? lastRead.get(action.key)
+          : undefined);
         if (shared) {
           shared.entries.push(entry);
           break;
@@ -304,7 +304,10 @@ export function groupEntries(
         };
         const id = requestId(action.key, action.meta.fetchedAt);
         requests.set(id, [...(requests.get(id) ?? []), request]);
-        if (!sideEffect) pending.set(action.key, request);
+        if (!sideEffect) {
+          pending.set(action.key, request);
+          lastRead.set(action.key, request);
+        }
         const sub = subscriptions.get(action.key);
         if (sub) sub.requests.push(request);
         else groups.push(request);
@@ -324,13 +327,7 @@ export function groupEntries(
         }
         request.entries.push(entry);
         request.response = entry;
-        if (pending.get(action.key) === request) {
-          pending.delete(action.key);
-          held.set(action.key, {
-            request,
-            until: entry.releasedAt ?? Infinity,
-          });
-        }
+        if (pending.get(action.key) === request) pending.delete(action.key);
         break;
       }
       case actionTypes.RESET:

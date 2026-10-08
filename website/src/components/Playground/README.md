@@ -144,7 +144,9 @@ DesignSystem/       components injected into preview scope
   `head` goes first in the manager chain and `tail` last, so the log knows
   which actions reached the store and runs the store's reducer itself to keep
   the state right after each one (the store only commits in batches). Keep the
-  tail last when adding managers. `usePreviewReset` owns the `history` id: each
+  tail last when adding managers. `connect`'s third argument (wired to
+  `NetworkManager.skipLogging`) marks fetches the network will share with one
+  already held, so the log groups them the same way. `usePreviewReset` owns the `history` id: each
   fresh store (Reset, or an error's automatic retry) starts a new one, and a
   store the retry gives back continues its own (from its `init`, if it mounts
   without dispatching). The Store panel shows that

@@ -20,9 +20,9 @@ export interface LogEntry {
   /** A store's first action. A store restored from this history starts
    * without what the last one had in flight */
   readonly newStore?: true;
-  /** A response's: the seq due when NetworkManager let go of its request
-   * (after the store committed it). Reads before then were deduped into it */
-  readonly releasedAt?: number;
+  /** A fetch's: whether NetworkManager shared it with the request it already
+   * had for its key, instead of fetching. Missing when the log can't tell */
+  readonly deduped?: boolean;
   /** The store's own state (pending optimistic updates not yet applied)
    * right before and after this action. Missing when a manager handled the
    * action without passing it on (a plain fetch, a subscribe) */
@@ -69,8 +69,14 @@ export default class ActionLog {
   /** Managers that log one store's actions into history `id`: `head` goes
    * first in the manager chain, `tail` last (it sees what actually reaches
    * the store). Once the store dispatches, histories other than `id` and
-   * `keep` (one that may still come back) are dropped */
-  connect(id: number, keep?: number) {
+   * `keep` (one that may still come back) are dropped. `deduped` says
+   * whether NetworkManager will share a read with one in flight (its
+   * `skipLogging`) */
+  connect(
+    id: number,
+    keep?: number,
+    deduped?: (action: ActionTypes) => boolean,
+  ) {
     /** Each action's entry, for the tail to find what the head recorded */
     const recorded = new WeakMap<ActionTypes, LogEntry>();
     let first = true;
@@ -86,16 +92,15 @@ export default class ActionLog {
           action,
           at: Date.now(),
           ...(first && { newStore: true as const }),
+          ...(deduped &&
+            action.type === actionTypes.FETCH && {
+              deduped: deduped(action),
+            }),
         };
         first = false;
         recorded.set(action, entry);
         this.append(id, entry);
-        const result = next(action);
-        if (action.type === actionTypes.SET_RESPONSE) {
-          const release = () => this.release(id, entry.seq);
-          result.then(release, release);
-        }
-        return result;
+        return next(action);
       },
       // a store can start without dispatching (one restored after an error,
       // with its pending updates cleared): it starts here instead
@@ -173,7 +178,7 @@ export default class ActionLog {
     const { entries, since } = history ?? EMPTY;
     this.histories.set(id, {
       ...history,
-      entries: [...entries, entry].slice(-LOG_LIMIT),
+      entries: trim([...entries, entry]),
       since: entries.length ? since : entry.at,
     });
     // Components read while they render. If the panel heard about a read it
@@ -202,20 +207,6 @@ export default class ActionLog {
     this.notify();
   }
 
-  /** Reads dispatched from here on start their own request */
-  private release(id: number, seq: number) {
-    const history = this.histories.get(id);
-    if (!history) return;
-    const releasedAt = this.nextSeq;
-    // shown with the next change: only reads before it are affected
-    this.histories.set(id, {
-      ...history,
-      entries: history.entries.map(e =>
-        e.seq === seq ? { ...e, releasedAt } : e,
-      ),
-    });
-  }
-
   /** Listeners hear once per task, never during the render that
    * dispatched */
   private notify() {
@@ -226,6 +217,46 @@ export default class ActionLog {
       for (const listener of this.listeners) listener();
     });
   }
+}
+
+/** The newest `LOG_LIMIT` entries, and the subscribes of subscriptions still
+ * open, so a long poll keeps its row */
+function trim(entries: LogEntry[]): LogEntry[] {
+  const drop = entries.length - LOG_LIMIT;
+  if (drop <= 0) return entries;
+  // subscribers each key still has: overall, and among the kept entries
+  const open = new Map<string, number>();
+  const kept = new Map<string, number>();
+  entries.forEach((e, i) => {
+    if (e.newStore) {
+      open.clear();
+      kept.clear();
+    }
+    const { action } = e;
+    if (
+      action.type !== actionTypes.SUBSCRIBE &&
+      action.type !== actionTypes.UNSUBSCRIBE
+    )
+      return;
+    const step = action.type === actionTypes.SUBSCRIBE ? 1 : -1;
+    open.set(action.key, (open.get(action.key) ?? 0) + step);
+    if (i >= drop) kept.set(action.key, (kept.get(action.key) ?? 0) + step);
+  });
+  // the latest dropped subscribes make up what the kept entries lack
+  const anchors: LogEntry[] = [];
+  for (let i = drop - 1; i >= 0; i--) {
+    const { action, newStore } = entries[i];
+    if (
+      action.type === actionTypes.SUBSCRIBE &&
+      (open.get(action.key) ?? 0) > (kept.get(action.key) ?? 0)
+    ) {
+      kept.set(action.key, (kept.get(action.key) ?? 0) + 1);
+      anchors.unshift(entries[i]);
+    }
+    // what came before belonged to the store before
+    if (newStore) break;
+  }
+  return [...anchors, ...entries.slice(drop)];
 }
 
 /** The reducer deletes garbage in place; earlier states share those tables */

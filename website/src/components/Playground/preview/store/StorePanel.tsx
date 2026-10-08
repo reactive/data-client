@@ -78,8 +78,13 @@ export default function StorePanel({
 
   // State as it was right after one action, until "Live"
   const [snapshotSeq, setSnapshot] = useState<number | null>(null);
-  const snapshot =
+  const found =
     snapshotSeq === null ? undefined : findEntry(entries, snapshotSeq);
+  // stays shown once its action drops off the front of the log
+  const [kept, setKept] = useState<LogEntry>();
+  if (found && found !== kept) setKept(found);
+  const snapshot =
+    found ?? (kept && kept.seq === snapshotSeq ? kept : undefined);
   const state = snapshot?.store ? log.view(snapshot.store.after) : live;
   // the store commits and the log notifies in separate renders: the rows
   // rebuild only when the store commits
@@ -333,8 +338,9 @@ function Levels({
     () => new Map<number, { readonly nav: Nav; readonly then?: Then }>(),
   );
   const levelOf = ({ key, at }: Entry) => {
-    const shown = at && then(at);
     const last = navs.get(key);
+    // kept once its action drops off the front of the log
+    const shown = at && (then(at) ?? last?.then);
     if (
       last &&
       last.then === shown &&

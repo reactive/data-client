@@ -15,7 +15,12 @@ import {
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React, { Suspense } from 'react';
 
-import { diffStates, groupEntries, keepUnchanged } from '../store/actionGroups';
+import {
+  diffStates,
+  groupEntries,
+  keepUnchanged,
+  mergeChanges,
+} from '../store/actionGroups';
 import ActionLog, { type LogEntry } from '../store/actionLog';
 import { entityId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
@@ -349,26 +354,30 @@ describe('groupEntries', () => {
     seq,
     action,
     at: seq,
-    // NetworkManager lets go of a request once its response commits
-    ...(action.type === actionTypes.SET_RESPONSE && { releasedAt: seq + 1 }),
   });
   const poll = { key: 'GET /price', endpoint: { pollFrequency: 5000 } };
 
   it('joins a read to the request NetworkManager still holds', () => {
     const read = { key: 'GET /a', endpoint: {} };
+    const fetch = (seq: number, deduped: boolean) => ({
+      ...entry(seq, {
+        type: actionTypes.FETCH,
+        ...read,
+        meta: { fetchedAt: seq },
+      }),
+      deduped,
+    });
     const groups = groupEntries([
-      entry(1, { type: actionTypes.FETCH, ...read, meta: { fetchedAt: 1 } }),
-      {
-        ...entry(2, {
-          type: actionTypes.SET_RESPONSE,
-          ...read,
-          meta: { fetchedAt: 1 },
-        }),
-        releasedAt: 4,
-      },
-      // an effect reacting to the response, before the request is let go
-      entry(3, { type: actionTypes.FETCH, ...read, meta: { fetchedAt: 3 } }),
-      entry(4, { type: actionTypes.FETCH, ...read, meta: { fetchedAt: 4 } }),
+      fetch(1, false),
+      entry(2, {
+        type: actionTypes.SET_RESPONSE,
+        ...read,
+        meta: { fetchedAt: 1 },
+      }),
+      // an effect reacting to the response, before the store commits it
+      fetch(3, true),
+      // a read chained on the first one's promise: a new request
+      fetch(4, false),
     ]);
     expect(groups.map(g => g.entries.map(e => e.seq))).toEqual([
       [1, 2, 3],
@@ -671,10 +680,40 @@ describe('ActionLog', () => {
   it('keeps only the newest actions', () => {
     const log = new ActionLog();
     const dispatch = connect(log, 0);
-    for (let i = 0; i < 510; i++) dispatch(subscribe());
+    for (let i = 0; i < 255; i++) {
+      dispatch(subscribe());
+      dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'k' });
+    }
     const { entries } = log.history(0);
     expect(entries).toHaveLength(500);
     expect(entries[0].seq).toBe(11);
+  });
+
+  it('keeps the subscribes of subscriptions still open past the limit', () => {
+    const log = new ActionLog();
+    const dispatch = connect(log, 0);
+    dispatch(subscribe());
+    dispatch(subscribe());
+    for (let i = 0; i < 500; i++)
+      dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other' });
+    dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'k' });
+    const { entries } = log.history(0);
+    // one dropped subscribe still pairs with the kept unsubscribe; the other
+    // keeps the subscription open
+    expect(entries.map(e => e.seq).slice(0, 2)).toEqual([1, 2]);
+    expect(entries).toHaveLength(502);
+    const sub = groupEntries(entries).find(
+      g => g.kind === 'subscription' && g.key === 'k',
+    );
+    expect(sub).toMatchObject({ open: 1 });
+  });
+});
+
+describe('mergeChanges', () => {
+  it('drops an add that a later action removed', () => {
+    const add = { kind: 'added', id: 'Post:1', endpoint: 'e' } as const;
+    const remove = { kind: 'removed', id: 'Post:1', endpoint: 'e' } as const;
+    expect(mergeChanges([[add], [remove]])).toEqual([]);
   });
 });
 

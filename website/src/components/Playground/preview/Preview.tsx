@@ -51,11 +51,14 @@ function Preview<T>({
     onInteract: () => void;
   }) {
   const managers = useMemo<Manager[]>(() => {
-    const log = registry.log.connect(history, replacedHistory);
+    const network = new NetworkManager();
+    const log = registry.log.connect(history, replacedHistory, action =>
+      network.skipLogging(action),
+    );
     return [
       log.head,
       registry,
-      new NetworkManager(),
+      network,
       new SubscriptionManager(PollingSubscription),
       log.tail,
     ];
