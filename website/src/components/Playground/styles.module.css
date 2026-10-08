@@ -319,7 +319,7 @@ div.playgroundTextEdit > .playgroundHeader,
   grid-area: 1 / 1;
 }
 /* room to inspect even when the code is short, held while visible, including
-   while it slides out (until its <Activity> hides it) */
+   while it slides out pinned out of flow (until its <Activity> hides it) */
 .storeHost:has(> .storePanel[data-visible]) {
   min-height: 20rem;
 }
@@ -697,8 +697,8 @@ div.fixtureJson {
 }
 /* Stacked row layout: the Store opens upward over the code */
 @container playground (max-width: 719px) {
-  /* and takes the code's place: as tall as its contents (which size
-     containment would ignore), scrolling past a cap, not as tall as the code */
+  /* and takes the code's place: as tall as its contents (which
+     `contain: size` would ignore), scrolling past a cap, not the code's height */
   .editorDocs[inert] {
     max-height: 0;
     overflow: hidden;
@@ -823,8 +823,8 @@ div.fixtureJson {
   margin-right: -0.5rem;
 }
 /* Narrow playgrounds' Store toggle (in place of the side strip): an icon
-   that reads pressed while the Store is open */
-/* compound, so it outranks .headerButton however the build orders them */
+   that reads pressed while the Store is open. Compound, so it outranks
+   .headerButton however the build orders them */
 .headerButton.storeHeaderToggle {
   display: none;
 }
@@ -877,7 +877,7 @@ div.fixtureJson {
   .debugToggle {
     display: none;
   }
-  .headerButton.storeHeaderToggle {
+  .playgroundContainer .headerButton.storeHeaderToggle {
     display: inline-flex;
   }
 }
