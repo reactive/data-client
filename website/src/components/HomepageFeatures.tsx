@@ -29,8 +29,8 @@ const featureList: FeatureItem[] = [
   {
     description: (
       <>
-        Navigation <Link to="/docs/concepts/performance">24x faster</Link> than
-        TanStack Query, SWR and React baseline.{' '}
+        Navigation <Link to="/docs/concepts/performance">10x faster</Link> than
+        TanStack Query and SWR, 24x faster than React baseline.{' '}
         <Link to="/docs/concepts/performance">Mutations 92x</Link> faster than
         TanStack Query, SWR and React baseline.
       </>

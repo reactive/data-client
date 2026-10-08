@@ -69,8 +69,18 @@
           "id": "concepts/managers"
         },
         {
-          "type": "doc",
-          "id": "concepts/performance"
+          "type": "category",
+          "label": "Performance",
+          "link": {
+            "type": "doc",
+            "id": "concepts/performance"
+          },
+          "items": [
+            {
+              "type": "doc",
+              "id": "concepts/benchmark-methodology"
+            }
+          ]
         }
       ]
     },
