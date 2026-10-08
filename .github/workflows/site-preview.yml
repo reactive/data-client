@@ -128,22 +128,12 @@ jobs:
           else
             echo "target=production" >> "$GITHUB_OUTPUT"
             [ "$GITHUB_REF" = refs/heads/master ] || skip "Only master deploys to production"
-            export VERCEL_GIT_COMMIT_REF=master VERCEL_ENV=production
-            [ "$EVENT" = push ] && export VERCEL_GIT_PREVIOUS_SHA="$BEFORE"
-            # A newer master commit that changed the site deploys from its own
-            # (queued) run; deploying this one would roll production back
-            git fetch -q --no-tags origin +refs/heads/master:refs/remotes/origin/master || true
-            tip="$(git rev-parse -q --verify origin/master)" || tip=
-            mapfile -d '' paths < <(bash website/scripts/vercel-ignore.sh --paths)
-            if [ -n "$tip" ] && [ "$tip" != "$GITHUB_SHA" ] &&
-              git merge-base --is-ancestor "$GITHUB_SHA" "$tip" &&
-              [ -n "$(git diff --name-only --no-renames "$GITHUB_SHA" "$tip" -- "${paths[@]}")" ]; then
-              skip "master moved on to ${tip:0:12}, whose run deploys the newer site"
-            fi
+            # Empty on workflow_dispatch, so it always deploys
+            export VERCEL_GIT_COMMIT_REF=master VERCEL_ENV=production VERCEL_GIT_PREVIOUS_SHA="$BEFORE"
           fi
           [ "$VERCEL_CONFIGURED" = true ] ||
             skip "Set the VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID repository secrets to deploy"
-          if [ "$EVENT" = workflow_dispatch ] || ! bash website/scripts/vercel-ignore.sh; then
+          if ! bash website/scripts/vercel-ignore.sh; then
             echo "deploy=true" >> "$GITHUB_OUTPUT"
           else
             echo "deploy=false" >> "$GITHUB_OUTPUT"
@@ -183,15 +173,17 @@ jobs:
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       VERCEL_TELEMETRY_DISABLED: '1'
     steps:
-      # vercel build reads only these. It runs no npm install or repo scripts;
-      # vercel build only runs vercel.json's guard command. The token is still
-      # as exposed as same-repo push access, since that file can change the
-      # command.
+      # vercel build reads only the first two; production also runs
+      # vercel-ignore.sh --superseded. No npm install or other repo scripts run,
+      # and vercel build only runs vercel.json's guard command. The token is
+      # still as exposed as same-repo push access, since that file can change
+      # the command.
       - uses: actions/checkout@v7
         with:
           sparse-checkout: |
             website/package.json
             website/vercel.json
+            website/scripts/vercel-ignore.sh
           sparse-checkout-cone-mode: false
       - uses: actions/download-artifact@v8
         with:
@@ -209,6 +201,12 @@ jobs:
         env:
           HEAD_REF: ${{ github.head_ref }}
         run: |
+          # Checked here, not in `website`, so a re-run of this job can't roll
+          # production back to an older master commit
+          if [ "$TARGET" = production ] && bash website/scripts/vercel-ignore.sh --superseded; then
+            echo "::notice title=Docs deploy skipped::master moved on to a newer site, whose run deploys it"
+            exit 0
+          fi
           meta=()
           # Ties the preview to its branch instead of the PR merge ref
           [ -n "$HEAD_REF" ] && meta=(--meta githubDeployment=1 --meta "githubCommitRef=$HEAD_REF")

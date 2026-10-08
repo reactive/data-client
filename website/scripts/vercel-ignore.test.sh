@@ -33,15 +33,16 @@ commit() {
   git -C "$repo" commit -m "$msg" >/dev/null
 }
 
-# expect <skip|build> <name> <ref> [previous-sha] [vercel-env]
+# expect <skip|build> <name> <ref> [previous-sha] [vercel-env] [script args...]
 expect() {
-  local want="$1" name="$2" ref="$3" out rc code=1
+  local want="$1" name="$2" ref="$3" prev="${4-}" env="${5-}" out rc code=1
+  shift $(($# < 5 ? $# : 5))
   [ "$want" = skip ] && code=0
   set +e
   out="$(
     cd "$repo" &&
-      VERCEL_GIT_COMMIT_REF="$ref" VERCEL_GIT_PREVIOUS_SHA="${4-}" VERCEL_ENV="${5-}" \
-        bash "$script" 2>&1
+      VERCEL_GIT_COMMIT_REF="$ref" VERCEL_GIT_PREVIOUS_SHA="$prev" VERCEL_ENV="$env" \
+        bash "$script" "$@" 2>&1
   )"
   rc=$?
   set -e
@@ -170,8 +171,8 @@ commit "unrelated site" website/src/pages/index.js
 commit "unrelated pkg" packages/core/src/index.ts
 expect build "preview without merge-base builds" unrelated
 
-# Vercel's clone can carry a master ref at the commit being built. Comparing
-# HEAD with itself would always skip, so that ref is not a base.
+# A clone can carry a master ref at the commit being built. Comparing HEAD
+# with itself would always skip, so that ref is not a base.
 git -C "$repo" checkout -b clone-master master >/dev/null 2>&1
 commit "clone-master page" docs/core/api/CloneMaster.md
 real_master="$(git -C "$repo" rev-parse master)"
@@ -179,13 +180,7 @@ git -C "$repo" update-ref refs/heads/master HEAD
 expect build "preview when the clone's master ref is HEAD" clone-master
 git -C "$repo" update-ref refs/heads/master "$real_master"
 
-# gh-pages branches never build, even if website files differ.
-expect skip "gh-pages branch" gh-pages-bench
-
-# Merge queue branches never build: each PR was previewed on its own branch.
-expect skip "merge queue branch" gh-readonly-queue/master/pr-1-0123456789abcdef0123456789abcdef01234567
-
-# Last production deploy is outside the clone (shallow history): the tip
+# Last production deploy is unreachable (e.g. a force push): the tip
 # alone can't prove earlier commits in the push left the site unchanged.
 git -C "$repo" checkout master >/dev/null 2>&1
 commit "rebase-merged docs" docs/rest/api/Rebased.md
@@ -207,32 +202,12 @@ git -C "$repo" checkout master >/dev/null 2>&1
 commit "master bump" website/package.json website/yarn.lock
 expect build "master website manifest" master "$(parent)"
 
-# --- Vercel-like shallow clone: fork point far behind master, and the clone
-# carries a master ref at HEAD. deepen() must reach the real merge-base.
-git -C "$repo" checkout -b far-pkg master >/dev/null 2>&1
-commit "far pkg" packages/core/src/far.ts
+# --- fork point far behind master ---
 git -C "$repo" checkout -b far-site master >/dev/null 2>&1
 commit "far site" docs/core/api/Far.md
 git -C "$repo" checkout master >/dev/null 2>&1
 for i in $(seq 1 100); do commit "master filler $i" packages/rest/src/filler.ts; done
 origin_repo="$repo"
-for branch in far-pkg far-site; do
-  clone="$(mktemp -d)"
-  git clone -q --depth=10 --branch "$branch" "file://$origin_repo" "$clone"
-  git -C "$clone" branch -f master HEAD
-  # Like Vercel's clone: no `origin` remote, so the script must fetch by URL.
-  git -C "$clone" remote remove origin
-  repo="$clone"
-  want=skip
-  [ "$branch" = far-site ] && want=build
-  GIT_CONFIG_COUNT=3 \
-    GIT_CONFIG_KEY_2="url.file://$origin_repo.insteadOf" \
-    GIT_CONFIG_VALUE_2=https://github.com/test-owner/test-repo.git \
-    VERCEL_GIT_REPO_OWNER=test-owner VERCEL_GIT_REPO_SLUG=test-repo \
-    expect "$want" "shallow clone without origin, fork far behind master ($branch)" "$branch"
-  repo="$origin_repo"
-  rm -rf "$clone"
-done
 
 # GitHub Actions checks out full history (fetch-depth: 0) for "Last updated"
 # dates. The script must decide from it without making the clone shallow.
@@ -248,8 +223,24 @@ printf 'ok   %s\n' "full clone stays full"
 repo="$origin_repo"
 rm -rf "$clone"
 
-first="$(bash "$script" --paths | tr '\0' '\n' | head -n1)"
-[ "$first" = website ] || { echo "FAIL --paths printed '$first' first" >&2; exit 1; }
-printf 'ok   %s\n' "--paths prints SITE_PATHS"
+# --- --superseded: a queued production deploy of an older master commit ---
+# expect_superseded <skip|build> <name> <sha>: HEAD at <sha> in a clone of master
+expect_superseded() {
+  local want="$1" name="$2" clone
+  clone="$(mktemp -d)"
+  git clone -q --branch master "file://$origin_repo" "$clone"
+  git -C "$clone" reset -q --hard "$3"
+  repo="$clone"
+  expect "$want" "$name" master "" production --superseded
+  repo="$origin_repo"
+  rm -rf "$clone"
+}
+git -C "$repo" checkout master >/dev/null 2>&1
+old="$(git -C "$repo" rev-parse HEAD)"
+expect_superseded build "superseded: HEAD is master's tip" "$old"
+commit "newer pkg" packages/core/src/newer.ts
+expect_superseded build "superseded: newer master leaves the site unchanged" "$old"
+commit "newer site" docs/core/api/Newer.md
+expect_superseded skip "superseded: newer master changed the site" "$old"
 
 echo "all vercel-ignore cases passed"
