@@ -452,6 +452,7 @@ const config: Config = {
     path.resolve(__dirname, './profiling-plugin'),
     path.resolve(__dirname, './raw-plugin'),
     path.resolve(__dirname, './llms-plugin'),
+    path.resolve(__dirname, './chunks-plugin'),
   ],
   themeConfig: {
     mermaid: {
