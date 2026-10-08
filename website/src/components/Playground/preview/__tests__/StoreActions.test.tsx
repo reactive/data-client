@@ -295,11 +295,11 @@ describe('Store Actions tab', () => {
       fireEvent.click(within(top()).getByRole('button', { name: 'History' }));
       return top().textContent;
     };
-    expect(history('2')).toContain('Changed by actions no longer in the log');
+    expect(history('2')).toContain('Changed by actions not kept');
     for (let i = 0; i < 2; i++)
       fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
     // Post 1's own set is still there
-    expect(history('1')).not.toContain('no longer in the log');
+    expect(history('1')).not.toContain('not kept');
   });
 
   it.each([
@@ -326,9 +326,7 @@ describe('Store Actions tab', () => {
       )!,
     );
     fireEvent.click(within(top()).getByRole('button', { name: 'History' }));
-    expect(top().textContent).toContain(
-      `${says} by actions no longer in the log`,
-    );
+    expect(top().textContent).toContain(`${says} by actions not kept`);
   });
 
   it('says when actions the log dropped changed a record last', async () => {
@@ -348,7 +346,7 @@ describe('Store Actions tab', () => {
     fireEvent.click(within(top()).getByRole('button', { name: 'History' }));
     const items = within(top()).getAllByRole('listitem');
     expect(items.at(-1)!.textContent).toBe(
-      'Changed by actions no longer in the log',
+      'Changed by actions not kept: the log keeps the newest',
     );
   });
 

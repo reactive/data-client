@@ -247,7 +247,9 @@ export function ChangeBody({
         </>
       );
     case 'invalidated':
-      return <span className={styles.dim}>invalid; reads of it refetch</span>;
+      return (
+        <span className={styles.dim}>invalid; the next read refetches</span>
+      );
     default:
       return <span className={styles.dim}>{change.kind}</span>;
   }

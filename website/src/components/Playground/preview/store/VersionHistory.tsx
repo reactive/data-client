@@ -40,7 +40,7 @@ interface Refreshes {
   readonly kind: 'refreshed';
   readonly entries: LogEntry[];
 }
-/** Where actions the log no longer has changed the record */
+/** Where actions the log didn't keep changed the record */
 interface Missing {
   readonly kind: 'missing';
   readonly seq: number;
@@ -420,7 +420,7 @@ function RefreshItem({ entries }: { entries: readonly LogEntry[] }) {
   );
 }
 
-/** What actions the log no longer has did to the record */
+/** What actions the log didn't keep did to the record */
 const missingText: Partial<Record<ChangeKind, string>> = {
   refreshed: 'Stored again',
   removed: 'Removed',
@@ -429,12 +429,13 @@ const missingText: Partial<Record<ChangeKind, string>> = {
   error: 'Failed',
 };
 
-/** Where actions the log no longer has changed the record */
+/** Where actions the log didn't keep changed the record */
 function MissingItem({ change }: { change: ChangeKind }) {
   return (
     <li className={clsx(styles.version, styles.refreshItem)}>
       <span className={clsx(styles.versionLine, styles.dim)}>
-        {missingText[change] ?? 'Changed'} by actions no longer in the log
+        {missingText[change] ?? 'Changed'} by actions not kept: the log keeps
+        the newest
       </span>
     </li>
   );
