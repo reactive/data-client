@@ -27,7 +27,7 @@ import clsx from 'clsx';
 import React, {
   addTransitionType,
   startTransition,
-  useEffect,
+  useLayoutEffect,
   useId,
   useState,
   ViewTransition,
@@ -181,17 +181,17 @@ function TabsContainer({
  * Picking a tab is a transition, so it animates: `picked` shows it until
  * Docusaurus's own selection catches up. Docusaurus also stores the pick
  * (syncing the tab group), but storage updates are synchronous and would land
- * the pick at once, so that waits for an effect, which React runs once the
- * view transition is done.
+ * the pick before the transition, so that waits for the transition's commit.
  */
 function useAnimatedTabs(props: Props) {
   const synced = useTabsContextValue(props);
   const { selectValue } = synced;
   const [picked, setPicked] = useState<string | null>(null);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (picked === null) return;
     selectValue(picked);
-    setPicked(null);
+    // a newer pick may already be queued behind this one
+    setPicked(current => (current === picked ? null : current));
   }, [picked, selectValue]);
   const selectedValue = picked ?? synced.selectedValue;
   const indexOf = (value: string) =>
