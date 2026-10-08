@@ -102,11 +102,10 @@ describe('lanesOf', () => {
   });
 });
 
-describe('Store Actions timeline', () => {
+describe('Store Timeline tab', () => {
   it('keeps its scroller from before the first action, so it follows from it', async () => {
     const { ctrl } = mount();
-    fireEvent.click(screen.getByRole('tab', { name: /Actions/ }));
-    fireEvent.click(screen.getByRole('button', { name: 'Timeline view' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Timeline' }));
     const timeline = screen.getByRole('group', { name: /^Timeline/ });
     expect(timeline.textContent).toContain('Nothing dispatched yet');
     await act(() => ctrl().fetch(getPosts));
@@ -121,8 +120,7 @@ describe('Store Actions timeline', () => {
     title = 'Two';
     await act(() => ctrl().fetch(getPosts));
 
-    fireEvent.click(screen.getByRole('tab', { name: /Actions/ }));
-    fireEvent.click(screen.getByRole('button', { name: 'Timeline view' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Timeline' }));
     const timeline = screen.getByRole('group', { name: /^Timeline/ });
     const panel = within(timeline.parentElement!);
     // one lane for the endpoint, both requests on it
@@ -170,19 +168,18 @@ describe('Store Actions timeline', () => {
     fireEvent.click(screen.getByRole('tab', { name: 'State' }));
     expect(screen.getAllByRole('button', { name: 'Live' })).toHaveLength(1);
     fireEvent.click(screen.getByRole('button', { name: 'Live' }));
-    fireEvent.click(screen.getByRole('tab', { name: /Actions/ }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Timeline' }));
     expect(screen.getByText(/^Live\./)).toBeTruthy();
 
-    // and back to the list
-    fireEvent.click(screen.getByRole('button', { name: 'List view' }));
+    // the Actions tab is the list alone
+    fireEvent.click(screen.getByRole('tab', { name: /Actions/ }));
     expect(screen.queryByRole('group', { name: /^Timeline/ })).toBeNull();
   });
 
   it('stays on a picked action as new ones come in', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
-    fireEvent.click(screen.getByRole('tab', { name: /Actions/ }));
-    fireEvent.click(screen.getByRole('button', { name: 'Timeline view' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Timeline' }));
     const timeline = screen.getByRole('group', { name: /^Timeline/ });
     Object.defineProperty(timeline, 'clientHeight', { value: 100 });
     Object.defineProperty(timeline, 'scrollWidth', { value: 900 });
@@ -219,8 +216,7 @@ describe('Store Actions timeline', () => {
       screen.getByRole('button', { name: 'Back to the action' }),
     ).toBeTruthy();
 
-    fireEvent.click(screen.getByRole('tab', { name: /Actions/ }));
-    fireEvent.click(screen.getByRole('button', { name: 'Timeline view' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Timeline' }));
     // on to the newer response, so State still shows a snapshot
     fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
     expect(screen.getByText('After')).toBeTruthy();

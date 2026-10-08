@@ -78,10 +78,9 @@ export default function StorePanel({
   const { entries } = history;
   const [stored, setView] = useTabStorage('playgroundStoreView');
   const tree = stored === 'tree';
-  const [actionsView, setActionsView] = useTabStorage('playgroundActionsView');
-  const [tab, setTab] = useState<'state' | 'actions'>('state');
-  // the Actions tab's timeline picks the moment State shows below it
-  const scrubbing = tab === 'actions' && actionsView === 'timeline';
+  const [tab, setTab] = useState<'state' | 'actions' | 'timeline'>('state');
+  // the timeline picks the moment State shows below it
+  const scrubbing = tab === 'timeline';
   // the Actions tab mounts on first visit, then stays (scroll, open rows)
   const [actionsShown, setActionsShown] = useState(false);
   if (tab === 'actions' && !actionsShown) setActionsShown(true);
@@ -226,26 +225,44 @@ export default function StorePanel({
                 </span>
               )}
             </button>
-            {tab === 'actions' ?
-              <ViewToggle
-                label="Actions view"
-                options={ACTIONS_VIEWS}
-                value={actionsView === 'timeline' ? 'timeline' : 'list'}
-                onChange={setActionsView}
-              />
-            : <ViewToggle
-                label="Store view"
-                options={STATE_VIEWS}
-                value={tree ? 'tree' : 'table'}
-                onChange={setView}
-              />
-            }
+            <button
+              type="button"
+              role="tab"
+              className={styles.tab}
+              aria-selected={scrubbing}
+              onClick={() => setTab('timeline')}
+            >
+              Timeline
+            </button>
+            {tab !== 'actions' && (
+              <span
+                className={styles.viewButtons}
+                role="group"
+                aria-label="Store view"
+              >
+                <button
+                  type="button"
+                  aria-label="Table view"
+                  title="Table view"
+                  aria-pressed={!tree}
+                  onClick={() => setView('table')}
+                >
+                  <TableIcon />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Tree view"
+                  title="Tree view"
+                  aria-pressed={tree}
+                  onClick={() => setView('tree')}
+                >
+                  <TreeIcon />
+                </button>
+              </span>
+            )}
           </div>
           {actionsShown && (
-            <div
-              className={styles.tabPanel}
-              hidden={tab !== 'actions' || scrubbing}
-            >
+            <div className={styles.tabPanel} hidden={tab !== 'actions'}>
               <Levels
                 model={liveModel}
                 width={width}
@@ -295,49 +312,6 @@ export default function StorePanel({
     </ActionsContext.Provider>
   );
 }
-
-interface ViewOption {
-  readonly value: string;
-  readonly label: string;
-  readonly Icon: () => React.ReactElement;
-}
-/** Buttons that switch a tab between its views */
-function ViewToggle({
-  label,
-  options,
-  value,
-  onChange,
-}: {
-  label: string;
-  options: readonly ViewOption[];
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <span className={styles.viewButtons} role="group" aria-label={label}>
-      {options.map(option => (
-        <button
-          key={option.value}
-          type="button"
-          aria-label={option.label}
-          title={option.label}
-          aria-pressed={value === option.value}
-          onClick={() => onChange(option.value)}
-        >
-          <option.Icon />
-        </button>
-      ))}
-    </span>
-  );
-}
-const STATE_VIEWS: readonly ViewOption[] = [
-  { value: 'table', label: 'Table view', Icon: TableIcon },
-  { value: 'tree', label: 'Tree view', Icon: TreeIcon },
-];
-const ACTIONS_VIEWS: readonly ViewOption[] = [
-  { value: 'list', label: 'List view', Icon: ListIcon },
-  { value: 'timeline', label: 'Timeline view', Icon: TimelineIcon },
-];
 
 const STATE_ROOT: View = { kind: 'root' };
 const ACTIONS_ROOT: View = { kind: 'actions' };
@@ -773,22 +747,6 @@ function TableIcon() {
     <svg viewBox="0 0 16 16" aria-hidden="true">
       <rect x="2" y="3" width="12" height="10" rx="1" />
       <path d="M2 6.5h12M2 9.5h12M6 3v10" />
-    </svg>
-  );
-}
-function ListIcon() {
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden="true">
-      <path d="M2.5 4h11M2.5 8h11M2.5 12h11" />
-    </svg>
-  );
-}
-function TimelineIcon() {
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden="true">
-      <path d="M2 5h5M5 11h9M2 8h12" />
-      <circle cx="7" cy="5" r="1.4" />
-      <circle cx="14" cy="11" r="1.4" />
     </svg>
   );
 }
