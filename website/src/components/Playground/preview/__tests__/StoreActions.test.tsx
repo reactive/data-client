@@ -303,39 +303,33 @@ describe('Store Actions tab', () => {
   });
 
   it.each([
-    ['changing', (n: number) => `poll ${n}`, 'Changed'],
-    ['unchanged', () => 'One', 'Stored again'],
-  ])(
-    'says where polls the log dropped stored a record, %s',
-    async (_, title, says) => {
-      const { ctrl } = mount();
-      let n = 0;
-      const polled = new Endpoint(
-        async () => [{ id: '1', title: title(n++) }],
-        {
-          schema: [Post],
-          key: () => POSTS,
-          name: 'polled',
-          pollFrequency: 1e6,
-        },
-      );
-      await act(async () => {
-        await ctrl().fetch(getPosts);
-        await ctrl().subscribe(polled);
-        for (let i = 0; i < 25; i++) await ctrl().fetch(polled);
-        await ctrl().unsubscribe(polled);
-      });
-      fireEvent.click(
-        top().querySelector<HTMLElement>(
-          `tr[data-id="${entityId('Post', '1')}"]`,
-        )!,
-      );
-      fireEvent.click(within(top()).getByRole('button', { name: 'History' }));
-      expect(top().textContent).toContain(
-        `${says} by actions no longer in the log`,
-      );
-    },
-  );
+    ['changed', (n: number) => `poll ${n}`, 'Changed'],
+    ['stored again', () => 'One', 'Stored again'],
+  ])('says where polls the log dropped %s a record', async (_, title, says) => {
+    const { ctrl } = mount();
+    let n = 0;
+    const polled = new Endpoint(async () => [{ id: '1', title: title(n++) }], {
+      schema: [Post],
+      key: () => POSTS,
+      name: 'polled',
+      pollFrequency: 1e6,
+    });
+    await act(async () => {
+      await ctrl().fetch(getPosts);
+      await ctrl().subscribe(polled);
+      for (let i = 0; i < 25; i++) await ctrl().fetch(polled);
+      await ctrl().unsubscribe(polled);
+    });
+    fireEvent.click(
+      top().querySelector<HTMLElement>(
+        `tr[data-id="${entityId('Post', '1')}"]`,
+      )!,
+    );
+    fireEvent.click(within(top()).getByRole('button', { name: 'History' }));
+    expect(top().textContent).toContain(
+      `${says} by actions no longer in the log`,
+    );
+  });
 
   it('says when actions the log dropped changed a record last', async () => {
     const { ctrl } = mount();
@@ -1295,7 +1289,7 @@ describe('ActionLog', () => {
     expect(dropped?.get(3)).toBe(1);
   });
 
-  it('sees no dropped actions between a store and the one restored from it', () => {
+  it('finds no gap where a restored store starts from its own copy of the state', () => {
     const log = newLog();
     const set = (dispatch: (action: any) => unknown, title: string) =>
       dispatch({

@@ -58,8 +58,9 @@ export function rowTimeline(
   id: string,
 ) {
   const items: TimelineItem[] = [];
-  // how the logged actions left the record so far: from an empty store
-  // until the log reaches a store's start (after a trim, it can't tell)
+  // how the logged actions left the record so far: from each store's start,
+  // or (once a trim drops the start) from an empty store, so a record that
+  // predates the log's front shows that actions before it are gone
   let left = initialState as State<unknown>;
   let row: Change | undefined;
   let started = false;
@@ -83,6 +84,7 @@ export function rowTimeline(
     }
     const change = log.changes(entry).find(c => c.id === id);
     if (!change) continue;
+    // the row this record is, to compare as gap() does
     row = change;
     gap(entry.seq, before);
     left = log.view(after);
@@ -92,7 +94,7 @@ export function rowTimeline(
     else if (last?.kind === 'refreshed') last.entries.push(entry);
     else items.push({ kind: 'refreshed', entries: [entry] });
   }
-  // and since its last logged change
+  // and since its last logged change (between seqs, to sort after it)
   const latest = entries.findLast(e => e.store);
   if (latest) gap(latest.seq + 0.5, latest.store!.after);
   return items;
