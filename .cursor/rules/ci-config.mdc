@@ -50,6 +50,6 @@ alwaysApply: false
 ## Vercel docs site (`website/scripts/vercel-ignore.sh`)
 
 - Vercel's ignore step: exit 0 skips, anything else builds, so fail open. Never diff only `HEAD^`: a master merge or multi-commit push makes it wrong. Run `vercel-ignore.test.sh` after changes.
-- `git.deploymentEnabled: false` doesn't stick (dashboard overrides it); skipped pushes still show as canceled deployments.
+- `website/vercel.json` turns automatic Git deployments off for `renovate/**` (`git.deploymentEnabled`). Vercel matches branch names with minimatch: `*` does not cross `/`, and `**` does when it is the whole path segment. With `noglobstar`, `**` is treated as `*`, which still matches a single segment such as `renovate/major-build-deps`. Unspecified branches stay enabled, including `master`, `claude/*`, and `cursor/*`. A blanket `git.deploymentEnabled: false` doesn't stick (the dashboard overrides it). An ignore-step skip still shows as a canceled deployment.
 - Vercel's clone can have a `master`/`origin/master` ref at the commit being built, so always fetch master and never use a ref equal to `HEAD` as the base (it makes every preview skip).
-- Previews on `renovate/*` skip when the only site changes are website `package.json` or lockfiles; production is unchanged.
+- Previews on `renovate/*` that do start skip when the only site changes are website `package.json` or lockfiles; production is unchanged.
