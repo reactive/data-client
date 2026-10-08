@@ -60,8 +60,11 @@ export default [
             {
               group: [
                 '**/preview/LivePreview',
+                '**/preview/LivePreview.*',
                 '**/preview/Preview',
+                '**/preview/Preview.*',
                 '**/preview/StoreInspector',
+                '**/preview/StoreInspector.*',
                 '**/preview/store/**',
               ],
               allowTypeImports: true,

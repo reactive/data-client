@@ -1,4 +1,5 @@
 /* global module, require */
+const fs = require('fs');
 const path = require('path');
 
 /** Docusaurus disables webpack's default cache groups and only shares modules
@@ -7,8 +8,10 @@ const path = require('path');
  * page chunk that uses them; this splits them into chunks shared per module
  * set (sets under webpack's minSize stay inlined). */
 module.exports = function (context, options) {
+  // webpack resolves symlinks, so compare against the real path
+  const siteDir = fs.realpathSync(context.siteDir);
   const siteSource = ['src', 'framework-docs'].map(
-    dir => path.join(context.siteDir, dir) + path.sep,
+    dir => path.join(siteDir, dir) + path.sep,
   );
   return {
     name: 'chunks-plugin',
