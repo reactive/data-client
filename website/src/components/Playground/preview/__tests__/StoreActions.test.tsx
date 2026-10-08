@@ -482,6 +482,31 @@ describe('ActionLog', () => {
     expect(second.store?.before.endpoints).toHaveProperty('b');
   });
 
+  it('waits for a quiet moment to show what leaves the store as is', () => {
+    jest.useFakeTimers();
+    try {
+      const log = new ActionLog();
+      const heard = jest.fn();
+      log.subscribe(heard);
+      const store = { getState: () => empty } as any;
+      // a read already in flight: NetworkManager stops it before the store
+      const dispatch = log.connect(0).head.middleware!(store)(() =>
+        Promise.resolve(),
+      ) as (action: any) => Promise<void>;
+      dispatch(subscribe());
+      dispatch(subscribe());
+      jest.advanceTimersByTime(299);
+      // rendering the panel now would retry a suspended render, which
+      // fetches again
+      expect(heard).not.toHaveBeenCalled();
+      jest.advanceTimersByTime(1);
+      expect(heard).toHaveBeenCalledTimes(1);
+      expect(log.history(0).entries).toHaveLength(2);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it('keeps only the newest actions', () => {
     const log = new ActionLog();
     const dispatch = connect(log, 0);

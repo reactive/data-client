@@ -41,6 +41,9 @@ export interface History {
 
 const EMPTY: History = { entries: [], since: 0 };
 
+/** How long actions that leave the store as is wait to show */
+const QUIET_MS = 300;
+
 export const findEntry = (entries: readonly LogEntry[], seq: number) =>
   entries.find(e => e.seq === seq);
 
@@ -57,7 +60,10 @@ export default class ActionLog {
   private readonly views = new WeakMap<State<unknown>, State<unknown>>();
   private readonly diffs = new WeakMap<LogEntry, readonly Change[]>();
   private readonly listeners = new Set<() => void>();
+  /** A notification is due this task */
   private queued = false;
+  /** A notification is due once the preview has been quiet a moment */
+  private later: ReturnType<typeof setTimeout> | undefined;
 
   /** Managers that log one store's actions into history `id`: `head` goes
    * first in the manager chain, `tail` last (it sees what actually reaches
@@ -150,6 +156,8 @@ export default class ActionLog {
       entries: [...entries, entry].slice(-LOG_LIMIT),
       since: entries.length ? since : entry.at,
     });
+    // what reaches the store notifies from `settle`
+    this.notifyLater();
   }
 
   /** The store state an action left */
@@ -165,19 +173,39 @@ export default class ActionLog {
       entries: history.entries.map(e => (e === entry ? { ...e, store } : e)),
       state: store.after,
     });
+    this.notifyNow();
   }
 
-  /** Listeners hear once per task: actions dispatched while a component
-   * renders must not update the panel during that render */
   private set(id: number, history: History) {
     this.histories.set(id, history);
+  }
+
+  /** The store changed, so the preview renders anyway: listeners hear once
+   * per task (never during the render that dispatched) */
+  private notifyNow() {
+    clearTimeout(this.later);
+    this.later = undefined;
     if (this.queued) return;
     this.queued = true;
-    queueMicrotask(() => {
-      this.queued = false;
-      for (const listener of this.listeners) listener();
-    });
+    queueMicrotask(this.notify);
   }
+
+  /** Actions a manager handles without changing the store (a read already in
+   * flight, a subscribe) often come from a render. Telling the panel right
+   * away would render again, retrying a suspended component, which fetches
+   * again: a loop until the response. They wait for a quiet moment, or ride
+   * along with the next store change */
+  private notifyLater() {
+    if (this.queued || this.later !== undefined) return;
+    this.later = setTimeout(this.notify, QUIET_MS);
+  }
+
+  private notify = () => {
+    this.queued = false;
+    clearTimeout(this.later);
+    this.later = undefined;
+    for (const listener of this.listeners) listener();
+  };
 }
 
 /** The reducer deletes garbage in place; earlier states share those tables */
