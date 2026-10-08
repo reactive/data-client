@@ -96,10 +96,14 @@ export default memo(function Timeline({
   const { entries, since } = history;
   const lanes = useMemo(() => lanesOf(groups), [groups]);
   // fetches deduped into a request in flight add nothing to see
-  const shown = useMemo(() => {
-    const joined = new Set(groups.flatMap(g => [...joinedFetches(g).keys()]));
-    return entries.filter(e => !joined.has(e));
-  }, [entries, groups]);
+  const joined = useMemo(
+    () => new Set(groups.flatMap(g => [...joinedFetches(g).keys()])),
+    [groups],
+  );
+  const shown = useMemo(
+    () => entries.filter(e => !joined.has(e)),
+    [entries, joined],
+  );
   const scale = useMemo(() => timeScale(shown), [shown]);
   const labels = useMemo(() => axisLabels(shown, scale), [shown, scale]);
   const at = selected === null ? undefined : scale.x.get(selected);
@@ -182,14 +186,14 @@ export default memo(function Timeline({
   );
   const request = (group: RequestGroup) => {
     // without the fetches deduped into it
-    const own = group.entries.filter(e => scale.x.has(e.seq));
+    const own = group.entries.filter(e => !joined.has(e));
     const first = own[0];
     const to =
       group.response ? scale.x.get(group.response.seq)!
       : group.cancelled ? scale.x.get(own.at(-1)!.seq)!
       : scale.end;
     // as the list's lifecycle shows it: a fetch that changed the store
-    const optimistic = log.changes(first).length > 0;
+    const optimistic = log.changed(first);
     return [
       span(scale.x.get(first.seq)!, to, styles.tlSpan, `span ${group.id}`),
       ...own.map(e =>

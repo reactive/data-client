@@ -1122,7 +1122,8 @@ div.joined {
   outline: none;
 }
 .timeline:focus-visible {
-  box-shadow: inset 0 0 0 2px var(--ifm-color-primary);
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -2px;
 }
 /* a phone-width panel */
 .timeline[data-narrow] {

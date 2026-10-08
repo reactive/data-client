@@ -94,11 +94,12 @@ export function nearestChange(
   seq: number | null,
   by: -1 | 1,
 ): LogEntry | undefined {
-  const changed = (e: LogEntry) => log.changes(e).length > 0;
   if (by < 0)
-    return entries.findLast(e => (seq === null || e.seq < seq) && changed(e));
+    return entries.findLast(
+      e => (seq === null || e.seq < seq) && log.changed(e),
+    );
   if (seq === null) return undefined;
-  return entries.find(e => e.seq > seq && changed(e));
+  return entries.find(e => e.seq > seq && log.changed(e));
 }
 
 /** Every action dispatched in the preview, with the store state it left, by
@@ -246,6 +247,11 @@ export default class ActionLog {
       this.diffs.set(entry, changes);
     }
     return changes;
+  }
+
+  /** Whether the action changed the store */
+  changed(entry: LogEntry): boolean {
+    return this.changes(entry).length > 0;
   }
 
   /** Rows several actions changed, as they ended up */

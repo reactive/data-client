@@ -306,8 +306,7 @@ export function ActionStep({
 export function TypeName({ entry }: { entry: LogEntry }) {
   const { log } = useLog();
   const { action } = entry;
-  const optimistic =
-    action.type === actionTypes.FETCH && log.changes(entry).length > 0;
+  const optimistic = action.type === actionTypes.FETCH && log.changed(entry);
   return (
     <span className={clsx(styles.actType, typeClass(entry))}>
       {actionName(action)}
@@ -484,7 +483,7 @@ function Lifecycle({ group }: { group: ActionGroup }) {
       </span>
     );
   }
-  const optimistic = log.changes(group.entries[0]).length > 0;
+  const optimistic = log.changed(group.entries[0]);
   const { response } = group;
   return (
     <span className={styles.life} aria-hidden="true">

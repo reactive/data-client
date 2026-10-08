@@ -79,8 +79,6 @@ export default function StorePanel({
   const [stored, setView] = useTabStorage('playgroundStoreView');
   const tree = stored === 'tree';
   const [tab, setTab] = useState<'state' | 'actions' | 'timeline'>('state');
-  // the timeline picks the moment State shows below it
-  const scrubbing = tab === 'timeline';
   // the Actions tab mounts on first visit, then stays (scroll, open rows)
   const [actionsShown, setActionsShown] = useState(false);
   if (tab === 'actions' && !actionsShown) setActionsShown(true);
@@ -155,11 +153,6 @@ export default function StorePanel({
       )),
     [entries, history.storeFrom],
   );
-  // a pick or step on the timeline has no action to go back to
-  const pick = useCallback((seq: number | null) => {
-    setSnapshot(seq);
-    setOrigin(undefined);
-  }, []);
   const showState = useCallback((seq: number, back?: () => void) => {
     setSnapshot(seq);
     setTab('state');
@@ -230,7 +223,12 @@ export default function StorePanel({
               role="tab"
               className={styles.tab}
               aria-selected={tab === 'timeline'}
-              onClick={() => setTab('timeline')}
+              onClick={() => {
+                setTab('timeline');
+                // the timeline picks the moment State shows below it, so
+                // there's no action to go back to
+                setOrigin(undefined);
+              }}
             >
               Timeline
             </button>
@@ -262,22 +260,25 @@ export default function StorePanel({
             )}
           </div>
           <ActionsContext.Provider value={stateActions}>
-            {scrubbing && (
-              <Timeline selected={snapshotSeq} onSelect={pick} width={width} />
+            {tab === 'timeline' && (
+              <Timeline
+                selected={snapshotSeq}
+                onSelect={setSnapshot}
+                width={width}
+              />
             )}
             <div className={styles.tabPanel} hidden={tab === 'actions'}>
-              {(snapshot || scrubbing) && (
+              {(snapshot || tab === 'timeline') && (
                 <SnapshotBar
                   entry={snapshot}
-                  onShow={scrubbing ? pick : setSnapshot}
-                  stepsToLive={scrubbing}
+                  onShow={setSnapshot}
+                  stepsToLive={tab === 'timeline'}
                   onBack={
-                    tab === 'state' && origin ?
-                      () => {
-                        setOrigin(undefined);
-                        origin.back();
-                      }
-                    : undefined
+                    origin &&
+                    (() => {
+                      setOrigin(undefined);
+                      origin.back();
+                    })
                   }
                 />
               )}
