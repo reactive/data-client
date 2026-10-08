@@ -250,7 +250,7 @@ export default class ActionLog {
 }
 
 /** The newest `LOG_LIMIT` entries, plus the older ones their groups start
- * from: the fetch of a request still waiting or with entries kept, and the
+ * from: a request's fetch and response while it waits or has entries kept, and the
  * subscribes of a subscription still open, so a long poll keeps its row */
 function trim(entries: LogEntry[]): LogEntry[] {
   const drop = entries.length - LOG_LIMIT;
@@ -258,11 +258,13 @@ function trim(entries: LogEntry[]): LogEntry[] {
   const cut = entries[drop].seq;
   const dropped = (e: LogEntry) => e.seq < cut;
   const anchors = new Set<LogEntry>();
+  // a request's fetch and response, while it waits or any of it is kept (a
+  // fetch can join after the response, while the store commits it)
   const anchorRequest = (request: RequestGroup) => {
-    const [fetch] = request.entries;
     const waiting = !request.response && !request.cancelled;
-    if (dropped(fetch) && (waiting || !request.entries.every(dropped)))
-      anchors.add(fetch);
+    if (!waiting && request.entries.every(dropped)) return;
+    anchors.add(request.entries[0]);
+    if (request.response) anchors.add(request.response);
   };
   for (const group of groupEntries(entries)) {
     if (group.kind === 'request') anchorRequest(group);

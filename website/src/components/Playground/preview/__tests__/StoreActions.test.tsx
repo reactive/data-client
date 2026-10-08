@@ -831,6 +831,45 @@ describe('ActionLog', () => {
     expect(entries[0].action).toMatchObject({ args: [{ id: 1 }] });
   });
 
+  it('keeps the response of a request a kept fetch joined', () => {
+    const log = new ActionLog();
+    const { head, tail } = log.connect(
+      0,
+      undefined,
+      action =>
+        action.type === actionTypes.FETCH && action.meta.fetchedAt === 2,
+    );
+    const store = { getState: () => empty } as any;
+    const dispatch = head.middleware!(store)(
+      tail.middleware!(store)(() => Promise.resolve()),
+    ) as (action: any) => Promise<void>;
+    const fetch = (fetchedAt: number) =>
+      dispatch({
+        type: actionTypes.FETCH,
+        key: 'k',
+        endpoint: {},
+        meta: { fetchedAt },
+      });
+    fetch(1);
+    dispatch({
+      type: actionTypes.SET_RESPONSE,
+      key: 'k',
+      response: 1,
+      meta: { fetchedAt: 1, date: 1, expiresAt: 2 },
+      endpoint: { schema: undefined },
+    });
+    // joins while the store commits the response
+    fetch(2);
+    for (let i = 0; i < 499; i++)
+      dispatch({ type: actionTypes.UNSUBSCRIBE, key: 'other' });
+    const [request] = groupEntries(log.history(0).entries);
+    expect(request).toMatchObject({
+      kind: 'request',
+      response: expect.anything(),
+    });
+    expect(request.entries).toHaveLength(3);
+  });
+
   it('keeps a fetch whose response a restored store kept', () => {
     const log = new ActionLog();
     const first = connect(log, 0);
