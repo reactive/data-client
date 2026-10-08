@@ -22,6 +22,20 @@ Pick motion by what moves, never by milliseconds:
 }
 ```
 
+**View transitions** (React `<ViewTransition>`, whose animation names are
+set elsewhere) take the spring in parts:
+
+```css
+::view-transition-group(.indicator) {
+  animation-duration: var(--motion-snappy-duration);
+  animation-timing-function: var(--motion-snappy-easing);
+}
+```
+
+Only `<ViewTransition>`s animate: the page root has no view-transition name,
+so everything else lands at once instead of cross-fading. Docs tabs
+(`src/theme/Tabs`) use this to slide like native tabs.
+
 **Layout changes** (something opens, so things move):
 
 ```tsx

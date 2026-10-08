@@ -7,8 +7,12 @@ it('declares every spring, instant under reduced motion', () => {
   for (const [name, spring] of Object.entries(springs)) {
     const { duration, easing } = springEasing(spring);
     expect(css).toContain(`--motion-${name}: ${duration}ms ${easing};`);
+    expect(css).toContain(`--motion-${name}-duration: ${duration}ms;`);
+    expect(css).toContain(`--motion-${name}-easing: ${easing};`);
     expect(css).toMatch(
-      new RegExp(`prefers-reduced-motion: reduce.*--motion-${name}: 0s;`),
+      new RegExp(
+        `prefers-reduced-motion: reduce.*--motion-${name}: 0s; --motion-${name}-duration: 0s;`,
+      ),
     );
   }
 });

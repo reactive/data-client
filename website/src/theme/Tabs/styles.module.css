@@ -1,0 +1,62 @@
+.tabList {
+  margin-bottom: var(--ifm-leading);
+}
+
+.tabItem {
+  margin-top: 0 !important;
+  position: relative;
+}
+/* the indicator below draws the active underline, so it can slide */
+.tabItem:global(.tabs__item--active) {
+  border-bottom-color: transparent;
+}
+.indicator {
+  position: absolute;
+  inset: auto 0 -3px;
+  height: 3px;
+  background: var(--ifm-tabs-color-active-border);
+}
+
+/* like swiping between tabs: content slides toward the tab picked */
+::view-transition-group(.indicator) {
+  animation-duration: var(--motion-snappy-duration);
+  animation-timing-function: var(--motion-snappy-easing);
+}
+::view-transition-group(.next),
+::view-transition-group(.prev) {
+  overflow: clip;
+  animation-duration: var(--motion-smooth-duration);
+  animation-timing-function: var(--motion-smooth-easing);
+}
+::view-transition-old(.next) {
+  animation: toStart var(--motion-smooth) both;
+}
+::view-transition-new(.next) {
+  animation: fromEnd var(--motion-smooth) both;
+}
+::view-transition-old(.prev) {
+  animation: toEnd var(--motion-smooth) both;
+}
+::view-transition-new(.prev) {
+  animation: fromStart var(--motion-smooth) both;
+}
+@keyframes toStart {
+  to {
+    translate: -100% 0;
+  }
+}
+@keyframes fromEnd {
+  from {
+    translate: 100% 0;
+  }
+}
+@keyframes toEnd {
+  to {
+    translate: 100% 0;
+  }
+}
+@keyframes fromStart {
+  from {
+    translate: -100% 0;
+  }
+}
