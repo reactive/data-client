@@ -114,7 +114,6 @@
 
 .playgroundHeader.tabControls,
 div.playgroundTextEdit > .playgroundHeader,
-.editorDocs > .playgroundHeader,
 .endpointPlayground .playgroundHeader {
   box-shadow: inset 0 -1px 0 var(--pg-bar-edge);
 }
@@ -320,7 +319,8 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 /* room to inspect even when the code is short, kept while the drawer slides
    out (until its <Activity> hides it) */
-.editorBody:has(> .storeHost > .storePanel:not([style*='display: none'])) {
+/* holds its height while visible, including while it slides out */
+.storeHost > .storePanel[data-visible] {
   min-height: 20rem;
 }
 .storeHost {
@@ -403,8 +403,7 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 /* With header controls (e.g. homepage demos) the selected control joins the
    file subtab row below it, and that row's selected file joins the code */
-div.playgroundTextEdit > .playgroundHeader.subtabs,
-.editorDocs > .playgroundHeader.subtabs {
+.playgroundHeader.subtabs {
   background: var(--pg-tab-hover-bg);
 }
 .subtabs .tab:not(.selected):hover {

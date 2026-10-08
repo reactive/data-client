@@ -18,6 +18,8 @@ import { useMember, useWillGlide } from './MotionGroup';
  * `<MotionGroup>`; without one it just shows and hides.
  *
  * It slides over its siblings; clip it with `overflow: hidden` on an ancestor.
+ * `data-visible` marks it from showing until its exit finishes, for styles
+ * that should hold through the slide out.
  */
 export default function Reveal({
   show,
@@ -72,6 +74,7 @@ export default function Reveal({
         <div
           ref={ref}
           className={className ? `motion-reveal ${className}` : 'motion-reveal'}
+          data-visible={visible || undefined}
         >
           {shown.current}
         </div>

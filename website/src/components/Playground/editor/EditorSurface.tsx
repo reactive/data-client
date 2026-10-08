@@ -89,22 +89,18 @@ export default function EditorSurface({
       <EditorTabs
         documents={documents}
         closedList={closedList}
-        onClick={
-          onTabSelect ?
-            index => {
-              // focus also selects, so only a different file counts
-              if (closedList[index]) onTabSelect();
-              handleTabSwitch(index);
-            }
-          : handleTabSwitch
-        }
+        onClick={index => {
+          // focus also selects, so only a different file counts
+          if (closedList[index]) onTabSelect?.();
+          handleTabSwitch(index);
+        }}
         compact={variant === 'standalone'}
         hasHeaderControls={headerControls != null}
       />
     : null;
   // under a demo-level header the file tabs belong to the files, so the
   // Store covers them too; alone they stay as the header row
-  const tabsCovered = headerControls != null;
+  const tabsCovered = cover != null && headerControls != null;
   const code = documents.map((document, index) => (
     <React.Fragment key={`${document.path}:${index}`}>
       {(!row || document.col) && document.title ?
@@ -145,7 +141,7 @@ export default function EditorSurface({
         title={row && documents.length === 1 ? documents[0].title : undefined}
         controls={headerControls}
       />
-      {cover == null || !tabsCovered ? tabs : null}
+      {tabsCovered ? null : tabs}
       {cover == null ?
         code
       : <div className={styles.editorBody}>
