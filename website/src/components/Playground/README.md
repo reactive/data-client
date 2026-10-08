@@ -134,6 +134,12 @@ DesignSystem/       components injected into preview scope
   result stays rendered underneath, `inert`). It opens and closes as a
   drawer (`../motion`: the toggle glides, the panel `Reveal`s); the panel's
   contents render a frame after it starts moving (`useDeferredValue`).
+- The Store inspector's Actions tab logs every dispatch (`preview/store/actionLog.ts`).
+  `SchemaRegistry` records each action first in the manager chain and
+  `registry.log.tail` goes last, so the log knows which actions reached the
+  store and runs the store's reducer itself to keep the state right after each
+  one (the store only commits in batches). Keep the tail last when adding
+  managers. The log survives error-recovery remounts; Reset clears it.
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
   count in the preview header (written to the DOM, so counting adds no commits).
   `website/profiling-plugin.js` replaces `react-dom/client` with React's

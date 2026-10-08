@@ -23913,6 +23913,7 @@ __metadata:
   dependencies:
     "@anansi/browserslist-config": "npm:1.7.5"
     "@anansi/webpack-config": "npm:21.1.19"
+    "@data-client/core": "workspace:*"
     "@data-client/endpoint": "workspace:*"
     "@data-client/graphql": "workspace:*"
     "@data-client/react": "workspace:*"

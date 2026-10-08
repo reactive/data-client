@@ -61,6 +61,7 @@
   "dependencies": {
     "@anansi/browserslist-config": "1.7.5",
     "@anansi/webpack-config": "21.1.19",
+    "@data-client/core": "workspace:*",
     "@data-client/endpoint": "workspace:*",
     "@data-client/graphql": "workspace:*",
     "@data-client/react": "workspace:*",

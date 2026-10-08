@@ -25,10 +25,12 @@ export function RefChip({
   id,
   label,
   className,
+  title,
 }: {
   id: string;
   label: React.ReactNode;
   className?: string;
+  title?: string;
 }) {
   const { reveal } = useStoreUI();
   const nav = useNav();
@@ -36,6 +38,7 @@ export function RefChip({
     <button
       type="button"
       className={clsx(styles.ref, className)}
+      title={title}
       onClick={e => {
         e.stopPropagation();
         if (nav) nav.push({ kind: 'record', id });
@@ -93,15 +96,17 @@ export function RowChip({ row }: { row: AnyRow }) {
 export function CountChip({
   list,
   children,
+  className = styles.countRef,
 }: {
   list: () => View;
   children: React.ReactNode;
+  className?: string;
 }) {
   const nav = useNav();
   return (
     <button
       type="button"
-      className={clsx(styles.ref, styles.countRef)}
+      className={clsx(styles.ref, className)}
       onClick={e => {
         e.stopPropagation();
         nav?.push(list());

@@ -74,6 +74,7 @@ function Preview<T>({
       registry,
       new NetworkManager(),
       new SubscriptionManager(PollingSubscription),
+      registry.log.tail,
     ];
   }, [registry]);
 

@@ -1,5 +1,4 @@
 import { StateContext, type State } from '@data-client/react';
-import clsx from 'clsx';
 import React, {
   useCallback,
   useContext,
@@ -8,8 +7,17 @@ import React, {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
 } from 'react';
 
+import { ActionCrumb, ActionDetail } from './ActionDetail';
+import type { LogEntry } from './actionLog';
+import {
+  ActionsContext,
+  ActionsRoot,
+  useActions,
+  type Actions,
+} from './ActionsView';
 import { ListView, RecordLevel } from './DiveViews';
 import { flash, scrollToRow, slide } from './dom';
 import {
@@ -36,64 +44,201 @@ interface Entry {
 const CRUMBS = 4;
 
 export default function StorePanel({ registry }: { registry: SchemaRegistry }) {
-  const state = useContext(StateContext);
-  const model = useMemo(() => buildModel(state, registry), [state, registry]);
+  const live = useContext(StateContext);
+  const { log } = registry;
+  const entries = useSyncExternalStore(
+    log.subscribe,
+    log.getSnapshot,
+    log.getSnapshot,
+  );
   const [stored, setView] = useTabStorage('playgroundStoreView');
   const tree = stored === 'tree';
+  const [tab, setTab] = useState<'state' | 'actions'>('state');
+  // the Actions tab mounts on first visit, then stays (scroll, open rows)
+  const [actionsShown, setActionsShown] = useState(false);
+  if (tab === 'actions' && !actionsShown) setActionsShown(true);
+
+  // State as it was right after one action, until "Live"
+  const [snapshotSeq, setSnapshot] = useState<number | null>(null);
+  const snapshot = entries.find(e => e.seq === snapshotSeq && e.store);
+  const state = snapshot?.store ? log.view(snapshot.store.after) : live;
+  const liveModel = useMemo(() => buildModel(live, registry), [live, registry]);
+  const model = useMemo(
+    () => (state === live ? liveModel : buildModel(state, registry)),
+    [state, live, liveModel, registry],
+  );
+  const changed = useMemo(
+    () => snapshot && new Set(log.changes(snapshot).map(c => c.id)),
+    [log, snapshot],
+  );
+
+  const actions = useMemo<Actions>(
+    () => ({
+      log,
+      entries,
+      showState: seq => {
+        setSnapshot(seq);
+        setTab('state');
+      },
+      until: snapshot?.seq,
+    }),
+    [log, entries, snapshot],
+  );
 
   const panel = useRef<HTMLDivElement>(null);
   const width = useWidth(panel);
-  useFlashChanges(panel, state);
+  useFlashChanges(panel, state, changed);
 
   return (
-    <div className={styles.store} ref={panel}>
-      <div className={styles.bar}>
-        <span className={styles.tab} aria-current="page">
-          State
-        </span>
-        <span className={clsx(styles.tab, styles.later)} title="Coming later">
-          Actions <span className={styles.laterTag}>later</span>
-        </span>
-        <span
-          className={styles.viewButtons}
-          role="group"
-          aria-label="Store view"
-        >
+    <ActionsContext.Provider value={actions}>
+      <div className={styles.store} ref={panel}>
+        <div className={styles.bar} role="tablist" aria-label="Store">
           <button
             type="button"
-            aria-label="Table view"
-            title="Table view"
-            aria-pressed={!tree}
-            onClick={() => setView('table')}
+            role="tab"
+            className={styles.tab}
+            aria-selected={tab === 'state'}
+            aria-current={tab === 'state' ? 'page' : undefined}
+            onClick={() => setTab('state')}
           >
-            <TableIcon />
+            State
           </button>
           <button
             type="button"
-            aria-label="Tree view"
-            title="Tree view"
-            aria-pressed={tree}
-            onClick={() => setView('tree')}
+            role="tab"
+            className={styles.tab}
+            aria-selected={tab === 'actions'}
+            aria-current={tab === 'actions' ? 'page' : undefined}
+            onClick={() => setTab('actions')}
           >
-            <TreeIcon />
+            Actions
+            {entries.length > 0 && (
+              <span className={styles.count}>
+                {entries.length.toLocaleString()}
+              </span>
+            )}
           </button>
-        </span>
+          {tab === 'state' && (
+            <span
+              className={styles.viewButtons}
+              role="group"
+              aria-label="Store view"
+            >
+              <button
+                type="button"
+                aria-label="Table view"
+                title="Table view"
+                aria-pressed={!tree}
+                onClick={() => setView('table')}
+              >
+                <TableIcon />
+              </button>
+              <button
+                type="button"
+                aria-label="Tree view"
+                title="Tree view"
+                aria-pressed={tree}
+                onClick={() => setView('tree')}
+              >
+                <TreeIcon />
+              </button>
+            </span>
+          )}
+        </div>
+        <div className={styles.tabPanel} hidden={tab !== 'state'}>
+          {snapshot && (
+            <SnapshotBar
+              entry={snapshot}
+              entries={entries}
+              onShow={setSnapshot}
+            />
+          )}
+          <StateContext.Provider value={state}>
+            {tree ?
+              <TreeLevel model={model} />
+            : <Levels model={model} width={width} root={STATE_ROOT} />}
+          </StateContext.Provider>
+        </div>
+        {actionsShown && (
+          <div className={styles.tabPanel} hidden={tab !== 'actions'}>
+            <Levels model={liveModel} width={width} root={ACTIONS_ROOT} />
+          </div>
+        )}
       </div>
-      {tree ?
-        <TreeLevel model={model} />
-      : <Levels model={model} width={width} />}
+    </ActionsContext.Provider>
+  );
+}
+
+const STATE_ROOT: View = { kind: 'root' };
+const ACTIONS_ROOT: View = { kind: 'actions' };
+
+/** Says State is in the past; steps through the actions that changed it */
+function SnapshotBar({
+  entry,
+  entries,
+  onShow,
+}: {
+  entry: LogEntry;
+  entries: readonly LogEntry[];
+  onShow: (seq: number | null) => void;
+}) {
+  const { log } = useActions();
+  const changing = entries.filter(e => log.changes(e).length);
+  const i = changing.indexOf(entry);
+  const step = (by: number) => {
+    const to = changing[i + by];
+    if (to) onShow(to.seq);
+  };
+  return (
+    <div className={styles.snapshot}>
+      <button
+        type="button"
+        aria-label="Previous change"
+        disabled={i <= 0}
+        onClick={() => step(-1)}
+      >
+        ‹
+      </button>
+      <button
+        type="button"
+        aria-label="Next change"
+        disabled={i < 0 || i >= changing.length - 1}
+        onClick={() => step(1)}
+      >
+        ›
+      </button>
+      <span className={styles.snapshotLabel}>
+        After <ActionCrumb entry={entry} />
+      </span>
+      <button
+        type="button"
+        className={styles.liveButton}
+        onClick={() => onShow(null)}
+      >
+        Live
+      </button>
     </div>
   );
 }
 
 /** The table view: a stack of full-panel levels. Covered levels stay
  * mounted (hidden), so going back keeps their scroll, pages and filters */
-function Levels({ model, width }: { model: StoreModel; width: number }) {
+function Levels({
+  model,
+  width,
+  root,
+}: {
+  model: StoreModel;
+  width: number;
+  /** The bottom level: State's overview, or the Actions list */
+  root: View;
+}) {
+  const actions = useActions();
   // the record a level was opened from flashes once that level is back on top
   const [{ stack, returnTo }, setLevels] = useState<{
     readonly stack: readonly Entry[];
     readonly returnTo: string | null;
-  }>({ stack: [{ key: 0, view: { kind: 'root' } }], returnTo: null });
+  }>({ stack: [{ key: 0, view: root }], returnTo: null });
   const nextKey = useRef(1);
   const push = useCallback((view: View) => {
     const key = nextKey.current++;
@@ -137,14 +282,14 @@ function Levels({ model, width }: { model: StoreModel; width: number }) {
                 <span className={styles.sep}>…</span>
               : i === depth ?
                 <span className={styles.crumbCurrent} aria-current="page">
-                  {crumbLabel(shown[i].view, model)}
+                  {crumbLabel(shown[i].view, model, actions)}
                 </span>
               : <button
                   type="button"
                   className={styles.crumb}
                   onClick={() => back(i + 1)}
                 >
-                  {crumbLabel(shown[i].view, model)}
+                  {crumbLabel(shown[i].view, model, actions)}
                 </button>
               }
             </React.Fragment>
@@ -168,6 +313,9 @@ function Levels({ model, width }: { model: StoreModel; width: number }) {
         >
           {scroller =>
             view.kind === 'root' ? <RootView scroller={scroller} />
+            : view.kind === 'actions' ? <ActionsRoot scroller={scroller} />
+            : view.kind === 'action' ?
+              <ActionDetail seq={view.seq} header={() => crumbs(depth)} />
             : view.kind === 'list' ?
               <ListView
                 view={view}
@@ -251,10 +399,18 @@ function Level({
 }
 
 /** What a breadcrumb shows for a view */
-function crumbLabel(view: View, model: StoreModel): React.ReactNode {
+function crumbLabel(
+  view: View,
+  model: StoreModel,
+  { log }: Actions,
+): React.ReactNode {
   switch (view.kind) {
     case 'root':
       return 'State';
+    case 'actions':
+      return 'Actions';
+    case 'action':
+      return <ActionCrumb entry={log.find(view.seq)} />;
     case 'list': {
       const count =
         'ids' in view ? view.ids.length
@@ -315,21 +471,26 @@ function useWidth(ref: React.RefObject<HTMLElement | null>) {
 }
 
 /** Briefly highlights rows on screen whose stored value changed since the
- * last state (only those: a big store has far more rows than the screen) */
+ * last state (only those: a big store has far more rows than the screen).
+ * A snapshot highlights the rows its action `changed` instead */
 function useFlashChanges(
   ref: React.RefObject<HTMLElement | null>,
   state: State<unknown>,
+  changed: ReadonlySet<string> | undefined,
 ) {
   const prev = useRef(state);
   useEffect(() => {
     const before = prev.current;
     prev.current = state;
     const el = ref.current?.querySelector<HTMLElement>(
-      '[data-level]:not([data-covered])',
+      `.${styles.tabPanel}:not([hidden]) [data-level]:not([data-covered])`,
     );
     if (!el || before === state) return;
-    flash(el, id => isChanged(before, state, id));
-  }, [ref, state]);
+    flash(
+      el,
+      changed ? id => changed.has(id) : id => isChanged(before, state, id),
+    );
+  }, [ref, state, changed]);
 }
 
 function TableIcon() {

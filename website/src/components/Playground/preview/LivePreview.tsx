@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { LiveProvider } from 'react-live';
 
 import Preview from './Preview';
@@ -31,6 +31,11 @@ export default function LivePreview<T>({
   const { key, restored, reset, ...handlers } = usePreviewReset(code);
   // outlives remounts, so a restored store keeps its schemas
   const registry = useMemo(() => new SchemaRegistry(), []);
+  // Reset starts the Actions log over; error recovery keeps it
+  const resetAll = useCallback(() => {
+    registry.log.clear();
+    reset();
+  }, [registry, reset]);
   const getInterceptorData = useMemo(
     () =>
       restored ?
@@ -52,7 +57,7 @@ export default function LivePreview<T>({
         headerControls={
           <>
             {badge}
-            <ResetButton onClick={reset} />
+            <ResetButton onClick={resetAll} />
           </>
         }
       >
@@ -65,7 +70,7 @@ export default function LivePreview<T>({
           onCommit={onCommit}
           initialState={restored?.state}
           registry={registry}
-          onReset={reset}
+          onReset={resetAll}
           {...handlers}
         />
       </PreviewWrapper>

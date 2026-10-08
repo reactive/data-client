@@ -3,8 +3,10 @@ import {
   type ActionTypes,
   type Manager,
   type Middleware,
+  type State,
 } from '@data-client/react';
 
+import ActionLog from './actionLog';
 import { forEachChildSchema, isEntityLike } from './refs';
 
 export interface EndpointRecord {
@@ -20,8 +22,8 @@ export interface PendingOptimistic {
 
 /** Remembers each endpoint (and every entity schema reachable from it) as
  * actions pass through, since the store only holds keys and ids.
- * Lives as long as the live preview (across store remounts); extend this manager (rather than
- * adding another) when the preview starts tracking actions.
+ * Lives as long as the live preview (across store remounts), as does the
+ * `log` of every action it sees.
  * Never prunes: fine for a playground session, not for a long-lived app. */
 export default class SchemaRegistry implements Manager<ActionTypes> {
   readonly endpoints = new Map<string, EndpointRecord>();
@@ -30,8 +32,11 @@ export default class SchemaRegistry implements Manager<ActionTypes> {
   /** Optimistic updates awaiting their response. The store's own queue is
    * already applied (and so emptied) in the state components can read. */
   optimistic: readonly PendingOptimistic[] = [];
+  /** Its `tail` goes last in the manager chain */
+  readonly log = new ActionLog();
 
   middleware: Middleware<ActionTypes> = () => next => action => {
+    this.log.record(action);
     switch (action.type) {
       case actionTypes.FETCH:
       case actionTypes.SET_RESPONSE:
@@ -55,8 +60,9 @@ export default class SchemaRegistry implements Manager<ActionTypes> {
 
   /** A remounted preview starts a new store; schemas carry over (a restored
    * store still holds their rows), pending optimistic updates don't */
-  init() {
+  init(state?: State<unknown>) {
     this.optimistic = [];
+    if (state) this.log.start(state);
   }
 
   cleanup() {}

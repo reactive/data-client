@@ -60,11 +60,13 @@ export const cellDive =
       { kind: 'record', id: row.id }
     : refsList(items, `${rowLabel(row)} ${name}`);
 
-/** One level of the table view's navigation stack */
+/** One level of a navigation stack: the table view's, or the Actions tab's */
 export type View =
   | { readonly kind: 'root' }
+  | { readonly kind: 'actions' }
   | ListView
-  | { readonly kind: 'record'; readonly id: string };
+  | { readonly kind: 'record'; readonly id: string }
+  | { readonly kind: 'action'; readonly seq: number };
 
 export interface Nav {
   readonly model: StoreModel;
@@ -73,6 +75,7 @@ export interface Nav {
   readonly push: (view: View) => void;
 }
 
-/** Set by the table view only; the tree view expands in place instead */
+/** Set by the table view and the Actions tab; the tree view expands in place
+ * instead */
 export const NavContext = createContext<Nav | null>(null);
 export const useNav = () => useContext(NavContext);
