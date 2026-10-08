@@ -3,10 +3,10 @@ on:
   pull_request:
     branches:
       - master
-  # Required check: no `paths` (see paths-gate.yml). Vercel skips queue
-  # branches, so this is the queue's only build of the merged site.
+  # Required check: no `paths` (see paths-gate.yml). The queue builds the
+  # merged site but never deploys it.
   merge_group:
-  # Refreshes the webpack cache that PRs restore from
+  # Deploys production and refreshes the webpack cache that PRs restore from
   push:
     branches:
       - master
@@ -18,19 +18,24 @@ on:
       - 'docs/graphql/**'
       - '.github/workflows/site-preview.yml'
       - '.github/workflows/paths-gate.yml'
+  # Redeploys production from master, e.g. after a failed deploy
+  workflow_dispatch:
 
-# PRs cancel superseded runs. Push runs get their own group, so master never
-# shows a cancelled (red) run.
+# PRs get one group per branch, and a push cancels the older run, so only the
+# newest commit deploys. master pushes and dispatches queue in one group, so
+# production deploys in push order and master never shows a cancelled (red)
+# run. Queue entries get their own group.
 concurrency:
-  group: site-preview-${{ github.head_ref || github.run_id }}
-  cancel-in-progress: true
+  group: ${{ github.event_name == 'pull_request' && format('site-preview-pr-{0}', github.head_ref) || github.event_name == 'merge_group' && format('site-preview-queue-{0}', github.run_id) || 'site-deploy-production' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  queue: ${{ github.event_name == 'pull_request' && 'single' || 'max' }}
 
 permissions:
   contents: read
 
 jobs:
   gate:
-    if: github.event_name != 'push'
+    if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
     uses: ./.github/workflows/paths-gate.yml
 
   # One job so the install happens once: the typecheck is short next to it
@@ -39,11 +44,16 @@ jobs:
     needs: gate
     if: ${{ !cancelled() && needs.gate.outputs.relevant != 'false' }}
     runs-on: ubuntu-latest
+    outputs:
+      deploy: ${{ steps.decide.outputs.deploy }}
+      target: ${{ steps.decide.outputs.target }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
         with:
-          fetch-depth: 1
+          # Deployed pages date themselves from git history ("Last updated").
+          # Never `git fetch --depth` below: it makes a full clone shallow.
+          fetch-depth: ${{ github.event_name == 'merge_group' && 1 || 0 }}
       - name: Test Vercel ignore decision
         run: bash website/scripts/vercel-ignore.test.sh
       - uses: actions/setup-node@v6
@@ -51,11 +61,11 @@ jobs:
           node-version: '26'
           cache: 'yarn'
       - name: Check published blog posts are dated today
-        if: github.event_name != 'push'
+        if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
         run: |
-          git fetch --depth=1 origin "$BASE_SHA"
+          git cat-file -e "$BASE_SHA^{commit}" 2>/dev/null || git fetch --depth=1 origin "$BASE_SHA"
           node website/scripts/blog-publish.mjs --check "$BASE_SHA"
       - name: Install packages
         run: ./scripts/ci-install.sh website
@@ -75,14 +85,14 @@ jobs:
             website-build-
       - name: Build website
         env:
-          # Build drafts like the Vercel preview does
-          VERCEL_ENV: preview
+          # Production drops drafts; previews and the check build them
+          VERCEL_ENV: ${{ github.event_name != 'pull_request' && github.event_name != 'merge_group' && github.ref == 'refs/heads/master' && 'production' || 'preview' }}
         # explicit `shell: bash` adds pipefail, so a failed build isn't masked by tee
         shell: bash
         run: |
           yarn workspace rdc-website build 2>&1 | tee build.log
           # Warnings (broken links, webpack warnings) fail the check, but not
-          # the Vercel deploy, which only stops on errors
+          # the build itself, which only stops on errors
           if grep -E '\[(WARNING|ERROR)\]' build.log; then
             echo "::error::Website build logged warnings (listed above)"
             exit 1
@@ -93,3 +103,120 @@ jobs:
           path: website/node_modules/.cache
           # Unique per run: an existing key can't be overwritten
           key: website-build-${{ hashFiles('yarn.lock') }}-${{ github.run_id }}
+      - name: Decide docs deploy
+        id: decide
+        if: github.event_name != 'merge_group'
+        env:
+          EVENT: ${{ github.event_name }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          HEAD_REF: ${{ github.head_ref }}
+          BEFORE: ${{ github.event.before }}
+          # Only whether they're set: the secrets stay out of this job
+          VERCEL_CONFIGURED: ${{ secrets.VERCEL_TOKEN != '' && secrets.VERCEL_ORG_ID != '' && secrets.VERCEL_PROJECT_ID != '' }}
+        run: |
+          skip() {
+            echo "::notice title=Docs deploy skipped::$1"
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          }
+          if [ "$EVENT" = pull_request ]; then
+            echo "target=preview" >> "$GITHUB_OUTPUT"
+            [ "$HEAD_REPO" = "$GITHUB_REPOSITORY" ] || skip "Pull requests from forks build the site but don't deploy it"
+            [[ "$HEAD_REF" != renovate/* ]] || skip "Renovate branches build the site but don't deploy it"
+            export VERCEL_GIT_COMMIT_REF="$HEAD_REF" VERCEL_ENV=preview
+          else
+            echo "target=production" >> "$GITHUB_OUTPUT"
+            [ "$GITHUB_REF" = refs/heads/master ] || skip "Only master deploys to production"
+            export VERCEL_GIT_COMMIT_REF=master VERCEL_ENV=production
+            [ "$EVENT" = push ] && export VERCEL_GIT_PREVIOUS_SHA="$BEFORE"
+            # A newer master commit that changed the site deploys from its own
+            # (queued) run; deploying this one would roll production back
+            git fetch -q --no-tags origin +refs/heads/master:refs/remotes/origin/master || true
+            tip="$(git rev-parse -q --verify origin/master)" || tip=
+            mapfile -d '' paths < <(bash website/scripts/vercel-ignore.sh --paths)
+            if [ -n "$tip" ] && [ "$tip" != "$GITHUB_SHA" ] &&
+              git merge-base --is-ancestor "$GITHUB_SHA" "$tip" &&
+              [ -n "$(git diff --name-only --no-renames "$GITHUB_SHA" "$tip" -- "${paths[@]}")" ]; then
+              skip "master moved on to ${tip:0:12}, whose run deploys the newer site"
+            fi
+          fi
+          [ "$VERCEL_CONFIGURED" = true ] ||
+            skip "Set the VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID repository secrets to deploy"
+          if [ "$EVENT" = workflow_dispatch ] || ! bash website/scripts/vercel-ignore.sh; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Upload site for deploy
+        if: steps.decide.outputs.deploy == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: site-build
+          path: website/build
+          # static/.circleci ships with the site
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+          # A re-run of this job replaces the artifact
+          overwrite: true
+
+  # Not a required check: a Vercel outage mustn't block merging
+  deploy:
+    name: docs deploy
+    needs: build
+    if: ${{ !cancelled() && needs.build.result == 'success' && needs.build.outputs.deploy == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    environment:
+      name: ${{ needs.build.outputs.target == 'production' && 'docs-production' || 'docs-preview' }}
+      url: ${{ steps.deploy.outputs.url }}
+    env:
+      # renovate: datasource=npm depName=vercel
+      VERCEL_CLI_VERSION: 63.1.0
+      TARGET: ${{ needs.build.outputs.target }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TELEMETRY_DISABLED: '1'
+    steps:
+      # vercel build reads only these. vercel.json skips the install and the
+      # build, so this job never runs repo code while it holds the token.
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            website/package.json
+            website/vercel.json
+          sparse-checkout-cone-mode: false
+      - uses: actions/download-artifact@v8
+        with:
+          name: site-build
+          path: website/build
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '26'
+      - run: npm install --global "vercel@$VERCEL_CLI_VERSION"
+      - run: vercel pull --yes --environment="$TARGET"
+      - name: Package the build output
+        run: vercel build --yes --target="$TARGET"
+      - name: Deploy
+        id: deploy
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          meta=()
+          # Ties the preview to its branch instead of the PR merge ref
+          [ -n "$HEAD_REF" ] && meta=(--meta githubDeployment=1 --meta "githubCommitRef=$HEAD_REF")
+          url="$(vercel deploy --prebuilt --archive=tgz --target="$TARGET" "${meta[@]}")"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          { echo "### Docs $TARGET deployment"; echo; echo "$url"; } >> "$GITHUB_STEP_SUMMARY"
+      - if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v3
+        with:
+          header: docs-preview
+          message: |
+            **Docs preview:** ${{ steps.deploy.outputs.url }}
+
+            Built from ${{ github.event.pull_request.head.sha }} merged into `master`.
