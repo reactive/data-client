@@ -82,7 +82,7 @@ DesignSystem/       components injected into preview scope
   ESLint treats all of `preview/` as lazy: from outside it, only `import()`,
   `import type`, or an allowlisted eager file (`StoreToggle`,
   `PreviewWrapper`, `FixturePreview`, which render in SSR and loading states)
-  may be imported. Keep allowlisted files free of static imports of the rest.
+  may be imported, and those files may not statically import the rest.
 - Docusaurus only shares modules used by half of all pages, so
   `website/chunks-plugin.js` splits site source used by 2+ pages (the eagerly
   loaded Playground modules among it) into shared chunks instead of a copy

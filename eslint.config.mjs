@@ -1,6 +1,14 @@
 import anansiPlugin from '@anansi/eslint-plugin';
 import globals from 'globals';
 
+// Playground/preview/ files loaded with the page (SSR and loading-state chrome);
+// `X.*` too since gitignore-style `X` does not match `X.tsx`
+const EAGER_PREVIEW = [
+  'FixturePreview',
+  'PreviewWrapper',
+  'StoreToggle',
+].flatMap(f => [f, `${f}.*`]);
+
 export default [
   ...anansiPlugin.configs.typescript,
   {
@@ -50,7 +58,7 @@ export default [
   {
     // Playground/preview/ is the lazy PreviewWithScope chunk (live execution,
     // Store inspector). A static import from outside copies it into every docs
-    // page with a Playground, so only the eager files listed here may be imported.
+    // page with a Playground, so only its eager files may be imported.
     files: ['website/src/**/*.?(m|c)ts?(x)'],
     ignores: ['website/src/components/Playground/preview/**'],
     rules: {
@@ -60,19 +68,33 @@ export default [
           patterns: [
             {
               group: [
-                '**/Playground/preview/**',
-                './preview/**',
-                // eager: SSR and loading-state chrome
-                '!**/preview/FixturePreview',
-                '!**/preview/FixturePreview.*',
-                '!**/preview/PreviewWrapper',
-                '!**/preview/PreviewWrapper.*',
-                '!**/preview/StoreToggle',
-                '!**/preview/StoreToggle.*',
+                '**/preview/**',
+                ...EAGER_PREVIEW.map(f => `!**/preview/${f}`),
               ],
               allowTypeImports: true,
               message:
-                'Playground/preview/ loads lazily: use import() or `import type`, or add a deliberately eager file to the allowlist in eslint.config.mjs.',
+                'Playground/preview/ loads lazily: use import() or `import type`, or add a deliberately eager file to EAGER_PREVIEW in eslint.config.mjs.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    // The eager files themselves must not reach into the lazy rest of preview/
+    files: EAGER_PREVIEW.filter(f => !f.endsWith('.*')).map(
+      f => `website/src/components/Playground/preview/${f}.tsx`,
+    ),
+    rules: {
+      '@typescript-eslint/no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['./**', ...EAGER_PREVIEW.map(f => `!./${f}`)],
+              allowTypeImports: true,
+              message:
+                'Playground/preview/ loads lazily: use import() or `import type`, or add a deliberately eager file to EAGER_PREVIEW in eslint.config.mjs.',
             },
           ],
         },
