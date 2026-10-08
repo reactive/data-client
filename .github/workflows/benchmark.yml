@@ -31,8 +31,7 @@ on:
       - '.github/workflows/dependency-gate.yml'
       - '.github/workflows/benchmark.yml'
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 concurrency:
   group: ${{ github.event_name == 'push' && 'gh-pages-bench-node-push' || format('benchmark-node-{0}', github.head_ref) }}
@@ -52,11 +51,16 @@ jobs:
     needs: changes
     if: ${{ needs.changes.outputs.relevant == 'true' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # master pushes results to gh-pages-bench
+      pull-requests: write # PR result review
 
     steps:
     - uses: actions/checkout@v7
       with:
         fetch-depth: 1
+        # PR code runs here; the benchmark action passes its own token to git
+        persist-credentials: false
     - uses: actions/setup-node@v6
       with:
         node-version: '26'
