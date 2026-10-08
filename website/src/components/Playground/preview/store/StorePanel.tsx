@@ -11,11 +11,12 @@ import React, {
 } from 'react';
 
 import { ActionCrumb, ActionDetail } from './ActionDetail';
-import { groupEntries } from './actionGroups';
+import { groupEntries, keepUnchanged, type ActionGroup } from './actionGroups';
 import { findEntry, type LogEntry } from './actionLog';
 import {
   ActionsContext,
   ActionsRoot,
+  LogContext,
   useActions,
   type Actions,
 } from './ActionsView';
@@ -86,17 +87,27 @@ export default function StorePanel({
     [snapshot, state, liveModel, registry],
   );
 
+  // a cache: rows that didn't change keep their group, so they skip rendering
+  const lastGroups = useRef<readonly ActionGroup[]>([]);
+  const groups = useMemo(
+    () =>
+      (lastGroups.current = keepUnchanged(
+        lastGroups.current,
+        groupEntries(entries),
+      )),
+    [entries],
+  );
+  const showState = useCallback((seq: number) => {
+    setSnapshot(seq);
+    setTab('state');
+  }, []);
   const actions = useMemo<Actions>(
-    () => ({
-      log,
-      history,
-      groups: groupEntries(entries),
-      showState: seq => {
-        setSnapshot(seq);
-        setTab('state');
-      },
-    }),
-    [log, history, entries],
+    () => ({ log, history, groups, showState }),
+    [log, history, groups, showState],
+  );
+  const logContext = useMemo(
+    () => ({ log, since: history.since }),
+    [log, history.since],
   );
   // only State shows the past; the Actions tab's records are live
   const stateActions = useMemo<Actions>(
@@ -115,74 +126,78 @@ export default function StorePanel({
 
   return (
     <ActionsContext.Provider value={actions}>
-      <div className={styles.store} ref={panel}>
-        <div className={styles.bar} role="tablist" aria-label="Store">
-          <button
-            type="button"
-            role="tab"
-            className={styles.tab}
-            aria-selected={tab === 'state'}
-            onClick={() => setTab('state')}
-          >
-            State
-          </button>
-          <button
-            type="button"
-            role="tab"
-            className={styles.tab}
-            aria-selected={tab === 'actions'}
-            onClick={() => setTab('actions')}
-          >
-            Actions
-            {actions.groups.length > 0 && (
-              <span className={styles.count}>
-                {actions.groups.length.toLocaleString()}
+      <LogContext.Provider value={logContext}>
+        <div className={styles.store} ref={panel}>
+          <div className={styles.bar} role="tablist" aria-label="Store">
+            <button
+              type="button"
+              role="tab"
+              className={styles.tab}
+              aria-selected={tab === 'state'}
+              onClick={() => setTab('state')}
+            >
+              State
+            </button>
+            <button
+              type="button"
+              role="tab"
+              className={styles.tab}
+              aria-selected={tab === 'actions'}
+              onClick={() => setTab('actions')}
+            >
+              Actions
+              {actions.groups.length > 0 && (
+                <span className={styles.count}>
+                  {actions.groups.length.toLocaleString()}
+                </span>
+              )}
+            </button>
+            {tab === 'state' && (
+              <span
+                className={styles.viewButtons}
+                role="group"
+                aria-label="Store view"
+              >
+                <button
+                  type="button"
+                  aria-label="Table view"
+                  title="Table view"
+                  aria-pressed={!tree}
+                  onClick={() => setView('table')}
+                >
+                  <TableIcon />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Tree view"
+                  title="Tree view"
+                  aria-pressed={tree}
+                  onClick={() => setView('tree')}
+                >
+                  <TreeIcon />
+                </button>
               </span>
             )}
-          </button>
-          {tab === 'state' && (
-            <span
-              className={styles.viewButtons}
-              role="group"
-              aria-label="Store view"
-            >
-              <button
-                type="button"
-                aria-label="Table view"
-                title="Table view"
-                aria-pressed={!tree}
-                onClick={() => setView('table')}
-              >
-                <TableIcon />
-              </button>
-              <button
-                type="button"
-                aria-label="Tree view"
-                title="Tree view"
-                aria-pressed={tree}
-                onClick={() => setView('tree')}
-              >
-                <TreeIcon />
-              </button>
-            </span>
+          </div>
+          <div className={styles.tabPanel} hidden={tab !== 'state'}>
+            <ActionsContext.Provider value={stateActions}>
+              {snapshot && (
+                <SnapshotBar entry={snapshot} onShow={setSnapshot} />
+              )}
+              <StateContext.Provider value={state}>
+                {tree ?
+                  <TreeLevel model={model} />
+                : <Levels model={model} width={width} root={STATE_ROOT} />}
+              </StateContext.Provider>
+            </ActionsContext.Provider>
+          </div>
+          {actionsShown && (
+            <div className={styles.tabPanel} hidden={tab !== 'actions'}>
+              <Levels model={liveModel} width={width} root={ACTIONS_ROOT} />
+            </div>
           )}
         </div>
-        <div className={styles.tabPanel} hidden={tab !== 'state'}>
-          <ActionsContext.Provider value={stateActions}>
-            {snapshot && <SnapshotBar entry={snapshot} onShow={setSnapshot} />}
-            <StateContext.Provider value={state}>
-              {tree ?
-                <TreeLevel model={model} />
-              : <Levels model={model} width={width} root={STATE_ROOT} />}
-            </StateContext.Provider>
-          </ActionsContext.Provider>
-        </div>
-        {actionsShown && (
-          <div className={styles.tabPanel} hidden={tab !== 'actions'}>
-            <Levels model={liveModel} width={width} root={ACTIONS_ROOT} />
-          </div>
-        )}
-      </div>
+      </LogContext.Provider>
     </ActionsContext.Provider>
   );
 }

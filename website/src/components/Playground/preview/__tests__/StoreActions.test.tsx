@@ -14,7 +14,7 @@ import {
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
-import { diffStates, groupEntries } from '../store/actionGroups';
+import { diffStates, groupEntries, keepUnchanged } from '../store/actionGroups';
 import ActionLog, { type LogEntry } from '../store/actionLog';
 import { entityId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
@@ -369,6 +369,29 @@ describe('groupEntries', () => {
     ]);
     // cancelled, not left pending
     expect(groups[0].kind === 'request' && groups[0].cancelled).toBe(true);
+  });
+
+  it('keeps the groups a new action left as they were', () => {
+    const read = { key: 'GET /a', endpoint: {} };
+    const entries = [
+      entry(1, { type: actionTypes.SET, schema: { key: 'Post' } }),
+      entry(2, { type: actionTypes.FETCH, ...read, meta: { fetchedAt: 2 } }),
+    ];
+    const before = groupEntries(entries);
+    const after = keepUnchanged(
+      before,
+      groupEntries([
+        ...entries,
+        entry(3, {
+          type: actionTypes.SET_RESPONSE,
+          ...read,
+          meta: { fetchedAt: 2 },
+        }),
+      ]),
+    );
+    expect(after[0]).toBe(before[0]);
+    // the request got its response
+    expect(after[1]).not.toBe(before[1]);
   });
 
   it('folds reads made while one is in flight into it', () => {

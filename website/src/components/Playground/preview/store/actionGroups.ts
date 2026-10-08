@@ -309,6 +309,35 @@ export function groupEntries(entries: readonly LogEntry[]): ActionGroup[] {
 
 const requestId = (key: string, fetchedAt: number) => `${fetchedAt} ${key}`;
 
+/** `next`, with each group that hasn't changed since `prev` kept as it was,
+ * so its row can skip rendering */
+export function keepUnchanged(
+  prev: readonly ActionGroup[],
+  next: ActionGroup[],
+): ActionGroup[] {
+  const before = new Map(prev.map(g => [g.id, g]));
+  return next.map(group => {
+    const old = before.get(group.id);
+    return old && sameGroup(old, group) ? old : group;
+  });
+}
+
+function sameGroup(a: ActionGroup, b: ActionGroup): boolean {
+  if (a.kind !== b.kind || !sameList(a.entries, b.entries)) return false;
+  if (a.kind === 'request' && b.kind === 'request')
+    return a.response === b.response && a.cancelled === b.cancelled;
+  if (a.kind === 'subscription' && b.kind === 'subscription')
+    return (
+      a.open === b.open &&
+      a.requests.length === b.requests.length &&
+      a.requests.every((r, i) => sameGroup(r, b.requests[i]))
+    );
+  return true;
+}
+
+const sameList = <T>(a: readonly T[], b: readonly T[]) =>
+  a.length === b.length && a.every((x, i) => x === b[i]);
+
 const sameArgs = (fetch: ActionTypes, response: ActionTypes) =>
   'args' in fetch && 'args' in response && equal(fetch.args, response.args);
 

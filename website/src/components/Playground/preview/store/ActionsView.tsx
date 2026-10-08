@@ -2,6 +2,8 @@ import { actionTypes, type ActionTypes } from '@data-client/react';
 import clsx from 'clsx';
 import React, {
   createContext,
+  memo,
+  useCallback,
   useContext,
   useLayoutEffect,
   useMemo,
@@ -39,6 +41,13 @@ export interface Actions {
 }
 export const ActionsContext = createContext<Actions | null>(null);
 export const useActions = () => useContext(ActionsContext)!;
+/** What rows need; unlike `Actions`, stays the same as actions arrive */
+export const LogContext = createContext<{
+  readonly log: ActionLog;
+  /** When the shown history's first action was dispatched */
+  readonly since: number;
+} | null>(null);
+const useLog = () => useContext(LogContext)!;
 
 /** Chips a row shows before `+N` */
 const CHIP_LIMIT = 6;
@@ -56,6 +65,15 @@ export function ActionsRoot({
 }) {
   const { groups } = useActions();
   const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set());
+  const toggle = useCallback(
+    (id: string) =>
+      setOpen(prev => {
+        const next = new Set(prev);
+        if (!next.delete(id)) next.add(id);
+        return next;
+      }),
+    [],
+  );
   useFollow(scroller, groups);
   if (!groups.length)
     return (
@@ -71,13 +89,7 @@ export function ActionsRoot({
           key={group.id}
           group={group}
           open={open.has(group.id)}
-          onToggle={() =>
-            setOpen(prev => {
-              const next = new Set(prev);
-              if (!next.delete(group.id)) next.add(group.id);
-              return next;
-            })
-          }
+          onToggle={toggle}
         />
       ))}
     </div>
@@ -123,16 +135,18 @@ function useFollow(
   }, [scroller, rows]);
 }
 
-function GroupRow({
+/** Renders only when its group changes (see `keepUnchanged`) */
+const GroupRow = memo(function GroupRow({
   group,
   open,
-  onToggle,
+  onToggle: toggle,
 }: {
   group: ActionGroup;
   open: boolean;
-  onToggle: () => void;
+  onToggle: (id: string) => void;
 }) {
-  const { log } = useActions();
+  const { log } = useLog();
+  const onToggle = () => toggle(group.id);
   const all = groupEntriesOf(group);
   const changes = mergeChanges(all.map(e => log.changes(e)));
   const first = all[0];
@@ -163,7 +177,7 @@ function GroupRow({
       {open && <Steps group={group} all={all} />}
     </div>
   );
-}
+});
 
 /** An open row's actions; fetches deduped into a request in flight show as
  * one line */
@@ -205,7 +219,7 @@ function Steps({
 
 /** One action of an open row; opens its own level */
 function StepRow({ entry, own }: { entry: LogEntry; own: string }) {
-  const { log } = useActions();
+  const { log } = useLog();
   const nav = useNav()!;
   const open = () => nav.push({ kind: 'action', seq: entry.seq });
   return (
@@ -228,7 +242,7 @@ function StepRow({ entry, own }: { entry: LogEntry; own: string }) {
 /** `setResponse`, colored by kind; a fetch that changed the store applied
  * an optimistic update */
 export function TypeName({ entry }: { entry: LogEntry }) {
-  const { log } = useActions();
+  const { log } = useLog();
   const { action } = entry;
   const optimistic =
     action.type === actionTypes.FETCH && log.changes(entry).length > 0;
@@ -272,7 +286,7 @@ export function KeyLabel({ value }: { value: string }) {
 }
 
 function Time({ at }: { at: number }) {
-  const { since } = useActions().history;
+  const { since } = useLog();
   const s = (at - since) / 1000;
   return (
     <span className={styles.actTime}>
@@ -331,7 +345,7 @@ function Status({ group }: { group: ActionGroup }) {
 
 /** Sent, optimistic, then resolved; or a subscription's poll ticks */
 function Lifecycle({ group }: { group: ActionGroup }) {
-  const { log } = useActions();
+  const { log } = useLog();
   if (group.kind === 'single')
     return (
       <span className={styles.life} aria-hidden="true">
