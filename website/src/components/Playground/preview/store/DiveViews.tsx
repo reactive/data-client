@@ -15,7 +15,7 @@ import {
   type AnyRow,
   type EntityTable,
 } from './model';
-import { membersOf, useNav, type ListView } from './nav';
+import { membersOf, useNav, type ListView as List } from './nav';
 import styles from './store.module.css';
 import {
   endpointColumns,
@@ -28,7 +28,7 @@ import {
 import { Block } from './Value';
 
 type Scroller = React.RefObject<HTMLElement | null>;
-type Header = (tools: React.ReactNode) => React.ReactNode;
+export type Header = (tools: React.ReactNode) => React.ReactNode;
 
 /** Rows rendered beyond the visible ones, on each side */
 const OVERSCAN = 20;
@@ -42,7 +42,7 @@ export function ListView({
   scroller,
   header,
 }: {
-  view: ListView;
+  view: List;
   scroller: Scroller;
   header: Header;
 }) {

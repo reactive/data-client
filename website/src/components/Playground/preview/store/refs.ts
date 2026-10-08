@@ -19,7 +19,9 @@ export function isEntityLike(schema: any): boolean {
   );
 }
 
-function isPlainObject(value: any): value is Record<string, unknown> {
+export function isPlainObject(
+  value: unknown,
+): value is Record<string, unknown> {
   if (!value || typeof value !== 'object') return false;
   const proto = Object.getPrototypeOf(value);
   return proto === Object.prototype || proto === null;
@@ -152,8 +154,21 @@ export function memberRefs(node: VNode): readonly RefNode[] | undefined {
 /** Stands in for an object that contains itself (denormalized cycles) */
 export const CIRCULAR = Symbol('circular');
 
+/** A `Temporal` value (`Temporal.Instant`, `Temporal.PlainDate`...), from
+ * the built-in or a polyfill: its tag names its type */
+export const temporalType = (value: object): string | undefined => {
+  const tag = (value as { [Symbol.toStringTag]?: unknown })[Symbol.toStringTag];
+  return typeof tag === 'string' && tag.startsWith('Temporal.') ?
+      tag
+    : undefined;
+};
+
+/** A date or time: shown as one value, not as its fields */
+export const isMoment = (value: object) =>
+  value instanceof Date || temporalType(value) !== undefined;
+
 export function plain(value: unknown, ancestors = new Set<object>()): VNode {
-  if (!value || typeof value !== 'object' || value instanceof Date)
+  if (!value || typeof value !== 'object' || isMoment(value))
     return { t: 'val', v: value };
   if (ancestors.has(value)) return { t: 'val', v: CIRCULAR };
   ancestors.add(value);

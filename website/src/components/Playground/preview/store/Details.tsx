@@ -2,6 +2,7 @@ import { StateContext, useController } from '@data-client/react';
 import clsx from 'clsx';
 import React, { useContext, useEffect, useState } from 'react';
 
+import { ChangedBy } from './ActionDetail';
 import {
   errorText,
   referrersOf,
@@ -110,6 +111,7 @@ export function EndpointMeta({
         <Field name="args" node={plain(record.args)} />
       : null}
       <MetaFields meta={row.meta} />
+      <ChangedBy id={row.id} />
     </MetaBlock>
   );
 }
@@ -208,6 +210,7 @@ export function RowMeta({
           />
         : <span className={styles.dim}>nothing</span>}
       </div>
+      <ChangedBy id={row.id} />
     </MetaBlock>
   );
 }

@@ -1,5 +1,5 @@
 import { schema as s } from '@data-client/endpoint';
-import type { State } from '@data-client/react';
+import { actionTypes, type State } from '@data-client/react';
 
 import {
   INVALIDATED,
@@ -10,9 +10,42 @@ import {
 } from './refs';
 import type {
   EndpointRecord,
-  PendingOptimistic,
   default as SchemaRegistry,
 } from './schemaRegistry';
+
+/** An optimistic update awaiting its response */
+export interface PendingOptimistic {
+  readonly key: string;
+  readonly args: readonly unknown[];
+  readonly fetchedAt: number;
+  /** Tells apart updates sharing a key and fetch time */
+  readonly serial: number;
+}
+
+/** Each queued update keeps its action object from state to state */
+const serials = new WeakMap<object, number>();
+let nextSerial = 0;
+const serialOf = (action: object) => {
+  let serial = serials.get(action);
+  if (serial === undefined) serials.set(action, (serial = nextSerial++));
+  return serial;
+};
+
+/** The optimistic updates still waiting in the store's own state (the state
+ * components read has them applied, and so emptied) */
+export const pendingIn = (queue: State<unknown>['optimistic'] = []) =>
+  queue.flatMap<PendingOptimistic>(o =>
+    o.type === actionTypes.OPTIMISTIC ?
+      [
+        {
+          key: o.key,
+          args: o.args,
+          fetchedAt: o.meta.fetchedAt,
+          serial: serialOf(o),
+        },
+      ]
+    : [],
+  );
 
 /** Keeps a node's kind and parts apart in its id: no key or pk contains it */
 const SEP = '\u001f';
@@ -26,7 +59,7 @@ export const endpointId = (key: string) => nodeId('e', key);
 export const entityId = (key: string, pk: string) => nodeId('n', key, pk);
 /** Stable while other optimistic updates settle around it */
 export const optimisticId = (o: PendingOptimistic) =>
-  nodeId('o', o.key, `${o.fetchedAt}`);
+  nodeId('o', o.key, `${o.fetchedAt}`, `${o.serial}`);
 
 export type RowId =
   | { readonly kind: 'endpoint'; readonly key: string }
@@ -186,6 +219,8 @@ function buildTable(
 export function buildModel(
   state: State<unknown>,
   registry: SchemaRegistry,
+  /** Pending when `state` was (see `pendingIn`) */
+  optimistic: readonly PendingOptimistic[] = [],
 ): StoreModel {
   // errors and invalidations can leave meta without a stored response
   const endpointKeys = new Set([
@@ -221,7 +256,7 @@ export function buildModel(
     endpoints,
     tables: orderTables(tables),
     table: key => tables.get(key),
-    optimistic: registry.optimistic,
+    optimistic,
     indexes: state.indexes,
     lastReset: state.lastReset,
   };

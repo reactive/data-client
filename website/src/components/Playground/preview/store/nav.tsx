@@ -60,19 +60,44 @@ export const cellDive =
       { kind: 'record', id: row.id }
     : refsList(items, `${rowLabel(row)} ${name}`);
 
-/** One level of the table view's navigation stack */
+/** One level of a navigation stack: the table view's, or the Actions tab's */
 export type View =
   | { readonly kind: 'root' }
+  | { readonly kind: 'actions' }
   | ListView
-  | { readonly kind: 'record'; readonly id: string };
+  | { readonly kind: 'record'; readonly id: string }
+  /** Every logged change to record `id` */
+  | { readonly kind: 'history'; readonly id: string }
+  | { readonly kind: 'action'; readonly seq: number };
+
+/** The store as an action left it, or (`before`) found it (a removed row
+ * shows as it was). A level pushed at a Moment shows that store, and so does
+ * every level it opens */
+export interface Moment {
+  readonly seq: number;
+  readonly before?: true;
+}
+
+/** The actions some chips summarize, by seq. What the chips open shows the
+ * store as those actions left it, not as it is now */
+export interface ActionSpan {
+  readonly first: number;
+  readonly last: number;
+}
+export const ActionSpanContext = createContext<ActionSpan | undefined>(
+  undefined,
+);
 
 export interface Nav {
   readonly model: StoreModel;
   /** Panel width in px, to fit columns and chips */
   readonly width: number;
-  readonly push: (view: View) => void;
+  /** Opens `view` over this level; at the store `at` shows, by default the
+   * one this level shows */
+  readonly push: (view: View, at?: Moment) => void;
 }
 
-/** Set by the table view only; the tree view expands in place instead */
+/** Set by the table view and the Actions tab; the tree view expands in place
+ * instead */
 export const NavContext = createContext<Nav | null>(null);
 export const useNav = () => useContext(NavContext);

@@ -1,6 +1,6 @@
 /// <reference types="jest" />
 import { Collection, Endpoint, Entity, schema } from '@data-client/endpoint';
-import { StateContext, type State } from '@data-client/react';
+import { actionTypes, StateContext, type State } from '@data-client/react';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
@@ -135,7 +135,7 @@ const headers = () =>
 function mount(s = state, r = registry()) {
   const ui = (s: State<unknown>) => (
     <StateContext.Provider value={s}>
-      <StorePanel registry={r} />
+      <StorePanel registry={r} history={0} />
     </StateContext.Provider>
   );
   const result = render(ui(s));
@@ -286,13 +286,21 @@ describe('StorePanel navigation', () => {
 
   it('toggles sections and lists pending optimistic updates', () => {
     const r = registry();
-    r.optimistic = [
-      {
-        key: 'POST https://example.com/posts',
-        args: [{ title: 'optimistic' }],
-        fetchedAt: NOW,
-      },
-    ];
+    // a create still waiting for its response
+    const create = new Endpoint(async (body: object) => body, {
+      key: () => 'POST https://example.com/posts',
+      sideEffect: true,
+      getOptimisticResponse: (_: unknown, body: object) => body,
+    });
+    const store = { getState: () => state } as any;
+    const { head, tail } = r.log.connect(0);
+    head.middleware!(store)(tail.middleware!(store)(() => Promise.resolve()))({
+      type: actionTypes.FETCH,
+      key: create.key({ title: 'optimistic' }),
+      args: [{ title: 'optimistic' }],
+      endpoint: create,
+      meta: { fetchedAt: NOW },
+    } as any);
     mount(state, r);
     const optimistic = within(top()).getByRole('button', {
       name: /^Optimistic/,

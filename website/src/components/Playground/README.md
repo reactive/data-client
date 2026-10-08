@@ -139,6 +139,15 @@ DesignSystem/       components injected into preview scope
   It opens and closes as a drawer (`../motion`: the toggle glides, the panel
   `Reveal`s); the panel's contents render a frame after it starts moving
   (`useDeferredValue`).
+- The Store inspector's Actions tab logs every dispatch through
+  `preview/store/actionLog.ts`, which documents its limits and `LogOptions`
+  (the Playground's `actionLog` prop). Preview.tsx gives each store mount its
+  own `registry.log.connect(history, replacedHistory, skipLogging)` managers. Keep
+  `head` first and `tail` last when adding managers: the tail must see exactly
+  what reaches the store. `usePreviewReset` owns the `history` id: a fresh
+  store (see Reset) starts a new history, a store the retry restores continues
+  its own, and the panel shows only the current one. An action's chips open the
+  store as that action left it (see `Moment` in `preview/store/nav.tsx`).
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
   count in the preview header (written to the DOM, so counting adds no commits).
   `website/profiling-plugin.js` replaces `react-dom/client` with React's
