@@ -99,6 +99,11 @@ function mount(preview?: React.ReactNode) {
   };
 }
 
+const subscribe = (key = 'k') => ({
+  type: actionTypes.SUBSCRIBE,
+  key,
+  endpoint: {},
+});
 const unsubscribe = (key = 'other') => ({
   type: actionTypes.UNSUBSCRIBE,
   key,
@@ -256,12 +261,7 @@ describe('Store Actions tab', () => {
       screen.getByRole('button', { name: 'View State after this' }),
     );
     act(() => {
-      for (let i = 0; i < 510; i++)
-        ctrl().dispatch({
-          type: actionTypes.UNSUBSCRIBE,
-          key: 'other',
-          endpoint: {},
-        } as any);
+      for (let i = 0; i < 510; i++) ctrl().dispatch(unsubscribe() as any);
     });
     await act(() => ctrl().fetch(getPosts));
     const bar = screen.getByRole('button', { name: 'Live' }).parentElement!;
@@ -704,11 +704,6 @@ describe('ActionLog', () => {
       tail.middleware!(store)(() => Promise.resolve()),
     ) as (action: any) => Promise<void>;
   };
-  const subscribe = () => ({
-    type: actionTypes.SUBSCRIBE,
-    key: 'k',
-    endpoint: {},
-  });
 
   it('collects garbage without touching earlier states', () => {
     const log = newLog();
