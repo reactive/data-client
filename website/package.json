@@ -25,6 +25,7 @@
     "node": ">=18.0"
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "^0.132.1",
     "@docusaurus/mdx-loader": "^3.0.1",
     "@docusaurus/module-type-aliases": "^3.0.1",
     "@emotion/react": "^11.14.0",

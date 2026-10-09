@@ -1,0 +1,82 @@
+name: translate
+# Keeps the docs translations (website/i18n) in sync with the English docs:
+# translates new and changed pages and opens (or updates) one pull request with
+# the result. See website/translate/README.md.
+on:
+  push:
+    branches:
+      - master
+    # Inputs of website/translate/translate.mjs
+    paths:
+      - 'docs/core/**'
+      - 'docs/rest/**'
+      - 'docs/graphql/**'
+      - 'website/translate/**'
+      - 'website/framework-docs/**'
+      - 'website/sidebars*'
+      - 'website/docusaurus.config.ts'
+      - 'website/src/**'
+      - '.github/workflows/translate.yml'
+  # Retranslates after a failed run, or after ANTHROPIC_API_KEY is first set
+  workflow_dispatch:
+
+# Runs must not overlap (they push one branch); queue instead of cancelling
+concurrency:
+  group: translate
+  queue: max
+
+permissions:
+  contents: read
+
+jobs:
+  translate:
+    name: translate
+    if: github.repository == 'reactive/data-client'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check for an API key
+        id: key
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -n "$ANTHROPIC_API_KEY" ]; then
+            echo "set=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::Set the ANTHROPIC_API_KEY repository secret to translate the docs"
+          fi
+      - name: Checkout
+        if: steps.key.outputs.set
+        uses: actions/checkout@v7
+        with:
+          # updates need the English each page was translated from (git blobs)
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        if: steps.key.outputs.set
+        with:
+          node-version: '26'
+          cache: 'yarn'
+      - name: Install packages
+        if: steps.key.outputs.set
+        run: ./scripts/ci-install.sh website
+      - name: Translate
+        if: steps.key.outputs.set
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node website/translate/translate.mjs
+      # Pages that failed validation stay as they were; the PR carries the rest
+      - name: Open pull request
+        if: ${{ !cancelled() && steps.key.outputs.set }}
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: i18n/sync
+          delete-branch: true
+          add-paths: |
+            website/i18n
+            website/translate/lock
+          commit-message: 'docs(i18n): Sync translations'
+          title: 'docs(i18n): Sync translations'
+          body: |
+            Translations of the docs pages and UI strings that changed on master, from `website/translate/translate.mjs` ([run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})).

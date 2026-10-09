@@ -8,6 +8,7 @@ import { themes } from 'prism-react-renderer';
 
 import gqlRedirects from './gqlRedirects';
 import { motionCss } from './src/components/motion/css';
+import { DEFAULT_LOCALE, LOCALES } from './translate/locales';
 import versions from './versions.json';
 
 // Keep Monaco CDN preload hashes in sync with the installed monaco-editor package.
@@ -28,6 +29,14 @@ const remarkFramework = require('./framework-docs/remarkFramework.js');
 // Non-Vue instances render React; :::vue reaches Vue agents via skill references
 const reactRemarkPlugins = [[remarkFramework, { framework: 'react' }]];
 const vueDocs = frameworkDocs.generate('vue');
+// Each locale's Vue pages mirror its translations of docs/core
+const vueMirrors = [
+  vueDocs,
+  ...Object.keys(LOCALES).map(locale => frameworkDocs.generate('vue', locale)),
+].filter(Boolean);
+/** Source of a Vue mirror page (itself if not mirrored), for its git history */
+const mirrorSourceOf = (file: string): string =>
+  vueMirrors.reduce((f, mirror) => mirror.sourceOf(f), file);
 if (isDev) frameworkDocs.watch('vue');
 const vueInstance = frameworkInstance('vue');
 // Shared by light and dark so SSR (`theme`) and the client (`darkTheme`)
@@ -62,6 +71,17 @@ const config: Config = {
   organizationName: 'data-client',
   projectName: 'data-client',
   trailingSlash: false,
+  // Pages without a translation render in English (see translate/README.md)
+  i18n: {
+    defaultLocale: DEFAULT_LOCALE,
+    locales: [DEFAULT_LOCALE, ...Object.keys(LOCALES)],
+    localeConfigs: Object.fromEntries(
+      Object.entries(LOCALES).map(([locale, { label, htmlLang }]) => [
+        locale,
+        { label, htmlLang },
+      ]),
+    ),
+  },
   markdown: {
     mermaid: true,
     hooks: {
@@ -245,9 +265,9 @@ const config: Config = {
     experimental_vcs: {
       ...gitVcs,
       getFileCreationInfo: file =>
-        gitVcs.getFileCreationInfo(vueDocs.sourceOf(file)),
+        gitVcs.getFileCreationInfo(mirrorSourceOf(file)),
       getFileLastUpdateInfo: file =>
-        gitVcs.getFileLastUpdateInfo(vueDocs.sourceOf(file)),
+        gitVcs.getFileLastUpdateInfo(mirrorSourceOf(file)),
     },
   },
   presets: [
@@ -562,6 +582,7 @@ const config: Config = {
           //className: 'header-demos-link',
           'aria-label': 'Demo Applications',
         },
+        { type: 'localeDropdown', position: 'right' },
         {
           href: 'https://github.com/reactive/data-client',
           position: 'right',

@@ -73,6 +73,8 @@ jobs:
         run: yarn ci:build:website
       - name: Typecheck website
         run: yarn workspace rdc-website typecheck
+      - name: Test translation tooling
+        run: node --test 'website/translate/*.test.mjs'
       # Docusaurus' webpack cache (~73 MiB compressed). Only master saves it, so
       # PRs share one fresh entry instead of each storing their own; stale
       # modules just miss.

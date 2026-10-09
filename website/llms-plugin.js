@@ -60,6 +60,8 @@ module.exports = function llmsPlugin(context) {
   return {
     name: 'llms-plugin',
     async postBuild({ outDir, plugins, siteConfig: { url } }) {
+      // agents read the English source; other locales would only copy it
+      if (context.i18n.currentLocale !== context.i18n.defaultLocale) return;
       const { docToMarkdown, ROOT } =
         await import('./framework-docs/docsToMarkdown.mjs');
 

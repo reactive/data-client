@@ -59,6 +59,12 @@ const trimRoute = route => route.replace(/(.)\/$/, '$1');
 const mdRoute = permalink => `${trimRoute(permalink)}.md`;
 /** Where llms-plugin.js serves a docs instance's llms.txt */
 const llmsTxtRoute = id => `${docsInstance(id).llms}llms.txt`;
+/**
+ * Folder (relative to the repo root) of an instance's translations, where
+ * Docusaurus looks for them; pages missing there render in English
+ */
+const localizedPath = (id, locale) =>
+  `website/i18n/${locale}/docusaurus-plugin-content-docs${id === 'default' ? '' : `-${id}`}/current`;
 
 module.exports = {
   DOCS_INSTANCES,
@@ -69,4 +75,5 @@ module.exports = {
   trimRoute,
   mdRoute,
   llmsTxtRoute,
+  localizedPath,
 };
