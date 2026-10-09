@@ -421,6 +421,27 @@ describe('Store Timeline strip', () => {
     expect(zoom.getAttribute('aria-pressed')).toBe('false');
   });
 
+  it('moves focus to the tab as "Live" hides the bar under the shut strip', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
+    const timeline = screen.getByRole('group', { name: /^Timeline/ });
+    fireEvent.click(
+      within(timeline).getByRole('button', { name: /^setResponse at/ }),
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
+    fireEvent.transitionEnd(revealBox(timeline));
+    const live = screen.getByRole('button', { name: 'Live' });
+    live.focus();
+    expect(document.activeElement).toBe(live);
+    fireEvent.click(live);
+    expect(barBox(live).hasAttribute('inert')).toBe(true);
+    expect(document.activeElement).not.toBe(document.body);
+    expect(document.activeElement).toBe(
+      screen.getByRole('tab', { name: 'State' }),
+    );
+  });
+
   it('opens an endpoint lane’s History on the State tab', async () => {
     const { ctrl } = mount();
     title = 'One';

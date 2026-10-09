@@ -244,6 +244,13 @@ export default function StorePanel({
 
   const panel = useRef<HTMLDivElement>(null);
   const width = useWidth(panel);
+  // "Live" with the strip shut slides the bar away under the focused button:
+  // focus moves to the tab shown, so it doesn't fall to the page
+  const focusTab = useCallback(() => {
+    panel.current
+      ?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')
+      ?.focus();
+  }, []);
   // a snapshot flashes what its action changed
   useFlashChanges(
     panel,
@@ -333,6 +340,7 @@ export default function StorePanel({
                     entry={snapshot}
                     onOpen={openAction}
                     stepsToLive={timeline}
+                    onHide={focusTab}
                   />
                 </Unfold>
                 <div className={styles.tabPanel} hidden={tab === 'actions'}>
@@ -407,10 +415,15 @@ function Unfold({
   // what it showed stays while it slides shut
   const shown = useRef(children);
   if (open || !closingNow) shown.current = children;
+  // the latest, so an inline `onShut` doesn't re-arm the settle timer below
+  const onShutRef = useRef(onShut);
+  useLayoutEffect(() => {
+    onShutRef.current = onShut;
+  });
   const shut = useCallback(() => {
     setClosing(false);
-    onShut?.();
-  }, [onShut]);
+    onShutRef.current?.();
+  }, []);
   useLayoutEffect(() => {
     // no transition to end under reduced motion
     if (closing && prefersReducedMotion()) shut();
@@ -443,6 +456,7 @@ function SnapshotBar({
   entry,
   onOpen,
   stepsToLive,
+  onHide,
 }: {
   /** The action State is shown after; missing while live */
   entry?: LogEntry;
@@ -451,6 +465,8 @@ function SnapshotBar({
   /** › past the newest change goes live, as the timeline's right arrow key
    * does (the bar stays, as the timeline shows it live too) */
   stepsToLive?: boolean;
+  /** Called as "Live" hides the bar, so focus has somewhere to go */
+  onHide?: () => void;
 }) {
   const { log, history } = useActions();
   const { set: onShow } = useMoment();
@@ -491,7 +507,10 @@ function SnapshotBar({
           <button
             type="button"
             className={styles.liveButton}
-            onClick={() => onShow(null)}
+            onClick={() => {
+              onShow(null);
+              if (!stepsToLive) onHide?.();
+            }}
           >
             Live
           </button>
