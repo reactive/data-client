@@ -23,6 +23,7 @@ const {
   SOURCE_INSTANCES,
   importTarget,
   instanceOf,
+  lockFile,
   relativeImports,
   translationOf,
 } = require('./localeDocs.js');
@@ -118,8 +119,6 @@ function translated(locale) {
     : [];
 }
 
-const lockFile = locale =>
-  path.join(WEBSITE, 'translate', 'lock', `${locale}.json`);
 const readLock = locale =>
   fs.existsSync(lockFile(locale)) ?
     JSON.parse(fs.readFileSync(lockFile(locale), 'utf8'))

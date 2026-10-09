@@ -10,14 +10,16 @@
  * imports leaving their docs folder (`../../rest/diagrams/...`) are pointed
  * at the other folder's generated copy.
  */
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
+const { LOCALES } = require('./locales.js');
 const {
   DOCS_INSTANCES,
   localizedPath,
 } = require('../framework-docs/docsInstances.js');
-const { walk } = require('../framework-docs/index.js');
+const { FM, walk } = require('../framework-docs/index.js');
 
 const ROOT = path.resolve(__dirname, '../..');
 const MD = /\.mdx?$/;
@@ -126,12 +128,34 @@ function writeIfChanged(file, content) {
   fs.writeFileSync(file, content);
 }
 
+/** Where `translate.mjs finalize` records the English each translation matches */
+const lockFile = locale => path.join(__dirname, 'lock', `${locale}.json`);
+
+/** Git's blob id of `content` (as `git hash-object` computes it) */
+const blobId = content =>
+  crypto
+    .createHash('sha1')
+    .update(`blob ${content.length}\0`)
+    .update(content)
+    .digest('hex');
+
+/** Puts the locale's outdated notice under a page's front matter */
+function markOutdated(content, locale) {
+  const [frontMatter = ''] = FM.exec(content) ?? [];
+  return `${frontMatter}\n:::note\n\n${LOCALES[locale].outdated}\n\n:::\n\n${content.slice(frontMatter.length)}`;
+}
+
 /**
- * Generates a locale's docs folders. Returns `sourceOf`, mapping a generated
+ * Generates a locale's docs folders. A translated page whose English changed
+ * since it was finalized says so until the next translation pass. Returns `sourceOf`, mapping a generated
  * file to the committed file it came from (for git history).
  */
 function generate(locale) {
   const sources = new Map();
+  const lock =
+    fs.existsSync(lockFile(locale)) ?
+      JSON.parse(fs.readFileSync(lockFile(locale), 'utf8')).docs
+    : {};
   for (const instance of SOURCE_INSTANCES) {
     const outDir = path.join(ROOT, localizedPath(instance.id, locale));
     const files = new Set(walk(path.join(ROOT, instance.path)));
@@ -141,8 +165,16 @@ function generate(locale) {
       const from =
         fs.existsSync(path.join(ROOT, translation)) ? translation : file;
       let content = fs.readFileSync(path.join(ROOT, from));
-      if (MD.test(name))
-        content = Buffer.from(retarget(content.toString(), file, locale));
+      if (MD.test(name)) {
+        let text = retarget(content.toString(), file, locale);
+        if (
+          from === translation &&
+          !name.split('/').pop().startsWith('_') &&
+          lock[file] !== blobId(fs.readFileSync(path.join(ROOT, file)))
+        )
+          text = markOutdated(text, locale);
+        content = Buffer.from(text);
+      }
       const out = path.join(outDir, name);
       writeIfChanged(out, content);
       sources.set(out, path.join(ROOT, from));
@@ -180,6 +212,7 @@ module.exports = {
   SOURCE_INSTANCES,
   instanceOf,
   translationOf,
+  lockFile,
   proseLines,
   relativeImports,
   importTarget,
