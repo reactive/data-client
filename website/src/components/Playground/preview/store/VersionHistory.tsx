@@ -11,6 +11,7 @@ import { ActionCrumb, ActionName, ChangeBody } from './ActionDetail';
 import {
   rowTimeline,
   type ChangeKind,
+  type Missing,
   type TimelineItem,
   type Version,
 } from './actionGroups';
@@ -18,6 +19,7 @@ import type { LogEntry } from './actionLog';
 import {
   ActionsContext,
   AtMoment,
+  KEEPS_NEWEST,
   Time,
   useActions,
   type Actions,
@@ -26,7 +28,7 @@ import { EndpointBody } from './Details';
 import type { Header } from './DiveViews';
 import { onActivateKey } from './dom';
 import { findRow, isEndpointRow } from './model';
-import { NavContext, useNav, type Moment, type Nav } from './nav';
+import { NavContext, useMoment, useNav, type Moment, type Nav } from './nav';
 import styles from './store.module.css';
 import { Block } from './Value';
 
@@ -46,9 +48,8 @@ function openHistory(nav: Nav, { until }: Actions, id: string) {
   nav.push({ kind: 'history', id, seq: until });
 }
 
-/** A record's last change, linking to the action that made it, and to all
- * its changes (the table view only: the tree view has no levels to open them
- * in) */
+/** A record's last change, linking to the action that made it (the table
+ * view only: the tree view has no levels to open it in) */
 export function ChangedBy({ id }: { id: string }) {
   const actions = useContext(ActionsContext);
   const nav = useNav();
@@ -90,16 +91,6 @@ function LastChange({
         >
           <ActionCrumb seq={seq} />
         </button>
-        <button
-          type="button"
-          className={clsx(styles.ref, styles.countRef)}
-          onClick={e => {
-            e.stopPropagation();
-            openHistory(nav, actions, id);
-          }}
-        >
-          {changes.length} change{changes.length === 1 ? '' : 's'}
-        </button>
       </span>
     </div>
   );
@@ -138,7 +129,8 @@ function HistoryButtonOf({
 }
 
 /** How a record evolved, as a timeline of every logged version. One is open
- * at a time, showing the whole record as that action left it */
+ * at a time, showing the whole record as that action left it: the version
+ * current at the moment, which selecting another moves */
 export function RowHistory({
   id,
   focus,
@@ -147,7 +139,8 @@ export function RowHistory({
   onShowState,
 }: {
   id: string;
-  /** Opens the version current at this action; by default the latest */
+  /** Opens the version current at this action while the panel is live; by
+   * default the latest */
   focus?: number;
   header: Header;
   /** Opens version `seq` instead */
@@ -156,11 +149,21 @@ export function RowHistory({
   onShowState?: () => void;
 }) {
   const actions = useActions();
+  const moment = useMoment();
   const { items, versions } = useTimeline(actions, id);
-  const open = (
-    versions.findLast(v => focus === undefined || v.entry.seq <= focus) ??
-    versions[0]
-  )?.entry.seq;
+  const at = moment.seq ?? focus;
+  // what was current then: the latest version at or before it, unless
+  // actions the log dropped changed the record since (that note instead:
+  // the record's value then isn't known)
+  const current =
+    at === undefined ?
+      versions.at(-1)
+    : items.findLast(i => i.kind !== 'refreshed' && itemSeq(i) <= at);
+  const open = current?.kind === 'version' ? current.entry.seq : undefined;
+  const select = (seq: number) => {
+    moment.set(seq);
+    onOpen(seq);
+  };
 
   // the open version starts in view
   const list = useRef<HTMLOListElement>(null);
@@ -181,7 +184,7 @@ export function RowHistory({
     const next = versions[versions.findIndex(v => v.entry.seq === open) + step];
     if (!step || !next) return;
     e.preventDefault();
-    onOpen(next.entry.seq);
+    select(next.entry.seq);
     list.current
       ?.querySelector<HTMLElement>(`[data-version="${next.entry.seq}"]`)
       ?.focus();
@@ -214,18 +217,27 @@ export function RowHistory({
                 id={id}
                 version={item}
                 open={item.entry.seq === open}
-                onOpen={onOpen}
+                onOpen={select}
                 onShowState={onShowState}
               />
             : item.kind === 'refreshed' ?
               <RefreshItem key={item.entries[0].seq} entries={item.entries} />
-            : <MissingItem key={`missing ${item.seq}`} change={item.change} />,
+            : <MissingItem
+                key={`missing ${item.seq}`}
+                change={item.change}
+                current={item === current}
+              />,
           )}
         </ol>
       }
     </>
   );
 }
+
+/** Where an item sits in the log: a version's action, or the kept action
+ * a dropped stretch was found before */
+const itemSeq = (item: Version | Missing) =>
+  item.kind === 'version' ? item.entry.seq : item.seq;
 
 /** What a version changed; the same each time the log grows */
 const VersionChange = memo(ChangeBody);
@@ -361,13 +373,22 @@ const missingText: Partial<Record<ChangeKind, string>> = {
   error: 'Failed',
 };
 
-/** Where actions the log didn't keep changed the record */
-function MissingItem({ change }: { change: ChangeKind }) {
+/** Where actions the log didn't keep changed the record; `current` while
+ * the moment falls among them */
+function MissingItem({
+  change,
+  current,
+}: {
+  change: ChangeKind;
+  current: boolean;
+}) {
   return (
-    <li className={clsx(styles.version, styles.refreshItem)}>
+    <li
+      className={clsx(styles.version, styles.refreshItem)}
+      aria-current={current || undefined}
+    >
       <span className={clsx(styles.versionLine, styles.dim)}>
-        {missingText[change] ?? 'Changed'} by actions not kept: the log keeps
-        the newest
+        {missingText[change] ?? 'Changed'} by actions not kept: {KEEPS_NEWEST}
       </span>
     </li>
   );

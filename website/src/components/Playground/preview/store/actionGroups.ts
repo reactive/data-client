@@ -525,7 +525,7 @@ interface Refreshes {
   readonly entries: LogEntry[];
 }
 /** Where actions the log didn't keep changed the record */
-interface Missing {
+export interface Missing {
   readonly kind: 'missing';
   readonly seq: number;
   /** What they did to it, all told */

@@ -1394,6 +1394,13 @@ div.versionHead {
   padding: 0 0.5rem;
   font-size: 11px;
 }
+/* the moment falls among the dropped actions: no version to open */
+.refreshItem[aria-current] .versionLine {
+  margin-right: 0.4rem;
+  border-radius: 5px;
+  background: var(--store-selected);
+  color: var(--store-fg);
+}
 .versionBody {
   display: flex;
   flex-direction: column;
