@@ -384,13 +384,20 @@ describe('Store Timeline strip', () => {
       .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
       .mockReturnValue(100);
     const { ctrl } = mount();
-    await act(() => ctrl().fetch(getPosts));
-    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
-    const timeline = screen.getByRole('group', { name: /^Timeline/ });
-    height.mockRestore();
+    let timeline: HTMLElement;
+    try {
+      await act(() => ctrl().fetch(getPosts));
+      fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
+      timeline = screen.getByRole('group', { name: /^Timeline/ });
+    } finally {
+      height.mockRestore();
+    }
     Object.defineProperty(timeline, 'clientHeight', { value: 100 });
     Object.defineProperty(timeline, 'clientWidth', { value: 300 });
-    Object.defineProperty(timeline, 'scrollWidth', { value: 900 });
+    Object.defineProperty(timeline, 'scrollWidth', {
+      value: 900,
+      configurable: true,
+    });
     await act(() => ctrl().fetch(getPosts));
     expect(timeline.scrollLeft).toBe(900);
     // scrolled back into the history: it stays there as actions come in
@@ -398,9 +405,20 @@ describe('Store Timeline strip', () => {
     fireEvent.scroll(timeline);
     await act(() => ctrl().fetch(getPosts));
     expect(timeline.scrollLeft).toBe(100);
-    // fitting and back doesn't pull it to the newest either
+    // fitting and back doesn't pull it to the newest either, though the
+    // fit has nothing to scroll and clamps it
     const fit = within(timeline).getByRole('button', { name: 'Fit timeline' });
     fireEvent.click(fit);
+    timeline.scrollLeft = 0;
+    Object.defineProperty(timeline, 'scrollWidth', {
+      value: 300,
+      configurable: true,
+    });
+    fireEvent.scroll(timeline);
+    Object.defineProperty(timeline, 'scrollWidth', {
+      value: 900,
+      configurable: true,
+    });
     fireEvent.click(fit);
     expect(timeline.scrollLeft).toBe(100);
     // scrolled back to the newest, it follows again

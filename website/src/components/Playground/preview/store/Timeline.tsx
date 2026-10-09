@@ -12,6 +12,7 @@ import { isRecordChange, nearestChange, type LogEntry } from './actionLog';
 import {
   droppedIn,
   droppedText,
+  FOLLOW_SLACK,
   KEEPS_NEWEST,
   KeyLabel,
   seconds,
@@ -153,6 +154,23 @@ export default memo(function Timeline({
       ?.querySelector('[data-selected]')
       ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
   }, [selected, fit]);
+  // scrolled back, fitting and back returns to where it was
+  const scrolledTo = useRef<number | null>(null);
+  const toggleFit = () => {
+    const el = scroller.current;
+    if (!fit && el) {
+      const back = el.scrollWidth - el.scrollLeft - el.clientWidth;
+      scrolledTo.current = back >= FOLLOW_SLACK ? el.scrollLeft : null;
+    }
+    setSpacing(fit ? 'detailed' : 'fit');
+  };
+  useLayoutEffect(() => {
+    if (fit || selected !== null || scrolledTo.current === null) return;
+    scroller.current!.scrollLeft = scrolledTo.current;
+    scrolledTo.current = null;
+    // only as it comes back from fit
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fit]);
 
   // the arrow keys step as the snapshot bar's ‹ › do; past the newest is live
   // (End too; live already, it brings the newest back into view). Escape is
@@ -297,7 +315,7 @@ export default memo(function Timeline({
               aria-label="Fit timeline"
               title="Fit the whole timeline"
               aria-pressed={fit}
-              onClick={() => setSpacing(fit ? 'detailed' : 'fit')}
+              onClick={toggleFit}
             >
               <FitIcon />
             </button>

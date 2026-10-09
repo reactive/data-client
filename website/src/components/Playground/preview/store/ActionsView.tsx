@@ -90,7 +90,7 @@ const CHIP_LIMIT = 6;
 /** Poll ticks a subscription row draws */
 const TICK_LIMIT = 12;
 /** Distance from the bottom (px) that still counts as following new rows */
-const FOLLOW_SLACK = 24;
+export const FOLLOW_SLACK = 24;
 
 /** Every action, folded into requests and subscriptions; follows new rows
  * while scrolled to the bottom. The moment's action is marked, its row open */
@@ -205,7 +205,9 @@ export function useFollow(
     // a hidden tab has no height; its scroll position says nothing
     let hidden = !el.clientHeight;
     const onScroll = () => {
-      if (hidden || paused) return;
+      // nothing to scroll (a scroller clamped as it narrows) says nothing
+      // either
+      if (hidden || paused || el[size] - el[client] < FOLLOW_SLACK) return;
       follow.current = el[size] - el[scroll] - el[client] < FOLLOW_SLACK;
     };
     el.addEventListener('scroll', onScroll, { passive: true });
