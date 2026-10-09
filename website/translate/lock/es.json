@@ -1,57 +1,18 @@
 {
   "docs": {
-    "docs/core/getting-started/agent-skills.md": {
-      "source": "a3e67cb45cda75362ea902dba34e3c72489e941e",
-      "model": "claude-sonnet-5-5"
-    },
-    "docs/core/getting-started/data-dependency.md": {
-      "source": "e8ecae2991a01836eb737f2170603e014c2a2ae5",
-      "model": "claude-sonnet-5-5"
-    },
-    "docs/core/getting-started/debugging.md": {
-      "source": "d2b5c1e8e5faec00320384a359facc15532129d3",
-      "model": "claude-sonnet-5-5"
-    },
-    "docs/core/getting-started/installation.md": {
-      "source": "fadd92df97f5259c6aa716916c9a67088dc97097",
-      "model": "claude-sonnet-5-5"
-    },
-    "docs/core/getting-started/mutations.md": {
-      "source": "2dbc68d4c23d8fdf068f423f05a30b954d11a17b",
-      "model": "claude-sonnet-5-5"
-    },
-    "docs/core/getting-started/resource.md": {
-      "source": "723031c08df6fa50bb8be87447ecbcae22ad2bdf",
-      "model": "claude-sonnet-5-5"
-    },
-    "docs/core/README.md": {
-      "source": "90b47a59859a820827abb0bb61198483a086d2ea",
-      "model": "claude-sonnet-5-5"
-    },
-    "docs/core/shared/_AsyncBoundary.mdx": {
-      "source": "de754ab3d667f397d3c9e7d2ea8537905a1b4566",
-      "model": "claude-sonnet-5-5"
-    },
-    "docs/core/shared/_conditional_dependencies.mdx": {
-      "source": "8116cb254ec19114c5ed537f2329d32c1ea5d9d6",
-      "model": "claude-sonnet-5-5"
-    },
-    "docs/core/shared/_installation.mdx": {
-      "source": "6cc866929de1fc425844814f77192eab716549c5",
-      "model": "claude-sonnet-5-5"
-    },
-    "docs/core/shared/_useLive.mdx": {
-      "source": "2c6ab6ef3d5676d409c687c58a1399fd34ba2510",
-      "model": "claude-sonnet-5-5"
-    },
-    "docs/core/shared/_useLoading.mdx": {
-      "source": "ca042c2e01cf429b8a4b9841adf0ccd733686900",
-      "model": "claude-sonnet-5-5"
-    },
-    "docs/core/shared/_VoteDemo.mdx": {
-      "source": "18e49a974467e8bcecd47fe2cc05f9ace5fb8960",
-      "model": "claude-sonnet-5-5"
-    }
+    "docs/core/getting-started/agent-skills.md": "a3e67cb45cda75362ea902dba34e3c72489e941e",
+    "docs/core/getting-started/data-dependency.md": "e8ecae2991a01836eb737f2170603e014c2a2ae5",
+    "docs/core/getting-started/debugging.md": "d2b5c1e8e5faec00320384a359facc15532129d3",
+    "docs/core/getting-started/installation.md": "fadd92df97f5259c6aa716916c9a67088dc97097",
+    "docs/core/getting-started/mutations.md": "2dbc68d4c23d8fdf068f423f05a30b954d11a17b",
+    "docs/core/getting-started/resource.md": "723031c08df6fa50bb8be87447ecbcae22ad2bdf",
+    "docs/core/README.md": "90b47a59859a820827abb0bb61198483a086d2ea",
+    "docs/core/shared/_AsyncBoundary.mdx": "de754ab3d667f397d3c9e7d2ea8537905a1b4566",
+    "docs/core/shared/_conditional_dependencies.mdx": "8116cb254ec19114c5ed537f2329d32c1ea5d9d6",
+    "docs/core/shared/_installation.mdx": "6cc866929de1fc425844814f77192eab716549c5",
+    "docs/core/shared/_useLive.mdx": "2c6ab6ef3d5676d409c687c58a1399fd34ba2510",
+    "docs/core/shared/_useLoading.mdx": "ca042c2e01cf429b8a4b9841adf0ccd733686900",
+    "docs/core/shared/_VoteDemo.mdx": "18e49a974467e8bcecd47fe2cc05f9ace5fb8960"
   },
   "ui": {
     "code.json": {

@@ -2,27 +2,18 @@
  * Markdown structure for translation: what a translator may change (prose)
  * and what must survive it unchanged (code, imports, JSX, directives, links).
  */
-import remarkComment from '@slorber/remark-comment';
-import crypto from 'node:crypto';
 import { createRequire } from 'node:module';
-import remarkDirective from 'remark-directive';
-import remarkFrontmatter from 'remark-frontmatter';
-import remarkGfm from 'remark-gfm';
-import remarkMdx from 'remark-mdx';
-import remarkParse from 'remark-parse';
-import { unified } from 'unified';
 import { visit } from 'unist-util-visit';
 
+import { parseMarkdown } from '../framework-docs/parseMarkdown.mjs';
+
 const require = createRequire(import.meta.url);
-const preprocessContent =
-  require('@docusaurus/mdx-loader/lib/preprocessor').default;
 const { createSlugger, parseMarkdownHeadingId } = require('@docusaurus/utils');
 const yaml = require('js-yaml');
 
 const { FM } = require('../framework-docs/index.js');
+const { proseLines } = require('./localeDocs.js');
 
-const FENCE = /^(\s*)(`{3,}|~{3,})(.*)$/;
-const PLACEHOLDER = /^\s*%%CODE_([0-9a-f]{8})%%\s*$/;
 const HEADING = /^(#{1,6})\s+(.*)$/;
 const DIRECTIVE_OPEN = /^\s*:{3,}([a-z][\w-]*)/;
 const DIRECTIVE_CLOSE = /^\s*:{3,}\s*$/;
@@ -36,89 +27,6 @@ const TRANSLATABLE_ATTRIBUTE = new Set([
   'title',
   'description',
 ]);
-
-/** Line ranges [start, end] of fenced code blocks */
-function fences(lines) {
-  const blocks = [];
-  let open;
-  lines.forEach((line, i) => {
-    const match = FENCE.exec(line);
-    if (!open) {
-      // ``` with a backtick in its info string is inline code, not a fence
-      if (match && !(match[2][0] === '`' && match[3].includes('`')))
-        open = { start: i, char: match[2][0], length: match[2].length };
-    } else if (
-      match &&
-      match[2][0] === open.char &&
-      match[2].length >= open.length &&
-      !match[3].trim()
-    ) {
-      blocks.push([open.start, i]);
-      open = undefined;
-    }
-  });
-  if (open) blocks.push([open.start, lines.length - 1]);
-  return blocks;
-}
-
-/** Lines outside fenced code, with their index */
-function proseLines(content) {
-  const lines = content.split('\n');
-  const inCode = new Set();
-  for (const [start, end] of fences(lines))
-    for (let i = start; i <= end; i++) inCode.add(i);
-  return lines
-    .map((line, i) => ({ line, i }))
-    .filter(({ i }) => !inCode.has(i));
-}
-
-const hash = text =>
-  crypto.createHash('sha256').update(text).digest('hex').slice(0, 8);
-
-/**
- * Replaces each fenced code block with a `%%CODE_<hash>%%` line, so the
- * translator never sees (or alters) code. Equal blocks share a placeholder, so
- * placeholders stay stable across source revisions.
- */
-export function protectCode(content) {
-  const lines = content.split('\n');
-  const blocks = new Map();
-  const out = [];
-  let next = 0;
-  for (const [start, end] of fences(lines)) {
-    out.push(...lines.slice(next, start));
-    const block = lines.slice(start, end + 1).join('\n');
-    const id = hash(block);
-    blocks.set(id, block);
-    out.push(`${FENCE.exec(lines[start])[1]}%%CODE_${id}%%`);
-    next = end + 1;
-  }
-  out.push(...lines.slice(next));
-  return { text: out.join('\n'), blocks };
-}
-
-/** Puts back the code `protectCode` took out, as in `source` (protected) */
-export function restoreCode(translated, source, blocks) {
-  const expected = placeholders(source);
-  const actual = placeholders(translated);
-  if (expected.join() !== actual.join())
-    throw new TranslationError([
-      `code placeholders differ: expected ${expected.length} in source order, got ${actual.length}${actual.length === expected.length ? ' (reordered)' : ''}`,
-    ]);
-  return translated
-    .split('\n')
-    .map(line => {
-      const match = PLACEHOLDER.exec(line);
-      return match ? blocks.get(match[1]) : line;
-    })
-    .join('\n');
-}
-
-const placeholders = text =>
-  text
-    .split('\n')
-    .map(line => PLACEHOLDER.exec(line)?.[1])
-    .filter(Boolean);
 
 /** Headings outside code: level, text (without `{#id}`), explicit id, framework */
 function headings(content) {
@@ -183,24 +91,10 @@ export function pinHeadingIds(translated, source) {
   return lines.join('\n');
 }
 
-const processor = unified()
-  .use(remarkParse)
-  .use(remarkFrontmatter)
-  .use(remarkMdx)
-  .use(remarkComment)
-  .use(remarkGfm)
-  .use(remarkDirective);
-
 /** Parses like the site does; throws on content MDX can't compile */
 function parse(content, filePath) {
-  const input = preprocessContent({
-    fileContent: content,
-    filePath,
-    markdownConfig: { mdx1Compat: { headingIds: true, admonitions: true } },
-    admonitions: true,
-  });
   try {
-    return processor.parse(input);
+    return parseMarkdown(content, filePath).tree;
   } catch (error) {
     throw new TranslationError([
       `invalid MDX at ${error.line}:${error.column}: ${error.message}`,
@@ -362,50 +256,6 @@ const clip = value =>
   value.length > 120 ?
     `${value.slice(0, 117).replace(/\n/g, '⏎')}...`
   : value.replace(/\n/g, '⏎');
-
-/** Line of an import/export naming its module (`} from` ends multi-line ones) */
-const IMPORT =
-  /^((?:import|export)\s(?:.*?\sfrom\s+)?|\}\s*from\s+)(['"])(\.\.?\/[^'"]+)\2/;
-
-/**
- * Relative specifiers of a file's `import ... from './x'` lines (outside code),
- * with the line index of each
- */
-export function relativeImports(content) {
-  return proseLines(content)
-    .map(({ line, i }) => {
-      const match = IMPORT.exec(line);
-      return match && { i, specifier: match[3] };
-    })
-    .filter(Boolean);
-}
-
-/**
- * Points a translation's relative imports where `resolve` says the i-th
- * import of its source lives now
- * @param {(specifier: string) => string} resolve source specifier -> new one
- */
-export function rewriteImports(translated, source, resolve) {
-  const want = relativeImports(source);
-  const have = relativeImports(translated);
-  if (want.length !== have.length)
-    throw new TranslationError([
-      `expected ${want.length} relative imports, got ${have.length}`,
-    ]);
-  const lines = translated.split('\n');
-  have.forEach(({ i, specifier }, n) => {
-    const next = resolve(want[n].specifier);
-    if (specifier !== next)
-      lines[i] = lines[i].replace(
-        IMPORT,
-        (_, start, quote) => `${start}${quote}${next}${quote}`,
-      );
-  });
-  return lines.join('\n');
-}
-
-/** Specifier as JS reads it (MDX formatters write `\_` in import paths) */
-export const unescape = specifier => specifier.replace(/\\(.)/g, '$1');
 
 export class TranslationError extends Error {
   constructor(problems) {

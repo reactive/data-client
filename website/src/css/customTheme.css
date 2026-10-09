@@ -80,21 +80,6 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
   font-weight: 400;
 }
 
-/* This next section hides inactive version dropdowns */
-.dropdown .navbar__link {
-  display: none;
-  padding: 0;
-}
-.dropdown.navbar__item {
-  padding: 0;
-}
-.dropdown .navbar__link.active,
-.dropdown .navbar__link.header-locale-link {
-  display: block;
-  padding: var(--ifm-navbar-item-padding-vertical)
-    var(--ifm-navbar-item-padding-horizontal);
-}
-
 .navbar .navbar__brand .navbar__title {
   display: none;
 

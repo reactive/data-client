@@ -28,22 +28,27 @@ const frameworkDocs = require('./framework-docs/index.js');
 const remarkFramework = require('./framework-docs/remarkFramework.js');
 // Non-Vue instances render React; :::vue reaches Vue agents via skill references
 const reactRemarkPlugins = [[remarkFramework, { framework: 'react' }]];
-const remarkLocaleLinks = require('./translate/remarkLocaleLinks.js');
-/** Links between translated and English pages of a docs instance */
-const localeLinks = (id: string, contentPath = docsInstance(id).path) => [
-  remarkLocaleLinks,
-  { id, contentPath: path.resolve(__dirname, '..', contentPath) },
-];
+const localeDocs = require('./translate/localeDocs.js');
 const vueDocs = frameworkDocs.generate('vue');
-// Each locale's Vue pages mirror its translations of docs/core
-const vueMirrors = [
+// Each locale renders English with its translations in place
+// (translate/README.md); its Vue pages mirror its docs/core
+const locales = Object.keys(LOCALES);
+const mirrors = [
   vueDocs,
-  ...Object.keys(LOCALES).map(locale => frameworkDocs.generate('vue', locale)),
-].filter(Boolean);
-/** Source of a Vue mirror page (itself if not mirrored), for its git history */
+  ...locales.flatMap(locale => {
+    const docs = localeDocs.generate(locale);
+    // a Vue page maps to its docs/core page, which maps to what's committed
+    return [frameworkDocs.generate('vue', locale), docs];
+  }),
+];
+/** Committed source of a generated page (itself if not generated), for its git history */
 const mirrorSourceOf = (file: string): string =>
-  vueMirrors.reduce((f, mirror) => mirror.sourceOf(f), file);
-if (isDev) frameworkDocs.watch('vue');
+  mirrors.reduce((f, mirror) => mirror.sourceOf(f), file);
+if (isDev) {
+  frameworkDocs.watch('vue');
+  for (const locale of locales)
+    localeDocs.watch(locale, () => frameworkDocs.generate('vue', locale));
+}
 const vueInstance = frameworkInstance('vue');
 // Shared by light and dark so SSR (`theme`) and the client (`darkTheme`)
 // agree; color mode isn't known at build time, so SSR always emits `theme`.
@@ -59,11 +64,13 @@ const gitVcs = getVcsPreset('default-v1');
 const editRoot = 'https://github.com/reactive/data-client/edit/master';
 /** Plugin options locating a docs instance (framework-docs/docsInstances.js) */
 const docsLocation = (id: string) => {
-  const { path: docsPath, routeBasePath } = docsInstance(id);
+  const { path: docsPath, routeBasePath, exclude = [] } = docsInstance(id);
   return {
     id,
     path: `../${docsPath}`,
     routeBasePath,
+    // replaces Docusaurus' defaults; keep them so `_` partials aren't published
+    exclude: [...GlobExcludeDefault, ...exclude],
     editUrl: ({ docPath }: { docPath: string }) =>
       `${editRoot}/${docsPath}/${docPath}`,
   };
@@ -80,13 +87,7 @@ const config: Config = {
   // Pages without a translation render in English (see translate/README.md)
   i18n: {
     defaultLocale: DEFAULT_LOCALE,
-    locales: [DEFAULT_LOCALE, ...Object.keys(LOCALES)],
-    localeConfigs: Object.fromEntries(
-      Object.entries(LOCALES).map(([locale, { label, htmlLang }]) => [
-        locale,
-        { label, htmlLang },
-      ]),
-    ),
+    locales: [DEFAULT_LOCALE, ...locales],
   },
   markdown: {
     mermaid: true,
@@ -282,17 +283,8 @@ const config: Config = {
       {
         docs: {
           ...docsLocation('default'),
-          // `exclude` replaces Docusaurus' defaults; keep them so `_` partials aren't published
-          exclude: [
-            ...GlobExcludeDefault,
-            'getting-started/README.md',
-            '**/*.vue.{md,mdx}',
-          ],
           sidebarPath: require.resolve('./framework-docs/sidebars-react.js'),
-          beforeDefaultRemarkPlugins: [
-            ...reactRemarkPlugins,
-            localeLinks('default'),
-          ],
+          beforeDefaultRemarkPlugins: reactRemarkPlugins,
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
           lastVersion: 'current',
@@ -340,7 +332,6 @@ const config: Config = {
       {
         ...docsLocation('vue'),
         path: vueDocs.outDir,
-        exclude: [...GlobExcludeDefault, 'getting-started/README.md'],
         sidebarPath: require.resolve('./framework-docs/sidebars-vue.js'),
         beforeDefaultRemarkPlugins: [
           [
@@ -351,7 +342,6 @@ const config: Config = {
               docs: frameworkDocs.docsFor('vue'),
             },
           ],
-          localeLinks('vue', vueDocs.outDir),
         ],
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
@@ -364,10 +354,7 @@ const config: Config = {
       {
         ...docsLocation('rest'),
         sidebarPath: require.resolve('./sidebars-rest.js'),
-        beforeDefaultRemarkPlugins: [
-          ...reactRemarkPlugins,
-          localeLinks('rest'),
-        ],
+        beforeDefaultRemarkPlugins: reactRemarkPlugins,
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
         lastVersion: 'current',
@@ -385,10 +372,7 @@ const config: Config = {
       {
         ...docsLocation('graphql'),
         sidebarPath: require.resolve('./sidebars-graphql.js'),
-        beforeDefaultRemarkPlugins: [
-          ...reactRemarkPlugins,
-          localeLinks('graphql'),
-        ],
+        beforeDefaultRemarkPlugins: reactRemarkPlugins,
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
         lastVersion: 'current',
@@ -601,7 +585,6 @@ const config: Config = {
         {
           type: 'localeDropdown',
           position: 'right',
-          className: 'header-locale-link',
         },
         {
           href: 'https://github.com/reactive/data-client',

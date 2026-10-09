@@ -1,15 +1,16 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
+import { createRequire } from 'node:module';
+
 import {
   TranslationError,
   headingIds,
   pinHeadingIds,
-  protectCode,
-  restoreCode,
-  rewriteImports,
   structureProblems,
 } from './mdx.mjs';
+
+const { relativeImports } = createRequire(import.meta.url)('./localeDocs.js');
 
 const FILE = '/docs/core/page.md';
 
@@ -74,27 +75,6 @@ const a = 1;
 const a = 1;
 \`\`\`
 `;
-
-describe('protectCode', () => {
-  it('round-trips, with one placeholder per distinct block', () => {
-    const { text, blocks } = protectCode(source);
-    assert.equal(blocks.size, 1);
-    assert.doesNotMatch(text, /const a/);
-    assert.equal(restoreCode(text, text, blocks), source);
-  });
-
-  it('keeps placeholders stable when other code changes', () => {
-    const before = protectCode(source).text.match(/%%CODE_\w+%%/)[0];
-    const after = protectCode(`\`\`\`js\nother\n\`\`\`\n\n${source}`).text;
-    assert.match(after, new RegExp(before));
-  });
-
-  it('rejects a translation that dropped a block', () => {
-    const { text, blocks } = protectCode(source);
-    const dropped = text.replace(/\n\s*%%CODE_\w+%%\s*$/, '');
-    assert.throws(() => restoreCode(dropped, text, blocks), TranslationError);
-  });
-});
 
 describe('structureProblems', () => {
   it('accepts translated prose, titles, labels and link text', () => {
@@ -179,31 +159,20 @@ describe('pinHeadingIds', () => {
   });
 });
 
-describe('rewriteImports', () => {
-  it('keeps imports the resolver keeps', () => {
-    assert.equal(
-      rewriteImports(translated, source, specifier => specifier),
-      translated,
-    );
-  });
+describe('relativeImports', () => {
+  it('finds relative imports outside code, multi-line ones included', () => {
+    const page = `${source}
+import {
+  a,
+} from './a.mdx';
 
-  it('points imports where the resolver says', () => {
-    const out = rewriteImports(
-      translated,
-      source,
-      () => '../../../docs/core/shared/_shared.mdx',
-    );
-    assert.match(
-      out,
-      /^import Shared from '..\/..\/..\/docs\/core\/shared\/_shared.mdx';$/m,
-    );
-  });
-
-  it('handles multi-line imports', () => {
-    const multi = "import {\n  a,\n} from './a.mdx';\n";
-    assert.equal(
-      rewriteImports(multi, multi, () => './b.mdx'),
-      "import {\n  a,\n} from './b.mdx';\n",
+\`\`\`js
+import b from './b.js';
+\`\`\`
+`;
+    assert.deepEqual(
+      relativeImports(page).map(({ specifier }) => specifier),
+      ['../shared/\\_shared.mdx', './a.mdx'],
     );
   });
 });

@@ -1,52 +1,42 @@
 # Docs translations
 
-English in `docs/` is the only source. Translations live where Docusaurus reads them, `website/i18n/<locale>/`, and are written by `translate.mjs`, never by hand-copying English. A page without a translation renders in English, so a locale can cover part of the docs.
+English in `docs/` is the only source. The repo decides what needs translating and checks what comes back; who translates (a person, a scheduled agent, any model) is up to them. Agents follow the `translate-docs` skill (`.agents/skills/translate-docs`).
 
-## Running it
+## Where things live
+
+| Path                              | What                                                                                    |
+| --------------------------------- | --------------------------------------------------------------------------------------- |
+| `locales.js`                      | Locales, their target language and which pages they translate                           |
+| `glossary/<locale>.md`            | Terms and register for translators                                                      |
+| `website/i18n/<locale>/docs/...`  | Translations, at the source's path: `docs/core/x.md` → `website/i18n/es/docs/core/x.md` |
+| `website/i18n/<locale>/**/*.json` | Docusaurus UI strings (navbar, footer, sidebar labels)                                  |
+| `lock/<locale>.json`              | The English each translation was checked against (written by `finalize`)                |
+
+A translation keeps its English page's imports and links. At config load, `localeDocs.js` generates the folders Docusaurus renders for a locale (gitignored): every English file, with its translation in its place where there is one. So a page without a translation renders in English, and links and imports between translated and English pages resolve as written. The Vue docs mirror the locale's `docs/core` like `/vue` mirrors `docs/core` (`framework-docs/index.js`).
+
+## Translating
 
 ```bash
-# what would be translated (no API calls)
-node website/translate/translate.mjs --dry-run
+# remove translations no longer wanted, scaffold new UI strings, list the work
+node website/translate/translate.mjs prepare        # --json for tools, --locale es for one
 
-# translate new and changed pages, then the UI strings (needs ANTHROPIC_API_KEY)
-node website/translate/translate.mjs
+# ...translate what it lists...
 
-# preview a locale
+# check changed translations, pin heading anchors, record them in the lock
+node website/translate/translate.mjs finalize       # or name the files to accept
+
+# preview
 cd website && yarn start --locale es
 ```
 
-| Option            | Does                                                                                                  |
-| ----------------- | ----------------------------------------------------------------------------------------------------- |
-| `--locale es`     | Only this locale (repeatable); all of `locales.js` by default                                         |
-| `--model <id>`    | Translation model (also `TRANSLATE_MODEL`); default `claude-sonnet-5-5`                               |
-| `--force`         | Retranslate pages that are up to date (e.g. after a glossary change)                                  |
-| `--skip-ui`       | Skip the navbar/footer/sidebar strings (they run `docusaurus write-translations`)                     |
-| `<paths>`         | Only these source pages, e.g. `docs/core/getting-started/installation.md`                             |
-| `--out-dir <dir>` | Write the given pages under `<dir>`, without touching translations or the lock (for comparing models) |
-
-`translate.yml` runs it on every push to master that changes the docs and opens a pull request with the result.
-
-## How it stays in sync
-
-- **Lock** (`lock/<locale>.json`): for each translated page, the git blob of the English it was translated from. A page whose English blob changed is stale; one with no entry is new. UI strings record the English message they were translated from.
-- **Updates, not rewrites**: a stale page is sent with its previous English, its new English and its current translation, and the model changes only what the English change requires, so reviewed wording and hand fixes survive. If git no longer has the previous English, the page is translated from scratch.
-- **Code never reaches the model**: fenced code blocks become `%%CODE_<hash>%%` lines and are put back byte for byte.
-- **Structure is checked** (`mdx.mjs`): the translation must parse as MDX and keep the English page's inline code, imports, JSX tags and attributes (except `label`/`title`/`alt`/`description`), expressions, directives, link targets, heading levels and front matter (except `title`/`sidebar_label`/`description`). On a mismatch the model gets the problems and one retry; a page that still fails keeps its old translation (or stays English) and the run exits non-zero.
-- **Anchors**: every heading gets the `{#id}` of its English heading, so `#links` from any page keep working.
-- **Imports**: a page brings along the `_partials` it imports from its own docs folder. Imports leaving the folder point at the translated file when there is one, else at the English file.
-- **Vue**: `/es/vue` mirrors the Spanish `docs/core` pages, like `/vue` mirrors `docs/core` (`framework-docs/index.js`).
+- **New and stale pages**: `prepare` lists a page when the lock has no entry for it or its English changed since. For a stale page it gives `git diff <old> <new>`, the English change, so the translation can be updated in place and its reviewed wording kept.
+- **Structure is checked** (`mdx.mjs`): a translation must parse as MDX and keep its English page's code, inline code, imports, JSX tags and attributes (except `label`/`title`/`alt`/`description`), expressions, directives, link targets, heading levels, block order and front matter (except `title`/`sidebar_label`/`description`). `finalize` reports what differs and does not record the page.
+- **Anchors**: `finalize` gives every heading the `{#id}` of its English heading, so `#links` keep working.
+- **Partials**: a locale's pages bring along the `_partials` they import from their own docs folder.
+- **UI strings**: Docusaurus' own theme strings come translated; `prepare` lists the site's strings still in English, and `finalize` records translated ones (placeholders like `{count}` must survive).
+- **CI**: `check` (in `site-preview.yml`) fails when a translation isn't finalized, is in the lock but missing, or no longer has the structure of the English it records. A translation behind English is fine; it is listed again by the next `prepare`.
 
 ## Adding a locale or pages
 
-- Pages: edit `pages` in `locales.js` (unset translates every page), then run the script.
-- Locale: add it to `locales.js` (Docusaurus picks it up from there), add a glossary in `glossary/<locale>.md`, then run the script.
-
-## Choosing a model
-
-Translating all the docs is about 250K tokens in and out, so every capable model costs a few dollars per full pass and cents per update; pick on quality. Any OpenAI-compatible API (Gemini, DeepSeek, Qwen) works with `TRANSLATE_BASE_URL` and `TRANSLATE_API_KEY`, so candidates can be compared on the same pages:
-
-```bash
-TRANSLATE_BASE_URL=https://api.deepseek.com TRANSLATE_API_KEY=... \
-  node website/translate/translate.mjs --locale es --model deepseek-chat \
-  --out-dir /tmp/deepseek docs/core/getting-started/installation.md
-```
+- Pages: edit `pages` in `locales.js` (unset translates every page), then translate.
+- Locale: add it to `locales.js` (Docusaurus picks it up from there) and add `glossary/<locale>.md`, then translate.

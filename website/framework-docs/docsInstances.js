@@ -11,6 +11,7 @@
  *   mirror is generated from)
  * - routeBasePath: site route of the instance
  * - llms: where the instance's llms.txt and llms-full.txt are served
+ * - exclude: unpublished pages (globs), besides Docusaurus' defaults
  */
 const DOCS_INSTANCES = [
   {
@@ -20,6 +21,7 @@ const DOCS_INSTANCES = [
     path: 'docs/core',
     routeBasePath: 'docs',
     llms: '/',
+    exclude: ['getting-started/README.md', '**/*.vue.{md,mdx}'],
   },
   {
     id: 'vue',
@@ -28,6 +30,7 @@ const DOCS_INSTANCES = [
     path: 'docs/core',
     routeBasePath: 'vue',
     llms: '/vue/',
+    exclude: ['getting-started/README.md'],
   },
   {
     id: 'rest',

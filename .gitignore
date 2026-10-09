@@ -78,7 +78,8 @@ typings/
 
 # generated Vue mirror of docs/core (website/framework-docs)
 docs/.core-*
-website/i18n/*/docusaurus-plugin-content-docs-vue/current/
+# generated locale docs (website/translate/localeDocs.js)
+website/i18n/*/docusaurus-plugin-content-docs*/current/
 
 # Claude Code
 .claude/worktrees/
