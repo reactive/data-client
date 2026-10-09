@@ -215,7 +215,7 @@ export default memo(function Timeline({
     e.preventDefault();
   };
   // along the track, as a fraction of it: the track is the scale's width,
-  // or what fits (see `.tlTrack`)
+  // or what fits (see `.tlBody`)
   const frac = (x: number) => x / scale.width;
   const pos = (x: number) => ({ '--tl-f': frac(x) }) as React.CSSProperties;
   const mark = (entry: LogEntry, extra?: string) => {
@@ -297,9 +297,16 @@ export default memo(function Timeline({
     return droppedIn(entries, dropped) > 0 ? undefined : false;
   };
 
+  // the lane labels stay put beside the scrolling tracks, the two kept at
+  // one height (each settles the other at its own limit)
+  const labelColumn = useRef<HTMLDivElement>(null);
+  const syncTop = (from: HTMLElement | null, to: HTMLElement | null) => {
+    if (from && to && to.scrollTop !== from.scrollTop)
+      to.scrollTop = from.scrollTop;
+  };
+
   return (
     <div
-      ref={scroller}
       className={styles.timeline}
       style={{ '--tl-label': `${labelWidth}px` } as React.CSSProperties}
       tabIndex={0}
@@ -307,68 +314,79 @@ export default memo(function Timeline({
       aria-label="Timeline: arrow keys step through changes, End returns to live"
       onKeyDown={onKeyDown}
     >
+      <div
+        ref={labelColumn}
+        className={styles.tlLabels}
+        hidden={!entries.length}
+        onScroll={() => syncTop(labelColumn.current, scroller.current)}
+      >
+        <span className={clsx(styles.tlLabel, styles.tlCorner)}>
+          <button
+            type="button"
+            className={styles.tlFit}
+            aria-label="Fit timeline"
+            title="Fit the whole timeline"
+            aria-pressed={fit}
+            onClick={toggleFit}
+          >
+            <FitIcon />
+          </button>
+        </span>
+        {lanes.map(lane => (
+          <span key={lane.key} className={styles.tlLabel}>
+            {lane.key ?
+              <KeyLabel value={lane.key} />
+            : <span className={styles.dim}>store</span>}
+            {/* an endpoint's lane is one record's; a schema's spans a table */}
+            {splitKey(lane.key).method && (
+              <HistoryButton
+                id={endpointId(lane.key)}
+                compact
+                changed={laneChanged(lane, endpointId(lane.key))}
+              />
+            )}
+          </span>
+        ))}
+      </div>
       {/* the scroller stays mounted, so following starts with the first
       action */}
-      {!entries.length && (
-        <p className={styles.empty}>
-          Nothing dispatched yet. Actions show on the timeline as the preview
-          runs.
-        </p>
-      )}
       <div
-        className={styles.tlBody}
-        hidden={!entries.length}
-        data-fit={fit || undefined}
-        style={{ '--tl-width': `${scale.width}px` } as React.CSSProperties}
+        ref={scroller}
+        className={styles.tlScroller}
+        onScroll={() => syncTop(scroller.current, labelColumn.current)}
       >
-        <div className={styles.tlAxis}>
-          <span className={styles.tlLabel}>
-            <button
-              type="button"
-              className={styles.tlFit}
-              aria-label="Fit timeline"
-              title="Fit the whole timeline"
-              aria-pressed={fit}
-              onClick={toggleFit}
-            >
-              <FitIcon />
-            </button>
-          </span>
-          <span className={styles.tlTrack}>
+        {!entries.length && (
+          <p className={styles.empty}>
+            Nothing dispatched yet. Actions show on the timeline as the preview
+            runs.
+          </p>
+        )}
+        <div
+          className={styles.tlBody}
+          hidden={!entries.length}
+          data-fit={fit || undefined}
+          style={{ '--tl-width': `${scale.width}px` } as React.CSSProperties}
+        >
+          <div className={styles.tlAxis}>
             {labels.map(({ seq, x, at }) => (
               <span key={seq} className={styles.tlTime} style={pos(x)}>
                 {seconds(at - since)}s
               </span>
             ))}
-          </span>
-        </div>
-        {lanes.map(lane => (
-          <div key={lane.key} className={styles.tlLane}>
-            <span className={styles.tlLabel}>
-              {lane.key ?
-                <KeyLabel value={lane.key} />
-              : <span className={styles.dim}>store</span>}
-              {/* an endpoint's lane is one record's; a schema's spans a table */}
-              {splitKey(lane.key).method && (
-                <HistoryButton
-                  id={endpointId(lane.key)}
-                  compact
-                  changed={laneChanged(lane, endpointId(lane.key))}
-                />
-              )}
-            </span>
-            <span className={styles.tlTrack}>
+          </div>
+          {lanes.map(lane => (
+            <div key={lane.key} className={styles.tlLane}>
               <LaneDropped lane={lane} />
               {lane.groups.flatMap(drawn)}
-            </span>
-          </div>
-        ))}
-        {scale.breaks.map(x => (
-          <span key={x} className={styles.tlBreak} style={pos(x)} />
-        ))}
-        {at !== undefined && (
-          <span className={styles.tlPlayhead} style={pos(at)} />
-        )}
+            </div>
+          ))}
+          {scale.breaks.map(x => (
+            <span key={x} className={styles.tlBreak} style={pos(x)} />
+          ))}
+          {at !== undefined && (
+            <span className={styles.tlPlayhead} style={pos(at)} />
+          )}
+        </div>
       </div>
     </div>
   );

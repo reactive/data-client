@@ -175,7 +175,8 @@ DesignSystem/       components injected into preview scope
   strip (`preview/store/Timeline.tsx`) above either tab that puts the same
   history on one time axis; an endpoint lane's label opens that record's
   History. By default the strip keeps the detailed spacing (`timeScale`) and
-  scrolls sideways with the lane labels pinned: while live it stays on the
+  scrolls sideways; only the tracks scroll, the lane labels kept beside
+  them in a column of their own: while live it stays on the
   newest, and picking an action or scrolling back lets go until "Live" or
   End. The "Fit timeline" toggle in the axis's corner (`aria-pressed`, kept
   per tab) squeezes the whole history to the strip's width instead (marks

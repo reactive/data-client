@@ -1155,20 +1155,17 @@ div.joined {
   translate: 0 0;
 }
 
-/* The Timeline strip: a lane per key on one time axis; labels stay pinned on
-   the left and times on top. By default it keeps the scale's spacing and
-   scrolls sideways; fit, the whole history spans the strip */
+/* The Timeline strip: a lane per key on one time axis. The lane labels stay
+   put on the left and times on top, so only the tracks scroll. By default
+   they keep the scale's spacing and scroll sideways; fit, the whole history
+   spans the strip */
 .timeline {
   /* --tl-label, the lane labels' column, comes from Timeline.tsx */
   /* the time axis and each lane */
   --tl-row: 18px;
   flex: none;
+  display: flex;
   max-height: 10rem;
-  overflow: auto;
-  /* a mark scrolled into view clears the sticky lane labels and axis */
-  scroll-padding-top: var(--tl-row);
-  scroll-padding-left: var(--tl-label);
-  overscroll-behavior: contain;
   box-shadow: inset 0 -1px 0 var(--store-line-strong);
   outline: none;
 }
@@ -1176,22 +1173,49 @@ div.joined {
   outline: 2px solid var(--ifm-color-primary);
   outline-offset: -2px;
 }
+/* scrolls only as the tracks do, so no scrollbar of its own */
+.tlLabels {
+  flex: none;
+  width: var(--tl-label);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  box-shadow: inset -1px 0 0 var(--store-line);
+}
+.tlLabels::-webkit-scrollbar {
+  display: none;
+}
+/* as far down as the tracks go over their sideways scrollbar */
+.tlLabels::after {
+  content: '';
+  display: block;
+  height: 24px;
+}
+.tlScroller {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  /* a mark scrolled into view clears the axis */
+  scroll-padding-top: var(--tl-row);
+}
 .tlBody {
   position: relative;
   /* the track: the scale's width, detailed */
   --tl-track: var(--tl-width);
-  width: calc(var(--tl-label) + var(--tl-width));
+  width: var(--tl-width);
   min-width: 100%;
   padding-bottom: 4px;
 }
-/* fit: the track is the scale's width, or what is left of the strip's */
+/* fit: the track is the scale's width, or the strip's */
 .tlBody[data-fit] {
-  --tl-track: min(var(--tl-width), 100% - var(--tl-label));
+  --tl-track: min(var(--tl-width), 100%);
   width: 100%;
 }
 .tlAxis,
 .tlLane {
-  display: flex;
+  position: relative;
+  width: var(--tl-track);
   height: var(--tl-row);
 }
 .tlAxis {
@@ -1204,18 +1228,12 @@ div.joined {
   line-height: var(--tl-row);
 }
 .tlLabel {
-  position: sticky;
-  left: 0;
-  z-index: 1;
-  flex: none;
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  width: var(--tl-label);
+  height: var(--tl-row);
   padding: 0 0.5rem;
   overflow: hidden;
-  background: var(--store-bg);
-  box-shadow: inset -1px 0 0 var(--store-line);
   font-size: 11px;
   line-height: var(--tl-row);
   white-space: nowrap;
@@ -1232,11 +1250,14 @@ div.joined {
 .tlLabel .historyButton:hover {
   opacity: 1;
 }
-.tlAxis .tlLabel {
-  z-index: 3;
+/* beside the axis, in view however far the labels scroll */
+.tlCorner {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   justify-content: flex-end;
+  background: var(--store-bg);
 }
-/* in the axis's corner, in view however far the strip scrolls */
 .tlFit {
   width: var(--tl-row);
   height: var(--tl-row);
@@ -1245,11 +1266,6 @@ div.joined {
 .tlFit svg {
   width: 12px;
   height: 12px;
-}
-.tlTrack {
-  position: relative;
-  flex: none;
-  width: var(--tl-track);
 }
 .tlDropped {
   position: absolute;
@@ -1261,7 +1277,7 @@ div.joined {
   font-size: 11px;
   line-height: var(--tl-row);
 }
-.tlLane .tlTrack::before {
+.tlLane::before {
   content: '';
   position: absolute;
   left: 0;
@@ -1272,8 +1288,8 @@ div.joined {
 }
 .tlTime {
   position: absolute;
-  /* the first stays clear of the sticky corner as the fit squeezes it */
-  left: max(1.25rem, var(--tl-f) * 100%);
+  /* the first stays whole at the strip's left edge */
+  left: max(1rem, var(--tl-f) * 100%);
   translate: -50% 0;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
@@ -1340,7 +1356,7 @@ button.tlMark:hover {
   position: absolute;
   top: var(--tl-row);
   bottom: 0;
-  left: calc(var(--tl-label) + var(--tl-f) * var(--tl-track));
+  left: calc(var(--tl-f) * var(--tl-track));
   pointer-events: none;
 }
 .tlBreak {

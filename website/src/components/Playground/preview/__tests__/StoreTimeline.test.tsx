@@ -60,6 +60,9 @@ const entry = (seq: number, at: number, action: any): LogEntry => ({
 /** The box the strip slides in */
 const revealBox = (timeline: HTMLElement) =>
   timeline.parentElement!.parentElement!;
+/** What scrolls in the strip: the tracks, beside the lane labels */
+const tracks = (timeline: HTMLElement) =>
+  timeline.lastElementChild as HTMLElement;
 /** The box the snapshot bar slides in, from something the bar shows */
 const barBox = (shown: HTMLElement) => revealBox(shown.parentElement!);
 /** The next frame, when a box just opened slides */
@@ -179,15 +182,15 @@ describe('Store Timeline strip', () => {
     expect(panel.getByText(/^Live\./)).toBeTruthy();
 
     // back to live, it scrolls to the newest again, from wherever a pick left it
-    Object.defineProperty(timeline, 'scrollWidth', { value: 900 });
+    Object.defineProperty(tracks(timeline), 'scrollWidth', { value: 900 });
     fireEvent.click(marks[0]);
-    timeline.scrollLeft = 0;
+    tracks(timeline).scrollLeft = 0;
     fireEvent.keyDown(timeline, { key: 'End' });
-    expect(timeline.scrollLeft).toBe(900);
+    expect(tracks(timeline).scrollLeft).toBe(900);
     // live already, End still brings the newest back
-    timeline.scrollLeft = 0;
+    tracks(timeline).scrollLeft = 0;
     fireEvent.keyDown(timeline, { key: 'End' });
-    expect(timeline.scrollLeft).toBe(900);
+    expect(tracks(timeline).scrollLeft).toBe(900);
     fireEvent.keyDown(timeline, { key: 'ArrowLeft' });
 
     // the strip stays above the Actions tab, without State's view switch
@@ -362,20 +365,20 @@ describe('Store Timeline strip', () => {
     await act(() => ctrl().fetch(getPosts));
     fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
     const timeline = screen.getByRole('group', { name: /^Timeline/ });
-    Object.defineProperty(timeline, 'clientHeight', { value: 100 });
-    Object.defineProperty(timeline, 'scrollWidth', { value: 900 });
+    Object.defineProperty(tracks(timeline), 'clientHeight', { value: 100 });
+    Object.defineProperty(tracks(timeline), 'scrollWidth', { value: 900 });
     const [mark] = within(timeline).getAllByRole('button', {
       name: /^setResponse at/,
     });
     fireEvent.click(mark);
-    timeline.scrollLeft = 0;
+    tracks(timeline).scrollLeft = 0;
     await act(() => ctrl().fetch(getPosts));
-    expect(timeline.scrollLeft).toBe(0);
+    expect(tracks(timeline).scrollLeft).toBe(0);
     // back to live, it follows again
     fireEvent.keyDown(timeline, { key: 'End' });
-    timeline.scrollLeft = 0;
+    tracks(timeline).scrollLeft = 0;
     await act(() => ctrl().fetch(getPosts));
-    expect(timeline.scrollLeft).toBe(900);
+    expect(tracks(timeline).scrollLeft).toBe(900);
   });
 
   it('stays on the newest until scrolled back, as live', async () => {
@@ -392,51 +395,65 @@ describe('Store Timeline strip', () => {
     } finally {
       height.mockRestore();
     }
-    Object.defineProperty(timeline, 'clientHeight', { value: 100 });
-    Object.defineProperty(timeline, 'clientWidth', { value: 300 });
-    Object.defineProperty(timeline, 'scrollWidth', {
+    Object.defineProperty(tracks(timeline), 'clientHeight', { value: 100 });
+    Object.defineProperty(tracks(timeline), 'clientWidth', { value: 300 });
+    Object.defineProperty(tracks(timeline), 'scrollWidth', {
       value: 900,
       configurable: true,
     });
     await act(() => ctrl().fetch(getPosts));
-    expect(timeline.scrollLeft).toBe(900);
+    expect(tracks(timeline).scrollLeft).toBe(900);
     // scrolled back into the history: it stays there as actions come in
-    timeline.scrollLeft = 100;
-    fireEvent.scroll(timeline);
+    tracks(timeline).scrollLeft = 100;
+    fireEvent.scroll(tracks(timeline));
     await act(() => ctrl().fetch(getPosts));
-    expect(timeline.scrollLeft).toBe(100);
+    expect(tracks(timeline).scrollLeft).toBe(100);
     // fitting and back doesn't pull it to the newest either, though the
     // fit has nothing to scroll and clamps it
     const fit = within(timeline).getByRole('button', { name: 'Fit timeline' });
     fireEvent.click(fit);
-    timeline.scrollLeft = 0;
-    Object.defineProperty(timeline, 'scrollWidth', {
+    tracks(timeline).scrollLeft = 0;
+    Object.defineProperty(tracks(timeline), 'scrollWidth', {
       value: 300,
       configurable: true,
     });
-    fireEvent.scroll(timeline);
-    Object.defineProperty(timeline, 'scrollWidth', {
+    fireEvent.scroll(tracks(timeline));
+    Object.defineProperty(tracks(timeline), 'scrollWidth', {
       value: 900,
       configurable: true,
     });
     fireEvent.click(fit);
-    expect(timeline.scrollLeft).toBe(100);
+    expect(tracks(timeline).scrollLeft).toBe(100);
     // the scroll back there lets go again
-    fireEvent.scroll(timeline);
+    fireEvent.scroll(tracks(timeline));
     await act(() => ctrl().fetch(getPosts));
-    expect(timeline.scrollLeft).toBe(100);
+    expect(tracks(timeline).scrollLeft).toBe(100);
     // going to the newest while fit drops the spot to come back to
     fireEvent.click(fit);
     fireEvent.keyDown(timeline, { key: 'End' });
     fireEvent.click(fit);
-    expect(timeline.scrollLeft).toBe(900);
-    timeline.scrollLeft = 100;
-    fireEvent.scroll(timeline);
+    expect(tracks(timeline).scrollLeft).toBe(900);
+    tracks(timeline).scrollLeft = 100;
+    fireEvent.scroll(tracks(timeline));
     // scrolled back to the newest, it follows again
-    timeline.scrollLeft = 600;
-    fireEvent.scroll(timeline);
+    tracks(timeline).scrollLeft = 600;
+    fireEvent.scroll(tracks(timeline));
     await act(() => ctrl().fetch(getPosts));
-    expect(timeline.scrollLeft).toBe(900);
+    expect(tracks(timeline).scrollLeft).toBe(900);
+  });
+
+  it('keeps the lane labels beside their tracks as either scrolls', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
+    const timeline = screen.getByRole('group', { name: /^Timeline/ });
+    const labels = timeline.firstElementChild as HTMLElement;
+    tracks(timeline).scrollTop = 20;
+    fireEvent.scroll(tracks(timeline));
+    expect(labels.scrollTop).toBe(20);
+    labels.scrollTop = 5;
+    fireEvent.scroll(labels);
+    expect(tracks(timeline).scrollTop).toBe(5);
   });
 
   it('scrolls in the detailed spacing, fitting the whole history on demand', async () => {
