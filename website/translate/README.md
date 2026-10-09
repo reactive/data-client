@@ -12,7 +12,7 @@ English in `docs/` is the only source. The repo decides what needs translating a
 | `website/i18n/<locale>/**/*.json` | Docusaurus UI strings (navbar, footer, sidebar labels)                                  |
 | `lock/<locale>.json`              | The English each translation was checked against (written by `finalize`)                |
 
-A translation keeps its English page's imports and links. At config load, `localeDocs.js` generates the folders Docusaurus renders for a locale (gitignored): every English file, with its translation in its place where there is one. So a page without a translation renders in English, and links and imports between translated and English pages resolve as written. The Vue docs mirror the locale's `docs/core` like `/vue` mirrors `docs/core` (`framework-docs/index.js`).
+A translation keeps its English page's imports and links. At config load, `localeDocs.js` generates the folders Docusaurus renders for a locale (gitignored): every English file, with its translation in its place where there is one. So a page without a translation renders in English (marked `lang="en"` and `noindex`, so search engines keep the English URL), and links and imports between translated and English pages resolve as written. The Vue docs mirror the locale's `docs/core` like `/vue` mirrors `docs/core` (`framework-docs/index.js`).
 
 ## Translating
 

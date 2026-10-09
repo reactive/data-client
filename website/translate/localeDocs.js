@@ -14,7 +14,7 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
-const { LOCALES } = require('./locales.js');
+const { DEFAULT_LOCALE, LOCALES } = require('./locales.js');
 const {
   DOCS_INSTANCES,
   localizedPath,
@@ -139,15 +139,25 @@ const blobId = content =>
     .update(content)
     .digest('hex');
 
-/** Puts the locale's outdated notice under a page's front matter */
-function markOutdated(content, locale) {
+/** Puts `block` right under a page's front matter */
+function underFrontMatter(content, block) {
   const [frontMatter = ''] = FM.exec(content) ?? [];
-  return `${frontMatter}\n:::note\n\n${LOCALES[locale].outdated}\n\n:::\n\n${content.slice(frontMatter.length)}`;
+  return `${frontMatter}\n${block}\n\n${content.slice(frontMatter.length)}`;
 }
 
 /**
+ * Marks a page rendered in English: search engines index the English URL
+ * instead, and screen readers read it as English
+ */
+const ENGLISH_PAGE = `<head>
+  <html lang="${DEFAULT_LOCALE}" />
+  <meta name="robots" content="noindex" />
+</head>`;
+
+/**
  * Generates a locale's docs folders. A translated page whose English changed
- * since it was finalized says so until the next translation pass. Returns `sourceOf`, mapping a generated
+ * since it was finalized says so until the next translation pass; an
+ * untranslated page is marked as English. Returns `sourceOf`, mapping a generated
  * file to the committed file it came from (for git history).
  */
 function generate(locale) {
@@ -167,12 +177,17 @@ function generate(locale) {
       let content = fs.readFileSync(path.join(ROOT, from));
       if (MD.test(name)) {
         let text = retarget(content.toString(), file, locale);
-        if (
-          from === translation &&
-          !name.split('/').pop().startsWith('_') &&
-          lock[file] !== blobId(fs.readFileSync(path.join(ROOT, file)))
-        )
-          text = markOutdated(text, locale);
+        // partials (`_x.mdx`) are parts of pages, not pages
+        if (!name.split('/').pop().startsWith('_')) {
+          if (from === file) text = underFrontMatter(text, ENGLISH_PAGE);
+          else if (
+            lock[file] !== blobId(fs.readFileSync(path.join(ROOT, file)))
+          )
+            text = underFrontMatter(
+              text,
+              `:::note\n\n${LOCALES[locale].outdated}\n\n:::`,
+            );
+        }
         content = Buffer.from(text);
       }
       const out = path.join(outDir, name);
