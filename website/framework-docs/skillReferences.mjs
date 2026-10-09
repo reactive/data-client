@@ -15,14 +15,13 @@
  *
  * Usage: node website/framework-docs/skillReferences.mjs
  */
-import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
 import { frameworkInstance } from './docsInstances.js';
 import { docToMarkdown, routeOf } from './docsToMarkdown.mjs';
 import { FM, walk } from './index.js';
-import { ROOT, SITE, rel } from './site.mjs';
+import { ROOT, SITE, git, rel } from './site.mjs';
 
 const SKILLS = path.join(ROOT, '.agents/skills');
 const MANIFEST = 'references.json';
@@ -142,9 +141,6 @@ function buildSkill(skillDir, { frameworks, docs, skills = [] }) {
     bundleSkill(path.join(SKILLS, skill), skillDir, out);
   return out;
 }
-
-const git = (...args) =>
-  execFileSync('git', args, { cwd: ROOT, encoding: 'utf8' });
 
 /** Symlinks git tracks under the skills, even where checked out as plain files */
 const gitLinks = new Set(

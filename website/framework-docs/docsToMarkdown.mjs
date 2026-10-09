@@ -6,27 +6,21 @@
  *
  * Used for agent skill references (skillReferences.mjs).
  */
-import remarkComment from '@slorber/remark-comment';
 import { phrasing } from 'mdast-util-phrasing';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import remarkDirective from 'remark-directive';
-import remarkFrontmatter from 'remark-frontmatter';
 import remarkGfm from 'remark-gfm';
-import remarkMdx from 'remark-mdx';
-import remarkParse from 'remark-parse';
 import remarkStringify from 'remark-stringify';
 import { unified } from 'unified';
 import { visit } from 'unist-util-visit';
 
+import { parseMarkdown } from './parseMarkdown.mjs';
 import providerSetup from './providerSetup.mjs';
 import { ROOT, SITE, rel } from './site.mjs';
 
 const require = createRequire(import.meta.url);
-const preprocessContent =
-  require('@docusaurus/mdx-loader/lib/preprocessor').default;
-
 const {
   DOCS_INSTANCES,
   FRAMEWORKS,
@@ -53,13 +47,6 @@ const instanceOf = (relPath, framework) =>
 const frameworkDocs = Object.fromEntries(FRAMEWORKS.map(f => [f, docsFor(f)]));
 const MD = /\.mdx?$/;
 
-const processor = unified()
-  .use(remarkParse)
-  .use(remarkFrontmatter)
-  .use(remarkMdx)
-  .use(remarkComment)
-  .use(remarkGfm)
-  .use(remarkDirective);
 const stringifier = unified()
   .use(remarkStringify, {
     bullet: '-',
@@ -96,14 +83,8 @@ const contentFor = memoize((file, framework) =>
 
 /** Parsed once per source; callers get a copy to transform */
 const parse = memoize(file => {
-  const input = preprocessContent({
-    fileContent: read(file),
-    filePath: file,
-    markdownConfig: { mdx1Compat: { headingIds: true, admonitions: true } },
-    admonitions: true,
-  });
   try {
-    return { input, tree: processor.parse(input) };
+    return parseMarkdown(read(file), file);
   } catch (error) {
     throw new Error(
       `${rel(file)}:${error.line}:${error.column}: ${error.message}`,

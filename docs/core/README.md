@@ -304,7 +304,7 @@ export const TodoResource = { get, update };
 
 </ProtocolTabs>
 
-### Tell :react[react]:vue[Vue] to update
+### Tell :react[react]:vue[Vue] to update {#tell-react-to-update}
 
 Just like :react[`setState()`]:vue[assigning to a `ref()`], we must make :react[React]:vue[Vue] aware of the any mutations so it can rerender.
 

@@ -12,9 +12,14 @@ const path = require('path');
 // Docusaurus' own route rules (slug, category index), so links match its routes
 const getSlug = require('@docusaurus/plugin-content-docs/lib/slug.js').default;
 
-const { FRAMEWORKS, frameworkInstance } = require('./docsInstances.js');
+const {
+  FRAMEWORKS,
+  frameworkInstance,
+  localizedPath,
+} = require('./docsInstances.js');
 
-const SRC = path.resolve(__dirname, '../..', frameworkInstance('react').path);
+const ROOT = path.resolve(__dirname, '../..');
+const SRC = path.resolve(ROOT, frameworkInstance('react').path);
 const MD = /\.mdx?$/;
 /** `foo.vue.md` replaces `foo.md` for Vue */
 const VUE_OVERRIDE = /\.vue(\.mdx?)$/;
@@ -29,7 +34,8 @@ function walk(dir, base = dir) {
   });
 }
 
-const readSrc = file => fs.readFileSync(path.join(SRC, file), 'utf8');
+const readSrc = (file, src = SRC) =>
+  fs.readFileSync(path.join(src, file), 'utf8');
 const frontMatter = content => content.match(FM)?.[1] ?? '';
 /** One front matter value, unquoted */
 const frontMatterValue = (content, key) =>
@@ -70,16 +76,19 @@ function rewriteFrontMatter(content, framework) {
   return content.replace(FM, `---\n${next.join('\n')}\n---\n`);
 }
 
-/** Map of output path -> source path (relative to docs/core) for a framework */
-function resolveSources(framework) {
+/**
+ * Map of output path -> source path (relative to `src`, docs/core or a
+ * locale's translation of it) for a framework
+ */
+function resolveSources(framework, src = SRC) {
   const sources = new Map();
-  for (const file of walk(SRC)) {
+  for (const file of walk(src)) {
     if (VUE_OVERRIDE.test(file)) {
       if (framework === 'vue')
         sources.set(file.replace(VUE_OVERRIDE, '$1'), file);
     } else if (
       !sources.has(file) &&
-      (!MD.test(file) || pageFrameworks(readSrc(file)).includes(framework))
+      (!MD.test(file) || pageFrameworks(readSrc(file, src)).includes(framework))
     ) {
       sources.set(file, file);
     }
@@ -147,15 +156,26 @@ function frameworkEquivalents() {
   return equivalents;
 }
 
-/** Write the mirror for a framework; only touches files whose output changed */
-function generate(framework) {
-  // Sibling of docs/core so relative imports that leave the folder
-  // (e.g. ../../rest/diagrams/...) still resolve from the mirror
-  const outDir = path.resolve(__dirname, `../../docs/.core-${framework}`);
-  const sources = resolveSources(framework);
+/**
+ * Write the mirror for a framework; only touches files whose output changed.
+ * With a `locale`, mirrors that locale's translations of docs/core instead.
+ */
+function generate(framework, locale) {
+  // Sibling of docs/core (or of its translations) so relative imports that
+  // leave the folder (e.g. ../../rest/diagrams/...) still resolve from the
+  // mirror
+  const srcDir =
+    locale ?
+      path.resolve(ROOT, localizedPath(frameworkInstance('react').id, locale))
+    : SRC;
+  const outDir =
+    locale ?
+      path.resolve(ROOT, localizedPath(frameworkInstance(framework).id, locale))
+    : path.resolve(ROOT, `docs/.core-${framework}`);
+  const sources = resolveSources(framework, srcDir);
   for (const [out, src] of sources) {
     const target = path.join(outDir, out);
-    let content = fs.readFileSync(path.join(SRC, src));
+    let content = fs.readFileSync(path.join(srcDir, src));
     if (MD.test(out))
       content = Buffer.from(rewriteFrontMatter(content.toString(), framework));
     if (fs.existsSync(target) && fs.readFileSync(target).equals(content))
@@ -173,7 +193,7 @@ function generate(framework) {
     const src = sources.get(
       path.relative(outDir, file).split(path.sep).join('/'),
     );
-    return src ? path.join(SRC, src) : file;
+    return src ? path.join(srcDir, src) : file;
   };
   return { outDir, sources, sourceOf };
 }
@@ -231,6 +251,8 @@ function sourcePath(framework, docPath) {
 
 module.exports = {
   FM,
+  MD,
+  ROOT,
   generate,
   watch,
   sidebarsFor,
