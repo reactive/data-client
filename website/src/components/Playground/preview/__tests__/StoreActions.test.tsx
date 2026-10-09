@@ -382,6 +382,8 @@ describe('Store Actions tab', () => {
     fireEvent.click(within(timeline).getByRole('button', { name: 'History' }));
     expect(current()).toBe('History');
     expect(top().querySelectorAll('[data-version]')).toHaveLength(0);
+    // no count over notes alone
+    expect(top().textContent).not.toMatch(/\d+ changes?/);
     expect(top().textContent).toContain('Changed by actions not kept');
     expect(top().textContent).toContain('stored again, unchanged');
     // and from the record itself
@@ -390,6 +392,20 @@ describe('Store Actions tab', () => {
       top().querySelector<HTMLElement>(`tr[data-id="${endpointId(POSTS)}"]`)!,
     );
     expect(within(top()).getByRole('button', { name: 'History' })).toBeTruthy();
+    // and from its meta in the tree view, with no kept change to name
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    fireEvent.click(screen.getByLabelText('Tree view'));
+    fireEvent.click(
+      [...document.querySelectorAll<HTMLElement>('[data-id]')].find(
+        el => el.dataset.id === endpointId(POSTS),
+      )!,
+    );
+    expect(
+      within(top()).getByText('changed by').parentElement!.textContent,
+    ).toContain('actions not kept');
+    fireEvent.click(within(top()).getByRole('button', { name: 'History' }));
+    expect(current()).toBe('History');
+    expect(top().textContent).toContain('Changed by actions not kept');
   });
 
   it('opens the version current at the moment, and moves it to the one picked', async () => {
@@ -739,6 +755,9 @@ describe('Store Actions tab', () => {
     fireEvent.click(
       within(top()).getByRole('button', { name: 'View State after this' }),
     );
+    expect(
+      screen.getByRole('tab', { name: 'State' }).getAttribute('aria-selected'),
+    ).toBe('true');
     expect(current()).toBe('Post 1');
     fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
     expect(top().querySelector('nav')).toBeNull();

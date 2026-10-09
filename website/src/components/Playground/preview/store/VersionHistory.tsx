@@ -100,31 +100,33 @@ function LastChange({
   /** Whether to offer the history too */
   history: boolean;
 }) {
-  const changes = useTimeline(actions, id).versions;
+  const { versions, changed } = useTimeline(actions, id);
   // as of the store this level shows
   const { until } = actions;
-  const last = changes.findLast(
+  const last = versions.findLast(
     v => until === undefined || v.entry.seq <= until,
   );
-  if (!last) return null;
-  const { seq } = last.entry;
+  // with no kept change to name, the history still says the log dropped some
+  if (!last && !(changed && history)) return null;
   return (
     <div className={styles.field}>
       <span className={styles.key}>
         changed by<span className={styles.dim}>:</span>
       </span>
       <span className={styles.changedBy}>
-        <button
-          type="button"
-          className={clsx(styles.ref, styles.countRef)}
-          onClick={e => {
-            e.stopPropagation();
-            push({ kind: 'action', seq });
-          }}
-        >
-          <ActionCrumb seq={seq} />
-        </button>
-        {history && <HistoryButton id={id} />}
+        {last ?
+          <button
+            type="button"
+            className={clsx(styles.ref, styles.countRef)}
+            onClick={e => {
+              e.stopPropagation();
+              push({ kind: 'action', seq: last.entry.seq });
+            }}
+          >
+            <ActionCrumb seq={last.entry.seq} />
+          </button>
+        : <span className={styles.dim}>actions not kept</span>}
+        {history && <HistoryButton id={id} changed={changed} />}
       </span>
     </div>
   );
@@ -242,13 +244,16 @@ export function RowHistory({
       ?.focus();
   };
 
+  // no count over a History of notes alone ("0 changes" would belie them)
   const count = versions.length;
   return (
     <>
       {header(
-        <span className={styles.dim}>
-          {count} change{count === 1 ? '' : 's'}
-        </span>,
+        count > 0 && (
+          <span className={styles.dim}>
+            {count} change{count === 1 ? '' : 's'}
+          </span>
+        ),
       )}
       {!changed ?
         <div className={styles.record}>

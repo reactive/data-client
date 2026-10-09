@@ -55,10 +55,12 @@ import TreeView from './TreeView';
 import { RowKey } from './Value';
 import { RowHistory } from './VersionHistory';
 import { useTabStorage } from '../../../../utils/tabStorage';
-import { prefersReducedMotion } from '../../../motion';
+import { prefersReducedMotion, springEasing, springs } from '../../../motion';
 
 /** Breadcrumbs shown before the middle ones collapse to `…` */
 const CRUMBS = 4;
+/** By when the Timeline strip's slide shut (`--motion-smooth`) is over */
+const TIMELINE_CLOSE_MS = springEasing(springs.smooth).duration + 100;
 
 export default function StorePanel({
   registry,
@@ -85,6 +87,13 @@ export default function StorePanel({
     // no transition to end under reduced motion
     if (!timeline && prefersReducedMotion()) setTimelineShown(false);
   }, [timeline]);
+  useEffect(() => {
+    // the slide's end can go unseen (the panel hidden mid-slide, the toggle
+    // flipped twice in a frame): once it must be over, let go regardless
+    if (timeline || !timelineShown) return;
+    const id = setTimeout(() => setTimelineShown(false), TIMELINE_CLOSE_MS);
+    return () => clearTimeout(id);
+  }, [timeline, timelineShown]);
   // the Actions tab mounts on first visit, then stays (scroll, open rows)
   const [actionsShown, setActionsShown] = useState(false);
   if (tab === 'actions' && !actionsShown) setActionsShown(true);
@@ -178,10 +187,12 @@ export default function StorePanel({
   );
   const stateLevels = useLevelStack(STATE_ROOT, showAction);
   const actionLevels = useLevelStack(ACTIONS_ROOT, showAction);
-  // the latest stacks, for what a covered level keeps (its content is
-  // memoized) and for the effects below
+  // the latest stacks, for the handlers and effects below (set as each
+  // render commits, ahead of the effects that read it)
   const stacks = useRef({ state: stateLevels, actions: actionLevels });
-  stacks.current = { state: stateLevels, actions: actionLevels };
+  useLayoutEffect(() => {
+    stacks.current = { state: stateLevels, actions: actionLevels };
+  });
   // a view to open from where there is no stack (the tree view, the
   // Timeline): on State's, in the table view
   const { push } = stateLevels;
@@ -330,10 +341,16 @@ export default function StorePanel({
                         setTimelineShown(false);
                     }}
                   >
-                    <Timeline width={width} />
+                    {/* the bar the strip alone shows slides with it */}
+                    <div className={styles.tlRevealBody}>
+                      <Timeline width={width} />
+                      {!snapshot && (
+                        <SnapshotBar onOpen={openAction} stepsToLive />
+                      )}
+                    </div>
                   </div>
                 )}
-                {(snapshot || timeline) && (
+                {snapshot && (
                   <SnapshotBar
                     entry={snapshot}
                     onOpen={openAction}

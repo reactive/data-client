@@ -10,6 +10,7 @@ import {
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
+import { springEasing, springs } from '../../../motion';
 import { groupEntries } from '../store/actionGroups';
 import type { LogEntry } from '../store/actionLog';
 import SchemaRegistry from '../store/schemaRegistry';
@@ -57,6 +58,11 @@ const entry = (seq: number, at: number, action: any): LogEntry => ({
   at,
   action,
 });
+/** The box the strip slides in */
+const revealBox = (timeline: HTMLElement) =>
+  timeline.parentElement!.parentElement!;
+/** By when the strip's slide shut is over (see StorePanel) */
+const TIMELINE_CLOSE_MS = springEasing(springs.smooth).duration + 100;
 
 describe('timeScale', () => {
   it('spreads bursts apart and shortens idle stretches', () => {
@@ -122,8 +128,7 @@ describe('Store Timeline strip', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
     const timeline = screen.getByRole('group', { name: /^Timeline/ });
-    // the panel, over the strip's sliding box
-    const panel = within(timeline.parentElement!.parentElement!);
+    const panel = screen;
     // one lane for the endpoint, both requests on it
     expect(timeline.textContent).toContain('/posts');
     expect(panel.getByText(/^Live\./)).toBeTruthy();
@@ -184,13 +189,62 @@ describe('Store Timeline strip', () => {
     mount();
     fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
     const timeline = screen.getByRole('group', { name: /^Timeline/ });
+    // the bar it shows slides in the same box
+    const box = revealBox(timeline);
+    const live = screen.getByText(/^Live\./);
+    expect(box.contains(live)).toBe(true);
     fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
     // still there for the slide, but neither focusable nor announced
     expect(timeline.isConnected).toBe(true);
+    expect(live.isConnected).toBe(true);
     expect(screen.queryByRole('group', { name: /^Timeline/ })).toBeNull();
-    expect(timeline.parentElement!.hasAttribute('inert')).toBe(true);
-    fireEvent.transitionEnd(timeline.parentElement!);
+    expect(box.hasAttribute('inert')).toBe(true);
+    fireEvent.transitionEnd(box);
     expect(timeline.isConnected).toBe(false);
+    expect(live.isConnected).toBe(false);
+  });
+
+  it('lets go of the strip once its slide must be over, should its end go unseen', () => {
+    jest.useFakeTimers();
+    try {
+      mount();
+      const toggle = () =>
+        fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
+      toggle();
+      const timeline = screen.getByRole('group', { name: /^Timeline/ });
+      // flipped shut and open again before the slide ends: it stays
+      toggle();
+      toggle();
+      act(() => jest.runOnlyPendingTimers());
+      expect(screen.getByRole('group', { name: /^Timeline/ })).toBe(timeline);
+      // shut, with no transitionend (hidden mid-slide): let go anyway
+      toggle();
+      expect(timeline.isConnected).toBe(true);
+      act(() => jest.advanceTimersByTime(TIMELINE_CLOSE_MS - 1));
+      expect(timeline.isConnected).toBe(true);
+      act(() => jest.advanceTimersByTime(1));
+      expect(timeline.isConnected).toBe(false);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('keeps the snapshot bar out of the strip’s box, so it stays as the strip shuts', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
+    const timeline = screen.getByRole('group', { name: /^Timeline/ });
+    const box = revealBox(timeline);
+    fireEvent.click(
+      within(timeline).getByRole('button', { name: /^setResponse at/ }),
+    );
+    const live = screen.getByRole('button', { name: 'Live' });
+    expect(box.contains(live)).toBe(false);
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
+    expect(screen.getByRole('button', { name: 'Live' })).toBe(live);
+    fireEvent.transitionEnd(box);
+    expect(timeline.isConnected).toBe(false);
+    expect(screen.getByRole('button', { name: 'Live' })).toBe(live);
   });
 
   it('says when earlier actions of a lane are no longer kept, as the list does', async () => {
@@ -205,6 +259,37 @@ describe('Store Timeline strip', () => {
         name: '4 earlier sets not kept: the log keeps the newest',
       }),
     ).toBeTruthy();
+  });
+
+  it('offers no History on a lane whose dropped actions changed nothing', async () => {
+    const { ctrl } = mount();
+    // a read that never resolves; a reset cancels each one in flight
+    const stuck = new Endpoint(() => new Promise<Post[]>(() => {}), {
+      schema: [Post],
+      key: () => POSTS,
+      name: 'stuck',
+      pollFrequency: 1e6,
+    });
+    await act(async () => {
+      await ctrl().set(Post, { id: '2' }, { id: '2', title: 'Two' });
+      ctrl().subscribe(stuck);
+      // past updateLimit: the oldest cancelled polls drop off
+      for (let i = 0; i < 25; i++) {
+        ctrl().resetEntireStore();
+        ctrl()
+          .fetch(stuck)
+          .catch(() => {});
+      }
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
+    const timeline = screen.getByRole('group', { name: /^Timeline/ });
+    expect(
+      within(timeline).getByRole('img', { name: /earlier polls not kept/ }),
+    ).toBeTruthy();
+    // none of them, nor what the log kept, stored the endpoint
+    expect(
+      within(timeline).queryByRole('button', { name: 'History' }),
+    ).toBeNull();
   });
 
   it('stays on a picked action as new ones come in', async () => {

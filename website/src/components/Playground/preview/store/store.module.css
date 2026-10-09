@@ -1135,7 +1135,10 @@ div.joined {
      minimizer can't parse @starting-style) */
   animation: tlRevealOpen var(--motion-smooth);
 }
-.tlReveal > .timeline {
+/* the strip, and the bar shown under it while nothing else does */
+.tlRevealBody {
+  display: flex;
+  flex-direction: column;
   min-height: 0;
   opacity: 0;
   translate: 0 -6px;
@@ -1143,7 +1146,7 @@ div.joined {
     opacity var(--motion-smooth),
     translate var(--motion-smooth);
 }
-.tlReveal[data-open] > .timeline {
+.tlReveal[data-open] > .tlRevealBody {
   opacity: 1;
   translate: 0 0;
   animation: tlRevealRise var(--motion-smooth);

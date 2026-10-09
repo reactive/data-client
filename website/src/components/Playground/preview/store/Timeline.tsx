@@ -218,19 +218,20 @@ export default memo(function Timeline({
       ...group.requests.flatMap(request),
     ];
   };
-  // whether a lane's own actions changed its record, or earlier ones the
-  // log dropped did (what its History lists), without working the History
-  // out for every lane
-  const laneChanged = (lane: Lane, id: string) =>
-    lane.groups.some(group => {
-      const entries = groupEntriesOf(group);
-      return (
-        droppedIn(entries, dropped) > 0 ||
-        entries.some(e =>
-          log.changes(e).some(c => c.id === id && isRecordChange(c)),
-        )
-      );
-    });
+  // whether a lane's own actions changed its record (what its History
+  // lists), without working the History out for every lane. Unknown when
+  // none did but the log dropped some of the lane's: those may have, which
+  // only the History can say
+  const laneChanged = (lane: Lane, id: string): boolean | undefined => {
+    const entries = lane.groups.flatMap(groupEntriesOf);
+    if (
+      entries.some(e =>
+        log.changes(e).some(c => c.id === id && isRecordChange(c)),
+      )
+    )
+      return true;
+    return droppedIn(entries, dropped) > 0 ? undefined : false;
+  };
 
   return (
     <div
