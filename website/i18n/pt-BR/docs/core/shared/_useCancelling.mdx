@@ -1,0 +1,61 @@
+import HooksPlayground from '@site/src/components/HooksPlayground';
+
+<HooksPlayground row>
+
+```tsx title="resources/Todo" collapsed
+import { Entity, resource } from '@data-client/rest';
+
+export class Todo extends Entity {
+  id = 0;
+  userId = 0;
+  title = '';
+  completed = false;
+
+  static key = 'Todo';
+}
+export const TodoResource = resource({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
+  schema: Todo,
+});
+```
+
+```tsx title="TodoDetail" {5}
+import { useSuspense, useCancelling } from '@data-client/react';
+import { TodoResource } from './resources/Todo';
+
+export default function TodoDetail({ id }: { id: number }) {
+  const todo = useSuspense(useCancelling(TodoResource.get, { id }), {
+    id,
+  });
+  return <div>{todo.title}</div>;
+}
+```
+
+```tsx title="Demo" collapsed
+import React from 'react';
+import { AsyncBoundary } from '@data-client/react';
+import TodoDetail from './TodoDetail';
+
+function AbortDemo() {
+  const [id, setId] = React.useState(1);
+  return (
+    <div>
+      <AsyncBoundary fallback="...">
+        <TodoDetail id={id} />
+      </AsyncBoundary>
+      <div>
+        <button onClick={() => setId(id => Math.max(id - 1, 1))}>«</button>
+        {id} &nbsp;
+        <button onClick={() => setId(id => id + 1)}>»</button>
+      </div>
+    </div>
+  );
+}
+render(<AbortDemo />);
+```
+
+</HooksPlayground>
+
+Tente clicar em `»` bem rápido. Se você incrementar antes que a requisição seja resolvida, ela será cancelada e você
+não deverá ver resultados no store.

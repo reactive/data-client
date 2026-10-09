@@ -73,6 +73,10 @@ jobs:
         run: yarn ci:build:website
       - name: Typecheck website
         run: yarn workspace rdc-website typecheck
+      - name: Check translations
+        run: |
+          node --test 'website/translate/*.test.mjs'
+          node website/translate/translate.mjs check
       # Docusaurus' webpack cache (~73 MiB compressed). Only master saves it, so
       # PRs share one fresh entry instead of each storing their own; stale
       # modules just miss.
@@ -199,6 +203,7 @@ jobs:
         id: deploy
         env:
           HEAD_REF: ${{ github.head_ref }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           # Checked here, not in `website`, so a re-run of this job can't roll
           # production back to an older master commit
@@ -221,6 +226,17 @@ jobs:
           # Ties the preview to its branch instead of the PR merge ref
           [ -n "$HEAD_REF" ] && meta=(--meta githubDeployment=1 --meta "githubCommitRef=$HEAD_REF")
           url="$(vercel deploy --prebuilt --archive=tgz --target="$TARGET" "${meta[@]}")"
+          echo "deployment=$url" >> "$GITHUB_OUTPUT"
+          # A preview's own URL changes on every push, so point the PR's
+          # alias at it: one link that always shows the PR's newest build
+          if [ -n "$PR_NUMBER" ]; then
+            alias="docs-site-pr-$PR_NUMBER-data-client.vercel.app"
+            if vercel alias set "$url" "$alias"; then
+              url="https://$alias"
+            else
+              echo "::warning title=Docs preview alias::Couldn't point $alias at this deploy; linking the deploy itself"
+            fi
+          fi
           echo "url=$url" >> "$GITHUB_OUTPUT"
           { echo "### Docs $TARGET deployment"; echo; echo "$url"; } >> "$GITHUB_STEP_SUMMARY"
       - if: github.event_name == 'pull_request'
@@ -230,4 +246,4 @@ jobs:
           message: |
             **Docs preview:** ${{ steps.deploy.outputs.url }}
 
-            Built from ${{ github.event.pull_request.head.sha }} merged into `master`.
+            Built from ${{ github.event.pull_request.head.sha }} merged into `master` ([this build](${{ steps.deploy.outputs.deployment }})).

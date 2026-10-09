@@ -11,6 +11,7 @@
  *   mirror is generated from)
  * - routeBasePath: site route of the instance
  * - llms: where the instance's llms.txt and llms-full.txt are served
+ * - exclude: unpublished pages (globs), besides Docusaurus' defaults
  */
 const DOCS_INSTANCES = [
   {
@@ -20,6 +21,7 @@ const DOCS_INSTANCES = [
     path: 'docs/core',
     routeBasePath: 'docs',
     llms: '/',
+    exclude: ['getting-started/README.md', '**/*.vue.{md,mdx}'],
   },
   {
     id: 'vue',
@@ -28,6 +30,7 @@ const DOCS_INSTANCES = [
     path: 'docs/core',
     routeBasePath: 'vue',
     llms: '/vue/',
+    exclude: ['getting-started/README.md'],
   },
   {
     id: 'rest',
@@ -59,6 +62,12 @@ const trimRoute = route => route.replace(/(.)\/$/, '$1');
 const mdRoute = permalink => `${trimRoute(permalink)}.md`;
 /** Where llms-plugin.js serves a docs instance's llms.txt */
 const llmsTxtRoute = id => `${docsInstance(id).llms}llms.txt`;
+/**
+ * Folder (relative to the repo root) of an instance's translations, where
+ * Docusaurus looks for them; pages missing there render in English
+ */
+const localizedPath = (id, locale) =>
+  `website/i18n/${locale}/docusaurus-plugin-content-docs${id === 'default' ? '' : `-${id}`}/current`;
 
 module.exports = {
   DOCS_INSTANCES,
@@ -69,4 +78,5 @@ module.exports = {
   trimRoute,
   mdRoute,
   llmsTxtRoute,
+  localizedPath,
 };

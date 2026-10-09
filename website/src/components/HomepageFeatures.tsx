@@ -1,4 +1,5 @@
 import Link from '@docusaurus/Link';
+import Translate, { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React from 'react';
 
@@ -17,51 +18,172 @@ interface FeatureItem {
 const featureList: FeatureItem[] = [
   {
     description: (
-      <>
-        Strong <b>inferred</b> types; single source of truth that is
-        referentially stable ensures consistency; <b>asynchronous invariants</b>{' '}
-        make it easy to avoid race conditions
-      </>
+      <Translate
+        id="homepage.features.integrity.description"
+        values={{
+          inferred: (
+            <b>
+              <Translate id="homepage.features.integrity.inferred">
+                inferred
+              </Translate>
+            </b>
+          ),
+          invariants: (
+            <b>
+              <Translate id="homepage.features.integrity.invariants">
+                asynchronous invariants
+              </Translate>
+            </b>
+          ),
+        }}
+      >
+        {
+          'Strong {inferred} types; single source of truth that is referentially stable ensures consistency; {invariants} make it easy to avoid race conditions'
+        }
+      </Translate>
     ),
     Svg: TypeScriptSvg,
-    title: 'Data Integrity',
+    title: translate({
+      id: 'homepage.features.integrity.title',
+      message: 'Data Integrity',
+    }),
   },
   {
     description: (
-      <>
-        Navigation <Link to="/docs/concepts/performance">24x faster</Link> than
-        React baseline, 10x faster than TanStack Query and SWR.{' '}
-        <Link to="/docs/concepts/performance">Mutations 92x</Link> faster than
-        TanStack Query, SWR and React baseline.
-      </>
+      <Translate
+        id="homepage.features.performance.description"
+        values={{
+          navigation: (
+            <Link to="/docs/concepts/performance">
+              <Translate id="homepage.features.performance.navigation">
+                24x faster
+              </Translate>
+            </Link>
+          ),
+          mutations: (
+            <Link to="/docs/concepts/performance">
+              <Translate id="homepage.features.performance.mutations">
+                Mutations 92x
+              </Translate>
+            </Link>
+          ),
+        }}
+      >
+        {
+          'Navigation {navigation} than React baseline, 10x faster than TanStack Query and SWR. {mutations} faster than TanStack Query, SWR and React baseline.'
+        }
+      </Translate>
     ),
     Svg: FastCarSvg,
-    title: 'Performance',
+    title: translate({
+      id: 'homepage.features.performance.title',
+      message: 'Performance',
+    }),
   },
   {
     description: (
-      <>
-        <b>Declare</b> what you need <b>where</b> you need it. <b>Share</b> data
-        definitions <b>across platforms</b>, components,{' '}
-        <Link to="/docs#endpoint">protocols</Link>, and behaviors.
-      </>
+      <Translate
+        id="homepage.features.composition.description"
+        values={{
+          declare: (
+            <b>
+              <Translate id="homepage.features.composition.declare">
+                Declare
+              </Translate>
+            </b>
+          ),
+          where: (
+            <b>
+              <Translate id="homepage.features.composition.where">
+                where
+              </Translate>
+            </b>
+          ),
+          share: (
+            <b>
+              <Translate id="homepage.features.composition.share">
+                Share
+              </Translate>
+            </b>
+          ),
+          platforms: (
+            <b>
+              <Translate id="homepage.features.composition.platforms">
+                across platforms
+              </Translate>
+            </b>
+          ),
+          protocols: (
+            <Link to="/docs#endpoint">
+              <Translate id="homepage.features.composition.protocols">
+                protocols
+              </Translate>
+            </Link>
+          ),
+        }}
+      >
+        {
+          '{declare} what you need {where} you need it. {share} data definitions {platforms}, components, {protocols}, and behaviors.'
+        }
+      </Translate>
     ),
     Svg: ChemicalCompositionSvg,
-    title: 'Composition over configuration',
+    title: translate({
+      id: 'homepage.features.composition.title',
+      message: 'Composition over configuration',
+    }),
   },
   {
     description: (
-      <>
-        Get started fast with <b>one line</b>{' '}
-        <Link to="/docs#endpoint">data definition</Link> and one line{' '}
-        <Link to="/docs#co-locate-data-dependencies">data binding</Link>. Then{' '}
-        <b>add</b> TypeScript, normalized cache with{' '}
-        <Link to="/docs#entities">Schemas</Link>,{' '}
-        <Link to="/docs#optimistic-updates">optimistic updates</Link> and more.
-      </>
+      <Translate
+        id="homepage.features.adoption.description"
+        values={{
+          oneLine: (
+            <b>
+              <Translate id="homepage.features.adoption.oneLine">
+                one line
+              </Translate>
+            </b>
+          ),
+          definition: (
+            <Link to="/docs#endpoint">
+              <Translate id="homepage.features.adoption.definition">
+                data definition
+              </Translate>
+            </Link>
+          ),
+          binding: (
+            <Link to="/docs#co-locate-data-dependencies">
+              <Translate id="homepage.features.adoption.binding">
+                data binding
+              </Translate>
+            </Link>
+          ),
+          add: (
+            <b>
+              <Translate id="homepage.features.adoption.add">add</Translate>
+            </b>
+          ),
+          schemas: <Link to="/docs#entities">Schemas</Link>,
+          optimistic: (
+            <Link to="/docs#optimistic-updates">
+              <Translate id="homepage.features.adoption.optimistic">
+                optimistic updates
+              </Translate>
+            </Link>
+          ),
+        }}
+      >
+        {
+          'Get started fast with {oneLine} {definition} and one line {binding}. Then {add} TypeScript, normalized cache with {schemas}, {optimistic} and more.'
+        }
+      </Translate>
     ),
     Svg: GrowingBarChartSvg,
-    title: 'Incremental Adoption',
+    title: translate({
+      id: 'homepage.features.adoption.title',
+      message: 'Incremental Adoption',
+    }),
   },
 ];
 

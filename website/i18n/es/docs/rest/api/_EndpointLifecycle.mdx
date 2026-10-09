@@ -1,0 +1,133 @@
+import Link from '@docusaurus/Link';
+import VoteDemo from '../../core/shared/\_VoteDemo.mdx';
+
+
+### dataExpiryLength?: number {#dataexpirylength}
+
+Tiempo de vida personalizado en la caché de los datos del recurso obtenido. Reemplazará el valor establecido en NetworkManager.
+
+[Más información sobre el tiempo de caducidad](/docs/concepts/expiry-policy#expiry-time)
+
+### errorExpiryLength?: number {#errorexpirylength}
+
+Tiempo de vida personalizado de los errores del recurso obtenido. Reemplazará el valor establecido en NetworkManager.
+
+### errorPolicy?: (error: any) => 'soft' | undefined {#errorpolicy}
+
+'soft' usará los datos obsoletos (si existen) en caso de error; undefined o no proporcionar la opción provocará
+un error.
+
+[Más información sobre errorPolicy](/docs/concepts/error-policy)
+
+```ts
+errorPolicy(error) {
+  return error.status >= 500 ? 'soft' : undefined;
+}
+```
+
+### invalidIfStale: boolean {#invalidifstale}
+
+Indica que los datos obsoletos deben considerarse inutilizables y, por tanto, no devolverse desde la caché. Esto significa
+que useSuspense() se suspenderá cuando los datos estén obsoletos aunque ya existan en la caché.
+
+### pollFrequency: number {#pollfrequency}
+
+Frecuencia en milisegundos con la que se realiza el sondeo. Requiere usar [useSubscription()](/docs/api/useSubscription) o
+[useLive()](/docs/api/useLive) para tener efecto.
+
+### getOptimisticResponse: (snap, ...args) => expectedResponse {#getoptimisticresponse}
+
+Cuando se proporciona, cualquier fetch con este endpoint se comportará como si el valor de retorno `expectedResponse`
+de esta función fuera una respuesta de red exitosa. Cuando el fetch real se completa (ya sea
+con fallo o con éxito), la actualización optimista se reemplaza por la respuesta de red real.
+
+<VoteDemo />
+
+<center>
+<Link className="button button--secondary button--sm" to="../guides/optimistic-updates">Guía de actualizaciones optimistas</Link>
+</center>
+
+### update() {#update}
+
+```ts
+(normalizedResponseOfThis, ...args) =>
+  ({ [endpointKey]: (normalizedResponseOfEndpointToUpdate) => updatedNormalizedResponse) })
+```
+
+:::tip
+
+Prueba a usar [Collections](./Collection.md) en su lugar.
+
+¡Son mucho más fáciles de usar y más robustas!
+
+:::
+
+```ts title="UpdateType.ts"
+type UpdateFunction<
+  Source extends EndpointInterface,
+  Updaters extends Record<string, any> = Record<string, any>,
+> = (
+  source: ResultEntry<Source>,
+  ...args: Parameters<Source>
+) => { [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K] };
+```
+
+El caso más sencillo:
+
+```ts title="userEndpoint.ts"
+const createUser = new RestEndpoint({
+  path: '/user',
+  method: 'POST',
+  schema: User,
+  update: (newUserId: string) => ({
+    [userList.key()]: (users = []) => [newUserId, ...users],
+  }),
+});
+```
+
+Más actualizaciones:
+
+:::react
+
+```typescript title="Component.tsx"
+const allusers = useSuspense(userList);
+const adminUsers = useSuspense(userList, { admin: true });
+```
+
+:::
+
+:::vue
+
+```html title="Component.vue"
+<script setup lang="ts">
+  import { useFetch, useSuspense } from '@data-client/vue';
+  import { userList } from './resources';
+
+  // start both fetches in parallel
+  useFetch(userList);
+  useFetch(userList, { admin: true });
+  const allusers = await useSuspense(userList);
+  const adminUsers = await useSuspense(userList, { admin: true });
+</script>
+```
+
+:::
+
+El endpoint siguiente garantiza que el nuevo usuario aparezca de inmediato en los usos anteriores.
+
+```ts title="userEndpoint.ts"
+const createUser = new RestEndpoint({
+  path: '/user',
+  method: 'POST',
+  schema: User,
+  update: (newUserId, newUser)  => {
+    const updates = {
+      [userList.key()]: (users = []) => [newUserId, ...users],
+    ];
+    if (newUser.isAdmin) {
+      updates[userList.key({ admin: true })] = (users = []) => [newUserId, ...users];
+    }
+    return updates;
+  },
+});
+```

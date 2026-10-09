@@ -31,6 +31,22 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
 }
 
 
+/* Language menu shows only its icon in the navbar (the mobile menu keeps its label) */
+.navbar__item > .header-locale-dropdown {
+  display: flex;
+  align-items: center;
+  font-size: 0;
+}
+.navbar__item > .header-locale-dropdown svg {
+  margin-right: 0;
+}
+.navbar__item > .header-locale-dropdown:after {
+  display: none;
+}
+.navbar__item > .header-locale-dropdown:hover {
+  opacity: 0.6;
+}
+
 .header-discord-link:hover {
   opacity: 0.6;
 }
@@ -78,20 +94,6 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
   font-family: var(--ifm-font-family-base);
   letter-spacing: -0.02em;
   font-weight: 400;
-}
-
-/* This next section hides inactive version dropdowns */
-.dropdown .navbar__link {
-  display: none;
-  padding: 0;
-}
-.dropdown.navbar__item {
-  padding: 0;
-}
-.dropdown .navbar__link.active {
-  display: block;
-  padding: var(--ifm-navbar-item-padding-vertical)
-    var(--ifm-navbar-item-padding-horizontal);
 }
 
 .navbar .navbar__brand .navbar__title {

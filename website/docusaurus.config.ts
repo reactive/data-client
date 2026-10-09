@@ -8,6 +8,7 @@ import { themes } from 'prism-react-renderer';
 
 import gqlRedirects from './gqlRedirects';
 import { motionCss } from './src/components/motion/css';
+import { DEFAULT_LOCALE, LOCALES } from './translate/locales';
 import versions from './versions.json';
 
 // Keep Monaco CDN preload hashes in sync with the installed monaco-editor package.
@@ -27,8 +28,30 @@ const frameworkDocs = require('./framework-docs/index.js');
 const remarkFramework = require('./framework-docs/remarkFramework.js');
 // Non-Vue instances render React; :::vue reaches Vue agents via skill references
 const reactRemarkPlugins = [[remarkFramework, { framework: 'react' }]];
+const localeDocs = require('./translate/localeDocs.js');
+const remarkEnglishPage = require('./translate/remarkEnglishPage.js');
+// set by Docusaurus for the locale being built or served
+const currentLocale = process.env.DOCUSAURUS_CURRENT_LOCALE ?? DEFAULT_LOCALE;
 const vueDocs = frameworkDocs.generate('vue');
-if (isDev) frameworkDocs.watch('vue');
+// Each locale renders English with its translations in place
+// (translate/README.md); its Vue pages mirror its docs/core
+const locales = Object.keys(LOCALES);
+const mirrors = [
+  vueDocs,
+  ...locales.flatMap(locale => {
+    const docs = localeDocs.generate(locale);
+    // a Vue page maps to its docs/core page, which maps to what's committed
+    return [frameworkDocs.generate('vue', locale), docs];
+  }),
+];
+/** Committed source of a generated page (itself if not generated), for its git history */
+const mirrorSourceOf = (file: string): string =>
+  mirrors.reduce((f, mirror) => mirror.sourceOf(f), file);
+if (isDev) {
+  frameworkDocs.watch('vue');
+  for (const locale of locales)
+    localeDocs.watch(locale, () => frameworkDocs.generate('vue', locale));
+}
 const vueInstance = frameworkInstance('vue');
 // Shared by light and dark so SSR (`theme`) and the client (`darkTheme`)
 // agree; color mode isn't known at build time, so SSR always emits `theme`.
@@ -44,11 +67,13 @@ const gitVcs = getVcsPreset('default-v1');
 const editRoot = 'https://github.com/reactive/data-client/edit/master';
 /** Plugin options locating a docs instance (framework-docs/docsInstances.js) */
 const docsLocation = (id: string) => {
-  const { path: docsPath, routeBasePath } = docsInstance(id);
+  const { path: docsPath, routeBasePath, exclude = [] } = docsInstance(id);
   return {
     id,
     path: `../${docsPath}`,
     routeBasePath,
+    // replaces Docusaurus' defaults; keep them so `_` partials aren't published
+    exclude: [...GlobExcludeDefault, ...exclude],
     editUrl: ({ docPath }: { docPath: string }) =>
       `${editRoot}/${docsPath}/${docPath}`,
   };
@@ -62,6 +87,11 @@ const config: Config = {
   organizationName: 'data-client',
   projectName: 'data-client',
   trailingSlash: false,
+  // Pages without a translation render in English (see translate/README.md)
+  i18n: {
+    defaultLocale: DEFAULT_LOCALE,
+    locales: [DEFAULT_LOCALE, ...locales],
+  },
   markdown: {
     mermaid: true,
     hooks: {
@@ -245,9 +275,9 @@ const config: Config = {
     experimental_vcs: {
       ...gitVcs,
       getFileCreationInfo: file =>
-        gitVcs.getFileCreationInfo(vueDocs.sourceOf(file)),
+        gitVcs.getFileCreationInfo(mirrorSourceOf(file)),
       getFileLastUpdateInfo: file =>
-        gitVcs.getFileLastUpdateInfo(vueDocs.sourceOf(file)),
+        gitVcs.getFileLastUpdateInfo(mirrorSourceOf(file)),
     },
   },
   presets: [
@@ -256,12 +286,6 @@ const config: Config = {
       {
         docs: {
           ...docsLocation('default'),
-          // `exclude` replaces Docusaurus' defaults; keep them so `_` partials aren't published
-          exclude: [
-            ...GlobExcludeDefault,
-            'getting-started/README.md',
-            '**/*.vue.{md,mdx}',
-          ],
           sidebarPath: require.resolve('./framework-docs/sidebars-react.js'),
           beforeDefaultRemarkPlugins: reactRemarkPlugins,
           showLastUpdateAuthor: true,
@@ -277,6 +301,9 @@ const config: Config = {
             : ['current', ...versions],
         },
         blog: {
+          // Posts are English in every locale
+          beforeDefaultRemarkPlugins:
+            currentLocale === DEFAULT_LOCALE ? [] : [remarkEnglishPage],
           showReadingTime: true,
           blogSidebarTitle: 'All posts',
           blogSidebarCount: 'ALL',
@@ -311,7 +338,6 @@ const config: Config = {
       {
         ...docsLocation('vue'),
         path: vueDocs.outDir,
-        exclude: [...GlobExcludeDefault, 'getting-started/README.md'],
         sidebarPath: require.resolve('./framework-docs/sidebars-vue.js'),
         beforeDefaultRemarkPlugins: [
           [
@@ -490,7 +516,9 @@ const config: Config = {
     ],
     announcementBar: {
       id: 'announcementBar-2', // Increment on change
-      content: `If you like Reactive Data Client, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/reactive/data-client">GitHub</a>`,
+      content:
+        LOCALES[currentLocale]?.announcement ??
+        `If you like Reactive Data Client, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/reactive/data-client">GitHub</a>`,
     },
     navbar: {
       title: 'Reactive Data Client',
@@ -561,6 +589,13 @@ const config: Config = {
           // TODO: move this to right once we get a better image that is more obvious (cube with play triangle inside)
           //className: 'header-demos-link',
           'aria-label': 'Demo Applications',
+        },
+        {
+          type: 'localeDropdown',
+          position: 'right',
+          // icon only; the menu names the languages (customTheme.css)
+          className: 'header-locale-dropdown',
+          'aria-label': 'Language',
         },
         {
           href: 'https://github.com/reactive/data-client',

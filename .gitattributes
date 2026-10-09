@@ -13,3 +13,7 @@
 
 # `yarn copy:websitetypes`
 website/src/components/Playground/editor-types/** linguist-generated
+
+# Docs translations (`website/translate`: translated by an agent, checked by translate.mjs) and Docusaurus UI strings
+website/i18n/** linguist-generated
+website/translate/lock/** linguist-generated

@@ -1,4 +1,5 @@
 import Link from '@docusaurus/Link';
+import Translate from '@docusaurus/Translate';
 
 import { isBot } from './Playground/userAgent';
 import styles from './StackBlitz.module.css';
@@ -54,20 +55,24 @@ export default function StackBlitz({
     <>
       <div className={styles.card}>
         <p className={styles.cardTitle}>
-          {app ? `Explore the ${app} example` : 'Explore the example'}
+          {app ?
+            <Translate id="stackblitz.exploreApp" values={{ app }}>
+              {'Explore the {app} example'}
+            </Translate>
+          : <Translate id="stackblitz.explore">Explore the example</Translate>}
         </p>
         <div className={styles.cardLinks}>
           <Link
             className="button button--primary"
             to={`${projectUrl}?${new URLSearchParams({ file })}`}
           >
-            Open in StackBlitz
+            <Translate id="stackblitz.open">Open in StackBlitz</Translate>
           </Link>
           <Link
             className="button button--secondary"
             to={`https://github.com/reactive/${projectPath}`}
           >
-            View source
+            <Translate id="stackblitz.source">View source</Translate>
           </Link>
         </div>
       </div>

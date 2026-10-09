@@ -1,0 +1,11 @@
+```ts title="GCPolicy options"
+new GCPolicy({
+  // how often to sweep (default 5 minutes)
+  intervalMS: 60 * 1000 * 5,
+  // how many stale lifetimes before data is removed (default 2)
+  expiryMultiplier: 2,
+  // or choose when unused data is removed (replaces expiryMultiplier)
+  // here: one minute after it goes stale
+  expiresAt: ({ expiresAt }) => expiresAt + 60 * 1000,
+});
+```

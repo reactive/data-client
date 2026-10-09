@@ -1,6 +1,7 @@
+import Link from '@docusaurus/Link';
+import Translate from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 import liveDemo from './code/live-app';
 import mutationDemo from './code/profile-edit';
@@ -13,29 +14,87 @@ export default function Demo() {
     <div className="container">
       <div className={clsx('row', styles.demoList)}>
         <div className="col col--3">
-          <h2>Reactive Mutations</h2>
+          <h2>
+            <Translate id="homepage.demo.mutations.title">
+              Reactive Mutations
+            </Translate>
+          </h2>
           <div>
             <p>
-              Render data with{' '}
-              <Link to="/docs/api/useSuspense">useSuspense()</Link>. Then mutate
-              with{' '}
-              <Link to="/docs/api/Controller#fetch">Controller.fetch()</Link>.
+              <Translate
+                id="homepage.demo.mutations.render"
+                values={{
+                  useSuspense: (
+                    <Link to="/docs/api/useSuspense">useSuspense()</Link>
+                  ),
+                  fetch: (
+                    <Link to="/docs/api/Controller#fetch">
+                      Controller.fetch()
+                    </Link>
+                  ),
+                }}
+              >
+                {'Render data with {useSuspense}. Then mutate with {fetch}.'}
+              </Translate>
             </p>
             <p>
-              This updates <strong>all</strong> usages{' '}
-              <Link to="/docs/concepts/atomic-mutations">
-                <em>atomically</em> and <em>immediately</em>
-              </Link>{' '}
-              with zero additional fetches. Reactive Data Client automatically
-              ensures{' '}
-              <Link to="/docs/concepts/normalization">
-                data consistency and integrity globally
-              </Link>{' '}
-              including even the most challenging{' '}
-              <Link to="/docs/getting-started/mutations#optimistic-updates">
-                <s>race conditions</s>
-              </Link>
-              .
+              <Translate
+                id="homepage.demo.mutations.atomic"
+                values={{
+                  all: (
+                    <strong>
+                      <Translate id="homepage.demo.mutations.all">
+                        all
+                      </Translate>
+                    </strong>
+                  ),
+                  atomically: (
+                    <Link to="/docs/concepts/atomic-mutations">
+                      <Translate
+                        id="homepage.demo.mutations.atomicallyImmediately"
+                        values={{
+                          atomically: (
+                            <em>
+                              <Translate id="homepage.demo.mutations.atomically">
+                                atomically
+                              </Translate>
+                            </em>
+                          ),
+                          immediately: (
+                            <em>
+                              <Translate id="homepage.demo.mutations.immediately">
+                                immediately
+                              </Translate>
+                            </em>
+                          ),
+                        }}
+                      >
+                        {'{atomically} and {immediately}'}
+                      </Translate>
+                    </Link>
+                  ),
+                  consistency: (
+                    <Link to="/docs/concepts/normalization">
+                      <Translate id="homepage.demo.mutations.consistency">
+                        data consistency and integrity globally
+                      </Translate>
+                    </Link>
+                  ),
+                  raceConditions: (
+                    <Link to="/docs/getting-started/mutations#optimistic-updates">
+                      <s>
+                        <Translate id="homepage.demo.mutations.raceConditions">
+                          race conditions
+                        </Translate>
+                      </s>
+                    </Link>
+                  ),
+                }}
+              >
+                {
+                  'This updates {all} usages {atomically} with zero additional fetches. Reactive Data Client automatically ensures {consistency} including even the most challenging {raceConditions}.'
+                }
+              </Translate>
             </p>
           </div>
         </div>
@@ -45,28 +104,75 @@ export default function Demo() {
       </div>
       <div className={clsx('row', styles.demoList)}>
         <div className="col col--3">
-          <h2>Structured data</h2>
+          <h2>
+            <Translate id="homepage.demo.structured.title">
+              Structured data
+            </Translate>
+          </h2>
           <div>
             <p>
-              Data consistency, performance, and typesafety scale even as your
-              data becomes more complex.
+              <Translate id="homepage.demo.structured.scale">
+                {
+                  'Data consistency, performance, and typesafety scale even as your data becomes more complex.'
+                }
+              </Translate>
             </p>
             <p>
-              <Link to="/docs/getting-started/mutations">
-                Creates and deletes
-              </Link>{' '}
-              reactively update the{' '}
-              <Link to="/rest/api/Collection#nonfilterargumentkeys">
-                correct lists
-              </Link>
-              , even when those lists are{' '}
-              <Link to="/rest/api/Collection">nested inside other objects</Link>
-              .
+              <Translate
+                id="homepage.demo.structured.lists"
+                values={{
+                  creates: (
+                    <Link to="/docs/getting-started/mutations">
+                      <Translate id="homepage.demo.structured.creates">
+                        Creates and deletes
+                      </Translate>
+                    </Link>
+                  ),
+                  lists: (
+                    <Link to="/rest/api/Collection#nonFilterArgumentKeys">
+                      <Translate id="homepage.demo.structured.correctLists">
+                        correct lists
+                      </Translate>
+                    </Link>
+                  ),
+                  nested: (
+                    <Link to="/rest/api/Collection">
+                      <Translate id="homepage.demo.structured.nested">
+                        nested inside other objects
+                      </Translate>
+                    </Link>
+                  ),
+                }}
+              >
+                {
+                  '{creates} reactively update the {lists}, even when those lists are {nested}.'
+                }
+              </Translate>
             </p>
             <p>
-              Model even the most complex data with{' '}
-              <Link to="/rest/api/Union">polymorphic</Link> and{' '}
-              <Link to="/rest/api/Values">unbounded object/maps</Link> support.
+              <Translate
+                id="homepage.demo.structured.model"
+                values={{
+                  polymorphic: (
+                    <Link to="/rest/api/Union">
+                      <Translate id="homepage.demo.structured.polymorphic">
+                        polymorphic
+                      </Translate>
+                    </Link>
+                  ),
+                  maps: (
+                    <Link to="/rest/api/Values">
+                      <Translate id="homepage.demo.structured.maps">
+                        unbounded object/maps
+                      </Translate>
+                    </Link>
+                  ),
+                }}
+              >
+                {
+                  'Model even the most complex data with {polymorphic} and {maps} support.'
+                }
+              </Translate>
             </p>
           </div>
         </div>
@@ -76,19 +182,51 @@ export default function Demo() {
       </div>
       <div className={clsx('row', styles.demoList)}>
         <div className="col col--3">
-          <h2>Live updates</h2>
+          <h2>
+            <Translate id="homepage.demo.live.title">Live updates</Translate>
+          </h2>
           <div>
             <p>
-              Keep remote changes in sync with{' '}
-              <Link to="/docs/api/useLive">useLive()</Link>.
+              <Translate
+                id="homepage.demo.live.sync"
+                values={{
+                  useLive: <Link to="/docs/api/useLive">useLive()</Link>,
+                }}
+              >
+                {'Keep remote changes in sync with {useLive}.'}
+              </Translate>
             </p>
             <p>
-              <Link to="/docs/api/PollingSubscription">Polling</Link>,{' '}
-              <Link to="/docs/concepts/managers#data-stream">
-                SSE and Websocket
-              </Link>{' '}
-              or support a custom protocol with{' '}
-              <Link to="/docs/concepts/managers">middlewares</Link>
+              <Translate
+                id="homepage.demo.live.protocols"
+                values={{
+                  polling: (
+                    <Link to="/docs/api/PollingSubscription">
+                      <Translate id="homepage.demo.live.polling">
+                        Polling
+                      </Translate>
+                    </Link>
+                  ),
+                  streams: (
+                    <Link to="/docs/concepts/managers#data-stream">
+                      <Translate id="homepage.demo.live.streams">
+                        SSE and Websocket
+                      </Translate>
+                    </Link>
+                  ),
+                  middlewares: (
+                    <Link to="/docs/concepts/managers">
+                      <Translate id="homepage.demo.live.middlewares">
+                        middlewares
+                      </Translate>
+                    </Link>
+                  ),
+                }}
+              >
+                {
+                  '{polling}, {streams} or support a custom protocol with {middlewares}'
+                }
+              </Translate>
             </p>
           </div>
         </div>
