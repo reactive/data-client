@@ -1,0 +1,88 @@
+<table>
+<thead>
+<tr>
+<th>Tipo de datos</th>
+<th>Mutable</th>
+<th>Schema</th>
+<th>Descripción</th>
+<th>[Queryable](/rest/api/schema#queryable)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td rowSpan={4}><a href="https://en.wikipedia.org/wiki/Object_(computer_science)">Object</a></td>
+<td align="center">✅</td>
+<td>[Entity](/rest/api/Entity)</td>
+<td>un solo objeto <em>único</em></td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">✅</td>
+<td>[Union(Entity)](/rest/api/Union)</td>
+<td>objetos polimórficos (<code>A | B</code>)</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">🛑</td>
+<td>[Object](/rest/api/Object)</td>
+<td>claves conocidas estáticamente</td>
+<td align="center">🛑</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td>[Invalidate(Entity)](/rest/api/Invalidate)</td>
+<td>[eliminar una entidad](../concepts/expiry-policy.md#invalidate-entity)</td>
+<td align="center">🛑</td>
+</tr>
+<tr>
+<td rowSpan={3}><a href="https://en.wikipedia.org/wiki/List_(abstract_data_type)">List</a></td>
+<td align="center">✅</td>
+<td>[Collection(Array)](/rest/api/Collection)</td>
+<td>listas ampliables</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">🛑</td>
+<td>[Array](/rest/api/Array)</td>
+<td>listas inmutables</td>
+<td align="center">🛑</td>
+</tr>
+<tr>
+<td align="center"> </td>
+<td>[All](/rest/api/All)</td>
+<td>lista de todas las entidades de un tipo</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td rowSpan={2}><a href="https://en.wikipedia.org/wiki/Associative_array">Map</a></td>
+<td align="center">✅</td>
+<td>[Collection(Values)](/rest/api/Collection)</td>
+<td>mapas ampliables</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">🛑</td>
+<td>[Values](/rest/api/Values)</td>
+<td>mapas inmutables</td>
+<td align="center">🛑</td>
+</tr>
+<tr>
+<td rowSpan={1}><a href="https://en.wikipedia.org/wiki/Scalar_(mathematics)">Scalar</a></td>
+<td align="center">✅</td>
+<td>[Scalar](/rest/api/Scalar)</td>
+<td>campos de entidad que dependen de la lente</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td rowSpan={2}>cualquiera</td>
+<td align="center"></td>
+<td>[Query(Queryable)](/rest/api/Query)</td>
+<td>transformaciones personalizadas memoizadas</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td>[Lazy(Schema)](/rest/api/Lazy)</td>
+<td>desnormalización diferida</td>
+<td align="center">✅</td>
+</tr>
+</tbody></table>

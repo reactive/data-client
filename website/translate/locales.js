@@ -11,9 +11,13 @@ const LOCALES = {
   es: {
     language:
       'Spanish (neutral international Spanish, as used in Latin America)',
-    pages: ['docs/core/README.md', 'docs/core/getting-started/'],
     outdated:
       'El original en inglés cambió después de esta traducción, así que puede estar desactualizada.',
+  },
+  'pt-BR': {
+    language: 'Brazilian Portuguese',
+    outdated:
+      'O original em inglês mudou depois desta tradução, então ela pode estar desatualizada.',
   },
 };
 

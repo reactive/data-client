@@ -129,10 +129,18 @@ const proseOf = node => {
   visit(node, 'text', ({ value }) => {
     text += value;
   });
-  return text.replace(/\s+/g, ' ').trim();
+  // without a heading's `{#id}`
+  return text
+    .replace(/\s*\\?\{#[^}]*\}\s*$/, '')
+    .replace(/\s+/g, ' ')
+    .trim();
 };
 /** Prose long enough that keeping it word for word means it wasn't translated */
-const isSentence = text => (text.match(/\p{L}{2,}/gu) ?? []).length >= 4;
+const isSentence = text =>
+  // not code, like a `process(input, args): boolean` signature heading
+  !/\w\(|=>|[{}|]/.test(text) &&
+  text.split(' ').filter(word => /^\p{L}{2,}[.,;:!?]?$/u.test(word)).length >=
+    4;
 
 /** Everything a translation must keep, by kind; values compared as multisets */
 function skeleton(content, filePath) {

@@ -99,19 +99,21 @@ describe('structureProblems', () => {
   }
 
   it('flags a sentence left in English, not a short name', () => {
-    const english = '## Data Client\n\nRead the guide before you start.\n';
+    const english =
+      '## Data Client\n\nRead the guide before you start.\n\n## Install it now please {#install}\n\n## process(input, parent, key, args): boolean\n';
+    assert.deepEqual(structureProblems(english, english, FILE), [
+      'not translated: Read the guide before you start.',
+      'not translated: Install it now please',
+    ]);
     assert.deepEqual(
       structureProblems(
         english,
-        '## Data Client\n\nRead the guide before you start.\n',
-        FILE,
-      ),
-      ['not translated: Read the guide before you start.'],
-    );
-    assert.deepEqual(
-      structureProblems(
-        english,
-        '## Data Client\n\nLee la guía antes de empezar.\n',
+        english
+          .replace(
+            'Read the guide before you start.',
+            'Lee la guía antes de empezar.',
+          )
+          .replace('Install it now please', 'Instálalo ahora por favor'),
         FILE,
       ),
       [],

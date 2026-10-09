@@ -1,0 +1,33 @@
+```typescript
+export interface State<T> {
+  readonly entities: {
+    readonly [entityKey: string]: { readonly [pk: string]: T } | undefined;
+  };
+  readonly endpoints: {
+    readonly [key: string]: unknown | PK[] | PK | undefined;
+  };
+  readonly indexes: NormalizedIndex;
+  readonly meta: {
+    readonly [key: string]: {
+      readonly date: number;
+      readonly fetchedAt: number;
+      readonly expiresAt: number;
+      readonly prevExpiresAt?: number;
+      readonly error?: ErrorTypes;
+      readonly invalidated?: boolean;
+      readonly errorPolicy?: 'hard' | 'soft' | undefined;
+    };
+  };
+  readonly entitiesMeta: {
+    readonly [entityKey: string]: {
+      readonly [pk: string]: {
+        readonly date: number;
+        readonly expiresAt: number;
+        readonly fetchedAt: number;
+      };
+    };
+  };
+  readonly optimistic: (SetResponseAction | OptimisticAction)[];
+  readonly lastReset: number;
+}
+```

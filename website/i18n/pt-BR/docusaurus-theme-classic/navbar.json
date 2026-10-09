@@ -1,0 +1,38 @@
+{
+  "title": {
+    "message": "Reactive Data Client",
+    "description": "The title in the navbar"
+  },
+  "logo.alt": {
+    "message": "Reactive Data Client",
+    "description": "The alt text of navbar logo"
+  },
+  "item.label.React": {
+    "message": "React",
+    "description": "Navbar item with label React"
+  },
+  "item.label.Vue": {
+    "message": "Vue",
+    "description": "Navbar item with label Vue"
+  },
+  "item.label.API": {
+    "message": "API",
+    "description": "Navbar item with label API"
+  },
+  "item.label.REST": {
+    "message": "REST",
+    "description": "Navbar item with label REST"
+  },
+  "item.label.GraphQL": {
+    "message": "GraphQL",
+    "description": "Navbar item with label GraphQL"
+  },
+  "item.label.News": {
+    "message": "Novidades",
+    "description": "Navbar item with label News"
+  },
+  "item.label.Demos": {
+    "message": "Demos",
+    "description": "Navbar item with label Demos"
+  }
+}
