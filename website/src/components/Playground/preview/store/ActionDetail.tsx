@@ -27,9 +27,8 @@ export function ActionDetail({
 }: {
   seq: number;
   header: Header;
-  /** After switching State to just after this action; returns what reopens
-   * this action from there */
-  onShowState?: () => () => void;
+  /** Uncovers State once it switches to just after this action */
+  onShowState?: () => void;
   /** Shows another action of the same row in its place */
   onStep: (seq: number) => void;
 }) {
@@ -75,7 +74,10 @@ export function ActionDetail({
                 <button
                   type="button"
                   className={styles.showState}
-                  onClick={() => showState(seq, onShowState?.())}
+                  onClick={() => {
+                    showState(seq);
+                    onShowState?.();
+                  }}
                 >
                   View State after this
                 </button>

@@ -212,7 +212,7 @@ describe('Store Timeline tab', () => {
     expect(timeline.scrollLeft).toBe(900);
   });
 
-  it('drops the way back to the Actions list once the timeline moves', async () => {
+  it('keeps the bar on the Actions tab, stepping the same moment', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
     await act(() => ctrl().fetch(getPosts));
@@ -227,21 +227,19 @@ describe('Store Timeline tab', () => {
     fireEvent.click(
       screen.getByRole('button', { name: 'View State after this' }),
     );
-    expect(
-      screen.getByRole('button', { name: 'Back to the action' }),
-    ).toBeTruthy();
+    expect(screen.getByText('After')).toBeTruthy();
 
-    fireEvent.click(screen.getByRole('tab', { name: 'Timeline' }));
-    // Back belongs to the State tab
-    expect(
-      screen.queryByRole('button', { name: 'Back to the action' }),
-    ).toBeNull();
-    // on to the newer response, so State still shows a snapshot
+    // the same bar on every tab
+    fireEvent.click(screen.getByRole('tab', { name: /Actions/ }));
+    expect(screen.getByText('After')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Timeline' }));
     expect(screen.getByText('After')).toBeTruthy();
     fireEvent.click(screen.getByRole('tab', { name: 'State' }));
-    expect(
-      screen.queryByRole('button', { name: 'Back to the action' }),
-    ).toBeNull();
+    expect(screen.getByText('After')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Live' }));
+    expect(screen.queryByText('After')).toBeNull();
+    fireEvent.click(screen.getByRole('tab', { name: /Actions/ }));
+    expect(screen.queryByText('After')).toBeNull();
   });
 });

@@ -90,11 +90,8 @@ export default function StorePanel({
     live: readonly LogEntry[];
     all: readonly LogEntry[];
   }>();
-  // where "View State after this" was pressed, to go back to
-  const [origin, setOrigin] = useState<{ readonly back: () => void }>();
   if (snapshotSeq === null) {
     if (kept) setKept(undefined);
-    if (origin) setOrigin(undefined);
   } else if (kept?.live !== entries) {
     setKept({ live: entries, all: withDropped(kept?.all, entries) });
   }
@@ -151,10 +148,9 @@ export default function StorePanel({
       )),
     [entries, history.storeFrom],
   );
-  const showState = useCallback((seq: number, back?: () => void) => {
+  const showState = useCallback((seq: number) => {
     setSnapshot(seq);
     setTab('state');
-    setOrigin({ back: back ?? (() => setTab('actions')) });
   }, []);
   const actions = useMemo<Actions>(
     () => ({ log, history, groups, showState, then }),
@@ -226,12 +222,7 @@ export default function StorePanel({
                 role="tab"
                 className={styles.tab}
                 aria-selected={tab === 'timeline'}
-                onClick={() => {
-                  setTab('timeline');
-                  // the timeline picks the moment State shows below it, so
-                  // there's no action to go back to
-                  setOrigin(undefined);
-                }}
+                onClick={() => setTab('timeline')}
               >
                 Timeline
               </button>
@@ -270,21 +261,15 @@ export default function StorePanel({
                   width={width}
                 />
               )}
+              {(snapshot || tab === 'timeline') && (
+                <SnapshotBar
+                  entry={snapshot}
+                  onShow={setSnapshot}
+                  onOpen={() => setTab('actions')}
+                  stepsToLive={tab === 'timeline'}
+                />
+              )}
               <div className={styles.tabPanel} hidden={tab === 'actions'}>
-                {(snapshot || tab === 'timeline') && (
-                  <SnapshotBar
-                    entry={snapshot}
-                    onShow={setSnapshot}
-                    stepsToLive={tab === 'timeline'}
-                    onBack={
-                      origin &&
-                      (() => {
-                        setOrigin(undefined);
-                        origin.back();
-                      })
-                    }
-                  />
-                )}
                 <StateContext.Provider value={state}>
                   {tree ?
                     <TreeLevel model={model} />
@@ -307,22 +292,22 @@ export default function StorePanel({
 const STATE_ROOT: View = { kind: 'root' };
 const ACTIONS_ROOT: View = { kind: 'actions' };
 
-/** Says State is in the past (or, under the timeline, live); steps through
- * the actions that changed it */
+/** Says the panel is in the past (or, under the timeline, live); steps
+ * through the actions that changed the store */
 function SnapshotBar({
   entry,
   onShow,
-  onBack,
+  onOpen,
   stepsToLive,
 }: {
   /** The action State is shown after; missing while live */
   entry?: LogEntry;
   onShow: (seq: number | null) => void;
+  /** Opens that action in the Actions list */
+  onOpen: () => void;
   /** › past the newest change goes live, as the timeline's right arrow key
    * does (the bar stays, as the timeline shows it live too) */
   stepsToLive?: boolean;
-  /** Back to the action it was opened from */
-  onBack?: () => void;
 }) {
   const { log, history } = useActions();
   const seq = entry?.seq ?? null;
@@ -330,17 +315,6 @@ function SnapshotBar({
   const later = nearestChange(log, history.entries, seq, 1);
   return (
     <div className={clsx(styles.snapshot, !entry && styles.tlLive)}>
-      {onBack && (
-        <button
-          type="button"
-          className={styles.snapshotBack}
-          aria-label="Back to the action"
-          title="Back to the action"
-          onClick={onBack}
-        >
-          ↩ Back
-        </button>
-      )}
       <button
         type="button"
         aria-label="Previous change"
@@ -360,7 +334,15 @@ function SnapshotBar({
       {entry ?
         <>
           <span className={styles.snapshotLabel}>
-            After <ActionName entry={entry} />
+            After{' '}
+            <button
+              type="button"
+              className={styles.snapshotAction}
+              title="Open action"
+              onClick={onOpen}
+            >
+              <ActionName entry={entry} />
+            </button>
           </span>
           <button
             type="button"
@@ -510,14 +492,8 @@ function Levels({
       {stack.map((entry, depth) => {
         const { key, view } = entry;
         const level = levelOf(entry);
-        // in State, uncover State as it was then; returns what reopens this
-        const uncover =
-          root.kind === 'root' ?
-            () => {
-              back(depth);
-              return () => push(view, entry.at);
-            }
-          : undefined;
+        // in State, uncover State as it was then
+        const uncover = root.kind === 'root' ? () => back(depth) : undefined;
         return (
           <Level
             key={key}

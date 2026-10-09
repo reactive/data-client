@@ -152,9 +152,8 @@ export function RowHistory({
   header: Header;
   /** Opens version `seq` instead */
   onOpen: (seq: number) => void;
-  /** After switching State to just after the open version; returns what
-   * reopens this history from there */
-  onShowState?: () => () => void;
+  /** Uncovers State once it switches to just after the open version */
+  onShowState?: () => void;
 }) {
   const actions = useActions();
   const { items, versions } = useTimeline(actions, id);
@@ -244,7 +243,7 @@ function VersionItem({
   version: Version;
   open: boolean;
   onOpen: (seq: number) => void;
-  onShowState?: () => () => void;
+  onShowState?: () => void;
 }) {
   const { log, showState } = useActions();
   const nav = useNav()!;
@@ -293,7 +292,10 @@ function VersionItem({
             <button
               type="button"
               className={styles.showState}
-              onClick={() => showState(seq, onShowState?.())}
+              onClick={() => {
+                showState(seq);
+                onShowState?.();
+              }}
             >
               View State after this
             </button>

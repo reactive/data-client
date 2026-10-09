@@ -179,12 +179,9 @@ describe('Store Actions tab', () => {
     expect(top().textContent).not.toContain('View State after this');
     expect(top().textContent).toContain('changed by');
     expect(screen.getByRole('button', { name: 'Live' })).toBeTruthy();
-    // and back reopens the action
-    fireEvent.click(screen.getByRole('button', { name: 'Back to the action' }));
-    expect(top().textContent).toContain('View State after this');
-    expect(
-      screen.queryByRole('button', { name: 'Back to the action' }),
-    ).toBeNull();
+    // the bar names the action; it opens the Actions list
+    fireEvent.click(screen.getByTitle('Open action'));
+    expect(actionsTab().getAttribute('aria-selected')).toBe('true');
   });
 
   it('says how many earlier updates a row no longer has', async () => {
@@ -359,8 +356,8 @@ describe('Store Actions tab', () => {
     expect(screen.getByRole('button', { name: 'Live' })).toBeTruthy();
     expect(current()).not.toBe('History');
     expect(top().textContent).toContain('"One"');
-    // back reopens the history at that version
-    fireEvent.click(screen.getByRole('button', { name: 'Back to the action' }));
+    // History reopens at that version
+    fireEvent.click(within(top()).getByRole('button', { name: 'History' }));
     expect(current()).toBe('History');
     expect(first().getAttribute('aria-expanded')).toBe('true');
   });
@@ -391,7 +388,7 @@ describe('Store Actions tab', () => {
     expect(top().textContent).not.toContain('after this action');
   });
 
-  it('steps through the actions of a row, and back from State', async () => {
+  it('steps through the actions of a row, and back from State by the bar', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
     fireEvent.click(actionsTab());
@@ -414,7 +411,8 @@ describe('Store Actions tab', () => {
     expect(
       screen.getByRole('tab', { name: 'State' }).getAttribute('aria-selected'),
     ).toBe('true');
-    fireEvent.click(screen.getByRole('button', { name: 'Back to the action' }));
+    // the bar's action opens the Actions tab, where the action stays open
+    fireEvent.click(screen.getByTitle('Open action'));
     expect(actionsTab().getAttribute('aria-selected')).toBe('true');
     expect(crumbs().textContent).toContain('setResponse');
   });
@@ -495,9 +493,7 @@ describe('Store Actions tab', () => {
     expect(
       screen.getByRole('tab', { name: 'State' }).getAttribute('aria-selected'),
     ).toBe('true');
-    // the snapshot bar sits at the top of the State tab's panel
-    const statePanel = screen.getByRole('button', { name: 'Live' })
-      .parentElement!.parentElement!;
+    const statePanel = top().parentElement!.parentElement!;
     expect(within(statePanel).getAllByText('"Edited"').length).toBeGreaterThan(
       0,
     );

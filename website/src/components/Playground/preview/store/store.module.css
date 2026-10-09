@@ -1089,8 +1089,16 @@ div.joined {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.snapshot .snapshotBack {
-  font-family: var(--ifm-font-family-base);
+.snapshot .snapshotAction {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+}
+.snapshot .snapshotAction:hover {
+  color: var(--store-fg);
 }
 .snapshot .liveButton {
   border-color: rgba(127, 209, 160, 0.45);

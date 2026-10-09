@@ -41,9 +41,8 @@ export interface Actions {
   readonly history: History;
   /** `history.entries` as the Actions tab's rows */
   readonly groups: readonly ActionGroup[];
-  /** Opens the State tab as it was right after action `seq`; `back`
-   * returns to where it was opened from (by default the Actions tab) */
-  readonly showState: (seq: number, back?: () => void) => void;
+  /** Opens the State tab as it was right after action `seq` */
+  readonly showState: (seq: number) => void;
   /** The action State is shown after, while it shows the past */
   readonly until?: number;
   /** The store as an action left (or found) it, while the log has it */
