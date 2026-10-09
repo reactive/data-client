@@ -119,11 +119,23 @@ function LastChange({
 }
 
 /** A record's way into its history, once the log has a change to it */
-export function HistoryButton({ id }: { id: string }) {
+export function HistoryButton({
+  id,
+  compact,
+}: {
+  id: string;
+  /** The icon alone, where a word won't fit */
+  compact?: boolean;
+}) {
   const actions = useContext(ActionsContext);
   const push = usePush();
   return actions && push ?
-      <HistoryButtonOf id={id} actions={actions} push={push} />
+      <HistoryButtonOf
+        id={id}
+        actions={actions}
+        push={push}
+        compact={compact}
+      />
     : null;
 }
 
@@ -131,24 +143,27 @@ function HistoryButtonOf({
   id,
   actions,
   push,
+  compact,
 }: {
   id: string;
   actions: Actions;
   push: Push;
+  compact?: boolean;
 }) {
   if (!useTimeline(actions, id).versions.length) return null;
   return (
     <button
       type="button"
-      className={styles.historyButton}
+      className={clsx(styles.historyButton, compact && styles.compact)}
       title="Every change to this record"
+      aria-label="History"
       onClick={e => {
         e.stopPropagation();
         openHistory(push, actions, id);
       }}
     >
       <HistoryIcon />
-      History
+      {!compact && 'History'}
     </button>
   );
 }

@@ -212,6 +212,30 @@ describe('Store Timeline tab', () => {
     expect(timeline.scrollLeft).toBe(900);
   });
 
+  it('opens an endpoint lane’s History on the State tab', async () => {
+    const { ctrl } = mount();
+    title = 'One';
+    await act(() => ctrl().fetch(getPosts));
+    title = 'Two';
+    await act(() => ctrl().fetch(getPosts));
+    fireEvent.click(screen.getByRole('tab', { name: 'Timeline' }));
+    const timeline = screen.getByRole('group', { name: /^Timeline/ });
+    fireEvent.click(within(timeline).getByRole('button', { name: 'History' }));
+    expect(
+      screen.getByRole('tab', { name: 'State' }).getAttribute('aria-selected'),
+    ).toBe('true');
+    const level = document.querySelector<HTMLElement>(
+      '[data-level]:not([data-covered])',
+    )!;
+    expect(level.querySelector('[aria-current="page"]')!.textContent).toBe(
+      'History',
+    );
+    expect(level.textContent).toContain('/posts');
+    // the second response stored the same ids again
+    expect(level.querySelectorAll('[data-version]')).toHaveLength(1);
+    expect(level.textContent).toContain('stored again, unchanged');
+  });
+
   it('keeps the bar on the Actions tab, stepping the same moment', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));

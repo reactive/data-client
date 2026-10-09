@@ -21,7 +21,9 @@ import {
   useLog,
 } from './ActionsView';
 import { NARROW_WIDTH } from './columns';
+import { endpointId, splitKey } from './model';
 import styles from './store.module.css';
+import { HistoryButton } from './VersionHistory';
 
 /** Pixels per millisecond between two actions */
 const PX_PER_MS = 0.08;
@@ -258,6 +260,10 @@ export default memo(function Timeline({
               {lane.key ?
                 <KeyLabel value={lane.key} />
               : <span className={styles.dim}>store</span>}
+              {/* an endpoint's lane is one record's; a schema's spans a table */}
+              {splitKey(lane.key).method && (
+                <HistoryButton id={endpointId(lane.key)} compact />
+              )}
             </span>
             <span className={styles.tlTrack}>
               <LaneDropped lane={lane} />

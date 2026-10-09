@@ -1162,6 +1162,9 @@ div.joined {
   left: 0;
   z-index: 1;
   flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
   width: var(--tl-label);
   padding: 0 0.5rem;
   overflow: hidden;
@@ -1170,7 +1173,18 @@ div.joined {
   font-size: 11px;
   line-height: var(--tl-row);
   white-space: nowrap;
-  text-overflow: ellipsis;
+}
+.tlLabel .actKey {
+  flex: 1 1 auto;
+}
+/* the lane's record's History, icon alone */
+.tlLabel .historyButton {
+  flex: none;
+  margin-left: auto;
+  opacity: 0.7;
+}
+.tlLabel .historyButton:hover {
+  opacity: 1;
 }
 .tlAxis .tlLabel {
   z-index: 3;
@@ -1302,6 +1316,10 @@ button.tlMark:hover {
   height: 12px;
   stroke-width: 1.4;
   stroke-linejoin: round;
+}
+.historyButton.compact {
+  padding: 1px 3px;
+  border-color: transparent;
 }
 .historyButton:hover {
   background: var(--store-selected);
