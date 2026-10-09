@@ -1,5 +1,11 @@
 import clsx from 'clsx';
-import React, { memo, useLayoutEffect, useMemo, useRef } from 'react';
+import React, {
+  memo,
+  useCallback,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from 'react';
 
 import {
   actionName,
@@ -137,12 +143,19 @@ export default memo(function Timeline({
   const scroller = useRef<HTMLDivElement>(null);
   // a picked action stays put as new ones come in; so does a scrolled-back
   // view as the fit toggles, while a followed one stays on the newest
-  const toNewest = useFollow(
+  const follow = useFollow(
     scroller,
     `${scale.width} ${fit}`,
     'x',
     selected !== null,
   );
+  // scrolled back, fitting and back returns to where it was, unless it went
+  // to the newest meanwhile
+  const scrolledTo = useRef<number | null>(null);
+  const toNewest = useCallback(() => {
+    scrolledTo.current = null;
+    follow();
+  }, [follow]);
   // the picked action comes into view (again as the fit changes); back to
   // live, the newest does, and the timeline follows it again
   useLayoutEffect(() => {
@@ -154,8 +167,6 @@ export default memo(function Timeline({
       ?.querySelector('[data-selected]')
       ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
   }, [selected, fit]);
-  // scrolled back, fitting and back returns to where it was
-  const scrolledTo = useRef<number | null>(null);
   const toggleFit = () => {
     const el = scroller.current;
     if (!fit && el) {

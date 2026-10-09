@@ -425,6 +425,13 @@ describe('Store Timeline strip', () => {
     fireEvent.scroll(timeline);
     await act(() => ctrl().fetch(getPosts));
     expect(timeline.scrollLeft).toBe(100);
+    // going to the newest while fit drops the spot to come back to
+    fireEvent.click(fit);
+    fireEvent.keyDown(timeline, { key: 'End' });
+    fireEvent.click(fit);
+    expect(timeline.scrollLeft).toBe(900);
+    timeline.scrollLeft = 100;
+    fireEvent.scroll(timeline);
     // scrolled back to the newest, it follows again
     timeline.scrollLeft = 600;
     fireEvent.scroll(timeline);
