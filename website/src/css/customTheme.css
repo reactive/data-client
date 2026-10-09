@@ -46,6 +46,14 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
 .navbar__item > .header-locale-dropdown:hover {
   opacity: 0.6;
 }
+/* and stays in the navbar on small screens, where Infima hides navbar items;
+   the margin clears the search button, which is absolutely positioned there */
+@media (max-width: 996px) {
+  .navbar__item:has(> .header-locale-dropdown) {
+    display: block;
+    margin-right: 2.5rem;
+  }
+}
 
 .header-discord-link:hover {
   opacity: 0.6;

@@ -1,0 +1,3 @@
+参数可以是普通值、[refs](https://vuejs.org/api/reactivity-core.html#ref)（包括 [computed](https://vuejs.org/api/reactivity-core.html#computed)），或者像 `() => ({ id: props.id })` 这样的 getter
+函数。像 `{ id: props.id }` 这样的普通对象只会被读取一次，不会
+跟随 prop 或路由的变化，因此当参数可能变化时，请使用 getter 或 `computed`。

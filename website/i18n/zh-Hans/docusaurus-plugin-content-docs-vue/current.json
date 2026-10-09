@@ -28,7 +28,7 @@
     "description": "The label for category 'Legacy' in sidebar 'docs'"
   },
   "sidebar.api.category.Composables": {
-    "message": "Composables",
+    "message": "组合式函数",
     "description": "The label for category 'Composables' in sidebar 'api'"
   },
   "sidebar.api.category.Managers": {

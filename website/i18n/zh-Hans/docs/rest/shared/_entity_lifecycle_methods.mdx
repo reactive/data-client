@@ -1,0 +1,389 @@
+import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
+import CodeBlock from '@theme/CodeBlock';
+
+### static fromJS(props): Entity {#fromJS}
+
+把 props 复制到新实例的工厂方法。请用它代替 `new MyEntity()`，
+以确保默认 props 会被覆盖。
+
+### static process(input, parent, key, args): processedEntity {#process}
+
+在规范化该 Entity 的开始阶段运行。返回值会保存到 store 中，
+并传给 [pk()](#pk)。
+
+**默认**只是简单地复制响应（`{...input}`）
+
+如何通过覆盖它来[为关系型数据构建反向查找](../guides/relational-data.md#reverse-lookups)
+
+#### 缺少 id 的情况 {#case-of-the-missing-id}
+
+{props?.entitySyntax === 'EntityMixin' ? (
+<CodeBlock language="ts">{`import { EntityMixin } from '@data-client/rest';
+
+class Stream {
+  username = '';
+  title = '';
+  game = '';
+  currentViewers = 0;
+  live = false;
+}
+
+class StreamEntity extends EntityMixin(Stream) {
+  static key = 'Stream';
+
+  static process(value, parent, key, args) {
+    // super.process creates a copy of value
+    const processed = super.process(value, parent, key, args);
+    processed.username = args[0]?.username;
+    return processed;
+  }
+}`}</CodeBlock>
+) : (
+<CodeBlock language="ts">{`class Stream extends Entity {
+  username = '';
+  title = '';
+  game = '';
+  currentViewers = 0;
+  live = false;
+
+  pk() {
+    return this.username;
+  }
+  static key = 'Stream';
+
+  static process(value, parent, key, args) {
+    // super.process creates a copy of value
+    const processed = super.process(value, parent, key, args);
+    processed.username = args[0]?.username;
+    return processed;
+  }
+}`}</CodeBlock>
+)}
+
+#### 动态失效 {#dynamic-invalidation}
+
+从 [Entity.process](#process) 返回 `undefined`
+会使该 `Entity` [失效](/docs/concepts/expiry-policy#invalidate-entity)。
+这让我们可以根据具体的响应数据，动态地进行失效。
+
+{props?.entitySyntax === 'EntityMixin' ? (
+<CodeBlock language="ts">{`import { EntityMixin } from '@data-client/rest';
+
+class PriceLevel {
+  price = 0;
+  amount = 0;
+}
+
+class PriceLevelEntity extends EntityMixin(PriceLevel) {
+  static process(
+    input: [number, number],
+    parent: any,
+    key: string | undefined,
+  ): any {
+    const [price, amount] = input;
+    // highlight-next-line
+    if (amount === 0) return undefined;
+    return { price, amount };
+  }
+}`}</CodeBlock>
+) : (
+<CodeBlock language="ts">{`class PriceLevel extends Entity {
+  price = 0;
+  amount = 0;
+
+  pk() {
+    return this.price;
+  }
+
+  static process(
+    input: [number, number],
+    parent: any,
+    key: string | undefined,
+  ): any {
+    const [price, amount] = input;
+    // highlight-next-line
+    if (amount === 0) return undefined;
+    return { price, amount };
+  }
+}`}</CodeBlock>
+)}
+
+### static mergeWithStore(existingMeta, incomingMeta, existing, incoming): mergedValue {#mergeWithStore}
+
+```typescript
+static mergeWithStore(
+  existingMeta: {
+    date: number;
+    fetchedAt: number;
+  },
+  incomingMeta: { date: number; fetchedAt: number },
+  existing: any,
+  incoming: any,
+) {
+  const shouldUpdate = this.shouldUpdate(
+    existingMeta,
+    incomingMeta,
+    existing,
+    incoming,
+  );
+
+  if (shouldUpdate) {
+    // distinct types are not mergeable (like delete symbol), so just replace
+    if (typeof incoming !== typeof existing) {
+      return incoming;
+    } else {
+      return this.shouldReorder(
+        existingMeta,
+        incomingMeta,
+        existing,
+        incoming,
+      )
+        ? this.merge(incoming, existing)
+        : this.merge(existing, incoming);
+    }
+  } else {
+    return existing;
+  }
+}
+```
+
+当规范化过程中发现 store 中已存在某个处理过的 Entity 时，会调用 `mergeWithStore()`。
+
+它会调用 [shouldUpdate()](#shouldupdate)、[shouldReorder()](#shouldreorder)，并可能调用 [merge()](#merge)
+
+### static shouldUpdate(existingMeta, incomingMeta, existing, incoming): boolean {#shouldupdate}
+
+```typescript
+static shouldUpdate(
+  existingMeta: { date: number; fetchedAt: number },
+  incomingMeta: { date: number; fetchedAt: number },
+  existing: any,
+  incoming: any,
+) {
+  return existingMeta.fetchedAt <= incomingMeta.fetchedAt;
+}
+```
+
+#### 阻止更新 {#preventing-updates}
+
+shouldUpdate 也可以用来短路 Entity 的更新。
+
+{props?.entitySyntax === 'EntityMixin' ? (
+<CodeBlock language="typescript">{`import deepEqual from 'deep-equal';
+import { EntityMixin } from '@data-client/rest';
+
+class Article {
+  id = '';
+  title = '';
+  content = '';
+  published = false;
+}
+
+class ArticleEntity extends EntityMixin(Article) {
+  static shouldUpdate(
+    existingMeta: { date: number; fetchedAt: number },
+    incomingMeta: { date: number; fetchedAt: number },
+    existing: any,
+    incoming: any,
+  ) {
+    return !deepEqual(incoming, existing);
+  }
+}`}</CodeBlock>
+) : (
+<CodeBlock language="typescript">{`import deepEqual from 'deep-equal';
+
+class Article extends Entity {
+  id = '';
+  title = '';
+  content = '';
+  published = false;
+
+  static shouldUpdate(
+    existingMeta: { date: number; fetchedAt: number },
+    incomingMeta: { date: number; fetchedAt: number },
+    existing: any,
+    incoming: any,
+  ) {
+    return !deepEqual(incoming, existing);
+  }
+}`}</CodeBlock>
+)}
+
+### static shouldReorder(existingMeta, incomingMeta, existing, incoming): boolean {#shouldreorder}
+
+```typescript
+static shouldReorder(
+  existingMeta: { date: number; fetchedAt: number },
+  incomingMeta: { date: number; fetchedAt: number },
+  existing: any,
+  incoming: any,
+) {
+  return incomingMeta.fetchedAt < existingMeta.fetchedAt;
+}
+```
+
+返回 `true` 会在 merge 中调换传入 Entity 与 store 中 Entity 的参数顺序。在
+默认的 merge 下，这会让已有 Entity 的字段覆盖传入 Entity 的字段，
+而不是反过来。
+
+#### 示例 {#example}
+
+<TypeScriptEditor>
+
+{props?.entitySyntax === 'EntityMixin' ? (
+<CodeBlock language="typescript">{`import { EntityMixin } from '@data-client/rest';
+
+class LatestPrice {
+  id = '';
+  updatedAt = 0;
+  price = '0.0';
+  symbol = '';
+}
+
+class LatestPriceEntity extends EntityMixin(LatestPrice) {
+  static shouldReorder(
+    existingMeta: { date: number; fetchedAt: number },
+    incomingMeta: { date: number; fetchedAt: number },
+    existing: { updatedAt: number },
+    incoming: { updatedAt: number },
+  ) {
+    return incoming.updatedAt < existing.updatedAt;
+  }
+}`}</CodeBlock>
+) : (
+<CodeBlock language="typescript">{`class LatestPriceEntity extends Entity {
+  id = '';
+  updatedAt = 0;
+  price = '0.0';
+  symbol = '';
+
+  pk() {
+    return this.id;
+  }
+
+  static shouldReorder(
+    existingMeta: { date: number; fetchedAt: number },
+    incomingMeta: { date: number; fetchedAt: number },
+    existing: { updatedAt: number },
+    incoming: { updatedAt: number },
+  ) {
+    return incoming.updatedAt < existing.updatedAt;
+  }
+}`}</CodeBlock>
+)}
+
+</TypeScriptEditor>
+
+import StackBlitz from '@site/src/components/StackBlitz';
+
+<StackBlitz app="coin-app" file="src/resources/Ticker.ts" height="500" view="editor" />
+
+### static merge(existing, incoming): mergedValue {#merge}
+
+```typescript
+static merge(existing: any, incoming: any) {
+  return {
+    ...existing,
+    ...incoming,
+  };
+}
+```
+
+Merge 用于处理传入的 Entity 已经存在的情况。当同一个响应中出现相同的 Entity 时，
+会直接调用它。默认情况下，当 [mergeWithStore()](#mergeWithStore)
+判定传入的 Entity 应与已持久化在 Reactive Data Client store 中的 Entity 合并时，也会调用它。
+
+如何通过覆盖它来[为关系型数据构建反向查找](../guides/relational-data.md#reverse-lookups)
+
+### static mergeMetaWithStore(existingMeta, incomingMeta, existing, incoming): meta {#mergeMetaWithStore}
+
+```typescript
+static mergeMetaWithStore(
+  existingMeta: {
+    expiresAt: number;
+    date: number;
+    fetchedAt: number;
+  },
+  incomingMeta: { expiresAt: number; date: number; fetchedAt: number },
+  existing: any,
+  incoming: any,
+) {
+  return this.shouldReorder(existingMeta, incomingMeta, existing, incoming)
+    ? existingMeta
+    : incomingMeta;
+}
+```
+
+当规范化过程中发现 store 中已存在某个处理过的 Entity 时，会调用 `mergeMetaWithStore()`。
+
+### static queryKey(args, queryKey, getEntity, getIndex): pk? {#queryKey}
+
+这个方法让 `Entities` 成为 [Queryable](/rest/api/schema#queryable)，从而无需 endpoint 即可访问 store。
+
+覆盖它可以定制这一行为，或者完全禁用它。
+
+返回 `undefined` 会禁止这一行为。
+
+返回 `pk` 字符串时，会尝试查找该 Entity 并在响应中使用它。
+
+使用时，过期策略会根据该 Entity 自身的元数据计算。
+
+**默认**使用第一个参数在 [pk()](#pk) 和 [indexes](/rest/api/Entity#indexes) 中查找
+
+#### getEntity(key, pk?) {#getentitykey-pk}
+
+传入一个参数时获取某一类型的所有 Entity，传入两个参数时获取单个 Entity
+
+```ts title="One argument"
+const entitiesEntry = getEntity(this.schema.key);
+if (entitiesEntry === undefined) return INVALID;
+return Object.values(entitiesEntry).map(
+  entity => entity && this.schema.pk(entity),
+);
+```
+
+```ts title="Two arguments"
+if (getEntity(this.key, id)) return id;
+```
+
+#### getIndex(key, indexName, value) {#getindexkey-indexname-value}
+
+返回索引条目（value->pk 映射）
+
+```ts
+const value = args[0][indexName];
+return getIndex(schema.key, indexName, value)[value];
+```
+
+### static createIfValid(processedEntity): Entity | undefined {#createIfValid}
+
+在反规范化 Entity 时调用。如果该 Entity 被认为是“有效”的，
+就会创建这个类的实例。
+
+返回 `undefined` 会导致 [Invalid 过期状态](/docs/concepts/expiry-policy#expiry-status)，
+与 [Invalidate](/rest/api/Invalidate) 类似。
+
+[`Invalid`](/docs/concepts/expiry-policy#expiry-status) 过期状态通常意味着 :react[hook]:vue[composable] 会进入加载状态并尝试重新获取。
+
+```ts
+static createIfValid(props): AbstractInstanceType<this> | undefined {
+  if (this.validate(props)) {
+    return undefined as any;
+  }
+  return this.fromJS(props);
+}
+```
+
+### static validate(processedEntity): errorMessage? {#validate}
+
+在规范化和反规范化期间都会运行。返回字符串表示出错（该字符串就是错误消息）。
+
+在规范化期间，校验失败会导致该次获取产生错误。
+
+在反规范化期间，校验失败会把该结果标记为“无效”，从而
+阻塞直到获取到结果。
+
+**默认**仅在开发模式下做一些基本的字段存在性检查。可以覆盖它来
+禁用或定制。
+
+[为字段不完整的 endpoint 使用校验](../guides/partial-entities.md)

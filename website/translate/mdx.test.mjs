@@ -9,7 +9,9 @@ import {
   structureProblems,
 } from './mdx.mjs';
 
-const { relativeImports } = createRequire(import.meta.url)('./localeDocs.js');
+const require = createRequire(import.meta.url);
+const { relativeImports } = require('./localeDocs.js');
+const remarkJoinCjkLines = require('./remarkJoinCjkLines.js');
 
 const FILE = '/docs/core/page.md';
 
@@ -207,6 +209,25 @@ import b from './b.js';
     assert.deepEqual(
       relativeImports(page).map(({ specifier }) => specifier),
       ['../shared/\\_shared.mdx', './a.mdx'],
+    );
+  });
+});
+
+describe('remarkJoinCjkLines', () => {
+  it('drops line breaks between Chinese characters, not next to Latin', () => {
+    const text = value => ({ type: 'text', value });
+    const paragraph = {
+      type: 'paragraph',
+      children: [
+        text('访问。\n这样通过\n'),
+        { type: 'link', children: [text('副作用')] },
+        text('\n处理 endpoint\n中'),
+      ],
+    };
+    remarkJoinCjkLines()({ type: 'root', children: [paragraph] });
+    assert.deepEqual(
+      paragraph.children.map(({ value }) => value),
+      ['访问。这样通过', undefined, '处理 endpoint\n中'],
     );
   });
 });
