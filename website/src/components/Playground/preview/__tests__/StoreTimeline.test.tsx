@@ -520,6 +520,21 @@ describe('Store Timeline strip', () => {
     );
   });
 
+  it('slides the action the bar opens into a first-shown Actions tab', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
+    const timeline = screen.getByRole('group', { name: /^Timeline/ });
+    fireEvent.click(
+      within(timeline).getByRole('button', { name: /^setResponse at/ }),
+    );
+    fireEvent.click(screen.getByTitle('Open action'));
+    const level = document.activeElement as HTMLElement;
+    expect(level.hasAttribute('data-level')).toBe(true);
+    expect(level.hasAttribute('data-covered')).toBe(false);
+    expect(level.querySelector('[aria-current="page"]')).toBeTruthy();
+  });
+
   it('opens an endpoint lane’s History on the State tab', async () => {
     const { ctrl } = mount();
     title = 'One';

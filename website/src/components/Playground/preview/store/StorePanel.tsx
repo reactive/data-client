@@ -401,11 +401,14 @@ function Unfold({
   children: React.ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  // whether it held focus as it began to shut: going inert can drop focus
+  // to the page before the effect below looks
+  const hadFocus = useRef(false);
   useLayoutEffect(() => {
     const el = ref.current!;
     if (!open) {
       el.removeAttribute('data-open');
-      if (el.contains(document.activeElement)) onBlur?.();
+      if (hadFocus.current || el.contains(document.activeElement)) onBlur?.();
       return;
     }
     const frame = requestAnimationFrame(() => el.setAttribute('data-open', ''));
@@ -417,6 +420,7 @@ function Unfold({
   const [was, setWas] = useState(open);
   const [closing, setClosing] = useState(false);
   if (was !== open) {
+    hadFocus.current = !open && !!ref.current?.contains(document.activeElement);
     setWas(open);
     setClosing(!open);
   }
@@ -484,7 +488,11 @@ function SnapshotBar({
   const bar = useRef<HTMLDivElement>(null);
   const stepped = useRef(false);
   const step = (to: number | null) => {
+    // only while the bar has it (a pointer press need not focus a button);
+    // the step renders before the next frame, so this can't go stale
+    if (!bar.current?.contains(document.activeElement)) return onShow(to);
     stepped.current = true;
+    requestAnimationFrame(() => (stepped.current = false));
     onShow(to);
   };
   useLayoutEffect(() => {
@@ -558,9 +566,11 @@ function Levels({
   showRecord?: (id: string) => void;
 }) {
   const { then } = useActions();
-  // levels already open as it mounts (the view toggled back to the table)
-  // show at once; only those pushed since slide in
-  const [mountedTop] = useState(() => stack[stack.length - 1].key);
+  // levels shown before (the view toggled back to the table) show at once;
+  // only those new since slide in
+  useLayoutEffect(() => {
+    for (const entry of stack) shownLevels.add(entry);
+  });
   // each level's nav; one showing an action's store keeps its own as the
   // live store changes
   const [navs] = useState(
@@ -666,7 +676,7 @@ function Levels({
             nav={level.nav}
             then={level.then}
             depth={depth}
-            pushed={key > mountedTop}
+            pushed={!shownLevels.has(entry)}
             top={depth === stack.length - 1}
             onBack={back}
             returnTo={returnTo}
@@ -707,6 +717,10 @@ function Levels({
   );
 }
 
+/** The stack entries a `Levels` has shown, so one remounted shows those as
+ * they were */
+const shownLevels = new WeakSet<StackEntry>();
+
 /** One scrolling level; slides in when pushed, and back in from the other
  * side when what covered it closes */
 function Level({
@@ -725,8 +739,8 @@ function Level({
   /** The store this level shows, when not the one `StateContext` holds */
   then?: Then;
   depth: number;
-  /** Opened over a level shown before; one already open as the stack
-   * mounts shows without sliding in or taking focus */
+  /** Not shown before; one shown before (in a `Levels` since remounted)
+   * shows without sliding in or taking focus */
   pushed: boolean;
   top: boolean;
   onBack: (depth: number) => void;
