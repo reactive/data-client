@@ -84,7 +84,9 @@ export default function StorePanel({
   const { entries } = history;
   const [stored, setView] = useTabStorage('playgroundStoreView');
   const tree = stored === 'tree';
-  const [tab, setTab] = useState<'state' | 'actions' | 'timeline'>('state');
+  const [tab, setTab] = useState<'state' | 'actions'>('state');
+  // the Timeline strip, above either tab
+  const [timeline, setTimeline] = useState(false);
   // the Actions tab mounts on first visit, then stays (scroll, open rows)
   const [actionsShown, setActionsShown] = useState(false);
   if (tab === 'actions' && !actionsShown) setActionsShown(true);
@@ -238,56 +240,57 @@ export default function StorePanel({
                     </span>
                   )}
                 </button>
-                <button
-                  type="button"
-                  role="tab"
-                  className={styles.tab}
-                  aria-selected={tab === 'timeline'}
-                  onClick={() => setTab('timeline')}
-                >
-                  Timeline
-                </button>
-                {tab !== 'actions' && (
-                  <span
-                    className={styles.viewButtons}
-                    role="group"
-                    aria-label="Store view"
+                <span className={styles.viewButtons}>
+                  <button
+                    type="button"
+                    className={styles.toggle}
+                    aria-pressed={timeline}
+                    onClick={() => setTimeline(shown => !shown)}
                   >
-                    <button
-                      type="button"
-                      aria-label="Table view"
-                      title="Table view"
-                      aria-pressed={!tree}
-                      onClick={() => setView('table')}
+                    Timeline
+                  </button>
+                  {tab !== 'actions' && (
+                    <span
+                      className={styles.viewSwitch}
+                      role="group"
+                      aria-label="Store view"
                     >
-                      <TableIcon />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="Tree view"
-                      title="Tree view"
-                      aria-pressed={tree}
-                      onClick={() => setView('tree')}
-                    >
-                      <TreeIcon />
-                    </button>
-                  </span>
-                )}
+                      <button
+                        type="button"
+                        aria-label="Table view"
+                        title="Table view"
+                        aria-pressed={!tree}
+                        onClick={() => setView('table')}
+                      >
+                        <TableIcon />
+                      </button>
+                      <button
+                        type="button"
+                        aria-label="Tree view"
+                        title="Tree view"
+                        aria-pressed={tree}
+                        onClick={() => setView('tree')}
+                      >
+                        <TreeIcon />
+                      </button>
+                    </span>
+                  )}
+                </span>
               </div>
               <ActionsContext.Provider value={stateActions}>
-                {tab === 'timeline' && (
+                {timeline && (
                   <Timeline
                     selected={snapshotSeq}
                     onSelect={setSnapshot}
                     width={width}
                   />
                 )}
-                {(snapshot || tab === 'timeline') && (
+                {(snapshot || timeline) && (
                   <SnapshotBar
                     entry={snapshot}
                     onShow={setSnapshot}
                     onOpen={() => setTab('actions')}
-                    stepsToLive={tab === 'timeline'}
+                    stepsToLive={timeline}
                   />
                 )}
                 <div className={styles.tabPanel} hidden={tab === 'actions'}>

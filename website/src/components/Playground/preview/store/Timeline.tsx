@@ -127,8 +127,9 @@ export default memo(function Timeline({
       ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
   }, [selected, toNewest]);
 
-  // the arrow keys step as the snapshot bar's ‹ › do; past the newest is live.
-  // Live already, End still brings the newest back into view
+  // the arrow keys step as the snapshot bar's ‹ › do; past the newest is live
+  // (End too; live already, it brings the newest back into view). Escape is
+  // the levels' way back, so it stays theirs
   const toLive = () => {
     if (selected === null) toNewest();
     else onSelect(null);
@@ -147,7 +148,6 @@ export default memo(function Timeline({
         step(1);
         break;
       case 'End':
-      case 'Escape':
         toLive();
         break;
       default:

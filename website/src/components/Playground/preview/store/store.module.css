@@ -29,7 +29,8 @@
   font: 12px / 1.6 var(--ifm-font-family-monospace);
 }
 
-/* State | Actions | Timeline, then the view switch; the same band as the other headers */
+/* State | Actions, then the Timeline toggle and the view switch; the same
+   band as the other headers */
 .bar {
   flex: none;
   display: flex;
@@ -90,8 +91,13 @@
 .viewButtons {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 0.4rem;
   margin-left: auto;
+}
+.viewSwitch {
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 .viewButtons button {
   display: grid;
@@ -116,6 +122,12 @@
 .viewButtons button[aria-pressed='true'] {
   background: var(--pg-tab-hover-bg);
   opacity: 1;
+}
+/* a word, not an icon: the Timeline strip's toggle */
+.viewButtons .toggle {
+  width: auto;
+  padding: 0 0.55rem;
+  font: inherit;
 }
 .viewButtons svg,
 .historyButton svg {

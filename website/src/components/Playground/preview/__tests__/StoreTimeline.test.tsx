@@ -102,10 +102,10 @@ describe('lanesOf', () => {
   });
 });
 
-describe('Store Timeline tab', () => {
+describe('Store Timeline strip', () => {
   it('keeps its scroller from before the first action, so it follows from it', async () => {
     const { ctrl } = mount();
-    fireEvent.click(screen.getByRole('tab', { name: 'Timeline' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
     const timeline = screen.getByRole('group', { name: /^Timeline/ });
     expect(timeline.textContent).toContain('Nothing dispatched yet');
     await act(() => ctrl().fetch(getPosts));
@@ -120,7 +120,7 @@ describe('Store Timeline tab', () => {
     title = 'Two';
     await act(() => ctrl().fetch(getPosts));
 
-    fireEvent.click(screen.getByRole('tab', { name: 'Timeline' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
     const timeline = screen.getByRole('group', { name: /^Timeline/ });
     const panel = within(timeline.parentElement!);
     // one lane for the endpoint, both requests on it
@@ -156,7 +156,7 @@ describe('Store Timeline tab', () => {
     Object.defineProperty(timeline, 'scrollWidth', { value: 900 });
     fireEvent.click(marks[0]);
     timeline.scrollLeft = 0;
-    fireEvent.keyDown(timeline, { key: 'Escape' });
+    fireEvent.keyDown(timeline, { key: 'End' });
     expect(timeline.scrollLeft).toBe(900);
     // live already, End still brings the newest back
     timeline.scrollLeft = 0;
@@ -164,17 +164,19 @@ describe('Store Timeline tab', () => {
     expect(timeline.scrollLeft).toBe(900);
     fireEvent.keyDown(timeline, { key: 'ArrowLeft' });
 
-    // State shows the same moment
-    fireEvent.click(screen.getByRole('tab', { name: 'State' }));
+    // the strip stays above the Actions tab, without State's view switch
+    fireEvent.click(screen.getByRole('tab', { name: /Actions/ }));
+    expect(screen.getByRole('group', { name: /^Timeline/ })).toBe(timeline);
+    expect(screen.queryByRole('group', { name: 'Store view' })).toBeNull();
+    expect(marks[1].hasAttribute('data-selected')).toBe(true);
+    // toggled off, the bar stays while a moment is set
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
+    expect(screen.queryByRole('group', { name: /^Timeline/ })).toBeNull();
     expect(screen.getAllByRole('button', { name: 'Live' })).toHaveLength(1);
     fireEvent.click(screen.getByRole('button', { name: 'Live' }));
-    fireEvent.click(screen.getByRole('tab', { name: 'Timeline' }));
+    expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
     expect(screen.getByText(/^Live\./)).toBeTruthy();
-
-    // the Actions tab is the list alone, without State's view switch
-    fireEvent.click(screen.getByRole('tab', { name: /Actions/ }));
-    expect(screen.queryByRole('group', { name: /^Timeline/ })).toBeNull();
-    expect(screen.queryByRole('group', { name: 'Store view' })).toBeNull();
   });
 
   it('says when earlier actions of a lane are no longer kept, as the list does', async () => {
@@ -183,7 +185,7 @@ describe('Store Timeline tab', () => {
       for (let i = 0; i < 25; i++)
         await ctrl().set(Post, { id: '1' }, { id: '1', title: `t${i}` });
     });
-    fireEvent.click(screen.getByRole('tab', { name: 'Timeline' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
     expect(
       screen.getByRole('img', {
         name: '4 earlier sets not kept: the log keeps the newest',
@@ -194,7 +196,7 @@ describe('Store Timeline tab', () => {
   it('stays on a picked action as new ones come in', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
-    fireEvent.click(screen.getByRole('tab', { name: 'Timeline' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
     const timeline = screen.getByRole('group', { name: /^Timeline/ });
     Object.defineProperty(timeline, 'clientHeight', { value: 100 });
     Object.defineProperty(timeline, 'scrollWidth', { value: 900 });
@@ -206,7 +208,7 @@ describe('Store Timeline tab', () => {
     await act(() => ctrl().fetch(getPosts));
     expect(timeline.scrollLeft).toBe(0);
     // back to live, it follows again
-    fireEvent.keyDown(timeline, { key: 'Escape' });
+    fireEvent.keyDown(timeline, { key: 'End' });
     timeline.scrollLeft = 0;
     await act(() => ctrl().fetch(getPosts));
     expect(timeline.scrollLeft).toBe(900);
@@ -218,7 +220,7 @@ describe('Store Timeline tab', () => {
     await act(() => ctrl().fetch(getPosts));
     title = 'Two';
     await act(() => ctrl().fetch(getPosts));
-    fireEvent.click(screen.getByRole('tab', { name: 'Timeline' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
     const timeline = screen.getByRole('group', { name: /^Timeline/ });
     fireEvent.click(within(timeline).getByRole('button', { name: 'History' }));
     expect(
@@ -257,7 +259,7 @@ describe('Store Timeline tab', () => {
     fireEvent.click(screen.getByRole('tab', { name: /Actions/ }));
     expect(screen.getByText('After')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
-    fireEvent.click(screen.getByRole('tab', { name: 'Timeline' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
     expect(screen.getByText('After')).toBeTruthy();
     fireEvent.click(screen.getByRole('tab', { name: 'State' }));
     expect(screen.getByText('After')).toBeTruthy();

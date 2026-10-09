@@ -158,8 +158,9 @@ DesignSystem/       components injected into preview scope
   Timeline mark all move the moment. While the moment is set, the bar under the
   tab bar (`SnapshotBar`) shows on every tab: ‹ › step through store-wide
   changes, "After <action>" opens the action in the Actions list, "Live" lets go.
-  The Timeline tab (`preview/store/Timeline.tsx`) puts the same history on one
-  time axis; an endpoint lane's label opens that record's History.
+  The "Timeline" toggle (`aria-pressed`, beside the view switch) opens a strip
+  (`preview/store/Timeline.tsx`) above either tab that puts the same history on
+  one time axis; an endpoint lane's label opens that record's History.
   "History" is the one way into a record's versions everywhere; where there is
   no stack to open it on (the tree view, the Timeline), `OpenViewContext` opens
   it on the State tab's table view.
