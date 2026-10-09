@@ -417,6 +417,32 @@ describe('Store Actions tab', () => {
     expect(crumbs().textContent).toContain('setResponse');
   });
 
+  it('moves the moment to an action as it opens, and as its row steps', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    fireEvent.click(actionsTab());
+    fireEvent.click(rows()[0]);
+    // a fetch never reached the store: still live
+    fireEvent.click(screen.getByText('fetch').closest('[role="button"]')!);
+    expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Next action in this row' }),
+    );
+    const bar = () =>
+      screen.getByRole('button', { name: 'Live' }).parentElement!;
+    expect(bar().textContent).toContain('After');
+    expect(bar().textContent).toContain('setResponse');
+    // State shows the store as it left it
+    fireEvent.click(screen.getByRole('tab', { name: 'State' }));
+    expect(top().textContent).toContain('"One"');
+    // stepping to an action the store never saw leaves it
+    fireEvent.click(actionsTab());
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Previous action in this row' }),
+    );
+    expect(bar().textContent).toContain('setResponse');
+  });
+
   it('marks the moment’s action in the list, with its row open', async () => {
     const scrollTo = jest.fn();
     Element.prototype.scrollTo = scrollTo;

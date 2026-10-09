@@ -1,6 +1,6 @@
 import { actionTypes, type ActionTypes, type State } from '@data-client/react';
 import clsx from 'clsx';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 import { actionKey, groupEntriesOf, type Change } from './actionGroups';
 import { findEntry, type LogEntry } from './actionLog';
@@ -13,7 +13,7 @@ import {
 } from './ActionsView';
 import type { Header } from './DiveViews';
 import { errorText } from './model';
-import { ActionSpanContext } from './nav';
+import { ActionSpanContext, useMoment } from './nav';
 import { plain } from './refs';
 import styles from './store.module.css';
 import { Field, Inline } from './Value';
@@ -34,6 +34,13 @@ export function ActionDetail({
 }) {
   const { log, history, groups, showState } = useActions();
   const entry = findEntry(history.entries, seq);
+  // the panel moves to this action, if the store saw it: State shows the
+  // store as it left it, and a History the version current then
+  const { set } = useMoment();
+  const stored = !!entry?.store;
+  useEffect(() => {
+    if (stored) set(seq);
+  }, [seq, stored, set]);
   const row = useMemo(() => {
     const group = groups.find(g => groupEntriesOf(g).some(e => e.seq === seq));
     return group ? groupEntriesOf(group) : [];
