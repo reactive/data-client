@@ -1268,6 +1268,8 @@ button.tlMark:hover {
   background: none;
   box-shadow: inset 0 -1px 0 var(--store-line);
   color: var(--store-muted);
+}
+
 /* A record's history: a timeline of its versions, one open at a time */
 .historyButton {
   display: inline-flex;
