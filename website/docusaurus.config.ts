@@ -29,6 +29,9 @@ const remarkFramework = require('./framework-docs/remarkFramework.js');
 // Non-Vue instances render React; :::vue reaches Vue agents via skill references
 const reactRemarkPlugins = [[remarkFramework, { framework: 'react' }]];
 const localeDocs = require('./translate/localeDocs.js');
+const remarkEnglishPage = require('./translate/remarkEnglishPage.js');
+// set by Docusaurus for the locale being built or served
+const currentLocale = process.env.DOCUSAURUS_CURRENT_LOCALE ?? DEFAULT_LOCALE;
 const vueDocs = frameworkDocs.generate('vue');
 // Each locale renders English with its translations in place
 // (translate/README.md); its Vue pages mirror its docs/core
@@ -298,6 +301,9 @@ const config: Config = {
             : ['current', ...versions],
         },
         blog: {
+          // Posts are English in every locale
+          beforeDefaultRemarkPlugins:
+            currentLocale === DEFAULT_LOCALE ? [] : [remarkEnglishPage],
           showReadingTime: true,
           blogSidebarTitle: 'All posts',
           blogSidebarCount: 'ALL',
