@@ -88,7 +88,8 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
 .dropdown.navbar__item {
   padding: 0;
 }
-.dropdown .navbar__link.active {
+.dropdown .navbar__link.active,
+.dropdown .navbar__link.header-locale-link {
   display: block;
   padding: var(--ifm-navbar-item-padding-vertical)
     var(--ifm-navbar-item-padding-horizontal);

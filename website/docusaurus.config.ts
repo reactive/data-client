@@ -28,6 +28,12 @@ const frameworkDocs = require('./framework-docs/index.js');
 const remarkFramework = require('./framework-docs/remarkFramework.js');
 // Non-Vue instances render React; :::vue reaches Vue agents via skill references
 const reactRemarkPlugins = [[remarkFramework, { framework: 'react' }]];
+const remarkLocaleLinks = require('./translate/remarkLocaleLinks.js');
+/** Links between translated and English pages of a docs instance */
+const localeLinks = (id: string, contentPath = docsInstance(id).path) => [
+  remarkLocaleLinks,
+  { id, contentPath: path.resolve(__dirname, '..', contentPath) },
+];
 const vueDocs = frameworkDocs.generate('vue');
 // Each locale's Vue pages mirror its translations of docs/core
 const vueMirrors = [
@@ -283,7 +289,10 @@ const config: Config = {
             '**/*.vue.{md,mdx}',
           ],
           sidebarPath: require.resolve('./framework-docs/sidebars-react.js'),
-          beforeDefaultRemarkPlugins: reactRemarkPlugins,
+          beforeDefaultRemarkPlugins: [
+            ...reactRemarkPlugins,
+            localeLinks('default'),
+          ],
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
           lastVersion: 'current',
@@ -342,6 +351,7 @@ const config: Config = {
               docs: frameworkDocs.docsFor('vue'),
             },
           ],
+          localeLinks('vue', vueDocs.outDir),
         ],
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
@@ -354,7 +364,10 @@ const config: Config = {
       {
         ...docsLocation('rest'),
         sidebarPath: require.resolve('./sidebars-rest.js'),
-        beforeDefaultRemarkPlugins: reactRemarkPlugins,
+        beforeDefaultRemarkPlugins: [
+          ...reactRemarkPlugins,
+          localeLinks('rest'),
+        ],
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
         lastVersion: 'current',
@@ -372,7 +385,10 @@ const config: Config = {
       {
         ...docsLocation('graphql'),
         sidebarPath: require.resolve('./sidebars-graphql.js'),
-        beforeDefaultRemarkPlugins: reactRemarkPlugins,
+        beforeDefaultRemarkPlugins: [
+          ...reactRemarkPlugins,
+          localeLinks('graphql'),
+        ],
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
         lastVersion: 'current',
@@ -582,7 +598,11 @@ const config: Config = {
           //className: 'header-demos-link',
           'aria-label': 'Demo Applications',
         },
-        { type: 'localeDropdown', position: 'right' },
+        {
+          type: 'localeDropdown',
+          position: 'right',
+          className: 'header-locale-link',
+        },
         {
           href: 'https://github.com/reactive/data-client',
           position: 'right',
