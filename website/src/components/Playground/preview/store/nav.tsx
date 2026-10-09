@@ -80,6 +80,19 @@ export interface Moment {
   readonly before?: true;
 }
 
+/** The moment the panel is at: State shows the store right after action
+ * `seq`, the Actions list marks it and a History opens the version current
+ * then. `null` is live. Every tab can move it */
+export interface MomentCursor {
+  readonly seq: number | null;
+  readonly set: (seq: number | null) => void;
+}
+export const MomentContext = createContext<MomentCursor>({
+  seq: null,
+  set: () => {},
+});
+export const useMoment = () => useContext(MomentContext);
+
 /** The store at a `Moment` */
 export interface Then {
   readonly state: State<unknown>;

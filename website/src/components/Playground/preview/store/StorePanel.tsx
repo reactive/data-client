@@ -32,7 +32,15 @@ import {
   pendingIn,
   type StoreModel,
 } from './model';
-import { NavContext, type Moment, type Nav, type Then, type View } from './nav';
+import {
+  MomentContext,
+  NavContext,
+  type Moment,
+  type MomentCursor,
+  type Nav,
+  type Then,
+  type View,
+} from './nav';
 import RootView from './RootView';
 import type SchemaRegistry from './schemaRegistry';
 import styles from './store.module.css';
@@ -156,6 +164,10 @@ export default function StorePanel({
     () => ({ log, since: history.since, dropped: history.dropped }),
     [log, history.since, history.dropped],
   );
+  const moment = useMemo<MomentCursor>(
+    () => ({ seq: snapshotSeq, set: setSnapshot }),
+    [snapshotSeq],
+  );
   // only State and the timeline show the past; the Actions list is live
   const stateActions = useMemo<Actions>(
     () =>
@@ -183,108 +195,110 @@ export default function StorePanel({
   return (
     <ActionsContext.Provider value={actions}>
       <LogContext.Provider value={logContext}>
-        <div className={styles.store} ref={panel}>
-          <div className={styles.bar} role="tablist" aria-label="Store">
-            <button
-              type="button"
-              role="tab"
-              className={styles.tab}
-              aria-selected={tab === 'state'}
-              onClick={() => setTab('state')}
-            >
-              State
-            </button>
-            <button
-              type="button"
-              role="tab"
-              className={styles.tab}
-              aria-selected={tab === 'actions'}
-              onClick={() => setTab('actions')}
-            >
-              Actions
-              {actions.groups.length > 0 && (
-                <span className={styles.count}>
-                  {actions.groups.length.toLocaleString()}
+        <MomentContext.Provider value={moment}>
+          <div className={styles.store} ref={panel}>
+            <div className={styles.bar} role="tablist" aria-label="Store">
+              <button
+                type="button"
+                role="tab"
+                className={styles.tab}
+                aria-selected={tab === 'state'}
+                onClick={() => setTab('state')}
+              >
+                State
+              </button>
+              <button
+                type="button"
+                role="tab"
+                className={styles.tab}
+                aria-selected={tab === 'actions'}
+                onClick={() => setTab('actions')}
+              >
+                Actions
+                {actions.groups.length > 0 && (
+                  <span className={styles.count}>
+                    {actions.groups.length.toLocaleString()}
+                  </span>
+                )}
+              </button>
+              <button
+                type="button"
+                role="tab"
+                className={styles.tab}
+                aria-selected={tab === 'timeline'}
+                onClick={() => {
+                  setTab('timeline');
+                  // the timeline picks the moment State shows below it, so
+                  // there's no action to go back to
+                  setOrigin(undefined);
+                }}
+              >
+                Timeline
+              </button>
+              {tab !== 'actions' && (
+                <span
+                  className={styles.viewButtons}
+                  role="group"
+                  aria-label="Store view"
+                >
+                  <button
+                    type="button"
+                    aria-label="Table view"
+                    title="Table view"
+                    aria-pressed={!tree}
+                    onClick={() => setView('table')}
+                  >
+                    <TableIcon />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Tree view"
+                    title="Tree view"
+                    aria-pressed={tree}
+                    onClick={() => setView('tree')}
+                  >
+                    <TreeIcon />
+                  </button>
                 </span>
               )}
-            </button>
-            <button
-              type="button"
-              role="tab"
-              className={styles.tab}
-              aria-selected={tab === 'timeline'}
-              onClick={() => {
-                setTab('timeline');
-                // the timeline picks the moment State shows below it, so
-                // there's no action to go back to
-                setOrigin(undefined);
-              }}
-            >
-              Timeline
-            </button>
-            {tab !== 'actions' && (
-              <span
-                className={styles.viewButtons}
-                role="group"
-                aria-label="Store view"
-              >
-                <button
-                  type="button"
-                  aria-label="Table view"
-                  title="Table view"
-                  aria-pressed={!tree}
-                  onClick={() => setView('table')}
-                >
-                  <TableIcon />
-                </button>
-                <button
-                  type="button"
-                  aria-label="Tree view"
-                  title="Tree view"
-                  aria-pressed={tree}
-                  onClick={() => setView('tree')}
-                >
-                  <TreeIcon />
-                </button>
-              </span>
-            )}
-          </div>
-          <ActionsContext.Provider value={stateActions}>
-            {tab === 'timeline' && (
-              <Timeline
-                selected={snapshotSeq}
-                onSelect={setSnapshot}
-                width={width}
-              />
-            )}
-            <div className={styles.tabPanel} hidden={tab === 'actions'}>
-              {(snapshot || tab === 'timeline') && (
-                <SnapshotBar
-                  entry={snapshot}
-                  onShow={setSnapshot}
-                  stepsToLive={tab === 'timeline'}
-                  onBack={
-                    origin &&
-                    (() => {
-                      setOrigin(undefined);
-                      origin.back();
-                    })
-                  }
+            </div>
+            <ActionsContext.Provider value={stateActions}>
+              {tab === 'timeline' && (
+                <Timeline
+                  selected={snapshotSeq}
+                  onSelect={setSnapshot}
+                  width={width}
                 />
               )}
-              <StateContext.Provider value={state}>
-                {tree ?
-                  <TreeLevel model={model} />
-                : <Levels model={model} width={width} root={STATE_ROOT} />}
-              </StateContext.Provider>
-            </div>
-          </ActionsContext.Provider>
-          {actionsShown && (
-            <div className={styles.tabPanel} hidden={tab !== 'actions'}>
-              <Levels model={liveModel} width={width} root={ACTIONS_ROOT} />
-            </div>
-          )}
-        </div>
+              <div className={styles.tabPanel} hidden={tab === 'actions'}>
+                {(snapshot || tab === 'timeline') && (
+                  <SnapshotBar
+                    entry={snapshot}
+                    onShow={setSnapshot}
+                    stepsToLive={tab === 'timeline'}
+                    onBack={
+                      origin &&
+                      (() => {
+                        setOrigin(undefined);
+                        origin.back();
+                      })
+                    }
+                  />
+                )}
+                <StateContext.Provider value={state}>
+                  {tree ?
+                    <TreeLevel model={model} />
+                  : <Levels model={model} width={width} root={STATE_ROOT} />}
+                </StateContext.Provider>
+              </div>
+            </ActionsContext.Provider>
+            {actionsShown && (
+              <div className={styles.tabPanel} hidden={tab !== 'actions'}>
+                <Levels model={liveModel} width={width} root={ACTIONS_ROOT} />
+              </div>
+            )}
+          </div>
+        </MomentContext.Provider>
       </LogContext.Provider>
     </ActionsContext.Provider>
   );
