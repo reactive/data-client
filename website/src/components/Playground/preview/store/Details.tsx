@@ -2,7 +2,6 @@ import { StateContext, useController } from '@data-client/react';
 import clsx from 'clsx';
 import React, { useContext, useEffect, useState } from 'react';
 
-import { ChangedBy } from './ActionDetail';
 import {
   errorText,
   referrersOf,
@@ -14,6 +13,7 @@ import { plain } from './refs';
 import type { EndpointRecord } from './schemaRegistry';
 import styles from './store.module.css';
 import { Block, Field, formatTime, RefList, RowChip } from './Value';
+import { ChangedBy } from './VersionHistory';
 
 type Meta = EndpointRow['meta'];
 

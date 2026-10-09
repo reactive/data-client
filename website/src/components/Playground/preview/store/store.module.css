@@ -117,7 +117,8 @@
   background: var(--pg-tab-hover-bg);
   opacity: 1;
 }
-.viewButtons svg {
+.viewButtons svg,
+.historyButton svg {
   width: 15px;
   height: 15px;
   fill: none;
@@ -1009,13 +1010,6 @@ div.joined {
   flex-wrap: wrap;
   gap: 0.35rem;
 }
-/* A record's history: each change under the action that made it */
-.historyItem + .historyItem {
-  box-shadow: inset 0 1px 0 var(--store-line);
-}
-.historyChange {
-  padding: 0 0.75rem 0.45rem 2rem;
-}
 .actChange {
   display: grid;
   grid-template-columns: minmax(0, max-content) minmax(0, 1fr);
@@ -1103,4 +1097,138 @@ div.joined {
   color: var(--store-fresh);
   font-family: var(--ifm-font-family-base);
   font-weight: 500;
+}
+
+/* A record's history: a timeline of its versions, one open at a time */
+.historyButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 1px 7px 1px 5px;
+  border: 1px solid var(--store-line-strong);
+  border-radius: 4px;
+  background: none;
+  color: var(--store-key);
+  font: 500 11px / 1.5 var(--ifm-font-family-base);
+  cursor: pointer;
+}
+.historyButton svg {
+  width: 12px;
+  height: 12px;
+  stroke-width: 1.4;
+  stroke-linejoin: round;
+}
+.historyButton:hover {
+  background: var(--store-selected);
+}
+.historyButton:focus-visible {
+  outline: 2px solid var(--store-key);
+}
+.versions {
+  --rail: 1.05rem;
+  position: relative;
+  margin: 0;
+  padding: 0.4rem 0;
+  list-style: none;
+}
+/* the rail the versions hang off */
+.versions::before {
+  content: '';
+  position: absolute;
+  top: 0.9rem;
+  bottom: 0.9rem;
+  left: var(--rail);
+  width: 1px;
+  background: var(--store-line-strong);
+}
+.version {
+  --dot: var(--store-key);
+  position: relative;
+  padding-left: 1.9rem;
+}
+/* each version's dot, colored by what it did to the record */
+.version::before {
+  content: '';
+  position: absolute;
+  z-index: 1;
+  top: 0.62rem;
+  left: calc(var(--rail) - 4px);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--store-bg);
+  box-shadow: inset 0 0 0 2px var(--dot);
+}
+.version[data-kind='added'] {
+  --dot: var(--store-fresh);
+}
+.version[data-kind='updated'],
+.version[data-kind='expired'] {
+  --dot: var(--store-stale);
+}
+.version[data-kind='removed'],
+.version[data-kind='invalidated'],
+.version[data-kind='error'] {
+  --dot: var(--store-null);
+}
+.version:has([aria-expanded='true'])::before {
+  background: var(--dot);
+}
+.refreshItem::before {
+  top: 0.55rem;
+  left: calc(var(--rail) - 2px);
+  width: 5px;
+  height: 5px;
+  background: var(--store-line-strong);
+  box-shadow: none;
+}
+.refreshItem {
+  padding-top: 0.05rem;
+  padding-bottom: 0.05rem;
+}
+div.versionHead {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.05rem;
+  margin-right: 0.4rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 5px;
+}
+/* open, it stays selected under the pointer */
+.versionHead[aria-expanded='true'],
+.versionHead[aria-expanded='true']:hover {
+  background: var(--store-selected);
+}
+.versionLine {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.refreshItem .versionLine {
+  padding: 0 0.5rem;
+  font-size: 11px;
+}
+.versionBody {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  margin: 0.2rem 0.4rem 0.45rem 0;
+  padding: 0.4rem 0.5rem 0.5rem;
+  border-left: 2px solid var(--dot);
+  background: var(--store-record);
+  border-radius: 0 5px 5px 0;
+}
+.versionBody > :not(.versionTools) {
+  align-self: stretch;
+  min-width: 0;
+}
+.versionTools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.versionTools .showState {
+  margin-top: 0;
 }
