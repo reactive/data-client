@@ -52,14 +52,14 @@ Como alternativa, [integra el estado con redux](../guides/redux.md)
 
 <TabItem value="anansi">
 
-[Anansi](https://github.com/ntucker/anansi) (beta) es un framework totalmente componible para el desarrollo con React, con renderizado
-del lado del servidor opcional.
+[Anansi](https://github.com/ntucker/anansi) (beta) es un framework totalmente componible para desarrollar con React, con
+renderizado en el servidor opcional.
 
 ```bash title="bash"
 npx @anansi/cli hatch my-project
 ```
 
-Anansi incluye Reactive Data Client automáticamente.
+Anansi incluye Reactive Data Client de forma automática.
 
 </TabItem>
 </Tabs>
@@ -72,6 +72,6 @@ Anansi incluye Reactive Data Client automáticamente.
 
 <ProviderSetupCode platform="vue" />
 
-`app.use(DataClientPlugin, options)` puede sobrescribir opcionalmente [`managers`](../api/getDefaultManagers.md), `initialState`, `Controller` y `gcPolicy`. Consulta [DataClientPlugin](../api/DataClientPlugin.md) para ver todas las opciones.
+`app.use(DataClientPlugin, options)` puede, de forma opcional, sustituir [`managers`](../api/getDefaultManagers.md), `initialState`, `Controller` y `gcPolicy`. Consulta [DataClientPlugin](../api/DataClientPlugin.md) para ver todas las opciones.
 
 ::::

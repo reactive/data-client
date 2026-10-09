@@ -20,7 +20,7 @@ import AsyncBoundaryExamples from '../shared/\_AsyncBoundary.mdx';
 
 # Renderizar datos asíncronos
 
-Haz que tus componentes sean reutilizables vinculando los datos donde los **usas** con el [useSuspense()](../api/useSuspense.md) de una sola línea,
+Haz que tus componentes sean reutilizables vinculando los datos donde los **usas**, con [useSuspense()](../api/useSuspense.md) en una sola línea,
 que garantiza los datos :react[como]:vue[con] [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await).
 
 <FrameworkPlayground defaultOpen="n" row fixtures={postFixtures}>
@@ -326,56 +326,56 @@ width="415" height="184"
 />
 </a>
 
-No hagas [prop drilling](https://react.dev/learn/passing-data-deeply-with-context#the-problem-with-passing-props). En su lugar, usa [useSuspense()](../api/useSuspense.md) en los componentes que renderizan los datos. Esto se
-conoce como _colocación de datos_ (_data co-location_).
+No hagas [prop drilling](https://react.dev/learn/passing-data-deeply-with-context#the-problem-with-passing-props). En su lugar, usa [useSuspense()](../api/useSuspense.md) en los componentes que renderizan esos datos. Esto
+se conoce como _colocalización de datos_.
 
-No ocultes los hooks de vinculación de datos dentro de hooks personalizados. En su lugar, coloca las transformaciones de datos estrechamente acopladas
-en un [Query](/rest/api/Query): la lógica de datos pertenece al modelo de datos, donde permanece visible, es reutilizable
-y puede cambiar de forma independiente de la vista.
+No escondas los hooks que vinculan datos dentro de hooks personalizados. En su lugar, pon las transformaciones de datos muy acopladas
+en [Query](/rest/api/Query): la lógica de datos pertenece al modelo de datos, donde sigue visible, reutilizable
+y libre para cambiar con independencia de la vista.
 
-En lugar de escribir complejas funciones de actualización o cascadas de invalidaciones, Reactive Data Client actualiza automáticamente
-los componentes vinculados de inmediato cuando [los datos cambian](./mutations.md). Esto se conoce como _programación reactiva_.
+En lugar de escribir funciones de actualización complejas o cascadas de invalidación, Reactive Data Client actualiza automáticamente
+los componentes vinculados en cuanto [cambian los datos](./mutations.md). Esto se conoce como _programación reactiva_.
 
 ## Carga y error {#async-fallbacks}
 
-Es posible que hayas notado que el tipo de retorno indica que el valor siempre está presente. [useSuspense()](../api/useSuspense.md) funciona de forma muy parecida
-:react[a]:vue[con] [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await). Esto nos permite
-separar el manejo de errores y de carga del uso de los datos.
+Quizá hayas notado que el tipo de retorno muestra que el valor siempre está presente. [useSuspense()](../api/useSuspense.md) funciona de forma muy parecida
+:react[a]:vue[a] [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await). Esto nos permite
+separar el error y la carga del uso de los datos.
 
-### Async Boundaries {#boundaries}
+### Límites asíncronos {#boundaries}
 
-En su lugar, colocamos :react[[&lt;AsyncBoundary /\>](../api/AsyncBoundary.md)]:vue[el [&lt;Suspense /\>](https://vuejs.org/guide/built-ins/suspense.html) integrado de Vue junto con [onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured)] para manejar las condiciones de carga y error en o por encima de los límites de navegación, como **páginas,
+En su lugar colocamos :react[[&lt;AsyncBoundary /\>](../api/AsyncBoundary.md)]:vue[el [&lt;Suspense /\>](https://vuejs.org/guide/built-ins/suspense.html) integrado de Vue junto con [onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured)] para manejar las condiciones de carga y error en los límites de navegación, o por encima, como **páginas,
 rutas o [modales](https://www.appcues.com/blog/modal-dialog-windows)**.
 
 <AsyncBoundaryExamples />
 
 :::react
 
-El [useTransition](https://react.dev/reference/react/useTransition) de React 18 y los enrutadores o la navegación basados en [renderizado del lado del servidor](../guides/ssr.md)
-hacen que nunca vuelvas a ver un fallback de carga. En React 16 y 17 los fallbacks pueden centralizarse
+Los routers o la navegación impulsados por [useTransition](https://react.dev/reference/react/useTransition) de React 18 y el [renderizado en el servidor](../guides/ssr.md)
+hacen que no vuelvas a ver un respaldo de carga. En React 16 y 17 los respaldos se pueden centralizar
 para eliminar indicadores de carga redundantes y mantener los componentes reutilizables.
 
-[&lt;AsyncBoundary /\>](../api/AsyncBoundary.md) también permite que el [renderizado del lado del servidor](../guides/ssr.md) transmita HTML de forma incremental,
-lo que reduce considerablemente el [TTFB](https://web.dev/ttfb/). La hidratación automática del store de [Reactive Data Client SSR](../guides/ssr.md)
-significa interactividad inmediata para el usuario con **cero** fetches del lado del cliente en la primera carga.
+[&lt;AsyncBoundary /\>](../api/AsyncBoundary.md) también permite que el [renderizado en el servidor](../guides/ssr.md) transmita HTML de forma incremental,
+lo que reduce mucho el [TTFB](https://web.dev/ttfb/). La hidratación automática del store del [SSR de Reactive Data Client](../guides/ssr.md)
+significa interactividad inmediata para el usuario, con **cero** obtenciones en el cliente en la primera carga.
 
-Tanto el [fallback de error](../api/AsyncBoundary.md#errorcomponent) como el [fallback de carga](../api/AsyncBoundary.md#fallback) de AsyncBoundary
-se pueden personalizar.
+El [respaldo de error](../api/AsyncBoundary.md#errorcomponent) y el [respaldo de carga](../api/AsyncBoundary.md#fallback) de AsyncBoundary se pueden
+personalizar ambos.
 
 :::
 
 :::vue
 
-Centralizar los fallbacks de esta manera elimina indicadores de carga redundantes y mantiene los componentes reutilizables.
-El fallback de carga se personaliza con el slot `#fallback` de [&lt;Suspense /\>](https://vuejs.org/guide/built-ins/suspense.html#loading-state),
-y el fallback de error, renderizando lo que elijas desde [onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured).
+Centralizar los respaldos de esta forma elimina indicadores de carga redundantes y mantiene los componentes reutilizables.
+El respaldo de carga se personaliza con el slot `#fallback` de [&lt;Suspense /\>](https://vuejs.org/guide/built-ins/suspense.html#loading-state),
+y el respaldo de error renderizando lo que elijas desde [onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured).
 
 :::
 
 ### Con estado {#stateful}
 
-Puede haber casos en los que siga siendo útil un enfoque con estado para :react[los fallbacks al usar React 16 y 17.]:vue[los fallbacks.]
-Para estos casos, o para la compatibilidad con algunas bibliotecas de componentes, se proporciona [useDLE()](../api/useDLE.md) - [D]ata [L]oading [E]rror (datos, carga, error).
+Puede que encuentres casos en los que todavía sea útil un enfoque con estado para los :react[respaldos al usar React 16 y 17.]:vue[respaldos.]
+Para esos casos, o para la compatibilidad con algunas bibliotecas de componentes, está [useDLE()](../api/useDLE.md): [D]ata [L]oading [E]rror.
 
 <FrameworkPlayground fixtures={listFixtures} row>
 
@@ -456,9 +456,9 @@ render(<ProfileList />);
 
 </FrameworkPlayground>
 
-Dado que [useDLE](../api/useDLE.md) no usa [useSuspense](../api/useSuspense.md), no podrás orquestar fácilmente de forma central
-el código de carga y de error :vue[.]:react[. Además, las funcionalidades de React 18 como [useTransition](https://react.dev/reference/react/useTransition)
-y el [SSR con transmisión incremental](../guides/ssr.md) no funcionarán con los componentes que lo usen.]
+Como [useDLE](../api/useDLE.md) no usa [useSuspense](../api/useSuspense.md), no podrás orquestar con facilidad y de forma central
+el código de carga y error:vue[.]:react[. Además, las funciones de React 18 como [useTransition](https://react.dev/reference/react/useTransition)
+y el [SSR que transmite de forma incremental](../guides/ssr.md) no funcionan con los componentes que lo usan.]
 
 ## Condicional {#conditional}
 
@@ -466,16 +466,16 @@ y el [SSR con transmisión incremental](../guides/ssr.md) no funcionarán con lo
 
 ## Suscripciones {#subscriptions}
 
-Cuando es probable que los datos cambien por factores externos, [useSubscription()](../api/useSubscription.md)
+Cuando es probable que los datos cambien por un factor externo, [useSubscription()](../api/useSubscription.md)
 garantiza actualizaciones continuas mientras un componente está montado. [useLive()](../api/useLive.md) llama tanto a
-[useSubscription()](../api/useSubscription.md) como a [useSuspense()](../api/useSuspense.md), lo que hace muy
-fácil usar datos actualizados.
+[useSubscription()](../api/useSubscription.md) como a [useSuspense()](../api/useSuspense.md), así que es bastante
+fácil usar datos frescos.
 
 <UseLive />
 
-Las suscripciones son orquestadas por los [Managers](../api/Manager.md). De fábrica,
-se pueden usar suscripciones basadas en sondeo (polling) agregando [pollFrequency](/rest/api/Endpoint#pollfrequency) a un Endpoint o Resource.
-Para protocolos de red basados en push, como SSE y websockets, consulta el [ejemplo de stream manager](../concepts/managers.md#data-stream).
+Las suscripciones las orquestan los [Managers](../api/Manager.md). De entrada,
+las suscripciones basadas en sondeo (polling) se pueden usar añadiendo [pollFrequency](/rest/api/Endpoint#pollfrequency) a un Endpoint o a un Resource.
+Para protocolos de red basados en push, como SSE y websockets, consulta el [manager de stream de ejemplo](../concepts/managers.md#data-stream).
 
 ```typescript
 export const getTicker = new RestEndpoint({

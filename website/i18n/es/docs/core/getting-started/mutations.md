@@ -1,8 +1,8 @@
 ---
-title: Mutando datos asíncronos en React
-vue_title: Mutando datos asíncronos en Vue
+title: Mutar datos asíncronos en React
+vue_title: Mutar datos asíncronos en Vue
 sidebar_label: Mutar datos
-description: Mutaciones de datos seguras y de alto rendimiento sin volver a obtener los datos ni escribir gestión de estado.
+description: Mutaciones de datos seguras y de alto rendimiento, sin volver a obtener ni escribir gestión de estado.
 ---
 
 import ProtocolTabs from '@site/src/components/ProtocolTabs';
@@ -19,10 +19,10 @@ import VoteDemo from '../shared/\_VoteDemo.mdx';
 
 # Mutaciones de datos
 
-Usar nuestros endpoints de [Create, Update y Delete](/docs/concepts/atomic-mutations) con
-[Controller.fetch()](../api/Controller.md#fetch) actualiza de forma reactiva _todos_ los componentes apropiados de manera atómica (al mismo tiempo).
+Usar nuestros endpoints de [crear, actualizar y borrar](/docs/concepts/atomic-mutations) con
+[Controller.fetch()](../api/Controller.md#fetch) actualiza de forma reactiva _todos_ los componentes que corresponde, de manera atómica (al mismo tiempo).
 
-[useController()](../api/useController.md) da a los componentes acceso a este [setState()](https://react.dev/reference/react/useState#setstate) global y potenciado.
+[useController()](../api/useController.md) da a los componentes acceso a este [setState()](https://react.dev/reference/react/useState#setstate) global potenciado.
 
 [//]: # 'TODO: Add create, and delete examples as well (in tabs)'
 
@@ -223,22 +223,22 @@ render(<TodoList />);
 
 </FrameworkPlayground>
 
-En lugar de desencadenar cascadas de invalidación o usar funciones de actualización escritas manualmente,
-<abbr title="Reactive Data Client">Data Client</abbr> actualiza de forma reactiva los componentes apropiados usando la respuesta del fetch.
+En lugar de disparar cascadas de invalidación o usar funciones de actualización escritas a mano,
+<abbr title="Reactive Data Client">Data Client</abbr> actualiza de forma reactiva los componentes que corresponde usando la respuesta de la obtención.
 
-## Mutaciones optimistas basadas en el estado previo {#optimistic-updates}
+## Mutaciones optimistas basadas en el estado anterior {#optimistic-updates}
 
 <VoteDemo />
 
-[getOptimisticResponse](/rest/guides/optimistic-updates) es igual que [setState con una función de actualización](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state). [Snapshot](../api/Snapshot.md) proporciona acceso con tipado seguro al valor previo del store,
-que usamos para devolver la respuesta _esperada_ del fetch.
+[getOptimisticResponse](/rest/guides/optimistic-updates) es igual que [setState con una función de actualización](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state). [Snapshot](../api/Snapshot.md) ofrece acceso con tipado seguro al valor anterior del store,
+que usamos para devolver la respuesta de obtención _esperada_.
 
-Reactive Data Client garantiza la [integridad de los datos frente a cualquier posible fallo de red o condición de carrera](/rest/guides/optimistic-updates#optimistic-transforms), así que no te
-preocupes por fallos de red, por múltiples llamadas de mutación que editan los mismos datos, ni por otros problemas
-comunes de la programación asíncrona.
+Reactive Data Client garantiza la [integridad de los datos frente a cualquier fallo de red o condición de carrera](/rest/guides/optimistic-updates#optimistic-transforms), así que no te
+preocupes por los fallos de red, por varias llamadas de mutación que editan los mismos datos ni por otros problemas
+habituales de la programación asíncrona.
 
-## Seguimiento de la carga de una mutación {#tracking-mutation-loading}
+## Seguimiento de la carga de la mutación {#tracking-mutation-loading}
 
-[useLoading()](../api/useLoading.md) mejora las funciones asíncronas haciendo seguimiento de sus estados de carga y de error.
+[useLoading()](../api/useLoading.md) mejora las funciones asíncronas haciendo seguimiento de sus estados de carga y error.
 
 <UseLoading />

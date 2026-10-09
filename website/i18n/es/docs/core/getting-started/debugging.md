@@ -13,50 +13,50 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 Para muchas tareas de depuración, el camino más rápido es usar un agente que ya conozca el
 flujo de depuración de :react[`@data-client/react`]:vue[`@data-client/vue`].
 
-Instala la :react[[skill `data-client-react`](https://skills.sh/reactive/data-client/data-client-react)]:vue[[skill `data-client-vue`](https://skills.sh/reactive/data-client/data-client-vue)]
-en tu agente de programación y luego pídele que inspeccione la página o el estado actual de la aplicación.
+Instala la skill :react[[`data-client-react` skill](https://skills.sh/reactive/data-client/data-client-react)]:vue[[`data-client-vue` skill](https://skills.sh/reactive/data-client/data-client-vue)]
+en tu agente de programación y pídele que inspeccione la página actual o el estado de la aplicación.
 
 ### Cómo funciona la depuración con agentes {#how-agent-debugging-works}
 
-En modo de desarrollo, [DevToolsManager](../api/DevToolsManager.md) expone instancias activas de `Controller` para que un agente pueda inspeccionar
-el estado del caché, los metadatos de los endpoints y las acciones despachadas directamente desde la aplicación en ejecución.
+En modo de desarrollo, [DevToolsManager](../api/DevToolsManager.md) expone instancias vivas de `Controller` para que un agente pueda inspeccionar
+el estado de la caché, los metadatos de los endpoints y las acciones despachadas directamente desde la aplicación en ejecución.
 
-Técnicamente, esos controllers se almacenan en [`globalThis.__DC_CONTROLLERS__`](../api/DevToolsManager.md#controllers), que es un
-`Map` global del navegador. Puedes pensar en él como un registro temporal del modo de desarrollo que permite a las herramientas
+En la práctica, esos controllers se guardan en [`globalThis.__DC_CONTROLLERS__`](../api/DevToolsManager.md#controllers), que es un
+`Map` global del navegador. Puedes verlo como un registro temporal del modo de desarrollo que permite a las herramientas
 y a los agentes localizar los stores activos de :react[`DataProvider`]:vue[`DataClientPlugin`] de la página actual.
 
 A grandes rasgos, el agente puede:
 
 - descubrir los controllers activos de :react[`DataProvider`]:vue[`DataClientPlugin`]
-- leer el estado del caché normalizado o desnormalizado
-- inspeccionar fetches, respuestas, errores e invalidaciones recientes
+- leer el estado de la caché normalizado o desnormalizado
+- inspeccionar obtenciones, respuestas, errores e invalidaciones recientes
 - correlacionar los cambios del store con la actividad de red del navegador
-- ejecutar operaciones seguras del controller, como la invalidación o la expiración, con fines de investigación
+- disparar operaciones seguras del controller, como la invalidación o la caducidad, para investigar
 
-Esto es útil cuando quieres una respuesta rápida a preguntas como "¿por qué no se volvió a obtener esto?",
-"¿qué hay en el caché ahora mismo?" o "¿qué acción actualizó esta entity?" sin tener que
-recorrer manualmente cada panel del inspector.
+Esto sirve cuando quieres una respuesta rápida a preguntas como «¿por qué esto no se volvió a obtener?»,
+«¿qué hay en la caché ahora mismo?» o «¿qué acción actualizó esta entidad?», sin tener que
+hacer clic a mano por cada panel del inspector.
 
-La skill hace todo esto mediante [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp).
+La skill hace esto a través de [Chrome DevTools MCP](https://github.com/ChromeDevTools/chrome-devtools-mcp).
 
 ## Depuración manual {#manual-debugging}
 
-Si prefieres inspeccionarlo todo tú mismo, el flujo de trabajo con las herramientas de desarrollo del navegador que se describe a continuación sigue
-siendo la vía manual estándar.
+Si prefieres inspeccionarlo todo tú, el flujo de las herramientas de desarrollo del navegador que aparece abajo
+sigue siendo el camino manual habitual.
 
 ### Instalación {#installation}
 
-Agrega la extensión del navegador para
-[Chrome](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)
+Añade la extensión de navegador:
+[extensión de Chrome](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)
 o
-[Firefox](https://addons.mozilla.org/en-US/firefox/addon/reduxdevtools/)
+[extensión de Firefox](https://addons.mozilla.org/en-US/firefox/addon/reduxdevtools/)
 
 ### Abrir las herramientas de desarrollo {#open-dev-tools}
 
 :::react
 
 <span style={{float:'right',marginLeft:'10px',width:'190px',textAlign:'center'}}>
-![botón del navegador de redux-devtools](/img/devtools-browser-button.png)
+![botón de redux-devtools en el navegador](/img/devtools-browser-button.png)
 <span style={{display:'inline-block',width:'40px',height:'40px'}}>
 ![botón de Reactive Data Client](/img/client-logo.svg)
 </span>
@@ -67,41 +67,42 @@ o
 :::vue
 
 <span style={{float:'right',marginLeft:'10px',width:'190px',textAlign:'center'}}>
-![botón del navegador de redux-devtools](/img/devtools-browser-button.png)
+![botón de redux-devtools en el navegador](/img/devtools-browser-button.png)
 </span>
 
 :::
 
-Después de instalarla y cargar tu sitio en :react[[modo de desarrollo](https://webpack.js.org/guides/development/)]:vue[[modo de desarrollo](https://vite.dev/guide/env-and-mode)], :react[haz clic en el logotipo de <abbr title="Reactive Data Client">Data Client</abbr> (por defecto, en la esquina inferior derecha de la ventana) o en el
-logotipo de redux-devtool en la barra de direcciones.]:vue[haz clic en el logotipo de redux-devtool en la barra de direcciones.]
+Después de instalarla y cargar tu sitio en :react[[modo de desarrollo](https://webpack.js.org/guides/development/)]:vue[[modo de desarrollo](https://vite.dev/guide/env-and-mode)], :react[o bien
+haces clic en el logo de <abbr title="Reactive Data Client">Data Client</abbr> (por defecto, abajo a la derecha de la ventana) o en el
+logo de redux-devtool en la barra de direcciones.]:vue[haz clic en el logo de redux-devtool en la barra de direcciones.]
 
-Al hacerlo se abrirá el inspector, que te permite observar las acciones despachadas,
-su efecto en el estado del store, así como el estado actual del store.
+Al hacer clic se abre el inspector, que te permite observar las acciones despachadas,
+su efecto sobre el estado del store y el estado actual del store.
 
 :::react
 
-El logotipo de <abbr title="Reactive Data Client">Data Client</abbr> solo aparece en modo de desarrollo. Sin embargo, su
-ubicación se puede mover o desactivar por completo mediante la [prop devButton de DataProvider](../api/DataProvider.md#devbutton).
+El logo de <abbr title="Reactive Data Client">Data Client</abbr> solo aparece en modo de desarrollo. Aun así, su
+ubicación se puede mover o desactivar por completo con la [prop devButton de DataProvider](../api/DataProvider.md#devbutton).
 
 :::
 
-![browser-devtools](/img/devtool-action.png 'Reactive Data Client devtools')
+![herramientas de desarrollo del navegador](/img/devtool-action.png 'herramientas de desarrollo de Reactive Data Client')
 
-El [Controller](../api/Controller.md) despacha acciones, lo que hace que esa página sea útil para entender
-qué acciones estás viendo. Aquí observamos las acciones comunes de [fetch](../api/Controller.md#fetch)
+El [Controller](../api/Controller.md) despacha acciones, así que esa página sirve para entender
+qué acciones ves. Aquí observamos acciones habituales de [fetch](../api/Controller.md#fetch)
 y [setResponse](../api/Controller.md#setResponse).
 
 :::note
 
-De forma predeterminada, la integración con devtool filtra las acciones [fetch](../api/Controller.md#fetch) duplicadas.
+Por defecto, la integración con devtools filtra las acciones [fetch](../api/Controller.md#fetch) duplicadas.
 Esto se puede cambiar con la opción [skipLogging](../api/DevToolsManager.md#skiplogging).
 
 :::
 
 ### Flujo de control {#control-flow}
 
-<abbr title="Reactive Data Client">Data Client</abbr> usa el patrón de [store flux](https://facebookarchive.github.io/flux/docs/in-depth-overview/), lo que hace que la depuración sea
-sencilla, ya que cada cambio es rastreable y descriptivo.
+<abbr title="Reactive Data Client">Data Client</abbr> usa el patrón de [store de Flux](https://facebookarchive.github.io/flux/docs/in-depth-overview/), lo que hace que la depuración
+sea directa, porque cada cambio se puede rastrear y es descriptivo.
 
 <div style={{textAlign:'center'}}>
 <ThemedImage
@@ -114,34 +115,34 @@ sencilla, ya que cada cambio es rastreable y descriptivo.
 />
 </div>
 
-> [Más información sobre el flujo de control](../concepts/managers.md)
+> [Más sobre el flujo de control](../concepts/managers.md)
 
 ### Inspección del estado {#state-inspection}
 
-Cuando se usan [schemas](/rest/api/schema), las respuestas se [normalizan](../concepts/normalization.md) en las tablas `entities`
-y `endpoints`. Esto aporta ventajas de rendimiento automáticas frente a cachés de fetch clave-valor más simples, especialmente
-beneficiosas con datos dinámicos (que cambian). Además, elimina los errores por inconsistencia de datos.
+Cuando se usan [schemas](/rest/api/schema), las respuestas se [normalizan](../concepts/normalization.md) en tablas de `entities`
+y `endpoints`. Esto da ventajas de rendimiento automáticas frente a cachés de obtención más simples, de clave-valor; sobre todo
+con datos dinámicos (que cambian). También elimina bugs de inconsistencia de datos.
 
-![Inspector de estado de las herramientas de desarrollo](/img/devtool-state.png 'Inspector de estado de Reactive Data Client devtools')
+![inspector de estado de las herramientas de desarrollo](/img/devtool-state.png 'inspector de estado de las herramientas de desarrollo de Reactive Data Client')
 
-Haz clic en la pestaña **'state'**
-de devtools para ver el estado completo del store. Esto puede ser útil para determinar exactamente dónde están los datos. También hay
-una sección 'meta' del caché con información como el momento en que se realizó la solicitud (útil para el [TTL](../concepts/expiry-policy.md)).
+Haz clic en la pestaña **«state»**
+de devtools para ver el estado completo del store. Sirve para saber exactamente dónde están los datos. También hay
+una sección «meta» de la caché con información como cuándo ocurrió la petición (útil para el [TTL](../concepts/expiry-policy.md)).
 
-### Diferencias de estado {#state-diff}
+### Diff del estado {#state-diff}
 
-Para monitorear la respuesta de un fetch en particular, puede ser más útil ver cómo se actualiza el store.
-Haz clic en la pestaña 'Diff' para ver qué cambió.
+Para seguir una respuesta de obtención concreta, puede ser más útil ver cómo se actualiza el store.
+Haz clic en la pestaña «Diff» para ver qué cambió.
 
-![Inspector de diferencias de las herramientas de desarrollo](/img/devtool-diff.png 'Diff de Reactive Data Client devtools')
+![inspector de diff de las herramientas de desarrollo](/img/devtool-diff.png 'diff de las herramientas de desarrollo de Reactive Data Client')
 
-Aquí alternamos el estado 'completed' de una tarea pendiente mediante una [actualización optimista](/rest/guides/optimistic-updates).
+Aquí alternamos el estado «completed» de un todo con una [actualización optimista](/rest/guides/optimistic-updates).
 
 ### Rastreo de acciones {#action-tracing}
 
-El rastreo no está habilitado de forma predeterminada, ya que es muy costoso computacionalmente. Sin embargo, puede ser muy útil
-para encontrar desde dónde se despachan las [acciones](../api/Actions.md). Personaliza [DevToolsManager](../api/DevToolsManager.md)
-estableciendo la opción trace en `true` con [getDefaultManagers](../api/getDefaultManagers.md):
+El rastreo no está activado por defecto porque es muy costoso en cómputo. Aun así, puede ser muy útil
+para localizar desde dónde se despachan las [acciones](../api/Actions.md). Personaliza [DevToolsManager](../api/DevToolsManager.md)
+poniendo la opción trace en `true` con [getDefaultManagers](../api/getDefaultManagers.md):
 
 :::react
 

@@ -23,13 +23,13 @@ import SiteOnly from '@site/src/components/SiteOnly';
 
 :::tip[Usa Agent Skills]
 
-¿Prefieres generar la estructura inicial con tu agente de IA? Consulta [Agent Skills](./agent-skills.md) y ejecuta `/data-client-setup`.
+¿Prefieres generar el andamiaje con tu agente de IA? Consulta [Agent Skills](./agent-skills.md) y ejecuta `/data-client-setup`.
 
 :::
 
 </SiteOnly>
 
-## :react[Agrega el proveedor en el componente de nivel superior]:vue[Instala el plugin] {#add-provider-at-top-level-component}
+## :react[Añade el provider en el componente de nivel superior]:vue[Instala el plugin] {#add-provider-at-top-level-component}
 
 :::vue
 
@@ -41,7 +41,7 @@ Instala el [plugin de Vue](https://vuejs.org/guide/reusability/plugins.html) al 
 
 <center>
 
-<Link className="button button--secondary" to="./resource">Siguiente: Definir los datos »</Link>
+<Link className="button button--secondary" to="./resource">Siguiente: Definir datos »</Link>
 
 </center>
 
@@ -64,11 +64,11 @@ Instala el [plugin de Vue](https://vuejs.org/guide/reusability/plugins.html) al 
 <details>
 <summary><b>TypeScript 4.0+</b></summary>
 
-TypeScript es opcional, pero requiere al menos la versión [4.0](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-0.html#variadic-tuple-types) y [strictNullChecks](https://www.typescriptlang.org/tsconfig#strictNullChecks) para una verificación de tipos completa.
+TypeScript es opcional, pero exige al menos la versión [4.0](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-0.html#variadic-tuple-types) y [strictNullChecks](https://www.typescriptlang.org/tsconfig#strictNullChecks) para aplicar los tipos por completo.
 
 :::vue
 
-`@data-client/vue` necesita TypeScript 4.5 o posterior, ya que los propios tipos de Vue lo requieren.
+`@data-client/vue` necesita TypeScript 4.5 o posterior, porque los tipos propios de Vue también lo necesitan.
 
 :::
 
@@ -78,10 +78,10 @@ TypeScript es opcional, pero requiere al menos la versión [4.0](https://www.typ
 <summary><b>Compatibilidad con navegadores antiguos</b></summary>
 
 Si tu aplicación apunta a navegadores antiguos (de hace unos años o más), asegúrate de cargar polyfills.
-Normalmente esto se hace con [@babel/preset-env useBuiltIns: 'entry'](https://babeljs.io/docs/en/babel-preset-env#usebuiltins),
-junto con la importación de [core-js](https://www.npmjs.com/package/core-js) en el punto de entrada de tu aplicación.
+Lo habitual es hacerlo con [@babel/preset-env useBuiltIns: 'entry'](https://babeljs.io/docs/en/babel-preset-env#usebuiltins),
+junto con importar [core-js](https://www.npmjs.com/package/core-js) en el punto de entrada de tu aplicación.
 
-Así te aseguras de que solo se incluyan en el bundle de tu aplicación los polyfills necesarios para los navegadores que quieres soportar.
+Así el bundle de tu aplicación incluye solo los polyfills que necesitan los navegadores a los que das soporte.
 
 Por ejemplo, `TypeError: Object.hasOwn is not a function`
 
@@ -90,7 +90,7 @@ Por ejemplo, `TypeError: Object.hasOwn is not a function`
 <summary><b>Compatibilidad con Internet Explorer</b></summary>
 
 Si ves `Uncaught TypeError: Class constructor Resource cannot be invoked without 'new'`,
-sigue las instrucciones para [agregar compatibilidad con navegadores heredados a los paquetes](../guides/legacy-browser)
+sigue las instrucciones para [añadir compatibilidad con navegadores antiguos a los paquetes](../guides/legacy-browser)
 
 </details>
 
@@ -99,9 +99,10 @@ sigue las instrucciones para [agregar compatibilidad con navegadores heredados a
 <details>
 <summary><b>ReactJS 16-19 y React Native</b></summary>
 
-Se admite ReactJS 16.2 y posteriores (¡la versión con hooks!). React 18 ofrece un soporte y unas funcionalidades mejoradas de [Suspense](../api/useSuspense.md). Se admiten tanto React Native como [React Navigation](https://reactnavigation.org/) y [Expo](https://docs.expo.dev).
+Se admite ReactJS 16.2 y posterior (¡el que tiene hooks!). React 18 aporta mejor soporte de [Suspense](../api/useSuspense.md)
+y más funciones. Se admiten React Native, [React Navigation](https://reactnavigation.org/) y [Expo](https://docs.expo.dev).
 
-Si tienes un proyecto funcionando con otras
+Si tienes un proyecto que funciona con otras
 bibliotecas de React, [compártelo con los demás](https://github.com/reactive/data-client/discussions/2422) en nuestras
 discusiones.
 
@@ -114,7 +115,7 @@ discusiones.
 <details>
 <summary><b>Vue 3</b></summary>
 
-`@data-client/vue` es compatible con Vue 3 y está construido sobre la [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html).
+`@data-client/vue` admite Vue 3 y está construido sobre la [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html).
 
 </details>
 

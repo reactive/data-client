@@ -2,8 +2,8 @@
 title: Presentamos Reactive Data Client
 vue_title: Presentamos Reactive Data Client para Vue
 sidebar_label: Introducción
-description: Crea aplicaciones dinámicas y atractivas con NextJS, Expo, React Native y más.
-vue_description: Crea aplicaciones dinámicas y atractivas con Vue y más.
+description: Cómo crear aplicaciones dinámicas que deleitan con NextJS, Expo, React Native y más.
+vue_description: Cómo crear aplicaciones dinámicas que deleitan con Vue y más.
 slug: /
 id: introduction
 ---
@@ -24,23 +24,23 @@ import Link from '@docusaurus/Link';
 
 # El Reactive Data Client
 
-Reactive Data Client ofrece [acceso desde el cliente](./api/useSuspense.md) y [mutación](./api/Controller.md#fetch) seguros y de alto rendimiento sobre [protocolos de datos remotos](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/).
-Se pueden usar simultáneamente tanto pull/fetch ([REST](/rest) y [GraphQL](/graphql)) como push/stream ([WebSockets o Server Sent Events](./concepts/managers.md#data-stream)).
+Reactive Data Client ofrece [acceso desde el cliente](./api/useSuspense.md) y [mutación](./api/Controller.md#fetch) de forma segura y con buen rendimiento sobre [protocolos de datos remotos](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/).
+Tanto la extracción (pull/fetch) ([REST](/rest) y [GraphQL](/graphql)) como el empuje (push/stream) ([WebSockets o Server Sent Events](./concepts/managers.md#data-stream)) pueden usarse a la vez.
 
-Tiene objetivos similares
+Tiene objetivos parecidos
 a los de las [bases de datos relacionales](https://en.wikipedia.org/wiki/Relational_database),
-pero para clientes de aplicaciones interactivas. Por ello, **si tu backend usa un [RDBMS](https://en.wikipedia.org/wiki/Relational_database) como [Postgres](https://www.postgresql.org/)
-o [MySQL](https://www.mysql.com/), es un buen indicio de que Reactive Data Client podría ser para ti**. Del mismo modo,
-así como uno puede elegir [archivos planos](https://www.techopedia.com/definition/25956/flat-file) en lugar de almacenamiento en una base de datos,
-a veces una librería cliente menos potente es suficiente.
+pero para clientes de aplicaciones interactivas. Por eso, **si tu backend usa un [RDBMS](https://en.wikipedia.org/wiki/Relational_database) como [Postgres](https://www.postgresql.org/)
+o [MySQL](https://www.mysql.com/), es una buena señal de que Reactive Data Client puede ser para ti**. A la inversa,
+igual que a veces se eligen [archivos planos](https://www.techopedia.com/definition/25956/flat-file) en lugar del almacenamiento en base de datos,
+a veces basta una biblioteca de cliente menos potente.
 
 No es una tarea menor. Para lograrlo, el diseño de Reactive Data Client apunta a **tratar los datos remotos como si fueran
-locales**. Esto significa que la lógica de los componentes no debería ser más compleja que useState y setState.
+locales**. Eso significa que la lógica de los componentes no debería ser más compleja que useState y setState.
 
-## Define la API {#endpoint}
+## Definir la API {#endpoint}
 
-Los [Endpoints](./getting-started/resource.md) son los _métodos_ de tus datos. En esencia, son
-simplemente funciones asíncronas. Sin embargo, también definen cualquier otro aspecto relevante de la [API](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/),
+Los [Endpoints](./getting-started/resource.md) son los _métodos_ de tus datos. En esencia
+son simplemente funciones asíncronas. Además, definen todo lo demás que importa de la [API](https://www.freecodecamp.org/news/what-is-an-api-in-english-please-b880a3214a82/),
 como la [política de caducidad](./concepts/expiry-policy.md), el [modelo de datos](./concepts/normalization.md), la [validación](./concepts/validation.md) y los [tipos](/rest/api/RestEndpoint#typing).
 
 <ThemedImage
@@ -55,13 +55,13 @@ width="415" height="184"
 
 Al _desacoplar_ las definiciones de los endpoints de su uso, podemos reutilizarlos en muchos contextos.
 
-- Reutilizarlos fácilmente en distintos **componentes** facilita ubicar las dependencias de datos junto a donde se usan
-- Reutilizarlos con distintos **:react[[hooks](./api/useSuspense.md)]:vue[[composables](./api/useSuspense.md)]** y **[acciones imperativas](./api/Controller.md)** permite comportamientos diferentes con el mismo endpoint
-- Reutilizarlos en distintas **[plataformas](./getting-started/installation.md)** :react[como React Native, React web, o incluso más allá de React, en Angular, Svelte, Vue o Node]:vue[como Vue web, o incluso más allá de Vue, en React, Angular, Svelte o Node]
-- Publicarlos como **paquetes** independientes de su consumo
+- Reutilizarlos con facilidad en distintos **componentes** facilita colocalizar las dependencias de datos
+- Reutilizarlos con distintos **:react[[hooks](./api/useSuspense.md)]:vue[[composables](./api/useSuspense.md)]** y **[acciones imperativas](./api/Controller.md)** permite comportamientos distintos con el mismo endpoint
+- Reutilizarlos en distintas **[plataformas](./getting-started/installation.md)** :react[como React Native, React web o incluso más allá de React, en Angular, Svelte, Vue o Node]:vue[como Vue web o incluso más allá de Vue, en React, Angular, Svelte o Node]
+- Publicarlos como **paquetes** independientes de quien los consume
 
-Los endpoints son extensibles y componibles, con implementaciones de protocolos ([REST](/rest), [GraphQL](/graphql), [Websockets+SSE](./concepts/managers.md#data-stream):react[, [Img/binary](./guides/img-media.md)])
-para empezar rápidamente, extender y compartir patrones comunes.
+Los endpoints son extensibles y componibles, con implementaciones de protocolo ([REST](/rest), [GraphQL](/graphql), [Websockets+SSE](./concepts/managers.md#data-stream):react[, [imagen/binario](./guides/img-media.md)])
+para empezar rápido, extender y compartir patrones comunes.
 
 <ProtocolTabs>
 
@@ -91,9 +91,9 @@ export const getTodo = gql.query(`
 
 </ProtocolTabs>
 
-## Ubica las dependencias de datos junto a su uso {#co-locate-data-dependencies}
+## Colocaliza las dependencias de datos {#co-locate-data-dependencies}
 
-Haz que tus componentes sean reutilizables enlazando los datos [donde los necesitas](./getting-started/data-dependency.md) con el [useSuspense()](./api/useSuspense.md) de una sola línea. Al igual que [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await),
+Haz que tus componentes sean reutilizables vinculando los datos [donde los necesitas](./getting-started/data-dependency.md) con [useSuspense()](./api/useSuspense.md) en una sola línea. Igual que [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await),
 [useSuspense()](./api/useSuspense.md) garantiza sus datos una vez que retorna.
 
 :::react
@@ -128,14 +128,14 @@ export default function TodoDetail({ id }: { id: number }) {
 
 :::
 
-Se acabó el prop drilling y la engorrosa gestión de estado externa. Reactive Data Client garantiza igualdad referencial global,
+Se acabaron el prop drilling y la engorrosa gestión de estado externa. Reactive Data Client garantiza igualdad referencial global,
 seguridad de los datos y rendimiento.
 
 :::react
 
-Ubicar las dependencias junto a su uso también permite que el [Server Side Rendering](./guides/ssr.md) transmita el HTML de forma incremental, reduciendo enormemente el [TTFB](https://web.dev/ttfb/).
-[Reactive Data Client SSR](./guides/ssr.md) hidrata automáticamente su store, lo que permite mutaciones interactivas inmediatas con **cero** fetches
-del lado del cliente en la primera carga.
+La colocalización también permite que el [renderizado en el servidor](./guides/ssr.md) transmita HTML de forma incremental, lo que reduce mucho el [TTFB](https://web.dev/ttfb/).
+El [SSR de Reactive Data Client](./guides/ssr.md) hidrata su store automáticamente y permite mutaciones interactivas inmediatas con **cero**
+obtenciones en el cliente en la primera carga.
 
 :::
 
@@ -143,9 +143,9 @@ del lado del cliente en la primera carga.
 
 :::react
 
-Evita cientos de indicadores de carga colocando [AsyncBoundary](./api/AsyncBoundary.md) alrededor de varios componentes que se suspenden.
+Evita cientos de indicadores de carga colocando [AsyncBoundary](./api/AsyncBoundary.md) alrededor de muchos componentes que suspenden.
 
-Normalmente se colocan en o por encima de los límites de navegación, como páginas, rutas o modales.
+Lo habitual es colocarlos en los límites de navegación, o por encima, como páginas, rutas o modales.
 
 ```tsx {5,8}
 import { AsyncBoundary } from '@data-client/react';
@@ -160,7 +160,7 @@ function App() {
 }
 ```
 
-También se puede usar el [manejo de fallback sin Suspense](./getting-started/data-dependency.md#stateful) en ciertos
+El [manejo de respaldos sin Suspense](./getting-started/data-dependency.md#stateful) también sirve en ciertos
 casos en React 16 y 17
 
 :::
@@ -168,10 +168,10 @@ casos en React 16 y 17
 :::vue
 
 Evita cientos de indicadores de carga colocando el [&lt;Suspense /\>](https://vuejs.org/guide/built-ins/suspense.html) integrado de Vue
-alrededor de varios componentes que se suspenden. Su slot `#fallback` se renderiza mientras algún descendiente siga esperando datos.
+alrededor de muchos componentes que suspenden. Su slot `#fallback` se renderiza mientras algún descendiente sigue esperando datos.
 Los errores se capturan con [onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured).
 
-Normalmente se colocan en o por encima de los límites de navegación, como páginas, rutas o modales.
+Lo habitual es colocarlos en los límites de navegación, o por encima, como páginas, rutas o modales.
 
 ```html title="App.vue" {7-10,15,20-22}
 <script setup lang="ts">
@@ -200,26 +200,26 @@ Normalmente se colocan en o por encima de los límites de navegación, como pág
 </template>
 ```
 
-También se puede usar el [manejo de fallback sin Suspense](./getting-started/data-dependency.md#stateful) en ciertos
+El [manejo de respaldos sin Suspense](./getting-started/data-dependency.md#stateful) también sirve en ciertos
 casos.
 
 :::
 
 ## Mutaciones {#mutations}
 
-Las [mutaciones](./getting-started/mutations.md) presentan otro caso de reutilización, esta vez de nuestros datos. Este caso es aún más crítico
-porque no solo puede producir código inflado, sino también problemas de integridad de datos, tearing y una aplicación con fallos visuales en general.
+Las [mutaciones](./getting-started/mutations.md) presentan otro caso de reutilización: esta vez, de nuestros datos. Este caso es aún más crítico
+porque no solo puede inflar el código, sino dañar la integridad de los datos, provocar desgarros y, en general, hacer que la aplicación vaya a tirones.
 
-Cuando llamamos a nuestro método o endpoint de mutación, debemos asegurarnos de que **todos** los usos de esos datos se actualicen.
-De lo contrario, nos quedamos con la complejidad, el bajo rendimiento y los tirones de la aplicación que provoca intentar
-propagar en cascada las actualizaciones de los endpoints.
+Cuando llamamos a nuestro método o endpoint de mutación, tenemos que asegurarnos de que se actualicen **todos** los usos de esos datos.
+Si no, nos quedamos con la complejidad, el coste de rendimiento y los tirones entrecortados de intentar
+encadenar refrescos de endpoints en cascada.
 
-### Mantén los datos consistentes y actualizados {#entities}
+### Mantén los datos consistentes y frescos {#entities}
 
 Las [Entities](./concepts/normalization.md) definen nuestro modelo de datos.
 
-Esto habilita un patrón de almacenamiento [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself), que
-evita los fallos visuales por 'data tearing' y mejora el rendimiento.
+Esto permite un patrón de almacenamiento [DRY](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself), que
+evita los tirones por «data tearing» y mejora el rendimiento.
 
 <ProtocolTabs>
 
@@ -246,12 +246,12 @@ export class Todo extends GQLEntity {
 
 </ProtocolTabs>
 
-El método [pk()](/rest/api/Entity#pk) (clave primaria) se usa para construir una tabla de búsqueda. Esto se
-conoce comúnmente como normalización de datos. Para evitar errores, fallos visuales y problemas de rendimiento,
-es fundamental [elegir la estructura de estado correcta (normalizada)](https://react.dev/learn/choosing-the-state-structure).
+El método [pk()](/rest/api/Entity#pk) (clave primaria) se usa para construir una tabla de búsqueda. Esto
+se conoce como normalización de datos. Para evitar bugs, tirones en la aplicación y problemas de rendimiento,
+es fundamental [elegir la estructura de estado (normalizada) correcta](https://react.dev/learn/choosing-the-state-structure).
 
-Ahora podemos enlazar nuestra Entity tanto a nuestro endpoint de obtención como al de actualización, lo que nos da integridad de datos
-en tiempo de ejecución, además de definiciones de TypeScript.
+Ahora podemos vincular nuestra Entity tanto al endpoint de obtención como al de actualización, y así tener integridad
+de los datos en tiempo de ejecución y definiciones de TypeScript.
 
 <ProtocolTabs>
 
@@ -304,9 +304,9 @@ export const TodoResource = { get, update };
 
 </ProtocolTabs>
 
-### Dile a :react[react]:vue[Vue] que se actualice {#tell-react-to-update}
+### Dile a :react[React]:vue[Vue] que se actualice {#tell-react-to-update}
 
-Así como con :react[`setState()`]:vue[la asignación a un `ref()`], debemos hacer que :react[React]:vue[Vue] se entere de cualquier mutación para que pueda volver a renderizar.
+Igual que :react[`setState()`]:vue[asignar a un `ref()`], debemos hacer que :react[React]:vue[Vue] se entere de cualquier mutación para que pueda volver a renderizar.
 
 [Controller](./api/Controller.md) ofrece esta funcionalidad con tipado seguro.
 [Controller.fetch()](./api/Controller.md#fetch) nos permite disparar mutaciones.
@@ -390,9 +390,9 @@ function ArticleEdit({ id }: { id: number }) {
 :::
 
 <details>
-<summary><b>Seguimiento imperativo del estado de carga y de error</b></summary>
+<summary><b>Seguimiento del estado imperativo de carga y error</b></summary>
 
-[useLoading()](./api/useLoading.md) mejora las funciones asíncronas haciendo seguimiento de sus estados de carga y de error.
+[useLoading()](./api/useLoading.md) mejora las funciones asíncronas haciendo seguimiento de sus estados de carga y error.
 
 :::react
 
@@ -439,10 +439,10 @@ function ArticleEdit({ id }: { id: number }) {
 
 ### Más modelado de datos {#more-data-modeling}
 
-¿Y si nuestra entity no es el elemento de nivel superior? Aquí definimos el endpoint `getList`
-con [new Collection([Todo])](/rest/api/Collection) como su schema. Los [Schemas](./concepts/normalization.md#schema) le indican a Reactive Data Client _dónde_ encontrar
+¿Y si nuestra entidad no es el elemento de nivel superior? Aquí definimos el endpoint `getList`
+con [new Collection([Todo])](/rest/api/Collection) como schema. Los [Schemas](./concepts/normalization.md#schema) le dicen a Reactive Data Client _dónde_ encontrar
 las Entities. Al colocarla dentro de una lista, Reactive Data Client sabe que debe esperar una respuesta
-en la que cada elemento de la lista sea la entity especificada.
+en la que cada elemento de la lista sea la entidad indicada.
 
 ```typescript {6}
 import { RestEndpoint, Collection } from '@data-client/rest';
@@ -460,8 +460,8 @@ const getList = new RestEndpoint({
 export default (TodoResource = { getList, get, update });
 ```
 
-Los [Schemas](./concepts/normalization.md) también infieren y hacen cumplir automáticamente el tipo de la respuesta, lo que garantiza
-que la variable `todos` tenga un tipo preciso.
+Los [Schemas](./concepts/normalization.md) también infieren y exigen automáticamente el tipo de la respuesta, de modo que
+la variable `todos` quede tipada con precisión.
 
 :::react
 
@@ -503,13 +503,13 @@ export default function TodoList() {
 
 :::
 
-Ya hemos usado nuestro modelo de datos en tres casos: `TodoResource.get`, `TodoResource.getList` y `TodoResource.update`. La consistencia de los datos
-(así como la igualdad referencial) estará garantizada entre los endpoints, incluso después de que ocurran mutaciones.
+Ya usamos nuestro modelo de datos en tres casos: `TodoResource.get`, `TodoResource.getList` y `TodoResource.update`. La consistencia de los datos
+(y también la igualdad referencial) queda garantizada entre los endpoints, incluso después de que ocurran mutaciones.
 
-### Organización de los Endpoints {#organizing-endpoints}
+### Organizar los endpoints {#organizing-endpoints}
 
-En este punto hemos definido `TodoResource.get`, `TodoResource.getList` y `TodoResource.update`. Quizás hayas notado
-que estas definiciones de endpoints comparten cierta lógica e información. Por eso, Reactive Data Client
+En este punto definimos `TodoResource.get`, `TodoResource.getList` y `TodoResource.update`. Quizá hayas notado
+que estas definiciones de endpoint comparten algo de lógica e información. Por eso Reactive Data Client
 recomienda extraer la lógica compartida entre endpoints.
 
 Los [Resources](/rest/api/resource) son colecciones de endpoints que operan sobre los mismos datos.
@@ -620,25 +620,25 @@ ctrl.fetch(TodoResource.delete, { id: 5 });
 
 [Controller.fetch](./api/Controller.md#fetch) llama al endpoint de mutación y actualiza React según la respuesta.
 Aunque [useTransition](https://react.dev/reference/react/useTransition) mejora la experiencia,
-la UI en última instancia sigue esperando a que termine el fetch para actualizarse.
+la interfaz igual termina esperando a que termine la obtención para actualizarse.
 
 :::
 
 :::vue
 
 [Controller.fetch](./api/Controller.md#fetch) llama al endpoint de mutación y actualiza Vue según la respuesta.
-La UI en última instancia sigue esperando a que termine el fetch para actualizarse.
+La interfaz igual termina esperando a que termine la obtención para actualizarse.
 
 :::
 
-En muchos casos, como alternar todo.completed, incrementar un voto positivo o arrastrar y soltar
-un fotograma, ¡esto puede ser demasiado lento!
+En muchos casos, como alternar todo.completed, incrementar un voto a favor o arrastrar y soltar
+un marco, esto puede ser demasiado lento.
 
-Opcionalmente, podemos indicarle a Reactive Data Client que realice los renders de :react[React]:vue[Vue] de inmediato. Para ello
+Podemos, de forma opcional, pedirle a Reactive Data Client que haga los renderizados de :react[React]:vue[Vue] de inmediato. Para eso
 tendremos que especificar _cómo_.
 
-[getOptimisticResponse](/rest/guides/optimistic-updates) es igual que :react[[setState con una función actualizadora](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state)]:vue[una función actualizadora]. Usando [snap](./api/Snapshot.md) para acceder al store y obtener el valor
-anterior, así como los argumentos del fetch, devolvemos la respuesta del fetch _esperada_.
+[getOptimisticResponse](/rest/guides/optimistic-updates) es igual que :react[[setState con una función de actualización](https://react.dev/reference/react/useState#updating-state-based-on-the-previous-state)]:vue[una función de actualización]. Con [snap](./api/Snapshot.md) para acceder al store y obtener el valor
+anterior, además de los argumentos de la obtención, devolvemos la respuesta de obtención _esperada_.
 
 ```typescript
 const update = new RestEndpoint({
@@ -657,18 +657,18 @@ const update = new RestEndpoint({
 });
 ```
 
-Reactive Data Client garantiza la [integridad de los datos frente a cualquier posible fallo de red o condición de carrera](/rest/guides/optimistic-updates#optimistic-transforms), así que no
-te preocupes por los fallos de red, por varias llamadas de mutación que editan los mismos datos, ni por otros problemas
-comunes de la programación asíncrona.
+Reactive Data Client garantiza la [integridad de los datos frente a cualquier fallo de red o condición de carrera](/rest/guides/optimistic-updates#optimistic-transforms), así que no te
+preocupes por los fallos de red, por varias llamadas de mutación que editan los mismos datos ni por otros problemas
+habituales de la programación asíncrona.
 
-### Mutaciones disparadas de forma remota {#remotely-triggered-mutations}
+### Mutaciones iniciadas en remoto {#remotely-triggered-mutations}
 
-A veces el cambio de los datos se inicia de forma remota, ya sea por otros usuarios del sitio, administradores, etc. Los controles declarativos de
-[política de caducidad](./concepts/expiry-policy.md) permiten un control preciso sobre las actualizaciones debidas al fetching.
+A veces el cambio de datos se inicia en remoto, ya sea por otros usuarios del sitio, administradores, etc. Los controles declarativos
+de [política de caducidad](./concepts/expiry-policy.md) permiten un control preciso de las actualizaciones debidas a la obtención.
 
-Sin embargo, para los datos que cambian con frecuencia (como los tickers de precios de bolsa o las conversaciones en vivo) a veces se usan protocolos
+Sin embargo, para datos que cambian con frecuencia (como las cotizaciones de un exchange o las conversaciones en vivo) a veces se usan protocolos
 basados en push, como Websockets o Server Sent Events. Reactive Data Client tiene una [potente capa de middleware llamada Managers](./api/Manager.md),
-que se puede usar para [iniciar actualizaciones de datos](./concepts/managers.md#data-stream) cuando se reciben nuevos datos enviados desde el servidor.
+que puede usarse para [iniciar actualizaciones de datos](./concepts/managers.md#data-stream) al recibir datos nuevos enviados desde el servidor.
 
 <details>
 <summary><b>StreamManager</b></summary>
@@ -715,12 +715,12 @@ export default class StreamManager implements Manager {
 </details>
 
 Si no queremos el flujo de datos completo, podemos usar [useSubscription()](./api/useSubscription.md) o [useLive()](./api/useLive.md)
-para asegurarnos de escuchar únicamente los datos que nos interesan.
+para asegurarnos de escuchar solo los datos que nos importan.
 
-Los endpoints con [pollFrequency](/rest/api/RestEndpoint#pollfrequency) permiten reutilizar los endpoints HTTP existentes, lo que elimina
+Los endpoints con [pollFrequency](/rest/api/RestEndpoint#pollfrequency) permiten reutilizar los endpoints HTTP existentes y eliminan
 la necesidad de backends adicionales de websocket o SSE.
-El sondeo (polling) es orquestado globalmente por el [SubscriptionManager](./api/SubscriptionManager.md), así que incluso con muchos
-componentes suscritos Reactive Data Client nunca hará fetches en exceso.
+El sondeo (polling) lo orquesta de forma global el [SubscriptionManager](./api/SubscriptionManager.md), así que, aunque haya muchos
+componentes suscritos, Reactive Data Client nunca obtendrá de más.
 
 [//]: # 'TODO: ## Relational joins and nesting'
 
@@ -728,17 +728,17 @@ componentes suscritos Reactive Data Client nunca hará fetches en exceso.
 
 <img src={require('@site/static/img/redux-devtools-logo.jpg').default} width="75" height="75" alt="redux-devtools" style={{ float: 'left', "marginRight": "var(--ifm-paragraph-margin-bottom)" }} />
 
-Agrega Redux DevTools como
+Añade Redux DevTools, la
 [extensión de Chrome](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)
-o
+o la
 [extensión de Firefox](https://addons.mozilla.org/en-US/firefox/addon/reduxdevtools/)
 
-Haz clic en el ícono para abrir el [inspector](./getting-started/debugging.md), que te permite observar las acciones despachadas,
-su efecto sobre el estado del caché, así como el estado actual del caché.
+Haz clic en el icono para abrir el [inspector](./getting-started/debugging.md), que te permite observar las acciones despachadas,
+su efecto sobre el estado de la caché y el estado actual de la caché.
 
 ## Datos simulados {#mock-data}
 
-Escribir [Fixtures](./api/Fixtures.md) es un formato estándar que se puede usar con todos los helpers de `@data-client/test`, así como en tus propios usos.
+Escribir [Fixtures](./api/Fixtures.md) es un formato estándar que puedes usar en todos los helpers de `@data-client/test` y también en tus propios usos.
 
 <Tabs
 defaultValue="detail"
@@ -845,11 +845,11 @@ const incrementInterceptor: Interceptor = {
 </TabItem>
 </Tabs>
 
-- :react[[Simula datos para storybook](./guides/storybook.md) con [MockResolver](./api/MockResolver.md)]:vue[Simula datos con `MockPlugin` de `@data-client/vue/test`]
-- :react[[Prueba hooks](./guides/unit-testing-hooks.md) con [renderDataHook()](./api/renderDataHook.md)]:vue[[Prueba composables](./guides/unit-testing-composables.md) con `renderDataCompose()`]
-- :react[[Prueba componentes](./guides/unit-testing-components.md) con [MockResolver](./api/MockResolver.md)]:vue[[Prueba componentes](./guides/unit-testing-components.md) con `mountDataClient()`] y [mockInitialState()](./api/mockInitialState.md)
+- :react[[Datos simulados para Storybook](./guides/storybook.md) con [MockResolver](./api/MockResolver.md)]:vue[Datos simulados con `MockPlugin` de `@data-client/vue/test`]
+- :react[[Probar hooks](./guides/unit-testing-hooks.md) con [renderDataHook()](./api/renderDataHook.md)]:vue[[Probar composables](./guides/unit-testing-composables.md) con `renderDataCompose()`]
+- :react[[Probar componentes](./guides/unit-testing-components.md) con [MockResolver](./api/MockResolver.md)]:vue[[Probar componentes](./guides/unit-testing-components.md) con `mountDataClient()`] y [mockInitialState()](./api/mockInitialState.md)
 
-## Demo {#demo}
+## Demostración {#demo}
 
 :::react
 
@@ -908,7 +908,7 @@ groupId="Demos"
 :::
 
 <div style={{ textAlign: 'center' }}>
-<Link className="button button--secondary" to="/demos">Más demos</Link>&nbsp;
+<Link className="button button--secondary" to="/demos">Más demostraciones</Link>&nbsp;
 <Link className="button button--secondary" to="https://skills.sh/reactive/data-client"><img src="/img/anthropic.svg" alt="Agent Skills" style={{
           height: '1em',
           verticalAlign: '-0.125em',

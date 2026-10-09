@@ -1,5 +1,5 @@
 ---
-title: Definición de Resources para Reactive Data Client
+title: Definir Resources para Reactive Data Client
 sidebar_label: Definir datos
 ---
 
@@ -54,7 +54,7 @@ values={[
 
 
 
-[resource()](/rest/api/resource) construye un espacio de nombres de [RestEndpoints](/rest/api/RestEndpoint)
+[resource()](/rest/api/resource) constructs a namespace of [RestEndpoints](/rest/api/RestEndpoint)
 
 <TypeScriptEditor row={false}>
 
@@ -109,7 +109,7 @@ TodoResource.delete({ id: 5 });
 
 <PkgInstall pkgs="@data-client/graphql" />
 
-[GQLEndpoint](/graphql/api/GQLEndpoint) ayuda a definir rápidamente [queries](/graphql/api/GQLEndpoint#query) y [mutaciones](/graphql/api/GQLEndpoint#mutate)
+[GQLEndpoint](/graphql/api/GQLEndpoint) ayuda a definir rápidamente [consultas](/graphql/api/GQLEndpoint#query) y [mutaciones](/graphql/api/GQLEndpoint#mutate)
 
 <TypeScriptEditor row={false}>
 
@@ -158,7 +158,7 @@ export const TodoResource = {
 
 <PkgInstall pkgs="@data-client/endpoint" />
 
-Las definiciones de TypeScript preexistentes se pueden usar en <abbr title="Reactive Data Client">Data Client</abbr> con
+Las definiciones de TypeScript que ya tengas se pueden usar en <abbr title="Reactive Data Client">Data Client</abbr> con
 [Endpoint](/rest/api/Endpoint) y [EntityMixin](/rest/api/EntityMixin).
 
 <TypeScriptEditor row={false}>
@@ -308,9 +308,9 @@ export default class StreamManager implements Manager {
 </TabItem>
 -->
 
-Para ayudarte a definir `Resources`, se proporcionan helpers componibles y extensibles específicos de cada protocolo para [REST](/rest), [GraphQL](/graphql),
-:react[[Image/binary](../guides/img-media.md), ][Websockets+SSE](../concepts/managers.md#data-stream).
+Para ayudarte a definir `Resources`, hay helpers componibles y extensibles, específicos de cada protocolo, para [REST](/rest), [GraphQL](/graphql),
+:react[[imagen/binario](../guides/img-media.md), ][Websockets+SSE](../concepts/managers.md#data-stream).
 
-Para usar definiciones de API existentes, o definir tus propios helpers específicos de un protocolo, usa
+Para usar definiciones de API que ya tengas, o definir tus propios helpers específicos de un protocolo, usa
 [Endpoint](/rest/api/Endpoint) y [EntityMixin](/rest/api/EntityMixin) de [@data-client/endpoint](https://www.npmjs.com/package/@data-client/endpoint).
 [Consulta la pestaña `Async/Promise` de arriba]
