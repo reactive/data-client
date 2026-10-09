@@ -454,6 +454,11 @@ describe('Store Timeline strip', () => {
     labels.scrollTop = 5;
     fireEvent.scroll(labels);
     expect(tracks(timeline).scrollTop).toBe(5);
+    // the keys that would scroll a focused scroller scroll the lanes
+    fireEvent.keyDown(timeline, { key: 'ArrowDown' });
+    expect(tracks(timeline).scrollTop).toBe(23);
+    fireEvent.keyDown(timeline, { key: 'ArrowUp' });
+    expect(tracks(timeline).scrollTop).toBe(5);
   });
 
   it('scrolls in the detailed spacing, fitting the whole history on demand', async () => {

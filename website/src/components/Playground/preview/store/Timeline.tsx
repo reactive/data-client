@@ -46,6 +46,8 @@ const PAD = 24;
 const LABEL_GAP = 64;
 /** The lane labels' column (px, as `--tl-label`), by panel width */
 const LABEL_WIDTH = { wide: 136, narrow: 88 };
+/** A lane's height (px, as `--tl-row`) */
+const ROW = 18;
 
 /** Where each action sits along the timeline */
 export interface TimeScale {
@@ -209,6 +211,17 @@ export default memo(function Timeline({
       case 'End':
         toLive();
         break;
+      // the lanes scroll from here, as a focused scroller's would
+      case 'ArrowUp':
+      case 'ArrowDown':
+      case 'PageUp':
+      case 'PageDown': {
+        const el = scroller.current;
+        if (!el) return;
+        const by = e.key.startsWith('Page') ? el.clientHeight - ROW : ROW;
+        el.scrollTop += e.key.endsWith('Up') ? -by : by;
+        break;
+      }
       default:
         return;
     }
@@ -298,7 +311,7 @@ export default memo(function Timeline({
   };
 
   // the lane labels stay put beside the scrolling tracks, the two kept at
-  // one height (each settles the other at its own limit)
+  // one height
   const labelColumn = useRef<HTMLDivElement>(null);
   const syncTop = (from: HTMLElement | null, to: HTMLElement | null) => {
     if (from && to && to.scrollTop !== from.scrollTop)
@@ -318,7 +331,11 @@ export default memo(function Timeline({
         ref={labelColumn}
         className={styles.tlLabels}
         hidden={!entries.length}
-        onScroll={() => syncTop(labelColumn.current, scroller.current)}
+        onScroll={() => {
+          syncTop(labelColumn.current, scroller.current);
+          // past the tracks' end, the labels come back to it
+          syncTop(scroller.current, labelColumn.current);
+        }}
       >
         <span className={clsx(styles.tlLabel, styles.tlCorner)}>
           <button

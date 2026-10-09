@@ -1214,7 +1214,6 @@ div.joined {
 }
 .tlAxis,
 .tlLane {
-  position: relative;
   width: var(--tl-track);
   height: var(--tl-row);
 }
@@ -1276,6 +1275,9 @@ div.joined {
   background: var(--store-bg);
   font-size: 11px;
   line-height: var(--tl-row);
+}
+.tlLane {
+  position: relative;
 }
 .tlLane::before {
   content: '';
