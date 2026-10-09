@@ -378,15 +378,37 @@ describe('Store Timeline strip', () => {
     expect(timeline.scrollLeft).toBe(900);
   });
 
-  it('fits the whole history to the strip, zooming to the detailed spacing', async () => {
+  it('stays on the newest until scrolled back, as live', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
+    const timeline = screen.getByRole('group', { name: /^Timeline/ });
+    Object.defineProperty(timeline, 'clientHeight', { value: 100 });
+    Object.defineProperty(timeline, 'clientWidth', { value: 300 });
+    Object.defineProperty(timeline, 'scrollWidth', { value: 900 });
+    await act(() => ctrl().fetch(getPosts));
+    expect(timeline.scrollLeft).toBe(900);
+    // scrolled back into the history: it stays there as actions come in
+    timeline.scrollLeft = 100;
+    fireEvent.scroll(timeline);
+    await act(() => ctrl().fetch(getPosts));
+    expect(timeline.scrollLeft).toBe(100);
+    // scrolled back to the newest, it follows again
+    timeline.scrollLeft = 600;
+    fireEvent.scroll(timeline);
+    await act(() => ctrl().fetch(getPosts));
+    expect(timeline.scrollLeft).toBe(900);
+  });
+
+  it('scrolls in the detailed spacing, fitting the whole history on demand', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
     await act(() => ctrl().fetch(getPosts));
     fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
     const timeline = screen.getByRole('group', { name: /^Timeline/ });
-    const body = timeline.querySelector<HTMLElement>('[data-fit]')!;
-    // fit by default: everything placed as a fraction of the track
-    expect(body).toBeTruthy();
+    const body = timeline.querySelector<HTMLElement>('[style*="--tl-width"]')!;
+    // detailed by default: everything placed as a fraction of the track
+    expect(body.hasAttribute('data-fit')).toBe(false);
     expect(body.style.getPropertyValue('--tl-width')).toMatch(/px$/);
     const marks = within(timeline).getAllByRole('button', {
       name: /^setResponse at/,
@@ -399,26 +421,26 @@ describe('Store Timeline strip', () => {
       expect(f).toBeLessThan(1);
     }
     expect(fractions[1]).toBeGreaterThan(fractions[0]);
-    const zoom = within(timeline).getByRole('button', {
-      name: 'Zoom timeline',
+    const fit = within(timeline).getByRole('button', {
+      name: 'Fit timeline',
     });
-    expect(zoom.getAttribute('aria-pressed')).toBe('false');
+    expect(fit.getAttribute('aria-pressed')).toBe('false');
 
-    // zoomed: the detailed spacing, scrolling to the picked action
+    // fit: the whole history in the strip, the picked action still in view
     fireEvent.click(marks[0]);
     const seen = jest.fn();
     marks[0].scrollIntoView = seen;
-    fireEvent.click(zoom);
-    expect(zoom.getAttribute('aria-pressed')).toBe('true');
-    expect(body.hasAttribute('data-fit')).toBe(false);
+    fireEvent.click(fit);
+    expect(fit.getAttribute('aria-pressed')).toBe('true');
+    expect(body.hasAttribute('data-fit')).toBe(true);
     expect(seen).toHaveBeenCalled();
     expect(marks[0].style.getPropertyValue('--tl-f')).toBe(
       String(fractions[0]),
     );
     // and back
-    fireEvent.click(zoom);
-    expect(body.hasAttribute('data-fit')).toBe(true);
-    expect(zoom.getAttribute('aria-pressed')).toBe('false');
+    fireEvent.click(fit);
+    expect(body.hasAttribute('data-fit')).toBe(false);
+    expect(fit.getAttribute('aria-pressed')).toBe('false');
   });
 
   it('moves focus to the tab as "Live" hides the bar under the shut strip', async () => {

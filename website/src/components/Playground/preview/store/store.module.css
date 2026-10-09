@@ -101,7 +101,7 @@
   gap: 2px;
 }
 .viewButtons button,
-.tlZoom {
+.tlFit {
   display: grid;
   place-items: center;
   width: 1.75rem;
@@ -119,16 +119,16 @@
     scale var(--motion-snappy);
 }
 .viewButtons button:active,
-.tlZoom:active {
+.tlFit:active {
   scale: 0.9;
 }
 .viewButtons button[aria-pressed='true'],
-.tlZoom[aria-pressed='true'] {
+.tlFit[aria-pressed='true'] {
   background: var(--pg-tab-hover-bg);
   opacity: 1;
 }
 .viewButtons svg,
-.tlZoom svg,
+.tlFit svg,
 .historyButton svg {
   width: 15px;
   height: 15px;
@@ -1142,7 +1142,7 @@ div.joined {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  /* a zoomed Timeline scrolls inside, not widen the panel */
+  /* a wide Timeline scrolls inside, not widen the panel */
   min-width: 0;
   opacity: 0;
   translate: 0 -6px;
@@ -1156,8 +1156,8 @@ div.joined {
 }
 
 /* The Timeline strip: a lane per key on one time axis; labels stay pinned on
-   the left and times on top. Fit (the default), the whole history spans the
-   strip; zoomed, it keeps the scale's spacing and scrolls sideways */
+   the left and times on top. By default it keeps the scale's spacing and
+   scrolls sideways; fit, the whole history spans the strip */
 .timeline {
   /* --tl-label, the lane labels' column, comes from Timeline.tsx */
   /* the time axis and each lane */
@@ -1178,7 +1178,7 @@ div.joined {
 }
 .tlBody {
   position: relative;
-  /* the track: the scale's width, zoomed */
+  /* the track: the scale's width, detailed */
   --tl-track: var(--tl-width);
   width: calc(var(--tl-label) + var(--tl-width));
   min-width: 100%;
@@ -1237,12 +1237,12 @@ div.joined {
   justify-content: flex-end;
 }
 /* in the axis's corner, in view however far the strip scrolls */
-.tlZoom {
+.tlFit {
   width: var(--tl-row);
   height: var(--tl-row);
   border-radius: 4px;
 }
-.tlZoom svg {
+.tlFit svg {
   width: 12px;
   height: 12px;
 }

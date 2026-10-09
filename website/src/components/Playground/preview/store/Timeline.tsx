@@ -115,15 +115,15 @@ export default memo(function Timeline({
   const scale = useMemo(() => timeScale(shown), [shown]);
   const narrow = width < NARROW_WIDTH;
   const labelWidth = narrow ? LABEL_WIDTH.narrow : LABEL_WIDTH.wide;
-  // fit, the whole history spans the strip; zoomed, it keeps the detailed
-  // spacing and scrolls sideways
+  // detailed (the default), it scrolls sideways, kept on the newest while
+  // live; fit, the whole history spans the strip
   const [zoom, setZoom] = useTabStorage('playgroundTimelineZoom');
-  const detailed = zoom === 'detailed';
+  const fit = zoom === 'fit';
   // the strip's width for the scale's: fit, the labels thin out as the
   // history squeezes (whole px, so resizing rarely relabels). A hidden panel
-  // measures 0: label as zoomed until it shows
+  // measures 0: label as detailed until it shows
   const track =
-    detailed || !width ?
+    !fit || !width ?
       scale.width
     : Math.min(scale.width, Math.max(1, width - labelWidth));
   const gap = Math.ceil((LABEL_GAP * scale.width) / track);
@@ -136,14 +136,14 @@ export default memo(function Timeline({
   const scroller = useRef<HTMLDivElement>(null);
   // a picked action stays put as new ones come in
   const toNewest = useFollow(scroller, scale.width, 'x', selected !== null);
-  // the picked action comes into view (again as the zoom changes); back to
+  // the picked action comes into view (again as the fit changes); back to
   // live, the newest does, and the timeline follows it again
   useLayoutEffect(() => {
     if (selected === null) return toNewest();
     scroller.current
       ?.querySelector('[data-selected]')
       ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
-  }, [selected, toNewest, detailed]);
+  }, [selected, toNewest, fit]);
 
   // the arrow keys step as the snapshot bar's ‹ › do; past the newest is live
   // (End too; live already, it brings the newest back into view). Escape is
@@ -173,8 +173,8 @@ export default memo(function Timeline({
     }
     e.preventDefault();
   };
-  // along the track, as a fraction of it: the track is the scale's width
-  // zoomed, or what fits (see `.tlTrack`)
+  // along the track, as a fraction of it: the track is the scale's width,
+  // or what fits (see `.tlTrack`)
   const frac = (x: number) => x / scale.width;
   const pos = (x: number) => ({ '--tl-f': frac(x) }) as React.CSSProperties;
   const mark = (entry: LogEntry, extra?: string) => {
@@ -277,20 +277,20 @@ export default memo(function Timeline({
       <div
         className={styles.tlBody}
         hidden={!entries.length}
-        data-fit={!detailed || undefined}
+        data-fit={fit || undefined}
         style={{ '--tl-width': `${scale.width}px` } as React.CSSProperties}
       >
         <div className={styles.tlAxis}>
           <span className={styles.tlLabel}>
             <button
               type="button"
-              className={styles.tlZoom}
-              aria-label="Zoom timeline"
-              title="Zoom timeline"
-              aria-pressed={detailed}
-              onClick={() => setZoom(detailed ? 'fit' : 'detailed')}
+              className={styles.tlFit}
+              aria-label="Fit timeline"
+              title="Fit the whole timeline"
+              aria-pressed={fit}
+              onClick={() => setZoom(fit ? 'detailed' : 'fit')}
             >
-              <ZoomIcon />
+              <FitIcon />
             </button>
           </span>
           <span className={styles.tlTrack}>
@@ -371,12 +371,12 @@ export function axisLabels(
   return labels;
 }
 
-/** A magnifier with a plus */
-function ZoomIcon() {
+/** A magnifier with a minus */
+function FitIcon() {
   return (
     <svg viewBox="0 0 16 16" aria-hidden="true">
       <circle cx="7" cy="7" r="4" />
-      <path d="M10 10l3.5 3.5M5.5 7h3M7 5.5v3" />
+      <path d="M10 10l3.5 3.5M5.5 7h3" />
     </svg>
   );
 }
