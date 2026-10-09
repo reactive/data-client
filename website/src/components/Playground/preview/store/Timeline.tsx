@@ -143,7 +143,7 @@ export default memo(function Timeline({
   const scroller = useRef<HTMLDivElement>(null);
   // a picked action stays put as new ones come in; so does a scrolled-back
   // view as the fit toggles, while a followed one stays on the newest
-  const follow = useFollow(
+  const followNewest = useFollow(
     scroller,
     `${scale.width} ${fit}`,
     'x',
@@ -154,8 +154,8 @@ export default memo(function Timeline({
   const scrolledTo = useRef<number | null>(null);
   const toNewest = useCallback(() => {
     scrolledTo.current = null;
-    follow();
-  }, [follow]);
+    followNewest();
+  }, [followNewest]);
   // the picked action comes into view (again as the fit changes); back to
   // live, the newest does, and the timeline follows it again
   useLayoutEffect(() => {
