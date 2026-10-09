@@ -123,10 +123,23 @@ const attributes = node =>
     )
     .join(' ');
 
+/** Text a translator writes in a block: its text nodes, not code or URLs */
+const proseOf = node => {
+  let text = '';
+  visit(node, 'text', ({ value }) => {
+    text += value;
+  });
+  return text.replace(/\s+/g, ' ').trim();
+};
+/** Prose long enough that keeping it word for word means it wasn't translated */
+const isSentence = text => (text.match(/\p{L}{2,}/gu) ?? []).length >= 4;
+
 /** Everything a translation must keep, by kind; values compared as multisets */
 function skeleton(content, filePath) {
   const parts = {
     blocks: [],
+    // prose of each leaf block, in order
+    prose: [],
     code: [],
     inlineCode: [],
     esm: [],
@@ -139,11 +152,14 @@ function skeleton(content, filePath) {
     switch (node.type) {
       case 'heading':
         parts.blocks.push(`h${node.depth}`);
+        parts.prose.push(proseOf(node));
         break;
       // dropped or merged paragraphs and list items change these
       case 'paragraph':
-      case 'listItem':
       case 'tableCell':
+        parts.prose.push(proseOf(node));
+      // falls through
+      case 'listItem':
       case 'blockquote':
         parts.blocks.push(node.type);
         break;
@@ -239,6 +255,11 @@ export function structureProblems(source, translated, filePath) {
       );
     }
   }
+  // a skipped block: same prose as English, where blocks line up
+  src.prose.forEach((text, i) => {
+    if (text === out.prose[i] && isSentence(text))
+      problems.push(`not translated: ${clip(text)}`);
+  });
   for (const kind of [
     'code',
     'inlineCode',

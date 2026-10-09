@@ -98,6 +98,26 @@ describe('structureProblems', () => {
     });
   }
 
+  it('flags a sentence left in English, not a short name', () => {
+    const english = '## Data Client\n\nRead the guide before you start.\n';
+    assert.deepEqual(
+      structureProblems(
+        english,
+        '## Data Client\n\nRead the guide before you start.\n',
+        FILE,
+      ),
+      ['not translated: Read the guide before you start.'],
+    );
+    assert.deepEqual(
+      structureProblems(
+        english,
+        '## Data Client\n\nLee la guía antes de empezar.\n',
+        FILE,
+      ),
+      [],
+    );
+  });
+
   it('flags MDX that no longer compiles', () => {
     const [problem] = structureProblems(
       source,

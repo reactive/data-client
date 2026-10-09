@@ -30,7 +30,7 @@ cd website && yarn start --locale es
 ```
 
 - **New and stale pages**: `prepare` lists a page when the lock has no entry for it or its English changed since. For a stale page it gives `git diff <old> <new>`, the English change, so the translation can be updated in place and its reviewed wording kept.
-- **Structure is checked** (`mdx.mjs`): a translation must parse as MDX and keep its English page's code, inline code, imports, JSX tags and attributes (except `label`/`title`/`alt`/`description`), expressions, directives, link targets, heading levels, block order and front matter (except `title`/`sidebar_label`/`description`). `finalize` reports what differs and does not record the page.
+- **Structure is checked** (`mdx.mjs`): a translation must parse as MDX and keep its English page's code, inline code, imports, JSX tags and attributes (except `label`/`title`/`alt`/`description`), expressions, directives, link targets, heading levels, block order and front matter (except `title`/`sidebar_label`/`description`). A paragraph, heading or table cell of four or more words left identical to English counts as skipped. `finalize` reports what differs and does not record the page.
 - **Anchors**: `finalize` gives every heading the `{#id}` of its English heading, so `#links` keep working.
 - **Partials**: a locale's pages bring along the `_partials` they import from their own docs folder.
 - **UI strings**: Docusaurus' own theme strings come translated; `prepare` lists the site's strings still in English, and `finalize` records translated ones (placeholders like `{count}` must survive).
