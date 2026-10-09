@@ -54,8 +54,8 @@ import Timeline from './Timeline';
 import TreeView from './TreeView';
 import { RowKey } from './Value';
 import { RowHistory } from './VersionHistory';
-import { prefersReducedMotion } from '../../../motion';
 import { useTabStorage } from '../../../../utils/tabStorage';
+import { prefersReducedMotion } from '../../../motion';
 
 /** Breadcrumbs shown before the middle ones collapse to `…` */
 const CRUMBS = 4;
