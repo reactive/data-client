@@ -205,9 +205,7 @@ export function useFollow(
     // a hidden tab has no height; its scroll position says nothing
     let hidden = !el.clientHeight;
     const onScroll = () => {
-      // nothing to scroll (a scroller clamped as it narrows) says nothing
-      // either
-      if (hidden || paused || el[size] - el[client] < FOLLOW_SLACK) return;
+      if (hidden || paused) return;
       follow.current = el[size] - el[scroll] - el[client] < FOLLOW_SLACK;
     };
     el.addEventListener('scroll', onScroll, { passive: true });

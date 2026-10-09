@@ -165,9 +165,12 @@ export default memo(function Timeline({
     setSpacing(fit ? 'detailed' : 'fit');
   };
   useLayoutEffect(() => {
-    if (fit || selected !== null || scrolledTo.current === null) return;
-    scroller.current!.scrollLeft = scrolledTo.current;
+    if (fit) return;
+    const to = scrolledTo.current;
     scrolledTo.current = null;
+    // past the newest it went to while following through the fit; the
+    // scroll this makes lets go again
+    if (to !== null && selected === null) scroller.current!.scrollLeft = to;
     // only as it comes back from fit
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fit]);
