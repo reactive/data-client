@@ -23,20 +23,15 @@ const join = node => {
   children.forEach((child, i) => {
     if (child.type !== 'text') return join(child);
     child.value = child.value.replace(BREAK, '$1');
-    // a break between this text and the inline node beside it
+    // a break between this text and the inline node beside it; a text that
+    // is only a break sits between two inline nodes
     const before = children[i - 1] && edge(children[i - 1], true).at(-1);
-    if (
-      before &&
-      IS_CJK.test(before) &&
-      IS_CJK.test(child.value.trimStart()[0] ?? '')
-    )
-      child.value = child.value.replace(/^[ \t]*\n[ \t]*/, '');
     const after = children[i + 1] && edge(children[i + 1], false)[0];
-    if (
-      after &&
-      IS_CJK.test(after) &&
-      IS_CJK.test(child.value.trimEnd().at(-1) ?? '')
-    )
+    const first = child.value.trimStart()[0] ?? after;
+    const last = child.value.trimEnd().at(-1) ?? before;
+    if (IS_CJK.test(before ?? '') && IS_CJK.test(first ?? ''))
+      child.value = child.value.replace(/^[ \t]*\n[ \t]*/, '');
+    if (IS_CJK.test(after ?? '') && IS_CJK.test(last ?? ''))
       child.value = child.value.replace(/[ \t]*\n[ \t]*$/, '');
   });
 };

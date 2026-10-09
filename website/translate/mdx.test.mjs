@@ -222,12 +222,22 @@ describe('remarkJoinCjkLines', () => {
         text('访问。\n这样通过\n'),
         { type: 'link', children: [text('副作用')] },
         text('\n处理 endpoint\n中'),
+        { type: 'strong', children: [text('粗体')] },
+        text('\n'),
+        { type: 'link', children: [text('链接')] },
       ],
     };
     remarkJoinCjkLines()({ type: 'root', children: [paragraph] });
     assert.deepEqual(
       paragraph.children.map(({ value }) => value),
-      ['访问。这样通过', undefined, '处理 endpoint\n中'],
+      [
+        '访问。这样通过',
+        undefined,
+        '处理 endpoint\n中',
+        undefined,
+        '',
+        undefined,
+      ],
     );
   });
 });
