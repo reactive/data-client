@@ -23,10 +23,11 @@ import {
 } from './actionGroups';
 import type ActionLog from './actionLog';
 import type { History, LogEntry } from './actionLog';
-import { onActivateKey } from './dom';
-import { splitKey } from './model';
+import { onActivateKey, scrollToRow } from './dom';
+import { actionId, splitKey } from './model';
 import {
   ActionSpanContext,
+  useMoment,
   useNav,
   type ActionSpan,
   type Moment,
@@ -90,7 +91,7 @@ const TICK_LIMIT = 12;
 const FOLLOW_SLACK = 24;
 
 /** Every action, folded into requests and subscriptions; follows new rows
- * while scrolled to the bottom */
+ * while scrolled to the bottom. The moment's action is marked, its row open */
 export function ActionsRoot({
   scroller,
 }: {
@@ -107,6 +108,19 @@ export function ActionsRoot({
       }),
     [],
   );
+  const { seq } = useMoment();
+  const current =
+    seq === null ? undefined : (
+      groups.find(g => groupEntriesOf(g).some(e => e.seq === seq))
+    );
+  // once per move: the row opens, and may be closed again
+  const [opened, setOpened] = useState<number | null>(null);
+  if (seq !== opened) {
+    setOpened(seq);
+    if (current && !open.has(current.id))
+      setOpen(new Set([...open, current.id]));
+  }
+  useReveal(scroller, seq);
   useFollow(scroller, groups);
   if (!groups.length)
     return (
@@ -122,11 +136,39 @@ export function ActionsRoot({
           key={group.id}
           group={group}
           open={open.has(group.id)}
+          current={group === current ? seq! : undefined}
           onToggle={toggle}
         />
       ))}
     </div>
   );
+}
+
+/** Brings the moment's action into view when the moment moves; if the list
+ * is hidden then, once it shows again */
+function useReveal(
+  scroller: React.RefObject<HTMLElement | null>,
+  seq: number | null,
+) {
+  const pending = useRef<number | null>(null);
+  const reveal = useCallback(() => {
+    const el = scroller.current;
+    if (pending.current === null || !el?.clientHeight) return;
+    scrollToRow(el, actionId(pending.current));
+    pending.current = null;
+  }, [scroller]);
+  useLayoutEffect(() => {
+    if (seq === null) return;
+    pending.current = seq;
+    reveal();
+  }, [seq, reveal]);
+  useLayoutEffect(() => {
+    const el = scroller.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(reveal);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [scroller, reveal]);
 }
 
 const AXES = {
@@ -191,10 +233,13 @@ export function useFollow(
 const GroupRow = memo(function GroupRow({
   group,
   open,
+  current,
   onToggle: toggle,
 }: {
   group: ActionGroup;
   open: boolean;
+  /** The moment's action, when it is one of this row's */
+  current?: number;
   onToggle: (id: string) => void;
 }) {
   const { log } = useLog();
@@ -208,6 +253,9 @@ const GroupRow = memo(function GroupRow({
         role="button"
         tabIndex={0}
         aria-expanded={open}
+        aria-current={current !== undefined || undefined}
+        // a lone action is its own step, so the moment scrolls to it here
+        data-id={all.length === 1 ? actionId(first.seq) : undefined}
         className={clsx(styles.row, styles.actRow)}
         onClick={onToggle}
         onKeyDown={onActivateKey(onToggle)}
@@ -233,7 +281,7 @@ const GroupRow = memo(function GroupRow({
           </ActionSpanContext.Provider>
         </span>
       </div>
-      {open && <Steps group={group} all={all} />}
+      {open && <Steps group={group} all={all} current={current} />}
     </div>
   );
 });
@@ -243,9 +291,11 @@ const GroupRow = memo(function GroupRow({
 function Steps({
   group,
   all,
+  current,
 }: {
   group: ActionGroup;
   all: readonly LogEntry[];
+  current?: number;
 }) {
   const { dropped } = useLog();
   const joined = joinedFetches(group);
@@ -269,7 +319,12 @@ function Steps({
                 </span>
               </div>
             ),
-            <StepRow key={entry.seq} entry={entry} own={group.key} />,
+            <StepRow
+              key={entry.seq}
+              entry={entry}
+              own={group.key}
+              current={entry.seq === current}
+            />,
           ];
         }
         if (counted.has(request)) return null;
@@ -292,10 +347,19 @@ function Steps({
 }
 
 /** One action of an open row */
-function StepRow({ entry, own }: { entry: LogEntry; own: string }) {
+function StepRow({
+  entry,
+  own,
+  current,
+}: {
+  entry: LogEntry;
+  own: string;
+  /** Whether it is the moment's action */
+  current: boolean;
+}) {
   const { log } = useLog();
   return (
-    <ActionStep entry={entry}>
+    <ActionStep entry={entry} current={current}>
       <TypeName entry={entry} />
       <span className={styles.actSum}>
         <ActionSpanContext.Provider value={spanOf([entry])}>
@@ -309,9 +373,12 @@ function StepRow({ entry, own }: { entry: LogEntry; own: string }) {
 /** An action's line, after its time; opens the action's own level */
 export function ActionStep({
   entry,
+  current,
   children,
 }: {
   entry: LogEntry;
+  /** Whether it is the moment's action */
+  current?: boolean;
   children: React.ReactNode;
 }) {
   const nav = useNav()!;
@@ -320,6 +387,8 @@ export function ActionStep({
     <div
       role="button"
       tabIndex={0}
+      aria-current={current || undefined}
+      data-id={actionId(entry.seq)}
       className={clsx(styles.row, styles.stepRow)}
       onClick={open}
       onKeyDown={onActivateKey(open)}

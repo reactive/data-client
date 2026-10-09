@@ -853,6 +853,12 @@ div.actRow {
   gap: 0.1rem;
   padding: 0.35rem 0.75rem;
 }
+/* the moment's action, where the bar says State stands */
+.actRow[aria-current],
+.stepRow[aria-current] {
+  box-shadow: inset 2px 0 0 var(--store-stale);
+  background: rgba(255, 203, 107, 0.09);
+}
 .actHead {
   display: flex;
   align-items: baseline;

@@ -417,6 +417,52 @@ describe('Store Actions tab', () => {
     expect(crumbs().textContent).toContain('setResponse');
   });
 
+  it('marks the moment’s action in the list, with its row open', async () => {
+    const scrollTo = jest.fn();
+    Element.prototype.scrollTo = scrollTo;
+    try {
+      const { ctrl } = mount();
+      await act(() => ctrl().fetch(getPosts));
+      await act(() => ctrl().fetch(getPosts));
+      fireEvent.click(actionsTab());
+      Object.defineProperty(top(), 'clientHeight', { value: 100 });
+      const marked = () =>
+        [...document.querySelectorAll<HTMLElement>('[aria-current="true"]')]
+          .filter(el => !el.closest('[hidden]'))
+          .map(el => el.textContent);
+      // live: nothing is marked
+      expect(marked()).toEqual([]);
+      fireEvent.click(rows()[1]);
+      fireEvent.click(
+        screen.getAllByText('setResponse')[0].closest('[role="button"]')!,
+      );
+      fireEvent.click(
+        screen.getByRole('button', { name: 'View State after this' }),
+      );
+      // back to the first response: its row opens, marked, and scrolls into view
+      fireEvent.click(screen.getByRole('button', { name: 'Previous change' }));
+      fireEvent.click(screen.getByTitle('Open action'));
+      fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+      expect(rows()[0].getAttribute('aria-expanded')).toBe('true');
+      expect(rows()[0].getAttribute('aria-current')).toBe('true');
+      expect(marked()).toHaveLength(2);
+      expect(marked()[1]).toContain('setResponse');
+      expect(marked()[1]).not.toContain('fetch');
+      expect(scrollTo).toHaveBeenCalledWith(
+        expect.objectContaining({ behavior: 'smooth' }),
+      );
+      // the row may close again
+      fireEvent.click(rows()[0]);
+      expect(rows()[0].getAttribute('aria-expanded')).toBe('false');
+      expect(marked()).toHaveLength(1);
+      // live again: no mark
+      fireEvent.click(screen.getByRole('button', { name: 'Live' }));
+      expect(marked()).toEqual([]);
+    } finally {
+      delete (Element.prototype as any).scrollTo;
+    }
+  });
+
   it('keeps a snapshot, and steps from it, once its action drops off', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
