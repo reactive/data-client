@@ -248,4 +248,18 @@ describe('StorePanel table view', () => {
     ).toBe('true');
     expect(document.querySelector('[data-table]')).toBeNull();
   });
+
+  it('keeps the levels open across the tree view, without replaying them', () => {
+    mount();
+    fireEvent.click(top().querySelector('[data-table=Post] tr[data-id]')!);
+    const opened = crumbs();
+    expect(opened.length).toBeGreaterThan(1);
+    fireEvent.click(screen.getByLabelText('Tree view'));
+    const table = screen.getByLabelText('Table view');
+    table.focus();
+    fireEvent.click(table);
+    expect(crumbs()).toEqual(opened);
+    // the open record shows as it was, keeping focus on the toggle
+    expect(document.activeElement).toBe(table);
+  });
 });

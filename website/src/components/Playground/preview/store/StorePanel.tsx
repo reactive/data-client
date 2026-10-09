@@ -479,13 +479,28 @@ function SnapshotBar({
   const seq = entry?.seq ?? null;
   const earlier = nearestChange(log, history.entries, seq, -1);
   const later = nearestChange(log, history.entries, seq, 1);
+  // a step that removes (Live) or turns off (an end reached) the button
+  // pressed hands focus to one still there, so it doesn't fall to the page
+  const bar = useRef<HTMLDivElement>(null);
+  const stepped = useRef(false);
+  const step = (to: number | null) => {
+    stepped.current = true;
+    onShow(to);
+  };
+  useLayoutEffect(() => {
+    if (!stepped.current) return;
+    stepped.current = false;
+    const active = document.activeElement;
+    if (active && active !== document.body) return;
+    bar.current?.querySelector<HTMLElement>('button:not(:disabled)')?.focus();
+  });
   return (
-    <div className={clsx(styles.snapshot, !entry && styles.tlLive)}>
+    <div ref={bar} className={clsx(styles.snapshot, !entry && styles.tlLive)}>
       <button
         type="button"
         aria-label="Previous change"
         disabled={!earlier}
-        onClick={() => earlier && onShow(earlier.seq)}
+        onClick={() => earlier && step(earlier.seq)}
       >
         ‹
       </button>
@@ -493,7 +508,7 @@ function SnapshotBar({
         type="button"
         aria-label="Next change"
         disabled={!later && !(stepsToLive && entry)}
-        onClick={() => onShow(later?.seq ?? null)}
+        onClick={() => step(later?.seq ?? null)}
       >
         ›
       </button>
@@ -513,7 +528,7 @@ function SnapshotBar({
           <button
             type="button"
             className={styles.liveButton}
-            onClick={() => onShow(null)}
+            onClick={() => step(null)}
           >
             Live
           </button>
@@ -543,6 +558,9 @@ function Levels({
   showRecord?: (id: string) => void;
 }) {
   const { then } = useActions();
+  // levels already open as it mounts (the view toggled back to the table)
+  // show at once; only those pushed since slide in
+  const [mountedTop] = useState(() => stack[stack.length - 1].key);
   // each level's nav; one showing an action's store keeps its own as the
   // live store changes
   const [navs] = useState(
@@ -648,6 +666,7 @@ function Levels({
             nav={level.nav}
             then={level.then}
             depth={depth}
+            pushed={key > mountedTop}
             top={depth === stack.length - 1}
             onBack={back}
             returnTo={returnTo}
@@ -695,6 +714,7 @@ function Level({
   nav,
   then,
   depth,
+  pushed,
   top,
   onBack,
   returnTo,
@@ -705,6 +725,9 @@ function Level({
   /** The store this level shows, when not the one `StateContext` holds */
   then?: Then;
   depth: number;
+  /** Opened over a level shown before; one already open as the stack
+   * mounts shows without sliding in or taking focus */
+  pushed: boolean;
   top: boolean;
   onBack: (depth: number) => void;
   /** Row to flash when this level is uncovered */
@@ -731,12 +754,12 @@ function Level({
     const el = ref.current;
     const before = wasTop.current;
     wasTop.current = top;
-    if (!el || !top || before === true || (before === null && !depth)) return;
+    if (!el || !top || before === true || (before === null && !pushed)) return;
     // keyboard focus follows, so Escape goes back
     el.focus({ preventScroll: true });
     slide(el, before === null ? 1 : -1);
     if (before === false && returnTo) flash(el, id => id === returnTo);
-  }, [top, depth, returnTo]);
+  }, [top, pushed, returnTo]);
   return (
     <div
       ref={ref}

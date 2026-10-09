@@ -503,6 +503,23 @@ describe('Store Timeline strip', () => {
     );
   });
 
+  it('keeps focus in the bar as "Live" goes under the open strip', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
+    const timeline = screen.getByRole('group', { name: /^Timeline/ });
+    fireEvent.click(
+      within(timeline).getByRole('button', { name: /^setResponse at/ }),
+    );
+    const live = screen.getByRole('button', { name: 'Live' });
+    live.focus();
+    fireEvent.click(live);
+    expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
+    expect(document.activeElement).toBe(
+      screen.getByRole('button', { name: 'Previous change' }),
+    );
+  });
+
   it('opens an endpoint lane’s History on the State tab', async () => {
     const { ctrl } = mount();
     title = 'One';
