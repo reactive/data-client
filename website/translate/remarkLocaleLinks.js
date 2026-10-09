@@ -12,8 +12,8 @@
 const fs = require('fs');
 const path = require('path');
 
-const { localizedPath } = require('../framework-docs/docsInstances.js');
 const { DEFAULT_LOCALE } = require('./locales.js');
+const { localizedPath } = require('../framework-docs/docsInstances.js');
 
 const ROOT = path.resolve(__dirname, '../..');
 const MD_LINK = /^(\.{0,2}\/?[^:?#]*\.mdx?)([?#].*)?$/;
