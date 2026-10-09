@@ -199,12 +199,19 @@ function watch(locale, then = () => {}) {
       then();
     }, 50);
   };
-  for (const dir of [
-    ...SOURCE_INSTANCES.map(d => d.path),
-    translationOf('docs', locale),
-  ]) {
+  const watched = [
+    ...SOURCE_INSTANCES.map(d => [d.path]),
+    // the locale's folder, which may not have translations yet; but not the
+    // folders generated in it
+    [translationOf('', locale), name => name.startsWith('docs')],
+    [path.relative(ROOT, path.dirname(lockFile(locale)))],
+  ];
+  for (const [dir, filter = () => true] of watched) {
     const full = path.join(ROOT, dir);
-    if (fs.existsSync(full)) fs.watch(full, { recursive: true }, regenerate);
+    fs.mkdirSync(full, { recursive: true });
+    fs.watch(full, { recursive: true }, (_, name) => {
+      if (name && filter(name)) regenerate();
+    });
   }
 }
 

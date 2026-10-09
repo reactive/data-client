@@ -16,9 +16,9 @@ English in `docs/` is the only source. `website/translate/translate.mjs` lists w
    - `language`: the language to write, and `glossary`: the terms file to follow.
    - `pages`: each `source` page to translate into its `translation` file. `new` pages need a full translation. `update` pages already have one: when a `diff` command is given, run it to see what changed in English and change only the matching parts of the translation, keeping every other line as it is (reviewed wording survives this way). Without a `diff`, compare the translation against the English yourself.
    - `removed`: translations it deleted because their page is no longer translated; commit the deletion.
-   - `ui`: UI strings (navbar, footer, sidebar labels) still in English. Each `id` is `<json file>#<key>`; translate the `message` of that key in the file.
+   - `ui`: UI strings (navbar, footer, sidebar labels) still in English. Each `id` is `<json file>#<key>`; translate the `message` of that key in the file. `previous` is its translation of older English, to update.
 2. Translate, following the rules below. Write each page to its `translation` path; create folders as needed.
-3. `node website/translate/translate.mjs finalize`. It checks every changed translation against its English, adds heading anchors, and records the English it translates in `website/translate/lock/<locale>.json`. Fix each `✗` problem it prints and run it again until it passes. A UI string that should read the same as English (a product name) is accepted with `--same <id>`.
+3. Before committing, `node website/translate/translate.mjs finalize`. It checks every changed translation against its English, adds heading anchors, and records the English it translates in `website/translate/lock/<locale>.json`. Fix each `✗` problem it prints and run it again until it passes. A UI string that should read the same as English (a product name) is accepted with `--same <id>`.
 4. Commit the translations, the UI JSON files and the lock together.
 
 Never edit `website/translate/lock/*.json` or the generated `website/i18n/<locale>/docusaurus-plugin-content-docs*/current/` folders yourself.

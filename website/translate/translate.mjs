@@ -229,8 +229,16 @@ async function prepare(locale, english) {
         done[key] = message;
         continue;
       }
-      target[key] ??= { message, description };
-      ui.push({ id: uiId(locale, file, key), message, description });
+      // a translation of older English shows English until it is redone
+      const previous = key in done ? target[key]?.message : undefined;
+      if (previous !== undefined) target[key] = { message, description };
+      else target[key] ??= { message, description };
+      ui.push({
+        id: uiId(locale, file, key),
+        message,
+        description,
+        ...(previous !== undefined && { previous }),
+      });
     }
     fs.writeFileSync(
       path.join(WEBSITE, 'i18n', locale, file),
@@ -298,7 +306,13 @@ async function finalize(locale, english) {
   const pages =
     files.length ?
       files.map(file => sourceArg(file, locale))
-    : changedTranslations(locale);
+    : [
+        ...new Set([
+          ...changedTranslations(locale),
+          // committed before being finalized
+          ...translated(locale).filter(file => !(file in lock.docs)),
+        ]),
+      ];
   const blobs = blobsOf(pages.filter(file => wanted.has(file)));
   const accepted = [];
   const problems = [];
@@ -365,12 +379,18 @@ function check(locale) {
       continue;
     }
     const english = blob(id);
+    const content = read(translation);
     if (english === undefined) {
+      // a shallow clone lacks it; still make sure the page compiles
       unverified++;
+      problems.push(
+        ...translationProblems(content, content, file).problems.map(
+          p => `${translation}: ${p}`,
+        ),
+      );
       continue;
     }
     if (english !== read(file)) stale++;
-    const content = read(translation);
     const result = translationProblems(english, content, file);
     if (!result.problems.length && result.pinned !== content)
       result.problems.push('headings lack their English anchors');
