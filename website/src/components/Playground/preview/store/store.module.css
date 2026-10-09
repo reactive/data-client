@@ -1142,6 +1142,8 @@ div.joined {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  /* a zoomed Timeline scrolls inside, not widen the panel */
+  min-width: 0;
   opacity: 0;
   translate: 0 -6px;
   transition:
