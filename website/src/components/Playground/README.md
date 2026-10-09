@@ -148,8 +148,21 @@ DesignSystem/       components injected into preview scope
   store (see Reset) starts a new history, a store the retry restores continues
   its own, and the panel shows only the current one. An action's chips open the
   store as that action left it (see `Moment` in `preview/store/nav.tsx`).
+- The Store inspector has one moment (`MomentContext` in `preview/store/nav.tsx`,
+  owned by `StorePanel`): the action State is shown after, or live. Every tab
+  shows it and can move it. State is the store as that action left it; the
+  Actions list marks the action (`aria-current`), opens its row and scrolls to
+  it; a record's History opens the version current then (or marks the "not
+  kept" note when the moment falls among dropped actions). Opening an action
+  the store saw, stepping within its row, picking a History version or a
+  Timeline mark all move the moment. While the moment is set, the bar under the
+  tab bar (`SnapshotBar`) shows on every tab: ‹ › step through store-wide
+  changes, "After <action>" opens the action in the Actions list, "Live" lets go.
   The Timeline tab (`preview/store/Timeline.tsx`) puts the same history on one
-  time axis; picking an action sets the snapshot State shows.
+  time axis; an endpoint lane's label opens that record's History.
+  "History" is the one way into a record's versions everywhere; where there is
+  no stack to open it on (the tree view, the Timeline), `OpenViewContext` opens
+  it on the State tab's table view.
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
   count in the preview header (written to the DOM, so counting adds no commits).
   `website/profiling-plugin.js` replaces `react-dom/client` with React's
