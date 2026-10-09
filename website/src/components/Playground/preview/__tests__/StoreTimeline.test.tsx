@@ -122,7 +122,8 @@ describe('Store Timeline strip', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
     const timeline = screen.getByRole('group', { name: /^Timeline/ });
-    const panel = within(timeline.parentElement!);
+    // the panel, over the strip's sliding box
+    const panel = within(timeline.parentElement!.parentElement!);
     // one lane for the endpoint, both requests on it
     expect(timeline.textContent).toContain('/posts');
     expect(panel.getByText(/^Live\./)).toBeTruthy();
@@ -177,6 +178,19 @@ describe('Store Timeline strip', () => {
     expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
     expect(screen.getByText(/^Live\./)).toBeTruthy();
+  });
+
+  it('slides the strip shut, letting go of it once the slide ends', () => {
+    mount();
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
+    const timeline = screen.getByRole('group', { name: /^Timeline/ });
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
+    // still there for the slide, but neither focusable nor announced
+    expect(timeline.isConnected).toBe(true);
+    expect(screen.queryByRole('group', { name: /^Timeline/ })).toBeNull();
+    expect(timeline.parentElement!.hasAttribute('inert')).toBe(true);
+    fireEvent.transitionEnd(timeline.parentElement!);
+    expect(timeline.isConnected).toBe(false);
   });
 
   it('says when earlier actions of a lane are no longer kept, as the list does', async () => {

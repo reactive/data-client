@@ -54,6 +54,7 @@ import Timeline from './Timeline';
 import TreeView from './TreeView';
 import { RowKey } from './Value';
 import { RowHistory } from './VersionHistory';
+import { prefersReducedMotion } from '../../../motion';
 import { useTabStorage } from '../../../../utils/tabStorage';
 
 /** Breadcrumbs shown before the middle ones collapse to `…` */
@@ -75,8 +76,15 @@ export default function StorePanel({
   const [stored, setView] = useTabStorage('playgroundStoreView');
   const tree = stored === 'tree';
   const [tab, setTab] = useState<'state' | 'actions'>('state');
-  // the Timeline strip, above either tab
+  // the Timeline strip, above either tab; it stays mounted while it slides
+  // shut (see `.tlReveal`), until the slide ends
   const [timeline, setTimeline] = useState(false);
+  const [timelineShown, setTimelineShown] = useState(false);
+  if (timeline && !timelineShown) setTimelineShown(true);
+  useLayoutEffect(() => {
+    // no transition to end under reduced motion
+    if (!timeline && prefersReducedMotion()) setTimelineShown(false);
+  }, [timeline]);
   // the Actions tab mounts on first visit, then stays (scroll, open rows)
   const [actionsShown, setActionsShown] = useState(false);
   if (tab === 'actions' && !actionsShown) setActionsShown(true);
@@ -275,11 +283,12 @@ export default function StorePanel({
                 <span className={styles.viewButtons}>
                   <button
                     type="button"
-                    className={styles.toggle}
+                    aria-label="Timeline"
+                    title="Timeline"
                     aria-pressed={timeline}
                     onClick={() => setTimeline(shown => !shown)}
                   >
-                    Timeline
+                    <TimelineIcon />
                   </button>
                   {tab !== 'actions' && (
                     <span
@@ -310,7 +319,20 @@ export default function StorePanel({
                 </span>
               </div>
               <ActionsContext.Provider value={stateActions}>
-                {timeline && <Timeline width={width} />}
+                {timelineShown && (
+                  <div
+                    className={styles.tlReveal}
+                    data-open={timeline || undefined}
+                    inert={!timeline}
+                    aria-hidden={!timeline || undefined}
+                    onTransitionEnd={e => {
+                      if (e.target === e.currentTarget && !timeline)
+                        setTimelineShown(false);
+                    }}
+                  >
+                    <Timeline width={width} />
+                  </div>
+                )}
                 {(snapshot || timeline) && (
                   <SnapshotBar
                     entry={snapshot}
@@ -748,6 +770,15 @@ function TableIcon() {
     <svg viewBox="0 0 16 16" aria-hidden="true">
       <rect x="2" y="3" width="12" height="10" rx="1" />
       <path d="M2 6.5h12M2 9.5h12M6 3v10" />
+    </svg>
+  );
+}
+/** A time axis with marks on it */
+function TimelineIcon() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M2 12.5h12M4 12.5v-2M8 12.5v-2M12 12.5v-2" />
+      <path d="M3.5 5.5h4M9.5 7.5h3.5" />
     </svg>
   );
 }

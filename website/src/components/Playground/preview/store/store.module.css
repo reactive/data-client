@@ -124,12 +124,6 @@
   background: var(--pg-tab-hover-bg);
   opacity: 1;
 }
-/* a word, not an icon: the Timeline strip's toggle */
-.viewButtons .toggle {
-  width: auto;
-  padding: 0 0.55rem;
-  font: inherit;
-}
 .viewButtons svg,
 .historyButton svg {
   width: 15px;
@@ -1124,6 +1118,40 @@ div.joined {
   color: var(--store-fresh);
   font-family: var(--ifm-font-family-base);
   font-weight: 500;
+}
+
+/* The Timeline strip slides open and shut: its row grows from nothing as it
+   rises into place (instant under reduced motion, as the tokens are) */
+.tlReveal {
+  flex: none;
+  display: grid;
+  grid-template-rows: 0fr;
+  overflow: hidden;
+  transition: grid-template-rows var(--motion-smooth);
+}
+.tlReveal[data-open] {
+  grid-template-rows: 1fr;
+}
+.tlReveal > .timeline {
+  min-height: 0;
+  opacity: 0;
+  translate: 0 -6px;
+  transition:
+    opacity var(--motion-smooth),
+    translate var(--motion-smooth);
+}
+.tlReveal[data-open] > .timeline {
+  opacity: 1;
+  translate: 0 0;
+}
+@starting-style {
+  .tlReveal[data-open] {
+    grid-template-rows: 0fr;
+  }
+  .tlReveal[data-open] > .timeline {
+    opacity: 0;
+    translate: 0 -6px;
+  }
 }
 
 /* The Timeline tab: a lane per key, scrolling sideways; labels stay
