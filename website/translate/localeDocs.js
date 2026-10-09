@@ -147,8 +147,9 @@ function generate(locale) {
       writeIfChanged(out, content);
       sources.set(out, path.join(ROOT, from));
     }
-    for (const name of walk(outDir))
-      if (!files.has(name)) fs.rmSync(path.join(outDir, name));
+    if (fs.existsSync(outDir))
+      for (const name of walk(outDir))
+        if (!files.has(name)) fs.rmSync(path.join(outDir, name));
   }
   return { sourceOf: file => sources.get(file) ?? file };
 }

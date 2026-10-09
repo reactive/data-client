@@ -15,6 +15,7 @@ English in `docs/` is the only source. `website/translate/translate.mjs` lists w
 1. `node website/translate/translate.mjs prepare --json` (add `--locale es` for one locale). For each locale it prints:
    - `language`: the language to write, and `glossary`: the terms file to follow.
    - `pages`: each `source` page to translate into its `translation` file. `new` pages need a full translation. `update` pages already have one: when a `diff` command is given, run it to see what changed in English and change only the matching parts of the translation, keeping every other line as it is (reviewed wording survives this way). Without a `diff`, compare the translation against the English yourself.
+   - `removed`: translations it deleted because their page is no longer translated; commit the deletion.
    - `ui`: UI strings (navbar, footer, sidebar labels) still in English. Each `id` is `<json file>#<key>`; translate the `message` of that key in the file.
 2. Translate, following the rules below. Write each page to its `translation` path; create folders as needed.
 3. `node website/translate/translate.mjs finalize`. It checks every changed translation against its English, adds heading anchors, and records the English it translates in `website/translate/lock/<locale>.json`. Fix each `✗` problem it prints and run it again until it passes. A UI string that should read the same as English (a product name) is accepted with `--same <id>`.

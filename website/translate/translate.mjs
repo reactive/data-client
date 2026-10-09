@@ -185,9 +185,11 @@ async function englishUI() {
 async function prepare(locale, english) {
   const lock = readLock(locale);
   const wanted = wantedSources(locale);
-  for (const file of translated(locale))
-    if (!wanted.has(file))
-      fs.rmSync(path.join(ROOT, translationOf(file, locale)));
+  // e.g. after `pages` in locales.js narrowed, or an English page was deleted
+  const removed = translated(locale)
+    .filter(file => !wanted.has(file))
+    .map(file => translationOf(file, locale));
+  for (const file of removed) fs.rmSync(path.join(ROOT, file));
   for (const file of Object.keys(lock.docs))
     if (!wanted.has(file)) delete lock.docs[file];
 
@@ -243,6 +245,7 @@ async function prepare(locale, english) {
     glossary: `website/translate/glossary/${locale}.md`,
     pages,
     ui,
+    removed,
   };
 }
 
@@ -412,6 +415,8 @@ for (const locale of locales) {
         `  ${page.status}: ${page.translation}${page.diff ? ` (${page.diff})` : ''}`,
       );
     for (const { id } of result.ui) console.log(`  ui: ${id}`);
+    for (const file of result.removed)
+      console.log(`  removed (no longer translated): ${file}`);
   } else if (command === 'finalize') {
     const result = await finalize(locale, english);
     console.log(`${locale}: ${result.accepted.length} accepted`);
