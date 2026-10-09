@@ -98,6 +98,8 @@ jobs:
             echo "::error::Website build logged warnings (listed above)"
             exit 1
           fi
+      - name: Check the Store inspector stays in its lazy chunk
+        run: node website/scripts/check-lazy-chunks.mjs
       - if: github.event_name == 'push'
         uses: actions/cache/save@v6
         with:
