@@ -14,7 +14,7 @@ import { groupEntries } from '../store/actionGroups';
 import type { LogEntry } from '../store/actionLog';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel, { TIMELINE_CLOSE_MS } from '../store/StorePanel';
-import { lanesOf, timeScale } from '../store/Timeline';
+import { axisLabels, lanesOf, timeScale } from '../store/Timeline';
 
 jest.mock('../../../../utils/tabStorage', () => ({
   useTabStorage: () => require('react').useState(null),
@@ -85,6 +85,22 @@ describe('timeScale', () => {
     expect(scale.breaks).toEqual([c + 28]);
     expect(scale.end).toBe(d);
     expect(scale.width).toBe(d + 24);
+  });
+});
+
+describe('axisLabels', () => {
+  it('thins the labels out to the gap asked for', () => {
+    const fetch = { type: actionTypes.FETCH, key: 'a' };
+    // 500ms apart: 40px each
+    const entries = [0, 500, 1000, 1500].map((at, i) =>
+      entry(i + 1, at, fetch),
+    );
+    const scale = timeScale(entries);
+    expect(axisLabels(entries, scale, 40).map(l => l.seq)).toEqual([
+      1, 2, 3, 4,
+    ]);
+    // fit into half the room: every other label
+    expect(axisLabels(entries, scale, 80).map(l => l.seq)).toEqual([1, 3]);
   });
 });
 
@@ -360,6 +376,49 @@ describe('Store Timeline strip', () => {
     timeline.scrollLeft = 0;
     await act(() => ctrl().fetch(getPosts));
     expect(timeline.scrollLeft).toBe(900);
+  });
+
+  it('fits the whole history to the strip, zooming to the detailed spacing', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() => ctrl().fetch(getPosts));
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
+    const timeline = screen.getByRole('group', { name: /^Timeline/ });
+    const body = timeline.querySelector<HTMLElement>('[data-fit]')!;
+    // fit by default: everything placed as a fraction of the track
+    expect(body).toBeTruthy();
+    expect(body.style.getPropertyValue('--tl-width')).toMatch(/px$/);
+    const marks = within(timeline).getAllByRole('button', {
+      name: /^setResponse at/,
+    });
+    const fractions = marks.map(m =>
+      Number(m.style.getPropertyValue('--tl-f')),
+    );
+    for (const f of fractions) {
+      expect(f).toBeGreaterThan(0);
+      expect(f).toBeLessThan(1);
+    }
+    expect(fractions[1]).toBeGreaterThan(fractions[0]);
+    const zoom = within(timeline).getByRole('button', {
+      name: 'Zoom timeline',
+    });
+    expect(zoom.getAttribute('aria-pressed')).toBe('false');
+
+    // zoomed: the detailed spacing, scrolling to the picked action
+    fireEvent.click(marks[0]);
+    const seen = jest.fn();
+    marks[0].scrollIntoView = seen;
+    fireEvent.click(zoom);
+    expect(zoom.getAttribute('aria-pressed')).toBe('true');
+    expect(body.hasAttribute('data-fit')).toBe(false);
+    expect(seen).toHaveBeenCalled();
+    expect(marks[0].style.getPropertyValue('--tl-f')).toBe(
+      String(fractions[0]),
+    );
+    // and back
+    fireEvent.click(zoom);
+    expect(body.hasAttribute('data-fit')).toBe(true);
+    expect(zoom.getAttribute('aria-pressed')).toBe('false');
   });
 
   it('opens an endpoint lane’s History on the State tab', async () => {

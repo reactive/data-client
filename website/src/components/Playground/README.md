@@ -174,7 +174,13 @@ DesignSystem/       components injected into preview scope
   "Timeline" icon toggle (`aria-pressed`, beside the view switch) slides open a
   strip (`preview/store/Timeline.tsx`) above either tab that puts the same
   history on one time axis; an endpoint lane's label opens that record's
-  History.
+  History. By default the strip fits the whole history to its width (marks
+  are placed as fractions of the track, `--tl-f`, so nothing is measured;
+  axis labels thin out as it squeezes); the "Zoom timeline" toggle in the
+  axis's corner (`aria-pressed`, kept per tab) switches to the detailed
+  spacing (`timeScale`), which scrolls sideways with the lane labels pinned
+  and the picked action brought into view. Arrow keys reach every change
+  either way.
   "History" is the one way into a record's versions everywhere; where there is
   no stack to open it on (the tree view, the Timeline), `OpenViewContext` opens
   it on the State tab's table view.

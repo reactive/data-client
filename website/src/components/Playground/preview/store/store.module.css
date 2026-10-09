@@ -100,7 +100,8 @@
   align-items: center;
   gap: 2px;
 }
-.viewButtons button {
+.viewButtons button,
+.tlZoom {
   display: grid;
   place-items: center;
   width: 1.75rem;
@@ -117,14 +118,17 @@
     opacity var(--motion-snappy),
     scale var(--motion-snappy);
 }
-.viewButtons button:active {
+.viewButtons button:active,
+.tlZoom:active {
   scale: 0.9;
 }
-.viewButtons button[aria-pressed='true'] {
+.viewButtons button[aria-pressed='true'],
+.tlZoom[aria-pressed='true'] {
   background: var(--pg-tab-hover-bg);
   opacity: 1;
 }
 .viewButtons svg,
+.tlZoom svg,
 .historyButton svg {
   width: 15px;
   height: 15px;
@@ -1149,8 +1153,9 @@ div.joined {
   translate: 0 0;
 }
 
-/* The Timeline tab: a lane per key, scrolling sideways; labels stay
-   pinned on the left and times on top */
+/* The Timeline strip: a lane per key on one time axis; labels stay pinned on
+   the left and times on top. Fit (the default), the whole history spans the
+   strip; zoomed, it keeps the scale's spacing and scrolls sideways */
 .timeline {
   --tl-label: 8.5rem;
   /* the time axis and each lane */
@@ -1175,9 +1180,16 @@ div.joined {
 }
 .tlBody {
   position: relative;
+  /* the track: the scale's width, zoomed */
+  --tl-track: var(--tl-width);
   width: calc(var(--tl-label) + var(--tl-width));
   min-width: 100%;
   padding-bottom: 4px;
+}
+/* fit: the track is the scale's width, or what is left of the strip's */
+.tlBody[data-fit] {
+  --tl-track: min(var(--tl-width), 100% - var(--tl-label));
+  width: 100%;
 }
 .tlAxis,
 .tlLane {
@@ -1224,11 +1236,22 @@ div.joined {
 }
 .tlAxis .tlLabel {
   z-index: 3;
+  justify-content: flex-end;
+}
+/* in the axis's corner, in view however far the strip scrolls */
+.tlZoom {
+  width: var(--tl-row);
+  height: var(--tl-row);
+  border-radius: 4px;
+}
+.tlZoom svg {
+  width: 12px;
+  height: 12px;
 }
 .tlTrack {
   position: relative;
   flex: none;
-  width: var(--tl-width);
+  width: var(--tl-track);
 }
 .tlDropped {
   position: absolute;
@@ -1251,7 +1274,7 @@ div.joined {
 }
 .tlTime {
   position: absolute;
-  left: var(--tl-x);
+  left: calc(var(--tl-f) * 100%);
   translate: -50% 0;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
@@ -1259,7 +1282,7 @@ div.joined {
 .tlMark {
   position: absolute;
   top: 50%;
-  left: var(--tl-x);
+  left: calc(var(--tl-f) * 100%);
   width: 9px;
   height: 9px;
   margin: -4.5px 0 0 -4.5px;
@@ -1296,7 +1319,8 @@ button.tlMark:hover {
 .tlSubscription {
   position: absolute;
   top: 50%;
-  left: var(--tl-x);
+  left: calc(var(--tl-f) * 100%);
+  width: max(2px, var(--tl-w) * 100%);
   border-radius: 2px;
 }
 .tlSpan {
@@ -1317,7 +1341,7 @@ button.tlMark:hover {
   position: absolute;
   top: var(--tl-row);
   bottom: 0;
-  left: calc(var(--tl-label) + var(--tl-x));
+  left: calc(var(--tl-label) + var(--tl-f) * var(--tl-track));
   pointer-events: none;
 }
 .tlBreak {

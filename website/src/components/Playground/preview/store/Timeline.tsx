@@ -25,6 +25,7 @@ import { endpointId, splitKey } from './model';
 import { useMoment } from './nav';
 import styles from './store.module.css';
 import { HistoryButton } from './VersionHistory';
+import { useTabStorage } from '../../../../utils/tabStorage';
 
 /** Pixels per millisecond between two actions */
 const PX_PER_MS = 0.08;
@@ -36,6 +37,8 @@ const MAX_GAP = 56;
 const PAD = 24;
 /** Closest two axis labels get (px) */
 const LABEL_GAP = 64;
+/** The lane labels' column (px, see `--tl-label`), by panel width */
+const LABEL_WIDTH = { wide: 136, narrow: 88 };
 
 /** Where each action sits along the timeline */
 export interface TimeScale {
@@ -110,7 +113,24 @@ export default memo(function Timeline({
     [entries, joined],
   );
   const scale = useMemo(() => timeScale(shown), [shown]);
-  const labels = useMemo(() => axisLabels(shown, scale), [shown, scale]);
+  const narrow = width < NARROW_WIDTH;
+  // fit, the whole history spans the strip; zoomed, it keeps the detailed
+  // spacing and scrolls sideways
+  const [zoom, setZoom] = useTabStorage('playgroundTimelineZoom');
+  const detailed = zoom === 'detailed';
+  // what the strip's width shows per px of the scale: fit, the labels thin
+  // out as the history squeezes
+  const track =
+    detailed ?
+      scale.width
+    : Math.min(
+        scale.width,
+        Math.max(1, width - (narrow ? LABEL_WIDTH.narrow : LABEL_WIDTH.wide)),
+      );
+  const labels = useMemo(
+    () => axisLabels(shown, scale, (LABEL_GAP * scale.width) / track),
+    [shown, scale, track],
+  );
   const at = selected === null ? undefined : scale.x.get(selected);
 
   const scroller = useRef<HTMLDivElement>(null);
@@ -118,12 +138,13 @@ export default memo(function Timeline({
   const toNewest = useFollow(scroller, scale.width, 'x', selected !== null);
   // the picked action comes into view; back to live, the newest does, and
   // the timeline follows it again
+  // (zoomed in, the same comes into view, from wherever it fit)
   useLayoutEffect(() => {
     if (selected === null) return toNewest();
     scroller.current
       ?.querySelector('[data-selected]')
       ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
-  }, [selected, toNewest]);
+  }, [selected, toNewest, detailed]);
 
   // the arrow keys step as the snapshot bar's ‹ › do; past the newest is live
   // (End too; live already, it brings the newest back into view). Escape is
@@ -153,7 +174,10 @@ export default memo(function Timeline({
     }
     e.preventDefault();
   };
-  const px = (x: number) => ({ '--tl-x': `${x}px` }) as React.CSSProperties;
+  // along the track, as a fraction of it: the track is the scale's width
+  // zoomed, or what fits (see `.tlTrack`)
+  const frac = (x: number) => x / scale.width;
+  const px = (x: number) => ({ '--tl-f': frac(x) }) as React.CSSProperties;
   const mark = (entry: LogEntry, extra?: string) => {
     const label = `${actionName(entry.action)} at ${seconds(entry.at - since)}s`;
     const style = px(scale.x.get(entry.seq)!);
@@ -186,7 +210,7 @@ export default memo(function Timeline({
     <span
       key={key}
       className={className}
-      style={{ ...px(from), width: Math.max(2, to - from) }}
+      style={{ ...px(from), '--tl-w': frac(to - from) } as React.CSSProperties}
     />
   );
   const request = (group: RequestGroup) => {
@@ -237,7 +261,7 @@ export default memo(function Timeline({
     <div
       ref={scroller}
       className={styles.timeline}
-      data-narrow={width < NARROW_WIDTH || undefined}
+      data-narrow={narrow || undefined}
       tabIndex={0}
       role="group"
       aria-label="Timeline: arrow keys step through changes, End returns to live"
@@ -254,10 +278,22 @@ export default memo(function Timeline({
       <div
         className={styles.tlBody}
         hidden={!entries.length}
+        data-fit={!detailed || undefined}
         style={{ '--tl-width': `${scale.width}px` } as React.CSSProperties}
       >
         <div className={styles.tlAxis}>
-          <span className={styles.tlLabel} />
+          <span className={styles.tlLabel}>
+            <button
+              type="button"
+              className={styles.tlZoom}
+              aria-label="Zoom timeline"
+              title="Zoom timeline"
+              aria-pressed={detailed}
+              onClick={() => setZoom(detailed ? 'fit' : 'detailed')}
+            >
+              <ZoomIcon />
+            </button>
+          </span>
           <span className={styles.tlTrack}>
             {labels.map(({ seq, x, at }) => (
               <span key={seq} className={styles.tlTime} style={px(x)}>
@@ -321,13 +357,27 @@ function LaneDropped({ lane }: { lane: Lane }) {
   );
 }
 
-/** Entries to label on the axis, at least `LABEL_GAP` apart */
-function axisLabels(entries: readonly LogEntry[], scale: TimeScale) {
+/** Entries to label on the axis, at least `gap` (scale px) apart */
+export function axisLabels(
+  entries: readonly LogEntry[],
+  scale: TimeScale,
+  gap = LABEL_GAP,
+) {
   const labels: { seq: number; x: number; at: number }[] = [];
   for (const { seq, at } of entries) {
     const x = scale.x.get(seq)!;
-    if (!labels.length || x - labels.at(-1)!.x >= LABEL_GAP)
+    if (!labels.length || x - labels.at(-1)!.x >= gap)
       labels.push({ seq, x, at });
   }
   return labels;
+}
+
+/** A magnifier with a plus */
+function ZoomIcon() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <circle cx="7" cy="7" r="4" />
+      <path d="M10 10l3.5 3.5M5.5 7h3M7 5.5v3" />
+    </svg>
+  );
 }
