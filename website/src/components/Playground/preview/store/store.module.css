@@ -1131,6 +1131,9 @@ div.joined {
 }
 .tlReveal[data-open] {
   grid-template-rows: 1fr;
+  /* slides in from nothing as it mounts open (keyframes, as the CSS
+     minimizer can't parse @starting-style) */
+  animation: tlRevealOpen var(--motion-smooth);
 }
 .tlReveal > .timeline {
   min-height: 0;
@@ -1143,12 +1146,15 @@ div.joined {
 .tlReveal[data-open] > .timeline {
   opacity: 1;
   translate: 0 0;
+  animation: tlRevealRise var(--motion-smooth);
 }
-@starting-style {
-  .tlReveal[data-open] {
+@keyframes tlRevealOpen {
+  from {
     grid-template-rows: 0fr;
   }
-  .tlReveal[data-open] > .timeline {
+}
+@keyframes tlRevealRise {
+  from {
     opacity: 0;
     translate: 0 -6px;
   }
