@@ -1,6 +1,7 @@
 import Head from '@docusaurus/Head';
 import Link from '@docusaurus/Link';
 import { PageMetadata } from '@docusaurus/theme-common';
+import Translate, { translate } from '@docusaurus/Translate';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
@@ -56,7 +57,7 @@ function HomepageHeader() {
             className="button button--primary"
             to="/docs/getting-started/agent-skills"
           >
-            Get Started
+            <Translate id="homepage.getStarted">Get Started</Translate>
           </Link>
         </div>
       </div>
@@ -88,7 +89,7 @@ function HomepageEnder() {
             className="button button--primary"
             to="/docs/getting-started/agent-skills"
           >
-            Get Started{' '}
+            <Translate id="homepage.getStarted">Get Started</Translate>{' '}
             <svg
               stroke="currentColor"
               fill="none"
@@ -113,7 +114,13 @@ function HomepageEnder() {
 export default function Home() {
   const image = useBaseUrl('img/social/data_client_logo_card.png');
   return (
-    <Layout description="The scalable way to build applications with dynamic data. REST, GraphQL, Websockets+SSE with React, NextJS, React Native, Expo">
+    <Layout
+      description={translate({
+        id: 'homepage.description',
+        message:
+          'The scalable way to build applications with dynamic data. REST, GraphQL, Websockets+SSE with React, NextJS, React Native, Expo',
+      })}
+    >
       <PageMetadata image={image} />
       <Head>
         <title>Reactive Data Client</title>
@@ -135,10 +142,17 @@ export default function Home() {
         <Demo />
         <HomepageFeatures />
         <section className="container">
-          <h2 className={styles.sectionHeading}>A complete app</h2>
+          <h2 className={styles.sectionHeading}>
+            <Translate id="homepage.completeApp.title">
+              A complete app
+            </Translate>
+          </h2>
           <p className={styles.sectionLede}>
-            A GitHub issues and pull request browser on the live GitHub API,
-            built with REST resources and Suspense.
+            <Translate id="homepage.completeApp.description">
+              {
+                'A GitHub issues and pull request browser on the live GitHub API, built with REST resources and Suspense.'
+              }
+            </Translate>
           </p>
           <StackBlitz
             app="github-app"

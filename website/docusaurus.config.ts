@@ -516,7 +516,9 @@ const config: Config = {
     ],
     announcementBar: {
       id: 'announcementBar-2', // Increment on change
-      content: `If you like Reactive Data Client, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/reactive/data-client">GitHub</a>`,
+      content:
+        LOCALES[currentLocale]?.announcement ??
+        `If you like Reactive Data Client, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/reactive/data-client">GitHub</a>`,
     },
     navbar: {
       title: 'Reactive Data Client',
@@ -591,6 +593,9 @@ const config: Config = {
         {
           type: 'localeDropdown',
           position: 'right',
+          // icon only; the menu names the languages (customTheme.css)
+          className: 'header-locale-dropdown',
+          'aria-label': 'Language',
         },
         {
           href: 'https://github.com/reactive/data-client',

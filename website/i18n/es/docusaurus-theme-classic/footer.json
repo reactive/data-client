@@ -64,15 +64,15 @@
     "description": "The label of footer link with label=Blog linking to /blog"
   },
   "link.item.label.Demo (Github)": {
-    "message": "Demo (Github)",
+    "message": "Ejemplo (GitHub)",
     "description": "The label of footer link with label=Demo (Github) linking to https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Fpages%2FIssueList/index.tsx"
   },
   "link.item.label.Demo (Todo)": {
-    "message": "Demo (Todo)",
+    "message": "Ejemplo (Todo)",
     "description": "The label of footer link with label=Demo (Todo) linking to https://stackblitz.com/github/reactive/data-client/tree/master/examples/todo-app?file=src%2Fpages%2FHome%2FTodoList.tsx"
   },
   "link.item.label.Demo (NextJS)": {
-    "message": "Demo (NextJS)",
+    "message": "Ejemplo (NextJS)",
     "description": "The label of footer link with label=Demo (NextJS) linking to https://stackblitz.com/github/reactive/data-client/tree/master/examples/nextjs?file=components%2Ftodo%2FTodoList.tsx"
   },
   "link.item.label.NPM": {

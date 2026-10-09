@@ -32,7 +32,7 @@
     "description": "Navbar item with label News"
   },
   "item.label.Demos": {
-    "message": "Demos",
+    "message": "Exemplos",
     "description": "Navbar item with label Demos"
   }
 }

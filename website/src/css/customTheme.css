@@ -31,6 +31,20 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
 }
 
 
+/* Language menu shows only its icon in the navbar (the mobile menu keeps its label) */
+.navbar__item > .header-locale-dropdown {
+  font-size: 0;
+}
+.navbar__item > .header-locale-dropdown svg {
+  margin-right: 0;
+}
+.navbar__item > .header-locale-dropdown:after {
+  display: none;
+}
+.navbar__item > .header-locale-dropdown:hover {
+  opacity: 0.6;
+}
+
 .header-discord-link:hover {
   opacity: 0.6;
 }

@@ -568,5 +568,206 @@
   "theme.tags.tagsPageTitle": {
     "message": "Etiquetas",
     "description": "The title of the tag list page"
+  },
+  "homepage.githubStars.star": {
+    "message": "Star"
+  },
+  "homepage.features.integrity.description": {
+    "message": "Tipos {inferred} fortes; uma única fonte de verdade, referencialmente estável, garante a consistência; as {invariants} facilitam evitar condições de corrida"
+  },
+  "homepage.features.integrity.inferred": {
+    "message": "inferidos"
+  },
+  "homepage.features.integrity.invariants": {
+    "message": "invariantes assíncronas"
+  },
+  "homepage.features.integrity.title": {
+    "message": "Integridade dos dados"
+  },
+  "homepage.features.performance.description": {
+    "message": "Navegação {navigation} que React puro, 10x mais rápida que TanStack Query e SWR. {mutations} mais rápidas que TanStack Query, SWR e React puro."
+  },
+  "homepage.features.performance.navigation": {
+    "message": "24x mais rápida"
+  },
+  "homepage.features.performance.mutations": {
+    "message": "Mutações 92x"
+  },
+  "homepage.features.performance.title": {
+    "message": "Desempenho"
+  },
+  "homepage.features.composition.description": {
+    "message": "{declare} o que você precisa {where} você precisa. {share} definições de dados {platforms}, componentes, {protocols} e comportamentos."
+  },
+  "homepage.features.composition.declare": {
+    "message": "Declare"
+  },
+  "homepage.features.composition.where": {
+    "message": "onde"
+  },
+  "homepage.features.composition.share": {
+    "message": "Compartilhe"
+  },
+  "homepage.features.composition.platforms": {
+    "message": "entre plataformas"
+  },
+  "homepage.features.composition.protocols": {
+    "message": "protocolos"
+  },
+  "homepage.features.composition.title": {
+    "message": "Composição em vez de configuração"
+  },
+  "homepage.features.adoption.description": {
+    "message": "Comece rápido com uma {definition} de {oneLine} e um {binding} de uma linha. Depois {add} TypeScript, cache normalizado com {schemas}, {optimistic} e mais."
+  },
+  "homepage.features.adoption.oneLine": {
+    "message": "uma linha"
+  },
+  "homepage.features.adoption.definition": {
+    "message": "definição de dados"
+  },
+  "homepage.features.adoption.binding": {
+    "message": "vínculo de dados"
+  },
+  "homepage.features.adoption.add": {
+    "message": "adicione"
+  },
+  "homepage.features.adoption.optimistic": {
+    "message": "atualizações otimistas"
+  },
+  "homepage.features.adoption.title": {
+    "message": "Adoção incremental"
+  },
+  "stackblitz.exploreApp": {
+    "message": "Explore o exemplo {app}"
+  },
+  "stackblitz.explore": {
+    "message": "Explore o exemplo"
+  },
+  "stackblitz.open": {
+    "message": "Abrir no StackBlitz"
+  },
+  "stackblitz.source": {
+    "message": "Ver código-fonte"
+  },
+  "demos.title": {
+    "message": "Exemplos com React Suspense"
+  },
+  "demos.description": {
+    "message": "Exemplos de aplicações escaláveis e de alto desempenho com REST, GraphQL e Websockets"
+  },
+  "demos.tab.coinApp": {
+    "message": "Preços de criptomoedas ao vivo"
+  },
+  "homepage.getStarted": {
+    "message": "Começar"
+  },
+  "homepage.description": {
+    "message": "A forma escalável de criar aplicações com dados dinâmicos. REST, GraphQL, Websockets+SSE com React, NextJS, React Native, Expo"
+  },
+  "homepage.completeApp.title": {
+    "message": "Uma aplicação completa"
+  },
+  "homepage.completeApp.description": {
+    "message": "Um navegador de issues e pull requests do GitHub sobre a API do GitHub ao vivo, criado com resources REST e Suspense."
+  },
+  "homepage.demo.mutations.title": {
+    "message": "Mutações reativas"
+  },
+  "homepage.demo.mutations.render": {
+    "message": "Renderize dados com {useSuspense}. Depois faça mutações com {fetch}."
+  },
+  "homepage.demo.mutations.atomic": {
+    "message": "Isso atualiza {all} os usos {atomically} sem nenhuma requisição adicional. O Reactive Data Client garante automaticamente a {consistency}, mesmo nas {raceConditions} mais difíceis."
+  },
+  "homepage.demo.mutations.all": {
+    "message": "todos"
+  },
+  "homepage.demo.mutations.atomicallyImmediately": {
+    "message": "de forma {atomically} e {immediately}"
+  },
+  "homepage.demo.mutations.atomically": {
+    "message": "atômica"
+  },
+  "homepage.demo.mutations.immediately": {
+    "message": "imediata"
+  },
+  "homepage.demo.mutations.consistency": {
+    "message": "consistência e integridade global dos dados"
+  },
+  "homepage.demo.mutations.raceConditions": {
+    "message": "condições de corrida"
+  },
+  "homepage.demo.structured.title": {
+    "message": "Dados estruturados"
+  },
+  "homepage.demo.structured.scale": {
+    "message": "A consistência dos dados, o desempenho e a segurança de tipos escalam mesmo quando seus dados ficam mais complexos."
+  },
+  "homepage.demo.structured.lists": {
+    "message": "{creates} atualizam de forma reativa as {lists}, mesmo quando essas listas estão {nested}."
+  },
+  "homepage.demo.structured.creates": {
+    "message": "As criações e exclusões"
+  },
+  "homepage.demo.structured.correctLists": {
+    "message": "listas corretas"
+  },
+  "homepage.demo.structured.nested": {
+    "message": "aninhadas dentro de outros objetos"
+  },
+  "homepage.demo.structured.model": {
+    "message": "Modele até os dados mais complexos com suporte {polymorphic} e a {maps}."
+  },
+  "homepage.demo.structured.polymorphic": {
+    "message": "polimórfico"
+  },
+  "homepage.demo.structured.maps": {
+    "message": "objetos e mapas sem limites"
+  },
+  "homepage.demo.live.title": {
+    "message": "Atualizações ao vivo"
+  },
+  "homepage.demo.live.sync": {
+    "message": "Mantenha as mudanças remotas sincronizadas com {useLive}."
+  },
+  "homepage.demo.live.protocols": {
+    "message": "{polling}, {streams} ou suporte a um protocolo próprio com {middlewares}"
+  },
+  "homepage.demo.live.polling": {
+    "message": "Polling"
+  },
+  "homepage.demo.live.streams": {
+    "message": "SSE e Websocket"
+  },
+  "homepage.demo.live.middlewares": {
+    "message": "middlewares"
+  },
+  "errors.dklj.title": {
+    "message": "Erro: nomes de classe ofuscados detectados"
+  },
+  "errors.dklj.custom": {
+    "message": "Adicione uma {link} personalizada"
+  },
+  "errors.dklj.customLink": {
+    "message": "Entity key"
+  },
+  "errors.mangle.or": {
+    "message": "Ou {link}"
+  },
+  "errors.dklj.disable": {
+    "message": "desative a ofuscação de nomes de classe"
+  },
+  "errors.osid.title": {
+    "message": "Erro: nomes de função ofuscados detectados"
+  },
+  "errors.osid.custom": {
+    "message": "Adicione um {link} personalizado"
+  },
+  "errors.osid.customLink": {
+    "message": "nome de Endpoint"
+  },
+  "errors.osid.disable": {
+    "message": "desative a ofuscação de nomes de função"
   }
 }
