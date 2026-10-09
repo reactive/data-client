@@ -1,4 +1,5 @@
 export { MemoPolicy } from './memo/Policy.imm.js';
+export { ImmValuePolicy } from './denormalize/valuePolicy.imm.js';
 export { denormalize } from './denormalize/denormalize.imm.js';
 export { normalize } from './normalize/normalize.imm.js';
 export { ImmNormalizeDelegate } from './normalize/NormalizeDelegate.imm.js';

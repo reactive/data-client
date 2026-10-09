@@ -1,15 +1,16 @@
 import type Cache from './cache.js';
 import { INVALID } from './symbol.js';
 import { UNDEF } from './UNDEF.js';
+import { PlainValuePolicy } from './valuePolicy.js';
 import type {
   EntityInterface,
   EntityPath,
   IDenormalizeDelegate,
+  IValuePolicy,
 } from '../interface.js';
 import { isEntity } from '../isEntity.js';
 import type { DenormGetEntity } from '../memo/types.js';
 import { denormalize as arrayDenormalize } from '../schemas/Array.js';
-import { denormalize as objectDenormalize } from '../schemas/Object.js';
 
 const getUnvisitEntity = (
   getEntity: DenormGetEntity,
@@ -105,16 +106,22 @@ const getUnvisit = (
   getEntity: DenormGetEntity,
   cache: Cache,
   args: readonly any[],
+  // resolved once per denormalize tree — never a per-call check
+  valuePolicy: IValuePolicy = PlainValuePolicy,
 ) => {
   let depth = 0;
   let depthLimitHit = false;
-  // Single delegate object reused for the whole denormalize tree. Recursive
-  // schemas call `delegate.unvisit(...)` for nested types and
-  // `delegate.argsKey(fn)` to register an args-derived cache dimension.
+  // Single delegate object reused for the whole denormalize tree.
+  // `unvisitObject`/`getField` are always present (monomorphic shape),
+  // resolving value-representation differences via the injected policy.
   const delegate: IDenormalizeDelegate = {
     args,
     unvisit,
     argsKey: fn => cache.argsKey(fn),
+    unvisitObject(schema: Record<string, any>, input: any) {
+      return valuePolicy.denormalizeObject(schema, input, delegate);
+    },
+    getField: valuePolicy.getField,
   };
   // we don't inline this as making this function too big inhibits v8's JIT
   const unvisitEntity = getUnvisitEntity(getEntity, cache, delegate);
@@ -133,9 +140,9 @@ const getUnvisit = (
 
       // shorthand for object, array
       if (typeof schema === 'object') {
-        const method =
-          Array.isArray(schema) ? arrayDenormalize : objectDenormalize;
-        return method(schema, input, delegate);
+        return Array.isArray(schema) ?
+            arrayDenormalize(schema, input, delegate)
+          : valuePolicy.denormalizeObject(schema, input, delegate);
       }
     } else {
       if (isEntity(schema)) {

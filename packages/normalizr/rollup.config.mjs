@@ -4,6 +4,7 @@ import {
   filesize,
   dts,
   resolve,
+  replace,
   terser,
   onwarn,
 } from 'rollup-plugins';
@@ -45,6 +46,12 @@ if (process.env.BROWSERSLIST_ENV !== 'node12') {
           extensions,
           babelHelpers: 'runtime',
           rootMode: 'upward',
+        }),
+        // strip dev-only guards (e.g. immutable-input detection) from the
+        // production browser build, matching endpoint's rollup config
+        replace({
+          'process.env.NODE_ENV': JSON.stringify('production'),
+          preventAssignment: true,
         }),
         resolve({ extensions }),
         commonjs({ extensions }),

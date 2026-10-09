@@ -177,6 +177,16 @@ export interface IQueryDelegate {
 export interface IDenormalizeDelegate {
   /** Recursive denormalize of nested schemas */
   unvisit(schema: any, input: any): any;
+  /** Denormalize an object-shaped schema node ({ key: Schema }).
+   *
+   * Value-representation aware (plain vs ImmutableJS input handling).
+   * Optional because delegates from older @data-client/normalizr versions
+   * lack it — callers must fall back to the plain (POJO) path. */
+  unvisitObject?(schema: Record<string, any>, input: any): any;
+  /** Read a field from a normalized reference (e.g. polymorphic
+   * `schema`/`id` discriminators), respecting the value representation.
+   * Optional for the same cross-version reason as `unvisitObject`. */
+  getField?(value: any, key: string): any;
   /** Raw endpoint args. Reading this does NOT contribute to cache
    * invalidation — if your output varies with args, register an `argsKey`
    * so the cache buckets correctly. */
