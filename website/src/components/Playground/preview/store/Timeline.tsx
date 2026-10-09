@@ -117,8 +117,8 @@ export default memo(function Timeline({
   const labelWidth = narrow ? LABEL_WIDTH.narrow : LABEL_WIDTH.wide;
   // detailed (the default), it scrolls sideways, kept on the newest while
   // live; fit, the whole history spans the strip
-  const [zoom, setZoom] = useTabStorage('playgroundTimelineZoom');
-  const fit = zoom === 'fit';
+  const [spacing, setSpacing] = useTabStorage('playgroundTimelineSpacing');
+  const fit = spacing === 'fit';
   // the strip's width for the scale's: fit, the labels thin out as the
   // history squeezes (whole px, so resizing rarely relabels). A hidden panel
   // measures 0: label as detailed until it shows
@@ -134,16 +134,25 @@ export default memo(function Timeline({
   const at = selected === null ? undefined : scale.x.get(selected);
 
   const scroller = useRef<HTMLDivElement>(null);
-  // a picked action stays put as new ones come in
-  const toNewest = useFollow(scroller, scale.width, 'x', selected !== null);
+  // a picked action stays put as new ones come in; so does a scrolled-back
+  // view as the fit toggles, while a followed one stays on the newest
+  const toNewest = useFollow(
+    scroller,
+    `${scale.width} ${fit}`,
+    'x',
+    selected !== null,
+  );
   // the picked action comes into view (again as the fit changes); back to
   // live, the newest does, and the timeline follows it again
   useLayoutEffect(() => {
     if (selected === null) return toNewest();
+  }, [selected, toNewest]);
+  useLayoutEffect(() => {
+    if (selected === null) return;
     scroller.current
       ?.querySelector('[data-selected]')
       ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
-  }, [selected, toNewest, fit]);
+  }, [selected, fit]);
 
   // the arrow keys step as the snapshot bar's ‹ › do; past the newest is live
   // (End too; live already, it brings the newest back into view). Escape is
@@ -288,7 +297,7 @@ export default memo(function Timeline({
               aria-label="Fit timeline"
               title="Fit the whole timeline"
               aria-pressed={fit}
-              onClick={() => setZoom(fit ? 'detailed' : 'fit')}
+              onClick={() => setSpacing(fit ? 'detailed' : 'fit')}
             >
               <FitIcon />
             </button>

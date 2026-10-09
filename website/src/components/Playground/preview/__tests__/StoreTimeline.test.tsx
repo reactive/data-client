@@ -379,10 +379,15 @@ describe('Store Timeline strip', () => {
   });
 
   it('stays on the newest until scrolled back, as live', async () => {
+    // shown with a height from the start, as a browser lays it out
+    const height = jest
+      .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
+      .mockReturnValue(100);
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
     fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
     const timeline = screen.getByRole('group', { name: /^Timeline/ });
+    height.mockRestore();
     Object.defineProperty(timeline, 'clientHeight', { value: 100 });
     Object.defineProperty(timeline, 'clientWidth', { value: 300 });
     Object.defineProperty(timeline, 'scrollWidth', { value: 900 });
@@ -392,6 +397,11 @@ describe('Store Timeline strip', () => {
     timeline.scrollLeft = 100;
     fireEvent.scroll(timeline);
     await act(() => ctrl().fetch(getPosts));
+    expect(timeline.scrollLeft).toBe(100);
+    // fitting and back doesn't pull it to the newest either
+    const fit = within(timeline).getByRole('button', { name: 'Fit timeline' });
+    fireEvent.click(fit);
+    fireEvent.click(fit);
     expect(timeline.scrollLeft).toBe(100);
     // scrolled back to the newest, it follows again
     timeline.scrollLeft = 600;
