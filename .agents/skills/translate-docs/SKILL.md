@@ -23,7 +23,7 @@ English in `docs/` is the only source. `website/translate/translate.mjs` lists w
 
 ## Weekly run
 
-A Claude Code routine runs this every Monday morning; run by hand the same way.
+A Claude Code routine runs this early every Sunday morning; run by hand the same way.
 
 1. Start from the latest `master`. If a translation PR from an earlier run is still open, stop: one update at a time keeps review small.
 2. Run the procedure above for every locale. If `prepare` lists no pages, no UI strings and nothing removed, stop without a PR.
