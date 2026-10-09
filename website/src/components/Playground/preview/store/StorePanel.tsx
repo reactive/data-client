@@ -676,7 +676,7 @@ function Levels({
             nav={level.nav}
             then={level.then}
             depth={depth}
-            pushed={!shownLevels.has(entry)}
+            pushed={depth > 0 && !shownLevels.has(entry)}
             top={depth === stack.length - 1}
             onBack={back}
             returnTo={returnTo}

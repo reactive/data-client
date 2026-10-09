@@ -249,6 +249,15 @@ describe('StorePanel table view', () => {
     expect(document.querySelector('[data-table]')).toBeNull();
   });
 
+  it('leaves focus alone as the overview and the Actions list first show', () => {
+    mount();
+    expect(document.activeElement).toBe(document.body);
+    const actions = screen.getByRole('tab', { name: /Actions/ });
+    actions.focus();
+    fireEvent.click(actions);
+    expect(document.activeElement).toBe(actions);
+  });
+
   it('keeps the levels open across the tree view, without replaying them', () => {
     mount();
     fireEvent.click(top().querySelector('[data-table=Post] tr[data-id]')!);
