@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-# Decide whether Vercel should build the docs site.
+# Decide whether site-preview.yml deploys the docs site to Vercel.
 #
-# Exit 0 skips the build. Exit 1 builds. Vercel treats every non-zero status
-# as "build", so this script exits 0 only when it can see that the published
-# site is unchanged. If git history is missing, it builds (fail open).
+# Exit 0 skips the deploy. Exit 1 deploys, as does every other non-zero
+# status, so this script exits 0 only when it can see that the published
+# site is unchanged. If git history is missing, it deploys (fail open).
+# `--superseded` is the exception: it exits 2 when it can't fetch master.
 #
 # Preview branches must not use `git diff HEAD^ HEAD`. Merging master into a
 # pull request makes that diff the incoming master tree, so a site commit
@@ -30,23 +31,16 @@ skip() {
   exit 0
 }
 
-[[ "${VERCEL_GIT_COMMIT_REF:-}" == gh-pages* ]] && skip "gh-pages branch"
-# The merge queue tests a PR already previewed on its own branch
-[[ "${VERCEL_GIT_COMMIT_REF:-}" == gh-readonly-queue/* ]] && skip "merge queue branch"
-
 cd "$(git rev-parse --show-toplevel)" || build "cannot find repo root"
 
-# Vercel's clone has no `origin` remote, so every fetch below would fail. Add
-# one for the (public) repo; the clone is thrown away after the build.
-git remote get-url origin >/dev/null 2>&1 ||
-  { [ -n "${VERCEL_GIT_REPO_OWNER:-}" ] && [ -n "${VERCEL_GIT_REPO_SLUG:-}" ] &&
-    git remote add origin "https://github.com/$VERCEL_GIT_REPO_OWNER/$VERCEL_GIT_REPO_SLUG.git"; }
+site_files() {
+  git diff --name-only --no-renames "$1" "$2" -- "${SITE_PATHS[@]}" 2>/dev/null
+}
 
 # Builds if site paths changed between $1 and $2 (or the diff fails); else skips.
 decide() {
   local files
-  files="$(git diff --name-only --no-renames "$1" "$2" -- "${SITE_PATHS[@]}" 2>/dev/null)" ||
-    build "could not diff $1..$2"
+  files="$(site_files "$1" "$2")" || build "could not diff $1..$2"
   [ -n "$files" ] || skip "$3"
   build "$3: ${files//$'\n'/, }"
 }
@@ -59,8 +53,9 @@ is_ancestor() {
   [ -n "$1" ] && git merge-base --is-ancestor "$1" "$2" 2>/dev/null
 }
 
-# Prints master's sha. A ref equal to HEAD is never trusted as master: Vercel's
-# clone can carry one at the commit being built, which empties every diff.
+# Prints master's sha. A ref equal to HEAD is never master's tip: a checkout
+# of master carries a local `master` at the commit being built, and comparing
+# HEAD with itself empties every diff.
 upstream() {
   local head ref sha
   head="$(git rev-parse HEAD)"
@@ -73,42 +68,40 @@ upstream() {
   return 1
 }
 
-# Vercel clones about 10 commits deep. Fetch more of this branch and master
-# when a comparison base is out of reach. One fetch per ref: when both go in
-# one call, newer git (2.55) can leave master at its old depth.
-deepen() {
-  [ -n "${VERCEL_GIT_COMMIT_REF:-}" ] || return 1
-  timeout 30 git fetch -q --no-tags --deepen=300 origin "$VERCEL_GIT_COMMIT_REF" 2>/dev/null
-  timeout 30 git fetch -q --no-tags --deepen=300 origin \
-    '+refs/heads/master:refs/remotes/origin/master' 2>/dev/null
-}
-
 merge_base() {
   master="$(upstream)" && git merge-base HEAD "$master" 2>/dev/null
 }
+
+# Never a --depth or --deepen fetch: on site-preview.yml's full clone it makes
+# the repo shallow and cuts the history Docusaurus dates pages with. The
+# timeout keeps a hung network call from holding the job.
+fetch_master() {
+  timeout 60 git fetch -q --no-tags origin +master:refs/remotes/origin/master 2>/dev/null
+}
+
+# `--superseded` (docs deploy, just before a production deploy): skip when
+# master has moved on to a commit that changed the site. That commit's queued
+# run deploys it, so deploying HEAD would roll production back. Exits 2 when
+# master can't be fetched: a re-run could be stale, so don't guess.
+if [ "${1:-}" = --superseded ]; then
+  fetch_master || { echo "vercel-ignore: cannot fetch master"; exit 2; }
+  tip="$(upstream)" && is_ancestor HEAD "$tip" || build "master has no newer commit"
+  files="$(site_files HEAD "$tip")" || build "could not diff HEAD..$tip"
+  [ -n "$files" ] && skip "master moved on to ${tip:0:12}, which changed the site"
+  build "newer master commits leave the site unchanged"
+fi
 
 prev="${VERCEL_GIT_PREVIOUS_SHA:-}"
 
 # A push can carry several commits (rebase merges), so compare against the
 # last deploy.
-if [[ "${VERCEL_GIT_COMMIT_REF:-}" =~ ^(master|rest-hooks-site)$ || "${VERCEL_ENV:-}" == production ]]; then
-  [ -n "$prev" ] && ! has_rev "$prev^{commit}" && deepen
+if [[ "${VERCEL_GIT_COMMIT_REF:-}" == master || "${VERCEL_ENV:-}" == production ]]; then
   is_ancestor "$prev" HEAD && decide "$prev" HEAD "production changes since ${prev:0:12}"
   build "no previous production deploy to compare"
 fi
 
-# Previews need the real master. Fetch it once, forced, so a clone-provided
-# ref is replaced; refetching later with --depth would undo deepen(). The
-# timeout keeps a hung network call from holding the build machine.
-timeout 15 git fetch -q --no-tags --depth=80 origin +master:refs/remotes/origin/master 2>/dev/null
-
-# Renovate previews skip when only website dependency manifests or lockfiles
-# changed. Site or docs source changes still build.
-if [[ "${VERCEL_GIT_COMMIT_REF:-}" == renovate/* ]]; then
-  for f in package.json yarn.lock package-lock.json pnpm-lock.yaml npm-shrinkwrap.json; do
-    SITE_PATHS+=(":(exclude,glob)website/**/$f")
-  done
-fi
+# Previews need the real master, forced so a stale ref is replaced.
+fetch_master
 
 # Previews compare the branch's changes, not commits merged in from upstream.
 # When the tip merges master, diff against the merged master commit: that
@@ -120,7 +113,7 @@ fi
 
 is_ancestor "$prev" HEAD && decide "$prev" HEAD "preview changes since ${prev:0:12}"
 
-if base="$(merge_base)" || { deepen && base="$(merge_base)"; }; then
+if base="$(merge_base)"; then
   decide "$base" HEAD "preview changes vs master (base ${base:0:12})"
 fi
 

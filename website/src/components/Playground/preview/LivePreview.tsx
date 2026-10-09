@@ -9,7 +9,7 @@ import { previewScope } from './scope';
 import type { PreviewProps } from '../types';
 import type { LogOptions } from './store/actionLog';
 import SchemaRegistry from './store/schemaRegistry';
-import { StoreHeaderToggle } from './StoreInspector';
+import { StoreHeaderToggle } from './StoreToggle';
 import transformCode from './transformCode';
 import { usePlaygroundConsoleDemotion } from './usePlaygroundConsoleDemotion';
 import { usePreviewReset } from './usePreviewReset';

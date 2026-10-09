@@ -14,7 +14,7 @@ import {
   StoreHeaderToggle,
   StoreToggle,
   useStoreOpen,
-} from './preview/StoreInspector';
+} from './preview/StoreToggle';
 import styles from './styles.module.css';
 import type { FixtureOrInterceptor } from './types';
 import { isBot } from './userAgent';

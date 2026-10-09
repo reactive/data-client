@@ -41,6 +41,7 @@ monaco/             everything Monaco-specific
 preview/            live execution (loaded lazily, never on the server)
   LivePreview.tsx     react-live LiveProvider with scope + transformCode
   Preview.tsx         DataProvider + MockResolver(fixtures) + Store inspector
+  StoreToggle.tsx     Store toggles + open state
   ...
 editor-types/       .d.ts bundles fed to Monaco (raw-loader)
 DesignSystem/       components injected into preview scope
@@ -76,7 +77,18 @@ DesignSystem/       components injected into preview scope
   (check-only editor types such as `vue/test` stay out). Failed fetches
   degrade to empty libs.
 - Preview code is a lazy chunk (`PreviewWithScope`, prefetched) and
-  `PreviewBlock` a nested lazy chunk (preloaded with its parent).
+  `PreviewBlock` a nested lazy chunk (preloaded with its parent). The Store
+  inspector (`preview/StoreInspector.tsx`, `preview/store/`) lives in it.
+  ESLint treats all of `preview/` as lazy: from outside it, only `import()`,
+  `import type`, or an allowlisted eager file (`StoreToggle`,
+  `PreviewWrapper`, `FixturePreview`, which render in SSR and loading states)
+  may be imported, and those files may not statically import the rest.
+  `website/scripts/check-lazy-chunks.mjs` (run by the `website` CI job)
+  backs this up on the build: the Store UI must ship only in `PreviewWithScope`.
+- Docusaurus only shares modules used by half of all pages, so
+  `website/chunks-plugin.js` splits site source used by 2+ pages (the eagerly
+  loaded Playground modules among it) into shared chunks instead of a copy
+  per docs page.
 - Mobile and bots download none of Monaco or the type libs.
 
 ### Mobile and bots

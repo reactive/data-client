@@ -186,6 +186,14 @@
       "matchStrings": [
         "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+CLI=https://cli\\.codecov\\.io/(?<currentValue>v[^/]+)/"
       ]
+    },
+    {
+      "description": "Vercel CLI pinned in the docs deploy job",
+      "customType": "regex",
+      "managerFilePatterns": ["/^\\.github/workflows/site-preview\\.yml$/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\s+VERCEL_CLI_VERSION: (?<currentValue>\\S+)"
+      ]
     }
   ]
 }
