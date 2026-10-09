@@ -37,7 +37,7 @@ const MAX_GAP = 56;
 const PAD = 24;
 /** Closest two axis labels get (px) */
 const LABEL_GAP = 64;
-/** The lane labels' column (px, see `--tl-label`), by panel width */
+/** The lane labels' column (px, as `--tl-label`), by panel width */
 const LABEL_WIDTH = { wide: 136, narrow: 88 };
 
 /** Where each action sits along the timeline */
@@ -114,31 +114,29 @@ export default memo(function Timeline({
   );
   const scale = useMemo(() => timeScale(shown), [shown]);
   const narrow = width < NARROW_WIDTH;
+  const labelWidth = narrow ? LABEL_WIDTH.narrow : LABEL_WIDTH.wide;
   // fit, the whole history spans the strip; zoomed, it keeps the detailed
   // spacing and scrolls sideways
   const [zoom, setZoom] = useTabStorage('playgroundTimelineZoom');
   const detailed = zoom === 'detailed';
-  // what the strip's width shows per px of the scale: fit, the labels thin
-  // out as the history squeezes
+  // the strip's width for the scale's: fit, the labels thin out as the
+  // history squeezes (whole px, so resizing rarely relabels)
   const track =
     detailed ?
       scale.width
-    : Math.min(
-        scale.width,
-        Math.max(1, width - (narrow ? LABEL_WIDTH.narrow : LABEL_WIDTH.wide)),
-      );
+    : Math.min(scale.width, Math.max(1, width - labelWidth));
+  const gap = Math.ceil((LABEL_GAP * scale.width) / track);
   const labels = useMemo(
-    () => axisLabels(shown, scale, (LABEL_GAP * scale.width) / track),
-    [shown, scale, track],
+    () => axisLabels(shown, scale, gap),
+    [shown, scale, gap],
   );
   const at = selected === null ? undefined : scale.x.get(selected);
 
   const scroller = useRef<HTMLDivElement>(null);
   // a picked action stays put as new ones come in
   const toNewest = useFollow(scroller, scale.width, 'x', selected !== null);
-  // the picked action comes into view; back to live, the newest does, and
-  // the timeline follows it again
-  // (zoomed in, the same comes into view, from wherever it fit)
+  // the picked action comes into view (again as the zoom changes); back to
+  // live, the newest does, and the timeline follows it again
   useLayoutEffect(() => {
     if (selected === null) return toNewest();
     scroller.current
@@ -177,10 +175,10 @@ export default memo(function Timeline({
   // along the track, as a fraction of it: the track is the scale's width
   // zoomed, or what fits (see `.tlTrack`)
   const frac = (x: number) => x / scale.width;
-  const px = (x: number) => ({ '--tl-f': frac(x) }) as React.CSSProperties;
+  const pos = (x: number) => ({ '--tl-f': frac(x) }) as React.CSSProperties;
   const mark = (entry: LogEntry, extra?: string) => {
     const label = `${actionName(entry.action)} at ${seconds(entry.at - since)}s`;
-    const style = px(scale.x.get(entry.seq)!);
+    const style = pos(scale.x.get(entry.seq)!);
     // only an action the store saw has a state to show
     return entry.store ?
         <button
@@ -210,7 +208,7 @@ export default memo(function Timeline({
     <span
       key={key}
       className={className}
-      style={{ ...px(from), '--tl-w': frac(to - from) } as React.CSSProperties}
+      style={{ ...pos(from), '--tl-w': frac(to - from) } as React.CSSProperties}
     />
   );
   const request = (group: RequestGroup) => {
@@ -261,7 +259,7 @@ export default memo(function Timeline({
     <div
       ref={scroller}
       className={styles.timeline}
-      data-narrow={narrow || undefined}
+      style={{ '--tl-label': `${labelWidth}px` } as React.CSSProperties}
       tabIndex={0}
       role="group"
       aria-label="Timeline: arrow keys step through changes, End returns to live"
@@ -296,7 +294,7 @@ export default memo(function Timeline({
           </span>
           <span className={styles.tlTrack}>
             {labels.map(({ seq, x, at }) => (
-              <span key={seq} className={styles.tlTime} style={px(x)}>
+              <span key={seq} className={styles.tlTime} style={pos(x)}>
                 {seconds(at - since)}s
               </span>
             ))}
@@ -324,10 +322,10 @@ export default memo(function Timeline({
           </div>
         ))}
         {scale.breaks.map(x => (
-          <span key={x} className={styles.tlBreak} style={px(x)} />
+          <span key={x} className={styles.tlBreak} style={pos(x)} />
         ))}
         {at !== undefined && (
-          <span className={styles.tlPlayhead} style={px(at)} />
+          <span className={styles.tlPlayhead} style={pos(at)} />
         )}
       </div>
     </div>

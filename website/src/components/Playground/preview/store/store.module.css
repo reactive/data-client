@@ -1159,7 +1159,7 @@ div.joined {
    the left and times on top. Fit (the default), the whole history spans the
    strip; zoomed, it keeps the scale's spacing and scrolls sideways */
 .timeline {
-  --tl-label: 8.5rem;
+  /* --tl-label, the lane labels' column, comes from Timeline.tsx */
   /* the time axis and each lane */
   --tl-row: 18px;
   flex: none;
@@ -1175,10 +1175,6 @@ div.joined {
 .timeline:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
   outline-offset: -2px;
-}
-/* a phone-width panel */
-.timeline[data-narrow] {
-  --tl-label: 5.5rem;
 }
 .tlBody {
   position: relative;

@@ -244,8 +244,8 @@ export default function StorePanel({
 
   const panel = useRef<HTMLDivElement>(null);
   const width = useWidth(panel);
-  // "Live" with the strip shut slides the bar away under the focused button:
-  // focus moves to the tab shown, so it doesn't fall to the page
+  // a bar or strip shutting under focus hands it to the tab shown, so it
+  // doesn't fall to the page
   const focusTab = useCallback(() => {
     panel.current
       ?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')
@@ -328,19 +328,22 @@ export default function StorePanel({
               </div>
               <ActionsContext.Provider value={stateActions}>
                 {timelineShown && (
-                  <Unfold open={timeline} onShut={hideTimeline}>
+                  <Unfold
+                    open={timeline}
+                    onShut={hideTimeline}
+                    onBlur={focusTab}
+                  >
                     <Timeline width={width} />
                   </Unfold>
                 )}
                 {/* one bar, below the strip: while a moment is set, and
                     (live) with the strip. It never remounts, so focus stays
                     on its buttons as they step */}
-                <Unfold open={!!snapshot || timeline}>
+                <Unfold open={!!snapshot || timeline} onBlur={focusTab}>
                   <SnapshotBar
                     entry={snapshot}
                     onOpen={openAction}
                     stepsToLive={timeline}
-                    onHide={focusTab}
                   />
                 </Unfold>
                 <div className={styles.tabPanel} hidden={tab === 'actions'}>
@@ -387,11 +390,14 @@ const ACTIONS_ROOT: View = { kind: 'actions' };
 function Unfold({
   open,
   onShut,
+  onBlur,
   children,
 }: {
   open: boolean;
   /** Called once a slide shut is over */
   onShut?: () => void;
+  /** Called as it shuts with focus inside, to move focus somewhere shown */
+  onBlur?: () => void;
   children: React.ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -399,10 +405,13 @@ function Unfold({
     const el = ref.current!;
     if (!open) {
       el.removeAttribute('data-open');
+      if (el.contains(document.activeElement)) onBlur?.();
       return;
     }
     const frame = requestAnimationFrame(() => el.setAttribute('data-open', ''));
     return () => cancelAnimationFrame(frame);
+    // only as `open` flips
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
   // from a slide shut's start to its end; reopened mid-slide turns it around
   const [was, setWas] = useState(open);
@@ -456,7 +465,6 @@ function SnapshotBar({
   entry,
   onOpen,
   stepsToLive,
-  onHide,
 }: {
   /** The action State is shown after; missing while live */
   entry?: LogEntry;
@@ -465,8 +473,6 @@ function SnapshotBar({
   /** › past the newest change goes live, as the timeline's right arrow key
    * does (the bar stays, as the timeline shows it live too) */
   stepsToLive?: boolean;
-  /** Called as "Live" hides the bar, so focus has somewhere to go */
-  onHide?: () => void;
 }) {
   const { log, history } = useActions();
   const { set: onShow } = useMoment();
@@ -507,10 +513,7 @@ function SnapshotBar({
           <button
             type="button"
             className={styles.liveButton}
-            onClick={() => {
-              onShow(null);
-              if (!stepsToLive) onHide?.();
-            }}
+            onClick={() => onShow(null)}
           >
             Live
           </button>
