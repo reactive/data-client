@@ -1,0 +1,26 @@
+{
+  "version.label": {
+    "message": "0.1",
+    "description": "The label for version current"
+  },
+  "sidebar.docs.category.Networking Guides": {
+    "message": "网络指南",
+    "description": "The label for category 'Networking Guides' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Data Guides": {
+    "message": "数据指南",
+    "description": "The label for category 'Data Guides' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Endpoint API": {
+    "message": "Endpoint API",
+    "description": "The label for category 'Endpoint API' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Schema API": {
+    "message": "Schema API",
+    "description": "The label for category 'Schema API' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Migration Guides": {
+    "message": "迁移指南",
+    "description": "The label for category 'Migration Guides' in sidebar 'docs'"
+  }
+}
