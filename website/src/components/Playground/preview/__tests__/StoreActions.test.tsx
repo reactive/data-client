@@ -429,6 +429,34 @@ describe('Store Actions tab', () => {
     expect(first().getAttribute('aria-expanded')).toBe('true');
   });
 
+  it('opens History from the tree view, in the table view', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+    );
+    fireEvent.click(screen.getByLabelText('Tree view'));
+    const tree = () =>
+      screen.getByLabelText('Tree view').getAttribute('aria-pressed');
+    const node = (id: string) =>
+      [...document.querySelectorAll<HTMLElement>('[data-id]')].find(
+        el => el.dataset.id === id,
+      )!;
+    fireEvent.click(node(entityId('Post', '1')));
+    expect(screen.getByText('changed by')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'History' }));
+    // the tree has no stack: the history opens on the table view's
+    expect(tree()).toBe('false');
+    expect(current()).toBe('History');
+    expect(top().textContent).toMatch(/title: "One" → "Edited"/);
+    // as does the action that last changed it
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    fireEvent.click(screen.getByLabelText('Tree view'));
+    fireEvent.click(node(entityId('Post', '1')));
+    fireEvent.click(screen.getByRole('button', { name: /^set/ }));
+    expect(current()).toMatch(/^set Post/);
+  });
+
   it('opens the whole history from a record shown as an action left it', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));

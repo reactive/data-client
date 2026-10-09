@@ -28,7 +28,15 @@ import { EndpointBody } from './Details';
 import type { Header } from './DiveViews';
 import { onActivateKey } from './dom';
 import { findRow, isEndpointRow } from './model';
-import { NavContext, useMoment, useNav, type Moment, type Nav } from './nav';
+import {
+  NavContext,
+  useMoment,
+  useNav,
+  useOpenView,
+  type Moment,
+  type Nav,
+  type View,
+} from './nav';
 import styles from './store.module.css';
 import { Block } from './Value';
 
@@ -44,28 +52,41 @@ function useTimeline({ log, history }: Actions, id: string) {
 }
 
 /** Opens record `id`'s history, at the version this level shows */
-function openHistory(nav: Nav, { until }: Actions, id: string) {
-  nav.push({ kind: 'history', id, seq: until });
+function openHistory(push: Push, { until }: Actions, id: string) {
+  push({ kind: 'history', id, seq: until });
 }
 
-/** A record's last change, linking to the action that made it (the table
- * view only: the tree view has no levels to open it in) */
+/** Where a view opens: over this level, or (the tree view, the Timeline) on
+ * the State tab's stack */
+type Push = (view: View) => void;
+function usePush(): Push | null {
+  const nav = useNav();
+  const open = useOpenView();
+  return nav?.push ?? open;
+}
+
+/** A record's last change, linking to the action that made it; in the tree
+ * view, which has no level header to hold it, to its whole history too */
 export function ChangedBy({ id }: { id: string }) {
   const actions = useContext(ActionsContext);
   const nav = useNav();
-  return actions && nav ?
-      <LastChange id={id} actions={actions} nav={nav} />
+  const push = usePush();
+  return actions && push ?
+      <LastChange id={id} actions={actions} push={push} history={!nav} />
     : null;
 }
 
 function LastChange({
   id,
   actions,
-  nav,
+  push,
+  history,
 }: {
   id: string;
   actions: Actions;
-  nav: Nav;
+  push: Push;
+  /** Whether to offer the history too */
+  history: boolean;
 }) {
   const changes = useTimeline(actions, id).versions;
   // as of the store this level shows
@@ -86,33 +107,34 @@ function LastChange({
           className={clsx(styles.ref, styles.countRef)}
           onClick={e => {
             e.stopPropagation();
-            nav.push({ kind: 'action', seq });
+            push({ kind: 'action', seq });
           }}
         >
           <ActionCrumb seq={seq} />
         </button>
+        {history && <HistoryButton id={id} />}
       </span>
     </div>
   );
 }
 
-/** A record level's way into its history, once the log has a change to it */
+/** A record's way into its history, once the log has a change to it */
 export function HistoryButton({ id }: { id: string }) {
   const actions = useContext(ActionsContext);
-  const nav = useNav();
-  return actions && nav ?
-      <HistoryButtonOf id={id} actions={actions} nav={nav} />
+  const push = usePush();
+  return actions && push ?
+      <HistoryButtonOf id={id} actions={actions} push={push} />
     : null;
 }
 
 function HistoryButtonOf({
   id,
   actions,
-  nav,
+  push,
 }: {
   id: string;
   actions: Actions;
-  nav: Nav;
+  push: Push;
 }) {
   if (!useTimeline(actions, id).versions.length) return null;
   return (
@@ -120,7 +142,10 @@ function HistoryButtonOf({
       type="button"
       className={styles.historyButton}
       title="Every change to this record"
-      onClick={() => openHistory(nav, actions, id)}
+      onClick={e => {
+        e.stopPropagation();
+        openHistory(push, actions, id);
+      }}
     >
       <HistoryIcon />
       History

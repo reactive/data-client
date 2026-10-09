@@ -125,3 +125,10 @@ export interface Nav {
  * instead */
 export const NavContext = createContext<Nav | null>(null);
 export const useNav = () => useContext(NavContext);
+
+/** Opens a view where there is no stack to open it on (the tree view, the
+ * Timeline): in the table view, on the State tab's stack */
+export const OpenViewContext = createContext<((view: View) => void) | null>(
+  null,
+);
+export const useOpenView = () => useContext(OpenViewContext);

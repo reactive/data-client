@@ -35,6 +35,7 @@ import {
 import {
   MomentContext,
   NavContext,
+  OpenViewContext,
   type Moment,
   type MomentCursor,
   type Nav,
@@ -60,6 +61,13 @@ interface Entry {
 
 /** Breadcrumbs shown before the middle ones collapse to `…` */
 const CRUMBS = 4;
+
+/** A view asked for from outside the stack (see `OpenViewContext`) */
+interface Requested {
+  readonly view: View;
+  /** Tells one request from the next, for the same view */
+  readonly key: number;
+}
 
 export default function StorePanel({
   registry,
@@ -164,6 +172,18 @@ export default function StorePanel({
     () => ({ seq: snapshotSeq, set: setSnapshot }),
     [snapshotSeq],
   );
+  // a view to open on State's stack from where there is none: the table
+  // view's `Levels` takes it once mounted
+  const [requested, setRequested] = useState<Requested>();
+  const openView = useCallback(
+    (view: View) => {
+      setView('table');
+      setTab('state');
+      setRequested({ view, key: Date.now() });
+    },
+    [setView],
+  );
+  const opened = useCallback(() => setRequested(undefined), []);
   // only State and the timeline show the past; the Actions list is live
   const stateActions = useMemo<Actions>(
     () =>
@@ -192,97 +212,106 @@ export default function StorePanel({
     <ActionsContext.Provider value={actions}>
       <LogContext.Provider value={logContext}>
         <MomentContext.Provider value={moment}>
-          <div className={styles.store} ref={panel}>
-            <div className={styles.bar} role="tablist" aria-label="Store">
-              <button
-                type="button"
-                role="tab"
-                className={styles.tab}
-                aria-selected={tab === 'state'}
-                onClick={() => setTab('state')}
-              >
-                State
-              </button>
-              <button
-                type="button"
-                role="tab"
-                className={styles.tab}
-                aria-selected={tab === 'actions'}
-                onClick={() => setTab('actions')}
-              >
-                Actions
-                {actions.groups.length > 0 && (
-                  <span className={styles.count}>
-                    {actions.groups.length.toLocaleString()}
+          <OpenViewContext.Provider value={openView}>
+            <div className={styles.store} ref={panel}>
+              <div className={styles.bar} role="tablist" aria-label="Store">
+                <button
+                  type="button"
+                  role="tab"
+                  className={styles.tab}
+                  aria-selected={tab === 'state'}
+                  onClick={() => setTab('state')}
+                >
+                  State
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  className={styles.tab}
+                  aria-selected={tab === 'actions'}
+                  onClick={() => setTab('actions')}
+                >
+                  Actions
+                  {actions.groups.length > 0 && (
+                    <span className={styles.count}>
+                      {actions.groups.length.toLocaleString()}
+                    </span>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  className={styles.tab}
+                  aria-selected={tab === 'timeline'}
+                  onClick={() => setTab('timeline')}
+                >
+                  Timeline
+                </button>
+                {tab !== 'actions' && (
+                  <span
+                    className={styles.viewButtons}
+                    role="group"
+                    aria-label="Store view"
+                  >
+                    <button
+                      type="button"
+                      aria-label="Table view"
+                      title="Table view"
+                      aria-pressed={!tree}
+                      onClick={() => setView('table')}
+                    >
+                      <TableIcon />
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Tree view"
+                      title="Tree view"
+                      aria-pressed={tree}
+                      onClick={() => setView('tree')}
+                    >
+                      <TreeIcon />
+                    </button>
                   </span>
                 )}
-              </button>
-              <button
-                type="button"
-                role="tab"
-                className={styles.tab}
-                aria-selected={tab === 'timeline'}
-                onClick={() => setTab('timeline')}
-              >
-                Timeline
-              </button>
-              {tab !== 'actions' && (
-                <span
-                  className={styles.viewButtons}
-                  role="group"
-                  aria-label="Store view"
-                >
-                  <button
-                    type="button"
-                    aria-label="Table view"
-                    title="Table view"
-                    aria-pressed={!tree}
-                    onClick={() => setView('table')}
-                  >
-                    <TableIcon />
-                  </button>
-                  <button
-                    type="button"
-                    aria-label="Tree view"
-                    title="Tree view"
-                    aria-pressed={tree}
-                    onClick={() => setView('tree')}
-                  >
-                    <TreeIcon />
-                  </button>
-                </span>
+              </div>
+              <ActionsContext.Provider value={stateActions}>
+                {tab === 'timeline' && (
+                  <Timeline
+                    selected={snapshotSeq}
+                    onSelect={setSnapshot}
+                    width={width}
+                  />
+                )}
+                {(snapshot || tab === 'timeline') && (
+                  <SnapshotBar
+                    entry={snapshot}
+                    onShow={setSnapshot}
+                    onOpen={() => setTab('actions')}
+                    stepsToLive={tab === 'timeline'}
+                  />
+                )}
+                <div className={styles.tabPanel} hidden={tab === 'actions'}>
+                  <StateContext.Provider value={state}>
+                    {tree ?
+                      <TreeLevel model={model} />
+                    : <Levels
+                        model={model}
+                        width={width}
+                        root={STATE_ROOT}
+                        requested={requested}
+                        onOpened={opened}
+                      />
+                    }
+                  </StateContext.Provider>
+                </div>
+              </ActionsContext.Provider>
+              {actionsShown && (
+                <div className={styles.tabPanel} hidden={tab !== 'actions'}>
+                  <Levels model={liveModel} width={width} root={ACTIONS_ROOT} />
+                </div>
               )}
             </div>
-            <ActionsContext.Provider value={stateActions}>
-              {tab === 'timeline' && (
-                <Timeline
-                  selected={snapshotSeq}
-                  onSelect={setSnapshot}
-                  width={width}
-                />
-              )}
-              {(snapshot || tab === 'timeline') && (
-                <SnapshotBar
-                  entry={snapshot}
-                  onShow={setSnapshot}
-                  onOpen={() => setTab('actions')}
-                  stepsToLive={tab === 'timeline'}
-                />
-              )}
-              <div className={styles.tabPanel} hidden={tab === 'actions'}>
-                <StateContext.Provider value={state}>
-                  {tree ?
-                    <TreeLevel model={model} />
-                  : <Levels model={model} width={width} root={STATE_ROOT} />}
-                </StateContext.Provider>
-              </div>
-            </ActionsContext.Provider>
-            {actionsShown && (
-              <div className={styles.tabPanel} hidden={tab !== 'actions'}>
-                <Levels model={liveModel} width={width} root={ACTIONS_ROOT} />
-              </div>
-            )}
-          </div>
+          </OpenViewContext.Provider>
         </MomentContext.Provider>
       </LogContext.Provider>
     </ActionsContext.Provider>
@@ -366,11 +395,17 @@ function Levels({
   model,
   width,
   root,
+  requested,
+  onOpened,
 }: {
   model: StoreModel;
   width: number;
   /** The bottom level: State's overview, or the Actions list */
   root: View;
+  /** A view to push, asked for from outside the stack */
+  requested?: Requested;
+  /** Says `requested` was pushed */
+  onOpened?: () => void;
 }) {
   const { then } = useActions();
   // the record a level was opened from flashes once that level is back on top
@@ -386,6 +421,11 @@ function Levels({
       stack: [...prev.stack, { key, view, at }],
     }));
   }, []);
+  useEffect(() => {
+    if (!requested) return;
+    push(requested.view);
+    onOpened?.();
+  }, [requested, push, onOpened]);
   /** Shows `view` in level `depth`'s place, keeping its store */
   const replace = useCallback((depth: number, view: View) => {
     setLevels(prev => ({
