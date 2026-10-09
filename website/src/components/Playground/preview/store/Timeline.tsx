@@ -22,6 +22,7 @@ import {
 } from './ActionsView';
 import { NARROW_WIDTH } from './columns';
 import { endpointId, splitKey } from './model';
+import { useMoment } from './nav';
 import styles from './store.module.css';
 import { HistoryButton } from './VersionHistory';
 
@@ -89,17 +90,13 @@ export function lanesOf(groups: readonly ActionGroup[]): Lane[] {
  * spans from fetch to response, everything else as marks. Picking an action
  * the store saw shows State as it was right after it */
 export default memo(function Timeline({
-  selected,
-  onSelect,
   width,
 }: {
-  /** The action State is shown after; `null` while live */
-  selected: number | null;
-  onSelect: (seq: number | null) => void;
   /** Panel width (px) */
   width: number;
 }) {
   const { log, history, groups } = useActions();
+  const { seq: selected, set: onSelect } = useMoment();
   const { entries, since } = history;
   const lanes = useMemo(() => lanesOf(groups), [groups]);
   // fetches deduped into a request in flight add nothing to see
@@ -220,6 +217,14 @@ export default memo(function Timeline({
       ...group.requests.flatMap(request),
     ];
   };
+  // whether a lane's own actions changed its record (what its History
+  // lists), without working the History out for every lane
+  const laneChanged = (lane: Lane, id: string) =>
+    lane.groups.some(group =>
+      groupEntriesOf(group).some(e =>
+        log.changes(e).some(c => c.id === id && c.kind !== 'refreshed'),
+      ),
+    );
 
   return (
     <div
@@ -262,7 +267,11 @@ export default memo(function Timeline({
               : <span className={styles.dim}>store</span>}
               {/* an endpoint's lane is one record's; a schema's spans a table */}
               {splitKey(lane.key).method && (
-                <HistoryButton id={endpointId(lane.key)} compact />
+                <HistoryButton
+                  id={endpointId(lane.key)}
+                  compact
+                  changed={laneChanged(lane, endpointId(lane.key))}
+                />
               )}
             </span>
             <span className={styles.tlTrack}>

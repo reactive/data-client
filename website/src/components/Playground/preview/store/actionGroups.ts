@@ -450,6 +450,27 @@ export function groupEntriesOf(group: ActionGroup): readonly LogEntry[] {
   );
 }
 
+/** By seq, for each list of groups: the one holding that action */
+const groupIndex = new WeakMap<
+  readonly ActionGroup[],
+  ReadonlyMap<number, ActionGroup>
+>();
+
+/** The group among `groups` that action `seq` belongs to */
+export function groupOf(
+  groups: readonly ActionGroup[],
+  seq: number,
+): ActionGroup | undefined {
+  let index = groupIndex.get(groups);
+  if (!index) {
+    index = new Map(
+      groups.flatMap(g => groupEntriesOf(g).map(e => [e.seq, g] as const)),
+    );
+    groupIndex.set(groups, index);
+  }
+  return index.get(seq);
+}
+
 /** Fetches NetworkManager deduped into a request already in flight, by the
  * request they joined */
 export function joinedFetches(group: ActionGroup) {

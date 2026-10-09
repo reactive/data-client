@@ -5,6 +5,7 @@ import React, {
   useLayoutEffect,
   useMemo,
   useRef,
+  useState,
 } from 'react';
 
 import { ActionCrumb, ActionName, ChangeBody } from './ActionDetail';
@@ -65,14 +66,20 @@ function usePush(): Push | null {
   return nav?.push ?? open;
 }
 
-/** A record's last change, linking to the action that made it; in the tree
- * view, which has no level header to hold it, to its whole history too */
-export function ChangedBy({ id }: { id: string }) {
+/** A record's last change, linking to the action that made it, and to its
+ * whole history (unless a level header already does) */
+export function ChangedBy({
+  id,
+  history = true,
+}: {
+  id: string;
+  /** Whether to offer the history too */
+  history?: boolean;
+}) {
   const actions = useContext(ActionsContext);
-  const nav = useNav();
   const push = usePush();
   return actions && push ?
-      <LastChange id={id} actions={actions} push={push} history={!nav} />
+      <LastChange id={id} actions={actions} push={push} history={history} />
     : null;
 }
 
@@ -122,35 +129,36 @@ function LastChange({
 export function HistoryButton({
   id,
   compact,
+  changed,
 }: {
   id: string;
   /** The icon alone, where a word won't fit */
   compact?: boolean;
+  /** Whether the log has a change to the record, when already known (it is
+   * worked out from the log's whole history otherwise) */
+  changed?: boolean;
 }) {
   const actions = useContext(ActionsContext);
   const push = usePush();
-  return actions && push ?
-      <HistoryButtonOf
-        id={id}
-        actions={actions}
-        push={push}
-        compact={compact}
-      />
-    : null;
+  if (!actions || !push) return null;
+  const props = { id, actions, push, compact };
+  if (changed === undefined) return <HistoryButtonOf {...props} />;
+  return changed ? <HistoryLink {...props} /> : null;
 }
 
-function HistoryButtonOf({
-  id,
-  actions,
-  push,
-  compact,
-}: {
+interface HistoryButtonProps {
   id: string;
   actions: Actions;
   push: Push;
   compact?: boolean;
-}) {
-  if (!useTimeline(actions, id).versions.length) return null;
+}
+
+function HistoryButtonOf(props: HistoryButtonProps) {
+  if (!useTimeline(props.actions, props.id).versions.length) return null;
+  return <HistoryLink {...props} />;
+}
+
+function HistoryLink({ id, actions, push, compact }: HistoryButtonProps) {
   return (
     <button
       type="button"
@@ -175,7 +183,6 @@ export function RowHistory({
   id,
   focus,
   header,
-  onOpen,
   onShowState,
 }: {
   id: string;
@@ -183,15 +190,15 @@ export function RowHistory({
    * default the latest */
   focus?: number;
   header: Header;
-  /** Opens version `seq` instead */
-  onOpen: (seq: number) => void;
   /** Uncovers State once it switches to just after the open version */
   onShowState?: () => void;
 }) {
   const actions = useActions();
   const moment = useMoment();
   const { items, versions } = useTimeline(actions, id);
-  const at = moment.seq ?? focus;
+  // live, the version last picked here stays open
+  const [picked, setPicked] = useState(focus);
+  const at = moment.seq ?? picked;
   // what was current then: the latest version at or before it, unless
   // actions the log dropped changed the record since (that note instead:
   // the record's value then isn't known)
@@ -202,7 +209,7 @@ export function RowHistory({
   const open = current?.kind === 'version' ? current.entry.seq : undefined;
   const select = (seq: number) => {
     moment.set(seq);
-    onOpen(seq);
+    setPicked(seq);
   };
 
   // the open version starts in view

@@ -457,6 +457,48 @@ describe('Store Actions tab', () => {
     expect(current()).toMatch(/^set Post/);
   });
 
+  it('offers History from a row expanded in place in a list', async () => {
+    class Article extends Entity {
+      id = '';
+      title = '';
+      body = '';
+      summary = '';
+      notes = '';
+    }
+    const { ctrl } = mount();
+    await act(() =>
+      ctrl().set(
+        Article,
+        { id: '1' },
+        {
+          id: '1',
+          title: 'An article title that is long enough to take its column',
+          body: 'A body that wants plenty of room in its column',
+          summary: 'Another long string field to push columns onto pages',
+          notes: 'Notes about the article, long as well',
+        },
+      ),
+    );
+    // the fields that didn't fit show below the row, with its meta
+    fireEvent.click(
+      within(top()).getAllByLabelText(/Show \d+ more fields below/)[0],
+    );
+    expect(top().textContent).toContain('changed by');
+    fireEvent.click(within(top()).getByRole('button', { name: 'History' }));
+    expect(current()).toBe('History');
+    expect(top().textContent).toContain('set');
+    // the record's own level offers it once, from its header
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    fireEvent.click(
+      top().querySelector<HTMLElement>(
+        `tr[data-id="${entityId('Article', '1')}"]`,
+      )!,
+    );
+    expect(
+      within(top()).getAllByRole('button', { name: 'History' }),
+    ).toHaveLength(1);
+  });
+
   it('opens the whole history from a record shown as an action left it', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));

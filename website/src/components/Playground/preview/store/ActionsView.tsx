@@ -14,6 +14,7 @@ import React, {
 import {
   actionName,
   groupEntriesOf,
+  groupOf,
   pollFrequencyOf,
   joinedFetches,
   type ActionGroup,
@@ -109,10 +110,7 @@ export function ActionsRoot({
     [],
   );
   const { seq } = useMoment();
-  const current =
-    seq === null ? undefined : (
-      groups.find(g => groupEntriesOf(g).some(e => e.seq === seq))
-    );
+  const current = seq === null ? undefined : groupOf(groups, seq);
   // once per move: the row opens, and may be closed again
   const [opened, setOpened] = useState<number | null>(null);
   if (seq !== opened) {

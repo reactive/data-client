@@ -36,9 +36,13 @@ import {
   MomentContext,
   NavContext,
   OpenViewContext,
+  useLevelStack,
+  useMoment,
+  type LevelStack,
   type Moment,
   type MomentCursor,
   type Nav,
+  type StackEntry,
   type Then,
   type View,
 } from './nav';
@@ -52,22 +56,8 @@ import { RowKey } from './Value';
 import { RowHistory } from './VersionHistory';
 import { useTabStorage } from '../../../../utils/tabStorage';
 
-interface Entry {
-  readonly key: number;
-  readonly view: View;
-  /** Shows the store as an action left it, instead of as it is */
-  readonly at?: Moment;
-}
-
 /** Breadcrumbs shown before the middle ones collapse to `…` */
 const CRUMBS = 4;
-
-/** A view asked for from outside the stack (see `OpenViewContext`) */
-interface Requested {
-  readonly view: View;
-  /** Tells one request from the next, for the same view */
-  readonly key: number;
-}
 
 export default function StorePanel({
   registry,
@@ -117,14 +107,6 @@ export default function StorePanel({
     () => ({ ...liveRows, optimistic: pendingIn(queue) }),
     [liveRows, queue],
   );
-  const model = useMemo(
-    () =>
-      snapshot?.store ?
-        buildModel(state, registry, pendingIn(snapshot.store.after.optimistic))
-      : liveModel,
-    [snapshot, state, liveModel, registry],
-  );
-
   // what an action's chips open: the store as it left it. Cached per state,
   // so a level showing one keeps its rows as the log grows
   const [thens] = useState(() => new WeakMap<State<unknown>, Then>());
@@ -147,6 +129,9 @@ export default function StorePanel({
     },
     [known, log, registry, thens],
   );
+  // the snapshot's store, as a chip opening it would show it
+  const model =
+    snapshot?.store ? then({ seq: snapshot.seq })!.model : liveModel;
 
   // a cache: rows that didn't change keep their group, so they skip rendering
   const lastGroups = useRef<readonly ActionGroup[]>([]);
@@ -174,18 +159,28 @@ export default function StorePanel({
     () => ({ seq: snapshotSeq, set: setSnapshot }),
     [snapshotSeq],
   );
-  // a view to open on State's stack from where there is none: the table
-  // view's `Levels` takes it once mounted
-  const [requested, setRequested] = useState<Requested>();
+  // an action's level moves the panel to it, if the store saw it: State
+  // shows the store as it left it, and a History the version current then
+  const showAction = useCallback(
+    (view: View) => {
+      if (view.kind === 'action' && findEntry(known, view.seq)?.store)
+        setSnapshot(view.seq);
+    },
+    [known],
+  );
+  const stateLevels = useLevelStack(STATE_ROOT, showAction);
+  const actionLevels = useLevelStack(ACTIONS_ROOT, showAction);
+  // a view to open from where there is no stack (the tree view, the
+  // Timeline): on State's, in the table view
+  const { push } = stateLevels;
   const openView = useCallback(
     (view: View) => {
       setView('table');
       setTab('state');
-      setRequested({ view, key: Date.now() });
+      push(view);
     },
-    [setView],
+    [setView, push],
   );
-  const opened = useCallback(() => setRequested(undefined), []);
   // only State and the timeline show the past; the Actions list is live
   const stateActions = useMemo<Actions>(
     () =>
@@ -278,17 +273,10 @@ export default function StorePanel({
                 </span>
               </div>
               <ActionsContext.Provider value={stateActions}>
-                {timeline && (
-                  <Timeline
-                    selected={snapshotSeq}
-                    onSelect={setSnapshot}
-                    width={width}
-                  />
-                )}
+                {timeline && <Timeline width={width} />}
                 {(snapshot || timeline) && (
                   <SnapshotBar
                     entry={snapshot}
-                    onShow={setSnapshot}
                     onOpen={() => setTab('actions')}
                     stepsToLive={timeline}
                   />
@@ -300,9 +288,7 @@ export default function StorePanel({
                     : <Levels
                         model={model}
                         width={width}
-                        root={STATE_ROOT}
-                        requested={requested}
-                        onOpened={opened}
+                        levels={stateLevels}
                       />
                     }
                   </StateContext.Provider>
@@ -310,7 +296,11 @@ export default function StorePanel({
               </ActionsContext.Provider>
               {actionsShown && (
                 <div className={styles.tabPanel} hidden={tab !== 'actions'}>
-                  <Levels model={liveModel} width={width} root={ACTIONS_ROOT} />
+                  <Levels
+                    model={liveModel}
+                    width={width}
+                    levels={actionLevels}
+                  />
                 </div>
               )}
             </div>
@@ -328,13 +318,11 @@ const ACTIONS_ROOT: View = { kind: 'actions' };
  * through the actions that changed the store */
 function SnapshotBar({
   entry,
-  onShow,
   onOpen,
   stepsToLive,
 }: {
   /** The action State is shown after; missing while live */
   entry?: LogEntry;
-  onShow: (seq: number | null) => void;
   /** Opens that action in the Actions list */
   onOpen: () => void;
   /** › past the newest change goes live, as the timeline's right arrow key
@@ -342,6 +330,7 @@ function SnapshotBar({
   stepsToLive?: boolean;
 }) {
   const { log, history } = useActions();
+  const { set: onShow } = useMoment();
   const seq = entry?.seq ?? null;
   const earlier = nearestChange(log, history.entries, seq, -1);
   const later = nearestChange(log, history.entries, seq, 1);
@@ -397,51 +386,22 @@ function SnapshotBar({
 function Levels({
   model,
   width,
-  root,
-  requested,
-  onOpened,
+  levels: { stack, returnTo, push, replace, back },
 }: {
   model: StoreModel;
   width: number;
-  /** The bottom level: State's overview, or the Actions list */
-  root: View;
-  /** A view to push, asked for from outside the stack */
-  requested?: Requested;
-  /** Says `requested` was pushed */
-  onOpened?: () => void;
+  /** The levels shown, over State's overview or the Actions list */
+  levels: LevelStack;
 }) {
   const { then } = useActions();
-  // the record a level was opened from flashes once that level is back on top
-  const [{ stack, returnTo }, setLevels] = useState<{
-    readonly stack: readonly Entry[];
-    readonly returnTo: string | null;
-  }>({ stack: [{ key: 0, view: root }], returnTo: null });
-  const nextKey = useRef(1);
-  const push = useCallback((view: View, at?: Moment) => {
-    const key = nextKey.current++;
-    setLevels(prev => ({
-      ...prev,
-      stack: [...prev.stack, { key, view, at }],
-    }));
-  }, []);
-  useEffect(() => {
-    if (!requested) return;
-    push(requested.view);
-    onOpened?.();
-  }, [requested, push, onOpened]);
-  /** Shows `view` in level `depth`'s place, keeping its store */
-  const replace = useCallback((depth: number, view: View) => {
-    setLevels(prev => ({
-      ...prev,
-      stack: prev.stack.map((e, i) => (i === depth ? { ...e, view } : e)),
-    }));
-  }, []);
   // each level's nav; one showing an action's store keeps its own as the
   // live store changes
   const [navs] = useState(
     () => new Map<number, { readonly nav: Nav; readonly then?: Then }>(),
   );
-  const levelOf = ({ key, at }: Entry) => {
+  for (const key of navs.keys())
+    if (!stack.some(e => e.key === key)) navs.delete(key);
+  const levelOf = ({ key, at }: StackEntry) => {
     const last = navs.get(key);
     // kept once its action drops off the front of the log
     const shown = at && (then(at) ?? last?.then);
@@ -466,16 +426,6 @@ function Levels({
     navs.set(key, level);
     return level;
   };
-  const back = useCallback((depth: number) => {
-    setLevels(({ stack }) => {
-      for (const { key } of stack.slice(Math.max(1, depth))) navs.delete(key);
-      const left = stack[depth]?.view;
-      return {
-        stack: stack.slice(0, Math.max(1, depth)),
-        returnTo: left?.kind === 'record' ? left.id : null,
-      };
-    });
-  }, []);
 
   const crumbs = (depth: number, tools?: React.ReactNode) => {
     const shown = stack.slice(0, depth + 1);
@@ -536,7 +486,8 @@ function Levels({
         const { key, view } = entry;
         const level = levelOf(entry);
         // in State, uncover State as it was then
-        const uncover = root.kind === 'root' ? () => back(depth) : undefined;
+        const uncover =
+          stack[0].view.kind === 'root' ? () => back(depth) : undefined;
         return (
           <Level
             key={key}
@@ -563,7 +514,6 @@ function Levels({
                   id={view.id}
                   focus={view.seq}
                   header={tools => crumbs(depth, tools)}
-                  onOpen={seq => replace(depth, { ...view, seq })}
                   onShowState={uncover}
                 />
               : view.kind === 'list' ?
