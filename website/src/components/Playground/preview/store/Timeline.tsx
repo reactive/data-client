@@ -120,9 +120,10 @@ export default memo(function Timeline({
   const [zoom, setZoom] = useTabStorage('playgroundTimelineZoom');
   const detailed = zoom === 'detailed';
   // the strip's width for the scale's: fit, the labels thin out as the
-  // history squeezes (whole px, so resizing rarely relabels)
+  // history squeezes (whole px, so resizing rarely relabels). A hidden panel
+  // measures 0: label as zoomed until it shows
   const track =
-    detailed ?
+    detailed || !width ?
       scale.width
     : Math.min(scale.width, Math.max(1, width - labelWidth));
   const gap = Math.ceil((LABEL_GAP * scale.width) / track);
