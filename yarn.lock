@@ -10487,7 +10487,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-react-compiler@npm:1.0.0":
+"babel-plugin-react-compiler@npm:1.0.0, babel-plugin-react-compiler@npm:^1.0.0":
   version: 1.0.0
   resolution: "babel-plugin-react-compiler@npm:1.0.0"
   dependencies:
@@ -23942,6 +23942,7 @@ __metadata:
     "@types/react-router-dom": "npm:^5.3.3"
     "@types/uuid": "npm:^11.0.0"
     "@typescript/native": "npm:typescript@7.0.2"
+    babel-plugin-react-compiler: "npm:^1.0.0"
     bignumber.js: "npm:11.1.5"
     clsx: "npm:2.1.1"
     esbuild: "npm:~0.28.0"
