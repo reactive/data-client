@@ -172,10 +172,6 @@ function generate(framework, locale) {
     locale ?
       path.resolve(ROOT, localizedPath(frameworkInstance(framework).id, locale))
     : path.resolve(ROOT, `docs/.core-${framework}`);
-  if (!fs.existsSync(srcDir)) {
-    fs.rmSync(outDir, { recursive: true, force: true });
-    return;
-  }
   const sources = resolveSources(framework, srcDir);
   for (const [out, src] of sources) {
     const target = path.join(outDir, out);
@@ -255,6 +251,8 @@ function sourcePath(framework, docPath) {
 
 module.exports = {
   FM,
+  MD,
+  ROOT,
   generate,
   watch,
   sidebarsFor,

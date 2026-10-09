@@ -10,7 +10,7 @@
  * imports leaving their docs folder (`../../rest/diagrams/...`) are pointed
  * at the other folder's generated copy.
  */
-const crypto = require('crypto');
+const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
@@ -19,10 +19,8 @@ const {
   DOCS_INSTANCES,
   localizedPath,
 } = require('../framework-docs/docsInstances.js');
-const { FM, walk } = require('../framework-docs/index.js');
+const { FM, MD, ROOT, walk } = require('../framework-docs/index.js');
 
-const ROOT = path.resolve(__dirname, '../..');
-const MD = /\.mdx?$/;
 const FENCE = /^(\s*)(`{3,}|~{3,})(.*)$/;
 /** Line of an import/export naming its module (`} from` ends multi-line ones) */
 const IMPORT =
@@ -102,8 +100,9 @@ const renderedAt = (file, locale) => {
   );
 };
 
-/** Partials (`_x.mdx`) are parts of pages, not pages */
-const isPartial = file => MD.test(file) && path.posix.basename(file)[0] === '_';
+/** Partials (`_x.mdx`, or in a `_folder/`) are parts of pages, not pages */
+const isPartial = file =>
+  MD.test(file) && file.split('/').some(part => part.startsWith('_'));
 /** English copy of a translated partial, for pages rendered in English */
 const englishCopy = file => file.replace(MD, '.en$&');
 
@@ -146,13 +145,25 @@ function writeIfChanged(file, content) {
 /** Where `translate.mjs finalize` records the English each translation matches */
 const lockFile = locale => path.join(__dirname, 'lock', `${locale}.json`);
 
-/** Git's blob id of `content` (as `git hash-object` computes it) */
-const blobId = content =>
-  crypto
-    .createHash('sha1')
-    .update(`blob ${content.length}\0`)
-    .update(content)
-    .digest('hex');
+/** Git blob id of each file (repo-relative), as `git hash-object` computes it */
+const blobsOf = files =>
+  files.length ?
+    Object.fromEntries(
+      execFileSync('git', ['hash-object', '--', ...files], {
+        cwd: ROOT,
+        encoding: 'utf8',
+      })
+        .trim()
+        .split('\n')
+        .map((id, i) => [files[i], id]),
+    )
+  : {};
+
+/** A locale's lock: the English each translation was finalized against */
+const readLock = locale =>
+  fs.existsSync(lockFile(locale)) ?
+    JSON.parse(fs.readFileSync(lockFile(locale), 'utf8'))
+  : { docs: {}, ui: {} };
 
 /** Puts `block` right under a page's front matter */
 function underFrontMatter(content, block) {
@@ -177,48 +188,58 @@ const ENGLISH_PAGE = `<head>
  */
 function generate(locale) {
   const sources = new Map();
-  const lock =
-    fs.existsSync(lockFile(locale)) ?
-      JSON.parse(fs.readFileSync(lockFile(locale), 'utf8')).docs
-    : {};
-  for (const instance of SOURCE_INSTANCES) {
+  const { docs: lock } = readLock(locale);
+  const instances = SOURCE_INSTANCES.map(instance => ({
+    instance,
+    files: walk(path.join(ROOT, instance.path)).map(
+      name => `${instance.path}/${name}`,
+    ),
+  }));
+  const isTranslated = file =>
+    fs.existsSync(path.join(ROOT, translationOf(file, locale)));
+  // English now, of each translated page, to tell which are outdated
+  const blobs = blobsOf(
+    instances.flatMap(({ files }) =>
+      files.filter(file => MD.test(file) && isTranslated(file)),
+    ),
+  );
+  for (const { instance, files } of instances) {
     const outDir = path.join(ROOT, localizedPath(instance.id, locale));
-    const files = walk(path.join(ROOT, instance.path));
     const written = new Set();
-    const write = (name, content, from) => {
-      const out = path.join(outDir, name);
-      writeIfChanged(out, content);
-      sources.set(out, path.join(ROOT, from));
+    const write = (file, content, from) => {
+      const name = file.slice(instance.path.length + 1);
+      writeIfChanged(path.join(outDir, name), content);
+      sources.set(path.join(outDir, name), path.join(ROOT, from));
       written.add(name);
     };
-    for (const name of files) {
-      const file = `${instance.path}/${name}`;
-      const translation = translationOf(file, locale);
-      const translated = fs.existsSync(path.join(ROOT, translation));
-      const from = translated ? translation : file;
+    for (const file of files) {
+      const translated = file in blobs;
+      const from = translated ? translationOf(file, locale) : file;
       const content = fs.readFileSync(path.join(ROOT, from));
-      if (!MD.test(name)) {
-        write(name, content, from);
+      if (!MD.test(file)) {
+        write(file, content, from);
         continue;
       }
       let text = retarget(content.toString(), file, locale, !translated);
-      const english = fs.readFileSync(path.join(ROOT, file));
-      if (translated && isPartial(file))
-        write(
-          englishCopy(name),
-          Buffer.from(retarget(english.toString(), file, locale, true)),
-          file,
-        );
       if (!translated) {
         if (!isPartial(file)) text = underFrontMatter(text, ENGLISH_PAGE);
-      } else if (lock[file] !== blobId(english)) {
+      } else {
+        if (isPartial(file)) {
+          const english = fs.readFileSync(path.join(ROOT, file), 'utf8');
+          write(
+            englishCopy(file),
+            Buffer.from(retarget(english, file, locale, true)),
+            file,
+          );
+        }
         // in a partial, it shows where the partial is imported
-        text = underFrontMatter(
-          text,
-          `:::note\n\n${LOCALES[locale].outdated}\n\n:::`,
-        );
+        if (lock[file] !== blobs[file])
+          text = underFrontMatter(
+            text,
+            `:::note\n\n${LOCALES[locale].outdated}\n\n:::`,
+          );
       }
-      write(name, Buffer.from(text), from);
+      write(file, Buffer.from(text), from);
     }
     if (fs.existsSync(outDir))
       for (const name of walk(outDir))
@@ -244,7 +265,10 @@ function watch(locale, then = () => {}) {
     ...SOURCE_INSTANCES.map(d => [d.path]),
     // the locale's folder, which may not have translations yet; but not the
     // folders generated in it
-    [translationOf('', locale), name => name.startsWith('docs')],
+    [
+      translationOf('', locale),
+      name => SOURCE_INSTANCES.some(d => name.startsWith(`${d.path}/`)),
+    ],
     [path.relative(ROOT, path.dirname(lockFile(locale)))],
   ];
   for (const [dir, filter = () => true] of watched) {
@@ -261,6 +285,7 @@ module.exports = {
   instanceOf,
   translationOf,
   lockFile,
+  readLock,
   proseLines,
   relativeImports,
   importTarget,

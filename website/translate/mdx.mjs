@@ -206,6 +206,17 @@ function frontMatterProblems(source, translated) {
   return problems;
 }
 
+/** Why `content` doesn't compile as MDX, if it doesn't */
+export function mdxProblems(content, filePath) {
+  try {
+    parse(content, filePath);
+    return [];
+  } catch (error) {
+    if (error instanceof TranslationError) return error.problems;
+    throw error;
+  }
+}
+
 /** What `translated` changed that it must not have, versus its `source` */
 export function structureProblems(source, translated, filePath) {
   const problems = frontMatterProblems(source, translated);

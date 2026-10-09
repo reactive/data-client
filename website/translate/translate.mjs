@@ -13,7 +13,12 @@ import { createRequire } from 'node:module';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 
-import { TranslationError, pinHeadingIds, structureProblems } from './mdx.mjs';
+import {
+  TranslationError,
+  mdxProblems,
+  pinHeadingIds,
+  structureProblems,
+} from './mdx.mjs';
 import { ROOT, git } from '../framework-docs/site.mjs';
 
 const require = createRequire(import.meta.url);
@@ -24,15 +29,15 @@ const {
   importTarget,
   instanceOf,
   lockFile,
+  readLock,
   relativeImports,
   translationOf,
 } = require('./localeDocs.js');
 const { DEFAULT_LOCALE, LOCALES } = require('./locales.js');
 const { DOCS_INSTANCES } = require('../framework-docs/docsInstances.js');
-const { walk } = require('../framework-docs/index.js');
+const { MD, walk } = require('../framework-docs/index.js');
 
 const WEBSITE = path.join(ROOT, 'website');
-const MD = /\.mdx?$/;
 
 const {
   values: options,
@@ -84,6 +89,14 @@ function blob(id) {
     return undefined;
   }
 }
+const hasBlob = id => {
+  try {
+    git('cat-file', '-e', id);
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 /**
  * Sources a locale translates: its pages (locales.js), and the partials they
@@ -110,19 +123,17 @@ function wantedSources(locale) {
 }
 
 /** Sources a locale has a translation of */
-function translated(locale) {
-  const dir = path.join(ROOT, translationOf('docs', locale));
-  return fs.existsSync(dir) ?
-      walk(dir)
-        .filter(file => MD.test(file))
-        .map(file => `docs/${file}`)
-    : [];
-}
-
-const readLock = locale =>
-  fs.existsSync(lockFile(locale)) ?
-    JSON.parse(fs.readFileSync(lockFile(locale), 'utf8'))
-  : { docs: {}, ui: {} };
+const translated = locale =>
+  SOURCE_INSTANCES.flatMap(d => {
+    const dir = path.join(ROOT, translationOf(d.path, locale));
+    return fs.existsSync(dir) ?
+        walk(dir)
+          .filter(file => MD.test(file))
+          .map(file => `${d.path}/${file}`)
+      : [];
+  });
+/** Folder of a locale's committed translations, with a trailing slash */
+const localeDir = locale => `${translationOf('', locale)}/`;
 const sortKeys = object =>
   Object.fromEntries(
     Object.entries(object).sort(([a], [b]) => a.localeCompare(b)),
@@ -208,7 +219,7 @@ async function prepare(locale, english) {
         status: update ? 'update' : 'new',
         // what changed in English since the translation was finalized
         ...(previous &&
-          blob(previous) && { diff: `git diff ${previous} ${blobs[file]}` }),
+          hasBlob(previous) && { diff: `git diff ${previous} ${blobs[file]}` }),
       };
     });
 
@@ -231,8 +242,7 @@ async function prepare(locale, english) {
       }
       // a translation of older English shows English until it is redone
       const previous = key in done ? target[key]?.message : undefined;
-      if (previous !== undefined) target[key] = { message, description };
-      else target[key] ??= { message, description };
+      target[key] = { message, description };
       ui.push({
         id: uiId(locale, file, key),
         message,
@@ -258,7 +268,7 @@ async function prepare(locale, english) {
 
 /** Sources whose translation git sees as changed or new */
 function changedTranslations(locale) {
-  const prefix = `${translationOf('', locale)}/`;
+  const prefix = localeDir(locale);
   const entries = git('status', '--porcelain', '-uall', '-z', '--', prefix)
     .split('\0')
     .filter(Boolean);
@@ -279,15 +289,15 @@ function sourceArg(file, locale) {
     .relative(ROOT, path.resolve(file))
     .split(path.sep)
     .join('/');
-  const prefix = `${translationOf('', locale)}/`;
+  const prefix = localeDir(locale);
   return relative.startsWith(prefix) ? relative.slice(prefix.length) : relative;
 }
 
 /** Structure problems of a translation versus the English it translates */
 function translationProblems(english, content, file) {
   try {
-    const found = structureProblems(english, content, path.join(ROOT, file));
-    if (found.length) throw new TranslationError(found);
+    const problems = structureProblems(english, content, path.join(ROOT, file));
+    if (problems.length) return { problems };
     return { problems: [], pinned: pinHeadingIds(content, english) };
   } catch (error) {
     if (!(error instanceof TranslationError)) throw error;
@@ -362,6 +372,7 @@ function check(locale) {
   const lock = readLock(locale);
   const wanted = wantedSources(locale);
   const present = new Set(translated(locale));
+  const current = blobsOf([...present].filter(file => wanted.has(file)));
   const problems = [];
   let stale = 0;
   let unverified = 0;
@@ -378,19 +389,19 @@ function check(locale) {
       problems.push(`${translation}: not a page ${locale} translates`);
       continue;
     }
-    const english = blob(id);
+    const english = id === current[file] ? read(file) : blob(id);
     const content = read(translation);
     if (english === undefined) {
       // a shallow clone lacks it; still make sure the page compiles
       unverified++;
       problems.push(
-        ...translationProblems(content, content, file).problems.map(
+        ...mdxProblems(content, path.join(ROOT, file)).map(
           p => `${translation}: ${p}`,
         ),
       );
       continue;
     }
-    if (english !== read(file)) stale++;
+    if (id !== current[file]) stale++;
     const result = translationProblems(english, content, file);
     if (!result.problems.length && result.pinned !== content)
       result.problems.push('headings lack their English anchors');
