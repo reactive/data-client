@@ -8,7 +8,7 @@ import {
   groupOf,
   type Change,
 } from './actionGroups';
-import { findEntry, type LogEntry } from './actionLog';
+import { findEntry, isRecordChange, type LogEntry } from './actionLog';
 import {
   ChangeChip,
   KeyLabel,
@@ -54,7 +54,7 @@ export function ActionDetail({
       </>
     );
   const changes = log.changes(entry);
-  const changed = changes.filter(c => c.kind !== 'refreshed');
+  const changed = changes.filter(isRecordChange);
   const refreshed = changes.length - changed.length;
   return (
     <>

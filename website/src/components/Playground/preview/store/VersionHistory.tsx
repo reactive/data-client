@@ -44,11 +44,16 @@ import { Block } from './Value';
 const isVersion = (item: TimelineItem): item is Version =>
   item.kind === 'version';
 
-/** Row `id`'s timeline, and just its versions, oldest first */
+/** Row `id`'s timeline, and just its versions, oldest first. `changed` while
+ * the log has a change to the record, or says it dropped some */
 function useTimeline({ log, history }: Actions, id: string) {
   return useMemo(() => {
     const items = rowTimeline(log, history.entries, id);
-    return { items, versions: items.filter(isVersion) };
+    return {
+      items,
+      versions: items.filter(isVersion),
+      changed: items.some(item => item.kind !== 'refreshed'),
+    };
   }, [log, history.entries, id]);
 }
 
@@ -154,7 +159,7 @@ interface HistoryButtonProps {
 }
 
 function HistoryButtonOf(props: HistoryButtonProps) {
-  if (!useTimeline(props.actions, props.id).versions.length) return null;
+  if (!useTimeline(props.actions, props.id).changed) return null;
   return <HistoryLink {...props} />;
 }
 
@@ -195,7 +200,7 @@ export function RowHistory({
 }) {
   const actions = useActions();
   const moment = useMoment();
-  const { items, versions } = useTimeline(actions, id);
+  const { items, versions, changed } = useTimeline(actions, id);
   // live, the version last picked here stays open
   const [picked, setPicked] = useState(focus);
   const at = moment.seq ?? picked;
@@ -245,7 +250,7 @@ export function RowHistory({
           {count} change{count === 1 ? '' : 's'}
         </span>,
       )}
-      {!count ?
+      {!changed ?
         <div className={styles.record}>
           <div className={styles.detail}>
             <span className={styles.dim}>No changes in the log</span>

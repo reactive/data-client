@@ -170,6 +170,10 @@ export default function StorePanel({
   );
   const stateLevels = useLevelStack(STATE_ROOT, showAction);
   const actionLevels = useLevelStack(ACTIONS_ROOT, showAction);
+  // the latest stacks, for what a covered level keeps (its content is
+  // memoized) and for the effects below
+  const stacks = useRef({ state: stateLevels, actions: actionLevels });
+  stacks.current = { state: stateLevels, actions: actionLevels };
   // a view to open from where there is no stack (the tree view, the
   // Timeline): on State's, in the table view
   const { push } = stateLevels;
@@ -181,6 +185,39 @@ export default function StorePanel({
     },
     [setView, push],
   );
+  // State on record `id`, as "View State after this" lands there from a
+  // History in the Actions list (one on State's stack uncovers its record)
+  const showRecord = useCallback(
+    (id: string) => {
+      const top = stacks.current.state.stack.at(-1)!.view;
+      if (top.kind === 'record' && top.id === id) setView('table');
+      else openView({ kind: 'record', id });
+    },
+    [setView, openView],
+  );
+  // the bar's action opens in the Actions list: in place of the action shown
+  // there, or over the list
+  const openAction = useCallback((seq: number) => {
+    const { stack, push, replace } = stacks.current.actions;
+    const depth = stack.length - 1;
+    const view: View = { kind: 'action', seq };
+    if (stack[depth].view.kind === 'action') replace(depth, view);
+    else push(view);
+    setTab('actions');
+  }, []);
+  // an action shown in the Actions list follows the moment, so its "View
+  // State after this" shows the store the bar says. Opening an action moves
+  // the moment to it (see `showAction`), which this leaves as it is; a step
+  // to an action the store never saw leaves the moment, and stays shown
+  const momentStored = snapshot?.store ? snapshot.seq : null;
+  useLayoutEffect(() => {
+    if (momentStored === null) return;
+    const { stack, replace } = stacks.current.actions;
+    const depth = stack.length - 1;
+    const top = stack[depth].view;
+    if (top.kind === 'action' && top.seq !== momentStored)
+      replace(depth, { kind: 'action', seq: momentStored });
+  }, [momentStored]);
   // only State and the timeline show the past; the Actions list is live
   const stateActions = useMemo<Actions>(
     () =>
@@ -277,7 +314,7 @@ export default function StorePanel({
                 {(snapshot || timeline) && (
                   <SnapshotBar
                     entry={snapshot}
-                    onOpen={() => setTab('actions')}
+                    onOpen={openAction}
                     stepsToLive={timeline}
                   />
                 )}
@@ -300,6 +337,7 @@ export default function StorePanel({
                     model={liveModel}
                     width={width}
                     levels={actionLevels}
+                    showRecord={showRecord}
                   />
                 </div>
               )}
@@ -324,7 +362,7 @@ function SnapshotBar({
   /** The action State is shown after; missing while live */
   entry?: LogEntry;
   /** Opens that action in the Actions list */
-  onOpen: () => void;
+  onOpen: (seq: number) => void;
   /** › past the newest change goes live, as the timeline's right arrow key
    * does (the bar stays, as the timeline shows it live too) */
   stepsToLive?: boolean;
@@ -360,7 +398,7 @@ function SnapshotBar({
               type="button"
               className={styles.snapshotAction}
               title="Open action"
-              onClick={onOpen}
+              onClick={() => onOpen(entry.seq)}
             >
               <ActionName entry={entry} />
             </button>
@@ -387,11 +425,15 @@ function Levels({
   model,
   width,
   levels: { stack, returnTo, push, replace, back },
+  showRecord,
 }: {
   model: StoreModel;
   width: number;
   /** The levels shown, over State's overview or the Actions list */
   levels: LevelStack;
+  /** Where a History's "View State after this" lands when this stack is
+   * not State's: State on that record */
+  showRecord?: (id: string) => void;
 }) {
   const { then } = useActions();
   // each level's nav; one showing an action's store keeps its own as the
@@ -486,8 +528,12 @@ function Levels({
         const { key, view } = entry;
         const level = levelOf(entry);
         // in State, uncover State as it was then
-        const uncover =
-          stack[0].view.kind === 'root' ? () => back(depth) : undefined;
+        const inState = stack[0].view.kind === 'root';
+        const uncover = inState ? () => back(depth) : undefined;
+        const showHistoryState =
+          inState ? uncover
+          : showRecord && view.kind === 'history' ? () => showRecord(view.id)
+          : undefined;
         return (
           <Level
             key={key}
@@ -514,7 +560,7 @@ function Levels({
                   id={view.id}
                   focus={view.seq}
                   header={tools => crumbs(depth, tools)}
-                  onShowState={uncover}
+                  onShowState={showHistoryState}
                 />
               : view.kind === 'list' ?
                 <ListView

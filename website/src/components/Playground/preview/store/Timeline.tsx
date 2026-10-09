@@ -8,7 +8,7 @@ import {
   type ActionGroup,
   type RequestGroup,
 } from './actionGroups';
-import { nearestChange, type LogEntry } from './actionLog';
+import { isRecordChange, nearestChange, type LogEntry } from './actionLog';
 import {
   droppedIn,
   droppedText,
@@ -96,6 +96,7 @@ export default memo(function Timeline({
   width: number;
 }) {
   const { log, history, groups } = useActions();
+  const { dropped } = useLog();
   const { seq: selected, set: onSelect } = useMoment();
   const { entries, since } = history;
   const lanes = useMemo(() => lanesOf(groups), [groups]);
@@ -217,14 +218,19 @@ export default memo(function Timeline({
       ...group.requests.flatMap(request),
     ];
   };
-  // whether a lane's own actions changed its record (what its History
-  // lists), without working the History out for every lane
+  // whether a lane's own actions changed its record, or earlier ones the
+  // log dropped did (what its History lists), without working the History
+  // out for every lane
   const laneChanged = (lane: Lane, id: string) =>
-    lane.groups.some(group =>
-      groupEntriesOf(group).some(e =>
-        log.changes(e).some(c => c.id === id && c.kind !== 'refreshed'),
-      ),
-    );
+    lane.groups.some(group => {
+      const entries = groupEntriesOf(group);
+      return (
+        droppedIn(entries, dropped) > 0 ||
+        entries.some(e =>
+          log.changes(e).some(c => c.id === id && isRecordChange(c)),
+        )
+      );
+    });
 
   return (
     <div

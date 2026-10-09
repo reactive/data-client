@@ -5,6 +5,7 @@ import React, {
   memo,
   useCallback,
   useContext,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -23,7 +24,7 @@ import {
   type SubscriptionGroup,
 } from './actionGroups';
 import type ActionLog from './actionLog';
-import type { History, LogEntry } from './actionLog';
+import { isRecordChange, type History, type LogEntry } from './actionLog';
 import { onActivateKey, scrollToRow } from './dom';
 import { actionId, splitKey } from './model';
 import {
@@ -111,15 +112,21 @@ export function ActionsRoot({
   );
   const { seq } = useMoment();
   const current = seq === null ? undefined : groupOf(groups, seq);
-  // once per move: the row opens, and may be closed again
+  // once per move: the row opens, and may be closed again. A lone action's
+  // row is its own step: marking it is enough
   const [opened, setOpened] = useState<number | null>(null);
   if (seq !== opened) {
     setOpened(seq);
-    if (current && !open.has(current.id))
+    if (current && groupEntriesOf(current).length > 1 && !open.has(current.id))
       setOpen(new Set([...open, current.id]));
   }
   useReveal(scroller, seq);
-  useFollow(scroller, groups);
+  // new rows would push the marked action off the screen; live again, the
+  // newest is back in view and followed
+  const toNewest = useFollow(scroller, groups, 'y', seq !== null);
+  useLayoutEffect(() => {
+    if (seq === null) toNewest();
+  }, [seq, toNewest]);
   if (!groups.length)
     return (
       <p className={styles.empty}>
@@ -143,7 +150,8 @@ export function ActionsRoot({
 }
 
 /** Brings the moment's action into view when the moment moves; if the list
- * is hidden then, once it shows again */
+ * is hidden then, once it shows again. Focus stays where it is, so arrow
+ * keys keep stepping the Timeline that moved the moment */
 function useReveal(
   scroller: React.RefObject<HTMLElement | null>,
   seq: number | null,
@@ -152,17 +160,21 @@ function useReveal(
   const reveal = useCallback(() => {
     const el = scroller.current;
     if (pending.current === null || !el?.clientHeight) return;
-    scrollToRow(el, actionId(pending.current));
+    scrollToRow(el, actionId(pending.current), { focus: false });
     pending.current = null;
   }, [scroller]);
   useLayoutEffect(() => {
-    if (seq === null) return;
+    // live, there is nothing left to reveal
     pending.current = seq;
     reveal();
   }, [seq, reveal]);
-  useLayoutEffect(() => {
+  // the scroller is an ancestor's element, which React attaches after this
+  // component's layout effects: a passive effect sees it on first mount
+  useEffect(() => {
     const el = scroller.current;
-    if (!el || typeof ResizeObserver === 'undefined') return;
+    if (!el) return;
+    reveal();
+    if (typeof ResizeObserver === 'undefined') return;
     const observer = new ResizeObserver(reveal);
     observer.observe(el);
     return () => observer.disconnect();
@@ -184,7 +196,9 @@ export function useFollow(
   paused = false,
 ) {
   const follow = useRef(true);
-  useLayoutEffect(() => {
+  // passive: `scroller` may be an ancestor's element, attached only after
+  // this component's layout effects ran on mount (see `useReveal`)
+  useEffect(() => {
     const el = scroller.current;
     if (!el) return;
     const { size, scroll, client } = AXES[axis];
@@ -579,9 +593,8 @@ function Lifecycle({ group }: { group: ActionGroup }) {
             key={r.id}
             className={clsx(
               styles.tick,
-              r.entries.some(e =>
-                log.changes(e).some(c => c.kind !== 'refreshed'),
-              ) && styles.tickChanged,
+              r.entries.some(e => log.changes(e).some(isRecordChange)) &&
+                styles.tickChanged,
             )}
           />
         ))}
@@ -641,7 +654,7 @@ export function ChangeChips({
 }) {
   const shown = changes.filter(
     c =>
-      c.kind !== 'refreshed' &&
+      isRecordChange(c) &&
       !(
         'endpoint' in c &&
         c.endpoint === own &&
@@ -651,7 +664,7 @@ export function ChangeChips({
       ),
   );
   if (!shown.length)
-    return changes.length && changes.every(c => c.kind === 'refreshed') ?
+    return changes.length && !changes.some(isRecordChange) ?
         <span className={styles.dim}>stored again, unchanged</span>
       : null;
   // a table's new rows share one chip, where its first one would be

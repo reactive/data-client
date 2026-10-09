@@ -24,7 +24,7 @@ import {
   rowTimeline,
 } from '../store/actionGroups';
 import ActionLog, { type LogEntry, type LogOptions } from '../store/actionLog';
-import { entityId } from '../store/model';
+import { endpointId, entityId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
 
@@ -359,6 +359,39 @@ describe('Store Actions tab', () => {
     expect(top().querySelector('[aria-expanded="true"]')).toBeNull();
   });
 
+  it('offers a History whose only changes the log dropped', async () => {
+    const { ctrl } = mount();
+    const polled = new Endpoint(async () => [{ id: '1', title: 'One' }], {
+      schema: [Post],
+      key: () => POSTS,
+      name: 'polled',
+      pollFrequency: 1e6,
+    });
+    await act(async () => {
+      // the store's first action stays: a gap before the polls can show
+      await ctrl().set(Post, { id: '2' }, { id: '2', title: 'Two' });
+      await ctrl().subscribe(polled);
+      // past updateLimit: the poll that added the record drops off, and
+      // every kept one stored it again unchanged
+      for (let i = 0; i < 25; i++) await ctrl().fetch(polled);
+      await ctrl().unsubscribe(polled);
+    });
+    // from the endpoint's lane on the Timeline
+    fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
+    const timeline = screen.getByRole('group', { name: /^Timeline/ });
+    fireEvent.click(within(timeline).getByRole('button', { name: 'History' }));
+    expect(current()).toBe('History');
+    expect(top().querySelectorAll('[data-version]')).toHaveLength(0);
+    expect(top().textContent).toContain('Changed by actions not kept');
+    expect(top().textContent).toContain('stored again, unchanged');
+    // and from the record itself
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    fireEvent.click(
+      top().querySelector<HTMLElement>(`tr[data-id="${endpointId(POSTS)}"]`)!,
+    );
+    expect(within(top()).getByRole('button', { name: 'History' })).toBeTruthy();
+  });
+
   it('opens the version current at the moment, and moves it to the one picked', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
@@ -623,6 +656,145 @@ describe('Store Actions tab', () => {
       expect(marked()).toEqual([]);
     } finally {
       delete (Element.prototype as any).scrollTo;
+    }
+  });
+
+  it('opens the bar’s action in the Actions list, where an open action follows the moment', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+    );
+    fireEvent.click(actionsTab());
+    fireEvent.click(rows()[0]);
+    fireEvent.click(
+      screen.getByText('setResponse').closest('[role="button"]')!,
+    );
+    expect(current()).toMatch(/^setResponse/);
+    // the bar steps the moment: the open action is now the set
+    fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
+    expect(current()).toMatch(/^set Post/);
+    // so its State is the one the bar says
+    fireEvent.click(
+      screen.getByRole('button', { name: 'View State after this' }),
+    );
+    expect(top().textContent).toContain('"Edited"');
+    // the bar's action opens in place of the one shown
+    fireEvent.click(screen.getByRole('button', { name: 'Previous change' }));
+    fireEvent.click(screen.getByTitle('Open action'));
+    expect(actionsTab().getAttribute('aria-selected')).toBe('true');
+    expect(current()).toMatch(/^setResponse/);
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    expect(top().querySelector('nav')).toBeNull();
+    // or over the list
+    fireEvent.click(screen.getByTitle('Open action'));
+    expect(current()).toMatch(/^setResponse/);
+    // a step to an action the store never saw stays, as the log grows
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Previous action in this row' }),
+    );
+    expect(current()).toMatch(/^fetch/);
+    await act(() => ctrl().set(Post, { id: '2' }, { id: '2', title: 'Later' }));
+    expect(current()).toMatch(/^fetch/);
+    expect(
+      screen.getByRole('button', { name: 'Live' }).parentElement!.textContent,
+    ).toContain('setResponse');
+  });
+
+  it('shows State on the record from a History in the Actions list', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+    );
+    fireEvent.click(actionsTab());
+    fireEvent.click(
+      within(rows()[0]).getByRole('button', { name: '+ 2 Post' }),
+    );
+    fireEvent.click(
+      top().querySelector<HTMLElement>(
+        `tr[data-id="${entityId('Post', '1')}"]`,
+      )!,
+    );
+    fireEvent.click(within(top()).getByRole('button', { name: 'History' }));
+    const versions = () => [
+      ...top().querySelectorAll<HTMLElement>('[data-version]'),
+    ];
+    fireEvent.click(versions()[0]);
+    fireEvent.click(
+      within(top()).getByRole('button', { name: 'View State after this' }),
+    );
+    // State on the record, as the response left it
+    expect(
+      screen.getByRole('tab', { name: 'State' }).getAttribute('aria-selected'),
+    ).toBe('true');
+    expect(current()).toBe('Post 1');
+    expect(top().textContent).toContain('"One"');
+    expect(top().textContent).not.toContain('after this action');
+    fireEvent.click(screen.getByRole('button', { name: 'Live' }));
+    expect(top().textContent).toContain('"Edited"');
+    // State already on the record: it stays, without another level
+    fireEvent.click(actionsTab());
+    fireEvent.click(versions()[1]);
+    fireEvent.click(
+      within(top()).getByRole('button', { name: 'View State after this' }),
+    );
+    expect(current()).toBe('Post 1');
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    expect(top().querySelector('nav')).toBeNull();
+  });
+
+  it('reveals the moment’s action as the Actions tab first shows, keeping it in view', async () => {
+    const scrollTo = jest.fn();
+    Element.prototype.scrollTo = scrollTo;
+    // every level shows, as it would on screen
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
+      configurable: true,
+      get: () => 100,
+    });
+    try {
+      const { ctrl } = mount();
+      await act(() => ctrl().fetch(getPosts));
+      await act(() =>
+        ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+      );
+      // live again before the list first shows: nothing to reveal
+      postHistory('1');
+      const versions = () => [
+        ...top().querySelectorAll<HTMLElement>('[data-version]'),
+      ];
+      fireEvent.click(versions()[1]);
+      fireEvent.click(screen.getByRole('button', { name: 'Live' }));
+      fireEvent.click(actionsTab());
+      expect(scrollTo).not.toHaveBeenCalled();
+      // a lone action is marked on its row alone, which stays closed, and
+      // keeps the focus where it was
+      fireEvent.click(screen.getByRole('tab', { name: 'State' }));
+      fireEvent.click(versions()[1]);
+      fireEvent.click(actionsTab());
+      expect(scrollTo).toHaveBeenCalledWith(
+        expect.objectContaining({ behavior: 'smooth' }),
+      );
+      const marked = [
+        ...document.querySelectorAll<HTMLElement>('[aria-current="true"]'),
+      ].filter(el => !el.closest('[hidden]'));
+      expect(marked).toHaveLength(1);
+      expect(marked[0]).toBe(rows()[1]);
+      expect(rows()[1].getAttribute('aria-expanded')).toBe('false');
+      expect(document.activeElement).not.toBe(rows()[1]);
+      // new rows don't push it out of view; live, the newest is followed again
+      const list = top();
+      Object.defineProperty(list, 'scrollHeight', { value: 900 });
+      list.scrollTop = 0;
+      await act(() =>
+        ctrl().set(Post, { id: '2' }, { id: '2', title: 'Later' }),
+      );
+      expect(list.scrollTop).toBe(0);
+      fireEvent.click(screen.getByRole('button', { name: 'Live' }));
+      expect(list.scrollTop).toBe(900);
+    } finally {
+      delete (Element.prototype as any).scrollTo;
+      delete (HTMLElement.prototype as any).clientHeight;
     }
   });
 

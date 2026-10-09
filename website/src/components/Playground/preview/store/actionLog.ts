@@ -102,6 +102,10 @@ export function nearestChange(
   return entries.find(e => e.seq > seq && log.changed(e));
 }
 
+/** Whether a change altered the record, rather than storing it again
+ * unchanged (a refresh) */
+export const isRecordChange = (change: Change) => change.kind !== 'refreshed';
+
 /** Every action dispatched in the preview, with the store state it left, by
  * history. Lives as long as the live preview.
  *
