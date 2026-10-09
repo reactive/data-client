@@ -102,12 +102,27 @@ const renderedAt = (file, locale) => {
   );
 };
 
-/** Points imports that leave `file`'s docs folder at the locale's copy */
-function retarget(content, file, locale) {
+/** Partials (`_x.mdx`) are parts of pages, not pages */
+const isPartial = file => MD.test(file) && path.posix.basename(file)[0] === '_';
+/** English copy of a translated partial, for pages rendered in English */
+const englishCopy = file => file.replace(MD, '.en$&');
+
+/**
+ * Points imports of `file` (as rendered in `locale`) where they resolve: those
+ * leaving its docs folder at the locale's copy of that folder, and, when the
+ * page renders in `english`, translated partials at their English copy
+ */
+function retarget(content, file, locale, english) {
   const lines = content.split('\n');
   for (const { i, specifier } of relativeImports(content)) {
-    const target = importTarget(file, specifier);
-    if (instanceOf(target) === instanceOf(file)) continue;
+    let target = importTarget(file, specifier);
+    if (
+      english &&
+      isPartial(target) &&
+      fs.existsSync(path.join(ROOT, translationOf(target, locale)))
+    )
+      target = englishCopy(target);
+    else if (instanceOf(target) === instanceOf(file)) continue;
     let next = path.posix.relative(
       path.posix.dirname(renderedAt(file, locale)),
       renderedAt(target, locale),
@@ -168,35 +183,54 @@ function generate(locale) {
     : {};
   for (const instance of SOURCE_INSTANCES) {
     const outDir = path.join(ROOT, localizedPath(instance.id, locale));
-    const files = new Set(walk(path.join(ROOT, instance.path)));
-    for (const name of files) {
-      const file = `${instance.path}/${name}`;
-      const translation = translationOf(file, locale);
-      const from =
-        fs.existsSync(path.join(ROOT, translation)) ? translation : file;
-      let content = fs.readFileSync(path.join(ROOT, from));
-      if (MD.test(name)) {
-        let text = retarget(content.toString(), file, locale);
-        // partials (`_x.mdx`) are parts of pages, not pages
-        if (!name.split('/').pop().startsWith('_')) {
-          if (from === file) text = underFrontMatter(text, ENGLISH_PAGE);
-          else if (
-            lock[file] !== blobId(fs.readFileSync(path.join(ROOT, file)))
-          )
-            text = underFrontMatter(
-              text,
-              `:::note\n\n${LOCALES[locale].outdated}\n\n:::`,
-            );
-        }
-        content = Buffer.from(text);
-      }
+    const files = walk(path.join(ROOT, instance.path));
+    const written = new Set();
+    const write = (name, content, from) => {
       const out = path.join(outDir, name);
       writeIfChanged(out, content);
       sources.set(out, path.join(ROOT, from));
+      written.add(name);
+    };
+    for (const name of files) {
+      const file = `${instance.path}/${name}`;
+      const translation = translationOf(file, locale);
+      const translated = fs.existsSync(path.join(ROOT, translation));
+      const from = translated ? translation : file;
+      const content = fs.readFileSync(path.join(ROOT, from));
+      if (!MD.test(name)) {
+        write(name, content, from);
+        continue;
+      }
+      let text = retarget(content.toString(), file, locale, !translated);
+      if (isPartial(file)) {
+        if (translated)
+          write(
+            englishCopy(name),
+            Buffer.from(
+              retarget(
+                fs.readFileSync(path.join(ROOT, file), 'utf8'),
+                file,
+                locale,
+                true,
+              ),
+            ),
+            file,
+          );
+      } else if (!translated) {
+        text = underFrontMatter(text, ENGLISH_PAGE);
+      } else if (
+        lock[file] !== blobId(fs.readFileSync(path.join(ROOT, file)))
+      ) {
+        text = underFrontMatter(
+          text,
+          `:::note\n\n${LOCALES[locale].outdated}\n\n:::`,
+        );
+      }
+      write(name, Buffer.from(text), from);
     }
     if (fs.existsSync(outDir))
       for (const name of walk(outDir))
-        if (!files.has(name)) fs.rmSync(path.join(outDir, name));
+        if (!written.has(name)) fs.rmSync(path.join(outDir, name));
   }
   return { sourceOf: file => sources.get(file) ?? file };
 }

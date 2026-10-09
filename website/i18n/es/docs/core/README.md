@@ -304,7 +304,7 @@ export const TodoResource = { get, update };
 
 </ProtocolTabs>
 
-### Dile a :react[react]:vue[Vue] que se actualice {#tell-reactreactvuevue-to-update}
+### Dile a :react[react]:vue[Vue] que se actualice {#tell-react-to-update}
 
 Así como con :react[`setState()`]:vue[la asignación a un `ref()`], debemos hacer que :react[React]:vue[Vue] se entere de cualquier mutación para que pueda volver a renderizar.
 

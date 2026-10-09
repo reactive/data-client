@@ -62,6 +62,11 @@ export function headingIds(source) {
   }
   return list.map(({ text, id, framework }) => {
     if (id) return id;
+    // React and Vue would slug it differently; one anchor can't match both
+    if (/:(?:react|vue)\[/.test(text))
+      throw new TranslationError([
+        `English heading "${text}" needs an explicit {#id} (it differs by framework)`,
+      ]);
     // like Docusaurus' write-heading-ids: link text, not link targets
     const plain = text.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').trim();
     if (framework) return sluggers[framework].slug(plain);

@@ -141,6 +141,19 @@ describe('headingIds', () => {
   });
 });
 
+describe('headingIds', () => {
+  it('asks for an explicit id when frameworks would slug a heading apart', () => {
+    assert.throws(
+      () => headingIds('## Tell :react[React]:vue[Vue] to update\n'),
+      TranslationError,
+    );
+    assert.deepEqual(
+      headingIds('## Tell :react[React]:vue[Vue] to update {#tell}\n'),
+      ['tell'],
+    );
+  });
+});
+
 describe('pinHeadingIds', () => {
   it('gives translated headings their English anchors', () => {
     const pinned = pinHeadingIds(translated, source);
