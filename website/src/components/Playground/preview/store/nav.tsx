@@ -1,3 +1,4 @@
+import type { State } from '@data-client/react';
 import { createContext, useContext } from 'react';
 
 import {
@@ -66,8 +67,9 @@ export type View =
   | { readonly kind: 'actions' }
   | ListView
   | { readonly kind: 'record'; readonly id: string }
-  /** Every logged change to record `id` */
-  | { readonly kind: 'history'; readonly id: string }
+  /** Every logged version of record `id`, with the one State shows (or
+   * the one current at action `seq`) open */
+  | { readonly kind: 'history'; readonly id: string; readonly seq?: number }
   | { readonly kind: 'action'; readonly seq: number };
 
 /** The store as an action left it, or (`before`) found it (a removed row
@@ -76,6 +78,14 @@ export type View =
 export interface Moment {
   readonly seq: number;
   readonly before?: true;
+}
+
+/** The store at a `Moment` */
+export interface Then {
+  readonly state: State<unknown>;
+  readonly model: StoreModel;
+  /** The last action it includes */
+  readonly until: number;
 }
 
 /** The actions some chips summarize, by seq. What the chips open shows the
@@ -93,7 +103,8 @@ export interface Nav {
   /** Panel width in px, to fit columns and chips */
   readonly width: number;
   /** Opens `view` over this level; at the store `at` shows, by default the
-   * one this level shows */
+   * one this level shows. A history ignores it: each version shows at its
+   * own */
   readonly push: (view: View, at?: Moment) => void;
 }
 

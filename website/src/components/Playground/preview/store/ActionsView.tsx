@@ -1,4 +1,4 @@
-import { actionTypes, type ActionTypes } from '@data-client/react';
+import { actionTypes, StateContext } from '@data-client/react';
 import clsx from 'clsx';
 import React, {
   createContext,
@@ -25,7 +25,13 @@ import type ActionLog from './actionLog';
 import type { History, LogEntry } from './actionLog';
 import { onActivateKey } from './dom';
 import { splitKey } from './model';
-import { ActionSpanContext, useNav, type ActionSpan } from './nav';
+import {
+  ActionSpanContext,
+  useNav,
+  type ActionSpan,
+  type Moment,
+  type Then,
+} from './nav';
 import styles from './store.module.css';
 import { CountChip, EndpointKey, EntityKey, RefChip } from './Value';
 
@@ -40,9 +46,33 @@ export interface Actions {
   readonly showState: (seq: number, back?: () => void) => void;
   /** The action State is shown after, while it shows the past */
   readonly until?: number;
+  /** The store as an action left (or found) it, while the log has it */
+  readonly then: (at: Moment) => Then | undefined;
 }
 export const ActionsContext = createContext<Actions | null>(null);
 export const useActions = () => useContext(ActionsContext)!;
+
+/** `children` see the store as `then` holds it, and the actions up to it */
+export function AtMoment({
+  then,
+  children,
+}: {
+  then: Then;
+  children: React.ReactNode;
+}) {
+  const actions = useActions();
+  const value = useMemo(
+    () => ({ ...actions, until: then.until }),
+    [actions, then],
+  );
+  return (
+    <StateContext.Provider value={then.state}>
+      <ActionsContext.Provider value={value}>
+        {children}
+      </ActionsContext.Provider>
+    </StateContext.Provider>
+  );
+}
 /** What rows need; unlike `Actions`, stays the same as actions arrive */
 export const LogContext = createContext<{
   readonly log: ActionLog;
@@ -346,7 +376,7 @@ export function KeyLabel({ value }: { value: string }) {
   );
 }
 
-function Time({ at }: { at: number }) {
+export function Time({ at }: { at: number }) {
   const { since } = useLog();
   return <span className={styles.actTime}>{seconds(at - since)}s</span>;
 }
