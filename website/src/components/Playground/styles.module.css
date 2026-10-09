@@ -309,7 +309,8 @@ div.playgroundTextEdit > .playgroundHeader,
   display: flex;
   flex-direction: column;
 }
-/* the files and the Store's layer share one cell; the taller sets its height */
+/* the files and the Store's layer share one cell; side by side the files set
+   its height, stacked the open Store does */
 .editorBody {
   flex: 1 1 auto;
   display: grid;
@@ -318,10 +319,8 @@ div.playgroundTextEdit > .playgroundHeader,
 .editorBody > * {
   grid-area: 1 / 1;
 }
-/* room to inspect even when the code is short, kept while the drawer slides
-   out (until its <Activity> hides it) */
-/* holds its height while visible, including while it slides out (when the
-   panel itself is pinned out of flow) */
+/* room to inspect even when the code is short, held while visible, including
+   while it slides out pinned out of flow (until its <Activity> hides it) */
 .storeHost:has(> .storePanel[data-visible]) {
   min-height: 20rem;
 }
@@ -333,6 +332,8 @@ div.playgroundTextEdit > .playgroundHeader,
   z-index: 1;
   overflow: hidden;
   pointer-events: none;
+  /* the code alone sets the cell's height, so the Store scrolls within it */
+  contain: size;
 }
 /* under the header, the file tabs are no longer the top corner */
 .playgroundContainer .editorBody:not(:first-child) .editorDocs > .tabControls {
@@ -346,10 +347,15 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 .storeHost > .storePanel {
   flex: 1 1 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   pointer-events: auto;
 }
 /* fills the code's height instead of its usual cap */
 .storeHost > .storePanel > * {
+  flex: 1 1 auto;
+  min-height: 0;
   max-height: none;
 }
 
@@ -692,11 +698,14 @@ div.fixtureJson {
 }
 /* Stacked row layout: the Store opens upward over the code */
 @container playground (max-width: 719px) {
-  /* and takes the code's place: as tall as its contents, scrolling past a
-     cap, rather than as tall as the code */
+  /* and takes the code's place: as tall as its contents (which
+     `contain: size` would ignore), scrolling past a cap, not the code's height */
   .editorDocs[inert] {
     max-height: 0;
     overflow: hidden;
+  }
+  .storeHost {
+    contain: none;
   }
   .storeHost:has(> .storePanel[data-visible]) {
     min-height: 0;
@@ -815,8 +824,9 @@ div.fixtureJson {
   margin-right: -0.5rem;
 }
 /* Narrow playgrounds' Store toggle (in place of the side strip): an icon
-   that reads pressed while the Store is open */
-.storeHeaderToggle {
+   that reads pressed while the Store is open. Compound, so it outranks
+   .headerButton however the build orders them */
+.headerButton.storeHeaderToggle {
   display: none;
 }
 .storeHeaderToggle[aria-pressed='true'] {
@@ -868,7 +878,7 @@ div.fixtureJson {
   .debugToggle {
     display: none;
   }
-  .storeHeaderToggle {
+  .playgroundContainer .headerButton.storeHeaderToggle {
     display: inline-flex;
   }
 }
