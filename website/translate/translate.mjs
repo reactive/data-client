@@ -18,7 +18,7 @@ import { ROOT, git } from '../framework-docs/site.mjs';
 
 const require = createRequire(import.meta.url);
 const { GlobExcludeDefault, createMatcher } = require('@docusaurus/utils');
-const { DEFAULT_LOCALE, LOCALES } = require('./locales.js');
+
 const {
   SOURCE_INSTANCES,
   importTarget,
@@ -26,6 +26,7 @@ const {
   relativeImports,
   translationOf,
 } = require('./localeDocs.js');
+const { DEFAULT_LOCALE, LOCALES } = require('./locales.js');
 const { DOCS_INSTANCES } = require('../framework-docs/docsInstances.js');
 const { walk } = require('../framework-docs/index.js');
 

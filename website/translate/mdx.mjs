@@ -11,8 +11,8 @@ const require = createRequire(import.meta.url);
 const { createSlugger, parseMarkdownHeadingId } = require('@docusaurus/utils');
 const yaml = require('js-yaml');
 
-const { FM } = require('../framework-docs/index.js');
 const { proseLines } = require('./localeDocs.js');
+const { FM } = require('../framework-docs/index.js');
 
 const HEADING = /^(#{1,6})\s+(.*)$/;
 const DIRECTIVE_OPEN = /^\s*:{3,}([a-z][\w-]*)/;
