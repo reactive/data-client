@@ -100,21 +100,18 @@ function LastChange({
   /** Whether to offer the history too */
   history: boolean;
 }) {
-  const { versions, changed } = useTimeline(actions, id);
+  const timeline = useTimeline(actions, id);
   // as of the store this level shows
-  const { until } = actions;
-  const last = versions.findLast(
-    v => until === undefined || v.entry.seq <= until,
-  );
+  const last = currentAt(timeline, actions.until);
   // with no kept change to name, the history still says the log dropped some
-  if (!last && !(changed && history)) return null;
+  if (!last && !(timeline.changed && history)) return null;
   return (
     <div className={styles.field}>
       <span className={styles.key}>
         changed by<span className={styles.dim}>:</span>
       </span>
       <span className={styles.changedBy}>
-        {last ?
+        {last?.kind === 'version' ?
           <button
             type="button"
             className={clsx(styles.ref, styles.countRef)}
@@ -126,7 +123,7 @@ function LastChange({
             <ActionCrumb seq={last.entry.seq} />
           </button>
         : <span className={styles.dim}>actions not kept</span>}
-        {history && <HistoryButton id={id} changed={changed} />}
+        {history && <HistoryButton id={id} changed={timeline.changed} />}
       </span>
     </div>
   );
@@ -202,17 +199,11 @@ export function RowHistory({
 }) {
   const actions = useActions();
   const moment = useMoment();
-  const { items, versions, changed } = useTimeline(actions, id);
+  const timeline = useTimeline(actions, id);
+  const { items, versions, changed } = timeline;
   // live, the version last picked here stays open
   const [picked, setPicked] = useState(focus);
-  const at = moment.seq ?? picked;
-  // what was current then: the latest version at or before it, unless
-  // actions the log dropped changed the record since (that note instead:
-  // the record's value then isn't known)
-  const current =
-    at === undefined ?
-      versions.at(-1)
-    : items.findLast(i => i.kind !== 'refreshed' && itemSeq(i) <= at);
+  const current = currentAt(timeline, moment.seq ?? picked);
   const open = current?.kind === 'version' ? current.entry.seq : undefined;
   const select = (seq: number) => {
     moment.set(seq);
@@ -295,6 +286,19 @@ export function RowHistory({
  * a dropped stretch was found before */
 const itemSeq = (item: Version | Missing) =>
   item.kind === 'version' ? item.entry.seq : item.seq;
+
+/** What was current at `at` (the latest version, live): the latest version
+ * at or before it, unless actions the log dropped changed the record since
+ * (that note instead: the record's value then isn't known) */
+function currentAt(
+  { items, versions }: ReturnType<typeof useTimeline>,
+  at: number | undefined,
+): Version | Missing | undefined {
+  if (at === undefined) return versions.at(-1);
+  return items.findLast(
+    (i): i is Version | Missing => i.kind !== 'refreshed' && itemSeq(i) <= at,
+  );
+}
 
 /** What a version changed; the same each time the log grows */
 const VersionChange = memo(ChangeBody);

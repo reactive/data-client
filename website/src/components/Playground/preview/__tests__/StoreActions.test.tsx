@@ -359,6 +359,33 @@ describe('Store Actions tab', () => {
     expect(top().querySelector('[aria-expanded="true"]')).toBeNull();
   });
 
+  it('names no kept action as the last change where actions the log dropped changed the record since', async () => {
+    const { ctrl } = mount();
+    await act(async () => {
+      await ctrl().fetch(getPosts);
+      await ctrl().set(Post, { id: '1' }, { id: '1', title: 'last' });
+      // past updateLimit: Post 1's set drops with the oldest sets of Post
+      for (let i = 0; i < 25; i++)
+        await ctrl().set(Post, { id: '2' }, { id: '2', title: `t${i}` });
+    });
+    const changedBy = () =>
+      within(top()).getByText('changed by').parentElement!.textContent;
+    fireEvent.click(
+      top().querySelector<HTMLElement>(
+        `tr[data-id="${entityId('Post', '1')}"]`,
+      )!,
+    );
+    // live, the latest kept change, as the History opens it
+    expect(changedBy()).toContain('setResponse');
+    // at a moment among the dropped actions, the History marks their note:
+    // the record's value then isn't known, and no kept action made it
+    fireEvent.click(actionsTab());
+    openLone(rows().at(-1)!);
+    fireEvent.click(screen.getByRole('tab', { name: 'State' }));
+    expect(changedBy()).toContain('actions not kept');
+    expect(changedBy()).not.toContain('setResponse');
+  });
+
   it('offers a History whose only changes the log dropped', async () => {
     const { ctrl } = mount();
     const polled = new Endpoint(async () => [{ id: '1', title: 'One' }], {
@@ -838,13 +865,12 @@ describe('Store Actions tab', () => {
     const next = within(bar).getByRole('button', { name: 'Next change' });
     expect((next as HTMLButtonElement).disabled).toBe(false);
     // its records still say what changed them
-    const statePanel = bar.parentElement!;
     fireEvent.click(
-      statePanel.querySelector<HTMLElement>(
+      top().querySelector<HTMLElement>(
         `tr[data-id="${entityId('Post', '1')}"]`,
       )!,
     );
-    expect(statePanel.textContent).toContain('changed by');
+    expect(top().textContent).toContain('changed by');
     // to the refetch, which left the log too, then to one still in it
     const previous = () =>
       within(bar).getByRole('button', {

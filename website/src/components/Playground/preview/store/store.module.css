@@ -1120,23 +1120,21 @@ div.joined {
   font-weight: 500;
 }
 
-/* The Timeline strip slides open and shut: its row grows from nothing as it
-   rises into place (instant under reduced motion, as the tokens are) */
-.tlReveal {
+/* The Timeline strip and the snapshot bar slide open and shut: the row
+   grows from nothing as its content rises into place (instant under reduced
+   motion, as the tokens are). `data-open` is set a frame after it mounts
+   (see `Unfold`), so these transitions run both ways and reverse midway */
+.unfold {
   flex: none;
   display: grid;
   grid-template-rows: 0fr;
   overflow: hidden;
   transition: grid-template-rows var(--motion-smooth);
 }
-.tlReveal[data-open] {
+.unfold[data-open] {
   grid-template-rows: 1fr;
-  /* slides in from nothing as it mounts open (keyframes, as the CSS
-     minimizer can't parse @starting-style) */
-  animation: tlRevealOpen var(--motion-smooth);
 }
-/* the strip, and the bar shown under it while nothing else does */
-.tlRevealBody {
+.unfoldBody {
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -1146,21 +1144,9 @@ div.joined {
     opacity var(--motion-smooth),
     translate var(--motion-smooth);
 }
-.tlReveal[data-open] > .tlRevealBody {
+.unfold[data-open] > .unfoldBody {
   opacity: 1;
   translate: 0 0;
-  animation: tlRevealRise var(--motion-smooth);
-}
-@keyframes tlRevealOpen {
-  from {
-    grid-template-rows: 0fr;
-  }
-}
-@keyframes tlRevealRise {
-  from {
-    opacity: 0;
-    translate: 0 -6px;
-  }
 }
 
 /* The Timeline tab: a lane per key, scrolling sideways; labels stay

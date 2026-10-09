@@ -59,8 +59,8 @@ import { prefersReducedMotion, springEasing, springs } from '../../../motion';
 
 /** Breadcrumbs shown before the middle ones collapse to `…` */
 const CRUMBS = 4;
-/** By when the Timeline strip's slide shut (`--motion-smooth`) is over */
-const TIMELINE_CLOSE_MS = springEasing(springs.smooth).duration + 100;
+/** By when an `Unfold`'s slide shut (`--motion-smooth`) is over */
+export const TIMELINE_CLOSE_MS = springEasing(springs.smooth).duration + 100;
 
 export default function StorePanel({
   registry,
@@ -79,21 +79,11 @@ export default function StorePanel({
   const tree = stored === 'tree';
   const [tab, setTab] = useState<'state' | 'actions'>('state');
   // the Timeline strip, above either tab; it stays mounted while it slides
-  // shut (see `.tlReveal`), until the slide ends
+  // shut, until the slide ends
   const [timeline, setTimeline] = useState(false);
   const [timelineShown, setTimelineShown] = useState(false);
   if (timeline && !timelineShown) setTimelineShown(true);
-  useLayoutEffect(() => {
-    // no transition to end under reduced motion
-    if (!timeline && prefersReducedMotion()) setTimelineShown(false);
-  }, [timeline]);
-  useEffect(() => {
-    // the slide's end can go unseen (the panel hidden mid-slide, the toggle
-    // flipped twice in a frame): once it must be over, let go regardless
-    if (timeline || !timelineShown) return;
-    const id = setTimeout(() => setTimelineShown(false), TIMELINE_CLOSE_MS);
-    return () => clearTimeout(id);
-  }, [timeline, timelineShown]);
+  const hideTimeline = useCallback(() => setTimelineShown(false), []);
   // the Actions tab mounts on first visit, then stays (scroll, open rows)
   const [actionsShown, setActionsShown] = useState(false);
   if (tab === 'actions' && !actionsShown) setActionsShown(true);
@@ -331,32 +321,20 @@ export default function StorePanel({
               </div>
               <ActionsContext.Provider value={stateActions}>
                 {timelineShown && (
-                  <div
-                    className={styles.tlReveal}
-                    data-open={timeline || undefined}
-                    inert={!timeline}
-                    aria-hidden={!timeline || undefined}
-                    onTransitionEnd={e => {
-                      if (e.target === e.currentTarget && !timeline)
-                        setTimelineShown(false);
-                    }}
-                  >
-                    {/* the bar the strip alone shows slides with it */}
-                    <div className={styles.tlRevealBody}>
-                      <Timeline width={width} />
-                      {!snapshot && (
-                        <SnapshotBar onOpen={openAction} stepsToLive />
-                      )}
-                    </div>
-                  </div>
+                  <Unfold open={timeline} onShut={hideTimeline}>
+                    <Timeline width={width} />
+                  </Unfold>
                 )}
-                {snapshot && (
+                {/* one bar, below the strip: while a moment is set, and
+                    (live) with the strip. It never remounts, so focus stays
+                    on its buttons as they step */}
+                <Unfold open={!!snapshot || timeline}>
                   <SnapshotBar
                     entry={snapshot}
                     onOpen={openAction}
                     stepsToLive={timeline}
                   />
-                )}
+                </Unfold>
                 <div className={styles.tabPanel} hidden={tab === 'actions'}>
                   <StateContext.Provider value={state}>
                     {tree ?
@@ -390,6 +368,74 @@ export default function StorePanel({
 
 const STATE_ROOT: View = { kind: 'root' };
 const ACTIONS_ROOT: View = { kind: 'actions' };
+
+/** Slides `children` open and shut (see `.unfold`): their row grows from
+ * nothing as they rise into place, and back. Shut, they stay mounted, but
+ * neither focusable nor announced, showing what they did until the slide
+ * ends. It mounts shut and opens on the next frame, so the slide open runs
+ * as a transition too: one slide shut turned around reverses from where it
+ * is, and redisplaying the panel (hidden, it keeps its state) replays
+ * nothing, as keyframes would */
+function Unfold({
+  open,
+  onShut,
+  children,
+}: {
+  open: boolean;
+  /** Called once a slide shut is over */
+  onShut?: () => void;
+  children: React.ReactNode;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = ref.current!;
+    if (!open) {
+      el.removeAttribute('data-open');
+      return;
+    }
+    const frame = requestAnimationFrame(() => el.setAttribute('data-open', ''));
+    return () => cancelAnimationFrame(frame);
+  }, [open]);
+  // from a slide shut's start to its end; reopened mid-slide turns it around
+  const [was, setWas] = useState(open);
+  const [closing, setClosing] = useState(false);
+  if (was !== open) {
+    setWas(open);
+    setClosing(!open);
+  }
+  const closingNow = closing || (was !== open && !open);
+  // what it showed stays while it slides shut
+  const shown = useRef(children);
+  if (open || !closingNow) shown.current = children;
+  const shut = useCallback(() => {
+    setClosing(false);
+    onShut?.();
+  }, [onShut]);
+  useLayoutEffect(() => {
+    // no transition to end under reduced motion
+    if (closing && prefersReducedMotion()) shut();
+  }, [closing, shut]);
+  useEffect(() => {
+    // the slide's end can go unseen (the panel hidden mid-slide, the toggle
+    // flipped twice in a frame): once it must be over, settle regardless
+    if (!closing) return;
+    const id = setTimeout(shut, TIMELINE_CLOSE_MS);
+    return () => clearTimeout(id);
+  }, [closing, shut]);
+  return (
+    <div
+      ref={ref}
+      className={styles.unfold}
+      inert={!open}
+      aria-hidden={!open || undefined}
+      onTransitionEnd={e => {
+        if (e.target === e.currentTarget && closing) shut();
+      }}
+    >
+      <div className={styles.unfoldBody}>{shown.current}</div>
+    </div>
+  );
+}
 
 /** Says the panel is in the past (or, under the timeline, live); steps
  * through the actions that changed the store */
