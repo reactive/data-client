@@ -202,25 +202,17 @@ function generate(locale) {
         continue;
       }
       let text = retarget(content.toString(), file, locale, !translated);
-      if (isPartial(file)) {
-        if (translated)
-          write(
-            englishCopy(name),
-            Buffer.from(
-              retarget(
-                fs.readFileSync(path.join(ROOT, file), 'utf8'),
-                file,
-                locale,
-                true,
-              ),
-            ),
-            file,
-          );
-      } else if (!translated) {
-        text = underFrontMatter(text, ENGLISH_PAGE);
-      } else if (
-        lock[file] !== blobId(fs.readFileSync(path.join(ROOT, file)))
-      ) {
+      const english = fs.readFileSync(path.join(ROOT, file));
+      if (translated && isPartial(file))
+        write(
+          englishCopy(name),
+          Buffer.from(retarget(english.toString(), file, locale, true)),
+          file,
+        );
+      if (!translated) {
+        if (!isPartial(file)) text = underFrontMatter(text, ENGLISH_PAGE);
+      } else if (lock[file] !== blobId(english)) {
+        // in a partial, it shows where the partial is imported
         text = underFrontMatter(
           text,
           `:::note\n\n${LOCALES[locale].outdated}\n\n:::`,
