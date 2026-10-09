@@ -21,6 +21,14 @@ English in `docs/` is the only source. `website/translate/translate.mjs` lists w
 3. Before committing, `node website/translate/translate.mjs finalize`. It checks every changed translation against its English, adds heading anchors, and records the English it translates in `website/translate/lock/<locale>.json`. Fix each `✗` problem it prints and run it again until it passes. A UI string that should read the same as English (a product name) is accepted with `--same <id>`.
 4. Commit the translations, the UI JSON files and the lock together.
 
+## Weekly run
+
+A Claude Code routine runs this every Monday morning; run by hand the same way.
+
+1. Start from the latest `master`. If a translation PR from an earlier run is still open, stop: one update at a time keeps review small.
+2. Run the procedure above for every locale. If `prepare` lists no pages, no UI strings and nothing removed, stop without a PR.
+3. Run `node --test website/translate/mdx.test.mjs` and `node website/translate/translate.mjs check`, then open a PR titled `docs(i18n): Update translations` listing per locale the pages translated, updated and removed.
+
 Never edit `website/translate/lock/*.json` or the generated `website/i18n/<locale>/docusaurus-plugin-content-docs*/current/` folders yourself.
 
 ## Translation rules

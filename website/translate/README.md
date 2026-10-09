@@ -1,6 +1,6 @@
 # Docs translations
 
-English in `docs/` is the only source. The repo decides what needs translating and checks what comes back; who translates (a person, a scheduled agent, any model) is up to them. Agents follow the `translate-docs` skill (`.agents/skills/translate-docs`).
+English in `docs/` is the only source. The repo decides what needs translating and checks what comes back; who translates is up to them. Today a weekly Claude Code routine does, following the `translate-docs` skill (`.agents/skills/translate-docs`); a person or another agent can run the same skill.
 
 ## Where things live
 
