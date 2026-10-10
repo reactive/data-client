@@ -312,9 +312,9 @@ describe('Store Actions pane detail', () => {
     // a record the action added, opened from it
     fireEvent.click(within(top()).getByRole('button', { name: '+ Post 1' }));
     expect(crumbs()).toEqual(['Actions', 'GET /posts', 'Post 1']);
-    // the action under the record follows to the newest
+    // the action under the record follows to the newest: its request's
     fireEvent.click(screen.getByRole('button', { name: 'Live' }));
-    expect(crumbs()).toEqual(['Actions', 'setResponse GET /posts', 'Post 1']);
+    expect(crumbs()).toEqual(['Actions', 'GET /posts', 'Post 1']);
   });
 
   it('scopes the changes to the subject it is over', async () => {
@@ -1587,6 +1587,75 @@ describe('Store action level', () => {
     // Back lists them all
     backTo('Actions');
     expect(rows()).toHaveLength(2);
+  });
+
+  it('shows the newest request live as one, its optimistic update too', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    let done: Promise<unknown> = Promise.resolve();
+    await act(async () => {
+      done = ctrl().fetch(updatePost, { id: '1' }, { title: 'Edited' });
+    });
+    // pending, the request so far: its optimistic update
+    openAction();
+    expect(crumbs()).toEqual(['Actions', 'fetch optimistic PATCH /posts/1']);
+    expect(top().textContent).toMatch(/title: "One" → "Edited"/);
+    await act(async () => {
+      release(undefined);
+      await done;
+    });
+    expect(crumbs()).toEqual(['Actions', 'PATCH /posts/1']);
+    expect(top().textContent).toMatch(/title: "One" → "Edited!"/);
+    expect(top().textContent).toContain('this is live');
+  });
+
+  it('opens the action a timeline mark picks while it lists them', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+    );
+    const mark = (name: RegExp) =>
+      within(scrubber()).getByRole('button', { name });
+    openPane();
+    expect(crumbs()).toEqual(['Actions']);
+    const list = top();
+    fireEvent.click(mark(/^set at/));
+    expect(crumbs()).toEqual(['Actions', 'set Post']);
+    // a step moves it on, in place
+    previous();
+    expect(crumbs()).toEqual(['Actions', 'setResponse GET /posts']);
+    backTo('Actions');
+    expect(top()).toBe(list);
+    // stepping over the list only marks the moment there
+    fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
+    expect(crumbs()).toEqual(['Actions']);
+    // in State, a mark only moves the moment
+    openState();
+    fireEvent.click(mark(/^setResponse at/));
+    expect(crumbs()).toEqual([]);
+    expect(scrubber().textContent).toContain('After setResponse GET /posts');
+  });
+
+  it('steps the timeline with ← → from anywhere they mean nothing else', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+    );
+    openPost('1');
+    fireEvent.keyDown(top(), { key: 'ArrowLeft' });
+    expect(scrubber().textContent).toContain('After set Post');
+    fireEvent.keyDown(top(), { key: 'ArrowLeft' });
+    expect(scrubber().textContent).toContain('After setResponse GET /posts');
+    fireEvent.keyDown(top(), { key: 'ArrowRight' });
+    fireEvent.keyDown(top(), { key: 'ArrowRight' });
+    expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
+    // text keeps them for its caret
+    const input = document.createElement('input');
+    top().append(input);
+    fireEvent.keyDown(input, { key: 'ArrowLeft' });
+    expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
   });
 
   it('goes with its store: a reset leaves none of its actions showing', async () => {

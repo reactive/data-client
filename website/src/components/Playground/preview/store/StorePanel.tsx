@@ -340,9 +340,21 @@ export default function StorePanel({
     },
     [clearAt, setTab, showAction, closePane, covered, narrow, collapse],
   );
+  // a pick on the timeline while the Action tab lists the actions opens the
+  // one picked there, as the list's own rows do (in place, so stepping on
+  // keeps focus on the timeline)
+  const actionShown = actionLevels.stack.some(e => e.view.kind === 'action');
+  const pick = useCallback(
+    (seq: number | null, whole = false) => {
+      set(seq, whole);
+      if (seq !== null && tab === 'action' && !actionShown)
+        showAction(seq, whole, true);
+    },
+    [set, tab, actionShown, showAction],
+  );
   const navState = useMemo<NavState>(
-    () => ({ seq: momentSeq, whole, set, show }),
-    [momentSeq, whole, set, show],
+    () => ({ seq: momentSeq, whole, set, pick, show }),
+    [momentSeq, whole, set, pick, show],
   );
   // what the peek's chips open: over the State tab's top level, in the
   // table view, with the peek closed to show it
@@ -430,9 +442,31 @@ export default function StorePanel({
               closePane();
             }}
             onKeyDown={e => {
+              if (e.defaultPrevented) return;
+              // ← → step the timeline from anywhere that has no use of its
+              // own for them
+              if (
+                (e.key === 'ArrowLeft' || e.key === 'ArrowRight') &&
+                !e.altKey &&
+                !e.ctrlKey &&
+                !e.metaKey &&
+                !usesArrows(e.target as Element)
+              ) {
+                const to = stepMoment(
+                  known,
+                  momentSeq,
+                  e.key === 'ArrowLeft' ? -1 : 1,
+                  filter.hit,
+                );
+                if (to !== undefined) {
+                  e.preventDefault();
+                  set(to);
+                }
+                return;
+              }
               // the sheet shuts from anywhere in the panel, the ▾ included;
               // a level going back has the Escape first
-              if (e.key !== 'Escape' || e.defaultPrevented) return;
+              if (e.key !== 'Escape') return;
               if (narrow && timelineOpen) {
                 e.preventDefault();
                 collapse();
@@ -461,8 +495,30 @@ export default function StorePanel({
               )}
               <div ref={content} className={styles.content} inert={covered}>
                 <div className={styles.bar}>
+                  <span className={styles.barStart} role="tablist">
+                    <button
+                      type="button"
+                      role="tab"
+                      className={styles.tab}
+                      title="The store at the moment"
+                      aria-selected={tab === 'state'}
+                      onClick={() => setTab('state')}
+                    >
+                      State
+                    </button>
+                    <button
+                      type="button"
+                      role="tab"
+                      className={styles.tab}
+                      title="The moment's action"
+                      aria-selected={tab === 'action'}
+                      onClick={() => setTab('action')}
+                    >
+                      Action
+                    </button>
+                  </span>
                   {tab === 'state' && (
-                    <span className={styles.barStart}>
+                    <span className={styles.barEnd}>
                       <span
                         className={styles.viewButtons}
                         role="group"
@@ -513,28 +569,6 @@ export default function StorePanel({
                       </span>
                     </span>
                   )}
-                  <span className={styles.barEnd} role="tablist">
-                    <button
-                      type="button"
-                      role="tab"
-                      className={styles.tab}
-                      title="The store at the moment"
-                      aria-selected={tab === 'state'}
-                      onClick={() => setTab('state')}
-                    >
-                      State
-                    </button>
-                    <button
-                      type="button"
-                      role="tab"
-                      className={styles.tab}
-                      title="The moment's action"
-                      aria-selected={tab === 'action'}
-                      onClick={() => setTab('action')}
-                    >
-                      Action
-                    </button>
-                  </span>
                 </div>
                 <div className={styles.tabPanel} role="tabpanel">
                   {/* both stay mounted, so each keeps the stores its levels
@@ -973,7 +1007,11 @@ function ActionLevel({
   const filter = useSubjectFilter(log, entries, subject);
   const entry =
     seq === null ? newestOf(entries, filter.hit) : findEntry(entries, seq);
-  const group = whole && entry ? groupOf(groups, entry.seq) : undefined;
+  // live, the newest request as one: its optimistic update shows too
+  const group =
+    entry && (whole || seq === null) ?
+      wholeGroup(groups, entry.seq, seq === null)
+    : undefined;
   // a group steps from its first action and to after the moment's
   const from = group ? groupEntriesOf(group)[0].seq : entry?.seq;
   return (
@@ -1020,7 +1058,21 @@ function ActionLevel({
   );
 }
 
-/** The newest of the subject's actions: what the Action tab shows live.
+/** The group of action `seq`, to show as one; `several`, only one of more
+ * than that action */
+function wholeGroup(
+  groups: readonly ActionGroup[],
+  seq: number,
+  several: boolean,
+): ActionGroup | undefined {
+  const group = groupOf(groups, seq);
+  return !several || (group && groupEntriesOf(group).length > 1) ?
+      group
+    : undefined;
+}
+
+/** The newest of the subject's actions: what the Action tab shows live, as
+ * its request's when it has one (see `wholeGroup`).
  * Garbage collection is the store's housekeeping, not something the code
  * did, unless it is all there is */
 function newestOf(
@@ -1207,7 +1259,10 @@ function ActionCrumb({
     seq === null ?
       newestOf(history.entries, filter.hit)
     : findEntry(history.entries, seq);
-  const group = whole && entry ? groupOf(groups, entry.seq) : undefined;
+  const group =
+    entry && (whole || seq === null) ?
+      wholeGroup(groups, entry.seq, seq === null)
+    : undefined;
   return (
     group ? <KeyLabel value={group.key} />
     : entry ? <ActionName entry={entry} />
@@ -1238,6 +1293,14 @@ function TreeLevel({ model, diff }: { model: StoreModel; diff?: Diff }) {
         </div>
       </div>
     </StoreUIProvider>
+  );
+}
+
+/** Whether ← → mean something of their own where `el` has focus: text,
+ * a choice, a slider */
+function usesArrows(el: Element) {
+  return !!el.closest(
+    'input, textarea, select, [contenteditable=""], [contenteditable="true"], [role="slider"], [role="tree"], [role="menu"]',
   );
 }
 

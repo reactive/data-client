@@ -122,8 +122,8 @@ export interface LevelStack {
   readonly clearAt: () => void;
   /** Shows action `seq` (or its group, `whole`) over the subject's actions
    * (opening them, or in place of the action view on top), so Back lists
-   * them */
-  readonly showAction: (seq: number, whole?: boolean) => void;
+   * them; `quiet`, without sliding in or taking focus */
+  readonly showAction: (seq: number, whole?: boolean, quiet?: boolean) => void;
   /** The moment moved: the action view follows it (on top or under levels
    * its chips opened), to the newest action as it goes live (`null`) */
   readonly followMoment: (seq: number | null, whole?: boolean) => void;
@@ -168,17 +168,24 @@ export function useLevelStack(
   }, []);
   // a level of its own (a new key), so it slides in and takes focus like
   // any level opened on purpose
-  const showAction = useCallback((seq: number, whole = false) => {
-    setLevels(prev => {
-      let under = prev.stack;
-      if (under[under.length - 1].view.kind === 'action')
-        under = under.slice(0, -1);
-      if (under[under.length - 1].view.kind !== 'actions')
-        under = [...under, { key: nextKey.current++, view: ACTIONS }];
-      const view: ActionView = { kind: 'action', seq, whole };
-      return { ...prev, stack: [...under, { key: nextKey.current++, view }] };
-    });
-  }, []);
+  const showAction = useCallback(
+    (seq: number, whole = false, quiet = false) => {
+      setLevels(prev => {
+        let under = prev.stack;
+        if (under[under.length - 1].view.kind === 'action')
+          under = under.slice(0, -1);
+        if (under[under.length - 1].view.kind !== 'actions')
+          under = [...under, { key: nextKey.current++, view: ACTIONS }];
+        const view: ActionView = { kind: 'action', seq, whole };
+        const entry: StackEntry = { key: nextKey.current++, view };
+        return {
+          ...prev,
+          stack: [...under, quiet ? { ...entry, quiet: true } : entry],
+        };
+      });
+    },
+    [],
+  );
   const followMoment = useCallback((seq: number | null, whole = false) => {
     setLevels(prev => {
       // the action view, on top or under levels its chips opened (which
@@ -227,6 +234,9 @@ export interface NavState {
    * was picked): what they did together shows as one */
   readonly whole: boolean;
   readonly set: (seq: number | null, whole?: boolean) => void;
+  /** `set` from a mark picked on the timeline: the Action tab showing its
+   * list opens the action picked, as a row does */
+  readonly pick: (seq: number | null, whole?: boolean) => void;
   /** Moves the moment to action `seq` (or its group, `whole`) and opens it
    * in the Action tab: what it did to the subject, then the action itself
    * (or the group's actions) */
@@ -236,6 +246,7 @@ export const NavStateContext = createContext<NavState>({
   seq: null,
   whole: false,
   set: () => {},
+  pick: () => {},
   show: () => {},
 });
 export const useNavState = () => useContext(NavStateContext);

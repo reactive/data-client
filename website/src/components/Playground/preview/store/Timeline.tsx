@@ -345,7 +345,9 @@ export const Scrubber = memo(function Scrubber({
   onListHover: (inside: boolean, e: React.PointerEvent) => void;
 }) {
   const { history, groups } = useActions();
-  const { seq: selected, whole, set: onSelect, show } = useNavState();
+  // a mark picked opens its action where the Action tab lists them; a
+  // step only moves the moment
+  const { seq: selected, whole, set: onSelect, pick, show } = useNavState();
   const { entries } = history;
   // a row picked stands for its whole group: the label names that
   const group = whole && entry ? groupOf(groups, entry.seq) : undefined;
@@ -354,7 +356,7 @@ export const Scrubber = memo(function Scrubber({
   // (a panel not laid out, measuring 0, merges nothing)
   const { shown, scale, drawn, marks, decor } = useDrawer(
     hit,
-    onSelect,
+    pick,
     width > 0 ? width - SCRUB_CONTROLS : undefined,
   );
   const earlier = stepMoment(entries, selected, -1, hit);
@@ -506,12 +508,12 @@ export default memo(function Timeline({
   onPick?: () => void;
 }) {
   const { history, groups } = useActions();
-  const { seq: selected, set } = useNavState();
+  const { seq: selected, set, pick } = useNavState();
   const [spacing, setSpacing] = useTabStorage('playgroundTimelineSpacing');
   const { entries, since } = history;
   const lanes = useMemo(() => lanesOf(groups), [groups]);
   const onSelect = (seq: number) => {
-    set(seq);
+    pick(seq);
     onPick?.();
   };
   const { shown, scale, pos, drawn, decor } = useDrawer(hit, onSelect);

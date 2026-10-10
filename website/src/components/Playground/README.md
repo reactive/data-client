@@ -179,12 +179,12 @@ DesignSystem/       components injected into preview scope
   a request's or subscription's row was picked (`whole`), every action of
   that group up to it (`momentEntries` in `preview/store/actionGroups.ts`),
   so an optimistic update and its response show as one effect. Two tabs at
-  the right end of the bar (`role="tablist"`), **State** and **Action**,
+  the left end of the bar (`role="tablist"`), **State** and **Action**,
   show the subject; the one picked, and State's Snapshot or Diff, are
   remembered per Playground `groupId` (`useTabStorage`), like the Store's
   open state.
   - **State** shows the subject at the moment, as one of two icon toggles
-    at the bar's left end says (`aria-pressed`, beside the table and tree
+    at the bar's right end says (`aria-pressed`, beside the table and tree
     view switch); both share the subject's stack:
     - **Snapshot**: the subject at the moment (table or tree); live, the
       store as it is. A moment the store never saw (a fetch, a subscribe)
@@ -205,14 +205,17 @@ DesignSystem/       components injected into preview scope
   - **Action**: the moment's action at full width (`{ kind: 'action', seq }`,
     `ActionDetail`: what it did to the subject, then the action's fields;
     live, `seq: null`, the subject's newest action, garbage collection
-    aside, with "newest" by its crumb). A line above it and one below
+    aside, as its whole request when it has several actions, so an
+    optimistic update shows with its response, with "newest" by its crumb). A line above it and one below
     (`ActionStep`) name the subject's actions before and after it (as ‹ ›
     step, `stepMoment`; past the newest is live), and a click makes that the
     moment, in the same level. Its stack opens at the action over the
     subject's actions in full (`{ kind: 'actions' }`, `ActionsLevel` in
     `preview/store/ActionList.tsx`, a `region` with its row count beside the
     crumbs "Actions of <subject>"), which Back, its crumb and the
-    scrubber's list button go to. Picking a step there sets the moment and
+    scrubber's list button go to; while it shows, a mark picked on the
+    timeline (`pick`) opens its action, as a row does, while ‹ › only move
+    the moment. Picking a step there sets the moment and
     opens the action over the list; picking a row of several actions opens
     the group (`whole`: what they did together, then its actions, each
     opening its own). Chips drill on in the tab. Stepping the moment moves
@@ -249,7 +252,8 @@ DesignSystem/       components injected into preview scope
   across commits).
   The scrubber across the top of the panel (`Scrubber` in
   `preview/store/Timeline.tsx`, a `role="group"`) always shows the whole
-  history on one lane, fit to the panel: ‹ › and ←→ step through the changes
+  history on one lane, fit to the panel: ‹ › and ←→ (from anywhere in the
+  panel without a use of its own for them, see `usesArrows`) step through the changes
   to the subject (`subjectFilter`'s `hit`: every stored action at the store; below it the marks that left the subject alone
   are dimmed, `data-dim`, and skipped; past the newest, and End, go live), a
   mark lands on its action, "Live" lets go. Marks closer on the track than a
