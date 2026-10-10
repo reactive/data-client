@@ -622,9 +622,6 @@ export function touches(subject: View, change: Change): boolean {
   switch (subject.kind) {
     case 'root':
       return true;
-    // an action is no subject (see `subjectOf`)
-    case 'action':
-      return false;
     case 'record':
       return change.id === subject.id;
     case 'list':

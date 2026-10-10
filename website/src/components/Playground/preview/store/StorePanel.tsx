@@ -60,6 +60,7 @@ import {
   type NavState,
   type StackEntry,
   type Then,
+  type LevelView,
   type View,
 } from './nav';
 import RootView from './RootView';
@@ -574,7 +575,7 @@ function Level({
   returnTo,
   children,
 }: {
-  view: View;
+  view: LevelView;
   nav: Nav;
   /** The store this level shows, when not the one `StateContext` holds */
   then?: Then;
@@ -699,7 +700,7 @@ function useSubjectFilter(
 }
 
 /** What a breadcrumb shows for a view */
-function crumbLabel(view: View, model: StoreModel): React.ReactNode {
+function crumbLabel(view: LevelView, model: StoreModel): React.ReactNode {
   switch (view.kind) {
     case 'root':
       return 'State';

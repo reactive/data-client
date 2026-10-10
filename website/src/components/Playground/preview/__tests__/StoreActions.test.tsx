@@ -1931,6 +1931,19 @@ describe('ActionLog', () => {
     const next = timeline();
     expect(next.map(i => i.kind)).toEqual(['version', 'version', 'version']);
     expect(reads).toHaveBeenCalledTimes(1);
+    // continued, it is what a build from scratch makes: each kept set, as
+    // the store saw it
+    expect(next.map(i => i.kind === 'version' && i.entry.seq)).toEqual(
+      log
+        .history(0)
+        .entries.filter(e => e.store)
+        .map(e => e.seq),
+    );
+    expect(next.map(i => i.kind === 'version' && i.change.kind)).toEqual([
+      'added',
+      'updated',
+      'updated',
+    ]);
     expect(timeline()).toBe(next);
     // the log trimmed at the front starts over (what the cut hid is a gap)
     reads.mockClear();

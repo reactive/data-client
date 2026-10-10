@@ -67,26 +67,34 @@ export const cellDive =
       { kind: 'record', id: row.id }
     : refsList(items, `${rowLabel(row)} ${name}`);
 
-/** A subject of the store, one level of the navigation stack; or one
- * action (`seq`), shown over a subject with what it did to it */
+/** A subject of the store: what a level shows, the Actions pane lists the
+ * actions of and the steps follow */
 export type View =
   | { readonly kind: 'root' }
   | ListView
-  | { readonly kind: 'record'; readonly id: string }
-  | { readonly kind: 'action'; readonly seq: number };
+  | { readonly kind: 'record'; readonly id: string };
 
-/** The subject an action view is over: the nearest level under it that is
- * one (the Actions pane lists its actions, the steps follow its changes) */
+/** One action (`seq`), shown over a subject with what it did to it */
+export interface ActionView {
+  readonly kind: 'action';
+  readonly seq: number;
+}
+
+/** What a level of the navigation stack shows */
+export type LevelView = View | ActionView;
+
+const isSubject = (view: LevelView): view is View => view.kind !== 'action';
+
+/** The subject of the stack's top: the nearest level that is one (the
+ * stack starts at a subject) */
 export function subjectOf(stack: readonly StackEntry[]): View {
-  for (let i = stack.length - 1; i >= 0; i--)
-    if (stack[i].view.kind !== 'action') return stack[i].view;
-  return stack[0].view;
+  return stack.map(e => e.view).findLast(isSubject)!;
 }
 
 /** A level of a navigation stack */
 export interface StackEntry {
   readonly key: number;
-  readonly view: View;
+  readonly view: LevelView;
   /** Shows the store as an action left it, instead of as it is */
   readonly at?: Moment;
 }
@@ -144,7 +152,7 @@ export function useLevelStack(root: View): LevelStack {
   const showAction = useCallback((seq: number) => {
     setLevels(prev => {
       const top = prev.stack[prev.stack.length - 1];
-      const view: View = { kind: 'action', seq };
+      const view: ActionView = { kind: 'action', seq };
       if (top.view.kind === 'action')
         return {
           ...prev,
