@@ -31,10 +31,8 @@
 // The use of compiler option `--strictNullChecks` is recommended.
 
 declare namespace BigNumber {
-
   /** See `BigNumber.config` (alias `BigNumber.set`) and `BigNumber.clone`. */
   interface Config {
-
     /**
      * An integer, 0 to 1e+9. Default value: 20.
      *
@@ -273,8 +271,8 @@ declare namespace BigNumber {
      *     fractionGroupSeparator: '',
      *     // the grouping size of the fraction part
      *     fractionGroupSize: 0,
-    *     // string to append
-    *     suffix: ''
+     *     // string to append
+     *     suffix: ''
      *   }
      * })
      * ```
@@ -287,9 +285,9 @@ declare namespace BigNumber {
      *
      * Default value: `'0123456789abcdefghijklmnopqrstuvwxyz'`.
      *
-    * There is no maximum length for the alphabet, but it must be at least two characters long,
-    * and it must not contain whitespace or a repeated character, or the sign indicators '+' and
-    * '-', or the decimal separator '.'.
+     * There is no maximum length for the alphabet, but it must be at least two characters long,
+     * and it must not contain whitespace or a repeated character, or the sign indicators '+' and
+     * '-', or the decimal separator '.'.
      *
      * ```ts
      * // duodecimal (base 12)
@@ -304,7 +302,6 @@ declare namespace BigNumber {
 
   /** See `FORMAT` and `toFormat`. */
   interface Format {
-
     /** The string to prepend. */
     prefix?: string;
 
@@ -337,7 +334,6 @@ declare namespace BigNumber {
   }
 
   interface Instance {
-
     /** The coefficient of the value of this BigNumber, an array of base 1e14 integer numbers, or null. */
     readonly c: number[] | null;
 
@@ -357,7 +353,6 @@ declare namespace BigNumber {
 }
 
 declare class BigNumber implements BigNumber.Instance {
-
   /** Used internally to identify a BigNumber instance. */
   private readonly _isBigNumber: true;
 
@@ -549,7 +544,10 @@ declare class BigNumber implements BigNumber.Instance {
    * @param [roundingMode] Rounding mode, integer, 0 to 8.
    */
   decimalPlaces(): number | null;
-  decimalPlaces(decimalPlaces: number, roundingMode?: BigNumber.RoundingMode): BigNumber;
+  decimalPlaces(
+    decimalPlaces: number,
+    roundingMode?: BigNumber.RoundingMode,
+  ): BigNumber;
 
   /**
    * Returns a BigNumber whose value is the value of this BigNumber rounded to `decimalPlaces`
@@ -1189,7 +1187,10 @@ declare class BigNumber implements BigNumber.Instance {
    * @param significantDigits Significant digits, integer, 1 to 1e+9.
    * @param [roundingMode] Rounding mode, integer, 0 to 8.
    */
-  precision(significantDigits: number, roundingMode?: BigNumber.RoundingMode): BigNumber;
+  precision(
+    significantDigits: number,
+    roundingMode?: BigNumber.RoundingMode,
+  ): BigNumber;
 
   /**
    * Returns the number of significant digits of the value of this BigNumber,
@@ -1233,7 +1234,10 @@ declare class BigNumber implements BigNumber.Instance {
    * @param significantDigits Significant digits, integer, 1 to 1e+9.
    * @param [roundingMode] Rounding mode, integer, 0 to 8.
    */
-  sd(significantDigits: number, roundingMode?: BigNumber.RoundingMode): BigNumber;
+  sd(
+    significantDigits: number,
+    roundingMode?: BigNumber.RoundingMode,
+  ): BigNumber;
 
   /**
    * Returns a BigNumber whose value is the value of this BigNumber shifted by `n` places.
@@ -1351,7 +1355,10 @@ declare class BigNumber implements BigNumber.Instance {
    * @param [decimalPlaces] Decimal places, integer, 0 to 1e+9.
    * @param [roundingMode] Rounding mode, integer, 0 to 8.
    */
-  toExponential(decimalPlaces: number, roundingMode?: BigNumber.RoundingMode): string;
+  toExponential(
+    decimalPlaces: number,
+    roundingMode?: BigNumber.RoundingMode,
+  ): string;
   toExponential(): string;
 
   /**
@@ -1442,17 +1449,19 @@ declare class BigNumber implements BigNumber.Instance {
    */
   toFormat(options?: BigNumber.Format): string;
   toFormat(
-    decimalPlaces: number |
-                   [number | null | undefined] |
-                   [number | null | undefined, number | null | undefined],
-    options: BigNumber.Format
+    decimalPlaces:
+      | number
+      | [number | null | undefined]
+      | [number | null | undefined, number | null | undefined],
+    options: BigNumber.Format,
   ): string;
   toFormat(
-    decimalPlaces: number |
-                   [number | null | undefined] |
-                   [number | null | undefined, number | null | undefined],
+    decimalPlaces:
+      | number
+      | [number | null | undefined]
+      | [number | null | undefined, number | null | undefined],
     roundingMode?: BigNumber.RoundingMode,
-    options?: BigNumber.Format
+    options?: BigNumber.Format,
   ): string;
 
   /**
@@ -1559,7 +1568,10 @@ declare class BigNumber implements BigNumber.Instance {
    * @param [significantDigits] Significant digits, integer, 1 to 1e+9.
    * @param [roundingMode] Rounding mode, integer 0 to 8.
    */
-  toPrecision(significantDigits: number, roundingMode?: BigNumber.RoundingMode): string;
+  toPrecision(
+    significantDigits: number,
+    roundingMode?: BigNumber.RoundingMode,
+  ): string;
   toPrecision(): string;
 
   /**

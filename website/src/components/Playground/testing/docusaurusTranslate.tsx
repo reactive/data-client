@@ -18,8 +18,9 @@ function interpolate(message: string, values: Values = {}): ReactNode {
 }
 
 export function translate(
-  { message, id }: { message?: string; id?: string },
-  values?: Values,
+  { message, id }: { message?: string; id?: string; description?: string },
+  // like Docusaurus' own translate(), which returns a string
+  values?: Record<string, string | number>,
 ): string {
   return interpolate(message ?? id ?? '', values) as string;
 }
@@ -31,6 +32,7 @@ export default function Translate({
 }: {
   children?: string;
   id?: string;
+  description?: string;
   values?: Values;
 }) {
   return <>{interpolate(children ?? id ?? '', values)}</>;

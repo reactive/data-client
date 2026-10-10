@@ -54,7 +54,7 @@ import { StoreUIProvider } from './StoreUI';
 import Timeline from './Timeline';
 import TreeView from './TreeView';
 import { RowKey } from './Value';
-import { openAction, RowHistory } from './VersionHistory';
+import { historyLabel, openAction, RowHistory } from './VersionHistory';
 import { useTabStorage } from '../../../../utils/tabStorage';
 import { prefersReducedMotion, springEasing, springs } from '../../../motion';
 
@@ -862,7 +862,7 @@ function crumbLabel(view: View, model: StoreModel): React.ReactNode {
     case 'action':
       return <ActionCrumb seq={view.seq} />;
     case 'history':
-      return translate({ id: 'playground.store.history', message: 'History' });
+      return historyLabel();
     case 'list': {
       const count =
         'ids' in view ? view.ids.length

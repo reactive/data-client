@@ -524,7 +524,7 @@ function missingText(change: ChangeKind) {
   }
 }
 
-const historyLabel = () =>
+export const historyLabel = () =>
   translate({ id: 'playground.store.history', message: 'History' });
 
 /** Opens the action's own level */

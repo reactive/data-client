@@ -15,7 +15,7 @@ html[data-theme='dark'] .playground-preview {
   border: 1px solid var(--ifm-color-emphasis-400);
   border-radius: 4px;
   position: relative;
-  margin-bottom:1ex;
+  margin-bottom: 1ex;
 }
 html[data-theme='dark'] .rt-TextFieldRoot,
 html[data-theme='dark'] .rt-TextAreaRoot {
@@ -69,7 +69,7 @@ html[data-theme='dark'] .rt-TextAreaRoot {
   left: 0.75em;
   background-color: var(--ifm-color-emphasis-0);
   padding: 0 0.25em;
-  font-size: 0.70rem;
+  font-size: 0.7rem;
   color: var(--ifm-color-emphasis-700);
   pointer-events: none;
 }
@@ -82,7 +82,6 @@ html[data-theme='dark'] .rt-TextAreaRoot {
 .rt-TextFieldRoot:focus-within {
   border-color: var(--ifm-color-formfield-active);
 }
-
 
 .large.rt-TextFieldRoot {
   font-size: 16px;
@@ -98,17 +97,19 @@ html[data-theme='dark'] .rt-TextAreaRoot {
 }
 .small.rt-TextFieldRoot {
   display: inline-flex;
-  border: 1px solid transparent;       /* Transparent borders on all sides */
-  border-bottom-color: var(--ifm-color-emphasis-500);           /* Visible bottom border */
+  border: 1px solid transparent; /* Transparent borders on all sides */
+  border-bottom-color: var(
+    --ifm-color-emphasis-500
+  ); /* Visible bottom border */
   background: none;
   outline: none;
-  padding: 5px;                        /* Consistent padding */
-  height: 30px;                        /* Fixed height to prevent shifting */
-  box-sizing: border-box;              /* Include padding and border in element's size */
-  transition: all 0.2s ease-in-out;    /* Quick animation for transitions */
+  padding: 5px; /* Consistent padding */
+  height: 30px; /* Fixed height to prevent shifting */
+  box-sizing: border-box; /* Include padding and border in element's size */
+  transition: all 0.2s ease-in-out; /* Quick animation for transitions */
   border-radius: 0;
-  margin-bottom:0;
-  margin-top:-4px;
+  margin-bottom: 0;
+  margin-top: -4px;
 }
 html[data-theme='dark'] .small.rt-TextFieldRoot {
   background: none;
@@ -116,11 +117,13 @@ html[data-theme='dark'] .small.rt-TextFieldRoot {
 .small.rt-TextFieldRoot:hover,
 .small.rt-TextFieldRoot:focus-within {
   background-color: var(--ifm-color-emphasis-0);
-  border-color: var(--ifm-color-emphasis-400);                  /* Make all borders visible */
+  border-color: var(--ifm-color-emphasis-400); /* Make all borders visible */
   border-radius: 4px;
 }
 .small.rt-TextFieldRoot:focus-within {
-  border-color: var(--ifm-color-formfield-active);                  /* Make all borders visible */
+  border-color: var(
+    --ifm-color-formfield-active
+  ); /* Make all borders visible */
 }
 /* Dark: a faint lift over the panel instead of a near-black well, and the
    same blue as the checked checkboxes for focus */
@@ -151,9 +154,6 @@ html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
   min-width: 0;
 }
 
-
-
-
 /* Root container for the textarea */
 .rt-TextAreaRoot {
   position: relative;
@@ -161,9 +161,9 @@ html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
   background-color: var(--ifm-color-emphasis-0);
   border: 1px solid var(--ifm-color-emphasis-400);
   border-radius: 4px;
-  padding-bottom:-5px;
+  padding-bottom: -5px;
   /* overflow: hidden; */
-  margin: 1.5ex 0 .5ex;
+  margin: 1.5ex 0 0.5ex;
 }
 
 /* The textarea element inside the component */
@@ -180,7 +180,6 @@ html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
   box-sizing: border-box;
   margin-bottom: -4px;
 }
-
 
 /* Focus state for the textarea */
 .rt-TextAreaInput:focus + .rt-TextFieldLabel {
