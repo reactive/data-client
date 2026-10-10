@@ -1,10 +1,12 @@
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import Translate from '@docusaurus/Translate';
 import clsx from 'clsx';
+import type * as Monaco from 'monaco-editor';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 
 import Header from '../Header';
 import { modelPath, useModelId } from '../monaco/modelPath';
+import { createMissingModels } from '../monaco/models';
 import Editor from '../PlaygroundEditor';
 import styles from '../styles.module.css';
 import TabList from '../TabList';
@@ -84,6 +86,23 @@ export default function EditorSurface({
     [documents.length, update],
   );
 
+  // Every file's model must exist before any is type-checked, or imports of
+  // later tabs read as missing modules (see createMissingModels).
+  const documentsRef = useRef(documents);
+  documentsRef.current = documents;
+  const createModels = useCallback(
+    (monaco: typeof Monaco) =>
+      createMissingModels(
+        monaco,
+        documentsRef.current.map(document => ({
+          path: modelPath(id, document.path),
+          code: document.value,
+          language: document.language,
+        })),
+      ),
+    [id],
+  );
+
   const tabs =
     row && documents.length > 1 ?
       <EditorTabs
@@ -123,6 +142,7 @@ export default function EditorSurface({
         onChange={handleChanges[index]}
         code={document.value}
         path={modelPath(id, document.path)}
+        beforeMount={createModels}
         isFocused={!closedList[index]}
         language={document.language}
         highlights={document.highlights}
