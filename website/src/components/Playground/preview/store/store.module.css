@@ -1637,7 +1637,7 @@ button.tlMark:hover {
 }
 
 /* the Action tab's actions before and after the one shown, a line each, to
-   step to; the one after sits at the bottom of a short level */
+   step to; the one after stays at the bottom, of a short level too */
 .actStep {
   display: flex;
   align-items: baseline;
@@ -1654,9 +1654,13 @@ button.tlMark:hover {
   white-space: nowrap;
 }
 .actStepAfter {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
   margin-top: auto;
-  border-top: 1px solid var(--store-line);
+  border-top: 1px solid var(--store-line-strong);
   border-bottom: 0;
+  background: var(--store-bg);
 }
 button.actStep {
   cursor: pointer;
@@ -1664,6 +1668,10 @@ button.actStep {
 }
 button.actStep:hover {
   background: var(--store-hover);
+}
+button.actStepAfter:hover {
+  background: linear-gradient(var(--store-hover), var(--store-hover))
+    var(--store-bg);
 }
 .actStepDir {
   flex: none;
