@@ -528,6 +528,30 @@ describe('Store Actions pane detail', () => {
     expect(peek()).toBeNull();
   });
 
+  it('shuts with Escape before a level under it goes back', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    jest.useFakeTimers();
+    openPost('1');
+    hover(actionsToggle(), true);
+    wait();
+    fireEvent.keyDown(top(), { key: 'Escape' });
+    expect(peek()).toBeNull();
+    expect(current()).toBe('Post 1');
+    fireEvent.keyDown(top(), { key: 'Escape' });
+    expect(crumbs()).toEqual([]);
+  });
+
+  it('shows the action open under the tree view as Actions is pressed there', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    openPane();
+    fireEvent.click(rows()[0]);
+    fireEvent.click(screen.getByLabelText('Tree view'));
+    openPane();
+    expect(crumbs()).toEqual(['State', 'Actions', 'setResponse GET /posts']);
+  });
+
   it("peeks only for its own panel, closing as another's toggle is pressed", async () => {
     // a page holds several playgrounds, each with a store panel
     const other = new SchemaRegistry({ trimEvery: 1 });

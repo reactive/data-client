@@ -119,8 +119,8 @@ export interface LevelStack {
   /** Shows action `seq` over the subject's actions (opening them, or in
    * place of the action view on top), so Back lists them */
   readonly showAction: (seq: number) => void;
-  /** Lists the subject's actions over the top level, unless they are on
-   * top */
+  /** Lists the subject's actions over the top level, unless they (or an
+   * action over them) are on top */
   readonly openActions: () => void;
   /** Closes the top subject's actions, and the action shown over them */
   readonly closeActions: () => void;
@@ -175,12 +175,12 @@ export function useLevelStack(root: View): LevelStack {
   }, []);
   const openActions = useCallback(() => {
     setLevels(prev =>
-      prev.stack[prev.stack.length - 1].view.kind === 'actions' ?
-        prev
-      : {
+      !isSubject(prev.stack[prev.stack.length - 1].view) ? prev : (
+        {
           ...prev,
           stack: [...prev.stack, { key: nextKey.current++, view: ACTIONS }],
-        },
+        }
+      ),
     );
   }, []);
   const closeActions = useCallback(() => {

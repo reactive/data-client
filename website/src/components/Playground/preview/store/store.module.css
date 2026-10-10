@@ -136,8 +136,9 @@
 .pane.paneNarrow {
   width: min(100%, 22rem);
 }
-/* the subject's actions at full width, a level of their own */
-.actionsLevel {
+/* the subject's actions at full width, a level of their own; they shrink
+ * to scroll on their own, unlike the level's other children */
+.level > .actionsLevel {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;

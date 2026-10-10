@@ -96,11 +96,6 @@ export function ActionsPane({
       aria-label="Actions"
       onPointerEnter={e => onHover(true, e)}
       onPointerLeave={e => onHover(false, e)}
-      onKeyDown={e => {
-        if (e.key !== 'Escape' || e.defaultPrevented) return;
-        e.preventDefault();
-        onClose();
-      }}
     >
       <div className={styles.paneHead}>
         Actions

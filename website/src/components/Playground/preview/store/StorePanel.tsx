@@ -339,16 +339,21 @@ export default function StorePanel({
           <div
             className={styles.store}
             ref={panel}
+            onKeyDownCapture={e => {
+              // the peek, over everything, shuts first: before a level
+              // under it takes the Escape to go back
+              if (e.key !== 'Escape' || !pane) return;
+              e.preventDefault();
+              e.stopPropagation();
+              closePane();
+            }}
             onKeyDown={e => {
-              // the sheet (and the pane) shut from anywhere in the panel,
-              // the ▾ included; a level going back has the Escape first
+              // the sheet shuts from anywhere in the panel, the ▾ included;
+              // a level going back has the Escape first
               if (e.key !== 'Escape' || e.defaultPrevented) return;
               if (narrow && timelineOpen) {
                 e.preventDefault();
                 collapse();
-              } else if (pane) {
-                e.preventDefault();
-                closePane();
               }
             }}
           >
