@@ -77,9 +77,9 @@ jobs:
         run: yarn ci:build:website
       - name: Typecheck website
         run: yarn workspace rdc-website typecheck
-      # CircleCI's lint job covers packages/ only
+      # CircleCI's lint job covers packages/ only; api/ is the Vercel functions
       - name: Lint website
-        run: yarn lint --quiet 'website/src/**/*.{js,ts,tsx}'
+        run: yarn lint --quiet 'website/{src,api}/**/*.{js,ts,tsx}'
       - name: Check translations
         run: |
           node --test 'website/translate/*.test.mjs'
