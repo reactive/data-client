@@ -52,10 +52,10 @@ function useRows(filter: SubjectFilter) {
   );
 }
 
-/** A peek at `subject`'s actions as the mouse rests on the Actions tab, to
- * move the moment by: the list, under a head naming the subject (`label`,
- * none at the store) and counting them, over the Snapshot or Diff tab's
- * right side (`narrow`, most of it). Picking an action moves the moment
+/** A peek at `subject`'s actions as the mouse rests on the scrubber's list
+ * button, to move the moment by: the list, under a head naming the subject
+ * (`label`, none at the store) and counting them, over the State or Action
+ * tab's right side (`narrow`, most of it). Picking an action moves the moment
  * there, and the tab under it follows. It goes as the pointer leaves it, on
  * Escape or a press outside */
 export function ActionsPane({
@@ -72,7 +72,7 @@ export function ActionsPane({
   filter: SubjectFilter;
   label: React.ReactNode;
   narrow: boolean;
-  /** Its tab, which opens the list in full: a press there is not
+  /** Its button, which opens the list in full: a press there is not
    * outside */
   toggle: React.RefObject<HTMLElement | null>;
   /** The pointer came into it (`true`) or left it */
@@ -117,7 +117,7 @@ export function ActionsPane({
   );
 }
 
-/** `subject`'s actions at full width, the Actions tab's first level:
+/** `subject`'s actions at full width, the Action tab's first level:
  * `header` (the crumbs) with their count, then the list */
 export function ActionsLevel({
   subject,

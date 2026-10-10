@@ -68,7 +68,7 @@ export const cellDive =
       { kind: 'record', id: row.id }
     : refsList(items, `${rowLabel(row)} ${name}`);
 
-/** A subject of the store: what a level shows, the Actions tab lists the
+/** A subject of the store: what a level shows, the Action tab lists the
  * actions of and the steps follow */
 export type View =
   | { readonly kind: 'root' }
@@ -76,10 +76,10 @@ export type View =
   | { readonly kind: 'record'; readonly id: string };
 
 /** One action (`seq`), or (`whole`) its group up to it, shown over a
- * subject with what it did to it */
+ * subject with what it did to it; `null`, live, is the newest */
 interface ActionView {
   readonly kind: 'action';
-  readonly seq: number;
+  readonly seq: number | null;
   readonly whole?: boolean;
 }
 
@@ -105,6 +105,8 @@ export interface StackEntry {
   readonly view: LevelView;
   /** Shows the store as an action left it, instead of as it is */
   readonly at?: Moment;
+  /** There from the start: shows without sliding in or taking focus */
+  readonly quiet?: true;
 }
 
 export interface LevelStack {
@@ -123,18 +125,24 @@ export interface LevelStack {
    * them */
   readonly showAction: (seq: number, whole?: boolean) => void;
   /** The moment moved: the action view follows it (on top or under levels
-   * its chips opened), and goes as the moment lets go (`null`) */
+   * its chips opened), to the newest action as it goes live (`null`) */
   readonly followMoment: (seq: number | null, whole?: boolean) => void;
 }
 
-/** A stack of views over `root` */
-export function useLevelStack(root: LevelView): LevelStack {
+/** A stack of views over `root`, opening at `over` (on top of it) */
+export function useLevelStack(
+  root: LevelView,
+  ...over: readonly LevelView[]
+): LevelStack {
   // the record a level was opened from flashes once that level is back on top
   const [{ stack, returnTo }, setLevels] = useState<{
     readonly stack: readonly StackEntry[];
     readonly returnTo: string | null;
-  }>({ stack: [{ key: 0, view: root }], returnTo: null });
-  const nextKey = useRef(1);
+  }>(() => ({
+    stack: [root, ...over].map((view, key) => ({ key, view, quiet: true })),
+    returnTo: null,
+  }));
+  const nextKey = useRef(1 + over.length);
   const push = useCallback((view: View, at?: Moment) => {
     const key = nextKey.current++;
     setLevels(prev => ({
@@ -154,7 +162,7 @@ export function useLevelStack(root: LevelView): LevelStack {
   const clearAt = useCallback(() => {
     setLevels(prev =>
       prev.stack.some(e => e.at) ?
-        { ...prev, stack: prev.stack.map(({ key, view }) => ({ key, view })) }
+        { ...prev, stack: prev.stack.map(({ at, ...rest }) => rest) }
       : prev,
     );
   }, []);
@@ -173,13 +181,6 @@ export function useLevelStack(root: LevelView): LevelStack {
   }, []);
   const followMoment = useCallback((seq: number | null, whole = false) => {
     setLevels(prev => {
-      // live, no action is left to show: the stack ends under the first
-      if (seq === null) {
-        const first = prev.stack.findIndex(e => e.view.kind === 'action');
-        return first < 0 ? prev : (
-            { ...prev, stack: prev.stack.slice(0, first) }
-          );
-      }
       // the action view, on top or under levels its chips opened (which
       // the moment moves too, see `clearAt`), so Back finds the moment's
       const i = prev.stack.findLastIndex(e => e.view.kind === 'action');
@@ -205,6 +206,8 @@ export function useLevelStack(root: LevelView): LevelStack {
   };
 }
 export const ACTIONS: ActionsView = { kind: 'actions' };
+/** The newest action, followed while live */
+export const NEWEST: ActionView = { kind: 'action', seq: null };
 
 /** The store as an action left it, or (`before`) found it (a removed row
  * shows as it was). A level pushed at a Moment shows that store, and so does
@@ -225,7 +228,7 @@ export interface NavState {
   readonly whole: boolean;
   readonly set: (seq: number | null, whole?: boolean) => void;
   /** Moves the moment to action `seq` (or its group, `whole`) and opens it
-   * in the Actions tab: what it did to the subject, then the action itself
+   * in the Action tab: what it did to the subject, then the action itself
    * (or the group's actions) */
   readonly show: (seq: number, whole?: boolean) => void;
 }

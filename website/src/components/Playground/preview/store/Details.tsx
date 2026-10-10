@@ -222,7 +222,7 @@ export function RowMeta({
 }
 
 /** A record's last change as of the store this level shows, opening the
- * action that made it in the Actions tab; or that actions the log dropped
+ * action that made it in the Action tab; or that actions the log dropped
  * made it. Nothing while the log has no change to the record */
 function ChangedBy({ id }: { id: string }) {
   const actions = useContext(ActionsContext);

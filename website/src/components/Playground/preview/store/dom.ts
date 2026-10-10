@@ -93,7 +93,7 @@ export const onActivateKey =
 /** Keeps keyboard focus from falling to the page as a change removes or
  * turns off the control pressed inside `ref` (a step to the end of a row,
  * "Live"): `hold()` right before the change, and after the render focus
- * goes to a button still on in `ref`, or `ref` itself. Only while `ref`
+ * goes to a step (`data-step`) still on in `ref`, or `ref` itself. Only while `ref`
  * holds focus (a pointer press need not focus a button); the change renders
  * before the next frame, so a hold can't go stale */
 export function useHoldFocus(ref: React.RefObject<HTMLElement | null>) {
@@ -109,9 +109,11 @@ export function useHoldFocus(ref: React.RefObject<HTMLElement | null>) {
     const active = document.activeElement;
     if (active && active !== document.body) return;
     const el = ref.current;
-    (el?.querySelector<HTMLElement>('button:not(:disabled)') ?? el)?.focus({
-      preventScroll: true,
-    });
+    (el?.querySelector<HTMLElement>('[data-step]:not(:disabled)') ?? el)?.focus(
+      {
+        preventScroll: true,
+      },
+    );
   });
   return hold;
 }

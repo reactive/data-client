@@ -40,7 +40,7 @@
   flex-direction: column;
 }
 
-/* The view switch and the Snapshot, Diff and Actions tabs; the same band as
+/* State's switches and the State and Action tabs; the same band as
    the other headers */
 .bar {
   flex: none;
@@ -68,13 +68,13 @@
   display: flex;
   flex-direction: column;
 }
-/* the bar's left end: the view switch, outside the Actions tab */
+/* the bar's left end: Snapshot or Diff and the view switch, in State */
 .barStart {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
-/* the bar's right end: the Snapshot, Diff and Actions tabs */
+/* the bar's right end: the State and Action tabs */
 .barEnd {
   display: flex;
   align-items: center;
@@ -280,7 +280,7 @@
 .crumbList {
   display: contents;
 }
-/* with no Back before them (the Actions tab's first level) */
+/* with no Back before them (the Action tab's first level) */
 .crumbList:first-child > :first-child {
   margin-left: 0.5rem;
 }
@@ -444,7 +444,7 @@ div.row {
 .row:focus-visible {
   outline: 2px solid var(--store-key);
 }
-/* The Diff tab: how the action changed each row (a table's
+/* State's diff: how the action changed each row (a table's
    first cell, or the tree's whole line) */
 .row[data-change] > td:first-child,
 div.row[data-change] {
@@ -1313,8 +1313,12 @@ div.joined {
   color: inherit;
 }
 .expand:hover,
-.expand[aria-expanded='true'] {
+.expand[aria-expanded='true'],
+.expand[aria-pressed='true'] {
   opacity: 1;
+}
+.expand[aria-pressed='true'] {
+  background: var(--pg-tab-hover-bg);
 }
 .expand svg {
   width: 14px;
@@ -1331,7 +1335,7 @@ div.joined {
 }
 .scrubLabel {
   min-width: 0;
-  padding: 0 0.5rem 4px 2.6rem;
+  padding: 0 0.5rem 4px 4.45rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1630,4 +1634,49 @@ button.tlMark:hover {
   width: 1px;
   background: var(--store-fg);
   opacity: 0.55;
+}
+
+/* the Action tab's actions before and after the one shown, a line each, to
+   step to; the one after sits at the bottom of a short level */
+.actStep {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
+  padding: 0.35rem 0.75rem;
+  border: 0;
+  border-bottom: 1px solid var(--store-line);
+  background: none;
+  color: var(--store-fg);
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+}
+.actStepAfter {
+  margin-top: auto;
+  border-top: 1px solid var(--store-line);
+  border-bottom: 0;
+}
+button.actStep {
+  cursor: pointer;
+  transition: background-color var(--motion-snappy);
+}
+button.actStep:hover {
+  background: var(--store-hover);
+}
+.actStepDir {
+  flex: none;
+  width: 4.2rem;
+  color: var(--store-dim);
+  font-size: 0.85em;
+}
+.actStepName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.liveText {
+  color: var(--store-fresh);
+  font-weight: 500;
 }
