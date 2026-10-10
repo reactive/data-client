@@ -145,13 +145,8 @@ export default function EditorSurface({
     >
       <EditorHeader
         fixtureContent={!row ? fixtureContent : undefined}
-        title={
-          // the Store over the code: the header names what shows
-          covered ? <Translate id="playground.store">Store</Translate>
-          : row && documents.length === 1 ?
-            documents[0].title
-          : undefined
-        }
+        title={row && documents.length === 1 ? documents[0].title : undefined}
+        covered={covered}
         controls={headerControls}
       />
       {tabsCovered ? null : tabs}
@@ -299,10 +294,13 @@ function EditorHeader({
       Editor
     </Translate>
   ),
+  covered,
   fixtureContent,
   controls,
 }: {
   title?: React.ReactNode;
+  /** The Store covers the code: the title says so, sliding in as it does */
+  covered: boolean;
   fixtureContent?: React.ReactNode;
   controls?: React.ReactNode;
 }) {
@@ -318,7 +316,17 @@ function EditorHeader({
       : null}
       {controls != null ?
         <Header className={clsx(styles.tabControls, styles.controlTabs)}>
-          <div className={styles.title}>{title}</div>
+          <div className={styles.title}>
+            <span
+              className={styles.titleSwap}
+              data-covered={covered || undefined}
+            >
+              <span aria-hidden={covered}>{title}</span>
+              <span aria-hidden={!covered}>
+                <Translate id="playground.store">Store</Translate>
+              </span>
+            </span>
+          </div>
           {controls}
         </Header>
       : null}

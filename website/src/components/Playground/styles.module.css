@@ -378,6 +378,30 @@ div.playgroundTextEdit > .playgroundHeader,
 .playgroundHeader.tabControls .title {
   padding: 0.75rem;
 }
+/* the title names what shows: "Store" slides in over the code's name from
+   the preview's side, on the Store drawer's own spring */
+.titleSwap {
+  display: inline-grid;
+  overflow: hidden;
+}
+.titleSwap > * {
+  grid-area: 1 / 1;
+  transition:
+    translate var(--motion-smooth),
+    opacity var(--motion-smooth);
+}
+.titleSwap > :last-child {
+  translate: 100% 0;
+  opacity: 0;
+}
+.titleSwap[data-covered] > :first-child {
+  translate: -40% 0;
+  opacity: 0;
+}
+.titleSwap[data-covered] > :last-child {
+  translate: 0 0;
+  opacity: 1;
+}
 
 /* live editor v3 */
 :global(.prism-code) {
