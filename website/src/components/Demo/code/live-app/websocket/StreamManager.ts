@@ -8,16 +8,21 @@ import { Ticker } from './resources';
 
 const { SUBSCRIBE, UNSUBSCRIBE } = actionTypes;
 
-/** Pushes Coinbase prices into the store over one socket
- *
- * Add reconnects and batching for production, as in
- * https://github.com/reactive/data-client/tree/master/examples/coin-app
+interface Product {
+  channel: string;
+  count: number;
+}
+
+/** Pushes Coinbase prices into the store over one socket,
+ * reconnecting when it drops or the browser comes back online
  */
 export class StreamManager implements Manager {
   declare protected socket: WebSocket;
   declare protected controller: Controller;
   /** Channel and subscriber count of each product */
   protected products = new Map<string, Product>();
+  protected attempts = 0;
+  declare protected retry: ReturnType<typeof setTimeout>;
 
   middleware: Middleware = controller => {
     this.controller = controller;
@@ -52,10 +57,25 @@ export class StreamManager implements Manager {
   };
 
   init() {
+    this.connect();
+    addEventListener('online', this.reconnect);
+    addEventListener('offline', this.disconnect);
+  }
+
+  cleanup() {
+    removeEventListener('online', this.reconnect);
+    removeEventListener('offline', this.disconnect);
+    clearTimeout(this.retry);
+    this.disconnect();
+  }
+
+  protected connect() {
     this.socket = new WebSocket(
       'wss://ws-feed.exchange.coinbase.com',
     );
     this.socket.onopen = () => {
+      this.attempts = 0;
+      // a new socket has no subscriptions yet
       for (const [productId, { channel }] of this.products)
         this.send('subscribe', channel, productId);
     };
@@ -70,11 +90,27 @@ export class StreamManager implements Manager {
         { product_id, price, time },
       );
     };
+    // fires after errors too; offline waits for 'online' instead
+    this.socket.onclose = () => {
+      if (!navigator.onLine) return;
+      const delay = Math.min(30_000, 1000 * 2 ** this.attempts++);
+      this.retry = setTimeout(this.reconnect, delay);
+    };
   }
 
-  cleanup() {
+  /** Back online, or the retry timer fired */
+  protected reconnect = () => {
+    clearTimeout(this.retry);
+    // CLOSING: disconnect() stopped waiting for it
+    if (this.socket.readyState >= WebSocket.CLOSING) this.connect();
+  };
+
+  /** Offline, a socket can take minutes to notice and can't finish
+   * closing, so stop waiting for its onclose */
+  protected disconnect = () => {
+    this.socket.onclose = null;
     this.socket.close();
-  }
+  };
 
   protected send(
     type: 'subscribe' | 'unsubscribe',
@@ -91,11 +127,6 @@ export class StreamManager implements Manager {
       }),
     );
   }
-}
-
-interface Product {
-  channel: string;
-  count: number;
 }
 
 // passed to <DataProvider managers={getManagers()}>
