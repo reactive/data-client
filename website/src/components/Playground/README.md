@@ -181,9 +181,9 @@ DesignSystem/       components injected into preview scope
   that group up to it (`momentEntries` in `preview/store/actionGroups.ts`),
   so an optimistic update and its response show as one effect. Two tabs at
   the left end of the bar (`role="tablist"`), **State** and **Action**,
-  show the subject; the one picked, and State's Snapshot or Diff, are
-  remembered per Playground `groupId` (`useTabStorage`), like the Store's
-  open state.
+  show the subject; the one picked, and State's Snapshot or Diff, are each
+  Playground's own (state of the panel), while the table or tree view is
+  shared across them (`useTabStorage`).
   - **State** shows the subject at the moment, as one of two icon toggles
     at the bar's right end says (`aria-pressed`, beside the table and tree
     view switch); both share the subject's stack:

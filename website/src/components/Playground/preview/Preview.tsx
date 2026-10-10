@@ -84,7 +84,6 @@ function Preview<T>({
             <ManagerError host={managerHost} />
           </div>
           <StoreInspector
-            groupId={groupId}
             open={storeOpen}
             toggle={toggleStore}
             registry={registry}

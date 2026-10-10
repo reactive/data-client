@@ -91,12 +91,9 @@ import { useTabStorage } from '../../../../utils/tabStorage';
 const CRUMBS = 4;
 
 export default function StorePanel({
-  groupId,
   registry,
   history: id,
 }: {
-  /** The Playground's: its tab is remembered under it */
-  groupId: string;
   registry: SchemaRegistry;
   /** Whose actions to show (see `ActionLog`) */
   history: number;
@@ -110,11 +107,10 @@ export default function StorePanel({
   const tree = stored === 'tree';
   // the subject at the moment (`state`), or the moment's action; and the
   // state as a whole (`snapshot`) or only what the moment's action changed
-  // (`diff`). Remembered per Playground
-  const [storedTab, setTab] = useTabStorage(`${groupId}.storeTab`);
-  const tab: Tab = storedTab === 'action' ? 'action' : 'state';
-  const [storedMode, setMode] = useTabStorage(`${groupId}.storeMode`);
-  const diffMode = storedMode === 'diff';
+  // (`diff`). Each Playground's own, unlike the table or tree view
+  const [tab, setTab] = useState<Tab>('state');
+  const [mode, setMode] = useState<'snapshot' | 'diff'>('snapshot');
+  const diffMode = mode === 'diff';
   // the peek: the subject's actions over the store's right side, to move the
   // moment by, as the mouse rests on the scrubber's list button; gone as it
   // leaves both. Each panel's own: a page holds several, and a press

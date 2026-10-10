@@ -8,7 +8,6 @@ import StorePanel from './store/StorePanel';
 import { StoreToggle } from './StoreToggle';
 
 function StoreInspector({
-  groupId,
   toggle,
   open,
   registry,
@@ -16,7 +15,6 @@ function StoreInspector({
   row,
   host,
 }: {
-  groupId: string;
   open: boolean;
   toggle: React.MouseEventHandler<HTMLElement>;
   registry: SchemaRegistry;
@@ -33,7 +31,7 @@ function StoreInspector({
   const panel = (
     <Reveal show={open} className={styles.storePanel}>
       {showTree ?
-        <StorePanel groupId={groupId} registry={registry} history={history} />
+        <StorePanel registry={registry} history={history} />
       : null}
     </Reveal>
   );
