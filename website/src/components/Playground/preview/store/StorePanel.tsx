@@ -161,23 +161,33 @@ export default function StorePanel({
   );
   // what an action's chips open: the store as it left it. Cached per state,
   // so a level showing one keeps its rows as the log grows
-  const [thens] = useState(() => new WeakMap<State<unknown>, Then>());
+  // one action's `before` is the store an earlier one left: they share rows,
+  // but each keeps its own place in the log
+  const [thens] = useState(
+    () => new WeakMap<State<unknown>, { before?: Then; after?: Then }>(),
+  );
   const then = useCallback(
     ({ seq, before }: Moment): Then | undefined => {
       const entry = findEntry(known, seq);
       const store = entry?.store;
       if (!store) return undefined;
       const raw = before ? store.before : store.after;
-      let found = thens.get(raw);
+      let cached = thens.get(raw);
+      if (!cached) thens.set(raw, (cached = {}));
+      const side = before ? 'before' : 'after';
+      let found = cached[side];
       if (!found) {
-        const state = log.view(raw);
+        const other = cached[before ? 'after' : 'before'];
+        const state = other?.state ?? log.view(raw);
         found = {
           state,
-          model: buildModel(state, registry, pendingIn(raw.optimistic)),
+          model:
+            other?.model ??
+            buildModel(state, registry, pendingIn(raw.optimistic)),
           until: before ? seq - 1 : seq,
           time: entry.at,
         };
-        thens.set(raw, found);
+        cached[side] = found;
       }
       return found;
     },

@@ -203,8 +203,11 @@ export function useFollow(
       return;
     }
     const held = anchor.current;
-    if (el && held?.row.isConnected)
-      el[scroll] += startOf(held.row, axis) - startOf(el, axis) - held.at;
+    if (!el || !held?.row.isConnected) return;
+    // only when the rows moved: any scroll assignment cancels a smooth one
+    // underway (the moment's reveal as the list leaves live)
+    const moved = startOf(held.row, axis) - startOf(el, axis) - held.at;
+    if (moved) el[scroll] += moved;
   }, [scroller, rows, axis, paused]);
   return useCallback(() => {
     const el = scroller.current;
