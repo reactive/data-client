@@ -2,7 +2,7 @@ import React, { type ReactNode } from 'react';
 
 import styles from './styles.module.css';
 
-export type ErrorKind = 'compile' | 'runtime';
+export type ErrorKind = 'compile' | 'runtime' | 'manager';
 
 /** Each kind's label and icon paths (24×24, stroked) */
 const KINDS: Record<ErrorKind, { label: string; icon: string[] }> = {
@@ -19,9 +19,17 @@ const KINDS: Record<ErrorKind, { label: string; icon: string[] }> = {
       'm9 9 6 6M15 9l-6 6',
     ],
   },
+  // gear
+  manager: {
+    label: 'Manager error',
+    icon: [
+      'M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z',
+      'M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1',
+    ],
+  },
 };
 
-/** Card framing a preview failure: what stage failed (compile or runtime) and the message */
+/** Card framing a preview failure: what stage failed (compile, runtime, a manager) and the message */
 export default function ErrorPanel({
   kind,
   children,

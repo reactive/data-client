@@ -317,6 +317,114 @@ export default class StreamManager implements Manager {
 [Controller.set()](./Controller.md#set) allows directly updating [Querable Schemas](https://dataclient.io/rest/api/schema#queryable)
 directly with `event.data`.
 
+Here a `StreamManager` runs in the preview. A simulated server pushes a price every second or so;
+replace `PriceSource` with `new EventSource(url)` or `new WebSocket(url)` to use a real one.
+Edit the manager and the preview restarts with your version, keeping the prices it already has.
+Open the Store to watch each pushed `set` arrive.
+
+```ts title="Ticker"
+import { Entity } from '@data-client/rest';
+
+export class Ticker extends Entity {
+  product_id = '';
+  price = 0;
+
+  pk() {
+    return this.product_id;
+  }
+  static key = 'Ticker';
+}
+```
+
+```ts title="PriceSource"
+/** Stands in for an EventSource: pushes JSON messages to `onmessage` */
+export class PriceSource {
+  onmessage: ((event: { data: string }) => void) | null = null;
+  protected prices: Record<string, number> = {
+    'BTC-USD': 64000,
+    'ETH-USD': 3100,
+  };
+  protected timer = setInterval(() => {
+    for (const product_id in this.prices) {
+      this.prices[product_id] *= 1 + (Math.random() - 0.5) / 100;
+      this.onmessage?.({
+        data: JSON.stringify({
+          product_id,
+          price: Math.round(this.prices[product_id] * 100) / 100,
+        }),
+      });
+    }
+  }, 1200);
+
+  close() {
+    clearInterval(this.timer);
+  }
+}
+```
+
+```ts title="StreamManager"
+import type { Controller, Manager, Middleware } from '@data-client/react';
+import { Ticker } from './Ticker';
+import { PriceSource } from './PriceSource';
+
+export default class StreamManager implements Manager {
+  declare protected controller: Controller;
+  declare protected source: PriceSource;
+
+  middleware: Middleware = controller => {
+    this.controller = controller;
+    return next => action => next(action);
+  };
+
+  init() {
+    this.source = new PriceSource();
+    this.source.onmessage = event => {
+      const ticker = JSON.parse(event.data);
+      this.controller.set(
+        Ticker,
+        { product_id: ticker.product_id },
+        ticker,
+      );
+    };
+  }
+
+  cleanup() {
+    this.source.close();
+  }
+}
+```
+
+```ts title="getManagers"
+import { getDefaultManagers } from '@data-client/react';
+import StreamManager from './StreamManager';
+
+// passed to <DataProvider managers={getManagers()}>
+export default function getManagers() {
+  return [new StreamManager(), ...getDefaultManagers()];
+}
+```
+
+```tsx title="Prices"
+import { useQuery } from '@data-client/react';
+import { Ticker } from './Ticker';
+
+function Price({ product_id }: { product_id: string }) {
+  const ticker = useQuery(Ticker, { product_id });
+  return (
+    <div>
+      {product_id}:{' '}
+      {ticker ? `$${ticker.price.toLocaleString()}` : 'waiting…'}
+    </div>
+  );
+}
+render(
+  <>
+    <Price product_id="BTC-USD" />
+    <Price product_id="ETH-USD" />
+  </>,
+);
+```
+
 #### Batching high-frequency updates {#batching}
 
 Streams like exchange tickers can send hundreds of messages per second, and connections often start with a large snapshot.
