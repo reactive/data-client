@@ -202,8 +202,10 @@ function drawer({
       : `${entries.length} actions, ${labelOf(entries[0])} to ${labelOf(entries.at(-1)!)}`;
     const style = pos(x);
     const stored = entries.filter(e => e.store);
-    const last = stored.at(-1);
-    const dim = stored.length > 0 && stored.every(e => !hit(e));
+    // a mark of several lands where the steps would: their last that
+    // touched the subject, dimmed only when none did
+    const last = stored.findLast(hit) ?? stored.at(-1);
+    const dim = !!last && !hit(last);
     const type = typeClass(last ?? entries[0]);
     // only an action the store saw has a state to show
     return last ?

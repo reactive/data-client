@@ -376,7 +376,6 @@ export default function StorePanel({
                       className={styles.paneToggle}
                       title="The actions that touched what is shown"
                       aria-pressed={pane}
-                      data-pane-toggle
                       onClick={() => setPane(!pane)}
                     >
                       <ListIcon />
@@ -401,6 +400,7 @@ export default function StorePanel({
                           : crumbLabel(subject, model)
                         }
                         narrow={narrow}
+                        toggle={paneToggle}
                         onClose={closePane}
                       />
                     </NavContext.Provider>

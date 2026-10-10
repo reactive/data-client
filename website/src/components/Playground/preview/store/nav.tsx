@@ -149,34 +149,34 @@ export function useLevelStack(root: View): LevelStack {
       : prev,
     );
   }, []);
+  // a level of its own (a new key), so it slides in and takes focus like
+  // any level opened on purpose
   const showAction = useCallback((seq: number) => {
     setLevels(prev => {
       const top = prev.stack[prev.stack.length - 1];
+      const under =
+        top.view.kind === 'action' ? prev.stack.slice(0, -1) : prev.stack;
       const view: ActionView = { kind: 'action', seq };
-      if (top.view.kind === 'action')
-        return {
-          ...prev,
-          stack: [...prev.stack.slice(0, -1), { key: top.key, view }],
-        };
-      return {
-        ...prev,
-        stack: [...prev.stack, { key: nextKey.current++, view }],
-      };
+      return { ...prev, stack: [...under, { key: nextKey.current++, view }] };
     });
   }, []);
   const followMoment = useCallback((seq: number | null) => {
     setLevels(prev => {
+      // live, no action is left to show: the stack ends under the first
+      if (seq === null) {
+        const first = prev.stack.findIndex(e => e.view.kind === 'action');
+        return first < 0 ? prev : (
+            { ...prev, stack: prev.stack.slice(0, first) }
+          );
+      }
       const top = prev.stack[prev.stack.length - 1];
       if (top.view.kind !== 'action' || top.view.seq === seq) return prev;
       return {
         ...prev,
-        stack:
-          seq === null ?
-            prev.stack.slice(0, -1)
-          : [
-              ...prev.stack.slice(0, -1),
-              { key: top.key, view: { kind: 'action', seq } },
-            ],
+        stack: [
+          ...prev.stack.slice(0, -1),
+          { key: top.key, view: { kind: 'action', seq } },
+        ],
       };
     });
   }, []);

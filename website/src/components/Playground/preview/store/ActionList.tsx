@@ -50,12 +50,15 @@ export function ActionsPane({
   filter,
   label,
   narrow,
+  toggle,
   onClose,
 }: {
   subject: View;
   filter: SubjectFilter;
   label: React.ReactNode;
   narrow: boolean;
+  /** Its toggle, which closes it itself: a press there is not outside */
+  toggle: React.RefObject<HTMLElement | null>;
   onClose: () => void;
 }) {
   const { groups } = useActions();
@@ -65,20 +68,17 @@ export function ActionsPane({
     [groups, hit],
   );
   const ref = useRef<HTMLElement>(null);
-  // a press outside closes it; not one on its toggle, which closes it itself
+  // a press outside closes it (another panel's toggle included)
   useEffect(() => {
     const onPress = (e: PointerEvent) => {
-      const target = e.target as Element | null;
-      if (
-        ref.current?.contains(target) ||
-        target?.closest('[data-pane-toggle]')
-      )
+      const target = e.target as Node | null;
+      if (ref.current?.contains(target) || toggle.current?.contains(target))
         return;
       onClose();
     };
     document.addEventListener('pointerdown', onPress);
     return () => document.removeEventListener('pointerdown', onPress);
-  }, [onClose]);
+  }, [onClose, toggle]);
   return (
     <section
       ref={ref}
@@ -173,10 +173,7 @@ function ActionList({
     if (!next) return;
     e.preventDefault();
     next.focus();
-    if (
-      next.hasAttribute('aria-expanded') &&
-      next.dataset.group === head.dataset.group
-    )
+    if (next.hasAttribute('aria-expanded') && next.dataset.group === currentId)
       return;
     set(Number(next.dataset.seq));
   };

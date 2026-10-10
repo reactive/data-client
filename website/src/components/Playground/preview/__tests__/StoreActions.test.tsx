@@ -207,6 +207,33 @@ describe('Store Actions pane detail', () => {
     expect(marked()).toEqual([]);
   });
 
+  it('focuses an action picked over another, which then slides in', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() => ctrl().set(Post, { id: '3' }, { id: '3', title: 'Third' }));
+    openPane();
+    fireEvent.click(rows()[0]);
+    expect(document.activeElement).toBe(top());
+    // from the pane, over that action: the new one takes its place, focused
+    openPane();
+    rows()[1].focus();
+    fireEvent.click(rows()[1]);
+    expect(crumbs()).toEqual(['State', 'set Post']);
+    expect(document.activeElement).toBe(top());
+  });
+
+  it('going live leaves no action in the stack, under the top or on it', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    openPane();
+    fireEvent.click(rows()[0]);
+    // a record the action added, opened from it
+    fireEvent.click(within(top()).getByRole('button', { name: '+ Post 1' }));
+    expect(crumbs()).toEqual(['State', 'setResponse GET /posts', 'Post 1']);
+    fireEvent.click(screen.getByRole('button', { name: 'Live' }));
+    expect(crumbs()).toEqual([]);
+  });
+
   it('scopes the changes to the subject it is over', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
@@ -401,6 +428,16 @@ describe('Store Actions pane detail', () => {
     expect(
       screen.getByRole('navigation', { name: 'Store location' }).textContent,
     ).toContain('setResponse');
+  });
+
+  it("closes as another panel's toggle is pressed", async () => {
+    const other = new SchemaRegistry({ trimEvery: 1 });
+    other.log.connect(0);
+    mount(<StorePanel registry={other} history={0} />);
+    const [first, second] = screen.getAllByRole('button', { name: 'Actions' });
+    fireEvent.click(first);
+    fireEvent.pointerDown(second);
+    expect(screen.queryByRole('region', { name: 'Actions' })).toBeNull();
   });
 
   it('shows a removed record as the action found it', async () => {
