@@ -16,7 +16,7 @@ export default function PkgInstall({ pkgs, dev = false, global }: Props) {
   if (relevantTabGroupChoice === 'yarn') {
     return (
       <CodeBlock className="language-bash">
-        yarn add{global ? ' global' : ''} {dev ? '--dev ' : ''}
+        yarn{global ? ' global' : ''} add {dev ? '--dev ' : ''}
         {pkgs}
       </CodeBlock>
     );
@@ -30,8 +30,13 @@ export default function PkgInstall({ pkgs, dev = false, global }: Props) {
   }
   return (
     <CodeBlock className="language-bash">
-      npm install{global ? ' -g' : ' --save'}
-      {dev ? 'Dev ' : ''} {pkgs}
+      npm install
+      {global ?
+        ' -g'
+      : dev ?
+        ' --save-dev'
+      : ' --save'}{' '}
+      {pkgs}
     </CodeBlock>
   );
 }

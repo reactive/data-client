@@ -29,7 +29,7 @@ export default function PkgTabs({ pkgs, dev = false }: Props) {
       </TabItem>
       <TabItem value="npm">
         <CodeBlock className="language-bash">
-          npm install --save{dev ? 'Dev ' : ''} {pkgs}
+          npm install --save{dev ? '-dev' : ''} {pkgs}
         </CodeBlock>
       </TabItem>
       <TabItem value="pnpm">
