@@ -148,28 +148,16 @@ export interface Moment {
   readonly before?: true;
 }
 
-/** How the timeline is drawn; remembered per viewer */
-export interface TimelineLens {
-  /** Detailed, the strip keeps `timeScale`'s spacing and scrolls sideways;
-   * fit, the whole history spans it */
-  readonly spacing: 'detailed' | 'fit';
-}
-
-/** Where the panel is, apart from what it shows (the level stacks): the
- * moment and the timeline lens. State shows the store right after
- * action `seq`, the Actions list marks it and a History opens the version
- * current then. `null` is live. Every tab can move it */
-export interface NavState {
+/** The moment the panel is at: State shows the store right after action
+ * `seq`, the Actions list marks it and a History opens the version current
+ * then. `null` is live. Every tab can move it */
+export interface MomentCursor {
   readonly seq: number | null;
   readonly set: (seq: number | null) => void;
-  readonly lens: TimelineLens;
-  readonly setLens: (lens: Partial<TimelineLens>) => void;
 }
-export const MomentContext = createContext<NavState>({
+export const MomentContext = createContext<MomentCursor>({
   seq: null,
   set: () => {},
-  lens: { spacing: 'detailed' },
-  setLens: () => {},
 });
 export const useMoment = () => useContext(MomentContext);
 

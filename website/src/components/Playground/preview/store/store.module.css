@@ -105,7 +105,9 @@
   margin-left: auto;
 }
 .viewButtons button,
-.tlFit {
+.tlFit,
+.expand,
+.sheetBar button {
   display: grid;
   place-items: center;
   width: 1.75rem;
@@ -123,7 +125,9 @@
     scale var(--motion-snappy);
 }
 .viewButtons button:active,
-.tlFit:active {
+.tlFit:active,
+.expand:active,
+.sheetBar button:active {
   scale: 0.9;
 }
 .viewButtons button[aria-pressed='true'],
@@ -1131,30 +1135,24 @@ div.joined {
 .scrubTrack .tlBreak,
 .scrubTrack .tlPlayhead {
   top: 0;
-  left: calc(var(--tl-f) * 100%);
 }
+/* live, a span that only says so */
 .scrubRow > .liveButton {
-  border-color: rgba(127, 209, 160, 0.45);
-  color: var(--store-fresh);
-  font-family: var(--ifm-font-family-base);
-  font-weight: 500;
-}
-/* live, it only says so */
-.tlLive .liveButton {
   flex: none;
   padding: 0 0.4rem;
+  border-color: rgba(127, 209, 160, 0.45);
   color: var(--store-fresh);
   font: 500 11px / 1.6 var(--ifm-font-family-base);
 }
-.scrubRow > .expand {
-  display: grid;
-  place-items: center;
+/* the icon buttons' look (see .tlFit), smaller */
+.scrubRow > .expand,
+.sheetBar button {
   width: 1.5rem;
   height: 1.5rem;
   padding: 0;
   border: 0;
+  border-radius: 5px;
   color: inherit;
-  opacity: 0.7;
 }
 .expand:hover,
 .expand[aria-expanded='true'] {
@@ -1219,18 +1217,11 @@ div.joined {
   font: 500 11px / 1 var(--ifm-font-family-base);
 }
 .sheetBar button {
-  width: 1.5rem;
-  height: 1.5rem;
-  padding: 0;
-  border: 0;
-  border-radius: 5px;
-  background: none;
-  color: inherit;
   font: inherit;
-  cursor: pointer;
 }
 .sheetBar button:hover {
   background: var(--pg-tab-hover-bg);
+  opacity: 1;
 }
 .sheet .timeline {
   max-height: 14rem;

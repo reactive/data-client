@@ -84,6 +84,7 @@ function mountAt(width: number) {
       this.cb([{ contentRect: { width } }]);
       observed.push(this.cb);
     }
+
     disconnect() {}
   }
   observed = [];

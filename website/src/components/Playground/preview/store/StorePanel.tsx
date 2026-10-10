@@ -1,5 +1,5 @@
-import clsx from 'clsx';
 import { StateContext, type State } from '@data-client/react';
+import clsx from 'clsx';
 import React, {
   useCallback,
   useContext,
@@ -41,7 +41,7 @@ import {
   type LevelStack,
   type Moment,
   type Nav,
-  type NavState,
+  type MomentCursor,
   type StackEntry,
   type Then,
   type View,
@@ -84,7 +84,6 @@ export default function StorePanel({
   const [timelineShown, setTimelineShown] = useState(false);
   if (timeline && !timelineShown) setTimelineShown(true);
   const hideTimeline = useCallback(() => setTimelineShown(false), []);
-  const [spacing, setSpacing] = useTabStorage('playgroundTimelineSpacing');
   // the Actions tab mounts on first visit, then stays (scroll, open rows)
   const [actionsShown, setActionsShown] = useState(false);
   if (tab === 'actions' && !actionsShown) setActionsShown(true);
@@ -163,14 +162,12 @@ export default function StorePanel({
     () => ({ log, since: history.since, dropped: history.dropped }),
     [log, history.since, history.dropped],
   );
-  const moment = useMemo<NavState>(
+  const moment = useMemo<MomentCursor>(
     () => ({
       seq: snapshotSeq,
       set: setSnapshot,
-      lens: { spacing: spacing === 'fit' ? 'fit' : 'detailed' },
-      setLens: lens => lens.spacing && setSpacing(lens.spacing),
     }),
-    [snapshotSeq, spacing, setSpacing],
+    [snapshotSeq],
   );
   // an action's level moves the panel to it, if the store saw it: State
   // shows the store as it left it, and a History the version current then
@@ -258,7 +255,7 @@ export default function StorePanel({
   // down; a mark picked there closes it
   const sheet = width < NARROW_WIDTH;
   const collapse = useCallback(() => setTimeline(false), []);
-  const lanes = (
+  const lanes = timelineShown && (
     <Unfold open={timeline} onShut={hideTimeline} onBlur={focusExpand}>
       {sheet && (
         <div className={styles.sheetBar}>
@@ -310,7 +307,7 @@ export default function StorePanel({
               <div className={styles.body}>
                 {/* one place in the tree either way, so crossing the narrow
                     width restyles the lanes rather than remounting them */}
-                {timelineShown && (
+                {lanes && (
                   <div className={clsx(styles.lanes, sheet && styles.sheet)}>
                     {lanes}
                   </div>

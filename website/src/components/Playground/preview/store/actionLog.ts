@@ -102,6 +102,20 @@ export function nearestChange(
   return entries.find(e => e.seq > seq && log.changed(e));
 }
 
+/** Where a step before (`-1`) or after (`1`) moment `seq` lands: the nearest
+ * change, or past the newest, live (`null`). `undefined` has nowhere to go:
+ * before the oldest change, or after live */
+export function stepMoment(
+  log: ActionLog,
+  entries: readonly LogEntry[],
+  seq: number | null,
+  by: -1 | 1,
+): number | null | undefined {
+  const next = nearestChange(log, entries, seq, by);
+  if (next) return next.seq;
+  if (by > 0 && seq !== null) return null;
+}
+
 /** Whether a change altered the record, rather than storing it again
  * unchanged (a refresh) */
 export const isRecordChange = (change: Change) => change.kind !== 'refreshed';

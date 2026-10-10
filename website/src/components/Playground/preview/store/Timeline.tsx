@@ -16,7 +16,7 @@ import {
   type RequestGroup,
 } from './actionGroups';
 import type ActionLog from './actionLog';
-import { isRecordChange, nearestChange, type LogEntry } from './actionLog';
+import { isRecordChange, stepMoment, type LogEntry } from './actionLog';
 import {
   droppedIn,
   droppedText,
@@ -24,6 +24,7 @@ import {
   KEEPS_NEWEST,
   KeyLabel,
   seconds,
+  Time,
   typeClass,
   useActions,
   useFollow,
@@ -34,6 +35,7 @@ import { endpointId, splitKey } from './model';
 import { useMoment } from './nav';
 import styles from './store.module.css';
 import { HistoryButton } from './VersionHistory';
+import { useTabStorage } from '../../../../utils/tabStorage';
 
 /** Pixels per millisecond between two actions */
 const PX_PER_MS = 0.08;
@@ -203,7 +205,7 @@ function drawer({
       ...group.requests.flatMap(request),
     ];
   };
-  return { pos, mark, drawn };
+  return { pos, drawn };
 }
 
 /** The whole history in one lane, fit to the panel's width, with the moment
@@ -231,8 +233,8 @@ export const Scrubber = memo(function Scrubber({
   const { seq: selected, set: onSelect } = useMoment();
   const { entries, since } = history;
   const { joined, shown, scale } = useScale();
-  const earlier = nearestChange(log, entries, selected, -1);
-  const later = nearestChange(log, entries, selected, 1);
+  const earlier = stepMoment(log, entries, selected, -1);
+  const later = stepMoment(log, entries, selected, 1);
   const { pos, drawn } = drawer({
     log,
     scale,
@@ -265,10 +267,10 @@ export const Scrubber = memo(function Scrubber({
   const onKeyDown = (e: React.KeyboardEvent) => {
     switch (e.key) {
       case 'ArrowLeft':
-        if (earlier) step(earlier.seq);
+        if (earlier !== undefined) step(earlier);
         break;
       case 'ArrowRight':
-        if (entry) step(later?.seq ?? null);
+        if (later !== undefined) step(later);
         break;
       case 'End':
         if (entry) step(null);
@@ -292,16 +294,16 @@ export const Scrubber = memo(function Scrubber({
         <button
           type="button"
           aria-label="Previous change"
-          disabled={!earlier}
-          onClick={() => earlier && step(earlier.seq)}
+          disabled={earlier === undefined}
+          onClick={() => earlier !== undefined && step(earlier)}
         >
           ‹
         </button>
         <button
           type="button"
           aria-label="Next change"
-          disabled={!entry}
-          onClick={() => step(later?.seq ?? null)}
+          disabled={later === undefined}
+          onClick={() => later !== undefined && step(later)}
         >
           ›
         </button>
@@ -353,7 +355,10 @@ export const Scrubber = memo(function Scrubber({
           >
             <ActionName entry={entry} />
           </button>
-          <span className={styles.dim}> · {seconds(entry.at - since)}s</span>
+          <span className={styles.dim}>
+            {' · '}
+            <Time at={entry.at} />
+          </span>
         </div>
       )}
     </div>
@@ -374,12 +379,8 @@ export default memo(function Timeline({
 }) {
   const { log, history, groups } = useActions();
   const { dropped } = useLog();
-  const {
-    seq: selected,
-    set,
-    lens: { spacing },
-    setLens,
-  } = useMoment();
+  const { seq: selected, set } = useMoment();
+  const [spacing, setSpacing] = useTabStorage('playgroundTimelineSpacing');
   const { entries, since } = history;
   const lanes = useMemo(() => lanesOf(groups), [groups]);
   const { joined, shown, scale } = useScale();
@@ -435,7 +436,7 @@ export default memo(function Timeline({
       const back = el.scrollWidth - el.scrollLeft - el.clientWidth;
       scrolledTo.current = back >= FOLLOW_SLACK ? el.scrollLeft : null;
     }
-    setLens({ spacing: fit ? 'detailed' : 'fit' });
+    setSpacing(fit ? 'detailed' : 'fit');
   };
   useLayoutEffect(() => {
     if (fit) return;
@@ -456,9 +457,10 @@ export default memo(function Timeline({
     else set(null);
   };
   const step = (by: -1 | 1) => {
-    const next = nearestChange(log, entries, selected, by);
-    if (next) set(next.seq);
-    else if (by > 0) toLive();
+    const to = stepMoment(log, entries, selected, by);
+    if (to !== undefined) set(to);
+    // live already, it brings the newest back into view
+    else if (by > 0) toNewest();
   };
   const onKeyDown = (e: React.KeyboardEvent) => {
     switch (e.key) {

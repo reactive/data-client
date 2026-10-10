@@ -160,9 +160,9 @@ DesignSystem/       components injected into preview scope
   store (see Reset) starts a new history, a store the retry restores continues
   its own, and the panel shows only the current one. An action's chips open the
   store as that action left it (see `Moment` in `preview/store/nav.tsx`).
-- The Store inspector has one moment (`NavState` in `preview/store/nav.tsx`,
-  owned by `StorePanel`, which also carries the timeline lens): the action State is shown after, or live. Every
-  tab shows it and can move it. State is the store as that action left it; the
+- The Store inspector has one moment (`MomentContext` in `preview/store/nav.tsx`,
+  owned by `StorePanel`): the action State is shown after, or live. Every tab
+  shows it and can move it. State is the store as that action left it; the
   Actions list marks the action (`aria-current`), opens its row and scrolls to
   it; a record's History opens the version current then (or marks the "not
   kept" note when the moment falls among dropped actions). Opening an action
@@ -180,7 +180,7 @@ DesignSystem/       components injected into preview scope
   scroll sideways; only the tracks scroll, the lane labels kept beside them in
   a column of their own: while live they stay on the newest, and picking an
   action or scrolling back lets go until "Live" or End. The "Fit timeline"
-  toggle in the axis's corner (`aria-pressed`, the lens's `spacing`, kept per
+  toggle in the axis's corner (`aria-pressed`, kept per
   tab) squeezes the whole history to the strip's width instead (marks are
   placed as fractions of the track, `--tl-f`, so nothing is measured; axis
   labels thin out as it squeezes). Narrow (under `NARROW_WIDTH`), the lanes
