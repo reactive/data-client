@@ -1,9 +1,14 @@
 import { actionTypes, type ActionTypes, type State } from '@data-client/react';
 import clsx from 'clsx';
-import React, { useMemo } from 'react';
+import React from 'react';
 
-import { actionKey, groupEntriesOf, type Change } from './actionGroups';
-import { findEntry, type LogEntry } from './actionLog';
+import {
+  actionKey,
+  groupEntriesOf,
+  groupOf,
+  type Change,
+} from './actionGroups';
+import { findEntry, isRecordChange, type LogEntry } from './actionLog';
 import {
   ChangeChip,
   KeyLabel,
@@ -27,18 +32,15 @@ export function ActionDetail({
 }: {
   seq: number;
   header: Header;
-  /** After switching State to just after this action; returns what reopens
-   * this action from there */
-  onShowState?: () => () => void;
+  /** Uncovers State once it switches to just after this action */
+  onShowState?: () => void;
   /** Shows another action of the same row in its place */
   onStep: (seq: number) => void;
 }) {
   const { log, history, groups, showState } = useActions();
   const entry = findEntry(history.entries, seq);
-  const row = useMemo(() => {
-    const group = groups.find(g => groupEntriesOf(g).some(e => e.seq === seq));
-    return group ? groupEntriesOf(group) : [];
-  }, [groups, seq]);
+  const group = groupOf(groups, seq);
+  const row = group ? groupEntriesOf(group) : [];
   const step = row.length > 1 && (
     <GroupStep row={row} seq={seq} onStep={onStep} />
   );
@@ -52,7 +54,7 @@ export function ActionDetail({
       </>
     );
   const changes = log.changes(entry);
-  const changed = changes.filter(c => c.kind !== 'refreshed');
+  const changed = changes.filter(isRecordChange);
   const refreshed = changes.length - changed.length;
   return (
     <>
@@ -75,7 +77,10 @@ export function ActionDetail({
                 <button
                   type="button"
                   className={styles.showState}
-                  onClick={() => showState(seq, onShowState?.())}
+                  onClick={() => {
+                    showState(seq);
+                    onShowState?.();
+                  }}
                 >
                   View State after this
                 </button>

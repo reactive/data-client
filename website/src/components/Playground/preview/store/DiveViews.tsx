@@ -352,10 +352,11 @@ export function RecordLevel({
           </div>
         </>
       }
+      {/* the header holds the History button */}
       <div className={styles.levelFoot}>
         {isEndpointRow(row) ?
-          <EndpointMeta row={row} />
-        : <RowMeta row={row} model={model} />}
+          <EndpointMeta row={row} history={false} />
+        : <RowMeta row={row} model={model} history={false} />}
       </div>
     </>
   );

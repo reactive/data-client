@@ -99,9 +99,12 @@ export function EndpointBody({ row }: { row: EndpointRow }) {
 export function EndpointMeta({
   row,
   collapsed,
+  history,
 }: {
   row: EndpointRow;
   collapsed?: boolean;
+  /** Whether to offer the row's history (a level header may already) */
+  history?: boolean;
 }) {
   const { record } = row;
   return (
@@ -111,7 +114,7 @@ export function EndpointMeta({
         <Field name="args" node={plain(record.args)} />
       : null}
       <MetaFields meta={row.meta} />
-      <ChangedBy id={row.id} />
+      <ChangedBy id={row.id} history={history} />
     </MetaBlock>
   );
 }
@@ -182,10 +185,13 @@ export function RowMeta({
   row,
   model,
   collapsed,
+  history,
 }: {
   row: EntityRow;
   model: StoreModel;
   collapsed?: boolean;
+  /** Whether to offer the row's history (a level header may already) */
+  history?: boolean;
 }) {
   const referrers = referrersOf(model, row.id);
   const summary = metaSummary(row.meta);
@@ -210,7 +216,7 @@ export function RowMeta({
           />
         : <span className={styles.dim}>nothing</span>}
       </div>
-      <ChangedBy id={row.id} />
+      <ChangedBy id={row.id} history={history} />
     </MetaBlock>
   );
 }

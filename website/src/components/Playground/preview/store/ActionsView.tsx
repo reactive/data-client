@@ -5,6 +5,7 @@ import React, {
   memo,
   useCallback,
   useContext,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -14,6 +15,7 @@ import React, {
 import {
   actionName,
   groupEntriesOf,
+  groupOf,
   pollFrequencyOf,
   joinedFetches,
   type ActionGroup,
@@ -22,11 +24,12 @@ import {
   type SubscriptionGroup,
 } from './actionGroups';
 import type ActionLog from './actionLog';
-import type { History, LogEntry } from './actionLog';
-import { onActivateKey } from './dom';
-import { splitKey } from './model';
+import { isRecordChange, type History, type LogEntry } from './actionLog';
+import { onActivateKey, scrollToRow } from './dom';
+import { actionId, splitKey } from './model';
 import {
   ActionSpanContext,
+  useMoment,
   useNav,
   type ActionSpan,
   type Moment,
@@ -41,9 +44,8 @@ export interface Actions {
   readonly history: History;
   /** `history.entries` as the Actions tab's rows */
   readonly groups: readonly ActionGroup[];
-  /** Opens the State tab as it was right after action `seq`; `back`
-   * returns to where it was opened from (by default the Actions tab) */
-  readonly showState: (seq: number, back?: () => void) => void;
+  /** Opens the State tab as it was right after action `seq` */
+  readonly showState: (seq: number) => void;
   /** The action State is shown after, while it shows the past */
   readonly until?: number;
   /** The store as an action left (or found) it, while the log has it */
@@ -81,17 +83,17 @@ export const LogContext = createContext<{
   /** Its `dropped` counts */
   readonly dropped?: ReadonlyMap<number, number>;
 } | null>(null);
-const useLog = () => useContext(LogContext)!;
+export const useLog = () => useContext(LogContext)!;
 
 /** Chips a row shows before `+N` */
 const CHIP_LIMIT = 6;
 /** Poll ticks a subscription row draws */
 const TICK_LIMIT = 12;
 /** Distance from the bottom (px) that still counts as following new rows */
-const FOLLOW_SLACK = 24;
+export const FOLLOW_SLACK = 24;
 
 /** Every action, folded into requests and subscriptions; follows new rows
- * while scrolled to the bottom */
+ * while scrolled to the bottom. The moment's action is marked, its row open */
 export function ActionsRoot({
   scroller,
 }: {
@@ -108,7 +110,23 @@ export function ActionsRoot({
       }),
     [],
   );
-  useFollow(scroller, groups);
+  const { seq } = useMoment();
+  const current = seq === null ? undefined : groupOf(groups, seq);
+  // once per move: the row opens, and may be closed again. A lone action's
+  // row is its own step: marking it is enough
+  const [opened, setOpened] = useState<number | null>(null);
+  if (seq !== opened) {
+    setOpened(seq);
+    if (current && groupEntriesOf(current).length > 1 && !open.has(current.id))
+      setOpen(new Set([...open, current.id]));
+  }
+  useReveal(scroller, seq);
+  // new rows would push the marked action off the screen; live again, the
+  // newest is back in view and followed
+  const toNewest = useFollow(scroller, groups, 'y', seq !== null);
+  useLayoutEffect(() => {
+    if (seq === null) toNewest();
+  }, [seq, toNewest]);
   if (!groups.length)
     return (
       <p className={styles.empty}>
@@ -123,6 +141,7 @@ export function ActionsRoot({
           key={group.id}
           group={group}
           open={open.has(group.id)}
+          current={group === current ? seq! : undefined}
           onToggle={toggle}
         />
       ))}
@@ -130,21 +149,64 @@ export function ActionsRoot({
   );
 }
 
-/** Keeps the newest row in view, unless the reader scrolled up */
-function useFollow(
+/** Brings the moment's action into view when the moment moves; if the list
+ * is hidden then, once it shows again. Focus stays where it is, so arrow
+ * keys keep stepping the Timeline that moved the moment */
+function useReveal(
   scroller: React.RefObject<HTMLElement | null>,
-  rows: unknown,
+  seq: number | null,
 ) {
-  const follow = useRef(true);
+  const pending = useRef<number | null>(null);
+  const reveal = useCallback(() => {
+    const el = scroller.current;
+    if (pending.current === null || !el?.clientHeight) return;
+    scrollToRow(el, actionId(pending.current), { focus: false });
+    pending.current = null;
+  }, [scroller]);
   useLayoutEffect(() => {
+    // live, there is nothing left to reveal
+    pending.current = seq;
+    reveal();
+  }, [seq, reveal]);
+  // the scroller is an ancestor's element, which React attaches after this
+  // component's layout effects: a passive effect sees it on first mount
+  useEffect(() => {
     const el = scroller.current;
     if (!el) return;
+    reveal();
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(reveal);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [scroller, reveal]);
+}
+
+const AXES = {
+  x: { size: 'scrollWidth', scroll: 'scrollLeft', client: 'clientWidth' },
+  y: { size: 'scrollHeight', scroll: 'scrollTop', client: 'clientHeight' },
+} as const;
+
+/** Keeps the newest row in view, unless the reader scrolled up (or, on
+ * the `x` axis, back) or it is `paused`. Returns what scrolls to the newest
+ * and follows again */
+export function useFollow(
+  scroller: React.RefObject<HTMLElement | null>,
+  rows: unknown,
+  axis: 'x' | 'y' = 'y',
+  paused = false,
+) {
+  const follow = useRef(true);
+  // passive: `scroller` may be an ancestor's element, attached only after
+  // this component's layout effects ran on mount (see `useReveal`)
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el) return;
+    const { size, scroll, client } = AXES[axis];
     // a hidden tab has no height; its scroll position says nothing
     let hidden = !el.clientHeight;
     const onScroll = () => {
-      if (hidden) return;
-      follow.current =
-        el.scrollHeight - el.scrollTop - el.clientHeight < FOLLOW_SLACK;
+      if (hidden || paused) return;
+      follow.current = el[size] - el[scroll] - el[client] < FOLLOW_SLACK;
     };
     el.addEventListener('scroll', onScroll, { passive: true });
     // rows added while hidden: catch up once the tab shows again
@@ -153,8 +215,7 @@ function useFollow(
         new ResizeObserver(() => {
           const wasHidden = hidden;
           hidden = !el.clientHeight;
-          if (wasHidden && !hidden && follow.current)
-            el.scrollTop = el.scrollHeight;
+          if (wasHidden && !hidden && follow.current) el[scroll] = el[size];
         })
       );
     observer?.observe(el);
@@ -162,21 +223,35 @@ function useFollow(
       el.removeEventListener('scroll', onScroll);
       observer?.disconnect();
     };
-  }, [scroller]);
+  }, [scroller, axis, paused]);
   useLayoutEffect(() => {
     const el = scroller.current;
-    if (el?.clientHeight && follow.current) el.scrollTop = el.scrollHeight;
-  }, [scroller, rows]);
+    const { size, scroll } = AXES[axis];
+    // off, not just skipped, so showing a hidden tab doesn't catch up either;
+    // scrolls are ignored while paused, so it stays off
+    if (paused) follow.current = false;
+    else if (el?.clientHeight && follow.current) el[scroll] = el[size];
+  }, [scroller, rows, axis, paused]);
+  return useCallback(() => {
+    const el = scroller.current;
+    if (!el) return;
+    const { size, scroll } = AXES[axis];
+    follow.current = true;
+    el[scroll] = el[size];
+  }, [scroller, axis]);
 }
 
 /** Renders only when its group changes (see `keepUnchanged`) */
 const GroupRow = memo(function GroupRow({
   group,
   open,
+  current,
   onToggle: toggle,
 }: {
   group: ActionGroup;
   open: boolean;
+  /** The moment's action, when it is one of this row's */
+  current?: number;
   onToggle: (id: string) => void;
 }) {
   const { log } = useLog();
@@ -190,6 +265,9 @@ const GroupRow = memo(function GroupRow({
         role="button"
         tabIndex={0}
         aria-expanded={open}
+        aria-current={current !== undefined || undefined}
+        // a lone action is its own step, so the moment scrolls to it here
+        data-id={all.length === 1 ? actionId(first.seq) : undefined}
         className={clsx(styles.row, styles.actRow)}
         onClick={onToggle}
         onKeyDown={onActivateKey(onToggle)}
@@ -215,7 +293,7 @@ const GroupRow = memo(function GroupRow({
           </ActionSpanContext.Provider>
         </span>
       </div>
-      {open && <Steps group={group} all={all} />}
+      {open && <Steps group={group} all={all} current={current} />}
     </div>
   );
 });
@@ -225,9 +303,11 @@ const GroupRow = memo(function GroupRow({
 function Steps({
   group,
   all,
+  current,
 }: {
   group: ActionGroup;
   all: readonly LogEntry[];
+  current?: number;
 }) {
   const { dropped } = useLog();
   const joined = joinedFetches(group);
@@ -247,11 +327,16 @@ function Steps({
                 className={clsx(styles.row, styles.stepRow, styles.joined)}
               >
                 <span className={styles.dim}>
-                  {droppedText(group, n)}: the log keeps the newest
+                  {droppedText(group, n)}: {KEEPS_NEWEST}
                 </span>
               </div>
             ),
-            <StepRow key={entry.seq} entry={entry} own={group.key} />,
+            <StepRow
+              key={entry.seq}
+              entry={entry}
+              own={group.key}
+              current={entry.seq === current}
+            />,
           ];
         }
         if (counted.has(request)) return null;
@@ -274,10 +359,19 @@ function Steps({
 }
 
 /** One action of an open row */
-function StepRow({ entry, own }: { entry: LogEntry; own: string }) {
+function StepRow({
+  entry,
+  own,
+  current,
+}: {
+  entry: LogEntry;
+  own: string;
+  /** Whether it is the moment's action */
+  current: boolean;
+}) {
   const { log } = useLog();
   return (
-    <ActionStep entry={entry}>
+    <ActionStep entry={entry} current={current}>
       <TypeName entry={entry} />
       <span className={styles.actSum}>
         <ActionSpanContext.Provider value={spanOf([entry])}>
@@ -291,9 +385,12 @@ function StepRow({ entry, own }: { entry: LogEntry; own: string }) {
 /** An action's line, after its time; opens the action's own level */
 export function ActionStep({
   entry,
+  current,
   children,
 }: {
   entry: LogEntry;
+  /** Whether it is the moment's action */
+  current?: boolean;
   children: React.ReactNode;
 }) {
   const nav = useNav()!;
@@ -302,6 +399,8 @@ export function ActionStep({
     <div
       role="button"
       tabIndex={0}
+      aria-current={current || undefined}
+      data-id={actionId(entry.seq)}
       className={clsx(styles.row, styles.stepRow)}
       onClick={open}
       onKeyDown={onActivateKey(open)}
@@ -317,8 +416,7 @@ export function ActionStep({
 export function TypeName({ entry }: { entry: LogEntry }) {
   const { log } = useLog();
   const { action } = entry;
-  const optimistic =
-    action.type === actionTypes.FETCH && log.changes(entry).length > 0;
+  const optimistic = action.type === actionTypes.FETCH && log.changed(entry);
   return (
     <span className={clsx(styles.actType, typeClass(entry))}>
       {actionName(action)}
@@ -327,7 +425,7 @@ export function TypeName({ entry }: { entry: LogEntry }) {
   );
 }
 
-function typeClass(entry: LogEntry) {
+export function typeClass(entry: LogEntry) {
   const { action } = entry;
   switch (action.type) {
     case actionTypes.FETCH:
@@ -360,16 +458,16 @@ export function KeyLabel({ value }: { value: string }) {
 
 export function Time({ at }: { at: number }) {
   const { since } = useLog();
-  const s = (at - since) / 1000;
+  return <span className={styles.actTime}>{seconds(at - since)}s</span>;
+}
+
+/** Elapsed `ms` in seconds, to as many places as fit: `1.23`, `12.3`, `123` */
+export function seconds(ms: number) {
+  const s = ms / 1000;
   return (
-    <span className={styles.actTime}>
-      {s < 10 ?
-        s.toFixed(2)
-      : s < 100 ?
-        s.toFixed(1)
-      : Math.round(s)}
-      s
-    </span>
+    s < 10 ? s.toFixed(2)
+    : s < 100 ? s.toFixed(1)
+    : String(Math.round(s))
   );
 }
 
@@ -451,13 +549,22 @@ function Dropped({
   group: ActionGroup;
   all: readonly LogEntry[];
 }) {
-  const { dropped } = useLog();
-  const n = all.reduce((sum, e) => sum + (dropped?.get(e.seq) ?? 0), 0);
+  const n = droppedIn(all, useLog().dropped);
   return n ? <span className={styles.dim}>{droppedText(group, n)}</span> : null;
 }
 
+/** How many earlier updates of `entries` the log no longer has */
+export function droppedIn(
+  entries: readonly LogEntry[],
+  dropped: ReadonlyMap<number, number> | undefined,
+) {
+  return entries.reduce((sum, e) => sum + (dropped?.get(e.seq) ?? 0), 0);
+}
+/** Why `droppedText` counts are gone */
+export const KEEPS_NEWEST = 'the log keeps the newest';
+
 /** `40 earlier polls not kept` */
-function droppedText(group: ActionGroup, n: number) {
+export function droppedText(group: ActionGroup, n: number) {
   const noun =
     group.kind === 'subscription' ? 'poll'
     : group.entries[0].action.type === actionTypes.SET ? 'set'
@@ -486,16 +593,15 @@ function Lifecycle({ group }: { group: ActionGroup }) {
             key={r.id}
             className={clsx(
               styles.tick,
-              r.entries.some(e =>
-                log.changes(e).some(c => c.kind !== 'refreshed'),
-              ) && styles.tickChanged,
+              r.entries.some(e => log.changes(e).some(isRecordChange)) &&
+                styles.tickChanged,
             )}
           />
         ))}
       </span>
     );
   }
-  const optimistic = log.changes(group.entries[0]).length > 0;
+  const optimistic = log.changed(group.entries[0]);
   const { response } = group;
   return (
     <span className={styles.life} aria-hidden="true">
@@ -548,7 +654,7 @@ export function ChangeChips({
 }) {
   const shown = changes.filter(
     c =>
-      c.kind !== 'refreshed' &&
+      isRecordChange(c) &&
       !(
         'endpoint' in c &&
         c.endpoint === own &&
@@ -558,7 +664,7 @@ export function ChangeChips({
       ),
   );
   if (!shown.length)
-    return changes.length && changes.every(c => c.kind === 'refreshed') ?
+    return changes.length && !changes.some(isRecordChange) ?
         <span className={styles.dim}>stored again, unchanged</span>
       : null;
   // a table's new rows share one chip, where its first one would be

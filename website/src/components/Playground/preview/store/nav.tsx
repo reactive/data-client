@@ -1,5 +1,11 @@
 import type { State } from '@data-client/react';
-import { createContext, useContext } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useRef,
+  useState,
+} from 'react';
 
 import {
   entityId,
@@ -72,6 +78,68 @@ export type View =
   | { readonly kind: 'history'; readonly id: string; readonly seq?: number }
   | { readonly kind: 'action'; readonly seq: number };
 
+/** A level of a navigation stack */
+export interface StackEntry {
+  readonly key: number;
+  readonly view: View;
+  /** Shows the store as an action left it, instead of as it is */
+  readonly at?: Moment;
+}
+
+export interface LevelStack {
+  readonly stack: readonly StackEntry[];
+  /** The record the top level was opened from, once it is back on top */
+  readonly returnTo: string | null;
+  /** Opens `view` over the top level, at the store `at` shows */
+  readonly push: (view: View, at?: Moment) => void;
+  /** Shows `view` in level `depth`'s place, keeping its store */
+  readonly replace: (depth: number, view: View) => void;
+  /** Closes level `depth` and every level over it */
+  readonly back: (depth: number) => void;
+}
+
+/** A stack of views over `root`. `onShow` sees each view as it is pushed or
+ * put in another's place */
+export function useLevelStack(
+  root: View,
+  onShow?: (view: View) => void,
+): LevelStack {
+  // the record a level was opened from flashes once that level is back on top
+  const [{ stack, returnTo }, setLevels] = useState<{
+    readonly stack: readonly StackEntry[];
+    readonly returnTo: string | null;
+  }>({ stack: [{ key: 0, view: root }], returnTo: null });
+  const nextKey = useRef(1);
+  // the latest, so push and replace stay the same for the levels' navs
+  const show = useRef(onShow);
+  show.current = onShow;
+  const push = useCallback((view: View, at?: Moment) => {
+    show.current?.(view);
+    const key = nextKey.current++;
+    setLevels(prev => ({
+      ...prev,
+      stack: [...prev.stack, { key, view, at }],
+    }));
+  }, []);
+  const replace = useCallback((depth: number, view: View) => {
+    show.current?.(view);
+    setLevels(prev => ({
+      ...prev,
+      stack: prev.stack.map((e, i) => (i === depth ? { ...e, view } : e)),
+    }));
+  }, []);
+  const back = useCallback((depth: number) => {
+    setLevels(({ stack }) => {
+      const left = stack[depth]?.view;
+      return {
+        stack: stack.slice(0, Math.max(1, depth)),
+        returnTo: left?.kind === 'record' ? left.id : null,
+      };
+    });
+  }, []);
+  return { stack, returnTo, push, replace, back };
+}
+
 /** The store as an action left it, or (`before`) found it (a removed row
  * shows as it was). A level pushed at a Moment shows that store, and so does
  * every level it opens */
@@ -79,6 +147,19 @@ export interface Moment {
   readonly seq: number;
   readonly before?: true;
 }
+
+/** The moment the panel is at: State shows the store right after action
+ * `seq`, the Actions list marks it and a History opens the version current
+ * then. `null` is live. Every tab can move it */
+export interface MomentCursor {
+  readonly seq: number | null;
+  readonly set: (seq: number | null) => void;
+}
+export const MomentContext = createContext<MomentCursor>({
+  seq: null,
+  set: () => {},
+});
+export const useMoment = () => useContext(MomentContext);
 
 /** The store at a `Moment` */
 export interface Then {
@@ -112,3 +193,10 @@ export interface Nav {
  * instead */
 export const NavContext = createContext<Nav | null>(null);
 export const useNav = () => useContext(NavContext);
+
+/** Opens a view where there is no stack to open it on (the tree view, the
+ * Timeline): in the table view, on the State tab's stack */
+export const OpenViewContext = createContext<((view: View) => void) | null>(
+  null,
+);
+export const useOpenView = () => useContext(OpenViewContext);

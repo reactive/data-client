@@ -85,6 +85,27 @@ const EMPTY: History = { entries: [], since: 0 };
 export const findEntry = (entries: readonly LogEntry[], seq: number) =>
   entries.find(e => e.seq === seq);
 
+/** The nearest action before (`-1`) or after (`1`) `seq` that changed the
+ * store, by seq (`seq` may have dropped off the log); `null` is live, after
+ * every action */
+export function nearestChange(
+  log: ActionLog,
+  entries: readonly LogEntry[],
+  seq: number | null,
+  by: -1 | 1,
+): LogEntry | undefined {
+  if (by < 0)
+    return entries.findLast(
+      e => (seq === null || e.seq < seq) && log.changed(e),
+    );
+  if (seq === null) return undefined;
+  return entries.find(e => e.seq > seq && log.changed(e));
+}
+
+/** Whether a change altered the record, rather than storing it again
+ * unchanged (a refresh) */
+export const isRecordChange = (change: Change) => change.kind !== 'refreshed';
+
 /** Every action dispatched in the preview, with the store state it left, by
  * history. Lives as long as the live preview.
  *
@@ -230,6 +251,11 @@ export default class ActionLog {
       this.diffs.set(entry, changes);
     }
     return changes;
+  }
+
+  /** Whether the action changed the store */
+  changed(entry: LogEntry): boolean {
+    return this.changes(entry).length > 0;
   }
 
   /** Rows several actions changed, as they ended up */

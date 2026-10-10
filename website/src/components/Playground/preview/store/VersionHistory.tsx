@@ -5,12 +5,14 @@ import React, {
   useLayoutEffect,
   useMemo,
   useRef,
+  useState,
 } from 'react';
 
 import { ActionCrumb, ActionName, ChangeBody } from './ActionDetail';
 import {
   rowTimeline,
   type ChangeKind,
+  type Missing,
   type TimelineItem,
   type Version,
 } from './actionGroups';
@@ -18,6 +20,7 @@ import type { LogEntry } from './actionLog';
 import {
   ActionsContext,
   AtMoment,
+  KEEPS_NEWEST,
   Time,
   useActions,
   type Actions,
@@ -26,142 +29,186 @@ import { EndpointBody } from './Details';
 import type { Header } from './DiveViews';
 import { onActivateKey } from './dom';
 import { findRow, isEndpointRow } from './model';
-import { NavContext, useNav, type Moment, type Nav } from './nav';
+import {
+  NavContext,
+  useMoment,
+  useNav,
+  useOpenView,
+  type Moment,
+  type Nav,
+  type View,
+} from './nav';
 import styles from './store.module.css';
 import { Block } from './Value';
 
 const isVersion = (item: TimelineItem): item is Version =>
   item.kind === 'version';
 
-/** Row `id`'s timeline, and just its versions, oldest first */
+/** Row `id`'s timeline, and just its versions, oldest first. `changed` while
+ * the log has a change to the record, or says it dropped some */
 function useTimeline({ log, history }: Actions, id: string) {
   return useMemo(() => {
     const items = rowTimeline(log, history.entries, id);
-    return { items, versions: items.filter(isVersion) };
+    return {
+      items,
+      versions: items.filter(isVersion),
+      changed: items.some(item => item.kind !== 'refreshed'),
+    };
   }, [log, history.entries, id]);
 }
 
 /** Opens record `id`'s history, at the version this level shows */
-function openHistory(nav: Nav, { until }: Actions, id: string) {
-  nav.push({ kind: 'history', id, seq: until });
+function openHistory(push: Push, { until }: Actions, id: string) {
+  push({ kind: 'history', id, seq: until });
 }
 
-/** A record's last change, linking to the action that made it, and to all
- * its changes (the table view only: the tree view has no levels to open them
- * in) */
-export function ChangedBy({ id }: { id: string }) {
-  const actions = useContext(ActionsContext);
+/** Where a view opens: over this level, or (the tree view, the Timeline) on
+ * the State tab's stack */
+type Push = (view: View) => void;
+function usePush(): Push | null {
   const nav = useNav();
-  return actions && nav ?
-      <LastChange id={id} actions={actions} nav={nav} />
+  const open = useOpenView();
+  return nav?.push ?? open;
+}
+
+/** A record's last change, linking to the action that made it, and to its
+ * whole history (unless a level header already does) */
+export function ChangedBy({
+  id,
+  history = true,
+}: {
+  id: string;
+  /** Whether to offer the history too */
+  history?: boolean;
+}) {
+  const actions = useContext(ActionsContext);
+  const push = usePush();
+  return actions && push ?
+      <LastChange id={id} actions={actions} push={push} history={history} />
     : null;
 }
 
 function LastChange({
   id,
   actions,
-  nav,
+  push,
+  history,
 }: {
   id: string;
   actions: Actions;
-  nav: Nav;
+  push: Push;
+  /** Whether to offer the history too */
+  history: boolean;
 }) {
-  const changes = useTimeline(actions, id).versions;
+  const timeline = useTimeline(actions, id);
   // as of the store this level shows
-  const { until } = actions;
-  const last = changes.findLast(
-    v => until === undefined || v.entry.seq <= until,
-  );
-  if (!last) return null;
-  const { seq } = last.entry;
+  const last = currentAt(timeline, actions.until);
+  // with no kept change to name, the history still says the log dropped some
+  if (!last && !(timeline.changed && history)) return null;
   return (
     <div className={styles.field}>
       <span className={styles.key}>
         changed by<span className={styles.dim}>:</span>
       </span>
       <span className={styles.changedBy}>
-        <button
-          type="button"
-          className={clsx(styles.ref, styles.countRef)}
-          onClick={e => {
-            e.stopPropagation();
-            nav.push({ kind: 'action', seq });
-          }}
-        >
-          <ActionCrumb seq={seq} />
-        </button>
-        <button
-          type="button"
-          className={clsx(styles.ref, styles.countRef)}
-          onClick={e => {
-            e.stopPropagation();
-            openHistory(nav, actions, id);
-          }}
-        >
-          {changes.length} change{changes.length === 1 ? '' : 's'}
-        </button>
+        {last?.kind === 'version' ?
+          <button
+            type="button"
+            className={clsx(styles.ref, styles.countRef)}
+            onClick={e => {
+              e.stopPropagation();
+              push({ kind: 'action', seq: last.entry.seq });
+            }}
+          >
+            <ActionCrumb seq={last.entry.seq} />
+          </button>
+        : <span className={styles.dim}>actions not kept</span>}
+        {history && <HistoryButton id={id} changed={timeline.changed} />}
       </span>
     </div>
   );
 }
 
-/** A record level's way into its history, once the log has a change to it */
-export function HistoryButton({ id }: { id: string }) {
-  const actions = useContext(ActionsContext);
-  const nav = useNav();
-  return actions && nav ?
-      <HistoryButtonOf id={id} actions={actions} nav={nav} />
-    : null;
-}
-
-function HistoryButtonOf({
+/** A record's way into its history, once the log has a change to it */
+export function HistoryButton({
   id,
-  actions,
-  nav,
+  compact,
+  changed,
 }: {
   id: string;
-  actions: Actions;
-  nav: Nav;
+  /** The icon alone, where a word won't fit */
+  compact?: boolean;
+  /** Whether the log has a change to the record, when already known (it is
+   * worked out from the log's whole history otherwise) */
+  changed?: boolean;
 }) {
-  if (!useTimeline(actions, id).versions.length) return null;
+  const actions = useContext(ActionsContext);
+  const push = usePush();
+  if (!actions || !push) return null;
+  const props = { id, actions, push, compact };
+  if (changed === undefined) return <HistoryButtonOf {...props} />;
+  return changed ? <HistoryLink {...props} /> : null;
+}
+
+interface HistoryButtonProps {
+  id: string;
+  actions: Actions;
+  push: Push;
+  compact?: boolean;
+}
+
+function HistoryButtonOf(props: HistoryButtonProps) {
+  if (!useTimeline(props.actions, props.id).changed) return null;
+  return <HistoryLink {...props} />;
+}
+
+function HistoryLink({ id, actions, push, compact }: HistoryButtonProps) {
   return (
     <button
       type="button"
-      className={styles.historyButton}
+      className={clsx(styles.historyButton, compact && styles.compact)}
       title="Every change to this record"
-      onClick={() => openHistory(nav, actions, id)}
+      aria-label="History"
+      onClick={e => {
+        e.stopPropagation();
+        openHistory(push, actions, id);
+      }}
     >
       <HistoryIcon />
-      History
+      {!compact && 'History'}
     </button>
   );
 }
 
 /** How a record evolved, as a timeline of every logged version. One is open
- * at a time, showing the whole record as that action left it */
+ * at a time, showing the whole record as that action left it: the version
+ * current at the moment, which selecting another moves */
 export function RowHistory({
   id,
   focus,
   header,
-  onOpen,
   onShowState,
 }: {
   id: string;
-  /** Opens the version current at this action; by default the latest */
+  /** Opens the version current at this action while the panel is live; by
+   * default the latest */
   focus?: number;
   header: Header;
-  /** Opens version `seq` instead */
-  onOpen: (seq: number) => void;
-  /** After switching State to just after the open version; returns what
-   * reopens this history from there */
-  onShowState?: () => () => void;
+  /** Uncovers State once it switches to just after the open version */
+  onShowState?: () => void;
 }) {
   const actions = useActions();
-  const { items, versions } = useTimeline(actions, id);
-  const open = (
-    versions.findLast(v => focus === undefined || v.entry.seq <= focus) ??
-    versions[0]
-  )?.entry.seq;
+  const moment = useMoment();
+  const timeline = useTimeline(actions, id);
+  const { items, versions, changed } = timeline;
+  // live, the version last picked here stays open
+  const [picked, setPicked] = useState(focus);
+  const current = currentAt(timeline, moment.seq ?? picked);
+  const open = current?.kind === 'version' ? current.entry.seq : undefined;
+  const select = (seq: number) => {
+    moment.set(seq);
+    setPicked(seq);
+  };
 
   // the open version starts in view
   const list = useRef<HTMLOListElement>(null);
@@ -182,21 +229,24 @@ export function RowHistory({
     const next = versions[versions.findIndex(v => v.entry.seq === open) + step];
     if (!step || !next) return;
     e.preventDefault();
-    onOpen(next.entry.seq);
+    select(next.entry.seq);
     list.current
       ?.querySelector<HTMLElement>(`[data-version="${next.entry.seq}"]`)
       ?.focus();
   };
 
+  // no count over a History of notes alone ("0 changes" would belie them)
   const count = versions.length;
   return (
     <>
       {header(
-        <span className={styles.dim}>
-          {count} change{count === 1 ? '' : 's'}
-        </span>,
+        count > 0 && (
+          <span className={styles.dim}>
+            {count} change{count === 1 ? '' : 's'}
+          </span>
+        ),
       )}
-      {!count ?
+      {!changed ?
         <div className={styles.record}>
           <div className={styles.detail}>
             <span className={styles.dim}>No changes in the log</span>
@@ -215,16 +265,38 @@ export function RowHistory({
                 id={id}
                 version={item}
                 open={item.entry.seq === open}
-                onOpen={onOpen}
+                onOpen={select}
                 onShowState={onShowState}
               />
             : item.kind === 'refreshed' ?
               <RefreshItem key={item.entries[0].seq} entries={item.entries} />
-            : <MissingItem key={`missing ${item.seq}`} change={item.change} />,
+            : <MissingItem
+                key={`missing ${item.seq}`}
+                change={item.change}
+                current={item === current}
+              />,
           )}
         </ol>
       }
     </>
+  );
+}
+
+/** Where an item sits in the log: a version's action, or the kept action
+ * a dropped stretch was found before */
+const itemSeq = (item: Version | Missing) =>
+  item.kind === 'version' ? item.entry.seq : item.seq;
+
+/** What was current at `at` (the latest version, live): the latest version
+ * at or before it, unless actions the log dropped changed the record since
+ * (that note instead: the record's value then isn't known) */
+function currentAt(
+  { items, versions }: ReturnType<typeof useTimeline>,
+  at: number | undefined,
+): Version | Missing | undefined {
+  if (at === undefined) return versions.at(-1);
+  return items.findLast(
+    (i): i is Version | Missing => i.kind !== 'refreshed' && itemSeq(i) <= at,
   );
 }
 
@@ -244,7 +316,7 @@ function VersionItem({
   version: Version;
   open: boolean;
   onOpen: (seq: number) => void;
-  onShowState?: () => () => void;
+  onShowState?: () => void;
 }) {
   const { log, showState } = useActions();
   const nav = useNav()!;
@@ -293,7 +365,10 @@ function VersionItem({
             <button
               type="button"
               className={styles.showState}
-              onClick={() => showState(seq, onShowState?.())}
+              onClick={() => {
+                showState(seq);
+                onShowState?.();
+              }}
             >
               View State after this
             </button>
@@ -359,13 +434,22 @@ const missingText: Partial<Record<ChangeKind, string>> = {
   error: 'Failed',
 };
 
-/** Where actions the log didn't keep changed the record */
-function MissingItem({ change }: { change: ChangeKind }) {
+/** Where actions the log didn't keep changed the record; `current` while
+ * the moment falls among them */
+function MissingItem({
+  change,
+  current,
+}: {
+  change: ChangeKind;
+  current: boolean;
+}) {
   return (
-    <li className={clsx(styles.version, styles.refreshItem)}>
+    <li
+      className={clsx(styles.version, styles.refreshItem)}
+      aria-current={current || undefined}
+    >
       <span className={clsx(styles.versionLine, styles.dim)}>
-        {missingText[change] ?? 'Changed'} by actions not kept: the log keeps
-        the newest
+        {missingText[change] ?? 'Changed'} by actions not kept: {KEEPS_NEWEST}
       </span>
     </li>
   );

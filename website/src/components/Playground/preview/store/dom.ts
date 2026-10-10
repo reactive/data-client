@@ -48,15 +48,20 @@ export function flash(scope: HTMLElement, test: (id: string) => boolean) {
   }
 }
 
-/** Scrolls row `id` into view below the section header and focuses it */
-export function scrollToRow(scroller: HTMLElement, id: string) {
+/** Scrolls row `id` into view below the section header and focuses it
+ * (unless `focus` is off) */
+export function scrollToRow(
+  scroller: HTMLElement,
+  id: string,
+  { focus = true }: { focus?: boolean } = {},
+) {
   const row = byData(scroller, 'id', id);
   if (!row) return;
   scroller.scrollTo({
     top: Math.max(0, offsetIn(scroller, row) - HEADER_HEIGHT),
     behavior: 'smooth',
   });
-  row.focus({ preventScroll: true });
+  if (focus) row.focus({ preventScroll: true });
 }
 
 /** keydown for an element acting as a button: Enter or Space on the element

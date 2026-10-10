@@ -160,6 +160,32 @@ DesignSystem/       components injected into preview scope
   store (see Reset) starts a new history, a store the retry restores continues
   its own, and the panel shows only the current one. An action's chips open the
   store as that action left it (see `Moment` in `preview/store/nav.tsx`).
+- The Store inspector has one moment (`MomentContext` in `preview/store/nav.tsx`,
+  owned by `StorePanel`): the action State is shown after, or live. Every tab
+  shows it and can move it. State is the store as that action left it; the
+  Actions list marks the action (`aria-current`), opens its row and scrolls to
+  it; a record's History opens the version current then (or marks the "not
+  kept" note when the moment falls among dropped actions). Opening an action
+  the store saw, stepping within its row, picking a History version or a
+  Timeline mark all move the moment. While the moment is set, the bar under the
+  tab bar (`SnapshotBar`) shows on every tab: ‹ › step through store-wide
+  changes, "After <action>" opens the action in the Actions list (in place of
+  the action shown there, which follows the moment), "Live" lets go. The
+  "Timeline" icon toggle (`aria-pressed`, beside the view switch) slides open a
+  strip (`preview/store/Timeline.tsx`) above either tab that puts the same
+  history on one time axis; an endpoint lane's label opens that record's
+  History. By default the strip keeps the detailed spacing (`timeScale`) and
+  scrolls sideways; only the tracks scroll, the lane labels kept beside
+  them in a column of their own: while live it stays on the
+  newest, and picking an action or scrolling back lets go until "Live" or
+  End. The "Fit timeline" toggle in the axis's corner (`aria-pressed`, kept
+  per tab) squeezes the whole history to the strip's width instead (marks
+  are placed as fractions of the track, `--tl-f`, so nothing is measured;
+  axis labels thin out as it squeezes). Arrow keys reach every change either
+  way.
+  "History" is the one way into a record's versions everywhere; where there is
+  no stack to open it on (the tree view, the Timeline), `OpenViewContext` opens
+  it on the State tab's table view.
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
   count in the preview header (written to the DOM, so counting adds no commits).
   `website/profiling-plugin.js` replaces `react-dom/client` with React's
