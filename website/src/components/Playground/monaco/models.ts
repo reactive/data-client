@@ -37,10 +37,10 @@ export function createMissingModels(
   for (const { uri, code, language } of missing) {
     monaco.editor.createModel(code, language, uri);
   }
-  // Until the first TypeScript model exists the TS worker isn't registered,
-  // and no model is checked. Once checks start, the worker starts with every
-  // model if eager sync is already on; otherwise any false TS2307 clears when
-  // the type libs land and every model is re-checked (./setup.ts).
+  // The first TypeScript model registers the TS worker asynchronously, so the
+  // first surface has no worker to ask. Monaco starts checking only once that
+  // registration finishes, after this pass's models all exist, and re-checks
+  // every model when the type libs arrive (addTypeLibs in ./typeLibs.ts).
   if (!typeScriptWorkerRequested && typeScriptUris.length) {
     typeScriptWorkerRequested = true;
     void monaco.typescript.getTypeScriptWorker().then(getWorker => {
