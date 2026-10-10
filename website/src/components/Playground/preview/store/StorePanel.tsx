@@ -1,3 +1,4 @@
+import clsx from 'clsx';
 import { StateContext, type State } from '@data-client/react';
 import React, {
   useCallback,
@@ -37,7 +38,6 @@ import {
   NavContext,
   OpenViewContext,
   useLevelStack,
-  type Facet,
   type LevelStack,
   type Moment,
   type Nav,
@@ -84,7 +84,6 @@ export default function StorePanel({
   const [timelineShown, setTimelineShown] = useState(false);
   if (timeline && !timelineShown) setTimelineShown(true);
   const hideTimeline = useCallback(() => setTimelineShown(false), []);
-  const [facet, setFacet] = useState<Facet>('state');
   const [spacing, setSpacing] = useTabStorage('playgroundTimelineSpacing');
   // the Actions tab mounts on first visit, then stays (scroll, open rows)
   const [actionsShown, setActionsShown] = useState(false);
@@ -168,12 +167,10 @@ export default function StorePanel({
     () => ({
       seq: snapshotSeq,
       set: setSnapshot,
-      facet,
-      setFacet,
       lens: { spacing: spacing === 'fit' ? 'fit' : 'detailed' },
       setLens: lens => lens.spacing && setSpacing(lens.spacing),
     }),
-    [snapshotSeq, facet, spacing, setSpacing],
+    [snapshotSeq, spacing, setSpacing],
   );
   // an action's level moves the panel to it, if the store saw it: State
   // shows the store as it left it, and a History the version current then
@@ -255,16 +252,13 @@ export default function StorePanel({
   const width = useWidth(panel);
   // the lanes shutting under focus hand it to what opened them, so it
   // doesn't fall to the page
-  const focusExpand = useCallback(() => {
-    panel.current
-      ?.querySelector<HTMLElement>('[aria-expanded][aria-label="Timeline"]')
-      ?.focus();
-  }, []);
+  const expand = useRef<HTMLButtonElement>(null);
+  const focusExpand = useCallback(() => expand.current?.focus(), []);
   // narrow, the lanes open as a sheet over the content instead of pushing it
   // down; a mark picked there closes it
   const sheet = width < NARROW_WIDTH;
   const collapse = useCallback(() => setTimeline(false), []);
-  const lanes = timelineShown && (
+  const lanes = (
     <Unfold open={timeline} onShut={hideTimeline} onBlur={focusExpand}>
       {sheet && (
         <div className={styles.sheetBar}>
@@ -294,24 +288,30 @@ export default function StorePanel({
       <LogContext.Provider value={logContext}>
         <MomentContext.Provider value={moment}>
           <OpenViewContext.Provider value={openView}>
-            <div className={styles.store} ref={panel}>
+            <div
+              className={styles.store}
+              ref={panel}
+              onKeyDown={e => {
+                // the sheet shuts from anywhere in the panel, the ▾ included;
+                // a level going back has the Escape first
+                if (e.key !== 'Escape' || !sheet || !timeline) return;
+                if (e.defaultPrevented) return;
+                e.preventDefault();
+                collapse();
+              }}
+            >
               <Scrubber
                 entry={snapshot}
                 expanded={timeline}
+                expandRef={expand}
                 onExpand={setTimeline}
                 onOpen={openAction}
               />
-              {!sheet && lanes}
               <div className={styles.body}>
-                {sheet && (
-                  <div
-                    className={styles.sheet}
-                    onKeyDown={e => {
-                      if (e.key !== 'Escape') return;
-                      e.preventDefault();
-                      collapse();
-                    }}
-                  >
+                {/* one place in the tree either way, so crossing the narrow
+                    width restyles the lanes rather than remounting them */}
+                {timelineShown && (
+                  <div className={clsx(styles.lanes, sheet && styles.sheet)}>
                     {lanes}
                   </div>
                 )}

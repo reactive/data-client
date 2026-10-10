@@ -161,8 +161,7 @@ DesignSystem/       components injected into preview scope
   its own, and the panel shows only the current one. An action's chips open the
   store as that action left it (see `Moment` in `preview/store/nav.tsx`).
 - The Store inspector has one moment (`NavState` in `preview/store/nav.tsx`,
-  owned by `StorePanel`, which also carries the facet and the timeline lens
-  for the facet tabs to come): the action State is shown after, or live. Every
+  owned by `StorePanel`, which also carries the timeline lens): the action State is shown after, or live. Every
   tab shows it and can move it. State is the store as that action left it; the
   Actions list marks the action (`aria-current`), opens its row and scrolls to
   it; a record's History opens the version current then (or marks the "not

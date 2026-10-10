@@ -73,14 +73,20 @@ const lanes = () => screen.getByRole('group', { name: /^Timeline/ });
 const nextFrame = () =>
   act(() => new Promise<void>(r => requestAnimationFrame(() => r())));
 /** Mounts with a panel `width` px wide, as a browser would lay it out */
+// every observed width `mountAt` reports; `resize` changes them all
+let observed: ((entries: unknown[]) => void)[] = [];
+const resize = (width: number) =>
+  act(() => observed.forEach(cb => cb([{ contentRect: { width } }])));
 function mountAt(width: number) {
   class Observer {
     constructor(private cb: (entries: unknown[]) => void) {}
     observe() {
       this.cb([{ contentRect: { width } }]);
+      observed.push(this.cb);
     }
     disconnect() {}
   }
+  observed = [];
   (globalThis as any).ResizeObserver = Observer;
   try {
     return mount();
@@ -744,9 +750,14 @@ describe('Store Timeline sheet', () => {
         .getByRole('button', { name: 'Timeline' })
         .getAttribute('aria-expanded'),
     ).toBe('false');
-    // so does Escape
+    // so does Escape, in it or on the ▾ that opened it
     toggle();
     fireEvent.keyDown(lanes(), { key: 'Escape' });
+    expect(screen.queryByRole('group', { name: /^Timeline/ })).toBeNull();
+    toggle();
+    fireEvent.keyDown(screen.getByRole('button', { name: 'Timeline' }), {
+      key: 'Escape',
+    });
     expect(screen.queryByRole('group', { name: /^Timeline/ })).toBeNull();
     // and picking a moment, which the scrubber then shows
     toggle();
@@ -767,11 +778,26 @@ describe('Store Timeline sheet', () => {
     ).toBe(true);
   });
 
-  it('is not used on a wide panel', async () => {
+  it('is not used on a wide panel, where Escape leaves the lanes', async () => {
     mountAt(800);
     toggle();
     expect(screen.queryByRole('button', { name: 'Close timeline' })).toBeNull();
-    const body = screen.getByRole('tablist', { name: 'Store' }).parentElement!;
-    expect(body.contains(lanes())).toBe(false);
+    fireEvent.keyDown(lanes(), { key: 'Escape' });
+    expect(lanes()).toBeTruthy();
+  });
+
+  it('keeps the lanes, and focus in them, across the narrow width', async () => {
+    const { ctrl } = mountAt(800);
+    await act(() => ctrl().fetch(getPosts));
+    toggle();
+    const timeline = lanes();
+    timeline.focus();
+    resize(360);
+    expect(screen.getByRole('button', { name: 'Close timeline' })).toBeTruthy();
+    expect(lanes()).toBe(timeline);
+    expect(document.activeElement).toBe(timeline);
+    resize(800);
+    expect(screen.queryByRole('button', { name: 'Close timeline' })).toBeNull();
+    expect(lanes()).toBe(timeline);
   });
 });

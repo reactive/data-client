@@ -1195,7 +1195,10 @@ div.joined {
   color: var(--store-fg);
 }
 
-/* Narrow, the lanes drop over the content from under the scrubber */
+/* The lanes, above the tabs; narrow, they drop over them as a sheet */
+.lanes {
+  flex: none;
+}
 .sheet {
   position: absolute;
   top: 0;

@@ -210,9 +210,10 @@ function drawer({
  * on it: ‹ › and the arrow keys step through changes (past the newest is
  * live, as End is), a mark lands on its action. Says which action State is
  * shown after, while it shows the past; `▾` expands the lanes */
-export function Scrubber({
+export const Scrubber = memo(function Scrubber({
   entry,
   expanded,
+  expandRef,
   onExpand,
   onOpen,
 }: {
@@ -220,6 +221,8 @@ export function Scrubber({
   entry?: LogEntry;
   /** Whether the lanes are shown under it */
   expanded: boolean;
+  /** The ▾, for focus to return to as the lanes shut */
+  expandRef?: React.Ref<HTMLButtonElement>;
   onExpand: (expanded: boolean) => void;
   /** Opens that action in the Actions list */
   onOpen: (seq: number) => void;
@@ -329,6 +332,7 @@ export function Scrubber({
         : <span className={styles.liveButton}>Live</span>}
         <button
           type="button"
+          ref={expandRef}
           className={styles.expand}
           aria-label="Timeline"
           title="Timeline"
@@ -354,7 +358,7 @@ export function Scrubber({
       )}
     </div>
   );
-}
+});
 
 /** The shown store's actions on one time axis, a lane per key: requests as
  * spans from fetch to response, everything else as marks. Picking an action
