@@ -24,21 +24,13 @@ export default function PkgTabs({ pkgs, dev = false }: Props) {
         ...(dev ? [] : [{ label: 'esm.sh', value: 'esm' }]),
       ]}
     >
-      <TabItem value="yarn">
-        <CodeBlock className="language-bash">
-          {installCommand('yarn', pkgs, { dev })}
-        </CodeBlock>
-      </TabItem>
-      <TabItem value="npm">
-        <CodeBlock className="language-bash">
-          {installCommand('npm', pkgs, { dev })}
-        </CodeBlock>
-      </TabItem>
-      <TabItem value="pnpm">
-        <CodeBlock className="language-bash">
-          {installCommand('pnpm', pkgs, { dev })}
-        </CodeBlock>
-      </TabItem>
+      {(['npm', 'yarn', 'pnpm'] as const).map(manager => (
+        <TabItem key={manager} value={manager}>
+          <CodeBlock className="language-bash">
+            {installCommand(manager, pkgs, { dev })}
+          </CodeBlock>
+        </TabItem>
+      ))}
       {!dev && (
         <TabItem value="esm">
           <CodeBlock className="language-html">
