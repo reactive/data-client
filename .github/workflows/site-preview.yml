@@ -231,7 +231,9 @@ jobs:
           # alias at it: one link that always shows the PR's newest build
           if [ -n "$PR_NUMBER" ]; then
             alias="docs-site-pr-$PR_NUMBER-data-client.vercel.app"
-            if vercel alias set "$url" "$alias"; then
+            # Unlike deploy, alias ignores VERCEL_ORG_ID and would look in the
+            # token's personal account
+            if vercel alias set "$url" "$alias" --scope "$VERCEL_ORG_ID"; then
               url="https://$alias"
             else
               echo "::warning title=Docs preview alias::Couldn't point $alias at this deploy; linking the deploy itself"
