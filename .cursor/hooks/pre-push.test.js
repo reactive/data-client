@@ -51,7 +51,7 @@ function write(root, file) {
 function push(root) {
   const out = execFileSync(process.execPath, [hook], {
     cwd: root,
-    env: { ...process.env, CLAUDE_PROJECT_DIR: root },
+    env: { ...process.env, CURSOR_PROJECT_DIR: root },
     input: JSON.stringify({
       hook_event_name: 'PreToolUse',
       tool_input: { command: 'git push' },
