@@ -20,22 +20,20 @@ export class StreamManager implements Manager {
     'wss://ws-feed.exchange.coinbase.com',
   );
   declare protected controller: Controller;
-  /** Channel and component count of each subscribed product */
   protected products = new Map<string, Product>();
 
   middleware: Middleware = controller => {
     this.controller = controller;
     return next => async action => {
-      // the socket pushes updates for endpoints with a channel
       if (
         (action.type === SUBSCRIBE || action.type === UNSUBSCRIBE) &&
         'channel' in action.endpoint
       ) {
         const { productId } = action.args[0];
-        const { channel } = action.endpoint as { channel: string };
-        if (action.type === SUBSCRIBE)
+        if (action.type === SUBSCRIBE) {
+          const { channel } = action.endpoint as { channel: string };
           this.subscribe(productId, channel);
-        else this.unsubscribe(productId);
+        } else this.unsubscribe(productId);
         return;
       }
       return next(action);
@@ -44,13 +42,13 @@ export class StreamManager implements Manager {
 
   /** Shares one socket subscription among a product's components */
   protected subscribe(productId: string, channel: string) {
-    const product = this.products.get(productId) ?? {
-      channel,
-      count: 0,
-    };
-    this.products.set(productId, product);
-    if (++product.count === 1)
+    const product = this.products.get(productId);
+    if (product) {
+      product.count++;
+    } else {
+      this.products.set(productId, { channel, count: 1 });
       this.send('subscribe', channel, productId);
+    }
   }
 
   protected unsubscribe(productId: string) {

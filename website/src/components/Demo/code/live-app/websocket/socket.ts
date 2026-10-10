@@ -1,4 +1,5 @@
-/** A WebSocket that reconnects after drops, going offline and silence */
+/** A WebSocket that reconnects after drops, going offline and silence,
+ * and pauses while the page is hidden */
 export class ReconnectingSocket {
   onopen = () => {};
   onmessage = (message: any) => {};
@@ -7,7 +8,6 @@ export class ReconnectingSocket {
 
   declare protected socket: WebSocket;
   protected attempts = 0;
-  /** When the current socket opened */
   declare protected openedAt: number | undefined;
   /** Pending reconnect, or the watchdog while connected */
   declare protected timer: ReturnType<typeof setTimeout>;
@@ -19,11 +19,16 @@ export class ReconnectingSocket {
     addEventListener('online', this.reconnect);
     // a socket can take minutes to notice the network is gone
     addEventListener('offline', this.stop);
+    document.addEventListener('visibilitychange', this.onVisibility);
   }
 
   close() {
     removeEventListener('online', this.reconnect);
     removeEventListener('offline', this.stop);
+    document.removeEventListener(
+      'visibilitychange',
+      this.onVisibility,
+    );
     this.stop();
   }
 
@@ -75,7 +80,14 @@ export class ReconnectingSocket {
   }
 
   protected reconnect = () => {
-    if (this.socket.readyState !== WebSocket.OPEN) this.connect();
+    if (!document.hidden && this.socket.readyState !== WebSocket.OPEN)
+      this.connect();
+  };
+
+  /** Background tabs don't need prices */
+  protected onVisibility = () => {
+    if (document.hidden) this.stop();
+    else this.reconnect();
   };
 
   /** Stops the socket without waiting for it to finish closing,
