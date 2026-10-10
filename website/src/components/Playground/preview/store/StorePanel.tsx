@@ -52,6 +52,7 @@ import {
 import {
   NavContext,
   NavStateContext,
+  isSubject,
   subjectOf,
   useLevelStack,
   type LevelStack,
@@ -194,7 +195,7 @@ export default function StorePanel({
   const subject = subjectOf(levels.stack);
   // the toggle's full-width list, or an action over it, is on top
   const actionsShown =
-    !tree && levels.stack[levels.stack.length - 1].view.kind !== subject.kind;
+    !tree && !isSubject(levels.stack[levels.stack.length - 1].view);
   const filter = useSubjectFilter(log, known, subject);
   // a moment set on purpose outranks the store a chip opened a level at;
   // an action view on top follows it

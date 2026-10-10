@@ -88,7 +88,7 @@ export interface ActionsView {
 /** What a level of the navigation stack shows */
 export type LevelView = View | ActionsView | ActionView;
 
-const isSubject = (view: LevelView): view is View =>
+export const isSubject = (view: LevelView): view is View =>
   view.kind !== 'action' && view.kind !== 'actions';
 
 /** The subject of the stack's top: the nearest level that is one (the
