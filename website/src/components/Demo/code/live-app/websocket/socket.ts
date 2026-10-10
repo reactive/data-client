@@ -34,14 +34,20 @@ export class ReconnectingSocket {
   protected connect() {
     this.stop();
     this.socket = new WebSocket(this.url);
-    this.socket.onopen = () => this.onopen();
+    let openedAt = 0;
+    this.socket.onopen = () => {
+      openedAt = Date.now();
+      this.onopen();
+    };
     this.socket.onmessage = event => {
-      this.attempts = 0;
       this.watch();
       this.onmessage(JSON.parse(event.data));
     };
     // after a failed connect, an error or a server close
     this.socket.onclose = () => {
+      // a server that accepts and then hangs up still backs off
+      if (openedAt && Date.now() - openedAt > 10_000)
+        this.attempts = 0;
       const delay = Math.min(30_000, 1000 * 2 ** this.attempts);
       this.attempts++;
       clearTimeout(this.timer);
