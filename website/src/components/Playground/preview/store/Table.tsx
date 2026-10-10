@@ -26,12 +26,12 @@ import { INVALIDATED, type VNode } from './refs';
 import styles from './store.module.css';
 import {
   Cell,
+  CellChange,
   EndpointKey,
   field,
   Inline,
   Primitive,
   RowChip,
-  Was,
 } from './Value';
 
 export interface Column<R> {
@@ -41,9 +41,12 @@ export interface Column<R> {
   readonly width?: number | string;
   readonly className?: string;
   readonly cell: (row: R) => React.ReactNode;
-  /** In the Diff tab: what the cell showed before `change`, or undefined
-   * when the change left it alone */
-  readonly changed?: (change: RowDiff) => { readonly was?: VNode } | undefined;
+  /** In the Diff tab: what the cell shows before and after `change`, or
+   * undefined when the change left it alone */
+  readonly changed?: (
+    change: RowDiff,
+    row: R,
+  ) => { readonly was?: VNode; readonly now?: VNode } | undefined;
 }
 
 /** Rows that open their record on click; `more` adds a `+N` column that
@@ -121,15 +124,18 @@ export function RowsTable<R extends { readonly id: string }>({
                 onKeyDown={onOpen && onActivateKey(() => onOpen(row))}
               >
                 {columns.map(c => {
-                  const cell = change && c.changed?.(change);
+                  const cell = change && c.changed?.(change, row);
                   return (
                     <td
                       key={c.id}
                       className={c.className}
                       data-changed={cell ? true : undefined}
                     >
-                      {c.cell(row)}
-                      {cell?.was && <Was node={cell.was} name={c.id} />}
+                      {cell?.was ?
+                        <CellChange was={cell.was} now={cell.now} name={c.id}>
+                          {c.cell(row)}
+                        </CellChange>
+                      : c.cell(row)}
                     </td>
                   );
                 })}
@@ -306,16 +312,17 @@ function dataSpecs(
         );
       },
       has: row => value(row) !== undefined,
-      changed: change =>
+      changed: (change, row) =>
         change.fields?.includes(name) ?
-          { was: change.was && field(change.was, name) }
+          { was: change.was && field(change.was, name), now: value(row) }
         : undefined,
     };
   });
 }
 
 /** A column showing a row's whole value changed when its value did */
-const valueChanged = (change: RowDiff) => change.was && { was: change.was };
+const valueChanged = (change: RowDiff, row: { readonly value: VNode }) =>
+  change.was && { was: change.was, now: row.value };
 
 /** When each row was fetched and expires */
 const metaSpecs: Spec[] = (

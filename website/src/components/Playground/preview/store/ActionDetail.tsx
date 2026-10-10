@@ -27,7 +27,7 @@ import {
 } from './nav';
 import { plain } from './refs';
 import styles from './store.module.css';
-import { Block, Field, FieldChange, Inline } from './Value';
+import { Block, Field, FieldChange, Inline, ValueChange } from './Value';
 
 /** What an action did to `subject` (every row at the store, a line saying
  * it left the subject alone, or that it is where a `gap` of dropped actions
@@ -216,6 +216,9 @@ function ChangeBody({
     case 'added':
       return <Inline node={plain(now)} bare />;
     case 'updated':
+      // a list (a Collection's) changes item by item, not index by index
+      if (Array.isArray(was) && Array.isArray(now))
+        return <ValueChange was={plain(was)} now={plain(now)} />;
       return (
         <>
           {(change.fields ?? []).map(field => (

@@ -2,6 +2,7 @@ import type { Change, ChangeKind } from './actionGroups';
 import { isRecordChange } from './actionLog';
 import type { AnyRow, EntityRow, EntityTable, StoreModel } from './model';
 import type { VNode } from './refs';
+import { sameNode } from './valueDiff';
 
 /** How a moment changed one row */
 export interface RowDiff {
@@ -70,11 +71,6 @@ function valueWas(was: AnyRow | undefined, now: AnyRow | undefined) {
   if (!was || (now && sameNode(was.value, now.value))) return;
   return was.value;
 }
-
-/** Stored objects keep their resolved node until they change; primitives
- * resolve anew */
-const sameNode = (a: VNode, b: VNode) =>
-  a === b || (a.t === 'val' && b.t === 'val' && Object.is(a.v, b.v));
 
 /** `table` with only `rows`, and the fields they have (as stored now or
  * before, so a field an update dropped still has a column) */

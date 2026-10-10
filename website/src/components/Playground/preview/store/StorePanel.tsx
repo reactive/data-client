@@ -1,4 +1,4 @@
-import { StateContext, type State } from '@data-client/react';
+import { actionTypes, StateContext, type State } from '@data-client/react';
 import clsx from 'clsx';
 import React, {
   useCallback,
@@ -201,21 +201,32 @@ export default function StorePanel({
   // what the moment stands for, and what that changed: the Diff tab shows
   // only that, from before its first action to the store the moment shows.
   // Live, that is the newest stored action's request: a response that
-  // stored nothing new still shows its optimistic update
+  // stored nothing new still shows its optimistic update. Garbage
+  // collection is the store's housekeeping, not something the code did
   const span = useMemo(() => {
     if (moment) return momentEntries(groups, moment, whole);
-    const newest = known.findLast(e => e.store);
+    const newest = known.findLast(
+      e => e.store && e.action.type !== actionTypes.GC,
+    );
     return newest && requestEntries(groups, newest);
   }, [groups, moment, whole, known]);
   const first = span?.find(e => e.store);
+  const last = span?.findLast(e => e.store);
   const prior = first && then({ seq: first.seq, before: true });
+  // the store the span left, as the log has it: the live store collects
+  // garbage in place, so its rows can outlast what the log knows
+  const left = last && then({ seq: last.seq });
   const diff = useMemo<Diff | undefined>(
     () =>
       span && {
         entries: span,
-        ...diffModel(model, prior?.model ?? model, log.spanChanges(span)),
+        ...diffModel(
+          left?.model ?? model,
+          prior?.model ?? model,
+          log.spanChanges(span),
+        ),
       },
-    [span, model, prior, log],
+    [span, model, left, prior, log],
   );
   // the whole panel shows the past with the moment: the kept actions, up to
   // the moment's

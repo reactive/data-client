@@ -473,6 +473,17 @@ div.row[data-change='removed'] {
 .cellWas {
   margin-left: 0.5em;
 }
+/* a list's or object's items a change added, and ones it moved */
+.ins {
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--store-fresh) 16%, transparent);
+  text-decoration: none;
+}
+.moved {
+  border-radius: 3px;
+  outline: 1px dashed color-mix(in srgb, var(--store-stale) 70%, transparent);
+  outline-offset: -1px;
+}
 .selected,
 .selected > td {
   background: var(--store-selected);

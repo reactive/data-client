@@ -1369,6 +1369,40 @@ describe('Store diff', () => {
     expect(top().textContent).toContain('Started the request');
   });
 
+  it.each([
+    ['during', true],
+    ['after', false],
+  ])(
+    'leaves out garbage collected %s the newest request',
+    async (_, during) => {
+      const { ctrl } = mount();
+      await act(() => ctrl().fetch(getPosts));
+      const gc = () =>
+        act(async () => {
+          ctrl().dispatch({
+            type: actionTypes.GC,
+            entities: [{ key: 'Post', pk: '2' }],
+            endpoints: [],
+          });
+        });
+      let done: Promise<unknown> = Promise.resolve();
+      await act(async () => {
+        done = ctrl().fetch(updatePost, { id: '1' }, { title: 'Edited' });
+      });
+      if (during) await gc();
+      await act(async () => {
+        release(undefined);
+        await done;
+      });
+      if (!during) await gc();
+      openDiff();
+      expect(tableRows()).toEqual([
+        [endpointId('PATCH https://example.com/posts/1'), 'added'],
+        [entityId('Post', '1'), 'updated'],
+      ]);
+    },
+  );
+
   it('shows freshness as of a past moment, not counting down', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
@@ -1441,6 +1475,25 @@ describe('Store diff', () => {
     expect(row.dataset.change).toBe('updated');
     // the poll before it, however many the subscription made
     expect(row.querySelector('del')!.textContent).toBe(`"poll ${n - 2}"`);
+  });
+
+  it('shows a list’s pushed item alone, the rest folded', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().setResponse(getPosts, [
+        { id: '1', title: 'One' },
+        { id: '2', title: 'Two' },
+        { id: '3', title: 'Three' },
+      ]),
+    );
+    openDiff();
+    const cell = top().querySelector<HTMLElement>(
+      `tr[data-id="${endpointId(POSTS)}"] td[data-changed]`,
+    )!;
+    expect(cell.textContent).toBe('[⋯2, Post 3]');
+    expect(cell.querySelector('ins')!.textContent).toMatch(/Post 3/);
+    expect(cell.querySelector('del')).toBeNull();
   });
 
   it('shows what an endpoint’s value was', async () => {

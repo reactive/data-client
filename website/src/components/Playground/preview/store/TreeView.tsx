@@ -29,7 +29,14 @@ import {
   showAllId,
   useStoreUI,
 } from './StoreUI';
-import { EndpointKey, Field, field, FieldChange, Inline, Was } from './Value';
+import {
+  CellChange,
+  EndpointKey,
+  Field,
+  field,
+  FieldChange,
+  Inline,
+} from './Value';
 
 /** Explorer: one line per row with a preview of its fields */
 export default function TreeView({ model }: { model: StoreModel }) {
@@ -284,11 +291,11 @@ function EntityTreeRow({
         <span className={styles.trunc}>
           {change?.fields && table.kind === 'entity' ?
             <FieldChanges row={row} fields={change.fields} was={change.was} />
-          : <>
+          : change?.was ?
+            <CellChange was={change.was} now={row.value} name="value">
               <Inline node={preview} bare />
-              {change?.was && <Was node={change.was} />}
-            </>
-          }
+            </CellChange>
+          : <Inline node={preview} bare />}
         </span>
       </div>
       {open && (
