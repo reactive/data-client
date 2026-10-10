@@ -207,8 +207,8 @@ DesignSystem/       components injected into preview scope
     `ActionDetail`: what it did to the subject, then the action's fields;
     live, `seq: null`, the subject's newest action, garbage collection
     aside, as its whole request when it has several actions, so an
-    optimistic update shows with its response, with "newest" by its crumb). A line above it and one below
-    (`ActionStep`) name the subject's actions before and after it (as ‹ ›
+    optimistic update shows with its response, with "newest" by its crumb). A line above its crumbs, so they head the
+    action, and one stuck to the bottom (`ActionStep`) name the subject's actions before and after it (as ‹ ›
     step, `stepMoment`; past the newest is live), and a click makes that the
     moment, in the same level. Its stack opens at the action over the
     subject's actions in full (`{ kind: 'actions' }`, `ActionsLevel` in

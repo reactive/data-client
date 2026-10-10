@@ -1006,8 +1006,12 @@ function ActionLevel({
   const { entry, group, filter } = useShownAction(seq, whole, subject);
   // a group steps from its first action and to after the moment's
   const from = group ? groupEntriesOf(group)[0].seq : entry?.seq;
+  // the step before leads, so the crumbs under it head the action shown
   return (
     <>
+      {entry && (
+        <ActionStep dir={-1} to={stepMoment(entries, from!, -1, filter.hit)} />
+      )}
       {header(
         seq === null && entry && <span className={styles.dim}>newest</span>,
       )}
@@ -1018,10 +1022,6 @@ function ActionLevel({
           : 'No longer in the log.'}
         </p>
       : <>
-          <ActionStep
-            dir={-1}
-            to={stepMoment(entries, from!, -1, filter.hit)}
-          />
           {group ?
             <div className={styles.actBody}>
               <SubjectChanges
