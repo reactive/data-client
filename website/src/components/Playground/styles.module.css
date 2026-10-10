@@ -301,9 +301,10 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 
 /* Row layout: the Store slides over the code from the preview's edge, so the
-   preview stays usable beside it (click, watch the store change) */
+   preview stays usable beside it (click, watch the store change); the code's
+   corner badge toggles it, not the side strip (still drawn while loading) */
 .playgroundContainer.row .debugToggle {
-  order: -1;
+  display: none;
 }
 .playgroundTextEdit.withCover {
   display: flex;
@@ -367,6 +368,72 @@ div.playgroundTextEdit > .playgroundHeader,
 
 .hidden {
   display: none;
+}
+
+/* The Store toggle in the code's corner, over the Store as it slides in
+   under it. Both labels share one cell (so its width never changes) and
+   trade places on the drawer's spring: transform and opacity only */
+.storeBadge {
+  z-index: 2;
+  align-self: end;
+  justify-self: end;
+  margin: 0.75rem;
+  display: inline-grid;
+  overflow: hidden;
+  height: 1.9rem;
+  padding: 0 0.8rem;
+  border-radius: 999px;
+  background: var(--pg-tab-hover-bg);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 6px 18px rgba(0, 0, 0, 0.35);
+  color: var(--pg-tab-hover);
+  font: 600 var(--ifm-code-font-size) / 1 var(--ifm-font-family-base);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background-color var(--motion-snappy);
+}
+.storeBadge:hover {
+  background: var(--pg-tab-hover-bg)
+    linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06));
+}
+.storeBadge:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+.storeBadge > * {
+  grid-area: 1 / 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  transition:
+    translate var(--motion-smooth),
+    opacity var(--motion-smooth);
+}
+/* Code waits below; open, Store leaves upward as Code rises into place */
+.storeBadge > :last-child,
+.storeBadge[aria-pressed='true'] > :first-child {
+  translate: 0 110%;
+  opacity: 0;
+}
+.storeBadge[aria-pressed='true'] > :first-child {
+  translate: 0 -110%;
+}
+.storeBadge[aria-pressed='true'] > :last-child {
+  translate: 0 0;
+  opacity: 1;
+}
+.storeBadgeDot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: #7fd1a0;
+  box-shadow: 0 0 0 3px rgba(127, 209, 160, 0.18);
+}
+.storeBadgeCode {
+  color: var(--ifm-color-primary);
 }
 
 /* tabs */
@@ -445,6 +512,17 @@ div.playgroundTextEdit > .playgroundHeader,
 .controlTabs {
   --pg-tab-selected-bg: var(--pg-tab-hover-bg);
   --pg-tab-selected: var(--pg-tab-hover);
+}
+/* Over the Store the selected control joins the Store's top instead, on the
+   drawer's own spring */
+.controlTabs.overStore {
+  --pg-tab-selected-bg: var(--monoco-code-background);
+  --pg-tab-selected: #e3e8f2;
+}
+.controlTabs .tab.selected {
+  transition:
+    background-color var(--motion-smooth),
+    color var(--motion-smooth);
 }
 
 :root[data-theme='dark'] .playgroundPreview {
@@ -740,7 +818,7 @@ div.fixtureJson {
     max-height: min(32rem, 70svh);
   }
   /* the Store toggle moves into the preview's header */
-  .playgroundContainer.row .debugToggle {
+  .storeBadge {
     display: none;
   }
   .playgroundContainer.row .storeHeaderToggle {

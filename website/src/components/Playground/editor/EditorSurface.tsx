@@ -315,7 +315,11 @@ function EditorHeader({
         </>
       : null}
       {controls != null ?
-        <Header className={clsx(styles.tabControls, styles.controlTabs)}>
+        <Header
+          className={clsx(styles.tabControls, styles.controlTabs, {
+            [styles.overStore]: covered,
+          })}
+        >
           <div className={styles.title}>
             <span
               className={styles.titleSwap}

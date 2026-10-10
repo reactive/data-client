@@ -37,8 +37,14 @@ function StoreInspector({
   );
   return (
     <>
-      <StoreToggle onClick={toggle} open={open} />
-      {row ? host && createPortal(panel, host) : panel}
+      {row ?
+        // its toggle is the code's corner badge (../index.tsx)
+        host && createPortal(panel, host)
+      : <>
+          <StoreToggle onClick={toggle} open={open} />
+          {panel}
+        </>
+      }
     </>
   );
 }

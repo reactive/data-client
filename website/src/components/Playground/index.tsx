@@ -11,6 +11,7 @@ import type LivePreviewType from './preview/LivePreview';
 import PreviewWrapper from './preview/PreviewWrapper';
 import type { LogOptions } from './preview/store/actionLog';
 import {
+  StoreBadge,
   StoreHeaderToggle,
   StoreToggle,
   useStoreOpen,
@@ -90,7 +91,12 @@ export default function Playground<T>({
         }
         headerControls={headerControls}
         cover={
-          row ? <div ref={setStoreHost} className={styles.storeHost} /> : null
+          row ?
+            <>
+              <div ref={setStoreHost} className={styles.storeHost} />
+              <StoreBadge open={storeOpen} onClick={toggleStore} />
+            </>
+          : null
         }
         covered={codeCovered}
         // switching files asks for the code back (when the tabs stay visible)
