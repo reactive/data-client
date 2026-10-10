@@ -842,6 +842,19 @@ describe('Store Actions pane', () => {
   });
 });
 
+describe('Store action level', () => {
+  it('goes with its store: a reset leaves none of its actions showing', async () => {
+    const { ctrl, show } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    openPane();
+    fireEvent.click(rows()[0]);
+    expect(crumbs()).toEqual(['State', 'setResponse GET /posts']);
+    await act(async () => show(1));
+    expect(crumbs()).toEqual([]);
+    expect(top().textContent).not.toContain('No longer in the log');
+  });
+});
+
 describe('Store Actions pane on a record', () => {
   it('lists the actions that touched the record, with what each did', async () => {
     const { ctrl } = mount();

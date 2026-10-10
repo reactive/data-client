@@ -102,13 +102,15 @@ export default function StorePanel({
   if (timelineOpen && !timelineMounted) setTimelineMounted(true);
   const hideTimeline = useCallback(() => setTimelineMounted(false), []);
 
+  const levels = useLevelStack(ROOT);
   // State as it was right after one action, until "Live"; a new store (a
-  // reset) starts live
+  // reset) starts live, with no action of the old one left showing
   const [snapshotSeq, setSnapshot] = useState<number | null>(null);
   const [shownId, setShownId] = useState(id);
   if (shownId !== id) {
     setShownId(id);
     setSnapshot(null);
+    levels.followMoment(null);
   }
   const known = useKeptEntries(entries, snapshotSeq !== null);
   const snapshot =
@@ -175,7 +177,6 @@ export default function StorePanel({
     () => ({ log, since: history.since, dropped: history.dropped }),
     [log, history.since, history.dropped],
   );
-  const levels = useLevelStack(ROOT);
   // the top level's subject (an action view shows one): what the Actions
   // pane lists and the steps follow
   const subject = subjectOf(levels.stack);
@@ -208,6 +209,8 @@ export default function StorePanel({
   // as these change: focus left under the sheet moves to the ▾, and lost as
   // it closes goes to the level; focus lost as the pane closes (a row it
   // held unmounts) goes back to its toggle
+  // an action shown from the sheet takes focus once it is uncovered
+  const focusLevel = useRef(false);
   const layout = useRef({ covered, pane });
   useLayoutEffect(() => {
     const was = layout.current;
@@ -215,8 +218,14 @@ export default function StorePanel({
     if (was.covered === covered && was.pane === pane) return;
     const active = document.activeElement;
     const lost = !active || active === document.body;
+    const toLevel = !covered && focusLevel.current;
+    if (!covered) focusLevel.current = false;
     if (covered && (lost || content.current?.contains(active)))
       expand.current?.focus({ preventScroll: true });
+    else if (toLevel)
+      panel.current
+        ?.querySelector<HTMLElement>('[data-level]:not([data-covered])')
+        ?.focus({ preventScroll: true });
     else if (lost)
       (was.pane && !pane ?
         paneToggle.current
@@ -235,9 +244,10 @@ export default function StorePanel({
       setView('table');
       showAction(seq);
       closePane();
+      if (covered) focusLevel.current = true;
       if (narrow) collapse();
     },
-    [clearAt, setView, showAction, closePane, narrow, collapse],
+    [clearAt, setView, showAction, closePane, covered, narrow, collapse],
   );
   const navState = useMemo<NavState>(
     () => ({ seq: snapshotSeq, set, show }),
