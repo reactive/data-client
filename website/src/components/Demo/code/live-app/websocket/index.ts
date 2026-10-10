@@ -13,14 +13,14 @@ export default {
       code: resources,
     },
     {
-      path: 'socket',
-      ssr: true,
-      code: socket,
-    },
-    {
       path: 'StreamManager',
       ssr: true,
       code: StreamManager,
+    },
+    {
+      path: 'socket',
+      ssr: true,
+      code: socket,
     },
     {
       path: 'AssetPrice',
