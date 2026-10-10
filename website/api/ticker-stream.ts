@@ -3,16 +3,18 @@
  * `GET /api/ticker-stream?product_ids=BTC-USD,ETH-USD` sends one
  * `data: [Ticker, …]` event every 5 seconds with the products whose price
  * changed (an empty list when none did, so clients can tell the stream is
- * alive). Tickers have the shape of Coinbase's REST `/products/:id/ticker`.
+ * alive). It ends when Coinbase goes quiet, so clients reconnect. Tickers have the shape of Coinbase's REST `/products/:id/ticker`.
  *
  * Each request holds one Coinbase websocket (`ticker_batch` channel). The
- * stream ends before the function times out; EventSource then reconnects.
+ * stream ends before the function times out; the client then reconnects.
  */
 
 const COINBASE_FEED = 'wss://ws-feed.exchange.coinbase.com';
 const PRODUCT_ID = /^[A-Z0-9]{1,10}-[A-Z]{2,5}$/;
 const MAX_PRODUCTS = 10;
 const FLUSH_MS = 5000;
+/** Coinbase sends tickers every few seconds, so silence means it's gone */
+const UPSTREAM_TIMEOUT_MS = 30_000;
 /** Under `maxDuration`, so the stream ends cleanly */
 const LIFETIME_MS = 280_000;
 
@@ -31,6 +33,7 @@ export function GET(request: Request): Response {
   const encoder = new TextEncoder();
   const socket = new WebSocket(COINBASE_FEED);
   const changed = new Map<string, ReturnType<typeof toTicker>>();
+  let lastUpstream = Date.now();
   let flush: ReturnType<typeof setInterval>;
   let lifetime: ReturnType<typeof setTimeout>;
   const stop = () => {
@@ -50,9 +53,8 @@ export function GET(request: Request): Response {
           // already closed, or the client went away
         }
       };
-      // how long EventSource waits before reconnecting
-      send('retry: 3000\n\n');
       flush = setInterval(() => {
+        if (Date.now() - lastUpstream > UPSTREAM_TIMEOUT_MS) return end();
         send(`data: ${JSON.stringify([...changed.values()])}\n\n`);
         changed.clear();
       }, FLUSH_MS);
@@ -72,6 +74,7 @@ export function GET(request: Request): Response {
       }),
     );
   socket.onmessage = event => {
+    lastUpstream = Date.now();
     const message = JSON.parse(event.data);
     if (message.type === 'ticker')
       changed.set(message.product_id, toTicker(message));

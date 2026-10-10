@@ -41,11 +41,9 @@ export class ReconnectingEventSource {
       this.watch();
       this.onmessage(JSON.parse(event.data));
     };
-    source.onerror = () => {
-      // EventSource retries a dropped stream itself,
-      // but gives up after an error response
-      if (source.readyState === EventSource.CLOSED) this.retry();
-    };
+    // after a failed connect, an error or the server ending the stream;
+    // replaces EventSource's own retry, which doesn't back off
+    source.onerror = () => this.retry();
     this.watch();
   }
 
