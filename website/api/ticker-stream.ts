@@ -28,68 +28,65 @@ export function GET(request: Request): Response {
     );
 
   const encoder = new TextEncoder();
-  let stop: () => void;
+  const socket = new WebSocket(COINBASE_FEED);
+  const changed = new Map<string, ReturnType<typeof toTicker>>();
+  let flush: ReturnType<typeof setInterval>;
+  let lifetime: ReturnType<typeof setTimeout>;
+  const stop = () => {
+    clearInterval(flush);
+    clearTimeout(lifetime);
+    socket.close();
+  };
+
   const body = new ReadableStream<Uint8Array>({
     start(controller) {
-      const socket = new WebSocket(COINBASE_FEED);
-      let changed = new Map<string, Ticker>();
       const send = (text: string) => controller.enqueue(encoder.encode(text));
-
-      const flush = setInterval(() => {
-        if (!changed.size) return;
-        send(`data: ${JSON.stringify([...changed.values()])}\n\n`);
-        changed = new Map();
-      }, FLUSH_MS);
-      const lifetime = setTimeout(() => stop(), LIFETIME_MS);
-      let stopped = false;
-      stop = () => {
-        if (stopped) return;
-        stopped = true;
-        clearInterval(flush);
-        clearTimeout(lifetime);
-        socket.close();
+      const end = () => {
+        stop();
         try {
           controller.close();
         } catch {
-          // the client already went away
+          // already closed, or the client went away
         }
       };
-
-      socket.onopen = () =>
-        socket.send(
-          JSON.stringify({
-            type: 'subscribe',
-            product_ids: productIds,
-            channels: ['ticker_batch'],
-          }),
-        );
-      socket.onmessage = event => {
-        const message = JSON.parse(String(event.data));
-        if (message.type === 'ticker')
-          changed.set(message.product_id, toTicker(message));
-      };
-      socket.onclose = stop;
-      socket.onerror = stop;
-      request.signal.addEventListener('abort', stop);
       // how long EventSource waits before reconnecting
       send('retry: 3000\n\n');
+      flush = setInterval(() => {
+        if (!changed.size) return;
+        send(`data: ${JSON.stringify([...changed.values()])}\n\n`);
+        changed.clear();
+      }, FLUSH_MS);
+      lifetime = setTimeout(end, LIFETIME_MS);
+      socket.onclose = end;
+      request.signal.addEventListener('abort', end);
     },
-    cancel() {
-      stop();
-    },
+    cancel: stop,
   });
+
+  socket.onopen = () =>
+    socket.send(
+      JSON.stringify({
+        type: 'subscribe',
+        product_ids: productIds,
+        channels: ['ticker_batch'],
+      }),
+    );
+  socket.onmessage = event => {
+    const message = JSON.parse(event.data);
+    if (message.type === 'ticker')
+      changed.set(message.product_id, toTicker(message));
+  };
 
   return new Response(body, {
     headers: {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache, no-transform',
-      'X-Accel-Buffering': 'no',
     },
   });
 }
 
 /** `product_ids` as a list, or undefined when it isn't a valid one */
-export function parseProductIds(param: string | null): string[] | undefined {
+function parseProductIds(param: string | null): string[] | undefined {
   const productIds = [...new Set(param?.split(',') ?? [])];
   if (
     productIds.length === 0 ||
@@ -100,17 +97,8 @@ export function parseProductIds(param: string | null): string[] | undefined {
   return productIds;
 }
 
-interface Ticker {
-  product_id: string;
-  trade_id: number;
-  price: string;
-  size: string;
-  time: string;
-  volume: string;
-}
-
 /** A websocket `ticker` message in the REST ticker's shape */
-export function toTicker(message: Record<string, any>): Ticker {
+function toTicker(message: Record<string, any>) {
   return {
     product_id: message.product_id,
     trade_id: message.trade_id,
