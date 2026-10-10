@@ -15,10 +15,18 @@ import {
   groupEntries,
   keepUnchanged,
   subjectFilter,
+  subjectGaps,
   type ActionGroup,
+  type ChangeKind,
 } from './actionGroups';
 import { ActionsPane } from './ActionList';
-import { findEntry, storeAt, withDropped, type LogEntry } from './actionLog';
+import {
+  findEntry,
+  keepSameMap,
+  storeAt,
+  withDropped,
+  type LogEntry,
+} from './actionLog';
 import {
   ActionsContext,
   AtMoment,
@@ -81,7 +89,14 @@ export default function StorePanel({
   // its place
   const [paneStored, setPane] = useTabStorage('playgroundStoreActions');
   const pane = paneStored === 'open';
-  const closePane = useCallback(() => setPane('closed'), [setPane]);
+  // showing an action opens the pane with focus on its row (`reveal` counts
+  // the asks; closed, the pane forgets them, so opening it again leaves
+  // focus alone)
+  const [reveal, setReveal] = useState(0);
+  const closePane = useCallback(() => {
+    setPane('closed');
+    setReveal(0);
+  }, [setPane]);
   // the timeline the scrubber expands into, above the content; it stays
   // mounted while it slides shut, until the slide ends
   const [timeline, setTimeline] = useState(false);
@@ -177,9 +192,20 @@ export default function StorePanel({
   const levels = useLevelStack(ROOT);
   // the top level's view: what the Actions pane lists and the steps follow
   const subject = levels.stack[levels.stack.length - 1].view;
-  const filter = useMemo(
-    () => subjectFilter(log, known, subject),
+  // a record's gaps seldom change: the filter keeps its identity until they
+  // do, so the pane's rows render only as their own group changes
+  const lastGaps = useRef<ReadonlyMap<number, ChangeKind>>(new Map());
+  const gaps = useMemo(
+    () =>
+      (lastGaps.current = keepSameMap(
+        lastGaps.current,
+        subjectGaps(log, known, subject),
+      )),
     [log, known, subject],
+  );
+  const filter = useMemo(
+    () => subjectFilter(log, subject, gaps),
+    [log, subject, gaps],
   );
   // a moment set on purpose outranks the store a chip opened a level at
   const { clearAt } = levels;
@@ -189,20 +215,6 @@ export default function StorePanel({
       clearAt();
     },
     [clearAt],
-  );
-  // showing an action opens the pane with focus on its row
-  const [reveal, setReveal] = useState(0);
-  const show = useCallback(
-    (seq: number) => {
-      set(seq);
-      setPane('open');
-      setReveal(n => n + 1);
-    },
-    [set, setPane],
-  );
-  const navState = useMemo<NavState>(
-    () => ({ seq: snapshotSeq, set, show }),
-    [snapshotSeq, set, show],
   );
 
   const panel = useRef<HTMLDivElement>(null);
@@ -246,6 +258,20 @@ export default function StorePanel({
       )?.focus({ preventScroll: true });
   }, [covered, swapped]);
   const collapse = useCallback(() => setTimeline(false), []);
+  // from under the sheet, showing an action closes it
+  const show = useCallback(
+    (seq: number) => {
+      set(seq);
+      setPane('open');
+      setReveal(n => n + 1);
+      if (narrow) collapse();
+    },
+    [set, setPane, narrow, collapse],
+  );
+  const navState = useMemo<NavState>(
+    () => ({ seq: snapshotSeq, set, show }),
+    [snapshotSeq, set, show],
+  );
   // a view to open from where there is no level to open it from (the
   // timeline's and the pane's chips): over the top level, in the table view;
   // under the sheet or the pane, which close to show it
@@ -362,7 +388,7 @@ export default function StorePanel({
                       className={styles.paneToggle}
                       title="The actions that touched what is shown"
                       aria-pressed={pane}
-                      onClick={() => setPane(pane ? 'closed' : 'open')}
+                      onClick={() => (pane ? closePane() : setPane('open'))}
                     >
                       <ListIcon />
                       Actions
@@ -393,6 +419,7 @@ export default function StorePanel({
                           : crumbLabel(subject, model)
                         }
                         swapped={swapped}
+                        covered={covered}
                         reveal={reveal}
                       />
                     </NavContext.Provider>

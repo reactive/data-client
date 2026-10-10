@@ -100,3 +100,10 @@ export function useHoldFocus(ref: React.RefObject<HTMLElement | null>) {
   });
   return hold;
 }
+
+/** `set` with `key` added, or removed when it is in: a toggle's state */
+export function toggled<T>(set: ReadonlySet<T>, key: T): Set<T> {
+  const next = new Set(set);
+  if (!next.delete(key)) next.add(key);
+  return next;
+}

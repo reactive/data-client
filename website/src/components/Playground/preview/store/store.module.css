@@ -930,7 +930,15 @@ div.actRow {
 /* the moment's action, when the list leaves it out */
 .pinned {
   flex: none;
+  max-height: 45%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   box-shadow: inset 0 -1px 0 var(--store-line-strong);
+}
+/* where actions the log dropped changed the record */
+div.gapRow {
+  padding: 0.25rem 0.75rem;
+  font-size: 11px;
 }
 /* the moment's action: its row, and its step when the row is open */
 .actRow[aria-current],

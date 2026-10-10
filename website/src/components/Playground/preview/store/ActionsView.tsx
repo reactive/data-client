@@ -17,6 +17,7 @@ import {
   type Change,
   type RequestGroup,
   type SubscriptionGroup,
+  type ChangeKind,
 } from './actionGroups';
 import type ActionLog from './actionLog';
 import { isRecordChange, type History, type LogEntry } from './actionLog';
@@ -97,8 +98,7 @@ export function useFollow(
   paused = false,
 ) {
   const follow = useRef(true);
-  // passive: `scroller` may be an ancestor's element, attached only after
-  // this component's layout effects ran on mount (see `useReveal`)
+  // passive: the listeners can wait for paint
   useEffect(() => {
     const el = scroller.current;
     if (!el) return;
@@ -276,12 +276,17 @@ export function Status({ group }: { group: ActionGroup }) {
 export function Dropped({
   group,
   all,
+  why,
 }: {
   group: ActionGroup;
   all: readonly LogEntry[];
+  /** Says why they are gone too */
+  why?: boolean;
 }) {
   const n = droppedIn(all, useLog().dropped);
-  return n ? <span className={styles.dim}>{droppedText(group, n)}</span> : null;
+  if (!n) return null;
+  const text = droppedText(group, n);
+  return <span className={styles.dim}>{why ? notKept(text) : text}</span>;
 }
 
 /** How many earlier updates of `entries` the log no longer has */
@@ -291,8 +296,21 @@ export function droppedIn(
 ) {
   return entries.reduce((sum, e) => sum + (dropped?.get(e.seq) ?? 0), 0);
 }
-/** Why `droppedText` counts are gone */
-export const KEEPS_NEWEST = 'the log keeps the newest';
+/** `what`, and why it is gone */
+export const notKept = (what: string) => `${what}: the log keeps the newest`;
+
+/** What actions the log didn't keep did to a record (see `rowTimeline`),
+ * and why they are gone */
+export function gapText(change: ChangeKind) {
+  return notKept(`${missingText[change] ?? 'Changed'} by actions not kept`);
+}
+const missingText: Partial<Record<ChangeKind, string>> = {
+  refreshed: 'Stored again',
+  removed: 'Removed',
+  invalidated: 'Invalidated',
+  expired: 'Marked stale',
+  error: 'Failed',
+};
 
 /** `40 earlier polls not kept` */
 export function droppedText(group: ActionGroup, n: number) {

@@ -191,13 +191,18 @@ DesignSystem/       components injected into preview scope
   or a line saying it left the subject alone; then the action's fields).
   Nothing is marked while live. When the moment's action is not in the list
   (it left the subject alone, or the log dropped it), it shows in an "At
-  this moment" block pinned over the list instead. ↑ ↓ on a row or step move
-  to the next one, as the moment. Wide, the pane sits beside State with a
+  this moment" block pinned over the list instead. ↑ ↓ on a row or step
+  (↓ from the pinned block) move to the next one, as the moment; a group's
+  head stands for its response, so ↑ from a step of the moment's own group
+  moves focus alone. Wide, the pane sits beside State with a
   scroll of its own; under `NARROW_WIDTH` it takes State's place (State
   stays mounted, `hidden` and `inert`, keeping its levels and scroll), and a
   chip closes it to show what it opened. Focus follows: the pane's toggle as
   State swaps out, the level as it swaps back; "changed by" and the
-  scrubber's label focus the row they show.
+  scrubber's label focus the row they show (closing the timeline sheet
+  first when narrow), while opening the pane by its toggle leaves focus
+  alone. A row renders again only as its own group changes (`GroupRow` is
+  memoized; `subjectFilter` keeps its identity while the record's gaps do).
   The scrubber across the top of the panel (`Scrubber` in
   `preview/store/Timeline.tsx`, a `role="group"`) always shows the whole
   history on one lane, fit to the panel: ‹ › and ←→ step through the changes

@@ -821,6 +821,25 @@ describe('Store Actions pane', () => {
     expect(top()).toBeTruthy();
   });
 
+  it('closes the sheet as the scrubber’s label shows the action in it', async () => {
+    const { ctrl } = mountAt(360);
+    await act(() => ctrl().fetch(getPosts));
+    fireEvent.click(screen.getByRole('button', { name: 'Previous change' }));
+    toggle();
+    expect(screen.getByRole('button', { name: 'Close timeline' })).toBeTruthy();
+    const box = revealBox(lanes());
+    fireEvent.click(screen.getByTitle('Show in Actions'));
+    expect(screen.queryByRole('button', { name: 'Close timeline' })).toBeNull();
+    expect(pane()).toBeTruthy();
+    // focus waits for the sheet to slide shut, off the inert content
+    expect(pane()!.contains(document.activeElement)).toBe(false);
+    fireEvent.transitionEnd(box);
+    const focused = document.activeElement as HTMLElement;
+    expect(pane()!.contains(focused)).toBe(true);
+    expect(focused.closest('[inert]')).toBeNull();
+    expect(focused.getAttribute('aria-current')).toBe('true');
+  });
+
   it('takes focus from the state it swaps out, to its toggle, and back as it swaps in', async () => {
     const { ctrl } = mountAt(800);
     await act(() => ctrl().fetch(getPosts));

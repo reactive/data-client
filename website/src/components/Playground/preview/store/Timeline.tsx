@@ -22,7 +22,7 @@ import {
   droppedIn,
   droppedText,
   FOLLOW_SLACK,
-  KEEPS_NEWEST,
+  notKept,
   KeyLabel,
   seconds,
   Time,
@@ -606,7 +606,7 @@ function LaneDropped({ lane }: { lane: Lane }) {
     return n ? [droppedText(group, n)] : [];
   });
   if (!counts.length) return null;
-  const label = `${counts.join('; ')}: ${KEEPS_NEWEST}`;
+  const label = notKept(counts.join('; '));
   return (
     <span
       className={clsx(styles.tlDropped, styles.dim)}

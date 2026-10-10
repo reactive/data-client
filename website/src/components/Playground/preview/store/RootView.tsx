@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 
 import { TIME_WIDTH } from './columns';
 import { EntityDetail } from './Details';
-import { byData, offsetIn } from './dom';
+import { byData, offsetIn, toggled } from './dom';
 import {
   optimisticId,
   splitKey,
@@ -46,12 +46,7 @@ export default function RootView({
     title,
     count,
     open: !closed.has(title),
-    onToggle: () =>
-      setClosed(prev => {
-        const next = new Set(prev);
-        if (!next.delete(title)) next.add(title);
-        return next;
-      }),
+    onToggle: () => setClosed(prev => toggled(prev, title)),
   });
   const entityCount = model.tables.reduce((n, t) => n + t.rows.length, 0);
   const endpoints = preview(model.endpoints);

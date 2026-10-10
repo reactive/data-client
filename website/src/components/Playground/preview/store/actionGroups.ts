@@ -558,6 +558,24 @@ export function rowTimeline(
   log: ActionLog,
   entries: readonly LogEntry[],
   id: string,
+): readonly (Version | Missing)[] {
+  // built once per history and row: a record's "changed by" and the
+  // Actions pane both ask for it on every action
+  let rows = timelines.get(entries);
+  if (!rows) timelines.set(entries, (rows = new Map()));
+  let items = rows.get(id);
+  if (!items) rows.set(id, (items = buildTimeline(log, entries, id)));
+  return items;
+}
+const timelines = new WeakMap<
+  readonly LogEntry[],
+  Map<string, readonly (Version | Missing)[]>
+>();
+
+function buildTimeline(
+  log: ActionLog,
+  entries: readonly LogEntry[],
+  id: string,
 ): (Version | Missing)[] {
   const items: (Version | Missing)[] = [];
   const row = rowOf(id);
@@ -600,7 +618,7 @@ export function touches(subject: View, change: Change): boolean {
 
 /** Where actions the log dropped changed record `id`: by the kept action
  * each gap was found at, what they did to it */
-export function recordGaps(
+function recordGaps(
   log: ActionLog,
   entries: readonly LogEntry[],
   id: string,
@@ -622,14 +640,25 @@ export interface SubjectFilter {
   readonly gaps: ReadonlyMap<number, ChangeKind>;
 }
 
-export function subjectFilter(
+/** The subject's gaps: a record's (see `recordGaps`); none otherwise */
+export function subjectGaps(
   log: ActionLog,
   entries: readonly LogEntry[],
   subject: View,
+): ReadonlyMap<number, ChangeKind> {
+  return subject.kind === 'record' ?
+      recordGaps(log, entries, subject.id)
+    : NO_GAPS;
+}
+
+/** The filter for `subject`, given its gaps (`subjectGaps`, kept the same
+ * while they are, see `keepSameMap`), so the pane's rows can skip rendering */
+export function subjectFilter(
+  log: ActionLog,
+  subject: View,
+  gaps: ReadonlyMap<number, ChangeKind>,
 ): SubjectFilter {
   if (subject.kind === 'root') return { hit: e => !!e.store, gaps: NO_GAPS };
-  const gaps =
-    subject.kind === 'record' ? recordGaps(log, entries, subject.id) : NO_GAPS;
   return {
     hit: e => gaps.has(e.seq) || log.changes(e).some(c => touches(subject, c)),
     gaps,

@@ -2,11 +2,17 @@ import { actionTypes, type ActionTypes, type State } from '@data-client/react';
 import clsx from 'clsx';
 import React, { useMemo } from 'react';
 
-import { actionKey, touches, type Change } from './actionGroups';
+import {
+  actionKey,
+  touches,
+  type Change,
+  type ChangeKind,
+} from './actionGroups';
 import { isRecordChange, type LogEntry } from './actionLog';
 import {
   AtMoment,
   ChangeChip,
+  gapText,
   KeyLabel,
   spanOf,
   TypeName,
@@ -26,13 +32,16 @@ import styles from './store.module.css';
 import { Block, Field, Inline } from './Value';
 
 /** What an action did to `subject` (every row at the store, a line saying
- * it left the subject alone), then the action itself */
+ * it left the subject alone, or that it is where a `gap` of dropped actions
+ * changing it was found), then the action itself */
 export function ActionDetail({
   entry,
   subject,
+  gap,
 }: {
   entry: LogEntry;
   subject: View;
+  gap?: ChangeKind;
 }) {
   const { log } = useActions();
   const changes = log.changes(entry).filter(c => touches(subject, c));
@@ -53,7 +62,10 @@ export function ActionDetail({
                 {refreshed === 1 ? '' : 's'} again, unchanged
               </span>
             )}
-            {!changes.length && (
+            {gap && (
+              <span className={styles.dim}>Before it: {gapText(gap)}</span>
+            )}
+            {!changes.length && !gap && (
               <span className={styles.dim}>{unchangedNote(subject)}</span>
             )}
           </>

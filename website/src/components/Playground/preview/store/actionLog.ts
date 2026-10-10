@@ -371,12 +371,15 @@ export default class ActionLog {
     return {
       entries: kept,
       trimmed: kept.length,
-      // the counts of the entries still kept
-      dropped: new Map(
-        kept.flatMap(e => {
-          const n = capped.dropped.get(e.seq);
-          return n ? [[e.seq, n]] : [];
-        }),
+      // the counts of the entries still kept, as they were when unchanged
+      dropped: keepSameMap(
+        dropped,
+        new Map(
+          kept.flatMap(e => {
+            const n = capped.dropped.get(e.seq);
+            return n ? [[e.seq, n]] : [];
+          }),
+        ),
       ),
     };
   }
@@ -535,4 +538,15 @@ function detach(state: State<unknown>): State<unknown> {
     endpoints: { ...state.endpoints },
     meta: { ...state.meta },
   };
+}
+
+/** `next`, or `prev` when it holds the same, so what is built on the map
+ * keeps its identity between actions that leave it alone */
+export function keepSameMap<K, V>(
+  prev: ReadonlyMap<K, V>,
+  next: ReadonlyMap<K, V>,
+): ReadonlyMap<K, V> {
+  if (prev.size !== next.size) return next;
+  for (const [key, value] of next) if (prev.get(key) !== value) return next;
+  return prev;
 }
