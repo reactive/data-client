@@ -7,6 +7,8 @@ export class ReconnectingSocket {
 
   declare protected socket: WebSocket;
   protected attempts = 0;
+  /** When the current socket opened */
+  declare protected openedAt: number | undefined;
   /** Pending reconnect, or the watchdog while connected */
   declare protected timer: ReturnType<typeof setTimeout>;
 
@@ -34,9 +36,9 @@ export class ReconnectingSocket {
   protected connect() {
     this.stop();
     this.socket = new WebSocket(this.url);
-    let openedAt = 0;
+    this.openedAt = undefined;
     this.socket.onopen = () => {
-      openedAt = Date.now();
+      this.openedAt = Date.now();
       this.onopen();
     };
     this.socket.onmessage = event => {
@@ -44,15 +46,7 @@ export class ReconnectingSocket {
       this.onmessage(JSON.parse(event.data));
     };
     // after a failed connect, an error or a server close
-    this.socket.onclose = () => {
-      // a server that accepts and then hangs up still backs off
-      if (openedAt && Date.now() - openedAt > 10_000)
-        this.attempts = 0;
-      const delay = Math.min(30_000, 1000 * 2 ** this.attempts);
-      this.attempts++;
-      clearTimeout(this.timer);
-      this.timer = setTimeout(this.reconnect, delay);
-    };
+    this.socket.onclose = () => this.retry();
     this.watch();
   }
 
@@ -61,9 +55,23 @@ export class ReconnectingSocket {
   protected watch() {
     clearTimeout(this.timer);
     this.timer = setTimeout(() => {
-      if (this.expectsMessages()) this.connect();
+      if (this.expectsMessages()) this.retry();
       else this.watch();
     }, 30_000);
+  }
+
+  /** Reconnects after a delay that doubles with each attempt, until a
+   * socket stays up long enough to count as working */
+  protected retry() {
+    this.stop();
+    if (
+      this.openedAt !== undefined &&
+      Date.now() - this.openedAt > 10_000
+    )
+      this.attempts = 0;
+    const delay = Math.min(30_000, 1000 * 2 ** this.attempts);
+    this.attempts++;
+    this.timer = setTimeout(this.reconnect, delay);
   }
 
   protected reconnect = () => {
@@ -75,8 +83,7 @@ export class ReconnectingSocket {
   protected stop = () => {
     clearTimeout(this.timer);
     if (!this.socket) return;
-    // closed sockets get no more messages; skip its reconnect
-    this.socket.onclose = null;
+    this.socket.onmessage = this.socket.onclose = null;
     this.socket.close();
   };
 }
