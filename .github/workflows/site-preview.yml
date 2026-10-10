@@ -100,7 +100,7 @@ jobs:
             echo "::notice title=English only::This PR doesn't touch translations; the merge queue builds every locale"
             echo "english-only=true" >> "$GITHUB_OUTPUT"
           fi
-      # Docusaurus' webpack cache (~73 MiB compressed). Only master saves it, so
+      # Docusaurus Faster's Rspack cache. Only master saves it, so
       # PRs share one fresh entry instead of each storing their own; stale
       # modules just miss.
       - uses: actions/cache/restore@v6
@@ -120,7 +120,7 @@ jobs:
         shell: bash
         run: |
           yarn workspace rdc-website build ${ENGLISH_ONLY:+--locale en} 2>&1 | tee build.log
-          # Warnings (broken links, webpack warnings) fail the check, but not
+          # Warnings (broken links, bundler warnings) fail the check, but not
           # the build itself, which only stops on errors
           if grep -E '\[(WARNING|ERROR)\]' build.log; then
             echo "::error::Website build logged warnings (listed above)"
