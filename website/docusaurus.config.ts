@@ -263,7 +263,10 @@ const config: Config = {
     }, TODO: figure out how to load this*/
   ],
   scripts: [],
-  clientModules: [require.resolve('./src/gtagfix.ts')],
+  clientModules: [
+    require.resolve('./src/gtagfix.ts'),
+    require.resolve('./src/staleDeploy.ts'),
+  ],
   //favicon: '/favicon.ico', we declare our own headers for this above
   themes: ['@docusaurus/theme-live-codeblock', '@docusaurus/theme-mermaid'],
   customFields: {
@@ -486,6 +489,7 @@ const config: Config = {
     path.resolve(__dirname, './raw-plugin'),
     path.resolve(__dirname, './llms-plugin'),
     path.resolve(__dirname, './chunks-plugin'),
+    path.resolve(__dirname, './build-id-plugin'),
   ],
   themeConfig: {
     mermaid: {
