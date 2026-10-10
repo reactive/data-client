@@ -28,7 +28,7 @@ import {
   tableColumns,
   type Column,
 } from './Table';
-import { EndpointKey, Inline, Primitive } from './Value';
+import { EndpointKey, Inline, moreLabel, Primitive } from './Value';
 
 /** Rows a table shows before "N more"; tables this short show them all */
 const PREVIEW_ROWS = 5;
@@ -203,13 +203,6 @@ function Group({ table }: { table: EntityTable }) {
 }
 
 type Optimistic = StoreModel['optimistic'][number] & { id: string };
-
-/** `5 more`: rows a table leaves to its own level */
-export const moreLabel = (count: number) =>
-  translate(
-    { id: 'playground.store.table.more', message: '{count} more' },
-    { count: count.toLocaleString() },
-  );
 
 /** Updates applied ahead of their response */
 const optimisticColumns = (): Column<Optimistic>[] => [

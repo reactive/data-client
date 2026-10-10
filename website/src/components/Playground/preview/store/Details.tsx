@@ -13,7 +13,14 @@ import {
 import { plain } from './refs';
 import type { EndpointRecord } from './schemaRegistry';
 import styles from './store.module.css';
-import { Block, Field, formatTime, RefList, RowChip } from './Value';
+import {
+  Block,
+  Field,
+  formatTime,
+  invalidLabel,
+  RefList,
+  RowChip,
+} from './Value';
 import { ChangedBy } from './VersionHistory';
 
 type Meta = EndpointRow['meta'];
@@ -63,9 +70,6 @@ export function Status({ meta }: { meta: Meta }) {
 }
 
 /** An endpoint invalidated, or an entity `schema.Invalidate` marked */
-export const invalidLabel = () =>
-  translate({ id: 'playground.store.status.invalid', message: 'invalid' });
-
 /** Re-renders each second until `until` passes */
 function useNow(until: number | undefined) {
   const [now, setNow] = useState(Date.now);

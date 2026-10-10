@@ -1,8 +1,8 @@
+import { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React, { useContext, useState } from 'react';
 
 import { fitChips, INLINE_LIMIT, isTimeField } from './columns';
-import { invalidLabel } from './Details';
 import { entityId, isEndpointRow, prettyPk, type AnyRow } from './model';
 import {
   ActionSpanContext,
@@ -20,7 +20,6 @@ import {
   type RefNode,
   type VNode,
 } from './refs';
-import { moreLabel } from './RootView';
 import styles from './store.module.css';
 import { useStoreUI } from './StoreUI';
 
@@ -416,3 +415,13 @@ function useSpanEnd(): Moment | undefined {
   const span = useContext(ActionSpanContext);
   return span && { seq: span.last };
 }
+
+/** `5 more`: rows a table leaves to its own level */
+export const moreLabel = (count: number) =>
+  translate(
+    { id: 'playground.store.table.more', message: '{count} more' },
+    { count: count.toLocaleString() },
+  );
+
+export const invalidLabel = () =>
+  translate({ id: 'playground.store.status.invalid', message: 'invalid' });

@@ -13,7 +13,8 @@ import styles from '../styles.module.css';
 export function useRenderCount(enabled: boolean) {
   const ref = useRef<HTMLButtonElement>(null);
   const count = useRef(0);
-  // The locale never changes on a page, so the first render's plural rules hold
+  // selectMessage is new each render, so keep the first: a page's locale never
+  // changes, and a stable label keeps onCommit stable
   const { selectMessage } = usePluralForm();
   const [label] = useState(
     () => (n: number) =>
