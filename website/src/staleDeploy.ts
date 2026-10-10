@@ -33,7 +33,11 @@ async function reloadIfStaleDeploy(error: unknown): Promise<void> {
   if (checking || !runningId || !isChunkLoadError(error)) return;
   checking = true;
   try {
-    const res = await fetch(BUILD_ID_URL, { cache: 'no-store' });
+    const res = await fetch(BUILD_ID_URL, {
+      cache: 'no-store',
+      // a hung request would block every later check
+      signal: AbortSignal.timeout(10_000),
+    });
     const deployedId = res.ok && (await res.text()).trim();
     if (
       !deployedId ||
