@@ -15,7 +15,7 @@ export class ReconnectingSocket {
   constructor(protected url: string) {}
 
   open() {
-    this.connect();
+    if (!document.hidden) this.connect();
     addEventListener('online', this.reconnect);
     // a socket can take minutes to notice the network is gone
     addEventListener('offline', this.stop);
@@ -80,7 +80,10 @@ export class ReconnectingSocket {
   }
 
   protected reconnect = () => {
-    if (!document.hidden && this.socket.readyState !== WebSocket.OPEN)
+    if (
+      !document.hidden &&
+      this.socket?.readyState !== WebSocket.OPEN
+    )
       this.connect();
   };
 
