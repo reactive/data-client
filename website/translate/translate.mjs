@@ -184,11 +184,13 @@ const uiId = (locale, file, key) => `website/i18n/${locale}/${file}#${key}`;
  * repeat them, and a language can have fewer forms than English */
 const placeholders = text => [...new Set(text.match(/\{\w+\}/g))].sort().join();
 
-/** What's wrong with a UI string's translation, if anything: lost
- * placeholders, or plural forms ("|"-separated, as usePluralForm reads them)
- * the locale can't use. Docusaurus falls back to the last form, so too few
- * forms would silently show a plural for one. */
+/** What's wrong with a UI string's translation, if anything: blank, lost
+ * placeholders, a "|" in a string that isn't plural, or plural forms
+ * ("|"-separated, as usePluralForm reads them) the locale can't use.
+ * Docusaurus falls back to the last form, so too few forms would silently
+ * show a plural for one. */
 function uiProblem(locale, text, message) {
+  if (!text.trim()) return 'translate it: it is blank';
   if (placeholders(text) !== placeholders(message))
     return `keep the placeholders of "${message}"`;
   const english = message.split('|').length;
