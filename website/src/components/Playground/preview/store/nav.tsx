@@ -67,16 +67,14 @@ export const cellDive =
       { kind: 'record', id: row.id }
     : refsList(items, `${rowLabel(row)} ${name}`);
 
-/** One level of a navigation stack: the table view's, or the Actions tab's */
+/** A subject of the store, one level of the navigation stack */
 export type View =
   | { readonly kind: 'root' }
-  | { readonly kind: 'actions' }
   | ListView
   | { readonly kind: 'record'; readonly id: string }
   /** Every logged version of record `id`, with the one State shows (or
    * the one current at action `seq`) open */
-  | { readonly kind: 'history'; readonly id: string; readonly seq?: number }
-  | { readonly kind: 'action'; readonly seq: number };
+  | { readonly kind: 'history'; readonly id: string; readonly seq?: number };
 
 /** A level of a navigation stack */
 export interface StackEntry {
@@ -92,40 +90,23 @@ export interface LevelStack {
   readonly returnTo: string | null;
   /** Opens `view` over the top level, at the store `at` shows */
   readonly push: (view: View, at?: Moment) => void;
-  /** Shows `view` in level `depth`'s place, keeping its store */
-  readonly replace: (depth: number, view: View) => void;
   /** Closes level `depth` and every level over it */
   readonly back: (depth: number) => void;
 }
 
-/** A stack of views over `root`. `onShow` sees each view as it is pushed or
- * put in another's place */
-export function useLevelStack(
-  root: View,
-  onShow?: (view: View) => void,
-): LevelStack {
+/** A stack of views over `root` */
+export function useLevelStack(root: View): LevelStack {
   // the record a level was opened from flashes once that level is back on top
   const [{ stack, returnTo }, setLevels] = useState<{
     readonly stack: readonly StackEntry[];
     readonly returnTo: string | null;
   }>({ stack: [{ key: 0, view: root }], returnTo: null });
   const nextKey = useRef(1);
-  // the latest, so push and replace stay the same for the levels' navs
-  const show = useRef(onShow);
-  show.current = onShow;
   const push = useCallback((view: View, at?: Moment) => {
-    show.current?.(view);
     const key = nextKey.current++;
     setLevels(prev => ({
       ...prev,
       stack: [...prev.stack, { key, view, at }],
-    }));
-  }, []);
-  const replace = useCallback((depth: number, view: View) => {
-    show.current?.(view);
-    setLevels(prev => ({
-      ...prev,
-      stack: prev.stack.map((e, i) => (i === depth ? { ...e, view } : e)),
     }));
   }, []);
   const back = useCallback((depth: number) => {
@@ -137,7 +118,7 @@ export function useLevelStack(
       };
     });
   }, []);
-  return { stack, returnTo, push, replace, back };
+  return { stack, returnTo, push, back };
 }
 
 /** The store as an action left it, or (`before`) found it (a removed row
@@ -148,18 +129,27 @@ export interface Moment {
   readonly before?: true;
 }
 
-/** The moment the panel is at: State shows the store right after action
- * `seq`, the Actions list marks it and a History opens the version current
- * then. `null` is live. Every tab can move it */
-export interface MomentCursor {
+/** Which aspect of the subject the panel shows: its value at the moment, or
+ * the moment's action and what it did to it */
+export type Facet = 'state' | 'action';
+
+/** Where the panel stands, apart from its subject: the moment (State shows
+ * the store right after action `seq`, the timeline marks it and a History
+ * opens the version current then; `null` is live) and the facet. Every
+ * level and the timeline can move either */
+export interface NavState {
   readonly seq: number | null;
   readonly set: (seq: number | null) => void;
+  readonly facet: Facet;
+  readonly setFacet: (facet: Facet) => void;
 }
-export const MomentContext = createContext<MomentCursor>({
+export const NavStateContext = createContext<NavState>({
   seq: null,
   set: () => {},
+  facet: 'state',
+  setFacet: () => {},
 });
-export const useMoment = () => useContext(MomentContext);
+export const useNavState = () => useContext(NavStateContext);
 
 /** The store at a `Moment` */
 export interface Then {
@@ -189,13 +179,13 @@ export interface Nav {
   readonly push: (view: View, at?: Moment) => void;
 }
 
-/** Set by the table view and the Actions tab; the tree view expands in place
- * instead */
+/** Set by the table view's levels and the timeline; the tree view expands in
+ * place instead */
 export const NavContext = createContext<Nav | null>(null);
 export const useNav = () => useContext(NavContext);
 
-/** Opens a view where there is no stack to open it on (the tree view, the
- * Timeline): in the table view, on the State tab's stack */
+/** Opens a view where there is no level to open it from (the tree view): in
+ * the table view, over the top level */
 export const OpenViewContext = createContext<((view: View) => void) | null>(
   null,
 );

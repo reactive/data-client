@@ -29,8 +29,7 @@ import { onActivateKey, scrollToRow } from './dom';
 import { actionId, splitKey } from './model';
 import {
   ActionSpanContext,
-  useMoment,
-  useNav,
+  useNavState,
   type ActionSpan,
   type Moment,
   type Then,
@@ -42,10 +41,8 @@ export interface Actions {
   readonly log: ActionLog;
   /** The shown store's actions */
   readonly history: History;
-  /** `history.entries` as the Actions tab's rows */
+  /** `history.entries` as the timeline's rows */
   readonly groups: readonly ActionGroup[];
-  /** Opens the State tab as it was right after action `seq` */
-  readonly showState: (seq: number) => void;
   /** The action State is shown after, while it shows the past */
   readonly until?: number;
   /** The store as an action left (or found) it, while the log has it */
@@ -92,14 +89,14 @@ const TICK_LIMIT = 12;
 /** Distance from the bottom (px) that still counts as following new rows */
 export const FOLLOW_SLACK = 24;
 
-/** Every action, folded into requests and subscriptions; follows new rows
- * while scrolled to the bottom. The moment's action is marked, its row open */
-export function ActionsRoot({
-  scroller,
-}: {
-  scroller: React.RefObject<HTMLElement | null>;
-}) {
+/** The timeline as a list: every action, folded into requests and
+ * subscriptions, following new rows while scrolled to the bottom. A row sets
+ * the moment (its › opens the Action facet too); the moment's row is marked
+ * and open */
+export function ActionList({ onPick }: { onPick?: () => void }) {
   const { groups } = useActions();
+  const { seq, set, setFacet } = useNavState();
+  const scroller = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set());
   const toggle = useCallback(
     (id: string) =>
@@ -110,7 +107,14 @@ export function ActionsRoot({
       }),
     [],
   );
-  const { seq } = useMoment();
+  const openAction = useCallback(
+    (seq: number) => {
+      set(seq);
+      setFacet('action');
+      onPick?.();
+    },
+    [set, setFacet, onPick],
+  );
   const current = seq === null ? undefined : groupOf(groups, seq);
   // once per move: the row opens, and may be closed again. A lone action's
   // row is its own step: marking it is enough
@@ -127,15 +131,14 @@ export function ActionsRoot({
   useLayoutEffect(() => {
     if (seq === null) toNewest();
   }, [seq, toNewest]);
-  if (!groups.length)
-    return (
-      <p className={styles.empty}>
-        Nothing dispatched yet. Fetches, responses and other store actions show
-        here as the preview runs.
-      </p>
-    );
   return (
-    <div className={styles.actions}>
+    <div ref={scroller} className={styles.tlList}>
+      {!groups.length && (
+        <p className={styles.empty}>
+          Nothing dispatched yet. Fetches, responses and other store actions
+          show here as the preview runs.
+        </p>
+      )}
       {groups.map(group => (
         <GroupRow
           key={group.id}
@@ -143,6 +146,8 @@ export function ActionsRoot({
           open={open.has(group.id)}
           current={group === current ? seq! : undefined}
           onToggle={toggle}
+          onSelect={set}
+          onOpen={openAction}
         />
       ))}
     </div>
@@ -246,19 +251,31 @@ const GroupRow = memo(function GroupRow({
   group,
   open,
   current,
-  onToggle: toggle,
+  onToggle,
+  onSelect,
+  onOpen,
 }: {
   group: ActionGroup;
   open: boolean;
   /** The moment's action, when it is one of this row's */
   current?: number;
   onToggle: (id: string) => void;
+  /** Moves the moment to an action */
+  onSelect: (seq: number) => void;
+  /** Moves the moment to an action and opens the Action facet */
+  onOpen: (seq: number) => void;
 }) {
   const { log } = useLog();
-  const onToggle = () => toggle(group.id);
   const all = groupEntriesOf(group);
   const changes = log.mergedChanges(all);
   const first = all[0];
+  // the row stands for its last action the store saw (a request's response),
+  // or its last one
+  const seq = spanOf(all)?.last ?? all[all.length - 1].seq;
+  const select = () => {
+    onToggle(group.id);
+    onSelect(seq);
+  };
   return (
     <div className={styles.actGroup} data-open={open || undefined}>
       <div
@@ -269,8 +286,8 @@ const GroupRow = memo(function GroupRow({
         // a lone action is its own step, so the moment scrolls to it here
         data-id={all.length === 1 ? actionId(first.seq) : undefined}
         className={clsx(styles.row, styles.actRow)}
-        onClick={onToggle}
-        onKeyDown={onActivateKey(onToggle)}
+        onClick={select}
+        onKeyDown={onActivateKey(select)}
       >
         <span className={styles.actHead}>
           {group.kind === 'single' && <TypeName entry={first} />}
@@ -280,6 +297,7 @@ const GroupRow = memo(function GroupRow({
             <Status group={group} />
             <Time at={first.at} />
           </span>
+          <OpenAction seq={seq} onOpen={onOpen} />
         </span>
         <span className={styles.actSum}>
           <Lifecycle group={group} />
@@ -293,10 +311,42 @@ const GroupRow = memo(function GroupRow({
           </ActionSpanContext.Provider>
         </span>
       </div>
-      {open && <Steps group={group} all={all} current={current} />}
+      {open && (
+        <Steps
+          group={group}
+          all={all}
+          current={current}
+          onSelect={onSelect}
+          onOpen={onOpen}
+        />
+      )}
     </div>
   );
 });
+
+/** A row's ›: the Action facet on its action */
+function OpenAction({
+  seq,
+  onOpen,
+}: {
+  seq: number;
+  onOpen: (seq: number) => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={styles.actOpen}
+      aria-label="Open action"
+      title="Open action"
+      onClick={e => {
+        e.stopPropagation();
+        onOpen(seq);
+      }}
+    >
+      ›
+    </button>
+  );
+}
 
 /** An open row's actions; fetches deduped into a request in flight show as
  * one line */
@@ -304,10 +354,14 @@ function Steps({
   group,
   all,
   current,
+  onSelect,
+  onOpen,
 }: {
   group: ActionGroup;
   all: readonly LogEntry[];
   current?: number;
+  onSelect: (seq: number) => void;
+  onOpen: (seq: number) => void;
 }) {
   const { dropped } = useLog();
   const joined = joinedFetches(group);
@@ -336,6 +390,8 @@ function Steps({
               entry={entry}
               own={group.key}
               current={entry.seq === current}
+              onSelect={onSelect}
+              onOpen={onOpen}
             />,
           ];
         }
@@ -358,43 +414,23 @@ function Steps({
   );
 }
 
-/** One action of an open row */
+/** One action of an open row; sets the moment to it */
 function StepRow({
   entry,
   own,
   current,
+  onSelect,
+  onOpen,
 }: {
   entry: LogEntry;
   own: string;
   /** Whether it is the moment's action */
   current: boolean;
+  onSelect: (seq: number) => void;
+  onOpen: (seq: number) => void;
 }) {
   const { log } = useLog();
-  return (
-    <ActionStep entry={entry} current={current}>
-      <TypeName entry={entry} />
-      <span className={styles.actSum}>
-        <ActionSpanContext.Provider value={spanOf([entry])}>
-          <ChangeChips changes={log.changes(entry)} own={own} />
-        </ActionSpanContext.Provider>
-      </span>
-    </ActionStep>
-  );
-}
-
-/** An action's line, after its time; opens the action's own level */
-export function ActionStep({
-  entry,
-  current,
-  children,
-}: {
-  entry: LogEntry;
-  /** Whether it is the moment's action */
-  current?: boolean;
-  children: React.ReactNode;
-}) {
-  const nav = useNav()!;
-  const open = () => nav.push({ kind: 'action', seq: entry.seq });
+  const select = () => onSelect(entry.seq);
   return (
     <div
       role="button"
@@ -402,11 +438,17 @@ export function ActionStep({
       aria-current={current || undefined}
       data-id={actionId(entry.seq)}
       className={clsx(styles.row, styles.stepRow)}
-      onClick={open}
-      onKeyDown={onActivateKey(open)}
+      onClick={select}
+      onKeyDown={onActivateKey(select)}
     >
       <Time at={entry.at} />
-      {children}
+      <TypeName entry={entry} />
+      <span className={styles.actSum}>
+        <ActionSpanContext.Provider value={spanOf([entry])}>
+          <ChangeChips changes={log.changes(entry)} own={own} />
+        </ActionSpanContext.Provider>
+      </span>
+      <OpenAction seq={entry.seq} onOpen={onOpen} />
     </div>
   );
 }

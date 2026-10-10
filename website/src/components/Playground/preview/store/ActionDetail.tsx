@@ -13,53 +13,60 @@ import {
   ChangeChip,
   KeyLabel,
   spanOf,
+  Time,
   TypeName,
   useActions,
 } from './ActionsView';
 import type { Header } from './DiveViews';
 import { errorText } from './model';
-import { ActionSpanContext } from './nav';
+import { ActionSpanContext, useNavState, type View } from './nav';
 import { plain } from './refs';
 import styles from './store.module.css';
 import { Field, Inline } from './Value';
 
-/** One action: what it changed, then the action itself */
-export function ActionDetail({
-  seq,
+/** The moment's action (live, the newest): what it changed about `subject`,
+ * then the action itself */
+export function ActionFacet({
+  subject,
   header,
-  onShowState,
-  onStep,
 }: {
-  seq: number;
+  subject: View;
   header: Header;
-  /** Uncovers State once it switches to just after this action */
-  onShowState?: () => void;
-  /** Shows another action of the same row in its place */
-  onStep: (seq: number) => void;
 }) {
-  const { log, history, groups, showState } = useActions();
-  const entry = findEntry(history.entries, seq);
-  const group = groupOf(groups, seq);
-  const row = group ? groupEntriesOf(group) : [];
-  const step = row.length > 1 && (
-    <GroupStep row={row} seq={seq} onStep={onStep} />
-  );
+  const { log, history, groups } = useActions();
+  const { seq, set } = useNavState();
+  const entry =
+    seq === null ? history.entries.at(-1) : findEntry(history.entries, seq);
   if (!entry)
     return (
       <>
-        {header(step)}
-        <div className={styles.record}>
-          <span className={styles.dim}>No longer in the log</span>
-        </div>
+        {header(null)}
+        <p className={styles.empty}>
+          {seq === null ?
+            'Nothing dispatched yet. The newest action shows here as the preview runs.'
+          : 'No longer in the log'}
+        </p>
       </>
     );
-  const changes = log.changes(entry);
+  const group = groupOf(groups, entry.seq);
+  const row = group ? groupEntriesOf(group) : [];
+  const changes = log.changes(entry).filter(c => touches(subject, c));
   const changed = changes.filter(isRecordChange);
   const refreshed = changes.length - changed.length;
   return (
     <>
-      {header(step)}
+      {header(null)}
       <div className={styles.record}>
+        <div className={styles.actHead}>
+          <TypeName entry={entry} />
+          <KeyLabel value={actionKey(entry.action)} />
+          <span className={styles.actMeta}>
+            <Time at={entry.at} />
+            {row.length > 1 && (
+              <GroupStep row={row} seq={entry.seq} onStep={set} />
+            )}
+          </span>
+        </div>
         <div className={clsx(styles.detail, styles.actDetail)}>
           {entry.store ?
             <>
@@ -71,19 +78,7 @@ export function ActionDetail({
                 </span>
               )}
               {!changes.length && (
-                <span className={styles.dim}>No change to the store</span>
-              )}
-              {changes.length > 0 && (
-                <button
-                  type="button"
-                  className={styles.showState}
-                  onClick={() => {
-                    showState(seq);
-                    onShowState?.();
-                  }}
-                >
-                  View State after this
-                </button>
+                <span className={styles.dim}>{unchangedNote(subject)}</span>
               )}
             </>
           : <span className={styles.dim}>{unappliedNote(entry.action)}</span>}
@@ -101,7 +96,37 @@ export function ActionDetail({
   );
 }
 
-/** Steps through the actions of the row this one belongs to */
+/** Whether a change is to a row `subject` covers */
+function touches(subject: View, change: Change): boolean {
+  switch (subject.kind) {
+    case 'root':
+      return true;
+    case 'record':
+    case 'history':
+      return change.id === subject.id;
+    case 'list':
+      if ('ids' in subject) return subject.ids.includes(change.id);
+      return (
+        'table' in change &&
+        change.table === subject.table &&
+        (!subject.pks || subject.pks.includes(change.pk))
+      );
+  }
+}
+
+/** The action changed nothing `subject` covers */
+function unchangedNote(subject: View) {
+  switch (subject.kind) {
+    case 'root':
+      return 'No change to the store';
+    case 'list':
+      return 'No change to these rows';
+    default:
+      return 'No change to this record';
+  }
+}
+
+/** Steps the moment through the actions of the row this one belongs to */
 function GroupStep({
   row,
   seq,
@@ -114,13 +139,14 @@ function GroupStep({
   const i = row.findIndex(e => e.seq === seq);
   const earlier = row[i - 1];
   const later = row[i + 1];
+  const step = (to: LogEntry | undefined) => to && onStep(to.seq);
   return (
     <span className={styles.pager}>
       <button
         type="button"
         aria-label="Previous action in this row"
         disabled={!earlier}
-        onClick={() => onStep(earlier.seq)}
+        onClick={() => step(earlier)}
       >
         ‹
       </button>
@@ -129,7 +155,7 @@ function GroupStep({
         type="button"
         aria-label="Next action in this row"
         disabled={!later}
-        onClick={() => onStep(later.seq)}
+        onClick={() => step(later)}
       >
         ›
       </button>
@@ -286,12 +312,7 @@ function withoutFunctions(value: unknown) {
   );
 }
 
-/** Breadcrumb for an action's level: `setResponse GET /posts` */
-export function ActionCrumb({ seq }: { seq: number }) {
-  const entry = findEntry(useActions().history.entries, seq);
-  return entry ? <ActionName entry={entry} /> : <>…</>;
-}
-
+/** `setResponse GET /posts` */
 export function ActionName({ entry }: { entry: LogEntry }) {
   return (
     <>

@@ -57,18 +57,29 @@ const entry = (seq: number, at: number, action: any): LogEntry => ({
   at,
   action,
 });
-/** The box the lanes slide in */
+/** The box the timeline slides in */
 const revealBox = (timeline: HTMLElement) =>
-  timeline.parentElement!.parentElement!;
+  timeline.parentElement!.parentElement!.parentElement!;
 /** What scrolls in the strip: the tracks, beside the lane labels */
 const tracks = (timeline: HTMLElement) =>
   timeline.lastElementChild as HTMLElement;
 /** The scrubber on top: ‹ › and the one lane, with the moment's action */
 const scrubber = () => screen.getByRole('group', { name: /^Scrubber/ });
-/** Expands or collapses the lanes under the scrubber */
+/** Expands or collapses the timeline under the scrubber */
 const toggle = () =>
   fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
+/** The strip lens: the lanes */
 const lanes = () => screen.getByRole('group', { name: /^Timeline/ });
+/** Draws the expanded timeline as `lens` */
+const draw = (lens: 'Strip' | 'List') =>
+  fireEvent.click(screen.getByRole('button', { name: lens }));
+/** The list lens's rows (not those left in a box sliding shut) */
+const rows = () =>
+  [
+    ...document.querySelectorAll<HTMLElement>('[role="button"][aria-expanded]'),
+  ].filter(el => !el.closest('[inert]'));
+const tab = (name: string) =>
+  screen.getByRole('tab', { name }).getAttribute('aria-selected');
 /** The next frame, when a box just opened slides */
 const nextFrame = () =>
   act(() => new Promise<void>(r => requestAnimationFrame(() => r())));
@@ -206,8 +217,8 @@ describe('Store scrubber', () => {
     expect(marks[0].hasAttribute('data-selected')).toBe(true);
     expect(screen.getAllByText('"One"').length).toBeGreaterThan(0);
     expect(screen.queryAllByText('"Two"')).toHaveLength(0);
-    // the same moment on the Actions tab
-    fireEvent.click(screen.getByRole('tab', { name: /Actions/ }));
+    // the same moment under the Action facet
+    fireEvent.click(screen.getByRole('tab', { name: 'Action' }));
     expect(bar.textContent).toContain('After');
     fireEvent.click(screen.getByRole('tab', { name: 'State' }));
     // Live lets go, and the label with it
@@ -280,20 +291,23 @@ describe('Store scrubber', () => {
     expect(document.activeElement).toBe(previous);
   });
 
-  it('opens the moment’s action in the Actions list', async () => {
+  it('opens the Action facet on the moment’s action from its label', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
     fireEvent.click(screen.getByRole('button', { name: 'Previous change' }));
-    fireEvent.click(screen.getByTitle('Open action'));
-    expect(
-      screen
-        .getByRole('tab', { name: /Actions/ })
-        .getAttribute('aria-selected'),
-    ).toBe('true');
-    const level = document.activeElement as HTMLElement;
-    expect(level.hasAttribute('data-level')).toBe(true);
-    expect(level.hasAttribute('data-covered')).toBe(false);
-    expect(level.querySelector('[aria-current="page"]')).toBeTruthy();
+    expect(tab('State')).toBe('true');
+    const label = screen.getByTitle('Open action');
+    label.focus();
+    fireEvent.click(label);
+    expect(tab('Action')).toBe('true');
+    const level = document.querySelector<HTMLElement>(
+      '[data-level]:not([data-covered])',
+    )!;
+    expect(level.textContent).toContain('setResponse');
+    expect(level.textContent).toContain('dispatchedAt');
+    // the subject stays, and so does focus
+    expect(level.querySelector('[aria-current="page"]')).toBeNull();
+    expect(document.activeElement).toBe(label);
   });
 
   it('keeps a snapshot’s action once it drops off the log', async () => {
@@ -397,8 +411,8 @@ describe('Store Timeline lanes', () => {
     expect(tracks(timeline).scrollLeft).toBe(900);
     fireEvent.keyDown(timeline, { key: 'ArrowLeft' });
 
-    // the lanes stay above the Actions tab, without State's view switch
-    fireEvent.click(screen.getByRole('tab', { name: /Actions/ }));
+    // the lanes stay above the Action facet, without State's view switch
+    fireEvent.click(screen.getByRole('tab', { name: 'Action' }));
     expect(lanes()).toBe(timeline);
     expect(screen.queryByRole('group', { name: 'Store view' })).toBeNull();
     expect(marks[1].hasAttribute('data-selected')).toBe(true);
@@ -664,7 +678,7 @@ describe('Store Timeline lanes', () => {
     expect(fit.getAttribute('aria-pressed')).toBe('false');
   });
 
-  it('open an endpoint lane’s History on the State tab', async () => {
+  it('open an endpoint lane’s History on the levels', async () => {
     const { ctrl } = mount();
     title = 'One';
     await act(() => ctrl().fetch(getPosts));
@@ -688,41 +702,49 @@ describe('Store Timeline lanes', () => {
     expect(level.textContent).toContain('stored again, unchanged');
   });
 
-  it('step the moment the Actions tab set', async () => {
+  it('draw the history as a list on demand, where a row sets the moment', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
     await act(() => ctrl().fetch(getPosts));
-    fireEvent.click(screen.getByRole('tab', { name: /Actions/ }));
-    const row = [
-      ...document.querySelectorAll<HTMLElement>(
-        '[role="button"][aria-expanded]',
-      ),
-    ].find(el => !el.closest('[hidden]'))!;
-    fireEvent.click(row);
-    fireEvent.click(
-      screen.getAllByText('setResponse')[0].closest('[role="button"]')!,
-    );
-    fireEvent.click(
-      screen.getByRole('button', { name: 'View State after this' }),
-    );
-    expect(screen.getByText('After')).toBeTruthy();
-
-    // the same scrubber on every tab
-    fireEvent.click(screen.getByRole('tab', { name: /Actions/ }));
-    expect(screen.getByText('After')).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
     toggle();
-    expect(screen.getByText('After')).toBeTruthy();
+    const strip = screen.getByRole('button', { name: 'Strip' });
+    const list = screen.getByRole('button', { name: 'List' });
+    expect(strip.getAttribute('aria-pressed')).toBe('true');
+    expect(list.getAttribute('aria-pressed')).toBe('false');
+    expect(rows()).toHaveLength(0);
+    // the list: one row per request; fit is the strip's alone
+    draw('List');
+    expect(list.getAttribute('aria-pressed')).toBe('true');
+    expect(screen.queryByRole('group', { name: /^Timeline/ })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Fit timeline' })).toBeNull();
+    expect(rows()).toHaveLength(2);
+    expect(rows()[0].textContent).toContain('/posts');
+    // a row sets the moment alone: the facet stays
+    fireEvent.click(rows()[0]);
+    expect(scrubber().textContent).toContain('After');
+    expect(rows()[0].getAttribute('aria-current')).toBe('true');
+    expect(tab('State')).toBe('true');
+    // the scrubber steps it, which the list follows
+    fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
+    expect(rows()[1].getAttribute('aria-current')).toBe('true');
+    // a row's › opens the Action facet on it
+    fireEvent.click(
+      within(rows()[0]).getByRole('button', { name: 'Open action' }),
+    );
+    expect(rows()[0].getAttribute('aria-current')).toBe('true');
+    expect(tab('Action')).toBe('true');
+    expect(
+      document.querySelector('[data-level]:not([data-covered])')!.textContent,
+    ).toContain('setResponse');
+    // back to the strip, with the moment on it
+    draw('Strip');
+    expect(rows()).toHaveLength(0);
     expect(
       within(lanes())
-        .getAllByRole('button', { name: /^setResponse at/ })[1]
+        .getAllByRole('button', { name: /^setResponse at/ })[0]
         .hasAttribute('data-selected'),
     ).toBe(true);
-    fireEvent.click(screen.getByRole('tab', { name: 'State' }));
-    expect(screen.getByText('After')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Live' }));
-    expect(screen.queryByText('After')).toBeNull();
-    fireEvent.click(screen.getByRole('tab', { name: /Actions/ }));
     expect(screen.queryByText('After')).toBeNull();
   });
 });
@@ -777,6 +799,25 @@ describe('Store Timeline sheet', () => {
         .getAllByRole('button', { name: /^setResponse at/ })[1]
         .hasAttribute('data-selected'),
     ).toBe(true);
+    // as a list, a row keeps it open to browse; its › shows the action under
+    draw('List');
+    fireEvent.click(rows()[0]);
+    expect(rows()).toHaveLength(2);
+    expect(rows()[0].getAttribute('aria-current')).toBe('true');
+    fireEvent.click(
+      within(rows()[0]).getByRole('button', { name: 'Open action' }),
+    );
+    expect(rows()).toHaveLength(0);
+    expect(tab('Action')).toBe('true');
+    // and so does a chip, drilling into what the action changed
+    toggle();
+    fireEvent.click(within(rows()[0]).getByRole('button', { name: /Post 1/ }));
+    expect(rows()).toHaveLength(0);
+    expect(
+      document
+        .querySelector('[data-level]:not([data-covered])')!
+        .querySelector('[aria-current="page"]')!.textContent,
+    ).toBe('Post 1');
   });
 
   it('is not used on a wide panel, where Escape leaves the lanes', async () => {

@@ -36,7 +36,7 @@ export interface PlaygroundProps<T = any> {
   headerControls?: React.ReactNode;
   /** Show a badge counting the preview's React commits (e.g. one notification vs N) */
   renderCount?: boolean;
-  /** How the Store's Actions tab records (e.g. `{ recordFrom: 'open' }` for
+  /** How the Store's action log records (e.g. `{ recordFrom: 'open' }` for
    * a fast stream) */
   actionLog?: LogOptions;
 }

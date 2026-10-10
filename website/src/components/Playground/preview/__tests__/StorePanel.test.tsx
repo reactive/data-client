@@ -249,13 +249,14 @@ describe('StorePanel table view', () => {
     expect(document.querySelector('[data-table]')).toBeNull();
   });
 
-  it('leaves focus alone as the overview and the Actions list first show', () => {
+  it('leaves focus alone as the overview and the Action facet first show', () => {
     mount();
     expect(document.activeElement).toBe(document.body);
-    const actions = screen.getByRole('tab', { name: /Actions/ });
-    actions.focus();
-    fireEvent.click(actions);
-    expect(document.activeElement).toBe(actions);
+    const action = screen.getByRole('tab', { name: 'Action' });
+    action.focus();
+    fireEvent.click(action);
+    expect(action.getAttribute('aria-selected')).toBe('true');
+    expect(document.activeElement).toBe(action);
   });
 
   it('keeps the levels open across the tree view, without replaying them', () => {

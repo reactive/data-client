@@ -8,7 +8,7 @@ import React, {
   useState,
 } from 'react';
 
-import { ActionCrumb, ActionName, ChangeBody } from './ActionDetail';
+import { ActionName, ChangeBody } from './ActionDetail';
 import {
   rowTimeline,
   type ChangeKind,
@@ -31,8 +31,8 @@ import { onActivateKey } from './dom';
 import { findRow, isEndpointRow } from './model';
 import {
   NavContext,
-  useMoment,
   useNav,
+  useNavState,
   useOpenView,
   type Moment,
   type Nav,
@@ -62,8 +62,8 @@ function openHistory(push: Push, { until }: Actions, id: string) {
   push({ kind: 'history', id, seq: until });
 }
 
-/** Where a view opens: over this level, or (the tree view, the Timeline) on
- * the State tab's stack */
+/** Where a view opens: over this level, or (the tree view) over the top
+ * level in the table view */
 type Push = (view: View) => void;
 function usePush(): Push | null {
   const nav = useNav();
@@ -71,8 +71,8 @@ function usePush(): Push | null {
   return nav?.push ?? open;
 }
 
-/** A record's last change, linking to the action that made it, and to its
- * whole history (unless a level header already does) */
+/** A record's last change, opening the Action facet on the action that made
+ * it, and its whole history (unless a level header already does) */
 export function ChangedBy({
   id,
   history = true,
@@ -82,25 +82,23 @@ export function ChangedBy({
   history?: boolean;
 }) {
   const actions = useContext(ActionsContext);
-  const push = usePush();
-  return actions && push ?
-      <LastChange id={id} actions={actions} push={push} history={history} />
+  return actions ?
+      <LastChange id={id} actions={actions} history={history} />
     : null;
 }
 
 function LastChange({
   id,
   actions,
-  push,
   history,
 }: {
   id: string;
   actions: Actions;
-  push: Push;
   /** Whether to offer the history too */
   history: boolean;
 }) {
   const timeline = useTimeline(actions, id);
+  const { set, setFacet } = useNavState();
   // as of the store this level shows
   const last = currentAt(timeline, actions.until);
   // with no kept change to name, the history still says the log dropped some
@@ -117,10 +115,11 @@ function LastChange({
             className={clsx(styles.ref, styles.countRef)}
             onClick={e => {
               e.stopPropagation();
-              push({ kind: 'action', seq: last.entry.seq });
+              set(last.entry.seq);
+              setFacet('action');
             }}
           >
-            <ActionCrumb seq={last.entry.seq} />
+            <ActionName entry={last.entry} />
           </button>
         : <span className={styles.dim}>actions not kept</span>}
         {history && <HistoryButton id={id} changed={timeline.changed} />}
@@ -198,7 +197,7 @@ export function RowHistory({
   onShowState?: () => void;
 }) {
   const actions = useActions();
-  const moment = useMoment();
+  const moment = useNavState();
   const timeline = useTimeline(actions, id);
   const { items, versions, changed } = timeline;
   // live, the version last picked here stays open
@@ -318,8 +317,8 @@ function VersionItem({
   onOpen: (seq: number) => void;
   onShowState?: () => void;
 }) {
-  const { log, showState } = useActions();
-  const nav = useNav()!;
+  const { log } = useActions();
+  const { set, setFacet } = useNavState();
   const { seq } = entry;
   const store = entry.store!;
   const select = () => onOpen(seq);
@@ -358,7 +357,10 @@ function VersionItem({
             <button
               type="button"
               className={styles.showState}
-              onClick={() => nav.push({ kind: 'action', seq })}
+              onClick={() => {
+                set(seq);
+                setFacet('action');
+              }}
             >
               Open action
             </button>
@@ -366,7 +368,8 @@ function VersionItem({
               type="button"
               className={styles.showState}
               onClick={() => {
-                showState(seq);
+                set(seq);
+                setFacet('state');
                 onShowState?.();
               }}
             >

@@ -18,6 +18,7 @@ import {
 import type ActionLog from './actionLog';
 import { isRecordChange, stepMoment, type LogEntry } from './actionLog';
 import {
+  ActionList,
   droppedIn,
   droppedText,
   FOLLOW_SLACK,
@@ -32,7 +33,7 @@ import {
 } from './ActionsView';
 import { NARROW_WIDTH } from './columns';
 import { endpointId, splitKey } from './model';
-import { useMoment } from './nav';
+import { useNavState } from './nav';
 import styles from './store.module.css';
 import { HistoryButton } from './VersionHistory';
 import { useTabStorage } from '../../../../utils/tabStorage';
@@ -211,26 +212,24 @@ function drawer({
 /** The whole history in one lane, fit to the panel's width, with the moment
  * on it: ‹ › and the arrow keys step through changes (past the newest is
  * live, as End is), a mark lands on its action. Says which action State is
- * shown after, while it shows the past; `▾` expands the lanes */
+ * shown after, while it shows the past, which opens the Action facet; `▾`
+ * expands the timeline */
 export const Scrubber = memo(function Scrubber({
   entry,
   expanded,
   expandRef,
   onExpand,
-  onOpen,
 }: {
   /** The action State is shown after; missing while live */
   entry?: LogEntry;
-  /** Whether the lanes are shown under it */
+  /** Whether the timeline is shown under it */
   expanded: boolean;
-  /** The ▾, for focus to return to as the lanes shut */
+  /** The ▾, for focus to return to as the timeline shuts */
   expandRef?: React.Ref<HTMLButtonElement>;
   onExpand: (expanded: boolean) => void;
-  /** Opens that action in the Actions list */
-  onOpen: (seq: number) => void;
 }) {
   const { log, history, groups } = useActions();
-  const { seq: selected, set: onSelect } = useMoment();
+  const { seq: selected, set: onSelect, setFacet } = useNavState();
   const { entries, since } = history;
   const { joined, shown, scale } = useScale();
   const earlier = stepMoment(log, entries, selected, -1);
@@ -351,7 +350,7 @@ export const Scrubber = memo(function Scrubber({
             type="button"
             className={styles.snapshotAction}
             title="Open action"
-            onClick={() => onOpen(entry.seq)}
+            onClick={() => setFacet('action')}
           >
             <ActionName entry={entry} />
           </button>
@@ -365,21 +364,62 @@ export const Scrubber = memo(function Scrubber({
   );
 });
 
-/** The shown store's actions on one time axis, a lane per key: requests as
- * spans from fetch to response, everything else as marks. Picking an action
- * the store saw shows State as it was right after it */
+/** The expanded timeline: the shown store's actions drawn by a lens kept per
+ * viewer, as a strip (`Lanes`) or a list (`ActionList`) */
 export default memo(function Timeline({
   width,
   onPick,
 }: {
   /** Panel width (px) */
   width: number;
-  /** Called as a mark is picked (not as the keys step) */
+  /** Called as a pick lands on content under the timeline: a mark, or a
+   * row's › (not as the keys step) */
+  onPick?: () => void;
+}) {
+  const [lens, setLens] = useTabStorage('playgroundTimelineLens');
+  const list = lens === 'list';
+  return (
+    <div className={styles.timeline}>
+      <div className={styles.tlBar} role="group" aria-label="Lens">
+        <button
+          type="button"
+          aria-label="Strip"
+          title="Marks on a time axis, a lane per key"
+          aria-pressed={!list}
+          onClick={() => setLens('strip')}
+        >
+          <StripIcon />
+        </button>
+        <button
+          type="button"
+          aria-label="List"
+          title="One row per request"
+          aria-pressed={list}
+          onClick={() => setLens('list')}
+        >
+          <ListIcon />
+        </button>
+      </div>
+      {list ?
+        <ActionList onPick={onPick} />
+      : <Lanes width={width} onPick={onPick} />}
+    </div>
+  );
+});
+
+/** The shown store's actions on one time axis, a lane per key: requests as
+ * spans from fetch to response, everything else as marks. Picking an action
+ * the store saw shows State as it was right after it */
+const Lanes = memo(function Lanes({
+  width,
+  onPick,
+}: {
+  width: number;
   onPick?: () => void;
 }) {
   const { log, history, groups } = useActions();
   const { dropped } = useLog();
-  const { seq: selected, set } = useMoment();
+  const { seq: selected, set } = useNavState();
   const [spacing, setSpacing] = useTabStorage('playgroundTimelineSpacing');
   const { entries, since } = history;
   const lanes = useMemo(() => lanesOf(groups), [groups]);
@@ -528,7 +568,7 @@ export default memo(function Timeline({
 
   return (
     <div
-      className={styles.timeline}
+      className={styles.tlLanes}
       style={{ '--tl-label': `${labelWidth}px` } as React.CSSProperties}
       tabIndex={0}
       role="group"
@@ -655,6 +695,25 @@ export function axisLabels(
   return labels;
 }
 
+/** Lanes of marks */
+function StripIcon() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M2 4.5h12M2 8h12M2 11.5h12" />
+      <circle cx="5" cy="4.5" r="1.6" fill="currentColor" />
+      <circle cx="10" cy="8" r="1.6" fill="currentColor" />
+      <circle cx="7" cy="11.5" r="1.6" fill="currentColor" />
+    </svg>
+  );
+}
+/** Rows of text */
+function ListIcon() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M2.5 4h2M6.5 4h7M2.5 8h2M6.5 8h7M2.5 12h2M6.5 12h7" />
+    </svg>
+  );
+}
 /** A magnifier with a minus */
 function FitIcon() {
   return (
