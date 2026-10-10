@@ -148,7 +148,7 @@ export default function StorePanel({
     levels.clearAt();
     actionLevels.clearAt();
   }
-  const known = useKeptEntries(entries, momentSeq !== null);
+  const known = useKeptEntries(entries, momentSeq);
   const moment = momentSeq === null ? undefined : findEntry(known, momentSeq);
   const at = moment && storeAt(known, moment, history.storeFrom);
   // the store commits and the log notifies in separate renders: the rows
@@ -950,23 +950,26 @@ function ActionLevel({
   );
 }
 
-/** `entries`, and while `holding` (the panel shows the past) every action
- * logged since it started holding, so the moment, the actions it steps
- * through and what changed each row stay as the log's front drops off */
+/** `entries`, and while the panel shows the past (`momentSeq`) the actions
+ * up to the moment the log has since dropped, so the moment, the actions
+ * before it and what changed each row stay as the log's front drops off.
+ * Ones after it go as the log drops them: a stream would otherwise pile up
+ * every action for as long as the moment is held */
 function useKeptEntries(
   entries: readonly LogEntry[],
-  holding: boolean,
+  momentSeq: number | null,
 ): readonly LogEntry[] {
   const [kept, setKept] = useState<{
     live: readonly LogEntry[];
     all: readonly LogEntry[];
   }>();
-  if (!holding) {
+  if (momentSeq === null) {
     if (kept) setKept(undefined);
   } else if (kept?.live !== entries) {
-    setKept({ live: entries, all: withDropped(kept?.all, entries) });
+    const before = kept?.all.filter(e => e.seq <= momentSeq);
+    setKept({ live: entries, all: withDropped(before, entries) });
   }
-  return (holding && kept?.all) || entries;
+  return (momentSeq !== null && kept?.all) || entries;
 }
 
 /** What of the log is about `subject`. A record's gaps seldom change: the

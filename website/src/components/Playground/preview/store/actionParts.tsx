@@ -99,8 +99,9 @@ export function useFollow(
   paused = false,
 ) {
   const follow = useRef(true);
-  // the first row in view while not following, so rows trimmed from the
-  // start (or added there) leave the reader's place where it is
+  // the last row in view while not following, so rows trimmed from the
+  // start leave the reader's place where it is (the oldest go first: the
+  // last row in view outlasts the first)
   const anchor = useRef<{ row: Element; at: number }>(undefined);
   // passive: the listeners can wait for paint
   useEffect(() => {
@@ -115,7 +116,7 @@ export function useFollow(
     let away = false;
     const onScroll = () => {
       if (hidden) return;
-      anchor.current = firstShown(el, axis);
+      anchor.current = lastShown(el, axis);
       if (paused) return;
       const atEnd =
         el[size] - el[scroll] - el[client] < (away ? 1 : FOLLOW_SLACK);
@@ -219,13 +220,15 @@ const startOf = (el: Element, axis: 'x' | 'y') => {
   return axis === 'y' ? rect.top : rect.left;
 };
 
-/** The first row in `scroller`'s view, and where it starts in it */
-function firstShown(scroller: HTMLElement, axis: 'x' | 'y') {
+/** The last row in `scroller`'s view, and where it starts in it */
+function lastShown(scroller: HTMLElement, axis: 'x' | 'y') {
   const from = startOf(scroller, axis);
-  for (const row of scroller.querySelectorAll('[data-id]')) {
-    const rect = row.getBoundingClientRect();
-    if ((axis === 'y' ? rect.bottom : rect.right) > from)
-      return { row, at: startOf(row, axis) - from };
+  const to =
+    from + (axis === 'y' ? scroller.clientHeight : scroller.clientWidth);
+  const rows = scroller.querySelectorAll('[data-id]');
+  for (let i = rows.length - 1; i >= 0; i--) {
+    const at = startOf(rows[i], axis);
+    if (at < to) return { row: rows[i], at: at - from };
   }
 }
 

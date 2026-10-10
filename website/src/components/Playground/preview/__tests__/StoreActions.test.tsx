@@ -754,6 +754,69 @@ describe('Store Actions pane', () => {
     expect(document.activeElement).toBe(scrubber());
   });
 
+  it('holds the moment without piling up every action after it', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+    );
+    previous();
+    // a stream past updateLimit: the log drops its oldest sets of Post
+    await act(async () => {
+      for (let i = 0; i < 60; i++)
+        await ctrl().set(Post, { id: '2' }, { id: '2', title: `t${i}` });
+    });
+    expect(scrubber().textContent).toContain('After');
+    openPane();
+    expect(rows().length).toBeLessThan(40);
+    expect(marked()).not.toEqual([]);
+  });
+
+  it('keeps the reader’s place as the log drops the oldest rows', async () => {
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
+      configurable: true,
+      get: () => 100,
+    });
+    let list: HTMLElement | undefined;
+    // rows 28px tall, one after another, under the list's scroll
+    const rects = jest
+      .spyOn(Element.prototype, 'getBoundingClientRect')
+      .mockImplementation(function (this: Element) {
+        const i =
+          list && this !== list ?
+            [...list.querySelectorAll('[data-id]')].indexOf(this)
+          : -1;
+        const top = i < 0 ? 0 : i * 28 - list!.scrollTop;
+        return { top, bottom: top + 28, left: 0, right: 0 } as DOMRect;
+      });
+    try {
+      const { ctrl } = mount();
+      const sets = (from: number, to: number) =>
+        act(async () => {
+          for (let i = from; i < to; i++)
+            await ctrl().set(Post, { id: '2' }, { id: '2', title: `t${i}` });
+        });
+      await sets(0, 20);
+      openPane();
+      list = rows()[0].parentElement!.parentElement!;
+      Object.defineProperty(list, 'scrollHeight', {
+        value: 2000,
+        configurable: true,
+      });
+      list.scrollTop = 280;
+      fireEvent.wheel(list, { deltaY: -5 });
+      fireEvent.scroll(list);
+      // past updateLimit, the oldest sets drop: the rows in view stay put
+      await sets(20, 30);
+      const dropped = 20 + 10 - rows().length;
+      expect(dropped).toBeGreaterThan(0);
+      expect(list.scrollTop).toBe(280 - dropped * 28);
+    } finally {
+      rects.mockRestore();
+      delete (HTMLElement.prototype as any).clientHeight;
+    }
+  });
+
   it('lets go of the newest at a trackpad’s first small step back', async () => {
     Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
       configurable: true,
