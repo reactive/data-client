@@ -1632,6 +1632,24 @@ describe('Store action level', () => {
     expect(top().textContent).not.toContain('"poll 0"');
   });
 
+  it("goes back to the moment's action as its tab is picked over the list", async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+    );
+    openPane();
+    expect(crumbs()).toEqual(['Actions']);
+    openAction();
+    expect(crumbs()).toEqual(['Actions', 'set Post']);
+    // at a moment, its action
+    previous();
+    previous();
+    openPane();
+    openAction();
+    expect(crumbs()).toEqual(['Actions', 'setResponse GET /posts']);
+  });
+
   it('opens the action a timeline mark picks while it lists them', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));

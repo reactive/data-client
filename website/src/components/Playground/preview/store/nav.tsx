@@ -122,8 +122,12 @@ export interface LevelStack {
   readonly clearAt: () => void;
   /** Shows action `seq` (or its group, `whole`) over the subject's actions
    * (opening them, or in place of the action view on top), so Back lists
-   * them; `quiet`, without sliding in or taking focus */
-  readonly showAction: (seq: number, whole?: boolean, quiet?: boolean) => void;
+   * them; `null` the newest. `quiet`, without sliding in or taking focus */
+  readonly showAction: (
+    seq: number | null,
+    whole?: boolean,
+    quiet?: boolean,
+  ) => void;
   /** The moment moved: the action view follows it (on top or under levels
    * its chips opened), to the newest action as it goes live (`null`) */
   readonly followMoment: (seq: number | null, whole?: boolean) => void;
@@ -169,7 +173,7 @@ export function useLevelStack(
   // a level of its own (a new key), so it slides in and takes focus like
   // any level opened on purpose
   const showAction = useCallback(
-    (seq: number, whole = false, quiet = false) => {
+    (seq: number | null, whole = false, quiet = false) => {
       setLevels(prev => {
         let under = prev.stack;
         if (under[under.length - 1].view.kind === 'action')

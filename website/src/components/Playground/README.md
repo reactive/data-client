@@ -214,7 +214,8 @@ DesignSystem/       components injected into preview scope
     subject's actions in full (`{ kind: 'actions' }`, `ActionsLevel` in
     `preview/store/ActionList.tsx`, a `region` with its row count beside the
     crumbs "Actions of <subject>"), which Back, its crumb and the
-    scrubber's list button go to; while it shows, a mark picked on the
+    scrubber's list button go to, and picking the Action tab again leaves
+    for the moment's action; while it shows, a mark picked on the
     timeline (the timelines' `onMark`) opens its action, as a row does, while ‹ › only move
     the moment. Picking a step there sets the moment and
     opens the action over the list; picking a row of several actions opens

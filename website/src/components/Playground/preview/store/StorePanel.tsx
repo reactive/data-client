@@ -404,6 +404,12 @@ export default function StorePanel({
     setTab('action');
     actionsBack(1);
   }, [closePane, setTab, actionsBack]);
+  // the tab shows the moment's action: picked again over the list, it goes
+  // back to that
+  const openActionTab = () => {
+    if (listed) showAction(momentSeq, whole);
+    setTab('action');
+  };
   // the chips only push, so the model comes through a ref: the value keeps
   // its identity across store commits and the memoized rows holding chips
   // skip them
@@ -536,7 +542,7 @@ export default function StorePanel({
                       className={styles.tab}
                       title="The moment's action"
                       aria-selected={tab === 'action'}
-                      onClick={() => setTab('action')}
+                      onClick={openActionTab}
                     >
                       Action
                     </button>
