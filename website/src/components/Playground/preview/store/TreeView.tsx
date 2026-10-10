@@ -13,7 +13,7 @@ import {
   type StoreModel,
 } from './model';
 import { DiffContext } from './nav';
-import { plain } from './refs';
+import { plain, type VNode } from './refs';
 import {
   Chevron,
   GroupLabel,
@@ -29,7 +29,7 @@ import {
   showAllId,
   useStoreUI,
 } from './StoreUI';
-import { EndpointKey, Field, Inline } from './Value';
+import { EndpointKey, Field, field, FieldChange, Inline, Was } from './Value';
 
 /** Explorer: one line per row with a preview of its fields */
 export default function TreeView({ model }: { model: StoreModel }) {
@@ -99,7 +99,7 @@ function Section({
 /** Props making a row (tr or div) expand on click or Enter/Space */
 function useRowProps(id: string, className?: string) {
   const { isOpen, toggle, selected } = useStoreUI();
-  const change = useContext(DiffContext)?.get(id);
+  const change = useContext(DiffContext)?.get(id)?.kind;
   const open = isOpen(id);
   return {
     open,
@@ -267,6 +267,7 @@ function EntityTreeRow({
   model: StoreModel;
 }) {
   const { open, props } = useRowProps(row.id);
+  const change = useContext(DiffContext)?.get(row.id);
   // the pk is the row's key, so its field would only repeat it
   const preview =
     row.value.t === 'obj' && table.pkField ?
@@ -281,7 +282,13 @@ function EntityTreeRow({
         <Chevron open={open} />
         <span className={styles.key}>{prettyPk(row.pk)}</span>
         <span className={styles.trunc}>
-          <Inline node={preview} bare />
+          {change?.fields && table.kind === 'entity' ?
+            <FieldChanges row={row} fields={change.fields} was={change.was} />
+          : <>
+              <Inline node={preview} bare />
+              {change?.was && <Was node={change.was} />}
+            </>
+          }
         </span>
       </div>
       {open && (
@@ -290,5 +297,31 @@ function EntityTreeRow({
         </div>
       )}
     </>
+  );
+}
+
+/** Just the fields an update changed, as the action that did it shows them */
+function FieldChanges({
+  row,
+  fields,
+  was,
+}: {
+  row: EntityRow;
+  fields: readonly string[];
+  was: VNode | undefined;
+}) {
+  return (
+    <span className={styles.inlineList}>
+      {fields.map((name, i) => (
+        <React.Fragment key={name}>
+          {i > 0 && <span className={styles.dim}>, </span>}
+          <FieldChange
+            name={name}
+            was={was && field(was, name)}
+            now={field(row.value, name)}
+          />
+        </React.Fragment>
+      ))}
+    </span>
   );
 }

@@ -258,6 +258,47 @@ export function Inline({
   }
 }
 
+/** One field of an object node */
+export function field(node: VNode, name: string): VNode | undefined {
+  if (node.t !== 'obj') return;
+  return node.entries.find(([k]) => k === name)?.[1];
+}
+
+/** A table cell's changed value as it was: after the new one, so a narrow
+ * cell cuts it rather than what the store has now */
+export function Was({ node, name }: { node: VNode; name?: string }) {
+  return (
+    <del className={clsx(styles.was, styles.cellWas)} title="Before">
+      <Inline node={node} name={name} />
+    </del>
+  );
+}
+
+/** `name: old → new`; a field the change added or dropped has one side */
+export function FieldChange({
+  name,
+  was,
+  now,
+}: {
+  name: string;
+  was?: VNode;
+  now?: VNode;
+}) {
+  return (
+    <>
+      <span className={styles.key}>{name}</span>
+      <span className={styles.dim}>: </span>
+      {was && (
+        <del className={styles.was}>
+          <Inline node={was} name={name} />
+        </del>
+      )}
+      {was && now && <span className={styles.dim}> → </span>}
+      {now && <Inline node={now} name={name} />}
+    </>
+  );
+}
+
 /** Full value: nested objects indent, long lists show more on request */
 export function Block({ node, name }: { node: VNode; name?: string }) {
   if (node.t === 'obj') {

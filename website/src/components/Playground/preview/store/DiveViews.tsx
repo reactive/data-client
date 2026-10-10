@@ -23,6 +23,7 @@ import {
   Pager,
   RowsTable,
   tableColumns,
+  useChangedFields,
   type Column,
 } from './Table';
 import { Block } from './Value';
@@ -82,9 +83,10 @@ function TableList({
     () => (pks ? pks.flatMap(pk => table.get(pk) ?? []) : table.rows),
     [table, pks],
   );
+  const changed = useChangedFields(rows);
   const { columns, pages, more } = useMemo(
-    () => tableColumns(table, rows, width, page, true),
-    [table, rows, width, page],
+    () => tableColumns(table, rows, width, page, { withMeta: true, changed }),
+    [table, rows, width, page, changed],
   );
   return (
     <FilteredRows

@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 
 import {
   columnWidth,
@@ -10,6 +10,7 @@ import {
   TIME_WIDTH,
 } from './columns';
 import { Status } from './Details';
+import type { RowDiff } from './diffModel';
 import { onActivateKey } from './dom';
 import {
   errorText,
@@ -23,7 +24,15 @@ import {
 import { cellDive, DiffContext } from './nav';
 import { INVALIDATED, type VNode } from './refs';
 import styles from './store.module.css';
-import { Cell, EndpointKey, Inline, Primitive, RowChip } from './Value';
+import {
+  Cell,
+  EndpointKey,
+  field,
+  Inline,
+  Primitive,
+  RowChip,
+  Was,
+} from './Value';
 
 export interface Column<R> {
   readonly id: string;
@@ -32,6 +41,9 @@ export interface Column<R> {
   readonly width?: number | string;
   readonly className?: string;
   readonly cell: (row: R) => React.ReactNode;
+  /** In the Diff tab: what the cell showed before `change`, or undefined
+   * when the change left it alone */
+  readonly changed?: (change: RowDiff) => { readonly was?: VNode } | undefined;
 }
 
 /** Rows that open their record on click; `more` adds a `+N` column that
@@ -93,11 +105,12 @@ export function RowsTable<R extends { readonly id: string }>({
         )}
         {rows.map(row => {
           const open = inline === row.id;
+          const change = diff?.get(row.id);
           return (
             <React.Fragment key={row.id}>
               <tr
                 data-id={row.id}
-                data-change={diff?.get(row.id)}
+                data-change={change?.kind}
                 tabIndex={onOpen ? 0 : undefined}
                 className={clsx(
                   styles.row,
@@ -107,11 +120,19 @@ export function RowsTable<R extends { readonly id: string }>({
                 onClick={onOpen && (() => onOpen(row))}
                 onKeyDown={onOpen && onActivateKey(() => onOpen(row))}
               >
-                {columns.map(c => (
-                  <td key={c.id} className={c.className}>
-                    {c.cell(row)}
-                  </td>
-                ))}
+                {columns.map(c => {
+                  const cell = change && c.changed?.(change);
+                  return (
+                    <td
+                      key={c.id}
+                      className={c.className}
+                      data-changed={cell ? true : undefined}
+                    >
+                      {c.cell(row)}
+                      {cell?.was && <Was node={cell.was} name={c.id} />}
+                    </td>
+                  );
+                })}
                 {more && (
                   <MoreCell
                     count={more(row)}
@@ -236,11 +257,7 @@ interface Spec {
   readonly cell: (row: EntityRow, width: number) => React.ReactNode;
   /** Data the row has that this column shows (counted by `+N` when hidden) */
   readonly has?: (row: EntityRow) => boolean;
-}
-
-function field(node: VNode, name: string): VNode | undefined {
-  if (node.t !== 'obj') return;
-  return node.entries.find(([k]) => k === name)?.[1];
+  readonly changed?: Column<EntityRow>['changed'];
 }
 
 /** One column per field (entities) or for the whole value (other tables) */
@@ -265,6 +282,7 @@ function dataSpecs(
           />
         ),
         has: () => true,
+        changed: valueChanged,
       },
     ];
   }
@@ -288,9 +306,16 @@ function dataSpecs(
         );
       },
       has: row => value(row) !== undefined,
+      changed: change =>
+        change.fields?.includes(name) ?
+          { was: change.was && field(change.was, name) }
+        : undefined,
     };
   });
 }
+
+/** A column showing a row's whole value changed when its value did */
+const valueChanged = (change: RowDiff) => change.was && { was: change.was };
 
 /** When each row was fetched and expires */
 const metaSpecs: Spec[] = (
@@ -310,16 +335,22 @@ const metaSpecs: Spec[] = (
 
 /**
  * Columns of `table` that fit `width`, as pages; `withMeta` adds when each
- * row was fetched and expires.
+ * row was fetched and expires, and the `changed` fields come first.
  */
 export function tableColumns(
   table: EntityTable,
   rows: readonly EntityRow[],
   width: number,
   page: number,
-  withMeta = false,
+  {
+    withMeta = false,
+    changed,
+  }: { withMeta?: boolean; changed?: ReadonlySet<string> } = {},
 ) {
   const specs = dataSpecs(table, rows, width);
+  // stable: the changed fields keep their order, and the rest theirs
+  if (changed?.size)
+    specs.sort((a, b) => +changed.has(b.id) - +changed.has(a.id));
   if (withMeta) specs.push(...metaSpecs);
   const keyWidth =
     table.kind === 'entity' ?
@@ -351,6 +382,7 @@ export function tableColumns(
         id: c.id,
         header: c.header,
         width: i === current.length - 1 ? undefined : w,
+        changed: c.changed,
         // an invalidated row has no fields; the first column says so
         cell: (row: EntityRow) =>
           i === 0 && isInvalidated(row) ?
@@ -398,8 +430,22 @@ export function endpointColumns(width: number): Column<EndpointRow>[] {
             width={width - keyWidth - STATUS_WIDTH}
             dive={cellDive(undefined, row, 'value')}
           />,
+      changed: valueChanged,
     },
   ];
+}
+
+/** Fields the shown diff changed in any of `rows`, which their table's
+ * columns show first */
+export function useChangedFields(rows: readonly EntityRow[]) {
+  const diff = useContext(DiffContext);
+  return useMemo(
+    () =>
+      diff ?
+        new Set(rows.flatMap(r => diff.get(r.id)?.fields ?? []))
+      : undefined,
+    [diff, rows],
+  );
 }
 
 /** For lists that mix tables: each row as a ref, then its value */

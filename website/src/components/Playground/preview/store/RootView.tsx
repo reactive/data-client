@@ -24,6 +24,7 @@ import {
   Pager,
   RowsTable,
   tableColumns,
+  useChangedFields,
   type Column,
 } from './Table';
 import { EndpointKey, Inline, Primitive } from './Value';
@@ -153,9 +154,10 @@ function Group({ table }: { table: EntityTable }) {
   const [inline, setInline] = useState<string | null>(null);
   const [active, setActive] = useState(false);
   const rows = preview(table.rows);
+  const changed = useChangedFields(table.rows);
   const { columns, pages, more } = useMemo(
-    () => tableColumns(table, table.rows, width, page),
-    [table, width, page],
+    () => tableColumns(table, table.rows, width, page, { changed }),
+    [table, width, page, changed],
   );
   const hidden = table.rows.length - rows.length;
   return (

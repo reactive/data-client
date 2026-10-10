@@ -1252,6 +1252,49 @@ describe('Store diff', () => {
     expect(top().textContent).toContain('Started the request');
   });
 
+  it('marks the cells an update changed, with what they were', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+    );
+    openDiff();
+    const row = top().querySelector<HTMLElement>(
+      `tr[data-id="${entityId('Post', '1')}"]`,
+    )!;
+    const changed = [
+      ...row.querySelectorAll<HTMLElement>('td[data-changed]'),
+    ];
+    expect(changed).toHaveLength(1);
+    expect(changed[0].textContent).toBe('"Edited""One"');
+    expect(changed[0].querySelector('del')!.textContent).toBe('"One"');
+    // the tree view: just the field, as the action shows it
+    fireEvent.click(screen.getByLabelText('Tree view'));
+    const line = top().querySelector<HTMLElement>(
+      `[data-id="${entityId('Post', '1')}"]`,
+    )!;
+    expect(line.textContent).toContain('title: "One" → "Edited"');
+    // the snapshot marks nothing
+    fireEvent.click(screen.getByLabelText('Table view'));
+    openState();
+    expect(top().querySelector('[data-changed], del')).toBeNull();
+  });
+
+  it('shows what an endpoint’s value was', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().setResponse(getPosts, [{ id: '3', title: 'Three' }]),
+    );
+    openDiff();
+    const row = top().querySelector<HTMLElement>(
+      `tr[data-id="${endpointId(POSTS)}"]`,
+    )!;
+    expect(row.dataset.change).toBe('updated');
+    const cell = row.querySelector<HTMLElement>('td[data-changed]')!;
+    expect(cell.querySelector('del')!.textContent).toMatch(/Post 1/);
+  });
+
   it('marks a row the action removed, as it was', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));

@@ -43,7 +43,7 @@ import {
   type Actions,
 } from './actionParts';
 import { NARROW_WIDTH } from './columns';
-import { diffModel } from './diffModel';
+import { diffModel, type RowDiff } from './diffModel';
 import { ListView, RecordLevel, type Header } from './DiveViews';
 import { flash, scrollToRow, slide } from './dom';
 import {
@@ -367,7 +367,7 @@ export default function StorePanel({
   );
   // the store flashes what the moment changed (a request's own rows, not
   // those of actions between its steps)
-  useFlashChanges(panel, state, moment && diff?.kinds);
+  useFlashChanges(panel, state, moment && diff?.rows);
   // the subject's levels show in Snapshot, and in Diff at a moment
   const storeShown = tab === 'snapshot' || (tab === 'diff' && !!diff);
   const shownDiff = tab === 'diff' ? diff : undefined;
@@ -497,7 +497,7 @@ export default function StorePanel({
                     hidden={tab !== 'actions'}
                   />
                   <StateContext.Provider value={state}>
-                    <DiffContext.Provider value={shownDiff?.kinds ?? null}>
+                    <DiffContext.Provider value={shownDiff?.rows ?? null}>
                       {tree ?
                         storeShown && (
                           <TreeLevel model={model} diff={shownDiff} />
@@ -566,7 +566,8 @@ interface Diff {
   readonly entries: readonly LogEntry[];
   /** The store with only the rows it changed */
   readonly model: StoreModel;
-  readonly kinds: ReadonlyMap<string, ChangeKind>;
+  /** How it changed each of them */
+  readonly rows: ReadonlyMap<string, RowDiff>;
 }
 
 /** A stack of full-panel levels, each showing its view. Covered levels stay
@@ -794,7 +795,7 @@ function Level({
     () => (
       // only a level showing the diff marks rows with it, not one showing
       // the store a chip opened it at
-      <DiffContext.Provider value={diff?.kinds ?? null}>
+      <DiffContext.Provider value={diff?.rows ?? null}>
         <NavContext.Provider value={current}>
           {children(ref)}
         </NavContext.Provider>
@@ -1060,7 +1061,7 @@ function TreeLevel({ model, diff }: { model: StoreModel; diff?: Diff }) {
         <div className={styles.level} ref={scroller} data-level>
           {!diff ?
             <TreeView model={model} />
-          : diff.kinds.size ?
+          : diff.rows.size ?
             <TreeView model={diff.model} />
           : <SubjectChanges entries={diff.entries} subject={ROOT} />}
         </div>

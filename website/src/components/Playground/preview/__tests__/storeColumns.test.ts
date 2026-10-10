@@ -6,7 +6,8 @@ import {
   NARROW_WIDTH,
   pageColumns,
 } from '../store/columns';
-import { entityId, type EntityRow } from '../store/model';
+import { entityId, type EntityRow, type EntityTable } from '../store/model';
+import { tableColumns } from '../store/Table';
 import { plain, type VNode } from '../store/refs';
 
 const row = (pk: string, raw: unknown): EntityRow => ({
@@ -82,5 +83,22 @@ describe('store columns', () => {
     expect(pageColumns([{ want: 900 }], 50, 400)).toEqual([[{ want: 900 }]]);
     expect(pageColumns([], 50, 400)).toEqual([[]]);
     expect(MORE_WIDTH).toBeGreaterThan(0);
+  });
+});
+
+describe('table columns', () => {
+  it('puts the fields a diff changed first, the rest in order', () => {
+    const rows = [row('1', { a: 1, b: 2, c: 3, d: 4 })];
+    const table: EntityTable = {
+      key: 'T',
+      kind: 'entity',
+      rows,
+      fields: ['a', 'b', 'c', 'd'],
+      get: pk => rows.find(r => r.pk === pk),
+    };
+    const ids = (changed?: ReadonlySet<string>) =>
+      tableColumns(table, rows, 560, 0, { changed }).columns.map(c => c.id);
+    expect(ids()).toEqual(['key', 'a', 'b', 'c', 'd']);
+    expect(ids(new Set(['d', 'b']))).toEqual(['key', 'b', 'd', 'a', 'c']);
   });
 });

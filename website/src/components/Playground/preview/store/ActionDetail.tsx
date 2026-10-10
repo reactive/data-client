@@ -27,7 +27,7 @@ import {
 } from './nav';
 import { plain } from './refs';
 import styles from './store.module.css';
-import { Block, Field, Inline } from './Value';
+import { Block, Field, FieldChange, Inline } from './Value';
 
 /** What an action did to `subject` (every row at the store, a line saying
  * it left the subject alone, or that it is where a `gap` of dropped actions
@@ -220,13 +220,11 @@ function ChangeBody({
         <>
           {(change.fields ?? []).map(field => (
             <div key={field} className={styles.actField}>
-              <span className={styles.key}>{field}</span>
-              <span className={styles.dim}>: </span>
-              <span className={styles.was}>
-                <Inline node={plain(get(was, field))} name={field} />
-              </span>
-              <span className={styles.dim}> → </span>
-              <Inline node={plain(get(now, field))} name={field} />
+              <FieldChange
+                name={field}
+                was={plain(get(was, field))}
+                now={plain(get(now, field))}
+              />
             </div>
           ))}
         </>

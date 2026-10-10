@@ -7,7 +7,7 @@ import {
   useState,
 } from 'react';
 
-import type { ChangeKind } from './actionGroups';
+import type { RowDiff } from './diffModel';
 import {
   entityId,
   isEndpointRow,
@@ -237,12 +237,11 @@ export const NavStateContext = createContext<NavState>({
 });
 export const useNavState = () => useContext(NavStateContext);
 
-/** How the moment's action changed each row it changed, by row id, while
- * the Diff tab shows it: rows mark it */
-export const DiffContext = createContext<ReadonlyMap<
-  string,
-  ChangeKind
-> | null>(null);
+/** How the moment changed each row it changed, by row id, while the Diff
+ * tab shows it: rows mark it, and cells show what they were */
+export const DiffContext = createContext<ReadonlyMap<string, RowDiff> | null>(
+  null,
+);
 
 /** The store at a `Moment` */
 export interface Then {

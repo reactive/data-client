@@ -465,6 +465,14 @@ div.row[data-change='removed'] {
   text-decoration: line-through;
   text-decoration-color: var(--store-dim);
 }
+/* a cell an update changed, and what it was (after it, so a narrow cell
+   cuts the old value rather than the new) */
+.row > td[data-changed] {
+  background: var(--store-stale-bg);
+}
+.cellWas {
+  margin-left: 0.5em;
+}
 .selected,
 .selected > td {
   background: var(--store-selected);
