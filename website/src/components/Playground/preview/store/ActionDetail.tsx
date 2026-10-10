@@ -13,11 +13,9 @@ import {
   AtMoment,
   ChangeChip,
   gapText,
-  KeyLabel,
   spanOf,
-  TypeName,
   useActions,
-} from './ActionsView';
+} from './actionParts';
 import { EndpointBody } from './Details';
 import { errorText, findRow, isEndpointRow } from './model';
 import {
@@ -269,21 +267,5 @@ function withoutFunctions(value: unknown) {
     Object.entries(value).filter(
       ([, v]) => typeof v !== 'function' && !(v instanceof Promise),
     ),
-  );
-}
-
-/** `setResponse GET /posts`, or `gc` for an action without a key */
-export function ActionName({ entry }: { entry: LogEntry }) {
-  const key = actionKey(entry.action);
-  return (
-    <>
-      <TypeName entry={entry} />
-      {key && (
-        <>
-          {' '}
-          <KeyLabel value={key} />
-        </>
-      )}
-    </>
   );
 }

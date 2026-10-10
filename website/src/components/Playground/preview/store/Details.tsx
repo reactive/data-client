@@ -2,9 +2,9 @@ import { StateContext, useController } from '@data-client/react';
 import clsx from 'clsx';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 
-import { ActionName } from './ActionDetail';
 import { rowTimeline } from './actionGroups';
-import { ActionsContext, type Actions } from './ActionsView';
+import { ActionName } from './actionParts';
+import { ActionsContext, type Actions } from './actionParts';
 import {
   errorText,
   referrersOf,

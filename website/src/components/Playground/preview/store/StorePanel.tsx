@@ -12,7 +12,6 @@ import React, {
 } from 'react';
 
 import { ActionDetail } from './ActionDetail';
-import { ActionName } from './ActionDetail';
 import {
   groupEntries,
   keepUnchanged,
@@ -20,6 +19,7 @@ import {
   subjectGaps,
   type ActionGroup,
   type ChangeKind,
+  type SubjectFilter,
 } from './actionGroups';
 import { ActionsPane } from './ActionList';
 import {
@@ -29,13 +29,15 @@ import {
   withDropped,
   type LogEntry,
 } from './actionLog';
+import type ActionLog from './actionLog';
+import { ActionName } from './actionParts';
 import {
   ActionsContext,
   AtMoment,
   LogContext,
   useActions,
   type Actions,
-} from './ActionsView';
+} from './actionParts';
 import { NARROW_WIDTH } from './columns';
 import { ListView, RecordLevel } from './DiveViews';
 import { flash, scrollToRow, slide } from './dom';
@@ -94,10 +96,10 @@ export default function StorePanel({
   const closePane = useCallback(() => setPane(false), []);
   // the timeline the scrubber expands into, above the content; it stays
   // mounted while it slides shut, until the slide ends
-  const [timeline, setTimeline] = useState(false);
-  const [timelineShown, setTimelineShown] = useState(false);
-  if (timeline && !timelineShown) setTimelineShown(true);
-  const hideTimeline = useCallback(() => setTimelineShown(false), []);
+  const [timelineOpen, setTimelineOpen] = useState(false);
+  const [timelineMounted, setTimelineMounted] = useState(false);
+  if (timelineOpen && !timelineMounted) setTimelineMounted(true);
+  const hideTimeline = useCallback(() => setTimelineMounted(false), []);
 
   // State as it was right after one action, until "Live"; a new store (a
   // reset) starts live
@@ -107,19 +109,7 @@ export default function StorePanel({
     setShownId(id);
     setSnapshot(null);
   }
-  // every action logged while the panel shows the past, so the snapshot, the
-  // actions it steps through and what changed each row stay as the log's
-  // front drops off. Let go on "Live"
-  const [kept, setKept] = useState<{
-    live: readonly LogEntry[];
-    all: readonly LogEntry[];
-  }>();
-  if (snapshotSeq === null) {
-    if (kept) setKept(undefined);
-  } else if (kept?.live !== entries) {
-    setKept({ live: entries, all: withDropped(kept?.all, entries) });
-  }
-  const known = (snapshotSeq !== null && kept?.all) || entries;
+  const known = useKeptEntries(entries, snapshotSeq !== null);
   const snapshot =
     snapshotSeq === null ? undefined : findEntry(known, snapshotSeq);
   const at = snapshot && storeAt(known, snapshot, history.storeFrom);
@@ -188,21 +178,7 @@ export default function StorePanel({
   // the top level's subject (an action view shows one): what the Actions
   // pane lists and the steps follow
   const subject = subjectOf(levels.stack);
-  // a record's gaps seldom change: the filter keeps its identity until they
-  // do, so the pane's rows render only as their own group changes
-  const lastGaps = useRef<ReadonlyMap<number, ChangeKind>>(new Map());
-  const gaps = useMemo(
-    () =>
-      (lastGaps.current = keepSameMap(
-        lastGaps.current,
-        subjectGaps(log, known, subject),
-      )),
-    [log, known, subject],
-  );
-  const filter = useMemo(
-    () => subjectFilter(log, subject, gaps),
-    [log, subject, gaps],
-  );
+  const filter = useSubjectFilter(log, known, subject);
   // a moment set on purpose outranks the store a chip opened a level at;
   // an action view on top follows it
   const { clearAt, followMoment, showAction } = levels;
@@ -225,7 +201,7 @@ export default function StorePanel({
   // pushing it down; a pick in the sheet closes it. The content under the
   // sheet is inert meanwhile
   const narrow = width < NARROW_WIDTH;
-  const covered = narrow && timelineShown;
+  const covered = narrow && timelineMounted;
   const content = useRef<HTMLDivElement>(null);
   const paneToggle = useRef<HTMLButtonElement>(null);
   // as these change: focus left under the sheet moves to the ▾, and lost as
@@ -248,7 +224,7 @@ export default function StorePanel({
         )
       )?.focus({ preventScroll: true });
   }, [covered, pane]);
-  const collapse = useCallback(() => setTimeline(false), []);
+  const collapse = useCallback(() => setTimelineOpen(false), []);
   // showing an action opens it at full width, as the moment, over the
   // subject (closing the pane and, narrow, the sheet)
   const show = useCallback(
@@ -294,8 +270,12 @@ export default function StorePanel({
     }),
     [width, openView],
   );
-  const lanes = timelineShown && (
-    <Unfold open={timeline} onShut={hideTimeline} onBlur={focusExpand}>
+  const lanes = timelineMounted && (
+    <Unfold
+      open={timelineOpen}
+      onShut={hideTimeline}
+      onShutWithFocus={focusExpand}
+    >
       {narrow && (
         <div className={styles.sheetBar}>
           <span>Timeline</span>
@@ -336,7 +316,7 @@ export default function StorePanel({
               // the sheet (and the pane) shut from anywhere in the panel,
               // the ▾ included; a level going back has the Escape first
               if (e.key !== 'Escape' || e.defaultPrevented) return;
-              if (narrow && timeline) {
+              if (narrow && timelineOpen) {
                 e.preventDefault();
                 collapse();
               } else if (pane) {
@@ -349,9 +329,9 @@ export default function StorePanel({
               entry={snapshot}
               hit={filter.hit}
               width={width}
-              expanded={timeline}
+              expanded={timelineOpen}
               expandRef={expand}
-              onExpand={setTimeline}
+              onExpand={setTimelineOpen}
             />
             <div className={styles.body}>
               {/* one place in the tree either way, so crossing the narrow
@@ -668,10 +648,7 @@ function ActionLevel({
 }) {
   const { log, history } = useActions();
   const entry = findEntry(history.entries, seq);
-  const gaps = useMemo(
-    () => subjectGaps(log, history.entries, subject),
-    [log, history.entries, subject],
-  );
+  const { gaps } = useSubjectFilter(log, history.entries, subject);
   return (
     <>
       {header(null)}
@@ -680,6 +657,45 @@ function ActionLevel({
       : <p className={styles.empty}>No longer in the log.</p>}
     </>
   );
+}
+
+/** `entries`, and while `holding` (the panel shows the past) every action
+ * logged since it started holding, so the snapshot, the actions it steps
+ * through and what changed each row stay as the log's front drops off */
+function useKeptEntries(
+  entries: readonly LogEntry[],
+  holding: boolean,
+): readonly LogEntry[] {
+  const [kept, setKept] = useState<{
+    live: readonly LogEntry[];
+    all: readonly LogEntry[];
+  }>();
+  if (!holding) {
+    if (kept) setKept(undefined);
+  } else if (kept?.live !== entries) {
+    setKept({ live: entries, all: withDropped(kept?.all, entries) });
+  }
+  return (holding && kept?.all) || entries;
+}
+
+/** What of the log is about `subject`. A record's gaps seldom change: the
+ * filter keeps its identity until they do, so the pane's rows render only
+ * as their own group changes */
+function useSubjectFilter(
+  log: ActionLog,
+  entries: readonly LogEntry[],
+  subject: View,
+): SubjectFilter {
+  const lastGaps = useRef<ReadonlyMap<number, ChangeKind>>(new Map());
+  const gaps = useMemo(
+    () =>
+      (lastGaps.current = keepSameMap(
+        lastGaps.current,
+        subjectGaps(log, entries, subject),
+      )),
+    [log, entries, subject],
+  );
+  return useMemo(() => subjectFilter(log, subject, gaps), [log, subject, gaps]);
 }
 
 /** What a breadcrumb shows for a view */

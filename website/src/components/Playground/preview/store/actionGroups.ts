@@ -655,8 +655,11 @@ export interface SubjectFilter {
   /** Whether an action touched the subject: changed a row it covers or
    * stored one again, or (a record) is where a gap was found: actions the
    * log dropped changed the record before it. At the store, every action
-   * the store saw */
+   * the store saw; so only actions the store saw */
   readonly hit: (entry: LogEntry) => boolean;
+  /** Whether the Actions pane lists an action: one `hit`, or at the store
+   * every action, those the store never saw (a fetch) included */
+  readonly lists: (entry: LogEntry) => boolean;
   /** A record's gaps (see `recordGaps`) */
   readonly gaps: ReadonlyMap<number, ChangeKind>;
 }
@@ -679,11 +682,11 @@ export function subjectFilter(
   subject: View,
   gaps: ReadonlyMap<number, ChangeKind>,
 ): SubjectFilter {
-  if (subject.kind === 'root') return { hit: e => !!e.store, gaps: NO_GAPS };
-  return {
-    hit: e => gaps.has(e.seq) || log.changes(e).some(c => touches(subject, c)),
-    gaps,
-  };
+  if (subject.kind === 'root')
+    return { hit: e => !!e.store, lists: () => true, gaps: NO_GAPS };
+  const hit = (e: LogEntry) =>
+    gaps.has(e.seq) || log.changes(e).some(c => touches(subject, c));
+  return { hit, lists: hit, gaps };
 }
 const NO_GAPS: ReadonlyMap<number, ChangeKind> = new Map();
 

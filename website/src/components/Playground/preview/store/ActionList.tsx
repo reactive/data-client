@@ -35,7 +35,7 @@ import {
   useActions,
   useFollow,
   useLog,
-} from './ActionsView';
+} from './actionParts';
 import { byData, onActivateKey, scrollToRow, toggled } from './dom';
 import { actionId } from './model';
 import { ActionSpanContext, useNavState, type View } from './nav';
@@ -116,7 +116,7 @@ export function ActionsPane({
 function ActionList({
   rows,
   subject,
-  filter: { hit, gaps },
+  filter,
 }: {
   rows: readonly ActionGroup[];
   subject: View;
@@ -136,22 +136,17 @@ function ActionList({
   const entry = seq === null ? undefined : findEntry(history.entries, seq);
   const group = seq === null ? undefined : groupOf(groups, seq);
   const current =
-    (
-      group &&
-      entry &&
-      rows.includes(group) &&
-      (subject.kind === 'root' || hit(entry))
-    ) ?
+    group && entry && rows.includes(group) && filter.lists(entry) ?
       group
     : undefined;
   // as the moment comes to a row: it opens, and may be closed again while
   // the moment stays among its actions. A lone action's row is its own
-  // step: marking it is enough
+  // step (see `rowId`): marking it is enough
   const [opened, setOpened] = useState<string | null>(null);
   const currentId = current?.id ?? null;
   if (currentId !== opened) {
     setOpened(currentId);
-    if (current && groupEntriesOf(current).length > 1 && !open.has(current.id))
+    if (current && !isLone(current) && !open.has(current.id))
       setOpen(new Set([...open, current.id]));
   }
   useReveal(scroller, seq, current?.id);
@@ -200,10 +195,9 @@ function ActionList({
           key={group.id}
           group={group}
           open={open.has(group.id)}
-          current={group === current ? seq! : undefined}
+          currentSeq={group === current ? seq! : undefined}
           subject={subject}
-          hit={hit}
-          gaps={gaps}
+          filter={filter}
           onToggle={toggle}
           onSelect={show}
         />
@@ -238,6 +232,12 @@ function gapNotes(
   }
   return notes;
 }
+
+/** A group of one action is its own step: its row carries the action's id
+ * (what the moment scrolls to); a group of several, the group's */
+const isLone = (group: ActionGroup) => groupEntriesOf(group).length === 1;
+const rowId = (group: ActionGroup) =>
+  isLone(group) ? actionId(groupEntriesOf(group)[0].seq) : group.id;
 
 /** The moment's row in `el`: its action's step, or `group`'s row when the
  * action has no step of its own */
@@ -286,20 +286,18 @@ function useReveal(
 const GroupRow = memo(function GroupRow({
   group,
   open,
-  current,
+  currentSeq,
   subject,
-  hit,
-  gaps,
+  filter,
   onToggle,
   onSelect,
 }: {
   group: ActionGroup;
   open: boolean;
   /** The moment's action, when it is one of this row's */
-  current?: number;
+  currentSeq?: number;
   subject: View;
-  hit: SubjectFilter['hit'];
-  gaps: SubjectFilter['gaps'];
+  filter: SubjectFilter;
   onToggle: (id: string) => void;
   /** Opens an action, as the moment */
   onSelect: (seq: number) => void;
@@ -309,13 +307,12 @@ const GroupRow = memo(function GroupRow({
   // what it did to the subject (at the store, everything)
   const changes = log.mergedChanges(all).filter(c => touches(subject, c));
   const first = all[0];
-  // the row stands for its last action that touched the subject and the
-  // store saw (a request's response), or its last one
-  const hits = all.filter(hit);
-  const seq = spanOf(hits)?.last ?? (hits.at(-1) ?? all[all.length - 1]).seq;
+  // the row stands for its last action that touched the subject (a
+  // request's response), or its last one
+  const seq = (all.findLast(filter.hit) ?? all[all.length - 1]).seq;
   const select = () => onSelect(seq);
-  const notes = gapNotes(all, gaps);
-  const steps = all.length > 1;
+  const notes = gapNotes(all, filter.gaps);
+  const steps = !isLone(group);
   return (
     <div className={styles.actGroup} data-open={open || undefined}>
       {!open &&
@@ -326,10 +323,8 @@ const GroupRow = memo(function GroupRow({
         role="button"
         tabIndex={0}
         aria-expanded={open}
-        aria-current={current !== undefined || undefined}
-        // a lone action is its own step, so the moment scrolls to it here;
-        // a row stands in for a step that has no line of its own
-        data-id={steps ? group.id : actionId(first.seq)}
+        aria-current={currentSeq !== undefined || undefined}
+        data-id={rowId(group)}
         data-group={group.id}
         data-seq={seq}
         className={clsx(styles.row, styles.actRow)}
@@ -375,10 +370,9 @@ const GroupRow = memo(function GroupRow({
       {open && (
         <Steps
           group={group}
-          all={all}
-          current={current}
+          currentSeq={currentSeq}
           subject={subject}
-          hit={hit}
+          lists={filter.lists}
           notes={notes}
           onSelect={onSelect}
         />
@@ -393,21 +387,20 @@ const GroupRow = memo(function GroupRow({
  * log dropped of the row's own actions, the row says */
 function Steps({
   group,
-  all,
-  current,
+  currentSeq,
   subject,
-  hit,
+  lists,
   notes,
   onSelect,
 }: {
   group: ActionGroup;
-  all: readonly LogEntry[];
-  current?: number;
+  currentSeq?: number;
   subject: View;
-  hit: SubjectFilter['hit'];
+  lists: SubjectFilter['lists'];
   notes: ReadonlyMap<number, ChangeKind>;
   onSelect: (seq: number) => void;
 }) {
+  const all = groupEntriesOf(group);
   const joined = joinedFetches(group);
   const counted = new Set<RequestGroup>();
   const scroller = useRef<HTMLDivElement>(null);
@@ -420,14 +413,14 @@ function Steps({
           const gap = notes.get(entry.seq);
           return [
             gap && <GapRow key={`gap ${entry.seq}`} change={gap} />,
-            (subject.kind === 'root' || hit(entry)) && (
+            lists(entry) && (
               <StepRow
                 key={entry.seq}
                 entry={entry}
                 own={group.key}
                 group={group.id}
                 subject={subject}
-                current={entry.seq === current}
+                current={entry.seq === currentSeq}
                 onSelect={onSelect}
               />
             ),

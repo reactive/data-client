@@ -89,7 +89,7 @@ export const findEntry = (entries: readonly LogEntry[], seq: number) =>
 /** The nearest action before (`-1`) or after (`1`) `seq` that `hit` says
  * touched the subject, by seq (`seq` may have dropped off the log); `null`
  * is live, after every action */
-function nearestChange(
+function nearestHit(
   entries: readonly LogEntry[],
   seq: number | null,
   by: -1 | 1,
@@ -110,7 +110,7 @@ export function stepMoment(
   by: -1 | 1,
   hit: (entry: LogEntry) => boolean,
 ): number | null | undefined {
-  const next = nearestChange(entries, seq, by, hit);
+  const next = nearestHit(entries, seq, by, hit);
   if (next) return next.seq;
   if (by > 0 && seq !== null) return null;
 }

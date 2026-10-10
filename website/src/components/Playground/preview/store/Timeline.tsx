@@ -7,7 +7,6 @@ import React, {
   useRef,
 } from 'react';
 
-import { ActionName } from './ActionDetail';
 import {
   actionName,
   groupEntriesOf,
@@ -18,6 +17,7 @@ import {
 } from './actionGroups';
 import type ActionLog from './actionLog';
 import { stepMoment, type LogEntry } from './actionLog';
+import { ActionName } from './actionParts';
 import {
   droppedIn,
   droppedText,
@@ -30,7 +30,7 @@ import {
   useActions,
   useFollow,
   useLog,
-} from './ActionsView';
+} from './actionParts';
 import { NARROW_WIDTH } from './columns';
 import { useHoldFocus } from './dom';
 import { useNavState } from './nav';
@@ -101,13 +101,13 @@ export function lanesOf(groups: readonly ActionGroup[]): Lane[] {
   return [...lanes].map(([key, groups]) => ({ key, groups }));
 }
 
-/** The shown history on `timeScale`, without the fetches deduped into a
- * request in flight (they add nothing to see) */
 /** What the scrubber's row holds beside its track: ‹ ›, Live and ▾ (px) */
 const SCRUB_CONTROLS = 170;
 /** Scrubber marks closer than this (px) draw as one */
 const MERGE_PX = 4;
 
+/** The shown history on `timeScale`, without the fetches deduped into a
+ * request in flight (they add nothing to see) */
 function useScale() {
   const { groups, history } = useActions();
   const joined = useMemo(
@@ -120,6 +120,44 @@ function useScale() {
   );
   const scale = useMemo(() => timeScale(shown), [shown]);
   return { joined, shown, scale };
+}
+
+/** `drawer` for the shown history with the moment selected, and `decor`:
+ * the scale's breaks and the moment's playhead. `fitTo`: the track's width
+ * (px), to draw marks crowding each other there as one */
+function useDrawer(
+  hit: SubjectFilter['hit'],
+  onSelect: (seq: number) => void,
+  fitTo?: number,
+) {
+  const { log, history } = useActions();
+  const { seq: selected } = useNavState();
+  const { joined, shown, scale } = useScale();
+  const draw = drawer({
+    log,
+    scale,
+    joined,
+    since: history.since,
+    selected,
+    hit,
+    onSelect,
+    mergeWithin:
+      fitTo === undefined ? undefined : (
+        (MERGE_PX * scale.width) / Math.min(scale.width, Math.max(1, fitTo))
+      ),
+  });
+  const at = selected === null ? undefined : scale.x.get(selected);
+  const decor = () => (
+    <>
+      {scale.breaks.map(x => (
+        <span key={x} className={styles.tlBreak} style={draw.pos(x)} />
+      ))}
+      {at !== undefined && (
+        <span className={styles.tlPlayhead} style={draw.pos(at)} />
+      )}
+    </>
+  );
+  return { ...draw, shown, scale, decor };
 }
 
 /** Draws groups along `scale`: requests as spans from fetch to response,
@@ -288,26 +326,18 @@ export const Scrubber = memo(function Scrubber({
   expandRef?: React.Ref<HTMLButtonElement>;
   onExpand: (expanded: boolean) => void;
 }) {
-  const { log, history, groups } = useActions();
+  const { history, groups } = useActions();
   const { seq: selected, set: onSelect, show } = useNavState();
-  const { entries, since } = history;
-  const { joined, shown, scale } = useScale();
-  const earlier = stepMoment(entries, selected, -1, hit);
-  const later = stepMoment(entries, selected, 1, hit);
+  const { entries } = history;
   // the track fits the panel beside the controls: marks a few px apart
   // there draw as one (fast polling crowds it otherwise)
-  const track = Math.min(scale.width, Math.max(1, width - SCRUB_CONTROLS));
-  const { pos, drawn, marks } = drawer({
-    log,
-    scale,
-    joined,
-    since,
-    selected,
+  const { shown, scale, drawn, marks, decor } = useDrawer(
     hit,
     onSelect,
-    mergeWithin: (MERGE_PX * scale.width) / track,
-  });
-  const at = selected === null ? undefined : scale.x.get(selected);
+    width - SCRUB_CONTROLS,
+  );
+  const earlier = stepMoment(entries, selected, -1, hit);
+  const later = stepMoment(entries, selected, 1, hit);
 
   // a step that removes (Live) or turns off (an end reached) the button
   // pressed hands focus to one still there
@@ -368,12 +398,7 @@ export const Scrubber = memo(function Scrubber({
             <div className={styles.tlLane}>
               {groups.flatMap(g => drawn(g, false))}
               {marks()}
-              {scale.breaks.map(x => (
-                <span key={x} className={styles.tlBreak} style={pos(x)} />
-              ))}
-              {at !== undefined && (
-                <span className={styles.tlPlayhead} style={pos(at)} />
-              )}
+              {decor()}
             </div>
           )}
         </div>
@@ -436,12 +461,16 @@ export default memo(function Timeline({
    * the keys step) */
   onPick?: () => void;
 }) {
-  const { log, history, groups } = useActions();
+  const { history, groups } = useActions();
   const { seq: selected, set } = useNavState();
   const [spacing, setSpacing] = useTabStorage('playgroundTimelineSpacing');
   const { entries, since } = history;
   const lanes = useMemo(() => lanesOf(groups), [groups]);
-  const { joined, shown, scale } = useScale();
+  const onSelect = (seq: number) => {
+    set(seq);
+    onPick?.();
+  };
+  const { shown, scale, pos, drawn, decor } = useDrawer(hit, onSelect);
   const narrow = width < NARROW_WIDTH;
   const labelWidth = narrow ? LABEL_WIDTH.narrow : LABEL_WIDTH.wide;
   // detailed (the default), it scrolls sideways, kept on the newest while
@@ -459,7 +488,6 @@ export default memo(function Timeline({
     () => axisLabels(shown, scale, gap),
     [shown, scale, gap],
   );
-  const at = selected === null ? undefined : scale.x.get(selected);
 
   const scroller = useRef<HTMLDivElement>(null);
   // a picked action stays put as new ones come in; so does a scrolled-back
@@ -547,21 +575,6 @@ export default memo(function Timeline({
     }
     e.preventDefault();
   };
-  const onSelect = (seq: number) => {
-    set(seq);
-    onPick?.();
-  };
-  // along the track, as a fraction of it: the track is the scale's width,
-  // or what fits (see `.tlBody`)
-  const { pos, drawn } = drawer({
-    log,
-    scale,
-    joined,
-    since,
-    selected,
-    hit,
-    onSelect,
-  });
 
   // the lane labels stay put beside the scrolling tracks, the two kept at
   // one height
@@ -642,12 +655,7 @@ export default memo(function Timeline({
               {lane.groups.flatMap(g => drawn(g))}
             </div>
           ))}
-          {scale.breaks.map(x => (
-            <span key={x} className={styles.tlBreak} style={pos(x)} />
-          ))}
-          {at !== undefined && (
-            <span className={styles.tlPlayhead} style={pos(at)} />
-          )}
+          {decor()}
         </div>
       </div>
     </div>

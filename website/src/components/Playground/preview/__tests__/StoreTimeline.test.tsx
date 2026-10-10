@@ -15,7 +15,7 @@ import type { LogEntry } from '../store/actionLog';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
 import { axisLabels, lanesOf, timeScale } from '../store/Timeline';
-import { TIMELINE_CLOSE_MS } from '../store/Unfold';
+import { UNFOLD_CLOSE_MS } from '../store/Unfold';
 
 jest.mock('../../../../utils/tabStorage', () => ({
   useTabStorage: () => require('react').useState(null),
@@ -503,7 +503,7 @@ describe('Store Timeline lanes', () => {
       // shut, with no transitionend (hidden mid-slide): let go anyway
       toggle();
       expect(timeline.isConnected).toBe(true);
-      act(() => jest.advanceTimersByTime(TIMELINE_CLOSE_MS - 1));
+      act(() => jest.advanceTimersByTime(UNFOLD_CLOSE_MS - 1));
       expect(timeline.isConnected).toBe(true);
       act(() => jest.advanceTimersByTime(1));
       expect(timeline.isConnected).toBe(false);

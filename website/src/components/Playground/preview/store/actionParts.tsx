@@ -11,6 +11,7 @@ import React, {
 } from 'react';
 
 import {
+  actionKey,
   actionName,
   pollFrequencyOf,
   type ActionGroup,
@@ -522,5 +523,21 @@ export function ChangeChip({ change }: { change: Change }) {
         </>
       }
     />
+  );
+}
+
+/** `setResponse GET /posts`, or `gc` for an action without a key */
+export function ActionName({ entry }: { entry: LogEntry }) {
+  const key = actionKey(entry.action);
+  return (
+    <>
+      <TypeName entry={entry} />
+      {key && (
+        <>
+          {' '}
+          <KeyLabel value={key} />
+        </>
+      )}
+    </>
   );
 }

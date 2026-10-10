@@ -225,9 +225,10 @@
 }
 
 /* Levels of the table view stack in one cell; the covered ones stay laid out
-   (so they keep their scroll) but invisible */
+   (so they keep their scroll) but invisible. Sized by their content, so a
+   panel without a set height (narrow) still shows them */
 .levels {
-  flex: 1 1 0;
+  flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
   display: grid;
@@ -968,13 +969,14 @@ div.gapRow {
 }
 .actHead {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   gap: 0.5rem;
   min-width: 0;
 }
-/* the key keeps its room in a narrow row: the meta gives way first */
+/* the key keeps its room in a narrow row: the meta wraps under it first */
 .actKey {
-  flex: 1 0 auto;
+  flex: 0 1 auto;
   max-width: 100%;
   min-width: 0;
   overflow: hidden;
@@ -982,21 +984,13 @@ div.gapRow {
   white-space: nowrap;
 }
 .actMeta {
-  flex: 0 1 auto;
-  min-width: 0;
+  flex: none;
   display: flex;
   gap: 0.6rem;
   margin-left: auto;
   font-size: 11px;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.actMeta > * {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 .actTime {
   flex: none;
@@ -1122,8 +1116,7 @@ div.joined {
   background: rgba(199, 146, 234, 0.12);
 }
 
-/* an action's own level */
-/* what the moment's action did, under its row or step, then the action */
+/* an action at full width: what it did to the subject, then the action */
 .actBody {
   padding-bottom: 0.3rem;
 }

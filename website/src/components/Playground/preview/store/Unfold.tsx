@@ -10,7 +10,7 @@ import styles from './store.module.css';
 import { prefersReducedMotion, springEasing, springs } from '../../../motion';
 
 /** By when an `Unfold`'s slide shut (`--motion-smooth`) is over */
-export const TIMELINE_CLOSE_MS = springEasing(springs.smooth).duration + 100;
+export const UNFOLD_CLOSE_MS = springEasing(springs.smooth).duration + 100;
 
 /** Slides `children` open and shut (see `.unfold`): their row grows from
  * nothing as they rise into place, and back. Shut, they stay mounted, but
@@ -22,14 +22,14 @@ export const TIMELINE_CLOSE_MS = springEasing(springs.smooth).duration + 100;
 export default function Unfold({
   open,
   onShut,
-  onBlur,
+  onShutWithFocus,
   children,
 }: {
   open: boolean;
   /** Called once a slide shut is over */
   onShut?: () => void;
   /** Called as it shuts with focus inside, to move focus somewhere shown */
-  onBlur?: () => void;
+  onShutWithFocus?: () => void;
   children: React.ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -40,7 +40,8 @@ export default function Unfold({
     const el = ref.current!;
     if (!open) {
       el.removeAttribute('data-open');
-      if (hadFocus.current || el.contains(document.activeElement)) onBlur?.();
+      if (hadFocus.current || el.contains(document.activeElement))
+        onShutWithFocus?.();
       return;
     }
     const frame = requestAnimationFrame(() => el.setAttribute('data-open', ''));
@@ -77,7 +78,7 @@ export default function Unfold({
     // the slide's end can go unseen (the panel hidden mid-slide, the toggle
     // flipped twice in a frame): once it must be over, settle regardless
     if (!closing) return;
-    const id = setTimeout(shut, TIMELINE_CLOSE_MS);
+    const id = setTimeout(shut, UNFOLD_CLOSE_MS);
     return () => clearTimeout(id);
   }, [closing, shut]);
   return (
