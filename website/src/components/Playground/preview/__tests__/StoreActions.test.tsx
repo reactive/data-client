@@ -549,6 +549,20 @@ describe('Store Actions pane detail', () => {
     expect(crumbs()).toEqual(['Actions', 'setResponse GET /posts']);
   });
 
+  it('keeps each tab’s levels as they were while the other shows', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    openPost('1');
+    const record = top();
+    openPane();
+    fireEvent.click(rows()[0]);
+    const action = top();
+    openState();
+    expect(top()).toBe(record);
+    openPane();
+    expect(top()).toBe(action);
+  });
+
   it("peeks only for its own panel, closing as another's toggle is pressed", async () => {
     // a page holds several playgrounds, each with a store panel
     const other = new SchemaRegistry({ trimEvery: 1 });
@@ -696,11 +710,27 @@ describe('Store Actions pane', () => {
   it('reveals the moment’s action as the pane first shows, keeping it in view', async () => {
     const scrollTo = jest.fn();
     Element.prototype.scrollTo = scrollTo;
-    // every level shows, as it would on screen
+    // every level shows as it would on screen: one in a hidden tab has no
+    // height, and gets some as its tab shows
     Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
       configurable: true,
-      get: () => 100,
+      get(this: HTMLElement) {
+        return this.closest('[hidden]') ? 0 : 100;
+      },
     });
+    const resized: (() => void)[] = [];
+    (globalThis as any).ResizeObserver = class {
+      constructor(private cb: (entries: unknown[]) => void) {}
+      observe() {
+        resized.push(() => this.cb([{ contentRect: { width: 560 } }]));
+      }
+
+      disconnect() {}
+    };
+    const show = () => {
+      openPane();
+      act(() => resized.forEach(cb => cb()));
+    };
     try {
       const { ctrl } = mount();
       await act(() => ctrl().fetch(getPosts));
@@ -710,13 +740,14 @@ describe('Store Actions pane', () => {
       // live again before the pane first shows: nothing to reveal
       previous();
       fireEvent.click(screen.getByRole('button', { name: 'Live' }));
-      openPane();
+      show();
       expect(scrollTo).not.toHaveBeenCalled();
       // a lone action is marked on its row alone, which stays closed, and
       // keeps the focus where it was
       openState();
       previous();
-      openPane();
+      expect(scrollTo).not.toHaveBeenCalled();
+      show();
       expect(scrollTo).toHaveBeenCalledWith(
         expect.objectContaining({ behavior: 'smooth' }),
       );
@@ -740,6 +771,7 @@ describe('Store Actions pane', () => {
     } finally {
       delete (Element.prototype as any).scrollTo;
       delete (HTMLElement.prototype as any).clientHeight;
+      delete (globalThis as any).ResizeObserver;
     }
   });
 

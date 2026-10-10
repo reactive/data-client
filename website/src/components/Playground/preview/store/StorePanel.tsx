@@ -493,27 +493,31 @@ export default function StorePanel({
                   </span>
                 </div>
                 <div className={styles.tabPanel} role="tabpanel">
-                  {tab === 'actions' ?
-                    <Levels
-                      model={model}
-                      width={width}
-                      levels={actionLevels}
-                      subject={subject}
-                    />
-                  : <StateContext.Provider value={state}>
-                      <DiffContext.Provider value={diff?.kinds ?? null}>
-                        {tree ?
+                  {/* both stay mounted, so each keeps the stores its levels
+                      show, their scroll, pages and filters */}
+                  <Levels
+                    model={model}
+                    width={width}
+                    levels={actionLevels}
+                    subject={subject}
+                    hidden={tab !== 'actions'}
+                  />
+                  <StateContext.Provider value={state}>
+                    <DiffContext.Provider value={diff?.kinds ?? null}>
+                      {tree ?
+                        tab === 'state' && (
                           <TreeLevel model={model} diff={diff} />
-                        : <Levels
-                            model={model}
-                            width={width}
-                            levels={levels}
-                            diff={diff}
-                          />
-                        }
-                      </DiffContext.Provider>
-                    </StateContext.Provider>
-                  }
+                        )
+                      : <Levels
+                          model={model}
+                          width={width}
+                          levels={levels}
+                          diff={diff}
+                          hidden={tab !== 'state'}
+                        />
+                      }
+                    </DiffContext.Provider>
+                  </StateContext.Provider>
                   {pane && tab === 'state' && (
                     <NavContext.Provider value={chipNav}>
                       <ActionsPane
@@ -565,10 +569,13 @@ function Levels({
   levels: { stack, returnTo, push, back },
   subject: under,
   diff,
+  hidden = false,
 }: {
   model: StoreModel;
   width: number;
   levels: LevelStack;
+  /** In the tab not shown: laid out, covered, until it shows again */
+  hidden?: boolean;
   /** Whose actions a stack with no subject of its own lists */
   subject?: View;
   /** Levels showing the moment show this instead */
@@ -673,7 +680,11 @@ function Levels({
   };
 
   return (
-    <div className={styles.levels}>
+    <div
+      className={styles.levels}
+      hidden={hidden}
+      style={hidden ? { display: 'none' } : undefined}
+    >
       {stack.map((entry, depth) => {
         const { key, view, at } = entry;
         const level = levelOf(entry);
@@ -691,6 +702,8 @@ function Levels({
             depth={depth}
             pushed={depth > 0 && !shownLevels.has(entry)}
             top={depth === stack.length - 1}
+            hidden={hidden}
+            under={under}
             onBack={back}
             returnTo={returnTo}
             diff={changed}
@@ -734,6 +747,8 @@ function Level({
   depth,
   pushed,
   top,
+  hidden,
+  under,
   onBack,
   returnTo,
   diff,
@@ -748,6 +763,10 @@ function Level({
    * shows without sliding in or taking focus */
   pushed: boolean;
   top: boolean;
+  /** Its tab isn't shown: covered, though still on top of its stack */
+  hidden: boolean;
+  /** Whose actions it lists, when its stack has no subject of its own */
+  under?: View;
   onBack: (depth: number) => void;
   /** Row to flash when this level is uncovered */
   returnTo: string | null;
@@ -772,8 +791,8 @@ function Level({
         </NavContext.Provider>
       </DiffContext.Provider>
     ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `children` is new each render; what it shows only changes with `current`, `view` and `diff`
-    [current, view, diff],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `children` is new each render; what it shows only changes with `current`, `view`, `diff` and `under`
+    [current, view, diff, under],
   );
   const wasTop = useRef<boolean | null>(null);
   useLayoutEffect(() => {
@@ -791,8 +810,8 @@ function Level({
       ref={ref}
       className={styles.level}
       data-level
-      data-covered={!top || undefined}
-      inert={!top}
+      data-covered={!top || hidden || undefined}
+      inert={!top || hidden}
       tabIndex={-1}
       onKeyDown={e => {
         if (e.key === 'Escape' && depth > 0) {

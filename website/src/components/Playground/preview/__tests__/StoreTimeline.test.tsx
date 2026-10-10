@@ -92,10 +92,11 @@ const hover = (el: Element, inside: boolean) => {
   fireEvent(el, event);
   act(() => jest.advanceTimersByTime(500));
 };
-/** The pane's rows */
-const rows = () => [
-  ...document.querySelectorAll<HTMLElement>('[role="button"][aria-expanded]'),
-];
+/** The rows of the actions shown (not those of a tab hidden) */
+const rows = () =>
+  [
+    ...document.querySelectorAll<HTMLElement>('[role="button"][aria-expanded]'),
+  ].filter(row => !row.closest('[hidden]'));
 /** The shown level, none while the pane swaps the state out */
 const top = () => {
   const level = document.querySelector<HTMLElement>(
