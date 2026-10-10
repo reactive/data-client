@@ -204,6 +204,7 @@ DesignSystem/       components injected into preview scope
   sets the store's managers; otherwise `getDefaultManagers()` without DevTools.
   `ManagerHost` (`preview/managers.ts`) builds and guards them;
   `useCodeManagers` is LivePreview's only hook into it.
+  [Data flow diagram](./managers-data-flow.png).
   - Only editing `getManagers` or a document declaring a name it uses (e.g. its
     Manager class) changes the managers: the store remounts with its data, so
     other edits keep sockets open. Code that fails to run keeps the old ones.
