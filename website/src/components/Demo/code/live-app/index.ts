@@ -1,3 +1,4 @@
 import pollingDemo from './polling';
+import sseDemo from './sse';
 
-export default [pollingDemo /*, SSEDemo*/];
+export default [pollingDemo, sseDemo];

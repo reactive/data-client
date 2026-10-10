@@ -203,16 +203,18 @@ jobs:
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       VERCEL_TELEMETRY_DISABLED: '1'
     steps:
-      # vercel build reads only the first two; production also runs
-      # vercel-ignore.sh --superseded. No npm install or other repo scripts run,
-      # and vercel build only runs vercel.json's guard command. The token is
-      # still as exposed as same-repo push access, since that file can change
-      # the command.
+      # vercel build reads the first three (api/ holds the site's functions,
+      # which it bundles); production also runs vercel-ignore.sh --superseded.
+      # No other repo scripts run: vercel build only runs vercel.json's guard
+      # command, and installs api/'s dependencies without their scripts. The
+      # token is still as exposed as same-repo push access, since vercel.json
+      # can change the command.
       - uses: actions/checkout@v7
         with:
           sparse-checkout: |
             website/package.json
             website/vercel.json
+            website/api/
             website/scripts/vercel-ignore.sh
           sparse-checkout-cone-mode: false
       - uses: actions/download-artifact@v8
@@ -228,6 +230,8 @@ jobs:
         env:
           HEAD_REF: ${{ github.head_ref }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          # vercel build runs npm install for api/'s functions
+          NPM_CONFIG_IGNORE_SCRIPTS: 'true'
         run: |
           # Checked here, not in `website`, so a re-run of this job can't roll
           # production back to an older master commit

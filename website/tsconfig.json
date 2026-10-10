@@ -6,6 +6,6 @@
     "ignoreDeprecations": "6.0"
   },
   "extends": "@tsconfig/docusaurus/tsconfig.json",
-  "include": ["src", "scripts/videos"],
+  "include": ["src", "api", "scripts/videos"],
   "exclude": ["src/components/Demo/code/**"]
 }
