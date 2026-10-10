@@ -24,6 +24,19 @@ node -e "
   require('fs').writeFileSync(f, JSON.stringify(p, null, 2) + '\n');
 "
 corepack enable
+
+# On public PRs Yarn's hardened mode re-resolves every lockfile entry against
+# the registry (~13s) to catch a tampered yarn.lock. A lockfile identical to
+# the base branch's has nothing to catch. Hardened mode stays on when the base
+# commit can't be fetched.
+if [ "${GITHUB_EVENT_NAME:-}" = pull_request ]; then
+  base="$(node -p "require(process.env.GITHUB_EVENT_PATH).pull_request.base.sha")"
+  git cat-file -e "$base^{commit}" 2>/dev/null \
+    || git fetch -q --depth=1 --filter=blob:none origin "$base" || true
+  if [ "$(git rev-parse -q --verify "$base:yarn.lock")" = "$(git rev-parse HEAD:yarn.lock)" ]; then
+    export YARN_ENABLE_HARDENED_MODE=0
+  fi
+fi
 YARN_ENABLE_IMMUTABLE_INSTALLS=false yarn install
 
 git checkout -- package.json yarn.lock
