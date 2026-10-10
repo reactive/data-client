@@ -14,10 +14,13 @@ export default {
     },
     {
       path: 'socket',
+      // collapsed, but kept in the static HTML for crawlers
+      ssr: true,
       code: socket,
     },
     {
       path: 'StreamManager',
+      ssr: true,
       code: StreamManager,
     },
     {
