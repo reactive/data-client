@@ -145,7 +145,13 @@ export default function EditorSurface({
     >
       <EditorHeader
         fixtureContent={!row ? fixtureContent : undefined}
-        title={row && documents.length === 1 ? documents[0].title : undefined}
+        title={
+          // the Store over the code: the header names what shows
+          covered ? <Translate id="playground.store">Store</Translate>
+          : row && documents.length === 1 ?
+            documents[0].title
+          : undefined
+        }
         controls={headerControls}
       />
       {tabsCovered ? null : tabs}
