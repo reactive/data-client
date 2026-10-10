@@ -56,10 +56,7 @@ export default function Playground<T>({
 }: PlaygroundProps<T>) {
   const model = useCodeDocuments(children, defaultTab);
   // Defer preview transpilation so editor input remains responsive.
-  // `;` keeps a half-typed statement from absorbing the next document.
-  const code = useDeferredValue(
-    model.documents.map(document => document.value).join('\n;\n'),
-  );
+  const documents = useDeferredValue(model.documents);
 
   const [storeOpen, toggleStore, closeStore] = useStoreOpen(
     groupId,
@@ -100,7 +97,7 @@ export default function Playground<T>({
     hidden ? previewLoading : (
       <Boundary fallback={previewLoading}>
         <LivePreview
-          code={code}
+          documents={documents}
           storeOpen={storeOpen}
           toggleStore={toggleStore}
           row={row}

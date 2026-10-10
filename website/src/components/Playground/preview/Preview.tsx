@@ -1,7 +1,5 @@
 import {
   DataProvider,
-  PollingSubscription,
-  SubscriptionManager,
   NetworkManager,
   type Manager,
   type State,
@@ -16,6 +14,8 @@ import React, {
 
 import { MotionGroup } from '../../motion';
 import Boundary from '../Boundary';
+import type ManagerHost from './managers';
+import { ManagerError, ManagersSync } from './ManagersSync';
 import type { PreviewErrorProps } from './PreviewError';
 import SchemaRegistry from './store/schemaRegistry';
 import StoreInspector from './StoreInspector';
@@ -34,6 +34,7 @@ function Preview<T>({
   registry,
   history,
   replacedHistory,
+  managerHost,
   onInteract,
   ...errorProps
 }: PreviewProps<T> &
@@ -47,30 +48,36 @@ function Preview<T>({
     history: number;
     /** A history that may still come back; the log drops any other */
     replacedHistory?: number;
+    /** Managers the code declares with `getManagers()` */
+    managerHost: ManagerHost;
     /** User pointer/keyboard input inside the result */
     onInteract: () => void;
   }) {
   const managers = useMemo<Manager[]>(() => {
-    const network = new NetworkManager();
+    const managers = managerHost.create();
+    // create() always includes one
+    const network = managers.find(
+      manager => manager instanceof NetworkManager,
+    ) as NetworkManager;
     const log = registry.log.connect(history, replacedHistory, action =>
       network.skipLogging(action),
     );
-    return [
-      log.head,
-      registry,
-      network,
-      new SubscriptionManager(PollingSubscription),
-      log.tail,
-    ];
-  }, [registry, history, replacedHistory]);
+    return [log.head, registry, ...managers, log.tail];
+  }, [registry, history, replacedHistory, managerHost]);
 
   return (
-    <DataProvider managers={managers} initialState={initialState}>
+    // devButton: getDefaultManagers() includes DevToolsManager in development
+    <DataProvider
+      managers={managers}
+      initialState={initialState}
+      devButton={null}
+    >
       <MockResolver
         fixtures={fixtures}
         silenceMissing={true}
         getInitialInterceptorData={getInitialInterceptorData}
       >
+        <ManagersSync host={managerHost} />
         <MotionGroup layoutDependency={storeOpen}>
           <div
             className={`playground-preview ${styles.playgroundPreview}`}
@@ -80,6 +87,7 @@ function Preview<T>({
             <Boundary fallback={null}>
               <PreviewBlockLazy onCommit={onCommit} {...errorProps} />
             </Boundary>
+            <ManagerError host={managerHost} />
           </div>
           <StoreInspector
             open={storeOpen}

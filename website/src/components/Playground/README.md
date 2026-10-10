@@ -200,6 +200,19 @@ DesignSystem/       components injected into preview scope
   persists. It retries again only after the preview has rendered cleanly for a
   second, so typing through a typo costs at most one retry. Compile and
   evaluation errors never reset.
+- Managers: code that defines `getManagers()` (the function a real app passes
+  to `<DataProvider managers>`, e.g. `[new StreamManager(), ...getDefaultManagers()]`)
+  sets the store's managers (`preview/managers.ts`); otherwise the store gets
+  `getDefaultManagers()` without DevTools. The inspector's `SchemaRegistry`
+  always comes first. `transformCode` appends a trailer that registers
+  `getManagers` with a version of the documents it depends on (the one defining
+  it, plus any declaring a name it uses, like a Manager class); the host calls it
+  each time it builds a store (instances are never reused). A new version
+  remounts only the store, with its data (`usePreviewReset`'s `remount`), in the
+  same batch react-live renders the new code, so that code never runs against
+  the old managers; edits elsewhere keep the managers (sockets stay open).
+  Code that fails to run keeps the managers it had. A manager that throws shows
+  a "Manager error" card while the preview runs on without that step.
 - Errors show in one `ErrorPanel` card (`Playground/ErrorPanel.tsx`) labeled by the stage that failed: amber
   "Compile error" for react-live's `SyntaxError`s (the code never ran) and red
   "Runtime error" for anything thrown while running. Demos rely on the reset
