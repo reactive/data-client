@@ -861,6 +861,17 @@ describe('Store Actions pane', () => {
     expect(top()!.closest('[inert]')).toBeNull();
   });
 
+  it('leaves Escape to the sheet over it', async () => {
+    const { ctrl } = mountAt(360);
+    await act(() => ctrl().fetch(getPosts));
+    jest.useFakeTimers();
+    hover(paneToggle(), true);
+    toggle();
+    fireEvent.keyDown(lanes(), { key: 'Escape' });
+    expect(screen.queryByRole('button', { name: 'Close timeline' })).toBeNull();
+    expect(pane()).toBeTruthy();
+  });
+
   it('gives focus back to its toggle as it closes under it', async () => {
     const { ctrl } = mountAt(800);
     await act(() => ctrl().fetch(getPosts));

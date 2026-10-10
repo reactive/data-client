@@ -340,9 +340,9 @@ export default function StorePanel({
             className={styles.store}
             ref={panel}
             onKeyDownCapture={e => {
-              // the peek, over everything, shuts first: before a level
-              // under it takes the Escape to go back
-              if (e.key !== 'Escape' || !pane) return;
+              // the peek shuts first: before a level under it takes the
+              // Escape to go back. Under the sheet, the sheet does
+              if (e.key !== 'Escape' || !pane || covered) return;
               e.preventDefault();
               e.stopPropagation();
               closePane();
