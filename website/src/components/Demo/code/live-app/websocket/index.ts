@@ -18,11 +18,11 @@ export default {
     },
     {
       path: 'StreamManager',
-      open: true,
       code: StreamManager,
     },
     {
       path: 'AssetPrice',
+      open: true,
       code: AssetPrice,
     },
     {

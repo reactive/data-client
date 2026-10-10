@@ -164,12 +164,12 @@ function TextEditTab({
   hidden: boolean;
   interactive: boolean;
 }) {
-  // SSR + hydration markup: open tabs' source stays in the HTML for crawlers.
+  // SSR + hydration markup: every tab's source stays in the HTML for
+  // crawlers, collapsed ones hidden by CSS.
   // Never branch on navigator / user agent outside BrowserOnly.
-  const staticView =
-    hidden ? null : (
-      <StaticEditor code={editorProps.code} language={editorProps.language} />
-    );
+  const staticView = (
+    <StaticEditor code={editorProps.code} language={editorProps.language} />
+  );
 
   return (
     <div
