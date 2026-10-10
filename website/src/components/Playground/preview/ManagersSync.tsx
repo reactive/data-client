@@ -9,9 +9,7 @@ import ErrorPanel from '../ErrorPanel';
  * over. Render under MockResolver so that includes the simulated server. */
 export function ManagersSync({ host }: { host: ManagerHost }) {
   const controller = useController();
-  useEffect(() => {
-    host.controller = controller;
-  }, [host, controller]);
+  useEffect(() => host.attach(controller), [host, controller]);
   return null;
 }
 

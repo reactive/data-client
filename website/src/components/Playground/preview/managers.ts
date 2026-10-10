@@ -9,35 +9,37 @@ import {
 import { takeSnapshot, type PreviewSnapshot } from './usePreviewReset';
 import type { CodeDocument } from '../editor/codeModel';
 
-/** Identifies the documents `getManagers()` depends on: the one defining it,
- * and those declaring a name it (or another of them) uses, such as a Manager
- * class in its own file. Editing them gives the store new managers; other
- * edits keep them. */
+/** Hash of the documents `getManagers()` depends on. Editing them gives the
+ * store new managers; other edits keep them. */
 export function managersVersion(documents: readonly CodeDocument[]): string {
-  const sources = documents.map(({ value }) => value);
-  const used = sources.filter(value => DEFINES_GET_MANAGERS.test(value));
-  for (let i = 0; i < used.length; i++) {
-    for (const value of sources) {
-      if (used.includes(value)) continue;
-      for (const [, name] of value.matchAll(DECLARATION)) {
-        if (
-          new RegExp(`(?<![\\w$])${name.replace(/\$/g, '\\$')}(?![\\w$])`).test(
-            used[i],
-          )
-        ) {
-          used.push(value);
-          break;
-        }
-      }
-    }
-  }
   let hash = 0;
-  for (const value of sources) {
-    if (!used.includes(value)) continue;
+  for (const value of managerSources(documents.map(({ value }) => value)))
     for (let i = 0; i < value.length; i++)
       hash = (Math.imul(hash, 31) + value.charCodeAt(i)) | 0;
-  }
   return hash.toString(36);
+}
+
+/** The source defining `getManagers()`, and those declaring a name it (or
+ * another of them) uses, such as a Manager class in its own file. In
+ * document order, so moving code between documents changes the version. */
+function managerSources(sources: readonly string[]): string[] {
+  const used = new Set(
+    sources.filter(value => DEFINES_GET_MANAGERS.test(value)),
+  );
+  for (const user of used) {
+    for (const value of sources) {
+      if (!used.has(value) && declaresNameUsedBy(value, user)) used.add(value);
+    }
+  }
+  return sources.filter(value => used.has(value));
+}
+
+function declaresNameUsedBy(source: string, user: string): boolean {
+  for (const [, name] of source.matchAll(DECLARATION)) {
+    const escaped = name.replace(/\$/g, '\\$');
+    if (new RegExp(`(?<![\\w$])${escaped}(?![\\w$])`).test(user)) return true;
+  }
+  return false;
 }
 const DEFINES_GET_MANAGERS = /\bfunction\s+getManagers\b|\bgetManagers\s*[:=]/;
 const DECLARATION =
@@ -57,8 +59,8 @@ export default class ManagerHost {
   protected getManagers?: () => Manager[];
   /** `managersVersion()` of the code that last registered */
   protected version = managersVersion([]);
-  /** The current store's (MockResolver's) controller; set by ManagersSync */
-  controller?: Controller;
+  /** The current store's (MockResolver's) controller */
+  protected controller?: Controller;
   /** A user manager threw; shown until the next store */
   error?: unknown;
   protected listeners = new Set<() => void>();
@@ -70,6 +72,11 @@ export default class ManagerHost {
     if (version === this.version) return;
     this.version = version;
     if (this.controller) this.onChange(takeSnapshot(this.controller));
+  };
+
+  /** Called by the current store, so a new version can carry its data over */
+  attach = (controller: Controller) => {
+    this.controller = controller;
   };
 
   /** Managers for a new store: the code's, or the defaults. `network` is
