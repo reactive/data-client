@@ -7,7 +7,7 @@ import {
 import { MockResolver } from '@data-client/test/browser';
 import React, {
   memo,
-  useMemo,
+  useState,
   lazy,
   type ProfilerOnRenderCallback,
 } from 'react';
@@ -53,7 +53,9 @@ function Preview<T>({
     /** User pointer/keyboard input inside the result */
     onInteract: () => void;
   }) {
-  const managers = useMemo<Manager[]>(() => {
+  // DataProvider keeps its first managers, so build them once per mount
+  // (create() runs the code's getManagers() and clears the last error)
+  const [managers] = useState<Manager[]>(() => {
     const managers = managerHost.create();
     // create() always includes one
     const network = managers.find(
@@ -63,7 +65,7 @@ function Preview<T>({
       network.skipLogging(action),
     );
     return [log.head, registry, ...managers, log.tail];
-  }, [registry, history, replacedHistory, managerHost]);
+  });
 
   return (
     // devButton: getDefaultManagers() includes DevToolsManager in development
