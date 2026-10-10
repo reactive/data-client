@@ -4,12 +4,12 @@ import { useEffect } from 'react';
 
 const BUILD_ID_URL = `${siteConfig.baseUrl}build-id.txt`;
 /** A build's id: its runtime chunk's file name (build-id-plugin.js) */
-const BUILD_ID = /^runtime~main\.\w+\.js$/;
+const BUILD_ID_PATTERN = /^runtime~main\.\w+\.js$/;
 /** The build this tab is running */
 const runningId =
   ExecutionEnvironment.canUseDOM ?
     Array.from(document.scripts, script => script.src.split('/').pop()).find(
-      name => name && BUILD_ID.test(name),
+      name => name && BUILD_ID_PATTERN.test(name),
     )
   : undefined;
 /** Deploy last reloaded for, so a reload still served the old build can't loop */
@@ -33,7 +33,7 @@ async function fetchDeployedId(): Promise<string | undefined> {
     signal: AbortSignal.timeout(10_000),
   });
   const id = res.ok ? (await res.text()).trim() : '';
-  return BUILD_ID.test(id) ? id : undefined;
+  return BUILD_ID_PATTERN.test(id) ? id : undefined;
 }
 
 let checking = false;
