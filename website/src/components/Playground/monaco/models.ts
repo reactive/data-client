@@ -40,7 +40,7 @@ export function createMissingModels(
   // The first TypeScript model registers the TS worker asynchronously, so the
   // first surface has no worker to ask. Monaco starts checking only once that
   // registration finishes, after this pass's models all exist, and re-checks
-  // every model when the type libs arrive (addTypeLibs in ./typeLibs.ts).
+  // every model when extra libs change (./setup.ts adds the type libs).
   if (!typeScriptWorkerRequested && typeScriptUris.length) {
     typeScriptWorkerRequested = true;
     void monaco.typescript.getTypeScriptWorker().then(getWorker => {

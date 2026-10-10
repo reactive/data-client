@@ -121,11 +121,11 @@ DesignSystem/       components injected into preview scope
   their Monaco models must exist for cross-file types, go-to-definition and
   to keep edits. Monaco is uncontrolled (`defaultValue`), so re-renders never
   reset the buffer.
-- After a `monaco-editor` bump, check that a multi-file playground whose
-  importing file comes before the file it imports shows no `Cannot find
-module` marker when opened after page load (e.g. a second homepage demo
-  tab). The fix in `monaco/models.ts` relies on Monaco internals that no test
-  runs against.
+- After a `monaco-editor` bump, open a multi-file playground after page load
+  (e.g. a second homepage demo tab) whose importing file comes before the
+  file it imports, and check it shows no TS2307 (Cannot find module) marker.
+  `monaco/models.ts` relies on the TS worker answering requests in order,
+  which no test runs against real Monaco.
 - Fixtures are listed above the editor in stacked layout only.
 - Go-to-definition across files: each editor registers an opener for its own
   model (`monaco/useDefinitionOpener.ts`) that shows its tab, then selects and
