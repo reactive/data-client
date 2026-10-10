@@ -3,6 +3,7 @@ import {
   useAllDocsData,
 } from '@docusaurus/plugin-content-docs/client';
 import { useHistory, useLocation } from '@docusaurus/router';
+import { translate } from '@docusaurus/Translate';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import React, { useState, useRef, useEffect } from 'react';
 
@@ -90,7 +91,10 @@ export default function FrameworkSelector() {
       <button
         className={styles.trigger}
         onClick={() => setIsOpen(!isOpen)}
-        aria-label="Select framework"
+        aria-label={translate({
+          id: 'frameworkSelector.select',
+          message: 'Select framework',
+        })}
         aria-expanded={isOpen}
       >
         <currentFramework.Logo />
@@ -112,7 +116,13 @@ export default function FrameworkSelector() {
                 disabled={!counterparts[value]}
                 title={
                   counterparts[value] ? undefined : (
-                    `This page is not available for ${label}`
+                    translate(
+                      {
+                        id: 'frameworkSelector.unavailable',
+                        message: 'This page is not available for {framework}',
+                      },
+                      { framework: label },
+                    )
                   )
                 }
               >

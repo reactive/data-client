@@ -769,5 +769,66 @@
   },
   "errors.osid.disable": {
     "message": "desative a ofuscação de nomes de função"
+  },
+  "embed.openInNewTab": {
+    "message": "Abrir em uma nova aba"
+  },
+  "frameworkSelector.select": {
+    "message": "Selecionar framework"
+  },
+  "frameworkSelector.unavailable": {
+    "message": "Esta página não está disponível para {framework}"
+  },
+  "genericsTabs.type": {
+    "message": "Tipo"
+  },
+  "genericsTabs.generics": {
+    "message": "Com genéricos"
+  },
+  "stackblitz.loading": {
+    "message": "Carregando a demo…"
+  },
+  "stackblitz.frameTitle": {
+    "message": "Demo de {name} no StackBlitz"
+  },
+  "stackblitz.moreDemos": {
+    "message": "Mais demos"
+  },
+  "http.request": {
+    "message": "Requisição"
+  },
+  "http.response": {
+    "message": "Resposta"
+  },
+  "playground.error.compile": {
+    "message": "Erro de compilação"
+  },
+  "playground.error.runtime": {
+    "message": "Erro em tempo de execução"
+  },
+  "playground.error.manager": {
+    "message": "Erro do Manager"
+  },
+  "playground.fixtures": {
+    "message": "Fixtures"
+  },
+  "playground.resetPreview": {
+    "message": "Reiniciar a pré-visualização"
+  },
+  "playground.renderCount": {
+    "message": "{count} renderização|{count} renderizações",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.renderCount.title": {
+    "message": "Commits do React desta pré-visualização. Clique para zerar."
+  },
+  "playground.store": {
+    "message": "Store"
+  },
+  "playground.store.hide": {
+    "message": "Ocultar o store"
+  },
+  "playground.store.show": {
+    "message": "Mostrar o store"
   }
 }

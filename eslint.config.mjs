@@ -1,4 +1,5 @@
 import anansiPlugin from '@anansi/eslint-plugin';
+import docusaurusPlugin from '@docusaurus/eslint-plugin';
 import globals from 'globals';
 
 // Playground/preview/ is the lazy PreviewWithScope chunk (live execution,
@@ -82,6 +83,46 @@ export default [
     rules: {
       '@typescript-eslint/no-restricted-imports':
         lazyPreviewImports('**/preview/**'),
+    },
+  },
+  {
+    // Site UI text goes through <Translate> so every locale gets it. Checks JSX
+    // text only: attributes (title, aria-label, placeholder) need review
+    files: ['website/src/{components,theme}/**/*.?(m|c)tsx'],
+    ignores: [
+      '**/__tests__/**',
+      '**/testing/**',
+      // TODO: translate once its redesign settles
+      'website/src/components/Playground/preview/store/**',
+    ],
+    plugins: { '@docusaurus': docusaurusPlugin },
+    rules: {
+      '@docusaurus/no-untranslated-text': [
+        'error',
+        {
+          // separators, value punctuation and units around numbers
+          ignoredStrings: [
+            '·',
+            '…',
+            '‹',
+            '›',
+            '▶',
+            '×',
+            '→',
+            ':',
+            '+',
+            ',',
+            '[',
+            ']',
+            '{',
+            '}',
+            '[]',
+            '{}',
+            '[Circular]',
+            's',
+          ],
+        },
+      ],
     },
   },
   {

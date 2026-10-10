@@ -769,5 +769,66 @@
   "theme.tags.tagsPageTitle": {
     "message": "标签",
     "description": "The title of the tag list page"
+  },
+  "embed.openInNewTab": {
+    "message": "在新标签页中打开"
+  },
+  "frameworkSelector.select": {
+    "message": "选择框架"
+  },
+  "frameworkSelector.unavailable": {
+    "message": "此页面没有 {framework} 版本"
+  },
+  "genericsTabs.type": {
+    "message": "类型"
+  },
+  "genericsTabs.generics": {
+    "message": "使用泛型"
+  },
+  "stackblitz.loading": {
+    "message": "正在加载演示…"
+  },
+  "stackblitz.frameTitle": {
+    "message": "{name} 在 StackBlitz 上的演示"
+  },
+  "stackblitz.moreDemos": {
+    "message": "更多演示"
+  },
+  "http.request": {
+    "message": "请求"
+  },
+  "http.response": {
+    "message": "响应"
+  },
+  "playground.error.compile": {
+    "message": "编译错误"
+  },
+  "playground.error.runtime": {
+    "message": "运行时错误"
+  },
+  "playground.error.manager": {
+    "message": "Manager 错误"
+  },
+  "playground.fixtures": {
+    "message": "Fixtures"
+  },
+  "playground.resetPreview": {
+    "message": "重置预览"
+  },
+  "playground.renderCount": {
+    "message": "{count} 次渲染",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.renderCount.title": {
+    "message": "此预览的 React 提交次数。点击重置。"
+  },
+  "playground.store": {
+    "message": "Store"
+  },
+  "playground.store.hide": {
+    "message": "隐藏 Store"
+  },
+  "playground.store.show": {
+    "message": "显示 Store"
   }
 }

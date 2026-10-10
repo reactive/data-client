@@ -1,3 +1,4 @@
+/* global require, module, __dirname */
 process.env.ANANSI_JEST_BABELCONFIG = 'babel.config.js';
 process.env.ANANSI_JEST_TSCONFIG = 'tsconfig.test.json';
 
@@ -78,6 +79,14 @@ const projects = [
     rootDir: __dirname,
     roots: reactDomRoots,
     displayName: 'ReactDOM',
+    moduleNameMapper: {
+      ...baseConfig.moduleNameMapper,
+      // Docusaurus modules the website's tested components import
+      '^@docusaurus/Translate$':
+        '<rootDir>/website/src/components/Playground/testing/docusaurusTranslate.tsx',
+      '^@docusaurus/theme-common$':
+        '<rootDir>/website/src/components/Playground/testing/docusaurusThemeCommon.ts',
+    },
     setupFiles: ['<rootDir>/scripts/testSetup.js'],
     testEnvironment: 'jsdom',
     testRegex: [
