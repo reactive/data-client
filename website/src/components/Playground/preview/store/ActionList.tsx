@@ -469,7 +469,9 @@ function Steps({
   const joined = joinedFetches(group);
   const counted = new Set<RequestGroup>();
   const scroller = useRef<HTMLDivElement>(null);
-  useFollow(scroller, all);
+  // a long poll's newest tick stays in view while live; a picked moment
+  // holds it still, as it does the list
+  useFollow(scroller, all, 'y', useNavState().seq !== null);
   return (
     <div className={styles.steps} ref={scroller}>
       {all.map(entry => {
