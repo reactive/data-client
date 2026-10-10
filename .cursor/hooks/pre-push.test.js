@@ -48,34 +48,46 @@ function write(root, file) {
 }
 
 /** the reason the hook denies `git push`, if it does */
-function push(root) {
+function push(root, command = 'git push') {
   const out = execFileSync(process.execPath, [hook], {
     cwd: root,
     env: { ...process.env, CURSOR_PROJECT_DIR: root },
     input: JSON.stringify({
       hook_event_name: 'PreToolUse',
-      tool_input: { command: 'git push' },
+      tool_input: { command },
     }),
     encoding: 'utf8',
   });
   return out && JSON.parse(out).hookSpecificOutput.permissionDecisionReason;
 }
 
+const held =
+  '`eslint --fix` changed files this push would include. Commit them, then push again:\nsrc/changed.ts';
+
+/** master tracks src/generated.ts; then it's untracked and ignored, but
+ * still generated on disk, and src/changed.ts is added */
+function untrackGenerated(root, git) {
+  write(root, 'src/generated.ts');
+  git('add', '-A');
+  git('commit', '-m', 'master');
+  git('update-ref', 'refs/remotes/origin/master', 'HEAD');
+  git('rm', '--cached', 'src/generated.ts');
+  fs.appendFileSync(path.join(root, '.gitignore'), 'src/generated.ts\n');
+  write(root, 'src/changed.ts');
+  git('add', '-A');
+}
+
 test('an ignored file the branch stops tracking is not linted', () => {
   withRepo((root, git) => {
-    write(root, 'src/generated.ts');
-    git('add', '-A');
-    git('commit', '-m', 'master');
-    git('update-ref', 'refs/remotes/origin/master', 'HEAD');
-    // untracked and ignored, but still generated on disk
-    git('rm', '--cached', 'src/generated.ts');
-    fs.appendFileSync(path.join(root, '.gitignore'), 'src/generated.ts\n');
-    write(root, 'src/changed.ts');
-    git('add', '-A');
+    untrackGenerated(root, git);
     git('commit', '-m', 'branch');
-    assert.equal(
-      push(root),
-      '`eslint --fix` changed files this push would include. Commit them, then push again:\nsrc/changed.ts',
-    );
+    assert.equal(push(root), held);
+  });
+});
+
+test('an ignored file the push commits untracking is not linted', () => {
+  withRepo((root, git) => {
+    untrackGenerated(root, git);
+    assert.equal(push(root, 'git commit -m branch && git push'), held);
   });
 });

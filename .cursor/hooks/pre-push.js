@@ -155,6 +155,8 @@ function lintFix() {
           line =>
             line &&
             !line.startsWith('?') &&
+            // a staged delete isn't pushed, like the branch's own below
+            line[0] !== 'D' &&
             (commitsAll || (line[0] !== ' ' && line[1] === ' ')),
         )
         .map(line => line.slice(3))
