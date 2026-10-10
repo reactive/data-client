@@ -20,7 +20,8 @@ export default function PkgTabs({ pkgs, dev = false }: Props) {
         { label: 'NPM', value: 'npm' },
         { label: 'Yarn', value: 'yarn' },
         { label: 'pnpm', value: 'pnpm' },
-        { label: 'esm.sh', value: 'esm' },
+        // dev dependencies are build/test tooling, which a browser CDN can't provide
+        ...(dev ? [] : [{ label: 'esm.sh', value: 'esm' }]),
       ]}
     >
       <TabItem value="yarn">
@@ -38,16 +39,25 @@ export default function PkgTabs({ pkgs, dev = false }: Props) {
           {installCommand('pnpm', pkgs, { dev })}
         </CodeBlock>
       </TabItem>
-      <TabItem value="esm">
-        <CodeBlock className="language-html">
-          {`<script type="module">
+      {!dev && (
+        <TabItem value="esm">
+          <CodeBlock className="language-html">
+            {`<script type="importmap">
+{
+  "imports": {
 ${pkgs
   .split(' ')
-  .map(pkg => `  import * from 'https://esm.sh/${pkg}${dev ? '?dev' : ''}';`)
-  .join('\n')}
+  .map(
+    pkg =>
+      `    "${pkg.replace(/^(@?[^@]+).*/, '$1')}": "https://esm.sh/${pkg}"`,
+  )
+  .join(',\n')}
+  }
+}
 </script>`}
-        </CodeBlock>
-      </TabItem>
+          </CodeBlock>
+        </TabItem>
+      )}
     </Tabs>
   );
 }
