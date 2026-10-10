@@ -1,3 +1,4 @@
+/* eslint-disable @docusaurus/no-untranslated-text -- shell commands */
 import CodeBlock from '@theme/CodeBlock';
 import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';

@@ -1,3 +1,4 @@
+/* eslint-disable @docusaurus/no-untranslated-text -- shell commands */
 import { useStorageSlot } from '@docusaurus/theme-common';
 import CodeBlock from '@theme/CodeBlock';
 import React from 'react';

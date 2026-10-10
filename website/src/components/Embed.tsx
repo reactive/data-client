@@ -23,6 +23,7 @@ export default function Embed({
           <Translate id="embed.openInNewTab">Open in new tab</Translate>
         </Link>
         &nbsp;
+        {/* eslint-disable-next-line @docusaurus/no-untranslated-text -- brand name */}
         <Link
           className="button button--secondary button--sm"
           to={repo}
