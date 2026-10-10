@@ -4,6 +4,7 @@ import type {
   Middleware,
 } from '@data-client/react';
 import { actionTypes, getDefaultManagers } from '@data-client/react';
+import { ReconnectingSocket } from './socket';
 import { Ticker } from './resources';
 
 const { SUBSCRIBE, UNSUBSCRIBE } = actionTypes;
@@ -13,17 +14,14 @@ interface Product {
   count: number;
 }
 
-/** Pushes Coinbase prices into the store over one socket,
- * reconnecting when it drops or the browser comes back online
- */
+/** Pushes Coinbase prices into the store over one socket */
 export class StreamManager implements Manager {
-  declare protected socket: WebSocket;
+  protected socket = new ReconnectingSocket(
+    'wss://ws-feed.exchange.coinbase.com',
+  );
   declare protected controller: Controller;
   /** Channel and component count of each subscribed product */
   protected products = new Map<string, Product>();
-  protected attempts = 0;
-  /** Pending reconnect, or the watchdog while connected */
-  declare protected timer: ReturnType<typeof setTimeout>;
 
   middleware: Middleware = controller => {
     this.controller = controller;
@@ -64,90 +62,38 @@ export class StreamManager implements Manager {
   }
 
   init() {
-    this.connect();
-    addEventListener('online', this.reconnect);
-    // a socket can take minutes to notice the network is gone
-    addEventListener('offline', this.close);
-  }
-
-  cleanup() {
-    removeEventListener('online', this.reconnect);
-    removeEventListener('offline', this.close);
-    this.close();
-  }
-
-  protected connect() {
-    this.close();
-    this.socket = new WebSocket(
-      'wss://ws-feed.exchange.coinbase.com',
-    );
     this.socket.onopen = () => {
       // a new socket has no subscriptions yet
       for (const [productId, { channel }] of this.products)
         this.send('subscribe', channel, productId);
     };
-    this.socket.onmessage = event => {
-      this.watch();
-      const { type, product_id, price, time } = JSON.parse(
-        event.data,
-      );
+    this.socket.onmessage = ({ type, product_id, price, time }) => {
       if (type !== 'ticker') return;
-      this.attempts = 0;
       this.controller.set(
         Ticker,
         { product_id },
         { product_id, price, time },
       );
     };
-    // after a failed connect, an error or a server close
-    this.socket.onclose = () => {
-      const delay = Math.min(30_000, 1000 * 2 ** this.attempts);
-      this.attempts++;
-      clearTimeout(this.timer);
-      this.timer = setTimeout(this.reconnect, delay);
-    };
-    this.watch();
+    // without subscriptions, quiet is expected
+    this.socket.expectsMessages = () => this.products.size > 0;
+    this.socket.open();
   }
 
-  /** A socket can stay open on a dead network (like after sleep),
-   * so reconnect when prices stop arriving */
-  protected watch() {
-    clearTimeout(this.timer);
-    this.timer = setTimeout(() => {
-      // without subscriptions, quiet is expected
-      if (this.products.size) this.connect();
-      else this.watch();
-    }, 30_000);
-  }
-
-  protected reconnect = () => {
-    if (this.socket.readyState !== WebSocket.OPEN) this.connect();
-  };
-
-  /** Stops the socket without waiting for it to finish closing,
-   * which it can't do offline */
-  protected close = () => {
-    clearTimeout(this.timer);
-    if (!this.socket) return;
-    // closed sockets get no more messages; skip its reconnect
-    this.socket.onclose = null;
+  cleanup() {
     this.socket.close();
-  };
+  }
 
   protected send(
     type: 'subscribe' | 'unsubscribe',
     channel: string,
     productId: string,
   ) {
-    // onopen sends what was subscribed before the socket opened
-    if (this.socket?.readyState !== WebSocket.OPEN) return;
-    this.socket.send(
-      JSON.stringify({
-        type,
-        product_ids: [productId],
-        channels: [channel],
-      }),
-    );
+    this.socket.send({
+      type,
+      product_ids: [productId],
+      channels: [channel],
+    });
   }
 }
 
