@@ -12,26 +12,29 @@ const { SUBSCRIBE, UNSUBSCRIBE } = actionTypes;
 export class StreamManager implements Manager {
   declare protected socket: WebSocket;
   declare protected controller: Controller;
-  /** Products useLive() subscribed to */
-  protected products = new Set<string>();
+  /** Channel of each product useLive() subscribed to */
+  protected products = new Map<string, string>();
 
   middleware: Middleware = controller => {
     this.controller = controller;
     return next => async action => {
-      if (
-        (action.type !== SUBSCRIBE && action.type !== UNSUBSCRIBE) ||
-        !('channel' in action.endpoint)
-      )
-        return next(action);
-      // the socket pushes this endpoint's updates, so nothing polls
-      const { productId } = action.args[0];
-      if (action.type === SUBSCRIBE) {
-        this.products.add(productId);
-        this.send('subscribe', [productId]);
-      } else {
-        this.products.delete(productId);
-        this.send('unsubscribe', [productId]);
+      // the socket pushes updates for endpoints with a channel
+      if (action.type === SUBSCRIBE && 'channel' in action.endpoint) {
+        const { productId } = action.args[0];
+        const { channel } = action.endpoint as { channel: string };
+        this.products.set(productId, channel);
+        return this.send('subscribe', channel, productId);
       }
+      if (
+        action.type === UNSUBSCRIBE &&
+        'channel' in action.endpoint
+      ) {
+        const { productId } = action.args[0];
+        const { channel } = action.endpoint as { channel: string };
+        this.products.delete(productId);
+        return this.send('unsubscribe', channel, productId);
+      }
+      return next(action);
     };
   };
 
@@ -40,8 +43,8 @@ export class StreamManager implements Manager {
       'wss://ws-feed.exchange.coinbase.com',
     );
     this.socket.onopen = () => {
-      if (this.products.size)
-        this.send('subscribe', [...this.products]);
+      for (const [productId, channel] of this.products)
+        this.send('subscribe', channel, productId);
     };
     this.socket.onmessage = event => {
       const { type, product_id, price, time } = JSON.parse(
@@ -62,15 +65,16 @@ export class StreamManager implements Manager {
 
   protected send(
     type: 'subscribe' | 'unsubscribe',
-    product_ids: string[],
+    channel: string,
+    productId: string,
   ) {
     // onopen sends what was subscribed before the socket opened
     if (this.socket?.readyState !== WebSocket.OPEN) return;
     this.socket.send(
       JSON.stringify({
         type,
-        product_ids,
-        channels: ['ticker_batch'],
+        product_ids: [productId],
+        channels: [channel],
       }),
     );
   }
