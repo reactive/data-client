@@ -1,0 +1,77 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import PkgTabs from '@site/src/components/PkgTabs';
+import PkgInstall from '@site/src/components/PkgInstall';
+import Link from '@docusaurus/Link';
+import ProviderSetupCode from '@site/src/components/ProviderSetupCode';
+
+::::react
+
+<Tabs
+defaultValue="web"
+groupId="platform"
+values={[
+{ label: 'Web', value: 'web' },
+{ label: 'React Native', value: 'native' },
+{ label: 'NextJS', value: 'nextjs' },
+{ label: 'Expo', value: 'expo' },
+{ label: 'Anansi', value: 'anansi' },
+]}>
+
+<TabItem value="web">
+
+<ProviderSetupCode platform="web" />
+
+或者，[将状态与 redux 集成](../guides/redux.md)
+
+</TabItem>
+
+<TabItem value="native">
+
+<ProviderSetupCode platform="native" />
+
+或者，[将状态与 redux 集成](../guides/redux.md)
+
+</TabItem>
+
+<TabItem value="nextjs">
+
+<div style={{ textAlign: 'center' }}>
+  <Link className="button button--primary" to="../guides/ssr#nextjs">完整的 NextJS 指南</Link>
+</div>
+
+<ProviderSetupCode platform="nextjs" />
+
+</TabItem>
+
+<TabItem value="expo">
+
+<ProviderSetupCode platform="expo" />
+
+</TabItem>
+
+<TabItem value="anansi">
+
+[Anansi](https://github.com/ntucker/anansi)（beta）是一个完全可组合的 React 开发框架，可选支持
+服务端渲染。
+
+```bash title="bash"
+npx @anansi/cli hatch my-project
+```
+
+Anansi 已自动集成 Reactive Data Client。
+
+</TabItem>
+</Tabs>
+
+::::
+
+::::vue
+
+<PkgInstall pkgs="@data-client/vue @data-client/rest" />
+
+<ProviderSetupCode platform="vue" />
+
+`app.use(DataClientPlugin, options)` 可以选择性地覆盖 [`managers`](../api/getDefaultManagers.md)、`initialState`、`Controller` 和 `gcPolicy`。全部选项请参阅 [DataClientPlugin](../api/DataClientPlugin.md)。
+
+::::

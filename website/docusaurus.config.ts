@@ -30,6 +30,7 @@ const remarkFramework = require('./framework-docs/remarkFramework.js');
 const reactRemarkPlugins = [[remarkFramework, { framework: 'react' }]];
 const localeDocs = require('./translate/localeDocs.js');
 const remarkEnglishPage = require('./translate/remarkEnglishPage.js');
+const remarkJoinCjkLines = require('./translate/remarkJoinCjkLines.js');
 // set by Docusaurus for the locale being built or served
 const currentLocale = process.env.DOCUSAURUS_CURRENT_LOCALE ?? DEFAULT_LOCALE;
 const vueDocs = frameworkDocs.generate('vue');
@@ -76,6 +77,7 @@ const docsLocation = (id: string) => {
     exclude: [...GlobExcludeDefault, ...exclude],
     editUrl: ({ docPath }: { docPath: string }) =>
       `${editRoot}/${docsPath}/${docPath}`,
+    remarkPlugins: currentLocale === DEFAULT_LOCALE ? [] : [remarkJoinCjkLines],
   };
 };
 

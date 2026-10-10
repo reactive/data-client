@@ -24,6 +24,12 @@ const LOCALES = {
     announcement:
       'Se você gosta do Reactive Data Client, dê uma ⭐️ no <a target="_blank" rel="noopener noreferrer" href="https://github.com/reactive/data-client">GitHub</a>',
   },
+  'zh-Hans': {
+    language: 'Simplified Chinese',
+    outdated: '这篇翻译之后英文原文有更新，内容可能已过时。',
+    announcement:
+      '如果你喜欢 Reactive Data Client，请在 <a target="_blank" rel="noopener noreferrer" href="https://github.com/reactive/data-client">GitHub</a> 上给它一颗 ⭐️',
+  },
 };
 
 module.exports = { DEFAULT_LOCALE: 'en', LOCALES };

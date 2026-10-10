@@ -1,0 +1,42 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.docs.category.Getting Started": {
+    "message": "快速上手",
+    "description": "The label for category 'Getting Started' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Concepts": {
+    "message": "概念",
+    "description": "The label for category 'Concepts' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Tooling": {
+    "message": "工具",
+    "description": "The label for category 'Tooling' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Guides": {
+    "message": "指南",
+    "description": "The label for category 'Guides' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Performance": {
+    "message": "性能",
+    "description": "The label for category 'Performance' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Legacy": {
+    "message": "旧版",
+    "description": "The label for category 'Legacy' in sidebar 'docs'"
+  },
+  "sidebar.api.category.Composables": {
+    "message": "组合式函数",
+    "description": "The label for category 'Composables' in sidebar 'api'"
+  },
+  "sidebar.api.category.Managers": {
+    "message": "Managers",
+    "description": "The label for category 'Managers' in sidebar 'api'"
+  },
+  "sidebar.api.category.Testing": {
+    "message": "测试",
+    "description": "The label for category 'Testing' in sidebar 'api'"
+  }
+}
