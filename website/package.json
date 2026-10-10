@@ -4,7 +4,7 @@
   "scripts": {
     "examples": "docusaurus-examples",
     "postinstall": "node scripts/generateMonacoPreloads.cjs",
-    "start": "NODE_OPTIONS=--openssl-legacy-provider docusaurus start",
+    "start": "docusaurus start",
     "start:vscode": "run start --no-open",
     "start:prod": "serve build",
     "build": "docusaurus build",

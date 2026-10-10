@@ -6,7 +6,7 @@ on:
   # Required check: no `paths` (see paths-gate.yml). The queue builds the
   # merged site but never deploys it.
   merge_group:
-  # Deploys production and refreshes the webpack cache that PRs restore from
+  # Deploys production and refreshes the build cache that PRs restore from
   push:
     branches:
       - master
