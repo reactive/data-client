@@ -190,7 +190,7 @@ const placeholders = text => [...new Set(text.match(/\{\w+\}/g))].sort().join();
  * Docusaurus falls back to the last form, so too few forms would silently
  * show a plural for one. */
 function uiProblem(locale, text, message) {
-  if (!text.trim()) return 'translate it: it is blank';
+  if (!text.trim() && message.trim()) return 'translate it: it is blank';
   if (placeholders(text) !== placeholders(message))
     return `keep the placeholders of "${message}"`;
   const english = message.split('|').length;
