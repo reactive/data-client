@@ -694,10 +694,10 @@ describe('Store Actions pane', () => {
       const list = rows()[0].parentElement!.parentElement!;
       Object.defineProperty(list, 'clientHeight', { value: 100 });
       const marked = () =>
-        [
-          ...document.querySelectorAll<HTMLElement>('[aria-current="true"]'),
-        ].map(el => el.textContent);
-      // live: nothing is marked
+        [...list.querySelectorAll<HTMLElement>('[aria-current="true"]')].map(
+          el => el.textContent,
+        );
+      // live: nothing in the list is marked
       expect(marked()).toEqual([]);
       // back to the first response: its row opens, marked, and scrolls into view
       previous();
@@ -1023,14 +1023,21 @@ describe('Store diff', () => {
 
   it('shows only what the moment’s action changed, the snapshot all of it', async () => {
     const { ctrl } = mount();
+    openDiff();
+    expect(top().textContent).toContain('No action has changed the store yet');
     await act(() => ctrl().fetch(getPosts));
     await act(() =>
       ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
     );
-    // live: nothing to diff
-    openDiff();
-    expect(top().textContent).toContain('Live: pick an action');
+    // live: the newest action's, with Live marked as the moment
+    expect(tableRows()).toEqual([[entityId('Post', '1'), 'updated']]);
+    expect(
+      within(scrubber()).getByText('Live').getAttribute('aria-current'),
+    ).toBe('true');
     previous();
+    expect(
+      within(scrubber()).getByText('Live').getAttribute('aria-current'),
+    ).toBeNull();
     // the set: just the row it updated, marked so; no endpoints section
     expect(diffTab().getAttribute('aria-selected')).toBe('true');
     expect(tableRows()).toEqual([[entityId('Post', '1'), 'updated']]);

@@ -1261,6 +1261,22 @@ div.joined {
   color: var(--store-fresh);
   font: 500 11px / 1.6 var(--ifm-font-family-base);
 }
+/* live is the moment: a soft fill and a dot mark it as the one picked */
+.scrubRow > .liveCurrent {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-radius: 4px;
+  background: rgba(127, 209, 160, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(127, 209, 160, 0.3);
+}
+.liveCurrent::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
 /* the icon buttons' look (see .tlFit), smaller */
 .scrubRow > .expand,
 .sheetBar button {

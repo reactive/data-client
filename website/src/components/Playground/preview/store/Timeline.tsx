@@ -418,7 +418,14 @@ export const Scrubber = memo(function Scrubber({
           >
             Live
           </button>
-        : <span className={styles.liveButton}>Live</span>}
+        : <span
+            className={clsx(styles.liveButton, styles.liveCurrent)}
+            aria-current="true"
+            title="Showing the newest action"
+          >
+            Live
+          </span>
+        }
         <button
           type="button"
           ref={expandRef}

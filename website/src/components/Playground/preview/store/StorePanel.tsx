@@ -192,11 +192,13 @@ export default function StorePanel({
     [known, history.storeFrom],
   );
   // what the moment stands for, and what that changed: the Diff tab shows
-  // only that, from before its first action to the store the moment shows
-  const span = useMemo(
-    () => moment && momentEntries(groups, moment, whole),
-    [groups, moment, whole],
-  );
+  // only that, from before its first action to the store the moment shows.
+  // Live, that is the newest action that changed the store
+  const span = useMemo(() => {
+    if (moment) return momentEntries(groups, moment, whole);
+    const newest = known.findLast(e => e.store);
+    return newest && [newest];
+  }, [groups, moment, whole, known]);
   const first = span?.find(e => e.store);
   const prior = first && then({ seq: first.seq, before: true });
   const diff = useMemo<Diff | undefined>(
@@ -364,7 +366,7 @@ export default function StorePanel({
   );
   // the store flashes what the moment changed (a request's own rows, not
   // those of actions between its steps)
-  useFlashChanges(panel, state, diff?.kinds);
+  useFlashChanges(panel, state, moment && diff?.kinds);
   // the subject's levels show in Snapshot, and in Diff at a moment
   const storeShown = tab === 'snapshot' || (tab === 'diff' && !!diff);
   const shownDiff = tab === 'diff' ? diff : undefined;
@@ -513,8 +515,7 @@ export default function StorePanel({
                     <div className={styles.levels}>
                       <div className={styles.level} data-level tabIndex={-1}>
                         <p className={styles.empty}>
-                          Live: pick an action on the scrubber or in Actions to
-                          see what it changed.
+                          No action has changed the store yet.
                         </p>
                       </div>
                     </div>
