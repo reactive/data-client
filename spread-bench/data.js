@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791429631028,
+  "lastUpdate": 1791602752605,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark Spread": [
@@ -248,6 +248,37 @@ window.BENCHMARK_DATA = {
             "range": "±1.18%",
             "unit": "ops/sec",
             "extra": "84 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a3c6564e3cfc6ec3b497374a4c3c359a4f161311",
+          "message": "internal(website): Build the site with Docusaurus Faster (#4290)\n\n* internal(website): Build the site with Docusaurus Faster\n\nRspack, SWC and Lightning CSS minifiers, the MDX cross-compiler cache and\nSSG worker threads. JS keeps compiling with Babel so the React Compiler\nstill runs. A full four-locale build drops from 294s to 108s cold and 84s\nto 54s warm locally.\n\nThe SWC HTML minifier rewrites the homepage logo's inline `currentcolor`\nto `currentColor`, which React reported as a hydration mismatch; the SVG\nnow spells it that way. CI's cache key changes so Rspack's cache doesn't\ncarry the old webpack cache along.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01EEuAfapYTo3F75pPjhm8xz\n\n* internal(website): Turn on every Faster flag but swcJsLoader via fasterByDefault\n\nFlags Docusaurus adds later turn on too, without listing each one. Also drop\n`start`'s webpack 4 OpenSSL workaround, which Rspack doesn't need.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01EEuAfapYTo3F75pPjhm8xz\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-10T03:21:36Z",
+          "tree_id": "4eb97813ab558d417b771e51c2d02beb1e5d25e2",
+          "url": "https://github.com/reactive/data-client/commit/a3c6564e3cfc6ec3b497374a4c3c359a4f161311"
+        },
+        "date": 1791602750102,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "setOneEntity in 10k entity store",
+            "value": 154,
+            "range": "±1.06%",
+            "unit": "ops/sec",
+            "extra": "87 samples"
           }
         ]
       }
