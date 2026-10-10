@@ -108,7 +108,13 @@ function middleDiff(a: readonly VNode[], b: readonly VNode[]): Part[] {
     if (list) list.push(i);
     else places.set(key, [i]);
   });
-  const from = b.map(node => places.get(nodeKey(node))?.shift() ?? -1);
+  const used = new Map<string, number>();
+  const from = b.map(node => {
+    const key = nodeKey(node);
+    const n = used.get(key) ?? 0;
+    used.set(key, n + 1);
+    return places.get(key)?.[n] ?? -1;
+  });
   const stayed = increasingRun(from);
   const parts: Part[] = [];
   let i = 0;
@@ -122,11 +128,7 @@ function middleDiff(a: readonly VNode[], b: readonly VNode[]): Part[] {
     i++;
   });
   for (; i < a.length; i++) parts.push({ kind: 'removed', node: a[i] });
-  // only the ones that didn't stay are removed
-  const kept = new Set([...stayed].map(j => from[j]));
-  return parts.filter(
-    p => p.kind !== 'removed' || !kept.has(a.indexOf(p.node)),
-  );
+  return parts;
 }
 
 /** Indexes of the longest strictly increasing run of `values` (ignoring

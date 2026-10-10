@@ -54,6 +54,18 @@ describe('valueDiff', () => {
     ]);
   });
 
+  it('removes each copy of an item that is in the list twice', () => {
+    const a = ref('a');
+    const was: VNode = { t: 'arr', items: [a, ref('b'), a] };
+    expect(show(valueDiff(was, list('c', 'a', 'd')))).toEqual([
+      '+c',
+      'a',
+      '+d',
+      '-b',
+      '-a',
+    ]);
+  });
+
   it('compares objects (Values) by key', () => {
     expect(
       show(valueDiff(obj({ a: 1, b: 2, c: 3 }), obj({ a: 1, c: 4, d: 5 }))),
