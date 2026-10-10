@@ -47,7 +47,7 @@ function mount() {
       devButton={null}
     >
       <Grab />
-      <StorePanel registry={registry} history={0} />
+      <StorePanel groupId="test" registry={registry} history={0} />
     </DataProvider>,
   );
   return { ctrl: () => ref.ctrl! };

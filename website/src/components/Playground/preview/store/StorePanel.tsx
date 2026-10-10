@@ -84,9 +84,12 @@ import { useTabStorage } from '../../../../utils/tabStorage';
 const CRUMBS = 4;
 
 export default function StorePanel({
+  groupId,
   registry,
   history: id,
 }: {
+  /** The Playground's: its tab is remembered under it */
+  groupId: string;
   registry: SchemaRegistry;
   /** Whose actions to show (see `ActionLog`) */
   history: number;
@@ -99,8 +102,9 @@ export default function StorePanel({
   const [stored, setView] = useTabStorage('playgroundStoreView');
   const tree = stored === 'tree';
   // the subject at the moment (`snapshot`), what the moment's action did
-  // to it (`diff`), or its actions to explore (each panel's own)
-  const [tab, setTab] = useState<Tab>('snapshot');
+  // to it (`diff`), or its actions to explore; remembered per Playground
+  const [storedTab, setTab] = useTabStorage(`${groupId}.storeTab`);
+  const tab: Tab = isTab(storedTab) ? storedTab : 'snapshot';
   // the peek: the subject's actions over State's right side, to move the
   // moment by, as the mouse rests on the Actions tab; gone as it leaves both.
   // Each panel's own: a page holds several, and a press outside one closes
@@ -296,7 +300,7 @@ export default function StorePanel({
       if (covered) focusLevel.current = true;
       if (narrow) collapse();
     },
-    [clearAt, showAction, closePane, covered, narrow, collapse],
+    [clearAt, setTab, showAction, closePane, covered, narrow, collapse],
   );
   const navState = useMemo<NavState>(
     () => ({ seq: snapshotSeq, whole, set, show }),
@@ -308,13 +312,13 @@ export default function StorePanel({
   const { push } = levels;
   const openView = useCallback(
     (view: View, at?: Moment) => {
-      setTab(shown => (shown === 'actions' ? 'snapshot' : shown));
+      if (tab === 'actions') setTab('snapshot');
       setView('table');
       push(view, at);
       closePane();
       if (narrow) collapse();
     },
-    [setView, push, narrow, collapse, closePane],
+    [tab, setTab, setView, push, narrow, collapse, closePane],
   );
   // what the timeline's and the pane's chips open with. The chips only
   // push, so the model comes through a ref: the value keeps its identity
@@ -544,7 +548,10 @@ export default function StorePanel({
 }
 
 const ROOT: View = { kind: 'root' };
-type Tab = 'snapshot' | 'diff' | 'actions';
+const TABS = ['snapshot', 'diff', 'actions'] as const;
+type Tab = (typeof TABS)[number];
+const isTab = (value: string | null): value is Tab =>
+  (TABS as readonly (string | null)[]).includes(value);
 /** How long the pointer rests on the Actions toggle before the pane peeks,
  * and is away from both before a peek closes (ms) */
 const PEEK_OPEN_MS = 150;

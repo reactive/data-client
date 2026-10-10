@@ -101,6 +101,7 @@ export default function Playground<T>({
       <Boundary fallback={previewLoading}>
         <LivePreview
           code={code}
+          groupId={groupId}
           storeOpen={storeOpen}
           toggleStore={toggleStore}
           row={row}

@@ -169,7 +169,9 @@ DesignSystem/       components injected into preview scope
   a request's or subscription's row was picked (`whole`), every action of
   that group up to it (`momentEntries` in `preview/store/actionGroups.ts`),
   so an optimistic update and its response show as one effect. Three tabs at
-  the right end of the bar (`role="tablist"`) show the subject:
+  the right end of the bar (`role="tablist"`) show the subject; the one
+  picked is remembered per Playground `groupId` (`useTabStorage`), like the
+  Store's open state:
   - **Snapshot**: the subject at the moment (table or tree, the view switch
     at the bar's left end); live, the store as it is. A moment the store
     never saw (a fetch, a subscribe) shows the store as the last action

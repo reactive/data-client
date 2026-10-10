@@ -94,7 +94,7 @@ function mount(preview?: React.ReactNode) {
     <DataProvider managers={managers} devButton={null}>
       <Grab />
       {preview}
-      <StorePanel registry={registry} history={history} />
+      <StorePanel groupId="test" registry={registry} history={history} />
     </DataProvider>
   );
   const { rerender } = render(ui(0));
@@ -580,7 +580,9 @@ describe('Store Actions pane detail', () => {
     // a page holds several playgrounds, each with a store panel
     const other = new SchemaRegistry({ trimEvery: 1 });
     other.log.connect(0);
-    const { ctrl } = mount(<StorePanel registry={other} history={0} />);
+    const { ctrl } = mount(
+      <StorePanel groupId="test" registry={other} history={0} />,
+    );
     await act(() => ctrl().fetch(getPosts));
     jest.useFakeTimers();
     const [first, mine] = screen.getAllByRole('tab', { name: 'Actions' });
