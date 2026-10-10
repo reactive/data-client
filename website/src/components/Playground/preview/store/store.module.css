@@ -30,8 +30,17 @@
   font: 12px / 1.6 var(--ifm-font-family-monospace);
 }
 
-/* State | Actions, then the Timeline toggle and the view switch; the same
-   band as the other headers */
+/* Under the scrubber: the tab bar, and (narrow) the sheet the lanes open in
+   over what follows */
+.body {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* State | Actions, then the view switch; the same band as the other headers */
 .bar {
   flex: none;
   display: flex;
@@ -92,13 +101,8 @@
 .viewButtons {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  margin-left: auto;
-}
-.viewSwitch {
-  display: flex;
-  align-items: center;
   gap: 2px;
+  margin-left: auto;
 }
 .viewButtons button,
 .tlFit {
@@ -1071,20 +1075,36 @@ div.joined {
   }
 }
 
-/* State shown as it was after one action */
-.snapshot {
+/* The scrubber: the whole history in one lane across the top, with ‹ ›,
+   "Live" and the lanes' expand beside it. Stale-colored while State shows
+   the past, when a second line says which action it is shown after */
+.scrubber {
   flex: none;
   display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  min-height: 1.9rem;
-  padding: 2px 0.5rem 2px 0.4rem;
+  flex-direction: column;
   background: var(--store-stale-bg);
   box-shadow: inset 0 -1px 0 rgba(255, 203, 107, 0.28);
   color: var(--store-stale);
   font-size: 11px;
+  outline: none;
 }
-.snapshot button {
+.scrubber:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -2px;
+}
+.scrubber.tlLive {
+  background: none;
+  box-shadow: inset 0 -1px 0 var(--store-line);
+  color: var(--store-muted);
+}
+.scrubRow {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 1.9rem;
+  padding: 2px 0.375rem 2px 0.4rem;
+}
+.scrubRow > button {
   flex: none;
   padding: 0 0.4rem;
   border: 1px solid var(--store-line-strong);
@@ -1095,37 +1115,126 @@ div.joined {
   line-height: 1.6;
   cursor: pointer;
 }
-.snapshot button:disabled {
+.scrubRow > button:disabled {
   opacity: 0.4;
   cursor: default;
 }
-.snapshotLabel {
+/* the one lane; the track is the scale's width, or what fits (see .tlBody) */
+.scrubTrack {
+  --tl-row: 18px;
+  --tl-track: min(var(--tl-width), 100%);
   flex: 1 1 auto;
   min-width: 0;
+  height: var(--tl-row);
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
-.snapshot .snapshotAction {
-  min-width: 0;
-  padding: 0;
-  border: 0;
-  color: inherit;
-  text-decoration: underline dotted;
-  text-underline-offset: 2px;
+.scrubTrack .tlBreak,
+.scrubTrack .tlPlayhead {
+  top: 0;
+  left: calc(var(--tl-f) * 100%);
 }
-.snapshot .snapshotAction:hover {
-  color: var(--store-fg);
-}
-.snapshot .liveButton {
+.scrubRow > .liveButton {
   border-color: rgba(127, 209, 160, 0.45);
   color: var(--store-fresh);
   font-family: var(--ifm-font-family-base);
   font-weight: 500;
 }
+/* live, it only says so */
+.tlLive .liveButton {
+  flex: none;
+  padding: 0 0.4rem;
+  color: var(--store-fresh);
+  font: 500 11px / 1.6 var(--ifm-font-family-base);
+}
+.scrubRow > .expand {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  opacity: 0.7;
+}
+.expand:hover,
+.expand[aria-expanded='true'] {
+  opacity: 1;
+}
+.expand svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: rotate var(--motion-snappy);
+}
+.expand[aria-expanded='true'] svg {
+  rotate: 180deg;
+}
+.scrubLabel {
+  min-width: 0;
+  padding: 0 0.5rem 4px 2.6rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.snapshotAction {
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.snapshotAction:hover {
+  color: var(--store-fg);
+}
 
-/* The Timeline strip and the snapshot bar slide open and shut: the row
-   grows from nothing as its content rises into place (instant under reduced
+/* Narrow, the lanes drop over the content from under the scrubber */
+.sheet {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  background: var(--store-bg);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+.sheetBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 1.9rem;
+  padding: 0 0.25rem 0 0.5rem;
+  box-shadow: inset 0 -1px 0 var(--store-line);
+  color: var(--store-muted);
+  font: 500 11px / 1 var(--ifm-font-family-base);
+}
+.sheetBar button {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.sheetBar button:hover {
+  background: var(--pg-tab-hover-bg);
+}
+.sheet .timeline {
+  max-height: 14rem;
+}
+
+/* The lanes slide open and shut under the scrubber: the row grows from
+   nothing as their content rises into place (instant under reduced
    motion, as the tokens are). `data-open` is set a frame after it mounts
    (see `Unfold`), so these transitions run both ways and reverse midway */
 .unfold {
@@ -1369,12 +1478,6 @@ button.tlMark:hover {
   background: var(--store-fg);
   opacity: 0.55;
 }
-.snapshot.tlLive {
-  background: none;
-  box-shadow: inset 0 -1px 0 var(--store-line);
-  color: var(--store-muted);
-}
-
 /* A record's history: a timeline of its versions, one open at a time */
 .historyButton {
   display: inline-flex;

@@ -7,6 +7,7 @@ import React, {
   useRef,
 } from 'react';
 
+import { ActionName } from './ActionDetail';
 import {
   actionName,
   groupEntriesOf,
@@ -14,6 +15,7 @@ import {
   type ActionGroup,
   type RequestGroup,
 } from './actionGroups';
+import type ActionLog from './actionLog';
 import { isRecordChange, nearestChange, type LogEntry } from './actionLog';
 import {
   droppedIn,
@@ -32,7 +34,6 @@ import { endpointId, splitKey } from './model';
 import { useMoment } from './nav';
 import styles from './store.module.css';
 import { HistoryButton } from './VersionHistory';
-import { useTabStorage } from '../../../../utils/tabStorage';
 
 /** Pixels per millisecond between two actions */
 const PX_PER_MS = 0.08;
@@ -98,137 +99,40 @@ export function lanesOf(groups: readonly ActionGroup[]): Lane[] {
   return [...lanes].map(([key, groups]) => ({ key, groups }));
 }
 
-/** The shown store's actions on one time axis, a lane per key: requests as
- * spans from fetch to response, everything else as marks. Picking an action
- * the store saw shows State as it was right after it */
-export default memo(function Timeline({
-  width,
-}: {
-  /** Panel width (px) */
-  width: number;
-}) {
-  const { log, history, groups } = useActions();
-  const { dropped } = useLog();
-  const { seq: selected, set: onSelect } = useMoment();
-  const { entries, since } = history;
-  const lanes = useMemo(() => lanesOf(groups), [groups]);
-  // fetches deduped into a request in flight add nothing to see
+/** The shown history on `timeScale`, without the fetches deduped into a
+ * request in flight (they add nothing to see) */
+function useScale() {
+  const { groups, history } = useActions();
   const joined = useMemo(
     () => new Set(groups.flatMap(g => [...joinedFetches(g).keys()])),
     [groups],
   );
   const shown = useMemo(
-    () => entries.filter(e => !joined.has(e)),
-    [entries, joined],
+    () => history.entries.filter(e => !joined.has(e)),
+    [history.entries, joined],
   );
   const scale = useMemo(() => timeScale(shown), [shown]);
-  const narrow = width < NARROW_WIDTH;
-  const labelWidth = narrow ? LABEL_WIDTH.narrow : LABEL_WIDTH.wide;
-  // detailed (the default), it scrolls sideways, kept on the newest while
-  // live; fit, the whole history spans the strip
-  const [spacing, setSpacing] = useTabStorage('playgroundTimelineSpacing');
-  const fit = spacing === 'fit';
-  // the strip's width for the scale's: fit, the labels thin out as the
-  // history squeezes (whole px, so resizing rarely relabels). A hidden panel
-  // measures 0: label as detailed until it shows
-  const track =
-    !fit || !width ?
-      scale.width
-    : Math.min(scale.width, Math.max(1, width - labelWidth));
-  const gap = Math.ceil((LABEL_GAP * scale.width) / track);
-  const labels = useMemo(
-    () => axisLabels(shown, scale, gap),
-    [shown, scale, gap],
-  );
-  const at = selected === null ? undefined : scale.x.get(selected);
+  return { joined, shown, scale };
+}
 
-  const scroller = useRef<HTMLDivElement>(null);
-  // a picked action stays put as new ones come in; so does a scrolled-back
-  // view as the fit toggles, while a followed one stays on the newest
-  const followNewest = useFollow(
-    scroller,
-    `${scale.width} ${fit}`,
-    'x',
-    selected !== null,
-  );
-  // scrolled back, fitting and back returns to where it was, unless it went
-  // to the newest meanwhile
-  const scrolledTo = useRef<number | null>(null);
-  const toNewest = useCallback(() => {
-    scrolledTo.current = null;
-    followNewest();
-  }, [followNewest]);
-  // the picked action comes into view (again as the fit changes); back to
-  // live, the newest does, and the timeline follows it again
-  useLayoutEffect(() => {
-    if (selected === null) return toNewest();
-  }, [selected, toNewest]);
-  useLayoutEffect(() => {
-    if (selected === null) return;
-    scroller.current
-      ?.querySelector('[data-selected]')
-      ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
-  }, [selected, fit]);
-  const toggleFit = () => {
-    const el = scroller.current;
-    if (!fit && el) {
-      const back = el.scrollWidth - el.scrollLeft - el.clientWidth;
-      scrolledTo.current = back >= FOLLOW_SLACK ? el.scrollLeft : null;
-    }
-    setSpacing(fit ? 'detailed' : 'fit');
-  };
-  useLayoutEffect(() => {
-    if (fit) return;
-    const to = scrolledTo.current;
-    scrolledTo.current = null;
-    // past the newest it went to while following through the fit; the
-    // scroll this makes lets go again
-    if (to !== null && selected === null) scroller.current!.scrollLeft = to;
-    // only as it comes back from fit
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fit]);
-
-  // the arrow keys step as the snapshot bar's ‹ › do; past the newest is live
-  // (End too; live already, it brings the newest back into view). Escape is
-  // the levels' way back, so it stays theirs
-  const toLive = () => {
-    if (selected === null) toNewest();
-    else onSelect(null);
-  };
-  const step = (by: -1 | 1) => {
-    const next = nearestChange(log, entries, selected, by);
-    if (next) onSelect(next.seq);
-    else if (by > 0) toLive();
-  };
-  const onKeyDown = (e: React.KeyboardEvent) => {
-    switch (e.key) {
-      case 'ArrowLeft':
-        step(-1);
-        break;
-      case 'ArrowRight':
-        step(1);
-        break;
-      case 'End':
-        toLive();
-        break;
-      // the lanes scroll from here, as a focused scroller's would
-      case 'ArrowUp':
-      case 'ArrowDown':
-      case 'PageUp':
-      case 'PageDown': {
-        const el = scroller.current;
-        if (!el) return;
-        const by = e.key.startsWith('Page') ? el.clientHeight - ROW : ROW;
-        el.scrollTop += e.key.endsWith('Up') ? -by : by;
-        break;
-      }
-      default:
-        return;
-    }
-    e.preventDefault();
-  };
-  // along the track, as a fraction of it: the track is the scale's width,
-  // or what fits (see `.tlBody`)
+/** Draws groups along `scale`: requests as spans from fetch to response,
+ * everything else as marks, placed as fractions of the track (`--tl-f`).
+ * Picking an action the store saw shows State as it was right after it */
+function drawer({
+  log,
+  scale,
+  joined,
+  since,
+  selected,
+  onSelect,
+}: {
+  log: ActionLog;
+  scale: TimeScale;
+  joined: ReadonlySet<LogEntry>;
+  since: number;
+  selected: number | null;
+  onSelect: (seq: number) => void;
+}) {
   const frac = (x: number) => x / scale.width;
   const pos = (x: number) => ({ '--tl-f': frac(x) }) as React.CSSProperties;
   const mark = (entry: LogEntry, extra?: string) => {
@@ -283,18 +187,316 @@ export default memo(function Timeline({
       ),
     ];
   };
-  const drawn = (group: ActionGroup) => {
+  /** A group in its lane; `boxed`, a subscription's span frames its ticks and
+   * requests (in one shared lane it would frame everything else too) */
+  const drawn = (group: ActionGroup, boxed = true) => {
     if (group.kind === 'request') return request(group);
     if (group.kind === 'single') return [mark(group.entries[0])];
     const from = scale.x.get(group.entries[0].seq)!;
     const to =
       group.open > 0 ? scale.end : scale.x.get(group.entries.at(-1)!.seq)!;
     return [
-      span(from, to, styles.tlSubscription, `span ${group.id}`),
+      ...(boxed ?
+        [span(from, to, styles.tlSubscription, `span ${group.id}`)]
+      : []),
       ...group.entries.map(e => mark(e)),
       ...group.requests.flatMap(request),
     ];
   };
+  return { pos, mark, drawn };
+}
+
+/** The whole history in one lane, fit to the panel's width, with the moment
+ * on it: ‹ › and the arrow keys step through changes (past the newest is
+ * live, as End is), a mark lands on its action. Says which action State is
+ * shown after, while it shows the past; `▾` expands the lanes */
+export function Scrubber({
+  entry,
+  expanded,
+  onExpand,
+  onOpen,
+}: {
+  /** The action State is shown after; missing while live */
+  entry?: LogEntry;
+  /** Whether the lanes are shown under it */
+  expanded: boolean;
+  onExpand: (expanded: boolean) => void;
+  /** Opens that action in the Actions list */
+  onOpen: (seq: number) => void;
+}) {
+  const { log, history, groups } = useActions();
+  const { seq: selected, set: onSelect } = useMoment();
+  const { entries, since } = history;
+  const { joined, shown, scale } = useScale();
+  const earlier = nearestChange(log, entries, selected, -1);
+  const later = nearestChange(log, entries, selected, 1);
+  const { pos, drawn } = drawer({
+    log,
+    scale,
+    joined,
+    since,
+    selected,
+    onSelect,
+  });
+  const at = selected === null ? undefined : scale.x.get(selected);
+
+  // a step that removes (Live) or turns off (an end reached) the button
+  // pressed hands focus to one still there, so it doesn't fall to the page
+  const bar = useRef<HTMLDivElement>(null);
+  const stepped = useRef(false);
+  const step = (to: number | null) => {
+    // only while the bar has it (a pointer press need not focus a button);
+    // the step renders before the next frame, so this can't go stale
+    if (!bar.current?.contains(document.activeElement)) return onSelect(to);
+    stepped.current = true;
+    requestAnimationFrame(() => (stepped.current = false));
+    onSelect(to);
+  };
+  useLayoutEffect(() => {
+    if (!stepped.current) return;
+    stepped.current = false;
+    const active = document.activeElement;
+    if (active && active !== document.body) return;
+    bar.current?.querySelector<HTMLElement>('button:not(:disabled)')?.focus();
+  });
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    switch (e.key) {
+      case 'ArrowLeft':
+        if (earlier) step(earlier.seq);
+        break;
+      case 'ArrowRight':
+        if (entry) step(later?.seq ?? null);
+        break;
+      case 'End':
+        if (entry) step(null);
+        break;
+      default:
+        return;
+    }
+    e.preventDefault();
+  };
+
+  return (
+    <div
+      ref={bar}
+      className={clsx(styles.scrubber, !entry && styles.tlLive)}
+      tabIndex={0}
+      role="group"
+      aria-label="Scrubber: arrow keys step through changes, End returns to live"
+      onKeyDown={onKeyDown}
+    >
+      <div className={styles.scrubRow}>
+        <button
+          type="button"
+          aria-label="Previous change"
+          disabled={!earlier}
+          onClick={() => earlier && step(earlier.seq)}
+        >
+          ‹
+        </button>
+        <button
+          type="button"
+          aria-label="Next change"
+          disabled={!entry}
+          onClick={() => step(later?.seq ?? null)}
+        >
+          ›
+        </button>
+        <div
+          className={styles.scrubTrack}
+          style={{ '--tl-width': `${scale.width}px` } as React.CSSProperties}
+        >
+          {shown.length > 0 && (
+            <div className={styles.tlLane}>
+              {groups.flatMap(g => drawn(g, false))}
+              {scale.breaks.map(x => (
+                <span key={x} className={styles.tlBreak} style={pos(x)} />
+              ))}
+              {at !== undefined && (
+                <span className={styles.tlPlayhead} style={pos(at)} />
+              )}
+            </div>
+          )}
+        </div>
+        {entry ?
+          <button
+            type="button"
+            className={styles.liveButton}
+            onClick={() => step(null)}
+          >
+            Live
+          </button>
+        : <span className={styles.liveButton}>Live</span>}
+        <button
+          type="button"
+          className={styles.expand}
+          aria-label="Timeline"
+          title="Timeline"
+          aria-expanded={expanded}
+          onClick={() => onExpand(!expanded)}
+        >
+          <ChevronIcon />
+        </button>
+      </div>
+      {entry && (
+        <div className={styles.scrubLabel}>
+          After{' '}
+          <button
+            type="button"
+            className={styles.snapshotAction}
+            title="Open action"
+            onClick={() => onOpen(entry.seq)}
+          >
+            <ActionName entry={entry} />
+          </button>
+          <span className={styles.dim}> · {seconds(entry.at - since)}s</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** The shown store's actions on one time axis, a lane per key: requests as
+ * spans from fetch to response, everything else as marks. Picking an action
+ * the store saw shows State as it was right after it */
+export default memo(function Timeline({
+  width,
+  onPick,
+}: {
+  /** Panel width (px) */
+  width: number;
+  /** Called as a mark is picked (not as the keys step) */
+  onPick?: () => void;
+}) {
+  const { log, history, groups } = useActions();
+  const { dropped } = useLog();
+  const {
+    seq: selected,
+    set,
+    lens: { spacing },
+    setLens,
+  } = useMoment();
+  const { entries, since } = history;
+  const lanes = useMemo(() => lanesOf(groups), [groups]);
+  const { joined, shown, scale } = useScale();
+  const narrow = width < NARROW_WIDTH;
+  const labelWidth = narrow ? LABEL_WIDTH.narrow : LABEL_WIDTH.wide;
+  // detailed (the default), it scrolls sideways, kept on the newest while
+  // live; fit, the whole history spans the strip
+  const fit = spacing === 'fit';
+  // the strip's width for the scale's: fit, the labels thin out as the
+  // history squeezes (whole px, so resizing rarely relabels). A hidden panel
+  // measures 0: label as detailed until it shows
+  const track =
+    !fit || !width ?
+      scale.width
+    : Math.min(scale.width, Math.max(1, width - labelWidth));
+  const gap = Math.ceil((LABEL_GAP * scale.width) / track);
+  const labels = useMemo(
+    () => axisLabels(shown, scale, gap),
+    [shown, scale, gap],
+  );
+  const at = selected === null ? undefined : scale.x.get(selected);
+
+  const scroller = useRef<HTMLDivElement>(null);
+  // a picked action stays put as new ones come in; so does a scrolled-back
+  // view as the fit toggles, while a followed one stays on the newest
+  const followNewest = useFollow(
+    scroller,
+    `${scale.width} ${fit}`,
+    'x',
+    selected !== null,
+  );
+  // scrolled back, fitting and back returns to where it was, unless it went
+  // to the newest meanwhile
+  const scrolledTo = useRef<number | null>(null);
+  const toNewest = useCallback(() => {
+    scrolledTo.current = null;
+    followNewest();
+  }, [followNewest]);
+  // the picked action comes into view (again as the fit changes); back to
+  // live, the newest does, and the timeline follows it again
+  useLayoutEffect(() => {
+    if (selected === null) return toNewest();
+  }, [selected, toNewest]);
+  useLayoutEffect(() => {
+    if (selected === null) return;
+    scroller.current
+      ?.querySelector('[data-selected]')
+      ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+  }, [selected, fit]);
+  const toggleFit = () => {
+    const el = scroller.current;
+    if (!fit && el) {
+      const back = el.scrollWidth - el.scrollLeft - el.clientWidth;
+      scrolledTo.current = back >= FOLLOW_SLACK ? el.scrollLeft : null;
+    }
+    setLens({ spacing: fit ? 'detailed' : 'fit' });
+  };
+  useLayoutEffect(() => {
+    if (fit) return;
+    const to = scrolledTo.current;
+    scrolledTo.current = null;
+    // past the newest it went to while following through the fit; the
+    // scroll this makes lets go again
+    if (to !== null && selected === null) scroller.current!.scrollLeft = to;
+    // only as it comes back from fit
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fit]);
+
+  // the arrow keys step as the scrubber's ‹ › do; past the newest is live
+  // (End too; live already, it brings the newest back into view). Escape is
+  // the levels' way back, so it stays theirs
+  const toLive = () => {
+    if (selected === null) toNewest();
+    else set(null);
+  };
+  const step = (by: -1 | 1) => {
+    const next = nearestChange(log, entries, selected, by);
+    if (next) set(next.seq);
+    else if (by > 0) toLive();
+  };
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    switch (e.key) {
+      case 'ArrowLeft':
+        step(-1);
+        break;
+      case 'ArrowRight':
+        step(1);
+        break;
+      case 'End':
+        toLive();
+        break;
+      // the lanes scroll from here, as a focused scroller's would
+      case 'ArrowUp':
+      case 'ArrowDown':
+      case 'PageUp':
+      case 'PageDown': {
+        const el = scroller.current;
+        if (!el) return;
+        const by = e.key.startsWith('Page') ? el.clientHeight - ROW : ROW;
+        el.scrollTop += e.key.endsWith('Up') ? -by : by;
+        break;
+      }
+      default:
+        return;
+    }
+    e.preventDefault();
+  };
+  const onSelect = (seq: number) => {
+    set(seq);
+    onPick?.();
+  };
+  // along the track, as a fraction of it: the track is the scale's width,
+  // or what fits (see `.tlBody`)
+  const { pos, drawn } = drawer({
+    log,
+    scale,
+    joined,
+    since,
+    selected,
+    onSelect,
+  });
   // whether a lane's own actions changed its record (what its History
   // lists), without working the History out for every lane. Unknown when
   // none did but the log dropped some of the lane's: those may have, which
@@ -394,7 +596,7 @@ export default memo(function Timeline({
           {lanes.map(lane => (
             <div key={lane.key} className={styles.tlLane}>
               <LaneDropped lane={lane} />
-              {lane.groups.flatMap(drawn)}
+              {lane.groups.flatMap(g => drawn(g))}
             </div>
           ))}
           {scale.breaks.map(x => (
@@ -453,6 +655,14 @@ function FitIcon() {
     <svg viewBox="0 0 16 16" aria-hidden="true">
       <circle cx="7" cy="7" r="4" />
       <path d="M10 10l3.5 3.5M5.5 7h3" />
+    </svg>
+  );
+}
+/** Points down; `.expand[aria-expanded='true']` turns it up */
+function ChevronIcon() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M4 6.5l4 4 4-4" />
     </svg>
   );
 }

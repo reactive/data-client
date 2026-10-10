@@ -160,29 +160,33 @@ DesignSystem/       components injected into preview scope
   store (see Reset) starts a new history, a store the retry restores continues
   its own, and the panel shows only the current one. An action's chips open the
   store as that action left it (see `Moment` in `preview/store/nav.tsx`).
-- The Store inspector has one moment (`MomentContext` in `preview/store/nav.tsx`,
-  owned by `StorePanel`): the action State is shown after, or live. Every tab
-  shows it and can move it. State is the store as that action left it; the
+- The Store inspector has one moment (`NavState` in `preview/store/nav.tsx`,
+  owned by `StorePanel`, which also carries the facet and the timeline lens
+  for the facet tabs to come): the action State is shown after, or live. Every
+  tab shows it and can move it. State is the store as that action left it; the
   Actions list marks the action (`aria-current`), opens its row and scrolls to
   it; a record's History opens the version current then (or marks the "not
   kept" note when the moment falls among dropped actions). Opening an action
   the store saw, stepping within its row, picking a History version or a
-  Timeline mark all move the moment. While the moment is set, the bar under the
-  tab bar (`SnapshotBar`) shows on every tab: ‹ › step through store-wide
-  changes, "After <action>" opens the action in the Actions list (in place of
-  the action shown there, which follows the moment), "Live" lets go. The
-  "Timeline" icon toggle (`aria-pressed`, beside the view switch) slides open a
-  strip (`preview/store/Timeline.tsx`) above either tab that puts the same
-  history on one time axis; an endpoint lane's label opens that record's
-  History. By default the strip keeps the detailed spacing (`timeScale`) and
-  scrolls sideways; only the tracks scroll, the lane labels kept beside
-  them in a column of their own: while live it stays on the
-  newest, and picking an action or scrolling back lets go until "Live" or
-  End. The "Fit timeline" toggle in the axis's corner (`aria-pressed`, kept
-  per tab) squeezes the whole history to the strip's width instead (marks
-  are placed as fractions of the track, `--tl-f`, so nothing is measured;
-  axis labels thin out as it squeezes). Arrow keys reach every change either
-  way.
+  timeline mark all move the moment. The scrubber across the top of the panel
+  (`Scrubber` in `preview/store/Timeline.tsx`, a `role="group"`) always shows
+  the whole history on one lane, fit to the panel: ‹ › and ←→ step through
+  store-wide changes (past the newest, and End, go live), a mark lands on its
+  action, "Live" lets go. While the moment is set its second line says "After
+  <action> · <time>", and the action opens in the Actions list (in place of
+  the action shown there, which follows the moment). Its ▾ ("Timeline",
+  `aria-expanded`) slides open the lanes under it: the same history, a lane
+  per key, requests as spans; an endpoint lane's label opens that record's
+  History. By default the lanes keep the detailed spacing (`timeScale`) and
+  scroll sideways; only the tracks scroll, the lane labels kept beside them in
+  a column of their own: while live they stay on the newest, and picking an
+  action or scrolling back lets go until "Live" or End. The "Fit timeline"
+  toggle in the axis's corner (`aria-pressed`, the lens's `spacing`, kept per
+  tab) squeezes the whole history to the strip's width instead (marks are
+  placed as fractions of the track, `--tl-f`, so nothing is measured; axis
+  labels thin out as it squeezes). Narrow (under `NARROW_WIDTH`), the lanes
+  open as a sheet over the tabs instead of pushing them down, closed by ✕,
+  Escape or picking a mark.
   "History" is the one way into a record's versions everywhere; where there is
   no stack to open it on (the tree view, the Timeline), `OpenViewContext` opens
   it on the State tab's table view.

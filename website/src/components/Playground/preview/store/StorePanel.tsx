@@ -1,5 +1,4 @@
 import { StateContext, type State } from '@data-client/react';
-import clsx from 'clsx';
 import React, {
   useCallback,
   useContext,
@@ -11,9 +10,9 @@ import React, {
   useSyncExternalStore,
 } from 'react';
 
-import { ActionCrumb, ActionDetail, ActionName } from './ActionDetail';
+import { ActionCrumb, ActionDetail } from './ActionDetail';
 import { groupEntries, keepUnchanged, type ActionGroup } from './actionGroups';
-import { findEntry, nearestChange, type LogEntry } from './actionLog';
+import { findEntry, type LogEntry } from './actionLog';
 import {
   ActionsContext,
   ActionsRoot,
@@ -22,6 +21,7 @@ import {
   useActions,
   type Actions,
 } from './ActionsView';
+import { NARROW_WIDTH } from './columns';
 import { ListView, RecordLevel } from './DiveViews';
 import { flash, scrollToRow, slide } from './dom';
 import {
@@ -37,11 +37,11 @@ import {
   NavContext,
   OpenViewContext,
   useLevelStack,
-  useMoment,
+  type Facet,
   type LevelStack,
   type Moment,
-  type MomentCursor,
   type Nav,
+  type NavState,
   type StackEntry,
   type Then,
   type View,
@@ -50,7 +50,7 @@ import RootView from './RootView';
 import type SchemaRegistry from './schemaRegistry';
 import styles from './store.module.css';
 import { StoreUIProvider } from './StoreUI';
-import Timeline from './Timeline';
+import Timeline, { Scrubber } from './Timeline';
 import TreeView from './TreeView';
 import { RowKey } from './Value';
 import { RowHistory } from './VersionHistory';
@@ -78,12 +78,14 @@ export default function StorePanel({
   const [stored, setView] = useTabStorage('playgroundStoreView');
   const tree = stored === 'tree';
   const [tab, setTab] = useState<'state' | 'actions'>('state');
-  // the Timeline strip, above either tab; it stays mounted while it slides
-  // shut, until the slide ends
+  // the lanes the scrubber expands into, above either tab; they stay mounted
+  // while they slide shut, until the slide ends
   const [timeline, setTimeline] = useState(false);
   const [timelineShown, setTimelineShown] = useState(false);
   if (timeline && !timelineShown) setTimelineShown(true);
   const hideTimeline = useCallback(() => setTimelineShown(false), []);
+  const [facet, setFacet] = useState<Facet>('state');
+  const [spacing, setSpacing] = useTabStorage('playgroundTimelineSpacing');
   // the Actions tab mounts on first visit, then stays (scroll, open rows)
   const [actionsShown, setActionsShown] = useState(false);
   if (tab === 'actions' && !actionsShown) setActionsShown(true);
@@ -162,9 +164,16 @@ export default function StorePanel({
     () => ({ log, since: history.since, dropped: history.dropped }),
     [log, history.since, history.dropped],
   );
-  const moment = useMemo<MomentCursor>(
-    () => ({ seq: snapshotSeq, set: setSnapshot }),
-    [snapshotSeq],
+  const moment = useMemo<NavState>(
+    () => ({
+      seq: snapshotSeq,
+      set: setSnapshot,
+      facet,
+      setFacet,
+      lens: { spacing: spacing === 'fit' ? 'fit' : 'detailed' },
+      setLens: lens => lens.spacing && setSpacing(lens.spacing),
+    }),
+    [snapshotSeq, facet, spacing, setSpacing],
   );
   // an action's level moves the panel to it, if the store saw it: State
   // shows the store as it left it, and a History the version current then
@@ -227,7 +236,7 @@ export default function StorePanel({
     if (top.kind === 'action' && top.seq !== momentStored)
       replace(depth, { kind: 'action', seq: momentStored });
   }, [momentStored]);
-  // only State and the timeline show the past; the Actions list is live
+  // State, the scrubber and the lanes show the past; the Actions list is live
   const stateActions = useMemo<Actions>(
     () =>
       snapshot ?
@@ -244,13 +253,35 @@ export default function StorePanel({
 
   const panel = useRef<HTMLDivElement>(null);
   const width = useWidth(panel);
-  // a bar or strip shutting under focus hands it to the tab shown, so it
+  // the lanes shutting under focus hand it to what opened them, so it
   // doesn't fall to the page
-  const focusTab = useCallback(() => {
+  const focusExpand = useCallback(() => {
     panel.current
-      ?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')
+      ?.querySelector<HTMLElement>('[aria-expanded][aria-label="Timeline"]')
       ?.focus();
   }, []);
+  // narrow, the lanes open as a sheet over the content instead of pushing it
+  // down; a mark picked there closes it
+  const sheet = width < NARROW_WIDTH;
+  const collapse = useCallback(() => setTimeline(false), []);
+  const lanes = timelineShown && (
+    <Unfold open={timeline} onShut={hideTimeline} onBlur={focusExpand}>
+      {sheet && (
+        <div className={styles.sheetBar}>
+          <span>Timeline</span>
+          <button
+            type="button"
+            aria-label="Close timeline"
+            title="Close timeline"
+            onClick={collapse}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+      <Timeline width={width} onPick={sheet ? collapse : undefined} />
+    </Unfold>
+  );
   // a snapshot flashes what its action changed
   useFlashChanges(
     panel,
@@ -259,48 +290,58 @@ export default function StorePanel({
   );
 
   return (
-    <ActionsContext.Provider value={actions}>
+    <ActionsContext.Provider value={stateActions}>
       <LogContext.Provider value={logContext}>
         <MomentContext.Provider value={moment}>
           <OpenViewContext.Provider value={openView}>
             <div className={styles.store} ref={panel}>
-              <div className={styles.bar} role="tablist" aria-label="Store">
-                <button
-                  type="button"
-                  role="tab"
-                  className={styles.tab}
-                  aria-selected={tab === 'state'}
-                  onClick={() => setTab('state')}
-                >
-                  State
-                </button>
-                <button
-                  type="button"
-                  role="tab"
-                  className={styles.tab}
-                  aria-selected={tab === 'actions'}
-                  onClick={() => setTab('actions')}
-                >
-                  Actions
-                  {actions.groups.length > 0 && (
-                    <span className={styles.count}>
-                      {actions.groups.length.toLocaleString()}
-                    </span>
-                  )}
-                </button>
-                <span className={styles.viewButtons}>
+              <Scrubber
+                entry={snapshot}
+                expanded={timeline}
+                onExpand={setTimeline}
+                onOpen={openAction}
+              />
+              {!sheet && lanes}
+              <div className={styles.body}>
+                {sheet && (
+                  <div
+                    className={styles.sheet}
+                    onKeyDown={e => {
+                      if (e.key !== 'Escape') return;
+                      e.preventDefault();
+                      collapse();
+                    }}
+                  >
+                    {lanes}
+                  </div>
+                )}
+                <div className={styles.bar} role="tablist" aria-label="Store">
                   <button
                     type="button"
-                    aria-label="Timeline"
-                    title="Timeline"
-                    aria-pressed={timeline}
-                    onClick={() => setTimeline(shown => !shown)}
+                    role="tab"
+                    className={styles.tab}
+                    aria-selected={tab === 'state'}
+                    onClick={() => setTab('state')}
                   >
-                    <TimelineIcon />
+                    State
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    className={styles.tab}
+                    aria-selected={tab === 'actions'}
+                    onClick={() => setTab('actions')}
+                  >
+                    Actions
+                    {actions.groups.length > 0 && (
+                      <span className={styles.count}>
+                        {actions.groups.length.toLocaleString()}
+                      </span>
+                    )}
                   </button>
                   {tab !== 'actions' && (
                     <span
-                      className={styles.viewSwitch}
+                      className={styles.viewButtons}
                       role="group"
                       aria-label="Store view"
                     >
@@ -324,28 +365,7 @@ export default function StorePanel({
                       </button>
                     </span>
                   )}
-                </span>
-              </div>
-              <ActionsContext.Provider value={stateActions}>
-                {timelineShown && (
-                  <Unfold
-                    open={timeline}
-                    onShut={hideTimeline}
-                    onBlur={focusTab}
-                  >
-                    <Timeline width={width} />
-                  </Unfold>
-                )}
-                {/* one bar, below the strip: while a moment is set, and
-                    (live) with the strip. It never remounts, so focus stays
-                    on its buttons as they step */}
-                <Unfold open={!!snapshot || timeline} onBlur={focusTab}>
-                  <SnapshotBar
-                    entry={snapshot}
-                    onOpen={openAction}
-                    stepsToLive={timeline}
-                  />
-                </Unfold>
+                </div>
                 <div className={styles.tabPanel} hidden={tab === 'actions'}>
                   <StateContext.Provider value={state}>
                     {tree ?
@@ -358,17 +378,20 @@ export default function StorePanel({
                     }
                   </StateContext.Provider>
                 </div>
-              </ActionsContext.Provider>
-              {actionsShown && (
-                <div className={styles.tabPanel} hidden={tab !== 'actions'}>
-                  <Levels
-                    model={liveModel}
-                    width={width}
-                    levels={actionLevels}
-                    showRecord={showRecord}
-                  />
-                </div>
-              )}
+                {/* the Actions list is live, whatever the moment */}
+                {actionsShown && (
+                  <ActionsContext.Provider value={actions}>
+                    <div className={styles.tabPanel} hidden={tab !== 'actions'}>
+                      <Levels
+                        model={liveModel}
+                        width={width}
+                        levels={actionLevels}
+                        showRecord={showRecord}
+                      />
+                    </div>
+                  </ActionsContext.Provider>
+                )}
+              </div>
             </div>
           </OpenViewContext.Provider>
         </MomentContext.Provider>
@@ -459,92 +482,6 @@ function Unfold({
       }}
     >
       <div className={styles.unfoldBody}>{shown.current}</div>
-    </div>
-  );
-}
-
-/** Says the panel is in the past (or, under the timeline, live); steps
- * through the actions that changed the store */
-function SnapshotBar({
-  entry,
-  onOpen,
-  stepsToLive,
-}: {
-  /** The action State is shown after; missing while live */
-  entry?: LogEntry;
-  /** Opens that action in the Actions list */
-  onOpen: (seq: number) => void;
-  /** › past the newest change goes live, as the timeline's right arrow key
-   * does (the bar stays, as the timeline shows it live too) */
-  stepsToLive?: boolean;
-}) {
-  const { log, history } = useActions();
-  const { set: onShow } = useMoment();
-  const seq = entry?.seq ?? null;
-  const earlier = nearestChange(log, history.entries, seq, -1);
-  const later = nearestChange(log, history.entries, seq, 1);
-  // a step that removes (Live) or turns off (an end reached) the button
-  // pressed hands focus to one still there, so it doesn't fall to the page
-  const bar = useRef<HTMLDivElement>(null);
-  const stepped = useRef(false);
-  const step = (to: number | null) => {
-    // only while the bar has it (a pointer press need not focus a button);
-    // the step renders before the next frame, so this can't go stale
-    if (!bar.current?.contains(document.activeElement)) return onShow(to);
-    stepped.current = true;
-    requestAnimationFrame(() => (stepped.current = false));
-    onShow(to);
-  };
-  useLayoutEffect(() => {
-    if (!stepped.current) return;
-    stepped.current = false;
-    const active = document.activeElement;
-    if (active && active !== document.body) return;
-    bar.current?.querySelector<HTMLElement>('button:not(:disabled)')?.focus();
-  });
-  return (
-    <div ref={bar} className={clsx(styles.snapshot, !entry && styles.tlLive)}>
-      <button
-        type="button"
-        aria-label="Previous change"
-        disabled={!earlier}
-        onClick={() => earlier && step(earlier.seq)}
-      >
-        ‹
-      </button>
-      <button
-        type="button"
-        aria-label="Next change"
-        disabled={!later && !(stepsToLive && entry)}
-        onClick={() => step(later?.seq ?? null)}
-      >
-        ›
-      </button>
-      {entry ?
-        <>
-          <span className={styles.snapshotLabel}>
-            After{' '}
-            <button
-              type="button"
-              className={styles.snapshotAction}
-              title="Open action"
-              onClick={() => onOpen(entry.seq)}
-            >
-              <ActionName entry={entry} />
-            </button>
-          </span>
-          <button
-            type="button"
-            className={styles.liveButton}
-            onClick={() => step(null)}
-          >
-            Live
-          </button>
-        </>
-      : <span className={styles.snapshotLabel}>
-          Live. Pick an action to see State right after it.
-        </span>
-      }
     </div>
   );
 }
@@ -892,15 +829,6 @@ function TableIcon() {
     <svg viewBox="0 0 16 16" aria-hidden="true">
       <rect x="2" y="3" width="12" height="10" rx="1" />
       <path d="M2 6.5h12M2 9.5h12M6 3v10" />
-    </svg>
-  );
-}
-/** A time axis with marks on it */
-function TimelineIcon() {
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden="true">
-      <path d="M2 12.5h12M4 12.5v-2M8 12.5v-2M12 12.5v-2" />
-      <path d="M3.5 5.5h4M9.5 7.5h3.5" />
     </svg>
   );
 }

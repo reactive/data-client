@@ -114,9 +114,11 @@ const unsubscribe = (key = 'other') => ({
 });
 const actionsTab = () => screen.getByRole('tab', { name: /Actions/ });
 const rows = () =>
-  [...document.querySelectorAll<HTMLElement>('[aria-expanded]')].filter(
-    el => !el.closest('[hidden]'),
-  );
+  [
+    ...document.querySelectorAll<HTMLElement>('[role="button"][aria-expanded]'),
+  ].filter(el => !el.closest('[hidden]'));
+/** The scrubber on top: ‹ › and the marks, and the moment's action */
+const scrubber = () => screen.getByRole('group', { name: /^Scrubber/ });
 /** The shown level's breadcrumb */
 const current = () =>
   within(top())
@@ -462,8 +464,7 @@ describe('Store Actions tab', () => {
       'false',
       'true',
     ]);
-    const bar = () =>
-      screen.getByRole('button', { name: 'Live' }).parentElement!;
+    const bar = scrubber;
     expect(bar().textContent).toContain('set');
     expect(bar().textContent).toContain('Post');
     expect(bar().textContent).not.toContain('setResponse');
@@ -529,7 +530,7 @@ describe('Store Actions tab', () => {
     fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
     fireEvent.click(screen.getByLabelText('Tree view'));
     fireEvent.click(node(entityId('Post', '1')));
-    fireEvent.click(screen.getByRole('button', { name: /^set/ }));
+    fireEvent.click(within(top()).getByRole('button', { name: /^set/ }));
     expect(current()).toMatch(/^set Post/);
   });
 
@@ -641,8 +642,7 @@ describe('Store Actions tab', () => {
     fireEvent.click(
       screen.getByRole('button', { name: 'Next action in this row' }),
     );
-    const bar = () =>
-      screen.getByRole('button', { name: 'Live' }).parentElement!;
+    const bar = scrubber;
     expect(bar().textContent).toContain('After');
     expect(bar().textContent).toContain('setResponse');
     // State shows the store as it left it
@@ -739,9 +739,7 @@ describe('Store Actions tab', () => {
     expect(current()).toMatch(/^fetch/);
     await act(() => ctrl().set(Post, { id: '2' }, { id: '2', title: 'Later' }));
     expect(current()).toMatch(/^fetch/);
-    expect(
-      screen.getByRole('button', { name: 'Live' }).parentElement!.textContent,
-    ).toContain('setResponse');
+    expect(scrubber().textContent).toContain('setResponse');
   });
 
   it('shows State on the record from a History in the Actions list', async () => {
@@ -860,7 +858,7 @@ describe('Store Actions tab', () => {
       for (let i = 0; i < 510; i++) ctrl().dispatch(unsubscribe() as any);
     });
     await act(() => ctrl().fetch(getPosts));
-    const bar = screen.getByRole('button', { name: 'Live' }).parentElement!;
+    const bar = scrubber();
     expect(bar.textContent).toContain('setResponse');
     const next = within(bar).getByRole('button', { name: 'Next change' });
     expect((next as HTMLButtonElement).disabled).toBe(false);
