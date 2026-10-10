@@ -80,6 +80,7 @@
     "@data-client/react": "workspace:*",
     "@data-client/rest": "workspace:*",
     "@data-client/test": "workspace:*",
+    "@docusaurus/eslint-plugin": "3.10.2",
     "@react-native/jest-preset": "0.86.2",
     "@react-navigation/native": "^7.0.0",
     "@react-navigation/native-stack": "^7.0.0",

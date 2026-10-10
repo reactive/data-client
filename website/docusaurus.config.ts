@@ -263,7 +263,10 @@ const config: Config = {
     }, TODO: figure out how to load this*/
   ],
   scripts: [],
-  clientModules: [require.resolve('./src/gtagfix.ts')],
+  clientModules: [
+    require.resolve('./src/gtagfix.ts'),
+    require.resolve('./src/staleDeploy.ts'),
+  ],
   //favicon: '/favicon.ico', we declare our own headers for this above
   themes: ['@docusaurus/theme-live-codeblock', '@docusaurus/theme-mermaid'],
   customFields: {
@@ -486,6 +489,7 @@ const config: Config = {
     path.resolve(__dirname, './raw-plugin'),
     path.resolve(__dirname, './llms-plugin'),
     path.resolve(__dirname, './chunks-plugin'),
+    path.resolve(__dirname, './build-id-plugin'),
   ],
   themeConfig: {
     mermaid: {
@@ -598,13 +602,6 @@ const config: Config = {
           'aria-label': 'Demo Applications',
         },
         {
-          type: 'localeDropdown',
-          position: 'right',
-          // icon only; the menu names the languages (customTheme.css)
-          className: 'header-locale-dropdown',
-          'aria-label': 'Language',
-        },
-        {
           href: 'https://github.com/reactive/data-client',
           position: 'right',
           className: 'header-github-link',
@@ -621,6 +618,13 @@ const config: Config = {
           position: 'right',
           className: 'header-anthropic-link',
           'aria-label': 'Agent Skills',
+        },
+        {
+          type: 'localeDropdown',
+          position: 'right',
+          // last, so it sits beside the color mode toggle; icon only (customTheme.css)
+          className: 'header-locale-dropdown',
+          'aria-label': 'Language',
         },
       ],
     },

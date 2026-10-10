@@ -5,23 +5,23 @@ import Preview from './Preview';
 import { ResetButton } from './PreviewError';
 import PreviewWrapper from './PreviewWrapper';
 import { useRenderCount } from './RenderCount';
-import { previewScope } from './scope';
 import type { PreviewProps } from '../types';
 import type { LogOptions } from './store/actionLog';
 import SchemaRegistry from './store/schemaRegistry';
 import { StoreHeaderToggle } from './StoreToggle';
-import transformCode from './transformCode';
+import { useCodeManagers } from './useCodeManagers';
 import { usePlaygroundConsoleDemotion } from './usePlaygroundConsoleDemotion';
 import { usePreviewReset } from './usePreviewReset';
+import type { CodeDocument } from '../editor/codeModel';
 
 export interface LivePreviewProps<T> extends PreviewProps<T> {
-  code: string;
+  documents: readonly CodeDocument[];
   renderCount: boolean;
   actionLog?: LogOptions;
 }
 
 export default function LivePreview<T>({
-  code,
+  documents,
   groupId,
   storeOpen,
   toggleStore,
@@ -34,10 +34,24 @@ export default function LivePreview<T>({
 }: LivePreviewProps<T>) {
   usePlaygroundConsoleDemotion();
   const { onCommit, badge } = useRenderCount(renderCount);
-  const { key, history, replacedHistory, restored, reset, ...handlers } =
-    usePreviewReset(code);
+  // `;` keeps a half-typed statement from absorbing the next document.
+  const code = useMemo(
+    () => documents.map(document => document.value).join('\n;\n'),
+    [documents],
+  );
+  const {
+    key,
+    storeKey,
+    history,
+    replacedHistory,
+    restored,
+    reset,
+    remount,
+    ...handlers
+  } = usePreviewReset(code);
   // outlives remounts, so a restored store keeps its schemas and actions
   const [registry] = useState(() => new SchemaRegistry(actionLog));
+  const managers = useCodeManagers(documents, remount);
   const getInterceptorData = useMemo(
     () =>
       restored ?
@@ -50,10 +64,10 @@ export default function LivePreview<T>({
     <LiveProvider
       key={key}
       code={code}
-      transformCode={transformCode}
+      transformCode={managers.transformCode}
       enableTypeScript
       noInline
-      scope={previewScope}
+      scope={managers.scope}
     >
       <PreviewWrapper
         headerControls={
@@ -65,6 +79,7 @@ export default function LivePreview<T>({
         }
       >
         <Preview
+          key={storeKey}
           groupId={groupId}
           storeOpen={storeOpen}
           toggleStore={toggleStore}
@@ -77,6 +92,7 @@ export default function LivePreview<T>({
           registry={registry}
           history={history}
           replacedHistory={replacedHistory}
+          managerHost={managers.host}
           onReset={reset}
           {...handlers}
         />

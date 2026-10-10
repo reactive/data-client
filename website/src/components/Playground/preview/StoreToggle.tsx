@@ -2,6 +2,7 @@
 // chunk that embeds a Playground, while the Store UI loads with LivePreview
 
 import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
+import Translate, { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React, { useCallback } from 'react';
 
@@ -38,7 +39,7 @@ export function StoreToggle({
   const ref = useLayoutMotion();
   return (
     <div className={styles.debugToggle} onClick={onClick} ref={ref}>
-      Store
+      <Translate id="playground.store">Store</Translate>
       <span
         className={clsx(
           styles.arrow,
@@ -70,8 +71,12 @@ export function StoreHeaderToggle({
         styles.headerButton,
         styles.storeHeaderToggle,
       )}
-      title={open ? 'Hide Store' : 'Show Store'}
-      aria-label="Store"
+      title={
+        open ?
+          translate({ id: 'playground.store.hide', message: 'Hide Store' })
+        : translate({ id: 'playground.store.show', message: 'Show Store' })
+      }
+      aria-label={translate({ id: 'playground.store', message: 'Store' })}
       aria-pressed={open}
       disabled={!onClick}
       onClick={onClick}

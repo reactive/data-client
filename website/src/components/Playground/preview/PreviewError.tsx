@@ -1,9 +1,10 @@
 import { useController } from '@data-client/react';
+import Translate, { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React, { useContext, useEffect } from 'react';
 import { LiveContext } from 'react-live';
 
-import type { PreviewSnapshot } from './usePreviewReset';
+import { takeSnapshot, type PreviewSnapshot } from './usePreviewReset';
 import ErrorPanel from '../ErrorPanel';
 import styles from '../styles.module.css';
 
@@ -25,13 +26,7 @@ export default function PreviewError({
 
   useEffect(() => {
     if (!isRenderError) return;
-    onRenderError(code, {
-      // The old store's in-flight requests die with it, so drop their optimistic updates
-      state: { ...controller.getState(), optimistic: [] },
-      // MockResolver's controller holds the simulated server's data
-      interceptorData: (controller as { interceptorData?: unknown })
-        .interceptorData,
-    });
+    onRenderError(code, takeSnapshot(controller));
   }, [isRenderError, code, onRenderError, controller]);
   // react-live commits a throwing render once before reporting its error, so
   // "healthy" means no error for a while.
@@ -42,9 +37,11 @@ export default function PreviewError({
   }, [isHealthy, code, onHealthy]);
 
   if (!error) return null;
-  const { name, message, location } = splitError(error);
   // react-live reports transform failures (and a missing `render()`) as SyntaxErrors
-  const kind = !isRenderError && name === 'SyntaxError' ? 'compile' : 'runtime';
+  const kind =
+    !isRenderError && splitError(error).name === 'SyntaxError' ?
+      'compile'
+    : 'runtime';
   return (
     <ErrorPanel
       kind={kind}
@@ -55,22 +52,30 @@ export default function PreviewError({
             className={styles.errorAction}
             onClick={onReset}
           >
-            <ResetIcon /> Reset preview
+            <ResetIcon />{' '}
+            <Translate id="playground.resetPreview">Reset preview</Translate>
           </button>
         : null
       }
     >
-      {/* Text content stays exactly `error`; the parts are only styled */}
-      <pre className={styles.playgroundError}>
-        {name ?
-          <strong className={styles.errorName}>{name}</strong>
-        : null}
-        {message}
-        {location ?
-          <span className={styles.errorLocation}>{location}</span>
-        : null}
-      </pre>
+      <ErrorMessage error={error} />
     </ErrorPanel>
+  );
+}
+
+/** Text content stays exactly `error`; the parts are only styled */
+export function ErrorMessage({ error }: { error: string }) {
+  const { name, message, location } = splitError(error);
+  return (
+    <pre className={styles.playgroundError}>
+      {name ?
+        <strong className={styles.errorName}>{name}</strong>
+      : null}
+      {message}
+      {location ?
+        <span className={styles.errorLocation}>{location}</span>
+      : null}
+    </pre>
   );
 }
 
@@ -108,14 +113,17 @@ export function ResetButton({ onClick }: { onClick: () => void }) {
     <button
       type="button"
       className={clsx('clean-btn', styles.headerButton, styles.resetButton)}
-      title="Reset preview"
-      aria-label="Reset preview"
+      title={resetLabel()}
+      aria-label={resetLabel()}
       onClick={onClick}
     >
       <ResetIcon />
     </button>
   );
 }
+
+const resetLabel = () =>
+  translate({ id: 'playground.resetPreview', message: 'Reset preview' });
 
 function ResetIcon() {
   return (

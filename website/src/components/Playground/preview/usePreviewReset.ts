@@ -1,4 +1,4 @@
-import type { State } from '@data-client/react';
+import type { Controller, State } from '@data-client/react';
 import { useCallback, useRef, useState } from 'react';
 
 /** What a preview needs to come back as it was: the store and the simulated server */
@@ -7,12 +7,25 @@ export interface PreviewSnapshot {
   interceptorData: unknown;
 }
 
+/** Snapshot of the preview `controller` (MockResolver's) belongs to */
+export function takeSnapshot(controller: Controller): PreviewSnapshot {
+  return {
+    // The old store's in-flight requests die with it, so drop their optimistic updates
+    state: { ...controller.getState(), optimistic: [] },
+    // MockResolver's controller holds the simulated server's data
+    interceptorData: (controller as { interceptorData?: unknown })
+      .interceptorData,
+  };
+}
+
 interface PreviewStore {
-  /** Remounts the preview (and its store) when it changes */
+  /** Remounts the preview (re-running its code, with a new store) when it changes */
   key: number;
   /** The Actions log history this store writes to: a fresh store starts its
    * own (its first key); a restored one continues the one it was saved from */
   history: number;
+  /** Remounts only the store when it changes */
+  storeKey?: number;
   /** Code this store last rendered cleanly under (or was created with) */
   code: string;
   restored?: PreviewSnapshot;
@@ -47,6 +60,17 @@ export function usePreviewReset(code: string) {
         history: s.key + 1,
         code: codeRef.current,
         canAutoReset: false,
+      })),
+    [],
+  );
+
+  /** New store keeping the old one's data, without re-running the code (e.g. new managers) */
+  const remount = useCallback(
+    (snapshot: PreviewSnapshot) =>
+      setStore(s => ({
+        ...s,
+        storeKey: (s.storeKey ?? 0) + 1,
+        restored: snapshot,
       })),
     [],
   );
@@ -101,8 +125,10 @@ export function usePreviewReset(code: string) {
     history: store.history,
     /** The only other history that can still come back */
     replacedHistory: store.replaced?.history,
+    storeKey: store.storeKey,
     restored: store.restored,
     reset,
+    remount,
     onRenderError,
     onHealthy,
     onInteract,

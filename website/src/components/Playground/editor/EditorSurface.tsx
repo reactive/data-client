@@ -1,10 +1,13 @@
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import Translate from '@docusaurus/Translate';
+import useIsomorphicLayoutEffect from '@docusaurus/useIsomorphicLayoutEffect';
 import clsx from 'clsx';
+import type * as Monaco from 'monaco-editor';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 
 import Header from '../Header';
 import { modelPath, useModelId } from '../monaco/modelPath';
+import { createMissingModels } from '../monaco/models';
 import Editor from '../PlaygroundEditor';
 import styles from '../styles.module.css';
 import TabList from '../TabList';
@@ -84,6 +87,8 @@ export default function EditorSurface({
     [documents.length, update],
   );
 
+  const createModels = useCreateModels(id, documents);
+
   const tabs =
     row && documents.length > 1 ?
       <EditorTabs
@@ -113,6 +118,7 @@ export default function EditorSurface({
       : null}
       <TextEditTab
         hidden={closedList[index]}
+        ssr={document.ssr}
         interactive={interactive}
         tabIndex={index}
         onFocus={
@@ -123,6 +129,7 @@ export default function EditorSurface({
         onChange={handleChanges[index]}
         code={document.value}
         path={modelPath(id, document.path)}
+        beforeMount={createModels}
         isFocused={!closedList[index]}
         language={document.language}
         highlights={document.highlights}
@@ -156,20 +163,50 @@ export default function EditorSurface({
   );
 }
 
+/**
+ * `beforeMount` for every editor of a surface: every file's model must exist
+ * before any is type-checked, or imports of later tabs read as missing
+ * modules (see createMissingModels). Stable, so memo'd editors skip renders.
+ */
+function useCreateModels(id: string, documents: readonly CodeDocument[]) {
+  const documentsRef = useRef(documents);
+  // in an effect, not during render, so a discarded render can't leak in
+  useIsomorphicLayoutEffect(() => {
+    documentsRef.current = documents;
+  });
+  return useCallback(
+    (monaco: typeof Monaco) =>
+      createMissingModels(
+        monaco,
+        documentsRef.current.map(document => ({
+          path: modelPath(id, document.path),
+          code: document.value,
+          language: document.language,
+        })),
+      ),
+    [id],
+  );
+}
+
 function TextEditTab({
   hidden,
+  ssr,
   interactive,
   ...editorProps
-}: InteractiveEditorProps & {
-  hidden: boolean;
-  interactive: boolean;
-}) {
+}: InteractiveEditorProps &
+  Pick<CodeDocument, 'ssr'> & {
+    hidden: boolean;
+    interactive: boolean;
+  }) {
   // SSR + hydration markup: open tabs' source stays in the HTML for crawlers.
+  // Collapsed tabs are left out to keep the HTML small, unless marked `ssr`:
+  // those keep their text, unhighlighted since it is never seen.
   // Never branch on navigator / user agent outside BrowserOnly.
   const staticView =
-    hidden ? null : (
+    !hidden ?
       <StaticEditor code={editorProps.code} language={editorProps.language} />
-    );
+    : ssr ? <pre>{editorProps.code}</pre>
+    : null;
 
   return (
     <div
@@ -267,7 +304,9 @@ function EditorHeader({
     <>
       {fixtureContent != null ?
         <>
-          <Header small>Fixtures</Header>
+          <Header small>
+            <Translate id="playground.fixtures">Fixtures</Translate>
+          </Header>
           {fixtureContent}
         </>
       : null}

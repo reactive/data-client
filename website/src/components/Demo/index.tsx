@@ -25,9 +25,11 @@ export default function Demo() {
                 id="homepage.demo.mutations.render"
                 values={{
                   useSuspense: (
+                    // eslint-disable-next-line @docusaurus/no-untranslated-text -- API name
                     <Link to="/docs/api/useSuspense">useSuspense()</Link>
                   ),
                   fetch: (
+                    // eslint-disable-next-line @docusaurus/no-untranslated-text -- API name
                     <Link to="/docs/api/Controller#fetch">
                       Controller.fetch()
                     </Link>
@@ -190,6 +192,7 @@ export default function Demo() {
               <Translate
                 id="homepage.demo.live.sync"
                 values={{
+                  // eslint-disable-next-line @docusaurus/no-untranslated-text -- API name
                   useLive: <Link to="/docs/api/useLive">useLive()</Link>,
                 }}
               >

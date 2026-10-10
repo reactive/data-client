@@ -1,0 +1,126 @@
+<svg width="1440" height="660" viewBox="0 0 1440 660" xmlns="http://www.w3.org/2000/svg">
+<!-- Source of managers-data-flow.png (rendered at 2x with Inter installed). -->
+<style>
+svg{display:block;font-family:Inter,sans-serif}
+.mono{font-family:'DejaVu Sans Mono',monospace}
+.h{font-size:17px;font-weight:600;fill:#0f172a}
+.t{font-size:13.5px;fill:#334155}
+.s{font-size:12px;fill:#64748b}
+.c{font-size:12.5px;fill:#0f172a}
+.card{fill:#fff;stroke:#e2e8f0;stroke-width:1.5}
+.arrow{stroke:#94a3b8;stroke-width:2;fill:none}
+.lbl{font-size:12px;fill:#475569;font-weight:500}
+</style>
+<defs>
+ <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f8fafc"/><stop offset="1" stop-color="#eef2ff"/></linearGradient>
+ <filter id="sh" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#1e293b" flood-opacity=".08"/></filter>
+ <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/></marker>
+ <marker id="ahv" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#7c3aed"/></marker>
+ <marker id="aht" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#0d9488"/></marker>
+ <marker id="ahr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#e11d48"/></marker>
+</defs>
+<rect width="1440" height="660" rx="20" fill="#f8fafc"/>
+<text x="40" y="48" style="font-size:22px;font-weight:700;fill:#0f172a">Playground managers</text>
+<text x="40" y="72" class="s" style="font-size:13.5px">How code that defines getManagers() becomes the preview store's managers</text>
+
+<!-- legend -->
+<g transform="translate(1010,40)">
+ <rect x="0" y="0" width="12" height="12" rx="3" fill="#ede9fe" stroke="#7c3aed"/><text x="20" y="11" class="s">manager code</text>
+ <line x1="120" y1="6" x2="150" y2="6" stroke="#7c3aed" stroke-width="2" stroke-dasharray="5 4"/><text x="158" y="11" class="s">only when manager code changes</text>
+</g>
+
+<!-- A Editor -->
+<g filter="url(#sh)"><rect class="card" x="40" y="100" width="240" height="250" rx="14"/></g>
+<text x="62" y="132" class="h">1 · Editor</text>
+<text x="62" y="152" class="s">documents (tabs)</text>
+<g class="mono">
+ <rect x="62" y="168" width="196" height="28" rx="7" fill="#f1f5f9"/><text x="76" y="187" class="c">Ticker</text>
+ <rect x="62" y="202" width="196" height="28" rx="7" fill="#f1f5f9"/><text x="76" y="221" class="c">PriceSource</text>
+ <rect x="62" y="236" width="196" height="28" rx="7" fill="#ede9fe" stroke="#7c3aed"/><text x="76" y="255" class="c">StreamManager</text>
+ <rect x="62" y="270" width="196" height="28" rx="7" fill="#ede9fe" stroke="#7c3aed"/><text x="76" y="289" class="c">getManagers</text>
+ <rect x="62" y="304" width="196" height="28" rx="7" fill="#f1f5f9"/><text x="76" y="323" class="c">Prices</text>
+</g>
+
+<!-- B useCodeManagers -->
+<g filter="url(#sh)"><rect class="card" x="340" y="100" width="300" height="250" rx="14"/></g>
+<text x="362" y="132" class="h">2 · useCodeManagers</text>
+<text x="362" y="152" class="s">LivePreview's one hook into managers</text>
+<text x="362" y="186" class="t" style="font-weight:600">version</text>
+<text x="362" y="206" class="t">hash of <tspan fill="#7c3aed" font-weight="600">getManagers</tspan> and the docs</text>
+<text x="362" y="224" class="t">declaring names it uses</text>
+<text x="362" y="260" class="t" style="font-weight:600">transformCode</text>
+<text x="362" y="280" class="t">appends a trailer to the code:</text>
+<rect x="362" y="292" width="256" height="40" rx="7" fill="#0f172a"/>
+<text x="374" y="308" class="mono" style="font-size:11px;fill:#e2e8f0">__registerManagers(</text>
+<text x="374" y="324" class="mono" style="font-size:11px;fill:#e2e8f0">  getManagers, version)</text>
+
+<!-- C react-live -->
+<g filter="url(#sh)"><rect class="card" x="700" y="100" width="250" height="250" rx="14"/></g>
+<text x="722" y="132" class="h">3 · react-live</text>
+<text x="722" y="152" class="s">runs the code</text>
+<text x="722" y="190" class="t">Trailer runs last, so it is</text>
+<text x="722" y="208" class="t">reached only when <tspan font-weight="600">all</tspan> the</text>
+<text x="722" y="226" class="t">code ran.</text>
+<rect x="722" y="250" width="206" height="74" rx="9" fill="#fff1f2"/>
+<text x="736" y="274" class="t" style="fill:#be123c;font-weight:600">Code fails?</text>
+<text x="736" y="294" class="t" style="fill:#9f1239">Nothing registers, so the</text>
+<text x="736" y="312" class="t" style="fill:#9f1239">store keeps its managers.</text>
+
+<!-- D ManagerHost -->
+<g filter="url(#sh)"><rect class="card" x="1010" y="100" width="390" height="250" rx="14" style="stroke:#c4b5fd"/></g>
+<text x="1032" y="132" class="h">4 · ManagerHost</text>
+<text x="1032" y="152" class="s">outlives every store</text>
+<text x="1032" y="184" class="mono c" style="font-weight:600">register(getManagers, version)</text>
+<text x="1046" y="206" class="t">same version → keep the newest fn</text>
+<text x="1046" y="224" class="t">new version → <tspan fill="#7c3aed" font-weight="600">remount(snapshot)</tspan></text>
+<line x1="1032" y1="242" x2="1378" y2="242" stroke="#e2e8f0"/>
+<text x="1032" y="268" class="mono c" style="font-weight:600">create()</text>
+<text x="1046" y="290" class="t">calls getManagers() and <tspan fill="#0d9488" font-weight="600">guards</tspan> each</text>
+<text x="1046" y="308" class="t">none? → getDefaultManagers()</text>
+<text x="1046" y="326" class="t">no NetworkManager? → one is added</text>
+
+<!-- top arrows -->
+<path class="arrow" d="M280,225 H336" marker-end="url(#ah)"/>
+<path class="arrow" d="M640,225 H696" marker-end="url(#ah)"/>
+<path class="arrow" d="M950,225 H1006" marker-end="url(#ah)"/>
+<text x="668" y="215" class="lbl" text-anchor="middle">code</text><text x="308" y="215" class="lbl" text-anchor="middle">docs</text><text x="978" y="215" class="lbl" text-anchor="middle">register</text>
+
+<!-- Store -->
+<g filter="url(#sh)"><rect class="card" x="40" y="440" width="1360" height="190" rx="14"/></g>
+<text x="62" y="472" class="h">5 · Preview store</text>
+<text x="62" y="494" class="s">DataProvider, keyed by storeKey · built once per mount, because DataProvider keeps its first managers</text>
+<g class="mono" style="font-size:12.5px">
+ <rect x="62" y="526" width="110" height="40" rx="20" fill="#f1f5f9"/><text x="117" y="551" text-anchor="middle" class="c">log.head</text>
+ <rect x="196" y="526" width="150" height="40" rx="20" fill="#f1f5f9"/><text x="271" y="551" text-anchor="middle" class="c">SchemaRegistry</text>
+ <rect x="370" y="520" width="430" height="52" rx="26" fill="#f0fdfa" stroke="#0d9488" stroke-dasharray="5 4"/>
+ <text x="585" y="515" text-anchor="middle" style="font-family:Inter;font-size:11.5px;fill:#0d9488;font-weight:600">from create(): user managers, each guarded</text>
+ <rect x="382" y="526" width="160" height="40" rx="20" fill="#ede9fe" stroke="#7c3aed"/><text x="462" y="551" text-anchor="middle" class="c">StreamManager</text>
+ <rect x="552" y="526" width="236" height="40" rx="20" fill="#f1f5f9"/><text x="670" y="551" text-anchor="middle" class="c">...getDefaultManagers()</text>
+ <rect x="824" y="526" width="100" height="40" rx="20" fill="#f1f5f9"/><text x="874" y="551" text-anchor="middle" class="c">log.tail</text>
+</g>
+<path class="arrow" d="M172,546 H192" marker-end="url(#ah)"/>
+<path class="arrow" d="M346,546 H366" marker-end="url(#ah)"/>
+<path class="arrow" d="M800,546 H820" marker-end="url(#ah)"/>
+<text x="62" y="604" class="s">actions flow left → right; the Actions log in the Store inspector sees them before and after every manager</text>
+
+<rect x="960" y="500" width="200" height="100" rx="10" fill="#f8fafc" stroke="#e2e8f0"/>
+<text x="976" y="524" class="mono c" style="font-weight:600">ManagersSync</text>
+<text x="976" y="546" class="t">gives the host the</text>
+<text x="976" y="564" class="t">store's controller</text>
+<text x="976" y="586" class="mono s">host.attach(controller)</text>
+
+<rect x="1180" y="500" width="200" height="100" rx="10" fill="#fff1f2" stroke="#fecdd3"/>
+<text x="1196" y="524" class="t" style="font-weight:600;fill:#be123c">Manager error card</text>
+<text x="1196" y="546" class="t" style="fill:#9f1239">a guarded step threw;</text>
+<text x="1196" y="564" class="t" style="fill:#9f1239">actions skip it and the</text>
+<text x="1196" y="582" class="t" style="fill:#9f1239">preview keeps running</text>
+
+<!-- host <-> store arrows -->
+<path d="M1110,350 V436" stroke="#0d9488" stroke-width="2" fill="none" marker-end="url(#aht)"/>
+<text x="1118" y="398" class="lbl" style="fill:#0d9488">create() on mount</text>
+<path d="M1060,436 V350" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#ah)" transform="translate(-0,0)"/>
+<text x="1052" y="398" class="lbl" text-anchor="end">attach(controller)</text>
+<path d="M1270,350 V436" stroke="#7c3aed" stroke-width="2" stroke-dasharray="6 5" fill="none" marker-end="url(#ahv)"/>
+<text x="1278" y="398" class="lbl" style="fill:#7c3aed">remount(snapshot)</text>
+<text x="1278" y="414" class="s">new store, same data</text>
+</svg>

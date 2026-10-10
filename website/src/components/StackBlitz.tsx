@@ -1,5 +1,5 @@
 import Link from '@docusaurus/Link';
-import Translate from '@docusaurus/Translate';
+import Translate, { translate } from '@docusaurus/Translate';
 
 import { isBot } from './Playground/userAgent';
 import styles from './StackBlitz.module.css';
@@ -78,13 +78,19 @@ export default function StackBlitz({
       </div>
       <div className={styles.wrapper}>
         <span className={styles.loading} aria-hidden="true">
-          Loading demo…
+          <Translate id="stackblitz.loading">Loading demo…</Translate>
         </span>
         <iframe
           ref={frameRef}
           width={width}
           height={height}
-          title={`${app ?? repo} demo on StackBlitz`}
+          title={translate(
+            {
+              id: 'stackblitz.frameTitle',
+              message: '{name} demo on StackBlitz',
+            },
+            { name: app ?? repo },
+          )}
           className={styles.frame}
           {...(hasIntersected && !isBot ?
             {
@@ -97,7 +103,7 @@ export default function StackBlitz({
       </div>
       <p style={{ textAlign: 'center' }}>
         <Link className="button button--secondary button--sm" to="/demos">
-          More Demos
+          <Translate id="stackblitz.moreDemos">More Demos</Translate>
         </Link>
       </p>
     </>
