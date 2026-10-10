@@ -249,7 +249,13 @@ export interface Then {
   readonly model: StoreModel;
   /** The last action it includes */
   readonly until: number;
+  /** When that action was dispatched */
+  readonly time: number;
 }
+
+/** When the store shown is from, so freshness counts from then; unset
+ * while live, as the clock runs */
+export const ShownTimeContext = createContext<number | undefined>(undefined);
 
 /** The actions some chips summarize, by seq. What the chips open shows the
  * store as those actions left it, not as it is now */

@@ -99,6 +99,9 @@ export function useFollow(
   paused = false,
 ) {
   const follow = useRef(true);
+  // the first row in view while not following, so rows trimmed from the
+  // start (or added there) leave the reader's place where it is
+  const anchor = useRef<{ row: Element; at: number }>(undefined);
   // passive: the listeners can wait for paint
   useEffect(() => {
     const el = scroller.current;
@@ -111,7 +114,9 @@ export function useFollow(
     // once, until the end is reached again
     let away = false;
     const onScroll = () => {
-      if (hidden || paused) return;
+      if (hidden) return;
+      anchor.current = firstShown(el, axis);
+      if (paused) return;
       const atEnd =
         el[size] - el[scroll] - el[client] < (away ? 1 : FOLLOW_SLACK);
       if (atEnd) away = false;
@@ -192,7 +197,13 @@ export function useFollow(
     // off, not just skipped, so showing a hidden tab doesn't catch up either;
     // scrolls are ignored while paused, so it stays off
     if (paused) follow.current = false;
-    else if (el?.clientHeight && follow.current) el[scroll] = el[size];
+    else if (el?.clientHeight && follow.current) {
+      el[scroll] = el[size];
+      return;
+    }
+    const held = anchor.current;
+    if (el && held?.row.isConnected)
+      el[scroll] += startOf(held.row, axis) - startOf(el, axis) - held.at;
   }, [scroller, rows, axis, paused]);
   return useCallback(() => {
     const el = scroller.current;
@@ -201,6 +212,21 @@ export function useFollow(
     follow.current = true;
     el[scroll] = el[size];
   }, [scroller, axis]);
+}
+
+const startOf = (el: Element, axis: 'x' | 'y') => {
+  const rect = el.getBoundingClientRect();
+  return axis === 'y' ? rect.top : rect.left;
+};
+
+/** The first row in `scroller`'s view, and where it starts in it */
+function firstShown(scroller: HTMLElement, axis: 'x' | 'y') {
+  const from = startOf(scroller, axis);
+  for (const row of scroller.querySelectorAll('[data-id]')) {
+    const rect = row.getBoundingClientRect();
+    if ((axis === 'y' ? rect.bottom : rect.right) > from)
+      return { row, at: startOf(row, axis) - from };
+  }
 }
 
 /** `setResponse`, colored by kind; a fetch that changed the store applied

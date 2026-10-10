@@ -12,7 +12,7 @@ import {
   type EntityRow,
   type StoreModel,
 } from './model';
-import { useNavState } from './nav';
+import { ShownTimeContext, useNavState } from './nav';
 import { plain } from './refs';
 import type { EndpointRecord } from './schemaRegistry';
 import styles from './store.module.css';
@@ -22,7 +22,10 @@ type Meta = EndpointRow['meta'];
 
 /** fresh (with countdown), stale, error or invalidated */
 export function Status({ meta }: { meta: Meta }) {
-  const now = useNow(meta?.expiresAt);
+  // a past store's freshness stays as it was then
+  const shownTime = useContext(ShownTimeContext);
+  const clock = useNow(shownTime === undefined ? meta?.expiresAt : undefined);
+  const now = shownTime ?? clock;
   if (!meta) return null;
   if (meta.error)
     return <span className={clsx(styles.pill, styles.error)}>error</span>;

@@ -60,6 +60,7 @@ import {
   DiffContext,
   NavContext,
   NavStateContext,
+  ShownTimeContext,
   subjectOf,
   useLevelStack,
   type LevelStack,
@@ -163,7 +164,8 @@ export default function StorePanel({
   const [thens] = useState(() => new WeakMap<State<unknown>, Then>());
   const then = useCallback(
     ({ seq, before }: Moment): Then | undefined => {
-      const store = findEntry(known, seq)?.store;
+      const entry = findEntry(known, seq);
+      const store = entry?.store;
       if (!store) return undefined;
       const raw = before ? store.before : store.after;
       let found = thens.get(raw);
@@ -173,6 +175,7 @@ export default function StorePanel({
           state,
           model: buildModel(state, registry, pendingIn(raw.optimistic)),
           until: before ? seq - 1 : seq,
+          time: entry.at,
         };
         thens.set(raw, found);
       }
@@ -491,27 +494,29 @@ export default function StorePanel({
                       show, their scroll, pages and filters; both read the
                       moment's state where they show the moment's store */}
                   <StateContext.Provider value={state}>
-                    <Levels
-                      model={model}
-                      width={width}
-                      levels={actionLevels}
-                      subject={subject}
-                      hidden={tab !== 'actions'}
-                    />
-                    <DiffContext.Provider value={shownDiff?.rows ?? null}>
-                      {tree ?
-                        storeShown && (
-                          <TreeLevel model={model} diff={shownDiff} />
-                        )
-                      : <Levels
-                          model={model}
-                          width={width}
-                          levels={levels}
-                          diff={shownDiff}
-                          hidden={!storeShown}
-                        />
-                      }
-                    </DiffContext.Provider>
+                    <ShownTimeContext.Provider value={shown?.time}>
+                      <Levels
+                        model={model}
+                        width={width}
+                        levels={actionLevels}
+                        subject={subject}
+                        hidden={tab !== 'actions'}
+                      />
+                      <DiffContext.Provider value={shownDiff?.rows ?? null}>
+                        {tree ?
+                          storeShown && (
+                            <TreeLevel model={model} diff={shownDiff} />
+                          )
+                        : <Levels
+                            model={model}
+                            width={width}
+                            levels={levels}
+                            diff={shownDiff}
+                            hidden={!storeShown}
+                          />
+                        }
+                      </DiffContext.Provider>
+                    </ShownTimeContext.Provider>
                   </StateContext.Provider>
                   {tab === 'diff' && !diff && (
                     <div className={styles.levels}>
@@ -801,12 +806,16 @@ function Level({
       // the store a chip opened it at
       <DiffContext.Provider value={diff?.rows ?? null}>
         <NavContext.Provider value={current}>
-          {children(ref)}
+          {then ?
+            <ShownTimeContext.Provider value={then.time}>
+              {children(ref)}
+            </ShownTimeContext.Provider>
+          : children(ref)}
         </NavContext.Provider>
       </DiffContext.Provider>
     ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `children` is new each render; what it shows only changes with `current`, `view`, `diff` and `under`
-    [current, view, diff, under],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `children` is new each render; what it shows only changes with `current`, `view`, `diff`, `under` and `then`
+    [current, view, diff, under, then],
   );
   const wasTop = useRef<boolean | null>(null);
   useLayoutEffect(() => {

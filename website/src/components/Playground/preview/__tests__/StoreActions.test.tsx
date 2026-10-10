@@ -1306,6 +1306,28 @@ describe('Store diff', () => {
     expect(top().textContent).toContain('Started the request');
   });
 
+  it('shows freshness as of a past moment, not counting down', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+    );
+    previous();
+    openState();
+    const status = () =>
+      top().querySelector<HTMLElement>(`tr[data-id="${endpointId(POSTS)}"]`)!
+        .textContent;
+    const was = status();
+    expect(was).toMatch(/fresh \d+s/);
+    const now = Date.now();
+    const clock = jest.spyOn(Date, 'now').mockReturnValue(now + 30_000);
+    // a render that would read the clock
+    fireEvent.click(screen.getByLabelText('Tree view'));
+    fireEvent.click(screen.getByLabelText('Table view'));
+    expect(status()).toBe(was);
+    clock.mockRestore();
+  });
+
   it('marks the cells an update changed, with what they were', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
