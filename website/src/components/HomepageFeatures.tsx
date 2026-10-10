@@ -164,6 +164,7 @@ const featureList: FeatureItem[] = [
               <Translate id="homepage.features.adoption.add">add</Translate>
             </b>
           ),
+          // eslint-disable-next-line @docusaurus/no-untranslated-text -- API name
           schemas: <Link to="/docs#entities">Schemas</Link>,
           optimistic: (
             <Link to="/docs#optimistic-updates">

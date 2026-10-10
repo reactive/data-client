@@ -24,13 +24,6 @@ jest.mock(
   { virtual: true },
 );
 jest.mock(
-  '@docusaurus/Translate',
-  () =>
-    ({ children }: { children: React.ReactNode }) =>
-      children,
-  { virtual: true },
-);
-jest.mock(
   '@docusaurus/theme-common/internal',
   () => ({
     useScrollPositionBlocker: () => ({

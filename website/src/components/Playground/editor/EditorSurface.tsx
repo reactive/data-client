@@ -267,7 +267,9 @@ function EditorHeader({
     <>
       {fixtureContent != null ?
         <>
-          <Header small>Fixtures</Header>
+          <Header small>
+            <Translate id="playground.fixtures">Fixtures</Translate>
+          </Header>
           {fixtureContent}
         </>
       : null}

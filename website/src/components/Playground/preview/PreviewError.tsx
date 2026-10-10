@@ -1,4 +1,5 @@
 import { useController } from '@data-client/react';
+import Translate, { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React, { useContext, useEffect } from 'react';
 import { LiveContext } from 'react-live';
@@ -51,7 +52,8 @@ export default function PreviewError({
             className={styles.errorAction}
             onClick={onReset}
           >
-            <ResetIcon /> Reset preview
+            <ResetIcon />{' '}
+            <Translate id="playground.resetPreview">Reset preview</Translate>
           </button>
         : null
       }
@@ -111,14 +113,17 @@ export function ResetButton({ onClick }: { onClick: () => void }) {
     <button
       type="button"
       className={clsx('clean-btn', styles.headerButton, styles.resetButton)}
-      title="Reset preview"
-      aria-label="Reset preview"
+      title={resetLabel()}
+      aria-label={resetLabel()}
       onClick={onClick}
     >
       <ResetIcon />
     </button>
   );
 }
+
+const resetLabel = () =>
+  translate({ id: 'playground.resetPreview', message: 'Reset preview' });
 
 function ResetIcon() {
   return (
