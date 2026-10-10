@@ -86,7 +86,8 @@ export default [
     },
   },
   {
-    // Site UI text goes through <Translate> so every locale gets it
+    // Site UI text goes through <Translate> so every locale gets it. Checks JSX
+    // text only: attributes (title, aria-label, placeholder) need review
     files: ['website/src/{components,theme}/**/*.?(m|c)tsx'],
     ignores: ['**/__tests__/**', '**/testing/**'],
     plugins: { '@docusaurus': docusaurusPlugin },
@@ -104,7 +105,6 @@ export default [
             '×',
             '→',
             ':',
-            '|',
             '+',
             ',',
             '[',
@@ -115,7 +115,6 @@ export default [
             '{}',
             '[Circular]',
             's',
-            '1x',
           ],
         },
       ],

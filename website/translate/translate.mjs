@@ -184,6 +184,23 @@ const uiId = (locale, file, key) => `website/i18n/${locale}/${file}#${key}`;
  * repeat them, and a language can have fewer forms than English */
 const placeholders = text => [...new Set(text.match(/\{\w+\}/g))].sort().join();
 
+/** What's wrong with a UI string's translation, if anything: lost
+ * placeholders, or plural forms ("|"-separated, as usePluralForm reads them)
+ * the locale can't use. Docusaurus falls back to the last form, so too few
+ * forms would silently show a plural for one. */
+function uiProblem(locale, text, message) {
+  if (placeholders(text) !== placeholders(message))
+    return `keep the placeholders of "${message}"`;
+  const english = message.split('|').length;
+  if (english === 1) return;
+  const most = new Intl.PluralRules(locale).resolvedOptions().pluralCategories
+    .length;
+  const least = Math.min(english, most);
+  const forms = text.split('|').length;
+  if (forms < least || forms > most)
+    return `give ${least === most ? least : `${least} to ${most}`} plural forms separated by "|", like "${message}"`;
+}
+
 /**
  * Writes a locale's UI string files, keeping its translations. Like the CLI's
  * `write-translations`, which never exits; without its [INFO] lines (stdout)
@@ -370,8 +387,8 @@ async function finalize(locale, english) {
       if (done[key] === message || typeof text !== 'string') continue;
       const id = uiId(locale, file, key);
       if (text === message && !options.same.includes(id)) untranslated.push(id);
-      else if (placeholders(text) !== placeholders(message))
-        problems.push(`${id}: keep the placeholders of "${message}"`);
+      else if (uiProblem(locale, text, message))
+        problems.push(`${id}: ${uiProblem(locale, text, message)}`);
       else {
         done[key] = message;
         accepted.push(id);
@@ -436,13 +453,9 @@ function check(locale) {
   for (const [file, keys] of Object.entries(lock.ui))
     for (const [key, message] of Object.entries(keys)) {
       const text = localized[file]?.[key]?.message;
-      if (
-        typeof text !== 'string' ||
-        placeholders(text) !== placeholders(message)
-      )
-        problems.push(
-          `${uiId(locale, file, key)}: missing or lost placeholders`,
-        );
+      const problem =
+        typeof text === 'string' ? uiProblem(locale, text, message) : 'missing';
+      if (problem) problems.push(`${uiId(locale, file, key)}: ${problem}`);
     }
   return { pages: present.size, stale, unverified, problems };
 }
