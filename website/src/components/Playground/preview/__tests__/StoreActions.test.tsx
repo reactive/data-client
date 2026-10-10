@@ -751,6 +751,14 @@ describe('Store Actions pane', () => {
         ctrl().set(Post, { id: '2' }, { id: '2', title: 'Later still' }),
       );
       expect(list.scrollTop).toBe(900);
+      // a wheel back where it can't go back (or mostly across) holds on
+      fireEvent.wheel(list, { deltaY: -5, deltaX: -20 });
+      list.scrollTop = 0;
+      fireEvent.wheel(list, { deltaY: -5 });
+      await act(() =>
+        ctrl().set(Post, { id: '2' }, { id: '2', title: 'Last' }),
+      );
+      expect(list.scrollTop).toBe(900);
     } finally {
       delete (HTMLElement.prototype as any).clientHeight;
     }

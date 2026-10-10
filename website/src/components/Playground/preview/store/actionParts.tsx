@@ -117,22 +117,30 @@ export function useFollow(
       if (atEnd) away = false;
       follow.current = atEnd;
     };
-    const back = () => {
+    // only a step this scroller can take: it has room to go back, and the
+    // gesture is mostly along its axis
+    const back = (along: number, across: number) => {
+      if (along >= 0 || Math.abs(along) < Math.abs(across) || el[scroll] <= 0)
+        return;
       away = true;
       follow.current = false;
     };
-    const onWheel = (e: WheelEvent) => {
-      if ((axis === 'y' ? e.deltaY : e.deltaX) < 0) back();
-    };
-    let touchAt: number | undefined;
-    const touchPos = (e: TouchEvent) =>
-      axis === 'y' ? e.touches[0]?.clientY : e.touches[0]?.clientX;
-    const onTouchStart = (e: TouchEvent) => (touchAt = touchPos(e));
+    const onWheel = (e: WheelEvent) =>
+      axis === 'y' ? back(e.deltaY, e.deltaX) : back(e.deltaX, e.deltaY);
+    let touch: { x: number; y: number } | undefined;
+    const touchAt = (e: TouchEvent) =>
+      e.touches[0] && { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    const onTouchStart = (e: TouchEvent) => (touch = touchAt(e));
     // a finger moving toward the end of the axis scrolls back
     const onTouchMove = (e: TouchEvent) => {
-      const at = touchPos(e);
-      if (at !== undefined && touchAt !== undefined && at > touchAt) back();
-      touchAt = at;
+      const at = touchAt(e);
+      if (at && touch) {
+        const dx = touch.x - at.x;
+        const dy = touch.y - at.y;
+        if (axis === 'y') back(dy, dx);
+        else back(dx, dy);
+      }
+      touch = at;
     };
     el.addEventListener('scroll', onScroll, { passive: true });
     el.addEventListener('wheel', onWheel, { passive: true });
