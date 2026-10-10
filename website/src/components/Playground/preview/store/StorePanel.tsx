@@ -19,6 +19,7 @@ import {
   keepUnchanged,
   momentEntries,
   requestEntries,
+  requestOf,
   subjectFilter,
   subjectGaps,
   touches,
@@ -372,7 +373,8 @@ export default function StorePanel({
     [setTab, setView, push, closePane],
   );
   // the subject's actions in full: the Action tab's first level
-  const listed = tab === 'action' && actionLevels.stack.length === 1;
+  const listed =
+    tab === 'action' && actionLevels.stack.at(-1)!.view.kind === 'actions';
   const { back: actionsBack } = actionLevels;
   const openList = useCallback(() => {
     clearTimeout(peekTimer.current);
@@ -1025,7 +1027,7 @@ function ActionLevel({
           {group ?
             <div className={styles.actBody}>
               <SubjectChanges
-                entries={momentEntries(groups, entry, true)}
+                entries={groupEntriesOf(group).filter(e => e.seq <= entry.seq)}
                 subject={subject}
               />
               <GroupActions group={group} subject={subject} filter={filter} />
@@ -1051,8 +1053,9 @@ function ActionLevel({
 }
 
 /** What an action view of `subject` shows: action `seq` (`null`, the newest
- * of the subject's), and its group as one when `whole`, or live when it has
- * more (the newest request's optimistic update shows too) */
+ * of the subject's), and as one its group when `whole`, or live its request
+ * when that has more (its optimistic update shows too; a poll, only its own
+ * request) */
 function useShownAction(
   seq: number | null,
   whole: boolean | undefined,
@@ -1063,28 +1066,16 @@ function useShownAction(
   const filter = useSubjectFilter(log, entries, subject);
   const entry =
     seq === null ? newestOf(entries, filter.hit) : findEntry(entries, seq);
-  const group =
-    entry && (whole || seq === null) ?
-      wholeGroup(groups, entry.seq, seq === null)
-    : undefined;
+  let group: ActionGroup | undefined;
+  if (entry && seq === null) {
+    const request = requestOf(groups, entry.seq);
+    if (request && groupEntriesOf(request).length > 1) group = request;
+  } else if (entry && whole) group = groupOf(groups, entry.seq);
   return { entry, group, filter };
 }
 
-/** The group of action `seq`, to show as one; `several`, only one of more
- * than that action */
-function wholeGroup(
-  groups: readonly ActionGroup[],
-  seq: number,
-  several: boolean,
-): ActionGroup | undefined {
-  const group = groupOf(groups, seq);
-  return !several || (group && groupEntriesOf(group).length > 1) ?
-      group
-    : undefined;
-}
-
 /** The newest of the subject's actions: what the Action tab shows live, as
- * its request's when it has one (see `wholeGroup`).
+ * its request's when it has one (see `useShownAction`).
  * Garbage collection is the store's housekeeping, not something the code
  * did, unless it is all there is */
 function newestOf(

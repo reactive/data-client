@@ -464,17 +464,25 @@ export function momentEntries(
     : [entry];
 }
 
+/** The group action `seq` belongs to, narrowed to its request when a
+ * subscription polled it */
+export function requestOf(
+  groups: readonly ActionGroup[],
+  seq: number,
+): ActionGroup | undefined {
+  const group = groupOf(groups, seq);
+  return group?.kind === 'subscription' ?
+      group.requests.find(r => r.entries.some(e => e.seq === seq))
+    : group;
+}
+
 /** The request `entry` belongs to, up to it: its optimistic update and
  * response together, even when a subscription polled it */
 export function requestEntries(
   groups: readonly ActionGroup[],
   entry: LogEntry,
 ): readonly LogEntry[] {
-  const group = groupOf(groups, entry.seq);
-  const request =
-    group?.kind === 'subscription' ?
-      group.requests.find(r => r.entries.includes(entry))
-    : group;
+  const request = requestOf(groups, entry.seq);
   return request ? request.entries.filter(e => e.seq <= entry.seq) : [entry];
 }
 

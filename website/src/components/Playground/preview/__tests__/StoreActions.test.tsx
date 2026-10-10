@@ -1609,6 +1609,29 @@ describe('Store action level', () => {
     expect(top().textContent).toContain('this is live');
   });
 
+  it('shows the newest poll live as its own request', async () => {
+    const { ctrl } = mount();
+    let n = 0;
+    const polled = new Endpoint(
+      async () => [{ id: '1', title: `poll ${n++}` }],
+      {
+        schema: [Post],
+        key: () => POSTS,
+        name: 'polled',
+        pollFrequency: 1e6,
+      },
+    );
+    await act(async () => {
+      await ctrl().subscribe(polled);
+      await ctrl().fetch(polled);
+      await ctrl().fetch(polled);
+    });
+    openAction();
+    // the poll before it, however many the subscription made
+    expect(top().textContent).toContain(`"poll ${n - 2}" → "poll ${n - 1}"`);
+    expect(top().textContent).not.toContain('"poll 0"');
+  });
+
   it('opens the action a timeline mark picks while it lists them', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
