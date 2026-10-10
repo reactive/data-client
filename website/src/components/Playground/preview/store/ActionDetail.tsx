@@ -272,11 +272,18 @@ function withoutFunctions(value: unknown) {
   );
 }
 
-/** `setResponse GET /posts` */
+/** `setResponse GET /posts`, or `gc` for an action without a key */
 export function ActionName({ entry }: { entry: LogEntry }) {
+  const key = actionKey(entry.action);
   return (
     <>
-      <TypeName entry={entry} /> <KeyLabel value={actionKey(entry.action)} />
+      <TypeName entry={entry} />
+      {key && (
+        <>
+          {' '}
+          <KeyLabel value={key} />
+        </>
+      )}
     </>
   );
 }

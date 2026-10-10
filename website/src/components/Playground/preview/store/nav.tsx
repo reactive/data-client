@@ -67,11 +67,21 @@ export const cellDive =
       { kind: 'record', id: row.id }
     : refsList(items, `${rowLabel(row)} ${name}`);
 
-/** A subject of the store, one level of the navigation stack */
+/** A subject of the store, one level of the navigation stack; or one
+ * action (`seq`), shown over a subject with what it did to it */
 export type View =
   | { readonly kind: 'root' }
   | ListView
-  | { readonly kind: 'record'; readonly id: string };
+  | { readonly kind: 'record'; readonly id: string }
+  | { readonly kind: 'action'; readonly seq: number };
+
+/** The subject an action view is over: the nearest level under it that is
+ * one (the Actions pane lists its actions, the steps follow its changes) */
+export function subjectOf(stack: readonly StackEntry[]): View {
+  for (let i = stack.length - 1; i >= 0; i--)
+    if (stack[i].view.kind !== 'action') return stack[i].view;
+  return stack[0].view;
+}
 
 /** A level of a navigation stack */
 export interface StackEntry {
@@ -92,6 +102,12 @@ export interface LevelStack {
   /** Every level shows the store as it is (or the moment's): the moment set
    * on purpose outranks the store a chip opened a level at */
   readonly clearAt: () => void;
+  /** Shows action `seq` over the top level, or in place of the action view
+   * on top */
+  readonly showAction: (seq: number) => void;
+  /** The moment moved: an action view on top follows it, and goes as the
+   * moment lets go (`null`) */
+  readonly followMoment: (seq: number | null) => void;
 }
 
 /** A stack of views over `root` */
@@ -125,7 +141,38 @@ export function useLevelStack(root: View): LevelStack {
       : prev,
     );
   }, []);
-  return { stack, returnTo, push, back, clearAt };
+  const showAction = useCallback((seq: number) => {
+    setLevels(prev => {
+      const top = prev.stack[prev.stack.length - 1];
+      const view: View = { kind: 'action', seq };
+      if (top.view.kind === 'action')
+        return {
+          ...prev,
+          stack: [...prev.stack.slice(0, -1), { key: top.key, view }],
+        };
+      return {
+        ...prev,
+        stack: [...prev.stack, { key: nextKey.current++, view }],
+      };
+    });
+  }, []);
+  const followMoment = useCallback((seq: number | null) => {
+    setLevels(prev => {
+      const top = prev.stack[prev.stack.length - 1];
+      if (top.view.kind !== 'action' || top.view.seq === seq) return prev;
+      return {
+        ...prev,
+        stack:
+          seq === null ?
+            prev.stack.slice(0, -1)
+          : [
+              ...prev.stack.slice(0, -1),
+              { key: top.key, view: { kind: 'action', seq } },
+            ],
+      };
+    });
+  }, []);
+  return { stack, returnTo, push, back, clearAt, showAction, followMoment };
 }
 
 /** The store as an action left it, or (`before`) found it (a removed row
@@ -142,8 +189,8 @@ export interface Moment {
 export interface NavState {
   readonly seq: number | null;
   readonly set: (seq: number | null) => void;
-  /** Moves the moment to action `seq` and shows it in the Actions pane,
-   * with focus on its row */
+  /** Moves the moment to action `seq` and opens it at full width: what it
+   * did to the subject, then the action itself */
   readonly show: (seq: number) => void;
 }
 export const NavStateContext = createContext<NavState>({

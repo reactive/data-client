@@ -122,15 +122,22 @@ const openPane = () =>
   fireEvent.click(screen.getByRole('button', { name: 'Actions' }));
 const pane = () => screen.getByRole('region', { name: 'Actions' });
 /** The pane's head: `Actions`, the subject below the store, and the count */
-const paneHead = () => pane().firstElementChild!.textContent;
+const paneHead = () => pane().firstElementChild!.textContent!.replace('✕', '');
+/** A row's ▸: opens or closes it without opening its action */
+const expander = (row: HTMLElement) =>
+  within(row).getByRole('button', { name: /its actions$/ });
+/** The shown level's breadcrumbs (none at the store) */
+const crumbs = () =>
+  [
+    ...(within(top())
+      .queryByRole('navigation', { name: 'Store location' })
+      ?.querySelectorAll('button, [aria-current="page"]') ?? []),
+  ].map(el => el.textContent);
 /** The pane's rows */
 const rows = () => [
   ...document.querySelectorAll<HTMLElement>('[role="button"][aria-expanded]'),
 ];
-/** What a row (or step) shows under itself: the moment's action's detail */
-const under = (row: HTMLElement) => row.parentElement!.textContent!;
-/** The pane's rows and steps marked as the moment's (not the "At this
- * moment" block over the list) */
+/** The pane's rows and steps marked as the moment's */
 const marked = () =>
   [
     ...pane().querySelectorAll<HTMLElement>('[data-seq][aria-current="true"]'),
@@ -156,172 +163,153 @@ const top = () =>
   )!;
 
 describe('Store Actions pane detail', () => {
-  it('shows what the moment’s action did under its row, nothing while live', async () => {
+  it('opens the moment’s action at full width from a row, over the subject', async () => {
     const { ctrl } = mount();
     openPane();
     expect(pane().textContent).toContain('Nothing dispatched yet');
     await act(() => ctrl().fetch(getPosts));
     expect(rows()).toHaveLength(1);
     expect(marked()).toEqual([]);
-    expect(pane().textContent).not.toContain('dispatchedAt');
-    // the moment's row opens, with what its action did and the action
-    previous();
+    // a request's row stands for its response: it opens, as the moment,
+    // and the pane closes
+    fireEvent.click(rows()[0]);
+    expect(screen.queryByRole('region', { name: 'Actions' })).toBeNull();
+    expect(scrubber().textContent).toContain('After');
+    expect(scrubber().textContent).toContain('setResponse');
+    expect(crumbs()).toEqual(['State', 'setResponse GET /posts']);
+    expect(top().textContent).toContain('dispatchedAt');
+    expect(
+      within(top()).getByRole('button', { name: '+ Post 1' }),
+    ).toBeTruthy();
+    expect(
+      within(top()).getByRole('button', { name: '+ Post 2' }),
+    ).toBeTruthy();
+    expect(
+      within(top()).getByRole('button', { name: '+ GET /posts' }),
+    ).toBeTruthy();
+    // the pane lists it as the moment's, open; a step is a moment too: the
+    // store never saw the fetch
+    openPane();
     expect(rows()[0].getAttribute('aria-current')).toBe('true');
-    expect(under(rows()[0])).toContain('dispatchedAt');
-    expect(
-      within(pane()).getByRole('button', { name: '+ Post 1' }),
-    ).toBeTruthy();
-    expect(
-      within(pane()).getByRole('button', { name: '+ Post 2' }),
-    ).toBeTruthy();
-    // a step is a moment too: the store never saw the fetch
-    const fetchStep = () =>
-      within(rows()[0].parentElement!)
-        .getByText('fetch')
-        .closest<HTMLElement>('[role="button"]')!;
-    fireEvent.click(fetchStep());
+    expect(rows()[0].getAttribute('aria-expanded')).toBe('true');
+    fireEvent.click(pane().querySelector<HTMLElement>('[data-seq="1"]')!);
     expect(scrubber().textContent).toContain('fetch');
-    expect(under(fetchStep())).toContain('Started the request');
-    expect(pane().textContent).not.toContain('+ Post 1');
-    // live again: no moment, no detail
+    expect(crumbs()).toEqual(['State', 'fetch GET /posts']);
+    expect(top().textContent).toContain('Started the request');
+    expect(top().textContent).not.toContain('+ Post 1');
+    // Back returns to the subject, the moment staying
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    expect(crumbs()).toEqual([]);
+    expect(scrubber().textContent).toContain('fetch');
+    // live again: no moment; nothing is marked
     fireEvent.click(screen.getByRole('button', { name: 'Live' }));
+    openPane();
     expect(marked()).toEqual([]);
-    expect(pane().textContent).not.toContain('dispatchedAt');
   });
 
-  it('scopes the changes to the subject', async () => {
+  it('scopes the changes to the subject it is over', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
-    openPane();
-    previous();
-    // the store: every row the response added
+    await act(() => ctrl().set(Post, { id: '3' }, { id: '3', title: 'Third' }));
     const chip = (name: string) =>
-      within(pane()).queryAllByRole('button', { name })[0] ?? null;
-    expect(chip('+ Post 1')).toBeTruthy();
-    expect(chip('+ Post 2')).toBeTruthy();
-    expect(chip('+ GET /posts')).toBeTruthy();
-    // a record: just its own
+      within(top()).queryAllByRole('button', { name })[0] ?? null;
+    // a record: just its own changes
     openPost('1');
-    expect(current()).toBe('Post 1');
+    openPane();
+    fireEvent.click(rows()[0]);
+    expect(crumbs()).toEqual(['State', 'Post 1', 'setResponse GET /posts']);
     expect(chip('+ Post 1')).toBeTruthy();
     expect(chip('+ Post 2')).toBeNull();
     expect(chip('+ GET /posts')).toBeNull();
-    // the moment on an action that left the record alone: it shows on top
-    // of a list that leaves it out, saying so
+    // a list of rows, at an action that left them alone
     fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
-    await act(() => ctrl().set(Post, { id: '2' }, { id: '2', title: 'Other' }));
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
     fireEvent.click(screen.getByRole('button', { name: 'Live' }));
     previous();
-    openPost('1');
-    expect(rows()).toHaveLength(1);
-    expect(marked()).toEqual([]);
-    const pinned = () =>
-      within(pane()).getByText('At this moment').parentElement!;
-    expect(pinned().textContent).toContain('set');
-    expect(pane().textContent).toContain('No change to this record');
-    // ↓ from it moves to the first row, as the moment
-    const block = pinned().parentElement!;
-    block.focus();
-    fireEvent.keyDown(block, { key: 'ArrowDown' });
-    expect(document.activeElement).toBe(rows()[0]);
-    expect(rows()[0].getAttribute('aria-current')).toBe('true');
-    expect(within(pane()).queryByText('At this moment')).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Live' }));
-    previous();
-    // a list of rows
-    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    expect(scrubber().textContent).toContain('set Post');
+    openPane();
     fireEvent.click(
       within(rows()[0]).getByRole('button', { name: '+ 2 Post' }),
     );
     expect(current()).toBe('new Post2');
-    expect(rows()).toHaveLength(2);
-    expect(chip('~ Post 2')).toBeTruthy();
-    previous();
-    expect(chip('+ Post 1')).toBeTruthy();
-    expect(chip('+ Post 2')).toBeTruthy();
-    expect(chip('+ GET /posts')).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Live' }));
-    await act(() => ctrl().set(Post, { id: '3' }, { id: '3', title: 'Third' }));
+    fireEvent.click(screen.getByTitle('Show action'));
+    expect(crumbs()).toEqual(['State', 'new Post2', 'set Post']);
+    expect(top().textContent).toContain('No change to these rows');
+    // chips in the action's changes drill into the subject's rows
     fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
-    previous();
-    fireEvent.click(
-      within(rows()[0]).getByRole('button', { name: '+ 2 Post' }),
-    );
-    expect(pane().textContent).toContain('No change to these rows');
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    fireEvent.click(screen.getByTitle('Show action'));
+    expect(crumbs()).toEqual(['State', 'set Post']);
+    fireEvent.click(within(top()).getByRole('button', { name: '+ Post 3' }));
+    expect(crumbs()).toEqual(['State', 'set Post', 'Post 3']);
+    expect(top().textContent).toContain('"Third"');
   });
 
-  it('pins an action of a listed row that left the record alone', async () => {
+  it('keeps showing the moment’s action as the scrubber steps, at full width', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
     await act(() =>
       ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
     );
     openPane();
-    // the request's fetch, as a step at the store
-    fireEvent.click(rows()[0]);
-    fireEvent.click(pane().querySelector<HTMLElement>('[data-seq="1"]')!);
-    expect(marked()).toHaveLength(2);
-    expect(marked()[1]).toContain('fetch');
-    expect(scrubber().textContent).toContain('After');
-    // the record (opened as the response left it, the moment staying) lists
-    // the request for its response, but not that fetch: it shows pinned,
-    // with nothing in the list marked
-    fireEvent.click(
-      within(rows()[0]).getByRole('button', { name: '+ 2 Post' }),
-    );
-    fireEvent.click(
-      top().querySelector<HTMLElement>(
-        `tr[data-id="${entityId('Post', '1')}"]`,
-      )!,
-    );
-    expect(current()).toBe('Post 1');
-    expect(rows()).toHaveLength(2);
-    expect(marked()).toEqual([]);
-    const pinned = within(pane())
-      .getByText('At this moment')
-      .closest('[aria-current="true"]')!;
-    expect(pinned.textContent).toContain('fetch');
-    expect(pane().textContent).toContain('Started the request');
-    // its response is in the list
+    fireEvent.click(rows()[1]);
+    expect(crumbs()).toEqual(['State', 'set Post']);
+    expect(top().textContent).toMatch(/title: "One" → "Edited"/);
+    // the level stays, showing the action stepped to
+    const level = top();
+    previous();
+    expect(top()).toBe(level);
+    expect(crumbs()).toEqual(['State', 'setResponse GET /posts']);
+    expect(
+      within(top()).getByRole('button', { name: '+ Post 1' }),
+    ).toBeTruthy();
+    // past the newest, live: the action view goes, back to its subject
     fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
-    expect(within(pane()).queryByText('At this moment')).toBeNull();
-    expect(rows()[0].getAttribute('aria-current')).toBe('true');
+    fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
+    expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
+    expect(crumbs()).toEqual([]);
   });
 
-  it('shows the action from the scrubber’s label and a record’s last change, with focus on its row', async () => {
+  it('opens the action from the scrubber’s label and a record’s last change, with focus', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
     await act(() =>
       ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
     );
-    // the label names the moment's action, and opens the pane on it
+    // the label names the moment's action, and opens it
     previous();
     expect(scrubber().textContent).toContain('set');
+    fireEvent.click(screen.getByTitle('Show action'));
     expect(screen.queryByRole('region', { name: 'Actions' })).toBeNull();
-    fireEvent.click(screen.getByTitle('Show in Actions'));
-    expect(rows()[1].getAttribute('aria-current')).toBe('true');
-    expect(document.activeElement).toBe(rows()[1]);
-    expect(under(rows()[1])).toMatch(/title: "One" → "Edited"/);
-    // the pane shown again later leaves focus where it is
-    const toggle = screen.getByRole('button', { name: 'Actions' });
-    fireEvent.click(toggle);
-    toggle.focus();
-    fireEvent.click(toggle);
-    expect(rows()[1].getAttribute('aria-current')).toBe('true');
-    expect(document.activeElement).toBe(toggle);
+    expect(crumbs()).toEqual(['State', 'set Post']);
+    expect(top().textContent).toMatch(/title: "One" → "Edited"/);
+    expect(document.activeElement).toBe(top());
     // a record links to the action that last changed it, moving the moment
     fireEvent.click(screen.getByRole('button', { name: 'Live' }));
-    openPane();
+    expect(crumbs()).toEqual([]);
     openPost('1');
     expect(top().textContent).toContain('changed by');
     const changedBy = within(top()).getByRole('button', { name: /^set Post/ });
     changedBy.focus();
     fireEvent.click(changedBy);
-    expect(current()).toBe('Post 1');
+    expect(crumbs()).toEqual(['State', 'Post 1', 'set Post']);
     expect(scrubber().textContent).toContain('After');
-    expect(rows()[1].getAttribute('aria-current')).toBe('true');
-    expect(document.activeElement).toBe(rows()[1]);
-    expect(under(rows()[1])).toMatch(/title: "One" → "Edited"/);
+    expect(top().textContent).toMatch(/title: "One" → "Edited"/);
+    expect(document.activeElement).toBe(top());
+    // so does the tree view, which the action shows over
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    fireEvent.click(screen.getByLabelText('Tree view'));
+    fireEvent.click(
+      [...document.querySelectorAll<HTMLElement>('[data-id]')].find(
+        el => el.dataset.id === entityId('Post', '1'),
+      )!,
+    );
+    fireEvent.click(within(top()).getByRole('button', { name: /^set Post/ }));
+    expect(
+      screen.getByLabelText('Table view').getAttribute('aria-pressed'),
+    ).toBe('true');
+    expect(crumbs()).toEqual(['State', 'set Post']);
   });
 
   it('steps between rows with ↑ ↓, as the moment', async () => {
@@ -351,13 +339,52 @@ describe('Store Actions pane detail', () => {
     fireEvent.keyDown(fetch, { key: 'ArrowUp' });
     expect(document.activeElement).toBe(rows()[0]);
     expect(fetch.getAttribute('aria-current')).toBe('true');
-    // the head closes its row though the moment is at one of its steps
-    fireEvent.click(rows()[0]);
+    // the row's ▸ closes it though the moment is at one of its steps, and
+    // the pane stays
+    fireEvent.click(expander(rows()[0]));
     expect(rows()[0].getAttribute('aria-expanded')).toBe('false');
     expect(rows()[0].getAttribute('aria-current')).toBe('true');
-    expect(scrubber().textContent).toContain('setResponse');
-    fireEvent.click(rows()[0]);
+    expect(scrubber().textContent).toContain('fetch');
+    fireEvent.click(expander(rows()[0]));
     expect(rows()[0].getAttribute('aria-expanded')).toBe('true');
+    // and a row's ▸ opens and closes it while the moment is on another
+    for (let i = 0; i < 3; i++)
+      fireEvent.keyDown(document.activeElement!, { key: 'ArrowDown' });
+    expect(document.activeElement).toBe(rows()[1]);
+    expect(rows()[1].getAttribute('aria-current')).toBe('true');
+    fireEvent.click(expander(rows()[0]));
+    expect(rows()[0].getAttribute('aria-expanded')).toBe('false');
+    fireEvent.click(expander(rows()[0]));
+    expect(rows()[0].getAttribute('aria-expanded')).toBe('true');
+    fireEvent.click(expander(rows()[0]));
+    expect(rows()[0].getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('closes with Escape, its ✕ or a press outside, back to its toggle', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    const toggle = screen.getByRole('button', { name: 'Actions' });
+    toggle.focus();
+    fireEvent.click(toggle);
+    expect(document.activeElement).toBe(toggle);
+    rows()[0].focus();
+    fireEvent.keyDown(rows()[0], { key: 'Escape' });
+    expect(screen.queryByRole('region', { name: 'Actions' })).toBeNull();
+    expect(document.activeElement).toBe(toggle);
+    fireEvent.click(toggle);
+    fireEvent.click(screen.getByRole('button', { name: 'Close actions' }));
+    expect(screen.queryByRole('region', { name: 'Actions' })).toBeNull();
+    expect(document.activeElement).toBe(toggle);
+    fireEvent.click(toggle);
+    fireEvent.pointerDown(toggle);
+    expect(pane()).toBeTruthy();
+    fireEvent.pointerDown(top());
+    expect(screen.queryByRole('region', { name: 'Actions' })).toBeNull();
+    // State stays laid out under it meanwhile
+    fireEvent.click(toggle);
+    expect(top()).toBeTruthy();
+    expect(top().closest('[inert]')).toBeNull();
+    expect(toggle.getAttribute('aria-pressed')).toBe('true');
   });
 
   it('shows a removed record as the action found it', async () => {
@@ -374,8 +401,10 @@ describe('Store Actions pane detail', () => {
     });
     expect(rows()).toHaveLength(2);
     fireEvent.click(rows()[1]);
-    expect(under(rows()[1])).toContain('Removed; it was:');
-    expect(under(rows()[1])).toContain('"Two"');
+    // the record is gone at the moment, so its crumb can't name it
+    expect(crumbs()).toEqual(['State', '…', 'gc']);
+    expect(top().textContent).toContain('Removed; it was:');
+    expect(top().textContent).toContain('"Two"');
   });
 });
 
@@ -396,11 +425,11 @@ describe('Store Actions pane', () => {
       within(row).getByRole('button', { name: /^\+ ?2 Post$/ }),
     ).toBeTruthy();
     expect(row.textContent).toContain('×2');
-    fireEvent.click(row);
+    fireEvent.click(expander(row));
     expect(
       screen.getByText('1 more fetch deduped into this request'),
     ).toBeTruthy();
-    fireEvent.click(row);
+    fireEvent.click(expander(row));
 
     // the same data again changes nothing
     await act(() => ctrl().fetch(getPosts));
@@ -420,49 +449,28 @@ describe('Store Actions pane', () => {
       row.textContent?.includes('4 earlier sets not kept'),
     )!;
     expect(oldest).toBeTruthy();
+    expect(oldest.textContent).not.toContain('keeps the newest');
     fireEvent.click(oldest);
-    expect(
-      screen.getByText('4 earlier sets not kept: the log keeps the newest'),
-    ).toBeTruthy();
+    expect(top().textContent).toContain('dispatchedAt');
   });
 
-  it('sets the moment from a row, showing what its action did under it', async () => {
+  it('keeps a moment the store never saw as the log grows', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
-    await act(() =>
-      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
-    );
     openPane();
-    // a request's row stands for its response
-    fireEvent.click(rows()[0]);
-    expect(scrubber().textContent).toContain('After');
-    expect(scrubber().textContent).toContain('setResponse');
-    expect(rows()[0].getAttribute('aria-expanded')).toBe('true');
-    expect(rows()[0].getAttribute('aria-current')).toBe('true');
-    expect(top().textContent).toContain('"One"');
-    expect(under(rows()[0])).toContain('dispatchedAt');
-    // its steps are moments too; the store never saw the fetch, so State
-    // stays as it was before the response
-    const fetchStep = () =>
-      within(rows()[0].parentElement!)
-        .getByText('fetch')
-        .closest<HTMLElement>('[role="button"]')!;
-    fireEvent.click(fetchStep());
+    // the store never saw the fetch, so State stays as it was before the
+    // response
+    fireEvent.click(expander(rows()[0]));
+    fireEvent.click(pane().querySelector<HTMLElement>('[data-seq="1"]')!);
     expect(scrubber().textContent).toContain('fetch');
-    expect(top().textContent).not.toContain('"One"');
-    expect(under(fetchStep())).toContain('Started the request');
-    // another row; the steps follow the moment from there
-    fireEvent.click(rows()[1]);
-    expect(under(rows()[1])).toMatch(/title: "One" → "Edited"/);
-    expect(rows()[1].getAttribute('aria-current')).toBe('true');
-    previous();
-    expect(rows()[0].getAttribute('aria-current')).toBe('true');
-    expect(under(rows()[0])).toContain('dispatchedAt');
-    // a moment the store never saw stays, as the log grows
-    fireEvent.click(fetchStep());
+    expect(crumbs()).toEqual(['State', 'fetch GET /posts']);
+    expect(top().textContent).toContain('Started the request');
     await act(() => ctrl().set(Post, { id: '2' }, { id: '2', title: 'Later' }));
-    expect(under(fetchStep())).toContain('Started the request');
+    expect(crumbs()).toEqual(['State', 'fetch GET /posts']);
+    expect(top().textContent).toContain('Started the request');
     expect(scrubber().textContent).toContain('fetch');
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    expect(top().textContent).not.toContain('"One"');
   });
 
   it('marks the moment’s action in the list, with its row open', async () => {
@@ -493,7 +501,7 @@ describe('Store Actions pane', () => {
         expect.objectContaining({ behavior: 'smooth' }),
       );
       // the row may close again
-      fireEvent.click(rows()[0]);
+      fireEvent.click(expander(rows()[0]));
       expect(rows()[0].getAttribute('aria-expanded')).toBe('false');
       expect(marked()).toHaveLength(1);
       // live again: no mark
@@ -575,14 +583,16 @@ describe('Store Actions pane', () => {
     expect(rows()[1].textContent).toMatch(/\d+ ms/);
 
     // open the row, then its optimistic fetch
-    fireEvent.click(rows()[1]);
+    fireEvent.click(expander(rows()[1]));
     const step = screen
       .getByText('optimistic')
       .closest<HTMLElement>('[role="button"]')!;
     fireEvent.click(step);
-    expect(under(step)).toMatch(/title: "One" → "Edited"/);
+    expect(top().textContent).toMatch(/title: "One" → "Edited"/);
 
-    const statePanel = top().parentElement!.parentElement!;
+    // State as it was then
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    const statePanel = top();
     expect(within(statePanel).getAllByText('"Edited"').length).toBeGreaterThan(
       0,
     );
@@ -659,6 +669,7 @@ describe('Store Actions pane', () => {
     expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
     fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
     // a collected row opens as it was before
+    openPane();
     fireEvent.click(within(rows()[2]).getByRole('button', { name: /Post 3/ }));
     expect(top().textContent).toContain('before this action');
     expect(top().textContent).toContain('"Three"');
@@ -680,9 +691,12 @@ describe('Store Actions pane', () => {
     expect(top().textContent).toContain('"One"');
     // the pane lists the record's actions; a moment picked there outranks
     // the store the chip opened the record at
+    openPane();
     expect(rows()).toHaveLength(2);
     fireEvent.click(rows()[1]);
     expect(scrubber().textContent).toContain('set');
+    expect(crumbs()).toEqual(['State', 'new Post2', 'Post 1', 'set Post']);
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
     expect(current()).toBe('Post 1');
     expect(top().textContent).not.toContain('after this action');
     expect(top().textContent).toContain('"Edited"');
@@ -792,17 +806,22 @@ describe('Store Actions pane on a record', () => {
     expect(rows()[1].textContent).toContain('stored again, unchanged');
     expect(rows()[2].textContent).toContain('stored again, unchanged');
     expect(rows()[3].textContent).toContain('set');
-    // a row sets the moment: State shows the record as it was then
+    // a row opens its action over the record, as the moment: State shows
+    // the record as it was then
     fireEvent.click(rows()[0]);
-    expect(rows()[0].getAttribute('aria-current')).toBe('true');
+    expect(crumbs()).toEqual(['State', 'Post 1', 'setResponse GET /posts']);
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
     expect(current()).toBe('Post 1');
     expect(top().textContent).toContain('"One"');
-    // and what the action did to the record shows under the row
+    openPane();
+    expect(rows()[0].getAttribute('aria-current')).toBe('true');
+    // what the action did to the record
     fireEvent.click(rows()[3]);
-    expect(current()).toBe('Post 1');
-    expect(under(rows()[3])).toMatch(/title: "One" → "Edited"/);
+    expect(top().textContent).toMatch(/title: "One" → "Edited"/);
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
     // an action that left the record alone is not listed
     await act(() => ctrl().set(Post, { id: '2' }, { id: '2', title: 'Other' }));
+    openPane();
     expect(rows()).toHaveLength(4);
     // the store lists every action
     fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
@@ -911,7 +930,6 @@ describe('Store Actions pane on a record', () => {
     previous();
     openPost('1');
     expect(marked()).toEqual([]);
-    expect(within(pane()).getByText('At this moment')).toBeTruthy();
     expect(changedBy()).toContain('actions not kept');
     expect(changedBy()).not.toContain('setResponse');
     // the steps stop at the gap's row (its mark not dimmed), then at the
@@ -923,11 +941,15 @@ describe('Store Actions pane on a record', () => {
       scrubber().querySelector('[data-selected]')!.hasAttribute('data-dim'),
     ).toBe(false);
     expect(rows()[0].hasAttribute('aria-current')).toBe(false);
-    expect(under(rows()[1])).toContain(
+    expect(changedBy()).toContain('actions not kept');
+    // its action says a gap of dropped actions was found at it
+    fireEvent.click(rows()[1]);
+    expect(top().textContent).toContain(
       'Before it: Changed by actions not kept',
     );
-    expect(under(rows()[1])).not.toContain('No change to this record');
-    expect(changedBy()).toContain('actions not kept');
+    expect(top().textContent).not.toContain('No change to this record');
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    openPane();
     previous();
     expect(rows()[0].getAttribute('aria-current')).toBe('true');
     expect(changedBy()).toContain('setResponse');
@@ -957,22 +979,61 @@ describe('Store Actions pane on a record', () => {
     });
     openPane();
     openPost('1');
-    const subscription = rows()[1];
-    fireEvent.click(subscription);
-    const note = within(pane()).getByText(
-      /^Changed by actions not kept/,
-    ).parentElement!;
-    expect(note.hasAttribute('aria-current')).toBe(false);
+    fireEvent.click(expander(rows()[1]));
+    const note = () =>
+      within(pane()).getByText(/^Changed by actions not kept/).parentElement!;
+    expect(note().hasAttribute('aria-current')).toBe(false);
     // the gap is found at the first kept poll's response: the step after the
     // note, which alone is current once picked
-    const step = note.nextElementSibling!.firstElementChild as HTMLElement;
+    const step = note().nextElementSibling as HTMLElement;
     expect(step.textContent).toContain('setResponse');
+    const { seq } = step.dataset;
     fireEvent.click(step);
-    expect(step.getAttribute('aria-current')).toBe('true');
-    expect([
-      ...pane().querySelectorAll('[data-seq][aria-current="true"]'),
-    ]).toEqual([subscription, step]);
-    expect(under(step)).toContain('title:');
+    expect(top().textContent).toContain('title:');
+    openPane();
+    expect(
+      [
+        ...pane().querySelectorAll<HTMLElement>(
+          '[data-seq][aria-current="true"]',
+        ),
+      ].map(el => el.dataset.seq),
+    ).toEqual([rows()[1].dataset.seq, seq]);
+    expect(note().hasAttribute('aria-current')).toBe(false);
+  });
+
+  it('notes the polls the log dropped once, before the first kept one', async () => {
+    const { ctrl } = mount();
+    let n = 0;
+    const polled = new Endpoint(
+      async () => [{ id: '1', title: `poll ${n++}` }],
+      {
+        schema: [Post],
+        key: () => POSTS,
+        name: 'polled',
+        pollFrequency: 1e6,
+      },
+    );
+    await act(async () => {
+      await ctrl().fetch(getPosts);
+      await ctrl().subscribe(polled);
+      for (let i = 0; i < 40; i++) await ctrl().fetch(polled);
+      await ctrl().unsubscribe(polled);
+    });
+    openPane();
+    openPost('1');
+    const notes = () =>
+      within(pane()).queryAllByText(/by actions not kept/).length;
+    // closed, the row carries one note; open, one before its first kept
+    // poll, not one per kept poll
+    expect(rows()).toHaveLength(2);
+    expect(notes()).toBe(1);
+    expect(rows()[1].textContent).toContain('earlier polls not kept');
+    fireEvent.click(expander(rows()[1]));
+    expect(pane().querySelectorAll('[data-seq]').length).toBeGreaterThan(5);
+    expect(notes()).toBe(1);
+    expect(
+      within(pane()).queryAllByText(/earlier polls not kept/),
+    ).toHaveLength(1);
   });
 
   it('lists a record whose only changes the log dropped', async () => {
@@ -1034,6 +1095,8 @@ describe('Store Actions pane on a record', () => {
     expect(marked()).toEqual(['true', null]);
     // picking a row moves the moment there, for the whole panel
     fireEvent.click(rows()[1]);
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    openPane();
     expect(marked()).toEqual([null, 'true']);
     expect(scrubber().textContent).toContain('set');
     expect(scrubber().textContent).toContain('Post');
@@ -1052,28 +1115,6 @@ describe('Store Actions pane on a record', () => {
     fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
     previous();
     expect(marked()).toEqual([null, null, 'true']);
-  });
-
-  it('shows the action that last changed a record from the tree view', async () => {
-    const { ctrl } = mount();
-    await act(() => ctrl().fetch(getPosts));
-    await act(() =>
-      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
-    );
-    fireEvent.click(screen.getByLabelText('Tree view'));
-    const tree = () =>
-      screen.getByLabelText('Tree view').getAttribute('aria-pressed');
-    const node = (id: string) =>
-      [...document.querySelectorAll<HTMLElement>('[data-id]')].find(
-        el => el.dataset.id === id,
-      )!;
-    fireEvent.click(node(entityId('Post', '1')));
-    expect(screen.getByText('changed by')).toBeTruthy();
-    // the action that last changed it shows in the pane, beside the tree
-    fireEvent.click(within(top()).getByRole('button', { name: /^set/ }));
-    expect(pane().textContent).toMatch(/title: "One" → "Edited"/);
-    expect(rows()[1].getAttribute('aria-current')).toBe('true');
-    expect(tree()).toBe('true');
   });
 
   it('names what changed a row expanded in place in a list', async () => {
@@ -1847,6 +1888,72 @@ describe('ActionLog', () => {
       { kind: 'missing', change: 'updated', seq: seqOf('d') },
       { kind: 'version' },
     ]);
+  });
+
+  it('builds a row’s timeline once, reading only the actions appended since', () => {
+    const log = newLog();
+    const dispatch = connect(log, 0);
+    let at = 0;
+    const set = (id: string, title: string) =>
+      dispatch({
+        type: actionTypes.SET,
+        schema: Post,
+        args: [],
+        value: { id, title },
+        meta: { fetchedAt: ++at, date: at, expiresAt: at + 1 },
+      });
+    const id = entityId('Post', '3');
+    const timeline = () => rowTimeline(log, log.history(0).entries, id);
+    set('3', 'a');
+    set('3', 'b');
+    const first = timeline();
+    expect(first.map(i => i.kind)).toEqual(['version', 'version']);
+    expect(timeline()).toBe(first);
+    // the next action is the only one read
+    const reads = jest.spyOn(log, 'changes');
+    set('3', 'c');
+    const next = timeline();
+    expect(next.map(i => i.kind)).toEqual(['version', 'version', 'version']);
+    expect(reads).toHaveBeenCalledTimes(1);
+    expect(timeline()).toBe(next);
+    // the log trimmed at the front starts over (what the cut hid is a gap)
+    reads.mockClear();
+    const kept = log.history(0).entries.slice(1);
+    expect(rowTimeline(log, kept, id).map(i => i.kind)).toEqual([
+      'missing',
+      'version',
+      'version',
+    ]);
+    expect(reads).toHaveBeenCalledTimes(2);
+    reads.mockRestore();
+  });
+
+  it('keeps the dropped counts as they are while nothing more drops', () => {
+    const log = newLog({ updateLimit: 2 });
+    const dispatch = connect(log, 0);
+    let at = 0;
+    class Draft extends Post {}
+    const set = (id: string, title: string, schema = Post) =>
+      dispatch({
+        type: actionTypes.SET,
+        schema,
+        args: [],
+        value: { id, title },
+        meta: { fetchedAt: ++at, date: at, expiresAt: at + 1 },
+      });
+    // the store's first action stays; of the rest, the newest two
+    set('3', 'a');
+    set('3', 'b');
+    set('3', 'c');
+    set('3', 'd');
+    const { dropped } = log.history(0);
+    expect([...dropped!.values()]).toEqual([1]);
+    // another entity's set has a row of its own: nothing more drops
+    set('4', 'x', Draft);
+    expect(log.history(0).dropped).toBe(dropped);
+    set('3', 'e');
+    expect(log.history(0).dropped).not.toBe(dropped);
+    expect([...log.history(0).dropped!.values()]).toEqual([2]);
   });
 
   it('keeps as many pushed sets of each entity as updateLimit says', () => {

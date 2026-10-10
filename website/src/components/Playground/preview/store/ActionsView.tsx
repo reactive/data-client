@@ -227,9 +227,13 @@ const fetches = (group: RequestGroup) =>
 export function Tag({ group }: { group: ActionGroup }) {
   if (group.kind === 'subscription') {
     const frequency = pollFrequency(group);
+    // the interval in the title: the key comes first in a narrow row
     return (
-      <span className={styles.dim}>
-        {frequency ? `polls ${frequency / 1000}s` : 'subscribed'}
+      <span
+        className={styles.dim}
+        title={frequency ? `polls every ${frequency / 1000}s` : undefined}
+      >
+        {frequency ? 'polls' : 'subscribed'}
       </span>
     );
   }

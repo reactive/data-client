@@ -9,9 +9,7 @@ import React, {
   useState,
 } from 'react';
 
-import { ActionDetail } from './ActionDetail';
 import {
-  actionKey,
   groupEntriesOf,
   groupOf,
   joinedFetches,
@@ -44,24 +42,21 @@ import { ActionSpanContext, useNavState, type View } from './nav';
 import styles from './store.module.css';
 
 /** The Actions pane: `subject`'s actions as a list, under a head naming it
- * (`label`, none at the store) and counting them. Beside State, or
- * `swapped` in for it */
+ * (`label`, none at the store) and counting them. An overlay over State's
+ * right side (`narrow`, most of it): Escape, a click outside or its ✕
+ * close it, and so does picking an action, which opens at full width */
 export function ActionsPane({
   subject,
   filter,
   label,
-  swapped,
-  covered,
-  reveal,
+  narrow,
+  onClose,
 }: {
   subject: View;
   filter: SubjectFilter;
   label: React.ReactNode;
-  swapped: boolean;
-  /** Under the timeline's sheet, inert: focus waits for it to close */
-  covered: boolean;
-  /** Counts the asks to show the moment's row with focus on it */
-  reveal: number;
+  narrow: boolean;
+  onClose: () => void;
 }) {
   const { groups } = useActions();
   const { hit } = filter;
@@ -69,47 +64,66 @@ export function ActionsPane({
     () => groups.filter(g => groupEntriesOf(g).some(hit)),
     [groups, hit],
   );
+  const ref = useRef<HTMLElement>(null);
+  // a press outside closes it; not one on its toggle, which closes it itself
+  useEffect(() => {
+    const onPress = (e: PointerEvent) => {
+      const target = e.target as Element | null;
+      if (
+        ref.current?.contains(target) ||
+        target?.closest('[data-pane-toggle]')
+      )
+        return;
+      onClose();
+    };
+    document.addEventListener('pointerdown', onPress);
+    return () => document.removeEventListener('pointerdown', onPress);
+  }, [onClose]);
   return (
     <section
-      className={clsx(styles.pane, swapped && styles.swapped)}
+      ref={ref}
+      className={clsx(styles.pane, narrow && styles.paneNarrow)}
       aria-label="Actions"
+      onKeyDown={e => {
+        if (e.key !== 'Escape' || e.defaultPrevented) return;
+        e.preventDefault();
+        onClose();
+      }}
     >
       <div className={styles.paneHead}>
         Actions
         {label && <span className={styles.paneSubject}>{label}</span>}
         <span className={styles.count}>{rows.length.toLocaleString()}</span>
+        <button
+          type="button"
+          className={styles.paneClose}
+          aria-label="Close actions"
+          title="Close actions"
+          onClick={onClose}
+        >
+          ✕
+        </button>
       </div>
-      <ActionList
-        rows={rows}
-        subject={subject}
-        filter={filter}
-        covered={covered}
-        reveal={reveal}
-      />
+      <ActionList rows={rows} subject={subject} filter={filter} />
     </section>
   );
 }
 
 /** The actions that touched the subject, folded into requests and
- * subscriptions, following new rows while scrolled to the bottom. A row
- * sets the moment; the moment's row is marked, open, and shows what its
- * action did under it (one the list leaves out shows pinned on top). ↑ ↓
- * move between rows */
+ * subscriptions, following new rows while scrolled to the bottom. A row or
+ * step opens its action at full width, as the moment; the moment's row is
+ * marked and open. ↑ ↓ move between rows, as the moment */
 function ActionList({
   rows,
   subject,
   filter: { hit, gaps },
-  covered,
-  reveal,
 }: {
   rows: readonly ActionGroup[];
   subject: View;
   filter: SubjectFilter;
-  covered: boolean;
-  reveal: number;
 }) {
   const { history, groups } = useActions();
-  const { seq, set } = useNavState();
+  const { seq, set, show } = useNavState();
   const scroller = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set());
   const toggle = useCallback(
@@ -118,8 +132,7 @@ function ActionList({
   );
   // the moment's action, when the list shows it: its row, and its step
   // when the row is open. One the list leaves out (its whole group, or an
-  // action of a listed group that left the subject alone) is pinned on top
-  // instead, and nothing in the list is marked
+  // action of a listed group that left the subject alone) marks nothing
   const entry = seq === null ? undefined : findEntry(history.entries, seq);
   const group = seq === null ? undefined : groupOf(groups, seq);
   const current =
@@ -141,41 +154,27 @@ function ActionList({
     if (current && groupEntriesOf(current).length > 1 && !open.has(current.id))
       setOpen(new Set([...open, current.id]));
   }
-  const pinned = useRef<HTMLDivElement>(null);
-  const left = seq !== null && !current;
   useReveal(scroller, seq, current?.id);
-  // asked to show the moment (`reveal` counts the asks): focus goes to its
-  // row, once nothing covers the list; not as the moment moves on
-  const shown = useRef(0);
-  useEffect(() => {
-    if (shown.current === reveal || covered) return;
-    shown.current = reveal;
-    if (seq === null) return;
-    const el = scroller.current;
-    const row = pinned.current ?? (el && momentRow(el, seq, current?.id));
-    row?.focus({ preventScroll: true });
-  }, [reveal, seq, current, covered]);
   // new rows would push the marked action off the screen; live again, the
   // newest is back in view and followed
   const toNewest = useFollow(scroller, rows, 'y', seq !== null);
   useLayoutEffect(() => {
     if (seq === null) toNewest();
   }, [seq, toNewest]);
-  // ↑ ↓ from a row's head (or ↓ from the pinned moment) move to the row
-  // before or after it, as the moment's; a group's head stands for its
-  // response, so from a step of the moment's own group only focus moves
+  // ↑ ↓ from a row's head move to the row before or after it, as the
+  // moment's; a group's head stands for its response, so from a step of the
+  // moment's own group only focus moves
   const onKeyDown = (e: React.KeyboardEvent) => {
     const by =
       e.key === 'ArrowDown' ? 1
       : e.key === 'ArrowUp' ? -1
       : 0;
     const head = e.target as HTMLElement;
-    const fromPinned = !!pinned.current?.contains(head);
-    if (!by || (!fromPinned && !head.dataset.seq)) return;
+    if (!by || !head.dataset.seq) return;
     const heads = [
       ...scroller.current!.querySelectorAll<HTMLElement>('[data-seq]'),
     ];
-    const next = heads[(fromPinned ? -1 : heads.indexOf(head)) + by];
+    const next = heads[heads.indexOf(head) + by];
     if (!next) return;
     e.preventDefault();
     next.focus();
@@ -187,79 +186,31 @@ function ActionList({
     set(Number(next.dataset.seq));
   };
   return (
-    <>
-      {left && (
-        <PinnedMoment
-          ref={pinned}
-          entry={entry}
-          subject={subject}
-          onKeyDown={onKeyDown}
-        />
+    <div ref={scroller} className={styles.actList} onKeyDown={onKeyDown}>
+      {!rows.length && (
+        <p className={styles.empty}>
+          {groups.length ?
+            'No action touched this yet.'
+          : 'Nothing dispatched yet. Fetches, responses and other store actions show here as the preview runs.'
+          }
+        </p>
       )}
-      <div ref={scroller} className={styles.actList} onKeyDown={onKeyDown}>
-        {!rows.length && (
-          <p className={styles.empty}>
-            {groups.length ?
-              'No action touched this yet.'
-            : 'Nothing dispatched yet. Fetches, responses and other store actions show here as the preview runs.'
-            }
-          </p>
-        )}
-        {rows.map(group => (
-          <GroupRow
-            key={group.id}
-            group={group}
-            open={open.has(group.id)}
-            current={group === current ? seq! : undefined}
-            subject={subject}
-            hit={hit}
-            gaps={gaps}
-            onToggle={toggle}
-            onSelect={set}
-          />
-        ))}
-      </div>
-    </>
+      {rows.map(group => (
+        <GroupRow
+          key={group.id}
+          group={group}
+          open={open.has(group.id)}
+          current={group === current ? seq! : undefined}
+          subject={subject}
+          hit={hit}
+          gaps={gaps}
+          onToggle={toggle}
+          onSelect={show}
+        />
+      ))}
+    </div>
   );
 }
-
-/** The moment's action, on top of a list that leaves it out (it left the
- * subject alone), with what it did */
-const PinnedMoment = ({
-  ref,
-  entry,
-  subject,
-  onKeyDown,
-}: {
-  ref: React.Ref<HTMLDivElement>;
-  entry: LogEntry | undefined;
-  subject: View;
-  onKeyDown: React.KeyboardEventHandler;
-}) => (
-  <div className={clsx(styles.actGroup, styles.pinned)} data-open>
-    <div
-      ref={ref}
-      tabIndex={-1}
-      aria-current="true"
-      className={clsx(styles.row, styles.actRow)}
-      onKeyDown={onKeyDown}
-    >
-      <span className={styles.actHead}>
-        <span className={styles.dim}>At this moment</span>
-        {entry ?
-          <>
-            <TypeName entry={entry} />
-            <KeyLabel value={actionKey(entry.action)} />
-            <span className={styles.actMeta}>
-              <Time at={entry.at} />
-            </span>
-          </>
-        : <span className={styles.dim}>no longer in the log</span>}
-      </span>
-    </div>
-    {entry && <ActionDetail entry={entry} subject={subject} />}
-  </div>
-);
 
 /** Where actions the log didn't keep changed the record, before the kept
  * action it was found at */
@@ -269,6 +220,23 @@ function GapRow({ change }: { change: ChangeKind }) {
       <span className={styles.dim}>{gapText(change)}</span>
     </div>
   );
+}
+
+/** The gaps among `entries` worth a note of their own: a run of gaps of
+ * one kind at actions in a row (a polled record's, between kept polls)
+ * is noted once, at its first */
+function gapNotes(
+  entries: readonly LogEntry[],
+  gaps: SubjectFilter['gaps'],
+): ReadonlyMap<number, ChangeKind> {
+  const notes = new Map<number, ChangeKind>();
+  let last: ChangeKind | undefined;
+  for (const entry of entries) {
+    const gap = gaps.get(entry.seq);
+    if (gap && gap !== last) notes.set(entry.seq, gap);
+    last = gap;
+  }
+  return notes;
 }
 
 /** The moment's row in `el`: its action's step, or `group`'s row when the
@@ -281,9 +249,8 @@ function momentRow(el: HTMLElement, seq: number, group: string | undefined) {
 }
 
 /** Brings the moment's action into view when the moment moves (its row,
- * `group`, when it has no step of its own); if the list is hidden then,
- * once it shows again. Focus stays where it is, so arrow keys keep stepping
- * the Timeline that moved the moment */
+ * `group`, when it has no step of its own). Focus stays where it is, so
+ * arrow keys keep stepping the Timeline that moved the moment */
 function useReveal(
   scroller: React.RefObject<HTMLElement | null>,
   seq: number | null,
@@ -302,8 +269,8 @@ function useReveal(
     pending.current = seq;
     reveal();
   }, [seq, reveal]);
-  // hidden (the pane swapped out), the list has no height to scroll: what
-  // is pending shows once it has again
+  // without height (not laid out yet), the list can't scroll: what is
+  // pending shows once it has some
   useEffect(() => {
     const el = scroller.current;
     if (!el || typeof ResizeObserver === 'undefined') return;
@@ -334,7 +301,7 @@ const GroupRow = memo(function GroupRow({
   hit: SubjectFilter['hit'];
   gaps: SubjectFilter['gaps'];
   onToggle: (id: string) => void;
-  /** Moves the moment to an action */
+  /** Opens an action, as the moment */
   onSelect: (seq: number) => void;
 }) {
   const { log } = useLog();
@@ -346,24 +313,15 @@ const GroupRow = memo(function GroupRow({
   // store saw (a request's response), or its last one
   const hits = all.filter(hit);
   const seq = spanOf(hits)?.last ?? (hits.at(-1) ?? all[all.length - 1]).seq;
-  const select = () => {
-    onToggle(group.id);
-    onSelect(seq);
-  };
-  const entry = current === undefined ? undefined : findEntry(all, current);
-  // the detail shows under the moment's step, or under the row while it is
-  // closed or the step has no line of its own (a deduped fetch)
-  const stepped = open && entry && !joinedFetches(group).has(entry);
-  const detail = entry && (
-    <ActionDetail entry={entry} subject={subject} gap={gaps.get(entry.seq)} />
-  );
+  const select = () => onSelect(seq);
+  const notes = gapNotes(all, gaps);
+  const steps = all.length > 1;
   return (
     <div className={styles.actGroup} data-open={open || undefined}>
       {!open &&
-        all.map(e => {
-          const gap = gaps.get(e.seq);
-          return gap && <GapRow key={`gap ${e.seq}`} change={gap} />;
-        })}
+        [...notes].map(([at, gap]) => (
+          <GapRow key={`gap ${at}`} change={gap} />
+        ))}
       <div
         role="button"
         tabIndex={0}
@@ -371,7 +329,7 @@ const GroupRow = memo(function GroupRow({
         aria-current={current !== undefined || undefined}
         // a lone action is its own step, so the moment scrolls to it here;
         // a row stands in for a step that has no line of its own
-        data-id={all.length === 1 ? actionId(first.seq) : group.id}
+        data-id={steps ? group.id : actionId(first.seq)}
         data-group={group.id}
         data-seq={seq}
         className={clsx(styles.row, styles.actRow)}
@@ -379,6 +337,21 @@ const GroupRow = memo(function GroupRow({
         onKeyDown={onActivateKey(select)}
       >
         <span className={styles.actHead}>
+          {steps && (
+            <button
+              type="button"
+              className={styles.stepsToggle}
+              aria-label={open ? 'Hide its actions' : 'Show its actions'}
+              aria-expanded={open}
+              onClick={e => {
+                e.stopPropagation();
+                onToggle(group.id);
+              }}
+              onKeyDown={e => e.stopPropagation()}
+            >
+              ▸
+            </button>
+          )}
           {group.kind === 'single' && <TypeName entry={first} />}
           <KeyLabel value={group.key} />
           <Tag group={group} />
@@ -399,7 +372,6 @@ const GroupRow = memo(function GroupRow({
           </ActionSpanContext.Provider>
         </span>
       </div>
-      {!stepped && detail}
       {open && (
         <Steps
           group={group}
@@ -407,8 +379,7 @@ const GroupRow = memo(function GroupRow({
           current={current}
           subject={subject}
           hit={hit}
-          gaps={gaps}
-          detail={stepped ? detail : undefined}
+          notes={notes}
           onSelect={onSelect}
         />
       )}
@@ -418,15 +389,15 @@ const GroupRow = memo(function GroupRow({
 
 /** An open row's actions that touched the subject (at the store, all of
  * them); fetches deduped into a request in flight show as one line, and a
- * record's gaps before the action each was found at */
+ * record's gaps (`notes`) before the action each was found at. What the
+ * log dropped of the row's own actions, the row says */
 function Steps({
   group,
   all,
   current,
   subject,
   hit,
-  gaps,
-  detail,
+  notes,
   onSelect,
 }: {
   group: ActionGroup;
@@ -434,35 +405,20 @@ function Steps({
   current?: number;
   subject: View;
   hit: SubjectFilter['hit'];
-  gaps: SubjectFilter['gaps'];
-  /** What the moment's action did, under its step */
-  detail?: React.ReactNode;
+  notes: ReadonlyMap<number, ChangeKind>;
   onSelect: (seq: number) => void;
 }) {
-  const { dropped } = useLog();
   const joined = joinedFetches(group);
   const counted = new Set<RequestGroup>();
   const scroller = useRef<HTMLDivElement>(null);
   useFollow(scroller, all);
   return (
-    <div
-      className={styles.steps}
-      ref={scroller}
-      data-detail={detail ? true : undefined}
-    >
+    <div className={styles.steps} ref={scroller}>
       {all.map(entry => {
         const request = joined.get(entry);
         if (!request) {
-          const gap = gaps.get(entry.seq);
+          const gap = notes.get(entry.seq);
           return [
-            dropped?.get(entry.seq) && (
-              <div
-                key={`dropped ${entry.seq}`}
-                className={clsx(styles.row, styles.stepRow, styles.joined)}
-              >
-                <Dropped group={group} all={[entry]} why />
-              </div>
-            ),
             gap && <GapRow key={`gap ${entry.seq}`} change={gap} />,
             (subject.kind === 'root' || hit(entry)) && (
               <StepRow
@@ -473,9 +429,7 @@ function Steps({
                 subject={subject}
                 current={entry.seq === current}
                 onSelect={onSelect}
-              >
-                {entry.seq === current && detail}
-              </StepRow>
+              />
             ),
           ];
         }
@@ -498,8 +452,7 @@ function Steps({
   );
 }
 
-/** One action of an open row; sets the moment to it. `children`: its
- * detail, while it is the moment's */
+/** One action of an open row; opens it, as the moment */
 function StepRow({
   entry,
   own,
@@ -507,7 +460,6 @@ function StepRow({
   subject,
   current,
   onSelect,
-  children,
 }: {
   entry: LogEntry;
   own: string;
@@ -517,33 +469,29 @@ function StepRow({
   /** Whether it is the moment's action */
   current: boolean;
   onSelect: (seq: number) => void;
-  children?: React.ReactNode;
 }) {
   const { log } = useLog();
   const select = () => onSelect(entry.seq);
   const changes = log.changes(entry).filter(c => touches(subject, c));
   return (
-    <div className={styles.step}>
-      <div
-        role="button"
-        tabIndex={0}
-        aria-current={current || undefined}
-        data-id={actionId(entry.seq)}
-        data-group={group}
-        data-seq={entry.seq}
-        className={clsx(styles.row, styles.stepRow)}
-        onClick={select}
-        onKeyDown={onActivateKey(select)}
-      >
-        <Time at={entry.at} />
-        <TypeName entry={entry} />
-        <span className={styles.actSum}>
-          <ActionSpanContext.Provider value={spanOf([entry])}>
-            <ChangeChips changes={changes} own={own} />
-          </ActionSpanContext.Provider>
-        </span>
-      </div>
-      {children}
+    <div
+      role="button"
+      tabIndex={0}
+      aria-current={current || undefined}
+      data-id={actionId(entry.seq)}
+      data-group={group}
+      data-seq={entry.seq}
+      className={clsx(styles.row, styles.stepRow)}
+      onClick={select}
+      onKeyDown={onActivateKey(select)}
+    >
+      <Time at={entry.at} />
+      <TypeName entry={entry} />
+      <span className={styles.actSum}>
+        <ActionSpanContext.Provider value={spanOf([entry])}>
+          <ChangeChips changes={changes} own={own} />
+        </ActionSpanContext.Provider>
+      </span>
     </div>
   );
 }

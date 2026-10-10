@@ -297,25 +297,22 @@ describe('Store scrubber', () => {
     expect(document.activeElement).toBe(previous);
   });
 
-  it('opens the Actions pane on the moment’s action from its label', async () => {
+  it('opens the moment’s action at full width from its label', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
     fireEvent.click(screen.getByRole('button', { name: 'Previous change' }));
     expect(pane()).toBeNull();
-    const label = screen.getByTitle('Show in Actions');
+    const label = screen.getByTitle('Show action');
     label.focus();
     fireEvent.click(label);
-    expect(pane()).toBeTruthy();
-    const row = rows()[0];
-    expect(row.getAttribute('aria-current')).toBe('true');
-    expect(row.parentElement!.textContent).toContain('setResponse');
-    expect(row.parentElement!.textContent).toContain('dispatchedAt');
-    // the subject stays; focus moves to the action's step, open under the row
-    expect(top()!.querySelector('[aria-current="page"]')).toBeNull();
-    const step = document.activeElement as HTMLElement;
-    expect(row.parentElement!.contains(step)).toBe(true);
-    expect(step.getAttribute('aria-current')).toBe('true');
-    expect(step.textContent).toContain('setResponse');
+    expect(pane()).toBeNull();
+    // over the subject, with focus
+    const level = top()!;
+    expect(level.querySelector('[aria-current="page"]')!.textContent).toBe(
+      'setResponse GET /posts',
+    );
+    expect(level.textContent).toContain('dispatchedAt');
+    expect(document.activeElement).toBe(level);
   });
 
   it('dims the marks that left the subject alone, which the steps skip', async () => {
@@ -783,7 +780,7 @@ describe('Store Timeline sheet', () => {
 });
 
 describe('Store Actions pane', () => {
-  it('sits beside the state on a wide panel, swapped in for it when narrow', async () => {
+  it('overlays State’s right side on a wide panel, most of it when narrow', async () => {
     const { ctrl } = mountAt(800);
     await act(() => ctrl().fetch(getPosts));
     expect(pane()).toBeNull();
@@ -793,19 +790,13 @@ describe('Store Actions pane', () => {
     expect(button.getAttribute('aria-pressed')).toBe('true');
     expect(pane()).toBeTruthy();
     expect(top()).toBeTruthy();
+    expect(top()!.closest('[inert]')).toBeNull();
     expect(rows()).toHaveLength(1);
-    // narrow, it takes the state's place, which stays mounted but inert
+    // narrow, State stays under it just the same
     resize(360);
     expect(pane()).toBeTruthy();
-    expect(top()).toBeNull();
-    expect(
-      document.querySelector('[data-level]')!.closest('[hidden]'),
-    ).toBeTruthy();
-    // a row keeps it, showing what its action did under it
-    fireEvent.click(rows()[0]);
-    expect(pane()).toBeTruthy();
-    expect(rows()[0].getAttribute('aria-current')).toBe('true');
-    expect(rows()[0].parentElement!.textContent).toContain('dispatchedAt');
+    expect(top()).toBeTruthy();
+    expect(top()!.closest('[inert]')).toBeNull();
     // a chip closes it, drilling into what the action changed, with focus
     fireEvent.click(within(rows()[0]).getByRole('button', { name: /Post 1/ }));
     expect(pane()).toBeNull();
@@ -814,45 +805,49 @@ describe('Store Actions pane', () => {
       'Post 1',
     );
     expect(top()!.contains(document.activeElement)).toBe(true);
-    // wide again, both show
+    // a row closes it too, opening its action at full width
     togglePane();
+    fireEvent.click(rows()[0]);
+    expect(pane()).toBeNull();
+    expect(top()!.querySelector('[aria-current="page"]')!.textContent).toBe(
+      'setResponse GET /posts',
+    );
+    expect(top()!.contains(document.activeElement)).toBe(true);
+    // wide again, it opens over the action view as well
     resize(800);
+    togglePane();
     expect(pane()).toBeTruthy();
-    expect(top()).toBeTruthy();
+    expect(rows()[0].getAttribute('aria-current')).toBe('true');
   });
 
-  it('closes the sheet as the scrubber’s label shows the action in it', async () => {
+  it('closes the sheet as the scrubber’s label opens the action', async () => {
     const { ctrl } = mountAt(360);
     await act(() => ctrl().fetch(getPosts));
     fireEvent.click(screen.getByRole('button', { name: 'Previous change' }));
     toggle();
     expect(screen.getByRole('button', { name: 'Close timeline' })).toBeTruthy();
     const box = revealBox(lanes());
-    fireEvent.click(screen.getByTitle('Show in Actions'));
+    fireEvent.click(screen.getByTitle('Show action'));
     expect(screen.queryByRole('button', { name: 'Close timeline' })).toBeNull();
-    expect(pane()).toBeTruthy();
-    // focus waits for the sheet to slide shut, off the inert content
-    expect(pane()!.contains(document.activeElement)).toBe(false);
+    expect(pane()).toBeNull();
+    expect(top()!.querySelector('[aria-current="page"]')!.textContent).toBe(
+      'setResponse GET /posts',
+    );
+    // focus lands on the level once the sheet slid shut
     fireEvent.transitionEnd(box);
-    const focused = document.activeElement as HTMLElement;
-    expect(pane()!.contains(focused)).toBe(true);
-    expect(focused.closest('[inert]')).toBeNull();
-    expect(focused.getAttribute('aria-current')).toBe('true');
+    expect(document.activeElement).toBe(top());
+    expect(top()!.closest('[inert]')).toBeNull();
   });
 
-  it('takes focus from the state it swaps out, to its toggle, and back as it swaps in', async () => {
+  it('gives focus back to its toggle as it closes under it', async () => {
     const { ctrl } = mountAt(800);
     await act(() => ctrl().fetch(getPosts));
     togglePane();
-    top()!.focus();
-    resize(360);
-    expect(document.activeElement).toBe(
-      screen.getByRole('button', { name: 'Actions' }),
-    );
-    // closing the pane from a row brings focus to the level it reveals
     rows()[0].focus();
     togglePane();
     expect(pane()).toBeNull();
-    expect(document.activeElement).toBe(top());
+    expect(document.activeElement).toBe(
+      screen.getByRole('button', { name: 'Actions' }),
+    );
   });
 });

@@ -163,55 +163,53 @@ DesignSystem/       components injected into preview scope
 - The Store inspector navigates by two coordinates (see
   `preview/store/nav.tsx`, both owned by `StorePanel`): the **moment** (the
   action State is shown after, or live; `NavStateContext` carries it, with
-  `show(seq)` to set it and open the Actions pane on it) and the **subject**
-  (one stack of levels over the store: a table, a record, a list of rows,
-  with breadcrumbs, Back and Escape). The content is always State: the
+  `show(seq)` to set it and open that action at full width) and the
+  **subject** (one stack of levels over the store: a table, a record, a list
+  of rows, with breadcrumbs, Back and Escape). The content is always State: the
   subject as the moment's action left it (table or tree, the view switch in
   the bar over it). A moment the store never saw (a fetch, a subscribe)
   shows State as the last action before it left it. A record's "changed by"
   names the kept action that made the value shown (the latest at or before
   the moment, live included; "actions not kept" when the log dropped it) and
-  shows it in the Actions pane, moving the moment. A level a chip opened at
+  opens it, moving the moment. A level a chip opened at
   an action keeps showing that store until the moment is set on purpose
   (`clearAt`), which outranks it.
   The **Actions** toggle at the right end of the bar (`aria-pressed`, kept
   per tab) opens the Actions pane (`ActionsPane` and `ActionList` in
-  `preview/store/ActionList.tsx`, a `region` whose head counts its rows): the
+  `preview/store/ActionList.tsx`, a `region` whose head counts its rows), an
+  overlay over State's right side (narrow, most of it) that Escape, a press
+  outside or its ✕ close, focus going back to the toggle. It lists the
   actions that touched the subject (`subjectFilter` in
   `preview/store/actionGroups.ts`: at the store every action that reached it;
   on a record or list those that changed or stored again a row it covers,
   and on a record the kept action each gap of dropped actions was found at,
-  noted above it), one row per request or subscription, open rows listing
-  their actions. A row sets the moment (the row stands for its response) and
-  its chips drill into what changed on the one stack. The moment's row is
-  marked (`aria-current`), opened and scrolled to, and what its action did
-  shows under the row or its step (`ActionDetail` in
-  `preview/store/ActionDetail.tsx`: every row changed at the store, only the
-  record's own on a record or list, a removed record as the action found it,
-  or a line saying it left the subject alone; then the action's fields).
-  Nothing is marked while live. When the moment's action is not in the list
-  (it left the subject alone, or the log dropped it), it shows in an "At
-  this moment" block pinned over the list instead. ↑ ↓ on a row or step
-  (↓ from the pinned block) move to the next one, as the moment; a group's
-  head stands for its response, so ↑ from a step of the moment's own group
-  moves focus alone. Wide, the pane sits beside State with a
-  scroll of its own; under `NARROW_WIDTH` it takes State's place (State
-  stays mounted, `hidden` and `inert`, keeping its levels and scroll), and a
-  chip closes it to show what it opened. Focus follows: the pane's toggle as
-  State swaps out, the level as it swaps back; "changed by" and the
-  scrubber's label focus the row they show (closing the timeline sheet
-  first when narrow), while opening the pane by its toggle leaves focus
-  alone. A row renders again only as its own group changes (`GroupRow` is
-  memoized; `subjectFilter` keeps its identity while the record's gaps do).
+  noted once above a run of them), one row per request or subscription; a
+  row's ▸ lists its actions. Picking a row or step sets the moment (a row
+  stands for its last action that touched the subject) and opens the action
+  at full width as a level over the subject (`{ kind: 'action', seq }`,
+  `ActionDetail` in `preview/store/ActionDetail.tsx`: every row changed at
+  the store, only the record's own on a record or list, a removed record as
+  the action found it, or a line saying it left the subject alone; then the
+  action's fields), closing the pane; Back returns to the subject. Stepping
+  the moment moves that level to the new action, and going live closes it
+  (`followMoment`). The moment's row is marked (`aria-current`), opened and
+  scrolled to; nothing is marked while live. ↑ ↓ on a row or step move to
+  the next one, as the moment; a group's head stands for its response, so ↑
+  from a step of the moment's own group moves focus alone. A row renders
+  again only as its own group changes (`GroupRow` is memoized;
+  `subjectFilter` keeps its identity while the record's gaps do, and the
+  chips' `Nav` reads the model through a ref so it keeps its identity
+  across commits).
   The scrubber across the top of the panel (`Scrubber` in
   `preview/store/Timeline.tsx`, a `role="group"`) always shows the whole
   history on one lane, fit to the panel: ‹ › and ←→ step through the changes
   to the subject (`subjectFilter`'s `hit`, the rule the pane lists by: every
   stored action at the store; below it the marks that left the subject alone
   are dimmed, `data-dim`, and skipped; past the newest, and End, go live), a
-  mark lands on its action, "Live" lets go. While the moment is set its
-  second line says "After <action> · <time>", which shows the action in the
-  Actions pane. Its ▾ ("Timeline", `aria-expanded`) slides open the expanded
+  mark lands on its action, "Live" lets go. Marks a few px apart on the
+  track draw as one (`data-count`; dimmed only if all are), so fast polling
+  stays readable. While the moment is set its second line says "After
+  <action> · <time>", which opens the action at full width. Its ▾ ("Timeline", `aria-expanded`) slides open the expanded
   timeline under it (`Timeline`: the same history, a lane per key, requests
   as spans, stepping as the scrubber does). By default it keeps the detailed
   spacing (`timeScale`) and scrolls sideways; only the tracks scroll, the lane

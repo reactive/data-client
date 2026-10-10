@@ -559,31 +559,49 @@ export function rowTimeline(
   entries: readonly LogEntry[],
   id: string,
 ): readonly (Version | Missing)[] {
-  // built once per history and row: a record's "changed by" and the
-  // Actions pane both ask for it on every action
-  let rows = timelines.get(entries);
-  if (!rows) timelines.set(entries, (rows = new Map()));
-  let items = rows.get(id);
-  if (!items) rows.set(id, (items = buildTimeline(log, entries, id)));
-  return items;
+  // built once per history and row (a record's "changed by" and the
+  // Actions pane both ask), and as the log appends, only the new actions
+  // are read; a log trimmed at the front starts over
+  let rows = timelines.get(log);
+  if (!rows) timelines.set(log, (rows = new Map()));
+  const last = rows.get(id);
+  if (last?.entries === entries) return last.items;
+  const n = last?.entries.length ?? 0;
+  const from =
+    (
+      last &&
+      entries.length >= n &&
+      entries[0] === last.entries[0] &&
+      entries[n - 1] === last.entries[n - 1]
+    ) ?
+      last
+    : undefined;
+  const built = buildTimeline(log, entries, id, from);
+  rows.set(id, built);
+  return built.items;
 }
-const timelines = new WeakMap<
-  readonly LogEntry[],
-  Map<string, readonly (Version | Missing)[]>
->();
+interface Timeline {
+  readonly entries: readonly LogEntry[];
+  readonly items: readonly (Version | Missing)[];
+  /** The store the last action left, to go on from */
+  readonly left: State<unknown> | undefined;
+}
+const timelines = new WeakMap<ActionLog, Map<string, Timeline>>();
 
+/** `from`: a timeline of a prefix of `entries`, continued */
 function buildTimeline(
   log: ActionLog,
   entries: readonly LogEntry[],
   id: string,
-): (Version | Missing)[] {
-  const items: (Version | Missing)[] = [];
+  from?: Timeline,
+): Timeline {
+  const items: (Version | Missing)[] = from ? [...from.items] : [];
   const row = rowOf(id);
   // an empty store until the log reaches a store's start (one a trim cut
   // off shows as a gap), which starts from its own state
   let left: State<unknown> | undefined =
-    __INTERNAL__.initialState as State<unknown>;
-  for (const entry of entries) {
+    from ? from.left : (__INTERNAL__.initialState as State<unknown>);
+  for (const entry of entries.slice(from?.entries.length ?? 0)) {
     if (entry.newStore) left = undefined;
     if (!entry.store) continue;
     const before = log.view(entry.store.before);
@@ -596,7 +614,7 @@ function buildTimeline(
     if (change && change.kind !== 'refreshed')
       items.push({ kind: 'version', entry, change });
   }
-  return items;
+  return { entries, items, left };
 }
 
 /** Whether a change is to a row `subject` covers */
@@ -604,6 +622,9 @@ export function touches(subject: View, change: Change): boolean {
   switch (subject.kind) {
     case 'root':
       return true;
+    // an action is no subject (see `subjectOf`)
+    case 'action':
+      return false;
     case 'record':
       return change.id === subject.id;
     case 'list':

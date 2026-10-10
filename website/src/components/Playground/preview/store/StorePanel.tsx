@@ -11,6 +11,8 @@ import React, {
   useSyncExternalStore,
 } from 'react';
 
+import { ActionDetail } from './ActionDetail';
+import { ActionName } from './ActionDetail';
 import {
   groupEntries,
   keepUnchanged,
@@ -48,6 +50,7 @@ import {
 import {
   NavContext,
   NavStateContext,
+  subjectOf,
   useLevelStack,
   type LevelStack,
   type Moment,
@@ -85,18 +88,10 @@ export default function StorePanel({
   const { entries } = history;
   const [stored, setView] = useTabStorage('playgroundStoreView');
   const tree = stored === 'tree';
-  // the Actions pane: the subject's actions, beside State or (narrow) in
-  // its place
+  // the Actions pane: the subject's actions, an overlay over State
   const [paneStored, setPane] = useTabStorage('playgroundStoreActions');
   const pane = paneStored === 'open';
-  // showing an action opens the pane with focus on its row (`reveal` counts
-  // the asks; closed, the pane forgets them, so opening it again leaves
-  // focus alone)
-  const [reveal, setReveal] = useState(0);
-  const closePane = useCallback(() => {
-    setPane('closed');
-    setReveal(0);
-  }, [setPane]);
+  const closePane = useCallback(() => setPane('closed'), [setPane]);
   // the timeline the scrubber expands into, above the content; it stays
   // mounted while it slides shut, until the slide ends
   const [timeline, setTimeline] = useState(false);
@@ -190,8 +185,9 @@ export default function StorePanel({
     [log, history.since, history.dropped],
   );
   const levels = useLevelStack(ROOT);
-  // the top level's view: what the Actions pane lists and the steps follow
-  const subject = levels.stack[levels.stack.length - 1].view;
+  // the top level's subject (an action view shows one): what the Actions
+  // pane lists and the steps follow
+  const subject = subjectOf(levels.stack);
   // a record's gaps seldom change: the filter keeps its identity until they
   // do, so the pane's rows render only as their own group changes
   const lastGaps = useRef<ReadonlyMap<number, ChangeKind>>(new Map());
@@ -207,14 +203,16 @@ export default function StorePanel({
     () => subjectFilter(log, subject, gaps),
     [log, subject, gaps],
   );
-  // a moment set on purpose outranks the store a chip opened a level at
-  const { clearAt } = levels;
+  // a moment set on purpose outranks the store a chip opened a level at;
+  // an action view on top follows it
+  const { clearAt, followMoment, showAction } = levels;
   const set = useCallback(
     (seq: number | null) => {
       setSnapshot(seq);
       clearAt();
+      followMoment(seq);
     },
-    [clearAt],
+    [clearAt, followMoment],
   );
 
   const panel = useRef<HTMLDivElement>(null);
@@ -224,49 +222,45 @@ export default function StorePanel({
   const expand = useRef<HTMLButtonElement>(null);
   const focusExpand = useCallback(() => expand.current?.focus(), []);
   // narrow, the timeline opens as a sheet over the content instead of
-  // pushing it down, and the Actions pane in State's place (hidden, so it
-  // keeps its scroll, filters and pages) instead of beside it; a pick in
-  // the sheet, or a chip in the pane, closes it. The content under the sheet
-  // is inert meanwhile
+  // pushing it down; a pick in the sheet closes it. The content under the
+  // sheet is inert meanwhile
   const narrow = width < NARROW_WIDTH;
   const covered = narrow && timelineShown;
-  const swapped = narrow && pane;
   const content = useRef<HTMLDivElement>(null);
-  const stateBox = useRef<HTMLDivElement>(null);
   const paneToggle = useRef<HTMLButtonElement>(null);
-  // as these change: focus left under the sheet moves to the ▾; focus lost
-  // as the pane swaps State out (or a row it held unmounts as it swaps
-  // back) goes to the pane's toggle, or to the level
-  const layout = useRef({ covered, swapped });
+  // as these change: focus left under the sheet moves to the ▾, and lost as
+  // it closes goes to the level; focus lost as the pane closes (a row it
+  // held unmounts) goes back to its toggle
+  const layout = useRef({ covered, pane });
   useLayoutEffect(() => {
     const was = layout.current;
-    layout.current = { covered, swapped };
-    if (was.covered === covered && was.swapped === swapped) return;
+    layout.current = { covered, pane };
+    if (was.covered === covered && was.pane === pane) return;
     const active = document.activeElement;
-    const lost =
-      !active ||
-      active === document.body ||
-      (swapped && stateBox.current?.contains(active));
+    const lost = !active || active === document.body;
     if (covered && (lost || content.current?.contains(active)))
       expand.current?.focus({ preventScroll: true });
     else if (lost)
-      (swapped ?
+      (was.pane && !pane ?
         paneToggle.current
       : panel.current?.querySelector<HTMLElement>(
           '[data-level]:not([data-covered])',
         )
       )?.focus({ preventScroll: true });
-  }, [covered, swapped]);
+  }, [covered, pane]);
   const collapse = useCallback(() => setTimeline(false), []);
-  // from under the sheet, showing an action closes it
+  // showing an action opens it at full width, as the moment, over the
+  // subject (closing the pane and, narrow, the sheet)
   const show = useCallback(
     (seq: number) => {
-      set(seq);
-      setPane('open');
-      setReveal(n => n + 1);
+      setSnapshot(seq);
+      clearAt();
+      setView('table');
+      showAction(seq);
+      closePane();
       if (narrow) collapse();
     },
-    [set, setPane, narrow, collapse],
+    [clearAt, setView, showAction, closePane, narrow, collapse],
   );
   const navState = useMemo<NavState>(
     () => ({ seq: snapshotSeq, set, show }),
@@ -280,17 +274,25 @@ export default function StorePanel({
     (view: View, at?: Moment) => {
       setView('table');
       push(view, at);
-      if (narrow) {
-        collapse();
-        closePane();
-      }
+      closePane();
+      if (narrow) collapse();
     },
     [setView, push, narrow, collapse, closePane],
   );
-  // what the timeline's and the pane's chips open with
+  // what the timeline's and the pane's chips open with. The chips only
+  // push, so the model comes through a ref: the value keeps its identity
+  // across store commits and the memoized rows holding chips skip them
+  const modelRef = useRef(model);
+  modelRef.current = model;
   const chipNav = useMemo<Nav>(
-    () => ({ model, width, push: openView }),
-    [model, width, openView],
+    () => ({
+      get model() {
+        return modelRef.current;
+      },
+      width,
+      push: openView,
+    }),
+    [width, openView],
   );
   const lanes = timelineShown && (
     <Unfold open={timeline} onShut={hideTimeline} onBlur={focusExpand}>
@@ -331,17 +333,22 @@ export default function StorePanel({
             className={styles.store}
             ref={panel}
             onKeyDown={e => {
-              // the sheet shuts from anywhere in the panel, the ▾ included;
-              // a level going back has the Escape first
-              if (e.key !== 'Escape' || !narrow || !timeline) return;
-              if (e.defaultPrevented) return;
-              e.preventDefault();
-              collapse();
+              // the sheet (and the pane) shut from anywhere in the panel,
+              // the ▾ included; a level going back has the Escape first
+              if (e.key !== 'Escape' || e.defaultPrevented) return;
+              if (narrow && timeline) {
+                e.preventDefault();
+                collapse();
+              } else if (pane) {
+                e.preventDefault();
+                closePane();
+              }
             }}
           >
             <Scrubber
               entry={snapshot}
               hit={filter.hit}
+              width={width}
               expanded={timeline}
               expandRef={expand}
               onExpand={setTimeline}
@@ -388,6 +395,7 @@ export default function StorePanel({
                       className={styles.paneToggle}
                       title="The actions that touched what is shown"
                       aria-pressed={pane}
+                      data-pane-toggle
                       onClick={() => (pane ? closePane() : setPane('open'))}
                     >
                       <ListIcon />
@@ -396,18 +404,11 @@ export default function StorePanel({
                   </span>
                 </div>
                 <div className={styles.tabPanel}>
-                  <div
-                    ref={stateBox}
-                    className={styles.state}
-                    hidden={swapped}
-                    inert={swapped}
-                  >
-                    <StateContext.Provider value={state}>
-                      {tree ?
-                        <TreeLevel model={model} />
-                      : <Levels model={model} width={width} levels={levels} />}
-                    </StateContext.Provider>
-                  </div>
+                  <StateContext.Provider value={state}>
+                    {tree ?
+                      <TreeLevel model={model} />
+                    : <Levels model={model} width={width} levels={levels} />}
+                  </StateContext.Provider>
                   {pane && (
                     <NavContext.Provider value={chipNav}>
                       <ActionsPane
@@ -418,9 +419,8 @@ export default function StorePanel({
                             null
                           : crumbLabel(subject, model)
                         }
-                        swapped={swapped}
-                        covered={covered}
-                        reveal={reveal}
+                        narrow={narrow}
+                        onClose={closePane}
                       />
                     </NavContext.Provider>
                   )}
@@ -562,6 +562,12 @@ function Levels({
               view.kind === 'root' ? <RootView scroller={scroller} />
               : view.kind === 'list' ?
                 <ListView view={view} scroller={scroller} header={header} />
+              : view.kind === 'action' ?
+                <ActionLevel
+                  seq={view.seq}
+                  subject={subjectOf(stack.slice(0, depth))}
+                  header={header}
+                />
               : <RecordLevel id={view.id} scroller={scroller} header={header} />
             }
           </Level>
@@ -649,11 +655,40 @@ function Level({
   );
 }
 
+/** An action at full width: what it did to `subject` (the level under
+ * it), then the action itself */
+function ActionLevel({
+  seq,
+  subject,
+  header,
+}: {
+  seq: number;
+  subject: View;
+  header: (tools: React.ReactNode) => React.ReactNode;
+}) {
+  const { log, history } = useActions();
+  const entry = findEntry(history.entries, seq);
+  const gaps = useMemo(
+    () => subjectGaps(log, history.entries, subject),
+    [log, history.entries, subject],
+  );
+  return (
+    <>
+      {header(null)}
+      {entry ?
+        <ActionDetail entry={entry} subject={subject} gap={gaps.get(seq)} />
+      : <p className={styles.empty}>No longer in the log.</p>}
+    </>
+  );
+}
+
 /** What a breadcrumb shows for a view */
 function crumbLabel(view: View, model: StoreModel): React.ReactNode {
   switch (view.kind) {
     case 'root':
       return 'State';
+    case 'action':
+      return <ActionCrumb seq={view.seq} />;
     case 'list': {
       const count =
         'ids' in view ? view.ids.length
@@ -676,6 +711,13 @@ function crumbLabel(view: View, model: StoreModel): React.ReactNode {
           </span>;
     }
   }
+}
+
+/** `setResponse GET /posts`, or where the log no longer has it */
+function ActionCrumb({ seq }: { seq: number }) {
+  const { history } = useActions();
+  const entry = findEntry(history.entries, seq);
+  return entry ? <ActionName entry={entry} /> : <>…</>;
 }
 
 /** The explorer: everything expands in place */

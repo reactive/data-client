@@ -103,6 +103,11 @@ export function lanesOf(groups: readonly ActionGroup[]): Lane[] {
 
 /** The shown history on `timeScale`, without the fetches deduped into a
  * request in flight (they add nothing to see) */
+/** What the scrubber's row holds beside its track: ‹ ›, Live and ▾ (px) */
+const SCRUB_CONTROLS = 170;
+/** Scrubber marks closer than this (px) draw as one */
+const MERGE_PX = 4;
+
 function useScale() {
   const { groups, history } = useActions();
   const joined = useMemo(
@@ -129,6 +134,7 @@ function drawer({
   selected,
   hit,
   onSelect,
+  mergeWithin,
 }: {
   log: ActionLog;
   scale: TimeScale;
@@ -137,38 +143,82 @@ function drawer({
   selected: number | null;
   hit: SubjectFilter['hit'];
   onSelect: (seq: number) => void;
+  /** Marks closer than this (in the scale's units) draw as one; `marks()`
+   * then draws them all, after `drawn` collected them */
+  mergeWithin?: number;
 }) {
   const frac = (x: number) => x / scale.width;
   const pos = (x: number) => ({ '--tl-f': frac(x) }) as React.CSSProperties;
-  const mark = (entry: LogEntry, extra?: string) => {
-    const label = `${actionName(entry.action)} at ${seconds(entry.at - since)}s`;
-    const style = pos(scale.x.get(entry.seq)!);
-    const dim = !!entry.store && !hit(entry);
+  const labelOf = (entry: LogEntry) =>
+    `${actionName(entry.action)} at ${seconds(entry.at - since)}s`;
+  const collected: { entry: LogEntry; extra?: string }[] = [];
+  const draw = (
+    entries: readonly LogEntry[],
+    x: number,
+    extra: string | undefined,
+    key: React.Key,
+  ) => {
+    const label =
+      entries.length === 1 ?
+        labelOf(entries[0])
+      : `${entries.length} actions, ${labelOf(entries[0])} to ${labelOf(entries.at(-1)!)}`;
+    const style = pos(x);
+    const stored = entries.filter(e => e.store);
+    const last = stored.at(-1);
+    const dim = stored.length > 0 && stored.every(e => !hit(e));
+    const type = typeClass(last ?? entries[0]);
     // only an action the store saw has a state to show
-    return entry.store ?
+    return last ?
         <button
-          key={entry.seq}
+          key={key}
           type="button"
           tabIndex={-1}
-          className={clsx(styles.tlMark, typeClass(entry), extra)}
+          className={clsx(styles.tlMark, type, extra)}
           style={style}
           title={label}
           aria-label={label}
-          data-selected={entry.seq === selected || undefined}
+          data-selected={entries.some(e => e.seq === selected) || undefined}
           data-dim={dim || undefined}
-          onClick={() => onSelect(entry.seq)}
+          data-count={entries.length > 1 ? entries.length : undefined}
+          onClick={() => onSelect(last.seq)}
         />
       : <span
-          key={entry.seq}
-          className={clsx(
-            styles.tlMark,
-            styles.tlHollow,
-            typeClass(entry),
-            extra,
-          )}
+          key={key}
+          className={clsx(styles.tlMark, styles.tlHollow, type, extra)}
           style={style}
           title={label}
         />;
+  };
+  const mark = (entry: LogEntry, extra?: string) => {
+    if (mergeWithin !== undefined) {
+      collected.push({ entry, extra });
+      return null;
+    }
+    return draw([entry], scale.x.get(entry.seq)!, extra, entry.seq);
+  };
+  /** The marks `drawn` collected, those crowding each other drawn as one */
+  const marks = () => {
+    const sorted = collected
+      .map(m => ({ ...m, x: scale.x.get(m.entry.seq)! }))
+      .sort((a, b) => a.x - b.x);
+    const out: React.ReactNode[] = [];
+    let i = 0;
+    while (i < sorted.length) {
+      let j = i + 1;
+      while (j < sorted.length && sorted[j].x - sorted[i].x < mergeWithin!) j++;
+      const cluster = sorted.slice(i, j);
+      const x = (cluster[0].x + cluster[cluster.length - 1].x) / 2;
+      out.push(
+        draw(
+          cluster.map(m => m.entry),
+          x,
+          cluster.length === 1 ? cluster[0].extra : undefined,
+          cluster[0].entry.seq,
+        ),
+      );
+      i = j;
+    }
+    return out;
   };
   const span = (from: number, to: number, className: string, key: string) => (
     <span
@@ -210,7 +260,7 @@ function drawer({
       ...group.requests.flatMap(request),
     ];
   };
-  return { pos, drawn };
+  return { pos, drawn, marks };
 }
 
 /** The whole history in one lane, fit to the panel's width, with the moment
@@ -221,6 +271,7 @@ function drawer({
 export const Scrubber = memo(function Scrubber({
   entry,
   hit,
+  width,
   expanded,
   expandRef,
   onExpand,
@@ -229,6 +280,8 @@ export const Scrubber = memo(function Scrubber({
   entry?: LogEntry;
   /** What the steps follow: the subject's actions */
   hit: SubjectFilter['hit'];
+  /** Panel width (px), to tell which marks crowd each other */
+  width: number;
   /** Whether the timeline is shown under it */
   expanded: boolean;
   /** The ▾, for focus to return to as the timeline shuts */
@@ -241,7 +294,10 @@ export const Scrubber = memo(function Scrubber({
   const { joined, shown, scale } = useScale();
   const earlier = stepMoment(entries, selected, -1, hit);
   const later = stepMoment(entries, selected, 1, hit);
-  const { pos, drawn } = drawer({
+  // the track fits the panel beside the controls: marks a few px apart
+  // there draw as one (fast polling crowds it otherwise)
+  const track = Math.min(scale.width, Math.max(1, width - SCRUB_CONTROLS));
+  const { pos, drawn, marks } = drawer({
     log,
     scale,
     joined,
@@ -249,6 +305,7 @@ export const Scrubber = memo(function Scrubber({
     selected,
     hit,
     onSelect,
+    mergeWithin: (MERGE_PX * scale.width) / track,
   });
   const at = selected === null ? undefined : scale.x.get(selected);
 
@@ -310,6 +367,7 @@ export const Scrubber = memo(function Scrubber({
           {shown.length > 0 && (
             <div className={styles.tlLane}>
               {groups.flatMap(g => drawn(g, false))}
+              {marks()}
               {scale.breaks.map(x => (
                 <span key={x} className={styles.tlBreak} style={pos(x)} />
               ))}
@@ -346,7 +404,7 @@ export const Scrubber = memo(function Scrubber({
           <button
             type="button"
             className={styles.snapshotAction}
-            title="Show in Actions"
+            title="Show action"
             onClick={() => show(entry.seq)}
           >
             <ActionName entry={entry} />
