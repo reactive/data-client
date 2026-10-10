@@ -5,7 +5,7 @@ const path = require('path');
 /** The runtime chunk maps every chunk to its content hash, so its file name
  * changes exactly when some chunk's does: a free, deterministic build id.
  * Written to `build-id.txt` so a tab can tell whether the deployed build still
- * has its chunks (src/staleDeploy.ts). */
+ * has its chunks (src/staleDeploy.ts, whose BUILD_ID matches this name). */
 module.exports = function () {
   return {
     name: 'build-id-plugin',

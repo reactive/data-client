@@ -3,13 +3,14 @@ import siteConfig from '@generated/docusaurus.config';
 import { useEffect } from 'react';
 
 const BUILD_ID_URL = `${siteConfig.baseUrl}build-id.txt`;
-/** The build this tab is running: its runtime chunk's name (build-id-plugin.js) */
+/** A build's id: its runtime chunk's file name (build-id-plugin.js) */
+const BUILD_ID = /^runtime~main\.\w+\.js$/;
+/** The build this tab is running */
 const runningId =
   ExecutionEnvironment.canUseDOM ?
-    document
-      .querySelector<HTMLScriptElement>('script[src*="/runtime~main."]')
-      ?.src.split('/')
-      .pop()
+    Array.from(document.scripts, script => script.src.split('/').pop()).find(
+      name => name && BUILD_ID.test(name),
+    )
   : undefined;
 /** Deploy last reloaded for, so a reload still served the old build can't loop */
 const RELOADED_KEY = 'staleDeployReloadedFor';
@@ -23,6 +24,18 @@ function isChunkLoadError(error: unknown): boolean {
   );
 }
 
+/** The build now deployed, or undefined when the answer isn't a build id
+ * (a captive portal or fallback page answering instead) */
+async function fetchDeployedId(): Promise<string | undefined> {
+  const res = await fetch(BUILD_ID_URL, {
+    cache: 'no-store',
+    // a hung request would block every later check
+    signal: AbortSignal.timeout(10_000),
+  });
+  const id = res.ok ? (await res.text()).trim() : '';
+  return BUILD_ID.test(id) ? id : undefined;
+}
+
 let checking = false;
 
 /** Reloads the page when `error` is a chunk that failed to load because a newer
@@ -33,16 +46,9 @@ async function reloadIfStaleDeploy(error: unknown): Promise<void> {
   if (checking || !runningId || !isChunkLoadError(error)) return;
   checking = true;
   try {
-    const res = await fetch(BUILD_ID_URL, {
-      cache: 'no-store',
-      // a hung request would block every later check
-      signal: AbortSignal.timeout(10_000),
-    });
-    const deployedId = res.ok && (await res.text()).trim();
+    const deployedId = await fetchDeployedId();
     if (
-      // not our file (a captive portal or fallback page answering instead)
       !deployedId ||
-      !/^runtime~main\.\w+\.js$/.test(deployedId) ||
       deployedId === runningId ||
       sessionStorage.getItem(RELOADED_KEY) === deployedId
     )
