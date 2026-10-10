@@ -13,10 +13,11 @@ import {
   groupEntriesOf,
   pollFrequencyOf,
   mergeChanges,
+  touched,
   type Change,
   type RequestGroup,
 } from './actionGroups';
-import type { Moment } from './nav';
+import type { Moment, View } from './nav';
 
 const { createReducer } = __INTERNAL__;
 
@@ -86,33 +87,34 @@ const EMPTY: History = { entries: [], since: 0 };
 export const findEntry = (entries: readonly LogEntry[], seq: number) =>
   entries.find(e => e.seq === seq);
 
-/** The nearest action before (`-1`) or after (`1`) `seq` that changed the
- * store, by seq (`seq` may have dropped off the log); `null` is live, after
- * every action */
+/** The nearest action before (`-1`) or after (`1`) `seq` that touched
+ * `subject` (at the store, that changed it), by seq (`seq` may have dropped
+ * off the log); `null` is live, after every action */
 export function nearestChange(
   log: ActionLog,
   entries: readonly LogEntry[],
   seq: number | null,
   by: -1 | 1,
+  subject: View,
 ): LogEntry | undefined {
+  const hit = (e: LogEntry) => touched(log, subject, e);
   if (by < 0)
-    return entries.findLast(
-      e => (seq === null || e.seq < seq) && log.changed(e),
-    );
+    return entries.findLast(e => (seq === null || e.seq < seq) && hit(e));
   if (seq === null) return undefined;
-  return entries.find(e => e.seq > seq && log.changed(e));
+  return entries.find(e => e.seq > seq && hit(e));
 }
 
 /** Where a step before (`-1`) or after (`1`) moment `seq` lands: the nearest
- * change, or past the newest, live (`null`). `undefined` has nowhere to go:
- * before the oldest change, or after live */
+ * change to `subject`, or past the newest, live (`null`). `undefined` has
+ * nowhere to go: before the oldest change, or after live */
 export function stepMoment(
   log: ActionLog,
   entries: readonly LogEntry[],
   seq: number | null,
   by: -1 | 1,
+  subject: View,
 ): number | null | undefined {
-  const next = nearestChange(log, entries, seq, by);
+  const next = nearestChange(log, entries, seq, by, subject);
   if (next) return next.seq;
   if (by > 0 && seq !== null) return null;
 }

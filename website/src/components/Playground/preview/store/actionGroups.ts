@@ -8,6 +8,7 @@ import {
 import type ActionLog from './actionLog';
 import type { LogEntry } from './actionLog';
 import { endpointId, entityId, parseRowId } from './model';
+import type { View } from './nav';
 import { isPlainObject, temporalType } from './refs';
 
 export type ChangeKind =
@@ -540,30 +541,25 @@ export interface Version {
   readonly entry: LogEntry;
   readonly change: Change;
 }
-/** Actions in a row that stored the record again, unchanged */
-interface Refreshes {
-  readonly kind: 'refreshed';
-  readonly entries: LogEntry[];
-}
 /** Where actions the log didn't keep changed the record */
 export interface Missing {
   readonly kind: 'missing';
+  /** The kept action it was found before */
   readonly seq: number;
   /** What they did to it, all told */
   readonly change: ChangeKind;
 }
-export type TimelineItem = Version | Refreshes | Missing;
 
-/** Every logged action that stored row `id`, oldest first; unchanged
- * stores in a row share one item. Each logged action starts from the store
- * the one before it left, so where the record differs between them, actions
- * the log dropped changed it */
+/** Every logged change to row `id`, oldest first, and where actions the log
+ * dropped changed it: each logged action starts from the store the one
+ * before it left, so where the record differs between them, dropped actions
+ * changed it */
 export function rowTimeline(
   log: ActionLog,
   entries: readonly LogEntry[],
   id: string,
-) {
-  const items: TimelineItem[] = [];
+): (Version | Missing)[] {
+  const items: (Version | Missing)[] = [];
   const row = rowOf(id);
   // an empty store until the log reaches a store's start (one a trim cut
   // off shows as a gap), which starts from its own state
@@ -579,14 +575,56 @@ export function rowTimeline(
     if (gap) items.push({ kind: 'missing', seq: entry.seq, change: gap.kind });
     left = log.view(entry.store.after);
     const change = log.changes(entry).find(c => c.id === id);
-    if (!change) continue;
-    const last = items.at(-1);
-    if (change.kind !== 'refreshed')
+    if (change && change.kind !== 'refreshed')
       items.push({ kind: 'version', entry, change });
-    else if (last?.kind === 'refreshed') last.entries.push(entry);
-    else items.push({ kind: 'refreshed', entries: [entry] });
   }
   return items;
+}
+
+/** Whether a change is to a row `subject` covers */
+export function touches(subject: View, change: Change): boolean {
+  switch (subject.kind) {
+    case 'root':
+      return true;
+    case 'record':
+      return change.id === subject.id;
+    case 'list':
+      if ('ids' in subject) return subject.ids.includes(change.id);
+      return (
+        'table' in change &&
+        change.table === subject.table &&
+        (!subject.pks || subject.pks.includes(change.pk))
+      );
+  }
+}
+
+/** Whether an action touched `subject`: changed a row it covers, or stored
+ * one again */
+export const touched = (log: ActionLog, subject: View, entry: LogEntry) =>
+  log.changes(entry).some(c => touches(subject, c));
+
+/** A subject's actions as rows: the groups with an action that touched it
+ * (at the store, every group), and where actions the log dropped changed a
+ * record, a note before the kept action it was found at */
+export function subjectRows(
+  log: ActionLog,
+  entries: readonly LogEntry[],
+  groups: readonly ActionGroup[],
+  subject: View,
+): (ActionGroup | Missing)[] {
+  if (subject.kind === 'root') return [...groups];
+  const gaps =
+    subject.kind === 'record' ?
+      rowTimeline(log, entries, subject.id).filter(i => i.kind === 'missing')
+    : [];
+  const rows: (ActionGroup | Missing)[] = [];
+  for (const group of groups) {
+    if (!groupEntriesOf(group).some(e => touched(log, subject, e))) continue;
+    while (gaps.length && gaps[0].seq <= group.entries[0].seq)
+      rows.push(gaps.shift()!);
+    rows.push(group);
+  }
+  return [...rows, ...gaps];
 }
 
 /** Row `id` as diffs name it, to compare it between two stores */

@@ -16,6 +16,7 @@ import { groupEntries, keepUnchanged, type ActionGroup } from './actionGroups';
 import { findEntry, storeAt, withDropped, type LogEntry } from './actionLog';
 import {
   ActionsContext,
+  ActionsPane,
   AtMoment,
   LogContext,
   useActions,
@@ -54,7 +55,6 @@ import Timeline, { Scrubber } from './Timeline';
 import TreeView from './TreeView';
 import Unfold from './Unfold';
 import { RowKey } from './Value';
-import { RowHistory } from './VersionHistory';
 import { useTabStorage } from '../../../../utils/tabStorage';
 
 /** Breadcrumbs shown before the middle ones collapse to `…` */
@@ -76,6 +76,11 @@ export default function StorePanel({
   const [stored, setView] = useTabStorage('playgroundStoreView');
   const tree = stored === 'tree';
   const [facet, setFacet] = useState<Facet>('state');
+  // the Actions pane: the subject's actions, beside the facet or (narrow) in
+  // its place
+  const [paneStored, setPane] = useTabStorage('playgroundStoreActions');
+  const pane = paneStored === 'open';
+  const closePane = useCallback(() => setPane('closed'), [setPane]);
   // the timeline the scrubber expands into, above the facets; it stays
   // mounted while it slides shut, until the slide ends
   const [timeline, setTimeline] = useState(false);
@@ -168,11 +173,22 @@ export default function StorePanel({
     () => ({ log, since: history.since, dropped: history.dropped }),
     [log, history.since, history.dropped],
   );
-  const navState = useMemo<NavState>(
-    () => ({ seq: snapshotSeq, set: setSnapshot, facet, setFacet }),
-    [snapshotSeq, facet],
-  );
   const levels = useLevelStack(ROOT);
+  // the top level's view: what the Actions pane lists and the steps follow
+  const subject = levels.stack[levels.stack.length - 1].view;
+  // a moment set on purpose outranks the store a chip opened a level at
+  const { clearAt } = levels;
+  const set = useCallback(
+    (seq: number | null) => {
+      setSnapshot(seq);
+      clearAt();
+    },
+    [clearAt],
+  );
+  const navState = useMemo<NavState>(
+    () => ({ seq: snapshotSeq, set, facet, setFacet }),
+    [snapshotSeq, set, facet],
+  );
 
   const panel = useRef<HTMLDivElement>(null);
   const width = useWidth(panel);
@@ -181,10 +197,11 @@ export default function StorePanel({
   const expand = useRef<HTMLButtonElement>(null);
   const focusExpand = useCallback(() => expand.current?.focus(), []);
   // narrow, the timeline opens as a sheet over the content instead of
-  // pushing it down; a pick there closes it. The content under it is inert
-  // meanwhile, so focus left there moves to the ▾
-  const sheet = width < NARROW_WIDTH;
-  const covered = sheet && timelineShown;
+  // pushing it down, and the Actions pane in the facet's place instead of
+  // beside it; a pick in either closes it. The content under the sheet is
+  // inert meanwhile, so focus left there moves to the ▾
+  const narrow = width < NARROW_WIDTH;
+  const covered = narrow && timelineShown;
   const content = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     if (!covered) return;
@@ -197,25 +214,36 @@ export default function StorePanel({
       expand.current?.focus({ preventScroll: true });
   }, [covered]);
   const collapse = useCallback(() => setTimeline(false), []);
+  // the facet swapped out for the pane hands focus to the pane's toggle
+  const swapped = narrow && pane;
+  const paneToggle = useRef<HTMLButtonElement>(null);
+  useLayoutEffect(() => {
+    if (swapped && document.activeElement === document.body)
+      paneToggle.current?.focus({ preventScroll: true });
+  }, [swapped]);
   // a view to open from where there is no level to open it from (the tree
-  // view, the timeline's chips): over the top level, in the table view; under
-  // the sheet, which closes to show it
+  // view, the timeline's and the pane's chips): over the top level, in the
+  // table view; under the sheet or the pane, which close to show it
   const { push } = levels;
   const openView = useCallback(
     (view: View, at?: Moment) => {
       setView('table');
       push(view, at);
-      if (sheet) collapse();
+      if (narrow) {
+        collapse();
+        closePane();
+      }
     },
-    [setView, push, sheet, collapse],
+    [setView, push, narrow, collapse, closePane],
   );
-  const timelineNav = useMemo<Nav>(
+  // what the timeline's and the pane's chips open with
+  const chipNav = useMemo<Nav>(
     () => ({ model, width, push: openView }),
     [model, width, openView],
   );
   const lanes = timelineShown && (
     <Unfold open={timeline} onShut={hideTimeline} onBlur={focusExpand}>
-      {sheet && (
+      {narrow && (
         <div className={styles.sheetBar}>
           <span>Timeline</span>
           <button
@@ -228,8 +256,12 @@ export default function StorePanel({
           </button>
         </div>
       )}
-      <NavContext.Provider value={timelineNav}>
-        <Timeline width={width} onPick={sheet ? collapse : undefined} />
+      <NavContext.Provider value={chipNav}>
+        <Timeline
+          width={width}
+          subject={subject}
+          onPick={narrow ? collapse : undefined}
+        />
       </NavContext.Provider>
     </Unfold>
   );
@@ -251,7 +283,7 @@ export default function StorePanel({
               onKeyDown={e => {
                 // the sheet shuts from anywhere in the panel, the ▾ included;
                 // a level going back has the Escape first
-                if (e.key !== 'Escape' || !sheet || !timeline) return;
+                if (e.key !== 'Escape' || !narrow || !timeline) return;
                 if (e.defaultPrevented) return;
                 e.preventDefault();
                 collapse();
@@ -259,6 +291,7 @@ export default function StorePanel({
             >
               <Scrubber
                 entry={snapshot}
+                subject={subject}
                 expanded={timeline}
                 expandRef={expand}
                 onExpand={setTimeline}
@@ -267,7 +300,7 @@ export default function StorePanel({
                 {/* one place in the tree either way, so crossing the narrow
                     width restyles the timeline rather than remounting it */}
                 {lanes && (
-                  <div className={clsx(styles.lanes, sheet && styles.sheet)}>
+                  <div className={clsx(styles.lanes, narrow && styles.sheet)}>
                     {lanes}
                   </div>
                 )}
@@ -291,46 +324,75 @@ export default function StorePanel({
                     >
                       Action
                     </button>
-                    {facet === 'state' && (
-                      <span
-                        className={styles.viewButtons}
-                        role="group"
-                        aria-label="Store view"
+                    <span className={styles.barEnd}>
+                      {facet === 'state' && (
+                        <span
+                          className={styles.viewButtons}
+                          role="group"
+                          aria-label="Store view"
+                        >
+                          <button
+                            type="button"
+                            aria-label="Table view"
+                            title="Table view"
+                            aria-pressed={!tree}
+                            onClick={() => setView('table')}
+                          >
+                            <TableIcon />
+                          </button>
+                          <button
+                            type="button"
+                            aria-label="Tree view"
+                            title="Tree view"
+                            aria-pressed={tree}
+                            onClick={() => setView('tree')}
+                          >
+                            <TreeIcon />
+                          </button>
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        ref={paneToggle}
+                        className={styles.paneToggle}
+                        title="The actions that touched what is shown"
+                        aria-pressed={pane}
+                        onClick={() => setPane(pane ? 'closed' : 'open')}
                       >
-                        <button
-                          type="button"
-                          aria-label="Table view"
-                          title="Table view"
-                          aria-pressed={!tree}
-                          onClick={() => setView('table')}
-                        >
-                          <TableIcon />
-                        </button>
-                        <button
-                          type="button"
-                          aria-label="Tree view"
-                          title="Tree view"
-                          aria-pressed={tree}
-                          onClick={() => setView('tree')}
-                        >
-                          <TreeIcon />
-                        </button>
-                      </span>
-                    )}
+                        <ListIcon />
+                        Actions
+                      </button>
+                    </span>
                   </div>
                   <div className={styles.tabPanel}>
-                    <StateContext.Provider value={state}>
-                      {/* the tree is a State lens; Action shows the levels' subjects */}
-                      {tree && facet === 'state' ?
-                        <TreeLevel model={model} />
-                      : <Levels
-                          model={model}
-                          width={width}
-                          levels={levels}
-                          facet={facet}
+                    {!swapped && (
+                      <StateContext.Provider value={state}>
+                        {/* the tree is a State lens; Action shows the levels' subjects */}
+                        {tree && facet === 'state' ?
+                          <TreeLevel model={model} />
+                        : <Levels
+                            model={model}
+                            width={width}
+                            levels={levels}
+                            facet={facet}
+                          />
+                        }
+                      </StateContext.Provider>
+                    )}
+                    {pane && (
+                      <NavContext.Provider value={chipNav}>
+                        <ActionsPane
+                          subject={subject}
+                          label={
+                            subject.kind === 'root' ?
+                              null
+                            : crumbLabel(subject, model)
+                          }
+                          swapped={swapped}
+                          onPick={swapped ? closePane : undefined}
                         />
-                      }
-                    </StateContext.Provider>
+                      </NavContext.Provider>
+                    )}
                   </div>
                 </div>
               </div>
@@ -386,10 +448,8 @@ function Levels({
       nav: {
         model: shown?.model ?? model,
         width,
-        // what it opens shows the same store; a history shows each version
-        // at its own
-        push: (view: View, next = at) =>
-          push(view, view.kind === 'history' ? undefined : next),
+        // what it opens shows the same store
+        push: (view: View, next = at) => push(view, next),
       },
       then: shown,
     };
@@ -475,14 +535,6 @@ function Levels({
               facet === 'action' ?
                 <ActionFacet subject={view} header={header} />
               : view.kind === 'root' ? <RootView scroller={scroller} />
-              : view.kind === 'history' ?
-                <RowHistory
-                  id={view.id}
-                  focus={view.seq}
-                  header={header}
-                  // uncover State as it was then
-                  onShowState={() => back(depth)}
-                />
               : view.kind === 'list' ?
                 <ListView view={view} scroller={scroller} header={header} />
               : <RecordLevel id={view.id} scroller={scroller} header={header} />
@@ -583,8 +635,6 @@ function crumbLabel(view: View, model: StoreModel): React.ReactNode {
   switch (view.kind) {
     case 'root':
       return 'State';
-    case 'history':
-      return 'History';
     case 'list': {
       const count =
         'ids' in view ? view.ids.length
@@ -677,6 +727,14 @@ function TreeIcon() {
   return (
     <svg viewBox="0 0 16 16" aria-hidden="true">
       <path d="M3 3.5h10M4.5 5.5v7M4.5 8.5h8.5M4.5 12.5h8.5" />
+    </svg>
+  );
+}
+/** Rows of text */
+function ListIcon() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M2.5 4h2M6.5 4h7M2.5 8h2M6.5 8h7M2.5 12h2M6.5 12h7" />
     </svg>
   );
 }

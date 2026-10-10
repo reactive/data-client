@@ -18,8 +18,11 @@ import {
   groupOf,
   pollFrequencyOf,
   joinedFetches,
+  subjectRows,
   type ActionGroup,
   type Change,
+  type ChangeKind,
+  type Missing,
   type RequestGroup,
   type SubscriptionGroup,
 } from './actionGroups';
@@ -33,6 +36,7 @@ import {
   type ActionSpan,
   type Moment,
   type Then,
+  type View,
 } from './nav';
 import styles from './store.module.css';
 import { CountChip, EndpointKey, EntityKey, RefChip } from './Value';
@@ -89,13 +93,51 @@ const TICK_LIMIT = 12;
 /** Distance from the bottom (px) that still counts as following new rows */
 export const FOLLOW_SLACK = 24;
 
-/** The timeline as a list: every action, folded into requests and
- * subscriptions, following new rows while scrolled to the bottom. A row sets
- * the moment (its › opens the Action facet too); the moment's row is marked
- * and open */
-export function ActionList({ onPick }: { onPick?: () => void }) {
-  const { groups } = useActions();
+/** The Actions pane: `subject`'s actions as a list, under a head naming it
+ * (`label`, none at the store). Beside the facet, or `swapped` in for it */
+export function ActionsPane({
+  subject,
+  label,
+  swapped,
+  onPick,
+}: {
+  subject: View;
+  label: React.ReactNode;
+  swapped: boolean;
+  onPick?: () => void;
+}) {
+  return (
+    <section
+      className={clsx(styles.pane, swapped && styles.swapped)}
+      aria-label="Actions"
+    >
+      <div className={styles.paneHead}>
+        Actions
+        {label && <span className={styles.paneSubject}>{label}</span>}
+      </div>
+      <ActionList subject={subject} onPick={onPick} />
+    </section>
+  );
+}
+
+/** The actions that touched `subject` (at the store, every action) as a
+ * list, folded into requests and subscriptions, following new rows while
+ * scrolled to the bottom. A row sets the moment (its › opens the Action facet
+ * too); the moment's row is marked and open */
+export function ActionList({
+  subject,
+  onPick,
+}: {
+  subject: View;
+  /** Called as a row's › opens the Action facet */
+  onPick?: () => void;
+}) {
+  const { log, history, groups } = useActions();
   const { seq, set, setFacet } = useNavState();
+  const rows = useMemo(
+    () => subjectRows(log, history.entries, groups, subject),
+    [log, history.entries, groups, subject],
+  );
   const scroller = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set());
   const toggle = useCallback(
@@ -127,29 +169,71 @@ export function ActionList({ onPick }: { onPick?: () => void }) {
   useReveal(scroller, seq);
   // new rows would push the marked action off the screen; live again, the
   // newest is back in view and followed
-  const toNewest = useFollow(scroller, groups, 'y', seq !== null);
+  const toNewest = useFollow(scroller, rows, 'y', seq !== null);
   useLayoutEffect(() => {
     if (seq === null) toNewest();
   }, [seq, toNewest]);
+  // a gap is the moment's while the record's value then came from its
+  // dropped actions: from the action it was found at, up to the next row
+  const inGap = (i: number) =>
+    seq !== null &&
+    seq >= (rows[i] as Missing).seq &&
+    (i === rows.length - 1 || seq < firstSeq(rows[i + 1]));
   return (
-    <div ref={scroller} className={styles.tlList}>
-      {!groups.length && (
+    <div ref={scroller} className={styles.actList}>
+      {!rows.length && (
         <p className={styles.empty}>
-          Nothing dispatched yet. Fetches, responses and other store actions
-          show here as the preview runs.
+          {groups.length ?
+            'No action touched this yet.'
+          : 'Nothing dispatched yet. Fetches, responses and other store actions show here as the preview runs.'
+          }
         </p>
       )}
-      {groups.map(group => (
-        <GroupRow
-          key={group.id}
-          group={group}
-          open={open.has(group.id)}
-          current={group === current ? seq! : undefined}
-          onToggle={toggle}
-          onSelect={set}
-          onOpen={openAction}
-        />
-      ))}
+      {rows.map((row, i) =>
+        row.kind === 'missing' ?
+          <GapRow
+            key={`gap ${row.seq}`}
+            change={row.change}
+            current={inGap(i)}
+          />
+        : <GroupRow
+            key={row.id}
+            group={row}
+            open={open.has(row.id)}
+            current={row === current ? seq! : undefined}
+            onToggle={toggle}
+            onSelect={set}
+            onOpen={openAction}
+          />,
+      )}
+    </div>
+  );
+}
+
+/** Where a row of the list starts */
+const firstSeq = (row: ActionGroup | Missing) =>
+  row.kind === 'missing' ? row.seq : row.entries[0].seq;
+
+/** What actions the log didn't keep did to the record */
+const missingText: Partial<Record<ChangeKind, string>> = {
+  refreshed: 'Stored again',
+  removed: 'Removed',
+  invalidated: 'Invalidated',
+  expired: 'Marked stale',
+  error: 'Failed',
+};
+
+/** Where actions the log didn't keep changed the record; `current` while
+ * the moment falls among them */
+function GapRow({ change, current }: { change: ChangeKind; current: boolean }) {
+  return (
+    <div
+      className={clsx(styles.row, styles.gapRow)}
+      aria-current={current || undefined}
+    >
+      <span className={styles.dim}>
+        {missingText[change] ?? 'Changed'} by actions not kept: {KEEPS_NEWEST}
+      </span>
     </div>
   );
 }

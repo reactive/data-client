@@ -71,10 +71,7 @@ export const cellDive =
 export type View =
   | { readonly kind: 'root' }
   | ListView
-  | { readonly kind: 'record'; readonly id: string }
-  /** Every logged version of record `id`, with the one State shows (or
-   * the one current at action `seq`) open */
-  | { readonly kind: 'history'; readonly id: string; readonly seq?: number };
+  | { readonly kind: 'record'; readonly id: string };
 
 /** A level of a navigation stack */
 export interface StackEntry {
@@ -92,6 +89,9 @@ export interface LevelStack {
   readonly push: (view: View, at?: Moment) => void;
   /** Closes level `depth` and every level over it */
   readonly back: (depth: number) => void;
+  /** Every level shows the store as it is (or the moment's): the moment set
+   * on purpose outranks the store a chip opened a level at */
+  readonly clearAt: () => void;
 }
 
 /** A stack of views over `root` */
@@ -118,12 +118,19 @@ export function useLevelStack(root: View): LevelStack {
       };
     });
   }, []);
-  return { stack, returnTo, push, back };
+  const clearAt = useCallback(() => {
+    setLevels(prev =>
+      prev.stack.some(e => e.at) ?
+        { ...prev, stack: prev.stack.map(({ key, view }) => ({ key, view })) }
+      : prev,
+    );
+  }, []);
+  return { stack, returnTo, push, back, clearAt };
 }
 
 /** The store as an action left it, or (`before`) found it (a removed row
  * shows as it was). A level pushed at a Moment shows that store, and so does
- * every level it opens */
+ * every level it opens, until the moment is set (see `clearAt`) */
 export interface Moment {
   readonly seq: number;
   readonly before?: true;
@@ -134,9 +141,9 @@ export interface Moment {
 export type Facet = 'state' | 'action';
 
 /** Where the panel stands, apart from its subject: the moment (State shows
- * the store right after action `seq`, the timeline marks it and a History
- * opens the version current then; `null` is live) and the facet. Every
- * level and the timeline can move either */
+ * the store right after action `seq`, the timeline and the Actions pane mark
+ * it; `null` is live) and the facet. Every level, the timeline and the pane
+ * can move either */
 export interface NavState {
   readonly seq: number | null;
   readonly set: (seq: number | null) => void;
@@ -174,8 +181,7 @@ export interface Nav {
   /** Panel width in px, to fit columns and chips */
   readonly width: number;
   /** Opens `view` over this level; at the store `at` shows, by default the
-   * one this level shows. A history ignores it: each version shows at its
-   * own */
+   * one this level shows */
   readonly push: (view: View, at?: Moment) => void;
 }
 

@@ -95,18 +95,87 @@
   display: flex;
   flex-direction: column;
 }
-/* The facet of the subject stack */
+/* The facet of the subject stack, and the Actions pane beside it */
 .tabPanel {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
-  flex-direction: column;
+}
+/* the bar's right end: State's view switch, the Actions toggle */
+.barEnd {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-left: auto;
 }
 .viewButtons {
   display: flex;
   align-items: center;
   gap: 2px;
-  margin-left: auto;
+}
+.paneToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  height: 1.75rem;
+  padding: 0 0.5rem 0 0.4rem;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-snappy),
+    opacity var(--motion-snappy);
+}
+.paneToggle:hover {
+  opacity: 1;
+}
+.paneToggle[aria-pressed='true'] {
+  background: var(--pg-tab-hover-bg);
+  opacity: 1;
+}
+.paneToggle svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+}
+/* The Actions pane: the subject's actions, beside the facet with a scroll
+   of its own, or (narrow) swapped in for it */
+.pane {
+  flex: 0 0 clamp(14rem, 42%, 24rem);
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  box-shadow: inset 1px 0 0 var(--store-line-strong);
+}
+.pane.swapped {
+  flex: 1 1 auto;
+  box-shadow: none;
+}
+/* the list scrolls on its own, following the newest while live */
+.actList {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.paneSubject {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+  color: var(--store-fg);
+}
+.paneSubject::before {
+  content: '·';
+  color: var(--store-dim);
 }
 .viewButtons button,
 .tlFit,
@@ -140,8 +209,7 @@
   opacity: 1;
 }
 .viewButtons svg,
-.tlFit svg,
-.historyButton svg {
+.tlFit svg {
   width: 15px;
   height: 15px;
   fill: none;
@@ -153,7 +221,8 @@
 /* Levels of the table view stack in one cell; the covered ones stay laid out
    (so they keep their scroll) but invisible */
 .levels {
-  flex: 1 1 auto;
+  flex: 1 1 0;
+  min-width: 0;
   min-height: 0;
   display: grid;
 }
@@ -881,7 +950,8 @@ div.actRow {
 }
 /* the moment's action, where the scrubber stands */
 .actRow[aria-current],
-.stepRow[aria-current] {
+.stepRow[aria-current],
+.gapRow[aria-current] {
   box-shadow: inset 2px 0 0 var(--store-stale);
   background: var(--store-stale-bg);
 }
@@ -906,6 +976,11 @@ div.actRow {
 }
 .actOpen:focus-visible {
   outline: 2px solid var(--store-key);
+}
+/* where actions the log dropped changed the record */
+div.gapRow {
+  padding: 0.25rem 0.75rem;
+  font-size: 11px;
 }
 .step {
   position: relative;
@@ -1100,22 +1175,6 @@ div.joined {
   text-decoration: line-through;
   text-decoration-color: var(--store-dim);
 }
-.showState {
-  margin-top: 0.2rem;
-  padding: 2px 8px;
-  border: 0;
-  border-radius: 4px;
-  background: var(--store-selected);
-  color: var(--store-key);
-  font: 500 11px / 1.6 var(--ifm-font-family-base);
-  cursor: pointer;
-}
-.showState:hover {
-  background: rgba(130, 170, 255, 0.26);
-}
-.showState:focus-visible {
-  outline: 2px solid var(--store-key);
-}
 @container (max-width: 480px) {
   .actChange {
     grid-template-columns: minmax(0, 1fr);
@@ -1249,7 +1308,8 @@ div.joined {
   background: var(--store-bg);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
 }
-.sheetBar {
+.sheetBar,
+.paneHead {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1259,6 +1319,11 @@ div.joined {
   color: var(--store-muted);
   font: 500 11px / 1 var(--ifm-font-family-base);
 }
+.paneHead {
+  justify-content: flex-start;
+  gap: 0.4rem;
+  padding-right: 0.5rem;
+}
 .sheetBar button {
   font: inherit;
 }
@@ -1266,7 +1331,7 @@ div.joined {
   background: var(--pg-tab-hover-bg);
   opacity: 1;
 }
-.sheet .timeline {
+.sheet .tlLanes {
   max-height: 16rem;
 }
 
@@ -1301,54 +1366,6 @@ div.joined {
   translate: 0 0;
 }
 
-/* The expanded timeline: its lens bar, then the strip or the list */
-.timeline {
-  flex: none;
-  display: flex;
-  flex-direction: column;
-  max-height: 12rem;
-  box-shadow: inset 0 -1px 0 var(--store-line-strong);
-}
-.tlBar {
-  flex: none;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 2px 0.375rem;
-  box-shadow: inset 0 -1px 0 var(--store-line);
-}
-.tlBar button {
-  display: grid;
-  place-items: center;
-  width: 1.5rem;
-  height: 1.4rem;
-  padding: 0;
-  border: 0;
-  border-radius: 4px;
-  background: none;
-  color: var(--store-muted);
-  cursor: pointer;
-  transition: background-color var(--motion-snappy);
-}
-.tlBar button[aria-pressed='true'] {
-  background: var(--pg-tab-hover-bg);
-  color: var(--store-fg);
-}
-.tlBar svg {
-  width: 14px;
-  height: 14px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.3;
-  stroke-linecap: round;
-}
-/* the list lens scrolls on its own, following the newest while live */
-.tlList {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-}
 /* The strip: a lane per key on one time axis. The lane labels stay put on
    the left and times on top, so only the tracks scroll. By default they keep
    the scale's spacing and scroll sideways; fit, the whole history spans the
@@ -1357,9 +1374,10 @@ div.joined {
   /* --tl-label, the lane labels' column, comes from Timeline.tsx */
   /* the time axis and each lane */
   --tl-row: 18px;
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: none;
   display: flex;
+  max-height: 12rem;
+  box-shadow: inset 0 -1px 0 var(--store-line-strong);
   outline: none;
 }
 .tlLanes:focus-visible {
@@ -1433,15 +1451,6 @@ div.joined {
 .tlLabel .actKey {
   flex: 1 1 auto;
 }
-/* the lane's record's History, icon alone */
-.tlLabel .historyButton {
-  flex: none;
-  margin-left: auto;
-  opacity: 0.7;
-}
-.tlLabel .historyButton:hover {
-  opacity: 1;
-}
 /* beside the axis, in view however far the labels scroll */
 .tlCorner {
   position: sticky;
@@ -1507,6 +1516,10 @@ button.tlMark {
 button.tlMark:hover {
   scale: 1.3;
 }
+/* an action that left the subject alone */
+.tlMark[data-dim] {
+  opacity: 0.3;
+}
 .tlMark[data-selected] {
   box-shadow:
     0 0 0 2px var(--store-bg),
@@ -1561,148 +1574,4 @@ button.tlMark:hover {
   width: 1px;
   background: var(--store-fg);
   opacity: 0.55;
-}
-/* A record's history: a timeline of its versions, one open at a time */
-.historyButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 1px 7px 1px 5px;
-  border: 1px solid var(--store-line-strong);
-  border-radius: 4px;
-  background: none;
-  color: var(--store-key);
-  font: 500 11px / 1.5 var(--ifm-font-family-base);
-  cursor: pointer;
-}
-.historyButton svg {
-  width: 12px;
-  height: 12px;
-  stroke-width: 1.4;
-  stroke-linejoin: round;
-}
-.historyButton.compact {
-  padding: 1px 3px;
-  border-color: transparent;
-}
-.historyButton:hover {
-  background: var(--store-selected);
-}
-.historyButton:focus-visible {
-  outline: 2px solid var(--store-key);
-}
-.versions {
-  --rail: 1.05rem;
-  position: relative;
-  margin: 0;
-  padding: 0.4rem 0;
-  list-style: none;
-}
-/* the rail the versions hang off */
-.versions::before {
-  content: '';
-  position: absolute;
-  top: 0.9rem;
-  bottom: 0.9rem;
-  left: var(--rail);
-  width: 1px;
-  background: var(--store-line-strong);
-}
-.version {
-  --dot: var(--store-key);
-  position: relative;
-  padding-left: 1.9rem;
-}
-/* each version's dot, colored by what it did to the record */
-.version::before {
-  content: '';
-  position: absolute;
-  z-index: 1;
-  top: 0.62rem;
-  left: calc(var(--rail) - 4px);
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--store-bg);
-  box-shadow: inset 0 0 0 2px var(--dot);
-}
-.version[data-kind='added'] {
-  --dot: var(--store-fresh);
-}
-.version[data-kind='updated'],
-.version[data-kind='expired'] {
-  --dot: var(--store-stale);
-}
-.version[data-kind='removed'],
-.version[data-kind='invalidated'],
-.version[data-kind='error'] {
-  --dot: var(--store-null);
-}
-.version:has([aria-expanded='true'])::before {
-  background: var(--dot);
-}
-.refreshItem::before {
-  top: 0.55rem;
-  left: calc(var(--rail) - 2px);
-  width: 5px;
-  height: 5px;
-  background: var(--store-line-strong);
-  box-shadow: none;
-}
-.refreshItem {
-  padding-top: 0.05rem;
-  padding-bottom: 0.05rem;
-}
-div.versionHead {
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.05rem;
-  margin-right: 0.4rem;
-  padding: 0.3rem 0.5rem;
-  border-radius: 5px;
-}
-/* open, it stays selected under the pointer */
-.versionHead[aria-expanded='true'],
-.versionHead[aria-expanded='true']:hover {
-  background: var(--store-selected);
-}
-.versionLine {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
-  min-width: 0;
-}
-.refreshItem .versionLine {
-  padding: 0 0.5rem;
-  font-size: 11px;
-}
-/* the moment falls among the dropped actions: no version to open */
-.refreshItem[aria-current] .versionLine {
-  margin-right: 0.4rem;
-  border-radius: 5px;
-  background: var(--store-selected);
-  color: var(--store-fg);
-}
-.versionBody {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.35rem;
-  margin: 0.2rem 0.4rem 0.45rem 0;
-  padding: 0.4rem 0.5rem 0.5rem;
-  border-left: 2px solid var(--dot);
-  background: var(--store-record);
-  border-radius: 0 5px 5px 0;
-}
-.versionBody > :not(.versionTools) {
-  align-self: stretch;
-  min-width: 0;
-}
-.versionTools {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-}
-.versionTools .showState {
-  margin-top: 0;
 }

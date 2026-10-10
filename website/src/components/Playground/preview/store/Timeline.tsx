@@ -12,13 +12,13 @@ import {
   actionName,
   groupEntriesOf,
   joinedFetches,
+  touched,
   type ActionGroup,
   type RequestGroup,
 } from './actionGroups';
 import type ActionLog from './actionLog';
-import { isRecordChange, stepMoment, type LogEntry } from './actionLog';
+import { stepMoment, type LogEntry } from './actionLog';
 import {
-  ActionList,
   droppedIn,
   droppedText,
   FOLLOW_SLACK,
@@ -33,10 +33,8 @@ import {
 } from './ActionsView';
 import { NARROW_WIDTH } from './columns';
 import { useHoldFocus } from './dom';
-import { endpointId, splitKey } from './model';
-import { useNavState } from './nav';
+import { useNavState, type View } from './nav';
 import styles from './store.module.css';
-import { HistoryButton } from './VersionHistory';
 import { useTabStorage } from '../../../../utils/tabStorage';
 
 /** Pixels per millisecond between two actions */
@@ -121,13 +119,15 @@ function useScale() {
 
 /** Draws groups along `scale`: requests as spans from fetch to response,
  * everything else as marks, placed as fractions of the track (`--tl-f`).
- * Picking an action the store saw shows State as it was right after it */
+ * Picking an action the store saw shows State as it was right after it.
+ * Below the store, the marks that left `subject` alone are dimmed */
 function drawer({
   log,
   scale,
   joined,
   since,
   selected,
+  subject,
   onSelect,
 }: {
   log: ActionLog;
@@ -135,6 +135,7 @@ function drawer({
   joined: ReadonlySet<LogEntry>;
   since: number;
   selected: number | null;
+  subject: View;
   onSelect: (seq: number) => void;
 }) {
   const frac = (x: number) => x / scale.width;
@@ -142,6 +143,7 @@ function drawer({
   const mark = (entry: LogEntry, extra?: string) => {
     const label = `${actionName(entry.action)} at ${seconds(entry.at - since)}s`;
     const style = pos(scale.x.get(entry.seq)!);
+    const dim = !!entry.store && !touched(log, subject, entry);
     // only an action the store saw has a state to show
     return entry.store ?
         <button
@@ -153,6 +155,7 @@ function drawer({
           title={label}
           aria-label={label}
           data-selected={entry.seq === selected || undefined}
+          data-dim={dim || undefined}
           onClick={() => onSelect(entry.seq)}
         />
       : <span
@@ -211,18 +214,21 @@ function drawer({
 }
 
 /** The whole history in one lane, fit to the panel's width, with the moment
- * on it: ‹ › and the arrow keys step through changes (past the newest is
- * live, as End is), a mark lands on its action. Says which action State is
- * shown after, while it shows the past, which opens the Action facet; `▾`
- * expands the timeline */
+ * on it: ‹ › and the arrow keys step through the changes to `subject` (past
+ * the newest is live, as End is), a mark lands on its action. Says which
+ * action State is shown after, while it shows the past, which opens the
+ * Action facet; `▾` expands the timeline */
 export const Scrubber = memo(function Scrubber({
   entry,
+  subject,
   expanded,
   expandRef,
   onExpand,
 }: {
   /** The action State is shown after; missing while live */
   entry?: LogEntry;
+  /** The top level's view: what the steps follow */
+  subject: View;
   /** Whether the timeline is shown under it */
   expanded: boolean;
   /** The ▾, for focus to return to as the timeline shuts */
@@ -233,14 +239,15 @@ export const Scrubber = memo(function Scrubber({
   const { seq: selected, set: onSelect, setFacet } = useNavState();
   const { entries, since } = history;
   const { joined, shown, scale } = useScale();
-  const earlier = stepMoment(log, entries, selected, -1);
-  const later = stepMoment(log, entries, selected, 1);
+  const earlier = stepMoment(log, entries, selected, -1, subject);
+  const later = stepMoment(log, entries, selected, 1, subject);
   const { pos, drawn } = drawer({
     log,
     scale,
     joined,
     since,
     selected,
+    subject,
     onSelect,
   });
   const at = selected === null ? undefined : scale.x.get(selected);
@@ -354,61 +361,24 @@ export const Scrubber = memo(function Scrubber({
   );
 });
 
-/** The expanded timeline: the shown store's actions drawn by a lens kept per
- * viewer, as a strip (`Lanes`) or a list (`ActionList`) */
+/** The expanded timeline: the shown store's actions on one time axis, a
+ * lane per key, requests as spans from fetch to response, everything else as
+ * marks. Picking an action the store saw shows State as it was right after
+ * it; the arrow keys step as the scrubber's ‹ › do */
 export default memo(function Timeline({
   width,
+  subject,
   onPick,
 }: {
   /** Panel width (px) */
   width: number;
-  /** Called as a pick lands on content under the timeline: a mark, or a
-   * row's › (not as the keys step) */
-  onPick?: () => void;
-}) {
-  const [lens, setLens] = useTabStorage('playgroundTimelineLens');
-  const list = lens === 'list';
-  return (
-    <div className={styles.timeline}>
-      <div className={styles.tlBar} role="group" aria-label="Lens">
-        <button
-          type="button"
-          aria-label="Strip"
-          title="Marks on a time axis, a lane per key"
-          aria-pressed={!list}
-          onClick={() => setLens('strip')}
-        >
-          <StripIcon />
-        </button>
-        <button
-          type="button"
-          aria-label="List"
-          title="One row per request"
-          aria-pressed={list}
-          onClick={() => setLens('list')}
-        >
-          <ListIcon />
-        </button>
-      </div>
-      {list ?
-        <ActionList onPick={onPick} />
-      : <Lanes width={width} onPick={onPick} />}
-    </div>
-  );
-});
-
-/** The shown store's actions on one time axis, a lane per key: requests as
- * spans from fetch to response, everything else as marks. Picking an action
- * the store saw shows State as it was right after it */
-const Lanes = memo(function Lanes({
-  width,
-  onPick,
-}: {
-  width: number;
+  /** The top level's view: what the steps follow */
+  subject: View;
+  /** Called as a pick lands on content under the timeline: a mark (not as
+   * the keys step) */
   onPick?: () => void;
 }) {
   const { log, history, groups } = useActions();
-  const { dropped } = useLog();
   const { seq: selected, set } = useNavState();
   const [spacing, setSpacing] = useTabStorage('playgroundTimelineSpacing');
   const { entries, since } = history;
@@ -487,7 +457,7 @@ const Lanes = memo(function Lanes({
     else set(null);
   };
   const step = (by: -1 | 1) => {
-    const to = stepMoment(log, entries, selected, by);
+    const to = stepMoment(log, entries, selected, by, subject);
     if (to !== undefined) set(to);
     // live already, it brings the newest back into view
     else if (by > 0) toNewest();
@@ -531,22 +501,9 @@ const Lanes = memo(function Lanes({
     joined,
     since,
     selected,
+    subject,
     onSelect,
   });
-  // whether a lane's own actions changed its record (what its History
-  // lists), without working the History out for every lane. Unknown when
-  // none did but the log dropped some of the lane's: those may have, which
-  // only the History can say
-  const laneChanged = (lane: Lane, id: string): boolean | undefined => {
-    const entries = lane.groups.flatMap(groupEntriesOf);
-    if (
-      entries.some(e =>
-        log.changes(e).some(c => c.id === id && isRecordChange(c)),
-      )
-    )
-      return true;
-    return droppedIn(entries, dropped) > 0 ? undefined : false;
-  };
 
   // the lane labels stay put beside the scrolling tracks, the two kept at
   // one height
@@ -592,14 +549,6 @@ const Lanes = memo(function Lanes({
             {lane.key ?
               <KeyLabel value={lane.key} />
             : <span className={styles.dim}>store</span>}
-            {/* an endpoint's lane is one record's; a schema's spans a table */}
-            {splitKey(lane.key).method && (
-              <HistoryButton
-                id={endpointId(lane.key)}
-                compact
-                changed={laneChanged(lane, endpointId(lane.key))}
-              />
-            )}
           </span>
         ))}
       </div>
@@ -685,25 +634,6 @@ export function axisLabels(
   return labels;
 }
 
-/** Lanes of marks */
-function StripIcon() {
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden="true">
-      <path d="M2 4.5h12M2 8h12M2 11.5h12" />
-      <circle cx="5" cy="4.5" r="1.6" fill="currentColor" />
-      <circle cx="10" cy="8" r="1.6" fill="currentColor" />
-      <circle cx="7" cy="11.5" r="1.6" fill="currentColor" />
-    </svg>
-  );
-}
-/** Rows of text */
-function ListIcon() {
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden="true">
-      <path d="M2.5 4h2M6.5 4h7M2.5 8h2M6.5 8h7M2.5 12h2M6.5 12h7" />
-    </svg>
-  );
-}
 /** A magnifier with a minus */
 function FitIcon() {
   return (

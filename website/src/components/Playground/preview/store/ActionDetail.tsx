@@ -7,6 +7,7 @@ import {
   groupEntriesOf,
   groupOf,
   joinedFetches,
+  touches,
   type Change,
 } from './actionGroups';
 import { findEntry, isRecordChange, type LogEntry } from './actionLog';
@@ -104,24 +105,6 @@ export function ActionFacet({
       </div>
     </>
   );
-}
-
-/** Whether a change is to a row `subject` covers */
-function touches(subject: View, change: Change): boolean {
-  switch (subject.kind) {
-    case 'root':
-      return true;
-    case 'record':
-    case 'history':
-      return change.id === subject.id;
-    case 'list':
-      if ('ids' in subject) return subject.ids.includes(change.id);
-      return (
-        'table' in change &&
-        change.table === subject.table &&
-        (!subject.pks || subject.pks.includes(change.pk))
-      );
-  }
 }
 
 /** The action changed nothing `subject` covers */
