@@ -20,7 +20,7 @@ import type { Moment } from './nav';
 
 const { createReducer } = __INTERNAL__;
 
-/** Actions kept; older ones drop off the front */
+/** Actions kept (`limit`); older ones drop off the front */
 const LOG_LIMIT = 500;
 /** Updates kept per row (`updateLimit`): a subscription's polls, or pushed
  * `set`s of one entity and `setResponse`s of one endpoint. A poll still
@@ -32,6 +32,9 @@ const UPDATE_LIMIT = 20;
 const TRIM_EVERY = 50;
 
 export interface LogOptions {
+  /** Actions kept, besides the older ones a kept request or open
+   * subscription starts from (default `LOG_LIMIT`) */
+  readonly limit?: number;
   /** Updates kept per row, besides polls still waiting (default
    * `UPDATE_LIMIT`, at least 1: the oldest kept says how many were dropped) */
   readonly updateLimit?: number;
@@ -162,6 +165,7 @@ export const isRecordChange = (change: Change) => change.kind !== 'refreshed';
  * The store only commits in batches, so (like DevToolsManager) the log runs
  * the store's reducer itself to know the state right after each action. */
 export default class ActionLog {
+  private readonly limit: number;
   private readonly updateLimit: number;
   private readonly trimEvery: number;
   /** Off until the Store panel first listens, with `recordFrom: 'open'` */
@@ -180,10 +184,12 @@ export default class ActionLog {
   private queued = false;
 
   constructor({
+    limit = LOG_LIMIT,
     updateLimit = UPDATE_LIMIT,
     trimEvery = TRIM_EVERY,
     recordFrom = 'load',
   }: LogOptions = {}) {
+    this.limit = limit;
     this.updateLimit = updateLimit;
     this.trimEvery = trimEvery;
     this.recording = recordFrom === 'load';
@@ -369,13 +375,13 @@ export default class ActionLog {
       this.notify();
   }
 
-  /** `entries` within `updateLimit` and `LOG_LIMIT` */
+  /** `entries` within `updateLimit` and `limit` */
   private compact(
     entries: readonly LogEntry[],
     { storeFrom, dropped = new Map() }: Partial<History> = {},
   ): Pick<History, 'entries' | 'trimmed' | 'dropped'> {
     const capped = capUpdates(entries, this.updateLimit, dropped, storeFrom);
-    const kept = trim(capped.entries, storeFrom);
+    const kept = trim(capped.entries, this.limit, storeFrom);
     return {
       entries: kept,
       trimmed: kept.length,
@@ -472,12 +478,16 @@ function capUpdates(
   return { entries: entries.filter(e => !extra.has(e)), dropped };
 }
 
-/** The newest `LOG_LIMIT` entries, plus the older ones their groups start
+/** The newest `limit` entries, plus the older ones their groups start
  * from: a request's fetch and response while it waits or has entries kept, and the
  * subscribes of a subscription still open or holding a kept request, so a
  * long poll keeps its row */
-function trim(entries: LogEntry[], storeFrom?: number): LogEntry[] {
-  const drop = entries.length - LOG_LIMIT;
+function trim(
+  entries: LogEntry[],
+  limit: number,
+  storeFrom?: number,
+): LogEntry[] {
+  const drop = entries.length - limit;
   if (drop <= 0) return entries;
   const cut = entries[drop].seq;
   const dropped = (e: LogEntry) => e.seq < cut;

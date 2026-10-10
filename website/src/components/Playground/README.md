@@ -161,7 +161,9 @@ DesignSystem/       components injected into preview scope
   (`useDeferredValue`).
 - The Store inspector logs every dispatch through
   `preview/store/actionLog.ts`, which documents its limits and `LogOptions`
-  (the Playground's `actionLog` prop). Preview.tsx gives each store mount its
+  (the Playground's `actionLog` prop, over `DOCS_LOG` in `index.tsx`: a docs
+  page holds several playgrounds, so each keeps a shorter history than the
+  log's defaults, which suit a devtool for a whole site). Preview.tsx gives each store mount its
   own `registry.log.connect(history, replacedHistory, skipLogging)` managers. Keep
   `head` first and `tail` last when adding managers: the tail must see exactly
   what reaches the store. `usePreviewReset` owns the `history` id: a fresh

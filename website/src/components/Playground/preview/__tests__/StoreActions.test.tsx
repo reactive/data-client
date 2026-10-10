@@ -75,8 +75,8 @@ const updatePost = new Endpoint(
 );
 
 /** `preview` renders beside the panel, as the live preview does */
-function mount(preview?: React.ReactNode) {
-  const registry = new SchemaRegistry({ trimEvery: 1 });
+function mount(preview?: React.ReactNode, limit?: number) {
+  const registry = new SchemaRegistry({ trimEvery: 1, limit });
   const log = registry.log.connect(0);
   const managers = [
     log.head,
@@ -752,6 +752,16 @@ describe('Store Actions pane', () => {
     fireEvent.keyDown(scrubber(), { key: 'End' });
     expect(crumbs()).toEqual(['Actions']);
     expect(document.activeElement).toBe(scrubber());
+  });
+
+  it('keeps as many actions as its limit', async () => {
+    const { ctrl } = mount(undefined, 5);
+    await act(async () => {
+      for (let i = 0; i < 12; i++)
+        await ctrl().set(Post, { id: `${i}` }, { id: `${i}`, title: 't' });
+    });
+    openPane();
+    expect(rows()).toHaveLength(5);
   });
 
   it('holds the moment without piling up every action after it', async () => {

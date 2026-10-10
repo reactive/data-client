@@ -37,9 +37,13 @@ export interface PlaygroundProps<T = any> {
   /** Show a badge counting the preview's React commits (e.g. one notification vs N) */
   renderCount?: boolean;
   /** How the Store's action log records (e.g. `{ recordFrom: 'open' }` for
-   * a fast stream) */
+   * a fast stream), over `DOCS_LOG` */
   actionLog?: LogOptions;
 }
+
+/** A page holds several playgrounds: each keeps a short history (a
+ * devtool for a whole site would keep more, the log's own defaults) */
+const DOCS_LOG: LogOptions = { limit: 150, updateLimit: 10, trimEvery: 25 };
 
 export default function Playground<T>({
   children,
@@ -52,8 +56,10 @@ export default function Playground<T>({
   defaultTab,
   headerControls,
   renderCount = false,
-  actionLog,
+  actionLog: logOptions,
 }: PlaygroundProps<T>) {
+  // read once, as the preview first builds its log
+  const actionLog = { ...DOCS_LOG, ...logOptions };
   const model = useCodeDocuments(children, defaultTab);
   // Defer preview transpilation so editor input remains responsive.
   const documents = useDeferredValue(model.documents);
