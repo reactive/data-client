@@ -54,7 +54,9 @@ DesignSystem/       components injected into preview scope
 
 - Open files' source is in the static HTML: `TextEditTab` renders
   `StaticEditor` on the server and during hydration (BrowserOnly fallback).
-  Collapsed/unselected files render nothing until opened.
+  Collapsed/unselected files render nothing until opened, to keep the HTML
+  small, unless the document sets `ssr`: then its plain text is in the HTML,
+  hidden by CSS, for crawlers.
 - The preview renders `previewLoading` (empty frame + Store toggle) on the
   server, while loading, for bots, and while `hidden`.
 - Fixtures render server-side as JSON `CodeBlock`s; function responses are
