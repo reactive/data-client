@@ -273,6 +273,11 @@ const config: Config = {
   },
   onBrokenLinks: 'warn',
   future: {
+    // Docusaurus Faster (Rspack, SWC), except that JS still compiles with
+    // Babel, which runs the React Compiler (babel.config.js).
+    // removeLegacyPostBuildHeadAttribute is required by ssgWorkerThreads.
+    v4: { fasterByDefault: true, removeLegacyPostBuildHeadAttribute: true },
+    faster: { swcJsLoader: false },
     // Generated Vue mirror pages have no git history; read their source's
     experimental_vcs: {
       ...gitVcs,
