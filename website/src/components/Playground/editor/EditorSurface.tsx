@@ -159,17 +159,17 @@ export default function EditorSurface({
 
 function TextEditTab({
   hidden,
-  ssr = false,
+  ssr,
   interactive,
   ...editorProps
-}: InteractiveEditorProps & {
-  hidden: boolean;
-  ssr?: boolean;
-  interactive: boolean;
-}) {
+}: InteractiveEditorProps &
+  Pick<CodeDocument, 'ssr'> & {
+    hidden: boolean;
+    interactive: boolean;
+  }) {
   // SSR + hydration markup: open tabs' source stays in the HTML for crawlers.
-  // Collapsed tabs are left out to keep the HTML small; `ssr` ones keep their
-  // text, unhighlighted since it is never seen.
+  // Collapsed tabs are left out to keep the HTML small, unless marked `ssr`:
+  // those keep their text, unhighlighted since it is never seen.
   // Never branch on navigator / user agent outside BrowserOnly.
   const staticView =
     !hidden ?
