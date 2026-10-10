@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791429776158,
+  "lastUpdate": 1791602887697,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -8363,6 +8363,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 169.49,
             "range": "± 7.7%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "a3c6564e3cfc6ec3b497374a4c3c359a4f161311",
+          "message": "internal(website): Build the site with Docusaurus Faster (#4290)\n\n* internal(website): Build the site with Docusaurus Faster\n\nRspack, SWC and Lightning CSS minifiers, the MDX cross-compiler cache and\nSSG worker threads. JS keeps compiling with Babel so the React Compiler\nstill runs. A full four-locale build drops from 294s to 108s cold and 84s\nto 54s warm locally.\n\nThe SWC HTML minifier rewrites the homepage logo's inline `currentcolor`\nto `currentColor`, which React reported as a hydration mismatch; the SVG\nnow spells it that way. CI's cache key changes so Rspack's cache doesn't\ncarry the old webpack cache along.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01EEuAfapYTo3F75pPjhm8xz\n\n* internal(website): Turn on every Faster flag but swcJsLoader via fasterByDefault\n\nFlags Docusaurus adds later turn on too, without listing each one. Also drop\n`start`'s webpack 4 OpenSSL workaround, which Rspack doesn't need.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01EEuAfapYTo3F75pPjhm8xz\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-10T03:21:36Z",
+          "tree_id": "4eb97813ab558d417b771e51c2d02beb1e5d25e2",
+          "url": "https://github.com/reactive/data-client/commit/a3c6564e3cfc6ec3b497374a4c3c359a4f161311"
+        },
+        "date": 1791602883812,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 136.99,
+            "range": "± 4.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 43.86,
+            "range": "± 5.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 357.14,
+            "range": "± 6.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 344.83,
+            "range": "± 7.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 45.67,
+            "range": "± 9.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 327.96,
+            "range": "± 5.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 333.33,
+            "range": "± 8.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 8.39,
+            "range": "± 10.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 96.15,
+            "range": "± 11.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 38.91,
+            "range": "± 4.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 219.81,
+            "range": "± 6.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 303.03,
+            "range": "± 4.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 183.5,
+            "range": "± 9.3%",
             "unit": "ops/s"
           }
         ]
