@@ -1,7 +1,7 @@
 import AssetList from '!!raw-loader!../polling/AssetList.tsx';
 import AssetPrice from '!!raw-loader!../polling/AssetPrice.tsx';
 import resources from '!!raw-loader!../websocket/resources.ts';
-import source from '!!raw-loader!./source.ts';
+import eventSource from '!!raw-loader!./eventSource.ts';
 import StreamManager from '!!raw-loader!./StreamManager.ts';
 
 export default {
@@ -18,9 +18,9 @@ export default {
       code: StreamManager,
     },
     {
-      path: 'source',
+      path: 'eventSource',
       ssr: true,
-      code: source,
+      code: eventSource,
     },
     {
       path: 'AssetPrice',

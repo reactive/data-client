@@ -4,7 +4,7 @@ import type {
   Middleware,
 } from '@data-client/react';
 import { actionTypes, getDefaultManagers } from '@data-client/react';
-import { ReconnectingEventSource } from './source';
+import { ReconnectingEventSource } from './eventSource';
 import { Ticker } from './resources';
 
 const { SUBSCRIBE, UNSUBSCRIBE } = actionTypes;
