@@ -90,6 +90,7 @@ export default function EditorSurface({
   // Every file's model must exist before any is type-checked, or imports of
   // later tabs read as missing modules (see createMissingModels).
   const documentsRef = useRef(documents);
+  // in an effect, not during render, so a discarded render can't leak in
   useIsomorphicLayoutEffect(() => {
     documentsRef.current = documents;
   });

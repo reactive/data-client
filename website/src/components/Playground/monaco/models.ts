@@ -38,9 +38,9 @@ export function createMissingModels(
     monaco.editor.createModel(code, language, uri);
   }
   // Until the first TypeScript model exists the TS worker isn't registered,
-  // and no model is checked. Once checks start, the worker either starts with
-  // every model (eager sync) or re-checks them all when the type libs land
-  // (./setup.ts), so surfaces created before this resolves are safe.
+  // and no model is checked. Once checks start, the worker starts with every
+  // model if eager sync is already on; otherwise any false TS2307 clears when
+  // the type libs land and every model is re-checked (./setup.ts).
   if (!typeScriptWorkerRequested && typeScriptUris.length) {
     typeScriptWorkerRequested = true;
     void monaco.typescript.getTypeScriptWorker().then(getWorker => {

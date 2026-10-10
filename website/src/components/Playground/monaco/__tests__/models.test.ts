@@ -38,7 +38,7 @@ describe('createMissingModels', () => {
     calls = [];
   });
 
-  test('syncs every TS file to the worker before creating any model', async () => {
+  test('once the worker is known, syncs every TS file before creating any model', async () => {
     // first call only learns the worker (it isn't registered before a TS model exists)
     createMissingModels(fakeMonaco(), files);
     expect(calls).toEqual([
