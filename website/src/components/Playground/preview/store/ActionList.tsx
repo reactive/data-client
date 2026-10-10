@@ -37,7 +37,7 @@ import {
   useLog,
 } from './actionParts';
 import type { Header } from './DiveViews';
-import { byData, onActivateKey, scrollToRow, toggled } from './dom';
+import { byData, onActivateKey, revealIn, toggled } from './dom';
 import { actionId } from './model';
 import { ActionSpanContext, useNavState, type View } from './nav';
 import styles from './store.module.css';
@@ -193,9 +193,8 @@ function ActionList({
   useLayoutEffect(() => {
     if (seq === null) toNewest();
   }, [seq, toNewest]);
-  // ↑ ↓ from a row's head move to the row before or after it, as the
-  // moment's; a group's head stands for its response, so from a step of the
-  // moment's own group only focus moves
+  // ↑ ↓ move to the head or step before or after, as the moment's: a head
+  // of several actions stands for them all, as clicking it does
   const onKeyDown = (e: React.KeyboardEvent) => {
     const by =
       e.key === 'ArrowDown' ? 1
@@ -210,9 +209,6 @@ function ActionList({
     if (!next) return;
     e.preventDefault();
     next.focus();
-    if (next.hasAttribute('aria-expanded') && next.dataset.group === currentId)
-      return;
-    // a row of several actions stands for them all
     set(Number(next.dataset.seq), next.dataset.id === next.dataset.group);
   };
   return (
@@ -296,8 +292,8 @@ function useReveal(
   const reveal = useCallback(() => {
     const el = scroller.current;
     if (pending.current === null || !el?.clientHeight) return;
-    const id = momentRow(el, pending.current, group)?.dataset.id;
-    if (id) scrollToRow(el, id, { focus: false });
+    const row = momentRow(el, pending.current, group);
+    if (row) revealIn(el, row);
     pending.current = null;
   }, [scroller, group]);
   useLayoutEffect(() => {
@@ -434,7 +430,7 @@ export function GroupActions({
 }) {
   const { show } = useNavState();
   return (
-    <div className={styles.actList}>
+    <div className={styles.groupSteps}>
       <Steps
         group={group}
         subject={subject}

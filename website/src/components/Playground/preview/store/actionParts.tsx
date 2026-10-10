@@ -117,16 +117,38 @@ export function useFollow(
       if (atEnd) away = false;
       follow.current = atEnd;
     };
-    // only a step this scroller can take: it has room to go back, and the
+    // a scroller inside it (an open row's steps) takes the steps back it
+    // has room for
+    const nestedTakes = (target: EventTarget | null) => {
+      for (
+        let box = target instanceof Element ? target : null;
+        box && box !== el;
+        box = box.parentElement
+      )
+        if (box[size] > box[client] && box[scroll] > 0) return true;
+      return false;
+    };
+    // only a step this scroller takes: it has room to go back, and the
     // gesture is mostly along its axis
-    const back = (along: number, across: number) => {
-      if (along >= 0 || Math.abs(along) < Math.abs(across) || el[scroll] <= 0)
+    const back = (
+      along: number,
+      across: number,
+      target: EventTarget | null,
+    ) => {
+      if (
+        along >= 0 ||
+        Math.abs(along) < Math.abs(across) ||
+        el[scroll] <= 0 ||
+        nestedTakes(target)
+      )
         return;
       away = true;
       follow.current = false;
     };
     const onWheel = (e: WheelEvent) =>
-      axis === 'y' ? back(e.deltaY, e.deltaX) : back(e.deltaX, e.deltaY);
+      axis === 'y' ?
+        back(e.deltaY, e.deltaX, e.target)
+      : back(e.deltaX, e.deltaY, e.target);
     let touch: { x: number; y: number } | undefined;
     const touchAt = (e: TouchEvent) =>
       e.touches[0] && { x: e.touches[0].clientX, y: e.touches[0].clientY };
@@ -137,8 +159,8 @@ export function useFollow(
       if (at && touch) {
         const dx = touch.x - at.x;
         const dy = touch.y - at.y;
-        if (axis === 'y') back(dy, dx);
-        else back(dx, dy);
+        if (axis === 'y') back(dy, dx, e.target);
+        else back(dx, dy, e.target);
       }
       touch = at;
     };

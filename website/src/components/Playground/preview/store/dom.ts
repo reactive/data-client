@@ -48,20 +48,35 @@ export function flash(scope: HTMLElement, test: (id: string) => boolean) {
   }
 }
 
-/** Scrolls row `id` into view below the section header and focuses it
- * (unless `focus` is off) */
-export function scrollToRow(
-  scroller: HTMLElement,
-  id: string,
-  { focus = true }: { focus?: boolean } = {},
-) {
+/** Scrolls row `id` into view below the section header and focuses it */
+export function scrollToRow(scroller: HTMLElement, id: string) {
   const row = byData(scroller, 'id', id);
   if (!row) return;
   scroller.scrollTo({
     top: Math.max(0, offsetIn(scroller, row) - HEADER_HEIGHT),
     behavior: 'smooth',
   });
-  if (focus) row.focus({ preventScroll: true });
+  row.focus({ preventScroll: true });
+}
+
+/** Scrolls `row` just into view of `scroller`, and of any scroller between
+ * them (an open row's steps), leaving it be where it already shows */
+export function revealIn(scroller: HTMLElement, row: HTMLElement) {
+  for (let box = row.parentElement; box; box = box.parentElement) {
+    const outer = box === scroller;
+    if (outer || /auto|scroll/.test(getComputedStyle(box).overflowY)) {
+      const top = offsetIn(box, row);
+      const bottom = top + row.getBoundingClientRect().height;
+      const to =
+        top < box.scrollTop ? top
+        : bottom > box.scrollTop + box.clientHeight ? bottom - box.clientHeight
+        : undefined;
+      // inner ones jump, so the outer one measures where the row ends up
+      if (to !== undefined)
+        box.scrollTo({ top: to, behavior: outer ? 'smooth' : 'instant' });
+    }
+    if (outer) return;
+  }
 }
 
 /** keydown for an element acting as a button: Enter or Space on the element

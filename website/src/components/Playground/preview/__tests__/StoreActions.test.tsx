@@ -129,7 +129,7 @@ const openDiff = () =>
 /** State's store, its root level */
 const toRoot = () => {
   openState();
-  backTo('State');
+  backTo('Store');
 };
 /** At a moment, the whole store the action left, not its diff */
 const showAfter = openState;
@@ -211,6 +211,16 @@ const top = () =>
   [...document.querySelectorAll<HTMLElement>('[data-level]')].find(
     el => !el.closest('[hidden]') && !el.hasAttribute('data-covered'),
   )!;
+
+/** Rows lay out below a 100px tall scroller, out of its view */
+function rowsBelow() {
+  return jest
+    .spyOn(Element.prototype, 'getBoundingClientRect')
+    .mockImplementation(function (this: Element) {
+      const top = (this as HTMLElement).dataset?.id ? 500 : 0;
+      return { top, bottom: top + 28, height: 28 } as DOMRect;
+    });
+}
 
 describe('Store Actions pane detail', () => {
   afterEach(() => jest.useRealTimers());
@@ -423,14 +433,18 @@ describe('Store Actions pane detail', () => {
     fireEvent.keyDown(rows()[0], { key: 'ArrowUp' });
     expect(document.activeElement).toBe(rows()[0]);
     // into a row's steps and back up to its head, which stands for the
-    // response the moment is past: focus alone moves
+    // whole request, as clicking it does
     fireEvent.keyDown(rows()[0], { key: 'ArrowDown' });
     const fetch = document.activeElement as HTMLElement;
     expect(fetch.dataset.seq).toBe('1');
     expect(fetch.getAttribute('aria-current')).toBe('true');
     fireEvent.keyDown(fetch, { key: 'ArrowUp' });
     expect(document.activeElement).toBe(rows()[0]);
+    expect(rows()[0].getAttribute('aria-current')).toBe('true');
+    expect(fetch.getAttribute('aria-current')).toBeNull();
+    fireEvent.keyDown(rows()[0], { key: 'ArrowDown' });
     expect(fetch.getAttribute('aria-current')).toBe('true');
+    rows()[0].focus();
     // the row's ▸ closes it though the moment is at one of its steps, and
     // the pane stays
     fireEvent.click(expander(rows()[0]));
@@ -512,7 +526,7 @@ describe('Store Actions pane detail', () => {
     expect(scrubber().textContent).toContain('After GET /posts');
     // the diff shows what it did to the record
     openDiff();
-    expect(crumbs()).toEqual(['State', 'Post 1']);
+    expect(crumbs()).toEqual(['Store', 'Post 1']);
     expect(top().textContent).toContain('+Post 1id: "1", title: "One"');
     expect(actionsToggle().getAttribute('aria-selected')).toBe('false');
   });
@@ -687,6 +701,7 @@ describe('Store Actions pane', () => {
   it('marks the moment’s action in the list, with its row open', async () => {
     const scrollTo = jest.fn();
     Element.prototype.scrollTo = scrollTo;
+    const rects = rowsBelow();
     try {
       const { ctrl } = mount();
       await act(() => ctrl().fetch(getPosts));
@@ -720,7 +735,23 @@ describe('Store Actions pane', () => {
       expect(marked()).toEqual([]);
     } finally {
       delete (Element.prototype as any).scrollTo;
+      rects.mockRestore();
     }
+  });
+
+  it('keeps focus on the scrubber as going live closes the action', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+    );
+    openPane();
+    fireEvent.click(rows()[0]);
+    expect(crumbs()).toContain('Actions');
+    scrubber().focus();
+    fireEvent.keyDown(scrubber(), { key: 'End' });
+    expect(crumbs()).toEqual(['Actions']);
+    expect(document.activeElement).toBe(scrubber());
   });
 
   it('lets go of the newest at a trackpad’s first small step back', async () => {
@@ -760,6 +791,16 @@ describe('Store Actions pane', () => {
         ctrl().set(Post, { id: '2' }, { id: '2', title: 'Last' }),
       );
       expect(list.scrollTop).toBe(900);
+      // a step back a scroller inside it takes (an open row's steps) too
+      const inner = rows()[0];
+      Object.defineProperty(inner, 'scrollHeight', { value: 300 });
+      inner.scrollTop = 50;
+      fireEvent.wheel(inner, { deltaY: -5 });
+      list.scrollTop = 0;
+      await act(() =>
+        ctrl().set(Post, { id: '2' }, { id: '2', title: 'Final' }),
+      );
+      expect(list.scrollTop).toBe(900);
     } finally {
       delete (HTMLElement.prototype as any).clientHeight;
     }
@@ -789,6 +830,7 @@ describe('Store Actions pane', () => {
       openPane();
       act(() => resized.forEach(cb => cb()));
     };
+    const rects = rowsBelow();
     try {
       const { ctrl } = mount();
       await act(() => ctrl().fetch(getPosts));
@@ -830,6 +872,7 @@ describe('Store Actions pane', () => {
       delete (Element.prototype as any).scrollTo;
       delete (HTMLElement.prototype as any).clientHeight;
       delete (globalThis as any).ResizeObserver;
+      rects.mockRestore();
     }
   });
 
@@ -1034,6 +1077,17 @@ describe('Store Actions pane', () => {
     expect(rows()[0].textContent).not.toMatch(/\d+ ms/);
   });
 
+  it('shows a level a chip opened at an old store’s action as it is now', async () => {
+    const { ctrl, show } = mount();
+    await act(() => ctrl().set(Post, { id: '3' }, { id: '3', title: 'New' }));
+    openPane();
+    fireEvent.click(within(rows()[0]).getByRole('button', { name: /Post 3/ }));
+    expect(top().textContent).toContain('after this action');
+    await act(async () => show(1));
+    expect(current()).toBe('Post 3');
+    expect(top().textContent).not.toContain('this action');
+  });
+
   it('lists a set on its own, and only its own store’s actions', async () => {
     const { ctrl, show } = mount();
     await act(() => ctrl().set(Post, { id: '3' }, { id: '3', title: 'New' }));
@@ -1194,7 +1248,7 @@ describe('Store diff', () => {
     expect(top().textContent).toMatch(/title: "One" → "Edited"/);
     // a record the moment's action left alone, opened from the store it
     // left
-    backTo('State');
+    backTo('Store');
     fireEvent.click(screen.getByRole('button', { name: 'Live' }));
     await act(() => ctrl().set(Post, { id: '2' }, { id: '2', title: 'Other' }));
     previous();
@@ -1262,9 +1316,7 @@ describe('Store diff', () => {
     const row = top().querySelector<HTMLElement>(
       `tr[data-id="${entityId('Post', '1')}"]`,
     )!;
-    const changed = [
-      ...row.querySelectorAll<HTMLElement>('td[data-changed]'),
-    ];
+    const changed = [...row.querySelectorAll<HTMLElement>('td[data-changed]')];
     expect(changed).toHaveLength(1);
     expect(changed[0].textContent).toBe('"Edited""One"');
     expect(changed[0].querySelector('del')!.textContent).toBe('"One"');
@@ -1278,6 +1330,32 @@ describe('Store diff', () => {
     fireEvent.click(screen.getByLabelText('Table view'));
     openState();
     expect(top().querySelector('[data-changed], del')).toBeNull();
+  });
+
+  it('shows the newest poll live, not all its subscription did', async () => {
+    const { ctrl } = mount();
+    let n = 0;
+    const polled = new Endpoint(
+      async () => [{ id: '1', title: `poll ${n++}` }],
+      {
+        schema: [Post],
+        key: () => POSTS,
+        name: 'polled',
+        pollFrequency: 1e6,
+      },
+    );
+    await act(async () => {
+      await ctrl().subscribe(polled);
+      await ctrl().fetch(polled);
+      await ctrl().fetch(polled);
+    });
+    openDiff();
+    const row = top().querySelector<HTMLElement>(
+      `tr[data-id="${entityId('Post', '1')}"]`,
+    )!;
+    expect(row.dataset.change).toBe('updated');
+    // the poll before it, however many the subscription made
+    expect(row.querySelector('del')!.textContent).toBe(`"poll ${n - 2}"`);
   });
 
   it('shows what an endpoint’s value was', async () => {

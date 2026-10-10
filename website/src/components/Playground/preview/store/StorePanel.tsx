@@ -17,6 +17,7 @@ import {
   groupOf,
   keepUnchanged,
   momentEntries,
+  requestEntries,
   subjectFilter,
   subjectGaps,
   touches,
@@ -142,6 +143,9 @@ export default function StorePanel({
     setMomentSeq(null);
     setWhole(false);
     actionLevels.followMoment(null);
+    // levels a chip opened at the old store's actions show the new one
+    levels.clearAt();
+    actionLevels.clearAt();
   }
   const known = useKeptEntries(entries, momentSeq !== null);
   const moment = momentSeq === null ? undefined : findEntry(known, momentSeq);
@@ -193,12 +197,12 @@ export default function StorePanel({
   );
   // what the moment stands for, and what that changed: the Diff tab shows
   // only that, from before its first action to the store the moment shows.
-  // Live, that is the newest stored action's whole group: a response
-  // that stored nothing new still shows its request's optimistic update
+  // Live, that is the newest stored action's request: a response that
+  // stored nothing new still shows its optimistic update
   const span = useMemo(() => {
     if (moment) return momentEntries(groups, moment, whole);
     const newest = known.findLast(e => e.store);
-    return newest && momentEntries(groups, newest, true);
+    return newest && requestEntries(groups, newest);
   }, [groups, moment, whole, known]);
   const first = span?.find(e => e.store);
   const prior = first && then({ seq: first.seq, before: true });
@@ -308,23 +312,20 @@ export default function StorePanel({
     () => ({ seq: momentSeq, whole, set, show }),
     [momentSeq, whole, set, show],
   );
-  // a view to open from where there is no level of the store to open it
-  // from (the timeline's and the actions' chips): over its top level, in
-  // Snapshot or Diff and the table view; under the sheet or the peek, which close to show it
+  // what the peek's chips open: over the top level of Snapshot or Diff, in
+  // the table view, with the peek closed to show it
   const { push } = levels;
   const openView = useCallback(
     (view: View, at?: Moment) => {
-      if (tab === 'actions') setTab('snapshot');
       setView('table');
       push(view, at);
       closePane();
-      if (narrow) collapse();
     },
-    [tab, setTab, setView, push, narrow, collapse, closePane],
+    [setView, push, closePane],
   );
-  // what the timeline's and the pane's chips open with. The chips only
-  // push, so the model comes through a ref: the value keeps its identity
-  // across store commits and the memoized rows holding chips skip them
+  // the chips only push, so the model comes through a ref: the value keeps
+  // its identity across store commits and the memoized rows holding chips
+  // skip them
   const modelRef = useRef(model);
   modelRef.current = model;
   const chipNav = useMemo<Nav>(
@@ -356,19 +357,18 @@ export default function StorePanel({
           </button>
         </div>
       )}
-      <NavContext.Provider value={chipNav}>
-        <Timeline
-          width={width}
-          hit={filter.hit}
-          onPick={narrow ? collapse : undefined}
-        />
-      </NavContext.Provider>
+      <Timeline
+        width={width}
+        hit={filter.hit}
+        onPick={narrow ? collapse : undefined}
+      />
     </Unfold>
   );
   // the store flashes what the moment changed (a request's own rows, not
   // those of actions between its steps)
   useFlashChanges(panel, state, moment && diff?.rows);
-  // the subject's levels show in Snapshot, and in Diff at a moment
+  // the subject's levels show in Snapshot, and in Diff once an action
+  // changed the store
   const storeShown = tab === 'snapshot' || (tab === 'diff' && !!diff);
   const shownDiff = tab === 'diff' ? diff : undefined;
 
@@ -488,15 +488,16 @@ export default function StorePanel({
                 </div>
                 <div className={styles.tabPanel} role="tabpanel">
                   {/* both stay mounted, so each keeps the stores its levels
-                      show, their scroll, pages and filters */}
-                  <Levels
-                    model={model}
-                    width={width}
-                    levels={actionLevels}
-                    subject={subject}
-                    hidden={tab !== 'actions'}
-                  />
+                      show, their scroll, pages and filters; both read the
+                      moment's state where they show the moment's store */}
                   <StateContext.Provider value={state}>
+                    <Levels
+                      model={model}
+                      width={width}
+                      levels={actionLevels}
+                      subject={subject}
+                      hidden={tab !== 'actions'}
+                    />
                     <DiffContext.Provider value={shownDiff?.rows ?? null}>
                       {tree ?
                         storeShown && (
@@ -636,7 +637,10 @@ function Levels({
   const crumbs = (depth: number, tools?: React.ReactNode) => {
     const shown = stack.slice(0, depth + 1);
     const { at } = stack[depth];
-    const model = levelOf(stack[depth]).nav.model;
+    // one opened at an action the log no longer has shows the store as it is
+    const { nav, then } = levelOf(stack[depth]);
+    const { model } = nav;
+    const shownAt = then && at;
     const items =
       shown.length > CRUMBS ?
         [0, -1, shown.length - 2, shown.length - 1]
@@ -674,11 +678,11 @@ function Levels({
             </React.Fragment>
           ))}
         </nav>
-        {(at || tools) && (
+        {(shownAt || tools) && (
           <span className={styles.tools}>
-            {at && (
+            {shownAt && (
               <span className={styles.dim}>
-                {at.before ? 'before' : 'after'} this action
+                {shownAt.before ? 'before' : 'after'} this action
               </span>
             )}
             {tools}
@@ -810,8 +814,12 @@ function Level({
     const before = wasTop.current;
     wasTop.current = top;
     if (!el || !top || before === true || (before === null && !pushed)) return;
-    // keyboard focus follows, so Escape goes back
-    el.focus({ preventScroll: true });
+    // keyboard focus follows, so Escape goes back. Uncovered, only when it
+    // fell with the level that closed: not when the moment, stepped from
+    // the scrubber, took that level away
+    const active = document.activeElement;
+    if (before === null || !active || active === document.body)
+      el.focus({ preventScroll: true });
     slide(el, before === null ? 1 : -1);
     if (before === false && returnTo) flash(el, id => id === returnTo);
   }, [top, pushed, returnTo]);
@@ -821,6 +829,7 @@ function Level({
       className={styles.level}
       data-level
       data-covered={!top || hidden || undefined}
+      data-frozen={then ? true : undefined}
       inert={!top || hidden}
       tabIndex={-1}
       onKeyDown={e => {
@@ -1000,13 +1009,14 @@ function ActionsCrumb({
       </>;
 }
 
-/** What a breadcrumb shows for a view */
-function crumbLabel(view: LevelView, model: StoreModel): React.ReactNode {
+/** What a breadcrumb shows for a view (the actions' is `ActionsCrumb`) */
+function crumbLabel(
+  view: Exclude<LevelView, { kind: 'actions' }>,
+  model: StoreModel,
+): React.ReactNode {
   switch (view.kind) {
     case 'root':
-      return 'State';
-    case 'actions':
-      return 'Actions';
+      return 'Store';
     case 'action':
       return <ActionCrumb seq={view.seq} whole={view.whole} />;
     case 'list': {
@@ -1058,7 +1068,7 @@ function TreeLevel({ model, diff }: { model: StoreModel; diff?: Diff }) {
   return (
     <StoreUIProvider model={diff?.model ?? model} onReveal={setPending}>
       <div className={styles.levels}>
-        <div className={styles.level} ref={scroller} data-level>
+        <div className={styles.level} ref={scroller} data-level tabIndex={-1}>
           {!diff ?
             <TreeView model={model} />
           : diff.rows.size ?
@@ -1097,8 +1107,9 @@ function useFlashChanges(
   useEffect(() => {
     const before = prev.current;
     prev.current = state;
+    // a level showing the store an action left keeps still
     const el = ref.current?.querySelector<HTMLElement>(
-      '[data-level]:not([data-covered])',
+      '[data-level]:not([data-covered]):not([data-frozen])',
     );
     if (!el || before === state) return;
     flash(

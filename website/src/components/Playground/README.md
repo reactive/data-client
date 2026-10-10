@@ -216,8 +216,8 @@ DesignSystem/       components injected into preview scope
   the moment. A level a chip opened at an action shows that store, not the
   diff, until the moment is set on purpose (`clearAt`), which outranks it.
   Over Snapshot or Diff, the mouse resting on the Actions tab peeks at the
-  same list (`ActionsPane`, an `aside` whose head counts its rows): timeline
-  controls, an overlay over the store's right side (narrow, most of it) that
+  same list (`ActionsPane`, an `aside` whose head counts its rows) as
+  timeline controls: an overlay over the store's right side (narrow, most of it) that
   stays while the pointer is over either and goes as it leaves both, with
   Escape or a press outside (each panel's own: a page holds several), focus
   going back to the tab. Picking a row or step there only moves the moment,
@@ -229,8 +229,8 @@ DesignSystem/       components injected into preview scope
   dropped actions was found at, noted once above a run of them), one row per
   request or subscription; a row's ▸ lists its actions. The moment's row is marked (`aria-current`), opened and
   scrolled to; nothing is marked while live. ↑ ↓ on a row or step move to
-  the next one, as the moment; a group's head stands for the whole group, so ↑
-  from a step of the moment's own group moves focus alone. A row renders
+  the next one, as the moment; a head of several actions stands for the whole
+  group, as clicking it does. A row renders
   again only as its own group changes (`GroupRow` is memoized;
   `subjectFilter` keeps its identity while the record's gaps do, and the
   chips' `Nav` reads the model through a ref so it keeps its identity
@@ -238,8 +238,7 @@ DesignSystem/       components injected into preview scope
   The scrubber across the top of the panel (`Scrubber` in
   `preview/store/Timeline.tsx`, a `role="group"`) always shows the whole
   history on one lane, fit to the panel: ‹ › and ←→ step through the changes
-  to the subject (`subjectFilter`'s `hit`, the rule the pane lists by: every
-  stored action at the store; below it the marks that left the subject alone
+  to the subject (`subjectFilter`'s `hit`: every stored action at the store; below it the marks that left the subject alone
   are dimmed, `data-dim`, and skipped; past the newest, and End, go live), a
   mark lands on its action, "Live" lets go. Marks closer on the track than a
   mark's width and a gap (`MERGE_PX`) draw as one, at the first of them
@@ -255,9 +254,9 @@ DesignSystem/       components injected into preview scope
   placed as fractions of the track, `--tl-f`, so nothing is measured; axis
   labels thin out as it squeezes). Narrow (under `NARROW_WIDTH`), the
   timeline opens as a sheet over the content instead of pushing it down,
-  closed by ✕, Escape, picking a mark or a chip. Where there is no level to
-  open a view from (the tree view, the timeline's and the pane's chips),
-  `StorePanel` opens it over the top level in the table view.
+  closed by ✕, Escape or picking a mark. Where there is no level to open a
+  view from (the tree view, the peek's chips), `StorePanel` opens it over
+  the top level in the table view.
 
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
   count in the preview header (written to the DOM, so counting adds no commits).

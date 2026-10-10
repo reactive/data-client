@@ -7,8 +7,8 @@ import {
   pageColumns,
 } from '../store/columns';
 import { entityId, type EntityRow, type EntityTable } from '../store/model';
-import { tableColumns } from '../store/Table';
 import { plain, type VNode } from '../store/refs';
+import { tableColumns } from '../store/Table';
 
 const row = (pk: string, raw: unknown): EntityRow => ({
   id: entityId('T', pk),

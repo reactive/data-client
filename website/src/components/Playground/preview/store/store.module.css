@@ -1107,6 +1107,11 @@ div.gapRow {
   max-height: 16rem;
   overflow-y: auto;
 }
+/* a group's own level already scrolls: its steps run at full length */
+.groupSteps > .steps {
+  max-height: none;
+  overflow-y: visible;
+}
 div.stepRow {
   flex-wrap: wrap;
   gap: 0.1rem 0.6rem;
@@ -1157,7 +1162,7 @@ div.joined {
 .actBody > .metaList {
   margin: 0;
   padding: 0.4rem 0.75rem 0.2rem;
-  /* narrow as the pane is, the values keep room: names take only what
+  /* narrow as the panel may be, the values keep room: names take only what
      they need, and a nested object goes under its name, indented */
   grid-template-columns: max-content minmax(0, 1fr);
   overflow-wrap: anywhere;

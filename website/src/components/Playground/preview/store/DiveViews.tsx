@@ -309,7 +309,6 @@ function useWindow(
   };
 }
 
-/** One row with everything about it */
 /** A row's own level: its record, or a Collection's members as a table,
  * with the row's meta at the bottom */
 export function RecordLevel({

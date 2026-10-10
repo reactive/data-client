@@ -165,13 +165,13 @@ describe('StorePanel table view', () => {
   it('dives into a record and back', () => {
     mount();
     fireEvent.click(within(top()).getByText('"Paul"'));
-    expect(crumbs()).toEqual(['State', '›', 'User 1']);
+    expect(crumbs()).toEqual(['Store', '›', 'User 1']);
     expect(within(top()).getByText('used by')).toBeTruthy();
     // a ref chip dives further
     fireEvent.click(within(top()).getByRole('button', { name: 'Post 1' }));
-    expect(crumbs()).toEqual(['State', '›', 'User 1', '›', 'Post 1']);
+    expect(crumbs()).toEqual(['Store', '›', 'User 1', '›', 'Post 1']);
     act(() => press('Escape'));
-    expect(crumbs()).toEqual(['State', '›', 'User 1']);
+    expect(crumbs()).toEqual(['Store', '›', 'User 1']);
     fireEvent.click(within(top()).getByLabelText('Back'));
     expect(top().querySelector('nav')).toBeNull();
   });
@@ -179,7 +179,7 @@ describe('StorePanel table view', () => {
   it('lists a whole table with a filter', () => {
     mount();
     fireEvent.click(screen.getByText('7 more'));
-    expect(crumbs()).toEqual(['State', '›', 'Post12']);
+    expect(crumbs()).toEqual(['Store', '›', 'Post12']);
     const rows = () =>
       [...top().querySelectorAll('tr[data-id]')].map(r => {
         const ref = parseRowId(r.getAttribute('data-id')!);

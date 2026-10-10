@@ -464,6 +464,20 @@ export function momentEntries(
     : [entry];
 }
 
+/** The request `entry` belongs to, up to it: its optimistic update and
+ * response together, even when a subscription polled it */
+export function requestEntries(
+  groups: readonly ActionGroup[],
+  entry: LogEntry,
+): readonly LogEntry[] {
+  const group = groupOf(groups, entry.seq);
+  const request =
+    group?.kind === 'subscription' ?
+      group.requests.find(r => r.entries.includes(entry))
+    : group;
+  return request ? request.entries.filter(e => e.seq <= entry.seq) : [entry];
+}
+
 /** By seq, for each list of groups: the one holding that action */
 const groupIndex = new WeakMap<
   readonly ActionGroup[],
