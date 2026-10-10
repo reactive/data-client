@@ -249,17 +249,16 @@ describe('StorePanel table view', () => {
     expect(document.querySelector('[data-table]')).toBeNull();
   });
 
-  it('leaves focus alone as the overview first shows; the Actions list takes it', () => {
+  it('leaves focus alone as the overview first shows, and on the tab picked', () => {
     mount();
     expect(document.activeElement).toBe(document.body);
-    const actions = screen.getByRole('button', { name: 'Actions' });
+    const actions = screen.getByRole('tab', { name: 'Actions' });
     actions.focus();
-    // a level like any other, so Escape goes back
     fireEvent.click(actions);
-    expect(actions.getAttribute('aria-pressed')).toBe('true');
-    expect(document.activeElement).toBe(top());
-    fireEvent.keyDown(top(), { key: 'Escape' });
-    expect(actions.getAttribute('aria-pressed')).toBe('false');
+    expect(actions.getAttribute('aria-selected')).toBe('true');
+    expect(document.activeElement).toBe(actions);
+    fireEvent.click(screen.getByRole('tab', { name: 'State' }));
+    expect(actions.getAttribute('aria-selected')).toBe('false');
     expect(crumbs()).toEqual([]);
   });
 

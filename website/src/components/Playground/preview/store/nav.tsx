@@ -16,6 +16,7 @@ import {
   type StoreModel,
 } from './model';
 import { memberRefs, type RefNode } from './refs';
+import type { ChangeKind } from './actionGroups';
 
 /** Rows of one table (all, or just `pks`), or rows of any kind by id */
 export type ListView =
@@ -91,10 +92,9 @@ export type LevelView = View | ActionsView | ActionView;
 export const isSubject = (view: LevelView): view is View =>
   view.kind !== 'action' && view.kind !== 'actions';
 
-/** The subject of the stack's top: the nearest level that is one (the
- * stack starts at a subject) */
-export function subjectOf(stack: readonly StackEntry[]): View {
-  return stack.map(e => e.view).findLast(isSubject)!;
+/** The subject of the stack's top: the nearest level that is one, if any */
+export function subjectOf(stack: readonly StackEntry[]): View | undefined {
+  return stack.map(e => e.view).findLast(isSubject);
 }
 
 /** A level of a navigation stack */
@@ -119,18 +119,13 @@ export interface LevelStack {
   /** Shows action `seq` over the subject's actions (opening them, or in
    * place of the action view on top), so Back lists them */
   readonly showAction: (seq: number) => void;
-  /** Lists the subject's actions over the top level, unless they (or an
-   * action over them) are on top */
-  readonly openActions: () => void;
-  /** Closes the top subject's actions, and the action shown over them */
-  readonly closeActions: () => void;
   /** The moment moved: an action view on top follows it, and goes as the
    * moment lets go (`null`) */
   readonly followMoment: (seq: number | null) => void;
 }
 
 /** A stack of views over `root` */
-export function useLevelStack(root: View): LevelStack {
+export function useLevelStack(root: LevelView): LevelStack {
   // the record a level was opened from flashes once that level is back on top
   const [{ stack, returnTo }, setLevels] = useState<{
     readonly stack: readonly StackEntry[];
@@ -173,22 +168,6 @@ export function useLevelStack(root: View): LevelStack {
       return { ...prev, stack: [...under, { key: nextKey.current++, view }] };
     });
   }, []);
-  const openActions = useCallback(() => {
-    setLevels(prev =>
-      !isSubject(prev.stack[prev.stack.length - 1].view) ? prev : (
-        {
-          ...prev,
-          stack: [...prev.stack, { key: nextKey.current++, view: ACTIONS }],
-        }
-      ),
-    );
-  }, []);
-  const closeActions = useCallback(() => {
-    setLevels(prev => {
-      const subject = prev.stack.findLastIndex(e => isSubject(e.view));
-      return { ...prev, stack: prev.stack.slice(0, subject + 1) };
-    });
-  }, []);
   const followMoment = useCallback((seq: number | null) => {
     setLevels(prev => {
       // live, no action is left to show: the stack ends under the first
@@ -216,12 +195,10 @@ export function useLevelStack(root: View): LevelStack {
     back,
     clearAt,
     showAction,
-    openActions,
-    closeActions,
     followMoment,
   };
 }
-const ACTIONS: ActionsView = { kind: 'actions' };
+export const ACTIONS: ActionsView = { kind: 'actions' };
 
 /** The store as an action left it, or (`before`) found it (a removed row
  * shows as it was). A level pushed at a Moment shows that store, and so does
@@ -232,13 +209,14 @@ export interface Moment {
 }
 
 /** Where the panel stands, apart from its subject: the moment (State shows
- * the store right after action `seq`, the timeline and the Actions pane mark
- * it; `null` is live). Every level, the timeline and the pane can move it */
+ * what action `seq` changed, or the store right after it; the timeline and
+ * the actions mark it; `null` is live). Every level, the timeline and the
+ * actions can move it */
 export interface NavState {
   readonly seq: number | null;
   readonly set: (seq: number | null) => void;
-  /** Moves the moment to action `seq` and opens it at full width: what it
-   * did to the subject, then the action itself */
+  /** Moves the moment to action `seq` and opens it in the Actions tab: what
+   * it did to the subject, then the action itself */
   readonly show: (seq: number) => void;
 }
 export const NavStateContext = createContext<NavState>({
@@ -247,6 +225,13 @@ export const NavStateContext = createContext<NavState>({
   show: () => {},
 });
 export const useNavState = () => useContext(NavStateContext);
+
+/** How the moment's action changed each row it changed, by row id, while
+ * State shows that diff: rows mark it */
+export const DiffContext = createContext<ReadonlyMap<
+  string,
+  ChangeKind
+> | null>(null);
 
 /** The store at a `Moment` */
 export interface Then {

@@ -71,15 +71,14 @@ const toggle = () =>
   fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
 /** The expanded timeline: the lanes */
 const lanes = () => screen.getByRole('group', { name: /^Timeline/ });
-/** The bar over the content: State, its view switch and the pane's toggle */
-const stateBar = () => screen.getByText('State').parentElement!;
-/** The Actions toggle: a click lists the subject's actions at full width,
- * the mouse resting on it peeks at them */
-const paneToggle = () =>
-  screen
-    .getAllByRole('button', { name: 'Actions' })
-    .find(b => b.hasAttribute('aria-pressed'))!;
-const togglePane = () => fireEvent.click(paneToggle());
+/** The bar over the content: State's view switch, and the tabs */
+const stateBar = () => screen.getByRole('tablist').parentElement!;
+/** The Actions tab: a click shows the subject's actions at full width, the
+ * mouse resting on it peeks at them */
+const paneToggle = () => screen.getByRole('tab', { name: 'Actions' });
+/** Shows tab `name` */
+const showTab = (name: 'State' | 'Actions') =>
+  fireEvent.click(screen.getByRole('tab', { name }));
 /** The actions peeking beside State */
 const pane = () => screen.queryByRole('complementary', { name: 'Actions' });
 /** The mouse coming onto `el` (`inside`), or leaving it, and the peek's
@@ -198,7 +197,7 @@ describe('Store scrubber', () => {
     // live: nothing to step to, and Live is said, not offered
     expect(bar.textContent).toContain('Live');
     expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
-    expect(screen.queryByText('After')).toBeNull();
+    expect(within(scrubber()).queryByText('After')).toBeNull();
     expect(
       (screen.getByRole('button', { name: 'Next change' }) as HTMLButtonElement)
         .disabled,
@@ -239,13 +238,13 @@ describe('Store scrubber', () => {
     expect(marks[0].hasAttribute('data-selected')).toBe(true);
     expect(screen.getAllByText('"One"').length).toBeGreaterThan(0);
     expect(screen.queryAllByText('"Two"')).toHaveLength(0);
-    // the same moment with the Actions pane open
-    togglePane();
+    // the same moment in the Actions tab
+    showTab('Actions');
     expect(bar.textContent).toContain('After');
-    togglePane();
+    showTab('State');
     // Live lets go, and the label with it
     fireEvent.click(screen.getByRole('button', { name: 'Live' }));
-    expect(screen.queryByText('After')).toBeNull();
+    expect(within(scrubber()).queryByText('After')).toBeNull();
     expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
     expect(screen.getAllByText('"Two"').length).toBeGreaterThan(0);
     expect(marks[0].hasAttribute('data-selected')).toBe(false);
@@ -302,7 +301,7 @@ describe('Store scrubber', () => {
     const previous = screen.getByRole('button', { name: 'Previous change' });
     previous.focus();
     fireEvent.click(previous);
-    expect(screen.getByText('After')).toBeTruthy();
+    expect(within(scrubber()).getByText('After')).toBeTruthy();
     // ‹ is turned off at the first change: focus moves to a button still on
     expect(document.activeElement).not.toBe(document.body);
     expect(scrubber().contains(document.activeElement)).toBe(true);
@@ -463,10 +462,10 @@ describe('Store Timeline lanes', () => {
     expect(tracks(timeline).scrollLeft).toBe(900);
     fireEvent.keyDown(timeline, { key: 'ArrowLeft' });
 
-    // the lanes stay above the Actions pane, as does State's view switch
-    togglePane();
+    // the lanes stay above the Actions tab; State's view switch is State's
+    showTab('Actions');
     expect(lanes()).toBe(timeline);
-    expect(screen.getByRole('group', { name: 'Store view' })).toBeTruthy();
+    expect(screen.queryByRole('group', { name: 'Store view' })).toBeNull();
     expect(marks[1].hasAttribute('data-selected')).toBe(true);
     // collapsed, the scrubber keeps the moment
     toggle();
@@ -805,7 +804,7 @@ describe('Store Actions pane', () => {
     expect(pane()).toBeNull();
     const button = paneToggle();
     hover(button, true);
-    expect(button.getAttribute('aria-pressed')).toBe('false');
+    expect(button.getAttribute('aria-selected')).toBe('false');
     expect(pane()).toBeTruthy();
     expect(top()).toBeTruthy();
     expect(top()!.closest('[inert]')).toBeNull();
@@ -822,21 +821,20 @@ describe('Store Actions pane', () => {
       'Post 1',
     );
     expect(top()!.contains(document.activeElement)).toBe(true);
-    // a row closes it too, opening its action at full width over the list
+    // a row moves the moment, and it stays
     hover(button, true);
     fireEvent.click(rows()[0]);
+    expect(pane()).toBeTruthy();
+    expect(scrubber().textContent).toContain('setResponse');
+    // the tab shows them at full width instead, and peeks no more
+    showTab('Actions');
     expect(pane()).toBeNull();
-    expect(top()!.querySelector('[aria-current="page"]')!.textContent).toBe(
-      'setResponse GET /posts',
-    );
-    expect(top()!.contains(document.activeElement)).toBe(true);
-    expect(button.getAttribute('aria-pressed')).toBe('true');
-    // which the toggle then closes, rather than peeking over it
+    expect(button.getAttribute('aria-selected')).toBe('true');
     resize(800);
     hover(button, false);
     hover(button, true);
     expect(pane()).toBeNull();
-    togglePane();
+    showTab('State');
     expect(top()!.querySelector('[aria-current="page"]')!.textContent).toBe(
       'Post 1',
     );

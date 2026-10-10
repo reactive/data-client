@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 
 import { TIME_WIDTH } from './columns';
 import { EntityDetail } from './Details';
@@ -10,7 +10,7 @@ import {
   type EntityTable,
   type StoreModel,
 } from './model';
-import { useNav } from './nav';
+import { DiffContext, useNav } from './nav';
 import { plain } from './refs';
 import { GroupLabel, Internals, SectionBlock } from './Sections';
 import styles from './store.module.css';
@@ -39,6 +39,8 @@ export default function RootView({
   scroller: React.RefObject<HTMLElement | null>;
 }) {
   const { model, width, push } = useNav()!;
+  // a diff leaves out what it has nothing of
+  const diff = useContext(DiffContext) !== null;
   const [closed, setClosed] = useState<ReadonlySet<string>>(
     () => new Set(['Internals']),
   );
@@ -66,42 +68,48 @@ export default function RootView({
           />
         </SectionBlock>
       )}
-      <SectionBlock {...section('Endpoints', model.endpoints.length)}>
-        {endpoints.length > 0 && (
-          <RowsTable
-            columns={endpointColumns(width)}
-            rows={endpoints}
-            onOpen={row => push({ kind: 'record', id: row.id })}
-            foot={
-              hiddenEndpoints > 0 && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    push({
-                      kind: 'list',
-                      label: 'Endpoints',
-                      ids: model.endpoints.map(e => e.id),
-                    })
-                  }
-                >
-                  {hiddenEndpoints.toLocaleString()} more
-                </button>
-              )
-            }
-          />
-        )}
-      </SectionBlock>
-      <SectionBlock {...section('Entities', entityCount)}>
-        {model.tables.length > INDEX_OVER && (
-          <TableIndex model={model} scroller={scroller} />
-        )}
-        {model.tables.map(table => (
-          <Group key={table.key} table={table} />
-        ))}
-      </SectionBlock>
-      <SectionBlock {...section('Internals')}>
-        <Internals model={model} />
-      </SectionBlock>
+      {!(diff && !model.endpoints.length) && (
+        <SectionBlock {...section('Endpoints', model.endpoints.length)}>
+          {endpoints.length > 0 && (
+            <RowsTable
+              columns={endpointColumns(width)}
+              rows={endpoints}
+              onOpen={row => push({ kind: 'record', id: row.id })}
+              foot={
+                hiddenEndpoints > 0 && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      push({
+                        kind: 'list',
+                        label: 'Endpoints',
+                        ids: model.endpoints.map(e => e.id),
+                      })
+                    }
+                  >
+                    {hiddenEndpoints.toLocaleString()} more
+                  </button>
+                )
+              }
+            />
+          )}
+        </SectionBlock>
+      )}
+      {!(diff && !entityCount) && (
+        <SectionBlock {...section('Entities', entityCount)}>
+          {model.tables.length > INDEX_OVER && (
+            <TableIndex model={model} scroller={scroller} />
+          )}
+          {model.tables.map(table => (
+            <Group key={table.key} table={table} />
+          ))}
+        </SectionBlock>
+      )}
+      {!diff && (
+        <SectionBlock {...section('Internals')}>
+          <Internals model={model} />
+        </SectionBlock>
+      )}
     </>
   );
 }

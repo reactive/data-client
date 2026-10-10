@@ -51,11 +51,12 @@ function useRows(filter: SubjectFilter) {
   );
 }
 
-/** A peek at `subject`'s actions as the mouse rests on the Actions toggle:
- * the list, under a head naming the subject (`label`, none at the store)
- * and counting them, over State's right side (`narrow`, most of it). It
- * goes as the pointer leaves it, on Escape or a press outside; picking an
- * action opens it at full width */
+/** A peek at `subject`'s actions as the mouse rests on the Actions tab, to
+ * move the moment by: the list, under a head naming the subject (`label`,
+ * none at the store) and counting them, over State's right side (`narrow`,
+ * most of it). Picking an action moves the moment there, State showing what
+ * it changed. It goes as the pointer leaves it, on Escape or a press
+ * outside */
 export function ActionsPane({
   subject,
   filter,
@@ -63,17 +64,20 @@ export function ActionsPane({
   narrow,
   toggle,
   onHover,
+  onPick,
   onClose,
 }: {
   subject: View;
   filter: SubjectFilter;
   label: React.ReactNode;
   narrow: boolean;
-  /** Its toggle, which opens the list in full: a press there is not
+  /** Its tab, which opens the list in full: a press there is not
    * outside */
   toggle: React.RefObject<HTMLElement | null>;
   /** The pointer came into it (`true`) or left it */
   onHover: (inside: boolean, e: React.PointerEvent) => void;
+  /** A row or step was picked: moves the moment there */
+  onPick: (seq: number) => void;
   onClose: () => void;
 }) {
   const rows = useRows(filter);
@@ -102,13 +106,18 @@ export function ActionsPane({
         {label && <span className={styles.paneSubject}>{label}</span>}
         <span className={styles.count}>{rows.length.toLocaleString()}</span>
       </div>
-      <ActionList rows={rows} subject={subject} filter={filter} />
+      <ActionList
+        rows={rows}
+        subject={subject}
+        filter={filter}
+        onPick={onPick}
+      />
     </aside>
   );
 }
 
-/** `subject`'s actions at full width, a level over it: `header` (the
- * crumbs) with their count, then the list */
+/** `subject`'s actions at full width, the Actions tab's first level:
+ * `header` (the crumbs) with their count, then the list */
 export function ActionsLevel({
   subject,
   filter,
@@ -133,16 +142,20 @@ export function ActionsLevel({
 
 /** The actions that touched the subject, folded into requests and
  * subscriptions, following new rows while scrolled to the bottom. A row or
- * step opens its action at full width, as the moment; the moment's row is
- * marked and open. ↑ ↓ move between rows, as the moment */
+ * step picked (`onPick`, by default opening its action at full width)
+ * moves the moment there; the moment's row is marked and open. ↑ ↓ move
+ * between rows, as the moment */
 function ActionList({
   rows,
   subject,
   filter,
+  onPick,
 }: {
   rows: readonly ActionGroup[];
   subject: View;
   filter: SubjectFilter;
+  /** What a row or step picked does, by default open its action */
+  onPick?: (seq: number) => void;
 }) {
   const { history, groups } = useActions();
   const { seq, set, show } = useNavState();
@@ -218,7 +231,7 @@ function ActionList({
           subject={subject}
           filter={filter}
           onToggle={toggle}
-          onSelect={show}
+          onSelect={onPick ?? show}
         />
       ))}
     </div>

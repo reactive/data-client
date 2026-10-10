@@ -162,43 +162,52 @@ DesignSystem/       components injected into preview scope
   store as that action left it (see `Moment` in `preview/store/nav.tsx`).
 - The Store inspector navigates by two coordinates (see
   `preview/store/nav.tsx`, both owned by `StorePanel`): the **moment** (the
-  action State is shown after, or live; `NavStateContext` carries it, with
-  `show(seq)` to set it and open that action at full width) and the
-  **subject** (one stack of levels over the store: a table, a record, a list
-  of rows, with breadcrumbs, Back and Escape). The content is always State: the
-  subject as the moment's action left it (table or tree, the view switch in
-  the bar over it). A moment the store never saw (a fetch, a subscribe)
-  shows State as the last action before it left it. A record's "changed by"
-  names the kept action that made the value shown (the latest at or before
-  the moment, live included; "actions not kept" when the log dropped it) and
-  opens it, moving the moment. A level a chip opened at
-  an action keeps showing that store until the moment is set on purpose
+  action State is shown at, or live; `NavStateContext` carries it, with
+  `show(seq)` to set it and open that action in the Actions tab) and the
+  **subject** (State's stack of levels over the store: a table, a record, a
+  list of rows, with breadcrumbs, Back and Escape). Two tabs at the right end
+  of the bar (`role="tablist"`) show either **State** or **Actions**, each
+  with its own stack (`useLevelStack`).
+  State is the subject at the moment (table or tree, the view switch at the
+  bar's left end). Live it is the store as it is. At a moment, the bar adds
+  **Diff** and **After** (`aria-pressed`, kept as the moment moves): Diff, the
+  default, shows only what the moment's action changed at that level
+  (`diffModel` in `preview/store/diffModel.ts`: the store and its lists keep
+  only the rows it changed, a removed one as it was, each `tr` marked
+  `data-change` through `DiffContext`, with the sections it left empty
+  hidden; a record, or a level it left alone, says what it did there with
+  `SubjectChanges` from `preview/store/ActionDetail.tsx`). After shows the
+  whole store as the action left it. A moment the store never saw (a fetch, a
+  subscribe) shows State as the last action before it left it. A record's
+  "changed by" names the kept action that made the value shown (the latest at
+  or before the moment, live included; "actions not kept" when the log
+  dropped it) and opens it, moving the moment. A level a chip opened at an
+  action shows that store, not the diff, until the moment is set on purpose
   (`clearAt`), which outranks it.
-  The **Actions** toggle at the right end of the bar (`aria-pressed`) lists
-  the actions that touched the subject at full width, as a level over it
-  (`{ kind: 'actions' }`, `ActionsLevel` in `preview/store/ActionList.tsx`, a
-  `region` with its row count beside the crumbs; a press again, Back or
-  Escape closes it). The mouse resting on the toggle peeks at the same list
-  instead (`ActionsPane`, an `aside` whose head counts its rows): an overlay
-  over State's right side (narrow, most of it) that stays while the pointer
-  is over either and goes as it leaves both, with Escape or a press outside
-  (each panel's own: a page holds several), focus going back to the toggle.
+  The **Actions** tab lists the actions that touched State's subject at full
+  width (`{ kind: 'actions' }`, `ActionsLevel` in
+  `preview/store/ActionList.tsx`, a `region` with its row count beside the
+  crumbs "Actions of <subject>"). Picking a row or step sets the moment (a
+  row stands for its last action that touched the subject) and opens the
+  action over the list (`{ kind: 'action', seq }`, `ActionDetail`: what it
+  did to the subject, every row changed at the store, only the record's own
+  on a record or list, a removed record as the action found it, or a line
+  saying it left the subject alone; then the action's fields); Back returns
+  to the list, and chips drill on in the tab. Stepping the moment moves that
+  level to the new action, and going live closes it (`followMoment`).
+  Over State, the mouse resting on the Actions tab peeks at the same list
+  (`ActionsPane`, an `aside` whose head counts its rows): timeline controls,
+  an overlay over State's right side (narrow, most of it) that stays while
+  the pointer is over either and goes as it leaves both, with Escape or a
+  press outside (each panel's own: a page holds several), focus going back to
+  the tab. Picking a row there only moves the moment, so State shows that
+  action's diff beside it; its chips open in State.
   Both list (`ActionList`) the actions that touched the subject
   (`subjectFilter` in `preview/store/actionGroups.ts`: at the store every
   action that reached it; on a record or list those that changed or stored
   again a row it covers, and on a record the kept action each gap of
-  dropped actions was found at,
-  noted once above a run of them), one row per request or subscription; a
-  row's ▸ lists its actions. Picking a row or step sets the moment (a row
-  stands for its last action that touched the subject) and opens the action
-  at full width as a level over the subject (`{ kind: 'action', seq }`,
-  `ActionDetail` in `preview/store/ActionDetail.tsx`: every row changed at
-  the store, only the record's own on a record or list, a removed record as
-  the action found it, or a line saying it left the subject alone; then the
-  action's fields), over the full list (`showAction` opens it under the
-  action when a peek's row was picked), the peek closing; Back returns to
-  the list. Stepping the moment moves that level to the new action, and
-  going live closes it (`followMoment`), leaving the list. The moment's row is marked (`aria-current`), opened and
+  dropped actions was found at, noted once above a run of them), one row per
+  request or subscription; a row's ▸ lists its actions. The moment's row is marked (`aria-current`), opened and
   scrolled to; nothing is marked while live. ↑ ↓ on a row or step move to
   the next one, as the moment; a group's head stands for its response, so ↑
   from a step of the moment's own group moves focus alone. A row renders

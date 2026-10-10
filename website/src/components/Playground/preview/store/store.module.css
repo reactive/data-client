@@ -67,12 +67,19 @@
   display: flex;
   flex-direction: column;
 }
-.barTitle {
+/* the bar's left end: State's view switch, and Diff or After at a
+   moment */
+.barStart {
   display: flex;
   align-items: center;
-  padding: 0 0.6rem;
+  gap: 0.5rem;
 }
-/* the bar's right end: State's view switch, the Actions toggle */
+.facets {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+/* the bar's right end: the State and Actions tabs */
 .barEnd {
   display: flex;
   align-items: center;
@@ -104,7 +111,8 @@
 .paneToggle:hover {
   opacity: 1;
 }
-.paneToggle[aria-pressed='true'] {
+.paneToggle[aria-pressed='true'],
+.paneToggle[aria-selected='true'] {
   background: var(--pg-tab-hover-bg);
   opacity: 1;
 }
@@ -278,6 +286,10 @@
 .crumbList {
   display: contents;
 }
+/* with no Back before them (the Actions tab's first level) */
+.crumbList:first-child > :first-child {
+  margin-left: 0.5rem;
+}
 .crumb,
 .crumbCurrent {
   padding: 0 3px;
@@ -437,6 +449,24 @@ div.row {
 }
 .row:focus-visible {
   outline: 2px solid var(--store-key);
+}
+/* State's diff at a moment: how the action changed each row */
+.row[data-change] > td:first-child {
+  box-shadow: inset 2px 0 var(--store-change);
+}
+.row[data-change='added'] {
+  --store-change: var(--store-fresh);
+}
+.row[data-change='updated'] {
+  --store-change: var(--store-stale);
+}
+.row[data-change='removed'] {
+  --store-change: var(--store-null);
+  opacity: 0.6;
+}
+.row[data-change='removed'] > td {
+  text-decoration: line-through;
+  text-decoration-color: var(--store-dim);
 }
 .selected,
 .selected > td {

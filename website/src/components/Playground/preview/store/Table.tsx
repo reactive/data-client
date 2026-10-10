@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React from 'react';
+import React, { useContext } from 'react';
 
 import {
   columnWidth,
@@ -20,7 +20,7 @@ import {
   type EntityRow,
   type EntityTable,
 } from './model';
-import { cellDive } from './nav';
+import { cellDive, DiffContext } from './nav';
 import { INVALIDATED, type VNode } from './refs';
 import styles from './store.module.css';
 import { Cell, EndpointKey, Inline, Primitive, RowChip } from './Value';
@@ -64,6 +64,7 @@ export function RowsTable<R extends { readonly id: string }>({
   beforeRef?: React.Ref<HTMLTableRowElement>;
 }) {
   const span = columns.length + (more ? 1 : 0);
+  const diff = useContext(DiffContext);
   return (
     <table className={styles.table}>
       <colgroup>
@@ -96,6 +97,7 @@ export function RowsTable<R extends { readonly id: string }>({
             <React.Fragment key={row.id}>
               <tr
                 data-id={row.id}
+                data-change={diff?.get(row.id)}
                 tabIndex={onOpen ? 0 : undefined}
                 className={clsx(
                   styles.row,

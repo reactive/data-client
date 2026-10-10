@@ -41,6 +41,29 @@ export function ActionDetail({
   subject: View;
   gap?: ChangeKind;
 }) {
+  return (
+    <div className={styles.actBody}>
+      <SubjectChanges entry={entry} subject={subject} gap={gap} />
+      <div className={clsx(styles.fields, styles.metaList)}>
+        <Field name="dispatchedAt" node={{ t: 'val', v: entry.at }} />
+        {actionFields(entry.action).map(([name, value]) => (
+          <Field key={name} name={name} node={plain(value)} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** What an action did to `subject`: each row it changed and how */
+export function SubjectChanges({
+  entry,
+  subject,
+  gap,
+}: {
+  entry: LogEntry;
+  subject: View;
+  gap?: ChangeKind;
+}) {
   const { log } = useActions();
   const changes = log.changes(entry).filter(c => touches(subject, c));
   const changed = changes.filter(isRecordChange);
@@ -48,33 +71,23 @@ export function ActionDetail({
   const removed =
     subject.kind === 'record' && changed.some(c => c.kind === 'removed');
   return (
-    <div className={styles.actBody}>
-      <div className={clsx(styles.detail, styles.actDetail)}>
-        {entry.store ?
-          <>
-            <EntryChanges entry={entry} changes={changed} />
-            {removed && <RemovedValue id={subject.id} seq={entry.seq} />}
-            {refreshed > 0 && (
-              <span className={styles.dim}>
-                {changed.length ? 'Also stored' : 'Stored'} {refreshed} row
-                {refreshed === 1 ? '' : 's'} again, unchanged
-              </span>
-            )}
-            {gap && (
-              <span className={styles.dim}>Before it: {gapText(gap)}</span>
-            )}
-            {!changes.length && !gap && (
-              <span className={styles.dim}>{unchangedNote(subject)}</span>
-            )}
-          </>
-        : <span className={styles.dim}>{unappliedNote(entry.action)}</span>}
-      </div>
-      <div className={clsx(styles.fields, styles.metaList)}>
-        <Field name="dispatchedAt" node={{ t: 'val', v: entry.at }} />
-        {actionFields(entry.action).map(([name, value]) => (
-          <Field key={name} name={name} node={plain(value)} />
-        ))}
-      </div>
+    <div className={clsx(styles.detail, styles.actDetail)}>
+      {entry.store ?
+        <>
+          <EntryChanges entry={entry} changes={changed} />
+          {removed && <RemovedValue id={subject.id} seq={entry.seq} />}
+          {refreshed > 0 && (
+            <span className={styles.dim}>
+              {changed.length ? 'Also stored' : 'Stored'} {refreshed} row
+              {refreshed === 1 ? '' : 's'} again, unchanged
+            </span>
+          )}
+          {gap && <span className={styles.dim}>Before it: {gapText(gap)}</span>}
+          {!changes.length && !gap && (
+            <span className={styles.dim}>{unchangedNote(subject)}</span>
+          )}
+        </>
+      : <span className={styles.dim}>{unappliedNote(entry.action)}</span>}
     </div>
   );
 }
