@@ -1049,6 +1049,32 @@ describe('Store diff', () => {
     ]);
   });
 
+  it('shows the diff in the tree view too, or what the action did instead', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+    );
+    fireEvent.click(screen.getByLabelText('Tree view'));
+    previous();
+    const marks = () =>
+      [...top().querySelectorAll<HTMLElement>('[data-change]')].map(r => [
+        r.dataset.id,
+        r.dataset.change,
+      ]);
+    expect(marks()).toEqual([[entityId('Post', '1'), 'updated']]);
+    expect(top().textContent).not.toContain('Endpoints');
+    expect(top().textContent).not.toContain('Internals');
+    // the fetch changed no row: it says what it did
+    peekIn();
+    fireEvent.click(expander(rows()[0]));
+    fireEvent.click(peek()!.querySelector<HTMLElement>('[data-seq="1"]')!);
+    expect(scrubber().textContent).toContain('fetch');
+    expect(marks()).toEqual([]);
+    expect(top().textContent).not.toContain('Entities');
+    expect(top().textContent).toContain('Started the request');
+  });
+
   it('marks a row the action removed, as it was', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));

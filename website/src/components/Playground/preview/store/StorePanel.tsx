@@ -503,7 +503,7 @@ export default function StorePanel({
                   : <StateContext.Provider value={state}>
                       <DiffContext.Provider value={diff?.kinds ?? null}>
                         {tree ?
-                          <TreeLevel model={diff?.model ?? model} />
+                          <TreeLevel model={model} diff={diff} />
                         : <Levels
                             model={model}
                             width={width}
@@ -994,8 +994,9 @@ function ActionCrumb({ seq }: { seq: number }) {
   return entry ? <ActionName entry={entry} /> : <>…</>;
 }
 
-/** The explorer: everything expands in place */
-function TreeLevel({ model }: { model: StoreModel }) {
+/** The explorer: everything expands in place; at a moment, only what its
+ * action changed, or what it did instead when it changed no row */
+function TreeLevel({ model, diff }: { model: StoreModel; diff?: Diff }) {
   const scroller = useRef<HTMLDivElement>(null);
   const [pending, setPending] = useState<string | null>(null);
   useEffect(() => {
@@ -1004,10 +1005,14 @@ function TreeLevel({ model }: { model: StoreModel }) {
     setPending(null);
   }, [pending]);
   return (
-    <StoreUIProvider model={model} onReveal={setPending}>
+    <StoreUIProvider model={diff?.model ?? model} onReveal={setPending}>
       <div className={styles.levels}>
         <div className={styles.level} ref={scroller} data-level>
-          <TreeView model={model} />
+          {!diff ?
+            <TreeView model={model} />
+          : diff.kinds.size ?
+            <TreeView model={diff.model} />
+          : <SubjectChanges entry={diff.entry} subject={ROOT} />}
         </div>
       </div>
     </StoreUIProvider>

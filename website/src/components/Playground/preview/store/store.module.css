@@ -450,8 +450,10 @@ div.row {
 .row:focus-visible {
   outline: 2px solid var(--store-key);
 }
-/* State's diff at a moment: how the action changed each row */
-.row[data-change] > td:first-child {
+/* State's diff at a moment: how the action changed each row (a table's
+   first cell, or the tree's whole line) */
+.row[data-change] > td:first-child,
+div.row[data-change] {
   box-shadow: inset 2px 0 var(--store-change);
 }
 .row[data-change='added'] {
@@ -464,7 +466,8 @@ div.row {
   --store-change: var(--store-null);
   opacity: 0.6;
 }
-.row[data-change='removed'] > td {
+.row[data-change='removed'] > td,
+div.row[data-change='removed'] {
   text-decoration: line-through;
   text-decoration-color: var(--store-dim);
 }

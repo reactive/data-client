@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React from 'react';
+import React, { useContext } from 'react';
 
 import { EndpointDetail, EntityDetail, Status } from './Details';
 import { onActivateKey } from './dom';
@@ -12,6 +12,7 @@ import {
   type EntityTable,
   type StoreModel,
 } from './model';
+import { DiffContext } from './nav';
 import { plain } from './refs';
 import { Chevron, GroupLabel, Internals, SectionBlock } from './Sections';
 import styles from './store.module.css';
@@ -48,20 +49,26 @@ function StoreSections({
   renderTable: (table: EntityTable) => React.ReactNode;
 }) {
   const entityCount = model.tables.reduce((n, t) => n + t.rows.length, 0);
+  // a diff shows only what its action changed
+  const diff = useContext(DiffContext) !== null;
   return (
     <>
       <OptimisticSection model={model} />
-      <Section
-        name="endpoints"
-        title="Endpoints"
-        count={model.endpoints.length}
-      >
-        {endpoints}
-      </Section>
-      <Section name="entities" title="Entities" count={entityCount}>
-        {model.tables.map(renderTable)}
-      </Section>
-      <InternalsSection model={model} />
+      {!(diff && !model.endpoints.length) && (
+        <Section
+          name="endpoints"
+          title="Endpoints"
+          count={model.endpoints.length}
+        >
+          {endpoints}
+        </Section>
+      )}
+      {!(diff && !entityCount) && (
+        <Section name="entities" title="Entities" count={entityCount}>
+          {model.tables.map(renderTable)}
+        </Section>
+      )}
+      {!diff && <InternalsSection model={model} />}
     </>
   );
 }
@@ -88,11 +95,13 @@ function Section({
 /** Props making a row (tr or div) expand on click or Enter/Space */
 function useRowProps(id: string, className?: string) {
   const { isOpen, toggle, selected } = useStoreUI();
+  const change = useContext(DiffContext)?.get(id);
   const open = isOpen(id);
   return {
     open,
     props: {
       'data-id': id,
+      'data-change': change,
       tabIndex: 0,
       'aria-expanded': open,
       className: clsx(
