@@ -74,15 +74,17 @@ const isSkillInput = file =>
 
 // files the branch changes relative to master and uncommitted ones; renames
 // as delete + add, so the old path counts too
-let dirty, committed;
+let dirty, committed, status;
 try {
   dirty = dirtyFiles();
-  committed = git(
-    'diff',
-    '--name-only',
-    '--no-renames',
-    'origin/master...HEAD',
-  ).split('\n');
+  // file => status letter (`M`, `A`, `D`, …)
+  status = new Map(
+    git('diff', '--name-status', '--no-renames', 'origin/master...HEAD')
+      .split('\n')
+      .filter(Boolean)
+      .map(line => line.split('\t').reverse()),
+  );
+  committed = [...status.keys()];
 } catch {
   process.exit(0);
 }
@@ -158,8 +160,12 @@ function lintFix() {
         .map(line => line.slice(3))
     : [],
   );
+  // a file the branch deletes isn't pushed, though an ignored copy (generated,
+  // say) may still be on disk
   const pushed = [
-    ...committed.filter(file => !dirty.includes(file)),
+    ...committed.filter(
+      file => !dirty.includes(file) && status.get(file) !== 'D',
+    ),
     ...committing,
   ];
   const { fixed } = eslintFix(pushed);
