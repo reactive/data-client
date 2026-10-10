@@ -40,7 +40,9 @@ async function reloadIfStaleDeploy(error: unknown): Promise<void> {
     });
     const deployedId = res.ok && (await res.text()).trim();
     if (
+      // not our file (a captive portal or fallback page answering instead)
       !deployedId ||
+      !/^runtime~main\.\w+\.js$/.test(deployedId) ||
       deployedId === runningId ||
       sessionStorage.getItem(RELOADED_KEY) === deployedId
     )
@@ -64,7 +66,8 @@ export function useReloadIfStaleDeploy(error: Error): void {
 
 if (ExecutionEnvironment.canUseDOM) {
   // Uncaught chunk failures before React mounts leave a dead page (the route
-  // preload in clientEntry). Once hydrated, an uncaught one (link hover
+  // preload in @docusaurus/core's clientEntry). Once hydrated (Docusaurus sets
+  // <html data-has-hydrated="true">), an uncaught one (link hover
   // preloads) leaves a working page that a reload could lose state from.
   window.addEventListener('unhandledrejection', event => {
     if (document.documentElement.dataset.hasHydrated !== 'true')
