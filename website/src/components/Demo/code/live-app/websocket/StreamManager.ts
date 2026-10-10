@@ -19,7 +19,7 @@ interface Product {
 export class StreamManager implements Manager {
   declare protected socket: WebSocket;
   declare protected controller: Controller;
-  /** Channel and subscriber count of each product */
+  /** Channel and component count of each subscribed product */
   protected products = new Map<string, Product>();
   protected attempts = 0;
   /** Pending reconnect, or the watchdog while connected */
@@ -29,33 +29,39 @@ export class StreamManager implements Manager {
     this.controller = controller;
     return next => async action => {
       // the socket pushes updates for endpoints with a channel
-      if (action.type === SUBSCRIBE && 'channel' in action.endpoint) {
-        const { productId } = action.args[0];
-        const { channel } = action.endpoint as { channel: string };
-        const product = this.products.get(productId) ?? {
-          channel,
-          count: 0,
-        };
-        this.products.set(productId, product);
-        if (++product.count === 1)
-          this.send('subscribe', channel, productId);
-        return;
-      }
       if (
-        action.type === UNSUBSCRIBE &&
+        (action.type === SUBSCRIBE || action.type === UNSUBSCRIBE) &&
         'channel' in action.endpoint
       ) {
         const { productId } = action.args[0];
-        const product = this.products.get(productId);
-        if (product && --product.count === 0) {
-          this.products.delete(productId);
-          this.send('unsubscribe', product.channel, productId);
-        }
+        const { channel } = action.endpoint as { channel: string };
+        if (action.type === SUBSCRIBE)
+          this.subscribe(productId, channel);
+        else this.unsubscribe(productId);
         return;
       }
       return next(action);
     };
   };
+
+  /** Shares one socket subscription among a product's components */
+  protected subscribe(productId: string, channel: string) {
+    const product = this.products.get(productId) ?? {
+      channel,
+      count: 0,
+    };
+    this.products.set(productId, product);
+    if (++product.count === 1)
+      this.send('subscribe', channel, productId);
+  }
+
+  protected unsubscribe(productId: string) {
+    const product = this.products.get(productId);
+    if (product && --product.count === 0) {
+      this.products.delete(productId);
+      this.send('unsubscribe', product.channel, productId);
+    }
+  }
 
   init() {
     this.connect();
