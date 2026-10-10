@@ -131,7 +131,12 @@ export function storeAt(
     entries.findLast(e => e.seq <= entry.seq && e.newStore)?.seq ?? 0,
     storeFrom !== undefined && storeFrom <= entry.seq ? storeFrom : 0,
   );
-  const own = (e: LogEntry) => e.seq >= began && !!e.store;
+  // up to where the next began
+  const ended = Math.min(
+    entries.find(e => e.seq > entry.seq && e.newStore)?.seq ?? Infinity,
+    storeFrom !== undefined && storeFrom > entry.seq ? storeFrom : Infinity,
+  );
+  const own = (e: LogEntry) => e.seq >= began && e.seq < ended && !!e.store;
   const previous = entries.findLast(e => e.seq < entry.seq && own(e));
   if (previous) return { seq: previous.seq };
   const first = entries.find(own);

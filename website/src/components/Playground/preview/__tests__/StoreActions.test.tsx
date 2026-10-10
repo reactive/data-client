@@ -158,6 +158,36 @@ const top = () =>
   )!;
 
 describe('Store Action facet', () => {
+  it('has no stepper on a fetch deduped into a request in flight', async () => {
+    let respond: (value: unknown) => void = () => {};
+    const polled = new Endpoint(
+      () =>
+        new Promise(resolve => {
+          respond = resolve;
+        }).then(() => [{ id: '1', title: 'One' }]),
+      { schema: [Post], key: () => POSTS, name: 'polled', pollFrequency: 1e6 },
+    );
+    const { ctrl } = mount();
+    let done!: Promise<unknown>;
+    await act(async () => {
+      await ctrl().subscribe(polled);
+      const first = ctrl().fetch(polled);
+      respond(undefined);
+      await first;
+      // a poll in flight, and a second read deduped into it
+      done = Promise.all([ctrl().fetch(polled), ctrl().fetch(polled)]);
+    });
+    // live, the newest action is the deduped fetch
+    fireEvent.click(actionTab());
+    expect(top().textContent).toContain('fetch');
+    expect(top().textContent).not.toMatch(/\d of \d/);
+    await act(async () => {
+      respond(undefined);
+      await done;
+      await ctrl().unsubscribe(polled);
+    });
+  });
+
   it('shows the newest action while live, and says when there is none', async () => {
     const { ctrl } = mount();
     fireEvent.click(actionTab());
@@ -1125,6 +1155,10 @@ describe('storeAt', () => {
     const quiet = entries.filter(e => e.seq !== 3);
     expect(storeAt(quiet, entries[3], 3)).toEqual({ seq: 5, before: true });
     expect(storeAt(quiet, entries[3])).toEqual({ seq: 2 });
+    // nor the store after it, when its own never stored anything
+    const unseen = entries.filter(e => e.seq !== 2);
+    expect(storeAt(unseen, entries[0])).toBeUndefined();
+    expect(storeAt(unseen, entries[0], 3)).toBeUndefined();
   });
 });
 

@@ -184,7 +184,7 @@ export default function StorePanel({
   // pushing it down; a pick there closes it. The content under it is inert
   // meanwhile, so focus left there moves to the ▾
   const sheet = width < NARROW_WIDTH;
-  const covered = sheet && timeline;
+  const covered = sheet && timelineShown;
   const content = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     if (!covered) return;

@@ -773,6 +773,9 @@ describe('Store Timeline sheet', () => {
     // ✕ closes it
     fireEvent.click(close);
     expect(screen.queryByRole('group', { name: /^Timeline/ })).toBeNull();
+    // still under it while it slides shut, then not
+    expect(tabs.closest('[inert]')).toBeTruthy();
+    fireEvent.transitionEnd(revealBox(timeline));
     expect(tabs.closest('[inert]')).toBeNull();
     expect(
       screen

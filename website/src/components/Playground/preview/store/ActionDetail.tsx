@@ -53,10 +53,12 @@ export function ActionFacet({
     );
   const group = groupOf(groups, entry.seq);
   // the row's steps, without the fetches deduped into a request in flight
-  // (the list shows them as one line, the timeline not at all)
+  // (the list shows them as one line, the timeline not at all); a deduped
+  // fetch itself has no place among them, so no stepper
+  const joined = group ? joinedFetches(group) : new Set<LogEntry>();
   const row =
-    group ?
-      groupEntriesOf(group).filter(e => !joinedFetches(group).has(e))
+    group && !joined.has(entry) ?
+      groupEntriesOf(group).filter(e => !joined.has(e))
     : [];
   const changes = log.changes(entry).filter(c => touches(subject, c));
   const changed = changes.filter(isRecordChange);
