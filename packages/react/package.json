@@ -194,7 +194,7 @@
     "qs": "^6.14.2",
     "react": "19.3.0",
     "react-dom": "^19.0.0",
-    "react-native": "0.86.2",
+    "react-native": "0.87.1",
     "react-native-safe-area-context": "^5.0.0",
     "react-native-screens": "^4.1.0",
     "react-redux": "^9.2.0",

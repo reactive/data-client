@@ -116,6 +116,9 @@ const projects = [
     resolver: require.resolve('@react-native/jest-preset/jest/resolver.js'),
     moduleNameMapper: {
       ...baseConfig.moduleNameMapper,
+      '^react-native/setup-env$': `${path.dirname(
+        require.resolve('react-native/package.json'),
+      )}/src/setup-env.js`,
       '^react-native($|/.*)': `${path.dirname(
         require.resolve('react-native/package.json'),
       )}$1`,
