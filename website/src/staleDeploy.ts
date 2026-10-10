@@ -63,8 +63,11 @@ export function useReloadIfStaleDeploy(error: Error): void {
 }
 
 if (ExecutionEnvironment.canUseDOM) {
-  // chunks imported outside render (effects, event handlers) that nobody caught
-  window.addEventListener('unhandledrejection', event =>
-    reloadIfStaleDeploy(event.reason),
-  );
+  // Uncaught chunk failures before React mounts leave a dead page (the route
+  // preload in clientEntry). Once hydrated, an uncaught one (link hover
+  // preloads) leaves a working page that a reload could lose state from.
+  window.addEventListener('unhandledrejection', event => {
+    if (document.documentElement.dataset.hasHydrated !== 'true')
+      reloadIfStaleDeploy(event.reason);
+  });
 }
