@@ -3,7 +3,7 @@ import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';
 import React from 'react';
 
-import { installCommand } from './installCommand';
+import { installCommand, PACKAGE_MANAGER_TAB_GROUP } from './installCommand';
 
 interface Props {
   pkgs: string;
@@ -17,9 +17,9 @@ const MANAGERS = [
   { label: 'pnpm', value: 'pnpm' },
 ] as const;
 
-export default function PkgTabs({ pkgs, dev = false }: Props) {
+export default function PkgTabs({ pkgs, dev }: Props) {
   return (
-    <Tabs defaultValue="npm" groupId="node-packages-program">
+    <Tabs defaultValue="npm" groupId={PACKAGE_MANAGER_TAB_GROUP}>
       {MANAGERS.map(({ label, value }) => (
         <TabItem key={value} value={value} label={label}>
           <CodeBlock className="language-bash">

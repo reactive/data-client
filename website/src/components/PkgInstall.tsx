@@ -1,8 +1,12 @@
-import { useStorageSlot } from '@docusaurus/theme-common';
 import CodeBlock from '@theme/CodeBlock';
 import React from 'react';
 
-import { installCommand, type PackageManager } from './installCommand';
+import {
+  installCommand,
+  PACKAGE_MANAGER_TAB_GROUP,
+  type PackageManager,
+} from './installCommand';
+import { useTabStorage } from '../utils/tabStorage';
 
 interface Props {
   pkgs: string;
@@ -11,9 +15,7 @@ interface Props {
 }
 
 export default function PkgInstall({ pkgs, dev, global }: Props) {
-  const [relevantTabGroupChoice] = useStorageSlot(
-    'docusaurus.tab.node-packages-program',
-  );
+  const [relevantTabGroupChoice] = useTabStorage(PACKAGE_MANAGER_TAB_GROUP);
   const manager: PackageManager =
     relevantTabGroupChoice === 'yarn' || relevantTabGroupChoice === 'pnpm' ?
       relevantTabGroupChoice

@@ -1,5 +1,8 @@
 export type PackageManager = 'npm' | 'yarn' | 'pnpm';
 
+/** Tabs groupId shared by every package install snippet */
+export const PACKAGE_MANAGER_TAB_GROUP = 'node-packages-program';
+
 /** Shell command that installs `pkgs` with the given package manager */
 export function installCommand(
   manager: PackageManager,
