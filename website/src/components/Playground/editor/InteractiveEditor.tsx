@@ -21,6 +21,8 @@ export interface InteractiveEditorProps {
   code: string;
   /** Monaco model path (see ../monaco/modelPath.ts) */
   path?: string;
+  /** Runs when this editor mounts, after Monaco loads and before it creates its model. Only the first render's value is used. */
+  beforeMount?: (monaco: typeof Monaco) => void;
   /** Called with tabIndex whenever this editor gains focus */
   onFocus: (tabIndex: number) => void;
   tabIndex: number;
@@ -41,6 +43,7 @@ function InteractiveEditor({
   onChange,
   code,
   path = '',
+  beforeMount,
   onFocus,
   tabIndex,
   highlights,
@@ -94,6 +97,7 @@ function InteractiveEditor({
   return (
     <Editor
       path={path}
+      beforeMount={beforeMount}
       defaultLanguage={extensionToMonacoLanguage(language)}
       onChange={onChange}
       defaultValue={code}
