@@ -1,7 +1,7 @@
 import AssetList from '!!raw-loader!../polling/AssetList.tsx';
 import AssetPrice from '!!raw-loader!../polling/AssetPrice.tsx';
-import Manager from '!!raw-loader!./Manager.ts';
 import resources from '!!raw-loader!./resources.ts';
+import StreamManager from '!!raw-loader!./StreamManager.ts';
 
 export default {
   label: 'SSE',
@@ -12,9 +12,9 @@ export default {
       code: resources,
     },
     {
-      path: 'Manager',
+      path: 'StreamManager',
       open: true,
-      code: Manager,
+      code: StreamManager,
     },
     {
       path: 'AssetPrice',

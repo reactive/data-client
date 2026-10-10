@@ -21,11 +21,12 @@ export class Ticker extends Entity {
   };
 }
 
-// the first price; StreamManager pushes the rest
 export const getTicker = new RestEndpoint({
   urlPrefix: 'https://api.exchange.coinbase.com',
   path: '/products/:productId/ticker',
   schema: Ticker,
+  // StreamManager pushes updates for endpoints with a channel
+  channel: 'ticker_batch',
   process(value, { productId }) {
     value.product_id = productId;
     return value;

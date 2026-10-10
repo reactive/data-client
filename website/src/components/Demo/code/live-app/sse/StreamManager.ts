@@ -1,11 +1,12 @@
-import {
-  actionTypes,
-  getDefaultManagers,
-  type Controller,
-  type Manager,
-  type Middleware,
+import type {
+  Controller,
+  Manager,
+  Middleware,
 } from '@data-client/react';
+import { actionTypes, getDefaultManagers } from '@data-client/react';
 import { Ticker } from './resources';
+
+const { SUBSCRIBE, UNSUBSCRIBE } = actionTypes;
 
 /** Writes prices pushed by Server-Sent Events into the store */
 export class StreamManager implements Manager {
@@ -15,11 +16,10 @@ export class StreamManager implements Manager {
   middleware: Middleware = controller => {
     this.controller = controller;
     return next => async action => {
-      // the stream pushes every Ticker: nothing to poll
+      // the stream pushes updates for endpoints with a channel
       if (
-        (action.type === actionTypes.SUBSCRIBE ||
-          action.type === actionTypes.UNSUBSCRIBE) &&
-        action.endpoint.schema === Ticker
+        (action.type === SUBSCRIBE || action.type === UNSUBSCRIBE) &&
+        'channel' in action.endpoint
       )
         return;
       return next(action);
