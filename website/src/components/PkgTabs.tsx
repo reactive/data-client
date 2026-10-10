@@ -3,6 +3,8 @@ import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';
 import React from 'react';
 
+import { installCommand } from './installCommand';
+
 interface Props {
   pkgs: string;
   dev?: boolean;
@@ -23,18 +25,17 @@ export default function PkgTabs({ pkgs, dev = false }: Props) {
     >
       <TabItem value="yarn">
         <CodeBlock className="language-bash">
-          yarn add {dev ? '--dev ' : ''}
-          {pkgs}
+          {installCommand('yarn', pkgs, { dev })}
         </CodeBlock>
       </TabItem>
       <TabItem value="npm">
         <CodeBlock className="language-bash">
-          npm install --save{dev ? '-dev' : ''} {pkgs}
+          {installCommand('npm', pkgs, { dev })}
         </CodeBlock>
       </TabItem>
       <TabItem value="pnpm">
         <CodeBlock className="language-bash">
-          pnpm add{dev ? ' -D' : ''} {pkgs}
+          {installCommand('pnpm', pkgs, { dev })}
         </CodeBlock>
       </TabItem>
       <TabItem value="esm">
