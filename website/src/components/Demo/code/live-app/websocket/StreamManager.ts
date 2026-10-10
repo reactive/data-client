@@ -22,7 +22,8 @@ export class StreamManager implements Manager {
   /** Channel and subscriber count of each product */
   protected products = new Map<string, Product>();
   protected attempts = 0;
-  declare protected reconnectTimer: ReturnType<typeof setTimeout>;
+  /** Pending reconnect, or the watchdog while connected */
+  declare protected timer: ReturnType<typeof setTimeout>;
 
   middleware: Middleware = controller => {
     this.controller = controller;
@@ -80,11 +81,12 @@ export class StreamManager implements Manager {
         this.send('subscribe', channel, productId);
     };
     this.socket.onmessage = event => {
-      this.attempts = 0;
+      this.watch();
       const { type, product_id, price, time } = JSON.parse(
         event.data,
       );
       if (type !== 'ticker') return;
+      this.attempts = 0;
       this.controller.set(
         Ticker,
         { product_id },
@@ -95,18 +97,27 @@ export class StreamManager implements Manager {
     this.socket.onclose = () => {
       const delay = Math.min(30_000, 1000 * 2 ** this.attempts);
       this.attempts++;
-      this.reconnectTimer = setTimeout(this.reconnect, delay);
+      clearTimeout(this.timer);
+      this.timer = setTimeout(this.reconnect, delay);
     };
+    this.watch();
+  }
+
+  /** A socket can stay open on a dead network (like after sleep),
+   * so reconnect when prices stop arriving */
+  protected watch() {
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => this.connect(), 30_000);
   }
 
   protected reconnect = () => {
-    if (this.socket.readyState >= WebSocket.CLOSING) this.connect();
+    if (this.socket.readyState !== WebSocket.OPEN) this.connect();
   };
 
   /** Stops the socket without waiting for it to finish closing,
    * which it can't do offline */
   protected close = () => {
-    clearTimeout(this.reconnectTimer);
+    clearTimeout(this.timer);
     if (!this.socket) return;
     // closed sockets get no more messages; skip its reconnect
     this.socket.onclose = null;
