@@ -764,7 +764,13 @@ function Level({
   if (top && current !== nav) setCurrent(nav);
   const content = useMemo(
     () => (
-      <NavContext.Provider value={current}>{children(ref)}</NavContext.Provider>
+      // only a level showing the diff marks rows with it, not one showing
+      // the store a chip opened it at
+      <DiffContext.Provider value={diff?.kinds ?? null}>
+        <NavContext.Provider value={current}>
+          {children(ref)}
+        </NavContext.Provider>
+      </DiffContext.Provider>
     ),
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `children` is new each render; what it shows only changes with `current`, `view` and `diff`
     [current, view, diff],

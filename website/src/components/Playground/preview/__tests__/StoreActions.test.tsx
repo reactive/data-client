@@ -966,6 +966,7 @@ describe('Store Actions pane', () => {
 });
 
 describe('Store diff', () => {
+  afterEach(() => jest.useRealTimers());
   const tableRows = () =>
     [...top().querySelectorAll<HTMLElement>('tr[data-id]')].map(r => [
       r.dataset.id,
@@ -1026,6 +1027,26 @@ describe('Store diff', () => {
     openPost('1');
     fireEvent.click(screen.getByRole('button', { name: 'Diff' }));
     expect(top().textContent).toContain('No change to this record');
+  });
+
+  it('marks no row on a level a chip opened at another action', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+    );
+    previous();
+    expect(tableRows()).toEqual([[entityId('Post', '1'), 'updated']]);
+    // the response's rows, as it left them
+    peekIn();
+    fireEvent.click(
+      within(rows()[0]).getByRole('button', { name: '+ 2 Post' }),
+    );
+    expect(top().textContent).toContain('after this action');
+    expect(tableRows()).toEqual([
+      [entityId('Post', '1'), undefined],
+      [entityId('Post', '2'), undefined],
+    ]);
   });
 
   it('marks a row the action removed, as it was', async () => {

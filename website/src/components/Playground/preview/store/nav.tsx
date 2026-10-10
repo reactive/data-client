@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react';
 
+import type { ChangeKind } from './actionGroups';
 import {
   entityId,
   isEndpointRow,
@@ -16,7 +17,6 @@ import {
   type StoreModel,
 } from './model';
 import { memberRefs, type RefNode } from './refs';
-import type { ChangeKind } from './actionGroups';
 
 /** Rows of one table (all, or just `pks`), or rows of any kind by id */
 export type ListView =
