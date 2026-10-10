@@ -96,7 +96,7 @@ jobs:
                 website/i18n website/translate website/framework-docs website/docusaurus.config.ts)" \
             && deleted="$(git diff --name-only --no-renames --diff-filter=D "$BASE_SHA" HEAD -- docs website/src website/static)" \
             && [ -z "$changed$deleted" ]; then
-            # Also here: PRs that don't deploy get no preview comment
+            # PRs that don't deploy get no preview comment, so say it here too
             echo "::notice title=English only::This PR doesn't touch translations; the merge queue builds every locale"
             echo "english-only=true" >> "$GITHUB_OUTPUT"
           fi

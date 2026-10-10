@@ -90,19 +90,19 @@ function blob(id) {
   }
 }
 const prefetched = new Set();
-/** A partial clone (CI's blobless checkout) fetches each blob as it's read, a
- * round trip apiece; this fetches them all in one */
+/** A partial clone (CI's blobless checkout) would fetch each blob as blob()
+ * reads it; fetch them in one round trip instead. Elsewhere `git config`
+ * throws. */
 function prefetch(ids) {
   // locales mostly share the English they were checked against
   ids = ids.filter(id => !prefetched.has(id));
   if (!ids.length) return;
   for (const id of ids) prefetched.add(id);
   try {
-    // throws when unset: a full or shallow clone has nothing to fetch lazily
     git('config', '--get', 'remote.origin.promisor');
     git('fetch', '-q', '--no-tags', '--no-write-fetch-head', 'origin', ...ids);
   } catch {
-    // blob() still fetches each one, or the page counts as unverified
+    // blob() fetches them one by one
   }
 }
 const hasBlob = id => {
@@ -392,10 +392,11 @@ function check(locale) {
   const problems = [];
   let stale = 0;
   let unverified = 0;
-  // the English that stale translations were checked against
+  /** English changed since this translation was checked against it */
+  const behind = (file, id) => file in current && id !== current[file];
   prefetch(
     Object.entries(lock.docs)
-      .filter(([file, id]) => file in current && id !== current[file])
+      .filter(([file, id]) => behind(file, id))
       .map(([, id]) => id),
   );
   for (const file of present)
@@ -411,7 +412,7 @@ function check(locale) {
       problems.push(`${translation}: not a page ${locale} translates`);
       continue;
     }
-    const english = id === current[file] ? read(file) : blob(id);
+    const english = behind(file, id) ? blob(id) : read(file);
     const content = read(translation);
     if (english === undefined) {
       // a shallow clone lacks it; still make sure the page compiles
@@ -423,7 +424,7 @@ function check(locale) {
       );
       continue;
     }
-    if (id !== current[file]) stale++;
+    if (behind(file, id)) stale++;
     const result = translationProblems(english, content, file);
     if (!result.problems.length && result.pinned !== content)
       result.problems.push('headings lack their English anchors');
