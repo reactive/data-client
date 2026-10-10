@@ -18,6 +18,7 @@ import styles from '../styles.module.css';
 import type { PreviewProps } from '../types';
 
 function Preview<T>({
+  groupId,
   storeOpen,
   toggleStore,
   row,
@@ -83,6 +84,7 @@ function Preview<T>({
             <ManagerError host={managerHost} />
           </div>
           <StoreInspector
+            groupId={groupId}
             open={storeOpen}
             toggle={toggleStore}
             registry={registry}

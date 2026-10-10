@@ -23,10 +23,10 @@ import {
   Pager,
   RowsTable,
   tableColumns,
+  useChangedFields,
   type Column,
 } from './Table';
 import { Block } from './Value';
-import { HistoryButton } from './VersionHistory';
 
 type Scroller = React.RefObject<HTMLElement | null>;
 export type Header = (tools: React.ReactNode) => React.ReactNode;
@@ -83,9 +83,10 @@ function TableList({
     () => (pks ? pks.flatMap(pk => table.get(pk) ?? []) : table.rows),
     [table, pks],
   );
+  const changed = useChangedFields(rows);
   const { columns, pages, more } = useMemo(
-    () => tableColumns(table, rows, width, page, true),
-    [table, rows, width, page],
+    () => tableColumns(table, rows, width, page, { withMeta: true, changed }),
+    [table, rows, width, page, changed],
   );
   return (
     <FilteredRows
@@ -308,7 +309,6 @@ function useWindow(
   };
 }
 
-/** One row with everything about it */
 /** A row's own level: its record, or a Collection's members as a table,
  * with the row's meta at the bottom */
 export function RecordLevel({
@@ -330,19 +330,12 @@ export function RecordLevel({
         <Gone />
       </>
     );
-  const withHistory: Header = tools =>
-    header(
-      <>
-        {tools}
-        <HistoryButton id={id} />
-      </>,
-    );
   return (
     <>
       {members ?
-        <ListView view={members} scroller={scroller} header={withHistory} />
+        <ListView view={members} scroller={scroller} header={header} />
       : <>
-          {withHistory(null)}
+          {header(null)}
           <div className={styles.record}>
             <div className={styles.detail}>
               {isEndpointRow(row) ?
@@ -352,11 +345,10 @@ export function RecordLevel({
           </div>
         </>
       }
-      {/* the header holds the History button */}
       <div className={styles.levelFoot}>
         {isEndpointRow(row) ?
-          <EndpointMeta row={row} history={false} />
-        : <RowMeta row={row} model={model} history={false} />}
+          <EndpointMeta row={row} />
+        : <RowMeta row={row} model={model} />}
       </div>
     </>
   );

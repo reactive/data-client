@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 
 import { TIME_WIDTH } from './columns';
 import { EntityDetail } from './Details';
-import { byData, offsetIn } from './dom';
+import { byData, offsetIn, toggled } from './dom';
 import {
   optimisticId,
   splitKey,
@@ -12,13 +12,19 @@ import {
 } from './model';
 import { useNav } from './nav';
 import { plain } from './refs';
-import { GroupLabel, Internals, SectionBlock } from './Sections';
+import {
+  GroupLabel,
+  Internals,
+  SectionBlock,
+  useShownSections,
+} from './Sections';
 import styles from './store.module.css';
 import {
   endpointColumns,
   Pager,
   RowsTable,
   tableColumns,
+  useChangedFields,
   type Column,
 } from './Table';
 import { EndpointKey, Inline, Primitive } from './Value';
@@ -39,6 +45,7 @@ export default function RootView({
   scroller: React.RefObject<HTMLElement | null>;
 }) {
   const { model, width, push } = useNav()!;
+  const shown = useShownSections(model);
   const [closed, setClosed] = useState<ReadonlySet<string>>(
     () => new Set(['Internals']),
   );
@@ -46,14 +53,8 @@ export default function RootView({
     title,
     count,
     open: !closed.has(title),
-    onToggle: () =>
-      setClosed(prev => {
-        const next = new Set(prev);
-        if (!next.delete(title)) next.add(title);
-        return next;
-      }),
+    onToggle: () => setClosed(prev => toggled(prev, title)),
   });
-  const entityCount = model.tables.reduce((n, t) => n + t.rows.length, 0);
   const endpoints = preview(model.endpoints);
   const hiddenEndpoints = model.endpoints.length - endpoints.length;
   // stays once seen (holding a row's space), so an optimistic update
@@ -71,42 +72,48 @@ export default function RootView({
           />
         </SectionBlock>
       )}
-      <SectionBlock {...section('Endpoints', model.endpoints.length)}>
-        {endpoints.length > 0 && (
-          <RowsTable
-            columns={endpointColumns(width)}
-            rows={endpoints}
-            onOpen={row => push({ kind: 'record', id: row.id })}
-            foot={
-              hiddenEndpoints > 0 && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    push({
-                      kind: 'list',
-                      label: 'Endpoints',
-                      ids: model.endpoints.map(e => e.id),
-                    })
-                  }
-                >
-                  {hiddenEndpoints.toLocaleString()} more
-                </button>
-              )
-            }
-          />
-        )}
-      </SectionBlock>
-      <SectionBlock {...section('Entities', entityCount)}>
-        {model.tables.length > INDEX_OVER && (
-          <TableIndex model={model} scroller={scroller} />
-        )}
-        {model.tables.map(table => (
-          <Group key={table.key} table={table} />
-        ))}
-      </SectionBlock>
-      <SectionBlock {...section('Internals')}>
-        <Internals model={model} />
-      </SectionBlock>
+      {shown.endpoints && (
+        <SectionBlock {...section('Endpoints', model.endpoints.length)}>
+          {endpoints.length > 0 && (
+            <RowsTable
+              columns={endpointColumns(width)}
+              rows={endpoints}
+              onOpen={row => push({ kind: 'record', id: row.id })}
+              foot={
+                hiddenEndpoints > 0 && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      push({
+                        kind: 'list',
+                        label: 'Endpoints',
+                        ids: model.endpoints.map(e => e.id),
+                      })
+                    }
+                  >
+                    {hiddenEndpoints.toLocaleString()} more
+                  </button>
+                )
+              }
+            />
+          )}
+        </SectionBlock>
+      )}
+      {shown.entities && (
+        <SectionBlock {...section('Entities', shown.entityCount)}>
+          {model.tables.length > INDEX_OVER && (
+            <TableIndex model={model} scroller={scroller} />
+          )}
+          {model.tables.map(table => (
+            <Group key={table.key} table={table} />
+          ))}
+        </SectionBlock>
+      )}
+      {shown.internals && (
+        <SectionBlock {...section('Internals')}>
+          <Internals model={model} />
+        </SectionBlock>
+      )}
     </>
   );
 }
@@ -147,9 +154,10 @@ function Group({ table }: { table: EntityTable }) {
   const [inline, setInline] = useState<string | null>(null);
   const [active, setActive] = useState(false);
   const rows = preview(table.rows);
+  const changed = useChangedFields(table.rows);
   const { columns, pages, more } = useMemo(
-    () => tableColumns(table, table.rows, width, page),
-    [table, width, page],
+    () => tableColumns(table, table.rows, width, page, { changed }),
+    [table, width, page, changed],
   );
   const hidden = table.rows.length - rows.length;
   return (

@@ -16,10 +16,11 @@ import {
   type Change,
   type RequestGroup,
 } from './actionGroups';
+import type { Moment } from './nav';
 
 const { createReducer } = __INTERNAL__;
 
-/** Actions kept; older ones drop off the front */
+/** Actions kept (`limit`); older ones drop off the front */
 const LOG_LIMIT = 500;
 /** Updates kept per row (`updateLimit`): a subscription's polls, or pushed
  * `set`s of one entity and `setResponse`s of one endpoint. A poll still
@@ -31,6 +32,9 @@ const UPDATE_LIMIT = 20;
 const TRIM_EVERY = 50;
 
 export interface LogOptions {
+  /** Actions kept, besides the older ones a kept request or open
+   * subscription starts from (default `LOG_LIMIT`) */
+  readonly limit?: number;
   /** Updates kept per row, besides polls still waiting (default
    * `UPDATE_LIMIT`, at least 1: the oldest kept says how many were dropped) */
   readonly updateLimit?: number;
@@ -85,21 +89,70 @@ const EMPTY: History = { entries: [], since: 0 };
 export const findEntry = (entries: readonly LogEntry[], seq: number) =>
   entries.find(e => e.seq === seq);
 
-/** The nearest action before (`-1`) or after (`1`) `seq` that changed the
- * store, by seq (`seq` may have dropped off the log); `null` is live, after
- * every action */
-export function nearestChange(
-  log: ActionLog,
+/** The nearest action before (`-1`) or after (`1`) `seq` that `hit` says
+ * touched the subject, by seq (`seq` may have dropped off the log); `null`
+ * is live, after every action */
+function nearestHit(
   entries: readonly LogEntry[],
   seq: number | null,
   by: -1 | 1,
+  hit: (entry: LogEntry) => boolean,
 ): LogEntry | undefined {
   if (by < 0)
-    return entries.findLast(
-      e => (seq === null || e.seq < seq) && log.changed(e),
-    );
+    return entries.findLast(e => (seq === null || e.seq < seq) && hit(e));
   if (seq === null) return undefined;
-  return entries.find(e => e.seq > seq && log.changed(e));
+  return entries.find(e => e.seq > seq && hit(e));
+}
+
+/** Where a step before (`-1`) or after (`1`) moment `seq` lands: the nearest
+ * action `hit` says touched the subject, or past the newest, live (`null`).
+ * `undefined` has nowhere to go: before the oldest, or after live */
+export function stepMoment(
+  entries: readonly LogEntry[],
+  seq: number | null,
+  by: -1 | 1,
+  hit: (entry: LogEntry) => boolean,
+): number | null | undefined {
+  const next = nearestHit(entries, seq, by, hit);
+  if (next) return next.seq;
+  if (by > 0 && seq !== null) return null;
+}
+
+/** The store at `entry`'s moment: as it left it, or (one a manager handled
+ * without the store) as the last action of its store before it did, or else
+ * as its store's first found it. `storeFrom`: see `History` */
+export function storeAt(
+  entries: readonly LogEntry[],
+  entry: LogEntry,
+  storeFrom?: number,
+): Moment | undefined {
+  if (entry.store) return { seq: entry.seq };
+  // the store's own actions: from where it began
+  const began = Math.max(
+    entries.findLast(e => e.seq <= entry.seq && e.newStore)?.seq ?? 0,
+    storeFrom !== undefined && storeFrom <= entry.seq ? storeFrom : 0,
+  );
+  // up to where the next began
+  const ended = Math.min(
+    entries.find(e => e.seq > entry.seq && e.newStore)?.seq ?? Infinity,
+    storeFrom !== undefined && storeFrom > entry.seq ? storeFrom : Infinity,
+  );
+  const own = (e: LogEntry) => e.seq >= began && e.seq < ended && !!e.store;
+  const previous = entries.findLast(e => e.seq < entry.seq && own(e));
+  if (previous) return { seq: previous.seq };
+  const first = entries.find(own);
+  return first && { seq: first.seq, before: true };
+}
+
+/** `live`, with the entries of `seen` it no longer holds */
+export function withDropped(
+  seen: readonly LogEntry[] = [],
+  live: readonly LogEntry[],
+): readonly LogEntry[] {
+  const held = new Set(live.map(e => e.seq));
+  const dropped = seen.filter(e => !held.has(e.seq));
+  if (!dropped.length) return live;
+  return [...dropped, ...live].sort((a, b) => a.seq - b.seq);
 }
 
 /** Whether a change altered the record, rather than storing it again
@@ -112,6 +165,7 @@ export const isRecordChange = (change: Change) => change.kind !== 'refreshed';
  * The store only commits in batches, so (like DevToolsManager) the log runs
  * the store's reducer itself to know the state right after each action. */
 export default class ActionLog {
+  private readonly limit: number;
   private readonly updateLimit: number;
   private readonly trimEvery: number;
   /** Off until the Store panel first listens, with `recordFrom: 'open'` */
@@ -130,10 +184,12 @@ export default class ActionLog {
   private queued = false;
 
   constructor({
+    limit = LOG_LIMIT,
     updateLimit = UPDATE_LIMIT,
     trimEvery = TRIM_EVERY,
     recordFrom = 'load',
   }: LogOptions = {}) {
+    this.limit = limit;
     this.updateLimit = updateLimit;
     this.trimEvery = trimEvery;
     this.recording = recordFrom === 'load';
@@ -258,6 +314,14 @@ export default class ActionLog {
     return this.changes(entry).length > 0;
   }
 
+  /** What `entries` did together: one action's changes, or several's
+   * merged (see `mergeChanges`) */
+  spanChanges(entries: readonly LogEntry[]): readonly Change[] {
+    return entries.length === 1 ?
+        this.changes(entries[0])
+      : this.mergedChanges(entries);
+  }
+
   /** Rows several actions changed, as they ended up */
   mergedChanges(entries: readonly LogEntry[]): Change[] {
     return mergeChanges(
@@ -311,22 +375,25 @@ export default class ActionLog {
       this.notify();
   }
 
-  /** `entries` within `updateLimit` and `LOG_LIMIT` */
+  /** `entries` within `updateLimit` and `limit` */
   private compact(
     entries: readonly LogEntry[],
     { storeFrom, dropped = new Map() }: Partial<History> = {},
   ): Pick<History, 'entries' | 'trimmed' | 'dropped'> {
     const capped = capUpdates(entries, this.updateLimit, dropped, storeFrom);
-    const kept = trim(capped.entries, storeFrom);
+    const kept = trim(capped.entries, this.limit, storeFrom);
     return {
       entries: kept,
       trimmed: kept.length,
-      // the counts of the entries still kept
-      dropped: new Map(
-        kept.flatMap(e => {
-          const n = capped.dropped.get(e.seq);
-          return n ? [[e.seq, n]] : [];
-        }),
+      // the counts of the entries still kept, as they were when unchanged
+      dropped: keepSameMap(
+        dropped,
+        new Map(
+          kept.flatMap(e => {
+            const n = capped.dropped.get(e.seq);
+            return n ? [[e.seq, n]] : [];
+          }),
+        ),
       ),
     };
   }
@@ -411,12 +478,16 @@ function capUpdates(
   return { entries: entries.filter(e => !extra.has(e)), dropped };
 }
 
-/** The newest `LOG_LIMIT` entries, plus the older ones their groups start
+/** The newest `limit` entries, plus the older ones their groups start
  * from: a request's fetch and response while it waits or has entries kept, and the
  * subscribes of a subscription still open or holding a kept request, so a
  * long poll keeps its row */
-function trim(entries: LogEntry[], storeFrom?: number): LogEntry[] {
-  const drop = entries.length - LOG_LIMIT;
+function trim(
+  entries: LogEntry[],
+  limit: number,
+  storeFrom?: number,
+): LogEntry[] {
+  const drop = entries.length - limit;
   if (drop <= 0) return entries;
   const cut = entries[drop].seq;
   const dropped = (e: LogEntry) => e.seq < cut;
@@ -485,4 +556,15 @@ function detach(state: State<unknown>): State<unknown> {
     endpoints: { ...state.endpoints },
     meta: { ...state.meta },
   };
+}
+
+/** `next`, or `prev` when it holds the same, so what is built on the map
+ * keeps its identity between actions that leave it alone */
+export function keepSameMap<K, V>(
+  prev: ReadonlyMap<K, V>,
+  next: ReadonlyMap<K, V>,
+): ReadonlyMap<K, V> {
+  if (prev.size !== next.size) return next;
+  for (const [key, value] of next) if (prev.get(key) !== value) return next;
+  return prev;
 }

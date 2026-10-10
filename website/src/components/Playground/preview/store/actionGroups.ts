@@ -8,6 +8,7 @@ import {
 import type ActionLog from './actionLog';
 import type { LogEntry } from './actionLog';
 import { endpointId, entityId, parseRowId } from './model';
+import type { View } from './nav';
 import { isPlainObject, temporalType } from './refs';
 
 export type ChangeKind =
@@ -450,6 +451,33 @@ export function groupEntriesOf(group: ActionGroup): readonly LogEntry[] {
   );
 }
 
+/** The actions a moment stands for: `entry` alone, or (`whole`) every
+ * action of its group up to it, so their effect shows as one */
+export function momentEntries(
+  groups: readonly ActionGroup[],
+  entry: LogEntry,
+  whole: boolean,
+): readonly LogEntry[] {
+  const group = whole ? groupOf(groups, entry.seq) : undefined;
+  return group ?
+      groupEntriesOf(group).filter(e => e.seq <= entry.seq)
+    : [entry];
+}
+
+/** The request `entry` belongs to, up to it: its optimistic update and
+ * response together, even when a subscription polled it */
+export function requestEntries(
+  groups: readonly ActionGroup[],
+  entry: LogEntry,
+): readonly LogEntry[] {
+  const group = groupOf(groups, entry.seq);
+  const request =
+    group?.kind === 'subscription' ?
+      group.requests.find(r => r.entries.includes(entry))
+    : group;
+  return request ? request.entries.filter(e => e.seq <= entry.seq) : [entry];
+}
+
 /** By seq, for each list of groups: the one holding that action */
 const groupIndex = new WeakMap<
   readonly ActionGroup[],
@@ -540,36 +568,67 @@ export interface Version {
   readonly entry: LogEntry;
   readonly change: Change;
 }
-/** Actions in a row that stored the record again, unchanged */
-interface Refreshes {
-  readonly kind: 'refreshed';
-  readonly entries: LogEntry[];
-}
 /** Where actions the log didn't keep changed the record */
 export interface Missing {
   readonly kind: 'missing';
+  /** The kept action it was found before */
   readonly seq: number;
   /** What they did to it, all told */
   readonly change: ChangeKind;
 }
-export type TimelineItem = Version | Refreshes | Missing;
 
-/** Every logged action that stored row `id`, oldest first; unchanged
- * stores in a row share one item. Each logged action starts from the store
- * the one before it left, so where the record differs between them, actions
- * the log dropped changed it */
+/** Every logged change to row `id`, oldest first, and where actions the log
+ * dropped changed it: each logged action starts from the store the one
+ * before it left, so where the record differs between them, dropped actions
+ * changed it */
 export function rowTimeline(
   log: ActionLog,
   entries: readonly LogEntry[],
   id: string,
-) {
-  const items: TimelineItem[] = [];
+): readonly (Version | Missing)[] {
+  // built once per history and row (a record's "changed by" and the
+  // Actions list both ask), and as the log appends, only the new actions
+  // are read; a log trimmed at the front starts over
+  let rows = timelines.get(log);
+  if (!rows) timelines.set(log, (rows = new Map()));
+  const last = rows.get(id);
+  if (last?.entries === entries) return last.items;
+  const n = last?.entries.length ?? 0;
+  const from =
+    (
+      last &&
+      entries.length >= n &&
+      entries[0] === last.entries[0] &&
+      entries[n - 1] === last.entries[n - 1]
+    ) ?
+      last
+    : undefined;
+  const built = buildTimeline(log, entries, id, from);
+  rows.set(id, built);
+  return built.items;
+}
+interface Timeline {
+  readonly entries: readonly LogEntry[];
+  readonly items: readonly (Version | Missing)[];
+  /** The store the last action left, to go on from */
+  readonly left: State<unknown> | undefined;
+}
+const timelines = new WeakMap<ActionLog, Map<string, Timeline>>();
+
+/** `from`: a timeline of a prefix of `entries`, continued */
+function buildTimeline(
+  log: ActionLog,
+  entries: readonly LogEntry[],
+  id: string,
+  from?: Timeline,
+): Timeline {
+  const items: (Version | Missing)[] = from ? [...from.items] : [];
   const row = rowOf(id);
   // an empty store until the log reaches a store's start (one a trim cut
   // off shows as a gap), which starts from its own state
   let left: State<unknown> | undefined =
-    __INTERNAL__.initialState as State<unknown>;
-  for (const entry of entries) {
+    from ? from.left : (__INTERNAL__.initialState as State<unknown>);
+  for (const entry of entries.slice(from?.entries.length ?? 0)) {
     if (entry.newStore) left = undefined;
     if (!entry.store) continue;
     const before = log.view(entry.store.before);
@@ -579,15 +638,81 @@ export function rowTimeline(
     if (gap) items.push({ kind: 'missing', seq: entry.seq, change: gap.kind });
     left = log.view(entry.store.after);
     const change = log.changes(entry).find(c => c.id === id);
-    if (!change) continue;
-    const last = items.at(-1);
-    if (change.kind !== 'refreshed')
+    if (change && change.kind !== 'refreshed')
       items.push({ kind: 'version', entry, change });
-    else if (last?.kind === 'refreshed') last.entries.push(entry);
-    else items.push({ kind: 'refreshed', entries: [entry] });
   }
-  return items;
+  return { entries, items, left };
 }
+
+/** Whether a change is to a row `subject` covers */
+export function touches(subject: View, change: Change): boolean {
+  switch (subject.kind) {
+    case 'root':
+      return true;
+    case 'record':
+      return change.id === subject.id;
+    case 'list':
+      if ('ids' in subject) return subject.ids.includes(change.id);
+      return (
+        'table' in change &&
+        change.table === subject.table &&
+        (!subject.pks || subject.pks.includes(change.pk))
+      );
+  }
+}
+
+/** Where actions the log dropped changed record `id`: by the kept action
+ * each gap was found at, what they did to it */
+function recordGaps(
+  log: ActionLog,
+  entries: readonly LogEntry[],
+  id: string,
+): ReadonlyMap<number, ChangeKind> {
+  const gaps = new Map<number, ChangeKind>();
+  for (const item of rowTimeline(log, entries, id))
+    if (item.kind === 'missing') gaps.set(item.seq, item.change);
+  return gaps;
+}
+
+/** What of the log is about a subject */
+export interface SubjectFilter {
+  /** Whether an action touched the subject: changed a row it covers or
+   * stored one again, or (a record) is where a gap was found: actions the
+   * log dropped changed the record before it. At the store, every action
+   * the store saw; so only actions the store saw */
+  readonly hit: (entry: LogEntry) => boolean;
+  /** Whether the Actions list shows an action: one `hit`, or at the store
+   * every action, those the store never saw (a fetch) included */
+  readonly lists: (entry: LogEntry) => boolean;
+  /** A record's gaps (see `recordGaps`) */
+  readonly gaps: ReadonlyMap<number, ChangeKind>;
+}
+
+/** The subject's gaps: a record's (see `recordGaps`); none otherwise */
+export function subjectGaps(
+  log: ActionLog,
+  entries: readonly LogEntry[],
+  subject: View,
+): ReadonlyMap<number, ChangeKind> {
+  return subject.kind === 'record' ?
+      recordGaps(log, entries, subject.id)
+    : NO_GAPS;
+}
+
+/** The filter for `subject`, given its gaps (`subjectGaps`, kept the same
+ * while they are, see `keepSameMap`), so the pane's rows can skip rendering */
+export function subjectFilter(
+  log: ActionLog,
+  subject: View,
+  gaps: ReadonlyMap<number, ChangeKind>,
+): SubjectFilter {
+  if (subject.kind === 'root')
+    return { hit: e => !!e.store, lists: () => true, gaps: NO_GAPS };
+  const hit = (e: LogEntry) =>
+    gaps.has(e.seq) || log.changes(e).some(c => touches(subject, c));
+  return { hit, lists: hit, gaps };
+}
+const NO_GAPS: ReadonlyMap<number, ChangeKind> = new Map();
 
 /** Row `id` as diffs name it, to compare it between two stores */
 function rowOf(id: string): Change | undefined {

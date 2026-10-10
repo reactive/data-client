@@ -1,7 +1,10 @@
 import { StateContext, useController } from '@data-client/react';
 import clsx from 'clsx';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 
+import { rowTimeline } from './actionGroups';
+import { ActionName } from './actionParts';
+import { ActionsContext, type Actions } from './actionParts';
 import {
   errorText,
   referrersOf,
@@ -9,17 +12,20 @@ import {
   type EntityRow,
   type StoreModel,
 } from './model';
+import { ShownTimeContext, useNavState } from './nav';
 import { plain } from './refs';
 import type { EndpointRecord } from './schemaRegistry';
 import styles from './store.module.css';
 import { Block, Field, formatTime, RefList, RowChip } from './Value';
-import { ChangedBy } from './VersionHistory';
 
 type Meta = EndpointRow['meta'];
 
 /** fresh (with countdown), stale, error or invalidated */
 export function Status({ meta }: { meta: Meta }) {
-  const now = useNow(meta?.expiresAt);
+  // a past store's freshness stays as it was then
+  const shownTime = useContext(ShownTimeContext);
+  const clock = useNow(shownTime === undefined ? meta?.expiresAt : undefined);
+  const now = shownTime ?? clock;
   if (!meta) return null;
   if (meta.error)
     return <span className={clsx(styles.pill, styles.error)}>error</span>;
@@ -99,12 +105,9 @@ export function EndpointBody({ row }: { row: EndpointRow }) {
 export function EndpointMeta({
   row,
   collapsed,
-  history,
 }: {
   row: EndpointRow;
   collapsed?: boolean;
-  /** Whether to offer the row's history (a level header may already) */
-  history?: boolean;
 }) {
   const { record } = row;
   return (
@@ -114,7 +117,7 @@ export function EndpointMeta({
         <Field name="args" node={plain(record.args)} />
       : null}
       <MetaFields meta={row.meta} />
-      <ChangedBy id={row.id} history={history} />
+      <ChangedBy id={row.id} />
     </MetaBlock>
   );
 }
@@ -185,13 +188,10 @@ export function RowMeta({
   row,
   model,
   collapsed,
-  history,
 }: {
   row: EntityRow;
   model: StoreModel;
   collapsed?: boolean;
-  /** Whether to offer the row's history (a level header may already) */
-  history?: boolean;
 }) {
   const referrers = referrersOf(model, row.id);
   const summary = metaSummary(row.meta);
@@ -216,8 +216,56 @@ export function RowMeta({
           />
         : <span className={styles.dim}>nothing</span>}
       </div>
-      <ChangedBy id={row.id} history={history} />
+      <ChangedBy id={row.id} />
     </MetaBlock>
+  );
+}
+
+/** A record's last change as of the store this level shows, opening the
+ * action that made it in the Actions tab; or that actions the log dropped
+ * made it. Nothing while the log has no change to the record */
+function ChangedBy({ id }: { id: string }) {
+  const actions = useContext(ActionsContext);
+  return actions ? <LastChange id={id} actions={actions} /> : null;
+}
+
+function LastChange({ id, actions }: { id: string; actions: Actions }) {
+  const { log, history, until } = actions;
+  const { show } = useNavState();
+  const items = useMemo(
+    () => rowTimeline(log, history.entries, id),
+    [log, history.entries, id],
+  );
+  // the latest change at or before the moment (live, the latest), unless
+  // actions the log dropped changed the record since: no kept action made
+  // the value shown
+  const last =
+    until === undefined ?
+      items.at(-1)
+    : items.findLast(
+        i => (i.kind === 'version' ? i.entry.seq : i.seq) <= until,
+      );
+  if (!last) return null;
+  return (
+    <div className={styles.field}>
+      <span className={styles.key}>
+        changed by<span className={styles.dim}>:</span>
+      </span>
+      <span className={styles.changedBy}>
+        {last.kind === 'version' ?
+          <button
+            type="button"
+            className={clsx(styles.ref, styles.countRef)}
+            onClick={e => {
+              e.stopPropagation();
+              show(last.entry.seq);
+            }}
+          >
+            <ActionName entry={last.entry} />
+          </button>
+        : <span className={styles.dim}>actions not kept</span>}
+      </span>
+    </div>
   );
 }
 

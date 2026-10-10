@@ -1,4 +1,4 @@
-import { StateContext, type State } from '@data-client/react';
+import { actionTypes, StateContext, type State } from '@data-client/react';
 import clsx from 'clsx';
 import React, {
   useCallback,
@@ -11,18 +11,41 @@ import React, {
   useSyncExternalStore,
 } from 'react';
 
-import { ActionCrumb, ActionDetail, ActionName } from './ActionDetail';
-import { groupEntries, keepUnchanged, type ActionGroup } from './actionGroups';
-import { findEntry, nearestChange, type LogEntry } from './actionLog';
+import { ActionDetail, SubjectChanges } from './ActionDetail';
+import {
+  groupEntries,
+  groupOf,
+  keepUnchanged,
+  momentEntries,
+  requestEntries,
+  subjectFilter,
+  subjectGaps,
+  touches,
+  type ActionGroup,
+  type ChangeKind,
+  type SubjectFilter,
+} from './actionGroups';
+import { ActionsLevel, ActionsPane, GroupActions } from './ActionList';
+import {
+  findEntry,
+  isRecordChange,
+  keepSameMap,
+  storeAt,
+  withDropped,
+  type LogEntry,
+} from './actionLog';
+import type ActionLog from './actionLog';
+import { ActionName, KeyLabel } from './actionParts';
 import {
   ActionsContext,
-  ActionsRoot,
   AtMoment,
   LogContext,
   useActions,
   type Actions,
-} from './ActionsView';
-import { ListView, RecordLevel } from './DiveViews';
+} from './actionParts';
+import { NARROW_WIDTH } from './columns';
+import { diffModel, type RowDiff } from './diffModel';
+import { ListView, RecordLevel, type Header } from './DiveViews';
 import { flash, scrollToRow, slide } from './dom';
 import {
   buildModel,
@@ -33,39 +56,42 @@ import {
   type StoreModel,
 } from './model';
 import {
-  MomentContext,
+  ACTIONS,
+  DiffContext,
   NavContext,
-  OpenViewContext,
+  NavStateContext,
+  ShownTimeContext,
+  subjectOf,
   useLevelStack,
-  useMoment,
   type LevelStack,
   type Moment,
-  type MomentCursor,
   type Nav,
+  type NavState,
   type StackEntry,
   type Then,
+  type LevelView,
   type View,
 } from './nav';
 import RootView from './RootView';
 import type SchemaRegistry from './schemaRegistry';
 import styles from './store.module.css';
 import { StoreUIProvider } from './StoreUI';
-import Timeline from './Timeline';
+import Timeline, { Scrubber } from './Timeline';
 import TreeView from './TreeView';
+import Unfold from './Unfold';
 import { RowKey } from './Value';
-import { RowHistory } from './VersionHistory';
 import { useTabStorage } from '../../../../utils/tabStorage';
-import { prefersReducedMotion, springEasing, springs } from '../../../motion';
 
 /** Breadcrumbs shown before the middle ones collapse to `…` */
 const CRUMBS = 4;
-/** By when an `Unfold`'s slide shut (`--motion-smooth`) is over */
-export const TIMELINE_CLOSE_MS = springEasing(springs.smooth).duration + 100;
 
 export default function StorePanel({
+  groupId,
   registry,
   history: id,
 }: {
+  /** The Playground's: its tab is remembered under it */
+  groupId: string;
   registry: SchemaRegistry;
   /** Whose actions to show (see `ActionLog`) */
   history: number;
@@ -77,35 +103,54 @@ export default function StorePanel({
   const { entries } = history;
   const [stored, setView] = useTabStorage('playgroundStoreView');
   const tree = stored === 'tree';
-  const [tab, setTab] = useState<'state' | 'actions'>('state');
-  // the Timeline strip, above either tab; it stays mounted while it slides
-  // shut, until the slide ends
-  const [timeline, setTimeline] = useState(false);
-  const [timelineShown, setTimelineShown] = useState(false);
-  if (timeline && !timelineShown) setTimelineShown(true);
-  const hideTimeline = useCallback(() => setTimelineShown(false), []);
-  // the Actions tab mounts on first visit, then stays (scroll, open rows)
-  const [actionsShown, setActionsShown] = useState(false);
-  if (tab === 'actions' && !actionsShown) setActionsShown(true);
+  // the subject at the moment (`snapshot`), what the moment's action did
+  // to it (`diff`), or its actions to explore; remembered per Playground
+  const [storedTab, setTab] = useTabStorage(`${groupId}.storeTab`);
+  const tab: Tab = isTab(storedTab) ? storedTab : 'snapshot';
+  // the peek: the subject's actions over the store's right side, to move the
+  // moment by, as the mouse rests on the Actions tab; gone as it leaves both.
+  // Each panel's own: a page holds several, and a press outside one closes
+  // it
+  const [pane, setPane] = useState(false);
+  const closePane = useCallback(() => setPane(false), []);
+  const peekTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const hoverPane = useCallback((inside: boolean, e: React.PointerEvent) => {
+    if (e.pointerType !== 'mouse') return;
+    clearTimeout(peekTimer.current);
+    peekTimer.current = setTimeout(
+      () => setPane(inside),
+      inside ? PEEK_OPEN_MS : PEEK_CLOSE_MS,
+    );
+  }, []);
+  useEffect(() => () => clearTimeout(peekTimer.current), []);
+  // the timeline the scrubber expands into, above the content; it stays
+  // mounted while it slides shut, until the slide ends
+  const [timelineOpen, setTimelineOpen] = useState(false);
+  const [timelineMounted, setTimelineMounted] = useState(false);
+  if (timelineOpen && !timelineMounted) setTimelineMounted(true);
+  const hideTimeline = useCallback(() => setTimelineMounted(false), []);
 
-  // State as it was right after one action, until "Live"
-  const [snapshotSeq, setSnapshot] = useState<number | null>(null);
-  // every action logged while State shows the past, so the snapshot, the
-  // actions it steps through and what changed each row stay as the log's
-  // front drops off. Let go on "Live"
-  const [kept, setKept] = useState<{
-    live: readonly LogEntry[];
-    all: readonly LogEntry[];
-  }>();
-  if (snapshotSeq === null) {
-    if (kept) setKept(undefined);
-  } else if (kept?.live !== entries) {
-    setKept({ live: entries, all: withDropped(kept?.all, entries) });
+  const levels = useLevelStack(ROOT);
+  const actionLevels = useLevelStack(ACTIONS);
+  // the moment: right after one action, until "Live"; a new store (a
+  // reset) starts live, with no action of the old one left showing
+  const [momentSeq, setMomentSeq] = useState<number | null>(null);
+  // the moment stands for its action's whole group (a request: its
+  // optimistic update and response as one), picked by its row
+  const [whole, setWhole] = useState(false);
+  const [shownId, setShownId] = useState(id);
+  if (shownId !== id) {
+    setShownId(id);
+    setMomentSeq(null);
+    setWhole(false);
+    actionLevels.followMoment(null);
+    // levels a chip opened at the old store's actions show the new one
+    levels.clearAt();
+    actionLevels.clearAt();
   }
-  const known = (snapshotSeq !== null && kept?.all) || entries;
-  const snapshot =
-    snapshotSeq === null ? undefined : findEntry(known, snapshotSeq);
-  const state = snapshot?.store ? log.view(snapshot.store.after) : live;
+  const known = useKeptEntries(entries, momentSeq);
+  const moment = momentSeq === null ? undefined : findEntry(known, momentSeq);
+  const at = moment && storeAt(known, moment, history.storeFrom);
   // the store commits and the log notifies in separate renders: the rows
   // rebuild only when the store commits
   const liveRows = useMemo(() => buildModel(live, registry), [live, registry]);
@@ -116,29 +161,42 @@ export default function StorePanel({
   );
   // what an action's chips open: the store as it left it. Cached per state,
   // so a level showing one keeps its rows as the log grows
-  const [thens] = useState(() => new WeakMap<State<unknown>, Then>());
+  // one action's `before` is the store an earlier one left: they share rows,
+  // but each keeps its own place in the log
+  const [thens] = useState(
+    () => new WeakMap<State<unknown>, { before?: Then; after?: Then }>(),
+  );
   const then = useCallback(
     ({ seq, before }: Moment): Then | undefined => {
-      const store = findEntry(known, seq)?.store;
+      const entry = findEntry(known, seq);
+      const store = entry?.store;
       if (!store) return undefined;
       const raw = before ? store.before : store.after;
-      let found = thens.get(raw);
+      let cached = thens.get(raw);
+      if (!cached) thens.set(raw, (cached = {}));
+      const side = before ? 'before' : 'after';
+      let found = cached[side];
       if (!found) {
-        const state = log.view(raw);
+        const other = cached[before ? 'after' : 'before'];
+        const state = other?.state ?? log.view(raw);
         found = {
           state,
-          model: buildModel(state, registry, pendingIn(raw.optimistic)),
+          model:
+            other?.model ??
+            buildModel(state, registry, pendingIn(raw.optimistic)),
           until: before ? seq - 1 : seq,
+          time: entry.at,
         };
-        thens.set(raw, found);
+        cached[side] = found;
       }
       return found;
     },
     [known, log, registry, thens],
   );
-  // the snapshot's store, as a chip opening it would show it
-  const model =
-    snapshot?.store ? then({ seq: snapshot.seq })!.model : liveModel;
+  // the moment's store, as a chip opening it would show it
+  const shown = at && then(at);
+  const state = shown?.state ?? live;
+  const model = shown?.model ?? liveModel;
 
   // a cache: rows that didn't change keep their group, so they skip rendering
   const lastGroups = useRef<readonly ActionGroup[]>([]);
@@ -146,424 +204,418 @@ export default function StorePanel({
     () =>
       (lastGroups.current = keepUnchanged(
         lastGroups.current,
-        groupEntries(entries, history.storeFrom),
+        groupEntries(known, history.storeFrom),
       )),
-    [entries, history.storeFrom],
+    [known, history.storeFrom],
   );
-  const showState = useCallback((seq: number) => {
-    setSnapshot(seq);
-    setTab('state');
-  }, []);
+  // what the moment stands for, and what that changed: the Diff tab shows
+  // only that, from before its first action to the store the moment shows.
+  // Live, that is the newest stored action's request: a response that
+  // stored nothing new still shows its optimistic update. Garbage
+  // collection is the store's housekeeping, not something the code did
+  const span = useMemo(() => {
+    if (moment) return momentEntries(groups, moment, whole);
+    const newest = known.findLast(
+      e => e.store && e.action.type !== actionTypes.GC,
+    );
+    return newest && requestEntries(groups, newest);
+  }, [groups, moment, whole, known]);
+  const first = span?.find(e => e.store);
+  const last = span?.findLast(e => e.store);
+  const prior = first && then({ seq: first.seq, before: true });
+  // the store the span left, as the log has it: the live store collects
+  // garbage in place, so its rows can outlast what the log knows
+  const left = last && then({ seq: last.seq });
+  const diff = useMemo<Diff | undefined>(
+    () =>
+      span && {
+        entries: span,
+        ...diffModel(
+          left?.model ?? model,
+          prior?.model ?? model,
+          log.spanChanges(span),
+        ),
+      },
+    [span, model, left, prior, log],
+  );
+  // the whole panel shows the past with the moment: the kept actions, up to
+  // the moment's
   const actions = useMemo<Actions>(
-    () => ({ log, history, groups, showState, then }),
-    [log, history, groups, showState, then],
+    () => ({
+      log,
+      history: known === entries ? history : { ...history, entries: known },
+      groups,
+      until: shown?.until,
+      then,
+    }),
+    [log, history, known, entries, groups, shown, then],
   );
   const logContext = useMemo(
     () => ({ log, since: history.since, dropped: history.dropped }),
     [log, history.since, history.dropped],
   );
-  const moment = useMemo<MomentCursor>(
-    () => ({ seq: snapshotSeq, set: setSnapshot }),
-    [snapshotSeq],
-  );
-  // an action's level moves the panel to it, if the store saw it: State
-  // shows the store as it left it, and a History the version current then
-  const showAction = useCallback(
-    (view: View) => {
-      if (view.kind === 'action' && findEntry(known, view.seq)?.store)
-        setSnapshot(view.seq);
+  // the store's top level: what the actions list and the steps follow
+  const subject = subjectOf(levels.stack)!;
+  const filter = useSubjectFilter(log, known, subject);
+  // a moment set on purpose outranks the store a chip opened a level at;
+  // the action view follows it
+  const { clearAt: clearStateAt } = levels;
+  const { clearAt: clearActionsAt, followMoment, showAction } = actionLevels;
+  const clearAt = useCallback(() => {
+    clearStateAt();
+    clearActionsAt();
+  }, [clearStateAt, clearActionsAt]);
+  const set = useCallback(
+    (seq: number | null, whole = false) => {
+      setMomentSeq(seq);
+      setWhole(seq !== null && whole);
+      clearAt();
+      followMoment(seq, whole);
     },
-    [known],
-  );
-  const stateLevels = useLevelStack(STATE_ROOT, showAction);
-  const actionLevels = useLevelStack(ACTIONS_ROOT, showAction);
-  // the latest stacks, for the handlers and effects below (set as each
-  // render commits, ahead of the effects that read it)
-  const stacks = useRef({ state: stateLevels, actions: actionLevels });
-  useLayoutEffect(() => {
-    stacks.current = { state: stateLevels, actions: actionLevels };
-  });
-  // a view to open from where there is no stack (the tree view, the
-  // Timeline): on State's, in the table view
-  const { push } = stateLevels;
-  const openView = useCallback(
-    (view: View) => {
-      setView('table');
-      setTab('state');
-      push(view);
-    },
-    [setView, push],
-  );
-  // State on record `id`, as "View State after this" lands there from a
-  // History in the Actions list (one on State's stack uncovers its record)
-  const showRecord = useCallback(
-    (id: string) => {
-      const top = stacks.current.state.stack.at(-1)!.view;
-      if (top.kind === 'record' && top.id === id) setView('table');
-      else openView({ kind: 'record', id });
-    },
-    [setView, openView],
-  );
-  // the bar's action opens in the Actions list: in place of the action shown
-  // there, or over the list
-  const openAction = useCallback((seq: number) => {
-    const { stack, push, replace } = stacks.current.actions;
-    const depth = stack.length - 1;
-    const view: View = { kind: 'action', seq };
-    if (stack[depth].view.kind === 'action') replace(depth, view);
-    else push(view);
-    setTab('actions');
-  }, []);
-  // an action shown in the Actions list follows the moment, so its "View
-  // State after this" shows the store the bar says. Opening an action moves
-  // the moment to it (see `showAction`), which this leaves as it is; a step
-  // to an action the store never saw leaves the moment, and stays shown
-  const momentStored = snapshot?.store ? snapshot.seq : null;
-  useLayoutEffect(() => {
-    if (momentStored === null) return;
-    const { stack, replace } = stacks.current.actions;
-    const depth = stack.length - 1;
-    const top = stack[depth].view;
-    if (top.kind === 'action' && top.seq !== momentStored)
-      replace(depth, { kind: 'action', seq: momentStored });
-  }, [momentStored]);
-  // only State and the timeline show the past; the Actions list is live
-  const stateActions = useMemo<Actions>(
-    () =>
-      snapshot ?
-        {
-          ...actions,
-          history: { ...history, entries: known },
-          groups:
-            known === entries ? groups : groupEntries(known, history.storeFrom),
-          until: snapshot.seq,
-        }
-      : actions,
-    [actions, history, known, entries, groups, snapshot],
+    [clearAt, followMoment],
   );
 
   const panel = useRef<HTMLDivElement>(null);
   const width = useWidth(panel);
-  // a bar or strip shutting under focus hands it to the tab shown, so it
+  // the timeline shutting under focus hands it to what opened it, so it
   // doesn't fall to the page
-  const focusTab = useCallback(() => {
-    panel.current
-      ?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')
-      ?.focus();
-  }, []);
-  // a snapshot flashes what its action changed
-  useFlashChanges(
-    panel,
-    state,
-    snapshot?.store && log.view(snapshot.store.before),
+  const expand = useRef<HTMLButtonElement>(null);
+  const focusExpand = useCallback(() => expand.current?.focus(), []);
+  // narrow, the timeline opens as a sheet over the content instead of
+  // pushing it down; a pick in the sheet closes it. The content under the
+  // sheet is inert meanwhile
+  const narrow = width < NARROW_WIDTH;
+  const covered = narrow && timelineMounted;
+  const content = useRef<HTMLDivElement>(null);
+  const actionsTab = useRef<HTMLButtonElement>(null);
+  // as these change: focus left under the sheet moves to the ▾, and lost as
+  // it closes goes to the level; focus lost as the pane closes (a row it
+  // held unmounts) goes back to its toggle
+  // an action shown from the sheet takes focus once it is uncovered
+  const focusLevel = useRef(false);
+  const layout = useRef({ covered, pane });
+  useLayoutEffect(() => {
+    const was = layout.current;
+    layout.current = { covered, pane };
+    if (was.covered === covered && was.pane === pane) return;
+    const active = document.activeElement;
+    const lost = !active || active === document.body;
+    const toLevel = !covered && focusLevel.current;
+    if (!covered) focusLevel.current = false;
+    if (covered && (lost || content.current?.contains(active)))
+      expand.current?.focus({ preventScroll: true });
+    else if (toLevel)
+      panel.current
+        ?.querySelector<HTMLElement>('[data-level]:not([data-covered])')
+        ?.focus({ preventScroll: true });
+    else if (lost)
+      (was.pane && !pane ?
+        actionsTab.current
+      : panel.current?.querySelector<HTMLElement>(
+          '[data-level]:not([data-covered])',
+        )
+      )?.focus({ preventScroll: true });
+  }, [covered, pane]);
+  const collapse = useCallback(() => setTimelineOpen(false), []);
+  // showing an action opens it in the Actions tab, as the moment, over the
+  // subject's actions (closing the peek and, narrow, the sheet)
+  const show = useCallback(
+    (seq: number, whole = false) => {
+      setMomentSeq(seq);
+      setWhole(whole);
+      clearAt();
+      setTab('actions');
+      showAction(seq, whole);
+      closePane();
+      if (covered) focusLevel.current = true;
+      if (narrow) collapse();
+    },
+    [clearAt, setTab, showAction, closePane, covered, narrow, collapse],
   );
+  const navState = useMemo<NavState>(
+    () => ({ seq: momentSeq, whole, set, show }),
+    [momentSeq, whole, set, show],
+  );
+  // what the peek's chips open: over the top level of Snapshot or Diff, in
+  // the table view, with the peek closed to show it
+  const { push } = levels;
+  const openView = useCallback(
+    (view: View, at?: Moment) => {
+      setView('table');
+      push(view, at);
+      closePane();
+    },
+    [setView, push, closePane],
+  );
+  // the chips only push, so the model comes through a ref: the value keeps
+  // its identity across store commits and the memoized rows holding chips
+  // skip them
+  const modelRef = useRef(model);
+  modelRef.current = model;
+  const chipNav = useMemo<Nav>(
+    () => ({
+      get model() {
+        return modelRef.current;
+      },
+      width,
+      push: openView,
+    }),
+    [width, openView],
+  );
+  const lanes = timelineMounted && (
+    <Unfold
+      open={timelineOpen}
+      onShut={hideTimeline}
+      onShutWithFocus={focusExpand}
+    >
+      {narrow && (
+        <div className={styles.sheetBar}>
+          <span>Timeline</span>
+          <button
+            type="button"
+            aria-label="Close timeline"
+            title="Close timeline"
+            onClick={collapse}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+      <Timeline
+        width={width}
+        hit={filter.hit}
+        onPick={narrow ? collapse : undefined}
+      />
+    </Unfold>
+  );
+  // the store flashes what the moment changed (a request's own rows, not
+  // those of actions between its steps)
+  useFlashChanges(panel, state, moment && diff?.rows);
+  // the subject's levels show in Snapshot, and in Diff once an action
+  // changed the store
+  const storeShown = tab === 'snapshot' || (tab === 'diff' && !!diff);
+  const shownDiff = tab === 'diff' ? diff : undefined;
 
   return (
     <ActionsContext.Provider value={actions}>
       <LogContext.Provider value={logContext}>
-        <MomentContext.Provider value={moment}>
-          <OpenViewContext.Provider value={openView}>
-            <div className={styles.store} ref={panel}>
-              <div className={styles.bar} role="tablist" aria-label="Store">
-                <button
-                  type="button"
-                  role="tab"
-                  className={styles.tab}
-                  aria-selected={tab === 'state'}
-                  onClick={() => setTab('state')}
-                >
-                  State
-                </button>
-                <button
-                  type="button"
-                  role="tab"
-                  className={styles.tab}
-                  aria-selected={tab === 'actions'}
-                  onClick={() => setTab('actions')}
-                >
-                  Actions
-                  {actions.groups.length > 0 && (
-                    <span className={styles.count}>
-                      {actions.groups.length.toLocaleString()}
-                    </span>
-                  )}
-                </button>
-                <span className={styles.viewButtons}>
-                  <button
-                    type="button"
-                    aria-label="Timeline"
-                    title="Timeline"
-                    aria-pressed={timeline}
-                    onClick={() => setTimeline(shown => !shown)}
-                  >
-                    <TimelineIcon />
-                  </button>
-                  {tab !== 'actions' && (
-                    <span
-                      className={styles.viewSwitch}
-                      role="group"
-                      aria-label="Store view"
-                    >
-                      <button
-                        type="button"
-                        aria-label="Table view"
-                        title="Table view"
-                        aria-pressed={!tree}
-                        onClick={() => setView('table')}
-                      >
-                        <TableIcon />
-                      </button>
-                      <button
-                        type="button"
-                        aria-label="Tree view"
-                        title="Tree view"
-                        aria-pressed={tree}
-                        onClick={() => setView('tree')}
-                      >
-                        <TreeIcon />
-                      </button>
-                    </span>
-                  )}
-                </span>
-              </div>
-              <ActionsContext.Provider value={stateActions}>
-                {timelineShown && (
-                  <Unfold
-                    open={timeline}
-                    onShut={hideTimeline}
-                    onBlur={focusTab}
-                  >
-                    <Timeline width={width} />
-                  </Unfold>
-                )}
-                {/* one bar, below the strip: while a moment is set, and
-                    (live) with the strip. It never remounts, so focus stays
-                    on its buttons as they step */}
-                <Unfold open={!!snapshot || timeline} onBlur={focusTab}>
-                  <SnapshotBar
-                    entry={snapshot}
-                    onOpen={openAction}
-                    stepsToLive={timeline}
-                  />
-                </Unfold>
-                <div className={styles.tabPanel} hidden={tab === 'actions'}>
-                  <StateContext.Provider value={state}>
-                    {tree ?
-                      <TreeLevel model={model} />
-                    : <Levels
-                        model={model}
-                        width={width}
-                        levels={stateLevels}
-                      />
-                    }
-                  </StateContext.Provider>
-                </div>
-              </ActionsContext.Provider>
-              {actionsShown && (
-                <div className={styles.tabPanel} hidden={tab !== 'actions'}>
-                  <Levels
-                    model={liveModel}
-                    width={width}
-                    levels={actionLevels}
-                    showRecord={showRecord}
-                  />
+        <NavStateContext.Provider value={navState}>
+          <div
+            className={styles.store}
+            ref={panel}
+            onKeyDownCapture={e => {
+              // the peek shuts first: before a level under it takes the
+              // Escape to go back. Under the sheet, the sheet does
+              if (e.key !== 'Escape' || !pane || covered) return;
+              e.preventDefault();
+              e.stopPropagation();
+              closePane();
+            }}
+            onKeyDown={e => {
+              // the sheet shuts from anywhere in the panel, the ▾ included;
+              // a level going back has the Escape first
+              if (e.key !== 'Escape' || e.defaultPrevented) return;
+              if (narrow && timelineOpen) {
+                e.preventDefault();
+                collapse();
+              }
+            }}
+          >
+            <Scrubber
+              entry={moment}
+              hit={filter.hit}
+              width={width}
+              expanded={timelineOpen}
+              expandRef={expand}
+              onExpand={setTimelineOpen}
+            />
+            <div className={styles.body}>
+              {/* one place in the tree either way, so crossing the narrow
+                    width restyles the timeline rather than remounting it */}
+              {lanes && (
+                <div className={clsx(styles.lanes, narrow && styles.sheet)}>
+                  {lanes}
                 </div>
               )}
+              <div ref={content} className={styles.content} inert={covered}>
+                <div className={styles.bar}>
+                  {tab !== 'actions' && (
+                    <span className={styles.barStart}>
+                      <span
+                        className={styles.viewButtons}
+                        role="group"
+                        aria-label="Store view"
+                      >
+                        <button
+                          type="button"
+                          aria-label="Table view"
+                          title="Table view"
+                          aria-pressed={!tree}
+                          onClick={() => setView('table')}
+                        >
+                          <TableIcon />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label="Tree view"
+                          title="Tree view"
+                          aria-pressed={tree}
+                          onClick={() => setView('tree')}
+                        >
+                          <TreeIcon />
+                        </button>
+                      </span>
+                    </span>
+                  )}
+                  <span className={styles.barEnd} role="tablist">
+                    <button
+                      type="button"
+                      role="tab"
+                      className={styles.tab}
+                      title="The store at the moment"
+                      aria-selected={tab === 'snapshot'}
+                      onClick={() => setTab('snapshot')}
+                    >
+                      Snapshot
+                    </button>
+                    <button
+                      type="button"
+                      role="tab"
+                      className={styles.tab}
+                      title="Only what the moment's action changed"
+                      aria-selected={tab === 'diff'}
+                      onClick={() => setTab('diff')}
+                    >
+                      Diff
+                    </button>
+                    <button
+                      type="button"
+                      role="tab"
+                      ref={actionsTab}
+                      className={styles.tab}
+                      aria-selected={tab === 'actions'}
+                      // it peeks only over the store
+                      onPointerEnter={e =>
+                        tab !== 'actions' && hoverPane(true, e)
+                      }
+                      onPointerLeave={e => hoverPane(false, e)}
+                      onClick={() => {
+                        clearTimeout(peekTimer.current);
+                        closePane();
+                        setTab('actions');
+                      }}
+                    >
+                      <ListIcon />
+                      Actions
+                    </button>
+                  </span>
+                </div>
+                <div className={styles.tabPanel} role="tabpanel">
+                  {/* both stay mounted, so each keeps the stores its levels
+                      show, their scroll, pages and filters; both read the
+                      moment's state where they show the moment's store */}
+                  <StateContext.Provider value={state}>
+                    <ShownTimeContext.Provider value={shown?.time}>
+                      <Levels
+                        model={model}
+                        width={width}
+                        levels={actionLevels}
+                        subject={subject}
+                        hidden={tab !== 'actions'}
+                      />
+                      <DiffContext.Provider value={shownDiff?.rows ?? null}>
+                        {tree ?
+                          storeShown && (
+                            <TreeLevel model={model} diff={shownDiff} />
+                          )
+                        : <Levels
+                            model={model}
+                            width={width}
+                            levels={levels}
+                            diff={shownDiff}
+                            hidden={!storeShown}
+                          />
+                        }
+                      </DiffContext.Provider>
+                    </ShownTimeContext.Provider>
+                  </StateContext.Provider>
+                  {tab === 'diff' && !diff && (
+                    <div className={styles.levels}>
+                      <div className={styles.level} data-level tabIndex={-1}>
+                        <p className={styles.empty}>
+                          No action has changed the store yet.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {pane && tab !== 'actions' && (
+                    <NavContext.Provider value={chipNav}>
+                      <ActionsPane
+                        subject={subject}
+                        filter={filter}
+                        label={
+                          subject.kind === 'root' ?
+                            null
+                          : crumbLabel(subject, model)
+                        }
+                        narrow={narrow}
+                        toggle={actionsTab}
+                        onHover={hoverPane}
+                        onPick={set}
+                        onClose={closePane}
+                      />
+                    </NavContext.Provider>
+                  )}
+                </div>
+              </div>
             </div>
-          </OpenViewContext.Provider>
-        </MomentContext.Provider>
+          </div>
+        </NavStateContext.Provider>
       </LogContext.Provider>
     </ActionsContext.Provider>
   );
 }
 
-const STATE_ROOT: View = { kind: 'root' };
-const ACTIONS_ROOT: View = { kind: 'actions' };
+const ROOT: View = { kind: 'root' };
+const TABS = ['snapshot', 'diff', 'actions'] as const;
+type Tab = (typeof TABS)[number];
+const isTab = (value: string | null): value is Tab =>
+  (TABS as readonly (string | null)[]).includes(value);
+/** How long the pointer rests on the Actions tab before the list peeks,
+ * and is away from both before a peek closes (ms) */
+const PEEK_OPEN_MS = 150;
+const PEEK_CLOSE_MS = 300;
 
-/** Slides `children` open and shut (see `.unfold`): their row grows from
- * nothing as they rise into place, and back. Shut, they stay mounted, but
- * neither focusable nor announced, showing what they did until the slide
- * ends. It mounts shut and opens on the next frame, so the slide open runs
- * as a transition too: one slide shut turned around reverses from where it
- * is, and redisplaying the panel (hidden, it keeps its state) replays
- * nothing, as keyframes would */
-function Unfold({
-  open,
-  onShut,
-  onBlur,
-  children,
-}: {
-  open: boolean;
-  /** Called once a slide shut is over */
-  onShut?: () => void;
-  /** Called as it shuts with focus inside, to move focus somewhere shown */
-  onBlur?: () => void;
-  children: React.ReactNode;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  // whether it held focus as it began to shut: going inert can drop focus
-  // to the page before the effect below looks
-  const hadFocus = useRef(false);
-  useLayoutEffect(() => {
-    const el = ref.current!;
-    if (!open) {
-      el.removeAttribute('data-open');
-      if (hadFocus.current || el.contains(document.activeElement)) onBlur?.();
-      return;
-    }
-    const frame = requestAnimationFrame(() => el.setAttribute('data-open', ''));
-    return () => cancelAnimationFrame(frame);
-    // only as `open` flips
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
-  // from a slide shut's start to its end; reopened mid-slide turns it around
-  const [was, setWas] = useState(open);
-  const [closing, setClosing] = useState(false);
-  if (was !== open) {
-    hadFocus.current = !open && !!ref.current?.contains(document.activeElement);
-    setWas(open);
-    setClosing(!open);
-  }
-  const closingNow = closing || (was !== open && !open);
-  // what it showed stays while it slides shut
-  const shown = useRef(children);
-  if (open || !closingNow) shown.current = children;
-  // the latest, so an inline `onShut` doesn't re-arm the settle timer below
-  const onShutRef = useRef(onShut);
-  useLayoutEffect(() => {
-    onShutRef.current = onShut;
-  });
-  const shut = useCallback(() => {
-    setClosing(false);
-    onShutRef.current?.();
-  }, []);
-  useLayoutEffect(() => {
-    // no transition to end under reduced motion
-    if (closing && prefersReducedMotion()) shut();
-  }, [closing, shut]);
-  useEffect(() => {
-    // the slide's end can go unseen (the panel hidden mid-slide, the toggle
-    // flipped twice in a frame): once it must be over, settle regardless
-    if (!closing) return;
-    const id = setTimeout(shut, TIMELINE_CLOSE_MS);
-    return () => clearTimeout(id);
-  }, [closing, shut]);
-  return (
-    <div
-      ref={ref}
-      className={styles.unfold}
-      inert={!open}
-      aria-hidden={!open || undefined}
-      onTransitionEnd={e => {
-        if (e.target === e.currentTarget && closing) shut();
-      }}
-    >
-      <div className={styles.unfoldBody}>{shown.current}</div>
-    </div>
-  );
+/** What the moment changed, which the Diff tab shows in place of the store
+ * it left */
+interface Diff {
+  /** The actions it shows the effect of (see `momentEntries`) */
+  readonly entries: readonly LogEntry[];
+  /** The store with only the rows it changed */
+  readonly model: StoreModel;
+  /** How it changed each of them */
+  readonly rows: ReadonlyMap<string, RowDiff>;
 }
 
-/** Says the panel is in the past (or, under the timeline, live); steps
- * through the actions that changed the store */
-function SnapshotBar({
-  entry,
-  onOpen,
-  stepsToLive,
-}: {
-  /** The action State is shown after; missing while live */
-  entry?: LogEntry;
-  /** Opens that action in the Actions list */
-  onOpen: (seq: number) => void;
-  /** › past the newest change goes live, as the timeline's right arrow key
-   * does (the bar stays, as the timeline shows it live too) */
-  stepsToLive?: boolean;
-}) {
-  const { log, history } = useActions();
-  const { set: onShow } = useMoment();
-  const seq = entry?.seq ?? null;
-  const earlier = nearestChange(log, history.entries, seq, -1);
-  const later = nearestChange(log, history.entries, seq, 1);
-  // a step that removes (Live) or turns off (an end reached) the button
-  // pressed hands focus to one still there, so it doesn't fall to the page
-  const bar = useRef<HTMLDivElement>(null);
-  const stepped = useRef(false);
-  const step = (to: number | null) => {
-    // only while the bar has it (a pointer press need not focus a button);
-    // the step renders before the next frame, so this can't go stale
-    if (!bar.current?.contains(document.activeElement)) return onShow(to);
-    stepped.current = true;
-    requestAnimationFrame(() => (stepped.current = false));
-    onShow(to);
-  };
-  useLayoutEffect(() => {
-    if (!stepped.current) return;
-    stepped.current = false;
-    const active = document.activeElement;
-    if (active && active !== document.body) return;
-    bar.current?.querySelector<HTMLElement>('button:not(:disabled)')?.focus();
-  });
-  return (
-    <div ref={bar} className={clsx(styles.snapshot, !entry && styles.tlLive)}>
-      <button
-        type="button"
-        aria-label="Previous change"
-        disabled={!earlier}
-        onClick={() => earlier && step(earlier.seq)}
-      >
-        ‹
-      </button>
-      <button
-        type="button"
-        aria-label="Next change"
-        disabled={!later && !(stepsToLive && entry)}
-        onClick={() => step(later?.seq ?? null)}
-      >
-        ›
-      </button>
-      {entry ?
-        <>
-          <span className={styles.snapshotLabel}>
-            After{' '}
-            <button
-              type="button"
-              className={styles.snapshotAction}
-              title="Open action"
-              onClick={() => onOpen(entry.seq)}
-            >
-              <ActionName entry={entry} />
-            </button>
-          </span>
-          <button
-            type="button"
-            className={styles.liveButton}
-            onClick={() => step(null)}
-          >
-            Live
-          </button>
-        </>
-      : <span className={styles.snapshotLabel}>
-          Live. Pick an action to see State right after it.
-        </span>
-      }
-    </div>
-  );
-}
-
-/** The table view: a stack of full-panel levels. Covered levels stay
+/** A stack of full-panel levels, each showing its view. Covered levels stay
  * mounted (hidden), so going back keeps their scroll, pages and filters */
 function Levels({
   model,
   width,
-  levels: { stack, returnTo, push, replace, back },
-  showRecord,
+  levels: { stack, returnTo, push, back },
+  subject: under,
+  diff,
+  hidden = false,
 }: {
   model: StoreModel;
   width: number;
-  /** The levels shown, over State's overview or the Actions list */
   levels: LevelStack;
-  /** Where a History's "View State after this" lands when this stack is
-   * not State's: State on that record */
-  showRecord?: (id: string) => void;
+  /** In the tab not shown: laid out, covered, until it shows again */
+  hidden?: boolean;
+  /** Whose actions a stack with no subject of its own lists */
+  subject?: View;
+  /** Levels showing the moment show this instead */
+  diff?: Diff;
 }) {
   const { then } = useActions();
   // levels shown before (the view toggled back to the table) show at once;
@@ -593,10 +645,8 @@ function Levels({
       nav: {
         model: shown?.model ?? model,
         width,
-        // what it opens shows the same store; a history shows each version
-        // at its own
-        push: (view: View, next = at) =>
-          push(view, view.kind === 'history' ? undefined : next),
+        // what it opens shows the same store
+        push: (view: View, next = at) => push(view, next),
       },
       then: shown,
     };
@@ -604,24 +654,35 @@ function Levels({
     return level;
   };
 
+  const subjectAt = (depth: number) =>
+    subjectOf(stack.slice(0, depth)) ?? under ?? ROOT;
+  const label = (view: LevelView, depth: number, model: StoreModel) =>
+    view.kind === 'actions' ?
+      <ActionsCrumb subject={subjectAt(depth)} model={model} />
+    : crumbLabel(view, model);
   const crumbs = (depth: number, tools?: React.ReactNode) => {
     const shown = stack.slice(0, depth + 1);
     const { at } = stack[depth];
-    const model = levelOf(stack[depth]).nav.model;
+    // one opened at an action the log no longer has shows the store as it is
+    const { nav, then } = levelOf(stack[depth]);
+    const { model } = nav;
+    const shownAt = then && at;
     const items =
       shown.length > CRUMBS ?
         [0, -1, shown.length - 2, shown.length - 1]
       : shown.map((_, i) => i);
     return (
       <div className={styles.crumbs}>
-        <button
-          type="button"
-          className={styles.back}
-          aria-label="Back"
-          onClick={() => back(depth)}
-        >
-          ‹
-        </button>
+        {depth > 0 && (
+          <button
+            type="button"
+            className={styles.back}
+            aria-label="Back"
+            onClick={() => back(depth)}
+          >
+            ‹
+          </button>
+        )}
         <nav className={styles.crumbList} aria-label="Store location">
           {items.map((i, n) => (
             <React.Fragment key={i}>
@@ -630,24 +691,24 @@ function Levels({
                 <span className={styles.sep}>…</span>
               : i === depth ?
                 <span className={styles.crumbCurrent} aria-current="page">
-                  {crumbLabel(shown[i].view, model)}
+                  {label(shown[i].view, i, model)}
                 </span>
               : <button
                   type="button"
                   className={styles.crumb}
                   onClick={() => back(i + 1)}
                 >
-                  {crumbLabel(shown[i].view, model)}
+                  {label(shown[i].view, i, model)}
                 </button>
               }
             </React.Fragment>
           ))}
         </nav>
-        {(at || tools) && (
+        {(shownAt || tools) && (
           <span className={styles.tools}>
-            {at && (
+            {shownAt && (
               <span className={styles.dim}>
-                {at.before ? 'before' : 'after'} this action
+                {shownAt.before ? 'before' : 'after'} this action
               </span>
             )}
             {tools}
@@ -658,17 +719,19 @@ function Levels({
   };
 
   return (
-    <div className={styles.levels}>
+    <div
+      className={styles.levels}
+      hidden={hidden}
+      style={hidden ? { display: 'none' } : undefined}
+    >
       {stack.map((entry, depth) => {
-        const { key, view } = entry;
+        const { key, view, at } = entry;
         const level = levelOf(entry);
-        // in State, uncover State as it was then
-        const inState = stack[0].view.kind === 'root';
-        const uncover = inState ? () => back(depth) : undefined;
-        const showHistoryState =
-          inState ? uncover
-          : showRecord && view.kind === 'history' ? () => showRecord(view.id)
-          : undefined;
+        // the store's root has no crumbs; the actions' does, for their subject
+        const header = (tools: React.ReactNode) =>
+          depth > 0 || view.kind === 'actions' ? crumbs(depth, tools) : null;
+        // one a chip opened at an action shows that store, not the moment's
+        const levelDiff = !at ? diff : undefined;
         return (
           <Level
             key={key}
@@ -678,37 +741,31 @@ function Levels({
             depth={depth}
             pushed={depth > 0 && !shownLevels.has(entry)}
             top={depth === stack.length - 1}
+            hidden={hidden}
+            under={under}
             onBack={back}
             returnTo={returnTo}
+            diff={levelDiff}
           >
             {scroller =>
-              view.kind === 'root' ? <RootView scroller={scroller} />
-              : view.kind === 'actions' ? <ActionsRoot scroller={scroller} />
+              view.kind === 'actions' ?
+                <ActionsListLevel subject={subjectAt(depth)} header={header} />
               : view.kind === 'action' ?
-                <ActionDetail
+                <ActionLevel
                   seq={view.seq}
-                  header={tools => crumbs(depth, tools)}
-                  onShowState={uncover}
-                  onStep={seq => replace(depth, { kind: 'action', seq })}
+                  whole={view.whole}
+                  subject={subjectAt(depth)}
+                  header={header}
                 />
-              : view.kind === 'history' ?
-                <RowHistory
-                  id={view.id}
-                  focus={view.seq}
-                  header={tools => crumbs(depth, tools)}
-                  onShowState={showHistoryState}
-                />
-              : view.kind === 'list' ?
-                <ListView
+              : levelDiff ?
+                <DiffLevel
                   view={view}
+                  diff={levelDiff}
+                  nav={level.nav}
                   scroller={scroller}
-                  header={tools => crumbs(depth, tools)}
+                  header={header}
                 />
-              : <RecordLevel
-                  id={view.id}
-                  scroller={scroller}
-                  header={tools => crumbs(depth, tools)}
-                />
+              : <SubjectLevel view={view} scroller={scroller} header={header} />
             }
           </Level>
         );
@@ -730,11 +787,14 @@ function Level({
   depth,
   pushed,
   top,
+  hidden,
+  under,
   onBack,
   returnTo,
+  diff,
   children,
 }: {
-  view: View;
+  view: LevelView;
   nav: Nav;
   /** The store this level shows, when not the one `StateContext` holds */
   then?: Then;
@@ -743,25 +803,40 @@ function Level({
    * shows without sliding in or taking focus */
   pushed: boolean;
   top: boolean;
+  /** Its tab isn't shown: covered, though still on top of its stack */
+  hidden: boolean;
+  /** Whose actions it lists, when its stack has no subject of its own */
+  under?: View;
   onBack: (depth: number) => void;
   /** Row to flash when this level is uncovered */
   returnTo: string | null;
+  /** Shown in place of the store, which `children` reads */
+  diff?: Diff;
   children: (
     scroller: React.RefObject<HTMLDivElement | null>,
   ) => React.ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  // a covered level keeps what it showed, so store updates cost it nothing
-  // until it is uncovered
-  const [shown, setShown] = useState(nav);
-  if (top && shown !== nav) setShown(nav);
-  const current = shown;
+  // a covered level keeps the nav it showed, so what it shows renders again
+  // only once it is uncovered
+  const [current, setCurrent] = useState(nav);
+  if (top && current !== nav) setCurrent(nav);
   const content = useMemo(
     () => (
-      <NavContext.Provider value={current}>{children(ref)}</NavContext.Provider>
+      // only a level showing the diff marks rows with it, not one showing
+      // the store a chip opened it at
+      <DiffContext.Provider value={diff?.rows ?? null}>
+        <NavContext.Provider value={current}>
+          {then ?
+            <ShownTimeContext.Provider value={then.time}>
+              {children(ref)}
+            </ShownTimeContext.Provider>
+          : children(ref)}
+        </NavContext.Provider>
+      </DiffContext.Provider>
     ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `children` is new each render; what it shows only changes with `current` and `view`
-    [current, view],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `children` is new each render; what it shows only changes with `current`, `view`, `diff`, `under` and `then`
+    [current, view, diff, under, then],
   );
   const wasTop = useRef<boolean | null>(null);
   useLayoutEffect(() => {
@@ -769,8 +844,12 @@ function Level({
     const before = wasTop.current;
     wasTop.current = top;
     if (!el || !top || before === true || (before === null && !pushed)) return;
-    // keyboard focus follows, so Escape goes back
-    el.focus({ preventScroll: true });
+    // keyboard focus follows, so Escape goes back. Uncovered, only when it
+    // fell with the level that closed: not when the moment, stepped from
+    // the scrubber, took that level away
+    const active = document.activeElement;
+    if (before === null || !active || active === document.body)
+      el.focus({ preventScroll: true });
     slide(el, before === null ? 1 : -1);
     if (before === false && returnTo) flash(el, id => id === returnTo);
   }, [top, pushed, returnTo]);
@@ -779,8 +858,9 @@ function Level({
       ref={ref}
       className={styles.level}
       data-level
-      data-covered={!top || undefined}
-      inert={!top}
+      data-covered={!top || hidden || undefined}
+      data-frozen={then ? true : undefined}
+      inert={!top || hidden}
       tabIndex={-1}
       onKeyDown={e => {
         if (e.key === 'Escape' && depth > 0) {
@@ -796,17 +876,182 @@ function Level({
   );
 }
 
-/** What a breadcrumb shows for a view */
-function crumbLabel(view: View, model: StoreModel): React.ReactNode {
+/** A subject as the store holds it */
+function SubjectLevel({
+  view,
+  scroller,
+  header,
+}: {
+  view: View;
+  scroller: React.RefObject<HTMLDivElement | null>;
+  header: Header;
+}) {
+  return (
+    view.kind === 'root' ? <RootView scroller={scroller} />
+    : view.kind === 'list' ?
+      <ListView view={view} scroller={scroller} header={header} />
+    : <RecordLevel id={view.id} scroller={scroller} header={header} />
+  );
+}
+
+/** What the moment's action changed of a subject: the store and its lists
+ * with only the rows it changed (marked how), a record each field it
+ * changed; or why there is nothing to show */
+function DiffLevel({
+  view,
+  diff,
+  nav,
+  scroller,
+  header,
+}: {
+  view: View;
+  diff: Diff;
+  nav: Nav;
+  scroller: React.RefObject<HTMLDivElement | null>;
+  header: Header;
+}) {
+  const { log } = useActions();
+  const { entries } = diff;
+  const changed =
+    view.kind !== 'record' &&
+    log.spanChanges(entries).some(c => isRecordChange(c) && touches(view, c));
+  const diffNav = useMemo(() => ({ ...nav, model: diff.model }), [nav, diff]);
+  if (!changed)
+    return (
+      <>
+        {header(null)}
+        <SubjectChanges entries={entries} subject={view} />
+      </>
+    );
+  return (
+    <NavContext.Provider value={diffNav}>
+      <SubjectLevel view={view} scroller={scroller} header={header} />
+    </NavContext.Provider>
+  );
+}
+
+/** An action at full width: what it did to `subject` (the level under
+ * it), then the action itself */
+function ActionLevel({
+  seq,
+  whole,
+  subject,
+  header,
+}: {
+  seq: number;
+  /** Its group's actions up to it, as one */
+  whole?: boolean;
+  subject: View;
+  header: Header;
+}) {
+  const { log, history, groups } = useActions();
+  const entry = findEntry(history.entries, seq);
+  const filter = useSubjectFilter(log, history.entries, subject);
+  const group = whole ? groupOf(groups, seq) : undefined;
+  return (
+    <>
+      {header(null)}
+      {!entry ?
+        <p className={styles.empty}>No longer in the log.</p>
+      : group ?
+        <div className={styles.actBody}>
+          <SubjectChanges
+            entries={momentEntries(groups, entry, true)}
+            subject={subject}
+          />
+          <GroupActions group={group} subject={subject} filter={filter} />
+        </div>
+      : <ActionDetail
+          entry={entry}
+          subject={subject}
+          gap={filter.gaps.get(seq)}
+        />
+      }
+    </>
+  );
+}
+
+/** `entries`, and while the panel shows the past (`momentSeq`) the actions
+ * up to the moment the log has since dropped, so the moment, the actions
+ * before it and what changed each row stay as the log's front drops off.
+ * Ones after it go as the log drops them: a stream would otherwise pile up
+ * every action for as long as the moment is held */
+function useKeptEntries(
+  entries: readonly LogEntry[],
+  momentSeq: number | null,
+): readonly LogEntry[] {
+  const [kept, setKept] = useState<{
+    live: readonly LogEntry[];
+    all: readonly LogEntry[];
+  }>();
+  if (momentSeq === null) {
+    if (kept) setKept(undefined);
+  } else if (kept?.live !== entries) {
+    const before = kept?.all.filter(e => e.seq <= momentSeq);
+    setKept({ live: entries, all: withDropped(before, entries) });
+  }
+  return (momentSeq !== null && kept?.all) || entries;
+}
+
+/** What of the log is about `subject`. A record's gaps seldom change: the
+ * filter keeps its identity until they do, so the pane's rows render only
+ * as their own group changes */
+function useSubjectFilter(
+  log: ActionLog,
+  entries: readonly LogEntry[],
+  subject: View,
+): SubjectFilter {
+  const lastGaps = useRef<ReadonlyMap<number, ChangeKind>>(new Map());
+  const gaps = useMemo(
+    () =>
+      (lastGaps.current = keepSameMap(
+        lastGaps.current,
+        subjectGaps(log, entries, subject),
+      )),
+    [log, entries, subject],
+  );
+  return useMemo(() => subjectFilter(log, subject, gaps), [log, subject, gaps]);
+}
+
+/** `subject`'s actions at full width (the level under it) */
+function ActionsListLevel({
+  subject,
+  header,
+}: {
+  subject: View;
+  header: Header;
+}) {
+  const { log, history } = useActions();
+  const filter = useSubjectFilter(log, history.entries, subject);
+  return <ActionsLevel subject={subject} filter={filter} header={header} />;
+}
+
+/** The actions' crumb: whose they are, below the store */
+function ActionsCrumb({
+  subject,
+  model,
+}: {
+  subject: View;
+  model: StoreModel;
+}) {
+  return subject.kind === 'root' ?
+      'Actions'
+    : <>
+        Actions <span className={styles.dim}>of</span>{' '}
+        {crumbLabel(subject, model)}
+      </>;
+}
+
+/** What a breadcrumb shows for a view (the actions' is `ActionsCrumb`) */
+function crumbLabel(
+  view: Exclude<LevelView, { kind: 'actions' }>,
+  model: StoreModel,
+): React.ReactNode {
   switch (view.kind) {
     case 'root':
-      return 'State';
-    case 'actions':
-      return 'Actions';
+      return 'Store';
     case 'action':
-      return <ActionCrumb seq={view.seq} />;
-    case 'history':
-      return 'History';
+      return <ActionCrumb seq={view.seq} whole={view.whole} />;
     case 'list': {
       const count =
         'ids' in view ? view.ids.length
@@ -831,8 +1076,21 @@ function crumbLabel(view: View, model: StoreModel): React.ReactNode {
   }
 }
 
-/** The explorer: everything expands in place */
-function TreeLevel({ model }: { model: StoreModel }) {
+/** `setResponse GET /posts`, or where the log no longer has it */
+function ActionCrumb({ seq, whole }: { seq: number; whole?: boolean }) {
+  const { history, groups } = useActions();
+  const entry = findEntry(history.entries, seq);
+  const group = whole ? groupOf(groups, seq) : undefined;
+  return (
+    group ? <KeyLabel value={group.key} />
+    : entry ? <ActionName entry={entry} />
+    : <>…</>
+  );
+}
+
+/** The explorer: everything expands in place; at a moment, only what its
+ * action changed, or what it did instead when it changed no row */
+function TreeLevel({ model, diff }: { model: StoreModel; diff?: Diff }) {
   const scroller = useRef<HTMLDivElement>(null);
   const [pending, setPending] = useState<string | null>(null);
   useEffect(() => {
@@ -841,10 +1099,14 @@ function TreeLevel({ model }: { model: StoreModel }) {
     setPending(null);
   }, [pending]);
   return (
-    <StoreUIProvider model={model} onReveal={setPending}>
+    <StoreUIProvider model={diff?.model ?? model} onReveal={setPending}>
       <div className={styles.levels}>
-        <div className={styles.level} ref={scroller} data-level>
-          <TreeView model={model} />
+        <div className={styles.level} ref={scroller} data-level tabIndex={-1}>
+          {!diff ?
+            <TreeView model={model} />
+          : diff.rows.size ?
+            <TreeView model={diff.model} />
+          : <SubjectChanges entries={diff.entries} subject={ROOT} />}
         </div>
       </div>
     </StoreUIProvider>
@@ -867,24 +1129,27 @@ function useWidth(ref: React.RefObject<HTMLElement | null>) {
 }
 
 /** Briefly highlights rows on screen whose stored value changed since the
- * last state, or `since` a given one (only those: a big store has far more
- * rows than the screen) */
+ * last state, or the rows a moment `changed` (only those on screen: a big
+ * store has far more rows than the screen) */
 function useFlashChanges(
   ref: React.RefObject<HTMLElement | null>,
   state: State<unknown>,
-  since: State<unknown> | undefined,
+  changed: ReadonlyMap<string, unknown> | undefined,
 ) {
   const prev = useRef(state);
   useEffect(() => {
-    const before = since ?? prev.current;
-    const moved = prev.current !== state;
+    const before = prev.current;
     prev.current = state;
+    // a level showing the store an action left keeps still
     const el = ref.current?.querySelector<HTMLElement>(
-      `.${styles.tabPanel}:not([hidden]) [data-level]:not([data-covered])`,
+      '[data-level]:not([data-covered]):not([data-frozen])',
     );
-    if (!el || !moved) return;
-    flash(el, id => isChanged(before, state, id));
-  }, [ref, state, since]);
+    if (!el || before === state) return;
+    flash(
+      el,
+      changed ? id => changed.has(id) : id => isChanged(before, state, id),
+    );
+  }, [ref, state, changed]);
 }
 
 function TableIcon() {
@@ -895,15 +1160,6 @@ function TableIcon() {
     </svg>
   );
 }
-/** A time axis with marks on it */
-function TimelineIcon() {
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden="true">
-      <path d="M2 12.5h12M4 12.5v-2M8 12.5v-2M12 12.5v-2" />
-      <path d="M3.5 5.5h4M9.5 7.5h3.5" />
-    </svg>
-  );
-}
 function TreeIcon() {
   return (
     <svg viewBox="0 0 16 16" aria-hidden="true">
@@ -911,14 +1167,11 @@ function TreeIcon() {
     </svg>
   );
 }
-
-/** `live`, with the entries of `seen` it no longer holds */
-function withDropped(
-  seen: readonly LogEntry[] = [],
-  live: readonly LogEntry[],
-): readonly LogEntry[] {
-  const held = new Set(live.map(e => e.seq));
-  const dropped = seen.filter(e => !held.has(e.seq));
-  if (!dropped.length) return live;
-  return [...dropped, ...live].sort((a, b) => a.seq - b.seq);
+/** Rows of text */
+function ListIcon() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M2.5 4h2M6.5 4h7M2.5 8h2M6.5 8h7M2.5 12h2M6.5 12h7" />
+    </svg>
+  );
 }
