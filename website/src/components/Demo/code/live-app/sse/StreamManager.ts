@@ -4,13 +4,17 @@ import type {
   Middleware,
 } from '@data-client/react';
 import { actionTypes, getDefaultManagers } from '@data-client/react';
+import { ReconnectingEventSource } from './source';
 import { Ticker } from './resources';
 
 const { SUBSCRIBE, UNSUBSCRIBE } = actionTypes;
 
 /** Writes prices pushed by Server-Sent Events into the store */
 export class StreamManager implements Manager {
-  declare protected source?: EventSource;
+  // the products AssetList shows
+  protected source = new ReconnectingEventSource(
+    '/api/ticker-stream?product_ids=BTC-USD,ETH-USD,DOGE-USD',
+  );
   declare protected controller: Controller;
 
   middleware: Middleware = controller => {
@@ -26,28 +30,16 @@ export class StreamManager implements Manager {
     };
   };
 
-  // streams only while the page is visible
   init() {
-    document.addEventListener('visibilitychange', this.connect);
-    this.connect();
+    // every 5 seconds: the Tickers that changed
+    this.source.onmessage = tickers => {
+      if (tickers.length) this.controller.set([Ticker], tickers);
+    };
+    this.source.open();
   }
 
-  connect = () => {
-    this.source?.close();
-    if (document.hidden) return;
-    // the products AssetList shows
-    this.source = new EventSource(
-      '/api/ticker-stream?product_ids=BTC-USD,ETH-USD,DOGE-USD',
-    );
-    // every 5 seconds: the Tickers that changed
-    this.source.onmessage = event => {
-      this.controller.set([Ticker], JSON.parse(event.data));
-    };
-  };
-
   cleanup() {
-    document.removeEventListener('visibilitychange', this.connect);
-    this.source?.close();
+    this.source.close();
   }
 }
 
