@@ -297,7 +297,6 @@ const GroupRow = memo(function GroupRow({
             <Status group={group} />
             <Time at={first.at} />
           </span>
-          <OpenAction seq={seq} onOpen={onOpen} />
         </span>
         <span className={styles.actSum}>
           <Lifecycle group={group} />
@@ -311,6 +310,7 @@ const GroupRow = memo(function GroupRow({
           </ActionSpanContext.Provider>
         </span>
       </div>
+      <OpenAction seq={seq} onOpen={onOpen} />
       {open && (
         <Steps
           group={group}
@@ -324,7 +324,8 @@ const GroupRow = memo(function GroupRow({
   );
 });
 
-/** A row's ›: the Action facet on its action */
+/** A row's ›: the Action facet on its action. Beside the row, not in it
+ * (a button in a button), laid over its right end */
 function OpenAction({
   seq,
   onOpen,
@@ -432,22 +433,24 @@ function StepRow({
   const { log } = useLog();
   const select = () => onSelect(entry.seq);
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      aria-current={current || undefined}
-      data-id={actionId(entry.seq)}
-      className={clsx(styles.row, styles.stepRow)}
-      onClick={select}
-      onKeyDown={onActivateKey(select)}
-    >
-      <Time at={entry.at} />
-      <TypeName entry={entry} />
-      <span className={styles.actSum}>
-        <ActionSpanContext.Provider value={spanOf([entry])}>
-          <ChangeChips changes={log.changes(entry)} own={own} />
-        </ActionSpanContext.Provider>
-      </span>
+    <div className={styles.step}>
+      <div
+        role="button"
+        tabIndex={0}
+        aria-current={current || undefined}
+        data-id={actionId(entry.seq)}
+        className={clsx(styles.row, styles.stepRow)}
+        onClick={select}
+        onKeyDown={onActivateKey(select)}
+      >
+        <Time at={entry.at} />
+        <TypeName entry={entry} />
+        <span className={styles.actSum}>
+          <ActionSpanContext.Provider value={spanOf([entry])}>
+            <ChangeChips changes={log.changes(entry)} own={own} />
+          </ActionSpanContext.Provider>
+        </span>
+      </div>
       <OpenAction seq={entry.seq} onOpen={onOpen} />
     </div>
   );

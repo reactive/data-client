@@ -1,11 +1,12 @@
 import { actionTypes, type ActionTypes, type State } from '@data-client/react';
 import clsx from 'clsx';
-import React from 'react';
+import React, { useRef } from 'react';
 
 import {
   actionKey,
   groupEntriesOf,
   groupOf,
+  joinedFetches,
   type Change,
 } from './actionGroups';
 import { findEntry, isRecordChange, type LogEntry } from './actionLog';
@@ -18,6 +19,7 @@ import {
   useActions,
 } from './ActionsView';
 import type { Header } from './DiveViews';
+import { useHoldFocus } from './dom';
 import { errorText } from './model';
 import { ActionSpanContext, useNavState, type View } from './nav';
 import { plain } from './refs';
@@ -25,7 +27,8 @@ import styles from './store.module.css';
 import { Field, Inline } from './Value';
 
 /** The moment's action (live, the newest): what it changed about `subject`,
- * then the action itself */
+ * then the action itself. Found here, as the moment moves under a level's
+ * memoized content (see `Level`) */
 export function ActionFacet({
   subject,
   header,
@@ -49,7 +52,12 @@ export function ActionFacet({
       </>
     );
   const group = groupOf(groups, entry.seq);
-  const row = group ? groupEntriesOf(group) : [];
+  // the row's steps, without the fetches deduped into a request in flight
+  // (the list shows them as one line, the timeline not at all)
+  const row =
+    group ?
+      groupEntriesOf(group).filter(e => !joinedFetches(group).has(e))
+    : [];
   const changes = log.changes(entry).filter(c => touches(subject, c));
   const changed = changes.filter(isRecordChange);
   const refreshed = changes.length - changed.length;
@@ -139,9 +147,16 @@ function GroupStep({
   const i = row.findIndex(e => e.seq === seq);
   const earlier = row[i - 1];
   const later = row[i + 1];
-  const step = (to: LogEntry | undefined) => to && onStep(to.seq);
+  // an end reached turns off the button pressed: focus stays on the other
+  const pager = useRef<HTMLSpanElement>(null);
+  const hold = useHoldFocus(pager);
+  const step = (to: LogEntry | undefined) => {
+    if (!to) return;
+    hold();
+    onStep(to.seq);
+  };
   return (
-    <span className={styles.pager}>
+    <span className={styles.pager} ref={pager}>
       <button
         type="button"
         aria-label="Previous action in this row"

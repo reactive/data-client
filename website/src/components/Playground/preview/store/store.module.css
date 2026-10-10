@@ -88,6 +88,13 @@
   border-radius: 1px 1px 0 0;
   background: var(--ifm-color-primary);
 }
+/* The facets and their bar: inert under the sheet */
+.content {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
 /* The facet of the subject stack */
 .tabPanel {
   flex: 1 1 auto;
@@ -857,6 +864,9 @@ div.row {
   color: var(--store-dim);
   font-family: var(--ifm-font-family-base);
 }
+.actGroup {
+  position: relative;
+}
 .actGroup + .actGroup {
   border-top: 1px solid var(--store-line);
 }
@@ -867,7 +877,7 @@ div.actRow {
   flex-direction: column;
   align-items: stretch;
   gap: 0.1rem;
-  padding: 0.35rem 0.75rem;
+  padding: 0.35rem 2rem 0.35rem 0.75rem;
 }
 /* the moment's action, where the scrubber stands */
 .actRow[aria-current],
@@ -875,13 +885,13 @@ div.actRow {
   box-shadow: inset 2px 0 0 var(--store-stale);
   background: var(--store-stale-bg);
 }
-/* a row's ›: the Action facet on it */
+/* a row's ›: the Action facet on it, over the row's right end */
 .actOpen {
-  flex: none;
-  align-self: center;
+  position: absolute;
+  top: 0.3rem;
+  right: 0.4rem;
   width: 1.25rem;
   height: 1.25rem;
-  margin: -0.15rem -0.35rem -0.15rem 0;
   padding: 0;
   border: 0;
   border-radius: 4px;
@@ -897,8 +907,12 @@ div.actRow {
 .actOpen:focus-visible {
   outline: 2px solid var(--store-key);
 }
-.stepRow .actOpen {
-  margin-left: auto;
+.step {
+  position: relative;
+}
+.step > .actOpen {
+  top: 0.1rem;
+  right: 0.3rem;
 }
 /* the Action facet's head: the action, its time and its row's stepper */
 .record > .actHead {
@@ -1015,7 +1029,7 @@ div.actRow {
 div.stepRow {
   flex-wrap: wrap;
   gap: 0.1rem 0.6rem;
-  padding: 0.15rem 0.5rem 0.15rem 0.6rem;
+  padding: 0.15rem 1.8rem 0.15rem 0.6rem;
 }
 .stepRow .actTime {
   min-width: 3.2em;

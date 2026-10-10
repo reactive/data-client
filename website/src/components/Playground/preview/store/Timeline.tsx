@@ -32,6 +32,7 @@ import {
   useLog,
 } from './ActionsView';
 import { NARROW_WIDTH } from './columns';
+import { useHoldFocus } from './dom';
 import { endpointId, splitKey } from './model';
 import { useNavState } from './nav';
 import styles from './store.module.css';
@@ -245,24 +246,13 @@ export const Scrubber = memo(function Scrubber({
   const at = selected === null ? undefined : scale.x.get(selected);
 
   // a step that removes (Live) or turns off (an end reached) the button
-  // pressed hands focus to one still there, so it doesn't fall to the page
+  // pressed hands focus to one still there
   const bar = useRef<HTMLDivElement>(null);
-  const stepped = useRef(false);
+  const hold = useHoldFocus(bar);
   const step = (to: number | null) => {
-    // only while the bar has it (a pointer press need not focus a button);
-    // the step renders before the next frame, so this can't go stale
-    if (!bar.current?.contains(document.activeElement)) return onSelect(to);
-    stepped.current = true;
-    requestAnimationFrame(() => (stepped.current = false));
+    hold();
     onSelect(to);
   };
-  useLayoutEffect(() => {
-    if (!stepped.current) return;
-    stepped.current = false;
-    const active = document.activeElement;
-    if (active && active !== document.body) return;
-    bar.current?.querySelector<HTMLElement>('button:not(:disabled)')?.focus();
-  });
   const onKeyDown = (e: React.KeyboardEvent) => {
     switch (e.key) {
       case 'ArrowLeft':

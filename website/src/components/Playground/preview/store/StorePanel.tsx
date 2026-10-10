@@ -13,7 +13,7 @@ import React, {
 
 import { ActionFacet } from './ActionDetail';
 import { groupEntries, keepUnchanged, type ActionGroup } from './actionGroups';
-import { findEntry, type LogEntry } from './actionLog';
+import { findEntry, storeAt, withDropped, type LogEntry } from './actionLog';
 import {
   ActionsContext,
   AtMoment,
@@ -52,15 +52,13 @@ import styles from './store.module.css';
 import { StoreUIProvider } from './StoreUI';
 import Timeline, { Scrubber } from './Timeline';
 import TreeView from './TreeView';
+import Unfold from './Unfold';
 import { RowKey } from './Value';
 import { RowHistory } from './VersionHistory';
 import { useTabStorage } from '../../../../utils/tabStorage';
-import { prefersReducedMotion, springEasing, springs } from '../../../motion';
 
 /** Breadcrumbs shown before the middle ones collapse to `…` */
 const CRUMBS = 4;
-/** By when an `Unfold`'s slide shut (`--motion-smooth`) is over */
-export const TIMELINE_CLOSE_MS = springEasing(springs.smooth).duration + 100;
 
 export default function StorePanel({
   registry,
@@ -85,8 +83,14 @@ export default function StorePanel({
   if (timeline && !timelineShown) setTimelineShown(true);
   const hideTimeline = useCallback(() => setTimelineShown(false), []);
 
-  // State as it was right after one action, until "Live"
+  // State as it was right after one action, until "Live"; a new store (a
+  // reset) starts live
   const [snapshotSeq, setSnapshot] = useState<number | null>(null);
+  const [shownId, setShownId] = useState(id);
+  if (shownId !== id) {
+    setShownId(id);
+    setSnapshot(null);
+  }
   // every action logged while the panel shows the past, so the snapshot, the
   // actions it steps through and what changed each row stay as the log's
   // front drops off. Let go on "Live"
@@ -102,7 +106,7 @@ export default function StorePanel({
   const known = (snapshotSeq !== null && kept?.all) || entries;
   const snapshot =
     snapshotSeq === null ? undefined : findEntry(known, snapshotSeq);
-  const at = snapshot && storeAt(known, snapshot);
+  const at = snapshot && storeAt(known, snapshot, history.storeFrom);
   // the store commits and the log notifies in separate renders: the rows
   // rebuild only when the store commits
   const liveRows = useMemo(() => buildModel(live, registry), [live, registry]);
@@ -155,10 +159,10 @@ export default function StorePanel({
       log,
       history: known === entries ? history : { ...history, entries: known },
       groups,
-      until: snapshot?.seq,
+      until: shown?.until,
       then,
     }),
-    [log, history, known, entries, groups, snapshot, then],
+    [log, history, known, entries, groups, shown, then],
   );
   const logContext = useMemo(
     () => ({ log, since: history.since, dropped: history.dropped }),
@@ -177,8 +181,21 @@ export default function StorePanel({
   const expand = useRef<HTMLButtonElement>(null);
   const focusExpand = useCallback(() => expand.current?.focus(), []);
   // narrow, the timeline opens as a sheet over the content instead of
-  // pushing it down; a pick there closes it
+  // pushing it down; a pick there closes it. The content under it is inert
+  // meanwhile, so focus left there moves to the ▾
   const sheet = width < NARROW_WIDTH;
+  const covered = sheet && timeline;
+  const content = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    if (!covered) return;
+    const active = document.activeElement;
+    if (
+      !active ||
+      active === document.body ||
+      content.current?.contains(active)
+    )
+      expand.current?.focus({ preventScroll: true });
+  }, [covered]);
   const collapse = useCallback(() => setTimeline(false), []);
   // a view to open from where there is no level to open it from (the tree
   // view, the timeline's chips): over the top level, in the table view; under
@@ -254,65 +271,67 @@ export default function StorePanel({
                     {lanes}
                   </div>
                 )}
-                <div className={styles.bar} role="tablist" aria-label="Store">
-                  <button
-                    type="button"
-                    role="tab"
-                    className={styles.tab}
-                    aria-selected={facet === 'state'}
-                    onClick={() => setFacet('state')}
-                  >
-                    State
-                  </button>
-                  <button
-                    type="button"
-                    role="tab"
-                    className={styles.tab}
-                    aria-selected={facet === 'action'}
-                    onClick={() => setFacet('action')}
-                  >
-                    Action
-                  </button>
-                  {facet === 'state' && (
-                    <span
-                      className={styles.viewButtons}
-                      role="group"
-                      aria-label="Store view"
+                <div ref={content} className={styles.content} inert={covered}>
+                  <div className={styles.bar} role="tablist" aria-label="Store">
+                    <button
+                      type="button"
+                      role="tab"
+                      className={styles.tab}
+                      aria-selected={facet === 'state'}
+                      onClick={() => setFacet('state')}
                     >
-                      <button
-                        type="button"
-                        aria-label="Table view"
-                        title="Table view"
-                        aria-pressed={!tree}
-                        onClick={() => setView('table')}
+                      State
+                    </button>
+                    <button
+                      type="button"
+                      role="tab"
+                      className={styles.tab}
+                      aria-selected={facet === 'action'}
+                      onClick={() => setFacet('action')}
+                    >
+                      Action
+                    </button>
+                    {facet === 'state' && (
+                      <span
+                        className={styles.viewButtons}
+                        role="group"
+                        aria-label="Store view"
                       >
-                        <TableIcon />
-                      </button>
-                      <button
-                        type="button"
-                        aria-label="Tree view"
-                        title="Tree view"
-                        aria-pressed={tree}
-                        onClick={() => setView('tree')}
-                      >
-                        <TreeIcon />
-                      </button>
-                    </span>
-                  )}
-                </div>
-                <div className={styles.tabPanel}>
-                  <StateContext.Provider value={state}>
-                    {/* the tree is a State lens; Action shows the levels' subjects */}
-                    {tree && facet === 'state' ?
-                      <TreeLevel model={model} />
-                    : <Levels
-                        model={model}
-                        width={width}
-                        levels={levels}
-                        facet={facet}
-                      />
-                    }
-                  </StateContext.Provider>
+                        <button
+                          type="button"
+                          aria-label="Table view"
+                          title="Table view"
+                          aria-pressed={!tree}
+                          onClick={() => setView('table')}
+                        >
+                          <TableIcon />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label="Tree view"
+                          title="Tree view"
+                          aria-pressed={tree}
+                          onClick={() => setView('tree')}
+                        >
+                          <TreeIcon />
+                        </button>
+                      </span>
+                    )}
+                  </div>
+                  <div className={styles.tabPanel}>
+                    <StateContext.Provider value={state}>
+                      {/* the tree is a State lens; Action shows the levels' subjects */}
+                      {tree && facet === 'state' ?
+                        <TreeLevel model={model} />
+                      : <Levels
+                          model={model}
+                          width={width}
+                          levels={levels}
+                          facet={facet}
+                        />
+                      }
+                    </StateContext.Provider>
+                  </div>
                 </div>
               </div>
             </div>
@@ -324,103 +343,6 @@ export default function StorePanel({
 }
 
 const ROOT: View = { kind: 'root' };
-
-/** The store at `entry`'s moment: as it left it, or (one a manager handled
- * without the store) as the last action before it did, or else as the first
- * found it */
-function storeAt(
-  entries: readonly LogEntry[],
-  entry: LogEntry,
-): Moment | undefined {
-  if (entry.store) return { seq: entry.seq };
-  const previous = entries.findLast(e => e.seq < entry.seq && e.store);
-  if (previous) return { seq: previous.seq };
-  const first = entries.find(e => e.store);
-  return first && { seq: first.seq, before: true };
-}
-
-/** Slides `children` open and shut (see `.unfold`): their row grows from
- * nothing as they rise into place, and back. Shut, they stay mounted, but
- * neither focusable nor announced, showing what they did until the slide
- * ends. It mounts shut and opens on the next frame, so the slide open runs
- * as a transition too: one slide shut turned around reverses from where it
- * is, and redisplaying the panel (hidden, it keeps its state) replays
- * nothing, as keyframes would */
-function Unfold({
-  open,
-  onShut,
-  onBlur,
-  children,
-}: {
-  open: boolean;
-  /** Called once a slide shut is over */
-  onShut?: () => void;
-  /** Called as it shuts with focus inside, to move focus somewhere shown */
-  onBlur?: () => void;
-  children: React.ReactNode;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  // whether it held focus as it began to shut: going inert can drop focus
-  // to the page before the effect below looks
-  const hadFocus = useRef(false);
-  useLayoutEffect(() => {
-    const el = ref.current!;
-    if (!open) {
-      el.removeAttribute('data-open');
-      if (hadFocus.current || el.contains(document.activeElement)) onBlur?.();
-      return;
-    }
-    const frame = requestAnimationFrame(() => el.setAttribute('data-open', ''));
-    return () => cancelAnimationFrame(frame);
-    // only as `open` flips
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
-  // from a slide shut's start to its end; reopened mid-slide turns it around
-  const [was, setWas] = useState(open);
-  const [closing, setClosing] = useState(false);
-  if (was !== open) {
-    hadFocus.current = !open && !!ref.current?.contains(document.activeElement);
-    setWas(open);
-    setClosing(!open);
-  }
-  const closingNow = closing || (was !== open && !open);
-  // what it showed stays while it slides shut
-  const shown = useRef(children);
-  if (open || !closingNow) shown.current = children;
-  // the latest, so an inline `onShut` doesn't re-arm the settle timer below
-  const onShutRef = useRef(onShut);
-  useLayoutEffect(() => {
-    onShutRef.current = onShut;
-  });
-  const shut = useCallback(() => {
-    setClosing(false);
-    onShutRef.current?.();
-  }, []);
-  useLayoutEffect(() => {
-    // no transition to end under reduced motion
-    if (closing && prefersReducedMotion()) shut();
-  }, [closing, shut]);
-  useEffect(() => {
-    // the slide's end can go unseen (the panel hidden mid-slide, the toggle
-    // flipped twice in a frame): once it must be over, settle regardless
-    if (!closing) return;
-    const id = setTimeout(shut, TIMELINE_CLOSE_MS);
-    return () => clearTimeout(id);
-  }, [closing, shut]);
-  return (
-    <div
-      ref={ref}
-      className={styles.unfold}
-      inert={!open}
-      aria-hidden={!open || undefined}
-      onTransitionEnd={e => {
-        if (e.target === e.currentTarget && closing) shut();
-      }}
-    >
-      <div className={styles.unfoldBody}>{shown.current}</div>
-    </div>
-  );
-}
 
 /** The subject stack: full-panel levels, each showing the facet of its view.
  * Covered levels stay mounted (hidden), so going back keeps their scroll,
@@ -608,8 +530,8 @@ function Level({
   ) => React.ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  // a covered level keeps what it showed, so store updates and facet changes
-  // cost it nothing until it is uncovered
+  // a covered level keeps the nav and facet it showed, so what it shows
+  // renders again only once it is uncovered
   const [shown, setShown] = useState({ nav, facet });
   if (top && (shown.nav !== nav || shown.facet !== facet))
     setShown({ nav, facet });
@@ -757,15 +679,4 @@ function TreeIcon() {
       <path d="M3 3.5h10M4.5 5.5v7M4.5 8.5h8.5M4.5 12.5h8.5" />
     </svg>
   );
-}
-
-/** `live`, with the entries of `seen` it no longer holds */
-function withDropped(
-  seen: readonly LogEntry[] = [],
-  live: readonly LogEntry[],
-): readonly LogEntry[] {
-  const held = new Set(live.map(e => e.seq));
-  const dropped = seen.filter(e => !held.has(e.seq));
-  if (!dropped.length) return live;
-  return [...dropped, ...live].sort((a, b) => a.seq - b.seq);
 }

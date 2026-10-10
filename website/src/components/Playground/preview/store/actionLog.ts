@@ -16,6 +16,7 @@ import {
   type Change,
   type RequestGroup,
 } from './actionGroups';
+import type { Moment } from './nav';
 
 const { createReducer } = __INTERNAL__;
 
@@ -114,6 +115,38 @@ export function stepMoment(
   const next = nearestChange(log, entries, seq, by);
   if (next) return next.seq;
   if (by > 0 && seq !== null) return null;
+}
+
+/** The store at `entry`'s moment: as it left it, or (one a manager handled
+ * without the store) as the last action of its store before it did, or else
+ * as its store's first found it. `storeFrom`: see `History` */
+export function storeAt(
+  entries: readonly LogEntry[],
+  entry: LogEntry,
+  storeFrom?: number,
+): Moment | undefined {
+  if (entry.store) return { seq: entry.seq };
+  // the store's own actions: from where it began
+  const began = Math.max(
+    entries.findLast(e => e.seq <= entry.seq && e.newStore)?.seq ?? 0,
+    storeFrom !== undefined && storeFrom <= entry.seq ? storeFrom : 0,
+  );
+  const own = (e: LogEntry) => e.seq >= began && !!e.store;
+  const previous = entries.findLast(e => e.seq < entry.seq && own(e));
+  if (previous) return { seq: previous.seq };
+  const first = entries.find(own);
+  return first && { seq: first.seq, before: true };
+}
+
+/** `live`, with the entries of `seen` it no longer holds */
+export function withDropped(
+  seen: readonly LogEntry[] = [],
+  live: readonly LogEntry[],
+): readonly LogEntry[] {
+  const held = new Set(live.map(e => e.seq));
+  const dropped = seen.filter(e => !held.has(e.seq));
+  if (!dropped.length) return live;
+  return [...dropped, ...live].sort((a, b) => a.seq - b.seq);
 }
 
 /** Whether a change altered the record, rather than storing it again

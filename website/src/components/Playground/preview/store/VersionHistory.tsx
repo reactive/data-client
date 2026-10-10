@@ -27,7 +27,7 @@ import {
 } from './ActionsView';
 import { EndpointBody } from './Details';
 import type { Header } from './DiveViews';
-import { onActivateKey } from './dom';
+import { focusLevel, onActivateKey } from './dom';
 import { findRow, isEndpointRow } from './model';
 import {
   NavContext,
@@ -115,6 +115,8 @@ function LastChange({
             className={clsx(styles.ref, styles.countRef)}
             onClick={e => {
               e.stopPropagation();
+              // the facet swaps this button out from under focus
+              focusLevel(e.currentTarget);
               set(last.entry.seq);
               setFacet('action');
             }}
@@ -357,7 +359,8 @@ function VersionItem({
             <button
               type="button"
               className={styles.showState}
-              onClick={() => {
+              onClick={e => {
+                focusLevel(e.currentTarget);
                 set(seq);
                 setFacet('action');
               }}

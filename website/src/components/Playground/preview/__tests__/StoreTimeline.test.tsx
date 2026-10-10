@@ -13,8 +13,9 @@ import React from 'react';
 import { groupEntries } from '../store/actionGroups';
 import type { LogEntry } from '../store/actionLog';
 import SchemaRegistry from '../store/schemaRegistry';
-import StorePanel, { TIMELINE_CLOSE_MS } from '../store/StorePanel';
+import StorePanel from '../store/StorePanel';
 import { axisLabels, lanesOf, timeScale } from '../store/Timeline';
+import { TIMELINE_CLOSE_MS } from '../store/Unfold';
 
 jest.mock('../../../../utils/tabStorage', () => ({
   useTabStorage: () => require('react').useState(null),
@@ -727,9 +728,11 @@ describe('Store Timeline lanes', () => {
     // the scrubber steps it, which the list follows
     fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
     expect(rows()[1].getAttribute('aria-current')).toBe('true');
-    // a row's › opens the Action facet on it
+    // a row's › (beside it) opens the Action facet on it
     fireEvent.click(
-      within(rows()[0]).getByRole('button', { name: 'Open action' }),
+      within(rows()[0].parentElement!).getAllByRole('button', {
+        name: 'Open action',
+      })[0],
     );
     expect(rows()[0].getAttribute('aria-current')).toBe('true');
     expect(tab('Action')).toBe('true');
@@ -759,15 +762,18 @@ describe('Store Timeline sheet', () => {
     const timeline = lanes();
     const close = screen.getByRole('button', { name: 'Close timeline' });
     // in the tabs' box, before them, not between the scrubber and the tabs
-    const body = screen.getByRole('tablist', { name: 'Store' }).parentElement!;
+    const body = screen.getByRole('tablist', { name: 'Store' }).parentElement!
+      .parentElement!;
     expect(body.contains(timeline)).toBe(true);
     expect(body.contains(scrubber())).toBe(false);
     expect(revealBox(timeline).contains(close)).toBe(true);
-    // the tabs and content stay put under it
-    expect(screen.getByRole('tab', { name: 'State' })).toBeTruthy();
+    // the tabs and content stay put under it, inert
+    const tabs = screen.getByRole('tablist', { name: 'Store' });
+    expect(tabs.closest('[inert]')).toBeTruthy();
     // ✕ closes it
     fireEvent.click(close);
     expect(screen.queryByRole('group', { name: /^Timeline/ })).toBeNull();
+    expect(tabs.closest('[inert]')).toBeNull();
     expect(
       screen
         .getByRole('button', { name: 'Timeline' })
@@ -805,7 +811,9 @@ describe('Store Timeline sheet', () => {
     expect(rows()).toHaveLength(2);
     expect(rows()[0].getAttribute('aria-current')).toBe('true');
     fireEvent.click(
-      within(rows()[0]).getByRole('button', { name: 'Open action' }),
+      within(rows()[0].parentElement!).getAllByRole('button', {
+        name: 'Open action',
+      })[0],
     );
     expect(rows()).toHaveLength(0);
     expect(tab('Action')).toBe('true');
@@ -826,6 +834,20 @@ describe('Store Timeline sheet', () => {
     expect(screen.queryByRole('button', { name: 'Close timeline' })).toBeNull();
     fireEvent.keyDown(lanes(), { key: 'Escape' });
     expect(lanes()).toBeTruthy();
+  });
+
+  it('takes focus from the content it covers, to the ▾', async () => {
+    const { ctrl } = mountAt(800);
+    await act(() => ctrl().fetch(getPosts));
+    toggle();
+    const level = document.querySelector<HTMLElement>(
+      '[data-level]:not([data-covered])',
+    )!;
+    level.focus();
+    resize(360);
+    expect(document.activeElement).toBe(
+      screen.getByRole('button', { name: 'Timeline' }),
+    );
   });
 
   it('keeps the lanes, and focus in them, across the narrow width', async () => {

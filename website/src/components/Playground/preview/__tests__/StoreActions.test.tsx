@@ -23,7 +23,11 @@ import {
   mergeChanges,
   rowTimeline,
 } from '../store/actionGroups';
-import ActionLog, { type LogEntry, type LogOptions } from '../store/actionLog';
+import ActionLog, {
+  storeAt,
+  type LogEntry,
+  type LogOptions,
+} from '../store/actionLog';
 import { endpointId, entityId } from '../store/model';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
@@ -123,9 +127,13 @@ const openList = () => {
 const rows = () => [
   ...document.querySelectorAll<HTMLElement>('[role="button"][aria-expanded]'),
 ];
-/** A row's ›: the Action facet on it */
+/** A row's ›, beside it: the Action facet on it */
 const openAction = (row: HTMLElement) =>
-  fireEvent.click(within(row).getByRole('button', { name: 'Open action' }));
+  fireEvent.click(
+    within(row.parentElement!).getAllByRole('button', {
+      name: 'Open action',
+    })[0],
+  );
 /** The scrubber on top: ‹ › and the marks, and the moment's action */
 const scrubber = () => screen.getByRole('group', { name: /^Scrubber/ });
 const previous = () =>
@@ -271,9 +279,13 @@ describe('Store Action facet', () => {
       )!,
     );
     expect(top().textContent).toContain('changed by');
-    fireEvent.click(within(top()).getByRole('button', { name: /^set Post/ }));
+    const changedBy = within(top()).getByRole('button', { name: /^set Post/ });
+    changedBy.focus();
+    fireEvent.click(changedBy);
     expect(actionTab().getAttribute('aria-selected')).toBe('true');
     expect(current()).toBe('Post 1');
+    // the link went with State; focus stays on the level
+    expect(document.activeElement).toBe(top());
     expect(scrubber().textContent).toContain('After');
     expect(top().textContent).toMatch(/title: "One" → "Edited"/);
     // and so does a version of its History
@@ -283,9 +295,12 @@ describe('Store Action facet', () => {
       ...top().querySelectorAll<HTMLElement>('[data-version]'),
     ];
     fireEvent.click(versions()[0]);
-    fireEvent.click(within(top()).getByRole('button', { name: 'Open action' }));
+    const open = within(top()).getByRole('button', { name: 'Open action' });
+    open.focus();
+    fireEvent.click(open);
     expect(actionTab().getAttribute('aria-selected')).toBe('true');
     expect(current()).toBe('History');
+    expect(document.activeElement).toBe(top());
     expect(top().textContent).toContain('setResponse');
     expect(
       within(top()).getByRole('button', { name: '+ Post 1' }),
@@ -318,6 +333,10 @@ describe('Store timeline list', () => {
       screen.getByText('1 more fetch deduped into this request'),
     ).toBeTruthy();
     fireEvent.click(row);
+    // the stepper skips the deduped fetch too
+    fireEvent.click(actionTab());
+    expect(top().textContent).toContain('2 of 2');
+    fireEvent.click(stateTab());
 
     // the same data again changes nothing
     await act(() => ctrl().fetch(getPosts));
@@ -703,9 +722,14 @@ describe('Store timeline list', () => {
       within(row).getByRole('button', { name: /^\+ ?Post 3$/ }),
     ).toBeTruthy();
 
+    // a new store's history starts live, without the paused one's actions
+    previous();
+    expect(scrubber().textContent).toContain('After');
     await act(async () => show(1));
     expect(rows()).toHaveLength(0);
     expect(screen.getByText(/Nothing dispatched yet/)).toBeTruthy();
+    expect(screen.queryByText('After')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
   });
 });
 
@@ -1079,6 +1103,28 @@ describe('Store record History', () => {
     fireEvent.click(previousButton());
     expect(screen.getByRole('button', { name: 'Live' })).toBeTruthy();
     expect(bar.textContent).toContain('setResponse');
+  });
+});
+
+describe('storeAt', () => {
+  const store = { before: initialState, after: initialState };
+  const entries: LogEntry[] = [
+    { seq: 1, at: 0, action: subscribe() as any, newStore: true },
+    { seq: 2, at: 1, action: unsubscribe() as any, store },
+    { seq: 3, at: 2, action: subscribe() as any, newStore: true },
+    { seq: 4, at: 3, action: subscribe() as any },
+    { seq: 5, at: 4, action: unsubscribe() as any, store },
+  ];
+  it('shows an action the store never saw as the last one of its store did', () => {
+    expect(storeAt(entries, entries[4])).toEqual({ seq: 5 });
+    // not the store before it: as its own store's first found it
+    expect(storeAt(entries, entries[3])).toEqual({ seq: 5, before: true });
+    expect(storeAt(entries, entries[2])).toEqual({ seq: 5, before: true });
+    expect(storeAt(entries, entries[0])).toEqual({ seq: 2, before: true });
+    // a store that started without dispatching
+    const quiet = entries.filter(e => e.seq !== 3);
+    expect(storeAt(quiet, entries[3], 3)).toEqual({ seq: 5, before: true });
+    expect(storeAt(quiet, entries[3])).toEqual({ seq: 2 });
   });
 });
 

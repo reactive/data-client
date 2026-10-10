@@ -1,4 +1,4 @@
-import type React from 'react';
+import React, { useCallback, useLayoutEffect, useRef } from 'react';
 
 import { prefersReducedMotion, springEasing, springs } from '../../../motion';
 
@@ -74,3 +74,34 @@ export const onActivateKey =
       activate();
     }
   };
+
+/** Keeps keyboard focus from falling to the page as a change removes or
+ * turns off the control pressed inside `ref` (a step to the end of a row,
+ * "Live"): `hold()` right before the change, and after the render focus
+ * goes to a button still on in `ref`, or `ref` itself. Only while `ref`
+ * holds focus (a pointer press need not focus a button); the change renders
+ * before the next frame, so a hold can't go stale */
+export function useHoldFocus(ref: React.RefObject<HTMLElement | null>) {
+  const held = useRef(false);
+  const hold = useCallback(() => {
+    if (!ref.current?.contains(document.activeElement)) return;
+    held.current = true;
+    requestAnimationFrame(() => (held.current = false));
+  }, [ref]);
+  useLayoutEffect(() => {
+    if (!held.current) return;
+    held.current = false;
+    const active = document.activeElement;
+    if (active && active !== document.body) return;
+    const el = ref.current;
+    (el?.querySelector<HTMLElement>('button:not(:disabled)') ?? el)?.focus({
+      preventScroll: true,
+    });
+  });
+  return hold;
+}
+
+/** Moves focus from a control to the level it is in, ahead of a change that
+ * unmounts the control (a facet switch), so it doesn't fall to the page */
+export const focusLevel = (from: Element) =>
+  from.closest<HTMLElement>('[data-level]')?.focus({ preventScroll: true });
