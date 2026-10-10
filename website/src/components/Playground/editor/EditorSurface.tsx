@@ -87,25 +87,7 @@ export default function EditorSurface({
     [documents.length, update],
   );
 
-  // Every file's model must exist before any is type-checked, or imports of
-  // later tabs read as missing modules (see createMissingModels).
-  const documentsRef = useRef(documents);
-  // in an effect, not during render, so a discarded render can't leak in
-  useIsomorphicLayoutEffect(() => {
-    documentsRef.current = documents;
-  });
-  const createModels = useCallback(
-    (monaco: typeof Monaco) =>
-      createMissingModels(
-        monaco,
-        documentsRef.current.map(document => ({
-          path: modelPath(id, document.path),
-          code: document.value,
-          language: document.language,
-        })),
-      ),
-    [id],
-  );
+  const createModels = useCreateModels(id, documents);
 
   const tabs =
     row && documents.length > 1 ?
@@ -177,6 +159,31 @@ export default function EditorSurface({
         </div>
       }
     </div>
+  );
+}
+
+/**
+ * `beforeMount` for every editor of a surface: every file's model must exist
+ * before any is type-checked, or imports of later tabs read as missing
+ * modules (see createMissingModels). Stable, so memo'd editors skip renders.
+ */
+function useCreateModels(id: string, documents: readonly CodeDocument[]) {
+  const documentsRef = useRef(documents);
+  // in an effect, not during render, so a discarded render can't leak in
+  useIsomorphicLayoutEffect(() => {
+    documentsRef.current = documents;
+  });
+  return useCallback(
+    (monaco: typeof Monaco) =>
+      createMissingModels(
+        monaco,
+        documentsRef.current.map(document => ({
+          path: modelPath(id, document.path),
+          code: document.value,
+          language: document.language,
+        })),
+      ),
+    [id],
   );
 }
 

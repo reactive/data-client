@@ -37,14 +37,19 @@ export function createMissingModels(
   for (const { uri, code, language } of missing) {
     monaco.editor.createModel(code, language, uri);
   }
-  // The first TypeScript model registers the TS worker asynchronously, so the
-  // first surface has no worker to ask. Monaco starts checking only once that
-  // registration finishes, after this pass's models all exist, and re-checks
-  // every model when extra libs change (./setup.ts adds the type libs).
-  if (!typeScriptWorkerRequested && typeScriptUris.length) {
-    typeScriptWorkerRequested = true;
-    void monaco.typescript.getTypeScriptWorker().then(getWorker => {
-      typeScriptWorker = getWorker;
-    });
-  }
+  if (typeScriptUris.length) learnTypeScriptWorker(monaco);
+}
+
+/**
+ * The first TypeScript model registers the TS worker asynchronously, so the
+ * first surface has no worker to ask. Monaco starts checking only once that
+ * registration finishes, after that surface's models all exist, and re-checks
+ * every model when extra libs change (./setup.ts adds the type libs).
+ */
+function learnTypeScriptWorker(monaco: typeof Monaco) {
+  if (typeScriptWorkerRequested) return;
+  typeScriptWorkerRequested = true;
+  void monaco.typescript.getTypeScriptWorker().then(getWorker => {
+    typeScriptWorker = getWorker;
+  });
 }
