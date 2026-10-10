@@ -69,7 +69,6 @@ export function Status({ meta }: { meta: Meta }) {
       </span>;
 }
 
-/** An endpoint invalidated, or an entity `schema.Invalidate` marked */
 /** Re-renders each second until `until` passes */
 function useNow(until: number | undefined) {
   const [now, setNow] = useState(Date.now);

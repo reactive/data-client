@@ -423,5 +423,6 @@ export const moreLabel = (count: number) =>
     { count: count.toLocaleString() },
   );
 
+/** An endpoint invalidated, or an entity `schema.Invalidate` marked */
 export const invalidLabel = () =>
   translate({ id: 'playground.store.status.invalid', message: 'invalid' });
