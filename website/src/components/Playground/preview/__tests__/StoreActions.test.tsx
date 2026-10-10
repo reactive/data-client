@@ -120,17 +120,19 @@ const unsubscribe = (key = 'other') => ({
 /** The Actions tab: the subject's actions at full width, one row per
  * request */
 const openPane = () => fireEvent.click(actionsToggle());
-/** Back to the State tab */
+/** The Snapshot tab: the subject at the moment */
 const openState = () =>
-  fireEvent.click(screen.getAllByRole('tab', { name: 'State' })[0]);
+  fireEvent.click(screen.getAllByRole('tab', { name: 'Snapshot' })[0]);
+/** The Diff tab: what the moment's action did to the subject */
+const openDiff = () =>
+  fireEvent.click(screen.getAllByRole('tab', { name: 'Diff' })[0]);
 /** State's store, its root level */
 const toRoot = () => {
   openState();
   backTo('State');
 };
-/** At a moment, State shows the whole store the action left, not its diff */
-const showAfter = () =>
-  fireEvent.click(screen.getByRole('button', { name: 'After' }));
+/** At a moment, the whole store the action left, not its diff */
+const showAfter = openState;
 /** The actions peeking beside State, as the mouse rests on their tab */
 const peek = () => screen.queryByRole('complementary', { name: 'Actions' });
 /** The actions shown: the peek, else the full-width list on top */
@@ -220,13 +222,18 @@ describe('Store Actions pane detail', () => {
     await act(() => ctrl().fetch(getPosts));
     expect(rows()).toHaveLength(1);
     expect(marked()).toEqual([]);
-    // a request's row stands for its response: it opens over the list, as
-    // the moment
+    // a request's row stands for the whole request: what its actions did
+    // together opens over the list, as the moment, with the actions
     fireEvent.click(rows()[0]);
-    expect(scrubber().textContent).toContain('After');
-    expect(scrubber().textContent).toContain('setResponse');
-    expect(crumbs()).toEqual(['Actions', 'setResponse GET /posts']);
-    expect(top().textContent).toContain('dispatchedAt');
+    expect(scrubber().textContent).toContain('After GET /posts');
+    expect(crumbs()).toEqual(['Actions', 'GET /posts']);
+    expect(top().textContent).not.toContain('dispatchedAt');
+    expect(
+      [...top().querySelectorAll('[data-seq]')].map(s => s.textContent),
+    ).toEqual([
+      expect.stringContaining('fetch'),
+      expect.stringContaining('setResponse'),
+    ]);
     expect(
       within(top()).getByRole('button', { name: '+ Post 1' }),
     ).toBeTruthy();
@@ -236,6 +243,11 @@ describe('Store Actions pane detail', () => {
     expect(
       within(top()).getByRole('button', { name: '+ GET /posts' }),
     ).toBeTruthy();
+    // each of its actions opens on its own
+    fireEvent.click(top().querySelector<HTMLElement>('[data-seq="2"]')!);
+    expect(crumbs()).toEqual(['Actions', 'setResponse GET /posts']);
+    expect(scrubber().textContent).toContain('After setResponse');
+    expect(top().textContent).toContain('dispatchedAt');
     // Back lists it as the moment's, open; a step is a moment too: the
     // store never saw the fetch
     fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
@@ -279,7 +291,7 @@ describe('Store Actions pane detail', () => {
     fireEvent.click(rows()[0]);
     // a record the action added, opened from it
     fireEvent.click(within(top()).getByRole('button', { name: '+ Post 1' }));
-    expect(crumbs()).toEqual(['Actions', 'setResponse GET /posts', 'Post 1']);
+    expect(crumbs()).toEqual(['Actions', 'GET /posts', 'Post 1']);
     // the list stays, the actions over it go
     fireEvent.click(screen.getByRole('button', { name: 'Live' }));
     expect(crumbs()).toEqual(['Actions']);
@@ -295,7 +307,7 @@ describe('Store Actions pane detail', () => {
     openPost('1');
     openPane();
     fireEvent.click(rows()[0]);
-    expect(crumbs()).toEqual(['Actions of Post 1', 'setResponse GET /posts']);
+    expect(crumbs()).toEqual(['Actions of Post 1', 'GET /posts']);
     expect(chip('+ Post 1')).toBeTruthy();
     expect(chip('+ Post 2')).toBeNull();
     expect(chip('+ GET /posts')).toBeNull();
@@ -496,8 +508,9 @@ describe('Store Actions pane detail', () => {
     fireEvent.click(rows()[0]);
     expect(peek()).toBeTruthy();
     expect(rows()[0].getAttribute('aria-current')).toBe('true');
-    expect(scrubber().textContent).toContain('setResponse');
-    // State shows what it did to the record
+    expect(scrubber().textContent).toContain('After GET /posts');
+    // the diff shows what it did to the record
+    openDiff();
     expect(crumbs()).toEqual(['State', 'Post 1']);
     expect(top().textContent).toContain('+Post 1id: "1", title: "One"');
     expect(actionsToggle().getAttribute('aria-selected')).toBe('false');
@@ -546,7 +559,7 @@ describe('Store Actions pane detail', () => {
     openState();
     fireEvent.click(screen.getByLabelText('Tree view'));
     openPane();
-    expect(crumbs()).toEqual(['Actions', 'setResponse GET /posts']);
+    expect(crumbs()).toEqual(['Actions', 'GET /posts']);
   });
 
   it('keeps each tab’s levels as they were while the other shows', async () => {
@@ -1004,20 +1017,20 @@ describe('Store diff', () => {
       r.dataset.id,
       r.dataset.change,
     ]);
+  const diffTab = () => screen.getByRole('tab', { name: 'Diff' });
 
-  it('shows only what the moment’s action changed, or the store it left', async () => {
+  it('shows only what the moment’s action changed, the snapshot all of it', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
     await act(() =>
       ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
     );
-    // live: the whole store, nothing marked
-    expect(screen.queryByRole('group', { name: 'At this moment' })).toBeNull();
-    expect(tableRows()).toContainEqual([entityId('Post', '2'), undefined]);
+    // live: nothing to diff
+    openDiff();
+    expect(top().textContent).toContain('Live: pick an action');
     previous();
     // the set: just the row it updated, marked so; no endpoints section
-    const diff = screen.getByRole('button', { name: 'Diff' });
-    expect(diff.getAttribute('aria-pressed')).toBe('true');
+    expect(diffTab().getAttribute('aria-selected')).toBe('true');
     expect(tableRows()).toEqual([[entityId('Post', '1'), 'updated']]);
     expect(top().textContent).not.toContain('Endpoints');
     // the response: what it added, endpoint and entities alike
@@ -1029,15 +1042,51 @@ describe('Store diff', () => {
         [entityId('Post', '2'), 'added'],
       ]),
     );
-    // after it: the whole store it left, unmarked
-    showAfter();
-    expect(diff.getAttribute('aria-pressed')).toBe('false');
+    // the snapshot: the whole store it left, unmarked
+    openState();
+    expect(diffTab().getAttribute('aria-selected')).toBe('false');
     expect(top().textContent).toContain('"One"');
     expect(tableRows().every(([, change]) => change === undefined)).toBe(true);
-    // which stays the choice as the moment moves
     fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
     expect(top().textContent).toContain('"Edited"');
     expect(tableRows()).toContainEqual([entityId('Post', '2'), undefined]);
+  });
+
+  it('shows what a whole request did, its optimistic update and response as one', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    let done: Promise<unknown> = Promise.resolve();
+    await act(async () => {
+      done = ctrl().fetch(updatePost, { id: '1' }, { title: 'Edited' });
+    });
+    // another action in between, on another row
+    await act(() => ctrl().set(Post, { id: '2' }, { id: '2', title: 'Other' }));
+    await act(async () => {
+      release(undefined);
+      await done;
+    });
+    openDiff();
+    peekIn();
+    const request = rows().find(r => r.textContent!.includes('PATCH'))!;
+    fireEvent.click(request);
+    expect(scrubber().textContent).toContain('After PATCH /posts/1');
+    // from before its optimistic update to after its response; the set in
+    // between is not its own
+    expect(tableRows()).toEqual([
+      [endpointId('PATCH https://example.com/posts/1'), 'added'],
+      [entityId('Post', '1'), 'updated'],
+    ]);
+    openPost('1');
+    expect(top().textContent).toMatch(/title: "One" → "Edited!"/);
+    // a step of it alone (its row opened as the moment came to it): just
+    // that action
+    expect(request.getAttribute('aria-expanded')).toBe('true');
+    fireEvent.click(
+      within(peek()!)
+        .getByText('optimistic')
+        .closest<HTMLElement>('[data-seq]')!,
+    );
+    expect(top().textContent).toMatch(/title: "One" → "Edited"/);
   });
 
   it('says what the action did to a record, or that it left it alone', async () => {
@@ -1048,6 +1097,7 @@ describe('Store diff', () => {
     );
     openPost('1');
     previous();
+    openDiff();
     expect(top().textContent).toMatch(/title: "One" → "Edited"/);
     // a record the moment's action left alone, opened from the store it
     // left
@@ -1055,9 +1105,9 @@ describe('Store diff', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Live' }));
     await act(() => ctrl().set(Post, { id: '2' }, { id: '2', title: 'Other' }));
     previous();
-    showAfter();
+    openState();
     openPost('1');
-    fireEvent.click(screen.getByRole('button', { name: 'Diff' }));
+    openDiff();
     expect(top().textContent).toContain('No change to this record');
   });
 
@@ -1068,6 +1118,7 @@ describe('Store diff', () => {
       ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
     );
     previous();
+    openDiff();
     expect(tableRows()).toEqual([[entityId('Post', '1'), 'updated']]);
     // the response's rows, as it left them
     peekIn();
@@ -1089,6 +1140,7 @@ describe('Store diff', () => {
     );
     fireEvent.click(screen.getByLabelText('Tree view'));
     previous();
+    openDiff();
     const marks = () =>
       [...top().querySelectorAll<HTMLElement>('[data-change]')].map(r => [
         r.dataset.id,
@@ -1118,6 +1170,7 @@ describe('Store diff', () => {
       });
     });
     previous();
+    openDiff();
     expect(tableRows()).toEqual([[entityId('Post', '2'), 'removed']]);
     expect(top().textContent).toContain('"Two"');
   });
@@ -1129,7 +1182,7 @@ describe('Store action level', () => {
     await act(() => ctrl().fetch(getPosts));
     openPane();
     fireEvent.click(rows()[0]);
-    expect(crumbs()).toEqual(['Actions', 'setResponse GET /posts']);
+    expect(crumbs()).toEqual(['Actions', 'GET /posts']);
     // the new store's actions are listed instead
     await act(async () => show(1));
     expect(crumbs()).toEqual(['Actions']);
@@ -1160,7 +1213,7 @@ describe('Store Actions pane on a record', () => {
     // a row opens its action over the record, as the moment: State shows
     // the record as it was then
     fireEvent.click(rows()[0]);
-    expect(crumbs()).toEqual(['Actions of Post 1', 'setResponse GET /posts']);
+    expect(crumbs()).toEqual(['Actions of Post 1', 'GET /posts']);
     openState();
     expect(current()).toBe('Post 1');
     expect(top().textContent).toContain('"One"');

@@ -76,8 +76,8 @@ export function ActionsPane({
   toggle: React.RefObject<HTMLElement | null>;
   /** The pointer came into it (`true`) or left it */
   onHover: (inside: boolean, e: React.PointerEvent) => void;
-  /** A row or step was picked: moves the moment there */
-  onPick: (seq: number) => void;
+  /** A row (`whole`) or step was picked: moves the moment there */
+  onPick: (seq: number, whole?: boolean) => void;
   onClose: () => void;
 }) {
   const rows = useRows(filter);
@@ -154,11 +154,12 @@ function ActionList({
   rows: readonly ActionGroup[];
   subject: View;
   filter: SubjectFilter;
-  /** What a row or step picked does, by default open its action */
-  onPick?: (seq: number) => void;
+  /** What a row (`whole`: its group's actions as one) or step picked does,
+   * by default open it */
+  onPick?: (seq: number, whole?: boolean) => void;
 }) {
   const { history, groups } = useActions();
-  const { seq, set, show } = useNavState();
+  const { seq, whole, set, show } = useNavState();
   const scroller = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set());
   const toggle = useCallback(
@@ -210,7 +211,8 @@ function ActionList({
     next.focus();
     if (next.hasAttribute('aria-expanded') && next.dataset.group === currentId)
       return;
-    set(Number(next.dataset.seq));
+    // a row of several actions stands for them all
+    set(Number(next.dataset.seq), next.dataset.id === next.dataset.group);
   };
   return (
     <div ref={scroller} className={styles.actList} onKeyDown={onKeyDown}>
@@ -228,6 +230,7 @@ function ActionList({
           group={group}
           open={open.has(group.id)}
           currentSeq={group === current ? seq! : undefined}
+          whole={group === current && whole}
           subject={subject}
           filter={filter}
           onToggle={toggle}
@@ -319,6 +322,7 @@ const GroupRow = memo(function GroupRow({
   group,
   open,
   currentSeq,
+  whole,
   subject,
   filter,
   onToggle,
@@ -328,11 +332,13 @@ const GroupRow = memo(function GroupRow({
   open: boolean;
   /** The moment's action, when it is one of this row's */
   currentSeq?: number;
+  /** The moment stands for the row's actions up to it, not one step */
+  whole: boolean;
   subject: View;
   filter: SubjectFilter;
   onToggle: (id: string) => void;
-  /** Opens an action, as the moment */
-  onSelect: (seq: number) => void;
+  /** Opens an action (or the row's, `whole`), as the moment */
+  onSelect: (seq: number, whole?: boolean) => void;
 }) {
   const { log } = useLog();
   const all = groupEntriesOf(group);
@@ -342,9 +348,10 @@ const GroupRow = memo(function GroupRow({
   // the row stands for its last action that touched the subject (a
   // request's response), or its last one
   const seq = (all.findLast(filter.hit) ?? all[all.length - 1]).seq;
-  const select = () => onSelect(seq);
-  const notes = gapNotes(all, filter.gaps);
   const steps = !isLone(group);
+  // the row stands for all its actions, what they did together
+  const select = () => onSelect(seq, steps);
+  const notes = gapNotes(all, filter.gaps);
   return (
     <div className={styles.actGroup} data-open={open || undefined}>
       {!open &&
@@ -402,7 +409,7 @@ const GroupRow = memo(function GroupRow({
       {open && (
         <Steps
           group={group}
-          currentSeq={currentSeq}
+          currentSeq={whole ? undefined : currentSeq}
           subject={subject}
           lists={filter.lists}
           notes={notes}
@@ -412,6 +419,31 @@ const GroupRow = memo(function GroupRow({
     </div>
   );
 });
+
+/** A group's actions that touched `subject` (at the store, all of them),
+ * under what they did together: each opens its own */
+export function GroupActions({
+  group,
+  subject,
+  filter,
+}: {
+  group: ActionGroup;
+  subject: View;
+  filter: SubjectFilter;
+}) {
+  const { show } = useNavState();
+  return (
+    <div className={styles.actList}>
+      <Steps
+        group={group}
+        subject={subject}
+        lists={filter.lists}
+        notes={gapNotes(groupEntriesOf(group), filter.gaps)}
+        onSelect={show}
+      />
+    </div>
+  );
+}
 
 /** An open row's actions that touched the subject (at the store, all of
  * them); fetches deduped into a request in flight show as one line, and a

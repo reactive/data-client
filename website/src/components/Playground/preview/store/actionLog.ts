@@ -308,6 +308,14 @@ export default class ActionLog {
     return this.changes(entry).length > 0;
   }
 
+  /** What `entries` did together: one action's changes, or several's
+   * merged (see `mergeChanges`) */
+  spanChanges(entries: readonly LogEntry[]): readonly Change[] {
+    return entries.length === 1 ?
+        this.changes(entries[0])
+      : this.mergedChanges(entries);
+  }
+
   /** Rows several actions changed, as they ended up */
   mergedChanges(entries: readonly LogEntry[]): Change[] {
     return mergeChanges(

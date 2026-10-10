@@ -14,7 +14,9 @@ import React, {
 import { ActionDetail, SubjectChanges } from './ActionDetail';
 import {
   groupEntries,
+  groupOf,
   keepUnchanged,
+  momentEntries,
   subjectFilter,
   subjectGaps,
   touches,
@@ -22,7 +24,7 @@ import {
   type ChangeKind,
   type SubjectFilter,
 } from './actionGroups';
-import { ActionsLevel, ActionsPane } from './ActionList';
+import { ActionsLevel, ActionsPane, GroupActions } from './ActionList';
 import {
   findEntry,
   isRecordChange,
@@ -32,7 +34,7 @@ import {
   type LogEntry,
 } from './actionLog';
 import type ActionLog from './actionLog';
-import { ActionName } from './actionParts';
+import { ActionName, KeyLabel } from './actionParts';
 import {
   ActionsContext,
   AtMoment,
@@ -96,11 +98,9 @@ export default function StorePanel({
   const { entries } = history;
   const [stored, setView] = useTabStorage('playgroundStoreView');
   const tree = stored === 'tree';
-  // State, or the subject's actions to explore (each panel's own)
-  const [tab, setTab] = useState<'state' | 'actions'>('state');
-  // at a moment, State shows what its action changed there, or (`after`)
-  // the whole store it left
-  const [facet, setFacet] = useState<'diff' | 'after'>('diff');
+  // the subject at the moment (`snapshot`), what the moment's action did
+  // to it (`diff`), or its actions to explore (each panel's own)
+  const [tab, setTab] = useState<Tab>('snapshot');
   // the peek: the subject's actions over State's right side, to move the
   // moment by, as the mouse rests on the Actions tab; gone as it leaves both.
   // Each panel's own: a page holds several, and a press outside one closes
@@ -129,10 +129,14 @@ export default function StorePanel({
   // State as it was right after one action, until "Live"; a new store (a
   // reset) starts live, with no action of the old one left showing
   const [snapshotSeq, setSnapshot] = useState<number | null>(null);
+  // the moment stands for its action's whole group (a request: its
+  // optimistic update and response as one), picked by its row
+  const [whole, setWhole] = useState(false);
   const [shownId, setShownId] = useState(id);
   if (shownId !== id) {
     setShownId(id);
     setSnapshot(null);
+    setWhole(false);
     actionLevels.followMoment(null);
   }
   const known = useKeptEntries(entries, snapshotSeq !== null);
@@ -173,25 +177,6 @@ export default function StorePanel({
   const shown = at && then(at);
   const state = shown?.state ?? live;
   const model = shown?.model ?? liveModel;
-  // what the moment's action changed, State showing only that
-  const prior =
-    snapshot?.store && facet === 'diff' ?
-      then({ seq: snapshot.seq, before: true })
-    : undefined;
-  const diff = useMemo<Diff | undefined>(
-    () =>
-      snapshot && facet === 'diff' ?
-        {
-          entry: snapshot,
-          ...diffModel(
-            model,
-            prior?.model ?? model,
-            snapshot.store ? log.changes(snapshot) : [],
-          ),
-        }
-      : undefined,
-    [snapshot, facet, model, prior, log],
-  );
 
   // a cache: rows that didn't change keep their group, so they skip rendering
   const lastGroups = useRef<readonly ActionGroup[]>([]);
@@ -202,6 +187,22 @@ export default function StorePanel({
         groupEntries(known, history.storeFrom),
       )),
     [known, history.storeFrom],
+  );
+  // what the moment stands for, and what that changed: the Diff tab shows
+  // only that, from before its first action to the store the moment shows
+  const span = useMemo(
+    () => snapshot && momentEntries(groups, snapshot, whole),
+    [groups, snapshot, whole],
+  );
+  const first = span?.find(e => e.store);
+  const prior = first && then({ seq: first.seq, before: true });
+  const diff = useMemo<Diff | undefined>(
+    () =>
+      span && {
+        entries: span,
+        ...diffModel(model, prior?.model ?? model, log.spanChanges(span)),
+      },
+    [span, model, prior, log],
   );
   // the whole panel shows the past with the moment: the kept actions, up to
   // the snapshot's
@@ -231,10 +232,11 @@ export default function StorePanel({
     clearActionsAt();
   }, [clearStateAt, clearActionsAt]);
   const set = useCallback(
-    (seq: number | null) => {
+    (seq: number | null, whole = false) => {
       setSnapshot(seq);
+      setWhole(seq !== null && whole);
       clearAt();
-      followMoment(seq);
+      followMoment(seq, whole);
     },
     [clearAt, followMoment],
   );
@@ -284,11 +286,12 @@ export default function StorePanel({
   // showing an action opens it in the Actions tab, as the moment, over the
   // subject's actions (closing the peek and, narrow, the sheet)
   const show = useCallback(
-    (seq: number) => {
+    (seq: number, whole = false) => {
       setSnapshot(seq);
+      setWhole(whole);
       clearAt();
       setTab('actions');
-      showAction(seq);
+      showAction(seq, whole);
       closePane();
       if (covered) focusLevel.current = true;
       if (narrow) collapse();
@@ -296,8 +299,8 @@ export default function StorePanel({
     [clearAt, showAction, closePane, covered, narrow, collapse],
   );
   const navState = useMemo<NavState>(
-    () => ({ seq: snapshotSeq, set, show }),
-    [snapshotSeq, set, show],
+    () => ({ seq: snapshotSeq, whole, set, show }),
+    [snapshotSeq, whole, set, show],
   );
   // a view to open from where there is no level of State to open it from
   // (the timeline's and the actions' chips): over State's top level, in the
@@ -305,7 +308,7 @@ export default function StorePanel({
   const { push } = levels;
   const openView = useCallback(
     (view: View, at?: Moment) => {
-      setTab('state');
+      setTab(shown => (shown === 'actions' ? 'snapshot' : shown));
       setView('table');
       push(view, at);
       closePane();
@@ -357,11 +360,10 @@ export default function StorePanel({
     </Unfold>
   );
   // a snapshot flashes what its action changed
-  useFlashChanges(
-    panel,
-    state,
-    snapshot?.store && log.view(snapshot.store.before),
-  );
+  useFlashChanges(panel, state, first?.store && log.view(first.store.before));
+  // the subject's levels show in Snapshot, and in Diff at a moment
+  const storeShown = tab === 'snapshot' || (tab === 'diff' && !!diff);
+  const shownDiff = tab === 'diff' ? diff : undefined;
 
   return (
     <ActionsContext.Provider value={actions}>
@@ -406,7 +408,7 @@ export default function StorePanel({
               )}
               <div ref={content} className={styles.content} inert={covered}>
                 <div className={styles.bar}>
-                  {tab === 'state' && (
+                  {tab !== 'actions' && (
                     <span className={styles.barStart}>
                       <span
                         className={styles.viewButtons}
@@ -432,32 +434,6 @@ export default function StorePanel({
                           <TreeIcon />
                         </button>
                       </span>
-                      {snapshot && (
-                        <span
-                          className={styles.facets}
-                          role="group"
-                          aria-label="At this moment"
-                        >
-                          <button
-                            type="button"
-                            className={styles.paneToggle}
-                            title="Only what the action changed"
-                            aria-pressed={facet === 'diff'}
-                            onClick={() => setFacet('diff')}
-                          >
-                            Diff
-                          </button>
-                          <button
-                            type="button"
-                            className={styles.paneToggle}
-                            title="The whole store as the action left it"
-                            aria-pressed={facet === 'after'}
-                            onClick={() => setFacet('after')}
-                          >
-                            After
-                          </button>
-                        </span>
-                      )}
                     </span>
                   )}
                   <span className={styles.barEnd} role="tablist">
@@ -465,10 +441,21 @@ export default function StorePanel({
                       type="button"
                       role="tab"
                       className={styles.paneToggle}
-                      aria-selected={tab === 'state'}
-                      onClick={() => setTab('state')}
+                      title="The store at the moment"
+                      aria-selected={tab === 'snapshot'}
+                      onClick={() => setTab('snapshot')}
                     >
-                      State
+                      Snapshot
+                    </button>
+                    <button
+                      type="button"
+                      role="tab"
+                      className={styles.paneToggle}
+                      title="Only what the moment's action changed"
+                      aria-selected={tab === 'diff'}
+                      onClick={() => setTab('diff')}
+                    >
+                      Diff
                     </button>
                     <button
                       type="button"
@@ -476,9 +463,9 @@ export default function StorePanel({
                       ref={paneToggle}
                       className={styles.paneToggle}
                       aria-selected={tab === 'actions'}
-                      // it peeks only over State
+                      // it peeks only over the store
                       onPointerEnter={e =>
-                        tab === 'state' && hoverPane(true, e)
+                        tab !== 'actions' && hoverPane(true, e)
                       }
                       onPointerLeave={e => hoverPane(false, e)}
                       onClick={() => {
@@ -503,22 +490,32 @@ export default function StorePanel({
                     hidden={tab !== 'actions'}
                   />
                   <StateContext.Provider value={state}>
-                    <DiffContext.Provider value={diff?.kinds ?? null}>
+                    <DiffContext.Provider value={shownDiff?.kinds ?? null}>
                       {tree ?
-                        tab === 'state' && (
-                          <TreeLevel model={model} diff={diff} />
+                        storeShown && (
+                          <TreeLevel model={model} diff={shownDiff} />
                         )
                       : <Levels
                           model={model}
                           width={width}
                           levels={levels}
-                          diff={diff}
-                          hidden={tab !== 'state'}
+                          diff={shownDiff}
+                          hidden={!storeShown}
                         />
                       }
                     </DiffContext.Provider>
                   </StateContext.Provider>
-                  {pane && tab === 'state' && (
+                  {tab === 'diff' && !diff && (
+                    <div className={styles.levels}>
+                      <div className={styles.level} data-level tabIndex={-1}>
+                        <p className={styles.empty}>
+                          Live: pick an action on the scrubber or in Actions to
+                          see what it changed.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {pane && tab !== 'actions' && (
                     <NavContext.Provider value={chipNav}>
                       <ActionsPane
                         subject={subject}
@@ -547,6 +544,7 @@ export default function StorePanel({
 }
 
 const ROOT: View = { kind: 'root' };
+type Tab = 'snapshot' | 'diff' | 'actions';
 /** How long the pointer rests on the Actions toggle before the pane peeks,
  * and is away from both before a peek closes (ms) */
 const PEEK_OPEN_MS = 150;
@@ -555,7 +553,8 @@ const PEEK_CLOSE_MS = 300;
 /** What the moment's action changed, which State shows in place of the
  * store it left */
 interface Diff {
-  readonly entry: LogEntry;
+  /** The actions it shows the effect of (see `momentEntries`) */
+  readonly entries: readonly LogEntry[];
   /** The store with only the rows it changed */
   readonly model: StoreModel;
   readonly kinds: ReadonlyMap<string, ChangeKind>;
@@ -714,6 +713,7 @@ function Levels({
               : view.kind === 'action' ?
                 <ActionLevel
                   seq={view.seq}
+                  whole={view.whole}
                   subject={subjectAt(depth)}
                   header={header}
                 />
@@ -862,16 +862,16 @@ function DiffLevel({
   header: (tools: React.ReactNode) => React.ReactNode;
 }) {
   const { log } = useActions();
-  const { entry } = diff;
+  const { entries } = diff;
   const changed =
     view.kind !== 'record' &&
-    log.changes(entry).some(c => isRecordChange(c) && touches(view, c));
+    log.spanChanges(entries).some(c => isRecordChange(c) && touches(view, c));
   const diffNav = useMemo(() => ({ ...nav, model: diff.model }), [nav, diff]);
   if (!changed)
     return (
       <>
         {header(null)}
-        <SubjectChanges entry={entry} subject={view} />
+        <SubjectChanges entries={entries} subject={view} />
       </>
     );
   return (
@@ -885,22 +885,39 @@ function DiffLevel({
  * it), then the action itself */
 function ActionLevel({
   seq,
+  whole,
   subject,
   header,
 }: {
   seq: number;
+  /** Its group's actions up to it, as one */
+  whole?: boolean;
   subject: View;
   header: (tools: React.ReactNode) => React.ReactNode;
 }) {
-  const { log, history } = useActions();
+  const { log, history, groups } = useActions();
   const entry = findEntry(history.entries, seq);
-  const { gaps } = useSubjectFilter(log, history.entries, subject);
+  const filter = useSubjectFilter(log, history.entries, subject);
+  const group = whole ? groupOf(groups, seq) : undefined;
   return (
     <>
       {header(null)}
-      {entry ?
-        <ActionDetail entry={entry} subject={subject} gap={gaps.get(seq)} />
-      : <p className={styles.empty}>No longer in the log.</p>}
+      {!entry ?
+        <p className={styles.empty}>No longer in the log.</p>
+      : group ?
+        <div className={styles.actBody}>
+          <SubjectChanges
+            entries={momentEntries(groups, entry, true)}
+            subject={subject}
+          />
+          <GroupActions group={group} subject={subject} filter={filter} />
+        </div>
+      : <ActionDetail
+          entry={entry}
+          subject={subject}
+          gap={filter.gaps.get(seq)}
+        />
+      }
     </>
   );
 }
@@ -981,7 +998,7 @@ function crumbLabel(view: LevelView, model: StoreModel): React.ReactNode {
     case 'actions':
       return 'Actions';
     case 'action':
-      return <ActionCrumb seq={view.seq} />;
+      return <ActionCrumb seq={view.seq} whole={view.whole} />;
     case 'list': {
       const count =
         'ids' in view ? view.ids.length
@@ -1007,10 +1024,15 @@ function crumbLabel(view: LevelView, model: StoreModel): React.ReactNode {
 }
 
 /** `setResponse GET /posts`, or where the log no longer has it */
-function ActionCrumb({ seq }: { seq: number }) {
-  const { history } = useActions();
+function ActionCrumb({ seq, whole }: { seq: number; whole?: boolean }) {
+  const { history, groups } = useActions();
   const entry = findEntry(history.entries, seq);
-  return entry ? <ActionName entry={entry} /> : <>…</>;
+  const group = whole ? groupOf(groups, seq) : undefined;
+  return (
+    group ? <KeyLabel value={group.key} />
+    : entry ? <ActionName entry={entry} />
+    : <>…</>
+  );
 }
 
 /** The explorer: everything expands in place; at a moment, only what its
@@ -1031,7 +1053,7 @@ function TreeLevel({ model, diff }: { model: StoreModel; diff?: Diff }) {
             <TreeView model={model} />
           : diff.kinds.size ?
             <TreeView model={diff.model} />
-          : <SubjectChanges entry={diff.entry} subject={ROOT} />}
+          : <SubjectChanges entries={diff.entries} subject={ROOT} />}
         </div>
       </div>
     </StoreUIProvider>

@@ -257,7 +257,7 @@ describe('StorePanel table view', () => {
     fireEvent.click(actions);
     expect(actions.getAttribute('aria-selected')).toBe('true');
     expect(document.activeElement).toBe(actions);
-    fireEvent.click(screen.getByRole('tab', { name: 'State' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Snapshot' }));
     expect(actions.getAttribute('aria-selected')).toBe('false');
     expect(crumbs()).toEqual([]);
   });

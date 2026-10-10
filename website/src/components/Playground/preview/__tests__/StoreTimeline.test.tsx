@@ -77,7 +77,7 @@ const stateBar = () => screen.getByRole('tablist').parentElement!;
  * mouse resting on it peeks at them */
 const paneToggle = () => screen.getByRole('tab', { name: 'Actions' });
 /** Shows tab `name` */
-const showTab = (name: 'State' | 'Actions') =>
+const showTab = (name: 'Snapshot' | 'Diff' | 'Actions') =>
   fireEvent.click(screen.getByRole('tab', { name }));
 /** The actions peeking beside State */
 const pane = () => screen.queryByRole('complementary', { name: 'Actions' });
@@ -242,7 +242,7 @@ describe('Store scrubber', () => {
     // the same moment in the Actions tab
     showTab('Actions');
     expect(bar.textContent).toContain('After');
-    showTab('State');
+    showTab('Snapshot');
     // Live lets go, and the label with it
     fireEvent.click(screen.getByRole('button', { name: 'Live' }));
     expect(within(scrubber()).queryByText('After')).toBeNull();
@@ -822,11 +822,11 @@ describe('Store Actions pane', () => {
       'Post 1',
     );
     expect(top()!.contains(document.activeElement)).toBe(true);
-    // a row moves the moment, and it stays
+    // a row moves the moment to its whole request, and it stays
     hover(button, true);
     fireEvent.click(rows()[0]);
     expect(pane()).toBeTruthy();
-    expect(scrubber().textContent).toContain('setResponse');
+    expect(scrubber().textContent).toContain('After GET /posts');
     // the tab shows them at full width instead, and peeks no more
     showTab('Actions');
     expect(pane()).toBeNull();
@@ -835,7 +835,7 @@ describe('Store Actions pane', () => {
     hover(button, false);
     hover(button, true);
     expect(pane()).toBeNull();
-    showTab('State');
+    showTab('Snapshot');
     expect(top()!.querySelector('[aria-current="page"]')!.textContent).toBe(
       'Post 1',
     );

@@ -74,12 +74,7 @@
   align-items: center;
   gap: 0.5rem;
 }
-.facets {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-}
-/* the bar's right end: the State and Actions tabs */
+/* the bar's right end: the Snapshot, Diff and Actions tabs */
 .barEnd {
   display: flex;
   align-items: center;

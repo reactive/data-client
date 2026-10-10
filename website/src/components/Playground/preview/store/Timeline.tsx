@@ -10,6 +10,7 @@ import React, {
 import {
   actionName,
   groupEntriesOf,
+  groupOf,
   joinedFetches,
   type ActionGroup,
   type RequestGroup,
@@ -332,8 +333,10 @@ export const Scrubber = memo(function Scrubber({
   onExpand: (expanded: boolean) => void;
 }) {
   const { history, groups } = useActions();
-  const { seq: selected, set: onSelect, show } = useNavState();
+  const { seq: selected, whole, set: onSelect, show } = useNavState();
   const { entries } = history;
+  // a row picked stands for its whole group: the label names that
+  const group = whole && entry ? groupOf(groups, entry.seq) : undefined;
   // the track fits the panel beside the controls: marks a few px apart
   // there draw as one (fast polling crowds it otherwise)
   // (a panel not laid out, measuring 0, merges nothing)
@@ -436,9 +439,11 @@ export const Scrubber = memo(function Scrubber({
             type="button"
             className={styles.snapshotAction}
             title="Show action"
-            onClick={() => show(entry.seq)}
+            onClick={() => show(entry.seq, !!group)}
           >
-            <ActionName entry={entry} />
+            {group ?
+              <KeyLabel value={group.key} />
+            : <ActionName entry={entry} />}
           </button>
           <span className={styles.dim}>
             {' · '}

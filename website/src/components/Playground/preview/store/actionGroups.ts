@@ -451,6 +451,19 @@ export function groupEntriesOf(group: ActionGroup): readonly LogEntry[] {
   );
 }
 
+/** The actions a moment stands for: `entry` alone, or (`whole`) every
+ * action of its group up to it, so their effect shows as one */
+export function momentEntries(
+  groups: readonly ActionGroup[],
+  entry: LogEntry,
+  whole: boolean,
+): readonly LogEntry[] {
+  const group = whole ? groupOf(groups, entry.seq) : undefined;
+  return group ?
+      groupEntriesOf(group).filter(e => e.seq <= entry.seq)
+    : [entry];
+}
+
 /** By seq, for each list of groups: the one holding that action */
 const groupIndex = new WeakMap<
   readonly ActionGroup[],

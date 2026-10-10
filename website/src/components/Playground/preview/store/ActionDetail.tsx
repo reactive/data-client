@@ -43,7 +43,7 @@ export function ActionDetail({
 }) {
   return (
     <div className={styles.actBody}>
-      <SubjectChanges entry={entry} subject={subject} gap={gap} />
+      <SubjectChanges entries={[entry]} subject={subject} gap={gap} />
       <div className={clsx(styles.fields, styles.metaList)}>
         <Field name="dispatchedAt" node={{ t: 'val', v: entry.at }} />
         {actionFields(entry.action).map(([name, value]) => (
@@ -54,28 +54,38 @@ export function ActionDetail({
   );
 }
 
-/** What an action did to `subject`: each row it changed and how */
+/** What an action, or several together (a request's: its optimistic
+ * update and response as one), did to `subject`: each row it changed and
+ * how, from before the first to after the last */
 export function SubjectChanges({
-  entry,
+  entries,
   subject,
   gap,
 }: {
-  entry: LogEntry;
+  entries: readonly LogEntry[];
   subject: View;
   gap?: ChangeKind;
 }) {
   const { log } = useActions();
-  const changes = log.changes(entry).filter(c => touches(subject, c));
+  const changes = log.spanChanges(entries).filter(c => touches(subject, c));
   const changed = changes.filter(isRecordChange);
   const refreshed = changes.length - changed.length;
   const removed =
-    subject.kind === 'record' && changed.some(c => c.kind === 'removed');
+    subject.kind === 'record' ?
+      changed.find(c => c.kind === 'removed')
+    : undefined;
+  const stored = entries.filter(e => e.store);
   return (
     <div className={clsx(styles.detail, styles.actDetail)}>
-      {entry.store ?
+      {stored.length ?
         <>
-          <EntryChanges entry={entry} changes={changed} />
-          {removed && <RemovedValue id={subject.id} seq={entry.seq} />}
+          <EntryChanges entries={stored} changes={changed} />
+          {removed && subject.kind === 'record' && (
+            <RemovedValue
+              id={subject.id}
+              seq={removed.removedBy ?? stored[stored.length - 1].seq}
+            />
+          )}
           {refreshed > 0 && (
             <span className={styles.dim}>
               {changed.length ? 'Also stored' : 'Stored'} {refreshed} row
@@ -87,7 +97,10 @@ export function SubjectChanges({
             <span className={styles.dim}>{unchangedNote(subject)}</span>
           )}
         </>
-      : <span className={styles.dim}>{unappliedNote(entry.action)}</span>}
+      : <span className={styles.dim}>
+          {unappliedNote(entries[entries.length - 1].action)}
+        </span>
+      }
     </div>
   );
 }
@@ -117,25 +130,25 @@ function unappliedNote(action: ActionTypes) {
   }
 }
 
-/** Rows `entry` changed, and how */
+/** Rows the `stored` actions changed, and how */
 function EntryChanges({
-  entry,
+  entries: stored,
   changes,
 }: {
-  entry: LogEntry;
+  entries: readonly LogEntry[];
   changes: readonly Change[];
 }) {
   const { log } = useActions();
-  const { store } = entry;
-  if (!store) return null;
+  const before = log.view(stored[0].store!.before);
+  const after = log.view(stored[stored.length - 1].store!.after);
   return (
-    <ActionSpanContext.Provider value={spanOf([entry])}>
+    <ActionSpanContext.Provider value={spanOf(stored)}>
       {changes.map(change => (
         <ChangeLine
           key={change.id}
           change={change}
-          before={log.view(store.before)}
-          after={log.view(store.after)}
+          before={before}
+          after={after}
         />
       ))}
     </ActionSpanContext.Provider>

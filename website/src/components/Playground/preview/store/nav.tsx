@@ -75,10 +75,12 @@ export type View =
   | ListView
   | { readonly kind: 'record'; readonly id: string };
 
-/** One action (`seq`), shown over a subject with what it did to it */
+/** One action (`seq`), or (`whole`) its group up to it, shown over a
+ * subject with what it did to it */
 export interface ActionView {
   readonly kind: 'action';
   readonly seq: number;
+  readonly whole?: boolean;
 }
 
 /** The actions that touched the subject under it, at full width */
@@ -116,12 +118,13 @@ export interface LevelStack {
   /** Every level shows the store as it is (or the moment's): the moment set
    * on purpose outranks the store a chip opened a level at */
   readonly clearAt: () => void;
-  /** Shows action `seq` over the subject's actions (opening them, or in
-   * place of the action view on top), so Back lists them */
-  readonly showAction: (seq: number) => void;
+  /** Shows action `seq` (or its group, `whole`) over the subject's actions
+   * (opening them, or in place of the action view on top), so Back lists
+   * them */
+  readonly showAction: (seq: number, whole?: boolean) => void;
   /** The moment moved: an action view on top follows it, and goes as the
    * moment lets go (`null`) */
-  readonly followMoment: (seq: number | null) => void;
+  readonly followMoment: (seq: number | null, whole?: boolean) => void;
 }
 
 /** A stack of views over `root` */
@@ -157,18 +160,18 @@ export function useLevelStack(root: LevelView): LevelStack {
   }, []);
   // a level of its own (a new key), so it slides in and takes focus like
   // any level opened on purpose
-  const showAction = useCallback((seq: number) => {
+  const showAction = useCallback((seq: number, whole = false) => {
     setLevels(prev => {
       let under = prev.stack;
       if (under[under.length - 1].view.kind === 'action')
         under = under.slice(0, -1);
       if (under[under.length - 1].view.kind !== 'actions')
         under = [...under, { key: nextKey.current++, view: ACTIONS }];
-      const view: ActionView = { kind: 'action', seq };
+      const view: ActionView = { kind: 'action', seq, whole };
       return { ...prev, stack: [...under, { key: nextKey.current++, view }] };
     });
   }, []);
-  const followMoment = useCallback((seq: number | null) => {
+  const followMoment = useCallback((seq: number | null, whole = false) => {
     setLevels(prev => {
       // live, no action is left to show: the stack ends under the first
       if (seq === null) {
@@ -178,12 +181,16 @@ export function useLevelStack(root: LevelView): LevelStack {
           );
       }
       const top = prev.stack[prev.stack.length - 1];
-      if (top.view.kind !== 'action' || top.view.seq === seq) return prev;
+      if (
+        top.view.kind !== 'action' ||
+        (top.view.seq === seq && !!top.view.whole === whole)
+      )
+        return prev;
       return {
         ...prev,
         stack: [
           ...prev.stack.slice(0, -1),
-          { key: top.key, view: { kind: 'action', seq } },
+          { key: top.key, view: { kind: 'action', seq, whole } },
         ],
       };
     });
@@ -208,26 +215,31 @@ export interface Moment {
   readonly before?: true;
 }
 
-/** Where the panel stands, apart from its subject: the moment (State shows
+/** Where the panel stands, apart from its subject: the moment (the store shows
  * what action `seq` changed, or the store right after it; the timeline and
  * the actions mark it; `null` is live). Every level, the timeline and the
  * actions can move it */
 export interface NavState {
   readonly seq: number | null;
-  readonly set: (seq: number | null) => void;
-  /** Moves the moment to action `seq` and opens it in the Actions tab: what
-   * it did to the subject, then the action itself */
-  readonly show: (seq: number) => void;
+  /** The moment stands for every action of its group up to `seq` (its row
+   * was picked): what they did together shows as one */
+  readonly whole: boolean;
+  readonly set: (seq: number | null, whole?: boolean) => void;
+  /** Moves the moment to action `seq` (or its group, `whole`) and opens it
+   * in the Actions tab: what it did to the subject, then the action itself
+   * (or the group's actions) */
+  readonly show: (seq: number, whole?: boolean) => void;
 }
 export const NavStateContext = createContext<NavState>({
   seq: null,
+  whole: false,
   set: () => {},
   show: () => {},
 });
 export const useNavState = () => useContext(NavStateContext);
 
 /** How the moment's action changed each row it changed, by row id, while
- * State shows that diff: rows mark it */
+ * the Diff tab shows it: rows mark it */
 export const DiffContext = createContext<ReadonlyMap<
   string,
   ChangeKind

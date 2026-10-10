@@ -162,46 +162,53 @@ DesignSystem/       components injected into preview scope
   store as that action left it (see `Moment` in `preview/store/nav.tsx`).
 - The Store inspector navigates by two coordinates (see
   `preview/store/nav.tsx`, both owned by `StorePanel`): the **moment** (the
-  action State is shown at, or live; `NavStateContext` carries it, with
-  `show(seq)` to set it and open that action in the Actions tab) and the
-  **subject** (State's stack of levels over the store: a table, a record, a
-  list of rows, with breadcrumbs, Back and Escape). Two tabs at the right end
-  of the bar (`role="tablist"`) show either **State** or **Actions**, each
-  with its own stack (`useLevelStack`).
-  State is the subject at the moment (table or tree, the view switch at the
-  bar's left end). Live it is the store as it is. At a moment, the bar adds
-  **Diff** and **After** (`aria-pressed`, kept as the moment moves): Diff, the
-  default, shows only what the moment's action changed at that level
-  (`diffModel` in `preview/store/diffModel.ts`: the store and its lists keep
-  only the rows it changed, a removed one as it was, each `tr` marked
-  `data-change` through `DiffContext`, with the sections it left empty
-  hidden; a record, or a level it left alone, says what it did there with
-  `SubjectChanges` from `preview/store/ActionDetail.tsx`). After shows the
-  whole store as the action left it. A moment the store never saw (a fetch, a
-  subscribe) shows State as the last action before it left it. A record's
-  "changed by" names the kept action that made the value shown (the latest at
-  or before the moment, live included; "actions not kept" when the log
-  dropped it) and opens it, moving the moment. A level a chip opened at an
-  action shows that store, not the diff, until the moment is set on purpose
-  (`clearAt`), which outranks it.
-  The **Actions** tab lists the actions that touched State's subject at full
-  width (`{ kind: 'actions' }`, `ActionsLevel` in
-  `preview/store/ActionList.tsx`, a `region` with its row count beside the
-  crumbs "Actions of <subject>"). Picking a row or step sets the moment (a
-  row stands for its last action that touched the subject) and opens the
-  action over the list (`{ kind: 'action', seq }`, `ActionDetail`: what it
-  did to the subject, every row changed at the store, only the record's own
-  on a record or list, a removed record as the action found it, or a line
-  saying it left the subject alone; then the action's fields); Back returns
-  to the list, and chips drill on in the tab. Stepping the moment moves that
-  level to the new action, and going live closes it (`followMoment`).
-  Over State, the mouse resting on the Actions tab peeks at the same list
-  (`ActionsPane`, an `aside` whose head counts its rows): timeline controls,
-  an overlay over State's right side (narrow, most of it) that stays while
-  the pointer is over either and goes as it leaves both, with Escape or a
-  press outside (each panel's own: a page holds several), focus going back to
-  the tab. Picking a row there only moves the moment, so State shows that
-  action's diff beside it; its chips open in State.
+  action shown, or live; `NavStateContext` carries it, with `show(seq)` to
+  set it and open that action in the Actions tab) and the **subject** (a
+  stack of levels over the store: a table, a record, a list of rows, with
+  breadcrumbs, Back and Escape). A moment can stand for one action or, when
+  a request's or subscription's row was picked (`whole`), every action of
+  that group up to it (`momentEntries` in `preview/store/actionGroups.ts`),
+  so an optimistic update and its response show as one effect. Three tabs at
+  the right end of the bar (`role="tablist"`) show the subject:
+  - **Snapshot**: the subject at the moment (table or tree, the view switch
+    at the bar's left end); live, the store as it is. A moment the store
+    never saw (a fetch, a subscribe) shows the store as the last action
+    before it left it.
+  - **Diff**: only what the moment's action (or group) changed at that
+    level, from before its first action to the store the moment shows
+    (`diffModel` in `preview/store/diffModel.ts`, with the changes from
+    `log.spanChanges`, which merges a group's with `mergeChanges` so another
+    action's rows in between are left out, while a row both changed shows as
+    it ended up). The store and its lists keep only the rows it changed, a
+    removed one as it was, each row marked `data-change` through
+    `DiffContext`, with the sections it left empty hidden; a record, or a
+    level it left alone, says what it did there with `SubjectChanges` from
+    `preview/store/ActionDetail.tsx`. Live, it says to pick an action.
+    Snapshot and Diff share the subject's stack.
+  - **Actions**: the actions that touched the subject at full width, with
+    a stack of its own (`{ kind: 'actions' }`, `ActionsLevel` in
+    `preview/store/ActionList.tsx`, a `region` with its row count beside the
+    crumbs "Actions of <subject>"). Picking a step sets the moment and opens
+    the action over the list (`{ kind: 'action', seq }`, `ActionDetail`:
+    what it did to the subject, then the action's fields); picking a row of
+    several actions opens the group (`whole`: what they did together, then
+    its actions, each opening its own). Back returns to the list, and chips
+    drill on in the tab. Stepping the moment moves that level to the new
+    action, and going live closes it (`followMoment`).
+
+  Both stacks stay mounted while their tab is hidden, keeping their levels'
+  stores, scroll, pages and filters. A record's "changed by" names the kept
+  action that made the value shown (the latest at or before the moment, live
+  included; "actions not kept" when the log dropped it) and opens it, moving
+  the moment. A level a chip opened at an action shows that store, not the
+  diff, until the moment is set on purpose (`clearAt`), which outranks it.
+  Over Snapshot or Diff, the mouse resting on the Actions tab peeks at the
+  same list (`ActionsPane`, an `aside` whose head counts its rows): timeline
+  controls, an overlay over the store's right side (narrow, most of it) that
+  stays while the pointer is over either and goes as it leaves both, with
+  Escape or a press outside (each panel's own: a page holds several), focus
+  going back to the tab. Picking a row or step there only moves the moment,
+  so the tab beside it follows; its chips open in the store.
   Both list (`ActionList`) the actions that touched the subject
   (`subjectFilter` in `preview/store/actionGroups.ts`: at the store every
   action that reached it; on a record or list those that changed or stored
@@ -209,7 +216,7 @@ DesignSystem/       components injected into preview scope
   dropped actions was found at, noted once above a run of them), one row per
   request or subscription; a row's ▸ lists its actions. The moment's row is marked (`aria-current`), opened and
   scrolled to; nothing is marked while live. ↑ ↓ on a row or step move to
-  the next one, as the moment; a group's head stands for its response, so ↑
+  the next one, as the moment; a group's head stands for the whole group, so ↑
   from a step of the moment's own group moves focus alone. A row renders
   again only as its own group changes (`GroupRow` is memoized;
   `subjectFilter` keeps its identity while the record's gaps do, and the
@@ -238,6 +245,7 @@ DesignSystem/       components injected into preview scope
   closed by ✕, Escape, picking a mark or a chip. Where there is no level to
   open a view from (the tree view, the timeline's and the pane's chips),
   `StorePanel` opens it over the top level in the table view.
+
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
   count in the preview header (written to the DOM, so counting adds no commits).
   `website/profiling-plugin.js` replaces `react-dom/client` with React's
