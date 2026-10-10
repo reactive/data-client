@@ -1091,6 +1091,41 @@ describe('Store diff', () => {
     expect(top().textContent).toMatch(/title: "One" → "Edited"/);
   });
 
+  it('flashes only the rows a whole request changed', async () => {
+    const flashed: string[] = [];
+    const animate = jest.fn(function (this: HTMLElement) {
+      flashed.push(this.dataset.id!);
+    });
+    Object.defineProperty(HTMLElement.prototype, 'animate', {
+      value: animate,
+      configurable: true,
+    });
+    try {
+      const { ctrl } = mount();
+      await act(() => ctrl().fetch(getPosts));
+      let done: Promise<unknown> = Promise.resolve();
+      await act(async () => {
+        done = ctrl().fetch(updatePost, { id: '1' }, { title: 'Edited' });
+      });
+      await act(() =>
+        ctrl().set(Post, { id: '2' }, { id: '2', title: 'Other' }),
+      );
+      await act(async () => {
+        release(undefined);
+        await done;
+      });
+      openState();
+      peekIn();
+      flashed.length = 0;
+      fireEvent.click(rows().find(r => r.textContent!.includes('PATCH'))!);
+      expect(flashed).toContain(entityId('Post', '1'));
+      // the set between its steps is not its own
+      expect(flashed).not.toContain(entityId('Post', '2'));
+    } finally {
+      delete (HTMLElement.prototype as any).animate;
+    }
+  });
+
   it('says what the action did to a record, or that it left it alone', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));

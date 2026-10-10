@@ -363,8 +363,9 @@ export default function StorePanel({
       </NavContext.Provider>
     </Unfold>
   );
-  // a snapshot flashes what its action changed
-  useFlashChanges(panel, state, first?.store && log.view(first.store.before));
+  // a snapshot flashes what the moment changed (a request's own rows, not
+  // those of actions between its steps)
+  useFlashChanges(panel, state, diff?.kinds);
   // the subject's levels show in Snapshot, and in Diff at a moment
   const storeShown = tab === 'snapshot' || (tab === 'diff' && !!diff);
   const shownDiff = tab === 'diff' ? diff : undefined;
@@ -1083,24 +1084,26 @@ function useWidth(ref: React.RefObject<HTMLElement | null>) {
 }
 
 /** Briefly highlights rows on screen whose stored value changed since the
- * last state, or `since` a given one (only those: a big store has far more
- * rows than the screen) */
+ * last state, or the rows a moment `changed` (only those on screen: a big
+ * store has far more rows than the screen) */
 function useFlashChanges(
   ref: React.RefObject<HTMLElement | null>,
   state: State<unknown>,
-  since: State<unknown> | undefined,
+  changed: ReadonlyMap<string, unknown> | undefined,
 ) {
   const prev = useRef(state);
   useEffect(() => {
-    const before = since ?? prev.current;
-    const moved = prev.current !== state;
+    const before = prev.current;
     prev.current = state;
     const el = ref.current?.querySelector<HTMLElement>(
       '[data-level]:not([data-covered])',
     );
-    if (!el || !moved) return;
-    flash(el, id => isChanged(before, state, id));
-  }, [ref, state, since]);
+    if (!el || before === state) return;
+    flash(
+      el,
+      changed ? id => changed.has(id) : id => isChanged(before, state, id),
+    );
+  }, [ref, state, changed]);
 }
 
 function TableIcon() {
