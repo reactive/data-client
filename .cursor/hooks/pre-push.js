@@ -147,7 +147,7 @@ function lintFix() {
   // command's commit takes all of it: staged with nothing unstaged on top, or
   // any tracked edit with `-a`. Partial staging, untracked files and pathspecs
   // can't be told from here, so those are left alone with the user's WIP
-  const committing = new Set(
+  const staged =
     commits ?
       git('status', '--porcelain', '--no-renames', '--untracked-files=all')
         .split('\n')
@@ -155,20 +155,17 @@ function lintFix() {
           line =>
             line &&
             !line.startsWith('?') &&
-            // a staged delete isn't pushed, like the branch's own below
-            line[0] !== 'D' &&
             (commitsAll || (line[0] !== ' ' && line[1] === ' ')),
         )
-        .map(line => line.slice(3))
-    : [],
-  );
-  // a file the branch deletes isn't pushed, though an ignored copy (generated,
-  // say) may still be on disk
+    : [];
+  const committing = new Set(staged.map(line => line.slice(3)));
+  // a file the branch or this commit deletes isn't pushed, though an ignored
+  // copy (generated, say) may still be on disk
   const pushed = [
     ...committed.filter(
       file => !dirty.includes(file) && status.get(file) !== 'D',
     ),
-    ...committing,
+    ...staged.filter(line => line[0] !== 'D').map(line => line.slice(3)),
   ];
   const { fixed } = eslintFix(pushed);
   // fixes an earlier push's run left uncommitted: those files are dirty now,

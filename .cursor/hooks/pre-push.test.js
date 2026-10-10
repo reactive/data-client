@@ -91,3 +91,17 @@ test('an ignored file the push commits untracking is not linted', () => {
     assert.equal(push(root, 'git commit -m branch && git push'), held);
   });
 });
+
+test('a pending fix to a file the push deletes does not hold it', () => {
+  withRepo((root, git) => {
+    write(root, 'src/fixed.ts');
+    git('add', '-A');
+    git('commit', '-m', 'master');
+    git('update-ref', 'refs/remotes/origin/master', 'HEAD');
+    fs.appendFileSync(path.join(root, 'src/fixed.ts'), 'edit;\n');
+    git('commit', '-am', 'branch');
+    assert.match(push(root), /src\/fixed\.ts/);
+    git('rm', '-f', 'src/fixed.ts');
+    assert.equal(push(root, 'git commit -m delete && git push'), '');
+  });
+});
