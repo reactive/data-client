@@ -174,8 +174,8 @@ DesignSystem/       components injected into preview scope
   opens it, moving the moment. A level a chip opened at
   an action keeps showing that store until the moment is set on purpose
   (`clearAt`), which outranks it.
-  The **Actions** toggle at the right end of the bar (`aria-pressed`, kept
-  per tab) opens the Actions pane (`ActionsPane` and `ActionList` in
+  The **Actions** toggle at the right end of the bar (`aria-pressed`, each
+  panel's own: a page holds several, and a press outside one closes it) opens the Actions pane (`ActionsPane` and `ActionList` in
   `preview/store/ActionList.tsx`, a `region` whose head counts its rows), an
   overlay over State's right side (narrow, most of it) that Escape, a press
   outside or its ✕ close, focus going back to the toggle. It lists the

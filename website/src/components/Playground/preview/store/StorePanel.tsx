@@ -89,9 +89,9 @@ export default function StorePanel({
   const [stored, setView] = useTabStorage('playgroundStoreView');
   const tree = stored === 'tree';
   // the Actions pane: the subject's actions, an overlay over State
-  const [paneStored, setPane] = useTabStorage('playgroundStoreActions');
-  const pane = paneStored === 'open';
-  const closePane = useCallback(() => setPane('closed'), [setPane]);
+  // each panel's own: a page holds several, and a press outside one closes it
+  const [pane, setPane] = useState(false);
+  const closePane = useCallback(() => setPane(false), []);
   // the timeline the scrubber expands into, above the content; it stays
   // mounted while it slides shut, until the slide ends
   const [timeline, setTimeline] = useState(false);
@@ -396,7 +396,7 @@ export default function StorePanel({
                       title="The actions that touched what is shown"
                       aria-pressed={pane}
                       data-pane-toggle
-                      onClick={() => (pane ? closePane() : setPane('open'))}
+                      onClick={() => setPane(!pane)}
                     >
                       <ListIcon />
                       Actions

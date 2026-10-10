@@ -387,6 +387,22 @@ describe('Store Actions pane detail', () => {
     expect(toggle.getAttribute('aria-pressed')).toBe('true');
   });
 
+  it("opens only its own panel's pane, which a press inside keeps open", async () => {
+    // a page holds several playgrounds, each with a store panel
+    const other = new SchemaRegistry({ trimEvery: 1 });
+    other.log.connect(0);
+    const { ctrl } = mount(<StorePanel registry={other} history={0} />);
+    await act(() => ctrl().fetch(getPosts));
+    const [, mine] = screen.getAllByRole('button', { name: 'Actions' });
+    fireEvent.click(mine);
+    expect(screen.getAllByRole('region', { name: 'Actions' })).toHaveLength(1);
+    fireEvent.pointerDown(rows()[0]);
+    fireEvent.click(rows()[0]);
+    expect(
+      screen.getByRole('navigation', { name: 'Store location' }).textContent,
+    ).toContain('setResponse');
+  });
+
   it('shows a removed record as the action found it', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
