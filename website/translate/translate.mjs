@@ -89,6 +89,18 @@ function blob(id) {
     return undefined;
   }
 }
+/** A partial clone (CI's blobless checkout) fetches each blob as it's read, a
+ * round trip apiece; this fetches them all in one */
+function prefetch(ids) {
+  if (!ids.length) return;
+  try {
+    // throws when unset: a full or shallow clone has nothing to fetch lazily
+    git('config', '--get', 'remote.origin.promisor');
+    git('fetch', '-q', '--no-tags', '--no-write-fetch-head', 'origin', ...ids);
+  } catch {
+    // blob() still fetches each one, or the page counts as unverified
+  }
+}
 const hasBlob = id => {
   try {
     git('cat-file', '-e', id);
@@ -376,6 +388,12 @@ function check(locale) {
   const problems = [];
   let stale = 0;
   let unverified = 0;
+  // the English that stale translations were checked against
+  prefetch(
+    Object.entries(lock.docs)
+      .filter(([file, id]) => file in current && id !== current[file])
+      .map(([, id]) => id),
+  );
   for (const file of present)
     if (!(file in lock.docs))
       problems.push(`${translationOf(file, locale)}: not finalized`);

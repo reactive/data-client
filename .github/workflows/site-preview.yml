@@ -46,6 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       deploy: ${{ steps.decide.outputs.deploy }}
+      english-only: ${{ steps.locales.outputs.english-only }}
       target: ${{ steps.decide.outputs.target }}
     steps:
       - name: Checkout
@@ -54,6 +55,9 @@ jobs:
           # Deployed pages date themselves from git history ("Last updated").
           # Never `git fetch --depth` below: it makes a full clone shallow.
           fetch-depth: ${{ github.event_name == 'merge_group' && 1 || 0 }}
+          # Commits and trees are all the dates need; files missing from the
+          # checkout (old versions) download when read
+          filter: ${{ github.event_name != 'merge_group' && 'blob:none' || '' }}
       - name: Test Vercel ignore decision
         run: bash website/scripts/vercel-ignore.test.sh
       - uses: actions/setup-node@v6
@@ -77,6 +81,23 @@ jobs:
         run: |
           node --test 'website/translate/*.test.mjs'
           node website/translate/translate.mjs check
+      # Each locale is a full build, so PRs build translations only when they
+      # could break one. The queue and master always build every locale.
+      - name: Pick locales
+        id: locales
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          # Translations, their tooling and the config that adds locales; a
+          # deleted doc can leave a translation linking to it. Fails open.
+          if changed="$(git diff --name-only --no-renames "$BASE_SHA" HEAD -- \
+                website/i18n website/translate website/framework-docs website/docusaurus.config.ts)" \
+            && deleted="$(git diff --name-only --no-renames --diff-filter=D "$BASE_SHA" HEAD -- docs)" \
+            && [ -z "$changed$deleted" ]; then
+            echo "::notice title=English-only preview::This PR doesn't touch translations, so only English is built; the merge queue builds every locale"
+            echo "english-only=true" >> "$GITHUB_OUTPUT"
+          fi
       # Docusaurus' webpack cache (~73 MiB compressed). Only master saves it, so
       # PRs share one fresh entry instead of each storing their own; stale
       # modules just miss.
@@ -92,10 +113,11 @@ jobs:
           # PRs build drafts. The queue and master build production, so a link
           # to a draft fails here instead of on the master push.
           VERCEL_ENV: ${{ github.event_name == 'pull_request' && 'preview' || 'production' }}
+          ENGLISH_ONLY: ${{ steps.locales.outputs.english-only }}
         # explicit `shell: bash` adds pipefail, so a failed build isn't masked by tee
         shell: bash
         run: |
-          yarn workspace rdc-website build 2>&1 | tee build.log
+          yarn workspace rdc-website build ${ENGLISH_ONLY:+--locale en} 2>&1 | tee build.log
           # Warnings (broken links, webpack warnings) fail the check, but not
           # the build itself, which only stops on errors
           if grep -E '\[(WARNING|ERROR)\]' build.log; then
@@ -246,4 +268,4 @@ jobs:
           message: |
             **Docs preview:** ${{ steps.deploy.outputs.url }}
 
-            Built from ${{ github.event.pull_request.head.sha }} merged into `master` ([this build](${{ steps.deploy.outputs.deployment }})).
+            Built from ${{ github.event.pull_request.head.sha }} merged into `master` ([this build](${{ steps.deploy.outputs.deployment }})).${{ needs.build.outputs.english-only == 'true' && ' English only: this PR doesn''t touch translations.' || '' }}
