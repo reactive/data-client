@@ -5,6 +5,8 @@ export interface CodeDocument {
   path: string;
   title?: string;
   collapsed: boolean;
+  /** Keep the source in static HTML while collapsed, for crawlers */
+  ssr?: boolean;
   col?: boolean;
   highlights?: string;
   language: string;

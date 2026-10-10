@@ -118,6 +118,7 @@ export default function EditorSurface({
       : null}
       <TextEditTab
         hidden={closedList[index]}
+        ssr={document.ssr}
         interactive={interactive}
         tabIndex={index}
         onFocus={
@@ -189,18 +190,23 @@ function useCreateModels(id: string, documents: readonly CodeDocument[]) {
 
 function TextEditTab({
   hidden,
+  ssr,
   interactive,
   ...editorProps
-}: InteractiveEditorProps & {
-  hidden: boolean;
-  interactive: boolean;
-}) {
+}: InteractiveEditorProps &
+  Pick<CodeDocument, 'ssr'> & {
+    hidden: boolean;
+    interactive: boolean;
+  }) {
   // SSR + hydration markup: open tabs' source stays in the HTML for crawlers.
+  // Collapsed tabs are left out to keep the HTML small, unless marked `ssr`:
+  // those keep their text, unhighlighted since it is never seen.
   // Never branch on navigator / user agent outside BrowserOnly.
   const staticView =
-    hidden ? null : (
+    !hidden ?
       <StaticEditor code={editorProps.code} language={editorProps.language} />
-    );
+    : ssr ? <pre>{editorProps.code}</pre>
+    : null;
 
   return (
     <div
