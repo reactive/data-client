@@ -193,11 +193,12 @@ export default function StorePanel({
   );
   // what the moment stands for, and what that changed: the Diff tab shows
   // only that, from before its first action to the store the moment shows.
-  // Live, that is the newest action that changed the store
+  // Live, that is the newest stored action's whole group: a response
+  // that stored nothing new still shows its request's optimistic update
   const span = useMemo(() => {
     if (moment) return momentEntries(groups, moment, whole);
     const newest = known.findLast(e => e.store);
-    return newest && [newest];
+    return newest && momentEntries(groups, newest, true);
   }, [groups, moment, whole, known]);
   const first = span?.find(e => e.store);
   const prior = first && then({ seq: first.seq, before: true });

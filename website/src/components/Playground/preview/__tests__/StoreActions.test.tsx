@@ -1117,6 +1117,12 @@ describe('Store diff', () => {
       await done;
     });
     openDiff();
+    // live: the newest request's whole effect
+    const effect = [
+      [endpointId('PATCH https://example.com/posts/1'), 'added'],
+      [entityId('Post', '1'), 'updated'],
+    ];
+    expect(tableRows()).toEqual(effect);
     peekIn();
     const request = rows().find(r => r.textContent!.includes('PATCH'))!;
     fireEvent.click(request);

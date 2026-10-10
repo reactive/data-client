@@ -193,8 +193,10 @@ DesignSystem/       components injected into preview scope
     removed one as it was, each row marked `data-change` through
     `DiffContext`, with the sections it left empty hidden; a record, or a
     level it left alone, says what it did there with `SubjectChanges` from
-    `preview/store/ActionDetail.tsx`. Live, it shows the newest action that
-    changed the store (Live on the scrubber is marked as the moment).
+    `preview/store/ActionDetail.tsx`. Live, it shows the newest stored
+    action's whole group, so a response that stored nothing new still shows
+    its request's optimistic update (Live on the scrubber is marked as the
+    moment).
     Snapshot and Diff share the subject's stack.
   - **Actions**: the actions that touched the subject at full width, with
     a stack of its own (`{ kind: 'actions' }`, `ActionsLevel` in
