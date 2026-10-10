@@ -83,10 +83,10 @@ jobs:
       - uses: actions/cache/restore@v6
         with:
           path: website/node_modules/.cache
-          key: website-build-${{ hashFiles('yarn.lock') }}
+          key: website-rspack-${{ hashFiles('yarn.lock') }}
           restore-keys: |
-            website-build-${{ hashFiles('yarn.lock') }}-
-            website-build-
+            website-rspack-${{ hashFiles('yarn.lock') }}-
+            website-rspack-
       - name: Build website
         env:
           # PRs build drafts. The queue and master build production, so a link
@@ -109,7 +109,7 @@ jobs:
         with:
           path: website/node_modules/.cache
           # Unique per run: an existing key can't be overwritten
-          key: website-build-${{ hashFiles('yarn.lock') }}-${{ github.run_id }}
+          key: website-rspack-${{ hashFiles('yarn.lock') }}-${{ github.run_id }}
       - name: Decide docs deploy
         id: decide
         if: github.event_name != 'merge_group'

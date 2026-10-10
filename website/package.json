@@ -67,6 +67,7 @@
     "@data-client/rest": "workspace:*",
     "@data-client/test": "workspace:*",
     "@docusaurus/core": "^3.0.1",
+    "@docusaurus/faster": "^3.10.2",
     "@docusaurus/plugin-client-redirects": "^3.0.1",
     "@docusaurus/plugin-content-docs": "^3.0.1",
     "@docusaurus/preset-classic": "^3.0.1",
