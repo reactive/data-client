@@ -192,13 +192,16 @@ function uiProblem(locale, text, message) {
   if (placeholders(text) !== placeholders(message))
     return `keep the placeholders of "${message}"`;
   const english = message.split('|').length;
-  if (english === 1) return;
+  const forms = text.split('|').length;
+  if (english === 1)
+    return forms === 1 ? undefined : 'drop the "|": this string is not plural';
   const most = new Intl.PluralRules(locale).resolvedOptions().pluralCategories
     .length;
   const least = Math.min(english, most);
-  const forms = text.split('|').length;
-  if (forms < least || forms > most)
-    return `give ${least === most ? least : `${least} to ${most}`} plural forms separated by "|", like "${message}"`;
+  if (forms >= least && forms <= most) return;
+  return most === 1 ?
+      'give one form with no "|": the language has no plural forms'
+    : `give ${least === most ? least : `${least} to ${most}`} plural forms separated by "|", like "${message}"`;
 }
 
 /**
@@ -386,9 +389,12 @@ async function finalize(locale, english) {
       const text = localized[file]?.[key]?.message;
       if (done[key] === message || typeof text !== 'string') continue;
       const id = uiId(locale, file, key);
-      if (text === message && !options.same.includes(id)) untranslated.push(id);
-      else if (uiProblem(locale, text, message))
-        problems.push(`${id}: ${uiProblem(locale, text, message)}`);
+      if (text === message && !options.same.includes(id)) {
+        untranslated.push(id);
+        continue;
+      }
+      const problem = uiProblem(locale, text, message);
+      if (problem) problems.push(`${id}: ${problem}`);
       else {
         done[key] = message;
         accepted.push(id);
