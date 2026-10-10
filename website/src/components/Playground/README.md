@@ -160,46 +160,53 @@ DesignSystem/       components injected into preview scope
   store (see Reset) starts a new history, a store the retry restores continues
   its own, and the panel shows only the current one. An action's chips open the
   store as that action left it (see `Moment` in `preview/store/nav.tsx`).
-- The Store inspector navigates by three coordinates (see
-  `preview/store/nav.tsx`, all owned by `StorePanel`): the **moment** (the
-  action State is shown after, or live), the **subject** (one stack of levels
-  over the store: a table, a record, a list of rows, with breadcrumbs, Back
-  and Escape) and the **facet** (`State | Action` tabs under the scrubber;
-  `NavStateContext` carries the moment and the facet). The facet is
-  remembered as you drill and step. State is the subject as the moment's
-  action left it (table or tree, the view switch is State's alone). Action is
-  the moment's action (live, the newest; "Nothing dispatched yet" before any):
-  what it changed about the subject (every row at the store, only the
-  record's own on a record or list, or a line saying it left it unchanged),
-  then the action's fields, with a "1 of N" stepper through its request's
-  actions that moves the moment. A moment the store never saw (a fetch, a
-  subscribe) shows State as the last action before it left it. A record's
-  "changed by" names the kept action that made the value shown (or that
-  actions the log dropped did) and opens the Action facet on it, moving the
-  moment. A level a chip opened at an action keeps showing that store until
-  the moment is set on purpose (`clearAt`), which outranks it.
-  The **Actions** toggle at the right end of the tab bar (`aria-pressed`,
-  kept per tab) opens the Actions pane (`ActionsPane` and `ActionList` in
-  `preview/store/ActionsView.tsx`, a `region`): the actions that touched the
-  subject (`subjectRows` in `preview/store/actionGroups.ts`: at the store
-  every action; on a record or list those that changed or stored again a row
-  it covers, a record's with a note where actions the log dropped changed
-  it), one row per request or subscription, open rows listing their actions.
-  A row sets the moment alone (the row stands for its response), its › sets
-  it and opens the Action facet, and its chips drill into what changed on the
-  one stack; the moment's row is marked (`aria-current`, the dropped-actions
-  note while the record's value then came from them), opened and scrolled
-  to, and while live the pane follows the newest row. Wide, the pane sits
-  beside the facet with a scroll of its own; under `NARROW_WIDTH` it takes
-  the facet's place, and a › or a chip closes it to show what it opened.
+- The Store inspector navigates by two coordinates (see
+  `preview/store/nav.tsx`, both owned by `StorePanel`): the **moment** (the
+  action State is shown after, or live; `NavStateContext` carries it, with
+  `show(seq)` to set it and open the Actions pane on it) and the **subject**
+  (one stack of levels over the store: a table, a record, a list of rows,
+  with breadcrumbs, Back and Escape). The content is always State: the
+  subject as the moment's action left it (table or tree, the view switch in
+  the bar over it). A moment the store never saw (a fetch, a subscribe)
+  shows State as the last action before it left it. A record's "changed by"
+  names the kept action that made the value shown (the latest at or before
+  the moment, live included; "actions not kept" when the log dropped it) and
+  shows it in the Actions pane, moving the moment. A level a chip opened at
+  an action keeps showing that store until the moment is set on purpose
+  (`clearAt`), which outranks it.
+  The **Actions** toggle at the right end of the bar (`aria-pressed`, kept
+  per tab) opens the Actions pane (`ActionsPane` and `ActionList` in
+  `preview/store/ActionList.tsx`, a `region` whose head counts its rows): the
+  actions that touched the subject (`subjectFilter` in
+  `preview/store/actionGroups.ts`: at the store every action that reached it;
+  on a record or list those that changed or stored again a row it covers,
+  and on a record the kept action each gap of dropped actions was found at,
+  noted above it), one row per request or subscription, open rows listing
+  their actions. A row sets the moment (the row stands for its response) and
+  its chips drill into what changed on the one stack. The moment's row is
+  marked (`aria-current`), opened and scrolled to, and what its action did
+  shows under the row or its step (`ActionDetail` in
+  `preview/store/ActionDetail.tsx`: every row changed at the store, only the
+  record's own on a record or list, a removed record as the action found it,
+  or a line saying it left the subject alone; then the action's fields).
+  Nothing is marked while live. When the moment's action is not in the list
+  (it left the subject alone, or the log dropped it), it shows in an "At
+  this moment" block pinned over the list instead. ↑ ↓ on a row or step move
+  to the next one, as the moment. Wide, the pane sits beside State with a
+  scroll of its own; under `NARROW_WIDTH` it takes State's place (State
+  stays mounted, `hidden` and `inert`, keeping its levels and scroll), and a
+  chip closes it to show what it opened. Focus follows: the pane's toggle as
+  State swaps out, the level as it swaps back; "changed by" and the
+  scrubber's label focus the row they show.
   The scrubber across the top of the panel (`Scrubber` in
   `preview/store/Timeline.tsx`, a `role="group"`) always shows the whole
   history on one lane, fit to the panel: ‹ › and ←→ step through the changes
-  to the subject (every change at the store; below it the marks that left the
-  subject alone are dimmed, `data-dim`, and skipped; past the newest, and
-  End, go live), a mark lands on its action, "Live" lets go. While the moment
-  is set its second line says "After <action> · <time>", which opens the
-  Action facet. Its ▾ ("Timeline", `aria-expanded`) slides open the expanded
+  to the subject (`subjectFilter`'s `hit`, the rule the pane lists by: every
+  stored action at the store; below it the marks that left the subject alone
+  are dimmed, `data-dim`, and skipped; past the newest, and End, go live), a
+  mark lands on its action, "Live" lets go. While the moment is set its
+  second line says "After <action> · <time>", which shows the action in the
+  Actions pane. Its ▾ ("Timeline", `aria-expanded`) slides open the expanded
   timeline under it (`Timeline`: the same history, a lane per key, requests
   as spans, stepping as the scrubber does). By default it keeps the detailed
   spacing (`timeScale`) and scrolls sideways; only the tracks scroll, the lane
@@ -209,10 +216,10 @@ DesignSystem/       components injected into preview scope
   per tab) squeezes the whole history to the strip's width instead (marks are
   placed as fractions of the track, `--tl-f`, so nothing is measured; axis
   labels thin out as it squeezes). Narrow (under `NARROW_WIDTH`), the
-  timeline opens as a sheet over the tabs instead of pushing them down, closed
-  by ✕, Escape, picking a mark or a chip. Where there is no level to open a
-  view from (the tree view, the timeline's and the pane's chips),
-  `OpenViewContext` opens it in the table view.
+  timeline opens as a sheet over the content instead of pushing it down,
+  closed by ✕, Escape, picking a mark or a chip. Where there is no level to
+  open a view from (the tree view, the timeline's and the pane's chips),
+  `StorePanel` opens it over the top level in the table view.
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
   count in the preview header (written to the DOM, so counting adds no commits).
   `website/profiling-plugin.js` replaces `react-dom/client` with React's

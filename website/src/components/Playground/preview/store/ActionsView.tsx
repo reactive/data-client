@@ -2,41 +2,30 @@ import { actionTypes, StateContext } from '@data-client/react';
 import clsx from 'clsx';
 import React, {
   createContext,
-  memo,
   useCallback,
   useContext,
   useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
-  useState,
 } from 'react';
 
 import {
   actionName,
-  groupEntriesOf,
-  groupOf,
   pollFrequencyOf,
-  joinedFetches,
-  subjectRows,
   type ActionGroup,
   type Change,
-  type ChangeKind,
-  type Missing,
   type RequestGroup,
   type SubscriptionGroup,
 } from './actionGroups';
 import type ActionLog from './actionLog';
 import { isRecordChange, type History, type LogEntry } from './actionLog';
-import { onActivateKey, scrollToRow } from './dom';
-import { actionId, splitKey } from './model';
+import { splitKey } from './model';
 import {
   ActionSpanContext,
-  useNavState,
   type ActionSpan,
   type Moment,
   type Then,
-  type View,
 } from './nav';
 import styles from './store.module.css';
 import { CountChip, EndpointKey, EntityKey, RefChip } from './Value';
@@ -92,183 +81,6 @@ const CHIP_LIMIT = 6;
 const TICK_LIMIT = 12;
 /** Distance from the bottom (px) that still counts as following new rows */
 export const FOLLOW_SLACK = 24;
-
-/** The Actions pane: `subject`'s actions as a list, under a head naming it
- * (`label`, none at the store). Beside the facet, or `swapped` in for it */
-export function ActionsPane({
-  subject,
-  label,
-  swapped,
-  onPick,
-}: {
-  subject: View;
-  label: React.ReactNode;
-  swapped: boolean;
-  onPick?: () => void;
-}) {
-  return (
-    <section
-      className={clsx(styles.pane, swapped && styles.swapped)}
-      aria-label="Actions"
-    >
-      <div className={styles.paneHead}>
-        Actions
-        {label && <span className={styles.paneSubject}>{label}</span>}
-      </div>
-      <ActionList subject={subject} onPick={onPick} />
-    </section>
-  );
-}
-
-/** The actions that touched `subject` (at the store, every action) as a
- * list, folded into requests and subscriptions, following new rows while
- * scrolled to the bottom. A row sets the moment (its › opens the Action facet
- * too); the moment's row is marked and open */
-export function ActionList({
-  subject,
-  onPick,
-}: {
-  subject: View;
-  /** Called as a row's › opens the Action facet */
-  onPick?: () => void;
-}) {
-  const { log, history, groups } = useActions();
-  const { seq, set, setFacet } = useNavState();
-  const rows = useMemo(
-    () => subjectRows(log, history.entries, groups, subject),
-    [log, history.entries, groups, subject],
-  );
-  const scroller = useRef<HTMLDivElement>(null);
-  const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set());
-  const toggle = useCallback(
-    (id: string) =>
-      setOpen(prev => {
-        const next = new Set(prev);
-        if (!next.delete(id)) next.add(id);
-        return next;
-      }),
-    [],
-  );
-  const openAction = useCallback(
-    (seq: number) => {
-      set(seq);
-      setFacet('action');
-      onPick?.();
-    },
-    [set, setFacet, onPick],
-  );
-  const current = seq === null ? undefined : groupOf(groups, seq);
-  // once per move: the row opens, and may be closed again. A lone action's
-  // row is its own step: marking it is enough
-  const [opened, setOpened] = useState<number | null>(null);
-  if (seq !== opened) {
-    setOpened(seq);
-    if (current && groupEntriesOf(current).length > 1 && !open.has(current.id))
-      setOpen(new Set([...open, current.id]));
-  }
-  useReveal(scroller, seq);
-  // new rows would push the marked action off the screen; live again, the
-  // newest is back in view and followed
-  const toNewest = useFollow(scroller, rows, 'y', seq !== null);
-  useLayoutEffect(() => {
-    if (seq === null) toNewest();
-  }, [seq, toNewest]);
-  // a gap is the moment's while the record's value then came from its
-  // dropped actions: from the action it was found at, up to the next row
-  const inGap = (i: number) =>
-    seq !== null &&
-    seq >= (rows[i] as Missing).seq &&
-    (i === rows.length - 1 || seq < firstSeq(rows[i + 1]));
-  return (
-    <div ref={scroller} className={styles.actList}>
-      {!rows.length && (
-        <p className={styles.empty}>
-          {groups.length ?
-            'No action touched this yet.'
-          : 'Nothing dispatched yet. Fetches, responses and other store actions show here as the preview runs.'
-          }
-        </p>
-      )}
-      {rows.map((row, i) =>
-        row.kind === 'missing' ?
-          <GapRow
-            key={`gap ${row.seq}`}
-            change={row.change}
-            current={inGap(i)}
-          />
-        : <GroupRow
-            key={row.id}
-            group={row}
-            open={open.has(row.id)}
-            current={row === current ? seq! : undefined}
-            onToggle={toggle}
-            onSelect={set}
-            onOpen={openAction}
-          />,
-      )}
-    </div>
-  );
-}
-
-/** Where a row of the list starts */
-const firstSeq = (row: ActionGroup | Missing) =>
-  row.kind === 'missing' ? row.seq : row.entries[0].seq;
-
-/** What actions the log didn't keep did to the record */
-const missingText: Partial<Record<ChangeKind, string>> = {
-  refreshed: 'Stored again',
-  removed: 'Removed',
-  invalidated: 'Invalidated',
-  expired: 'Marked stale',
-  error: 'Failed',
-};
-
-/** Where actions the log didn't keep changed the record; `current` while
- * the moment falls among them */
-function GapRow({ change, current }: { change: ChangeKind; current: boolean }) {
-  return (
-    <div
-      className={clsx(styles.row, styles.gapRow)}
-      aria-current={current || undefined}
-    >
-      <span className={styles.dim}>
-        {missingText[change] ?? 'Changed'} by actions not kept: {KEEPS_NEWEST}
-      </span>
-    </div>
-  );
-}
-
-/** Brings the moment's action into view when the moment moves; if the list
- * is hidden then, once it shows again. Focus stays where it is, so arrow
- * keys keep stepping the Timeline that moved the moment */
-function useReveal(
-  scroller: React.RefObject<HTMLElement | null>,
-  seq: number | null,
-) {
-  const pending = useRef<number | null>(null);
-  const reveal = useCallback(() => {
-    const el = scroller.current;
-    if (pending.current === null || !el?.clientHeight) return;
-    scrollToRow(el, actionId(pending.current), { focus: false });
-    pending.current = null;
-  }, [scroller]);
-  useLayoutEffect(() => {
-    // live, there is nothing left to reveal
-    pending.current = seq;
-    reveal();
-  }, [seq, reveal]);
-  // the scroller is an ancestor's element, which React attaches after this
-  // component's layout effects: a passive effect sees it on first mount
-  useEffect(() => {
-    const el = scroller.current;
-    if (!el) return;
-    reveal();
-    if (typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(reveal);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [scroller, reveal]);
-}
 
 const AXES = {
   x: { size: 'scrollWidth', scroll: 'scrollLeft', client: 'clientWidth' },
@@ -328,216 +140,6 @@ export function useFollow(
     follow.current = true;
     el[scroll] = el[size];
   }, [scroller, axis]);
-}
-
-/** Renders only when its group changes (see `keepUnchanged`) */
-const GroupRow = memo(function GroupRow({
-  group,
-  open,
-  current,
-  onToggle,
-  onSelect,
-  onOpen,
-}: {
-  group: ActionGroup;
-  open: boolean;
-  /** The moment's action, when it is one of this row's */
-  current?: number;
-  onToggle: (id: string) => void;
-  /** Moves the moment to an action */
-  onSelect: (seq: number) => void;
-  /** Moves the moment to an action and opens the Action facet */
-  onOpen: (seq: number) => void;
-}) {
-  const { log } = useLog();
-  const all = groupEntriesOf(group);
-  const changes = log.mergedChanges(all);
-  const first = all[0];
-  // the row stands for its last action the store saw (a request's response),
-  // or its last one
-  const seq = spanOf(all)?.last ?? all[all.length - 1].seq;
-  const select = () => {
-    onToggle(group.id);
-    onSelect(seq);
-  };
-  return (
-    <div className={styles.actGroup} data-open={open || undefined}>
-      <div
-        role="button"
-        tabIndex={0}
-        aria-expanded={open}
-        aria-current={current !== undefined || undefined}
-        // a lone action is its own step, so the moment scrolls to it here
-        data-id={all.length === 1 ? actionId(first.seq) : undefined}
-        className={clsx(styles.row, styles.actRow)}
-        onClick={select}
-        onKeyDown={onActivateKey(select)}
-      >
-        <span className={styles.actHead}>
-          {group.kind === 'single' && <TypeName entry={first} />}
-          <KeyLabel value={group.key} />
-          <Tag group={group} />
-          <span className={styles.actMeta}>
-            <Status group={group} />
-            <Time at={first.at} />
-          </span>
-        </span>
-        <span className={styles.actSum}>
-          <Lifecycle group={group} />
-          <Dropped group={group} all={all} />
-          <ActionSpanContext.Provider value={spanOf(all)}>
-            <ChangeChips
-              changes={changes}
-              own={group.key}
-              ownError={statusFailed(group)}
-            />
-          </ActionSpanContext.Provider>
-        </span>
-      </div>
-      <OpenAction seq={seq} onOpen={onOpen} />
-      {open && (
-        <Steps
-          group={group}
-          all={all}
-          current={current}
-          onSelect={onSelect}
-          onOpen={onOpen}
-        />
-      )}
-    </div>
-  );
-});
-
-/** A row's ›: the Action facet on its action. Beside the row, not in it
- * (a button in a button), laid over its right end */
-function OpenAction({
-  seq,
-  onOpen,
-}: {
-  seq: number;
-  onOpen: (seq: number) => void;
-}) {
-  return (
-    <button
-      type="button"
-      className={styles.actOpen}
-      aria-label="Open action"
-      title="Open action"
-      onClick={e => {
-        e.stopPropagation();
-        onOpen(seq);
-      }}
-    >
-      ›
-    </button>
-  );
-}
-
-/** An open row's actions; fetches deduped into a request in flight show as
- * one line */
-function Steps({
-  group,
-  all,
-  current,
-  onSelect,
-  onOpen,
-}: {
-  group: ActionGroup;
-  all: readonly LogEntry[];
-  current?: number;
-  onSelect: (seq: number) => void;
-  onOpen: (seq: number) => void;
-}) {
-  const { dropped } = useLog();
-  const joined = joinedFetches(group);
-  const counted = new Set<RequestGroup>();
-  const scroller = useRef<HTMLDivElement>(null);
-  useFollow(scroller, all);
-  return (
-    <div className={styles.steps} ref={scroller}>
-      {all.map(entry => {
-        const request = joined.get(entry);
-        if (!request) {
-          const n = dropped?.get(entry.seq);
-          return [
-            n && (
-              <div
-                key={`dropped ${entry.seq}`}
-                className={clsx(styles.row, styles.stepRow, styles.joined)}
-              >
-                <span className={styles.dim}>
-                  {droppedText(group, n)}: {KEEPS_NEWEST}
-                </span>
-              </div>
-            ),
-            <StepRow
-              key={entry.seq}
-              entry={entry}
-              own={group.key}
-              current={entry.seq === current}
-              onSelect={onSelect}
-              onOpen={onOpen}
-            />,
-          ];
-        }
-        if (counted.has(request)) return null;
-        counted.add(request);
-        const n = request.entries.filter(e => joined.has(e)).length;
-        return (
-          <div
-            key={entry.seq}
-            className={clsx(styles.row, styles.stepRow, styles.joined)}
-          >
-            <Time at={entry.at} />
-            <span className={styles.dim}>
-              {n} more fetch{n === 1 ? '' : 'es'} deduped into this request
-            </span>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-/** One action of an open row; sets the moment to it */
-function StepRow({
-  entry,
-  own,
-  current,
-  onSelect,
-  onOpen,
-}: {
-  entry: LogEntry;
-  own: string;
-  /** Whether it is the moment's action */
-  current: boolean;
-  onSelect: (seq: number) => void;
-  onOpen: (seq: number) => void;
-}) {
-  const { log } = useLog();
-  const select = () => onSelect(entry.seq);
-  return (
-    <div className={styles.step}>
-      <div
-        role="button"
-        tabIndex={0}
-        aria-current={current || undefined}
-        data-id={actionId(entry.seq)}
-        className={clsx(styles.row, styles.stepRow)}
-        onClick={select}
-        onKeyDown={onActivateKey(select)}
-      >
-        <Time at={entry.at} />
-        <TypeName entry={entry} />
-        <span className={styles.actSum}>
-          <ActionSpanContext.Provider value={spanOf([entry])}>
-            <ChangeChips changes={log.changes(entry)} own={own} />
-          </ActionSpanContext.Provider>
-        </span>
-      </div>
-      <OpenAction seq={entry.seq} onOpen={onOpen} />
-    </div>
-  );
 }
 
 /** `setResponse`, colored by kind; a fetch that changed the store applied
@@ -622,7 +224,7 @@ function pollFrequency(group: SubscriptionGroup): number | undefined {
 const fetches = (group: RequestGroup) =>
   group.entries.filter(e => e.action.type === actionTypes.FETCH);
 
-function Tag({ group }: { group: ActionGroup }) {
+export function Tag({ group }: { group: ActionGroup }) {
   if (group.kind === 'subscription') {
     const frequency = pollFrequency(group);
     return (
@@ -644,13 +246,13 @@ function Tag({ group }: { group: ActionGroup }) {
 }
 
 /** Whether `Status` reports the request failed */
-const statusFailed = (group: ActionGroup) =>
+export const statusFailed = (group: ActionGroup) =>
   group.kind === 'request' &&
   !group.cancelled &&
   !!group.response &&
   failed(group.response);
 
-function Status({ group }: { group: ActionGroup }) {
+export function Status({ group }: { group: ActionGroup }) {
   if (group.kind === 'subscription') {
     const n = group.requests.length;
     const count = `${n} fetch${n === 1 ? '' : 'es'}`;
@@ -671,7 +273,7 @@ function Status({ group }: { group: ActionGroup }) {
 
 /** How many earlier updates of the row the log no longer has, so its
  * history reads as partial */
-function Dropped({
+export function Dropped({
   group,
   all,
 }: {
@@ -702,7 +304,7 @@ export function droppedText(group: ActionGroup, n: number) {
 }
 
 /** Sent, optimistic, then resolved; or a subscription's poll ticks */
-function Lifecycle({ group }: { group: ActionGroup }) {
+export function Lifecycle({ group }: { group: ActionGroup }) {
   const { log } = useLog();
   if (group.kind === 'single')
     return (

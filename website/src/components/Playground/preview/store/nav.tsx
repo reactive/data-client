@@ -136,25 +136,20 @@ export interface Moment {
   readonly before?: true;
 }
 
-/** Which aspect of the subject the panel shows: its value at the moment, or
- * the moment's action and what it did to it */
-export type Facet = 'state' | 'action';
-
 /** Where the panel stands, apart from its subject: the moment (State shows
  * the store right after action `seq`, the timeline and the Actions pane mark
- * it; `null` is live) and the facet. Every level, the timeline and the pane
- * can move either */
+ * it; `null` is live). Every level, the timeline and the pane can move it */
 export interface NavState {
   readonly seq: number | null;
   readonly set: (seq: number | null) => void;
-  readonly facet: Facet;
-  readonly setFacet: (facet: Facet) => void;
+  /** Moves the moment to action `seq` and shows it in the Actions pane,
+   * with focus on its row */
+  readonly show: (seq: number) => void;
 }
 export const NavStateContext = createContext<NavState>({
   seq: null,
   set: () => {},
-  facet: 'state',
-  setFacet: () => {},
+  show: () => {},
 });
 export const useNavState = () => useContext(NavStateContext);
 
@@ -185,14 +180,7 @@ export interface Nav {
   readonly push: (view: View, at?: Moment) => void;
 }
 
-/** Set by the table view's levels and the timeline; the tree view expands in
- * place instead */
+/** Set by the table view's levels, the timeline and the Actions pane; the
+ * tree view expands in place instead */
 export const NavContext = createContext<Nav | null>(null);
 export const useNav = () => useContext(NavContext);
-
-/** Opens a view where there is no level to open it from (the tree view): in
- * the table view, over the top level */
-export const OpenViewContext = createContext<((view: View) => void) | null>(
-  null,
-);
-export const useOpenView = () => useContext(OpenViewContext);

@@ -5,7 +5,6 @@ import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { ActionName } from './ActionDetail';
 import { rowTimeline } from './actionGroups';
 import { ActionsContext, type Actions } from './ActionsView';
-import { focusLevel } from './dom';
 import {
   errorText,
   referrersOf,
@@ -219,27 +218,27 @@ export function RowMeta({
   );
 }
 
-/** A record's last change as of the store this level shows, opening the
- * Action facet on the action that made it; or that actions the log dropped
+/** A record's last change as of the store this level shows, showing the
+ * action that made it in the Actions pane; or that actions the log dropped
  * made it. Nothing while the log has no change to the record */
-export function ChangedBy({ id }: { id: string }) {
+function ChangedBy({ id }: { id: string }) {
   const actions = useContext(ActionsContext);
   return actions ? <LastChange id={id} actions={actions} /> : null;
 }
 
 function LastChange({ id, actions }: { id: string; actions: Actions }) {
   const { log, history, until } = actions;
-  const { set, setFacet } = useNavState();
+  const { show } = useNavState();
   const items = useMemo(
     () => rowTimeline(log, history.entries, id),
     [log, history.entries, id],
   );
-  // the latest change at or before the moment, unless actions the log
-  // dropped changed the record since: no kept action made the value shown.
-  // Live, the latest kept one, unless there is none
+  // the latest change at or before the moment (live, the latest), unless
+  // actions the log dropped changed the record since: no kept action made
+  // the value shown
   const last =
     until === undefined ?
-      (items.findLast(i => i.kind === 'version') ?? items.at(-1))
+      items.at(-1)
     : items.findLast(
         i => (i.kind === 'version' ? i.entry.seq : i.seq) <= until,
       );
@@ -256,10 +255,7 @@ function LastChange({ id, actions }: { id: string; actions: Actions }) {
             className={clsx(styles.ref, styles.countRef)}
             onClick={e => {
               e.stopPropagation();
-              // the facet swaps this button out from under focus
-              focusLevel(e.currentTarget);
-              set(last.entry.seq);
-              setFacet('action');
+              show(last.entry.seq);
             }}
           >
             <ActionName entry={last.entry} />

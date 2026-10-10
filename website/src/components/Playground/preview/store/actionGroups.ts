@@ -598,34 +598,44 @@ export function touches(subject: View, change: Change): boolean {
   }
 }
 
-/** Whether an action touched `subject`: changed a row it covers, or stored
- * one again */
-export const touched = (log: ActionLog, subject: View, entry: LogEntry) =>
-  log.changes(entry).some(c => touches(subject, c));
-
-/** A subject's actions as rows: the groups with an action that touched it
- * (at the store, every group), and where actions the log dropped changed a
- * record, a note before the kept action it was found at */
-export function subjectRows(
+/** Where actions the log dropped changed record `id`: by the kept action
+ * each gap was found at, what they did to it */
+export function recordGaps(
   log: ActionLog,
   entries: readonly LogEntry[],
-  groups: readonly ActionGroup[],
-  subject: View,
-): (ActionGroup | Missing)[] {
-  if (subject.kind === 'root') return [...groups];
-  const gaps =
-    subject.kind === 'record' ?
-      rowTimeline(log, entries, subject.id).filter(i => i.kind === 'missing')
-    : [];
-  const rows: (ActionGroup | Missing)[] = [];
-  for (const group of groups) {
-    if (!groupEntriesOf(group).some(e => touched(log, subject, e))) continue;
-    while (gaps.length && gaps[0].seq <= group.entries[0].seq)
-      rows.push(gaps.shift()!);
-    rows.push(group);
-  }
-  return [...rows, ...gaps];
+  id: string,
+): ReadonlyMap<number, ChangeKind> {
+  const gaps = new Map<number, ChangeKind>();
+  for (const item of rowTimeline(log, entries, id))
+    if (item.kind === 'missing') gaps.set(item.seq, item.change);
+  return gaps;
 }
+
+/** What of the log is about a subject */
+export interface SubjectFilter {
+  /** Whether an action touched the subject: changed a row it covers or
+   * stored one again, or (a record) is where a gap was found: actions the
+   * log dropped changed the record before it. At the store, every action
+   * the store saw */
+  readonly hit: (entry: LogEntry) => boolean;
+  /** A record's gaps (see `recordGaps`) */
+  readonly gaps: ReadonlyMap<number, ChangeKind>;
+}
+
+export function subjectFilter(
+  log: ActionLog,
+  entries: readonly LogEntry[],
+  subject: View,
+): SubjectFilter {
+  if (subject.kind === 'root') return { hit: e => !!e.store, gaps: NO_GAPS };
+  const gaps =
+    subject.kind === 'record' ? recordGaps(log, entries, subject.id) : NO_GAPS;
+  return {
+    hit: e => gaps.has(e.seq) || log.changes(e).some(c => touches(subject, c)),
+    gaps,
+  };
+}
+const NO_GAPS: ReadonlyMap<number, ChangeKind> = new Map();
 
 /** Row `id` as diffs name it, to compare it between two stores */
 function rowOf(id: string): Change | undefined {

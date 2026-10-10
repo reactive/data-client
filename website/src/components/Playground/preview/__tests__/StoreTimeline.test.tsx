@@ -69,8 +69,10 @@ const scrubber = () => screen.getByRole('group', { name: /^Scrubber/ });
 /** Expands or collapses the timeline under the scrubber */
 const toggle = () =>
   fireEvent.click(screen.getByRole('button', { name: 'Timeline' }));
-/** The strip lens: the lanes */
+/** The expanded timeline: the lanes */
 const lanes = () => screen.getByRole('group', { name: /^Timeline/ });
+/** The bar over the content: State, its view switch and the pane's toggle */
+const stateBar = () => screen.getByText('State').parentElement!;
 /** Toggles the Actions pane */
 const togglePane = () =>
   fireEvent.click(screen.getByRole('button', { name: 'Actions' }));
@@ -79,11 +81,13 @@ const pane = () => screen.queryByRole('region', { name: 'Actions' });
 const rows = () => [
   ...document.querySelectorAll<HTMLElement>('[role="button"][aria-expanded]'),
 ];
-const tab = (name: string) =>
-  screen.getByRole('tab', { name }).getAttribute('aria-selected');
-/** The shown level */
-const top = () =>
-  document.querySelector<HTMLElement>('[data-level]:not([data-covered])');
+/** The shown level, none while the pane swaps the state out */
+const top = () => {
+  const level = document.querySelector<HTMLElement>(
+    '[data-level]:not([data-covered])',
+  );
+  return level?.closest('[hidden]') ? null : level;
+};
 /** The next frame, when a box just opened slides */
 const nextFrame = () =>
   act(() => new Promise<void>(r => requestAnimationFrame(() => r())));
@@ -183,12 +187,10 @@ describe('Store scrubber', () => {
       (screen.getByRole('button', { name: 'Next change' }) as HTMLButtonElement)
         .disabled,
     ).toBe(true);
-    // before the tabs, which keep State's view switch
-    expect(
-      bar.compareDocumentPosition(
-        screen.getByRole('tablist', { name: 'Store' }),
-      ),
-    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    // before State's bar, with its view switch
+    expect(bar.compareDocumentPosition(stateBar())).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
     expect(screen.getByRole('group', { name: 'Store view' })).toBeTruthy();
     await act(() => ctrl().fetch(getPosts));
     await act(() => ctrl().fetch(getPosts));
@@ -221,10 +223,10 @@ describe('Store scrubber', () => {
     expect(marks[0].hasAttribute('data-selected')).toBe(true);
     expect(screen.getAllByText('"One"').length).toBeGreaterThan(0);
     expect(screen.queryAllByText('"Two"')).toHaveLength(0);
-    // the same moment under the Action facet
-    fireEvent.click(screen.getByRole('tab', { name: 'Action' }));
+    // the same moment with the Actions pane open
+    togglePane();
     expect(bar.textContent).toContain('After');
-    fireEvent.click(screen.getByRole('tab', { name: 'State' }));
+    togglePane();
     // Live lets go, and the label with it
     fireEvent.click(screen.getByRole('button', { name: 'Live' }));
     expect(screen.queryByText('After')).toBeNull();
@@ -295,23 +297,25 @@ describe('Store scrubber', () => {
     expect(document.activeElement).toBe(previous);
   });
 
-  it('opens the Action facet on the moment’s action from its label', async () => {
+  it('opens the Actions pane on the moment’s action from its label', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
     fireEvent.click(screen.getByRole('button', { name: 'Previous change' }));
-    expect(tab('State')).toBe('true');
-    const label = screen.getByTitle('Open action');
+    expect(pane()).toBeNull();
+    const label = screen.getByTitle('Show in Actions');
     label.focus();
     fireEvent.click(label);
-    expect(tab('Action')).toBe('true');
-    const level = document.querySelector<HTMLElement>(
-      '[data-level]:not([data-covered])',
-    )!;
-    expect(level.textContent).toContain('setResponse');
-    expect(level.textContent).toContain('dispatchedAt');
-    // the subject stays, and so does focus
-    expect(level.querySelector('[aria-current="page"]')).toBeNull();
-    expect(document.activeElement).toBe(label);
+    expect(pane()).toBeTruthy();
+    const row = rows()[0];
+    expect(row.getAttribute('aria-current')).toBe('true');
+    expect(row.parentElement!.textContent).toContain('setResponse');
+    expect(row.parentElement!.textContent).toContain('dispatchedAt');
+    // the subject stays; focus moves to the action's step, open under the row
+    expect(top()!.querySelector('[aria-current="page"]')).toBeNull();
+    const step = document.activeElement as HTMLElement;
+    expect(row.parentElement!.contains(step)).toBe(true);
+    expect(step.getAttribute('aria-current')).toBe('true');
+    expect(step.textContent).toContain('setResponse');
   });
 
   it('dims the marks that left the subject alone, which the steps skip', async () => {
@@ -377,11 +381,9 @@ describe('Store Timeline lanes', () => {
     expect(scrubber().compareDocumentPosition(timeline)).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
-    expect(
-      timeline.compareDocumentPosition(
-        screen.getByRole('tablist', { name: 'Store' }),
-      ),
-    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(timeline.compareDocumentPosition(stateBar())).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
     // its scroller is kept from before the first action, so it follows from it
     await act(() => ctrl().fetch(getPosts));
     expect(lanes()).toBe(timeline);
@@ -448,10 +450,10 @@ describe('Store Timeline lanes', () => {
     expect(tracks(timeline).scrollLeft).toBe(900);
     fireEvent.keyDown(timeline, { key: 'ArrowLeft' });
 
-    // the lanes stay above the Action facet, without State's view switch
-    fireEvent.click(screen.getByRole('tab', { name: 'Action' }));
+    // the lanes stay above the Actions pane, as does State's view switch
+    togglePane();
     expect(lanes()).toBe(timeline);
-    expect(screen.queryByRole('group', { name: 'Store view' })).toBeNull();
+    expect(screen.getByRole('group', { name: 'Store view' })).toBeTruthy();
     expect(marks[1].hasAttribute('data-selected')).toBe(true);
     // collapsed, the scrubber keeps the moment
     toggle();
@@ -694,14 +696,13 @@ describe('Store Timeline sheet', () => {
     toggle();
     const timeline = lanes();
     const close = screen.getByRole('button', { name: 'Close timeline' });
-    // in the tabs' box, before them, not between the scrubber and the tabs
-    const body = screen.getByRole('tablist', { name: 'Store' }).parentElement!
-      .parentElement!;
+    // in the content's box, before it, not between the scrubber and the bar
+    const body = stateBar().parentElement!.parentElement!;
     expect(body.contains(timeline)).toBe(true);
     expect(body.contains(scrubber())).toBe(false);
     expect(revealBox(timeline).contains(close)).toBe(true);
-    // the tabs and content stay put under it, inert
-    const tabs = screen.getByRole('tablist', { name: 'Store' });
+    // the bar and content stay put under it, inert
+    const tabs = stateBar();
     expect(tabs.closest('[inert]')).toBeTruthy();
     // ✕ closes it
     fireEvent.click(close);
@@ -782,7 +783,7 @@ describe('Store Timeline sheet', () => {
 });
 
 describe('Store Actions pane', () => {
-  it('sits beside the facet on a wide panel, swapped in for it when narrow', async () => {
+  it('sits beside the state on a wide panel, swapped in for it when narrow', async () => {
     const { ctrl } = mountAt(800);
     await act(() => ctrl().fetch(getPosts));
     expect(pane()).toBeNull();
@@ -793,30 +794,26 @@ describe('Store Actions pane', () => {
     expect(pane()).toBeTruthy();
     expect(top()).toBeTruthy();
     expect(rows()).toHaveLength(1);
-    // narrow, it takes the facet's place; a row keeps it to browse
+    // narrow, it takes the state's place, which stays mounted but inert
     resize(360);
     expect(pane()).toBeTruthy();
     expect(top()).toBeNull();
+    expect(
+      document.querySelector('[data-level]')!.closest('[hidden]'),
+    ).toBeTruthy();
+    // a row keeps it, showing what its action did under it
     fireEvent.click(rows()[0]);
     expect(pane()).toBeTruthy();
     expect(rows()[0].getAttribute('aria-current')).toBe('true');
-    // its › shows the Action facet in its place
-    fireEvent.click(
-      within(rows()[0].parentElement!).getAllByRole('button', {
-        name: 'Open action',
-      })[0],
-    );
-    expect(pane()).toBeNull();
-    expect(button.getAttribute('aria-pressed')).toBe('false');
-    expect(tab('Action')).toBe('true');
-    expect(top()!.textContent).toContain('setResponse');
-    // and so does a chip, drilling into what the action changed
-    togglePane();
+    expect(rows()[0].parentElement!.textContent).toContain('dispatchedAt');
+    // a chip closes it, drilling into what the action changed, with focus
     fireEvent.click(within(rows()[0]).getByRole('button', { name: /Post 1/ }));
     expect(pane()).toBeNull();
+    expect(button.getAttribute('aria-pressed')).toBe('false');
     expect(top()!.querySelector('[aria-current="page"]')!.textContent).toBe(
       'Post 1',
     );
+    expect(top()!.contains(document.activeElement)).toBe(true);
     // wide again, both show
     togglePane();
     resize(800);
@@ -824,7 +821,7 @@ describe('Store Actions pane', () => {
     expect(top()).toBeTruthy();
   });
 
-  it('takes focus from the facet it swaps out, to its toggle', async () => {
+  it('takes focus from the state it swaps out, to its toggle, and back as it swaps in', async () => {
     const { ctrl } = mountAt(800);
     await act(() => ctrl().fetch(getPosts));
     togglePane();
@@ -833,5 +830,10 @@ describe('Store Actions pane', () => {
     expect(document.activeElement).toBe(
       screen.getByRole('button', { name: 'Actions' }),
     );
+    // closing the pane from a row brings focus to the level it reveals
+    rows()[0].focus();
+    togglePane();
+    expect(pane()).toBeNull();
+    expect(document.activeElement).toBe(top());
   });
 });

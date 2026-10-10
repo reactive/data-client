@@ -12,9 +12,9 @@ import {
   actionName,
   groupEntriesOf,
   joinedFetches,
-  touched,
   type ActionGroup,
   type RequestGroup,
+  type SubjectFilter,
 } from './actionGroups';
 import type ActionLog from './actionLog';
 import { stepMoment, type LogEntry } from './actionLog';
@@ -33,7 +33,7 @@ import {
 } from './ActionsView';
 import { NARROW_WIDTH } from './columns';
 import { useHoldFocus } from './dom';
-import { useNavState, type View } from './nav';
+import { useNavState } from './nav';
 import styles from './store.module.css';
 import { useTabStorage } from '../../../../utils/tabStorage';
 
@@ -120,14 +120,14 @@ function useScale() {
 /** Draws groups along `scale`: requests as spans from fetch to response,
  * everything else as marks, placed as fractions of the track (`--tl-f`).
  * Picking an action the store saw shows State as it was right after it.
- * Below the store, the marks that left `subject` alone are dimmed */
+ * The marks `hit` says left the subject alone are dimmed */
 function drawer({
   log,
   scale,
   joined,
   since,
   selected,
-  subject,
+  hit,
   onSelect,
 }: {
   log: ActionLog;
@@ -135,7 +135,7 @@ function drawer({
   joined: ReadonlySet<LogEntry>;
   since: number;
   selected: number | null;
-  subject: View;
+  hit: SubjectFilter['hit'];
   onSelect: (seq: number) => void;
 }) {
   const frac = (x: number) => x / scale.width;
@@ -143,7 +143,7 @@ function drawer({
   const mark = (entry: LogEntry, extra?: string) => {
     const label = `${actionName(entry.action)} at ${seconds(entry.at - since)}s`;
     const style = pos(scale.x.get(entry.seq)!);
-    const dim = !!entry.store && !touched(log, subject, entry);
+    const dim = !!entry.store && !hit(entry);
     // only an action the store saw has a state to show
     return entry.store ?
         <button
@@ -214,21 +214,21 @@ function drawer({
 }
 
 /** The whole history in one lane, fit to the panel's width, with the moment
- * on it: ‹ › and the arrow keys step through the changes to `subject` (past
- * the newest is live, as End is), a mark lands on its action. Says which
- * action State is shown after, while it shows the past, which opens the
- * Action facet; `▾` expands the timeline */
+ * on it: ‹ › and the arrow keys step through the actions `hit` says
+ * touched the subject (past the newest is live, as End is), a mark lands on
+ * its action. Says which action State is shown after, while it shows the
+ * past, which shows it in the Actions pane; `▾` expands the timeline */
 export const Scrubber = memo(function Scrubber({
   entry,
-  subject,
+  hit,
   expanded,
   expandRef,
   onExpand,
 }: {
   /** The action State is shown after; missing while live */
   entry?: LogEntry;
-  /** The top level's view: what the steps follow */
-  subject: View;
+  /** What the steps follow: the subject's actions */
+  hit: SubjectFilter['hit'];
   /** Whether the timeline is shown under it */
   expanded: boolean;
   /** The ▾, for focus to return to as the timeline shuts */
@@ -236,18 +236,18 @@ export const Scrubber = memo(function Scrubber({
   onExpand: (expanded: boolean) => void;
 }) {
   const { log, history, groups } = useActions();
-  const { seq: selected, set: onSelect, setFacet } = useNavState();
+  const { seq: selected, set: onSelect, show } = useNavState();
   const { entries, since } = history;
   const { joined, shown, scale } = useScale();
-  const earlier = stepMoment(log, entries, selected, -1, subject);
-  const later = stepMoment(log, entries, selected, 1, subject);
+  const earlier = stepMoment(entries, selected, -1, hit);
+  const later = stepMoment(entries, selected, 1, hit);
   const { pos, drawn } = drawer({
     log,
     scale,
     joined,
     since,
     selected,
-    subject,
+    hit,
     onSelect,
   });
   const at = selected === null ? undefined : scale.x.get(selected);
@@ -346,8 +346,8 @@ export const Scrubber = memo(function Scrubber({
           <button
             type="button"
             className={styles.snapshotAction}
-            title="Open action"
-            onClick={() => setFacet('action')}
+            title="Show in Actions"
+            onClick={() => show(entry.seq)}
           >
             <ActionName entry={entry} />
           </button>
@@ -367,13 +367,13 @@ export const Scrubber = memo(function Scrubber({
  * it; the arrow keys step as the scrubber's ‹ › do */
 export default memo(function Timeline({
   width,
-  subject,
+  hit,
   onPick,
 }: {
   /** Panel width (px) */
   width: number;
-  /** The top level's view: what the steps follow */
-  subject: View;
+  /** What the steps follow: the subject's actions */
+  hit: SubjectFilter['hit'];
   /** Called as a pick lands on content under the timeline: a mark (not as
    * the keys step) */
   onPick?: () => void;
@@ -457,7 +457,7 @@ export default memo(function Timeline({
     else set(null);
   };
   const step = (by: -1 | 1) => {
-    const to = stepMoment(log, entries, selected, by, subject);
+    const to = stepMoment(entries, selected, by, hit);
     if (to !== undefined) set(to);
     // live already, it brings the newest back into view
     else if (by > 0) toNewest();
@@ -501,7 +501,7 @@ export default memo(function Timeline({
     joined,
     since,
     selected,
-    subject,
+    hit,
     onSelect,
   });
 

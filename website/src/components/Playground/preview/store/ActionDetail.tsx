@@ -1,109 +1,71 @@
 import { actionTypes, type ActionTypes, type State } from '@data-client/react';
 import clsx from 'clsx';
-import React, { useRef } from 'react';
+import React, { useMemo } from 'react';
 
+import { actionKey, touches, type Change } from './actionGroups';
+import { isRecordChange, type LogEntry } from './actionLog';
 import {
-  actionKey,
-  groupEntriesOf,
-  groupOf,
-  joinedFetches,
-  touches,
-  type Change,
-} from './actionGroups';
-import { findEntry, isRecordChange, type LogEntry } from './actionLog';
-import {
+  AtMoment,
   ChangeChip,
   KeyLabel,
   spanOf,
-  Time,
   TypeName,
   useActions,
 } from './ActionsView';
-import type { Header } from './DiveViews';
-import { useHoldFocus } from './dom';
-import { errorText } from './model';
-import { ActionSpanContext, useNavState, type View } from './nav';
+import { EndpointBody } from './Details';
+import { errorText, findRow, isEndpointRow } from './model';
+import {
+  ActionSpanContext,
+  NavContext,
+  useNav,
+  type Nav,
+  type View,
+} from './nav';
 import { plain } from './refs';
 import styles from './store.module.css';
-import { Field, Inline } from './Value';
+import { Block, Field, Inline } from './Value';
 
-/** The moment's action (live, the newest): what it changed about `subject`,
- * then the action itself. Found here, as the moment moves under a level's
- * memoized content (see `Level`) */
-export function ActionFacet({
+/** What an action did to `subject` (every row at the store, a line saying
+ * it left the subject alone), then the action itself */
+export function ActionDetail({
+  entry,
   subject,
-  header,
 }: {
+  entry: LogEntry;
   subject: View;
-  header: Header;
 }) {
-  const { log, history, groups } = useActions();
-  const { seq, set } = useNavState();
-  const entry =
-    seq === null ? history.entries.at(-1) : findEntry(history.entries, seq);
-  if (!entry)
-    return (
-      <>
-        {header(null)}
-        <p className={styles.empty}>
-          {seq === null ?
-            'Nothing dispatched yet. The newest action shows here as the preview runs.'
-          : 'No longer in the log'}
-        </p>
-      </>
-    );
-  const group = groupOf(groups, entry.seq);
-  // the row's steps, without the fetches deduped into a request in flight
-  // (the list shows them as one line, the timeline not at all); a deduped
-  // fetch itself has no place among them, so no stepper
-  const joined = group ? joinedFetches(group) : new Set<LogEntry>();
-  const row =
-    group && !joined.has(entry) ?
-      groupEntriesOf(group).filter(e => !joined.has(e))
-    : [];
+  const { log } = useActions();
   const changes = log.changes(entry).filter(c => touches(subject, c));
   const changed = changes.filter(isRecordChange);
   const refreshed = changes.length - changed.length;
+  const removed =
+    subject.kind === 'record' && changed.some(c => c.kind === 'removed');
   return (
-    <>
-      {header(null)}
-      <div className={styles.record}>
-        <div className={styles.actHead}>
-          <TypeName entry={entry} />
-          <KeyLabel value={actionKey(entry.action)} />
-          <span className={styles.actMeta}>
-            <Time at={entry.at} />
-            {row.length > 1 && (
-              <GroupStep row={row} seq={entry.seq} onStep={set} />
+    <div className={styles.actBody}>
+      <div className={clsx(styles.detail, styles.actDetail)}>
+        {entry.store ?
+          <>
+            <EntryChanges entry={entry} changes={changed} />
+            {removed && <RemovedValue id={subject.id} seq={entry.seq} />}
+            {refreshed > 0 && (
+              <span className={styles.dim}>
+                {changed.length ? 'Also stored' : 'Stored'} {refreshed} row
+                {refreshed === 1 ? '' : 's'} again, unchanged
+              </span>
             )}
-          </span>
-        </div>
-        <div className={clsx(styles.detail, styles.actDetail)}>
-          {entry.store ?
-            <>
-              <EntryChanges entry={entry} changes={changed} />
-              {refreshed > 0 && (
-                <span className={styles.dim}>
-                  {changed.length ? 'Also stored' : 'Stored'} {refreshed} row
-                  {refreshed === 1 ? '' : 's'} again, unchanged
-                </span>
-              )}
-              {!changes.length && (
-                <span className={styles.dim}>{unchangedNote(subject)}</span>
-              )}
-            </>
-          : <span className={styles.dim}>{unappliedNote(entry.action)}</span>}
-        </div>
+            {!changes.length && (
+              <span className={styles.dim}>{unchangedNote(subject)}</span>
+            )}
+          </>
+        : <span className={styles.dim}>{unappliedNote(entry.action)}</span>}
       </div>
-      <div className={styles.levelFoot}>
-        <div className={clsx(styles.fields, styles.metaList)}>
-          <Field name="dispatchedAt" node={{ t: 'val', v: entry.at }} />
-          {actionFields(entry.action).map(([name, value]) => (
-            <Field key={name} name={name} node={plain(value)} />
-          ))}
-        </div>
+      <div className={clsx(styles.fields, styles.metaList)}>
+        <Field name="dispatchedAt" node={{ t: 'val', v: entry.at }} />
+        {actionFields(entry.action).map(([name, value]) => (
+          <Field key={name} name={name} node={plain(value)} />
+        ))}
       </div>
-    </>
+    </div>
   );
 }
 
@@ -117,50 +79,6 @@ function unchangedNote(subject: View) {
     default:
       return 'No change to this record';
   }
-}
-
-/** Steps the moment through the actions of the row this one belongs to */
-function GroupStep({
-  row,
-  seq,
-  onStep,
-}: {
-  row: readonly LogEntry[];
-  seq: number;
-  onStep: (seq: number) => void;
-}) {
-  const i = row.findIndex(e => e.seq === seq);
-  const earlier = row[i - 1];
-  const later = row[i + 1];
-  // an end reached turns off the button pressed: focus stays on the other
-  const pager = useRef<HTMLSpanElement>(null);
-  const hold = useHoldFocus(pager);
-  const step = (to: LogEntry | undefined) => {
-    if (!to) return;
-    hold();
-    onStep(to.seq);
-  };
-  return (
-    <span className={styles.pager} ref={pager}>
-      <button
-        type="button"
-        aria-label="Previous action in this row"
-        disabled={!earlier}
-        onClick={() => step(earlier)}
-      >
-        ‹
-      </button>
-      {i + 1} of {row.length}
-      <button
-        type="button"
-        aria-label="Next action in this row"
-        disabled={!later}
-        onClick={() => step(later)}
-      >
-        ›
-      </button>
-    </span>
-  );
 }
 
 /** Why an action that never reached the store is still in the log */
@@ -223,7 +141,7 @@ function ChangeLine({
   );
 }
 
-export function ChangeBody({
+function ChangeBody({
   change,
   before,
   after,
@@ -284,6 +202,36 @@ export function ChangeBody({
     default:
       return <span className={styles.dim}>{change.kind}</span>;
   }
+}
+
+/** The whole record `id` as the action that removed it found it. What it
+ * links to opens at that store too */
+function RemovedValue({ id, seq }: { id: string; seq: number }) {
+  const { then } = useActions();
+  const nav = useNav()!;
+  const shown = then({ seq, before: true });
+  const atNav = useMemo<Nav | undefined>(
+    () =>
+      shown && {
+        ...nav,
+        model: shown.model,
+        push: (view, next = { seq, before: true }) => nav.push(view, next),
+      },
+    [nav, shown, seq],
+  );
+  const row = shown && findRow(shown.model, id);
+  if (!row || !atNav)
+    return <span className={styles.dim}>No longer in the log</span>;
+  return (
+    <AtMoment then={shown}>
+      <NavContext.Provider value={atNav}>
+        <span className={styles.dim}>Removed; it was:</span>
+        {isEndpointRow(row) ?
+          <EndpointBody row={row} />
+        : <Block node={row.value} />}
+      </NavContext.Provider>
+    </AtMoment>
+  );
 }
 
 const get = (row: unknown, field: string) =>

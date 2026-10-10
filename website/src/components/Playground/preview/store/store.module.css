@@ -40,7 +40,7 @@
   flex-direction: column;
 }
 
-/* State | Action, then State's view switch; the same band as the other headers */
+/* State's view switch and the Actions toggle; the same band as the other headers */
 .bar {
   flex: none;
   display: flex;
@@ -51,55 +51,34 @@
   color: var(--pg-tab);
   font: 500 var(--ifm-code-font-size) / 1 var(--ifm-font-family-base);
 }
-.tab {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0 0.6rem;
-  border: 0;
-  background: none;
-  color: inherit;
-  font: inherit;
-  opacity: 0.7;
-  cursor: pointer;
-  transition: opacity var(--motion-snappy);
-}
-.tab[aria-selected='true'],
-.tab:hover {
-  opacity: 1;
-}
-.tab:focus-visible {
-  outline: 2px solid var(--ifm-color-primary);
-  outline-offset: -4px;
-}
-.tab .count {
-  color: inherit;
-  opacity: 0.65;
-  font-size: 10.5px;
-}
-.tab[aria-selected='true']::after {
-  content: '';
-  position: absolute;
-  left: 0.5rem;
-  right: 0.5rem;
-  bottom: 0;
-  height: 2px;
-  border-radius: 1px 1px 0 0;
-  background: var(--ifm-color-primary);
-}
-/* The facets and their bar: inert under the sheet */
+/* The bar, State and the pane: inert under the sheet */
 .content {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
 }
-/* The facet of the subject stack, and the Actions pane beside it */
+/* The subject stack, and the Actions pane beside it */
 .tabPanel {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
+}
+/* State: the levels; narrow, hidden while the pane takes its place */
+.state {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.state[hidden] {
+  display: none;
+}
+.barTitle {
+  display: flex;
+  align-items: center;
+  padding: 0 0.6rem;
 }
 /* the bar's right end: State's view switch, the Actions toggle */
 .barEnd {
@@ -145,8 +124,8 @@
   stroke-width: 1.3;
   stroke-linecap: round;
 }
-/* The Actions pane: the subject's actions, beside the facet with a scroll
-   of its own, or (narrow) swapped in for it */
+/* The Actions pane: the subject's actions, beside State with a scroll of
+   its own, or (narrow) swapped in for it */
 .pane {
   flex: 0 0 clamp(14rem, 42%, 24rem);
   min-width: 0;
@@ -926,7 +905,7 @@ div.row {
   padding: 0.4rem 0.75rem 0.5rem;
 }
 
-/* ---- The timeline's list lens, and the Action facet ---- */
+/* ---- The Actions pane's list, and the moment's action in it ---- */
 .empty {
   margin: 0;
   padding: 1rem 0.75rem;
@@ -946,55 +925,21 @@ div.actRow {
   flex-direction: column;
   align-items: stretch;
   gap: 0.1rem;
-  padding: 0.35rem 2rem 0.35rem 0.75rem;
+  padding: 0.35rem 0.75rem;
 }
-/* the moment's action, where the scrubber stands */
+/* the moment's action, when the list leaves it out */
+.pinned {
+  flex: none;
+  box-shadow: inset 0 -1px 0 var(--store-line-strong);
+}
+/* the moment's action: its row, and its step when the row is open */
 .actRow[aria-current],
-.stepRow[aria-current],
-.gapRow[aria-current] {
+.stepRow[aria-current] {
   box-shadow: inset 2px 0 0 var(--store-stale);
   background: var(--store-stale-bg);
 }
-/* a row's ›: the Action facet on it, over the row's right end */
-.actOpen {
-  position: absolute;
-  top: 0.3rem;
-  right: 0.4rem;
-  width: 1.25rem;
-  height: 1.25rem;
-  padding: 0;
-  border: 0;
-  border-radius: 4px;
-  background: none;
-  color: var(--store-muted);
-  font: 500 14px / 1 var(--ifm-font-family-base);
-  cursor: pointer;
-}
-.actOpen:hover {
-  background: var(--store-selected);
-  color: var(--store-key);
-}
-.actOpen:focus-visible {
-  outline: 2px solid var(--store-key);
-}
-/* where actions the log dropped changed the record */
-div.gapRow {
-  padding: 0.25rem 0.75rem;
-  font-size: 11px;
-}
 .step {
   position: relative;
-}
-.step > .actOpen {
-  top: 0.1rem;
-  right: 0.3rem;
-}
-/* the Action facet's head: the action, its time and its row's stepper */
-.record > .actHead {
-  padding: 0 0.75rem 0.35rem;
-}
-.record > .actHead .pager {
-  margin-left: 0.4rem;
 }
 .actHead {
   display: flex;
@@ -1093,7 +1038,8 @@ div.gapRow {
   background: var(--store-stale);
 }
 
-/* an open row's actions; a long-running poll scrolls on its own */
+/* an open row's actions; a long-running poll scrolls on its own, unless
+   the moment's detail is under one of its steps */
 .steps {
   margin: 0 0.75rem 0.35rem 1.05rem;
   border-left: 1px solid var(--store-line-strong);
@@ -1101,10 +1047,13 @@ div.gapRow {
   overflow-y: auto;
   overscroll-behavior: contain;
 }
+.steps[data-detail] {
+  max-height: none;
+}
 div.stepRow {
   flex-wrap: wrap;
   gap: 0.1rem 0.6rem;
-  padding: 0.15rem 1.8rem 0.15rem 0.6rem;
+  padding: 0.15rem 0.6rem;
 }
 .stepRow .actTime {
   min-width: 3.2em;
@@ -1142,6 +1091,25 @@ div.joined {
 }
 
 /* an action's own level */
+/* what the moment's action did, under its row or step, then the action */
+.actBody {
+  padding-bottom: 0.3rem;
+}
+.actBody > .detail {
+  padding: 0.3rem 0.75rem 0.45rem;
+}
+.actBody > .metaList {
+  margin: 0;
+  padding: 0.4rem 0.75rem 0.2rem;
+  /* narrow as the pane is, the values keep room: names take only what
+     they need, and a nested object goes under its name, indented */
+  grid-template-columns: max-content minmax(0, 1fr);
+  overflow-wrap: anywhere;
+}
+.actBody .fields .fields {
+  grid-column: 1 / -1;
+  padding-left: 1rem;
+}
 .actDetail {
   display: flex;
   flex-direction: column;

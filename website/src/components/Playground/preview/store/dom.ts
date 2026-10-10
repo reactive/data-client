@@ -100,8 +100,3 @@ export function useHoldFocus(ref: React.RefObject<HTMLElement | null>) {
   });
   return hold;
 }
-
-/** Moves focus from a control to the level it is in, ahead of a change that
- * unmounts the control (a facet switch), so it doesn't fall to the page */
-export const focusLevel = (from: Element) =>
-  from.closest<HTMLElement>('[data-level]')?.focus({ preventScroll: true });
