@@ -21,7 +21,7 @@ export interface InteractiveEditorProps {
   code: string;
   /** Monaco model path (see ../monaco/modelPath.ts) */
   path?: string;
-  /** Runs once Monaco has loaded, before this editor creates its model */
+  /** Runs when this editor mounts, after Monaco loads and before it creates its model */
   beforeMount?: (monaco: typeof Monaco) => void;
   /** Called with tabIndex whenever this editor gains focus */
   onFocus: (tabIndex: number) => void;

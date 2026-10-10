@@ -1,5 +1,6 @@
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import Translate from '@docusaurus/Translate';
+import useIsomorphicLayoutEffect from '@docusaurus/useIsomorphicLayoutEffect';
 import clsx from 'clsx';
 import type * as Monaco from 'monaco-editor';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
@@ -89,7 +90,9 @@ export default function EditorSurface({
   // Every file's model must exist before any is type-checked, or imports of
   // later tabs read as missing modules (see createMissingModels).
   const documentsRef = useRef(documents);
-  documentsRef.current = documents;
+  useIsomorphicLayoutEffect(() => {
+    documentsRef.current = documents;
+  });
   const createModels = useCallback(
     (monaco: typeof Monaco) =>
       createMissingModels(

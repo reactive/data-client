@@ -7,7 +7,7 @@ let typeScriptWorkerRequested = false;
 
 /**
  * Creates the models of an editor surface's files that don't have one yet.
- * Call it before the surface's first editor mounts.
+ * Call it as each editor mounts; the surface's first editor creates them all.
  *
  * Monaco type-checks a model as soon as it's created, against only the files
  * already synced to the TS worker, and doesn't re-check it when a file it
@@ -37,9 +37,10 @@ export function createMissingModels(
   for (const { uri, code, language } of missing) {
     monaco.editor.createModel(code, language, uri);
   }
-  // Until the first TypeScript model exists the TS worker isn't registered.
-  // Meanwhile no model is checked, and the worker starts with every model
-  // that exists by then, so surfaces created before this resolves are safe.
+  // Until the first TypeScript model exists the TS worker isn't registered,
+  // and no model is checked. Once checks start, the worker either starts with
+  // every model (eager sync) or re-checks them all when the type libs land
+  // (./setup.ts), so surfaces created before this resolves are safe.
   if (!typeScriptWorkerRequested && typeScriptUris.length) {
     typeScriptWorkerRequested = true;
     void monaco.typescript.getTypeScriptWorker().then(getWorker => {
