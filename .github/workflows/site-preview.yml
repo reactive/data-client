@@ -199,7 +199,7 @@ jobs:
       url: ${{ steps.deploy.outputs.url }}
     env:
       # renovate: datasource=npm depName=vercel
-      VERCEL_CLI_VERSION: 63.1.0
+      VERCEL_CLI_VERSION: 63.1.2
       TARGET: ${{ needs.build.outputs.target }}
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
