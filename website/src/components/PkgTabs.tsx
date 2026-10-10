@@ -11,28 +11,25 @@ interface Props {
   upgrade?: boolean;
 }
 
+const MANAGERS = [
+  { label: 'NPM', value: 'npm' },
+  { label: 'Yarn', value: 'yarn' },
+  { label: 'pnpm', value: 'pnpm' },
+] as const;
+
 export default function PkgTabs({ pkgs, dev = false }: Props) {
   return (
-    <Tabs
-      defaultValue="npm"
-      groupId="node-packages-program"
-      values={[
-        { label: 'NPM', value: 'npm' },
-        { label: 'Yarn', value: 'yarn' },
-        { label: 'pnpm', value: 'pnpm' },
-        // dev dependencies are build/test tooling, which a browser CDN can't provide
-        ...(dev ? [] : [{ label: 'esm.sh', value: 'esm' }]),
-      ]}
-    >
-      {(['npm', 'yarn', 'pnpm'] as const).map(manager => (
-        <TabItem key={manager} value={manager}>
+    <Tabs defaultValue="npm" groupId="node-packages-program">
+      {MANAGERS.map(({ label, value }) => (
+        <TabItem key={value} value={value} label={label}>
           <CodeBlock className="language-bash">
-            {installCommand(manager, pkgs, { dev })}
+            {installCommand(value, pkgs, { dev })}
           </CodeBlock>
         </TabItem>
       ))}
+      {/* dev dependencies are build/test tooling, which a browser CDN can't provide */}
       {!dev && (
-        <TabItem value="esm">
+        <TabItem value="esm" label="esm.sh">
           <CodeBlock className="language-html">
             {`<script type="importmap">
 {
