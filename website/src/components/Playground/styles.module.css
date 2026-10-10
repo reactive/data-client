@@ -302,10 +302,7 @@ div.playgroundTextEdit > .playgroundHeader,
 
 /* Row layout: the Store slides over the code from the preview's edge, so the
    preview stays usable beside it (click, watch the store change); the code's
-   corner badge toggles it, not the side strip (still drawn while loading) */
-.playgroundContainer.row .debugToggle {
-  display: none;
-}
+   corner badge toggles it, not the side strip */
 .playgroundTextEdit.withCover {
   display: flex;
   flex-direction: column;
@@ -371,15 +368,14 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 
 /* The Store toggle in the code's corner, over the Store as it slides in
-   under it. Both labels share one cell (so its width never changes) and
-   trade places on the drawer's spring: transform and opacity only */
+   under it; its label rises out as the other rises in */
 .storeBadge {
+  --swap-in: 0 110%;
+  --swap-out: 0 -110%;
   z-index: 2;
   align-self: end;
   justify-self: end;
   margin: 0.75rem;
-  display: inline-grid;
-  overflow: hidden;
   height: 1.9rem;
   padding: 0 0.8rem;
   border-radius: 999px;
@@ -392,7 +388,6 @@ div.playgroundTextEdit > .playgroundHeader,
   letter-spacing: 0.06em;
   text-transform: uppercase;
   white-space: nowrap;
-  transition: background-color var(--motion-snappy);
 }
 .storeBadge:hover {
   background: var(--pg-tab-hover-bg)
@@ -403,34 +398,19 @@ div.playgroundTextEdit > .playgroundHeader,
   outline-offset: 2px;
 }
 .storeBadge > * {
-  grid-area: 1 / 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5em;
-  transition:
-    translate var(--motion-smooth),
-    opacity var(--motion-smooth);
-}
-/* Code waits below; open, Store leaves upward as Code rises into place */
-.storeBadge > :last-child,
-.storeBadge[aria-pressed='true'] > :first-child {
-  translate: 0 110%;
-  opacity: 0;
-}
-.storeBadge[aria-pressed='true'] > :first-child {
-  translate: 0 -110%;
-}
-.storeBadge[aria-pressed='true'] > :last-child {
-  translate: 0 0;
-  opacity: 1;
 }
 .storeBadgeDot {
   width: 0.45rem;
   height: 0.45rem;
   border-radius: 50%;
-  background: #7fd1a0;
-  box-shadow: 0 0 0 3px rgba(127, 209, 160, 0.18);
+  /* the Store's fresh color */
+  color: #7fd1a0;
+  background: currentColor;
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 18%, transparent);
 }
 .storeBadgeCode {
   color: var(--ifm-color-primary);
@@ -445,29 +425,37 @@ div.playgroundTextEdit > .playgroundHeader,
 .playgroundHeader.tabControls .title {
   padding: 0.75rem;
 }
-/* the title names what shows: "Store" slides in over the code's name from
-   the preview's side, on the Store drawer's own spring */
-.titleSwap {
+/* Two labels in one cell (so the box never resizes) trading places on the
+   Store drawer's spring, transform and opacity only: the second waits at
+   --swap-in and, `data-swapped`, takes over as the first leaves to
+   --swap-out */
+.swap {
   display: inline-grid;
   overflow: hidden;
 }
-.titleSwap > * {
+.swap > * {
   grid-area: 1 / 1;
   transition:
     translate var(--motion-smooth),
     opacity var(--motion-smooth);
 }
-.titleSwap > :last-child {
-  translate: 100% 0;
+.swap > :last-child {
+  translate: var(--swap-in);
   opacity: 0;
 }
-.titleSwap[data-covered] > :first-child {
-  translate: -40% 0;
+.swap[data-swapped] > :first-child {
+  translate: var(--swap-out);
   opacity: 0;
 }
-.titleSwap[data-covered] > :last-child {
+.swap[data-swapped] > :last-child {
   translate: 0 0;
   opacity: 1;
+}
+/* the title names what shows: the cover's slides in over the code's name
+   from the preview's side */
+.titleSwap {
+  --swap-in: 100% 0;
+  --swap-out: -40% 0;
 }
 
 /* live editor v3 */
@@ -509,20 +497,11 @@ div.playgroundTextEdit > .playgroundHeader,
 .subtabs .tab:not(.selected):hover {
   background-color: var(--pg-bar);
 }
-.controlTabs {
+/* over the Store (the cover) the selected control joins the Store's top,
+   code-colored like any selected tab */
+.controlTabs:not(.overCover) {
   --pg-tab-selected-bg: var(--pg-tab-hover-bg);
   --pg-tab-selected: var(--pg-tab-hover);
-}
-/* Over the Store the selected control joins the Store's top instead, on the
-   drawer's own spring */
-.controlTabs.overStore {
-  --pg-tab-selected-bg: var(--monoco-code-background);
-  --pg-tab-selected: #e3e8f2;
-}
-.controlTabs .tab.selected {
-  transition:
-    background-color var(--motion-smooth),
-    color var(--motion-smooth);
 }
 
 :root[data-theme='dark'] .playgroundPreview {

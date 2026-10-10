@@ -109,8 +109,7 @@ export default function StorePanel({
   // state as a whole (`snapshot`) or only what the moment's action changed
   // (`diff`). Each Playground's own, unlike the table or tree view
   const [tab, setTab] = useState<Tab>('state');
-  const [mode, setMode] = useState<'snapshot' | 'diff'>('snapshot');
-  const diffMode = mode === 'diff';
+  const [diffMode, setDiffMode] = useState(false);
   // the peek: the subject's actions over the store's right side, to move the
   // moment by, as the mouse rests on the scrubber's list button; gone as it
   // leaves both. Each panel's own: a page holds several, and a press
@@ -322,16 +321,6 @@ export default function StorePanel({
       )?.focus({ preventScroll: true });
   }, [covered, pane]);
   const collapse = useCallback(() => setTimelineOpen(false), []);
-  // the peek drops from right under the scrubber's row of buttons
-  const [paneTop, setPaneTop] = useState(0);
-  useLayoutEffect(() => {
-    const row = listButton.current?.parentElement;
-    if (pane && row && panel.current)
-      setPaneTop(
-        row.getBoundingClientRect().bottom -
-          panel.current.getBoundingClientRect().top,
-      );
-  }, [pane]);
   // showing an action opens it in the Action tab, as the moment, over the
   // subject's actions (closing the peek and, narrow, the sheet)
   const show = useCallback(
@@ -345,7 +334,7 @@ export default function StorePanel({
       if (covered) focusLevel.current = true;
       if (narrow) collapse();
     },
-    [clearAt, setTab, showAction, closePane, covered, narrow, collapse],
+    [clearAt, showAction, closePane, covered, narrow, collapse],
   );
   // a mark picked on the timeline while the Action tab lists the actions
   // opens the one picked there, as the list's own rows do (in place, so
@@ -388,7 +377,7 @@ export default function StorePanel({
       push(view, at);
       closePane();
     },
-    [setTab, setView, push, closePane],
+    [setView, push, closePane],
   );
   // the subject's actions in full: the Action tab's first level
   const listed =
@@ -399,7 +388,7 @@ export default function StorePanel({
     closePane();
     setTab('action');
     actionsBack(1);
-  }, [closePane, setTab, actionsBack]);
+  }, [closePane, actionsBack]);
   // the tab shows the moment's action: picked again over the list, it goes
   // back to that
   const openActionTab = () => {
@@ -555,7 +544,7 @@ export default function StorePanel({
                           aria-label="Snapshot"
                           title="Snapshot: the store at the moment"
                           aria-pressed={!diffMode}
-                          onClick={() => setMode('snapshot')}
+                          onClick={() => setDiffMode(false)}
                         >
                           <SnapshotIcon />
                         </button>
@@ -564,7 +553,7 @@ export default function StorePanel({
                           aria-label="Diff"
                           title="Diff: only what the moment's action changed"
                           aria-pressed={diffMode}
-                          onClick={() => setMode('diff')}
+                          onClick={() => setDiffMode(true)}
                         >
                           <DiffIcon />
                         </button>
@@ -646,7 +635,6 @@ export default function StorePanel({
                     subject.kind === 'root' ? null : crumbLabel(subject, model)
                   }
                   narrow={narrow}
-                  top={paneTop}
                   toggle={listButton}
                   onHover={hoverPane}
                   onPick={set}

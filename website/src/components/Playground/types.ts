@@ -4,8 +4,6 @@ import type { MouseEventHandler } from 'react';
 export type FixtureOrInterceptor<T = any> = Fixture | Interceptor<T>;
 
 export interface PreviewProps<T = any> {
-  /** Remembers this Playground's Store choices (open, its tab) */
-  groupId: string;
   storeOpen: boolean;
   toggleStore: MouseEventHandler<HTMLElement>;
   row: boolean;

@@ -18,7 +18,6 @@ import styles from '../styles.module.css';
 import type { PreviewProps } from '../types';
 
 function Preview<T>({
-  groupId,
   storeOpen,
   toggleStore,
   row,

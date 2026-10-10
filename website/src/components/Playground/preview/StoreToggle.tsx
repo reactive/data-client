@@ -71,11 +71,7 @@ export function StoreHeaderToggle({
         styles.headerButton,
         styles.storeHeaderToggle,
       )}
-      title={
-        open ?
-          translate({ id: 'playground.store.hide', message: 'Hide Store' })
-        : translate({ id: 'playground.store.show', message: 'Show Store' })
-      }
+      title={toggleTitle(open)}
       aria-label={translate({ id: 'playground.store', message: 'Store' })}
       aria-pressed={open}
       disabled={!onClick}
@@ -99,13 +95,10 @@ export function StoreBadge({
   return (
     <button
       type="button"
-      className={clsx('clean-btn', styles.storeBadge)}
-      title={
-        open ?
-          translate({ id: 'playground.store.hide', message: 'Hide Store' })
-        : translate({ id: 'playground.store.show', message: 'Show Store' })
-      }
+      className={clsx('clean-btn', styles.swap, styles.storeBadge)}
+      title={toggleTitle(open)}
       aria-pressed={open}
+      data-swapped={open || undefined}
       onClick={onClick}
     >
       <span aria-hidden={open}>
@@ -119,6 +112,11 @@ export function StoreBadge({
     </button>
   );
 }
+
+const toggleTitle = (open: boolean) =>
+  open ?
+    translate({ id: 'playground.store.hide', message: 'Hide Store' })
+  : translate({ id: 'playground.store.show', message: 'Show Store' });
 
 /** Angle brackets around a slash */
 function CodeIcon() {

@@ -22,7 +22,6 @@ export interface LivePreviewProps<T> extends PreviewProps<T> {
 
 export default function LivePreview<T>({
   documents,
-  groupId,
   storeOpen,
   toggleStore,
   row,
@@ -80,7 +79,6 @@ export default function LivePreview<T>({
       >
         <Preview
           key={storeKey}
-          groupId={groupId}
           storeOpen={storeOpen}
           toggleStore={toggleStore}
           row={row}

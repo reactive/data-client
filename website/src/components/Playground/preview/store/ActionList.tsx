@@ -55,7 +55,7 @@ function useRows(filter: SubjectFilter) {
 /** A peek at `subject`'s actions as the mouse rests on the scrubber's list
  * button, to move the moment by: the list, under a head naming the subject
  * (`label`, none at the store) and counting them, dropping from under that
- * button (`top`, px into the panel) over the panel's right side (`narrow`,
+ * button (`toggle`) over the panel's right side (`narrow`,
  * most of it). Picking an action moves the moment
  * there, and the tab under it follows. It goes as the pointer leaves it, on
  * Escape or a press outside */
@@ -64,7 +64,6 @@ export function ActionsPane({
   filter,
   label,
   narrow,
-  top,
   toggle,
   onHover,
   onPick,
@@ -74,9 +73,8 @@ export function ActionsPane({
   filter: SubjectFilter;
   label: React.ReactNode;
   narrow: boolean;
-  top: number;
   /** Its button, which opens the list in full: a press there is not
-   * outside */
+   * outside, and the pane drops from under its row */
   toggle: React.RefObject<HTMLElement | null>;
   /** The pointer came into it (`true`) or left it */
   onHover: (inside: boolean, e: React.PointerEvent) => void;
@@ -86,6 +84,17 @@ export function ActionsPane({
 }) {
   const rows = useRows(filter);
   const ref = useRef<HTMLElement>(null);
+  // drops from right under its button's row; set on the node, so placing
+  // it re-renders nothing
+  useLayoutEffect(() => {
+    const pane = ref.current;
+    const row = toggle.current?.parentElement;
+    const frame = pane?.offsetParent;
+    if (pane && row && frame)
+      pane.style.top = `${
+        row.getBoundingClientRect().bottom - frame.getBoundingClientRect().top
+      }px`;
+  }, [toggle]);
   // a press outside closes it (another panel's toggle included)
   useEffect(() => {
     const onPress = (e: PointerEvent) => {
@@ -101,7 +110,6 @@ export function ActionsPane({
     <aside
       ref={ref}
       className={clsx(styles.pane, narrow && styles.paneNarrow)}
-      style={{ top }}
       aria-label="Actions"
       onPointerEnter={e => onHover(true, e)}
       onPointerLeave={e => onHover(false, e)}

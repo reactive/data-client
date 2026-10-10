@@ -57,7 +57,7 @@ DesignSystem/       components injected into preview scope
   Collapsed/unselected files render nothing until opened, to keep the HTML
   small, unless the document sets `ssr`: then its plain text is in the HTML,
   hidden by CSS, for crawlers.
-- The preview renders `previewLoading` (empty frame + Store toggle) on the
+- The preview renders `PreviewLoading` (empty frame + Store toggle) on the
   server, while loading, for bots, and while `hidden`.
 - Fixtures render server-side as JSON `CodeBlock`s; function responses are
   BrowserOnly (a stringified function differs between server and client
@@ -97,7 +97,7 @@ DesignSystem/       components injected into preview scope
 ### Mobile and bots
 
 - Mobile: editable react-live editor instead of Monaco; live preview still runs.
-- Bots: same editor fallback; preview stays `previewLoading` (never loads
+- Bots: same editor fallback; preview stays `PreviewLoading` (never loads
   `LivePreview`); StackBlitz embeds never load.
 - `DiffEditor` shows a two-`CodeBlock` grid instead of Monaco, with callout
   markers appended as trailing comments; caption and callout legend are
