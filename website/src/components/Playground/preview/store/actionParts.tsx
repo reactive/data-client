@@ -38,7 +38,7 @@ export interface Actions {
   readonly history: History;
   /** `history.entries` as the timeline's rows */
   readonly groups: readonly ActionGroup[];
-  /** The action State is shown after, while it shows the past */
+  /** The moment's action, while it is in the past */
   readonly until?: number;
   /** The store as an action left (or found) it, while the log has it */
   readonly then: (at: Moment) => Then | undefined;
@@ -281,17 +281,14 @@ export function Status({ group }: { group: ActionGroup }) {
 export function Dropped({
   group,
   all,
-  why,
 }: {
   group: ActionGroup;
   all: readonly LogEntry[];
-  /** Says why they are gone too */
-  why?: boolean;
 }) {
   const n = droppedIn(all, useLog().dropped);
   if (!n) return null;
   const text = droppedText(group, n);
-  return <span className={styles.dim}>{why ? notKept(text) : text}</span>;
+  return <span className={styles.dim}>{text}</span>;
 }
 
 /** How many earlier updates of `entries` the log no longer has */

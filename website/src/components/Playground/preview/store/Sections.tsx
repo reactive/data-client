@@ -1,7 +1,8 @@
 import clsx from 'clsx';
-import React from 'react';
+import React, { useContext } from 'react';
 
 import type { EntityTable, StoreModel } from './model';
+import { DiffContext } from './nav';
 import { plain } from './refs';
 import styles from './store.module.css';
 import { Field } from './Value';
@@ -75,4 +76,17 @@ export function Internals({ model }: { model: StoreModel }) {
       <Field name="indexes" node={plain(model.indexes)} />
     </div>
   );
+}
+
+/** Which of the store's sections to show, and how many rows its entities
+ * hold: a diff leaves out what it has nothing of, and the internals */
+export function useShownSections(model: StoreModel) {
+  const diff = useContext(DiffContext) !== null;
+  const entityCount = model.tables.reduce((n, t) => n + t.rows.length, 0);
+  return {
+    entityCount,
+    endpoints: !diff || model.endpoints.length > 0,
+    entities: !diff || entityCount > 0,
+    internals: !diff,
+  };
 }

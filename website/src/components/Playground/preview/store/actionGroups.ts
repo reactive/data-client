@@ -573,7 +573,7 @@ export function rowTimeline(
   id: string,
 ): readonly (Version | Missing)[] {
   // built once per history and row (a record's "changed by" and the
-  // Actions pane both ask), and as the log appends, only the new actions
+  // Actions list both ask), and as the log appends, only the new actions
   // are read; a log trimmed at the front starts over
   let rows = timelines.get(log);
   if (!rows) timelines.set(log, (rows = new Map()));
@@ -667,7 +667,7 @@ export interface SubjectFilter {
    * log dropped changed the record before it. At the store, every action
    * the store saw; so only actions the store saw */
   readonly hit: (entry: LogEntry) => boolean;
-  /** Whether the Actions pane lists an action: one `hit`, or at the store
+  /** Whether the Actions list shows an action: one `hit`, or at the store
    * every action, those the store never saw (a fetch) included */
   readonly lists: (entry: LogEntry) => boolean;
   /** A record's gaps (see `recordGaps`) */

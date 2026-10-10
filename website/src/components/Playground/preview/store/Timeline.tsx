@@ -165,8 +165,7 @@ function useDrawer(
 
 /** Draws groups along `scale`: requests as spans from fetch to response,
  * everything else as marks, placed as fractions of the track (`--tl-f`).
- * Picking an action the store saw shows State as it was right after it.
- * The marks `hit` says left the subject alone are dimmed */
+ * Picking an action the store saw makes it the moment. The marks `hit` says left the subject alone are dimmed */
 function drawer({
   log,
   scale,
@@ -310,8 +309,8 @@ function drawer({
 /** The whole history in one lane, fit to the panel's width, with the moment
  * on it: ‹ › and the arrow keys step through the actions `hit` says
  * touched the subject (past the newest is live, as End is), a mark lands on
- * its action. Says which action State is shown after, while it shows the
- * past, which shows it in the Actions pane; `▾` expands the timeline */
+ * its action. Says which action the moment is after, while it is in the
+ * past, opening it in the Actions tab; `▾` expands the timeline */
 export const Scrubber = memo(function Scrubber({
   entry,
   hit,
@@ -320,7 +319,7 @@ export const Scrubber = memo(function Scrubber({
   expandRef,
   onExpand,
 }: {
-  /** The action State is shown after; missing while live */
+  /** The moment's action; missing while live */
   entry?: LogEntry;
   /** What the steps follow: the subject's actions */
   hit: SubjectFilter['hit'];
@@ -437,7 +436,7 @@ export const Scrubber = memo(function Scrubber({
           After{' '}
           <button
             type="button"
-            className={styles.snapshotAction}
+            className={styles.momentAction}
             title="Show action"
             onClick={() => show(entry.seq, !!group)}
           >
@@ -457,8 +456,7 @@ export const Scrubber = memo(function Scrubber({
 
 /** The expanded timeline: the shown store's actions on one time axis, a
  * lane per key, requests as spans from fetch to response, everything else as
- * marks. Picking an action the store saw shows State as it was right after
- * it; the arrow keys step as the scrubber's ‹ › do */
+ * marks. Picking an action the store saw makes it the moment; the arrow keys step as the scrubber's ‹ › do */
 export default memo(function Timeline({
   width,
   hit,

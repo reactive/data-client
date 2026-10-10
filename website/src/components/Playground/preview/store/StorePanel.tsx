@@ -44,7 +44,7 @@ import {
 } from './actionParts';
 import { NARROW_WIDTH } from './columns';
 import { diffModel } from './diffModel';
-import { ListView, RecordLevel } from './DiveViews';
+import { ListView, RecordLevel, type Header } from './DiveViews';
 import { flash, scrollToRow, slide } from './dom';
 import {
   buildModel,
@@ -105,7 +105,7 @@ export default function StorePanel({
   // to it (`diff`), or its actions to explore; remembered per Playground
   const [storedTab, setTab] = useTabStorage(`${groupId}.storeTab`);
   const tab: Tab = isTab(storedTab) ? storedTab : 'snapshot';
-  // the peek: the subject's actions over State's right side, to move the
+  // the peek: the subject's actions over the store's right side, to move the
   // moment by, as the mouse rests on the Actions tab; gone as it leaves both.
   // Each panel's own: a page holds several, and a press outside one closes
   // it
@@ -130,23 +130,22 @@ export default function StorePanel({
 
   const levels = useLevelStack(ROOT);
   const actionLevels = useLevelStack(ACTIONS);
-  // State as it was right after one action, until "Live"; a new store (a
+  // the moment: right after one action, until "Live"; a new store (a
   // reset) starts live, with no action of the old one left showing
-  const [snapshotSeq, setSnapshot] = useState<number | null>(null);
+  const [momentSeq, setMomentSeq] = useState<number | null>(null);
   // the moment stands for its action's whole group (a request: its
   // optimistic update and response as one), picked by its row
   const [whole, setWhole] = useState(false);
   const [shownId, setShownId] = useState(id);
   if (shownId !== id) {
     setShownId(id);
-    setSnapshot(null);
+    setMomentSeq(null);
     setWhole(false);
     actionLevels.followMoment(null);
   }
-  const known = useKeptEntries(entries, snapshotSeq !== null);
-  const snapshot =
-    snapshotSeq === null ? undefined : findEntry(known, snapshotSeq);
-  const at = snapshot && storeAt(known, snapshot, history.storeFrom);
+  const known = useKeptEntries(entries, momentSeq !== null);
+  const moment = momentSeq === null ? undefined : findEntry(known, momentSeq);
+  const at = moment && storeAt(known, moment, history.storeFrom);
   // the store commits and the log notifies in separate renders: the rows
   // rebuild only when the store commits
   const liveRows = useMemo(() => buildModel(live, registry), [live, registry]);
@@ -195,8 +194,8 @@ export default function StorePanel({
   // what the moment stands for, and what that changed: the Diff tab shows
   // only that, from before its first action to the store the moment shows
   const span = useMemo(
-    () => snapshot && momentEntries(groups, snapshot, whole),
-    [groups, snapshot, whole],
+    () => moment && momentEntries(groups, moment, whole),
+    [groups, moment, whole],
   );
   const first = span?.find(e => e.store);
   const prior = first && then({ seq: first.seq, before: true });
@@ -209,7 +208,7 @@ export default function StorePanel({
     [span, model, prior, log],
   );
   // the whole panel shows the past with the moment: the kept actions, up to
-  // the snapshot's
+  // the moment's
   const actions = useMemo<Actions>(
     () => ({
       log,
@@ -224,7 +223,7 @@ export default function StorePanel({
     () => ({ log, since: history.since, dropped: history.dropped }),
     [log, history.since, history.dropped],
   );
-  // State's top level: what the actions list and the steps follow
+  // the store's top level: what the actions list and the steps follow
   const subject = subjectOf(levels.stack)!;
   const filter = useSubjectFilter(log, known, subject);
   // a moment set on purpose outranks the store a chip opened a level at;
@@ -237,7 +236,7 @@ export default function StorePanel({
   }, [clearStateAt, clearActionsAt]);
   const set = useCallback(
     (seq: number | null, whole = false) => {
-      setSnapshot(seq);
+      setMomentSeq(seq);
       setWhole(seq !== null && whole);
       clearAt();
       followMoment(seq, whole);
@@ -257,7 +256,7 @@ export default function StorePanel({
   const narrow = width < NARROW_WIDTH;
   const covered = narrow && timelineMounted;
   const content = useRef<HTMLDivElement>(null);
-  const paneToggle = useRef<HTMLButtonElement>(null);
+  const actionsTab = useRef<HTMLButtonElement>(null);
   // as these change: focus left under the sheet moves to the ▾, and lost as
   // it closes goes to the level; focus lost as the pane closes (a row it
   // held unmounts) goes back to its toggle
@@ -280,7 +279,7 @@ export default function StorePanel({
         ?.focus({ preventScroll: true });
     else if (lost)
       (was.pane && !pane ?
-        paneToggle.current
+        actionsTab.current
       : panel.current?.querySelector<HTMLElement>(
           '[data-level]:not([data-covered])',
         )
@@ -291,7 +290,7 @@ export default function StorePanel({
   // subject's actions (closing the peek and, narrow, the sheet)
   const show = useCallback(
     (seq: number, whole = false) => {
-      setSnapshot(seq);
+      setMomentSeq(seq);
       setWhole(whole);
       clearAt();
       setTab('actions');
@@ -303,12 +302,12 @@ export default function StorePanel({
     [clearAt, setTab, showAction, closePane, covered, narrow, collapse],
   );
   const navState = useMemo<NavState>(
-    () => ({ seq: snapshotSeq, whole, set, show }),
-    [snapshotSeq, whole, set, show],
+    () => ({ seq: momentSeq, whole, set, show }),
+    [momentSeq, whole, set, show],
   );
-  // a view to open from where there is no level of State to open it from
-  // (the timeline's and the actions' chips): over State's top level, in the
-  // table view; under the sheet or the peek, which close to show it
+  // a view to open from where there is no level of the store to open it
+  // from (the timeline's and the actions' chips): over its top level, in
+  // Snapshot or Diff and the table view; under the sheet or the peek, which close to show it
   const { push } = levels;
   const openView = useCallback(
     (view: View, at?: Moment) => {
@@ -363,7 +362,7 @@ export default function StorePanel({
       </NavContext.Provider>
     </Unfold>
   );
-  // a snapshot flashes what the moment changed (a request's own rows, not
+  // the store flashes what the moment changed (a request's own rows, not
   // those of actions between its steps)
   useFlashChanges(panel, state, diff?.kinds);
   // the subject's levels show in Snapshot, and in Diff at a moment
@@ -396,7 +395,7 @@ export default function StorePanel({
             }}
           >
             <Scrubber
-              entry={snapshot}
+              entry={moment}
               hit={filter.hit}
               width={width}
               expanded={timelineOpen}
@@ -445,7 +444,7 @@ export default function StorePanel({
                     <button
                       type="button"
                       role="tab"
-                      className={styles.paneToggle}
+                      className={styles.tab}
                       title="The store at the moment"
                       aria-selected={tab === 'snapshot'}
                       onClick={() => setTab('snapshot')}
@@ -455,7 +454,7 @@ export default function StorePanel({
                     <button
                       type="button"
                       role="tab"
-                      className={styles.paneToggle}
+                      className={styles.tab}
                       title="Only what the moment's action changed"
                       aria-selected={tab === 'diff'}
                       onClick={() => setTab('diff')}
@@ -465,8 +464,8 @@ export default function StorePanel({
                     <button
                       type="button"
                       role="tab"
-                      ref={paneToggle}
-                      className={styles.paneToggle}
+                      ref={actionsTab}
+                      className={styles.tab}
                       aria-selected={tab === 'actions'}
                       // it peeks only over the store
                       onPointerEnter={e =>
@@ -531,7 +530,7 @@ export default function StorePanel({
                           : crumbLabel(subject, model)
                         }
                         narrow={narrow}
-                        toggle={paneToggle}
+                        toggle={actionsTab}
                         onHover={hoverPane}
                         onPick={set}
                         onClose={closePane}
@@ -553,13 +552,13 @@ const TABS = ['snapshot', 'diff', 'actions'] as const;
 type Tab = (typeof TABS)[number];
 const isTab = (value: string | null): value is Tab =>
   (TABS as readonly (string | null)[]).includes(value);
-/** How long the pointer rests on the Actions toggle before the pane peeks,
+/** How long the pointer rests on the Actions tab before the list peeks,
  * and is away from both before a peek closes (ms) */
 const PEEK_OPEN_MS = 150;
 const PEEK_CLOSE_MS = 300;
 
-/** What the moment's action changed, which State shows in place of the
- * store it left */
+/** What the moment changed, which the Diff tab shows in place of the store
+ * it left */
 interface Diff {
   /** The actions it shows the effect of (see `momentEntries`) */
   readonly entries: readonly LogEntry[];
@@ -695,11 +694,11 @@ function Levels({
       {stack.map((entry, depth) => {
         const { key, view, at } = entry;
         const level = levelOf(entry);
-        // State's root has no crumbs; the actions' does, for their subject
+        // the store's root has no crumbs; the actions' does, for their subject
         const header = (tools: React.ReactNode) =>
           depth > 0 || view.kind === 'actions' ? crumbs(depth, tools) : null;
         // one a chip opened at an action shows that store, not the moment's
-        const changed = !at ? diff : undefined;
+        const levelDiff = !at ? diff : undefined;
         return (
           <Level
             key={key}
@@ -713,7 +712,7 @@ function Levels({
             under={under}
             onBack={back}
             returnTo={returnTo}
-            diff={changed}
+            diff={levelDiff}
           >
             {scroller =>
               view.kind === 'actions' ?
@@ -725,10 +724,10 @@ function Levels({
                   subject={subjectAt(depth)}
                   header={header}
                 />
-              : changed ?
+              : levelDiff ?
                 <DiffLevel
                   view={view}
-                  diff={changed}
+                  diff={levelDiff}
                   nav={level.nav}
                   scroller={scroller}
                   header={header}
@@ -843,7 +842,7 @@ function SubjectLevel({
 }: {
   view: View;
   scroller: React.RefObject<HTMLDivElement | null>;
-  header: (tools: React.ReactNode) => React.ReactNode;
+  header: Header;
 }) {
   return (
     view.kind === 'root' ? <RootView scroller={scroller} />
@@ -867,7 +866,7 @@ function DiffLevel({
   diff: Diff;
   nav: Nav;
   scroller: React.RefObject<HTMLDivElement | null>;
-  header: (tools: React.ReactNode) => React.ReactNode;
+  header: Header;
 }) {
   const { log } = useActions();
   const { entries } = diff;
@@ -901,7 +900,7 @@ function ActionLevel({
   /** Its group's actions up to it, as one */
   whole?: boolean;
   subject: View;
-  header: (tools: React.ReactNode) => React.ReactNode;
+  header: Header;
 }) {
   const { log, history, groups } = useActions();
   const entry = findEntry(history.entries, seq);
@@ -931,7 +930,7 @@ function ActionLevel({
 }
 
 /** `entries`, and while `holding` (the panel shows the past) every action
- * logged since it started holding, so the snapshot, the actions it steps
+ * logged since it started holding, so the moment, the actions it steps
  * through and what changed each row stay as the log's front drops off */
 function useKeptEntries(
   entries: readonly LogEntry[],
@@ -975,7 +974,7 @@ function ActionsListLevel({
   header,
 }: {
   subject: View;
-  header: (tools: React.ReactNode) => React.ReactNode;
+  header: Header;
 }) {
   const { log, history } = useActions();
   const filter = useSubjectFilter(log, history.entries, subject);

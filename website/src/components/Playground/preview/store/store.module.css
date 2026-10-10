@@ -40,7 +40,8 @@
   flex-direction: column;
 }
 
-/* State's view switch and the Actions toggle; the same band as the other headers */
+/* The view switch and the Snapshot, Diff and Actions tabs; the same band as
+   the other headers */
 .bar {
   flex: none;
   display: flex;
@@ -51,14 +52,14 @@
   color: var(--pg-tab);
   font: 500 var(--ifm-code-font-size) / 1 var(--ifm-font-family-base);
 }
-/* The bar, State and the pane: inert under the sheet */
+/* The bar, the tabs' content and the peek: inert under the sheet */
 .content {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
 }
-/* The subject stack, and the Actions pane over its right side */
+/* The subject stack, and the peek over its right side */
 .tabPanel {
   position: relative;
   flex: 1 1 auto;
@@ -67,8 +68,7 @@
   display: flex;
   flex-direction: column;
 }
-/* the bar's left end: State's view switch, and Diff or After at a
-   moment */
+/* the bar's left end: the view switch, outside the Actions tab */
 .barStart {
   display: flex;
   align-items: center;
@@ -86,7 +86,7 @@
   align-items: center;
   gap: 2px;
 }
-.paneToggle {
+.tab {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
@@ -103,15 +103,14 @@
     background-color var(--motion-snappy),
     opacity var(--motion-snappy);
 }
-.paneToggle:hover {
+.tab:hover {
   opacity: 1;
 }
-.paneToggle[aria-pressed='true'],
-.paneToggle[aria-selected='true'] {
+.tab[aria-selected='true'] {
   background: var(--pg-tab-hover-bg);
   opacity: 1;
 }
-.paneToggle svg {
+.tab svg {
   width: 14px;
   height: 14px;
   fill: none;
@@ -119,7 +118,7 @@
   stroke-width: 1.3;
   stroke-linecap: round;
 }
-/* The Actions pane: the subject's actions as an overlay over State's right
+/* The peek: the subject's actions as an overlay over the store's right
    side (narrow, most of it), with a scroll of its own */
 .pane {
   position: absolute;
@@ -445,7 +444,7 @@ div.row {
 .row:focus-visible {
   outline: 2px solid var(--store-key);
 }
-/* State's diff at a moment: how the action changed each row (a table's
+/* The Diff tab: how the action changed each row (a table's
    first cell, or the tree's whole line) */
 .row[data-change] > td:first-child,
 div.row[data-change] {
@@ -956,7 +955,7 @@ div.row[data-change='removed'] {
   padding: 0.4rem 0.75rem 0.5rem;
 }
 
-/* ---- The Actions pane's list, and the moment's action in it ---- */
+/* ---- The Actions list, and the moment's action in it ---- */
 .empty {
   margin: 0;
   padding: 1rem 0.75rem;
@@ -1198,8 +1197,8 @@ div.joined {
 }
 
 /* The scrubber: the whole history in one lane across the top, with ‹ ›,
-   "Live" and the lanes' expand beside it. Stale-colored while State shows
-   the past, when a second line says which action it is shown after */
+   "Live" and the lanes' expand beside it. Stale-colored while the moment is
+   in the past, when a second line says which action it is after */
 .scrubber {
   flex: none;
   display: flex;
@@ -1296,7 +1295,7 @@ div.joined {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.snapshotAction {
+.momentAction {
   min-width: 0;
   padding: 0;
   border: 0;
@@ -1307,7 +1306,7 @@ div.joined {
   text-underline-offset: 2px;
   cursor: pointer;
 }
-.snapshotAction:hover {
+.momentAction:hover {
   color: var(--store-fg);
 }
 

@@ -68,7 +68,7 @@ export const cellDive =
       { kind: 'record', id: row.id }
     : refsList(items, `${rowLabel(row)} ${name}`);
 
-/** A subject of the store: what a level shows, the Actions pane lists the
+/** A subject of the store: what a level shows, the Actions tab lists the
  * actions of and the steps follow */
 export type View =
   | { readonly kind: 'root' }
@@ -77,21 +77,21 @@ export type View =
 
 /** One action (`seq`), or (`whole`) its group up to it, shown over a
  * subject with what it did to it */
-export interface ActionView {
+interface ActionView {
   readonly kind: 'action';
   readonly seq: number;
   readonly whole?: boolean;
 }
 
 /** The actions that touched the subject under it, at full width */
-export interface ActionsView {
+interface ActionsView {
   readonly kind: 'actions';
 }
 
 /** What a level of the navigation stack shows */
 export type LevelView = View | ActionsView | ActionView;
 
-export const isSubject = (view: LevelView): view is View =>
+const isSubject = (view: LevelView): view is View =>
   view.kind !== 'action' && view.kind !== 'actions';
 
 /** The subject of the stack's top: the nearest level that is one, if any */
@@ -272,7 +272,7 @@ export interface Nav {
   readonly push: (view: View, at?: Moment) => void;
 }
 
-/** Set by the table view's levels, the timeline and the Actions pane; the
+/** Set by the table view's levels, the timeline and the Actions list; the
  * tree view expands in place instead */
 export const NavContext = createContext<Nav | null>(null);
 export const useNav = () => useContext(NavContext);

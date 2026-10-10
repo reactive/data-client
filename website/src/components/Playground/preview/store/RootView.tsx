@@ -1,4 +1,4 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { TIME_WIDTH } from './columns';
 import { EntityDetail } from './Details';
@@ -10,9 +10,14 @@ import {
   type EntityTable,
   type StoreModel,
 } from './model';
-import { DiffContext, useNav } from './nav';
+import { useNav } from './nav';
 import { plain } from './refs';
-import { GroupLabel, Internals, SectionBlock } from './Sections';
+import {
+  GroupLabel,
+  Internals,
+  SectionBlock,
+  useShownSections,
+} from './Sections';
 import styles from './store.module.css';
 import {
   endpointColumns,
@@ -39,8 +44,7 @@ export default function RootView({
   scroller: React.RefObject<HTMLElement | null>;
 }) {
   const { model, width, push } = useNav()!;
-  // a diff leaves out what it has nothing of
-  const diff = useContext(DiffContext) !== null;
+  const shown = useShownSections(model);
   const [closed, setClosed] = useState<ReadonlySet<string>>(
     () => new Set(['Internals']),
   );
@@ -50,7 +54,6 @@ export default function RootView({
     open: !closed.has(title),
     onToggle: () => setClosed(prev => toggled(prev, title)),
   });
-  const entityCount = model.tables.reduce((n, t) => n + t.rows.length, 0);
   const endpoints = preview(model.endpoints);
   const hiddenEndpoints = model.endpoints.length - endpoints.length;
   // stays once seen (holding a row's space), so an optimistic update
@@ -68,7 +71,7 @@ export default function RootView({
           />
         </SectionBlock>
       )}
-      {!(diff && !model.endpoints.length) && (
+      {shown.endpoints && (
         <SectionBlock {...section('Endpoints', model.endpoints.length)}>
           {endpoints.length > 0 && (
             <RowsTable
@@ -95,8 +98,8 @@ export default function RootView({
           )}
         </SectionBlock>
       )}
-      {!(diff && !entityCount) && (
-        <SectionBlock {...section('Entities', entityCount)}>
+      {shown.entities && (
+        <SectionBlock {...section('Entities', shown.entityCount)}>
           {model.tables.length > INDEX_OVER && (
             <TableIndex model={model} scroller={scroller} />
           )}
@@ -105,7 +108,7 @@ export default function RootView({
           ))}
         </SectionBlock>
       )}
-      {!diff && (
+      {shown.internals && (
         <SectionBlock {...section('Internals')}>
           <Internals model={model} />
         </SectionBlock>

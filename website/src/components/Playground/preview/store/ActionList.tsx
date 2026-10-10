@@ -36,6 +36,7 @@ import {
   useFollow,
   useLog,
 } from './actionParts';
+import type { Header } from './DiveViews';
 import { byData, onActivateKey, scrollToRow, toggled } from './dom';
 import { actionId } from './model';
 import { ActionSpanContext, useNavState, type View } from './nav';
@@ -53,10 +54,10 @@ function useRows(filter: SubjectFilter) {
 
 /** A peek at `subject`'s actions as the mouse rests on the Actions tab, to
  * move the moment by: the list, under a head naming the subject (`label`,
- * none at the store) and counting them, over State's right side (`narrow`,
- * most of it). Picking an action moves the moment there, State showing what
- * it changed. It goes as the pointer leaves it, on Escape or a press
- * outside */
+ * none at the store) and counting them, over the Snapshot or Diff tab's
+ * right side (`narrow`, most of it). Picking an action moves the moment
+ * there, and the tab under it follows. It goes as the pointer leaves it, on
+ * Escape or a press outside */
 export function ActionsPane({
   subject,
   filter,
@@ -125,7 +126,7 @@ export function ActionsLevel({
 }: {
   subject: View;
   filter: SubjectFilter;
-  header: (tools: React.ReactNode) => React.ReactNode;
+  header: Header;
 }) {
   const rows = useRows(filter);
   return (

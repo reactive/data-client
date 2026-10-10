@@ -14,7 +14,13 @@ import {
 } from './model';
 import { DiffContext } from './nav';
 import { plain } from './refs';
-import { Chevron, GroupLabel, Internals, SectionBlock } from './Sections';
+import {
+  Chevron,
+  GroupLabel,
+  Internals,
+  SectionBlock,
+  useShownSections,
+} from './Sections';
 import styles from './store.module.css';
 import {
   groupId,
@@ -48,13 +54,11 @@ function StoreSections({
   endpoints: React.ReactNode;
   renderTable: (table: EntityTable) => React.ReactNode;
 }) {
-  const entityCount = model.tables.reduce((n, t) => n + t.rows.length, 0);
-  // a diff shows only what its action changed
-  const diff = useContext(DiffContext) !== null;
+  const shown = useShownSections(model);
   return (
     <>
       <OptimisticSection model={model} />
-      {!(diff && !model.endpoints.length) && (
+      {shown.endpoints && (
         <Section
           name="endpoints"
           title="Endpoints"
@@ -63,12 +67,12 @@ function StoreSections({
           {endpoints}
         </Section>
       )}
-      {!(diff && !entityCount) && (
-        <Section name="entities" title="Entities" count={entityCount}>
+      {shown.entities && (
+        <Section name="entities" title="Entities" count={shown.entityCount}>
           {model.tables.map(renderTable)}
         </Section>
       )}
-      {!diff && <InternalsSection model={model} />}
+      {shown.internals && <InternalsSection model={model} />}
     </>
   );
 }
