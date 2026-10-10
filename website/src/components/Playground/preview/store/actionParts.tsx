@@ -106,11 +106,38 @@ export function useFollow(
     const { size, scroll, client } = AXES[axis];
     // a hidden tab has no height; its scroll position says nothing
     let hidden = !el.clientHeight;
+    // a trackpad's first steps back are a few px, inside the slack: a row
+    // arriving then would pull them back to the end. A step back lets go at
+    // once, until the end is reached again
+    let away = false;
     const onScroll = () => {
       if (hidden || paused) return;
-      follow.current = el[size] - el[scroll] - el[client] < FOLLOW_SLACK;
+      const atEnd =
+        el[size] - el[scroll] - el[client] < (away ? 1 : FOLLOW_SLACK);
+      if (atEnd) away = false;
+      follow.current = atEnd;
+    };
+    const back = () => {
+      away = true;
+      follow.current = false;
+    };
+    const onWheel = (e: WheelEvent) => {
+      if ((axis === 'y' ? e.deltaY : e.deltaX) < 0) back();
+    };
+    let touchAt: number | undefined;
+    const touchPos = (e: TouchEvent) =>
+      axis === 'y' ? e.touches[0]?.clientY : e.touches[0]?.clientX;
+    const onTouchStart = (e: TouchEvent) => (touchAt = touchPos(e));
+    // a finger moving toward the end of the axis scrolls back
+    const onTouchMove = (e: TouchEvent) => {
+      const at = touchPos(e);
+      if (at !== undefined && touchAt !== undefined && at > touchAt) back();
+      touchAt = at;
     };
     el.addEventListener('scroll', onScroll, { passive: true });
+    el.addEventListener('wheel', onWheel, { passive: true });
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchmove', onTouchMove, { passive: true });
     // rows added while hidden: catch up once the tab shows again
     const observer =
       typeof ResizeObserver === 'undefined' ? undefined : (
@@ -123,6 +150,9 @@ export function useFollow(
     observer?.observe(el);
     return () => {
       el.removeEventListener('scroll', onScroll);
+      el.removeEventListener('wheel', onWheel);
+      el.removeEventListener('touchstart', onTouchStart);
+      el.removeEventListener('touchmove', onTouchMove);
       observer?.disconnect();
     };
   }, [scroller, axis, paused]);

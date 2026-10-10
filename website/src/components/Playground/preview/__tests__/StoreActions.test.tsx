@@ -722,6 +722,40 @@ describe('Store Actions pane', () => {
     }
   });
 
+  it('lets go of the newest at a trackpad’s first small step back', async () => {
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
+      configurable: true,
+      get: () => 100,
+    });
+    try {
+      const { ctrl } = mount();
+      await act(() => ctrl().fetch(getPosts));
+      openPane();
+      const list = rows()[0].parentElement!.parentElement!;
+      Object.defineProperty(list, 'scrollHeight', {
+        value: 900,
+        configurable: true,
+      });
+      // a few px up, still inside the follow slack
+      list.scrollTop = 795;
+      fireEvent.wheel(list, { deltaY: -5 });
+      fireEvent.scroll(list);
+      await act(() =>
+        ctrl().set(Post, { id: '2' }, { id: '2', title: 'Later' }),
+      );
+      expect(list.scrollTop).toBe(795);
+      // back at the end, it follows again
+      list.scrollTop = 800;
+      fireEvent.scroll(list);
+      await act(() =>
+        ctrl().set(Post, { id: '2' }, { id: '2', title: 'Later still' }),
+      );
+      expect(list.scrollTop).toBe(900);
+    } finally {
+      delete (HTMLElement.prototype as any).clientHeight;
+    }
+  });
+
   it('reveals the moment’s action as the pane first shows, keeping it in view', async () => {
     const scrollTo = jest.fn();
     Element.prototype.scrollTo = scrollTo;
