@@ -66,6 +66,13 @@ describe('valueDiff', () => {
     ]);
   });
 
+  it('tells apart dates in the same second', () => {
+    const at = (ms: number): VNode => ({ t: 'val', v: new Date(ms) });
+    const was: VNode = { t: 'obj', entries: [['at', at(1000)]] };
+    const now: VNode = { t: 'obj', entries: [['at', at(1500)]] };
+    expect(valueDiff(was, now)?.[0].kind).toBe('changed');
+  });
+
   it('compares objects (Values) by key', () => {
     expect(
       show(valueDiff(obj({ a: 1, b: 2, c: 3 }), obj({ a: 1, c: 4, d: 5 }))),

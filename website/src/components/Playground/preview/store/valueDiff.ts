@@ -39,7 +39,8 @@ function nodeKey(node: VNode): string {
       key = `r${node.key}\0${node.pk}`;
       break;
     case 'val':
-      key = `v${typeof node.v}\0${String(node.v)}`;
+      // a Date's string drops its milliseconds
+      key = `v${typeof node.v}\0${node.v instanceof Date ? node.v.getTime() : String(node.v)}`;
       break;
     case 'arr':
       key = `a[${node.items.map(nodeKey).join(',')}]`;
