@@ -122,8 +122,8 @@ export interface LevelStack {
    * (opening them, or in place of the action view on top), so Back lists
    * them */
   readonly showAction: (seq: number, whole?: boolean) => void;
-  /** The moment moved: an action view on top follows it, and goes as the
-   * moment lets go (`null`) */
+  /** The moment moved: the action view follows it (on top or under levels
+   * its chips opened), and goes as the moment lets go (`null`) */
   readonly followMoment: (seq: number | null, whole?: boolean) => void;
 }
 
@@ -180,19 +180,18 @@ export function useLevelStack(root: LevelView): LevelStack {
             { ...prev, stack: prev.stack.slice(0, first) }
           );
       }
-      const top = prev.stack[prev.stack.length - 1];
+      // the action view, on top or under levels its chips opened (which
+      // the moment moves too, see `clearAt`), so Back finds the moment's
+      const i = prev.stack.findLastIndex(e => e.view.kind === 'action');
+      const shown = prev.stack[i]?.view;
       if (
-        top.view.kind !== 'action' ||
-        (top.view.seq === seq && !!top.view.whole === whole)
+        shown?.kind !== 'action' ||
+        (shown.seq === seq && !!shown.whole === whole)
       )
         return prev;
-      return {
-        ...prev,
-        stack: [
-          ...prev.stack.slice(0, -1),
-          { key: top.key, view: { kind: 'action', seq, whole } },
-        ],
-      };
+      const stack = [...prev.stack];
+      stack[i] = { key: stack[i].key, view: { kind: 'action', seq, whole } };
+      return { ...prev, stack };
     });
   }, []);
   return {

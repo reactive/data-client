@@ -355,11 +355,12 @@ describe('Store Actions pane detail', () => {
     previous();
     expect(top()).toBe(level);
     expect(crumbs()).toEqual(['Actions', 'setResponse GET /posts']);
-    expect(
-      within(top()).getByRole('button', { name: '+ Post 1' }),
-    ).toBeTruthy();
-    // past the newest, live: the action view goes, back to the list
+    // a record its chip opened over it: the action under it steps too
+    fireEvent.click(within(top()).getByRole('button', { name: '+ Post 1' }));
+    expect(crumbs()).toEqual(['Actions', 'setResponse GET /posts', 'Post 1']);
     fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
+    expect(crumbs()).toEqual(['Actions', 'set Post', 'Post 1']);
+    // past the newest, live: the action view goes, back to the list
     fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
     expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
     expect(crumbs()).toEqual(['Actions']);

@@ -230,7 +230,7 @@ export default function StorePanel({
   const subject = subjectOf(levels.stack)!;
   const filter = useSubjectFilter(log, known, subject);
   // a moment set on purpose outranks the store a chip opened a level at;
-  // an action view on top follows it
+  // the action view follows it
   const { clearAt: clearStateAt } = levels;
   const { clearAt: clearActionsAt, followMoment, showAction } = actionLevels;
   const clearAt = useCallback(() => {
