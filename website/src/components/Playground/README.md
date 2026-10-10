@@ -229,8 +229,9 @@ DesignSystem/       components injected into preview scope
   included; "actions not kept" when the log dropped it) and opens it, moving
   the moment. A level a chip opened at an action shows that store, not the
   diff, until the moment is set on purpose (`clearAt`), which outranks it.
-  The list is another view of the timeline, so the scrubber leads with its
-  button ("Actions", `aria-pressed` while the list shows): a click opens
+  The list is another way to see more of the timeline, so its button sits
+  at the scrubber's right end beside the ▾ ("Actions", `aria-pressed` while
+  the list shows): a click opens
   the list in the Action tab, and the mouse resting on it, unless the list
   shows, peeks at the same list (`ActionsPane`, an `aside` whose head counts
   its rows): an overlay over the content's right side (narrow, most of it)

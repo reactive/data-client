@@ -121,13 +121,13 @@
   stroke-width: 1.3;
   stroke-linecap: round;
 }
-/* The peek: the subject's actions as an overlay over the content's left
+/* The peek: the subject's actions as an overlay over the content's right
    side (narrow, most of it), under the scrubber's list button that opens
-   it, with a scroll of its own */
+   it, beside the ▾, with a scroll of its own */
 .pane {
   position: absolute;
   top: 0;
-  left: 0;
+  right: 0;
   bottom: 0;
   z-index: 4;
   width: clamp(16rem, 40%, 26rem);
@@ -136,8 +136,8 @@
   flex-direction: column;
   background: var(--store-bg);
   box-shadow:
-    inset -1px 0 0 var(--store-line-strong),
-    10px 0 24px rgba(0, 0, 0, 0.45);
+    inset 1px 0 0 var(--store-line-strong),
+    -10px 0 24px rgba(0, 0, 0, 0.45);
 }
 .pane.paneNarrow {
   width: min(100%, 22rem);
@@ -1339,7 +1339,7 @@ div.joined {
 }
 .scrubLabel {
   min-width: 0;
-  padding: 0 0.5rem 4px 4.45rem;
+  padding: 0 0.5rem 4px 2.6rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

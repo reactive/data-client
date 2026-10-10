@@ -102,7 +102,8 @@ export function lanesOf(groups: readonly ActionGroup[]): Lane[] {
   return [...lanes].map(([key, groups]) => ({ key, groups }));
 }
 
-/** What the scrubber's row holds beside its track: ‹ ›, Live and ▾ (px) */
+/** What the scrubber's row holds beside its track: ‹ ›, Live, the list
+ * and ▾ (px) */
 const SCRUB_CONTROLS = 198;
 /** Scrubber marks closer than this (px) draw as one: a mark's width
  * (`.tlMark`) and a gap, so none overlap */
@@ -309,7 +310,7 @@ function drawer({
 /** The whole history in one lane, fit to the panel's width, with the moment
  * on it: ‹ › and the arrow keys step through the actions `hit` says
  * touched the subject (past the newest is live, as End is), a mark lands on
- * its action. Its actions as a list lead it: they peek as the mouse rests
+ * its action. Its actions as a list sit beside the ▾: they peek as the mouse rests
  * there, and open in full on a click. Says which action the moment is
  * after, while it is in the past, opening it in the Action tab; `▾` expands
  * the timeline */
@@ -388,19 +389,6 @@ export const Scrubber = memo(function Scrubber({
       <div className={styles.scrubRow}>
         <button
           type="button"
-          ref={listRef}
-          className={styles.expand}
-          aria-label="Actions"
-          title="Actions"
-          aria-pressed={listed}
-          onPointerEnter={e => !listed && onListHover(true, e)}
-          onPointerLeave={e => onListHover(false, e)}
-          onClick={onList}
-        >
-          <ListIcon />
-        </button>
-        <button
-          type="button"
           data-step
           aria-label="Previous change"
           disabled={earlier === undefined}
@@ -445,6 +433,19 @@ export const Scrubber = memo(function Scrubber({
             Live
           </span>
         }
+        <button
+          type="button"
+          ref={listRef}
+          className={styles.expand}
+          aria-label="Actions"
+          title="Actions"
+          aria-pressed={listed}
+          onPointerEnter={e => !listed && onListHover(true, e)}
+          onPointerLeave={e => onListHover(false, e)}
+          onClick={onList}
+        >
+          <ListIcon />
+        </button>
         <button
           type="button"
           ref={expandRef}
