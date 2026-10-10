@@ -74,15 +74,17 @@ const isSkillInput = file =>
 
 // files the branch changes relative to master and uncommitted ones; renames
 // as delete + add, so the old path counts too
-let dirty, committed;
+let dirty, committed, status;
 try {
   dirty = dirtyFiles();
-  committed = git(
-    'diff',
-    '--name-only',
-    '--no-renames',
-    'origin/master...HEAD',
-  ).split('\n');
+  // file => status letter (`M`, `A`, `D`, …)
+  status = new Map(
+    git('diff', '--name-status', '--no-renames', 'origin/master...HEAD')
+      .split('\n')
+      .filter(Boolean)
+      .map(line => line.split('\t').reverse()),
+  );
+  committed = [...status.keys()];
 } catch {
   process.exit(0);
 }
@@ -145,7 +147,7 @@ function lintFix() {
   // command's commit takes all of it: staged with nothing unstaged on top, or
   // any tracked edit with `-a`. Partial staging, untracked files and pathspecs
   // can't be told from here, so those are left alone with the user's WIP
-  const committing = new Set(
+  const staged =
     commits ?
       git('status', '--porcelain', '--no-renames', '--untracked-files=all')
         .split('\n')
@@ -155,12 +157,15 @@ function lintFix() {
             !line.startsWith('?') &&
             (commitsAll || (line[0] !== ' ' && line[1] === ' ')),
         )
-        .map(line => line.slice(3))
-    : [],
-  );
+    : [];
+  const committing = new Set(staged.map(line => line.slice(3)));
+  // a file the branch or this commit deletes isn't pushed, though an ignored
+  // copy (generated, say) may still be on disk
   const pushed = [
-    ...committed.filter(file => !dirty.includes(file)),
-    ...committing,
+    ...committed.filter(
+      file => !dirty.includes(file) && status.get(file) !== 'D',
+    ),
+    ...staged.filter(line => line[0] !== 'D').map(line => line.slice(3)),
   ];
   const { fixed } = eslintFix(pushed);
   // fixes an earlier push's run left uncommitted: those files are dirty now,
