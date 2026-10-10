@@ -177,40 +177,23 @@ interface Store<S = any, A extends Action = UnknownAction, StateExt = unknown> {
   [Symbol.observable](): never;
 }
 
-declare function createPersistedStore(
-  managers?: Manager[],
-  hasDevManager?: boolean,
-): readonly [
-  ({ children }: { children: React.ReactNode }) => react.JSX.Element,
-  () => State<unknown>,
-  Controller<_data_client_core.DataClientDispatch>,
-  Store<State<unknown>, _data_client_core.ActionTypes, unknown> & {
+declare function createPersistedStore(managers?: Manager[], hasDevManager?: boolean): readonly [({ children }: {
+    children: React.ReactNode;
+}) => react.JSX.Element, () => State<unknown>, Controller<_data_client_core.DataClientDispatch>, Store<State<unknown>, _data_client_core.ActionTypes, unknown> & {
     dispatch: unknown;
-  },
-];
+}];
 
 declare const awaitInitialData: (id?: string) => Promise<any>;
 declare const getInitialData: (id?: string) => any;
 
-declare function createServerDataComponent(
-  useReadyCacheState: () => State<unknown>,
-  id?: string,
-): ({ nonce }: { nonce?: string | undefined }) => react.JSX.Element;
+declare function createServerDataComponent(useReadyCacheState: () => State<unknown>, id?: string): ({ nonce }: {
+    nonce?: string | undefined;
+}) => react.JSX.Element;
 
-declare const ServerData: ({
-  data,
-  nonce,
-  id,
-}: {
-  data: State<unknown>;
-  id?: string;
-  nonce?: string | undefined;
+declare const ServerData: ({ data, nonce, id, }: {
+    data: State<unknown>;
+    id?: string;
+    nonce?: string | undefined;
 }) => react.JSX.Element | null;
 
-export {
-  ServerData,
-  awaitInitialData,
-  createPersistedStore,
-  createServerDataComponent,
-  getInitialData,
-};
+export { ServerData, awaitInitialData, createPersistedStore, createServerDataComponent, getInitialData };
