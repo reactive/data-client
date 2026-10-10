@@ -41,9 +41,9 @@ import { useTabStorage } from '../../../../utils/tabStorage';
 /** Pixels per millisecond between two actions */
 const PX_PER_MS = 0.08;
 /** Closest two actions get (px), so a burst stays apart */
-const MIN_GAP = 10;
+const MIN_GAP = 12;
 /** Farthest two actions get (px): an idle stretch shows as a break */
-const MAX_GAP = 56;
+const MAX_GAP = 84;
 /** Space before the first action and after the last (px) */
 const PAD = 24;
 /** Closest two axis labels get (px) */

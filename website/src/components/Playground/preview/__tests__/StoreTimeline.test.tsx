@@ -153,10 +153,10 @@ describe('timeScale', () => {
       entry(4, 60201, fetch),
     ]);
     const [a, b, c, d] = [1, 2, 3, 4].map(seq => scale.x.get(seq)!);
-    expect(b - a).toBe(10);
+    expect(b - a).toBe(12);
     expect(c - b).toBeCloseTo(16);
-    expect(d - c).toBe(56);
-    expect(scale.breaks).toEqual([c + 28]);
+    expect(d - c).toBe(84);
+    expect(scale.breaks).toEqual([c + 42]);
     expect(scale.end).toBe(d);
     expect(scale.width).toBe(d + 24);
   });
