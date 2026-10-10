@@ -1,21 +1,15 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { LiveProvider } from 'react-live';
 
-import ManagerHost, {
-  REGISTER_MANAGERS,
-  managersTrailer,
-  managersVersion,
-} from './managers';
 import Preview from './Preview';
 import { ResetButton } from './PreviewError';
 import PreviewWrapper from './PreviewWrapper';
 import { useRenderCount } from './RenderCount';
-import { previewScope } from './scope';
 import type { PreviewProps } from '../types';
 import type { LogOptions } from './store/actionLog';
 import SchemaRegistry from './store/schemaRegistry';
 import { StoreHeaderToggle } from './StoreToggle';
-import transformCode from './transformCode';
+import { useCodeManagers } from './useCodeManagers';
 import { usePlaygroundConsoleDemotion } from './usePlaygroundConsoleDemotion';
 import { usePreviewReset } from './usePreviewReset';
 import type { CodeDocument } from '../editor/codeModel';
@@ -44,7 +38,6 @@ export default function LivePreview<T>({
     () => documents.map(document => document.value).join('\n;\n'),
     [documents],
   );
-  const managers = useMemo(() => managersVersion(documents), [documents]);
   const {
     key,
     storeKey,
@@ -57,17 +50,7 @@ export default function LivePreview<T>({
   } = usePreviewReset(code);
   // outlives remounts, so a restored store keeps its schemas and actions
   const [registry] = useState(() => new SchemaRegistry(actionLog));
-  // outlives remounts, so a new store gets the last registered getManagers()
-  const managerHost = useMemo(() => new ManagerHost(remount), [remount]);
-  const scope = useMemo(
-    () => ({ ...previewScope, [REGISTER_MANAGERS]: managerHost.register }),
-    [managerHost],
-  );
-  // changes only along with `code`, so it never re-runs the code by itself
-  const transformWithManagers = useCallback(
-    (code: string) => transformCode(code) + managersTrailer(managers),
-    [managers],
-  );
+  const managers = useCodeManagers(documents, remount);
   const getInterceptorData = useMemo(
     () =>
       restored ?
@@ -80,10 +63,10 @@ export default function LivePreview<T>({
     <LiveProvider
       key={key}
       code={code}
-      transformCode={transformWithManagers}
+      transformCode={managers.transformCode}
       enableTypeScript
       noInline
-      scope={scope}
+      scope={managers.scope}
     >
       <PreviewWrapper
         headerControls={
@@ -107,7 +90,7 @@ export default function LivePreview<T>({
           registry={registry}
           history={history}
           replacedHistory={replacedHistory}
-          managerHost={managerHost}
+          managerHost={managers.host}
           onReset={reset}
           {...handlers}
         />

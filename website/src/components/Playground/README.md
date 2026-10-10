@@ -202,9 +202,11 @@ DesignSystem/       components injected into preview scope
   evaluation errors never reset.
 - Managers: code that defines `getManagers()` (the function a real app passes
   to `<DataProvider managers>`, e.g. `[new StreamManager(), ...getDefaultManagers()]`)
-  sets the store's managers (`preview/managers.ts`); otherwise the store gets
-  `getDefaultManagers()` without DevTools. The inspector's `SchemaRegistry`
-  always comes first. `transformCode` appends a trailer that registers
+  sets the store's managers; otherwise the store gets `getDefaultManagers()`
+  without DevTools. `ManagerHost` (`preview/managers.ts`) builds and guards
+  them; `useCodeManagers` (`preview/useCodeManagers.ts`) is LivePreview's one
+  hook into it. The Actions log's head and tail go around them, after the
+  inspector's `SchemaRegistry`. Its `transformCode` appends a trailer that registers
   `getManagers` with a version of the documents it depends on (the one defining
   it, plus any declaring a name it uses, like a Manager class); the host calls it
   each time it builds a store (instances are never reused). A new version

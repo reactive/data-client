@@ -9,19 +9,6 @@ import {
 import { takeSnapshot, type PreviewSnapshot } from './usePreviewReset';
 import type { CodeDocument } from '../editor/codeModel';
 
-/** Scope name the code's trailer calls; never typed by users */
-export const REGISTER_MANAGERS = '__registerManagers';
-
-/** Appended to the preview's code: hands `getManagers()` (if the code defines
- * one) to the host, which calls it when it builds a store. Only reached when
- * the whole code ran, so code that fails keeps the managers it had.
- *
- * @param version identifies the source of the documents defining `getManagers()`
- */
-export function managersTrailer(version: string) {
-  return `\n;${REGISTER_MANAGERS}(typeof getManagers === 'function' ? getManagers : undefined, ${JSON.stringify(version)});`;
-}
-
 /** Identifies the documents `getManagers()` depends on: the one defining it,
  * and those declaring a name it (or another of them) uses, such as a Manager
  * class in its own file. Editing them gives the store new managers; other
@@ -85,23 +72,31 @@ export default class ManagerHost {
     if (this.controller) this.onChange(takeSnapshot(this.controller));
   };
 
-  /** Managers for a new store: the code's, or the defaults */
-  create(): Manager[] {
+  /** Managers for a new store: the code's, or the defaults. `network` is
+   * among them (the code's own, or one added for it) */
+  create(): { managers: Manager[]; network: NetworkManager } {
     this.error = undefined;
-    let managers: Manager[] | undefined;
+    let managers =
+      this.declared()?.map(this.guard) ??
+      getDefaultManagers({ devToolsManager: null });
+    let network = managers.find(
+      (manager): manager is NetworkManager => manager instanceof NetworkManager,
+    );
+    // DataProvider warns about this; keep the preview working meanwhile
+    if (!network) managers = [...managers, (network = new NetworkManager())];
+    return { managers, network };
+  }
+
+  /** What the code's `getManagers()` returns, if it returns managers */
+  protected declared(): Manager[] | undefined {
     try {
-      managers = this.getManagers?.();
+      const managers = this.getManagers?.();
+      if (Array.isArray(managers)) return managers;
     } catch (error) {
       // called while rendering the new store: no one to notify yet
       console.error(error);
       this.error = error;
     }
-    if (!Array.isArray(managers))
-      return getDefaultManagers({ devToolsManager: null });
-    // DataProvider warns about this; keep the preview working meanwhile
-    if (!managers.some(manager => manager instanceof NetworkManager))
-      managers = [...managers, new NetworkManager()];
-    return managers.map(this.guard);
   }
 
   /** For `useSyncExternalStore` of `error` */

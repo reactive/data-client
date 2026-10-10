@@ -1,9 +1,4 @@
-import {
-  DataProvider,
-  NetworkManager,
-  type Manager,
-  type State,
-} from '@data-client/react';
+import { DataProvider, type Manager, type State } from '@data-client/react';
 import { MockResolver } from '@data-client/test/browser';
 import React, {
   memo,
@@ -56,11 +51,7 @@ function Preview<T>({
   // DataProvider keeps its first managers, so build them once per mount
   // (create() runs the code's getManagers() and clears the last error)
   const [managers] = useState<Manager[]>(() => {
-    const managers = managerHost.create();
-    // create() always includes one
-    const network = managers.find(
-      manager => manager instanceof NetworkManager,
-    ) as NetworkManager;
+    const { managers, network } = managerHost.create();
     const log = registry.log.connect(history, replacedHistory, action =>
       network.skipLogging(action),
     );
