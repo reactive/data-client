@@ -1,4 +1,3 @@
-import Translate, { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React from 'react';
 
@@ -14,14 +13,7 @@ import {
   type StoreModel,
 } from './model';
 import { plain } from './refs';
-import {
-  Chevron,
-  GroupLabel,
-  Internals,
-  SectionBlock,
-  sectionTitle,
-  type SectionName,
-} from './Sections';
+import { Chevron, GroupLabel, Internals, SectionBlock } from './Sections';
 import styles from './store.module.css';
 import {
   groupId,
@@ -59,10 +51,14 @@ function StoreSections({
   return (
     <>
       <OptimisticSection model={model} />
-      <Section name="endpoints" count={model.endpoints.length}>
+      <Section
+        name="endpoints"
+        title="Endpoints"
+        count={model.endpoints.length}
+      >
         {endpoints}
       </Section>
-      <Section name="entities" count={entityCount}>
+      <Section name="entities" title="Entities" count={entityCount}>
         {model.tables.map(renderTable)}
       </Section>
       <InternalsSection model={model} />
@@ -74,18 +70,14 @@ function StoreSections({
 function Section({
   name,
   ...props
-}: Omit<
-  React.ComponentProps<typeof SectionBlock>,
-  'open' | 'onToggle' | 'title'
-> & {
-  name: SectionName;
+}: Omit<React.ComponentProps<typeof SectionBlock>, 'open' | 'onToggle'> & {
+  name: string;
 }) {
   const { isOpen, toggle } = useStoreUI();
   const id = sectionId(name);
   return (
     <SectionBlock
       {...props}
-      title={sectionTitle(name)}
       open={isOpen(id)}
       onToggle={() => toggle(id)}
       chevron
@@ -141,19 +133,7 @@ function useLimitedRows<T>(showAll: string, rows: readonly T[]) {
         className={styles.showAll}
         onClick={() => toggle(showAll)}
       >
-        {all ?
-          translate({
-            id: 'playground.store.tree.showFewer',
-            message: 'Show fewer',
-          })
-        : translate(
-            {
-              id: 'playground.store.tree.showAll',
-              message: 'Show all {count}',
-            },
-            { count: rows.length },
-          )
-        }
+        {all ? 'Show fewer' : `Show all ${rows.length}`}
       </button>
     : null;
   return { shown, footer };
@@ -162,7 +142,11 @@ function useLimitedRows<T>(showAll: string, rows: readonly T[]) {
 function OptimisticSection({ model }: { model: StoreModel }) {
   if (!model.optimistic.length) return null;
   return (
-    <Section name="optimistic" count={model.optimistic.length}>
+    <Section
+      name="optimistic"
+      title="Optimistic"
+      count={model.optimistic.length}
+    >
       {model.optimistic.map(action => (
         <OptimisticRow key={optimisticId(action)} action={action} />
       ))}
@@ -184,9 +168,7 @@ function OptimisticRow({
         <span className={clsx(styles.method, styles.optimistic)}>{method}</span>
         <span className={styles.trunc}>{path}</span>
         <span className={clsx(styles.pill, styles.optimistic)}>
-          <Translate id="playground.store.optimistic.waiting">
-            waiting for server
-          </Translate>
+          waiting for server
         </span>
       </div>
       {open && (
@@ -203,7 +185,7 @@ function OptimisticRow({
 /** Bookkeeping most people never need, collapsed by default */
 function InternalsSection({ model }: { model: StoreModel }) {
   return (
-    <Section name="internals">
+    <Section name="internals" title="Internals">
       <Internals model={model} />
     </Section>
   );

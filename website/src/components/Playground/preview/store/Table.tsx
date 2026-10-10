@@ -1,5 +1,3 @@
-import { usePluralForm } from '@docusaurus/theme-common';
-import Translate, { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React from 'react';
 
@@ -150,41 +148,15 @@ function MoreCell({
   open: boolean;
   onClick: () => void;
 }) {
-  const { selectMessage } = usePluralForm();
   if (!count && !open) return <td />;
   return (
     <td
       className={styles.moreCell}
-      data-hint={
-        open ?
-          translate({ id: 'playground.store.table.hideHint', message: 'hide' })
-        : translate({
-            id: 'playground.store.table.showHint',
-            message: 'show below',
-          })
-      }
+      data-hint={open ? 'hide' : 'show below'}
       role="button"
       tabIndex={0}
       aria-expanded={open}
-      aria-label={
-        open ?
-          translate({
-            id: 'playground.store.table.hideFields',
-            message: 'Hide fields',
-          })
-        : selectMessage(
-            count,
-            translate(
-              {
-                id: 'playground.store.table.showFields',
-                description: 'Plural forms, separated by |',
-                message:
-                  'Show {count} more field below|Show {count} more fields below',
-              },
-              { count },
-            ),
-          )
-      }
+      aria-label={open ? 'Hide fields' : `Show ${count} more fields below`}
       onClick={e => {
         e.stopPropagation();
         onClick();
@@ -219,10 +191,7 @@ export function Pager({
     <span className={styles.pager}>
       <button
         type="button"
-        aria-label={translate({
-          id: 'playground.store.table.previousFields',
-          message: 'Previous fields',
-        })}
+        aria-label="Previous fields"
         disabled={page === 0}
         onClick={e => {
           e.stopPropagation();
@@ -231,24 +200,13 @@ export function Pager({
       >
         ‹
       </button>
-      <Translate
-        id="playground.store.table.pageOf"
-        values={{
-          range:
-            pages[page].length > 1 ?
-              `${first}–${first + pages[page].length - 1}`
-            : first,
-          total,
-        }}
-      >
-        {'{range} of {total}'}
-      </Translate>
+      {pages[page].length > 1 ?
+        `${first}–${first + pages[page].length - 1}`
+      : first}{' '}
+      of {total}
       <button
         type="button"
-        aria-label={translate({
-          id: 'playground.store.table.nextFields',
-          message: 'Next fields',
-        })}
+        aria-label="Next fields"
         disabled={page === pages.length - 1}
         onClick={e => {
           e.stopPropagation();
@@ -261,19 +219,12 @@ export function Pager({
   );
 }
 
-/** Header of the key column, by what the table holds */
-function keyLabel(kind: EntityTable['kind']) {
-  switch (kind) {
-    case 'entity':
-      return translate({ id: 'playground.store.column.id', message: 'id' });
-    case 'collection':
-      return translate({ id: 'playground.store.column.args', message: 'args' });
-    case 'scalar':
-      return translate({ id: 'playground.store.column.cell', message: 'cell' });
-    default:
-      return translate({ id: 'playground.store.column.key', message: 'key' });
-  }
-}
+const keyLabel = {
+  entity: 'id',
+  collection: 'args',
+  scalar: 'cell',
+  unknown: 'key',
+} as const;
 
 /** A column before it is fitted: what it wants, and its cell at a width */
 interface Spec {
@@ -301,10 +252,7 @@ function dataSpecs(
     return [
       {
         id: name,
-        header:
-          table.kind === 'collection' ?
-            translate({ id: 'playground.store.column.items', message: 'items' })
-          : valueHeader(),
+        header: name,
         want: columnWidth(rows, row => row.value, name, width),
         cell: (row, w) => (
           <Cell
@@ -342,37 +290,21 @@ function dataSpecs(
   });
 }
 
-const valueHeader = () =>
-  translate({ id: 'playground.store.column.value', message: 'value' });
-
 /** When each row was fetched and expires */
-const metaSpecs = (): Spec[] =>
-  (
-    [
-      [
-        'fetchedAt',
-        translate({
-          id: 'playground.store.column.fetched',
-          message: 'fetched',
-        }),
-      ],
-      [
-        'expiresAt',
-        translate({
-          id: 'playground.store.column.expires',
-          message: 'expires',
-        }),
-      ],
-    ] as const
-  ).map(([name, header]) => ({
-    id: name,
-    header,
-    want: TIME_WIDTH,
-    cell: row => {
-      const v = row.meta?.[name];
-      return v === undefined ? null : <Primitive value={v} name={name} />;
-    },
-  }));
+const metaSpecs: Spec[] = (
+  [
+    ['fetchedAt', 'fetched'],
+    ['expiresAt', 'expires'],
+  ] as const
+).map(([name, header]) => ({
+  id: name,
+  header,
+  want: TIME_WIDTH,
+  cell: row => {
+    const v = row.meta?.[name];
+    return v === undefined ? null : <Primitive value={v} name={name} />;
+  },
+}));
 
 /**
  * Columns of `table` that fit `width`, as pages; `withMeta` adds when each
@@ -386,7 +318,7 @@ export function tableColumns(
   withMeta = false,
 ) {
   const specs = dataSpecs(table, rows, width);
-  if (withMeta) specs.push(...metaSpecs());
+  if (withMeta) specs.push(...metaSpecs);
   const keyWidth =
     table.kind === 'entity' ?
       idWidth(rows)
@@ -400,7 +332,7 @@ export function tableColumns(
   const columns: Column<EntityRow>[] = [
     {
       id: 'key',
-      header: keyLabel(table.kind),
+      header: keyLabel[table.kind],
       width: keyWidth,
       className: styles.key,
       // with no field columns to say so, the key marks an invalidated row
@@ -438,7 +370,7 @@ export function endpointColumns(width: number): Column<EndpointRow>[] {
   return [
     {
       id: 'key',
-      header: translate({ id: 'playground.store.column.key', message: 'key' }),
+      header: 'key',
       width: keyWidth,
       cell: row => (
         <span title={row.key}>
@@ -448,16 +380,13 @@ export function endpointColumns(width: number): Column<EndpointRow>[] {
     },
     {
       id: 'status',
-      header: translate({
-        id: 'playground.store.column.status',
-        message: 'status',
-      }),
+      header: 'status',
       width: STATUS_WIDTH,
       cell: row => <Status meta={row.meta} />,
     },
     {
       id: 'value',
-      header: valueHeader(),
+      header: 'value',
       cell: row =>
         row.meta?.error && row.value.t === 'val' && row.value.v === undefined ?
           <span className={styles.null}>{errorText(row.meta.error)}</span>
@@ -476,13 +405,13 @@ export function mixedColumns(width: number): Column<AnyRow>[] {
   return [
     {
       id: 'ref',
-      header: translate({ id: 'playground.store.column.row', message: 'row' }),
+      header: 'row',
       width: Math.round(width * 0.35),
       cell: row => <RowChip row={row} />,
     },
     {
       id: 'value',
-      header: valueHeader(),
+      header: 'value',
       cell: row => <Inline node={row.value} bare />,
     },
   ];

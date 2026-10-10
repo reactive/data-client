@@ -1,4 +1,3 @@
-import { translate } from '@docusaurus/Translate';
 import React, { useMemo, useState } from 'react';
 
 import { TIME_WIDTH } from './columns';
@@ -13,13 +12,7 @@ import {
 } from './model';
 import { useNav } from './nav';
 import { plain } from './refs';
-import {
-  GroupLabel,
-  Internals,
-  SectionBlock,
-  sectionTitle,
-  type SectionName,
-} from './Sections';
+import { GroupLabel, Internals, SectionBlock } from './Sections';
 import styles from './store.module.css';
 import {
   endpointColumns,
@@ -28,7 +21,7 @@ import {
   tableColumns,
   type Column,
 } from './Table';
-import { EndpointKey, Inline, moreLabel, Primitive } from './Value';
+import { EndpointKey, Inline, Primitive } from './Value';
 
 /** Rows a table shows before "N more"; tables this short show them all */
 const PREVIEW_ROWS = 5;
@@ -46,17 +39,17 @@ export default function RootView({
   scroller: React.RefObject<HTMLElement | null>;
 }) {
   const { model, width, push } = useNav()!;
-  const [closed, setClosed] = useState<ReadonlySet<SectionName>>(
-    () => new Set(['internals']),
+  const [closed, setClosed] = useState<ReadonlySet<string>>(
+    () => new Set(['Internals']),
   );
-  const section = (name: SectionName, count?: number) => ({
-    title: sectionTitle(name),
+  const section = (title: string, count?: number) => ({
+    title,
     count,
-    open: !closed.has(name),
+    open: !closed.has(title),
     onToggle: () =>
       setClosed(prev => {
         const next = new Set(prev);
-        if (!next.delete(name)) next.add(name);
+        if (!next.delete(title)) next.add(title);
         return next;
       }),
   });
@@ -70,21 +63,15 @@ export default function RootView({
   return (
     <>
       {showOptimistic && (
-        <SectionBlock {...section('optimistic', model.optimistic.length)}>
+        <SectionBlock {...section('Optimistic', model.optimistic.length)}>
           <RowsTable
-            columns={optimisticColumns()}
+            columns={optimisticColumns}
             rows={model.optimistic.map(o => ({ ...o, id: optimisticId(o) }))}
-            foot={
-              model.optimistic.length === 0 &&
-              translate({
-                id: 'playground.store.optimistic.none',
-                message: 'None pending',
-              })
-            }
+            foot={model.optimistic.length === 0 && 'None pending'}
           />
         </SectionBlock>
       )}
-      <SectionBlock {...section('endpoints', model.endpoints.length)}>
+      <SectionBlock {...section('Endpoints', model.endpoints.length)}>
         {endpoints.length > 0 && (
           <RowsTable
             columns={endpointColumns(width)}
@@ -97,19 +84,19 @@ export default function RootView({
                   onClick={() =>
                     push({
                       kind: 'list',
-                      label: sectionTitle('endpoints'),
+                      label: 'Endpoints',
                       ids: model.endpoints.map(e => e.id),
                     })
                   }
                 >
-                  {moreLabel(hiddenEndpoints)}
+                  {hiddenEndpoints.toLocaleString()} more
                 </button>
               )
             }
           />
         )}
       </SectionBlock>
-      <SectionBlock {...section('entities', entityCount)}>
+      <SectionBlock {...section('Entities', entityCount)}>
         {model.tables.length > INDEX_OVER && (
           <TableIndex model={model} scroller={scroller} />
         )}
@@ -117,7 +104,7 @@ export default function RootView({
           <Group key={table.key} table={table} />
         ))}
       </SectionBlock>
-      <SectionBlock {...section('internals')}>
+      <SectionBlock {...section('Internals')}>
         <Internals model={model} />
       </SectionBlock>
     </>
@@ -193,7 +180,7 @@ function Group({ table }: { table: EntityTable }) {
                 push({ kind: 'list', table: table.key, label: table.key })
               }
             >
-              {moreLabel(hidden)}
+              {hidden.toLocaleString()} more
             </button>
           )
         }
@@ -205,10 +192,10 @@ function Group({ table }: { table: EntityTable }) {
 type Optimistic = StoreModel['optimistic'][number] & { id: string };
 
 /** Updates applied ahead of their response */
-const optimisticColumns = (): Column<Optimistic>[] => [
+const optimisticColumns: Column<Optimistic>[] = [
   {
     id: 'key',
-    header: translate({ id: 'playground.store.column.key', message: 'key' }),
+    header: 'key',
     width: '40%',
     cell: ({ key }) => (
       <span className={styles.optimistic} title={key}>
@@ -218,12 +205,12 @@ const optimisticColumns = (): Column<Optimistic>[] => [
   },
   {
     id: 'args',
-    header: translate({ id: 'playground.store.column.args', message: 'args' }),
+    header: 'args',
     cell: ({ args }) => <Inline node={plain(args)} />,
   },
   {
     id: 'fetchedAt',
-    header: translate({ id: 'playground.store.column.sent', message: 'sent' }),
+    header: 'sent',
     width: TIME_WIDTH,
     cell: ({ fetchedAt }) => <Primitive value={fetchedAt} name="fetchedAt" />,
   },

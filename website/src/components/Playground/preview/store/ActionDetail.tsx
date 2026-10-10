@@ -1,6 +1,4 @@
 import { actionTypes, type ActionTypes, type State } from '@data-client/react';
-import { usePluralForm } from '@docusaurus/theme-common';
-import Translate, { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React from 'react';
 
@@ -13,7 +11,6 @@ import {
 import { findEntry, isRecordChange, type LogEntry } from './actionLog';
 import {
   ChangeChip,
-  changeKindLabel,
   KeyLabel,
   spanOf,
   TypeName,
@@ -41,7 +38,6 @@ export function ActionDetail({
   onStep: (seq: number) => void;
 }) {
   const { log, history, groups, showState } = useActions();
-  const { selectMessage } = usePluralForm();
   const entry = findEntry(history.entries, seq);
   const group = groupOf(groups, seq);
   const row = group ? groupEntriesOf(group) : [];
@@ -53,7 +49,7 @@ export function ActionDetail({
       <>
         {header(step)}
         <div className={styles.record}>
-          <span className={styles.dim}>{goneFromLog()}</span>
+          <span className={styles.dim}>No longer in the log</span>
         </div>
       </>
     );
@@ -70,36 +66,12 @@ export function ActionDetail({
               <EntryChanges entry={entry} changes={changed} />
               {refreshed > 0 && (
                 <span className={styles.dim}>
-                  {selectMessage(
-                    refreshed,
-                    changed.length ?
-                      translate(
-                        {
-                          id: 'playground.store.action.alsoRefreshed',
-                          description: 'Plural forms, separated by |',
-                          message:
-                            'Also stored {count} row again, unchanged|Also stored {count} rows again, unchanged',
-                        },
-                        { count: refreshed },
-                      )
-                    : translate(
-                        {
-                          id: 'playground.store.action.refreshed',
-                          description: 'Plural forms, separated by |',
-                          message:
-                            'Stored {count} row again, unchanged|Stored {count} rows again, unchanged',
-                        },
-                        { count: refreshed },
-                      ),
-                  )}
+                  {changed.length ? 'Also stored' : 'Stored'} {refreshed} row
+                  {refreshed === 1 ? '' : 's'} again, unchanged
                 </span>
               )}
               {!changes.length && (
-                <span className={styles.dim}>
-                  <Translate id="playground.store.action.noChange">
-                    No change to the store
-                  </Translate>
-                </span>
+                <span className={styles.dim}>No change to the store</span>
               )}
               {changes.length > 0 && (
                 <button
@@ -110,7 +82,7 @@ export function ActionDetail({
                     onShowState?.();
                   }}
                 >
-                  {viewStateAfter()}
+                  View State after this
                 </button>
               )}
             </>
@@ -146,27 +118,16 @@ function GroupStep({
     <span className={styles.pager}>
       <button
         type="button"
-        aria-label={translate({
-          id: 'playground.store.action.previous',
-          message: 'Previous action in this row',
-        })}
+        aria-label="Previous action in this row"
         disabled={!earlier}
         onClick={() => onStep(earlier.seq)}
       >
         ‹
       </button>
-      <Translate
-        id="playground.store.action.stepOf"
-        values={{ current: i + 1, total: row.length }}
-      >
-        {'{current} of {total}'}
-      </Translate>
+      {i + 1} of {row.length}
       <button
         type="button"
-        aria-label={translate({
-          id: 'playground.store.action.next',
-          message: 'Next action in this row',
-        })}
+        aria-label="Next action in this row"
         disabled={!later}
         onClick={() => onStep(later.seq)}
       >
@@ -180,38 +141,14 @@ function GroupStep({
 function unappliedNote(action: ActionTypes) {
   switch (action.type) {
     case actionTypes.FETCH:
-      return translate({
-        id: 'playground.store.action.unapplied.fetch',
-        message:
-          'Started the request; the store changes when its response arrives',
-      });
+      return 'Started the request; the store changes when its response arrives';
     case actionTypes.SUBSCRIBE:
     case actionTypes.UNSUBSCRIBE:
-      return translate({
-        id: 'playground.store.action.unapplied.subscription',
-        message: 'Handled by SubscriptionManager; the store is unchanged',
-      });
+      return 'Handled by SubscriptionManager; the store is unchanged';
     default:
-      return translate({
-        id: 'playground.store.action.unapplied.manager',
-        message: 'A manager handled this without passing it to the store',
-      });
+      return 'A manager handled this without passing it to the store';
   }
 }
-
-/** The level of an action (or a version) the log has since dropped */
-export const goneFromLog = () =>
-  translate({
-    id: 'playground.store.action.gone',
-    message: 'No longer in the log',
-  });
-
-/** Opens State as it was right after this action */
-export const viewStateAfter = () =>
-  translate({
-    id: 'playground.store.action.viewState',
-    message: 'View State after this',
-  });
 
 /** Rows `entry` changed, and how */
 function EntryChanges({
@@ -275,19 +212,15 @@ export function ChangeBody({
       case 'error':
         return <span className={styles.null}>{errorText(meta?.error)}</span>;
       case 'invalidated':
-        return <span className={styles.dim}>{invalidNote()}</span>;
+        return (
+          <span className={styles.dim}>invalid; the next read refetches</span>
+        );
       case 'expired':
         return (
-          <span className={styles.dim}>
-            <Translate id="playground.store.change.expiredNote">
-              stale; the next read refetches
-            </Translate>
-          </span>
+          <span className={styles.dim}>stale; the next read refetches</span>
         );
       case 'removed':
-        return (
-          <span className={styles.dim}>{changeKindLabel(change.kind)}</span>
-        );
+        return <span className={styles.dim}>removed</span>;
       default:
         return (
           <Inline
@@ -319,17 +252,13 @@ export function ChangeBody({
         </>
       );
     case 'invalidated':
-      return <span className={styles.dim}>{invalidNote()}</span>;
+      return (
+        <span className={styles.dim}>invalid; the next read refetches</span>
+      );
     default:
-      return <span className={styles.dim}>{changeKindLabel(change.kind)}</span>;
+      return <span className={styles.dim}>{change.kind}</span>;
   }
 }
-
-const invalidNote = () =>
-  translate({
-    id: 'playground.store.change.invalidatedNote',
-    message: 'invalid; the next read refetches',
-  });
 
 const get = (row: unknown, field: string) =>
   row && typeof row === 'object' ? (row as any)[field] : row;

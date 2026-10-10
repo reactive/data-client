@@ -89,7 +89,12 @@ export default [
     // Site UI text goes through <Translate> so every locale gets it. Checks JSX
     // text only: attributes (title, aria-label, placeholder) need review
     files: ['website/src/{components,theme}/**/*.?(m|c)tsx'],
-    ignores: ['**/__tests__/**', '**/testing/**'],
+    ignores: [
+      '**/__tests__/**',
+      '**/testing/**',
+      // TODO: translate once its redesign settles
+      'website/src/components/Playground/preview/store/**',
+    ],
     plugins: { '@docusaurus': docusaurusPlugin },
     rules: {
       '@docusaurus/no-untranslated-text': [

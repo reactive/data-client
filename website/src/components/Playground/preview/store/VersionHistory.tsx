@@ -1,5 +1,3 @@
-import { usePluralForm } from '@docusaurus/theme-common';
-import Translate, { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React, {
   memo,
@@ -10,13 +8,7 @@ import React, {
   useState,
 } from 'react';
 
-import {
-  ActionCrumb,
-  ActionName,
-  ChangeBody,
-  goneFromLog,
-  viewStateAfter,
-} from './ActionDetail';
+import { ActionCrumb, ActionName, ChangeBody } from './ActionDetail';
 import {
   rowTimeline,
   type ChangeKind,
@@ -28,7 +20,7 @@ import type { LogEntry } from './actionLog';
 import {
   ActionsContext,
   AtMoment,
-  keepsNewest,
+  KEEPS_NEWEST,
   Time,
   useActions,
   type Actions,
@@ -116,8 +108,7 @@ function LastChange({
   return (
     <div className={styles.field}>
       <span className={styles.key}>
-        <Translate id="playground.store.record.changedBy">changed by</Translate>
-        <span className={styles.dim}>:</span>
+        changed by<span className={styles.dim}>:</span>
       </span>
       <span className={styles.changedBy}>
         {last?.kind === 'version' ?
@@ -131,12 +122,7 @@ function LastChange({
           >
             <ActionCrumb seq={last.entry.seq} />
           </button>
-        : <span className={styles.dim}>
-            <Translate id="playground.store.record.changedByDropped">
-              actions not kept
-            </Translate>
-          </span>
-        }
+        : <span className={styles.dim}>actions not kept</span>}
         {history && <HistoryButton id={id} changed={timeline.changed} />}
       </span>
     </div>
@@ -181,18 +167,15 @@ function HistoryLink({ id, actions, push, compact }: HistoryButtonProps) {
     <button
       type="button"
       className={clsx(styles.historyButton, compact && styles.compact)}
-      title={translate({
-        id: 'playground.store.history.title',
-        message: 'Every change to this record',
-      })}
-      aria-label={historyLabel()}
+      title="Every change to this record"
+      aria-label="History"
       onClick={e => {
         e.stopPropagation();
         openHistory(push, actions, id);
       }}
     >
       <HistoryIcon />
-      {!compact && historyLabel()}
+      {!compact && 'History'}
     </button>
   );
 }
@@ -216,7 +199,6 @@ export function RowHistory({
 }) {
   const actions = useActions();
   const moment = useMoment();
-  const { selectMessage } = usePluralForm();
   const timeline = useTimeline(actions, id);
   const { items, versions, changed } = timeline;
   // live, the version last picked here stays open
@@ -260,37 +242,20 @@ export function RowHistory({
       {header(
         count > 0 && (
           <span className={styles.dim}>
-            {selectMessage(
-              count,
-              translate(
-                {
-                  id: 'playground.store.history.changeCount',
-                  description: 'Plural forms, separated by |',
-                  message: '{count} change|{count} changes',
-                },
-                { count },
-              ),
-            )}
+            {count} change{count === 1 ? '' : 's'}
           </span>
         ),
       )}
       {!changed ?
         <div className={styles.record}>
           <div className={styles.detail}>
-            <span className={styles.dim}>
-              <Translate id="playground.store.history.empty">
-                No changes in the log
-              </Translate>
-            </span>
+            <span className={styles.dim}>No changes in the log</span>
           </div>
         </div>
       : <ol
           ref={list}
           className={styles.versions}
-          aria-label={translate({
-            id: 'playground.store.history.versions',
-            message: 'Versions',
-          })}
+          aria-label="Versions"
           onKeyDown={onKeyDown}
         >
           {items.map(item =>
@@ -395,7 +360,7 @@ function VersionItem({
               className={styles.showState}
               onClick={() => nav.push({ kind: 'action', seq })}
             >
-              {openAction()}
+              Open action
             </button>
             <button
               type="button"
@@ -405,7 +370,7 @@ function VersionItem({
                 onShowState?.();
               }}
             >
-              {viewStateAfter()}
+              View State after this
             </button>
           </div>
         </div>
@@ -432,17 +397,11 @@ function VersionValue({ id, at }: { id: string; at: Moment }) {
   );
   const row = shown && findRow(shown.model, id);
   if (!row || !atNav)
-    return <span className={styles.dim}>{goneFromLog()}</span>;
+    return <span className={styles.dim}>No longer in the log</span>;
   return (
     <AtMoment then={shown}>
       <NavContext.Provider value={atNav}>
-        {before && (
-          <span className={styles.dim}>
-            <Translate id="playground.store.history.removedWas">
-              Removed; it was:
-            </Translate>
-          </span>
-        )}
+        {before && <span className={styles.dim}>Removed; it was:</span>}
         {isEndpointRow(row) ?
           <EndpointBody row={row} />
         : <Block node={row.value} />}
@@ -458,9 +417,7 @@ function RefreshItem({ entries }: { entries: readonly LogEntry[] }) {
       <span className={styles.versionLine}>
         <Time at={entries[0].at} />
         <span className={styles.dim}>
-          <Translate id="playground.store.change.refreshed">
-            stored again, unchanged
-          </Translate>
+          stored again, unchanged
           {entries.length > 1 && ` ×${entries.length}`}
         </span>
       </span>
@@ -468,68 +425,14 @@ function RefreshItem({ entries }: { entries: readonly LogEntry[] }) {
   );
 }
 
-/** What actions the log didn't keep did to the record, and why they are
- * gone */
-function missingText(change: ChangeKind) {
-  const reason = keepsNewest();
-  switch (change) {
-    case 'refreshed':
-      return translate(
-        {
-          id: 'playground.store.history.missing.refreshed',
-          message: 'Stored again by actions not kept: {reason}',
-        },
-        { reason },
-      );
-    case 'removed':
-      return translate(
-        {
-          id: 'playground.store.history.missing.removed',
-          message: 'Removed by actions not kept: {reason}',
-        },
-        { reason },
-      );
-    case 'invalidated':
-      return translate(
-        {
-          id: 'playground.store.history.missing.invalidated',
-          message: 'Invalidated by actions not kept: {reason}',
-        },
-        { reason },
-      );
-    case 'expired':
-      return translate(
-        {
-          id: 'playground.store.history.missing.expired',
-          message: 'Marked stale by actions not kept: {reason}',
-        },
-        { reason },
-      );
-    case 'error':
-      return translate(
-        {
-          id: 'playground.store.history.missing.error',
-          message: 'Failed by actions not kept: {reason}',
-        },
-        { reason },
-      );
-    default:
-      return translate(
-        {
-          id: 'playground.store.history.missing.changed',
-          message: 'Changed by actions not kept: {reason}',
-        },
-        { reason },
-      );
-  }
-}
-
-export const historyLabel = () =>
-  translate({ id: 'playground.store.history', message: 'History' });
-
-/** Opens the action's own level */
-export const openAction = () =>
-  translate({ id: 'playground.store.action.open', message: 'Open action' });
+/** What actions the log didn't keep did to the record */
+const missingText: Partial<Record<ChangeKind, string>> = {
+  refreshed: 'Stored again',
+  removed: 'Removed',
+  invalidated: 'Invalidated',
+  expired: 'Marked stale',
+  error: 'Failed',
+};
 
 /** Where actions the log didn't keep changed the record; `current` while
  * the moment falls among them */
@@ -546,7 +449,7 @@ function MissingItem({
       aria-current={current || undefined}
     >
       <span className={clsx(styles.versionLine, styles.dim)}>
-        {missingText(change)}
+        {missingText[change] ?? 'Changed'} by actions not kept: {KEEPS_NEWEST}
       </span>
     </li>
   );

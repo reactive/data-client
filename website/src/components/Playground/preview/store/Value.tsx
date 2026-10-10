@@ -1,4 +1,3 @@
-import { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React, { useContext, useState } from 'react';
 
@@ -318,7 +317,7 @@ function BlockList({
           setAll(true);
         }}
       >
-        {moreLabel(rest)}
+        {rest} more
       </button>
     : null;
   if (!node.items.length) return <span className={styles.dim}>[]</span>;
@@ -346,9 +345,7 @@ export function Primitive({ value, name }: { value: unknown; name?: string }) {
   if (value === CIRCULAR) return <span className={styles.dim}>[Circular]</span>;
   if (value === INVALIDATED)
     return (
-      <span className={clsx(styles.pill, styles.invalidated)}>
-        {invalidLabel()}
-      </span>
+      <span className={clsx(styles.pill, styles.invalidated)}>invalid</span>
     );
   if (value === null || value === undefined)
     return <span className={styles.null}>{String(value)}</span>;
@@ -415,14 +412,3 @@ function useSpanEnd(): Moment | undefined {
   const span = useContext(ActionSpanContext);
   return span && { seq: span.last };
 }
-
-/** `5 more`: rows a table leaves to its own level */
-export const moreLabel = (count: number) =>
-  translate(
-    { id: 'playground.store.table.more', message: '{count} more' },
-    { count: count.toLocaleString() },
-  );
-
-/** An endpoint invalidated, or an entity `schema.Invalidate` marked */
-export const invalidLabel = () =>
-  translate({ id: 'playground.store.status.invalid', message: 'invalid' });

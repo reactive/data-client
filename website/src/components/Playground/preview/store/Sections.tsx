@@ -1,4 +1,3 @@
-import Translate, { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React from 'react';
 
@@ -21,11 +20,7 @@ export function GroupLabel({
       <span className={styles.type}>{table.key}</span>
       <span className={styles.count}>{table.rows.length.toLocaleString()}</span>
       {table.kind === 'collection' && (
-        <span className={styles.kind}>
-          <Translate id="playground.store.table.collection">
-            Collection
-          </Translate>
-        </span>
+        <span className={styles.kind}>Collection</span>
       )}
     </>
   );
@@ -35,34 +30,6 @@ export function Chevron({ open }: { open: boolean }) {
   return (
     <span className={clsx(styles.chevron, open && styles.chevronOpen)}>▶</span>
   );
-}
-
-/** The store's sections, in order */
-export type SectionName = 'optimistic' | 'endpoints' | 'entities' | 'internals';
-
-export function sectionTitle(name: SectionName): string {
-  switch (name) {
-    case 'optimistic':
-      return translate({
-        id: 'playground.store.section.optimistic',
-        message: 'Optimistic',
-      });
-    case 'endpoints':
-      return translate({
-        id: 'playground.store.section.endpoints',
-        message: 'Endpoints',
-      });
-    case 'entities':
-      return translate({
-        id: 'playground.store.section.entities',
-        message: 'Entities',
-      });
-    case 'internals':
-      return translate({
-        id: 'playground.store.section.internals',
-        message: 'Internals',
-      });
-  }
 }
 
 /** Collapsible block with a sticky header */

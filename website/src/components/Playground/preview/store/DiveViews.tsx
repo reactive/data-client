@@ -1,4 +1,3 @@
-import Translate, { translate } from '@docusaurus/Translate';
 import React, {
   useDeferredValue,
   useLayoutEffect,
@@ -181,14 +180,8 @@ function FilteredRows<R extends AnyRow>({
             className={styles.filter}
             value={filter}
             onChange={e => setFilter(e.target.value)}
-            placeholder={translate({
-              id: 'playground.store.list.filter',
-              message: 'filter',
-            })}
-            aria-label={translate({
-              id: 'playground.store.list.filterLabel',
-              message: 'Filter rows',
-            })}
+            placeholder="filter"
+            aria-label="Filter rows"
           />
           {tools}
         </>,
@@ -208,21 +201,8 @@ function FilteredRows<R extends AnyRow>({
           query ?
             <span>
               {matches.length ?
-                translate(
-                  {
-                    id: 'playground.store.list.matchesOf',
-                    message: '{matches} of {total}',
-                  },
-                  {
-                    matches: matches.length.toLocaleString(),
-                    total: rows.length.toLocaleString(),
-                  },
-                )
-              : translate({
-                  id: 'playground.store.list.noMatches',
-                  message: 'no matches',
-                })
-              }
+                `${matches.length.toLocaleString()} of ${rows.length.toLocaleString()}`
+              : 'no matches'}
             </span>
           : null
         }
@@ -233,11 +213,7 @@ function FilteredRows<R extends AnyRow>({
 
 const Gone = () => (
   <div className={styles.record}>
-    <span className={styles.dim}>
-      <Translate id="playground.store.list.gone">
-        No longer in the store
-      </Translate>
-    </span>
+    <span className={styles.dim}>No longer in the store</span>
   </div>
 );
 
