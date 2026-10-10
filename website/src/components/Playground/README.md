@@ -173,7 +173,7 @@ DesignSystem/       components injected into preview scope
 - The Store inspector navigates by two coordinates (see
   `preview/store/nav.tsx`, both owned by `StorePanel`): the **moment** (the
   action shown, or live; `NavStateContext` carries it down, with where a
-  step back or on lands (`earlier`, `later`), and `set`, `pick` and
+  step back or on lands (`earlier`, `later`), and `set` and
   `show(seq)` back up: `show` also opens that action in the Action tab) and the **subject** (a
   stack of levels over the store: a table, a record, a list of rows, with
   breadcrumbs, Back and Escape). A moment can stand for one action or, when
@@ -215,7 +215,7 @@ DesignSystem/       components injected into preview scope
     `preview/store/ActionList.tsx`, a `region` with its row count beside the
     crumbs "Actions of <subject>"), which Back, its crumb and the
     scrubber's list button go to; while it shows, a mark picked on the
-    timeline (`pick`) opens its action, as a row does, while ‹ › only move
+    timeline (the timelines' `onMark`) opens its action, as a row does, while ‹ › only move
     the moment. Picking a step there sets the moment and
     opens the action over the list; picking a row of several actions opens
     the group (`whole`: what they did together, then its actions, each
@@ -255,8 +255,8 @@ DesignSystem/       components injected into preview scope
   The scrubber across the top of the panel (`Scrubber` in
   `preview/store/Timeline.tsx`, a `role="group"`) always shows the whole
   history on one lane, fit to the panel: ‹ › and ←→ (from anywhere in the
-  panel without a use of its own for them, see `usesArrows`; the panel alone
-  handles them) step through the changes
+  panel without a use of its own for them, see `usesArrows`, or a
+  widget that took them with `preventDefault`; the panel alone handles them) step through the changes
   to the subject (`subjectFilter`'s `hit`: every stored action at the store; below it the marks that left the subject alone
   are dimmed, `data-dim`, and skipped; past the newest, and End, go live), a
   mark lands on its action, "Live" lets go. Marks closer on the track than a

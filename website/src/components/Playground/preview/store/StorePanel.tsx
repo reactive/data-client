@@ -341,24 +341,36 @@ export default function StorePanel({
     },
     [clearAt, setTab, showAction, closePane, covered, narrow, collapse],
   );
-  // a pick on the timeline while the Action tab lists the actions opens the
-  // one picked there, as the list's own rows do (in place, so stepping on
-  // keeps focus on the timeline)
+  // a mark picked on the timeline while the Action tab lists the actions
+  // opens the one picked there, as the list's own rows do (in place, so
+  // stepping on keeps focus on the timeline); narrow, it closes the sheet
   const actionShown = actionLevels.stack.some(e => e.view.kind === 'action');
-  const pick = useCallback(
-    (seq: number | null, whole = false) => {
-      set(seq, whole);
-      if (seq !== null && tab === 'action' && !actionShown)
-        showAction(seq, whole, true);
+  const mark = useCallback(
+    (seq: number) => {
+      set(seq);
+      if (tab === 'action' && !actionShown) showAction(seq, false, true);
     },
     [set, tab, actionShown, showAction],
   );
+  const markInSheet = useCallback(
+    (seq: number) => {
+      mark(seq);
+      collapse();
+    },
+    [mark, collapse],
+  );
   // the timeline steps over the subject's actions
-  const earlier = stepMoment(known, momentSeq, -1, filter.hit);
-  const later = stepMoment(known, momentSeq, 1, filter.hit);
+  const [earlier, later] = useMemo(
+    () =>
+      [
+        stepMoment(known, momentSeq, -1, filter.hit),
+        stepMoment(known, momentSeq, 1, filter.hit),
+      ] as const,
+    [known, momentSeq, filter.hit],
+  );
   const navState = useMemo<NavState>(
-    () => ({ seq: momentSeq, whole, earlier, later, set, pick, show }),
-    [momentSeq, whole, earlier, later, set, pick, show],
+    () => ({ seq: momentSeq, whole, earlier, later, set, show }),
+    [momentSeq, whole, earlier, later, set, show],
   );
   // what the peek's chips open: over the State tab's top level, in the
   // table view, with the peek closed to show it
@@ -419,7 +431,7 @@ export default function StorePanel({
       <Timeline
         width={width}
         hit={filter.hit}
-        onPick={narrow ? collapse : undefined}
+        onMark={narrow ? markInSheet : mark}
       />
     </Unfold>
   );
@@ -481,6 +493,7 @@ export default function StorePanel({
               expanded={timelineOpen}
               expandRef={expand}
               onExpand={setTimelineOpen}
+              onMark={mark}
               listed={listed}
               listRef={listButton}
               onList={openList}
@@ -1003,11 +1016,10 @@ function ActionLevel({
   subject: View;
   header: Header;
 }) {
-  const { history, groups } = useActions();
-  const { entries } = history;
-  const { entry, group, filter } = useShownAction(seq, whole, subject);
+  const { entries } = useActions().history;
+  const { entry, group, span, filter } = useShownAction(seq, whole, subject);
   // a group steps from its first action and to after the moment's
-  const from = group ? groupEntriesOf(group)[0].seq : entry?.seq;
+  const from = span ? span[0].seq : entry?.seq;
   // the step before leads, so the crumbs under it head the action shown
   return (
     <>
@@ -1024,12 +1036,9 @@ function ActionLevel({
           : 'No longer in the log.'}
         </p>
       : <>
-          {group ?
+          {group && span ?
             <div className={styles.actBody}>
-              <SubjectChanges
-                entries={groupEntriesOf(group).filter(e => e.seq <= entry.seq)}
-                subject={subject}
-              />
+              <SubjectChanges entries={span} subject={subject} />
               <GroupActions group={group} subject={subject} filter={filter} />
             </div>
           : <ActionDetail
@@ -1064,14 +1073,24 @@ function useShownAction(
   const { log, history, groups } = useActions();
   const { entries } = history;
   const filter = useSubjectFilter(log, entries, subject);
-  const entry =
-    seq === null ? newestOf(entries, filter.hit) : findEntry(entries, seq);
-  let group: ActionGroup | undefined;
-  if (entry && seq === null) {
-    const request = requestOf(groups, entry.seq);
-    if (request && groupEntriesOf(request).length > 1) group = request;
-  } else if (entry && whole) group = groupOf(groups, entry.seq);
-  return { entry, group, filter };
+  return useMemo(() => {
+    const entry =
+      seq === null ? newestOf(entries, filter.hit) : findEntry(entries, seq);
+    let group: ActionGroup | undefined;
+    // its actions up to it, as one
+    let span: readonly LogEntry[] | undefined;
+    if (entry && seq === null) {
+      const request = requestOf(groups, entry.seq);
+      if (request && groupEntriesOf(request).length > 1) {
+        group = request;
+        span = requestEntries(groups, entry);
+      }
+    } else if (entry && whole) {
+      group = groupOf(groups, entry.seq);
+      span = momentEntries(groups, entry, true);
+    }
+    return { entry, group, span, filter };
+  }, [entries, groups, filter, seq, whole]);
 }
 
 /** The newest of the subject's actions: what the Action tab shows live, as
@@ -1102,27 +1121,28 @@ function ActionStep({
   const { set } = useNavState();
   const label = dir < 0 ? 'Before' : 'After';
   const entry = to == null ? undefined : findEntry(history.entries, to);
-  const className = clsx(styles.actStep, dir > 0 && styles.actStepAfter);
-  if (to === undefined)
-    return (
-      <div className={className}>
-        <span className={styles.actStepDir}>{label}</span>
-        <span className={styles.dim}>
-          {dir < 0 ? 'nothing the log kept' : 'nothing yet: this is live'}
-        </span>
-      </div>
-    );
   return (
     <button
       type="button"
-      className={className}
-      title={to === null ? 'Back to live' : 'Step to this action'}
-      onClick={() => set(to)}
+      className={clsx(styles.actStep, dir > 0 && styles.actStepAfter)}
+      disabled={to === undefined}
+      title={
+        to === undefined ? undefined
+        : to === null ?
+          'Back to live'
+        : 'Step to this action'
+      }
+      onClick={() => to !== undefined && set(to)}
     >
       <span className={styles.actStepDir}>
-        {dir < 0 ? '↑' : '↓'} {label}
+        {to !== undefined && (dir < 0 ? '↑ ' : '↓ ')}
+        {label}
       </span>
-      {entry ?
+      {to === undefined ?
+        <span className={styles.dim}>
+          {dir < 0 ? 'nothing the log kept' : 'nothing yet: this is live'}
+        </span>
+      : entry ?
         <>
           <span className={styles.actStepName}>
             <ActionName entry={entry} />
@@ -1290,11 +1310,11 @@ function TreeLevel({ model, diff }: { model: StoreModel; diff?: Diff }) {
   );
 }
 
-/** Whether ← → mean something of their own where `el` has focus: text,
- * a choice, a slider */
+/** Whether ← → move a caret or a choice where `el` has focus, which can't
+ * say so with `preventDefault`; widgets with their own use do */
 function usesArrows(el: Element) {
   return !!el.closest(
-    'input, textarea, select, [contenteditable=""], [contenteditable="true"], [role="slider"], [role="tree"], [role="menu"]',
+    'input, textarea, select, [contenteditable=""], [contenteditable="true"]',
   );
 }
 

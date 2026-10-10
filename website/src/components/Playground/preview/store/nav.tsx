@@ -237,9 +237,6 @@ export interface NavState {
   readonly earlier: number | null | undefined;
   readonly later: number | null | undefined;
   readonly set: (seq: number | null, whole?: boolean) => void;
-  /** `set` from a mark picked on the timeline: the Action tab showing its
-   * list opens the action picked, as a row does */
-  readonly pick: (seq: number | null, whole?: boolean) => void;
   /** Moves the moment to action `seq` (or its group, `whole`) and opens it
    * in the Action tab: what it did to the subject, then the action itself
    * (or the group's actions) */
@@ -251,7 +248,6 @@ export const NavStateContext = createContext<NavState>({
   earlier: undefined,
   later: undefined,
   set: () => {},
-  pick: () => {},
   show: () => {},
 });
 export const useNavState = () => useContext(NavStateContext);

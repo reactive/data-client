@@ -317,6 +317,7 @@ function drawer({
 export const Scrubber = memo(function Scrubber({
   entry,
   hit,
+  onMark,
   width,
   expanded,
   expandRef,
@@ -330,6 +331,8 @@ export const Scrubber = memo(function Scrubber({
   entry?: LogEntry;
   /** The subject's actions; the others' marks dim */
   hit: SubjectFilter['hit'];
+  /** A mark picked (not as ‹ › step): makes it the moment */
+  onMark: (seq: number) => void;
   /** Panel width (px), to tell which marks crowd each other */
   width: number;
   /** Whether the timeline is shown under it */
@@ -346,9 +349,7 @@ export const Scrubber = memo(function Scrubber({
   onListHover: (inside: boolean, e: React.PointerEvent) => void;
 }) {
   const { groups } = useActions();
-  // a mark picked opens its action where the Action tab lists them; a
-  // step only moves the moment
-  const { whole, earlier, later, set: onSelect, pick, show } = useNavState();
+  const { whole, earlier, later, set: onSelect, show } = useNavState();
   // a row picked stands for its whole group: the label names that
   const group = whole && entry ? groupOf(groups, entry.seq) : undefined;
   // the track fits the panel beside the controls: marks a few px apart
@@ -356,7 +357,7 @@ export const Scrubber = memo(function Scrubber({
   // (a panel not laid out, measuring 0, merges nothing)
   const { shown, scale, drawn, marks, decor } = useDrawer(
     hit,
-    pick,
+    onMark,
     width > 0 ? width - SCRUB_CONTROLS : undefined,
   );
 
@@ -487,26 +488,21 @@ export const Scrubber = memo(function Scrubber({
 export default memo(function Timeline({
   width,
   hit,
-  onPick,
+  onMark,
 }: {
   /** Panel width (px) */
   width: number;
   /** The subject's actions; the others' marks dim */
   hit: SubjectFilter['hit'];
-  /** Called as a pick lands on content under the timeline: a mark (not as
-   * the keys step) */
-  onPick?: () => void;
+  /** A mark picked (not as the keys step): makes it the moment */
+  onMark: (seq: number) => void;
 }) {
   const { history, groups } = useActions();
-  const { seq: selected, set, pick } = useNavState();
+  const { seq: selected, set } = useNavState();
   const [spacing, setSpacing] = useTabStorage('playgroundTimelineSpacing');
   const { entries, since } = history;
   const lanes = useMemo(() => lanesOf(groups), [groups]);
-  const onSelect = (seq: number) => {
-    pick(seq);
-    onPick?.();
-  };
-  const { shown, scale, pos, drawn, decor } = useDrawer(hit, onSelect);
+  const { shown, scale, pos, drawn, decor } = useDrawer(hit, onMark);
   const narrow = width < NARROW_WIDTH;
   const labelWidth = narrow ? LABEL_WIDTH.narrow : LABEL_WIDTH.wide;
   // detailed (the default), it scrolls sideways, kept on the newest while
@@ -572,14 +568,10 @@ export default memo(function Timeline({
   }, [fit]);
 
   // ← → step as they do across the panel, which takes them on from here;
-  // End returns to live. Live already, either way on brings the newest back
-  // into view. Escape is the levels' way back, so it stays theirs
+  // End returns to live (live already, it brings the newest back into
+  // view). Escape is the levels' way back, so it stays theirs
   const onKeyDown = (e: React.KeyboardEvent) => {
     switch (e.key) {
-      case 'ArrowRight':
-        if (selected !== null) return;
-        toNewest();
-        break;
       case 'End':
         if (selected === null) toNewest();
         else set(null);
