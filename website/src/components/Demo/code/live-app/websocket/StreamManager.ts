@@ -107,7 +107,11 @@ export class StreamManager implements Manager {
    * so reconnect when prices stop arriving */
   protected watch() {
     clearTimeout(this.timer);
-    this.timer = setTimeout(() => this.connect(), 30_000);
+    this.timer = setTimeout(() => {
+      // without subscriptions, quiet is expected
+      if (this.products.size) this.connect();
+      else this.watch();
+    }, 30_000);
   }
 
   protected reconnect = () => {
