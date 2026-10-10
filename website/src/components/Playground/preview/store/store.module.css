@@ -21,6 +21,7 @@
   --store-tip: #3a4057;
   --store-bg: var(--monoco-code-background);
 
+  position: relative;
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -112,12 +113,11 @@
   background: var(--pg-tab-hover-bg);
   opacity: 1;
 }
-/* The peek: the subject's actions as an overlay over the content's right
-   side (narrow, most of it), under the scrubber's list button that opens
-   it, beside the ▾, with a scroll of its own */
+/* The peek: the subject's actions as an overlay over the panel's right
+   side (narrow, most of it), dropping from right under the scrubber's list
+   button that opens it (its top set from there), with a scroll of its own */
 .pane {
   position: absolute;
-  top: 0;
   right: 0;
   bottom: 0;
   z-index: 4;

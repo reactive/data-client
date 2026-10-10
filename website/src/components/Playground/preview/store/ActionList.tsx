@@ -54,8 +54,9 @@ function useRows(filter: SubjectFilter) {
 
 /** A peek at `subject`'s actions as the mouse rests on the scrubber's list
  * button, to move the moment by: the list, under a head naming the subject
- * (`label`, none at the store) and counting them, over the State or Action
- * tab's right side (`narrow`, most of it). Picking an action moves the moment
+ * (`label`, none at the store) and counting them, dropping from under that
+ * button (`top`, px into the panel) over the panel's right side (`narrow`,
+ * most of it). Picking an action moves the moment
  * there, and the tab under it follows. It goes as the pointer leaves it, on
  * Escape or a press outside */
 export function ActionsPane({
@@ -63,6 +64,7 @@ export function ActionsPane({
   filter,
   label,
   narrow,
+  top,
   toggle,
   onHover,
   onPick,
@@ -72,6 +74,7 @@ export function ActionsPane({
   filter: SubjectFilter;
   label: React.ReactNode;
   narrow: boolean;
+  top: number;
   /** Its button, which opens the list in full: a press there is not
    * outside */
   toggle: React.RefObject<HTMLElement | null>;
@@ -98,6 +101,7 @@ export function ActionsPane({
     <aside
       ref={ref}
       className={clsx(styles.pane, narrow && styles.paneNarrow)}
+      style={{ top }}
       aria-label="Actions"
       onPointerEnter={e => onHover(true, e)}
       onPointerLeave={e => onHover(false, e)}

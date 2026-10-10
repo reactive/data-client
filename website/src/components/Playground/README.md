@@ -234,7 +234,8 @@ DesignSystem/       components injected into preview scope
   the list shows): a click opens
   the list in the Action tab, and the mouse resting on it, unless the list
   shows, peeks at the same list (`ActionsPane`, an `aside` whose head counts
-  its rows): an overlay over the content's right side (narrow, most of it)
+  its rows): an overlay over the panel's right side (narrow, most of it),
+  dropping from right under the button,
   that stays while the pointer is over either and goes as it leaves both,
   with Escape or a press outside (each panel's own: a page holds several),
   focus going back to the button. Picking a row or step there only moves

@@ -326,6 +326,16 @@ export default function StorePanel({
       )?.focus({ preventScroll: true });
   }, [covered, pane]);
   const collapse = useCallback(() => setTimelineOpen(false), []);
+  // the peek drops from right under the scrubber's row of buttons
+  const [paneTop, setPaneTop] = useState(0);
+  useLayoutEffect(() => {
+    const row = listButton.current?.parentElement;
+    if (pane && row && panel.current)
+      setPaneTop(
+        row.getBoundingClientRect().bottom -
+          panel.current.getBoundingClientRect().top,
+      );
+  }, [pane]);
   // showing an action opens it in the Action tab, as the moment, over the
   // subject's actions (closing the peek and, narrow, the sheet)
   const show = useCallback(
@@ -622,27 +632,26 @@ export default function StorePanel({
                       </div>
                     </div>
                   )}
-                  {pane && !listed && (
-                    <NavContext.Provider value={chipNav}>
-                      <ActionsPane
-                        subject={subject}
-                        filter={filter}
-                        label={
-                          subject.kind === 'root' ?
-                            null
-                          : crumbLabel(subject, model)
-                        }
-                        narrow={narrow}
-                        toggle={listButton}
-                        onHover={hoverPane}
-                        onPick={set}
-                        onClose={closePane}
-                      />
-                    </NavContext.Provider>
-                  )}
                 </div>
               </div>
             </div>
+            {pane && !listed && (
+              <NavContext.Provider value={chipNav}>
+                <ActionsPane
+                  subject={subject}
+                  filter={filter}
+                  label={
+                    subject.kind === 'root' ? null : crumbLabel(subject, model)
+                  }
+                  narrow={narrow}
+                  top={paneTop}
+                  toggle={listButton}
+                  onHover={hoverPane}
+                  onPick={set}
+                  onClose={closePane}
+                />
+              </NavContext.Provider>
+            )}
           </div>
         </NavStateContext.Provider>
       </LogContext.Provider>
