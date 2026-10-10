@@ -319,10 +319,11 @@ div.playgroundTextEdit > .playgroundHeader,
 .editorBody > * {
   grid-area: 1 / 1;
 }
-/* room to inspect even when the code is short, held while visible, including
-   while it slides out pinned out of flow (until its <Activity> hides it) */
+/* room to inspect even when the code is short (the Store's own minimum),
+   held while visible, including while it slides out pinned out of flow
+   (until its <Activity> hides it) */
 .storeHost:has(> .storePanel[data-visible]) {
-  min-height: 20rem;
+  min-height: min(24rem, 70svh);
 }
 .storeHost {
   /* slides up from the preview below; sideways once side by side */
@@ -711,6 +712,7 @@ div.fixtureJson {
     min-height: 0;
   }
   .storeHost > .storePanel > * {
+    min-height: min(24rem, 70svh);
     max-height: min(32rem, 70svh);
   }
   /* the Store toggle moves into the preview's header */

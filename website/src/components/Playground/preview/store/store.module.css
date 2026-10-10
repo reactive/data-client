@@ -24,6 +24,9 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  /* room to inspect whatever the code's or the preview's height (the row
+     layout's host holds the same, see .storeHost) */
+  min-height: min(24rem, 70svh);
   max-height: 32rem;
   background: var(--store-bg);
   color: var(--store-fg);
