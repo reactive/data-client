@@ -180,7 +180,9 @@ function uiFiles(locale) {
 }
 /** Id of a UI string in prepare's work list and finalize's `--same` */
 const uiId = (locale, file, key) => `website/i18n/${locale}/${file}#${key}`;
-const placeholders = text => (text.match(/\{\w+\}/g) ?? []).sort().join();
+/** Placeholders a UI string uses; a plural's forms ("1 item|{count} items")
+ * repeat them, and a language can have fewer forms than English */
+const placeholders = text => [...new Set(text.match(/\{\w+\}/g))].sort().join();
 
 /**
  * Writes a locale's UI string files, keeping its translations. Like the CLI's

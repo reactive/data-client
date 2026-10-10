@@ -1,4 +1,5 @@
 import { StateContext, type State } from '@data-client/react';
+import Translate, { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React, {
   useCallback,
@@ -53,7 +54,7 @@ import { StoreUIProvider } from './StoreUI';
 import Timeline from './Timeline';
 import TreeView from './TreeView';
 import { RowKey } from './Value';
-import { RowHistory } from './VersionHistory';
+import { openAction, RowHistory } from './VersionHistory';
 import { useTabStorage } from '../../../../utils/tabStorage';
 import { prefersReducedMotion, springEasing, springs } from '../../../motion';
 
@@ -264,7 +265,14 @@ export default function StorePanel({
         <MomentContext.Provider value={moment}>
           <OpenViewContext.Provider value={openView}>
             <div className={styles.store} ref={panel}>
-              <div className={styles.bar} role="tablist" aria-label="Store">
+              <div
+                className={styles.bar}
+                role="tablist"
+                aria-label={translate({
+                  id: 'playground.store',
+                  message: 'Store',
+                })}
+              >
                 <button
                   type="button"
                   role="tab"
@@ -272,7 +280,7 @@ export default function StorePanel({
                   aria-selected={tab === 'state'}
                   onClick={() => setTab('state')}
                 >
-                  State
+                  {stateTab()}
                 </button>
                 <button
                   type="button"
@@ -281,7 +289,7 @@ export default function StorePanel({
                   aria-selected={tab === 'actions'}
                   onClick={() => setTab('actions')}
                 >
-                  Actions
+                  {actionsTab()}
                   {actions.groups.length > 0 && (
                     <span className={styles.count}>
                       {actions.groups.length.toLocaleString()}
@@ -291,8 +299,8 @@ export default function StorePanel({
                 <span className={styles.viewButtons}>
                   <button
                     type="button"
-                    aria-label="Timeline"
-                    title="Timeline"
+                    aria-label={timelineLabel()}
+                    title={timelineLabel()}
                     aria-pressed={timeline}
                     onClick={() => setTimeline(shown => !shown)}
                   >
@@ -302,12 +310,15 @@ export default function StorePanel({
                     <span
                       className={styles.viewSwitch}
                       role="group"
-                      aria-label="Store view"
+                      aria-label={translate({
+                        id: 'playground.store.view',
+                        message: 'Store view',
+                      })}
                     >
                       <button
                         type="button"
-                        aria-label="Table view"
-                        title="Table view"
+                        aria-label={tableView()}
+                        title={tableView()}
                         aria-pressed={!tree}
                         onClick={() => setView('table')}
                       >
@@ -315,8 +326,8 @@ export default function StorePanel({
                       </button>
                       <button
                         type="button"
-                        aria-label="Tree view"
-                        title="Tree view"
+                        aria-label={treeView()}
+                        title={treeView()}
                         aria-pressed={tree}
                         onClick={() => setView('tree')}
                       >
@@ -379,6 +390,17 @@ export default function StorePanel({
 
 const STATE_ROOT: View = { kind: 'root' };
 const ACTIONS_ROOT: View = { kind: 'actions' };
+
+const stateTab = () =>
+  translate({ id: 'playground.store.state', message: 'State' });
+const actionsTab = () =>
+  translate({ id: 'playground.store.actions', message: 'Actions' });
+const timelineLabel = () =>
+  translate({ id: 'playground.store.timeline', message: 'Timeline' });
+const tableView = () =>
+  translate({ id: 'playground.store.view.table', message: 'Table view' });
+const treeView = () =>
+  translate({ id: 'playground.store.view.tree', message: 'Tree view' });
 
 /** Slides `children` open and shut (see `.unfold`): their row grows from
  * nothing as they rise into place, and back. Shut, they stay mounted, but
@@ -506,7 +528,10 @@ function SnapshotBar({
     <div ref={bar} className={clsx(styles.snapshot, !entry && styles.tlLive)}>
       <button
         type="button"
-        aria-label="Previous change"
+        aria-label={translate({
+          id: 'playground.store.snapshot.previous',
+          message: 'Previous change',
+        })}
         disabled={!earlier}
         onClick={() => earlier && step(earlier.seq)}
       >
@@ -514,7 +539,10 @@ function SnapshotBar({
       </button>
       <button
         type="button"
-        aria-label="Next change"
+        aria-label={translate({
+          id: 'playground.store.snapshot.next',
+          message: 'Next change',
+        })}
         disabled={!later && !(stepsToLive && entry)}
         onClick={() => step(later?.seq ?? null)}
       >
@@ -523,26 +551,36 @@ function SnapshotBar({
       {entry ?
         <>
           <span className={styles.snapshotLabel}>
-            After{' '}
-            <button
-              type="button"
-              className={styles.snapshotAction}
-              title="Open action"
-              onClick={() => onOpen(entry.seq)}
+            <Translate
+              id="playground.store.snapshot.after"
+              values={{
+                action: (
+                  <button
+                    type="button"
+                    className={styles.snapshotAction}
+                    title={openAction()}
+                    onClick={() => onOpen(entry.seq)}
+                  >
+                    <ActionName entry={entry} />
+                  </button>
+                ),
+              }}
             >
-              <ActionName entry={entry} />
-            </button>
+              {'After {action}'}
+            </Translate>
           </span>
           <button
             type="button"
             className={styles.liveButton}
             onClick={() => step(null)}
           >
-            Live
+            <Translate id="playground.store.snapshot.live">Live</Translate>
           </button>
         </>
       : <span className={styles.snapshotLabel}>
-          Live. Pick an action to see State right after it.
+          <Translate id="playground.store.snapshot.liveNote">
+            Live. Pick an action to see State right after it.
+          </Translate>
         </span>
       }
     </div>
@@ -617,12 +655,21 @@ function Levels({
         <button
           type="button"
           className={styles.back}
-          aria-label="Back"
+          aria-label={translate({
+            id: 'playground.store.crumbs.back',
+            message: 'Back',
+          })}
           onClick={() => back(depth)}
         >
           ‹
         </button>
-        <nav className={styles.crumbList} aria-label="Store location">
+        <nav
+          className={styles.crumbList}
+          aria-label={translate({
+            id: 'playground.store.crumbs.label',
+            message: 'Store location',
+          })}
+        >
           {items.map((i, n) => (
             <React.Fragment key={i}>
               {n > 0 && <span className={styles.sep}>›</span>}
@@ -647,7 +694,16 @@ function Levels({
           <span className={styles.tools}>
             {at && (
               <span className={styles.dim}>
-                {at.before ? 'before' : 'after'} this action
+                {at.before ?
+                  translate({
+                    id: 'playground.store.crumbs.before',
+                    message: 'before this action',
+                  })
+                : translate({
+                    id: 'playground.store.crumbs.after',
+                    message: 'after this action',
+                  })
+                }
               </span>
             )}
             {tools}
@@ -800,13 +856,13 @@ function Level({
 function crumbLabel(view: View, model: StoreModel): React.ReactNode {
   switch (view.kind) {
     case 'root':
-      return 'State';
+      return stateTab();
     case 'actions':
-      return 'Actions';
+      return actionsTab();
     case 'action':
       return <ActionCrumb seq={view.seq} />;
     case 'history':
-      return 'History';
+      return translate({ id: 'playground.store.history', message: 'History' });
     case 'list': {
       const count =
         'ids' in view ? view.ids.length

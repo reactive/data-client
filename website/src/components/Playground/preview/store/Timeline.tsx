@@ -1,3 +1,4 @@
+import Translate, { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React, {
   memo,
@@ -17,13 +18,13 @@ import {
 import { isRecordChange, nearestChange, type LogEntry } from './actionLog';
 import {
   droppedIn,
-  droppedText,
+  droppedNote,
   FOLLOW_SLACK,
-  KEEPS_NEWEST,
   KeyLabel,
   seconds,
   typeClass,
   useActions,
+  useDroppedText,
   useFollow,
   useLog,
 } from './ActionsView';
@@ -232,7 +233,13 @@ export default memo(function Timeline({
   const frac = (x: number) => x / scale.width;
   const pos = (x: number) => ({ '--tl-f': frac(x) }) as React.CSSProperties;
   const mark = (entry: LogEntry, extra?: string) => {
-    const label = `${actionName(entry.action)} at ${seconds(entry.at - since)}s`;
+    const label = translate(
+      { id: 'playground.store.timeline.mark', message: '{action} at {time}' },
+      {
+        action: actionName(entry.action),
+        time: `${seconds(entry.at - since)}s`,
+      },
+    );
     const style = pos(scale.x.get(entry.seq)!);
     // only an action the store saw has a state to show
     return entry.store ?
@@ -324,7 +331,11 @@ export default memo(function Timeline({
       style={{ '--tl-label': `${labelWidth}px` } as React.CSSProperties}
       tabIndex={0}
       role="group"
-      aria-label="Timeline: arrow keys step through changes, End returns to live"
+      aria-label={translate({
+        id: 'playground.store.timeline.label',
+        message:
+          'Timeline: arrow keys step through changes, End returns to live',
+      })}
       onKeyDown={onKeyDown}
     >
       <div
@@ -341,8 +352,14 @@ export default memo(function Timeline({
           <button
             type="button"
             className={styles.tlFit}
-            aria-label="Fit timeline"
-            title="Fit the whole timeline"
+            aria-label={translate({
+              id: 'playground.store.timeline.fit',
+              message: 'Fit timeline',
+            })}
+            title={translate({
+              id: 'playground.store.timeline.fitTitle',
+              message: 'Fit the whole timeline',
+            })}
             aria-pressed={fit}
             onClick={toggleFit}
           >
@@ -353,7 +370,12 @@ export default memo(function Timeline({
           <span key={lane.key} className={styles.tlLabel}>
             {lane.key ?
               <KeyLabel value={lane.key} />
-            : <span className={styles.dim}>store</span>}
+            : <span className={styles.dim}>
+                <Translate id="playground.store.timeline.storeLane">
+                  store
+                </Translate>
+              </span>
+            }
             {/* an endpoint's lane is one record's; a schema's spans a table */}
             {splitKey(lane.key).method && (
               <HistoryButton
@@ -374,8 +396,10 @@ export default memo(function Timeline({
       >
         {!entries.length && (
           <p className={styles.empty}>
-            Nothing dispatched yet. Actions show on the timeline as the preview
-            runs.
+            <Translate id="playground.store.timeline.empty">
+              Nothing dispatched yet. Actions show on the timeline as the
+              preview runs.
+            </Translate>
           </p>
         )}
         <div
@@ -413,13 +437,14 @@ export default memo(function Timeline({
  * says it of a row */
 function LaneDropped({ lane }: { lane: Lane }) {
   const { dropped } = useLog();
+  const droppedText = useDroppedText();
   // each row's own count, as the list words it
   const counts = lane.groups.flatMap(group => {
     const n = droppedIn(groupEntriesOf(group), dropped);
     return n ? [droppedText(group, n)] : [];
   });
   if (!counts.length) return null;
-  const label = `${counts.join('; ')}: ${KEEPS_NEWEST}`;
+  const label = droppedNote(counts.join('; '));
   return (
     <span
       className={clsx(styles.tlDropped, styles.dim)}

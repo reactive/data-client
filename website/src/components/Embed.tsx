@@ -1,4 +1,5 @@
 import Link from '@docusaurus/Link';
+import Translate from '@docusaurus/Translate';
 
 // import Refresh from '../../static/img/refresh.svg';
 
@@ -19,7 +20,7 @@ export default function Embed({
           to={src}
           target="_blank"
         >
-          Open in new tab
+          <Translate id="embed.openInNewTab">Open in new tab</Translate>
         </Link>
         &nbsp;
         <Link

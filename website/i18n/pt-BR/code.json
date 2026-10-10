@@ -769,5 +769,454 @@
   },
   "errors.osid.disable": {
     "message": "desative a ofuscação de nomes de função"
+  },
+  "embed.openInNewTab": {
+    "message": "Abrir em uma nova aba"
+  },
+  "frameworkSelector.select": {
+    "message": "Selecionar framework"
+  },
+  "frameworkSelector.unavailable": {
+    "message": "Esta página não está disponível para {framework}"
+  },
+  "genericsTabs.type": {
+    "message": "Tipo"
+  },
+  "genericsTabs.generics": {
+    "message": "Com genéricos"
+  },
+  "stackblitz.loading": {
+    "message": "Carregando a demo…"
+  },
+  "stackblitz.frameTitle": {
+    "message": "Demo de {name} no StackBlitz"
+  },
+  "stackblitz.moreDemos": {
+    "message": "Mais demos"
+  },
+  "http.request": {
+    "message": "Requisição"
+  },
+  "http.response": {
+    "message": "Resposta"
+  },
+  "playground.error.compile": {
+    "message": "Erro de compilação"
+  },
+  "playground.error.runtime": {
+    "message": "Erro em tempo de execução"
+  },
+  "playground.error.manager": {
+    "message": "Erro do Manager"
+  },
+  "playground.fixtures": {
+    "message": "Fixtures"
+  },
+  "playground.resetPreview": {
+    "message": "Reiniciar a pré-visualização"
+  },
+  "playground.renderCount": {
+    "message": "{count} renderização|{count} renderizações",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.renderCount.title": {
+    "message": "Commits do React desta pré-visualização. Clique para zerar."
+  },
+  "playground.store": {
+    "message": "Store"
+  },
+  "playground.store.hide": {
+    "message": "Ocultar o store"
+  },
+  "playground.store.show": {
+    "message": "Mostrar o store"
+  },
+  "playground.store.action.alsoRefreshed": {
+    "message": "Também armazenou {count} linha de novo, sem alterações|Também armazenou {count} linhas de novo, sem alterações",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.store.action.refreshed": {
+    "message": "Armazenou {count} linha de novo, sem alterações|Armazenou {count} linhas de novo, sem alterações",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.store.action.noChange": {
+    "message": "Nenhuma alteração no store"
+  },
+  "playground.store.action.previous": {
+    "message": "Ação anterior desta linha"
+  },
+  "playground.store.action.stepOf": {
+    "message": "{current} de {total}"
+  },
+  "playground.store.action.next": {
+    "message": "Próxima ação desta linha"
+  },
+  "playground.store.action.unapplied.fetch": {
+    "message": "Iniciou a requisição; o store muda quando a resposta chegar"
+  },
+  "playground.store.action.unapplied.subscription": {
+    "message": "Tratada pelo SubscriptionManager; o store não mudou"
+  },
+  "playground.store.action.unapplied.manager": {
+    "message": "Um Manager a tratou sem repassá-la ao store"
+  },
+  "playground.store.action.gone": {
+    "message": "Não está mais no log"
+  },
+  "playground.store.action.viewState": {
+    "message": "Ver o estado depois disto"
+  },
+  "playground.store.change.expiredNote": {
+    "message": "desatualizado; a próxima leitura busca de novo"
+  },
+  "playground.store.change.invalidatedNote": {
+    "message": "inválido; a próxima leitura busca de novo"
+  },
+  "playground.store.actions.empty": {
+    "message": "Nada foi despachado ainda. Requisições, respostas e outras ações do store aparecem aqui enquanto a pré-visualização roda."
+  },
+  "playground.store.actions.deduped": {
+    "message": "Mais {count} busca deduplicada nesta requisição|Mais {count} buscas deduplicadas nesta requisição",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.store.actions.optimistic": {
+    "message": "otimista"
+  },
+  "playground.store.actions.matchingKeys": {
+    "message": "chaves correspondentes"
+  },
+  "playground.store.actions.polls": {
+    "message": "polling a cada {interval}"
+  },
+  "playground.store.actions.subscribed": {
+    "message": "inscrito"
+  },
+  "playground.store.actions.shared": {
+    "message": "{count} busca compartilhou esta requisição|{count} buscas compartilharam esta requisição",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.store.actions.fetchCount": {
+    "message": "{count} busca|{count} buscas",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.store.actions.live": {
+    "message": "ativo · {count}"
+  },
+  "playground.store.actions.ended": {
+    "message": "encerrado · {count}"
+  },
+  "playground.store.actions.cancelled": {
+    "message": "cancelada"
+  },
+  "playground.store.actions.pending": {
+    "message": "pendente"
+  },
+  "playground.store.status.error": {
+    "message": "erro"
+  },
+  "playground.store.actions.keepsNewest": {
+    "message": "o log mantém as mais recentes"
+  },
+  "playground.store.actions.droppedNote": {
+    "message": "{dropped}: {reason}"
+  },
+  "playground.store.actions.droppedPolls": {
+    "message": "{count} polling anterior não mantido|{count} pollings anteriores não mantidos",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.store.actions.droppedSets": {
+    "message": "{count} set anterior não mantido|{count} sets anteriores não mantidos",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.store.actions.droppedResponses": {
+    "message": "{count} resposta anterior não mantida|{count} respostas anteriores não mantidas",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.store.change.refreshed": {
+    "message": "armazenado de novo, sem alterações"
+  },
+  "playground.store.change.newRows": {
+    "message": "novos {table}"
+  },
+  "playground.store.change.rowCount": {
+    "message": "{count} {table}"
+  },
+  "playground.store.change.fieldsTitle": {
+    "message": "{kind}: {fields}"
+  },
+  "playground.store.change.added": {
+    "message": "adicionado"
+  },
+  "playground.store.change.updated": {
+    "message": "atualizado"
+  },
+  "playground.store.change.removed": {
+    "message": "removido"
+  },
+  "playground.store.change.invalidated": {
+    "message": "invalidado"
+  },
+  "playground.store.change.error": {
+    "message": "erro"
+  },
+  "playground.store.change.refreshedKind": {
+    "message": "armazenado de novo"
+  },
+  "playground.store.change.expired": {
+    "message": "expirado"
+  },
+  "playground.store.status.fresh": {
+    "message": "atualizado"
+  },
+  "playground.store.status.expiresAt": {
+    "message": "Expira às {time}"
+  },
+  "playground.store.status.freshFor": {
+    "message": "atualizado {left}"
+  },
+  "playground.store.status.stale": {
+    "message": "desatualizado"
+  },
+  "playground.store.status.invalid": {
+    "message": "inválido"
+  },
+  "playground.store.record.show": {
+    "message": "Mostrar"
+  },
+  "playground.store.record.stored": {
+    "message": "Armazenado"
+  },
+  "playground.store.record.returns": {
+    "message": "Retorna"
+  },
+  "playground.store.record.usedByCount": {
+    "message": "usado por {count}"
+  },
+  "playground.store.record.usedByNothing": {
+    "message": "nada"
+  },
+  "playground.store.record.meta": {
+    "message": "meta"
+  },
+  "playground.store.record.fetchedAt": {
+    "message": "buscado {time}"
+  },
+  "playground.store.record.expiresAt": {
+    "message": "expira {time}"
+  },
+  "playground.store.record.neverExpires": {
+    "message": "nunca expira"
+  },
+  "playground.store.record.usedBy": {
+    "message": "usado por"
+  },
+  "playground.store.list.filter": {
+    "message": "filtrar"
+  },
+  "playground.store.list.filterLabel": {
+    "message": "Filtrar linhas"
+  },
+  "playground.store.list.matchesOf": {
+    "message": "{matches} de {total}"
+  },
+  "playground.store.list.noMatches": {
+    "message": "nenhum resultado"
+  },
+  "playground.store.list.gone": {
+    "message": "Não está mais no store"
+  },
+  "playground.store.optimistic.none": {
+    "message": "Nenhuma pendente"
+  },
+  "playground.store.table.more": {
+    "message": "mais {count}"
+  },
+  "playground.store.column.key": {
+    "message": "chave"
+  },
+  "playground.store.column.args": {
+    "message": "args"
+  },
+  "playground.store.column.sent": {
+    "message": "enviado"
+  },
+  "playground.store.table.collection": {
+    "message": "Collection"
+  },
+  "playground.store.section.optimistic": {
+    "message": "Otimistas"
+  },
+  "playground.store.section.endpoints": {
+    "message": "Endpoints"
+  },
+  "playground.store.section.entities": {
+    "message": "Entities"
+  },
+  "playground.store.section.internals": {
+    "message": "Internos"
+  },
+  "playground.store.view": {
+    "message": "Visualização do store"
+  },
+  "playground.store.state": {
+    "message": "Estado"
+  },
+  "playground.store.actions": {
+    "message": "Ações"
+  },
+  "playground.store.timeline": {
+    "message": "Linha do tempo"
+  },
+  "playground.store.view.table": {
+    "message": "Visualização em tabela"
+  },
+  "playground.store.view.tree": {
+    "message": "Visualização em árvore"
+  },
+  "playground.store.snapshot.previous": {
+    "message": "Alteração anterior"
+  },
+  "playground.store.snapshot.next": {
+    "message": "Próxima alteração"
+  },
+  "playground.store.snapshot.after": {
+    "message": "Depois de {action}"
+  },
+  "playground.store.snapshot.live": {
+    "message": "Ao vivo"
+  },
+  "playground.store.snapshot.liveNote": {
+    "message": "Ao vivo. Escolha uma ação para ver o estado logo depois dela."
+  },
+  "playground.store.crumbs.back": {
+    "message": "Voltar"
+  },
+  "playground.store.crumbs.label": {
+    "message": "Local no store"
+  },
+  "playground.store.crumbs.before": {
+    "message": "antes desta ação"
+  },
+  "playground.store.crumbs.after": {
+    "message": "depois desta ação"
+  },
+  "playground.store.history": {
+    "message": "Histórico"
+  },
+  "playground.store.table.hideHint": {
+    "message": "ocultar"
+  },
+  "playground.store.table.showHint": {
+    "message": "mostrar abaixo"
+  },
+  "playground.store.table.hideFields": {
+    "message": "Ocultar campos"
+  },
+  "playground.store.table.showFields": {
+    "message": "Mostrar mais {count} campo abaixo|Mostrar mais {count} campos abaixo",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.store.table.previousFields": {
+    "message": "Campos anteriores"
+  },
+  "playground.store.table.pageOf": {
+    "message": "{range} de {total}"
+  },
+  "playground.store.table.nextFields": {
+    "message": "Próximos campos"
+  },
+  "playground.store.column.id": {
+    "message": "id"
+  },
+  "playground.store.column.cell": {
+    "message": "célula"
+  },
+  "playground.store.column.items": {
+    "message": "itens"
+  },
+  "playground.store.column.value": {
+    "message": "valor"
+  },
+  "playground.store.column.fetched": {
+    "message": "buscado"
+  },
+  "playground.store.column.expires": {
+    "message": "expira"
+  },
+  "playground.store.column.status": {
+    "message": "status"
+  },
+  "playground.store.column.row": {
+    "message": "linha"
+  },
+  "playground.store.timeline.mark": {
+    "message": "{action} em {time}"
+  },
+  "playground.store.timeline.label": {
+    "message": "Linha do tempo: as setas percorrem as alterações, End volta para o ao vivo"
+  },
+  "playground.store.timeline.fit": {
+    "message": "Ajustar a linha do tempo"
+  },
+  "playground.store.timeline.fitTitle": {
+    "message": "Ajustar a linha do tempo inteira"
+  },
+  "playground.store.timeline.storeLane": {
+    "message": "store"
+  },
+  "playground.store.timeline.empty": {
+    "message": "Nada foi despachado ainda. As ações aparecem na linha do tempo enquanto a pré-visualização roda."
+  },
+  "playground.store.tree.showFewer": {
+    "message": "Mostrar menos"
+  },
+  "playground.store.tree.showAll": {
+    "message": "Mostrar todos os {count}"
+  },
+  "playground.store.optimistic.waiting": {
+    "message": "aguardando o servidor"
+  },
+  "playground.store.record.changedBy": {
+    "message": "alterado por"
+  },
+  "playground.store.record.changedByDropped": {
+    "message": "ações não mantidas"
+  },
+  "playground.store.history.title": {
+    "message": "Cada alteração deste registro"
+  },
+  "playground.store.history.changeCount": {
+    "message": "{count} alteração|{count} alterações",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.store.history.empty": {
+    "message": "Nenhuma alteração no log"
+  },
+  "playground.store.history.versions": {
+    "message": "Versões"
+  },
+  "playground.store.history.removedWas": {
+    "message": "Removido; era:"
+  },
+  "playground.store.history.missing.refreshed": {
+    "message": "Armazenado de novo por ações não mantidas: {reason}"
+  },
+  "playground.store.history.missing.removed": {
+    "message": "Removido por ações não mantidas: {reason}"
+  },
+  "playground.store.history.missing.invalidated": {
+    "message": "Invalidado por ações não mantidas: {reason}"
+  },
+  "playground.store.history.missing.expired": {
+    "message": "Marcado como desatualizado por ações não mantidas: {reason}"
+  },
+  "playground.store.history.missing.error": {
+    "message": "Falhou por ações não mantidas: {reason}"
+  },
+  "playground.store.history.missing.changed": {
+    "message": "Alterado por ações não mantidas: {reason}"
+  },
+  "playground.store.action.open": {
+    "message": "Abrir ação"
   }
 }

@@ -1,4 +1,5 @@
 import { StateContext, useController } from '@data-client/react';
+import Translate, { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React, { useContext, useEffect, useState } from 'react';
 
@@ -22,21 +23,48 @@ export function Status({ meta }: { meta: Meta }) {
   const now = useNow(meta?.expiresAt);
   if (!meta) return null;
   if (meta.error)
-    return <span className={clsx(styles.pill, styles.error)}>error</span>;
+    return (
+      <span className={clsx(styles.pill, styles.error)}>
+        <Translate id="playground.store.status.error">error</Translate>
+      </span>
+    );
   if (meta.invalidated)
-    return <span className={clsx(styles.pill, styles.stale)}>invalid</span>;
+    return (
+      <span className={clsx(styles.pill, styles.stale)}>{invalidLabel()}</span>
+    );
   if (!isFinite(meta.expiresAt))
-    return <span className={clsx(styles.pill, styles.fresh)}>fresh</span>;
+    return (
+      <span className={clsx(styles.pill, styles.fresh)}>
+        <Translate id="playground.store.status.fresh">fresh</Translate>
+      </span>
+    );
   const left = meta.expiresAt - now;
   return left > 0 ?
       <span
         className={clsx(styles.pill, styles.fresh)}
-        title={`Expires at ${formatTime(meta.expiresAt)}`}
+        title={translate(
+          {
+            id: 'playground.store.status.expiresAt',
+            message: 'Expires at {time}',
+          },
+          { time: formatTime(meta.expiresAt) },
+        )}
       >
-        fresh {seconds(left)}
+        <Translate
+          id="playground.store.status.freshFor"
+          values={{ left: seconds(left) }}
+        >
+          {'fresh {left}'}
+        </Translate>
       </span>
-    : <span className={clsx(styles.pill, styles.stale)}>stale</span>;
+    : <span className={clsx(styles.pill, styles.stale)}>
+        <Translate id="playground.store.status.stale">stale</Translate>
+      </span>;
 }
+
+/** An endpoint invalidated, or an entity `schema.Invalidate` marked */
+export const invalidLabel = () =>
+  translate({ id: 'playground.store.status.invalid', message: 'invalid' });
 
 /** Re-renders each second until `until` passes */
 function useNow(until: number | undefined) {
@@ -82,8 +110,20 @@ export function EndpointBody({ row }: { row: EndpointRow }) {
     <>
       {record && (
         <Segmented
-          label="Show"
-          options={{ stored: 'Stored', returns: 'Returns' }}
+          label={translate({
+            id: 'playground.store.record.show',
+            message: 'Show',
+          })}
+          options={{
+            stored: translate({
+              id: 'playground.store.record.stored',
+              message: 'Stored',
+            }),
+            returns: translate({
+              id: 'playground.store.record.returns',
+              message: 'Returns',
+            }),
+          }}
           value={view}
           onChange={setView}
         />
@@ -195,13 +235,23 @@ export function RowMeta({
 }) {
   const referrers = referrersOf(model, row.id);
   const summary = metaSummary(row.meta);
-  if (referrers.length) summary.push(`used by ${referrers.length}`);
+  if (referrers.length)
+    summary.push(
+      translate(
+        {
+          id: 'playground.store.record.usedByCount',
+          message: 'used by {count}',
+        },
+        { count: referrers.length },
+      ),
+    );
   return (
     <MetaBlock collapsed={collapsed} summary={summary}>
       <MetaFields meta={row.meta} />
       <div className={styles.field}>
         <span className={styles.key}>
-          used by<span className={styles.dim}>:</span>
+          {usedBy()}
+          <span className={styles.dim}>:</span>
         </span>
         {referrers.length ?
           <RefList
@@ -210,11 +260,16 @@ export function RowMeta({
             ))}
             list={() => ({
               kind: 'list',
-              label: 'used by',
+              label: usedBy(),
               ids: referrers.map(r => r.id),
             })}
           />
-        : <span className={styles.dim}>nothing</span>}
+        : <span className={styles.dim}>
+            <Translate id="playground.store.record.usedByNothing">
+              nothing
+            </Translate>
+          </span>
+        }
       </div>
       <ChangedBy id={row.id} history={history} />
     </MetaBlock>
@@ -240,7 +295,7 @@ function MetaBlock({
     <details className={styles.metaDetails}>
       <summary>
         <span className={styles.chevron}>▶</span>
-        meta
+        <Translate id="playground.store.record.meta">meta</Translate>
         <span className={styles.metaSummary}>{summary.join(' · ')}</span>
       </summary>
       {list}
@@ -258,13 +313,36 @@ function MetaFields({ meta }: { meta: Meta | EntityRow['meta'] }) {
 /** `fetched 12:11:13.045 PM · expires 12:12:13.045 PM · error` */
 function metaSummary(meta: Meta | EntityRow['meta']) {
   if (!meta) return [];
-  const parts = [`fetched ${formatTime(meta.fetchedAt || meta.date)}`];
+  const parts = [
+    translate(
+      { id: 'playground.store.record.fetchedAt', message: 'fetched {time}' },
+      { time: formatTime(meta.fetchedAt || meta.date) },
+    ),
+  ];
   parts.push(
     isFinite(meta.expiresAt) ?
-      `expires ${formatTime(meta.expiresAt)}`
-    : 'never expires',
+      translate(
+        { id: 'playground.store.record.expiresAt', message: 'expires {time}' },
+        { time: formatTime(meta.expiresAt) },
+      )
+    : translate({
+        id: 'playground.store.record.neverExpires',
+        message: 'never expires',
+      }),
   );
-  if ('error' in meta && meta.error) parts.push('error');
-  if ('invalidated' in meta && meta.invalidated) parts.push('invalidated');
+  if ('error' in meta && meta.error)
+    parts.push(
+      translate({ id: 'playground.store.status.error', message: 'error' }),
+    );
+  if ('invalidated' in meta && meta.invalidated)
+    parts.push(
+      translate({
+        id: 'playground.store.change.invalidated',
+        message: 'invalidated',
+      }),
+    );
   return parts;
 }
+
+const usedBy = () =>
+  translate({ id: 'playground.store.record.usedBy', message: 'used by' });

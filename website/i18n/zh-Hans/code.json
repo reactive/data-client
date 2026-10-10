@@ -769,5 +769,454 @@
   "theme.tags.tagsPageTitle": {
     "message": "标签",
     "description": "The title of the tag list page"
+  },
+  "embed.openInNewTab": {
+    "message": "在新标签页中打开"
+  },
+  "frameworkSelector.select": {
+    "message": "选择框架"
+  },
+  "frameworkSelector.unavailable": {
+    "message": "此页面没有 {framework} 版本"
+  },
+  "genericsTabs.type": {
+    "message": "类型"
+  },
+  "genericsTabs.generics": {
+    "message": "使用泛型"
+  },
+  "stackblitz.loading": {
+    "message": "正在加载演示…"
+  },
+  "stackblitz.frameTitle": {
+    "message": "{name} 在 StackBlitz 上的演示"
+  },
+  "stackblitz.moreDemos": {
+    "message": "更多演示"
+  },
+  "http.request": {
+    "message": "请求"
+  },
+  "http.response": {
+    "message": "响应"
+  },
+  "playground.error.compile": {
+    "message": "编译错误"
+  },
+  "playground.error.runtime": {
+    "message": "运行时错误"
+  },
+  "playground.error.manager": {
+    "message": "Manager 错误"
+  },
+  "playground.fixtures": {
+    "message": "Fixtures"
+  },
+  "playground.resetPreview": {
+    "message": "重置预览"
+  },
+  "playground.renderCount": {
+    "message": "{count} 次渲染",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.renderCount.title": {
+    "message": "此预览的 React 提交次数。点击重置。"
+  },
+  "playground.store": {
+    "message": "Store"
+  },
+  "playground.store.hide": {
+    "message": "隐藏 Store"
+  },
+  "playground.store.show": {
+    "message": "显示 Store"
+  },
+  "playground.store.action.alsoRefreshed": {
+    "message": "另外重新存储了 {count} 行，内容未变",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.store.action.refreshed": {
+    "message": "重新存储了 {count} 行，内容未变",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.store.action.noChange": {
+    "message": "store 没有变化"
+  },
+  "playground.store.action.previous": {
+    "message": "此行的上一个 action"
+  },
+  "playground.store.action.stepOf": {
+    "message": "第 {current} 个，共 {total} 个"
+  },
+  "playground.store.action.next": {
+    "message": "此行的下一个 action"
+  },
+  "playground.store.action.unapplied.fetch": {
+    "message": "已发起请求；响应到达时 store 才会变化"
+  },
+  "playground.store.action.unapplied.subscription": {
+    "message": "由 SubscriptionManager 处理；store 未改变"
+  },
+  "playground.store.action.unapplied.manager": {
+    "message": "某个 Manager 处理了它，没有传给 store"
+  },
+  "playground.store.action.gone": {
+    "message": "已不在日志中"
+  },
+  "playground.store.action.viewState": {
+    "message": "查看此后的状态"
+  },
+  "playground.store.change.expiredNote": {
+    "message": "已过时；下次读取会重新获取"
+  },
+  "playground.store.change.invalidatedNote": {
+    "message": "已失效；下次读取会重新获取"
+  },
+  "playground.store.actions.empty": {
+    "message": "还没有派发任何 action。预览运行时，请求、响应和其他 store action 会显示在这里。"
+  },
+  "playground.store.actions.deduped": {
+    "message": "另有 {count} 次获取合并到此请求",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.store.actions.optimistic": {
+    "message": "乐观"
+  },
+  "playground.store.actions.matchingKeys": {
+    "message": "匹配的键"
+  },
+  "playground.store.actions.polls": {
+    "message": "每 {interval} 轮询"
+  },
+  "playground.store.actions.subscribed": {
+    "message": "已订阅"
+  },
+  "playground.store.actions.shared": {
+    "message": "{count} 次获取共用此请求",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.store.actions.fetchCount": {
+    "message": "{count} 次获取",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.store.actions.live": {
+    "message": "进行中 · {count}"
+  },
+  "playground.store.actions.ended": {
+    "message": "已结束 · {count}"
+  },
+  "playground.store.actions.cancelled": {
+    "message": "已取消"
+  },
+  "playground.store.actions.pending": {
+    "message": "等待中"
+  },
+  "playground.store.status.error": {
+    "message": "错误"
+  },
+  "playground.store.actions.keepsNewest": {
+    "message": "日志只保留最新的"
+  },
+  "playground.store.actions.droppedNote": {
+    "message": "{dropped}：{reason}"
+  },
+  "playground.store.actions.droppedPolls": {
+    "message": "{count} 次较早的轮询未保留",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.store.actions.droppedSets": {
+    "message": "{count} 次较早的 set 未保留",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.store.actions.droppedResponses": {
+    "message": "{count} 个较早的响应未保留",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.store.change.refreshed": {
+    "message": "重新存储，内容未变"
+  },
+  "playground.store.change.newRows": {
+    "message": "新的 {table}"
+  },
+  "playground.store.change.rowCount": {
+    "message": "{count} 个 {table}"
+  },
+  "playground.store.change.fieldsTitle": {
+    "message": "{kind}：{fields}"
+  },
+  "playground.store.change.added": {
+    "message": "新增"
+  },
+  "playground.store.change.updated": {
+    "message": "已更新"
+  },
+  "playground.store.change.removed": {
+    "message": "已移除"
+  },
+  "playground.store.change.invalidated": {
+    "message": "已失效"
+  },
+  "playground.store.change.error": {
+    "message": "错误"
+  },
+  "playground.store.change.refreshedKind": {
+    "message": "重新存储"
+  },
+  "playground.store.change.expired": {
+    "message": "已过期"
+  },
+  "playground.store.status.fresh": {
+    "message": "最新"
+  },
+  "playground.store.status.expiresAt": {
+    "message": "{time} 过期"
+  },
+  "playground.store.status.freshFor": {
+    "message": "最新 {left}"
+  },
+  "playground.store.status.stale": {
+    "message": "过时"
+  },
+  "playground.store.status.invalid": {
+    "message": "已失效"
+  },
+  "playground.store.record.show": {
+    "message": "显示"
+  },
+  "playground.store.record.stored": {
+    "message": "已存储"
+  },
+  "playground.store.record.returns": {
+    "message": "返回"
+  },
+  "playground.store.record.usedByCount": {
+    "message": "被 {count} 处使用"
+  },
+  "playground.store.record.usedByNothing": {
+    "message": "无"
+  },
+  "playground.store.record.meta": {
+    "message": "meta"
+  },
+  "playground.store.record.fetchedAt": {
+    "message": "获取于 {time}"
+  },
+  "playground.store.record.expiresAt": {
+    "message": "过期于 {time}"
+  },
+  "playground.store.record.neverExpires": {
+    "message": "永不过期"
+  },
+  "playground.store.record.usedBy": {
+    "message": "使用方"
+  },
+  "playground.store.list.filter": {
+    "message": "筛选"
+  },
+  "playground.store.list.filterLabel": {
+    "message": "筛选行"
+  },
+  "playground.store.list.matchesOf": {
+    "message": "{matches} / {total}"
+  },
+  "playground.store.list.noMatches": {
+    "message": "无匹配"
+  },
+  "playground.store.list.gone": {
+    "message": "已不在 store 中"
+  },
+  "playground.store.optimistic.none": {
+    "message": "没有等待中的更新"
+  },
+  "playground.store.table.more": {
+    "message": "还有 {count} 个"
+  },
+  "playground.store.column.key": {
+    "message": "键"
+  },
+  "playground.store.column.args": {
+    "message": "args"
+  },
+  "playground.store.column.sent": {
+    "message": "发送于"
+  },
+  "playground.store.table.collection": {
+    "message": "Collection"
+  },
+  "playground.store.section.optimistic": {
+    "message": "乐观更新"
+  },
+  "playground.store.section.endpoints": {
+    "message": "Endpoints"
+  },
+  "playground.store.section.entities": {
+    "message": "Entities"
+  },
+  "playground.store.section.internals": {
+    "message": "内部"
+  },
+  "playground.store.view": {
+    "message": "store 视图"
+  },
+  "playground.store.state": {
+    "message": "状态"
+  },
+  "playground.store.actions": {
+    "message": "Actions"
+  },
+  "playground.store.timeline": {
+    "message": "时间线"
+  },
+  "playground.store.view.table": {
+    "message": "表格视图"
+  },
+  "playground.store.view.tree": {
+    "message": "树状视图"
+  },
+  "playground.store.snapshot.previous": {
+    "message": "上一个变化"
+  },
+  "playground.store.snapshot.next": {
+    "message": "下一个变化"
+  },
+  "playground.store.snapshot.after": {
+    "message": "{action} 之后"
+  },
+  "playground.store.snapshot.live": {
+    "message": "实时"
+  },
+  "playground.store.snapshot.liveNote": {
+    "message": "实时。选择一个 action，查看它刚执行后的状态。"
+  },
+  "playground.store.crumbs.back": {
+    "message": "返回"
+  },
+  "playground.store.crumbs.label": {
+    "message": "store 中的位置"
+  },
+  "playground.store.crumbs.before": {
+    "message": "此 action 之前"
+  },
+  "playground.store.crumbs.after": {
+    "message": "此 action 之后"
+  },
+  "playground.store.history": {
+    "message": "历史"
+  },
+  "playground.store.table.hideHint": {
+    "message": "隐藏"
+  },
+  "playground.store.table.showHint": {
+    "message": "在下方显示"
+  },
+  "playground.store.table.hideFields": {
+    "message": "隐藏字段"
+  },
+  "playground.store.table.showFields": {
+    "message": "在下方再显示 {count} 个字段",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.store.table.previousFields": {
+    "message": "上一组字段"
+  },
+  "playground.store.table.pageOf": {
+    "message": "{range} / {total}"
+  },
+  "playground.store.table.nextFields": {
+    "message": "下一组字段"
+  },
+  "playground.store.column.id": {
+    "message": "id"
+  },
+  "playground.store.column.cell": {
+    "message": "单元格"
+  },
+  "playground.store.column.items": {
+    "message": "项"
+  },
+  "playground.store.column.value": {
+    "message": "值"
+  },
+  "playground.store.column.fetched": {
+    "message": "获取于"
+  },
+  "playground.store.column.expires": {
+    "message": "过期于"
+  },
+  "playground.store.column.status": {
+    "message": "状态"
+  },
+  "playground.store.column.row": {
+    "message": "行"
+  },
+  "playground.store.timeline.mark": {
+    "message": "{action}，位于 {time}"
+  },
+  "playground.store.timeline.label": {
+    "message": "时间线：方向键逐个浏览变化，End 键回到实时"
+  },
+  "playground.store.timeline.fit": {
+    "message": "适应时间线"
+  },
+  "playground.store.timeline.fitTitle": {
+    "message": "显示整条时间线"
+  },
+  "playground.store.timeline.storeLane": {
+    "message": "store"
+  },
+  "playground.store.timeline.empty": {
+    "message": "还没有派发任何 action。预览运行时，action 会显示在时间线上。"
+  },
+  "playground.store.tree.showFewer": {
+    "message": "收起"
+  },
+  "playground.store.tree.showAll": {
+    "message": "显示全部 {count} 个"
+  },
+  "playground.store.optimistic.waiting": {
+    "message": "等待服务器"
+  },
+  "playground.store.record.changedBy": {
+    "message": "修改者"
+  },
+  "playground.store.record.changedByDropped": {
+    "message": "未保留的 action"
+  },
+  "playground.store.history.title": {
+    "message": "此记录的每次变化"
+  },
+  "playground.store.history.changeCount": {
+    "message": "{count} 次变化",
+    "description": "Plural forms, separated by |"
+  },
+  "playground.store.history.empty": {
+    "message": "日志中没有变化"
+  },
+  "playground.store.history.versions": {
+    "message": "版本"
+  },
+  "playground.store.history.removedWas": {
+    "message": "已移除；原值："
+  },
+  "playground.store.history.missing.refreshed": {
+    "message": "被未保留的 action 重新存储：{reason}"
+  },
+  "playground.store.history.missing.removed": {
+    "message": "被未保留的 action 移除：{reason}"
+  },
+  "playground.store.history.missing.invalidated": {
+    "message": "被未保留的 action 设为失效：{reason}"
+  },
+  "playground.store.history.missing.expired": {
+    "message": "被未保留的 action 标记为过时：{reason}"
+  },
+  "playground.store.history.missing.error": {
+    "message": "因未保留的 action 失败：{reason}"
+  },
+  "playground.store.history.missing.changed": {
+    "message": "被未保留的 action 修改：{reason}"
+  },
+  "playground.store.action.open": {
+    "message": "打开 action"
   }
 }

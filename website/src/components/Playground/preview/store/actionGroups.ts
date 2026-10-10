@@ -485,6 +485,10 @@ export function joinedFetches(group: ActionGroup) {
   return joined;
 }
 
+/** The key of an `invalidateAll` or `expireAll`, which names no one endpoint
+ * (`KeyLabel` shows it in words) */
+export const MATCHING_KEYS = 'matching keys';
+
 /** What an action is about: an endpoint key, or a schema's key for `set` */
 export function actionKey(action: ActionTypes): string {
   if ('key' in action && typeof action.key === 'string') return action.key;
@@ -494,7 +498,7 @@ export function actionKey(action: ActionTypes): string {
     action.type === actionTypes.INVALIDATEALL ||
     action.type === actionTypes.EXPIREALL
   )
-    return 'matching keys';
+    return MATCHING_KEYS;
   return '';
 }
 

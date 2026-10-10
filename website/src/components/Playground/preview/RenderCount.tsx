@@ -1,4 +1,6 @@
-import React, { useCallback, useRef } from 'react';
+import { usePluralForm } from '@docusaurus/theme-common';
+import { translate } from '@docusaurus/Translate';
+import React, { useCallback, useRef, useState } from 'react';
 
 import styles from '../styles.module.css';
 
@@ -11,8 +13,27 @@ import styles from '../styles.module.css';
 export function useRenderCount(enabled: boolean) {
   const ref = useRef<HTMLButtonElement>(null);
   const count = useRef(0);
+  // The locale never changes on a page, so the first render's plural rules hold
+  const { selectMessage } = usePluralForm();
+  const [label] = useState(
+    () => (n: number) =>
+      selectMessage(
+        n,
+        translate(
+          {
+            id: 'playground.renderCount',
+            description: 'Plural forms, separated by |',
+            message: '{count} render|{count} renders',
+          },
+          { count: n },
+        ),
+      ),
+  );
   // Stable so memo(Preview) skips re-rendering on code edits
-  const onCommit = useCallback(() => show(ref.current, ++count.current), []);
+  const onCommit = useCallback(
+    () => show(ref.current, label(++count.current)),
+    [label],
+  );
   if (!enabled) return {};
   const badge = (
     <button
@@ -20,15 +41,18 @@ export function useRenderCount(enabled: boolean) {
       type="button"
       hidden
       className={styles.renderCount}
-      title="React commits of this preview. Click to reset."
-      onClick={() => show(ref.current, (count.current = 0))}
+      title={translate({
+        id: 'playground.renderCount.title',
+        message: 'React commits of this preview. Click to reset.',
+      })}
+      onClick={() => show(ref.current, label((count.current = 0)))}
     />
   );
   return { onCommit, badge };
 }
 
-function show(badge: HTMLButtonElement | null, n: number) {
+function show(badge: HTMLButtonElement | null, text: string) {
   if (!badge) return;
-  badge.textContent = `${n} render${n === 1 ? '' : 's'}`;
+  badge.textContent = text;
   badge.hidden = false;
 }

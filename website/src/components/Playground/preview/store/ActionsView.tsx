@@ -1,4 +1,6 @@
 import { actionTypes, StateContext } from '@data-client/react';
+import { usePluralForm } from '@docusaurus/theme-common';
+import Translate, { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React, {
   createContext,
@@ -15,6 +17,7 @@ import React, {
 import {
   actionName,
   groupEntriesOf,
+  MATCHING_KEYS,
   groupOf,
   pollFrequencyOf,
   joinedFetches,
@@ -130,8 +133,10 @@ export function ActionsRoot({
   if (!groups.length)
     return (
       <p className={styles.empty}>
-        Nothing dispatched yet. Fetches, responses and other store actions show
-        here as the preview runs.
+        <Translate id="playground.store.actions.empty">
+          Nothing dispatched yet. Fetches, responses and other store actions
+          show here as the preview runs.
+        </Translate>
       </p>
     );
   return (
@@ -310,6 +315,8 @@ function Steps({
   current?: number;
 }) {
   const { dropped } = useLog();
+  const droppedText = useDroppedText();
+  const { selectMessage } = usePluralForm();
   const joined = joinedFetches(group);
   const counted = new Set<RequestGroup>();
   const scroller = useRef<HTMLDivElement>(null);
@@ -327,7 +334,7 @@ function Steps({
                 className={clsx(styles.row, styles.stepRow, styles.joined)}
               >
                 <span className={styles.dim}>
-                  {droppedText(group, n)}: {KEEPS_NEWEST}
+                  {droppedNote(droppedText(group, n))}
                 </span>
               </div>
             ),
@@ -349,7 +356,18 @@ function Steps({
           >
             <Time at={entry.at} />
             <span className={styles.dim}>
-              {n} more fetch{n === 1 ? '' : 'es'} deduped into this request
+              {selectMessage(
+                n,
+                translate(
+                  {
+                    id: 'playground.store.actions.deduped',
+                    description: 'Plural forms, separated by |',
+                    message:
+                      '{count} more fetch deduped into this request|{count} more fetches deduped into this request',
+                  },
+                  { count: n },
+                ),
+              )}
             </span>
           </div>
         );
@@ -420,7 +438,14 @@ export function TypeName({ entry }: { entry: LogEntry }) {
   return (
     <span className={clsx(styles.actType, typeClass(entry))}>
       {actionName(action)}
-      {optimistic && <span className={styles.dim}> optimistic</span>}
+      {optimistic && (
+        <span className={styles.dim}>
+          {' '}
+          <Translate id="playground.store.actions.optimistic">
+            optimistic
+          </Translate>
+        </span>
+      )}
     </span>
   );
 }
@@ -447,11 +472,19 @@ export function typeClass(entry: LogEntry) {
 export function KeyLabel({ value }: { value: string }) {
   if (!value) return null;
   const { method, path } = splitKey(value);
+  // the one key that is a phrase, not a name from the store
+  const label =
+    value === MATCHING_KEYS ?
+      translate({
+        id: 'playground.store.actions.matchingKeys',
+        message: 'matching keys',
+      })
+    : value;
   return (
-    <span className={styles.actKey} title={value}>
+    <span className={styles.actKey} title={label}>
       {method ?
         <EndpointKey method={method} path={path} />
-      : <span className={styles.type}>{value}</span>}
+      : <span className={styles.type}>{label}</span>}
     </span>
   );
 }
@@ -494,11 +527,24 @@ const fetches = (group: RequestGroup) =>
   group.entries.filter(e => e.action.type === actionTypes.FETCH);
 
 function Tag({ group }: { group: ActionGroup }) {
+  const { selectMessage } = usePluralForm();
   if (group.kind === 'subscription') {
     const frequency = pollFrequency(group);
     return (
       <span className={styles.dim}>
-        {frequency ? `polls ${frequency / 1000}s` : 'subscribed'}
+        {frequency ?
+          translate(
+            {
+              id: 'playground.store.actions.polls',
+              message: 'polls {interval}',
+            },
+            { interval: `${frequency / 1000}s` },
+          )
+        : translate({
+            id: 'playground.store.actions.subscribed',
+            message: 'subscribed',
+          })
+        }
       </span>
     );
   }
@@ -507,7 +553,18 @@ function Tag({ group }: { group: ActionGroup }) {
   return shared > 1 ?
       <span
         className={styles.dim}
-        title={`${shared} fetches shared this request`}
+        title={selectMessage(
+          shared,
+          translate(
+            {
+              id: 'playground.store.actions.shared',
+              description: 'Plural forms, separated by |',
+              message:
+                '{count} fetch shared this request|{count} fetches shared this request',
+            },
+            { count: shared },
+          ),
+        )}
       >
         ×{shared}
       </span>
@@ -522,20 +579,51 @@ const statusFailed = (group: ActionGroup) =>
   failed(group.response);
 
 function Status({ group }: { group: ActionGroup }) {
+  const { selectMessage } = usePluralForm();
   if (group.kind === 'subscription') {
     const n = group.requests.length;
-    const count = `${n} fetch${n === 1 ? '' : 'es'}`;
+    const count = selectMessage(
+      n,
+      translate(
+        {
+          id: 'playground.store.actions.fetchCount',
+          description: 'Plural forms, separated by |',
+          message: '{count} fetch|{count} fetches',
+        },
+        { count: n },
+      ),
+    );
     return group.open > 0 ?
-        <span className={styles.tFetch}>live · {count}</span>
-      : <span className={styles.dim}>ended · {count}</span>;
+        <span className={styles.tFetch}>
+          <Translate id="playground.store.actions.live" values={{ count }}>
+            {'live · {count}'}
+          </Translate>
+        </span>
+      : <span className={styles.dim}>
+          <Translate id="playground.store.actions.ended" values={{ count }}>
+            {'ended · {count}'}
+          </Translate>
+        </span>;
   }
   if (group.kind !== 'request') return null;
   const { response } = group;
-  if (group.cancelled) return <span className={styles.tQuiet}>cancelled</span>;
-  if (!response) return <span className={styles.tFetch}>pending</span>;
+  if (group.cancelled)
+    return (
+      <span className={styles.tQuiet}>
+        <Translate id="playground.store.actions.cancelled">cancelled</Translate>
+      </span>
+    );
+  if (!response)
+    return (
+      <span className={styles.tFetch}>
+        <Translate id="playground.store.actions.pending">pending</Translate>
+      </span>
+    );
   return (
     <span className={typeClass(response)}>
-      {failed(response) ? 'error' : `${response.at - group.entries[0].at} ms`}
+      {failed(response) ?
+        translate({ id: 'playground.store.status.error', message: 'error' })
+      : `${response.at - group.entries[0].at} ms`}
     </span>
   );
 }
@@ -550,6 +638,7 @@ function Dropped({
   all: readonly LogEntry[];
 }) {
   const n = droppedIn(all, useLog().dropped);
+  const droppedText = useDroppedText();
   return n ? <span className={styles.dim}>{droppedText(group, n)}</span> : null;
 }
 
@@ -560,16 +649,60 @@ export function droppedIn(
 ) {
   return entries.reduce((sum, e) => sum + (dropped?.get(e.seq) ?? 0), 0);
 }
-/** Why `droppedText` counts are gone */
-export const KEEPS_NEWEST = 'the log keeps the newest';
+/** Why `useDroppedText` counts are gone */
+export const keepsNewest = () =>
+  translate({
+    id: 'playground.store.actions.keepsNewest',
+    message: 'the log keeps the newest',
+  });
 
-/** `40 earlier polls not kept` */
-export function droppedText(group: ActionGroup, n: number) {
-  const noun =
-    group.kind === 'subscription' ? 'poll'
-    : group.entries[0].action.type === actionTypes.SET ? 'set'
-    : 'response';
-  return `${n.toLocaleString()} earlier ${noun}${n === 1 ? '' : 's'} not kept`;
+/** `40 earlier polls not kept: the log keeps the newest` */
+export const droppedNote = (dropped: string) =>
+  translate(
+    {
+      id: 'playground.store.actions.droppedNote',
+      message: '{dropped}: {reason}',
+    },
+    { dropped, reason: keepsNewest() },
+  );
+
+/** `40 earlier polls not kept`, for a group and how many */
+export function useDroppedText() {
+  const { selectMessage } = usePluralForm();
+  return (group: ActionGroup, n: number) => {
+    const count = n.toLocaleString();
+    const message =
+      group.kind === 'subscription' ?
+        translate(
+          {
+            id: 'playground.store.actions.droppedPolls',
+            description: 'Plural forms, separated by |',
+            message:
+              '{count} earlier poll not kept|{count} earlier polls not kept',
+          },
+          { count },
+        )
+      : group.entries[0].action.type === actionTypes.SET ?
+        translate(
+          {
+            id: 'playground.store.actions.droppedSets',
+            description: 'Plural forms, separated by |',
+            message:
+              '{count} earlier set not kept|{count} earlier sets not kept',
+          },
+          { count },
+        )
+      : translate(
+          {
+            id: 'playground.store.actions.droppedResponses',
+            description: 'Plural forms, separated by |',
+            message:
+              '{count} earlier response not kept|{count} earlier responses not kept',
+          },
+          { count },
+        );
+    return selectMessage(n, message);
+  };
 }
 
 /** Sent, optimistic, then resolved; or a subscription's poll ticks */
@@ -665,7 +798,11 @@ export function ChangeChips({
   );
   if (!shown.length)
     return changes.length && !changes.some(isRecordChange) ?
-        <span className={styles.dim}>stored again, unchanged</span>
+        <span className={styles.dim}>
+          <Translate id="playground.store.change.refreshed">
+            stored again, unchanged
+          </Translate>
+        </span>
       : null;
   // a table's new rows share one chip, where its first one would be
   const added = new Map<string, Change[]>();
@@ -691,13 +828,21 @@ export function ChangeChips({
         className=""
         list={() => ({
           kind: 'list',
-          label: `new ${item}`,
+          label: translate(
+            { id: 'playground.store.change.newRows', message: 'new {table}' },
+            { table: item },
+          ),
           table: item,
           pks,
         })}
       >
         <span className={styles.markAdded}>+</span>
-        {pks.length} {item}
+        <Translate
+          id="playground.store.change.rowCount"
+          values={{ count: pks.length, table: item }}
+        >
+          {'{count} {table}'}
+        </Translate>
       </CountChip>
     );
   });
@@ -726,10 +871,17 @@ export function ChangeChip({ change }: { change: Change }) {
     : <EntityKey table={change.table} pk={change.pk} />;
   const [char, markClass] = MARK[change.kind] ?? [];
   const mark = char && <span className={markClass}>{char}</span>;
+  const kind = changeKindLabel(change.kind);
   const title =
     'fields' in change && change.fields?.length ?
-      `${change.kind}: ${change.fields.join(', ')}`
-    : change.kind;
+      translate(
+        {
+          id: 'playground.store.change.fieldsTitle',
+          message: '{kind}: {fields}',
+        },
+        { kind, fields: change.fields.join(', ') },
+      )
+    : kind;
   // a removed row opens as it was right before the action that removed it
   if (change.kind === 'removed' && span)
     return (
@@ -770,4 +922,45 @@ export function ChangeChip({ change }: { change: Change }) {
       }
     />
   );
+}
+
+/** A change's kind, as the chips and histories name it */
+export function changeKindLabel(kind: Change['kind']): string {
+  switch (kind) {
+    case 'added':
+      return translate({
+        id: 'playground.store.change.added',
+        message: 'added',
+      });
+    case 'updated':
+      return translate({
+        id: 'playground.store.change.updated',
+        message: 'updated',
+      });
+    case 'removed':
+      return translate({
+        id: 'playground.store.change.removed',
+        message: 'removed',
+      });
+    case 'invalidated':
+      return translate({
+        id: 'playground.store.change.invalidated',
+        message: 'invalidated',
+      });
+    case 'error':
+      return translate({
+        id: 'playground.store.change.error',
+        message: 'error',
+      });
+    case 'refreshed':
+      return translate({
+        id: 'playground.store.change.refreshedKind',
+        message: 'refreshed',
+      });
+    case 'expired':
+      return translate({
+        id: 'playground.store.change.expired',
+        message: 'expired',
+      });
+  }
 }

@@ -1,3 +1,4 @@
+import { translate } from '@docusaurus/Translate';
 import React, { useMemo, useState } from 'react';
 
 import { TIME_WIDTH } from './columns';
@@ -12,7 +13,13 @@ import {
 } from './model';
 import { useNav } from './nav';
 import { plain } from './refs';
-import { GroupLabel, Internals, SectionBlock } from './Sections';
+import {
+  GroupLabel,
+  Internals,
+  SectionBlock,
+  sectionTitle,
+  type SectionName,
+} from './Sections';
 import styles from './store.module.css';
 import {
   endpointColumns,
@@ -39,17 +46,17 @@ export default function RootView({
   scroller: React.RefObject<HTMLElement | null>;
 }) {
   const { model, width, push } = useNav()!;
-  const [closed, setClosed] = useState<ReadonlySet<string>>(
-    () => new Set(['Internals']),
+  const [closed, setClosed] = useState<ReadonlySet<SectionName>>(
+    () => new Set(['internals']),
   );
-  const section = (title: string, count?: number) => ({
-    title,
+  const section = (name: SectionName, count?: number) => ({
+    title: sectionTitle(name),
     count,
-    open: !closed.has(title),
+    open: !closed.has(name),
     onToggle: () =>
       setClosed(prev => {
         const next = new Set(prev);
-        if (!next.delete(title)) next.add(title);
+        if (!next.delete(name)) next.add(name);
         return next;
       }),
   });
@@ -63,15 +70,21 @@ export default function RootView({
   return (
     <>
       {showOptimistic && (
-        <SectionBlock {...section('Optimistic', model.optimistic.length)}>
+        <SectionBlock {...section('optimistic', model.optimistic.length)}>
           <RowsTable
-            columns={optimisticColumns}
+            columns={optimisticColumns()}
             rows={model.optimistic.map(o => ({ ...o, id: optimisticId(o) }))}
-            foot={model.optimistic.length === 0 && 'None pending'}
+            foot={
+              model.optimistic.length === 0 &&
+              translate({
+                id: 'playground.store.optimistic.none',
+                message: 'None pending',
+              })
+            }
           />
         </SectionBlock>
       )}
-      <SectionBlock {...section('Endpoints', model.endpoints.length)}>
+      <SectionBlock {...section('endpoints', model.endpoints.length)}>
         {endpoints.length > 0 && (
           <RowsTable
             columns={endpointColumns(width)}
@@ -84,19 +97,19 @@ export default function RootView({
                   onClick={() =>
                     push({
                       kind: 'list',
-                      label: 'Endpoints',
+                      label: sectionTitle('endpoints'),
                       ids: model.endpoints.map(e => e.id),
                     })
                   }
                 >
-                  {hiddenEndpoints.toLocaleString()} more
+                  {moreLabel(hiddenEndpoints)}
                 </button>
               )
             }
           />
         )}
       </SectionBlock>
-      <SectionBlock {...section('Entities', entityCount)}>
+      <SectionBlock {...section('entities', entityCount)}>
         {model.tables.length > INDEX_OVER && (
           <TableIndex model={model} scroller={scroller} />
         )}
@@ -104,7 +117,7 @@ export default function RootView({
           <Group key={table.key} table={table} />
         ))}
       </SectionBlock>
-      <SectionBlock {...section('Internals')}>
+      <SectionBlock {...section('internals')}>
         <Internals model={model} />
       </SectionBlock>
     </>
@@ -180,7 +193,7 @@ function Group({ table }: { table: EntityTable }) {
                 push({ kind: 'list', table: table.key, label: table.key })
               }
             >
-              {hidden.toLocaleString()} more
+              {moreLabel(hidden)}
             </button>
           )
         }
@@ -191,11 +204,18 @@ function Group({ table }: { table: EntityTable }) {
 
 type Optimistic = StoreModel['optimistic'][number] & { id: string };
 
+/** `5 more`: rows a table leaves to its own level */
+export const moreLabel = (count: number) =>
+  translate(
+    { id: 'playground.store.table.more', message: '{count} more' },
+    { count: count.toLocaleString() },
+  );
+
 /** Updates applied ahead of their response */
-const optimisticColumns: Column<Optimistic>[] = [
+const optimisticColumns = (): Column<Optimistic>[] => [
   {
     id: 'key',
-    header: 'key',
+    header: translate({ id: 'playground.store.column.key', message: 'key' }),
     width: '40%',
     cell: ({ key }) => (
       <span className={styles.optimistic} title={key}>
@@ -205,12 +225,12 @@ const optimisticColumns: Column<Optimistic>[] = [
   },
   {
     id: 'args',
-    header: 'args',
+    header: translate({ id: 'playground.store.column.args', message: 'args' }),
     cell: ({ args }) => <Inline node={plain(args)} />,
   },
   {
     id: 'fetchedAt',
-    header: 'sent',
+    header: translate({ id: 'playground.store.column.sent', message: 'sent' }),
     width: TIME_WIDTH,
     cell: ({ fetchedAt }) => <Primitive value={fetchedAt} name="fetchedAt" />,
   },

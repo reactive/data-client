@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import React, { useContext, useState } from 'react';
 
 import { fitChips, INLINE_LIMIT, isTimeField } from './columns';
+import { invalidLabel } from './Details';
 import { entityId, isEndpointRow, prettyPk, type AnyRow } from './model';
 import {
   ActionSpanContext,
@@ -19,6 +20,7 @@ import {
   type RefNode,
   type VNode,
 } from './refs';
+import { moreLabel } from './RootView';
 import styles from './store.module.css';
 import { useStoreUI } from './StoreUI';
 
@@ -317,7 +319,7 @@ function BlockList({
           setAll(true);
         }}
       >
-        {rest} more
+        {moreLabel(rest)}
       </button>
     : null;
   if (!node.items.length) return <span className={styles.dim}>[]</span>;
@@ -345,7 +347,9 @@ export function Primitive({ value, name }: { value: unknown; name?: string }) {
   if (value === CIRCULAR) return <span className={styles.dim}>[Circular]</span>;
   if (value === INVALIDATED)
     return (
-      <span className={clsx(styles.pill, styles.invalidated)}>invalid</span>
+      <span className={clsx(styles.pill, styles.invalidated)}>
+        {invalidLabel()}
+      </span>
     );
   if (value === null || value === undefined)
     return <span className={styles.null}>{String(value)}</span>;
