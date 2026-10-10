@@ -22,7 +22,7 @@ export class StreamManager implements Manager {
   /** Channel and subscriber count of each product */
   protected products = new Map<string, Product>();
   protected attempts = 0;
-  declare protected retry: ReturnType<typeof setTimeout>;
+  declare protected reconnectTimer: ReturnType<typeof setTimeout>;
 
   middleware: Middleware = controller => {
     this.controller = controller;
@@ -59,27 +59,28 @@ export class StreamManager implements Manager {
   init() {
     this.connect();
     addEventListener('online', this.reconnect);
-    addEventListener('offline', this.disconnect);
+    // a socket can take minutes to notice the network is gone
+    addEventListener('offline', this.close);
   }
 
   cleanup() {
     removeEventListener('online', this.reconnect);
-    removeEventListener('offline', this.disconnect);
-    clearTimeout(this.retry);
-    this.disconnect();
+    removeEventListener('offline', this.close);
+    this.close();
   }
 
   protected connect() {
+    this.close();
     this.socket = new WebSocket(
       'wss://ws-feed.exchange.coinbase.com',
     );
     this.socket.onopen = () => {
-      this.attempts = 0;
       // a new socket has no subscriptions yet
       for (const [productId, { channel }] of this.products)
         this.send('subscribe', channel, productId);
     };
     this.socket.onmessage = event => {
+      this.attempts = 0;
       const { type, product_id, price, time } = JSON.parse(
         event.data,
       );
@@ -90,24 +91,24 @@ export class StreamManager implements Manager {
         { product_id, price, time },
       );
     };
-    // fires after errors too; offline waits for 'online' instead
+    // after a failed connect, an error or a server close
     this.socket.onclose = () => {
-      if (!navigator.onLine) return;
-      const delay = Math.min(30_000, 1000 * 2 ** this.attempts++);
-      this.retry = setTimeout(this.reconnect, delay);
+      const delay = Math.min(30_000, 1000 * 2 ** this.attempts);
+      this.attempts++;
+      this.reconnectTimer = setTimeout(this.reconnect, delay);
     };
   }
 
-  /** Back online, or the retry timer fired */
   protected reconnect = () => {
-    clearTimeout(this.retry);
-    // CLOSING: disconnect() stopped waiting for it
     if (this.socket.readyState >= WebSocket.CLOSING) this.connect();
   };
 
-  /** Offline, a socket can take minutes to notice and can't finish
-   * closing, so stop waiting for its onclose */
-  protected disconnect = () => {
+  /** Stops the socket without waiting for it to finish closing,
+   * which it can't do offline */
+  protected close = () => {
+    clearTimeout(this.reconnectTimer);
+    if (!this.socket) return;
+    // closed sockets get no more messages; skip its reconnect
     this.socket.onclose = null;
     this.socket.close();
   };
