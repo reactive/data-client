@@ -17,7 +17,7 @@ import {
   type SubjectFilter,
 } from './actionGroups';
 import type ActionLog from './actionLog';
-import { stepMoment, type LogEntry } from './actionLog';
+import type { LogEntry } from './actionLog';
 import { ActionName } from './actionParts';
 import {
   droppedIn,
@@ -327,7 +327,7 @@ export const Scrubber = memo(function Scrubber({
 }: {
   /** The moment's action; missing while live */
   entry?: LogEntry;
-  /** What the steps follow: the subject's actions */
+  /** The subject's actions; the others' marks dim */
   hit: SubjectFilter['hit'];
   /** Panel width (px), to tell which marks crowd each other */
   width: number;
@@ -344,11 +344,10 @@ export const Scrubber = memo(function Scrubber({
   /** The pointer came onto the list's button (`true`) or left it */
   onListHover: (inside: boolean, e: React.PointerEvent) => void;
 }) {
-  const { history, groups } = useActions();
+  const { groups } = useActions();
   // a mark picked opens its action where the Action tab lists them; a
   // step only moves the moment
-  const { seq: selected, whole, set: onSelect, pick, show } = useNavState();
-  const { entries } = history;
+  const { whole, earlier, later, set: onSelect, pick, show } = useNavState();
   // a row picked stands for its whole group: the label names that
   const group = whole && entry ? groupOf(groups, entry.seq) : undefined;
   // the track fits the panel beside the controls: marks a few px apart
@@ -359,8 +358,6 @@ export const Scrubber = memo(function Scrubber({
     pick,
     width > 0 ? width - SCRUB_CONTROLS : undefined,
   );
-  const earlier = stepMoment(entries, selected, -1, hit);
-  const later = stepMoment(entries, selected, 1, hit);
 
   // a step that removes (Live) or turns off (an end reached) the button
   // pressed hands focus to one still there
@@ -371,20 +368,12 @@ export const Scrubber = memo(function Scrubber({
     onSelect(to);
   };
   const onKeyDown = (e: React.KeyboardEvent) => {
-    switch (e.key) {
-      case 'ArrowLeft':
-        if (earlier !== undefined) step(earlier);
-        break;
-      case 'ArrowRight':
-        if (later !== undefined) step(later);
-        break;
-      case 'End':
-        if (entry) step(null);
-        break;
-      default:
-        return;
+    // ← → step as they do across the panel, which takes them on from here
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') hold();
+    else if (e.key === 'End' && entry) {
+      e.preventDefault();
+      step(null);
     }
-    e.preventDefault();
   };
 
   return (
@@ -501,7 +490,7 @@ export default memo(function Timeline({
 }: {
   /** Panel width (px) */
   width: number;
-  /** What the steps follow: the subject's actions */
+  /** The subject's actions; the others' marks dim */
   hit: SubjectFilter['hit'];
   /** Called as a pick lands on content under the timeline: a mark (not as
    * the keys step) */
@@ -581,29 +570,18 @@ export default memo(function Timeline({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fit]);
 
-  // the arrow keys step as the scrubber's ‹ › do; past the newest is live
-  // (End too; live already, it brings the newest back into view). Escape is
-  // the levels' way back, so it stays theirs
-  const toLive = () => {
-    if (selected === null) toNewest();
-    else set(null);
-  };
-  const step = (by: -1 | 1) => {
-    const to = stepMoment(entries, selected, by, hit);
-    if (to !== undefined) set(to);
-    // live already, it brings the newest back into view
-    else if (by > 0) toNewest();
-  };
+  // ← → step as they do across the panel, which takes them on from here;
+  // End returns to live. Live already, either way on brings the newest back
+  // into view. Escape is the levels' way back, so it stays theirs
   const onKeyDown = (e: React.KeyboardEvent) => {
     switch (e.key) {
-      case 'ArrowLeft':
-        step(-1);
-        break;
       case 'ArrowRight':
-        step(1);
+        if (selected !== null) return;
+        toNewest();
         break;
       case 'End':
-        toLive();
+        if (selected === null) toNewest();
+        else set(null);
         break;
       // the lanes scroll from here, as a focused scroller's would
       case 'ArrowUp':

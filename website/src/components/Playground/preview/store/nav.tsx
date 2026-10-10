@@ -233,6 +233,9 @@ export interface NavState {
   /** The moment stands for every action of its group up to `seq` (its row
    * was picked): what they did together shows as one */
   readonly whole: boolean;
+  /** Where a step back (‹, ←) and on (›, →) land: see `stepMoment` */
+  readonly earlier: number | null | undefined;
+  readonly later: number | null | undefined;
   readonly set: (seq: number | null, whole?: boolean) => void;
   /** `set` from a mark picked on the timeline: the Action tab showing its
    * list opens the action picked, as a row does */
@@ -245,6 +248,8 @@ export interface NavState {
 export const NavStateContext = createContext<NavState>({
   seq: null,
   whole: false,
+  earlier: undefined,
+  later: undefined,
   set: () => {},
   pick: () => {},
   show: () => {},

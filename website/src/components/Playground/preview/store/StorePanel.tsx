@@ -352,9 +352,12 @@ export default function StorePanel({
     },
     [set, tab, actionShown, showAction],
   );
+  // the timeline steps over the subject's actions
+  const earlier = stepMoment(known, momentSeq, -1, filter.hit);
+  const later = stepMoment(known, momentSeq, 1, filter.hit);
   const navState = useMemo<NavState>(
-    () => ({ seq: momentSeq, whole, set, pick, show }),
-    [momentSeq, whole, set, pick, show],
+    () => ({ seq: momentSeq, whole, earlier, later, set, pick, show }),
+    [momentSeq, whole, earlier, later, set, pick, show],
   );
   // what the peek's chips open: over the State tab's top level, in the
   // table view, with the peek closed to show it
@@ -443,8 +446,9 @@ export default function StorePanel({
             }}
             onKeyDown={e => {
               if (e.defaultPrevented) return;
-              // ← → step the timeline from anywhere that has no use of its
-              // own for them
+              // ← → step the timeline (the scrubber's and the expanded one's
+              // keys included) from anywhere that has no use of its own for
+              // them
               if (
                 (e.key === 'ArrowLeft' || e.key === 'ArrowRight') &&
                 !e.altKey &&
@@ -452,12 +456,7 @@ export default function StorePanel({
                 !e.metaKey &&
                 !usesArrows(e.target as Element)
               ) {
-                const to = stepMoment(
-                  known,
-                  momentSeq,
-                  e.key === 'ArrowLeft' ? -1 : 1,
-                  filter.hit,
-                );
+                const to = e.key === 'ArrowLeft' ? earlier : later;
                 if (to !== undefined) {
                   e.preventDefault();
                   set(to);
@@ -1002,16 +1001,9 @@ function ActionLevel({
   subject: View;
   header: Header;
 }) {
-  const { log, history, groups } = useActions();
+  const { history, groups } = useActions();
   const { entries } = history;
-  const filter = useSubjectFilter(log, entries, subject);
-  const entry =
-    seq === null ? newestOf(entries, filter.hit) : findEntry(entries, seq);
-  // live, the newest request as one: its optimistic update shows too
-  const group =
-    entry && (whole || seq === null) ?
-      wholeGroup(groups, entry.seq, seq === null)
-    : undefined;
+  const { entry, group, filter } = useShownAction(seq, whole, subject);
   // a group steps from its first action and to after the moment's
   const from = group ? groupEntriesOf(group)[0].seq : entry?.seq;
   return (
@@ -1056,6 +1048,26 @@ function ActionLevel({
       }
     </>
   );
+}
+
+/** What an action view of `subject` shows: action `seq` (`null`, the newest
+ * of the subject's), and its group as one when `whole`, or live when it has
+ * more (the newest request's optimistic update shows too) */
+function useShownAction(
+  seq: number | null,
+  whole: boolean | undefined,
+  subject: View,
+) {
+  const { log, history, groups } = useActions();
+  const { entries } = history;
+  const filter = useSubjectFilter(log, entries, subject);
+  const entry =
+    seq === null ? newestOf(entries, filter.hit) : findEntry(entries, seq);
+  const group =
+    entry && (whole || seq === null) ?
+      wholeGroup(groups, entry.seq, seq === null)
+    : undefined;
+  return { entry, group, filter };
 }
 
 /** The group of action `seq`, to show as one; `several`, only one of more
@@ -1253,16 +1265,7 @@ function ActionCrumb({
   whole?: boolean;
   subject: View;
 }) {
-  const { log, history, groups } = useActions();
-  const filter = useSubjectFilter(log, history.entries, subject);
-  const entry =
-    seq === null ?
-      newestOf(history.entries, filter.hit)
-    : findEntry(history.entries, seq);
-  const group =
-    entry && (whole || seq === null) ?
-      wholeGroup(groups, entry.seq, seq === null)
-    : undefined;
+  const { entry, group } = useShownAction(seq, whole, subject);
   return (
     group ? <KeyLabel value={group.key} />
     : entry ? <ActionName entry={entry} />
