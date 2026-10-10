@@ -598,13 +598,6 @@ const config: Config = {
           'aria-label': 'Demo Applications',
         },
         {
-          type: 'localeDropdown',
-          position: 'right',
-          // icon only; the menu names the languages (customTheme.css)
-          className: 'header-locale-dropdown',
-          'aria-label': 'Language',
-        },
-        {
           href: 'https://github.com/reactive/data-client',
           position: 'right',
           className: 'header-github-link',
@@ -621,6 +614,13 @@ const config: Config = {
           position: 'right',
           className: 'header-anthropic-link',
           'aria-label': 'Agent Skills',
+        },
+        {
+          type: 'localeDropdown',
+          position: 'right',
+          // last, so it sits beside the color mode toggle; icon only (customTheme.css)
+          className: 'header-locale-dropdown',
+          'aria-label': 'Language',
         },
       ],
     },
