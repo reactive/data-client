@@ -90,12 +90,12 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           # Translations, their tooling and the config that adds locales; a
-          # deleted doc can leave a translation linking to it. Fails open.
+          # deleted (or renamed) doc, component or static file can leave a
+          # translation linking to or importing it. Fails open.
           if changed="$(git diff --name-only --no-renames "$BASE_SHA" HEAD -- \
                 website/i18n website/translate website/framework-docs website/docusaurus.config.ts)" \
-            && deleted="$(git diff --name-only --no-renames --diff-filter=D "$BASE_SHA" HEAD -- docs)" \
+            && deleted="$(git diff --name-only --no-renames --diff-filter=D "$BASE_SHA" HEAD -- docs website/src website/static)" \
             && [ -z "$changed$deleted" ]; then
-            echo "::notice title=English-only preview::This PR doesn't touch translations, so only English is built; the merge queue builds every locale"
             echo "english-only=true" >> "$GITHUB_OUTPUT"
           fi
       # Docusaurus' webpack cache (~73 MiB compressed). Only master saves it, so
