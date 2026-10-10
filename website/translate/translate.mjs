@@ -89,9 +89,9 @@ function blob(id) {
     return undefined;
   }
 }
+const prefetched = new Set();
 /** A partial clone (CI's blobless checkout) fetches each blob as it's read, a
  * round trip apiece; this fetches them all in one */
-const prefetched = new Set();
 function prefetch(ids) {
   // locales mostly share the English they were checked against
   ids = ids.filter(id => !prefetched.has(id));
