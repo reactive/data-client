@@ -73,10 +73,26 @@ const toggle = () =>
 const lanes = () => screen.getByRole('group', { name: /^Timeline/ });
 /** The bar over the content: State, its view switch and the pane's toggle */
 const stateBar = () => screen.getByText('State').parentElement!;
-/** Toggles the Actions pane */
-const togglePane = () =>
-  fireEvent.click(screen.getByRole('button', { name: 'Actions' }));
-const pane = () => screen.queryByRole('region', { name: 'Actions' });
+/** The Actions toggle: a click lists the subject's actions at full width,
+ * the mouse resting on it peeks at them */
+const paneToggle = () =>
+  screen
+    .getAllByRole('button', { name: 'Actions' })
+    .find(b => b.hasAttribute('aria-pressed'))!;
+const togglePane = () => fireEvent.click(paneToggle());
+/** The actions peeking beside State */
+const pane = () => screen.queryByRole('complementary', { name: 'Actions' });
+/** The mouse coming onto `el` (`inside`), or leaving it, and the peek's
+ * delay passing (with fake timers) */
+const hover = (el: Element, inside: boolean) => {
+  const event = new MouseEvent(inside ? 'pointerover' : 'pointerout', {
+    bubbles: true,
+    relatedTarget: inside ? document.body : el.parentElement,
+  });
+  Object.assign(event, { pointerType: 'mouse' });
+  fireEvent(el, event);
+  act(() => jest.advanceTimersByTime(500));
+};
 /** The pane's rows */
 const rows = () => [
   ...document.querySelectorAll<HTMLElement>('[role="button"][aria-expanded]'),
@@ -780,14 +796,16 @@ describe('Store Timeline sheet', () => {
 });
 
 describe('Store Actions pane', () => {
-  it('overlays State’s right side on a wide panel, most of it when narrow', async () => {
+  afterEach(() => jest.useRealTimers());
+
+  it('peeks over State’s right side on a wide panel, most of it when narrow', async () => {
     const { ctrl } = mountAt(800);
     await act(() => ctrl().fetch(getPosts));
+    jest.useFakeTimers();
     expect(pane()).toBeNull();
-    const button = screen.getByRole('button', { name: 'Actions' });
+    const button = paneToggle();
+    hover(button, true);
     expect(button.getAttribute('aria-pressed')).toBe('false');
-    togglePane();
-    expect(button.getAttribute('aria-pressed')).toBe('true');
     expect(pane()).toBeTruthy();
     expect(top()).toBeTruthy();
     expect(top()!.closest('[inert]')).toBeNull();
@@ -800,24 +818,28 @@ describe('Store Actions pane', () => {
     // a chip closes it, drilling into what the action changed, with focus
     fireEvent.click(within(rows()[0]).getByRole('button', { name: /Post 1/ }));
     expect(pane()).toBeNull();
-    expect(button.getAttribute('aria-pressed')).toBe('false');
     expect(top()!.querySelector('[aria-current="page"]')!.textContent).toBe(
       'Post 1',
     );
     expect(top()!.contains(document.activeElement)).toBe(true);
-    // a row closes it too, opening its action at full width
-    togglePane();
+    // a row closes it too, opening its action at full width over the list
+    hover(button, true);
     fireEvent.click(rows()[0]);
     expect(pane()).toBeNull();
     expect(top()!.querySelector('[aria-current="page"]')!.textContent).toBe(
       'setResponse GET /posts',
     );
     expect(top()!.contains(document.activeElement)).toBe(true);
-    // wide again, it opens over the action view as well
+    expect(button.getAttribute('aria-pressed')).toBe('true');
+    // which the toggle then closes, rather than peeking over it
     resize(800);
+    hover(button, false);
+    hover(button, true);
+    expect(pane()).toBeNull();
     togglePane();
-    expect(pane()).toBeTruthy();
-    expect(rows()[0].getAttribute('aria-current')).toBe('true');
+    expect(top()!.querySelector('[aria-current="page"]')!.textContent).toBe(
+      'Post 1',
+    );
   });
 
   it('closes the sheet as the scrubber’s label opens the action', async () => {
@@ -842,12 +864,11 @@ describe('Store Actions pane', () => {
   it('gives focus back to its toggle as it closes under it', async () => {
     const { ctrl } = mountAt(800);
     await act(() => ctrl().fetch(getPosts));
-    togglePane();
+    jest.useFakeTimers();
+    hover(paneToggle(), true);
     rows()[0].focus();
-    togglePane();
+    hover(paneToggle(), false);
     expect(pane()).toBeNull();
-    expect(document.activeElement).toBe(
-      screen.getByRole('button', { name: 'Actions' }),
-    );
+    expect(document.activeElement).toBe(paneToggle());
   });
 });

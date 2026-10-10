@@ -249,14 +249,18 @@ describe('StorePanel table view', () => {
     expect(document.querySelector('[data-table]')).toBeNull();
   });
 
-  it('leaves focus alone as the overview and the Actions pane first show', () => {
+  it('leaves focus alone as the overview first shows; the Actions list takes it', () => {
     mount();
     expect(document.activeElement).toBe(document.body);
     const actions = screen.getByRole('button', { name: 'Actions' });
     actions.focus();
+    // a level like any other, so Escape goes back
     fireEvent.click(actions);
     expect(actions.getAttribute('aria-pressed')).toBe('true');
-    expect(document.activeElement).toBe(actions);
+    expect(document.activeElement).toBe(top());
+    fireEvent.keyDown(top(), { key: 'Escape' });
+    expect(actions.getAttribute('aria-pressed')).toBe('false');
+    expect(crumbs()).toEqual([]);
   });
 
   it('keeps the levels open across the tree view, without replaying them', () => {

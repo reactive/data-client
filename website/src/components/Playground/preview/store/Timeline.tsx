@@ -103,8 +103,9 @@ export function lanesOf(groups: readonly ActionGroup[]): Lane[] {
 
 /** What the scrubber's row holds beside its track: ‹ ›, Live and ▾ (px) */
 const SCRUB_CONTROLS = 170;
-/** Scrubber marks closer than this (px) draw as one */
-const MERGE_PX = 4;
+/** Scrubber marks closer than this (px) draw as one: a mark's width
+ * (`.tlMark`) and a gap, so none overlap */
+const MERGE_PX = 12;
 
 /** The shown history on `timeScale`, without the fetches deduped into a
  * request in flight (they add nothing to see) */
@@ -141,9 +142,10 @@ function useDrawer(
     selected,
     hit,
     onSelect,
+    // MERGE_PX on the track: the scale stretches or squeezes to its width
     mergeWithin:
       fitTo === undefined ? undefined : (
-        (MERGE_PX * scale.width) / Math.min(scale.width, Math.max(1, fitTo))
+        (MERGE_PX * scale.width) / Math.max(1, fitTo)
       ),
   });
   const at = selected === null ? undefined : scale.x.get(selected);
@@ -247,7 +249,8 @@ function drawer({
       let j = i + 1;
       while (j < sorted.length && sorted[j].x - sorted[i].x < mergeWithin!) j++;
       const cluster = sorted.slice(i, j);
-      const x = (cluster[0].x + cluster[cluster.length - 1].x) / 2;
+      // at its first: the next one starts at least `mergeWithin` after
+      const x = cluster[0].x;
       out.push(
         draw(
           cluster.map(m => m.entry),
@@ -333,10 +336,11 @@ export const Scrubber = memo(function Scrubber({
   const { entries } = history;
   // the track fits the panel beside the controls: marks a few px apart
   // there draw as one (fast polling crowds it otherwise)
+  // (a panel not laid out, measuring 0, merges nothing)
   const { shown, scale, drawn, marks, decor } = useDrawer(
     hit,
     onSelect,
-    width - SCRUB_CONTROLS,
+    width > 0 ? width - SCRUB_CONTROLS : undefined,
   );
   const earlier = stepMoment(entries, selected, -1, hit);
   const later = stepMoment(entries, selected, 1, hit);

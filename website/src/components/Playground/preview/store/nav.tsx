@@ -80,10 +80,16 @@ export interface ActionView {
   readonly seq: number;
 }
 
-/** What a level of the navigation stack shows */
-export type LevelView = View | ActionView;
+/** The actions that touched the subject under it, at full width */
+export interface ActionsView {
+  readonly kind: 'actions';
+}
 
-const isSubject = (view: LevelView): view is View => view.kind !== 'action';
+/** What a level of the navigation stack shows */
+export type LevelView = View | ActionsView | ActionView;
+
+const isSubject = (view: LevelView): view is View =>
+  view.kind !== 'action' && view.kind !== 'actions';
 
 /** The subject of the stack's top: the nearest level that is one (the
  * stack starts at a subject) */
@@ -110,9 +116,14 @@ export interface LevelStack {
   /** Every level shows the store as it is (or the moment's): the moment set
    * on purpose outranks the store a chip opened a level at */
   readonly clearAt: () => void;
-  /** Shows action `seq` over the top level, or in place of the action view
-   * on top */
+  /** Shows action `seq` over the subject's actions (opening them, or in
+   * place of the action view on top), so Back lists them */
   readonly showAction: (seq: number) => void;
+  /** Lists the subject's actions over the top level, unless they are on
+   * top */
+  readonly openActions: () => void;
+  /** Closes the top subject's actions, and the action shown over them */
+  readonly closeActions: () => void;
   /** The moment moved: an action view on top follows it, and goes as the
    * moment lets go (`null`) */
   readonly followMoment: (seq: number | null) => void;
@@ -153,11 +164,29 @@ export function useLevelStack(root: View): LevelStack {
   // any level opened on purpose
   const showAction = useCallback((seq: number) => {
     setLevels(prev => {
-      const top = prev.stack[prev.stack.length - 1];
-      const under =
-        top.view.kind === 'action' ? prev.stack.slice(0, -1) : prev.stack;
+      let under = prev.stack;
+      if (under[under.length - 1].view.kind === 'action')
+        under = under.slice(0, -1);
+      if (under[under.length - 1].view.kind !== 'actions')
+        under = [...under, { key: nextKey.current++, view: ACTIONS }];
       const view: ActionView = { kind: 'action', seq };
       return { ...prev, stack: [...under, { key: nextKey.current++, view }] };
+    });
+  }, []);
+  const openActions = useCallback(() => {
+    setLevels(prev =>
+      prev.stack[prev.stack.length - 1].view.kind === 'actions' ?
+        prev
+      : {
+          ...prev,
+          stack: [...prev.stack, { key: nextKey.current++, view: ACTIONS }],
+        },
+    );
+  }, []);
+  const closeActions = useCallback(() => {
+    setLevels(prev => {
+      const subject = prev.stack.findLastIndex(e => isSubject(e.view));
+      return { ...prev, stack: prev.stack.slice(0, subject + 1) };
     });
   }, []);
   const followMoment = useCallback((seq: number | null) => {
@@ -180,8 +209,19 @@ export function useLevelStack(root: View): LevelStack {
       };
     });
   }, []);
-  return { stack, returnTo, push, back, clearAt, showAction, followMoment };
+  return {
+    stack,
+    returnTo,
+    push,
+    back,
+    clearAt,
+    showAction,
+    openActions,
+    closeActions,
+    followMoment,
+  };
 }
+const ACTIONS: ActionsView = { kind: 'actions' };
 
 /** The store as an action left it, or (`before`) found it (a removed row
  * shows as it was). A level pushed at a Moment shows that store, and so does

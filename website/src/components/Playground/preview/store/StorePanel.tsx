@@ -21,7 +21,7 @@ import {
   type ChangeKind,
   type SubjectFilter,
 } from './actionGroups';
-import { ActionsPane } from './ActionList';
+import { ActionsLevel, ActionsPane } from './ActionList';
 import {
   findEntry,
   keepSameMap,
@@ -91,10 +91,22 @@ export default function StorePanel({
   const { entries } = history;
   const [stored, setView] = useTabStorage('playgroundStoreView');
   const tree = stored === 'tree';
-  // the Actions pane: the subject's actions, an overlay over State
-  // each panel's own: a page holds several, and a press outside one closes it
+  // the Actions pane: a peek at the subject's actions over State's right
+  // side, as the mouse rests on the Actions toggle, gone as it leaves both.
+  // Each panel's own: a page holds several, and a press outside one closes
+  // it. A click on the toggle lists them at full width instead
   const [pane, setPane] = useState(false);
   const closePane = useCallback(() => setPane(false), []);
+  const peekTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const hoverPane = useCallback((inside: boolean, e: React.PointerEvent) => {
+    if (e.pointerType !== 'mouse') return;
+    clearTimeout(peekTimer.current);
+    peekTimer.current = setTimeout(
+      () => setPane(inside),
+      inside ? PEEK_OPEN_MS : PEEK_CLOSE_MS,
+    );
+  }, []);
+  useEffect(() => () => clearTimeout(peekTimer.current), []);
   // the timeline the scrubber expands into, above the content; it stays
   // mounted while it slides shut, until the slide ends
   const [timelineOpen, setTimelineOpen] = useState(false);
@@ -180,6 +192,9 @@ export default function StorePanel({
   // the top level's subject (an action view shows one): what the Actions
   // pane lists and the steps follow
   const subject = subjectOf(levels.stack);
+  // the toggle's full-width list, or an action over it, is on top
+  const actionsShown =
+    !tree && levels.stack[levels.stack.length - 1].view.kind !== subject.kind;
   const filter = useSubjectFilter(log, known, subject);
   // a moment set on purpose outranks the store a chip opened a level at;
   // an action view on top follows it
@@ -384,9 +399,16 @@ export default function StorePanel({
                       type="button"
                       ref={paneToggle}
                       className={styles.paneToggle}
-                      title="The actions that touched what is shown"
-                      aria-pressed={pane}
-                      onClick={() => setPane(!pane)}
+                      aria-pressed={actionsShown}
+                      onPointerEnter={e => hoverPane(true, e)}
+                      onPointerLeave={e => hoverPane(false, e)}
+                      onClick={() => {
+                        clearTimeout(peekTimer.current);
+                        closePane();
+                        setView('table');
+                        if (actionsShown) levels.closeActions();
+                        else levels.openActions();
+                      }}
                     >
                       <ListIcon />
                       Actions
@@ -399,7 +421,7 @@ export default function StorePanel({
                       <TreeLevel model={model} />
                     : <Levels model={model} width={width} levels={levels} />}
                   </StateContext.Provider>
-                  {pane && (
+                  {pane && !actionsShown && (
                     <NavContext.Provider value={chipNav}>
                       <ActionsPane
                         subject={subject}
@@ -411,6 +433,7 @@ export default function StorePanel({
                         }
                         narrow={narrow}
                         toggle={paneToggle}
+                        onHover={hoverPane}
                         onClose={closePane}
                       />
                     </NavContext.Provider>
@@ -426,6 +449,10 @@ export default function StorePanel({
 }
 
 const ROOT: View = { kind: 'root' };
+/** How long the pointer rests on the Actions toggle before the pane peeks,
+ * and is away from both before a peek closes (ms) */
+const PEEK_OPEN_MS = 150;
+const PEEK_CLOSE_MS = 300;
 
 /** The subject stack: full-panel levels, each showing its view. Covered
  * levels stay mounted (hidden), so going back keeps their scroll, pages and
@@ -553,6 +580,11 @@ function Levels({
               view.kind === 'root' ? <RootView scroller={scroller} />
               : view.kind === 'list' ?
                 <ListView view={view} scroller={scroller} header={header} />
+              : view.kind === 'actions' ?
+                <ActionsListLevel
+                  subject={subjectOf(stack.slice(0, depth))}
+                  header={header}
+                />
               : view.kind === 'action' ?
                 <ActionLevel
                   seq={view.seq}
@@ -709,11 +741,26 @@ function useSubjectFilter(
   return useMemo(() => subjectFilter(log, subject, gaps), [log, subject, gaps]);
 }
 
+/** `subject`'s actions at full width (the level under it) */
+function ActionsListLevel({
+  subject,
+  header,
+}: {
+  subject: View;
+  header: (tools: React.ReactNode) => React.ReactNode;
+}) {
+  const { log, history } = useActions();
+  const filter = useSubjectFilter(log, history.entries, subject);
+  return <ActionsLevel subject={subject} filter={filter} header={header} />;
+}
+
 /** What a breadcrumb shows for a view */
 function crumbLabel(view: LevelView, model: StoreModel): React.ReactNode {
   switch (view.kind) {
     case 'root':
       return 'State';
+    case 'actions':
+      return 'Actions';
     case 'action':
       return <ActionCrumb seq={view.seq} />;
     case 'list': {

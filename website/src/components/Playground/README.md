@@ -174,15 +174,20 @@ DesignSystem/       components injected into preview scope
   opens it, moving the moment. A level a chip opened at
   an action keeps showing that store until the moment is set on purpose
   (`clearAt`), which outranks it.
-  The **Actions** toggle at the right end of the bar (`aria-pressed`, each
-  panel's own: a page holds several, and a press outside one closes it) opens the Actions pane (`ActionsPane` and `ActionList` in
-  `preview/store/ActionList.tsx`, a `region` whose head counts its rows), an
-  overlay over State's right side (narrow, most of it) that Escape, a press
-  outside or its ✕ close, focus going back to the toggle. It lists the
-  actions that touched the subject (`subjectFilter` in
-  `preview/store/actionGroups.ts`: at the store every action that reached it;
-  on a record or list those that changed or stored again a row it covers,
-  and on a record the kept action each gap of dropped actions was found at,
+  The **Actions** toggle at the right end of the bar (`aria-pressed`) lists
+  the actions that touched the subject at full width, as a level over it
+  (`{ kind: 'actions' }`, `ActionsLevel` in `preview/store/ActionList.tsx`, a
+  `region` with its row count beside the crumbs; a press again, Back or
+  Escape closes it). The mouse resting on the toggle peeks at the same list
+  instead (`ActionsPane`, an `aside` whose head counts its rows): an overlay
+  over State's right side (narrow, most of it) that stays while the pointer
+  is over either and goes as it leaves both, with Escape or a press outside
+  (each panel's own: a page holds several), focus going back to the toggle.
+  Both list (`ActionList`) the actions that touched the subject
+  (`subjectFilter` in `preview/store/actionGroups.ts`: at the store every
+  action that reached it; on a record or list those that changed or stored
+  again a row it covers, and on a record the kept action each gap of
+  dropped actions was found at,
   noted once above a run of them), one row per request or subscription; a
   row's ▸ lists its actions. Picking a row or step sets the moment (a row
   stands for its last action that touched the subject) and opens the action
@@ -190,9 +195,10 @@ DesignSystem/       components injected into preview scope
   `ActionDetail` in `preview/store/ActionDetail.tsx`: every row changed at
   the store, only the record's own on a record or list, a removed record as
   the action found it, or a line saying it left the subject alone; then the
-  action's fields), closing the pane; Back returns to the subject. Stepping
-  the moment moves that level to the new action, and going live closes it
-  (`followMoment`). The moment's row is marked (`aria-current`), opened and
+  action's fields), over the full list (`showAction` opens it under the
+  action when a peek's row was picked), the peek closing; Back returns to
+  the list. Stepping the moment moves that level to the new action, and
+  going live closes it (`followMoment`), leaving the list. The moment's row is marked (`aria-current`), opened and
   scrolled to; nothing is marked while live. ↑ ↓ on a row or step move to
   the next one, as the moment; a group's head stands for its response, so ↑
   from a step of the moment's own group moves focus alone. A row renders
@@ -206,9 +212,9 @@ DesignSystem/       components injected into preview scope
   to the subject (`subjectFilter`'s `hit`, the rule the pane lists by: every
   stored action at the store; below it the marks that left the subject alone
   are dimmed, `data-dim`, and skipped; past the newest, and End, go live), a
-  mark lands on its action, "Live" lets go. Marks a few px apart on the
-  track draw as one (`data-count`; dimmed only if all are), so fast polling
-  stays readable. While the moment is set its second line says "After
+  mark lands on its action, "Live" lets go. Marks closer on the track than a
+  mark's width and a gap (`MERGE_PX`) draw as one, at the first of them
+  (`data-count`; dimmed only if all are), so fast polling stays readable. While the moment is set its second line says "After
   <action> · <time>", which opens the action at full width. Its ▾ ("Timeline", `aria-expanded`) slides open the expanded
   timeline under it (`Timeline`: the same history, a lane per key, requests
   as spans, stepping as the scrubber does). By default it keeps the detailed

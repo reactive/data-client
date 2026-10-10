@@ -117,12 +117,49 @@ const unsubscribe = (key = 'other') => ({
   key,
   endpoint: {},
 });
-/** Toggles the Actions pane: the subject's actions, one row per request */
-const openPane = () =>
-  fireEvent.click(screen.getByRole('button', { name: 'Actions' }));
-const pane = () => screen.getByRole('region', { name: 'Actions' });
-/** The pane's head: `Actions`, the subject below the store, and the count */
-const paneHead = () => pane().firstElementChild!.textContent!.replace('✕', '');
+/** Toggles the subject's actions at full width, one row per request */
+const openPane = () => fireEvent.click(actionsToggle());
+/** The actions peeking beside State, as the mouse rests on their toggle */
+const peek = () => screen.queryByRole('complementary', { name: 'Actions' });
+/** The actions shown: the peek, else the full-width list on top */
+const pane = () =>
+  peek() ?? within(top()).getByRole('region', { name: 'Actions' });
+/** The peek's head: `Actions`, the subject below the store, and the count */
+const paneHead = () => peek()!.firstElementChild!.textContent!;
+/** The full-width list's count, beside its crumbs */
+const listCount = () =>
+  within(top()).getByRole('navigation', { name: 'Store location' })
+    .nextElementSibling!.textContent;
+/** The Actions toggle: a click lists the subject's actions at full width,
+ * the mouse resting on it peeks at them */
+const actionsToggle = () =>
+  screen
+    .getAllByRole('button', { name: 'Actions' })
+    .find(b => b.hasAttribute('aria-pressed'))!;
+/** The pointer coming onto `el` (`inside`), or leaving it */
+const hover = (el: Element, inside: boolean, pointerType = 'mouse') => {
+  const event = new MouseEvent(inside ? 'pointerover' : 'pointerout', {
+    bubbles: true,
+    relatedTarget: inside ? document.body : el.parentElement,
+  });
+  Object.assign(event, { pointerType });
+  fireEvent(el, event);
+};
+/** Past the peek's delays (with fake timers) */
+const wait = () => act(() => jest.advanceTimersByTime(500));
+/** Peeks at the subject's actions beside it, with fake timers from here */
+const peekIn = () => {
+  jest.useFakeTimers();
+  hover(actionsToggle(), true);
+  wait();
+};
+/** Back to level `name` from its crumb */
+const backTo = (name: string) =>
+  fireEvent.click(
+    within(
+      within(top()).getByRole('navigation', { name: 'Store location' }),
+    ).getByRole('button', { name }),
+  );
 /** A row's ▸: opens or closes it without opening its action */
 const expander = (row: HTMLElement) =>
   within(row).getByRole('button', { name: /its actions$/ });
@@ -133,9 +170,11 @@ const crumbs = () =>
       .queryByRole('navigation', { name: 'Store location' })
       ?.querySelectorAll('button, [aria-current="page"]') ?? []),
   ].map(el => el.textContent);
-/** The pane's rows */
+/** The rows of the actions shown */
 const rows = () => [
-  ...document.querySelectorAll<HTMLElement>('[role="button"][aria-expanded]'),
+  ...(peek() ?? top()).querySelectorAll<HTMLElement>(
+    '[role="button"][aria-expanded]',
+  ),
 ];
 /** The pane's rows and steps marked as the moment's */
 const marked = () =>
@@ -163,6 +202,8 @@ const top = () =>
   )!;
 
 describe('Store Actions pane detail', () => {
+  afterEach(() => jest.useRealTimers());
+
   it('opens the moment’s action at full width from a row, over the subject', async () => {
     const { ctrl } = mount();
     openPane();
@@ -170,13 +211,12 @@ describe('Store Actions pane detail', () => {
     await act(() => ctrl().fetch(getPosts));
     expect(rows()).toHaveLength(1);
     expect(marked()).toEqual([]);
-    // a request's row stands for its response: it opens, as the moment,
-    // and the pane closes
+    // a request's row stands for its response: it opens over the list, as
+    // the moment
     fireEvent.click(rows()[0]);
-    expect(screen.queryByRole('region', { name: 'Actions' })).toBeNull();
     expect(scrubber().textContent).toContain('After');
     expect(scrubber().textContent).toContain('setResponse');
-    expect(crumbs()).toEqual(['State', 'setResponse GET /posts']);
+    expect(crumbs()).toEqual(['State', 'Actions', 'setResponse GET /posts']);
     expect(top().textContent).toContain('dispatchedAt');
     expect(
       within(top()).getByRole('button', { name: '+ Post 1' }),
@@ -187,18 +227,19 @@ describe('Store Actions pane detail', () => {
     expect(
       within(top()).getByRole('button', { name: '+ GET /posts' }),
     ).toBeTruthy();
-    // the pane lists it as the moment's, open; a step is a moment too: the
+    // Back lists it as the moment's, open; a step is a moment too: the
     // store never saw the fetch
-    openPane();
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    expect(crumbs()).toEqual(['State', 'Actions']);
     expect(rows()[0].getAttribute('aria-current')).toBe('true');
     expect(rows()[0].getAttribute('aria-expanded')).toBe('true');
     fireEvent.click(pane().querySelector<HTMLElement>('[data-seq="1"]')!);
     expect(scrubber().textContent).toContain('fetch');
-    expect(crumbs()).toEqual(['State', 'fetch GET /posts']);
+    expect(crumbs()).toEqual(['State', 'Actions', 'fetch GET /posts']);
     expect(top().textContent).toContain('Started the request');
     expect(top().textContent).not.toContain('+ Post 1');
-    // Back returns to the subject, the moment staying
-    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    // the toggle closes them, back to the subject, the moment staying
+    openPane();
     expect(crumbs()).toEqual([]);
     expect(scrubber().textContent).toContain('fetch');
     // live again: no moment; nothing is marked
@@ -214,11 +255,11 @@ describe('Store Actions pane detail', () => {
     openPane();
     fireEvent.click(rows()[0]);
     expect(document.activeElement).toBe(top());
-    // from the pane, over that action: the new one takes its place, focused
-    openPane();
+    // from the list, over that action: the new one takes its place, focused
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
     rows()[1].focus();
     fireEvent.click(rows()[1]);
-    expect(crumbs()).toEqual(['State', 'set Post']);
+    expect(crumbs()).toEqual(['State', 'Actions', 'set Post']);
     expect(document.activeElement).toBe(top());
   });
 
@@ -229,9 +270,15 @@ describe('Store Actions pane detail', () => {
     fireEvent.click(rows()[0]);
     // a record the action added, opened from it
     fireEvent.click(within(top()).getByRole('button', { name: '+ Post 1' }));
-    expect(crumbs()).toEqual(['State', 'setResponse GET /posts', 'Post 1']);
+    expect(crumbs()).toEqual([
+      'State',
+      'Actions',
+      'setResponse GET /posts',
+      'Post 1',
+    ]);
+    // the list stays, the actions over it go
     fireEvent.click(screen.getByRole('button', { name: 'Live' }));
-    expect(crumbs()).toEqual([]);
+    expect(crumbs()).toEqual(['State', 'Actions']);
   });
 
   it('scopes the changes to the subject it is over', async () => {
@@ -244,12 +291,18 @@ describe('Store Actions pane detail', () => {
     openPost('1');
     openPane();
     fireEvent.click(rows()[0]);
-    expect(crumbs()).toEqual(['State', 'Post 1', 'setResponse GET /posts']);
+    expect(crumbs()).toEqual([
+      'State',
+      'Post 1',
+      'Actions',
+      'setResponse GET /posts',
+    ]);
     expect(chip('+ Post 1')).toBeTruthy();
     expect(chip('+ Post 2')).toBeNull();
     expect(chip('+ GET /posts')).toBeNull();
-    // a list of rows, at an action that left them alone
-    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    // a list of rows, at an action that left them alone: the toggle closes
+    // the actions, back to the record
+    openPane();
     fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
     fireEvent.click(screen.getByRole('button', { name: 'Live' }));
     previous();
@@ -258,17 +311,18 @@ describe('Store Actions pane detail', () => {
     fireEvent.click(
       within(rows()[0]).getByRole('button', { name: '+ 2 Post' }),
     );
-    expect(current()).toBe('new Post2');
+    expect(crumbs()).toEqual(['State', 'Actions', 'new Post2']);
     fireEvent.click(screen.getByTitle('Show action'));
-    expect(crumbs()).toEqual(['State', 'new Post2', 'set Post']);
+    // (the crumbs between fold into …)
+    expect(crumbs()).toEqual(['State', 'Actions', 'set Post']);
+    expect(top().textContent).toContain('…');
     expect(top().textContent).toContain('No change to these rows');
     // chips in the action's changes drill into the subject's rows
-    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
-    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    fireEvent.click(within(top()).getByRole('button', { name: 'State' }));
     fireEvent.click(screen.getByTitle('Show action'));
-    expect(crumbs()).toEqual(['State', 'set Post']);
+    expect(crumbs()).toEqual(['State', 'Actions', 'set Post']);
     fireEvent.click(within(top()).getByRole('button', { name: '+ Post 3' }));
-    expect(crumbs()).toEqual(['State', 'set Post', 'Post 3']);
+    expect(crumbs()).toEqual(['State', 'Actions', 'set Post', 'Post 3']);
     expect(top().textContent).toContain('"Third"');
   });
 
@@ -280,21 +334,21 @@ describe('Store Actions pane detail', () => {
     );
     openPane();
     fireEvent.click(rows()[1]);
-    expect(crumbs()).toEqual(['State', 'set Post']);
+    expect(crumbs()).toEqual(['State', 'Actions', 'set Post']);
     expect(top().textContent).toMatch(/title: "One" → "Edited"/);
     // the level stays, showing the action stepped to
     const level = top();
     previous();
     expect(top()).toBe(level);
-    expect(crumbs()).toEqual(['State', 'setResponse GET /posts']);
+    expect(crumbs()).toEqual(['State', 'Actions', 'setResponse GET /posts']);
     expect(
       within(top()).getByRole('button', { name: '+ Post 1' }),
     ).toBeTruthy();
-    // past the newest, live: the action view goes, back to its subject
+    // past the newest, live: the action view goes, back to the list
     fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
     fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
     expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
-    expect(crumbs()).toEqual([]);
+    expect(crumbs()).toEqual(['State', 'Actions']);
   });
 
   it('opens the action from the scrubber’s label and a record’s last change, with focus', async () => {
@@ -307,25 +361,24 @@ describe('Store Actions pane detail', () => {
     previous();
     expect(scrubber().textContent).toContain('set');
     fireEvent.click(screen.getByTitle('Show action'));
-    expect(screen.queryByRole('region', { name: 'Actions' })).toBeNull();
-    expect(crumbs()).toEqual(['State', 'set Post']);
+    expect(crumbs()).toEqual(['State', 'Actions', 'set Post']);
     expect(top().textContent).toMatch(/title: "One" → "Edited"/);
     expect(document.activeElement).toBe(top());
     // a record links to the action that last changed it, moving the moment
     fireEvent.click(screen.getByRole('button', { name: 'Live' }));
+    openPane();
     expect(crumbs()).toEqual([]);
     openPost('1');
     expect(top().textContent).toContain('changed by');
     const changedBy = within(top()).getByRole('button', { name: /^set Post/ });
     changedBy.focus();
     fireEvent.click(changedBy);
-    expect(crumbs()).toEqual(['State', 'Post 1', 'set Post']);
+    expect(crumbs()).toEqual(['State', 'Post 1', 'Actions', 'set Post']);
     expect(scrubber().textContent).toContain('After');
     expect(top().textContent).toMatch(/title: "One" → "Edited"/);
     expect(document.activeElement).toBe(top());
     // so does the tree view, which the action shows over
-    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
-    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    fireEvent.click(within(top()).getByRole('button', { name: 'State' }));
     fireEvent.click(screen.getByLabelText('Tree view'));
     fireEvent.click(
       [...document.querySelectorAll<HTMLElement>('[data-id]')].find(
@@ -336,7 +389,7 @@ describe('Store Actions pane detail', () => {
     expect(
       screen.getByLabelText('Table view').getAttribute('aria-pressed'),
     ).toBe('true');
-    expect(crumbs()).toEqual(['State', 'set Post']);
+    expect(crumbs()).toEqual(['State', 'Actions', 'set Post']);
   });
 
   it('steps between rows with ↑ ↓, as the moment', async () => {
@@ -387,64 +440,119 @@ describe('Store Actions pane detail', () => {
     expect(rows()[0].getAttribute('aria-expanded')).toBe('false');
   });
 
-  it('closes with Escape, its ✕ or a press outside, back to its toggle', async () => {
+  it('peeks as the mouse rests on its toggle, while over either', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
-    const toggle = screen.getByRole('button', { name: 'Actions' });
-    toggle.focus();
-    fireEvent.click(toggle);
-    expect(document.activeElement).toBe(toggle);
-    rows()[0].focus();
-    fireEvent.keyDown(rows()[0], { key: 'Escape' });
-    expect(screen.queryByRole('region', { name: 'Actions' })).toBeNull();
-    expect(document.activeElement).toBe(toggle);
-    fireEvent.click(toggle);
-    fireEvent.click(screen.getByRole('button', { name: 'Close actions' }));
-    expect(screen.queryByRole('region', { name: 'Actions' })).toBeNull();
-    expect(document.activeElement).toBe(toggle);
-    fireEvent.click(toggle);
-    fireEvent.pointerDown(toggle);
-    expect(pane()).toBeTruthy();
-    fireEvent.pointerDown(top());
-    expect(screen.queryByRole('region', { name: 'Actions' })).toBeNull();
-    // State stays laid out under it meanwhile
-    fireEvent.click(toggle);
-    expect(top()).toBeTruthy();
+    jest.useFakeTimers();
+    const toggle = actionsToggle();
+    // a touch shows nothing: a tap is a click
+    hover(toggle, true, 'touch');
+    wait();
+    expect(peek()).toBeNull();
+    hover(toggle, true);
+    expect(peek()).toBeNull();
+    wait();
+    expect(paneHead()).toBe('Actions' + '1');
+    expect(toggle.getAttribute('aria-pressed')).toBe('false');
+    // State stays laid out under it
     expect(top().closest('[inert]')).toBeNull();
+    expect(crumbs()).toEqual([]);
+    // from the toggle into it, it stays
+    hover(toggle, false);
+    hover(peek()!, true);
+    wait();
+    expect(peek()).toBeTruthy();
+    // away from both, it goes
+    hover(peek()!, false);
+    wait();
+    expect(peek()).toBeNull();
+    // a click lists them at full width instead, and the toggle peeks no more
+    hover(toggle, true);
+    wait();
+    fireEvent.click(toggle);
+    expect(peek()).toBeNull();
+    expect(crumbs()).toEqual(['State', 'Actions']);
+    expect(listCount()).toBe('1');
     expect(toggle.getAttribute('aria-pressed')).toBe('true');
+    hover(toggle, false);
+    hover(toggle, true);
+    wait();
+    expect(peek()).toBeNull();
+    // and closes them again
+    fireEvent.click(toggle);
+    expect(crumbs()).toEqual([]);
+    expect(toggle.getAttribute('aria-pressed')).toBe('false');
   });
 
-  it("opens only its own panel's pane, which a press inside keeps open", async () => {
+  it('opens a row peeked at full width, over the list', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    jest.useFakeTimers();
+    openPost('1');
+    hover(actionsToggle(), true);
+    wait();
+    expect(paneHead()).toBe('ActionsPost 1' + '1');
+    fireEvent.click(rows()[0]);
+    expect(peek()).toBeNull();
+    expect(crumbs()).toEqual([
+      'State',
+      'Post 1',
+      'Actions',
+      'setResponse GET /posts',
+    ]);
+    expect(document.activeElement).toBe(top());
+    // Back lists the record's actions
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    expect(crumbs()).toEqual(['State', 'Post 1', 'Actions']);
+    expect(rows()[0].getAttribute('aria-current')).toBe('true');
+  });
+
+  it('closes with Escape or a press outside, back to its toggle', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    jest.useFakeTimers();
+    const toggle = actionsToggle();
+    hover(toggle, true);
+    wait();
+    rows()[0].focus();
+    fireEvent.keyDown(rows()[0], { key: 'Escape' });
+    expect(peek()).toBeNull();
+    expect(document.activeElement).toBe(toggle);
+    hover(toggle, true);
+    wait();
+    fireEvent.pointerDown(toggle);
+    expect(peek()).toBeTruthy();
+    fireEvent.pointerDown(peek()!);
+    expect(peek()).toBeTruthy();
+    fireEvent.pointerDown(top());
+    expect(peek()).toBeNull();
+  });
+
+  it("peeks only for its own panel, closing as another's toggle is pressed", async () => {
     // a page holds several playgrounds, each with a store panel
     const other = new SchemaRegistry({ trimEvery: 1 });
     other.log.connect(0);
     const { ctrl } = mount(<StorePanel registry={other} history={0} />);
     await act(() => ctrl().fetch(getPosts));
-    const [, mine] = screen.getAllByRole('button', { name: 'Actions' });
-    fireEvent.click(mine);
-    expect(screen.getAllByRole('region', { name: 'Actions' })).toHaveLength(1);
-    fireEvent.pointerDown(rows()[0]);
-    fireEvent.click(rows()[0]);
+    jest.useFakeTimers();
+    const [first, mine] = screen
+      .getAllByRole('button', { name: 'Actions' })
+      .filter(b => b.hasAttribute('aria-pressed'));
+    hover(mine, true);
+    wait();
     expect(
-      screen.getByRole('navigation', { name: 'Store location' }).textContent,
-    ).toContain('setResponse');
-  });
-
-  it("closes as another panel's toggle is pressed", async () => {
-    const other = new SchemaRegistry({ trimEvery: 1 });
-    other.log.connect(0);
-    mount(<StorePanel registry={other} history={0} />);
-    const [first, second] = screen.getAllByRole('button', { name: 'Actions' });
-    fireEvent.click(first);
-    fireEvent.pointerDown(second);
-    expect(screen.queryByRole('region', { name: 'Actions' })).toBeNull();
+      screen.getAllByRole('complementary', { name: 'Actions' }),
+    ).toHaveLength(1);
+    expect(rows()).toHaveLength(1);
+    fireEvent.pointerDown(first);
+    expect(peek()).toBeNull();
   });
 
   it('shows a removed record as the action found it', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
-    openPane();
     openPost('2');
+    openPane();
     await act(async () => {
       ctrl().dispatch({
         type: actionTypes.GC,
@@ -455,7 +563,7 @@ describe('Store Actions pane detail', () => {
     expect(rows()).toHaveLength(2);
     fireEvent.click(rows()[1]);
     // the record is gone at the moment, so its crumb can't name it
-    expect(crumbs()).toEqual(['State', '…', 'gc']);
+    expect(crumbs()).toEqual(['State', '…', 'Actions', 'gc']);
     expect(top().textContent).toContain('Removed; it was:');
     expect(top().textContent).toContain('"Two"');
   });
@@ -516,13 +624,13 @@ describe('Store Actions pane', () => {
     fireEvent.click(expander(rows()[0]));
     fireEvent.click(pane().querySelector<HTMLElement>('[data-seq="1"]')!);
     expect(scrubber().textContent).toContain('fetch');
-    expect(crumbs()).toEqual(['State', 'fetch GET /posts']);
+    expect(crumbs()).toEqual(['State', 'Actions', 'fetch GET /posts']);
     expect(top().textContent).toContain('Started the request');
     await act(() => ctrl().set(Post, { id: '2' }, { id: '2', title: 'Later' }));
-    expect(crumbs()).toEqual(['State', 'fetch GET /posts']);
+    expect(crumbs()).toEqual(['State', 'Actions', 'fetch GET /posts']);
     expect(top().textContent).toContain('Started the request');
     expect(scrubber().textContent).toContain('fetch');
-    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    backTo('State');
     expect(top().textContent).not.toContain('"One"');
   });
 
@@ -644,7 +752,7 @@ describe('Store Actions pane', () => {
     expect(top().textContent).toMatch(/title: "One" → "Edited"/);
 
     // State as it was then
-    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    backTo('State');
     const statePanel = top();
     expect(within(statePanel).getAllByText('"Edited"').length).toBeGreaterThan(
       0,
@@ -722,7 +830,6 @@ describe('Store Actions pane', () => {
     expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
     fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
     // a collected row opens as it was before
-    openPane();
     fireEvent.click(within(rows()[2]).getByRole('button', { name: /Post 3/ }));
     expect(top().textContent).toContain('before this action');
     expect(top().textContent).toContain('"Three"');
@@ -748,7 +855,9 @@ describe('Store Actions pane', () => {
     expect(rows()).toHaveLength(2);
     fireEvent.click(rows()[1]);
     expect(scrubber().textContent).toContain('set');
-    expect(crumbs()).toEqual(['State', 'new Post2', 'Post 1', 'set Post']);
+    expect(crumbs()).toEqual(['State', 'Actions', 'set Post']);
+    expect(top().textContent).toContain('…');
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
     fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
     expect(current()).toBe('Post 1');
     expect(top().textContent).not.toContain('after this action');
@@ -848,14 +957,17 @@ describe('Store action level', () => {
     await act(() => ctrl().fetch(getPosts));
     openPane();
     fireEvent.click(rows()[0]);
-    expect(crumbs()).toEqual(['State', 'setResponse GET /posts']);
+    expect(crumbs()).toEqual(['State', 'Actions', 'setResponse GET /posts']);
+    // the new store's actions are listed instead
     await act(async () => show(1));
-    expect(crumbs()).toEqual([]);
+    expect(crumbs()).toEqual(['State', 'Actions']);
     expect(top().textContent).not.toContain('No longer in the log');
   });
 });
 
 describe('Store Actions pane on a record', () => {
+  afterEach(() => jest.useRealTimers());
+
   it('lists the actions that touched the record, with what each did', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
@@ -865,9 +977,10 @@ describe('Store Actions pane on a record', () => {
     await act(() =>
       ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
     );
-    openPane();
     openPost('1');
-    expect(paneHead()).toBe('ActionsPost 1' + '4');
+    openPane();
+    expect(crumbs()).toEqual(['State', 'Post 1', 'Actions']);
+    expect(listCount()).toBe('4');
     expect(rows()).toHaveLength(4);
     expect(rows()[1].textContent).toContain('stored again, unchanged');
     expect(rows()[2].textContent).toContain('stored again, unchanged');
@@ -875,8 +988,13 @@ describe('Store Actions pane on a record', () => {
     // a row opens its action over the record, as the moment: State shows
     // the record as it was then
     fireEvent.click(rows()[0]);
-    expect(crumbs()).toEqual(['State', 'Post 1', 'setResponse GET /posts']);
-    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    expect(crumbs()).toEqual([
+      'State',
+      'Post 1',
+      'Actions',
+      'setResponse GET /posts',
+    ]);
+    backTo('Post 1');
     expect(current()).toBe('Post 1');
     expect(top().textContent).toContain('"One"');
     openPane();
@@ -887,11 +1005,11 @@ describe('Store Actions pane on a record', () => {
     fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
     // an action that left the record alone is not listed
     await act(() => ctrl().set(Post, { id: '2' }, { id: '2', title: 'Other' }));
-    openPane();
     expect(rows()).toHaveLength(4);
     // the store lists every action
-    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
-    expect(paneHead()).toBe('Actions' + '5');
+    backTo('State');
+    openPane();
+    expect(listCount()).toBe('5');
     expect(rows()).toHaveLength(5);
   });
 
@@ -901,8 +1019,8 @@ describe('Store Actions pane on a record', () => {
     await act(() =>
       ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
     );
-    openPane();
     openPost('1');
+    openPane();
     expect(rows()).toHaveLength(2);
     // every row works out its chips as it renders
     const renders = jest.spyOn(log, 'mergedChanges');
@@ -913,7 +1031,8 @@ describe('Store Actions pane on a record', () => {
     expect(rows()).toHaveLength(3);
     expect(renders).toHaveBeenCalledTimes(1);
     // at the store too, where every action is listed
-    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    backTo('State');
+    openPane();
     renders.mockClear();
     await act(() => ctrl().set(Post, { id: '2' }, { id: '2', title: 'More' }));
     expect(rows()).toHaveLength(5);
@@ -929,12 +1048,13 @@ describe('Store Actions pane on a record', () => {
       for (let i = 0; i < 25; i++)
         await ctrl().set(Post, { id: '2' }, { id: '2', title: `t${i}` });
     });
-    openPane();
     openPost('2');
+    openPane();
     expect(pane().textContent).toContain('Changed by actions not kept');
-    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    backTo('State');
     // Post 1's own set is still there
     openPost('1');
+    openPane();
     expect(pane().textContent).not.toContain('not kept');
   });
 
@@ -956,8 +1076,8 @@ describe('Store Actions pane on a record', () => {
       for (let i = 0; i < 25; i++) await ctrl().fetch(polled);
       await ctrl().unsubscribe(polled);
     });
-    openPane();
     openPost('1');
+    openPane();
     expect(pane().textContent).toContain(`${says} by actions not kept`);
   });
 
@@ -970,8 +1090,9 @@ describe('Store Actions pane on a record', () => {
       for (let i = 0; i < 25; i++)
         await ctrl().set(Post, { id: '2' }, { id: '2', title: `t${i}` });
     });
-    openPane();
     openPost('1');
+    // beside the record, which says what changed it
+    peekIn();
     const gap = () =>
       within(pane()).getByText(
         'Changed by actions not kept: the log keeps the newest',
@@ -1014,8 +1135,8 @@ describe('Store Actions pane on a record', () => {
       'Before it: Changed by actions not kept',
     );
     expect(top().textContent).not.toContain('No change to this record');
-    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
-    openPane();
+    backTo('Post 1');
+    peekIn();
     previous();
     expect(rows()[0].getAttribute('aria-current')).toBe('true');
     expect(changedBy()).toContain('setResponse');
@@ -1043,8 +1164,8 @@ describe('Store Actions pane on a record', () => {
       for (let i = 0; i < 25; i++) await ctrl().fetch(polled);
       await ctrl().unsubscribe(polled);
     });
-    openPane();
     openPost('1');
+    openPane();
     fireEvent.click(expander(rows()[1]));
     const note = () =>
       within(pane()).getByText(/^Changed by actions not kept/).parentElement!;
@@ -1056,7 +1177,7 @@ describe('Store Actions pane on a record', () => {
     const { seq } = step.dataset;
     fireEvent.click(step);
     expect(top().textContent).toContain('title:');
-    openPane();
+    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
     expect(
       [
         ...pane().querySelectorAll<HTMLElement>(
@@ -1085,8 +1206,8 @@ describe('Store Actions pane on a record', () => {
       for (let i = 0; i < 40; i++) await ctrl().fetch(polled);
       await ctrl().unsubscribe(polled);
     });
-    openPane();
     openPost('1');
+    openPane();
     const notes = () =>
       within(pane()).queryAllByText(/by actions not kept/).length;
     // closed, the row carries one note; open, one before its first kept
@@ -1119,10 +1240,10 @@ describe('Store Actions pane on a record', () => {
       for (let i = 0; i < 25; i++) await ctrl().fetch(polled);
       await ctrl().unsubscribe(polled);
     });
-    openPane();
     fireEvent.click(
       top().querySelector<HTMLElement>(`tr[data-id="${endpointId(POSTS)}"]`)!,
     );
+    peekIn();
     expect(pane().textContent).toContain('Changed by actions not kept');
     expect(pane().textContent).toContain('stored again, unchanged');
     // with no kept change to name
@@ -1155,14 +1276,13 @@ describe('Store Actions pane on a record', () => {
     previous();
     previous();
     previous();
-    openPane();
     openPost('1');
+    openPane();
     const marked = () => rows().map(r => r.getAttribute('aria-current'));
     expect(marked()).toEqual(['true', null]);
     // picking a row moves the moment there, for the whole panel
     fireEvent.click(rows()[1]);
     fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
-    openPane();
     expect(marked()).toEqual([null, 'true']);
     expect(scrubber().textContent).toContain('set');
     expect(scrubber().textContent).toContain('Post');
@@ -1178,7 +1298,8 @@ describe('Store Actions pane on a record', () => {
     expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
     expect(marked()).toEqual([null, null]);
     // at the store, every change is a step
-    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
+    backTo('State');
+    openPane();
     previous();
     expect(marked()).toEqual([null, null, 'true']);
   });

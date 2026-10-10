@@ -41,32 +41,42 @@ import { actionId } from './model';
 import { ActionSpanContext, useNavState, type View } from './nav';
 import styles from './store.module.css';
 
-/** The Actions pane: `subject`'s actions as a list, under a head naming it
- * (`label`, none at the store) and counting them. An overlay over State's
- * right side (`narrow`, most of it): Escape, a click outside or its ✕
- * close it, and so does picking an action, which opens at full width */
+/** The groups with an action that touched the subject */
+function useRows(filter: SubjectFilter) {
+  const { groups } = useActions();
+  const { hit } = filter;
+  return useMemo(
+    () => groups.filter(g => groupEntriesOf(g).some(hit)),
+    [groups, hit],
+  );
+}
+
+/** A peek at `subject`'s actions as the mouse rests on the Actions toggle:
+ * the list, under a head naming the subject (`label`, none at the store)
+ * and counting them, over State's right side (`narrow`, most of it). It
+ * goes as the pointer leaves it, on Escape or a press outside; picking an
+ * action opens it at full width */
 export function ActionsPane({
   subject,
   filter,
   label,
   narrow,
   toggle,
+  onHover,
   onClose,
 }: {
   subject: View;
   filter: SubjectFilter;
   label: React.ReactNode;
   narrow: boolean;
-  /** Its toggle, which closes it itself: a press there is not outside */
+  /** Its toggle, which opens the list in full: a press there is not
+   * outside */
   toggle: React.RefObject<HTMLElement | null>;
+  /** The pointer came into it (`true`) or left it */
+  onHover: (inside: boolean, e: React.PointerEvent) => void;
   onClose: () => void;
 }) {
-  const { groups } = useActions();
-  const { hit } = filter;
-  const rows = useMemo(
-    () => groups.filter(g => groupEntriesOf(g).some(hit)),
-    [groups, hit],
-  );
+  const rows = useRows(filter);
   const ref = useRef<HTMLElement>(null);
   // a press outside closes it (another panel's toggle included)
   useEffect(() => {
@@ -80,10 +90,12 @@ export function ActionsPane({
     return () => document.removeEventListener('pointerdown', onPress);
   }, [onClose, toggle]);
   return (
-    <section
+    <aside
       ref={ref}
       className={clsx(styles.pane, narrow && styles.paneNarrow)}
       aria-label="Actions"
+      onPointerEnter={e => onHover(true, e)}
+      onPointerLeave={e => onHover(false, e)}
       onKeyDown={e => {
         if (e.key !== 'Escape' || e.defaultPrevented) return;
         e.preventDefault();
@@ -94,18 +106,33 @@ export function ActionsPane({
         Actions
         {label && <span className={styles.paneSubject}>{label}</span>}
         <span className={styles.count}>{rows.length.toLocaleString()}</span>
-        <button
-          type="button"
-          className={styles.paneClose}
-          aria-label="Close actions"
-          title="Close actions"
-          onClick={onClose}
-        >
-          ✕
-        </button>
       </div>
       <ActionList rows={rows} subject={subject} filter={filter} />
-    </section>
+    </aside>
+  );
+}
+
+/** `subject`'s actions at full width, a level over it: `header` (the
+ * crumbs) with their count, then the list */
+export function ActionsLevel({
+  subject,
+  filter,
+  header,
+}: {
+  subject: View;
+  filter: SubjectFilter;
+  header: (tools: React.ReactNode) => React.ReactNode;
+}) {
+  const rows = useRows(filter);
+  return (
+    <>
+      {header(
+        <span className={styles.count}>{rows.length.toLocaleString()}</span>,
+      )}
+      <section className={styles.actionsLevel} aria-label="Actions">
+        <ActionList rows={rows} subject={subject} filter={filter} />
+      </section>
+    </>
   );
 }
 
