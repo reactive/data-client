@@ -129,9 +129,11 @@ jobs:
             const fs = require("fs");
             const file = "website/versionsArchived.json";
             const { VERSION: version, SHA256: sha256 } = process.env;
-            const versions = JSON.parse(fs.readFileSync(file, "utf8"))
-              .filter(v => v.version !== version)
-              .concat({ version, sha256 });
+            // in place, so relisting the same build changes nothing
+            const listed = JSON.parse(fs.readFileSync(file, "utf8"));
+            const versions = listed.some(v => v.version === version) ?
+              listed.map(v => v.version === version ? { version, sha256 } : v)
+            : listed.concat({ version, sha256 });
             fs.writeFileSync(file, JSON.stringify(versions, null, 2) + "\n");
             // Archived, so it no longer serves at the root: master does again
             const current = "website/versionCurrent.json";
