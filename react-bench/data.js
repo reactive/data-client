@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791602887697,
+  "lastUpdate": 1791739803015,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -8465,6 +8465,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 183.5,
             "range": "± 9.3%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "2df300abae32b55031f3d0ea7ff167f66b8852b5",
+          "message": "fix(normalizr): set([Entity], rows) types with exactOptionalPropertyTypes (#4312)\n\n* fix(normalizr): set([Entity], rows) types with exactOptionalPropertyTypes\n\nEntityInterface's optional maxEntityDepth and cacheWith now accept undefined,\nso Entity classes (which declare maxEntityDepth?: number | undefined) satisfy it\nwhen exactOptionalPropertyTypes is on, as in the website's playground editor.\n\nThe docs example checker now uses the editor's exactOptionalPropertyTypes for\nReact examples, so this class of editor-only error fails CI.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01URQtAdEQvgzt8KxtmdEvSE\n\n* chore: regenerate skill references\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01URQtAdEQvgzt8KxtmdEvSE\n\n* refactor(website): share the playground editor's type-check flags with the docs example check\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01URQtAdEQvgzt8KxtmdEvSE\n\n* chore(ci): run the docs example check when the editor's type-check flags change\n\nAlso restores why noImplicitAny is off, next to the shared flags.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01URQtAdEQvgzt8KxtmdEvSE\n\n* docs(website): checkExamples header says only React examples match the editor\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01URQtAdEQvgzt8KxtmdEvSE\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-11T17:25:44Z",
+          "tree_id": "ed2ec70c4d3d927ce689b1def480b280a8f0815a",
+          "url": "https://github.com/reactive/data-client/commit/2df300abae32b55031f3d0ea7ff167f66b8852b5"
+        },
+        "date": 1791739799545,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 173.93,
+            "range": "± 5.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 53.48,
+            "range": "± 5.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 416.67,
+            "range": "± 7.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 416.67,
+            "range": "± 8.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 55.71,
+            "range": "± 8.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 344.83,
+            "range": "± 6.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 377.49,
+            "range": "± 7.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 13.44,
+            "range": "± 7.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 86.21,
+            "range": "± 15.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 46.51,
+            "range": "± 4.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 243.9,
+            "range": "± 5.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 333.33,
+            "range": "± 5.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 196.15,
+            "range": "± 9.1%",
             "unit": "ops/s"
           }
         ]
