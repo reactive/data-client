@@ -36,7 +36,7 @@
     "docs/core/concepts/atomic-mutations.md": "a2b3b26c22f0dc2f05c880b4fe02ece08c8f311e",
     "docs/core/concepts/error-policy.md": "2be89c85f00a6f005583a572dd12b11cc8776a51",
     "docs/core/concepts/expiry-policy.md": "6b0bb7645dc396d40018f641c851f71f1f9bee5f",
-    "docs/core/concepts/managers.md": "a035bc51c4110dccc7ab8368a9ef0fd57b40b0aa",
+    "docs/core/concepts/managers.md": "b903553553f7ac632aff0e99b97797d1efad2e84",
     "docs/core/concepts/normalization.md": "21ad83e2a7f3cbede2fc21339b58a5310e32a3f8",
     "docs/core/concepts/overview.md": "7d00b1246f5b51ecddf3b262607d33d7142b6369",
     "docs/core/concepts/performance.md": "bf0b85d04ae5081ec95fcfe92e55edfe364b43f4",
@@ -71,6 +71,7 @@
     "docs/core/shared/_provider_managers.mdx": "15a4c33622a316af3a7b43b89ae884a9e5e1e31d",
     "docs/core/shared/_schema_table.mdx": "6b0da04f375127ec0821a722434ca4b689f8fc42",
     "docs/core/shared/_state_type.mdx": "2edad5dc911a51c86af94c2ad238b78368b63a6c",
+    "docs/core/shared/_StreamManagerDemo.mdx": "a8362e2c88711911fc73c609c0146f3cfa4bb86d",
     "docs/core/shared/_useCancelling.mdx": "f570a32435685b8475d234b575162907a4f90e39",
     "docs/core/shared/_useLive.mdx": "2c6ab6ef3d5676d409c687c58a1399fd34ba2510",
     "docs/core/shared/_useLoading.mdx": "ca042c2e01cf429b8a4b9841adf0ccd733686900",
@@ -357,7 +358,8 @@
       "playground.store.hide": "Hide Store",
       "playground.store.show": "Show Store",
       "playground.fixtures": "Fixtures",
-      "playground.store": "Store"
+      "playground.store": "Store",
+      "playground.code": "Code"
     },
     "docusaurus-plugin-content-blog/options.json": {
       "title": "Blog",
