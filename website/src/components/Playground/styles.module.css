@@ -294,6 +294,13 @@ div.playgroundTextEdit > .playgroundHeader,
   min-width: 0;
   background: var(--monoco-code-background);
 }
+/* beside the result, as tall as it when that is past the Store's own cap
+   (the cap still keeps a long store from stretching the row) */
+@container playground (min-width: 560px) {
+  .playgroundResult > .storePanel > * {
+    min-height: max(min(24rem, 70svh), 100%);
+  }
+}
 [data-theme='dark'] .storePanel {
   /* opaque, so the covered code never shows through; the tree inside
      adds the translucent code tint on top */
