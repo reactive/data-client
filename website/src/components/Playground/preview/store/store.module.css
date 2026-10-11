@@ -16,11 +16,11 @@
   --store-hover: rgba(255, 255, 255, 0.045);
   --store-selected: rgba(130, 170, 255, 0.16);
   --store-record: rgba(130, 170, 255, 0.07);
-  --store-flash: rgba(255, 203, 107, 0.3);
-  --store-flash-added: rgba(127, 209, 160, 0.3);
-  --store-flash-removed: rgba(255, 88, 116, 0.3);
-  --store-stale-bg: rgba(255, 203, 107, 0.09);
-  --store-fresh-bg: rgba(127, 209, 160, 0.09);
+  --store-flash: color-mix(in srgb, var(--store-stale) 30%, transparent);
+  --store-flash-added: color-mix(in srgb, var(--store-fresh) 30%, transparent);
+  --store-flash-removed: color-mix(in srgb, var(--store-null) 30%, transparent);
+  --store-stale-bg: color-mix(in srgb, var(--store-stale) 9%, transparent);
+  --store-fresh-bg: color-mix(in srgb, var(--store-fresh) 9%, transparent);
   --store-tip: #3a4057;
   --store-bg: var(--monoco-code-background);
 
@@ -1282,6 +1282,8 @@ div.joined {
   align-items: center;
   gap: 0.3rem;
   padding: 0 0.4rem;
+  border: 1px solid var(--store-line-strong);
+  border-radius: 4px;
   color: var(--store-muted);
   font: 500 11px / 1.6 var(--ifm-font-family-base);
 }
@@ -1292,15 +1294,13 @@ div.joined {
   border-radius: 50%;
   box-shadow: inset 0 0 0 1px currentColor;
 }
-.scrubRow > button.liveButton:hover {
-  border-color: rgba(127, 209, 160, 0.45);
+.scrubRow > button.liveButton:hover,
+.scrubRow > .liveCurrent {
+  border-color: color-mix(in srgb, var(--store-fresh) 40%, transparent);
   color: var(--store-fresh);
 }
 .scrubRow > .liveCurrent {
-  border: 1px solid rgba(127, 209, 160, 0.3);
-  border-radius: 4px;
-  background: rgba(127, 209, 160, 0.12);
-  color: var(--store-fresh);
+  background: color-mix(in srgb, var(--store-fresh) 12%, transparent);
 }
 .liveCurrent::before {
   background: currentColor;

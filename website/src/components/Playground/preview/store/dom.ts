@@ -1,7 +1,7 @@
 import React, { useCallback, useLayoutEffect, useRef } from 'react';
 
-import { prefersReducedMotion, springEasing, springs } from '../../../motion';
 import type { ChangeKind } from './actionGroups';
+import { prefersReducedMotion, springEasing, springs } from '../../../motion';
 
 /** What `scrollToRow` leaves above a revealed row, for the sticky section
  * header (`.sectionHeader` in store.module.css) */

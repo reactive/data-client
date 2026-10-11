@@ -2,12 +2,12 @@
 import { Collection, Entity, schema } from '@data-client/endpoint';
 import { actionTypes, type State } from '@data-client/react';
 
+import { changeOf } from '../store/actionGroups';
 import {
   buildModel,
   endpointId,
   entityId,
   findRow,
-  changeOf,
   isInvalidated,
   parseRowId,
   prettyPk,
@@ -287,7 +287,7 @@ describe('store model', () => {
       'GET https://example.com/posts',
       'GET /broken',
     ]);
-    expect(changeOf(state, failed, endpointId('GET /broken'))).toBe('added');
+    expect(changeOf(state, failed, endpointId('GET /broken'))).toBe('error');
     expect(
       changeOf(state, failed, endpointId('GET https://example.com/posts')),
     ).toBeUndefined();
@@ -450,7 +450,7 @@ describe('store model', () => {
         Post: { 1: { date: 1, fetchedAt: 1, expiresAt: 2 } },
       },
     };
-    expect(changeOf(state, refetched, entityId('Post', '1'))).toBe('updated');
+    expect(changeOf(state, refetched, entityId('Post', '1'))).toBe('refreshed');
   });
 
   it('learns recursive schemas', () => {

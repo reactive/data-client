@@ -203,8 +203,8 @@ DesignSystem/       components injected into preview scope
       it ended up). The store and its lists keep only the rows it changed, a
       removed one as it was, each row marked `data-change` through
       `DiffContext` and each field it changed `data-changed` (`added` when
-      the update added it, fresh-colored like an added row), with the sections it left empty hidden; a record, or a
-      level it left alone, says what it did there with `SubjectChanges` from
+      the update added it, fresh-colored like an added row), with the
+      sections it left empty hidden; a record, or a level it left alone, says what it did there with `SubjectChanges` from
       `preview/store/ActionDetail.tsx`. Live, it shows the newest stored
       action's whole group, so a response that stored nothing new still shows
       its request's optimistic update (Live on the scrubber is marked as the

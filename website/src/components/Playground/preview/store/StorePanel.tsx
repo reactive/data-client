@@ -26,6 +26,7 @@ import {
   type ActionGroup,
   type ChangeKind,
   type SubjectFilter,
+  changeOf,
 } from './actionGroups';
 import { ActionsLevel, ActionsPane, GroupActions } from './ActionList';
 import {
@@ -53,7 +54,6 @@ import { flash, scrollToRow, slide } from './dom';
 import {
   buildModel,
   findRow,
-  changeOf,
   isEndpointRow,
   pendingIn,
   type StoreModel,
