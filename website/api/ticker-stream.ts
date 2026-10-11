@@ -37,6 +37,8 @@ export function GET(request: Request): Response {
   const stop = () => {
     clearInterval(keepalive);
     clearTimeout(lifetime);
+    // a late message would write to the closed stream
+    socket.onmessage = null;
     socket.close();
   };
 
