@@ -27,7 +27,7 @@ import {
 } from './nav';
 import { plain } from './refs';
 import styles from './store.module.css';
-import { Block, Field, FieldChange, Inline, ValueChange } from './Value';
+import { Block, Field, field, FieldChange, Inline, ValueChange } from './Value';
 
 /** What an action did to `subject` (every row at the store, a line saying
  * it left the subject alone, or that it is where a `gap` of dropped actions
@@ -219,19 +219,7 @@ function ChangeBody({
       // a list (a Collection's) changes item by item, not index by index
       if (Array.isArray(was) && Array.isArray(now))
         return <ValueChange was={plain(was)} now={plain(now)} />;
-      return (
-        <>
-          {(change.fields ?? []).map(field => (
-            <div key={field} className={styles.actField}>
-              <FieldChange
-                name={field}
-                was={plain(get(was, field))}
-                now={plain(get(now, field))}
-              />
-            </div>
-          ))}
-        </>
-      );
+      return <FieldChanges fields={change.fields ?? []} was={was} now={now} />;
     case 'invalidated':
       return (
         <span className={styles.dim}>invalid; the next read refetches</span>
@@ -271,8 +259,29 @@ function RemovedValue({ id, seq }: { id: string; seq: number }) {
   );
 }
 
-const get = (row: unknown, field: string) =>
-  row && typeof row === 'object' ? (row as any)[field] : row;
+/** Each field an update changed; one it added (missing before) or dropped
+ * reads as such, as the tree marks it */
+function FieldChanges({
+  fields,
+  was,
+  now,
+}: {
+  fields: readonly string[];
+  was: unknown;
+  now: unknown;
+}) {
+  const before = plain(was);
+  const after = plain(now);
+  return fields.map(name => (
+    <div key={name} className={styles.actField}>
+      <FieldChange
+        name={name}
+        was={field(before, name)}
+        now={field(after, name)}
+      />
+    </div>
+  ));
+}
 
 /** The action's own fields, minus what can't be shown (the endpoint, the
  * promise callbacks in a fetch's meta) */
