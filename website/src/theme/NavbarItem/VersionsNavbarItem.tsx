@@ -47,17 +47,19 @@ export default function VersionsNavbarItem(
   if (!targets.length) return null;
 
   const page = pathname.slice(baseUrl.length - 1);
-  const hrefIn = ({ root, sameOrigin }: (typeof targets)[number]) => {
-    // Without its pages to check, its section start, which every locale has
-    if (!sameOrigin) return trimRoute(`${root}${locale}/${section}`);
+  // This page in it, else its section start, which every version has
+  const hrefIn = ({ root }: (typeof targets)[number]) => {
+    const paths = routes[root];
+    // Until its pages load, this locale's section start
+    if (!paths) return trimRoute(`${root}${locale}/${section}`);
     const candidates = [
       ...(locale ? [`${locale}${page}`] : []),
       page,
-      `/${section}`,
-    ].map(path => trimRoute(`${root}${path}`));
-    return (
-      candidates.find(path => routes[root]?.has(path)) ?? candidates.at(-1)
-    );
+      `${locale}/${section}`,
+    ].map(trimRoute);
+    const path =
+      candidates.find(path => paths.has(path)) ?? trimRoute(`/${section}`);
+    return `${root}${path}`;
   };
 
   return (
@@ -70,7 +72,7 @@ export default function VersionsNavbarItem(
         // html, not label: a pathname:// href gets an external link icon
         html: `v${target.version}`,
         href: `pathname://${hrefIn(target)}`,
-        // the others are under the site root, not this baseUrl
+        // the others aren't under this baseUrl
         autoAddBaseUrl: false,
         target: '_self',
       }))}
@@ -78,7 +80,7 @@ export default function VersionsNavbarItem(
   );
 }
 
-/** Each version's pages, keyed by its root */
+/** Each version's pages, keyed by its root, as paths from that root */
 type Routes = Record<string, ReadonlySet<string>>;
 
 /** Shared by the desktop and mobile items, so each sitemap loads once */
@@ -102,16 +104,14 @@ async function requestRoutes(): Promise<Routes> {
       ([, path]) => trimRoute(path),
     );
   };
+  // Other origins' sitemaps allow this (vercel.json)
   const entries = await Promise.all(
-    // another origin's (production's, from a preview) can't be read
-    targets
-      .filter(({ sameOrigin }) => sameOrigin)
-      .map(async ({ root }) => {
-        const sitemaps = [`${root}/sitemap.xml`];
-        if (locale) sitemaps.push(`${root}${locale}/sitemap.xml`);
-        const paths = (await Promise.all(sitemaps.map(pathsIn))).flat();
-        return [root, new Set(paths)] as const;
-      }),
+    targets.map(async ({ root }) => {
+      const sitemaps = [`${root}/sitemap.xml`];
+      if (locale) sitemaps.push(`${root}${locale}/sitemap.xml`);
+      const paths = (await Promise.all(sitemaps.map(pathsIn))).flat();
+      return [root, new Set(paths)] as const;
+    }),
   );
   return Object.fromEntries(entries);
 }

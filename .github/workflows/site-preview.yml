@@ -184,7 +184,7 @@ jobs:
           else
             echo "deploy=false" >> "$GITHUB_OUTPUT"
           fi
-      # Frozen builds of older versions, served at /<version>/
+      # Frozen builds of older versions, served at <version>.dataclient.io
       - name: Add archived versions
         if: steps.decide.outputs.deploy == 'true'
         run: website/scripts/snapshot/fetch.sh website/build
@@ -316,6 +316,7 @@ jobs:
           sparse-checkout: |
             website/package.json
             website/vercel.json
+            website/versionsArchived.json
             website/api/
             website/scripts/vercel-ignore.sh
           sparse-checkout-cone-mode: false
@@ -365,6 +366,17 @@ jobs:
           vercel pull --yes --environment="$TARGET"
           # Packages the downloaded build into .vercel/output
           vercel build --yes --target="$TARGET"
+          # vercel.json's rewrites run after the file check, where the root's
+          # pages would answer an archive's host; serve its own files first
+          config=.vercel/output/config.json
+          jq -e '[.routes[] | select(.dest? // "" | startswith("/archives/"))] | length == 1' "$config" > /dev/null ||
+            { echo "::error::$config has no archive host rewrite to move"; exit 1; }
+          jq '.routes |= (
+            map(select(.dest? // "" | startswith("/archives/"))) as $archive
+            | (map(select(.dest? // "" | startswith("/archives/") | not))) as $rest
+            | ($rest | map(.handle == "filesystem") | index(true)) as $fs
+            | $rest[:$fs] + $archive + $rest[$fs:])' "$config" > config.json.tmp
+          mv config.json.tmp "$config"
           meta=()
           # Ties the preview to its branch instead of the PR merge ref
           [ -n "$HEAD_REF" ] && meta=(--meta githubDeployment=1 --meta "githubCommitRef=$HEAD_REF")
@@ -384,6 +396,24 @@ jobs:
           fi
           echo "url=$url" >> "$GITHUB_OUTPUT"
           { echo "### Docs $TARGET deployment"; echo; echo "$url"; } >> "$GITHUB_STEP_SUMMARY"
+      # Each archived version serves at its own host (vercel.json), which the
+      # project needs as a domain. Vercel configures its DNS when it hosts
+      # dataclient.io's; a failure only leaves that version's host unserved
+      - name: Add archived versions' domains
+        if: env.TARGET == 'production' && steps.deploy.outputs.url
+        run: |
+          api=https://api.vercel.com
+          auth=(-H "Authorization: Bearer $VERCEL_TOKEN")
+          for version in $(jq -r '.[].version' website/versionsArchived.json); do
+            domain="$version.dataclient.io"
+            status="$(curl -sS -o /dev/null -w '%{http_code}' "${auth[@]}" \
+              "$api/v9/projects/$VERCEL_PROJECT_ID/domains/$domain?teamId=$VERCEL_ORG_ID")"
+            [ "$status" = 200 ] && continue
+            curl -fsS -o /dev/null "${auth[@]}" -H 'Content-Type: application/json' \
+              -d "{\"name\": \"$domain\"}" \
+              "$api/v10/projects/$VERCEL_PROJECT_ID/domains?teamId=$VERCEL_ORG_ID" ||
+              echo "::warning title=Archive domain::Couldn't add $domain to the Vercel project; add it by hand"
+          done
       - if: github.event_name == 'pull_request'
         uses: marocchino/sticky-pull-request-comment@v3
         with:

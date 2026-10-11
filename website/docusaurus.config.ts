@@ -7,7 +7,8 @@ import path from 'path';
 import { themes } from 'prism-react-renderer';
 
 import gqlRedirects from './gqlRedirects';
-import { siteVersions, versionCurrent } from './siteVersions';
+import { versionLabel } from './scripts/snapshot/versionLabel';
+import { lineOf, siteVersions, versionCurrent } from './siteVersions';
 import { motionCss } from './src/components/motion/css';
 import { DEFAULT_LOCALE, LOCALES } from './translate/locales';
 import versions from './versions.json';
@@ -42,6 +43,11 @@ const url = 'https://dataclient.io';
 // master alone, so they link to the current version on the production site.
 const isNext = !!versionCurrent && process.env.DOCS_NEXT === '1';
 const currentOrigin = isNext ? undefined : url;
+// master documents the next major while versionCurrent.json exists
+const siteLabel =
+  versionCurrent ? 'next' : (
+    `v${lineOf(require('../packages/react/package.json').version)}`
+  );
 const vueDocs = frameworkDocs.generate('vue');
 // Each locale renders English with its translations in place
 // (translate/README.md); its Vue pages mirror its docs/core
@@ -120,6 +126,7 @@ const config: Config = {
     }),
   },
   headTags: [
+    versionLabel(siteLabel),
     {
       tagName: 'link',
       attributes: {

@@ -1,7 +1,7 @@
 name: docs snapshot
 
 # Freezes the docs of a release that a breaking one replaced, served at
-# dataclient.io/<version>/ (website/scripts/snapshot/README.md). release.yml
+# <version>.dataclient.io (website/scripts/snapshot/README.md). release.yml
 # calls it when a breaking version publishes; dispatch it to rebuild one.
 on:
   workflow_call:

@@ -8,8 +8,12 @@ export function onRouteUpdate({ location }: { location: Location }) {
   const { pathname, search, hash } = location;
   const page = pathname.slice(baseUrl.length);
   if (/^blog(\/|$)/.test(page)) {
-    // /<version>/es/ -> /es/: this locale on the root site
-    const latest = baseUrl.replace(/^\/[^/]+/, '');
-    window.location.replace(`${latest}${page}${search}${hash}`);
+    // /next/es/ -> /es/: this locale on the root site, which an archive's
+    // own host (at its root) reaches through production's
+    const root =
+      baseUrl.startsWith('/next/') ?
+        baseUrl.slice('/next'.length)
+      : `https://dataclient.io${baseUrl}`;
+    window.location.replace(`${root}${page}${search}${hash}`);
   }
 }

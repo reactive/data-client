@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Unpacks the archived versions listed in website/versionsArchived.json into
-# the built site, so each serves at /<version>/. Their builds live on the
-# `docs-v<version>` GitHub releases (made by docs-snapshot.yml).
+# the built site's archives/<version>/, which vercel.json serves at
+# <version>.dataclient.io. Their builds live on the `docs-v<version>` GitHub
+# releases (made by docs-snapshot.yml).
 #
 #   website/scripts/snapshot/fetch.sh <site build dir>
 set -euo pipefail
@@ -9,6 +10,7 @@ set -euo pipefail
 build="$1"
 repo="${GITHUB_REPOSITORY:-reactive/data-client}"
 here="$(cd "$(dirname "$0")" && pwd)"
+mkdir -p "$build/archives"
 jq -r '.[] | "\(.version) \(.sha256)"' "$here/../../versionsArchived.json" |
   while read -r version sha256; do
     file="$(mktemp)"
@@ -16,6 +18,6 @@ jq -r '.[] | "\(.version) \(.sha256)"' "$here/../../versionsArchived.json" |
       "https://github.com/$repo/releases/download/docs-v$version/docs-$version-${sha256:0:16}.tar.gz"
     # the checksum docs-snapshot.yml listed, so a changed asset fails here
     echo "$sha256  $file" | sha256sum -c --quiet
-    tar -xzf "$file" -C "$build"
+    tar -xzf "$file" -C "$build/archives"
     rm "$file"
   done

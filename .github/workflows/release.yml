@@ -58,7 +58,7 @@ jobs:
 
       # A stable release of a new line (scripts/maintenance/version-line.sh)
       # replaces the previous line's docs, so docs-snapshot.yml freezes those
-      # at /<version>/
+      # at <version>.dataclient.io
       - name: Find docs to archive
         id: archive
         if: steps.changesets.outputs.hasChangesets == 'false'

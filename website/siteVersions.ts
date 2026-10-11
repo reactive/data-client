@@ -7,10 +7,8 @@ import path from 'path';
 
 export interface VersionTarget {
   version: string;
-  /** Its site: '' for this site's root, '/<version>', or production's origin */
+  /** Its site: '' for this site's root, else an origin */
   root: string;
-  /** Whether it's served beside this site, so its sitemap can be read */
-  sameOrigin: boolean;
 }
 
 /** Read by VersionsNavbarItem (customFields.versions) */
@@ -24,6 +22,16 @@ export interface SiteVersions {
 // A release line, which a breaking change starts: the minor for 0.x, else the
 // major. Matches is_line in scripts/maintenance/version-line.sh
 const LINE = /^(0\.\d+|[1-9]\d*)$/;
+
+/** Where an archived version serves, like https://0.18.dataclient.io */
+export const archiveOrigin = (version: string) =>
+  `https://${version}.dataclient.io`;
+
+/** The line a version belongs to. Matches line in version-line.sh */
+export const lineOf = (version: string) => {
+  const [major, minor] = version.split('-')[0].split('.');
+  return major === '0' ? `0.${minor}` : major;
+};
 
 const read = (file: string) =>
   fs.existsSync(path.join(__dirname, file)) ?
@@ -50,7 +58,7 @@ if (versionCurrent) {
   );
 }
 
-/** Frozen builds served at /<version>/, from docs-snapshot.yml */
+/** Frozen builds, each served at its archiveOrigin, from docs-snapshot.yml */
 const versionsArchived: { version: string; sha256: string }[] =
   read('versionsArchived.json') ?? [];
 for (const { version, sha256 } of versionsArchived) {
@@ -77,20 +85,10 @@ export const siteVersions = (currentOrigin?: string): SiteVersions => ({
   unreleased: !!versionCurrent,
   others: [
     ...(versionCurrent ?
-      [
-        {
-          version: versionCurrent.version,
-          root: currentOrigin ?? '',
-          sameOrigin: !currentOrigin,
-        },
-      ]
+      [{ version: versionCurrent.version, root: currentOrigin ?? '' }]
     : []),
     ...versionsArchived
-      .map(({ version }) => ({
-        version,
-        root: `/${version}`,
-        sameOrigin: true,
-      }))
+      .map(({ version }) => ({ version, root: archiveOrigin(version) }))
       .sort((a, b) =>
         b.version.localeCompare(a.version, undefined, { numeric: true }),
       ),
