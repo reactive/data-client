@@ -119,15 +119,14 @@ export function useFollow(
     let away = false;
     const onScroll = () => {
       if (hidden) return;
-      if (!paused) {
-        const atEnd =
-          el[size] - el[scroll] - el[client] < (away ? 1 : FOLLOW_SLACK);
-        if (atEnd) away = false;
-        follow.current = atEnd;
-      }
-      // only read while it can be needed: following, the end is all that
-      // matters
-      if (!follow.current) anchor.current = lastShown(el, axis);
+      // on every scroll, the follow's own included: one left over from
+      // before would pull the view back to it on the next pause
+      anchor.current = lastShown(el, axis);
+      if (paused) return;
+      const atEnd =
+        el[size] - el[scroll] - el[client] < (away ? 1 : FOLLOW_SLACK);
+      if (atEnd) away = false;
+      follow.current = atEnd;
     };
     // a scroller inside it (an open row's steps) takes the steps back it
     // has room for
