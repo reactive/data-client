@@ -8,9 +8,10 @@ type-check, as they did when that release's CI passed. Archives add nothing to t
 
 - `build.sh <checkout> <version> <out.tar.gz>` builds an archive from a checkout of a release. It
   copies `docusaurus.snapshot.config.ts` beside that release's config, which moves it under
-  `/<version>/`, drops its blog (the latest site has every post, and `vercel.json` redirects
-  `/<version>/blog`), and adds a banner and navbar link back to the latest docs. The wrapper runs
-  against old configs, so it only reads fields every release has.
+  `/<version>/`, drops its blog (the latest site has every post; `vercel.json` redirects
+  `/<version>/blog` page loads, and `archive.client.ts` its in-app links), and swaps the version
+  dropdown for a banner and navbar link back to the latest docs. The wrapper runs against old
+  configs, so it only reads fields every release has.
 - `.github/workflows/docs-snapshot.yml` runs it in a job with no write token or dependency cache,
   since the release's install and build run third-party code. A second job, which runs nothing from
   the release, uploads the archive to the `docs-v<version>` GitHub release, named by its sha256,

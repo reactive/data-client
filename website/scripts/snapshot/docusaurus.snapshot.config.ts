@@ -11,10 +11,14 @@ const navbar = (themeConfig.navbar ?? {}) as { items?: unknown[] };
 export default {
   ...config,
   baseUrl: `/${version}/`,
-  // The latest site's blog has every post; vercel.json sends /<version>/blog
-  // there, so links to it only look broken here. The archive's other links
-  // are frozen as released.
+  // The latest site's blog has every post; vercel.json and archive.client.ts
+  // send /<version>/blog there, so links to it only look broken here. The
+  // archive's other links are frozen as released.
   onBrokenLinks: 'ignore',
+  clientModules: [
+    ...(config.clientModules ?? []),
+    require.resolve('./archive.client'),
+  ],
   presets: config.presets?.map(preset =>
     Array.isArray(preset) && preset[0] === '@docusaurus/preset-classic' ?
       [preset[0], { ...preset[1], blog: false }]
@@ -48,7 +52,10 @@ export default {
     navbar: {
       ...navbar,
       items: [
-        ...(navbar.items ?? []),
+        // releases after this one list the archives; the archive links back
+        ...(navbar.items ?? []).filter(
+          item => (item as { type?: string }).type !== 'custom-versions',
+        ),
         // A link, not a dropdown: older releases' CSS hides dropdowns
         {
           // html, not label: a pathname:// href would get an external link icon
