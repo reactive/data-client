@@ -1,0 +1,64 @@
+# Copied to .github/workflows/ on a maintenance branch (<version>.x) by
+# scripts/maintenance/cut.sh. While master is the next major, that branch
+# releases the current version and its docs serve at the root (README.md).
+name: maintenance
+on:
+  push:
+    branches:
+      - '*.x'
+
+permissions:
+  contents: read
+
+jobs:
+  # master's site-preview.yml builds this branch's site at the root and deploys
+  deploy-docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write
+    steps:
+      - run: gh workflow run site-preview.yml --repo "$GITHUB_REPOSITORY" --ref master
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+  # A fix here belongs in the next major too: cherry-pick it onto master
+  port:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # a new branch has nothing to port
+    if: ${{ !startsWith(github.event.before, '0000000') }}
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          # the picks need only the commits' trees
+          filter: blob:none
+      - name: Open a PR porting the push to master
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          branch="port/$GITHUB_REF_NAME-${GITHUB_SHA::8}"
+          git switch -c "$branch" origin/master
+          # Version bumps are this branch's own: release.yml's commit message,
+          # with the PR number once its Version Packages PR is squash-merged
+          commits="$(git log --reverse --format=%H -E --invert-grep \
+            --grep='^internal: Publish new version( \(#[0-9]+\))?$' "$BEFORE..$GITHUB_SHA")"
+          [ -n "$commits" ] || { echo "Nothing to port"; exit 0; }
+          # shellcheck disable=SC2086
+          if ! git cherry-pick -x $commits; then
+            echo "::warning title=Not ported::$BEFORE..$GITHUB_SHA doesn't apply to master; port it by hand"
+            exit 0
+          fi
+          # a re-run picks the same commits again, as new ones
+          git push --force origin "$branch"
+          [ -z "$(gh pr list --head "$branch" --json number --jq '.[]')" ] || exit 0
+          gh pr create --base master --head "$branch" \
+            --title "$(git log -1 --format=%s "$GITHUB_SHA")" \
+            --body "Ports $BEFORE..$GITHUB_SHA from \`$GITHUB_REF_NAME\` (the current version) to master (the next major). Made by maintenance.yml with the workflow token, so push a commit (or close and reopen) to run CI."

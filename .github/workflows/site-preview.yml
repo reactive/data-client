@@ -47,6 +47,7 @@ jobs:
     outputs:
       deploy: ${{ steps.decide.outputs.deploy }}
       english-only: ${{ steps.locales.outputs.english-only }}
+      next: ${{ steps.next.outputs.next }}
       target: ${{ steps.decide.outputs.target }}
     steps:
       - name: Checkout
@@ -60,6 +61,14 @@ jobs:
           filter: ${{ github.event_name != 'merge_group' && 'blob:none' || '' }}
       - name: Test Vercel ignore decision
         run: bash website/scripts/vercel-ignore.test.sh
+      # While master is the next major (website/versionCurrent.json), its
+      # production build serves at /next/ and the `current` job builds the root.
+      # The queue builds it that way too, so it fails before the master push does.
+      - name: Check for a next version
+        id: next
+        if: github.event_name != 'pull_request'
+        run: |
+          [ ! -f website/versionCurrent.json ] || echo "next=1" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-node@v6
         with:
           node-version: '26'
@@ -119,6 +128,7 @@ jobs:
           # to a draft fails here instead of on the master push.
           VERCEL_ENV: ${{ github.event_name == 'pull_request' && 'preview' || 'production' }}
           ENGLISH_ONLY: ${{ steps.locales.outputs.english-only }}
+          DOCS_NEXT: ${{ steps.next.outputs.next }}
         # explicit `shell: bash` adds pipefail, so a failed build isn't masked by tee
         shell: bash
         run: |
@@ -131,6 +141,9 @@ jobs:
           fi
       - name: Check the Store inspector stays in its lazy chunk
         run: node website/scripts/check-lazy-chunks.mjs
+      - name: Move the build under /next
+        if: steps.next.outputs.next
+        run: mv website/build website/next && mkdir website/build && mv website/next website/build/next
       - if: github.event_name == 'push'
         uses: actions/cache/save@v6
         with:
@@ -171,6 +184,10 @@ jobs:
           else
             echo "deploy=false" >> "$GITHUB_OUTPUT"
           fi
+      # Frozen builds of older versions, served at /<version>/
+      - name: Add archived versions
+        if: steps.decide.outputs.deploy == 'true'
+        run: website/scripts/snapshot/fetch.sh website/build
       - name: Upload site for deploy
         if: steps.decide.outputs.deploy == 'true'
         uses: actions/upload-artifact@v7
@@ -184,11 +201,84 @@ jobs:
           # A re-run of this job replaces the artifact
           overwrite: true
 
+  # While master is the next major, the root serves the current version's
+  # docs, built from its branch the way an archive is (scripts/snapshot/README.md)
+  current:
+    name: current version's site
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      ref: ${{ steps.current.outputs.ref }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            website/versionCurrent.json
+            website/versionsArchived.json
+            website/scripts/snapshot
+          sparse-checkout-cone-mode: false
+      - name: Read the current version
+        id: current
+        run: |
+          f=website/versionCurrent.json
+          [ -f "$f" ] || { echo "master is the latest version: nothing to build"; exit 0; }
+          ref="$(jq -r .ref "$f")"
+          sha="$(git ls-remote origin "refs/heads/$ref" | cut -f1)"
+          [ -n "$sha" ] || { echo "::error::No $ref branch to build the root from"; exit 1; }
+          { echo "version=$(jq -r .version "$f")"; echo "ref=$ref"; echo "sha=$sha"; } >> "$GITHUB_OUTPUT"
+      # Only the branch, the snapshot scripts and the archive list change its
+      # build, so master pushes reuse it
+      - if: steps.current.outputs.sha
+        id: cache
+        uses: actions/cache/restore@v6
+        with:
+          path: current.tar.gz
+          key: current-site-${{ steps.current.outputs.sha }}-${{ hashFiles('website/scripts/snapshot/**', 'website/versionsArchived.json') }}
+      - if: steps.current.outputs.sha && !steps.cache.outputs.cache-hit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.current.outputs.sha }}
+          path: current
+          persist-credentials: false
+          # Pages date themselves from git history ("Last updated")
+          fetch-depth: 0
+          filter: blob:none
+      # No dependency cache, like an archive build: the branch has its own lockfile
+      - if: steps.current.outputs.sha && !steps.cache.outputs.cache-hit
+        uses: actions/setup-node@v6
+        with:
+          node-version: '26'
+      - name: Build
+        if: steps.current.outputs.sha && !steps.cache.outputs.cache-hit
+        env:
+          SNAPSHOT_ROLE: current
+          VERSION: ${{ steps.current.outputs.version }}
+          VERCEL_ENV: production
+        run: |
+          corepack enable
+          website/scripts/snapshot/build.sh current "$VERSION" current.tar.gz
+      - if: steps.current.outputs.sha && !steps.cache.outputs.cache-hit
+        uses: actions/cache/save@v6
+        with:
+          path: current.tar.gz
+          key: current-site-${{ steps.current.outputs.sha }}-${{ hashFiles('website/scripts/snapshot/**', 'website/versionsArchived.json') }}
+      - if: steps.current.outputs.sha
+        uses: actions/upload-artifact@v7
+        with:
+          name: current-site
+          path: current.tar.gz
+          if-no-files-found: error
+          retention-days: 1
+          overwrite: true
+
   # Not a required check: a Vercel outage mustn't block merging
   deploy:
     name: docs deploy
-    needs: build
-    if: ${{ !cancelled() && needs.build.result == 'success' && needs.build.outputs.deploy == 'true' }}
+    needs: [build, current]
+    # current is skipped on pull requests; it must not fail, or the root would be missing
+    if: ${{ !cancelled() && needs.build.result == 'success' && needs.build.outputs.deploy == 'true' && needs.current.result != 'failure' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -206,6 +296,15 @@ jobs:
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       VERCEL_TELEMETRY_DISABLED: '1'
     steps:
+      # Both jobs read versionCurrent.json, in parallel: a root without /next,
+      # or /next without a root, would ship a broken site
+      - name: Check the root and /next agree
+        env:
+          NEXT: ${{ needs.build.outputs.next }}
+          REF: ${{ needs.current.outputs.ref }}
+        run: |
+          [ "${NEXT:+1}" = "${REF:+1}" ] ||
+            { echo "::error::/next built: ${NEXT:-no}, but the root built from: ${REF:-nothing}"; exit 1; }
       # vercel build reads the first three (api/ holds the site's functions,
       # which it bundles); production also runs vercel-ignore.sh --superseded.
       # No other repo scripts run: vercel build only runs vercel.json's guard
@@ -224,6 +323,19 @@ jobs:
         with:
           name: site-build
           path: website/build
+      - if: needs.current.outputs.ref
+        uses: actions/download-artifact@v8
+        with:
+          name: current-site
+      - name: Add the current version's site at the root
+        if: needs.current.outputs.ref
+        run: |
+          tar -xzf current.tar.gz -C website/build
+          # /next is served now, so it no longer redirects to the root
+          jq -e '.redirects | any(.source == "/next/:path*")' website/vercel.json > /dev/null ||
+            { echo "::error::vercel.json has no /next/:path* redirect to drop"; exit 1; }
+          jq '.redirects |= map(select(.source != "/next/:path*"))' website/vercel.json > vercel.json.tmp
+          mv vercel.json.tmp website/vercel.json
       - uses: actions/setup-node@v6
         with:
           node-version: '26'
