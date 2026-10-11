@@ -7,6 +7,9 @@ const version = process.env.SNAPSHOT_VERSION;
 if (!version) throw new Error('SNAPSHOT_VERSION is required');
 const { themeConfig = {} } = config;
 const navbar = (themeConfig.navbar ?? {}) as { items?: unknown[] };
+// Docusaurus loads the config once per locale it builds
+const locale = process.env.DOCUSAURUS_CURRENT_LOCALE;
+const latestDocs = `${locale && locale !== config.i18n?.defaultLocale ? `/${locale}` : ''}/docs`;
 
 export default {
   ...config,
@@ -46,7 +49,7 @@ export default {
     // Root-relative links leave the archive for the latest site
     announcementBar: {
       id: `archive-${version}`,
-      content: `You're reading the docs for v${version}. <a href="/docs">See the latest version</a>.`,
+      content: `You're reading the docs for v${version}. <a href="${latestDocs}">See the latest version</a>.`,
       isCloseable: false,
     },
     navbar: {
@@ -60,7 +63,7 @@ export default {
         {
           // html, not label: a pathname:// href would get an external link icon
           html: `v${version} → Latest`,
-          href: 'pathname:///docs',
+          href: `pathname://${latestDocs}`,
           // the latest site is at the root, outside this baseUrl
           autoAddBaseUrl: false,
           target: '_self',

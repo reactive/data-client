@@ -6,9 +6,10 @@ import siteConfig from '@generated/docusaurus.config';
 export function onRouteUpdate({ location }: { location: Location }) {
   const { baseUrl } = siteConfig;
   const { pathname, search, hash } = location;
-  if (/^blog(\/|$)/.test(pathname.slice(baseUrl.length))) {
-    window.location.replace(
-      `/${pathname.slice(baseUrl.length)}${search}${hash}`,
-    );
+  const page = pathname.slice(baseUrl.length);
+  if (/^blog(\/|$)/.test(page)) {
+    // /<version>/es/ -> /es/: this locale on the latest site
+    const latest = baseUrl.replace(/^\/[^/]+/, '');
+    window.location.replace(`${latest}${page}${search}${hash}`);
   }
 }

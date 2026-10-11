@@ -17,13 +17,13 @@
       "permanent": true
     },
     {
-      "source": "/:version(\\d+\\.\\d+)/blog/:path*",
+      "source": "/:version(\\d+|\\d+\\.\\d+)/blog/:path*",
       "destination": "/blog/:path*",
       "permanent": true
     },
     {
-      "source": "/:version(\\d+)/blog/:path*",
-      "destination": "/blog/:path*",
+      "source": "/:version(\\d+|\\d+\\.\\d+)/:locale([a-z]{2}|[a-z]{2}-[A-Za-z]+)/blog/:path*",
+      "destination": "/:locale/blog/:path*",
       "permanent": true
     }
   ]
