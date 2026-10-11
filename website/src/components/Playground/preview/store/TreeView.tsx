@@ -289,7 +289,12 @@ function EntityTreeRow({
         <Chevron open={open} />
         <span className={styles.key}>{prettyPk(row.pk)}</span>
         <span className={styles.trunc}>
-          {change?.fields && table.kind === 'entity' ?
+          {(
+            change?.fields &&
+            table.kind === 'entity' &&
+            isObj(row.value) &&
+            (!change.was || isObj(change.was))
+          ) ?
             <FieldChanges row={row} fields={change.fields} was={change.was} />
           : change?.was ?
             <CellChange was={change.was} now={row.value} name="value">
@@ -306,6 +311,9 @@ function EntityTreeRow({
     </>
   );
 }
+
+/** A row that isn't an object changes as a whole (see ActionDetail) */
+const isObj = (node: VNode) => node.t === 'obj';
 
 /** Just the fields an update changed, as the action that did it shows them */
 function FieldChanges({

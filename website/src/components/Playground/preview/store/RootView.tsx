@@ -129,8 +129,9 @@ function TableIndex({
           key={table.key}
           type="button"
           onClick={() => {
-            const group = scroller && byData(scroller, 'table', table.key);
-            if (scroller && group)
+            if (!scroller) return;
+            const group = byData(scroller, 'table', table.key);
+            if (group)
               scroller.scrollTo({
                 top: offsetIn(scroller, group),
                 behavior: 'smooth',

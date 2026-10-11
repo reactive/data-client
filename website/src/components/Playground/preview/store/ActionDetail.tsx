@@ -273,12 +273,7 @@ function FieldChanges({
   // `value` (see changedFields), and a list (a Collection's) changes item by
   // item, not index by index
   if (before.t !== 'obj' || after.t !== 'obj')
-    return (
-      <ValueChange
-        was={was === undefined ? undefined : before}
-        now={now === undefined ? undefined : after}
-      />
-    );
+    return <ValueChange was={before} now={after} />;
   return fields.map(name => (
     <div key={name} className={styles.actField}>
       <FieldChange
