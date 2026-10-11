@@ -806,6 +806,12 @@
   "playground.error.runtime": {
     "message": "运行时错误"
   },
+  "playground.errorMessage.status": {
+    "message": "请求失败（{status}）"
+  },
+  "playground.errorMessage.reset": {
+    "message": "重置"
+  },
   "playground.error.manager": {
     "message": "Manager 错误"
   },
