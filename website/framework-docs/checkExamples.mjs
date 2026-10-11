@@ -11,8 +11,8 @@
  *
  * `@data-client/*` types come from the playground's editor types, which CI
  * keeps in sync with the packages. Compiler flags come from the editor's
- * (Playground/monaco/typeCheckFlags.json), so examples error just as they do
- * in the editor. Add `nocheck` to a fence's meta to skip an
+ * (Playground/monaco/typeCheckFlags.json), so React examples error just as they
+ * do in the editor. Add `nocheck` to a fence's meta to skip an
  * illustrative fragment; other files can still import it.
  *
  * Usage: node website/framework-docs/checkExamples.mjs [react|vue]
