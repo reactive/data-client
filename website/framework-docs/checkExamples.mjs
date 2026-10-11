@@ -28,6 +28,7 @@ const { DOCS_INSTANCES } = require('./docsInstances.js');
 const { walk, VUE_OVERRIDE } = require('./index.js');
 
 const PLAYGROUND = path.join(ROOT, 'website/src/components/Playground');
+const TYPE_CHECK_FLAGS = require(`${PLAYGROUND}/monaco/typeCheckFlags.json`);
 const EXT = { ts: '.ts', typescript: '.ts', tsx: '.tsx', html: '.vue' };
 /**
  * The playground's design system: stand-ins for an app's own components, so
@@ -54,8 +55,6 @@ const FRAMEWORKS = {
     isApp: () => true,
     compiler: ['@typescript/native', 'bin/tsc'],
     jsx: 'react-jsx',
-    // the playground editor's setting (Playground/monaco/setup.ts)
-    exactOptionalPropertyTypes: true,
     // `render()` mounts a playground's app
     globals: `import type { FC, ReactNode } from 'react';
 
@@ -71,7 +70,8 @@ ${PLACEHOLDERS.map(name => `  const ${name}: FC<any>;`).join('\n')}
     isApp: group => group.some(isVue),
     compiler: ['vue-tsc', 'bin/vue-tsc.js'],
     jsx: 'preserve',
-    exactOptionalPropertyTypes: false,
+    // Vue examples don't run in the playground editor
+    flags: { exactOptionalPropertyTypes: false },
     globals: `import type { DefineComponent } from 'vue';
 
 declare module 'vue' {
@@ -204,8 +204,7 @@ function examplesOf(framework) {
 
 /** Type errors in a framework's examples, located in their docs */
 function check(framework, examples) {
-  const { compiler, jsx, exactOptionalPropertyTypes, globals } =
-    FRAMEWORKS[framework];
+  const { compiler, jsx, flags, globals } = FRAMEWORKS[framework];
   // inside the repo, so examples resolve its node_modules
   fs.mkdirSync(path.join(ROOT, 'node_modules/.cache'), { recursive: true });
   const OUT = fs.mkdtempSync(
@@ -283,12 +282,10 @@ function check(framework, examples) {
         // no esnext: Temporal needs its polyfill import
         lib: ['dom', 'es2024'],
         types: ['jest'],
-        strict: true,
-        exactOptionalPropertyTypes,
-        // examples leave out types readers don't need
-        noImplicitAny: false,
+        // the playground editor's checks
+        ...TYPE_CHECK_FLAGS,
+        ...flags,
         noEmit: true,
-        skipLibCheck: true,
         jsx,
         paths: {
           '@data-client/*': [`${PLAYGROUND}/editor-types/@data-client/*.d.ts`],

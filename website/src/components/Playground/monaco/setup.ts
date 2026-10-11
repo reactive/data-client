@@ -14,6 +14,7 @@ import { MONACO_CDN_VS } from './preloadManifest';
 import { injectMonacoResourceHints } from './resourceHints';
 import { shieldEditorsFromSearchHotkey } from './searchHotkey';
 import { definePrismTheme } from './theme';
+import typeCheckFlags from './typeCheckFlags.json';
 import { addTypeLibs, fetchTypeLibs } from './typeLibs';
 
 if (typeof window !== 'undefined' && !isMobileOrBot()) {
@@ -36,16 +37,12 @@ if (typeof window !== 'undefined' && !isMobileOrBot()) {
       allowNonTsExtensions: true,
       target: monaco.typescript.ScriptTarget.ES2017,
       jsx: monaco.typescript.JsxEmit.ReactJSX,
-      strict: true,
-      strictNullChecks: true,
-      exactOptionalPropertyTypes: true,
+      ...typeCheckFlags,
       lib: ['dom', 'esnext'],
       module: monaco.typescript.ModuleKind.ESNext,
       moduleResolution: monaco.typescript.ModuleResolutionKind.NodeJs,
       allowSyntheticDefaultImports: true,
-      skipLibCheck: true,
       skipDefaultLibCheck: true,
-      noImplicitAny: false,
     });
     definePrismTheme(monaco);
     registerImportCompletions(monaco);
