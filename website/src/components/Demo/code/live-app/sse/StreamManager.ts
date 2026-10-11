@@ -58,6 +58,7 @@ export class StreamManager implements Manager {
     this.source.open();
   }
 
+  // a pending stream() still records the products for the next init()
   cleanup() {
     this.source.close();
   }
