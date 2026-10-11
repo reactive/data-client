@@ -216,9 +216,6 @@ function ChangeBody({
     case 'added':
       return <Inline node={plain(now)} bare />;
     case 'updated':
-      // a list (a Collection's) changes item by item, not index by index
-      if (Array.isArray(was) && Array.isArray(now))
-        return <ValueChange was={plain(was)} now={plain(now)} />;
       return <FieldChanges fields={change.fields ?? []} was={was} now={now} />;
     case 'invalidated':
       return (
@@ -272,8 +269,9 @@ function FieldChanges({
 }) {
   const before = plain(was);
   const after = plain(now);
-  // a row that isn't an object changes as a whole (its one field is
-  // `value`, see changedFields)
+  // a row that isn't an object changes as a whole: a scalar's one field is
+  // `value` (see changedFields), and a list (a Collection's) changes item by
+  // item, not index by index
   if (before.t !== 'obj' || after.t !== 'obj')
     return (
       <ValueChange
