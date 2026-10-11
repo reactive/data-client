@@ -9,8 +9,14 @@ set -euo pipefail
 build="$1"
 repo="${GITHUB_REPOSITORY:-reactive/data-client}"
 here="$(cd "$(dirname "$0")" && pwd)"
-for version in $(node -p "require('$here/../../versionsArchived.json').join(' ')"); do
-  curl -fsSL --retry 3 \
-    "https://github.com/$repo/releases/download/docs-v$version/docs-$version.tar.gz" |
-    tar -xz -C "$build"
-done
+node -p "require('$here/../../versionsArchived.json').map(v => v.version + ' ' + v.sha256).join('\\n')" |
+  while read -r version sha256; do
+    [ -n "$version" ] || continue
+    file="$(mktemp)"
+    curl -fsSL --retry 3 -o "$file" \
+      "https://github.com/$repo/releases/download/docs-v$version/docs-$version.tar.gz"
+    # docs-snapshot.yml recorded the checksum of the archive it built
+    echo "$sha256  $file" | sha256sum -c --quiet
+    tar -xzf "$file" -C "$build"
+    rm "$file"
+  done

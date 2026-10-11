@@ -17,7 +17,12 @@
       "permanent": true
     },
     {
-      "source": "/:version(\\d+(?:\\.\\d+)?)/blog/:path*",
+      "source": "/:version(\\d+\\.\\d+)/blog/:path*",
+      "destination": "/blog/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:version(\\d+)/blog/:path*",
       "destination": "/blog/:path*",
       "permanent": true
     }

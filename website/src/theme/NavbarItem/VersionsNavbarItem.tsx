@@ -9,8 +9,9 @@ import {
   FRAMEWORK_INSTANCES,
   trimRoute,
 } from '../../../framework-docs/docsInstances.js';
-import archived from '../../../versionsArchived.json';
+import versionsArchived from '../../../versionsArchived.json';
 
+const archived = versionsArchived.map(({ version }) => version);
 const SECTION = new RegExp(
   `^/(${DOCS_INSTANCES.map(d => d.routeBasePath).join('|')})(/|$)`,
 );

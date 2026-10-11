@@ -20,7 +20,7 @@ cp "$here/docusaurus.snapshot.config.ts" "$src/website/"
 cd "$src"
 $yarn install
 # The packages the site imports, with the release's own script when it has one
-has() { node -p "'$1' in require('./package.json').scripts" | grep -q true; }
+has() { node -e "process.exit('$1' in require('./package.json').scripts ? 0 : 1)"; }
 if has ci:build:website; then
   $yarn ci:build:website
 else

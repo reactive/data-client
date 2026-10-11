@@ -12,8 +12,8 @@ export default {
   ...config,
   baseUrl: `/${version}/`,
   // The latest site's blog has every post; vercel.json sends /<version>/blog
-  // there, so links to it only look broken here. The release's own build
-  // already checked its links.
+  // there, so links to it only look broken here. The archive's other links
+  // are frozen as released.
   onBrokenLinks: 'ignore',
   presets: config.presets?.map(preset =>
     Array.isArray(preset) && preset[0] === '@docusaurus/preset-classic' ?
