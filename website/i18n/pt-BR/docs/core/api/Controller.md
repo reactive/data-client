@@ -13,7 +13,6 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import StackBlitz from '@site/src/components/StackBlitz';
-import BatchSetDemo from '../shared/\_BatchSetDemo.mdx';
 
 # Controller
 
@@ -37,7 +36,6 @@ class Controller {
   invalidateAll({ testKey }): Promise<void>;
   resetEntireStore(): Promise<void>;
   set(queryable, ...args, value): Promise<void>;
-  set([Entity], rows): Promise<void>;
   setResponse(endpoint, ...args, response): Promise<void>;
   setError(endpoint, ...args, error): Promise<void>;
   resolve(endpoint, { args, response, fetchedAt, error }): Promise<void>;
@@ -660,71 +658,6 @@ Funções podem ser usadas no valor quando são usados dados derivados. Isso [ev
 const id = '2';
 ctrl.set(Article, { id }, article => ({ id, votes: article.votes + 1 }));
 ```
-
-#### set([Entity], rows) {#set-array}
-
-Passe um schema [Array](/rest/api/Array) (`[Todo]` ou `new schema.Array(Todo)`) e uma lista de linhas para atualizar
-várias entities em uma única atualização do store. Cada linha é mesclada com a entity armazenada; entities que não estão na lista não são alteradas.
-
-```ts
-ctrl.set(
-  [Todo],
-  [
-    { id: '5', completed: true },
-    { id: '6', completed: false },
-  ],
-);
-```
-
-As linhas são tipadas pelos campos da Entity; números e strings podem ser qualquer um dos dois, e valores de objeto, array e Date não são
-verificados, já que as linhas são entrada bruta.
-
-Para listas que misturam tipos de Entity, use uma [Union](/rest/api/Union); cada linha é armazenada de acordo com seu `type`:
-
-```ts
-const Feed = new schema.Union({ post: Post, comment: Comment }, 'type');
-
-ctrl.set(
-  [Feed],
-  [
-    { id: '1', type: 'post', title: 'Hello' },
-    { id: '7', type: 'comment', body: 'Nice!' },
-  ],
-);
-```
-
-Para excluir várias entities de uma vez, use [Invalidate](/rest/api/Invalidate#batch-invalidation); as linhas só precisam dos campos
-de pk:
-
-```ts
-ctrl.set([new schema.Invalidate(Todo)], [{ id: '5' }, { id: '6' }]);
-```
-
-Para excluir uma, passe o schema Invalidate e sua linha:
-
-```ts
-ctrl.set(new schema.Invalidate(Todo), { id: '5' });
-```
-
-Schemas [Values](/rest/api/Values) recebem, em vez disso, um objeto de linhas:
-
-```ts
-ctrl.set(new schema.Values(Todo), {
-  '5': { id: '5', completed: true },
-  '6': { id: '6', completed: false },
-});
-```
-
-Schemas Array, Values e Invalidate não recebem `args` (então [Entity.pk()](/rest/api/Entity#pk) e [Entity.process()](/rest/api/Entity#process)
-recebem `[]`) nem função de atualização. Linhas que compartilham uma pk são mescladas na ordem da lista, sem
-[Entity.shouldReorder()](/rest/api/Entity#shouldreorder). Use isso em vez de chamar `set()` uma vez por linha, como ao
-[agrupar em lote atualizações de stream de alta frequência](../concepts/managers.md#batching).
-
-:::react
-
-<BatchSetDemo />
-
-:::
 
 ### setResponse(endpoint, ...args, response) {#setResponse}
 

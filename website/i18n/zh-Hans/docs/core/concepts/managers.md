@@ -9,7 +9,6 @@ image: /img/social/managers-card.png
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import StackBlitz from '@site/src/components/StackBlitz';
-import BatchSetDemo from '../shared/\_BatchSetDemo.mdx';
 
 <head>
   <meta name="docsearch:pagerank" content="40"/>
@@ -398,58 +397,6 @@ export default class StreamManager implements Manager {
 [Controller.set()](../api/Controller.md#set) 允许直接使用 `event.data`
 更新[可查询 schema](/rest/api/schema#queryable)。
 
-#### 批量处理高频更新 {#batching}
-
-像交易所行情这样的数据流每秒可能发送数百条消息，而且连接建立时通常会先发送一个大型快照。
-与其对每条消息都调用 `set()`，不如先将它们缓冲起来，再使用 [Array](/rest/api/Array) schema 按批写入。
-[Controller.set([Entity], rows)](../api/Controller.md#set-array) 会在一次 store 更新中规范化所有行。
-
-```typescript
-export default class StreamManager implements Manager {
-  // ...
-  protected buffer: Record<string, any[]> = {};
-  declare protected flushTimeout?: ReturnType<typeof setTimeout>;
-
-  connect() {
-    this.evtSource = this.createEventSource();
-    this.evtSource.onmessage = event => {
-      const msg = JSON.parse(event.data);
-      if (msg.type in this.entities) {
-        (this.buffer[msg.type] ??= []).push(msg.data);
-        this.flushTimeout ??= setTimeout(this.flush, 50);
-      }
-    };
-  }
-
-  // highlight-start
-  flush = () => {
-    const buffer = this.buffer;
-    this.buffer = {};
-    this.flushTimeout = undefined;
-    for (const type in buffer) {
-      this.controller.set([this.entities[type]], buffer[type]);
-    }
-  };
-  // highlight-end
-
-  cleanup() {
-    this.evtSource?.close();
-    clearTimeout(this.flushTimeout);
-    this.flushTimeout = undefined;
-    this.buffer = {};
-  }
-}
-```
-
-同一批次中 pk 相同的行会按顺序合并，并跳过 [Entity.shouldReorder()](/rest/api/Entity#shouldreorder)，
-因此当顺序很重要时，每个 pk 只缓冲最新的一条消息。
-
-:::react
-
-<BatchSetDemo />
-
-:::
-
 #### 为高频更新跳过 DevTools {#skipping-devtools-for-high-frequency-updates}
 
 使用 WebSocket 或其他实时数据源时，你可能希望跳过将
@@ -471,10 +418,8 @@ export default function getManagers() {
         // Increase latency buffer for high-frequency updates
         latency: 1000,
         // Skip WebSocket SET actions to avoid log spam
-        // (batched writes use the [Ticker] schema)
         predicate: (state, action) =>
-          action.type !== actionTypes.SET ||
-          (action.schema !== Ticker && action.schema[0] !== Ticker),
+          action.type !== actionTypes.SET || action.schema !== Ticker,
       },
     }),
   ];

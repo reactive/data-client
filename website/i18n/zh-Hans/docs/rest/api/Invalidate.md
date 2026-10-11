@@ -230,19 +230,6 @@ PostResource.deleteMany(['5', '13', '7']);
 
 </EndpointPlayground>
 
-如果要在没有 endpoint 的情况下删除多个 Entity（例如处理 websocket 消息时），可以把同样的 schema 传给
-[Controller.set()](/docs/api/Controller#set-array)：
-
-```ts
-ctrl.set([new Invalidate(Post)], [{ id: '5' }, { id: '13' }, { id: '7' }]);
-```
-
-或者删除单个 Entity：
-
-```ts
-ctrl.set(new Invalidate(Post), { id: '5' });
-```
-
 ### 多态类型 {#polymorphic-types}
 
 如果你的 endpoint 可以删除不止一种类型的 Entity，就可以使用多态失效。

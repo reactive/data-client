@@ -13,7 +13,6 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import StackBlitz from '@site/src/components/StackBlitz';
-import BatchSetDemo from '../shared/\_BatchSetDemo.mdx';
 
 # Controller
 
@@ -37,7 +36,6 @@ class Controller {
   invalidateAll({ testKey }): Promise<void>;
   resetEntireStore(): Promise<void>;
   set(queryable, ...args, value): Promise<void>;
-  set([Entity], rows): Promise<void>;
   setResponse(endpoint, ...args, response): Promise<void>;
   setError(endpoint, ...args, error): Promise<void>;
   resolve(endpoint, { args, response, fetchedAt, error }): Promise<void>;
@@ -660,71 +658,6 @@ Se pueden usar funciones como valor cuando se utilizan datos derivados. Esto [ev
 const id = '2';
 ctrl.set(Article, { id }, article => ({ id, votes: article.votes + 1 }));
 ```
-
-#### set([Entity], rows) {#set-array}
-
-Pasa un schema [Array](/rest/api/Array) (`[Todo]` o `new schema.Array(Todo)`) y una lista de filas para actualizar
-muchas entities en una sola actualización del store. Cada fila se combina con su entity almacenada; las entities que no están en la lista no se modifican.
-
-```ts
-ctrl.set(
-  [Todo],
-  [
-    { id: '5', completed: true },
-    { id: '6', completed: false },
-  ],
-);
-```
-
-Las filas se tipan según los campos de la Entity; los números y los strings pueden ser cualquiera de los dos, y los valores de tipo objeto, array y Date no se
-comprueban, ya que las filas son entrada sin procesar.
-
-Para listas que mezclan tipos de Entity, usa una [Union](/rest/api/Union); cada fila se almacena según su `type`:
-
-```ts
-const Feed = new schema.Union({ post: Post, comment: Comment }, 'type');
-
-ctrl.set(
-  [Feed],
-  [
-    { id: '1', type: 'post', title: 'Hello' },
-    { id: '7', type: 'comment', body: 'Nice!' },
-  ],
-);
-```
-
-Para eliminar muchas entities a la vez, usa [Invalidate](/rest/api/Invalidate#batch-invalidation); las filas solo necesitan sus campos
-pk:
-
-```ts
-ctrl.set([new schema.Invalidate(Todo)], [{ id: '5' }, { id: '6' }]);
-```
-
-Para eliminar una sola, pasa el schema Invalidate y su fila:
-
-```ts
-ctrl.set(new schema.Invalidate(Todo), { id: '5' });
-```
-
-Los schemas [Values](/rest/api/Values), en cambio, toman un objeto de filas:
-
-```ts
-ctrl.set(new schema.Values(Todo), {
-  '5': { id: '5', completed: true },
-  '6': { id: '6', completed: false },
-});
-```
-
-Los schemas Array, Values e Invalidate no toman `args` (por lo que [Entity.pk()](/rest/api/Entity#pk) y [Entity.process()](/rest/api/Entity#process)
-reciben `[]`) ni función de actualización. Las filas que comparten una pk se combinan en el orden de la lista, sin
-[Entity.shouldReorder()](/rest/api/Entity#shouldreorder). Usa esto en lugar de llamar a `set()` una vez por fila, por ejemplo al
-[agrupar en lotes actualizaciones de streams de alta frecuencia](../concepts/managers.md#batching).
-
-:::react
-
-<BatchSetDemo />
-
-:::
 
 ### setResponse(endpoint, ...args, response) {#setResponse}
 

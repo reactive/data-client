@@ -9,7 +9,6 @@ image: /img/social/managers-card.png
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import StackBlitz from '@site/src/components/StackBlitz';
-import BatchSetDemo from '../shared/\_BatchSetDemo.mdx';
 
 <head>
   <meta name="docsearch:pagerank" content="40"/>
@@ -398,58 +397,6 @@ export default class StreamManager implements Manager {
 [Controller.set()](../api/Controller.md#set) permite actualizar directamente los [Schemas Querables](/rest/api/schema#queryable)
 con `event.data`.
 
-#### Agrupar actualizaciones de alta frecuencia {#batching}
-
-Los flujos como los tickers de un exchange pueden enviar cientos de mensajes por segundo, y las conexiones suelen comenzar con una instantánea grande.
-En lugar de llamar a `set()` por cada mensaje, guárdalos en un búfer y escribe cada lote con un schema [Array](/rest/api/Array).
-[Controller.set([Entity], rows)](../api/Controller.md#set-array) normaliza todas las filas en una sola actualización del store.
-
-```typescript
-export default class StreamManager implements Manager {
-  // ...
-  protected buffer: Record<string, any[]> = {};
-  declare protected flushTimeout?: ReturnType<typeof setTimeout>;
-
-  connect() {
-    this.evtSource = this.createEventSource();
-    this.evtSource.onmessage = event => {
-      const msg = JSON.parse(event.data);
-      if (msg.type in this.entities) {
-        (this.buffer[msg.type] ??= []).push(msg.data);
-        this.flushTimeout ??= setTimeout(this.flush, 50);
-      }
-    };
-  }
-
-  // highlight-start
-  flush = () => {
-    const buffer = this.buffer;
-    this.buffer = {};
-    this.flushTimeout = undefined;
-    for (const type in buffer) {
-      this.controller.set([this.entities[type]], buffer[type]);
-    }
-  };
-  // highlight-end
-
-  cleanup() {
-    this.evtSource?.close();
-    clearTimeout(this.flushTimeout);
-    this.flushTimeout = undefined;
-    this.buffer = {};
-  }
-}
-```
-
-Las filas de un mismo lote que comparten una pk se combinan en orden y omiten [Entity.shouldReorder()](/rest/api/Entity#shouldreorder),
-así que guarda en el búfer solo el último mensaje por pk cuando el orden importa.
-
-:::react
-
-<BatchSetDemo />
-
-:::
-
 #### Omitir DevTools en actualizaciones de alta frecuencia {#skipping-devtools-for-high-frequency-updates}
 
 Al usar WebSockets u otras fuentes de datos en tiempo real, quizás quieras omitir el registro
@@ -471,10 +418,8 @@ export default function getManagers() {
         // Increase latency buffer for high-frequency updates
         latency: 1000,
         // Skip WebSocket SET actions to avoid log spam
-        // (batched writes use the [Ticker] schema)
         predicate: (state, action) =>
-          action.type !== actionTypes.SET ||
-          (action.schema !== Ticker && action.schema[0] !== Ticker),
+          action.type !== actionTypes.SET || action.schema !== Ticker,
       },
     }),
   ];

@@ -62,7 +62,13 @@ export class StreamManager implements Manager {
   init() {
     // Tickers as their prices change; [] while none do
     this.source.onmessage = tickers => {
-      if (tickers.length) this.controller.set([Ticker], tickers);
+      for (const ticker of tickers) {
+        this.controller.set(
+          Ticker,
+          { product_id: ticker.product_id },
+          ticker,
+        );
+      }
     };
     this.source.open();
   }

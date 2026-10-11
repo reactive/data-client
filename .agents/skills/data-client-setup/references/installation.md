@@ -97,9 +97,9 @@ Example app: [todo-app](https://github.com/reactive/data-client/tree/master/exam
 
 <details>
 
-<summary>TypeScript 4.0+</summary>
+<summary>TypeScript 3.7+</summary>
 
-TypeScript is optional, but requires at least version [4.0](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-0.html#variadic-tuple-types) and [strictNullChecks](https://www.typescriptlang.org/tsconfig#strictNullChecks) for full type enforcement.
+TypeScript is optional, but requires at least version [3.7](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#more-recursive-type-aliases) and [strictNullChecks](https://www.typescriptlang.org/tsconfig#strictNullChecks) for full type enforcement.
 
 </details>
 

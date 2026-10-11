@@ -103,18 +103,6 @@ export const getItems = new RestEndpoint({
 
 </FrameworkPlayground>
 
-### 更新多个 entity {#updating-many-entities}
-
-将 Values 与 [Controller.set()](/docs/api/Controller#set-array) 搭配使用，即可在一次 store 更新中写入多个 entity，
-无需 endpoint。
-
-```ts
-ctrl.set(getItems.schema, {
-  firstThing: { id: 1 },
-  secondThing: { id: 2 },
-});
-```
-
 ### 多态类型 {#polymorphic-types}
 
 如果输入数据是一个对象，其值包含多种类型的 entity，而它们的 schema 又不容易通过键来确定，你可以使用 schema 映射，就像 [Union](./Union.md) 和 [schema.Array](./Array.md) 那样。

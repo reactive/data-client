@@ -116,21 +116,6 @@ export const getUsers = new RestEndpoint({
 
 </FrameworkPlayground>
 
-### Atualizando várias entities {#updating-many-entities}
-
-Use um Array com [Controller.set()](/docs/api/Controller#set-array) para gravar várias entities em uma única atualização do store,
-sem um endpoint.
-
-```ts
-ctrl.set(
-  [User],
-  [
-    { id: '123', name: 'Jim' },
-    { id: '456', name: 'Jane' },
-  ],
-);
-```
-
 ### Tipos polimórficos {#polymorphic-types}
 
 Se os dados de entrada forem um array com mais de um tipo de entity, é necessário definir um mapeamento de schema.

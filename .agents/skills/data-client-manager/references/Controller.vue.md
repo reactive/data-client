@@ -22,7 +22,6 @@ class Controller {
   invalidateAll({ testKey }): Promise<void>;
   resetEntireStore(): Promise<void>;
   set(queryable, ...args, value): Promise<void>;
-  set([Entity], rows): Promise<void>;
   setResponse(endpoint, ...args, response): Promise<void>;
   setError(endpoint, ...args, error): Promise<void>;
   resolve(endpoint, { args, response, fetchedAt, error }): Promise<void>;
@@ -389,65 +388,6 @@ Functions can be used in the value when derived data is used. This [prevents rac
 const id = '2';
 ctrl.set(Article, { id }, article => ({ id, votes: article.votes + 1 }));
 ```
-
-#### set(\[Entity], rows) {#set-array}
-
-Pass an [Array](https://dataclient.io/rest/api/Array) schema (`[Todo]` or `new schema.Array(Todo)`) and a list of rows to update
-many entities in one store update. Each row merges with its stored entity; entities not in the list are untouched.
-
-```ts
-ctrl.set(
-  [Todo],
-  [
-    { id: '5', completed: true },
-    { id: '6', completed: false },
-  ],
-);
-```
-
-Rows are typed by the Entity's fields; numbers and strings may be either, and object, array and Date values are not
-checked since rows are raw input.
-
-For lists that mix Entity types, use a [Union](https://dataclient.io/rest/api/Union); each row is stored by its `type`:
-
-```ts
-const Feed = new schema.Union({ post: Post, comment: Comment }, 'type');
-
-ctrl.set(
-  [Feed],
-  [
-    { id: '1', type: 'post', title: 'Hello' },
-    { id: '7', type: 'comment', body: 'Nice!' },
-  ],
-);
-```
-
-To delete many entities at once, use [Invalidate](https://dataclient.io/rest/api/Invalidate#batch-invalidation); rows only need their pk
-fields:
-
-```ts
-ctrl.set([new schema.Invalidate(Todo)], [{ id: '5' }, { id: '6' }]);
-```
-
-To delete one, pass the Invalidate schema and its row:
-
-```ts
-ctrl.set(new schema.Invalidate(Todo), { id: '5' });
-```
-
-[Values](https://dataclient.io/rest/api/Values) schemas take an object of rows instead:
-
-```ts
-ctrl.set(new schema.Values(Todo), {
-  '5': { id: '5', completed: true },
-  '6': { id: '6', completed: false },
-});
-```
-
-Array, Values and Invalidate schemas take no `args` (so [Entity.pk()](https://dataclient.io/rest/api/Entity#pk) and [Entity.process()](https://dataclient.io/rest/api/Entity#process)
-receive `[]`) and no updater function. Rows that share a pk merge in list order, without
-[Entity.shouldReorder()](https://dataclient.io/rest/api/Entity#shouldreorder). Use this instead of calling `set()` once per row, such as when
-[batching high-frequency stream updates](./managers.vue.md#batching).
 
 ### setResponse(endpoint, ...args, response) {#setResponse}
 

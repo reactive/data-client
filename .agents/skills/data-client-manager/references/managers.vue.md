@@ -315,50 +315,6 @@ export default class StreamManager implements Manager {
 [Controller.set()](./Controller.vue.md#set) allows directly updating [Querable Schemas](https://dataclient.io/rest/api/schema#queryable)
 directly with `event.data`.
 
-#### Batching high-frequency updates {#batching}
-
-Streams like exchange tickers can send hundreds of messages per second, and connections often start with a large snapshot.
-Rather than calling `set()` per message, buffer them and write each batch with an [Array](https://dataclient.io/rest/api/Array) schema.
-[Controller.set(\[Entity\], rows)](./Controller.vue.md#set-array) normalizes every row in one store update.
-
-```typescript
-export default class StreamManager implements Manager {
-  // ...
-  protected buffer: Record<string, any[]> = {};
-  declare protected flushTimeout?: ReturnType<typeof setTimeout>;
-
-  connect() {
-    this.evtSource = this.createEventSource();
-    this.evtSource.onmessage = event => {
-      const msg = JSON.parse(event.data);
-      if (msg.type in this.entities) {
-        (this.buffer[msg.type] ??= []).push(msg.data);
-        this.flushTimeout ??= setTimeout(this.flush, 50);
-      }
-    };
-  }
-
-  flush = () => {
-    const buffer = this.buffer;
-    this.buffer = {};
-    this.flushTimeout = undefined;
-    for (const type in buffer) {
-      this.controller.set([this.entities[type]], buffer[type]);
-    }
-  };
-
-  cleanup() {
-    this.evtSource?.close();
-    clearTimeout(this.flushTimeout);
-    this.flushTimeout = undefined;
-    this.buffer = {};
-  }
-}
-```
-
-Rows in one batch that share a pk merge in order and skip [Entity.shouldReorder()](https://dataclient.io/rest/api/Entity#shouldreorder),
-so buffer only the latest message per pk when order matters.
-
 #### Skipping DevTools for high-frequency updates
 
 When using WebSockets or other real-time data sources, you may want to skip logging
@@ -380,10 +336,8 @@ export default function getManagers() {
         // Increase latency buffer for high-frequency updates
         latency: 1000,
         // Skip WebSocket SET actions to avoid log spam
-        // (batched writes use the [Ticker] schema)
         predicate: (state, action) =>
-          action.type !== actionTypes.SET ||
-          (action.schema !== Ticker && action.schema[0] !== Ticker),
+          action.type !== actionTypes.SET || action.schema !== Ticker,
       },
     }),
   ];

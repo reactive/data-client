@@ -54,18 +54,6 @@ export const getItems = new RestEndpoint({
 </template>
 ```
 
-### Updating many entities
-
-Use Values with [Controller.set()](https://dataclient.io/vue/api/Controller#set-array) to write many entities in one store update,
-without an endpoint.
-
-```ts
-ctrl.set(getItems.schema, {
-  firstThing: { id: 1 },
-  secondThing: { id: 2 },
-});
-```
-
 ### Polymorphic types
 
 If your input data is an object that has values of more than one type of entity, but their schema is not easily defined by the key, you can use a mapping of schema, much like [Union](./Union.vue.md) and [schema.Array](./Array.vue.md).

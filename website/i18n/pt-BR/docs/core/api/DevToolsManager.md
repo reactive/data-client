@@ -77,11 +77,10 @@ const managers = getDefaultManagers({
     // Increase latency buffer for high-frequency updates
     latency: 1000,
     // Skip WebSocket SET actions for Ticker to reduce log spam
-    // (including batched set([Ticker], rows) writes)
     // highlight-start
     predicate: (state, action) =>
       action.type !== actionTypes.SET ||
-      (action.schema !== Ticker && action.schema[0] !== Ticker),
+      action.schema !== Ticker,
     // highlight-end
   },
 });

@@ -231,19 +231,6 @@ PostResource.deleteMany(['5', '13', '7']);
 
 </EndpointPlayground>
 
-Para eliminar varias entities sin un endpoint, por ejemplo desde un mensaje de websocket, pasa el mismo schema a
-[Controller.set()](/docs/api/Controller#set-array):
-
-```ts
-ctrl.set([new Invalidate(Post)], [{ id: '5' }, { id: '13' }, { id: '7' }]);
-```
-
-O elimina una sola entity:
-
-```ts
-ctrl.set(new Invalidate(Post), { id: '5' });
-```
-
 ### Tipos polimórficos {#polymorphic-types}
 
 Si tu endpoint puede eliminar más de un tipo de entity, puedes usar la invalidación polimórfica.

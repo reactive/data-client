@@ -116,21 +116,6 @@ export const getUsers = new RestEndpoint({
 
 </FrameworkPlayground>
 
-### 更新多个 Entity {#updating-many-entities}
-
-将 Array 与 [Controller.set()](/docs/api/Controller#set-array) 配合使用，无需 endpoint，
-即可在一次 store 更新中写入多个 Entity。
-
-```ts
-ctrl.set(
-  [User],
-  [
-    { id: '123', name: 'Jim' },
-    { id: '456', name: 'Jane' },
-  ],
-);
-```
-
 ### 多态类型 {#polymorphic-types}
 
 如果输入数据是包含多种 Entity 类型的数组，就需要定义 schema 映射。

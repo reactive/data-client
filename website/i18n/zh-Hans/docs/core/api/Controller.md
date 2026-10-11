@@ -13,7 +13,6 @@ import LanguageTabs from '@site/src/components/LanguageTabs';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import StackBlitz from '@site/src/components/StackBlitz';
-import BatchSetDemo from '../shared/\_BatchSetDemo.mdx';
 
 # Controller
 
@@ -37,7 +36,6 @@ class Controller {
   invalidateAll({ testKey }): Promise<void>;
   resetEntireStore(): Promise<void>;
   set(queryable, ...args, value): Promise<void>;
-  set([Entity], rows): Promise<void>;
   setResponse(endpoint, ...args, response): Promise<void>;
   setError(endpoint, ...args, error): Promise<void>;
   resolve(endpoint, { args, response, fetchedAt, error }): Promise<void>;
@@ -661,71 +659,6 @@ ctrl.set(TodoResource.getList.schema, [{ id: '5', completed: true }]);
 const id = '2';
 ctrl.set(Article, { id }, article => ({ id, votes: article.votes + 1 }));
 ```
-
-#### set([Entity], rows) {#set-array}
-
-传入一个 [Array](/rest/api/Array) schema（`[Todo]` 或 `new schema.Array(Todo)`）和一个行列表，即可在
-一次 store 更新中更新多个 Entity。每一行都会与已存储的对应 Entity 合并；不在列表中的 Entity 保持不变。
-
-```ts
-ctrl.set(
-  [Todo],
-  [
-    { id: '5', completed: true },
-    { id: '6', completed: false },
-  ],
-);
-```
-
-行的类型由 Entity 的字段决定；数字和字符串可以互换，而对象、数组和 Date 值不会被
-检查，因为行是原始输入。
-
-对于混合了多种 Entity 类型的列表，请使用 [Union](/rest/api/Union)；每一行会按其 `type` 存储：
-
-```ts
-const Feed = new schema.Union({ post: Post, comment: Comment }, 'type');
-
-ctrl.set(
-  [Feed],
-  [
-    { id: '1', type: 'post', title: 'Hello' },
-    { id: '7', type: 'comment', body: 'Nice!' },
-  ],
-);
-```
-
-要一次删除多个 Entity，请使用 [Invalidate](/rest/api/Invalidate#batch-invalidation)；每一行只需包含其 pk
-字段：
-
-```ts
-ctrl.set([new schema.Invalidate(Todo)], [{ id: '5' }, { id: '6' }]);
-```
-
-要删除单个 Entity，传入 Invalidate schema 及其对应的行：
-
-```ts
-ctrl.set(new schema.Invalidate(Todo), { id: '5' });
-```
-
-[Values](/rest/api/Values) schema 则接收一个由行组成的对象：
-
-```ts
-ctrl.set(new schema.Values(Todo), {
-  '5': { id: '5', completed: true },
-  '6': { id: '6', completed: false },
-});
-```
-
-Array、Values 和 Invalidate schema 不接受 `args`（因此 [Entity.pk()](/rest/api/Entity#pk) 和 [Entity.process()](/rest/api/Entity#process)
-收到的是 `[]`），也不接受更新函数。pk 相同的行会按列表顺序合并，不会经过
-[Entity.shouldReorder()](/rest/api/Entity#shouldreorder)。请用它来代替逐行调用 `set()`，例如在
-[批量处理高频数据流更新](../concepts/managers.md#batching)时。
-
-:::react
-
-<BatchSetDemo />
-
-:::
 
 ### setResponse(endpoint, ...args, response) {#setResponse}
 

@@ -231,19 +231,6 @@ PostResource.deleteMany(['5', '13', '7']);
 
 </EndpointPlayground>
 
-Para excluir várias entidades sem um endpoint, como a partir de uma mensagem de websocket, passe o mesmo schema para
-[Controller.set()](/docs/api/Controller#set-array):
-
-```ts
-ctrl.set([new Invalidate(Post)], [{ id: '5' }, { id: '13' }, { id: '7' }]);
-```
-
-Ou exclua uma única entidade:
-
-```ts
-ctrl.set(new Invalidate(Post), { id: '5' });
-```
-
 ### Tipos polimórficos {#polymorphic-types}
 
 Se o seu endpoint pode excluir mais de um tipo de entidade, você pode usar a invalidação polimórfica.

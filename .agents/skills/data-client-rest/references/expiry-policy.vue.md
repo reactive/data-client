@@ -482,7 +482,7 @@ export const lastUpdated = new RestEndpoint({
     >
       Invalidate (without fetching DELETE)
     </button>
-    <button @click="ctrl.set([InvalidateTimedEntity], [{ id: '1' }])">
+    <button @click="ctrl.set(InvalidateTimedEntity, { id: '1' })">
       Invalidate Entity with ctrl.set
     </button>
   </div>

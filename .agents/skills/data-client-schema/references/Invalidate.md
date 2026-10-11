@@ -142,19 +142,6 @@ import { PostResource } from './Resource';
 PostResource.deleteMany(['5', '13', '7']);
 ```
 
-To delete many entities without an endpoint, such as from a websocket message, pass the same schema to
-[Controller.set()](https://dataclient.io/docs/api/Controller#set-array):
-
-```ts
-ctrl.set([new Invalidate(Post)], [{ id: '5' }, { id: '13' }, { id: '7' }]);
-```
-
-Or delete a single entity:
-
-```ts
-ctrl.set(new Invalidate(Post), { id: '5' });
-```
-
 ### Polymorphic types
 
 If your endpoint can delete more than one type of entity, you can use polymorphic invalidation.

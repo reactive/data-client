@@ -542,7 +542,7 @@ function ShowTime() {
         Invalidate (without fetching DELETE)
       </button>
       <button
-        onClick={() => ctrl.set([InvalidateTimedEntity], [{ id: '1' }])}
+        onClick={() => ctrl.set(InvalidateTimedEntity, { id: '1' })}
       >
         Invalidate Entity with ctrl.set
       </button>

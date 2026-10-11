@@ -116,21 +116,6 @@ export const getUsers = new RestEndpoint({
 
 </FrameworkPlayground>
 
-### Actualizar muchas entidades {#updating-many-entities}
-
-Usa un Array con [Controller.set()](/docs/api/Controller#set-array) para escribir muchas entidades en una sola actualización del store,
-sin un endpoint.
-
-```ts
-ctrl.set(
-  [User],
-  [
-    { id: '123', name: 'Jim' },
-    { id: '456', name: 'Jane' },
-  ],
-);
-```
-
 ### Tipos polimórficos {#polymorphic-types}
 
 Si tus datos de entrada son un array con más de un tipo de entidad, es necesario definir un mapeo de schemas.

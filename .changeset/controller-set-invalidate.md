@@ -11,11 +11,9 @@ Deleting one entity with `set()` worked at runtime but failed to typecheck, sinc
 by the Entity's fields.
 
 ```ts
-// Before: TypeScript error, so a one-row batch was the workaround
-ctrl.set([new Invalidate(Post)], [{ id: '5' }]);
-
-// After
+// Before: TypeScript error
+// After: no error
 ctrl.set(new Invalidate(Post), { id: '5' });
 ```
 
-Like batch `set()`, it takes no `args` and no updater function.
+It takes no `args` and no updater function.

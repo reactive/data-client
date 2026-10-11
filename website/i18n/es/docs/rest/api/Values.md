@@ -103,18 +103,6 @@ export const getItems = new RestEndpoint({
 
 </FrameworkPlayground>
 
-### Actualizar muchas entidades {#updating-many-entities}
-
-Usa Values con [Controller.set()](/docs/api/Controller#set-array) para escribir muchas entidades en una sola actualización del store,
-sin un endpoint.
-
-```ts
-ctrl.set(getItems.schema, {
-  firstThing: { id: 1 },
-  secondThing: { id: 2 },
-});
-```
-
 ### Tipos polimórficos {#polymorphic-types}
 
 Si tus datos de entrada son un objeto con valores de más de un tipo de entidad, pero su schema no se puede definir fácilmente a partir de la clave, puedes usar un mapeo de schemas, de forma muy similar a [Union](./Union.md) y [schema.Array](./Array.md).

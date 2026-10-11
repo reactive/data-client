@@ -425,112 +425,6 @@ render(
 );
 ```
 
-#### Batching high-frequency updates {#batching}
-
-Streams like exchange tickers can send hundreds of messages per second, and connections often start with a large snapshot.
-Rather than calling `set()` per message, buffer them and write each batch with an [Array](https://dataclient.io/rest/api/Array) schema.
-[Controller.set(\[Entity\], rows)](./Controller.md#set-array) normalizes every row in one store update.
-
-```typescript
-export default class StreamManager implements Manager {
-  // ...
-  protected buffer: Record<string, any[]> = {};
-  declare protected flushTimeout?: ReturnType<typeof setTimeout>;
-
-  connect() {
-    this.evtSource = this.createEventSource();
-    this.evtSource.onmessage = event => {
-      const msg = JSON.parse(event.data);
-      if (msg.type in this.entities) {
-        (this.buffer[msg.type] ??= []).push(msg.data);
-        this.flushTimeout ??= setTimeout(this.flush, 50);
-      }
-    };
-  }
-
-  flush = () => {
-    const buffer = this.buffer;
-    this.buffer = {};
-    this.flushTimeout = undefined;
-    for (const type in buffer) {
-      this.controller.set([this.entities[type]], buffer[type]);
-    }
-  };
-
-  cleanup() {
-    this.evtSource?.close();
-    clearTimeout(this.flushTimeout);
-    this.flushTimeout = undefined;
-    this.buffer = {};
-  }
-}
-```
-
-Rows in one batch that share a pk merge in order and skip [Entity.shouldReorder()](https://dataclient.io/rest/api/Entity#shouldreorder),
-so buffer only the latest message per pk when order matters.
-
-Try both buttons below. This browser check starts from an empty store and times `Promise.all` of 500 `set()`
-calls against one batch `set()`. Both paths are one React commit, and each writes 500 new prices.
-
-```ts title="Ticker"
-import { Entity } from '@data-client/rest';
-
-export class Ticker extends Entity {
-  product_id = '';
-  price = 0;
-
-  pk() {
-    return this.product_id;
-  }
-  static key = 'Ticker';
-}
-
-export const newPrices = () =>
-  Array.from({ length: 500 }, (_, i) => ({
-    product_id: `COIN-${i}`,
-    price: Math.round(Math.random() * 10000) / 100,
-  }));
-```
-
-```tsx title="PriceStream"
-import React from 'react';
-import { useController, useQuery } from '@data-client/react';
-import { Ticker, newPrices } from './Ticker';
-
-function PriceStream() {
-  const ctrl = useController();
-  const [timing, setTiming] = React.useState('');
-  const first = useQuery(Ticker, { product_id: 'COIN-0' });
-
-  const time = async (
-    label: string,
-    write: (rows: ReturnType<typeof newPrices>) => Promise<unknown>,
-  ) => {
-    const rows = newPrices();
-    const start = performance.now();
-    await write(rows);
-    setTiming(`${label}: ${(performance.now() - start).toFixed(1)} ms`);
-  };
-  const perRow = () =>
-    time('500 set() calls', rows =>
-      Promise.all(
-        rows.map(row => ctrl.set(Ticker, { product_id: row.product_id }, row)),
-      ),
-    );
-  const batch = () => time('1 batch set()', rows => ctrl.set([Ticker], rows));
-
-  return (
-    <div>
-      <button onClick={perRow}>set() per row</button>{' '}
-      <button onClick={batch}>batch set()</button>
-      <p>COIN-0: {first ? `$${first.price}` : 'no data yet'}</p>
-      <p>{timing}</p>
-    </div>
-  );
-}
-render(<PriceStream />);
-```
-
 #### Skipping DevTools for high-frequency updates
 
 When using WebSockets or other real-time data sources, you may want to skip logging
@@ -552,10 +446,8 @@ export default function getManagers() {
         // Increase latency buffer for high-frequency updates
         latency: 1000,
         // Skip WebSocket SET actions to avoid log spam
-        // (batched writes use the [Ticker] schema)
         predicate: (state, action) =>
-          action.type !== actionTypes.SET ||
-          (action.schema !== Ticker && action.schema[0] !== Ticker),
+          action.type !== actionTypes.SET || action.schema !== Ticker,
       },
     }),
   ];
