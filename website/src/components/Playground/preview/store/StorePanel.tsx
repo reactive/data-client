@@ -106,8 +106,8 @@ export default function StorePanel({
   const [stored, setView] = useTabStorage('playgroundStoreView');
   const tree = stored === 'tree';
   // the subject at the moment (`state`), or the moment's action; and the
-  // state as a whole (`snapshot`) or only what the moment's action changed
-  // (`diff`). Each Playground's own, unlike the table or tree view
+  // state as a whole, or (`diffMode`) only what the moment's action changed.
+  // Each Playground's own, unlike the table or tree view
   const [tab, setTab] = useState<Tab>('state');
   const [diffMode, setDiffMode] = useState(false);
   // the peek: the subject's actions over the store's right side, to move the
