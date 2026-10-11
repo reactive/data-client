@@ -309,7 +309,7 @@ export const Scrubber = memo(function Scrubber({
   const { shown, scale, drawn, decor } = useDrawer(hit, onMark);
   // the track scrolls sideways, on the moment as the timeline's does
   const track = useRef<HTMLDivElement>(null);
-  useTrackFollow(track, scale.width);
+  const followNewest = useTrackFollow(track, scale.width);
 
   // a step that removes (Live) or turns off (an end reached) the button
   // pressed hands focus to one still there
@@ -322,9 +322,11 @@ export const Scrubber = memo(function Scrubber({
   const onKeyDown = (e: React.KeyboardEvent) => {
     // ← → step as they do across the panel, which takes them on from here
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') hold();
-    else if (e.key === 'End' && entry) {
+    else if (e.key === 'End') {
+      // live already, it brings the newest back into view, as the lanes do
       e.preventDefault();
-      step(null);
+      if (entry) step(null);
+      else followNewest();
     }
   };
 

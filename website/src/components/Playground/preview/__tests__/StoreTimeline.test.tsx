@@ -253,6 +253,14 @@ describe('Store scrubber', () => {
     expect(bar.querySelector('[data-count]')).toBeNull();
     // the newest stays in view, as the lanes' does
     expect(track.scrollLeft).toBe(2000);
+    // scrolled back, End brings the newest back while live
+    track.scrollLeft = 100;
+    fireEvent.wheel(track, { deltaX: -50 });
+    fireEvent.scroll(track);
+    await act(() => ctrl().fetch(getPosts));
+    expect(track.scrollLeft).toBe(100);
+    fireEvent.keyDown(bar, { key: 'End' });
+    expect(track.scrollLeft).toBe(2000);
   });
 
   it('shows State as it was after the mark picked, and says which action', async () => {
