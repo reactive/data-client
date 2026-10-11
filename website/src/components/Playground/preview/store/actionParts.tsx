@@ -229,11 +229,13 @@ function lastShown(scroller: HTMLElement, axis: 'x' | 'y') {
   const from = startOf(scroller, axis);
   const to =
     from + (axis === 'y' ? scroller.clientHeight : scroller.clientWidth);
-  const rows = scroller.querySelectorAll('[data-id]');
-  for (let i = rows.length - 1; i >= 0; i--) {
-    const at = startOf(rows[i], axis);
-    if (at < to) return { row: rows[i], at: at - from };
+  // by place, not document order: a timeline's marks are drawn by group
+  let last: { row: Element; at: number } | undefined;
+  for (const row of scroller.querySelectorAll('[data-id]')) {
+    const at = startOf(row, axis);
+    if (at < to && (!last || at >= last.at)) last = { row, at };
   }
+  return last && { row: last.row, at: last.at - from };
 }
 
 /** `setResponse`, colored by kind; a fetch that changed the store applied

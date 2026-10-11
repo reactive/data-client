@@ -34,6 +34,7 @@ import {
 } from './actionParts';
 import { NARROW_WIDTH } from './columns';
 import { useHoldFocus } from './dom';
+import { actionId } from './model';
 import { useNavState } from './nav';
 import styles from './store.module.css';
 import { useTabStorage } from '../../../../utils/tabStorage';
@@ -187,6 +188,7 @@ function drawer({
           style={style}
           title={label}
           aria-label={label}
+          data-id={actionId(entry.seq)}
           data-selected={entry.seq === selected || undefined}
           data-dim={!hit(entry) || undefined}
           onClick={() => onSelect(entry.seq)}
@@ -196,6 +198,7 @@ function drawer({
           className={clsx(styles.tlMark, styles.tlHollow, type, extra)}
           style={style}
           title={label}
+          data-id={actionId(entry.seq)}
         />;
   };
   const span = (from: number, to: number, className: string, key: string) => (
@@ -241,16 +244,21 @@ function drawer({
   return { pos, drawn };
 }
 
-/** Keeps a sideways-scrolling track on the moment: live, on the newest as
- * `width` grows, until scrolled back; picked, the action stays put as new
- * ones come in, brought into view as it is picked or `refocus` changes */
+/** Keeps a sideways-scrolling track drawn on `scale` on the moment: live,
+ * on the newest as actions come in, until scrolled back; scrolled back or
+ * picked, the marks in view stay put as actions come in or the oldest drop.
+ * The picked action comes into view as it is picked or `refocus` (another
+ * input to the track's layout) changes */
 function useTrackFollow(
   scroller: React.RefObject<HTMLElement | null>,
-  width: unknown,
+  scale: TimeScale,
   refocus?: unknown,
 ) {
   const { seq: selected } = useNavState();
-  const followNewest = useFollow(scroller, width, 'x', selected !== null);
+  // a new scale for every change to the history, trims included, so the
+  // marks in view are held even when the width stays the same
+  const layout = useMemo(() => [scale, refocus], [scale, refocus]);
+  const followNewest = useFollow(scroller, layout, 'x', selected !== null);
   // back to live, the newest comes into view, and the track follows it again
   useLayoutEffect(() => {
     if (selected === null) followNewest();
@@ -309,7 +317,7 @@ export const Scrubber = memo(function Scrubber({
   const { shown, scale, drawn, decor } = useDrawer(hit, onMark);
   // the track scrolls sideways, on the moment as the timeline's does
   const track = useRef<HTMLDivElement>(null);
-  const followNewest = useTrackFollow(track, scale.width);
+  const followNewest = useTrackFollow(track, scale);
 
   // a step that removes (Live) or turns off (an end reached) the button
   // pressed hands focus to one still there
@@ -476,7 +484,7 @@ export default memo(function Timeline({
   const scroller = useRef<HTMLDivElement>(null);
   // a scrolled-back view stays put as the fit toggles, while a followed one
   // stays on the newest; the picked action comes into view again
-  const followNewest = useTrackFollow(scroller, `${scale.width} ${fit}`, fit);
+  const followNewest = useTrackFollow(scroller, scale, fit);
   // scrolled back, fitting and back returns to where it was, unless it went
   // to the newest meanwhile
   const scrolledTo = useRef<number | null>(null);

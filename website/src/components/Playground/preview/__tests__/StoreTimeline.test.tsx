@@ -33,8 +33,8 @@ const getPosts = new Endpoint(async () => [{ id: '1', title }], {
   name: 'getPosts',
 });
 
-function mount() {
-  const registry = new SchemaRegistry({ trimEvery: 1 });
+function mount(limit?: number) {
+  const registry = new SchemaRegistry({ trimEvery: 1, limit });
   const log = registry.log.connect(0);
   const ref: { ctrl?: Controller } = {};
   function Grab() {
@@ -261,6 +261,61 @@ describe('Store scrubber', () => {
     expect(track.scrollLeft).toBe(100);
     fireEvent.keyDown(bar, { key: 'End' });
     expect(track.scrollLeft).toBe(2000);
+  });
+
+  it('keeps its place as the log drops the oldest actions', async () => {
+    Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
+      configurable: true,
+      get: () => 18,
+    });
+    let track: HTMLElement | undefined;
+    // marks where the scale puts them on the track, under its scroll
+    const rects = jest
+      .spyOn(Element.prototype, 'getBoundingClientRect')
+      .mockImplementation(function (this: Element) {
+        const f =
+          track && this !== track ?
+            Number((this as HTMLElement).style.getPropertyValue('--tl-f'))
+          : 0;
+        const width = parseFloat(
+          track?.style.getPropertyValue('--tl-width') ?? '0',
+        );
+        const left = track && this !== track ? f * width - track.scrollLeft : 0;
+        return { left, right: left, top: 0, bottom: 0 } as DOMRect;
+      });
+    try {
+      const { ctrl } = mount(20);
+      const polls = (n: number) =>
+        act(async () => {
+          for (let i = 0; i < n; i++) await ctrl().fetch(getPosts);
+        });
+      await polls(10);
+      track = scrubber().querySelector<HTMLElement>('[style*="--tl-width"]')!;
+      // scrolled back to the newer half of the polls
+      const width = parseFloat(track.style.getPropertyValue('--tl-width'));
+      Object.defineProperty(track, 'scrollWidth', { get: () => width });
+      Object.defineProperty(track, 'clientWidth', { value: width * 0.3 });
+      track.scrollLeft = width * 0.6;
+      fireEvent.wheel(track, { deltaX: -5 });
+      fireEvent.scroll(track);
+      const shown = () =>
+        [...track!.querySelectorAll<HTMLElement>('[data-id]')]
+          .map(m => ({
+            m,
+            at: m.getBoundingClientRect().left,
+          }))
+          .filter(({ at }) => at >= 0 && at < track!.clientWidth);
+      const before = shown().at(-1)!;
+      // past the limit, the oldest polls drop: the marks in view stay put
+      const marks = track.querySelectorAll('[data-id]').length;
+      await polls(5);
+      expect(track.querySelectorAll('[data-id]').length).toBe(marks);
+      expect(before.m.isConnected).toBe(true);
+      expect(before.m.getBoundingClientRect().left).toBeCloseTo(before.at);
+    } finally {
+      rects.mockRestore();
+      delete (HTMLElement.prototype as any).clientHeight;
+    }
   });
 
   it('shows State as it was after the mark picked, and says which action', async () => {
