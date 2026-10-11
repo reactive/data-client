@@ -34,9 +34,19 @@ export function slide(el: HTMLElement, direction: 1 | -1) {
   );
 }
 
+/** A change's color, as every view marks it */
+export const kindColor = (kind: ChangeKind) => `var(--store-kind-${kind})`;
+
+/** Marks a row with the change the diff shows for it: its bar takes the
+ * change's color (`.row[data-change]` in store.module.css) */
+export const changeProps = (kind: ChangeKind | undefined) =>
+  kind && {
+    'data-change': kind,
+    style: { '--store-change': kindColor(kind) } as React.CSSProperties,
+  };
+
 /** Highlights the rows in `scope` that `kindOf` names a change of, for a
- * moment, in that change's color (as the diff's bar marks it): an added row
- * green, a removed one red, any other yellow */
+ * moment, in that change's color */
 export function flash(
   scope: HTMLElement,
   kindOf: (id: string) => ChangeKind | undefined,
@@ -48,7 +58,7 @@ export function flash(
     row.animate(
       [
         {
-          backgroundColor: FLASH[kind] ?? 'var(--store-flash)',
+          backgroundColor: `color-mix(in srgb, ${kindColor(kind)} 30%, transparent)`,
         },
         { backgroundColor: 'transparent' },
       ],
@@ -56,10 +66,6 @@ export function flash(
     );
   }
 }
-const FLASH: Partial<Record<ChangeKind, string>> = {
-  added: 'var(--store-flash-added)',
-  removed: 'var(--store-flash-removed)',
-};
 
 /** A level's scroll box, passed as the element itself rather than a ref:
  * the level attaches it only after its children's effects first run, so an

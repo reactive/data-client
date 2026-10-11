@@ -11,16 +11,19 @@ import { endpointId, entityId, parseRowId } from './model';
 import type { View } from './nav';
 import { isPlainObject, temporalType } from './refs';
 
-export type ChangeKind =
-  | 'added'
-  | 'updated'
-  | 'removed'
-  | 'invalidated'
-  | 'error'
+/** Each has a color, `--store-kind-<kind>` in store.module.css */
+export const CHANGE_KINDS = [
+  'added',
+  'updated',
+  'removed',
+  'invalidated',
+  'error',
   /** Stored again (new fetch time), same data */
-  | 'refreshed'
+  'refreshed',
   /** Marked stale; the data stays */
-  | 'expired';
+  'expired',
+] as const;
+export type ChangeKind = (typeof CHANGE_KINDS)[number];
 
 /** One row an action changed */
 export type Change =

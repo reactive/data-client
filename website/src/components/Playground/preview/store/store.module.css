@@ -16,11 +16,17 @@
   --store-hover: rgba(255, 255, 255, 0.045);
   --store-selected: rgba(130, 170, 255, 0.16);
   --store-record: rgba(130, 170, 255, 0.07);
-  --store-flash: color-mix(in srgb, var(--store-stale) 30%, transparent);
-  --store-flash-added: color-mix(in srgb, var(--store-fresh) 30%, transparent);
-  --store-flash-removed: color-mix(in srgb, var(--store-null) 30%, transparent);
+  /* each change's color (CHANGE_KINDS in actionGroups.ts): its bar, mark
+     and flash. Invalidating drops the data, so it's nearer a removal's red
+     than an update's yellow, but apart from an error's */
+  --store-kind-added: var(--store-fresh);
+  --store-kind-updated: var(--store-stale);
+  --store-kind-removed: var(--store-null);
+  --store-kind-invalidated: var(--store-number);
+  --store-kind-error: var(--store-null);
+  --store-kind-refreshed: var(--store-dim);
+  --store-kind-expired: var(--store-stale);
   --store-stale-bg: color-mix(in srgb, var(--store-stale) 9%, transparent);
-  --store-fresh-bg: color-mix(in srgb, var(--store-fresh) 9%, transparent);
   --store-tip: #3a4057;
   --store-bg: var(--monoco-code-background);
 
@@ -445,14 +451,7 @@ div.row {
 div.row[data-change] {
   box-shadow: inset 2px 0 var(--store-change);
 }
-.row[data-change='added'] {
-  --store-change: var(--store-fresh);
-}
-.row[data-change='updated'] {
-  --store-change: var(--store-stale);
-}
 .row[data-change='removed'] {
-  --store-change: var(--store-null);
   opacity: 0.6;
 }
 .row[data-change='removed'] > td,
@@ -464,10 +463,10 @@ div.row[data-change='removed'] {
    cuts the old value rather than the new); a field it added is fresh, like
    an added row, though the row itself was updated */
 .row > td[data-changed] {
-  background: var(--store-stale-bg);
+  background: color-mix(in srgb, var(--store-kind-updated) 9%, transparent);
 }
 .row > td[data-changed='added'] {
-  background: var(--store-fresh-bg);
+  background: color-mix(in srgb, var(--store-kind-added) 9%, transparent);
 }
 .cellWas {
   margin-left: 0.5em;
@@ -949,8 +948,8 @@ div.row[data-change='removed'] {
 }
 .invalidated {
   margin-left: 0;
-  color: var(--store-dim);
-  border-color: var(--store-line-strong);
+  color: var(--store-kind-invalidated);
+  border-color: color-mix(in srgb, var(--store-kind-invalidated) 40%, transparent);
 }
 .optimistic {
   color: var(--store-type);
@@ -1138,19 +1137,8 @@ div.joined {
   cursor: default;
 }
 
-.markAdded,
-.markUpdated,
-.markRemoved {
+.mark {
   font-weight: 600;
-}
-.markAdded {
-  color: var(--store-fresh);
-}
-.markUpdated {
-  color: var(--store-stale);
-}
-.markRemoved {
-  color: var(--store-null);
 }
 .goneRef {
   cursor: default;

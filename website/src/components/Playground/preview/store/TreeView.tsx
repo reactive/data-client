@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import React, { useContext } from 'react';
 
 import { EndpointDetail, EntityDetail, Status } from './Details';
-import { onActivateKey } from './dom';
+import { changeProps, onActivateKey } from './dom';
 import {
   optimisticId,
   prettyPk,
@@ -112,7 +112,7 @@ function useRowProps(id: string, className?: string) {
     open,
     props: {
       'data-id': id,
-      'data-change': change,
+      ...changeProps(change),
       tabIndex: 0,
       'aria-expanded': open,
       className: clsx(
