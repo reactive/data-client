@@ -1,8 +1,8 @@
 import { useLocation } from '@docusaurus/router';
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import siteConfig from '@generated/docusaurus.config';
 import type { Props as DropdownProps } from '@theme/NavbarItem/DropdownNavbarItem';
 import DropdownNavbarItem from '@theme/NavbarItem/DropdownNavbarItem';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import {
   DOCS_INSTANCES,
@@ -12,6 +12,8 @@ import {
 import versionsArchived from '../../../versionsArchived.json';
 
 const archived = versionsArchived.map(({ version }) => version);
+// '' or this locale build's '/es'
+const prefix = siteConfig.baseUrl.slice(0, -1);
 const SECTION = new RegExp(
   `^/(${DOCS_INSTANCES.map(d => d.routeBasePath).join('|')})(/|$)`,
 );
@@ -25,15 +27,10 @@ export default function VersionsNavbarItem(
   props: Omit<DropdownProps, 'items'>,
 ): React.JSX.Element | null {
   const { pathname } = useLocation();
-  // '' or this locale's '/es'
-  const prefix = useDocusaurusContext().siteConfig.baseUrl.slice(0, -1);
   const [routes, setRoutes] = useState<Routes>({});
-  const requested = useRef(false);
   const loadRoutes = useCallback(() => {
-    if (requested.current || !archived.length) return;
-    requested.current = true;
-    fetchRoutes(prefix).then(setRoutes);
-  }, [prefix]);
+    if (archived.length) fetchRoutes().then(setRoutes);
+  }, []);
   // The mobile item mounts when the menu opens; the desktop one, with the page
   const { mobile } = props;
   useEffect(() => {
@@ -78,15 +75,19 @@ type Routes = Record<string, ReadonlySet<string>>;
 
 /** Shared by the desktop and mobile items, so each sitemap loads once */
 let routesRequest: Promise<Routes> | undefined;
-const fetchRoutes = (prefix: string) =>
-  (routesRequest ??= requestRoutes(prefix));
+const fetchRoutes = () => (routesRequest ??= requestRoutes());
 
 /** Each archive's pages, from its sitemaps (and this locale's, if it has one) */
-async function requestRoutes(prefix: string): Promise<Routes> {
+async function requestRoutes(): Promise<Routes> {
   const pathsIn = (url: string) =>
     fetch(url)
+      // a missing sitemap (an archive without this locale) is no pages
       .then(res => (res.ok ? res.text() : ''))
-      .catch(() => '')
+      .catch(() => {
+        // offline: ask again next time
+        routesRequest = undefined;
+        return '';
+      })
       .then(xml =>
         [...xml.matchAll(/<loc>https?:\/\/[^/<]+([^<]*)<\/loc>/g)].map(
           ([, path]) => trimRoute(path),

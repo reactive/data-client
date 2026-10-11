@@ -20,7 +20,8 @@ type-check, as they did when that release's CI passed. Archives add nothing to t
   publishes. To rebuild one, dispatch it with the version and, for a fix, a `docs/<version>` branch
   cut from the release tag as `ref`; the listed archive keeps serving until the new listing merges.
 - `fetch.sh <build dir>` unpacks every listed archive into the built site once its checksum
-  matches, so a changed asset fails the deploy rather than shipping. `site-preview.yml` runs it
+  matches, so a changed asset fails the deploy rather than shipping. The checksum is the build's
+  own, so it guards the asset after publishing; the release commit itself is trusted. `site-preview.yml` runs it
   before uploading a build for deploy, so production and previews serve the archives.
 - `src/theme/NavbarItem/VersionsNavbarItem.tsx` is the navbar's version dropdown. It reads an
   archive's sitemap (on hover, or when the mobile menu opens) to link to the same page in it, or
