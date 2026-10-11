@@ -22,6 +22,7 @@ import {
 } from './actionGroups';
 import type ActionLog from './actionLog';
 import { isRecordChange, type History, type LogEntry } from './actionLog';
+import { kindColor } from './dom';
 import { splitKey } from './model';
 import {
   ActionSpanContext,
@@ -473,14 +474,26 @@ const failed = ({ action, store }: LogEntry) =>
   action.type === actionTypes.SET_RESPONSE &&
   (action.error || !!store?.after.meta[action.key]?.error);
 
-const MARK: Partial<Record<Change['kind'], [string, string]>> = {
-  added: ['+', styles.markAdded],
-  updated: ['~', styles.markUpdated],
-  removed: ['−', styles.markRemoved],
-  invalidated: ['✕', styles.markRemoved],
-  error: ['!', styles.markRemoved],
-  expired: ['◔', styles.markUpdated],
+const MARK: Partial<Record<ChangeKind, string>> = {
+  added: '+',
+  updated: '~',
+  removed: '−',
+  invalidated: '✕',
+  error: '!',
+  expired: '◔',
 };
+
+/** A change's symbol, in its color */
+function ChangeMark({ kind }: { kind: ChangeKind }) {
+  const char = MARK[kind];
+  return (
+    char && (
+      <span className={styles.mark} style={{ color: kindColor(kind) }}>
+        {char}
+      </span>
+    )
+  );
+}
 
 /** What changed, as chips that open the row (several new rows of one table
  * open as a list) */
@@ -539,7 +552,7 @@ export function ChangeChips({
           pks,
         })}
       >
-        <span className={styles.markAdded}>+</span>
+        <ChangeMark kind="added" />
         {pks.length} {item}
       </CountChip>
     );
@@ -567,8 +580,7 @@ export function ChangeChip({ change }: { change: Change }) {
     'endpoint' in change ?
       <EndpointKey {...splitKey(change.endpoint)} />
     : <EntityKey table={change.table} pk={change.pk} />;
-  const [char, markClass] = MARK[change.kind] ?? [];
-  const mark = char && <span className={markClass}>{char}</span>;
+  const mark = <ChangeMark kind={change.kind} />;
   const title =
     'fields' in change && change.fields?.length ?
       `${change.kind}: ${change.fields.join(', ')}`

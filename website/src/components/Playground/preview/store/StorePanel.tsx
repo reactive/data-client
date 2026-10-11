@@ -50,7 +50,7 @@ import {
 import { NARROW_WIDTH } from './columns';
 import { diffModel, type RowDiff } from './diffModel';
 import { ListView, RecordLevel, type Header } from './DiveViews';
-import { flash, scrollToRow, slide } from './dom';
+import { flash, scrollToRow, slide, type Scroller } from './dom';
 import {
   buildModel,
   findRow,
@@ -882,11 +882,15 @@ function Level({
   returnTo: string | null;
   /** Shown in place of the store, which `children` reads */
   diff?: Diff;
-  children: (
-    scroller: React.RefObject<HTMLDivElement | null>,
-  ) => React.ReactNode;
+  children: (scroller: Scroller) => React.ReactNode;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  // its children watch the element, so they see it once it is attached
+  const [scroller, setScroller] = useState<Scroller>(null);
+  const attach = useCallback((el: HTMLDivElement | null) => {
+    ref.current = el;
+    setScroller(el);
+  }, []);
   // a covered level keeps the nav it showed, so what it shows renders again
   // only once it is uncovered
   const [current, setCurrent] = useState(nav);
@@ -899,14 +903,14 @@ function Level({
         <NavContext.Provider value={current}>
           {then ?
             <ShownTimeContext.Provider value={then.time}>
-              {children(ref)}
+              {children(scroller)}
             </ShownTimeContext.Provider>
-          : children(ref)}
+          : children(scroller)}
         </NavContext.Provider>
       </DiffContext.Provider>
     ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `children` is new each render; what it shows only changes with `current`, `view`, `diff`, `under` and `then`
-    [current, view, diff, under, then],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- `children` is new each render; what it shows only changes with `current`, `view`, `diff`, `under`, `then` and `scroller`
+    [current, view, diff, under, then, scroller],
   );
   const wasTop = useRef<boolean | null>(null);
   useLayoutEffect(() => {
@@ -926,7 +930,7 @@ function Level({
   }, [top, pushed, returnTo]);
   return (
     <div
-      ref={ref}
+      ref={attach}
       className={styles.level}
       data-level
       data-covered={!top || hidden || undefined}
@@ -954,7 +958,7 @@ function SubjectLevel({
   header,
 }: {
   view: View;
-  scroller: React.RefObject<HTMLDivElement | null>;
+  scroller: Scroller;
   header: Header;
 }) {
   return (
@@ -978,7 +982,7 @@ function DiffLevel({
   view: View;
   diff: Diff;
   nav: Nav;
-  scroller: React.RefObject<HTMLDivElement | null>;
+  scroller: Scroller;
   header: Header;
 }) {
   const { log } = useActions();

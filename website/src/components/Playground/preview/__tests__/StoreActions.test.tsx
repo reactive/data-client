@@ -1492,6 +1492,11 @@ describe('Store diff', () => {
       `[data-id="${entityId('Post', '1')}"]`,
     )!;
     expect(line.querySelector('ins')!.textContent).toBe('body: "New"');
+    // and so does the action's detail
+    openAction();
+    const added = [...top().querySelectorAll('ins')].map(el => el.textContent);
+    expect(added).toContain('body: "New"');
+    expect(top().textContent).not.toContain('undefined');
   });
 
   it('shows the newest poll live, not all its subscription did', async () => {

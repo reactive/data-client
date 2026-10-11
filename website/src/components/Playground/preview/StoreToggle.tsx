@@ -24,8 +24,7 @@ export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
     },
     [blockElementScrollPositionUntilNextRender, open, setChoice],
   );
-  const close = useCallback(() => setChoice('n'), [setChoice]);
-  return [open, toggle, close] as const;
+  return [open, toggle] as const;
 }
 
 /** Toggle row; also rendered (inert) by the preview loading fallback in ../index.tsx */

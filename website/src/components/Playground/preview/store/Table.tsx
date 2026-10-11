@@ -11,7 +11,7 @@ import {
 } from './columns';
 import { Status } from './Details';
 import type { RowDiff } from './diffModel';
-import { onActivateKey } from './dom';
+import { changeProps, onActivateKey } from './dom';
 import {
   errorText,
   isInvalidated,
@@ -113,7 +113,7 @@ export function RowsTable<R extends { readonly id: string }>({
             <React.Fragment key={row.id}>
               <tr
                 data-id={row.id}
-                data-change={change?.kind}
+                {...changeProps(change?.kind)}
                 tabIndex={onOpen ? 0 : undefined}
                 className={clsx(
                   styles.row,
