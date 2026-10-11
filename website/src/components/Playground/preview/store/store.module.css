@@ -21,9 +21,13 @@
   --store-tip: #3a4057;
   --store-bg: var(--monoco-code-background);
 
+  position: relative;
   display: flex;
   flex-direction: column;
   min-width: 0;
+  /* room to inspect whatever the code's or the preview's height (the row
+     layout's host holds the same, see .storeHost) */
+  min-height: min(24rem, 70svh);
   max-height: 32rem;
   background: var(--store-bg);
   color: var(--store-fg);
@@ -40,7 +44,7 @@
   flex-direction: column;
 }
 
-/* The view switch and the Snapshot, Diff and Actions tabs; the same band as
+/* The State and Action tabs and State's switches; the same band as
    the other headers */
 .bar {
   flex: none;
@@ -68,17 +72,17 @@
   display: flex;
   flex-direction: column;
 }
-/* the bar's left end: the view switch, outside the Actions tab */
+/* the bar's left end: the State and Action tabs */
 .barStart {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.375rem;
 }
-/* the bar's right end: the Snapshot, Diff and Actions tabs */
+/* the bar's right end: Snapshot or Diff and the view switch, in State */
 .barEnd {
   display: flex;
   align-items: center;
-  gap: 0.375rem;
+  gap: 0.5rem;
   margin-left: auto;
 }
 .viewButtons {
@@ -89,9 +93,8 @@
 .tab {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
   height: 1.75rem;
-  padding: 0 0.5rem 0 0.4rem;
+  padding: 0 0.5rem;
   border: 0;
   border-radius: 5px;
   background: none;
@@ -110,19 +113,11 @@
   background: var(--pg-tab-hover-bg);
   opacity: 1;
 }
-.tab svg {
-  width: 14px;
-  height: 14px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.3;
-  stroke-linecap: round;
-}
-/* The peek: the subject's actions as an overlay over the store's right
-   side (narrow, most of it), with a scroll of its own */
+/* The peek: the subject's actions as an overlay over the panel's right
+   side (narrow, most of it), dropping from right under the scrubber's list
+   button that opens it (its top set from there), with a scroll of its own */
 .pane {
   position: absolute;
-  top: 0;
   right: 0;
   bottom: 0;
   z-index: 4;
@@ -280,7 +275,7 @@
 .crumbList {
   display: contents;
 }
-/* with no Back before them (the Actions tab's first level) */
+/* with no Back before them (the Action tab's first level) */
 .crumbList:first-child > :first-child {
   margin-left: 0.5rem;
 }
@@ -444,7 +439,7 @@ div.row {
 .row:focus-visible {
   outline: 2px solid var(--store-key);
 }
-/* The Diff tab: how the action changed each row (a table's
+/* State's diff: how the action changed each row (a table's
    first cell, or the tree's whole line) */
 .row[data-change] > td:first-child,
 div.row[data-change] {
@@ -1313,8 +1308,12 @@ div.joined {
   color: inherit;
 }
 .expand:hover,
-.expand[aria-expanded='true'] {
+.expand[aria-expanded='true'],
+.expand[aria-pressed='true'] {
   opacity: 1;
+}
+.expand[aria-pressed='true'] {
+  background: var(--pg-tab-hover-bg);
 }
 .expand svg {
   width: 14px;
@@ -1630,4 +1629,57 @@ button.tlMark:hover {
   width: 1px;
   background: var(--store-fg);
   opacity: 0.55;
+}
+
+/* the Action tab's actions before and after the one shown, a line each, to
+   step to; the one after stays at the bottom, of a short level too */
+.actStep {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  width: 100%;
+  min-width: 0;
+  padding: 0.35rem 0.75rem;
+  border: 0;
+  border-bottom: 1px solid var(--store-line);
+  background: none;
+  color: var(--store-fg);
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+}
+.actStepAfter {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  margin-top: auto;
+  border-top: 1px solid var(--store-line-strong);
+  border-bottom: 0;
+  background: var(--store-bg);
+}
+.actStep:enabled {
+  cursor: pointer;
+  transition: background-color var(--motion-snappy);
+}
+.actStep:enabled:hover {
+  background: var(--store-hover);
+}
+.actStepAfter:enabled:hover {
+  background: linear-gradient(var(--store-hover), var(--store-hover))
+    var(--store-bg);
+}
+.actStepDir {
+  flex: none;
+  width: 4.2rem;
+  color: var(--store-dim);
+  font-size: 0.85em;
+}
+.actStepName {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.liveText {
+  color: var(--store-fresh);
+  font-weight: 500;
 }

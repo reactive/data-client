@@ -103,7 +103,7 @@ const press = (key: string) =>
 function mount(s = state, r = registry()) {
   return render(
     <StateContext.Provider value={s}>
-      <StorePanel groupId="test" registry={r} history={0} />
+      <StorePanel registry={r} history={0} />
     </StateContext.Provider>,
   );
 }
@@ -252,12 +252,12 @@ describe('StorePanel table view', () => {
   it('leaves focus alone as the overview first shows, and on the tab picked', () => {
     mount();
     expect(document.activeElement).toBe(document.body);
-    const actions = screen.getByRole('tab', { name: 'Actions' });
+    const actions = screen.getByRole('tab', { name: 'Action' });
     actions.focus();
     fireEvent.click(actions);
     expect(actions.getAttribute('aria-selected')).toBe('true');
     expect(document.activeElement).toBe(actions);
-    fireEvent.click(screen.getByRole('tab', { name: 'Snapshot' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'State' }));
     expect(actions.getAttribute('aria-selected')).toBe('false');
     expect(crumbs()).toEqual([]);
   });

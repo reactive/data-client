@@ -57,7 +57,7 @@ DesignSystem/       components injected into preview scope
   Collapsed/unselected files render nothing until opened, to keep the HTML
   small, unless the document sets `ssr`: then its plain text is in the HTML,
   hidden by CSS, for crawlers.
-- The preview renders `previewLoading` (empty frame + Store toggle) on the
+- The preview renders `PreviewLoading` (empty frame + Store toggle) on the
   server, while loading, for bots, and while `hidden`.
 - Fixtures render server-side as JSON `CodeBlock`s; function responses are
   BrowserOnly (a stringified function differs between server and client
@@ -97,7 +97,7 @@ DesignSystem/       components injected into preview scope
 ### Mobile and bots
 
 - Mobile: editable react-live editor instead of Monaco; live preview still runs.
-- Bots: same editor fallback; preview stays `previewLoading` (never loads
+- Bots: same editor fallback; preview stays `PreviewLoading` (never loads
   `LivePreview`); StackBlitz embeds never load.
 - `DiffEditor` shows a two-`CodeBlock` grid instead of Monaco, with callout
   markers appended as trailing comments; caption and callout legend are
@@ -155,7 +155,12 @@ DesignSystem/       components injected into preview scope
   which goes `inert`), so the preview stays usable beside it; when the
   layout stacks it opens upward over the code. Under header controls (the
   homepage demos) it covers the file tabs too; otherwise they stay as the
-  header row, and switching files closes it.
+  header row, and switching files closes it. Its toggle is `StoreBadge` in
+  the code's corner (rendered by `index.tsx` with the cover), which stays
+  put as the Store slides under it and names what it brings back (Store,
+  then Code); narrow, the preview header's icon takes over. Over the Store,
+  the header's selected control takes the Store's color so it still joins
+  what is under it.
   It opens and closes as a drawer (`../motion`: the toggle glides, the panel
   `Reveal`s); the panel's contents render a frame after it starts moving
   (`useDeferredValue`).
@@ -172,44 +177,57 @@ DesignSystem/       components injected into preview scope
   store as that action left it (see `Moment` in `preview/store/nav.tsx`).
 - The Store inspector navigates by two coordinates (see
   `preview/store/nav.tsx`, both owned by `StorePanel`): the **moment** (the
-  action shown, or live; `NavStateContext` carries it, with `show(seq)` to
-  set it and open that action in the Actions tab) and the **subject** (a
+  action shown, or live; `NavStateContext` carries it down, with where a
+  step back or on lands (`earlier`, `later`), and `set` and
+  `show(seq)` back up: `show` also opens that action in the Action tab) and the **subject** (a
   stack of levels over the store: a table, a record, a list of rows, with
   breadcrumbs, Back and Escape). A moment can stand for one action or, when
   a request's or subscription's row was picked (`whole`), every action of
   that group up to it (`momentEntries` in `preview/store/actionGroups.ts`),
-  so an optimistic update and its response show as one effect. Three tabs at
-  the right end of the bar (`role="tablist"`) show the subject; the one
-  picked is remembered per Playground `groupId` (`useTabStorage`), like the
-  Store's open state:
-  - **Snapshot**: the subject at the moment (table or tree, the view switch
-    at the bar's left end); live, the store as it is. A moment the store
-    never saw (a fetch, a subscribe) shows the store as the last action
-    before it left it.
-  - **Diff**: only what the moment's action (or group) changed at that
-    level, from before its first action to the store the moment shows
-    (`diffModel` in `preview/store/diffModel.ts`, with the changes from
-    `log.spanChanges`, which merges a group's with `mergeChanges` so another
-    action's rows in between are left out, while a row both changed shows as
-    it ended up). The store and its lists keep only the rows it changed, a
-    removed one as it was, each row marked `data-change` through
-    `DiffContext`, with the sections it left empty hidden; a record, or a
-    level it left alone, says what it did there with `SubjectChanges` from
-    `preview/store/ActionDetail.tsx`. Live, it shows the newest stored
-    action's whole group, so a response that stored nothing new still shows
-    its request's optimistic update (Live on the scrubber is marked as the
-    moment).
-    Snapshot and Diff share the subject's stack.
-  - **Actions**: the actions that touched the subject at full width, with
-    a stack of its own (`{ kind: 'actions' }`, `ActionsLevel` in
+  so an optimistic update and its response show as one effect. Two tabs at
+  the left end of the bar (`role="tablist"`), **State** and **Action**,
+  show the subject; the one picked, and State's Snapshot or Diff, are each
+  Playground's own (state of the panel), while the table or tree view is
+  shared across them (`useTabStorage`).
+  - **State** shows the subject at the moment, as one of two icon toggles
+    at the bar's right end says (`aria-pressed`, beside the table and tree
+    view switch); both share the subject's stack:
+    - **Snapshot**: the subject at the moment (table or tree); live, the
+      store as it is. A moment the store never saw (a fetch, a subscribe)
+      shows the store as the last action before it left it.
+    - **Diff**: only what the moment's action (or group) changed at that
+      level, from before its first action to the store the moment shows
+      (`diffModel` in `preview/store/diffModel.ts`, with the changes from
+      `log.spanChanges`, which merges a group's with `mergeChanges` so another
+      action's rows in between are left out, while a row both changed shows as
+      it ended up). The store and its lists keep only the rows it changed, a
+      removed one as it was, each row marked `data-change` through
+      `DiffContext`, with the sections it left empty hidden; a record, or a
+      level it left alone, says what it did there with `SubjectChanges` from
+      `preview/store/ActionDetail.tsx`. Live, it shows the newest stored
+      action's whole group, so a response that stored nothing new still shows
+      its request's optimistic update (Live on the scrubber is marked as the
+      moment).
+  - **Action**: the moment's action at full width (`{ kind: 'action', seq }`,
+    `ActionDetail`: what it did to the subject, then the action's fields;
+    live, `seq: null`, the subject's newest action, garbage collection
+    aside, as its whole request when it has several actions, so an
+    optimistic update shows with its response, with "newest" by its crumb). A line above its crumbs, so they head the
+    action, and one stuck to the bottom (`ActionStep`) name the subject's actions before and after it (as ‹ ›
+    step, `stepMoment`; past the newest is live), and a click makes that the
+    moment, in the same level. Its stack opens at the action over the
+    subject's actions in full (`{ kind: 'actions' }`, `ActionsLevel` in
     `preview/store/ActionList.tsx`, a `region` with its row count beside the
-    crumbs "Actions of <subject>"). Picking a step sets the moment and opens
-    the action over the list (`{ kind: 'action', seq }`, `ActionDetail`:
-    what it did to the subject, then the action's fields); picking a row of
-    several actions opens the group (`whole`: what they did together, then
-    its actions, each opening its own). Back returns to the list, and chips
-    drill on in the tab. Stepping the moment moves that level to the new
-    action, and going live closes it (`followMoment`).
+    crumbs "Actions of <subject>"), which Back, its crumb and the
+    scrubber's list button go to, and picking the Action tab again leaves
+    for the moment's action; while it shows, a mark picked on the
+    timeline (the timelines' `onMark`) opens its action, as a row does, while ‹ › only move
+    the moment. Picking a step there sets the moment and
+    opens the action over the list; picking a row of several actions opens
+    the group (`whole`: what they did together, then its actions, each
+    opening its own). Chips drill on in the tab. Stepping the moment moves
+    that level to the new action, and going live to the newest
+    (`followMoment`).
 
   Both stacks stay mounted while their tab is hidden, keeping their levels'
   stores, scroll, pages and filters. A record's "changed by" names the kept
@@ -217,13 +235,17 @@ DesignSystem/       components injected into preview scope
   included; "actions not kept" when the log dropped it) and opens it, moving
   the moment. A level a chip opened at an action shows that store, not the
   diff, until the moment is set on purpose (`clearAt`), which outranks it.
-  Over Snapshot or Diff, the mouse resting on the Actions tab peeks at the
-  same list (`ActionsPane`, an `aside` whose head counts its rows) as
-  timeline controls: an overlay over the store's right side (narrow, most of it) that
-  stays while the pointer is over either and goes as it leaves both, with
-  Escape or a press outside (each panel's own: a page holds several), focus
-  going back to the tab. Picking a row or step there only moves the moment,
-  so the tab beside it follows; its chips open in the store.
+  The list is another way to see more of the timeline, so its button sits
+  at the scrubber's right end beside the ▾ ("Actions", `aria-pressed` while
+  the list shows): a click opens
+  the list in the Action tab, and the mouse resting on it, unless the list
+  shows, peeks at the same list (`ActionsPane`, an `aside` whose head counts
+  its rows): an overlay over the panel's right side (narrow, most of it),
+  dropping from right under the button,
+  that stays while the pointer is over either and goes as it leaves both,
+  with Escape or a press outside (each panel's own: a page holds several),
+  focus going back to the button. Picking a row or step there only moves
+  the moment, so the tab under it follows; its chips open in State.
   Both list (`ActionList`) the actions that touched the subject
   (`subjectFilter` in `preview/store/actionGroups.ts`: at the store every
   action that reached it; on a record or list those that changed or stored
@@ -239,7 +261,9 @@ DesignSystem/       components injected into preview scope
   across commits).
   The scrubber across the top of the panel (`Scrubber` in
   `preview/store/Timeline.tsx`, a `role="group"`) always shows the whole
-  history on one lane, fit to the panel: ‹ › and ←→ step through the changes
+  history on one lane, fit to the panel: ‹ › and ←→ (from anywhere in the
+  panel without a use of its own for them, see `usesArrows`, or a
+  widget that took them with `preventDefault`; the panel alone handles them) step through the changes
   to the subject (`subjectFilter`'s `hit`: every stored action at the store; below it the marks that left the subject alone
   are dimmed, `data-dim`, and skipped; past the newest, and End, go live), a
   mark lands on its action, "Live" lets go. Marks closer on the track than a

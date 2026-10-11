@@ -41,7 +41,7 @@ export interface Column<R> {
   readonly width?: number | string;
   readonly className?: string;
   readonly cell: (row: R) => React.ReactNode;
-  /** In the Diff tab: what the cell shows before and after `change`, or
+  /** In State's diff: what the cell shows before and after `change`, or
    * undefined when the change left it alone */
   readonly changed?: (
     change: RowDiff,

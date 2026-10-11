@@ -135,7 +135,7 @@ const headers = () =>
 function mount(s = state, r = registry()) {
   const ui = (s: State<unknown>) => (
     <StateContext.Provider value={s}>
-      <StorePanel groupId="test" registry={r} history={0} />
+      <StorePanel registry={r} history={0} />
     </StateContext.Provider>
   );
   const result = render(ui(s));

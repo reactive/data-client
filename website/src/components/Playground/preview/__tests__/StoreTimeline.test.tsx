@@ -47,7 +47,7 @@ function mount() {
       devButton={null}
     >
       <Grab />
-      <StorePanel groupId="test" registry={registry} history={0} />
+      <StorePanel registry={registry} history={0} />
     </DataProvider>,
   );
   return { ctrl: () => ref.ctrl! };
@@ -73,12 +73,21 @@ const toggle = () =>
 const lanes = () => screen.getByRole('group', { name: /^Timeline/ });
 /** The bar over the content: State's view switch, and the tabs */
 const stateBar = () => screen.getByRole('tablist').parentElement!;
-/** The Actions tab: a click shows the subject's actions at full width, the
- * mouse resting on it peeks at them */
-const paneToggle = () => screen.getByRole('tab', { name: 'Actions' });
-/** Shows tab `name` */
-const showTab = (name: 'Snapshot' | 'Diff' | 'Actions') =>
-  fireEvent.click(screen.getByRole('tab', { name }));
+/** The scrubber's list button: a click shows the subject's actions at full
+ * width, the mouse resting on it peeks at them */
+const paneToggle = () =>
+  within(screen.getByRole('group', { name: /^Scrubber/ })).getByRole('button', {
+    name: 'Actions',
+  });
+/** Shows the State tab as `Snapshot` or `Diff`, or the actions' list */
+const showTab = (name: 'Snapshot' | 'Diff' | 'Actions') => {
+  if (name === 'Actions') {
+    fireEvent.click(paneToggle());
+    return;
+  }
+  fireEvent.click(screen.getByRole('tab', { name: 'State' }));
+  fireEvent.click(screen.getByRole('button', { name }));
+};
 /** The actions peeking beside State */
 const pane = () => screen.queryByRole('complementary', { name: 'Actions' });
 /** The mouse coming onto `el` (`inside`), or leaving it, and the peek's
@@ -144,10 +153,10 @@ describe('timeScale', () => {
       entry(4, 60201, fetch),
     ]);
     const [a, b, c, d] = [1, 2, 3, 4].map(seq => scale.x.get(seq)!);
-    expect(b - a).toBe(10);
+    expect(b - a).toBe(12);
     expect(c - b).toBeCloseTo(16);
-    expect(d - c).toBe(56);
-    expect(scale.breaks).toEqual([c + 28]);
+    expect(d - c).toBe(84);
+    expect(scale.breaks).toEqual([c + 42]);
     expect(scale.end).toBe(d);
     expect(scale.width).toBe(d + 24);
   });
@@ -805,7 +814,7 @@ describe('Store Actions pane', () => {
     expect(pane()).toBeNull();
     const button = paneToggle();
     hover(button, true);
-    expect(button.getAttribute('aria-selected')).toBe('false');
+    expect(button.getAttribute('aria-pressed')).toBe('false');
     expect(pane()).toBeTruthy();
     expect(top()).toBeTruthy();
     expect(top()!.closest('[inert]')).toBeNull();
@@ -830,7 +839,7 @@ describe('Store Actions pane', () => {
     // the tab shows them at full width instead, and peeks no more
     showTab('Actions');
     expect(pane()).toBeNull();
-    expect(button.getAttribute('aria-selected')).toBe('true');
+    expect(button.getAttribute('aria-pressed')).toBe('true');
     resize(800);
     hover(button, false);
     hover(button, true);

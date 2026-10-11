@@ -26,6 +26,8 @@ export interface EditorSurfaceProps extends CodeModel {
   cover?: React.ReactNode;
   /** Whether `cover` hides the code (which goes inert) */
   covered?: boolean;
+  /** Names `cover` in the header while it hides the code */
+  coverTitle?: React.ReactNode;
   /** Called when the user switches to another file tab */
   onTabSelect?: () => void;
 }
@@ -40,6 +42,7 @@ export default function EditorSurface({
   headerControls,
   cover,
   covered = false,
+  coverTitle,
   onTabSelect,
 }: EditorSurfaceProps) {
   const id = useModelId();
@@ -146,6 +149,8 @@ export default function EditorSurface({
       <EditorHeader
         fixtureContent={!row ? fixtureContent : undefined}
         title={row && documents.length === 1 ? documents[0].title : undefined}
+        covered={covered}
+        coverTitle={coverTitle}
         controls={headerControls}
       />
       {tabsCovered ? null : tabs}
@@ -293,10 +298,15 @@ function EditorHeader({
       Editor
     </Translate>
   ),
+  covered,
+  coverTitle,
   fixtureContent,
   controls,
 }: {
   title?: React.ReactNode;
+  /** The cover hides the code: the title names it, sliding in as it does */
+  covered: boolean;
+  coverTitle?: React.ReactNode;
   fixtureContent?: React.ReactNode;
   controls?: React.ReactNode;
 }) {
@@ -311,8 +321,20 @@ function EditorHeader({
         </>
       : null}
       {controls != null ?
-        <Header className={clsx(styles.tabControls, styles.controlTabs)}>
-          <div className={styles.title}>{title}</div>
+        <Header
+          className={clsx(styles.tabControls, styles.controlTabs, {
+            [styles.overCover]: covered,
+          })}
+        >
+          <div className={styles.title}>
+            <span
+              className={clsx(styles.swap, styles.titleSwap)}
+              data-swapped={covered || undefined}
+            >
+              <span aria-hidden={covered}>{title}</span>
+              <span aria-hidden={!covered}>{coverTitle}</span>
+            </span>
+          </div>
           {controls}
         </Header>
       : null}

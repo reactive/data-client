@@ -17,7 +17,7 @@ import {
   type SubjectFilter,
 } from './actionGroups';
 import type ActionLog from './actionLog';
-import { stepMoment, type LogEntry } from './actionLog';
+import type { LogEntry } from './actionLog';
 import { ActionName } from './actionParts';
 import {
   droppedIn,
@@ -41,9 +41,9 @@ import { useTabStorage } from '../../../../utils/tabStorage';
 /** Pixels per millisecond between two actions */
 const PX_PER_MS = 0.08;
 /** Closest two actions get (px), so a burst stays apart */
-const MIN_GAP = 10;
+const MIN_GAP = 12;
 /** Farthest two actions get (px): an idle stretch shows as a break */
-const MAX_GAP = 56;
+const MAX_GAP = 84;
 /** Space before the first action and after the last (px) */
 const PAD = 24;
 /** Closest two axis labels get (px) */
@@ -102,8 +102,9 @@ export function lanesOf(groups: readonly ActionGroup[]): Lane[] {
   return [...lanes].map(([key, groups]) => ({ key, groups }));
 }
 
-/** What the scrubber's row holds beside its track: ‹ ›, Live and ▾ (px) */
-const SCRUB_CONTROLS = 170;
+/** What the scrubber's row holds beside its track: ‹ ›, Live, the list
+ * and ▾ (px) */
+const SCRUB_CONTROLS = 198;
 /** Scrubber marks closer than this (px) draw as one: a mark's width
  * (`.tlMark`) and a gap, so none overlap */
 const MERGE_PX = 12;
@@ -309,20 +310,29 @@ function drawer({
 /** The whole history in one lane, fit to the panel's width, with the moment
  * on it: ‹ › and the arrow keys step through the actions `hit` says
  * touched the subject (past the newest is live, as End is), a mark lands on
- * its action. Says which action the moment is after, while it is in the
- * past, opening it in the Actions tab; `▾` expands the timeline */
+ * its action. Its actions as a list sit beside the ▾: they peek as the mouse rests
+ * there, and open in full on a click. Says which action the moment is
+ * after, while it is in the past, opening it in the Action tab; `▾` expands
+ * the timeline */
 export const Scrubber = memo(function Scrubber({
   entry,
   hit,
+  onMark,
   width,
   expanded,
   expandRef,
   onExpand,
+  listed,
+  listRef,
+  onList,
+  onListHover,
 }: {
   /** The moment's action; missing while live */
   entry?: LogEntry;
-  /** What the steps follow: the subject's actions */
+  /** The subject's actions; the others' marks dim */
   hit: SubjectFilter['hit'];
+  /** A mark picked (not as ‹ › step): makes it the moment */
+  onMark: (seq: number) => void;
   /** Panel width (px), to tell which marks crowd each other */
   width: number;
   /** Whether the timeline is shown under it */
@@ -330,10 +340,16 @@ export const Scrubber = memo(function Scrubber({
   /** The ▾, for focus to return to as the timeline shuts */
   expandRef?: React.Ref<HTMLButtonElement>;
   onExpand: (expanded: boolean) => void;
+  /** The list is shown in full */
+  listed: boolean;
+  /** The list's button, which a press outside the peek leaves it open on */
+  listRef?: React.Ref<HTMLButtonElement>;
+  onList: () => void;
+  /** The pointer came onto the list's button (`true`) or left it */
+  onListHover: (inside: boolean, e: React.PointerEvent) => void;
 }) {
-  const { history, groups } = useActions();
-  const { seq: selected, whole, set: onSelect, show } = useNavState();
-  const { entries } = history;
+  const { groups } = useActions();
+  const { whole, earlier, later, set: onSelect, show } = useNavState();
   // a row picked stands for its whole group: the label names that
   const group = whole && entry ? groupOf(groups, entry.seq) : undefined;
   // the track fits the panel beside the controls: marks a few px apart
@@ -341,11 +357,9 @@ export const Scrubber = memo(function Scrubber({
   // (a panel not laid out, measuring 0, merges nothing)
   const { shown, scale, drawn, marks, decor } = useDrawer(
     hit,
-    onSelect,
+    onMark,
     width > 0 ? width - SCRUB_CONTROLS : undefined,
   );
-  const earlier = stepMoment(entries, selected, -1, hit);
-  const later = stepMoment(entries, selected, 1, hit);
 
   // a step that removes (Live) or turns off (an end reached) the button
   // pressed hands focus to one still there
@@ -356,20 +370,12 @@ export const Scrubber = memo(function Scrubber({
     onSelect(to);
   };
   const onKeyDown = (e: React.KeyboardEvent) => {
-    switch (e.key) {
-      case 'ArrowLeft':
-        if (earlier !== undefined) step(earlier);
-        break;
-      case 'ArrowRight':
-        if (later !== undefined) step(later);
-        break;
-      case 'End':
-        if (entry) step(null);
-        break;
-      default:
-        return;
+    // ← → step as they do across the panel, which takes them on from here
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') hold();
+    else if (e.key === 'End' && entry) {
+      e.preventDefault();
+      step(null);
     }
-    e.preventDefault();
   };
 
   return (
@@ -384,6 +390,7 @@ export const Scrubber = memo(function Scrubber({
       <div className={styles.scrubRow}>
         <button
           type="button"
+          data-step
           aria-label="Previous change"
           disabled={earlier === undefined}
           onClick={() => earlier !== undefined && step(earlier)}
@@ -392,6 +399,7 @@ export const Scrubber = memo(function Scrubber({
         </button>
         <button
           type="button"
+          data-step
           aria-label="Next change"
           disabled={later === undefined}
           onClick={() => later !== undefined && step(later)}
@@ -426,6 +434,19 @@ export const Scrubber = memo(function Scrubber({
             Live
           </span>
         }
+        <button
+          type="button"
+          ref={listRef}
+          className={styles.expand}
+          aria-label="Actions"
+          title="Actions"
+          aria-pressed={listed}
+          onPointerEnter={e => !listed && onListHover(true, e)}
+          onPointerLeave={e => onListHover(false, e)}
+          onClick={onList}
+        >
+          <ListIcon />
+        </button>
         <button
           type="button"
           ref={expandRef}
@@ -467,26 +488,21 @@ export const Scrubber = memo(function Scrubber({
 export default memo(function Timeline({
   width,
   hit,
-  onPick,
+  onMark,
 }: {
   /** Panel width (px) */
   width: number;
-  /** What the steps follow: the subject's actions */
+  /** The subject's actions; the others' marks dim */
   hit: SubjectFilter['hit'];
-  /** Called as a pick lands on content under the timeline: a mark (not as
-   * the keys step) */
-  onPick?: () => void;
+  /** A mark picked (not as the keys step): makes it the moment */
+  onMark: (seq: number) => void;
 }) {
   const { history, groups } = useActions();
   const { seq: selected, set } = useNavState();
   const [spacing, setSpacing] = useTabStorage('playgroundTimelineSpacing');
   const { entries, since } = history;
   const lanes = useMemo(() => lanesOf(groups), [groups]);
-  const onSelect = (seq: number) => {
-    set(seq);
-    onPick?.();
-  };
-  const { shown, scale, pos, drawn, decor } = useDrawer(hit, onSelect);
+  const { shown, scale, pos, drawn, decor } = useDrawer(hit, onMark);
   const narrow = width < NARROW_WIDTH;
   const labelWidth = narrow ? LABEL_WIDTH.narrow : LABEL_WIDTH.wide;
   // detailed (the default), it scrolls sideways, kept on the newest while
@@ -551,29 +567,14 @@ export default memo(function Timeline({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fit]);
 
-  // the arrow keys step as the scrubber's ‹ › do; past the newest is live
-  // (End too; live already, it brings the newest back into view). Escape is
-  // the levels' way back, so it stays theirs
-  const toLive = () => {
-    if (selected === null) toNewest();
-    else set(null);
-  };
-  const step = (by: -1 | 1) => {
-    const to = stepMoment(entries, selected, by, hit);
-    if (to !== undefined) set(to);
-    // live already, it brings the newest back into view
-    else if (by > 0) toNewest();
-  };
+  // ← → step as they do across the panel, which takes them on from here;
+  // End returns to live (live already, it brings the newest back into
+  // view). Escape is the levels' way back, so it stays theirs
   const onKeyDown = (e: React.KeyboardEvent) => {
     switch (e.key) {
-      case 'ArrowLeft':
-        step(-1);
-        break;
-      case 'ArrowRight':
-        step(1);
-        break;
       case 'End':
-        toLive();
+        if (selected === null) toNewest();
+        else set(null);
         break;
       // the lanes scroll from here, as a focused scroller's would
       case 'ArrowUp':
@@ -730,6 +731,15 @@ function ChevronIcon() {
   return (
     <svg viewBox="0 0 16 16" aria-hidden="true">
       <path d="M4 6.5l4 4 4-4" />
+    </svg>
+  );
+}
+
+/** Rows of text */
+function ListIcon() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M2.5 4h2M6.5 4h7M2.5 8h2M6.5 8h7M2.5 12h2M6.5 12h7" />
     </svg>
   );
 }

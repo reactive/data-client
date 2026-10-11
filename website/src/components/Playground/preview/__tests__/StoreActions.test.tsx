@@ -94,7 +94,7 @@ function mount(preview?: React.ReactNode, limit?: number) {
     <DataProvider managers={managers} devButton={null}>
       <Grab />
       {preview}
-      <StorePanel groupId="test" registry={registry} history={history} />
+      <StorePanel registry={registry} history={history} />
     </DataProvider>
   );
   const { rerender } = render(ui(0));
@@ -117,15 +117,21 @@ const unsubscribe = (key = 'other') => ({
   key,
   endpoint: {},
 });
-/** The Actions tab: the subject's actions at full width, one row per
+/** The Action tab's list: the subject's actions at full width, one row per
  * request */
 const openPane = () => fireEvent.click(actionsToggle());
-/** The Snapshot tab: the subject at the moment */
-const openState = () =>
-  fireEvent.click(screen.getAllByRole('tab', { name: 'Snapshot' })[0]);
-/** The Diff tab: what the moment's action did to the subject */
-const openDiff = () =>
-  fireEvent.click(screen.getAllByRole('tab', { name: 'Diff' })[0]);
+/** The State tab, as `mode` shows it */
+const stateAs = (mode: 'Snapshot' | 'Diff') => {
+  fireEvent.click(screen.getAllByRole('tab', { name: 'State' })[0]);
+  fireEvent.click(screen.getAllByRole('button', { name: mode })[0]);
+};
+/** The State tab's snapshot: the subject at the moment */
+const openState = () => stateAs('Snapshot');
+/** The State tab's diff: what the moment's action did to the subject */
+const openDiff = () => stateAs('Diff');
+/** The Action tab: the moment's action */
+const openAction = () =>
+  fireEvent.click(screen.getAllByRole('tab', { name: 'Action' })[0]);
 /** State's store, its root level */
 const toRoot = () => {
   openState();
@@ -144,9 +150,13 @@ const paneHead = () => peek()!.firstElementChild!.textContent!;
 const listCount = () =>
   within(top()).getByRole('navigation', { name: 'Store location' })
     .nextElementSibling!.textContent;
-/** The Actions tab: a click lists the subject's actions at full width,
- * the mouse resting on it peeks at them */
-const actionsToggle = () => screen.getAllByRole('tab', { name: 'Actions' })[0];
+/** The scrubber's list button: a click lists the subject's actions at full
+ * width, the mouse resting on it peeks at them */
+const actionsToggle = () =>
+  within(screen.getAllByRole('group', { name: /^Scrubber/ })[0]).getByRole(
+    'button',
+    { name: 'Actions' },
+  );
 /** The pointer coming onto `el` (`inside`), or leaving it */
 const hover = (el: Element, inside: boolean, pointerType = 'mouse') => {
   const event = new MouseEvent(inside ? 'pointerover' : 'pointerout', {
@@ -294,7 +304,7 @@ describe('Store Actions pane detail', () => {
     expect(document.activeElement).toBe(top());
   });
 
-  it('going live leaves no action in the stack, under the top or on it', async () => {
+  it('going live shows the newest action, under the top or on it', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
     openPane();
@@ -302,9 +312,9 @@ describe('Store Actions pane detail', () => {
     // a record the action added, opened from it
     fireEvent.click(within(top()).getByRole('button', { name: '+ Post 1' }));
     expect(crumbs()).toEqual(['Actions', 'GET /posts', 'Post 1']);
-    // the list stays, the actions over it go
+    // the action under the record follows to the newest: its request's
     fireEvent.click(screen.getByRole('button', { name: 'Live' }));
-    expect(crumbs()).toEqual(['Actions']);
+    expect(crumbs()).toEqual(['Actions', 'GET /posts', 'Post 1']);
   });
 
   it('scopes the changes to the subject it is over', async () => {
@@ -370,10 +380,10 @@ describe('Store Actions pane detail', () => {
     expect(crumbs()).toEqual(['Actions', 'setResponse GET /posts', 'Post 1']);
     fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
     expect(crumbs()).toEqual(['Actions', 'set Post', 'Post 1']);
-    // past the newest, live: the action view goes, back to the list
+    // past the newest, live: the action view shows the newest
     fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
     expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
-    expect(crumbs()).toEqual(['Actions']);
+    expect(crumbs()).toEqual(['Actions', 'set Post', 'Post 1']);
   });
 
   it('opens the action from the scrubber’s label and a record’s last change, with focus', async () => {
@@ -479,7 +489,7 @@ describe('Store Actions pane detail', () => {
     expect(peek()).toBeNull();
     wait();
     expect(paneHead()).toBe('Actions' + '1');
-    expect(toggle.getAttribute('aria-selected')).toBe('false');
+    expect(toggle.getAttribute('aria-pressed')).toBe('false');
     // State stays laid out under it
     expect(top().closest('[inert]')).toBeNull();
     expect(crumbs()).toEqual([]);
@@ -492,14 +502,14 @@ describe('Store Actions pane detail', () => {
     hover(peek()!, false);
     wait();
     expect(peek()).toBeNull();
-    // a click opens the tab instead, which peeks no more
+    // a click opens the list instead, which peeks no more
     hover(toggle, true);
     wait();
     fireEvent.click(toggle);
     expect(peek()).toBeNull();
     expect(crumbs()).toEqual(['Actions']);
     expect(listCount()).toBe('1');
-    expect(toggle.getAttribute('aria-selected')).toBe('true');
+    expect(toggle.getAttribute('aria-pressed')).toBe('true');
     hover(toggle, false);
     hover(toggle, true);
     wait();
@@ -508,7 +518,7 @@ describe('Store Actions pane detail', () => {
     openState();
     expect(peek()).toBeNull();
     expect(crumbs()).toEqual([]);
-    expect(toggle.getAttribute('aria-selected')).toBe('false');
+    expect(toggle.getAttribute('aria-pressed')).toBe('false');
   });
 
   it('moves the moment to a row peeked, staying over State', async () => {
@@ -528,7 +538,7 @@ describe('Store Actions pane detail', () => {
     openDiff();
     expect(crumbs()).toEqual(['Store', 'Post 1']);
     expect(top().textContent).toContain('+Post 1id: "1", title: "One"');
-    expect(actionsToggle().getAttribute('aria-selected')).toBe('false');
+    expect(actionsToggle().getAttribute('aria-pressed')).toBe('false');
   });
 
   it('closes with Escape or a press outside, back to its toggle', async () => {
@@ -573,7 +583,7 @@ describe('Store Actions pane detail', () => {
     fireEvent.click(rows()[0]);
     openState();
     fireEvent.click(screen.getByLabelText('Tree view'));
-    openPane();
+    openAction();
     expect(crumbs()).toEqual(['Actions', 'GET /posts']);
   });
 
@@ -587,7 +597,7 @@ describe('Store Actions pane detail', () => {
     const action = top();
     openState();
     expect(top()).toBe(record);
-    openPane();
+    openAction();
     expect(top()).toBe(action);
   });
 
@@ -595,12 +605,12 @@ describe('Store Actions pane detail', () => {
     // a page holds several playgrounds, each with a store panel
     const other = new SchemaRegistry({ trimEvery: 1 });
     other.log.connect(0);
-    const { ctrl } = mount(
-      <StorePanel groupId="test" registry={other} history={0} />,
-    );
+    const { ctrl } = mount(<StorePanel registry={other} history={0} />);
     await act(() => ctrl().fetch(getPosts));
     jest.useFakeTimers();
-    const [first, mine] = screen.getAllByRole('tab', { name: 'Actions' });
+    const [first, mine] = screen
+      .getAllByRole('group', { name: /^Scrubber/ })
+      .map(bar => within(bar).getByRole('button', { name: 'Actions' }));
     hover(mine, true);
     wait();
     expect(
@@ -739,7 +749,7 @@ describe('Store Actions pane', () => {
     }
   });
 
-  it('keeps focus on the scrubber as going live closes the action', async () => {
+  it('keeps focus on the scrubber as going live shows the newest action', async () => {
     const { ctrl } = mount();
     await act(() => ctrl().fetch(getPosts));
     await act(() =>
@@ -750,7 +760,7 @@ describe('Store Actions pane', () => {
     expect(crumbs()).toContain('Actions');
     scrubber().focus();
     fireEvent.keyDown(scrubber(), { key: 'End' });
-    expect(crumbs()).toEqual(['Actions']);
+    expect(crumbs()).toEqual(['Actions', 'set Post']);
     expect(document.activeElement).toBe(scrubber());
   });
 
@@ -1189,7 +1199,7 @@ describe('Store diff', () => {
       r.dataset.id,
       r.dataset.change,
     ]);
-  const diffTab = () => screen.getByRole('tab', { name: 'Diff' });
+  const diffTab = () => screen.getByRole('button', { name: 'Diff' });
 
   it('shows only what the moment’s action changed, the snapshot all of it', async () => {
     const { ctrl } = mount();
@@ -1209,7 +1219,7 @@ describe('Store diff', () => {
       within(scrubber()).getByText('Live').getAttribute('aria-current'),
     ).toBeNull();
     // the set: just the row it updated, marked so; no endpoints section
-    expect(diffTab().getAttribute('aria-selected')).toBe('true');
+    expect(diffTab().getAttribute('aria-pressed')).toBe('true');
     expect(tableRows()).toEqual([[entityId('Post', '1'), 'updated']]);
     expect(top().textContent).not.toContain('Endpoints');
     // the response: what it added, endpoint and entities alike
@@ -1223,7 +1233,7 @@ describe('Store diff', () => {
     );
     // the snapshot: the whole store it left, unmarked
     openState();
-    expect(diffTab().getAttribute('aria-selected')).toBe('false');
+    expect(diffTab().getAttribute('aria-pressed')).toBe('false');
     expect(top().textContent).toContain('"One"');
     expect(tableRows().every(([, change]) => change === undefined)).toBe(true);
     fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
@@ -1539,15 +1549,163 @@ describe('Store diff', () => {
 });
 
 describe('Store action level', () => {
+  /** The Action tab's line for the action before or after the one shown */
+  const step = (dir: 'Before' | 'After') =>
+    [...top().children].find(el => el.textContent!.includes(dir))!;
+
+  it('shows the newest action live, stepping to those before and after it', async () => {
+    const { ctrl } = mount();
+    openAction();
+    expect(crumbs()).toEqual(['Actions', 'Newest']);
+    expect(top().textContent).toContain('Nothing dispatched yet');
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+    );
+    // live: the newest, after it nothing yet
+    expect(crumbs()).toEqual(['Actions', 'set Post']);
+    expect(top().textContent).toMatch(/title: "One" → "Edited"/);
+    expect(step('Before').textContent).toContain('setResponse GET /posts');
+    expect(step('After').textContent).toContain('this is live');
+    // the one before becomes the moment, in the same level
+    const level = top();
+    fireEvent.click(step('Before'));
+    expect(top()).toBe(level);
+    expect(crumbs()).toEqual(['Actions', 'setResponse GET /posts']);
+    expect(scrubber().textContent).toContain('After setResponse GET /posts');
+    expect(step('Before').textContent).toContain('nothing the log kept');
+    expect(step('After').textContent).toContain('set Post');
+    fireEvent.click(step('After'));
+    expect(crumbs()).toEqual(['Actions', 'set Post']);
+    // past the newest is live again
+    expect(step('After').textContent).toContain('Live');
+    fireEvent.click(step('After'));
+    expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
+    expect(crumbs()).toEqual(['Actions', 'set Post']);
+    // Back lists them all
+    backTo('Actions');
+    expect(rows()).toHaveLength(2);
+  });
+
+  it('shows the newest request live as one, its optimistic update too', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    let done: Promise<unknown> = Promise.resolve();
+    await act(async () => {
+      done = ctrl().fetch(updatePost, { id: '1' }, { title: 'Edited' });
+    });
+    // pending, the request so far: its optimistic update
+    openAction();
+    expect(crumbs()).toEqual(['Actions', 'fetch optimistic PATCH /posts/1']);
+    expect(top().textContent).toMatch(/title: "One" → "Edited"/);
+    await act(async () => {
+      release(undefined);
+      await done;
+    });
+    expect(crumbs()).toEqual(['Actions', 'PATCH /posts/1']);
+    expect(top().textContent).toMatch(/title: "One" → "Edited!"/);
+    expect(top().textContent).toContain('this is live');
+  });
+
+  it('shows the newest poll live as its own request', async () => {
+    const { ctrl } = mount();
+    let n = 0;
+    const polled = new Endpoint(
+      async () => [{ id: '1', title: `poll ${n++}` }],
+      {
+        schema: [Post],
+        key: () => POSTS,
+        name: 'polled',
+        pollFrequency: 1e6,
+      },
+    );
+    await act(async () => {
+      await ctrl().subscribe(polled);
+      await ctrl().fetch(polled);
+      await ctrl().fetch(polled);
+    });
+    openAction();
+    // the poll before it, however many the subscription made
+    expect(top().textContent).toContain(`"poll ${n - 2}" → "poll ${n - 1}"`);
+    expect(top().textContent).not.toContain('"poll 0"');
+  });
+
+  it("goes back to the moment's action as its tab is picked over the list", async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+    );
+    openPane();
+    expect(crumbs()).toEqual(['Actions']);
+    openAction();
+    expect(crumbs()).toEqual(['Actions', 'set Post']);
+    // at a moment, its action
+    previous();
+    previous();
+    openPane();
+    openAction();
+    expect(crumbs()).toEqual(['Actions', 'setResponse GET /posts']);
+  });
+
+  it('opens the action a timeline mark picks while it lists them', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+    );
+    const mark = (name: RegExp) =>
+      within(scrubber()).getByRole('button', { name });
+    openPane();
+    expect(crumbs()).toEqual(['Actions']);
+    const list = top();
+    fireEvent.click(mark(/^set at/));
+    expect(crumbs()).toEqual(['Actions', 'set Post']);
+    // a step moves it on, in place
+    previous();
+    expect(crumbs()).toEqual(['Actions', 'setResponse GET /posts']);
+    backTo('Actions');
+    expect(top()).toBe(list);
+    // stepping over the list only marks the moment there
+    fireEvent.click(screen.getByRole('button', { name: 'Next change' }));
+    expect(crumbs()).toEqual(['Actions']);
+    // in State, a mark only moves the moment
+    openState();
+    fireEvent.click(mark(/^setResponse at/));
+    expect(crumbs()).toEqual([]);
+    expect(scrubber().textContent).toContain('After setResponse GET /posts');
+  });
+
+  it('steps the timeline with ← → from anywhere they mean nothing else', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() =>
+      ctrl().set(Post, { id: '1' }, { id: '1', title: 'Edited' }),
+    );
+    openPost('1');
+    fireEvent.keyDown(top(), { key: 'ArrowLeft' });
+    expect(scrubber().textContent).toContain('After set Post');
+    fireEvent.keyDown(top(), { key: 'ArrowLeft' });
+    expect(scrubber().textContent).toContain('After setResponse GET /posts');
+    fireEvent.keyDown(top(), { key: 'ArrowRight' });
+    fireEvent.keyDown(top(), { key: 'ArrowRight' });
+    expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
+    // text keeps them for its caret
+    const input = document.createElement('input');
+    top().append(input);
+    fireEvent.keyDown(input, { key: 'ArrowLeft' });
+    expect(screen.queryByRole('button', { name: 'Live' })).toBeNull();
+  });
+
   it('goes with its store: a reset leaves none of its actions showing', async () => {
     const { ctrl, show } = mount();
     await act(() => ctrl().fetch(getPosts));
     openPane();
     fireEvent.click(rows()[0]);
     expect(crumbs()).toEqual(['Actions', 'GET /posts']);
-    // the new store's actions are listed instead
+    // the new store's newest action shows instead, none yet
     await act(async () => show(1));
-    expect(crumbs()).toEqual(['Actions']);
+    expect(crumbs()).toEqual(['Actions', 'Newest']);
     expect(top().textContent).not.toContain('No longer in the log');
   });
 });
@@ -1580,7 +1738,6 @@ describe('Store Actions pane on a record', () => {
     expect(current()).toBe('Post 1');
     expect(top().textContent).toContain('"One"');
     openPane();
-    fireEvent.click(within(top()).getByRole('button', { name: 'Back' }));
     expect(rows()[0].getAttribute('aria-current')).toBe('true');
     // what the action did to the record
     fireEvent.click(rows()[3]);

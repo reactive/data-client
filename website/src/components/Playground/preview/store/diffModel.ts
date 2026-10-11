@@ -13,7 +13,7 @@ export interface RowDiff {
   readonly was?: VNode;
 }
 
-/** What a moment changed, as the Diff tab shows it: `after` with only the rows it
+/** What a moment changed, as State's diff shows it: `after` with only the rows it
  * changed (one it removed as `before` had it), and how it changed each */
 export function diffModel(
   after: StoreModel,

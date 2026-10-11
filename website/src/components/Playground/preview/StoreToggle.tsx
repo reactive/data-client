@@ -71,11 +71,7 @@ export function StoreHeaderToggle({
         styles.headerButton,
         styles.storeHeaderToggle,
       )}
-      title={
-        open ?
-          translate({ id: 'playground.store.hide', message: 'Hide Store' })
-        : translate({ id: 'playground.store.show', message: 'Show Store' })
-      }
+      title={toggleTitle(open)}
       aria-label={translate({ id: 'playground.store', message: 'Store' })}
       aria-pressed={open}
       disabled={!onClick}
@@ -83,6 +79,62 @@ export function StoreHeaderToggle({
     >
       <StoreIcon />
     </button>
+  );
+}
+
+/** The Store toggle in the code's corner, for playgrounds whose Store slides
+ * over the code: it names what it brings back, and stays put as the Store
+ * slides in under it, so a second click finds it where the first left it */
+export function StoreBadge({
+  onClick,
+  open,
+}: {
+  onClick: React.MouseEventHandler<HTMLElement>;
+  open: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      className={clsx('clean-btn', styles.swap, styles.storeBadge)}
+      title={toggleTitle(open)}
+      aria-pressed={open}
+      data-swapped={open || undefined}
+      onClick={onClick}
+    >
+      <span aria-hidden={open}>
+        <span className={styles.storeBadgeDot} />
+        <Translate id="playground.store">Store</Translate>
+      </span>
+      <span aria-hidden={!open}>
+        <CodeIcon />
+        <Translate id="playground.code">Code</Translate>
+      </span>
+    </button>
+  );
+}
+
+const toggleTitle = (open: boolean) =>
+  open ?
+    translate({ id: 'playground.store.hide', message: 'Hide Store' })
+  : translate({ id: 'playground.store.show', message: 'Show Store' });
+
+/** Angle brackets around a slash */
+function CodeIcon() {
+  return (
+    <svg
+      className={styles.storeBadgeCode}
+      viewBox="0 0 24 24"
+      width="1.15em"
+      height="1.15em"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.25"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="m8 7-5 5 5 5M16 7l5 5-5 5M14 4l-4 16" />
+    </svg>
   );
 }
 
