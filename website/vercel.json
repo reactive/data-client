@@ -49,9 +49,9 @@
       "permanent": true
     },
     {
-      "source": "/archives/:version(0\\.\\d+|[1-9]\\d*)/:path*",
-      "destination": "https://:version.dataclient.io/:path*",
-      "permanent": true
+      "source": "/archives/:version(0\\.\\d+|[1-9]\\d*){/:path(.*)}?",
+      "destination": "https://:version.dataclient.io/:path",
+      "permanent": false
     },
     {
       "source": "/next/:path*",
