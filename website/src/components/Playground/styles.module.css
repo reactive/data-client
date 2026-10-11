@@ -294,8 +294,18 @@ div.playgroundTextEdit > .playgroundHeader,
   flex: 0 0 auto;
 }
 
+/* where the sticky Store stops (below); registered so it can ease with the
+   navbar's own slide (theme-classic Navbar/Layout), carrying top and height
+   together while other height changes still snap */
+@property --store-top {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 0px;
+}
 /* The Store drawer (painted before its contents render) */
 .storePanel {
+  --store-top: var(--ifm-navbar-height);
+  transition: --store-top var(--ifm-transition-fast) ease;
   flex: 4 1 40%;
   min-width: 0;
   background: var(--monoco-code-background);
@@ -306,11 +316,20 @@ div.playgroundTextEdit > .playgroundHeader,
 @container playground (min-width: 560px) {
   .playgroundResult > .storePanel > * {
     position: sticky;
-    top: var(--ifm-navbar-height);
-    min-height: max(
-      var(--store-min),
-      min(100%, 100svh - var(--ifm-navbar-height))
-    );
+    top: var(--store-top);
+    min-height: max(var(--store-min), min(100%, 100svh - var(--store-top)));
+  }
+}
+/* the navbar slides away while scrolling down (hideOnScroll), so the Store
+   takes its place rather than leave a gap; its class is a CSS module's,
+   whose name keeps its `navbarHidden_` prefix */
+:global(html:has(.navbar[class*='navbarHidden_'])) .storePanel {
+  --store-top: 0px;
+}
+/* instant, in step with the navbar's hide (css/customTheme.css) */
+@media (prefers-reduced-motion: reduce) {
+  .storePanel {
+    transition: none;
   }
 }
 [data-theme='dark'] .storePanel {

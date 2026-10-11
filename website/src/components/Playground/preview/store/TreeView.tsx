@@ -31,6 +31,7 @@ import {
 } from './StoreUI';
 import {
   CellChange,
+  changesByField,
   EndpointKey,
   Field,
   field,
@@ -289,7 +290,11 @@ function EntityTreeRow({
         <Chevron open={open} />
         <span className={styles.key}>{prettyPk(row.pk)}</span>
         <span className={styles.trunc}>
-          {change?.fields && table.kind === 'entity' ?
+          {(
+            change?.fields &&
+            table.kind === 'entity' &&
+            changesByField(row.value, change.was)
+          ) ?
             <FieldChanges row={row} fields={change.fields} was={change.was} />
           : change?.was ?
             <CellChange was={change.was} now={row.value} name="value">
