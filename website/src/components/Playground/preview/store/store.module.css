@@ -164,7 +164,6 @@
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  overscroll-behavior: contain;
 }
 .paneSubject {
   display: inline-flex;
@@ -235,7 +234,6 @@
   min-width: 0;
   min-height: 0;
   overflow-y: auto;
-  overscroll-behavior: contain;
   outline: none;
   container-type: inline-size;
 }
@@ -1451,7 +1449,6 @@ div.joined {
   flex: none;
   width: var(--tl-label);
   overflow-y: auto;
-  overscroll-behavior: contain;
   scrollbar-width: none;
   box-shadow: inset -1px 0 0 var(--store-line);
 }
@@ -1468,7 +1465,6 @@ div.joined {
   flex: 1 1 0;
   min-width: 0;
   overflow: auto;
-  overscroll-behavior: contain;
   /* a mark scrolled into view clears the axis */
   scroll-padding-top: var(--tl-row);
 }
