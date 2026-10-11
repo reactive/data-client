@@ -7,6 +7,7 @@ export default function initManager(
   initialState: State<unknown>,
 ) {
   return () => {
+    controller.awaitingInit = false;
     managers.forEach(manager => {
       manager.init?.(initialState);
     });

@@ -799,6 +799,8 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      * Handles garbage collection
      */
     readonly gcPolicy: GCInterface;
+    /** Internal: set by a provider that will call initManager() for this controller, until it does */
+    awaitingInit?: boolean;
     constructor({ dispatch, getState, memo, gcPolicy, }?: ControllerConstructorProps<D>);
     set dispatch(dispatch: D);
     get dispatch(): D;
@@ -1055,7 +1057,9 @@ interface FetchingMeta {
     resolve: (value?: any) => void;
     reject: (value?: any) => void;
     fetchedAt: number;
+    parked?: [FetchAction['endpoint'], Resolution];
 }
+type Resolution = Parameters<Controller['resolve']>[1];
 /** Handles all async network dispatches
  *
  * Dedupes concurrent requests by keeping track of all fetches in flight
@@ -1078,6 +1082,8 @@ declare class NetworkManager implements Manager {
     middleware: Middleware;
     /** On mount */
     init(): void;
+    /** Publishes parked results; scans again here so a RESET before this job drops them */
+    protected publishParked(): void;
     /** Ensures all promises are completed by rejecting remaining. */
     cleanup(): void;
     /** Used by DevtoolsManager to determine whether to log an action */
@@ -1097,6 +1103,8 @@ declare class NetworkManager implements Manager {
      * for ensures mutation requests always go through.
      */
     protected handleFetch(action: FetchAction): Promise<any>;
+    /** Resolves a fetch, or parks a throttled result on its record until init() if the controller awaits it */
+    protected publish(action: FetchAction, resolution: Resolution, throttle: boolean): void;
     /** Called when middleware intercepts a set action.
      *
      * Will resolve the promise associated with set key.

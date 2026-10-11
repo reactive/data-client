@@ -107,6 +107,9 @@ export default class Controller<
    */
   declare readonly gcPolicy: GCInterface;
 
+  /** Internal: set by a provider that will call initManager() for this controller, until it does */
+  declare awaitingInit?: boolean;
+
   constructor({
     dispatch = unsetDispatch as any,
     getState = unsetState,
