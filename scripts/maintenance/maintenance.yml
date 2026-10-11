@@ -47,9 +47,11 @@ jobs:
           branch="port/$GITHUB_REF_NAME-${GITHUB_SHA::8}"
           git switch -c "$branch" origin/master
           # Version bumps are this branch's own: release.yml's commit message,
-          # with the PR number once its Version Packages PR is squash-merged
+          # with the PR number once its Version Packages PR is squash-merged.
+          # So is a commit with a `Maintenance-only:` trailer saying why.
           commits="$(git log --reverse --format=%H -E --invert-grep \
-            --grep='^internal: Publish new version( \(#[0-9]+\))?$' "$BEFORE..$GITHUB_SHA")"
+            --grep='^internal: Publish new version( \(#[0-9]+\))?$' \
+            --grep='^Maintenance-only:' "$BEFORE..$GITHUB_SHA")"
           [ -n "$commits" ] || { echo "Nothing to port"; exit 0; }
           # shellcheck disable=SC2086
           if ! git cherry-pick -x $commits; then
