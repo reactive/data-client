@@ -19,11 +19,12 @@ change to keep what merged since. The script:
     `latest-<version>` after, so `latest` stays on the newest major;
   - points its pages' edit links and its GitHub release tags at the branch, and drops
     `versionCurrent.json` (a release tag predates its archive listing PR deleting it);
-  - drops master's pending changesets: they're the next major's and release from master, so the
-    branch versions only its own fixes;
+  - drops master's pending changesets, listing them: they're the next major's and release from
+    master, so the branch versions only its own fixes. A `ref` past the last release keeps their
+    code, so re-add any the branch's next release should list;
   - adds `maintenance.yml`, which redeploys the docs (dispatching master's `site-preview.yml`) and
     opens a PR cherry-picking each push onto master, skipping its version bumps and commits with a
-    `Maintenance-only: <why>` trailer. A pick that doesn't apply leaves a warning to port it by
+    `Maintenance-only: <why>` line. A pick that doesn't apply leaves a warning to port it by
     hand. The workflow token opens it, so push a commit (or close and reopen) to run its CI.
 - pushes `next-<version>`, adding `website/versionCurrent.json` to master. Merge its PR to switch
   the docs over.
@@ -35,9 +36,10 @@ its branch protection the way master's is.
 
 Open fixes, for packages or docs, as PRs against `<version>.x`, with a changeset as usual. Its
 `release.yml` opens a Version Packages PR there; merging it publishes. Each merge is ported to master
-by `maintenance.yml`, unless its commit message ends with a `Maintenance-only: <why>` trailer (for a
-fix master doesn't need). CircleCI, `release.yml` and `site-preview.yml`'s PR build run on the branch:
-the other Actions workflows it has are from the release it was cut from and run only for master.
+by `maintenance.yml`, unless its commit message has a `Maintenance-only: <why>` line (for a fix
+master doesn't need; keep it in the squash message when merging a PR). CircleCI, `release.yml` and
+`site-preview.yml`'s PR build run on the branch: the other Actions workflows it has are from the
+release it was cut from and run only for master.
 
 Publish blog posts here too: the root's blog is this branch's, so a post runs the version that's
 current when it's published, at the URL it keeps. A post about the next major stays a draft on

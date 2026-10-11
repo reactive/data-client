@@ -48,7 +48,7 @@ jobs:
           git switch -c "$branch" origin/master
           # Version bumps are this branch's own: release.yml's commit message,
           # with the PR number once its Version Packages PR is squash-merged.
-          # So is a commit with a `Maintenance-only:` trailer saying why.
+          # So is a commit with a `Maintenance-only: <why>` line.
           commits="$(git log --reverse --format=%H -E --invert-grep \
             --grep='^internal: Publish new version( \(#[0-9]+\))?$' \
             --grep='^Maintenance-only:' "$BEFORE..$GITHUB_SHA")"
