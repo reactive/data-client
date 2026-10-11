@@ -47,7 +47,7 @@ Any user-facing change in `packages/*` requires a changeset. Core packages are v
   - `references/*.md` listed in a skill's `references.json` are generated from `docs/`; edit the doc, never the reference. `yarn build:skills` regenerates them (an agent pre-push hook makes sure they are committed) and the `regenerate` CI check fails on drift.
 - **Agent rules**: `.cursor/rules/*.mdc` (and nested `<dir>/.cursor/rules`) are the source for both Cursor and Claude Code. `yarn build:agent-rules` generates `.claude/rules/*.md` from them (`globs` become `paths`); never edit those. Every rule needs `globs` or `alwaysApply: true`; guidance pulled in by description alone belongs in a skill. The pre-push hook and the `agent-rules` CI check catch drift.
 - **Agent hooks**: `.cursor/hooks/` scripts are wired in both `.cursor/hooks.json` and `.claude/settings.json`: `eslint-fix.js` fixes uncommitted JS/TS once at the end of each turn and hands errors it can't fix back to the agent, and `pre-push.js` regenerates files and lint-fixes what a push includes. Keep hooks cheap: batch per turn or push, never per edit.
-- **Agent workflows**: `.claude/workflows/` holds Claude Code Workflow scripts. `post-push-review` runs parallel Haiku reviewers (goals, engineering, adversarial, reuse, React data flow) over `{ range }`, the pushed commits (`<sha before push>..HEAD`, or `origin/master...HEAD` for a whole branch), and returns unverified findings for the caller to check.
+- **Agent workflows**: `.claude/workflows/` holds Claude Code Workflow scripts. Run `post-push-review` with `{ range }` after pushing; its `meta` says what it reviews and which range to pass.
 
 ## Key Principles
 
