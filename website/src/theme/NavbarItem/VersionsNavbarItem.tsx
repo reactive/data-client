@@ -75,17 +75,12 @@ type Routes = Record<string, ReadonlySet<string>>;
 
 /** Shared by the desktop and mobile items, so each sitemap loads once */
 let routesRequest: Promise<Routes> | undefined;
-function fetchRoutes() {
-  if (!routesRequest) {
-    const request: Promise<Routes> = requestRoutes().catch(() => {
-      // a failed load is asked again next time
-      if (routesRequest === request) routesRequest = undefined;
-      return {};
-    });
-    routesRequest = request;
-  }
-  return routesRequest;
-}
+const fetchRoutes = () =>
+  (routesRequest ??= requestRoutes().catch(() => {
+    // a failed load is asked again next time
+    routesRequest = undefined;
+    return {};
+  }));
 
 /** Each archive's pages, from its sitemaps (and this locale's, if it has one) */
 async function requestRoutes(): Promise<Routes> {
