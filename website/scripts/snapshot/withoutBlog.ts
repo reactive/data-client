@@ -12,8 +12,9 @@ type SiteConfig = {
 export default function withoutBlog<C extends SiteConfig>(config: C): C {
   return {
     ...config,
-    // Every link, not only the blog's: master's PR builds keep the blog and
-    // check links, and archives were checked when they released
+    // Docusaurus can't ignore only the blog's links, so this ignores every
+    // broken link. Master's PR builds keep the blog and still check them all;
+    // archives were checked when they released.
     onBrokenLinks: 'ignore',
     clientModules: [
       ...(config.clientModules ?? []),
