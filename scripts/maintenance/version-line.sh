@@ -21,6 +21,7 @@ is_prerelease() { [[ "$1" == *-* ]]; }
 #   replaced_line <previous version> <released version> [current line]
 replaced_line() {
   local old="$1" new="$2" prev="${3:-}"
+  # not a new stable release
   if [ "$old" = "$new" ] || is_prerelease "$new"; then return 0; fi
   # a later stable release of the same line
   if ! is_prerelease "$old" && [ "$(line "$old")" = "$(line "$new")" ]; then return 0; fi

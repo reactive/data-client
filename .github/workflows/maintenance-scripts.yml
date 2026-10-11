@@ -4,7 +4,8 @@ on:
   push:
     branches:
       - master
-    # version-line.sh, its tests and the workflows that source it
+    # version-line.sh, its tests, the workflows that source it, and this check's
+    # own wiring (paths-gate.yml reads this list)
     paths:
       - 'scripts/maintenance/**'
       - '.github/workflows/release.yml'
