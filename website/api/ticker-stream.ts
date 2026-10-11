@@ -65,14 +65,17 @@ export function GET(request: Request): Response {
     cancel: stop,
   });
 
-  socket.onopen = () =>
-    socket.send(
-      JSON.stringify({
-        type: 'subscribe',
-        product_ids: productIds,
-        channels: ['ticker_batch'],
-      }),
-    );
+  // one product per subscribe, so an unknown one fails alone
+  socket.onopen = () => {
+    for (const productId of productIds)
+      socket.send(
+        JSON.stringify({
+          type: 'subscribe',
+          product_ids: [productId],
+          channels: ['ticker_batch'],
+        }),
+      );
+  };
   socket.onmessage = event => {
     lastUpstream = Date.now();
     const message = JSON.parse(event.data);

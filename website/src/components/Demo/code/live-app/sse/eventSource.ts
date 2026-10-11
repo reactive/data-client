@@ -4,14 +4,15 @@ export class ReconnectingEventSource {
   onmessage = (data: any) => {};
 
   declare protected source: EventSource | undefined;
+  declare protected url: string | undefined;
+  protected isOpen = false;
   protected attempts = 0;
   declare protected openedAt: number | undefined;
   /** Pending reconnect, or the watchdog while connected */
   declare protected timer: ReturnType<typeof setTimeout>;
 
-  constructor(protected url: string) {}
-
   open() {
+    this.isOpen = true;
     if (!document.hidden) this.connect();
     addEventListener('online', this.reconnect);
     // a stream can take minutes to notice the network is gone
@@ -20,6 +21,7 @@ export class ReconnectingEventSource {
   }
 
   close() {
+    this.isOpen = false;
     removeEventListener('online', this.reconnect);
     removeEventListener('offline', this.stop);
     document.removeEventListener(
@@ -29,8 +31,18 @@ export class ReconnectingEventSource {
     this.stop();
   }
 
+  /** Streams from `url` in place of the current stream;
+   * undefined stops streaming */
+  setUrl(url: string | undefined) {
+    if (url === this.url) return;
+    this.url = url;
+    this.attempts = 0;
+    if (this.isOpen && !document.hidden) this.connect();
+  }
+
   protected connect() {
     this.stop();
+    if (!this.url) return;
     const source = new EventSource(this.url);
     this.source = source;
     this.openedAt = undefined;
