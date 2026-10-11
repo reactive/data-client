@@ -11,6 +11,5 @@ tag=latest
 [ "$(printf '%s\n%s\n' "$ours" "$latest" | sort -V | tail -1)" = "$ours" ] ||
   tag="v$(line "$ours")"
 echo "Publishing $ours as $tag (latest is $latest)"
-yarn build
-yarn workspaces foreach -A --no-private --topological \
-  npm publish --tolerate-republish --access public --tag "$tag"
+# yarn appends the tag to the script's last command, npm publish
+yarn changeset:publish --tag "$tag"

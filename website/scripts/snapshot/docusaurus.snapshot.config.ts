@@ -4,6 +4,7 @@
 // the next major) stays at the root and links to /next/.
 // Keep it to fields every release's config has: it runs against old ones.
 import config from './docusaurus.config';
+import withoutBlog from './withoutBlog';
 
 const version = process.env.SNAPSHOT_VERSION;
 if (!version) throw new Error('SNAPSHOT_VERSION is required');
@@ -33,66 +34,29 @@ const navbarLink = (html: string, path: string) => ({
   position: 'right',
 });
 
-const current = {
-  ...config,
+const site =
+  isCurrent ? config : { ...withoutBlog(config), baseUrl: `/${version}/` };
+
+export default {
+  ...site,
   themeConfig: {
     ...themeConfig,
+    // Root-relative links leave the archive for the latest site
+    ...(!isCurrent && {
+      announcementBar: {
+        id: `archive-${version}`,
+        content: `You're reading the docs for v${version}. <a href="${latestDocs}">See the latest version</a>.`,
+        isCloseable: false,
+      },
+    }),
     navbar: {
       ...navbar,
       items: [
         ...navbarItems,
-        navbarLink(`v${version} → Next`, `/next${latestDocs}`),
+        isCurrent ?
+          navbarLink(`v${version} → Next`, `/next${latestDocs}`)
+        : navbarLink(`v${version} → Latest`, latestDocs),
       ],
     },
   },
 };
-
-const archive = {
-  ...config,
-  baseUrl: `/${version}/`,
-  // The latest site's blog has every post; vercel.json and archive.client.ts
-  // send /<version>/blog there, so links to it only look broken here. The
-  // archive's other links are frozen as released.
-  onBrokenLinks: 'ignore',
-  clientModules: [
-    ...(config.clientModules ?? []),
-    require.resolve('./archive.client'),
-  ],
-  presets: config.presets?.map(preset =>
-    Array.isArray(preset) && preset[0] === '@docusaurus/preset-classic' ?
-      [preset[0], { ...preset[1], blog: false }]
-    : preset,
-  ),
-  // Redirects to a post would fail the build without the blog
-  plugins: config.plugins?.map(plugin =>
-    (
-      Array.isArray(plugin) &&
-      plugin[0] === '@docusaurus/plugin-client-redirects'
-    ) ?
-      [
-        plugin[0],
-        {
-          ...plugin[1],
-          redirects: plugin[1].redirects?.filter(
-            ({ to }: { to: string }) => !to.startsWith('/blog'),
-          ),
-        },
-      ]
-    : plugin,
-  ),
-  themeConfig: {
-    ...themeConfig,
-    // Root-relative links leave the archive for the latest site
-    announcementBar: {
-      id: `archive-${version}`,
-      content: `You're reading the docs for v${version}. <a href="${latestDocs}">See the latest version</a>.`,
-      isCloseable: false,
-    },
-    navbar: {
-      ...navbar,
-      items: [...navbarItems, navbarLink(`v${version} → Latest`, latestDocs)],
-    },
-  },
-};
-
-export default isCurrent ? current : archive;

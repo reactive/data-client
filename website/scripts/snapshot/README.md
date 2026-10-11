@@ -8,8 +8,8 @@ type-check, as they did when that release's CI passed. Archives add nothing to t
 
 - `build.sh <checkout> <version> <out.tar.gz>` builds an archive from a checkout of a release. It
   copies `docusaurus.snapshot.config.ts` beside that release's config, which moves it under
-  `/<version>/`, drops its blog (the latest site has every post; `vercel.json` redirects
-  `/<version>/blog` page loads, and `archive.client.ts` its in-app links), and swaps the version
+  `/<version>/`, drops its blog with `withoutBlog.ts` (the latest site has every post; `vercel.json`
+  redirects `/<version>/blog` page loads, and `archive.client.ts` its in-app links), and swaps the version
   dropdown for a banner and navbar link back to the latest docs. The wrapper runs against old
   configs, so it only reads fields every release has.
 - `.github/workflows/docs-snapshot.yml` runs it in a job with no write token or dependency cache,
@@ -20,7 +20,7 @@ type-check, as they did when that release's CI passed. Archives add nothing to t
   `release.yml` calls the workflow when a breaking version (a 0.x minor, otherwise a major)
   publishes, from the version's maintenance branch if `website/versionCurrent.json` names one. To
   rebuild one, dispatch it with the version and, for a fix, a branch with it (such as that
-  maintenance branch) as `ref`; the listed archive keeps serving until the new listing merges, which
+  maintenance branch) as `ref` (default: the newest tag, from `release-tag.sh`); the listed archive keeps serving until the new listing merges, which
   also deletes `versionCurrent.json` if it names that version.
 - `fetch.sh <build dir>` unpacks every listed archive into the built site once its checksum
   matches, so a changed asset fails the deploy rather than shipping. The build reports that
@@ -39,12 +39,15 @@ starts this by cutting a `<version>.x` maintenance branch and adding `website/ve
 (`{ "version", "ref" }`) to master. While that file exists:
 
 - `site-preview.yml`'s production build of master sets `DOCS_NEXT=1`: `docusaurus.config.ts` builds
-  at `/next/` without the blog (its News and Blog links go to the root's). Every build of master
+  at `/next/` without the blog, through the same `withoutBlog.ts` (its News and Blog links go to the
+  root's). Every build of master
   shows an "unreleased" banner, and the version dropdown reads Next and lists the current version.
 - Its `current` job builds the maintenance branch at the root with `SNAPSHOT_ROLE=current build.sh`
-  (the wrapper adds a navbar link to `/next/`, and keeps the blog and every static file), and
+  (the wrapper adds a navbar link to `/next/`, and keeps the blog and every static file), cached by
+  the branch's commit so master's deploys rebuild it only when the branch changes, and
   `docs deploy` puts it beside `/next/` and the archives. `vercel.json` sends `/next/*` to the root
-  whenever there is no next build (`docs deploy` drops that redirect while there is one), and
+  whenever there is no next build (`docs deploy` drops that redirect while there is one, and fails if
+  it's gone), and
   `/next/blog` to the root's blog.
 - The release of the next major archives the current version from its branch, and the listing PR
   deletes `versionCurrent.json`, so master serves the root again.

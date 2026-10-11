@@ -35,6 +35,8 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          # the picks need only the commits' trees
+          filter: blob:none
       - name: Open a PR porting the push to master
         env:
           GH_TOKEN: ${{ github.token }}
@@ -45,15 +47,16 @@ jobs:
           branch="port/$GITHUB_REF_NAME-${GITHUB_SHA::8}"
           git switch -c "$branch" origin/master
           # Version bumps are this branch's own (release.yml's commit message)
-          commits="$(git log --reverse --format='%H %s' "$BEFORE..$GITHUB_SHA" |
-            grep -v ' internal: Publish new version$' | cut -d' ' -f1)"
+          commits="$(git log --reverse --format=%H --invert-grep \
+            --grep='^internal: Publish new version$' "$BEFORE..$GITHUB_SHA")"
           [ -n "$commits" ] || { echo "Nothing to port"; exit 0; }
           # shellcheck disable=SC2086
           if ! git cherry-pick -x $commits; then
             echo "::warning title=Not ported::$BEFORE..$GITHUB_SHA doesn't apply to master; port it by hand"
             exit 0
           fi
-          git push origin "$branch"
+          # a re-run picks the same commits again, as new ones
+          git push --force origin "$branch"
           gh pr create --base master --head "$branch" \
             --title "$(git log -1 --format=%s "$GITHUB_SHA")" \
             --body "Ports $BEFORE..$GITHUB_SHA from \`$GITHUB_REF_NAME\` (the current version) to master (the next major). Made by maintenance.yml with the workflow token, so push a commit (or close and reopen) to run CI."

@@ -16,23 +16,26 @@ set -euo pipefail
 version="$1"
 here="$(cd "$(dirname "$0")" && pwd)"
 git fetch --tags origin master
-ref="${2:-$(git tag -l "@data-client/react@$version.*" |
-  grep -E "@${version//./\\.}(\.[0-9]+)+$" | sort -V | tail -1 || true)}"
-[ -n "$ref" ] || { echo "No @data-client/react@$version.* tag" >&2; exit 1; }
+ref="${2:-$("$here/../../website/scripts/snapshot/release-tag.sh" "$version")}"
 branch="$version.x"
 tree="$(mktemp -d)"
 trap 'git worktree remove --force "$tree" 2>/dev/null || true' EXIT
 
 git worktree add -b "$branch" "$tree" "$ref"
 cd "$tree"
-# Releases from the branch, without taking npm's `latest` once the next major has it
+# Releases from the branch, without taking npm's `latest` once the next major
+# has it, and builds a site preview for its PRs. The first `- master` in each
+# is its pull_request (site-preview.yml) or push (release.yml) branch.
 sed -i "s/\"baseBranch\": \"master\"/\"baseBranch\": \"$branch\"/" .changeset/config.json
-sed -i -e "0,/^      - master$/s//      - $branch/" \
-  -e 's#publish: yarn changeset:publish$#publish: bash scripts/maintenance/publish.sh#' \
+sed -i 's#publish: yarn changeset:publish$#publish: bash scripts/maintenance/publish.sh#' \
   .github/workflows/release.yml
-grep -qF -- "- $branch" .github/workflows/release.yml &&
-  grep -qF 'scripts/maintenance/publish.sh' .github/workflows/release.yml ||
-  { echo "Couldn't point release.yml at $branch; edit it by hand" >&2; exit 1; }
+for workflow in release site-preview; do
+  sed -i "0,/^      - master$/s//      - $branch/" ".github/workflows/$workflow.yml"
+  grep -qF -- "- $branch" ".github/workflows/$workflow.yml" ||
+    { echo "Couldn't point $workflow.yml at $branch; edit it by hand" >&2; exit 1; }
+done
+grep -qF 'scripts/maintenance/publish.sh' .github/workflows/release.yml ||
+  { echo "Couldn't point release.yml at publish.sh; edit it by hand" >&2; exit 1; }
 mkdir -p scripts/maintenance
 cp "$here/publish.sh" scripts/maintenance/
 # Deploys the root docs and ports each push to master

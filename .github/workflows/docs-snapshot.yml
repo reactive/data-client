@@ -53,11 +53,7 @@ jobs:
         env:
           REF: ${{ inputs.ref }}
         run: |
-          if [ -z "$REF" ]; then
-            REF="$(git ls-remote --tags --refs origin "refs/tags/@data-client/react@$VERSION.*" |
-              sed 's#.*refs/tags/##' | grep -E "@${VERSION//./\\.}(\.[0-9]+)+$" | sort -V | tail -1)"
-            [ -n "$REF" ] || { echo "::error::No @data-client/react@$VERSION.* tag"; exit 1; }
-          fi
+          [ -n "$REF" ] || REF="$(website/scripts/snapshot/release-tag.sh "$VERSION")"
           echo "ref=$REF" >> "$GITHUB_OUTPUT"
       - uses: actions/checkout@v7
         with:
@@ -146,8 +142,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git switch -c "$branch"
-          git add -A website
-          git commit -m "docs: Archive v$VERSION docs at /$VERSION"
+          git commit -am "docs: Archive v$VERSION docs at /$VERSION"
           git push --force origin "$branch"
           # a closed listing PR doesn't count: open a new one
           [ -n "$(gh pr list --head "$branch" --state open --json number --jq '.[].number')" ] ||

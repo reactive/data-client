@@ -8,6 +8,7 @@ import path from 'path';
 import { themes } from 'prism-react-renderer';
 
 import gqlRedirects from './gqlRedirects';
+import withoutBlog from './scripts/snapshot/withoutBlog';
 import { motionCss } from './src/components/motion/css';
 import { DEFAULT_LOCALE, LOCALES } from './translate/locales';
 import versions from './versions.json';
@@ -44,10 +45,8 @@ const versionCurrent: { version: string; ref: string } | undefined =
     JSON.parse(fs.readFileSync(versionCurrentFile, 'utf8'))
   : undefined;
 // The production build of master, served at /next/ beside the current
-// version's site; it leaves the blog to that site (site-preview.yml)
+// version's site, which keeps the blog (site-preview.yml)
 const isNext = !!versionCurrent && process.env.DOCS_NEXT === '1';
-const rootBlog = (label: string, className: string) =>
-  `<a class="${className}" href="${localeRoot}/blog">${label}</a>`;
 const vueDocs = frameworkDocs.generate('vue');
 // Each locale renders English with its translations in place
 // (translate/README.md); its Vue pages mirror its docs/core
@@ -327,17 +326,14 @@ const config: Config = {
               ['current', ...versions.slice(0, 4)]
             : ['current', ...versions],
         },
-        blog:
-          isNext ? false : (
-            {
-              // Posts are English in every locale
-              beforeDefaultRemarkPlugins:
-                currentLocale === DEFAULT_LOCALE ? [] : [remarkEnglishPage],
-              showReadingTime: true,
-              blogSidebarTitle: 'All posts',
-              blogSidebarCount: 'ALL',
-            }
-          ),
+        blog: {
+          // Posts are English in every locale
+          beforeDefaultRemarkPlugins:
+            currentLocale === DEFAULT_LOCALE ? [] : [remarkEnglishPage],
+          showReadingTime: true,
+          blogSidebarTitle: 'All posts',
+          blogSidebarCount: 'ALL',
+        },
         theme: {
           customCss: [
             require.resolve('./src/css/root.css'),
@@ -501,8 +497,7 @@ const config: Config = {
             from: ['/rest/api/schema.Entity'],
           },
           ...gqlRedirects,
-          // Redirects to a post would fail without the blog
-        ].filter(({ to }) => !isNext || !to.startsWith('/blog')),
+        ],
       },
     ],
     path.resolve(__dirname, './node-plugin'),
@@ -599,13 +594,7 @@ const config: Config = {
           label: 'GraphQL',
           position: 'left',
         },
-        isNext ?
-          {
-            type: 'html',
-            value: rootBlog('News', 'navbar__link'),
-            position: 'left',
-          }
-        : { to: '/blog', label: 'News', position: 'left' },
+        { to: '/blog', label: 'News', position: 'left' },
         {
           to: 'demos',
           label: 'Demos',
@@ -714,12 +703,10 @@ const config: Config = {
         {
           title: 'More',
           items: [
-            isNext ?
-              { html: rootBlog('Blog', 'footer__link-item') }
-            : {
-                label: 'Blog',
-                to: '/blog',
-              },
+            {
+              label: 'Blog',
+              to: '/blog',
+            },
             {
               label: 'Demo (Github)',
               to: 'https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Fpages%2FIssueList/index.tsx',
@@ -771,4 +758,4 @@ const config: Config = {
     },
   } satisfies Preset.ThemeConfig & PresetMermaid.ThemeConfig,
 };
-export default config;
+export default isNext ? withoutBlog(config) : config;

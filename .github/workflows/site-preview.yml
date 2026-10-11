@@ -47,7 +47,6 @@ jobs:
     outputs:
       deploy: ${{ steps.decide.outputs.deploy }}
       english-only: ${{ steps.locales.outputs.english-only }}
-      next: ${{ steps.next.outputs.next }}
       target: ${{ steps.decide.outputs.target }}
     steps:
       - name: Checkout
@@ -67,7 +66,7 @@ jobs:
         id: next
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         run: |
-          [ ! -f website/versionCurrent.json ] || echo "next=true" >> "$GITHUB_OUTPUT"
+          [ ! -f website/versionCurrent.json ] || echo "next=1" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-node@v6
         with:
           node-version: '26'
@@ -127,7 +126,7 @@ jobs:
           # to a draft fails here instead of on the master push.
           VERCEL_ENV: ${{ github.event_name == 'pull_request' && 'preview' || 'production' }}
           ENGLISH_ONLY: ${{ steps.locales.outputs.english-only }}
-          DOCS_NEXT: ${{ steps.next.outputs.next && '1' || '' }}
+          DOCS_NEXT: ${{ steps.next.outputs.next }}
         # explicit `shell: bash` adds pipefail, so a failed build isn't masked by tee
         shell: bash
         run: |
@@ -208,7 +207,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     outputs:
-      built: ${{ steps.build.outputs.built }}
+      ref: ${{ steps.current.outputs.ref }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -216,30 +215,40 @@ jobs:
           sparse-checkout: |
             website/versionCurrent.json
             website/scripts/snapshot
+          sparse-checkout-cone-mode: false
       - name: Read the current version
         id: current
         run: |
           f=website/versionCurrent.json
           [ -f "$f" ] || { echo "master is the latest version: nothing to build"; exit 0; }
-          echo "version=$(jq -r .version "$f")" >> "$GITHUB_OUTPUT"
-          echo "ref=$(jq -r .ref "$f")" >> "$GITHUB_OUTPUT"
-      - if: steps.current.outputs.ref
+          ref="$(jq -r .ref "$f")"
+          sha="$(git ls-remote origin "$ref" | head -1 | cut -f1)"
+          [ -n "$sha" ] || { echo "::error::No $ref branch to build the root from"; exit 1; }
+          { echo "version=$(jq -r .version "$f")"; echo "ref=$ref"; echo "sha=$sha"; } >> "$GITHUB_OUTPUT"
+      # Only the branch and the snapshot scripts change its build, so master
+      # pushes reuse it
+      - if: steps.current.outputs.sha
+        id: cache
+        uses: actions/cache/restore@v6
+        with:
+          path: current.tar.gz
+          key: current-site-${{ steps.current.outputs.sha }}-${{ hashFiles('website/scripts/snapshot/**') }}
+      - if: steps.current.outputs.sha && !steps.cache.outputs.cache-hit
         uses: actions/checkout@v7
         with:
-          ref: ${{ steps.current.outputs.ref }}
+          ref: ${{ steps.current.outputs.sha }}
           path: current
           persist-credentials: false
           # Pages date themselves from git history ("Last updated")
           fetch-depth: 0
           filter: blob:none
       # No dependency cache, like an archive build: the branch has its own lockfile
-      - if: steps.current.outputs.ref
+      - if: steps.current.outputs.sha && !steps.cache.outputs.cache-hit
         uses: actions/setup-node@v6
         with:
           node-version: '26'
       - name: Build
-        id: build
-        if: steps.current.outputs.ref
+        if: steps.current.outputs.sha && !steps.cache.outputs.cache-hit
         env:
           SNAPSHOT_ROLE: current
           VERSION: ${{ steps.current.outputs.version }}
@@ -247,8 +256,12 @@ jobs:
         run: |
           corepack enable
           website/scripts/snapshot/build.sh current "$VERSION" current.tar.gz
-          echo "built=true" >> "$GITHUB_OUTPUT"
-      - if: steps.build.outputs.built
+      - if: steps.current.outputs.sha && !steps.cache.outputs.cache-hit
+        uses: actions/cache/save@v6
+        with:
+          path: current.tar.gz
+          key: current-site-${{ steps.current.outputs.sha }}-${{ hashFiles('website/scripts/snapshot/**') }}
+      - if: steps.current.outputs.sha
         uses: actions/upload-artifact@v7
         with:
           name: current-site
@@ -296,15 +309,17 @@ jobs:
         with:
           name: site-build
           path: website/build
-      - if: needs.current.outputs.built
+      - if: needs.current.outputs.ref
         uses: actions/download-artifact@v8
         with:
           name: current-site
       - name: Add the current version's site at the root
-        if: needs.current.outputs.built
+        if: needs.current.outputs.ref
         run: |
           tar -xzf current.tar.gz -C website/build
           # /next is served now, so it no longer redirects to the root
+          jq -e '.redirects | any(.source == "/next/:path*")' website/vercel.json > /dev/null ||
+            { echo "::error::vercel.json has no /next/:path* redirect to drop"; exit 1; }
           jq '.redirects |= map(select(.source != "/next/:path*"))' website/vercel.json > vercel.json.tmp
           mv vercel.json.tmp website/vercel.json
       - uses: actions/setup-node@v6

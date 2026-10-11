@@ -13,8 +13,9 @@ the version's newest `@data-client/react` tag; pass the last master commit befor
 change to keep what merged since. The script:
 
 - cuts `<version>.x` from `ref`, then on it:
-  - points `.changeset/config.json`'s `baseBranch` and `release.yml`'s push trigger at the branch,
-    and publishes with `publish.sh`, which uses npm's `latest` tag until the next major ships and
+  - points `.changeset/config.json`'s `baseBranch`, `release.yml`'s push trigger and
+    `site-preview.yml`'s pull_request trigger at the branch, so its PRs get a site preview, and
+    publishes with `publish.sh`, which uses npm's `latest` tag until the next major ships and
     `v<version>` after, so `latest` stays on the newest major;
   - adds `maintenance.yml`, which redeploys the docs (dispatching master's `site-preview.yml`) and
     opens a PR cherry-picking each push onto master, skipping its version bumps. A pick that doesn't
@@ -30,8 +31,8 @@ its branch protection the way master's is.
 
 Open fixes, for packages or docs, as PRs against `<version>.x`, with a changeset as usual. Its
 `release.yml` opens a Version Packages PR there; merging it publishes. Each merge is ported to master
-by `maintenance.yml`. Only CircleCI and `release.yml` run on the branch: the other Actions workflows
-it has are from the release it was cut from and run only for master.
+by `maintenance.yml`. CircleCI, `release.yml` and `site-preview.yml`'s PR build run on the branch:
+the other Actions workflows it has are from the release it was cut from and run only for master.
 
 ## When the next major ships
 
