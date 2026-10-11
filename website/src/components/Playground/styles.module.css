@@ -326,6 +326,7 @@ div.playgroundTextEdit > .playgroundHeader,
 :global(html:has(.navbar[class*='navbarHidden_'])) .storePanel {
   --store-top: 0px;
 }
+/* lands at once, as the navbar then does (css/customTheme.css) */
 @media (prefers-reduced-motion: reduce) {
   .storePanel {
     transition: none;
