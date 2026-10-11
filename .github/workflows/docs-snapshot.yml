@@ -37,7 +37,7 @@ jobs:
     timeout-minutes: 30
     outputs:
       ref: ${{ steps.ref.outputs.ref }}
-      sha: ${{ steps.build.outputs.sha }}
+      sha: ${{ steps.commit.outputs.sha }}
       sha256: ${{ steps.build.outputs.sha256 }}
     env:
       VERSION: ${{ inputs.version }}
@@ -67,22 +67,25 @@ jobs:
           # Pages date themselves from git history ("Last updated")
           fetch-depth: 0
           filter: blob:none
+      # Read before the release's code runs, which could change its checkout
+      - name: Record the commit
+        id: commit
+        run: echo "sha=$(git -C release rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      # No dependency cache: this job runs the release's third-party code,
+      # which must not leave anything later runs restore
       - uses: actions/setup-node@v6
         with:
           node-version: '26'
-          cache: 'yarn'
-          cache-dependency-path: release/yarn.lock
       - run: corepack enable
       - name: Build
         id: build
         run: |
-          website/scripts/snapshot/build.sh release "$VERSION" "docs-$VERSION.tar.gz"
-          echo "sha=$(git -C release rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-          echo "sha256=$(sha256sum "docs-$VERSION.tar.gz" | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
+          website/scripts/snapshot/build.sh release "$VERSION" docs.tar.gz
+          echo "sha256=$(sha256sum docs.tar.gz | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v7
         with:
           name: docs-${{ inputs.version }}
-          path: docs-${{ inputs.version }}.tar.gz
+          path: docs.tar.gz
           if-no-files-found: error
           retention-days: 1
 
@@ -109,13 +112,17 @@ jobs:
           REF: ${{ needs.build.outputs.ref }}
           SHA: ${{ needs.build.outputs.sha }}
         run: |
-          echo "$SHA256  docs-$VERSION.tar.gz" | sha256sum -c
+          echo "$SHA256  docs.tar.gz" | sha256sum -c
           tag="docs-v$VERSION"
           gh release view "$tag" > /dev/null 2>&1 ||
             gh release create "$tag" --latest=false --target "$SHA" --title "Docs v$VERSION" \
               --notes "Frozen docs for v$VERSION, served at https://dataclient.io/$VERSION/ (built from \`$REF\`)."
-          gh release upload "$tag" "docs-$VERSION.tar.gz" --clobber
-      # The checksum makes fetch.sh refuse an asset this run didn't make
+          # Named by checksum, so a rebuild sits beside the listed archive
+          # until its listing PR merges, rather than replacing it
+          cp docs.tar.gz "docs-$VERSION-${SHA256:0:16}.tar.gz"
+          gh release upload "$tag" "docs-$VERSION-${SHA256:0:16}.tar.gz" --clobber
+      # fetch.sh checks the listed checksum, so a later change to the asset
+      # fails the deploy instead of shipping
       - name: Open a PR listing the version
         env:
           GH_TOKEN: ${{ github.token }}

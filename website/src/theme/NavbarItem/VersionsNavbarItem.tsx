@@ -76,8 +76,13 @@ export default function VersionsNavbarItem(
 
 type Routes = Record<string, ReadonlySet<string>>;
 
+/** Shared by the desktop and mobile items, so each sitemap loads once */
+let routesRequest: Promise<Routes> | undefined;
+const fetchRoutes = (prefix: string) =>
+  (routesRequest ??= requestRoutes(prefix));
+
 /** Each archive's pages, from its sitemaps (and this locale's, if it has one) */
-async function fetchRoutes(prefix: string): Promise<Routes> {
+async function requestRoutes(prefix: string): Promise<Routes> {
   const pathsIn = (url: string) =>
     fetch(url)
       .then(res => (res.ok ? res.text() : ''))

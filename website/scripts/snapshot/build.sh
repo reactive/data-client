@@ -36,9 +36,9 @@ cd "$site/$version"
 media="$(find img videos -type f 2>/dev/null || true)"
 if [ -n "$media" ]; then
   used="$(grep -rohF --include='*.html' --include='*.js' --include='*.css' \
-    --include='*.json' --include='*.xml' -f <(xargs -d '\n' -n1 basename <<<"$media") . | sort -u || true)"
+    --include='*.json' --include='*.xml' --include='*.md' --include='*.txt' -f <(xargs -d '\n' -n1 basename <<<"$media") . | sort -u || true)"
   while read -r file; do
-    grep -qxF "$(basename "$file")" <<<"$used" || rm "$file"
+    grep -qxF -- "$(basename "$file")" <<<"$used" || rm "$file"
   done <<<"$media"
 fi
 find . -type d -empty -delete

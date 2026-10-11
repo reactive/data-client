@@ -14,8 +14,8 @@ node -p "require('$here/../../versionsArchived.json').map(v => v.version + ' ' +
     [ -n "$version" ] || continue
     file="$(mktemp)"
     curl -fsSL --retry 3 -o "$file" \
-      "https://github.com/$repo/releases/download/docs-v$version/docs-$version.tar.gz"
-    # docs-snapshot.yml recorded the checksum of the archive it built
+      "https://github.com/$repo/releases/download/docs-v$version/docs-$version-${sha256:0:16}.tar.gz"
+    # the checksum docs-snapshot.yml listed, so a changed asset fails here
     echo "$sha256  $file" | sha256sum -c --quiet
     tar -xzf "$file" -C "$build"
     rm "$file"
