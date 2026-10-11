@@ -746,7 +746,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
     /**
      * Sets every row of an Array or Values of one Entity (or Union) in one normalize,
      * or invalidates the one Entity an Invalidate schema's value identifies.
-     * @see https://dataclient.io/docs/api/Controller#set-array
+     * @see https://dataclient.io/docs/api/Controller#set
      */
     set<S extends SetManySchema | SetInvalidateSchema>(schema: S, value: SkipInfer<SetManyValue<S>, S>): Promise<void>;
     /**
