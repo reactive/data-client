@@ -309,8 +309,11 @@ div.playgroundTextEdit > .playgroundHeader,
     position: sticky;
     top: var(--store-top);
     min-height: max(var(--store-min), min(100%, 100svh - var(--store-top)));
-    /* the navbar's own slide (theme-classic Navbar/Layout) */
-    transition: top var(--ifm-transition-fast) ease;
+    /* with the navbar's own slide (theme-classic Navbar/Layout); the height
+       follows, so neither edge jumps */
+    transition:
+      top var(--ifm-transition-fast) ease,
+      min-height var(--ifm-transition-fast) ease;
   }
 }
 /* the navbar slides away while scrolling down (hideOnScroll), so the Store
