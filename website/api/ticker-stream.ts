@@ -3,19 +3,17 @@
  * `GET /api/ticker-stream?product_ids=BTC-USD,ETH-USD` sends a
  * `data: [Ticker]` event as each product's price changes (at most every 5
  * seconds per product), in the shape of Coinbase's REST `/products/:id/ticker`.
- * When nothing changes for 5 seconds it sends `data: []`, so clients can tell
- * the stream is alive.
+ * Every 5 seconds it also sends `data: []`, so clients can tell the stream is
+ * alive.
  *
- * Each request holds one Coinbase websocket. The stream ends when Coinbase
- * goes quiet or before the function times out; clients then reconnect.
+ * Each request holds one Coinbase websocket. The stream ends before the
+ * function times out; clients then reconnect.
  */
 
 const COINBASE_FEED = 'wss://ws-feed.exchange.coinbase.com';
 const PRODUCT_ID = /^[A-Z0-9]{1,10}-[A-Z]{2,5}$/;
 const MAX_PRODUCTS = 10;
 const KEEPALIVE_MS = 5000;
-/** Coinbase sends heartbeats every second, so silence means it's gone */
-const UPSTREAM_TIMEOUT_MS = 30_000;
 /** Under `maxDuration`, so the stream ends cleanly */
 const LIFETIME_MS = 280_000;
 
@@ -44,13 +42,10 @@ export function GET(request: Request): Response {
 
   const body = new ReadableStream<Uint8Array>({
     start(controller) {
-      let lastSent = Date.now();
-      let lastUpstream = Date.now();
       const send = (tickers: ReturnType<typeof toTicker>[]) => {
         controller.enqueue(
           encoder.encode(`data: ${JSON.stringify(tickers)}\n\n`),
         );
-        lastSent = Date.now();
       };
       const end = () => {
         stop();
@@ -68,27 +63,18 @@ export function GET(request: Request): Response {
             JSON.stringify({
               type: 'subscribe',
               product_ids: [productId],
-              channels: ['ticker_batch', 'heartbeat'],
+              channels: ['ticker_batch'],
             }),
           );
       };
       socket.onmessage = event => {
-        lastUpstream = Date.now();
-        let message;
-        try {
-          message = JSON.parse(event.data);
-        } catch {
-          return;
-        }
+        const message = JSON.parse(event.data);
         if (message.type === 'ticker') send([toTicker(message)]);
       };
       socket.onclose = end;
 
-      keepalive = setInterval(() => {
-        const now = Date.now();
-        if (now - lastUpstream > UPSTREAM_TIMEOUT_MS) end();
-        else if (now - lastSent >= KEEPALIVE_MS) send([]);
-      }, KEEPALIVE_MS);
+      // lets clients tell a quiet market from a dead stream
+      keepalive = setInterval(() => send([]), KEEPALIVE_MS);
       lifetime = setTimeout(end, LIFETIME_MS);
       request.signal.addEventListener('abort', end);
     },

@@ -15,8 +15,6 @@ export class StreamManager implements Manager {
   declare protected controller: Controller;
   /** How many components subscribe to each product */
   protected products = new Map<string, number>();
-  /** The products the open stream sends */
-  protected streaming = new Set<string>();
   declare protected pending: ReturnType<typeof setTimeout>;
 
   middleware: Middleware = controller => {
@@ -42,25 +40,18 @@ export class StreamManager implements Manager {
     };
   };
 
-  /** An open stream can't add products, so this replaces it when
-   * one is new. Removed ones keep streaming until then. */
+  /** An open stream can't add products, so this replaces it */
   protected stream = () => {
-    const productIds = [...this.products.keys()].sort();
-    if (
-      productIds.length &&
-      productIds.every(id => this.streaming.has(id))
-    )
-      return;
-    this.streaming = new Set(productIds);
+    const productIds = [...this.products.keys()].sort().join(',');
     this.source.setUrl(
-      productIds.length
-        ? `/api/ticker-stream?product_ids=${productIds.join(',')}`
+      productIds
+        ? `/api/ticker-stream?product_ids=${productIds}`
         : undefined,
     );
   };
 
   init() {
-    // Tickers as their prices change; [] while none do
+    // Tickers as their prices change, and [] to show it's alive
     this.source.onmessage = tickers => {
       if (tickers.length) this.controller.set([Ticker], tickers);
     };
