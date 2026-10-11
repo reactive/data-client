@@ -279,6 +279,11 @@ const config: Config = {
   clientModules: [
     require.resolve('./src/gtagfix.ts'),
     require.resolve('./src/staleDeploy.ts'),
+    // /next/ builds its blog so its links are checked, but sends in-app blog
+    // links to the root's, as vercel.json does page loads: blog URLs never change
+    ...(isNext ?
+      [require.resolve('./scripts/snapshot/archive.client.ts')]
+    : []),
   ],
   //favicon: '/favicon.ico', we declare our own headers for this above
   themes: ['@docusaurus/theme-live-codeblock', '@docusaurus/theme-mermaid'],
@@ -757,15 +762,4 @@ const config: Config = {
     },
   } satisfies Preset.ThemeConfig & PresetMermaid.ThemeConfig,
 };
-// /next/ builds its blog too, so its links are checked, but the root's
-// serves it: archive.client.ts sends in-app links there, and vercel.json page
-// loads, so blog URLs never change
-export default isNext ?
-  {
-    ...config,
-    clientModules: [
-      ...(config.clientModules ?? []),
-      path.join(__dirname, 'scripts/snapshot/archive.client.ts'),
-    ],
-  }
-: config;
+export default config;
