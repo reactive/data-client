@@ -1,5 +1,14 @@
 # coinbase-lite
 
+## 0.0.27
+
+### Patch Changes
+
+- Updated dependencies [[`f343f9d`](https://github.com/reactive/data-client/commit/f343f9d42a12f3ad763fac96362166d3b3156b69), [`46f1f24`](https://github.com/reactive/data-client/commit/46f1f24bcb04824805747ed2a1effe7baece337c), [`a82758c`](https://github.com/reactive/data-client/commit/a82758cd1998e58d7ad280407db28bd84f5d7b18), [`b55696c`](https://github.com/reactive/data-client/commit/b55696c72ad3e73e0a2f50d3751c7104cd4ad9ee), [`74e67fa`](https://github.com/reactive/data-client/commit/74e67fa2c4f9f104f5b7a49e877a48e5963e4bd2), [`159c963`](https://github.com/reactive/data-client/commit/159c9633679d95427fe4f626aec341c76e4578f8), [`4549122`](https://github.com/reactive/data-client/commit/4549122004244990a564781a61145ae9ea98370e), [`cc57a77`](https://github.com/reactive/data-client/commit/cc57a77d2e563071926f50cb9054516d2ab9101e), [`a73b437`](https://github.com/reactive/data-client/commit/a73b437c8f60ef8c64266874ea82e5119dfe4874), [`022f449`](https://github.com/reactive/data-client/commit/022f44950bf687b61f2d349e42ab906071c6fce7), [`47502c6`](https://github.com/reactive/data-client/commit/47502c664df913297fba3e5011a975dfd01c0d8d), [`fc4b015`](https://github.com/reactive/data-client/commit/fc4b015ca0899a2685af881d17f765dce27ffc1a), [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc), [`31b1820`](https://github.com/reactive/data-client/commit/31b182033106d5ce44352481577d3c321e39ebe9), [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc), [`a403df8`](https://github.com/reactive/data-client/commit/a403df8f22dadb0dbd9a6cf72a65f9187ae63176), [`954b1e9`](https://github.com/reactive/data-client/commit/954b1e9041ba47b39b9ffdd53a55b0b16adc8675), [`643d818`](https://github.com/reactive/data-client/commit/643d818ac757a0218e91d9523879e25024c5e61f), [`588a558`](https://github.com/reactive/data-client/commit/588a558332d9d2bc6a313b2f4b6700bb3ff017f2), [`bf377f4`](https://github.com/reactive/data-client/commit/bf377f46a2c916d8e808472645f1da9704ffaf91), [`ae7080d`](https://github.com/reactive/data-client/commit/ae7080de64ca8621833a71267ec84d2a9d5e19dd), [`aa15f29`](https://github.com/reactive/data-client/commit/aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e)]:
+  - @data-client/react@1.0.0
+  - @data-client/img@1.0.0
+  - @data-client/rest@1.0.0
+
 ## 0.0.26
 
 ### Patch Changes

@@ -1,5 +1,180 @@
 # @data-client/core
 
+## 1.0.0
+
+### Minor Changes
+
+- [#4151](https://github.com/reactive/data-client/pull/4151) [`4549122`](https://github.com/reactive/data-client/commit/4549122004244990a564781a61145ae9ea98370e) - BREAKING: Require TypeScript 4.0 or later
+
+  The TypeScript 3.x type declarations are removed. They no longer type-checked on any TypeScript 3.x version, and
+  `@data-client/rest` already required TypeScript 4.0. Upgrade TypeScript to 4.0 or later.
+
+  ```diff title="package.json"
+  - "typescript": "^3.9.0"
+  + "typescript": "^4.0.0"
+  ```
+
+### Patch Changes
+
+- [#4103](https://github.com/reactive/data-client/pull/4103) [`f343f9d`](https://github.com/reactive/data-client/commit/f343f9d42a12f3ad763fac96362166d3b3156b69) - Fix `controller.set()` types for Array schemas
+
+  `controller.set([Entity], rows)` and `controller.set(new schema.Array(Entity), rows)` now typecheck. This writes every row in one store update: each row merges with its stored entity, and entities not in `rows` stay.
+
+  Rows are typed by the Entity's fields. The schema holds one Entity, [Union](https://dataclient.io/rest/api/Union) (for mixed types) or [Invalidate](https://dataclient.io/rest/api/Invalidate) (to delete), in an Array or [Values](https://dataclient.io/rest/api/Values) (which takes an object keyed by id).
+
+  Batch `set()` needs `@data-client/rest` (or `endpoint`/`graphql`) from this release, since older Entity classes don't type as `EntityInterface`.
+
+  ```ts
+  // Before: TypeScript error on [Ticker], so batches became one set() per row
+  for (const row of rows) {
+    ctrl.set(Ticker, { product_id: row.product_id }, row);
+  }
+
+  // After: one store update
+  ctrl.set([Ticker], rows);
+
+  // Mixed Entity types, batch deletes, and rows keyed by id
+  const Message = new schema.Union({ ticker: Ticker, trade: Trade }, 'type');
+  ctrl.set([Message], messages);
+  ctrl.set([new schema.Invalidate(Ticker)], [{ product_id: 'BTC-USD' }]);
+  ctrl.set(new schema.Values(Ticker), { 'BTC-USD': row });
+  ```
+
+- [#4230](https://github.com/reactive/data-client/pull/4230) [`46f1f24`](https://github.com/reactive/data-client/commit/46f1f24bcb04824805747ed2a1effe7baece337c) - Fix `controller.set()` types for a single [Invalidate](https://dataclient.io/rest/api/Invalidate)
+
+  Deleting one entity with `set()` worked at runtime but failed to typecheck, since `Invalidate` isn't
+  [Queryable](https://dataclient.io/rest/api/schema#queryable). Pass the schema and the row to delete; the row is typed
+  by the Entity's fields.
+
+  ```ts
+  // Before: TypeScript error, so a one-row batch was the workaround
+  ctrl.set([new Invalidate(Post)], [{ id: '5' }]);
+
+  // After
+  ctrl.set(new Invalidate(Post), { id: '5' });
+  ```
+
+  Like batch `set()`, it takes no `args` and no updater function.
+
+- [#4133](https://github.com/reactive/data-client/pull/4133) [`a82758c`](https://github.com/reactive/data-client/commit/a82758cd1998e58d7ad280407db28bd84f5d7b18) - Fix `controller.set()` accepting any value
+
+  Values are now typed by the schema: Entities take their fields, while [Collection](https://dataclient.io/rest/api/Collection)
+  and [All](https://dataclient.io/rest/api/All) take a list of rows. [Query](https://dataclient.io/rest/api/Query) takes
+  the input of the schema it wraps, not what its `process()` returns. Updater functions must return the same.
+
+  ```ts
+  // Before: these all typechecked, then failed or wrote nothing at runtime
+  ctrl.set(new schema.All(Todo), 42);
+  ctrl.set(TodoResource.getList.schema, 'anything');
+  ctrl.set(Todo, { id: '5' }, { id: '5', completed: 'yes' });
+
+  // After: TypeScript errors on the above; these typecheck
+  ctrl.set(TodoResource.getList.schema, [{ id: '5', completed: true }]);
+  ctrl.set(new schema.All(Todo), [{ id: '5', completed: true }]);
+  ```
+
+  When each member declares its discriminator as a literal (like `readonly type = 'post'`), a
+  [Union](https://dataclient.io/rest/api/Union) row is checked against the member it selects. Only
+  declared fields are accepted, so a key read by a `schemaAttribute` function must be declared on each member.
+
+  ```ts
+  const Feed = new schema.Union({ post: Post, comment: Comment }, 'type');
+  // TypeScript error: commentBody is a Comment field, not a Post field
+  ctrl.set(
+    Feed,
+    { id: '1', type: 'post' },
+    { type: 'post', commentBody: 'hi' },
+  );
+  ```
+
+- [#4228](https://github.com/reactive/data-client/pull/4228) [`b55696c`](https://github.com/reactive/data-client/commit/b55696c72ad3e73e0a2f50d3751c7104cd4ad9ee) - Fix TypeScript error passing a `Controller` subclass to `DataProvider` or `DataClientPlugin`
+
+  A plain `class MyController extends Controller` failed to typecheck as the `Controller` option of [DataProvider](https://dataclient.io/docs/api/DataProvider#Controller), Vue's [DataClientPlugin](https://dataclient.io/vue/api/DataClientPlugin#Controller), and the `@data-client/react/redux` `DataProvider`, so the documented example needed a cast. `MockController()` from `@data-client/core/mock` had the same error when wrapping your subclass. These now typecheck, and you can drop the casts.
+
+  ```tsx
+  class MyController extends Controller {
+    doSomething = () => console.log('hi');
+  }
+
+  // Before: TypeScript error, so you had to cast
+  <DataProvider Controller={MyController as typeof Controller}>
+  app.use(DataClientPlugin, { Controller: MyController as typeof Controller });
+
+  // After
+  <DataProvider Controller={MyController}>
+  app.use(DataClientPlugin, { Controller: MyController });
+  ```
+
+- [#4150](https://github.com/reactive/data-client/pull/4150) [`74e67fa`](https://github.com/reactive/data-client/commit/74e67fa2c4f9f104f5b7a49e877a48e5963e4bd2) - Fix `useCache()` and `useDLE()` returning a truthy `Symbol` for deleted entities
+
+  After an entity was deleted and its refetch failed, `useCache()` and `useDLE()` (React and Vue) returned an internal
+  `Symbol` instead of `undefined`. Since a `Symbol` is truthy, "not loaded" checks passed, and code went on to use it as
+  the entity:
+
+  ```tsx
+  const todo = useCache(TodoResource.get, { id });
+  if (!todo) return <TodoPlaceholder />;
+  // Before: reached here with a Symbol; todo.title was undefined and todo.title.trim() threw
+  // After: the placeholder renders
+  return <TodoItem title={todo.title.trim()} />;
+  ```
+
+  [Controller.getResponse()](https://dataclient.io/docs/api/Controller#getResponse) and
+  [Controller.fetchIfStale()](https://dataclient.io/docs/api/Controller#fetchIfStale) now also give `undefined` there,
+  like [Controller.get()](https://dataclient.io/docs/api/Controller#get) already did.
+
+- [#4163](https://github.com/reactive/data-client/pull/4163) [`159c963`](https://github.com/reactive/data-client/commit/159c9633679d95427fe4f626aec341c76e4578f8) - Fix slow updates in development while Redux DevTools is open
+
+  With the [Redux DevTools](https://dataclient.io/docs/getting-started/debugging) extension open, every store update
+  stalled the page while DevTools serialized the store: about 20ms with 50 entities, and 200ms with 500. Apps doing
+  many `controller.set()` calls, polling, or live updates would stutter in development. Each update now serializes
+  40-60x faster, and timestamps still show as readable times like `10:42:07.123 AM`.
+
+- [#4227](https://github.com/reactive/data-client/pull/4227) [`47502c6`](https://github.com/reactive/data-client/commit/47502c664df913297fba3e5011a975dfd01c0d8d) - Type FETCH `action.meta.promise` as `Promise`
+
+  Managers can now call `.finally()` and `.catch()` on a FETCH action's `meta.promise` without a TypeScript error. It was always a real `Promise` at runtime, but was typed `PromiseLike`, which only has `.then()`.
+
+  ```ts
+  // Before: TypeScript error on .finally(), so both callbacks went to .then()
+  const track = () =>
+    trackTiming(action.endpoint.name, performance.now() - start);
+  action.meta.promise.then(track, track);
+
+  // After
+  action.meta.promise
+    .finally(() => {
+      trackTiming(action.endpoint.name, performance.now() - start);
+    })
+    // the fetch's caller handles errors; this only observes timing
+    .catch(() => {});
+  ```
+
+- [#4250](https://github.com/reactive/data-client/pull/4250) [`fc4b015`](https://github.com/reactive/data-client/commit/fc4b015ca0899a2685af881d17f765dce27ffc1a) - Fixture `args` accept readonly tuples
+
+  Fixtures written with `args: [...] as const` now type-check when passed to [MockResolver](https://dataclient.io/docs/api/MockResolver), `renderDataHook()`, Vue's `renderDataCompose()` or `mockInitialState()`. Before, TypeScript rejected them with "The type 'readonly [...]' is 'readonly' and cannot be assigned to the mutable type", so you had to drop `as const` or cast.
+
+  ```ts
+  const fixtures = [
+    {
+      endpoint: TodoResource.getList,
+      args: [{ userId: 1 }] as const,
+      response: [{ id: 1, title: 'Write tests', userId: 1 }],
+    },
+  ];
+
+  // Before: type error on `fixtures`. After: works as written
+  <MockResolver fixtures={fixtures}>
+    <TodoList />
+  </MockResolver>;
+  ```
+
+- [#4019](https://github.com/reactive/data-client/pull/4019) [`aa15f29`](https://github.com/reactive/data-client/commit/aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e) Thanks [@renovate](https://github.com/apps/renovate)! - Fix TypeScript 7 module resolution for package exports
+
+  TypeScript 7 requires a `types` condition in `package.json` `exports`. Without it, imports resolved to runtime entrypoints like `node.mjs` and lost declaration files.
+
+- Updated dependencies [[`4549122`](https://github.com/reactive/data-client/commit/4549122004244990a564781a61145ae9ea98370e), [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc), [`aa15f29`](https://github.com/reactive/data-client/commit/aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e)]:
+  - @data-client/normalizr@1.0.0
+
 ## 0.18.1
 
 ### Patch Changes

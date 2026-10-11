@@ -1,5 +1,196 @@
 # @data-client/rest
 
+## 1.0.0
+
+### Patch Changes
+
+- [#4149](https://github.com/reactive/data-client/pull/4149) [`cc57a77`](https://github.com/reactive/data-client/commit/cc57a77d2e563071926f50cb9054516d2ab9101e) - Fix Entity classes not assignable to `EntityInterface`
+
+  [Entity.pk()](https://dataclient.io/rest/api/Entity#pk)'s static `args` parameter is now `readonly any[]`, matching `EntityInterface`. Entity classes can be passed where an `EntityInterface` is expected.
+
+  ```ts
+  import type { EntityInterface } from '@data-client/react';
+
+  // Before: TypeScript error (args is readonly in EntityInterface)
+  // After: typechecks
+  const schema: EntityInterface = User;
+  ```
+
+  Overrides of `static pk()` that type `args` as a mutable array still compile, but a future breaking release will require `readonly any[]`, so update them now:
+
+  ```ts
+  class User extends Entity {
+    static pk(value: any, parent?: any, key?: string, args?: readonly any[]) {
+      return `${value.id}-${args?.[0]?.org}`;
+    }
+  }
+  ```
+
+- [#4183](https://github.com/reactive/data-client/pull/4183) [`a73b437`](https://github.com/reactive/data-client/commit/a73b437c8f60ef8c64266874ea82e5119dfe4874) - Type the `params` and `body` that `process()` receives in `RestEndpoint` options
+
+  A `process(value, params)` method passed to `new RestEndpoint()`, `RestEndpoint.extend()` or `resource().extend()` used to get `params` typed as `any`, so a typo or a wrong assumption about a path parameter went unnoticed until runtime. They are now typed from the endpoint's `path`, `searchParams` and `body`, including a `path` set in the same `.extend()` call.
+
+  ```ts
+  const getUser = new RestEndpoint({ path: '/users/:id' });
+
+  const getUserById = getUser.extend({
+    path: '/users/by-id/:userId',
+    process(value, params) {
+      params.userId; // string | number
+      params.id; // TypeScript error: 'id' is not a param of '/users/by-id/:userId'
+      return value;
+    },
+  });
+  ```
+
+  Endpoints whose params are optional pass `params` as possibly `undefined`, so read it with `params?.page`.
+
+  This can surface new TypeScript errors in existing `process()` methods that read a param the endpoint doesn't have, or that read optional `params` without a check. Each is a read that could be `undefined` or throw at runtime, so fix the param name or add the check.
+
+  On TypeScript 5.x and earlier, `process(value, params)` in an `.extend()` that also sets `path` no longer fails with "implicitly has an 'any' type" under `strict`.
+
+- [#4173](https://github.com/reactive/data-client/pull/4173) [`022f449`](https://github.com/reactive/data-client/commit/022f44950bf687b61f2d349e42ab906071c6fce7) - Speed up TypeScript checking of `RestEndpoint`, `resource()` and `.extend()`
+
+  Editors and `tsc` check code that defines or calls endpoints faster and with less memory. In our stress tests, a file of 150 RestEndpoints with long paths, `.extend()` and `.paginated()` checked in about half the time (3.1s → 1.6s) and memory (345MB → 207MB). Files that use `resource()` with React or Vue hooks did 22-25% less type work. TypeScript reports the same errors as before.
+
+  On TypeScript 5.x and earlier, a `process(value, params)` method passed to `.extend()` no longer fails with "implicitly has an 'any' type" under `strict`, matching TypeScript 6+. TypeScript 4.0 also accepts a chained `.extend().extend()`.
+
+  ```ts
+  const getUser = new RestEndpoint({ path: '/users/:id', schema: User });
+
+  // Before (TypeScript 5.x and earlier): error TS7006: Parameter 'value' implicitly has an 'any' type.
+  // After: no error
+  const getUserName = getUser.extend({
+    process(value, params) {
+      return value.name;
+    },
+  });
+  ```
+
+- [#4122](https://github.com/reactive/data-client/pull/4122) [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc) - Fix more TypeScript 4.x errors when `skipLibCheck` is off
+
+  [Entity](https://dataclient.io/rest/api/Entity), [Endpoint](https://dataclient.io/rest/api/Endpoint), [Union](https://dataclient.io/rest/api/Union) and [RestEndpoint](https://dataclient.io/rest/api/RestEndpoint) declarations no longer report errors on TypeScript 4.0 through 4.5. On TypeScript 4.0 and 4.1, an `Entity` can be an `Endpoint` schema again.
+
+  ```ts
+  import { Endpoint, Entity, schema } from '@data-client/endpoint';
+
+  class User extends Entity {
+    id = '';
+    type = 'users';
+  }
+  const getUser = new Endpoint(
+    (id: string) => fetch(`/users/${id}`).then(res => res.json()),
+    { schema: User },
+  );
+  const feed = new schema.Union({ users: User }, 'type');
+
+  // Before (TypeScript 4.0, skipLibCheck: false):
+  //   error TS2456: Type alias 'RemoveArray' circularly references itself.
+  //   error TS2322: Type 'typeof User' is not assignable to type 'EntityInterface<any>'.
+  // Before (TypeScript 4.2):
+  //   error TS2344: Type 'TBase' does not satisfy the constraint 'new (...args: any) => any'.
+  // After: no errors
+  ```
+
+- [#4122](https://github.com/reactive/data-client/pull/4122) [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc) - Fix types for TypeScript 4.x when `skipLibCheck` is off
+
+  TypeScript 4.0 through 4.7 no longer report `Cannot find name 'NoInfer'` from `@data-client/endpoint` or `@data-client/normalizr`, and TypeScript 4.0 through 4.9 no longer report `Only named exports may use 'export type'` from `@data-client/normalizr`.
+
+  ```ts
+  import { Entity } from '@data-client/endpoint';
+  import { normalize } from '@data-client/normalizr';
+
+  // Before (TypeScript 4.7, skipLibCheck: false):
+  //   error TS2304: Cannot find name 'NoInfer'.
+  //   error TS1383: Only named exports may use 'export type'.
+  // After: no errors
+  ```
+
+- [#4224](https://github.com/reactive/data-client/pull/4224) [`a403df8`](https://github.com/reactive/data-client/commit/a403df8f22dadb0dbd9a6cf72a65f9187ae63176) - Fix `Entity.maxEntityDepth` docs: the default is 64, not 128
+
+  Editor hover docs for `static maxEntityDepth` now show the real default. Runtime behavior is unchanged; set `maxEntityDepth` explicitly if you relied on 128.
+
+- [#4226](https://github.com/reactive/data-client/pull/4226) [`643d818`](https://github.com/reactive/data-client/commit/643d818ac757a0218e91d9523879e25024c5e61f) - Fix `RestEndpoint.push`, `unshift` and `remove` body types when a `Query` or `Lazy` wraps the endpoint's `Collection`
+
+  Sorting or filtering a list with a [Query](https://dataclient.io/rest/api/Query) around its [Collection](https://dataclient.io/rest/api/Collection) made `getPosts.push` reject every body except `FormData`, though it adds to the list at runtime. The body is now typed from the Collection's Entity, so a correct body compiles and a wrong field is a TypeScript error. The same applies to a Collection wrapped in [Lazy](https://dataclient.io/rest/api/Lazy).
+
+  ```ts
+  const getPosts = new RestEndpoint({
+    path: '/:group/posts',
+    searchParams: {} as { orderBy?: string },
+    schema: new Query(
+      new Collection([Post], { nonFilterArgumentKeys: /orderBy/ }),
+      (posts, { orderBy } = {}) => sortBy(posts, orderBy),
+    ),
+  });
+  ```
+
+  If you cast the body to get past this error, the cast can go:
+
+  ```ts
+  // Before
+  ctrl.fetch(getPosts.push, { group: 'react' }, { title, author } as any);
+  // After
+  ctrl.fetch(getPosts.push, { group: 'react' }, { title, author });
+  ```
+
+- [#4235](https://github.com/reactive/data-client/pull/4235) [`588a558`](https://github.com/reactive/data-client/commit/588a558332d9d2bc6a313b2f4b6700bb3ff017f2) - Fix TypeScript error passing `FormData` to `resource().create`
+
+  `resource().create` sends a `FormData` body as-is, the same as `update`, `partialUpdate` and
+  `getList.push`, but its type only allowed an object, so submitting a form needed a cast. This now typechecks,
+  and you can drop the cast. `create` is deprecated, and its replacement `getList.push` takes `FormData` too.
+
+  ```tsx
+  <form
+    onSubmit={e => {
+      e.preventDefault();
+      // Before: TypeScript error, so you had to cast
+      ctrl.fetch(PostResource.create, new FormData(e.currentTarget) as any);
+      // After
+      ctrl.fetch(PostResource.create, new FormData(e.currentTarget));
+    }}
+  >
+  ```
+
+- [#4184](https://github.com/reactive/data-client/pull/4184) [`bf377f4`](https://github.com/reactive/data-client/commit/bf377f46a2c916d8e808472645f1da9704ffaf91) - Fix `resource().extend({ get: ... })` dropping endpoints added earlier from its type
+
+  Customizing a resource's standard endpoints with `.extend({ ... })` kept every endpoint at runtime, but TypeScript lost the ones added before it with `.extend('name', options)`, and the deprecated `create`. Using them was a type error even though they worked.
+
+  ```ts
+  const UserResource = resource({ path: '/users/:id', schema: User })
+    .extend('current', { path: '/user' })
+    .extend({ get: { dataExpiryLength: 60000 } });
+
+  // Before: Property 'current' does not exist
+  // After: no error
+  const me = await ctrl.fetch(UserResource.current);
+  ```
+
+- [#4262](https://github.com/reactive/data-client/pull/4262) [`ae7080d`](https://github.com/reactive/data-client/commit/ae7080de64ca8621833a71267ec84d2a9d5e19dd) - Fix pushing several items at once sending `"[object Object]"` instead of JSON
+
+  [RestEndpoint.push](https://dataclient.io/rest/api/RestEndpoint#push), `unshift` and `remove` accept an array of items,
+  but sent it to `fetch()` as-is, so the server received `"[object Object],[object Object]"` with no JSON `Content-Type`. Arrays are
+  now JSON-encoded like objects, with `Content-Type: application/json`. `FormData`, `Blob`, `URLSearchParams` and strings
+  still go to `fetch()` unchanged.
+
+  `resource().create` takes the same bodies as `getList.push`, including an array.
+
+  ```ts
+  // Before: the server received "[object Object],[object Object]"
+  // After: the server receives [{"title":"Buy milk"},{"title":"Walk dog"}]
+  await ctrl.fetch(TodoResource.getList.push, [
+    { title: 'Buy milk' },
+    { title: 'Walk dog' },
+  ]);
+  ```
+
+- [#4019](https://github.com/reactive/data-client/pull/4019) [`aa15f29`](https://github.com/reactive/data-client/commit/aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e) Thanks [@renovate](https://github.com/apps/renovate)! - Fix TypeScript 7 module resolution for package exports
+
+  TypeScript 7 requires a `types` condition in `package.json` `exports`. Without it, imports resolved to runtime entrypoints like `node.mjs` and lost declaration files.
+
+- Updated dependencies [[`4549122`](https://github.com/reactive/data-client/commit/4549122004244990a564781a61145ae9ea98370e), [`cc57a77`](https://github.com/reactive/data-client/commit/cc57a77d2e563071926f50cb9054516d2ab9101e), [`022f449`](https://github.com/reactive/data-client/commit/022f44950bf687b61f2d349e42ab906071c6fce7), [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc), [`b4b502d`](https://github.com/reactive/data-client/commit/b4b502d545aab0cf75bf030f3de4607a2e3ab7dc), [`a403df8`](https://github.com/reactive/data-client/commit/a403df8f22dadb0dbd9a6cf72a65f9187ae63176), [`aa15f29`](https://github.com/reactive/data-client/commit/aa15f29f6b0a3b4ae655e2d114a419a3fc94ac7e)]:
+  - @data-client/endpoint@1.0.0
+
 ## 0.18.1
 
 ### Patch Changes
