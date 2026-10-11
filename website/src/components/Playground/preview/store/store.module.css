@@ -1246,14 +1246,20 @@ div.joined {
   opacity: 0.4;
   cursor: default;
 }
-/* the one lane; the track is the scale's width, or what fits (see .tlBody) */
+/* the one lane at the scale's width, scrolling sideways past what fits (as
+   .tlBody does): every action keeps its own mark. Too short for a scrollbar;
+   a trackpad, ‹ › and the marks move it */
 .scrubTrack {
   --tl-row: 18px;
-  --tl-track: min(var(--tl-width), 100%);
+  --tl-track: var(--tl-width);
   flex: 1 1 auto;
   min-width: 0;
   height: var(--tl-row);
-  overflow: hidden;
+  overflow: auto hidden;
+  scrollbar-width: none;
+}
+.scrubTrack::-webkit-scrollbar {
+  display: none;
 }
 .scrubTrack .tlBreak,
 .scrubTrack .tlPlayhead {
