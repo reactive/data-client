@@ -17,6 +17,9 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    outputs:
+      archive-version: ${{ steps.archive.outputs.version }}
+      archive-ref: ${{ steps.archive.outputs.ref }}
     permissions:
       id-token: write
       contents: write
@@ -52,3 +55,32 @@ jobs:
         run: node scripts/create-github-releases.mjs
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # A breaking version (0.x minor, else major) replaces the previous one's
+      # docs, so docs-snapshot.yml freezes those at /<version>/
+      - name: Find docs to archive
+        id: archive
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          git cat-file -e "$BEFORE^{commit}" 2>/dev/null || git fetch --depth=1 origin "$BEFORE" || exit 0
+          version() { node -p 'JSON.parse(require("fs").readFileSync(0, "utf8")).version'; }
+          old="$(git show "$BEFORE:packages/react/package.json" | version)"
+          new="$(version < packages/react/package.json)"
+          line() { [[ "$1" == 0.* ]] && echo "${1%.*}" || echo "${1%%.*}"; }
+          if [ "$(line "$old")" != "$(line "$new")" ] && [[ "$old" != *-* ]]; then
+            echo "version=$(line "$old")" >> "$GITHUB_OUTPUT"
+            echo "ref=@data-client/react@$old" >> "$GITHUB_OUTPUT"
+          fi
+
+  docs-archive:
+    needs: release
+    if: needs.release.outputs.archive-version
+    permissions:
+      contents: write
+      pull-requests: write
+    uses: ./.github/workflows/docs-snapshot.yml
+    with:
+      version: ${{ needs.release.outputs.archive-version }}
+      ref: ${{ needs.release.outputs.archive-ref }}

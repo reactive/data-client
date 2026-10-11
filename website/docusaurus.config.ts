@@ -572,27 +572,6 @@ const config: Config = {
           position: 'left',
         },
         { to: '/blog', label: 'News', position: 'left' },
-        /*{
-            type: 'docsVersionDropdown',
-            docsPluginId: 'default',
-            position: 'right',
-            dropdownItemsBefore: [
-              {
-                label: 'Upgrade Guide',
-                to: 'docs/upgrade/upgrading-to-7',
-              },
-            ],/
-          },
-          {
-            type: 'docsVersionDropdown',
-            docsPluginId: 'rest',
-            position: 'right',
-          },
-          {
-            type: 'docsVersionDropdown',
-            docsPluginId: 'graphql',
-            position: 'right',
-          }, TODO: Add back when we have versions to upgrade*/
         {
           to: 'demos',
           label: 'Demos',
@@ -601,6 +580,8 @@ const config: Config = {
           //className: 'header-demos-link',
           'aria-label': 'Demo Applications',
         },
+        // Latest and the archived versions (scripts/snapshot/README.md)
+        { type: 'custom-versions', position: 'right' },
         {
           href: 'https://github.com/reactive/data-client',
           position: 'right',

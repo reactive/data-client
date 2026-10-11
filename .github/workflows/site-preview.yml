@@ -171,6 +171,10 @@ jobs:
           else
             echo "deploy=false" >> "$GITHUB_OUTPUT"
           fi
+      # Frozen builds of older versions, served at /<version>/
+      - name: Add archived versions
+        if: steps.decide.outputs.deploy == 'true'
+        run: website/scripts/snapshot/fetch.sh website/build
       - name: Upload site for deploy
         if: steps.decide.outputs.deploy == 'true'
         uses: actions/upload-artifact@v7

@@ -1,0 +1,103 @@
+name: docs snapshot
+
+# Freezes the docs of a release that a breaking one replaced, served at
+# dataclient.io/<version>/ (website/scripts/snapshot/README.md). release.yml
+# calls it when a breaking version publishes; dispatch it to rebuild one.
+on:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        required: true
+      ref:
+        type: string
+        required: false
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to archive, e.g. 0.18'
+        type: string
+        required: true
+      ref:
+        description: 'Ref to build (default: its newest @data-client/react tag). A docs/<version> branch takes fixes.'
+        type: string
+        required: false
+
+concurrency:
+  group: docs-snapshot-${{ inputs.version }}
+  queue: max
+
+permissions:
+  contents: read
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      # the docs-v<version> release, and the PR listing it
+      contents: write
+      pull-requests: write
+    env:
+      VERSION: ${{ inputs.version }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Check version
+        run: |
+          [[ "$VERSION" =~ ^[0-9]+(\.[0-9]+)?$ ]] || { echo "::error::version must look like 0.18"; exit 1; }
+      - uses: actions/checkout@v7
+      - name: Pick the release
+        id: ref
+        env:
+          REF: ${{ inputs.ref }}
+        run: |
+          if [ -z "$REF" ]; then
+            REF="$(git ls-remote --tags --refs origin "refs/tags/@data-client/react@$VERSION.*" |
+              sed 's#.*refs/tags/##' | grep -E "@${VERSION//./\\.}(\.[0-9]+)+$" | sort -V | tail -1)"
+            [ -n "$REF" ] || { echo "::error::No @data-client/react@$VERSION.* tag"; exit 1; }
+          fi
+          echo "ref=$REF" >> "$GITHUB_OUTPUT"
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ steps.ref.outputs.ref }}
+          path: release
+          # Pages date themselves from git history ("Last updated")
+          fetch-depth: 0
+          filter: blob:none
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '26'
+          cache: 'yarn'
+          cache-dependency-path: release/yarn.lock
+      - run: corepack enable
+      - name: Build
+        run: website/scripts/snapshot/build.sh release "$VERSION" "docs-$VERSION.tar.gz"
+      - name: Publish to the docs-v${{ inputs.version }} release
+        run: |
+          tag="docs-v$VERSION"
+          gh release view "$tag" > /dev/null 2>&1 ||
+            gh release create "$tag" --latest=false --target "$(git -C release rev-parse HEAD)" \
+              --title "Docs v$VERSION" \
+              --notes "Frozen docs for v$VERSION, served at https://dataclient.io/$VERSION/ (built from \`${{ steps.ref.outputs.ref }}\`)."
+          gh release upload "$tag" "docs-$VERSION.tar.gz" --clobber
+      - name: Open a PR listing the version
+        run: |
+          node -e '
+            const fs = require("fs");
+            const file = "website/versionsArchived.json";
+            const versions = JSON.parse(fs.readFileSync(file, "utf8"));
+            if (versions.includes(process.env.VERSION)) process.exit();
+            versions.push(process.env.VERSION);
+            versions.sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
+            fs.writeFileSync(file, JSON.stringify(versions, null, 2) + "\n");
+          '
+          git diff --quiet && { echo "v$VERSION is already listed"; exit 0; }
+          branch="docs-archive-v$VERSION"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "$branch"
+          git commit -am "docs: Archive v$VERSION docs at /$VERSION"
+          git push --force origin "$branch"
+          gh pr view "$branch" > /dev/null 2>&1 ||
+            gh pr create --head "$branch" --title "docs: Archive v$VERSION docs at /$VERSION" \
+              --body "Lists v$VERSION in the version dropdown; its frozen build is on the [docs-v$VERSION release](https://github.com/$GITHUB_REPOSITORY/releases/tag/docs-v$VERSION). Made by docs-snapshot.yml with the workflow token, so push a commit (or close and reopen) to run CI."

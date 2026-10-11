@@ -15,6 +15,11 @@
       "source": "/vue/getting-started/devtools-debugging.md",
       "destination": "/vue/getting-started/debugging.md",
       "permanent": true
+    },
+    {
+      "source": "/:version(\\d+\\.\\d+)/blog/:path*",
+      "destination": "/blog/:path*",
+      "permanent": true
     }
   ]
 }
