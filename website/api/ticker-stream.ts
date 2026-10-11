@@ -37,6 +37,14 @@ export function GET(request: Request): Response {
   let lifetime: ReturnType<typeof setTimeout>;
   let stream: ReadableStreamDefaultController<Uint8Array>;
   let done = false;
+  const subscribe = (productId: string, channel: string) =>
+    socket.send(
+      JSON.stringify({
+        type: 'subscribe',
+        product_ids: [productId],
+        channels: [channel],
+      }),
+    );
   /** Every way the stream can end comes here, once */
   const end = () => {
     if (done) return;
@@ -64,18 +72,12 @@ export function GET(request: Request): Response {
         lastSent = Date.now();
       };
 
-      // one product per subscribe, so an unknown one fails alone;
-      // one heartbeat (a message per second) shows Coinbase is alive
       socket.onopen = () => {
-        productIds.forEach((productId, i) =>
-          socket.send(
-            JSON.stringify({
-              type: 'subscribe',
-              product_ids: [productId],
-              channels: i ? ['ticker_batch'] : ['ticker_batch', 'heartbeat'],
-            }),
-          ),
-        );
+        // one product per subscribe, so an unknown one fails alone
+        for (const productId of productIds)
+          subscribe(productId, 'ticker_batch');
+        // a message a second shows Coinbase is alive, however quiet prices are
+        subscribe('BTC-USD', 'heartbeat');
       };
       socket.onmessage = event => {
         lastUpstream = Date.now();
