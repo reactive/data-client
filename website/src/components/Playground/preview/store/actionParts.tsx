@@ -238,9 +238,19 @@ function lastShown(scroller: HTMLElement, axis: 'x' | 'y') {
   const from = startOf(scroller, axis);
   const to =
     from + (axis === 'y' ? scroller.clientHeight : scroller.clientWidth);
-  // by place, not document order: a timeline's marks are drawn by group
+  const rows = scroller.querySelectorAll('[data-id]');
+  // a list's rows are in document order, the last in view found from the
+  // end (by place, an open row's steps clipped below its box would win); a
+  // timeline's marks are drawn by group, so the last is found by place
+  if (axis === 'y') {
+    for (let i = rows.length - 1; i >= 0; i--) {
+      const at = startOf(rows[i], axis);
+      if (at < to) return { row: rows[i], at: at - from };
+    }
+    return;
+  }
   let last: { row: Element; at: number } | undefined;
-  for (const row of scroller.querySelectorAll('[data-id]')) {
+  for (const row of rows) {
     const at = startOf(row, axis);
     if (at < to && (!last || at >= last.at)) last = { row, at };
   }
