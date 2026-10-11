@@ -1,3 +1,4 @@
+import { useActivePlugin } from '@docusaurus/plugin-content-docs/client';
 import { useLocation } from '@docusaurus/router';
 import siteConfig from '@generated/docusaurus.config';
 import i18n from '@generated/i18n';
@@ -6,8 +7,8 @@ import DropdownNavbarItem from '@theme/NavbarItem/DropdownNavbarItem';
 import React, { useCallback, useEffect, useState } from 'react';
 
 import {
-  DOCS_INSTANCES,
   FRAMEWORK_INSTANCES,
+  docsInstance,
   trimRoute,
 } from '../../../framework-docs/docsInstances.js';
 import versionsArchived from '../../../versionsArchived.json';
@@ -23,9 +24,6 @@ const targets = [
 // '' or this locale build's '/es'
 const locale =
   i18n.currentLocale === i18n.defaultLocale ? '' : `/${i18n.currentLocale}`;
-const SECTION = new RegExp(
-  `^/(${DOCS_INSTANCES.map(d => d.routeBasePath).join('|')})(/|$)`,
-);
 
 /**
  * The site is the latest version (or the next one while master is a major
@@ -37,9 +35,13 @@ export default function VersionsNavbarItem(
   props: Omit<DropdownProps, 'items'>,
 ): React.JSX.Element | null {
   const { pathname } = useLocation();
+  // Pages outside the docs (home, blog) go to the default framework's docs
+  const section = (
+    docsInstance(useActivePlugin()?.pluginId) ?? FRAMEWORK_INSTANCES[0]
+  ).routeBasePath;
   const [routes, setRoutes] = useState<Routes>({});
   const loadRoutes = useCallback(() => {
-    if (targets.length) fetchRoutes().then(setRoutes);
+    fetchRoutes().then(setRoutes);
   }, []);
   // The mobile item mounts when the menu opens; the desktop one, with the page
   const { mobile } = props;
@@ -49,9 +51,6 @@ export default function VersionsNavbarItem(
   if (!targets.length) return null;
 
   const page = pathname.slice(baseUrl.length - 1);
-  // Pages outside the docs (home, blog) go to the default framework's docs
-  const section =
-    page.match(SECTION)?.[1] ?? FRAMEWORK_INSTANCES[0].routeBasePath;
   const hrefIn = ({ root }: (typeof targets)[number]) => {
     const candidates = [
       ...(locale ? [`${locale}${page}`] : []),

@@ -67,17 +67,17 @@ jobs:
           warn() { echo "::warning title=No docs archive::$1; dispatch docs-snapshot.yml if this release was breaking"; exit 0; }
           git cat-file -e "$BEFORE^{commit}" 2>/dev/null || git fetch --depth=1 origin "$BEFORE" ||
             warn "couldn't fetch $BEFORE to compare versions"
-          version() { node -p 'JSON.parse(require("fs").readFileSync(0, "utf8")).version'; }
-          old="$(git show "$BEFORE:packages/react/package.json" | version)" ||
+          old="$(git show "$BEFORE:packages/react/package.json" | jq -r .version)" ||
             warn "no packages/react/package.json at $BEFORE"
-          new="$(version < packages/react/package.json)"
+          new="$(jq -r .version packages/react/package.json)"
           line() { [[ "$1" == 0.* ]] && echo "${1%.*}" || echo "${1%%.*}"; }
-          if [ "$(line "$old")" != "$(line "$new")" ] && [[ "$old" != *-* ]]; then
-            echo "version=$(line "$old")" >> "$GITHUB_OUTPUT"
+          prev="$(line "$old")"
+          if [ "$prev" != "$(line "$new")" ] && [[ "$old" != *-* ]]; then
+            echo "version=$prev" >> "$GITHUB_OUTPUT"
             ref="@data-client/react@$old"
             # its branch, if it had one while master was the next major
             cur=website/versionCurrent.json
-            [ -f "$cur" ] && [ "$(jq -r .version "$cur")" = "$(line "$old")" ] && ref="$(jq -r .ref "$cur")"
+            [ -f "$cur" ] && [ "$(jq -r .version "$cur")" = "$prev" ] && ref="$(jq -r .ref "$cur")"
             echo "ref=$ref" >> "$GITHUB_OUTPUT"
           fi
 

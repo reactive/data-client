@@ -15,7 +15,6 @@ src="$(cd "$1" && pwd)"
 version="$2"
 out="$(realpath -m "$3")"
 here="$(cd "$(dirname "$0")" && pwd)"
-yarn="${YARN:-yarn}"
 site="$(mktemp -d)"
 # the archive's directory, or the root
 dir="$([ "${SNAPSHOT_ROLE:-}" = current ] && echo . || echo "$version")"
@@ -23,17 +22,17 @@ trap 'rm -rf "$site"' EXIT
 
 cp "$here/docusaurus.snapshot.config.ts" "$here/withoutBlog.ts" "$here/archive.client.ts" "$src/website/"
 cd "$src"
-$yarn install
+yarn install
 # The packages the site imports, with the release's own script when it has one
 has() { node -e "process.exit('$1' in require('./package.json').scripts ? 0 : 1)"; }
 if has ci:build:website; then
-  $yarn ci:build:website
+  yarn ci:build:website
 else
-  $yarn "$(has ci:build:types && echo ci:build:types || echo build:types)"
-  $yarn workspaces foreach -WptivR --from rdc-website --no-private run build:lib
+  yarn "$(has ci:build:types && echo ci:build:types || echo build:types)"
+  yarn workspaces foreach -WptivR --from rdc-website --no-private run build:lib
 fi
 cd website
-SNAPSHOT_VERSION="$version" $yarn docusaurus build \
+SNAPSHOT_VERSION="$version" yarn docusaurus build \
   --config docusaurus.snapshot.config.ts --out-dir "$site/$dir"
 
 # Drop static media nothing in an archive links to (blog videos and images).

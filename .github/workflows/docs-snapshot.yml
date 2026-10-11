@@ -115,8 +115,9 @@ jobs:
               --notes "Frozen docs for v$VERSION, served at https://dataclient.io/$VERSION/ (built from \`$REF\`)."
           # Named by checksum, so a rebuild sits beside the listed archive
           # until its listing PR merges, rather than replacing it
-          cp docs.tar.gz "docs-$VERSION-${SHA256:0:16}.tar.gz"
-          gh release upload "$tag" "docs-$VERSION-${SHA256:0:16}.tar.gz" --clobber
+          asset="docs-$VERSION-${SHA256:0:16}.tar.gz"
+          mv docs.tar.gz "$asset"
+          gh release upload "$tag" "$asset" --clobber
       # fetch.sh checks the listed checksum, so a later change to the asset
       # fails the deploy instead of shipping
       - name: Open a PR listing the version
