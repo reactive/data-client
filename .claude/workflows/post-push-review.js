@@ -19,6 +19,9 @@ if (!range) {
   );
 }
 
+// git log A...B lists both sides; A..B lists the commits git diff A...B shows
+const logRange = range.replace('...', '..');
+
 const FINDINGS_SCHEMA = {
   type: 'object',
   properties: {
@@ -58,7 +61,7 @@ const GOALS = `The project goals are in GOALS.md at the repo root; read it.${
 }`;
 
 const brief = focus => `You are reviewing a pushed change in this repository.
-Start with \`git log ${range}\` for intent and \`git diff --stat ${range}\` for scope, then read \`git diff ${range} -- <paths>\` for the files that matter and open the surrounding code as needed. Skip lockfiles and generated files (translations under website/i18n, built references, editor types).
+Start with \`git log ${logRange}\` for intent and \`git diff --stat ${range}\` for scope, then read \`git diff ${range} -- <paths>\` for the files that matter and open the surrounding code as needed. Skip lockfiles and generated files (translations under website/i18n, built references, editor types).
 
 ${focus}
 
