@@ -326,6 +326,11 @@ div.playgroundTextEdit > .playgroundHeader,
 :global(html:has(.navbar[class*='navbarHidden_'])) .storePanel {
   --store-top: 0px;
 }
+@media (prefers-reduced-motion: reduce) {
+  .storePanel {
+    transition: none;
+  }
+}
 [data-theme='dark'] .storePanel {
   /* opaque, so the covered code never shows through; the tree inside
      adds the translucent code tint on top */
