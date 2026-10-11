@@ -64,7 +64,7 @@ import React from 'react';
 import { useController } from '@data-client/react';
 import { getTodos } from './api/Todo';
 
-export default function NewTodo({ userId }: { userId?: string }) {
+export default function NewTodo({ userId }: { userId: string }) {
   const ctrl = useController();
   const [unshift, setUnshift] = React.useState(false);
 

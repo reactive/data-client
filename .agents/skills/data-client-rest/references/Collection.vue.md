@@ -65,7 +65,7 @@ export const getUsers = new RestEndpoint({
   import { useController } from '@data-client/vue';
   import { getTodos } from './api/Todo';
 
-  const props = defineProps<{ userId?: string }>();
+  const props = defineProps<{ userId: string }>();
   const ctrl = useController();
   const unshift = ref(false);
 
