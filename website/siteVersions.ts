@@ -1,26 +1,28 @@
 // The site's versions (scripts/snapshot/README.md), checked as they're read so a
-// bad listing fails the build instead of the deploy. The only reader of
-// versionCurrent.json and versionsArchived.json in the site; workflows read
-// them with jq.
+// bad listing fails the build instead of the deploy. The site's config and
+// pages read versionCurrent.json and versionsArchived.json only through this;
+// scripts and workflows read their fields with jq.
 import fs from 'fs';
 import path from 'path';
 
-/** Where a version's site lives: '' for the root, else '/<version>' */
 export interface VersionTarget {
   version: string;
+  /** Its site: '' for this site's root, '/<version>', or production's origin */
   root: string;
+  /** Whether it's served beside this site, so its sitemap can be read */
+  sameOrigin: boolean;
 }
 
 /** Read by VersionsNavbarItem (customFields.versions) */
 export interface SiteVersions {
-  /** Whether this site is the next, unreleased major */
-  next: boolean;
+  /** Whether this site documents the next, unreleased major */
+  unreleased: boolean;
   /** The other versions, newest first */
   others: VersionTarget[];
 }
 
 // A release line, which a breaking change starts: the minor for 0.x, else the
-// major (scripts/maintenance/version-line.sh)
+// major. Matches is_line in scripts/maintenance/version-line.sh
 const LINE = /^(0\.\d+|[1-9]\d*)$/;
 
 const read = (file: string) =>
@@ -68,17 +70,27 @@ for (const { version, sha256 } of versionsArchived) {
 }
 
 /**
- * @param currentSite where the current version's site is, when this site is
- * the next major: '' when it's this one's root
+ * @param currentOrigin where the current version's site is, when this site is
+ * the next major: production's, or undefined when it's this site's root
  */
-export const siteVersions = (currentSite: string): SiteVersions => ({
-  next: !!versionCurrent,
+export const siteVersions = (currentOrigin?: string): SiteVersions => ({
+  unreleased: !!versionCurrent,
   others: [
     ...(versionCurrent ?
-      [{ version: versionCurrent.version, root: currentSite }]
+      [
+        {
+          version: versionCurrent.version,
+          root: currentOrigin ?? '',
+          sameOrigin: !currentOrigin,
+        },
+      ]
     : []),
     ...versionsArchived
-      .map(({ version }) => ({ version, root: `/${version}` }))
+      .map(({ version }) => ({
+        version,
+        root: `/${version}`,
+        sameOrigin: true,
+      }))
       .sort((a, b) =>
         b.version.localeCompare(a.version, undefined, { numeric: true }),
       ),

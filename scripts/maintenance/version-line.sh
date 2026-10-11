@@ -11,3 +11,19 @@ line() {
 
 # Whether $1 names a line
 is_line() { [[ "$1" =~ ^(0\.[0-9]+|[1-9][0-9]*)$ ]]; }
+
+# The line a stable release replaces at the root, when it's the first stable
+# release of a new line: the line master was ahead of (versionCurrent.json's
+# version), else the previous version's. Prints nothing if it replaces none,
+# and fails if the previous version is a prerelease with no current line.
+#   replaced_line <previous version> <released version> [current line]
+replaced_line() {
+  local old="$1" new="$2" prev="${3:-}"
+  [ "$old" != "$new" ] && [[ "$new" != *-* ]] || return 0
+  [[ "$old" == *-* ]] || [ "$(line "$old")" != "$(line "$new")" ] || return 0
+  if [ -z "$prev" ]; then
+    [[ "$old" != *-* ]] || return 1
+    prev="$(line "$old")"
+  fi
+  [ "$prev" = "$(line "$new")" ] || echo "$prev"
+}

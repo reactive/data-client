@@ -14,8 +14,9 @@ import {
 import type { SiteVersions } from '../../../siteVersions';
 
 const { baseUrl } = siteConfig;
-const { next, others: targets } = siteConfig.customFields
-  ?.versions as SiteVersions;
+// set by docusaurus.config.ts
+const { unreleased, others: targets } = siteConfig.customFields!
+  .versions as SiteVersions;
 // '' or this locale build's '/es'
 const locale =
   i18n.currentLocale === i18n.defaultLocale ? '' : `/${i18n.currentLocale}`;
@@ -46,7 +47,9 @@ export default function VersionsNavbarItem(
   if (!targets.length) return null;
 
   const page = pathname.slice(baseUrl.length - 1);
-  const hrefIn = ({ root }: (typeof targets)[number]) => {
+  const hrefIn = ({ root, sameOrigin }: (typeof targets)[number]) => {
+    // Without its pages to check, its section start, which every locale has
+    if (!sameOrigin) return trimRoute(`${root}${locale}/${section}`);
     const candidates = [
       ...(locale ? [`${locale}${page}`] : []),
       page,
@@ -60,7 +63,7 @@ export default function VersionsNavbarItem(
   return (
     <DropdownNavbarItem
       {...props}
-      label={next ? 'Next' : 'Latest'}
+      label={unreleased ? 'Next' : 'Latest'}
       onPointerEnter={loadRoutes}
       onFocus={loadRoutes}
       items={targets.map(target => ({
@@ -102,7 +105,7 @@ async function requestRoutes(): Promise<Routes> {
   const entries = await Promise.all(
     // another origin's (production's, from a preview) can't be read
     targets
-      .filter(({ root }) => !root.includes('://'))
+      .filter(({ sameOrigin }) => sameOrigin)
       .map(async ({ root }) => {
         const sitemaps = [`${root}/sitemap.xml`];
         if (locale) sitemaps.push(`${root}${locale}/sitemap.xml`);

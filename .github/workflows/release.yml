@@ -71,22 +71,16 @@ jobs:
           old="$(git show "$BEFORE:packages/react/package.json" | jq -r .version)" ||
             warn "no packages/react/package.json at $BEFORE"
           new="$(jq -r .version packages/react/package.json)"
-          # only this push's stable release can start a line
-          [ "$old" != "$new" ] && [[ "$new" != *-* ]] || exit 0
           source scripts/maintenance/version-line.sh
+          # the line master was ahead of, built from its branch
           cur=website/versionCurrent.json
-          if [ -f "$cur" ]; then
-            # the line master was ahead of, built from its branch
-            prev="$(jq -r .version "$cur")"
-            ref="$(jq -r .ref "$cur")"
-          elif [[ "$old" == *-* ]]; then
+          current="$([ ! -f "$cur" ] || jq -r .version "$cur")"
+          prev="$(replaced_line "$old" "$new" "$current")" ||
             warn "the previous version, $old, is a prerelease"
-          else
-            prev="$(line "$old")"
-            ref="@data-client/react@$old"
-          fi
-          [ "$prev" = "$(line "$new")" ] ||
-            { echo "version=$prev"; echo "ref=$ref"; } >> "$GITHUB_OUTPUT"
+          [ -z "$prev" ] || {
+            echo "version=$prev"
+            echo "ref=$([ -n "$current" ] && jq -r .ref "$cur" || echo "@data-client/react@$old")"
+          } >> "$GITHUB_OUTPUT"
 
   docs-archive:
     needs: release

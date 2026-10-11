@@ -26,7 +26,7 @@ type-check, as they did when that release's CI passed. Archives add nothing to t
   checksum itself, so it guards the asset after publishing, not what the build produced.
   `site-preview.yml` runs it before uploading a build for deploy, so production and previews serve
   the archives.
-- `website/siteVersions.ts` reads `versionCurrent.json` and `versionsArchived.json` for the site,
+- The site reads `versionCurrent.json` and `versionsArchived.json` through `website/siteVersions.ts`,
   failing the build when one breaks an invariant: each version is a line, listed once, and not both
   current and archived; each sha256 is one; the current `ref` is `<version>.x`. It hands
   `src/theme/NavbarItem/VersionsNavbarItem.tsx`, the navbar's version dropdown, the other versions
