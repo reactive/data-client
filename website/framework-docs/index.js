@@ -9,24 +9,47 @@
 const fs = require('fs');
 const path = require('path');
 
-const { FRAMEWORKS } = require('./remarkFramework.js');
+// Docusaurus' own route rules (slug, category index), so links match its routes
+const getSlug = require('@docusaurus/plugin-content-docs/lib/slug.js').default;
 
-const SRC = path.resolve(__dirname, '../../docs/core');
+const {
+  FRAMEWORKS,
+  frameworkInstance,
+  localizedPath,
+} = require('./docsInstances.js');
+
+const ROOT = path.resolve(__dirname, '../..');
+const SRC = path.resolve(ROOT, frameworkInstance('react').path);
 const MD = /\.mdx?$/;
 /** `foo.vue.md` replaces `foo.md` for Vue */
 const VUE_OVERRIDE = /\.vue(\.mdx?)$/;
-const FM = /^---\n([\s\S]*?)\n---\n/;
+const FM = /^---\r?\n([\s\S]*?)\r?\n---\r?\n/;
 
+/** Files under `dir`, relative to it, with forward slashes (as `docIdOf` expects) */
 function walk(dir, base = dir) {
   return fs.readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) return walk(full, base);
-    return [path.relative(base, full)];
+    return [path.relative(base, full).split(path.sep).join('/')];
   });
 }
 
-const readSrc = file => fs.readFileSync(path.join(SRC, file), 'utf8');
+const readSrc = (file, src = SRC) =>
+  fs.readFileSync(path.join(src, file), 'utf8');
 const frontMatter = content => content.match(FM)?.[1] ?? '';
+/** One front matter value, unquoted */
+const frontMatterValue = (content, key) =>
+  frontMatter(content)
+    .match(new RegExp(`^${key}:\\s*(.*?)\\s*$`, 'm'))?.[1]
+    .replace(/^(['"])(.*)\1$/, '$2');
+
+/** Doc id (as used in sidebars) of a page at `file`, relative to its docs folder */
+const docIdOf = (file, content) =>
+  path.posix.join(
+    path.posix.dirname(file),
+    frontMatterValue(content, 'id') ??
+      path.posix.basename(file).replace(MD, ''),
+  );
 
 /** Which frameworks a source page renders for (`frameworks: [react]`) */
 function pageFrameworks(content) {
@@ -53,16 +76,19 @@ function rewriteFrontMatter(content, framework) {
   return content.replace(FM, `---\n${next.join('\n')}\n---\n`);
 }
 
-/** Map of output path -> source path (relative to docs/core) for a framework */
-function resolveSources(framework) {
+/**
+ * Map of output path -> source path (relative to `src`, docs/core or a
+ * locale's translation of it) for a framework
+ */
+function resolveSources(framework, src = SRC) {
   const sources = new Map();
-  for (const file of walk(SRC)) {
+  for (const file of walk(src)) {
     if (VUE_OVERRIDE.test(file)) {
       if (framework === 'vue')
         sources.set(file.replace(VUE_OVERRIDE, '$1'), file);
     } else if (
       !sources.has(file) &&
-      (!MD.test(file) || pageFrameworks(readSrc(file)).includes(framework))
+      (!MD.test(file) || pageFrameworks(readSrc(file, src)).includes(framework))
     ) {
       sources.set(file, file);
     }
@@ -70,27 +96,86 @@ function resolveSources(framework) {
   return sources;
 }
 
-/** Doc ids (as used in sidebars) that exist for a framework */
-function docIds(framework) {
-  const ids = new Set();
+/**
+ * Docs that exist for a framework, by doc id (as used in sidebars):
+ * - route: site route relative to the instance's routeBasePath, honoring `slug`
+ * - equivalent: `framework_equivalent:` front matter, the doc id of the same
+ *   concept in the other framework's docs when it has a different name
+ */
+function docsFor(framework) {
+  const docs = new Map();
   for (const [out, src] of resolveSources(framework)) {
     if (!MD.test(out) || path.basename(out).startsWith('_')) continue;
-    const id = frontMatter(readSrc(src)).match(/^id:\s*(\S+)\s*$/m);
-    const name = id ? id[1] : path.basename(out).replace(MD, '');
-    ids.add(path.posix.join(path.dirname(out), name));
+    const content = rewriteFrontMatter(readSrc(src), framework);
+    const id = docIdOf(out, content);
+    docs.set(id, {
+      route: getSlug({
+        baseID: path.posix.basename(id),
+        source: out,
+        sourceDirName: path.posix.dirname(out),
+        frontMatterSlug: frontMatterValue(content, 'slug'),
+      }),
+      equivalent: frontMatterValue(content, 'framework_equivalent'),
+    });
   }
-  return ids;
+  return docs;
 }
 
-/** Write the mirror for a framework; only touches files whose output changed */
-function generate(framework) {
-  // Sibling of docs/core so relative imports that leave the folder
-  // (e.g. ../../rest/diagrams/...) still resolve from the mirror
-  const outDir = path.resolve(__dirname, `../../docs/.core-${framework}`);
-  const sources = resolveSources(framework);
+/**
+ * `framework_equivalent:` front matter in both directions, for
+ * FrameworkSelector: { [framework]: { [doc id]: counterpart's doc id } }
+ */
+function frameworkEquivalents() {
+  const docs = Object.fromEntries(FRAMEWORKS.map(f => [f, docsFor(f)]));
+  const equivalents = Object.fromEntries(FRAMEWORKS.map(f => [f, {}]));
+  for (const framework of FRAMEWORKS) {
+    for (const [id, { equivalent }] of docs[framework]) {
+      if (!equivalent) continue;
+      const others = FRAMEWORKS.filter(
+        f => f !== framework && docs[f].has(equivalent),
+      );
+      if (!others.length)
+        throw new Error(
+          `${framework} doc ${id}: framework_equivalent '${equivalent}' is not a doc in any other framework`,
+        );
+      equivalents[framework][id] = equivalent;
+      // reverse lookup, only needed when this framework has no `equivalent`
+      if (docs[framework].has(equivalent)) continue;
+      for (const other of others) {
+        // a page that names its own counterpart keeps it
+        if (docs[other].get(equivalent).equivalent) continue;
+        const existing = equivalents[other][equivalent];
+        if (existing && existing !== id)
+          throw new Error(
+            `${other} doc ${equivalent} would switch to both ${existing} and ${id}; give it its own framework_equivalent`,
+          );
+        equivalents[other][equivalent] = id;
+      }
+    }
+  }
+  return equivalents;
+}
+
+/**
+ * Write the mirror for a framework; only touches files whose output changed.
+ * With a `locale`, mirrors that locale's translations of docs/core instead.
+ */
+function generate(framework, locale) {
+  // Sibling of docs/core (or of its translations) so relative imports that
+  // leave the folder (e.g. ../../rest/diagrams/...) still resolve from the
+  // mirror
+  const srcDir =
+    locale ?
+      path.resolve(ROOT, localizedPath(frameworkInstance('react').id, locale))
+    : SRC;
+  const outDir =
+    locale ?
+      path.resolve(ROOT, localizedPath(frameworkInstance(framework).id, locale))
+    : path.resolve(ROOT, `docs/.core-${framework}`);
+  const sources = resolveSources(framework, srcDir);
   for (const [out, src] of sources) {
     const target = path.join(outDir, out);
-    let content = fs.readFileSync(path.join(SRC, src));
+    let content = fs.readFileSync(path.join(srcDir, src));
     if (MD.test(out))
       content = Buffer.from(rewriteFrontMatter(content.toString(), framework));
     if (fs.existsSync(target) && fs.readFileSync(target).equals(content))
@@ -103,7 +188,14 @@ function generate(framework) {
       if (!sources.has(file)) fs.rmSync(path.join(outDir, file));
     }
   }
-  return { outDir, sources };
+  /** Source of a mirror file (itself if not mirrored), for its git history */
+  const sourceOf = file => {
+    const src = sources.get(
+      path.relative(outDir, file).split(path.sep).join('/'),
+    );
+    return src ? path.join(srcDir, src) : file;
+  };
+  return { outDir, sources, sourceOf };
 }
 
 /** Keep the mirror in sync during `docusaurus start` */
@@ -115,24 +207,39 @@ function watch(framework) {
   });
 }
 
+const SIDEBAR_OVERRIDE = new RegExp(`^(${FRAMEWORKS.join('|')})_(.+)$`);
+
+/** Apply `<framework>_<key>` overrides to a sidebar item, like front matter */
+function rewriteSidebarItem(item, framework) {
+  // string shorthand ('introduction') has nothing to override
+  if (typeof item !== 'object') return item;
+  const next = {};
+  const overrides = {};
+  for (const [key, value] of Object.entries(item)) {
+    const match = key.match(SIDEBAR_OVERRIDE);
+    if (!match) next[key] = value;
+    else if (match[1] === framework) overrides[match[2]] = value;
+  }
+  return { ...next, ...overrides };
+}
+
 /** Drop sidebar entries for docs that do not exist in this framework */
-function filterSidebar(items, ids) {
-  return items.flatMap(item => {
+function filterSidebar(items, ids, framework) {
+  return items.flatMap(raw => {
+    const item = rewriteSidebarItem(raw, framework);
     if (item.type === 'doc') return ids.has(item.id) ? [item] : [];
-    if (item.type === 'category') {
-      const children = filterSidebar(item.items, ids);
-      return children.length ? [{ ...item, items: children }] : [];
-    }
-    return [item];
+    if (item.type !== 'category') return [item];
+    const children = filterSidebar(item.items, ids, framework);
+    return children.length ? [{ ...item, items: children }] : [];
   });
 }
 
 function sidebarsFor(framework, sidebars) {
-  const ids = docIds(framework);
+  const ids = docsFor(framework);
   return Object.fromEntries(
     Object.entries(sidebars).map(([name, items]) => [
       name,
-      filterSidebar(items, ids),
+      filterSidebar(items, ids, framework),
     ]),
   );
 }
@@ -142,4 +249,20 @@ function sourcePath(framework, docPath) {
   return resolveSources(framework).get(docPath) ?? docPath;
 }
 
-module.exports = { generate, watch, sidebarsFor, sourcePath, docIds };
+module.exports = {
+  FM,
+  MD,
+  ROOT,
+  generate,
+  watch,
+  sidebarsFor,
+  sourcePath,
+  docsFor,
+  frameworkEquivalents,
+  docIdOf,
+  pageFrameworks,
+  rewriteFrontMatter,
+  frontMatterValue,
+  walk,
+  VUE_OVERRIDE,
+};

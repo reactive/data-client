@@ -1,3 +1,4 @@
+import { translate } from '@docusaurus/Translate';
 import Layout from '@theme/Layout';
 import TabItem from '@theme/TabItem';
 import Tabs from '@theme/Tabs';
@@ -8,8 +9,12 @@ import { searchParams } from '../utils/searchParams';
 export default function DemoList() {
   return (
     <Layout
-      title="React Suspense Demos"
-      description="Examples demonstrating high performance scalable applications using REST, GraphQL and Websockets"
+      title={translate({ id: 'demos.title', message: 'React Suspense Demos' })}
+      description={translate({
+        id: 'demos.description',
+        message:
+          'Examples demonstrating high performance scalable applications using REST, GraphQL and Websockets',
+      })}
     >
       <Tabs
         defaultValue="todo"
@@ -17,7 +22,13 @@ export default function DemoList() {
           { label: 'Todo', value: 'todo' },
           { label: 'GitHub', value: 'github' },
           { label: 'NextJS SSR', value: 'nextjs' },
-          { label: 'Live Coin Prices', value: 'coin-app' },
+          {
+            label: translate({
+              id: 'demos.tab.coinApp',
+              message: 'Live Coin Prices',
+            }),
+            value: 'coin-app',
+          },
           { label: 'Vue Todo', value: 'vue-todo-app' },
         ]}
         groupId="Demos"

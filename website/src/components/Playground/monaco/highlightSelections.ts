@@ -1,0 +1,34 @@
+import type { ISelection } from 'monaco-editor';
+
+/**
+ * Converts sorted highlighted line numbers (parsed from a code-fence range
+ * like `{1-3,5}`) into Monaco selections, merging consecutive lines into one
+ * whole-line selection each.
+ */
+export function highlightSelections(lines: readonly number[]): ISelection[] {
+  if (!lines.length) return [];
+
+  let selectionStartLineNumber = lines[0];
+  let positionLineNumber = selectionStartLineNumber;
+  const selections: ISelection[] = [];
+  const pushSelection = () =>
+    selections.push({
+      selectionStartLineNumber,
+      selectionStartColumn: 0,
+      positionLineNumber,
+      positionColumn: 0,
+    });
+
+  lines.forEach(lineNumber => {
+    // more of same selection
+    if (lineNumber === positionLineNumber) {
+      positionLineNumber++;
+    } else {
+      pushSelection();
+      selectionStartLineNumber = lineNumber;
+      positionLineNumber = lineNumber + 1;
+    }
+  });
+  pushSelection();
+  return selections;
+}

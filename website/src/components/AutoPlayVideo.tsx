@@ -3,8 +3,13 @@ import React, { useEffect, useRef } from 'react';
 const AutoPlayVideo = ({
   src,
   type = 'video/mp4',
+  alt,
   ...props
-}: React.VideoHTMLAttributes<HTMLVideoElement> & { type?: string }) => {
+}: React.VideoHTMLAttributes<HTMLVideoElement> & {
+  type?: string;
+  /** Describes what the video shows, for screen readers and as fallback text */
+  alt: string;
+}) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -52,10 +57,11 @@ const AutoPlayVideo = ({
         muted
         playsInline
         loop
+        aria-label={alt}
         {...props}
       >
         <source src={src} type={type} />
-        Your browser does not support the video tag.
+        {alt}
       </video>
     </center>
   );

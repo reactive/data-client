@@ -48,17 +48,8 @@ html[data-theme='light'] {
   --ifm-pre-background: var(--prism-background-color);
 }
 
-.navbar .navbar__link {
-  font-family: var(--ifm-font-family-base);
-}
-
 .navbar .navbar__brand .navbar__title {
   font-family: var(--ifm-font-family-base);
-}
-
-code,
-pre {
-  font-family: var(-ifm-font-family-monospace);
 }
 
 html {
@@ -69,4 +60,12 @@ table {
   display: table;
   width: 100%;
   font-variant-numeric: tabular-nums;
+}
+/* MDX tables are wrapped (theme/MDXComponents) so wide ones scroll instead of widening the page */
+.table-scroll {
+  overflow-x: auto;
+  margin-bottom: var(--ifm-spacing-vertical);
+}
+.table-scroll > table {
+  margin-bottom: 0;
 }

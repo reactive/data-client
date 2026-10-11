@@ -1,4 +1,20 @@
 {
   "cleanUrls": true,
-  "ignoreCommand": "case \"$VERCEL_GIT_COMMIT_REF\" in gh-pages*) exit 0;; esac; if [ \"$VERCEL_GIT_COMMIT_REF\" = \"master\" ]; then git diff HEAD^ HEAD --quiet -- . ../docs/; else git diff HEAD^ HEAD --quiet -- .; fi"
+  "git": {
+    "deploymentEnabled": false
+  },
+  "installCommand": "",
+  "buildCommand": "test -f build/index.html",
+  "redirects": [
+    {
+      "source": "/docs/getting-started/devtools-debugging.md",
+      "destination": "/docs/getting-started/debugging.md",
+      "permanent": true
+    },
+    {
+      "source": "/vue/getting-started/devtools-debugging.md",
+      "destination": "/vue/getting-started/debugging.md",
+      "permanent": true
+    }
+  ]
 }

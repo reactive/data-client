@@ -1,20 +1,19 @@
 import BrowserOnly from '@docusaurus/BrowserOnly';
 import Translate from '@docusaurus/Translate';
+import useIsomorphicLayoutEffect from '@docusaurus/useIsomorphicLayoutEffect';
 import clsx from 'clsx';
-import React, {
-  type ComponentProps,
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { LiveEditor } from 'react-live';
+import type * as Monaco from 'monaco-editor';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 
 import Header from '../Header';
+import { modelPath, useModelId } from '../monaco/modelPath';
+import { createMissingModels } from '../monaco/models';
 import Editor from '../PlaygroundEditor';
 import styles from '../styles.module.css';
 import TabList from '../TabList';
 import type { CodeDocument, CodeModel } from './codeModel';
+import type { InteractiveEditorProps } from './InteractiveEditor';
+import StaticEditor from './StaticEditor';
 
 export interface EditorSurfaceProps extends CodeModel {
   layout: 'row' | 'stacked';
@@ -23,6 +22,12 @@ export interface EditorSurfaceProps extends CodeModel {
   interactive?: boolean;
   fixtureContent?: React.ReactNode;
   headerControls?: React.ReactNode;
+  /** Layer over the files, below the header rows (the Store drawer's host) */
+  cover?: React.ReactNode;
+  /** Whether `cover` hides the code (which goes inert) */
+  covered?: boolean;
+  /** Names `cover` in the header while it hides the code */
+  coverTitle?: React.ReactNode;
 }
 
 export default function EditorSurface({
@@ -33,8 +38,11 @@ export default function EditorSurface({
   interactive = true,
   fixtureContent,
   headerControls,
+  cover,
+  covered = false,
+  coverTitle,
 }: EditorSurfaceProps) {
-  const id = useNumericId();
+  const id = useModelId();
   const row = layout === 'row';
   const [closedList, setClosed] = useState(() =>
     documents.map(({ collapsed }) => collapsed),
@@ -42,17 +50,19 @@ export default function EditorSurface({
 
   // Document count and col flags are fixed after the initial parse, so
   // capturing them once keeps these handlers referentially stable. That
-  // stability is what lets memo(PlaygroundMonacoEditor) skip re-rendering
+  // stability is what lets memo(InteractiveEditor) skip re-rendering
   // unedited tabs on every keystroke.
   const colFlags = useRef(documents.map(({ col }) => col)).current;
   const handleTabSwitch = useCallback(
     (index: number) => {
-      setClosed(closed =>
-        closed.map((previous, documentIndex) => {
+      setClosed(closed => {
+        const next = closed.map((previous, documentIndex) => {
           if (colFlags[documentIndex]) return previous;
           return documentIndex !== index;
-        }),
-      );
+        });
+        // keep identity when already selected so focusing it doesn't re-render
+        return next.every((value, i) => value === closed[i]) ? closed : next;
+      });
     },
     [colFlags],
   );
@@ -77,84 +87,125 @@ export default function EditorSurface({
     [documents.length, update],
   );
 
+  const createModels = useCreateModels(id, documents);
+
+  const tabs =
+    row && documents.length > 1 ?
+      <EditorTabs
+        documents={documents}
+        closedList={closedList}
+        onClick={handleTabSwitch}
+        compact={variant === 'standalone'}
+        hasHeaderControls={headerControls != null}
+      />
+    : null;
+  // the file tabs only pick which file shows, so they go under the cover
+  // with the files
+  const code = documents.map((document, index) => (
+    <React.Fragment key={`${document.path}:${index}`}>
+      {(!row || document.col) && document.title ?
+        <CodeTabHeader
+          onClick={() => handleTabToggle(index)}
+          closed={closedList[index]}
+          title={document.title}
+          collapsible={documents.length > 1 || fixtureContent != null}
+        />
+      : null}
+      <TextEditTab
+        hidden={closedList[index]}
+        ssr={document.ssr}
+        interactive={interactive}
+        tabIndex={index}
+        onFocus={
+          row && !document.col && documents.length > 1 ?
+            handleTabSwitch
+          : handleTabOpen
+        }
+        onChange={handleChanges[index]}
+        code={document.value}
+        path={modelPath(id, document.path)}
+        beforeMount={createModels}
+        isFocused={!closedList[index]}
+        language={document.language}
+        highlights={document.highlights}
+        autoFocus={document.autoFocus}
+      />
+    </React.Fragment>
+  ));
   return (
-    <div className={styles.playgroundTextEdit}>
+    <div
+      className={clsx(styles.playgroundTextEdit, {
+        [styles.withCover]: cover != null,
+      })}
+    >
       <EditorHeader
         fixtureContent={!row ? fixtureContent : undefined}
         title={row && documents.length === 1 ? documents[0].title : undefined}
+        covered={covered}
+        coverTitle={coverTitle}
         controls={headerControls}
       />
-      {row && documents.length > 1 ?
-        <EditorTabs
-          documents={documents}
-          closedList={closedList}
-          onClick={handleTabSwitch}
-          compact={variant === 'standalone'}
-          hasHeaderControls={headerControls != null}
-        />
-      : null}
-      {documents.map((document, index) => (
-        <React.Fragment key={`${document.path}:${index}`}>
-          {(!row || document.col) && document.title ?
-            <CodeTabHeader
-              onClick={() => handleTabToggle(index)}
-              closed={closedList[index]}
-              title={document.title}
-              collapsible={documents.length > 1 || fixtureContent != null}
-            />
-          : null}
-          <TextEditTab
-            hidden={closedList[index]}
-            interactive={interactive}
-            tabIndex={index}
-            onFocus={
-              row && !document.col && documents.length > 1 ?
-                handleTabSwitch
-              : handleTabOpen
-            }
-            onChange={handleChanges[index]}
-            code={document.value}
-            path={`/${id}/${document.path}`}
-            isFocused={!closedList[index]}
-            language={document.language}
-            highlights={document.highlights}
-            autoFocus={document.autoFocus}
-          />
-        </React.Fragment>
-      ))}
+      {cover == null ?
+        <>
+          {tabs}
+          {code}
+        </>
+      : <div className={styles.editorBody}>
+          <div className={styles.editorDocs} inert={covered}>
+            {tabs}
+            {code}
+          </div>
+          {cover}
+        </div>
+      }
     </div>
+  );
+}
+
+/**
+ * `beforeMount` for every editor of a surface: every file's model must exist
+ * before any is type-checked, or imports of later tabs read as missing
+ * modules (see createMissingModels). Stable, so memo'd editors skip renders.
+ */
+function useCreateModels(id: string, documents: readonly CodeDocument[]) {
+  const documentsRef = useRef(documents);
+  // in an effect, not during render, so a discarded render can't leak in
+  useIsomorphicLayoutEffect(() => {
+    documentsRef.current = documents;
+  });
+  return useCallback(
+    (monaco: typeof Monaco) =>
+      createMissingModels(
+        monaco,
+        documentsRef.current.map(document => ({
+          path: modelPath(id, document.path),
+          code: document.value,
+          language: document.language,
+        })),
+      ),
+    [id],
   );
 }
 
 function TextEditTab({
   hidden,
+  ssr,
   interactive,
-  code,
-  language,
-  tabIndex,
-  ...rest
-}: ComponentProps<typeof Editor> & {
-  hidden: boolean;
-  interactive: boolean;
-}) {
-  // Stable across SSR/hydration (do not branch on navigator / isGoogleBot here).
-  const staticView = <LiveEditor language={language} code={code} disabled />;
-
-  // Deferred protocols: keep open-file source in the DOM for SSG/crawlers;
-  // skip Monaco until the sandbox has been shown once.
-  if (!interactive) {
-    return (
-      <div
-        className={clsx(styles.playgroundEditor, {
-          [styles.hidden]: hidden,
-        })}
-      >
-        {hidden ? null : staticView}
-      </div>
-    );
-  }
-
-  const fallback = hidden ? <></> : staticView;
+  ...editorProps
+}: InteractiveEditorProps &
+  Pick<CodeDocument, 'ssr'> & {
+    hidden: boolean;
+    interactive: boolean;
+  }) {
+  // SSR + hydration markup: open tabs' source stays in the HTML for crawlers.
+  // Collapsed tabs are left out to keep the HTML small, unless marked `ssr`:
+  // those keep their text, unhighlighted since it is never seen.
+  // Never branch on navigator / user agent outside BrowserOnly.
+  const staticView =
+    !hidden ?
+      <StaticEditor code={editorProps.code} language={editorProps.language} />
+    : ssr ? <pre>{editorProps.code}</pre>
+    : null;
 
   return (
     <div
@@ -162,16 +213,12 @@ function TextEditTab({
         [styles.hidden]: hidden,
       })}
     >
-      <BrowserOnly fallback={fallback}>
-        {() => (
-          <Editor
-            tabIndex={tabIndex}
-            code={code}
-            language={language}
-            {...rest}
-          />
-        )}
-      </BrowserOnly>
+      {/* Not yet interactive (e.g. never-shown Demo tab): skip Monaco entirely */}
+      {interactive ?
+        <BrowserOnly fallback={staticView}>
+          {() => <Editor {...editorProps} />}
+        </BrowserOnly>
+      : staticView}
     </div>
   );
 }
@@ -245,10 +292,15 @@ function EditorHeader({
       Editor
     </Translate>
   ),
+  covered,
+  coverTitle,
   fixtureContent,
   controls,
 }: {
   title?: React.ReactNode;
+  /** The cover hides the code: the title names it, sliding in as it does */
+  covered: boolean;
+  coverTitle?: React.ReactNode;
   fixtureContent?: React.ReactNode;
   controls?: React.ReactNode;
 }) {
@@ -256,24 +308,30 @@ function EditorHeader({
     <>
       {fixtureContent != null ?
         <>
-          <Header small>Fixtures</Header>
+          <Header small>
+            <Translate id="playground.fixtures">Fixtures</Translate>
+          </Header>
           {fixtureContent}
         </>
       : null}
       {controls != null ?
-        <Header className={styles.tabControls}>
-          <div className={styles.title}>{title}</div>
+        <Header
+          className={clsx(styles.tabControls, styles.controlTabs, {
+            [styles.overCover]: covered,
+          })}
+        >
+          <div className={styles.title}>
+            <span
+              className={clsx(styles.swap, styles.titleSwap)}
+              data-swapped={covered || undefined}
+            >
+              <span aria-hidden={covered}>{title}</span>
+              <span aria-hidden={!covered}>{coverTitle}</span>
+            </span>
+          </div>
           {controls}
         </Header>
       : null}
     </>
-  );
-}
-
-// Monaco model URIs are matched with /\/\d+\// in monaco-init.ts.
-function useNumericId() {
-  return useMemo(
-    () => Math.floor(Math.random() * Number.MAX_SAFE_INTEGER).toString(),
-    [],
   );
 }

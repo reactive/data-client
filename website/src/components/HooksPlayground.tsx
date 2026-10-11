@@ -1,8 +1,8 @@
-import type { Fixture, Interceptor } from '@data-client/test';
 import React, { memo } from 'react';
 
-import Playground from './Playground';
+import Playground, { type PlaygroundProps } from './Playground';
 
+/** MDX entry point: wraps one or more code fences in a live Playground. */
 const HooksPlayground = ({
   children,
   groupId,
@@ -12,6 +12,8 @@ const HooksPlayground = ({
   fixtures = [],
   defaultTab,
   headerControls,
+  renderCount,
+  actionLog,
   getInitialInterceptorData = () => ({}),
 }: PlaygroundProps) => (
   <Playground
@@ -23,7 +25,10 @@ const HooksPlayground = ({
     getInitialInterceptorData={getInitialInterceptorData}
     defaultTab={defaultTab}
     headerControls={headerControls}
+    renderCount={renderCount}
+    actionLog={actionLog}
   >
+    {/* A single fence arrives as one <pre> element; unwrap it to its <code> */}
     {typeof children === 'string' ?
       children
     : Array.isArray(children) ?
@@ -34,15 +39,3 @@ const HooksPlayground = ({
   </Playground>
 );
 export default memo(HooksPlayground);
-
-interface PlaygroundProps<T = any> {
-  groupId: string;
-  defaultOpen?: 'y' | 'n';
-  row: boolean;
-  hidden?: boolean;
-  fixtures?: (Fixture | Interceptor<T>)[];
-  getInitialInterceptorData?: () => T;
-  children: React.ReactNode;
-  defaultTab?: string;
-  headerControls?: React.ReactNode;
-}

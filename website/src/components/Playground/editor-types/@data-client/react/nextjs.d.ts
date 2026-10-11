@@ -1,13 +1,15 @@
-import React$1, { JSX, ComponentProps } from 'react';
-import { Manager, State, Controller, GCInterface } from '@data-client/core';
+import react, { JSX, ComponentProps } from 'react';
+import { Manager, State, GCInterface, Controller } from '@data-client/core';
 
 type DevToolsPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 
 interface ProviderProps$1 {
-    children: React$1.ReactNode;
+    children: react.ReactNode;
     managers?: Manager[];
     initialState?: State<unknown>;
-    Controller?: typeof Controller;
+    Controller?: new (props: {
+        gcPolicy: GCInterface;
+    }) => Controller;
     gcPolicy?: GCInterface;
     devButton?: DevToolsPosition | null | undefined;
 }

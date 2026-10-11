@@ -1,11 +1,14 @@
 import type * as Preset from '@docusaurus/preset-classic';
 import type * as PresetMermaid from '@docusaurus/theme-mermaid';
 import type { Config } from '@docusaurus/types';
+import { GlobExcludeDefault, getVcsPreset } from '@docusaurus/utils';
 import { createRequire } from 'module';
 import path from 'path';
 import { themes } from 'prism-react-renderer';
 
 import gqlRedirects from './gqlRedirects';
+import { motionCss } from './src/components/motion/css';
+import { DEFAULT_LOCALE, LOCALES } from './translate/locales';
 import versions from './versions.json';
 
 // Keep Monaco CDN preload hashes in sync with the installed monaco-editor package.
@@ -17,10 +20,66 @@ require('./scripts/generateMonacoPreloads.cjs').ensureMonacoPreloadManifest();
 const isDev = process.env.NODE_ENV === 'development';
 
 // docs/core is shared by React (/docs) and Vue (/vue); see framework-docs/
+const {
+  docsInstance,
+  frameworkInstance,
+} = require('./framework-docs/docsInstances.js');
 const frameworkDocs = require('./framework-docs/index.js');
 const remarkFramework = require('./framework-docs/remarkFramework.js');
+// Non-Vue instances render React; :::vue reaches Vue agents via skill references
+const reactRemarkPlugins = [[remarkFramework, { framework: 'react' }]];
+const localeDocs = require('./translate/localeDocs.js');
+const remarkEnglishPage = require('./translate/remarkEnglishPage.js');
+const remarkJoinCjkLines = require('./translate/remarkJoinCjkLines.js');
+// set by Docusaurus for the locale being built or served
+const currentLocale = process.env.DOCUSAURUS_CURRENT_LOCALE ?? DEFAULT_LOCALE;
 const vueDocs = frameworkDocs.generate('vue');
-if (isDev) frameworkDocs.watch('vue');
+// Each locale renders English with its translations in place
+// (translate/README.md); its Vue pages mirror its docs/core
+const locales = Object.keys(LOCALES);
+const mirrors = [
+  vueDocs,
+  ...locales.flatMap(locale => {
+    const docs = localeDocs.generate(locale);
+    // a Vue page maps to its docs/core page, which maps to what's committed
+    return [frameworkDocs.generate('vue', locale), docs];
+  }),
+];
+/** Committed source of a generated page (itself if not generated), for its git history */
+const mirrorSourceOf = (file: string): string =>
+  mirrors.reduce((f, mirror) => mirror.sourceOf(f), file);
+if (isDev) {
+  frameworkDocs.watch('vue');
+  for (const locale of locales)
+    localeDocs.watch(locale, () => frameworkDocs.generate('vue', locale));
+}
+const vueInstance = frameworkInstance('vue');
+// Shared by light and dark so SSR (`theme`) and the client (`darkTheme`)
+// agree; color mode isn't known at build time, so SSR always emits `theme`.
+// Transparent plain background lets the container own the color
+// (`.theme-code-block`, and the Playground editor via `usePrismTheme()`); a
+// solid color on `<pre>` would cover the dark container until hydration.
+const prismPalenight = {
+  ...themes.palenight,
+  plain: { ...themes.palenight.plain, backgroundColor: 'transparent' },
+};
+
+const gitVcs = getVcsPreset('default-v1');
+const editRoot = 'https://github.com/reactive/data-client/edit/master';
+/** Plugin options locating a docs instance (framework-docs/docsInstances.js) */
+const docsLocation = (id: string) => {
+  const { path: docsPath, routeBasePath, exclude = [] } = docsInstance(id);
+  return {
+    id,
+    path: `../${docsPath}`,
+    routeBasePath,
+    // replaces Docusaurus' defaults; keep them so `_` partials aren't published
+    exclude: [...GlobExcludeDefault, ...exclude],
+    editUrl: ({ docPath }: { docPath: string }) =>
+      `${editRoot}/${docsPath}/${docPath}`,
+    remarkPlugins: currentLocale === DEFAULT_LOCALE ? [] : [remarkJoinCjkLines],
+  };
+};
 
 const config: Config = {
   title: 'Data Client',
@@ -30,11 +89,26 @@ const config: Config = {
   organizationName: 'data-client',
   projectName: 'data-client',
   trailingSlash: false,
+  // Pages without a translation render in English (see translate/README.md)
+  i18n: {
+    defaultLocale: DEFAULT_LOCALE,
+    locales: [DEFAULT_LOCALE, ...locales],
+  },
   markdown: {
     mermaid: true,
     hooks: {
-      onBrokenMarkdownLinks: 'log',
+      onBrokenMarkdownLinks: 'warn',
     },
+    // Preview deploys (VERCEL_ENV=preview, set by site-preview.yml) publish
+    // `draft: true` pages so PRs can review them; production and local builds
+    // still drop them.
+    ...(process.env.VERCEL_ENV === 'preview' && {
+      parseFrontMatter: async params => {
+        const result = await params.defaultParseFrontMatter(params);
+        if (result.frontMatter.draft) result.frontMatter.draft = false;
+        return result;
+      },
+    }),
   },
   headTags: [
     {
@@ -189,37 +263,43 @@ const config: Config = {
     }, TODO: figure out how to load this*/
   ],
   scripts: [],
-  clientModules: [require.resolve('./src/gtagfix.ts')],
+  clientModules: [
+    require.resolve('./src/gtagfix.ts'),
+    require.resolve('./src/staleDeploy.ts'),
+  ],
   //favicon: '/favicon.ico', we declare our own headers for this above
   themes: ['@docusaurus/theme-live-codeblock', '@docusaurus/theme-mermaid'],
   customFields: {
     repoUrl: 'https://github.com/reactive/data-client',
+    // read by FrameworkSelector to switch between differently named pages
+    frameworkEquivalents: frameworkDocs.frameworkEquivalents(),
   },
-  onBrokenLinks: 'log',
+  onBrokenLinks: 'warn',
+  future: {
+    // Docusaurus Faster (Rspack, SWC), except that JS still compiles with
+    // Babel, which runs the React Compiler (babel.config.js).
+    // removeLegacyPostBuildHeadAttribute is required by ssgWorkerThreads.
+    v4: { fasterByDefault: true, removeLegacyPostBuildHeadAttribute: true },
+    faster: { swcJsLoader: false },
+    // Generated Vue mirror pages have no git history; read their source's
+    experimental_vcs: {
+      ...gitVcs,
+      getFileCreationInfo: file =>
+        gitVcs.getFileCreationInfo(mirrorSourceOf(file)),
+      getFileLastUpdateInfo: file =>
+        gitVcs.getFileLastUpdateInfo(mirrorSourceOf(file)),
+    },
+  },
   presets: [
     [
       '@docusaurus/preset-classic',
       {
         docs: {
-          //id: 'core',
-          path: '../docs/core',
-          exclude: ['getting-started/README.md', '**/*.vue.{md,mdx}'],
-          //routeBasePath: 'core',
+          ...docsLocation('default'),
           sidebarPath: require.resolve('./framework-docs/sidebars-react.js'),
-          beforeDefaultRemarkPlugins: [
-            [remarkFramework, { framework: 'react' }],
-          ],
+          beforeDefaultRemarkPlugins: reactRemarkPlugins,
           showLastUpdateAuthor: true,
           showLastUpdateTime: true,
-          editUrl: ({ locale, docPath }) => {
-            /*if (locale !== 'en') {
-              return `https://crowdin.com/project/docusaurus-v2/${locale}`;
-            }*/
-            // We want users to submit doc updates to the upstream/next version!
-            // Otherwise we risk losing the update on the next release.
-            const nextVersionDocsDirPath = 'docs';
-            return `https://github.com/reactive/data-client/edit/master/${nextVersionDocsDirPath}/${docPath}`;
-          },
           lastVersion: 'current',
           includeCurrentVersion: true,
           versions: {
@@ -231,6 +311,9 @@ const config: Config = {
             : ['current', ...versions],
         },
         blog: {
+          // Posts are English in every locale
+          beforeDefaultRemarkPlugins:
+            currentLocale === DEFAULT_LOCALE ? [] : [remarkEnglishPage],
           showReadingTime: true,
           blogSidebarTitle: 'All posts',
           blogSidebarCount: 'ALL',
@@ -253,49 +336,43 @@ const config: Config = {
     ],
   ],
   plugins: [
+    // global motion styles (spring tokens, <Reveal>): website/src/components/motion/css.ts
+    () => ({
+      name: 'motion-css',
+      injectHtmlTags: () => ({
+        headTags: [{ tagName: 'style', innerHTML: motionCss() }],
+      }),
+    }),
     [
       '@docusaurus/plugin-content-docs',
       {
-        id: 'vue',
+        ...docsLocation('vue'),
         path: vueDocs.outDir,
-        exclude: ['getting-started/README.md'],
-        routeBasePath: 'vue',
         sidebarPath: require.resolve('./framework-docs/sidebars-vue.js'),
         beforeDefaultRemarkPlugins: [
           [
             remarkFramework,
             {
               framework: 'vue',
-              routeBasePath: 'vue',
-              docIds: frameworkDocs.docIds('vue'),
+              routeBasePath: vueInstance.routeBasePath,
+              docs: frameworkDocs.docsFor('vue'),
             },
           ],
         ],
-        // generated files have no git history
-        showLastUpdateAuthor: false,
-        showLastUpdateTime: false,
+        showLastUpdateAuthor: true,
+        showLastUpdateTime: true,
         editUrl: ({ docPath }) =>
-          `https://github.com/reactive/data-client/edit/master/docs/core/${frameworkDocs.sourcePath('vue', docPath)}`,
+          `${editRoot}/${vueInstance.path}/${frameworkDocs.sourcePath('vue', docPath)}`,
       },
     ],
     [
       '@docusaurus/plugin-content-docs',
       {
-        id: 'rest',
-        path: '../docs/rest',
-        routeBasePath: 'rest',
+        ...docsLocation('rest'),
         sidebarPath: require.resolve('./sidebars-rest.js'),
+        beforeDefaultRemarkPlugins: reactRemarkPlugins,
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
-        editUrl: ({ locale, docPath }) => {
-          /*if (locale !== 'en') {
-            return `https://crowdin.com/project/docusaurus-v2/${locale}`;
-          }*/
-          // We want users to submit doc updates to the upstream/next version!
-          // Otherwise we risk losing the update on the next release.
-          const nextVersionDocsDirPath = 'docs/rest';
-          return `https://github.com/reactive/data-client/edit/master/${nextVersionDocsDirPath}/${docPath}`;
-        },
         lastVersion: 'current',
         includeCurrentVersion: true,
         versions: {
@@ -309,21 +386,11 @@ const config: Config = {
     [
       '@docusaurus/plugin-content-docs',
       {
-        id: 'graphql',
-        path: '../docs/graphql',
-        routeBasePath: 'graphql',
+        ...docsLocation('graphql'),
         sidebarPath: require.resolve('./sidebars-graphql.js'),
+        beforeDefaultRemarkPlugins: reactRemarkPlugins,
         showLastUpdateAuthor: true,
         showLastUpdateTime: true,
-        editUrl: ({ locale, docPath }) => {
-          /*if (locale !== 'en') {
-            return `https://crowdin.com/project/docusaurus-v2/${locale}`;
-          }*/
-          // We want users to submit doc updates to the upstream/next version!
-          // Otherwise we risk losing the update on the next release.
-          const nextVersionDocsDirPath = 'docs/graphql';
-          return `https://github.com/reactive/data-client/edit/master/${nextVersionDocsDirPath}/${docPath}`;
-        },
         lastVersion: 'current',
         includeCurrentVersion: true,
         versions: {
@@ -339,10 +406,19 @@ const config: Config = {
       {
         // Vue docs briefly lived at /docs/vue
         createRedirects(existingPath: string) {
-          if (existingPath === '/vue' || existingPath.startsWith('/vue/'))
+          const vue = `/${vueInstance.routeBasePath}`;
+          if (existingPath === vue || existingPath.startsWith(`${vue}/`))
             return `/docs${existingPath}`;
         },
         redirects: [
+          {
+            to: '/docs/getting-started/debugging',
+            from: ['/docs/getting-started/devtools-debugging'],
+          },
+          {
+            to: '/vue/getting-started/debugging',
+            from: ['/vue/getting-started/devtools-debugging'],
+          },
           {
             to: '/rest/guides/side-effects',
             from: ['/rest/guides/rpc'],
@@ -354,6 +430,10 @@ const config: Config = {
           {
             to: '/rest/api/resource',
             from: ['/rest/api/createResource', '/rest/api/Resource'],
+          },
+          {
+            to: '/rest/api/SchemaSimple',
+            from: ['/rest/api/CustomSchema'],
           },
           {
             to: '/docs/api/makeRenderDataHook',
@@ -407,6 +487,9 @@ const config: Config = {
     path.resolve(__dirname, './node-plugin'),
     path.resolve(__dirname, './profiling-plugin'),
     path.resolve(__dirname, './raw-plugin'),
+    path.resolve(__dirname, './llms-plugin'),
+    path.resolve(__dirname, './chunks-plugin'),
+    path.resolve(__dirname, './build-id-plugin'),
   ],
   themeConfig: {
     mermaid: {
@@ -426,10 +509,8 @@ const config: Config = {
     },
     prism: {
       additionalLanguages: ['bash', /*'diff', */ 'json'],
-      darkTheme: {
-        ...themes.palenight,
-        plain: { backgroundColor: 'transparent' },
-      },
+      theme: prismPalenight,
+      darkTheme: prismPalenight,
     },
     // Open Graph and Twitter card images.
     image: 'img/social/data-client-logo.png',
@@ -446,7 +527,9 @@ const config: Config = {
     ],
     announcementBar: {
       id: 'announcementBar-2', // Increment on change
-      content: `If you like Reactive Data Client, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/reactive/data-client">GitHub</a>`,
+      content:
+        LOCALES[currentLocale]?.announcement ??
+        `If you like Reactive Data Client, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/reactive/data-client">GitHub</a>`,
     },
     navbar: {
       title: 'Reactive Data Client',
@@ -535,6 +618,13 @@ const config: Config = {
           position: 'right',
           className: 'header-anthropic-link',
           'aria-label': 'Agent Skills',
+        },
+        {
+          type: 'localeDropdown',
+          position: 'right',
+          // last, so it sits beside the color mode toggle; icon only (customTheme.css)
+          className: 'header-locale-dropdown',
+          'aria-label': 'Language',
         },
       ],
     },

@@ -1,6 +1,5 @@
 import Link from '@docusaurus/Link';
-import useBaseUrl from '@docusaurus/useBaseUrl';
-import ThemedImage from '@theme/ThemedImage';
+import Translate, { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React from 'react';
 
@@ -8,128 +7,194 @@ import styles from './HomepageFeatures.module.css';
 import ChemicalCompositionSvg from '../../static/img/chemical-composition.svg';
 import FastCarSvg from '../../static/img/fast-car.svg';
 import GrowingBarChartSvg from '../../static/img/growing-bar-chart.svg';
+import TypeScriptSvg from '../../static/img/typescript-mono.svg';
 
-type SvgComponent = React.ComponentType<React.ComponentProps<'svg'>>;
-
-interface BaseFeature {
+interface FeatureItem {
   description: React.ReactNode;
   title: string;
+  Svg: React.ComponentType<React.ComponentProps<'svg'>>;
 }
-
-interface SvgFeature extends BaseFeature {
-  Svg: SvgComponent;
-  dark?: never;
-  light?: never;
-}
-
-interface ThemedImageFeature extends BaseFeature {
-  dark: string;
-  light: string;
-  Svg?: never;
-}
-
-type FeatureItem = SvgFeature | ThemedImageFeature;
 
 const featureList: FeatureItem[] = [
   {
     description: (
-      <>
-        Strong <b>inferred</b> types; single source of truth that is
-        referentially stable ensures consistency; <b>asynchronous invariants</b>{' '}
-        make it easy to avoid race conditions
-      </>
+      <Translate
+        id="homepage.features.integrity.description"
+        values={{
+          inferred: (
+            <b>
+              <Translate id="homepage.features.integrity.inferred">
+                inferred
+              </Translate>
+            </b>
+          ),
+          invariants: (
+            <b>
+              <Translate id="homepage.features.integrity.invariants">
+                asynchronous invariants
+              </Translate>
+            </b>
+          ),
+        }}
+      >
+        {
+          'Strong {inferred} types; single source of truth that is referentially stable ensures consistency; {invariants} make it easy to avoid race conditions'
+        }
+      </Translate>
     ),
-    light: '/img/typescript.svg',
-    dark: '/img/typescript.dark.svg',
-    title: 'Data Integrity',
+    Svg: TypeScriptSvg,
+    title: translate({
+      id: 'homepage.features.integrity.title',
+      message: 'Data Integrity',
+    }),
   },
   {
     description: (
-      <>
-        Navigation <Link to="/docs/concepts/performance">24x faster</Link> than
-        TanStack Query, SWR and React baseline.{' '}
-        <Link to="/docs/concepts/performance">Mutations 92x</Link> faster than
-        TanStack Query, SWR and React baseline.
-      </>
+      <Translate
+        id="homepage.features.performance.description"
+        values={{
+          navigation: (
+            <Link to="/docs/concepts/performance">
+              <Translate id="homepage.features.performance.navigation">
+                24x faster
+              </Translate>
+            </Link>
+          ),
+          mutations: (
+            <Link to="/docs/concepts/performance">
+              <Translate id="homepage.features.performance.mutations">
+                Mutations 92x
+              </Translate>
+            </Link>
+          ),
+        }}
+      >
+        {
+          'Navigation {navigation} than React baseline, 10x faster than TanStack Query and SWR. {mutations} faster than TanStack Query, SWR and React baseline.'
+        }
+      </Translate>
     ),
     Svg: FastCarSvg,
-    title: 'Performance',
+    title: translate({
+      id: 'homepage.features.performance.title',
+      message: 'Performance',
+    }),
   },
   {
     description: (
-      <>
-        <b>Declare</b> what you need <b>where</b> you need it. <b>Share</b> data
-        definitions <b>across platforms</b>, components,{' '}
-        <Link to="/docs#endpoint">protocols</Link>, and behaviors.
-      </>
+      <Translate
+        id="homepage.features.composition.description"
+        values={{
+          declare: (
+            <b>
+              <Translate id="homepage.features.composition.declare">
+                Declare
+              </Translate>
+            </b>
+          ),
+          where: (
+            <b>
+              <Translate id="homepage.features.composition.where">
+                where
+              </Translate>
+            </b>
+          ),
+          share: (
+            <b>
+              <Translate id="homepage.features.composition.share">
+                Share
+              </Translate>
+            </b>
+          ),
+          platforms: (
+            <b>
+              <Translate id="homepage.features.composition.platforms">
+                across platforms
+              </Translate>
+            </b>
+          ),
+          protocols: (
+            <Link to="/docs#endpoint">
+              <Translate id="homepage.features.composition.protocols">
+                protocols
+              </Translate>
+            </Link>
+          ),
+        }}
+      >
+        {
+          '{declare} what you need {where} you need it. {share} data definitions {platforms}, components, {protocols}, and behaviors.'
+        }
+      </Translate>
     ),
     Svg: ChemicalCompositionSvg,
-    title: 'Composition over configuration',
+    title: translate({
+      id: 'homepage.features.composition.title',
+      message: 'Composition over configuration',
+    }),
   },
   {
     description: (
-      <>
-        Get started fast with <b>one line</b>{' '}
-        <Link to="/docs#endpoint">data definition</Link> and one line{' '}
-        <Link to="/docs#co-locate-data-dependencies">data binding</Link>. Then{' '}
-        <b>add</b> TypeScript, normalized cache with{' '}
-        <Link to="/docs#entities">Schemas</Link>,{' '}
-        <Link to="/docs#optimistic-updates">optimistic updates</Link> and more.
-      </>
+      <Translate
+        id="homepage.features.adoption.description"
+        values={{
+          oneLine: (
+            <b>
+              <Translate id="homepage.features.adoption.oneLine">
+                one line
+              </Translate>
+            </b>
+          ),
+          definition: (
+            <Link to="/docs#endpoint">
+              <Translate id="homepage.features.adoption.definition">
+                data definition
+              </Translate>
+            </Link>
+          ),
+          binding: (
+            <Link to="/docs#co-locate-data-dependencies">
+              <Translate id="homepage.features.adoption.binding">
+                data binding
+              </Translate>
+            </Link>
+          ),
+          add: (
+            <b>
+              <Translate id="homepage.features.adoption.add">add</Translate>
+            </b>
+          ),
+          // eslint-disable-next-line @docusaurus/no-untranslated-text -- API name
+          schemas: <Link to="/docs#entities">Schemas</Link>,
+          optimistic: (
+            <Link to="/docs#optimistic-updates">
+              <Translate id="homepage.features.adoption.optimistic">
+                optimistic updates
+              </Translate>
+            </Link>
+          ),
+        }}
+      >
+        {
+          'Get started fast with {oneLine} {definition} and one line {binding}. Then {add} TypeScript, normalized cache with {schemas}, {optimistic} and more.'
+        }
+      </Translate>
     ),
     Svg: GrowingBarChartSvg,
-    title: 'Incremental Adoption',
+    title: translate({
+      id: 'homepage.features.adoption.title',
+      message: 'Incremental Adoption',
+    }),
   },
 ];
 
-function isSvgFeature(feature: FeatureItem): feature is SvgFeature {
-  return 'Svg' in feature && feature.Svg != null;
-}
-
-function Feature(feature: FeatureItem) {
-  const { title, description } = feature;
+function Feature({ title, description, Svg }: FeatureItem) {
   return (
-    <div className={clsx('col col--3')}>
-      <div className="text--center">
-        {isSvgFeature(feature) ?
-          <SvgFeatureIcon Svg={feature.Svg} title={title} />
-        : <ThemedFeatureIcon
-            light={feature.light}
-            dark={feature.dark}
-            title={title}
-          />
-        }
-      </div>
-      <div className="text--center padding-horiz--md">
-        <h3>{title}</h3>
-        <p>{description}</p>
-      </div>
+    <div className={clsx('col col--3', styles.feature)}>
+      <Svg className={styles.featureSvg} role="img" aria-label={title} />
+      <h3>{title}</h3>
+      <p>{description}</p>
     </div>
-  );
-}
-
-function SvgFeatureIcon({ Svg, title }: { Svg: SvgComponent; title: string }) {
-  return <Svg className={styles.featureSvg} aria-label={title} />;
-}
-
-function ThemedFeatureIcon({
-  light,
-  dark,
-  title,
-}: {
-  light: string;
-  dark: string;
-  title: string;
-}) {
-  return (
-    <ThemedImage
-      className={styles.featureSvg}
-      alt={title}
-      sources={{
-        light: useBaseUrl(light),
-        dark: useBaseUrl(dark),
-      }}
-    />
   );
 }
 

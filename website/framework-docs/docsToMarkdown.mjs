@@ -1,0 +1,594 @@
+/**
+ * Renders a docs page to plain markdown for one framework, the way the site
+ * renders it (remarkFramework.js, `frameworks:` front matter, `.vue.md`
+ * overrides, `vue_` front matter), with MDX partials inlined and site-only
+ * components (playgrounds, tabs, embeds) reduced to plain markdown.
+ *
+ * Used for agent skill references (skillReferences.mjs).
+ */
+import { phrasing } from 'mdast-util-phrasing';
+import fs from 'node:fs';
+import { createRequire } from 'node:module';
+import path from 'node:path';
+import remarkDirective from 'remark-directive';
+import remarkGfm from 'remark-gfm';
+import remarkStringify from 'remark-stringify';
+import { unified } from 'unified';
+import { visit } from 'unist-util-visit';
+
+import { parseMarkdown } from './parseMarkdown.mjs';
+import providerSetup from './providerSetup.mjs';
+import { ROOT, SITE, rel } from './site.mjs';
+
+const require = createRequire(import.meta.url);
+const {
+  DOCS_INSTANCES,
+  FRAMEWORKS,
+  frameworkInstance,
+} = require('./docsInstances.js');
+const {
+  docsFor,
+  docIdOf,
+  pageFrameworks,
+  rewriteFrontMatter,
+  frontMatterValue,
+} = require('./index.js');
+const remarkFramework = require('./remarkFramework.js');
+
+export { ROOT, SITE, rel };
+
+/** Docs instance rendering `relPath` (from the repo root) for a framework */
+const instanceOf = (relPath, framework) =>
+  DOCS_INSTANCES.find(
+    d =>
+      relPath.startsWith(`${d.path}/`) &&
+      (d.framework ?? framework) === framework,
+  );
+const frameworkDocs = Object.fromEntries(FRAMEWORKS.map(f => [f, docsFor(f)]));
+const MD = /\.mdx?$/;
+
+const stringifier = unified()
+  .use(remarkStringify, {
+    bullet: '-',
+    emphasis: '_',
+    fences: true,
+    listItemIndent: 'one',
+    rule: '-',
+  })
+  .use(remarkGfm)
+  .use(remarkDirective);
+
+function memoize(fn) {
+  const cache = new Map();
+  return (...args) => {
+    const key = args.join('\0');
+    if (!cache.has(key)) cache.set(key, fn(...args));
+    return cache.get(key);
+  };
+}
+
+const read = memoize(file => fs.readFileSync(file, 'utf8'));
+const exists = memoize(file => fs.existsSync(file));
+
+/** Source for a framework: `foo.vue.md` replaces `foo.md` */
+const sourceFor = (file, framework) => {
+  const override = file.replace(MD, `.${framework}$&`);
+  return exists(override) ? override : file;
+};
+
+/** Page content with `<framework>_<key>` front matter applied */
+const contentFor = memoize((file, framework) =>
+  rewriteFrontMatter(read(sourceFor(file, framework)), framework),
+);
+
+/** Parsed once per source; callers get a copy to transform */
+const parse = memoize(file => {
+  try {
+    return parseMarkdown(read(file), file);
+  } catch (error) {
+    throw new Error(
+      `${rel(file)}:${error.line}:${error.column}: ${error.message}`,
+    );
+  }
+});
+
+/** Site route (no host) of a doc for a framework */
+export const routeOf = memoize((file, framework) => {
+  const relPath = rel(file).replace(/\.(react|vue)(\.mdx?)$/, '$2');
+  const instance = instanceOf(relPath, framework);
+  if (!instance) return;
+  const content = contentFor(file, framework);
+  const docId = docIdOf(relPath.slice(instance.path.length + 1), content);
+  // Vue links to pages without a Vue version go to the React docs
+  const target =
+    instance.framework === 'vue' && !frameworkDocs.vue.has(docId) ?
+      frameworkInstance('react')
+    : instance;
+  const route = frameworkDocs[target.framework]?.get(docId)?.route;
+  if (route) return `/${target.routeBasePath}${route}`;
+  // instances docsFor() doesn't cover (rest, graphql)
+  const slug = frontMatterValue(content, 'slug');
+  if (slug?.startsWith('/')) return `/${target.routeBasePath}${slug}`;
+  return `/${target.routeBasePath}/${docId}`.replace(/\/index$/, '/');
+});
+
+/** Relative doc links become site routes; absolute ones are left to remarkFramework */
+function routeLink(url, file, framework) {
+  if (/^([a-z]+:|#|\/)/i.test(url)) return url;
+  const [, target = '', hash = ''] = url.match(/^([^#?]*)(.*)$/);
+  const resolved = path.resolve(path.dirname(file), decodeURI(target));
+  const doc = [resolved, `${resolved}.md`, `${resolved}.mdx`].find(
+    f => MD.test(f) && exists(f),
+  );
+  if (doc) return routeOf(doc, framework) + hash;
+  // site-relative link to a page without an extension
+  const route = routeOf(file, framework);
+  return route ?
+      path.posix.join(path.posix.dirname(route), target) + hash
+    : url;
+}
+
+/** Evaluates an MDX expression (JSX attribute or `{...}`) with the partial's props */
+function evaluate(expression, props, file) {
+  try {
+    return new Function('props', `return (${expression});`)(props);
+  } catch (error) {
+    throw new Error(
+      `${rel(file)}: can't evaluate {${expression}}: ${error.message}`,
+    );
+  }
+}
+
+function attrValue(attribute, props, file) {
+  if (attribute.value === null) return true;
+  if (typeof attribute.value === 'string') return attribute.value;
+  return evaluate(attribute.value.value, props, file);
+}
+
+/** JSX attributes, evaluated when read (others may use the page's imports) */
+function attributesOf(node, props, file) {
+  const attrs = {};
+  for (const attribute of node.attributes ?? []) {
+    if (attribute.type === 'mdxJsxExpressionAttribute') {
+      // spread, e.g. a partial forwarding `{...props}`
+      Object.assign(attrs, evaluate(`{${attribute.value}}`, props, file));
+      continue;
+    }
+    if (attribute.type !== 'mdxJsxAttribute') continue;
+    Object.defineProperty(attrs, attribute.name, {
+      enumerable: true,
+      get: () => attrValue(attribute, props, file),
+    });
+  }
+  return attrs;
+}
+
+const text = value => ({ type: 'text', value });
+const paragraph = children => ({ type: 'paragraph', children });
+const html = value => ({ type: 'html', value });
+
+/**
+ * Code without Docusaurus-only syntax (highlight markers, display options).
+ * `data.raw` keeps the fence's own lines, so the docs example check can map
+ * errors back to them; `data.nocheck` marks fences that check skips.
+ */
+function codeBlock({ lang, value, title, meta = title && `title="${title}"` }) {
+  return {
+    type: 'code',
+    lang: lang ?? null,
+    meta:
+      meta?.replace(/\s*\b(collapsed|showLineNumbers|nocheck)\b/g, '').trim() ||
+      null,
+    value: value
+      .split('\n')
+      .filter(
+        l =>
+          !/^\s*(\/\/|#|<!--|\{\/\*)\s*highlight-(next-line|start|end)/.test(l),
+      )
+      .join('\n')
+      .trim(),
+    data: { raw: value, nocheck: /\bnocheck\b/.test(meta ?? '') },
+  };
+}
+const codeLang = attrs =>
+  attrs.language ?? attrs.className?.replace(/^language-/, '');
+
+/** Text inside JSX children, e.g. a CodeBlock's template literal */
+function jsxText(children, props, file) {
+  return children
+    .map(child => {
+      if (
+        child.type === 'mdxFlowExpression' ||
+        child.type === 'mdxTextExpression'
+      )
+        return String(evaluate(child.value, props, file) ?? '');
+      if (child.type === 'text') return child.value;
+      if (child.children) return jsxText(child.children, props, file);
+      return '';
+    })
+    .join('');
+}
+
+const ADMONITIONS = ['note', 'tip', 'info', 'warning', 'danger', 'caution'];
+/** Inline HTML with a markdown equivalent */
+const INLINE = { b: 'strong', strong: 'strong', em: 'emphasis', i: 'emphasis' };
+/** HTML kept as is around its converted children */
+const HTML = ['details', 'sup', 'sub', 'kbd'];
+/** Site-only embeds with nothing to read */
+const DROP = ['ThemedImage', 'SkillTabs', 'head'];
+
+/** Rewrites one page (and its partials) into plain markdown nodes */
+function render(file, framework, props = {}, drop = DROP) {
+  const content = contentFor(file, framework);
+  if (!pageFrameworks(content).includes(framework)) return;
+  const source = sourceFor(file, framework);
+  const parsed = parse(source);
+  const tree = structuredClone(parsed.tree);
+  remarkFramework({ framework })(tree);
+  const partials = {};
+  const tabLabels = [];
+
+  function convert(node) {
+    switch (node.type) {
+      case 'yaml':
+        return [];
+      case 'mdxjsEsm': {
+        for (const statement of node.data.estree.body) {
+          if (
+            statement.type === 'ImportDeclaration' &&
+            MD.test(statement.source.value)
+          )
+            partials[statement.specifiers[0].local.name] = path.resolve(
+              path.dirname(source),
+              statement.source.value.replace(/\\/g, ''),
+            );
+        }
+        return [];
+      }
+      case 'mdxFlowExpression':
+      case 'mdxTextExpression': {
+        const [statement] = node.data.estree.body;
+        // comments
+        if (!statement) return [];
+        return convertEstree(statement.expression);
+      }
+      case 'link':
+      case 'definition':
+        node.url = routeLink(node.url, source, framework);
+        break;
+      case 'code': {
+        const code = codeBlock(node);
+        code.data.line = node.position?.start.line;
+        return [code];
+      }
+      case 'containerDirective': {
+        if (!ADMONITIONS.includes(node.name)) break;
+        const [first] = node.children;
+        const label = first?.data?.directiveLabel ? first.children : [];
+        const kind = node.name[0].toUpperCase() + node.name.slice(1);
+        return [
+          {
+            type: 'blockquote',
+            children: [
+              paragraph([
+                {
+                  type: 'strong',
+                  children: [
+                    text(kind),
+                    ...(label.length ? [text(': '), ...label] : []),
+                  ],
+                },
+              ]),
+              ...convertAll(node.children.filter(c => !c.data?.directiveLabel)),
+            ],
+          },
+        ];
+      }
+      case 'textDirective':
+      case 'leafDirective':
+        // `word:thing` that isn't a directive; restore it as written
+        return [text(`:${node.name}`), ...convertAll(node.children)];
+      case 'mdxJsxFlowElement':
+      case 'mdxJsxTextElement':
+        return convertJsx(node);
+    }
+    if (node.children) node.children = convertAll(node.children);
+    return [node];
+  }
+
+  /** `{cond ? <CodeBlock>..</CodeBlock> : ...}` in partials, picked by props */
+  function convertEstree(node) {
+    const run = n =>
+      evaluate(parsed.input.slice(n.start, n.end), props, source);
+    switch (node.type) {
+      case 'ConditionalExpression':
+        return convertEstree(run(node.test) ? node.consequent : node.alternate);
+      case 'LogicalExpression':
+        if (node.operator === '&&')
+          return run(node.left) ? convertEstree(node.right) : [];
+        break;
+      case 'JSXFragment':
+        return node.children.flatMap(convertEstree);
+      case 'JSXText':
+        return node.value.trim() ? [text(node.value)] : [];
+      case 'JSXExpressionContainer':
+        return node.expression.type === 'JSXEmptyExpression' ?
+            []
+          : convertEstree(node.expression);
+      case 'JSXElement': {
+        const name = node.openingElement.name.name;
+        if (name !== 'CodeBlock')
+          throw new Error(
+            `${rel(source)}: unsupported <${name}> inside an expression`,
+          );
+        const attrs = Object.fromEntries(
+          node.openingElement.attributes.map(a => [
+            a.name.name,
+            a.value?.type === 'Literal' ? a.value.value
+            : a.value ? run(a.value.expression)
+            : true,
+          ]),
+        );
+        const value = node.children
+          .map(c => (c.type === 'JSXText' ? c.value : run(c.expression)))
+          .join('');
+        return [
+          codeBlock({
+            lang: codeLang(attrs),
+            value,
+            title: attrs.title,
+            meta: attrs.metastring,
+          }),
+        ];
+      }
+    }
+    const value = run(node);
+    return value == null || value === false ? [] : [text(String(value))];
+  }
+
+  function convertJsx(node) {
+    const { name } = node;
+    if (!name || drop.includes(name)) return [];
+    const flow = node.type === 'mdxJsxFlowElement';
+    const attrs = attributesOf(node, props, source);
+    if (partials[name]) {
+      attrs.children = node.children;
+      return render(partials[name], framework, attrs, drop)?.children ?? [];
+    }
+    switch (name) {
+      case 'CodeBlock':
+        return [
+          codeBlock({
+            lang: codeLang(attrs),
+            value: jsxText(node.children, props, source),
+            title: attrs.title,
+            meta: attrs.metastring,
+          }),
+        ];
+      case 'ProviderSetupCode': {
+        const managers = attrs.children?.find(c => c.type === 'code')?.value;
+        const { language, code, title } = providerSetup({ ...attrs, managers });
+        return [codeBlock({ lang: language, value: code, title })];
+      }
+      case 'PkgTabs':
+      case 'PkgInstall':
+        return [
+          codeBlock({
+            lang: 'bash',
+            value: `npm install${attrs.dev ? ' --save-dev' : ''} ${attrs.pkgs}`,
+          }),
+        ];
+      case 'StackBlitz': {
+        if (!attrs.app) return [];
+        const base = `https://github.com/reactive/${attrs.repo ?? 'data-client'}/tree/master/examples/${attrs.app}`;
+        const files = (attrs.file ?? '').split(',').filter(Boolean);
+        return [
+          paragraph([
+            text('Example app: '),
+            { type: 'link', url: base, children: [text(attrs.app)] },
+            ...files.flatMap((f, i) => [
+              text(i ? ', ' : ' ('),
+              {
+                type: 'link',
+                url: `${base.replace('/tree/', '/blob/')}/${f}`,
+                children: [{ type: 'inlineCode', value: f }],
+              },
+            ]),
+            ...(files.length ? [text(')')] : []),
+          ]),
+        ];
+      }
+      case 'Tabs': {
+        tabLabels.push(
+          Object.fromEntries((attrs.values ?? []).map(v => [v.value, v.label])),
+        );
+        const children = convertAll(node.children);
+        tabLabels.pop();
+        return children;
+      }
+      case 'TabItem': {
+        const label =
+          attrs.label ?? tabLabels.at(-1)?.[attrs.value] ?? attrs.value;
+        return [
+          paragraph([{ type: 'strong', children: [text(String(label))] }]),
+          ...convertAll(node.children),
+        ];
+      }
+      case 'Link':
+      case 'a': {
+        const link = {
+          type: 'link',
+          url: routeLink(attrs.to ?? attrs.href, source, framework),
+          children: convertAll(node.children),
+        };
+        return [flow ? paragraph([link]) : link];
+      }
+      case 'summary':
+        return [
+          html(
+            `<summary>${jsxText(node.children, props, source).trim()}</summary>`,
+          ),
+        ];
+      case 'code':
+        return [
+          { type: 'inlineCode', value: jsxText(node.children, props, source) },
+        ];
+      case 'br':
+        return [{ type: 'break' }];
+      case 'table':
+        return [convertTable(node)];
+    }
+    if (HTML.includes(name))
+      return [
+        html(`<${name}>`),
+        ...convertAll(node.children),
+        html(`</${name}>`),
+      ];
+    if (INLINE[name] && !flow)
+      return [{ type: INLINE[name], children: convertAll(node.children) }];
+    // Playgrounds, layout and other wrappers: keep what's inside
+    const children = convertAll(node.children);
+    // files of one playground make up one example app
+    if (name.endsWith('Playground'))
+      visit({ type: 'root', children }, 'code', code => {
+        code.data.playground = node;
+      });
+    return children;
+  }
+
+  /** A GFM table; row and column spans repeat the cell so each row stands alone */
+  function convertTable(node) {
+    const jsx = n => n.type?.startsWith('mdxJsx');
+    const rows = [];
+    const collect = n =>
+      n.name === 'tr' ? rows.push(n) : n.children?.filter(jsx).forEach(collect);
+    node.children.filter(jsx).forEach(collect);
+    /** column -> { cell, rows left } carried down from a rowSpan above */
+    const spans = [];
+    const cellContent = cell =>
+      convertAll(cell.children).flatMap(c =>
+        c.type === 'paragraph' ? c.children : [c],
+      );
+    const out = rows.map(row => {
+      const cells = [];
+      const take = () => {
+        while (spans[cells.length]?.left > 0) {
+          spans[cells.length].left--;
+          cells.push(structuredClone(spans[cells.length].cell));
+        }
+      };
+      // cells on their own lines parse into a paragraph inside the row
+      const tds = row.children
+        .flatMap(c => (c.type === 'paragraph' ? c.children : [c]))
+        .filter(c => jsx(c) && (c.name === 'td' || c.name === 'th'));
+      for (const td of tds) {
+        take();
+        const attrs = attributesOf(td, props, source);
+        const cell = { type: 'tableCell', children: cellContent(td) };
+        for (let i = 0; i < (Number(attrs.colSpan) || 1); i++) {
+          if (Number(attrs.rowSpan) > 1)
+            spans[cells.length] = { cell, left: Number(attrs.rowSpan) - 1 };
+          cells.push(structuredClone(cell));
+        }
+      }
+      take();
+      return { type: 'tableRow', children: cells };
+    });
+    const width = Math.max(...out.map(r => r.children.length));
+    for (const row of out)
+      while (row.children.length < width)
+        row.children.push({ type: 'tableCell', children: [] });
+    return { type: 'table', align: [], children: out };
+  }
+
+  function convertAll(children) {
+    return children.flatMap(convert);
+  }
+
+  tree.children = convertAll(tree.children);
+  // partials already tagged their own
+  visit(tree, 'code', code => {
+    code.data.file ??= source;
+  });
+  // absolute /docs links point at this framework's docs, as on the site
+  if (framework === 'vue')
+    remarkFramework({
+      framework,
+      routeBasePath: frameworkInstance('vue').routeBasePath,
+      docs: frameworkDocs.vue,
+    })(tree);
+  tree.title = frontMatterValue(content, 'title');
+  return tree;
+}
+
+/**
+ * Code blocks of a doc for a framework, in page order, or undefined if the page isn't in it.
+ * Blocks from one playground share its `playground` node; `file` and `line` locate fences
+ * (blocks from `<CodeBlock>` only have `file`).
+ */
+export function docCodeBlocks(file, framework) {
+  const tree = render(file, framework);
+  if (!tree) return;
+  const blocks = [];
+  visit(tree, 'code', ({ lang, meta, value, data = {} }) => {
+    blocks.push({ lang, meta, value, ...data });
+  });
+  return blocks;
+}
+
+const FLOW_PARENTS = ['root', 'blockquote', 'listItem'];
+/** Unwrapped components can leave text directly in flow content; give it a paragraph */
+function wrapPhrasing(tree) {
+  visit(tree, node => {
+    if (!FLOW_PARENTS.includes(node.type)) return;
+    node.children = node.children.reduce((children, child) => {
+      const last = children.at(-1);
+      if (!phrasing(child)) children.push(child);
+      else if (last?.data?.wrapped) last.children.push(child);
+      else children.push({ ...paragraph([child]), data: { wrapped: true } });
+      return children;
+    }, []);
+  });
+}
+
+/**
+ * Markdown of a doc for a framework, or undefined if the page isn't in it.
+ * `resolveRoute(route)` picks the URL for links to site pages (default: the site).
+ * `skipSiteOnly` drops `<SiteOnly>` prose (how to install or run a skill) for skill references.
+ */
+export function docToMarkdown(
+  file,
+  framework,
+  { resolveRoute = route => SITE + route, skipSiteOnly = false } = {},
+) {
+  const tree = render(
+    file,
+    framework,
+    {},
+    skipSiteOnly ? [...DROP, 'SiteOnly'] : DROP,
+  );
+  if (!tree) return;
+  visit(tree, ['link', 'definition'], node => {
+    if (node.url.startsWith('/'))
+      node.url = resolveRoute(node.url.replace(/\.mdx?(?=$|[#?])/, ''));
+  });
+  wrapPhrasing(tree);
+  // sections left empty once embeds are dropped
+  tree.children = tree.children.filter((node, i, all) => {
+    const next = all[i + 1];
+    return (
+      node.type !== 'heading' ||
+      (next && !(next.type === 'heading' && next.depth <= node.depth))
+    );
+  });
+  if (
+    tree.title &&
+    !tree.children.some(n => n.type === 'heading' && n.depth === 1)
+  )
+    tree.children.unshift({
+      type: 'heading',
+      depth: 1,
+      children: [text(tree.title)],
+    });
+  return stringifier.stringify(tree).replace(/\n{3,}/g, '\n\n');
+}

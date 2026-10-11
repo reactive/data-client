@@ -4,7 +4,7 @@ import { createContext } from 'react';
 export interface CodeTabValue {
   label: string;
   value: string;
-  code: { code: string; path: string; open?: boolean }[];
+  code: { code: string; path: string; open?: boolean; ssr?: boolean }[];
   autoFocus?: boolean;
   fixtures?: (Fixture | Interceptor)[];
   getInitialInterceptorData?: () => unknown;

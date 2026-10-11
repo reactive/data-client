@@ -1,0 +1,253 @@
+#!/usr/bin/env bash
+# Exercises website/scripts/vercel-ignore.sh against a throwaway repo.
+set -euo pipefail
+
+root="$(cd "$(dirname "$0")/../.." && pwd)"
+script="$root/website/scripts/vercel-ignore.sh"
+repo="$(mktemp -d)"
+trap 'rm -rf "$repo"' EXIT
+
+# git fetch (in vercel-ignore.sh) starts auto maintenance, which newer git
+# detaches. It can still be writing packs when a temp repo is removed, so
+# `rm -rf` fails with "Directory not empty". Disable it for every git call.
+export GIT_CONFIG_COUNT=2
+export GIT_CONFIG_KEY_0=maintenance.auto GIT_CONFIG_VALUE_0=false
+export GIT_CONFIG_KEY_1=gc.auto GIT_CONFIG_VALUE_1=0
+
+git -C "$repo" init -b master >/dev/null
+git -C "$repo" config user.email "vercel-ignore-test@example.com"
+git -C "$repo" config user.name "vercel-ignore-test"
+git -C "$repo" config commit.gpgsign false
+git -C "$repo" config core.fsmonitor false
+git -C "$repo" config core.untrackedcache false
+
+commit() {
+  local msg="$1"
+  shift
+  local path
+  for path in "$@"; do
+    mkdir -p "$repo/$(dirname "$path")"
+    printf '%s\n' "$msg" >>"$repo/$path"
+    git -C "$repo" add -- "$path"
+  done
+  git -C "$repo" commit -m "$msg" >/dev/null
+}
+
+# expect <skip|build|N> <name> <ref> [previous-sha] [vercel-env] [script args...]
+expect() {
+  local want="$1" name="$2" ref="$3" prev="${4-}" env="${5-}" out rc code="$1"
+  shift $(($# < 5 ? $# : 5))
+  case "$want" in
+    skip) code=0 ;;
+    build) code=1 ;;
+    '' | *[!0-9]*) echo "FAIL $name: bad expectation '$want'" >&2 && exit 1 ;;
+  esac
+  set +e
+  out="$(
+    cd "$repo" &&
+      VERCEL_GIT_COMMIT_REF="$ref" VERCEL_GIT_PREVIOUS_SHA="$prev" VERCEL_ENV="$env" \
+        bash "$script" "$@" 2>&1
+  )"
+  rc=$?
+  set -e
+  if [ "$rc" -ne "$code" ]; then
+    printf 'FAIL %s: expected %s (%s), got %s\n%s\n' "$name" "$want" "$code" "$rc" "$out" >&2
+    exit 1
+  fi
+  printf 'ok   %s\n' "$name"
+}
+
+# Previous deploy for a single-commit push.
+parent() { git -C "$repo" rev-parse HEAD^; }
+
+commit "init" README.md
+
+# --- production (master): one squash commit ---
+commit "pkg" packages/core/src/index.ts
+expect skip "master package-only" master "$(parent)"
+
+commit "docs page" docs/core/api/Controller.md
+expect build "master docs/core" master "$(parent)"
+
+commit "roadmap" docs/ROADMAP.md
+expect skip "master docs/ROADMAP.md" master "$(parent)"
+
+commit "prettier" docs/.prettierrc
+expect skip "master docs/.prettierrc" master "$(parent)"
+
+commit "blog" website/blog/2026-10-04-note.md
+expect build "master website blog" master "$(parent)"
+
+commit "changelog" website/CHANGELOG.md
+expect skip "master website changelog" master "$(parent)"
+
+commit "unit test" website/src/components/Playground/__tests__/transformCode.test.ts website/src/components/Playground/__tests__/fixture.json
+expect skip "master website unit test" master "$(parent)"
+
+commit "colocated test" website/src/components/Playground/transformCode.test.ts website/scripts/vercel-ignore.test.sh
+expect skip "master colocated website tests" master "$(parent)"
+
+commit "ci" .circleci/config.yml .github/workflows/benchmark.yml
+expect skip "master CI-only" master "$(parent)"
+
+# Last successful production deploy was before a package commit. Still skip.
+pkg_sha="$(git -C "$repo" rev-parse HEAD)"
+commit "another pkg" packages/rest/src/index.ts
+expect skip "master package since previous deploy" master "$pkg_sha"
+
+# --- preview branch, linear ---
+git -C "$repo" checkout -b feature >/dev/null 2>&1
+commit "feature pkg" packages/vue/src/index.ts .changeset/preview.md
+expect skip "preview package and changeset" feature
+
+commit "feature roadmap" docs/ROADMAP.md
+expect skip "preview docs that are not published" feature
+
+commit "feature page" docs/rest/api/Entity.md
+expect build "preview docs/rest" feature
+
+commit "graphql page" docs/graphql/api/GQLEndpoint.md
+expect build "preview docs/graphql since last deploy" feature "$(git -C "$repo" rev-parse HEAD^)"
+
+commit "feature ci follow-up" .github/workflows/site-preview.yml
+# Whole branch still contains docs/rest, and there is no previous deploy,
+# so the site change must still build.
+expect build "preview follow-up after unpublished site change" feature
+
+page_sha="$(git -C "$repo" rev-parse HEAD)"
+commit "feature pkg follow-up" packages/core/src/other.ts
+expect skip "preview package follow-up after site deploy" feature "$page_sha"
+
+commit "playground source" website/src/components/Playground/transformCode.ts
+expect build "preview playground source since last deploy" feature "$page_sha"
+
+# Multi-commit branch with no prior deploy: the site edit is not the tip.
+git -C "$repo" checkout -b stacked master >/dev/null 2>&1
+commit "stacked site" website/src/pages/index.js
+commit "stacked pkg" packages/endpoint/src/index.ts
+expect build "preview multi-commit site change not at tip" stacked
+
+# --- merge master into a package PR (the credit-burn case) ---
+git -C "$repo" checkout master >/dev/null 2>&1
+commit "master site moves" website/src/pages/index.js docs/core/concepts/overview.md
+master_sha="$(git -C "$repo" rev-parse HEAD)"
+
+# Branch from before that commit, so master is ahead when the PR merges it.
+git -C "$repo" checkout -b pkg-pr "$master_sha^" >/dev/null 2>&1
+commit "pr packages" packages/core/src/set.ts .circleci/config.yml
+git -C "$repo" merge --no-edit "$master_sha" >/dev/null
+expect skip "preview merge of master into package PR" pkg-pr
+
+# Site PR already deployed, then merges master: rebuild so the preview
+# reflects the merged result.
+git -C "$repo" checkout -b site-pr "$master_sha^" >/dev/null 2>&1
+commit "pr website" website/docusaurus.config.ts
+deployed="$(git -C "$repo" rev-parse HEAD)"
+git -C "$repo" merge --no-edit "$master_sha" >/dev/null
+expect build "preview merge of master into a deployed site PR" site-pr "$deployed"
+
+# A conflict resolution in the merge commit changes the site itself.
+git -C "$repo" checkout -b conflict-pr "$master_sha^" >/dev/null 2>&1
+commit "pr index" website/src/pages/index.js
+conflict_deployed="$(git -C "$repo" rev-parse HEAD)"
+git -C "$repo" merge --no-edit "$master_sha" >/dev/null 2>&1 || true
+printf 'resolved\n' >"$repo/website/src/pages/index.js"
+git -C "$repo" commit -qam "merge master" >/dev/null
+expect build "preview merge with a site conflict resolution" conflict-pr "$conflict_deployed"
+
+# Site PR that has never deployed, merged with master: still build.
+git -C "$repo" checkout -B site-pr-fresh "$deployed" >/dev/null 2>&1
+git -C "$repo" merge --no-edit "$master_sha" >/dev/null
+expect build "preview merge of a site PR with no prior deploy" site-pr-fresh
+
+# Merging another feature branch (not upstream) brings its site changes in.
+git -C "$repo" checkout -b feat-docs "$deployed" >/dev/null 2>&1
+commit "stacked docs" docs/core/api/Stacked.md
+git -C "$repo" checkout -b feat "$deployed" >/dev/null 2>&1
+commit "feat pkg" packages/core/src/feat.ts
+git -C "$repo" merge --no-edit feat-docs >/dev/null
+expect build "preview merge of a non-upstream branch with site changes" feat "$deployed"
+
+# No merge-base with master (e.g. shallow history): the tip alone can't prove
+# the site is unchanged, so build.
+git -C "$repo" checkout --orphan unrelated >/dev/null 2>&1
+commit "unrelated site" website/src/pages/index.js
+commit "unrelated pkg" packages/core/src/index.ts
+expect build "preview without merge-base builds" unrelated
+
+# A clone can carry a master ref at the commit being built. Comparing HEAD
+# with itself would always skip, so that ref is not a base.
+git -C "$repo" checkout -b clone-master master >/dev/null 2>&1
+commit "clone-master page" docs/core/api/CloneMaster.md
+real_master="$(git -C "$repo" rev-parse master)"
+git -C "$repo" update-ref refs/heads/master HEAD
+expect build "preview when the clone's master ref is HEAD" clone-master
+git -C "$repo" update-ref refs/heads/master "$real_master"
+
+# Last production deploy is unreachable (e.g. a force push): the tip
+# alone can't prove earlier commits in the push left the site unchanged.
+git -C "$repo" checkout master >/dev/null 2>&1
+commit "rebase-merged docs" docs/rest/api/Rebased.md
+commit "rebase-merged pkg" packages/rest/src/rebased.ts
+expect build "master with unreachable previous deploy" master 0123456789abcdef0123456789abcdef01234567
+
+# VERCEL_ENV=production uses this branch's history, not the diff against master.
+# A site commit still builds; a later package-only commit does not.
+commit "prod site" website/src/pages/index.js
+expect build "production env site tip" other-branch "$(parent)" production
+commit "prod pkg" packages/normalizr/src/index.ts
+expect skip "production env package tip" other-branch "$(parent)" production
+
+git -C "$repo" checkout -b deps master >/dev/null 2>&1
+commit "manual bump" website/package.json
+expect build "preview website package.json" deps
+
+git -C "$repo" checkout master >/dev/null 2>&1
+commit "master bump" website/package.json website/yarn.lock
+expect build "master website manifest" master "$(parent)"
+
+# --- fork point far behind master ---
+git -C "$repo" checkout -b far-site master >/dev/null 2>&1
+commit "far site" docs/core/api/Far.md
+git -C "$repo" checkout master >/dev/null 2>&1
+for i in $(seq 1 100); do commit "master filler $i" packages/rest/src/filler.ts; done
+origin_repo="$repo"
+
+# GitHub Actions checks out full history (fetch-depth: 0) for "Last updated"
+# dates. The script must decide from it without making the clone shallow.
+clone="$(mktemp -d)"
+git clone -q --branch far-site "file://$origin_repo" "$clone"
+repo="$clone"
+expect build "full clone preview" far-site
+if [ "$(git -C "$clone" rev-parse --is-shallow-repository)" != false ]; then
+  echo "FAIL full clone stays full: the script made it shallow" >&2
+  exit 1
+fi
+printf 'ok   %s\n' "full clone stays full"
+repo="$origin_repo"
+rm -rf "$clone"
+
+# --- --superseded: a queued production deploy of an older master commit ---
+# expect_superseded <skip|build|N> <name> <sha> [origin-url]: HEAD at
+# <sha> in a clone of master
+expect_superseded() {
+  local want="$1" name="$2" clone
+  clone="$(mktemp -d)"
+  git clone -q --branch master "file://$origin_repo" "$clone"
+  git -C "$clone" reset -q --hard "$3"
+  [ -z "${4-}" ] || git -C "$clone" remote set-url origin "$4"
+  repo="$clone"
+  expect "$want" "$name" master "" production --superseded
+  repo="$origin_repo"
+  rm -rf "$clone"
+}
+git -C "$repo" checkout master >/dev/null 2>&1
+old="$(git -C "$repo" rev-parse HEAD)"
+expect_superseded build "superseded: HEAD is master's tip" "$old"
+commit "newer pkg" packages/core/src/newer.ts
+expect_superseded build "superseded: newer master leaves the site unchanged" "$old"
+commit "newer site" docs/core/api/Newer.md
+expect_superseded skip "superseded: newer master changed the site" "$old"
+expect_superseded 2 "superseded: unreachable master exits 2" "$old" "file://$repo/missing"
+
+echo "all vercel-ignore cases passed"

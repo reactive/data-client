@@ -1,6 +1,6 @@
 import * as _data_client_core from '@data-client/core';
 import { Manager, State, Controller } from '@data-client/core';
-import * as react_jsx_runtime from 'react/jsx-runtime';
+import * as react from 'react';
 
 /**
  * An *action* is a plain object that represents an intention to change the
@@ -30,6 +30,36 @@ type Action<T extends string = string> = {
 interface UnknownAction extends Action {
   [extraProps: string]: unknown;
 }
+
+/**
+ * A *reducer* is a function that accepts
+ * an accumulation and a value and returns a new accumulation. They are used
+ * to reduce a collection of values down to a single value
+ *
+ * Reducers are not unique to Redux—they are a fundamental concept in
+ * functional programming.  Even most non-functional languages, like
+ * JavaScript, have a built-in API for reducing. In JavaScript, it's
+ * `Array.prototype.reduce()`.
+ *
+ * In Redux, the accumulated value is the state object, and the values being
+ * accumulated are actions. Reducers calculate a new state given the previous
+ * state and an action. They must be *pure functions*—functions that return
+ * the exact same output for given inputs. They should also be free of
+ * side-effects. This is what enables exciting features like hot reloading and
+ * time travel.
+ *
+ * Reducers are the most important concept in Redux.
+ *
+ * *Do not put API calls into reducers.*
+ *
+ * @template S The type of state consumed and produced by this reducer.
+ * @template A The type of actions the reducer can potentially respond to.
+ * @template PreloadedState The type of state consumed by this reducer the first time it's called.
+ */
+type Reducer<S = any, A extends Action = UnknownAction, PreloadedState = S> = (
+  state: S | PreloadedState | undefined,
+  action: A,
+) => S;
 
 /**
  * A *dispatching function* (or simply *dispatch function*) is a function that
@@ -135,28 +165,21 @@ interface Store<S = any, A extends Action = UnknownAction, StateExt = unknown> {
    * @returns A function to remove this change listener.
    */
   subscribe(listener: ListenerCallback): Unsubscribe;
-  // /**
-  //  * Replaces the reducer currently used by the store to calculate the state.
-  //  *
-  //  * You might need this if your app implements code splitting and you want to
-  //  * load some of the reducers dynamically. You might also need this if you
-  //  * implement a hot reloading mechanism for Redux.
-  //  *
-  //  * @param nextReducer The reducer for the store to use instead.
-  //  */
-  // replaceReducer(nextReducer: Reducer<S, A>): void;
-  // /**
-  //  * Interoperability point for observable/reactive libraries.
-  //  * @returns {observable} A minimal observable of state changes.
-  //  * For more information, see the observable proposal:
-  //  * https://github.com/tc39/proposal-observable
-  //  */
-  // [Symbol.observable](): Observable<S & StateExt>;
+  /**
+   * Not supported: throws. Present so the store satisfies redux's `Store` type
+   * (for example react-redux's `<Provider>`).
+   */
+  replaceReducer(nextReducer: Reducer<S, A>): never;
+  /**
+   * Not supported: throws. Present so the store satisfies redux's `Store` type
+   * (for example react-redux's `<Provider>`).
+   */
+  [Symbol.observable](): never;
 }
 
 declare function createPersistedStore(managers?: Manager[], hasDevManager?: boolean): readonly [({ children }: {
     children: React.ReactNode;
-}) => react_jsx_runtime.JSX.Element, () => State<unknown>, Controller<_data_client_core.DataClientDispatch>, Store<State<unknown>, _data_client_core.ActionTypes, unknown> & {
+}) => react.JSX.Element, () => State<unknown>, Controller<_data_client_core.DataClientDispatch>, Store<State<unknown>, _data_client_core.ActionTypes, unknown> & {
     dispatch: unknown;
 }];
 
@@ -165,12 +188,12 @@ declare const getInitialData: (id?: string) => any;
 
 declare function createServerDataComponent(useReadyCacheState: () => State<unknown>, id?: string): ({ nonce }: {
     nonce?: string | undefined;
-}) => react_jsx_runtime.JSX.Element;
+}) => react.JSX.Element;
 
 declare const ServerData: ({ data, nonce, id, }: {
     data: State<unknown>;
     id?: string;
     nonce?: string | undefined;
-}) => react_jsx_runtime.JSX.Element | null;
+}) => react.JSX.Element | null;
 
 export { ServerData, awaitInitialData, createPersistedStore, createServerDataComponent, getInitialData };

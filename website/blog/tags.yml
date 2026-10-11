@@ -67,3 +67,8 @@ performance:
   label: 'Performance'
   description: 'Performance improvements and optimizations'
   permalink: /performance
+
+agents:
+  label: 'AI Agents'
+  description: 'Skills, llms.txt and tools for AI coding agents'
+  permalink: /agents

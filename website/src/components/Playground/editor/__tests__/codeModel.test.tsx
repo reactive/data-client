@@ -68,6 +68,20 @@ describe('code document model', () => {
     ]);
   });
 
+  test('accepts unquoted title and path', () => {
+    expect(
+      parseCodeDocuments([
+        code({ metastring: 'path=Todo.ts' }, 'a'),
+        code({ metastring: "title='T' path='src/b.ts' {1}" }, 'b'),
+        code({ metastring: 'title=c.ts' }, 'c'),
+      ]).map(({ path, title }) => [path, title]),
+    ).toEqual([
+      ['Todo.ts', ''],
+      ['src/b.ts', 'T'],
+      ['c.ts', 'c.ts'],
+    ]);
+  });
+
   test('updates only the addressed document', () => {
     const documents = parseCodeDocuments([
       code({ metastring: 'title="One"' }, 'one'),
