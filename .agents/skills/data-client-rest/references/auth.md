@@ -10,7 +10,7 @@ defined in your [RestEndpoint](./RestEndpoint.md).
 Here's an example using simple [cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies) auth by sending [fetch credentials](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#sending_a_request_with_credentials_included):
 
 ```ts title="AuthdEndpoint" {9}
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 
 export default class AuthdEndpoint<
   O extends RestGenerics = any,
@@ -61,7 +61,7 @@ export const login = async (data: FormData) =>
 ```
 
 ```ts title="AuthdEndpoint" {7,15,22}
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 import { login } from './login';
 
 export default class AuthdEndpoint<
@@ -134,7 +134,7 @@ export const setAuthToken = (accessToken: string) => {
 ```
 
 ```ts title="AuthdEndpoint" {10,17}
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 import { getAuthToken, setAuthToken, login } from './login';
 
 export default class AuthdEndpoint<
@@ -204,7 +204,7 @@ export const setAuthToken = (accessToken: string) => {
 ```
 
 ```ts title="AuthdEndpoint" {10,17}
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 import { getAuthToken, setAuthToken, login } from './login';
 
 export default class AuthdEndpoint<
@@ -269,9 +269,13 @@ We can transform any [Resource](./resource.md) into one that uses hooks to creat
 by using [hookifyResource](./hookifyResource.md)
 
 ```ts title="resources/Post.ts"
-import { resource, hookifyResource } from '@data-client/rest';
+import { Entity, resource, hookifyResource } from '@data-client/rest';
+import { useAuthContext } from '../AuthContext';
 
-// Post defined here
+class Post extends Entity {
+  id = '';
+  title = '';
+}
 
 export const PostResource = hookifyResource(
   resource({ path: '/posts/:id', schema: Post }),
@@ -303,13 +307,18 @@ function PostDetail({ id }) {
 > Using this means all endpoint calls must only occur during a function render.
 >
 > ```tsx
+> import { useController } from '@data-client/react';
+> import { PostResource } from './resources/Post';
+>
 > function CreatePost() {
 >   const controller = useController();
 >   const createPost = PostResource.useCreate();
 >
 >   return (
 >     <form
->       onSubmit={e => controller.fetch(createPost, new FormData(e.target))}
+>       onSubmit={e =>
+>         controller.fetch(createPost, new FormData(e.currentTarget))
+>       }
 >     >
 >       {/* ... */}
 >     </form>
@@ -322,7 +331,7 @@ function PostDetail({ id }) {
 We will first provide an easy way of using the context to alter the fetch headers.
 
 ```ts title="api/AuthdEndpoint.ts"
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 
 export default class AuthdEndpoint<
   O extends RestGenerics = any,
@@ -341,7 +350,11 @@ export default class AuthdEndpoint<
 Next we will [extend](./RestEndpoint.md#extend) to generate a new endpoint with this context injected.
 
 ```tsx
-function useEndpoint(endpoint: RestEndpoint) {
+import { useMemo } from 'react';
+import type { IRestEndpoint } from '@data-client/rest';
+import { useAuthContext } from './AuthContext';
+
+function useEndpoint(endpoint: IRestEndpoint) {
   const accessToken = useAuthContext();
   return useMemo(
     () => endpoint.extend({ accessToken }),
@@ -355,6 +368,10 @@ function useEndpoint(endpoint: RestEndpoint) {
 > Using this means all endpoint calls must only occur during a function render.
 >
 > ```tsx
+> import { useController } from '@data-client/react';
+> import { PostResource } from './api/Post';
+> import { useEndpoint } from './useEndpoint';
+>
 > function CreatePost() {
 >   const controller = useController();
 >   const createPost = useEndpoint(PostResource.create);

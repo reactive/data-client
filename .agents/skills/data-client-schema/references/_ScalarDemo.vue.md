@@ -35,7 +35,7 @@ export const getPortfolioColumns = new RestEndpoint({
   path: '/companies/columns',
   searchParams: {} as { portfolio: string },
   schema: new Collection([PortfolioScalar], {
-    argsKey: ({ portfolio }) => ({ portfolio }),
+    argsKey: ({ portfolio }: { portfolio: string }) => ({ portfolio }),
   }),
 });
 ```
@@ -44,7 +44,7 @@ export const getPortfolioColumns = new RestEndpoint({
 <script setup lang="ts">
   import { type Company } from './api/Company';
 
-  defineProps<{ companies: Company[] }>();
+  defineProps<{ companies: readonly Company[] }>();
 
   function formatPercent(value: number | undefined) {
     return value === undefined ? 'loading...' : `${(value * 100).toFixed(1)}%`;

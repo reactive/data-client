@@ -51,6 +51,9 @@ import { useSuspense, useController, useCache, useQuery, useLive, useDLE, useFet
     ctrl.fetch(R${i}.update, { id: '1' }, { f0: 'x' });
     ctrl.fetch(R${i}.partialUpdate, { id: '1' }, { f1: 5 });
     ctrl.fetch(R${i}.getList.push, { f0: 'y' });
+    ctrl.fetch(R${i}.create, { f0: 'y' });
+    ctrl.fetch(R${i}.create, new FormData());
+    ctrl.fetch(R${i}.create, [{ f0: 'y' }, { f1: 2 }]);
     ctrl.fetch(R${i}.getList.getPage, { cursor: '2' });
     ctrl.fetch(R${i}.delete, { id: '1' });
     ctrl.set(E${i}, { id: '1' }, { f0: 'z' });
@@ -143,7 +146,7 @@ import { useSuspense, useController, useCache, useQuery, useLive, useDLE, useFet
   return s + '}\n';
 };
 
-// 7. Query/All/Scalar/Invalidate/Lazy grab bag
+// 7. Query/All/Scalar/Invalidate/Lazy grab bag, incl. Collections wrapped in Query/Lazy
 scen.schemas = () => {
   let s = `import { Entity, resource, schema, Collection, Query, RestEndpoint } from '@data-client/rest';
 import { useSuspense, useQuery, useController } from '@data-client/react';
@@ -156,11 +159,13 @@ export const q${i} = new Query(all${i}, (rows, { min }: { min?: number }) => row
 export const inv${i} = new RestEndpoint({ path: '/s${i}/:id', method: 'DELETE', schema: new schema.Invalidate(S${i}) });
 export const arr${i} = new RestEndpoint({ path: '/arr${i}', schema: new schema.Array(S${i}) });
 export const obj${i} = new RestEndpoint({ path: '/obj${i}', schema: new schema.Object({ list: [S${i}], one: S${i}, coll: new Collection([S${i}], { argsKey: ({ g }: { g: string }) => ({ g }) }) }) });
+export const sorted${i} = new RestEndpoint({ path: '/:g/sorted${i}', searchParams: {} as { by?: 'a' | 'b' }, schema: new Query(new Collection([S${i}], { nonFilterArgumentKeys: /by/ }), (rows, { by }: { by?: 'a' | 'b' } = {}) => (by ? [...rows].sort((x, y) => String(x[by]).localeCompare(String(y[by]))) : rows)) });
+export const lazy${i} = new RestEndpoint({ path: '/lazy${i}', schema: new schema.Lazy(new Collection([S${i}])) });
 `;
   }
   s += `export function useS() { const ctrl = useController();\n`;
   for (let i = 0; i < 40 * N; i++)
-    s += `  { const r = useQuery(q${i}, { min: 2 }); const a = useQuery(all${i}); const o = useSuspense(obj${i}); const ar = useSuspense(arr${i}); ctrl.fetch(inv${i}, { id: '1' }); ctrl.set(all${i}, [{ id: '1', a: 1 }]); void r, a, o, ar; }\n`;
+    s += `  { const r = useQuery(q${i}, { min: 2 }); const a = useQuery(all${i}); const o = useSuspense(obj${i}); const ar = useSuspense(arr${i}); ctrl.fetch(inv${i}, { id: '1' }); ctrl.set(all${i}, [{ id: '1', a: 1 }]); const so = useSuspense(sorted${i}, { g: 'x', by: 'a' }); ctrl.fetch(sorted${i}.push, { g: 'x' }, { a: 1 }); ctrl.fetch(sorted${i}.unshift, { g: 'x' }, { b: 'y' }); ctrl.fetch(sorted${i}.remove, { g: 'x' }, { id: '1' }); ctrl.fetch(lazy${i}.push, { a: 1 }); void r, a, o, ar, so; }\n`;
   return s + '}\n';
 };
 
@@ -206,7 +211,8 @@ export const paged = ArticleResource.getList.paginated('page');
   return s;
 };
 
-// 9. #4133's set() cases: values and updaters on a 30-member Union, a Collection of it, and a 300-field Entity
+// 9. #4133's set() cases: values and updaters on a 30-member Union, a Collection of it, and a 300-field Entity;
+// and #4230's Invalidate rows, single and batch
 const setHeader =
   () => `import { Entity, schema, Collection } from '@data-client/rest';
 import { useController } from '@data-client/react';
@@ -222,6 +228,18 @@ scen.setValues = () => {
   ctrl.set(Big, { id: '${i}' }, { f${(i * 3) % BIG}: '' });\n`;
   return s + '}\n';
 };
+scen.setInvalidate = () => {
+  let s =
+    setHeader() +
+    `  const InvUn = new schema.Invalidate(Un);
+  const InvBig = new schema.Invalidate(Big);
+`;
+  for (let i = 0; i < 333 * N; i++)
+    s += `  ctrl.set(InvUn, { id: '${i}', type: 'u${i % M}' });
+  ctrl.set([InvUn], [{ id: '${i}', type: 'u${i % M}' }]);
+  ctrl.set(InvBig, { id: '${i}' });\n`;
+  return s + '}\n';
+};
 scen.setUpdaters = () => {
   let s = setHeader();
   for (let i = 0; i < 1000 * N; i++)
@@ -229,7 +247,61 @@ scen.setUpdaters = () => {
   return s + '}\n';
 };
 
-// 10. path types vs their frozen pre-#4173 implementation (a type error is a mismatch)
+// 10. prepareStore()'s redux Store passed to react-redux's Provider and ExternalDataProvider
+scen.redux = () => {
+  let s = `import { Controller, getDefaultManagers } from '@data-client/react';
+import { prepareStore, ExternalDataProvider, initialState } from '@data-client/react/redux';
+import type { ProviderProps } from 'react-redux';
+declare function provide<A extends { type: string }, S>(props: ProviderProps<A, S>): void;
+`;
+  for (let i = 0; i < 100 * N; i++)
+    s += `export function store${i}() {
+  const reducers = { r${i}: (s: { n${i}: number } = { n${i}: 0 }, a: { type: string }) => s, list: (s: string[] = []) => s };
+  const { store, selector, controller } = prepareStore(initialState, getDefaultManagers(), Controller, reducers);
+  const n: number = store.getState().r${i}.n${i} + store.getState().list.length;
+  store.dispatch({ type: 'a${i}' });
+  provide({ store, children: null });
+  ExternalDataProvider({ store, selector, controller, children: null });
+  return n;
+}
+`;
+  return s;
+};
+
+// 11. @data-client/test fixtures and interceptors (mutable and `as const` args) passed to MockResolver
+scen.fixtures = () => {
+  let s = `import { Entity, resource } from '@data-client/rest';
+import { MockResolver, mockInitialState } from '@data-client/test';
+import type { Fixture, Interceptor } from '@data-client/test';
+`;
+  // a few resources, so the count tracks Fixture/Interceptor/MockResolver typing rather than resource()
+  const R = 4;
+  for (let r = 0; r < R; r++)
+    s += `export class E${r} extends Entity {\n  id = '';\n${fields(20)}\n  static key = 'E${r}';\n}
+export const R${r} = resource({ path: '/e${r}/:id', schema: E${r}, searchParams: {} as { q?: string } | undefined });
+`;
+  for (let i = 0; i < 100 * N; i++) {
+    const r = `R${i % R}`;
+    s += `export const fixtures${i} = [
+  { endpoint: ${r}.get, args: [{ id: '${i}' }] as const, response: { id: '${i}', f0: 'a' } },
+  { endpoint: ${r}.getList, args: [{ q: 'x${i}' }], response: [{ id: '${i}' }] },
+  { endpoint: ${r}.update, args: [{ id: '${i}' }, { f0: 'b' }] as const, response: { id: '${i}', f0: 'b' } },
+  { endpoint: ${r}.delete, args: [{ id: '${i}' }] as const, response: { message: 'nope' }, error: true },
+];
+export const typed${i}: Fixture<typeof ${r}.get> = { endpoint: ${r}.get, args: [{ id: '${i}' }] as const, response: { id: '${i}' } };
+export const interceptor${i}: Interceptor<{ n: number }> = {
+  endpoint: ${r}.get,
+  response({ id }) { return { id, f0: \`\${this.n++}\` }; },
+  delay: () => ${i},
+};
+MockResolver({ fixtures: [...fixtures${i}, typed${i}, interceptor${i}], getInitialInterceptorData: () => ({ n: 0 }), children: null });
+mockInitialState([...fixtures${i}, typed${i}]);
+`;
+  }
+  return s;
+};
+
+// 12. path types vs their frozen pre-#4173 implementation (a type error is a mismatch)
 scen.patheq = patheq;
 
 /** Writes scenarios/<name>/ for the named fixtures (all when empty); returns the names */

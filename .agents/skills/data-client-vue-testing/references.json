@@ -4,6 +4,8 @@
   ],
   "docs": {
     "Fixtures.md": "docs/core/api/Fixtures.md",
-    "mockInitialState.md": "docs/core/api/mockInitialState.md"
+    "mockInitialState.md": "docs/core/api/mockInitialState.md",
+    "unit-testing-components.md": "docs/core/guides/unit-testing-components.md",
+    "unit-testing-composables.md": "docs/core/guides/unit-testing-composables.vue.md"
   }
 }

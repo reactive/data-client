@@ -114,9 +114,9 @@ export const PostResource = resource({
 <template>
   <div v-if="id">
     <PostDetail :id="id" />
-    <center>
+    <div style="text-align: center">
       <button @click="id = undefined">New Post</button>
-    </center>
+    </div>
   </div>
   <PostCreate v-else @navigateToPost="id = $event" />
 </template>

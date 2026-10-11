@@ -48,10 +48,11 @@ export const ProfileResource = resource({
 :::react
 
 ```tsx title="ProfileList"
+import React from 'react';
 import { useDLE } from '@data-client/react';
 import { ProfileResource } from './ProfileResource';
 
-function ProfileList(): JSX.Element {
+function ProfileList(): React.JSX.Element {
   const { data, loading, error } = useDLE(ProfileResource.getList);
   if (error) return <div>Error {`${error.status}`}</div>;
   if (loading || !data) return <Loading />;
@@ -225,10 +226,11 @@ export const ProfileResource = resource({
 :::react
 
 ```tsx title="ProfileDetail"
+import React from 'react';
 import { useDLE } from '@data-client/react';
 import { ProfileResource } from './ProfileResource';
 
-function ProfileDetail(): JSX.Element {
+function ProfileDetail(): React.JSX.Element {
   const {
     data: profile,
     loading,
@@ -328,6 +330,7 @@ export const UserResource = resource({
 :::react
 
 ```tsx title="PostWithAuthor"
+import { useDLE } from '@data-client/react';
 import { PostResource, UserResource } from './Resources';
 
 export default function PostWithAuthor({ id }: { id: string }) {
@@ -402,6 +405,8 @@ When entities are stored in [nested structures](/rest/guides/relational-data#nes
 <TypeScriptEditor row={false}>
 
 ```typescript title="api/Post"
+import { Entity, RestEndpoint, Collection } from '@data-client/rest';
+
 export class PaginatedPost extends Entity {
   id = '';
   title = '';

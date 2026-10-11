@@ -2,9 +2,9 @@
 '@data-client/rest': patch
 ---
 
-Type the `params` and `body` that `process()` receives in `.extend()`
+Type the `params` and `body` that `process()` receives in `RestEndpoint` options
 
-A `process(value, params)` method passed to `RestEndpoint.extend()` or `resource().extend('get', {...})` used to get `params` typed as `any`, so a typo or a wrong assumption about a path parameter went unnoticed until runtime. They are now typed from the extended endpoint's `path`, `searchParams` and `body`, including a `path` set in the same `.extend()` call.
+A `process(value, params)` method passed to `new RestEndpoint()`, `RestEndpoint.extend()` or `resource().extend()` used to get `params` typed as `any`, so a typo or a wrong assumption about a path parameter went unnoticed until runtime. They are now typed from the endpoint's `path`, `searchParams` and `body`, including a `path` set in the same `.extend()` call.
 
 ```ts
 const getUser = new RestEndpoint({ path: '/users/:id' });

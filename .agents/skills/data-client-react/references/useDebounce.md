@@ -15,6 +15,7 @@ Useful to avoid spamming network requests when parameters might change quickly (
 
 ```ts title="IssueQuery"
 import { RestEndpoint, Entity, Collection } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class Issue extends Entity {
   number = 0;
@@ -58,6 +59,7 @@ export const issueQuery = new RestEndpoint({
 ```
 
 ```tsx title="IssueList"
+import React from 'react';
 import { useSuspense } from '@data-client/react';
 import { issueQuery } from './IssueQuery';
 
@@ -82,7 +84,8 @@ function IssueList({ query, owner, repo }) {
 export default React.memo(IssueList) as typeof IssueList;
 ```
 
-```tsx title="SearchIssues" {8}
+```tsx title="SearchIssues" {9}
+import React from 'react';
 import { AsyncBoundary } from '@data-client/react';
 import { useDebounce } from '@data-client/react';
 import IssueList from './IssueList';

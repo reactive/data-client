@@ -56,7 +56,9 @@ export const ArticleResource = hookifyResource(
 ```
 
 ```tsx title="ArticleDetail"
+import { useSuspense, useController } from '@data-client/react';
 import { ArticleResource } from './resources/Article';
+import ArticleForm from './ArticleForm';
 
 function ArticleDetail({ id }) {
   const article = useSuspense(ArticleResource.useGet(), { id });
@@ -106,6 +108,7 @@ export const ArticleResource = hookifyResource(
 <script setup lang="ts">
   import { useSuspense, useController } from '@data-client/vue';
   import { ArticleResource } from './resources/Article';
+  import ArticleForm from './ArticleForm.vue';
 
   const props = defineProps<{ id: string }>();
   const ctrl = useController();

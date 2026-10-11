@@ -107,6 +107,7 @@ export default function PostCreate({ navigateToPost }) {
 ```
 
 ```tsx title="Navigation"
+import React from 'react';
 import PostCreate from './PostCreate';
 import PostDetail from './PostDetail';
 

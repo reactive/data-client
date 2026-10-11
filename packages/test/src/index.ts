@@ -9,7 +9,6 @@ export type {
   DataProviderProps,
 } from './makeRenderDataClient/index.js';
 export * from './renderDataHook.js';
-import mockInitialState from './mockState.js';
 export type {
   FixtureEndpoint,
   SuccessFixtureEndpoint,
@@ -19,7 +18,19 @@ export type {
   ErrorFixture,
   Interceptor,
 } from './fixtureTypes.js';
-export { act, renderHook } from './makeRenderDataClient/renderHook.cjs';
-export type { RenderHookOptions } from './makeRenderDataClient/renderHook.cjs';
+import {
+  act as cjsAct,
+  renderHook as cjsRenderHook,
+} from './makeRenderDataClient/renderHook.cjs';
+import type {
+  ActType,
+  RenderHook,
+} from './makeRenderDataClient/renderHookTypes.js';
+import mockInitialState from './mockState.js';
+export type { RenderHookOptions } from './makeRenderDataClient/renderHookOptions.js';
+
+// Annotated so our declarations don't import renderHook.cjs, which TypeScript < 4.5 can't resolve
+export const act: ActType = cjsAct;
+export const renderHook: RenderHook = cjsRenderHook;
 
 export { mockInitialState };

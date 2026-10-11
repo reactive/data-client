@@ -51,8 +51,9 @@ to append the next page of validators to our list.
 
 <FrameworkPlayground defaultOpen="n" row>
 
-```ts title="Validator" {46-50} collapsed
+```ts title="Validator" {47-51} collapsed
 import { Collection, Entity, RestEndpoint, schema } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class Validator extends Entity {
   operator_address = '';
@@ -223,11 +224,11 @@ render(<ValidatorList />);
 </script>
 
 <template>
-  <center v-if="next_key">
+  <div v-if="next_key" style="text-align: center">
     <button @click="handleLoadMore" :disabled="isPending">
       {{ isPending ? '...' : 'Load more' }}
     </button>
-  </center>
+  </div>
 </template>
 ```
 
@@ -272,6 +273,8 @@ page fetching. On web, it is recommended to use something based on [Intersection
 ```tsx
 import { useSuspense, useController } from '@data-client/react';
 import { PostResource } from 'resources/Post';
+import Pagination from './Pagination';
+import PostList from './PostList';
 
 function NewsList() {
   const { results, cursor } = useSuspense(PostResource.getList);
@@ -297,6 +300,8 @@ function NewsList() {
 <script setup lang="ts">
   import { useSuspense, useController } from '@data-client/vue';
   import { PostResource } from 'resources/Post';
+  import Pagination from './Pagination.vue';
+  import PostList from './PostList.vue';
 
   const data = await useSuspense(PostResource.getList);
   const ctrl = useController();

@@ -1,7 +1,8 @@
 export { MockController } from '@data-client/core/mock';
 export { mountDataClient } from './mountDataClient.js';
 export { renderDataCompose } from './renderDataCompose.js';
-export { MockPlugin, type MockPluginOptions } from './MockPlugin.js';
+export { MockPlugin } from './MockPlugin.js';
+export type { MockPluginOptions } from './MockPlugin.js';
 export type {
   RenderDataClientOptions,
   RenderDataClientResult,

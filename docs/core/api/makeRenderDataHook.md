@@ -1,5 +1,6 @@
 ---
 frameworks: [react]
+framework_equivalent: guides/unit-testing-composables
 title: makeRenderDataHook()
 ---
 
@@ -22,7 +23,7 @@ interface ProviderProps {
   children: React.ReactNode;
   managers: Manager[];
   initialState: State<unknown>;
-  Controller: typeof Controller;
+  Controller: new (props: { gcPolicy: GCInterface }) => Controller;
 }
 ```
 
@@ -33,10 +34,13 @@ The Reactive Data Client [&lt;DataProvider /&gt;](./DataProvider.md)
 
 ## Example
 
-
 ```typescript
 import { DataProvider } from '@data-client/react/redux';
+import { useSuspense } from '@data-client/react';
 import { makeRenderDataHook } from '@data-client/test';
+import { Article, ArticleResource } from './resources/Article';
+
+let renderDataHook: ReturnType<typeof makeRenderDataHook>;
 
 const response = {
   id: 5,
@@ -50,7 +54,7 @@ beforeEach(() => {
 });
 
 it('should resolve useSuspense()', async () => {
-  const { result, waitFor } = renderDataHook(
+  const { result, waitFor, controller } = renderDataHook(
     () => {
       return useSuspense(ArticleResource.get, response);
     },
@@ -70,7 +74,7 @@ it('should resolve useSuspense()', async () => {
   // this indicates suspense
   expect(result.current).toBeUndefined();
   await waitFor(() => expect(result.current).toBeDefined());
-  expect(result.current instanceof ArticleResource).toBe(true);
+  expect(result.current instanceof Article).toBe(true);
   expect(result.current.title).toBe(response.title);
   await controller.fetch(
     ArticleResource.partialUpdate,

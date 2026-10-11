@@ -1,7 +1,7 @@
 {
   "name": "coinbase-lite",
   "version": "0.0.26",
-  "packageManager": "yarn@4.18.0",
+  "packageManager": "yarn@4.18.1",
   "description": "Coin App",
   "scripts": {
     "lint": "eslint src --ext .ts,.tsx",
@@ -51,8 +51,8 @@
     "core-js": "3.49.0",
     "d3": "7.9.0",
     "history": "*",
-    "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
   },
   "main": "src/index.ts",
   "types": "src/index.ts",

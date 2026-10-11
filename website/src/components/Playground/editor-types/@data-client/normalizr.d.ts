@@ -34,8 +34,8 @@ interface EntityInterface<T = any> extends SchemaSimple {
     indexes?: any;
     schema: Record<string, Schema>;
     prototype: T;
-    cacheWith?: object;
-    maxEntityDepth?: number;
+    cacheWith?: object | undefined;
+    maxEntityDepth?: number | undefined;
 }
 interface Mergeable {
     key: string;
@@ -405,7 +405,9 @@ type EntityRef = string | {
 };
 /** Schemas that write each row to one stored entity: Entity, Union, or Invalidate (batch delete).
  * Query, All and Collection don't: they normalize to lists, or Collection keys by args batch set() lacks. */
-type SetEntitySchema = EntityInterface | {
+type SetEntitySchema = EntityInterface | EntityRefSchema;
+/** Union or Invalidate */
+type EntityRefSchema = {
     _normalizeNullable(): EntityRef | undefined;
     pk?: never;
 };
@@ -415,6 +417,11 @@ type SetManySchema = readonly SetEntitySchema[] | {
     schemaKey(): string;
     queryKey(...args: any): undefined;
     pk?: never;
+};
+/** `new Invalidate(Entity)` (or of a Union): not Queryable, since its queryKey() returns undefined */
+type SetInvalidateSchema = EntityRefSchema & {
+    queryKey(...args: any): undefined;
+    query?: never;
 };
 type IsUnion<T, U = T> = T extends unknown ? [
     U
@@ -568,4 +575,4 @@ type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Pr
 
 declare function validateQueryKey(queryKey: unknown): boolean;
 
-export { type AbstractInstanceType, type ArrayElement, BaseDelegate, type CheckLoop, type DenormGetEntity, type Denormalize, type DenormalizeNullable, type EndpointExtraOptions, type EndpointInterface, type EndpointsCache, type EntitiesInterface, type EntitiesPath, type EntityCache, type EntityInterface, type EntityPath, type EntityTable, type ErrorTypes, ExpiryStatus, type ExpiryStatusInterface, type FetchFunction, type GetEntity, type GetIndex, type IDenormalizeDelegate, type IMemoPolicy, INVALID, type INormalizeDelegate, type IQueryDelegate, type IndexInterface, type IndexParams, type IndexPath, type InferReturn, MemoCache, MemoPolicy, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeReturnType, type NormalizedIndex, type NormalizedSchema, type OptimisticUpdateParams, type QueryPath, type Queryable, type ReadEndpoint, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SetManySchema, type SetManyValue, type SetValue, type SkipInfer, type SnapshotInterface, type UnknownError, type UpdateFunction, type Visit, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };
+export { type AbstractInstanceType, type ArrayElement, BaseDelegate, type CheckLoop, type DenormGetEntity, type Denormalize, type DenormalizeNullable, type EndpointExtraOptions, type EndpointInterface, type EndpointsCache, type EntitiesInterface, type EntitiesPath, type EntityCache, type EntityInterface, type EntityPath, type EntityTable, type ErrorTypes, ExpiryStatus, type ExpiryStatusInterface, type FetchFunction, type GetEntity, type GetIndex, type IDenormalizeDelegate, type IMemoPolicy, INVALID, type INormalizeDelegate, type IQueryDelegate, type IndexInterface, type IndexParams, type IndexPath, type InferReturn, MemoCache, MemoPolicy, type Mergeable, type MutateEndpoint, type NI, type NetworkError, type Normalize, type NormalizeNullable, type NormalizeReturnType, type NormalizedIndex, type NormalizedSchema, type OptimisticUpdateParams, type QueryPath, type Queryable, type ReadEndpoint, type ResolveType, type Schema, type SchemaArgs, type SchemaClass, type SchemaSimple, type Serializable, type SetInvalidateSchema, type SetManySchema, type SetManyValue, type SetValue, type SkipInfer, type SnapshotInterface, type UnknownError, type UpdateFunction, type Visit, WeakDependencyMap, denormalize, isEntity, normalize, validateQueryKey };

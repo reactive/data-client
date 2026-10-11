@@ -184,7 +184,7 @@ const get = new RestEndpoint({
 export const OptionsResource = {
   get,
   partialUpdate: get.extend({ method: 'PATCH' }),
-}
+};
 ```
 
 ### static key: string {#key}
@@ -230,8 +230,9 @@ export class User extends Entity {
 }
 ```
 
-```ts title="Post" {16-20}
+```ts title="Post" {17-21}
 import { Entity } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 import { User } from './User';
 
 export class Post extends Entity {
@@ -254,6 +255,8 @@ export class Post extends Entity {
 ```
 
 ```tsx title="PostPage"
+import { RestEndpoint } from '@data-client/rest';
+import { useSuspense } from '@data-client/react';
 import { Post } from './Post';
 
 export const getPost = new RestEndpoint({
@@ -267,11 +270,7 @@ function PostPage() {
       <p>
         {post.content} - <cite>{post.author.name}</cite>
       </p>
-      <time>
-        {DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
-          post.createdAt,
-        )}
-      </time>
+      <time>{post.createdAt.toLocaleString('en-US', { dateStyle: 'medium' })}</time>
     </div>
   );
 }
@@ -327,6 +326,9 @@ export const UserResource = resource({
 ```
 
 ```tsx
+import { useSuspense } from '@data-client/react';
+import { UserResource } from './resources/User';
+
 const user = useSuspense(UserResource.get, { username: 'bob' });
 ```
 
@@ -363,19 +365,25 @@ const getAssets = new RestEndpoint({
 Some top level component:
 
 ```tsx
+import { useSuspense } from '@data-client/react';
+import { getAssets } from './resources/Asset';
+
 const assets = useSuspense(getAssets);
 ```
 
 Nested below:
 
 ```tsx
+import { useQuery } from '@data-client/react';
+import { LatestPrice } from './resources/LatestPrice';
+
 const price = useQuery(LatestPrice, { symbol: 'BTC' });
 ```
 
 ### static maxEntityDepth?: number {#maxEntityDepth}
 
 Limits entity nesting depth during denormalization to prevent stack overflow
-in large bidirectional entity graphs. **Default: 128**
+in large bidirectional entity graphs. **Default: 64**
 
 When bidirectional relationships create chains with many unique entities
 (e.g., `Department → Building → Department → ...`), denormalization can recurse
@@ -389,7 +397,9 @@ class Department extends Entity {
   name = '';
   buildings: Building[] = [];
 
-  pk() { return this.id; }
+  pk() {
+    return this.id;
+  }
   static key = 'Department';
   static maxEntityDepth = 16;
 
@@ -747,7 +757,7 @@ During normalization a validation failure will result in an error for that fetch
 During denormalization a validation failure will mark that result as 'invalid' and thus
 will block on fetching a result.
 
-By **default** does some basic field existance checks in development mode only. Override to
+By **default** does some basic field existence checks in development mode only. Override to
 disable or customize.
 
 [Using validation for endpoints with incomplete fields](https://dataclient.io/rest/guides/partial-entities)

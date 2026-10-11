@@ -6,9 +6,9 @@ disable-model-invocation: true
 
 # REST Protocol Setup & Migration
 
-This skill configures `@data-client/rest` for a project. It handles both fresh setup and migration from existing HTTP libraries. It should be applied after skill "data-client-setup" detects REST API patterns.
+This guide configures `@data-client/rest` for a project. It handles both fresh setup and migration from existing HTTP libraries. Use it once the Data Client provider is set up and the project calls REST APIs.
 
-**First, apply the skill "data-client-rest"** for accurate implementation patterns.
+The [RestEndpoint](references/RestEndpoint.md) and [resource](references/resource.md) references cover the APIs this guide uses. If the skill "data-client-rest" is installed, also apply it for resource and endpoint patterns beyond setup.
 
 ## Step 1: Installation
 
@@ -67,6 +67,7 @@ When multiple HTTP libraries are detected, run each sub-procedure on the relevan
 Each migration is a self-contained reference. Read only the relevant one(s) based on detection results above. After completing migrations, return here for base class setup.
 
 - **Axios** → [references/axios-migration.md](references/axios-migration.md) — codemod, interceptors, error handling, timeout, cancelToken, responseType, paramsSerializer, auth, validateStatus, CSRF, upload progress
+  - Run its codemod before any manual edits, from this skill's own copy at [scripts/axios-to-rest.js](scripts/axios-to-rest.js): `npx jscodeshift -t <path to that file> --extensions=ts,tsx,js,jsx src/`.
 - **Raw fetch** → [references/fetch-migration.md](references/fetch-migration.md) — fetch wrappers, headers, status checks, POST patterns, error handling
 - **Ky** → [references/ky-migration.md](references/ky-migration.md) — prefixUrl, hooks, HTTPError, instance config
 - **SuperAgent** → [references/superagent-migration.md](references/superagent-migration.md) — chained API, plugins, agents, file uploads

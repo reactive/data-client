@@ -11,6 +11,7 @@ import PkgTabs from '@site/src/components/PkgTabs';
 import Installation from '../shared/\_installation.mdx';
 import StackBlitz from '@site/src/components/StackBlitz';
 import Link from '@docusaurus/Link';
+import SiteOnly from '@site/src/components/SiteOnly';
 
 :::react
 
@@ -18,11 +19,15 @@ import Link from '@docusaurus/Link';
 
 :::
 
+<SiteOnly>
+
 :::tip[Use Agent Skills]
 
 Prefer to scaffold via your AI agent? See [Agent Skills](./agent-skills.md) and run `/data-client-setup`.
 
 :::
+
+</SiteOnly>
 
 ## :react[Add provider at top-level component]:vue[Install the plugin] {#add-provider-at-top-level-component}
 
@@ -60,6 +65,12 @@ Install the [Vue plugin](https://vuejs.org/guide/reusability/plugins.html) when 
 <summary><b>TypeScript 4.0+</b></summary>
 
 TypeScript is optional, but requires at least version [4.0](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-4-0.html#variadic-tuple-types) and [strictNullChecks](https://www.typescriptlang.org/tsconfig#strictNullChecks) for full type enforcement.
+
+:::vue
+
+`@data-client/vue` needs TypeScript 4.5 or later, since Vue's own types do.
+
+:::
 
 </details>
 

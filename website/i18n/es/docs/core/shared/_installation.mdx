@@ -1,0 +1,77 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import PkgTabs from '@site/src/components/PkgTabs';
+import PkgInstall from '@site/src/components/PkgInstall';
+import Link from '@docusaurus/Link';
+import ProviderSetupCode from '@site/src/components/ProviderSetupCode';
+
+::::react
+
+<Tabs
+defaultValue="web"
+groupId="platform"
+values={[
+{ label: 'Web', value: 'web' },
+{ label: 'React Native', value: 'native' },
+{ label: 'NextJS', value: 'nextjs' },
+{ label: 'Expo', value: 'expo' },
+{ label: 'Anansi', value: 'anansi' },
+]}>
+
+<TabItem value="web">
+
+<ProviderSetupCode platform="web" />
+
+Como alternativa, [integra el estado con redux](../guides/redux.md)
+
+</TabItem>
+
+<TabItem value="native">
+
+<ProviderSetupCode platform="native" />
+
+Como alternativa, [integra el estado con redux](../guides/redux.md)
+
+</TabItem>
+
+<TabItem value="nextjs">
+
+<div style={{ textAlign: 'center' }}>
+  <Link className="button button--primary" to="../guides/ssr#nextjs">Guía completa de NextJS</Link>
+</div>
+
+<ProviderSetupCode platform="nextjs" />
+
+</TabItem>
+
+<TabItem value="expo">
+
+<ProviderSetupCode platform="expo" />
+
+</TabItem>
+
+<TabItem value="anansi">
+
+[Anansi](https://github.com/ntucker/anansi) (beta) es un framework totalmente componible para el desarrollo con React, con renderizado
+del lado del servidor opcional.
+
+```bash title="bash"
+npx @anansi/cli hatch my-project
+```
+
+Anansi incluye Reactive Data Client automáticamente.
+
+</TabItem>
+</Tabs>
+
+::::
+
+::::vue
+
+<PkgInstall pkgs="@data-client/vue @data-client/rest" />
+
+<ProviderSetupCode platform="vue" />
+
+`app.use(DataClientPlugin, options)` puede sobrescribir opcionalmente [`managers`](../api/getDefaultManagers.md), `initialState`, `Controller` y `gcPolicy`. Consulta [DataClientPlugin](../api/DataClientPlugin.md) para ver todas las opciones.
+
+::::

@@ -12,8 +12,10 @@ yarn check:typeperf --update    # re-record budget.json after an intended change
 It fails when:
 
 - a stress fixture's **instantiation count** rises more than 10% over [budget.json](./budget.json).
+  It type-checks with TypeScript 7 (`@typescript/native`, the compiler the repo builds with).
   Instantiations are deterministic for a given TypeScript version, so they make a stable
-  signal; check times are printed for context only.
+  signal; check times are printed for context only. Counts shift when the compiler is
+  upgraded, so re-record the budget with `--update` alongside a TypeScript bump.
 - a fixture has type errors.
   The `patheq` fixture's errors mean the path types (`PathKeys`, `PathArgs`, `ShortenPath`,
   `PathArgsAndSearch`, `KeysToArgs`) disagree with the frozen reference implementation in
@@ -39,9 +41,12 @@ When a count drops more than 10% below its budget, the check says so; re-record 
 | typical | a small, realistic app |
 | setValues | `ctrl.set()` values on a Union, Collection and big Entity |
 | setUpdaters | `ctrl.set()` updaters spreading `prev` on a 30-member Union |
+| redux | `prepareStore()`'s store passed to react-redux's `Provider` and `ExternalDataProvider` |
+| fixtures | 100 sets of `@data-client/test` fixtures (mutable and `as const` args) and interceptors passed to `MockResolver` and `mockInitialState()` |
+| setInvalidate | `ctrl.set()` single and batch Invalidate rows on a 30-member Union and big Entity |
 | patheq | path types against [patheq/orig.ts](./patheq/orig.ts) on fixed-seed fuzzed paths |
 
-To compare TypeScript 6 and 7 or check time, run a compiler on a fixture directly:
+To compare with TypeScript 6 or dig into one fixture, run a compiler on it directly:
 
 ```bash
 npx tsc6 -p scripts/typeperf/scenarios/paths/tsconfig.json --extendedDiagnostics

@@ -9,6 +9,7 @@ import { extensionToMonacoLanguage } from '../monaco/language';
 import { options } from '../monaco/options';
 import { MONACO_THEME } from '../monaco/theme';
 import useAutoHeight from '../monaco/useAutoHeight';
+import useDefinitionOpener from '../monaco/useDefinitionOpener';
 import PlaygroundLiveEditor from '../PlaygroundLiveEditor';
 import { isMobileOrBot } from '../userAgent';
 import StaticEditor from './StaticEditor';
@@ -20,6 +21,8 @@ export interface InteractiveEditorProps {
   code: string;
   /** Monaco model path (see ../monaco/modelPath.ts) */
   path?: string;
+  /** Runs when this editor mounts, after Monaco loads and before it creates its model. Only the first render's value is used. */
+  beforeMount?: (monaco: typeof Monaco) => void;
   /** Called with tabIndex whenever this editor gains focus */
   onFocus: (tabIndex: number) => void;
   tabIndex: number;
@@ -40,6 +43,7 @@ function InteractiveEditor({
   onChange,
   code,
   path = '',
+  beforeMount,
   onFocus,
   tabIndex,
   highlights,
@@ -53,21 +57,29 @@ function InteractiveEditor({
     initialContentHeight: code.split('\n').length * editorOptions.lineHeight,
     isFocused,
   });
+  const handleOpenerMount = useDefinitionOpener({
+    isVisible: isFocused,
+    onOpen: () => onFocus(tabIndex),
+  });
 
   // Mount-time setup only: props read here are fixed for the editor's life
-  const handleMount = useCallback((editor: Monaco.editor.ICodeEditor) => {
-    if (autoFocus) editor.focus();
-    if (highlights) {
-      const selections = highlightSelections(rangeParser(highlights));
-      if (selections.length) editor.setSelections(selections);
-    }
-    // Focus reveals this tab (also how cross-tab go to definition lands)
-    editor.onDidFocusEditorText(() => {
-      onFocus(tabIndex);
-    });
-    handleAutoMount(editor);
+  const handleMount = useCallback(
+    (editor: Monaco.editor.ICodeEditor, monaco: typeof Monaco) => {
+      if (autoFocus) editor.focus();
+      if (highlights) {
+        const selections = highlightSelections(rangeParser(highlights));
+        if (selections.length) editor.setSelections(selections);
+      }
+      // Focus reveals this tab
+      editor.onDidFocusEditorText(() => {
+        onFocus(tabIndex);
+      });
+      handleAutoMount(editor);
+      handleOpenerMount(editor, monaco);
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    [],
+  );
 
   // loading only shows the initial snapshot, so it need not track code changes
   const loading = useMemo(
@@ -85,6 +97,7 @@ function InteractiveEditor({
   return (
     <Editor
       path={path}
+      beforeMount={beforeMount}
       defaultLanguage={extensionToMonacoLanguage(language)}
       onChange={onChange}
       defaultValue={code}

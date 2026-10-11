@@ -192,12 +192,14 @@
     "jest-mock": "^30.0.0",
     "nock": "13.3.1",
     "qs": "^6.14.2",
-    "react": "19.2.3",
+    "react": "19.3.0",
     "react-dom": "^19.0.0",
     "react-native": "0.86.2",
     "react-native-safe-area-context": "^5.0.0",
     "react-native-screens": "^4.1.0",
+    "react-redux": "^9.2.0",
     "react-test-renderer": "^19.0.0",
+    "redux": "^5.0.1",
     "rollup-plugins": "workspace:*",
     "temporal-polyfill": "^0.3.0"
   }

@@ -92,6 +92,9 @@ class Presentation extends Entity {
 :::react
 
 ```tsx
+import { useSuspense } from '@data-client/react';
+import { getPresentations } from './api/Presentation';
+
 export function PresentationsPage() {
   const presentation = useSuspense(getPresentations);
   return presentation.map(presentation => (
@@ -106,6 +109,9 @@ export function PresentationsPage() {
 
 ```html title="PresentationsPage.vue"
 <script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getPresentations } from './api/Presentation';
+
   const presentations = await useSuspense(getPresentations);
 </script>
 
@@ -167,6 +173,9 @@ const todoCreate = new RestEndpoint({
 
 ```tsx
 import { useController } from '@data-client/react';
+import { todoCreate } from './api/Todo';
+import Form from './Form';
+import FormField from './FormField';
 
 export default function NewTodoForm() {
   const ctrl = useController();
@@ -187,6 +196,9 @@ export default function NewTodoForm() {
 ```html title="NewTodoForm.vue"
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
+  import { todoCreate } from './api/Todo';
+  import Form from './Form.vue';
+  import FormField from './FormField.vue';
 
   const ctrl = useController();
   const handleSubmit = (e: Event) =>
@@ -224,7 +236,10 @@ const todoUpdate = new RestEndpoint({
 :::react
 
 ```tsx
-import { useController } from '@data-client/react';
+import { useController, useSuspense } from '@data-client/react';
+import { todoDetail, todoUpdate } from './api/Todo';
+import Form from './Form';
+import FormField from './FormField';
 
 export default function UpdateTodoForm({ id }: { id: number }) {
   const todo = useSuspense(todoDetail, { id });
@@ -249,6 +264,9 @@ export default function UpdateTodoForm({ id }: { id: number }) {
 ```html title="UpdateTodoForm.vue"
 <script setup lang="ts">
   import { useController, useSuspense } from '@data-client/vue';
+  import { todoDetail, todoUpdate } from './api/Todo';
+  import Form from './Form.vue';
+  import FormField from './FormField.vue';
 
   const props = defineProps<{ id: number }>();
   const todo = await useSuspense(todoDetail, () => ({ id: props.id }));
@@ -293,6 +311,7 @@ const todoDelete = new RestEndpoint({
 
 ```tsx
 import { useController } from '@data-client/react';
+import { todoDelete, type Todo } from './api/Todo';
 
 export default function TodoWithDelete({ todo }: { todo: Todo }) {
   const ctrl = useController();
@@ -314,6 +333,7 @@ export default function TodoWithDelete({ todo }: { todo: Todo }) {
 ```html title="TodoWithDelete.vue"
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
+  import { todoDelete, type Todo } from './api/Todo';
 
   defineProps<{ todo: Todo }>();
   const ctrl = useController();

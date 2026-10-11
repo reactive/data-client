@@ -22,30 +22,32 @@ and [setResponse](./Controller.md#setResponse)
 :::react
 
 ```tsx
+import { useCallback } from 'react';
 import { useController } from '@data-client/react';
+import { MyResource } from './resources';
 
-function MyComponent({ id }) {
+function MyComponent({ id }: { id: string }) {
   const ctrl = useController();
 
   const handleRefresh = useCallback(
     async e => {
       await ctrl.fetch(MyResource.get, { id });
     },
-    [fetch, id],
+    [ctrl, id],
   );
 
   const handleSuspend = useCallback(
     async e => {
       await ctrl.invalidate(MyResource.get, { id });
     },
-    [invalidate, id],
+    [ctrl, id],
   );
 
   const handleLogout = useCallback(
     async e => {
       ctrl.resetEntireStore();
     },
-    [resetEntireStore],
+    [ctrl],
   );
 }
 ```
@@ -57,6 +59,7 @@ function MyComponent({ id }) {
 ```html
 <script setup lang="ts">
   import { useController } from '@data-client/vue';
+  import { MyResource } from './resources';
 
   const props = defineProps<{ id: string }>();
   const ctrl = useController();
@@ -90,8 +93,14 @@ The same [Controller](./Controller.md) is also available in templates and the Op
 :::react
 
 ```tsx
+import type { FormEvent } from 'react';
+import { useNavigate } from 'react-router';
+import { useController } from '@data-client/react';
+import { PostResource } from './PostResource';
+
 function CreatePost() {
   const ctrl = useController();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -147,6 +156,9 @@ Use [set](./Controller.md#set) for immediate updates without network requests. S
 :::react
 
 ```tsx
+import { useController } from '@data-client/react';
+import { Article } from './Article';
+
 function VoteButton({ articleId }: { articleId: string }) {
   const ctrl = useController();
 
@@ -198,6 +210,9 @@ Force refetch of related data using [invalidate](./Controller.md#invalidate) or 
 :::react
 
 ```tsx
+import { useController } from '@data-client/react';
+import { UserResource } from './UserResource';
+
 function ClearUserCache({ userId }: { userId: string }) {
   const ctrl = useController();
 
@@ -249,6 +264,10 @@ Use [fetchIfStale](./Controller.md#fetchIfStale) to prefetch without overfetchin
 :::react
 
 ```tsx
+import { Link } from 'react-router';
+import { useController } from '@data-client/react';
+import { ArticleResource } from './ArticleResource';
+
 function ArticleLink({ id }: { id: string }) {
   const ctrl = useController();
 
@@ -295,6 +314,10 @@ Populate cache with external data via [set](./Controller.md#set).
 :::react
 
 ```tsx
+import { useEffect } from 'react';
+import { useController } from '@data-client/react';
+import { EntityMap } from './resources';
+
 function useWebsocket(url: string) {
   const ctrl = useController();
 
@@ -316,6 +339,7 @@ function useWebsocket(url: string) {
 ```ts title="useWebsocket.ts"
 import { onMounted, onUnmounted } from 'vue';
 import { useController } from '@data-client/vue';
+import { EntityMap } from './resources';
 
 export function useWebsocket(url: string) {
   const ctrl = useController();

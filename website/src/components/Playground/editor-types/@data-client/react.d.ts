@@ -1,5 +1,5 @@
 import * as _data_client_core from '@data-client/core';
-import { NetworkManager, Manager, State, Controller, GCInterface, DevToolsManager, DevToolsConfig, SubscriptionManager, EndpointInterface, FetchFunction, Schema, ResolveType, Denormalize, DenormalizeNullable, Queryable, NI, SchemaArgs, NetworkError, UnknownError, ErrorTypes as ErrorTypes$1, __INTERNAL__, actions, applyManager, createReducer, initManager } from '@data-client/core';
+import { NetworkManager, Manager, State, GCInterface, Controller, DevToolsManager, DevToolsConfig, SubscriptionManager, EndpointInterface, FetchFunction, Schema, ResolveType, Denormalize, DenormalizeNullable, Queryable, NI, SchemaArgs, NetworkError, UnknownError, ErrorTypes as ErrorTypes$1, __INTERNAL__, actions, applyManager, createReducer, initManager } from '@data-client/core';
 export { AbstractInstanceType, ActionTypes, Controller, CreateCountRef, DataClientDispatch, DefaultConnectionListener, Denormalize, DenormalizeNullable, DevToolsManager, Dispatch, EndpointExtraOptions, EndpointInterface, EntityInterface, ErrorTypes, ExpiryStatus, FetchAction, FetchFunction, GCInterface, GCOptions, GCPolicy, GenericDispatch, InvalidateAction, LogoutManager, Manager, Middleware, MiddlewareAPI, NetworkError, NetworkManager, Normalize, NormalizeNullable, PK, PollingSubscription, Queryable, ResetAction, ResolveType, Schema, SchemaArgs, SchemaClass, SetAction, SetResponseAction, State, SubscribeAction, SubscriptionManager, UnknownError, UnsubscribeAction, UpdateFunction, actionTypes } from '@data-client/core';
 import * as React from 'react';
 import React__default, { JSX, Context } from 'react';
@@ -16,7 +16,9 @@ interface ProviderProps {
     children: React__default.ReactNode;
     managers?: Manager[];
     initialState?: State<unknown>;
-    Controller?: typeof Controller;
+    Controller?: new (props: {
+        gcPolicy: GCInterface;
+    }) => Controller;
     gcPolicy?: GCInterface;
     devButton?: DevToolsPosition | null | undefined;
 }

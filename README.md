@@ -8,7 +8,7 @@
 
 The scalable way to build applications with [dynamic data](https://dataclient.io/docs/getting-started/mutations).
 
-[Declarative resouce definitons](https://dataclient.io/docs/getting-started/resource) for [REST](https://dataclient.io/rest), [GraphQL](https://dataclient.io/graphql), [Websockets+SSE](https://dataclient.io/docs/concepts/managers#data-stream) and [more](https://dataclient.io/rest/api/Endpoint)
+[Declarative resource definitions](https://dataclient.io/docs/getting-started/resource) for [REST](https://dataclient.io/rest), [GraphQL](https://dataclient.io/graphql), [Websockets+SSE](https://dataclient.io/docs/concepts/managers#data-stream) and [more](https://dataclient.io/rest/api/Endpoint)
 <br/>[Performant rendering](https://dataclient.io/docs/getting-started/data-dependency) in [React](https://react.dev/), [NextJS](https://nextjs.org/), [React Native](https://reactnative.dev/), [Expo](https://expo.dev/), [Vue](https://vuejs.org/)
 
 Schema driven. Zero updater functions.
@@ -110,7 +110,7 @@ return (
   <>
     <CreateArticleForm
       onSubmit={article =>
-        ctrl.fetch(ArticleResource.getList.push, { id }, article)
+        ctrl.fetch(ArticleResource.getList.push, article)
       }
     />
     <ProfileForm
@@ -243,7 +243,7 @@ const Story = () => (
 
 ### ...all typed ...fast ...and consistent
 
-For the small price of 9kb gziped. &nbsp;&nbsp; [🏁Get started now](https://dataclient.io/docs/getting-started/agent-skills)
+For the small price of 9kb gzipped. &nbsp;&nbsp; [🏁Get started now](https://dataclient.io/docs/getting-started/agent-skills)
 
 ## Features
 

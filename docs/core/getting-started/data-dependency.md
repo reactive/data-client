@@ -150,7 +150,8 @@ export default function PostList({ setRoute }) {
 ```
 
 ```tsx title="Navigation" collapsed
-import { useController, useLoading } from '@data-client/react';
+import React from 'react';
+import { useController, useLoading, useQuery } from '@data-client/react';
 import { PostResource } from './Resources';
 import PostList from './PostList';
 import PostDetail from './PostDetail';
@@ -277,11 +278,11 @@ render(<Navigation />);
 </script>
 
 <template>
-  <center v-if="canLoadMore">
+  <div v-if="canLoadMore" style="text-align: center">
     <button @click="nextPage">
       {{ isPending ? '...' : 'Load more' }}
     </button>
-  </center>
+  </div>
 </template>
 ```
 
@@ -399,10 +400,11 @@ export const ProfileResource = resource({
 :::react
 
 ```tsx title="ProfileList"
+import React from 'react';
 import { useDLE } from '@data-client/react';
 import { ProfileResource } from './ProfileResource';
 
-function ProfileList(): JSX.Element {
+function ProfileList(): React.JSX.Element {
   const { data, loading, error } = useDLE(ProfileResource.getList);
   if (error) return <div>Error {`${error.status}`}</div>;
   if (loading || !data) return <Loading />;

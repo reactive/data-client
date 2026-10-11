@@ -517,7 +517,7 @@ interface IEntityClass<TBase extends Constructor = any> {
      * @see https://dataclient.io/rest/api/Entity#indexes
      */
     indexes?: readonly string[] | undefined;
-    /** Maximum entity nesting depth for denormalization (default: 128)
+    /** Maximum entity nesting depth for denormalization (default: 64)
      *
      * Set a lower value to truncate deep bidirectional entity graphs earlier.
      * @see https://dataclient.io/rest/api/Entity#maxEntityDepth
@@ -1501,22 +1501,24 @@ type ExtractObject<S extends Record<string, any>> = {
     [K in keyof S]: S[K] extends Schema ? ExtractCollection<S[K]> : never;
 }[keyof S];
 
+/** Searches wrappers like Query and Lazy through their `schema` (Entity classes have a `prototype`) */
 type ExtractCollection<S extends Schema | undefined> = S extends ({
     push: any;
     unshift: any;
     assign: any;
     remove: any;
     schema: Schema;
-}) ? S : S extends Object$1<infer T> ? ExtractObject<T> : S extends Exclude<Schema, {
+}) ? S : S extends Object$1<infer T> ? ExtractObject<T> : S extends {
+    schema: infer Q;
+    denormalize: any;
+    prototype?: undefined;
+} ? ExtractObject<{
+    schema: Q;
+}> : S extends Exclude<Schema, {
     [K: string]: any;
 }> ? never : S extends {
     [K: string]: Schema;
 } ? ExtractObject<S> : never;
-
-/** true when T is a union */
-type IsUnion<T, U = T> = T extends any ? [
-    U
-] extends [T] ? false : true : never;
 
 type CleanKey<S extends string> = S extends `"${string}"` ? S extends `"${infer K}"` ? K : S : S;
 type KeyName<K extends string> = K extends `*${string}` | `${string}}` ? CleanKey<K extends `*${infer N}}` ? N : K extends `*${infer N}` ? N : K extends `${infer N}}` ? N : K> : CleanKey<K>;
@@ -1656,7 +1658,7 @@ interface RestInstanceBase<F extends FetchFunction = FetchFunction, S extends Sc
     /** Prepares RequestInit used in fetch. This is sent to fetchResponse()
      * @see https://dataclient.io/rest/api/RestEndpoint#getRequestInit
      */
-    getRequestInit(this: any, body?: RequestInit['body'] | Record<string, unknown>): Promise<RequestInit> | RequestInit;
+    getRequestInit(this: any, body?: RequestInit['body'] | Record<string, unknown> | readonly unknown[]): Promise<RequestInit> | RequestInit;
     /** Called by getRequestInit to determine HTTP Headers
      * @see https://dataclient.io/rest/api/RestEndpoint#getHeaders
      */
@@ -1731,24 +1733,15 @@ type RestEndpointExtendOptions<O extends PartialRestGenerics, E extends {
     path?: string;
     schema?: Schema;
     method?: string;
-}, F extends FetchFunction> = RestEndpointOptions<OptionsToFunction<O, E, F>, 'schema' extends keyof O ? Extract<O['schema'], Schema | undefined> : E['schema']> & {
-    /** @see https://dataclient.io/rest/api/RestEndpoint#process */
-    process?(value: any, ...args: ProcessArgs<Parameters<OptionsToFunction<O, E, F>>>): any;
-} & PartialPick<E, keyof E extends ExtendOmitKeys ? never : Exclude<keyof E, ExtendOmitKeys>>;
-/** Parameters<F> as a single tuple, so process() accepts every way the endpoint can be called.
- * Endpoints with optional params or body have a union like `[params] | []` or `[params, body] | [body]`
- * (see ParamFetchNoBody/ParamFetchWithBody); it merges position-wise, with an element optional when
- * some call omits it. A single tuple (like a custom `fetch(params?)`) is kept as is.
- * Only for contextually typing an options callback: TypeScript can't infer callback parameters from a
- * union of tuples. The instance `process()` keeps `Parameters<F>`, the stricter signature for callers.
+}, F extends FetchFunction> = RestEndpointOptions<OptionsToFunction<O, E, F>, 'schema' extends keyof O ? Extract<O['schema'], Schema | undefined> : E['schema']> & PartialPick<E, keyof E extends ExtendOmitKeys ? never : Exclude<keyof E, ExtendOmitKeys>>;
+/** Argument I passed to process(), from Parameters<F>.
+ * Indexing a union like `[params] | []` or `[params, body] | [body]` (see ParamFetchNoBody/ParamFetchWithBody)
+ * merges position-wise, giving `undefined` where some call omits the argument.
+ * Endpoints that take no args keep `any`, so process(value, params: any) and similar still compile.
  */
-type ProcessArgs<A extends readonly any[]> = number extends A['length'] ? A : [A['length']] extends [0] ? A : [A['length']] extends [1] ? A : [A['length']] extends [2] ? A : IsUnion<A> extends false ? A : [] extends A ? [
-    ArgAt1<A>
-] extends [never] ? [
-    params?: ArgAt0<A>
-] : [params?: ArgAt0<A>, body?: ArgAt1<A>] : [params: ArgAt0<A>, body?: ArgAt1<A>];
-type ArgAt0<A extends readonly any[]> = A extends unknown ? A['length'] extends 0 ? never : A[0] : never;
-type ArgAt1<A extends readonly any[]> = A extends unknown ? A['length'] extends 0 | 1 ? never : A[1] : never;
+type ProcessArg<A extends readonly any[], I extends 0 | 1> = [
+    A['length']
+] extends [0] ? any : A[I];
 type ExtendOmitKeys = KeyofRestEndpoint | keyof PartialRestGenerics | keyof RestEndpointOptions;
 /** Partial<Pick<T, K>> as a single homomorphic mapped type */
 type PartialPick<T, K extends keyof T> = {
@@ -1797,8 +1790,9 @@ type RestExtendedEndpoint<O extends PartialRestGenerics, E extends RestInstanceB
 } ? {
     paginationField: E['getPage']['paginationField'];
 } : unknown), RestInstance<(...args: Parameters<E>) => O['process'] extends {} ? Promise<ReturnType<O['process']>> : 'content' extends keyof O ? Promise<ContentReturnType<O['content'] & ContentType>> : ReturnType<E>, 'schema' extends keyof O ? O['schema'] : E['schema'], 'sideEffect' extends keyof O ? Extract<O['sideEffect'], boolean | undefined> : 'method' extends keyof O ? MethodToSide<O['method']> : E['sideEffect']>> & (keyof O extends KeyofRestEndpoint ? unknown : Omit<O, KeyofRestEndpoint>) & (keyof E extends KeyofRestEndpoint ? unknown : Omit<E, KeyofRestEndpoint | keyof O>);
-/** PartialRestGenerics without `process`. extend() constrains its options to this, so the
- * `process` member of RestEndpointExtendOptions is the only contextual type for process() params.
+/** PartialRestGenerics without `process`. Options passed to the constructor, extend() and
+ * resource().extend() are constrained by this, so RestEndpointOptions' typed `process` member is
+ * the only contextual type for process() params.
  */
 interface ExtendableRestGenerics {
     /** @see https://dataclient.io/rest/api/RestEndpoint#path */
@@ -1827,6 +1821,10 @@ interface PartialRestGenerics extends ExtendableRestGenerics {
  * @see https://dataclient.io/rest/api/RestEndpoint#inheritance
  */
 interface RestGenerics extends PartialRestGenerics {
+    readonly path: string;
+}
+/** RestGenerics without `process`; see ExtendableRestGenerics */
+interface ConstructorRestGenerics extends ExtendableRestGenerics {
     readonly path: string;
 }
 type PaginationEndpoint<E extends FetchFunction & RestGenerics & {
@@ -1940,6 +1938,8 @@ interface RestEndpointOptions<F extends FetchFunction = FetchFunction, S extends
     fetch?: F;
     key?(...args: Parameters<F>): string;
     url?(...args: Parameters<F>): string;
+    /** @see https://dataclient.io/rest/api/RestEndpoint#process */
+    process?(value: any, params: ProcessArg<Parameters<F>, 0>, body: ProcessArg<Parameters<F>, 1>, ...rest: any[]): any;
     update?: EndpointUpdateFunction<F, S>;
 }
 type RestEndpointConstructorOptions<O extends RestGenerics = any> = RestEndpointOptions<RestFetch<unknown extends O ? any : 'searchParams' extends keyof O ? [
@@ -1960,7 +1960,7 @@ interface RestEndpointConstructor {
      *
      * @see https://dataclient.io/rest/api/RestEndpoint
      */
-    new <O extends RestGenerics = any>({ method, sideEffect, name, ...options }: RestEndpointConstructorOptions<O> & Readonly<O> & O & ContentSchemaGuard<O>): RestEndpoint$1<O>;
+    new <O extends ConstructorRestGenerics = any>({ method, sideEffect, name, ...options }: RestEndpointConstructorOptions<O> & Readonly<O> & O & ContentSchemaGuard<O>): RestEndpoint$1<O>;
     readonly prototype: RestInstanceBase;
 }
 type MethodToSide<M> = M extends string ? M extends 'GET' ? undefined : true : undefined;
@@ -2045,6 +2045,11 @@ declare let RestEndpoint: RestEndpointConstructor;
 declare function getUrlBase(path: string): PathFunction<ParamData>;
 declare function getUrlTokens(path: string): Set<string>;
 
+/** true when T is a union */
+type IsUnion<T, U = T> = T extends any ? [
+    U
+] extends [T] ? false : true : never;
+
 type ResourceExtension<R extends {
     [K in ExtendKey]: RestInstanceBase;
 }, ExtendKey extends Exclude<Extract<keyof R, string>, 'extend'>, O extends PartialRestGenerics | {}> = {
@@ -2064,19 +2069,19 @@ interface CustomResource<R extends ResourceInterface, O extends ResourceGenerics
     delete: unknown extends Delete ? R['delete'] : PartialRestGenerics extends Delete ? R['delete'] : RestExtendedEndpoint<Delete, R['delete']>;
 }
 type ExtendedResource<R extends ResourceInterface, T extends Record<string, EndpointInterface>> = Omit<R, keyof T> & T;
-interface ResourceEndpointExtensions<R extends ResourceInterface, Get extends PartialRestGenerics = {}, GetList extends PartialRestGenerics = {}, Update extends PartialRestGenerics = {}, PartialUpdate extends PartialRestGenerics = {}, Delete extends PartialRestGenerics = {}> {
+interface ResourceEndpointExtensions<R extends ResourceInterface, Get extends ExtendableRestGenerics = {}, GetList extends ExtendableRestGenerics = {}, Update extends ExtendableRestGenerics = {}, PartialUpdate extends ExtendableRestGenerics = {}, Delete extends ExtendableRestGenerics = {}> {
     readonly get?: EndpointExtensionOptions<R['get'], Get>;
     readonly getList?: EndpointExtensionOptions<R['getList'], GetList>;
     readonly update?: EndpointExtensionOptions<R['update'], Update>;
     readonly partialUpdate?: EndpointExtensionOptions<R['partialUpdate'], PartialUpdate>;
     readonly delete?: EndpointExtensionOptions<R['delete'], Delete>;
 }
-/** Options extending endpoint `E`. `O` is PartialRestGenerics when TypeScript couldn't infer it:
+/** Options extending endpoint `E`. `O` is ExtendableRestGenerics when TypeScript couldn't infer it:
  * options without any of its members (like only getOptimisticResponse) fail its weak type check.
  * Then callbacks take `E`'s args, or `any` when those are a union of tuples, which TypeScript
  * can't infer callback parameters from.
  */
-type EndpointExtensionOptions<E extends RestInstanceBase, O extends PartialRestGenerics> = RestEndpointOptions<unknown extends O ? EndpointToFunction<E> : PartialRestGenerics extends O ? SingleArgsFunction<EndpointToFunction<E>> : OptionsToFunction<O, E, EndpointToFunction<E>>, PartialRestGenerics extends O ? E['schema'] : 'schema' extends keyof O ? Extract<O['schema'], Schema | undefined> : E['schema']> & Readonly<O> & O;
+type EndpointExtensionOptions<E extends RestInstanceBase, O extends ExtendableRestGenerics> = RestEndpointOptions<unknown extends O ? EndpointToFunction<E> : ExtendableRestGenerics extends O ? SingleArgsFunction<EndpointToFunction<E>> : OptionsToFunction<O, E, EndpointToFunction<E>>, ExtendableRestGenerics extends O ? E['schema'] : 'schema' extends keyof O ? Extract<O['schema'], Schema | undefined> : E['schema']> & Readonly<O> & O;
 type SingleArgsFunction<F extends FetchFunction> = (...args: IsUnion<Parameters<F>> extends false ? Parameters<F> : any) => ReturnType<F>;
 
 interface Extendable<O extends ResourceGenerics = {
@@ -2095,7 +2100,7 @@ interface Extendable<O extends ResourceGenerics = {
     }, const ExtendKey extends string, ExtendOptions extends ExtendableRestGenerics | {}>(this: R, key: ExtendKey extends keyof R ? never : ExtendKey, options: Readonly<RestEndpointExtendOptions<ExtendOptions, R['get'], EndpointToFunction<R['get']>> & ExtendOptions> & ExtendOptions): R & {
         [key in ExtendKey]: RestExtendedEndpoint<ExtendOptions, R['get']>;
     };
-    extend<R extends ResourceInterface, Get extends PartialRestGenerics = {}, GetList extends PartialRestGenerics = {}, Update extends PartialRestGenerics = {}, PartialUpdate extends PartialRestGenerics = {}, Delete extends PartialRestGenerics = {}>(this: R, options: ResourceEndpointExtensions<R, Get, GetList, Update, PartialUpdate, Delete>): CustomResource<R, O, Get, GetList, Update, PartialUpdate, Delete>;
+    extend<R extends ResourceInterface, Get extends ExtendableRestGenerics = {}, GetList extends ExtendableRestGenerics = {}, Update extends ExtendableRestGenerics = {}, PartialUpdate extends ExtendableRestGenerics = {}, Delete extends ExtendableRestGenerics = {}>(this: R, options: ResourceEndpointExtensions<R, Get, GetList, Update, PartialUpdate, Delete>): CustomResource<R, O, Get, GetList, Update, PartialUpdate, Delete> & Omit<R, keyof ResourceInterface | 'extend'>;
     extend<R extends ResourceInterface, T extends Record<string, EndpointInterface>>(this: R, extender: (baseResource: R) => T): ExtendedResource<R, T>;
 }
 
@@ -2190,12 +2195,12 @@ interface Resource<O extends ResourceGenerics = {
     create: 'searchParams' extends keyof O ? MutateEndpoint<{
         path: ShortenPath<O['path']>;
         schema: Collection<[O['schema']]>['push'];
-        body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
+        body: CreateBody<O> | CreateBody<O>[] | FormData;
         searchParams: O['searchParams'];
     }> : MutateEndpoint<{
         path: ShortenPath<O['path']>;
         schema: Collection<[O['schema']]>['push'];
-        body: 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
+        body: CreateBody<O> | CreateBody<O>[] | FormData;
     }>;
     /** Update an item (PUT)
      *
@@ -2240,6 +2245,11 @@ interface ResourceInterface {
     partialUpdate: RestInstanceBase;
     delete: RestInstanceBase;
 }
+/** Matches getList.push's body, since create is getList.push at runtime */
+type CreateBody<O extends {
+    body?: any;
+    schema: Schema;
+}> = 'body' extends keyof O ? O['body'] : Partial<Denormalize<O['schema']>>;
 
 /** Creates collection of Endpoints for common operations on a given data/schema.
  *

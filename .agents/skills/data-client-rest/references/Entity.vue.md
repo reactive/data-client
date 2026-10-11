@@ -185,7 +185,7 @@ const get = new RestEndpoint({
 export const OptionsResource = {
   get,
   partialUpdate: get.extend({ method: 'PATCH' }),
-}
+};
 ```
 
 ### static key: string {#key}
@@ -231,8 +231,9 @@ export class User extends Entity {
 }
 ```
 
-```ts title="Post" {16-20}
+```ts title="Post" {17-21}
 import { Entity } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 import { User } from './User';
 
 export class Post extends Entity {
@@ -372,13 +373,16 @@ const assets = await useSuspense(getAssets);
 Nested below:
 
 ```tsx
+import { useQuery } from '@data-client/react';
+import { LatestPrice } from './resources/LatestPrice';
+
 const price = useQuery(LatestPrice, { symbol: 'BTC' });
 ```
 
 ### static maxEntityDepth?: number {#maxEntityDepth}
 
 Limits entity nesting depth during denormalization to prevent stack overflow
-in large bidirectional entity graphs. **Default: 128**
+in large bidirectional entity graphs. **Default: 64**
 
 When bidirectional relationships create chains with many unique entities
 (e.g., `Department → Building → Department → ...`), denormalization can recurse
@@ -392,7 +396,9 @@ class Department extends Entity {
   name = '';
   buildings: Building[] = [];
 
-  pk() { return this.id; }
+  pk() {
+    return this.id;
+  }
   static key = 'Department';
   static maxEntityDepth = 16;
 
@@ -685,7 +691,7 @@ static mergeMetaWithStore(
 
 ### static queryKey(args, queryKey, getEntity, getIndex): pk? {#queryKey}
 
-This method enables `Entities` to be [Queryable](./schema.md#queryable) - allowing store access without an endpoint.
+This method enables `Entities` to be [Queryable](./schema.vue.md#queryable) - allowing store access without an endpoint.
 
 Overriding can allow customization or disabling of this behavior altogether.
 
@@ -750,7 +756,7 @@ During normalization a validation failure will result in an error for that fetch
 During denormalization a validation failure will mark that result as 'invalid' and thus
 will block on fetching a result.
 
-By **default** does some basic field existance checks in development mode only. Override to
+By **default** does some basic field existence checks in development mode only. Override to
 disable or customize.
 
 [Using validation for endpoints with incomplete fields](https://dataclient.io/rest/guides/partial-entities)

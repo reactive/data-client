@@ -1,0 +1,28 @@
+---
+paths:
+  - "**/*.md"
+  - "**/*.mdc"
+  - "**/*.mdx"
+---
+<!-- Generated from .cursor/rules/markdown-formatting.mdc by `yarn build:agent-rules`. Edit the source. -->
+
+
+# Markdown Formatting
+
+## Documentation Links
+
+Link API concepts that have corresponding doc pages:
+
+- **External doc links**: `[Union](https://dataclient.io/rest/api/Union)`
+- **Internal doc links**: Use site paths like `[Controller](/docs/api/Controller)` or `[Entity](/rest/api/Entity)`
+- **Package links**: `[@data-client/rest](www.npmjs.com/package/@data-client/rest)`
+
+## Repository Links
+
+- **PR links**: `[#1234](https://github.com/reactive/data-client/pull/1234)`
+- **Commit links**: ``[`abc123`](https://github.com/reactive/data-client/commit/abc123)``
+
+## Code References
+
+- Use backticks for inline code: function names, class names, file paths, package names
+- Use fenced code blocks with language tags for multi-line code examples

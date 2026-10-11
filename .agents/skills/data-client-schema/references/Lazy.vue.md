@@ -16,7 +16,7 @@ This is useful for:
 new Lazy(innerSchema)
 ```
 
-- `innerSchema`: Any [Schema](./schema.md) — an [Entity](./Entity.vue.md), an array shorthand like `[MyEntity]`, a [Collection](./Collection.vue.md), etc.
+- `innerSchema`: Any [Schema](./schema.vue.md) — an [Entity](./Entity.vue.md), an array shorthand like `[MyEntity]`, a [Collection](./Collection.vue.md), etc.
 
 ## Usage
 

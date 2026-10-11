@@ -57,7 +57,7 @@ export const TodoResource = resource({
         :checked="todo.completed"
         @change="handleChange"
       />
-      <strike v-if="todo.completed">{{ todo.title }}</strike>
+      <s v-if="todo.completed">{{ todo.title }}</s>
       <template v-else>{{ todo.title }}</template>
     </label>
     <CancelButton @click="handleDelete" />
@@ -120,7 +120,7 @@ Data Client reactively updates appropriate components using the fetch response.
 ## Optimistic mutations based on previous state {#optimistic-updates}
 
 ```ts title="Post"
-import { Entity, schema } from '@data-client/rest';
+import { Entity, EntityMixin } from '@data-client/rest';
 
 export class Post extends Entity {
   id = 0;
@@ -217,9 +217,9 @@ export const PostResource = resource({
 </script>
 
 <template>
-  <center>
+  <div style="text-align: center">
     <small>{{ totalVotes }} votes total</small>
-  </center>
+  </div>
 </template>
 ```
 
@@ -367,9 +367,9 @@ export const PostResource = resource({
 <template>
   <div v-if="id">
     <PostDetail :id="id" />
-    <center>
+    <div style="text-align: center">
       <button @click="id = undefined">New Post</button>
-    </center>
+    </div>
   </div>
   <PostCreate v-else @navigateToPost="id = $event" />
 </template>

@@ -45,7 +45,7 @@ of failure or success), the optimistic update will be replaced with the actual n
 of [process()](./RestEndpoint.md#process), it must match that type instead.
 
 ```ts title="Post"
-import { Entity, schema } from '@data-client/rest';
+import { Entity, EntityMixin } from '@data-client/rest';
 
 export class Post extends Entity {
   id = 0;

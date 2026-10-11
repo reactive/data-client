@@ -37,7 +37,7 @@ export default function getCookie(name): string {
 ```
 
 ```ts title="DjangoEndpoint"
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 import getCookie from './getCookie';
 
 export default class DjangoEndpoint<

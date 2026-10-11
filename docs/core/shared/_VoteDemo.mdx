@@ -4,7 +4,7 @@ import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 <FrameworkPlayground fixtures={postFixtures} getInitialInterceptorData={() => ({votes: {}})} row defaultTab={props.defaultTab}>
 
 ```ts title="Post" collapsed
-import { Entity, schema } from '@data-client/rest';
+import { Entity, EntityMixin } from '@data-client/rest';
 
 export class Post extends Entity {
   id = 0;
@@ -183,9 +183,9 @@ render(<PostList />);
 </script>
 
 <template>
-  <center>
+  <div style="text-align: center">
     <small>{{ totalVotes }} votes total</small>
-  </center>
+  </div>
 </template>
 ```
 

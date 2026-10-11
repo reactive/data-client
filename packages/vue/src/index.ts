@@ -45,6 +45,7 @@ export type {
   GenericDispatch,
 } from '@data-client/core';
 
+export * as __INTERNAL__ from './internal.js';
 export * from './consumers/index.js';
 export * from './providers/index.js';
 export * from './managers/index.js';

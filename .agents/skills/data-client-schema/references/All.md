@@ -34,6 +34,7 @@ export const createUser = new RestEndpoint({
 ```
 
 ```tsx title="NewUser"
+import React from 'react';
 import { useController } from '@data-client/react';
 import { createUser } from './api/User';
 
@@ -46,7 +47,7 @@ export default function NewUser() {
         e.currentTarget.value = '';
       }
     },
-    [fetch],
+    [ctrl],
   );
   return <input onKeyPress={handlePress}/>;
 }
@@ -170,7 +171,7 @@ export const getFeed = new RestEndpoint({
       links: Link,
       posts: Post,
     },
-    (input: Link | Post, parent, key) => `${input.type}s`,
+    (input: Link | Post, parent: unknown, key: string) => `${input.type}s`,
   ),
 });
 ```

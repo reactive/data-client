@@ -17,7 +17,7 @@ Here's an example using simple [cookie](https://developer.mozilla.org/en-US/docs
 <EndpointPlayground input="/my/1" init={{method: 'GET', headers: {'Content-Type': 'application/json', 'Cookie': 'session=abc;'}}} status={200} response={{  "id": "1","title": "this post"}}>
 
 ```ts title="AuthdEndpoint" {9}
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 
 export default class AuthdEndpoint<
   O extends RestGenerics = any,
@@ -79,7 +79,7 @@ export const login = async (data: FormData) =>
 ```
 
 ```ts title="AuthdEndpoint" {7,15,22}
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 import { login } from './login';
 
 export default class AuthdEndpoint<
@@ -106,7 +106,7 @@ export const handleLogin = async e => {
 
 :::react
 
-```tsx title="Auth" collapsed
+```tsx title="Auth" collapsed nocheck
 import { handleLogin } from './AuthdEndpoint';
 
 export default function Auth() {
@@ -118,9 +118,10 @@ export default function Auth() {
 
 :::vue
 
-```html title="Auth.vue" collapsed
+```html title="Auth.vue" collapsed nocheck
 <script setup lang="ts">
   import { handleLogin } from './AuthdEndpoint';
+  import AuthForm from './AuthForm.vue';
 </script>
 
 <template>
@@ -175,7 +176,7 @@ export const setAuthToken = (accessToken: string) => {
 ```
 
 ```ts title="AuthdEndpoint" {10,17}
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 import { getAuthToken, setAuthToken, login } from './login';
 
 export default class AuthdEndpoint<
@@ -197,7 +198,7 @@ export const handleLogin = async e => {
 
 :::react
 
-```tsx title="Auth" collapsed
+```tsx title="Auth" collapsed nocheck
 import { handleLogin } from './AuthdEndpoint';
 
 export default function Auth() {
@@ -209,9 +210,10 @@ export default function Auth() {
 
 :::vue
 
-```html title="Auth.vue" collapsed
+```html title="Auth.vue" collapsed nocheck
 <script setup lang="ts">
   import { handleLogin } from './AuthdEndpoint';
+  import AuthForm from './AuthForm.vue';
 </script>
 
 <template>
@@ -268,7 +270,7 @@ export const setAuthToken = (accessToken: string) => {
 ```
 
 ```ts title="AuthdEndpoint" {10,17}
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 import { getAuthToken, setAuthToken, login } from './login';
 
 export default class AuthdEndpoint<
@@ -290,7 +292,7 @@ export const handleLogin = async e => {
 
 :::react
 
-```tsx title="Auth" collapsed
+```tsx title="Auth" collapsed nocheck
 import { handleLogin } from './AuthdEndpoint';
 
 export default function Auth() {
@@ -302,9 +304,10 @@ export default function Auth() {
 
 :::vue
 
-```html title="Auth.vue" collapsed
+```html title="Auth.vue" collapsed nocheck
 <script setup lang="ts">
   import { handleLogin } from './AuthdEndpoint';
+  import AuthForm from './AuthForm.vue';
 </script>
 
 <template>
@@ -366,9 +369,13 @@ by using [hookifyResource](../api/hookifyResource.md)
 :::react
 
 ```ts title="resources/Post.ts"
-import { resource, hookifyResource } from '@data-client/rest';
+import { Entity, resource, hookifyResource } from '@data-client/rest';
+import { useAuthContext } from '../AuthContext';
 
-// Post defined here
+class Post extends Entity {
+  id = '';
+  title = '';
+}
 
 export const PostResource = hookifyResource(
   resource({ path: '/posts/:id', schema: Post }),
@@ -447,6 +454,9 @@ Using this means all endpoint calls must only occur :react[during a function ren
 :::react
 
 ```tsx
+import { useController } from '@data-client/react';
+import { PostResource } from './resources/Post';
+
 function CreatePost() {
   const controller = useController();
   //highlight-next-line
@@ -454,7 +464,9 @@ function CreatePost() {
 
   return (
     <form
-      onSubmit={e => controller.fetch(createPost, new FormData(e.target))}
+      onSubmit={e =>
+        controller.fetch(createPost, new FormData(e.currentTarget))
+      }
     >
       {/* ... */}
     </form>
@@ -468,15 +480,18 @@ function CreatePost() {
 
 ```html title="CreatePost.vue"
 <script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { PostResource } from 'resources/Post';
+
   const controller = useController();
   //highlight-next-line
   const createPost = PostResource.useCreate();
+  const onSubmit = (e: Event) =>
+    controller.fetch(createPost, new FormData(e.target as HTMLFormElement));
 </script>
 
 <template>
-  <form
-    @submit="e => controller.fetch(createPost, new FormData(e.target))"
-  >
+  <form @submit="onSubmit">
     <!-- ... -->
   </form>
 </template>
@@ -492,7 +507,7 @@ function CreatePost() {
 We will first provide an easy way of using the context to alter the fetch headers.
 
 ```ts title="api/AuthdEndpoint.ts"
-import { RestEndpoint } from '@data-client/rest';
+import { RestEndpoint, type RestGenerics } from '@data-client/rest';
 
 export default class AuthdEndpoint<
   O extends RestGenerics = any,
@@ -515,7 +530,11 @@ Next we will [extend](../api/RestEndpoint.md#extend) to generate a new endpoint 
 :::react
 
 ```tsx
-function useEndpoint(endpoint: RestEndpoint) {
+import { useMemo } from 'react';
+import type { IRestEndpoint } from '@data-client/rest';
+import { useAuthContext } from './AuthContext';
+
+function useEndpoint(endpoint: IRestEndpoint) {
   const accessToken = useAuthContext();
   return useMemo(
     () => endpoint.extend({ accessToken }),
@@ -546,6 +565,10 @@ Using this means all endpoint calls must only occur :react[during a function ren
 :::react
 
 ```tsx
+import { useController } from '@data-client/react';
+import { PostResource } from './api/Post';
+import { useEndpoint } from './useEndpoint';
+
 function CreatePost() {
   const controller = useController();
   //highlight-next-line
@@ -569,15 +592,19 @@ function CreatePost() {
 
 ```html title="CreatePost.vue"
 <script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { PostResource } from 'resources/Post';
+  import { useEndpoint } from './useEndpoint';
+
   const controller = useController();
   //highlight-next-line
   const createPost = useEndpoint(PostResource.create);
+  const onSubmit = (e: Event) =>
+    controller.fetch(createPost, {}, new FormData(e.target as HTMLFormElement));
 </script>
 
 <template>
-  <form
-    @submit="e => controller.fetch(createPost, {}, new FormData(e.target))"
-  >
+  <form @submit="onSubmit">
     <!-- ... -->
   </form>
 </template>

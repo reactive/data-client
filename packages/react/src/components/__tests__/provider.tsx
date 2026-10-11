@@ -132,6 +132,24 @@ describe('<DataProvider />', () => {
     expect(count).toBe(2);
   });
 
+  it('should construct a Controller subclass with its own members', () => {
+    class MyController extends Controller {
+      doSomething = () => 'hi';
+    }
+    let ctrl: Controller | undefined;
+    function ContextTester() {
+      ctrl = useController();
+      return null;
+    }
+    render(
+      <DataProvider Controller={MyController}>
+        <ContextTester />
+      </DataProvider>,
+    );
+    expect(ctrl).toBeInstanceOf(MyController);
+    expect((ctrl as MyController).doSomething()).toBe('hi');
+  });
+
   it('should change state', () => {
     jest.useFakeTimers({ now: 50 });
     let ctrl: Controller | undefined = undefined;

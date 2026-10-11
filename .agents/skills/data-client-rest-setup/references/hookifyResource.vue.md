@@ -42,6 +42,7 @@ export const ArticleResource = hookifyResource(
 <script setup lang="ts">
   import { useSuspense, useController } from '@data-client/vue';
   import { ArticleResource } from './resources/Article';
+  import ArticleForm from './ArticleForm.vue';
 
   const props = defineProps<{ id: string }>();
   const ctrl = useController();

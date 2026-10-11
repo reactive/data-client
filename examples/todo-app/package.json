@@ -49,8 +49,8 @@
     "@data-client/react": "0.18.1",
     "@data-client/rest": "0.18.1",
     "core-js": "^3.40.0",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
     "uuid": "^14.0.0"
   },
   "overrides": {

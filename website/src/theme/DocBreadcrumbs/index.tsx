@@ -1,19 +1,18 @@
-import React from 'react';
 import { useActivePlugin } from '@docusaurus/plugin-content-docs/client';
-
-import DocBreadcrumbs from '@theme-original/DocBreadcrumbs';
-import type DocBreadcrumbsType from '@theme/DocBreadcrumbs';
 import type { WrapperProps } from '@docusaurus/types';
+import type DocBreadcrumbsType from '@theme/DocBreadcrumbs';
+import DocBreadcrumbs from '@theme-original/DocBreadcrumbs';
+import React from 'react';
 
-import FrameworkSelector from '../../components/FrameworkSelector';
 import styles from './styles.module.css';
+import FrameworkSelector from '../../components/FrameworkSelector';
+import { frameworkOf } from '../../components/useFramework';
 
 type Props = WrapperProps<typeof DocBreadcrumbsType>;
 
 export default function DocBreadcrumbsWrapper(props: Props): React.JSX.Element {
-  const pluginId = useActivePlugin()?.pluginId;
   // Only framework docs have a selector (not /rest or /graphql)
-  if (pluginId !== 'default' && pluginId !== 'vue')
+  if (!frameworkOf(useActivePlugin()?.pluginId))
     return <DocBreadcrumbs {...props} />;
 
   return (

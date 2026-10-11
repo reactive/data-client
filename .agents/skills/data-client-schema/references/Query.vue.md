@@ -11,8 +11,8 @@ the same high performance and referential equality guarantees expected of Reacti
 
 ### schema
 
-[Schema](./schema.md) used to retrieve/denormalize data from the Reactive Data Client cache.
-This accepts any [Queryable](./schema.md#queryable) schema: [Entity](./Entity.vue.md), [All](./All.vue.md), [Collection](./Collection.vue.md), [Query](./Query.vue.md),
+[Schema](./schema.vue.md) used to retrieve/denormalize data from the Reactive Data Client cache.
+This accepts any [Queryable](./schema.vue.md#queryable) schema: [Entity](./Entity.vue.md), [All](./All.vue.md), [Collection](./Collection.vue.md), [Query](./Query.vue.md),
 [Union](./Union.vue.md), [Scalar](./Scalar.vue.md), and [Object](./Object.vue.md) schemas for joining multiple entities.
 [Lazy](./Lazy.vue.md) fields produce a Queryable via their [`.query`](./Lazy.vue.md#query) accessor.
 

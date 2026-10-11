@@ -3,6 +3,11 @@ export function formatProdErrorMessage(code) {
   return `Minified Redux error #${code}; visit https://redux.js.org/Errors?code=${code} for the full message or use the non-minified dev environment for full errors. `;
 }
 
+// src/utils/symbol-observable.ts
+var $$observable = /* @__PURE__ */ (() =>
+  (typeof Symbol === 'function' && Symbol.observable) || '@@observable')();
+var symbol_observable_default = $$observable;
+
 // src/utils/actionTypes.ts
 var randomString = () =>
   Math.random().toString(36).substring(7).split('').join('.');
@@ -226,8 +231,19 @@ function createStore(reducer, preloadedState, enhancer) {
     dispatch,
     subscribe,
     getState,
+    replaceReducer: notSupported,
+    [symbol_observable_default]: notSupported,
   };
   return store;
+}
+
+// trimmed from this copy; present so the store matches redux's Store type
+function notSupported() {
+  throw new Error(
+    process.env.NODE_ENV === 'production' ?
+      'Not supported'
+    : 'replaceReducer() and [Symbol.observable]() are not supported by the @data-client/react/redux store',
+  );
 }
 
 // src/compose.ts

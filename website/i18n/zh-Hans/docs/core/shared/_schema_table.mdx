@@ -1,0 +1,88 @@
+<table>
+<thead>
+<tr>
+<th>数据类型</th>
+<th>可变</th>
+<th>Schema</th>
+<th>描述</th>
+<th>[可查询](/rest/api/schema#queryable)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td rowSpan={4}><a href="https://en.wikipedia.org/wiki/Object_(computer_science)">对象</a></td>
+<td align="center">✅</td>
+<td>[Entity](/rest/api/Entity)</td>
+<td>单个<em>唯一</em>对象</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">✅</td>
+<td>[Union(Entity)](/rest/api/Union)</td>
+<td>多态对象（<code>A | B</code>）</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">🛑</td>
+<td>[Object](/rest/api/Object)</td>
+<td>静态已知的键</td>
+<td align="center">🛑</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td>[Invalidate(Entity)](/rest/api/Invalidate)</td>
+<td>[删除 Entity](../concepts/expiry-policy.md#invalidate-entity)</td>
+<td align="center">🛑</td>
+</tr>
+<tr>
+<td rowSpan={3}><a href="https://en.wikipedia.org/wiki/List_(abstract_data_type)">列表</a></td>
+<td align="center">✅</td>
+<td>[Collection(Array)](/rest/api/Collection)</td>
+<td>可增长的列表</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">🛑</td>
+<td>[Array](/rest/api/Array)</td>
+<td>不可变列表</td>
+<td align="center">🛑</td>
+</tr>
+<tr>
+<td align="center"> </td>
+<td>[All](/rest/api/All)</td>
+<td>某一类型的全部 Entity 列表</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td rowSpan={2}><a href="https://en.wikipedia.org/wiki/Associative_array">映射</a></td>
+<td align="center">✅</td>
+<td>[Collection(Values)](/rest/api/Collection)</td>
+<td>可增长的映射</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center">🛑</td>
+<td>[Values](/rest/api/Values)</td>
+<td>不可变映射</td>
+<td align="center">🛑</td>
+</tr>
+<tr>
+<td rowSpan={1}><a href="https://en.wikipedia.org/wiki/Scalar_(mathematics)">Scalar</a></td>
+<td align="center">✅</td>
+<td>[Scalar](/rest/api/Scalar)</td>
+<td>依赖视角（lens）的 Entity 字段</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td rowSpan={2}>任意</td>
+<td align="center"></td>
+<td>[Query(Queryable)](/rest/api/Query)</td>
+<td>记忆化的自定义转换</td>
+<td align="center">✅</td>
+</tr>
+<tr>
+<td align="center"></td>
+<td>[Lazy(Schema)](/rest/api/Lazy)</td>
+<td>延迟反规范化</td>
+<td align="center">✅</td>
+</tr>
+</tbody></table>

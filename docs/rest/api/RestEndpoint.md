@@ -92,7 +92,7 @@ class Endpoint<F extends (...args: any) => Promise<any>> {
   readonly dataExpiryLength?: number;
   /** Default error expiry length, will fall back to NetworkManager default if not defined */
   readonly errorExpiryLength?: number;
-  /** Poll with at least this frequency in miliseconds */
+  /** Poll with at least this frequency in milliseconds */
   readonly pollFrequency?: number;
   /** Marks cached resources as invalid if they are stale */
   readonly invalidIfStale?: boolean;
@@ -626,6 +626,8 @@ The actual **value is not used** in any way - this only determines [typing](#typ
 <EndpointPlayground input="https://site.com/cool?isReact=true" init={{method: 'GET', headers: {'Content-Type': 'application/json'}}}>
 
 ```typescript title="getFoo"
+import { RestEndpoint } from '@data-client/rest';
+
 const getReactSite = new RestEndpoint({
   path: 'https\\://site.com/:slug',
   searchParams: {} as { isReact: boolean },
@@ -645,7 +647,9 @@ This is only used by endpoings with a method that uses body: 'POST', 'PUT', 'PAT
 
 <EndpointPlayground input="https://site.com/cool" init={{method: 'POST', body: '{ "url": "/" }', headers: {'Content-Type': 'application/json'}}}>
 
-```ts {4}
+```ts {6}
+import { RestEndpoint } from '@data-client/rest';
+
 const updateSite = new RestEndpoint({
   path: 'https\\://site.com/:slug',
   method: 'POST',
@@ -752,6 +756,10 @@ to indicate there is no body.
 
 Prepares [RequestInit](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) used in fetch.
 This is sent to [fetchResponse](#fetchResponse)
+
+A plain object or array `body` is JSON-encoded, with a `Content-Type: application/json` header unless
+`requestInit` or [getHeaders](#getHeaders) sets one. Any other `body`, like `FormData`, `Blob`,
+`URLSearchParams` or a string, is passed to `fetch()` as-is.
 
 :::tip async
 
@@ -900,8 +908,8 @@ Override this for advanced cases like extracting headers alongside the body.
 
 Perform any transforms with the parsed result. Defaults to identity function (do nothing).
 
-`args` are the arguments the endpoint was called with. In [extend()](#extend), they are typed from the
-resulting endpoint's [path](#path), [searchParams](#searchParams) and [body](#body).
+`args` are the arguments the endpoint was called with. They are typed from the endpoint's [path](#path),
+[searchParams](#searchParams) and [body](#body), including those set in the same [extend()](#extend) call.
 
 ```ts
 const getUser = new RestEndpoint({ path: '/users/:id' });
@@ -1026,11 +1034,16 @@ Creates a POST endpoint that places newly created Entities at the _end_ of a [Co
 Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.push](./Collection.md#push)
 
 ```tsx
+import { RestEndpoint, Collection } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { Todo } from './resources';
+
 const getTodos = new RestEndpoint({
   path: '/todos',
   searchParams: {} as { userId?: string },
   schema: new Collection([Todo]),
 });
+const ctrl = useController();
 
 // POST /todos - adds new Todo to the end of the list
 const newTodo = await ctrl.fetch(
@@ -1041,16 +1054,28 @@ const newTodo = await ctrl.fetch(
 ```
 
 ```tsx
+import { resource } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { User } from './resources';
+
 const UserResource = resource({
   path: '/groups/:group/users/:id',
   schema: User,
 });
+const ctrl = useController();
 
 // POST /groups/five/users - adds new User to the end of the list
 const newUser = await ctrl.fetch(
   UserResource.getList.push,
   { group: 'five' },
   { username: 'newuser', email: 'new@example.com' },
+);
+
+// Send an array to create several at once; they're added to the end in order
+await ctrl.fetch(
+  UserResource.getList.push,
+  { group: 'five' },
+  [{ username: 'ana' }, { username: 'bo' }],
 );
 ```
 
@@ -1061,11 +1086,16 @@ Creates a POST endpoint that places newly created Entities at the _start_ of a [
 Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.unshift](./Collection.md#unshift)
 
 ```tsx
+import { RestEndpoint, Collection } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { Todo } from './resources';
+
 const getTodos = new RestEndpoint({
   path: '/todos',
   searchParams: {} as { userId?: string },
   schema: new Collection([Todo]),
 });
+const ctrl = useController();
 
 // POST /todos - adds new Todo to the beginning of the list
 const newTodo = await ctrl.fetch(
@@ -1076,10 +1106,15 @@ const newTodo = await ctrl.fetch(
 ```
 
 ```tsx
+import { resource } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { User } from './resources';
+
 const UserResource = resource({
   path: '/groups/:group/users/:id',
   schema: User,
 });
+const ctrl = useController();
 
 // POST /groups/five/users - adds new User to the start of the list
 const newUser = await ctrl.fetch(
@@ -1096,10 +1131,15 @@ Creates a POST endpoint that merges Entities into a [Values](./Values.md) [Colle
 Returns a new RestEndpoint with [method](#method): 'POST' and schema: [Collection.assign](./Collection.md#assign)
 
 ```tsx
+import { RestEndpoint, Collection, Values } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { Stats } from './resources';
+
 const getStats = new RestEndpoint({
   path: '/products/stats',
   schema: new Collection(new Values(Stats)),
 });
+const ctrl = useController();
 
 // POST /products/stats - add/update entries in the Values collection
 await ctrl.fetch(getStats.assign, {
@@ -1109,6 +1149,10 @@ await ctrl.fetch(getStats.assign, {
 ```
 
 ```tsx
+import { resource, Collection, Values } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { Stats } from './resources';
+
 const StatsResource = resource({
   urlPrefix: 'https://api.exchange.example.com',
   path: '/products/:product_id/stats',
@@ -1119,6 +1163,7 @@ const StatsResource = resource({
     schema: new Collection(new Values(Stats)),
   },
 });
+const ctrl = useController();
 
 // POST /products/stats - add/update entries
 await ctrl.fetch(StatsResource.getList.assign, {
@@ -1133,20 +1178,30 @@ Creates a PATCH endpoint that removes Entities from a [Collection](./Collection.
 Returns a new RestEndpoint with [method](#method): 'PATCH' and schema: [Collection.remove](./Collection.md#remove)
 
 ```tsx
+import { RestEndpoint, Collection } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { Todo } from './resources';
+
 const getTodos = new RestEndpoint({
   path: '/todos',
   schema: new Collection([Todo]),
 });
+const ctrl = useController();
 
 // PATCH /todos - removes Todo from collection AND updates the entity
-await ctrl.fetch(getTodos.remove, {}, { id: '123', completed: true });
+await ctrl.fetch(getTodos.remove, { id: '123', completed: true });
 ```
 
 ```tsx
+import { resource } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { User } from './resources';
+
 const UserResource = resource({
   path: '/groups/:group/users/:id',
   schema: User,
 });
+const ctrl = useController();
 
 // PATCH /groups/five/users - removes user from 'five' group list
 // AND updates the user entity with response data (e.g., new group)
@@ -1316,10 +1371,15 @@ The add filter is based on the merged entity values (existing + body).
 This uses the same [createCollectionFilter](./Collection.md#createcollectionfilter) logic as push/remove.
 
 ```tsx
+import { resource } from '@data-client/rest';
+import { useController } from '@data-client/react';
+import { User } from './resources';
+
 const UserResource = resource({
   path: '/groups/:group/users/:id',
   schema: User,
 });
+const ctrl = useController();
 
 // PATCH /groups/five/users/5 - moves user 5 from 'five' group to 'ten' group
 await ctrl.fetch(
@@ -1336,7 +1396,7 @@ must also contain a [Collection](./Collection.md)
 
 :::react
 
-```tsx
+```tsx nocheck
 const getTodos = new RestEndpoint({
   path: '/todos',
   schema: Todo,
@@ -1362,6 +1422,9 @@ return (
 
 ```html
 <script lang="ts">
+  import { RestEndpoint } from '@data-client/rest';
+  import { Todo } from './resources';
+
   const getTodos = new RestEndpoint({
     path: '/todos',
     schema: Todo,
@@ -1370,10 +1433,13 @@ return (
 </script>
 
 <script setup lang="ts">
+  import { useController, useSuspense } from '@data-client/vue';
+  import PaginatedList from './PaginatedList.vue';
+
   const todos = await useSuspense(getTodos);
   const ctrl = useController();
   // fetches url `/todos?page=${nextPage}`
-  const fetchNextPage = () =>
+  const fetchNextPage = (nextPage: number) =>
     ctrl.fetch(getTodos.getPage, { page: nextPage });
 </script>
 

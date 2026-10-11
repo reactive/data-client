@@ -1,12 +1,6 @@
 import { VueWrapper } from '@vue/test-utils';
-import {
-  computed,
-  defineComponent,
-  h,
-  nextTick,
-  reactive,
-  type MaybeRefOrGetter,
-} from 'vue';
+import { computed, defineComponent, h, nextTick, reactive } from 'vue';
+import type { MaybeRefOrGetter } from 'vue';
 
 // Endpoints/entities from React subscriptions test
 import { PollingArticleResource } from '../../../../__tests__/new';
@@ -58,30 +52,28 @@ describe('vue useSubscription()', () => {
     const responseMock = jest.fn(() => payload);
     const propsRef = reactive({ active: true });
 
-    const { result, waitForNextUpdate, allSettled, cleanup } =
-      await renderDataCompose(
-        ({ active }: { active: boolean }) => {
-          const args = computed(() => (active ? { id: payload.id } : null));
-          useSubscription(PollingArticleResource.get, args);
-          return useSuspense(PollingArticleResource.get, {
-            id: payload.id,
-          });
-        },
-        {
-          props: propsRef,
-          resolverFixtures: [
-            {
-              endpoint: PollingArticleResource.get,
-              response: responseMock,
-            },
-          ],
-        },
-      );
+    const { result, allSettled, cleanup } = await renderDataCompose(
+      ({ active }: { active: boolean }) => {
+        const args = computed(() => (active ? { id: payload.id } : null));
+        useSubscription(PollingArticleResource.get, args);
+        return useSuspense(PollingArticleResource.get, {
+          id: payload.id,
+        });
+      },
+      {
+        props: propsRef,
+        resolverFixtures: [
+          {
+            endpoint: PollingArticleResource.get,
+            response: responseMock,
+          },
+        ],
+      },
+    );
 
     // Wait for initial render
     jest.advanceTimersByTime(frequency);
     await allSettled();
-    await waitForNextUpdate();
 
     // Verify initial values
     const initialArticleRef = await result;
@@ -98,7 +90,6 @@ describe('vue useSubscription()', () => {
     // Advance time to trigger another poll
     jest.advanceTimersByTime(frequency);
     await allSettled();
-    await nextTick();
 
     // Verify the article was updated
     const updatedArticleRef = await result;
@@ -119,32 +110,28 @@ describe('vue useSubscription()', () => {
       const responseMock = jest.fn(() => payload);
       const propsRef = reactive({ active: true });
 
-      const { result, waitForNextUpdate, allSettled, cleanup } =
-        await renderDataCompose(
-          (props: { active: boolean }) => {
-            const args = toArg(() =>
-              props.active ? { id: payload.id } : null,
-            );
-            useSubscription(PollingArticleResource.get, args);
-            return useSuspense(PollingArticleResource.get, {
-              id: payload.id,
-            });
-          },
-          {
-            props: propsRef,
-            resolverFixtures: [
-              {
-                endpoint: PollingArticleResource.get,
-                response: responseMock,
-              },
-            ],
-          },
-        );
+      const { result, allSettled, cleanup } = await renderDataCompose(
+        (props: { active: boolean }) => {
+          const args = toArg(() => (props.active ? { id: payload.id } : null));
+          useSubscription(PollingArticleResource.get, args);
+          return useSuspense(PollingArticleResource.get, {
+            id: payload.id,
+          });
+        },
+        {
+          props: propsRef,
+          resolverFixtures: [
+            {
+              endpoint: PollingArticleResource.get,
+              response: responseMock,
+            },
+          ],
+        },
+      );
 
       // Wait for initial render
       jest.advanceTimersByTime(frequency);
       await allSettled();
-      await waitForNextUpdate();
 
       // Verify initial values
       const initialArticleRef = await result;
@@ -160,7 +147,6 @@ describe('vue useSubscription()', () => {
       // Advance time to trigger another poll
       jest.advanceTimersByTime(frequency);
       await allSettled();
-      await nextTick();
 
       // Verify the article was updated
       const updatedArticleRef = await result;
@@ -180,7 +166,6 @@ describe('vue useSubscription()', () => {
       // Advance time - subscription should not trigger
       jest.advanceTimersByTime(frequency);
       await allSettled();
-      await nextTick();
 
       // Verify the article was NOT updated (still has old value)
       const finalArticleRef = await result;
@@ -267,7 +252,6 @@ describe('vue useSubscription()', () => {
     // Advance time to trigger poll
     jest.advanceTimersByTime(frequency);
     await allSettled();
-    await nextTick();
 
     // Verify the article was updated
     expect(wrapper.find('h3').text()).toBe('first update');
@@ -286,7 +270,6 @@ describe('vue useSubscription()', () => {
     // Advance time - subscription should not trigger
     jest.advanceTimersByTime(frequency);
     await allSettled();
-    await nextTick();
 
     // The reading component should still show old data since no subscription is active
     expect(wrapper.find('h3').text()).toBe('first update');

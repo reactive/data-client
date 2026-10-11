@@ -1,3 +1,4 @@
+/* eslint-disable @docusaurus/no-untranslated-text -- blog-only, and the blog is not translated */
 import type { CSSProperties } from 'react';
 
 import styles from './PerfChart.module.css';

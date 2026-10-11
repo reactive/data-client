@@ -1,0 +1,133 @@
+import Link from '@docusaurus/Link';
+import VoteDemo from '../../core/shared/\_VoteDemo.mdx';
+
+
+### dataExpiryLength?: number {#dataexpirylength}
+
+为所获取资源自定义的数据缓存有效期。会覆盖 NetworkManager 中设置的值。
+
+[进一步了解过期时间](/docs/concepts/expiry-policy#expiry-time)
+
+### errorExpiryLength?: number {#errorexpirylength}
+
+为所获取资源自定义的错误有效期。会覆盖 NetworkManager 中设置的值。
+
+### errorPolicy?: (error: any) => 'soft' | undefined {#errorpolicy}
+
+'soft' 会在出错时使用过时数据（如果存在）；返回 undefined 或不提供该选项时，结果
+将是错误。
+
+[进一步了解 errorPolicy](/docs/concepts/error-policy)
+
+```ts
+errorPolicy(error) {
+  return error.status >= 500 ? 'soft' : undefined;
+}
+```
+
+### invalidIfStale: boolean {#invalidifstale}
+
+表示过时数据应被视为不可用，因此不会从缓存中返回。这意味着
+即使数据已经存在于缓存中，只要它过时了，useSuspense() 就会挂起。
+
+### pollFrequency: number {#pollfrequency}
+
+轮询频率，单位为毫秒。需要配合 [useSubscription()](/docs/api/useSubscription) 或
+[useLive()](/docs/api/useLive) 使用才会生效。
+
+### getOptimisticResponse: (snap, ...args) => expectedResponse {#getoptimisticresponse}
+
+提供该函数后，使用此 endpoint 的任何获取都会表现得如同该函数返回的 `expectedResponse`
+是一次成功的网络响应。当实际请求完成时（无论失败
+还是成功），乐观更新都会被实际的网络响应替换。
+
+<VoteDemo />
+
+<center>
+<Link className="button button--secondary button--sm" to="../guides/optimistic-updates">乐观更新指南</Link>
+</center>
+
+### update() {#update}
+
+```ts
+(normalizedResponseOfThis, ...args) =>
+  ({ [endpointKey]: (normalizedResponseOfEndpointToUpdate) => updatedNormalizedResponse) })
+```
+
+:::tip
+
+试试改用 [Collections](./Collection.md)。
+
+它们更易用，也更健壮！
+
+:::
+
+```ts title="UpdateType.ts"
+type UpdateFunction<
+  Source extends EndpointInterface,
+  Updaters extends Record<string, any> = Record<string, any>,
+> = (
+  source: ResultEntry<Source>,
+  ...args: Parameters<Source>
+) => { [K in keyof Updaters]: (result: Updaters[K]) => Updaters[K] };
+```
+
+最简单的情况：
+
+```ts title="userEndpoint.ts"
+const createUser = new RestEndpoint({
+  path: '/user',
+  method: 'POST',
+  schema: User,
+  update: (newUserId: string) => ({
+    [userList.key()]: (users = []) => [newUserId, ...users],
+  }),
+});
+```
+
+更多更新：
+
+:::react
+
+```typescript title="Component.tsx"
+const allusers = useSuspense(userList);
+const adminUsers = useSuspense(userList, { admin: true });
+```
+
+:::
+
+:::vue
+
+```html title="Component.vue"
+<script setup lang="ts">
+  import { useFetch, useSuspense } from '@data-client/vue';
+  import { userList } from './resources';
+
+  // start both fetches in parallel
+  useFetch(userList);
+  useFetch(userList, { admin: true });
+  const allusers = await useSuspense(userList);
+  const adminUsers = await useSuspense(userList, { admin: true });
+</script>
+```
+
+:::
+
+下面的 endpoint 确保新用户会立即出现在上述用法中。
+
+```ts title="userEndpoint.ts"
+const createUser = new RestEndpoint({
+  path: '/user',
+  method: 'POST',
+  schema: User,
+  update: (newUserId, newUser)  => {
+    const updates = {
+      [userList.key()]: (users = []) => [newUserId, ...users],
+    ];
+    if (newUser.isAdmin) {
+      updates[userList.key({ admin: true })] = (users = []) => [newUserId, ...users];
+    }
+    return updates;
+  },
+});
+```

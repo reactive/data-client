@@ -1,5 +1,6 @@
 import type { State } from '@data-client/core';
-import { computed, type ComputedRef, type Ref } from 'vue';
+import { computed } from 'vue';
+import type { ComputedRef, Ref } from 'vue';
 
 /** Whether the response is expired, re-checked only when expiry, args, or a reset changes.
  *

@@ -105,6 +105,7 @@ export default function PostCreate({ navigateToPost }) {
 ```
 
 ```tsx title="Navigation" collapsed
+import React from 'react';
 import PostCreate from './PostCreate';
 import PostDetail from './PostDetail';
 
@@ -221,9 +222,9 @@ render(<Navigation />);
 <template>
   <div v-if="id">
     <PostDetail :id="id" />
-    <center>
+    <div style="text-align: center">
       <button @click="id = undefined">New Post</button>
-    </center>
+    </div>
   </div>
   <PostCreate v-else @navigateToPost="id = $event" />
 </template>

@@ -1,5 +1,6 @@
 import { Controller } from '@data-client/core';
-import { MockController, type MockProps } from '@data-client/core/mock';
+import { MockController } from '@data-client/core/mock';
+import type { MockProps } from '@data-client/core/mock';
 import type { App } from 'vue';
 
 import { ControllerKey } from '../context.js';

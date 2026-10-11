@@ -117,6 +117,8 @@ delay: 150,
 ]} row>
 
 ```ts title="UserResource" collapsed
+import { Entity, resource } from '@data-client/rest';
+
 export class User extends Entity {
   id = '';
   name = '';
@@ -133,7 +135,7 @@ export const UserResource = resource({
 :::react
 
 ```tsx title="UsersPage" {22}
-import { Query } from '@data-client/rest';
+import { All, Query } from '@data-client/rest';
 import { useQuery, useFetch } from '@data-client/react';
 import { UserResource, User } from './UserResource';
 
@@ -244,6 +246,8 @@ delay: 150,
 ]} row>
 
 ```ts title="Resources" collapsed
+import { Entity, Lazy, resource } from '@data-client/rest';
+
 export class Building extends Entity {
   id = '';
   name = '';
@@ -270,7 +274,8 @@ export const DepartmentResource = resource({
 
 :::react
 
-```tsx title="DepartmentsPage" {7}
+```tsx title="DepartmentsPage" {8}
+import { All } from '@data-client/rest';
 import { useQuery, useFetch } from '@data-client/react';
 import { DepartmentResource, Department } from './Resources';
 

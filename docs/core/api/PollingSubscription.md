@@ -3,6 +3,8 @@ title: PollingSubscription
 sidebar_label: PollingSubscription
 ---
 
+import ProviderManagers from '../shared/_provider_managers.mdx';
+
 Will dispatch a `fetch` action at the minimum interval of all subscriptions to this
 resource.
 
@@ -16,54 +18,16 @@ resource.
 
 :::
 
-:::react
+<ProviderManagers imports={['NetworkManager', 'SubscriptionManager', 'PollingSubscription']}>
 
-```tsx
-import {
-  SubscriptionManager,
-  PollingSubscription,
-  DataProvider,
-  NetworkManager,
-} from '@data-client/react';
-import { createRoot } from 'react-dom/client';
-
-const managers = [
-  new NetworkManager(),
-  new SubscriptionManager(PollingSubscription)
-]
-
-createRoot(document.body).render(
-  <DataProvider managers={managers}>
-    <App />
-  </DataProvider>,
-);
-```
-
-:::
-
-:::vue
-
-```ts title="main.ts"
-import { createApp } from 'vue';
-import {
-  SubscriptionManager,
-  PollingSubscription,
-  DataClientPlugin,
-  NetworkManager,
-} from '@data-client/vue';
-import App from './App.vue';
-
+```ts
 const managers = [
   new NetworkManager(),
   new SubscriptionManager(PollingSubscription),
 ];
-
-const app = createApp(App);
-app.use(DataClientPlugin, { managers });
-app.mount('#app');
 ```
 
-:::
+</ProviderManagers>
 
 ## Dispatched Actions
 

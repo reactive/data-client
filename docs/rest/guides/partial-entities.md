@@ -66,8 +66,9 @@ delay: 150,
 },
 ]} row>
 
-```typescript title="resources/Article" {12,24}
+```typescript title="resources/Article" {13,25}
 import { validateRequired, Collection, Entity, resource } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class ArticleSummary extends Entity {
   id = '';
@@ -103,6 +104,8 @@ export const ArticleResource = resource({
 :::react
 
 ```tsx title="ArticleDetail" collapsed
+import React from 'react';
+import { useSuspense } from '@data-client/react';
 import { ArticleResource } from './resources/Article';
 
 function ArticleDetail({ id, onHome }: Props) {
@@ -120,9 +123,7 @@ function ArticleDetail({ id, onHome }: Props) {
         <div>
           Created:{' '}
           <time>
-            {DateTimeFormat('en-US', { dateStyle: 'medium' }).format(
-              article.createdAt,
-            )}
+            {article.createdAt.toLocaleString('en-US', { dateStyle: 'medium' })}
           </time>
         </div>
       </div>

@@ -18,6 +18,7 @@ export type {
 } from './types.js';
 export type { NI } from './NoInfer.js';
 export type {
+  SetInvalidateSchema,
   SetManySchema,
   SetManyValue,
   SetValue,

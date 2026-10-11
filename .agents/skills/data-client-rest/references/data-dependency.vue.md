@@ -136,11 +136,11 @@ export const PostResource = resource({
 </script>
 
 <template>
-  <center v-if="canLoadMore">
+  <div v-if="canLoadMore" style="text-align: center">
     <button @click="nextPage">
       {{ isPending ? '...' : 'Load more' }}
     </button>
-  </center>
+  </div>
 </template>
 ```
 
@@ -191,7 +191,7 @@ us to make error/loading disjoint from data usage.
 Instead we place Vue's built-in [\<Suspense />](https://vuejs.org/guide/built-ins/suspense.html) along with [onErrorCaptured()](https://vuejs.org/api/composition-api-lifecycle.html#onerrorcaptured) to handling loading and error conditions at or above navigational boundaries like **pages,
 routes, or [modals](https://www.appcues.com/blog/modal-dialog-windows)**.
 
-```html title="Dashboard.vue" {13-20}
+```html title="Dashboard.vue" {15-16,23}
 <script setup lang="ts">
   import { onErrorCaptured, ref } from 'vue';
 
@@ -294,8 +294,9 @@ ensures continual updates while a component is mounted. [useLive()](https://data
 [useSubscription()](https://dataclient.io/vue/api/useSubscription) and [useSuspense()](https://dataclient.io/vue/api/useSuspense), making it quite
 easy to use fresh data.
 
-```typescript title="Ticker" {32}
+```typescript title="Ticker" {33}
 import { Entity, RestEndpoint } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class Ticker extends Entity {
   product_id = '';
@@ -330,23 +331,24 @@ export const getTicker = new RestEndpoint({
 });
 ```
 
-```html title="AssetPrice.vue" {6}
+```html title="AssetPrice.vue" {7}
 <script setup lang="ts">
   import { useLive } from '@data-client/vue';
   import { getTicker } from './Ticker';
+  import NumberFlow from '@number-flow/vue';
 
   const props = defineProps<{ productId: string }>();
   const ticker = await useLive(getTicker, () => ({ productId: props.productId }));
 </script>
 
 <template>
-  <center>
+  <div style="text-align: center">
     {{ productId }}
     <NumberFlow
       :value="ticker.price"
       :format="{ style: 'currency', currency: 'USD' }"
     />
-  </center>
+  </div>
 </template>
 ```
 

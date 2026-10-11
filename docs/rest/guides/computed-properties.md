@@ -92,6 +92,8 @@ delay: 150,
 ]}>
 
 ```ts title="resources/User" collapsed
+import { Entity, resource } from '@data-client/rest';
+
 export class User extends Entity {
   id = '';
   name = '';

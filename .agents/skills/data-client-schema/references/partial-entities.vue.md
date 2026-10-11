@@ -24,8 +24,9 @@ a subset of fields needed to summarize.
 In this case we can override [Entity.validate()](./Entity.vue.md#validate) using [validateRequired()](https://dataclient.io/rest/api/validateRequired) to ensure
 we have the full and complete response when needed (detail views), while keeping our state [DRY](https://deviq.com/principles/dont-repeat-yourself) and normalized to ensure data integrity.
 
-```typescript title="resources/Article" {12,24}
+```typescript title="resources/Article" {13,25}
 import { validateRequired, Collection, Entity, resource } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class ArticleSummary extends Entity {
   id = '';

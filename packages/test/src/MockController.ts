@@ -10,7 +10,10 @@ import { createFixtureMap } from './createFixtureMap.js';
 import type { Fixture, Interceptor } from './fixtureTypes.js';
 import { MockProps } from './mockTypes.js';
 
-export function MockController<TBase extends typeof Controller, T>(
+export function MockController<
+  TBase extends new (...args: any[]) => Controller<any>,
+  T,
+>(
   Base: TBase,
   {
     fixtures = [],
@@ -23,7 +26,7 @@ export function MockController<TBase extends typeof Controller, T>(
   // @ts-ignore
   return class MockedController<
     D extends GenericDispatch = DataClientDispatch,
-  > extends Base<D> {
+  > extends (Base as typeof Controller)<D> {
     // legacy compatibility (re-declaration)
     // TODO: drop when drop support for destructuring (0.14 and below)
     declare protected _dispatch: D;

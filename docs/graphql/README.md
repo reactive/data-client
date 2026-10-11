@@ -136,6 +136,7 @@ suspends.
 <HooksPlayground>
 
 ```tsx
+import { useSuspense } from '@data-client/react';
 import { GQLEndpoint, GQLEntity } from '@data-client/graphql';
 
 const gql = new GQLEndpoint(
@@ -222,9 +223,7 @@ const createReview = gql.mutation(
 export default function NewReviewForm() {
   const ctrl = useController();
   return (
-    <Form
-      onSubmit={e => ctrl.fetch(createReview, new FormData(e.target))}
-    >
+    <Form onSubmit={variables => ctrl.fetch(createReview, variables)}>
       <FormField name="ep" />
       <FormField name="review" type="compound" />
     </Form>

@@ -3,6 +3,8 @@ import HooksPlayground from '@site/src/components/HooksPlayground';
 <HooksPlayground row>
 
 ```tsx title="resources/Todo" collapsed
+import { Entity, resource } from '@data-client/rest';
+
 export class Todo extends Entity {
   id = 0;
   userId = 0;

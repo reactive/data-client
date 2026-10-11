@@ -1,3 +1,4 @@
+import Translate from '@docusaurus/Translate';
 import CodeBlock from '@theme/CodeBlock';
 import clsx from 'clsx';
 
@@ -8,7 +9,9 @@ export default function Response({ response, status }: Props) {
   return (
     <div>
       <Header small className={clsx(styles.doubleTitle)}>
-        <span>Response</span>
+        <span>
+          <Translate id="http.response">Response</Translate>
+        </span>
         <span
           className={clsx(styles.status, {
             [styles.error]: status >= 400,

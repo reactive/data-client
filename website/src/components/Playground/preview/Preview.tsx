@@ -1,78 +1,96 @@
-import {
-  DataProvider,
-  PollingSubscription,
-  SubscriptionManager,
-  NetworkManager,
-} from '@data-client/react';
+import { DataProvider, type Manager, type State } from '@data-client/react';
 import { MockResolver } from '@data-client/test/browser';
-import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
-import clsx from 'clsx';
 import React, {
   memo,
-  useCallback,
-  useMemo,
+  useState,
   lazy,
   type ProfilerOnRenderCallback,
 } from 'react';
 
+import { MotionGroup } from '../../motion';
 import Boundary from '../Boundary';
+import type ManagerHost from './managers';
+import { ManagerError, ManagersSync } from './ManagersSync';
+import type { PreviewErrorProps } from './PreviewError';
+import SchemaRegistry from './store/schemaRegistry';
 import StoreInspector from './StoreInspector';
-import { useTabStorage } from '../../../utils/tabStorage';
 import styles from '../styles.module.css';
 import type { PreviewProps } from '../types';
 
 function Preview<T>({
-  groupId,
-  defaultOpen,
+  storeOpen,
+  toggleStore,
   row,
+  storeHost,
   fixtures,
   getInitialInterceptorData,
   onCommit,
-}: PreviewProps<T> & {
-  /** Called on every React commit of the live result (enables a `<Profiler>`) */
-  onCommit?: ProfilerOnRenderCallback;
-}) {
-  const [choice, setTabGroupChoice] = useTabStorage(groupId);
-  const selectedValue = choice === 'y' || choice === 'n' ? choice : defaultOpen;
-  const { blockElementScrollPositionUntilNextRender } =
-    useScrollPositionBlocker();
+  initialState,
+  registry,
+  history,
+  replacedHistory,
+  managerHost,
+  onInteract,
+  ...errorProps
+}: PreviewProps<T> &
+  PreviewErrorProps & {
+    /** Called on every React commit of the live result (enables a `<Profiler>`) */
+    onCommit?: ProfilerOnRenderCallback;
+    initialState?: State<unknown>;
+    /** Schemas the Store inspector has seen */
+    registry: SchemaRegistry;
+    /** Where this store's actions go in `registry.log` */
+    history: number;
+    /** A history that may still come back; the log drops any other */
+    replacedHistory?: number;
+    /** Managers the code declares with `getManagers()` */
+    managerHost: ManagerHost;
+    /** User pointer/keyboard input inside the result */
+    onInteract: () => void;
+  }) {
+  // DataProvider keeps its first managers, so build them once per mount
+  // (create() runs the code's getManagers() and clears the last error)
+  const [managers] = useState<Manager[]>(() => {
+    const { managers, network } = managerHost.create();
+    const log = registry.log.connect(history, replacedHistory, action =>
+      network.skipLogging(action),
+    );
+    return [log.head, registry, ...managers, log.tail];
+  });
 
-  const toggle = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
-      blockElementScrollPositionUntilNextRender(event.currentTarget);
-      const next = selectedValue === 'y' ? 'n' : 'y';
-      setTabGroupChoice(next);
-    },
-    [
-      blockElementScrollPositionUntilNextRender,
-      selectedValue,
-      setTabGroupChoice,
-    ],
-  );
-
-  const managers = useMemo(
-    () => [new NetworkManager(), new SubscriptionManager(PollingSubscription)],
-    [],
-  );
-
-  const hiddenResult = row && selectedValue === 'y';
   return (
-    <DataProvider managers={managers}>
+    // devButton: getDefaultManagers() includes DevToolsManager in development
+    <DataProvider
+      managers={managers}
+      initialState={initialState}
+      devButton={null}
+    >
       <MockResolver
         fixtures={fixtures}
         silenceMissing={true}
         getInitialInterceptorData={getInitialInterceptorData}
       >
-        <div
-          className={clsx('playground-preview', styles.playgroundPreview, {
-            [styles.hidden]: hiddenResult,
-          })}
-        >
-          <Boundary fallback={null}>
-            <PreviewBlockLazy onCommit={onCommit} />
-          </Boundary>
-        </div>
-        <StoreInspector selectedValue={selectedValue} toggle={toggle} />
+        <ManagersSync host={managerHost} />
+        <MotionGroup layoutDependency={storeOpen}>
+          <div
+            className={`playground-preview ${styles.playgroundPreview}`}
+            onPointerDownCapture={onInteract}
+            onKeyDownCapture={onInteract}
+          >
+            <Boundary fallback={null}>
+              <PreviewBlockLazy onCommit={onCommit} {...errorProps} />
+            </Boundary>
+            <ManagerError host={managerHost} />
+          </div>
+          <StoreInspector
+            open={storeOpen}
+            toggle={toggleStore}
+            registry={registry}
+            history={history}
+            row={row}
+            host={storeHost}
+          />
+        </MotionGroup>
       </MockResolver>
     </DataProvider>
   );

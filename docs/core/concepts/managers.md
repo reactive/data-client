@@ -10,6 +10,7 @@ import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import StackBlitz from '@site/src/components/StackBlitz';
 import BatchSetDemo from '../shared/\_BatchSetDemo.mdx';
+import StreamManagerDemo from '../shared/\_StreamManagerDemo.mdx';
 
 <head>
   <meta name="docsearch:pagerank" content="40"/>
@@ -147,9 +148,12 @@ export default class MetricsManager implements Manager {
   middleware: Middleware = controller => next => async action => {
     if (action.type === actionTypes.FETCH) {
       const start = performance.now();
-      action.meta.promise.finally(() => {
-        trackTiming(action.endpoint.name, performance.now() - start);
-      });
+      action.meta.promise
+        .finally(() => {
+          trackTiming(action.endpoint.name, performance.now() - start);
+        })
+        // the fetch's caller handles errors; this only observes timing
+        .catch(() => {});
     }
     return next(action);
   };
@@ -343,7 +347,7 @@ import type {
 
 export default class StreamManager implements Manager {
   declare protected controller: Controller;
-  declare protected evtSource: WebSocket; // | EventSource;
+  declare protected evtSource: WebSocket | EventSource;
   declare protected createEventSource: () => WebSocket | EventSource;
   declare protected entities: Record<string, EntityInterface>;
 
@@ -363,9 +367,11 @@ export default class StreamManager implements Manager {
   connect() {
     this.evtSource = this.createEventSource();
     // highlight-start
-    this.evtSource.onmessage = event => {
+    this.evtSource.onmessage = (event: MessageEvent) => {
       try {
-        const msg = JSON.parse(event.data);
+        const msg: { type: string; args: [any]; data: any } = JSON.parse(
+          event.data,
+        );
         if (msg.type in this.entities)
           this.controller.set(
             this.entities[msg.type],
@@ -392,6 +398,12 @@ export default class StreamManager implements Manager {
 
 [Controller.set()](../api/Controller.md#set) allows directly updating [Querable Schemas](/rest/api/schema#queryable)
 directly with `event.data`.
+
+:::react
+
+<StreamManagerDemo />
+
+:::
 
 #### Batching high-frequency updates {#batching}
 

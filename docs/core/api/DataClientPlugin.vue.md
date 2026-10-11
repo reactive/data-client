@@ -1,5 +1,6 @@
 ---
 frameworks: [vue]
+framework_equivalent: api/DataProvider
 title: DataClientPlugin - Normalized async data management in Vue
 sidebar_label: DataClientPlugin
 description: High performance, globally consistent data management in Vue
@@ -36,7 +37,7 @@ app.use(DataClientPlugin, options);
 interface ProvideOptions {
   managers?: Manager[];
   initialState?: State<unknown>;
-  Controller?: typeof Controller;
+  Controller?: new (props: { gcPolicy: GCInterface }) => Controller;
   gcPolicy?: GCInterface;
 }
 ```
@@ -48,8 +49,12 @@ List of [Managers](./Manager.md) to use. This is the main extensibility point of
 Defaults to [getDefaultManagers()](./getDefaultManagers.md), which can also be used to extend the defaults.
 
 ```ts title="main.ts"
+import { createApp } from 'vue';
 import { DataClientPlugin, getDefaultManagers } from '@data-client/vue';
+import App from './App.vue';
+import MyManager from './MyManager';
 
+const app = createApp(App);
 app.use(DataClientPlugin, {
   managers: [...getDefaultManagers(), new MyManager()],
 });
@@ -83,20 +88,23 @@ app.use(DataClientPlugin, { initialState: window.__INITIAL_STATE__ });
 
 <StateType />
 
-### Controller?: typeof Controller {#Controller}
+### Controller?: Controller class {#Controller}
 
 This allows you to extend [Controller](./Controller.md) to provide additional functionality.
 This might be useful if you have additional actions you want to dispatch to custom [Managers](./Manager.md).
 
 ```ts title="main.ts"
+import { createApp } from 'vue';
 import { Controller, DataClientPlugin } from '@data-client/vue';
+import App from './App.vue';
 
-class MyController extends Controller {
+export class MyController extends Controller {
   doSomething = () => {
     console.log('hi');
   };
 }
 
+const app = createApp(App);
 app.use(DataClientPlugin, { Controller: MyController });
 ```
 
@@ -105,6 +113,7 @@ but they are still typed as `Controller`. Cast to reach the added members:
 
 ```ts
 import { useController } from '@data-client/vue';
+import type { MyController } from './main';
 
 const ctrl = useController() as MyController;
 ctrl.doSomething();
@@ -112,12 +121,15 @@ ctrl.doSomething();
 
 ### gcPolicy?: GCInterface {#gcPolicy}
 
-Removes data from the store once no component uses it and it has gone stale. By default, nothing
-is ever removed.
+Removes data from the store once no component uses it and it has gone stale. Defaults to
+`new GCPolicy()`; pass one to change how often it sweeps or how long unused data is kept.
 
 ```ts title="main.ts"
+import { createApp } from 'vue';
 import { DataClientPlugin, GCPolicy } from '@data-client/vue';
+import App from './App.vue';
 
+const app = createApp(App);
 app.use(DataClientPlugin, {
   // sweep every 10 minutes
   gcPolicy: new GCPolicy({ intervalMS: 60 * 1000 * 10 }),

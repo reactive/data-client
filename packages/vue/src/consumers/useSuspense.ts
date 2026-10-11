@@ -7,15 +7,8 @@ import type {
   DenormalizeNullable,
   ResolveType,
 } from '@data-client/core';
-import {
-  computed,
-  customRef,
-  watch,
-  readonly,
-  shallowRef,
-  type DeepReadonly,
-  type ComputedRef,
-} from 'vue';
+import { computed, customRef, watch, readonly, shallowRef } from 'vue';
+import type { DeepReadonly, ComputedRef } from 'vue';
 
 import type {
   MaybeRefsOrGetters,

@@ -16,6 +16,7 @@ Useful to avoid spamming network requests when parameters might change quickly (
 
 ```ts title="IssueQuery"
 import { RestEndpoint, Entity, Collection } from '@data-client/rest';
+import { Temporal } from 'temporal-polyfill';
 
 export class Issue extends Entity {
   number = 0;

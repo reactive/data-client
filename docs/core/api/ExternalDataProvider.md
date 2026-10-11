@@ -23,10 +23,15 @@ in the React tree.
 import { ExternalDataProvider } from '@data-client/react/redux';
 import { createRoot } from 'react-dom/client';
 
-import { store, selector } from './store';
+import { store, selector, controller } from './store';
+import App from './App';
 
 createRoot(document.body).render(
-  <ExternalDataProvider store={store} selector={selector}>
+  <ExternalDataProvider
+    store={store}
+    selector={selector}
+    controller={controller}
+  >
     <App />
   </ExternalDataProvider>,
 );
@@ -72,13 +77,31 @@ installed. This option configures where it shows up, or if null will disable it 
 `'bottom-right' | 'bottom-left' | 'top-right'| 'top-left' | null` = `'bottom-right'`
 
 ```tsx title="Disable button"
-<DataProvider devButton={null}>
-  <App/>
-</DataProvider>
+import { ExternalDataProvider } from '@data-client/react/redux';
+import { store, selector, controller } from './store';
+import App from './App';
+
+<ExternalDataProvider
+  store={store}
+  selector={selector}
+  controller={controller}
+  devButton={null}
+>
+  <App />
+</ExternalDataProvider>;
 ```
 
 ```tsx title="Place in top right corner"
-<DataProvider devButton="top-right">
-  <App/>
-</DataProvider>
+import { ExternalDataProvider } from '@data-client/react/redux';
+import { store, selector, controller } from './store';
+import App from './App';
+
+<ExternalDataProvider
+  store={store}
+  selector={selector}
+  controller={controller}
+  devButton="top-right"
+>
+  <App />
+</ExternalDataProvider>;
 ```

@@ -1,6 +1,12 @@
-import { useStorageSlot } from '@docusaurus/theme-common';
 import CodeBlock from '@theme/CodeBlock';
 import React from 'react';
+
+import {
+  installCommand,
+  PACKAGE_MANAGER_TAB_GROUP,
+  type PackageManager,
+} from './installCommand';
+import { useTabStorage } from '../utils/tabStorage';
 
 interface Props {
   pkgs: string;
@@ -8,30 +14,15 @@ interface Props {
   global?: boolean;
 }
 
-export default function PkgInstall({ pkgs, dev = false, global }: Props) {
-  const [relevantTabGroupChoice] = useStorageSlot(
-    'docusaurus.tab.node-packages-program',
-  );
-  //const relevantTabGroupChoice = tabGroupChoices['node-packages-program'];
-  if (relevantTabGroupChoice === 'yarn') {
-    return (
-      <CodeBlock className="language-bash">
-        yarn add{global ? ' global' : ''} {dev ? '--dev ' : ''}
-        {pkgs}
-      </CodeBlock>
-    );
-  } else if (relevantTabGroupChoice === 'pnpm') {
-    return (
-      <CodeBlock className="language-bash">
-        pnpm add{global ? ' -g' : ''}
-        {dev ? ' -D' : ''} {pkgs}
-      </CodeBlock>
-    );
-  }
+export default function PkgInstall({ pkgs, dev, global }: Props) {
+  const [relevantTabGroupChoice] = useTabStorage(PACKAGE_MANAGER_TAB_GROUP);
+  const manager: PackageManager =
+    relevantTabGroupChoice === 'yarn' || relevantTabGroupChoice === 'pnpm' ?
+      relevantTabGroupChoice
+    : 'npm';
   return (
     <CodeBlock className="language-bash">
-      npm install{global ? ' -g' : ' --save'}
-      {dev ? 'Dev ' : ''} {pkgs}
+      {installCommand(manager, pkgs, { dev, global })}
     </CodeBlock>
   );
 }

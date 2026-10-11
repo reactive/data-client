@@ -12,7 +12,13 @@ on:
         default: 'beta'
         type: string
 
-concurrency: ${{ github.workflow }}-${{ github.ref }}
+# Queue every run instead of cancelling pending ones (red on the branch)
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  queue: max
+
+permissions:
+  contents: read
 
 jobs:
   beta-release:

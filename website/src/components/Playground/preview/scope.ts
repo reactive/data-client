@@ -3,10 +3,9 @@ import * as rhReact from '@data-client/react';
 import * as rhReactNext from '@data-client/react/next';
 import * as rest from '@data-client/rest';
 import BigNumber from 'bignumber.js';
-import { use } from 'react';
+import { Suspense, use } from 'react';
 import { v4 as uuid } from 'uuid';
 
-import ResetableErrorBoundary from '../../ResettableErrorBoundary';
 import * as designSystem from '../DesignSystem';
 import { Temporal, Intl, DateTimeFormat } from './temporal';
 
@@ -34,11 +33,11 @@ export const previewScope = {
   ...graphql,
   ...rest,
   use,
+  Suspense,
   uuid,
   randomFloatInRange,
   mockFetch,
   BigNumber,
-  ResetableErrorBoundary,
   Temporal,
   Intl,
   DateTimeFormat,

@@ -172,6 +172,9 @@ in another component.
 :::react
 
 ```tsx
+import { useFetch } from '@data-client/react';
+import { PostResource } from './resources/Post';
+
 function MasterPost({ id }: { id: number }) {
   useFetch(PostResource.get, { id });
   // ...
@@ -305,6 +308,9 @@ Use `promise.resolved` to check whether data is still loading:
 :::react
 
 ```tsx
+import { useFetch } from '@data-client/react';
+import { PostResource } from './resources/Post';
+
 function MasterPost({ id }: { id: number }) {
   const promise = useFetch(PostResource.get, { id });
   if (!promise.resolved) {

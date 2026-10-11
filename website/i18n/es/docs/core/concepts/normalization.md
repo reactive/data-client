@@ -1,0 +1,500 @@
+---
+title: Entity y normalización de datos
+sidebar_label: Normalización de datos
+---
+
+<head>
+  <meta name="docsearch:pagerank" content="40"/>
+</head>
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+import LanguageTabs from '@site/src/components/LanguageTabs';
+import Link from '@docusaurus/Link';
+import SchemaTable from '../shared/\_schema_table.mdx';
+
+Las [Entities](/rest/api/Entity) tienen una clave primaria. Esto permite un acceso sencillo mediante una tabla de búsqueda.
+Así resulta fácil encontrar, actualizar, crear o eliminar los mismos datos, sin importar en qué
+endpoint se hayan usado.
+
+<!--
+<LanguageTabs>
+
+```ts
+import { Entity } from '@data-client/endpoint';
+
+class Todo extends Entity {
+  readonly id: number = 0;
+  readonly userId: number = 0;
+  readonly title: string = '';
+  readonly completed: boolean = false;
+}
+```
+
+```js
+import { Entity } from '@data-client/endpoint';
+
+class Todo extends Entity {
+}
+```
+
+</LanguageTabs>
+-->
+
+<Tabs
+defaultValue="State"
+values={[
+{ label: 'State', value: 'State' },
+{ label: 'Response', value: 'Response' },
+{ label: 'Endpoint', value: 'Endpoint' },
+{ label: 'Entity', value: 'Entity' },
+{ label: 'Component', value: 'Component' },
+]}>
+<TabItem value="State">
+
+![Caché de entities](/img/entities.png 'Caché de entities')
+
+</TabItem>
+<TabItem value="Response">
+
+```json
+[
+  { "id": 1, "title": "this is an entity" },
+  { "id": 2, "title": "this is the second entity" }
+]
+```
+
+</TabItem>
+<TabItem value="Endpoint">
+
+```typescript
+const getPresentations = new Endpoint(
+  () => fetch(`/presentations`).then(res => res.json()),
+  { schema: new Collection([Presentation]) },
+);
+```
+
+</TabItem>
+<TabItem value="Entity">
+
+```typescript
+class Presentation extends Entity {
+  id = '';
+  title = '';
+
+  static key = 'Presentation';
+}
+```
+
+</TabItem>
+<TabItem value="Component">
+
+:::react
+
+```tsx
+import { useSuspense } from '@data-client/react';
+import { getPresentations } from './api/Presentation';
+
+export function PresentationsPage() {
+  const presentation = useSuspense(getPresentations);
+  return presentation.map(presentation => (
+    <div key={presentation.pk()}>{presentation.title}</div>
+  ));
+}
+```
+
+:::
+
+:::vue
+
+```html title="PresentationsPage.vue"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getPresentations } from './api/Presentation';
+
+  const presentations = await useSuspense(getPresentations);
+</script>
+
+<template>
+  <div v-for="presentation in presentations" :key="presentation.pk()">
+    {{ presentation.title }}
+  </div>
+</template>
+```
+
+:::
+
+</TabItem>
+</Tabs>
+
+Extraer entities de una respuesta se conoce como `normalization`. Acceder a una respuesta revierte
+el proceso mediante `denormalization`.
+
+:::info[Igualdad referencial global]
+
+Usar entities amplía la garantía de igualdad referencial global de Reactive Data Client más allá de la granularidad de
+una respuesta completa de un endpoint.
+
+:::
+
+## Mutaciones y datos dinámicos {#mutations-and-dynamic-data}
+
+Cuando un endpoint cambia datos, esto se conoce como [efecto secundario](/rest/guides/side-effects). Marcar un endpoint con [sideEffect: true](/rest/api/Endpoint#sideeffect)
+le indica a Reactive Data Client que este endpoint no es idempotente y, por lo tanto, no debe permitirse en hooks
+que puedan llamar al endpoint un número arbitrario de veces, como [useSuspense()](../api/useSuspense.md) o [useFetch()](../api/useFetch.md)
+
+Al incluir los datos modificados en la respuesta del endpoint, Reactive Data Client puede actualizar
+cualquier entity que extraiga al especificar el schema.
+
+<Tabs
+defaultValue="Create"
+values={[
+{ label: 'Create', value: 'Create' },
+{ label: 'Update', value: 'Update' },
+{ label: 'Delete', value: 'Delete' },
+]}>
+<TabItem value="Create">
+
+```typescript
+import { RestEndpoint, schema } from '@data-client/rest';
+
+const todoCreate = new RestEndpoint({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos',
+  method: 'POST',
+  schema: new Collection([Todo]).push,
+});
+```
+
+<details>
+<summary><b>Ejemplo de uso</b></summary>
+
+:::react
+
+```tsx
+import { useController } from '@data-client/react';
+import { todoCreate } from './api/Todo';
+import Form from './Form';
+import FormField from './FormField';
+
+export default function NewTodoForm() {
+  const ctrl = useController();
+  return (
+    <Form
+      onSubmit={e => ctrl.fetch(todoCreate, new FormData(e.target))}
+    >
+      <FormField name="title" />
+    </Form>
+  );
+}
+```
+
+:::
+
+:::vue
+
+```html title="NewTodoForm.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { todoCreate } from './api/Todo';
+  import Form from './Form.vue';
+  import FormField from './FormField.vue';
+
+  const ctrl = useController();
+  const handleSubmit = (e: Event) =>
+    ctrl.fetch(todoCreate, new FormData(e.target as HTMLFormElement));
+</script>
+
+<template>
+  <Form @submit="handleSubmit">
+    <FormField name="title" />
+  </Form>
+</template>
+```
+
+:::
+
+</details>
+
+</TabItem>
+<TabItem value="Update">
+
+```typescript
+import { RestEndpoint } from '@data-client/rest';
+
+const todoUpdate = new RestEndpoint({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
+  method: 'PUT',
+  schema: Todo,
+});
+```
+
+<details>
+<summary><b>Ejemplo de uso</b></summary>
+
+:::react
+
+```tsx
+import { useController, useSuspense } from '@data-client/react';
+import { todoDetail, todoUpdate } from './api/Todo';
+import Form from './Form';
+import FormField from './FormField';
+
+export default function UpdateTodoForm({ id }: { id: number }) {
+  const todo = useSuspense(todoDetail, { id });
+  const ctrl = useController();
+  return (
+    <Form
+      onSubmit={e =>
+        ctrl.fetch(todoUpdate, { id }, new FormData(e.target))
+      }
+      initialValues={todo}
+    >
+      <FormField name="title" />
+    </Form>
+  );
+}
+```
+
+:::
+
+:::vue
+
+```html title="UpdateTodoForm.vue"
+<script setup lang="ts">
+  import { useController, useSuspense } from '@data-client/vue';
+  import { todoDetail, todoUpdate } from './api/Todo';
+  import Form from './Form.vue';
+  import FormField from './FormField.vue';
+
+  const props = defineProps<{ id: number }>();
+  const todo = await useSuspense(todoDetail, () => ({ id: props.id }));
+  const ctrl = useController();
+  const handleSubmit = (e: Event) =>
+    ctrl.fetch(
+      todoUpdate,
+      { id: props.id },
+      new FormData(e.target as HTMLFormElement),
+    );
+</script>
+
+<template>
+  <Form @submit="handleSubmit" :initialValues="todo">
+    <FormField name="title" />
+  </Form>
+</template>
+```
+
+:::
+
+</details>
+
+</TabItem>
+<TabItem value="Delete">
+
+```typescript
+import { Invalidate, RestEndpoint } from '@data-client/rest';
+
+const todoDelete = new RestEndpoint({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos/:id',
+  method: 'DELETE',
+  schema: new Invalidate(Todo),
+});
+```
+
+<details>
+<summary><b>Ejemplo de uso</b></summary>
+
+:::react
+
+```tsx
+import { useController } from '@data-client/react';
+import { todoDelete, type Todo } from './api/Todo';
+
+export default function TodoWithDelete({ todo }: { todo: Todo }) {
+  const ctrl = useController();
+  return (
+    <div>
+      {todo.title}
+      <button onClick={() => ctrl.fetch(todoDelete, { id: todo.id })}>
+        Delete
+      </button>
+    </div>
+  );
+}
+```
+
+:::
+
+:::vue
+
+```html title="TodoWithDelete.vue"
+<script setup lang="ts">
+  import { useController } from '@data-client/vue';
+  import { todoDelete, type Todo } from './api/Todo';
+
+  defineProps<{ todo: Todo }>();
+  const ctrl = useController();
+</script>
+
+<template>
+  <div>
+    {{ todo.title }}
+    <button @click="ctrl.fetch(todoDelete, { id: todo.id })">Delete</button>
+  </div>
+</template>
+```
+
+:::
+
+</details>
+
+</TabItem>
+</Tabs>
+
+:::info
+
+Las mutaciones actualizan automáticamente la caché normalizada, lo que da como resultado datos consistentes y actualizados.
+
+:::
+
+## Schema {#schema}
+
+Los schemas son una definición declarativa de cómo [procesar las respuestas](/rest/api/schema)
+
+- [dónde](/rest/api/schema) esperar [Entities](/rest/api/Entity)
+- Funciones para [deserializar campos](/rest/guides/network-transform#deserializing-fields)
+
+```typescript
+import { RestEndpoint, Collection } from '@data-client/rest';
+
+const getTodoList = new RestEndpoint({
+  urlPrefix: 'https://jsonplaceholder.typicode.com',
+  path: '/todos',
+  // highlight-next-line
+  schema: new Collection([Todo]),
+});
+```
+
+Colocar nuestra [Entity](/rest/api/Entity) `Todo` en una [Collection](/rest/api/Collection) de tipo array nos permite
+[agregar al final (push)](/rest/api/RestEndpoint#push) o [al inicio (unshift)](/rest/api/RestEndpoint#unshift) nuevos `Todos` con facilidad.
+
+Además del array, se proporcionan algunos 'schemas' más para diversos patrones. Los dos primeros (Object y Array)
+tienen atajos mediante literales de objeto y de array.
+
+<SchemaTable/>
+
+[Más información](/rest/api/schema)
+
+### Anidamiento {#nesting}
+
+Además, las propias [Entities](/rest/api/Entity) pueden especificar [schemas anidados](/rest/guides/relational-data)
+mediante un miembro [static schema](/rest/api/Entity#schema).
+
+<Tabs
+defaultValue="Entity"
+values={[
+{ label: 'Entity', value: 'Entity' },
+{ label: 'Response', value: 'Response' },
+]}>
+<TabItem value="Entity">
+
+```typescript
+import { Entity } from '@data-client/endpoint';
+
+class Todo extends Entity {
+  id = 0;
+  user = User.fromJS();
+  title = '';
+  completed = false;
+
+  static key = 'Todo';
+
+  // highlight-start
+  static schema = {
+    user: User,
+  };
+  // highlight-end
+}
+
+class User extends Entity {
+  id = 0;
+  username = '';
+
+  static key = 'User';
+}
+```
+
+</TabItem>
+<TabItem value="Response">
+
+```json
+{
+  "id": 5,
+  "user": {
+    "id": 10,
+    "username": "bob"
+  },
+  "title": "Write some Entities",
+  "completed": false
+}
+```
+
+</TabItem>
+</Tabs>
+
+[Más información](/rest/guides/relational-data)
+
+### Representaciones de datos {#data-representations}
+
+Además, las funciones pueden [usarse como schema](/rest/guides/network-transform#deserializing-fields). Se llamarán durante la desnormalización.
+Esto puede ser útil con representaciones como [bignumber](https://mikemcl.github.io/bignumber.js/) o [temporal instant](https://tc39.es/proposal-temporal/docs/instant.html)
+
+```ts
+import { Entity } from '@data-client/endpoint';
+
+class Todo extends Entity {
+  id = 0;
+  user = User.fromJS();
+  title = '';
+  completed = false;
+  // highlight-next-line
+  dueDate = Temporal.Instant.fromEpochMilliseconds(0);
+
+  static key = 'Todo';
+
+  static schema = {
+    user: User,
+    // highlight-next-line
+    dueDate: Temporal.Instant.from,
+  };
+}
+```
+
+:::info
+
+Gracias a la garantía de igualdad referencial global, la construcción de los miembros solo ocurre una vez
+por actualización.
+
+:::
+
+## Inspección del store (depuración) {#store-inspection-debugging}
+
+Se puede instalar la [extensión de navegador DevTools](https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=en)
+para inspeccionar y [depurar el store](../getting-started/debugging.md).
+
+![devtools del navegador](/img/devtool-state.png 'Reactive Data Client devtools')
+
+<center>
+
+<Link className="button button--secondary" to="../getting-started/debugging">Guía de depuración de Data Client »</Link>
+
+</center>
+
+## Benchmarks {#benchmarks}
+
+La memoización a nivel de entity ofrece hasta **20x** de rendimiento en la desnormalización y una propagación de mutaciones **90x** más rápida
+en comparación con los enfoques no normalizados. Consulta la página completa de [rendimiento](./performance.md) para ver
+los resultados de los benchmarks de normalización, así como los benchmarks completos de la integración con React.

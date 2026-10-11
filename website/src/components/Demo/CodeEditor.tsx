@@ -42,12 +42,13 @@ const DemoPlayground = memo(
               getInitialInterceptorData={getInitialInterceptorData}
               headerControls={<PlaygroundHeaderControls />}
             >
-              {code.map(({ path, code: instanceCode, open }, i) => (
+              {code.map(({ path, code: instanceCode, open, ssr }, i) => (
                 <PlaygroundCode
                   key={path}
                   title={capitalizeFirstLetter(path)}
                   path={`${value}/${path}.tsx`}
                   collapsed={!open}
+                  ssr={ssr}
                   autoFocus={autoFocus && code.length === i + 1}
                 >
                   {instanceCode}
@@ -66,6 +67,7 @@ interface PlaygroundCodeProps {
   title: string;
   path: string;
   collapsed: boolean;
+  ssr?: boolean;
   autoFocus?: boolean;
 }
 

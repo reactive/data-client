@@ -11,6 +11,7 @@ import type { ResourcePath } from './pathTypes.js';
 import { Extendable } from './resourceExtendable.js';
 import { ResourceGenerics, ResourceInterface } from './resourceTypes.js';
 import type {
+  ExtendableRestGenerics,
   PartialRestGenerics,
   RestExtendedEndpoint,
   RestInstanceBase,
@@ -62,11 +63,11 @@ export type ExtendedResource<
 
 export interface ResourceEndpointExtensions<
   R extends ResourceInterface,
-  Get extends PartialRestGenerics = {},
-  GetList extends PartialRestGenerics = {},
-  Update extends PartialRestGenerics = {},
-  PartialUpdate extends PartialRestGenerics = {},
-  Delete extends PartialRestGenerics = {},
+  Get extends ExtendableRestGenerics = {},
+  GetList extends ExtendableRestGenerics = {},
+  Update extends ExtendableRestGenerics = {},
+  PartialUpdate extends ExtendableRestGenerics = {},
+  Delete extends ExtendableRestGenerics = {},
 > {
   readonly get?: EndpointExtensionOptions<R['get'], Get>;
   readonly getList?: EndpointExtensionOptions<R['getList'], GetList>;
@@ -78,19 +79,19 @@ export interface ResourceEndpointExtensions<
   readonly delete?: EndpointExtensionOptions<R['delete'], Delete>;
 }
 
-/** Options extending endpoint `E`. `O` is PartialRestGenerics when TypeScript couldn't infer it:
+/** Options extending endpoint `E`. `O` is ExtendableRestGenerics when TypeScript couldn't infer it:
  * options without any of its members (like only getOptimisticResponse) fail its weak type check.
  * Then callbacks take `E`'s args, or `any` when those are a union of tuples, which TypeScript
  * can't infer callback parameters from.
  */
 type EndpointExtensionOptions<
   E extends RestInstanceBase,
-  O extends PartialRestGenerics,
+  O extends ExtendableRestGenerics,
 > = RestEndpointOptions<
   unknown extends O ? EndpointToFunction<E>
-  : PartialRestGenerics extends O ? SingleArgsFunction<EndpointToFunction<E>>
+  : ExtendableRestGenerics extends O ? SingleArgsFunction<EndpointToFunction<E>>
   : OptionsToFunction<O, E, EndpointToFunction<E>>,
-  PartialRestGenerics extends O ? E['schema']
+  ExtendableRestGenerics extends O ? E['schema']
   : 'schema' extends keyof O ? Extract<O['schema'], Schema | undefined>
   : E['schema']
 > &
