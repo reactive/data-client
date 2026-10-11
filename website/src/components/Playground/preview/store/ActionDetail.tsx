@@ -27,7 +27,15 @@ import {
 } from './nav';
 import { plain } from './refs';
 import styles from './store.module.css';
-import { Block, Field, field, FieldChange, Inline, ValueChange } from './Value';
+import {
+  Block,
+  changesByField,
+  Field,
+  field,
+  FieldChange,
+  Inline,
+  ValueChange,
+} from './Value';
 
 /** What an action did to `subject` (every row at the store, a line saying
  * it left the subject alone, or that it is where a `gap` of dropped actions
@@ -216,9 +224,6 @@ function ChangeBody({
     case 'added':
       return <Inline node={plain(now)} bare />;
     case 'updated':
-      // a list (a Collection's) changes item by item, not index by index
-      if (Array.isArray(was) && Array.isArray(now))
-        return <ValueChange was={plain(was)} now={plain(now)} />;
       return <FieldChanges fields={change.fields ?? []} was={was} now={now} />;
     case 'invalidated':
       return (
@@ -272,6 +277,8 @@ function FieldChanges({
 }) {
   const before = plain(was);
   const after = plain(now);
+  if (!changesByField(before, after))
+    return <ValueChange was={before} now={after} />;
   return fields.map(name => (
     <div key={name} className={styles.actField}>
       <FieldChange
