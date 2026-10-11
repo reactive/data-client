@@ -111,21 +111,15 @@ const results = await parallel(
   ),
 );
 
-const reviewers = REVIEWERS.map(({ name }, i) => {
+const findings = [];
+const outcomes = REVIEWERS.map(({ name }, i) => {
   const res = results[i];
   if (!res) return { name, status: 'failed' };
   if (res.skipped) return { name, status: 'skipped', reason: res.skipReason };
-  return { name, status: 'ran', findings: res.findings };
+  findings.push(...res.findings.map(f => ({ reviewer: name, ...f })));
+  return { name, status: 'ran', count: res.findings.length };
 });
-const failed = reviewers.filter(r => r.status === 'failed');
+const failed = outcomes.filter(r => r.status === 'failed');
 if (failed.length) log(`No result from: ${failed.map(r => r.name).join(', ')}`);
 
-return {
-  range,
-  reviewers: reviewers.map(({ findings, ...r }) =>
-    findings ? { ...r, count: findings.length } : r,
-  ),
-  findings: reviewers.flatMap(({ name, findings = [] }) =>
-    findings.map(f => ({ reviewer: name, ...f })),
-  ),
-};
+return { range, reviewers: outcomes, findings };
