@@ -31,6 +31,7 @@ import {
 } from './StoreUI';
 import {
   CellChange,
+  changesByField,
   EndpointKey,
   Field,
   field,
@@ -292,8 +293,7 @@ function EntityTreeRow({
           {(
             change?.fields &&
             table.kind === 'entity' &&
-            isObj(row.value) &&
-            (!change.was || isObj(change.was))
+            changesByField(row.value, change.was)
           ) ?
             <FieldChanges row={row} fields={change.fields} was={change.was} />
           : change?.was ?
@@ -311,9 +311,6 @@ function EntityTreeRow({
     </>
   );
 }
-
-/** A row that isn't an object changes as a whole (see ActionDetail) */
-const isObj = (node: VNode) => node.t === 'obj';
 
 /** Just the fields an update changed, as the action that did it shows them */
 function FieldChanges({

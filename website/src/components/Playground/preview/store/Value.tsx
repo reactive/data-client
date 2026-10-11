@@ -259,6 +259,12 @@ export function Inline({
   }
 }
 
+/** Whether a row's update shows field by field: a row that isn't an object
+ * (a scalar, or a Collection's list, which changes item by item rather than
+ * index by index) changes as a whole. A missing side doesn't count. */
+export const changesByField = (...sides: (VNode | undefined)[]) =>
+  sides.every(node => !node || node.t === 'obj');
+
 /** One field of an object node */
 export function field(node: VNode, name: string): VNode | undefined {
   if (node.t !== 'obj') return;

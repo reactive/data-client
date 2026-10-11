@@ -27,7 +27,15 @@ import {
 } from './nav';
 import { plain } from './refs';
 import styles from './store.module.css';
-import { Block, Field, field, FieldChange, Inline, ValueChange } from './Value';
+import {
+  Block,
+  changesByField,
+  Field,
+  field,
+  FieldChange,
+  Inline,
+  ValueChange,
+} from './Value';
 
 /** What an action did to `subject` (every row at the store, a line saying
  * it left the subject alone, or that it is where a `gap` of dropped actions
@@ -269,10 +277,7 @@ function FieldChanges({
 }) {
   const before = plain(was);
   const after = plain(now);
-  // a row that isn't an object changes as a whole: a scalar's one field is
-  // `value` (see changedFields), and a list (a Collection's) changes item by
-  // item, not index by index
-  if (before.t !== 'obj' || after.t !== 'obj')
+  if (!changesByField(before, after))
     return <ValueChange was={before} now={after} />;
   return fields.map(name => (
     <div key={name} className={styles.actField}>
