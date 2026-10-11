@@ -399,8 +399,8 @@ jobs:
           echo "url=$url" >> "$GITHUB_OUTPUT"
           { echo "### Docs $TARGET deployment"; echo; echo "$url"; } >> "$GITHUB_STEP_SUMMARY"
       # Each archived version serves at its own host (vercel.json), which the
-      # project needs as a domain. Vercel configures its DNS when it hosts
-      # dataclient.io's; a failure only leaves that version's host unserved
+      # project needs as a domain. dataclient.io's DNS (Cloudflare) already sends
+      # every subdomain to Vercel; a failure only leaves that version's host unserved
       - name: Add archived versions' domains
         if: env.TARGET == 'production' && steps.deploy.outputs.url
         run: |
