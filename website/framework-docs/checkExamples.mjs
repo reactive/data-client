@@ -10,7 +10,9 @@
  *   typed `any`.
  *
  * `@data-client/*` types come from the playground's editor types, which CI
- * keeps in sync with the packages. Add `nocheck` to a fence's meta to skip an
+ * keeps in sync with the packages. Compiler flags come from the editor's
+ * (Playground/monaco/typeCheckFlags.json), so React examples error just as they
+ * do in the editor. Add `nocheck` to a fence's meta to skip an
  * illustrative fragment; other files can still import it.
  *
  * Usage: node website/framework-docs/checkExamples.mjs [react|vue]
@@ -28,6 +30,7 @@ const { DOCS_INSTANCES } = require('./docsInstances.js');
 const { walk, VUE_OVERRIDE } = require('./index.js');
 
 const PLAYGROUND = path.join(ROOT, 'website/src/components/Playground');
+const TYPE_CHECK_FLAGS = require(`${PLAYGROUND}/monaco/typeCheckFlags.json`);
 const EXT = { ts: '.ts', typescript: '.ts', tsx: '.tsx', html: '.vue' };
 /**
  * The playground's design system: stand-ins for an app's own components, so
@@ -69,6 +72,8 @@ ${PLACEHOLDERS.map(name => `  const ${name}: FC<any>;`).join('\n')}
     isApp: group => group.some(isVue),
     compiler: ['vue-tsc', 'bin/vue-tsc.js'],
     jsx: 'preserve',
+    // Vue examples don't run in the playground editor
+    flags: { exactOptionalPropertyTypes: false },
     globals: `import type { DefineComponent } from 'vue';
 
 declare module 'vue' {
@@ -201,7 +206,7 @@ function examplesOf(framework) {
 
 /** Type errors in a framework's examples, located in their docs */
 function check(framework, examples) {
-  const { compiler, jsx, globals } = FRAMEWORKS[framework];
+  const { compiler, jsx, flags, globals } = FRAMEWORKS[framework];
   // inside the repo, so examples resolve its node_modules
   fs.mkdirSync(path.join(ROOT, 'node_modules/.cache'), { recursive: true });
   const OUT = fs.mkdtempSync(
@@ -279,11 +284,10 @@ function check(framework, examples) {
         // no esnext: Temporal needs its polyfill import
         lib: ['dom', 'es2024'],
         types: ['jest'],
-        strict: true,
-        // examples leave out types readers don't need
-        noImplicitAny: false,
+        // the playground editor's checks; `flags` are a framework's overrides
+        ...TYPE_CHECK_FLAGS,
+        ...flags,
         noEmit: true,
-        skipLibCheck: true,
         jsx,
         paths: {
           '@data-client/*': [`${PLAYGROUND}/editor-types/@data-client/*.d.ts`],

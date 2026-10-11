@@ -30,8 +30,8 @@ interface EntityInterface<T = any> extends SchemaSimple$1 {
     indexes?: any;
     schema: Record<string, Schema$1>;
     prototype: T;
-    cacheWith?: object;
-    maxEntityDepth?: number;
+    cacheWith?: object | undefined;
+    maxEntityDepth?: number | undefined;
 }
 interface Mergeable$1 {
     key: string;
