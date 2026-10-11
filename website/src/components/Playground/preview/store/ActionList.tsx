@@ -201,10 +201,7 @@ function ActionList({
   useReveal(scroller, seq, current?.id);
   // new rows would push the marked action off the screen; live again, the
   // newest is back in view and followed
-  const toNewest = useFollow(scroller, rows, 'y', seq !== null);
-  useLayoutEffect(() => {
-    if (seq === null) toNewest();
-  }, [seq, toNewest]);
+  useFollow(scroller, rows, 'y', seq !== null);
   // ↑ ↓ move to the head or step before or after, as the moment's: a head
   // of several actions stands for them all, as clicking it does
   const onKeyDown = (e: React.KeyboardEvent) => {

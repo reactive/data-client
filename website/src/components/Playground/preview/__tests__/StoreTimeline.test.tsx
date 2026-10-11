@@ -264,10 +264,9 @@ describe('Store scrubber', () => {
   });
 
   it('keeps its place as the log drops the oldest actions', async () => {
-    Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
-      configurable: true,
-      get: () => 18,
-    });
+    const height = jest
+      .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
+      .mockReturnValue(18);
     let track: HTMLElement | undefined;
     // marks where the scale puts them on the track, under its scroll
     const rects = jest
@@ -314,7 +313,7 @@ describe('Store scrubber', () => {
       expect(before.m.getBoundingClientRect().left).toBeCloseTo(before.at);
     } finally {
       rects.mockRestore();
-      delete (HTMLElement.prototype as any).clientHeight;
+      height.mockRestore();
     }
   });
 

@@ -1,11 +1,5 @@
 import clsx from 'clsx';
-import React, {
-  memo,
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-} from 'react';
+import React, { memo, useLayoutEffect, useMemo, useRef } from 'react';
 
 import {
   actionName,
@@ -248,28 +242,25 @@ function drawer({
  * on the newest as actions come in, until scrolled back; scrolled back or
  * picked, the marks in view stay put as actions come in or the oldest drop.
  * The picked action comes into view as it is picked or `refocus` (another
- * input to the track's layout) changes */
+ * input to the track's layout) changes. Returns End's step: back to
+ * live, or live already, back to the newest */
 function useTrackFollow(
   scroller: React.RefObject<HTMLElement | null>,
   scale: TimeScale,
   refocus?: unknown,
 ) {
-  const { seq: selected } = useNavState();
+  const { seq: selected, set } = useNavState();
   // a new scale for every change to the history, trims included, so the
   // marks in view are held even when the width stays the same
   const layout = useMemo(() => [scale, refocus], [scale, refocus]);
   const followNewest = useFollow(scroller, layout, 'x', selected !== null);
-  // back to live, the newest comes into view, and the track follows it again
-  useLayoutEffect(() => {
-    if (selected === null) followNewest();
-  }, [selected, followNewest]);
   useLayoutEffect(() => {
     if (selected === null) return;
     scroller.current
       ?.querySelector('[data-selected]')
       ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
   }, [scroller, selected, refocus]);
-  return followNewest;
+  return () => (selected === null ? followNewest() : set(null));
 }
 
 /** The whole history in one lane, scrolling sideways, with the moment
@@ -317,7 +308,7 @@ export const Scrubber = memo(function Scrubber({
   const { shown, scale, drawn, decor } = useDrawer(hit, onMark);
   // the track scrolls sideways, on the moment as the timeline's does
   const track = useRef<HTMLDivElement>(null);
-  const followNewest = useTrackFollow(track, scale);
+  const end = useTrackFollow(track, scale);
 
   // a step that removes (Live) or turns off (an end reached) the button
   // pressed hands focus to one still there
@@ -331,10 +322,9 @@ export const Scrubber = memo(function Scrubber({
     // ← → step as they do across the panel, which takes them on from here
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') hold();
     else if (e.key === 'End') {
-      // live already, it brings the newest back into view, as the lanes do
       e.preventDefault();
-      if (entry) step(null);
-      else followNewest();
+      hold();
+      end();
     }
   };
 
@@ -458,7 +448,7 @@ export default memo(function Timeline({
   onMark: (seq: number) => void;
 }) {
   const { history, groups } = useActions();
-  const { seq: selected, set } = useNavState();
+  const { seq: selected } = useNavState();
   const [spacing, setSpacing] = useTabStorage('playgroundTimelineSpacing');
   const { entries, since } = history;
   const lanes = useMemo(() => lanesOf(groups), [groups]);
@@ -484,14 +474,10 @@ export default memo(function Timeline({
   const scroller = useRef<HTMLDivElement>(null);
   // a scrolled-back view stays put as the fit toggles, while a followed one
   // stays on the newest; the picked action comes into view again
-  const followNewest = useTrackFollow(scroller, scale, fit);
+  const end = useTrackFollow(scroller, scale, fit);
   // scrolled back, fitting and back returns to where it was, unless it went
-  // to the newest meanwhile
+  // to the newest (or live) meanwhile
   const scrolledTo = useRef<number | null>(null);
-  const toNewest = useCallback(() => {
-    scrolledTo.current = null;
-    followNewest();
-  }, [followNewest]);
   useLayoutEffect(() => {
     if (selected === null) scrolledTo.current = null;
   }, [selected]);
@@ -520,8 +506,8 @@ export default memo(function Timeline({
   const onKeyDown = (e: React.KeyboardEvent) => {
     switch (e.key) {
       case 'End':
-        if (selected === null) toNewest();
-        else set(null);
+        scrolledTo.current = null;
+        end();
         break;
       // the lanes scroll from here, as a focused scroller's would
       case 'ArrowUp':

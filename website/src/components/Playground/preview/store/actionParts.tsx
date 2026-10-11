@@ -91,8 +91,9 @@ const AXES = {
 } as const;
 
 /** Keeps the newest row in view, unless the reader scrolled up (or, on
- * the `x` axis, back) or it is `paused`. Returns what scrolls to the newest
- * and follows again */
+ * the `x` axis, back) or it is `paused`; unpaused (back to live), it
+ * follows the newest again. Returns what scrolls to the newest and follows
+ * again */
 export function useFollow(
   scroller: React.RefObject<HTMLElement | null>,
   rows: unknown,
@@ -104,6 +105,7 @@ export function useFollow(
   // start leave the reader's place where it is (the oldest go first: the
   // last row in view outlasts the first)
   const anchor = useRef<{ row: Element; at: number }>(undefined);
+  const wasPaused = useRef(paused);
   // passive: the listeners can wait for paint
   useEffect(() => {
     const el = scroller.current;
@@ -117,12 +119,15 @@ export function useFollow(
     let away = false;
     const onScroll = () => {
       if (hidden) return;
-      anchor.current = lastShown(el, axis);
-      if (paused) return;
-      const atEnd =
-        el[size] - el[scroll] - el[client] < (away ? 1 : FOLLOW_SLACK);
-      if (atEnd) away = false;
-      follow.current = atEnd;
+      if (!paused) {
+        const atEnd =
+          el[size] - el[scroll] - el[client] < (away ? 1 : FOLLOW_SLACK);
+        if (atEnd) away = false;
+        follow.current = atEnd;
+      }
+      // only read while it can be needed: following, the end is all that
+      // matters
+      if (!follow.current) anchor.current = lastShown(el, axis);
     };
     // a scroller inside it (an open row's steps) takes the steps back it
     // has room for
@@ -196,10 +201,14 @@ export function useFollow(
   useLayoutEffect(() => {
     const el = scroller.current;
     const { size, scroll } = AXES[axis];
+    const resumed = !paused && wasPaused.current;
+    wasPaused.current = paused;
     // off, not just skipped, so showing a hidden tab doesn't catch up either;
-    // scrolls are ignored while paused, so it stays off
+    // scrolls are ignored while paused, so it stays off. Back to live, the
+    // newest comes into view and is followed again
     if (paused) follow.current = false;
-    else if (el?.clientHeight && follow.current) {
+    else if (el && (resumed || (el.clientHeight && follow.current))) {
+      follow.current = true;
       el[scroll] = el[size];
       return;
     }
