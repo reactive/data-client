@@ -26,8 +26,8 @@ export interface EditorSurfaceProps extends CodeModel {
   cover?: React.ReactNode;
   /** Whether `cover` hides the code (which goes inert) */
   covered?: boolean;
-  /** Called when the user switches to another file tab */
-  onTabSelect?: () => void;
+  /** Names `cover` in the header while it hides the code */
+  coverTitle?: React.ReactNode;
 }
 
 export default function EditorSurface({
@@ -40,7 +40,7 @@ export default function EditorSurface({
   headerControls,
   cover,
   covered = false,
-  onTabSelect,
+  coverTitle,
 }: EditorSurfaceProps) {
   const id = useModelId();
   const row = layout === 'row';
@@ -94,18 +94,13 @@ export default function EditorSurface({
       <EditorTabs
         documents={documents}
         closedList={closedList}
-        onClick={index => {
-          // focus also selects, so only a different file counts
-          if (closedList[index]) onTabSelect?.();
-          handleTabSwitch(index);
-        }}
+        onClick={handleTabSwitch}
         compact={variant === 'standalone'}
         hasHeaderControls={headerControls != null}
       />
     : null;
-  // under a demo-level header the file tabs belong to the files, so the
-  // Store covers them too; alone they stay as the header row
-  const tabsCovered = cover != null && headerControls != null;
+  // the file tabs only pick which file shows, so they go under the cover
+  // with the files
   const code = documents.map((document, index) => (
     <React.Fragment key={`${document.path}:${index}`}>
       {(!row || document.col) && document.title ?
@@ -146,14 +141,18 @@ export default function EditorSurface({
       <EditorHeader
         fixtureContent={!row ? fixtureContent : undefined}
         title={row && documents.length === 1 ? documents[0].title : undefined}
+        covered={covered}
+        coverTitle={coverTitle}
         controls={headerControls}
       />
-      {tabsCovered ? null : tabs}
       {cover == null ?
-        code
+        <>
+          {tabs}
+          {code}
+        </>
       : <div className={styles.editorBody}>
           <div className={styles.editorDocs} inert={covered}>
-            {tabsCovered ? tabs : null}
+            {tabs}
             {code}
           </div>
           {cover}
@@ -293,10 +292,15 @@ function EditorHeader({
       Editor
     </Translate>
   ),
+  covered,
+  coverTitle,
   fixtureContent,
   controls,
 }: {
   title?: React.ReactNode;
+  /** The cover hides the code: the title names it, sliding in as it does */
+  covered: boolean;
+  coverTitle?: React.ReactNode;
   fixtureContent?: React.ReactNode;
   controls?: React.ReactNode;
 }) {
@@ -311,8 +315,20 @@ function EditorHeader({
         </>
       : null}
       {controls != null ?
-        <Header className={clsx(styles.tabControls, styles.controlTabs)}>
-          <div className={styles.title}>{title}</div>
+        <Header
+          className={clsx(styles.tabControls, styles.controlTabs, {
+            [styles.overCover]: covered,
+          })}
+        >
+          <div className={styles.title}>
+            <span
+              className={clsx(styles.swap, styles.titleSwap)}
+              data-swapped={covered || undefined}
+            >
+              <span aria-hidden={covered}>{title}</span>
+              <span aria-hidden={!covered}>{coverTitle}</span>
+            </span>
+          </div>
           {controls}
         </Header>
       : null}

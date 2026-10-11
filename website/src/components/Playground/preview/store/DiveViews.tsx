@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 
 import { EndpointBody, EndpointMeta, EntityDetail, RowMeta } from './Details';
-import { offsetIn } from './dom';
+import { offsetIn, type Scroller } from './dom';
 import {
   findRow,
   isEndpointRow,
@@ -23,12 +23,11 @@ import {
   Pager,
   RowsTable,
   tableColumns,
+  useChangedFields,
   type Column,
 } from './Table';
 import { Block } from './Value';
-import { HistoryButton } from './VersionHistory';
 
-type Scroller = React.RefObject<HTMLElement | null>;
 export type Header = (tools: React.ReactNode) => React.ReactNode;
 
 /** Rows rendered beyond the visible ones, on each side */
@@ -83,9 +82,10 @@ function TableList({
     () => (pks ? pks.flatMap(pk => table.get(pk) ?? []) : table.rows),
     [table, pks],
   );
+  const changed = useChangedFields(rows);
   const { columns, pages, more } = useMemo(
-    () => tableColumns(table, rows, width, page, true),
-    [table, rows, width, page],
+    () => tableColumns(table, rows, width, page, { withMeta: true, changed }),
+    [table, rows, width, page, changed],
   );
   return (
     <FilteredRows
@@ -169,7 +169,7 @@ function FilteredRows<R extends AnyRow>({
   );
   // a new filter starts from the top
   useLayoutEffect(() => {
-    if (scroller.current) scroller.current.scrollTop = 0;
+    if (scroller) scroller.scrollTop = 0;
   }, [scroller, query]);
 
   return (
@@ -241,11 +241,7 @@ function searchText(row: AnyRow) {
 
 /** Which of `count` rows are on screen in `scroller`; an open record
  * (below row `openIndex`) adds its measured height */
-function useWindow(
-  scroller: React.RefObject<HTMLElement | null>,
-  count: number,
-  openIndex: number,
-) {
+function useWindow(scroller: Scroller, count: number, openIndex: number) {
   const spacer = useRef<HTMLTableRowElement>(null);
   const rowHeight = useRef(ROW_GUESS);
   const extra = useRef(0);
@@ -263,7 +259,7 @@ function useWindow(
   });
 
   useLayoutEffect(() => {
-    const el = scroller.current;
+    const el = scroller;
     if (!el) return;
     const update = () => {
       const top = spacer.current;
@@ -308,7 +304,6 @@ function useWindow(
   };
 }
 
-/** One row with everything about it */
 /** A row's own level: its record, or a Collection's members as a table,
  * with the row's meta at the bottom */
 export function RecordLevel({
@@ -330,19 +325,12 @@ export function RecordLevel({
         <Gone />
       </>
     );
-  const withHistory: Header = tools =>
-    header(
-      <>
-        {tools}
-        <HistoryButton id={id} />
-      </>,
-    );
   return (
     <>
       {members ?
-        <ListView view={members} scroller={scroller} header={withHistory} />
+        <ListView view={members} scroller={scroller} header={header} />
       : <>
-          {withHistory(null)}
+          {header(null)}
           <div className={styles.record}>
             <div className={styles.detail}>
               {isEndpointRow(row) ?
@@ -352,11 +340,10 @@ export function RecordLevel({
           </div>
         </>
       }
-      {/* the header holds the History button */}
       <div className={styles.levelFoot}>
         {isEndpointRow(row) ?
-          <EndpointMeta row={row} history={false} />
-        : <RowMeta row={row} model={model} history={false} />}
+          <EndpointMeta row={row} />
+        : <RowMeta row={row} model={model} />}
       </div>
     </>
   );

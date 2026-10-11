@@ -35,11 +35,12 @@ function StoreInspector({
       : null}
     </Reveal>
   );
-  return (
-    <>
-      <StoreToggle onClick={toggle} open={open} />
-      {row ? host && createPortal(panel, host) : panel}
-    </>
-  );
+  // over the code, its toggle is the code's corner badge (../index.tsx)
+  return row ?
+      host && createPortal(panel, host)
+    : <>
+        <StoreToggle onClick={toggle} open={open} />
+        {panel}
+      </>;
 }
 export default memo(StoreInspector);

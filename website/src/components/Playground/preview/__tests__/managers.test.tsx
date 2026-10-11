@@ -55,6 +55,7 @@ const appDoc = (text: string) => `render(<div>${text}</div>);`;
 function renderPlayground(documents: string[]) {
   const props = (docs: string[]) => {
     return {
+      groupId: 'test',
       documents: docs.map(value => ({ value }) as any),
       storeOpen: false,
       toggleStore: () => {},

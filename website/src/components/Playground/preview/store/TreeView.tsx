@@ -1,8 +1,8 @@
 import clsx from 'clsx';
-import React from 'react';
+import React, { useContext } from 'react';
 
 import { EndpointDetail, EntityDetail, Status } from './Details';
-import { onActivateKey } from './dom';
+import { changeProps, onActivateKey } from './dom';
 import {
   optimisticId,
   prettyPk,
@@ -12,8 +12,15 @@ import {
   type EntityTable,
   type StoreModel,
 } from './model';
-import { plain } from './refs';
-import { Chevron, GroupLabel, Internals, SectionBlock } from './Sections';
+import { DiffContext } from './nav';
+import { plain, type VNode } from './refs';
+import {
+  Chevron,
+  GroupLabel,
+  Internals,
+  SectionBlock,
+  useShownSections,
+} from './Sections';
 import styles from './store.module.css';
 import {
   groupId,
@@ -22,7 +29,14 @@ import {
   showAllId,
   useStoreUI,
 } from './StoreUI';
-import { EndpointKey, Field, Inline } from './Value';
+import {
+  CellChange,
+  EndpointKey,
+  Field,
+  field,
+  FieldChange,
+  Inline,
+} from './Value';
 
 /** Explorer: one line per row with a preview of its fields */
 export default function TreeView({ model }: { model: StoreModel }) {
@@ -47,21 +61,25 @@ function StoreSections({
   endpoints: React.ReactNode;
   renderTable: (table: EntityTable) => React.ReactNode;
 }) {
-  const entityCount = model.tables.reduce((n, t) => n + t.rows.length, 0);
+  const shown = useShownSections(model);
   return (
     <>
       <OptimisticSection model={model} />
-      <Section
-        name="endpoints"
-        title="Endpoints"
-        count={model.endpoints.length}
-      >
-        {endpoints}
-      </Section>
-      <Section name="entities" title="Entities" count={entityCount}>
-        {model.tables.map(renderTable)}
-      </Section>
-      <InternalsSection model={model} />
+      {shown.endpoints && (
+        <Section
+          name="endpoints"
+          title="Endpoints"
+          count={model.endpoints.length}
+        >
+          {endpoints}
+        </Section>
+      )}
+      {shown.entities && (
+        <Section name="entities" title="Entities" count={shown.entityCount}>
+          {model.tables.map(renderTable)}
+        </Section>
+      )}
+      {shown.internals && <InternalsSection model={model} />}
     </>
   );
 }
@@ -88,11 +106,13 @@ function Section({
 /** Props making a row (tr or div) expand on click or Enter/Space */
 function useRowProps(id: string, className?: string) {
   const { isOpen, toggle, selected } = useStoreUI();
+  const change = useContext(DiffContext)?.get(id)?.kind;
   const open = isOpen(id);
   return {
     open,
     props: {
       'data-id': id,
+      ...changeProps(change),
       tabIndex: 0,
       'aria-expanded': open,
       className: clsx(
@@ -254,6 +274,7 @@ function EntityTreeRow({
   model: StoreModel;
 }) {
   const { open, props } = useRowProps(row.id);
+  const change = useContext(DiffContext)?.get(row.id);
   // the pk is the row's key, so its field would only repeat it
   const preview =
     row.value.t === 'obj' && table.pkField ?
@@ -268,7 +289,13 @@ function EntityTreeRow({
         <Chevron open={open} />
         <span className={styles.key}>{prettyPk(row.pk)}</span>
         <span className={styles.trunc}>
-          <Inline node={preview} bare />
+          {change?.fields && table.kind === 'entity' ?
+            <FieldChanges row={row} fields={change.fields} was={change.was} />
+          : change?.was ?
+            <CellChange was={change.was} now={row.value} name="value">
+              <Inline node={preview} bare />
+            </CellChange>
+          : <Inline node={preview} bare />}
         </span>
       </div>
       {open && (
@@ -277,5 +304,31 @@ function EntityTreeRow({
         </div>
       )}
     </>
+  );
+}
+
+/** Just the fields an update changed, as the action that did it shows them */
+function FieldChanges({
+  row,
+  fields,
+  was,
+}: {
+  row: EntityRow;
+  fields: readonly string[];
+  was: VNode | undefined;
+}) {
+  return (
+    <span className={styles.inlineList}>
+      {fields.map((name, i) => (
+        <React.Fragment key={name}>
+          {i > 0 && <span className={styles.dim}>, </span>}
+          <FieldChange
+            name={name}
+            was={was && field(was, name)}
+            now={field(row.value, name)}
+          />
+        </React.Fragment>
+      ))}
+    </span>
   );
 }

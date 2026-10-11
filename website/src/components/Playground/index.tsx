@@ -1,3 +1,4 @@
+import Translate from '@docusaurus/Translate';
 import useIsomorphicLayoutEffect from '@docusaurus/useIsomorphicLayoutEffect';
 import clsx from 'clsx';
 import React, { lazy, useDeferredValue, useState } from 'react';
@@ -11,6 +12,7 @@ import type LivePreviewType from './preview/LivePreview';
 import PreviewWrapper from './preview/PreviewWrapper';
 import type { LogOptions } from './preview/store/actionLog';
 import {
+  StoreBadge,
   StoreHeaderToggle,
   StoreToggle,
   useStoreOpen,
@@ -36,10 +38,14 @@ export interface PlaygroundProps<T = any> {
   headerControls?: React.ReactNode;
   /** Show a badge counting the preview's React commits (e.g. one notification vs N) */
   renderCount?: boolean;
-  /** How the Store's Actions tab records (e.g. `{ recordFrom: 'open' }` for
-   * a fast stream) */
+  /** How the Store's action log records (e.g. `{ recordFrom: 'open' }` for
+   * a fast stream), over `DOCS_LOG` */
   actionLog?: LogOptions;
 }
+
+/** A page holds several playgrounds: each keeps a short history (a
+ * devtool for a whole site would keep more, the log's own defaults) */
+const DOCS_LOG: LogOptions = { limit: 150, updateLimit: 10, trimEvery: 25 };
 
 export default function Playground<T>({
   children,
@@ -52,16 +58,15 @@ export default function Playground<T>({
   defaultTab,
   headerControls,
   renderCount = false,
-  actionLog,
+  actionLog: logOptions,
 }: PlaygroundProps<T>) {
+  // read once, as the preview first builds its log
+  const actionLog = { ...DOCS_LOG, ...logOptions };
   const model = useCodeDocuments(children, defaultTab);
   // Defer preview transpilation so editor input remains responsive.
   const documents = useDeferredValue(model.documents);
 
-  const [storeOpen, toggleStore, closeStore] = useStoreOpen(
-    groupId,
-    defaultOpen,
-  );
+  const [storeOpen, toggleStore] = useStoreOpen(groupId, defaultOpen);
   // Row layout: the Store slides over the code, leaving the preview usable
   const [storeHost, setStoreHost] = useState<HTMLDivElement | null>(null);
   const codeCovered = row && storeOpen;
@@ -84,18 +89,23 @@ export default function Playground<T>({
         }
         headerControls={headerControls}
         cover={
-          row ? <div ref={setStoreHost} className={styles.storeHost} /> : null
+          row ?
+            <>
+              <div ref={setStoreHost} className={styles.storeHost} />
+              <StoreBadge open={storeOpen} onClick={toggleStore} />
+            </>
+          : null
         }
         covered={codeCovered}
-        // switching files asks for the code back (when the tabs stay visible)
-        onTabSelect={codeCovered ? closeStore : undefined}
+        coverTitle={<Translate id="playground.store">Store</Translate>}
       />
     </EditorShell>
   );
   // Live preview only while visible — unmounts when hidden (resets store).
+  const loading = <PreviewLoading row={row} />;
   const preview =
-    hidden ? previewLoading : (
-      <Boundary fallback={previewLoading}>
+    hidden ? loading : (
+      <Boundary fallback={loading}>
         <LivePreview
           documents={documents}
           storeOpen={storeOpen}
@@ -128,17 +138,20 @@ export default function Playground<T>({
   );
 }
 
-/** SSR, crawler, hidden and loading state: empty preview frame + Store toggle */
-const previewLoading = (
-  <PreviewWrapper headerControls={<StoreHeaderToggle />}>
-    <div className={styles.playgroundPreview} />
-    <StoreToggle />
-  </PreviewWrapper>
-);
+/** SSR, crawler, hidden and loading state: empty preview frame + Store
+ * toggle (the side strip, unless the code's corner badge is it) */
+function PreviewLoading({ row }: { row: boolean }) {
+  return (
+    <PreviewWrapper headerControls={<StoreHeaderToggle />}>
+      <div className={styles.playgroundPreview} />
+      {row ? null : <StoreToggle />}
+    </PreviewWrapper>
+  );
+}
 
 const LivePreview = lazy<typeof LivePreviewType>(() =>
   isBot ?
-    Promise.resolve({ default: () => previewLoading })
+    Promise.resolve({ default: PreviewLoading })
   : import(
       /* webpackChunkName: 'PreviewWithScope', webpackPrefetch: true */ './preview/LivePreview'
     ),

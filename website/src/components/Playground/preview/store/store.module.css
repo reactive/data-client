@@ -16,22 +16,44 @@
   --store-hover: rgba(255, 255, 255, 0.045);
   --store-selected: rgba(130, 170, 255, 0.16);
   --store-record: rgba(130, 170, 255, 0.07);
-  --store-flash: rgba(255, 203, 107, 0.3);
-  --store-stale-bg: rgba(255, 203, 107, 0.09);
+  /* each change's color (CHANGE_KINDS in actionGroups.ts): its bar, mark
+     and flash. Invalidating drops the data, so it's nearer a removal's red
+     than an update's yellow, but apart from an error's */
+  --store-kind-added: var(--store-fresh);
+  --store-kind-updated: var(--store-stale);
+  --store-kind-removed: var(--store-null);
+  --store-kind-invalidated: var(--store-number);
+  --store-kind-error: var(--store-null);
+  --store-kind-refreshed: var(--store-dim);
+  --store-kind-expired: var(--store-stale);
+  --store-stale-bg: color-mix(in srgb, var(--store-stale) 9%, transparent);
   --store-tip: #3a4057;
   --store-bg: var(--monoco-code-background);
 
+  position: relative;
   display: flex;
   flex-direction: column;
   min-width: 0;
-  max-height: 32rem;
+  /* (see --store-min in ../../styles.module.css) */
+  min-height: var(--store-min);
+  max-height: var(--store-cap);
   background: var(--store-bg);
   color: var(--store-fg);
   font: 12px / 1.6 var(--ifm-font-family-monospace);
 }
 
-/* State | Actions, then the Timeline toggle and the view switch; the same
-   band as the other headers */
+/* Under the scrubber: the tab bar, and (narrow) the sheet the lanes open in
+   over what follows */
+.body {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* The State and Action tabs and State's switches; the same band as
+   the other headers */
 .bar {
   flex: none;
   display: flex;
@@ -42,66 +64,128 @@
   color: var(--pg-tab);
   font: 500 var(--ifm-code-font-size) / 1 var(--ifm-font-family-base);
 }
-.tab {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0 0.6rem;
-  border: 0;
-  background: none;
-  color: inherit;
-  font: inherit;
-  opacity: 0.7;
-  cursor: pointer;
-  transition: opacity var(--motion-snappy);
-}
-.tab[aria-selected='true'],
-.tab:hover {
-  opacity: 1;
-}
-.tab:focus-visible {
-  outline: 2px solid var(--ifm-color-primary);
-  outline-offset: -4px;
-}
-.tab .count {
-  color: inherit;
-  opacity: 0.65;
-  font-size: 10.5px;
-}
-.tab[aria-selected='true']::after {
-  content: '';
-  position: absolute;
-  left: 0.5rem;
-  right: 0.5rem;
-  bottom: 0;
-  height: 2px;
-  border-radius: 1px 1px 0 0;
-  background: var(--ifm-color-primary);
-}
-/* State and Actions; both stay mounted, so each keeps its place */
-.tabPanel {
+/* The bar, the tabs' content and the peek: inert under the sheet */
+.content {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
 }
-.tabPanel[hidden] {
-  display: none;
+/* The subject stack, and the peek over its right side */
+.tabPanel {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+/* the bar's left end: the State and Action tabs */
+.barStart {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+/* the bar's right end: Snapshot or Diff and the view switch, in State */
+.barEnd {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
 }
 .viewButtons {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  margin-left: auto;
-}
-.viewSwitch {
-  display: flex;
-  align-items: center;
   gap: 2px;
 }
+.tab {
+  display: inline-flex;
+  align-items: center;
+  height: 1.75rem;
+  padding: 0 0.5rem;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-snappy),
+    opacity var(--motion-snappy);
+}
+.tab:hover {
+  opacity: 1;
+}
+.tab[aria-selected='true'] {
+  background: var(--pg-tab-hover-bg);
+  opacity: 1;
+}
+/* The peek: the subject's actions as an overlay over the panel's right
+   side (narrow, most of it), dropping from right under the scrubber's list
+   button that opens it (its top set from there), with a scroll of its own */
+.pane {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  width: clamp(16rem, 40%, 26rem);
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--store-bg);
+  box-shadow:
+    inset 1px 0 0 var(--store-line-strong),
+    -10px 0 24px rgba(0, 0, 0, 0.45);
+}
+.pane.paneNarrow {
+  width: min(100%, 22rem);
+}
+/* the subject's actions at full width, a level of their own; they shrink
+ * to scroll on their own, unlike the level's other children */
+.level > .actionsLevel {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+/* a row's ▸: its actions, without opening it */
+.stepsToggle {
+  flex: none;
+  width: 1rem;
+  margin-left: -0.3rem;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--store-dim);
+  font: inherit;
+  cursor: pointer;
+  transition: transform var(--motion-snappy);
+}
+.stepsToggle[aria-expanded='true'] {
+  transform: rotate(90deg);
+}
+/* the list scrolls on its own, following the newest while live */
+.actList {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+.paneSubject {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+  color: var(--store-fg);
+}
+.paneSubject::before {
+  content: '·';
+  color: var(--store-dim);
+}
 .viewButtons button,
-.tlFit {
+.tlFit,
+.expand,
+.sheetBar button {
   display: grid;
   place-items: center;
   width: 1.75rem;
@@ -119,7 +203,9 @@
     scale var(--motion-snappy);
 }
 .viewButtons button:active,
-.tlFit:active {
+.tlFit:active,
+.expand:active,
+.sheetBar button:active {
   scale: 0.9;
 }
 .viewButtons button[aria-pressed='true'],
@@ -128,8 +214,7 @@
   opacity: 1;
 }
 .viewButtons svg,
-.tlFit svg,
-.historyButton svg {
+.tlFit svg {
   width: 15px;
   height: 15px;
   fill: none;
@@ -139,9 +224,11 @@
 }
 
 /* Levels of the table view stack in one cell; the covered ones stay laid out
-   (so they keep their scroll) but invisible */
+   (so they keep their scroll) but invisible. Sized by their content, so a
+   panel without a set height (narrow) still shows them */
 .levels {
   flex: 1 1 auto;
+  min-width: 0;
   min-height: 0;
   display: grid;
 }
@@ -153,7 +240,6 @@
   min-width: 0;
   min-height: 0;
   overflow-y: auto;
-  overscroll-behavior: contain;
   outline: none;
   container-type: inline-size;
 }
@@ -194,6 +280,10 @@
 }
 .crumbList {
   display: contents;
+}
+/* with no Back before them (the Action tab's first level) */
+.crumbList:first-child > :first-child {
+  margin-left: 0.5rem;
 }
 .crumb,
 .crumbCurrent {
@@ -354,6 +444,43 @@ div.row {
 }
 .row:focus-visible {
   outline: 2px solid var(--store-key);
+}
+/* State's diff: how the action changed each row (a table's
+   first cell, or the tree's whole line) */
+.row[data-change] > td:first-child,
+div.row[data-change] {
+  box-shadow: inset 2px 0 var(--store-change);
+}
+.row[data-change='removed'] {
+  opacity: 0.6;
+}
+.row[data-change='removed'] > td,
+div.row[data-change='removed'] {
+  text-decoration: line-through;
+  text-decoration-color: var(--store-dim);
+}
+/* a cell an update changed, and what it was (after it, so a narrow cell
+   cuts the old value rather than the new); a field it added is fresh, like
+   an added row, though the row itself was updated */
+.row > td[data-changed] {
+  background: color-mix(in srgb, var(--store-kind-updated) 9%, transparent);
+}
+.row > td[data-changed='added'] {
+  background: color-mix(in srgb, var(--store-kind-added) 9%, transparent);
+}
+.cellWas {
+  margin-left: 0.5em;
+}
+/* a list's or object's items a change added, and ones it moved */
+.ins {
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--store-fresh) 16%, transparent);
+  text-decoration: none;
+}
+.moved {
+  border-radius: 3px;
+  outline: 1px dashed color-mix(in srgb, var(--store-stale) 70%, transparent);
+  outline-offset: -1px;
 }
 .selected,
 .selected > td {
@@ -821,8 +948,8 @@ div.row {
 }
 .invalidated {
   margin-left: 0;
-  color: var(--store-dim);
-  border-color: var(--store-line-strong);
+  color: var(--store-kind-invalidated);
+  border-color: color-mix(in srgb, var(--store-kind-invalidated) 40%, transparent);
 }
 .optimistic {
   color: var(--store-type);
@@ -845,12 +972,15 @@ div.row {
   padding: 0.4rem 0.75rem 0.5rem;
 }
 
-/* ---- Actions tab ---- */
+/* ---- The Actions list, and the moment's action in it ---- */
 .empty {
   margin: 0;
   padding: 1rem 0.75rem;
   color: var(--store-dim);
   font-family: var(--ifm-font-family-base);
+}
+.actGroup {
+  position: relative;
 }
 .actGroup + .actGroup {
   border-top: 1px solid var(--store-line);
@@ -864,7 +994,13 @@ div.actRow {
   gap: 0.1rem;
   padding: 0.35rem 0.75rem;
 }
-/* the moment's action, where the bar says State stands */
+/* where actions the log dropped changed the record */
+div.gapRow {
+  padding: 0.25rem 0.75rem;
+  font-size: 11px;
+  cursor: default;
+}
+/* the moment's action: its row, and its step when the row is open */
 .actRow[aria-current],
 .stepRow[aria-current] {
   box-shadow: inset 2px 0 0 var(--store-stale);
@@ -872,11 +1008,15 @@ div.actRow {
 }
 .actHead {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   gap: 0.5rem;
   min-width: 0;
 }
+/* the key keeps its room in a narrow row: the meta wraps under it first */
 .actKey {
+  flex: 0 1 auto;
+  max-width: 100%;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -967,18 +1107,24 @@ div.actRow {
   background: var(--store-stale);
 }
 
-/* an open row's actions; a long-running poll scrolls on its own */
+/* an open row's actions; a long-running poll scrolls on its own. At its
+   ends a scroll goes on to the list: a contained one trapped the wheel
+   whenever the pointer rested on an open row */
 .steps {
   margin: 0 0.75rem 0.35rem 1.05rem;
   border-left: 1px solid var(--store-line-strong);
   max-height: 16rem;
   overflow-y: auto;
-  overscroll-behavior: contain;
+}
+/* a group's own level already scrolls: its steps run at full length */
+.groupSteps > .steps {
+  max-height: none;
+  overflow-y: visible;
 }
 div.stepRow {
   flex-wrap: wrap;
   gap: 0.1rem 0.6rem;
-  padding: 0.15rem 0.5rem 0.15rem 0.6rem;
+  padding: 0.15rem 0.6rem;
 }
 .stepRow .actTime {
   min-width: 3.2em;
@@ -991,19 +1137,8 @@ div.joined {
   cursor: default;
 }
 
-.markAdded,
-.markUpdated,
-.markRemoved {
+.mark {
   font-weight: 600;
-}
-.markAdded {
-  color: var(--store-fresh);
-}
-.markUpdated {
-  color: var(--store-stale);
-}
-.markRemoved {
-  color: var(--store-null);
 }
 .goneRef {
   cursor: default;
@@ -1015,7 +1150,25 @@ div.joined {
   background: rgba(199, 146, 234, 0.12);
 }
 
-/* an action's own level */
+/* an action at full width: what it did to the subject, then the action */
+.actBody {
+  padding-bottom: 0.3rem;
+}
+.actBody > .detail {
+  padding: 0.3rem 0.75rem 0.45rem;
+}
+.actBody > .metaList {
+  margin: 0;
+  padding: 0.4rem 0.75rem 0.2rem;
+  /* narrow as the panel may be, the values keep room: names take only what
+     they need, and a nested object goes under its name, indented */
+  grid-template-columns: max-content minmax(0, 1fr);
+  overflow-wrap: anywhere;
+}
+.actBody .fields .fields {
+  grid-column: 1 / -1;
+  padding-left: 1rem;
+}
 .actDetail {
   display: flex;
   flex-direction: column;
@@ -1049,42 +1202,36 @@ div.joined {
   text-decoration: line-through;
   text-decoration-color: var(--store-dim);
 }
-.showState {
-  margin-top: 0.2rem;
-  padding: 2px 8px;
-  border: 0;
-  border-radius: 4px;
-  background: var(--store-selected);
-  color: var(--store-key);
-  font: 500 11px / 1.6 var(--ifm-font-family-base);
-  cursor: pointer;
-}
-.showState:hover {
-  background: rgba(130, 170, 255, 0.26);
-}
-.showState:focus-visible {
-  outline: 2px solid var(--store-key);
-}
 @container (max-width: 480px) {
   .actChange {
     grid-template-columns: minmax(0, 1fr);
   }
 }
 
-/* State shown as it was after one action */
-.snapshot {
+/* The scrubber: the whole history in one lane across the top, with ‹ ›,
+   "Live" and the lanes' expand beside it. "Live" says whether the moment is
+   live; in the past a second line says which action it is after */
+.scrubber {
   flex: none;
+  display: flex;
+  flex-direction: column;
+  box-shadow: inset 0 -1px 0 var(--store-line);
+  color: var(--store-muted);
+  font-size: 11px;
+  outline: none;
+}
+.scrubber:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: -2px;
+}
+.scrubRow {
   display: flex;
   align-items: center;
   gap: 0.35rem;
   min-height: 1.9rem;
-  padding: 2px 0.5rem 2px 0.4rem;
-  background: var(--store-stale-bg);
-  box-shadow: inset 0 -1px 0 rgba(255, 203, 107, 0.28);
-  color: var(--store-stale);
-  font-size: 11px;
+  padding: 2px 0.375rem 2px 0.4rem;
 }
-.snapshot button {
+.scrubRow > button {
   flex: none;
   padding: 0 0.4rem;
   border: 1px solid var(--store-line-strong);
@@ -1095,37 +1242,149 @@ div.joined {
   line-height: 1.6;
   cursor: pointer;
 }
-.snapshot button:disabled {
+.scrubRow > button:disabled {
   opacity: 0.4;
   cursor: default;
 }
-.snapshotLabel {
+/* the one lane; the track is the scale's width, or what fits (see .tlBody) */
+.scrubTrack {
+  --tl-row: 18px;
+  --tl-track: min(var(--tl-width), 100%);
   flex: 1 1 auto;
   min-width: 0;
+  height: var(--tl-row);
+  overflow: hidden;
+}
+.scrubTrack .tlBreak,
+.scrubTrack .tlPlayhead {
+  top: 0;
+}
+/* "Live": in the past, a plain button back to it, its dot hollow; live, a
+   span that only says so, green with its dot lit */
+.scrubRow > .liveButton {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0 0.4rem;
+  border: 1px solid var(--store-line-strong);
+  border-radius: 4px;
+  color: var(--store-muted);
+  font: 500 11px / 1.6 var(--ifm-font-family-base);
+}
+.liveButton::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+.scrubRow > button.liveButton:hover,
+.scrubRow > .liveCurrent {
+  border-color: color-mix(in srgb, var(--store-fresh) 40%, transparent);
+  color: var(--store-fresh);
+}
+.scrubRow > .liveCurrent {
+  background: color-mix(in srgb, var(--store-fresh) 12%, transparent);
+}
+.liveCurrent::before {
+  background: currentColor;
+}
+/* the icon buttons' look (see .tlFit), smaller */
+.scrubRow > .expand,
+.sheetBar button {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  color: inherit;
+}
+.expand:hover,
+.expand[aria-expanded='true'],
+.expand[aria-pressed='true'] {
+  opacity: 1;
+}
+.expand[aria-pressed='true'] {
+  background: var(--pg-tab-hover-bg);
+}
+.expand svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: rotate var(--motion-snappy);
+}
+.expand[aria-expanded='true'] svg {
+  rotate: 180deg;
+}
+.scrubLabel {
+  min-width: 0;
+  padding: 0 0.5rem 4px 2.6rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.snapshot .snapshotAction {
+.momentAction {
   min-width: 0;
   padding: 0;
   border: 0;
+  background: none;
   color: inherit;
+  font: inherit;
   text-decoration: underline dotted;
   text-underline-offset: 2px;
+  cursor: pointer;
 }
-.snapshot .snapshotAction:hover {
+.momentAction:hover {
   color: var(--store-fg);
 }
-.snapshot .liveButton {
-  border-color: rgba(127, 209, 160, 0.45);
-  color: var(--store-fresh);
-  font-family: var(--ifm-font-family-base);
-  font-weight: 500;
+
+/* The lanes, above the tabs; narrow, they drop over them as a sheet */
+.lanes {
+  flex: none;
+}
+.sheet {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 5;
+  background: var(--store-bg);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+.sheetBar,
+.paneHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 1.9rem;
+  padding: 0 0.25rem 0 0.5rem;
+  box-shadow: inset 0 -1px 0 var(--store-line);
+  color: var(--store-muted);
+  font: 500 11px / 1 var(--ifm-font-family-base);
+}
+.paneHead {
+  justify-content: flex-start;
+  gap: 0.4rem;
+  padding-right: 0.5rem;
+}
+.sheetBar button {
+  font: inherit;
+}
+.sheetBar button:hover {
+  background: var(--pg-tab-hover-bg);
+  opacity: 1;
+}
+.sheet .tlLanes {
+  max-height: 16rem;
 }
 
-/* The Timeline strip and the snapshot bar slide open and shut: the row
-   grows from nothing as its content rises into place (instant under reduced
+/* The lanes slide open and shut under the scrubber: the row grows from
+   nothing as their content rises into place (instant under reduced
    motion, as the tokens are). `data-open` is set a frame after it mounts
    (see `Unfold`), so these transitions run both ways and reverse midway */
 .unfold {
@@ -1155,21 +1414,21 @@ div.joined {
   translate: 0 0;
 }
 
-/* The Timeline strip: a lane per key on one time axis. The lane labels stay
-   put on the left and times on top, so only the tracks scroll. By default
-   they keep the scale's spacing and scroll sideways; fit, the whole history
-   spans the strip */
-.timeline {
+/* The strip: a lane per key on one time axis. The lane labels stay put on
+   the left and times on top, so only the tracks scroll. By default they keep
+   the scale's spacing and scroll sideways; fit, the whole history spans the
+   strip */
+.tlLanes {
   /* --tl-label, the lane labels' column, comes from Timeline.tsx */
   /* the time axis and each lane */
   --tl-row: 18px;
   flex: none;
   display: flex;
-  max-height: 10rem;
+  max-height: 12rem;
   box-shadow: inset 0 -1px 0 var(--store-line-strong);
   outline: none;
 }
-.timeline:focus-visible {
+.tlLanes:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
   outline-offset: -2px;
 }
@@ -1178,7 +1437,6 @@ div.joined {
   flex: none;
   width: var(--tl-label);
   overflow-y: auto;
-  overscroll-behavior: contain;
   scrollbar-width: none;
   box-shadow: inset -1px 0 0 var(--store-line);
 }
@@ -1195,7 +1453,6 @@ div.joined {
   flex: 1 1 0;
   min-width: 0;
   overflow: auto;
-  overscroll-behavior: contain;
   /* a mark scrolled into view clears the axis */
   scroll-padding-top: var(--tl-row);
 }
@@ -1239,15 +1496,6 @@ div.joined {
 }
 .tlLabel .actKey {
   flex: 1 1 auto;
-}
-/* the lane's record's History, icon alone */
-.tlLabel .historyButton {
-  flex: none;
-  margin-left: auto;
-  opacity: 0.7;
-}
-.tlLabel .historyButton:hover {
-  opacity: 1;
 }
 /* beside the axis, in view however far the labels scroll */
 .tlCorner {
@@ -1314,6 +1562,10 @@ button.tlMark {
 button.tlMark:hover {
   scale: 1.3;
 }
+/* an action that left the subject alone */
+.tlMark[data-dim] {
+  opacity: 0.3;
+}
 .tlMark[data-selected] {
   box-shadow:
     0 0 0 2px var(--store-bg),
@@ -1369,153 +1621,56 @@ button.tlMark:hover {
   background: var(--store-fg);
   opacity: 0.55;
 }
-.snapshot.tlLive {
-  background: none;
-  box-shadow: inset 0 -1px 0 var(--store-line);
-  color: var(--store-muted);
-}
 
-/* A record's history: a timeline of its versions, one open at a time */
-.historyButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 1px 7px 1px 5px;
-  border: 1px solid var(--store-line-strong);
-  border-radius: 4px;
-  background: none;
-  color: var(--store-key);
-  font: 500 11px / 1.5 var(--ifm-font-family-base);
-  cursor: pointer;
-}
-.historyButton svg {
-  width: 12px;
-  height: 12px;
-  stroke-width: 1.4;
-  stroke-linejoin: round;
-}
-.historyButton.compact {
-  padding: 1px 3px;
-  border-color: transparent;
-}
-.historyButton:hover {
-  background: var(--store-selected);
-}
-.historyButton:focus-visible {
-  outline: 2px solid var(--store-key);
-}
-.versions {
-  --rail: 1.05rem;
-  position: relative;
-  margin: 0;
-  padding: 0.4rem 0;
-  list-style: none;
-}
-/* the rail the versions hang off */
-.versions::before {
-  content: '';
-  position: absolute;
-  top: 0.9rem;
-  bottom: 0.9rem;
-  left: var(--rail);
-  width: 1px;
-  background: var(--store-line-strong);
-}
-.version {
-  --dot: var(--store-key);
-  position: relative;
-  padding-left: 1.9rem;
-}
-/* each version's dot, colored by what it did to the record */
-.version::before {
-  content: '';
-  position: absolute;
-  z-index: 1;
-  top: 0.62rem;
-  left: calc(var(--rail) - 4px);
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: var(--store-bg);
-  box-shadow: inset 0 0 0 2px var(--dot);
-}
-.version[data-kind='added'] {
-  --dot: var(--store-fresh);
-}
-.version[data-kind='updated'],
-.version[data-kind='expired'] {
-  --dot: var(--store-stale);
-}
-.version[data-kind='removed'],
-.version[data-kind='invalidated'],
-.version[data-kind='error'] {
-  --dot: var(--store-null);
-}
-.version:has([aria-expanded='true'])::before {
-  background: var(--dot);
-}
-.refreshItem::before {
-  top: 0.55rem;
-  left: calc(var(--rail) - 2px);
-  width: 5px;
-  height: 5px;
-  background: var(--store-line-strong);
-  box-shadow: none;
-}
-.refreshItem {
-  padding-top: 0.05rem;
-  padding-bottom: 0.05rem;
-}
-div.versionHead {
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.05rem;
-  margin-right: 0.4rem;
-  padding: 0.3rem 0.5rem;
-  border-radius: 5px;
-}
-/* open, it stays selected under the pointer */
-.versionHead[aria-expanded='true'],
-.versionHead[aria-expanded='true']:hover {
-  background: var(--store-selected);
-}
-.versionLine {
+/* the Action tab's actions before and after the one shown, a line each, to
+   step to; the one after stays at the bottom, of a short level too */
+.actStep {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
+  width: 100%;
   min-width: 0;
-}
-.refreshItem .versionLine {
-  padding: 0 0.5rem;
-  font-size: 11px;
-}
-/* the moment falls among the dropped actions: no version to open */
-.refreshItem[aria-current] .versionLine {
-  margin-right: 0.4rem;
-  border-radius: 5px;
-  background: var(--store-selected);
+  padding: 0.35rem 0.75rem;
+  border: 0;
+  border-bottom: 1px solid var(--store-line);
+  background: none;
   color: var(--store-fg);
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
 }
-.versionBody {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.35rem;
-  margin: 0.2rem 0.4rem 0.45rem 0;
-  padding: 0.4rem 0.5rem 0.5rem;
-  border-left: 2px solid var(--dot);
-  background: var(--store-record);
-  border-radius: 0 5px 5px 0;
+.actStepAfter {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  margin-top: auto;
+  border-top: 1px solid var(--store-line-strong);
+  border-bottom: 0;
+  background: var(--store-bg);
 }
-.versionBody > :not(.versionTools) {
-  align-self: stretch;
+.actStep:enabled {
+  cursor: pointer;
+  transition: background-color var(--motion-snappy);
+}
+.actStep:enabled:hover {
+  background: var(--store-hover);
+}
+.actStepAfter:enabled:hover {
+  background: linear-gradient(var(--store-hover), var(--store-hover))
+    var(--store-bg);
+}
+.actStepDir {
+  flex: none;
+  width: 4.2rem;
+  color: var(--store-dim);
+  font-size: 0.85em;
+}
+.actStepName {
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.versionTools {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-}
-.versionTools .showState {
-  margin-top: 0;
+.liveText {
+  color: var(--store-fresh);
+  font-weight: 500;
 }

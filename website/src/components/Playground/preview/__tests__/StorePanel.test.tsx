@@ -165,13 +165,13 @@ describe('StorePanel table view', () => {
   it('dives into a record and back', () => {
     mount();
     fireEvent.click(within(top()).getByText('"Paul"'));
-    expect(crumbs()).toEqual(['State', '›', 'User 1']);
+    expect(crumbs()).toEqual(['Store', '›', 'User 1']);
     expect(within(top()).getByText('used by')).toBeTruthy();
     // a ref chip dives further
     fireEvent.click(within(top()).getByRole('button', { name: 'Post 1' }));
-    expect(crumbs()).toEqual(['State', '›', 'User 1', '›', 'Post 1']);
+    expect(crumbs()).toEqual(['Store', '›', 'User 1', '›', 'Post 1']);
     act(() => press('Escape'));
-    expect(crumbs()).toEqual(['State', '›', 'User 1']);
+    expect(crumbs()).toEqual(['Store', '›', 'User 1']);
     fireEvent.click(within(top()).getByLabelText('Back'));
     expect(top().querySelector('nav')).toBeNull();
   });
@@ -179,7 +179,7 @@ describe('StorePanel table view', () => {
   it('lists a whole table with a filter', () => {
     mount();
     fireEvent.click(screen.getByText('7 more'));
-    expect(crumbs()).toEqual(['State', '›', 'Post12']);
+    expect(crumbs()).toEqual(['Store', '›', 'Post12']);
     const rows = () =>
       [...top().querySelectorAll('tr[data-id]')].map(r => {
         const ref = parseRowId(r.getAttribute('data-id')!);
@@ -249,13 +249,17 @@ describe('StorePanel table view', () => {
     expect(document.querySelector('[data-table]')).toBeNull();
   });
 
-  it('leaves focus alone as the overview and the Actions list first show', () => {
+  it('leaves focus alone as the overview first shows, and on the tab picked', () => {
     mount();
     expect(document.activeElement).toBe(document.body);
-    const actions = screen.getByRole('tab', { name: /Actions/ });
+    const actions = screen.getByRole('tab', { name: 'Action' });
     actions.focus();
     fireEvent.click(actions);
+    expect(actions.getAttribute('aria-selected')).toBe('true');
     expect(document.activeElement).toBe(actions);
+    fireEvent.click(screen.getByRole('tab', { name: 'State' }));
+    expect(actions.getAttribute('aria-selected')).toBe('false');
+    expect(crumbs()).toEqual([]);
   });
 
   it('keeps the levels open across the tree view, without replaying them', () => {

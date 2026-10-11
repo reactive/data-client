@@ -1,140 +1,120 @@
 import { actionTypes, type ActionTypes, type State } from '@data-client/react';
 import clsx from 'clsx';
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import {
   actionKey,
-  groupEntriesOf,
-  groupOf,
+  touches,
   type Change,
+  type ChangeKind,
 } from './actionGroups';
-import { findEntry, isRecordChange, type LogEntry } from './actionLog';
+import { isRecordChange, type LogEntry } from './actionLog';
 import {
+  AtMoment,
   ChangeChip,
-  KeyLabel,
+  gapText,
   spanOf,
-  TypeName,
   useActions,
-} from './ActionsView';
-import type { Header } from './DiveViews';
-import { errorText } from './model';
-import { ActionSpanContext } from './nav';
+} from './actionParts';
+import { EndpointBody } from './Details';
+import { errorText, findRow, isEndpointRow } from './model';
+import {
+  ActionSpanContext,
+  NavContext,
+  useNav,
+  type Nav,
+  type View,
+} from './nav';
 import { plain } from './refs';
 import styles from './store.module.css';
-import { Field, Inline } from './Value';
+import { Block, Field, field, FieldChange, Inline, ValueChange } from './Value';
 
-/** One action: what it changed, then the action itself */
+/** What an action did to `subject` (every row at the store, a line saying
+ * it left the subject alone, or that it is where a `gap` of dropped actions
+ * changing it was found), then the action itself */
 export function ActionDetail({
-  seq,
-  header,
-  onShowState,
-  onStep,
+  entry,
+  subject,
+  gap,
 }: {
-  seq: number;
-  header: Header;
-  /** Uncovers State once it switches to just after this action */
-  onShowState?: () => void;
-  /** Shows another action of the same row in its place */
-  onStep: (seq: number) => void;
+  entry: LogEntry;
+  subject: View;
+  gap?: ChangeKind;
 }) {
-  const { log, history, groups, showState } = useActions();
-  const entry = findEntry(history.entries, seq);
-  const group = groupOf(groups, seq);
-  const row = group ? groupEntriesOf(group) : [];
-  const step = row.length > 1 && (
-    <GroupStep row={row} seq={seq} onStep={onStep} />
-  );
-  if (!entry)
-    return (
-      <>
-        {header(step)}
-        <div className={styles.record}>
-          <span className={styles.dim}>No longer in the log</span>
-        </div>
-      </>
-    );
-  const changes = log.changes(entry);
-  const changed = changes.filter(isRecordChange);
-  const refreshed = changes.length - changed.length;
   return (
-    <>
-      {header(step)}
-      <div className={styles.record}>
-        <div className={clsx(styles.detail, styles.actDetail)}>
-          {entry.store ?
-            <>
-              <EntryChanges entry={entry} changes={changed} />
-              {refreshed > 0 && (
-                <span className={styles.dim}>
-                  {changed.length ? 'Also stored' : 'Stored'} {refreshed} row
-                  {refreshed === 1 ? '' : 's'} again, unchanged
-                </span>
-              )}
-              {!changes.length && (
-                <span className={styles.dim}>No change to the store</span>
-              )}
-              {changes.length > 0 && (
-                <button
-                  type="button"
-                  className={styles.showState}
-                  onClick={() => {
-                    showState(seq);
-                    onShowState?.();
-                  }}
-                >
-                  View State after this
-                </button>
-              )}
-            </>
-          : <span className={styles.dim}>{unappliedNote(entry.action)}</span>}
-        </div>
+    <div className={styles.actBody}>
+      <SubjectChanges entries={[entry]} subject={subject} gap={gap} />
+      <div className={clsx(styles.fields, styles.metaList)}>
+        <Field name="dispatchedAt" node={{ t: 'val', v: entry.at }} />
+        {actionFields(entry.action).map(([name, value]) => (
+          <Field key={name} name={name} node={plain(value)} />
+        ))}
       </div>
-      <div className={styles.levelFoot}>
-        <div className={clsx(styles.fields, styles.metaList)}>
-          <Field name="dispatchedAt" node={{ t: 'val', v: entry.at }} />
-          {actionFields(entry.action).map(([name, value]) => (
-            <Field key={name} name={name} node={plain(value)} />
-          ))}
-        </div>
-      </div>
-    </>
+    </div>
   );
 }
 
-/** Steps through the actions of the row this one belongs to */
-function GroupStep({
-  row,
-  seq,
-  onStep,
+/** What an action, or several together (a request's: its optimistic
+ * update and response as one), did to `subject`: each row it changed and
+ * how, from before the first to after the last */
+export function SubjectChanges({
+  entries,
+  subject,
+  gap,
 }: {
-  row: readonly LogEntry[];
-  seq: number;
-  onStep: (seq: number) => void;
+  entries: readonly LogEntry[];
+  subject: View;
+  gap?: ChangeKind;
 }) {
-  const i = row.findIndex(e => e.seq === seq);
-  const earlier = row[i - 1];
-  const later = row[i + 1];
+  const { log } = useActions();
+  const changes = log.spanChanges(entries).filter(c => touches(subject, c));
+  const changed = changes.filter(isRecordChange);
+  const refreshed = changes.length - changed.length;
+  const removed =
+    subject.kind === 'record' ?
+      changed.find(c => c.kind === 'removed')
+    : undefined;
+  const stored = entries.filter(e => e.store);
   return (
-    <span className={styles.pager}>
-      <button
-        type="button"
-        aria-label="Previous action in this row"
-        disabled={!earlier}
-        onClick={() => onStep(earlier.seq)}
-      >
-        ‹
-      </button>
-      {i + 1} of {row.length}
-      <button
-        type="button"
-        aria-label="Next action in this row"
-        disabled={!later}
-        onClick={() => onStep(later.seq)}
-      >
-        ›
-      </button>
-    </span>
+    <div className={clsx(styles.detail, styles.actDetail)}>
+      {stored.length ?
+        <>
+          <EntryChanges entries={stored} changes={changed} />
+          {removed && subject.kind === 'record' && (
+            <RemovedValue
+              id={subject.id}
+              seq={removed.removedBy ?? stored[stored.length - 1].seq}
+            />
+          )}
+          {refreshed > 0 && (
+            <span className={styles.dim}>
+              {changed.length ? 'Also stored' : 'Stored'} {refreshed} row
+              {refreshed === 1 ? '' : 's'} again, unchanged
+            </span>
+          )}
+          {gap && <span className={styles.dim}>Before it: {gapText(gap)}</span>}
+          {!changes.length && !gap && (
+            <span className={styles.dim}>{unchangedNote(subject)}</span>
+          )}
+        </>
+      : <span className={styles.dim}>
+          {unappliedNote(entries[entries.length - 1].action)}
+        </span>
+      }
+    </div>
   );
+}
+
+/** The action changed nothing `subject` covers */
+function unchangedNote(subject: View) {
+  switch (subject.kind) {
+    case 'root':
+      return 'No change to the store';
+    case 'list':
+      return 'No change to these rows';
+    default:
+      return 'No change to this record';
+  }
 }
 
 /** Why an action that never reached the store is still in the log */
@@ -150,25 +130,25 @@ function unappliedNote(action: ActionTypes) {
   }
 }
 
-/** Rows `entry` changed, and how */
+/** Rows the `stored` actions changed, and how */
 function EntryChanges({
-  entry,
+  entries: stored,
   changes,
 }: {
-  entry: LogEntry;
+  entries: readonly LogEntry[];
   changes: readonly Change[];
 }) {
   const { log } = useActions();
-  const { store } = entry;
-  if (!store) return null;
+  const before = log.view(stored[0].store!.before);
+  const after = log.view(stored[stored.length - 1].store!.after);
   return (
-    <ActionSpanContext.Provider value={spanOf([entry])}>
+    <ActionSpanContext.Provider value={spanOf(stored)}>
       {changes.map(change => (
         <ChangeLine
           key={change.id}
           change={change}
-          before={log.view(store.before)}
-          after={log.view(store.after)}
+          before={before}
+          after={after}
         />
       ))}
     </ActionSpanContext.Provider>
@@ -197,7 +177,7 @@ function ChangeLine({
   );
 }
 
-export function ChangeBody({
+function ChangeBody({
   change,
   before,
   after,
@@ -236,21 +216,10 @@ export function ChangeBody({
     case 'added':
       return <Inline node={plain(now)} bare />;
     case 'updated':
-      return (
-        <>
-          {(change.fields ?? []).map(field => (
-            <div key={field} className={styles.actField}>
-              <span className={styles.key}>{field}</span>
-              <span className={styles.dim}>: </span>
-              <span className={styles.was}>
-                <Inline node={plain(get(was, field))} name={field} />
-              </span>
-              <span className={styles.dim}> → </span>
-              <Inline node={plain(get(now, field))} name={field} />
-            </div>
-          ))}
-        </>
-      );
+      // a list (a Collection's) changes item by item, not index by index
+      if (Array.isArray(was) && Array.isArray(now))
+        return <ValueChange was={plain(was)} now={plain(now)} />;
+      return <FieldChanges fields={change.fields ?? []} was={was} now={now} />;
     case 'invalidated':
       return (
         <span className={styles.dim}>invalid; the next read refetches</span>
@@ -260,8 +229,59 @@ export function ChangeBody({
   }
 }
 
-const get = (row: unknown, field: string) =>
-  row && typeof row === 'object' ? (row as any)[field] : row;
+/** The whole record `id` as the action that removed it found it. What it
+ * links to opens at that store too */
+function RemovedValue({ id, seq }: { id: string; seq: number }) {
+  const { then } = useActions();
+  const nav = useNav()!;
+  const shown = then({ seq, before: true });
+  const atNav = useMemo<Nav | undefined>(
+    () =>
+      shown && {
+        ...nav,
+        model: shown.model,
+        push: (view, next = { seq, before: true }) => nav.push(view, next),
+      },
+    [nav, shown, seq],
+  );
+  const row = shown && findRow(shown.model, id);
+  if (!row || !atNav)
+    return <span className={styles.dim}>No longer in the log</span>;
+  return (
+    <AtMoment then={shown}>
+      <NavContext.Provider value={atNav}>
+        <span className={styles.dim}>Removed; it was:</span>
+        {isEndpointRow(row) ?
+          <EndpointBody row={row} />
+        : <Block node={row.value} />}
+      </NavContext.Provider>
+    </AtMoment>
+  );
+}
+
+/** Each field an update changed; one it added (missing before) or dropped
+ * reads as such, as the tree marks it */
+function FieldChanges({
+  fields,
+  was,
+  now,
+}: {
+  fields: readonly string[];
+  was: unknown;
+  now: unknown;
+}) {
+  const before = plain(was);
+  const after = plain(now);
+  return fields.map(name => (
+    <div key={name} className={styles.actField}>
+      <FieldChange
+        name={name}
+        was={field(before, name)}
+        now={field(after, name)}
+      />
+    </div>
+  ));
+}
 
 /** The action's own fields, minus what can't be shown (the endpoint, the
  * promise callbacks in a fetch's meta) */
@@ -283,19 +303,5 @@ function withoutFunctions(value: unknown) {
     Object.entries(value).filter(
       ([, v]) => typeof v !== 'function' && !(v instanceof Promise),
     ),
-  );
-}
-
-/** Breadcrumb for an action's level: `setResponse GET /posts` */
-export function ActionCrumb({ seq }: { seq: number }) {
-  const entry = findEntry(useActions().history.entries, seq);
-  return entry ? <ActionName entry={entry} /> : <>…</>;
-}
-
-export function ActionName({ entry }: { entry: LogEntry }) {
-  return (
-    <>
-      <TypeName entry={entry} /> <KeyLabel value={actionKey(entry.action)} />
-    </>
   );
 }

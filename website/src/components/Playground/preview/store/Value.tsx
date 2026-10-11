@@ -21,6 +21,7 @@ import {
 } from './refs';
 import styles from './store.module.css';
 import { useStoreUI } from './StoreUI';
+import { valueDiff, type Part } from './valueDiff';
 
 /** Fields a bare preview shows (the row truncates long before) */
 const BARE_LIMIT = 20;
@@ -256,6 +257,178 @@ export function Inline({
       );
     }
   }
+}
+
+/** One field of an object node */
+export function field(node: VNode, name: string): VNode | undefined {
+  if (node.t !== 'obj') return;
+  return node.entries.find(([k]) => k === name)?.[1];
+}
+
+/** A table cell's changed value as it was: after the new one, so a narrow
+ * cell cuts it rather than what the store has now */
+function Was({ node, name }: { node: VNode; name?: string }) {
+  return (
+    <del className={clsx(styles.was, styles.cellWas)} title="Before">
+      <Inline node={node} name={name} />
+    </del>
+  );
+}
+
+/** `name: old → new`; a field the change added or dropped has one side,
+ * and a list or object changes item by item */
+export function FieldChange({
+  name,
+  was,
+  now,
+}: {
+  name: string;
+  was?: VNode;
+  now?: VNode;
+}) {
+  const change = (
+    <>
+      <span className={styles.key}>{name}</span>
+      <span className={styles.dim}>: </span>
+      <ValueChange was={was} now={now} name={name} />
+    </>
+  );
+  // a field the update added reads as added, like an added list item
+  return was === undefined && now !== undefined ?
+      <ins className={styles.ins}>{change}</ins>
+    : change;
+}
+
+/** `old → new`, or a list or object item by item */
+export function ValueChange({
+  was,
+  now,
+  name,
+  depth = 0,
+}: {
+  was?: VNode;
+  now?: VNode;
+  name?: string;
+  depth?: number;
+}) {
+  const parts = was && now && depth < 2 && valueDiff(was, now);
+  if (parts)
+    return <Parts parts={parts} list={now.t === 'arr'} depth={depth} />;
+  return (
+    <>
+      {was && (
+        <del className={styles.was}>
+          <Inline node={was} name={name} />
+        </del>
+      )}
+      {was && now && <span className={styles.dim}> → </span>}
+      {now && <Inline node={now} name={name} />}
+    </>
+  );
+}
+
+/** A table cell's changed value: a list or object item by item, otherwise
+ * the new value with the old after it */
+export function CellChange({
+  was,
+  now,
+  name,
+  children,
+}: {
+  was: VNode;
+  now: VNode | undefined;
+  name: string;
+  /** The cell as it shows the new value */
+  children: React.ReactNode;
+}) {
+  const parts = now && valueDiff(was, now);
+  if (parts) return <Parts parts={parts} list={now.t === 'arr'} depth={0} />;
+  return (
+    <>
+      {children}
+      <Was node={was} name={name} />
+    </>
+  );
+}
+
+/** Unchanged items in a row fold into a count, so what changed shows */
+const FOLD = 2;
+
+/** A list's items (or an object's entries) as they changed: added, removed
+ * where they were, moved, and runs of unchanged ones folded */
+function Parts({
+  parts,
+  list,
+  depth,
+}: {
+  parts: readonly Part[];
+  list: boolean;
+  depth: number;
+}) {
+  const shown: React.ReactNode[] = [];
+  for (let i = 0; i < parts.length;) {
+    let run = 0;
+    while (parts[i + run]?.kind === 'same') run++;
+    if (run >= FOLD) {
+      shown.push(
+        <span key={i} className={styles.dim} title={`${run} unchanged`}>
+          ⋯{run}
+        </span>,
+      );
+      i += run;
+      continue;
+    }
+    const part = parts[i++];
+    const label = part.key !== undefined && (
+      <>
+        <span className={styles.key}>{part.key}</span>
+        <span className={styles.dim}>: </span>
+      </>
+    );
+    const value = <Inline node={part.node} name={part.key} />;
+    shown.push(
+      part.kind === 'added' ?
+        <ins key={i} className={styles.ins} title="Added">
+          {label}
+          {value}
+        </ins>
+      : part.kind === 'removed' ?
+        <del key={i} className={styles.was} title="Removed">
+          {label}
+          {value}
+        </del>
+      : part.kind === 'moved' ?
+        <span key={i} className={styles.moved} title="Moved">
+          {value}
+        </span>
+      : part.kind === 'changed' ?
+        <span key={i}>
+          {label}
+          <ValueChange
+            was={part.was}
+            now={part.node}
+            name={part.key}
+            depth={depth + 1}
+          />
+        </span>
+      : <span key={i}>
+          {label}
+          {value}
+        </span>,
+    );
+  }
+  return (
+    <span className={styles.inlineList}>
+      <span className={styles.dim}>{list ? '[' : '{'}</span>
+      {shown.map((item, i) => (
+        <React.Fragment key={i}>
+          {i > 0 && <span className={styles.dim}>, </span>}
+          {item}
+        </React.Fragment>
+      ))}
+      <span className={styles.dim}>{list ? ']' : '}'}</span>
+    </span>
+  );
 }
 
 /** Full value: nested objects indent, long lists show more on request */

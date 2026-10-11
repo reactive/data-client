@@ -152,14 +152,14 @@ describe('StorePanel navigation', () => {
     fireEvent.click(chip('Post 1'));
     fireEvent.click(chip('User 1'));
     fireEvent.click(chip('Post 1'));
-    expect(crumbs()).toEqual(['State', '›', '…', '›', 'User 1', '›', 'Post 1']);
+    expect(crumbs()).toEqual(['Store', '›', '…', '›', 'User 1', '›', 'Post 1']);
     fireEvent.click(
       within(top().querySelector('nav')!).getByRole('button', {
         name: 'User 1',
       }),
     );
     expect(crumbs()).toEqual([
-      'State',
+      'Store',
       '›',
       'User 1',
       '›',
@@ -169,10 +169,40 @@ describe('StorePanel navigation', () => {
     ]);
     fireEvent.click(
       within(top().querySelector('nav')!).getByRole('button', {
-        name: 'State',
+        name: 'Store',
       }),
     );
     expect(top().querySelector('nav')).toBeNull();
+  });
+
+  it('windows a table it dives into as it scrolls', () => {
+    // jsdom has no layout: what a level holds moves up as the level scrolls
+    const rect = jest
+      .spyOn(Element.prototype, 'getBoundingClientRect')
+      .mockImplementation(function (this: Element) {
+        const level = this.closest('[data-level]');
+        const top = level && level !== this ? -level.scrollTop : 0;
+        return { top, bottom: top, height: 0 } as DOMRect;
+      });
+    const many = range(120);
+    mount({
+      ...state,
+      entities: {
+        ...state.entities,
+        Comment: Object.fromEntries(
+          many.map(id => [id, { id, text: `comment ${id}` }]),
+        ),
+      },
+    } as State<unknown>);
+    fireEvent.click(group('Comment').getByText('115 more'));
+    // the pushed level renders its first rows, then follows its own scroll
+    expect(row(entityId('Comment', '100'))).toBeNull();
+    act(() => {
+      top().scrollTop = 100 * 28;
+      fireEvent.scroll(top());
+    });
+    expect(row(entityId('Comment', '100'))).toBeTruthy();
+    rect.mockRestore();
   });
 
   it('ignores Escape at the root', () => {
@@ -192,7 +222,7 @@ describe('StorePanel navigation', () => {
       within(top()).getAllByRole('button', { name: /^Post \d+$/ }),
     ).toHaveLength(9);
     fireEvent.click(chip('+3'));
-    expect(crumbs()).toEqual(['State', '›', 'User 1', '›', 'used by13']);
+    expect(crumbs()).toEqual(['Store', '›', 'User 1', '›', 'used by13']);
     expect(headers()).toEqual(['row', 'value']);
     expect(top().querySelectorAll('tr[data-id]')).toHaveLength(13);
     fireEvent.click(row(entityId('Post', '3')));
@@ -203,13 +233,13 @@ describe('StorePanel navigation', () => {
     mount();
     expect(within(top()).getByText('6 more')).toBeTruthy();
     fireEvent.click(within(top()).getByText('6 more'));
-    expect(crumbs()).toEqual(['State', '›', 'Endpoints11']);
+    expect(crumbs()).toEqual(['Store', '›', 'Endpoints11']);
     expect(headers()).toEqual(['key', 'status', 'value']);
     expect(top().querySelectorAll('tr[data-id]')).toHaveLength(11);
     const target = row(endpointId(NUMBERS));
     // keys from a chip inside the row are its own
     fireEvent.keyDown(within(target).getByText('0'), { key: 'Enter' });
-    expect(crumbs()).toEqual(['State', '›', 'Endpoints11']);
+    expect(crumbs()).toEqual(['Store', '›', 'Endpoints11']);
     fireEvent.keyDown(target, { key: 'Enter' });
     expect(crumbs().at(-1)).toBe('GET /numbers');
   });
@@ -275,13 +305,13 @@ describe('StorePanel navigation', () => {
     const { Post: _, ...entities } = state.entities as any;
     update({ ...state, entities } as State<unknown>);
     expect(within(top()).getByText('No longer in the store')).toBeTruthy();
-    expect(crumbs()).toEqual(['State', '›', 'Post0']);
+    expect(crumbs()).toEqual(['Store', '›', 'Post0']);
     fireEvent.click(within(top()).getByLabelText('Back'));
     fireEvent.click(within(top()).getByText('"Paul"'));
     const { User: __, ...rest } = entities;
     update({ ...state, entities: rest } as State<unknown>);
     expect(within(top()).getByText('No longer in the store')).toBeTruthy();
-    expect(crumbs()).toEqual(['State', '›', '…']);
+    expect(crumbs()).toEqual(['Store', '›', '…']);
   });
 
   it('toggles sections and lists pending optimistic updates', () => {

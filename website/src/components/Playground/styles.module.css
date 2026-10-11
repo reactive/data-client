@@ -6,6 +6,11 @@
   margin-bottom: var(--ifm-leading);
 }
 .playgroundContainer {
+  /* the Store's size, for it and every layout that holds it: room to
+     inspect whatever the code's or the preview's height, and the most it
+     takes when its own content sets the height */
+  --store-min: min(24rem, 70svh);
+  --store-cap: min(32rem, 70svh);
   border-radius: var(--ifm-global-radius);
   box-shadow: var(--ifm-global-shadow-lw);
   overflow: visible;
@@ -26,7 +31,7 @@
 }
 /* Stacked (default) radii; side-by-side radii applied in @container below */
 .playgroundContainer > :last-child {
-  overflow: hidden;
+  overflow: clip;
   border-bottom-left-radius: var(--ifm-global-radius);
   border-bottom-right-radius: var(--ifm-global-radius);
 }
@@ -261,7 +266,8 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 
 .previewWrapper {
-  overflow: hidden;
+  /* clips without scrolling, so the Store beside the result can stick */
+  overflow: clip;
   display: flex;
   flex-direction: column;
 }
@@ -294,6 +300,19 @@ div.playgroundTextEdit > .playgroundHeader,
   min-width: 0;
   background: var(--monoco-code-background);
 }
+/* beside the result, as tall as it when that is past the Store's own cap,
+   up to the screen's height, held in view while a taller result scrolls by
+   (the cap still keeps a long store from stretching the row) */
+@container playground (min-width: 560px) {
+  .playgroundResult > .storePanel > * {
+    position: sticky;
+    top: var(--ifm-navbar-height);
+    min-height: max(
+      var(--store-min),
+      min(100%, 100svh - var(--ifm-navbar-height))
+    );
+  }
+}
 [data-theme='dark'] .storePanel {
   /* opaque, so the covered code never shows through; the tree inside
      adds the translucent code tint on top */
@@ -301,10 +320,8 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 
 /* Row layout: the Store slides over the code from the preview's edge, so the
-   preview stays usable beside it (click, watch the store change) */
-.playgroundContainer.row .debugToggle {
-  order: -1;
-}
+   preview stays usable beside it (click, watch the store change); the code's
+   corner badge toggles it, not the side strip */
 .playgroundTextEdit.withCover {
   display: flex;
   flex-direction: column;
@@ -319,10 +336,11 @@ div.playgroundTextEdit > .playgroundHeader,
 .editorBody > * {
   grid-area: 1 / 1;
 }
-/* room to inspect even when the code is short, held while visible, including
-   while it slides out pinned out of flow (until its <Activity> hides it) */
+/* room to inspect even when the code is short (the Store's own minimum),
+   held while visible, including while it slides out pinned out of flow
+   (until its <Activity> hides it) */
 .storeHost:has(> .storePanel[data-visible]) {
-  min-height: 20rem;
+  min-height: var(--store-min);
 }
 .storeHost {
   /* slides up from the preview below; sideways once side by side */
@@ -368,6 +386,55 @@ div.playgroundTextEdit > .playgroundHeader,
   display: none;
 }
 
+/* The Store toggle in the code's corner, over the Store as it slides in
+   under it; its label rises out as the other rises in */
+.storeBadge {
+  --swap-in: 0 110%;
+  --swap-out: 0 -110%;
+  z-index: 2;
+  align-self: end;
+  justify-self: end;
+  margin: 0.75rem;
+  height: 1.9rem;
+  padding: 0 0.8rem;
+  border-radius: 999px;
+  background: var(--pg-tab-hover-bg);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 6px 18px rgba(0, 0, 0, 0.35);
+  color: var(--pg-tab-hover);
+  font: 600 var(--ifm-code-font-size) / 1 var(--ifm-font-family-base);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.storeBadge:hover {
+  background: var(--pg-tab-hover-bg)
+    linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06));
+}
+.storeBadge:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
+.storeBadge > * {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+}
+.storeBadgeDot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  /* the Store's fresh color */
+  color: #7fd1a0;
+  background: currentColor;
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 18%, transparent);
+}
+.storeBadgeCode {
+  color: var(--ifm-color-primary);
+}
+
 /* tabs */
 .playgroundHeader.tabControls {
   display: flex;
@@ -376,6 +443,38 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 .playgroundHeader.tabControls .title {
   padding: 0.75rem;
+}
+/* Two labels in one cell (so the box never resizes) trading places on the
+   Store drawer's spring, transform and opacity only: the second waits at
+   --swap-in and, `data-swapped`, takes over as the first leaves to
+   --swap-out */
+.swap {
+  display: inline-grid;
+  overflow: hidden;
+}
+.swap > * {
+  grid-area: 1 / 1;
+  transition:
+    translate var(--motion-smooth),
+    opacity var(--motion-smooth);
+}
+.swap > :last-child {
+  translate: var(--swap-in);
+  opacity: 0;
+}
+.swap[data-swapped] > :first-child {
+  translate: var(--swap-out);
+  opacity: 0;
+}
+.swap[data-swapped] > :last-child {
+  translate: 0 0;
+  opacity: 1;
+}
+/* the title names what shows: the cover's slides in over the code's name
+   from the preview's side */
+.titleSwap {
+  --swap-in: 100% 0;
+  --swap-out: -40% 0;
 }
 
 /* live editor v3 */
@@ -417,7 +516,9 @@ div.playgroundTextEdit > .playgroundHeader,
 .subtabs .tab:not(.selected):hover {
   background-color: var(--pg-bar);
 }
-.controlTabs {
+/* over the Store (the cover) the selected control joins the Store's top,
+   code-colored like any selected tab */
+.controlTabs:not(.overCover) {
   --pg-tab-selected-bg: var(--pg-tab-hover-bg);
   --pg-tab-selected: var(--pg-tab-hover);
 }
@@ -711,10 +812,11 @@ div.fixtureJson {
     min-height: 0;
   }
   .storeHost > .storePanel > * {
-    max-height: min(32rem, 70svh);
+    min-height: var(--store-min);
+    max-height: var(--store-cap);
   }
   /* the Store toggle moves into the preview's header */
-  .playgroundContainer.row .debugToggle {
+  .storeBadge {
     display: none;
   }
   .playgroundContainer.row .storeHeaderToggle {
