@@ -320,15 +320,10 @@ jobs:
         if: needs.current.outputs.ref
         run: |
           tar -xzf current.tar.gz -C website/build
-          # /next is served now, so it no longer redirects to the root, and the
-          # blog is master's, under /next (the root build has none)
+          # /next is served now, so it no longer redirects to the root
           jq -e '.redirects | any(.source == "/next/:path*")' website/vercel.json > /dev/null ||
             { echo "::error::vercel.json has no /next/:path* redirect to drop"; exit 1; }
-          jq '.redirects |= map(select(.source != "/next/:path*")) + [
-                {source: "/blog/:path*", destination: "/next/blog/:path*", permanent: false},
-                {source: "/:locale([a-z]{2}|[a-z]{2}-[A-Za-z]+)/blog/:path*",
-                 destination: "/next/:locale/blog/:path*", permanent: false}
-              ]' website/vercel.json > vercel.json.tmp
+          jq '.redirects |= map(select(.source != "/next/:path*"))' website/vercel.json > vercel.json.tmp
           mv vercel.json.tmp website/vercel.json
       - uses: actions/setup-node@v6
         with:

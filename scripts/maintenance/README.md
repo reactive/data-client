@@ -34,6 +34,10 @@ Open fixes, for packages or docs, as PRs against `<version>.x`, with a changeset
 by `maintenance.yml`. CircleCI, `release.yml` and `site-preview.yml`'s PR build run on the branch:
 the other Actions workflows it has are from the release it was cut from and run only for master.
 
+Publish blog posts here too: the root's blog is this branch's, so a post runs the version that's
+current when it's published, at the URL it keeps. A post about the next major stays a draft on
+master until that release.
+
 ## When the next major ships
 
 The release archives the current version's docs from its branch at `/<version>/` and opens a PR
