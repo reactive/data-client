@@ -65,6 +65,7 @@
     "node_modules",
     "dist",
     "lib",
+    "ts3.4",
     "coverage"
   ]
 }

@@ -84,6 +84,26 @@
       "*": [
         "lib/index.d.ts"
       ]
+    },
+    ">=3.4": {
+      "": [
+        "ts3.4/index.d.ts"
+      ],
+      "next": [
+        "ts3.4/next/index.d.ts"
+      ],
+      "ssr": [
+        "ts3.4/server/index.d.ts"
+      ],
+      "redux": [
+        "ts3.4/server/redux/index.d.ts"
+      ],
+      "mock": [
+        "ts3.4/mock/index.d.ts"
+      ],
+      "*": [
+        "ts3.4/index.d.ts"
+      ]
     }
   },
   "exports": {
@@ -136,6 +156,7 @@
     "lib",
     "legacy",
     "native",
+    "ts3.4",
     "node.mjs",
     "LICENSE",
     "README.md"
@@ -148,6 +169,7 @@
     "build:js:browser": "BROWSERSLIST_ENV=legacy yarn g:rollup",
     "build:bundle": "yarn g:runs build:js:\\* && echo '{\"type\":\"commonjs\"}' > dist/package.json",
     "build:clean": "yarn g:clean index.d.ts next.d.ts native",
+    "build:legacy-types": "yarn g:downtypes lib ts3.4",
     "build": "run build:lib && run build:legacy:lib && run build:native:lib && run build:bundle",
     "dev": "run build:lib -w",
     "prepare": "run build:lib",
