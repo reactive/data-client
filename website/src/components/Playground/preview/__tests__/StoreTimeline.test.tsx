@@ -230,6 +230,31 @@ describe('Store scrubber', () => {
     expect(screen.queryByRole('group', { name: /^Timeline/ })).toBeNull();
   });
 
+  it('keeps every action its own mark however narrow, scrolling to the newest', async () => {
+    // shown with a height from the start, as a browser lays it out
+    const height = jest
+      .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
+      .mockReturnValue(18);
+    const { ctrl } = mountAt(320);
+    height.mockRestore();
+    const track = scrubber().querySelector<HTMLElement>(
+      '[style*="--tl-width"]',
+    )!;
+    Object.defineProperty(track, 'clientHeight', { value: 18 });
+    Object.defineProperty(track, 'scrollWidth', { value: 2000 });
+    // polling: each fetch and its response a few ms apart, far more than
+    // the track has room for side by side
+    for (let i = 0; i < 20; i++) await act(() => ctrl().fetch(getPosts));
+    const bar = scrubber();
+    expect(
+      within(bar).getAllByRole('button', { name: /^setResponse at/ }),
+    ).toHaveLength(20);
+    expect(within(bar).getAllByTitle(/^fetch at/)).toHaveLength(20);
+    expect(bar.querySelector('[data-count]')).toBeNull();
+    // the newest stays in view, as the lanes' does
+    expect(track.scrollLeft).toBe(2000);
+  });
+
   it('shows State as it was after the mark picked, and says which action', async () => {
     const { ctrl } = mount();
     title = 'One';

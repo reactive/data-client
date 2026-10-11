@@ -490,7 +490,6 @@ export default function StorePanel({
             <Scrubber
               entry={moment}
               hit={filter.hit}
-              width={width}
               expanded={timelineOpen}
               expandRef={expand}
               onExpand={setTimelineOpen}
