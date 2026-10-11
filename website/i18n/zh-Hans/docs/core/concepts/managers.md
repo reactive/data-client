@@ -10,6 +10,7 @@ import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import StackBlitz from '@site/src/components/StackBlitz';
 import BatchSetDemo from '../shared/\_BatchSetDemo.mdx';
+import StreamManagerDemo from '../shared/\_StreamManagerDemo.mdx';
 
 <head>
   <meta name="docsearch:pagerank" content="40"/>
@@ -397,6 +398,12 @@ export default class StreamManager implements Manager {
 
 [Controller.set()](../api/Controller.md#set) 允许直接使用 `event.data`
 更新[可查询 schema](/rest/api/schema#queryable)。
+
+:::react
+
+<StreamManagerDemo />
+
+:::
 
 #### 批量处理高频更新 {#batching}
 

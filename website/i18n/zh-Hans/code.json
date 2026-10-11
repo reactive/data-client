@@ -830,5 +830,8 @@
   },
   "playground.store.show": {
     "message": "显示 Store"
+  },
+  "playground.code": {
+    "message": "代码"
   }
 }

@@ -830,5 +830,8 @@
   },
   "playground.store.show": {
     "message": "Mostrar o store"
+  },
+  "playground.code": {
+    "message": "Código"
   }
 }
