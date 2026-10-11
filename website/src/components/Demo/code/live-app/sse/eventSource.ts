@@ -13,17 +13,18 @@ export class ReconnectingEventSource {
 
   open() {
     this.isOpen = true;
-    if (!document.hidden) this.connect();
+    this.reconnect();
     addEventListener('online', this.reconnect);
-    // a stream can take minutes to notice the network is gone
-    addEventListener('offline', this.stop);
+    // a stream can take minutes to notice the network is gone;
+    // retrying also covers an 'online' event that never comes
+    addEventListener('offline', this.retry);
     document.addEventListener('visibilitychange', this.onVisibility);
   }
 
   close() {
     this.isOpen = false;
     removeEventListener('online', this.reconnect);
-    removeEventListener('offline', this.stop);
+    removeEventListener('offline', this.retry);
     document.removeEventListener(
       'visibilitychange',
       this.onVisibility,
@@ -63,12 +64,12 @@ export class ReconnectingEventSource {
    * so reconnect when messages stop arriving */
   protected watch() {
     clearTimeout(this.timer);
-    this.timer = setTimeout(() => this.retry(), 30_000);
+    this.timer = setTimeout(this.retry, 30_000);
   }
 
   /** Reconnects after a delay that doubles with each attempt, until a
    * stream stays up long enough to count as working */
-  protected retry() {
+  protected retry = () => {
     this.stop();
     if (
       this.openedAt !== undefined &&
@@ -78,7 +79,7 @@ export class ReconnectingEventSource {
     const delay = Math.min(30_000, 1000 * 2 ** this.attempts);
     this.attempts++;
     this.timer = setTimeout(this.reconnect, delay);
-  }
+  };
 
   protected reconnect = () => {
     if (

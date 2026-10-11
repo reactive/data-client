@@ -1,19 +1,20 @@
 /** Streams Coinbase prices as Server-Sent Events, for the homepage's SSE demo.
  *
- * `GET /api/ticker-stream?product_ids=BTC-USD,ETH-USD` sends one
- * `data: [Ticker, …]` event every 5 seconds with the products whose price
- * changed (an empty list when none did, so clients can tell the stream is
- * alive). It ends when Coinbase goes quiet, so clients reconnect. Tickers have the shape of Coinbase's REST `/products/:id/ticker`.
+ * `GET /api/ticker-stream?product_ids=BTC-USD,ETH-USD` sends a
+ * `data: [Ticker]` event as each product's price changes (at most every 5
+ * seconds per product), in the shape of Coinbase's REST `/products/:id/ticker`.
+ * When nothing changes for 5 seconds it sends `data: []`, so clients can tell
+ * the stream is alive.
  *
- * Each request holds one Coinbase websocket (`ticker_batch` channel). The
- * stream ends before the function times out; the client then reconnects.
+ * Each request holds one Coinbase websocket. The stream ends when Coinbase
+ * goes quiet or before the function times out; clients then reconnect.
  */
 
 const COINBASE_FEED = 'wss://ws-feed.exchange.coinbase.com';
 const PRODUCT_ID = /^[A-Z0-9]{1,10}-[A-Z]{2,5}$/;
 const MAX_PRODUCTS = 10;
-const FLUSH_MS = 5000;
-/** Coinbase sends tickers every few seconds, so silence means it's gone */
+const KEEPALIVE_MS = 5000;
+/** Coinbase sends heartbeats every second, so silence means it's gone */
 const UPSTREAM_TIMEOUT_MS = 30_000;
 /** Under `maxDuration`, so the stream ends cleanly */
 const LIFETIME_MS = 280_000;
@@ -31,19 +32,24 @@ export function GET(request: Request): Response {
 
   const encoder = new TextEncoder();
   const socket = new WebSocket(COINBASE_FEED);
-  const changed = new Map<string, ReturnType<typeof toTicker>>();
-  let lastUpstream = Date.now();
-  let flush: ReturnType<typeof setInterval>;
+  let keepalive: ReturnType<typeof setInterval>;
   let lifetime: ReturnType<typeof setTimeout>;
   const stop = () => {
-    clearInterval(flush);
+    clearInterval(keepalive);
     clearTimeout(lifetime);
     socket.close();
   };
 
   const body = new ReadableStream<Uint8Array>({
     start(controller) {
-      const send = (text: string) => controller.enqueue(encoder.encode(text));
+      let lastSent = Date.now();
+      let lastUpstream = Date.now();
+      const send = (tickers: ReturnType<typeof toTicker>[]) => {
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify(tickers)}\n\n`),
+        );
+        lastSent = Date.now();
+      };
       const end = () => {
         stop();
         try {
@@ -52,35 +58,40 @@ export function GET(request: Request): Response {
           // already closed, or the client went away
         }
       };
-      flush = setInterval(() => {
-        if (Date.now() - lastUpstream > UPSTREAM_TIMEOUT_MS) return end();
-        send(`data: ${JSON.stringify([...changed.values()])}\n\n`);
-        changed.clear();
-      }, FLUSH_MS);
-      lifetime = setTimeout(end, LIFETIME_MS);
+
+      // one product per subscribe, so an unknown one fails alone
+      socket.onopen = () => {
+        for (const productId of productIds)
+          socket.send(
+            JSON.stringify({
+              type: 'subscribe',
+              product_ids: [productId],
+              channels: ['ticker_batch', 'heartbeat'],
+            }),
+          );
+      };
+      socket.onmessage = event => {
+        lastUpstream = Date.now();
+        let message;
+        try {
+          message = JSON.parse(event.data);
+        } catch {
+          return;
+        }
+        if (message.type === 'ticker') send([toTicker(message)]);
+      };
       socket.onclose = end;
+
+      keepalive = setInterval(() => {
+        const now = Date.now();
+        if (now - lastUpstream > UPSTREAM_TIMEOUT_MS) end();
+        else if (now - lastSent >= KEEPALIVE_MS) send([]);
+      }, KEEPALIVE_MS);
+      lifetime = setTimeout(end, LIFETIME_MS);
       request.signal.addEventListener('abort', end);
     },
     cancel: stop,
   });
-
-  // one product per subscribe, so an unknown one fails alone
-  socket.onopen = () => {
-    for (const productId of productIds)
-      socket.send(
-        JSON.stringify({
-          type: 'subscribe',
-          product_ids: [productId],
-          channels: ['ticker_batch'],
-        }),
-      );
-  };
-  socket.onmessage = event => {
-    lastUpstream = Date.now();
-    const message = JSON.parse(event.data);
-    if (message.type === 'ticker')
-      changed.set(message.product_id, toTicker(message));
-  };
 
   return new Response(body, {
     headers: {
