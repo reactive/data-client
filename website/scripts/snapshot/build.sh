@@ -19,8 +19,9 @@ trap 'rm -rf "$site"' EXIT
 cp "$here/docusaurus.snapshot.config.ts" "$src/website/"
 cd "$src"
 YARN_ENABLE_IMMUTABLE_INSTALLS=false $yarn install
-# Package types, then the libraries the site imports
-$yarn build:types
+# Package types (without legacy TypeScript ones where the release can skip
+# them), then the libraries the site imports
+$yarn "$(node -p "require('./package.json').scripts['ci:build:types'] ? 'ci:build:types' : 'build:types'")"
 $yarn workspaces foreach -WptivR --from rdc-website --no-private run build:lib
 cd website
 SNAPSHOT_VERSION="$version" $yarn docusaurus build \
@@ -28,10 +29,14 @@ SNAPSHOT_VERSION="$version" $yarn docusaurus build \
 
 # Drop static media nothing in the archive links to (blog videos and images)
 cd "$site/$version"
-find img videos -type f 2>/dev/null | while read -r file; do
-  grep -rqlF --include='*.html' --include='*.js' --include='*.css' \
-    --include='*.json' --include='*.xml' "$(basename "$file")" . || rm "$file"
-done
+media="$(find img videos -type f 2>/dev/null || true)"
+if [ -n "$media" ]; then
+  used="$(grep -rohF --include='*.html' --include='*.js' --include='*.css' \
+    --include='*.json' --include='*.xml' -f <(xargs -n1 basename <<<"$media") . | sort -u || true)"
+  while read -r file; do
+    grep -qxF "$(basename "$file")" <<<"$used" || rm "$file"
+  done <<<"$media"
+fi
 find . -type d -empty -delete
 
 tar -czf "$out" -C "$site" "$version"
