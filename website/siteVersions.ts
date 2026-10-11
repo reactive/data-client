@@ -83,7 +83,12 @@ check(
   typeof packageVersion === 'string',
   "packages/react/package.json: version isn't a string",
 );
-export const siteLabel = versionCurrent ? 'next' : `v${lineOf(packageVersion)}`;
+const packageLine = lineOf(packageVersion);
+check(
+  LINE.test(packageLine),
+  `packages/react/package.json: ${packageVersion} has no line`,
+);
+export const siteLabel = versionCurrent ? 'next' : `v${packageLine}`;
 
 /**
  * @param currentOrigin where the current version's site is, when this site is

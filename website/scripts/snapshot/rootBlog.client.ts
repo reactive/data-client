@@ -8,12 +8,9 @@ export function onRouteUpdate({ location }: { location: Location }) {
   const { pathname, search, hash } = location;
   const page = pathname.slice(baseUrl.length);
   if (/^blog(\/|$)/.test(page)) {
-    // This locale on the root site: /next/es/ -> /es/; an archive, on its own
-    // host, links to production's root
-    const root =
-      baseUrl.startsWith('/next/') ?
-        baseUrl.slice('/next'.length)
-      : `https://dataclient.io${baseUrl}`;
+    // This locale on production's root site: /next/es/ -> /es/ (archives are
+    // at their own hosts' roots)
+    const root = `https://dataclient.io${baseUrl.replace(/^\/next\//, '/')}`;
     window.location.replace(`${root}${page}${search}${hash}`);
   }
 }

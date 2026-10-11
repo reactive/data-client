@@ -18,7 +18,8 @@ const navbar = (themeConfig.navbar ?? {}) as { items?: unknown[] };
 const locale = process.env.DOCUSAURUS_CURRENT_LOCALE;
 const localePrefix = locale && locale !== 'en' ? `/${locale}` : '';
 // every release's config has the production url
-const latestDocs = `${config.url}${localePrefix}/docs`;
+const docs = `${localePrefix}/docs`;
+const latestDocs = `${config.url}${docs}`;
 
 // An archive drops the version dropdown later releases have, linking to the
 // latest docs instead (below). The current version keeps it to list archives.
@@ -70,10 +71,7 @@ export default {
       items: [
         ...navbarItems,
         isCurrent ?
-          navbarLink(
-            `v${version} → Next`,
-            `pathname:///next${localePrefix}/docs`,
-          )
+          navbarLink(`v${version} → Next`, `pathname:///next${docs}`)
         : navbarLink(`v${version} → Latest`, latestDocs),
       ],
     },

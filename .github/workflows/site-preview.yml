@@ -369,15 +369,15 @@ jobs:
           # vercel.json's rewrites run after the file check, where the root's
           # pages would answer an archive's host; serve its own files first
           config=.vercel/output/config.json
-          jq -e '[.routes[] | select(.dest? // "" | startswith("/archives/"))] | length == 1' "$config" > /dev/null ||
-            { echo "::error::$config has no archive host rewrite to move"; exit 1; }
-          jq -e 'any(.routes[]; .handle == "filesystem")' "$config" > /dev/null ||
-            { echo "::error::$config has no filesystem check to move it ahead of"; exit 1; }
-          jq '.routes |= (
-            map(select(.dest? // "" | startswith("/archives/"))) as $archive
-            | (map(select(.dest? // "" | startswith("/archives/") | not))) as $rest
-            | ($rest | map(.handle == "filesystem") | index(true)) as $fs
-            | $rest[:$fs] + $archive + $rest[$fs:])' "$config" > config.json.tmp
+          jq 'def archive: .dest? // "" | startswith("/archives/");
+            .routes |= (
+              map(select(archive)) as $archive
+              | map(select(archive | not)) as $rest
+              | ($rest | map(.handle == "filesystem") | index(true)) as $fs
+              | if ($archive | length) != 1 then error("no single archive host rewrite to move")
+                elif $fs == null then error("no filesystem check to move it ahead of")
+                else $rest[:$fs] + $archive + $rest[$fs:] end)' "$config" > config.json.tmp ||
+            { echo "::error::Couldn't move $config's archive host rewrite"; exit 1; }
           mv config.json.tmp "$config"
           meta=()
           # Ties the preview to its branch instead of the PR merge ref
@@ -404,19 +404,10 @@ jobs:
       - name: Add archived versions' domains
         if: env.TARGET == 'production' && steps.deploy.outputs.url
         run: |
-          api=https://api.vercel.com
-          auth=(-H "Authorization: Bearer $VERCEL_TOKEN")
           for version in $(jq -r '.[].version' website/versionsArchived.json); do
             domain="$version.dataclient.io"
-            status="$(curl -sS -o /dev/null -w '%{http_code}' "${auth[@]}" \
-              "$api/v9/projects/$VERCEL_PROJECT_ID/domains/$domain?teamId=$VERCEL_ORG_ID")" || {
-              echo "::warning title=Archive domain::Couldn't check $domain on the Vercel project"
-              continue
-            }
-            [ "$status" = 200 ] && continue
-            curl -fsS -o /dev/null "${auth[@]}" -H 'Content-Type: application/json' \
-              -d "{\"name\": \"$domain\"}" \
-              "$api/v10/projects/$VERCEL_PROJECT_ID/domains?teamId=$VERCEL_ORG_ID" ||
+            # Succeeds when the project already has it; --scope as for alias
+            vercel domains add "$domain" "$VERCEL_PROJECT_ID" --scope "$VERCEL_ORG_ID" --non-interactive ||
               echo "::warning title=Archive domain::Couldn't add $domain to the Vercel project; add it by hand"
           done
       - if: github.event_name == 'pull_request'

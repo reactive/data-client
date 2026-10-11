@@ -50,8 +50,7 @@ export default function VersionsNavbarItem(
   // This page in it, else its section start: this locale's, or English's
   // when the version lacks the locale or its pages haven't loaded
   const hrefIn = ({ root }: (typeof targets)[number]) => {
-    const paths = routes[root];
-    if (!paths) return trimRoute(`${root}/${section}`);
+    const paths = routes[root] ?? new Set();
     const candidates = [
       ...(locale ? [`${locale}${page}`] : []),
       page,
