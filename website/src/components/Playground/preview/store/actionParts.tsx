@@ -91,8 +91,9 @@ const AXES = {
 } as const;
 
 /** Keeps the newest row in view, unless the reader scrolled up (or, on
- * the `x` axis, back) or it is `paused`. Returns what scrolls to the newest
- * and follows again */
+ * the `x` axis, back) or it is `paused`; unpaused (back to live), it
+ * follows the newest again. Returns what scrolls to the newest and follows
+ * again */
 export function useFollow(
   scroller: React.RefObject<HTMLElement | null>,
   rows: unknown,
@@ -104,6 +105,7 @@ export function useFollow(
   // start leave the reader's place where it is (the oldest go first: the
   // last row in view outlasts the first)
   const anchor = useRef<{ row: Element; at: number }>(undefined);
+  const wasPaused = useRef(paused);
   // passive: the listeners can wait for paint
   useEffect(() => {
     const el = scroller.current;
@@ -117,6 +119,8 @@ export function useFollow(
     let away = false;
     const onScroll = () => {
       if (hidden) return;
+      // on every scroll, the follow's own included: one left over from
+      // before would pull the view back to it on the next pause
       anchor.current = lastShown(el, axis);
       if (paused) return;
       const atEnd =
@@ -196,10 +200,14 @@ export function useFollow(
   useLayoutEffect(() => {
     const el = scroller.current;
     const { size, scroll } = AXES[axis];
+    const resumed = !paused && wasPaused.current;
+    wasPaused.current = paused;
     // off, not just skipped, so showing a hidden tab doesn't catch up either;
-    // scrolls are ignored while paused, so it stays off
+    // scrolls are ignored while paused, so it stays off. Back to live, the
+    // newest comes into view and is followed again
     if (paused) follow.current = false;
-    else if (el?.clientHeight && follow.current) {
+    else if (el && (resumed || (el.clientHeight && follow.current))) {
+      follow.current = true;
       el[scroll] = el[size];
       return;
     }
@@ -230,10 +238,22 @@ function lastShown(scroller: HTMLElement, axis: 'x' | 'y') {
   const to =
     from + (axis === 'y' ? scroller.clientHeight : scroller.clientWidth);
   const rows = scroller.querySelectorAll('[data-id]');
-  for (let i = rows.length - 1; i >= 0; i--) {
-    const at = startOf(rows[i], axis);
-    if (at < to) return { row: rows[i], at: at - from };
+  // a list's rows are in document order, the last in view found from the
+  // end (by place, an open row's steps clipped below its box would win); a
+  // timeline's marks are drawn by group, so the last is found by place
+  if (axis === 'y') {
+    for (let i = rows.length - 1; i >= 0; i--) {
+      const at = startOf(rows[i], axis);
+      if (at < to) return { row: rows[i], at: at - from };
+    }
+    return;
   }
+  let last: { row: Element; at: number } | undefined;
+  for (const row of rows) {
+    const at = startOf(row, axis);
+    if (at < to && (!last || at >= last.at)) last = { row, at };
+  }
+  return last && { row: last.row, at: last.at - from };
 }
 
 /** `setResponse`, colored by kind; a fetch that changed the store applied

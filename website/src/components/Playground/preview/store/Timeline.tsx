@@ -1,11 +1,5 @@
 import clsx from 'clsx';
-import React, {
-  memo,
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-} from 'react';
+import React, { memo, useLayoutEffect, useMemo, useRef } from 'react';
 
 import {
   actionName,
@@ -34,6 +28,7 @@ import {
 } from './actionParts';
 import { NARROW_WIDTH } from './columns';
 import { useHoldFocus } from './dom';
+import { actionId } from './model';
 import { useNavState } from './nav';
 import styles from './store.module.css';
 import { useTabStorage } from '../../../../utils/tabStorage';
@@ -102,13 +97,6 @@ export function lanesOf(groups: readonly ActionGroup[]): Lane[] {
   return [...lanes].map(([key, groups]) => ({ key, groups }));
 }
 
-/** What the scrubber's row holds beside its track: ‹ ›, Live, the list
- * and ▾ (px) */
-const SCRUB_CONTROLS = 198;
-/** Scrubber marks closer than this (px) draw as one: a mark's width
- * (`.tlMark`) and a gap, so none overlap */
-const MERGE_PX = 12;
-
 /** The shown history on `timeScale`, without the fetches deduped into a
  * request in flight (they add nothing to see) */
 function useScale() {
@@ -126,13 +114,8 @@ function useScale() {
 }
 
 /** `drawer` for the shown history with the moment selected, and `decor`:
- * the scale's breaks and the moment's playhead. `fitTo`: the track's width
- * (px), to draw marks crowding each other there as one */
-function useDrawer(
-  hit: SubjectFilter['hit'],
-  onSelect: (seq: number) => void,
-  fitTo?: number,
-) {
+ * the scale's breaks and the moment's playhead */
+function useDrawer(hit: SubjectFilter['hit'], onSelect: (seq: number) => void) {
   const { log, history } = useActions();
   const { seq: selected } = useNavState();
   const { joined, shown, scale } = useScale();
@@ -144,11 +127,6 @@ function useDrawer(
     selected,
     hit,
     onSelect,
-    // MERGE_PX on the track: the scale stretches or squeezes to its width
-    mergeWithin:
-      fitTo === undefined ? undefined : (
-        (MERGE_PX * scale.width) / Math.max(1, fitTo)
-      ),
   });
   const at = selected === null ? undefined : scale.x.get(selected);
   const decor = () => (
@@ -175,7 +153,6 @@ function drawer({
   selected,
   hit,
   onSelect,
-  mergeWithin,
 }: {
   log: ActionLog;
   scale: TimeScale;
@@ -184,85 +161,39 @@ function drawer({
   selected: number | null;
   hit: SubjectFilter['hit'];
   onSelect: (seq: number) => void;
-  /** Marks closer than this (in the scale's units) draw as one; `marks()`
-   * then draws them all, after `drawn` collected them */
-  mergeWithin?: number;
 }) {
   const frac = (x: number) => x / scale.width;
   const pos = (x: number) => ({ '--tl-f': frac(x) }) as React.CSSProperties;
   const labelOf = (entry: LogEntry) =>
     `${actionName(entry.action)} at ${seconds(entry.at - since)}s`;
-  const collected: { entry: LogEntry; extra?: string }[] = [];
-  const draw = (
-    entries: readonly LogEntry[],
-    x: number,
-    extra: string | undefined,
-    key: React.Key,
-  ) => {
-    const label =
-      entries.length === 1 ?
-        labelOf(entries[0])
-      : `${entries.length} actions, ${labelOf(entries[0])} to ${labelOf(entries.at(-1)!)}`;
-    const style = pos(x);
-    const stored = entries.filter(e => e.store);
-    // a mark of several lands where the steps would: their last that
-    // touched the subject, dimmed only when none did
-    const last = stored.findLast(hit) ?? stored.at(-1);
-    const dim = !!last && !hit(last);
-    const type = typeClass(last ?? entries[0]);
+  // every action is its own mark: none merge, so a track too narrow for
+  // them scrolls rather than squeezing them together
+  const mark = (entry: LogEntry, extra?: string) => {
+    const label = labelOf(entry);
+    const style = pos(scale.x.get(entry.seq)!);
+    const type = typeClass(entry);
     // only an action the store saw has a state to show
-    return last ?
+    return entry.store ?
         <button
-          key={key}
+          key={entry.seq}
           type="button"
           tabIndex={-1}
           className={clsx(styles.tlMark, type, extra)}
           style={style}
           title={label}
           aria-label={label}
-          data-selected={entries.some(e => e.seq === selected) || undefined}
-          data-dim={dim || undefined}
-          data-count={entries.length > 1 ? entries.length : undefined}
-          onClick={() => onSelect(last.seq)}
+          data-id={actionId(entry.seq)}
+          data-selected={entry.seq === selected || undefined}
+          data-dim={!hit(entry) || undefined}
+          onClick={() => onSelect(entry.seq)}
         />
       : <span
-          key={key}
+          key={entry.seq}
           className={clsx(styles.tlMark, styles.tlHollow, type, extra)}
           style={style}
           title={label}
+          data-id={actionId(entry.seq)}
         />;
-  };
-  const mark = (entry: LogEntry, extra?: string) => {
-    if (mergeWithin !== undefined) {
-      collected.push({ entry, extra });
-      return null;
-    }
-    return draw([entry], scale.x.get(entry.seq)!, extra, entry.seq);
-  };
-  /** The marks `drawn` collected, those crowding each other drawn as one */
-  const marks = () => {
-    const sorted = collected
-      .map(m => ({ ...m, x: scale.x.get(m.entry.seq)! }))
-      .sort((a, b) => a.x - b.x);
-    const out: React.ReactNode[] = [];
-    let i = 0;
-    while (i < sorted.length) {
-      let j = i + 1;
-      while (j < sorted.length && sorted[j].x - sorted[i].x < mergeWithin!) j++;
-      const cluster = sorted.slice(i, j);
-      // at its first: the next one starts at least `mergeWithin` after
-      const x = cluster[0].x;
-      out.push(
-        draw(
-          cluster.map(m => m.entry),
-          x,
-          cluster.length === 1 ? cluster[0].extra : undefined,
-          cluster[0].entry.seq,
-        ),
-      );
-      i = j;
-    }
-    return out;
   };
   const span = (from: number, to: number, className: string, key: string) => (
     <span
@@ -304,10 +235,35 @@ function drawer({
       ...group.requests.flatMap(request),
     ];
   };
-  return { pos, drawn, marks };
+  return { pos, drawn };
 }
 
-/** The whole history in one lane, fit to the panel's width, with the moment
+/** Keeps a sideways-scrolling track drawn on `scale` on the moment: live,
+ * on the newest as actions come in, until scrolled back; scrolled back or
+ * picked, the marks in view stay put as actions come in or the oldest drop.
+ * The picked action comes into view as it is picked or `refocus` (another
+ * input to the track's layout) changes. Returns End's step: back to
+ * live, or live already, back to the newest */
+function useTrackFollow(
+  scroller: React.RefObject<HTMLElement | null>,
+  scale: TimeScale,
+  refocus?: unknown,
+) {
+  const { seq: selected, set } = useNavState();
+  // a new scale for every change to the history, trims included, so the
+  // marks in view are held even when the width stays the same
+  const layout = useMemo(() => [scale, refocus], [scale, refocus]);
+  const followNewest = useFollow(scroller, layout, 'x', selected !== null);
+  useLayoutEffect(() => {
+    if (selected === null) return;
+    scroller.current
+      ?.querySelector('[data-selected]')
+      ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+  }, [scroller, selected, refocus]);
+  return () => (selected === null ? followNewest() : set(null));
+}
+
+/** The whole history in one lane, scrolling sideways, with the moment
  * on it: ‹ › and the arrow keys step through the actions `hit` says
  * touched the subject (past the newest is live, as End is), a mark lands on
  * its action. Its actions as a list sit beside the ▾: they peek as the mouse rests
@@ -318,7 +274,6 @@ export const Scrubber = memo(function Scrubber({
   entry,
   hit,
   onMark,
-  width,
   expanded,
   expandRef,
   onExpand,
@@ -333,8 +288,6 @@ export const Scrubber = memo(function Scrubber({
   hit: SubjectFilter['hit'];
   /** A mark picked (not as ‹ › step): makes it the moment */
   onMark: (seq: number) => void;
-  /** Panel width (px), to tell which marks crowd each other */
-  width: number;
   /** Whether the timeline is shown under it */
   expanded: boolean;
   /** The ▾, for focus to return to as the timeline shuts */
@@ -352,14 +305,10 @@ export const Scrubber = memo(function Scrubber({
   const { whole, earlier, later, set: onSelect, show } = useNavState();
   // a row picked stands for its whole group: the label names that
   const group = whole && entry ? groupOf(groups, entry.seq) : undefined;
-  // the track fits the panel beside the controls: marks a few px apart
-  // there draw as one (fast polling crowds it otherwise)
-  // (a panel not laid out, measuring 0, merges nothing)
-  const { shown, scale, drawn, marks, decor } = useDrawer(
-    hit,
-    onMark,
-    width > 0 ? width - SCRUB_CONTROLS : undefined,
-  );
+  const { shown, scale, drawn, decor } = useDrawer(hit, onMark);
+  // the track scrolls sideways, on the moment as the timeline's does
+  const track = useRef<HTMLDivElement>(null);
+  const end = useTrackFollow(track, scale);
 
   // a step that removes (Live) or turns off (an end reached) the button
   // pressed hands focus to one still there
@@ -372,9 +321,10 @@ export const Scrubber = memo(function Scrubber({
   const onKeyDown = (e: React.KeyboardEvent) => {
     // ← → step as they do across the panel, which takes them on from here
     if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') hold();
-    else if (e.key === 'End' && entry) {
+    else if (e.key === 'End') {
       e.preventDefault();
-      step(null);
+      hold();
+      end();
     }
   };
 
@@ -407,13 +357,13 @@ export const Scrubber = memo(function Scrubber({
           ›
         </button>
         <div
+          ref={track}
           className={styles.scrubTrack}
           style={{ '--tl-width': `${scale.width}px` } as React.CSSProperties}
         >
           {shown.length > 0 && (
             <div className={styles.tlLane}>
               {groups.flatMap(g => drawn(g, false))}
-              {marks()}
               {decor()}
             </div>
           )}
@@ -498,7 +448,7 @@ export default memo(function Timeline({
   onMark: (seq: number) => void;
 }) {
   const { history, groups } = useActions();
-  const { seq: selected, set } = useNavState();
+  const { seq: selected } = useNavState();
   const [spacing, setSpacing] = useTabStorage('playgroundTimelineSpacing');
   const { entries, since } = history;
   const lanes = useMemo(() => lanesOf(groups), [groups]);
@@ -522,32 +472,15 @@ export default memo(function Timeline({
   );
 
   const scroller = useRef<HTMLDivElement>(null);
-  // a picked action stays put as new ones come in; so does a scrolled-back
-  // view as the fit toggles, while a followed one stays on the newest
-  const followNewest = useFollow(
-    scroller,
-    `${scale.width} ${fit}`,
-    'x',
-    selected !== null,
-  );
+  // a scrolled-back view stays put as the fit toggles, while a followed one
+  // stays on the newest; the picked action comes into view again
+  const end = useTrackFollow(scroller, scale, fit);
   // scrolled back, fitting and back returns to where it was, unless it went
-  // to the newest meanwhile
+  // to the newest (or live) meanwhile
   const scrolledTo = useRef<number | null>(null);
-  const toNewest = useCallback(() => {
-    scrolledTo.current = null;
-    followNewest();
-  }, [followNewest]);
-  // the picked action comes into view (again as the fit changes); back to
-  // live, the newest does, and the timeline follows it again
   useLayoutEffect(() => {
-    if (selected === null) return toNewest();
-  }, [selected, toNewest]);
-  useLayoutEffect(() => {
-    if (selected === null) return;
-    scroller.current
-      ?.querySelector('[data-selected]')
-      ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
-  }, [selected, fit]);
+    if (selected === null) scrolledTo.current = null;
+  }, [selected]);
   const toggleFit = () => {
     const el = scroller.current;
     if (!fit && el) {
@@ -573,8 +506,8 @@ export default memo(function Timeline({
   const onKeyDown = (e: React.KeyboardEvent) => {
     switch (e.key) {
       case 'End':
-        if (selected === null) toNewest();
-        else set(null);
+        scrolledTo.current = null;
+        end();
         break;
       // the lanes scroll from here, as a focused scroller's would
       case 'ArrowUp':
