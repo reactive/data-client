@@ -75,24 +75,30 @@ type Routes = Record<string, ReadonlySet<string>>;
 
 /** Shared by the desktop and mobile items, so each sitemap loads once */
 let routesRequest: Promise<Routes> | undefined;
-const fetchRoutes = () => (routesRequest ??= requestRoutes());
+function fetchRoutes() {
+  if (!routesRequest) {
+    const request: Promise<Routes> = requestRoutes().catch(() => {
+      // a failed load is asked again next time
+      if (routesRequest === request) routesRequest = undefined;
+      return {};
+    });
+    routesRequest = request;
+  }
+  return routesRequest;
+}
 
 /** Each archive's pages, from its sitemaps (and this locale's, if it has one) */
 async function requestRoutes(): Promise<Routes> {
-  const pathsIn = (url: string) =>
-    fetch(url)
-      // a missing sitemap (an archive without this locale) is no pages
-      .then(res => (res.ok ? res.text() : ''))
-      .catch(() => {
-        // offline: ask again next time
-        routesRequest = undefined;
-        return '';
-      })
-      .then(xml =>
-        [...xml.matchAll(/<loc>https?:\/\/[^/<]+([^<]*)<\/loc>/g)].map(
-          ([, path]) => trimRoute(path),
-        ),
-      );
+  const pathsIn = async (url: string) => {
+    const res = await fetch(url);
+    // an archive without this locale has no sitemap for it
+    if (res.status === 404) return [];
+    if (!res.ok) throw new Error(`${url}: ${res.status}`);
+    const xml = await res.text();
+    return [...xml.matchAll(/<loc>https?:\/\/[^/<]+([^<]*)<\/loc>/g)].map(
+      ([, path]) => trimRoute(path),
+    );
+  };
   const entries = await Promise.all(
     archived.map(async version => {
       const sitemaps = [`/${version}/sitemap.xml`];
