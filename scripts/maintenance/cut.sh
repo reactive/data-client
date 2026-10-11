@@ -48,6 +48,10 @@ cp "$here/publish.sh" "$here/version-line.sh" scripts/maintenance/
 # A release tag predates its archive listing PR: the previous version is
 # archived, not current (the root's build takes master's archive list)
 rm -f website/versionCurrent.json
+# master's pending changesets are the next major's and release from master, so
+# the branch versions only its own fixes (README.md: re-add any a later ref needs)
+echo "Dropping master's changesets:"
+find .changeset -maxdepth 1 -name '*.md' ! -name README.md -print -delete
 # Deploys the root docs and ports each push to master
 cp "$here/maintenance.yml" .github/workflows/
 git add -A
