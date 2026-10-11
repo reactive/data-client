@@ -1,4 +1,7 @@
 name: maintenance scripts
+# Tests the release-line decisions in version-line.sh, which release.yml,
+# docs-snapshot.yml and cut.sh source. Gated by paths-gate.yml, so it can be
+# required.
 on:
   # master catches breaks from PRs merged in sequence
   push:
