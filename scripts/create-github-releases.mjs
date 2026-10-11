@@ -12,6 +12,9 @@ import { join } from 'path';
 const REPO = 'reactive/data-client';
 const BLOG_BASE_URL = 'https://dataclient.io/blog';
 const DRY_RUN = process.argv.includes('--dry-run');
+// Tags the released commit; gh would tag the default branch (master) instead
+const TARGET =
+  process.env.GITHUB_SHA ? ` --target ${process.env.GITHUB_SHA}` : '';
 
 function escapeRegExp(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -84,13 +87,15 @@ function releaseExists(tag) {
 function createRelease(tag, name, body) {
   if (DRY_RUN) {
     console.log(`  [dry-run] Would create release: ${tag}`);
-    console.log(`  Body preview: ${body.slice(0, 200)}${body.length > 200 ? '...' : ''}`);
+    console.log(
+      `  Body preview: ${body.slice(0, 200)}${body.length > 200 ? '...' : ''}`,
+    );
     return true;
   }
   console.log(`Creating release: ${tag}`);
   try {
     execSync(
-      `gh release create "${tag}" --repo ${REPO} --title "${name}" --notes-file -`,
+      `gh release create "${tag}" --repo ${REPO} --title "${name}" --notes-file -${TARGET}`,
       {
         input: body,
         stdio: ['pipe', 'inherit', 'inherit'],
@@ -105,7 +110,8 @@ function createRelease(tag, name, body) {
 }
 
 async function main() {
-  if (DRY_RUN) console.log('Running in dry-run mode (no releases will be created)\n');
+  if (DRY_RUN)
+    console.log('Running in dry-run mode (no releases will be created)\n');
   const packagesDir = join(process.cwd(), 'packages');
   const packageDirs = readdirSync(packagesDir, { withFileTypes: true })
     .filter(d => d.isDirectory())

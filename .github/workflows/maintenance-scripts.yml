@@ -1,0 +1,45 @@
+name: maintenance scripts
+# Tests scripts/maintenance/version-line.sh (its header lists its callers).
+# Gated by paths-gate.yml, so it can be required.
+on:
+  # master catches breaks from PRs merged in sequence
+  push:
+    branches:
+      - master
+    # version-line.sh, its tests, the workflows that source it, and this check's
+    # own wiring (paths-gate.yml reads this list)
+    paths:
+      - 'scripts/maintenance/**'
+      - '.github/workflows/release.yml'
+      - '.github/workflows/docs-snapshot.yml'
+      - '.github/workflows/maintenance-scripts.yml'
+      - '.github/workflows/paths-gate.yml'
+  pull_request:
+    branches:
+      - master
+  # Can be required: no `paths` (see paths-gate.yml)
+  merge_group:
+
+concurrency:
+  group: maintenance-scripts-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    if: github.event_name != 'push'
+    uses: ./.github/workflows/paths-gate.yml
+
+  test:
+    name: maintenance scripts
+    needs: gate
+    if: ${{ !cancelled() && needs.gate.outputs.relevant != 'false' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - run: bash scripts/maintenance/version-line.test.sh

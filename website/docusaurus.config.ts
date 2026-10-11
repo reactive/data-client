@@ -7,6 +7,7 @@ import path from 'path';
 import { themes } from 'prism-react-renderer';
 
 import gqlRedirects from './gqlRedirects';
+import { siteVersions, versionCurrent } from './siteVersions';
 import { motionCss } from './src/components/motion/css';
 import { DEFAULT_LOCALE, LOCALES } from './translate/locales';
 import versions from './versions.json';
@@ -33,6 +34,14 @@ const remarkEnglishPage = require('./translate/remarkEnglishPage.js');
 const remarkJoinCjkLines = require('./translate/remarkJoinCjkLines.js');
 // set by Docusaurus for the locale being built or served
 const currentLocale = process.env.DOCUSAURUS_CURRENT_LOCALE ?? DEFAULT_LOCALE;
+// This locale's path on the site root ('' or '/es')
+const localeRoot = currentLocale === DEFAULT_LOCALE ? '' : `/${currentLocale}`;
+const url = 'https://dataclient.io';
+// The production build of master while it's the next major, served at /next/
+// beside the current version's site (site-preview.yml). PR previews build
+// master alone, so they link to the current version on the production site.
+const isNext = !!versionCurrent && process.env.DOCS_NEXT === '1';
+const currentOrigin = isNext ? undefined : url;
 const vueDocs = frameworkDocs.generate('vue');
 // Each locale renders English with its translations in place
 // (translate/README.md); its Vue pages mirror its docs/core
@@ -84,8 +93,8 @@ const docsLocation = (id: string) => {
 const config: Config = {
   title: 'Data Client',
   tagline: 'Async State Management without the Management',
-  url: 'https://dataclient.io',
-  baseUrl: '/',
+  url,
+  baseUrl: isNext ? '/next/' : '/',
   organizationName: 'data-client',
   projectName: 'data-client',
   trailingSlash: false,
@@ -266,6 +275,11 @@ const config: Config = {
   clientModules: [
     require.resolve('./src/gtagfix.ts'),
     require.resolve('./src/staleDeploy.ts'),
+    // /next/ builds its blog so its links are checked, but sends in-app blog
+    // links to the root's, as vercel.json does page loads: blog URLs never change
+    ...(isNext ?
+      [require.resolve('./scripts/snapshot/rootBlog.client.ts')]
+    : []),
   ],
   //favicon: '/favicon.ico', we declare our own headers for this above
   themes: ['@docusaurus/theme-live-codeblock', '@docusaurus/theme-mermaid'],
@@ -273,6 +287,8 @@ const config: Config = {
     repoUrl: 'https://github.com/reactive/data-client',
     // read by FrameworkSelector to switch between differently named pages
     frameworkEquivalents: frameworkDocs.frameworkEquivalents(),
+    // read by VersionsNavbarItem
+    versions: siteVersions(currentOrigin),
   },
   onBrokenLinks: 'warn',
   future: {
@@ -525,12 +541,19 @@ const config: Config = {
       },
       { name: 'twitter:card', content: 'summary' },
     ],
-    announcementBar: {
-      id: 'announcementBar-2', // Increment on change
-      content:
-        LOCALES[currentLocale]?.announcement ??
-        `If you like Reactive Data Client, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/reactive/data-client">GitHub</a>`,
-    },
+    announcementBar:
+      versionCurrent ?
+        {
+          id: `next-${versionCurrent.version}`,
+          content: `You're reading the docs for the next, unreleased version. <a href="${currentOrigin ?? ''}${localeRoot}/docs">See the v${versionCurrent.version} docs</a>.`,
+          isCloseable: false,
+        }
+      : {
+          id: 'announcementBar-2', // Increment on change
+          content:
+            LOCALES[currentLocale]?.announcement ??
+            `If you like Reactive Data Client, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/reactive/data-client">GitHub</a>`,
+        },
     navbar: {
       title: 'Reactive Data Client',
       logo: {
@@ -572,27 +595,6 @@ const config: Config = {
           position: 'left',
         },
         { to: '/blog', label: 'News', position: 'left' },
-        /*{
-            type: 'docsVersionDropdown',
-            docsPluginId: 'default',
-            position: 'right',
-            dropdownItemsBefore: [
-              {
-                label: 'Upgrade Guide',
-                to: 'docs/upgrade/upgrading-to-7',
-              },
-            ],/
-          },
-          {
-            type: 'docsVersionDropdown',
-            docsPluginId: 'rest',
-            position: 'right',
-          },
-          {
-            type: 'docsVersionDropdown',
-            docsPluginId: 'graphql',
-            position: 'right',
-          }, TODO: Add back when we have versions to upgrade*/
         {
           to: 'demos',
           label: 'Demos',
@@ -601,6 +603,8 @@ const config: Config = {
           //className: 'header-demos-link',
           'aria-label': 'Demo Applications',
         },
+        // Latest (or next), current and archived versions (scripts/snapshot/README.md)
+        { type: 'custom-versions', position: 'right' },
         {
           href: 'https://github.com/reactive/data-client',
           position: 'right',
