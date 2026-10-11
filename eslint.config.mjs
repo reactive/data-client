@@ -78,6 +78,22 @@ export default [
     },
   },
   {
+    // Claude Code workflow scripts: the Workflow tool provides these globals
+    files: ['.claude/workflows/*.js'],
+    languageOptions: {
+      globals: {
+        agent: 'readonly',
+        parallel: 'readonly',
+        pipeline: 'readonly',
+        phase: 'readonly',
+        log: 'readonly',
+        args: 'readonly',
+        budget: 'readonly',
+        workflow: 'readonly',
+      },
+    },
+  },
+  {
     files: ['website/src/**/*.?(m|c)ts?(x)'],
     ignores: ['website/src/components/Playground/preview/**'],
     rules: {
