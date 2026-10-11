@@ -153,9 +153,8 @@ DesignSystem/       components injected into preview scope
   avoids scroll jumps. In `row` layout it slides over the code from the
   preview's edge (portaled into a layer `EditorSurface` stacks on the code,
   which goes `inert`), so the preview stays usable beside it; when the
-  layout stacks it opens upward over the code. Under header controls (the
-  homepage demos) it covers the file tabs too; otherwise they stay as the
-  header row, and switching files closes it. Its toggle is `StoreBadge` in
+  layout stacks it opens upward over the code. It covers the file tabs
+  too, which only pick the file shown. Its toggle is `StoreBadge` in
   the code's corner (rendered by `index.tsx` with the cover), which stays
   put as the Store slides under it and names what it brings back (Store,
   then Code); narrow, the preview header's icon takes over. Over the Store,

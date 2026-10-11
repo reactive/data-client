@@ -66,10 +66,7 @@ export default function Playground<T>({
   // Defer preview transpilation so editor input remains responsive.
   const documents = useDeferredValue(model.documents);
 
-  const [storeOpen, toggleStore, closeStore] = useStoreOpen(
-    groupId,
-    defaultOpen,
-  );
+  const [storeOpen, toggleStore] = useStoreOpen(groupId, defaultOpen);
   // Row layout: the Store slides over the code, leaving the preview usable
   const [storeHost, setStoreHost] = useState<HTMLDivElement | null>(null);
   const codeCovered = row && storeOpen;
@@ -101,8 +98,6 @@ export default function Playground<T>({
         }
         covered={codeCovered}
         coverTitle={<Translate id="playground.store">Store</Translate>}
-        // switching files asks for the code back (when the tabs stay visible)
-        onTabSelect={codeCovered ? closeStore : undefined}
       />
     </EditorShell>
   );
