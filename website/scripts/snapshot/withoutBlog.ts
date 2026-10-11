@@ -1,7 +1,6 @@
-// A site under /<version>/ or /next/ leaves the blog to the root's: vercel.json
-// and archive.client.ts send its /blog links there, so they only look broken
-// here. Used by docusaurus.config.ts for /next/, and by the archive wrapper,
-// beside which build.sh copies it, so it reads only fields every release's
+// An archive leaves the blog to the root's: vercel.json and archive.client.ts
+// send its /blog links there, so they only look broken here. build.sh copies
+// it beside an old release's config, so it reads only fields every release's
 // config has.
 type SiteConfig = {
   clientModules?: string[];
@@ -13,8 +12,7 @@ export default function withoutBlog<C extends SiteConfig>(config: C): C {
   return {
     ...config,
     // Docusaurus can't ignore only the blog's links, so this ignores every
-    // broken link. Master's PR builds keep the blog and still check them all;
-    // archives were checked when they released.
+    // broken link; archives were checked when they released.
     onBrokenLinks: 'ignore',
     clientModules: [
       ...(config.clientModules ?? []),

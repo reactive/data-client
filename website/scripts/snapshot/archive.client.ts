@@ -1,6 +1,6 @@
-// Added by withoutBlog.ts. A site under /<version>/ or /next/ has no blog, so
-// its in-app links there (navbar, footer, docs) load the root site's instead
-// of routing to its 404; vercel.json does the same for page loads.
+// Added to archives by withoutBlog.ts and to /next/ by docusaurus.config.ts.
+// The root serves the blog, so in-app links there (navbar, footer, docs) load
+// the root site's; vercel.json does the same for page loads.
 import siteConfig from '@generated/docusaurus.config';
 
 export function onRouteUpdate({ location }: { location: Location }) {

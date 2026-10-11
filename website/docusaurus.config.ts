@@ -8,7 +8,6 @@ import path from 'path';
 import { themes } from 'prism-react-renderer';
 
 import gqlRedirects from './gqlRedirects';
-import withoutBlog from './scripts/snapshot/withoutBlog';
 import { motionCss } from './src/components/motion/css';
 import { DEFAULT_LOCALE, LOCALES } from './translate/locales';
 import versions from './versions.json';
@@ -758,4 +757,15 @@ const config: Config = {
     },
   } satisfies Preset.ThemeConfig & PresetMermaid.ThemeConfig,
 };
-export default isNext ? withoutBlog(config) : config;
+// /next/ builds its blog too, so its links are checked, but the root's
+// serves it: archive.client.ts sends in-app links there, and vercel.json page
+// loads, so blog URLs never change
+export default isNext ?
+  {
+    ...config,
+    clientModules: [
+      ...(config.clientModules ?? []),
+      path.join(__dirname, 'scripts/snapshot/archive.client.ts'),
+    ],
+  }
+: config;
