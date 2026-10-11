@@ -371,6 +371,8 @@ jobs:
           config=.vercel/output/config.json
           jq -e '[.routes[] | select(.dest? // "" | startswith("/archives/"))] | length == 1' "$config" > /dev/null ||
             { echo "::error::$config has no archive host rewrite to move"; exit 1; }
+          jq -e 'any(.routes[]; .handle == "filesystem")' "$config" > /dev/null ||
+            { echo "::error::$config has no filesystem check to move it ahead of"; exit 1; }
           jq '.routes |= (
             map(select(.dest? // "" | startswith("/archives/"))) as $archive
             | (map(select(.dest? // "" | startswith("/archives/") | not))) as $rest
@@ -407,7 +409,8 @@ jobs:
           for version in $(jq -r '.[].version' website/versionsArchived.json); do
             domain="$version.dataclient.io"
             status="$(curl -sS -o /dev/null -w '%{http_code}' "${auth[@]}" \
-              "$api/v9/projects/$VERCEL_PROJECT_ID/domains/$domain?teamId=$VERCEL_ORG_ID")"
+              "$api/v9/projects/$VERCEL_PROJECT_ID/domains/$domain?teamId=$VERCEL_ORG_ID")" ||
+              status=000
             [ "$status" = 200 ] && continue
             curl -fsS -o /dev/null "${auth[@]}" -H 'Content-Type: application/json' \
               -d "{\"name\": \"$domain\"}" \

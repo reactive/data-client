@@ -8,8 +8,8 @@ export function onRouteUpdate({ location }: { location: Location }) {
   const { pathname, search, hash } = location;
   const page = pathname.slice(baseUrl.length);
   if (/^blog(\/|$)/.test(page)) {
-    // /next/es/ -> /es/: this locale on the root site, which an archive's
-    // own host (at its root) reaches through production's
+    // This locale on the root site: /next/es/ -> /es/, and from an archive's
+    // own host, production's
     const root =
       baseUrl.startsWith('/next/') ?
         baseUrl.slice('/next'.length)

@@ -17,15 +17,16 @@ const navbar = (themeConfig.navbar ?? {}) as { items?: unknown[] };
 // root and other locales under /<locale>/.
 const locale = process.env.DOCUSAURUS_CURRENT_LOCALE;
 const localePrefix = locale && locale !== 'en' ? `/${locale}` : '';
-const latest = 'https://dataclient.io';
-const latestDocs = `${localePrefix}/docs`;
+// every release's config has the production url
+const latestDocs = `${config.url}${localePrefix}/docs`;
 
 // An archive drops the version dropdown later releases have, linking to the
 // latest docs instead (below). The current version keeps it to list archives.
 const navbarItems = (navbar.items ?? []).filter(
   item => isCurrent || (item as { type?: string }).type !== 'custom-versions',
 );
-// Both label their version, replacing any label the release has
+// Archives and the current version both label their version, replacing any
+// label the release's config has
 const headTags = [
   ...(
     (config as { headTags?: { attributes?: { id?: string } }[] }).headTags ?? []
@@ -33,10 +34,10 @@ const headTags = [
   versionLabel(`v${version}`),
 ];
 // A link, not a dropdown: older releases' CSS hides dropdowns
-const navbarLink = (html: string, path: string) => ({
-  // html, not label: a pathname:// href would get an external link icon
+const navbarLink = (html: string, href: string) => ({
+  // html, not label: an absolute or pathname:// href gets an external link icon
   html,
-  href: `pathname://${path}`,
+  href,
   // outside this site's baseUrl
   autoAddBaseUrl: false,
   target: '_self',
@@ -60,7 +61,7 @@ export default {
     ...(!isCurrent && {
       announcementBar: {
         id: `archive-${version}`,
-        content: `You're reading the docs for v${version}. <a href="${latest}${latestDocs}">See the latest version</a>.`,
+        content: `You're reading the docs for v${version}. <a href="${latestDocs}">See the latest version</a>.`,
         isCloseable: false,
       },
     }),
@@ -69,8 +70,11 @@ export default {
       items: [
         ...navbarItems,
         isCurrent ?
-          navbarLink(`v${version} → Next`, `/next${latestDocs}`)
-        : navbarLink(`v${version} → Latest`, `${latest}${latestDocs}`),
+          navbarLink(
+            `v${version} → Next`,
+            `pathname:///next${localePrefix}/docs`,
+          )
+        : navbarLink(`v${version} → Latest`, latestDocs),
       ],
     },
   },

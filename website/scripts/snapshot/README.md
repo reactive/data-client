@@ -42,6 +42,10 @@ type-check, as they did when that release's CI passed. Archives add nothing to t
 
 ## Current and next
 
+**Now:** `0.18.x` serves [dataclient.io](https://dataclient.io) and master serves
+[dataclient.io/next](https://dataclient.io/next/) (`website/versionCurrent.json`). Update this line
+when that file changes.
+
 While master takes the next major's breaking changes, the root keeps the released version's docs
 and master's serve at `/next/`. [`scripts/maintenance/cut.sh`](../../../scripts/maintenance/README.md)
 starts this by cutting a `<version>.x` maintenance branch and adding `website/versionCurrent.json`

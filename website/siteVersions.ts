@@ -27,12 +27,6 @@ const LINE = /^(0\.\d+|[1-9]\d*)$/;
 export const archiveOrigin = (version: string) =>
   `https://${version}.dataclient.io`;
 
-/** The line a version belongs to. Matches line in version-line.sh */
-export const lineOf = (version: string) => {
-  const [major, minor] = version.split('-')[0].split('.');
-  return major === '0' ? `0.${minor}` : major;
-};
-
 const read = (file: string) =>
   fs.existsSync(path.join(__dirname, file)) ?
     JSON.parse(fs.readFileSync(path.join(__dirname, file), 'utf8'))
@@ -76,6 +70,18 @@ for (const { version, sha256 } of versionsArchived) {
     `${version} is both current and archived`,
   );
 }
+
+/** The line a version belongs to. Matches line in version-line.sh */
+const lineOf = (version: string) => {
+  const [major, minor] = version.split('-')[0].split('.');
+  return major === '0' ? `0.${minor}` : major;
+};
+
+/** This site's version, beside its logo: next while master is a major ahead */
+export const siteLabel =
+  versionCurrent ? 'next' : (
+    `v${lineOf(read('../packages/react/package.json').version)}`
+  );
 
 /**
  * @param currentOrigin where the current version's site is, when this site is

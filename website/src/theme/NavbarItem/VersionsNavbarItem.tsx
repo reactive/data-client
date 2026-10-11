@@ -47,7 +47,8 @@ export default function VersionsNavbarItem(
   if (!targets.length) return null;
 
   const page = pathname.slice(baseUrl.length - 1);
-  // This page in it, else its section start, which every version has
+  // This page in it, else its section start: this locale's, or English's
+  // when the version lacks the locale
   const hrefIn = ({ root }: (typeof targets)[number]) => {
     const paths = routes[root];
     // Until its pages load, this locale's section start
@@ -105,7 +106,7 @@ async function requestRoutes(): Promise<Routes> {
     );
   };
   // Other origins' sitemaps allow this (vercel.json)
-  const entries = await Promise.all(
+  const results = await Promise.allSettled(
     targets.map(async ({ root }) => {
       const sitemaps = [`${root}/sitemap.xml`];
       if (locale) sitemaps.push(`${root}${locale}/sitemap.xml`);
@@ -113,5 +114,12 @@ async function requestRoutes(): Promise<Routes> {
       return [root, new Set(paths)] as const;
     }),
   );
-  return Object.fromEntries(entries);
+  // one version's failure leaves the others' pages, and is asked again next time
+  if (results.some(({ status }) => status === 'rejected'))
+    routesRequest = undefined;
+  return Object.fromEntries(
+    results.flatMap(result =>
+      result.status === 'fulfilled' ? [result.value] : [],
+    ),
+  );
 }
