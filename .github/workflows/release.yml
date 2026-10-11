@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     branches:
-      - master
+      - 0.18.x
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
@@ -31,7 +31,7 @@ jobs:
         uses: changesets/action@v1
         with:
           version: yarn changeset:version
-          publish: yarn changeset:publish
+          publish: bash scripts/maintenance/publish.sh
           commit: "internal: Publish new version"
           createGithubReleases: false
         env:
