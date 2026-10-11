@@ -1,7 +1,8 @@
 // Copied next to an old release's docusaurus.config.ts by build.sh, so the
 // site builds with that release's own config. An archive moves under
 // /<version>/; the current version (SNAPSHOT_ROLE=current, while master is
-// the next major) stays at the root and links to /next/.
+// the next major) stays at the root and links to /next/. Neither has a blog:
+// the latest site's has every post.
 // Keep it to fields every release's config has: it runs against old ones.
 import config from './docusaurus.config';
 import withoutBlog from './withoutBlog';
@@ -34,8 +35,11 @@ const navbarLink = (html: string, path: string) => ({
   position: 'right',
 });
 
+// The latest site's blog, which is at /next/ while it's the next major
 const site =
-  isCurrent ? config : { ...withoutBlog(config), baseUrl: `/${version}/` };
+  isCurrent ?
+    withoutBlog(config, `/next${localePrefix}/blog`)
+  : { ...withoutBlog(config, `${localePrefix}/blog`), baseUrl: `/${version}/` };
 
 export default {
   ...site,

@@ -9,8 +9,8 @@ type-check, as they did when that release's CI passed. Archives add nothing to t
 - `build.sh <checkout> <version> <out.tar.gz>` builds an archive from a checkout of a release. It
   copies `docusaurus.snapshot.config.ts` beside that release's config, which moves it under
   `/<version>/`, drops its blog with `withoutBlog.ts` (the latest site has every post; `vercel.json`
-  redirects `/<version>/blog` page loads, and `archive.client.ts` its in-app links), and swaps the version
-  dropdown for a banner and navbar link back to the latest docs. The wrapper runs against old
+  redirects `/<version>/blog` page loads, and `archive.client.ts` its in-app links), and swaps the
+  version dropdown for a banner and navbar link back to the latest docs. The wrapper runs against old
   configs, so it only reads fields every release has.
 - `.github/workflows/docs-snapshot.yml` runs it in a job with no write token or dependency cache,
   since the release's install and build run third-party code. A second job, which runs nothing from
@@ -39,14 +39,15 @@ starts this by cutting a `<version>.x` maintenance branch and adding `website/ve
 (`{ "version", "ref" }`) to master. While that file exists:
 
 - `site-preview.yml`'s production and merge queue builds of master set `DOCS_NEXT=1`:
-  `docusaurus.config.ts` builds at `/next/` without the blog, through the same `withoutBlog.ts` (its
-  News and Blog links go to the root's). Every build of master shows an "unreleased" banner, and the
-  version dropdown reads Next and lists the current version.
+  `docusaurus.config.ts` builds at `/next/`, blog included, so posts merged to master publish and run
+  master's code. Every build of master shows an "unreleased" banner, and the version dropdown reads
+  Next and lists the current version.
 - Its `current` job builds the maintenance branch at the root with `SNAPSHOT_ROLE=current build.sh`
-  (the wrapper adds a navbar link to `/next/`, and keeps the version dropdown, the blog and every
-  static file), cached by the branch's commit so master's deploys rebuild it only when the branch
-  changes, and `docs deploy` puts it beside `/next/` and the archives. `vercel.json` sends `/next/*`
-  to the root whenever there is no next build (`docs deploy` drops that redirect while there is one,
-  and fails if it's gone), and `/next/blog` to the root's blog.
+  (the wrapper adds a navbar link to `/next/`, keeps the version dropdown and every static file, and
+  drops the blog with `withoutBlog.ts`, sending its links to `/next/blog`), cached by the branch's
+  commit so master's deploys rebuild it only when the branch changes, and `docs deploy` puts it
+  beside `/next/` and the archives. `vercel.json` sends `/next/*` to the root whenever there is no
+  next build. While there is one, `docs deploy` swaps that redirect (failing if it's gone) for
+  temporary ones from the root's `/blog` to `/next/blog`.
 - The release of the next major archives the current version from its branch, and the listing PR
   deletes `versionCurrent.json`, so master serves the root again.

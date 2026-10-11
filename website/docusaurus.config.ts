@@ -8,7 +8,6 @@ import path from 'path';
 import { themes } from 'prism-react-renderer';
 
 import gqlRedirects from './gqlRedirects';
-import withoutBlog from './scripts/snapshot/withoutBlog';
 import { motionCss } from './src/components/motion/css';
 import { DEFAULT_LOCALE, LOCALES } from './translate/locales';
 import versions from './versions.json';
@@ -758,4 +757,4 @@ const config: Config = {
     },
   } satisfies Preset.ThemeConfig & PresetMermaid.ThemeConfig,
 };
-export default isNext ? withoutBlog(config) : config;
+export default config;
