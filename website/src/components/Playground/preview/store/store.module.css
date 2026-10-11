@@ -16,8 +16,11 @@
   --store-hover: rgba(255, 255, 255, 0.045);
   --store-selected: rgba(130, 170, 255, 0.16);
   --store-record: rgba(130, 170, 255, 0.07);
-  --store-flash: rgba(255, 203, 107, 0.3);
-  --store-stale-bg: rgba(255, 203, 107, 0.09);
+  --store-flash: color-mix(in srgb, var(--store-stale) 30%, transparent);
+  --store-flash-added: color-mix(in srgb, var(--store-fresh) 30%, transparent);
+  --store-flash-removed: color-mix(in srgb, var(--store-null) 30%, transparent);
+  --store-stale-bg: color-mix(in srgb, var(--store-stale) 9%, transparent);
+  --store-fresh-bg: color-mix(in srgb, var(--store-fresh) 9%, transparent);
   --store-tip: #3a4057;
   --store-bg: var(--monoco-code-background);
 
@@ -461,9 +464,13 @@ div.row[data-change='removed'] {
   text-decoration-color: var(--store-dim);
 }
 /* a cell an update changed, and what it was (after it, so a narrow cell
-   cuts the old value rather than the new) */
+   cuts the old value rather than the new); a field it added is fresh, like
+   an added row, though the row itself was updated */
 .row > td[data-changed] {
   background: var(--store-stale-bg);
+}
+.row > td[data-changed='added'] {
+  background: var(--store-fresh-bg);
 }
 .cellWas {
   margin-left: 0.5em;
@@ -1217,26 +1224,20 @@ div.joined {
 }
 
 /* The scrubber: the whole history in one lane across the top, with ‹ ›,
-   "Live" and the lanes' expand beside it. Stale-colored while the moment is
-   in the past, when a second line says which action it is after */
+   "Live" and the lanes' expand beside it. "Live" says whether the moment is
+   live; in the past a second line says which action it is after */
 .scrubber {
   flex: none;
   display: flex;
   flex-direction: column;
-  background: var(--store-stale-bg);
-  box-shadow: inset 0 -1px 0 rgba(255, 203, 107, 0.28);
-  color: var(--store-stale);
+  box-shadow: inset 0 -1px 0 var(--store-line);
+  color: var(--store-muted);
   font-size: 11px;
   outline: none;
 }
 .scrubber:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
   outline-offset: -2px;
-}
-.scrubber.tlLive {
-  background: none;
-  box-shadow: inset 0 -1px 0 var(--store-line);
-  color: var(--store-muted);
 }
 .scrubRow {
   display: flex;
@@ -1273,28 +1274,35 @@ div.joined {
 .scrubTrack .tlPlayhead {
   top: 0;
 }
-/* live, a span that only says so */
+/* "Live": in the past, a plain button back to it, its dot hollow; live, a
+   span that only says so, green with its dot lit */
 .scrubRow > .liveButton {
   flex: none;
-  padding: 0 0.4rem;
-  border-color: rgba(127, 209, 160, 0.45);
-  color: var(--store-fresh);
-  font: 500 11px / 1.6 var(--ifm-font-family-base);
-}
-/* live is the moment: a soft fill and a dot mark it as the one picked */
-.scrubRow > .liveCurrent {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
+  padding: 0 0.4rem;
+  border: 1px solid var(--store-line-strong);
   border-radius: 4px;
-  background: rgba(127, 209, 160, 0.12);
-  box-shadow: inset 0 0 0 1px rgba(127, 209, 160, 0.3);
+  color: var(--store-muted);
+  font: 500 11px / 1.6 var(--ifm-font-family-base);
 }
-.liveCurrent::before {
+.liveButton::before {
   content: '';
   width: 5px;
   height: 5px;
   border-radius: 50%;
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+.scrubRow > button.liveButton:hover,
+.scrubRow > .liveCurrent {
+  border-color: color-mix(in srgb, var(--store-fresh) 40%, transparent);
+  color: var(--store-fresh);
+}
+.scrubRow > .liveCurrent {
+  background: color-mix(in srgb, var(--store-fresh) 12%, transparent);
+}
+.liveCurrent::before {
   background: currentColor;
 }
 /* the icon buttons' look (see .tlFit), smaller */

@@ -369,28 +369,6 @@ function parseKey(key: string) {
   }
 }
 
-/** Whether row `id`'s stored value (or meta) differs between two states */
-export function isChanged(
-  prev: State<unknown>,
-  next: State<unknown>,
-  id: string,
-) {
-  const ref = parseRowId(id);
-  if (!ref) return false;
-  if (ref.kind === 'endpoint') {
-    const { key } = ref;
-    return (
-      prev.endpoints[key] !== next.endpoints[key] ||
-      prev.meta[key] !== next.meta[key]
-    );
-  }
-  const { table, pk } = ref;
-  return (
-    prev.entities[table]?.[pk] !== next.entities[table]?.[pk] ||
-    prev.entitiesMeta[table]?.[pk] !== next.entitiesMeta[table]?.[pk]
-  );
-}
-
 /** Collection pks are serialized args: `{"userId":"1"}` → `userId: 1` */
 export function prettyPk(pk: string) {
   if (!pk.startsWith('{')) return pk;

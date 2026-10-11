@@ -286,13 +286,17 @@ export function FieldChange({
   was?: VNode;
   now?: VNode;
 }) {
-  return (
+  const change = (
     <>
       <span className={styles.key}>{name}</span>
       <span className={styles.dim}>: </span>
       <ValueChange was={was} now={now} name={name} />
     </>
   );
+  // a field the update added reads as added, like an added list item
+  return was === undefined && now !== undefined ?
+      <ins className={styles.ins}>{change}</ins>
+    : change;
 }
 
 /** `old → new`, or a list or object item by item */

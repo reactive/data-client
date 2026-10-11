@@ -109,6 +109,16 @@ function entityChange(
     : { kind: 'refreshed', id, table, pk };
 }
 
+/** How row `id` differs between two states, as a diff names it */
+export function changeOf(
+  prev: State<unknown>,
+  next: State<unknown>,
+  id: string,
+): ChangeKind | undefined {
+  const row = rowOf(id);
+  return row && rowChange(prev, next, row)?.kind;
+}
+
 /** How one row differs between two states */
 function rowChange(
   prev: State<unknown>,

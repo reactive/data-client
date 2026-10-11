@@ -381,7 +381,7 @@ export const Scrubber = memo(function Scrubber({
   return (
     <div
       ref={bar}
-      className={clsx(styles.scrubber, !entry && styles.tlLive)}
+      className={styles.scrubber}
       tabIndex={0}
       role="group"
       aria-label="Scrubber: arrow keys step through changes, End returns to live"

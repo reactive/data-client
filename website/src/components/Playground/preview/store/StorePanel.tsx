@@ -26,6 +26,7 @@ import {
   type ActionGroup,
   type ChangeKind,
   type SubjectFilter,
+  changeOf,
 } from './actionGroups';
 import { ActionsLevel, ActionsPane, GroupActions } from './ActionList';
 import {
@@ -53,7 +54,6 @@ import { flash, scrollToRow, slide } from './dom';
 import {
   buildModel,
   findRow,
-  isChanged,
   isEndpointRow,
   pendingIn,
   type StoreModel,
@@ -921,7 +921,8 @@ function Level({
     if (before === null || !active || active === document.body)
       el.focus({ preventScroll: true });
     slide(el, before === null ? 1 : -1);
-    if (before === false && returnTo) flash(el, id => id === returnTo);
+    if (before === false && returnTo)
+      flash(el, id => (id === returnTo ? 'updated' : undefined));
   }, [top, pushed, returnTo]);
   return (
     <div
@@ -1338,7 +1339,7 @@ function useWidth(ref: React.RefObject<HTMLElement | null>) {
 function useFlashChanges(
   ref: React.RefObject<HTMLElement | null>,
   state: State<unknown>,
-  changed: ReadonlyMap<string, unknown> | undefined,
+  changed: ReadonlyMap<string, RowDiff> | undefined,
 ) {
   const prev = useRef(state);
   useEffect(() => {
@@ -1351,7 +1352,7 @@ function useFlashChanges(
     if (!el || before === state) return;
     flash(
       el,
-      changed ? id => changed.has(id) : id => isChanged(before, state, id),
+      changed ? id => changed.get(id)?.kind : id => changeOf(before, state, id),
     );
   }, [ref, state, changed]);
 }
