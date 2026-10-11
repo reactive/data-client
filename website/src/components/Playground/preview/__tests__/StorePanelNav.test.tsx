@@ -184,25 +184,28 @@ describe('StorePanel navigation', () => {
         const top = level && level !== this ? -level.scrollTop : 0;
         return { top, bottom: top, height: 0 } as DOMRect;
       });
-    const many = range(120);
-    mount({
-      ...state,
-      entities: {
-        ...state.entities,
-        Comment: Object.fromEntries(
-          many.map(id => [id, { id, text: `comment ${id}` }]),
-        ),
-      },
-    } as State<unknown>);
-    fireEvent.click(group('Comment').getByText('115 more'));
-    // the pushed level renders its first rows, then follows its own scroll
-    expect(row(entityId('Comment', '100'))).toBeNull();
-    act(() => {
-      top().scrollTop = 100 * 28;
-      fireEvent.scroll(top());
-    });
-    expect(row(entityId('Comment', '100'))).toBeTruthy();
-    rect.mockRestore();
+    try {
+      const many = range(120);
+      mount({
+        ...state,
+        entities: {
+          ...state.entities,
+          Comment: Object.fromEntries(
+            many.map(id => [id, { id, text: `comment ${id}` }]),
+          ),
+        },
+      } as State<unknown>);
+      fireEvent.click(group('Comment').getByText('115 more'));
+      // the pushed level renders its first rows, then follows its own scroll
+      expect(row(entityId('Comment', '100'))).toBeNull();
+      act(() => {
+        top().scrollTop = 100 * 28;
+        fireEvent.scroll(top());
+      });
+      expect(row(entityId('Comment', '100'))).toBeTruthy();
+    } finally {
+      rect.mockRestore();
+    }
   });
 
   it('ignores Escape at the root', () => {
