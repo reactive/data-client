@@ -78,7 +78,7 @@ export default [
     },
   },
   {
-    // Claude Code workflow scripts: the Workflow tool provides these globals
+    // Claude Code workflow scripts: the Workflow tool's full script API
     files: ['.claude/workflows/*.js'],
     languageOptions: {
       globals: {

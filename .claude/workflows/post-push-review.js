@@ -1,19 +1,23 @@
+// A pure literal: the Workflow tool reads it without running the script
 export const meta = {
   name: 'post-push-review',
   description:
     'Parallel Haiku review of a pushed diff: goals, engineering, adversarial, reuse, and React data flow',
   whenToUse:
-    'After pushing commits. args: { range: "<base>..<head>", goals?: "extra project goals" } or just the range string. Returns unverified findings; the caller verifies each one.',
+    'After pushing commits. args: { range, goals? } or just the range string. range covers only the pushed commits: "<sha before push>..HEAD", or "origin/master...HEAD" (three dots) for a whole branch. Returns unverified findings; the caller verifies each one.',
   phases: [{ title: 'Review', model: 'haiku' }],
 };
 
-const range = typeof args === 'string' ? args : args?.range;
+// Run by the Workflow tool, which provides args, agent, parallel, phase and log
+// and wraps this body in an async function (so top-level await and return work).
+
+const { range, goals: extraGoals } =
+  typeof args === 'string' ? { range: args } : (args ?? {});
 if (!range) {
   throw new Error(
-    'post-push-review needs the pushed diff range, e.g. { range: "origin/master..HEAD" }',
+    'post-push-review needs the pushed diff range, e.g. { range: "origin/master...HEAD" }',
   );
 }
-const extraGoals = typeof args === 'object' ? args.goals : undefined;
 
 const FINDINGS_SCHEMA = {
   type: 'object',
@@ -54,7 +58,7 @@ const GOALS = `The project goals are in GOALS.md at the repo root; read it.${
 }`;
 
 const brief = focus => `You are reviewing a pushed change in this repository.
-Read the diff with \`git diff ${range}\` (and \`git log ${range}\` for intent), and open the surrounding code as needed.
+Start with \`git log ${range}\` for intent and \`git diff --stat ${range}\` for scope, then read \`git diff ${range} -- <paths>\` for the files that matter and open the surrounding code as needed. Skip lockfiles and generated files (translations under website/i18n, built references, editor types).
 
 ${focus}
 
@@ -74,7 +78,7 @@ Flag anything that works against a goal (added complexity, new runtime dependenc
   {
     name: 'engineering',
     prompt: brief(`Focus: software engineering principles and clean code.
-Flag: unclear naming, functions doing more than one thing or mixing levels of abstraction, logic placed away from the concept that owns it, duplication, dead or speculative code, needless configuration or indirection, missing or misleading comments where intent is non-obvious, and tests that don't cover the change's behavior.`),
+Flag: unclear naming, functions doing more than one thing or mixing levels of abstraction, logic placed away from the concept that owns it, duplication within the change (code that duplicates what already exists in the repo is the reuse reviewer's), dead or speculative code, needless configuration or indirection, missing or misleading comments where intent is non-obvious, and tests that don't cover the change's behavior.`),
   },
   {
     name: 'adversarial',
