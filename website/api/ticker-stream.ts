@@ -21,6 +21,8 @@ const LIFETIME_MS = 280_000;
 
 export const config = { maxDuration: 300 };
 
+const encoder = new TextEncoder();
+
 export function GET(request: Request): Response {
   const productIds = parseProductIds(
     new URL(request.url).searchParams.get('product_ids'),
@@ -30,20 +32,29 @@ export function GET(request: Request): Response {
       status: 400,
     });
 
-  const encoder = new TextEncoder();
   const socket = new WebSocket(COINBASE_FEED);
   let keepalive: ReturnType<typeof setInterval>;
   let lifetime: ReturnType<typeof setTimeout>;
-  const stop = () => {
+  let stream: ReadableStreamDefaultController<Uint8Array>;
+  let done = false;
+  /** Every way the stream can end comes here, once */
+  const end = () => {
+    if (done) return;
+    done = true;
     clearInterval(keepalive);
     clearTimeout(lifetime);
-    // a late message would write to the closed stream
-    socket.onmessage = null;
+    socket.onclose = socket.onmessage = null;
     socket.close();
+    try {
+      stream.close();
+    } catch {
+      // the client went away (cancel)
+    }
   };
 
   const body = new ReadableStream<Uint8Array>({
     start(controller) {
+      stream = controller;
       let lastSent = Date.now();
       let lastUpstream = Date.now();
       const send = (tickers: ReturnType<typeof toTicker>[]) => {
@@ -52,25 +63,19 @@ export function GET(request: Request): Response {
         );
         lastSent = Date.now();
       };
-      const end = () => {
-        stop();
-        try {
-          controller.close();
-        } catch {
-          // already closed, or the client went away
-        }
-      };
 
-      // one product per subscribe, so an unknown one fails alone
+      // one product per subscribe, so an unknown one fails alone;
+      // one heartbeat (a message per second) shows Coinbase is alive
       socket.onopen = () => {
-        for (const productId of productIds)
+        productIds.forEach((productId, i) =>
           socket.send(
             JSON.stringify({
               type: 'subscribe',
               product_ids: [productId],
-              channels: ['ticker_batch', 'heartbeat'],
+              channels: i ? ['ticker_batch'] : ['ticker_batch', 'heartbeat'],
             }),
-          );
+          ),
+        );
       };
       socket.onmessage = event => {
         lastUpstream = Date.now();
@@ -92,7 +97,7 @@ export function GET(request: Request): Response {
       lifetime = setTimeout(end, LIFETIME_MS);
       request.signal.addEventListener('abort', end);
     },
-    cancel: stop,
+    cancel: end,
   });
 
   return new Response(body, {

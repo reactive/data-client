@@ -95,10 +95,10 @@ export class ReconnectingEventSource {
     else this.reconnect();
   };
 
-  protected stop = () => {
+  protected stop() {
     clearTimeout(this.timer);
     if (!this.source) return;
     this.source.onmessage = this.source.onerror = null;
     this.source.close();
-  };
+  }
 }
