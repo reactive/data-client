@@ -54,6 +54,8 @@ const FRAMEWORKS = {
     isApp: () => true,
     compiler: ['@typescript/native', 'bin/tsc'],
     jsx: 'react-jsx',
+    // the playground editor's setting (Playground/monaco/setup.ts)
+    exactOptionalPropertyTypes: true,
     // `render()` mounts a playground's app
     globals: `import type { FC, ReactNode } from 'react';
 
@@ -69,6 +71,7 @@ ${PLACEHOLDERS.map(name => `  const ${name}: FC<any>;`).join('\n')}
     isApp: group => group.some(isVue),
     compiler: ['vue-tsc', 'bin/vue-tsc.js'],
     jsx: 'preserve',
+    exactOptionalPropertyTypes: false,
     globals: `import type { DefineComponent } from 'vue';
 
 declare module 'vue' {
@@ -201,7 +204,8 @@ function examplesOf(framework) {
 
 /** Type errors in a framework's examples, located in their docs */
 function check(framework, examples) {
-  const { compiler, jsx, globals } = FRAMEWORKS[framework];
+  const { compiler, jsx, exactOptionalPropertyTypes, globals } =
+    FRAMEWORKS[framework];
   // inside the repo, so examples resolve its node_modules
   fs.mkdirSync(path.join(ROOT, 'node_modules/.cache'), { recursive: true });
   const OUT = fs.mkdtempSync(
@@ -280,6 +284,7 @@ function check(framework, examples) {
         lib: ['dom', 'es2024'],
         types: ['jest'],
         strict: true,
+        exactOptionalPropertyTypes,
         // examples leave out types readers don't need
         noImplicitAny: false,
         noEmit: true,
