@@ -17,8 +17,8 @@ change to keep what merged since. The script:
     `site-preview.yml`'s pull_request trigger at the branch, so its PRs get a site preview, and
     publishes with `publish.sh`, which uses npm's `latest` tag until the next major ships and
     `latest-<version>` after, so `latest` stays on the newest major;
-  - points its pages' edit links and its GitHub release tags at the branch, and takes master's
-    `versionsArchived.json` without `versionCurrent.json` (a release tag predates both changing);
+  - points its pages' edit links and its GitHub release tags at the branch, and drops
+    `versionCurrent.json` (a release tag predates its archive listing PR deleting it);
   - adds `maintenance.yml`, which redeploys the docs (dispatching master's `site-preview.yml`) and
     opens a PR cherry-picking each push onto master, skipping its version bumps. A pick that doesn't
     apply leaves a warning to port it by hand. The workflow token opens it, so push a commit (or

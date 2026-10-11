@@ -47,6 +47,7 @@ jobs:
     outputs:
       deploy: ${{ steps.decide.outputs.deploy }}
       english-only: ${{ steps.locales.outputs.english-only }}
+      next: ${{ steps.next.outputs.next }}
       target: ${{ steps.decide.outputs.target }}
     steps:
       - name: Checkout
@@ -215,6 +216,7 @@ jobs:
           persist-credentials: false
           sparse-checkout: |
             website/versionCurrent.json
+            website/versionsArchived.json
             website/scripts/snapshot
           sparse-checkout-cone-mode: false
       - name: Read the current version
@@ -226,14 +228,14 @@ jobs:
           sha="$(git ls-remote origin "refs/heads/$ref" | cut -f1)"
           [ -n "$sha" ] || { echo "::error::No $ref branch to build the root from"; exit 1; }
           { echo "version=$(jq -r .version "$f")"; echo "ref=$ref"; echo "sha=$sha"; } >> "$GITHUB_OUTPUT"
-      # Only the branch and the snapshot scripts change its build, so master
-      # pushes reuse it
+      # Only the branch, the snapshot scripts and the archive list change its
+      # build, so master pushes reuse it
       - if: steps.current.outputs.sha
         id: cache
         uses: actions/cache/restore@v6
         with:
           path: current.tar.gz
-          key: current-site-${{ steps.current.outputs.sha }}-${{ hashFiles('website/scripts/snapshot/**') }}
+          key: current-site-${{ steps.current.outputs.sha }}-${{ hashFiles('website/scripts/snapshot/**', 'website/versionsArchived.json') }}
       - if: steps.current.outputs.sha && !steps.cache.outputs.cache-hit
         uses: actions/checkout@v7
         with:
@@ -261,7 +263,7 @@ jobs:
         uses: actions/cache/save@v6
         with:
           path: current.tar.gz
-          key: current-site-${{ steps.current.outputs.sha }}-${{ hashFiles('website/scripts/snapshot/**') }}
+          key: current-site-${{ steps.current.outputs.sha }}-${{ hashFiles('website/scripts/snapshot/**', 'website/versionsArchived.json') }}
       - if: steps.current.outputs.sha
         uses: actions/upload-artifact@v7
         with:
@@ -294,6 +296,15 @@ jobs:
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       VERCEL_TELEMETRY_DISABLED: '1'
     steps:
+      # Both jobs read versionCurrent.json, in parallel: a root without /next,
+      # or /next without a root, would ship a broken site
+      - name: Check the root and /next agree
+        env:
+          NEXT: ${{ needs.build.outputs.next }}
+          REF: ${{ needs.current.outputs.ref }}
+        run: |
+          [ "${NEXT:+1}" = "${REF:+1}" ] ||
+            { echo "::error::/next built: ${NEXT:-no}, but the root built from: ${REF:-nothing}"; exit 1; }
       # vercel build reads the first three (api/ holds the site's functions,
       # which it bundles); production also runs vercel-ignore.sh --superseded.
       # No other repo scripts run: vercel build only runs vercel.json's guard

@@ -42,12 +42,13 @@ jobs:
     env:
       VERSION: ${{ inputs.version }}
     steps:
-      - name: Check version
-        run: |
-          [[ "$VERSION" =~ ^[0-9]+(\.[0-9]+)?$ ]] || { echo "::error::version must look like 0.18"; exit 1; }
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
+      - name: Check version
+        run: |
+          source scripts/maintenance/version-line.sh
+          is_line "$VERSION" || { echo "::error::version must be a release line, like 0.18 or 1"; exit 1; }
       - name: Pick the release
         id: ref
         env:
@@ -130,8 +131,7 @@ jobs:
             const { VERSION: version, SHA256: sha256 } = process.env;
             const versions = JSON.parse(fs.readFileSync(file, "utf8"))
               .filter(v => v.version !== version)
-              .concat({ version, sha256 })
-              .sort((a, b) => b.version.localeCompare(a.version, undefined, { numeric: true }));
+              .concat({ version, sha256 });
             fs.writeFileSync(file, JSON.stringify(versions, null, 2) + "\n");
             // Archived, so it no longer serves at the root: master does again
             const current = "website/versionCurrent.json";

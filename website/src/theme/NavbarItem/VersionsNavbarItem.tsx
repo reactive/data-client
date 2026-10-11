@@ -11,16 +11,11 @@ import {
   docsInstance,
   trimRoute,
 } from '../../../framework-docs/docsInstances.js';
-import versionsArchived from '../../../versionsArchived.json';
+import type { SiteVersions } from '../../../siteVersions';
 
 const { baseUrl } = siteConfig;
-// Where each version lives: '' for the site root, else '/<version>'. While
-// master is the next major, the current version's site is the root.
-const current = siteConfig.customFields?.versionCurrent as string | null;
-const targets = [
-  ...(current ? [{ version: current, root: '' }] : []),
-  ...versionsArchived.map(({ version }) => ({ version, root: `/${version}` })),
-];
+const { next, others: targets } = siteConfig.customFields
+  ?.versions as SiteVersions;
 // '' or this locale build's '/es'
 const locale =
   i18n.currentLocale === i18n.defaultLocale ? '' : `/${i18n.currentLocale}`;
@@ -35,10 +30,10 @@ export default function VersionsNavbarItem(
   props: Omit<DropdownProps, 'items'>,
 ): React.JSX.Element | null {
   const { pathname } = useLocation();
+  const pluginId = useActivePlugin()?.pluginId;
   // Pages outside the docs (home, blog) go to the default framework's docs
-  const section = (
-    docsInstance(useActivePlugin()?.pluginId) ?? FRAMEWORK_INSTANCES[0]
-  ).routeBasePath;
+  const section = (docsInstance(pluginId) ?? FRAMEWORK_INSTANCES[0])
+    .routeBasePath;
   const [routes, setRoutes] = useState<Routes>({});
   const loadRoutes = useCallback(() => {
     fetchRoutes().then(setRoutes);
@@ -65,7 +60,7 @@ export default function VersionsNavbarItem(
   return (
     <DropdownNavbarItem
       {...props}
-      label={current ? 'Next' : 'Latest'}
+      label={next ? 'Next' : 'Latest'}
       onPointerEnter={loadRoutes}
       onFocus={loadRoutes}
       items={targets.map(target => ({
@@ -105,12 +100,15 @@ async function requestRoutes(): Promise<Routes> {
     );
   };
   const entries = await Promise.all(
-    targets.map(async ({ root }) => {
-      const sitemaps = [`${root}/sitemap.xml`];
-      if (locale) sitemaps.push(`${root}${locale}/sitemap.xml`);
-      const paths = (await Promise.all(sitemaps.map(pathsIn))).flat();
-      return [root, new Set(paths)] as const;
-    }),
+    // another origin's (production's, from a preview) can't be read
+    targets
+      .filter(({ root }) => !root.includes('://'))
+      .map(async ({ root }) => {
+        const sitemaps = [`${root}/sitemap.xml`];
+        if (locale) sitemaps.push(`${root}${locale}/sitemap.xml`);
+        const paths = (await Promise.all(sitemaps.map(pathsIn))).flat();
+        return [root, new Set(paths)] as const;
+      }),
   );
   return Object.fromEntries(entries);
 }

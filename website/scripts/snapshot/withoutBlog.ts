@@ -1,4 +1,4 @@
-// An archive leaves the blog to the root's: vercel.json and archive.client.ts
+// An archive leaves the blog to the root's: vercel.json and rootBlog.client.ts
 // send its /blog links there, so they only look broken here. build.sh copies
 // it beside an old release's config, so it reads only fields every release's
 // config has.
@@ -16,7 +16,7 @@ export default function withoutBlog<C extends SiteConfig>(config: C): C {
     onBrokenLinks: 'ignore',
     clientModules: [
       ...(config.clientModules ?? []),
-      require.resolve('./archive.client'),
+      require.resolve('./rootBlog.client'),
     ],
     presets: config.presets?.map(preset =>
       Array.isArray(preset) && preset[0] === '@docusaurus/preset-classic' ?

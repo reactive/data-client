@@ -15,6 +15,8 @@ set -euo pipefail
 
 version="$1"
 here="$(cd "$(dirname "$0")" && pwd)"
+source "$here/version-line.sh"
+is_line "$version" || { echo "$version isn't a release line, like 0.18 or 1" >&2; exit 1; }
 git fetch --tags origin master
 ref="${2:-$("$here/../../website/scripts/snapshot/release-tag.sh" "$version")}"
 branch="$version.x"
@@ -42,11 +44,10 @@ grep -q 'edit/master' website/docusaurus.config.ts ||
 sed -i "s#/edit/master#/edit/$branch#g" website/docusaurus.config.ts
 cp "$here/../create-github-releases.mjs" scripts/
 mkdir -p scripts/maintenance
-cp "$here/publish.sh" scripts/maintenance/
-# A release tag predates its archive listing PR, so take master's: the
-# previous version is archived, not current
+cp "$here/publish.sh" "$here/version-line.sh" scripts/maintenance/
+# A release tag predates its archive listing PR: the previous version is
+# archived, not current (the root's build takes master's archive list)
 rm -f website/versionCurrent.json
-git show origin/master:website/versionsArchived.json > website/versionsArchived.json
 # Deploys the root docs and ports each push to master
 cp "$here/maintenance.yml" .github/workflows/
 git add -A

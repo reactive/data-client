@@ -2,12 +2,12 @@ import type * as Preset from '@docusaurus/preset-classic';
 import type * as PresetMermaid from '@docusaurus/theme-mermaid';
 import type { Config } from '@docusaurus/types';
 import { GlobExcludeDefault, getVcsPreset } from '@docusaurus/utils';
-import fs from 'fs';
 import { createRequire } from 'module';
 import path from 'path';
 import { themes } from 'prism-react-renderer';
 
 import gqlRedirects from './gqlRedirects';
+import { siteVersions, versionCurrent } from './siteVersions';
 import { motionCss } from './src/components/motion/css';
 import { DEFAULT_LOCALE, LOCALES } from './translate/locales';
 import versions from './versions.json';
@@ -36,16 +36,12 @@ const remarkJoinCjkLines = require('./translate/remarkJoinCjkLines.js');
 const currentLocale = process.env.DOCUSAURUS_CURRENT_LOCALE ?? DEFAULT_LOCALE;
 // This locale's path on the site root ('' or '/es')
 const localeRoot = currentLocale === DEFAULT_LOCALE ? '' : `/${currentLocale}`;
-// Present while master is the next major: the released version's docs then
-// serve at the root, built from its branch (scripts/snapshot/README.md).
-// Master's production build (DOCS_NEXT) then serves at /next/ beside it
-// (site-preview.yml); PR previews build master alone, without links to it.
-const versionCurrentFile = path.join(__dirname, 'versionCurrent.json');
-const versionCurrent: { version: string; ref: string } | undefined =
-  process.env.DOCS_NEXT === '1' && fs.existsSync(versionCurrentFile) ?
-    JSON.parse(fs.readFileSync(versionCurrentFile, 'utf8'))
-  : undefined;
-const isNext = !!versionCurrent;
+const url = 'https://dataclient.io';
+// The production build of master while it's the next major, served at /next/
+// beside the current version's site (site-preview.yml). PR previews build
+// master alone, so they link to the current version on the production site.
+const isNext = !!versionCurrent && process.env.DOCS_NEXT === '1';
+const currentSite = isNext ? '' : url;
 const vueDocs = frameworkDocs.generate('vue');
 // Each locale renders English with its translations in place
 // (translate/README.md); its Vue pages mirror its docs/core
@@ -97,7 +93,7 @@ const docsLocation = (id: string) => {
 const config: Config = {
   title: 'Data Client',
   tagline: 'Async State Management without the Management',
-  url: 'https://dataclient.io',
+  url,
   baseUrl: isNext ? '/next/' : '/',
   organizationName: 'data-client',
   projectName: 'data-client',
@@ -282,7 +278,7 @@ const config: Config = {
     // /next/ builds its blog so its links are checked, but sends in-app blog
     // links to the root's, as vercel.json does page loads: blog URLs never change
     ...(isNext ?
-      [require.resolve('./scripts/snapshot/archive.client.ts')]
+      [require.resolve('./scripts/snapshot/rootBlog.client.ts')]
     : []),
   ],
   //favicon: '/favicon.ico', we declare our own headers for this above
@@ -292,7 +288,7 @@ const config: Config = {
     // read by FrameworkSelector to switch between differently named pages
     frameworkEquivalents: frameworkDocs.frameworkEquivalents(),
     // read by VersionsNavbarItem
-    versionCurrent: versionCurrent?.version ?? null,
+    versions: siteVersions(currentSite),
   },
   onBrokenLinks: 'warn',
   future: {
@@ -549,7 +545,7 @@ const config: Config = {
       versionCurrent ?
         {
           id: `next-${versionCurrent.version}`,
-          content: `You're reading the docs for the next, unreleased version. <a href="${localeRoot}/docs">See the v${versionCurrent.version} docs</a>.`,
+          content: `You're reading the docs for the next, unreleased version. <a href="${currentSite}${localeRoot}/docs">See the v${versionCurrent.version} docs</a>.`,
           isCloseable: false,
         }
       : {

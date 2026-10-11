@@ -7,7 +7,7 @@ set -euo pipefail
 
 ours="$(node -p "require('./packages/react/package.json').version")"
 latest="$(npm view @data-client/react@latest version)"
-line() { [[ "$1" == 0.* ]] && echo "${1%.*}" || echo "${1%%.*}"; }
+source "$(dirname "$0")/version-line.sh"
 tag=latest
 [ "$(printf '%s\n%s\n' "$ours" "$latest" | sort -V | tail -1)" = "$ours" ] ||
   tag="latest-$(line "$ours")"

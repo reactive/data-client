@@ -56,8 +56,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # A breaking version (0.x minor, else major) replaces the previous one's
-      # docs, so docs-snapshot.yml freezes those at /<version>/
+      # A stable release of a new line (scripts/maintenance/version-line.sh)
+      # replaces the previous line's docs, so docs-snapshot.yml freezes those
+      # at /<version>/
       - name: Find docs to archive
         id: archive
         if: steps.changesets.outputs.hasChangesets == 'false'
@@ -70,16 +71,22 @@ jobs:
           old="$(git show "$BEFORE:packages/react/package.json" | jq -r .version)" ||
             warn "no packages/react/package.json at $BEFORE"
           new="$(jq -r .version packages/react/package.json)"
-          line() { [[ "$1" == 0.* ]] && echo "${1%.*}" || echo "${1%%.*}"; }
-          prev="$(line "$old")"
-          if [ "$prev" != "$(line "$new")" ] && [[ "$old" != *-* ]]; then
-            echo "version=$prev" >> "$GITHUB_OUTPUT"
+          # only this push's stable release can start a line
+          [ "$old" != "$new" ] && [[ "$new" != *-* ]] || exit 0
+          source scripts/maintenance/version-line.sh
+          cur=website/versionCurrent.json
+          if [ -f "$cur" ]; then
+            # the line master was ahead of, built from its branch
+            prev="$(jq -r .version "$cur")"
+            ref="$(jq -r .ref "$cur")"
+          elif [[ "$old" == *-* ]]; then
+            warn "the previous version, $old, is a prerelease"
+          else
+            prev="$(line "$old")"
             ref="@data-client/react@$old"
-            # its branch, if it had one while master was the next major
-            cur=website/versionCurrent.json
-            [ -f "$cur" ] && [ "$(jq -r .version "$cur")" = "$prev" ] && ref="$(jq -r .ref "$cur")"
-            echo "ref=$ref" >> "$GITHUB_OUTPUT"
           fi
+          [ "$prev" = "$(line "$new")" ] ||
+            { echo "version=$prev"; echo "ref=$ref"; } >> "$GITHUB_OUTPUT"
 
   docs-archive:
     needs: release
