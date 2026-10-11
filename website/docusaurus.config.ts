@@ -2,6 +2,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 import type * as PresetMermaid from '@docusaurus/theme-mermaid';
 import type { Config } from '@docusaurus/types';
 import { GlobExcludeDefault, getVcsPreset } from '@docusaurus/utils';
+import fs from 'fs';
 import { createRequire } from 'module';
 import path from 'path';
 import { themes } from 'prism-react-renderer';
@@ -33,6 +34,20 @@ const remarkEnglishPage = require('./translate/remarkEnglishPage.js');
 const remarkJoinCjkLines = require('./translate/remarkJoinCjkLines.js');
 // set by Docusaurus for the locale being built or served
 const currentLocale = process.env.DOCUSAURUS_CURRENT_LOCALE ?? DEFAULT_LOCALE;
+// This locale's path on the site root ('' or '/es')
+const localeRoot = currentLocale === DEFAULT_LOCALE ? '' : `/${currentLocale}`;
+// Present while master is the next major: the released version's docs then
+// serve at the root, built from its branch (scripts/snapshot/README.md)
+const versionCurrentFile = path.join(__dirname, 'versionCurrent.json');
+const versionCurrent: { version: string; ref: string } | undefined =
+  fs.existsSync(versionCurrentFile) ?
+    JSON.parse(fs.readFileSync(versionCurrentFile, 'utf8'))
+  : undefined;
+// The production build of master, served at /next/ beside the current
+// version's site; it leaves the blog to that site (site-preview.yml)
+const isNext = !!versionCurrent && process.env.DOCS_NEXT === '1';
+const rootBlog = (label: string, className: string) =>
+  `<a class="${className}" href="${localeRoot}/blog">${label}</a>`;
 const vueDocs = frameworkDocs.generate('vue');
 // Each locale renders English with its translations in place
 // (translate/README.md); its Vue pages mirror its docs/core
@@ -85,7 +100,7 @@ const config: Config = {
   title: 'Data Client',
   tagline: 'Async State Management without the Management',
   url: 'https://dataclient.io',
-  baseUrl: '/',
+  baseUrl: isNext ? '/next/' : '/',
   organizationName: 'data-client',
   projectName: 'data-client',
   trailingSlash: false,
@@ -273,6 +288,8 @@ const config: Config = {
     repoUrl: 'https://github.com/reactive/data-client',
     // read by FrameworkSelector to switch between differently named pages
     frameworkEquivalents: frameworkDocs.frameworkEquivalents(),
+    // read by VersionsNavbarItem
+    versionCurrent: versionCurrent?.version ?? null,
   },
   onBrokenLinks: 'warn',
   future: {
@@ -310,14 +327,17 @@ const config: Config = {
               ['current', ...versions.slice(0, 4)]
             : ['current', ...versions],
         },
-        blog: {
-          // Posts are English in every locale
-          beforeDefaultRemarkPlugins:
-            currentLocale === DEFAULT_LOCALE ? [] : [remarkEnglishPage],
-          showReadingTime: true,
-          blogSidebarTitle: 'All posts',
-          blogSidebarCount: 'ALL',
-        },
+        blog:
+          isNext ? false : (
+            {
+              // Posts are English in every locale
+              beforeDefaultRemarkPlugins:
+                currentLocale === DEFAULT_LOCALE ? [] : [remarkEnglishPage],
+              showReadingTime: true,
+              blogSidebarTitle: 'All posts',
+              blogSidebarCount: 'ALL',
+            }
+          ),
         theme: {
           customCss: [
             require.resolve('./src/css/root.css'),
@@ -481,7 +501,8 @@ const config: Config = {
             from: ['/rest/api/schema.Entity'],
           },
           ...gqlRedirects,
-        ],
+          // Redirects to a post would fail without the blog
+        ].filter(({ to }) => !isNext || !to.startsWith('/blog')),
       },
     ],
     path.resolve(__dirname, './node-plugin'),
@@ -525,12 +546,19 @@ const config: Config = {
       },
       { name: 'twitter:card', content: 'summary' },
     ],
-    announcementBar: {
-      id: 'announcementBar-2', // Increment on change
-      content:
-        LOCALES[currentLocale]?.announcement ??
-        `If you like Reactive Data Client, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/reactive/data-client">GitHub</a>`,
-    },
+    announcementBar:
+      versionCurrent ?
+        {
+          id: `next-${versionCurrent.version}`,
+          content: `You're reading the docs for the next, unreleased version. <a href="${localeRoot}/docs">See the v${versionCurrent.version} docs</a>.`,
+          isCloseable: false,
+        }
+      : {
+          id: 'announcementBar-2', // Increment on change
+          content:
+            LOCALES[currentLocale]?.announcement ??
+            `If you like Reactive Data Client, give it a ⭐️ on <a target="_blank" rel="noopener noreferrer" href="https://github.com/reactive/data-client">GitHub</a>`,
+        },
     navbar: {
       title: 'Reactive Data Client',
       logo: {
@@ -571,7 +599,13 @@ const config: Config = {
           label: 'GraphQL',
           position: 'left',
         },
-        { to: '/blog', label: 'News', position: 'left' },
+        isNext ?
+          {
+            type: 'html',
+            value: rootBlog('News', 'navbar__link'),
+            position: 'left',
+          }
+        : { to: '/blog', label: 'News', position: 'left' },
         {
           to: 'demos',
           label: 'Demos',
@@ -580,7 +614,7 @@ const config: Config = {
           //className: 'header-demos-link',
           'aria-label': 'Demo Applications',
         },
-        // Latest and the archived versions (scripts/snapshot/README.md)
+        // Latest (or next), current and archived versions (scripts/snapshot/README.md)
         { type: 'custom-versions', position: 'right' },
         {
           href: 'https://github.com/reactive/data-client',
@@ -680,10 +714,12 @@ const config: Config = {
         {
           title: 'More',
           items: [
-            {
-              label: 'Blog',
-              to: '/blog',
-            },
+            isNext ?
+              { html: rootBlog('Blog', 'footer__link-item') }
+            : {
+                label: 'Blog',
+                to: '/blog',
+              },
             {
               label: 'Demo (Github)',
               to: 'https://stackblitz.com/github/reactive/data-client/tree/master/examples/github-app?file=src%2Fpages%2FIssueList/index.tsx',

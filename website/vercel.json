@@ -25,6 +25,21 @@
       "source": "/:version(\\d+|\\d+\\.\\d+)/:locale([a-z]{2}|[a-z]{2}-[A-Za-z]+)/blog/:path*",
       "destination": "/:locale/blog/:path*",
       "permanent": true
+    },
+    {
+      "source": "/next/blog/:path*",
+      "destination": "/blog/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/next/:locale([a-z]{2}|[a-z]{2}-[A-Za-z]+)/blog/:path*",
+      "destination": "/:locale/blog/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/next/:path*",
+      "destination": "/:path*",
+      "permanent": false
     }
   ]
 }

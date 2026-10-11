@@ -4,6 +4,9 @@
 #
 #   website/scripts/snapshot/build.sh <release checkout> <version> <out.tar.gz>
 #
+# With SNAPSHOT_ROLE=current it builds the current version's site at the
+# root instead, for while master is the next major.
+#
 # The checkout builds with its own packages, config and tooling, so its
 # examples run and type-check as they did when it shipped.
 set -euo pipefail
@@ -14,6 +17,8 @@ out="$(realpath -m "$3")"
 here="$(cd "$(dirname "$0")" && pwd)"
 yarn="${YARN:-yarn}"
 site="$(mktemp -d)"
+# the archive's directory, or the root
+dir="$([ "${SNAPSHOT_ROLE:-}" = current ] && echo . || echo "$version")"
 trap 'rm -rf "$site"' EXIT
 
 cp "$here/docusaurus.snapshot.config.ts" "$here/archive.client.ts" "$src/website/"
@@ -29,11 +34,12 @@ else
 fi
 cd website
 SNAPSHOT_VERSION="$version" $yarn docusaurus build \
-  --config docusaurus.snapshot.config.ts --out-dir "$site/$version"
+  --config docusaurus.snapshot.config.ts --out-dir "$site/$dir"
 
-# Drop static media nothing in the archive links to (blog videos and images)
-cd "$site/$version"
-media="$(find img videos -type f 2>/dev/null || true)"
+# Drop static media nothing in an archive links to (blog videos and images).
+# The root keeps everything: other sites link to its files.
+cd "$site/$dir"
+media="$([ "$dir" = . ] || find img videos -type f 2>/dev/null || true)"
 if [ -n "$media" ]; then
   used="$(grep -rohF --include='*.html' --include='*.js' --include='*.css' \
     --include='*.json' --include='*.xml' --include='*.md' --include='*.txt' --include='*.webmanifest' -f <(xargs -d '\n' -n1 basename <<<"$media") . | sort -u || true)"
@@ -43,5 +49,5 @@ if [ -n "$media" ]; then
 fi
 find . -type d -empty -delete
 
-tar -czf "$out" -C "$site" "$version"
+tar -czf "$out" -C "$site" "$dir"
 echo "Built $out ($(du -h "$out" | cut -f1))"

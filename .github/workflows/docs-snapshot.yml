@@ -19,7 +19,7 @@ on:
         type: string
         required: true
       ref:
-        description: 'Ref to build (default: its newest @data-client/react tag). A docs/<version> branch takes fixes.'
+        description: 'Ref to build (default: its newest @data-client/react tag), e.g. its <version>.x maintenance branch for a fix'
         type: string
         required: false
 
@@ -136,15 +136,20 @@ jobs:
               .concat({ version, sha256 })
               .sort((a, b) => b.version.localeCompare(a.version, undefined, { numeric: true }));
             fs.writeFileSync(file, JSON.stringify(versions, null, 2) + "\n");
+            // Archived, so it no longer serves at the root: master does again
+            const current = "website/versionCurrent.json";
+            if (fs.existsSync(current) && JSON.parse(fs.readFileSync(current, "utf8")).version === version)
+              fs.rmSync(current);
           '
           git diff --quiet && { echo "v$VERSION is already listed"; exit 0; }
           branch="docs-archive-v$VERSION"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git switch -c "$branch"
-          git commit -am "docs: Archive v$VERSION docs at /$VERSION"
+          git add -A website
+          git commit -m "docs: Archive v$VERSION docs at /$VERSION"
           git push --force origin "$branch"
           # a closed listing PR doesn't count: open a new one
           [ -n "$(gh pr list --head "$branch" --state open --json number --jq '.[].number')" ] ||
             gh pr create --head "$branch" --title "docs: Archive v$VERSION docs at /$VERSION" \
-              --body "Lists v$VERSION in the version dropdown; its frozen build is on the [docs-v$VERSION release](https://github.com/$GITHUB_REPOSITORY/releases/tag/docs-v$VERSION). Made by docs-snapshot.yml with the workflow token, so push a commit (or close and reopen) to run CI."
+              --body "Lists v$VERSION in the version dropdown (and, if master was the next major, serves master at the root again); its frozen build is on the [docs-v$VERSION release](https://github.com/$GITHUB_REPOSITORY/releases/tag/docs-v$VERSION). Made by docs-snapshot.yml with the workflow token, so push a commit (or close and reopen) to run CI."

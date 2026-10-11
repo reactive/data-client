@@ -1,5 +1,6 @@
 import { useLocation } from '@docusaurus/router';
 import siteConfig from '@generated/docusaurus.config';
+import i18n from '@generated/i18n';
 import type { Props as DropdownProps } from '@theme/NavbarItem/DropdownNavbarItem';
 import DropdownNavbarItem from '@theme/NavbarItem/DropdownNavbarItem';
 import React, { useCallback, useEffect, useState } from 'react';
@@ -11,17 +12,26 @@ import {
 } from '../../../framework-docs/docsInstances.js';
 import versionsArchived from '../../../versionsArchived.json';
 
-const archived = versionsArchived.map(({ version }) => version);
+const { baseUrl } = siteConfig;
+// Where each version lives: '' for the site root, else '/<version>'. While
+// master is the next major, the current version's site is the root.
+const current = siteConfig.customFields?.versionCurrent as string | null;
+const targets = [
+  ...(current ? [{ version: current, root: '' }] : []),
+  ...versionsArchived.map(({ version }) => ({ version, root: `/${version}` })),
+];
 // '' or this locale build's '/es'
-const prefix = siteConfig.baseUrl.slice(0, -1);
+const locale =
+  i18n.currentLocale === i18n.defaultLocale ? '' : `/${i18n.currentLocale}`;
 const SECTION = new RegExp(
   `^/(${DOCS_INSTANCES.map(d => d.routeBasePath).join('|')})(/|$)`,
 );
 
 /**
- * The site is the latest version; this lists the archived ones
- * (scripts/snapshot/README.md), linking to this page in each that has it.
- * Archives are separate builds, so their links load the page, not route.
+ * The site is the latest version (or the next one while master is a major
+ * ahead); this lists the others (scripts/snapshot/README.md), linking to this
+ * page in each that has it. They are separate builds, so their links load the
+ * page, not route.
  */
 export default function VersionsNavbarItem(
   props: Omit<DropdownProps, 'items'>,
@@ -29,41 +39,41 @@ export default function VersionsNavbarItem(
   const { pathname } = useLocation();
   const [routes, setRoutes] = useState<Routes>({});
   const loadRoutes = useCallback(() => {
-    if (archived.length) fetchRoutes().then(setRoutes);
+    if (targets.length) fetchRoutes().then(setRoutes);
   }, []);
   // The mobile item mounts when the menu opens; the desktop one, with the page
   const { mobile } = props;
   useEffect(() => {
     if (mobile) loadRoutes();
   }, [mobile, loadRoutes]);
-  if (!archived.length) return null;
+  if (!targets.length) return null;
 
-  const page = pathname.slice(prefix.length);
+  const page = pathname.slice(baseUrl.length - 1);
   // Pages outside the docs (home, blog) go to the default framework's docs
   const section =
     page.match(SECTION)?.[1] ?? FRAMEWORK_INSTANCES[0].routeBasePath;
-  const hrefIn = (version: string) => {
+  const hrefIn = ({ root }: (typeof targets)[number]) => {
     const candidates = [
-      ...(prefix ? [`${prefix}${page}`] : []),
+      ...(locale ? [`${locale}${page}`] : []),
       page,
       `/${section}`,
-    ].map(path => trimRoute(`/${version}${path}`));
+    ].map(path => trimRoute(`${root}${path}`));
     return (
-      candidates.find(path => routes[version]?.has(path)) ?? candidates.at(-1)
+      candidates.find(path => routes[root]?.has(path)) ?? candidates.at(-1)
     );
   };
 
   return (
     <DropdownNavbarItem
       {...props}
-      label="Latest"
+      label={current ? 'Next' : 'Latest'}
       onPointerEnter={loadRoutes}
       onFocus={loadRoutes}
-      items={archived.map(version => ({
+      items={targets.map(target => ({
         // html, not label: a pathname:// href gets an external link icon
-        html: `v${version}`,
-        href: `pathname://${hrefIn(version)}`,
-        // the archive is under the site root, not this locale's baseUrl
+        html: `v${target.version}`,
+        href: `pathname://${hrefIn(target)}`,
+        // the others are under the site root, not this baseUrl
         autoAddBaseUrl: false,
         target: '_self',
       }))}
@@ -71,6 +81,7 @@ export default function VersionsNavbarItem(
   );
 }
 
+/** Each version's pages, keyed by its root */
 type Routes = Record<string, ReadonlySet<string>>;
 
 /** Shared by the desktop and mobile items, so each sitemap loads once */
@@ -82,11 +93,11 @@ const fetchRoutes = () =>
     return {};
   }));
 
-/** Each archive's pages, from its sitemaps (and this locale's, if it has one) */
+/** Each version's pages, from its sitemaps (and this locale's, if it has one) */
 async function requestRoutes(): Promise<Routes> {
   const pathsIn = async (url: string) => {
     const res = await fetch(url);
-    // an archive without this locale has no sitemap for it
+    // a version without this locale has no sitemap for it
     if (res.status === 404) return [];
     if (!res.ok) throw new Error(`${url}: ${res.status}`);
     const xml = await res.text();
@@ -95,11 +106,11 @@ async function requestRoutes(): Promise<Routes> {
     );
   };
   const entries = await Promise.all(
-    archived.map(async version => {
-      const sitemaps = [`/${version}/sitemap.xml`];
-      if (prefix) sitemaps.push(`/${version}${prefix}/sitemap.xml`);
+    targets.map(async ({ root }) => {
+      const sitemaps = [`${root}/sitemap.xml`];
+      if (locale) sitemaps.push(`${root}${locale}/sitemap.xml`);
       const paths = (await Promise.all(sitemaps.map(pathsIn))).flat();
-      return [version, new Set(paths)] as const;
+      return [root, new Set(paths)] as const;
     }),
   );
   return Object.fromEntries(entries);

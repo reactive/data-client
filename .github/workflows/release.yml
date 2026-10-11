@@ -74,7 +74,11 @@ jobs:
           line() { [[ "$1" == 0.* ]] && echo "${1%.*}" || echo "${1%%.*}"; }
           if [ "$(line "$old")" != "$(line "$new")" ] && [[ "$old" != *-* ]]; then
             echo "version=$(line "$old")" >> "$GITHUB_OUTPUT"
-            echo "ref=@data-client/react@$old" >> "$GITHUB_OUTPUT"
+            ref="@data-client/react@$old"
+            # its branch, if it had one while master was the next major
+            cur=website/versionCurrent.json
+            [ -f "$cur" ] && [ "$(jq -r .version "$cur")" = "$(line "$old")" ] && ref="$(jq -r .ref "$cur")"
+            echo "ref=$ref" >> "$GITHUB_OUTPUT"
           fi
 
   docs-archive:

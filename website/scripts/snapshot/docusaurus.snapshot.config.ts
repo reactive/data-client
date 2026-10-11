@@ -1,10 +1,13 @@
 // Copied next to an old release's docusaurus.config.ts by build.sh, so the
-// archive builds with that release's own config, moved under /<version>/.
+// site builds with that release's own config. An archive moves under
+// /<version>/; the current version (SNAPSHOT_ROLE=current, while master is
+// the next major) stays at the root and links to /next/.
 // Keep it to fields every release's config has: it runs against old ones.
 import config from './docusaurus.config';
 
 const version = process.env.SNAPSHOT_VERSION;
 if (!version) throw new Error('SNAPSHOT_VERSION is required');
+const isCurrent = process.env.SNAPSHOT_ROLE === 'current';
 const { themeConfig = {} } = config;
 const navbar = (themeConfig.navbar ?? {}) as { items?: unknown[] };
 // Docusaurus loads the config once per locale it builds ('en' for releases
@@ -14,7 +17,37 @@ const locale = process.env.DOCUSAURUS_CURRENT_LOCALE;
 const localePrefix = locale && locale !== 'en' ? `/${locale}` : '';
 const latestDocs = `${localePrefix}/docs`;
 
-export default {
+// Drop the version dropdown later releases have: this site links to the
+// latest (or next) docs instead (below)
+const navbarItems = (navbar.items ?? []).filter(
+  item => (item as { type?: string }).type !== 'custom-versions',
+);
+// A link, not a dropdown: older releases' CSS hides dropdowns
+const navbarLink = (html: string, path: string) => ({
+  // html, not label: a pathname:// href would get an external link icon
+  html,
+  href: `pathname://${path}`,
+  // outside this site's baseUrl
+  autoAddBaseUrl: false,
+  target: '_self',
+  position: 'right',
+});
+
+const current = {
+  ...config,
+  themeConfig: {
+    ...themeConfig,
+    navbar: {
+      ...navbar,
+      items: [
+        ...navbarItems,
+        navbarLink(`v${version} → Next`, `/next${latestDocs}`),
+      ],
+    },
+  },
+};
+
+const archive = {
   ...config,
   baseUrl: `/${version}/`,
   // The latest site's blog has every post; vercel.json and archive.client.ts
@@ -57,23 +90,9 @@ export default {
     },
     navbar: {
       ...navbar,
-      items: [
-        // Drop the version dropdown later releases have: an archive links
-        // back to the latest docs (below) instead of listing archives
-        ...(navbar.items ?? []).filter(
-          item => (item as { type?: string }).type !== 'custom-versions',
-        ),
-        // A link, not a dropdown: older releases' CSS hides dropdowns
-        {
-          // html, not label: a pathname:// href would get an external link icon
-          html: `v${version} → Latest`,
-          href: `pathname://${latestDocs}`,
-          // the latest site is at the root, outside this baseUrl
-          autoAddBaseUrl: false,
-          target: '_self',
-          position: 'right',
-        },
-      ],
+      items: [...navbarItems, navbarLink(`v${version} → Latest`, latestDocs)],
     },
   },
 };
+
+export default isCurrent ? current : archive;
