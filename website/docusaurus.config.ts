@@ -37,15 +37,15 @@ const currentLocale = process.env.DOCUSAURUS_CURRENT_LOCALE ?? DEFAULT_LOCALE;
 // This locale's path on the site root ('' or '/es')
 const localeRoot = currentLocale === DEFAULT_LOCALE ? '' : `/${currentLocale}`;
 // Present while master is the next major: the released version's docs then
-// serve at the root, built from its branch (scripts/snapshot/README.md)
+// serve at the root, built from its branch (scripts/snapshot/README.md).
+// Master's production build (DOCS_NEXT) then serves at /next/ beside it
+// (site-preview.yml); PR previews build master alone, without links to it.
 const versionCurrentFile = path.join(__dirname, 'versionCurrent.json');
 const versionCurrent: { version: string; ref: string } | undefined =
-  fs.existsSync(versionCurrentFile) ?
+  process.env.DOCS_NEXT === '1' && fs.existsSync(versionCurrentFile) ?
     JSON.parse(fs.readFileSync(versionCurrentFile, 'utf8'))
   : undefined;
-// The production build of master, served at /next/ beside the current
-// version's site, which keeps the blog (site-preview.yml)
-const isNext = !!versionCurrent && process.env.DOCS_NEXT === '1';
+const isNext = !!versionCurrent;
 const vueDocs = frameworkDocs.generate('vue');
 // Each locale renders English with its translations in place
 // (translate/README.md); its Vue pages mirror its docs/core

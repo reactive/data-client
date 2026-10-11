@@ -40,8 +40,9 @@ starts this by cutting a `<version>.x` maintenance branch and adding `website/ve
 
 - `site-preview.yml`'s production and merge queue builds of master set `DOCS_NEXT=1`:
   `docusaurus.config.ts` builds at `/next/`. It still builds the blog, so its links are checked, but
-  its News and Blog links go to the root's (`archive.client.ts`). Every build of master shows an
-  "unreleased" banner, and the version dropdown reads Next and lists the current version.
+  its News and Blog links go to the root's (`archive.client.ts`). It shows an "unreleased" banner,
+  and the version dropdown reads Next and lists the current version (PR previews, built alone at
+  their root, show neither).
 - Its `current` job builds the maintenance branch at the root with `SNAPSHOT_ROLE=current build.sh`
   (the wrapper adds a navbar link to `/next/`, and keeps the version dropdown, the blog and every
   static file), cached by the branch's commit so master's deploys rebuild it only when the branch

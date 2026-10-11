@@ -16,7 +16,9 @@ change to keep what merged since. The script:
   - points `.changeset/config.json`'s `baseBranch`, `release.yml`'s push trigger and
     `site-preview.yml`'s pull_request trigger at the branch, so its PRs get a site preview, and
     publishes with `publish.sh`, which uses npm's `latest` tag until the next major ships and
-    `v<version>` after, so `latest` stays on the newest major;
+    `latest-<version>` after, so `latest` stays on the newest major;
+  - points its pages' edit links and its GitHub release tags at the branch, and takes master's
+    `versionsArchived.json` without `versionCurrent.json` (a release tag predates both changing);
   - adds `maintenance.yml`, which redeploys the docs (dispatching master's `site-preview.yml`) and
     opens a PR cherry-picking each push onto master, skipping its version bumps. A pick that doesn't
     apply leaves a warning to port it by hand. The workflow token opens it, so push a commit (or
@@ -42,5 +44,5 @@ master until that release.
 
 The release archives the current version's docs from its branch at `/<version>/` and opens a PR
 listing it, which also deletes `website/versionCurrent.json`. Once that merges, master serves the
-root again. The branch can stay for later fixes: they publish under `v<version>`, and a docs fix
-there reaches the archive by dispatching `docs-snapshot.yml` with the branch as `ref`.
+root again. The branch can stay for later fixes: they publish under `latest-<version>`, and a docs
+fix there reaches the archive by dispatching `docs-snapshot.yml` with the branch as `ref`.

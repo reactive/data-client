@@ -36,8 +36,17 @@ for workflow in release site-preview; do
 done
 grep -qF 'scripts/maintenance/publish.sh' .github/workflows/release.yml ||
   { echo "Couldn't point release.yml at publish.sh; edit it by hand" >&2; exit 1; }
+grep -q 'edit/master' website/docusaurus.config.ts ||
+  { echo "Couldn't find docusaurus.config.ts's edit links; edit it by hand" >&2; exit 1; }
+# Its pages' edit links, and the release tags it creates, point at the branch
+sed -i "s#/edit/master#/edit/$branch#g" website/docusaurus.config.ts
+cp "$here/../create-github-releases.mjs" scripts/
 mkdir -p scripts/maintenance
 cp "$here/publish.sh" scripts/maintenance/
+# A release tag predates its archive listing PR, so take master's: the
+# previous version is archived, not current
+rm -f website/versionCurrent.json
+git show origin/master:website/versionsArchived.json > website/versionsArchived.json
 # Deploys the root docs and ports each push to master
 cp "$here/maintenance.yml" .github/workflows/
 git add -A
