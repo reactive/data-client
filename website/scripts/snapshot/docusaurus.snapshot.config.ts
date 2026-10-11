@@ -7,9 +7,13 @@ const version = process.env.SNAPSHOT_VERSION;
 if (!version) throw new Error('SNAPSHOT_VERSION is required');
 const { themeConfig = {} } = config;
 const navbar = (themeConfig.navbar ?? {}) as { items?: unknown[] };
-// Docusaurus loads the config once per locale it builds
+// Docusaurus loads the config once per locale it builds, and builds 'en'
+// for releases without i18n. The latest site serves other locales under
+// /<locale>/.
 const locale = process.env.DOCUSAURUS_CURRENT_LOCALE;
-const latestDocs = `${locale && locale !== config.i18n?.defaultLocale ? `/${locale}` : ''}/docs`;
+const defaultLocale = config.i18n?.defaultLocale ?? 'en';
+const localePrefix = locale && locale !== defaultLocale ? `/${locale}` : '';
+const latestDocs = `${localePrefix}/docs`;
 
 export default {
   ...config,
@@ -55,7 +59,8 @@ export default {
     navbar: {
       ...navbar,
       items: [
-        // releases after this one list the archives; the archive links back
+        // An archive links back to the latest docs instead of listing the
+        // archives, which later releases' configs do with this dropdown
         ...(navbar.items ?? []).filter(
           item => (item as { type?: string }).type !== 'custom-versions',
         ),
