@@ -272,6 +272,15 @@ function FieldChanges({
 }) {
   const before = plain(was);
   const after = plain(now);
+  // a row that isn't an object changes as a whole (its one field is
+  // `value`, see changedFields)
+  if (before.t !== 'obj' || after.t !== 'obj')
+    return (
+      <ValueChange
+        was={was === undefined ? undefined : before}
+        now={now === undefined ? undefined : after}
+      />
+    );
   return fields.map(name => (
     <div key={name} className={styles.actField}>
       <FieldChange

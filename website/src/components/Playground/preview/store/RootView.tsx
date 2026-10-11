@@ -129,10 +129,12 @@ function TableIndex({
           key={table.key}
           type="button"
           onClick={() => {
-            const el = scroller;
-            const group = el && byData(el, 'table', table.key);
-            if (el && group)
-              el.scrollTo({ top: offsetIn(el, group), behavior: 'smooth' });
+            const group = scroller && byData(scroller, 'table', table.key);
+            if (scroller && group)
+              scroller.scrollTo({
+                top: offsetIn(scroller, group),
+                behavior: 'smooth',
+              });
           }}
         >
           <GroupLabel table={table} />
