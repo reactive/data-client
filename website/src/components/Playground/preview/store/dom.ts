@@ -1,6 +1,7 @@
 import React, { useCallback, useLayoutEffect, useRef } from 'react';
 
 import { prefersReducedMotion, springEasing, springs } from '../../../motion';
+import type { ChangeKind } from './actionGroups';
 
 /** What `scrollToRow` leaves above a revealed row, for the sticky section
  * header (`.sectionHeader` in store.module.css) */
@@ -33,20 +34,33 @@ export function slide(el: HTMLElement, direction: 1 | -1) {
   );
 }
 
-/** Highlights the rows in `scope` whose id passes `test`, for a moment */
-export function flash(scope: HTMLElement, test: (id: string) => boolean) {
+/** Highlights the rows in `scope` that `kindOf` names a change of, for a
+ * moment, in that change's color (as the diff's bar marks it): an added row
+ * green, a removed one red, any other yellow */
+export function flash(
+  scope: HTMLElement,
+  kindOf: (id: string) => ChangeKind | true | undefined,
+) {
   if (typeof scope.animate !== 'function' || prefersReducedMotion()) return;
   for (const row of scope.querySelectorAll<HTMLElement>('[data-id]')) {
-    if (!test(row.dataset.id!)) continue;
+    const kind = kindOf(row.dataset.id!);
+    if (!kind) continue;
     row.animate(
       [
-        { backgroundColor: 'var(--store-flash)' },
+        {
+          backgroundColor:
+            FLASH[kind === true ? '' : kind] ?? 'var(--store-flash)',
+        },
         { backgroundColor: 'transparent' },
       ],
       { duration: 1400, easing: 'ease-out' },
     );
   }
 }
+const FLASH: Partial<Record<ChangeKind | '', string>> = {
+  added: 'var(--store-flash-added)',
+  removed: 'var(--store-flash-removed)',
+};
 
 /** Scrolls row `id` into view below the section header and focuses it */
 export function scrollToRow(scroller: HTMLElement, id: string) {

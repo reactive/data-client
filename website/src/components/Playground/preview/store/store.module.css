@@ -17,6 +17,8 @@
   --store-selected: rgba(130, 170, 255, 0.16);
   --store-record: rgba(130, 170, 255, 0.07);
   --store-flash: rgba(255, 203, 107, 0.3);
+  --store-flash-added: rgba(127, 209, 160, 0.3);
+  --store-flash-removed: rgba(255, 88, 116, 0.3);
   --store-stale-bg: rgba(255, 203, 107, 0.09);
   --store-fresh-bg: rgba(127, 209, 160, 0.09);
   --store-tip: #3a4057;
@@ -1222,26 +1224,20 @@ div.joined {
 }
 
 /* The scrubber: the whole history in one lane across the top, with ‹ ›,
-   "Live" and the lanes' expand beside it. Stale-colored while the moment is
-   in the past, when a second line says which action it is after */
+   "Live" and the lanes' expand beside it. "Live" says whether the moment is
+   live; in the past a second line says which action it is after */
 .scrubber {
   flex: none;
   display: flex;
   flex-direction: column;
-  background: var(--store-stale-bg);
-  box-shadow: inset 0 -1px 0 rgba(255, 203, 107, 0.28);
-  color: var(--store-stale);
+  box-shadow: inset 0 -1px 0 var(--store-line);
+  color: var(--store-muted);
   font-size: 11px;
   outline: none;
 }
 .scrubber:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
   outline-offset: -2px;
-}
-.scrubber.tlLive {
-  background: none;
-  box-shadow: inset 0 -1px 0 var(--store-line);
-  color: var(--store-muted);
 }
 .scrubRow {
   display: flex;
@@ -1278,28 +1274,35 @@ div.joined {
 .scrubTrack .tlPlayhead {
   top: 0;
 }
-/* live, a span that only says so */
+/* "Live": in the past, a plain button back to it, its dot hollow; live, a
+   span that only says so, green with its dot lit */
 .scrubRow > .liveButton {
   flex: none;
-  padding: 0 0.4rem;
-  border-color: rgba(127, 209, 160, 0.45);
-  color: var(--store-fresh);
-  font: 500 11px / 1.6 var(--ifm-font-family-base);
-}
-/* live is the moment: a soft fill and a dot mark it as the one picked */
-.scrubRow > .liveCurrent {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  border-radius: 4px;
-  background: rgba(127, 209, 160, 0.12);
-  box-shadow: inset 0 0 0 1px rgba(127, 209, 160, 0.3);
+  padding: 0 0.4rem;
+  color: var(--store-muted);
+  font: 500 11px / 1.6 var(--ifm-font-family-base);
 }
-.liveCurrent::before {
+.liveButton::before {
   content: '';
   width: 5px;
   height: 5px;
   border-radius: 50%;
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+.scrubRow > button.liveButton:hover {
+  border-color: rgba(127, 209, 160, 0.45);
+  color: var(--store-fresh);
+}
+.scrubRow > .liveCurrent {
+  border: 1px solid rgba(127, 209, 160, 0.3);
+  border-radius: 4px;
+  background: rgba(127, 209, 160, 0.12);
+  color: var(--store-fresh);
+}
+.liveCurrent::before {
   background: currentColor;
 }
 /* the icon buttons' look (see .tlFit), smaller */

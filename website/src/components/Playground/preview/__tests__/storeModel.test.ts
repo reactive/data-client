@@ -7,7 +7,7 @@ import {
   endpointId,
   entityId,
   findRow,
-  isChanged,
+  changeOf,
   isInvalidated,
   parseRowId,
   prettyPk,
@@ -287,10 +287,10 @@ describe('store model', () => {
       'GET https://example.com/posts',
       'GET /broken',
     ]);
-    expect(isChanged(state, failed, endpointId('GET /broken'))).toBe(true);
+    expect(changeOf(state, failed, endpointId('GET /broken'))).toBe('added');
     expect(
-      isChanged(state, failed, endpointId('GET https://example.com/posts')),
-    ).toBe(false);
+      changeOf(state, failed, endpointId('GET https://example.com/posts')),
+    ).toBeUndefined();
   });
 
   it('reads row ids back', () => {
@@ -437,8 +437,9 @@ describe('store model', () => {
         User: { 123: { id: '123', name: 'Paul Jones' } },
       },
     };
-    expect(isChanged(state, next, entityId('User', '123'))).toBe(true);
-    expect(isChanged(state, next, entityId('Post', '1'))).toBe(false);
+    expect(changeOf(state, next, entityId('User', '123'))).toBe('updated');
+    expect(changeOf(state, next, entityId('User', '9'))).toBeUndefined();
+    expect(changeOf(state, next, entityId('Post', '1'))).toBeUndefined();
     // shouldUpdate() can keep the row but still refresh its meta
     const refetched = {
       ...state,
@@ -447,7 +448,7 @@ describe('store model', () => {
         Post: { 1: { date: 1, fetchedAt: 1, expiresAt: 2 } },
       },
     };
-    expect(isChanged(state, refetched, entityId('Post', '1'))).toBe(true);
+    expect(changeOf(state, refetched, entityId('Post', '1'))).toBe('updated');
   });
 
   it('learns recursive schemas', () => {

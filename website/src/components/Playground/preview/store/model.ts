@@ -369,26 +369,33 @@ function parseKey(key: string) {
   }
 }
 
-/** Whether row `id`'s stored value (or meta) differs between two states */
-export function isChanged(
+/** How row `id`'s stored value (or meta) differs between two states:
+ * new to `next`, or changed in it; undefined when it is the same */
+export function changeOf(
   prev: State<unknown>,
   next: State<unknown>,
   id: string,
-) {
+): 'added' | 'updated' | undefined {
   const ref = parseRowId(id);
-  if (!ref) return false;
-  if (ref.kind === 'endpoint') {
-    const { key } = ref;
-    return (
-      prev.endpoints[key] !== next.endpoints[key] ||
-      prev.meta[key] !== next.meta[key]
-    );
-  }
-  const { table, pk } = ref;
-  return (
-    prev.entities[table]?.[pk] !== next.entities[table]?.[pk] ||
-    prev.entitiesMeta[table]?.[pk] !== next.entitiesMeta[table]?.[pk]
-  );
+  if (!ref) return;
+  const [was, now] =
+    ref.kind === 'endpoint' ?
+      [
+        [prev.endpoints[ref.key], prev.meta[ref.key]],
+        [next.endpoints[ref.key], next.meta[ref.key]],
+      ]
+    : [
+        [
+          prev.entities[ref.table]?.[ref.pk],
+          prev.entitiesMeta[ref.table]?.[ref.pk],
+        ],
+        [
+          next.entities[ref.table]?.[ref.pk],
+          next.entitiesMeta[ref.table]?.[ref.pk],
+        ],
+      ];
+  if (was[0] === now[0] && was[1] === now[1]) return;
+  return was[0] === undefined && was[1] === undefined ? 'added' : 'updated';
 }
 
 /** Collection pks are serialized args: `{"userId":"1"}` → `userId: 1` */
