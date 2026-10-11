@@ -1,19 +1,38 @@
 name: maintenance scripts
-# Tests what release.yml, docs-snapshot.yml and cut.sh decide about release
-# lines. Not required: it runs only when those change.
 on:
+  # master catches breaks from PRs merged in sequence
+  push:
+    branches:
+      - master
+    # version-line.sh, its tests and the workflows that source it
+    paths:
+      - 'scripts/maintenance/**'
+      - '.github/workflows/release.yml'
+      - '.github/workflows/docs-snapshot.yml'
+      - '.github/workflows/maintenance-scripts.yml'
+      - '.github/workflows/paths-gate.yml'
   pull_request:
     branches:
       - master
-    paths:
-      - 'scripts/maintenance/**'
-      - '.github/workflows/maintenance-scripts.yml'
+  # Can be required: no `paths` (see paths-gate.yml)
+  merge_group:
+
+concurrency:
+  group: maintenance-scripts-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
 
 jobs:
+  gate:
+    if: github.event_name != 'push'
+    uses: ./.github/workflows/paths-gate.yml
+
   test:
+    name: maintenance scripts
+    needs: gate
+    if: ${{ !cancelled() && needs.gate.outputs.relevant != 'false' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

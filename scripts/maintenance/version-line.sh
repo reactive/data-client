@@ -12,6 +12,8 @@ line() {
 # Whether $1 names a line
 is_line() { [[ "$1" =~ ^(0\.[0-9]+|[1-9][0-9]*)$ ]]; }
 
+is_prerelease() { [[ "$1" == *-* ]]; }
+
 # The line a stable release replaces at the root, when it's the first stable
 # release of a new line: the line master was ahead of (versionCurrent.json's
 # version), else the previous version's. Prints nothing if it replaces none,
@@ -19,13 +21,12 @@ is_line() { [[ "$1" =~ ^(0\.[0-9]+|[1-9][0-9]*)$ ]]; }
 #   replaced_line <previous version> <released version> [current line]
 replaced_line() {
   local old="$1" new="$2" prev="${3:-}"
-  # not a new stable release
-  if [ "$old" = "$new" ] || [[ "$new" == *-* ]]; then return 0; fi
+  if [ "$old" = "$new" ] || is_prerelease "$new"; then return 0; fi
   # a later stable release of the same line
-  if [[ "$old" != *-* ]] && [ "$(line "$old")" = "$(line "$new")" ]; then return 0; fi
+  if ! is_prerelease "$old" && [ "$(line "$old")" = "$(line "$new")" ]; then return 0; fi
   if [ -z "$prev" ]; then
     # a prerelease doesn't say which line came before it
-    if [[ "$old" == *-* ]]; then return 1; fi
+    if is_prerelease "$old"; then return 1; fi
     prev="$(line "$old")"
   fi
   if [ "$prev" != "$(line "$new")" ]; then echo "$prev"; fi
