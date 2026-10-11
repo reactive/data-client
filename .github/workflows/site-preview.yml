@@ -2,7 +2,7 @@ name: website
 on:
   pull_request:
     branches:
-      - master
+      - 0.18.x
   # Required check: no `paths` (see paths-gate.yml). The queue builds the
   # merged site but never deploys it.
   merge_group:

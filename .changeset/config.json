@@ -17,7 +17,7 @@
   ],
   "fixed": [],
   "access": "public",
-  "baseBranch": "master",
+  "baseBranch": "0.18.x",
   "updateInternalDependencies": "patch",
   "snapshot": {
     "useCalculatedVersion": true,

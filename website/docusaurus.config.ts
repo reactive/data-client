@@ -74,7 +74,7 @@ const prismPalenight = {
 };
 
 const gitVcs = getVcsPreset('default-v1');
-const editRoot = 'https://github.com/reactive/data-client/edit/master';
+const editRoot = 'https://github.com/reactive/data-client/edit/0.18.x';
 /** Plugin options locating a docs instance (framework-docs/docsInstances.js) */
 const docsLocation = (id: string) => {
   const { path: docsPath, routeBasePath, exclude = [] } = docsInstance(id);
