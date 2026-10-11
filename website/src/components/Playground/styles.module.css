@@ -296,6 +296,7 @@ div.playgroundTextEdit > .playgroundHeader,
 
 /* The Store drawer (painted before its contents render) */
 .storePanel {
+  --store-top: var(--ifm-navbar-height);
   flex: 4 1 40%;
   min-width: 0;
   background: var(--monoco-code-background);
@@ -306,12 +307,17 @@ div.playgroundTextEdit > .playgroundHeader,
 @container playground (min-width: 560px) {
   .playgroundResult > .storePanel > * {
     position: sticky;
-    top: var(--ifm-navbar-height);
-    min-height: max(
-      var(--store-min),
-      min(100%, 100svh - var(--ifm-navbar-height))
-    );
+    top: var(--store-top);
+    min-height: max(var(--store-min), min(100%, 100svh - var(--store-top)));
+    /* the navbar's own slide (theme-classic Navbar/Layout) */
+    transition: top var(--ifm-transition-fast) ease;
   }
+}
+/* the navbar slides away while scrolling down (hideOnScroll), so the Store
+   takes its place rather than leave a gap; its class is a CSS module's,
+   whose name keeps its `navbarHidden_` prefix */
+:global(html:has(.navbar[class*='navbarHidden_'])) .storePanel {
+  --store-top: 0px;
 }
 [data-theme='dark'] .storePanel {
   /* opaque, so the covered code never shows through; the tree inside
