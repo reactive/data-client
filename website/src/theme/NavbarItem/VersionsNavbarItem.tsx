@@ -48,11 +48,10 @@ export default function VersionsNavbarItem(
 
   const page = pathname.slice(baseUrl.length - 1);
   // This page in it, else its section start: this locale's, or English's
-  // when the version lacks the locale
+  // when the version lacks the locale or its pages haven't loaded
   const hrefIn = ({ root }: (typeof targets)[number]) => {
     const paths = routes[root];
-    // Until its pages load, this locale's section start
-    if (!paths) return trimRoute(`${root}${locale}/${section}`);
+    if (!paths) return trimRoute(`${root}/${section}`);
     const candidates = [
       ...(locale ? [`${locale}${page}`] : []),
       page,
@@ -86,12 +85,7 @@ type Routes = Record<string, ReadonlySet<string>>;
 
 /** Shared by the desktop and mobile items, so each sitemap loads once */
 let routesRequest: Promise<Routes> | undefined;
-const fetchRoutes = () =>
-  (routesRequest ??= requestRoutes().catch(() => {
-    // a failed load is asked again next time
-    routesRequest = undefined;
-    return {};
-  }));
+const fetchRoutes = () => (routesRequest ??= requestRoutes());
 
 /** Each version's pages, from its sitemaps (and this locale's, if it has one) */
 async function requestRoutes(): Promise<Routes> {

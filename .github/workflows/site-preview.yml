@@ -409,8 +409,10 @@ jobs:
           for version in $(jq -r '.[].version' website/versionsArchived.json); do
             domain="$version.dataclient.io"
             status="$(curl -sS -o /dev/null -w '%{http_code}' "${auth[@]}" \
-              "$api/v9/projects/$VERCEL_PROJECT_ID/domains/$domain?teamId=$VERCEL_ORG_ID")" ||
-              status=000
+              "$api/v9/projects/$VERCEL_PROJECT_ID/domains/$domain?teamId=$VERCEL_ORG_ID")" || {
+              echo "::warning title=Archive domain::Couldn't check $domain on the Vercel project"
+              continue
+            }
             [ "$status" = 200 ] && continue
             curl -fsS -o /dev/null "${auth[@]}" -H 'Content-Type: application/json' \
               -d "{\"name\": \"$domain\"}" \

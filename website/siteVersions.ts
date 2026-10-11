@@ -78,10 +78,12 @@ const lineOf = (version: string) => {
 };
 
 /** This site's version, beside its logo: next while master is a major ahead */
-export const siteLabel =
-  versionCurrent ? 'next' : (
-    `v${lineOf(read('../packages/react/package.json').version)}`
-  );
+const packageVersion = read('../packages/react/package.json')?.version;
+check(
+  typeof packageVersion === 'string',
+  "packages/react/package.json: version isn't a string",
+);
+export const siteLabel = versionCurrent ? 'next' : `v${lineOf(packageVersion)}`;
 
 /**
  * @param currentOrigin where the current version's site is, when this site is
