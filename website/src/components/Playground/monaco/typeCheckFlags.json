@@ -1,0 +1,6 @@
+{
+  "strict": true,
+  "exactOptionalPropertyTypes": true,
+  "noImplicitAny": false,
+  "skipLibCheck": true
+}

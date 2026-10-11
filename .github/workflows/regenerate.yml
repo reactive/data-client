@@ -22,6 +22,7 @@ on:
       - 'scripts/rollup-plugins/**'
       - 'website/src/components/Playground/editor-types/**'
       - 'website/src/components/Playground/DesignSystem/index.ts'
+      - 'website/src/components/Playground/monaco/typeCheckFlags.json'
       - 'tsconfig*.json'
       - 'docs/**'
       - '.agents/skills/**'

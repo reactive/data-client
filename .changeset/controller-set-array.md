@@ -2,11 +2,12 @@
 '@data-client/core': patch
 '@data-client/react': patch
 '@data-client/vue': patch
+'@data-client/normalizr': patch
 ---
 
 Fix `controller.set()` types for Array schemas
 
-`controller.set([Entity], rows)` and `controller.set(new schema.Array(Entity), rows)` now typecheck. This writes every row in one store update: each row merges with its stored entity, and entities not in `rows` stay.
+`controller.set([Entity], rows)` and `controller.set(new schema.Array(Entity), rows)` now typecheck. This writes every row in one store update: each row merges with its stored entity, and entities not in `rows` stay. This works with `exactOptionalPropertyTypes` on too.
 
 Rows are typed by the Entity's fields. The schema holds one Entity, [Union](https://dataclient.io/rest/api/Union) (for mixed types) or [Invalidate](https://dataclient.io/rest/api/Invalidate) (to delete), in an Array or [Values](https://dataclient.io/rest/api/Values) (which takes an object keyed by id).
 
