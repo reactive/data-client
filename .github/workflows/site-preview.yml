@@ -406,7 +406,7 @@ jobs:
         run: |
           for version in $(jq -r '.[].version' website/versionsArchived.json); do
             domain="$version.dataclient.io"
-            # Succeeds when the project already has it; --scope as for alias
+            # Exits 0 when the project already has it (vercel 63.1); --scope as for alias
             vercel domains add "$domain" "$VERCEL_PROJECT_ID" --scope "$VERCEL_ORG_ID" --non-interactive ||
               echo "::warning title=Archive domain::Couldn't add $domain to the Vercel project; add it by hand"
           done
