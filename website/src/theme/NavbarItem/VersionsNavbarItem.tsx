@@ -26,29 +26,12 @@ export default function VersionsNavbarItem(
   const { pathname } = useLocation();
   // '' or this locale's '/es'
   const prefix = useDocusaurusContext().siteConfig.baseUrl.slice(0, -1);
-  const [routes, setRoutes] = useState<Record<string, Set<string>>>({});
+  const [routes, setRoutes] = useState<Routes>({});
   const requested = useRef(false);
-  // Each archive's sitemaps say which pages it has; read once, when asked
   const loadRoutes = useCallback(() => {
-    if (requested.current) return;
+    if (requested.current || !archived.length) return;
     requested.current = true;
-    const pathsIn = (url: string) =>
-      fetch(url)
-        .then(res => (res.ok ? res.text() : ''))
-        .catch(() => '')
-        .then(xml =>
-          [...xml.matchAll(/<loc>https?:\/\/[^/<]+([^<]*)<\/loc>/g)].map(
-            ([, path]) => trimRoute(path),
-          ),
-        );
-    Promise.all(
-      archived.map(async version => {
-        const sitemaps = [`/${version}/sitemap.xml`];
-        if (prefix) sitemaps.push(`/${version}${prefix}/sitemap.xml`);
-        const paths = (await Promise.all(sitemaps.map(pathsIn))).flat();
-        return [version, new Set(paths)] as const;
-      }),
-    ).then(entries => setRoutes(Object.fromEntries(entries)));
+    fetchRoutes(prefix).then(setRoutes);
   }, [prefix]);
   // The mobile item mounts when the menu opens; the desktop one, with the page
   const { mobile } = props;
@@ -58,6 +41,7 @@ export default function VersionsNavbarItem(
   if (!archived.length) return null;
 
   const page = pathname.slice(prefix.length);
+  // Pages outside the docs (home, blog) go to the default framework's docs
   const section =
     page.match(SECTION)?.[1] ?? FRAMEWORK_INSTANCES[0].routeBasePath;
   const hrefIn = (version: string) => {
@@ -87,4 +71,28 @@ export default function VersionsNavbarItem(
       }))}
     />
   );
+}
+
+type Routes = Record<string, ReadonlySet<string>>;
+
+/** Each archive's pages, from its sitemaps (and this locale's, if it has one) */
+async function fetchRoutes(prefix: string): Promise<Routes> {
+  const pathsIn = (url: string) =>
+    fetch(url)
+      .then(res => (res.ok ? res.text() : ''))
+      .catch(() => '')
+      .then(xml =>
+        [...xml.matchAll(/<loc>https?:\/\/[^/<]+([^<]*)<\/loc>/g)].map(
+          ([, path]) => trimRoute(path),
+        ),
+      );
+  const entries = await Promise.all(
+    archived.map(async version => {
+      const sitemaps = [`/${version}/sitemap.xml`];
+      if (prefix) sitemaps.push(`/${version}${prefix}/sitemap.xml`);
+      const paths = (await Promise.all(sitemaps.map(pathsIn))).flat();
+      return [version, new Set(paths)] as const;
+    }),
+  );
+  return Object.fromEntries(entries);
 }

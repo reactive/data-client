@@ -3,8 +3,8 @@
 dataclient.io documents the latest version only. When a breaking version ships, the docs it replaces
 are frozen: the site is built once from the old version's last release tag and served at
 `dataclient.io/<version>/` (for example `/0.18/docs/api/useSuspense`). Each archive builds with its
-own packages, config and editor types, so its playgrounds run, and its examples type-check, exactly
-as they did on release. Archives add nothing to the site's own builds.
+own lockfile, packages, config and editor types, so its playgrounds run, and its examples
+type-check, as they did when that release's CI passed. Archives add nothing to the site's own builds.
 
 - `build.sh <checkout> <version> <out.tar.gz>` builds an archive from a checkout of a release. It
   copies `docusaurus.snapshot.config.ts` beside that release's config, which moves it under

@@ -18,11 +18,15 @@ trap 'rm -rf "$site"' EXIT
 
 cp "$here/docusaurus.snapshot.config.ts" "$src/website/"
 cd "$src"
-YARN_ENABLE_IMMUTABLE_INSTALLS=false $yarn install
-# Package types (without legacy TypeScript ones where the release can skip
-# them), then the libraries the site imports
-$yarn "$(node -p "require('./package.json').scripts['ci:build:types'] ? 'ci:build:types' : 'build:types'")"
-$yarn workspaces foreach -WptivR --from rdc-website --no-private run build:lib
+$yarn install
+# The packages the site imports, with the release's own script when it has one
+has() { node -p "'$1' in require('./package.json').scripts" | grep -q true; }
+if has ci:build:website; then
+  $yarn ci:build:website
+else
+  $yarn "$(has ci:build:types && echo ci:build:types || echo build:types)"
+  $yarn workspaces foreach -WptivR --from rdc-website --no-private run build:lib
+fi
 cd website
 SNAPSHOT_VERSION="$version" $yarn docusaurus build \
   --config docusaurus.snapshot.config.ts --out-dir "$site/$version"
@@ -32,7 +36,7 @@ cd "$site/$version"
 media="$(find img videos -type f 2>/dev/null || true)"
 if [ -n "$media" ]; then
   used="$(grep -rohF --include='*.html' --include='*.js' --include='*.css' \
-    --include='*.json' --include='*.xml' -f <(xargs -n1 basename <<<"$media") . | sort -u || true)"
+    --include='*.json' --include='*.xml' -f <(xargs -d '\n' -n1 basename <<<"$media") . | sort -u || true)"
   while read -r file; do
     grep -qxF "$(basename "$file")" <<<"$used" || rm "$file"
   done <<<"$media"
