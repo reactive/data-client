@@ -61,6 +61,12 @@ const FLASH: Partial<Record<ChangeKind, string>> = {
   removed: 'var(--store-flash-removed)',
 };
 
+/** A level's scroll box, passed as the element itself rather than a ref:
+ * the level attaches it only after its children's effects first run, so an
+ * effect reading a ref would find nothing and never look again, while one
+ * that depends on the element runs again once it is there */
+export type Scroller = HTMLElement | null;
+
 /** Scrolls row `id` into view below the section header and focuses it */
 export function scrollToRow(scroller: HTMLElement, id: string) {
   const row = byData(scroller, 'id', id);

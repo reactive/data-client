@@ -6,6 +6,11 @@
   margin-bottom: var(--ifm-leading);
 }
 .playgroundContainer {
+  /* the Store's size, for it and every layout that holds it: room to
+     inspect whatever the code's or the preview's height, and the most it
+     takes when its own content sets the height */
+  --store-min: min(24rem, 70svh);
+  --store-cap: min(32rem, 70svh);
   border-radius: var(--ifm-global-radius);
   box-shadow: var(--ifm-global-shadow-lw);
   overflow: visible;
@@ -26,7 +31,7 @@
 }
 /* Stacked (default) radii; side-by-side radii applied in @container below */
 .playgroundContainer > :last-child {
-  overflow: hidden;
+  overflow: clip;
   border-bottom-left-radius: var(--ifm-global-radius);
   border-bottom-right-radius: var(--ifm-global-radius);
 }
@@ -261,7 +266,8 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 
 .previewWrapper {
-  overflow: hidden;
+  /* clips without scrolling, so the Store beside the result can stick */
+  overflow: clip;
   display: flex;
   flex-direction: column;
 }
@@ -294,11 +300,17 @@ div.playgroundTextEdit > .playgroundHeader,
   min-width: 0;
   background: var(--monoco-code-background);
 }
-/* beside the result, as tall as it when that is past the Store's own cap
+/* beside the result, as tall as it when that is past the Store's own cap,
+   up to the screen's height, held in view while a taller result scrolls by
    (the cap still keeps a long store from stretching the row) */
 @container playground (min-width: 560px) {
   .playgroundResult > .storePanel > * {
-    min-height: max(min(24rem, 70svh), 100%);
+    position: sticky;
+    top: var(--ifm-navbar-height);
+    min-height: max(
+      var(--store-min),
+      min(100%, 100svh - var(--ifm-navbar-height))
+    );
   }
 }
 [data-theme='dark'] .storePanel {
@@ -328,7 +340,7 @@ div.playgroundTextEdit > .playgroundHeader,
    held while visible, including while it slides out pinned out of flow
    (until its <Activity> hides it) */
 .storeHost:has(> .storePanel[data-visible]) {
-  min-height: min(24rem, 70svh);
+  min-height: var(--store-min);
 }
 .storeHost {
   /* slides up from the preview below; sideways once side by side */
@@ -800,8 +812,8 @@ div.fixtureJson {
     min-height: 0;
   }
   .storeHost > .storePanel > * {
-    min-height: min(24rem, 70svh);
-    max-height: min(32rem, 70svh);
+    min-height: var(--store-min);
+    max-height: var(--store-cap);
   }
   /* the Store toggle moves into the preview's header */
   .storeBadge {

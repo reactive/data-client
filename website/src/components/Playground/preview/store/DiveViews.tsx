@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 
 import { EndpointBody, EndpointMeta, EntityDetail, RowMeta } from './Details';
-import { offsetIn } from './dom';
+import { offsetIn, type Scroller } from './dom';
 import {
   findRow,
   isEndpointRow,
@@ -28,7 +28,6 @@ import {
 } from './Table';
 import { Block } from './Value';
 
-type Scroller = React.RefObject<HTMLElement | null>;
 export type Header = (tools: React.ReactNode) => React.ReactNode;
 
 /** Rows rendered beyond the visible ones, on each side */
@@ -170,7 +169,7 @@ function FilteredRows<R extends AnyRow>({
   );
   // a new filter starts from the top
   useLayoutEffect(() => {
-    if (scroller.current) scroller.current.scrollTop = 0;
+    if (scroller) scroller.scrollTop = 0;
   }, [scroller, query]);
 
   return (
@@ -242,11 +241,7 @@ function searchText(row: AnyRow) {
 
 /** Which of `count` rows are on screen in `scroller`; an open record
  * (below row `openIndex`) adds its measured height */
-function useWindow(
-  scroller: React.RefObject<HTMLElement | null>,
-  count: number,
-  openIndex: number,
-) {
+function useWindow(scroller: Scroller, count: number, openIndex: number) {
   const spacer = useRef<HTMLTableRowElement>(null);
   const rowHeight = useRef(ROW_GUESS);
   const extra = useRef(0);
@@ -264,7 +259,7 @@ function useWindow(
   });
 
   useLayoutEffect(() => {
-    const el = scroller.current;
+    const el = scroller;
     if (!el) return;
     const update = () => {
       const top = spacer.current;

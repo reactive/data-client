@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 
 import { TIME_WIDTH } from './columns';
 import { EntityDetail } from './Details';
-import { byData, offsetIn, toggled } from './dom';
+import { byData, offsetIn, toggled, type Scroller } from './dom';
 import {
   optimisticId,
   splitKey,
@@ -39,11 +39,7 @@ const preview = <T,>(rows: readonly T[]) =>
   rows.length > SHOW_ALL_UNDER ? rows.slice(0, PREVIEW_ROWS) : rows;
 
 /** The whole store at a glance: a few rows of everything */
-export default function RootView({
-  scroller,
-}: {
-  scroller: React.RefObject<HTMLElement | null>;
-}) {
+export default function RootView({ scroller }: { scroller: Scroller }) {
   const { model, width, push } = useNav()!;
   const shown = useShownSections(model);
   const [closed, setClosed] = useState<ReadonlySet<string>>(
@@ -124,7 +120,7 @@ function TableIndex({
   scroller,
 }: {
   model: StoreModel;
-  scroller: React.RefObject<HTMLElement | null>;
+  scroller: Scroller;
 }) {
   return (
     <div className={styles.tableIndex}>
@@ -133,7 +129,7 @@ function TableIndex({
           key={table.key}
           type="button"
           onClick={() => {
-            const el = scroller.current;
+            const el = scroller;
             const group = el && byData(el, 'table', table.key);
             if (el && group)
               el.scrollTo({ top: offsetIn(el, group), behavior: 'smooth' });
