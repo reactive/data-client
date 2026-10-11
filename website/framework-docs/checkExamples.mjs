@@ -10,7 +10,9 @@
  *   typed `any`.
  *
  * `@data-client/*` types come from the playground's editor types, which CI
- * keeps in sync with the packages. Add `nocheck` to a fence's meta to skip an
+ * keeps in sync with the packages. Compiler flags come from the editor's
+ * (Playground/monaco/typeCheckFlags.json), so examples error just as they do
+ * in the editor. Add `nocheck` to a fence's meta to skip an
  * illustrative fragment; other files can still import it.
  *
  * Usage: node website/framework-docs/checkExamples.mjs [react|vue]
@@ -282,7 +284,7 @@ function check(framework, examples) {
         // no esnext: Temporal needs its polyfill import
         lib: ['dom', 'es2024'],
         types: ['jest'],
-        // the playground editor's checks
+        // the playground editor's checks; `flags` are a framework's overrides
         ...TYPE_CHECK_FLAGS,
         ...flags,
         noEmit: true,
