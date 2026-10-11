@@ -439,6 +439,8 @@ describe('store model', () => {
     };
     expect(changeOf(state, next, entityId('User', '123'))).toBe('updated');
     expect(changeOf(state, next, entityId('User', '9'))).toBeUndefined();
+    const gone = { ...state, entities: { ...state.entities, User: {} } };
+    expect(changeOf(state, gone, entityId('User', '123'))).toBe('removed');
     expect(changeOf(state, next, entityId('Post', '1'))).toBeUndefined();
     // shouldUpdate() can keep the row but still refresh its meta
     const refetched = {

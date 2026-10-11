@@ -922,7 +922,7 @@ function Level({
       el.focus({ preventScroll: true });
     slide(el, before === null ? 1 : -1);
     if (before === false && returnTo)
-      flash(el, id => id === returnTo || undefined);
+      flash(el, id => (id === returnTo ? 'updated' : undefined));
   }, [top, pushed, returnTo]);
   return (
     <div

@@ -370,12 +370,12 @@ function parseKey(key: string) {
 }
 
 /** How row `id`'s stored value (or meta) differs between two states:
- * new to `next`, or changed in it; undefined when it is the same */
+ * new to `next`, changed in it, or gone from it; undefined when the same */
 export function changeOf(
   prev: State<unknown>,
   next: State<unknown>,
   id: string,
-): 'added' | 'updated' | undefined {
+): 'added' | 'updated' | 'removed' | undefined {
   const ref = parseRowId(id);
   if (!ref) return;
   const [was, now] =
@@ -395,7 +395,8 @@ export function changeOf(
         ],
       ];
   if (was[0] === now[0] && was[1] === now[1]) return;
-  return was[0] === undefined && was[1] === undefined ? 'added' : 'updated';
+  if (was[0] === undefined && was[1] === undefined) return 'added';
+  return now[0] === undefined && now[1] === undefined ? 'removed' : 'updated';
 }
 
 /** Collection pks are serialized args: `{"userId":"1"}` → `userId: 1` */

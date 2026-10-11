@@ -39,7 +39,7 @@ export function slide(el: HTMLElement, direction: 1 | -1) {
  * green, a removed one red, any other yellow */
 export function flash(
   scope: HTMLElement,
-  kindOf: (id: string) => ChangeKind | true | undefined,
+  kindOf: (id: string) => ChangeKind | undefined,
 ) {
   if (typeof scope.animate !== 'function' || prefersReducedMotion()) return;
   for (const row of scope.querySelectorAll<HTMLElement>('[data-id]')) {
@@ -48,8 +48,7 @@ export function flash(
     row.animate(
       [
         {
-          backgroundColor:
-            FLASH[kind === true ? '' : kind] ?? 'var(--store-flash)',
+          backgroundColor: FLASH[kind] ?? 'var(--store-flash)',
         },
         { backgroundColor: 'transparent' },
       ],
@@ -57,7 +56,7 @@ export function flash(
     );
   }
 }
-const FLASH: Partial<Record<ChangeKind | '', string>> = {
+const FLASH: Partial<Record<ChangeKind, string>> = {
   added: 'var(--store-flash-added)',
   removed: 'var(--store-flash-removed)',
 };
