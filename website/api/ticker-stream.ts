@@ -24,11 +24,10 @@ export function GET(request: Request): Response {
   const productIds = parseProductIds(
     new URL(request.url).searchParams.get('product_ids'),
   );
-  if (!productIds)
-    return new Response(
-      `product_ids must list 1-${MAX_PRODUCTS} products like BTC-USD`,
-      { status: 400 },
-    );
+  if (!productIds.length)
+    return new Response('product_ids must list products like BTC-USD', {
+      status: 400,
+    });
 
   const encoder = new TextEncoder();
   const socket = new WebSocket(COINBASE_FEED);
@@ -91,16 +90,12 @@ export function GET(request: Request): Response {
   });
 }
 
-/** `product_ids` as a list, or undefined when it isn't a valid one */
-function parseProductIds(param: string | null): string[] | undefined {
-  const productIds = [...new Set(param?.split(',') ?? [])];
-  if (
-    productIds.length === 0 ||
-    productIds.length > MAX_PRODUCTS ||
-    !productIds.every(id => PRODUCT_ID.test(id))
-  )
-    return;
-  return productIds;
+/** The well-formed `product_ids`, up to MAX_PRODUCTS, so one bad id
+ * (like a symbol being typed) doesn't end everyone's stream */
+function parseProductIds(param: string | null): string[] {
+  return [...new Set(param?.split(',') ?? [])]
+    .filter(id => PRODUCT_ID.test(id))
+    .slice(0, MAX_PRODUCTS);
 }
 
 /** A websocket `ticker` message in the REST ticker's shape */
