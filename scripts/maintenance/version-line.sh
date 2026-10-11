@@ -19,11 +19,14 @@ is_line() { [[ "$1" =~ ^(0\.[0-9]+|[1-9][0-9]*)$ ]]; }
 #   replaced_line <previous version> <released version> [current line]
 replaced_line() {
   local old="$1" new="$2" prev="${3:-}"
-  [ "$old" != "$new" ] && [[ "$new" != *-* ]] || return 0
-  [[ "$old" == *-* ]] || [ "$(line "$old")" != "$(line "$new")" ] || return 0
+  # not a new stable release
+  if [ "$old" = "$new" ] || [[ "$new" == *-* ]]; then return 0; fi
+  # a later stable release of the same line
+  if [[ "$old" != *-* ]] && [ "$(line "$old")" = "$(line "$new")" ]; then return 0; fi
   if [ -z "$prev" ]; then
-    [[ "$old" != *-* ]] || return 1
+    # a prerelease doesn't say which line came before it
+    if [[ "$old" == *-* ]]; then return 1; fi
     prev="$(line "$old")"
   fi
-  [ "$prev" = "$(line "$new")" ] || echo "$prev"
+  if [ "$prev" != "$(line "$new")" ]; then echo "$prev"; fi
 }

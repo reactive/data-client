@@ -1,0 +1,23 @@
+name: maintenance scripts
+# Tests what release.yml, docs-snapshot.yml and cut.sh decide about release
+# lines. Not required: it runs only when those change.
+on:
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'scripts/maintenance/**'
+      - '.github/workflows/maintenance-scripts.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - run: bash scripts/maintenance/version-line.test.sh

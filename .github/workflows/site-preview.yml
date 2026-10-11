@@ -59,10 +59,8 @@ jobs:
           # Commits and trees are all the dates need; files missing from the
           # checkout (old versions) download when read
           filter: ${{ github.event_name != 'merge_group' && 'blob:none' || '' }}
-      - name: Test deploy and versioning scripts
-        run: |
-          bash website/scripts/vercel-ignore.test.sh
-          bash scripts/maintenance/version-line.test.sh
+      - name: Test Vercel ignore decision
+        run: bash website/scripts/vercel-ignore.test.sh
       # While master is the next major (website/versionCurrent.json), its
       # production build serves at /next/ and the `current` job builds the root.
       # The queue builds it that way too, so it fails before the master push does.

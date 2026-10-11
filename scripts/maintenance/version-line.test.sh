@@ -15,8 +15,8 @@ expect 0.18 line 0.18.2
 expect 0.19 line 0.19.0-beta.0
 expect 1 line 1.0.0-rc.1
 expect 2 line 2.3.4
-for v in 0.18 1 12; do expect ok bash -c "source '$(dirname "$0")/version-line.sh'; is_line $v && echo ok"; done
-for v in 0 1.2 01 0.18.1 v1; do expect '(failed)' bash -c "source '$(dirname "$0")/version-line.sh'; is_line $v"; done
+for v in 0.18 1 12; do expect '' is_line "$v"; done
+for v in 0 1.2 01 0.18.1 v1; do expect '(failed)' is_line "$v"; done
 
 # previous, released, current line -> the line it replaces
 expect 0.18 replaced_line 0.18.2 0.19.0
