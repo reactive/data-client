@@ -13,9 +13,7 @@
 .message {
   display: block;
   margin-top: 0.25em;
-  padding: 0;
-  border: none;
-  background: none;
+  font-family: var(--ifm-font-family-monospace);
   font-size: 0.8em;
   overflow-wrap: anywhere;
   opacity: 0.85;

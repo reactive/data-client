@@ -3,7 +3,8 @@ import clsx from 'clsx';
 
 import styles from './ErrorMessage.module.css';
 
-/** Matches the props of AsyncBoundary's `errorComponent` */
+/** An app's own error UI (unlike ErrorPanel, which is playground chrome).
+ * Matches the props of AsyncBoundary's `errorComponent` */
 export function ErrorMessage({
   error,
   resetErrorBoundary,
@@ -30,7 +31,7 @@ export function ErrorMessage({
             )
           : error.name}
         </strong>
-        <code className={styles.message}>{error.message}</code>
+        <div className={styles.message}>{error.message}</div>
       </div>
       {resetErrorBoundary && (
         <button
