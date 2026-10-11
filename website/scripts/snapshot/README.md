@@ -38,12 +38,13 @@ and master's serve at `/next/`. [`scripts/maintenance/cut.sh`](../../../scripts/
 starts this by cutting a `<version>.x` maintenance branch and adding `website/versionCurrent.json`
 (`{ "version", "ref" }`) to master. While that file exists:
 
-- `site-preview.yml`'s production build of master sets `DOCS_NEXT=1`: `docusaurus.config.ts` builds
+- `site-preview.yml`'s production and merge queue builds of master set `DOCS_NEXT=1`: `docusaurus.config.ts` builds
   at `/next/` without the blog, through the same `withoutBlog.ts` (its News and Blog links go to the
   root's). Every build of master
   shows an "unreleased" banner, and the version dropdown reads Next and lists the current version.
 - Its `current` job builds the maintenance branch at the root with `SNAPSHOT_ROLE=current build.sh`
-  (the wrapper adds a navbar link to `/next/`, and keeps the blog and every static file), cached by
+  (the wrapper adds a navbar link to `/next/`, and keeps the version dropdown, the blog and every
+  static file), cached by
   the branch's commit so master's deploys rebuild it only when the branch changes, and
   `docs deploy` puts it beside `/next/` and the archives. `vercel.json` sends `/next/*` to the root
   whenever there is no next build (`docs deploy` drops that redirect while there is one, and fails if

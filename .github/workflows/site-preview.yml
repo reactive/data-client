@@ -61,10 +61,11 @@ jobs:
       - name: Test Vercel ignore decision
         run: bash website/scripts/vercel-ignore.test.sh
       # While master is the next major (website/versionCurrent.json), its
-      # production build serves at /next/ and the `current` job builds the root
+      # production build serves at /next/ and the `current` job builds the root.
+      # The queue builds it that way too, so it fails before the master push does.
       - name: Check for a next version
         id: next
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        if: github.event_name != 'pull_request'
         run: |
           [ ! -f website/versionCurrent.json ] || echo "next=1" >> "$GITHUB_OUTPUT"
       - uses: actions/setup-node@v6

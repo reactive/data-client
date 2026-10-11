@@ -18,10 +18,10 @@ const locale = process.env.DOCUSAURUS_CURRENT_LOCALE;
 const localePrefix = locale && locale !== 'en' ? `/${locale}` : '';
 const latestDocs = `${localePrefix}/docs`;
 
-// Drop the version dropdown later releases have: this site links to the
-// latest (or next) docs instead (below)
+// An archive drops the version dropdown later releases have, linking to the
+// latest docs instead (below). The current version keeps it to list archives.
 const navbarItems = (navbar.items ?? []).filter(
-  item => (item as { type?: string }).type !== 'custom-versions',
+  item => isCurrent || (item as { type?: string }).type !== 'custom-versions',
 );
 // A link, not a dropdown: older releases' CSS hides dropdowns
 const navbarLink = (html: string, path: string) => ({
