@@ -129,7 +129,7 @@ export function RowsTable<R extends { readonly id: string }>({
                     <td
                       key={c.id}
                       className={c.className}
-                      data-changed={cell ? true : undefined}
+                      data-changed={cell && (cell.was ? 'updated' : 'added')}
                     >
                       {cell?.was ?
                         <CellChange was={cell.was} now={cell.now} name={c.id}>

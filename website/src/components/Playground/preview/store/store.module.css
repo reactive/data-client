@@ -18,6 +18,7 @@
   --store-record: rgba(130, 170, 255, 0.07);
   --store-flash: rgba(255, 203, 107, 0.3);
   --store-stale-bg: rgba(255, 203, 107, 0.09);
+  --store-fresh-bg: rgba(127, 209, 160, 0.09);
   --store-tip: #3a4057;
   --store-bg: var(--monoco-code-background);
 
@@ -461,9 +462,13 @@ div.row[data-change='removed'] {
   text-decoration-color: var(--store-dim);
 }
 /* a cell an update changed, and what it was (after it, so a narrow cell
-   cuts the old value rather than the new) */
+   cuts the old value rather than the new); a field it added is fresh, like
+   an added row, though the row itself was updated */
 .row > td[data-changed] {
   background: var(--store-stale-bg);
+}
+.row > td[data-changed='added'] {
+  background: var(--store-fresh-bg);
 }
 .cellWas {
   margin-left: 0.5em;

@@ -1471,6 +1471,29 @@ describe('Store diff', () => {
     expect(top().querySelector('[data-changed], del')).toBeNull();
   });
 
+  it('marks a field an update added as added, in its updated row', async () => {
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    // a field the schema doesn't declare, which the store keeps
+    const withBody = { id: '1', title: 'One', body: 'New' };
+    await act(() => ctrl().set(Post, { id: '1' }, withBody));
+    openDiff();
+    const row = top().querySelector<HTMLElement>(
+      `tr[data-id="${entityId('Post', '1')}"]`,
+    )!;
+    expect(row.dataset.change).toBe('updated');
+    const changed = [...row.querySelectorAll<HTMLElement>('td[data-changed]')];
+    expect(changed.map(td => [td.dataset.changed, td.textContent])).toEqual([
+      ['added', '"New"'],
+    ]);
+    // the tree view marks the field as an added item
+    fireEvent.click(screen.getByLabelText('Tree view'));
+    const line = top().querySelector<HTMLElement>(
+      `[data-id="${entityId('Post', '1')}"]`,
+    )!;
+    expect(line.querySelector('ins')!.textContent).toBe('body: "New"');
+  });
+
   it('shows the newest poll live, not all its subscription did', async () => {
     const { ctrl } = mount();
     let n = 0;
