@@ -5,7 +5,9 @@ export const VERSION_LABEL_ID = 'version-label';
 
 /**
  * A head tag showing label (like v0.18, or next) under the navbar's 32px logo,
- * positioned absolutely so the logo doesn't move
+ * positioned absolutely so the logo doesn't move: centered on it, just under
+ * its bottom edge, with margin reset since the site's CSS margins the brand's
+ * ::after
  */
 export const versionLabel = (label: string) => ({
   tagName: 'style',
