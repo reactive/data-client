@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791602752605,
+  "lastUpdate": 1791842365830,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark Spread": [
@@ -279,6 +279,37 @@ window.BENCHMARK_DATA = {
             "range": "±1.06%",
             "unit": "ops/sec",
             "extra": "87 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "0799aa6723d84b76239c534577fcffb479aa27c8",
+          "message": "website: Work offline as an installed app (#4327)\n\n* website: Read pages offline\n\nA service worker keeps a copy of each page and file the site loads and\nanswers from it only when the network fails, so online visits always get\nthe deployed build. The web manifest gets a name and start URL so the\ninstalled site opens at its root.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01JWinBKW3mPyLScYiPD3j7S\n\n* website: Simplify offline worker registration and trim one at a time\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01JWinBKW3mPyLScYiPD3j7S\n\n* website: Keep only page files offline, one copy per page\n\nSkips media and data on the first-visit backfill, requests each page once\nper tab, stores pages without their query, and falls back to a normal\nrequest when navigation preload fails.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01JWinBKW3mPyLScYiPD3j7S\n\n* website: Keep the manifest scope explicit and register after a late load\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01JWinBKW3mPyLScYiPD3j7S\n\n* website: Fetch pages in browsers without navigation preload\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01JWinBKW3mPyLScYiPD3j7S\n\n* website: Count the landing page as kept offline\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01JWinBKW3mPyLScYiPD3j7S\n\n* website: Backfill the page a first visit landed on\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01JWinBKW3mPyLScYiPD3j7S\n\n* website: Use @docusaurus/plugin-pwa, only in the installed app\n\nThe installed site (or ?offlineMode=true) precaches the whole build and\nshows the plugin's refresh popup after a deploy. Browser tabs never load\nthe plugin's registration, so they get no service worker. A small\nswCustom serves pages offline under trailingSlash: false, which the\nplugin's lookup misses. Replaces the custom network-first worker.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01JWinBKW3mPyLScYiPD3j7S\n\n* website: Install each build as its own app, and find dotted pages offline\n\nThe manifest link moves to the plugin's pwaHead so it sits under each\nbuild's baseUrl (/next/, /es/), and its start_url, scope and icons are\nrelative to it, so installing from /next opens /next, the build with the\nworker. swCustom now tries every page path, including ones with a dot.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01JWinBKW3mPyLScYiPD3j7S\n\n* website: Clarify the PWA comments\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01JWinBKW3mPyLScYiPD3j7S\n\n* website: cache pages under their served URL instead of a custom worker lookup\n\nRewrite precache entries like docs/intro.html to docs/intro so the PWA\nplugin's own offline lookup finds them, and precaching fetches the URL\nVercel serves rather than one it redirects.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01JWinBKW3mPyLScYiPD3j7S\n\n* website: Load static files from each build's own path\n\nThe /next/ and locale builds linked fonts, favicons and images at the site\nroot, outside their installed app's offline worker. Link them under the\nbuild's baseUrl instead, and leave /next/'s blog out of its precache since\nits blog links go to the root site.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01JWinBKW3mPyLScYiPD3j7S\n\n* website: Load the homepage's Agent Skills icon from the build's own path\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01JWinBKW3mPyLScYiPD3j7S\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-12T21:55:05Z",
+          "tree_id": "bf667ab34805bbfc3ae6a20c06aa181dfc53ad62",
+          "url": "https://github.com/reactive/data-client/commit/0799aa6723d84b76239c534577fcffb479aa27c8"
+        },
+        "date": 1791842362677,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "setOneEntity in 10k entity store",
+            "value": 153,
+            "range": "±0.74%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
           }
         ]
       }
