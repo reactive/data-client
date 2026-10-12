@@ -87,33 +87,16 @@ function releaseExists(tag) {
 }
 
 /**
- * Only LATEST_PACKAGE takes "Latest", and only when it's a stable version no
- * older than the current Latest (a maintenance branch releasing an older
- * line keeps it). Every other release passes --latest=false, or GitHub
- * marks whichever was created last, like @data-client/vue.
+ * GitHub's Latest follows npm's `latest`, so only LATEST_PACKAGE takes it.
+ * Every other release passes --latest=false, or GitHub marks whichever was
+ * created last, like @data-client/vue.
  */
 function isLatest(name, version) {
-  if (name !== LATEST_PACKAGE || version.includes('-')) return false;
-  let latestTag;
-  try {
-    latestTag = execSync(
-      `gh release view --repo ${REPO} --json tagName --jq .tagName`,
-      { stdio: ['pipe', 'pipe', 'pipe'] },
-    )
-      .toString()
-      .trim();
-  } catch (error) {
-    // no Latest release yet; any other failure (API, auth) shouldn't hand it out
-    if (String(error.stderr).includes('release not found')) return true;
-    throw error;
-  }
-  const prefix = `${LATEST_PACKAGE}@`;
-  if (!latestTag.startsWith(prefix)) return true;
-  // numeric collation orders stable versions: 0.18.10 after 0.18.2
   return (
-    version.localeCompare(latestTag.slice(prefix.length), undefined, {
-      numeric: true,
-    }) >= 0
+    name === LATEST_PACKAGE &&
+    !version.includes('-') &&
+    // set by scripts/maintenance/publish.sh
+    (process.env.NPM_TAG ?? 'latest') === 'latest'
   );
 }
 

@@ -17,8 +17,6 @@ change to keep what merged since. The script:
     `site-preview.yml`'s pull_request trigger at the branch, so its PRs get a site preview, and
     publishes with `publish.sh`, which uses npm's `latest` tag until the next major ships and
     `latest-<version>` after, so `latest` stays on the newest major;
-  - queues `release.yml` with master's runs, so only the newest `@data-client/react` release
-    becomes GitHub's Latest;
   - points its pages' edit links and its GitHub release tags at the branch, and drops
     `versionCurrent.json` (a release tag predates its archive listing PR deleting it);
   - drops master's pending changesets, listing them: they're the next major's and release from
