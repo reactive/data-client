@@ -220,10 +220,11 @@ function ensureMenu() {
     if (!isMenuPart(e.target as Node)) close();
   });
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && menu?.hasAttribute('data-open')) {
-      close();
-      brand?.focus();
-    }
+    if (e.key !== 'Escape') return;
+    // also cancels an open still loading the list
+    const wasOpen = menu?.hasAttribute('data-open');
+    close();
+    if (wasOpen) brand?.focus();
   });
   // the menu is fixed under the navbar, which hides on scroll
   window.addEventListener('resize', close);
