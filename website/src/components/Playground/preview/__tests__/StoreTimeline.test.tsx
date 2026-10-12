@@ -747,7 +747,7 @@ describe('Store timeline hold', () => {
   const marksOn = (track: Element) =>
     track.querySelectorAll('[data-id]').length;
   /** The sign that a change waits */
-  const paused = () => screen.queryByRole('img', { name: /^Paused/ });
+  const paused = () => screen.queryByText('Paused');
   /** Sets a post, which the scrubber marks */
   const set = (ctrl: () => Controller, title: string) =>
     act(async () => {
@@ -787,7 +787,7 @@ describe('Store timeline hold', () => {
     expect(track.hasAttribute('data-catchup')).toBe(true);
     act(() => jest.advanceTimersByTime(1000));
     expect(track.hasAttribute('data-catchup')).toBe(false);
-    // back on: a change that leaves the marks be (none) says nothing
+    // back on with nothing new waiting, it says nothing
     pointer(track, 'pointerenter', 10);
     expect(paused()).toBeNull();
   });
@@ -871,9 +871,7 @@ describe('Store timeline hold', () => {
       pointer(strip, 'pointerenter', 10);
       await set(ctrl, 'Three');
       expect(marksOn(strip)).toBe(4);
-      expect(
-        within(lanes()).getByRole('img', { name: /^Paused/ }),
-      ).toBeTruthy();
+      expect(within(lanes()).getByText('Paused')).toBeTruthy();
       // the scrubber, which the mouse is not on, shows it
       expect(marksOn(scrubber())).toBe(5);
       pointer(strip, 'pointerleave', 0);

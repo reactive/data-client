@@ -299,7 +299,11 @@ function useHeld(live: Actions, on: boolean, strip: number) {
   const [was, setWas] = useState(live);
   const [wasBehind, setWasBehind] = useState(false);
   const [catchingUp, setCatchingUp] = useState(false);
-  const behind = on && was !== live && !still(was, live, strip);
+  const moves = useMemo(
+    () => was !== live && !still(was, live, strip),
+    [was, live, strip],
+  );
+  const behind = on && moves;
   if (!behind && was !== live) setWas(live);
   if (wasBehind !== behind) {
     setWasBehind(behind);
@@ -578,11 +582,8 @@ export const Scrubber = memo(function Scrubber({
   const track = useRef<HTMLDivElement>(null);
   // the pointer on the track: what it shows holds still
   const [on, setOn] = useState(false);
-  const { actions, behind, catchingUp } = useHeld(
-    useActions(),
-    on,
-    useWidth(track, 0),
-  );
+  const strip = useWidth(track, 0);
+  const { actions, behind, catchingUp } = useHeld(useActions(), on, strip);
   const { groups } = actions;
   const { whole, earlier, later, set: onSelect, show } = useNavState();
   // a row picked stands for its whole group: the label names that
@@ -971,8 +972,7 @@ function Paused() {
   return (
     <span
       className={styles.tlPaused}
-      role="img"
-      aria-label="Paused: new actions wait until the pointer leaves"
+      title="New actions wait until the pointer leaves"
     >
       <PauseIcon />
       Paused
