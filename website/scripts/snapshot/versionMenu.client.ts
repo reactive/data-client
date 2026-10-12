@@ -23,8 +23,11 @@ const loadVersions = (): Promise<SiteVersion[]> =>
     : '/site-versions.json',
   )
     .then(res => (res.ok ? res.json() : Promise.reject(res.status)))
-    // a dev server or older deploy has no list
-    .catch((): SiteVersion[] => [{ label: 'Latest docs', url: LATEST }]));
+    // a dev server or older deploy has no list; try again on the next open
+    .catch((): SiteVersion[] => {
+      versions = undefined;
+      return [{ label: 'Latest docs', url: LATEST }];
+    }));
 
 /** This site's base without its locale (/, /next/), and the locale's path */
 function siteBase() {
@@ -175,6 +178,9 @@ const STYLE = `
 let menu: HTMLElement | undefined;
 let brand: HTMLElement | undefined;
 let timer: ReturnType<typeof setTimeout> | undefined;
+// bumped by each open and close, so an open still loading the list after a
+// close (the pointer left first) doesn't show the menu
+let opening = 0;
 
 function ensureMenu() {
   if (menu) return menu;
@@ -191,6 +197,7 @@ function ensureMenu() {
     if (e.pointerType === 'mouse') closeSoon();
   });
   menu.addEventListener('keydown', onMenuKey);
+  menu.addEventListener('focusout', closeOnFocusOut);
   document.body.append(menu);
   document.addEventListener('pointerdown', e => {
     const target = e.target as Node;
@@ -202,15 +209,18 @@ function ensureMenu() {
       brand?.focus();
     }
   });
+  // the menu is fixed under the navbar, which hides on scroll
   window.addEventListener('resize', close);
+  window.addEventListener('scroll', close, { passive: true });
   return menu;
 }
 
 async function open(focusFirst = false) {
   clearTimeout(timer);
+  const id = ++opening;
   const el = ensureMenu();
   const list = await loadVersions();
-  if (!brand) return;
+  if (id !== opening || !brand) return;
   el.replaceChildren(
     Object.assign(document.createElement('div'), {
       className: 'version-menu__heading',
@@ -251,8 +261,14 @@ async function open(focusFirst = false) {
 
 function close() {
   clearTimeout(timer);
+  opening++;
   menu?.removeAttribute('data-open');
   brand?.setAttribute('aria-expanded', 'false');
+}
+
+function closeOnFocusOut(e: FocusEvent) {
+  const next = e.relatedTarget as Node | null;
+  if (next && !menu?.contains(next) && !brand?.contains(next)) close();
 }
 
 function closeSoon() {
@@ -291,9 +307,12 @@ function bind(el: HTMLElement) {
     const logo = el.querySelector('img, svg');
     if (!logo || e.clientY < logo.getBoundingClientRect().bottom - 4) return;
     e.preventDefault();
-    if (menu?.hasAttribute('data-open')) close();
+    // a mouse's hover already opened it, so its click shouldn't close it
+    const mouse = (e as PointerEvent).pointerType === 'mouse';
+    if (menu?.hasAttribute('data-open') && !mouse) close();
     else open();
   });
+  el.addEventListener('focusout', closeOnFocusOut);
   el.addEventListener('keydown', e => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
