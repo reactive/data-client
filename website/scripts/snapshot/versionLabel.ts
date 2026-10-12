@@ -5,12 +5,11 @@ export const VERSION_LABEL_ID = 'version-label';
 
 /**
  * A head tag showing label (like v0.18, or next) under the navbar's 32px logo,
- * positioned absolutely so the logo doesn't move: centered on it, just under
- * its bottom edge, with margin reset since the site's CSS margins the brand's
- * ::after
+ * positioned absolutely so the logo doesn't move: centered on it, its line box
+ * starting 3px above the logo's bottom edge (50% + 16px) so the text sits just under it
  */
 export const versionLabel = (label: string) => ({
   tagName: 'style',
   attributes: { id: VERSION_LABEL_ID },
-  innerHTML: `.navbar__brand { position: relative; } .navbar__brand::after { content: ${JSON.stringify(label)}; position: absolute; left: 16px; top: calc(50% + 13px); transform: translateX(-50%); margin: 0; font-size: 0.625rem; line-height: 1; white-space: nowrap; opacity: 0.7; }`,
+  innerHTML: `.navbar__brand { position: relative; } .navbar__brand::after { content: ${JSON.stringify(label)}; position: absolute; left: 16px; top: calc(50% + 13px); transform: translateX(-50%); font-size: 0.625rem; line-height: 1; white-space: nowrap; opacity: 0.7; }`,
 });
