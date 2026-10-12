@@ -44,13 +44,16 @@ const site =
     }
   );
 
+// Adds the version menu unless the release's config already has it
+const withVersionMenu = (modules: unknown[]) =>
+  modules.some(m => /versionMenu\.client/.test(String(m))) ? modules : (
+    [...modules, require.resolve('./versionMenu.client')]
+  );
+
 export default {
   ...site,
   headTags,
-  clientModules: [
-    ...(site.clientModules ?? []),
-    require.resolve('./versionMenu.client'),
-  ],
+  clientModules: withVersionMenu(site.clientModules ?? []),
   themeConfig: {
     ...themeConfig,
     ...(!isCurrent && {

@@ -1,26 +1,20 @@
-// The version menu by the logo, like react.dev's: hover the logo, or tap the
-// version under it, to open this page in another version's docs. Every
-// version's site reads one list from the production root
-// (siteVersions in website/siteVersions.ts), so archives list the versions
-// released after them. build.sh copies it beside an old release's config
-// (docusaurus.snapshot.config.ts adds it), so it's plain DOM and styles itself
-// with Infima's variables rather than relying on that release's components.
+// The version menu by the logo: hover the logo, or tap the version under it,
+// to open this page in another version's docs. Plain DOM, since archives add
+// it to old releases' builds (see README.md).
 import siteConfig from '@generated/docusaurus.config';
 
 // siteVersions.ts's SiteVersion, which archives don't have
 type SiteVersion = { label: string; note?: string; url: string };
 
-const MENU_ID = 'version-menu';
 const LATEST = 'https://dataclient.io';
-// Archives serve at their own hosts (<version>.dataclient.io)
-const ARCHIVE_HOST = /^(0\.\d+|[1-9]\d*)\.dataclient\.io$/;
 
 let versions: Promise<SiteVersion[]> | undefined;
 const loadVersions = (): Promise<SiteVersion[]> =>
   (versions ??= fetch(
-    ARCHIVE_HOST.test(location.hostname) ?
-      `${LATEST}/site-versions.json`
-    : '/site-versions.json',
+    // archives (<version>.dataclient.io) read the root's; previews their own
+    siteConfig.url === LATEST ?
+      '/site-versions.json'
+    : `${LATEST}/site-versions.json`,
   )
     .then(res => (res.ok ? res.json() : Promise.reject(res.status)))
     // a dev server or older deploy has no list; try again on the next open
@@ -29,23 +23,18 @@ const loadVersions = (): Promise<SiteVersion[]> =>
       return [{ label: 'Latest docs', url: LATEST }];
     }));
 
-/** This site's base without its locale (/, /next/), and the locale's path */
-function siteBase() {
+/** This page's path after the version's site (and its locale's path), and
+ * this site's entry: production's root, /next or an archive's host */
+function here() {
   const { baseUrl } = siteConfig;
   const lang = document.documentElement.lang;
   const locale = lang && baseUrl.endsWith(`/${lang}/`) ? `${lang}/` : '';
-  return { base: baseUrl.slice(0, baseUrl.length - locale.length), locale };
+  const base = baseUrl.slice(0, baseUrl.length - locale.length);
+  return {
+    page: `/${locale}${location.pathname.slice(baseUrl.length)}${location.search}`,
+    site: `${location.origin}${base}`.replace(/\/$/, ''),
+  };
 }
-
-/** This page, in this locale, on a version's site */
-function pageIn({ url }: SiteVersion) {
-  const page = location.pathname.slice(siteConfig.baseUrl.length);
-  return `${url}/${siteBase().locale}${page}${location.search}`;
-}
-
-/** This site's entry: production's root, /next/ or an archive's host */
-const isThisSite = ({ url }: SiteVersion) =>
-  `${location.origin}${siteBase().base}`.replace(/\/$/, '') === url;
 
 const STYLE = `
 .version-menu {
@@ -185,7 +174,10 @@ let generation = 0;
 let lastPointer = '';
 
 const isMenuPart = (node: Node | null) =>
-  !!node && (!!menu?.contains(node) || !!brand?.contains(node));
+  !!(menu?.contains(node) || brand?.contains(node));
+const leave = (e: PointerEvent) => {
+  if (e.pointerType === 'mouse') closeSoon();
+};
 
 function ensureMenu() {
   if (menu) return menu;
@@ -193,14 +185,11 @@ function ensureMenu() {
   style.textContent = STYLE;
   document.head.append(style);
   menu = document.createElement('div');
-  menu.id = MENU_ID;
   menu.className = 'version-menu';
   menu.setAttribute('role', 'menu');
   menu.setAttribute('aria-label', 'Versions');
   menu.addEventListener('pointerenter', () => clearTimeout(timer));
-  menu.addEventListener('pointerleave', e => {
-    if (e.pointerType === 'mouse') closeSoon();
-  });
+  menu.addEventListener('pointerleave', leave);
   menu.addEventListener('keydown', onMenuKey);
   menu.addEventListener('focusout', closeOnFocusOut);
   document.body.append(menu);
@@ -225,6 +214,12 @@ async function open(focusFirst = false) {
   const el = ensureMenu();
   const list = await loadVersions();
   if (id !== generation || !brand) return;
+  // measure before changing the DOM so it doesn't force a layout
+  const { left } = brand.getBoundingClientRect();
+  const { bottom } = (
+    brand.closest('.navbar') ?? brand
+  ).getBoundingClientRect();
+  const { page, site } = here();
   el.replaceChildren(
     Object.assign(document.createElement('div'), {
       className: 'version-menu__heading',
@@ -234,9 +229,9 @@ async function open(focusFirst = false) {
       const item = document.createElement('a');
       item.className = 'version-menu__item';
       item.setAttribute('role', 'menuitem');
-      item.href = pageIn(v);
+      item.href = `${v.url}${page}`;
       item.textContent = v.label;
-      if (isThisSite(v)) item.setAttribute('aria-current', 'page');
+      if (v.url === site) item.setAttribute('aria-current', 'page');
       if (v.note) {
         const note = document.createElement('span');
         note.className = 'version-menu__note';
@@ -252,10 +247,6 @@ async function open(focusFirst = false) {
         '<a href="https://github.com/reactive/data-client/releases" target="_blank" rel="noopener noreferrer">Release notes ↗</a>',
     }),
   );
-  const { left } = brand.getBoundingClientRect();
-  const { bottom } = (
-    brand.closest('.navbar') ?? brand
-  ).getBoundingClientRect();
   el.style.left = `${Math.max(8, left - 8)}px`;
   el.style.top = `${bottom - 4}px`;
   el.setAttribute('data-open', '');
@@ -306,9 +297,7 @@ function bind(el: HTMLElement) {
     clearTimeout(timer);
     timer = setTimeout(() => open(), 80);
   });
-  el.addEventListener('pointerleave', e => {
-    if (e.pointerType === 'mouse') closeSoon();
-  });
+  el.addEventListener('pointerleave', leave);
   // The version under the logo opens the menu rather than going home: the
   // tap equivalent of hovering
   el.addEventListener('click', e => {
@@ -333,11 +322,7 @@ export function onRouteUpdate() {
 }
 
 export function onRouteDidUpdate() {
-  // Docusaurus may render a new navbar; once per element. A release whose own
-  // config also lists this module binds it once.
+  // Docusaurus may render a new navbar
   const el = document.querySelector<HTMLElement>('.navbar__brand');
-  if (el && el !== brand && !el.dataset.versionMenu) {
-    el.dataset.versionMenu = '';
-    bind(el);
-  }
+  if (el && el !== brand) bind(el);
 }

@@ -78,24 +78,17 @@ export const siteLabel = versionCurrent ? 'next' : `v${packageLine}`;
  * the production root's /site-versions.json, where every version's site reads
  * it, so archives list the versions released after them.
  */
+const SITE = 'https://dataclient.io';
 export const siteVersions: SiteVersion[] = [
-  // master's version is the last release's until the next one publishes
   ...(versionCurrent ?
-    [
-      { label: 'Next', note: 'unreleased', url: 'https://dataclient.io/next' },
-      {
-        label: `v${versionCurrent.version}`,
-        note: 'latest',
-        url: 'https://dataclient.io',
-      },
-    ]
-  : [
-      {
-        label: `v${packageLine}`,
-        note: 'latest',
-        url: 'https://dataclient.io',
-      },
-    ]),
+    [{ label: 'Next', note: 'unreleased', url: `${SITE}/next` }]
+  : []),
+  // master's version is the last release's until the next one publishes
+  {
+    label: `v${versionCurrent?.version ?? packageLine}`,
+    note: 'latest',
+    url: SITE,
+  },
   ...versionsArchived
     .map(({ version }) => version)
     .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))
