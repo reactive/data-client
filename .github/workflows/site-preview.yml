@@ -227,8 +227,8 @@ jobs:
           sha="$(git ls-remote origin "refs/heads/$ref" | cut -f1)"
           [ -n "$sha" ] || { echo "::error::No $ref branch to build the root from"; exit 1; }
           { echo "version=$(jq -r .version "$f")"; echo "ref=$ref"; echo "sha=$sha"; } >> "$GITHUB_OUTPUT"
-      # Only the branch, the snapshot scripts and the archive list change its
-      # build, so master pushes reuse it
+      # Only the branch and the snapshot scripts change its build, so master
+      # pushes reuse it
       - if: steps.current.outputs.sha
         id: cache
         uses: actions/cache/restore@v6

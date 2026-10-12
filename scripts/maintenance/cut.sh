@@ -46,7 +46,7 @@ cp "$here/../create-github-releases.mjs" scripts/
 mkdir -p scripts/maintenance
 cp "$here/publish.sh" "$here/version-line.sh" scripts/maintenance/
 # A release tag predates its archive listing PR: the previous version is
-# archived, not current (the root's build takes master's archive list)
+# archived, not current (siteVersions.ts rejects a version that's both)
 rm -f website/versionCurrent.json
 # Deploys the root docs and ports each push to master
 cp "$here/maintenance.yml" .github/workflows/
