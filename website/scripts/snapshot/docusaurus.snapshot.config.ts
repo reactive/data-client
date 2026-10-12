@@ -21,10 +21,10 @@ const localePrefix = locale && locale !== 'en' ? `/${locale}` : '';
 const docs = `${localePrefix}/docs`;
 const latestDocs = `${config.url}${docs}`;
 
-// An archive drops the version dropdown later releases have, linking to the
-// latest docs instead (below). The current version keeps it to list archives.
+// Drops the version dropdown some releases have: the label beside the logo
+// shows the version, and a link (below) goes to the latest or next docs
 const navbarItems = (navbar.items ?? []).filter(
-  item => isCurrent || (item as { type?: string }).type !== 'custom-versions',
+  item => (item as { type?: string }).type !== 'custom-versions',
 );
 // Archives and the current version both label their version, replacing any
 // label the release's config has

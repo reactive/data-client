@@ -5,27 +5,9 @@
 import fs from 'fs';
 import path from 'path';
 
-export interface VersionTarget {
-  version: string;
-  /** Its site: '' for this site's root, else an origin */
-  root: string;
-}
-
-/** Read by VersionsNavbarItem (customFields.versions) */
-export interface SiteVersions {
-  /** Whether this site documents the next, unreleased major */
-  unreleased: boolean;
-  /** The other versions, newest first */
-  others: VersionTarget[];
-}
-
 // A release line, which a breaking change starts: the minor for 0.x, else the
 // major. Matches is_line in scripts/maintenance/version-line.sh
 const LINE = /^(0\.\d+|[1-9]\d*)$/;
-
-/** Where an archived version serves, like https://0.18.dataclient.io */
-export const archiveOrigin = (version: string) =>
-  `https://${version}.dataclient.io`;
 
 const read = (file: string) =>
   fs.existsSync(path.join(__dirname, file)) ?
@@ -52,7 +34,7 @@ if (versionCurrent) {
   );
 }
 
-/** Frozen builds, each served at its archiveOrigin, from docs-snapshot.yml */
+/** Frozen builds, each served at <version>.dataclient.io, from docs-snapshot.yml */
 const versionsArchived: { version: string; sha256: string }[] =
   read('versionsArchived.json') ?? [];
 for (const { version, sha256 } of versionsArchived) {
@@ -89,21 +71,3 @@ check(
   `packages/react/package.json: ${packageVersion} has no line`,
 );
 export const siteLabel = versionCurrent ? 'next' : `v${packageLine}`;
-
-/**
- * @param currentOrigin where the current version's site is, when this site is
- * the next major: production's, or undefined when it's this site's root
- */
-export const siteVersions = (currentOrigin?: string): SiteVersions => ({
-  unreleased: !!versionCurrent,
-  others: [
-    ...(versionCurrent ?
-      [{ version: versionCurrent.version, root: currentOrigin ?? '' }]
-    : []),
-    ...versionsArchived
-      .map(({ version }) => ({ version, root: archiveOrigin(version) }))
-      .sort((a, b) =>
-        b.version.localeCompare(a.version, undefined, { numeric: true }),
-      ),
-  ],
-});

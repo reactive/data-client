@@ -70,16 +70,5 @@
       ],
       "destination": "/archives/:version/:path*"
     }
-  ],
-  "headers": [
-    {
-      "source": "/:path*/sitemap.xml",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        }
-      ]
-    }
   ]
 }

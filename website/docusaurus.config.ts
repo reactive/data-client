@@ -8,7 +8,7 @@ import { themes } from 'prism-react-renderer';
 
 import gqlRedirects from './gqlRedirects';
 import { versionLabel } from './scripts/snapshot/versionLabel';
-import { siteLabel, siteVersions, versionCurrent } from './siteVersions';
+import { siteLabel, versionCurrent } from './siteVersions';
 import { motionCss } from './src/components/motion/css';
 import { DEFAULT_LOCALE, LOCALES } from './translate/locales';
 import versions from './versions.json';
@@ -289,8 +289,6 @@ const config: Config = {
     repoUrl: 'https://github.com/reactive/data-client',
     // read by FrameworkSelector to switch between differently named pages
     frameworkEquivalents: frameworkDocs.frameworkEquivalents(),
-    // read by VersionsNavbarItem
-    versions: siteVersions(currentOrigin),
   },
   onBrokenLinks: 'warn',
   future: {
@@ -605,8 +603,6 @@ const config: Config = {
           //className: 'header-demos-link',
           'aria-label': 'Demo Applications',
         },
-        // Latest (or next), current and archived versions (scripts/snapshot/README.md)
-        { type: 'custom-versions', position: 'right' },
         {
           href: 'https://github.com/reactive/data-client',
           position: 'right',
