@@ -71,3 +71,29 @@ check(
   `packages/react/package.json: ${packageVersion} has no line`,
 );
 export const siteLabel = versionCurrent ? 'next' : `v${packageLine}`;
+
+const SITE = 'https://dataclient.io';
+
+/** Every version's site, newest first, for the version menu by the logo
+ * (scripts/snapshot/versionMenu.client.ts) */
+export const siteVersions: SiteVersion[] = [
+  ...(versionCurrent ?
+    [{ label: 'Next', note: 'unreleased', url: `${SITE}/next` }]
+  : []),
+  // master's version is the last release's until the next one publishes
+  {
+    label: `v${versionCurrent?.version ?? packageLine}`,
+    note: 'latest',
+    url: SITE,
+  },
+  ...versionsArchived
+    .map(({ version }) => version)
+    .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))
+    .map(version => ({
+      label: `v${version}`,
+      url: `https://${version}.dataclient.io`,
+    })),
+];
+/** Frozen archives read this from site-versions.json: only add fields, and
+ * keep its path and CORS header (vercel.json) */
+export type SiteVersion = { label: string; note?: string; url: string };

@@ -11,7 +11,8 @@ type-check, as they did when that release's CI passed. Archives add nothing to t
   `https://<version>.dataclient.io`, drops its blog with `withoutBlog.ts` (the latest site has every
   post; `vercel.json` redirects the archive host's `/blog` page loads, and `rootBlog.client.ts` its
   in-app links), labels the version under the logo (`versionLabel.ts`, like the latest site's),
-  and drops any version dropdown for a banner and navbar link back to the latest docs. The wrapper
+  adds the version menu (`versionMenu.client.ts`) in place of any version dropdown the release has,
+  and adds a banner linking to the latest docs. The wrapper
   runs against old configs, so it only reads fields every release has.
 - `.github/workflows/docs-snapshot.yml` runs it in a job with no write token or dependency cache,
   since the release's install and build run third-party code. A second job, which runs nothing from
@@ -53,7 +54,7 @@ starts this by cutting a `<version>.x` maintenance branch and adding `website/ve
   its News and Blog links go to the root's (`rootBlog.client.ts`). It shows an "unreleased" banner
   linking to the current version's docs (from a PR preview, built alone at its root, production's).
 - Its `current` job builds the maintenance branch at the root with `SNAPSHOT_ROLE=current build.sh`
-  (the wrapper adds a navbar link to `/next/`, and keeps the blog and every
+  (the wrapper keeps the blog and every
   static file), cached by the branch's commit so master's deploys rebuild it only when the branch
   changes, and `docs deploy` puts it beside `/next/` and the archives. `vercel.json` sends `/next/*`
   to the root whenever there is no next build (`docs deploy` drops that redirect while there is one,

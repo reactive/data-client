@@ -2,13 +2,14 @@ import type * as Preset from '@docusaurus/preset-classic';
 import type * as PresetMermaid from '@docusaurus/theme-mermaid';
 import type { Config } from '@docusaurus/types';
 import { GlobExcludeDefault, getVcsPreset } from '@docusaurus/utils';
+import fs from 'fs';
 import { createRequire } from 'module';
 import path from 'path';
 import { themes } from 'prism-react-renderer';
 
 import gqlRedirects from './gqlRedirects';
 import { versionLabel } from './scripts/snapshot/versionLabel';
-import { siteLabel, versionCurrent } from './siteVersions';
+import { siteLabel, siteVersions, versionCurrent } from './siteVersions';
 import { motionCss } from './src/components/motion/css';
 import { DEFAULT_LOCALE, LOCALES } from './translate/locales';
 import versions from './versions.json';
@@ -277,6 +278,7 @@ const config: Config = {
   clientModules: [
     require.resolve('./src/gtagfix.ts'),
     require.resolve('./src/staleDeploy.ts'),
+    require.resolve('./scripts/snapshot/versionMenu.client.ts'),
     // /next/ builds its blog so its links are checked, but sends in-app blog
     // links to the root's, as vercel.json does page loads: blog URLs never change
     ...(isNext ?
@@ -352,6 +354,19 @@ const config: Config = {
     ],
   ],
   plugins: [
+    // The version menu's list. site-preview.yml serves it at the production
+    // root; builds of other versions (SNAPSHOT_VERSION) leave theirs out
+    () => ({
+      name: 'site-versions',
+      async postBuild({ outDir }) {
+        if (process.env.SNAPSHOT_VERSION || currentLocale !== DEFAULT_LOCALE)
+          return;
+        await fs.promises.writeFile(
+          path.join(outDir, 'site-versions.json'),
+          JSON.stringify(siteVersions),
+        );
+      },
+    }),
     // global motion styles (spring tokens, <Reveal>): website/src/components/motion/css.ts
     () => ({
       name: 'motion-css',

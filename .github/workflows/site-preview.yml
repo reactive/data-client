@@ -141,9 +141,12 @@ jobs:
           fi
       - name: Check the Store inspector stays in its lazy chunk
         run: node website/scripts/check-lazy-chunks.mjs
+      # The version menu's list stays at the root, where every version reads it
       - name: Move the build under /next
         if: steps.next.outputs.next
-        run: mv website/build website/next && mkdir website/build && mv website/next website/build/next
+        run: |
+          mv website/build website/next && mkdir website/build && mv website/next website/build/next
+          mv website/build/next/site-versions.json website/build/
       - if: github.event_name == 'push'
         uses: actions/cache/save@v6
         with:
