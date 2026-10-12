@@ -181,6 +181,14 @@ describe('still', () => {
     expect(still(actions(a, b), actions(a, b, c), 72)).toBe(true);
     expect(still(actions(a, b), actions(a, b, c), 71)).toBe(false);
   });
+
+  it('holds them still as a fetch joins one in flight, adding no mark', () => {
+    const joined = {
+      ...actions(a, b, c),
+      groups: [{ kind: 'request', entries: [a, c] }],
+    } as unknown as Actions;
+    expect(still(actions(a, b), joined, 50)).toBe(true);
+  });
 });
 
 describe('timeScale', () => {

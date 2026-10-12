@@ -278,9 +278,14 @@ export function nearest(
  * track runs past the strip (detailed, it scrolls to the newest; fit, it
  * squeezes) */
 export function still(was: Actions, live: Actions, strip: number) {
+  const before = shownOf(was).shown;
+  const after = shownOf(live).shown;
   return (
-    was.history.entries.every((e, i) => live.history.entries[i] === e) &&
-    (!strip || timeScale(shownOf(live).shown).width <= strip)
+    before.every((e, i) => after[i] === e) &&
+    // none added (a fetch joining one in flight shows nothing)
+    (after.length === before.length ||
+      !strip ||
+      timeScale(after).width <= strip)
   );
 }
 
