@@ -160,13 +160,16 @@ const STYLE = `
 @media (hover: hover) {
   .navbar__brand:hover::after { opacity: 1; background-size: 6px 4px; }
 }
-.navbar__brand[aria-expanded="true"]::after {
+.navbar__brand:focus-visible::after, .navbar__brand[aria-expanded="true"]::after {
   opacity: 1;
   background-size: 6px 4px;
+}
+.navbar__brand[aria-expanded="true"]::after {
   color: var(--ifm-color-primary);
 }
 @media (prefers-reduced-motion: reduce) {
   .version-menu, .version-menu[data-open] { transition: none; transform: none; }
+  .navbar__brand::after { transition: none; }
 }
 `;
 
