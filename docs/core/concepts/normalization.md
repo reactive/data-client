@@ -31,29 +31,33 @@ export const todos = [
   { id: '3', title: 'Normalize the store', completed: false },
 ];
 
-<FrameworkPlayground defaultOpen="y" fixtures={[
+<FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
 endpoint: new RestEndpoint({ path: '/todos' }),
 args: [],
-response: todos,
+response() {
+return Object.values(this);
+},
 delay: 150,
 },
 {
 endpoint: new RestEndpoint({ path: '/todos/:id' }),
 response({ id }) {
-return this[id] ?? todos.find(todo => todo.id === id);
+return this[id];
 },
 delay: 150,
 },
 {
 endpoint: new RestEndpoint({ path: '/todos/:id', method: 'PATCH' }),
 response({ id }, body) {
-const todo = this[id] ?? todos.find(todo => todo.id === id);
-return (this[id] = { ...todo, ...body });
+return (this[id] = { ...this[id], ...body });
 },
 delay: 300,
 },
-]}>
+]}
+getInitialInterceptorData={() =>
+Object.fromEntries(todos.map(todo => [todo.id, todo]))
+}>
 
 ```ts title="resources/Todo" collapsed
 import { Entity, resource } from '@data-client/rest';
