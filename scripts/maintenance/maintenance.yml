@@ -61,6 +61,7 @@ jobs:
           # a re-run picks the same commits again, as new ones
           git push --force origin "$branch"
           [ -z "$(gh pr list --head "$branch" --json number --jq '.[]')" ] || exit 0
+          # Named after the last commit it ports
           gh pr create --base master --head "$branch" \
-            --title "$(git log -1 --format=%s "$GITHUB_SHA")" \
+            --title "$(git log -1 --format=%s "${commits##*$'\n'}")" \
             --body "Ports $BEFORE..$GITHUB_SHA from \`$GITHUB_REF_NAME\` (the current version) to master (the next major). Made by maintenance.yml with the workflow token, so push a commit (or close and reopen) to run CI."
