@@ -116,8 +116,6 @@ export function useFollow(
   // last row in view outlasts the first)
   const anchor = useRef<{ row: Element; at: number }>(undefined);
   const wasPaused = useRef(paused);
-  // how the rows move, not a move itself: read as they do
-  const isSprung = useRef(sprung);
   // passive: the listeners can wait for paint
   useEffect(() => {
     const el = scroller.current;
@@ -215,9 +213,6 @@ export function useFollow(
     };
   }, [scroller, axis, paused]);
   useLayoutEffect(() => {
-    isSprung.current = sprung;
-  });
-  useLayoutEffect(() => {
     const el = scroller.current;
     const { size, scroll } = AXES[axis];
     const resumed = !paused && wasPaused.current;
@@ -232,7 +227,7 @@ export function useFollow(
     }
     if (!el) return;
     // a change mid catch-up springs on from where it is rather than jumps
-    const spring = isSprung.current || springing.has(el);
+    const spring = sprung || springing.has(el);
     if (!paused && (resumed || (el.clientHeight && follow.current))) {
       follow.current = true;
       scrollAlong(el, axis, el[size], spring);
@@ -244,6 +239,9 @@ export function useFollow(
     // underway (the moment's reveal as the list leaves live)
     const moved = startOf(last.row, axis) - startOf(el, axis) - last.at;
     if (moved) scrollAlong(el, axis, el[scroll] + moved, spring);
+    // `sprung` says how the rows move, not that they did: its own change
+    // moves nothing
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scroller, rows, axis, paused]);
   return useCallback(() => {
     const el = scroller.current;
@@ -253,16 +251,15 @@ export function useFollow(
   }, [scroller, axis]);
 }
 
-/** The spring scrolls underway, by scroller: its next frame and speed */
-const springing = new WeakMap<Element, { frame: number; velocity: number }>();
+/** The spring scrolls underway, by scroller */
+const springing = new WeakMap<Element, number>();
 function stopSpring(el: Element) {
-  cancelAnimationFrame(springing.get(el)?.frame ?? 0);
+  cancelAnimationFrame(springing.get(el) ?? 0);
   springing.delete(el);
 }
 /** Scrolls `el` along `axis` to `to`: `sprung`, on the snappy spring (at
  * once under reduced motion), as its rows catching up move
- * (`[data-catchup]` in store.module.css), keeping the speed of one
- * underway; else at once */
+ * (`[data-catchup]` in store.module.css); else at once */
 function scrollAlong(
   el: HTMLElement,
   axis: 'x' | 'y',
@@ -270,7 +267,6 @@ function scrollAlong(
   sprung: boolean,
 ) {
   const { size, scroll, client } = AXES[axis];
-  const velocity = springing.get(el)?.velocity ?? 0;
   stopSpring(el);
   if (
     !sprung ||
@@ -284,22 +280,20 @@ function scrollAlong(
   to = Math.max(0, Math.min(to, el[size] - el[client]));
   const from = el[scroll];
   const start = performance.now();
-  const queue = (velocity: number) =>
-    springing.set(el, { frame: requestAnimationFrame(step), velocity });
   const step = (now: number) => {
-    const at = springAt(
+    const { offset } = springAt(
       springs.snappy,
-      { offset: from - to, velocity },
+      { offset: from - to, velocity: 0 },
       (now - start) / 1000,
     );
     // settled when the marks' own spring is: a bounce passes the target
     // well before
     const done = now - start >= CATCH_UP_MS;
-    el[scroll] = done ? to : to + at.offset;
+    el[scroll] = done ? to : to + offset;
     if (done) springing.delete(el);
-    else queue(at.velocity);
+    else springing.set(el, requestAnimationFrame(step));
   };
-  queue(velocity);
+  springing.set(el, requestAnimationFrame(step));
 }
 
 const startOf = (el: Element, axis: 'x' | 'y') => {

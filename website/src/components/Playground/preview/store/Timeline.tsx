@@ -112,18 +112,19 @@ export function lanesOf(groups: readonly ActionGroup[]): Lane[] {
 
 /** The shown history: without the fetches deduped into a request in
  * flight (they add nothing to see), which `joined` holds */
-function shownOf({ groups, history }: Pick<Actions, 'groups' | 'history'>) {
+function shownOf(groups: readonly ActionGroup[], entries: readonly LogEntry[]) {
   const joined = new Set(groups.flatMap(g => [...joinedFetches(g).keys()]));
-  return { joined, shown: history.entries.filter(e => !joined.has(e)) };
+  return { joined, shown: entries.filter(e => !joined.has(e)) };
 }
 
 /** The shown history on `timeScale` */
 function useScale(actions: Actions) {
+  // from the history alone: stepping through moments leaves the marks be
   const { groups, history } = actions;
-  // not the moment's: stepping through them leaves the marks be
+  const { entries } = history;
   const { joined, shown } = useMemo(
-    () => shownOf({ groups, history }),
-    [groups, history.entries],
+    () => shownOf(groups, entries),
+    [groups, entries],
   );
   const scale = useMemo(() => timeScale(shown), [shown]);
   return { joined, shown, scale };
@@ -281,8 +282,8 @@ export function nearest(
  * track runs past the strip (detailed, it scrolls to the newest; fit, it
  * squeezes) */
 export function still(was: Actions, live: Actions, strip: number) {
-  const before = shownOf(was).shown;
-  const after = shownOf(live).shown;
+  const before = shownOf(was.groups, was.history.entries).shown;
+  const after = shownOf(live.groups, live.history.entries).shown;
   return (
     before.every((e, i) => after[i] === e) &&
     // none added (a fetch joining one in flight shows nothing)
@@ -311,7 +312,9 @@ function useHeld(track: React.RefObject<HTMLElement | null>) {
     () => on && !!was && was !== live && !still(was, live, strip),
     [on, was, live, strip],
   );
-  if (on ? !behind && was !== live : was) setWas(on ? live : undefined);
+  if (on) {
+    if (!behind && was !== live) setWas(live);
+  } else if (was) setWas(undefined);
   if (wasBehind !== behind) {
     setWasBehind(behind);
     // from the render that lets go, so its move is the one that transitions
@@ -323,7 +326,7 @@ function useHeld(track: React.RefObject<HTMLElement | null>) {
     return () => clearTimeout(timer);
   }, [catchingUp]);
   return {
-    actions: behind ? was! : live,
+    actions: behind && was ? was : live,
     setOn,
     strip,
     behind,
