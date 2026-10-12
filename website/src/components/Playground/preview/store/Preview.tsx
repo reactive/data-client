@@ -1,8 +1,14 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
 
 import { SubjectChanges } from './ActionDetail';
-import { findEntry } from './actionLog';
-import { ActionName, Time, useActions } from './actionParts';
+import type { LogEntry } from './actionLog';
+import { ActionName, Time } from './actionParts';
 import type { View } from './nav';
 import styles from './store.module.css';
 
@@ -15,7 +21,7 @@ const WARM_MS = 300;
 
 /** An action to preview, from a track */
 export interface PreviewAt {
-  readonly seq: number;
+  readonly entry: LogEntry;
   /** Client px of its mark */
   readonly x: number;
   /** What the preview shows under */
@@ -24,72 +30,87 @@ export interface PreviewAt {
 /** Shows the preview of an action (`now`, without the wait), or hides it */
 export type OnPreview = (at: PreviewAt | null, now?: boolean) => void;
 
-/** Where the preview shows, in `panel`'s px */
+/** Where the preview shows, in the panel's px */
 interface Shown {
-  readonly seq: number;
+  readonly entry: LogEntry;
+  readonly anchor: HTMLElement;
   readonly x: number;
   readonly top: number;
-  /** Px left under `top` */
-  readonly room: number;
 }
 
-/** The preview over `panel` and what tracks call to move it: it waits a
- * moment to show, then follows each action hovered at once */
+/** What is previewed. Outside React state, so moving it renders only the
+ * preview, not the panel */
+export class PreviewStore {
+  private shown: Shown | null = null;
+  private listeners = new Set<() => void>();
+  get = () => this.shown;
+  set(shown: Shown | null) {
+    if (shown === this.shown) return;
+    this.shown = shown;
+    this.listeners.forEach(l => l());
+  }
+
+  subscribe = (listener: () => void) => {
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  };
+}
+
+/** The preview over `panel` (for `Preview`) and what tracks call to move
+ * it: it waits a moment to show, then follows each action hovered at once */
 export function usePreview(panel: React.RefObject<HTMLElement | null>) {
-  const [shown, setShown] = useState<Shown | null>(null);
+  const [store] = useState(() => new PreviewStore());
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const pending = useRef<Shown | null>(null);
-  const showing = useRef(false);
   const hidAt = useRef(-Infinity);
   const onPreview = useCallback<OnPreview>(
     (at, now) => {
       if (!at) {
         clearTimeout(timer.current);
         timer.current = undefined;
-        if (showing.current) hidAt.current = performance.now();
-        showing.current = false;
-        setShown(null);
+        pending.current = null;
+        if (store.get()) hidAt.current = performance.now();
+        store.set(null);
         return;
       }
+      // the same action again: nothing to move
+      const was = pending.current;
+      if (was?.entry === at.entry && was.anchor === at.anchor) return;
       const frame = panel.current?.getBoundingClientRect();
       if (!frame) return;
-      const top = at.anchor.getBoundingClientRect().bottom - frame.top;
-      const was = pending.current;
-      // the same action again: nothing to move
-      if (
-        (showing.current || timer.current) &&
-        was?.seq === at.seq &&
-        was.top === top
-      )
-        return;
       pending.current = {
-        seq: at.seq,
+        entry: at.entry,
+        anchor: at.anchor,
         x: at.x - frame.left,
-        top,
-        room: frame.height - top,
+        top: at.anchor.getBoundingClientRect().bottom - frame.top,
       };
       const show = () => {
         timer.current = undefined;
-        showing.current = true;
-        setShown(pending.current);
+        store.set(pending.current);
       };
-      if (showing.current || now || performance.now() - hidAt.current < WARM_MS)
+      if (store.get() || now || performance.now() - hidAt.current < WARM_MS)
         show();
       // the wait runs from when the mouse came on, however it moves
       else timer.current ??= setTimeout(show, SHOW_MS);
     },
-    [panel],
+    [panel, store],
   );
   useEffect(() => () => clearTimeout(timer.current), []);
-  return [shown, onPreview] as const;
+  return [store, onPreview] as const;
 }
 
 /** The action previewed and what it did to `subject`, under the track with
  * a caret on its mark. Only to look at: the pointer passes through */
-export function Preview({ at, subject }: { at: Shown; subject: View }) {
-  const { history } = useActions();
-  const entry = findEntry(history.entries, at.seq);
-  if (!entry) return null;
+export function Preview({
+  store,
+  subject,
+}: {
+  store: PreviewStore;
+  subject: View;
+}) {
+  const at = useSyncExternalStore(store.subscribe, store.get, store.get);
+  if (!at) return null;
+  const { entry } = at;
   return (
     <div
       className={styles.preview}
@@ -99,12 +120,11 @@ export function Preview({ at, subject }: { at: Shown; subject: View }) {
         {
           '--pv-x': `${at.x}px`,
           '--pv-top': `${at.top}px`,
-          '--pv-room': `${at.room}px`,
         } as React.CSSProperties
       }
     >
       <div className={styles.previewCard}>
-        <div className={styles.previewHead}>
+        <div className={styles.actHead}>
           <ActionName entry={entry} />
           <Time at={entry.at} />
         </div>

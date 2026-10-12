@@ -630,8 +630,8 @@ export default function StorePanel({
                 </div>
               </div>
             </div>
-            {pane && !listed && (
-              <NavContext.Provider value={chipNav}>
+            <NavContext.Provider value={chipNav}>
+              {pane && !listed && (
                 <ActionsPane
                   subject={subject}
                   filter={filter}
@@ -644,13 +644,9 @@ export default function StorePanel({
                   onPick={set}
                   onClose={closePane}
                 />
-              </NavContext.Provider>
-            )}
-            {preview && (
-              <NavContext.Provider value={chipNav}>
-                <Preview at={preview} subject={subject} />
-              </NavContext.Provider>
-            )}
+              )}
+              <Preview store={preview} subject={subject} />
+            </NavContext.Provider>
           </div>
         </NavStateContext.Provider>
       </LogContext.Provider>

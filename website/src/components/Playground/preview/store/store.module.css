@@ -141,8 +141,8 @@
 /* the selected tab joins the store below, as the editor's tabs join the
    code; an inset edge, so nothing shifts */
 .tab[aria-selected='true'] {
-  background: var(--store-bg);
-  color: var(--store-fg);
+  background: var(--pg-tab-selected-bg);
+  color: var(--pg-tab-selected);
   box-shadow: inset 0 2px 0 var(--ifm-color-primary);
 }
 /* The peek: the subject's actions as an overlay over the panel's right
@@ -1658,28 +1658,24 @@ button.tlMark:hover {
 }
 
 /* The preview: the action nearest the pointer on a track and what it did,
-   under the track with a caret on the action's mark. Its card stays in the
-   panel; only to look at, so the pointer passes through to the track */
+   under the track with a caret on the action's mark, down to the panel's
+   bottom at most. Only to look at, so the pointer passes through to the
+   track */
 .preview {
   --pv-w: min(24rem, calc(100% - 8px));
   position: absolute;
   left: 0;
   right: 0;
   top: var(--pv-top);
+  bottom: 0;
   z-index: 5;
   pointer-events: none;
-  animation: previewIn var(--motion-snappy);
-}
-@keyframes previewIn {
-  from {
-    opacity: 0;
-  }
+  animation: open var(--motion-snappy);
 }
 .preview::before,
 .previewCard {
   position: absolute;
   background: var(--store-bg);
-  box-shadow: 0 0 0 1px var(--store-line-strong);
 }
 .preview::before {
   content: '';
@@ -1688,6 +1684,7 @@ button.tlMark:hover {
   z-index: 1;
   width: 8px;
   height: 8px;
+  box-shadow: 0 0 0 1px var(--store-line-strong);
   clip-path: polygon(0 0, 100% 0, 0 100%);
   rotate: 45deg;
 }
@@ -1695,22 +1692,17 @@ button.tlMark:hover {
   top: 5px;
   left: clamp(4px, var(--pv-x) - var(--pv-w) / 2, 100% - var(--pv-w) - 4px);
   width: var(--pv-w);
-  max-height: max(4rem, var(--pv-room) - 9px);
+  max-height: max(4rem, 100% - 9px);
   overflow: hidden;
   border-radius: 6px;
   box-shadow:
     0 0 0 1px var(--store-line-strong),
     0 8px 24px rgba(0, 0, 0, 0.45);
 }
-.previewHead {
-  display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
+.previewCard > .actHead {
   padding: 0.35rem 0.6rem 0;
-  overflow: hidden;
-  white-space: nowrap;
 }
-.previewHead > .actTime {
+.previewCard .actTime {
   margin-left: auto;
 }
 .previewCard > .detail {

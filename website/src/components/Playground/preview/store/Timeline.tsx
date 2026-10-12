@@ -284,31 +284,31 @@ function useTrackPreview(
   useEffect(() => {
     const el = track.current;
     if (!el) return;
-    let previewing = false;
     const preview = (clientX: number, now?: boolean) => {
       const { shown, scale, onPreview } = latest.current;
       const lane = el.querySelector('[data-lane]');
       if (!lane || !shown.length) return;
       const box = lane.getBoundingClientRect();
-      const { seq } = nearest(
+      const entry = nearest(
         shown,
         scale,
         ((clientX - box.left) / box.width) * scale.width,
       );
-      previewing = true;
       onPreview(
         {
-          seq,
-          x: box.left + (scale.x.get(seq)! / scale.width) * box.width,
+          entry,
+          x: box.left + (scale.x.get(entry.seq)! / scale.width) * box.width,
           anchor: anchor.current ?? el,
         },
         now,
       );
     };
-    const hide = () => {
-      if (previewing) latest.current.onPreview(null);
-      previewing = false;
-    };
+    const hide = () => latest.current.onPreview(null);
+    // held, the finger slides the preview: the track doesn't scroll, nor
+    // the long press open a menu. Only then, so a plain swipe scrolls
+    // without waiting on these
+    const holding = (e: Event) => e.preventDefault();
+    const held = ['touchmove', 'contextmenu'] as const;
     // a finger on the track: held still, it previews
     let hold:
       | {
@@ -325,7 +325,11 @@ function useTrackPreview(
       if (!hold) return;
       clearTimeout(hold.timer);
       swallow = hold.on;
-      if (hold.on) hide();
+      if (hold.on) {
+        hide();
+        for (const type of held)
+          el.removeEventListener(type, holding, { capture: true });
+      }
       hold = undefined;
     };
     const onDown = (e: PointerEvent) => {
@@ -339,6 +343,11 @@ function useTrackPreview(
         on: false,
         timer: setTimeout(() => {
           h.on = true;
+          for (const type of held)
+            el.addEventListener(type, holding, {
+              capture: true,
+              passive: false,
+            });
           preview(h.x, true);
         }, HOLD_MS),
       };
@@ -363,22 +372,17 @@ function useTrackPreview(
       e.preventDefault();
       e.stopPropagation();
     };
-    const holding = (e: Event) => {
-      if (hold?.on) e.preventDefault();
-    };
     const listeners = [
       ['pointerdown', onDown],
       ['pointermove', onMove],
       ['pointerleave', onLeave],
       ['pointerup', onUp],
       ['pointercancel', onUp],
-      ['touchmove', holding],
-      ['contextmenu', holding],
       ['click', onClick],
     ] as const;
     // capturing: ahead of the track's follow, which a held finger mustn't
-    // move (see `useFollow`)
-    const options = { capture: true, passive: false };
+    // move (see `useFollow`), and of the mark's own click
+    const options = { capture: true };
     for (const [type, fn] of listeners)
       el.addEventListener(type, fn as EventListener, options);
     return () => {
