@@ -5,6 +5,10 @@ import siteConfig from '@generated/docusaurus.config';
 /** Requests `url` so the service worker (static/sw.js) keeps a copy of it */
 const save = (url: string) =>
   fetch(url, { priority: 'low' }).catch(() => undefined);
+/** Resource timing initiators of scripts, stylesheets, fonts and images */
+const PAGE_FILES = new Set(['script', 'link', 'css', 'img']);
+/** Pages this tab already requested for the worker (same build all session) */
+const saved = new Set<string>();
 
 if (
   ExecutionEnvironment.canUseDOM &&
@@ -20,13 +24,15 @@ if (
         save(location.href);
         for (const entry of performance.getEntriesByType(
           'resource',
-        ) as PerformanceResourceTiming[])
+        ) as PerformanceResourceTiming[]) {
+          // what the page is made of; not data, or media the worker can't
+          // answer (range requests)
           if (
-            entry.name.startsWith(location.origin) &&
-            entry.initiatorType !== 'fetch' &&
-            entry.initiatorType !== 'xmlhttprequest'
+            PAGE_FILES.has(entry.initiatorType) &&
+            new URL(entry.name).origin === location.origin
           )
             save(entry.name);
+        }
       },
       { once: true },
     );
@@ -50,7 +56,10 @@ export const onRouteDidUpdate: ClientModule['onRouteDidUpdate'] = ({
   if (
     previousLocation &&
     location.pathname !== previousLocation.pathname &&
-    navigator.serviceWorker?.controller
-  )
+    navigator.serviceWorker?.controller &&
+    !saved.has(location.pathname)
+  ) {
+    saved.add(location.pathname);
     save(location.pathname);
+  }
 };

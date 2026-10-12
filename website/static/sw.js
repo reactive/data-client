@@ -1,6 +1,10 @@
 // Offline support (registered by src/offline.ts): keeps a copy of each page
-// and file the site loads, and answers from it only when the network fails, so
-// online visits always get the deployed build.
+// and file the site loads. Pages and other files that can change come from
+// the network first, and from the copy only when the network fails, so online
+// visits always get the deployed build; content-hashed files come from the
+// copy, since their URL changes with their content. Unlike
+// @docusaurus/plugin-pwa, it precaches nothing: each visitor keeps only what
+// they read.
 
 /** Pages and other files that can change at their URL: replaced on each load */
 const SITE = 'site';
@@ -51,9 +55,11 @@ async function cacheFirst(event) {
 async function networkFirst(event) {
   try {
     const response =
-      (await event.preloadResponse) ?? (await fetch(event.request));
-    if (cacheable(response))
-      event.waitUntil(save(SITE, event.request, response.clone()));
+      (await event.preloadResponse.catch(() => undefined)) ??
+      (await fetch(event.request));
+    // one copy per page: the offline lookup ignores the query
+    const key = event.request.url.split(/[?#]/)[0];
+    if (cacheable(response)) event.waitUntil(save(SITE, key, response.clone()));
     return response;
   } catch (error) {
     const cached = await caches.match(event.request, {
