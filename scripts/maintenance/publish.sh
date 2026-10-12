@@ -12,6 +12,8 @@ tag=latest
 [ "$(printf '%s\n%s\n' "$ours" "$latest" | sort -V | tail -1)" = "$ours" ] ||
   tag="latest-$(line "$ours")"
 echo "Publishing $ours as $tag (latest is $latest)"
+# create-github-releases.mjs marks GitHub's Latest only under npm's `latest`
+[ -z "${GITHUB_ENV:-}" ] || echo "NPM_TAG=$tag" >> "$GITHUB_ENV"
 # changeset:publish with a tag, spelled out so the tag can't land on another command
 yarn build
 yarn workspaces foreach -A --no-private --topological \
