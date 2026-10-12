@@ -34,14 +34,24 @@ jobs:
       contents: write
       pull-requests: write
     steps:
+      # The port app's token makes the PR's push, CI and auto-merge run
+      # workflows like a person's would; the workflow token starts none
+      - id: app
+        if: vars.PORT_APP_CLIENT_ID
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.PORT_APP_CLIENT_ID }}
+          private-key: ${{ secrets.PORT_APP_PRIVATE_KEY }}
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           # the picks need only the commits' trees
           filter: blob:none
+          token: ${{ steps.app.outputs.token || github.token }}
       - name: Open a PR porting the push's website fixes to the current version
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ steps.app.outputs.token || github.token }}
+          APP: ${{ steps.app.outputs.token && 'true' || '' }}
           BEFORE: ${{ github.event.before }}
         run: |
           [ -f website/versionCurrent.json ] || { echo "master serves the root: nothing to port"; exit 0; }
@@ -82,16 +92,17 @@ jobs:
           body="Ports website fixes from master to \`$target\` (the current version, which serves the root docs):
 
           $list
-          Made by website-port.yml with the workflow token, so its CI runs only after a push (or close and reopen). Auto-merge is on: it merges once the branch's required checks pass, or at once if it requires none, and then the workflow rebuilds the root; a merge by hand rebuilds it through maintenance.yml. Keep the last line in the squash message, so maintenance.yml doesn't port it back.
+          Made by website-port.yml. Auto-merge is on: it merges once the branch's required checks pass, and the merge rebuilds the root through maintenance.yml. Keep the last line in the squash message, so maintenance.yml doesn't port it back.
 
           Maintenance-only: ported from master (${picked[*]})"
           [ -n "$(gh pr list --head "$branch" --json number --jq '.[]')" ] \
             || gh pr create --base "$target" --head "$branch" --title "$title" --body "$body"
           gh pr merge --auto --squash --subject "$title" --body "$body" "$branch" \
             || echo "::notice title=Not auto-merged::Merge the PR from $branch by hand"
-          # A merge pushed with the workflow token starts no workflows, so the
-          # branch's maintenance.yml won't rebuild the root: dispatch it here.
-          # It queues behind this push's own deploy, so it builds the merge.
-          if [ "$(gh pr view "$branch" --json state --jq .state)" = MERGED ]; then
+          # Without the app, a merge pushed with the workflow token starts no
+          # workflows, so the branch's maintenance.yml won't rebuild the root:
+          # dispatch it here. It queues behind this push's own deploy, so it
+          # builds the merge. (A later auto-merge can't, so set up the app.)
+          if [ -z "$APP" ] && [ "$(gh pr view "$branch" --json state --jq .state)" = MERGED ]; then
             gh workflow run site-preview.yml --ref master
           fi
