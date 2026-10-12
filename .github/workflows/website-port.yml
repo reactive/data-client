@@ -13,13 +13,12 @@ on:
     paths:
       - 'website/src/**'
       - 'website/static/**'
-      - '.github/workflows/website-port.yml'
 
 permissions:
   contents: read
 
-# One port at a time, in push order: each branches from the tip the last one
-# merged into, so a fix building on an earlier one applies
+# One port at a time, in push order. Each branches from the target's tip, so a
+# fix building on a port that hasn't merged yet warns to port it by hand
 concurrency:
   group: ${{ github.workflow }}
   queue: max
@@ -67,14 +66,13 @@ jobs:
           site='^website/(src|static)/'
           versioned='^website/src/components/(Playground/editor-types|Demo/code)/'
           picked=()
-          list=''
           for commit in $(git rev-list --reverse --no-merges "$BEFORE..$GITHUB_SHA"); do
             files="$(git diff-tree --no-commit-id --name-only -r --no-renames "$commit")"
             if [ -z "$files" ] || grep -qvE "$site" <<<"$files" || grep -qE "$versioned" <<<"$files"; then
               echo "Skipping $commit: not only site code"
               continue
             fi
-            if ! git cherry-pick -x "$commit"; then
+            if ! git cherry-pick "$commit"; then
               git cherry-pick --abort
               echo "::warning title=Not ported::$commit doesn't apply to $target; port it by hand"
               continue
@@ -82,16 +80,17 @@ jobs:
             # maintenance.yml skips it when porting the branch back to master
             git commit --amend --no-edit --trailer "Maintenance-only: ported from master ($commit)"
             picked+=("$commit")
-            list+="$(git log -1 --format='- %s (%h)' "$commit")"$'\n'
           done
           [ "${#picked[@]}" -gt 0 ] || { echo "Nothing to port"; exit 0; }
           # a re-run picks the same commits again, as new ones
           git push --force origin "$branch"
           # Named after the last commit it ports
           title="$(git log -1 --format=%s)"
+          list="$(git log --no-walk=unsorted --format='- %s (%h)' "${picked[@]}")"
           body="Ports website fixes from master to \`$target\` (the current version, which serves the root docs):
 
           $list
+
           Made by website-port.yml. Auto-merge is on: it merges once the branch's required checks pass, and the merge rebuilds the root through maintenance.yml. Keep the last line in the squash message, so maintenance.yml doesn't port it back.
 
           Maintenance-only: ported from master (${picked[*]})"
