@@ -23,8 +23,10 @@ const loadVersions = (): Promise<SiteVersion[]> =>
       return [{ label: 'Latest docs', url: LATEST }];
     }));
 
-/** This page's path after the version's site (and its locale's path), and
- * this site's entry: production's root, /next or an archive's host */
+/**
+ * page: this page's path, locale and query, to add to any version's url
+ * site: this site's url in the list (production's root, /next or an archive's)
+ */
 function here() {
   const { baseUrl } = siteConfig;
   const lang = document.documentElement.lang;
@@ -175,7 +177,7 @@ let lastPointer = '';
 
 const isMenuPart = (node: Node | null) =>
   !!(menu?.contains(node) || brand?.contains(node));
-const leave = (e: PointerEvent) => {
+const closeOnMouseLeave = (e: PointerEvent) => {
   if (e.pointerType === 'mouse') closeSoon();
 };
 
@@ -189,7 +191,7 @@ function ensureMenu() {
   menu.setAttribute('role', 'menu');
   menu.setAttribute('aria-label', 'Versions');
   menu.addEventListener('pointerenter', () => clearTimeout(timer));
-  menu.addEventListener('pointerleave', leave);
+  menu.addEventListener('pointerleave', closeOnMouseLeave);
   menu.addEventListener('keydown', onMenuKey);
   menu.addEventListener('focusout', closeOnFocusOut);
   document.body.append(menu);
@@ -297,7 +299,7 @@ function bind(el: HTMLElement) {
     clearTimeout(timer);
     timer = setTimeout(() => open(), 80);
   });
-  el.addEventListener('pointerleave', leave);
+  el.addEventListener('pointerleave', closeOnMouseLeave);
   // The version under the logo opens the menu rather than going home: the
   // tap equivalent of hovering
   el.addEventListener('click', e => {

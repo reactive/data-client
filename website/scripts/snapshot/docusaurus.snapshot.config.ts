@@ -44,11 +44,12 @@ const site =
     }
   );
 
-// Adds the version menu unless the release's config already has it
-const withVersionMenu = (modules: unknown[]) =>
-  modules.some(m => /versionMenu\.client/.test(String(m))) ? modules : (
-    [...modules, require.resolve('./versionMenu.client')]
-  );
+// The version menu from build.sh's copy, in place of any older copy the
+// release lists, so menu fixes on master reach every version's site
+const withVersionMenu = (modules: unknown[]) => [
+  ...modules.filter(m => !/versionMenu\.client/.test(String(m))),
+  require.resolve('./versionMenu.client'),
+];
 
 export default {
   ...site,

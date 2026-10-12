@@ -41,7 +41,10 @@ type-check, as they did when that release's CI passed. Archives add nothing to t
   same page (`versionMenu.client.ts`, plain DOM since archives add it to old releases' builds). The
   list is `siteVersions` in `siteVersions.ts`: the master build writes it to `site-versions.json`,
   `site-preview.yml` keeps that at the root (`vercel.json` lets the archive hosts read it), and
-  every version's site fetches the root's, so frozen archives still list newer versions.
+  every version's site fetches the root's, so frozen archives still list newer versions. Since
+  archives can't change, only add fields to that list, and keep its path and CORS header. The
+  wrapper replaces any copy of the menu a release lists with build.sh's, so menu fixes reach every
+  version's site.
 
 ## Current and next
 
