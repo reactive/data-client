@@ -15,8 +15,7 @@ import { groupEntries } from '../store/actionGroups';
 import type { LogEntry } from '../store/actionLog';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
-import type { Actions } from '../store/actionParts';
-import { FOLLOW_SLACK } from '../store/actionParts';
+import { FOLLOW_SLACK, type Actions } from '../store/actionParts';
 import {
   axisLabels,
   lanesOf,
@@ -758,7 +757,7 @@ describe('Store timeline hold', () => {
       await jest.advanceTimersByTimeAsync(10);
     });
   /** Two responses on a scrubber `strip` px wide, the mouse on its track */
-  async function hovered(strip: number) {
+  async function twoResponses(strip: number) {
     const { ctrl } = mountAt(strip);
     await act(() => ctrl().fetch(getPosts));
     await act(() => ctrl().fetch(getPosts));
@@ -766,9 +765,41 @@ describe('Store timeline hold', () => {
       '[style*="--tl-width"]',
     )!;
     jest.useFakeTimers();
+    return { ctrl, track };
+  }
+
+  async function hovered(strip: number) {
+    const { ctrl, track } = await twoResponses(strip);
     pointer(track, 'pointerenter', 10);
     pointer(track, 'pointermove', 10);
     return { ctrl, track };
+  }
+
+  /** A track 90px wide, held as a change comes, let go of and a frame
+   * into catching up to the newest at 400px */
+  async function catchingUp() {
+    // shown with a height from the start, as a browser lays it out
+    const height = jest
+      .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
+      .mockReturnValue(18);
+    const { ctrl } = mountAt(90);
+    height.mockRestore();
+    const track = scrubber().querySelector<HTMLElement>(
+      '[style*="--tl-width"]',
+    )!;
+    let width = 100;
+    Object.defineProperty(track, 'clientHeight', { value: 18 });
+    Object.defineProperty(track, 'clientWidth', { value: 90 });
+    Object.defineProperty(track, 'scrollWidth', { get: () => width });
+    await act(() => ctrl().fetch(getPosts));
+    await act(() => ctrl().fetch(getPosts));
+    jest.useFakeTimers();
+    pointer(track, 'pointerenter', 10);
+    await set(ctrl, 'Three');
+    width = 400;
+    pointer(track, 'pointerleave', 0);
+    act(() => jest.advanceTimersByTime(16));
+    return { ctrl, track, setWidth: (to: number) => (width = to) };
   }
 
   it('holds the marks still under the mouse once a change would push them, saying so, and catches up as it leaves', async () => {
@@ -812,13 +843,7 @@ describe('Store timeline hold', () => {
   });
 
   it('holds as a finger holds, until it lifts', async () => {
-    const { ctrl } = mountAt(90);
-    await act(() => ctrl().fetch(getPosts));
-    await act(() => ctrl().fetch(getPosts));
-    const track = scrubber().querySelector<HTMLElement>(
-      '[style*="--tl-width"]',
-    )!;
-    jest.useFakeTimers();
+    const { ctrl, track } = await twoResponses(90);
     // a tap holds nothing
     pointer(track, 'pointerdown', 10, 'touch');
     pointer(track, 'pointerup', 10, 'touch');
@@ -839,86 +864,28 @@ describe('Store timeline hold', () => {
   });
 
   it('keeps following the newest as an action comes mid catch-up', async () => {
-    // shown with a height from the start, as a browser lays it out
-    const height = jest
-      .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
-      .mockReturnValue(18);
-    const { ctrl } = mountAt(90);
-    height.mockRestore();
-    const track = scrubber().querySelector<HTMLElement>(
-      '[style*="--tl-width"]',
-    )!;
-    let width = 100;
-    Object.defineProperty(track, 'clientHeight', { value: 18 });
-    Object.defineProperty(track, 'clientWidth', { value: 90 });
-    Object.defineProperty(track, 'scrollWidth', { get: () => width });
-    await act(() => ctrl().fetch(getPosts));
-    await act(() => ctrl().fetch(getPosts));
-    jest.useFakeTimers();
-    pointer(track, 'pointerenter', 10);
-    await set(ctrl, 'Three');
+    const { ctrl, track, setWidth } = await catchingUp();
     // off: it springs along to the newest, far past the slack
-    width = 400;
-    pointer(track, 'pointerleave', 0);
-    act(() => jest.advanceTimersByTime(16));
     expect(track.scrollLeft).toBeLessThan(400 - 90 - FOLLOW_SLACK);
     fireEvent.scroll(track);
     // still following: the catch-up springs on to the newest
-    width = 500;
+    setWidth(500);
     await set(ctrl, 'Four');
     act(() => jest.advanceTimersByTime(1000));
     expect(track.scrollLeft).toBe(500 - 90);
   });
 
   it('goes to the newest on End mid catch-up', async () => {
-    const height = jest
-      .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
-      .mockReturnValue(18);
-    const { ctrl } = mountAt(90);
-    height.mockRestore();
-    const track = scrubber().querySelector<HTMLElement>(
-      '[style*="--tl-width"]',
-    )!;
-    let width = 100;
-    Object.defineProperty(track, 'clientHeight', { value: 18 });
-    Object.defineProperty(track, 'clientWidth', { value: 90 });
-    Object.defineProperty(track, 'scrollWidth', { get: () => width });
-    await act(() => ctrl().fetch(getPosts));
-    await act(() => ctrl().fetch(getPosts));
-    jest.useFakeTimers();
-    pointer(track, 'pointerenter', 10);
-    await set(ctrl, 'Three');
-    width = 400;
-    pointer(track, 'pointerleave', 0);
-    act(() => jest.advanceTimersByTime(16));
+    const { track, setWidth } = await catchingUp();
     // End lands at once, and the catch-up doesn't pull it back
-    width = 600;
+    setWidth(600);
     fireEvent.keyDown(scrubber(), { key: 'End' });
     act(() => jest.advanceTimersByTime(1000));
     expect(track.scrollLeft).toBe(600);
   });
 
   it('lets the reader scroll back mid catch-up', async () => {
-    const height = jest
-      .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
-      .mockReturnValue(18);
-    const { ctrl } = mountAt(90);
-    height.mockRestore();
-    const track = scrubber().querySelector<HTMLElement>(
-      '[style*="--tl-width"]',
-    )!;
-    let width = 100;
-    Object.defineProperty(track, 'clientHeight', { value: 18 });
-    Object.defineProperty(track, 'clientWidth', { value: 90 });
-    Object.defineProperty(track, 'scrollWidth', { get: () => width });
-    await act(() => ctrl().fetch(getPosts));
-    await act(() => ctrl().fetch(getPosts));
-    jest.useFakeTimers();
-    pointer(track, 'pointerenter', 10);
-    await set(ctrl, 'Three');
-    width = 400;
-    pointer(track, 'pointerleave', 0);
-    act(() => jest.advanceTimersByTime(16));
+    const { track } = await catchingUp();
     // a swipe back takes over: the catch-up stops where the reader left it
     fireEvent.wheel(track, { deltaX: -50 });
     track.scrollLeft = 40;
