@@ -10,11 +10,12 @@ import {
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
+import { whatFields } from '../store/ActionDetail';
 import { groupEntries } from '../store/actionGroups';
 import type { LogEntry } from '../store/actionLog';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
-import { axisLabels, lanesOf, timeScale } from '../store/Timeline';
+import { axisLabels, lanesOf, nearest, timeScale } from '../store/Timeline';
 import { UNFOLD_CLOSE_MS } from '../store/Unfold';
 
 jest.mock('../../../../utils/tabStorage', () => ({
@@ -162,6 +163,44 @@ describe('timeScale', () => {
   });
 });
 
+describe('nearest', () => {
+  it('finds the entry whose mark is closest, the earlier on a tie', () => {
+    const fetch = { type: actionTypes.FETCH, key: 'a' };
+    const entries = [
+      entry(1, 0, fetch),
+      entry(2, 1, fetch),
+      entry(3, 201, fetch),
+    ];
+    const scale = timeScale(entries);
+    const [a, b, c] = [1, 2, 3].map(seq => scale.x.get(seq)!);
+    expect(nearest(entries, scale, 0).seq).toBe(1);
+    expect(nearest(entries, scale, (a + b) / 2).seq).toBe(1);
+    expect(nearest(entries, scale, (a + b) / 2 + 1).seq).toBe(2);
+    expect(nearest(entries, scale, c - 1).seq).toBe(3);
+    expect(nearest(entries, scale, scale.width).seq).toBe(3);
+  });
+});
+
+describe('whatFields', () => {
+  it('leads with args, leaving out what the name says and an error it had not', () => {
+    const fields = (action: any) => whatFields(action).map(([name]) => name);
+    const response = {
+      type: actionTypes.SET_RESPONSE,
+      key: POSTS,
+      response: [],
+      meta: { date: 0 },
+      args: [],
+      error: false,
+    };
+    expect(fields(response)).toEqual(['args', 'response']);
+    expect(fields({ ...response, error: true })).toEqual([
+      'args',
+      'response',
+      'error',
+    ]);
+  });
+});
+
 describe('axisLabels', () => {
   it('thins the labels out to the gap asked for', () => {
     const fetch = { type: actionTypes.FETCH, key: 'a' };
@@ -224,7 +263,9 @@ describe('Store scrubber', () => {
       name: /^setResponse at/,
     });
     expect(marks).toHaveLength(2);
-    expect(within(bar).getAllByTitle(/^fetch at/)).toHaveLength(2);
+    expect(within(bar).getAllByRole('img', { name: /^fetch at/ })).toHaveLength(
+      2,
+    );
     expect(within(bar).queryByRole('button', { name: /^fetch at/ })).toBeNull();
     // the lanes stay collapsed
     expect(screen.queryByRole('group', { name: /^Timeline/ })).toBeNull();
@@ -249,7 +290,9 @@ describe('Store scrubber', () => {
     expect(
       within(bar).getAllByRole('button', { name: /^setResponse at/ }),
     ).toHaveLength(20);
-    expect(within(bar).getAllByTitle(/^fetch at/)).toHaveLength(20);
+    expect(within(bar).getAllByRole('img', { name: /^fetch at/ })).toHaveLength(
+      20,
+    );
     expect(bar.querySelector('[data-count]')).toBeNull();
     // the newest stays in view, as the lanes' does
     expect(track.scrollLeft).toBe(2000);
@@ -477,7 +520,229 @@ describe('Store scrubber', () => {
   });
 });
 
+/** A pointer event at `clientX` (and `clientY`) */
+const pointer = (
+  el: Element,
+  type: string,
+  clientX: number,
+  pointerType = 'mouse',
+  clientY = 0,
+) => {
+  const event = new MouseEvent(type, {
+    bubbles: true,
+    cancelable: true,
+    clientX,
+    clientY,
+  });
+  Object.assign(event, { pointerType, pointerId: 1, isPrimary: true });
+  fireEvent(el, event);
+};
+/** The action previewed over the store */
+const preview = () => screen.queryByRole('tooltip', { hidden: true });
+
+describe('Store timeline preview', () => {
+  /** Two responses on the scrubber, the store laid out so a client x is a
+   * px on its scale */
+  async function twoResponses() {
+    const { ctrl } = mount();
+    title = 'One';
+    await act(() => ctrl().fetch(getPosts));
+    title = 'Two';
+    await act(() => ctrl().fetch(getPosts));
+    const track = scrubber().querySelector<HTMLElement>(
+      '[style*="--tl-width"]',
+    )!;
+    const width = parseFloat(track.style.getPropertyValue('--tl-width'));
+    // scrolled `by` px: the marks sit that much further left
+    let by = 0;
+    jest.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(
+      () =>
+        ({
+          left: -by,
+          top: 0,
+          right: width - by,
+          bottom: 20,
+          width,
+          height: 20,
+        }) as DOMRect,
+    );
+    const scroll = (px: number) => {
+      by = px;
+      fireEvent.scroll(track);
+    };
+    const marks = within(scrubber()).getAllByRole('button', {
+      name: /^setResponse at/,
+    });
+    const at = (mark: HTMLElement) =>
+      Number(mark.style.getPropertyValue('--tl-f')) * width;
+    jest.useFakeTimers();
+    return { ctrl, track, marks, at, scroll };
+  }
+  afterEach(() => {
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+
+  it('shows what the action under the mouse did after a moment, then follows the mouse at once', async () => {
+    const { ctrl, track, marks, at, scroll } = await twoResponses();
+    pointer(track, 'pointermove', at(marks[0]) + 2);
+    expect(preview()).toBeNull();
+    act(() => jest.advanceTimersByTime(150));
+    expect(preview()!.textContent).toContain('setResponse');
+    expect(preview()!.textContent).toContain('"One"');
+    // what the action is comes first, then what it did
+    expect(preview()!.textContent).toMatch(/^setResponse.*response:.*Post/);
+    expect(preview()!.textContent).not.toContain('"Two"');
+    // sliding on to the next shows it with no wait
+    pointer(track, 'pointermove', at(marks[1]) - 2);
+    expect(preview()!.textContent).toContain('"Two"');
+    // the track scrolling moves the marks under a still mouse: it shows
+    // the one under it now
+    scroll(at(marks[1]) - at(marks[0]));
+    pointer(track, 'pointermove', at(marks[0]));
+    scroll(0);
+    expect(preview()!.textContent).toContain('"One"');
+    pointer(track, 'pointermove', at(marks[1]));
+    expect(preview()!.textContent).toContain('"Two"');
+    // out of the tab order and hidden from assistive tech
+    expect(preview()!.hasAttribute('inert')).toBe(true);
+    // a press shuts it, as a tooltip's does
+    pointer(marks[1], 'pointerdown', at(marks[1]));
+    expect(preview()).toBeNull();
+    pointer(track, 'pointermove', at(marks[1]) + 1);
+    pointer(track, 'pointermove', at(marks[1]));
+    expect(preview()!.textContent).toContain('"Two"');
+    // new actions coming in leave it on the action under the mouse
+    await act(async () => {
+      void ctrl().set(Post, { id: '1' }, { id: '1', title: 'Three' });
+      await jest.advanceTimersByTimeAsync(10);
+    });
+    expect(screen.getAllByText('"Three"').length).toBeGreaterThan(0);
+    expect(preview()!.textContent).toContain('"Two"');
+    pointer(track, 'pointerleave', 0);
+    expect(preview()).toBeNull();
+    // back right away: no wait
+    pointer(track, 'pointermove', at(marks[0]));
+    expect(preview()).toBeTruthy();
+    pointer(track, 'pointerleave', 0);
+    // back a while later: waits again
+    act(() => jest.advanceTimersByTime(1000));
+    pointer(track, 'pointermove', at(marks[0]));
+    expect(preview()).toBeNull();
+    act(() => jest.advanceTimersByTime(150));
+    expect(preview()).toBeTruthy();
+    // the moment stays where it was
+    expect(within(scrubber()).queryByText('After')).toBeNull();
+  });
+
+  it('shows as a finger holds still on the track, follows it sliding, and lifting picks nothing', async () => {
+    const { marks, at } = await twoResponses();
+    // a finger landing shuts what the mouse left showing
+    pointer(marks[0], 'pointermove', at(marks[0]));
+    act(() => jest.advanceTimersByTime(150));
+    expect(preview()).toBeTruthy();
+    pointer(marks[0], 'pointerdown', at(marks[0]), 'touch');
+    expect(preview()).toBeNull();
+    pointer(marks[0], 'pointercancel', at(marks[0]), 'touch');
+    act(() => jest.advanceTimersByTime(1000));
+    // a tap still picks
+    pointer(marks[0], 'pointerdown', at(marks[0]), 'touch');
+    pointer(marks[0], 'pointerup', at(marks[0]), 'touch');
+    fireEvent.click(marks[0]);
+    expect(preview()).toBeNull();
+    expect(scrubber().textContent).toContain('After');
+    fireEvent.click(screen.getByRole('button', { name: 'Live' }));
+    // moving off at once scrolls instead
+    pointer(marks[0], 'pointerdown', at(marks[0]), 'touch');
+    pointer(marks[0], 'pointermove', at(marks[0]) + 20, 'touch');
+    act(() => jest.advanceTimersByTime(1000));
+    expect(preview()).toBeNull();
+    pointer(marks[0], 'pointercancel', at(marks[0]) + 20, 'touch');
+    // held, it shows
+    pointer(marks[0], 'pointerdown', at(marks[0]), 'touch');
+    act(() => jest.advanceTimersByTime(349));
+    expect(preview()).toBeNull();
+    act(() => jest.advanceTimersByTime(1));
+    expect(preview()!.textContent).toContain('"One"');
+    // sliding, it follows, and the track doesn't scroll
+    const move = Object.assign(
+      new Event('touchmove', { bubbles: true, cancelable: true }),
+      { touches: [{ clientX: at(marks[1]), clientY: 0 }] },
+    );
+    marks[0].dispatchEvent(move);
+    expect(move.defaultPrevented).toBe(true);
+    pointer(marks[0], 'pointermove', at(marks[1]), 'touch');
+    expect(preview()!.textContent).toContain('"Two"');
+    // lifting hides it, picking nothing
+    pointer(marks[0], 'pointerup', at(marks[1]), 'touch');
+    fireEvent.click(marks[0]);
+    expect(preview()).toBeNull();
+    expect(within(scrubber()).queryByText('After')).toBeNull();
+    // a hold the browser cancels makes no click, and takes none from later
+    pointer(marks[0], 'pointerdown', at(marks[0]), 'touch');
+    act(() => jest.advanceTimersByTime(350));
+    expect(preview()).toBeTruthy();
+    pointer(marks[0], 'pointercancel', at(marks[0]), 'touch');
+    expect(preview()).toBeNull();
+    fireEvent.click(marks[0]);
+    expect(scrubber().textContent).toContain('After');
+  });
+});
+
 describe('Store Timeline lanes', () => {
+  afterEach(() => {
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+
+  it('previews the action on the lane under the mouse', async () => {
+    const getUsers = new Endpoint(async () => ({ name: 'Ann' }), {
+      key: () => 'GET https://example.com/users',
+      name: 'getUsers',
+    });
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() => ctrl().fetch(getUsers));
+    await act(() => ctrl().fetch(getPosts));
+    toggle();
+    const timeline = lanes();
+    const body = timeline.querySelector<HTMLElement>('[style*="--tl-width"]')!;
+    const width = parseFloat(body.style.getPropertyValue('--tl-width'));
+    // the lanes stacked 20px apart, each a client x per px of the scale
+    jest
+      .spyOn(Element.prototype, 'getBoundingClientRect')
+      .mockImplementation(function (this: Element) {
+        const lane = [...timeline.querySelectorAll('[data-lane]')].indexOf(
+          this,
+        );
+        const top = Math.max(lane, 0) * 20;
+        return {
+          left: 0,
+          top,
+          right: width,
+          bottom: top + 20,
+          width,
+          height: 20,
+        } as DOMRect;
+      });
+    jest.useFakeTimers();
+    const [posts, users] = timeline.querySelectorAll('[data-lane]');
+    const marks = within(posts as HTMLElement).getAllByRole('button', {
+      name: /^setResponse at/,
+    });
+    const x = Number(marks[1].style.getPropertyValue('--tl-f')) * width;
+    const move = (y: number) => pointer(users, 'pointermove', x, 'mouse', y);
+    // on the users lane, over where the newer posts response is: the users
+    // request's own action, the nearest on its lane
+    move(30);
+    act(() => jest.advanceTimersByTime(150));
+    expect(preview()!.textContent).toContain('users');
+    expect(preview()!.textContent).not.toContain('posts');
+    // up on the posts lane, that response
+    move(10);
+    expect(preview()!.textContent).toContain('posts');
+  });
+
   it('expand under the scrubber, collapsing back', async () => {
     const { ctrl } = mount();
     const expand = screen.getByRole('button', { name: 'Timeline' });
