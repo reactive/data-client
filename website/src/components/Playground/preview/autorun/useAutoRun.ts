@@ -35,7 +35,8 @@ export function useAutoRun(
       player.play(script, createStage(root.current, showStore));
   }, [player]);
 
-  // only a run ends with the preview: an idle player may still start
+  // Ends a run with the preview, but leaves an idle player idle: stopping it
+  // would mark it done, so a remount (StrictMode's included) never starts
   useEffect(
     () => () => {
       if (player.getState() === 'playing') player.stop();
@@ -50,8 +51,8 @@ export function useAutoRun(
       const playground = el?.closest<HTMLElement>('[data-playground]');
       if (!el || !playground || !latest.current.script) return;
       root.current = playground;
-      let inView = false;
-      const syncPaused = () => player.setPaused(!inView || document.hidden);
+      let shown = false;
+      const syncPaused = () => player.setPaused(!shown || document.hidden);
 
       const onInput = (event: Event) => {
         if (!event.isTrusted) return;
@@ -68,18 +69,17 @@ export function useAutoRun(
       };
       const observer = new IntersectionObserver(
         ([entry]) => {
-          // a run pauses only out of sight, so a preview too tall to show
-          // 60% of still plays when asked
-          inView = entry.isIntersecting;
+          // a run pauses only once out of sight entirely
+          shown = entry.isIntersecting;
           syncPaused();
           if (
-            entry.intersectionRatio >= IN_VIEW &&
+            mostlyShown(entry) &&
             player.getState() === 'idle' &&
             !prefersReducedMotion()
           )
             start();
         },
-        { threshold: [0, IN_VIEW] },
+        { threshold: THRESHOLDS },
       );
       observer.observe(el);
       for (const type of INPUT)
@@ -109,5 +109,15 @@ export function useAutoRun(
 
 // keydown misses some virtual keyboards and IMEs; beforeinput doesn't
 const INPUT = ['pointerdown', 'click', 'keydown', 'beforeinput'] as const;
-/** How much of the preview shows before it counts as in view */
-const IN_VIEW = 0.6;
+/** Enough of the preview shows to start the demo by itself: 60% of it,
+ * or of the viewport when it's taller than that */
+const mostlyShown = ({
+  intersectionRatio,
+  intersectionRect,
+  rootBounds,
+}: IntersectionObserverEntry) =>
+  intersectionRatio >= MOSTLY ||
+  (!!rootBounds && intersectionRect.height >= rootBounds.height * MOSTLY);
+const MOSTLY = 0.6;
+// a tall preview never reaches MOSTLY of itself: hear it on the way
+const THRESHOLDS = [0, 0.2, 0.4, MOSTLY];

@@ -287,7 +287,8 @@ DesignSystem/       components injected into preview scope
 
 - Auto-run: `autoRun` (a `Step[]`, `preview/autorun/script.ts`) plays a
   scripted demo across the preview and the Store, like a video, the first
-  time the preview is 60% in view (never by itself under reduced motion).
+  time 60% of the preview (or of the viewport, if the preview is taller) is
+  in view (never by itself under reduced motion).
   The Play button beside Reset replays it from a fresh store (closing the
   Store first if the script opens it); while it plays, it stops it.
   - `player.ts` owns timing only: one step at a time, each on a pausable

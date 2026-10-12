@@ -1,5 +1,7 @@
 /// <reference types="jest" />
 
+import { renderHook } from '@testing-library/react';
+
 import {
   createPlayer,
   FIND_TIMEOUT,
@@ -9,6 +11,7 @@ import {
 } from '../autorun/player';
 import type { AutoRunScript } from '../autorun/script';
 import { createStage } from '../autorun/stage';
+import { useAutoRun } from '../autorun/useAutoRun';
 
 function fakeStage(
   found: HTMLElement | null = document.createElement('input'),
@@ -151,5 +154,84 @@ describe('stage', () => {
     stage.end();
     jest.runAllTimers();
     expect(root.querySelector('[aria-live]')).toBeNull();
+  });
+});
+
+describe('useAutoRun', () => {
+  let observed: IntersectionObserverCallback;
+  beforeEach(() => {
+    (globalThis as any).IntersectionObserver = class {
+      constructor(callback: IntersectionObserverCallback) {
+        observed = callback;
+      }
+
+      observe() {}
+      disconnect() {}
+    };
+  });
+  afterEach(() => {
+    delete (globalThis as any).IntersectionObserver;
+    document.body.innerHTML = '';
+  });
+
+  function mount() {
+    const playground = document.createElement('div');
+    playground.dataset.playground = '';
+    const preview = document.createElement('div');
+    playground.append(preview);
+    document.body.append(playground);
+    const showStore = jest.fn();
+    const hook = renderHook(() =>
+      useAutoRun([{ store: 'open' }], () => {}, showStore),
+    );
+    const unwatch = hook.result.current.watch(preview) as () => void;
+    const see = (ratio: number, height = ratio * 100) =>
+      observed(
+        [
+          {
+            isIntersecting: ratio > 0,
+            intersectionRatio: ratio,
+            intersectionRect: { height } as DOMRect,
+            rootBounds: { height: 800 } as DOMRect,
+          } as IntersectionObserverEntry,
+        ],
+        {} as IntersectionObserver,
+      );
+    return { ...hook, see, showStore, unwatch };
+  }
+
+  it('starts once mostly in view, not on a sliver', async () => {
+    const { result, see, showStore } = mount();
+    see(0.3);
+    expect(result.current.player.getState()).toBe('idle');
+    see(0.6);
+    expect(result.current.player.getState()).toBe('playing');
+    await jest.runAllTimersAsync();
+    expect(showStore).toHaveBeenCalledWith(true);
+  });
+
+  it('starts a preview taller than the viewport once it fills most of it', () => {
+    const { result, see } = mount();
+    see(0.4, 600);
+    expect(result.current.player.getState()).toBe('playing');
+  });
+
+  it('pauses only out of sight', async () => {
+    const { see, showStore } = mount();
+    see(1);
+    see(0);
+    await jest.advanceTimersByTimeAsync(5000);
+    expect(showStore).not.toHaveBeenCalled();
+    see(0.1);
+    await jest.runAllTimersAsync();
+    expect(showStore).toHaveBeenCalledWith(true);
+  });
+
+  it('an unmount leaves an idle player free to start', () => {
+    const { result, unmount, unwatch } = mount();
+    const { player } = result.current;
+    unwatch();
+    unmount();
+    expect(player.getState()).toBe('idle');
   });
 });
