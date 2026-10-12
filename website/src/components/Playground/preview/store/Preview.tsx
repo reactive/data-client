@@ -101,7 +101,8 @@ export function usePreview(panel: React.RefObject<HTMLElement | null>) {
 }
 
 /** The action previewed and what it did to `subject`, under the track with
- * a caret on its mark. Only to look at: the pointer passes through */
+ * a caret on its mark. Only to look at: the pointer passes through, and
+ * focus and assistive tech skip it */
 export function Preview({
   store,
   subject,
@@ -116,7 +117,7 @@ export function Preview({
     <div
       className={styles.preview}
       role="tooltip"
-      aria-hidden="true"
+      inert
       style={
         {
           '--pv-x': `${at.x}px`,
