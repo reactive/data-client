@@ -929,8 +929,10 @@ div.fixtureJson {
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  /* still shows it's playing, without the motion */
   .demoLabel[data-playing]::before {
     animation: none;
+    box-shadow: 0 0 0 5px rgba(255, 95, 86, 0.35);
   }
 }
 

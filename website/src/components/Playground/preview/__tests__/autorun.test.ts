@@ -83,10 +83,10 @@ it('stop ends the run where it is', async () => {
   expect(listener).toHaveBeenCalledTimes(2);
 });
 
-it('stopping before a run keeps it from starting by itself', () => {
+it('stopping an idle player leaves it idle', () => {
   const player = createPlayer();
   player.stop();
-  expect(player.getState()).toBe('done');
+  expect(player.getState()).toBe('idle');
 });
 
 it('gives up on a target that never shows', async () => {
@@ -147,12 +147,14 @@ describe('stage', () => {
 
   it('end() takes its layer away', () => {
     const root = playground();
+    const before = [...root.children];
     const stage = createStage(root, () => {});
+    const [layer] = [...root.children].filter(el => !before.includes(el));
     stage.point(root.querySelector('button')!);
-    expect(root.childElementCount).toBe(3);
+    expect(layer).toBeDefined();
     stage.end();
     jest.runAllTimers();
-    expect(root.childElementCount).toBe(2);
+    expect(layer.isConnected).toBe(false);
   });
 });
 
@@ -173,16 +175,14 @@ describe('useAutoRun', () => {
     document.body.innerHTML = '';
   });
 
-  function mount() {
+  function mount(script: AutoRunScript = [{ store: 'open' }]) {
     const playground = document.createElement('div');
     playground.dataset.playground = '';
     const preview = document.createElement('div');
     playground.append(preview);
     document.body.append(playground);
     const showStore = jest.fn();
-    const hook = renderHook(() =>
-      useAutoRun([{ store: 'open' }], () => {}, showStore),
-    );
+    const hook = renderHook(() => useAutoRun(script, () => {}, showStore));
     const unwatch = hook.result.current.watch(preview) as () => void;
     const see = (ratio: number, height = ratio * 100) =>
       observed(
@@ -235,6 +235,19 @@ describe('useAutoRun', () => {
     unwatch();
     unmount();
     expect(player.getState()).toBe('idle');
+  });
+
+  it('starts a script by itself once, however often its preview mounts', () => {
+    const script: AutoRunScript = [{ store: 'open' }];
+    const first = mount(script);
+    first.see(1);
+    expect(first.result.current.player.getState()).toBe('playing');
+    first.unwatch();
+    first.unmount();
+    // e.g. the Demo's other protocol tab, which shares the script
+    const second = mount(script);
+    second.see(1);
+    expect(second.result.current.player.getState()).toBe('idle');
   });
 
   it('an unmount ends a run', () => {

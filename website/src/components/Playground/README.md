@@ -312,7 +312,9 @@ DesignSystem/       components injected into preview scope
     playground: a press, a tap, a key. That ends the run for good, leaving
     everything as it was, since the rest of the script assumes a state the
     reader just changed; the label starts it over. Input before the demo starts
-    keeps it from starting by itself. Scrolling, hovering, a touch
+    keeps it from starting by itself. Each script starts by itself once per
+    page load (`played` in `useAutoRun.ts`): a hidden preview unmounts, and a
+    Demo's protocol tabs share one script, so switching tabs doesn't replay. Scrolling, hovering, a touch
     that starts a scroll and the demo's own controls (`data-autorun-control`)
     don't take over. Out of view or in a background tab, the run pauses
     where it is and resumes when back.

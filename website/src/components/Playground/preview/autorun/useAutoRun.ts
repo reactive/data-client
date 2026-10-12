@@ -35,14 +35,7 @@ export function useAutoRun(
       player.play(script, createStage(root.current, showStore));
   }, [player]);
 
-  // Ends a run with the preview, but leaves an idle player idle: stopping it
-  // would mark it done, so a remount (StrictMode's included) never starts
-  useEffect(
-    () => () => {
-      if (player.getState() === 'playing') player.stop();
-    },
-    [player],
-  );
+  useEffect(() => player.stop, [player]);
 
   /** Ref for the preview: whether it's in view starts and pauses the demo.
    * The preview remounts on reset; the player (and its run) outlives it. */
@@ -65,6 +58,7 @@ export function useAutoRun(
           return;
         if ((event.target as Element).closest?.('[data-autorun-control]'))
           return;
+        if (latest.current.script) played.add(latest.current.script);
         player.stop();
       };
       const observer = new IntersectionObserver(
@@ -72,12 +66,16 @@ export function useAutoRun(
           // a run pauses only once out of sight entirely
           visible = entry.isIntersecting;
           syncPaused();
+          const { script } = latest.current;
           if (
+            script &&
+            !played.has(script) &&
             mostlyShown(entry) &&
-            player.getState() === 'idle' &&
             !prefersReducedMotion()
-          )
+          ) {
+            played.add(script);
             start();
+          }
         },
         { threshold: THRESHOLDS },
       );
@@ -106,6 +104,12 @@ export function useAutoRun(
 
   return { player, watch, replay };
 }
+
+/** Scripts that played by themselves or that the reader took over before:
+ * the preview unmounts while hidden (a Demo's other protocol tab shares its
+ * script), and showing it again shouldn't start the demo over. Per page
+ * load; replaying is the label's job. */
+const played = new WeakSet<AutoRunScript>();
 
 // keydown misses some virtual keyboards and IMEs; beforeinput doesn't
 const INPUT = ['pointerdown', 'click', 'keydown', 'beforeinput'] as const;

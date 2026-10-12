@@ -1,8 +1,9 @@
-import Translate, { translate } from '@docusaurus/Translate';
+import { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React, { useSyncExternalStore } from 'react';
 
 import type { Player } from './player';
+import { liveLabel } from '../PreviewWrapper';
 import styles from '../../styles.module.css';
 
 /** The preview's "Live Preview" label, as the demo's control: pressing it
@@ -23,22 +24,19 @@ export default function DemoLabel({
     id: 'playground.demo.replay',
     message: 'Replay demo',
   });
+  const label = liveLabel();
   return (
     <button
       type="button"
       className={clsx('clean-btn', styles.liveLabel, styles.demoLabel)}
       title={replay}
-      aria-description={replay}
+      // the name keeps the visible label and says what pressing it does
+      aria-label={`${label}: ${replay}`}
       data-playing={playing || undefined}
       data-autorun-control
       onClick={onPlay}
     >
-      <Translate
-        id="theme.Playground.result"
-        description="The result label of the live codeblocks"
-      >
-        Live Preview
-      </Translate>
+      {label}
     </button>
   );
 }

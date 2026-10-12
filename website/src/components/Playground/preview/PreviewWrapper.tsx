@@ -1,4 +1,4 @@
-import Translate from '@docusaurus/Translate';
+import { translate } from '@docusaurus/Translate';
 import React from 'react';
 
 import Header from '../Header';
@@ -13,16 +13,7 @@ export default function PreviewWrapper({
   return (
     <div className={styles.previewWrapper} ref={ref}>
       <Header className={styles.previewHeader}>
-        {label ?? (
-          <span className={styles.liveLabel}>
-            <Translate
-              id="theme.Playground.result"
-              description="The result label of the live codeblocks"
-            >
-              Live Preview
-            </Translate>
-          </span>
-        )}
+        {label ?? <span className={styles.liveLabel}>{liveLabel()}</span>}
         <span className={styles.previewControls}>{headerControls}</span>
       </Header>
       <div className={styles.playgroundResult}>{children}</div>
@@ -36,3 +27,11 @@ interface Props {
   label?: React.ReactNode;
   ref?: React.Ref<HTMLDivElement>;
 }
+
+/** The preview's "Live Preview" label text */
+export const liveLabel = () =>
+  translate({
+    id: 'theme.Playground.result',
+    description: 'The result label of the live codeblocks',
+    message: 'Live Preview',
+  });

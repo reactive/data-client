@@ -26,8 +26,7 @@ const FIND_EVERY = 50;
 
 /** Plays scripts one at a time on a clock that pauses (out of view) without
  * losing its place. `stop()` ends a run for good: a reader who takes over
- * changes what the rest of the script assumes, and one who takes over before
- * it starts keeps it from starting by itself. */
+ * changes what the rest of the script assumes. */
 export function createPlayer() {
   let state: PlayerState = 'idle';
   let run: AbortController | null = null;
@@ -39,9 +38,10 @@ export function createPlayer() {
   };
 
   function stop() {
-    run?.abort();
+    if (!run) return;
+    run.abort();
     run = null;
-    if (state !== 'done') set('done');
+    set('done');
   }
 
   async function play(script: AutoRunScript, stage: Stage) {
