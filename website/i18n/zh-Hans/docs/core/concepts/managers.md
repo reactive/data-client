@@ -9,6 +9,7 @@ image: /img/social/managers-card.png
 import ThemedImage from '@theme/ThemedImage';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import StackBlitz from '@site/src/components/StackBlitz';
+import StreamManagerDemo from '../shared/\_StreamManagerDemo.mdx';
 
 <head>
   <meta name="docsearch:pagerank" content="40"/>
@@ -396,6 +397,12 @@ export default class StreamManager implements Manager {
 
 [Controller.set()](../api/Controller.md#set) 允许直接使用 `event.data`
 更新[可查询 schema](/rest/api/schema#queryable)。
+
+:::react
+
+<StreamManagerDemo />
+
+:::
 
 #### 为高频更新跳过 DevTools {#skipping-devtools-for-high-frequency-updates}
 

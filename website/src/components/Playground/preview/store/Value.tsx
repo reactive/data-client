@@ -453,14 +453,27 @@ export function Block({ node, name }: { node: VNode; name?: string }) {
   return <Inline node={node} name={name} />;
 }
 
-export function Field({ name, node }: { name: string; node: VNode }) {
+export function Field({
+  name,
+  node,
+  inline = false,
+}: {
+  name: string;
+  node: VNode;
+  /** On one line, cut off where it runs out of room */
+  inline?: boolean;
+}) {
   return (
     <div className={styles.field}>
       <span className={styles.key}>
         {name}
         <span className={styles.dim}>:</span>
       </span>
-      <Block node={node} name={name} />
+      {inline ?
+        <span className={styles.oneLine}>
+          <Inline node={node} name={name} />
+        </span>
+      : <Block node={node} name={name} />}
     </div>
   );
 }

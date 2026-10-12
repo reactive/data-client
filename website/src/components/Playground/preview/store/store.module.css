@@ -16,17 +16,6 @@
   --store-hover: rgba(255, 255, 255, 0.045);
   --store-selected: rgba(130, 170, 255, 0.16);
   --store-record: rgba(130, 170, 255, 0.07);
-  /* each change's color (CHANGE_KINDS in actionGroups.ts): its bar, mark
-     and flash. Invalidating drops the data, so it's nearer a removal's red
-     than an update's yellow, but apart from an error's */
-  --store-kind-added: var(--store-fresh);
-  --store-kind-updated: var(--store-stale);
-  --store-kind-removed: var(--store-null);
-  --store-kind-invalidated: var(--store-number);
-  --store-kind-error: var(--store-null);
-  --store-kind-refreshed: var(--store-dim);
-  --store-kind-expired: var(--store-stale);
-  --store-stale-bg: color-mix(in srgb, var(--store-stale) 9%, transparent);
   --store-tip: #3a4057;
   --store-bg: var(--monoco-code-background);
 
@@ -40,6 +29,46 @@
   background: var(--store-bg);
   color: var(--store-fg);
   font: 12px / 1.6 var(--ifm-font-family-monospace);
+}
+
+/* Tokens derived from the palette, resolved again wherever it is
+   re-declared (the light timeline) */
+.store,
+.scrubber,
+.lanes {
+  /* each change's color (CHANGE_KINDS in actionGroups.ts): its bar, mark
+     and flash. Invalidating drops the data, so it's nearer a removal's red
+     than an update's yellow, but apart from an error's */
+  --store-kind-added: var(--store-fresh);
+  --store-kind-updated: var(--store-stale);
+  --store-kind-removed: var(--store-null);
+  --store-kind-invalidated: var(--store-number);
+  --store-kind-error: var(--store-null);
+  --store-kind-refreshed: var(--store-dim);
+  --store-kind-expired: var(--store-stale);
+  --store-stale-bg: color-mix(in srgb, var(--store-stale) 9%, transparent);
+}
+
+/* Light mode: the scrubber and the lanes under it are chrome, in the
+   playground's header band, rather than code; their colors darken to read
+   on it */
+:root[data-theme='light'] :is(.scrubber, .lanes) {
+  --store-bg: var(--pg-bar);
+  --store-fg: var(--ifm-color-emphasis-900);
+  --store-muted: var(--ifm-color-emphasis-700);
+  --store-dim: var(--ifm-color-emphasis-600);
+  --store-key: #2f5fc4;
+  --store-fresh: #1d8049;
+  --store-stale: #a26600;
+  --store-null: #cc2b4b;
+  --store-number: #c0501c;
+  --store-type: #8a3fb8;
+  --store-line: rgba(0, 0, 0, 0.08);
+  --store-line-strong: rgba(0, 0, 0, 0.15);
+  --store-hover: rgba(0, 0, 0, 0.05);
+  --store-selected: rgba(47, 95, 196, 0.14);
+  background: var(--store-bg);
+  color: var(--store-muted);
 }
 
 /* Under the scrubber: the tab bar, and (narrow) the sheet the lanes open in
@@ -80,11 +109,10 @@
   display: flex;
   flex-direction: column;
 }
-/* the bar's left end: the State and Action tabs */
+/* the bar's left end: the State and Action tabs, its full height */
 .barStart {
   display: flex;
-  align-items: center;
-  gap: 0.375rem;
+  margin-left: -0.25rem;
 }
 /* the bar's right end: Snapshot or Diff and the view switch, in State */
 .barEnd {
@@ -101,25 +129,28 @@
 .tab {
   display: inline-flex;
   align-items: center;
-  height: 1.75rem;
-  padding: 0 0.5rem;
+  padding: 0 0.75rem;
   border: 0;
-  border-radius: 5px;
   background: none;
   color: inherit;
   font: inherit;
-  opacity: 0.6;
   cursor: pointer;
   transition:
     background-color var(--motion-snappy),
-    opacity var(--motion-snappy);
+    color var(--motion-snappy);
 }
-.tab:hover {
-  opacity: 1;
+@media (hover: hover) {
+  .tab:not([aria-selected='true']):hover {
+    background: var(--pg-tab-hover-bg);
+    color: var(--pg-tab-hover);
+  }
 }
+/* the selected tab joins the store below, as the editor's tabs join the
+   code; an inset edge, so nothing shifts */
 .tab[aria-selected='true'] {
-  background: var(--pg-tab-hover-bg);
-  opacity: 1;
+  background: var(--pg-tab-selected-bg);
+  color: var(--pg-tab-selected);
+  box-shadow: inset 0 2px 0 var(--ifm-color-primary);
 }
 /* The peek: the subject's actions as an overlay over the panel's right
    side (narrow, most of it), dropping from right under the scrubber's list
@@ -949,7 +980,11 @@ div.row[data-change='removed'] {
 .invalidated {
   margin-left: 0;
   color: var(--store-kind-invalidated);
-  border-color: color-mix(in srgb, var(--store-kind-invalidated) 40%, transparent);
+  border-color: color-mix(
+    in srgb,
+    var(--store-kind-invalidated) 40%,
+    transparent
+  );
 }
 .optimistic {
   color: var(--store-type);
@@ -1601,13 +1636,14 @@ button.tlMark:hover {
 .tlSpan {
   height: 3px;
   margin-top: -1.5px;
-  background: rgba(130, 170, 255, 0.45);
+  background: color-mix(in srgb, var(--store-key) 45%, transparent);
 }
 .tlSubscription {
   height: 9px;
   margin-top: -4.5px;
-  background: rgba(146, 154, 186, 0.1);
-  box-shadow: inset 0 0 0 1px rgba(146, 154, 186, 0.22);
+  background: color-mix(in srgb, var(--store-muted) 10%, transparent);
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--store-muted) 22%, transparent);
 }
 /* an idle stretch cut short, and the picked action; both below the axis,
    which stays on top as the lanes scroll */
@@ -1626,6 +1662,74 @@ button.tlMark:hover {
   width: 1px;
   background: var(--store-fg);
   opacity: 0.55;
+}
+
+/* The preview: the action nearest the pointer on a track and what it did,
+   under the track with a caret on the action's mark, down to the panel's
+   bottom at most. Only to look at, so the pointer passes through to the
+   track */
+.preview {
+  --pv-w: min(24rem, calc(100% - 8px));
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--pv-top);
+  bottom: 0;
+  z-index: 5;
+  pointer-events: none;
+  animation: open var(--motion-snappy);
+}
+.preview::before,
+.previewCard {
+  position: absolute;
+  background: var(--store-bg);
+}
+.preview::before {
+  content: '';
+  top: 1px;
+  left: calc(var(--pv-x) - 4px);
+  z-index: 1;
+  width: 8px;
+  height: 8px;
+  /* only its top and left edges show, inside the clip */
+  border: solid var(--store-line-strong);
+  border-width: 1px 0 0 1px;
+  clip-path: polygon(0 0, 100% 0, 0 100%);
+  rotate: 45deg;
+}
+.previewCard {
+  top: 5px;
+  left: clamp(4px, var(--pv-x) - var(--pv-w) / 2, 100% - var(--pv-w) - 4px);
+  width: var(--pv-w);
+  max-height: max(4rem, 100% - 9px);
+  overflow: hidden;
+  border-radius: 6px;
+  box-shadow:
+    0 0 0 1px var(--store-line-strong),
+    0 8px 24px rgba(0, 0, 0, 0.45);
+}
+.previewCard > .actHead {
+  padding: 0.35rem 0.6rem 0;
+}
+.previewCard .actTime {
+  margin-left: auto;
+}
+/* what the action is: a line a field */
+.pvWhat {
+  grid-template-columns: max-content minmax(0, 1fr);
+  padding: 0.25rem 0.6rem 0.4rem;
+}
+.oneLine {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* then what it did, when the card has room for it */
+.pvChanges {
+  border-top: 1px solid var(--store-line);
+}
+.pvChanges > .detail {
+  padding: 0.3rem 0.6rem 0.45rem;
 }
 
 /* the Action tab's actions before and after the one shown, a line each, to
