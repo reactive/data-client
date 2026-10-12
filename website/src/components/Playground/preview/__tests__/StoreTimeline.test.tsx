@@ -565,6 +565,8 @@ describe('Store timeline preview', () => {
     act(() => jest.advanceTimersByTime(150));
     expect(preview()!.textContent).toContain('setResponse');
     expect(preview()!.textContent).toContain('"One"');
+    // what the action is comes first, then what it did
+    expect(preview()!.textContent).toMatch(/^setResponse.*response:.*Post/);
     expect(preview()!.textContent).not.toContain('"Two"');
     // sliding on to the next shows it with no wait
     pointer(track, 'pointermove', at(marks[1]) - 2);

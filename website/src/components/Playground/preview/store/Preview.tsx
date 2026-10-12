@@ -1,16 +1,20 @@
+import clsx from 'clsx';
 import React, {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   useSyncExternalStore,
 } from 'react';
 
-import { SubjectChanges } from './ActionDetail';
+import { SubjectChanges, whatFields } from './ActionDetail';
 import type { LogEntry } from './actionLog';
 import { ActionName, Time } from './actionParts';
 import type { View } from './nav';
+import { plain } from './refs';
 import styles from './store.module.css';
+import { Inline } from './Value';
 
 /** How long the mouse is on a track before its preview shows (ms); once
  * shown, it follows the mouse at once */
@@ -103,9 +107,10 @@ export function usePreview(panel: React.RefObject<HTMLElement | null>) {
   return [store, onPreview] as const;
 }
 
-/** The action previewed and what it did to `subject`, under the track with
- * a caret on its mark. Only to look at: the pointer passes through, and
- * focus and assistive tech skip it */
+/** The action previewed: what it is (its name and what it carries), then,
+ * when the card has room for all of it, what it did to `subject`. Under the
+ * track with a caret on its mark. Only to look at: the pointer passes
+ * through, and focus and assistive tech skip it */
 export function Preview({
   store,
   subject,
@@ -114,8 +119,18 @@ export function Preview({
   subject: View;
 }) {
   const at = useSyncExternalStore(store.subscribe, store.get, store.get);
+  const card = useRef<HTMLDivElement>(null);
+  const changes = useRef<HTMLDivElement>(null);
+  // what it did shows whole or not at all, never cut off
+  useLayoutEffect(() => {
+    const el = changes.current;
+    if (!el || !card.current) return;
+    el.hidden = false;
+    el.hidden = card.current.scrollHeight > card.current.clientHeight;
+  });
   if (!at) return null;
   const { entry } = at;
+  const what = whatFields(entry.action);
   return (
     <div
       className={styles.preview}
@@ -129,12 +144,29 @@ export function Preview({
         } as React.CSSProperties
       }
     >
-      <div className={styles.previewCard}>
+      <div ref={card} className={styles.previewCard}>
         <div className={styles.actHead}>
           <ActionName entry={entry} />
           <Time at={entry.at} />
         </div>
-        <SubjectChanges entries={[entry]} subject={subject} />
+        {what.length > 0 && (
+          <div className={clsx(styles.fields, styles.pvWhat)}>
+            {what.map(([name, value]) => (
+              <div key={name} className={styles.field}>
+                <span className={styles.key}>
+                  {name}
+                  <span className={styles.dim}>:</span>
+                </span>
+                <span className={styles.pvValue}>
+                  <Inline node={plain(value)} name={name} />
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+        <div ref={changes} className={styles.pvChanges}>
+          <SubjectChanges entries={[entry]} subject={subject} />
+        </div>
       </div>
     </div>
   );

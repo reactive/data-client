@@ -1714,7 +1714,21 @@ button.tlMark:hover {
 .previewCard .actTime {
   margin-left: auto;
 }
-.previewCard > .detail {
+/* what the action is: a line a field */
+.pvWhat {
+  grid-template-columns: max-content minmax(0, 1fr);
+  padding: 0.25rem 0.6rem 0.4rem;
+}
+.pvValue {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* then what it did, when the card has room for it */
+.pvChanges {
+  border-top: 1px solid var(--store-line);
+}
+.pvChanges > .detail {
   padding: 0.3rem 0.6rem 0.45rem;
 }
 
