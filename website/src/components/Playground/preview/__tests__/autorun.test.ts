@@ -22,7 +22,6 @@ function fakeStage(
     point: () => void calls.push('point'),
     click: () => void calls.push('click'),
     append: (_, text) => void calls.push(`append ${text}`),
-    caption: text => void calls.push(`caption ${text}`),
     store: open => void calls.push(`store ${open}`),
     end: () => void calls.push('end'),
   };
@@ -33,7 +32,7 @@ beforeEach(() => jest.useFakeTimers());
 afterEach(() => jest.useRealTimers());
 
 const script: AutoRunScript = [
-  { caption: 'hi', delay: 100, type: 'input', text: 'ab' },
+  { delay: 100, type: 'input', text: 'ab' },
   { delay: 100, store: 'open' },
   { delay: 100, click: 'button' },
 ];
@@ -43,14 +42,14 @@ it('plays steps in order, at their times', async () => {
   const { stage, calls } = fakeStage();
   const done = player.play(script, stage);
   expect(player.getState()).toBe('playing');
-  expect(calls).toEqual(['caption hi']);
+  expect(calls).toEqual([]);
   await jest.advanceTimersByTimeAsync(100 + MOVE_MS);
-  expect(calls).toEqual(['caption hi', 'point', 'append a']);
+  expect(calls).toEqual(['point', 'append a']);
   await jest.advanceTimersByTimeAsync(KEY_MS);
   expect(calls.at(-1)).toBe('append b');
   await jest.runAllTimersAsync();
   await done;
-  expect(calls.slice(4)).toEqual(['store true', 'point', 'click', 'end']);
+  expect(calls.slice(3)).toEqual(['store true', 'point', 'click', 'end']);
   expect(player.getState()).toBe('done');
 });
 
@@ -80,7 +79,7 @@ it('stop ends the run where it is', async () => {
   expect(player.getState()).toBe('done');
   await done;
   await jest.runAllTimersAsync();
-  expect(calls).toEqual(['caption hi', 'point', 'append a', 'end']);
+  expect(calls).toEqual(['point', 'append a', 'end']);
   expect(listener).toHaveBeenCalledTimes(2);
 });
 
@@ -149,11 +148,11 @@ describe('stage', () => {
   it('end() takes its layer away', () => {
     const root = playground();
     const stage = createStage(root, () => {});
-    stage.caption('hello');
-    expect(root.querySelector('[aria-live]')?.textContent).toBe('hello');
+    stage.point(root.querySelector('button')!);
+    expect(root.childElementCount).toBe(3);
     stage.end();
     jest.runAllTimers();
-    expect(root.querySelector('[aria-live]')).toBeNull();
+    expect(root.childElementCount).toBe(2);
   });
 });
 
@@ -212,7 +211,10 @@ describe('useAutoRun', () => {
 
   it('starts a preview taller than the viewport once it fills most of it', () => {
     const { result, see } = mount();
-    see(0.4, 600);
+    // 2000px tall in an 800px viewport
+    see(0.2, 400);
+    expect(result.current.player.getState()).toBe('idle');
+    see(0.25, 500);
     expect(result.current.player.getState()).toBe('playing');
   });
 
@@ -233,5 +235,14 @@ describe('useAutoRun', () => {
     unwatch();
     unmount();
     expect(player.getState()).toBe('idle');
+  });
+
+  it('an unmount ends a run', () => {
+    const { result, see, unmount, unwatch } = mount();
+    see(1);
+    const { player } = result.current;
+    unwatch();
+    unmount();
+    expect(player.getState()).toBe('done');
   });
 });

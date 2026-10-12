@@ -8,7 +8,7 @@ import { revealIn } from '../store/dom';
  * (so the yield listeners in ./useAutoRun.ts tell them from the reader's) and
  * never `focus()`, which would take the page's focus from the reader.
  *
- * The pointer and caption live in a layer appended to `root`, removed by `end()`.
+ * The pointer lives in a layer appended to `root`, removed by `end()`.
  */
 export function createStage(
   root: HTMLElement,
@@ -16,10 +16,6 @@ export function createStage(
 ): Stage {
   const layer = document.createElement('div');
   layer.className = styles.layer;
-  const caption = document.createElement('p');
-  caption.className = styles.caption;
-  caption.setAttribute('aria-live', 'polite');
-  layer.append(caption);
   root.append(layer);
   let pointer: HTMLElement | undefined;
   let at = { x: 0, y: 0 };
@@ -107,17 +103,6 @@ export function createStage(
         input.value + text,
       );
       input.dispatchEvent(new Event('input', { bubbles: true }));
-    },
-
-    caption(text) {
-      // under the preview (beside the code in a row), over its foot
-      const preview = scopeOf(root, 'preview')?.getBoundingClientRect();
-      if (preview) {
-        const origin = layer.getBoundingClientRect();
-        caption.style.left = `${preview.left - origin.left + preview.width / 2}px`;
-        caption.style.maxWidth = `${preview.width - 16}px`;
-      }
-      caption.textContent = text;
     },
 
     store,

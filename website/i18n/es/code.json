@@ -689,15 +689,6 @@
   "homepage.demo.mutations.atomically": {
     "message": "atómica"
   },
-  "homepage.demo.mutations.autoRun.type": {
-    "message": "Edita el nombre…"
-  },
-  "homepage.demo.mutations.autoRun.everywhere": {
-    "message": "…y cada publicación suya se actualiza con él"
-  },
-  "homepage.demo.mutations.autoRun.store": {
-    "message": "Todas leen este único User del Store"
-  },
   "homepage.demo.mutations.immediately": {
     "message": "inmediata"
   },
@@ -830,11 +821,8 @@
   "playground.resetPreview": {
     "message": "Reiniciar la vista previa"
   },
-  "playground.demo.play": {
-    "message": "Reproducir demo"
-  },
-  "playground.demo.stop": {
-    "message": "Detener demo"
+  "playground.demo.replay": {
+    "message": "Repetir la demo"
   },
   "playground.renderCount": {
     "message": "{count} renderizado|{count} renderizados",

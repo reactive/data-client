@@ -288,9 +288,12 @@ DesignSystem/       components injected into preview scope
 - Auto-run: `autoRun` (a `Step[]`, `preview/autorun/script.ts`) plays a
   scripted demo across the preview and the Store, like a video, the first
   time 60% of the preview (or of the viewport, if the preview is taller) is
-  in view (never by itself under reduced motion).
-  The Play button beside Reset replays it from a fresh store (closing the
-  Store first if the script opens it); while it plays, it stops it.
+  in view (never by itself under reduced motion). It has no captions: what
+  changes on screen as the pointer acts is what draws the eye, so a script
+  picks steps whose effect shows, and holds (`wait`) while it sinks in.
+  The preview's "Live Preview" label becomes its control (`DemoLabel`):
+  pressing it replays the demo from a fresh store (closing the Store first
+  if the script opens it), and its red dot pulses slowly while it plays.
   - `player.ts` owns timing only: one step at a time, each on a pausable
     clock, looking its target up again before every act (renders replace
     elements), giving up after `FIND_TIMEOUT`. `stage.ts` owns the DOM: it
@@ -299,16 +302,16 @@ DesignSystem/       components injected into preview scope
     and acts with untrusted events: pointer/mouse events then `click()`, or
     the native value setter plus `input` so React's `onChange` sees typing.
     It never calls `focus()`, which would take the page's focus from the
-    reader. A pointer glides to each target (`--motion-smooth`) and a
-    caption sits under the preview, in a layer appended to the playground.
+    reader. A pointer glides to each target (`--motion-smooth`), in a
+    layer appended to the playground.
     `useAutoRun.ts` connects them to React through the preview's ref (the
     playground is its `[data-playground]` ancestor); the player's state
-    reaches React only in `PlayButton`, so a run never re-renders the
+    reaches React only in `DemoLabel`, so a run never re-renders the
     playground.
   - The reader takes over with any input of their own (`isTrusted`) in the
     playground: a press, a tap, a key. That ends the run for good, leaving
     everything as it was, since the rest of the script assumes a state the
-    reader just changed; Play starts over. Input before the demo starts
+    reader just changed; the label starts it over. Input before the demo starts
     keeps it from starting by itself. Scrolling, hovering, a touch
     that starts a scroll and the demo's own controls (`data-autorun-control`)
     don't take over. Out of view or in a background tab, the run pauses

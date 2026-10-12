@@ -51,8 +51,8 @@ export function useAutoRun(
       const playground = el?.closest<HTMLElement>('[data-playground]');
       if (!el || !playground || !latest.current.script) return;
       root.current = playground;
-      let shown = false;
-      const syncPaused = () => player.setPaused(!shown || document.hidden);
+      let visible = false;
+      const syncPaused = () => player.setPaused(!visible || document.hidden);
 
       const onInput = (event: Event) => {
         if (!event.isTrusted) return;
@@ -70,7 +70,7 @@ export function useAutoRun(
       const observer = new IntersectionObserver(
         ([entry]) => {
           // a run pauses only once out of sight entirely
-          shown = entry.isIntersecting;
+          visible = entry.isIntersecting;
           syncPaused();
           if (
             mostlyShown(entry) &&
@@ -119,5 +119,6 @@ const mostlyShown = ({
   intersectionRatio >= MOSTLY ||
   (!!rootBounds && intersectionRect.height >= rootBounds.height * MOSTLY);
 const MOSTLY = 0.6;
-// a tall preview never reaches MOSTLY of itself: hear it on the way
-const THRESHOLDS = [0, 0.2, 0.4, MOSTLY];
+// every 5%: a preview up to 8 viewports tall crosses one while 60% of the
+// viewport shows (a tall one never reaches MOSTLY of itself)
+const THRESHOLDS = Array.from({ length: 21 }, (_, i) => i / 20);

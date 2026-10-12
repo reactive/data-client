@@ -8,7 +8,7 @@ export type Step = StepTiming &
     | { click: Target }
     /** Appends `text` to an input, a character at a time */
     | { type: Target; text: string }
-    /** Holds still (e.g. while a caption is read) */
+    /** Holds still, letting a change sink in */
     | { wait: number }
     /** Opens or closes the Store, without changing the reader's own choice */
     | { store: 'open' | 'close' }
@@ -17,8 +17,6 @@ export type Step = StepTiming &
 interface StepTiming {
   /** ms before the step acts (default `STEP_DELAY` in ./player) */
   delay?: number;
-  /** Shown from this step on; `''` clears it */
-  caption?: string;
 }
 
 /** An element in the playground: a CSS selector, or one of

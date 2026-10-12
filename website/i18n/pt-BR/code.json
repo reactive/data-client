@@ -689,15 +689,6 @@
   "homepage.demo.mutations.atomically": {
     "message": "atômica"
   },
-  "homepage.demo.mutations.autoRun.type": {
-    "message": "Edite o nome…"
-  },
-  "homepage.demo.mutations.autoRun.everywhere": {
-    "message": "…e cada post dele é atualizado junto"
-  },
-  "homepage.demo.mutations.autoRun.store": {
-    "message": "Todos leem este único User no Store"
-  },
   "homepage.demo.mutations.immediately": {
     "message": "imediata"
   },
@@ -830,11 +821,8 @@
   "playground.resetPreview": {
     "message": "Reiniciar a pré-visualização"
   },
-  "playground.demo.play": {
-    "message": "Reproduzir demo"
-  },
-  "playground.demo.stop": {
-    "message": "Parar demo"
+  "playground.demo.replay": {
+    "message": "Repetir a demo"
   },
   "playground.renderCount": {
     "message": "{count} renderização|{count} renderizações",

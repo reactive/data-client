@@ -1,6 +1,5 @@
 /* A zero-height layer at the playground's foot (appended by stage.ts): the
-   pointer is placed from its top left, the caption sits just above it,
-   centered under the preview (stage.ts sets its left and max-width).
+   pointer is placed from its top left.
    Over the Store and its sheets, under the site's navbar. */
 .layer {
   position: relative;
@@ -43,25 +42,5 @@
   height: 24px;
   border-radius: 50%;
   background: var(--ifm-color-primary);
-  opacity: 0;
-}
-
-.caption {
-  position: absolute;
-  bottom: 0.75rem;
-  left: 50%;
-  translate: -50% 0;
-  width: max-content;
-  margin: 0;
-  padding: 0.35rem 0.85rem;
-  border-radius: 1rem;
-  background: rgb(28 30 33 / 0.88);
-  color: #fff;
-  font-size: 0.875rem;
-  line-height: 1.35;
-  text-align: center;
-  transition: opacity var(--motion-snappy);
-}
-.caption:empty {
   opacity: 0;
 }

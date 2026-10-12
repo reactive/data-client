@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { LiveProvider } from 'react-live';
 
-import PlayButton from './autorun/PlayButton';
+import DemoLabel from './autorun/DemoLabel';
 import type { AutoRunScript } from './autorun/script';
 import { useAutoRun } from './autorun/useAutoRun';
 import Preview from './Preview';
@@ -79,13 +79,15 @@ export default function LivePreview<T>({
     >
       <PreviewWrapper
         ref={demo.watch}
+        label={
+          autoRun ?
+            <DemoLabel player={demo.player} onPlay={demo.replay} />
+          : undefined
+        }
         headerControls={
           <>
             {badge}
             <StoreHeaderToggle open={storeOpen} onClick={toggleStore} />
-            {autoRun ?
-              <PlayButton player={demo.player} onPlay={demo.replay} />
-            : null}
             <ResetButton onClick={reset} />
           </>
         }

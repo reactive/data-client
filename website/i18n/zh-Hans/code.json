@@ -119,15 +119,6 @@
   "homepage.demo.mutations.atomically": {
     "message": "原子化地"
   },
-  "homepage.demo.mutations.autoRun.type": {
-    "message": "编辑名字……"
-  },
-  "homepage.demo.mutations.autoRun.everywhere": {
-    "message": "……他的每篇帖子都随之更新"
-  },
-  "homepage.demo.mutations.autoRun.store": {
-    "message": "它们都读取 Store 中这同一个 User"
-  },
   "homepage.demo.mutations.immediately": {
     "message": "立即"
   },
@@ -830,11 +821,8 @@
   "playground.resetPreview": {
     "message": "重置预览"
   },
-  "playground.demo.play": {
-    "message": "播放演示"
-  },
-  "playground.demo.stop": {
-    "message": "停止演示"
+  "playground.demo.replay": {
+    "message": "重播演示"
   },
   "playground.renderCount": {
     "message": "{count} 次渲染",

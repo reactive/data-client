@@ -8,9 +8,8 @@ export interface Stage {
   point(el: HTMLElement): void;
   click(el: HTMLElement): void;
   append(el: HTMLElement, text: string): void;
-  caption(text: string): void;
   store(open: boolean): void;
-  /** The run is over: the pointer and caption go */
+  /** The run is over: the pointer goes */
   end(): void;
 }
 
@@ -81,7 +80,6 @@ async function perform(
   stage: Stage,
   sleep: (ms: number) => Promise<void>,
 ) {
-  if (step.caption !== undefined) stage.caption(step.caption);
   await sleep(step.delay ?? STEP_DELAY);
   if ('wait' in step) return sleep(step.wait);
   if ('store' in step) return stage.store(step.store === 'open');
