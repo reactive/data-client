@@ -86,14 +86,6 @@ function releaseExists(tag) {
   }
 }
 
-/** Compares stable versions like 0.18.2; prereleases sort by their x.y.z */
-function compareVersions(a, b) {
-  const pa = a.split('-')[0].split('.').map(Number);
-  const pb = b.split('-')[0].split('.').map(Number);
-  for (let i = 0; i < 3; i++) if (pa[i] !== pb[i]) return pa[i] - pb[i];
-  return 0;
-}
-
 /**
  * Only LATEST_PACKAGE takes "Latest", and only when it's a stable version no
  * older than the current Latest (a maintenance branch releasing an older
@@ -117,7 +109,12 @@ function isLatest(name, version) {
   }
   const prefix = `${LATEST_PACKAGE}@`;
   if (!latestTag.startsWith(prefix)) return true;
-  return compareVersions(version, latestTag.slice(prefix.length)) >= 0;
+  // numeric collation orders stable versions: 0.18.10 after 0.18.2
+  return (
+    version.localeCompare(latestTag.slice(prefix.length), undefined, {
+      numeric: true,
+    }) >= 0
+  );
 }
 
 function createRelease(tag, name, body, latest) {
