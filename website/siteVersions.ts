@@ -1,7 +1,7 @@
 // The site's versions (scripts/snapshot/README.md), checked as they're read so a
-// bad listing fails the build instead of the deploy. The site's config and
-// pages read versionCurrent.json and versionsArchived.json only through this;
-// scripts and workflows read their fields with jq.
+// bad listing fails the build instead of the deploy. The site's config reads
+// versionCurrent.json only through this, and versionsArchived.json is read
+// here only for its checks; scripts and workflows read their fields with jq.
 import fs from 'fs';
 import path from 'path';
 
