@@ -16,6 +16,7 @@ import type { LogEntry } from '../store/actionLog';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
 import type { Actions } from '../store/actionParts';
+import { FOLLOW_SLACK } from '../store/actionParts';
 import {
   axisLabels,
   lanesOf,
@@ -815,6 +816,38 @@ describe('Store timeline hold', () => {
     pointer(track, 'pointerup', 10, 'touch');
     expect(marksOn(track)).toBe(6);
     expect(paused()).toBeNull();
+  });
+
+  it('keeps following the newest as an action comes mid catch-up', async () => {
+    // shown with a height from the start, as a browser lays it out
+    const height = jest
+      .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
+      .mockReturnValue(18);
+    const { ctrl } = mountAt(90);
+    height.mockRestore();
+    const track = scrubber().querySelector<HTMLElement>(
+      '[style*="--tl-width"]',
+    )!;
+    let width = 100;
+    Object.defineProperty(track, 'clientHeight', { value: 18 });
+    Object.defineProperty(track, 'clientWidth', { value: 90 });
+    Object.defineProperty(track, 'scrollWidth', { get: () => width });
+    await act(() => ctrl().fetch(getPosts));
+    await act(() => ctrl().fetch(getPosts));
+    jest.useFakeTimers();
+    pointer(track, 'pointerenter', 10);
+    await set(ctrl, 'Three');
+    // off: it springs along to the newest, far past the slack
+    width = 400;
+    pointer(track, 'pointerleave', 0);
+    act(() => jest.advanceTimersByTime(16));
+    expect(track.scrollLeft).toBeLessThan(400 - 90 - FOLLOW_SLACK);
+    fireEvent.scroll(track);
+    // still following: the newest comes into view
+    width = 500;
+    await set(ctrl, 'Four');
+    act(() => jest.advanceTimersByTime(1000));
+    expect(track.scrollLeft).toBe(500);
   });
 
   it('holds the lanes as the mouse rests on them', async () => {

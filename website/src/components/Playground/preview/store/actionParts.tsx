@@ -126,7 +126,9 @@ export function useFollow(
       // on every scroll, the follow's own included: one left over from
       // before would pull the view back to it on the next pause
       anchor.current = lastShown(el, axis);
-      if (paused) return;
+      // a catch-up's own frames fall short of the end on their way there:
+      // that's not the reader going back
+      if (paused || springing.has(el)) return;
       const atEnd =
         el[size] - el[scroll] - el[client] < (away ? 1 : FOLLOW_SLACK);
       if (atEnd) away = false;
@@ -248,6 +250,7 @@ function scrollAlong(
 ) {
   const { size, scroll, client } = AXES[axis];
   cancelAnimationFrame(springing.get(el) ?? 0);
+  springing.delete(el);
   if (
     !sprung ||
     typeof requestAnimationFrame === 'undefined' ||
@@ -268,7 +271,8 @@ function scrollAlong(
     );
     const done = Math.abs(offset) < 0.5;
     el[scroll] = done ? to : to + offset;
-    if (!done) springing.set(el, requestAnimationFrame(step));
+    if (done) springing.delete(el);
+    else springing.set(el, requestAnimationFrame(step));
   };
   springing.set(el, requestAnimationFrame(step));
 }
