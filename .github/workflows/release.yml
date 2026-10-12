@@ -5,9 +5,11 @@ on:
     branches:
       - 0.18.x
 
-# Queue every run instead of cancelling pending ones (red on the branch)
+# Queue every run instead of cancelling pending ones (red on the branch), in
+# one queue with maintenance branches, so each reads npm's `latest` after the
+# other publishes and only one release takes it (and GitHub's Latest)
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}
   queue: max
 
 permissions:
