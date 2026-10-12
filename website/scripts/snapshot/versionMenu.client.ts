@@ -24,7 +24,7 @@ const loadVersions = (): Promise<SiteVersion[]> =>
     }));
 
 /**
- * page: this page's path, locale and query, to add to any version's url
+ * page: this page's path, locale, query and hash, to add to any version's url
  * site: this site's url in the list (production's root, /next or an archive's)
  */
 function here() {
@@ -33,7 +33,7 @@ function here() {
   const locale = lang && baseUrl.endsWith(`/${lang}/`) ? `${lang}/` : '';
   const base = baseUrl.slice(0, baseUrl.length - locale.length);
   return {
-    page: `/${locale}${location.pathname.slice(baseUrl.length)}${location.search}`,
+    page: `/${locale}${location.pathname.slice(baseUrl.length)}${location.search}${location.hash}`,
     site: `${location.origin}${base}`.replace(/\/$/, ''),
   };
 }
@@ -152,7 +152,7 @@ const STYLE = `
   .version-menu__item, .version-menu__foot a { min-height: 2.75rem; }
 }
 .navbar__brand::after {
-  /* a 6x4px caret in the label's right padding, grown in on hover */
+  /* a 6x4px caret in the label's right padding, grown in on hover, keyboard focus or while open */
   background: conic-gradient(from -37deg at 50% 100%, currentColor 74deg, transparent 0) right 8px center / 6px 0 no-repeat;
   cursor: pointer;
   transition: opacity 150ms, color 150ms, background-size 150ms;
