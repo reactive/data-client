@@ -105,11 +105,11 @@ export function usePreview(panel: React.RefObject<HTMLElement | null>) {
   return [store, onPreview] as const;
 }
 
-/** Shows the card's last part, what the action did, only if the whole of
- * it fits in the card */
-function fitChanges(card: Element | null | undefined) {
-  const changes = card?.lastElementChild;
-  if (!card || !(changes instanceof HTMLElement)) return;
+/** Shows what the action did (`.pvChanges`) only if the whole of it fits
+ * in the card */
+function fitChanges(card: Element | null) {
+  const changes = card?.querySelector<HTMLElement>(`.${styles.pvChanges}`);
+  if (!card || !changes) return;
   changes.hidden = false;
   changes.hidden = card.scrollHeight > card.clientHeight;
 }
@@ -121,7 +121,7 @@ function watchPanel(preview: HTMLElement | null) {
   const panel = preview?.parentElement;
   if (!panel || typeof ResizeObserver === 'undefined') return;
   const observer = new ResizeObserver(() =>
-    fitChanges(preview.firstElementChild),
+    fitChanges(preview.querySelector(`.${styles.previewCard}`)),
   );
   observer.observe(panel);
   return () => observer.disconnect();
