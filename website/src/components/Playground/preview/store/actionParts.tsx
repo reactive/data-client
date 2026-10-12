@@ -24,7 +24,12 @@ import type ActionLog from './actionLog';
 import { isRecordChange, type History, type LogEntry } from './actionLog';
 import { kindColor } from './dom';
 import { splitKey } from './model';
-import { prefersReducedMotion, springAt, springs } from '../../../motion';
+import {
+  prefersReducedMotion,
+  springAt,
+  springEasing,
+  springs,
+} from '../../../motion';
 import {
   ActionSpanContext,
   type ActionSpan,
@@ -85,6 +90,8 @@ const CHIP_LIMIT = 6;
 const TICK_LIMIT = 12;
 /** Distance from the bottom (px) that still counts as following new rows */
 export const FOLLOW_SLACK = 24;
+/** How long a track let go of takes to catch up (ms, `--motion-snappy`) */
+export const CATCH_UP_MS = springEasing(springs.snappy).duration;
 
 const AXES = {
   x: { size: 'scrollWidth', scroll: 'scrollLeft', client: 'clientWidth' },
@@ -161,6 +168,8 @@ export function useFollow(
         return;
       away = true;
       follow.current = false;
+      // the reader's own scroll takes over from a catch-up underway
+      stopSpring(el);
     };
     const onWheel = (e: WheelEvent) =>
       axis === 'y' ?
@@ -239,6 +248,10 @@ export function useFollow(
 
 /** The spring scrolls underway, by scroller */
 const springing = new WeakMap<Element, number>();
+function stopSpring(el: Element) {
+  cancelAnimationFrame(springing.get(el) ?? 0);
+  springing.delete(el);
+}
 /** Scrolls `el` along `axis` to `to`: `sprung`, on the snappy spring (at
  * once under reduced motion), as its rows catching up move
  * (`[data-catchup]` in store.module.css); else at once */
@@ -249,8 +262,7 @@ function scrollAlong(
   sprung: boolean,
 ) {
   const { size, scroll, client } = AXES[axis];
-  cancelAnimationFrame(springing.get(el) ?? 0);
-  springing.delete(el);
+  stopSpring(el);
   if (
     !sprung ||
     typeof requestAnimationFrame === 'undefined' ||
@@ -269,7 +281,9 @@ function scrollAlong(
       { offset: from - to, velocity: 0 },
       (now - start) / 1000,
     );
-    const done = Math.abs(offset) < 0.5;
+    // settled when the marks' own spring is: a bounce passes the target
+    // well before
+    const done = now - start >= CATCH_UP_MS;
     el[scroll] = done ? to : to + offset;
     if (done) springing.delete(el);
     else springing.set(el, requestAnimationFrame(step));

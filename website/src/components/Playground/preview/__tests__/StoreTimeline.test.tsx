@@ -858,6 +858,34 @@ describe('Store timeline hold', () => {
     expect(track.scrollLeft).toBe(500);
   });
 
+  it('lets the reader scroll back mid catch-up', async () => {
+    const height = jest
+      .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
+      .mockReturnValue(18);
+    const { ctrl } = mountAt(90);
+    height.mockRestore();
+    const track = scrubber().querySelector<HTMLElement>(
+      '[style*="--tl-width"]',
+    )!;
+    let width = 100;
+    Object.defineProperty(track, 'clientHeight', { value: 18 });
+    Object.defineProperty(track, 'clientWidth', { value: 90 });
+    Object.defineProperty(track, 'scrollWidth', { get: () => width });
+    await act(() => ctrl().fetch(getPosts));
+    await act(() => ctrl().fetch(getPosts));
+    jest.useFakeTimers();
+    pointer(track, 'pointerenter', 10);
+    await set(ctrl, 'Three');
+    width = 400;
+    pointer(track, 'pointerleave', 0);
+    act(() => jest.advanceTimersByTime(16));
+    // a swipe back takes over: the catch-up stops where the reader left it
+    fireEvent.wheel(track, { deltaX: -50 });
+    track.scrollLeft = 40;
+    act(() => jest.advanceTimersByTime(1000));
+    expect(track.scrollLeft).toBe(40);
+  });
+
   it('holds the lanes as the mouse rests on them', async () => {
     // the lanes measure their strip as they open
     const off = observeAt(90);

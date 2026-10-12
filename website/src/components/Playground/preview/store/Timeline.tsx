@@ -21,6 +21,7 @@ import type ActionLog from './actionLog';
 import type { History, LogEntry } from './actionLog';
 import { ActionName } from './actionParts';
 import {
+  CATCH_UP_MS,
   droppedIn,
   droppedText,
   FOLLOW_SLACK,
@@ -39,7 +40,6 @@ import { actionId } from './model';
 import { useNavState } from './nav';
 import type { OnPreview } from './Preview';
 import styles from './store.module.css';
-import { springEasing, springs } from '../../../motion';
 import { useTabStorage } from '../../../../utils/tabStorage';
 
 /** Pixels per millisecond between two actions */
@@ -60,8 +60,6 @@ const ROW = 18;
 const HOLD_MS = 350;
 /** How far a finger moves before the hold is a scroll instead (px) */
 const SLOP = 8;
-/** How long a track let go of takes to catch up (ms, `--motion-snappy`) */
-const CATCH_UP_MS = springEasing(springs.snappy).duration;
 
 /** Where each action sits along the timeline */
 export interface TimeScale {
