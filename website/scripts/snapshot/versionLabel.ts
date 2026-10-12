@@ -10,5 +10,5 @@ export const VERSION_LABEL_ID = 'version-label';
 export const versionLabel = (label: string) => ({
   tagName: 'style',
   attributes: { id: VERSION_LABEL_ID },
-  innerHTML: `.navbar__brand { position: relative; } .navbar__brand::after { content: ${JSON.stringify(label)}; position: absolute; left: 16px; top: calc(50% + 16px); transform: translateX(-50%); font-size: 0.625rem; line-height: 1; white-space: nowrap; opacity: 0.7; }`,
+  innerHTML: `.navbar__brand { position: relative; } .navbar__brand::after { content: ${JSON.stringify(label)}; position: absolute; left: 16px; top: calc(50% + 13px); transform: translateX(-50%); margin: 0; font-size: 0.625rem; line-height: 1; white-space: nowrap; opacity: 0.7; }`,
 });
