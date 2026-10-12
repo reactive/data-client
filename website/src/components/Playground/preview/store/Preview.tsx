@@ -121,13 +121,14 @@ export function Preview({
   const at = useSyncExternalStore(store.subscribe, store.get, store.get);
   const card = useRef<HTMLDivElement>(null);
   const changes = useRef<HTMLDivElement>(null);
-  // what it did shows whole or not at all, never cut off
+  // what it did shows whole or not at all, never cut off: measured each
+  // render, as the action, the subject and the panel's width all change it
   useLayoutEffect(() => {
     const el = changes.current;
     if (!el || !card.current) return;
     el.hidden = false;
     el.hidden = card.current.scrollHeight > card.current.clientHeight;
-  }, [at]);
+  });
   if (!at) return null;
   const { entry } = at;
   const what = whatFields(entry.action);
