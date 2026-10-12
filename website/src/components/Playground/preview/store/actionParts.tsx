@@ -24,6 +24,7 @@ import type ActionLog from './actionLog';
 import { isRecordChange, type History, type LogEntry } from './actionLog';
 import { kindColor } from './dom';
 import { splitKey } from './model';
+import { prefersReducedMotion, springAt, springs } from '../../../motion';
 import {
   ActionSpanContext,
   type ActionSpan,
@@ -92,13 +93,15 @@ const AXES = {
 
 /** Keeps the newest row in view, unless the reader scrolled up (or, on
  * the `x` axis, back) or it is `paused`; unpaused (back to live), it
- * follows the newest again. Returns what scrolls to the newest and follows
- * again */
+ * follows the newest again. Let go of (`held` no more), it springs to
+ * where it is to be rather than jumps, in step with the rows' own move.
+ * Returns what scrolls to the newest and follows again */
 export function useFollow(
   scroller: React.RefObject<HTMLElement | null>,
   rows: unknown,
   axis: 'x' | 'y' = 'y',
   paused = false,
+  held = false,
 ) {
   const follow = useRef(true);
   // the last row in view while not following, so rows trimmed from the
@@ -106,6 +109,7 @@ export function useFollow(
   // last row in view outlasts the first)
   const anchor = useRef<{ row: Element; at: number }>(undefined);
   const wasPaused = useRef(paused);
+  const wasHeld = useRef(held);
   // passive: the listeners can wait for paint
   useEffect(() => {
     const el = scroller.current;
@@ -203,22 +207,25 @@ export function useFollow(
     const { size, scroll } = AXES[axis];
     const resumed = !paused && wasPaused.current;
     wasPaused.current = paused;
+    const letGo = !held && wasHeld.current;
+    wasHeld.current = held;
     // off, not just skipped, so showing a hidden tab doesn't catch up either;
     // scrolls are ignored while paused, so it stays off. Back to live, the
     // newest comes into view and is followed again
     if (paused) follow.current = false;
-    else if (el && (resumed || (el.clientHeight && follow.current))) {
+    if (!el) return;
+    if (!paused && (resumed || (el.clientHeight && follow.current))) {
       follow.current = true;
-      el[scroll] = el[size];
+      scrollAlong(el, axis, el[size], letGo);
       return;
     }
-    const held = anchor.current;
-    if (!el || !held?.row.isConnected) return;
+    const last = anchor.current;
+    if (!last?.row.isConnected) return;
     // only when the rows moved: any scroll assignment cancels a smooth one
     // underway (the moment's reveal as the list leaves live)
-    const moved = startOf(held.row, axis) - startOf(el, axis) - held.at;
-    if (moved) el[scroll] += moved;
-  }, [scroller, rows, axis, paused]);
+    const moved = startOf(last.row, axis) - startOf(el, axis) - last.at;
+    if (moved) scrollAlong(el, axis, el[scroll] + moved, letGo);
+  }, [scroller, rows, axis, paused, held]);
   return useCallback(() => {
     const el = scroller.current;
     if (!el) return;
@@ -226,6 +233,44 @@ export function useFollow(
     follow.current = true;
     el[scroll] = el[size];
   }, [scroller, axis]);
+}
+
+/** The spring scrolls underway, by scroller */
+const springing = new WeakMap<Element, number>();
+/** Scrolls `el` along `axis` to `to`: `sprung`, on the snappy spring (at
+ * once under reduced motion), as its rows catching up move
+ * (`[data-catchup]` in store.module.css); else at once */
+function scrollAlong(
+  el: HTMLElement,
+  axis: 'x' | 'y',
+  to: number,
+  sprung: boolean,
+) {
+  const { size, scroll, client } = AXES[axis];
+  cancelAnimationFrame(springing.get(el) ?? 0);
+  if (
+    !sprung ||
+    typeof requestAnimationFrame === 'undefined' ||
+    prefersReducedMotion()
+  ) {
+    el[scroll] = to;
+    return;
+  }
+  // as far as it goes, so the spring doesn't stop short of the end
+  to = Math.max(0, Math.min(to, el[size] - el[client]));
+  const from = el[scroll];
+  const start = performance.now();
+  const step = (now: number) => {
+    const { offset } = springAt(
+      springs.snappy,
+      { offset: from - to, velocity: 0 },
+      (now - start) / 1000,
+    );
+    const done = Math.abs(offset) < 0.5;
+    el[scroll] = done ? to : to + offset;
+    if (!done) springing.set(el, requestAnimationFrame(step));
+  };
+  springing.set(el, requestAnimationFrame(step));
 }
 
 const startOf = (el: Element, axis: 'x' | 'y') => {

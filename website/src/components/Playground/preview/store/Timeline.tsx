@@ -5,6 +5,7 @@ import React, {
   useLayoutEffect,
   useMemo,
   useRef,
+  useState,
 } from 'react';
 
 import {
@@ -17,7 +18,7 @@ import {
   type SubjectFilter,
 } from './actionGroups';
 import type ActionLog from './actionLog';
-import type { LogEntry } from './actionLog';
+import type { History, LogEntry } from './actionLog';
 import { ActionName } from './actionParts';
 import {
   droppedIn,
@@ -30,14 +31,15 @@ import {
   typeClass,
   useActions,
   useFollow,
-  useLog,
+  type Actions,
 } from './actionParts';
 import { NARROW_WIDTH } from './columns';
-import { useHoldFocus } from './dom';
+import { useHoldFocus, useWidth } from './dom';
 import { actionId } from './model';
 import { useNavState } from './nav';
 import type { OnPreview } from './Preview';
 import styles from './store.module.css';
+import { springEasing, springs } from '../../../motion';
 import { useTabStorage } from '../../../../utils/tabStorage';
 
 /** Pixels per millisecond between two actions */
@@ -58,6 +60,8 @@ const ROW = 18;
 const HOLD_MS = 350;
 /** How far a finger moves before the hold is a scroll instead (px) */
 const SLOP = 8;
+/** How long a track let go of takes to catch up (ms, `--motion-snappy`) */
+const CATCH_UP_MS = springEasing(springs.snappy).duration;
 
 /** Where each action sits along the timeline */
 export interface TimeScale {
@@ -108,28 +112,30 @@ export function lanesOf(groups: readonly ActionGroup[]): Lane[] {
   return [...lanes].map(([key, groups]) => ({ key, groups }));
 }
 
-/** The shown history on `timeScale`, without the fetches deduped into a
- * request in flight (they add nothing to see) */
-function useScale() {
-  const { groups, history } = useActions();
-  const joined = useMemo(
-    () => new Set(groups.flatMap(g => [...joinedFetches(g).keys()])),
-    [groups],
-  );
-  const shown = useMemo(
-    () => history.entries.filter(e => !joined.has(e)),
-    [history.entries, joined],
-  );
+/** The shown history: without the fetches deduped into a request in
+ * flight (they add nothing to see), which `joined` holds */
+function shownOf({ groups, history }: Actions) {
+  const joined = new Set(groups.flatMap(g => [...joinedFetches(g).keys()]));
+  return { joined, shown: history.entries.filter(e => !joined.has(e)) };
+}
+
+/** The shown history on `timeScale` */
+function useScale(actions: Actions) {
+  const { joined, shown } = useMemo(() => shownOf(actions), [actions]);
   const scale = useMemo(() => timeScale(shown), [shown]);
   return { joined, shown, scale };
 }
 
 /** `drawer` for the shown history with the moment selected, and `decor`:
  * the scale's breaks and the moment's playhead */
-function useDrawer(hit: SubjectFilter['hit'], onSelect: (seq: number) => void) {
-  const { log, history } = useActions();
+function useDrawer(
+  actions: Actions,
+  hit: SubjectFilter['hit'],
+  onSelect: (seq: number) => void,
+) {
+  const { log, history } = actions;
   const { seq: selected } = useNavState();
-  const { joined, shown, scale } = useScale();
+  const { joined, shown, scale } = useScale(actions);
   const draw = drawer({
     log,
     scale,
@@ -266,11 +272,49 @@ export function nearest(
   return entries[lo > 0 && x - at(lo - 1) <= at(lo) - x ? lo - 1 : lo];
 }
 
+/** Whether `live` leaves every mark `was` showed on a track `strip` px
+ * wide (0: not measured yet) where it was: actions only ever come after
+ * the newest or drop out, so the marks move only as one drops, or as the
+ * track runs past the strip (detailed, it scrolls to the newest; fit, it
+ * squeezes) */
+export function still(was: Actions, live: Actions, strip: number) {
+  return (
+    was.history.entries.every((e, i) => live.history.entries[i] === e) &&
+    (!strip || timeScale(shownOf(live).shown).width <= strip)
+  );
+}
+
+/** `live` as a track `strip` px wide shows it: `on` (the pointer on it),
+ * what it showed as the pointer came stays until a change leaves its
+ * marks where they are (`still`), so nothing moves under the pointer;
+ * `behind` says a change waits. Off, it catches up: `catchingUp` while
+ * the marks move to where they are now rather than jump (`[data-catchup]`
+ * in store.module.css) */
+function useHeld(live: Actions, on: boolean, strip: number) {
+  const [was, setWas] = useState(live);
+  const [wasBehind, setWasBehind] = useState(false);
+  const [catchingUp, setCatchingUp] = useState(false);
+  const behind = on && was !== live && !still(was, live, strip);
+  if (!behind && was !== live) setWas(live);
+  if (wasBehind !== behind) {
+    setWasBehind(behind);
+    // from the render that lets go, so its move is the one that transitions
+    if (!behind) setCatchingUp(true);
+  }
+  useEffect(() => {
+    if (!catchingUp) return;
+    const timer = setTimeout(() => setCatchingUp(false), CATCH_UP_MS);
+    return () => clearTimeout(timer);
+  }, [catchingUp]);
+  return { actions: behind ? was : live, behind, catchingUp };
+}
+
 /** Previews the action nearest the pointer on `track`'s lane under it,
  * under `anchor`: as
  * the mouse moves over it, or, once a finger has held still on it, as the
  * finger slides (the track doesn't scroll meanwhile, and lifting it picks
- * nothing) */
+ * nothing). `onHold` says the pointer is on the track (the mouse over it,
+ * or a finger holding), and when it has gone */
 function useTrackPreview(
   track: React.RefObject<HTMLElement | null>,
   anchor: React.RefObject<HTMLElement | null>,
@@ -278,10 +322,11 @@ function useTrackPreview(
   lanes: readonly (readonly LogEntry[])[],
   scale: TimeScale,
   onPreview: OnPreview,
+  onHold: (on: boolean) => void,
 ) {
-  const latest = useRef({ lanes, scale, onPreview });
+  const latest = useRef({ lanes, scale, onPreview, onHold });
   useLayoutEffect(() => {
-    latest.current = { lanes, scale, onPreview };
+    latest.current = { lanes, scale, onPreview, onHold };
   });
   // a new scale (new marks came, or squeezed in) moved the marks under a
   // still pointer: previews what it is on now
@@ -325,6 +370,7 @@ function useTrackPreview(
       pointer = undefined;
       latest.current.onPreview(null);
     };
+    const setOn = (on: boolean) => latest.current.onHold(on);
     const onMoved = () => {
       if (pointer) preview(pointer.x, pointer.y);
     };
@@ -354,6 +400,7 @@ function useTrackPreview(
       swallow = lifted && hold.on;
       if (hold.on) {
         hide();
+        setOn(false);
         for (const type of held)
           el.removeEventListener(type, holding, { capture: true });
       }
@@ -383,6 +430,7 @@ function useTrackPreview(
               capture: true,
               passive: false,
             });
+          setOn(true);
           preview(h.x, h.y, true);
         }, HOLD_MS),
       };
@@ -395,8 +443,15 @@ function useTrackPreview(
       else if (Math.hypot(e.clientX - hold.x, e.clientY - hold.y) > SLOP)
         letGo();
     };
+    // the mouse's own coming and going (the marks' don't bubble, but reach
+    // the capturing track too)
+    const onEnter = (e: PointerEvent) => {
+      if (e.pointerType !== 'touch' && e.target === el) setOn(true);
+    };
     const onLeave = (e: PointerEvent) => {
-      if (e.pointerType !== 'touch') hide();
+      if (e.pointerType === 'touch') return;
+      hide();
+      if (e.target === el) setOn(false);
     };
     const onUp = (e: PointerEvent) => {
       if (e.pointerId === hold?.id) letGo(e.type === 'pointerup');
@@ -410,6 +465,7 @@ function useTrackPreview(
     const listeners = [
       ['pointerdown', onDown],
       ['pointermove', onMove],
+      ['pointerenter', onEnter],
       ['pointerleave', onLeave],
       ['pointerup', onUp],
       ['pointercancel', onUp],
@@ -435,6 +491,7 @@ function useTrackPreview(
       letGo();
       // only its own: another track's may be showing
       if (pointer) hide();
+      setOn(false);
     };
   }, [track, anchor]);
 }
@@ -448,13 +505,21 @@ function useTrackPreview(
 function useTrackFollow(
   scroller: React.RefObject<HTMLElement | null>,
   scale: TimeScale,
+  /** The pointer is on the track: it stays put, catching up once off */
+  held: boolean,
   refocus?: unknown,
 ) {
   const { seq: selected, set } = useNavState();
   // a new scale for every change to the history, trims included, so the
   // marks in view are held even when the width stays the same
   const layout = useMemo(() => [scale, refocus], [scale, refocus]);
-  const followNewest = useFollow(scroller, layout, 'x', selected !== null);
+  const followNewest = useFollow(
+    scroller,
+    layout,
+    'x',
+    selected !== null,
+    held,
+  );
   useLayoutEffect(() => {
     if (selected === null) return;
     scroller.current
@@ -504,20 +569,27 @@ export const Scrubber = memo(function Scrubber({
   onListHover: (inside: boolean, e: React.PointerEvent) => void;
   onPreview: OnPreview;
 }) {
-  const { groups } = useActions();
+  // the track scrolls sideways, on the moment as the timeline's does
+  const track = useRef<HTMLDivElement>(null);
+  // the pointer on the track: what it shows holds still
+  const [on, setOn] = useState(false);
+  const { actions, behind, catchingUp } = useHeld(
+    useActions(),
+    on,
+    useWidth(track, 0),
+  );
+  const { groups } = actions;
   const { whole, earlier, later, set: onSelect, show } = useNavState();
   // a row picked stands for its whole group: the label names that
   const group = whole && entry ? groupOf(groups, entry.seq) : undefined;
-  const { shown, scale, drawn, decor } = useDrawer(hit, onMark);
-  // the track scrolls sideways, on the moment as the timeline's does
-  const track = useRef<HTMLDivElement>(null);
-  const end = useTrackFollow(track, scale);
+  const { shown, scale, drawn, decor } = useDrawer(actions, hit, onMark);
+  const end = useTrackFollow(track, scale, on);
 
   // a step that removes (Live) or turns off (an end reached) the button
   // pressed hands focus to one still there
   const bar = useRef<HTMLDivElement>(null);
   const hold = useHoldFocus(bar);
-  useTrackPreview(track, bar, [shown], scale, onPreview);
+  useTrackPreview(track, bar, [shown], scale, onPreview, setOn);
   const step = (to: number | null) => {
     hold();
     onSelect(to);
@@ -560,17 +632,21 @@ export const Scrubber = memo(function Scrubber({
         >
           ›
         </button>
-        <div
-          ref={track}
-          className={styles.scrubTrack}
-          style={{ '--tl-width': `${scale.width}px` } as React.CSSProperties}
-        >
-          {shown.length > 0 && (
-            <div className={styles.tlLane} data-lane>
-              {groups.flatMap(g => drawn(g, false))}
-              {decor()}
-            </div>
-          )}
+        <div className={styles.scrubTrackBox}>
+          <div
+            ref={track}
+            className={styles.scrubTrack}
+            style={{ '--tl-width': `${scale.width}px` } as React.CSSProperties}
+            data-catchup={catchingUp || undefined}
+          >
+            {shown.length > 0 && (
+              <div className={styles.tlLane} data-lane>
+                {groups.flatMap(g => drawn(g, false))}
+                {decor()}
+              </div>
+            )}
+          </div>
+          {behind && <Paused />}
         </div>
         {entry ?
           <button
@@ -653,32 +729,34 @@ export default memo(function Timeline({
   onMark: (seq: number) => void;
   onPreview: OnPreview;
 }) {
-  const { history, groups } = useActions();
   const { seq: selected } = useNavState();
   const [spacing, setSpacing] = useTabStorage('playgroundTimelineSpacing');
-  const { entries, since } = history;
-  const lanes = useMemo(() => lanesOf(groups), [groups]);
-  const { shown, scale, pos, drawn, decor } = useDrawer(hit, onMark);
   const narrow = width < NARROW_WIDTH;
   const labelWidth = narrow ? LABEL_WIDTH.narrow : LABEL_WIDTH.wide;
   // detailed (the default), it scrolls sideways, kept on the newest while
   // live; fit, the whole history spans the strip
   const fit = spacing === 'fit';
+  const root = useRef<HTMLDivElement>(null);
+  const scroller = useRef<HTMLDivElement>(null);
+  // the strip's width; hidden, it measures 0
+  const strip = useWidth(scroller, 0);
+  // the pointer on the tracks: what they show holds still
+  const [on, setOn] = useState(false);
+  const { actions, behind, catchingUp } = useHeld(useActions(), on, strip);
+  const { history, groups } = actions;
+  const { entries, since } = history;
+  const lanes = useMemo(() => lanesOf(groups), [groups]);
+  const { shown, scale, pos, drawn, decor } = useDrawer(actions, hit, onMark);
   // the strip's width for the scale's: fit, the labels thin out as the
-  // history squeezes (whole px, so resizing rarely relabels). A hidden panel
-  // measures 0: label as detailed until it shows
-  const track =
-    !fit || !width ?
-      scale.width
-    : Math.min(scale.width, Math.max(1, width - labelWidth));
+  // history squeezes (whole px, so resizing rarely relabels). Hidden,
+  // label as detailed until it shows
+  const track = fit && strip ? Math.min(scale.width, strip) : scale.width;
   const gap = Math.ceil((LABEL_GAP * scale.width) / track);
   const labels = useMemo(
     () => axisLabels(shown, scale, gap),
     [shown, scale, gap],
   );
 
-  const root = useRef<HTMLDivElement>(null);
-  const scroller = useRef<HTMLDivElement>(null);
   // each lane's own marks, so the preview is of the lane under the pointer
   const laneEntries = useMemo(() => {
     const laneOf = new Map<LogEntry, number>();
@@ -695,10 +773,10 @@ export default memo(function Timeline({
     }
     return each;
   }, [lanes, shown]);
-  useTrackPreview(scroller, root, laneEntries, scale, onPreview);
+  useTrackPreview(scroller, root, laneEntries, scale, onPreview, setOn);
   // a scrolled-back view stays put as the fit toggles, while a followed one
   // stays on the newest; the picked action comes into view again
-  const end = useTrackFollow(scroller, scale, fit);
+  const end = useTrackFollow(scroller, scale, on, fit);
   // scrolled back, fitting and back returns to where it was, unless it went
   // to the newest (or live) meanwhile
   const scrolledTo = useRef<number | null>(null);
@@ -798,6 +876,7 @@ export default memo(function Timeline({
           </span>
         ))}
       </div>
+      {behind && <Paused />}
       {/* the scroller stays mounted, so following starts with the first
       action */}
       <div
@@ -815,6 +894,7 @@ export default memo(function Timeline({
           className={styles.tlBody}
           hidden={!entries.length}
           data-fit={fit || undefined}
+          data-catchup={catchingUp || undefined}
           style={{ '--tl-width': `${scale.width}px` } as React.CSSProperties}
         >
           <div className={styles.tlAxis}>
@@ -826,7 +906,7 @@ export default memo(function Timeline({
           </div>
           {lanes.map(lane => (
             <div key={lane.key} className={styles.tlLane} data-lane>
-              <LaneDropped lane={lane} />
+              <LaneDropped lane={lane} dropped={history.dropped} />
               {lane.groups.flatMap(g => drawn(g))}
             </div>
           ))}
@@ -839,8 +919,13 @@ export default memo(function Timeline({
 
 /** Leads a lane whose earlier actions the log no longer has, as the list
  * says it of a row */
-function LaneDropped({ lane }: { lane: Lane }) {
-  const { dropped } = useLog();
+function LaneDropped({
+  lane,
+  dropped,
+}: {
+  lane: Lane;
+  dropped: History['dropped'];
+}) {
   // each row's own count, as the list words it
   const counts = lane.groups.flatMap(group => {
     const n = droppedIn(groupEntriesOf(group), dropped);
@@ -873,6 +958,30 @@ export function axisLabels(
       labels.push({ seq, x, at });
   }
   return labels;
+}
+
+/** Says the track holds still while the pointer is on it, as a change
+ * waits; at its newest end, where the change would show */
+function Paused() {
+  return (
+    <span
+      className={styles.tlPaused}
+      role="img"
+      aria-label="Paused: new actions wait until the pointer leaves"
+    >
+      <PauseIcon />
+      Paused
+    </span>
+  );
+}
+
+/** Two bars */
+function PauseIcon() {
+  return (
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M5.5 3.5v9M10.5 3.5v9" />
+    </svg>
+  );
 }
 
 /** A magnifier with a minus */

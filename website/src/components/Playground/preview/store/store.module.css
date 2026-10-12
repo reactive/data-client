@@ -1283,12 +1283,15 @@ div.joined {
 }
 /* the one lane at the scale's width, scrolling sideways past what fits (as
    .tlBody does): every action keeps its own mark. Too short for a scrollbar;
-   a trackpad, ‹ › and the marks move it */
+   a trackpad, ‹ › and the marks move it. Its box places the paused sign */
+.scrubTrackBox {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+}
 .scrubTrack {
   --tl-row: 18px;
   --tl-track: var(--tl-width);
-  flex: 1 1 auto;
-  min-width: 0;
   height: var(--tl-row);
   overflow: auto hidden;
   scrollbar-width: none;
@@ -1463,6 +1466,8 @@ div.joined {
   /* --tl-label, the lane labels' column, comes from Timeline.tsx */
   /* the time axis and each lane */
   --tl-row: 18px;
+  /* places the paused sign */
+  position: relative;
   flex: none;
   display: flex;
   max-height: 12rem;
@@ -1644,6 +1649,47 @@ button.tlMark:hover {
   background: color-mix(in srgb, var(--store-muted) 10%, transparent);
   box-shadow: inset 0 0 0 1px
     color-mix(in srgb, var(--store-muted) 22%, transparent);
+}
+/* The pointer on a track holds what it shows still: the sign that a change
+   waits, over the track's newest end (where it would show), out of the
+   pointer's way */
+.tlPaused {
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 14px;
+  padding: 0 5px 0 3px;
+  border: 1px solid var(--store-line-strong);
+  border-radius: 7px;
+  background: var(--store-bg);
+  color: var(--store-muted);
+  font: 500 10px / 1 var(--ifm-font-family-base);
+  pointer-events: none;
+  animation: open var(--motion-snappy);
+}
+.tlPaused svg {
+  width: 10px;
+  height: 10px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+/* Let go of, a track's marks move to where they are now rather than jump:
+   the render that catches up (`[data-catchup]`) starts a transition, which
+   runs on past the attribute (the properties stay listed), while every
+   other change lands at once */
+[data-catchup] {
+  --tl-move: var(--motion-snappy);
+}
+:is(.tlMark, .tlSpan, .tlSubscription, .tlTime, .tlBreak, .tlPlayhead) {
+  transition:
+    left var(--tl-move, 0s),
+    width var(--tl-move, 0s);
 }
 /* an idle stretch cut short, and the picked action; both below the axis,
    which stays on top as the lanes scroll */
