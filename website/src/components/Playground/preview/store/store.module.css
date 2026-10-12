@@ -1693,7 +1693,9 @@ button.tlMark:hover {
   z-index: 1;
   width: 8px;
   height: 8px;
-  box-shadow: 0 0 0 1px var(--store-line-strong);
+  /* only its top and left edges show, inside the clip */
+  border: solid var(--store-line-strong);
+  border-width: 1px 0 0 1px;
   clip-path: polygon(0 0, 100% 0, 0 100%);
   rotate: 45deg;
 }

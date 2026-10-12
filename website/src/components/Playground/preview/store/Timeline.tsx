@@ -335,7 +335,9 @@ function useTrackPreview(
     const onDown = (e: PointerEvent) => {
       // a lift that made no click leaves nothing for a later press to lose
       swallow = false;
-      if (e.pointerType !== 'touch' || !e.isPrimary) return;
+      // a press says where the pointer is going, as a tooltip shuts on one
+      if (e.pointerType !== 'touch') return hide();
+      if (!e.isPrimary) return;
       letGo();
       const h = {
         id: e.pointerId,

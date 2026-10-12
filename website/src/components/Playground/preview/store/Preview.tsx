@@ -40,7 +40,7 @@ interface Shown {
 
 /** What is previewed. Outside React state, so moving it renders only the
  * preview, not the panel */
-export class PreviewStore {
+export class HoverPreview {
   private shown: Shown | null = null;
   private listeners = new Set<() => void>();
   get = () => this.shown;
@@ -59,7 +59,7 @@ export class PreviewStore {
 /** The preview over `panel` (for `Preview`) and what tracks call to move
  * it: it waits a moment to show, then follows each action hovered at once */
 export function usePreview(panel: React.RefObject<HTMLElement | null>) {
-  const [store] = useState(() => new PreviewStore());
+  const [store] = useState(() => new HoverPreview());
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const pending = useRef<Shown | null>(null);
   const hidAt = useRef(-Infinity);
@@ -85,6 +85,7 @@ export function usePreview(panel: React.RefObject<HTMLElement | null>) {
         top: at.anchor.getBoundingClientRect().bottom - frame.top,
       };
       const show = () => {
+        clearTimeout(timer.current);
         timer.current = undefined;
         store.set(pending.current);
       };
@@ -105,7 +106,7 @@ export function Preview({
   store,
   subject,
 }: {
-  store: PreviewStore;
+  store: HoverPreview;
   subject: View;
 }) {
   const at = useSyncExternalStore(store.subscribe, store.get, store.get);
