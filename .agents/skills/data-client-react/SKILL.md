@@ -69,7 +69,7 @@ const [debouncedQuery, isPending] = useDebounce(query, 200);
 
 return (
   <AsyncBoundary fallback={<Loading />}>
-    <IssueList query={debouncedQuery} owner="facebook" repo="react" />
+    <IssueList query={debouncedQuery} owner="react" repo="react" />
   </AsyncBoundary>
 )
 ```

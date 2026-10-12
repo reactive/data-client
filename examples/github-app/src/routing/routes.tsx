@@ -14,7 +14,7 @@ export const routes = [
   {
     name: 'Home',
     component: lazyPage('IssuesPage'),
-    owner: 'facebook',
+    owner: 'react',
     repo: 'react',
     resolveData: async (
       controller: Controller,

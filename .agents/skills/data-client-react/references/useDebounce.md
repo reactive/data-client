@@ -108,7 +108,7 @@ export default function SearchIssues() {
         <SearchIcon />
       </TextInput>
       <AsyncBoundary fallback={<Loading />} errorComponent={ErrorMessage}>
-        <IssueList query={debouncedQuery} owner="facebook" repo="react" />
+        <IssueList query={debouncedQuery} owner="react" repo="react" />
       </AsyncBoundary>
     </>
   );
