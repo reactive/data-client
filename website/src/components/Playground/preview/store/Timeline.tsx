@@ -283,8 +283,8 @@ function useTrackPreview(
   useLayoutEffect(() => {
     latest.current = { lanes, scale, onPreview };
   });
-  // new marks came under a still pointer, or squeezed in: previews what it
-  // is on now
+  // a new scale (new marks came, or squeezed in) moved the marks under a
+  // still pointer: previews what it is on now
   const refresh = useRef<() => void>(undefined);
   useLayoutEffect(() => {
     refresh.current?.();
@@ -297,16 +297,21 @@ function useTrackPreview(
     const preview = (x: number, y: number, now?: boolean) => {
       pointer = { x, y };
       const { lanes, scale, onPreview } = latest.current;
-      // the lane the pointer is on, or (over the axis) the nearest
-      let on: { shown?: readonly LogEntry[]; box?: DOMRect; off: number } = {
-        off: Infinity,
-      };
-      el.querySelectorAll('[data-lane]').forEach((lane, i) => {
-        const box = lane.getBoundingClientRect();
-        const off = Math.max(box.top - y, y - box.bottom, 0);
-        if (off < on.off) on = { shown: lanes[i], box, off };
-      });
-      const { shown, box } = on;
+      // the lane the pointer is on, or (over the axis) the nearest: only
+      // that one measured, however many lanes there are
+      const all = [...el.querySelectorAll('[data-lane]')];
+      const hit = document.elementFromPoint?.(x, y)?.closest('[data-lane]');
+      let i = hit ? all.indexOf(hit) : -1;
+      if (i < 0) {
+        let gap = Infinity;
+        all.forEach((lane, j) => {
+          const { top, bottom } = lane.getBoundingClientRect();
+          const off = Math.max(top - y, y - bottom, 0);
+          if (off < gap) [i, gap] = [j, off];
+        });
+      }
+      const shown = lanes[i];
+      const box = all[i]?.getBoundingClientRect();
       // no actions under it: nothing to show, till some come
       if (!box || !shown?.length) return onPreview(null);
       const entry = nearest(
@@ -691,7 +696,10 @@ export default memo(function Timeline({
     );
     // in order already, as `shown` is
     const each = lanes.map((): LogEntry[] => []);
-    for (const e of shown) each[laneOf.get(e) ?? -1]?.push(e);
+    for (const e of shown) {
+      const i = laneOf.get(e);
+      if (i !== undefined) each[i].push(e);
+    }
     return each;
   }, [lanes, shown]);
   useTrackPreview(scroller, root, laneEntries, scale, onPreview);

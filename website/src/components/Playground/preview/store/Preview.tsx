@@ -3,7 +3,6 @@ import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
-  useMemo,
   useRef,
   useState,
   useSyncExternalStore,
@@ -66,32 +65,37 @@ export class HoverPreview {
 export function usePreview(panel: React.RefObject<HTMLElement | null>) {
   const [store] = useState(() => new HoverPreview());
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  // what shows, or will once the wait is over
   const pending = useRef<Shown | null>(null);
-  const last = useRef<PreviewAt | null>(null);
   const hidAt = useRef(-Infinity);
   const onPreview = useCallback<OnPreview>(
     (at, now) => {
       if (!at) {
         clearTimeout(timer.current);
         timer.current = undefined;
-        last.current = null;
+        pending.current = null;
         if (store.get()) hidAt.current = performance.now();
         store.set(null);
         return;
       }
-      // the same action in the same place: nothing to move
-      const was = last.current;
-      if (was?.entry === at.entry && was.anchor === at.anchor && was.x === at.x)
-        return;
       const frame = panel.current?.getBoundingClientRect();
       if (!frame) return;
-      last.current = at;
-      pending.current = {
+      const next = {
         entry: at.entry,
         anchor: at.anchor,
         x: at.x - frame.left,
         top: at.anchor.getBoundingClientRect().bottom - frame.top,
       };
+      // the same action in the same place: nothing to move
+      const was = pending.current;
+      if (
+        was?.entry === next.entry &&
+        was.anchor === next.anchor &&
+        was.x === next.x &&
+        was.top === next.top
+      )
+        return;
+      pending.current = next;
       const show = () => {
         clearTimeout(timer.current);
         timer.current = undefined;
@@ -106,6 +110,13 @@ export function usePreview(panel: React.RefObject<HTMLElement | null>) {
   );
   useEffect(() => () => clearTimeout(timer.current), []);
   return [store, onPreview] as const;
+}
+
+/** Shows `changes` only if the whole of it fits in `card` */
+function fitChanges(card: HTMLElement | null, changes: HTMLElement | null) {
+  if (!card || !changes) return;
+  changes.hidden = false;
+  changes.hidden = card.scrollHeight > card.clientHeight;
 }
 
 /** The action previewed: what it is (its name and what it carries), then,
@@ -123,26 +134,22 @@ export function Preview({
   const card = useRef<HTMLDivElement>(null);
   const changes = useRef<HTMLDivElement>(null);
   // what it did shows whole or not at all, never cut off: measured each
-  // render, as the action, the subject and the panel's width all change it
-  useLayoutEffect(() => {
-    const el = changes.current;
-    if (!el || !card.current) return;
-    el.hidden = false;
-    el.hidden = card.current.scrollHeight > card.current.clientHeight;
-  });
-  // what the action carries, as the card shows it: the same for an action
-  // however often the panel renders
-  const entry = at?.entry;
-  const what = useMemo(
-    () =>
-      entry ?
-        whatFields(entry.action).map(([name, value]) => (
-          <Field key={name} name={name} node={plain(value)} inline />
-        ))
-      : [],
-    [entry],
-  );
-  if (!at || !entry) return null;
+  // render, as the action, the subject and the panel's width all change it,
+  // and as the room under the track changes
+  useLayoutEffect(() => fitChanges(card.current, changes.current));
+  const showing = !!at;
+  useEffect(() => {
+    const room = card.current?.parentElement;
+    if (!room || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(() =>
+      fitChanges(card.current, changes.current),
+    );
+    observer.observe(room);
+    return () => observer.disconnect();
+  }, [showing]);
+  if (!at) return null;
+  const { entry } = at;
+  const what = whatFields(entry.action);
   return (
     <div
       className={styles.preview}
@@ -162,7 +169,11 @@ export function Preview({
           <Time at={entry.at} />
         </div>
         {what.length > 0 && (
-          <div className={clsx(styles.fields, styles.pvWhat)}>{what}</div>
+          <div className={clsx(styles.fields, styles.pvWhat)}>
+            {what.map(([name, value]) => (
+              <Field key={name} name={name} node={plain(value)} inline />
+            ))}
+          </div>
         )}
         <div ref={changes} className={styles.pvChanges}>
           <SubjectChanges entries={[entry]} subject={subject} />
