@@ -5,7 +5,8 @@ import siteConfig from '@generated/docusaurus.config';
 /** Requests `url` so the service worker (static/sw.js) keeps a copy of it */
 const save = (url: string) =>
   fetch(url, { priority: 'low' }).catch(() => undefined);
-/** Resource timing initiators of scripts, stylesheets, fonts and images */
+/** Resource timing initiators of scripts, stylesheets and images (fonts load
+ * from css) */
 const PAGE_FILES = new Set(['script', 'link', 'css', 'img']);
 /** Pages this tab already requested for the worker (same build all session) */
 const saved = new Set<string>();
@@ -15,6 +16,8 @@ if (
   process.env.NODE_ENV === 'production' &&
   'serviceWorker' in navigator
 ) {
+  // this page is kept by its navigation, or by the first visit's backfill
+  saved.add(location.pathname);
   // A first visit loads before the worker runs, so once it takes over, this
   // page and its files are requested again for it to keep
   if (!navigator.serviceWorker.controller)

@@ -81,7 +81,8 @@ const save = (name, request, response) =>
     // out of storage: the response still reached the page
     .catch(() => {});
 
-// one at a time: a page load after a deploy misses on many files at once
+// a page load after a deploy misses on many files at once: those that land
+// during a trim wait for the next miss to be counted
 let trimming;
 const trim = () =>
   (trimming ??= trimAssets().finally(() => (trimming = undefined)));
