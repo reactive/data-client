@@ -71,7 +71,7 @@ export const issueQuery = new RestEndpoint({
     repo: string;
   }>();
   const response = await useSuspense(issueQuery, computed(() => ({
-    q: `${props.query} repo:${props.owner}/${props.repo}`,
+    q: `${props.query} repo:${props.owner}/${props.repo} is:issue`,
   })));
 </script>
 
@@ -85,12 +85,18 @@ export const issueQuery = new RestEndpoint({
 
 ```html title="SearchIssues.vue"
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { onErrorCaptured, ref } from 'vue';
   import { useDebounce } from '@data-client/vue';
   import IssueList from './IssueList.vue';
 
   const query = ref('');
   const [debouncedQuery, isPending] = useDebounce(query, 200);
+
+  const error = ref<Error | null>(null);
+  onErrorCaptured(e => {
+    error.value = e;
+    return false;
+  });
 </script>
 
 <template>
@@ -104,7 +110,12 @@ export const issueQuery = new RestEndpoint({
   >
     <SearchIcon />
   </TextInput>
-  <Suspense>
+  <ErrorMessage
+    v-if="error"
+    :error="error"
+    :resetErrorBoundary="() => (error = null)"
+  />
+  <Suspense v-else>
     <IssueList :query="debouncedQuery" owner="facebook" repo="react" />
     <template #fallback><Loading /></template>
   </Suspense>
