@@ -1,6 +1,8 @@
 {
-    "name": "",
-    "short_name": "",
+    "name": "Data Client",
+    "short_name": "Data Client",
+    "start_url": "/",
+    "scope": "/",
     "icons": [
         {
             "src": "/img/favicon/android-chrome-192x192.png",

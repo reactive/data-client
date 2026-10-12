@@ -278,6 +278,7 @@ const config: Config = {
   clientModules: [
     require.resolve('./src/gtagfix.ts'),
     require.resolve('./src/staleDeploy.ts'),
+    require.resolve('./src/offline.ts'),
     require.resolve('./scripts/snapshot/versionMenu.client.ts'),
     // /next/ builds its blog so its links are checked, but sends in-app blog
     // links to the root's, as vercel.json does page loads: blog URLs never change
