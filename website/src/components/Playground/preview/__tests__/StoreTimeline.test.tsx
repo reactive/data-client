@@ -560,6 +560,11 @@ describe('Store timeline preview', () => {
     // sliding on to the next shows it with no wait
     pointer(track, 'pointermove', at(marks[1]) - 2);
     expect(preview()!.textContent).toContain('"Two"');
+    // the track scrolling moves the marks out from under it
+    fireEvent.scroll(track);
+    expect(preview()).toBeNull();
+    pointer(track, 'pointermove', at(marks[1]));
+    expect(preview()!.textContent).toContain('"Two"');
     pointer(track, 'pointerleave', 0);
     expect(preview()).toBeNull();
     // back right away: no wait

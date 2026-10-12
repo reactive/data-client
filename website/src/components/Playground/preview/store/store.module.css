@@ -60,6 +60,15 @@
   --store-line-strong: rgba(0, 0, 0, 0.15);
   --store-hover: rgba(0, 0, 0, 0.05);
   --store-selected: rgba(47, 95, 196, 0.14);
+  /* the derived ones too, which .store resolved from its own */
+  --store-kind-added: var(--store-fresh);
+  --store-kind-updated: var(--store-stale);
+  --store-kind-removed: var(--store-null);
+  --store-kind-invalidated: var(--store-number);
+  --store-kind-error: var(--store-null);
+  --store-kind-refreshed: var(--store-dim);
+  --store-kind-expired: var(--store-stale);
+  --store-stale-bg: color-mix(in srgb, var(--store-stale) 9%, transparent);
   background: var(--store-bg);
   color: var(--store-muted);
 }

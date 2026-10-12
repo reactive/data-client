@@ -333,9 +333,10 @@ function useTrackPreview(
       hold = undefined;
     };
     const onDown = (e: PointerEvent) => {
+      // a lift that made no click leaves nothing for a later press to lose
+      swallow = false;
       if (e.pointerType !== 'touch' || !e.isPrimary) return;
       letGo();
-      swallow = false;
       const h = {
         id: e.pointerId,
         x: e.clientX,
@@ -379,6 +380,8 @@ function useTrackPreview(
       ['pointerup', onUp],
       ['pointercancel', onUp],
       ['click', onClick],
+      // the marks moved under the pointer: what it was on no longer is
+      ['scroll', hide],
     ] as const;
     // capturing: ahead of the track's follow, which a held finger mustn't
     // move (see `useFollow`), and of the mark's own click
