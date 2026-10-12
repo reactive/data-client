@@ -178,9 +178,14 @@ const STYLE = `
 let menu: HTMLElement | undefined;
 let brand: HTMLElement | undefined;
 let timer: ReturnType<typeof setTimeout> | undefined;
-// bumped by each open and close, so an open still loading the list after a
-// close (the pointer left first) doesn't show the menu
-let opening = 0;
+// bumped by each open and close, so an open still loading the list doesn't
+// show the menu once anything closed it (the pointer left, a scroll, Escape)
+let generation = 0;
+// click isn't a PointerEvent in every browser
+let lastPointer = '';
+
+const isMenuPart = (node: Node | null) =>
+  !!node && (!!menu?.contains(node) || !!brand?.contains(node));
 
 function ensureMenu() {
   if (menu) return menu;
@@ -200,8 +205,7 @@ function ensureMenu() {
   menu.addEventListener('focusout', closeOnFocusOut);
   document.body.append(menu);
   document.addEventListener('pointerdown', e => {
-    const target = e.target as Node;
-    if (!menu?.contains(target) && !brand?.contains(target)) close();
+    if (!isMenuPart(e.target as Node)) close();
   });
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && menu?.hasAttribute('data-open')) {
@@ -217,10 +221,10 @@ function ensureMenu() {
 
 async function open(focusFirst = false) {
   clearTimeout(timer);
-  const id = ++opening;
+  const id = ++generation;
   const el = ensureMenu();
   const list = await loadVersions();
-  if (id !== opening || !brand) return;
+  if (id !== generation || !brand) return;
   el.replaceChildren(
     Object.assign(document.createElement('div'), {
       className: 'version-menu__heading',
@@ -261,14 +265,15 @@ async function open(focusFirst = false) {
 
 function close() {
   clearTimeout(timer);
-  opening++;
-  menu?.removeAttribute('data-open');
+  generation++;
+  if (!menu?.hasAttribute('data-open')) return;
+  menu.removeAttribute('data-open');
   brand?.setAttribute('aria-expanded', 'false');
 }
 
 function closeOnFocusOut(e: FocusEvent) {
   const next = e.relatedTarget as Node | null;
-  if (next && !menu?.contains(next) && !brand?.contains(next)) close();
+  if (next && !isMenuPart(next)) close();
 }
 
 function closeSoon() {
@@ -293,6 +298,9 @@ function bind(el: HTMLElement) {
   el.setAttribute('aria-expanded', 'false');
   // load the list before the menu opens, once the page is idle
   setTimeout(loadVersions, 1000);
+  el.addEventListener('pointerdown', e => {
+    lastPointer = e.pointerType;
+  });
   el.addEventListener('pointerenter', e => {
     if (e.pointerType !== 'mouse') return;
     clearTimeout(timer);
@@ -308,8 +316,7 @@ function bind(el: HTMLElement) {
     if (!logo || e.clientY < logo.getBoundingClientRect().bottom - 4) return;
     e.preventDefault();
     // a mouse's hover already opened it, so its click shouldn't close it
-    const mouse = (e as PointerEvent).pointerType === 'mouse';
-    if (menu?.hasAttribute('data-open') && !mouse) close();
+    if (menu?.hasAttribute('data-open') && lastPointer !== 'mouse') close();
     else open();
   });
   el.addEventListener('focusout', closeOnFocusOut);
