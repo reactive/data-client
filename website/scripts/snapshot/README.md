@@ -59,5 +59,8 @@ starts this by cutting a `<version>.x` maintenance branch and adding `website/ve
   changes, and `docs deploy` puts it beside `/next/` and the archives. `vercel.json` sends `/next/*`
   to the root whenever there is no next build (`docs deploy` drops that redirect while there is one,
   and fails if it's gone), and `/next/blog` to the root's blog.
+- `website-port.yml` opens a PR to the branch for each master push whose commits change only site
+  code (`website/src`, `website/static`), so a UI fix reaches the root
+  ([scripts/maintenance/README.md](../../../scripts/maintenance/README.md#website-fixes)).
 - The release of the next major archives the current version from its branch, and the listing PR
   deletes `versionCurrent.json`, so master serves the root again.

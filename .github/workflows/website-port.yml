@@ -1,0 +1,83 @@
+# While website/versionCurrent.json exists, master's site serves at /next/ and
+# the branch it names (the current version's) serves the root
+# (scripts/maintenance/README.md). A website fix merged here would never reach
+# the root, so each push opens a PR to that branch cherry-picking the pushed
+# commits that change only site code. The branch's maintenance.yml ports the
+# other way, skipping these by their `Maintenance-only:` line.
+name: website port
+on:
+  push:
+    branches:
+      - master
+    # Site code only; keep in sync with the port step's `site` pattern
+    paths:
+      - 'website/src/**'
+      - 'website/static/**'
+      - '.github/workflows/website-port.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  port:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          # the picks need only the commits' trees
+          filter: blob:none
+      - name: Open a PR porting the push's website fixes to the current version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          [ -f website/versionCurrent.json ] || { echo "master serves the root: nothing to port"; exit 0; }
+          target="$(jq -r .ref website/versionCurrent.json)"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          branch="port/master-${GITHUB_SHA::8}"
+          git switch -c "$branch" "origin/$target"
+          # A commit ports when every file it changes is site code: not docs,
+          # the blog, translations, configs or packages, which are versioned,
+          # nor the editor types (generated from this version's packages) or
+          # the demos' code (written against its API)
+          site='^website/(src|static)/'
+          versioned='^website/src/components/(Playground/editor-types|Demo/code)/'
+          picked=()
+          list=''
+          for commit in $(git rev-list --reverse --no-merges "$BEFORE..$GITHUB_SHA"); do
+            files="$(git diff-tree --no-commit-id --name-only -r --no-renames "$commit")"
+            if [ -z "$files" ] || grep -qvE "$site" <<<"$files" || grep -qE "$versioned" <<<"$files"; then
+              echo "Skipping $commit: not only site code"
+              continue
+            fi
+            if ! git cherry-pick -x "$commit"; then
+              git cherry-pick --abort
+              echo "::warning title=Not ported::$commit doesn't apply to $target; port it by hand"
+              continue
+            fi
+            # maintenance.yml skips it when porting the branch back to master
+            git commit --amend --no-edit --trailer "Maintenance-only: ported from master ($commit)"
+            picked+=("$commit")
+            list+="$(git log -1 --format='- %s (%h)' "$commit")"$'\n'
+          done
+          [ "${#picked[@]}" -gt 0 ] || { echo "Nothing to port"; exit 0; }
+          # a re-run picks the same commits again, as new ones
+          git push --force origin "$branch"
+          # Named after the last commit it ports
+          title="$(git log -1 --format=%s)"
+          body="Ports website fixes from master to \`$target\` (the current version, which serves the root docs):
+
+          $list
+          Made by website-port.yml with the workflow token, so its CI runs only after a push (or close and reopen). Auto-merge is on: it merges once the branch's required checks pass, or at once if it requires none. Keep the last line in the squash message, so maintenance.yml doesn't port it back.
+
+          Maintenance-only: ported from master (${picked[*]})"
+          [ -n "$(gh pr list --head "$branch" --json number --jq '.[]')" ] \
+            || gh pr create --base "$target" --head "$branch" --title "$title" --body "$body"
+          gh pr merge --auto --squash --subject "$title" --body "$body" "$branch" \
+            || echo "::notice title=Not auto-merged::Merge the PR from $branch by hand"
