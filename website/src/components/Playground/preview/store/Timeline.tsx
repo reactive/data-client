@@ -278,19 +278,17 @@ function useTrackPreview(
   lanes: readonly (readonly LogEntry[])[],
   scale: TimeScale,
   onPreview: OnPreview,
-  /** The strip's width in px: the marks move with it as they fit it */
-  stripWidth?: number,
 ) {
   const latest = useRef({ lanes, scale, onPreview });
   useLayoutEffect(() => {
     latest.current = { lanes, scale, onPreview };
   });
-  // the marks moved under a still pointer (squeezed in, new ones came, or
-  // the track resized): previews what it is on now
+  // new marks came under a still pointer, or squeezed in: previews what it
+  // is on now
   const refresh = useRef<() => void>(undefined);
   useLayoutEffect(() => {
     refresh.current?.();
-  }, [scale, stripWidth]);
+  }, [scale]);
   useEffect(() => {
     const el = track.current;
     if (!el) return;
@@ -300,15 +298,15 @@ function useTrackPreview(
       pointer = { x, y };
       const { lanes, scale, onPreview } = latest.current;
       // the lane the pointer is on, or (over the axis) the nearest
-      let i = -1;
-      let box: DOMRect | undefined;
-      let gap = Infinity;
-      el.querySelectorAll('[data-lane]').forEach((lane, j) => {
-        const rect = lane.getBoundingClientRect();
-        const off = Math.max(rect.top - y, y - rect.bottom, 0);
-        if (off < gap) [i, box, gap] = [j, rect, off];
+      let on: { shown?: readonly LogEntry[]; box?: DOMRect; off: number } = {
+        off: Infinity,
+      };
+      el.querySelectorAll('[data-lane]').forEach((lane, i) => {
+        const box = lane.getBoundingClientRect();
+        const off = Math.max(box.top - y, y - box.bottom, 0);
+        if (off < on.off) on = { shown: lanes[i], box, off };
       });
-      const shown = lanes[i];
+      const { shown, box } = on;
       // no actions under it: nothing to show, till some come
       if (!box || !shown?.length) return onPreview(null);
       const entry = nearest(
@@ -426,9 +424,16 @@ function useTrackPreview(
     const options = { capture: true };
     for (const [type, fn] of listeners)
       el.addEventListener(type, fn as EventListener, options);
+    // and as the track resizes, which moves the marks of a fitted one
+    const resized =
+      typeof ResizeObserver === 'undefined' ? undefined : (
+        new ResizeObserver(onMoved)
+      );
+    resized?.observe(el);
     return () => {
       for (const [type, fn] of listeners)
         el.removeEventListener(type, fn as EventListener, options);
+      resized?.disconnect();
       letGo();
       // only its own: another track's may be showing
       if (pointer) hide();
@@ -514,8 +519,7 @@ export const Scrubber = memo(function Scrubber({
   // pressed hands focus to one still there
   const bar = useRef<HTMLDivElement>(null);
   const hold = useHoldFocus(bar);
-  const lanes = useMemo(() => [shown], [shown]);
-  useTrackPreview(track, bar, lanes, scale, onPreview);
+  useTrackPreview(track, bar, [shown], scale, onPreview);
   const step = (to: number | null) => {
     hold();
     onSelect(to);
@@ -679,15 +683,18 @@ export default memo(function Timeline({
   const scroller = useRef<HTMLDivElement>(null);
   // each lane's own marks, so the preview is of the lane under the pointer
   const laneEntries = useMemo(() => {
-    const on = new Set(shown);
-    return lanes.map(lane =>
-      lane.groups
-        .flatMap(groupEntriesOf)
-        .filter(e => on.has(e))
-        .sort((a, b) => a.seq - b.seq),
+    const laneOf = new Map<LogEntry, number>();
+    lanes.forEach((lane, i) =>
+      lane.groups.forEach(g =>
+        groupEntriesOf(g).forEach(e => laneOf.set(e, i)),
+      ),
     );
+    // in order already, as `shown` is
+    const each = lanes.map((): LogEntry[] => []);
+    for (const e of shown) each[laneOf.get(e) ?? -1]?.push(e);
+    return each;
   }, [lanes, shown]);
-  useTrackPreview(scroller, root, laneEntries, scale, onPreview, track);
+  useTrackPreview(scroller, root, laneEntries, scale, onPreview);
   // a scrolled-back view stays put as the fit toggles, while a followed one
   // stays on the newest; the picked action comes into view again
   const end = useTrackFollow(scroller, scale, fit);

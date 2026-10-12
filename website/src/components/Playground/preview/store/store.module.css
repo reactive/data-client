@@ -1719,7 +1719,7 @@ button.tlMark:hover {
   grid-template-columns: max-content minmax(0, 1fr);
   padding: 0.25rem 0.6rem 0.4rem;
 }
-.pvValue {
+.oneLine {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

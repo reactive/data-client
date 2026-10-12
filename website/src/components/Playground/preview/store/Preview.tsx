@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
   useSyncExternalStore,
@@ -14,7 +15,7 @@ import { ActionName, Time } from './actionParts';
 import type { View } from './nav';
 import { plain } from './refs';
 import styles from './store.module.css';
-import { Inline } from './Value';
+import { Field } from './Value';
 
 /** How long the mouse is on a track before its preview shows (ms); once
  * shown, it follows the mouse at once */
@@ -129,9 +130,19 @@ export function Preview({
     el.hidden = false;
     el.hidden = card.current.scrollHeight > card.current.clientHeight;
   });
-  if (!at) return null;
-  const { entry } = at;
-  const what = whatFields(entry.action);
+  // what the action carries, as the card shows it: the same for an action
+  // however often the panel renders
+  const entry = at?.entry;
+  const what = useMemo(
+    () =>
+      entry ?
+        whatFields(entry.action).map(([name, value]) => (
+          <Field key={name} name={name} node={plain(value)} inline />
+        ))
+      : [],
+    [entry],
+  );
+  if (!at || !entry) return null;
   return (
     <div
       className={styles.preview}
@@ -151,19 +162,7 @@ export function Preview({
           <Time at={entry.at} />
         </div>
         {what.length > 0 && (
-          <div className={clsx(styles.fields, styles.pvWhat)}>
-            {what.map(([name, value]) => (
-              <div key={name} className={styles.field}>
-                <span className={styles.key}>
-                  {name}
-                  <span className={styles.dim}>:</span>
-                </span>
-                <span className={styles.pvValue}>
-                  <Inline node={plain(value)} name={name} />
-                </span>
-              </div>
-            ))}
-          </div>
+          <div className={clsx(styles.fields, styles.pvWhat)}>{what}</div>
         )}
         <div ref={changes} className={styles.pvChanges}>
           <SubjectChanges entries={[entry]} subject={subject} />

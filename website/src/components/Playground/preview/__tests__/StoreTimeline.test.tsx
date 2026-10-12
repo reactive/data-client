@@ -520,23 +520,27 @@ describe('Store scrubber', () => {
   });
 });
 
+/** A pointer event at `clientX` (and `clientY`) */
+const pointer = (
+  el: Element,
+  type: string,
+  clientX: number,
+  pointerType = 'mouse',
+  clientY = 0,
+) => {
+  const event = new MouseEvent(type, {
+    bubbles: true,
+    cancelable: true,
+    clientX,
+    clientY,
+  });
+  Object.assign(event, { pointerType, pointerId: 1, isPrimary: true });
+  fireEvent(el, event);
+};
+/** The action previewed over the store */
+const preview = () => screen.queryByRole('tooltip', { hidden: true });
+
 describe('Store timeline preview', () => {
-  /** A pointer event at `clientX` */
-  const pointer = (
-    el: Element,
-    type: string,
-    clientX: number,
-    pointerType = 'mouse',
-  ) => {
-    const event = new MouseEvent(type, {
-      bubbles: true,
-      cancelable: true,
-      clientX,
-    });
-    Object.assign(event, { pointerType, pointerId: 1, isPrimary: true });
-    fireEvent(el, event);
-  };
-  const preview = () => screen.queryByRole('tooltip', { hidden: true });
   /** Two responses on the scrubber, the store laid out so a client x is a
    * px on its scale */
   async function twoResponses() {
@@ -727,25 +731,16 @@ describe('Store Timeline lanes', () => {
       name: /^setResponse at/,
     });
     const x = Number(marks[1].style.getPropertyValue('--tl-f')) * width;
-    const move = (y: number) => {
-      const event = new MouseEvent('pointermove', {
-        bubbles: true,
-        clientX: x,
-        clientY: y,
-      });
-      Object.assign(event, { pointerType: 'mouse', pointerId: 1 });
-      fireEvent(users, event);
-    };
-    const card = () => screen.queryByRole('tooltip', { hidden: true });
+    const move = (y: number) => pointer(users, 'pointermove', x, 'mouse', y);
     // on the users lane, over where the newer posts response is: the users
     // request's own action, the nearest on its lane
     move(30);
     act(() => jest.advanceTimersByTime(150));
-    expect(card()!.textContent).toContain('users');
-    expect(card()!.textContent).not.toContain('posts');
+    expect(preview()!.textContent).toContain('users');
+    expect(preview()!.textContent).not.toContain('posts');
     // up on the posts lane, that response
     move(10);
-    expect(card()!.textContent).toContain('posts');
+    expect(preview()!.textContent).toContain('posts');
   });
 
   it('expand under the scrubber, collapsing back', async () => {
