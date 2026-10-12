@@ -303,15 +303,15 @@ function actionFields(action: ActionTypes): [string, unknown][] {
   return fields;
 }
 
+/** Fields the action's name already says (its type, and its key or the
+ * schema standing for one) and its bookkeeping (meta) */
+const NAMED = new Set(['type', 'schema', 'key', 'meta']);
 /** What an action carries, at a glance: its args first, then the rest of
- * its own fields but those its name already says (type, key), its
- * bookkeeping (meta) and an `error` it didn't have */
+ * its own fields but the `NAMED` ones and an `error` it didn't have */
 export const whatFields = (action: ActionTypes) =>
   actionFields(action)
     .filter(([name, value]) => !NAMED.has(name) && (name !== 'error' || value))
     .sort(([a], [b]) => Number(b === 'args') - Number(a === 'args'));
-const NAMED = new Set(['type', 'schema', 'key', 'meta']);
-
 /** A fetch's meta carries its promise and callbacks along with the times */
 function withoutFunctions(value: unknown) {
   if (!value || typeof value !== 'object') return value;

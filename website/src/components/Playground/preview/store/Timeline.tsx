@@ -278,8 +278,8 @@ function useTrackPreview(
   lanes: readonly (readonly LogEntry[])[],
   scale: TimeScale,
   onPreview: OnPreview,
-  /** The track's width, where the marks squeeze to fit it */
-  fitted?: number,
+  /** The strip's width in px: the marks move with it as they fit it */
+  stripWidth?: number,
 ) {
   const latest = useRef({ lanes, scale, onPreview });
   useLayoutEffect(() => {
@@ -290,7 +290,7 @@ function useTrackPreview(
   const refresh = useRef<() => void>(undefined);
   useLayoutEffect(() => {
     refresh.current?.();
-  }, [scale, fitted]);
+  }, [scale, stripWidth]);
   useEffect(() => {
     const el = track.current;
     if (!el) return;

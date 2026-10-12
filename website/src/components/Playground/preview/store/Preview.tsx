@@ -127,7 +127,7 @@ export function Preview({
     if (!el || !card.current) return;
     el.hidden = false;
     el.hidden = card.current.scrollHeight > card.current.clientHeight;
-  });
+  }, [at]);
   if (!at) return null;
   const { entry } = at;
   const what = whatFields(entry.action);

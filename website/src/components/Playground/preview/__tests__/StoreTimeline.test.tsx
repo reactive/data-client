@@ -10,6 +10,7 @@ import {
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import React from 'react';
 
+import { whatFields } from '../store/ActionDetail';
 import { groupEntries } from '../store/actionGroups';
 import type { LogEntry } from '../store/actionLog';
 import SchemaRegistry from '../store/schemaRegistry';
@@ -177,6 +178,26 @@ describe('nearest', () => {
     expect(nearest(entries, scale, (a + b) / 2 + 1).seq).toBe(2);
     expect(nearest(entries, scale, c - 1).seq).toBe(3);
     expect(nearest(entries, scale, scale.width).seq).toBe(3);
+  });
+});
+
+describe('whatFields', () => {
+  it('leads with args, leaving out what the name says and an error it had not', () => {
+    const fields = (action: any) => whatFields(action).map(([name]) => name);
+    const response = {
+      type: actionTypes.SET_RESPONSE,
+      key: POSTS,
+      response: [],
+      meta: { date: 0 },
+      args: [],
+      error: false,
+    };
+    expect(fields(response)).toEqual(['args', 'response']);
+    expect(fields({ ...response, error: true })).toEqual([
+      'args',
+      'response',
+      'error',
+    ]);
   });
 });
 
