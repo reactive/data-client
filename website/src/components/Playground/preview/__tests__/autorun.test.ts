@@ -1,6 +1,6 @@
 /// <reference types="jest" />
 
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 
 import {
   createPlayer,
@@ -182,7 +182,10 @@ describe('useAutoRun', () => {
     playground.append(preview);
     document.body.append(playground);
     const showStore = jest.fn();
-    const hook = renderHook(() => useAutoRun(script, () => {}, showStore));
+    const hook = renderHook(
+      ({ script }) => useAutoRun(script, () => {}, showStore),
+      { initialProps: { script } },
+    );
     const unwatch = hook.result.current.watch(preview) as () => void;
     const see = (ratio: number, height = ratio * 100) =>
       observed(
@@ -248,6 +251,26 @@ describe('useAutoRun', () => {
     const second = mount(script);
     second.see(1);
     expect(second.result.current.player.getState()).toBe('idle');
+  });
+
+  it("doesn't start by itself once the reader replayed it", () => {
+    const script: AutoRunScript = [{ store: 'open' }];
+    const first = mount(script);
+    act(() => first.result.current.replay());
+    first.unwatch();
+    first.unmount();
+    const second = mount(script);
+    second.see(1);
+    expect(second.result.current.player.getState()).toBe('idle');
+  });
+
+  it("a script that changes identity doesn't start over a run", () => {
+    const { result, see, rerender } = mount([{ store: 'open' }]);
+    const play = jest.spyOn(result.current.player, 'play');
+    see(1);
+    rerender({ script: [{ store: 'open' }] });
+    see(0.9);
+    expect(play).toHaveBeenCalledTimes(1);
   });
 
   it('an unmount ends a run', () => {

@@ -24,6 +24,7 @@ PlaygroundLiveEditor.tsx  editable react-live editor (mobile/bot fallback)
 resources/          sample resources (currently unreferenced; kept for future demos)
 Boundary.tsx        BrowserOnly + Suspense with one fallback for SSR and loading
 Header.tsx, TabList.tsx, styles.module.css   shared chrome (also used by HTTP/, Demo/)
+liveLabel.ts        "Live Preview" label text (PreviewWrapper, autorun/DemoLabel)
 editor/             code model + editor UI
   codeModel.ts        parse MDX fences/strings into documents; edits
   EditorShell.tsx     react-live LiveProvider supplying the Prism theme
@@ -311,8 +312,8 @@ DesignSystem/       components injected into preview scope
   - The reader takes over with any input of their own (`isTrusted`) in the
     playground: a press, a tap, a key. That ends the run for good, leaving
     everything as it was, since the rest of the script assumes a state the
-    reader just changed; the label starts it over. Input before the demo starts
-    keeps it from starting by itself. Each script starts by itself once per
+    reader just changed; the label starts it over. Input or a replay before
+    the demo starts keeps it from starting by itself. Each script starts by itself once per
     page load (`played` in `useAutoRun.ts`; client-side navigation keeps it):
     a hidden preview unmounts, and a Demo's protocol tabs share one script, so
     switching tabs doesn't replay. Scrolling, hovering, a touch that starts a

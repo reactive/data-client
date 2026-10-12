@@ -68,6 +68,8 @@ export function useAutoRun(
           visible = entry.isIntersecting;
           syncPaused();
           const { script } = latest.current;
+          // at most once per preview, so a script that changed identity
+          // can't start over a run
           if (
             script &&
             player.getState() === 'idle' &&
@@ -97,6 +99,8 @@ export function useAutoRun(
 
   const replay = useCallback(() => {
     const { script, showStore } = latest.current;
+    // the reader chose when to watch it, so it won't start by itself after
+    if (script) played.add(script);
     player.stop();
     reset();
     // the demo shows the Store opening, if it does
