@@ -610,6 +610,14 @@ describe('Store timeline preview', () => {
 
   it('shows as a finger holds still on the track, follows it sliding, and lifting picks nothing', async () => {
     const { marks, at } = await twoResponses();
+    // a finger landing shuts what the mouse left showing
+    pointer(marks[0], 'pointermove', at(marks[0]));
+    act(() => jest.advanceTimersByTime(150));
+    expect(preview()).toBeTruthy();
+    pointer(marks[0], 'pointerdown', at(marks[0]), 'touch');
+    expect(preview()).toBeNull();
+    pointer(marks[0], 'pointercancel', at(marks[0]), 'touch');
+    act(() => jest.advanceTimersByTime(1000));
     // a tap still picks
     pointer(marks[0], 'pointerdown', at(marks[0]), 'touch');
     pointer(marks[0], 'pointerup', at(marks[0]), 'touch');

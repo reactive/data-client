@@ -266,20 +266,22 @@ export function nearest(
   return entries[lo > 0 && x - at(lo - 1) <= at(lo) - x ? lo - 1 : lo];
 }
 
-/** Previews the action nearest the pointer on `track`, under `anchor`: as
+/** Previews the action nearest the pointer on `track`'s lane under it,
+ * under `anchor`: as
  * the mouse moves over it, or, once a finger has held still on it, as the
  * finger slides (the track doesn't scroll meanwhile, and lifting it picks
  * nothing) */
 function useTrackPreview(
   track: React.RefObject<HTMLElement | null>,
   anchor: React.RefObject<HTMLElement | null>,
-  shown: readonly LogEntry[],
+  /** Each `[data-lane]`'s entries, in order */
+  lanes: readonly (readonly LogEntry[])[],
   scale: TimeScale,
   onPreview: OnPreview,
 ) {
-  const latest = useRef({ shown, scale, onPreview });
+  const latest = useRef({ lanes, scale, onPreview });
   useLayoutEffect(() => {
-    latest.current = { shown, scale, onPreview };
+    latest.current = { lanes, scale, onPreview };
   });
   // the marks moved under a still pointer (squeezed in, or new ones came):
   // previews what it is on now
@@ -291,17 +293,25 @@ function useTrackPreview(
     const el = track.current;
     if (!el) return;
     // where the previewing pointer is
-    let pointerX: number | undefined;
-    const preview = (clientX: number, now?: boolean) => {
-      pointerX = clientX;
-      const { shown, scale, onPreview } = latest.current;
-      const lane = el.querySelector('[data-lane]');
-      if (!lane || !shown.length) return;
-      const box = lane.getBoundingClientRect();
+    let pointer: { x: number; y: number } | undefined;
+    const preview = (x: number, y: number, now?: boolean) => {
+      pointer = { x, y };
+      const { lanes, scale, onPreview } = latest.current;
+      // the lane the pointer is on, or (over the axis) the nearest
+      let i = -1;
+      let box: DOMRect | undefined;
+      let gap = Infinity;
+      el.querySelectorAll('[data-lane]').forEach((lane, j) => {
+        const rect = lane.getBoundingClientRect();
+        const off = Math.max(rect.top - y, y - rect.bottom, 0);
+        if (off < gap) [i, box, gap] = [j, rect, off];
+      });
+      const shown = lanes[i];
+      if (!box || !shown?.length) return;
       const entry = nearest(
         shown,
         scale,
-        ((clientX - box.left) / box.width) * scale.width,
+        ((x - box.left) / box.width) * scale.width,
       );
       onPreview(
         {
@@ -313,11 +323,11 @@ function useTrackPreview(
       );
     };
     const hide = () => {
-      pointerX = undefined;
+      pointer = undefined;
       latest.current.onPreview(null);
     };
     const onMoved = () => {
-      if (pointerX !== undefined) preview(pointerX);
+      if (pointer) preview(pointer.x, pointer.y);
     };
     refresh.current = onMoved;
     // held, the finger slides the preview: the track doesn't scroll, nor
@@ -360,6 +370,8 @@ function useTrackPreview(
       }
       if (!e.isPrimary) return;
       letGo();
+      // a finger shuts what the mouse left open, till it holds
+      hide();
       const h = {
         id: e.pointerId,
         x: e.clientX,
@@ -372,15 +384,15 @@ function useTrackPreview(
               capture: true,
               passive: false,
             });
-          preview(h.x, true);
+          preview(h.x, h.y, true);
         }, HOLD_MS),
       };
       hold = h;
     };
     const onMove = (e: PointerEvent) => {
-      if (e.pointerType !== 'touch') return preview(e.clientX);
+      if (e.pointerType !== 'touch') return preview(e.clientX, e.clientY);
       if (e.pointerId !== hold?.id) return;
-      if (hold.on) preview(e.clientX, true);
+      if (hold.on) preview(e.clientX, e.clientY, true);
       else if (Math.hypot(e.clientX - hold.x, e.clientY - hold.y) > SLOP)
         letGo();
     };
@@ -415,7 +427,8 @@ function useTrackPreview(
       for (const [type, fn] of listeners)
         el.removeEventListener(type, fn as EventListener, options);
       letGo();
-      hide();
+      // only its own: another track's may be showing
+      if (pointer) hide();
     };
   }, [track, anchor]);
 }
@@ -498,7 +511,8 @@ export const Scrubber = memo(function Scrubber({
   // pressed hands focus to one still there
   const bar = useRef<HTMLDivElement>(null);
   const hold = useHoldFocus(bar);
-  useTrackPreview(track, bar, shown, scale, onPreview);
+  const lanes = useMemo(() => [shown], [shown]);
+  useTrackPreview(track, bar, lanes, scale, onPreview);
   const step = (to: number | null) => {
     hold();
     onSelect(to);
@@ -660,7 +674,17 @@ export default memo(function Timeline({
 
   const root = useRef<HTMLDivElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
-  useTrackPreview(scroller, root, shown, scale, onPreview);
+  // each lane's own marks, so the preview is of the lane under the pointer
+  const laneEntries = useMemo(() => {
+    const on = new Set(shown);
+    return lanes.map(lane =>
+      lane.groups
+        .flatMap(groupEntriesOf)
+        .filter(e => on.has(e))
+        .sort((a, b) => a.seq - b.seq),
+    );
+  }, [lanes, shown]);
+  useTrackPreview(scroller, root, laneEntries, scale, onPreview);
   // a scrolled-back view stays put as the fit toggles, while a followed one
   // stays on the newest; the picked action comes into view again
   const end = useTrackFollow(scroller, scale, fit);
