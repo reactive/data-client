@@ -110,9 +110,10 @@ function isLatest(name, version) {
     )
       .toString()
       .trim();
-  } catch {
-    // no Latest release yet
-    return true;
+  } catch (error) {
+    // no Latest release yet; any other failure (API, auth) shouldn't hand it out
+    if (String(error.stderr).includes('release not found')) return true;
+    throw error;
   }
   const prefix = `${LATEST_PACKAGE}@`;
   if (!latestTag.startsWith(prefix)) return true;
