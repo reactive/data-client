@@ -41,6 +41,32 @@ master doesn't need; keep it in the squash message when merging a PR). CircleCI,
 `site-preview.yml`'s PR build run on the branch: the other Actions workflows it has are from the
 release it was cut from and run only for master.
 
+### Website fixes
+
+Site fixes go the other way too: the root serves this branch's site, so a fix to it merged on
+master would never reach the root. While `website/versionCurrent.json` exists, master's
+`website-port.yml` opens a PR to the branch cherry-picking each pushed commit whose files all sit
+under `website/src/` or `website/static/`, except the editor types (generated from the packages)
+and the demos' code (written against the version's API); a commit that also touches docs, the blog,
+translations, configs or packages (all versioned) is skipped. Each pick gets a
+`Maintenance-only: ported from master (<sha>)` line, so `maintenance.yml` doesn't port it back;
+keep it in the squash message. A pick that doesn't apply leaves a warning to port it by hand.
+
+The PR gets auto-merge, so it merges once the branch's required checks pass, and its merge rebuilds
+the root through `maintenance.yml`. That needs the port app's token: pushes, PRs and merges made
+with the workflow token start no workflows, so CI wouldn't run on the PR and the merge wouldn't
+redeploy. To set it up, once per repository:
+
+1. Create a GitHub App owned by the organization, with no webhook and repository permissions
+   Contents and Pull requests (read and write), and install it on this repository.
+2. Add its client ID as the `PORT_APP_CLIENT_ID` Actions variable and a private key as the
+   `PORT_APP_PRIVATE_KEY` Actions secret.
+3. Protect the branch the way master is, so the port waits for its checks.
+
+Without the app, the workflow uses its own token: the PR runs no CI until a push (or close and
+reopen), an unprotected branch merges it at once, and the workflow dispatches `site-preview.yml`
+itself to rebuild the root.
+
 Publish blog posts here too: the root's blog is this branch's, so a post runs the version that's
 current when it's published, at the URL it keeps. A post about the next major stays a draft on
 master until that release.
