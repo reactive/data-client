@@ -75,7 +75,7 @@ function HomepageEnder() {
             to="https://skills.sh/reactive/data-client"
           >
             <img
-              src="/img/anthropic.svg"
+              src={useBaseUrl('/img/anthropic.svg')}
               alt="Agent Skills"
               style={{
                 height: '1em',
