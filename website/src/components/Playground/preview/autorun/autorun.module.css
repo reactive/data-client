@@ -33,7 +33,7 @@
   stroke-linejoin: round;
   filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.35));
 }
-/* the click: a ring spreading from the tip */
+/* the click's ring (stage.ts animates it) */
 .pointer::before {
   content: '';
   position: absolute;
@@ -44,24 +44,6 @@
   border-radius: 50%;
   background: var(--ifm-color-primary);
   opacity: 0;
-}
-.pointer.press::before {
-  animation: press 0.45s ease-out;
-}
-@keyframes press {
-  from {
-    opacity: 0.5;
-    transform: scale(0.3);
-  }
-  to {
-    opacity: 0;
-    transform: scale(1.4);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .pointer.press::before {
-    animation: none;
-  }
 }
 
 .caption {

@@ -1,4 +1,5 @@
 import type { AutoRunScript, Step, Target } from './script';
+import { springEasing, springs } from '../../../motion';
 
 /** What a script acts on: the playground's DOM (./stage.ts) */
 export interface Stage {
@@ -15,18 +16,19 @@ export interface Stage {
 
 export type PlayerState = 'idle' | 'playing' | 'done';
 
-/** ms: before each step, unless it says; the pointer's glide (about
- * `--motion-smooth`); between typed characters; how long a target may take
+/** ms: before each step, unless it says; the pointer's glide
+ * (`--motion-smooth`); between typed characters; how long a target may take
  * to appear and how often to look */
 export const STEP_DELAY = 700;
-export const MOVE_MS = 450;
+export const MOVE_MS = springEasing(springs.smooth).duration;
 export const KEY_MS = 90;
 export const FIND_TIMEOUT = 5000;
 const FIND_EVERY = 50;
 
 /** Plays scripts one at a time on a clock that pauses (out of view) without
  * losing its place. `stop()` ends a run for good: a reader who takes over
- * changes what the rest of the script assumes. */
+ * changes what the rest of the script assumes, and one who takes over before
+ * it starts keeps it from starting by itself. */
 export function createPlayer() {
   let state: PlayerState = 'idle';
   let run: AbortController | null = null;
@@ -38,14 +40,13 @@ export function createPlayer() {
   };
 
   function stop() {
-    if (!run) return;
-    run.abort();
+    run?.abort();
     run = null;
-    set('done');
+    if (state !== 'done') set('done');
   }
 
   async function play(script: AutoRunScript, stage: Stage) {
-    stop();
+    run?.abort();
     const current = (run = new AbortController());
     set('playing');
     const sleep = (ms: number) => clock.sleep(ms, current.signal);
@@ -130,7 +131,7 @@ function createClock() {
           settle();
           reject(signal.reason);
         };
-        const sleeper = (current = {
+        current = {
           pause() {
             clearTimeout(timer);
             left -= performance.now() - since;
@@ -142,9 +143,9 @@ function createClock() {
               resolve();
             }, left);
           },
-        });
+        };
         signal.addEventListener('abort', abort, { once: true });
-        if (!paused) sleeper.resume();
+        if (!paused) current.resume();
       });
     },
   };

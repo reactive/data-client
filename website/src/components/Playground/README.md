@@ -300,12 +300,15 @@ DesignSystem/       components injected into preview scope
     It never calls `focus()`, which would take the page's focus from the
     reader. A pointer glides to each target (`--motion-smooth`) and a
     caption sits under the preview, in a layer appended to the playground.
-    `useAutoRun.ts` connects them to React; the player's state reaches React
-    only in `PlayButton`, so a run never re-renders the playground.
+    `useAutoRun.ts` connects them to React through the preview's ref (the
+    playground is its `[data-playground]` ancestor); the player's state
+    reaches React only in `PlayButton`, so a run never re-renders the
+    playground.
   - The reader takes over with any input of their own (`isTrusted`) in the
     playground: a press, a tap, a key. That ends the run for good, leaving
     everything as it was, since the rest of the script assumes a state the
-    reader just changed; Play starts over. Scrolling, hovering, a touch
+    reader just changed; Play starts over. Input before the demo starts
+    keeps it from starting by itself. Scrolling, hovering, a touch
     that starts a scroll and the demo's own controls (`data-autorun-control`)
     don't take over. Out of view (under 60% of the preview) or in a
     background tab, the run pauses where it is and resumes when back.

@@ -22,8 +22,6 @@ export interface LivePreviewProps<T> extends PreviewProps<T> {
   renderCount: boolean;
   actionLog?: LogOptions;
   autoRun?: AutoRunScript;
-  /** The whole playground, where `autoRun` acts */
-  root: HTMLElement | null;
   /** Opens or closes the Store for the demo, without saving it */
   showStore: (open: boolean | null) => void;
 }
@@ -39,7 +37,6 @@ export default function LivePreview<T>({
   renderCount,
   actionLog,
   autoRun,
-  root,
   showStore,
 }: LivePreviewProps<T>) {
   usePlaygroundConsoleDemotion();
@@ -62,7 +59,7 @@ export default function LivePreview<T>({
   // outlives remounts, so a restored store keeps its schemas and actions
   const [registry] = useState(() => new SchemaRegistry(actionLog));
   const managers = useCodeManagers(documents, remount);
-  const demo = useAutoRun(autoRun, root, reset, showStore);
+  const demo = useAutoRun(autoRun, reset, showStore);
   const getInterceptorData = useMemo(
     () =>
       restored ?

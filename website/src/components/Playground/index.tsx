@@ -74,8 +74,7 @@ export default function Playground<T>({
     groupId,
     defaultOpen,
   );
-  // the demo (autoRun) acts within this
-  const [root, setRoot] = useState<HTMLDivElement | null>(null);
+
   // Row layout: the Store slides over the code, leaving the preview usable
   const [storeHost, setStoreHost] = useState<HTMLDivElement | null>(null);
   const codeCovered = row && storeOpen;
@@ -126,7 +125,6 @@ export default function Playground<T>({
           renderCount={renderCount}
           actionLog={actionLog}
           autoRun={autoRun}
-          root={root}
           showStore={showStore}
         />
       </Boundary>
@@ -134,7 +132,8 @@ export default function Playground<T>({
 
   return (
     <div
-      ref={setRoot}
+      // where the demo (autoRun) acts
+      data-playground
       className={clsx(styles.playgroundQueryContainer, {
         [styles.hidden]: hidden,
       })}

@@ -81,6 +81,12 @@ it('stop ends the run where it is', async () => {
   expect(listener).toHaveBeenCalledTimes(2);
 });
 
+it('stopping before a run keeps it from starting by itself', () => {
+  const player = createPlayer();
+  player.stop();
+  expect(player.getState()).toBe('done');
+});
+
 it('gives up on a target that never shows', async () => {
   const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
   const player = createPlayer();

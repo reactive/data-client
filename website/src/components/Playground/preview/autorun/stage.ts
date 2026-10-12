@@ -1,6 +1,8 @@
 import styles from './autorun.module.css';
 import type { Stage } from './player';
 import type { Scope } from './script';
+import { prefersReducedMotion, springEasing, springs } from '../../../motion';
+import { revealIn } from '../store/dom';
 
 /** Acts on one playground's DOM as a reader would, with untrusted events
  * (so the yield listeners in ./useAutoRun.ts tell them from the reader's) and
@@ -47,7 +49,7 @@ export function createStage(
     },
 
     point(el) {
-      scrollWithin(el, root);
+      revealIn(root, el);
       const box = el.getBoundingClientRect();
       const origin = layer.getBoundingClientRect();
       at = {
@@ -55,26 +57,23 @@ export function createStage(
         y: box.top + box.height / 2,
       };
       const transform = `translate(${at.x - origin.left}px, ${at.y - origin.top}px)`;
-      if (pointer) {
-        pointer.style.transform = transform;
-        return;
+      const first = !pointer;
+      if (!pointer) {
+        pointer = document.createElement('div');
+        pointer.className = styles.pointer;
+        pointer.innerHTML = POINTER_SVG;
+        layer.append(pointer);
       }
-      // the first point fades in where it is, then glides from there
-      pointer = document.createElement('div');
-      pointer.className = styles.pointer;
       pointer.style.transform = transform;
-      pointer.innerHTML = POINTER_SVG;
-      layer.append(pointer);
-      void pointer.offsetWidth;
-      pointer.dataset.shown = '';
+      // the first point fades in where it is, then glides from there
+      if (first) {
+        void pointer.offsetWidth;
+        pointer.dataset.shown = '';
+      }
     },
 
     click(el) {
-      if (pointer) {
-        pointer.classList.remove(styles.press);
-        void pointer.offsetWidth;
-        pointer.classList.add(styles.press);
-      }
+      if (!prefersReducedMotion()) pointer?.animate(PRESS, PRESS_TIMING);
       const init = {
         bubbles: true,
         cancelable: true,
@@ -109,13 +108,14 @@ export function createStage(
     },
 
     caption(text) {
-      caption.textContent = text;
       // under the preview (beside the code in a row), over its foot
       const preview = scopeOf(root, 'preview')?.getBoundingClientRect();
-      if (!preview) return;
-      const origin = layer.getBoundingClientRect();
-      caption.style.left = `${preview.left - origin.left + preview.width / 2}px`;
-      caption.style.maxWidth = `${preview.width - 16}px`;
+      if (preview) {
+        const origin = layer.getBoundingClientRect();
+        caption.style.left = `${preview.left - origin.left + preview.width / 2}px`;
+        caption.style.maxWidth = `${preview.width - 16}px`;
+      }
+      caption.textContent = text;
     },
 
     store,
@@ -127,8 +127,18 @@ export function createStage(
   };
 }
 
-/** ms: the layer's fade out (`--motion-snappy`, with room to spare) */
-const END_MS = 400;
+/** ms: the layer's fade out (`--motion-snappy`) */
+const END_MS = springEasing(springs.snappy).duration;
+/** The click: a ring spreading from the tip */
+const PRESS: Keyframe[] = [
+  { opacity: 0.5, scale: 0.3 },
+  { opacity: 0, scale: 1.4 },
+];
+const PRESS_TIMING: KeyframeAnimationOptions = {
+  duration: 450,
+  easing: 'ease-out',
+  pseudoElement: '::before',
+};
 
 function scopeOf(root: HTMLElement, scope: Scope) {
   switch (scope) {
@@ -143,26 +153,6 @@ function scopeOf(root: HTMLElement, scope: Scope) {
 
 // jsdom lacks checkVisibility
 const visible = (el: HTMLElement) => el.checkVisibility?.() ?? true;
-
-/** Scrolls the panes between `el` and `root` so `el` shows; never the page */
-function scrollWithin(el: HTMLElement, root: HTMLElement) {
-  for (
-    let pane = el.parentElement;
-    pane && pane !== root;
-    pane = pane.parentElement
-  ) {
-    if (pane.scrollHeight > pane.clientHeight) {
-      const box = el.getBoundingClientRect();
-      const view = pane.getBoundingClientRect();
-      if (box.top < view.top) pane.scrollTop -= view.top - box.top;
-      else if (box.bottom > view.bottom)
-        pane.scrollTop += Math.min(
-          box.bottom - view.bottom,
-          box.top - view.top,
-        );
-    }
-  }
-}
 
 /** An arrow pointer, its tip at the element's top left (the point) */
 const POINTER_SVG =
