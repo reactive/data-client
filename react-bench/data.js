@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791739803015,
+  "lastUpdate": 1791778568246,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -8567,6 +8567,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 196.15,
             "range": "± 9.1%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cb6d9f21ae73ab79ac5f1d6aea04f68d7c2c6336",
+          "message": "enhance(rest): Type getOptimisticResponse() returns by schema (#4198)\n\n* enhance(rest): Type getOptimisticResponse() returns by schema\n\ngetOptimisticResponse() returned ResolveType<F>, which is `any` for any\nendpoint without a typed process(), so its return was never checked.\nIt now returns the raw input the schema normalizes (like a\nController.set() value) in those cases.\n\n- Move SetValue types from core into normalizr, mirrored in endpoint\n- EndpointExtraOptions takes the schema as an optional second param\n- resource().extend({...}): endpoints whose options set no generic\n  member (only getOptimisticResponse) fall back to the endpoint's args\n- resource().extend(key) no longer retypes an existing key from `get`\n  when its own overload fails, which hid errors\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TZb5b5RZW46WNQRDrBWFC4\n\n* internal: Share IsUnion in rest types, drop dead test lines\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TZb5b5RZW46WNQRDrBWFC4\n\n* docs(blog): Link optimistic response types PR\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TZb5b5RZW46WNQRDrBWFC4\n\n* internal: Fail CI when endpoint's SetValue mirror drifts from normalizr's\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TZb5b5RZW46WNQRDrBWFC4\n\n* internal: Move IsUnion to its own file so the TS 4.0 types see it\n\nThe hand-written ts4.0 utiltypes override doesn't export it.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TZb5b5RZW46WNQRDrBWFC4\n\n* internal: Regenerate playground editor types\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TZb5b5RZW46WNQRDrBWFC4\n\n* internal: Cover Invalidate in the SetValue mirror test\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TZb5b5RZW46WNQRDrBWFC4\n\n* fix(rest): Type object-form extend getOptimisticResponse with an overridden schema\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TZb5b5RZW46WNQRDrBWFC4\n\n* internal: Regenerate playground editor types\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TZb5b5RZW46WNQRDrBWFC4\n\n* fix(endpoint): Type Endpoint.extend getOptimisticResponse by its schema\n\nEndpoint.extend() constrained options with the default schema, so\ngetOptimisticResponse() went unchecked when the fetch resolves any; it now\nuses the options' schema, else the endpoint's. The TS 4.2 overlay also\npasses the schema to EndpointExtraOptions.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TZb5b5RZW46WNQRDrBWFC4\n\n* fix(endpoint): Keep getOptimisticResponse() untyped for schema: null\n\nnormalize() treats null like undefined (no schema), so getOptimisticResponse()\nreturns the fetch's resolved type for both. Also cover resource().extend()'s\nnew-key and function forms.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TZb5b5RZW46WNQRDrBWFC4\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-12T04:09:50Z",
+          "tree_id": "d15f0f32523f48c436acf6abe29f8afa12191e16",
+          "url": "https://github.com/reactive/data-client/commit/cb6d9f21ae73ab79ac5f1d6aea04f68d7c2c6336"
+        },
+        "date": 1791778565609,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 129.04,
+            "range": "± 5.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 42.59,
+            "range": "± 6.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 312.5,
+            "range": "± 7.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 327.96,
+            "range": "± 8.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 41.41,
+            "range": "± 11.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 294.12,
+            "range": "± 5.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 327.96,
+            "range": "± 6.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 9.11,
+            "range": "± 9.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 70.42,
+            "range": "± 9.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 34.01,
+            "range": "± 5.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 196.08,
+            "range": "± 6.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 256.41,
+            "range": "± 4.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 166.67,
+            "range": "± 9.3%",
             "unit": "ops/s"
           }
         ]
