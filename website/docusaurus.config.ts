@@ -44,6 +44,9 @@ const url = 'https://dataclient.io';
 // master alone, so they link to the current version on the production site.
 const isNext = !!versionCurrent && process.env.DOCS_NEXT === '1';
 const currentOrigin = isNext ? '' : url;
+// This build's baseUrl (/, /es/, /next/, /next/es/), so pages load static
+// files from their own build, the one an installed app's worker can serve
+const buildBase = `${isNext ? '/next' : ''}${localeRoot}/`;
 const vueDocs = frameworkDocs.generate('vue');
 // Each locale renders English with its translations in place
 // (translate/README.md); its Vue pages mirror its docs/core
@@ -185,34 +188,34 @@ const config: Config = {
     },
     {
       rel: 'preload',
-      href: '/css/font.css',
+      href: `${buildBase}css/font.css`,
       as: 'style',
       crossOrigin: 'anonymous',
     },
     {
       rel: 'preload',
-      href: '/font/Roboto-Mono.woff2',
+      href: `${buildBase}font/Roboto-Mono.woff2`,
       as: 'font',
       type: 'font/woff2',
       crossOrigin: 'anonymous',
     },
     {
       rel: 'preload',
-      href: '/font/Roboto-Mono-Italic.woff2',
+      href: `${buildBase}font/Roboto-Mono-Italic.woff2`,
       as: 'font',
       type: 'font/woff2',
       crossOrigin: 'anonymous',
     },
     {
       rel: 'preload',
-      href: '/font/Rubik.woff2',
+      href: `${buildBase}font/Rubik.woff2`,
       as: 'font',
       type: 'font/woff2',
       crossOrigin: 'anonymous',
     },
     {
       rel: 'preload',
-      href: '/font/Rubik-Italic.woff2',
+      href: `${buildBase}font/Rubik-Italic.woff2`,
       as: 'font',
       type: 'font/woff2',
       crossOrigin: 'anonymous',
@@ -225,40 +228,36 @@ const config: Config = {
     },
     {
       rel: 'stylesheet',
-      href: '/css/font.css',
+      href: `${buildBase}css/font.css`,
       crossOrigin: 'anonymous',
       media: 'all',
     },
     {
       rel: 'icon',
-      href: '/favicon.ico',
+      href: `${buildBase}favicon.ico`,
       type: 'image/x-icon',
     },
     {
       rel: 'icon',
       type: 'image/png',
-      href: '/img/favicon/favicon-16x16.png',
+      href: `${buildBase}img/favicon/favicon-16x16.png`,
       sizes: '16x16',
     },
     {
       rel: 'icon',
       type: 'image/png',
-      href: '/img/favicon/favicon-32x32.png',
+      href: `${buildBase}img/favicon/favicon-32x32.png`,
       sizes: '32x32',
     },
     {
       rel: 'apple-touch-icon',
       type: 'image/png',
-      href: '/apple-touch-icon.png',
+      href: `${buildBase}apple-touch-icon.png`,
       sizes: '180x180',
     },
     {
-      rel: 'manifest',
-      href: '/img/favicon/site.webmanifest',
-    },
-    {
       rel: 'mask-icon',
-      href: '/img/favicon/safari-pinned-tab.svg',
+      href: `${buildBase}img/favicon/safari-pinned-tab.svg`,
       color: '#3E96DB',
     },
     /*{
@@ -354,6 +353,47 @@ const config: Config = {
     ],
   ],
   plugins: [
+    [
+      '@docusaurus/plugin-pwa',
+      {
+        // src/pwaRegister.ts registers only where offline is wanted, so
+        // whenever the worker is registered it precaches
+        offlineModeActivationStrategies: ['always'],
+        swRegister: require.resolve('./src/pwaRegister.ts'),
+        // The manifest link goes under each build's baseUrl (/next/, /es/),
+        // and its relative start_url and scope resolve against it, so the
+        // installed app opens the build that has this worker
+        pwaHead: [
+          {
+            tagName: 'link',
+            rel: 'manifest',
+            href: 'img/favicon/site.webmanifest',
+          },
+        ],
+        injectManifestConfig: {
+          // social cards are for link previews, never shown on the site
+          globIgnores: [
+            'img/social/**',
+            // /next/ sends its blog links to the root site's blog
+            ...(isNext ? ['blog.html', 'blog/**'] : []),
+          ],
+          // Pages are files like docs/intro.html served at /docs/intro
+          // (trailingSlash: false), so cache them under the URL they're served
+          // at; the worker's offline lookup only tries URL and URL/index.html
+          manifestTransforms: [
+            entries => ({
+              manifest: entries.map(entry => ({
+                ...entry,
+                url: entry.url.replace(
+                  /(^|\/)(?!index\.html$)([^/]+)\.html$/,
+                  '$1$2',
+                ),
+              })),
+            }),
+          ],
+        },
+      },
+    ],
     // The version menu's list. site-preview.yml serves it at the production
     // root; builds of other versions (SNAPSHOT_VERSION) leave theirs out
     () => ({
