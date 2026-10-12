@@ -55,7 +55,7 @@ async function cacheFirst(event) {
 async function networkFirst(event) {
   try {
     const response =
-      (await event.preloadResponse.catch(() => undefined)) ??
+      (await event.preloadResponse?.catch(() => undefined)) ??
       (await fetch(event.request));
     // one copy per page: the offline lookup ignores the query
     const key = event.request.url.split(/[?#]/)[0];
