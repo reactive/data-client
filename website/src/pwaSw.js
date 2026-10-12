@@ -9,8 +9,8 @@ export default function swCustom({ offlineMode }) {
     if (
       event.request.mode !== 'navigate' ||
       url.origin !== self.location.origin ||
-      // the home page (index.html) and anything with an extension
-      /(\/|\.\w+)$/.test(url.pathname)
+      // index.html, which the plugin finds
+      url.pathname.endsWith('/')
     )
       return;
     event.respondWith(

@@ -253,10 +253,6 @@ const config: Config = {
       sizes: '180x180',
     },
     {
-      rel: 'manifest',
-      href: '/img/favicon/site.webmanifest',
-    },
-    {
       rel: 'mask-icon',
       href: '/img/favicon/safari-pinned-tab.svg',
       color: '#3E96DB',
@@ -362,6 +358,15 @@ const config: Config = {
         offlineModeActivationStrategies: ['always'],
         swRegister: require.resolve('./src/pwaRegister.ts'),
         swCustom: require.resolve('./src/pwaSw.js'),
+        // under each build's baseUrl (/next/, /es/), so the app it installs
+        // opens that build, which has this worker
+        pwaHead: [
+          {
+            tagName: 'link',
+            rel: 'manifest',
+            href: 'img/favicon/site.webmanifest',
+          },
+        ],
         injectManifestConfig: {
           // social cards are for link previews, never shown on the site
           globIgnores: ['img/social/**'],
