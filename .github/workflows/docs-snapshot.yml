@@ -113,7 +113,7 @@ jobs:
           tag="docs-v$VERSION"
           gh release view "$tag" > /dev/null 2>&1 ||
             gh release create "$tag" --latest=false --target "$SHA" --title "Docs v$VERSION" \
-              --notes "Frozen docs for v$VERSION, served at https://dataclient.io/$VERSION/ (built from \`$REF\`)."
+              --notes "Frozen docs for v$VERSION, served at https://$VERSION.dataclient.io (built from \`$REF\`)."
           # Named by checksum, so a rebuild sits beside the listed archive
           # until its listing PR merges, rather than replacing it
           asset="docs-$VERSION-${SHA256:0:16}.tar.gz"
