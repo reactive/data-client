@@ -2067,6 +2067,37 @@ it('getOptimisticResponse returns raw input for the schema', () => {
       return { id: 5, isAdmin: true };
     },
   });
+  // new keys are based on get
+  UserRes.extend('touch', {
+    method: 'POST',
+    getOptimisticResponse(snap, params) {
+      return { id: 5, isAdmin: true };
+    },
+  });
+  UserRes.extend('touch', {
+    method: 'POST',
+    // @ts-expect-error isAdmin is a boolean
+    getOptimisticResponse(snap, params) {
+      return { id: 5, isAdmin: 'yes' };
+    },
+  });
+  UserRes.extend(Base => ({
+    touch: Base.update.extend({
+      // @ts-expect-error isAdmin is a boolean
+      getOptimisticResponse(snap, params, body) {
+        return { id: params.id, isAdmin: 'yes' };
+      },
+    }),
+  }));
+  // no schema: anything goes
+  UserRes.extend({
+    update: {
+      schema: null,
+      getOptimisticResponse(snap, params, body) {
+        return { ok: true };
+      },
+    },
+  });
   UserRes.getList.push.extend({
     // @ts-expect-error isAdmin is a boolean
     getOptimisticResponse(snap, body) {

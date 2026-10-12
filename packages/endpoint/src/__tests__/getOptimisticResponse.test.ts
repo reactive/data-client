@@ -49,5 +49,24 @@ it('getOptimisticResponse() returns raw input for the schema', () => {
       return { id, admin: 'yes' };
     },
   });
+  // no schema: anything goes
+  new Endpoint(() => Promise.resolve({} as any), {
+    schema: null,
+    getOptimisticResponse() {
+      return { ok: true };
+    },
+  });
+  updateTodo.extend({
+    schema: null,
+    getOptimisticResponse() {
+      return { ok: true };
+    },
+  });
+  updateTodo.extend({
+    schema: undefined,
+    getOptimisticResponse() {
+      return { ok: true };
+    },
+  });
   expect(updateTodo.schema).toBe(Todo);
 });

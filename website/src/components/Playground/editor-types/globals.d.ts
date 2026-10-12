@@ -230,7 +230,7 @@ interface EndpointExtraOptions<F extends FetchFunction = FetchFunction, S extend
 }
 /** What getOptimisticResponse() returns: the fetch's resolved type, or when that is `any`
  * (no `process()`), the raw input the schema normalizes, like a `Controller.set()` value */
-type OptimisticResponse<F extends FetchFunction, S> = undefined extends S ? ResolveType<F> : 0 extends 1 & ResolveType<F> ? SetValue<S> : ResolveType<F>;
+type OptimisticResponse<F extends FetchFunction, S> = undefined extends S ? ResolveType<F> : null extends S ? ResolveType<F> : 0 extends 1 & ResolveType<F> ? SetValue<S> : ResolveType<F>;
 
 type Schema = null | string | {
     [K: string]: any;

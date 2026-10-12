@@ -38,5 +38,6 @@ export interface EndpointExtraOptions<
  * (no `process()`), the raw input the schema normalizes, like a `Controller.set()` value */
 export type OptimisticResponse<F extends FetchFunction, S> =
   undefined extends S ? ResolveType<F>
+  : null extends S ? ResolveType<F>
   : 0 extends 1 & ResolveType<F> ? SetValue<S>
   : ResolveType<F>;
