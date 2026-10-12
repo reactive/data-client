@@ -17,8 +17,9 @@ on:
 permissions:
   contents: read
 
-# One port at a time, in push order. Each branches from the target's tip, so a
-# fix building on a port that hasn't merged yet warns to port it by hand
+# One port at a time, in push order. Each branches from the target's tip, not
+# from ports still open: a pick conflicting with one warns to port it by hand,
+# and one only depending on one is left to the PR's checks
 concurrency:
   group: ${{ github.workflow }}
   queue: max
