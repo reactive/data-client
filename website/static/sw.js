@@ -75,7 +75,12 @@ const save = (name, request, response) =>
     // out of storage: the response still reached the page
     .catch(() => {});
 
-async function trim() {
+// one at a time: a page load after a deploy misses on many files at once
+let trimming;
+const trim = () =>
+  (trimming ??= trimAssets().finally(() => (trimming = undefined)));
+
+async function trimAssets() {
   const cache = await caches.open(ASSETS);
   const keys = await cache.keys();
   await Promise.all(

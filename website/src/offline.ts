@@ -30,13 +30,15 @@ if (
       },
       { once: true },
     );
-  const register = () =>
-    navigator.serviceWorker
-      .register(`${siteConfig.baseUrl}sw.js`)
-      .catch(() => undefined);
   // after the page's own requests, which it would otherwise compete with
-  if (document.readyState === 'complete') register();
-  else window.addEventListener('load', register, { once: true });
+  window.addEventListener(
+    'load',
+    () =>
+      navigator.serviceWorker
+        .register(`${siteConfig.baseUrl}sw.js`)
+        .catch(() => undefined),
+    { once: true },
+  );
 }
 
 /** A client-side navigation requests no page, so this requests it for the
