@@ -18,12 +18,16 @@ import SchemaTable from '../shared/\_schema_table.mdx';
 This makes it easy to find, update, create, or delete the same data - no matter what
 endpoint it was used in.
 
+:::react
+
 In the Store below, the `/todos` response becomes a `Todo` table with one row per primary key,
 and the endpoint keeps only references to those rows.
 
 - **Pick a todo**: its detail renders right away, with no request, because `Todo` already holds it.
 - **Toggle completed**: one `PATCH` updates one row, and both the list and the detail show it.
   Switch the Store to Diff to see that row change.
+
+:::
 
 export const todos = [
   { id: '1', title: 'Pick up groceries', completed: false },
@@ -34,7 +38,6 @@ export const todos = [
 <FrameworkPlayground groupId="schema" defaultOpen="y" fixtures={[
 {
 endpoint: new RestEndpoint({ path: '/todos' }),
-args: [],
 response() {
 return Object.values(this);
 },
@@ -73,6 +76,7 @@ export class Todo extends Entity {
 export const TodoResource = resource({
   path: '/todos/:id',
   schema: Todo,
+  optimistic: true,
 });
 ```
 
