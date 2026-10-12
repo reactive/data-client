@@ -863,11 +863,39 @@ describe('Store timeline hold', () => {
     act(() => jest.advanceTimersByTime(16));
     expect(track.scrollLeft).toBeLessThan(400 - 90 - FOLLOW_SLACK);
     fireEvent.scroll(track);
-    // still following: the newest comes into view
+    // still following: the catch-up springs on to the newest
     width = 500;
     await set(ctrl, 'Four');
     act(() => jest.advanceTimersByTime(1000));
-    expect(track.scrollLeft).toBe(500);
+    expect(track.scrollLeft).toBe(500 - 90);
+  });
+
+  it('goes to the newest on End mid catch-up', async () => {
+    const height = jest
+      .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
+      .mockReturnValue(18);
+    const { ctrl } = mountAt(90);
+    height.mockRestore();
+    const track = scrubber().querySelector<HTMLElement>(
+      '[style*="--tl-width"]',
+    )!;
+    let width = 100;
+    Object.defineProperty(track, 'clientHeight', { value: 18 });
+    Object.defineProperty(track, 'clientWidth', { value: 90 });
+    Object.defineProperty(track, 'scrollWidth', { get: () => width });
+    await act(() => ctrl().fetch(getPosts));
+    await act(() => ctrl().fetch(getPosts));
+    jest.useFakeTimers();
+    pointer(track, 'pointerenter', 10);
+    await set(ctrl, 'Three');
+    width = 400;
+    pointer(track, 'pointerleave', 0);
+    act(() => jest.advanceTimersByTime(16));
+    // End lands at once, and the catch-up doesn't pull it back
+    width = 600;
+    fireEvent.keyDown(scrubber(), { key: 'End' });
+    act(() => jest.advanceTimersByTime(1000));
+    expect(track.scrollLeft).toBe(600);
   });
 
   it('lets the reader scroll back mid catch-up', async () => {

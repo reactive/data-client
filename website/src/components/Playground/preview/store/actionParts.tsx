@@ -225,6 +225,8 @@ export function useFollow(
     // newest comes into view and is followed again
     if (paused) follow.current = false;
     if (!el) return;
+    // a moment picked mid catch-up is revealed where it is
+    if (paused) stopSpring(el);
     if (!paused && (resumed || (el.clientHeight && follow.current))) {
       follow.current = true;
       scrollAlong(el, axis, el[size], letGo);
@@ -242,6 +244,7 @@ export function useFollow(
     if (!el) return;
     const { size, scroll } = AXES[axis];
     follow.current = true;
+    stopSpring(el);
     el[scroll] = el[size];
   }, [scroller, axis]);
 }
@@ -262,6 +265,8 @@ function scrollAlong(
   sprung: boolean,
 ) {
   const { size, scroll, client } = AXES[axis];
+  // a change mid catch-up springs on from where it is rather than jumps
+  sprung ||= springing.has(el);
   stopSpring(el);
   if (
     !sprung ||
