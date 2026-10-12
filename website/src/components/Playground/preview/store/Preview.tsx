@@ -117,6 +117,7 @@ export function Preview({
     <div
       className={styles.preview}
       role="tooltip"
+      aria-hidden="true"
       inert
       style={
         {

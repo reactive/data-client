@@ -16,17 +16,6 @@
   --store-hover: rgba(255, 255, 255, 0.045);
   --store-selected: rgba(130, 170, 255, 0.16);
   --store-record: rgba(130, 170, 255, 0.07);
-  /* each change's color (CHANGE_KINDS in actionGroups.ts): its bar, mark
-     and flash. Invalidating drops the data, so it's nearer a removal's red
-     than an update's yellow, but apart from an error's */
-  --store-kind-added: var(--store-fresh);
-  --store-kind-updated: var(--store-stale);
-  --store-kind-removed: var(--store-null);
-  --store-kind-invalidated: var(--store-number);
-  --store-kind-error: var(--store-null);
-  --store-kind-refreshed: var(--store-dim);
-  --store-kind-expired: var(--store-stale);
-  --store-stale-bg: color-mix(in srgb, var(--store-stale) 9%, transparent);
   --store-tip: #3a4057;
   --store-bg: var(--monoco-code-background);
 
@@ -40,6 +29,24 @@
   background: var(--store-bg);
   color: var(--store-fg);
   font: 12px / 1.6 var(--ifm-font-family-monospace);
+}
+
+/* Tokens derived from the palette, resolved again wherever it is
+   re-declared (the light timeline) */
+.store,
+.scrubber,
+.lanes {
+  /* each change's color (CHANGE_KINDS in actionGroups.ts): its bar, mark
+     and flash. Invalidating drops the data, so it's nearer a removal's red
+     than an update's yellow, but apart from an error's */
+  --store-kind-added: var(--store-fresh);
+  --store-kind-updated: var(--store-stale);
+  --store-kind-removed: var(--store-null);
+  --store-kind-invalidated: var(--store-number);
+  --store-kind-error: var(--store-null);
+  --store-kind-refreshed: var(--store-dim);
+  --store-kind-expired: var(--store-stale);
+  --store-stale-bg: color-mix(in srgb, var(--store-stale) 9%, transparent);
 }
 
 /* Light mode: the scrubber and the lanes under it are chrome, in the
@@ -60,15 +67,6 @@
   --store-line-strong: rgba(0, 0, 0, 0.15);
   --store-hover: rgba(0, 0, 0, 0.05);
   --store-selected: rgba(47, 95, 196, 0.14);
-  /* the derived ones too, which .store resolved from its own */
-  --store-kind-added: var(--store-fresh);
-  --store-kind-updated: var(--store-stale);
-  --store-kind-removed: var(--store-null);
-  --store-kind-invalidated: var(--store-number);
-  --store-kind-error: var(--store-null);
-  --store-kind-refreshed: var(--store-dim);
-  --store-kind-expired: var(--store-stale);
-  --store-stale-bg: color-mix(in srgb, var(--store-stale) 9%, transparent);
   background: var(--store-bg);
   color: var(--store-muted);
 }

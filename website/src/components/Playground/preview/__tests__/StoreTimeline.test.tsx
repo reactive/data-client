@@ -565,6 +565,14 @@ describe('Store timeline preview', () => {
     expect(preview()).toBeNull();
     pointer(track, 'pointermove', at(marks[1]));
     expect(preview()!.textContent).toContain('"Two"');
+    // out of the tab order and hidden from assistive tech
+    expect(preview()!.hasAttribute('inert')).toBe(true);
+    // a press shuts it, as a tooltip's does
+    pointer(marks[1], 'pointerdown', at(marks[1]));
+    expect(preview()).toBeNull();
+    pointer(track, 'pointermove', at(marks[1]) + 1);
+    pointer(track, 'pointermove', at(marks[1]));
+    expect(preview()!.textContent).toContain('"Two"');
     pointer(track, 'pointerleave', 0);
     expect(preview()).toBeNull();
     // back right away: no wait
@@ -616,6 +624,14 @@ describe('Store timeline preview', () => {
     fireEvent.click(marks[0]);
     expect(preview()).toBeNull();
     expect(within(scrubber()).queryByText('After')).toBeNull();
+    // a hold the browser cancels makes no click, and takes none from later
+    pointer(marks[0], 'pointerdown', at(marks[0]), 'touch');
+    act(() => jest.advanceTimersByTime(350));
+    expect(preview()).toBeTruthy();
+    pointer(marks[0], 'pointercancel', at(marks[0]), 'touch');
+    expect(preview()).toBeNull();
+    fireEvent.click(marks[0]);
+    expect(scrubber().textContent).toContain('After');
   });
 });
 

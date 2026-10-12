@@ -281,6 +281,9 @@ function useTrackPreview(
   useLayoutEffect(() => {
     latest.current = { shown, scale, onPreview };
   });
+  // the marks moved under a still pointer (squeezed in, without a scroll):
+  // what it was on no longer is
+  useLayoutEffect(() => latest.current.onPreview(null), [scale]);
   useEffect(() => {
     const el = track.current;
     if (!el) return;
@@ -321,10 +324,12 @@ function useTrackPreview(
       | undefined;
     // the click a held finger lifting makes
     let swallow = false;
-    const letGo = () => {
+    // `lifted`: the finger came up (rather than the browser cancelling the
+    // gesture), so a click follows
+    const letGo = (lifted = false) => {
       if (!hold) return;
       clearTimeout(hold.timer);
-      swallow = hold.on;
+      swallow = lifted && hold.on;
       if (hold.on) {
         hide();
         for (const type of held)
@@ -336,7 +341,10 @@ function useTrackPreview(
       // a lift that made no click leaves nothing for a later press to lose
       swallow = false;
       // a press says where the pointer is going, as a tooltip shuts on one
-      if (e.pointerType !== 'touch') return hide();
+      if (e.pointerType !== 'touch') {
+        hide();
+        return;
+      }
       if (!e.isPrimary) return;
       letGo();
       const h = {
@@ -367,7 +375,7 @@ function useTrackPreview(
       if (e.pointerType !== 'touch') hide();
     };
     const onUp = (e: PointerEvent) => {
-      if (e.pointerId === hold?.id) letGo();
+      if (e.pointerId === hold?.id) letGo(e.type === 'pointerup');
     };
     const onClick = (e: MouseEvent) => {
       if (!swallow) return;
