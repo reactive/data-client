@@ -31,6 +31,7 @@ const DemoPlayground = memo(
             code,
             fixtures,
             getInitialInterceptorData,
+            autoRun,
             autoFocus = false,
           }) => (
             <HooksPlayground
@@ -40,6 +41,7 @@ const DemoPlayground = memo(
               hidden={value !== selectedValue}
               fixtures={fixtures}
               getInitialInterceptorData={getInitialInterceptorData}
+              autoRun={autoRun}
               headerControls={<PlaygroundHeaderControls />}
             >
               {code.map(({ path, code: instanceCode, open, ssr }, i) => (

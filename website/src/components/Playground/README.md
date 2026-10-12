@@ -43,6 +43,7 @@ preview/            live execution (loaded lazily, never on the server)
   LivePreview.tsx     react-live LiveProvider with scope + transformCode
   Preview.tsx         DataProvider + MockResolver(fixtures) + Store inspector
   StoreToggle.tsx     Store toggles + open state
+  autorun/            the `autoRun` demo player (see Auto-run)
   ...
 editor-types/       .d.ts bundles fed to Monaco (raw-loader)
 DesignSystem/       components injected into preview scope
@@ -284,6 +285,33 @@ DesignSystem/       components injected into preview scope
   view from (the tree view, the peek's chips), `StorePanel` opens it over
   the top level in the table view.
 
+- Auto-run: `autoRun` (a `Step[]`, `preview/autorun/script.ts`) plays a
+  scripted demo across the preview and the Store, like a video, the first
+  time the preview is 60% in view (never by itself under reduced motion).
+  The Play button beside Reset replays it from a fresh store (closing the
+  Store first if the script opens it); while it plays, it stops it.
+  - `player.ts` owns timing only: one step at a time, each on a pausable
+    clock, looking its target up again before every act (renders replace
+    elements), giving up after `FIND_TIMEOUT`. `stage.ts` owns the DOM: it
+    finds targets (CSS selector, `hasText`, or a `<label>`'s text, scoped to
+    the preview, the Store (`[data-store-panel]`) or the whole playground),
+    and acts with untrusted events: pointer/mouse events then `click()`, or
+    the native value setter plus `input` so React's `onChange` sees typing.
+    It never calls `focus()`, which would take the page's focus from the
+    reader. A pointer glides to each target (`--motion-smooth`) and a
+    caption sits under the preview, in a layer appended to the playground.
+    `useAutoRun.ts` connects them to React; the player's state reaches React
+    only in `PlayButton`, so a run never re-renders the playground.
+  - The reader takes over with any input of their own (`isTrusted`) in the
+    playground: a press, a tap, a key. That ends the run for good, leaving
+    everything as it was, since the rest of the script assumes a state the
+    reader just changed; Play starts over. Scrolling, hovering, a touch
+    that starts a scroll and the demo's own controls (`data-autorun-control`)
+    don't take over. Out of view (under 60% of the preview) or in a
+    background tab, the run pauses where it is and resumes when back.
+  - The Store opens for a step through `useStoreOpen`'s `show`, which
+    doesn't persist: tab storage keeps the reader's own choice (a docs page
+    shares one `groupId`), until the reader toggles it.
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
   count in the preview header (written to the DOM, so counting adds no commits).
   `website/profiling-plugin.js` replaces `react-dom/client` with React's

@@ -1,0 +1,169 @@
+import styles from './autorun.module.css';
+import type { Stage } from './player';
+import type { Scope } from './script';
+
+/** Acts on one playground's DOM as a reader would, with untrusted events
+ * (so the yield listeners in ./useAutoRun.ts tell them from the reader's) and
+ * never `focus()`, which would take the page's focus from the reader.
+ *
+ * The pointer and caption live in a layer appended to `root`, removed by `end()`.
+ */
+export function createStage(
+  root: HTMLElement,
+  store: (open: boolean) => void,
+): Stage {
+  const layer = document.createElement('div');
+  layer.className = styles.layer;
+  const caption = document.createElement('p');
+  caption.className = styles.caption;
+  caption.setAttribute('aria-live', 'polite');
+  layer.append(caption);
+  root.append(layer);
+  let pointer: HTMLElement | undefined;
+  let at = { x: 0, y: 0 };
+
+  return {
+    find(target) {
+      const { in: scope = 'preview', ...match } =
+        typeof target === 'string' ? { selector: target } : target;
+      const within = scopeOf(root, scope);
+      if (!within) return null;
+      if ('label' in match) {
+        for (const label of within.querySelectorAll('label')) {
+          if (label.textContent?.trim() !== match.label) continue;
+          const control =
+            label.control ??
+            label.parentElement?.querySelector('input, textarea, select');
+          if (control instanceof HTMLElement && visible(control))
+            return control;
+        }
+        return null;
+      }
+      for (const el of within.querySelectorAll<HTMLElement>(match.selector)) {
+        if (match.hasText && !el.textContent?.includes(match.hasText)) continue;
+        if (visible(el)) return el;
+      }
+      return null;
+    },
+
+    point(el) {
+      scrollWithin(el, root);
+      const box = el.getBoundingClientRect();
+      const origin = layer.getBoundingClientRect();
+      at = {
+        x: box.left + box.width / 2,
+        y: box.top + box.height / 2,
+      };
+      const transform = `translate(${at.x - origin.left}px, ${at.y - origin.top}px)`;
+      if (pointer) {
+        pointer.style.transform = transform;
+        return;
+      }
+      // the first point fades in where it is, then glides from there
+      pointer = document.createElement('div');
+      pointer.className = styles.pointer;
+      pointer.style.transform = transform;
+      pointer.innerHTML = POINTER_SVG;
+      layer.append(pointer);
+      void pointer.offsetWidth;
+      pointer.dataset.shown = '';
+    },
+
+    click(el) {
+      if (pointer) {
+        pointer.classList.remove(styles.press);
+        void pointer.offsetWidth;
+        pointer.classList.add(styles.press);
+      }
+      const init = {
+        bubbles: true,
+        cancelable: true,
+        composed: true,
+        button: 0,
+        clientX: at.x,
+        clientY: at.y,
+      };
+      const Pointer =
+        typeof PointerEvent === 'function' ? PointerEvent : MouseEvent;
+      const pointerInit = { ...init, pointerType: 'mouse', isPrimary: true };
+      el.dispatchEvent(new Pointer('pointerdown', pointerInit));
+      el.dispatchEvent(new MouseEvent('mousedown', init));
+      el.dispatchEvent(new Pointer('pointerup', pointerInit));
+      el.dispatchEvent(new MouseEvent('mouseup', init));
+      el.click();
+    },
+
+    append(el, text) {
+      // React tracks the value it last set: write through the native setter
+      // so its onChange sees the change
+      const proto =
+        el instanceof HTMLTextAreaElement ?
+          HTMLTextAreaElement.prototype
+        : HTMLInputElement.prototype;
+      const input = el as HTMLInputElement;
+      Object.getOwnPropertyDescriptor(proto, 'value')?.set?.call(
+        input,
+        input.value + text,
+      );
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    },
+
+    caption(text) {
+      caption.textContent = text;
+      // under the preview (beside the code in a row), over its foot
+      const preview = scopeOf(root, 'preview')?.getBoundingClientRect();
+      if (!preview) return;
+      const origin = layer.getBoundingClientRect();
+      caption.style.left = `${preview.left - origin.left + preview.width / 2}px`;
+      caption.style.maxWidth = `${preview.width - 16}px`;
+    },
+
+    store,
+
+    end() {
+      layer.dataset.ended = '';
+      setTimeout(() => layer.remove(), END_MS);
+    },
+  };
+}
+
+/** ms: the layer's fade out (`--motion-snappy`, with room to spare) */
+const END_MS = 400;
+
+function scopeOf(root: HTMLElement, scope: Scope) {
+  switch (scope) {
+    case 'playground':
+      return root;
+    case 'store':
+      return root.querySelector<HTMLElement>('[data-store-panel]');
+    default:
+      return root.querySelector<HTMLElement>('.playground-preview');
+  }
+}
+
+// jsdom lacks checkVisibility
+const visible = (el: HTMLElement) => el.checkVisibility?.() ?? true;
+
+/** Scrolls the panes between `el` and `root` so `el` shows; never the page */
+function scrollWithin(el: HTMLElement, root: HTMLElement) {
+  for (
+    let pane = el.parentElement;
+    pane && pane !== root;
+    pane = pane.parentElement
+  ) {
+    if (pane.scrollHeight > pane.clientHeight) {
+      const box = el.getBoundingClientRect();
+      const view = pane.getBoundingClientRect();
+      if (box.top < view.top) pane.scrollTop -= view.top - box.top;
+      else if (box.bottom > view.bottom)
+        pane.scrollTop += Math.min(
+          box.bottom - view.bottom,
+          box.top - view.top,
+        );
+    }
+  }
+}
+
+/** An arrow pointer, its tip at the element's top left (the point) */
+const POINTER_SVG =
+  '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 2l17 10.5-7.4 1.4L9 21z" /></svg>';

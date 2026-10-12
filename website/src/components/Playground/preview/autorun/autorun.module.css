@@ -1,0 +1,85 @@
+/* A zero-height layer at the playground's foot (appended by stage.ts): the
+   pointer is placed from its top left, the caption sits just above it,
+   centered under the preview (stage.ts sets its left and max-width).
+   Over the Store and its sheets, under the site's navbar. */
+.layer {
+  position: relative;
+  z-index: 10;
+  height: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-snappy);
+}
+.layer[data-ended] {
+  opacity: 0;
+}
+
+.pointer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition:
+    transform var(--motion-smooth),
+    opacity var(--motion-snappy);
+}
+.pointer[data-shown] {
+  opacity: 1;
+}
+.pointer svg {
+  display: block;
+  fill: #fff;
+  stroke: #1c1e21;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.35));
+}
+/* the click: a ring spreading from the tip */
+.pointer::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--ifm-color-primary);
+  opacity: 0;
+}
+.pointer.press::before {
+  animation: press 0.45s ease-out;
+}
+@keyframes press {
+  from {
+    opacity: 0.5;
+    transform: scale(0.3);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pointer.press::before {
+    animation: none;
+  }
+}
+
+.caption {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 50%;
+  translate: -50% 0;
+  width: max-content;
+  margin: 0;
+  padding: 0.35rem 0.85rem;
+  border-radius: 1rem;
+  background: rgb(28 30 33 / 0.88);
+  color: #fff;
+  font-size: 0.875rem;
+  line-height: 1.35;
+  text-align: center;
+  transition: opacity var(--motion-snappy);
+}
+.caption:empty {
+  opacity: 0;
+}

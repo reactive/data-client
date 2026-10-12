@@ -4,27 +4,31 @@
 import { useScrollPositionBlocker } from '@docusaurus/theme-common/internal';
 import Translate, { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { useTabStorage } from '../../../utils/tabStorage';
 import { useLayoutMotion } from '../../motion';
 import styles from '../styles.module.css';
 
-/** Store open state, persisted per `groupId`; toggling keeps the page from scrolling */
+/** Store open state, persisted per `groupId`; toggling keeps the page from
+ * scrolling. `show` opens or closes it for a demo without persisting, until
+ * the reader toggles it (or `show(null)`). */
 export function useStoreOpen(groupId: string, defaultOpen: 'y' | 'n') {
   const [choice, setChoice] = useTabStorage(groupId);
+  const [shown, show] = useState<boolean | null>(null);
   const open =
-    (choice === 'y' || choice === 'n' ? choice : defaultOpen) === 'y';
+    shown ?? (choice === 'y' || choice === 'n' ? choice : defaultOpen) === 'y';
   const { blockElementScrollPositionUntilNextRender } =
     useScrollPositionBlocker();
   const toggle = useCallback(
     (event: React.MouseEvent<HTMLElement>) => {
       blockElementScrollPositionUntilNextRender(event.currentTarget);
       setChoice(open ? 'n' : 'y');
+      show(null);
     },
     [blockElementScrollPositionUntilNextRender, open, setChoice],
   );
-  return [open, toggle] as const;
+  return [open, toggle, show] as const;
 }
 
 /** Toggle row; also rendered (inert) by the preview loading fallback in ../index.tsx */

@@ -4,9 +4,13 @@ import React from 'react';
 import Header from '../Header';
 import styles from '../styles.module.css';
 
-export default function PreviewWrapper({ children, headerControls }: Props) {
+export default function PreviewWrapper({
+  children,
+  headerControls,
+  ref,
+}: Props) {
   return (
-    <div className={styles.previewWrapper}>
+    <div className={styles.previewWrapper} ref={ref}>
       <Header className={styles.previewHeader}>
         <span className={styles.liveLabel}>
           <Translate
@@ -25,4 +29,5 @@ export default function PreviewWrapper({ children, headerControls }: Props) {
 interface Props {
   children: React.ReactNode;
   headerControls?: React.ReactNode;
+  ref?: React.Ref<HTMLDivElement>;
 }
