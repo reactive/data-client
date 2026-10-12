@@ -42,7 +42,7 @@ const url = 'https://dataclient.io';
 // beside the current version's site (site-preview.yml). PR previews build
 // master alone, so they link to the current version on the production site.
 const isNext = !!versionCurrent && process.env.DOCS_NEXT === '1';
-const currentRoot = isNext ? '' : url;
+const currentOrigin = isNext ? '' : url;
 const vueDocs = frameworkDocs.generate('vue');
 // Each locale renders English with its translations in place
 // (translate/README.md); its Vue pages mirror its docs/core
@@ -545,7 +545,7 @@ const config: Config = {
       versionCurrent ?
         {
           id: `next-${versionCurrent.version}`,
-          content: `You're reading the docs for the next, unreleased version. <a href="${currentRoot}${localeRoot}/docs">See the v${versionCurrent.version} docs</a>.`,
+          content: `You're reading the docs for the next, unreleased version. <a href="${currentOrigin}${localeRoot}/docs">See the v${versionCurrent.version} docs</a>.`,
           isCloseable: false,
         }
       : {
