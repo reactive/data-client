@@ -297,23 +297,15 @@ function useTrackPreview(
     const preview = (x: number, y: number, now?: boolean) => {
       pointer = { x, y };
       const { lanes, scale, onPreview } = latest.current;
-      // the lane the pointer is on, or (over the axis) the nearest: only
-      // that one measured, however many lanes there are
-      const all = [...el.querySelectorAll('[data-lane]')];
-      const hit = document.elementFromPoint?.(x, y)?.closest('[data-lane]');
-      let i = hit ? all.indexOf(hit) : -1;
-      if (i < 0) {
-        let gap = Infinity;
-        all.forEach((lane, j) => {
-          const { top, bottom } = lane.getBoundingClientRect();
-          const off = Math.max(top - y, y - bottom, 0);
-          if (off < gap) [i, gap] = [j, off];
-        });
-      }
-      const shown = lanes[i];
-      const box = all[i]?.getBoundingClientRect();
+      // the lane the pointer is on, or (over the axis) the nearest: the
+      // lanes stack at one height and width, so the first one's box places
+      // them all, however many there are
+      const box = el.querySelector('[data-lane]')?.getBoundingClientRect();
+      if (!box?.height) return onPreview(null);
+      const i = Math.floor((y - box.top) / box.height);
+      const shown = lanes[Math.min(Math.max(i, 0), lanes.length - 1)];
       // no actions under it: nothing to show, till some come
-      if (!box || !shown?.length) return onPreview(null);
+      if (!shown?.length) return onPreview(null);
       const entry = nearest(
         shown,
         scale,

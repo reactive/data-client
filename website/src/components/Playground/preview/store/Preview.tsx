@@ -37,7 +37,6 @@ export type OnPreview = (at: PreviewAt | null, now?: boolean) => void;
 /** Where the preview shows, in the panel's px */
 interface Shown {
   readonly entry: LogEntry;
-  readonly anchor: HTMLElement;
   readonly x: number;
   readonly top: number;
 }
@@ -82,18 +81,12 @@ export function usePreview(panel: React.RefObject<HTMLElement | null>) {
       if (!frame) return;
       const next = {
         entry: at.entry,
-        anchor: at.anchor,
         x: at.x - frame.left,
         top: at.anchor.getBoundingClientRect().bottom - frame.top,
       };
       // the same action in the same place: nothing to move
       const was = pending.current;
-      if (
-        was?.entry === next.entry &&
-        was.anchor === next.anchor &&
-        was.x === next.x &&
-        was.top === next.top
-      )
+      if (was?.entry === next.entry && was.x === next.x && was.top === next.top)
         return;
       pending.current = next;
       const show = () => {
@@ -135,23 +128,22 @@ export function Preview({
   const changes = useRef<HTMLDivElement>(null);
   // what it did shows whole or not at all, never cut off: measured each
   // render, as the action, the subject and the panel's width all change it,
-  // and as the room under the track changes
-  useLayoutEffect(() => fitChanges(card.current, changes.current));
-  const showing = !!at;
-  useEffect(() => {
-    const room = card.current?.parentElement;
-    if (!room || typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(() =>
-      fitChanges(card.current, changes.current),
-    );
-    observer.observe(room);
+  // and as the panel resizes
+  const fit = () => fitChanges(card.current, changes.current);
+  useLayoutEffect(fit);
+  const watchPanel = (preview: HTMLElement | null) => {
+    const panel = preview?.parentElement;
+    if (!panel || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(fit);
+    observer.observe(panel);
     return () => observer.disconnect();
-  }, [showing]);
+  };
   if (!at) return null;
   const { entry } = at;
   const what = whatFields(entry.action);
   return (
     <div
+      ref={watchPanel}
       className={styles.preview}
       role="tooltip"
       aria-hidden="true"
