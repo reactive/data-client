@@ -10,6 +10,8 @@ import { readdirSync, readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
 const REPO = 'reactive/data-client';
+// GitHub's "Latest" release, which the repo page and /releases/latest show
+const LATEST_PACKAGE = '@data-client/react';
 const BLOG_BASE_URL = 'https://dataclient.io/blog';
 const DRY_RUN = process.argv.includes('--dry-run');
 // Tags the released commit; gh would tag the default branch (master) instead
@@ -84,9 +86,25 @@ function releaseExists(tag) {
   }
 }
 
-function createRelease(tag, name, body) {
+/**
+ * GitHub's Latest follows npm's `latest`, so only LATEST_PACKAGE takes it.
+ * Every other release passes --latest=false, or GitHub marks whichever was
+ * created last, like @data-client/vue.
+ */
+function isLatest(name, version) {
+  return (
+    name === LATEST_PACKAGE &&
+    !version.includes('-') &&
+    // set by scripts/maintenance/publish.sh
+    (process.env.NPM_TAG ?? 'latest') === 'latest'
+  );
+}
+
+function createRelease(tag, name, body, latest) {
   if (DRY_RUN) {
-    console.log(`  [dry-run] Would create release: ${tag}`);
+    console.log(
+      `  [dry-run] Would create release: ${tag}${latest ? ' (Latest)' : ''}`,
+    );
     console.log(
       `  Body preview: ${body.slice(0, 200)}${body.length > 200 ? '...' : ''}`,
     );
@@ -95,7 +113,7 @@ function createRelease(tag, name, body) {
   console.log(`Creating release: ${tag}`);
   try {
     execSync(
-      `gh release create "${tag}" --repo ${REPO} --title "${name}" --notes-file -${TARGET}`,
+      `gh release create "${tag}" --repo ${REPO} --title "${name}" --notes-file - --latest=${latest}${TARGET}`,
       {
         input: body,
         stdio: ['pipe', 'inherit', 'inherit'],
@@ -149,7 +167,7 @@ async function main() {
       body += `Release ${pkg.name}@${pkg.version}`;
     }
 
-    if (createRelease(tag, tag, body)) {
+    if (createRelease(tag, tag, body, isLatest(pkg.name, pkg.version))) {
       createdCount++;
     }
   }
