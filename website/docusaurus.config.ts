@@ -357,7 +357,6 @@ const config: Config = {
         // whenever the worker is registered it precaches
         offlineModeActivationStrategies: ['always'],
         swRegister: require.resolve('./src/pwaRegister.ts'),
-        swCustom: require.resolve('./src/pwaSw.js'),
         // The manifest link goes under each build's baseUrl (/next/, /es/),
         // and its relative start_url and scope resolve against it, so the
         // installed app opens the build that has this worker
@@ -371,6 +370,20 @@ const config: Config = {
         injectManifestConfig: {
           // social cards are for link previews, never shown on the site
           globIgnores: ['img/social/**'],
+          // Pages are files like docs/intro.html served at /docs/intro
+          // (trailingSlash: false), so cache them under the URL they're served
+          // at; the worker's offline lookup only tries URL and URL/index.html
+          manifestTransforms: [
+            entries => ({
+              manifest: entries.map(entry => ({
+                ...entry,
+                url: entry.url.replace(
+                  /(^|\/)(?!index\.html$)([^/]+)\.html$/,
+                  '$1$2',
+                ),
+              })),
+            }),
+          ],
         },
       },
     ],
