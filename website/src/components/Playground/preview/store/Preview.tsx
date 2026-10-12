@@ -78,9 +78,9 @@ export function usePreview(panel: React.RefObject<HTMLElement | null>) {
       const was = last.current;
       if (was?.entry === at.entry && was.anchor === at.anchor && was.x === at.x)
         return;
-      last.current = at;
       const frame = panel.current?.getBoundingClientRect();
       if (!frame) return;
+      last.current = at;
       pending.current = {
         entry: at.entry,
         anchor: at.anchor,

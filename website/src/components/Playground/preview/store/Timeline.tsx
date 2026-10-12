@@ -307,7 +307,8 @@ function useTrackPreview(
         if (off < gap) [i, box, gap] = [j, rect, off];
       });
       const shown = lanes[i];
-      if (!box || !shown?.length) return;
+      // the actions under it are gone
+      if (!box || !shown?.length) return hide();
       const entry = nearest(
         shown,
         scale,
