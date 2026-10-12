@@ -18,6 +18,12 @@ on:
 permissions:
   contents: read
 
+# One port at a time, in push order: each branches from the tip the last one
+# merged into, so a fix building on an earlier one applies
+concurrency:
+  group: ${{ github.workflow }}
+  queue: max
+
 jobs:
   port:
     runs-on: ubuntu-latest
