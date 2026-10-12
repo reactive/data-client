@@ -70,5 +70,11 @@
       ],
       "destination": "/archives/:version/:path*"
     }
+  ],
+  "headers": [
+    {
+      "source": "/site-versions.json",
+      "headers": [{ "key": "Access-Control-Allow-Origin", "value": "*" }]
+    }
   ]
 }

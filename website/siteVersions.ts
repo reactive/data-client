@@ -71,3 +71,37 @@ check(
   `packages/react/package.json: ${packageVersion} has no line`,
 );
 export const siteLabel = versionCurrent ? 'next' : `v${packageLine}`;
+
+/**
+ * Every version's site, newest first, for the version menu by the logo
+ * (scripts/snapshot/versionMenu.client.ts). docusaurus.config.ts writes it to
+ * the production root's /site-versions.json, where every version's site reads
+ * it, so archives list the versions released after them.
+ */
+export const siteVersions: SiteVersion[] = [
+  // master's version is the last release's until the next one publishes
+  ...(versionCurrent ?
+    [
+      { label: 'Next', note: 'unreleased', url: 'https://dataclient.io/next' },
+      {
+        label: `v${versionCurrent.version}`,
+        note: 'latest',
+        url: 'https://dataclient.io',
+      },
+    ]
+  : [
+      {
+        label: `v${packageLine}`,
+        note: 'latest',
+        url: 'https://dataclient.io',
+      },
+    ]),
+  ...versionsArchived
+    .map(({ version }) => version)
+    .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))
+    .map(version => ({
+      label: `v${version}`,
+      url: `https://${version}.dataclient.io`,
+    })),
+];
+export type SiteVersion = { label: string; note?: string; url: string };

@@ -1,7 +1,8 @@
 // Copied next to an old release's docusaurus.config.ts by build.sh, so the
 // site builds with that release's own config. An archive serves on its own
 // host (<version>.dataclient.io); the current version (SNAPSHOT_ROLE=current,
-// while master is the next major) stays at the root and links to /next/.
+// while master is the next major) stays at the root. Both get the version
+// menu by the logo.
 // Keep it to fields every release's config has: it runs against old ones.
 import config from './docusaurus.config';
 import { VERSION_LABEL_ID, versionLabel } from './versionLabel';
@@ -18,11 +19,10 @@ const navbar = (themeConfig.navbar ?? {}) as { items?: unknown[] };
 const locale = process.env.DOCUSAURUS_CURRENT_LOCALE;
 const localePrefix = locale && locale !== 'en' ? `/${locale}` : '';
 // every release's config has the production url
-const docs = `${localePrefix}/docs`;
-const latestDocs = `${config.url}${docs}`;
+const latestDocs = `${config.url}${localePrefix}/docs`;
 
-// Drops the version dropdown some releases have: the label under the logo
-// shows the version, and a link (below) goes to the latest or next docs
+// Drops the version dropdown some releases have: versionMenu.client.ts opens
+// one from the logo, with every version
 const navbarItems = (navbar.items ?? []).filter(
   item => (item as { type?: string }).type !== 'custom-versions',
 );
@@ -34,16 +34,6 @@ const headTags = [
   ).filter(tag => tag.attributes?.id !== VERSION_LABEL_ID),
   versionLabel(`v${version}`),
 ];
-// A link, not a dropdown: older releases' CSS hides dropdowns
-const navbarLink = (html: string, href: string) => ({
-  // html, not label: an absolute or pathname:// href gets an external link icon
-  html,
-  href,
-  // outside this site's baseUrl
-  autoAddBaseUrl: false,
-  target: '_self',
-  position: 'right',
-});
 
 const site =
   isCurrent ? config : (
@@ -57,6 +47,10 @@ const site =
 export default {
   ...site,
   headTags,
+  clientModules: [
+    ...(site.clientModules ?? []),
+    require.resolve('./versionMenu.client'),
+  ],
   themeConfig: {
     ...themeConfig,
     ...(!isCurrent && {
@@ -66,14 +60,6 @@ export default {
         isCloseable: false,
       },
     }),
-    navbar: {
-      ...navbar,
-      items: [
-        ...navbarItems,
-        isCurrent ?
-          navbarLink(`v${version} → Next`, `pathname:///next${docs}`)
-        : navbarLink(`v${version} → Latest`, latestDocs),
-      ],
-    },
+    navbar: { ...navbar, items: navbarItems },
   },
 };
