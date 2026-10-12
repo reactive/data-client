@@ -663,6 +663,68 @@ describe('Store timeline preview', () => {
 });
 
 describe('Store Timeline lanes', () => {
+  afterEach(() => {
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+
+  it('previews the action on the lane under the mouse', async () => {
+    const getUsers = new Endpoint(async () => ({ name: 'Ann' }), {
+      key: () => 'GET https://example.com/users',
+      name: 'getUsers',
+    });
+    const { ctrl } = mount();
+    await act(() => ctrl().fetch(getPosts));
+    await act(() => ctrl().fetch(getUsers));
+    await act(() => ctrl().fetch(getPosts));
+    toggle();
+    const timeline = lanes();
+    const body = timeline.querySelector<HTMLElement>('[style*="--tl-width"]')!;
+    const width = parseFloat(body.style.getPropertyValue('--tl-width'));
+    // the lanes stacked 20px apart, each a client x per px of the scale
+    jest
+      .spyOn(Element.prototype, 'getBoundingClientRect')
+      .mockImplementation(function (this: Element) {
+        const lane = [...timeline.querySelectorAll('[data-lane]')].indexOf(
+          this,
+        );
+        const top = Math.max(lane, 0) * 20;
+        return {
+          left: 0,
+          top,
+          right: width,
+          bottom: top + 20,
+          width,
+          height: 20,
+        } as DOMRect;
+      });
+    jest.useFakeTimers();
+    const [posts, users] = timeline.querySelectorAll('[data-lane]');
+    const marks = within(posts as HTMLElement).getAllByRole('button', {
+      name: /^setResponse at/,
+    });
+    const x = Number(marks[1].style.getPropertyValue('--tl-f')) * width;
+    const move = (y: number) => {
+      const event = new MouseEvent('pointermove', {
+        bubbles: true,
+        clientX: x,
+        clientY: y,
+      });
+      Object.assign(event, { pointerType: 'mouse', pointerId: 1 });
+      fireEvent(users, event);
+    };
+    const card = () => screen.queryByRole('tooltip', { hidden: true });
+    // on the users lane, over where the newer posts response is: the users
+    // request's own action, the nearest on its lane
+    move(30);
+    act(() => jest.advanceTimersByTime(150));
+    expect(card()!.textContent).toContain('users');
+    expect(card()!.textContent).not.toContain('posts');
+    // up on the posts lane, that response
+    move(10);
+    expect(card()!.textContent).toContain('posts');
+  });
+
   it('expand under the scrubber, collapsing back', async () => {
     const { ctrl } = mount();
     const expand = screen.getByRole('button', { name: 'Timeline' });
