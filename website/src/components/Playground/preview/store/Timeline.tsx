@@ -278,17 +278,19 @@ function useTrackPreview(
   lanes: readonly (readonly LogEntry[])[],
   scale: TimeScale,
   onPreview: OnPreview,
+  /** The track's width, where the marks squeeze to fit it */
+  fitted?: number,
 ) {
   const latest = useRef({ lanes, scale, onPreview });
   useLayoutEffect(() => {
     latest.current = { lanes, scale, onPreview };
   });
-  // the marks moved under a still pointer (squeezed in, or new ones came):
-  // previews what it is on now
+  // the marks moved under a still pointer (squeezed in, new ones came, or
+  // the track resized): previews what it is on now
   const refresh = useRef<() => void>(undefined);
   useLayoutEffect(() => {
     refresh.current?.();
-  }, [scale]);
+  }, [scale, fitted]);
   useEffect(() => {
     const el = track.current;
     if (!el) return;
@@ -685,7 +687,7 @@ export default memo(function Timeline({
         .sort((a, b) => a.seq - b.seq),
     );
   }, [lanes, shown]);
-  useTrackPreview(scroller, root, laneEntries, scale, onPreview);
+  useTrackPreview(scroller, root, laneEntries, scale, onPreview, track);
   // a scrolled-back view stays put as the fit toggles, while a followed one
   // stays on the newest; the picked action comes into view again
   const end = useTrackFollow(scroller, scale, fit);
