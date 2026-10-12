@@ -298,9 +298,10 @@ function useTrackPreview(
       pointer = { x, y };
       const { lanes, scale, onPreview } = latest.current;
       // the lane the pointer is on, or (over the axis) the nearest: lanes
-      // stack edge to edge at one height (`.tlLane`), so the first one's
-      // box places them all. No height: no lanes, or hidden
+      // stack edge to edge at one height and width (`.tlLane`, no margin),
+      // so the first one's box places them all
       const box = el.querySelector('[data-lane]')?.getBoundingClientRect();
+      // no height: no lanes, or hidden
       if (!box?.height) return onPreview(null);
       const i = Math.floor((y - box.top) / box.height);
       const shown = lanes[Math.min(Math.max(i, 0), lanes.length - 1)];

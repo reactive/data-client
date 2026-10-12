@@ -105,11 +105,11 @@ export function usePreview(panel: React.RefObject<HTMLElement | null>) {
   return [store, onPreview] as const;
 }
 
-/** Shows what the action did (`.pvChanges`) only if the whole of it fits
- * in the card */
+/** Shows what the action did (`[data-changes]`) only if the whole of it
+ * fits in the card */
 function fitChanges(card: Element | null) {
-  const changes = card?.querySelector<HTMLElement>(`.${styles.pvChanges}`);
-  if (!card || !changes) return;
+  const changes = card?.querySelector('[data-changes]');
+  if (!card || !(changes instanceof HTMLElement)) return;
   changes.hidden = false;
   changes.hidden = card.scrollHeight > card.clientHeight;
 }
@@ -121,7 +121,7 @@ function watchPanel(preview: HTMLElement | null) {
   const panel = preview?.parentElement;
   if (!panel || typeof ResizeObserver === 'undefined') return;
   const observer = new ResizeObserver(() =>
-    fitChanges(preview.querySelector(`.${styles.previewCard}`)),
+    fitChanges(preview.querySelector('[data-card]')),
   );
   observer.observe(panel);
   return () => observer.disconnect();
@@ -161,7 +161,7 @@ export function Preview({
         } as React.CSSProperties
       }
     >
-      <div ref={card} className={styles.previewCard}>
+      <div ref={card} className={styles.previewCard} data-card>
         <div className={styles.actHead}>
           <ActionName entry={entry} />
           <Time at={entry.at} />
@@ -173,7 +173,7 @@ export function Preview({
             ))}
           </div>
         )}
-        <div className={styles.pvChanges}>
+        <div className={styles.pvChanges} data-changes>
           <SubjectChanges entries={[entry]} subject={subject} />
         </div>
       </div>
