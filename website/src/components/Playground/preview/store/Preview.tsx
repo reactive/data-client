@@ -105,11 +105,26 @@ export function usePreview(panel: React.RefObject<HTMLElement | null>) {
   return [store, onPreview] as const;
 }
 
-/** Shows `changes` only if the whole of it fits in `card` */
-function fitChanges(card: HTMLElement | null, changes: HTMLElement | null) {
-  if (!card || !changes) return;
+/** Shows the card's last part, what the action did, only if the whole of
+ * it fits in the card */
+function fitChanges(card: Element | null | undefined) {
+  const changes = card?.lastElementChild;
+  if (!card || !(changes instanceof HTMLElement)) return;
   changes.hidden = false;
   changes.hidden = card.scrollHeight > card.clientHeight;
+}
+
+/** Fits the card again as the panel `preview` is in resizes. A ref
+ * callback outside the component, so it stays the same and observes once
+ * per card shown */
+function watchPanel(preview: HTMLElement | null) {
+  const panel = preview?.parentElement;
+  if (!panel || typeof ResizeObserver === 'undefined') return;
+  const observer = new ResizeObserver(() =>
+    fitChanges(preview.firstElementChild),
+  );
+  observer.observe(panel);
+  return () => observer.disconnect();
 }
 
 /** The action previewed: what it is (its name and what it carries), then,
@@ -125,19 +140,10 @@ export function Preview({
 }) {
   const at = useSyncExternalStore(store.subscribe, store.get, store.get);
   const card = useRef<HTMLDivElement>(null);
-  const changes = useRef<HTMLDivElement>(null);
   // what it did shows whole or not at all, never cut off: measured each
   // render, as the action, the subject and the panel's width all change it,
-  // and as the panel resizes
-  const fit = () => fitChanges(card.current, changes.current);
-  useLayoutEffect(fit);
-  const watchPanel = (preview: HTMLElement | null) => {
-    const panel = preview?.parentElement;
-    if (!panel || typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(fit);
-    observer.observe(panel);
-    return () => observer.disconnect();
-  };
+  // and as the panel resizes (`watchPanel`)
+  useLayoutEffect(() => fitChanges(card.current));
   if (!at) return null;
   const { entry } = at;
   const what = whatFields(entry.action);
@@ -167,7 +173,7 @@ export function Preview({
             ))}
           </div>
         )}
-        <div ref={changes} className={styles.pvChanges}>
+        <div className={styles.pvChanges}>
           <SubjectChanges entries={[entry]} subject={subject} />
         </div>
       </div>
