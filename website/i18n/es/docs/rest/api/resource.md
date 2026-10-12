@@ -760,7 +760,7 @@ export const IssueResource= resource({
   searchParams: {} as IssueFilters | undefined,
 }).extend(BaseResource => ({
   search: BaseResource.getList.extend({
-    path: '/search/issues?{q=:q}%20repo\\::owner/:repo{&page=:page}',
+    path: '/search/issues?{q=:q}%20repo\\::owner/:repo%20is\\:issue{&page=:page}',
     schema: {
       results: {
         incompleteResults: false,
