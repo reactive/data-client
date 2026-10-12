@@ -38,6 +38,7 @@ function here() {
   };
 }
 
+// var() fallbacks: archives freeze this with an old release's Infima
 const STYLE = `
 .version-menu {
   position: fixed;
@@ -152,17 +153,19 @@ const STYLE = `
   .version-menu__item, .version-menu__foot a { min-height: 2.75rem; }
 }
 .navbar__brand::after {
-  /* a 6x4px caret in the label's right padding, grown in on hover, keyboard focus or while open */
+  /* a 6x4px caret in the label's right padding, grown in with the menu (and
+     on keyboard focus), on the menu's timing */
   background: conic-gradient(from -37deg at 50% 100%, currentColor 74deg, transparent 0) right 8px center / 6px 0 no-repeat;
   cursor: pointer;
-  transition: opacity 150ms, color 150ms, background-size 150ms;
+  transition: opacity 100ms ease-in, color 100ms ease-in, background-size 100ms ease-in;
 }
 @media (hover: hover) {
-  .navbar__brand:hover::after { opacity: 1; background-size: 6px 4px; }
+  .navbar__brand:hover::after { opacity: 1; }
 }
 .navbar__brand:focus-visible::after, .navbar__brand[aria-expanded="true"]::after {
   opacity: 1;
   background-size: 6px 4px;
+  transition: opacity 140ms ease-out, color 140ms ease-out, background-size 200ms cubic-bezier(0.2, 0.9, 0.3, 1);
 }
 .navbar__brand[aria-expanded="true"]::after {
   color: var(--ifm-color-primary);
@@ -301,8 +304,8 @@ function bind(el: HTMLElement) {
     style.textContent = STYLE;
     document.head.append(style);
   }
-  // load the list before the menu opens, once the page is idle (again after
-  // a failed load)
+  // load the list before the menu opens, once the page is idle; a failed
+  // load clears the cache, so this refetches on the next navbar
   setTimeout(loadVersions, 1000);
   brand = el;
   el.setAttribute('aria-haspopup', 'menu');
