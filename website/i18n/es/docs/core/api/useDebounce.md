@@ -138,7 +138,7 @@ export default function SearchIssues() {
         <SearchIcon />
       </TextInput>
       <AsyncBoundary fallback={<Loading />} errorComponent={ErrorMessage}>
-        <IssueList query={debouncedQuery} owner="facebook" repo="react" />
+        <IssueList query={debouncedQuery} owner="react" repo="react" />
       </AsyncBoundary>
     </>
   );
@@ -208,7 +208,7 @@ render(<SearchIssues />);
     :resetErrorBoundary="() => (error = null)"
   />
   <Suspense v-else>
-    <IssueList :query="debouncedQuery" owner="facebook" repo="react" />
+    <IssueList :query="debouncedQuery" owner="react" repo="react" />
     <template #fallback><Loading /></template>
   </Suspense>
 </template>
