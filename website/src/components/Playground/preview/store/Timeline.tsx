@@ -281,13 +281,19 @@ function useTrackPreview(
   useLayoutEffect(() => {
     latest.current = { shown, scale, onPreview };
   });
-  // the marks moved under a still pointer (squeezed in, without a scroll):
-  // what it was on no longer is
-  useLayoutEffect(() => latest.current.onPreview(null), [scale]);
+  // the marks moved under a still pointer (squeezed in, or new ones came):
+  // previews what it is on now
+  const refresh = useRef<() => void>(undefined);
+  useLayoutEffect(() => {
+    refresh.current?.();
+  }, [scale]);
   useEffect(() => {
     const el = track.current;
     if (!el) return;
+    // where the previewing pointer is
+    let pointerX: number | undefined;
     const preview = (clientX: number, now?: boolean) => {
+      pointerX = clientX;
       const { shown, scale, onPreview } = latest.current;
       const lane = el.querySelector('[data-lane]');
       if (!lane || !shown.length) return;
@@ -306,7 +312,14 @@ function useTrackPreview(
         now,
       );
     };
-    const hide = () => latest.current.onPreview(null);
+    const hide = () => {
+      pointerX = undefined;
+      latest.current.onPreview(null);
+    };
+    const onMoved = () => {
+      if (pointerX !== undefined) preview(pointerX);
+    };
+    refresh.current = onMoved;
     // held, the finger slides the preview: the track doesn't scroll, nor
     // the long press open a menu. Only then, so a plain swipe scrolls
     // without waiting on these
@@ -390,8 +403,8 @@ function useTrackPreview(
       ['pointerup', onUp],
       ['pointercancel', onUp],
       ['click', onClick],
-      // the marks moved under the pointer: what it was on no longer is
-      ['scroll', hide],
+      // the marks moved under the pointer
+      ['scroll', onMoved],
     ] as const;
     // capturing: ahead of the track's follow, which a held finger mustn't
     // move (see `useFollow`), and of the mark's own click

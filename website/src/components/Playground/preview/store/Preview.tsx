@@ -62,20 +62,23 @@ export function usePreview(panel: React.RefObject<HTMLElement | null>) {
   const [store] = useState(() => new HoverPreview());
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const pending = useRef<Shown | null>(null);
+  const last = useRef<PreviewAt | null>(null);
   const hidAt = useRef(-Infinity);
   const onPreview = useCallback<OnPreview>(
     (at, now) => {
       if (!at) {
         clearTimeout(timer.current);
         timer.current = undefined;
-        pending.current = null;
+        last.current = null;
         if (store.get()) hidAt.current = performance.now();
         store.set(null);
         return;
       }
-      // the same action again: nothing to move
-      const was = pending.current;
-      if (was?.entry === at.entry && was.anchor === at.anchor) return;
+      // the same action in the same place: nothing to move
+      const was = last.current;
+      if (was?.entry === at.entry && was.anchor === at.anchor && was.x === at.x)
+        return;
+      last.current = at;
       const frame = panel.current?.getBoundingClientRect();
       if (!frame) return;
       pending.current = {

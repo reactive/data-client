@@ -528,21 +528,30 @@ describe('Store timeline preview', () => {
       '[style*="--tl-width"]',
     )!;
     const width = parseFloat(track.style.getPropertyValue('--tl-width'));
-    jest.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({
-      left: 0,
-      top: 0,
-      right: width,
-      bottom: 20,
-      width,
-      height: 20,
-    } as DOMRect);
+    // scrolled `by` px: the marks sit that much further left
+    let by = 0;
+    jest.spyOn(Element.prototype, 'getBoundingClientRect').mockImplementation(
+      () =>
+        ({
+          left: -by,
+          top: 0,
+          right: width - by,
+          bottom: 20,
+          width,
+          height: 20,
+        }) as DOMRect,
+    );
+    const scroll = (px: number) => {
+      by = px;
+      fireEvent.scroll(track);
+    };
     const marks = within(scrubber()).getAllByRole('button', {
       name: /^setResponse at/,
     });
     const at = (mark: HTMLElement) =>
       Number(mark.style.getPropertyValue('--tl-f')) * width;
     jest.useFakeTimers();
-    return { track, marks, at };
+    return { ctrl, track, marks, at, scroll };
   }
   afterEach(() => {
     jest.useRealTimers();
@@ -550,7 +559,7 @@ describe('Store timeline preview', () => {
   });
 
   it('shows what the action under the mouse did after a moment, then follows the mouse at once', async () => {
-    const { track, marks, at } = await twoResponses();
+    const { ctrl, track, marks, at, scroll } = await twoResponses();
     pointer(track, 'pointermove', at(marks[0]) + 2);
     expect(preview()).toBeNull();
     act(() => jest.advanceTimersByTime(150));
@@ -560,9 +569,12 @@ describe('Store timeline preview', () => {
     // sliding on to the next shows it with no wait
     pointer(track, 'pointermove', at(marks[1]) - 2);
     expect(preview()!.textContent).toContain('"Two"');
-    // the track scrolling moves the marks out from under it
-    fireEvent.scroll(track);
-    expect(preview()).toBeNull();
+    // the track scrolling moves the marks under a still mouse: it shows
+    // the one under it now
+    scroll(at(marks[1]) - at(marks[0]));
+    pointer(track, 'pointermove', at(marks[0]));
+    scroll(0);
+    expect(preview()!.textContent).toContain('"One"');
     pointer(track, 'pointermove', at(marks[1]));
     expect(preview()!.textContent).toContain('"Two"');
     // out of the tab order and hidden from assistive tech
@@ -572,6 +584,13 @@ describe('Store timeline preview', () => {
     expect(preview()).toBeNull();
     pointer(track, 'pointermove', at(marks[1]) + 1);
     pointer(track, 'pointermove', at(marks[1]));
+    expect(preview()!.textContent).toContain('"Two"');
+    // new actions coming in leave it on the action under the mouse
+    await act(async () => {
+      void ctrl().set(Post, { id: '1' }, { id: '1', title: 'Three' });
+      await jest.advanceTimersByTimeAsync(10);
+    });
+    expect(screen.getAllByText('"Three"').length).toBeGreaterThan(0);
     expect(preview()!.textContent).toContain('"Two"');
     pointer(track, 'pointerleave', 0);
     expect(preview()).toBeNull();
