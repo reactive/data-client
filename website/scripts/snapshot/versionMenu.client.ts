@@ -152,13 +152,17 @@ const STYLE = `
   .version-menu__item, .version-menu__foot a { min-height: 2.75rem; }
 }
 .navbar__brand::after {
+  /* a 6x4px caret in the label's right padding, grown in on hover */
+  background: conic-gradient(from -37deg at 50% 100%, currentColor 74deg, transparent 0) right 8px center / 6px 0 no-repeat;
   cursor: pointer;
-  transition: opacity 150ms, color 150ms;
+  transition: opacity 150ms, color 150ms, background-size 150ms;
 }
-.navbar__brand:hover::after, .navbar__brand[aria-expanded="true"]::after {
-  opacity: 1;
+@media (hover: hover) {
+  .navbar__brand:hover::after { opacity: 1; background-size: 6px 4px; }
 }
 .navbar__brand[aria-expanded="true"]::after {
+  opacity: 1;
+  background-size: 6px 4px;
   color: var(--ifm-color-primary);
 }
 @media (prefers-reduced-motion: reduce) {
@@ -183,9 +187,6 @@ const closeOnMouseLeave = (e: PointerEvent) => {
 
 function ensureMenu() {
   if (menu) return menu;
-  const style = document.createElement('style');
-  style.textContent = STYLE;
-  document.head.append(style);
   menu = document.createElement('div');
   menu.className = 'version-menu';
   menu.setAttribute('role', 'menu');
@@ -246,7 +247,8 @@ async function open(focusFirst = false) {
     Object.assign(document.createElement('div'), {
       className: 'version-menu__foot',
       innerHTML:
-        '<a href="https://github.com/reactive/data-client/releases" target="_blank" rel="noopener noreferrer">Release notes ↗</a>',
+        // archives have no blog of their own
+        `<a href="${LATEST}/blog/tags/releases">Release notes</a>`,
     }),
   );
   el.style.left = `${Math.max(8, left - 8)}px`;
@@ -286,6 +288,12 @@ function onMenuKey(e: KeyboardEvent) {
 }
 
 function bind(el: HTMLElement) {
+  // the label's hover styles too, so add them before the menu first opens
+  if (!brand) {
+    const style = document.createElement('style');
+    style.textContent = STYLE;
+    document.head.append(style);
+  }
   brand = el;
   el.setAttribute('aria-haspopup', 'menu');
   el.setAttribute('aria-expanded', 'false');
