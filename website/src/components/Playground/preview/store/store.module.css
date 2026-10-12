@@ -1265,6 +1265,14 @@ div.joined {
   gap: 0.35rem;
   min-height: 1.9rem;
   padding: 2px 0.375rem 2px 0.4rem;
+  background: transparent;
+  transition: background-color var(--motion-snappy);
+}
+/* The pointer on a track holds what it shows still (`[data-held]`, see
+   useHeld in Timeline.tsx): the row takes the stale tint, as what it shows
+   is behind the store, and "Live" shows pause bars for its dot */
+.scrubRow[data-held] {
+  background: var(--store-stale-bg);
 }
 .scrubRow > button {
   flex: none;
@@ -1283,9 +1291,8 @@ div.joined {
 }
 /* the one lane at the scale's width, scrolling sideways past what fits (as
    .tlBody does): every action keeps its own mark. Too short for a scrollbar;
-   a trackpad, ‹ › and the marks move it. Its box places the paused sign */
+   a trackpad, ‹ › and the marks move it */
 .scrubTrackBox {
-  position: relative;
   flex: 1 1 auto;
   min-width: 0;
 }
@@ -1304,7 +1311,8 @@ div.joined {
   top: 0;
 }
 /* "Live": in the past, a plain button back to it, its dot hollow; live, a
-   span that only says so, green with its dot lit */
+   span that only says so, green with its dot lit; held (the row says so),
+   plain again, with pause bars for the dot */
 .scrubRow > .liveButton {
   flex: none;
   display: inline-flex;
@@ -1315,6 +1323,10 @@ div.joined {
   border-radius: 4px;
   color: var(--store-muted);
   font: 500 11px / 1.6 var(--ifm-font-family-base);
+  transition:
+    background-color var(--motion-snappy),
+    border-color var(--motion-snappy),
+    color var(--motion-snappy);
 }
 .liveButton::before {
   content: '';
@@ -1322,6 +1334,15 @@ div.joined {
   height: 5px;
   border-radius: 50%;
   box-shadow: inset 0 0 0 1px currentColor;
+}
+/* two 2px bars, as wide as the dot */
+.scrubRow[data-held] > .liveButton::before {
+  width: 1px;
+  height: 6px;
+  border-right: 2px solid;
+  border-left: 2px solid;
+  border-radius: 0;
+  box-shadow: none;
 }
 .scrubRow > button.liveButton:hover,
 .scrubRow > .liveCurrent {
@@ -1466,8 +1487,6 @@ div.joined {
   /* --tl-label, the lane labels' column, comes from Timeline.tsx */
   /* the time axis and each lane */
   --tl-row: 18px;
-  /* places the paused sign */
-  position: relative;
   flex: none;
   display: flex;
   max-height: 12rem;
@@ -1501,6 +1520,16 @@ div.joined {
   overflow: auto;
   /* a mark scrolled into view clears the axis */
   scroll-padding-top: var(--tl-row);
+  background: transparent;
+  transition: background-color var(--motion-snappy);
+}
+/* held (as .scrubRow[data-held]): the tracks take the stale tint, the axis
+   over them too, opaque as it stays */
+.tlScroller[data-held] {
+  background: var(--store-stale-bg);
+}
+.tlScroller[data-held] .tlAxis {
+  background: color-mix(in srgb, var(--store-stale) 9%, var(--store-bg));
 }
 .tlBody {
   position: relative;
@@ -1528,6 +1557,7 @@ div.joined {
   color: var(--store-dim);
   font-size: 10px;
   line-height: var(--tl-row);
+  transition: background-color var(--motion-snappy);
 }
 .tlLabel {
   display: flex;
@@ -1649,35 +1679,6 @@ button.tlMark:hover {
   background: color-mix(in srgb, var(--store-muted) 10%, transparent);
   box-shadow: inset 0 0 0 1px
     color-mix(in srgb, var(--store-muted) 22%, transparent);
-}
-/* The pointer on a track holds what it shows still: the sign that a change
-   waits, over the track's newest end (where it would show), out of the
-   pointer's way */
-.tlPaused {
-  position: absolute;
-  top: 2px;
-  right: 4px;
-  z-index: 3;
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  height: 14px;
-  padding: 0 5px 0 3px;
-  border: 1px solid var(--store-line-strong);
-  border-radius: 7px;
-  background: var(--store-bg);
-  color: var(--store-muted);
-  font: 500 10px / 1 var(--ifm-font-family-base);
-  pointer-events: none;
-  animation: open var(--motion-snappy);
-}
-.tlPaused svg {
-  width: 10px;
-  height: 10px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
 }
 /* Let go of, a track's marks move to where they are now rather than jump:
    the render that catches up (`[data-catchup]`) starts a transition, which

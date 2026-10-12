@@ -316,6 +316,10 @@ function useHeld(live: Actions, on: boolean, strip: number) {
   return { actions: behind ? was : live, behind, catchingUp };
 }
 
+/** What a held track says of itself, as `[data-held]` tints it (see
+ * store.module.css) */
+const HELD = 'Paused while the pointer is on the timeline; new actions wait';
+
 /** Previews the action nearest the pointer on `track`'s lane under it,
  * under `anchor`: as
  * the mouse moves over it, or, once a finger has held still on it, as the
@@ -615,9 +619,10 @@ export const Scrubber = memo(function Scrubber({
       tabIndex={0}
       role="group"
       aria-label="Scrubber: arrow keys step through changes, End returns to live"
+      aria-description={behind ? HELD : undefined}
       onKeyDown={onKeyDown}
     >
-      <div className={styles.scrubRow}>
+      <div className={styles.scrubRow} data-held={behind || undefined}>
         <button
           type="button"
           data-step
@@ -650,7 +655,6 @@ export const Scrubber = memo(function Scrubber({
               </div>
             )}
           </div>
-          {behind && <Paused />}
         </div>
         {entry ?
           <button
@@ -661,9 +665,9 @@ export const Scrubber = memo(function Scrubber({
             Live
           </button>
         : <span
-            className={clsx(styles.liveButton, styles.liveCurrent)}
-            aria-current="true"
-            title="Showing the newest action"
+            className={clsx(styles.liveButton, !behind && styles.liveCurrent)}
+            aria-current={behind ? undefined : 'true'}
+            title={behind ? HELD : 'Showing the newest action'}
           >
             Live
           </span>
@@ -848,6 +852,7 @@ export default memo(function Timeline({
       tabIndex={0}
       role="group"
       aria-label="Timeline: arrow keys step through changes, End returns to live"
+      aria-description={behind ? HELD : undefined}
       onKeyDown={onKeyDown}
     >
       <div
@@ -880,12 +885,12 @@ export default memo(function Timeline({
           </span>
         ))}
       </div>
-      {behind && <Paused />}
       {/* the scroller stays mounted, so following starts with the first
       action */}
       <div
         ref={scroller}
         className={styles.tlScroller}
+        data-held={behind || undefined}
         onScroll={() => syncTop(scroller.current, labelColumn.current)}
       >
         {!entries.length && (
@@ -962,29 +967,6 @@ export function axisLabels(
       labels.push({ seq, x, at });
   }
   return labels;
-}
-
-/** Says the track holds still while the pointer is on it, as a change
- * waits; at its newest end, where the change would show */
-function Paused() {
-  return (
-    <span
-      className={styles.tlPaused}
-      title="New actions wait until the pointer leaves"
-    >
-      <PauseIcon />
-      Paused
-    </span>
-  );
-}
-
-/** Two bars */
-function PauseIcon() {
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden="true">
-      <path d="M5.5 3.5v9M10.5 3.5v9" />
-    </svg>
-  );
 }
 
 /** A magnifier with a minus */

@@ -746,8 +746,11 @@ describe('Store timeline hold', () => {
   });
   const marksOn = (track: Element) =>
     track.querySelectorAll('[data-id]').length;
-  /** The sign that a change waits */
-  const paused = () => screen.queryByText('Paused');
+  /** Whether `region` (the scrubber, or the lanes) says a change waits */
+  const held = (region: HTMLElement = scrubber()) =>
+    region.hasAttribute('aria-description');
+  /** The scrubber's "Live", span or button */
+  const liveChip = () => within(scrubber()).getByText('Live');
   /** Sets a post, which the scrubber marks */
   const set = (ctrl: () => Controller, title: string) =>
     act(async () => {
@@ -774,29 +777,36 @@ describe('Store timeline hold', () => {
     const { ctrl, track } = await hovered(90);
     expect(marksOn(track)).toBe(4);
     await set(ctrl, 'Three');
-    // the store has it; the track waits
+    // the store has it; the track waits: its row says so, and "Live" is no
+    // longer current
     expect(screen.getAllByText('"Three"').length).toBeGreaterThan(0);
     expect(marksOn(track)).toBe(4);
-    expect(paused()).toBeTruthy();
+    expect(held()).toBe(true);
+    const row = scrubber().firstElementChild!;
+    expect(row.hasAttribute('data-held')).toBe(true);
+    expect(liveChip().getAttribute('aria-current')).toBeNull();
+    expect(liveChip().title).toContain('Paused');
     await set(ctrl, 'Four');
     expect(marksOn(track)).toBe(4);
     // off: the change shows, and the marks move there rather than jump
     pointer(track, 'pointerleave', 0);
     expect(marksOn(track)).toBe(6);
-    expect(paused()).toBeNull();
+    expect(held()).toBe(false);
+    expect(row.hasAttribute('data-held')).toBe(false);
+    expect(liveChip().getAttribute('aria-current')).toBe('true');
     expect(track.hasAttribute('data-catchup')).toBe(true);
     act(() => jest.advanceTimersByTime(1000));
     expect(track.hasAttribute('data-catchup')).toBe(false);
     // back on with nothing new waiting, it says nothing
     pointer(track, 'pointerenter', 10);
-    expect(paused()).toBeNull();
+    expect(held()).toBe(false);
   });
 
   it('shows a change that leaves the marks where they are at once', async () => {
     const { ctrl, track } = await hovered(200);
     await set(ctrl, 'Three');
     expect(marksOn(track)).toBe(5);
-    expect(paused()).toBeNull();
+    expect(held()).toBe(false);
     pointer(track, 'pointerleave', 0);
     expect(track.hasAttribute('data-catchup')).toBe(false);
   });
@@ -814,16 +824,18 @@ describe('Store timeline hold', () => {
     pointer(track, 'pointerup', 10, 'touch');
     await set(ctrl, 'Three');
     expect(marksOn(track)).toBe(5);
-    expect(paused()).toBeNull();
-    // held, it holds
+    expect(held()).toBe(false);
+    // held, it holds, as a hover would
     pointer(track, 'pointerdown', 10, 'touch');
     act(() => jest.advanceTimersByTime(350));
     await set(ctrl, 'Four');
     expect(marksOn(track)).toBe(5);
-    expect(paused()).toBeTruthy();
+    expect(held()).toBe(true);
+    expect(liveChip().getAttribute('aria-current')).toBeNull();
     pointer(track, 'pointerup', 10, 'touch');
     expect(marksOn(track)).toBe(6);
-    expect(paused()).toBeNull();
+    expect(held()).toBe(false);
+    expect(liveChip().getAttribute('aria-current')).toBe('true');
   });
 
   it('keeps following the newest as an action comes mid catch-up', async () => {
@@ -899,12 +911,15 @@ describe('Store timeline hold', () => {
       pointer(strip, 'pointerenter', 10);
       await set(ctrl, 'Three');
       expect(marksOn(strip)).toBe(4);
-      expect(within(lanes()).getByText('Paused')).toBeTruthy();
+      expect(held(lanes())).toBe(true);
+      expect(strip.hasAttribute('data-held')).toBe(true);
       // the scrubber, which the mouse is not on, shows it
       expect(marksOn(scrubber())).toBe(5);
+      expect(held()).toBe(false);
       pointer(strip, 'pointerleave', 0);
       expect(marksOn(strip)).toBe(5);
-      expect(paused()).toBeNull();
+      expect(held(lanes())).toBe(false);
+      expect(strip.hasAttribute('data-held')).toBe(false);
     } finally {
       off();
     }
