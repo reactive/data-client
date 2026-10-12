@@ -18,13 +18,14 @@ if (
 ) {
   // this page is kept by its navigation, or by the first visit's backfill
   saved.add(location.pathname);
+  const landing = location.href;
   // A first visit loads before the worker runs, so once it takes over, this
   // page and its files are requested again for it to keep
   if (!navigator.serviceWorker.controller)
     navigator.serviceWorker.addEventListener(
       'controllerchange',
       () => {
-        save(location.href);
+        save(landing);
         for (const entry of performance.getEntriesByType(
           'resource',
         ) as PerformanceResourceTiming[]) {

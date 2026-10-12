@@ -5,6 +5,8 @@
 // copy, since their URL changes with their content. Unlike
 // @docusaurus/plugin-pwa, it precaches nothing: each visitor keeps only what
 // they read.
+// To remove it, ship a sw.js that deletes its caches and calls
+// self.registration.unregister(): browsers keep a worker whose script 404s.
 
 /** Pages and other files that can change at their URL: replaced on each load */
 const SITE = 'site';
