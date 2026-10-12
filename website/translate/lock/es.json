@@ -24,7 +24,7 @@
     "docs/core/api/useCache.md": "2c0c43019adb09f2b7ee95cc633553ee696e9598",
     "docs/core/api/useCancelling.md": "4f6c44f62af13a34355d6e794a707034e68d7eca",
     "docs/core/api/useController.md": "54330ddf6c7314a7056ed9d9b69cf9a3cdec6181",
-    "docs/core/api/useDebounce.md": "7de719b899848ab860c6635ab22a9c79071970d4",
+    "docs/core/api/useDebounce.md": "e56862a35693b6d28c359c1ba0919e7254c3437a",
     "docs/core/api/useDLE.md": "452e3e6ca84cbfb9b51dbaa5d40028445768790b",
     "docs/core/api/useError.md": "f52f6f7512806671da98c264956d97cce72e0e0a",
     "docs/core/api/useFetch.md": "335654729f082f685ddad8273275910d48f415a8",
@@ -95,7 +95,7 @@
     "docs/rest/api/Lazy.md": "aefafedf79c7b8af2956aee40e857ced613321d8",
     "docs/rest/api/Object.md": "7b508c210cb217b94a03d2f76397a4b6c0cab4e7",
     "docs/rest/api/Query.md": "8fad4ed189616f2b10c1e1d2a4ffa1308200aff2",
-    "docs/rest/api/resource.md": "b4fe4c5bc180127255f100292ed20f39893e6cc6",
+    "docs/rest/api/resource.md": "e6ef0fc9ae755444a84c95196976a578e785c402",
     "docs/rest/api/RestEndpoint.md": "55eeed56828e3191169884865bca3e09534f8dab",
     "docs/rest/api/Scalar.md": "e8f5f3ba23531ddfd06986e845583a435188dd9b",
     "docs/rest/api/schema.md": "99d21c63032783fd57c2cbf55801a0dd0f1f0031",
@@ -359,7 +359,9 @@
       "playground.store.show": "Show Store",
       "playground.fixtures": "Fixtures",
       "playground.store": "Store",
-      "playground.code": "Code"
+      "playground.code": "Code",
+      "playground.errorMessage.status": "Request failed ({status})",
+      "playground.errorMessage.reset": "Reset"
     },
     "docusaurus-plugin-content-blog/options.json": {
       "title": "Blog",
