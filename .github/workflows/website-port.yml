@@ -23,6 +23,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
+      # dispatches site-preview.yml to rebuild the root
+      actions: write
       contents: write
       pull-requests: write
     steps:
@@ -74,10 +76,16 @@ jobs:
           body="Ports website fixes from master to \`$target\` (the current version, which serves the root docs):
 
           $list
-          Made by website-port.yml with the workflow token, so its CI runs only after a push (or close and reopen). Auto-merge is on: it merges once the branch's required checks pass, or at once if it requires none. Keep the last line in the squash message, so maintenance.yml doesn't port it back.
+          Made by website-port.yml with the workflow token, so its CI runs only after a push (or close and reopen). Auto-merge is on: it merges once the branch's required checks pass, or at once if it requires none, and then the workflow rebuilds the root; a merge by hand rebuilds it through maintenance.yml. Keep the last line in the squash message, so maintenance.yml doesn't port it back.
 
           Maintenance-only: ported from master (${picked[*]})"
           [ -n "$(gh pr list --head "$branch" --json number --jq '.[]')" ] \
             || gh pr create --base "$target" --head "$branch" --title "$title" --body "$body"
           gh pr merge --auto --squash --subject "$title" --body "$body" "$branch" \
             || echo "::notice title=Not auto-merged::Merge the PR from $branch by hand"
+          # A merge pushed with the workflow token starts no workflows, so the
+          # branch's maintenance.yml won't rebuild the root: dispatch it here.
+          # It queues behind this push's own deploy, so it builds the merge.
+          if [ "$(gh pr view "$branch" --json state --jq .state)" = MERGED ]; then
+            gh workflow run site-preview.yml --ref master
+          fi

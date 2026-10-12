@@ -51,7 +51,8 @@ and the demos' code (written against the version's API); a commit that also touc
 translations, configs or packages (all versioned) is skipped. Each pick gets a
 `Maintenance-only: ported from master (<sha>)` line, so `maintenance.yml` doesn't port it back;
 keep it in the squash message. The PR gets auto-merge, which merges once the branch's required
-checks pass, or at once when it requires none; like `maintenance.yml`'s, it's opened with the
+checks pass, or at once when it requires none, and then dispatches `site-preview.yml` to rebuild
+the root (the workflow token's merge starts no workflows, so `maintenance.yml` won't); like `maintenance.yml`'s, it's opened with the
 workflow token, so push a commit (or close and reopen) to run CI first. A pick that doesn't apply
 leaves a warning to port it by hand.
 
