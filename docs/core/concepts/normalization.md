@@ -9,123 +9,195 @@ sidebar_label: Data Normalization
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-import LanguageTabs from '@site/src/components/LanguageTabs';
 import Link from '@docusaurus/Link';
+import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import { RestEndpoint } from '@data-client/rest';
 import SchemaTable from '../shared/\_schema_table.mdx';
 
 [Entities](/rest/api/Entity) have a primary key. This enables easy access via a lookup table.
 This makes it easy to find, update, create, or delete the same data - no matter what
 endpoint it was used in.
 
-<!--
-<LanguageTabs>
+In the Store below, the `/todos` response becomes a `Todo` table with one row per primary key,
+and the endpoint keeps only references to those rows.
 
-```ts
-import { Entity } from '@data-client/endpoint';
+- **Pick a todo**: its detail renders right away, with no request, because `Todo` already holds it.
+- **Toggle completed**: one `PATCH` updates one row, and both the list and the detail show it.
+  Switch the Store to Diff to see that row change.
 
-class Todo extends Entity {
-  readonly id: number = 0;
-  readonly userId: number = 0;
-  readonly title: string = '';
-  readonly completed: boolean = false;
-}
-```
+export const todos = [
+  { id: '1', title: 'Pick up groceries', completed: false },
+  { id: '2', title: 'Walk the dog', completed: true },
+  { id: '3', title: 'Normalize the store', completed: false },
+];
 
-```js
-import { Entity } from '@data-client/endpoint';
-
-class Todo extends Entity {
-}
-```
-
-</LanguageTabs>
--->
-
-<Tabs
-defaultValue="State"
-values={[
-{ label: 'State', value: 'State' },
-{ label: 'Response', value: 'Response' },
-{ label: 'Endpoint', value: 'Endpoint' },
-{ label: 'Entity', value: 'Entity' },
-{ label: 'Component', value: 'Component' },
+<FrameworkPlayground defaultOpen="y" fixtures={[
+{
+endpoint: new RestEndpoint({ path: '/todos' }),
+args: [],
+response: todos,
+delay: 150,
+},
+{
+endpoint: new RestEndpoint({ path: '/todos/:id' }),
+response({ id }) {
+return this[id] ?? todos.find(todo => todo.id === id);
+},
+delay: 150,
+},
+{
+endpoint: new RestEndpoint({ path: '/todos/:id', method: 'PATCH' }),
+response({ id }, body) {
+const todo = this[id] ?? todos.find(todo => todo.id === id);
+return (this[id] = { ...todo, ...body });
+},
+delay: 300,
+},
 ]}>
-<TabItem value="State">
 
-![Entities cache](/img/entities.png 'Entities cache')
+```ts title="resources/Todo" collapsed
+import { Entity, resource } from '@data-client/rest';
 
-</TabItem>
-<TabItem value="Response">
-
-```json
-[
-  { "id": 1, "title": "this is an entity" },
-  { "id": 2, "title": "this is the second entity" }
-]
-```
-
-</TabItem>
-<TabItem value="Endpoint">
-
-```typescript
-const getPresentations = new Endpoint(
-  () => fetch(`/presentations`).then(res => res.json()),
-  { schema: new Collection([Presentation]) },
-);
-```
-
-</TabItem>
-<TabItem value="Entity">
-
-```typescript
-class Presentation extends Entity {
+export class Todo extends Entity {
   id = '';
   title = '';
+  completed = false;
 
-  static key = 'Presentation';
+  static key = 'Todo';
 }
-```
 
-</TabItem>
-<TabItem value="Component">
+export const TodoResource = resource({
+  path: '/todos/:id',
+  schema: Todo,
+});
+```
 
 :::react
 
-```tsx
-import { useSuspense } from '@data-client/react';
-import { getPresentations } from './api/Presentation';
+```tsx title="TodoDetail" collapsed
+import { useController, useSuspense } from '@data-client/react';
+import { TodoResource } from './resources/Todo';
 
-export function PresentationsPage() {
-  const presentation = useSuspense(getPresentations);
-  return presentation.map(presentation => (
-    <div key={presentation.pk()}>{presentation.title}</div>
-  ));
+export default function TodoDetail({ id }: { id: string }) {
+  const todo = useSuspense(TodoResource.get, { id });
+  const ctrl = useController();
+  const toggle = () =>
+    ctrl.fetch(
+      TodoResource.partialUpdate,
+      { id },
+      { completed: !todo.completed },
+    );
+  return (
+    <section>
+      <h4>{todo.title}</h4>
+      <label>
+        <input
+          type="checkbox"
+          checked={todo.completed}
+          onChange={toggle}
+        />{' '}
+        Completed
+      </label>
+    </section>
+  );
 }
+```
+
+```tsx title="TodoList" collapsed
+import React from 'react';
+import { useSuspense } from '@data-client/react';
+import { TodoResource } from './resources/Todo';
+import TodoDetail from './TodoDetail';
+
+function TodoList() {
+  const todos = useSuspense(TodoResource.getList);
+  const [selected, setSelected] = React.useState(todos[0].id);
+  return (
+    <>
+      {todos.map(todo => (
+        <div className="listItem" key={todo.pk()}>
+          <label>
+            <input
+              type="radio"
+              checked={todo.id === selected}
+              onChange={() => setSelected(todo.id)}
+            />{' '}
+            {todo.completed ? <s>{todo.title}</s> : todo.title}
+          </label>
+        </div>
+      ))}
+      <hr />
+      <TodoDetail id={selected} />
+    </>
+  );
+}
+render(<TodoList />);
 ```
 
 :::
 
 :::vue
 
-```html title="PresentationsPage.vue"
+```html title="TodoDetail.vue" collapsed
 <script setup lang="ts">
-  import { useSuspense } from '@data-client/vue';
-  import { getPresentations } from './api/Presentation';
+  import { useController, useSuspense } from '@data-client/vue';
+  import { TodoResource } from './resources/Todo';
 
-  const presentations = await useSuspense(getPresentations);
+  const props = defineProps<{ id: string }>();
+  const todo = await useSuspense(TodoResource.get, () => ({
+    id: props.id,
+  }));
+  const ctrl = useController();
+  const toggle = () =>
+    ctrl.fetch(
+      TodoResource.partialUpdate,
+      { id: props.id },
+      { completed: !todo.value.completed },
+    );
 </script>
 
 <template>
-  <div v-for="presentation in presentations" :key="presentation.pk()">
-    {{ presentation.title }}
+  <section>
+    <h4>{{ todo.title }}</h4>
+    <label>
+      <input type="checkbox" :checked="todo.completed" @change="toggle" />
+      Completed
+    </label>
+  </section>
+</template>
+```
+
+```html title="TodoList.vue" collapsed
+<script setup lang="ts">
+  import { ref } from 'vue';
+  import { useSuspense } from '@data-client/vue';
+  import { TodoResource } from './resources/Todo';
+  import TodoDetail from './TodoDetail.vue';
+
+  const todos = await useSuspense(TodoResource.getList);
+  const selected = ref(todos.value[0].id);
+</script>
+
+<template>
+  <div v-for="todo in todos" :key="todo.pk()" class="listItem">
+    <label>
+      <input
+        type="radio"
+        :checked="todo.id === selected"
+        @change="selected = todo.id"
+      />
+      <s v-if="todo.completed">{{ todo.title }}</s>
+      <template v-else>{{ todo.title }}</template>
+    </label>
   </div>
+  <hr />
+  <TodoDetail :id="selected" />
 </template>
 ```
 
 :::
 
-</TabItem>
-</Tabs>
+</FrameworkPlayground>
 
 Extracting entities from a response is known as `normalization`. Accessing a response reverses
 the process via `denormalization`.
