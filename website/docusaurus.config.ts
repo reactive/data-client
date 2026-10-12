@@ -278,7 +278,6 @@ const config: Config = {
   clientModules: [
     require.resolve('./src/gtagfix.ts'),
     require.resolve('./src/staleDeploy.ts'),
-    require.resolve('./src/offline.ts'),
     require.resolve('./scripts/snapshot/versionMenu.client.ts'),
     // /next/ builds its blog so its links are checked, but sends in-app blog
     // links to the root's, as vercel.json does page loads: blog URLs never change
@@ -355,6 +354,20 @@ const config: Config = {
     ],
   ],
   plugins: [
+    [
+      '@docusaurus/plugin-pwa',
+      {
+        // src/pwaRegister.ts registers only where offline is wanted, so
+        // whenever the worker is registered it precaches
+        offlineModeActivationStrategies: ['always'],
+        swRegister: require.resolve('./src/pwaRegister.ts'),
+        swCustom: require.resolve('./src/pwaSw.js'),
+        injectManifestConfig: {
+          // social cards are for link previews, never shown on the site
+          globIgnores: ['img/social/**'],
+        },
+      },
+    ],
     // The version menu's list. site-preview.yml serves it at the production
     // root; builds of other versions (SNAPSHOT_VERSION) leave theirs out
     () => ({
