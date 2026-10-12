@@ -226,8 +226,9 @@ export function useFollow(
       if (el) stopSpring(el);
     }
     if (!el) return;
-    // a change mid catch-up springs on from where it is rather than jumps
-    const spring = sprung || springing.has(el);
+    // a change mid catch-up springs on from where it is rather than jumps;
+    // paused, the moment's reveal takes over from it
+    const spring = !paused && (sprung || springing.has(el));
     if (!paused && (resumed || (el.clientHeight && follow.current))) {
       follow.current = true;
       scrollAlong(el, axis, el[size], spring);
