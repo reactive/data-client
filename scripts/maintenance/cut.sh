@@ -46,7 +46,7 @@ cp "$here/../create-github-releases.mjs" scripts/
 mkdir -p scripts/maintenance
 cp "$here/publish.sh" "$here/version-line.sh" scripts/maintenance/
 # A release tag predates its archive listing PR: the previous version is
-# archived, not current (the root's build takes master's archive list)
+# archived, not current (siteVersions.ts rejects a version that's both)
 rm -f website/versionCurrent.json
 # master's pending changesets are the next major's and release from master, so
 # the branch versions only its own fixes (README.md: re-add any a later ref needs)

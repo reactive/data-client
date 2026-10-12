@@ -47,7 +47,7 @@ master until that release.
 
 ## When the next major ships
 
-The release archives the current version's docs from its branch at `/<version>/` and opens a PR
+The release archives the current version's docs from its branch at `<version>.dataclient.io` and opens a PR
 listing it, which also deletes `website/versionCurrent.json`. Once that merges, master serves the
 root again. The branch can stay for later fixes: they publish under `latest-<version>`, and a docs
 fix there reaches the archive by dispatching `docs-snapshot.yml` with the branch as `ref`.

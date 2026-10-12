@@ -184,7 +184,7 @@ jobs:
           else
             echo "deploy=false" >> "$GITHUB_OUTPUT"
           fi
-      # Frozen builds of older versions, served at /<version>/
+      # Frozen builds of older versions, served at <version>.dataclient.io
       - name: Add archived versions
         if: steps.decide.outputs.deploy == 'true'
         run: website/scripts/snapshot/fetch.sh website/build
@@ -216,7 +216,6 @@ jobs:
           persist-credentials: false
           sparse-checkout: |
             website/versionCurrent.json
-            website/versionsArchived.json
             website/scripts/snapshot
           sparse-checkout-cone-mode: false
       - name: Read the current version
@@ -228,14 +227,14 @@ jobs:
           sha="$(git ls-remote origin "refs/heads/$ref" | cut -f1)"
           [ -n "$sha" ] || { echo "::error::No $ref branch to build the root from"; exit 1; }
           { echo "version=$(jq -r .version "$f")"; echo "ref=$ref"; echo "sha=$sha"; } >> "$GITHUB_OUTPUT"
-      # Only the branch, the snapshot scripts and the archive list change its
-      # build, so master pushes reuse it
+      # Only the branch and the snapshot scripts change its build, so master
+      # pushes reuse it
       - if: steps.current.outputs.sha
         id: cache
         uses: actions/cache/restore@v6
         with:
           path: current.tar.gz
-          key: current-site-${{ steps.current.outputs.sha }}-${{ hashFiles('website/scripts/snapshot/**', 'website/versionsArchived.json') }}
+          key: current-site-${{ steps.current.outputs.sha }}-${{ hashFiles('website/scripts/snapshot/**') }}
       - if: steps.current.outputs.sha && !steps.cache.outputs.cache-hit
         uses: actions/checkout@v7
         with:
@@ -263,7 +262,7 @@ jobs:
         uses: actions/cache/save@v6
         with:
           path: current.tar.gz
-          key: current-site-${{ steps.current.outputs.sha }}-${{ hashFiles('website/scripts/snapshot/**', 'website/versionsArchived.json') }}
+          key: current-site-${{ steps.current.outputs.sha }}-${{ hashFiles('website/scripts/snapshot/**') }}
       - if: steps.current.outputs.sha
         uses: actions/upload-artifact@v7
         with:
@@ -316,6 +315,7 @@ jobs:
           sparse-checkout: |
             website/package.json
             website/vercel.json
+            website/versionsArchived.json
             website/api/
             website/scripts/vercel-ignore.sh
           sparse-checkout-cone-mode: false
@@ -365,6 +365,19 @@ jobs:
           vercel pull --yes --environment="$TARGET"
           # Packages the downloaded build into .vercel/output
           vercel build --yes --target="$TARGET"
+          # vercel.json's rewrites run after the file check, where the root's
+          # pages would answer an archive's host; serve its own files first
+          config=.vercel/output/config.json
+          jq 'def archive: .dest? // "" | startswith("/archives/");
+            .routes |= (
+              map(select(archive)) as $archive
+              | map(select(archive | not)) as $rest
+              | ($rest | map(.handle == "filesystem") | index(true)) as $fs
+              | if ($archive | length) != 1 then error("no single archive host rewrite to move")
+                elif $fs == null then error("no filesystem check to move it ahead of")
+                else $rest[:$fs] + $archive + $rest[$fs:] end)' "$config" > config.json.tmp ||
+            { echo "::error::Couldn't move $config's archive host rewrite"; exit 1; }
+          mv config.json.tmp "$config"
           meta=()
           # Ties the preview to its branch instead of the PR merge ref
           [ -n "$HEAD_REF" ] && meta=(--meta githubDeployment=1 --meta "githubCommitRef=$HEAD_REF")
@@ -384,6 +397,18 @@ jobs:
           fi
           echo "url=$url" >> "$GITHUB_OUTPUT"
           { echo "### Docs $TARGET deployment"; echo; echo "$url"; } >> "$GITHUB_STEP_SUMMARY"
+      # Each archived version serves at its own host (vercel.json), which the
+      # project needs as a domain. dataclient.io's DNS (Cloudflare) already sends
+      # every subdomain to Vercel; a failure only leaves that version's host unserved
+      - name: Add archived versions' domains
+        if: env.TARGET == 'production' && steps.deploy.outputs.url
+        run: |
+          for version in $(jq -r '.[].version' website/versionsArchived.json); do
+            domain="$version.dataclient.io"
+            # Exits 0 when the project already has it (vercel 63.1); --scope as for alias
+            vercel domains add "$domain" "$VERCEL_PROJECT_ID" --scope "$VERCEL_ORG_ID" --non-interactive ||
+              echo "::warning title=Archive domain::Couldn't add $domain to the Vercel project; add it by hand"
+          done
       - if: github.event_name == 'pull_request'
         uses: marocchino/sticky-pull-request-comment@v3
         with:

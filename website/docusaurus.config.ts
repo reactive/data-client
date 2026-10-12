@@ -7,7 +7,8 @@ import path from 'path';
 import { themes } from 'prism-react-renderer';
 
 import gqlRedirects from './gqlRedirects';
-import { siteVersions, versionCurrent } from './siteVersions';
+import { versionLabel } from './scripts/snapshot/versionLabel';
+import { siteLabel, versionCurrent } from './siteVersions';
 import { motionCss } from './src/components/motion/css';
 import { DEFAULT_LOCALE, LOCALES } from './translate/locales';
 import versions from './versions.json';
@@ -41,7 +42,7 @@ const url = 'https://dataclient.io';
 // beside the current version's site (site-preview.yml). PR previews build
 // master alone, so they link to the current version on the production site.
 const isNext = !!versionCurrent && process.env.DOCS_NEXT === '1';
-const currentOrigin = isNext ? undefined : url;
+const currentOrigin = isNext ? '' : url;
 const vueDocs = frameworkDocs.generate('vue');
 // Each locale renders English with its translations in place
 // (translate/README.md); its Vue pages mirror its docs/core
@@ -120,6 +121,7 @@ const config: Config = {
     }),
   },
   headTags: [
+    versionLabel(siteLabel),
     {
       tagName: 'link',
       attributes: {
@@ -287,8 +289,6 @@ const config: Config = {
     repoUrl: 'https://github.com/reactive/data-client',
     // read by FrameworkSelector to switch between differently named pages
     frameworkEquivalents: frameworkDocs.frameworkEquivalents(),
-    // read by VersionsNavbarItem
-    versions: siteVersions(currentOrigin),
   },
   onBrokenLinks: 'warn',
   future: {
@@ -545,7 +545,7 @@ const config: Config = {
       versionCurrent ?
         {
           id: `next-${versionCurrent.version}`,
-          content: `You're reading the docs for the next, unreleased version. <a href="${currentOrigin ?? ''}${localeRoot}/docs">See the v${versionCurrent.version} docs</a>.`,
+          content: `You're reading the docs for the next, unreleased version. <a href="${currentOrigin}${localeRoot}/docs">See the v${versionCurrent.version} docs</a>.`,
           isCloseable: false,
         }
       : {
@@ -603,8 +603,6 @@ const config: Config = {
           //className: 'header-demos-link',
           'aria-label': 'Demo Applications',
         },
-        // Latest (or next), current and archived versions (scripts/snapshot/README.md)
-        { type: 'custom-versions', position: 'right' },
         {
           href: 'https://github.com/reactive/data-client',
           position: 'right',

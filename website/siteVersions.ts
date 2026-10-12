@@ -1,25 +1,9 @@
 // The site's versions (scripts/snapshot/README.md), checked as they're read so a
-// bad listing fails the build instead of the deploy. The site's config and
-// pages read versionCurrent.json and versionsArchived.json only through this;
-// scripts and workflows read their fields with jq.
+// bad listing fails the build instead of the deploy. The site's config reads
+// versionCurrent.json only through this, and versionsArchived.json is read
+// here only for its checks; scripts and workflows read their fields with jq.
 import fs from 'fs';
 import path from 'path';
-
-export interface VersionTarget {
-  version: string;
-  /** Its site: '' for this site's root, '/<version>', or production's origin */
-  root: string;
-  /** Whether it's served beside this site, so its sitemap can be read */
-  sameOrigin: boolean;
-}
-
-/** Read by VersionsNavbarItem (customFields.versions) */
-export interface SiteVersions {
-  /** Whether this site documents the next, unreleased major */
-  unreleased: boolean;
-  /** The other versions, newest first */
-  others: VersionTarget[];
-}
 
 // A release line, which a breaking change starts: the minor for 0.x, else the
 // major. Matches is_line in scripts/maintenance/version-line.sh
@@ -50,7 +34,7 @@ if (versionCurrent) {
   );
 }
 
-/** Frozen builds served at /<version>/, from docs-snapshot.yml */
+/** Frozen builds, each served at <version>.dataclient.io, from docs-snapshot.yml */
 const versionsArchived: { version: string; sha256: string }[] =
   read('versionsArchived.json') ?? [];
 for (const { version, sha256 } of versionsArchived) {
@@ -69,30 +53,21 @@ for (const { version, sha256 } of versionsArchived) {
   );
 }
 
-/**
- * @param currentOrigin where the current version's site is, when this site is
- * the next major: production's, or undefined when it's this site's root
- */
-export const siteVersions = (currentOrigin?: string): SiteVersions => ({
-  unreleased: !!versionCurrent,
-  others: [
-    ...(versionCurrent ?
-      [
-        {
-          version: versionCurrent.version,
-          root: currentOrigin ?? '',
-          sameOrigin: !currentOrigin,
-        },
-      ]
-    : []),
-    ...versionsArchived
-      .map(({ version }) => ({
-        version,
-        root: `/${version}`,
-        sameOrigin: true,
-      }))
-      .sort((a, b) =>
-        b.version.localeCompare(a.version, undefined, { numeric: true }),
-      ),
-  ],
-});
+/** The line a version belongs to. Matches line in version-line.sh */
+const lineOf = (version: string) => {
+  const [major, minor] = version.split('-')[0].split('.');
+  return major === '0' ? `0.${minor}` : major;
+};
+
+/** This site's version, under its logo: next while master is a major ahead */
+const packageVersion = read('../packages/react/package.json')?.version;
+check(
+  typeof packageVersion === 'string',
+  "packages/react/package.json: version isn't a string",
+);
+const packageLine = lineOf(packageVersion);
+check(
+  LINE.test(packageLine),
+  `packages/react/package.json: ${packageVersion} has no line`,
+);
+export const siteLabel = versionCurrent ? 'next' : `v${packageLine}`;

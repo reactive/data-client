@@ -1,9 +1,10 @@
 // Copied next to an old release's docusaurus.config.ts by build.sh, so the
-// site builds with that release's own config. An archive moves under
-// /<version>/; the current version (SNAPSHOT_ROLE=current, while master is
-// the next major) stays at the root and links to /next/.
+// site builds with that release's own config. An archive serves on its own
+// host (<version>.dataclient.io); the current version (SNAPSHOT_ROLE=current,
+// while master is the next major) stays at the root and links to /next/.
 // Keep it to fields every release's config has: it runs against old ones.
 import config from './docusaurus.config';
+import { VERSION_LABEL_ID, versionLabel } from './versionLabel';
 import withoutBlog from './withoutBlog';
 
 const version = process.env.SNAPSHOT_VERSION;
@@ -16,18 +17,28 @@ const navbar = (themeConfig.navbar ?? {}) as { items?: unknown[] };
 // root and other locales under /<locale>/.
 const locale = process.env.DOCUSAURUS_CURRENT_LOCALE;
 const localePrefix = locale && locale !== 'en' ? `/${locale}` : '';
-const latestDocs = `${localePrefix}/docs`;
+// every release's config has the production url
+const docs = `${localePrefix}/docs`;
+const latestDocs = `${config.url}${docs}`;
 
-// An archive drops the version dropdown later releases have, linking to the
-// latest docs instead (below). The current version keeps it to list archives.
+// Drops the version dropdown some releases have: the label under the logo
+// shows the version, and a link (below) goes to the latest or next docs
 const navbarItems = (navbar.items ?? []).filter(
-  item => isCurrent || (item as { type?: string }).type !== 'custom-versions',
+  item => (item as { type?: string }).type !== 'custom-versions',
 );
+// Archives and the current version both label their version, replacing any
+// label the release's config has
+const headTags = [
+  ...(
+    (config as { headTags?: { attributes?: { id?: string } }[] }).headTags ?? []
+  ).filter(tag => tag.attributes?.id !== VERSION_LABEL_ID),
+  versionLabel(`v${version}`),
+];
 // A link, not a dropdown: older releases' CSS hides dropdowns
-const navbarLink = (html: string, path: string) => ({
-  // html, not label: a pathname:// href would get an external link icon
+const navbarLink = (html: string, href: string) => ({
+  // html, not label: an absolute or pathname:// href gets an external link icon
   html,
-  href: `pathname://${path}`,
+  href,
   // outside this site's baseUrl
   autoAddBaseUrl: false,
   target: '_self',
@@ -35,13 +46,19 @@ const navbarLink = (html: string, path: string) => ({
 });
 
 const site =
-  isCurrent ? config : { ...withoutBlog(config), baseUrl: `/${version}/` };
+  isCurrent ? config : (
+    {
+      ...withoutBlog(config),
+      url: `https://${version}.dataclient.io`,
+      baseUrl: '/',
+    }
+  );
 
 export default {
   ...site,
+  headTags,
   themeConfig: {
     ...themeConfig,
-    // Root-relative links leave the archive for the latest site
     ...(!isCurrent && {
       announcementBar: {
         id: `archive-${version}`,
@@ -54,7 +71,7 @@ export default {
       items: [
         ...navbarItems,
         isCurrent ?
-          navbarLink(`v${version} → Next`, `/next${latestDocs}`)
+          navbarLink(`v${version} → Next`, `pathname:///next${docs}`)
         : navbarLink(`v${version} → Latest`, latestDocs),
       ],
     },
