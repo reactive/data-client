@@ -150,4 +150,4 @@ jobs:
           # a closed listing PR doesn't count: open a new one
           [ -n "$(gh pr list --head "$branch" --state open --json number --jq '.[].number')" ] ||
             gh pr create --head "$branch" --title "docs: Archive v$VERSION docs at /$VERSION" \
-              --body "Lists v$VERSION in the version dropdown (and, if master was the next major, serves master at the root again); its frozen build is on the [docs-v$VERSION release](https://github.com/$GITHUB_REPOSITORY/releases/tag/docs-v$VERSION). Made by docs-snapshot.yml with the workflow token, so push a commit (or close and reopen) to run CI."
+              --body "Serves v$VERSION at https://$VERSION.dataclient.io (and, if master was the next major, serves master at the root again); its frozen build is on the [docs-v$VERSION release](https://github.com/$GITHUB_REPOSITORY/releases/tag/docs-v$VERSION). Made by docs-snapshot.yml with the workflow token, so push a commit (or close and reopen) to run CI."

@@ -1,4 +1,4 @@
-// The version beside the navbar's logo, like react.dev's. build.sh copies it
+// The version under the navbar's logo, like react.dev's. build.sh copies it
 // beside an old release's config, so it styles the logo itself rather than
 // relying on that release's components or CSS.
 export const VERSION_LABEL_ID = 'version-label';

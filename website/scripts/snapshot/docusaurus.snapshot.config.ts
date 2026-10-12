@@ -21,7 +21,7 @@ const localePrefix = locale && locale !== 'en' ? `/${locale}` : '';
 const docs = `${localePrefix}/docs`;
 const latestDocs = `${config.url}${docs}`;
 
-// Drops the version dropdown some releases have: the label beside the logo
+// Drops the version dropdown some releases have: the label under the logo
 // shows the version, and a link (below) goes to the latest or next docs
 const navbarItems = (navbar.items ?? []).filter(
   item => (item as { type?: string }).type !== 'custom-versions',

@@ -21,8 +21,6 @@ dir="$([ "${SNAPSHOT_ROLE:-}" = current ] && echo . || echo "$version")"
 trap 'rm -rf "$site"' EXIT
 
 cp "$here/docusaurus.snapshot.config.ts" "$here/versionLabel.ts" "$here/withoutBlog.ts" "$here/rootBlog.client.ts" "$src/website/"
-# master owns the archive list; the root's version dropdown shows it
-[ "$dir" != . ] || cp "$here/../../versionsArchived.json" "$src/website/"
 cd "$src"
 yarn install
 # The packages the site imports, with the release's own script when it has one

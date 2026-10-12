@@ -216,7 +216,6 @@ jobs:
           persist-credentials: false
           sparse-checkout: |
             website/versionCurrent.json
-            website/versionsArchived.json
             website/scripts/snapshot
           sparse-checkout-cone-mode: false
       - name: Read the current version
@@ -235,7 +234,7 @@ jobs:
         uses: actions/cache/restore@v6
         with:
           path: current.tar.gz
-          key: current-site-${{ steps.current.outputs.sha }}-${{ hashFiles('website/scripts/snapshot/**', 'website/versionsArchived.json') }}
+          key: current-site-${{ steps.current.outputs.sha }}-${{ hashFiles('website/scripts/snapshot/**') }}
       - if: steps.current.outputs.sha && !steps.cache.outputs.cache-hit
         uses: actions/checkout@v7
         with:
@@ -263,7 +262,7 @@ jobs:
         uses: actions/cache/save@v6
         with:
           path: current.tar.gz
-          key: current-site-${{ steps.current.outputs.sha }}-${{ hashFiles('website/scripts/snapshot/**', 'website/versionsArchived.json') }}
+          key: current-site-${{ steps.current.outputs.sha }}-${{ hashFiles('website/scripts/snapshot/**') }}
       - if: steps.current.outputs.sha
         uses: actions/upload-artifact@v7
         with:

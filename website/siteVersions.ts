@@ -59,7 +59,7 @@ const lineOf = (version: string) => {
   return major === '0' ? `0.${minor}` : major;
 };
 
-/** This site's version, beside its logo: next while master is a major ahead */
+/** This site's version, under its logo: next while master is a major ahead */
 const packageVersion = read('../packages/react/package.json')?.version;
 check(
   typeof packageVersion === 'string',
