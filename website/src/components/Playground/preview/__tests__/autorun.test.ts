@@ -135,6 +135,7 @@ describe('stage', () => {
     expect(onInput).toHaveReturnedWith(false);
 
     const button = root.querySelector('button')!;
+    stage.point(button);
     const seen: string[] = [];
     for (const type of ['pointerdown', 'mousedown', 'mouseup', 'click'])
       button.addEventListener(type, () => seen.push(type));

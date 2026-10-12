@@ -73,7 +73,9 @@ export function createStage(
     },
 
     click(el) {
-      if (!prefersReducedMotion()) pointer?.animate(PRESS, PRESS_TIMING);
+      // no Web Animations (e.g. jsdom): no ring
+      if (typeof pointer?.animate === 'function' && !prefersReducedMotion())
+        pointer.animate(PRESS, PRESS_TIMING);
       const init = {
         bubbles: true,
         cancelable: true,
@@ -135,8 +137,7 @@ const PRESS: Keyframe[] = [
   { opacity: 0, scale: 1.4 },
 ];
 const PRESS_TIMING: KeyframeAnimationOptions = {
-  duration: 450,
-  easing: 'ease-out',
+  ...springEasing(springs.snappy),
   pseudoElement: '::before',
 };
 

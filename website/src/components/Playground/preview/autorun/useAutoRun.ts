@@ -35,7 +35,13 @@ export function useAutoRun(
       player.play(script, createStage(root.current, showStore));
   }, [player]);
 
-  useEffect(() => player.stop, [player]);
+  // only a run ends with the preview: an idle player may still start
+  useEffect(
+    () => () => {
+      if (player.getState() === 'playing') player.stop();
+    },
+    [player],
+  );
 
   /** Ref for the preview: whether it's in view starts and pauses the demo.
    * The preview remounts on reset; the player (and its run) outlives it. */
@@ -62,12 +68,18 @@ export function useAutoRun(
       };
       const observer = new IntersectionObserver(
         ([entry]) => {
-          inView = entry.intersectionRatio >= IN_VIEW;
+          // a run pauses only out of sight, so a preview too tall to show
+          // 60% of still plays when asked
+          inView = entry.isIntersecting;
           syncPaused();
-          if (inView && player.getState() === 'idle' && !prefersReducedMotion())
+          if (
+            entry.intersectionRatio >= IN_VIEW &&
+            player.getState() === 'idle' &&
+            !prefersReducedMotion()
+          )
             start();
         },
-        { threshold: IN_VIEW },
+        { threshold: [0, IN_VIEW] },
       );
       observer.observe(el);
       for (const type of INPUT)

@@ -74,7 +74,6 @@ export default function Playground<T>({
     groupId,
     defaultOpen,
   );
-
   // Row layout: the Store slides over the code, leaving the preview usable
   const [storeHost, setStoreHost] = useState<HTMLDivElement | null>(null);
   const codeCovered = row && storeOpen;

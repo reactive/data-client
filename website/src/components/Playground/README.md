@@ -310,8 +310,8 @@ DesignSystem/       components injected into preview scope
     reader just changed; Play starts over. Input before the demo starts
     keeps it from starting by itself. Scrolling, hovering, a touch
     that starts a scroll and the demo's own controls (`data-autorun-control`)
-    don't take over. Out of view (under 60% of the preview) or in a
-    background tab, the run pauses where it is and resumes when back.
+    don't take over. Out of view or in a background tab, the run pauses
+    where it is and resumes when back.
   - The Store opens for a step through `useStoreOpen`'s `show`, which
     doesn't persist: tab storage keeps the reader's own choice (a docs page
     shares one `groupId`), until the reader toggles it.
