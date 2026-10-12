@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import React, { useSyncExternalStore } from 'react';
 
 import type { Player } from './player';
-import { liveLabel } from '../PreviewWrapper';
+import { liveLabel } from '../../liveLabel';
 import styles from '../../styles.module.css';
 
 /** The preview's "Live Preview" label, as the demo's control: pressing it

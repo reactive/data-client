@@ -35,6 +35,7 @@ export function useAutoRun(
       player.play(script, createStage(root.current, showStore));
   }, [player]);
 
+  // ends a run with the preview; an idle player stays idle
   useEffect(() => player.stop, [player]);
 
   /** Ref for the preview: whether it's in view starts and pauses the demo.
@@ -69,6 +70,7 @@ export function useAutoRun(
           const { script } = latest.current;
           if (
             script &&
+            player.getState() === 'idle' &&
             !played.has(script) &&
             mostlyShown(entry) &&
             !prefersReducedMotion()
@@ -108,7 +110,7 @@ export function useAutoRun(
 /** Scripts that played by themselves or that the reader took over before:
  * the preview unmounts while hidden (a Demo's other protocol tab shares its
  * script), and showing it again shouldn't start the demo over. Per page
- * load; replaying is the label's job. */
+ * load (client-side navigation keeps it); replaying is the label's job. */
 const played = new WeakSet<AutoRunScript>();
 
 // keydown misses some virtual keyboards and IMEs; beforeinput doesn't
