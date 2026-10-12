@@ -37,9 +37,11 @@ for workflow in release site-preview; do
     { echo "Couldn't point $workflow.yml at $branch; edit it by hand" >&2; exit 1; }
 done
 # One release queue across branches, so this branch and master can't both
-# claim GitHub's Latest release at once (a ref older than that queued per ref)
+# claim GitHub's Latest release at once. A ref from before that has a queue per ref
 sed -i 's/^  group: ${{ github.workflow }}-${{ github.ref }}$/  group: ${{ github.workflow }}/' \
   .github/workflows/release.yml
+grep -qx '  group: ${{ github.workflow }}' .github/workflows/release.yml ||
+  { echo "Couldn't share release.yml's concurrency group with master; edit it by hand" >&2; exit 1; }
 grep -qF 'scripts/maintenance/publish.sh' .github/workflows/release.yml ||
   { echo "Couldn't point release.yml at publish.sh; edit it by hand" >&2; exit 1; }
 grep -q 'edit/master' website/docusaurus.config.ts ||
