@@ -806,6 +806,12 @@
   "playground.error.runtime": {
     "message": "Erro em tempo de execução"
   },
+  "playground.errorMessage.status": {
+    "message": "A requisição falhou ({status})"
+  },
+  "playground.errorMessage.reset": {
+    "message": "Redefinir"
+  },
   "playground.error.manager": {
     "message": "Erro do Manager"
   },

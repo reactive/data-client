@@ -1,6 +1,7 @@
 export { CancelButton } from './CancelButton';
 export { CurrentTime } from './CurrentTime';
 export { Avatar } from './Avatar';
+export { ErrorMessage } from './ErrorMessage';
 export { Formatted } from './Formatted';
 import './design-system.css';
 export { TextInput } from './TextInput';
