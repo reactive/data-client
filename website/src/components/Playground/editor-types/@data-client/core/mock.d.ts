@@ -23,7 +23,7 @@ interface SchemaSimple$1<T = any, Args extends readonly any[] = any[]> {
         getIndex: any;
     }): any;
 }
-interface EntityInterface<T = any> extends SchemaSimple$1 {
+interface EntityInterface$1<T = any> extends SchemaSimple$1 {
     createIfValid(props: any): any;
     pk(params: any, parent: any, key: string | undefined, args: readonly any[]): string | number | undefined;
     readonly key: string;
@@ -289,7 +289,7 @@ interface IMemoPolicy {
     getEntities(entities: any): DenormGetEntity;
 }
 
-type GetEntityCache = (pk: string, schema: EntityInterface) => WeakDependencyMap<EntityPath, object, any>;
+type GetEntityCache = (pk: string, schema: EntityInterface$1) => WeakDependencyMap<EntityPath, object, any>;
 
 /** Singleton to store the memoization cache for denormalization methods */
 declare class MemoCache {
@@ -321,6 +321,74 @@ type StateInterface = {
         getIn(k: string[]): any;
     };
 };
+
+/** Value types for `Controller.set()`, including batch `set([Entity], rows)` */
+
+/** What one row normalizes to: a reference to one stored entity */
+type EntityRef = string | {
+    readonly id: string;
+    readonly schema: string;
+};
+/** Schemas that write each row to one stored entity: Entity, Union, or Invalidate (batch delete).
+ * Query, All and Collection don't: they normalize to lists, or Collection keys by args batch set() lacks. */
+type SetEntitySchema = EntityInterface$1 | EntityRefSchema;
+/** Union or Invalidate */
+type EntityRefSchema = {
+    _normalizeNullable(): EntityRef | undefined;
+    pk?: never;
+};
+/** `[Entity]`, `schema.Array(Entity)` or `schema.Values(Entity)` (or of a Union or Invalidate) */
+type SetManySchema = readonly SetEntitySchema[] | {
+    readonly schema: SetEntitySchema | Record<string, EntityInterface$1>;
+    schemaKey(): string;
+    queryKey(...args: any): undefined;
+    pk?: never;
+};
+/** `new Invalidate(Entity)` (or of a Union): not Queryable, since its queryKey() returns undefined */
+type SetInvalidateSchema = EntityRefSchema & {
+    queryKey(...args: any): undefined;
+    query?: never;
+};
+type IsUnion<T, U = T> = T extends unknown ? [
+    U
+] extends [T] ? false : true : never;
+type FunctionKeys$1<U> = {
+    [K in keyof U]: U[K] extends (...args: any) => any ? K : never;
+}[keyof U];
+/** Raw input for one field: numbers and strings coerce (literals stay exact);
+ * objects are pre-normalize */
+type SetField$1<T> = T extends number ? number extends T ? T | string : T : T extends string ? string extends T ? T | number : T : T extends object ? unknown : T;
+/** Fields of one row (or a coerced primitive); like EntityFields, but distributive
+ * and without key remapping (TS 4.0). A Union gets one row per member, so a
+ * discriminator like `type` selects the member the other fields are checked against. */
+type SetRow$1<U> = 0 extends 1 & U ? {
+    readonly [k: string]: any;
+} : U extends object ? {
+    readonly [K in Exclude<keyof U, FunctionKeys$1<U>>]?: SetField$1<U[K]>;
+} : SetField$1<U>;
+/** Keeps S inferred from the schema alone: inferring it from the value too would
+ * walk the value's type against every conditional in SetValue (TS 5.4 has NoInfer) */
+type SkipInfer<T, S> = [T][S extends unknown ? 0 : never];
+type SetManyValue<S> = S extends readonly (infer E)[] ? true extends IsUnion<E> ? readonly {
+    'Use a Union schema for several Entity types': never;
+}[] : readonly SetRow$1<Denormalize$1<E>>[] : SetValue$1<S>;
+/** Raw input `set()` normalizes for a Queryable */
+type SetValue$1<S> = InputSchema$1<InputSchema$1<InputSchema$1<S>>> extends infer N ? N extends EntityInterface$1 ? SetRow$1<Denormalize$1<N>> : SetInput$1<Denormalize$1<N>> : never;
+/** Query normalizes with its inner schema; its process() output is not input
+ *
+ * Applied three times in SetValue to unwrap nested Queries (TS 4.0 has no recursive aliases)
+ */
+type InputSchema$1<S> = S extends ({
+    readonly schema: infer Sch;
+    process(...args: any): any;
+    pk?: never;
+}) ? Sch : S;
+/** Raw input for a denormalized value, like a Collection's list or a Union's row */
+type SetInput$1<T> = 0 extends 1 & T ? any : [
+    T
+] extends [readonly (infer U)[]] ? readonly SetRow$1<U>[] : string extends keyof T ? {
+    readonly [k: string]: SetRow$1<T[keyof T]>;
+} : SetRow$1<T>;
 
 interface NetworkError$1 extends Error {
     status: number;
@@ -408,74 +476,6 @@ type FetchFunction$1<A extends readonly any[] = any, R = any> = (...args: A) => 
 
 declare class AbortOptimistic extends Error {
 }
-
-/** Value types for `Controller.set()`, including batch `set([Entity], rows)` */
-
-/** What one row normalizes to: a reference to one stored entity */
-type EntityRef = string | {
-    readonly id: string;
-    readonly schema: string;
-};
-/** Schemas that write each row to one stored entity: Entity, Union, or Invalidate (batch delete).
- * Query, All and Collection don't: they normalize to lists, or Collection keys by args batch set() lacks. */
-type SetEntitySchema = EntityInterface | EntityRefSchema;
-/** Union or Invalidate */
-type EntityRefSchema = {
-    _normalizeNullable(): EntityRef | undefined;
-    pk?: never;
-};
-/** `[Entity]`, `schema.Array(Entity)` or `schema.Values(Entity)` (or of a Union or Invalidate) */
-type SetManySchema = readonly SetEntitySchema[] | {
-    readonly schema: SetEntitySchema | Record<string, EntityInterface>;
-    schemaKey(): string;
-    queryKey(...args: any): undefined;
-    pk?: never;
-};
-/** `new Invalidate(Entity)` (or of a Union): not Queryable, since its queryKey() returns undefined */
-type SetInvalidateSchema = EntityRefSchema & {
-    queryKey(...args: any): undefined;
-    query?: never;
-};
-type IsUnion<T, U = T> = T extends unknown ? [
-    U
-] extends [T] ? false : true : never;
-type FunctionKeys<U> = {
-    [K in keyof U]: U[K] extends (...args: any) => any ? K : never;
-}[keyof U];
-/** Raw input for one field: numbers and strings coerce (literals stay exact);
- * objects are pre-normalize */
-type SetField<T> = T extends number ? number extends T ? T | string : T : T extends string ? string extends T ? T | number : T : T extends object ? unknown : T;
-/** Fields of one row (or a coerced primitive); like EntityFields, but distributive
- * and without key remapping (TS 4.0). A Union gets one row per member, so a
- * discriminator like `type` selects the member the other fields are checked against. */
-type SetRow<U> = 0 extends 1 & U ? {
-    readonly [k: string]: any;
-} : U extends object ? {
-    readonly [K in Exclude<keyof U, FunctionKeys<U>>]?: SetField<U[K]>;
-} : SetField<U>;
-/** Keeps S inferred from the schema alone: inferring it from the value too would
- * walk the value's type against every conditional in SetValue (TS 5.4 has NoInfer) */
-type SkipInfer<T, S> = [T][S extends unknown ? 0 : never];
-type SetManyValue<S> = S extends readonly (infer E)[] ? true extends IsUnion<E> ? readonly {
-    'Use a Union schema for several Entity types': never;
-}[] : readonly SetRow<Denormalize$1<E>>[] : SetValue<S>;
-/** Raw input `set()` normalizes for a Queryable */
-type SetValue<S> = InputSchema<InputSchema<InputSchema<S>>> extends infer N ? N extends EntityInterface ? SetRow<Denormalize$1<N>> : SetInput<Denormalize$1<N>> : never;
-/** Query normalizes with its inner schema; its process() output is not input
- *
- * Applied three times in SetValue to unwrap nested Queries (TS 4.0 has no recursive aliases)
- */
-type InputSchema<S> = S extends ({
-    readonly schema: infer Sch;
-    process(...args: any): any;
-    pk?: never;
-}) ? Sch : S;
-/** Raw input for a denormalized value, like a Collection's list or a Union's row */
-type SetInput<T> = 0 extends 1 & T ? any : [
-    T
-] extends [readonly (infer U)[]] ? readonly SetRow<U>[] : string extends keyof T ? {
-    readonly [k: string]: SetRow<T[keyof T]>;
-} : SetRow<T>;
 
 type ResultEntry<E extends EndpointInterface$1> = E['schema'] extends undefined | null ? ResolveType$1<E> : Normalize<E['schema']>;
 type EndpointUpdateFunction<Source extends EndpointInterface$1, Updaters extends Record<string, any> = Record<string, any>> = (source: ResultEntry<Source>, ...args: any) => {
@@ -741,7 +741,7 @@ declare class Controller<D extends GenericDispatch = DataClientDispatch> {
      */
     set<S extends Queryable$1>(schema: S, ...rest: readonly [
         ...SchemaArgs$1<S>,
-        SkipInfer<SetValue<S> | ((previousValue: Denormalize$1<S>) => SetValue<S>), S>
+        SkipInfer<SetValue$1<S> | ((previousValue: Denormalize$1<S>) => SetValue$1<S>), S>
     ]): Promise<void>;
     /**
      * Sets every row of an Array or Values of one Entity (or Union) in one normalize,
@@ -920,16 +920,6 @@ declare class Snapshot<T = unknown> implements SnapshotInterface$1 {
     };
 }
 
-interface NetworkError extends Error {
-    status: number;
-    response?: Response;
-}
-interface UnknownError extends Error {
-    status?: unknown;
-    response?: unknown;
-}
-type ErrorTypes = NetworkError | UnknownError;
-
 /** Attempts to infer reasonable input type to construct an Entity */
 type EntityFields<U> = {
     readonly [K in keyof U as U[K] extends (...args: any) => any ? never : K]?: U[K] extends number ? U[K] | string : U[K] extends string ? U[K] | number : U[K];
@@ -992,6 +982,48 @@ type DenormalizeNullable<S> = S extends ({
     [K: string]: any;
 } ? DenormalizeNullableObject<S> : S;
 
+type FunctionKeys<U> = {
+    [K in keyof U]: U[K] extends (...args: any) => any ? K : never;
+}[keyof U];
+/** Raw input for one field: numbers and strings coerce (literals stay exact);
+ * objects are pre-normalize */
+type SetField<T> = T extends number ? number extends T ? T | string : T : T extends string ? string extends T ? T | number : T : T extends object ? unknown : T;
+/** Fields of one row (or a coerced primitive); like EntityFields, but distributive
+ * and without key remapping (TS 4.0). A Union gets one row per member, so a
+ * discriminator like `type` selects the member the other fields are checked against. */
+type SetRow<U> = 0 extends 1 & U ? {
+    readonly [k: string]: any;
+} : U extends object ? {
+    readonly [K in Exclude<keyof U, FunctionKeys<U>>]?: SetField<U[K]>;
+} : SetField<U>;
+/** Raw input `set()` normalizes for a Queryable */
+type SetValue<S> = InputSchema<InputSchema<InputSchema<S>>> extends infer N ? N extends EntityInterface ? SetRow<Denormalize<N>> : SetInput<Denormalize<N>> : never;
+/** Query normalizes with its inner schema; its process() output is not input
+ *
+ * Applied three times in SetValue to unwrap nested Queries (TS 4.0 has no recursive aliases)
+ */
+type InputSchema<S> = S extends ({
+    readonly schema: infer Sch;
+    process(...args: any): any;
+    pk?: never;
+}) ? Sch : S;
+/** Raw input for a denormalized value, like a Collection's list or a Union's row */
+type SetInput<T> = 0 extends 1 & T ? any : [
+    T
+] extends [readonly (infer U)[]] ? readonly SetRow<U>[] : string extends keyof T ? {
+    readonly [k: string]: SetRow<T[keyof T]>;
+} : SetRow<T>;
+
+interface NetworkError extends Error {
+    status: number;
+    response?: Response;
+}
+interface UnknownError extends Error {
+    status?: unknown;
+    response?: unknown;
+}
+type ErrorTypes = NetworkError | UnknownError;
+
 interface SnapshotInterface {
     readonly fetchedAt: number;
     readonly abort: Error;
@@ -1048,7 +1080,7 @@ type ExpiryStatusInterface = 1 | 2 | 3;
 type ResolveType<E extends (...args: any) => any> = ReturnType<E> extends Promise<infer R> ? R : never;
 
 type FetchFunction<A extends readonly any[] = any, R = any> = (...args: A) => Promise<R>;
-interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
+interface EndpointExtraOptions<F extends FetchFunction = FetchFunction, S extends Schema | undefined = undefined> {
     /** Default data expiry length, will fall back to NetworkManager default if not defined */
     readonly dataExpiryLength?: number;
     /** Default error expiry length, will fall back to NetworkManager default if not defined */
@@ -1060,10 +1092,13 @@ interface EndpointExtraOptions<F extends FetchFunction = FetchFunction> {
     /** Determines whether to throw or fallback to */
     errorPolicy?(error: any): 'hard' | 'soft' | undefined;
     /** Enables optimistic updates for this request - uses return value as assumed network response */
-    getOptimisticResponse?(snap: SnapshotInterface, ...args: Parameters<F>): ResolveType<F>;
+    getOptimisticResponse?(snap: SnapshotInterface, ...args: Parameters<F>): OptimisticResponse<F, S>;
     /** User-land extra data to send */
     readonly extra?: any;
 }
+/** What getOptimisticResponse() returns: the fetch's resolved type, or when that is `any`
+ * (no `process()`), the raw input the schema normalizes, like a `Controller.set()` value */
+type OptimisticResponse<F extends FetchFunction, S> = undefined extends S ? ResolveType<F> : null extends S ? ResolveType<F> : 0 extends 1 & ResolveType<F> ? SetValue<S> : ResolveType<F>;
 
 type Schema = null | string | {
     [K: string]: any;
@@ -1097,6 +1132,13 @@ interface SchemaSimple<T = any, Args extends readonly any[] = any> {
         getEntity: any;
         getIndex: any;
     }): any;
+}
+interface EntityInterface<T = any> extends SchemaSimple {
+    createIfValid(props: any): any;
+    pk(params: any, parent: any, key: string | undefined, args: any[]): string | number | undefined;
+    readonly key: string;
+    indexes?: any;
+    prototype: T;
 }
 interface Mergeable {
     key: string;

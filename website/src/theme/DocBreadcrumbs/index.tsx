@@ -1,13 +1,12 @@
-import React from 'react';
 import { useActivePlugin } from '@docusaurus/plugin-content-docs/client';
-
-import DocBreadcrumbs from '@theme-original/DocBreadcrumbs';
-import type DocBreadcrumbsType from '@theme/DocBreadcrumbs';
 import type { WrapperProps } from '@docusaurus/types';
+import type DocBreadcrumbsType from '@theme/DocBreadcrumbs';
+import DocBreadcrumbs from '@theme-original/DocBreadcrumbs';
+import React from 'react';
 
+import styles from './styles.module.css';
 import FrameworkSelector from '../../components/FrameworkSelector';
 import { frameworkOf } from '../../components/useFramework';
-import styles from './styles.module.css';
 
 type Props = WrapperProps<typeof DocBreadcrumbsType>;
 

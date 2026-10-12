@@ -112,7 +112,9 @@ export const getUser = new Endpoint(fetchUser, {
   
   // Optimistic updates
   getOptimisticResponse(snap, id) {
-    return snap.get(User, { id });
+    const user = snap.get(User, { id });
+    if (!user) throw snap.abort;
+    return user;
   },
 });
 ```

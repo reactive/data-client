@@ -1432,6 +1432,7 @@ describe('RestEndpoint', () => {
         params.two;
 
         body.hi;
+        return body;
       },
     }).extend({
       path: '/:group/next/:two',
@@ -1441,6 +1442,7 @@ describe('RestEndpoint', () => {
         params.group;
         // @ts-expect-error
         params.id;
+        return { title: `${params.two}` };
       },
     });
 
@@ -1455,6 +1457,7 @@ describe('RestEndpoint', () => {
         params.two;
 
         body.hi;
+        return body;
       },
     }).extend({
       getOptimisticResponse(snap, params, body) {
@@ -1463,6 +1466,7 @@ describe('RestEndpoint', () => {
         params.two;
 
         body.hi;
+        return body;
       },
     });
   });

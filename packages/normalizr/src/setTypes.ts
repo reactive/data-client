@@ -1,5 +1,7 @@
 /** Value types for `Controller.set()`, including batch `set([Entity], rows)` */
-import type { Denormalize, EntityInterface } from '@data-client/normalizr';
+// SetValue and its helpers are mirrored in endpoint/src/setTypes.ts; keep in sync
+import type { EntityInterface } from './interface.js';
+import type { Denormalize } from './types.js';
 
 /** What one row normalizes to: a reference to one stored entity */
 type EntityRef = string | { readonly id: string; readonly schema: string };

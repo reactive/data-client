@@ -5,6 +5,11 @@ import type {
   Denormalize,
   Queryable,
   SchemaArgs,
+  SetInvalidateSchema,
+  SetManySchema,
+  SetManyValue,
+  SetValue,
+  SkipInfer,
 } from '@data-client/normalizr';
 import {
   ExpiryStatus,
@@ -33,13 +38,6 @@ import {
   createSetResponse,
 } from './actions/index.js';
 import ensurePojo from './ensurePojo.js';
-import type {
-  SkipInfer,
-  SetInvalidateSchema,
-  SetManySchema,
-  SetManyValue,
-  SetValue,
-} from './setManyTypes.js';
 import type { EndpointUpdateFunction } from './types.js';
 import { ReduxMiddlewareAPI } from '../manager/applyManager.js';
 import type { GCInterface } from '../state/GCPolicy.js';

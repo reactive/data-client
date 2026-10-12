@@ -12,7 +12,7 @@ export interface EndpointOptions<
   F extends FetchFunction = FetchFunction,
   S extends Schema | undefined = undefined,
   M extends boolean | undefined = false,
-> extends EndpointExtraOptions<F> {
+> extends EndpointExtraOptions<F, S> {
   key?: (...args: Parameters<F>) => string;
   sideEffect?: M;
   schema?: S;
@@ -58,12 +58,14 @@ export interface EndpointInstance<
       Schema | undefined,
       boolean | undefined
     >,
-    O extends EndpointExtendOptions<F> &
+    O extends EndpointExtendOptions<F, ExtendSchema> &
       Partial<Omit<E, keyof EndpointInstance<FetchFunction>>> &
       Record<string, unknown>,
+    // the schema getOptimisticResponse() normalizes with: options' own, else E's
+    ExtendSchema extends Schema | undefined = E['schema'],
   >(
     this: E,
-    options: Readonly<O> & O,
+    options: Readonly<O> & O & { readonly schema?: ExtendSchema },
   ): ExtendedEndpoint<Readonly<O>, E, F>;
 }
 /**
