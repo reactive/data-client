@@ -14,7 +14,7 @@ import { groupEntries } from '../store/actionGroups';
 import type { LogEntry } from '../store/actionLog';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
-import { axisLabels, lanesOf, timeScale } from '../store/Timeline';
+import { axisLabels, lanesOf, nearest, timeScale } from '../store/Timeline';
 import { UNFOLD_CLOSE_MS } from '../store/Unfold';
 
 jest.mock('../../../../utils/tabStorage', () => ({
@@ -162,6 +162,24 @@ describe('timeScale', () => {
   });
 });
 
+describe('nearest', () => {
+  it('finds the entry whose mark is closest, the earlier on a tie', () => {
+    const fetch = { type: actionTypes.FETCH, key: 'a' };
+    const entries = [
+      entry(1, 0, fetch),
+      entry(2, 1, fetch),
+      entry(3, 201, fetch),
+    ];
+    const scale = timeScale(entries);
+    const [a, b, c] = [1, 2, 3].map(seq => scale.x.get(seq)!);
+    expect(nearest(entries, scale, 0).seq).toBe(1);
+    expect(nearest(entries, scale, (a + b) / 2).seq).toBe(1);
+    expect(nearest(entries, scale, (a + b) / 2 + 1).seq).toBe(2);
+    expect(nearest(entries, scale, c - 1).seq).toBe(3);
+    expect(nearest(entries, scale, scale.width).seq).toBe(3);
+  });
+});
+
 describe('axisLabels', () => {
   it('thins the labels out to the gap asked for', () => {
     const fetch = { type: actionTypes.FETCH, key: 'a' };
@@ -224,7 +242,9 @@ describe('Store scrubber', () => {
       name: /^setResponse at/,
     });
     expect(marks).toHaveLength(2);
-    expect(within(bar).getAllByTitle(/^fetch at/)).toHaveLength(2);
+    expect(within(bar).getAllByRole('img', { name: /^fetch at/ })).toHaveLength(
+      2,
+    );
     expect(within(bar).queryByRole('button', { name: /^fetch at/ })).toBeNull();
     // the lanes stay collapsed
     expect(screen.queryByRole('group', { name: /^Timeline/ })).toBeNull();
@@ -249,7 +269,9 @@ describe('Store scrubber', () => {
     expect(
       within(bar).getAllByRole('button', { name: /^setResponse at/ }),
     ).toHaveLength(20);
-    expect(within(bar).getAllByTitle(/^fetch at/)).toHaveLength(20);
+    expect(within(bar).getAllByRole('img', { name: /^fetch at/ })).toHaveLength(
+      20,
+    );
     expect(bar.querySelector('[data-count]')).toBeNull();
     // the newest stays in view, as the lanes' does
     expect(track.scrollLeft).toBe(2000);
@@ -474,6 +496,121 @@ describe('Store scrubber', () => {
     // still first on the lane, picked, though the log let go of it
     expect(marks()[0].hasAttribute('data-selected')).toBe(true);
     expect(scrubber().textContent).toContain('setResponse');
+  });
+});
+
+describe('Store timeline preview', () => {
+  /** A pointer event at `clientX` */
+  const pointer = (
+    el: Element,
+    type: string,
+    clientX: number,
+    pointerType = 'mouse',
+  ) => {
+    const event = new MouseEvent(type, {
+      bubbles: true,
+      cancelable: true,
+      clientX,
+    });
+    Object.assign(event, { pointerType, pointerId: 1, isPrimary: true });
+    fireEvent(el, event);
+  };
+  const preview = () => screen.queryByRole('tooltip', { hidden: true });
+  /** Two responses on the scrubber, the store laid out so a client x is a
+   * px on its scale */
+  async function twoResponses() {
+    const { ctrl } = mount();
+    title = 'One';
+    await act(() => ctrl().fetch(getPosts));
+    title = 'Two';
+    await act(() => ctrl().fetch(getPosts));
+    const track = scrubber().querySelector<HTMLElement>(
+      '[style*="--tl-width"]',
+    )!;
+    const width = parseFloat(track.style.getPropertyValue('--tl-width'));
+    jest.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      right: width,
+      bottom: 20,
+      width,
+      height: 20,
+    } as DOMRect);
+    const marks = within(scrubber()).getAllByRole('button', {
+      name: /^setResponse at/,
+    });
+    const at = (mark: HTMLElement) =>
+      Number(mark.style.getPropertyValue('--tl-f')) * width;
+    jest.useFakeTimers();
+    return { track, marks, at };
+  }
+  afterEach(() => {
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+
+  it('shows what the action under the mouse did after a moment, then follows the mouse at once', async () => {
+    const { track, marks, at } = await twoResponses();
+    pointer(track, 'pointermove', at(marks[0]) + 2);
+    expect(preview()).toBeNull();
+    act(() => jest.advanceTimersByTime(150));
+    expect(preview()!.textContent).toContain('setResponse');
+    expect(preview()!.textContent).toContain('"One"');
+    expect(preview()!.textContent).not.toContain('"Two"');
+    // sliding on to the next shows it with no wait
+    pointer(track, 'pointermove', at(marks[1]) - 2);
+    expect(preview()!.textContent).toContain('"Two"');
+    pointer(track, 'pointerleave', 0);
+    expect(preview()).toBeNull();
+    // back right away: no wait
+    pointer(track, 'pointermove', at(marks[0]));
+    expect(preview()).toBeTruthy();
+    pointer(track, 'pointerleave', 0);
+    // back a while later: waits again
+    act(() => jest.advanceTimersByTime(1000));
+    pointer(track, 'pointermove', at(marks[0]));
+    expect(preview()).toBeNull();
+    act(() => jest.advanceTimersByTime(150));
+    expect(preview()).toBeTruthy();
+    // the moment stays where it was
+    expect(within(scrubber()).queryByText('After')).toBeNull();
+  });
+
+  it('shows as a finger holds still on the track, follows it sliding, and lifting picks nothing', async () => {
+    const { marks, at } = await twoResponses();
+    // a tap still picks
+    pointer(marks[0], 'pointerdown', at(marks[0]), 'touch');
+    pointer(marks[0], 'pointerup', at(marks[0]), 'touch');
+    fireEvent.click(marks[0]);
+    expect(preview()).toBeNull();
+    expect(scrubber().textContent).toContain('After');
+    fireEvent.click(screen.getByRole('button', { name: 'Live' }));
+    // moving off at once scrolls instead
+    pointer(marks[0], 'pointerdown', at(marks[0]), 'touch');
+    pointer(marks[0], 'pointermove', at(marks[0]) + 20, 'touch');
+    act(() => jest.advanceTimersByTime(1000));
+    expect(preview()).toBeNull();
+    pointer(marks[0], 'pointercancel', at(marks[0]) + 20, 'touch');
+    // held, it shows
+    pointer(marks[0], 'pointerdown', at(marks[0]), 'touch');
+    act(() => jest.advanceTimersByTime(349));
+    expect(preview()).toBeNull();
+    act(() => jest.advanceTimersByTime(1));
+    expect(preview()!.textContent).toContain('"One"');
+    // sliding, it follows, and the track doesn't scroll
+    const move = Object.assign(
+      new Event('touchmove', { bubbles: true, cancelable: true }),
+      { touches: [{ clientX: at(marks[1]), clientY: 0 }] },
+    );
+    marks[0].dispatchEvent(move);
+    expect(move.defaultPrevented).toBe(true);
+    pointer(marks[0], 'pointermove', at(marks[1]), 'touch');
+    expect(preview()!.textContent).toContain('"Two"');
+    // lifting hides it, picking nothing
+    pointer(marks[0], 'pointerup', at(marks[1]), 'touch');
+    fireEvent.click(marks[0]);
+    expect(preview()).toBeNull();
+    expect(within(scrubber()).queryByText('After')).toBeNull();
   });
 });
 

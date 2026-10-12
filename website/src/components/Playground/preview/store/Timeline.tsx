@@ -1,5 +1,11 @@
 import clsx from 'clsx';
-import React, { memo, useLayoutEffect, useMemo, useRef } from 'react';
+import React, {
+  memo,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from 'react';
 
 import {
   actionName,
@@ -30,6 +36,7 @@ import { NARROW_WIDTH } from './columns';
 import { useHoldFocus } from './dom';
 import { actionId } from './model';
 import { useNavState } from './nav';
+import type { OnPreview } from './Preview';
 import styles from './store.module.css';
 import { useTabStorage } from '../../../../utils/tabStorage';
 
@@ -47,6 +54,10 @@ const LABEL_GAP = 64;
 const LABEL_WIDTH = { wide: 136, narrow: 88 };
 /** A lane's height (px, as `--tl-row`) */
 const ROW = 18;
+/** How long a finger holds still on a track before it previews (ms) */
+const HOLD_MS = 350;
+/** How far a finger moves before the hold is a scroll instead (px) */
+const SLOP = 8;
 
 /** Where each action sits along the timeline */
 export interface TimeScale {
@@ -180,7 +191,6 @@ function drawer({
           tabIndex={-1}
           className={clsx(styles.tlMark, type, extra)}
           style={style}
-          title={label}
           aria-label={label}
           data-id={actionId(entry.seq)}
           data-selected={entry.seq === selected || undefined}
@@ -191,7 +201,8 @@ function drawer({
           key={entry.seq}
           className={clsx(styles.tlMark, styles.tlHollow, type, extra)}
           style={style}
-          title={label}
+          role="img"
+          aria-label={label}
           data-id={actionId(entry.seq)}
         />;
   };
@@ -238,6 +249,147 @@ function drawer({
   return { pos, drawn };
 }
 
+/** The entry whose mark is nearest `x` on `scale` (`entries` in its order) */
+export function nearest(
+  entries: readonly LogEntry[],
+  scale: TimeScale,
+  x: number,
+) {
+  const at = (i: number) => scale.x.get(entries[i].seq)!;
+  let lo = 0;
+  let hi = entries.length - 1;
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1;
+    if (at(mid) < x) lo = mid + 1;
+    else hi = mid;
+  }
+  return entries[lo > 0 && x - at(lo - 1) <= at(lo) - x ? lo - 1 : lo];
+}
+
+/** Previews the action nearest the pointer on `track`, under `anchor`: as
+ * the mouse moves over it, or, once a finger has held still on it, as the
+ * finger slides (the track doesn't scroll meanwhile, and lifting it picks
+ * nothing) */
+function useTrackPreview(
+  track: React.RefObject<HTMLElement | null>,
+  anchor: React.RefObject<HTMLElement | null>,
+  shown: readonly LogEntry[],
+  scale: TimeScale,
+  onPreview: OnPreview,
+) {
+  const latest = useRef({ shown, scale, onPreview });
+  useLayoutEffect(() => {
+    latest.current = { shown, scale, onPreview };
+  });
+  useEffect(() => {
+    const el = track.current;
+    if (!el) return;
+    let previewing = false;
+    const preview = (clientX: number, now?: boolean) => {
+      const { shown, scale, onPreview } = latest.current;
+      const lane = el.querySelector('[data-lane]');
+      if (!lane || !shown.length) return;
+      const box = lane.getBoundingClientRect();
+      const { seq } = nearest(
+        shown,
+        scale,
+        ((clientX - box.left) / box.width) * scale.width,
+      );
+      previewing = true;
+      onPreview(
+        {
+          seq,
+          x: box.left + (scale.x.get(seq)! / scale.width) * box.width,
+          anchor: anchor.current ?? el,
+        },
+        now,
+      );
+    };
+    const hide = () => {
+      if (previewing) latest.current.onPreview(null);
+      previewing = false;
+    };
+    // a finger on the track: held still, it previews
+    let hold:
+      | {
+          id: number;
+          x: number;
+          y: number;
+          timer: ReturnType<typeof setTimeout>;
+          on: boolean;
+        }
+      | undefined;
+    // the click a held finger lifting makes
+    let swallow = false;
+    const letGo = () => {
+      if (!hold) return;
+      clearTimeout(hold.timer);
+      swallow = hold.on;
+      if (hold.on) hide();
+      hold = undefined;
+    };
+    const onDown = (e: PointerEvent) => {
+      if (e.pointerType !== 'touch' || !e.isPrimary) return;
+      letGo();
+      swallow = false;
+      const h = {
+        id: e.pointerId,
+        x: e.clientX,
+        y: e.clientY,
+        on: false,
+        timer: setTimeout(() => {
+          h.on = true;
+          preview(h.x, true);
+        }, HOLD_MS),
+      };
+      hold = h;
+    };
+    const onMove = (e: PointerEvent) => {
+      if (e.pointerType !== 'touch') return preview(e.clientX);
+      if (e.pointerId !== hold?.id) return;
+      if (hold.on) preview(e.clientX, true);
+      else if (Math.hypot(e.clientX - hold.x, e.clientY - hold.y) > SLOP)
+        letGo();
+    };
+    const onLeave = (e: PointerEvent) => {
+      if (e.pointerType !== 'touch') hide();
+    };
+    const onUp = (e: PointerEvent) => {
+      if (e.pointerId === hold?.id) letGo();
+    };
+    const onClick = (e: MouseEvent) => {
+      if (!swallow) return;
+      swallow = false;
+      e.preventDefault();
+      e.stopPropagation();
+    };
+    const holding = (e: Event) => {
+      if (hold?.on) e.preventDefault();
+    };
+    const listeners = [
+      ['pointerdown', onDown],
+      ['pointermove', onMove],
+      ['pointerleave', onLeave],
+      ['pointerup', onUp],
+      ['pointercancel', onUp],
+      ['touchmove', holding],
+      ['contextmenu', holding],
+      ['click', onClick],
+    ] as const;
+    // capturing: ahead of the track's follow, which a held finger mustn't
+    // move (see `useFollow`)
+    const options = { capture: true, passive: false };
+    for (const [type, fn] of listeners)
+      el.addEventListener(type, fn as EventListener, options);
+    return () => {
+      for (const [type, fn] of listeners)
+        el.removeEventListener(type, fn as EventListener, options);
+      letGo();
+      hide();
+    };
+  }, [track, anchor]);
+}
+
 /** Keeps a sideways-scrolling track drawn on `scale` on the moment: live,
  * on the newest as actions come in, until scrolled back; scrolled back or
  * picked, the marks in view stay put as actions come in or the oldest drop.
@@ -281,6 +433,7 @@ export const Scrubber = memo(function Scrubber({
   listRef,
   onList,
   onListHover,
+  onPreview,
 }: {
   /** The moment's action; missing while live */
   entry?: LogEntry;
@@ -300,6 +453,7 @@ export const Scrubber = memo(function Scrubber({
   onList: () => void;
   /** The pointer came onto the list's button (`true`) or left it */
   onListHover: (inside: boolean, e: React.PointerEvent) => void;
+  onPreview: OnPreview;
 }) {
   const { groups } = useActions();
   const { whole, earlier, later, set: onSelect, show } = useNavState();
@@ -314,6 +468,7 @@ export const Scrubber = memo(function Scrubber({
   // pressed hands focus to one still there
   const bar = useRef<HTMLDivElement>(null);
   const hold = useHoldFocus(bar);
+  useTrackPreview(track, bar, shown, scale, onPreview);
   const step = (to: number | null) => {
     hold();
     onSelect(to);
@@ -362,7 +517,7 @@ export const Scrubber = memo(function Scrubber({
           style={{ '--tl-width': `${scale.width}px` } as React.CSSProperties}
         >
           {shown.length > 0 && (
-            <div className={styles.tlLane}>
+            <div className={styles.tlLane} data-lane>
               {groups.flatMap(g => drawn(g, false))}
               {decor()}
             </div>
@@ -439,6 +594,7 @@ export default memo(function Timeline({
   width,
   hit,
   onMark,
+  onPreview,
 }: {
   /** Panel width (px) */
   width: number;
@@ -446,6 +602,7 @@ export default memo(function Timeline({
   hit: SubjectFilter['hit'];
   /** A mark picked (not as the keys step): makes it the moment */
   onMark: (seq: number) => void;
+  onPreview: OnPreview;
 }) {
   const { history, groups } = useActions();
   const { seq: selected } = useNavState();
@@ -471,7 +628,9 @@ export default memo(function Timeline({
     [shown, scale, gap],
   );
 
+  const root = useRef<HTMLDivElement>(null);
   const scroller = useRef<HTMLDivElement>(null);
+  useTrackPreview(scroller, root, shown, scale, onPreview);
   // a scrolled-back view stays put as the fit toggles, while a followed one
   // stays on the newest; the picked action comes into view again
   const end = useTrackFollow(scroller, scale, fit);
@@ -536,6 +695,7 @@ export default memo(function Timeline({
 
   return (
     <div
+      ref={root}
       className={styles.tlLanes}
       style={{ '--tl-label': `${labelWidth}px` } as React.CSSProperties}
       tabIndex={0}
@@ -600,7 +760,7 @@ export default memo(function Timeline({
             ))}
           </div>
           {lanes.map(lane => (
-            <div key={lane.key} className={styles.tlLane}>
+            <div key={lane.key} className={styles.tlLane} data-lane>
               <LaneDropped lane={lane} />
               {lane.groups.flatMap(g => drawn(g))}
             </div>

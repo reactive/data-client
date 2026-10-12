@@ -77,6 +77,7 @@ import {
   type LevelView,
   type View,
 } from './nav';
+import { Preview, usePreview } from './Preview';
 import RootView from './RootView';
 import type SchemaRegistry from './schemaRegistry';
 import styles from './store.module.css';
@@ -281,6 +282,8 @@ export default function StorePanel({
 
   const panel = useRef<HTMLDivElement>(null);
   const width = useWidth(panel);
+  // the action the pointer is on along a track, and what it did
+  const [preview, onPreview] = usePreview(panel);
   // the timeline shutting under focus hands it to what opened it, so it
   // doesn't fall to the page
   const expand = useRef<HTMLButtonElement>(null);
@@ -433,6 +436,7 @@ export default function StorePanel({
         width={width}
         hit={filter.hit}
         onMark={narrow ? markInSheet : mark}
+        onPreview={onPreview}
       />
     </Unfold>
   );
@@ -498,6 +502,7 @@ export default function StorePanel({
               listRef={listButton}
               onList={openList}
               onListHover={hoverPane}
+              onPreview={onPreview}
             />
             <div className={styles.body}>
               {/* one place in the tree either way, so crossing the narrow
@@ -639,6 +644,11 @@ export default function StorePanel({
                   onPick={set}
                   onClose={closePane}
                 />
+              </NavContext.Provider>
+            )}
+            {preview && (
+              <NavContext.Provider value={chipNav}>
+                <Preview at={preview} subject={subject} />
               </NavContext.Provider>
             )}
           </div>

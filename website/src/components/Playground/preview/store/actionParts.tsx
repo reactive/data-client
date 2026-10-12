@@ -164,10 +164,11 @@ export function useFollow(
     const touchAt = (e: TouchEvent) =>
       e.touches[0] && { x: e.touches[0].clientX, y: e.touches[0].clientY };
     const onTouchStart = (e: TouchEvent) => (touch = touchAt(e));
-    // a finger moving toward the end of the axis scrolls back
+    // a finger moving toward the end of the axis scrolls back, unless a
+    // preview holds the track still (see `useTrackPreview`)
     const onTouchMove = (e: TouchEvent) => {
       const at = touchAt(e);
-      if (at && touch) {
+      if (at && touch && !e.defaultPrevented) {
         const dx = touch.x - at.x;
         const dy = touch.y - at.y;
         if (axis === 'y') back(dy, dx, e.target);
