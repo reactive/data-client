@@ -9,7 +9,7 @@ export default function swCustom({ offlineMode }) {
     if (
       event.request.mode !== 'navigate' ||
       url.origin !== self.location.origin ||
-      // index.html, which the plugin finds
+      // directory URLs, which the plugin serves as URL/index.html
       url.pathname.endsWith('/')
     )
       return;

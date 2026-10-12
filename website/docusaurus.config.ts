@@ -358,8 +358,9 @@ const config: Config = {
         offlineModeActivationStrategies: ['always'],
         swRegister: require.resolve('./src/pwaRegister.ts'),
         swCustom: require.resolve('./src/pwaSw.js'),
-        // under each build's baseUrl (/next/, /es/), so the app it installs
-        // opens that build, which has this worker
+        // The manifest link goes under each build's baseUrl (/next/, /es/),
+        // and its relative start_url and scope resolve against it, so the
+        // installed app opens the build that has this worker
         pwaHead: [
           {
             tagName: 'link',
