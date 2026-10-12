@@ -31,8 +31,8 @@ and the endpoint keeps only references to those rows.
 
 :::vue
 
-Below, the `/todos` response becomes a `Todo` table with one row per primary key, and the endpoint
-keeps only references to those rows. So picking a todo renders its detail with no request, and
+In the code below, the `/todos` response becomes a `Todo` table with one row per primary key, and
+the endpoint keeps only references to those rows. So picking a todo renders its detail with no request, and
 toggling completed sends one `PATCH` that updates both the list and the detail.
 
 :::
