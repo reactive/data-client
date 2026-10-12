@@ -91,7 +91,7 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
   height: 20px;
   display: flex;
   background-color: var(--ifm-navbar-link-color);
-  mask-image: url('/img/anthropic.svg');
+  mask-image: url('../../static/img/anthropic.svg');
 }
 
 .header-demos-link:hover {

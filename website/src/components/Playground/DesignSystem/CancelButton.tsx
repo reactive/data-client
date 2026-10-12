@@ -1,6 +1,8 @@
+import useBaseUrl from '@docusaurus/useBaseUrl';
 import React from 'react';
 
 export function CancelButton({ onClick }: { onClick?: () => void }) {
+  const cancelSrc = useBaseUrl('/img/cancel.png');
   return (
     <div
       style={{
@@ -15,7 +17,7 @@ export function CancelButton({ onClick }: { onClick?: () => void }) {
       >
         {onClick ?
           <img
-            src="/img/cancel.png"
+            src={cancelSrc}
             width="16"
             height="16"
             style={{ marginBottom: '-3px' }}
