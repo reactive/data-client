@@ -74,12 +74,8 @@ export const siteLabel = versionCurrent ? 'next' : `v${packageLine}`;
 
 const SITE = 'https://dataclient.io';
 
-/**
- * Every version's site, newest first, for the version menu by the logo
- * (scripts/snapshot/versionMenu.client.ts). docusaurus.config.ts writes it to
- * the production root's /site-versions.json, where every version's site reads
- * it, so archives list the versions released after them.
- */
+/** Every version's site, newest first, for the version menu by the logo
+ * (scripts/snapshot/versionMenu.client.ts) */
 export const siteVersions: SiteVersion[] = [
   ...(versionCurrent ?
     [{ label: 'Next', note: 'unreleased', url: `${SITE}/next` }]

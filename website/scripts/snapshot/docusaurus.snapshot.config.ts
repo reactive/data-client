@@ -1,8 +1,7 @@
 // Copied next to an old release's docusaurus.config.ts by build.sh, so the
 // site builds with that release's own config. An archive serves on its own
 // host (<version>.dataclient.io); the current version (SNAPSHOT_ROLE=current,
-// while master is the next major) stays at the root. Both get the version
-// menu by the logo.
+// while master is the next major) stays at the root.
 // Keep it to fields every release's config has: it runs against old ones.
 import config from './docusaurus.config';
 import { VERSION_LABEL_ID, versionLabel } from './versionLabel';

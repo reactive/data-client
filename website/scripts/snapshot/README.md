@@ -37,9 +37,6 @@ type-check, as they did when that release's CI passed. Archives add nothing to t
   failing the build when one breaks an invariant: each version is a line, listed once, and not both
   current and archived; each sha256 is one; the current `ref` is `<version>.x`. It also gives the
   label under the logo (`siteLabel`): next, or the line of `packages/react`'s version.
-- Every version's site reads the version menu's list from the root's `site-versions.json`
-  (`siteVersions.ts`), so frozen archives list newer versions. Only add fields to it, and keep its
-  path and CORS header (`vercel.json`), since archives can't change.
 
 ## Current and next
 

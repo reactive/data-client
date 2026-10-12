@@ -41,7 +41,7 @@ function here() {
 const STYLE = `
 .version-menu {
   position: fixed;
-  z-index: calc(var(--ifm-z-index-fixed, 200) + 1);
+  z-index: calc(var(--ifm-z-index-fixed) + 1);
   box-sizing: border-box;
   min-width: 12.5rem;
   max-width: calc(100vw - 16px);
@@ -49,9 +49,9 @@ const STYLE = `
   overflow-y: auto;
   overscroll-behavior: contain;
   padding: 0.3125rem;
-  border: 1px solid var(--ifm-color-emphasis-200, rgb(0 0 0 / 0.1));
+  border: 1px solid var(--ifm-color-emphasis-200);
   border-radius: 0.75rem;
-  background: var(--ifm-background-surface-color, var(--ifm-background-color, #fff));
+  background: var(--ifm-background-surface-color);
   box-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 10px 28px -6px rgb(0 0 0 / 0.18);
   color: var(--ifm-font-color-base);
   font-size: 0.875rem;
@@ -106,10 +106,10 @@ const STYLE = `
   outline: none;
 }
 .version-menu__item[aria-current], .version-menu__item[aria-current]:hover {
-  color: var(--ifm-color-primary-darker, var(--ifm-color-primary));
+  color: var(--ifm-color-primary-darker);
 }
 [data-theme=dark] .version-menu__item[aria-current] {
-  color: var(--ifm-color-primary-lighter, var(--ifm-color-primary));
+  color: var(--ifm-color-primary-lighter);
 }
 .version-menu__item[aria-current]::after {
   content: "";
@@ -131,18 +131,18 @@ const STYLE = `
   line-height: 1.2;
 }
 .version-menu__note[data-note="latest"] {
-  background: var(--ifm-color-primary-contrast-background, var(--ifm-color-emphasis-200));
+  background: var(--ifm-color-primary-contrast-background);
   background: color-mix(in srgb, var(--ifm-color-primary) 14%, transparent);
-  color: var(--ifm-color-primary-darkest, var(--ifm-color-primary));
+  color: var(--ifm-color-primary-darkest);
 }
 [data-theme=dark] .version-menu__note[data-note="latest"] {
   background: color-mix(in srgb, var(--ifm-color-primary) 24%, transparent);
-  color: var(--ifm-color-primary-lightest, var(--ifm-color-primary));
+  color: var(--ifm-color-primary-lightest);
 }
 .version-menu__foot {
   margin: 0.3125rem -0.3125rem -0.3125rem;
   padding: 0.3125rem;
-  border-top: 1px solid var(--ifm-color-emphasis-200, rgb(0 0 0 / 0.1));
+  border-top: 1px solid var(--ifm-color-emphasis-200);
 }
 .version-menu__foot a {
   color: var(--ifm-color-emphasis-700);
@@ -174,6 +174,7 @@ const STYLE = `
 `;
 
 let menu: HTMLElement | undefined;
+let items: HTMLElement | undefined;
 let brand: HTMLElement | undefined;
 let timer: ReturnType<typeof setTimeout> | undefined;
 // bumped by each open and close, so an open still loading the list doesn't
@@ -198,6 +199,19 @@ function ensureMenu() {
   menu.addEventListener('pointerleave', closeOnMouseLeave);
   menu.addEventListener('keydown', onMenuKey);
   menu.addEventListener('focusout', closeOnFocusOut);
+  items = document.createElement('div');
+  menu.append(
+    Object.assign(document.createElement('div'), {
+      className: 'version-menu__heading',
+      textContent: 'Versions',
+    }),
+    items,
+    Object.assign(document.createElement('div'), {
+      className: 'version-menu__foot',
+      // archives have no blog of their own
+      innerHTML: `<a href="${LATEST}/blog/tags/releases">Release notes</a>`,
+    }),
+  );
   document.body.append(menu);
   document.addEventListener('pointerdown', e => {
     if (!isMenuPart(e.target as Node)) close();
@@ -226,11 +240,7 @@ async function open(focusFirst = false) {
     brand.closest('.navbar') ?? brand
   ).getBoundingClientRect();
   const { page, site } = here();
-  el.replaceChildren(
-    Object.assign(document.createElement('div'), {
-      className: 'version-menu__heading',
-      textContent: 'Versions',
-    }),
+  items?.replaceChildren(
     ...list.map(v => {
       const item = document.createElement('a');
       item.className = 'version-menu__item';
@@ -246,12 +256,6 @@ async function open(focusFirst = false) {
         item.append(note);
       }
       return item;
-    }),
-    Object.assign(document.createElement('div'), {
-      className: 'version-menu__foot',
-      innerHTML:
-        // archives have no blog of their own
-        `<a href="${LATEST}/blog/tags/releases">Release notes</a>`,
     }),
   );
   el.style.left = `${Math.max(8, left - 8)}px`;
@@ -291,17 +295,17 @@ function onMenuKey(e: KeyboardEvent) {
 }
 
 function bind(el: HTMLElement) {
-  // the label's hover styles too, so add them before the menu first opens
   if (!brand) {
+    // the label's hover styles too, so add them before the menu first opens
     const style = document.createElement('style');
     style.textContent = STYLE;
     document.head.append(style);
+    // load the list before the menu opens, once the page is idle
+    setTimeout(loadVersions, 1000);
   }
   brand = el;
   el.setAttribute('aria-haspopup', 'menu');
   el.setAttribute('aria-expanded', 'false');
-  // load the list before the menu opens, once the page is idle
-  setTimeout(loadVersions, 1000);
   el.addEventListener('pointerdown', e => {
     lastPointer = e.pointerType;
   });
