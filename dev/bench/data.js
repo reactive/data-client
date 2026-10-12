@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791739912698,
+  "lastUpdate": 1791778664493,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -129515,6 +129515,324 @@ window.BENCHMARK_DATA = {
             "name": "setMany 500 batch",
             "value": 1377,
             "range": "±3.38%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "me@ntucker.me",
+            "name": "Nathaniel Tucker",
+            "username": "ntucker"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "cb6d9f21ae73ab79ac5f1d6aea04f68d7c2c6336",
+          "message": "enhance(rest): Type getOptimisticResponse() returns by schema (#4198)\n\n* enhance(rest): Type getOptimisticResponse() returns by schema\n\ngetOptimisticResponse() returned ResolveType<F>, which is `any` for any\nendpoint without a typed process(), so its return was never checked.\nIt now returns the raw input the schema normalizes (like a\nController.set() value) in those cases.\n\n- Move SetValue types from core into normalizr, mirrored in endpoint\n- EndpointExtraOptions takes the schema as an optional second param\n- resource().extend({...}): endpoints whose options set no generic\n  member (only getOptimisticResponse) fall back to the endpoint's args\n- resource().extend(key) no longer retypes an existing key from `get`\n  when its own overload fails, which hid errors\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TZb5b5RZW46WNQRDrBWFC4\n\n* internal: Share IsUnion in rest types, drop dead test lines\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TZb5b5RZW46WNQRDrBWFC4\n\n* docs(blog): Link optimistic response types PR\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TZb5b5RZW46WNQRDrBWFC4\n\n* internal: Fail CI when endpoint's SetValue mirror drifts from normalizr's\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TZb5b5RZW46WNQRDrBWFC4\n\n* internal: Move IsUnion to its own file so the TS 4.0 types see it\n\nThe hand-written ts4.0 utiltypes override doesn't export it.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TZb5b5RZW46WNQRDrBWFC4\n\n* internal: Regenerate playground editor types\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TZb5b5RZW46WNQRDrBWFC4\n\n* internal: Cover Invalidate in the SetValue mirror test\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TZb5b5RZW46WNQRDrBWFC4\n\n* fix(rest): Type object-form extend getOptimisticResponse with an overridden schema\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TZb5b5RZW46WNQRDrBWFC4\n\n* internal: Regenerate playground editor types\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TZb5b5RZW46WNQRDrBWFC4\n\n* fix(endpoint): Type Endpoint.extend getOptimisticResponse by its schema\n\nEndpoint.extend() constrained options with the default schema, so\ngetOptimisticResponse() went unchecked when the fetch resolves any; it now\nuses the options' schema, else the endpoint's. The TS 4.2 overlay also\npasses the schema to EndpointExtraOptions.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TZb5b5RZW46WNQRDrBWFC4\n\n* fix(endpoint): Keep getOptimisticResponse() untyped for schema: null\n\nnormalize() treats null like undefined (no schema), so getOptimisticResponse()\nreturns the fetch's resolved type for both. Also cover resource().extend()'s\nnew-key and function forms.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01TZb5b5RZW46WNQRDrBWFC4\n\n---------\n\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-12T04:09:50Z",
+          "tree_id": "d15f0f32523f48c436acf6abe29f8afa12191e16",
+          "url": "https://github.com/reactive/data-client/commit/cb6d9f21ae73ab79ac5f1d6aea04f68d7c2c6336"
+        },
+        "date": 1791778661528,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 744,
+            "range": "±3.74%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 609,
+            "range": "±1.56%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "normalizeLong Scalar",
+            "value": 533,
+            "range": "±3.35%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "normalizeLong Scalar update",
+            "value": 1466,
+            "range": "±1.64%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 332,
+            "range": "±6.30%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 334,
+            "range": "±4.44%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 1804,
+            "range": "±0.99%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 1305,
+            "range": "±0.63%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar donotcache",
+            "value": 2004,
+            "range": "±1.66%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 2320,
+            "range": "±2.52%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 930,
+            "range": "±6.86%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 9076,
+            "range": "±2.81%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 5216,
+            "range": "±1.61%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 84639,
+            "range": "±0.70%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 9990,
+            "range": "±5.74%",
+            "unit": "ops/sec",
+            "extra": "73 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 340,
+            "range": "±7.12%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 12634,
+            "range": "±0.33%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "denormalizeLong withCache (Scalar churn)",
+            "value": 12789,
+            "range": "±0.87%",
+            "unit": "ops/sec",
+            "extra": "101 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 10338,
+            "range": "±0.93%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar withCache",
+            "value": 14602,
+            "range": "±0.27%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar update withCache",
+            "value": 7647,
+            "range": "±0.37%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 13073,
+            "range": "±0.37%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 11270,
+            "range": "±4.68%",
+            "unit": "ops/sec",
+            "extra": "81 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 2869,
+            "range": "±0.29%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50",
+            "value": 7528,
+            "range": "±9.42%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50 donotcache",
+            "value": 77251,
+            "range": "±0.39%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 7449,
+            "range": "±6.48%",
+            "unit": "ops/sec",
+            "extra": "70 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 20324855,
+            "range": "±0.65%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 348,
+            "range": "±6.14%",
+            "unit": "ops/sec",
+            "extra": "82 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 6773,
+            "range": "±0.24%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 5062,
+            "range": "±0.64%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 8854,
+            "range": "±1.09%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 6977,
+            "range": "±0.28%",
+            "unit": "ops/sec",
+            "extra": "100 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 8507,
+            "range": "±4.97%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 797,
+            "range": "±0.59%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 452,
+            "range": "±0.28%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 476,
+            "range": "±0.24%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 1650,
+            "range": "±0.96%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "setMany 50x one-per-row",
+            "value": 226,
+            "range": "±0.34%",
+            "unit": "ops/sec",
+            "extra": "89 samples"
+          },
+          {
+            "name": "setMany 50 batch",
+            "value": 6425,
+            "range": "±0.37%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "setMany 500x one-per-row",
+            "value": 22.81,
+            "range": "±0.70%",
+            "unit": "ops/sec",
+            "extra": "42 samples"
+          },
+          {
+            "name": "setMany 500 batch",
+            "value": 2816,
+            "range": "±0.41%",
             "unit": "ops/sec",
             "extra": "97 samples"
           }
