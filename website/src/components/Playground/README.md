@@ -294,7 +294,8 @@ DesignSystem/       components injected into preview scope
   picks steps whose effect shows, and holds (`wait`) while it sinks in.
   The preview's "Live Preview" label becomes its control (`DemoLabel`):
   pressing it replays the demo from a fresh store (closing the Store first
-  if the script opens it), and its red dot pulses slowly while it plays.
+  if the script opens it) and scrolls the preview into view, where it plays.
+  Its red dot pulses slowly while it plays.
   - `player.ts` owns timing only: one step at a time, each on a pausable
     clock, looking its target up again before every act (renders replace
     elements), giving up after `FIND_TIMEOUT`. `stage.ts` owns the DOM: it

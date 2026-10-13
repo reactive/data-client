@@ -327,8 +327,11 @@ describe('useAutoRun', () => {
       observe() {}
       disconnect() {}
     };
+    // jsdom lacks it; replay calls it
+    HTMLElement.prototype.scrollIntoView = jest.fn();
   });
   afterEach(() => {
+    delete (HTMLElement.prototype as any).scrollIntoView;
     delete (globalThis as any).IntersectionObserver;
     document.body.innerHTML = '';
   });
@@ -502,10 +505,12 @@ describe('useAutoRun', () => {
     expect(result.current.player.getState()).toBe('playing');
   });
 
-  it('replay plays though mostly out of view', async () => {
-    const { result, see, showStore } = mount();
+  it('replay brings the preview into view, which it plays in', async () => {
+    const { result, see, preview, showStore } = mount();
+    preview.scrollIntoView = jest.fn(() => see(1));
     see(0.1);
     act(() => result.current.replay());
+    expect(preview.scrollIntoView).toHaveBeenCalled();
     await jest.runAllTimersAsync();
     expect(showStore).toHaveBeenLastCalledWith(true);
   });

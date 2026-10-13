@@ -29,6 +29,7 @@ export function useAutoRun(
   const latest = useRef({ script, showStore });
   latest.current = { script, showStore };
   const root = useRef<HTMLElement | null>(null);
+  const preview = useRef<HTMLElement | null>(null);
 
   const start = useCallback(() => {
     const { script, showStore } = latest.current;
@@ -46,6 +47,7 @@ export function useAutoRun(
       const playground = el?.closest<HTMLElement>('[data-playground]');
       if (!el || !playground || !latest.current.script) return;
       root.current = playground;
+      preview.current = el;
       // whether the preview (where it starts) and the playground around it
       // (where it acts: on a phone the Store opens above the preview) are
       // mostly in view; once neither is, a reader scrolling past pauses it
@@ -74,6 +76,7 @@ export function useAutoRun(
           // idle: never over a run, even if the script changed identity;
           // played: a script starts by itself once per page load
           if (
+            shown &&
             previewShown &&
             script &&
             player.getState() === 'idle' &&
@@ -107,8 +110,11 @@ export function useAutoRun(
     if (script) played.add(script);
     // start() takes over from a run in progress: playing aborts it
     reset();
-    // the reader asked to watch, though it's mostly out of view
-    player.setPaused(false);
+    // the reader asked to watch: bring it into view, which it plays in
+    preview.current?.scrollIntoView({
+      block: 'nearest',
+      behavior: prefersReducedMotion() ? 'instant' : 'smooth',
+    });
     // the demo shows the Store opening, if it does
     if (script?.some(step => 'store' in step && step.store === 'open'))
       showStore(false);
