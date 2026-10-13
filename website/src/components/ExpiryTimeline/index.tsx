@@ -307,10 +307,11 @@ function Annotations({
     return () => document.removeEventListener('pointerdown', close);
   }, [open]);
   // Escape hides any tooltip, hovered ones too, until the pointer next enters
-  // or presses a label, or a label takes focus
+  // or presses a label, or anything in it takes focus
   const [dismissed, setDismissed] = useState(false);
   useEffect(() => {
     const dismiss = (e: KeyboardEvent) => {
+      // an Escape another widget already handled is that widget's
       if (e.key !== 'Escape' || e.defaultPrevented) return;
       setOpen(null);
       setDismissed(true);
@@ -320,6 +321,7 @@ function Annotations({
     document.addEventListener('keydown', dismiss);
     return () => document.removeEventListener('keydown', dismiss);
   }, []);
+  const revive = () => setDismissed(false);
   const id = useId();
 
   const learnMore = translate({
@@ -376,7 +378,6 @@ function Annotations({
       onPointerDown: (e: React.PointerEvent) => {
         pointerType.current = e.pointerType;
       },
-      onFocus: () => setDismissed(false),
     };
     // keyboard activation (detail 0) is never a tap, whatever came before
     const tapped = (e: React.MouseEvent) => {
@@ -393,8 +394,9 @@ function Annotations({
           open === i && styles.open,
           dismissed && styles.dismissed,
         )}
-        onPointerEnter={() => setDismissed(false)}
-        onPointerDown={() => setDismissed(false)}
+        onPointerEnter={revive}
+        onPointerDown={revive}
+        onFocus={revive}
         style={{
           left: `${((X0 + BAND * i) / WIDTH) * 100}%`,
           width: `${(BAND / WIDTH) * 100}%`,
