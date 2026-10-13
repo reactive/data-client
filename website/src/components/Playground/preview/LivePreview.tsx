@@ -8,6 +8,7 @@ import Preview from './Preview';
 import { ResetButton } from './PreviewError';
 import PreviewWrapper from './PreviewWrapper';
 import { useRenderCount } from './RenderCount';
+import { routerTrailer } from './router';
 import { usePreviewReset } from './usePreviewReset';
 import type { CodeDocument } from '../editor/codeModel';
 import type { PreviewProps } from '../types';
@@ -43,7 +44,9 @@ export default function LivePreview<T>({
   const { onCommit, badge } = useRenderCount(renderCount);
   // `;` keeps a half-typed statement from absorbing the next document.
   const code = useMemo(
-    () => documents.map(document => document.value).join('\n;\n'),
+    () =>
+      documents.map(document => document.value).join('\n;\n') +
+      routerTrailer(documents),
     [documents],
   );
   const {

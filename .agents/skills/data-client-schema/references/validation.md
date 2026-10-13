@@ -118,21 +118,33 @@ export const getArticle = new RestEndpoint({
 });
 ```
 
-```tsx title="ArticleDetail"
-import React from 'react';
+```tsx title="ArticleList" route="/"
 import { useSuspense } from '@data-client/react';
-import { getArticle, getArticleList } from './api/Article';
+import { getArticleList } from './api/Article';
 
-function ArticleDetail({ id, onHome }: { id: string; onHome: () => void }) {
+export default function ArticleList() {
+  const articles = useSuspense(getArticleList);
+  return (
+    <div>
+      {articles.map(article => (
+        <div key={article.pk()}>
+          <Link to={`/articles/${article.id}`}>Click me: {article.title}</Link>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+```tsx title="ArticleDetail" route="/articles/:id"
+import { useSuspense } from '@data-client/react';
+import { getArticle } from './api/Article';
+
+export default function ArticleDetail({ id }: { id: string }) {
   const article = useSuspense(getArticle, { id });
   return (
     <div>
-      <h4>
-        <a onClick={onHome} style={{ cursor: 'pointer' }}>
-          &lt;
-        </a>{' '}
-        {article.title}
-      </h4>
+      <h4>{article.title}</h4>
       <div>
         <p>{article.content}</p>
         <div>
@@ -145,26 +157,4 @@ function ArticleDetail({ id, onHome }: { id: string; onHome: () => void }) {
     </div>
   );
 }
-function ArticleList() {
-  const [route, setRoute] = React.useState('');
-  const articles = useSuspense(getArticleList);
-  if (!route) {
-    return (
-      <div>
-        {articles.map(article => (
-          <div
-            key={article.pk()}
-            onClick={() => setRoute(article.id)}
-            style={{ cursor: 'pointer', textDecoration: 'underline' }}
-          >
-            Click me: {article.title}
-          </div>
-        ))}
-      </div>
-    );
-  }
-  return <ArticleDetail id={route} onHome={() => setRoute('')} />;
-}
-
-render(<ArticleList />);
 ```

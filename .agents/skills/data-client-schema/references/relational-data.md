@@ -326,20 +326,15 @@ export const UserResource = resource({
 });
 ```
 
-```tsx title="UserPage"
+```tsx title="UserPage" route="/users/:id"
 import { useSuspense } from '@data-client/react';
 import { UserResource } from './resources/Post';
 
-export default function UserPage({ setRoute, id }) {
+export default function UserPage({ id }) {
   const user = useSuspense(UserResource.get, { id });
   return (
     <div>
-      <h4>
-        <a onClick={() => setRoute('page')} style={{ cursor: 'pointer' }}>
-          &lt;
-        </a>{' '}
-        {user.name}
-      </h4>
+      <h4>{user.name}</h4>
       {user.posts.length ? (
         <>
           <h5>Posts</h5>
@@ -361,11 +356,11 @@ export default function UserPage({ setRoute, id }) {
 }
 ```
 
-```tsx title="PostPage"
+```tsx title="PostPage" route="/"
 import { useSuspense } from '@data-client/react';
 import { PostResource } from './resources/Post';
 
-export default function PostPage({ setRoute }) {
+export default function PostPage() {
   const posts = useSuspense(PostResource.getList);
   return (
     <div>
@@ -373,30 +368,17 @@ export default function PostPage({ setRoute }) {
         <div key={post.pk()}>
           <h4>
             {post.title} -{' '}
-            <cite
-              onClick={() => setRoute(`user/${post.author.id}`)}
-              style={{ cursor: 'pointer', textDecoration: 'underline' }}
-            >
-              {post.author.name}
-            </cite>
+            <Link to={`/users/${post.author.id}`}>{post.author.name}</Link>
           </h4>
           <ul>
             {post.comments.map(comment => (
               <li key={comment.pk()}>
                 {comment.content}{' '}
                 <small>
-                  <cite
-                    onClick={() =>
-                      setRoute(`user/${comment.commenter.id}`)
-                    }
-                    style={{
-                      cursor: 'pointer',
-                      textDecoration: 'underline',
-                    }}
-                  >
+                  <Link to={`/users/${comment.commenter.id}`}>
                     {comment.commenter.name}
                     {comment.commenter === post.author ? ' [OP]' : ''}
-                  </cite>
+                  </Link>
                 </small>
               </li>
             ))}
@@ -406,21 +388,6 @@ export default function PostPage({ setRoute }) {
     </div>
   );
 }
-```
-
-```tsx title="Navigation"
-import React from 'react';
-import PostPage from './PostPage';
-import UserPage from './UserPage';
-
-function Navigation() {
-  const [route, setRoute] = React.useState('posts');
-  if (route.startsWith('user'))
-    return <UserPage setRoute={setRoute} id={route.split('/')[1]} />;
-
-  return <PostPage setRoute={setRoute} />;
-}
-render(<Navigation />);
 ```
 
 ### Circular dependencies

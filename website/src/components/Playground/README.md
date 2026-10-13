@@ -114,8 +114,8 @@ DesignSystem/       components injected into preview scope
 
 ### Editor
 
-- Fence metastring: `title="…"`, `path="…"` (quotes optional), `collapsed`, `column`, `{1-3}`
-  highlight ranges (pre-selected in Monaco); `language-*` class. Element props
+- Fence metastring: `title="…"`, `path="…"` (quotes optional), `collapsed`, `column`,
+  `route="…"` (see Router), `{1-3}` highlight ranges (pre-selected in Monaco); `language-*` class. Element props
   override metastring values (Demo passes them directly). `defaultTab`
   overrides `collapsed`.
 - `row` layout: non-`column` files are tabs (focus switches tab); `column`
@@ -286,6 +286,18 @@ DesignSystem/       components injected into preview scope
   view from (the tree view, the peek's chips), `StorePanel` opens it over
   the top level in the table view.
 
+- Router (`preview/router.tsx`): a demo with several pages gives each page's
+  fence a `route` (a path-to-regexp pattern, `/posts/:id`) and writes no
+  navigation of its own. The page is that file's named default export, and
+  the path's params are its props. When any file has one, `routerTrailer`
+  appends the `render()` (so no file calls it): a router starting at `/` under
+  an address bar, whose Back returns to the page before (so pages need no back
+  links). Pages move with `<Link to>` and `useNavigate()`, scope globals that
+  stand in for the app's own router, like the design system; Vue pages use
+  `RouterLink` and `vue-router`'s `useRouter()` with the same `route` fences.
+  Navigation is a plain state update, so a page can wrap it in
+  `startTransition`; each page renders in its own Suspense boundary, so the
+  address bar stays while it loads. A reset (fresh store) starts again at `/`.
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
   count in the preview header (written to the DOM, so counting adds no commits).
   `website/profiling-plugin.js` replaces `react-dom/client` with React's

@@ -318,13 +318,12 @@ export const UserResource = resource({
 });
 ```
 
-```html title="UserPage.vue"
+```html title="UserPage.vue" route="/users/:id"
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { UserResource } from './resources/Post';
 
   const props = defineProps<{ id: string }>();
-  const emit = defineEmits<{ setRoute: [route: string] }>();
   const user = await useSuspense(UserResource.get, () => ({
     id: props.id,
   }));
@@ -332,10 +331,7 @@ export const UserResource = resource({
 
 <template>
   <div>
-    <h4>
-      <a @click="emit('setRoute', 'page')" style="cursor: pointer">&lt;</a>
-      {{ user.name }}
-    </h4>
+    <h4>{{ user.name }}</h4>
     <template v-if="user.posts.length">
       <h5>Posts</h5>
       <ul>
@@ -354,12 +350,11 @@ export const UserResource = resource({
 </template>
 ```
 
-```html title="PostPage.vue"
+```html title="PostPage.vue" route="/"
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { PostResource } from './resources/Post';
 
-  const emit = defineEmits<{ setRoute: [route: string] }>();
   const posts = await useSuspense(PostResource.getList);
 </script>
 
@@ -368,48 +363,23 @@ export const UserResource = resource({
     <div v-for="post in posts" :key="post.pk()">
       <h4>
         {{ post.title }} -
-        <cite
-          @click="emit('setRoute', `user/${post.author.id}`)"
-          style="cursor: pointer; text-decoration: underline"
-        >
+        <RouterLink :to="`/users/${post.author.id}`">
           {{ post.author.name }}
-        </cite>
+        </RouterLink>
       </h4>
       <ul>
         <li v-for="comment in post.comments" :key="comment.pk()">
           {{ comment.content }}
           <small>
-            <cite
-              @click="emit('setRoute', `user/${comment.commenter.id}`)"
-              style="cursor: pointer; text-decoration: underline"
-            >
+            <RouterLink :to="`/users/${comment.commenter.id}`">
               {{ comment.commenter.name }}{{ comment.commenter ===
               post.author ? ' [OP]' : '' }}
-            </cite>
+            </RouterLink>
           </small>
         </li>
       </ul>
     </div>
   </div>
-</template>
-```
-
-```html title="Navigation.vue"
-<script setup lang="ts">
-  import { ref } from 'vue';
-  import PostPage from './PostPage.vue';
-  import UserPage from './UserPage.vue';
-
-  const route = ref('posts');
-</script>
-
-<template>
-  <UserPage
-    v-if="route.startsWith('user')"
-    :id="route.split('/')[1]"
-    @setRoute="route = $event"
-  />
-  <PostPage v-else @setRoute="route = $event" />
 </template>
 ```
 

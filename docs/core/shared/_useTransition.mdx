@@ -31,7 +31,7 @@ export const PostResource = resource({
 });
 ```
 
-```tsx title="PostDetail" collapsed
+```tsx title="PostDetail" route="/posts/:id" collapsed
 import { useSuspense } from '@data-client/react';
 import { PostResource } from './PostResource';
 
@@ -94,43 +94,23 @@ interface Props {
 }
 ```
 
-```tsx title="PostCreate" {8}
+```tsx title="PostCreate" route="/" {9}
 import { useController } from '@data-client/react';
 import { PostResource } from './PostResource';
 import PostForm from './PostForm';
 
-export default function PostCreate({ navigateToPost }) {
+export default function PostCreate() {
   const ctrl = useController();
+  const navigate = useNavigate();
   const [loading, startTransition] = React.useTransition();
   const handleSubmit = async data => {
     const post = await ctrl.fetch(PostResource.getList.push, data);
     startTransition(() => {
-      navigateToPost(post.id);
+      navigate(`/posts/${post.id}`);
     });
   };
   return <PostForm onSubmit={handleSubmit} loading={loading} />;
 }
-```
-
-```tsx title="Navigation" collapsed
-import PostCreate from './PostCreate';
-import PostDetail from './PostDetail';
-
-function Navigation() {
-  const [id, setId] = React.useState<undefined | number>(undefined);
-  if (id) {
-    return (
-      <div>
-        <PostDetail id={id} />
-        <center>
-          <button onClick={() => setId(undefined)}>New Post</button>
-        </center>
-      </div>
-    );
-  }
-  return <PostCreate navigateToPost={setId} />;
-}
-render(<Navigation />);
 ```
 
 </HooksPlayground>

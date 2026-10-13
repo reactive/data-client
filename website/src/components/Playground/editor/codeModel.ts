@@ -9,6 +9,9 @@ export interface CodeDocument {
   ssr?: boolean;
   col?: boolean;
   highlights?: string;
+  /** Path pattern (`/posts/:id`) the preview's router renders this file's
+   * default export at */
+  route?: string;
   language: string;
   autoFocus?: boolean;
 }
@@ -72,6 +75,7 @@ export function parseCodeDocuments(
           metaValue(metastring, 'path') ||
           (fileBase.includes('.') ? fileBase : `${fileBase}.${extension}`),
         highlights: /\{([\d\-,.]+)\}/.exec(metastring)?.[1],
+        route: metaValue(metastring, 'route'),
         language,
         // Direct element props (title, path, collapsed, autoFocus) override
         // metastring-derived values — Demo/CodeEditor relies on this.

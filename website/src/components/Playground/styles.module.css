@@ -566,6 +566,53 @@ div.playgroundTextEdit > .playgroundHeader,
   --ifm-heading-line-height: 1.2;
   overflow: auto;
 }
+/* The router's address bar (preview/router.tsx): the page shown and the way
+   back, like a browser's, so demos need no navigation of their own */
+.addressBar {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin: -0.5rem -0.5rem 0.75rem;
+  padding: 0.125rem 0.75rem 0.125rem 0.125rem;
+  border-radius: var(--ifm-global-radius);
+  background: var(--ifm-color-emphasis-100);
+  color: var(--ifm-color-emphasis-700);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.8rem;
+}
+.addressBar > .addressBack {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ifm-global-radius);
+  background: none;
+  color: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.addressBar > .addressBack:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.addressBar > .addressBack:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+}
+@media (hover: hover) {
+  .addressBar > .addressBack:not(:disabled):hover {
+    background: var(--ifm-color-emphasis-200);
+    color: var(--ifm-color-emphasis-900);
+  }
+}
+.addressPath {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 /** DEMO STYLES
 * Place any styles needed for demos here
 */

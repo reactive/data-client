@@ -32,7 +32,7 @@ export const PostResource = resource({
 });
 ```
 
-```tsx title="PostDetail"
+```tsx title="PostDetail" route="/posts/:id"
 import { useSuspense } from '@data-client/react';
 import { PostResource } from './PostResource';
 
@@ -84,46 +84,25 @@ export default function PostForm({ onSubmit, loading, error }) {
 }
 ```
 
-```tsx title="PostCreate" {7}
+```tsx title="PostCreate" route="/" {8}
 import { useLoading, useController } from '@data-client/react';
 import { PostResource } from './PostResource';
 import PostForm from './PostForm';
 
-export default function PostCreate({ navigateToPost }) {
+export default function PostCreate() {
   const ctrl = useController();
+  const navigate = useNavigate();
   const [handleSubmit, loading, error] = useLoading(
     async data => {
       const post = await ctrl.fetch(PostResource.getList.push, data);
-      navigateToPost(post.id);
+      navigate(`/posts/${post.id}`);
     },
-    [ctrl],
+    [ctrl, navigate],
   );
   return (
     <PostForm onSubmit={handleSubmit} loading={loading} error={error} />
   );
 }
-```
-
-```tsx title="Navigation"
-import React from 'react';
-import PostCreate from './PostCreate';
-import PostDetail from './PostDetail';
-
-function Navigation() {
-  const [id, setId] = React.useState<undefined | number>(undefined);
-  if (id) {
-    return (
-      <div>
-        <PostDetail id={id} />
-        <center>
-          <button onClick={() => setId(undefined)}>New Post</button>
-        </center>
-      </div>
-    );
-  }
-  return <PostCreate navigateToPost={setId} />;
-}
-render(<Navigation />);
 ```
 
 Like [useCallback](https://react.dev/reference/react/useCallback), takes a dependency list to

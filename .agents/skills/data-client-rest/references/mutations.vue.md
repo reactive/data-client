@@ -275,12 +275,12 @@ export const PostResource = resource({
 });
 ```
 
-```html title="PostDetail.vue"
+```html title="PostDetail.vue" route="/posts/:id"
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { PostResource } from './PostResource';
 
-  const props = defineProps<{ id: number }>();
+  const props = defineProps<{ id: string }>();
   const post = await useSuspense(PostResource.get, () => ({ id: props.id }));
 </script>
 
@@ -331,44 +331,25 @@ export const PostResource = resource({
 </template>
 ```
 
-```html title="PostCreate.vue" {9-14}
+```html title="PostCreate.vue" route="/" {10-15}
 <script setup lang="ts">
   import { useLoading, useController } from '@data-client/vue';
+  import { useRouter } from 'vue-router';
   import { PostResource } from './PostResource';
   import PostForm from './PostForm.vue';
 
-  const emit = defineEmits<{ navigateToPost: [id: number] }>();
   const ctrl = useController();
+  const router = useRouter();
 
   const [handleSubmit, loading, error] = useLoading(
     async (data: FormData) => {
       const post = await ctrl.fetch(PostResource.getList.push, data);
-      emit('navigateToPost', post.id);
+      router.push(`/posts/${post.id}`);
     },
   );
 </script>
 
 <template>
   <PostForm @submit="handleSubmit" :loading="loading" :error="error" />
-</template>
-```
-
-```html title="Navigation.vue"
-<script setup lang="ts">
-  import { ref } from 'vue';
-  import PostCreate from './PostCreate.vue';
-  import PostDetail from './PostDetail.vue';
-
-  const id = ref<undefined | number>(undefined);
-</script>
-
-<template>
-  <div v-if="id">
-    <PostDetail :id="id" />
-    <div style="text-align: center">
-      <button @click="id = undefined">New Post</button>
-    </div>
-  </div>
-  <PostCreate v-else @navigateToPost="id = $event" />
 </template>
 ```

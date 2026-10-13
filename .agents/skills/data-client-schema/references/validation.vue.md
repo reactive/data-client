@@ -120,22 +120,37 @@ export const getArticle = new RestEndpoint({
 });
 ```
 
-```html title="ArticleDetail.vue"
+```html title="ArticleList.vue" route="/"
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getArticleList } from './api/Article';
+
+  const articles = await useSuspense(getArticleList);
+</script>
+
+<template>
+  <div>
+    <div v-for="article in articles" :key="article.pk()">
+      <RouterLink :to="`/articles/${article.id}`">
+        Click me: {{ article.title }}
+      </RouterLink>
+    </div>
+  </div>
+</template>
+```
+
+```html title="ArticleDetail.vue" route="/articles/:id"
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { getArticle } from './api/Article';
 
   const props = defineProps<{ id: string }>();
-  const emit = defineEmits<{ home: [] }>();
   const article = await useSuspense(getArticle, () => ({ id: props.id }));
 </script>
 
 <template>
   <div>
-    <h4>
-      <a @click="emit('home')" style="cursor: pointer">&lt;</a>
-      {{ article.title }}
-    </h4>
+    <h4>{{ article.title }}</h4>
     <div>
       <p>{{ article.content }}</p>
       <div>
@@ -144,35 +159,6 @@ export const getArticle = new RestEndpoint({
           {{ article.createdAt.toLocaleString('en-US', { dateStyle: 'medium' }) }}
         </time>
       </div>
-    </div>
-  </div>
-</template>
-```
-
-```html title="ArticleList.vue"
-<script setup lang="ts">
-  import { ref } from 'vue';
-  import { useSuspense } from '@data-client/vue';
-  import { getArticleList } from './api/Article';
-  import ArticleDetail from './ArticleDetail.vue';
-
-  const route = ref('');
-  const articles = await useSuspense(getArticleList);
-</script>
-
-<template>
-  <Suspense v-if="route">
-    <ArticleDetail :id="route" @home="route = ''" />
-    <template #fallback><div>loading...</div></template>
-  </Suspense>
-  <div v-else>
-    <div
-      v-for="article in articles"
-      :key="article.pk()"
-      @click="route = article.id"
-      style="cursor: pointer; text-decoration: underline"
-    >
-      Click me: {{ article.title }}
     </div>
   </div>
 </template>

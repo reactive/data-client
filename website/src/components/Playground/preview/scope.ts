@@ -7,6 +7,7 @@ import { Suspense, use } from 'react';
 import { v4 as uuid } from 'uuid';
 
 import * as designSystem from '../DesignSystem';
+import { Link, ROUTER, Router, useNavigate } from './router';
 import { Temporal, Intl, DateTimeFormat } from './temporal';
 
 function randomFloatInRange(min: number, max: number, decimals: number) {
@@ -42,4 +43,7 @@ export const previewScope = {
   Intl,
   DateTimeFormat,
   ...designSystem,
+  Link,
+  useNavigate,
+  [ROUTER]: Router,
 };
