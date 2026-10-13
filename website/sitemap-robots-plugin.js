@@ -2,41 +2,40 @@
 /**
  * Docusaurus writes one sitemap.xml per locale and never links them. Crawlers
  * only read the host's /robots.txt, which is this build's default-locale copy,
- * so that file lists every locale's sitemap with an absolute URL.
+ * so that file lists every locale's sitemap.
  *
- * URLs follow siteConfig.url and baseUrl: a root build lists
- * https://dataclient.io/<locale>/sitemap.xml, a /next/ build lists its own,
- * and an archived host lists that host. Other locales' robots.txt copies are
- * not the host file, so they are left alone.
+ * Each URL is the locale's own `url` + `baseUrl` (already localized, and
+ * already the /next/ or archive host for that build). Other locales' copies
+ * of robots.txt are not the host file, so they are left alone.
  */
 const fs = require('fs/promises');
 const path = require('path');
 
-/** Absolute sitemap URL for each locale, default locale first as given */
-function sitemapUrls({ url, baseUrl, locales, defaultLocale }) {
-  const root = `${url.replace(/\/+$/, '')}${baseUrl}`.replace(/\/+$/, '');
-  return locales.map(
-    locale =>
-      `${locale === defaultLocale ? root : `${root}/${locale}`}/sitemap.xml`,
-  );
+/** Crawl rules, then the Sitemap lines. Existing lines are left in place. */
+function appendSitemapLines(body, lines) {
+  return `${body.trimEnd()}\n\n${lines}\n`;
 }
 
-/** `body` with any Sitemap lines replaced by `urls` */
-function robotsWithSitemaps(body, urls) {
-  const kept = body
-    .split('\n')
-    .filter(line => !/^\s*Sitemap:/i.test(line))
-    .join('\n')
-    .trimEnd();
-  const lines = urls.map(sitemapUrl => `Sitemap: ${sitemapUrl}`).join('\n');
-  return kept ? `${kept}\n\n${lines}\n` : `${lines}\n`;
+/**
+ * One Sitemap line per locale. A single `docusaurus build --locale en` turns
+ * off base URL localization, so every localeConfig.baseUrl is `/` (or
+ * `/next/`) and the URLs repeat; those copies are one sitemap.
+ */
+function sitemapLines(localeConfigs) {
+  return [
+    ...new Set(
+      Object.values(localeConfigs).map(
+        ({ url, baseUrl }) => `Sitemap: ${url}${baseUrl}sitemap.xml`,
+      ),
+    ),
+  ].join('\n');
 }
 
 module.exports = function sitemapRobotsPlugin(context) {
   return {
     name: 'sitemap-robots',
     async postBuild({ outDir, siteConfig }) {
-      const { currentLocale, defaultLocale, locales } = context.i18n;
+      const { currentLocale, defaultLocale, localeConfigs } = context.i18n;
       if (currentLocale !== defaultLocale || siteConfig.noIndex) return;
       const robotsPath = path.join(outDir, 'robots.txt');
       let body = '';
@@ -47,19 +46,11 @@ module.exports = function sitemapRobotsPlugin(context) {
       }
       await fs.writeFile(
         robotsPath,
-        robotsWithSitemaps(
-          body,
-          sitemapUrls({
-            url: siteConfig.url,
-            baseUrl: siteConfig.baseUrl,
-            locales,
-            defaultLocale,
-          }),
-        ),
+        appendSitemapLines(body, sitemapLines(localeConfigs)),
       );
     },
   };
 };
 
-module.exports.sitemapUrls = sitemapUrls;
-module.exports.robotsWithSitemaps = robotsWithSitemaps;
+module.exports.appendSitemapLines = appendSitemapLines;
+module.exports.sitemapLines = sitemapLines;

@@ -91,8 +91,10 @@ jobs:
         run: yarn lint --quiet 'website/{src,api}/**/*.{js,ts,tsx}'
       - name: Check translations
         run: |
-          node --test 'website/translate/*.test.mjs' website/sitemap-robots-plugin.test.mjs
+          node --test 'website/translate/*.test.mjs'
           node website/translate/translate.mjs check
+      - name: Check sitemap robots.txt
+        run: node --test website/sitemap-robots-plugin.test.mjs
       # Each locale is a full build, so PRs build translations only when they
       # could break one. The queue and master always build every locale.
       - name: Pick locales

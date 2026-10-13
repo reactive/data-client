@@ -3,79 +3,52 @@ import { createRequire } from 'node:module';
 import { describe, it } from 'node:test';
 
 const require = createRequire(import.meta.url);
-const { sitemapUrls, robotsWithSitemaps } = require('./sitemap-robots-plugin.js');
+const {
+  appendSitemapLines,
+  sitemapLines,
+} = require('./sitemap-robots-plugin.js');
 
-const locales = ['en', 'es', 'pt-BR', 'zh-Hans'];
+describe('appendSitemapLines', () => {
+  const rules =
+    'User-agent: *\nDisallow: /assets/js/*\nDisallow: /font/*\n\n# Sitemap lines are added at build time, one absolute URL per locale.\n';
 
-describe('sitemapUrls', () => {
-  it('lists every locale at the site root', () => {
-    assert.deepEqual(
-      sitemapUrls({
-        url: 'https://dataclient.io',
-        baseUrl: '/',
-        locales,
-        defaultLocale: 'en',
-      }),
-      [
-        'https://dataclient.io/sitemap.xml',
-        'https://dataclient.io/es/sitemap.xml',
-        'https://dataclient.io/pt-BR/sitemap.xml',
-        'https://dataclient.io/zh-Hans/sitemap.xml',
-      ],
-    );
-  });
-
-  it('keeps a /next/ build on its own base URL', () => {
-    assert.deepEqual(
-      sitemapUrls({
-        url: 'https://dataclient.io',
-        baseUrl: '/next/',
-        locales: ['en', 'es'],
-        defaultLocale: 'en',
-      }),
-      [
-        'https://dataclient.io/next/sitemap.xml',
-        'https://dataclient.io/next/es/sitemap.xml',
-      ],
-    );
-  });
-
-  it('uses an archived host rather than the latest site', () => {
-    assert.deepEqual(
-      sitemapUrls({
-        url: 'https://0.18.dataclient.io',
-        baseUrl: '/',
-        locales: ['en', 'es'],
-        defaultLocale: 'en',
-      }),
-      [
-        'https://0.18.dataclient.io/sitemap.xml',
-        'https://0.18.dataclient.io/es/sitemap.xml',
-      ],
+  it('appends Sitemap lines after the crawl rules', () => {
+    const lines = [
+      'Sitemap: https://dataclient.io/sitemap.xml',
+      'Sitemap: https://dataclient.io/es/sitemap.xml',
+    ].join('\n');
+    assert.equal(
+      appendSitemapLines(rules, lines),
+      `${rules}\nSitemap: https://dataclient.io/sitemap.xml\nSitemap: https://dataclient.io/es/sitemap.xml\n`,
     );
   });
 });
 
-describe('robotsWithSitemaps', () => {
-  const rules = 'User-agent: *\nDisallow: /assets/js/*\nDisallow: /font/*\n';
-
-  it('appends one Sitemap line per URL and keeps the crawl rules', () => {
+describe('sitemapLines', () => {
+  it('uses each locale url and baseUrl', () => {
     assert.equal(
-      robotsWithSitemaps(rules, [
-        'https://dataclient.io/sitemap.xml',
-        'https://dataclient.io/es/sitemap.xml',
-      ]),
-      `${rules}\nSitemap: https://dataclient.io/sitemap.xml\nSitemap: https://dataclient.io/es/sitemap.xml\n`,
+      sitemapLines({
+        en: { url: 'https://dataclient.io', baseUrl: '/' },
+        es: { url: 'https://dataclient.io', baseUrl: '/es/' },
+        'pt-BR': { url: 'https://dataclient.io', baseUrl: '/pt-BR/' },
+        'zh-Hans': { url: 'https://dataclient.io', baseUrl: '/zh-Hans/' },
+      }),
+      [
+        'Sitemap: https://dataclient.io/sitemap.xml',
+        'Sitemap: https://dataclient.io/es/sitemap.xml',
+        'Sitemap: https://dataclient.io/pt-BR/sitemap.xml',
+        'Sitemap: https://dataclient.io/zh-Hans/sitemap.xml',
+      ].join('\n'),
     );
   });
 
-  it('replaces Sitemap lines already in the file', () => {
+  it('keeps one line when a single-locale build repeats the base URL', () => {
     assert.equal(
-      robotsWithSitemaps(
-        `${rules}\nSitemap: https://example.com/sitemap.xml\n`,
-        ['https://dataclient.io/sitemap.xml'],
-      ),
-      `${rules}\nSitemap: https://dataclient.io/sitemap.xml\n`,
+      sitemapLines({
+        en: { url: 'https://dataclient.io', baseUrl: '/next/' },
+        es: { url: 'https://dataclient.io', baseUrl: '/next/' },
+      }),
+      'Sitemap: https://dataclient.io/next/sitemap.xml',
     );
   });
 });
