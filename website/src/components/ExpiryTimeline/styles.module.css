@@ -97,10 +97,6 @@
 }
 .option text {
   fill: var(--ifm-color-emphasis-700);
-  /* each label opens an explanation, like a term with a definition */
-  text-decoration: underline dotted var(--ifm-color-emphasis-400);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 2px;
 }
 
 /* the invalidIfStale switch, text-height, before its label */
