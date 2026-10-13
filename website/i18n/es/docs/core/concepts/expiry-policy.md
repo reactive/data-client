@@ -20,7 +20,7 @@ seguirá actualizando los datos si son lo bastante antiguos.
 
 ## Estado de caducidad {#expiry-status}
 
-<ExpiryTimeline />
+<ExpiryTimeline>
 
 ### Fresh {#fresh}
 
@@ -48,6 +48,8 @@ Al usar React Navigation, los [eventos de foco](https://reactnavigation.org/docs
 Los datos no deben mostrarse. Cualquier componente que necesite estos datos desencadenará un fetch:react[ y suspense]:vue[
 ([los componentes montados conservan sus datos](#invalidate) hasta que se resuelva)]. Si ningún componente necesita estos
 datos, no se realizará ninguna acción.
+
+</ExpiryTimeline>
 
 ## Tiempo de caducidad {#expiry-time}
 

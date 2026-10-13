@@ -1,19 +1,27 @@
-.diagram {
+/* the diagram, the switch laid over it and the columns under its bands */
+.frame {
   --line: var(--ifm-color-emphasis-300);
   --fresh: hsl(150, 55%, 34%);
   --stale: hsl(34, 85%, 38%);
   --invalid: hsl(0, 65%, 48%);
   --on-chip: #fff;
+  max-width: 640px;
+  margin: 0 auto 1.5rem;
+}
+/* the switch button is placed in % of the diagram's box */
+.stage {
+  position: relative;
+}
+.diagram {
   --play: running;
+  --seek: var(--at);
   display: block;
   width: 100%;
-  max-width: 520px;
-  margin: 0 auto 1.5rem;
   font-size: 12px;
   text-anchor: middle;
   user-select: none;
 }
-[data-theme='dark'] .diagram {
+[data-theme='dark'] .frame {
   --fresh: hsl(150, 50%, 60%);
   --stale: hsl(40, 85%, 62%);
   --invalid: hsl(0, 80%, 70%);
@@ -88,10 +96,7 @@
   fill: var(--ifm-color-emphasis-700);
 }
 
-.toggle {
-  cursor: pointer;
-}
-.toggle > rect {
+.pill {
   fill: var(--ifm-background-surface-color);
   stroke: var(--line);
   stroke-width: 1.5;
@@ -114,16 +119,30 @@
 .on .knob {
   transform: translateX(8px);
 }
+/* the real control, over the drawn pill */
+.toggleButton {
+  position: absolute;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  cursor: pointer;
+}
+.toggleButton:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+}
 
 .scrubber {
   fill: transparent;
   cursor: col-resize;
-  touch-action: none;
+  /* horizontal drags scrub; vertical swipes still scroll the page */
+  touch-action: pan-y;
 }
 
 /* one pass over a zone: mount, render, request, response, re-render */
 .anim {
-  animation-duration: 4s;
+  animation-duration: var(--period);
   animation-timing-function: linear;
   animation-iteration-count: infinite;
   animation-delay: var(--seek);
@@ -438,12 +457,52 @@
   }
 }
 
-/* nothing moves on its own; scrubbing still shows each moment */
+/* nothing moves on its own: hold the component rendered, 3/4 into Fresh;
+   scrubbing still shows each moment */
 @media (prefers-reduced-motion: reduce) {
   .diagram {
     --play: paused;
   }
+  .diagram:not(.paused) {
+    --seek: calc(var(--period) * -0.75);
+  }
   .spin {
     animation: none;
+  }
+}
+
+/* the sections under the timeline, one per band, as wide as its band */
+.columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0 5%;
+  font-size: 0.9rem;
+}
+.column {
+  min-width: 0;
+  padding: 0.5rem 0.6rem 0;
+  border-top: 3px solid var(--c);
+}
+.column > :first-child {
+  margin-top: 0;
+  font-size: 1.1rem;
+  color: var(--c);
+}
+.column > :last-child {
+  margin-bottom: 0;
+}
+/* stacked, each still marked with its band's color */
+@media (max-width: 640px) {
+  .columns {
+    display: block;
+    margin: 0;
+  }
+  .column {
+    padding: 0 0 0 0.8rem;
+    border-top: 0;
+    border-left: 3px solid var(--c);
+  }
+  .column + .column {
+    margin-top: 1.25rem;
   }
 }

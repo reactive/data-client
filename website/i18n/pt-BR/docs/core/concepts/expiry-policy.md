@@ -20,7 +20,7 @@ ele ainda atualizará os dados se forem antigos o suficiente.
 
 ## Status de expiração {#expiry-status}
 
-<ExpiryTimeline />
+<ExpiryTimeline>
 
 ### Fresh {#fresh}
 
@@ -48,6 +48,8 @@ Ao usar o React Navigation, [eventos de foco](https://reactnavigation.org/docs/u
 Os dados não devem ser exibidos. Qualquer componente que precise desses dados disparará o fetch:react[ e o suspense]:vue[
 ([componentes montados mantêm seus dados](#invalidate) até que ele seja resolvido)]. Se nenhum componente se importar com esses
 dados, nenhuma ação será tomada.
+
+</ExpiryTimeline>
 
 ## Tempo de expiração {#expiry-time}
 

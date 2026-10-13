@@ -20,7 +20,7 @@ it will still refresh the data if old enough.
 
 ## Expiry status
 
-<ExpiryTimeline />
+<ExpiryTimeline>
 
 ### Fresh
 
@@ -48,6 +48,8 @@ When using React Navigation, [focus events](https://reactnavigation.org/docs/use
 Data should not be shown. Any components needing this data will trigger fetch:react[ and suspense]:vue[
 ([mounted components keep their data](#invalidate) until it resolves)]. If no components care about this
 data no action will be taken.
+
+</ExpiryTimeline>
 
 ## Expiry Time
 
