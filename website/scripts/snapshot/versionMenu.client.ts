@@ -180,8 +180,6 @@ let menu: HTMLElement | undefined;
 let listEl: HTMLElement | undefined;
 // the logo the menu opens from: the navbar's, or the mobile sidebar's
 let brand: HTMLElement | undefined;
-const bound = new WeakSet<HTMLElement>();
-let started = false;
 let timer: ReturnType<typeof setTimeout> | undefined;
 // bumped by each open and close, so an open still loading the list doesn't
 // show the menu once anything closed it (the pointer left, a scroll, Escape)
@@ -192,6 +190,8 @@ let lastPointer = '';
 const BRAND = '.navbar__brand';
 const brandOf = (node: EventTarget | null) =>
   node instanceof Element ? node.closest<HTMLElement>(BRAND) : null;
+// every logo counts, so a tap on another logo reopens the menu from there
+// in its click rather than closing it as a tap outside
 const isMenuPart = (node: Node | null) =>
   !!(menu?.contains(node) || brandOf(node));
 const closeOnMouseLeave = (e: PointerEvent) => {
@@ -306,28 +306,26 @@ function onMenuKey(e: KeyboardEvent) {
   items[(at + step + items.length) % items.length]?.focus();
 }
 
-function bindFrom(e: Event) {
-  const el = brandOf(e.target);
-  if (el) bind(el);
+function install() {
+  // the label's hover styles too, so add them before the menu first opens
+  const style = document.createElement('style');
+  style.textContent = STYLE;
+  document.head.append(style);
+  // The mobile sidebar mounts its own logo, with the same label, after the
+  // page loads, so bind each logo as it's first touched or focused
+  const bindTouched = (e: Event) => {
+    const el = brandOf(e.target);
+    if (el) bind(el);
+  };
+  document.addEventListener('pointerdown', bindTouched, true);
+  document.addEventListener('focusin', bindTouched, true);
 }
 
 function bind(el: HTMLElement) {
-  if (bound.has(el)) return;
-  if (!started) {
-    started = true;
-    // the label's hover styles too, so add them before the menu first opens
-    const style = document.createElement('style');
-    style.textContent = STYLE;
-    document.head.append(style);
-    // The mobile sidebar renders its own logo, with the same label, whenever
-    // it likes, so bind each logo as it's first touched, hovered or focused
-    for (const type of ['pointerdown', 'pointerover', 'focusin'])
-      document.addEventListener(type, bindFrom, true);
-  }
+  if (el.hasAttribute('aria-haspopup')) return;
   // load the list before the menu opens, once the page is idle; a failed
   // load clears the cache, so the next open or navbar retries it
   setTimeout(loadVersions, 1000);
-  bound.add(el);
   el.setAttribute('aria-haspopup', 'menu');
   el.setAttribute('aria-expanded', 'false');
   el.addEventListener('pointerdown', e => {
@@ -367,7 +365,12 @@ export function onRouteUpdate() {
   close();
 }
 
+let installed = false;
 export function onRouteDidUpdate() {
+  if (!installed) {
+    installed = true;
+    install();
+  }
   // Docusaurus may render a new navbar
   document.querySelectorAll<HTMLElement>(BRAND).forEach(bind);
 }
