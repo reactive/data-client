@@ -378,7 +378,11 @@
       "expiryTimeline.invalid": "Invalid",
       "expiryTimeline.stale": "Stale",
       "expiryTimeline.label": "Timeline of a cached response: Fresh for dataExpiryLength, then Stale, then Invalid after ctrl.invalidate() (or straight after Fresh with invalidIfStale). A component mounting with useSuspense() renders fresh data with no request, renders stale data and refetches in the background, and on invalid data shows its fallback until the fetch resolves",
-      "playground.demo.replay": "Replay demo"
+      "playground.demo.replay": "Replay demo",
+      "expiryTimeline.learnMore": "Learn more",
+      "expiryTimeline.dataExpiryLength": "How long (in milliseconds) a response stays fresh before it becomes stale.",
+      "expiryTimeline.invalidIfStale": "When on, data skips Stale and becomes invalid as soon as it expires, so it must refetch before it can render.",
+      "expiryTimeline.invalidate": "Marks the data invalid right away, even while fresh, so components that need it fetch again."
     },
     "docusaurus-plugin-content-blog/options.json": {
       "title": "Blog",

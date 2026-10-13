@@ -862,5 +862,21 @@
   "expiryTimeline.invalid": {
     "message": "Invalid",
     "description": "Band label on the expiry timeline diagram: data that must not render"
+  },
+  "expiryTimeline.learnMore": {
+    "message": "Saiba mais",
+    "description": "Link in each tooltip of the expiry timeline diagram, to the section explaining that option"
+  },
+  "expiryTimeline.dataExpiryLength": {
+    "message": "Por quanto tempo (em milissegundos) uma resposta se mantém fresca antes de ficar desatualizada.",
+    "description": "Tooltip on the dataExpiryLength annotation of the expiry timeline diagram"
+  },
+  "expiryTimeline.invalidIfStale": {
+    "message": "Quando ligado, os dados pulam Stale e passam a ser inválidos assim que expiram, então precisam ser buscados de novo antes de poderem renderizar.",
+    "description": "Tooltip on the invalidIfStale switch of the expiry timeline diagram"
+  },
+  "expiryTimeline.invalidate": {
+    "message": "Marca os dados como inválidos na hora, mesmo que ainda estejam frescos, para que os componentes que precisam deles os busquem de novo.",
+    "description": "Tooltip on the ctrl.invalidate() annotation of the expiry timeline diagram"
   }
 }

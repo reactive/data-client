@@ -378,7 +378,11 @@
       "playground.demo.replay": "Replay demo",
       "expiryTimeline.fresh": "Fresh",
       "expiryTimeline.invalid": "Invalid",
-      "expiryTimeline.stale": "Stale"
+      "expiryTimeline.stale": "Stale",
+      "expiryTimeline.learnMore": "Learn more",
+      "expiryTimeline.dataExpiryLength": "How long (in milliseconds) a response stays fresh before it becomes stale.",
+      "expiryTimeline.invalidIfStale": "When on, data skips Stale and becomes invalid as soon as it expires, so it must refetch before it can render.",
+      "expiryTimeline.invalidate": "Marks the data invalid right away, even while fresh, so components that need it fetch again."
     },
     "docusaurus-plugin-content-blog/options.json": {
       "title": "Blog",

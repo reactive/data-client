@@ -1,4 +1,4 @@
-/* the diagram, the switch laid over it and the columns under its bands */
+/* the diagram, the annotations laid over it and the columns under its bands */
 .frame {
   --line: var(--ifm-color-emphasis-300);
   --fresh: hsl(150, 55%, 34%);
@@ -7,12 +7,13 @@
   --on-chip: #fff;
   /* a mid grey, readable on either theme's background */
   --muted: var(--ifm-color-gray-700);
-  max-width: 640px;
-  margin: 0 auto 1.5rem;
+  margin: 0 0 1.5rem;
 }
-/* the switch button is placed in % of the diagram's box */
+/* the annotations are placed in % of the diagram's box */
 .stage {
   position: relative;
+  max-width: 640px;
+  margin: 0 auto;
 }
 .diagram {
   --play: running;
@@ -89,7 +90,6 @@
   stroke-width: 1.5;
 }
 .option text,
-.toggle text,
 .hook,
 .request text {
   font-family: var(--ifm-font-family-monospace);
@@ -97,16 +97,13 @@
 }
 .option text {
   fill: var(--ifm-color-emphasis-700);
+  /* each label opens an explanation, like a term with a definition */
+  text-decoration: underline dotted var(--ifm-color-emphasis-400);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
 }
 
-.pill {
-  fill: var(--ifm-background-surface-color);
-  stroke: var(--line);
-  stroke-width: 1.5;
-}
-.toggle text {
-  fill: var(--ifm-font-color-base);
-}
+/* the invalidIfStale switch, text-height, before its label */
 .switch {
   fill: var(--ifm-color-emphasis-400);
   rx: 4.5px;
@@ -120,20 +117,91 @@
   fill: var(--invalid);
 }
 .on .knob {
-  transform: translateX(8px);
+  transform: translateX(7px);
 }
-/* the real control, over the drawn pill */
-.toggleButton {
+
+/* the real controls, over the drawn annotations: a box per band */
+.annotation {
   position: absolute;
+}
+.control {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
   padding: 0;
   border: 0;
-  border-radius: 999px;
+  border-radius: 4px;
   background: none;
   cursor: pointer;
 }
-.toggleButton:focus-visible {
+.control:focus-visible {
   outline: 2px solid var(--ifm-color-primary);
-  outline-offset: 2px;
+  outline-offset: -2px;
+}
+/* what each annotation does, above its label; the pad keeps the mouse's
+   path from the label into the bubble hovered */
+.tip {
+  position: absolute;
+  z-index: 2;
+  bottom: 100%;
+  padding-bottom: 6px;
+  width: max-content;
+  max-width: min(272px, 100vw - 2rem);
+  opacity: 0;
+  transform: translateY(4px);
+  pointer-events: none;
+  transition:
+    opacity var(--motion-snappy),
+    transform var(--motion-snappy);
+}
+.left .tip {
+  left: 0;
+}
+.center .tip {
+  left: 50%;
+  transform: translate(-50%, 4px);
+}
+.right .tip {
+  right: 0;
+}
+.bubble {
+  display: block;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ifm-global-radius);
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--ifm-color-emphasis-900);
+  background: var(--ifm-background-surface-color);
+  box-shadow: var(--ifm-global-shadow-md);
+}
+.bubble a {
+  white-space: nowrap;
+}
+/* shown on keyboard focus, while its link has focus, or pinned by a tap */
+.control:focus-visible + .tip,
+.tip:focus-within,
+.open .tip {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.center .control:focus-visible + .tip,
+.center .tip:focus-within,
+.center.open .tip {
+  transform: translate(-50%, 0);
+}
+/* and on hover, where there is one; a tap stands in for it on touch */
+@media (hover: hover) {
+  .annotation:hover .tip {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .center:hover .tip {
+    transform: translate(-50%, 0);
+  }
 }
 
 .scrubber {
@@ -474,16 +542,16 @@
   }
 }
 
-/* the sections under the timeline, one per band, as wide as its band */
+/* the sections under the timeline, one per band in its color, across the page */
 .columns {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  margin: 0 5%;
+  column-gap: 1.5rem;
   font-size: 0.9rem;
 }
 .column {
   min-width: 0;
-  padding: 0.5rem 0.6rem 0;
+  padding: 0.5rem 0 0;
   border-top: 3px solid var(--c);
   transition: border-color var(--motion-snappy);
 }

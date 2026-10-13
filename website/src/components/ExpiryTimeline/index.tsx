@@ -1,6 +1,12 @@
 import { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
-import React, { isValidElement, useEffect, useRef, useState } from 'react';
+import React, {
+  isValidElement,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from 'react';
 
 import styles from './styles.module.css';
 import StoreIcon from '../Playground/StoreIcon';
@@ -8,13 +14,21 @@ import StoreIcon from '../Playground/StoreIcon';
 const ZONES = ['fresh', 'stale', 'invalid'] as const;
 const WIDTH = 440;
 const HEIGHT = 236;
+/** The viewBox starts above y=0, leaving room for the annotations' switch */
+const TOP = -4;
 // the timeline: one band per zone
 const X0 = 22;
 const BAND = 132;
 /** Seconds the playhead takes to cross a zone (the CSS animations' duration) */
 const PERIOD = 4;
-// the invalidIfStale switch: drawn in the SVG, operated by a button laid over it
-const PILL = { x: 156, y: 1, w: 128, h: 17 };
+// the annotation row over the timeline: labels on one baseline, each with
+// the bracket or tick that shows what it governs
+const LABEL_Y = 9;
+const BRACKET_Y = 15;
+// the invalidIfStale switch, drawn before its label
+const SWITCH = { x: 166, y: 1, w: 16, h: 9 };
+/** The HTML annotations laid over the SVG labels, as boxes in its units */
+const ANNOTATION_BOX = { y: TOP, h: 20 - TOP };
 
 interface Playback {
   zone: number;
@@ -115,7 +129,7 @@ export default function ExpiryTimeline({
               '--x1': `${X0 + BAND * (play.zone + 1)}px`,
             } as React.CSSProperties
           }
-          viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+          viewBox={`0 ${TOP} ${WIDTH} ${HEIGHT - TOP}`}
           role="img"
           aria-label={translate({
             id: 'expiryTimeline.label',
@@ -148,15 +162,43 @@ export default function ExpiryTimeline({
           <circle className={styles.arrival} cx={X0} cy="34" r="4" />
 
           {/* eslint-disable @docusaurus/no-untranslated-text -- API names */}
+          {/* dataExpiryLength spans Fresh */}
           <g className={styles.option}>
-            <path d={`M${X0} 12v6M${X0} 15h${BAND}M${X0 + BAND} 12v6`} />
-            <text x={X0 + BAND / 2} y="9">
+            <path d={bracket(X0, X0 + BAND)} />
+            <text x={X0 + BAND / 2} y={LABEL_Y}>
               dataExpiryLength
             </text>
           </g>
+          {/* invalidIfStale spans Stale, which it turns Invalid */}
+          <g
+            className={clsx(
+              styles.option,
+              styles.toggle,
+              invalidIfStale && styles.on,
+            )}
+          >
+            <path d={bracket(X0 + BAND, X0 + BAND * 2)} />
+            <rect
+              className={styles.switch}
+              x={SWITCH.x}
+              y={SWITCH.y}
+              width={SWITCH.w}
+              height={SWITCH.h}
+            />
+            <circle
+              className={styles.knob}
+              cx={SWITCH.x + SWITCH.h / 2}
+              cy={SWITCH.y + SWITCH.h / 2}
+              r="3"
+            />
+            <text x={SWITCH.x + SWITCH.w + 4} y={LABEL_Y} textAnchor="start">
+              invalidIfStale
+            </text>
+          </g>
+          {/* ctrl.invalidate() marks the moment Stale ends */}
           <g className={styles.option}>
-            <path d={`M${X0 + BAND * 2} 12v10`} />
-            <text x={X0 + BAND * 2 + 6} y="9" textAnchor="start">
+            <path d={`M${X0 + BAND * 2} ${BRACKET_Y - 3}v10`} />
+            <text x={X0 + BAND * 2 + 6} y={LABEL_Y} textAnchor="start">
               ctrl.invalidate()
             </text>
           </g>
@@ -182,34 +224,6 @@ export default function ExpiryTimeline({
             onPointerLeave={resume}
           />
 
-          <g className={clsx(styles.toggle, invalidIfStale && styles.on)}>
-            <rect
-              className={styles.pill}
-              x={PILL.x}
-              y={PILL.y}
-              width={PILL.w}
-              height={PILL.h}
-              rx={PILL.h / 2}
-            />
-            <rect
-              className={styles.switch}
-              x={PILL.x + 8}
-              y={PILL.y + 4}
-              width="17"
-              height="9"
-            />
-            <circle
-              className={styles.knob}
-              cx={PILL.x + 12.5}
-              cy={PILL.y + 8.5}
-              r="3"
-            />
-            {/* eslint-disable-next-line @docusaurus/no-untranslated-text -- API name */}
-            <text x={PILL.x + 76} y={PILL.y + 12}>
-              invalidIfStale
-            </text>
-          </g>
-
           <g key={`${play.zone}-${play.run}`}>
             <g
               className={clsx(styles.anim, styles.playhead)}
@@ -232,19 +246,9 @@ export default function ExpiryTimeline({
             />
           </g>
         </svg>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={invalidIfStale}
-          aria-label="invalidIfStale"
-          className={styles.toggleButton}
-          style={{
-            left: `${(PILL.x / WIDTH) * 100}%`,
-            top: `${(PILL.y / HEIGHT) * 100}%`,
-            width: `${(PILL.w / WIDTH) * 100}%`,
-            height: `${(PILL.h / HEIGHT) * 100}%`,
-          }}
-          onClick={() => setInvalidIfStale(on => !on)}
+        <Annotations
+          invalidIfStale={invalidIfStale}
+          onToggle={() => setInvalidIfStale(on => !on)}
         />
       </div>
       {children && (
@@ -263,6 +267,13 @@ export default function ExpiryTimeline({
   );
 }
 
+/** A bracket under a label, from one band edge to the other */
+function bracket(x0: number, x1: number) {
+  return `M${x0} ${BRACKET_Y - 3}v6M${x0} ${BRACKET_Y}H${x1}M${x1} ${
+    BRACKET_Y - 3
+  }v6`;
+}
+
 /** MDX children grouped from each heading (the elements with an id) to the next */
 function splitAtHeadings(children: React.ReactNode): React.ReactNode[][] {
   const groups: React.ReactNode[][] = [];
@@ -275,6 +286,142 @@ function splitAtHeadings(children: React.ReactNode): React.ReactNode[][] {
     groups[groups.length - 1].push(child);
   }
   return groups;
+}
+
+/**
+ * The real controls over the drawn annotations, one per band: links for the
+ * options and a switch for invalidIfStale, each explained in a tooltip on
+ * hover, keyboard focus, or a tap. The SVG is an image, so these stay HTML.
+ */
+function Annotations({
+  invalidIfStale,
+  onToggle,
+}: {
+  invalidIfStale: boolean;
+  onToggle: () => void;
+}) {
+  // which tooltip a tap pinned open; a tap elsewhere closes it
+  const [open, setOpen] = useState<number | null>(null);
+  const pointerType = useRef<string | null>(null);
+  useEffect(() => {
+    if (open === null) return;
+    const close = (e: PointerEvent) => {
+      if (!(e.target as Element).closest?.(`.${styles.annotation}`))
+        setOpen(null);
+    };
+    document.addEventListener('pointerdown', close);
+    return () => document.removeEventListener('pointerdown', close);
+  }, [open]);
+  const id = useId();
+
+  const learnMore = translate({
+    id: 'expiryTimeline.learnMore',
+    message: 'Learn more',
+    description:
+      'Link in each tooltip of the expiry timeline diagram, to the section explaining that option',
+  });
+  const annotations = [
+    {
+      name: 'dataExpiryLength',
+      href: '#endpointdataexpirylength',
+      tip: translate({
+        id: 'expiryTimeline.dataExpiryLength',
+        message:
+          'How long (in milliseconds) a response stays fresh before it becomes stale.',
+        description:
+          'Tooltip on the dataExpiryLength annotation of the expiry timeline diagram',
+      }),
+      align: styles.left,
+    },
+    {
+      name: 'invalidIfStale',
+      href: '#endpointinvalidifstale',
+      tip: translate({
+        id: 'expiryTimeline.invalidIfStale',
+        message:
+          'When on, data skips Stale and becomes invalid as soon as it expires, so it must refetch before it can render.',
+        description:
+          'Tooltip on the invalidIfStale switch of the expiry timeline diagram',
+      }),
+      align: styles.center,
+    },
+    {
+      name: 'ctrl.invalidate()',
+      href: '#invalidate',
+      tip: translate({
+        id: 'expiryTimeline.invalidate',
+        message:
+          'Marks the data invalid right away, even while fresh, so components that need it fetch again.',
+        description:
+          'Tooltip on the ctrl.invalidate() annotation of the expiry timeline diagram',
+      }),
+      align: styles.right,
+    },
+  ];
+
+  return annotations.map(({ name, href, tip, align }, i) => {
+    const tipId = `${id}-${i}`;
+    const control = {
+      className: styles.control,
+      'aria-label': name,
+      'aria-describedby': tipId,
+      onPointerDown: (e: React.PointerEvent) => {
+        pointerType.current = e.pointerType;
+      },
+      // the tooltip shows on focus; Escape dismisses it
+      onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => {
+        if (e.key === 'Escape') e.currentTarget.blur();
+      },
+    };
+    const tapped = () => {
+      const touch = pointerType.current === 'touch';
+      pointerType.current = null;
+      return touch;
+    };
+    return (
+      <span
+        key={name}
+        className={clsx(styles.annotation, align, open === i && styles.open)}
+        style={{
+          left: `${((X0 + BAND * i) / WIDTH) * 100}%`,
+          width: `${(BAND / WIDTH) * 100}%`,
+          top: `${((ANNOTATION_BOX.y - TOP) / (HEIGHT - TOP)) * 100}%`,
+          height: `${(ANNOTATION_BOX.h / (HEIGHT - TOP)) * 100}%`,
+        }}
+      >
+        {i === 1 ?
+          <button
+            type="button"
+            role="switch"
+            aria-checked={invalidIfStale}
+            {...control}
+            onClick={() => {
+              onToggle();
+              // a finger can't hover, so a tap also shows the explanation
+              setOpen(tapped() ? i : null);
+            }}
+          />
+        : <a
+            href={href}
+            {...control}
+            onClick={e => {
+              // a first tap explains; the link in the tooltip, or a second
+              // tap, follows through
+              if (tapped() && open !== i) {
+                e.preventDefault();
+                setOpen(i);
+              } else setOpen(null);
+            }}
+          />
+        }
+        <span className={styles.tip} role="tooltip" id={tipId}>
+          <span className={styles.bubble}>
+            {tip} <a href={href}>{learnMore}</a>
+          </span>
+        </span>
+      </span>
+    );
+  });
 }
 
 /** The request: out of the component, into the API and back into the store */

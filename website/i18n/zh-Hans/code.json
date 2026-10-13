@@ -862,5 +862,21 @@
   "expiryTimeline.invalid": {
     "message": "无效",
     "description": "Band label on the expiry timeline diagram: data that must not render"
+  },
+  "expiryTimeline.learnMore": {
+    "message": "了解更多",
+    "description": "Link in each tooltip of the expiry timeline diagram, to the section explaining that option"
+  },
+  "expiryTimeline.dataExpiryLength": {
+    "message": "响应在变为过时之前保持新鲜的时长（毫秒）。",
+    "description": "Tooltip on the dataExpiryLength annotation of the expiry timeline diagram"
+  },
+  "expiryTimeline.invalidIfStale": {
+    "message": "开启后，数据一过期就跳过过时状态直接变为无效，必须重新获取后才能渲染。",
+    "description": "Tooltip on the invalidIfStale switch of the expiry timeline diagram"
+  },
+  "expiryTimeline.invalidate": {
+    "message": "立即将数据标记为无效（即使仍然新鲜），需要它的组件会重新获取。",
+    "description": "Tooltip on the ctrl.invalidate() annotation of the expiry timeline diagram"
   }
 }
