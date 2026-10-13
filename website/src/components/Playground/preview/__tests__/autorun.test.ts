@@ -327,7 +327,7 @@ describe('useAutoRun', () => {
       observe() {}
       disconnect() {}
     };
-    // jsdom lacks it; replay calls it
+    // jsdom lacks it; replay may call it
     HTMLElement.prototype.scrollIntoView = jest.fn();
   });
   afterEach(() => {
@@ -516,6 +516,14 @@ describe('useAutoRun', () => {
     expect(preview.scrollIntoView).toHaveBeenCalled();
     await jest.runAllTimersAsync();
     expect(showStore).toHaveBeenLastCalledWith(true);
+  });
+
+  it('replay leaves a preview that fills the view where it is', () => {
+    const { result, preview } = mount();
+    preview.getBoundingClientRect = () =>
+      ({ top: -200, bottom: innerHeight + 200 }) as DOMRect;
+    act(() => result.current.replay());
+    expect(preview.scrollIntoView).not.toHaveBeenCalled();
   });
 
   it("a script that changes identity doesn't start over a run", () => {

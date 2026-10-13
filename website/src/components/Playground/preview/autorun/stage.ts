@@ -172,7 +172,10 @@ export function revealOnPage(el: HTMLElement) {
   const navbar = document.querySelector('.navbar')?.getBoundingClientRect();
   const { top, bottom } = el.getBoundingClientRect();
   // a navbar hidden on scroll reports a bottom above the viewport
-  if (top < Math.max(0, navbar?.bottom ?? 0) || bottom > innerHeight)
+  const above = top < Math.max(0, navbar?.bottom ?? 0);
+  const below = bottom > innerHeight;
+  // cut off at one end only: cut off at both, it fills the view already
+  if (above !== below)
     el.scrollIntoView({
       block: 'center',
       behavior: prefersReducedMotion() ? 'instant' : 'smooth',
