@@ -11,10 +11,8 @@ describe('idleCallback (native)', () => {
     };
     jest.doMock('react-native', () => ({ InteractionManager }));
     const fn = jest.fn();
-    let idleCallback!: typeof import('../idleCallback.native').default;
-    jest.isolateModules(() => {
-      idleCallback = require('../idleCallback.native').default;
-    });
+    const idleCallback: typeof import('../idleCallback.native').default =
+      require('../idleCallback.native').default;
 
     const stop = idleCallback(fn, { timeout: 500 });
     expect(InteractionManager.runAfterInteractions).toHaveBeenCalledWith(fn);
@@ -30,10 +28,8 @@ describe('idleCallback (native)', () => {
       },
     }));
     const fn = jest.fn();
-    let idleCallback!: typeof import('../idleCallback.native').default;
-    jest.isolateModules(() => {
-      idleCallback = require('../idleCallback.native').default;
-    });
+    const idleCallback: typeof import('../idleCallback.native').default =
+      require('../idleCallback.native').default;
 
     jest.useFakeTimers();
     idleCallback(fn);
