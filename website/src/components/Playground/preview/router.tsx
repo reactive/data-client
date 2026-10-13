@@ -1,5 +1,5 @@
 import { translate } from '@docusaurus/Translate';
-import { match } from 'path-to-regexp';
+import clsx from 'clsx';
 import React, {
   createContext,
   Suspense,
@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 
 import type { CodeDocument } from '../editor/codeModel';
+import { defaultExportName } from './transformCode';
 import { Loading } from '../DesignSystem/Loading';
 import styles from '../styles.module.css';
 
@@ -28,13 +29,11 @@ export function routerTrailer(documents: readonly CodeDocument[]) {
     .filter(document => document.route)
     .map(
       document =>
-        `[${JSON.stringify(document.route)}, ${DEFAULT_EXPORT.exec(document.value)?.[1] ?? 'undefined'}]`,
+        `[${JSON.stringify(document.route)}, ${defaultExportName(document.value) ?? 'undefined'}]`,
     );
   if (!routes.length) return '';
   return `\n;render(<${ROUTER} routes={[${routes.join(', ')}]} />);`;
 }
-const DEFAULT_EXPORT =
-  /^[ \t]*export[ \t]+default[ \t]+(?:function\s+|class\s+)?([A-Za-z_$][\w$]*)/m;
 
 const NavigateContext = createContext<(to: string) => void>(() => {
   throw new Error('useNavigate() only works in a page with a `route`');
@@ -76,7 +75,7 @@ export function Router({ routes }: { routes: readonly Route[] }) {
       <div className={styles.addressBar}>
         <button
           type="button"
-          className={styles.addressBack}
+          className={clsx(styles.headerButton, styles.addressBack)}
           aria-label={translate({
             id: 'playground.router.back',
             message: 'Back',
@@ -95,15 +94,29 @@ export function Router({ routes }: { routes: readonly Route[] }) {
 
 function renderPage(routes: readonly Route[], path: string) {
   for (const [pattern, Page] of routes) {
-    const found = match(pattern, { decode: decodeURIComponent })(path);
-    if (!found) continue;
+    const params = matchPath(pattern, path);
+    if (!params) continue;
     if (!Page)
       throw new Error(
         `The page for route "${pattern}" must be its file's named default export`,
       );
-    return <Page {...found.params} />;
+    return <Page {...params} />;
   }
   throw new Error(`No route matches "${path}"`);
+}
+
+/** `path`'s params when it fits `pattern` (`/posts/:id`) */
+function matchPath(pattern: string, path: string) {
+  const segments = pattern.split('/');
+  const parts = path.split('/');
+  if (segments.length !== parts.length) return;
+  const params: Record<string, string> = {};
+  for (const [i, segment] of segments.entries()) {
+    if (segment.startsWith(':'))
+      params[segment.slice(1)] = decodeURIComponent(parts[i]);
+    else if (segment !== parts[i]) return;
+  }
+  return params;
 }
 
 function BackIcon() {

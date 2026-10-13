@@ -287,14 +287,15 @@ DesignSystem/       components injected into preview scope
   the top level in the table view.
 
 - Router (`preview/router.tsx`): a demo with several pages gives each page's
-  fence a `route` (a path-to-regexp pattern, `/posts/:id`) and writes no
+  fence a `route` (a path whose `:name` segments are params, `/posts/:id`) and writes no
   navigation of its own. The page is that file's named default export, and
   the path's params are its props. When any file has one, `routerTrailer`
   appends the `render()` (so no file calls it): a router starting at `/` under
   an address bar, whose Back returns to the page before (so pages need no back
   links). Pages move with `<Link to>` and `useNavigate()`, scope globals that
   stand in for the app's own router, like the design system; Vue pages use
-  `RouterLink` and `vue-router`'s `useRouter()` with the same `route` fences.
+  `RouterLink` and `vue-router`'s `useRouter()`, and keep the same `route`
+  fences only to name their path (Vue examples don't run).
   Navigation is a plain state update, so a page can wrap it in
   `startTransition`; each page renders in its own Suspense boundary, so the
   address bar stays while it loads. A reset (fresh store) starts again at `/`.

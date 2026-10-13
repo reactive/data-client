@@ -581,33 +581,19 @@ div.playgroundTextEdit > .playgroundHeader,
   font-size: 0.8rem;
 }
 .addressBar > .addressBack {
-  display: inline-flex;
   flex: none;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
   margin: 0;
   padding: 0;
   border: 0;
-  border-radius: var(--ifm-global-radius);
   background: none;
   color: inherit;
-  font-size: 1rem;
   cursor: pointer;
 }
 .addressBar > .addressBack:disabled {
+  background: none;
+  color: inherit;
   opacity: 0.35;
   cursor: default;
-}
-.addressBar > .addressBack:focus-visible {
-  outline: 2px solid var(--ifm-color-primary);
-}
-@media (hover: hover) {
-  .addressBar > .addressBack:not(:disabled):hover {
-    background: var(--ifm-color-emphasis-200);
-    color: var(--ifm-color-emphasis-900);
-  }
 }
 .addressPath {
   min-width: 0;

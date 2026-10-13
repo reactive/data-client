@@ -14,6 +14,14 @@ const EXPORT_LIST =
 
 const EXPORT_PREFIX = /^[ \t]*export[ \t]+(?:default[ \t]+)?/gm;
 
+const DEFAULT_EXPORT =
+  /^[ \t]*export[ \t]+default[ \t]+(?:async[ \t]+)?(?:function\*?\s*|class\s+)?([A-Za-z_$][\w$]*)/m;
+
+/** Name the code's default export keeps once `transformCode` strips `export default` */
+export function defaultExportName(code: string): string | undefined {
+  return DEFAULT_EXPORT.exec(code)?.[1];
+}
+
 export default function transformCode(code: string): string {
   return code
     .replaceAll(STATIC_IMPORT, '')
