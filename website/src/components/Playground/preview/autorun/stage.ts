@@ -81,14 +81,7 @@ export function createStage(
     point(el) {
       // root only bounds the walk: the scrollers inside it do the moving
       revealIn(root, el);
-      // and the page, if the demo moved it out of sight (the Store opens
-      // above the preview on a phone), clear of the sticky navbar
-      const { top, bottom } = el.getBoundingClientRect();
-      if (top < navbarHeight() || bottom > innerHeight)
-        el.scrollIntoView({
-          block: 'center',
-          behavior: prefersReducedMotion() ? 'instant' : 'smooth',
-        });
+      revealOnPage(el);
       pointedAt = el;
       place(el);
     },
@@ -169,12 +162,18 @@ function scopeOf(root: HTMLElement, scope: Scope) {
   }
 }
 
-const navbarHeight = () =>
-  parseFloat(
-    getComputedStyle(document.documentElement).getPropertyValue(
-      '--ifm-navbar-height',
-    ),
-  ) || 0;
+/** Scrolls the page to `el` if the demo moved it out of sight (the Store
+ * opens above the preview on a phone), clear of the sticky navbar. The
+ * pointer is placed relative to the page, so it scrolls along. */
+function revealOnPage(el: HTMLElement) {
+  const navbar = document.querySelector('.navbar')?.getBoundingClientRect();
+  const { top, bottom } = el.getBoundingClientRect();
+  if (top < Math.max(0, navbar?.bottom ?? 0) || bottom > innerHeight)
+    el.scrollIntoView({
+      block: 'center',
+      behavior: prefersReducedMotion() ? 'instant' : 'smooth',
+    });
+}
 
 // jsdom lacks checkVisibility
 const visible = (el: HTMLElement) => el.checkVisibility?.() ?? true;

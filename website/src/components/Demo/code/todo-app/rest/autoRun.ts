@@ -1,6 +1,6 @@
 import type { AutoRunScript } from '../../../../Playground/preview/autorun/script';
 
-/** Adds a task and checks one off: each list updates in place, and the
+/** Adds a task and checks another off: the lists update in place, and the
  * Store shows the new task is one Todo, in its user's list */
 const autoRun: AutoRunScript = [
   {
@@ -10,6 +10,8 @@ const autoRun: AutoRunScript = [
   },
   { delay: 300, press: 'input.rt-TextFieldInput', key: 'Enter' },
   { wait: 1500 },
+  // the first task the API had (the new one has no record there to update;
+  // the add-task row's checkbox is the one named "new")
   { click: '.listItem input[type="checkbox"]:not([name])' },
   { wait: 1500 },
   { store: 'open' },

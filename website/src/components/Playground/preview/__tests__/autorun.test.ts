@@ -84,6 +84,16 @@ it('stop ends the run where it is', async () => {
   expect(listener).toHaveBeenCalledTimes(2);
 });
 
+it('presses a key on its target', async () => {
+  const player = createPlayer();
+  const { stage, calls } = fakeStage();
+  await Promise.all([
+    player.play([{ delay: 0, press: 'input', key: 'Enter' }], stage),
+    jest.runAllTimersAsync(),
+  ]);
+  expect(calls).toEqual(['point', 'press Enter', 'end']);
+});
+
 it('a wait holds for its own time only', async () => {
   const player = createPlayer();
   const { stage, calls } = fakeStage();
@@ -195,6 +205,35 @@ describe('stage', () => {
       delete (globalThis as any).ResizeObserver;
       delete (Element.prototype as any).scrollTo;
     }
+  });
+
+  it('scrolls the page to a target out of sight, clear of the navbar', () => {
+    const root = playground();
+    root.insertAdjacentHTML('afterbegin', '<nav class="navbar"></nav>');
+    root.querySelector('.navbar')!.getBoundingClientRect = () =>
+      ({ bottom: 60 }) as DOMRect;
+    const stage = createStage(root, () => {});
+    const button = root.querySelector('button')!;
+    const scrolled = jest.fn();
+    button.scrollIntoView = scrolled;
+    Element.prototype.scrollTo = () => {};
+    try {
+      for (const top of [100, 30, 900]) {
+        button.getBoundingClientRect = () =>
+          ({
+            left: 0,
+            top,
+            bottom: top + 20,
+            width: 20,
+            height: 20,
+          }) as DOMRect;
+        stage.point(button);
+      }
+    } finally {
+      delete (Element.prototype as any).scrollTo;
+    }
+    // under the navbar (30) and below the viewport (900), not in view (100)
+    expect(scrolled).toHaveBeenCalledTimes(2);
   });
 
   it('end() takes its layer away', () => {
