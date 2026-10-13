@@ -69,8 +69,8 @@ interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
 }
 
 /** Starts at `/`, with an address chip floating in the preview's top corner:
- * Back returns to the page before, and the path shows on hover or focus (on
- * touch, briefly after each navigation).
+ * Back returns to the page before, and the path shows on hover or keyboard
+ * focus (on touch, briefly after each navigation).
  * Navigation is a transition: the current page stays until the next one is
  * ready, with a progress bar along the preview's top edge meanwhile.
  */

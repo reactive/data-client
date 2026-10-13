@@ -639,13 +639,13 @@ div.playgroundTextEdit > .playgroundHeader,
    space: a 0-height block stuck at the frame's inset like .navProgress,
    holding a chip pinned 0.25rem inside the frame's top-right corner (demos
    start top-left; the top right is usually empty). The chip is the Back
-   button, quiet until hovered or focused; the path is a pill that fades in
-   beside it then (and keeps the hover while the pointer crosses onto it).
+   button, quiet until hovered or keyboard-focused; the path is a pill that
+   fades in beside it then (and keeps the hover while the pointer crosses onto it).
    Only the chip and the shown path take clicks; the rest passes through to
    the demo. At the root (data-root) Back is disabled and the chip fades to a
-   hint. Touch has no hover, so there the chip is Back alone: a path pill
-   over a phone-width page lands on the demo's first line (the path stays
-   in the tree for assistive tech). The skin is the demo controls' own
+   hint. Touch has no hover, so there the path only shows for a moment
+   after each navigation, since a pinned pill would cover the demo's first
+   line on a phone (the path stays in the tree for assistive tech). The skin is the demo controls' own
    (surface fill, emphasis-400 edge). */
 .addressBar {
   --pg-chip-size: 1.75rem;
@@ -723,13 +723,19 @@ div.playgroundTextEdit > .playgroundHeader,
     opacity var(--motion-snappy),
     transform var(--motion-snappy);
 }
-/* :focus-visible, not :focus-within: a tapped button keeps focus on touch,
-   which would pin the path over the demo */
-.addressBar:hover .addressPath,
+/* Mouse hover or keyboard focus only: on touch, a tapped button keeps both
+   :hover and focus, which would pin the path over the demo */
 .addressBar:has(:focus-visible) .addressPath {
   opacity: 1;
   transform: none;
   pointer-events: auto;
+}
+@media (hover: hover) {
+  .addressBar:hover .addressPath {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
 }
 /* Touch has no hover: Back stays solid, and the path shows for a moment
    after each navigation (the span is keyed by path, so it replays) */
