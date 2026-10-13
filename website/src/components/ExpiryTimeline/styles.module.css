@@ -5,6 +5,8 @@
   --stale: hsl(34, 85%, 38%);
   --invalid: hsl(0, 65%, 48%);
   --on-chip: #fff;
+  /* a mid grey, readable on either theme's background */
+  --muted: var(--ifm-color-gray-700);
   max-width: 640px;
   margin: 0 auto 1.5rem;
 }
@@ -26,6 +28,7 @@
   --stale: hsl(40, 85%, 62%);
   --invalid: hsl(0, 80%, 70%);
   --on-chip: hsl(220, 20%, 12%);
+  --muted: var(--ifm-color-gray-600);
 }
 
 /* what a component mounting in each zone finds: cached data it may show
@@ -492,7 +495,7 @@
 }
 /* with invalidIfStale there is no Stale: grey out its heading and marker */
 .invalidIfStale .column.band1 {
-  --c: var(--ifm-color-emphasis-700);
+  --c: var(--muted);
 }
 .column > :last-child {
   margin-bottom: 0;
