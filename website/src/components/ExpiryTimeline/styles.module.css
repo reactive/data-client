@@ -1,0 +1,449 @@
+.diagram {
+  --line: var(--ifm-color-emphasis-300);
+  --fresh: hsl(150, 55%, 34%);
+  --stale: hsl(34, 85%, 38%);
+  --invalid: hsl(0, 65%, 48%);
+  --on-chip: #fff;
+  --play: running;
+  display: block;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto 1.5rem;
+  font-size: 12px;
+  text-anchor: middle;
+  user-select: none;
+}
+[data-theme='dark'] .diagram {
+  --fresh: hsl(150, 50%, 60%);
+  --stale: hsl(40, 85%, 62%);
+  --invalid: hsl(0, 80%, 70%);
+  --on-chip: hsl(220, 20%, 12%);
+}
+
+/* what a component mounting in each zone finds: cached data it may show
+   (--cached), a fetch to make (--requests), a fallback meanwhile (--fallback) */
+.fresh {
+  --zone: var(--fresh);
+  --cached: 1;
+  --requests: 0;
+  --fallback: 0;
+}
+.stale {
+  --zone: var(--stale);
+  --cached: 1;
+  --requests: 1;
+  --fallback: 0;
+}
+.invalid,
+.stale.invalidIfStale {
+  --zone: var(--invalid);
+  --cached: 0;
+  --requests: 1;
+  --fallback: 1;
+}
+
+/* the timeline */
+.band0 {
+  --c: var(--fresh);
+}
+.band1 {
+  --c: var(--stale);
+}
+.band2,
+.invalidIfStale .band1 {
+  --c: var(--invalid);
+}
+.band rect {
+  fill: color-mix(in srgb, var(--c) 14%, var(--ifm-background-surface-color));
+  transition: fill var(--motion-snappy);
+}
+.band text {
+  fill: var(--c);
+  font-weight: 600;
+  transition: fill var(--motion-snappy);
+}
+.track {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 1.5;
+}
+.arrival {
+  fill: var(--ifm-color-primary);
+  stroke: var(--ifm-background-surface-color);
+  stroke-width: 1.5;
+}
+.option path {
+  fill: none;
+  stroke: var(--ifm-color-emphasis-500);
+  stroke-width: 1.5;
+}
+.option text,
+.toggle text,
+.hook,
+.request text {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 10.5px;
+}
+.option text {
+  fill: var(--ifm-color-emphasis-700);
+}
+
+.toggle {
+  cursor: pointer;
+}
+.toggle > rect {
+  fill: var(--ifm-background-surface-color);
+  stroke: var(--line);
+  stroke-width: 1.5;
+}
+.toggle text {
+  fill: var(--ifm-font-color-base);
+}
+.switch {
+  fill: var(--ifm-color-emphasis-400);
+  rx: 4.5px;
+  transition: fill var(--motion-snappy);
+}
+.knob {
+  fill: var(--on-chip);
+  transition: transform var(--motion-snappy);
+}
+.on .switch {
+  fill: var(--invalid);
+}
+.on .knob {
+  transform: translateX(8px);
+}
+
+.scrubber {
+  fill: transparent;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+/* one pass over a zone: mount, render, request, response, re-render */
+.anim {
+  animation-duration: 4s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-delay: var(--seek);
+  animation-play-state: var(--play);
+}
+.paused {
+  --play: paused;
+}
+
+.playhead {
+  pointer-events: none;
+  stroke: var(--ifm-font-color-base);
+  fill: var(--ifm-font-color-base);
+  stroke-width: 1.5;
+  animation-name: sweep;
+}
+@keyframes sweep {
+  from {
+    transform: translateX(var(--x0));
+  }
+  to {
+    transform: translateX(var(--x1));
+  }
+}
+
+.panel {
+  fill: var(--ifm-background-surface-color);
+  stroke-width: 1.5;
+  rx: 10px;
+}
+.store .panel {
+  stroke: var(--ifm-color-primary);
+}
+.db {
+  color: var(--ifm-color-primary);
+}
+.api {
+  fill: none;
+  stroke: var(--ifm-color-emphasis-500);
+  stroke-width: 0.6;
+  stroke-linejoin: round;
+}
+
+.bar {
+  rx: 4px;
+  animation-name: age;
+}
+/* stale or invalid until the response lands, fresh after */
+@keyframes age {
+  0%,
+  67% {
+    fill: var(--zone);
+  }
+  69%,
+  100% {
+    fill: var(--fresh);
+  }
+}
+/* the store keeps invalid data, but nothing may show it */
+.kept {
+  animation-name: keep;
+}
+@keyframes keep {
+  0%,
+  67% {
+    opacity: calc(0.35 + 0.65 * var(--cached));
+  }
+  69%,
+  100% {
+    opacity: 1;
+  }
+}
+
+.read {
+  fill: none;
+  stroke: var(--ifm-color-primary);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation-name: read;
+}
+@keyframes read {
+  0%,
+  1%,
+  12%,
+  67%,
+  78%,
+  100% {
+    opacity: 0.3;
+  }
+  3% {
+    opacity: calc(0.3 + 0.7 * var(--cached));
+  }
+  69% {
+    opacity: calc(0.3 + 0.7 * var(--requests));
+  }
+}
+
+.comp {
+  animation-name: mount;
+}
+@keyframes mount {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  3%,
+  95% {
+    opacity: 1;
+  }
+}
+.box {
+  stroke: var(--ifm-color-emphasis-600);
+  animation-name: solid;
+}
+@keyframes solid {
+  0%,
+  68% {
+    stroke-opacity: calc(1 - var(--fallback));
+  }
+  70%,
+  100% {
+    stroke-opacity: 1;
+  }
+}
+.hook {
+  fill: var(--ifm-color-emphasis-700);
+}
+.shown {
+  animation-name: show;
+}
+@keyframes show {
+  0%,
+  68% {
+    opacity: var(--cached);
+  }
+  70%,
+  100% {
+    opacity: 1;
+  }
+}
+.fallback {
+  animation-name: wait;
+}
+@keyframes wait {
+  0%,
+  68% {
+    opacity: var(--fallback);
+  }
+  70%,
+  100% {
+    opacity: 0;
+  }
+}
+.fallback rect {
+  fill: none;
+  stroke: var(--ifm-color-emphasis-500);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
+  rx: 10px;
+}
+.spin {
+  fill: none;
+  stroke: var(--ifm-color-emphasis-500);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 40 30;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* re-renders, like React DevTools' highlight */
+.flash {
+  fill: none;
+  stroke-width: 8;
+  rx: 10px;
+  opacity: 0;
+}
+.render {
+  stroke: var(--zone);
+  animation-name: render;
+}
+@keyframes render {
+  0%,
+  2%,
+  14%,
+  68%,
+  80%,
+  100% {
+    opacity: 0;
+  }
+  4% {
+    opacity: calc(0.6 * var(--cached));
+  }
+  70% {
+    opacity: calc(0.6 * var(--requests));
+  }
+}
+.arrive {
+  stroke: var(--fresh);
+  animation-name: arrive;
+}
+@keyframes arrive {
+  0%,
+  64%,
+  76%,
+  100% {
+    opacity: 0;
+  }
+  66% {
+    opacity: calc(0.6 * var(--requests));
+  }
+}
+
+/* out the bottom of the component to the API, back over the top into the store */
+.chip {
+  animation-name: travel;
+}
+@keyframes travel {
+  0%,
+  10% {
+    transform: translate(220px, 190px);
+    opacity: 0;
+  }
+  12% {
+    transform: translate(220px, 190px);
+    opacity: var(--requests);
+  }
+  15% {
+    transform: translate(220px, 214px);
+  }
+  30% {
+    transform: translate(370px, 214px);
+  }
+  34% {
+    transform: translate(370px, 188px);
+    opacity: var(--requests);
+  }
+  36% {
+    transform: translate(370px, 188px);
+    opacity: 0;
+  }
+  44% {
+    transform: translate(370px, 126px);
+    opacity: 0;
+  }
+  46% {
+    transform: translate(370px, 126px);
+    opacity: var(--requests);
+  }
+  49% {
+    transform: translate(370px, 84px);
+  }
+  62% {
+    transform: translate(66px, 84px);
+  }
+  66% {
+    transform: translate(66px, 116px);
+    opacity: var(--requests);
+  }
+  68%,
+  100% {
+    transform: translate(66px, 116px);
+    opacity: 0;
+  }
+}
+.request rect {
+  fill: var(--ifm-background-surface-color);
+  stroke: var(--ifm-color-primary);
+  stroke-width: 1.5;
+}
+.request text {
+  fill: var(--ifm-color-primary);
+  font-weight: 600;
+}
+.request {
+  animation-name: out;
+}
+@keyframes out {
+  0%,
+  38% {
+    opacity: 1;
+  }
+  40%,
+  100% {
+    opacity: 0;
+  }
+}
+.response rect:first-child {
+  fill: var(--fresh);
+}
+.response rect {
+  fill: var(--on-chip);
+}
+.response {
+  animation-name: back;
+}
+@keyframes back {
+  0%,
+  40% {
+    opacity: 0;
+  }
+  42%,
+  100% {
+    opacity: 1;
+  }
+}
+
+/* nothing moves on its own; scrubbing still shows each moment */
+@media (prefers-reduced-motion: reduce) {
+  .diagram {
+    --play: paused;
+  }
+  .spin {
+    animation: none;
+  }
+}

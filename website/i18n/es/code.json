@@ -846,5 +846,21 @@
   "dataColocation.label": {
     "message": "Árbol de componentes donde cada componente que renderiza datos los lee directamente del store con useSuspense(): User para CurrentUser y Avatar, Post para PostBody y Comment para CommentList. Un cambio vuelve a renderizar solo esos componentes y nada más del árbol",
     "description": "Accessible label of the data co-location diagram on the Render Data page"
+  },
+  "expiryTimeline.label": {
+    "message": "Línea de tiempo de una respuesta en caché: Fresh durante dataExpiryLength, luego Stale y luego Invalid tras ctrl.invalidate() (o justo después de Fresh con invalidIfStale). Un componente que se monta con useSuspense() renderiza los datos frescos sin ninguna petición, renderiza los datos obsoletos y los vuelve a obtener en segundo plano, y con datos inválidos muestra su fallback hasta que la petición se resuelve",
+    "description": "Accessible label of the expiry timeline diagram on the Expiry Policy page"
+  },
+  "expiryTimeline.fresh": {
+    "message": "Fresh",
+    "description": "Band label on the expiry timeline diagram: data new enough to render without fetching"
+  },
+  "expiryTimeline.stale": {
+    "message": "Stale",
+    "description": "Band label on the expiry timeline diagram: data rendered while it refetches"
+  },
+  "expiryTimeline.invalid": {
+    "message": "Invalid",
+    "description": "Band label on the expiry timeline diagram: data that must not render"
   }
 }

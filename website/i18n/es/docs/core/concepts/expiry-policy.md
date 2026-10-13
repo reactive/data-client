@@ -8,6 +8,7 @@ description: Cuándo se considera que los datos están Fresh, Stale o Invalid, y
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 
+import ExpiryTimeline from '@site/src/components/ExpiryTimeline';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import {RestEndpoint} from '@data-client/rest';
 
@@ -18,6 +19,8 @@ Esto significa que, cuando hay datos disponibles, puede evitar bloquear la aplic
 seguirá actualizando los datos si son lo bastante antiguos.
 
 ## Estado de caducidad {#expiry-status}
+
+<ExpiryTimeline />
 
 ### Fresh {#fresh}
 

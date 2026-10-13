@@ -8,6 +8,7 @@ description: 数据何时被视为新鲜、过时或无效，以及这些状态�
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 
+import ExpiryTimeline from '@site/src/components/ExpiryTimeline';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import {RestEndpoint} from '@data-client/rest';
 
@@ -18,6 +19,8 @@ import {RestEndpoint} from '@data-client/rest';
 如果数据足够旧，它仍然会刷新数据。
 
 ## 过期状态 {#expiry-status}
+
+<ExpiryTimeline />
 
 ### 新鲜（Fresh） {#fresh}
 
