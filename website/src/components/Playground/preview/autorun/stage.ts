@@ -21,14 +21,10 @@ export function createStage(
   let at = { x: 0, y: 0 };
   let pointedAt: HTMLElement | undefined;
 
-  /** Moves the pointer onto `el`, the tip at its center */
-  const place = (el: HTMLElement) => {
-    const box = el.getBoundingClientRect();
+  /** Moves the pointer's tip to client px `x`, `y` */
+  const placeAt = (x: number, y: number) => {
     const origin = layer.getBoundingClientRect();
-    at = {
-      x: box.left + box.width / 2,
-      y: box.top + box.height / 2,
-    };
+    at = { x, y };
     const first = !pointer;
     if (!pointer) {
       pointer = document.createElement('div');
@@ -36,12 +32,24 @@ export function createStage(
       pointer.innerHTML = POINTER_SVG;
       layer.append(pointer);
     }
-    pointer.style.transform = `translate(${at.x - origin.left}px, ${at.y - origin.top}px)`;
+    pointer.style.transform = `translate(${x - origin.left}px, ${y - origin.top}px)`;
     // the first point fades in where it is, then glides from there
     if (first) {
       void pointer.offsetWidth;
       pointer.dataset.shown = '';
     }
+  };
+  /** Moves the pointer onto `el`, the tip at its center */
+  const place = (el: HTMLElement) => {
+    const box = el.getBoundingClientRect();
+    placeAt(box.left + box.width / 2, box.top + box.height / 2);
+  };
+  /** Brings `el` into view, as the target the pointer follows */
+  const reveal = (el: HTMLElement) => {
+    // root only bounds the walk: the scrollers inside it do the moving
+    revealIn(root, el);
+    revealOnPage(el);
+    pointedAt = el;
   };
   // the layer sits at the playground's foot, so content growing above it
   // (the Store opening) moves the pointer's origin: follow the target,
@@ -79,10 +87,7 @@ export function createStage(
     },
 
     point(el) {
-      // root only bounds the walk: the scrollers inside it do the moving
-      revealIn(root, el);
-      revealOnPage(el);
-      pointedAt = el;
+      reveal(el);
       place(el);
     },
 
@@ -98,8 +103,6 @@ export function createStage(
         clientX: at.x,
         clientY: at.y,
       };
-      const Pointer =
-        typeof PointerEvent === 'function' ? PointerEvent : MouseEvent;
       const pointerInit = { ...init, pointerType: 'mouse', isPrimary: true };
       el.dispatchEvent(new Pointer('pointerdown', pointerInit));
       el.dispatchEvent(new MouseEvent('mousedown', init));
@@ -123,10 +126,33 @@ export function createStage(
       input.dispatchEvent(new Event('input', { bubbles: true }));
     },
 
-    press(el, key) {
-      const init = { key, bubbles: true, cancelable: true, composed: true };
-      el.dispatchEvent(new KeyboardEvent('keydown', init));
-      el.dispatchEvent(new KeyboardEvent('keyup', init));
+    hover(el, at) {
+      const box = el.getBoundingClientRect();
+      const init = {
+        bubbles: true,
+        composed: true,
+        pointerType: 'mouse',
+        isPrimary: true,
+        clientX: box.left + (at ?? 1) * box.width,
+        clientY: box.top + box.height / 2,
+      };
+      if (at === null) {
+        // off it: the pointer stays where it left, not back on its center
+        pointedAt = undefined;
+        el.dispatchEvent(
+          new Pointer('pointerleave', { ...init, bubbles: false }),
+        );
+        return;
+      }
+      // onto it first: where it starts, as the mouse enters
+      if (pointedAt !== el) {
+        reveal(el);
+        el.dispatchEvent(
+          new Pointer('pointerenter', { ...init, bubbles: false }),
+        );
+      }
+      placeAt(init.clientX, init.clientY);
+      el.dispatchEvent(new Pointer('pointermove', init));
     },
 
     store,
@@ -139,6 +165,8 @@ export function createStage(
   };
 }
 
+// jsdom lacks PointerEvent
+const Pointer = typeof PointerEvent === 'function' ? PointerEvent : MouseEvent;
 /** ms: the layer's fade out (`--motion-snappy`) */
 const END_MS = springEasing(springs.snappy).duration;
 /** The click: a ring spreading from the tip */
@@ -168,6 +196,7 @@ function scopeOf(root: HTMLElement, scope: Scope) {
 function revealOnPage(el: HTMLElement) {
   const navbar = document.querySelector('.navbar')?.getBoundingClientRect();
   const { top, bottom } = el.getBoundingClientRect();
+  // a navbar hidden on scroll reports a bottom above the viewport
   if (top < Math.max(0, navbar?.bottom ?? 0) || bottom > innerHeight)
     el.scrollIntoView({
       block: 'center',

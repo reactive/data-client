@@ -7,6 +7,8 @@ import {
   FIND_TIMEOUT,
   KEY_MS,
   MOVE_MS,
+  SCRUB_MS,
+  SCRUB_STEPS,
   type Stage,
 } from '../autorun/player';
 import type { AutoRunScript } from '../autorun/script';
@@ -22,7 +24,7 @@ function fakeStage(
     point: () => void calls.push('point'),
     click: () => void calls.push('click'),
     append: (_, text) => void calls.push(`append ${text}`),
-    press: (_, key) => void calls.push(`press ${key}`),
+    hover: (_, at) => void calls.push(`hover ${at}`),
     store: open => void calls.push(`store ${open}`),
     end: () => void calls.push('end'),
   };
@@ -84,14 +86,17 @@ it('stop ends the run where it is', async () => {
   expect(listener).toHaveBeenCalledTimes(2);
 });
 
-it('presses a key on its target', async () => {
+it('scrubs across its target, then leaves', async () => {
   const player = createPlayer();
   const { stage, calls } = fakeStage();
-  await Promise.all([
-    player.play([{ delay: 0, press: 'input', key: 'Enter' }], stage),
-    jest.runAllTimersAsync(),
-  ]);
-  expect(calls).toEqual(['point', 'press Enter', 'end']);
+  player.play([{ delay: 0, scrub: 'input' }], stage);
+  await jest.advanceTimersByTimeAsync(0);
+  expect(calls).toEqual(['hover 0']);
+  await jest.advanceTimersByTimeAsync(MOVE_MS + SCRUB_MS / 2);
+  expect(calls.at(-1)).toBe(`hover ${SCRUB_STEPS / 2 / SCRUB_STEPS}`);
+  await jest.runAllTimersAsync();
+  expect(calls.slice(-3)).toEqual(['hover 1', 'hover null', 'end']);
+  expect(calls).toHaveLength(SCRUB_STEPS + 3);
 });
 
 it('a wait holds for its own time only', async () => {
@@ -164,11 +169,31 @@ describe('stage', () => {
       button.addEventListener(type, () => seen.push(type));
     stage.click(button);
     expect(seen).toEqual(['pointerdown', 'mousedown', 'mouseup', 'click']);
+  });
 
-    const keys: string[] = [];
-    input.addEventListener('keydown', e => keys.push(e.key));
-    stage.press(input, 'Enter');
-    expect(keys).toEqual(['Enter']);
+  it('hovers across a target as the mouse would', () => {
+    Element.prototype.scrollTo = () => {};
+    const root = playground();
+    const stage = createStage(root, () => {});
+    const track = root.querySelector('button')!;
+    track.getBoundingClientRect = () =>
+      ({ left: 0, top: 0, width: 100, height: 20 }) as DOMRect;
+    const seen: string[] = [];
+    for (const type of ['pointerenter', 'pointermove', 'pointerleave'])
+      track.addEventListener(type, e =>
+        seen.push(`${type} ${(e as MouseEvent).clientX} ${e.isTrusted}`),
+      );
+    stage.hover(track, 0);
+    stage.hover(track, 0.5);
+    stage.hover(track, null);
+    expect(seen).toEqual([
+      'pointerenter 0 false',
+      'pointermove 0 false',
+      'pointermove 50 false',
+      'pointerleave 100 false',
+    ]);
+    const pointer = root.querySelector<HTMLElement>('svg')!.parentElement!;
+    expect(pointer.style.transform).toBe('translate(50px, 10px)');
   });
 
   it('the pointer follows its target when the playground resizes', () => {
@@ -324,19 +349,23 @@ describe('useAutoRun', () => {
       { initialProps: { script } },
     );
     const unwatch = hook.result.current.watch(preview) as () => void;
-    const see = (ratio: number, height = ratio * 100) =>
+    const entry = (target: Element, ratio: number, height = ratio * 100) =>
+      ({
+        target,
+        isIntersecting: ratio > 0,
+        intersectionRatio: ratio,
+        intersectionRect: { height } as DOMRect,
+        rootBounds: { height: 800 } as DOMRect,
+      }) as IntersectionObserverEntry;
+    /** The playground and its preview, `ratio` of each in view */
+    const see = (ratio: number, height?: number) =>
       observed(
-        [
-          {
-            isIntersecting: ratio > 0,
-            intersectionRatio: ratio,
-            intersectionRect: { height } as DOMRect,
-            rootBounds: { height: 800 } as DOMRect,
-          } as IntersectionObserverEntry,
-        ],
+        [entry(playground, ratio, height), entry(preview, ratio, height)],
         {} as IntersectionObserver,
       );
-    return { ...hook, see, showStore, unwatch };
+    const seeOnly = (target: Element, ratio: number) =>
+      observed([entry(target, ratio)], {} as IntersectionObserver);
+    return { ...hook, see, seeOnly, playground, preview, showStore, unwatch };
   }
 
   it('starts once mostly in view, not on a sliver', async () => {
@@ -365,6 +394,15 @@ describe('useAutoRun', () => {
     await jest.advanceTimersByTimeAsync(5000);
     expect(showStore).not.toHaveBeenCalled();
     see(0.1);
+    await jest.runAllTimersAsync();
+    expect(showStore).toHaveBeenCalledWith(true);
+  });
+
+  it('plays on while the playground shows, the preview gone from view', async () => {
+    // on a phone the Store opens above the preview, and the demo acts there
+    const { see, seeOnly, preview, showStore } = mount();
+    see(1);
+    seeOnly(preview, 0);
     await jest.runAllTimersAsync();
     expect(showStore).toHaveBeenCalledWith(true);
   });
@@ -402,11 +440,12 @@ describe('useAutoRun', () => {
   });
 
   it('acts on the latest of several queued observations', () => {
-    const { result } = mount();
+    const { result, preview } = mount();
     observed(
       [
-        { isIntersecting: false, intersectionRatio: 0 },
+        { target: preview, isIntersecting: false, intersectionRatio: 0 },
         {
+          target: preview,
           isIntersecting: true,
           intersectionRatio: 1,
           intersectionRect: { height: 100 },

@@ -660,6 +660,7 @@ export const Scrubber = memo(function Scrubber({
         <div
           ref={track}
           className={styles.scrubTrack}
+          data-track
           style={{ '--tl-width': `${scale.width}px` } as React.CSSProperties}
           data-catchup={catchingUp || undefined}
         >

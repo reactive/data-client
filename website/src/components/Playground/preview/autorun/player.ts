@@ -8,7 +8,9 @@ export interface Stage {
   point(el: HTMLElement): void;
   click(el: HTMLElement): void;
   append(el: HTMLElement, text: string): void;
-  press(el: HTMLElement, key: string): void;
+  /** Moves the mouse over `el`, `at` its width's fraction from the left;
+   * `null` moves it off */
+  hover(el: HTMLElement, at: number | null): void;
   store(open: boolean): void;
   /** The run is over: the pointer goes */
   end(): void;
@@ -23,6 +25,9 @@ export const STEP_DELAY = 700;
 export const MOVE_MS = springEasing(springs.smooth).duration;
 export const KEY_MS = 90;
 export const FIND_TIMEOUT = 5000;
+/** ms: a scrub's sweep, and its moves along the way */
+export const SCRUB_MS = 2400;
+export const SCRUB_STEPS = 24;
 const FIND_EVERY = 50;
 
 /** Plays scripts one at a time on a clock that pauses (out of view) without
@@ -94,14 +99,25 @@ async function perform(
     }
     throw new Error(`nothing matches ${JSON.stringify(target)}`);
   };
-  const target =
-    'click' in step ? step.click
-    : 'press' in step ? step.press
-    : step.type;
+  if ('scrub' in step) {
+    // each move is short: look again only once a render replaced it
+    let el = await find(step.scrub);
+    const hover = async (at: number | null) => {
+      if (!el.isConnected) el = await find(step.scrub);
+      stage.hover(el, at);
+    };
+    await hover(0);
+    await sleep(MOVE_MS);
+    for (let i = 1; i <= SCRUB_STEPS; i++) {
+      await sleep(SCRUB_MS / SCRUB_STEPS);
+      await hover(i / SCRUB_STEPS);
+    }
+    return hover(null);
+  }
+  const target = 'click' in step ? step.click : step.type;
   stage.point(await find(target));
   await sleep(MOVE_MS);
   if ('click' in step) return stage.click(await find(target));
-  if ('press' in step) return stage.press(await find(target), step.key);
   for (const char of step.text) {
     stage.append(await find(target), char);
     await sleep(KEY_MS);

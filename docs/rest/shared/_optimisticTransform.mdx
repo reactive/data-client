@@ -1,6 +1,17 @@
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import {RestEndpoint} from '@data-client/rest';
 
+export const raceDemo = [
+  { delay: 800, store: 'open' },
+  { delay: 1000, click: '.vote button.up' },
+  { delay: 250, click: '.vote button.up' },
+  { delay: 250, click: '.vote button.up' },
+  { delay: 250, click: '.vote button.up' },
+  { wait: 5500 },
+  { scrub: { in: 'store', selector: '[data-track]' } },
+  { wait: 1500 },
+];
+
 <FrameworkPlayground fixtures={[
 {
 endpoint: new RestEndpoint({path: '/api/count'}),
@@ -23,6 +34,7 @@ delay: () => 500 + Math.random() * 4500,
 ]}
 getInitialInterceptorData={() => ({count: 0})}
 row
+autoRun={raceDemo}
 >
 
 ```ts title="count" collapsed

@@ -55,27 +55,34 @@ export function useAutoRun(
       };
       const observer = new IntersectionObserver(
         entries => {
-          // a late callback may hold several: the last is current
-          const entry = entries[entries.length - 1];
-          // a run pauses only once out of sight entirely
-          visible = entry.isIntersecting;
-          syncPaused();
           const { script } = latest.current;
-          // idle: never over a run, even if the script changed identity;
-          // played: a script starts by itself once per page load
-          if (
-            script &&
-            player.getState() === 'idle' &&
-            !played.has(script) &&
-            mostlyShown(entry) &&
-            !prefersReducedMotion()
-          ) {
-            played.add(script);
-            start();
+          // a late callback may hold several: in order, the latest wins
+          for (const entry of entries) {
+            // a run pauses only once the playground is out of sight
+            // entirely: it acts in the Store too, which on a phone opens
+            // above the preview
+            if (entry.target === playground) {
+              visible = entry.isIntersecting;
+              syncPaused();
+              continue;
+            }
+            // idle: never over a run, even if the script changed identity;
+            // played: a script starts by itself once per page load
+            if (
+              script &&
+              player.getState() === 'idle' &&
+              !played.has(script) &&
+              mostlyShown(entry) &&
+              !prefersReducedMotion()
+            ) {
+              played.add(script);
+              start();
+            }
           }
         },
         { threshold: THRESHOLDS },
       );
+      observer.observe(playground);
       observer.observe(el);
       for (const type of INPUT)
         playground.addEventListener(type, onInput, true);

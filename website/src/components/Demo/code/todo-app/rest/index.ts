@@ -1,7 +1,6 @@
 import type { Interceptor } from '@data-client/test';
 import { v4 as uuid } from 'uuid';
 
-import autoRun from './autoRun';
 import { TodoResource, UserResource } from './resources';
 
 import NewTodo from '!!raw-loader!./NewTodo.tsx';
@@ -93,7 +92,6 @@ export default {
     },
   ],
   fixtures,
-  autoRun,
 };
 function randomId() {
   return Number.parseInt(uuid().slice(0, 8), 16);
