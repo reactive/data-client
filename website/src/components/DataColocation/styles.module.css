@@ -1,10 +1,8 @@
 .diagram {
-  --surface: var(--ifm-background-surface-color);
   --line: var(--ifm-color-emphasis-300);
-  --muted: var(--ifm-color-emphasis-600);
   --user: hsl(262, 60%, 60%);
   --user-tint: hsl(262, 80%, 96%);
-  --post: hsl(206, 69%, 52%);
+  --post: var(--ifm-color-primary);
   --post-tint: hsl(206, 80%, 95%);
   --comment: hsl(165, 60%, 38%);
   --comment-tint: hsl(165, 60%, 93%);
@@ -14,13 +12,14 @@
   max-width: 100%;
   margin: 0 0 1rem 1.25rem;
   font-family: var(--ifm-font-family-base);
+  font-size: 11.5px;
+  text-anchor: middle;
   user-select: none;
 }
 [data-theme='dark'] .diagram {
-  --line: var(--ifm-color-emphasis-300);
   --user: hsl(262, 75%, 74%);
   --user-tint: hsl(262, 30%, 22%);
-  --post: hsl(206, 75%, 66%);
+  --post: var(--ifm-color-primary-light);
   --post-tint: hsl(206, 40%, 20%);
   --comment: hsl(165, 55%, 55%);
   --comment-tint: hsl(165, 35%, 17%);
@@ -77,7 +76,7 @@
 }
 
 .store {
-  fill: var(--surface);
+  fill: var(--ifm-background-surface-color);
   stroke: var(--ifm-color-primary);
   stroke-width: 1.5;
   rx: 12px;
@@ -90,13 +89,13 @@
 
 .chip rect {
   fill: var(--c);
+  rx: 11px;
 }
 .chip text {
   fill: var(--on-chip);
   font-family: var(--ifm-font-family-monospace);
   font-size: 10.5px;
   font-weight: 600;
-  text-anchor: middle;
 }
 
 .plain rect,
@@ -105,13 +104,11 @@
   stroke-width: 1.5;
 }
 .plain rect {
-  fill: var(--surface);
+  fill: var(--ifm-background-surface-color);
   stroke: var(--line);
 }
 .plain text {
-  fill: var(--muted);
-  font-size: 11.5px;
-  text-anchor: middle;
+  fill: var(--ifm-color-emphasis-600);
 }
 .bound rect {
   fill: var(--t);
@@ -119,9 +116,7 @@
 }
 .bound text {
   fill: var(--ifm-font-color-base);
-  font-size: 11.5px;
   font-weight: 500;
-  text-anchor: middle;
 }
 .bound .hook {
   fill: var(--c);

@@ -46,13 +46,16 @@ export default function DataColocation() {
   const [active, setActive] = useState<Entity | null>(null);
   const select = (entity: Entity) => ({
     onPointerEnter: (e: React.PointerEvent) => {
-      if (e.pointerType === 'mouse') setActive(entity);
+      if (e.pointerType !== 'touch') setActive(entity);
     },
     onPointerLeave: (e: React.PointerEvent) => {
-      if (e.pointerType === 'mouse') setActive(null);
+      if (e.pointerType !== 'touch') setActive(null);
     },
-    // tap on touch screens
-    onClick: () => setActive(a => (a === entity ? null : entity)),
+    // tap on touch screens; tapping the background clears it
+    onClick: (e: React.MouseEvent) => {
+      e.stopPropagation();
+      setActive(entity);
+    },
   });
   const state = (entity: Entity) =>
     active && (active === entity ? styles.on : styles.off);
@@ -62,6 +65,7 @@ export default function DataColocation() {
       className={styles.diagram}
       viewBox="0 0 440 280"
       role="img"
+      onClick={() => setActive(null)}
       aria-label={translate({
         id: 'dataColocation.label',
         message:
@@ -88,7 +92,7 @@ export default function DataColocation() {
           className={clsx(styles.chip, styles[entity], state(entity))}
           {...select(entity)}
         >
-          <rect x={x} y="19" width={w} height="22" rx="11" />
+          <rect x={x} y="19" width={w} height="22" />
           <text x={x + w / 2} y="34">
             {entity}
           </text>
