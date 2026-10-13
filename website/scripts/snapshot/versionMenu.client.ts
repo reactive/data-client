@@ -178,6 +178,7 @@ const STYLE = `
 
 let menu: HTMLElement | undefined;
 let listEl: HTMLElement | undefined;
+// the logo the menu opens from: the navbar's, or the mobile sidebar's
 let brand: HTMLElement | undefined;
 let timer: ReturnType<typeof setTimeout> | undefined;
 // bumped by each open and close, so an open still loading the list doesn't
@@ -186,8 +187,13 @@ let generation = 0;
 // click isn't a PointerEvent in every browser
 let lastPointer = '';
 
-const isMenuPart = (node: Node | null) =>
-  !!(menu?.contains(node) || brand?.contains(node));
+const BRAND = '.navbar__brand';
+const brandOf = (node: EventTarget | null) =>
+  node instanceof Element ? node.closest<HTMLElement>(BRAND) : null;
+// every logo counts, so a tap on another logo reopens the menu from there
+// in its click rather than closing it as a tap outside
+const isMenuPart = (node: EventTarget | null) =>
+  (node instanceof Node && !!menu?.contains(node)) || !!brandOf(node);
 const closeOnMouseLeave = (e: PointerEvent) => {
   if (e.pointerType === 'mouse') closeSoon();
 };
@@ -217,7 +223,7 @@ function ensureMenu() {
   );
   document.body.append(menu);
   document.addEventListener('pointerdown', e => {
-    if (!isMenuPart(e.target as Node)) close();
+    if (!isMenuPart(e.target)) close();
   });
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
@@ -232,16 +238,18 @@ function ensureMenu() {
   return menu;
 }
 
-async function open(focusFirst = false) {
+async function open(from: HTMLElement, focusFirst = false) {
   clearTimeout(timer);
   const id = ++generation;
   const el = ensureMenu();
   const list = await loadVersions();
-  if (id !== generation || !brand) return;
+  if (id !== generation) return;
+  brand?.setAttribute('aria-expanded', 'false');
+  brand = from;
   // measure before changing the DOM so it doesn't force a layout
   const { left } = brand.getBoundingClientRect();
   const { bottom } = (
-    brand.closest('.navbar') ?? brand
+    brand.closest('.navbar-sidebar__brand, .navbar') ?? brand
   ).getBoundingClientRect();
   const { page, site } = here();
   listEl?.replaceChildren(
@@ -278,8 +286,7 @@ function close() {
 }
 
 function closeOnFocusOut(e: FocusEvent) {
-  const next = e.relatedTarget as Node | null;
-  if (next && !isMenuPart(next)) close();
+  if (e.relatedTarget && !isMenuPart(e.relatedTarget)) close();
 }
 
 function closeSoon() {
@@ -298,17 +305,27 @@ function onMenuKey(e: KeyboardEvent) {
   items[(at + step + items.length) % items.length]?.focus();
 }
 
+function install() {
+  // the label's hover styles too, so add them before the menu first opens
+  const style = document.createElement('style');
+  style.textContent = STYLE;
+  document.head.append(style);
+  // The mobile sidebar mounts its own logo, with the same label, after the
+  // page loads, so bind each logo as it's first touched or focused
+  const bindTouched = (e: Event) => {
+    const el = brandOf(e.target);
+    if (el) bind(el);
+  };
+  document.addEventListener('pointerdown', bindTouched, true);
+  document.addEventListener('focusin', bindTouched, true);
+}
+
 function bind(el: HTMLElement) {
-  if (!brand) {
-    // the label's hover styles too, so add them before the menu first opens
-    const style = document.createElement('style');
-    style.textContent = STYLE;
-    document.head.append(style);
-  }
+  // set below, so it also marks a logo as bound
+  if (el.hasAttribute('aria-haspopup')) return;
   // load the list before the menu opens, once the page is idle; a failed
   // load clears the cache, so the next open or navbar retries it
   setTimeout(loadVersions, 1000);
-  brand = el;
   el.setAttribute('aria-haspopup', 'menu');
   el.setAttribute('aria-expanded', 'false');
   el.addEventListener('pointerdown', e => {
@@ -317,7 +334,7 @@ function bind(el: HTMLElement) {
   el.addEventListener('pointerenter', e => {
     if (e.pointerType !== 'mouse') return;
     clearTimeout(timer);
-    timer = setTimeout(() => open(), 80);
+    timer = setTimeout(() => open(el), 80);
   });
   el.addEventListener('pointerleave', closeOnMouseLeave);
   // The version under the logo opens the menu rather than going home: the
@@ -327,14 +344,19 @@ function bind(el: HTMLElement) {
     if (!logo || e.clientY < logo.getBoundingClientRect().bottom - 4) return;
     e.preventDefault();
     // a mouse's hover already opened it, so its click shouldn't close it
-    if (menu?.hasAttribute('data-open') && lastPointer !== 'mouse') close();
-    else open();
+    if (
+      menu?.hasAttribute('data-open') &&
+      brand === el &&
+      lastPointer !== 'mouse'
+    )
+      close();
+    else open(el);
   });
   el.addEventListener('focusout', closeOnFocusOut);
   el.addEventListener('keydown', e => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      open(true);
+      open(el, true);
     }
   });
 }
@@ -343,8 +365,12 @@ export function onRouteUpdate() {
   close();
 }
 
+let installed = false;
 export function onRouteDidUpdate() {
+  if (!installed) {
+    installed = true;
+    install();
+  }
   // Docusaurus may render a new navbar
-  const el = document.querySelector<HTMLElement>('.navbar__brand');
-  if (el && el !== brand) bind(el);
+  document.querySelectorAll<HTMLElement>(BRAND).forEach(bind);
 }
