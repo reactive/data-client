@@ -388,7 +388,7 @@ export const ProfileResource = resource({
 
 :::react
 
-```tsx title="ProfileList"
+```tsx title="ProfileList" {6-8}
 import React from 'react';
 import { useDLE } from '@data-client/react';
 import { ProfileResource } from './ProfileResource';
@@ -418,7 +418,7 @@ render(<ProfileList />);
 
 :::vue
 
-```html title="ProfileList.vue" {5}
+```html title="ProfileList.vue" {5,9-10}
 <script setup lang="ts">
   import { useDLE } from '@data-client/vue';
   import { ProfileResource } from './ProfileResource';
