@@ -117,8 +117,8 @@ jobs:
       # Docusaurus Faster's Rspack cache. Only master saves it, so
       # PRs share one fresh entry instead of each storing their own. Only
       # restore one built from the same yarn.lock: Rspack doesn't invalidate
-      # modules whose dependencies changed, and a cache from older
-      # dependencies breaks the build (#4209's Babel 8 upgrade).
+      # modules whose dependencies changed, so a cache from older
+      # dependencies breaks the build.
       - uses: actions/cache/restore@v6
         with:
           path: website/node_modules/.cache
