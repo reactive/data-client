@@ -9,9 +9,9 @@ import React, {
   type ComponentType,
 } from 'react';
 
-import type { CodeDocument } from '../editor/codeModel';
 import { defaultExportName } from './transformCode';
 import { Loading } from '../DesignSystem/Loading';
+import type { CodeDocument } from '../editor/codeModel';
 import styles from '../styles.module.css';
 
 /** Scope name the code's trailer renders; never typed by users */
@@ -52,6 +52,7 @@ export function Link({ to, onClick, ...props }: LinkProps) {
       {...props}
       onClick={event => {
         onClick?.(event);
+        if (event.defaultPrevented) return;
         event.preventDefault();
         navigate(to);
       }}

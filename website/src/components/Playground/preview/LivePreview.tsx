@@ -8,7 +8,6 @@ import Preview from './Preview';
 import { ResetButton } from './PreviewError';
 import PreviewWrapper from './PreviewWrapper';
 import { useRenderCount } from './RenderCount';
-import { withoutDeclared } from './transformCode';
 import { routerTrailer } from './router';
 import { usePreviewReset } from './usePreviewReset';
 import type { CodeDocument } from '../editor/codeModel';
@@ -16,6 +15,7 @@ import type { PreviewProps } from '../types';
 import type { LogOptions } from './store/actionLog';
 import SchemaRegistry from './store/schemaRegistry';
 import { StoreHeaderToggle } from './StoreToggle';
+import { withoutDeclared } from './transformCode';
 import { useCodeManagers } from './useCodeManagers';
 import { usePlaygroundConsoleDemotion } from './usePlaygroundConsoleDemotion';
 
