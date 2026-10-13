@@ -296,8 +296,8 @@ DesignSystem/       components injected into preview scope
   appends the `render()` (so no file calls it): a router starting at `/` with
   Back, Home and the current path in the preview's header (so pages need no
   back links; `PreviewWrapper` gives the header slot through
-  `RouterControlsSlot`, and the router portals into it). Pages move with `<Link to>` and
-  `useNavigate()`, scope globals that stand in for the app's own router, like
+  `RouterControlsSlot`, and the router portals into it). Pages move with
+  `<Link to>` and `useNavigate()`, scope globals that stand in for the app's own router, like
   the design system; Vue pages use `RouterLink` and `vue-router`'s
   `useRouter()`, and keep the same `route` fences only to name their path
   (Vue examples don't run).

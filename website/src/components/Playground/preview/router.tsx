@@ -88,50 +88,26 @@ export function Router({ routes }: { routes: readonly Route[] }) {
   const controlsSlot = use(RouterControlsSlot);
   const path = history[history.length - 1];
   const atRoot = history.length === 1;
-  const controls = (
-    <nav
-      className={styles.routerControls}
-      aria-label={translate({
-        id: 'playground.router.pages',
-        message: 'Preview pages',
-      })}
-      aria-busy={pending}
-    >
-      <button
-        type="button"
-        className={clsx('clean-btn', styles.headerButton)}
-        title={backLabel()}
-        aria-label={backLabel()}
-        disabled={atRoot}
-        onClick={() =>
-          // a second click can land before the first commits
-          startTransition(() =>
-            setHistory(paths =>
-              paths.length > 1 ? paths.slice(0, -1) : paths,
-            ),
-          )
-        }
-      >
-        <BackIcon />
-      </button>
-      <button
-        type="button"
-        className={clsx('clean-btn', styles.headerButton)}
-        title={homeLabel()}
-        aria-label={homeLabel()}
-        disabled={atRoot}
-        onClick={() => startTransition(() => setHistory(['/']))}
-      >
-        <HomeIcon />
-      </button>
-      <span className={styles.routerPath} title={path}>
-        {path}
-      </span>
-    </nav>
-  );
   return (
     <NavigateContext value={navigate}>
-      {controlsSlot && createPortal(controls, controlsSlot)}
+      {controlsSlot &&
+        createPortal(
+          <RouterControls
+            path={path}
+            atRoot={atRoot}
+            pending={pending}
+            onBack={() =>
+              // a second click can land before the first commits
+              startTransition(() =>
+                setHistory(paths =>
+                  paths.length > 1 ? paths.slice(0, -1) : paths,
+                ),
+              )
+            }
+            onHome={() => startTransition(() => setHistory(['/']))}
+          />,
+          controlsSlot,
+        )}
       <div
         className={styles.navProgress}
         data-pending={pending || undefined}
@@ -147,6 +123,56 @@ export function Router({ routes }: { routes: readonly Route[] }) {
         </ErrorBoundary>
       </Suspense>
     </NavigateContext>
+  );
+}
+
+/** Back, Home and the page shown */
+function RouterControls({
+  path,
+  atRoot,
+  pending,
+  onBack,
+  onHome,
+}: {
+  path: string;
+  atRoot: boolean;
+  pending: boolean;
+  onBack: () => void;
+  onHome: () => void;
+}) {
+  return (
+    <nav
+      className={styles.routerControls}
+      aria-label={translate({
+        id: 'playground.router.pages',
+        message: 'Preview pages',
+      })}
+      aria-busy={pending}
+    >
+      <button
+        type="button"
+        className={clsx('clean-btn', styles.headerButton)}
+        title={backLabel()}
+        aria-label={backLabel()}
+        disabled={atRoot}
+        onClick={onBack}
+      >
+        <BackIcon />
+      </button>
+      <button
+        type="button"
+        className={clsx('clean-btn', styles.headerButton)}
+        title={homeLabel()}
+        aria-label={homeLabel()}
+        disabled={atRoot}
+        onClick={onHome}
+      >
+        <HomeIcon />
+      </button>
+      <span className={styles.routerPath} title={path}>
+        {path}
+      </span>
+    </nav>
   );
 }
 

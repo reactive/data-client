@@ -5,8 +5,8 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 
 import type { CodeDocument } from '../../editor/codeModel';
+import PreviewWrapper from '../PreviewWrapper';
 import { Link, Router, routerTrailer, useNavigate } from '../router';
-import { RouterControlsSlot } from '../routerSlot';
 
 jest.mock('../../DesignSystem/Loading', () => ({ Loading: () => null }));
 
@@ -38,10 +38,9 @@ describe('routerTrailer', () => {
 
 describe('Router', () => {
   afterEach(() => jest.restoreAllMocks());
-  /** renders `ui` with the preview header's slot for the router's controls */
+  /** renders `ui` in the preview, whose header holds the router's controls */
   function renderInPreview(ui: React.ReactElement) {
-    const slot = document.body.appendChild(document.createElement('div'));
-    return render(<RouterControlsSlot value={slot}>{ui}</RouterControlsSlot>);
+    return render(<PreviewWrapper>{ui}</PreviewWrapper>);
   }
   function List() {
     return <Link to="/posts/5">Post 5</Link>;
@@ -80,7 +79,7 @@ describe('Router', () => {
       React.use(ready);
       return <>slow page</>;
     }
-    const { container } = renderInPreview(
+    renderInPreview(
       <Router
         routes={[
           ['/', () => <Link to="/slow">Slow</Link>],
@@ -88,17 +87,17 @@ describe('Router', () => {
         ]}
       />,
     );
-    const progress = container.firstElementChild!;
+    const controls = screen.getByRole('navigation', { name: 'Preview pages' });
 
     await act(async () => {
       fireEvent.click(screen.getByText('Slow'));
     });
     expect(screen.getByText('Slow')).toBeTruthy();
-    expect(progress.hasAttribute('data-pending')).toBe(true);
+    expect(controls.getAttribute('aria-busy')).toBe('true');
 
     await act(async () => resolve());
     expect(screen.getByText('slow page')).toBeTruthy();
-    expect(progress.hasAttribute('data-pending')).toBe(false);
+    expect(controls.getAttribute('aria-busy')).toBe('false');
   });
 
   test('keeps Back working when a page throws', async () => {

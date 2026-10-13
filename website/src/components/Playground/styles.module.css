@@ -1125,7 +1125,7 @@ div.fixtureJson {
   outline: 2px solid var(--ifm-color-primary);
 }
 @media (hover: hover) {
-  .headerButton:hover {
+  .headerButton:not(:disabled):hover {
     background-color: var(--pg-tab-hover-bg);
     color: var(--pg-tab-hover);
   }
