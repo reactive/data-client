@@ -86,15 +86,17 @@ export default function ExpiryTimeline({
   ];
 
   return (
-    <div className={styles.frame}>
+    <div
+      className={clsx(styles.frame, invalidIfStale && styles.invalidIfStale)}
+    >
       <div className={styles.stage}>
         <svg
           ref={svgRef}
           className={clsx(
             styles.diagram,
             styles[ZONES[play.zone]],
-            invalidIfStale && styles.invalidIfStale,
             play.paused && styles.paused,
+            !play.run && styles.unseeked,
           )}
           style={
             {

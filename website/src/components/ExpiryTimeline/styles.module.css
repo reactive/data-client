@@ -43,7 +43,7 @@
   --fallback: 0;
 }
 .invalid,
-.stale.invalidIfStale {
+.invalidIfStale .stale {
   --zone: var(--invalid);
   --cached: 0;
   --requests: 1;
@@ -457,13 +457,13 @@
   }
 }
 
-/* nothing moves on its own: hold the component rendered, 3/4 into Fresh;
-   scrubbing still shows each moment */
+/* nothing moves on its own: hold the component rendered, 3/4 into Fresh,
+   until the reader scrubs; then hold wherever they left it */
 @media (prefers-reduced-motion: reduce) {
   .diagram {
     --play: paused;
   }
-  .diagram:not(.paused) {
+  .diagram.unseeked {
     --seek: calc(var(--period) * -0.75);
   }
   .spin {
@@ -487,6 +487,13 @@
   margin-top: 0;
   font-size: 1.1rem;
   color: var(--c);
+}
+.column {
+  transition: opacity var(--motion-snappy);
+}
+/* with invalidIfStale there is no Stale: its section no longer applies */
+.invalidIfStale .column.band1 {
+  opacity: 0.5;
 }
 .column > :last-child {
   margin-bottom: 0;
