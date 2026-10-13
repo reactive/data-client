@@ -1,6 +1,5 @@
 import { ErrorBoundary } from '@data-client/react';
 import { translate } from '@docusaurus/Translate';
-import clsx from 'clsx';
 import React, {
   createContext,
   Suspense,
@@ -69,7 +68,9 @@ interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   to: string;
 }
 
-/** Starts at `/`, under an address bar whose Back returns to the page before.
+/** Starts at `/`, with an address chip floating in the preview's top corner:
+ * Back returns to the page before, and the path shows on hover or focus (on
+ * touch, briefly after each navigation).
  * Navigation is a transition: the current page stays until the next one is
  * ready, with a progress bar along the preview's top edge meanwhile.
  */
@@ -91,10 +92,14 @@ export function Router({ routes }: { routes: readonly Route[] }) {
         data-pending={pending || undefined}
         aria-hidden="true"
       />
-      <div className={styles.addressBar} aria-busy={pending}>
+      <div
+        className={styles.addressBar}
+        data-root={history.length === 1 || undefined}
+        aria-busy={pending}
+      >
         <button
           type="button"
-          className={clsx(styles.headerButton, styles.addressBack)}
+          className={styles.addressBack}
           aria-label={translate({
             id: 'playground.router.back',
             message: 'Back',
@@ -111,10 +116,12 @@ export function Router({ routes }: { routes: readonly Route[] }) {
         >
           <BackIcon />
         </button>
-        <span className={styles.addressPath}>{path}</span>
+        <span key={path} className={styles.addressPath}>
+          {path}
+        </span>
       </div>
       <Suspense fallback={<Loading />}>
-        {/* under the address bar, so Back still works when a page throws; a
+        {/* the chip stays usable when a page throws, so Back recovers; a
             new path clears the error. Suspense stays outside this key: a newly
             mounted one would show its fallback rather than hold the page */}
         <ErrorBoundary key={path} fallbackComponent={ErrorMessage}>

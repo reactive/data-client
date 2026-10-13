@@ -293,16 +293,17 @@ DesignSystem/       components injected into preview scope
   fence a `route` (a path whose `:name` segments are params, `/posts/:id`) and writes no
   navigation of its own. The page is that file's named default export, and
   the path's params are its props. When any file has one, `routerTrailer`
-  appends the `render()` (so no file calls it): a router starting at `/` under
-  an address bar, whose Back returns to the page before (so pages need no back
-  links). Pages move with `<Link to>` and `useNavigate()`, scope globals that
+  appends the `render()` (so no file calls it): a router starting at `/` with
+  a Back chip floating in the preview's top-right corner (so pages need no
+  back links; it takes no layout space, and shows the path on hover, or for a
+  moment after each navigation on touch). Pages move with `<Link to>` and `useNavigate()`, scope globals that
   stand in for the app's own router, like the design system; Vue pages use
   `RouterLink` and `vue-router`'s `useRouter()`, and keep the same `route`
   fences only to name their path (Vue examples don't run).
   Navigation is a transition: the page stays until the next one is ready,
   with a progress bar along the preview's top edge meanwhile, so a page needs
-  no `startTransition` of its own. Pages render in a Suspense boundary under
-  the address bar, whose fallback shows only before the first page is ready.
+  no `startTransition` of its own. Pages render in a Suspense boundary whose
+  fallback shows only before the first page is ready.
   A reset (fresh store) starts again at `/`.
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
   count in the preview header (written to the DOM, so counting adds no commits).

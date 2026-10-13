@@ -634,38 +634,119 @@ div.playgroundTextEdit > .playgroundHeader,
     opacity: 0.45;
   }
 }
-/* The router's address bar (preview/router.tsx): the page shown and the way
-   back, like a browser's, so demos need no navigation of their own */
+/* The router's address bar (preview/router.tsx): the way back and the page
+   shown, so demos need no navigation of their own. It takes no layout
+   space: a 0-height block stuck at the frame's inset like .navProgress,
+   holding a chip pinned 0.25rem inside the frame's top-right corner (demos
+   start top-left; the top right is usually empty). The chip is the Back
+   button, quiet until hovered or focused; the path is a pill that fades in
+   beside it then (and keeps the hover while the pointer crosses onto it).
+   Only the chip and the shown path take clicks; the rest passes through to
+   the demo. At the root (data-root) Back is disabled and the chip fades to a
+   hint. Touch has no hover, so there the chip is Back alone: a path pill
+   over a phone-width page lands on the demo's first line (the path stays
+   in the tree for assistive tech). The skin is the demo controls' own
+   (surface fill, emphasis-400 edge). */
 .addressBar {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  margin: -0.5rem -0.5rem 0.75rem;
-  padding: 0.125rem 0.75rem 0.125rem 0.125rem;
-  border-radius: var(--ifm-global-radius);
-  background: var(--ifm-color-emphasis-100);
+  --pg-chip-size: 1.75rem;
+  --pg-chip-inset: 0.25rem;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  height: 0;
+  margin: 0 calc(-1 * var(--pg-preview-pad, 0px));
+  opacity: 0.6;
+  pointer-events: none;
+  transition: opacity var(--motion-snappy);
+}
+.addressBar[data-root] {
+  opacity: 0.35;
+}
+.addressBar:hover,
+.addressBar:focus-within {
+  opacity: 1;
+}
+.addressBar[data-root]:hover,
+.addressBar[data-root]:focus-within {
+  opacity: 0.6;
+}
+.addressBar > .addressBack,
+.addressPath {
+  position: absolute;
+  top: calc(var(--pg-chip-inset) - var(--pg-preview-pad, 0px));
+  box-sizing: border-box;
+  height: var(--pg-chip-size);
+  margin: 0;
+  border: 1px solid var(--ifm-color-emphasis-400);
+  border-radius: calc(var(--pg-chip-size) / 2);
+  background: var(--ifm-background-surface-color);
   color: var(--ifm-color-emphasis-700);
-  font-family: var(--ifm-font-family-monospace);
-  font-size: 0.8rem;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.08);
 }
 .addressBar > .addressBack {
-  flex: none;
-  margin: 0;
+  right: var(--pg-chip-inset);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--pg-chip-size);
   padding: 0;
-  border: 0;
-  background: none;
-  color: inherit;
+  font-size: 1rem;
   cursor: pointer;
+  pointer-events: auto;
 }
 .addressBar > .addressBack:disabled {
-  background: none;
-  color: inherit;
-  opacity: 0.35;
+  background: var(--ifm-background-surface-color);
+  color: var(--ifm-color-emphasis-700);
   cursor: default;
 }
+.addressBar > .addressBack:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 1px;
+}
+@media (hover: hover) {
+  .addressBar > .addressBack:not(:disabled):hover {
+    border-color: var(--ifm-color-primary);
+    color: var(--ifm-color-primary);
+  }
+}
 .addressPath {
-  min-width: 0;
-  overflow-wrap: anywhere;
+  right: calc(var(--pg-chip-inset) * 2 + var(--pg-chip-size));
+  max-width: calc(100% - var(--pg-chip-inset) * 3 - var(--pg-chip-size));
+  padding: 0 0.625rem;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.75rem;
+  line-height: calc(var(--pg-chip-size) - 2px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  transform: translateX(0.375rem);
+  transition:
+    opacity var(--motion-snappy),
+    transform var(--motion-snappy);
+}
+.addressBar:hover .addressPath,
+.addressBar:focus-within .addressPath {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+/* Touch has no hover: Back stays solid, and the path shows for a moment
+   after each navigation (the span is keyed by path, so it replays) */
+@media (hover: none) {
+  .addressBar:not([data-root]) {
+    opacity: 1;
+  }
+  .addressBar:not([data-root]) .addressPath {
+    animation: pathFlash 1.8s;
+  }
+}
+@keyframes pathFlash {
+  10%,
+  75% {
+    opacity: 1;
+    transform: none;
+  }
 }
 /** DEMO STYLES
 * Place any styles needed for demos here
