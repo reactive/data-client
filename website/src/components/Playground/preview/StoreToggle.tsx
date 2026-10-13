@@ -8,7 +8,7 @@ import React, { useCallback } from 'react';
 
 import { useTabStorage } from '../../../utils/tabStorage';
 import { useLayoutMotion } from '../../motion';
-import StoreIcon from '../../StoreIcon';
+import StoreIcon from '../StoreIcon';
 import styles from '../styles.module.css';
 
 /** Store open state, persisted per `groupId`; toggling keeps the page from scrolling */

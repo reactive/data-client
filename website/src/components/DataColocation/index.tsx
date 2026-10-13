@@ -2,7 +2,7 @@ import { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
 import React, { useState } from 'react';
 
-import StoreIcon from '../StoreIcon';
+import StoreIcon from '../Playground/StoreIcon';
 import styles from './styles.module.css';
 
 type Entity = 'User' | 'Post' | 'Comment';
