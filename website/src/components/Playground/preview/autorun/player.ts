@@ -8,8 +8,8 @@ export interface Stage {
   point(el: HTMLElement): void;
   click(el: HTMLElement): void;
   append(el: HTMLElement, text: string): void;
-  /** Opens or closes the Store; `pressed`: as a press on its toggle, which
-   * the pointer is on */
+  /** Opens or closes the Store; `pressed`: the pointer is on the Store's
+   * toggle, so the stage shows a press there */
   store(open: boolean, pressed?: boolean): void;
   /** The run is over: the pointer goes */
   end(): void;
