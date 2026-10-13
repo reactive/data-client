@@ -229,7 +229,7 @@ export const postFixtures: Interceptor<PostInterceptorState>[] = [
       }
       return this.entities[id];
     },
-    delay: 500,
+    delay: 1200,
   },
 ];
 

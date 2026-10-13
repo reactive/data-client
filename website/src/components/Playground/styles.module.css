@@ -600,6 +600,28 @@ div.playgroundTextEdit > .playgroundHeader,
 .playgroundPreview textarea:where(:not([class])) {
   padding: 0.3rem 0.5rem;
 }
+/* A form disabled while it saves: fields fade back, the button stays legible */
+.playgroundPreview fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.playgroundPreview fieldset :global(:is(.rt-TextFieldRoot, .rt-TextAreaRoot)) {
+  transition: opacity 0.2s ease;
+}
+.playgroundPreview
+  fieldset:disabled
+  :global(:is(.rt-TextFieldRoot, .rt-TextAreaRoot)) {
+  opacity: 0.5;
+}
+.playgroundPreview fieldset:disabled,
+.playgroundPreview fieldset:disabled * {
+  cursor: progress;
+}
+.playgroundPreview fieldset:disabled :global(.button) {
+  opacity: 1;
+}
 .playgroundPreview input[type='checkbox'] {
   width: 1rem;
   height: 1rem;

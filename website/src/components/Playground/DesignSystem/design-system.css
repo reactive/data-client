@@ -47,12 +47,23 @@ html[data-theme='dark'] .rt-TextAreaRoot {
 
 /* Spinner styles */
 .rt-Spinner {
+  display: inline-block;
   width: 16px;
   height: 16px;
   border: 2px solid var(--ifm-color-emphasis-400);
   border-top-color: var(--ifm-color-formfield-active);
   border-radius: 50%;
   animation: rt-spin 1s linear infinite;
+}
+
+/* In a button it sits before the label, sized to the text */
+button .rt-Spinner {
+  width: 0.8em;
+  height: 0.8em;
+  border-color: currentColor;
+  border-top-color: transparent;
+  margin-right: 0.5em;
+  vertical-align: -0.1em;
 }
 
 /* Spinner animation */
