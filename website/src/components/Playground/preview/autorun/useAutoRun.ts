@@ -29,13 +29,14 @@ export function useAutoRun(
   // read when a run starts, so `watch` and `replay` keep their identity
   const latest = useRef({ script, showStore });
   latest.current = { script, showStore };
-  const root = useRef<HTMLElement | null>(null);
   const preview = useRef<HTMLElement | null>(null);
 
   const start = useCallback(() => {
     const { script, showStore } = latest.current;
-    if (script && root.current)
-      player.play(script, createStage(root.current, showStore));
+    const playground =
+      preview.current?.closest<HTMLElement>('[data-playground]');
+    if (script && playground)
+      player.play(script, createStage(playground, showStore));
   }, [player]);
 
   // ends a run with the preview; an idle player stays idle
@@ -47,7 +48,6 @@ export function useAutoRun(
     (el: HTMLElement | null) => {
       const playground = el?.closest<HTMLElement>('[data-playground]');
       if (!el || !playground || !latest.current.script) return;
-      root.current = playground;
       preview.current = el;
       // whether the preview (where it starts) and the playground around it
       // (where it acts: on a phone the Store opens above the preview) are

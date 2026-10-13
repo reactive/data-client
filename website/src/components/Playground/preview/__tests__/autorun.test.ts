@@ -138,7 +138,12 @@ describe('stage', () => {
     document.body.append(root);
     return root;
   }
-  afterEach(() => (document.body.innerHTML = ''));
+  // jsdom lacks scrolling, which bringing a target into view uses
+  beforeEach(() => (Element.prototype.scrollTo = () => {}));
+  afterEach(() => {
+    delete (Element.prototype as any).scrollTo;
+    document.body.innerHTML = '';
+  });
 
   it('finds by selector, text, label and scope', () => {
     const root = playground();
@@ -170,7 +175,6 @@ describe('stage', () => {
   });
 
   it('opens the Store without its click, ringing only for a press', () => {
-    Element.prototype.scrollTo = () => {};
     const animate = jest.fn();
     HTMLElement.prototype.animate = animate;
     try {
@@ -202,8 +206,6 @@ describe('stage', () => {
       observe() {}
       disconnect() {}
     };
-    // jsdom lacks scrolling, which bringing the target into view uses
-    Element.prototype.scrollTo = () => {};
     try {
       const root = playground();
       const stage = createStage(root, () => {});
@@ -224,7 +226,6 @@ describe('stage', () => {
       expect(pointer.style.transform).toBe('translate(10px, 410px)');
     } finally {
       delete (globalThis as any).ResizeObserver;
-      delete (Element.prototype as any).scrollTo;
     }
   });
 
@@ -237,21 +238,10 @@ describe('stage', () => {
     const button = root.querySelector('button')!;
     const scrolled = jest.fn();
     button.scrollIntoView = scrolled;
-    Element.prototype.scrollTo = () => {};
-    try {
-      for (const top of [100, 30, 900]) {
-        button.getBoundingClientRect = () =>
-          ({
-            left: 0,
-            top,
-            bottom: top + 20,
-            width: 20,
-            height: 20,
-          }) as DOMRect;
-        stage.point(button);
-      }
-    } finally {
-      delete (Element.prototype as any).scrollTo;
+    for (const top of [100, 30, 900]) {
+      button.getBoundingClientRect = () =>
+        ({ left: 0, top, bottom: top + 20, width: 20, height: 20 }) as DOMRect;
+      stage.point(button);
     }
     // under the navbar (30) and below the viewport (900), not in view (100)
     expect(scrolled).toHaveBeenCalledTimes(2);
