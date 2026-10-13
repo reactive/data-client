@@ -33,8 +33,7 @@ export function useAutoRun(
 
   const start = useCallback(() => {
     const { script, showStore } = latest.current;
-    const playground =
-      preview.current?.closest<HTMLElement>('[data-playground]');
+    const playground = playgroundOf(preview.current);
     if (script && playground)
       player.play(script, createStage(playground, showStore));
   }, [player]);
@@ -46,7 +45,7 @@ export function useAutoRun(
    * The preview remounts on reset; the player (and its run) outlives it. */
   const watch = useCallback(
     (el: HTMLElement | null) => {
-      const playground = el?.closest<HTMLElement>('[data-playground]');
+      const playground = playgroundOf(el);
       if (!el || !playground || !latest.current.script) return;
       preview.current = el;
       // whether the preview (where it starts) and the playground around it
@@ -122,6 +121,9 @@ export function useAutoRun(
 
   return { player, watch, replay };
 }
+
+const playgroundOf = (el: HTMLElement | null) =>
+  el?.closest<HTMLElement>('[data-playground]');
 
 /** Scripts that played by themselves, or that the reader took over or
  * replayed: the playground remounts (say, the page's framework switched

@@ -166,7 +166,8 @@ function scopeOf(root: HTMLElement, scope: Scope) {
 
 /** Scrolls the page to `el` if it's out of sight past one edge (the Store
  * opens above the preview on a phone; replay brings the preview back), clear
- * of the sticky navbar; one that already fills the view stays put. The pointer is placed relative to the page, so it scrolls
+ * of the sticky navbar. Past both edges, it already fills the view, so it
+ * stays put. The pointer is placed relative to the page, so it scrolls
  * along. */
 export function revealOnPage(el: HTMLElement) {
   const navbar = document.querySelector('.navbar')?.getBoundingClientRect();
