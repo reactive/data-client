@@ -303,27 +303,25 @@ export default function PostForm({ onSubmit, loading, error }) {
     onSubmit(data);
   };
   return (
-    <form onSubmit={handleSubmit}>
-      <TextInput
-        label="Title"
-        name="title"
-        defaultValue="My New Post"
-        required
-      />
-      <TextArea name="body" rows={12} label="Body" required>
-        After clicking 'save', the button will be disabled until the POST
-        is completed. Upon completion the newly created post is displayed
-        immediately as Reactive Data Client is able to use the fetch
-        response to populate the store.
-      </TextArea>
-      {error ? (
-        <div className="alert alert--danger">{error.message}</div>
-      ) : null}
-      <div>
-        <button type="submit" disabled={loading}>
-          {loading ? 'saving...' : 'Save'}
-        </button>
-      </div>
+    <form onSubmit={handleSubmit} aria-busy={loading}>
+      <fieldset disabled={loading}>
+        <TextInput
+          label="Title"
+          name="title"
+          defaultValue="My New Post"
+          required
+        />
+        <TextArea name="body" rows={12} label="Body" required>
+          After clicking 'save', the form is locked and the button animates
+          until the POST completes. Upon completion the newly
+          created post is displayed immediately as Reactive Data Client is
+          able to use the fetch response to populate the store.
+        </TextArea>
+        {error ? (
+          <div className="alert alert--danger">{error.message}</div>
+        ) : null}
+        <button type="submit">{loading ? 'Saving…' : 'Save'}</button>
+      </fieldset>
     </form>
   );
 }

@@ -310,25 +310,23 @@ export const PostResource = resource({
 </script>
 
 <template>
-  <form @submit="handleSubmit">
-    <TextInput
-      label="Title"
-      name="title"
-      defaultValue="My New Post"
-      required
-    />
-    <TextArea name="body" :rows="12" label="Body" required>
-      After clicking 'save', the button will be disabled until the POST
-      is completed. Upon completion the newly created post is displayed
-      immediately as Reactive Data Client is able to use the fetch
-      response to populate the store.
-    </TextArea>
-    <div v-if="error" class="alert alert--danger">{{ error.message }}</div>
-    <div>
-      <button type="submit" :disabled="loading">
-        {{ loading ? 'saving...' : 'Save' }}
-      </button>
-    </div>
+  <form @submit="handleSubmit" :aria-busy="loading">
+    <fieldset :disabled="loading">
+      <TextInput
+        label="Title"
+        name="title"
+        defaultValue="My New Post"
+        required
+      />
+      <TextArea name="body" :rows="12" label="Body" required>
+        After clicking 'save', the form is locked and the button animates
+        until the POST completes. Upon completion the newly
+        created post is displayed immediately as Reactive Data Client is
+        able to use the fetch response to populate the store.
+      </TextArea>
+      <div v-if="error" class="alert alert--danger">{{ error.message }}</div>
+      <button type="submit">{{ loading ? 'Saving…' : 'Save' }}</button>
+    </fieldset>
   </form>
 </template>
 ```
