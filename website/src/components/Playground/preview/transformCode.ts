@@ -14,10 +14,11 @@ const EXPORT_LIST =
 
 const EXPORT_PREFIX = /^[ \t]*export[ \t]+(?:default[ \t]+)?/gm;
 
+/** Captures one identifier; each of DEFAULT_EXPORT's alternatives has one */
 const IDENTIFIER = /([A-Za-z_$][\w$]*)/.source;
 /** `export default function Name`, `class Name` or `Name;` (not an expression) */
 const DEFAULT_EXPORT = new RegExp(
-  String.raw`^[ \t]*export[ \t]+default[ \t]+(?:(?:async[ \t]+)?function\b\s*\*?\s*${IDENTIFIER}|class\s+(?!extends\b)${IDENTIFIER}|${IDENTIFIER}[ \t]*;?[ \t]*$)`,
+  String.raw`^[ \t]*export[ \t]+default[ \t]+(?:(?:async[ \t]+)?function(?![\w$])\s*\*?\s*${IDENTIFIER}|class\s+(?!extends\b)${IDENTIFIER}|${IDENTIFIER}[ \t]*;?[ \t]*$)`,
   'm',
 );
 
