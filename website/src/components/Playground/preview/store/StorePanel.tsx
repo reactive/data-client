@@ -50,7 +50,7 @@ import {
 import { NARROW_WIDTH } from './columns';
 import { diffModel, type RowDiff } from './diffModel';
 import { ListView, RecordLevel, type Header } from './DiveViews';
-import { flash, scrollToRow, slide, type Scroller } from './dom';
+import { flash, scrollToRow, slide, useWidth, type Scroller } from './dom';
 import {
   buildModel,
   findRow,
@@ -1325,21 +1325,6 @@ function usesArrows(el: Element) {
   return !!el.closest(
     'input, textarea, select, [contenteditable=""], [contenteditable="true"]',
   );
-}
-
-/** Panel width; re-renders only when it changes */
-function useWidth(ref: React.RefObject<HTMLElement | null>) {
-  const [width, setWidth] = useState(560);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(([entry]) =>
-      setWidth(Math.round(entry.contentRect.width)),
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [ref]);
-  return width;
 }
 
 /** Briefly highlights rows on screen whose stored value changed since the

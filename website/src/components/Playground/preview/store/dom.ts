@@ -1,4 +1,10 @@
-import React, { useCallback, useLayoutEffect, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import type { ChangeKind } from './actionGroups';
 import { prefersReducedMotion, springEasing, springs } from '../../../motion';
@@ -32,6 +38,25 @@ export function slide(el: HTMLElement, direction: 1 | -1) {
     ],
     smooth,
   );
+}
+
+/** `ref`'s content width, `initial` until measured; re-renders only when
+ * it changes */
+export function useWidth(
+  ref: React.RefObject<HTMLElement | null>,
+  initial = 560,
+) {
+  const [width, setWidth] = useState(initial);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(([entry]) =>
+      setWidth(Math.round(entry.contentRect.width)),
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ref]);
+  return width;
 }
 
 /** A change's color, as every view marks it */

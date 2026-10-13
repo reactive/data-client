@@ -25,6 +25,12 @@ import { isRecordChange, type History, type LogEntry } from './actionLog';
 import { kindColor } from './dom';
 import { splitKey } from './model';
 import {
+  prefersReducedMotion,
+  springAt,
+  springEasing,
+  springs,
+} from '../../../motion';
+import {
   ActionSpanContext,
   type ActionSpan,
   type Moment,
@@ -84,6 +90,8 @@ const CHIP_LIMIT = 6;
 const TICK_LIMIT = 12;
 /** Distance from the bottom (px) that still counts as following new rows */
 export const FOLLOW_SLACK = 24;
+/** How long a track let go of takes to catch up (ms, `--motion-snappy`) */
+export const CATCH_UP_MS = springEasing(springs.snappy).duration;
 
 const AXES = {
   x: { size: 'scrollWidth', scroll: 'scrollLeft', client: 'clientWidth' },
@@ -92,13 +100,15 @@ const AXES = {
 
 /** Keeps the newest row in view, unless the reader scrolled up (or, on
  * the `x` axis, back) or it is `paused`; unpaused (back to live), it
- * follows the newest again. Returns what scrolls to the newest and follows
- * again */
+ * follows the newest again. While `sprung` (its rows catching up), it
+ * springs to where it is to be rather than jumps, in step with the rows'
+ * own move. Returns what scrolls to the newest and follows again */
 export function useFollow(
   scroller: React.RefObject<HTMLElement | null>,
   rows: unknown,
   axis: 'x' | 'y' = 'y',
   paused = false,
+  sprung = false,
 ) {
   const follow = useRef(true);
   // the last row in view while not following, so rows trimmed from the
@@ -122,7 +132,9 @@ export function useFollow(
       // on every scroll, the follow's own included: one left over from
       // before would pull the view back to it on the next pause
       anchor.current = lastShown(el, axis);
-      if (paused) return;
+      // a catch-up's own frames fall short of the end on their way there:
+      // that's not the reader going back
+      if (paused || springing.has(el)) return;
       const atEnd =
         el[size] - el[scroll] - el[client] < (away ? 1 : FOLLOW_SLACK);
       if (atEnd) away = false;
@@ -155,6 +167,8 @@ export function useFollow(
         return;
       away = true;
       follow.current = false;
+      // the reader's own scroll takes over from a catch-up underway
+      stopSpring(el);
     };
     const onWheel = (e: WheelEvent) =>
       axis === 'y' ?
@@ -204,28 +218,83 @@ export function useFollow(
     const resumed = !paused && wasPaused.current;
     wasPaused.current = paused;
     // off, not just skipped, so showing a hidden tab doesn't catch up either;
-    // scrolls are ignored while paused, so it stays off. Back to live, the
-    // newest comes into view and is followed again
-    if (paused) follow.current = false;
-    else if (el && (resumed || (el.clientHeight && follow.current))) {
+    // scrolls are ignored while paused, so it stays off. A moment picked mid
+    // catch-up is revealed where it is. Back to live, the newest comes into
+    // view and is followed again
+    if (paused) {
+      follow.current = false;
+      if (el) stopSpring(el);
+    }
+    if (!el) return;
+    // a change mid catch-up springs on from where it is rather than jumps;
+    // paused, the moment's reveal takes over from it
+    const spring = !paused && (sprung || springing.has(el));
+    if (!paused && (resumed || (el.clientHeight && follow.current))) {
       follow.current = true;
-      el[scroll] = el[size];
+      scrollAlong(el, axis, el[size], spring);
       return;
     }
-    const held = anchor.current;
-    if (!el || !held?.row.isConnected) return;
+    const last = anchor.current;
+    if (!last?.row.isConnected) return;
     // only when the rows moved: any scroll assignment cancels a smooth one
     // underway (the moment's reveal as the list leaves live)
-    const moved = startOf(held.row, axis) - startOf(el, axis) - held.at;
-    if (moved) el[scroll] += moved;
+    const moved = startOf(last.row, axis) - startOf(el, axis) - last.at;
+    if (moved) scrollAlong(el, axis, el[scroll] + moved, spring);
+    // `sprung` says how the rows move, not that they did: its own change
+    // moves nothing
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scroller, rows, axis, paused]);
   return useCallback(() => {
     const el = scroller.current;
     if (!el) return;
-    const { size, scroll } = AXES[axis];
     follow.current = true;
-    el[scroll] = el[size];
+    scrollAlong(el, axis, el[AXES[axis].size], false);
   }, [scroller, axis]);
+}
+
+/** The spring scrolls underway, by scroller */
+const springing = new WeakMap<Element, number>();
+function stopSpring(el: Element) {
+  cancelAnimationFrame(springing.get(el) ?? 0);
+  springing.delete(el);
+}
+/** Scrolls `el` along `axis` to `to`: `sprung`, on the snappy spring (at
+ * once under reduced motion), as its rows catching up move
+ * (`[data-catchup]` in store.module.css); else at once */
+function scrollAlong(
+  el: HTMLElement,
+  axis: 'x' | 'y',
+  to: number,
+  sprung: boolean,
+) {
+  const { size, scroll, client } = AXES[axis];
+  stopSpring(el);
+  if (
+    !sprung ||
+    typeof requestAnimationFrame === 'undefined' ||
+    prefersReducedMotion()
+  ) {
+    el[scroll] = to;
+    return;
+  }
+  // as far as it goes, so the spring doesn't stop short of the end
+  to = Math.max(0, Math.min(to, el[size] - el[client]));
+  const from = el[scroll];
+  const start = performance.now();
+  const step = (now: number) => {
+    const { offset } = springAt(
+      springs.snappy,
+      { offset: from - to, velocity: 0 },
+      (now - start) / 1000,
+    );
+    // settled when the marks' own spring is: a bounce passes the target
+    // well before
+    const done = now - start >= CATCH_UP_MS;
+    el[scroll] = done ? to : to + offset;
+    if (done) springing.delete(el);
+    else springing.set(el, requestAnimationFrame(step));
+  };
+  springing.set(el, requestAnimationFrame(step));
 }
 
 const startOf = (el: Element, axis: 'x' | 'y') => {

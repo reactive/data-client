@@ -15,7 +15,14 @@ import { groupEntries } from '../store/actionGroups';
 import type { LogEntry } from '../store/actionLog';
 import SchemaRegistry from '../store/schemaRegistry';
 import StorePanel from '../store/StorePanel';
-import { axisLabels, lanesOf, nearest, timeScale } from '../store/Timeline';
+import { FOLLOW_SLACK, type Actions } from '../store/actionParts';
+import {
+  axisLabels,
+  lanesOf,
+  nearest,
+  still,
+  timeScale,
+} from '../store/Timeline';
 import { UNFOLD_CLOSE_MS } from '../store/Unfold';
 
 jest.mock('../../../../utils/tabStorage', () => ({
@@ -117,12 +124,13 @@ const top = () => {
 /** The next frame, when a box just opened slides */
 const nextFrame = () =>
   act(() => new Promise<void>(r => requestAnimationFrame(() => r())));
-/** Mounts with a panel `width` px wide, as a browser would lay it out */
-// every observed width `mountAt` reports; `resize` changes them all
+// every observed width `observeAt` reports; `resize` changes them all
 let observed: ((entries: unknown[]) => void)[] = [];
 const resize = (width: number) =>
   act(() => observed.forEach(cb => cb([{ contentRect: { width } }])));
-function mountAt(width: number) {
+/** Lays everything observed out `width` px wide, as a browser would,
+ * until what it returns is called */
+function observeAt(width: number) {
   class Observer {
     constructor(private cb: (entries: unknown[]) => void) {}
     observe() {
@@ -134,12 +142,53 @@ function mountAt(width: number) {
   }
   observed = [];
   (globalThis as any).ResizeObserver = Observer;
+  return () => {
+    delete (globalThis as any).ResizeObserver;
+  };
+}
+/** Mounts with a panel `width` px wide */
+function mountAt(width: number) {
+  const off = observeAt(width);
   try {
     return mount();
   } finally {
-    delete (globalThis as any).ResizeObserver;
+    off();
   }
 }
+
+describe('still', () => {
+  const fetch = { type: actionTypes.FETCH, key: 'a' };
+  const actions = (...entries: LogEntry[]) =>
+    ({ history: { entries }, groups: [] }) as unknown as Actions;
+  const [a, b, c] = [
+    entry(1, 0, fetch),
+    entry(2, 1, fetch),
+    entry(3, 2, fetch),
+  ];
+
+  it('holds marks still as actions come after them, not as one drops', () => {
+    expect(still(actions(a, b), actions(a, b, c), 0)).toBe(true);
+    expect(still(actions(a, b), actions(a, b), 0)).toBe(true);
+    // the oldest dropped: every mark shifts
+    expect(still(actions(a, b), actions(b, c), 0)).toBe(false);
+    // one in between dropped: the later ones shift
+    expect(still(actions(a, b, c), actions(a, c), 0)).toBe(false);
+  });
+
+  it('holds them still only while the track fits its strip', () => {
+    // three marks 12px apart, padded: 72px
+    expect(still(actions(a, b), actions(a, b, c), 72)).toBe(true);
+    expect(still(actions(a, b), actions(a, b, c), 71)).toBe(false);
+  });
+
+  it('holds them still as a fetch joins one in flight, adding no mark', () => {
+    const joined = {
+      ...actions(a, b, c),
+      groups: [{ kind: 'request', entries: [a, c] }],
+    } as unknown as Actions;
+    expect(still(actions(a, b), joined, 50)).toBe(true);
+  });
+});
 
 describe('timeScale', () => {
   it('spreads bursts apart and shortens idle stretches', () => {
@@ -686,6 +735,189 @@ describe('Store timeline preview', () => {
     expect(preview()).toBeNull();
     fireEvent.click(marks[0]);
     expect(scrubber().textContent).toContain('After');
+  });
+});
+
+describe('Store timeline hold', () => {
+  afterEach(() => {
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+  const marksOn = (track: Element) =>
+    track.querySelectorAll('[data-id]').length;
+  /** Whether `region` (the scrubber, or the lanes) says a change waits */
+  const held = (region: HTMLElement = scrubber()) =>
+    region.hasAttribute('aria-description');
+  /** The scrubber's "Live", span or button */
+  const liveChip = () => within(scrubber()).getByText('Live');
+  /** Sets a post, which the scrubber marks */
+  const set = (ctrl: () => Controller, title: string) =>
+    act(async () => {
+      void ctrl().set(Post, { id: '1' }, { id: '1', title });
+      await jest.advanceTimersByTimeAsync(10);
+    });
+  /** Two responses on a scrubber `strip` px wide, the mouse on its track */
+  async function twoResponses(strip: number) {
+    const { ctrl } = mountAt(strip);
+    await act(() => ctrl().fetch(getPosts));
+    await act(() => ctrl().fetch(getPosts));
+    const track = scrubber().querySelector<HTMLElement>(
+      '[style*="--tl-width"]',
+    )!;
+    jest.useFakeTimers();
+    return { ctrl, track };
+  }
+
+  async function hovered(strip: number) {
+    const { ctrl, track } = await twoResponses(strip);
+    pointer(track, 'pointerenter', 10);
+    pointer(track, 'pointermove', 10);
+    return { ctrl, track };
+  }
+
+  /** A track 90px wide, held as a change comes, let go of and a frame
+   * into catching up to the newest at 400px */
+  async function catchingUp() {
+    // shown with a height from the start, as a browser lays it out
+    const height = jest
+      .spyOn(HTMLElement.prototype, 'clientHeight', 'get')
+      .mockReturnValue(18);
+    const { ctrl } = mountAt(90);
+    height.mockRestore();
+    const track = scrubber().querySelector<HTMLElement>(
+      '[style*="--tl-width"]',
+    )!;
+    let width = 100;
+    Object.defineProperty(track, 'clientHeight', { value: 18 });
+    Object.defineProperty(track, 'clientWidth', { value: 90 });
+    Object.defineProperty(track, 'scrollWidth', { get: () => width });
+    await act(() => ctrl().fetch(getPosts));
+    await act(() => ctrl().fetch(getPosts));
+    jest.useFakeTimers();
+    pointer(track, 'pointerenter', 10);
+    await set(ctrl, 'Three');
+    width = 400;
+    pointer(track, 'pointerleave', 0);
+    act(() => jest.advanceTimersByTime(16));
+    return { ctrl, track, setWidth: (to: number) => (width = to) };
+  }
+
+  it('holds the marks still under the mouse once a change would push them, saying so, and catches up as it leaves', async () => {
+    // four marks 12px apart, padded, fit 84px: a fifth would overflow it,
+    // scrolling the newest into view
+    const { ctrl, track } = await hovered(90);
+    expect(marksOn(track)).toBe(4);
+    await set(ctrl, 'Three');
+    // the store has it; the track waits: its row says so, and "Live" is no
+    // longer current
+    expect(screen.getAllByText('"Three"').length).toBeGreaterThan(0);
+    expect(marksOn(track)).toBe(4);
+    expect(held()).toBe(true);
+    const row = scrubber().firstElementChild!;
+    expect(row.hasAttribute('data-held')).toBe(true);
+    expect(liveChip().getAttribute('aria-current')).toBeNull();
+    expect(liveChip().title).toContain('Paused');
+    await set(ctrl, 'Four');
+    expect(marksOn(track)).toBe(4);
+    // off: the change shows, and the marks move there rather than jump
+    pointer(track, 'pointerleave', 0);
+    expect(marksOn(track)).toBe(6);
+    expect(held()).toBe(false);
+    expect(row.hasAttribute('data-held')).toBe(false);
+    expect(liveChip().getAttribute('aria-current')).toBe('true');
+    expect(track.hasAttribute('data-catchup')).toBe(true);
+    act(() => jest.advanceTimersByTime(1000));
+    expect(track.hasAttribute('data-catchup')).toBe(false);
+    // back on with nothing new waiting, it says nothing
+    pointer(track, 'pointerenter', 10);
+    expect(held()).toBe(false);
+  });
+
+  it('shows a change that leaves the marks where they are at once', async () => {
+    const { ctrl, track } = await hovered(200);
+    await set(ctrl, 'Three');
+    expect(marksOn(track)).toBe(5);
+    expect(held()).toBe(false);
+    pointer(track, 'pointerleave', 0);
+    expect(track.hasAttribute('data-catchup')).toBe(false);
+  });
+
+  it('holds as a finger holds, until it lifts', async () => {
+    const { ctrl, track } = await twoResponses(90);
+    // a tap holds nothing
+    pointer(track, 'pointerdown', 10, 'touch');
+    pointer(track, 'pointerup', 10, 'touch');
+    await set(ctrl, 'Three');
+    expect(marksOn(track)).toBe(5);
+    expect(held()).toBe(false);
+    // held, it holds, as a hover would
+    pointer(track, 'pointerdown', 10, 'touch');
+    act(() => jest.advanceTimersByTime(350));
+    await set(ctrl, 'Four');
+    expect(marksOn(track)).toBe(5);
+    expect(held()).toBe(true);
+    expect(liveChip().getAttribute('aria-current')).toBeNull();
+    pointer(track, 'pointerup', 10, 'touch');
+    expect(marksOn(track)).toBe(6);
+    expect(held()).toBe(false);
+    expect(liveChip().getAttribute('aria-current')).toBe('true');
+  });
+
+  it('keeps following the newest as an action comes mid catch-up', async () => {
+    const { ctrl, track, setWidth } = await catchingUp();
+    // off: it springs along to the newest, far past the slack
+    expect(track.scrollLeft).toBeLessThan(400 - 90 - FOLLOW_SLACK);
+    fireEvent.scroll(track);
+    // still following: the catch-up springs on to the newest
+    setWidth(500);
+    await set(ctrl, 'Four');
+    act(() => jest.advanceTimersByTime(1000));
+    expect(track.scrollLeft).toBe(500 - 90);
+  });
+
+  it('goes to the newest on End mid catch-up', async () => {
+    const { track, setWidth } = await catchingUp();
+    // End lands at once, and the catch-up doesn't pull it back
+    setWidth(600);
+    fireEvent.keyDown(scrubber(), { key: 'End' });
+    act(() => jest.advanceTimersByTime(1000));
+    expect(track.scrollLeft).toBe(600);
+  });
+
+  it('lets the reader scroll back mid catch-up', async () => {
+    const { track } = await catchingUp();
+    // a swipe back takes over: the catch-up stops where the reader left it
+    fireEvent.wheel(track, { deltaX: -50 });
+    track.scrollLeft = 40;
+    act(() => jest.advanceTimersByTime(1000));
+    expect(track.scrollLeft).toBe(40);
+  });
+
+  it('holds the lanes as the mouse rests on them', async () => {
+    // the lanes measure their strip as they open
+    const off = observeAt(90);
+    try {
+      const { ctrl } = mount();
+      await act(() => ctrl().fetch(getPosts));
+      await act(() => ctrl().fetch(getPosts));
+      toggle();
+      const strip = tracks(lanes());
+      jest.useFakeTimers();
+      pointer(strip, 'pointerenter', 10);
+      await set(ctrl, 'Three');
+      expect(marksOn(strip)).toBe(4);
+      expect(held(lanes())).toBe(true);
+      expect(strip.hasAttribute('data-held')).toBe(true);
+      // the scrubber, which the mouse is not on, shows it
+      expect(marksOn(scrubber())).toBe(5);
+      expect(held()).toBe(false);
+      pointer(strip, 'pointerleave', 0);
+      expect(marksOn(strip)).toBe(5);
+      expect(held(lanes())).toBe(false);
+      expect(strip.hasAttribute('data-held')).toBe(false);
+    } finally {
+      off();
+    }
   });
 });
 
