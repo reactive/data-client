@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791842592806,
+  "lastUpdate": 1791930878202,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark": [
@@ -130153,6 +130153,324 @@ window.BENCHMARK_DATA = {
             "range": "±0.25%",
             "unit": "ops/sec",
             "extra": "95 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b4899d05731ad672cf17432ba603008a8c888169",
+          "message": "pkg: Update build packages (major) (#4209)\n\n* pkg: Update build packages\n\n* pkg: Adapt build to Babel 8, webpack-dev-server 6, linaria 8\n\n- CI: run node_matrix on Node 22.18/24.11 (Babel 8 engines); limit full-app\n  tsc to TS 5.3 since linaria 8 types need TS 5.0+\n- babel-node 8 passes flags after the script to the script; move them first\n- Published packages accept @babel/runtime ^7.20.0 || ^8.0.0 so Babel 7 apps\n  keep deduping (output only uses helpers present in both)\n- declare fields assigned in constructors so Babel 8 doesn't emit\n  `this.x = void 0`\n- Example apps: engines node >=22.18.0; drop unused @linaria/shaker\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NkGRqFawhBWCcgbgXZLtg4\n\n* internal: Tidy Babel 8 CI follow-ups\n\n- Gate the full-app tsc on TS >= 5.0 (matching the linaria reason) instead of\n  the single 5.3 matrix entry\n- Drop the stale legacy-node npm comment in node_matrix\n- normalizr-redux engines match its Babel 8 babel-node script\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NkGRqFawhBWCcgbgXZLtg4\n\n* internal: Example engines match Babel 8's Node range\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NkGRqFawhBWCcgbgXZLtg4\n\n* internal: Next.js example engines match Babel 8's Node range\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NkGRqFawhBWCcgbgXZLtg4\n\n* internal: Restore libc fields in example lockfiles\n\nRegenerated with npm 11 so platform libc metadata stays intact.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NkGRqFawhBWCcgbgXZLtg4\n\n* internal: One Node floor for the Babel 8 toolchain; drop @types/babel__core\n\nRoot and remaining Babel 8 examples declare ^22.18.0 || >=24.11.0, and\n@types/babel__core goes since Babel 8 ships its own types.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NkGRqFawhBWCcgbgXZLtg4\n\n* internal: Point initialize skill at the root Node engines\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NkGRqFawhBWCcgbgXZLtg4\n\n---------\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-13T22:26:31Z",
+          "tree_id": "bba7ca5fe36c14e2c9c55d8855dbda46df2391ea",
+          "url": "https://github.com/reactive/data-client/commit/b4899d05731ad672cf17432ba603008a8c888169"
+        },
+        "date": 1791930875679,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "normalizeLong",
+            "value": 759,
+            "range": "±3.66%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "normalizeLong Values",
+            "value": 622,
+            "range": "±3.15%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "normalizeLong Scalar",
+            "value": 560,
+            "range": "±3.12%",
+            "unit": "ops/sec",
+            "extra": "90 samples"
+          },
+          {
+            "name": "normalizeLong Scalar update",
+            "value": 1600,
+            "range": "±1.52%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalizeLong",
+            "value": 373,
+            "range": "±6.08%",
+            "unit": "ops/sec",
+            "extra": "84 samples"
+          },
+          {
+            "name": "denormalizeLong Values",
+            "value": 346,
+            "range": "±4.21%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "denormalizeLong donotcache",
+            "value": 1803,
+            "range": "±1.25%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Values donotcache",
+            "value": 1301,
+            "range": "±0.41%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar donotcache",
+            "value": 1988,
+            "range": "±1.74%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeShort donotcache 500x",
+            "value": 2205,
+            "range": "±3.33%",
+            "unit": "ops/sec",
+            "extra": "88 samples"
+          },
+          {
+            "name": "denormalizeShort 500x",
+            "value": 931,
+            "range": "±6.98%",
+            "unit": "ops/sec",
+            "extra": "76 samples"
+          },
+          {
+            "name": "denormalizeShort 500x withCache",
+            "value": 8893,
+            "range": "±1.77%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "queryShort 500x withCache",
+            "value": 5593,
+            "range": "±0.34%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "buildQueryKey All",
+            "value": 91498,
+            "range": "±0.43%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "query All withCache",
+            "value": 10228,
+            "range": "±5.29%",
+            "unit": "ops/sec",
+            "extra": "78 samples"
+          },
+          {
+            "name": "denormalizeLong with mixin Entity",
+            "value": 349,
+            "range": "±6.93%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
+          },
+          {
+            "name": "denormalizeLong withCache",
+            "value": 13463,
+            "range": "±0.77%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "denormalizeLong withCache (Scalar churn)",
+            "value": 13337,
+            "range": "±1.51%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
+          },
+          {
+            "name": "denormalizeLong Values withCache",
+            "value": 9356,
+            "range": "±2.84%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar withCache",
+            "value": 13533,
+            "range": "±1.16%",
+            "unit": "ops/sec",
+            "extra": "93 samples"
+          },
+          {
+            "name": "denormalizeLong Scalar update withCache",
+            "value": 7465,
+            "range": "±0.40%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "denormalizeLong All withCache",
+            "value": 12616,
+            "range": "±0.46%",
+            "unit": "ops/sec",
+            "extra": "96 samples"
+          },
+          {
+            "name": "denormalizeLong Query-sorted withCache",
+            "value": 9830,
+            "range": "±7.94%",
+            "unit": "ops/sec",
+            "extra": "67 samples"
+          },
+          {
+            "name": "denormalizeLongAndShort withEntityCacheOnly",
+            "value": 2905,
+            "range": "±1.57%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50",
+            "value": 7162,
+            "range": "±8.32%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
+          },
+          {
+            "name": "denormalize bidirectional 50 donotcache",
+            "value": 71867,
+            "range": "±0.96%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "getResponse",
+            "value": 7007,
+            "range": "±5.13%",
+            "unit": "ops/sec",
+            "extra": "71 samples"
+          },
+          {
+            "name": "getResponse (null)",
+            "value": 19536276,
+            "range": "±0.64%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "getResponse (clear cache)",
+            "value": 311,
+            "range": "±7.07%",
+            "unit": "ops/sec",
+            "extra": "79 samples"
+          },
+          {
+            "name": "getSmallResponse",
+            "value": 6254,
+            "range": "±1.25%",
+            "unit": "ops/sec",
+            "extra": "91 samples"
+          },
+          {
+            "name": "getSmallInferredResponse",
+            "value": 4713,
+            "range": "±0.23%",
+            "unit": "ops/sec",
+            "extra": "99 samples"
+          },
+          {
+            "name": "getResponse Collection",
+            "value": 7412,
+            "range": "±4.20%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
+          },
+          {
+            "name": "get Collection",
+            "value": 5110,
+            "range": "±0.89%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "get Query-sorted",
+            "value": 8058,
+            "range": "±5.27%",
+            "unit": "ops/sec",
+            "extra": "77 samples"
+          },
+          {
+            "name": "setLong",
+            "value": 750,
+            "range": "±1.84%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "setLongWithMerge",
+            "value": 420,
+            "range": "±1.33%",
+            "unit": "ops/sec",
+            "extra": "94 samples"
+          },
+          {
+            "name": "setLongWithSimpleMerge",
+            "value": 443,
+            "range": "±1.02%",
+            "unit": "ops/sec",
+            "extra": "92 samples"
+          },
+          {
+            "name": "setSmallResponse 500x",
+            "value": 1562,
+            "range": "±1.73%",
+            "unit": "ops/sec",
+            "extra": "97 samples"
+          },
+          {
+            "name": "setMany 50x one-per-row",
+            "value": 212,
+            "range": "±0.63%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          },
+          {
+            "name": "setMany 50 batch",
+            "value": 5885,
+            "range": "±1.69%",
+            "unit": "ops/sec",
+            "extra": "95 samples"
+          },
+          {
+            "name": "setMany 500x one-per-row",
+            "value": 21.4,
+            "range": "±0.98%",
+            "unit": "ops/sec",
+            "extra": "40 samples"
+          },
+          {
+            "name": "setMany 500 batch",
+            "value": 2652,
+            "range": "±1.19%",
+            "unit": "ops/sec",
+            "extra": "98 samples"
           }
         ]
       }
