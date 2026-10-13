@@ -110,13 +110,6 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .binding,
-  .diagram .flash {
-    animation: none;
-  }
-}
-
 .store {
   fill: var(--ifm-background-surface-color);
   stroke: var(--ifm-color-primary);
@@ -139,22 +132,20 @@
 }
 
 .plain rect,
-.bound rect {
+.bound rect,
+.rest {
   rx: 7px;
   stroke-width: 1.5;
 }
-.plain rect {
+.plain rect,
+.rest {
   fill: var(--ifm-background-surface-color);
   stroke: var(--line);
 }
 .plain text {
   fill: var(--ifm-color-emphasis-600);
-  font-size: 10.5px;
 }
 .rest {
-  fill: var(--ifm-background-surface-color);
-  stroke: var(--line);
-  stroke-width: 1.5;
   rx: 4px;
 }
 .bound rect {
@@ -186,6 +177,7 @@
 .off {
   opacity: 0.2;
 }
+/* animations beat plain opacity, so the send pulse gives way to these */
 .binding.on {
   stroke-width: 3;
   opacity: 1;
@@ -193,4 +185,12 @@
 }
 .binding.off {
   animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .binding,
+  .binding.on,
+  .diagram .flash {
+    animation: none;
+  }
 }
