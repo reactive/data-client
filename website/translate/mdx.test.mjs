@@ -10,7 +10,11 @@ import {
 } from './mdx.mjs';
 
 const require = createRequire(import.meta.url);
-const { relativeImports } = require('./localeDocs.js');
+const {
+  relativeImports,
+  translatedSource,
+  translationOf,
+} = require('./localeDocs.js');
 const remarkJoinCjkLines = require('./remarkJoinCjkLines.js');
 
 const FILE = '/docs/core/page.md';
@@ -193,6 +197,41 @@ describe('pinHeadingIds', () => {
       TranslationError,
     );
   });
+});
+
+describe('caption', () => {
+  const diff = caption =>
+    `<DiffEditor caption="${caption}">\n\nx\n\n</DiffEditor>\n`;
+  it('is translatable prose', () => {
+    assert.deepEqual(
+      structureProblems(
+        diff('Update these schemas by hand.'),
+        diff('Actualiza estos schemas a mano.'),
+        FILE,
+      ),
+      [],
+    );
+  });
+});
+
+describe('translationOf', () => {
+  for (const [source, translation] of [
+    [
+      'docs/core/api/useSuspense.md',
+      'website/i18n/es/docs/core/api/useSuspense.md',
+    ],
+    [
+      'website/blog/2024-01-15-v0.9.md',
+      'website/i18n/es/blog/2024-01-15-v0.9.md',
+    ],
+  ])
+    it(`commits ${source} at ${translation}, and back`, () => {
+      assert.equal(translationOf(source, 'es'), translation);
+      assert.equal(
+        translatedSource(translation.slice('website/i18n/es/'.length)),
+        source,
+      );
+    });
 });
 
 describe('relativeImports', () => {
