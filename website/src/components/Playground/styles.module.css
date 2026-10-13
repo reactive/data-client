@@ -640,13 +640,14 @@ div.playgroundTextEdit > .playgroundHeader,
    holding a chip pinned 0.25rem inside the frame's top-right corner (demos
    start top-left; the top right is usually empty). The chip is the Back
    button, quiet until hovered or keyboard-focused; the path is a pill that
-   fades in beside it then (and keeps the hover while the pointer crosses onto it).
+   fades in beside it then (and keeps the hover while the pointer crosses
+   onto it).
    Only the chip and the shown path take clicks; the rest passes through to
    the demo. At the root (data-root) Back is disabled and the chip fades to a
    hint. Touch has no hover, so there the path only shows for a moment
    after each navigation, since a pinned pill would cover the demo's first
-   line on a phone (the path stays in the tree for assistive tech). The skin is the demo controls' own
-   (surface fill, emphasis-400 edge). */
+   line on a phone (the path stays in the tree for assistive tech). The skin
+   is the demo controls' own (surface fill, emphasis-400 edge). */
 .addressBar {
   --pg-chip-size: 1.75rem;
   --pg-chip-inset: 0.25rem;
@@ -723,8 +724,9 @@ div.playgroundTextEdit > .playgroundHeader,
     opacity var(--motion-snappy),
     transform var(--motion-snappy);
 }
-/* Mouse hover or keyboard focus only: on touch, a tapped button keeps both
-   :hover and focus, which would pin the path over the demo */
+/* The path shows for mouse hover or keyboard focus, never for a tap: a tapped
+   button keeps focus (so :focus-visible, not :focus-within) and :hover (so
+   the hover reveal is gated to devices that hover) */
 .addressBar:has(:focus-visible) .addressPath {
   opacity: 1;
   transform: none;
