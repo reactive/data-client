@@ -56,7 +56,7 @@ export class Post extends Entity {
   };
 
   get img() {
-    return `https://loremflickr.com/400/200/kitten,cat?lock=${this.id % 16}`;
+    return `https://picsum.photos/seed/${this.id % 16}/400/200`;
   }
 }
 
