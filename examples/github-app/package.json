@@ -19,7 +19,7 @@
     "startCommand": "npm start"
   },
   "engines": {
-    "node": ">=22.18.0"
+    "node": "^22.18.0 || >=24.11.0"
   },
   "browserslist": "extends @anansi/browserslist-config",
   "keywords": [
