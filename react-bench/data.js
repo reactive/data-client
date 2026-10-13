@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791930796645,
+  "lastUpdate": 1791935956355,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -8873,6 +8873,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 161.29,
             "range": "± 9.5%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d86525996f318ed5a4c80125e012d23b4426bfe8",
+          "message": "pkg: Update all non-major dependencies (#4208)\n\n* pkg: Update all non-major dependencies\n\n* fix(react): Support React Native 0.87\n\nReact Native 0.87 removed InteractionManager, which the native useSuspense,\nuseFetch, useDLE, GCPolicy and IdlingNetworkManager used. Use\nrequestIdleCallback, which React Native always installs; the native GCPolicy\nand IdlingNetworkManager overrides are now redundant with the web ones.\n\nMap react-native/setup-env for jest (only exposed via package exports in\n0.87) and polyfill requestIdleCallback in the native jest environment.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_0168AAhQCiVrG1C6JWvjQZUY\n\n* docs: Describe React Native idle scheduling accurately after InteractionManager removal\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_0168AAhQCiVrG1C6JWvjQZUY\n\n* Revert \"docs: Describe React Native idle scheduling accurately after InteractionManager removal\"\n\nThis reverts commit 8b17a404dfb3ebaa3f2464fc24dfbe505c7c9db2.\n\n* Revert \"fix(react): Support React Native 0.87\"\n\nThis reverts commit 5122327368d288988b81ace07e71820a33c8f5e2.\n\n* pkg: Keep react-native at 0.86.2\n\nThe React Native 0.87 update needs code changes, so it moves to its own PR.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_0168AAhQCiVrG1C6JWvjQZUY\n\n---------\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-13T23:52:53Z",
+          "tree_id": "02fbc0567076dab3db3941ee71cbd887f3c93807",
+          "url": "https://github.com/reactive/data-client/commit/d86525996f318ed5a4c80125e012d23b4426bfe8"
+        },
+        "date": 1791935953684,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 173.93,
+            "range": "± 4.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 49.63,
+            "range": "± 6.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 370.37,
+            "range": "± 8.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 357.14,
+            "range": "± 7.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 53.76,
+            "range": "± 8.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 317.54,
+            "range": "± 6.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 333.33,
+            "range": "± 5.6%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 13.23,
+            "range": "± 8.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 90.09,
+            "range": "± 14.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 43.86,
+            "range": "± 6.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 224.75,
+            "range": "± 6.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 322.58,
+            "range": "± 4.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 181.82,
+            "range": "± 6.7%",
             "unit": "ops/s"
           }
         ]
