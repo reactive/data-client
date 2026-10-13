@@ -611,6 +611,7 @@ div.playgroundTextEdit > .playgroundHeader,
 .playgroundPreview fieldset:disabled * {
   cursor: progress;
 }
+/* Infima fades disabled buttons; the busy Save button stays solid */
 .playgroundPreview fieldset:disabled :global(.button) {
   opacity: 1;
 }
