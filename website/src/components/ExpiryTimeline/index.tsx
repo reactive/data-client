@@ -29,6 +29,7 @@ const BRACKET_Y = 15;
 const SWITCH = { x: 166, y: 1, w: 16, h: 9 };
 /** The bottom of the annotation row, in SVG units: the HTML controls cover it */
 const ANNOTATION_BOTTOM = 20;
+/** The controls' height, as a CSS percentage of the stage */
 const ANNOTATION_HEIGHT = `${((ANNOTATION_BOTTOM - TOP) / (HEIGHT - TOP)) * 100}%`;
 
 interface Playback {
@@ -59,7 +60,8 @@ export default function ExpiryTimeline({
   });
   const svgRef = useRef<SVGSVGElement>(null);
 
-  // browsers already deliver pointermove once per frame
+  // unthrottled: browsers mostly coalesce pointermove to one per frame, and
+  // React batches moves that land in one task, so a fast drag stays cheap
   const scrub = (e: React.PointerEvent) => {
     const svg = svgRef.current;
     if (!svg) return;
