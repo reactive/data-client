@@ -81,6 +81,14 @@ export function createStage(
     point(el) {
       // root only bounds the walk: the scrollers inside it do the moving
       revealIn(root, el);
+      // and the page, if the demo moved it out of sight (the Store opens
+      // above the preview on a phone), clear of the sticky navbar
+      const { top, bottom } = el.getBoundingClientRect();
+      if (top < navbarHeight() || bottom > innerHeight)
+        el.scrollIntoView({
+          block: 'center',
+          behavior: prefersReducedMotion() ? 'instant' : 'smooth',
+        });
       pointedAt = el;
       place(el);
     },
@@ -122,6 +130,12 @@ export function createStage(
       input.dispatchEvent(new Event('input', { bubbles: true }));
     },
 
+    press(el, key) {
+      const init = { key, bubbles: true, cancelable: true, composed: true };
+      el.dispatchEvent(new KeyboardEvent('keydown', init));
+      el.dispatchEvent(new KeyboardEvent('keyup', init));
+    },
+
     store,
 
     end() {
@@ -154,6 +168,13 @@ function scopeOf(root: HTMLElement, scope: Scope) {
       return root.querySelector<HTMLElement>('.playground-preview');
   }
 }
+
+const navbarHeight = () =>
+  parseFloat(
+    getComputedStyle(document.documentElement).getPropertyValue(
+      '--ifm-navbar-height',
+    ),
+  ) || 0;
 
 // jsdom lacks checkVisibility
 const visible = (el: HTMLElement) => el.checkVisibility?.() ?? true;

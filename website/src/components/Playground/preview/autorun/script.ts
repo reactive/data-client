@@ -12,6 +12,8 @@ export type Step =
         | { click: Target }
         /** Appends `text` to an input, a character at a time */
         | { type: Target; text: string }
+        /** Presses `key` (a `KeyboardEvent.key`, e.g. `'Enter'`) on it */
+        | { press: Target; key: string }
         /** Opens or closes the Store, without changing the reader's own choice */
         | { store: 'open' | 'close' }
       ));

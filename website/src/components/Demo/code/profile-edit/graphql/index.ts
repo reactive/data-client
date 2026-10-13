@@ -2,7 +2,6 @@ import type { Interceptor } from '@data-client/test';
 
 import { PostResource, UserResource } from './resources';
 import { POSTS, USERS } from '../../../../../mocks/handlers';
-import autoRun from '../autoRun';
 
 import NewPost from '!!raw-loader!./NewPost.tsx';
 import PostContainer from '!!raw-loader!./PostContainer.tsx';
@@ -72,7 +71,6 @@ export default {
     },
   ],
   fixtures,
-  autoRun,
   getInitialInterceptorData: (): ProfileEditGraphQLState => ({
     posts: Object.fromEntries(POSTS.map(post => [post.id, post])),
     users: Object.fromEntries(USERS.map(user => [user.id, user])),

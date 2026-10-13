@@ -301,10 +301,12 @@ DesignSystem/       components injected into preview scope
     finds targets (CSS selector, `hasText`, or a `<label>`'s text, scoped to
     the preview, the Store (`[data-store-panel]`) or the whole playground),
     and acts with untrusted events: pointer/mouse events then `click()`, or
-    the native value setter plus `input` so React's `onChange` sees typing.
+    the native value setter plus `input` so React's `onChange` sees typing,
+    or `keydown`/`keyup` for a pressed key.
     It never calls `focus()`, which would take the page's focus from the
     reader. A pointer glides to each target (`--motion-smooth`), in a
-    layer appended to the playground.
+    layer appended to the playground; a target out of sight (the Store
+    opening above the preview on a phone) scrolls into view first.
     `useAutoRun.ts` connects them to React through the preview's ref (the
     playground is its `[data-playground]` ancestor); the player's state
     reaches React only in `DemoLabel`, so a run never re-renders the

@@ -1,7 +1,6 @@
 import type { Interceptor } from '@data-client/test';
 
 import { PostResource } from './resources';
-import autoRun from '../autoRun';
 
 import PostItem from '!!raw-loader!./PostItem.tsx';
 import PostList from '!!raw-loader!./PostList.tsx';
@@ -68,5 +67,4 @@ export default {
     },
   ],
   fixtures,
-  autoRun,
 };

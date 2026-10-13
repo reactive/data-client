@@ -22,6 +22,7 @@ function fakeStage(
     point: () => void calls.push('point'),
     click: () => void calls.push('click'),
     append: (_, text) => void calls.push(`append ${text}`),
+    press: (_, key) => void calls.push(`press ${key}`),
     store: open => void calls.push(`store ${open}`),
     end: () => void calls.push('end'),
   };
@@ -153,6 +154,11 @@ describe('stage', () => {
       button.addEventListener(type, () => seen.push(type));
     stage.click(button);
     expect(seen).toEqual(['pointerdown', 'mousedown', 'mouseup', 'click']);
+
+    const keys: string[] = [];
+    input.addEventListener('keydown', e => keys.push(e.key));
+    stage.press(input, 'Enter');
+    expect(keys).toEqual(['Enter']);
   });
 
   it('the pointer follows its target when the playground resizes', () => {

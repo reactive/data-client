@@ -8,6 +8,7 @@ export interface Stage {
   point(el: HTMLElement): void;
   click(el: HTMLElement): void;
   append(el: HTMLElement, text: string): void;
+  press(el: HTMLElement, key: string): void;
   store(open: boolean): void;
   /** The run is over: the pointer goes */
   end(): void;
@@ -93,10 +94,14 @@ async function perform(
     }
     throw new Error(`nothing matches ${JSON.stringify(target)}`);
   };
-  const target = 'click' in step ? step.click : step.type;
+  const target =
+    'click' in step ? step.click
+    : 'press' in step ? step.press
+    : step.type;
   stage.point(await find(target));
   await sleep(MOVE_MS);
   if ('click' in step) return stage.click(await find(target));
+  if ('press' in step) return stage.press(await find(target), step.key);
   for (const char of step.text) {
     stage.append(await find(target), char);
     await sleep(KEY_MS);
