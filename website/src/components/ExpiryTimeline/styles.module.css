@@ -199,7 +199,7 @@
     transform: translate(-50%, 0);
   }
 }
-/* after Escape, until the pointer leaves */
+/* after Escape (see Annotations); must follow the hover rule it overrides */
 .annotation.dismissed .tip {
   opacity: 0;
   pointer-events: none;

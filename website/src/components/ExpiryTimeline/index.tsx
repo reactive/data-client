@@ -306,11 +306,12 @@ function Annotations({
     document.addEventListener('pointerdown', close);
     return () => document.removeEventListener('pointerdown', close);
   }, [open]);
-  // Escape hides any tooltip, hovered ones too, until the pointer moves on
+  // Escape hides any tooltip, hovered ones too, until the pointer next enters
+  // or presses a label, or a label takes focus
   const [dismissed, setDismissed] = useState(false);
   useEffect(() => {
     const dismiss = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return;
+      if (e.key !== 'Escape' || e.defaultPrevented) return;
       setOpen(null);
       setDismissed(true);
       const active = document.activeElement as HTMLElement | null;
@@ -392,7 +393,8 @@ function Annotations({
           open === i && styles.open,
           dismissed && styles.dismissed,
         )}
-        onPointerLeave={() => setDismissed(false)}
+        onPointerEnter={() => setDismissed(false)}
+        onPointerDown={() => setDismissed(false)}
         style={{
           left: `${((X0 + BAND * i) / WIDTH) * 100}%`,
           width: `${(BAND / WIDTH) * 100}%`,
