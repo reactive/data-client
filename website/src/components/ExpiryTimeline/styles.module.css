@@ -1,4 +1,4 @@
-/* the diagram, the annotations laid over it and the columns under its bands */
+/* the diagram, the annotations laid over it and a column per band below it */
 .frame {
   --line: var(--ifm-color-emphasis-300);
   --fresh: hsl(150, 55%, 34%);

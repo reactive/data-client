@@ -27,8 +27,8 @@ const LABEL_Y = 9;
 const BRACKET_Y = 15;
 // the invalidIfStale switch, drawn before its label
 const SWITCH = { x: 166, y: 1, w: 16, h: 9 };
-/** The HTML annotations laid over the SVG labels, as boxes in its units */
-const ANNOTATION_BOX = { y: TOP, h: 20 - TOP };
+/** The bottom of the annotation row, in SVG units: the HTML controls cover it */
+const ANNOTATION_BOTTOM = 20;
 
 interface Playback {
   zone: number;
@@ -42,7 +42,7 @@ interface Playback {
 
 /**
  * The expiry timeline, with the page's Fresh / Stale / Invalid sections laid
- * out under their bands: `children` is split into a column at each heading.
+ * out below it in band order: `children` is split into a column at each heading.
  */
 export default function ExpiryTimeline({
   children,
@@ -170,13 +170,7 @@ export default function ExpiryTimeline({
             </text>
           </g>
           {/* invalidIfStale spans Stale, which it turns Invalid */}
-          <g
-            className={clsx(
-              styles.option,
-              styles.toggle,
-              invalidIfStale && styles.on,
-            )}
-          >
+          <g className={clsx(styles.option, invalidIfStale && styles.on)}>
             <path d={bracket(X0 + BAND, X0 + BAND * 2)} />
             <rect
               className={styles.switch}
@@ -383,8 +377,9 @@ function Annotations({
       },
       onFocus: () => setDismissed(false),
     };
-    const tapped = () => {
-      const touch = pointerType.current === 'touch';
+    // keyboard activation (detail 0) is never a tap, whatever came before
+    const tapped = (e: React.MouseEvent) => {
+      const touch = e.detail > 0 && pointerType.current === 'touch';
       pointerType.current = null;
       return touch;
     };
@@ -401,20 +396,20 @@ function Annotations({
         style={{
           left: `${((X0 + BAND * i) / WIDTH) * 100}%`,
           width: `${(BAND / WIDTH) * 100}%`,
-          top: `${((ANNOTATION_BOX.y - TOP) / (HEIGHT - TOP)) * 100}%`,
-          height: `${(ANNOTATION_BOX.h / (HEIGHT - TOP)) * 100}%`,
+          top: 0,
+          height: `${((ANNOTATION_BOTTOM - TOP) / (HEIGHT - TOP)) * 100}%`,
         }}
       >
-        {i === 1 ?
+        {name === 'invalidIfStale' ?
           <button
             type="button"
             role="switch"
             aria-checked={invalidIfStale}
             {...control}
-            onClick={() => {
+            onClick={e => {
               onToggle();
               // a finger can't hover, so a tap also shows the explanation
-              setOpen(tapped() ? i : null);
+              setOpen(tapped(e) ? i : null);
             }}
           />
         : <a
@@ -423,14 +418,14 @@ function Annotations({
             onClick={e => {
               // a first tap explains; the link in the tooltip, or a second
               // tap, follows through
-              if (tapped() && open !== i) {
+              if (tapped(e) && open !== i) {
                 e.preventDefault();
                 setOpen(i);
               } else setOpen(null);
             }}
           />
         }
-        <span className={styles.tip} role="tooltip" id={tipId}>
+        <span className={styles.tip} id={tipId}>
           <span className={styles.bubble}>
             {tip} <a href={href}>{learnMore}</a>
           </span>
