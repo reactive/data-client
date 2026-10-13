@@ -1,10 +1,10 @@
 .diagram {
   --line: var(--ifm-color-emphasis-300);
-  --user: hsl(262, 52%, 52%);
+  --user: hsl(262, 52%, 48%);
   --user-tint: hsl(262, 80%, 96%);
-  --post: var(--ifm-color-primary-dark);
+  --post: hsl(206, 69%, 40%);
   --post-tint: hsl(206, 80%, 95%);
-  --comment: hsl(165, 65%, 32%);
+  --comment: hsl(165, 70%, 26%);
   --comment-tint: hsl(165, 60%, 93%);
   --on-chip: #fff;
   float: right;
