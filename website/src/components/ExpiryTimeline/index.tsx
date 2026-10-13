@@ -70,9 +70,11 @@ export default function ExpiryTimeline({
     if (!frame.current) frame.current = requestAnimationFrame(seek);
   };
   const resume = () => {
-    // a seek still queued for this frame would pause it again
-    cancelAnimationFrame(frame.current);
-    frame.current = 0;
+    // apply a seek still queued for this frame now, so it can't pause again
+    if (frame.current) {
+      cancelAnimationFrame(frame.current);
+      seek();
+    }
     setPlay(p => ({ ...p, paused: false }));
   };
   const advance = () =>

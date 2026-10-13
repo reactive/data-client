@@ -490,10 +490,9 @@
   color: var(--c);
   transition: color var(--motion-snappy);
 }
-/* with invalidIfStale there is no Stale: grey out its marker, keep its text
-   readable */
+/* with invalidIfStale there is no Stale: grey out its heading and marker */
 .invalidIfStale .column.band1 {
-  --c: var(--ifm-color-emphasis-600);
+  --c: var(--ifm-color-emphasis-700);
 }
 .column > :last-child {
   margin-bottom: 0;
