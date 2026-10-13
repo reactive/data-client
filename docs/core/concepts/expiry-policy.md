@@ -30,6 +30,14 @@ Data in this state is considered new enough that it doesn't need to fetch.
 
 Data is still allowed to be shown, however Reactive Data Client might attempt to revalidate by fetching again.
 
+### Invalid
+
+Data should not be shown. Any components needing this data will trigger fetch:react[ and suspense]:vue[
+([mounted components keep their data](#invalidate) until it resolves)]. If no components care about this
+data no action will be taken.
+
+</ExpiryTimeline>
+
 [useSuspense()](../api/useSuspense.md) considers fetching on mount as well as when its parameters change.
 In these cases it will fetch if the data is considered stale.
 
@@ -42,14 +50,6 @@ When using React Navigation, [focus events](https://reactnavigation.org/docs/use
 :::
 
 ::::
-
-### Invalid
-
-Data should not be shown. Any components needing this data will trigger fetch:react[ and suspense]:vue[
-([mounted components keep their data](#invalidate) until it resolves)]. If no components care about this
-data no action will be taken.
-
-</ExpiryTimeline>
 
 ## Expiry Time
 

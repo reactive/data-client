@@ -30,6 +30,14 @@ Dados nesse estado são considerados novos o suficiente para que não precisem d
 
 Os dados ainda podem ser exibidos, porém o Reactive Data Client pode tentar revalidá-los fazendo fetch novamente.
 
+### Invalid {#invalid}
+
+Os dados não devem ser exibidos. Qualquer componente que precise desses dados disparará o fetch:react[ e o suspense]:vue[
+([componentes montados mantêm seus dados](#invalidate) até que ele seja resolvido)]. Se nenhum componente se importar com esses
+dados, nenhuma ação será tomada.
+
+</ExpiryTimeline>
+
 [useSuspense()](../api/useSuspense.md) considera fazer fetch na montagem, bem como quando seus parâmetros mudam.
 Nesses casos, ele fará o fetch se os dados forem considerados desatualizados.
 
@@ -42,14 +50,6 @@ Ao usar o React Navigation, [eventos de foco](https://reactnavigation.org/docs/u
 :::
 
 ::::
-
-### Invalid {#invalid}
-
-Os dados não devem ser exibidos. Qualquer componente que precise desses dados disparará o fetch:react[ e o suspense]:vue[
-([componentes montados mantêm seus dados](#invalidate) até que ele seja resolvido)]. Se nenhum componente se importar com esses
-dados, nenhuma ação será tomada.
-
-</ExpiryTimeline>
 
 ## Tempo de expiração {#expiry-time}
 

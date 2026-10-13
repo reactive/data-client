@@ -30,6 +30,14 @@ Los datos en este estado se consideran lo bastante recientes como para no necesi
 
 Los datos todavía se pueden mostrar, pero Reactive Data Client podría intentar revalidarlos haciendo un nuevo fetch.
 
+### Invalid {#invalid}
+
+Los datos no deben mostrarse. Cualquier componente que necesite estos datos desencadenará un fetch:react[ y suspense]:vue[
+([los componentes montados conservan sus datos](#invalidate) hasta que se resuelva)]. Si ningún componente necesita estos
+datos, no se realizará ninguna acción.
+
+</ExpiryTimeline>
+
 [useSuspense()](../api/useSuspense.md) considera hacer fetch al montarse y también cuando cambian sus parámetros.
 En estos casos hará fetch si los datos se consideran obsoletos.
 
@@ -42,14 +50,6 @@ Al usar React Navigation, los [eventos de foco](https://reactnavigation.org/docs
 :::
 
 ::::
-
-### Invalid {#invalid}
-
-Los datos no deben mostrarse. Cualquier componente que necesite estos datos desencadenará un fetch:react[ y suspense]:vue[
-([los componentes montados conservan sus datos](#invalidate) hasta que se resuelva)]. Si ningún componente necesita estos
-datos, no se realizará ninguna acción.
-
-</ExpiryTimeline>
 
 ## Tiempo de caducidad {#expiry-time}
 
