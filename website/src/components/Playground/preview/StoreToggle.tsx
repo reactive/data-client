@@ -41,7 +41,12 @@ export function StoreToggle({
 }) {
   const ref = useLayoutMotion();
   return (
-    <div className={styles.debugToggle} onClick={onClick} ref={ref}>
+    <div
+      className={styles.debugToggle}
+      onClick={onClick}
+      ref={ref}
+      data-store-toggle
+    >
       <Translate id="playground.store">Store</Translate>
       <span
         className={clsx(

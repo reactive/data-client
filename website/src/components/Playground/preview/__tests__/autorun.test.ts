@@ -22,7 +22,7 @@ function fakeStage(
   const calls: string[] = [];
   const stage: Stage = {
     find: target => (target === STORE_TOGGLE ? toggle : found),
-    point: () => void calls.push('point'),
+    point: el => void calls.push(el === toggle ? 'point toggle' : 'point'),
     click: () => void calls.push('click'),
     append: (_, text) => void calls.push(`append ${text}`),
     store: open => void calls.push(`store ${open}`),
@@ -91,9 +91,9 @@ it('glides onto the Store toggle before opening the Store', async () => {
   const { stage, calls } = fakeStage(null, document.createElement('button'));
   player.play([{ delay: 0, store: 'open' }], stage);
   await jest.advanceTimersByTimeAsync(0);
-  expect(calls).toEqual(['point']);
+  expect(calls).toEqual(['point toggle']);
   await jest.advanceTimersByTimeAsync(MOVE_MS);
-  expect(calls).toEqual(['point', 'store true', 'end']);
+  expect(calls).toEqual(['point toggle', 'store true', 'end']);
 });
 
 it('a wait holds for its own time only', async () => {

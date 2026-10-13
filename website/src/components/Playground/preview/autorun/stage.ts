@@ -12,7 +12,7 @@ import { revealIn } from '../store/dom';
  */
 export function createStage(
   root: HTMLElement,
-  store: (open: boolean) => void,
+  showStore: (open: boolean) => void,
 ): Stage {
   const layer = document.createElement('div');
   layer.className = styles.layer;
@@ -128,9 +128,10 @@ export function createStage(
     },
 
     store(open) {
-      // the Store's own switch, so the reader's choice stays theirs
-      ring();
-      store(open);
+      // a press only where the pointer is on the toggle; the Store's own
+      // switch either way, so the reader's choice stays theirs
+      if (pointedAt?.matches('[data-store-toggle]')) ring();
+      showStore(open);
     },
 
     end() {
