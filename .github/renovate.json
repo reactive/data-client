@@ -17,9 +17,9 @@
   "postUpdateOptions": ["yarnDedupeHighest"],
   "packageRules": [
     {
-      "description": "npm overrides are hand-set floors; when Renovate bumps one, npm fails with EOVERRIDE",
+      "description": "overrides keep their range form (so >= floors are left alone) while exact pins get bumped together with the matching dependencies entry, avoiding EOVERRIDE",
       "matchDepTypes": ["overrides"],
-      "enabled": false
+      "rangeStrategy": "replace"
     },
     {
       "matchCurrentVersion": "4.9.0-dev.20220903",
