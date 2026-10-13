@@ -14,7 +14,7 @@ import StoreIcon from '../Playground/StoreIcon';
 const ZONES = ['fresh', 'stale', 'invalid'] as const;
 const WIDTH = 440;
 const HEIGHT = 236;
-/** The viewBox starts above y=0, leaving room for the annotations' switch */
+/** The viewBox starts above y=0, so the annotation controls' boxes fit inside it */
 const TOP = -4;
 // the timeline: one band per zone
 const X0 = 22;
