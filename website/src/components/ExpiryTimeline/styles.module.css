@@ -95,7 +95,8 @@
   font-family: var(--ifm-font-family-monospace);
   font-size: 10.5px;
 }
-.option text {
+.option text,
+.hook {
   fill: var(--ifm-color-emphasis-700);
 }
 
@@ -119,6 +120,7 @@
 /* the real controls, over the drawn annotations: a box per band */
 .annotation {
   position: absolute;
+  top: 0;
 }
 .control {
   display: block;
@@ -156,7 +158,8 @@
 }
 .center .tip {
   left: 50%;
-  transform: translate(-50%, 4px);
+  /* composes with the transform the reveal animates */
+  translate: -50%;
 }
 .right .tip {
   right: 0;
@@ -183,20 +186,12 @@
   transform: translateY(0);
   pointer-events: auto;
 }
-.center .control:focus-visible + .tip,
-.center .tip:focus-within,
-.center.open .tip {
-  transform: translate(-50%, 0);
-}
 /* and on hover, where there is one; a tap stands in for it on touch */
 @media (hover: hover) {
   .annotation:hover .tip {
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
-  }
-  .center:hover .tip {
-    transform: translate(-50%, 0);
   }
 }
 /* after Escape (see Annotations); must follow the hover rule it overrides */
@@ -339,9 +334,6 @@
   100% {
     stroke-opacity: 1;
   }
-}
-.hook {
-  fill: var(--ifm-color-emphasis-700);
 }
 .shown {
   animation-name: show;
@@ -573,7 +565,6 @@
 @media (max-width: 640px) {
   .columns {
     display: block;
-    margin: 0;
   }
   .column {
     padding: 0 0 0 0.8rem;

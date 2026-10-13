@@ -29,6 +29,7 @@ const BRACKET_Y = 15;
 const SWITCH = { x: 166, y: 1, w: 16, h: 9 };
 /** The bottom of the annotation row, in SVG units: the HTML controls cover it */
 const ANNOTATION_BOTTOM = 20;
+const ANNOTATION_HEIGHT = `${((ANNOTATION_BOTTOM - TOP) / (HEIGHT - TOP)) * 100}%`;
 
 interface Playback {
   zone: number;
@@ -57,17 +58,13 @@ export default function ExpiryTimeline({
     run: 0,
   });
   const svgRef = useRef<SVGSVGElement>(null);
-  // the latest pointer position, applied once per frame
-  const pointerX = useRef<number | null>(null);
-  const frame = useRef(0);
-  useEffect(() => () => cancelAnimationFrame(frame.current), []);
 
-  const seek = () => {
-    frame.current = 0;
+  // browsers already deliver pointermove once per frame
+  const scrub = (e: React.PointerEvent) => {
     const svg = svgRef.current;
-    if (!svg || pointerX.current === null) return;
+    if (!svg) return;
     const { left, width } = svg.getBoundingClientRect();
-    const x = ((pointerX.current - left) / width) * WIDTH;
+    const x = ((e.clientX - left) / width) * WIDTH;
     // just short of the end, so the last zone's end stays in that zone
     const t = Math.min(Math.max((x - X0) / BAND, 0), ZONES.length - 0.001);
     const zone = Math.floor(t);
@@ -79,18 +76,7 @@ export default function ExpiryTimeline({
       : { zone, at, paused: true, run: p.run + 1 },
     );
   };
-  const scrub = (e: React.PointerEvent) => {
-    pointerX.current = e.clientX;
-    if (!frame.current) frame.current = requestAnimationFrame(seek);
-  };
-  const resume = () => {
-    // apply a seek still queued for this frame now, so it can't pause again
-    if (frame.current) {
-      cancelAnimationFrame(frame.current);
-      seek();
-    }
-    setPlay(p => ({ ...p, paused: false }));
-  };
+  const resume = () => setPlay(p => ({ ...p, paused: false }));
   const advance = () =>
     setPlay(p => ({ ...p, zone: (p.zone + 1) % ZONES.length, at: 0 }));
 
@@ -297,15 +283,16 @@ function Annotations({
   // which tooltip a tap pinned open; a tap elsewhere closes it
   const [open, setOpen] = useState<number | null>(null);
   const pointerType = useRef<string | null>(null);
+  const pinned = open !== null;
   useEffect(() => {
-    if (open === null) return;
+    if (!pinned) return;
     const close = (e: PointerEvent) => {
       if (!(e.target as Element).closest?.(`.${styles.annotation}`))
         setOpen(null);
     };
     document.addEventListener('pointerdown', close);
     return () => document.removeEventListener('pointerdown', close);
-  }, [open]);
+  }, [pinned]);
   // Escape hides any tooltip, hovered ones too, until the pointer next enters
   // or presses a label, or anything in it takes focus
   const [dismissed, setDismissed] = useState(false);
@@ -400,8 +387,7 @@ function Annotations({
         style={{
           left: `${((X0 + BAND * i) / WIDTH) * 100}%`,
           width: `${(BAND / WIDTH) * 100}%`,
-          top: 0,
-          height: `${((ANNOTATION_BOTTOM - TOP) / (HEIGHT - TOP)) * 100}%`,
+          height: ANNOTATION_HEIGHT,
         }}
       >
         {name === 'invalidIfStale' ?
