@@ -38,7 +38,7 @@ const {
 } = require('./localeDocs.js');
 const { DEFAULT_LOCALE, LOCALES } = require('./locales.js');
 const { DOCS_INSTANCES } = require('../framework-docs/docsInstances.js');
-const { MD, walk } = require('../framework-docs/index.js');
+const { MD, frontMatterValue, walk } = require('../framework-docs/index.js');
 
 const WEBSITE = path.join(ROOT, 'website');
 
@@ -248,7 +248,10 @@ async function prepare(locale, english) {
   const pages = [...wanted]
     .filter(
       file =>
-        lock.docs[file] !== blobs[file] || !exists(translationOf(file, locale)),
+        (lock.docs[file] !== blobs[file] ||
+          !exists(translationOf(file, locale))) &&
+        // drafts (blog posts) change quickly and nobody sees them yet
+        frontMatterValue(read(file), 'draft') !== 'true',
     )
     .map(file => {
       const translation = translationOf(file, locale);
