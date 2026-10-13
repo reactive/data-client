@@ -30,7 +30,6 @@ const remarkFramework = require('./framework-docs/remarkFramework.js');
 // Non-Vue instances render React; :::vue reaches Vue agents via skill references
 const reactRemarkPlugins = [[remarkFramework, { framework: 'react' }]];
 const localeDocs = require('./translate/localeDocs.js');
-const remarkEnglishPage = require('./translate/remarkEnglishPage.js');
 const remarkJoinCjkLines = require('./translate/remarkJoinCjkLines.js');
 // set by Docusaurus for the locale being built or served
 const currentLocale = process.env.DOCUSAURUS_CURRENT_LOCALE ?? DEFAULT_LOCALE;
@@ -57,9 +56,14 @@ const mirrors = [
     return [frameworkDocs.generate('vue', locale), docs];
   }),
 ];
-/** Committed source of a generated page (itself if not generated), for its git history */
+/** Committed source of a generated page (itself if not generated), for its git
+ * history. Paths can arrive relative to the site (generated blog posts' do);
+ * mirrors map absolute ones */
 const mirrorSourceOf = (file: string): string =>
-  mirrors.reduce((f, mirror) => mirror.sourceOf(f), file);
+  mirrors.reduce(
+    (f, mirror) => mirror.sourceOf(f),
+    path.resolve(__dirname, file),
+  );
 if (isDev) {
   frameworkDocs.watch('vue');
   for (const locale of locales)
@@ -78,6 +82,9 @@ const prismPalenight = {
 
 const gitVcs = getVcsPreset('default-v1');
 const editRoot = 'https://github.com/reactive/data-client/edit/0.18.x';
+// In Chinese, joins lines split inside a paragraph (translate/README.md)
+const localeRemarkPlugins =
+  currentLocale === DEFAULT_LOCALE ? [] : [remarkJoinCjkLines];
 /** Plugin options locating a docs instance (framework-docs/docsInstances.js) */
 const docsLocation = (id: string) => {
   const { path: docsPath, routeBasePath, exclude = [] } = docsInstance(id);
@@ -89,7 +96,7 @@ const docsLocation = (id: string) => {
     exclude: [...GlobExcludeDefault, ...exclude],
     editUrl: ({ docPath }: { docPath: string }) =>
       `${editRoot}/${docsPath}/${docPath}`,
-    remarkPlugins: currentLocale === DEFAULT_LOCALE ? [] : [remarkJoinCjkLines],
+    remarkPlugins: localeRemarkPlugins,
   };
 };
 
@@ -326,9 +333,7 @@ const config: Config = {
             : ['current', ...versions],
         },
         blog: {
-          // Posts are English in every locale
-          beforeDefaultRemarkPlugins:
-            currentLocale === DEFAULT_LOCALE ? [] : [remarkEnglishPage],
+          remarkPlugins: localeRemarkPlugins,
           showReadingTime: true,
           blogSidebarTitle: 'All posts',
           blogSidebarCount: 'ALL',

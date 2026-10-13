@@ -25,12 +25,15 @@ const require = createRequire(import.meta.url);
 const { GlobExcludeDefault, createMatcher } = require('@docusaurus/utils');
 
 const {
+  BLOG,
   SOURCE_INSTANCES,
   importTarget,
   instanceOf,
   lockFile,
   readLock,
   relativeImports,
+  sourceFiles,
+  translatedSource,
   translationOf,
 } = require('./localeDocs.js');
 const { DEFAULT_LOCALE, LOCALES } = require('./locales.js');
@@ -52,17 +55,15 @@ const {
 });
 
 /** Repo-relative markdown sources, partials included */
-const SOURCES = SOURCE_INSTANCES.flatMap(d =>
-  walk(path.join(ROOT, d.path))
-    .filter(file => MD.test(file))
-    .map(file => `${d.path}/${file}`),
+const SOURCES = SOURCE_INSTANCES.flatMap(sourceFiles).filter(file =>
+  MD.test(file),
 );
-/** Each instance's unpublished files, as its docs plugin excludes them */
-const EXCLUDED = DOCS_INSTANCES.map(d => ({
+/** Each instance's unpublished files, as its plugin excludes them */
+const EXCLUDED = [...DOCS_INSTANCES, BLOG].map(d => ({
   dir: `${d.path}/`,
   excluded: createMatcher([...GlobExcludeDefault, ...(d.exclude ?? [])]),
 }));
-/** Whether some docs instance publishes a source as a page */
+/** Whether some docs instance or the blog publishes a source as a page */
 const published = file =>
   EXCLUDED.some(
     ({ dir, excluded }) =>
@@ -318,7 +319,7 @@ function changedTranslations(locale) {
     // a rename or copy is followed by the path it came from
     if (/[RC]/.test(status)) i++;
     if (!status.includes('D') && file.startsWith(prefix) && MD.test(file))
-      changed.push(file.slice(prefix.length));
+      changed.push(translatedSource(file.slice(prefix.length)));
   }
   return changed;
 }
@@ -330,7 +331,9 @@ function sourceArg(file, locale) {
     .split(path.sep)
     .join('/');
   const prefix = localeDir(locale);
-  return relative.startsWith(prefix) ? relative.slice(prefix.length) : relative;
+  return relative.startsWith(prefix) ?
+      translatedSource(relative.slice(prefix.length))
+    : relative;
 }
 
 /** Structure problems of a translation versus the English it translates */

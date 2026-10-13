@@ -1,11 +1,12 @@
 /* global require, module, __dirname, Buffer */
 /**
- * The docs folders Docusaurus renders for a locale (gitignored), generated
+ * The docs and blog folders Docusaurus renders for a locale (gitignored), generated
  * at config load: every English source file, with the locale's translation
  * in its place where there is one.
  *
  * Translations are committed repo-shaped (`website/i18n/es/docs/core/x.md`
- * translates `docs/core/x.md`) and keep the English page's imports and links.
+ * translates `docs/core/x.md`; the blog's at `website/i18n/es/blog/`) and
+ * keep the English page's imports and links.
  * Because each generated folder is complete, those resolve as written; only
  * imports leaving their docs folder (`../../rest/diagrams/...`) are pointed
  * at the other folder's generated copy.
@@ -26,17 +27,62 @@ const FENCE = /^(\s*)(`{3,}|~{3,})(.*)$/;
 const IMPORT =
   /^((?:import|export)\s(?:.*?\sfrom\s+)?|\}\s*from\s+)(['"])(\.\.?\/[^'"]+)\2/;
 
-/** Docs instances with their own source folder (Vue mirrors docs/core) */
-const SOURCE_INSTANCES = DOCS_INSTANCES.filter(
-  (d, i, all) => all.findIndex(other => other.path === d.path) === i,
-);
+/** The blog, translated like a docs instance */
+const BLOG = {
+  id: 'blog',
+  path: 'website/blog',
+  translations: 'blog',
+  localized: locale => `website/i18n/${locale}/docusaurus-plugin-content-blog`,
+  // Docusaurus reads the blog's UI strings from beside its posts
+  keep: ['options.json'],
+};
+/**
+ * Content with its own source folder: the docs instances (Vue mirrors
+ * docs/core) and the blog. `translations`: where its translations are
+ * committed in a locale's folder; `localized`: the folder generated for a
+ * locale, where Docusaurus reads it; `keep`: committed files in that folder
+ */
+const SOURCE_INSTANCES = [
+  ...DOCS_INSTANCES.filter(
+    (d, i, all) => all.findIndex(other => other.path === d.path) === i,
+  ).map(d => ({
+    ...d,
+    translations: d.path,
+    localized: locale => localizedPath(d.id, locale),
+  })),
+  BLOG,
+];
+/** Instance whose `field` folder (`path` or `translations`) is or holds `file` */
+const instanceIn = (field, file) =>
+  SOURCE_INSTANCES.find(
+    d => file === d[field] || file.startsWith(`${d[field]}/`),
+  );
 /** Instance whose source folder holds `file` (repo-relative) */
-const instanceOf = file =>
-  SOURCE_INSTANCES.find(d => file.startsWith(`${d.path}/`));
+const instanceOf = file => instanceIn('path', file);
 
-/** Where a locale's translation of a source file is committed (repo-relative) */
-const translationOf = (file, locale) =>
-  path.posix.join('website/i18n', locale, file);
+/** An instance's files (repo-relative); Docusaurus skips dotfiles (the
+ * blog's agent rules) */
+const sourceFiles = instance =>
+  walk(path.join(ROOT, instance.path))
+    .filter(file => !file.split('/').some(part => part.startsWith('.')))
+    .map(file => `${instance.path}/${file}`);
+
+/** Where a locale's translation of a source file (or folder) is committed (repo-relative) */
+const translationOf = (file, locale) => {
+  const instance = instanceOf(file);
+  return path.posix.join(
+    'website/i18n',
+    locale,
+    instance ? instance.translations + file.slice(instance.path.length) : file,
+  );
+};
+/** Source file of a translation, from its path in the locale's folder */
+const translatedSource = name => {
+  const instance = instanceIn('translations', name);
+  return instance ?
+      instance.path + name.slice(instance.translations.length)
+    : name;
+};
 
 /** Line ranges [start, end] of fenced code blocks */
 function fences(lines) {
@@ -95,7 +141,7 @@ const renderedAt = (file, locale) => {
   const instance = instanceOf(file);
   if (!instance) return file;
   return path.posix.join(
-    localizedPath(instance.id, locale),
+    instance.localized(locale),
     file.slice(instance.path.length + 1),
   );
 };
@@ -159,7 +205,8 @@ const blobsOf = files =>
     )
   : {};
 
-/** A locale's lock: the English each translation was finalized against */
+/** A locale's lock: the English each translation was finalized against
+ * (`docs` holds every page, blog posts included) */
 const readLock = locale =>
   fs.existsSync(lockFile(locale)) ?
     JSON.parse(fs.readFileSync(lockFile(locale), 'utf8'))
@@ -191,9 +238,7 @@ function generate(locale) {
   const { docs: lock } = readLock(locale);
   const instances = SOURCE_INSTANCES.map(instance => ({
     instance,
-    files: walk(path.join(ROOT, instance.path)).map(
-      name => `${instance.path}/${name}`,
-    ),
+    files: sourceFiles(instance),
   }));
   const isTranslated = file =>
     fs.existsSync(path.join(ROOT, translationOf(file, locale)));
@@ -204,7 +249,7 @@ function generate(locale) {
     ),
   );
   for (const { instance, files } of instances) {
-    const outDir = path.join(ROOT, localizedPath(instance.id, locale));
+    const outDir = path.join(ROOT, instance.localized(locale));
     const written = new Set();
     const write = (file, content, from) => {
       const name = file.slice(instance.path.length + 1);
@@ -243,7 +288,8 @@ function generate(locale) {
     }
     if (fs.existsSync(outDir))
       for (const name of walk(outDir))
-        if (!written.has(name)) fs.rmSync(path.join(outDir, name));
+        if (!written.has(name) && !instance.keep?.includes(name))
+          fs.rmSync(path.join(outDir, name));
   }
   return { sourceOf: file => sources.get(file) ?? file };
 }
@@ -265,10 +311,7 @@ function watch(locale, then = () => {}) {
     ...SOURCE_INSTANCES.map(d => [d.path]),
     // the locale's folder, which may not have translations yet; but not the
     // folders generated in it
-    [
-      translationOf('', locale),
-      name => SOURCE_INSTANCES.some(d => name.startsWith(`${d.path}/`)),
-    ],
+    [translationOf('', locale), name => instanceIn('translations', name)],
     [path.relative(ROOT, path.dirname(lockFile(locale)))],
   ];
   for (const [dir, filter = () => true] of watched) {
@@ -281,7 +324,10 @@ function watch(locale, then = () => {}) {
 }
 
 module.exports = {
+  BLOG,
   SOURCE_INSTANCES,
+  sourceFiles,
+  translatedSource,
   instanceOf,
   translationOf,
   lockFile,
