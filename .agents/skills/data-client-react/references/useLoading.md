@@ -10,6 +10,8 @@ Helps track loading and error state of imperative async functions.
 
 ## Usage
 
+Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
+
 ```ts title="PostResource"
 import { Entity, resource } from '@data-client/rest';
 

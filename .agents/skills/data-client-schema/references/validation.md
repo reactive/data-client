@@ -84,6 +84,8 @@ useful when some fields consume lots of bandwidth or are computationally expensi
 
 Consider using [validateRequired](https://dataclient.io/rest/api/validateRequired) to reduce code.
 
+Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
+
 ```typescript title="api/Article"
 import { Entity, RestEndpoint } from '@data-client/rest';
 import { Temporal } from 'temporal-polyfill';

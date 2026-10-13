@@ -253,6 +253,8 @@ problems in asynchronous programming.
 
 [useLoading()](./useLoading.md) enhances async functions by tracking their loading and error states.
 
+Files with a `route` are pages mounted at that path, with its params as props (vue-router `props: true`).
+
 ```ts title="PostResource"
 import { Entity, resource } from '@data-client/rest';
 

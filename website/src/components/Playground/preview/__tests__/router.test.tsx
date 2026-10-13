@@ -66,6 +66,57 @@ describe('Router', () => {
     expect(back).toHaveProperty('disabled', true);
   });
 
+  test('keeps the page shown while the next one loads', async () => {
+    let resolve!: () => void;
+    const ready = new Promise<void>(r => (resolve = r));
+    function Slow() {
+      React.use(ready);
+      return <>slow page</>;
+    }
+    const { container } = render(
+      <Router
+        routes={[
+          ['/', () => <Link to="/slow">Slow</Link>],
+          ['/slow', Slow],
+        ]}
+      />,
+    );
+    const progress = container.firstElementChild!;
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Slow'));
+    });
+    expect(screen.getByText('Slow')).toBeTruthy();
+    expect(progress.hasAttribute('data-pending')).toBe(true);
+
+    await act(async () => resolve());
+    expect(screen.getByText('slow page')).toBeTruthy();
+    expect(progress.hasAttribute('data-pending')).toBe(false);
+  });
+
+  test('keeps Back working when a page throws', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    render(
+      <Router
+        routes={[
+          ['/', () => <Link to="/missing">Missing</Link>],
+          ['/posts/:id', Detail],
+        ]}
+      />,
+    );
+    await act(async () => {
+      fireEvent.click(screen.getByText('Missing'));
+    });
+    expect(screen.getByRole('alert').textContent).toContain(
+      'No route matches "/missing"',
+    );
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Back' }));
+    });
+    expect(screen.getByText('Missing')).toBeTruthy();
+    jest.restoreAllMocks();
+  });
+
   test('leaves a Link alone when its onClick cancels the event', async () => {
     render(
       <Router

@@ -5,6 +5,8 @@
 Make your components reusable by binding the data where you **use** it with the one-line [useSuspense()](https://dataclient.io/vue/api/useSuspense),
 which guarantees data with [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await).
 
+Files with a `route` are pages mounted at that path, with its params as props (vue-router `props: true`).
+
 ```ts title="Resources"
 import { Entity, resource } from '@data-client/rest';
 

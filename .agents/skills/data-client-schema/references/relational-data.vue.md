@@ -238,6 +238,8 @@ may need overriding to ensure deep merging of those expected fields.
 This allows you to traverse the relationship after processing only one fetch request, rather than having to fetch
 each time you want access to a different view.
 
+Files with a `route` are pages mounted at that path, with its params as props (vue-router `props: true`).
+
 ```typescript title="resources/Post"
 import { Entity, resource, type Schema } from '@data-client/rest';
 

@@ -185,7 +185,9 @@ div.playgroundTextEdit > .playgroundHeader,
 }
 
 :global(.col) .playgroundPreview {
-  padding: 1rem;
+  /* the frame's inset; .navProgress reads it to reach the frame's edges */
+  --pg-preview-pad: 1rem;
+  padding: var(--pg-preview-pad);
   background-color: var(--ifm-pre-background);
   flex: 1 4 30%;
   overflow: auto;
@@ -565,6 +567,72 @@ div.playgroundTextEdit > .playgroundHeader,
   --ifm-heading-font-weight: 500;
   --ifm-heading-line-height: 1.2;
   overflow: auto;
+}
+/* The router's navigation indicator (preview/router.tsx): a 3px bar along
+   the frame's top edge while the next page loads. A 0-height block (so the
+   layout below is untouched) stuck at the frame's inset (sticky insets
+   count from inside the scroller's padding); its pseudo-elements
+   reach up through the padding to the edge: the track, and a runner that
+   sweeps it. It fades in at once (demo fetches are quick, so a delay would
+   hide it), and on arrival snaps to full width as it fades out. */
+.navProgress {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  height: 0;
+  margin: 0 calc(-1 * var(--pg-preview-pad, 0px));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-snappy);
+}
+.navProgress[data-pending] {
+  opacity: 1;
+}
+.navProgress::before,
+.navProgress::after {
+  content: '';
+  position: absolute;
+  top: calc(-1 * var(--pg-preview-pad, 0px));
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+/* the track */
+.navProgress::before {
+  background: color-mix(in srgb, var(--ifm-color-primary) 22%, transparent);
+}
+/* the runner: a segment of the track's width, scaled from its left end so
+   the sweep (transform only) never leaves the track */
+.navProgress::after {
+  background: var(--ifm-color-primary);
+  transform-origin: 0 50%;
+}
+.navProgress[data-pending]::after {
+  animation: navSweep 1.3s infinite;
+}
+@keyframes navSweep {
+  0% {
+    transform: translateX(0) scaleX(0);
+    animation-timing-function: ease-in;
+  }
+  50% {
+    transform: translateX(25%) scaleX(0.5);
+    animation-timing-function: ease-out;
+  }
+  100% {
+    transform: translateX(100%) scaleX(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* the runner holds the whole track and breathes instead of sweeping */
+  .navProgress[data-pending]::after {
+    animation: navPulse 1.6s ease-in-out infinite;
+  }
+}
+@keyframes navPulse {
+  50% {
+    opacity: 0.45;
+  }
 }
 /* The router's address bar (preview/router.tsx): the page shown and the way
    back, like a browser's, so demos need no navigation of their own */

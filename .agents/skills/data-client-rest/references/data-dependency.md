@@ -5,6 +5,8 @@
 Make your components reusable by binding the data where you **use** it with the one-line [useSuspense()](https://dataclient.io/docs/api/useSuspense),
 which guarantees data like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await).
 
+Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
+
 ```ts title="Resources"
 import { Entity, resource } from '@data-client/rest';
 
