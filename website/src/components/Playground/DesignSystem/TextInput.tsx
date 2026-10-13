@@ -1,6 +1,8 @@
 import classnames from 'clsx';
 import React, { type InputHTMLAttributes } from 'react';
 
+import { Spinner } from './Spinner';
+
 export function TextInput({
   label,
   children,
@@ -28,7 +30,7 @@ export function TextInput({
       : null}
       {loading ?
         <div className="rt-TextFieldSpinner">
-          <div className="rt-Spinner"></div>
+          <Spinner />
         </div>
       : null}
     </span>

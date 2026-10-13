@@ -165,6 +165,16 @@ html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
 
 
 
+/* Disabled fields (on their own or in a disabled fieldset) fade back */
+.rt-TextFieldRoot,
+.rt-TextAreaRoot {
+  transition: opacity var(--motion-snappy);
+}
+.rt-TextFieldRoot:has(> :disabled),
+.rt-TextAreaRoot:has(> :disabled) {
+  opacity: 0.5;
+}
+
 /* Root container for the textarea */
 .rt-TextAreaRoot {
   position: relative;
