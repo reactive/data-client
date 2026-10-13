@@ -416,7 +416,8 @@ jobs:
       - run:
           name: Run Typecheck
           command: |
-            if [ "<< parameters.typescript-version >>" == "5.3" ] || [ "<< parameters.typescript-version >>" == "4.8" ]; then
+            # Full apps import linaria, whose types need TypeScript 5.0+
+            if [ "<< parameters.typescript-version >>" == "5.3" ]; then
             yarn run tsc --project examples/todo-app/tsconfig.json
             yarn run tsc --project examples/github-app/tsconfig.json
             fi
@@ -522,7 +523,8 @@ workflows:
       - node_matrix:
           matrix:
             parameters:
-              node-version: ["18.18", "20.12.2"]
+              # Babel 8 (our test transform) needs Node ^22.18 || >=24.11
+              node-version: ["22.18", "24.11"]
           requires:
             - setup
       - lint:

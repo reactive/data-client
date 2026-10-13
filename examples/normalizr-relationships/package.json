@@ -7,7 +7,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "babel-node ./ --root-mode upward --extensions '.ts,.tsx,.js'"
+    "start": "babel-node --root-mode upward --extensions '.ts,.tsx,.js' ./"
   },
   "devDependencies": {
     "@babel/core": "8.0.7",

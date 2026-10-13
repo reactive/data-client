@@ -17,7 +17,7 @@
     "postinstall": "rm -rf node_modules/.cache"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=22.18.0"
   },
   "browserslist": "extends @anansi/browserslist-config",
   "keywords": [
@@ -30,7 +30,6 @@
     "@babel/core": "8.0.7",
     "@linaria/core": "*",
     "@linaria/react": "*",
-    "@linaria/shaker": "*",
     "@types/d3": "^7",
     "@types/react": "*",
     "@types/react-dom": "*",

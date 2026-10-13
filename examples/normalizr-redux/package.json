@@ -7,7 +7,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "babel-node ./ --root-mode upward --extensions '.ts,.tsx,.js'"
+    "start": "babel-node --root-mode upward --extensions '.ts,.tsx,.js' ./"
   },
   "engines": {
     "node": ">=18.0"
