@@ -80,6 +80,9 @@ const prismPalenight = {
 const gitVcs = getVcsPreset('default-v1');
 const editRoot = 'https://github.com/reactive/data-client/edit/master';
 /** Plugin options locating a docs instance (framework-docs/docsInstances.js) */
+// In Chinese, joins lines split inside a paragraph (translate/README.md)
+const localeRemarkPlugins =
+  currentLocale === DEFAULT_LOCALE ? [] : [remarkJoinCjkLines];
 const docsLocation = (id: string) => {
   const { path: docsPath, routeBasePath, exclude = [] } = docsInstance(id);
   return {
@@ -90,7 +93,7 @@ const docsLocation = (id: string) => {
     exclude: [...GlobExcludeDefault, ...exclude],
     editUrl: ({ docPath }: { docPath: string }) =>
       `${editRoot}/${docsPath}/${docPath}`,
-    remarkPlugins: currentLocale === DEFAULT_LOCALE ? [] : [remarkJoinCjkLines],
+    remarkPlugins: localeRemarkPlugins,
   };
 };
 
@@ -327,8 +330,7 @@ const config: Config = {
             : ['current', ...versions],
         },
         blog: {
-          remarkPlugins:
-            currentLocale === DEFAULT_LOCALE ? [] : [remarkJoinCjkLines],
+          remarkPlugins: localeRemarkPlugins,
           showReadingTime: true,
           blogSidebarTitle: 'All posts',
           blogSidebarCount: 'ALL',

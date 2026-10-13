@@ -81,6 +81,7 @@ docs/.core-*
 # generated locale docs and blog (website/translate/localeDocs.js)
 website/i18n/*/docusaurus-plugin-content-docs*/current/
 website/i18n/*/docusaurus-plugin-content-blog/*
+# but its UI strings, which generate() keeps
 !website/i18n/*/docusaurus-plugin-content-blog/options.json
 
 # Claude Code

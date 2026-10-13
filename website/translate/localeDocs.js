@@ -1,11 +1,12 @@
 /* global require, module, __dirname, Buffer */
 /**
- * The docs folders Docusaurus renders for a locale (gitignored), generated
+ * The docs and blog folders Docusaurus renders for a locale (gitignored), generated
  * at config load: every English source file, with the locale's translation
  * in its place where there is one.
  *
  * Translations are committed repo-shaped (`website/i18n/es/docs/core/x.md`
- * translates `docs/core/x.md`) and keep the English page's imports and links.
+ * translates `docs/core/x.md`; the blog's at `website/i18n/es/blog/`) and
+ * keep the English page's imports and links.
  * Because each generated folder is complete, those resolve as written; only
  * imports leaving their docs folder (`../../rest/diagrams/...`) are pointed
  * at the other folder's generated copy.
@@ -26,48 +27,56 @@ const FENCE = /^(\s*)(`{3,}|~{3,})(.*)$/;
 const IMPORT =
   /^((?:import|export)\s(?:.*?\sfrom\s+)?|\}\s*from\s+)(['"])(\.\.?\/[^'"]+)\2/;
 
-/** The blog, translated like a docs instance; Docusaurus reads a locale's posts from `localized` */
-const BLOG = {
-  id: 'blog',
-  path: 'website/blog',
-  localized: locale => `website/i18n/${locale}/docusaurus-plugin-content-blog`,
-};
 /**
  * Content with its own source folder: the docs instances (Vue mirrors
- * docs/core) and the blog; `localized` is the folder generated for a locale
+ * docs/core) and the blog. `translations`: where its translations are
+ * committed in a locale's folder; `localized`: the folder generated for a
+ * locale, where Docusaurus reads it
  */
 const SOURCE_INSTANCES = [
   ...DOCS_INSTANCES.filter(
     (d, i, all) => all.findIndex(other => other.path === d.path) === i,
-  ).map(d => ({ ...d, localized: locale => localizedPath(d.id, locale) })),
-  BLOG,
+  ).map(d => ({
+    ...d,
+    translations: d.path,
+    localized: locale => localizedPath(d.id, locale),
+  })),
+  {
+    id: 'blog',
+    path: 'website/blog',
+    translations: 'blog',
+    localized: locale =>
+      `website/i18n/${locale}/docusaurus-plugin-content-blog`,
+  },
 ];
+const BLOG = SOURCE_INSTANCES.at(-1);
 /** Instance whose source folder holds `file` (repo-relative) */
 const instanceOf = file =>
   SOURCE_INSTANCES.find(d => file.startsWith(`${d.path}/`));
 
-/** Files of an instance, relative to its folder; Docusaurus skips dotfiles
- * (the blog's agent rules) */
+/** An instance's files (repo-relative); Docusaurus skips dotfiles (the
+ * blog's agent rules) */
 const sourceFiles = instance =>
-  walk(path.join(ROOT, instance.path)).filter(
-    file => !file.split('/').some(part => part.startsWith('.')),
-  );
+  walk(path.join(ROOT, instance.path))
+    .filter(file => !file.split('/').some(part => part.startsWith('.')))
+    .map(file => `${instance.path}/${file}`);
 
-/** A source's path in a locale's folder: from the repo root, or from website/
- * for the website's own content (`website/blog/x.md` -> `blog/x.md`) */
-const inLocale = file => file.replace(/^website\//, '');
+/** Swaps the instance folder (its `from` field) a path is in, or is, for its `to` field */
+const swapFolder = (file, from, to) => {
+  const instance = SOURCE_INSTANCES.find(
+    d => file === d[from] || file.startsWith(`${d[from]}/`),
+  );
+  return instance ? instance[to] + file.slice(instance[from].length) : file;
+};
 /** Where a locale's translation of a source file is committed (repo-relative) */
 const translationOf = (file, locale) =>
-  path.posix.join('website/i18n', locale, inLocale(file));
-/** Source file of a translation, from its path in the locale's folder */
-const translatedSource = name => {
-  const instance = SOURCE_INSTANCES.find(d =>
-    name.startsWith(`${inLocale(d.path)}/`),
+  path.posix.join(
+    'website/i18n',
+    locale,
+    swapFolder(file, 'path', 'translations'),
   );
-  return instance ?
-      `${instance.path}/${name.slice(inLocale(instance.path).length + 1)}`
-    : name;
-};
+/** Source file of a translation, from its path in the locale's folder */
+const translatedSource = name => swapFolder(name, 'translations', 'path');
 
 /** Line ranges [start, end] of fenced code blocks */
 function fences(lines) {
@@ -222,7 +231,7 @@ function generate(locale) {
   const { docs: lock } = readLock(locale);
   const instances = SOURCE_INSTANCES.map(instance => ({
     instance,
-    files: sourceFiles(instance).map(name => `${instance.path}/${name}`),
+    files: sourceFiles(instance),
   }));
   const isTranslated = file =>
     fs.existsSync(path.join(ROOT, translationOf(file, locale)));
@@ -298,8 +307,7 @@ function watch(locale, then = () => {}) {
     // folders generated in it
     [
       translationOf('', locale),
-      name =>
-        SOURCE_INSTANCES.some(d => name.startsWith(`${inLocale(d.path)}/`)),
+      name => SOURCE_INSTANCES.some(d => name.startsWith(`${d.translations}/`)),
     ],
     [path.relative(ROOT, path.dirname(lockFile(locale)))],
   ];

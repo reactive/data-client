@@ -55,10 +55,8 @@ const {
 });
 
 /** Repo-relative markdown sources, partials included */
-const SOURCES = SOURCE_INSTANCES.flatMap(d =>
-  sourceFiles(d)
-    .filter(file => MD.test(file))
-    .map(file => `${d.path}/${file}`),
+const SOURCES = SOURCE_INSTANCES.flatMap(sourceFiles).filter(file =>
+  MD.test(file),
 );
 /** Each instance's unpublished files, as its plugin excludes them */
 const EXCLUDED = [...DOCS_INSTANCES, BLOG].map(d => ({
