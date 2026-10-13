@@ -841,7 +841,7 @@
     "message": "代码"
   },
   "dataColocation.label": {
-    "message": "组件树：CurrentUser、PostBody、CommentList 和 Avatar 各自通过 useSuspense() 直接从 store 读取数据，跳过 App、Header 和 PostPage",
+    "message": "组件树：只有 CurrentUser、PostBody、CommentList 和 Avatar 通过 useSuspense() 直接从 store 读取数据，因此数据变化只会让它们重新渲染，树中其余部分都不会",
     "description": "Accessible label of the data co-location diagram on the Render Data page"
   }
 }

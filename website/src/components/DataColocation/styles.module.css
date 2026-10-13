@@ -1,10 +1,10 @@
 .diagram {
   --line: var(--ifm-color-emphasis-300);
-  --user: hsl(262, 60%, 60%);
+  --user: hsl(262, 52%, 52%);
   --user-tint: hsl(262, 80%, 96%);
-  --post: var(--ifm-color-primary);
+  --post: var(--ifm-color-primary-dark);
   --post-tint: hsl(206, 80%, 95%);
-  --comment: hsl(165, 60%, 38%);
+  --comment: hsl(165, 65%, 32%);
   --comment-tint: hsl(165, 60%, 93%);
   --on-chip: #fff;
   float: right;
@@ -34,17 +34,21 @@
   }
 }
 
+/* each entity changes in turn, every 2s of a 6s cycle */
 .User {
   --c: var(--user);
   --t: var(--user-tint);
+  --delay: 0s;
 }
 .Post {
   --c: var(--post);
   --t: var(--post-tint);
+  --delay: 2s;
 }
 .Comment {
   --c: var(--comment);
   --t: var(--comment-tint);
+  --delay: 4s;
 }
 
 .tree {
@@ -59,7 +63,10 @@
   stroke-width: 2;
   stroke-linecap: round;
   stroke-dasharray: 2 6;
-  animation: flow 0.8s linear infinite;
+  opacity: 0.45;
+  animation:
+    flow 0.8s linear infinite,
+    send 6s var(--delay) infinite;
 }
 @keyframes flow {
   from {
@@ -69,8 +76,43 @@
     stroke-dashoffset: 0;
   }
 }
+@keyframes send {
+  0%,
+  30%,
+  100% {
+    opacity: 0.45;
+  }
+  4% {
+    opacity: 1;
+  }
+}
+
+/* the entity changing, then the components re-rendering for it, like
+   React DevTools' highlight */
+.diagram .flash {
+  fill: none;
+  stroke: var(--c);
+  stroke-width: 8;
+  opacity: 0;
+  animation: render 6s var(--delay) infinite;
+}
+.bound .flash {
+  animation-delay: calc(var(--delay) + 0.25s);
+}
+@keyframes render {
+  0%,
+  25%,
+  100% {
+    opacity: 0;
+  }
+  4% {
+    opacity: 0.6;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .binding {
+  .binding,
+  .diagram .flash {
     animation: none;
   }
 }
@@ -82,9 +124,7 @@
   rx: 12px;
 }
 .db {
-  fill: none;
-  stroke: var(--ifm-color-primary);
-  stroke-width: 1.5;
+  color: var(--ifm-color-primary);
 }
 
 .chip rect {
@@ -109,6 +149,13 @@
 }
 .plain text {
   fill: var(--ifm-color-emphasis-600);
+  font-size: 10.5px;
+}
+.rest {
+  fill: var(--ifm-background-surface-color);
+  stroke: var(--line);
+  stroke-width: 1.5;
+  rx: 4px;
 }
 .bound rect {
   fill: var(--t);
@@ -121,7 +168,7 @@
 .bound .hook {
   fill: var(--c);
   font-family: var(--ifm-font-family-monospace);
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 400;
 }
 
@@ -141,4 +188,9 @@
 }
 .binding.on {
   stroke-width: 3;
+  opacity: 1;
+  animation: flow 0.8s linear infinite;
+}
+.binding.off {
+  animation: none;
 }

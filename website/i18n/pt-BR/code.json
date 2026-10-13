@@ -841,7 +841,7 @@
     "message": "Código"
   },
   "dataColocation.label": {
-    "message": "Árvore de componentes em que CurrentUser, PostBody, CommentList e Avatar leem cada um seus dados diretamente do store com useSuspense(), pulando App, Header e PostPage",
+    "message": "Árvore de componentes em que só CurrentUser, PostBody, CommentList e Avatar leem dados diretamente do store com useSuspense(), então uma mudança renderiza de novo apenas esses componentes e nada mais da árvore",
     "description": "Accessible label of the data co-location diagram on the Render Data page"
   }
 }
