@@ -69,24 +69,15 @@ export default function PostForm({ onSubmit, loading, error }) {
           required
         />
         <TextArea name="body" rows={12} label="Body" required>
-          After clicking 'save', the form is disabled and the button shows
-          a spinner until the POST completes. Upon completion the newly
+          After clicking 'save', the form is locked and the button animates
+          until the POST completes. Upon completion the newly
           created post is displayed immediately as Reactive Data Client is
           able to use the fetch response to populate the store.
         </TextArea>
         {error ? (
           <div className="alert alert--danger">{error.message}</div>
         ) : null}
-        <button type="submit" className="button button--primary">
-          {loading ? (
-            <>
-              <Spinner />
-              Saving…
-            </>
-          ) : (
-            'Save'
-          )}
-        </button>
+        <button type="submit">{loading ? 'Saving…' : 'Save'}</button>
       </fieldset>
     </form>
   );
