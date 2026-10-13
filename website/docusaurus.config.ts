@@ -58,9 +58,13 @@ const mirrors = [
     return [frameworkDocs.generate('vue', locale), docs];
   }),
 ];
-/** Committed source of a generated page (itself if not generated), for its git history */
+/** Committed source of a generated page (itself if not generated), for its git
+ * history. The blog passes paths relative to the site; mirrors map absolute ones */
 const mirrorSourceOf = (file: string): string =>
-  mirrors.reduce((f, mirror) => mirror.sourceOf(f), file);
+  mirrors.reduce(
+    (f, mirror) => mirror.sourceOf(f),
+    path.resolve(__dirname, file),
+  );
 if (isDev) {
   frameworkDocs.watch('vue');
   for (const locale of locales)
