@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 /**
  * One highlighted item in a diagram: hover on desktop, tap on touch screens
- * (tapping the background clears it). `state()` gives the `on` class to the
+ * (tapping the background clears it). `highlight()` gives the `on` class to the
  * items that belong to the highlight and `off` to the rest.
  */
 export default function useHighlight<T>(on: string, off: string) {
@@ -20,9 +20,9 @@ export default function useHighlight<T>(on: string, off: string) {
     },
   });
   const clear = () => setActive(null);
-  const state = (...items: T[]) =>
+  const highlight = (...items: T[]) =>
     active === null ? undefined
     : items.includes(active) ? on
     : off;
-  return { select, clear, state };
+  return { select, clear, highlight };
 }

@@ -39,8 +39,8 @@ const LINKS: { manager: Manager; d: string }[] = [
   { manager: 'Custom', d: 'M264 234H284V70' },
 ];
 
-// the actions in the animation, named as devtools shows them, and who
-// handles (or dispatches) each; DevToolsManager sees them all
+// the actions in the animation, named as devtools shows them, and the
+// managers each passes through; fetch stops at NetworkManager
 const ACTIONS: {
   type: string;
   cls: 'fetch' | 'response';
@@ -50,13 +50,13 @@ const ACTIONS: {
   {
     type: 'rdc/fetch',
     cls: 'fetch',
-    managers: ['DevTools', 'Network', 'Subscription'],
+    managers: ['DevTools', 'Network'],
     w: 62,
   },
   {
     type: 'rdc/setresponse',
     cls: 'response',
-    managers: ['DevTools', 'Network'],
+    managers: ['DevTools', 'Network', 'Subscription', 'Custom'],
     w: 96,
   },
 ];
@@ -68,7 +68,10 @@ const CARDS = [
 ];
 
 export default function DataFlow() {
-  const { select, clear, state } = useHighlight<Manager>(styles.on, styles.off);
+  const { select, clear, highlight } = useHighlight<Manager>(
+    styles.on,
+    styles.off,
+  );
 
   return (
     <svg
@@ -103,7 +106,7 @@ export default function DataFlow() {
         <path
           key={d}
           d={d}
-          className={clsx(styles.flow, styles.link, state(manager))}
+          className={clsx(styles.flow, styles.link, highlight(manager))}
         />
       ))}
 
@@ -118,7 +121,7 @@ export default function DataFlow() {
       {MANAGERS.map(({ id, name, y }) => (
         <g
           key={id}
-          className={clsx(styles.manager, styles[id], state(id))}
+          className={clsx(styles.manager, styles[id], highlight(id))}
           {...select(id)}
         >
           {/* pulses when it handles the action, like React DevTools' highlight */}
@@ -139,7 +142,7 @@ export default function DataFlow() {
       {OUTSIDE.map(({ name, manager, y }) => (
         <g
           key={name}
-          className={clsx(styles.outside, state(manager))}
+          className={clsx(styles.outside, highlight(manager))}
           {...select(manager)}
         >
           <rect x="6" y={y - 10} width="72" height="20" />
@@ -194,7 +197,7 @@ export default function DataFlow() {
       {ACTIONS.map(({ type, cls, managers, w }) => (
         <g key={type} className={clsx(styles.chip, styles[cls])}>
           {/* dims separately, since the travel animates the outer opacity */}
-          <g className={state(...managers)}>
+          <g className={highlight(...managers)}>
             <rect x={-w / 2} y="-9" width={w} height="18" />
             <text y="4">{type}</text>
           </g>

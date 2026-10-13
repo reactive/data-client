@@ -54,7 +54,7 @@
 /* state reaches the components after the response reaches the store */
 .state {
   opacity: 0.5;
-  animation: send var(--cycle) 6.2s infinite;
+  animation: send var(--cycle) calc(var(--cycle) * 0.69) infinite;
 }
 @keyframes send {
   0%,
@@ -134,13 +134,13 @@
 }
 .Network .flash {
   stroke: var(--action);
-  animation: render var(--cycle) 1.6s infinite;
+  animation: render var(--cycle) calc(var(--cycle) * 0.18) infinite;
 }
 .store .flash {
-  animation: render var(--cycle) 6.2s infinite;
+  animation: render var(--cycle) calc(var(--cycle) * 0.69) infinite;
 }
 .components .flash {
-  animation: render var(--cycle) 6.5s infinite;
+  animation: render var(--cycle) calc(var(--cycle) * 0.72) infinite;
 }
 @keyframes render {
   0%,
@@ -283,5 +283,15 @@
   .diagram .flash,
   .chip {
     animation: none;
+  }
+  /* hold each action still on its leg of the loop */
+  .chip {
+    opacity: 1;
+  }
+  .fetch {
+    transform: translate(275px, 70px);
+  }
+  .response {
+    transform: translate(190px, 265px);
   }
 }

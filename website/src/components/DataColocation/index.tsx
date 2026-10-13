@@ -63,7 +63,10 @@ const BINDINGS: { entity: Entity; d: string }[] = [
 ];
 
 export default function DataColocation() {
-  const { select, clear, state } = useHighlight<Entity>(styles.on, styles.off);
+  const { select, clear, highlight } = useHighlight<Entity>(
+    styles.on,
+    styles.off,
+  );
 
   return (
     <svg
@@ -82,7 +85,7 @@ export default function DataColocation() {
         <path
           key={d}
           d={d}
-          className={clsx(styles.binding, styles[entity], state(entity))}
+          className={clsx(styles.binding, styles[entity], highlight(entity))}
         />
       ))}
 
@@ -91,7 +94,7 @@ export default function DataColocation() {
       {CHIPS.map(({ entity, x, w }) => (
         <g
           key={entity}
-          className={clsx(styles.chip, styles[entity], state(entity))}
+          className={clsx(styles.chip, styles[entity], highlight(entity))}
           {...select(entity)}
         >
           {/* pulses when the entity changes */}
@@ -124,7 +127,7 @@ export default function DataColocation() {
       {BOUND.map(({ name, entity, cx, y }) => (
         <g
           key={name}
-          className={clsx(styles.bound, styles[entity], state(entity))}
+          className={clsx(styles.bound, styles[entity], highlight(entity))}
           {...select(entity)}
         >
           {/* flashes when it re-renders, like React DevTools' highlight */}
