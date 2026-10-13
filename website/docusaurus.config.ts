@@ -59,8 +59,8 @@ const mirrors = [
   }),
 ];
 /** Committed source of a generated page (itself if not generated), for its git
- * history. Blog pages' dates are asked for with site-relative paths; mirrors
- * map absolute ones */
+ * history. Paths can arrive relative to the site (generated blog posts' do);
+ * mirrors map absolute ones */
 const mirrorSourceOf = (file: string): string =>
   mirrors.reduce(
     (f, mirror) => mirror.sourceOf(f),
