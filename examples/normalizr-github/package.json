@@ -7,15 +7,14 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "babel-node ./ --root-mode upward --extensions '.ts,.tsx,.js'"
+    "start": "babel-node --root-mode upward --extensions '.ts,.tsx,.js' ./"
   },
   "dependencies": {
     "@data-client/endpoint": "workspace:*",
     "@data-client/normalizr": "workspace:*"
   },
   "devDependencies": {
-    "@babel/core": "7.29.7",
-    "@babel/node": "7.29.7",
-    "@types/babel__core": "^7"
+    "@babel/core": "8.0.7",
+    "@babel/node": "8.0.6"
   }
 }

@@ -65,7 +65,7 @@ export function objectQueryKey(
  * @see https://dataclient.io/rest/api/Object
  */
 export default class ObjectSchema {
-  protected schema: any;
+  declare protected schema: any;
 
   constructor(definition: Record<string, any>) {
     this.define(definition);

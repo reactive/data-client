@@ -13,7 +13,7 @@ Get a new developer up and running with the Reactive Data Client monorepo.
 
 ## Steps
 1. **Install prerequisites**
-   - Install Node.js >= 14 via [nvm](https://github.com/nvm-sh/nvm): `nvm install`
+   - Install Node.js matching the root `package.json` `engines` (`.nvmrc` pins it) via [nvm](https://github.com/nvm-sh/nvm): `nvm install`
    - Enable Corepack for Yarn 4: `corepack enable`
    - Verify Yarn: `yarn --version` (should be 4.x)
 
@@ -45,7 +45,7 @@ Get a new developer up and running with the Reactive Data Client monorepo.
    - Documentation site runs on localhost
 
 ## Onboarding Checklist
-- [ ] Node.js >= 14 and Yarn 4 ready
+- [ ] Node.js (per `engines`) and Yarn 4 ready
 - [ ] `yarn install` completed without errors
 - [ ] `yarn build` succeeds
 - [ ] `yarn test` passes

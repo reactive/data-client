@@ -376,7 +376,6 @@ jobs:
             yarn workspace @data-client/test add --dev @testing-library/react-hooks
             yarn up react@^18 react-dom@^18 react-test-renderer@^18
       - run:
-          # we must use npm because yarn 4 isn't compatible with legacy node versions
           # --maxWorkers matches resource_class (default medium = 2 vCPU); see unit_tests
           command: |
             ANANSI_JEST_TYPECHECK=false yarn test --ci --maxWorkers=2 --selectProjects Node
@@ -416,7 +415,8 @@ jobs:
       - run:
           name: Run Typecheck
           command: |
-            if [ "<< parameters.typescript-version >>" == "5.3" ] || [ "<< parameters.typescript-version >>" == "4.8" ]; then
+            # Full apps import linaria, whose types need TypeScript 5.0+
+            if [[ ! "<< parameters.typescript-version >>" < "5.0" ]]; then
             yarn run tsc --project examples/todo-app/tsconfig.json
             yarn run tsc --project examples/github-app/tsconfig.json
             fi
@@ -522,7 +522,8 @@ workflows:
       - node_matrix:
           matrix:
             parameters:
-              node-version: ["18.18", "20.12.2"]
+              # Babel 8 (our test transform) needs Node ^22.18 || >=24.11
+              node-version: ["22.18", "24.11"]
           requires:
             - setup
       - lint:
