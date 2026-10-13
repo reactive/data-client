@@ -20,8 +20,8 @@ const PLAIN = [
   { name: 'PostPage', cx: 300, y: 106, w: 72 },
   { name: 'Footer', cx: 400, y: 106, w: 56 },
   { name: 'Nav', cx: 30, y: 148, w: 48 },
-  { name: 'Share', cx: 280, y: 206, w: 52 },
-  { name: 'Form', cx: 346, y: 206, w: 52 },
+  { name: 'Article', cx: 220, y: 148, w: 64 },
+  { name: 'Share', cx: 360, y: 206, w: 52 },
 ];
 // the rest of the app, which is usually most of it
 const REST = [
@@ -31,11 +31,12 @@ const REST = [
   { cx: 418, y: 150 },
 ];
 
+// leaves, since children re-render with their parent
 const BOUND: { name: string; entity: Entity; cx: number; y: number }[] = [
   { name: 'CurrentUser', entity: 'User', cx: 110, y: 148 },
-  { name: 'PostBody', entity: 'Post', cx: 220, y: 148 },
   { name: 'CommentList', entity: 'Comment', cx: 322, y: 148 },
-  { name: 'Avatar', entity: 'User', cx: 200, y: 206 },
+  { name: 'Avatar', entity: 'User', cx: 180, y: 206 },
+  { name: 'PostBody', entity: 'Post', cx: 278, y: 206 },
 ];
 
 const TREE =
@@ -44,17 +45,19 @@ const TREE =
   'M300 128V138M220 138H322M220 138V148M322 138V148' +
   'M400 128V139M386 139H418M386 139V150M418 139V150' +
   'M30 170V180M18 180H42M18 180V188M42 180V188' +
-  'M220 182V194M200 194H280M200 194V206M280 194V206' +
-  'M322 182V194H346V206';
+  'M220 170V194M180 194H360M180 194V206M278 194V206M360 194V206';
 
 // from the store straight to each component that renders the data
 const BINDINGS: { entity: Entity; d: string }[] = [
   { entity: 'User', d: 'M159 41C159 100 138 100 138 148' },
   {
     entity: 'User',
-    d: 'M177 41C177 70 165 75 165 100V190C165 200 172 200 172 206',
+    d: 'M177 41C177 70 165 75 165 100V185C165 196 152 194 152 206',
   },
-  { entity: 'Post', d: 'M227 41C227 100 245 100 245 148' },
+  {
+    entity: 'Post',
+    d: 'M227 41C227 80 258 80 258 110V180C258 194 306 190 306 206',
+  },
   { entity: 'Comment', d: 'M289 41C289 80 350 70 350 100V148' },
 ];
 
@@ -85,7 +88,7 @@ export default function DataColocation() {
       aria-label={translate({
         id: 'dataColocation.label',
         message:
-          'Component tree where only CurrentUser, PostBody, CommentList and Avatar read data straight from the store with useSuspense(), so a change re-renders just them and none of the rest of the tree',
+          'Component tree where each component that renders data reads it straight from the store with useSuspense(): User for CurrentUser and Avatar, Post for PostBody, and Comment for CommentList. A change re-renders just those components, and none of the rest of the tree',
       })}
     >
       <path className={styles.tree} d={TREE} />

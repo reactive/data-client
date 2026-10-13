@@ -1,6 +1,6 @@
 import React from 'react';
 
-/** A database cylinder */
+/** A database cylinder (here so CI's Playground tests, which see only this folder, resolve it) */
 export default function StoreIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg

@@ -373,7 +373,7 @@
       "playground.code": "Code",
       "playground.errorMessage.status": "Request failed ({status})",
       "playground.errorMessage.reset": "Reset",
-      "dataColocation.label": "Component tree where only CurrentUser, PostBody, CommentList and Avatar read data straight from the store with useSuspense(), so a change re-renders just them and none of the rest of the tree"
+      "dataColocation.label": "Component tree where each component that renders data reads it straight from the store with useSuspense(): User for CurrentUser and Avatar, Post for PostBody, and Comment for CommentList. A change re-renders just those components, and none of the rest of the tree"
     },
     "docusaurus-plugin-content-blog/options.json": {
       "sidebar.title": "All posts",
