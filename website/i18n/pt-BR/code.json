@@ -856,6 +856,10 @@
     "message": "Árvore de componentes em que cada componente que renderiza dados os lê diretamente do store com useSuspense(): User para CurrentUser e Avatar, Post para PostBody e Comment para CommentList. Uma mudança renderiza de novo apenas esses componentes e nada mais da árvore",
     "description": "Accessible label of the data co-location diagram on the Render Data page"
   },
+  "dataFlow.label": {
+    "message": "Fluxo de dados unidirecional. Os componentes despacham ações pelo Controller para a cadeia de middleware dos managers: DevToolsManager, NetworkManager, SubscriptionManager e depois os seus. Os managers conversam com o mundo externo (DevTools, HTTP, SSE, WebSockets, IndexedDB) e despacham de volta pelo Controller. Uma ação rdc/fetch para no NetworkManager, que envia a requisição por HTTP e despacha a resposta como rdc/setresponse por todos os managers até o store. O novo estado é então renderizado nos componentes",
+    "description": "Accessible label of the data flow diagram on the Managers, Manager, Overview and Debugging pages"
+  },
   "expiryTimeline.within": {
     "message": "dentro de",
     "description": "Before the dataExpiryLength option name, over the Fresh story: a mount within that time finds fresh data"

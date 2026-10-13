@@ -5,8 +5,7 @@ image: /img/devtool-action.png
 ---
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-import ThemedImage from '@theme/ThemedImage';
-import useBaseUrl from '@docusaurus/useBaseUrl';
+import DataFlow from '@site/src/components/DataFlow';
 
 ## Depuração com agents {#debugging-with-agents}
 
@@ -104,16 +103,7 @@ Isso pode ser alterado com a opção [skipLogging](../api/DevToolsManager.md#ski
 O <abbr title="Reactive Data Client">Data Client</abbr> usa o padrão de [flux store](https://facebookarchive.github.io/flux/docs/in-depth-overview/), tornando a depuração
 simples, já que cada mudança é rastreável e descritiva.
 
-<div style={{textAlign:'center'}}>
-<ThemedImage
-  alt="FLUX"
-  sources={{
-    light: useBaseUrl('/img/diagrams/flux-simple.png'),
-    dark: useBaseUrl('/img/diagrams/flux-simple-dark.png'),
-  }}
-  style={{maxHeight:"260px"}}
-/>
-</div>
+<DataFlow />
 
 > [Mais sobre o fluxo de controle](../concepts/managers.md)
 

@@ -1,9 +1,10 @@
 import { translate } from '@docusaurus/Translate';
 import clsx from 'clsx';
-import React, { useState } from 'react';
+import React from 'react';
 
 import styles from './styles.module.css';
 import StoreIcon from '../Playground/StoreIcon';
+import useHighlight from '../useHighlight';
 
 type Entity = 'User' | 'Post' | 'Comment';
 
@@ -62,29 +63,14 @@ const BINDINGS: { entity: Entity; d: string }[] = [
 ];
 
 export default function DataColocation() {
-  const [active, setActive] = useState<Entity | null>(null);
-  const select = (entity: Entity) => ({
-    onPointerEnter: (e: React.PointerEvent) => {
-      if (e.pointerType !== 'touch') setActive(entity);
-    },
-    onPointerLeave: (e: React.PointerEvent) => {
-      if (e.pointerType !== 'touch') setActive(null);
-    },
-    // tap on touch screens; tapping the background clears it
-    onClick: (e: React.MouseEvent) => {
-      e.stopPropagation();
-      setActive(entity);
-    },
-  });
-  const state = (entity: Entity) =>
-    active && (active === entity ? styles.on : styles.off);
+  const { select, clear, state } = useHighlight<Entity>(styles.on, styles.off);
 
   return (
     <svg
       className={styles.diagram}
       viewBox="0 0 440 250"
       role="img"
-      onClick={() => setActive(null)}
+      onClick={clear}
       aria-label={translate({
         id: 'dataColocation.label',
         message:

@@ -6,8 +6,7 @@ description: 以编程方式安全地访问全局 store。实现完全可扩展�
 image: /img/social/managers-card.png
 ---
 
-import ThemedImage from '@theme/ThemedImage';
-import useBaseUrl from '@docusaurus/useBaseUrl';
+import DataFlow from '@site/src/components/DataFlow';
 import StackBlitz from '@site/src/components/StackBlitz';
 import BatchSetDemo from '../shared/\_BatchSetDemo.mdx';
 import StreamManagerDemo from '../shared/\_StreamManagerDemo.mdx';
@@ -25,13 +24,7 @@ import StreamManagerDemo from '../shared/\_StreamManagerDemo.mdx';
 Reactive Data Client 采用 [flux store](https://facebookarchive.github.io/flux/docs/in-depth-overview/) 模式，其
 特点是 store 的[单向数据流](<https://en.wikipedia.org/wiki/Unidirectional_Data_Flow_(computer_science)>)易于[理解和调试](../getting-started/debugging.md)。状态更新由 [reducer 函数](https://github.com/reactive/data-client/blob/master/packages/core/src/state/reducer/createReducer.ts#L19)执行。
 
-<ThemedImage
-alt="Manager 的 flux 流程"
-sources={{
-    light: useBaseUrl('/img/flux-full.png'),
-    dark: useBaseUrl('/img/flux-full-dark.png'),
-  }}
-/>
+<DataFlow />
 
 在 flux 架构中，flux 循环里的所有函数都必须是 :react[[纯函数](https://react.dev/learn/keeping-components-pure)]:vue[[纯函数](https://en.wikipedia.org/wiki/Pure_function)]，这一点至关重要。
 Manager 负责集中编排副作用。换句话说，它们是 <abbr title="Reactive Data Client">Data Client</abbr>
