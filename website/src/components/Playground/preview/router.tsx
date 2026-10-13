@@ -140,6 +140,8 @@ function RouterControls({
   onBack: () => void;
   onHome: () => void;
 }) {
+  const back = translate({ id: 'playground.router.back', message: 'Back' });
+  const home = translate({ id: 'playground.router.home', message: 'Home' });
   return (
     <nav
       className={styles.routerControls}
@@ -152,8 +154,8 @@ function RouterControls({
       <button
         type="button"
         className={clsx('clean-btn', styles.headerButton)}
-        title={backLabel()}
-        aria-label={backLabel()}
+        title={back}
+        aria-label={back}
         disabled={atRoot}
         onClick={onBack}
       >
@@ -162,8 +164,8 @@ function RouterControls({
       <button
         type="button"
         className={clsx('clean-btn', styles.headerButton)}
-        title={homeLabel()}
-        aria-label={homeLabel()}
+        title={home}
+        aria-label={home}
         disabled={atRoot}
         onClick={onHome}
       >
@@ -175,11 +177,6 @@ function RouterControls({
     </nav>
   );
 }
-
-const backLabel = () =>
-  translate({ id: 'playground.router.back', message: 'Back' });
-const homeLabel = () =>
-  translate({ id: 'playground.router.home', message: 'Home' });
 
 function Page({ routes, path }: { routes: readonly Route[]; path: string }) {
   for (const [pattern, Component] of routes) {
