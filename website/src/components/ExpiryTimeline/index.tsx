@@ -69,7 +69,12 @@ export default function ExpiryTimeline({
     pointerX.current = e.clientX;
     if (!frame.current) frame.current = requestAnimationFrame(seek);
   };
-  const resume = () => setPlay(p => ({ ...p, paused: false }));
+  const resume = () => {
+    // a seek still queued for this frame would pause it again
+    cancelAnimationFrame(frame.current);
+    frame.current = 0;
+    setPlay(p => ({ ...p, paused: false }));
+  };
   const advance = () =>
     setPlay(p => ({ ...p, zone: (p.zone + 1) % ZONES.length, at: 0 }));
 
