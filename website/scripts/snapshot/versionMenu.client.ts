@@ -192,8 +192,8 @@ const brandOf = (node: EventTarget | null) =>
   node instanceof Element ? node.closest<HTMLElement>(BRAND) : null;
 // every logo counts, so a tap on another logo reopens the menu from there
 // in its click rather than closing it as a tap outside
-const isMenuPart = (node: Node | null) =>
-  !!(menu?.contains(node) || brandOf(node));
+const isMenuPart = (node: EventTarget | null) =>
+  (node instanceof Node && !!menu?.contains(node)) || !!brandOf(node);
 const closeOnMouseLeave = (e: PointerEvent) => {
   if (e.pointerType === 'mouse') closeSoon();
 };
@@ -223,7 +223,7 @@ function ensureMenu() {
   );
   document.body.append(menu);
   document.addEventListener('pointerdown', e => {
-    if (!isMenuPart(e.target as Node)) close();
+    if (!isMenuPart(e.target)) close();
   });
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
@@ -244,7 +244,7 @@ async function open(from: HTMLElement, focusFirst = false) {
   const el = ensureMenu();
   const list = await loadVersions();
   if (id !== generation) return;
-  if (brand !== from) brand?.setAttribute('aria-expanded', 'false');
+  brand?.setAttribute('aria-expanded', 'false');
   brand = from;
   // measure before changing the DOM so it doesn't force a layout
   const { left } = brand.getBoundingClientRect();
@@ -286,8 +286,7 @@ function close() {
 }
 
 function closeOnFocusOut(e: FocusEvent) {
-  const next = e.relatedTarget as Node | null;
-  if (next && !isMenuPart(next)) close();
+  if (e.relatedTarget && !isMenuPart(e.relatedTarget)) close();
 }
 
 function closeSoon() {
