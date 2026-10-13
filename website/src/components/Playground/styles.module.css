@@ -634,8 +634,7 @@ div.playgroundTextEdit > .playgroundHeader,
         var(--ifm-color-emphasis-200) 76%
       )
       border-box;
-  box-shadow: 0 0 0 3px
-    color-mix(in srgb, var(--ifm-color-primary) 15%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 15%, transparent);
   color: var(--ifm-color-primary);
   animation: trace 1.2s linear infinite;
 }
