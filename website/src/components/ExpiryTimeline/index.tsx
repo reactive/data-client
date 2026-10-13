@@ -298,14 +298,22 @@ function Annotations({
   // Escape hides any tooltip, hovered ones too, until the pointer next enters
   // or presses a label, or anything in it takes focus
   const [dismissed, setDismissed] = useState(false);
+  const refocusing = useRef(false);
   useEffect(() => {
     const dismiss = (e: KeyboardEvent) => {
       // an Escape another widget already handled is that widget's
       if (e.key !== 'Escape' || e.defaultPrevented) return;
       setOpen(null);
       setDismissed(true);
-      const active = document.activeElement as HTMLElement | null;
-      if (active?.closest(`.${styles.annotation}`)) active.blur();
+      // focus stays put, except on a link in the now hidden tip: it returns
+      // to the label that tip belongs to
+      const label = document.activeElement?.closest(`.${styles.tip}`)
+        ?.previousElementSibling as HTMLElement | null | undefined;
+      if (label) {
+        refocusing.current = true;
+        label.focus();
+        refocusing.current = false;
+      }
     };
     document.addEventListener('keydown', dismiss);
     return () => document.removeEventListener('keydown', dismiss);
@@ -385,7 +393,9 @@ function Annotations({
         )}
         onPointerEnter={revive}
         onPointerDown={revive}
-        onFocus={revive}
+        onFocus={() => {
+          if (!refocusing.current) revive();
+        }}
         style={{
           left: `${((X0 + BAND * i) / WIDTH) * 100}%`,
           width: `${(BAND / WIDTH) * 100}%`,
