@@ -229,7 +229,7 @@ export const postFixtures: Interceptor<PostInterceptorState>[] = [
       }
       return this.entities[id];
     },
-    // long enough to see the useLoading demo's saving state
+    // long enough to see the demos' saving states (useLoading, Collection)
     delay: 1200,
   },
 ];
