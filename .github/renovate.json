@@ -17,6 +17,11 @@
   "postUpdateOptions": ["yarnDedupeHighest"],
   "packageRules": [
     {
+      "description": "npm overrides are hand-set floors; when Renovate bumps one, npm fails with EOVERRIDE",
+      "matchDepTypes": ["overrides"],
+      "enabled": false
+    },
+    {
       "matchCurrentVersion": "4.9.0-dev.20220903",
       "matchPackageNames": ["typescript"],
       "enabled": false
