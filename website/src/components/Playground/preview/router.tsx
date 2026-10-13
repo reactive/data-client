@@ -85,6 +85,7 @@ export function Router({ routes }: { routes: readonly Route[] }) {
     [],
   );
   const path = history[history.length - 1];
+  const atRoot = history.length === 1;
   return (
     <NavigateContext value={navigate}>
       <div
@@ -94,7 +95,7 @@ export function Router({ routes }: { routes: readonly Route[] }) {
       />
       <div
         className={styles.addressBar}
-        data-root={history.length === 1 || undefined}
+        data-root={atRoot || undefined}
         aria-busy={pending}
       >
         <button
@@ -104,7 +105,7 @@ export function Router({ routes }: { routes: readonly Route[] }) {
             id: 'playground.router.back',
             message: 'Back',
           })}
-          disabled={history.length === 1}
+          disabled={atRoot}
           onClick={() =>
             // a second click can land before the first commits
             startTransition(() =>
@@ -116,6 +117,7 @@ export function Router({ routes }: { routes: readonly Route[] }) {
         >
           <BackIcon />
         </button>
+        {/* keyed so its touch flash replays on each navigation */}
         <span key={path} className={styles.addressPath}>
           {path}
         </span>

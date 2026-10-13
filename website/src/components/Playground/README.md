@@ -296,10 +296,11 @@ DesignSystem/       components injected into preview scope
   appends the `render()` (so no file calls it): a router starting at `/` with
   a Back chip floating in the preview's top-right corner (so pages need no
   back links; it takes no layout space, and shows the path on hover, or for a
-  moment after each navigation on touch). Pages move with `<Link to>` and `useNavigate()`, scope globals that
-  stand in for the app's own router, like the design system; Vue pages use
-  `RouterLink` and `vue-router`'s `useRouter()`, and keep the same `route`
-  fences only to name their path (Vue examples don't run).
+  moment after each navigation on touch). Pages move with `<Link to>` and
+  `useNavigate()`, scope globals that stand in for the app's own router, like
+  the design system; Vue pages use `RouterLink` and `vue-router`'s
+  `useRouter()`, and keep the same `route` fences only to name their path
+  (Vue examples don't run).
   Navigation is a transition: the page stays until the next one is ready,
   with a progress bar along the preview's top edge meanwhile, so a page needs
   no `startTransition` of its own. Pages render in a Suspense boundary whose

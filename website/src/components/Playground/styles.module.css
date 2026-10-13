@@ -695,8 +695,6 @@ div.playgroundTextEdit > .playgroundHeader,
   pointer-events: auto;
 }
 .addressBar > .addressBack:disabled {
-  background: var(--ifm-background-surface-color);
-  color: var(--ifm-color-emphasis-700);
   cursor: default;
 }
 .addressBar > .addressBack:focus-visible {
@@ -725,8 +723,10 @@ div.playgroundTextEdit > .playgroundHeader,
     opacity var(--motion-snappy),
     transform var(--motion-snappy);
 }
+/* :focus-visible, not :focus-within: a tapped button keeps focus on touch,
+   which would pin the path over the demo */
 .addressBar:hover .addressPath,
-.addressBar:focus-within .addressPath {
+.addressBar:has(:focus-visible) .addressPath {
   opacity: 1;
   transform: none;
   pointer-events: auto;
@@ -745,6 +745,11 @@ div.playgroundTextEdit > .playgroundHeader,
   10%,
   75% {
     opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .addressPath {
     transform: none;
   }
 }
