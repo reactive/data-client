@@ -127,10 +127,9 @@ export function createStage(
       input.dispatchEvent(new Event('input', { bubbles: true }));
     },
 
-    store(open) {
-      // a press only where the pointer is on the toggle; the Store's own
-      // switch either way, so the reader's choice stays theirs
-      if (pointedAt?.matches('[data-store-toggle]')) ring();
+    store(open, pressed) {
+      if (pressed) ring();
+      // not the toggle's own click, which would save the reader's choice
       showStore(open);
     },
 

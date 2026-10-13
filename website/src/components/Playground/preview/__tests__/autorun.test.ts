@@ -25,7 +25,8 @@ function fakeStage(
     point: el => void calls.push(el === toggle ? 'point toggle' : 'point'),
     click: () => void calls.push('click'),
     append: (_, text) => void calls.push(`append ${text}`),
-    store: open => void calls.push(`store ${open}`),
+    store: (open, pressed) =>
+      void calls.push(`store ${open}${pressed ? ' pressed' : ''}`),
     end: () => void calls.push('end'),
   };
   return { stage, calls };
@@ -93,7 +94,7 @@ it('glides onto the Store toggle before opening the Store', async () => {
   await jest.advanceTimersByTimeAsync(0);
   expect(calls).toEqual(['point toggle']);
   await jest.advanceTimersByTimeAsync(MOVE_MS);
-  expect(calls).toEqual(['point toggle', 'store true', 'end']);
+  expect(calls).toEqual(['point toggle', 'store true pressed', 'end']);
 });
 
 it('a wait holds for its own time only', async () => {
@@ -166,6 +167,29 @@ describe('stage', () => {
       button.addEventListener(type, () => seen.push(type));
     stage.click(button);
     expect(seen).toEqual(['pointerdown', 'mousedown', 'mouseup', 'click']);
+  });
+
+  it('opens the Store without its click, ringing only for a press', () => {
+    Element.prototype.scrollTo = () => {};
+    const animate = jest.fn();
+    HTMLElement.prototype.animate = animate;
+    try {
+      const root = playground();
+      const showStore = jest.fn();
+      const stage = createStage(root, showStore);
+      const toggle = root.querySelector('button')!;
+      const onClick = jest.fn();
+      toggle.addEventListener('click', onClick);
+      stage.point(toggle);
+      stage.store(true);
+      expect(animate).not.toHaveBeenCalled();
+      stage.store(false, true);
+      expect(animate).toHaveBeenCalledTimes(1);
+      expect(showStore.mock.calls).toEqual([[true], [false]]);
+      expect(onClick).not.toHaveBeenCalled();
+    } finally {
+      delete (HTMLElement.prototype as any).animate;
+    }
   });
 
   it('the pointer follows its target when the playground resizes', () => {
