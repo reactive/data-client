@@ -502,6 +502,14 @@ describe('useAutoRun', () => {
     expect(result.current.player.getState()).toBe('playing');
   });
 
+  it('replay plays though mostly out of view', async () => {
+    const { result, see, showStore } = mount();
+    see(0.1);
+    act(() => result.current.replay());
+    await jest.runAllTimersAsync();
+    expect(showStore).toHaveBeenLastCalledWith(true);
+  });
+
   it("a script that changes identity doesn't start over a run", () => {
     const { result, see, rerender } = mount([{ store: 'open' }]);
     const play = jest.spyOn(result.current.player, 'play');

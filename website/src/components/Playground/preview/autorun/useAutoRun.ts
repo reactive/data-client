@@ -12,7 +12,8 @@ import { prefersReducedMotion } from '../../../motion';
  * - The reader's own input anywhere in the playground (a press, a tap, a
  *   key) ends the run, and they carry on from what it left. Scrolling,
  *   hovering and the demo's own controls (`data-autorun-control`) don't.
- * - Mostly out of view or in a background tab, the run pauses where it is.
+ * - Once neither the preview nor the playground is mostly in view, or in a
+ *   background tab, the run pauses where it is.
  * - Under reduced motion it never starts by itself.
  *
  * `showStore` opens or closes the Store for the demo without saving it as
@@ -73,7 +74,6 @@ export function useAutoRun(
           // idle: never over a run, even if the script changed identity;
           // played: a script starts by itself once per page load
           if (
-            shown &&
             previewShown &&
             script &&
             player.getState() === 'idle' &&
@@ -107,6 +107,8 @@ export function useAutoRun(
     if (script) played.add(script);
     // start() takes over from a run in progress: playing aborts it
     reset();
+    // the reader asked to watch, though it's mostly out of view
+    player.setPaused(false);
     // the demo shows the Store opening, if it does
     if (script?.some(step => 'store' in step && step.store === 'open'))
       showStore(false);
