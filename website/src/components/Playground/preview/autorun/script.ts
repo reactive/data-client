@@ -12,9 +12,6 @@ export type Step =
         | { click: Target }
         /** Appends `text` to an input, a character at a time */
         | { type: Target; text: string }
-        /** Sweeps the mouse across it, left to right, as over the Store's
-         * timeline to preview each moment */
-        | { scrub: Target }
         /** Opens or closes the Store, without changing the reader's own choice */
         | { store: 'open' | 'close' }
       ));

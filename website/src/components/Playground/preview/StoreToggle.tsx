@@ -77,6 +77,7 @@ export function StoreHeaderToggle({
       title={toggleTitle(open)}
       aria-label={translate({ id: 'playground.store', message: 'Store' })}
       aria-pressed={open}
+      data-store-toggle
       disabled={!onClick}
       onClick={onClick}
     >
@@ -101,6 +102,7 @@ export function StoreBadge({
       className={clsx('clean-btn', styles.swap, styles.storeBadge)}
       title={toggleTitle(open)}
       aria-pressed={open}
+      data-store-toggle
       data-swapped={open || undefined}
       onClick={onClick}
     >

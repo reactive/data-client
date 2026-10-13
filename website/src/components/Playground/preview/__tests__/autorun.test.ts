@@ -7,8 +7,6 @@ import {
   FIND_TIMEOUT,
   KEY_MS,
   MOVE_MS,
-  SCRUB_MS,
-  SCRUB_STEPS,
   type Stage,
 } from '../autorun/player';
 import type { AutoRunScript } from '../autorun/script';
@@ -24,8 +22,6 @@ function fakeStage(
     point: () => void calls.push('point'),
     click: () => void calls.push('click'),
     append: (_, text) => void calls.push(`append ${text}`),
-    hover: (_, fraction) => void calls.push(`hover ${fraction}`),
-    leave: () => void calls.push('leave'),
     store: open => void calls.push(`store ${open}`),
     end: () => void calls.push('end'),
   };
@@ -85,38 +81,6 @@ it('stop ends the run where it is', async () => {
   await jest.runAllTimersAsync();
   expect(calls).toEqual(['point', 'append a', 'end']);
   expect(listener).toHaveBeenCalledTimes(2);
-});
-
-it('scrubs across its target, then leaves', async () => {
-  const player = createPlayer();
-  const { stage, calls } = fakeStage();
-  player.play([{ delay: 0, scrub: 'input' }], stage);
-  await jest.advanceTimersByTimeAsync(0);
-  expect(calls).toEqual(['hover 0']);
-  await jest.advanceTimersByTimeAsync(MOVE_MS + SCRUB_MS / 2);
-  expect(calls.at(-1)).toBe(`hover ${SCRUB_STEPS / 2 / SCRUB_STEPS}`);
-  await jest.runAllTimersAsync();
-  expect(calls.slice(-3)).toEqual(['hover 1', 'leave', 'end']);
-  expect(calls).toHaveLength(SCRUB_STEPS + 3);
-});
-
-it('a scrub moves onto the target a render put in its place', async () => {
-  const player = createPlayer();
-  const { stage } = fakeStage();
-  const first = document.body.appendChild(document.createElement('div'));
-  const second = document.createElement('div');
-  let found = first;
-  stage.find = () => found;
-  const hovered: HTMLElement[] = [];
-  stage.hover = el => void hovered.push(el);
-  player.play([{ delay: 0, scrub: 'div' }], stage);
-  await jest.advanceTimersByTimeAsync(MOVE_MS + SCRUB_MS / 2);
-  first.replaceWith(second);
-  found = second;
-  await jest.runAllTimersAsync();
-  expect(hovered[0]).toBe(first);
-  expect(hovered.at(-1)).toBe(second);
-  document.body.innerHTML = '';
 });
 
 it('a wait holds for its own time only', async () => {
@@ -189,31 +153,6 @@ describe('stage', () => {
       button.addEventListener(type, () => seen.push(type));
     stage.click(button);
     expect(seen).toEqual(['pointerdown', 'mousedown', 'mouseup', 'click']);
-  });
-
-  it('hovers across a target as the mouse would', () => {
-    Element.prototype.scrollTo = () => {};
-    const root = playground();
-    const stage = createStage(root, () => {});
-    const track = root.querySelector('button')!;
-    track.getBoundingClientRect = () =>
-      ({ left: 0, top: 0, width: 100, height: 20 }) as DOMRect;
-    const seen: string[] = [];
-    for (const type of ['pointerenter', 'pointermove', 'pointerleave'])
-      track.addEventListener(type, e =>
-        seen.push(`${type} ${(e as MouseEvent).clientX} ${e.isTrusted}`),
-      );
-    stage.hover(track, 0);
-    stage.hover(track, 0.5);
-    stage.leave(track);
-    expect(seen).toEqual([
-      'pointerenter 0 false',
-      'pointermove 0 false',
-      'pointermove 50 false',
-      'pointerleave 50 false',
-    ]);
-    const pointer = root.querySelector<HTMLElement>('svg')!.parentElement!;
-    expect(pointer.style.transform).toBe('translate(50px, 10px)');
   });
 
   it('the pointer follows its target when the playground resizes', () => {

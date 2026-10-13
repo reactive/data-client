@@ -657,11 +657,9 @@ export const Scrubber = memo(function Scrubber({
         >
           ›
         </button>
-        {/* data-scrub-track: what auto-run demos sweep (Playground README) */}
         <div
           ref={track}
           className={styles.scrubTrack}
-          data-scrub-track
           style={{ '--tl-width': `${scale.width}px` } as React.CSSProperties}
           data-catchup={catchingUp || undefined}
         >

@@ -7,11 +7,29 @@ export const raceDemo = [
   { delay: 250, click: '.vote button.up' },
   { delay: 250, click: '.vote button.up' },
   { delay: 250, click: '.vote button.up' },
-  // past the slowest increment response (the fixture's 5s), so the scrub
-  // shows every response landing
+  // past the slowest increment response (the fixture's 5s), so the
+  // timeline holds every response
   { wait: 5500 },
-  { scrub: { in: 'store', selector: '[data-scrub-track]' } },
-  { wait: 1500 },
+  { click: { in: 'store', selector: 'button[aria-label="Diff"]' } },
+  // the first action, then on through each change, time to read each diff
+  {
+    click: {
+      in: 'store',
+      selector: '[role="group"][aria-label^="Scrubber"] button[data-id]',
+    },
+  },
+  ...Array.from({ length: 8 }, () => ({
+    delay: 2000,
+    click: { in: 'store', selector: 'button[aria-label="Next change"]' },
+  })),
+  // Store → Code: back to the code that did it
+  {
+    delay: 2000,
+    click: {
+      in: 'playground',
+      selector: 'button[data-store-toggle][aria-pressed="true"]',
+    },
+  },
 ];
 
 <FrameworkPlayground fixtures={[
