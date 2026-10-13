@@ -14,9 +14,12 @@ const EXPORT_LIST =
 
 const EXPORT_PREFIX = /^[ \t]*export[ \t]+(?:default[ \t]+)?/gm;
 
+const IDENTIFIER = /([A-Za-z_$][\w$]*)/.source;
 /** `export default function Name`, `class Name` or `Name;` (not an expression) */
-const DEFAULT_EXPORT =
-  /^[ \t]*export[ \t]+default[ \t]+(?:(?:async[ \t]+)?function\s*\*?\s*([A-Za-z_$][\w$]*)|class\s+(?!extends\b)([A-Za-z_$][\w$]*)|([A-Za-z_$][\w$]*)[ \t]*;?[ \t]*$)/m;
+const DEFAULT_EXPORT = new RegExp(
+  String.raw`^[ \t]*export[ \t]+default[ \t]+(?:(?:async[ \t]+)?function\b\s*\*?\s*${IDENTIFIER}|class\s+(?!extends\b)${IDENTIFIER}|${IDENTIFIER}[ \t]*;?[ \t]*$)`,
+  'm',
+);
 
 /** Name the code's default export keeps once `transformCode` strips `export default` */
 export function defaultExportName(code: string): string | undefined {

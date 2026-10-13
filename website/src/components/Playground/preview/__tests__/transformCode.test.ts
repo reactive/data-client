@@ -114,6 +114,7 @@ describe('defaultExportName', () => {
     ['export default class {}', undefined],
     ['export default class extends React.Component {}', undefined],
     ['export default memo(PostList);', undefined],
+    ['export default functionPage;', 'functionPage'],
     ['function PostList() {}', undefined],
   ])('%s', (code, name) => {
     expect(defaultExportName(code)).toBe(name);

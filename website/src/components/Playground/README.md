@@ -147,7 +147,8 @@ DesignSystem/       components injected into preview scope
   stripped of imports/exports by `transformCode`, and run `noInline`
   (`render(<App />)`) with `preview/scope.ts` as globals, inside one block so
   a demo may declare its own `Link` or `Avatar` (react-live passes the scope
-  as parameters, which a `const` or `class` can't redeclare). Keep
+  as parameters, which a `const` or `class` can't redeclare). Like modules
+  in one app, two documents can't declare the same name. Keep
   `monaco/typeLibs.ts` declarations in sync with the scope: `globalScopeLib()`
   aliases library exports into `declare global`, and `Array`/`Object` keep
   their built-in types (they're type-only exports).
