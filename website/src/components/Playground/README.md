@@ -294,9 +294,9 @@ DesignSystem/       components injected into preview scope
   navigation of its own. The page is that file's named default export, and
   the path's params are its props. When any file has one, `routerTrailer`
   appends the `render()` (so no file calls it): a router starting at `/` with
-  a Back chip floating in the preview's top-right corner (so pages need no
-  back links; it takes no layout space, and shows the path on hover, or for a
-  moment after each navigation on touch). Pages move with `<Link to>` and
+  Back, Home and the current path in the preview's header (so pages need no
+  back links; `PreviewWrapper` gives the header slot through
+  `RouterControlsSlot`, and the router portals into it). Pages move with `<Link to>` and
   `useNavigate()`, scope globals that stand in for the app's own router, like
   the design system; Vue pages use `RouterLink` and `vue-router`'s
   `useRouter()`, and keep the same `route` fences only to name their path

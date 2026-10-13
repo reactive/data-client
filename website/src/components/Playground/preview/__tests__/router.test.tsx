@@ -6,6 +6,7 @@ import React from 'react';
 
 import type { CodeDocument } from '../../editor/codeModel';
 import { Link, Router, routerTrailer, useNavigate } from '../router';
+import { RouterControlsSlot } from '../routerSlot';
 
 jest.mock('../../DesignSystem/Loading', () => ({ Loading: () => null }));
 
@@ -37,6 +38,11 @@ describe('routerTrailer', () => {
 
 describe('Router', () => {
   afterEach(() => jest.restoreAllMocks());
+  /** renders `ui` with the preview header's slot for the router's controls */
+  function renderInPreview(ui: React.ReactElement) {
+    const slot = document.body.appendChild(document.createElement('div'));
+    return render(<RouterControlsSlot value={slot}>{ui}</RouterControlsSlot>);
+  }
   function List() {
     return <Link to="/posts/5">Post 5</Link>;
   }
@@ -50,7 +56,7 @@ describe('Router', () => {
   ] as const;
 
   test('navigates with params as props, and Back returns', async () => {
-    render(<Router routes={routes} />);
+    renderInPreview(<Router routes={routes} />);
     const back = screen.getByRole('button', { name: 'Back' });
     expect(back).toHaveProperty('disabled', true);
 
@@ -74,7 +80,7 @@ describe('Router', () => {
       React.use(ready);
       return <>slow page</>;
     }
-    const { container } = render(
+    const { container } = renderInPreview(
       <Router
         routes={[
           ['/', () => <Link to="/slow">Slow</Link>],
@@ -97,7 +103,7 @@ describe('Router', () => {
 
   test('keeps Back working when a page throws', async () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
-    render(
+    renderInPreview(
       <Router
         routes={[
           ['/', () => <Link to="/missing">Missing</Link>],
@@ -117,8 +123,34 @@ describe('Router', () => {
     expect(screen.getByText('Missing')).toBeTruthy();
   });
 
+  test('Home returns to the first page from deep in the history', async () => {
+    renderInPreview(
+      <Router
+        routes={[
+          ['/', () => <Link to="/a">A</Link>],
+          ['/a', () => <Link to="/b">B</Link>],
+          ['/b', () => <>page b</>],
+        ]}
+      />,
+    );
+    await act(async () => {
+      fireEvent.click(screen.getByText('A'));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByText('B'));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Home' }));
+    });
+    expect(screen.getByText('A')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Back' })).toHaveProperty(
+      'disabled',
+      true,
+    );
+  });
+
   test('stops at the first page when Back is pressed twice', async () => {
-    render(<Router routes={routes} />);
+    renderInPreview(<Router routes={routes} />);
     await act(async () => {
       fireEvent.click(screen.getByText('Post 5'));
     });
@@ -131,7 +163,7 @@ describe('Router', () => {
   });
 
   test('leaves a Link alone when its onClick cancels the event', async () => {
-    render(
+    renderInPreview(
       <Router
         routes={[
           [

@@ -1,5 +1,6 @@
 import { ErrorBoundary } from '@data-client/react';
 import { translate } from '@docusaurus/Translate';
+import clsx from 'clsx';
 import React, {
   createContext,
   Suspense,
@@ -9,7 +10,9 @@ import React, {
   useTransition,
   type ComponentType,
 } from 'react';
+import { createPortal } from 'react-dom';
 
+import { RouterControlsSlot } from './routerSlot';
 import { defaultExportName } from './transformCode';
 import { ErrorMessage } from '../DesignSystem/ErrorMessage';
 import { Loading } from '../DesignSystem/Loading';
@@ -68,9 +71,7 @@ interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   to: string;
 }
 
-/** Starts at `/`, with an address chip floating in the preview's top corner:
- * Back returns to the page before, and the path shows on hover or keyboard
- * focus (on touch, briefly after each navigation).
+/** Starts at `/`, with Back, Home and the path shown in the preview's header.
  * Navigation is a transition: the current page stays until the next one is
  * ready, with a progress bar along the preview's top edge meanwhile.
  */
@@ -84,48 +85,63 @@ export function Router({ routes }: { routes: readonly Route[] }) {
       ),
     [],
   );
+  const controlsSlot = use(RouterControlsSlot);
   const path = history[history.length - 1];
   const atRoot = history.length === 1;
+  const controls = (
+    <nav
+      className={styles.routerControls}
+      aria-label={translate({
+        id: 'playground.router.pages',
+        message: 'Preview pages',
+      })}
+      aria-busy={pending}
+    >
+      <button
+        type="button"
+        className={clsx('clean-btn', styles.headerButton)}
+        title={backLabel()}
+        aria-label={backLabel()}
+        disabled={atRoot}
+        onClick={() =>
+          // a second click can land before the first commits
+          startTransition(() =>
+            setHistory(paths =>
+              paths.length > 1 ? paths.slice(0, -1) : paths,
+            ),
+          )
+        }
+      >
+        <BackIcon />
+      </button>
+      <button
+        type="button"
+        className={clsx('clean-btn', styles.headerButton)}
+        title={homeLabel()}
+        aria-label={homeLabel()}
+        disabled={atRoot}
+        onClick={() => startTransition(() => setHistory(['/']))}
+      >
+        <HomeIcon />
+      </button>
+      <span className={styles.routerPath} title={path}>
+        {path}
+      </span>
+    </nav>
+  );
   return (
     <NavigateContext value={navigate}>
+      {controlsSlot && createPortal(controls, controlsSlot)}
       <div
         className={styles.navProgress}
         data-pending={pending || undefined}
         aria-hidden="true"
       />
-      <div
-        className={styles.addressBar}
-        data-root={atRoot || undefined}
-        aria-busy={pending}
-      >
-        <button
-          type="button"
-          className={styles.addressBack}
-          aria-label={translate({
-            id: 'playground.router.back',
-            message: 'Back',
-          })}
-          disabled={atRoot}
-          onClick={() =>
-            // a second click can land before the first commits
-            startTransition(() =>
-              setHistory(paths =>
-                paths.length > 1 ? paths.slice(0, -1) : paths,
-              ),
-            )
-          }
-        >
-          <BackIcon />
-        </button>
-        {/* keyed so its touch flash replays on each navigation */}
-        <span key={path} className={styles.addressPath}>
-          {path}
-        </span>
-      </div>
       <Suspense fallback={<Loading />}>
-        {/* the chip stays usable when a page throws, so Back recovers; a
-            new path clears the error. Suspense stays outside this key: a newly
-            mounted one would show its fallback rather than hold the page */}
+        {/* the header's controls stay usable when a page throws, so Back
+            recovers; a new path clears the error. Suspense stays outside this
+            key: a newly mounted one would show its fallback rather than hold
+            the page */}
         <ErrorBoundary key={path} fallbackComponent={ErrorMessage}>
           <Page routes={routes} path={path} />
         </ErrorBoundary>
@@ -133,6 +149,11 @@ export function Router({ routes }: { routes: readonly Route[] }) {
     </NavigateContext>
   );
 }
+
+const backLabel = () =>
+  translate({ id: 'playground.router.back', message: 'Back' });
+const homeLabel = () =>
+  translate({ id: 'playground.router.home', message: 'Home' });
 
 function Page({ routes, path }: { routes: readonly Route[]; path: string }) {
   for (const [pattern, Component] of routes) {
@@ -174,7 +195,25 @@ function BackIcon() {
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      <path d="m15 18-6-6 6-6" />
+      <path d="M19 12H5m6-6-6 6 6 6" />
+    </svg>
+  );
+}
+
+function HomeIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="1em"
+      height="1em"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.25"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M4 11.5 12 5l8 6.5M6.5 9.5V19h11V9.5" />
     </svg>
   );
 }
