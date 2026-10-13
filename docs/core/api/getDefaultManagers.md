@@ -106,7 +106,7 @@ const managers = getDefaultManagers({
 ```
 
 `IdlingNetworkManager` can prevent stuttering by delaying [sideEffect](/rest/api/Endpoint#sideeffect)-free (read-only/GET) fetches
-until animations are complete. This uses [requestIdleCallback](https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback) in both web and React Native.
+until animations are complete. This works in web using [requestIdleCallback](https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback), and react native using InteractionManager.runAfterInteractions.
 
 :::
 

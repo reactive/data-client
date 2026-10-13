@@ -9,6 +9,7 @@ import type {
 } from '@data-client/core';
 import { ExpiryStatus } from '@data-client/core';
 import { useEffect, useMemo } from 'react';
+import { InteractionManager } from 'react-native';
 
 import useCacheState from './useCacheState.js';
 import useController from './useController.js';
@@ -118,13 +119,13 @@ export default function useDLE<
 
   useFocusEffect(() => {
     // revalidating non-suspending data is low priority, so make sure it doesn't stutter animations
-    const handle = requestIdleCallback(() => {
+    const task = InteractionManager.runAfterInteractions(() => {
       if (Date.now() > expiresAt && key) {
         controller.fetch(endpoint, ...(args as Parameters<E>));
       }
     });
 
-    return () => cancelIdleCallback(handle);
+    return () => task.cancel();
   }, []);
 
   const data = useMemo(() => {

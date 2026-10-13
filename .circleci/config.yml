@@ -287,7 +287,7 @@ jobs:
             yarn up react@<< parameters.react-version >> react-dom@<< parameters.react-version >> react-test-renderer@<< parameters.react-version >>
             yarn workspace @data-client/test add --dev @testing-library/react-hooks
             elif [ "<< parameters.react-version >>" == "native" ]; then
-            # React Native 0.87 bundles the React 19.2.3 renderer (React 19.3 pairs with RN 0.88).
+            # React Native 0.86 bundles the React 19.2.3 renderer (React 19.3 pairs with RN 0.88).
             # This job also covers the previous React minor for the ReactDOM suites below.
             V=19.2.3
             npm pkg delete resolutions.react resolutions.react-dom resolutions.react-test-renderer

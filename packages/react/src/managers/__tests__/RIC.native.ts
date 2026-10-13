@@ -8,7 +8,7 @@ describe('RequestIdleCallback', () => {
     warnSpy.mockRestore();
   });
 
-  it('should run using requestIdleCallback', async () => {
+  it('should run using InteractionManager', async () => {
     const fn = jest.fn();
     jest.useFakeTimers();
     // @ts-expect-error this is protected member
@@ -17,7 +17,7 @@ describe('RequestIdleCallback', () => {
     expect(fn).toHaveBeenCalled();
     jest.useRealTimers();
   });
-  it('should run with timeout using requestIdleCallback', async () => {
+  it('should run with timeout using InteractionManager', async () => {
     const fn = jest.fn();
     jest.useFakeTimers();
     // @ts-expect-error this is protected member
