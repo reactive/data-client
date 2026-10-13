@@ -455,6 +455,7 @@ export default function StorePanel({
           <div
             className={styles.store}
             ref={panel}
+            data-store-panel
             onKeyDownCapture={e => {
               // the peek shuts first: before a level under it takes the
               // Escape to go back. Under the sheet, the sheet does

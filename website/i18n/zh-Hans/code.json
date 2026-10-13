@@ -821,6 +821,9 @@
   "playground.resetPreview": {
     "message": "重置预览"
   },
+  "playground.demo.replay": {
+    "message": "重播演示"
+  },
   "playground.renderCount": {
     "message": "{count} 次渲染",
     "description": "Plural forms, separated by |"

@@ -63,6 +63,7 @@ function renderPlayground(documents: string[]) {
       row: false,
       fixtures: [],
       renderCount: false,
+      showStore: () => {},
     };
   };
   const result = render(<LivePreview {...props(documents)} />);

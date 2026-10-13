@@ -7,6 +7,7 @@ import Boundary from './Boundary';
 import { useCodeDocuments } from './editor/codeModel';
 import EditorShell from './editor/EditorShell';
 import EditorSurface from './editor/EditorSurface';
+import type { AutoRunScript } from './preview/autorun/script';
 import FixturePreview from './preview/FixturePreview';
 import type LivePreviewType from './preview/LivePreview';
 import PreviewWrapper from './preview/PreviewWrapper';
@@ -41,6 +42,10 @@ export interface PlaygroundProps<T = any> {
   /** How the Store's action log records (e.g. `{ recordFrom: 'open' }` for
    * a fast stream), over `DOCS_LOG` */
   actionLog?: LogOptions;
+  /** A demo the preview plays by itself once in view (its Live Preview label
+   * replays it). Declare it once at module level: its identity keys the
+   * once-per-page autostart. */
+  autoRun?: AutoRunScript;
 }
 
 /** A page holds several playgrounds: each keeps a short history (a
@@ -59,6 +64,7 @@ export default function Playground<T>({
   headerControls,
   renderCount = false,
   actionLog: logOptions,
+  autoRun,
 }: PlaygroundProps<T>) {
   // read once, as the preview first builds its log
   const actionLog = { ...DOCS_LOG, ...logOptions };
@@ -66,7 +72,10 @@ export default function Playground<T>({
   // Defer preview transpilation so editor input remains responsive.
   const documents = useDeferredValue(model.documents);
 
-  const [storeOpen, toggleStore] = useStoreOpen(groupId, defaultOpen);
+  const [storeOpen, toggleStore, showStore] = useStoreOpen(
+    groupId,
+    defaultOpen,
+  );
   // Row layout: the Store slides over the code, leaving the preview usable
   const [storeHost, setStoreHost] = useState<HTMLDivElement | null>(null);
   const codeCovered = row && storeOpen;
@@ -116,12 +125,16 @@ export default function Playground<T>({
           getInitialInterceptorData={getInitialInterceptorData}
           renderCount={renderCount}
           actionLog={actionLog}
+          autoRun={autoRun}
+          showStore={showStore}
         />
       </Boundary>
     );
 
   return (
     <div
+      // where the demo (autoRun) acts
+      data-playground
       className={clsx(styles.playgroundQueryContainer, {
         [styles.hidden]: hidden,
       })}

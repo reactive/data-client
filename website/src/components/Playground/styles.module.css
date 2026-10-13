@@ -946,6 +946,44 @@ div.fixtureJson {
   background: #ff5f56;
   box-shadow: 0 0 0 3px rgba(255, 95, 86, 0.2);
 }
+/* A playground with a demo (autorun/DemoLabel): the label replays it, and
+   its dot breathes while it plays */
+.demoLabel {
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.demoLabel:focus-visible {
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 2px;
+  border-radius: var(--ifm-global-radius);
+}
+@media (hover: hover) {
+  .demoLabel:hover::before {
+    box-shadow: 0 0 0 5px rgba(255, 95, 86, 0.3);
+  }
+}
+.demoLabel::before {
+  transition: box-shadow var(--motion-snappy);
+}
+.demoLabel[data-playing]::before {
+  animation: demoPulse 2.4s ease-in-out infinite;
+}
+@keyframes demoPulse {
+  50% {
+    box-shadow: 0 0 0 6px rgba(255, 95, 86, 0);
+    scale: 0.8;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* still shows it's playing, without the motion */
+  .demoLabel[data-playing]::before {
+    animation: none;
+    box-shadow: 0 0 0 5px rgba(255, 95, 86, 0.35);
+  }
+}
 
 /* Preview header badge (Playground `renderCount`) */
 .previewHeader {

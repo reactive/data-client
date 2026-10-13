@@ -112,6 +112,8 @@ React:
   playground blocks use `import React from 'react'` and `React.useState()`. Other blocks import
   hooks by name.
 - Format `Temporal` values with `toLocaleString()`, not the playground's `DateTimeFormat`.
+- A playground can play a scripted demo by itself (`autoRun`). Before writing one, read "Auto-run"
+  in `website/src/components/Playground/README.md`.
 
 Vue:
 

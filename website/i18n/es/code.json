@@ -821,6 +821,9 @@
   "playground.resetPreview": {
     "message": "Reiniciar la vista previa"
   },
+  "playground.demo.replay": {
+    "message": "Repetir la demo"
+  },
   "playground.renderCount": {
     "message": "{count} renderizado|{count} renderizados",
     "description": "Plural forms, separated by |"
