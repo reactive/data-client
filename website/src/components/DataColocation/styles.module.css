@@ -1,28 +1,21 @@
 .diagram {
   --line: var(--ifm-color-emphasis-300);
   --user: hsl(262, 52%, 48%);
-  --user-tint: hsl(262, 80%, 96%);
   --post: hsl(206, 69%, 40%);
-  --post-tint: hsl(206, 80%, 95%);
   --comment: hsl(165, 70%, 26%);
-  --comment-tint: hsl(165, 60%, 93%);
   --on-chip: #fff;
   float: right;
   width: 440px;
   max-width: 100%;
   margin: 0 0 1rem 1.25rem;
-  font-family: var(--ifm-font-family-base);
   font-size: 11.5px;
   text-anchor: middle;
   user-select: none;
 }
 [data-theme='dark'] .diagram {
   --user: hsl(262, 75%, 74%);
-  --user-tint: hsl(262, 30%, 22%);
   --post: var(--ifm-color-primary-light);
-  --post-tint: hsl(206, 40%, 20%);
   --comment: hsl(165, 55%, 55%);
-  --comment-tint: hsl(165, 35%, 17%);
   --on-chip: hsl(220, 20%, 12%);
 }
 /* full width under the text instead of squeezing it */
@@ -37,17 +30,14 @@
 /* each entity changes in turn, every 2s of a 6s cycle */
 .User {
   --c: var(--user);
-  --t: var(--user-tint);
   --delay: 0s;
 }
 .Post {
   --c: var(--post);
-  --t: var(--post-tint);
   --delay: 2s;
 }
 .Comment {
   --c: var(--comment);
-  --t: var(--comment-tint);
   --delay: 4s;
 }
 
@@ -132,13 +122,10 @@
 }
 
 .plain rect,
-.bound rect {
-  rx: 7px;
-}
-.plain rect,
 .bound rect,
 .rest {
   stroke-width: 1.5;
+  rx: 7px;
 }
 .plain rect,
 .rest {
@@ -152,7 +139,7 @@
   rx: 4px;
 }
 .bound rect {
-  fill: var(--t);
+  fill: color-mix(in srgb, var(--c) 12%, var(--ifm-background-surface-color));
   stroke: var(--c);
 }
 .bound text {
