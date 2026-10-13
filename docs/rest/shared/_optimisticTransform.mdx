@@ -24,13 +24,7 @@ export const raceDemo = [
     click: { in: 'store', selector: 'button[aria-label="Next change"]' },
   })),
   // Store → Code: back to the code that did it
-  {
-    delay: 2000,
-    click: {
-      in: 'playground',
-      selector: 'button[data-store-toggle][aria-pressed="true"]',
-    },
-  },
+  { delay: 2000, store: 'close' },
 ];
 
 <FrameworkPlayground fixtures={[

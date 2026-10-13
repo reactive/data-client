@@ -23,6 +23,12 @@ export const MOVE_MS = springEasing(springs.smooth).duration;
 export const KEY_MS = 90;
 export const FIND_TIMEOUT = 5000;
 const FIND_EVERY = 50;
+/** The Store's toggle: the code's corner badge, or a narrow layout's header
+ * button */
+export const STORE_TOGGLE: Target = {
+  in: 'playground',
+  selector: '[data-store-toggle]',
+};
 
 /** Plays scripts one at a time on a clock that pauses (out of view) without
  * losing its place. `stop()` ends a run for good: a reader who takes over
@@ -82,7 +88,16 @@ async function perform(
 ) {
   if ('wait' in step) return sleep(step.wait);
   await sleep(step.delay ?? STEP_DELAY);
-  if ('store' in step) return stage.store(step.store === 'open');
+  if ('store' in step) {
+    // onto the Store's toggle first, as a reader would; where the layout
+    // shows one
+    const toggle = stage.find(STORE_TOGGLE);
+    if (toggle) {
+      stage.point(toggle);
+      await sleep(MOVE_MS);
+    }
+    return stage.store(step.store === 'open');
+  }
 
   // look the target up again before each act: a render may have replaced it
   const find = async (target: Target) => {

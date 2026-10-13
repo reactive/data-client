@@ -43,6 +43,12 @@ export function createStage(
       pointer.dataset.shown = '';
     }
   };
+  /** A press: a ring spreads from the tip (none without Web Animations,
+   * e.g. jsdom) */
+  const ring = () => {
+    if (typeof pointer?.animate === 'function' && !prefersReducedMotion())
+      pointer.animate(PRESS, PRESS_TIMING);
+  };
   // the layer sits at the playground's foot, so content growing above it
   // (the Store opening) moves the pointer's origin: follow the target,
   // unless a render took it away (it would measure at the viewport's corner)
@@ -87,9 +93,7 @@ export function createStage(
     },
 
     click(el) {
-      // no Web Animations (e.g. jsdom): no ring
-      if (typeof pointer?.animate === 'function' && !prefersReducedMotion())
-        pointer.animate(PRESS, PRESS_TIMING);
+      ring();
       const init = {
         bubbles: true,
         cancelable: true,
@@ -123,7 +127,11 @@ export function createStage(
       input.dispatchEvent(new Event('input', { bubbles: true }));
     },
 
-    store,
+    store(open) {
+      // the Store's own switch, so the reader's choice stays theirs
+      ring();
+      store(open);
+    },
 
     end() {
       resized?.disconnect();

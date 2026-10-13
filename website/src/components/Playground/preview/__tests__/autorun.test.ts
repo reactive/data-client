@@ -7,6 +7,7 @@ import {
   FIND_TIMEOUT,
   KEY_MS,
   MOVE_MS,
+  STORE_TOGGLE,
   type Stage,
 } from '../autorun/player';
 import type { AutoRunScript } from '../autorun/script';
@@ -15,10 +16,12 @@ import { isReaderInput, useAutoRun } from '../autorun/useAutoRun';
 
 function fakeStage(
   found: HTMLElement | null = document.createElement('input'),
+  /** The Store's toggle, if the layout shows one */
+  toggle: HTMLElement | null = null,
 ) {
   const calls: string[] = [];
   const stage: Stage = {
-    find: () => found,
+    find: target => (target === STORE_TOGGLE ? toggle : found),
     point: () => void calls.push('point'),
     click: () => void calls.push('click'),
     append: (_, text) => void calls.push(`append ${text}`),
@@ -81,6 +84,16 @@ it('stop ends the run where it is', async () => {
   await jest.runAllTimersAsync();
   expect(calls).toEqual(['point', 'append a', 'end']);
   expect(listener).toHaveBeenCalledTimes(2);
+});
+
+it('glides onto the Store toggle before opening the Store', async () => {
+  const player = createPlayer();
+  const { stage, calls } = fakeStage(null, document.createElement('button'));
+  player.play([{ delay: 0, store: 'open' }], stage);
+  await jest.advanceTimersByTimeAsync(0);
+  expect(calls).toEqual(['point']);
+  await jest.advanceTimersByTimeAsync(MOVE_MS);
+  expect(calls).toEqual(['point', 'store true', 'end']);
 });
 
 it('a wait holds for its own time only', async () => {
