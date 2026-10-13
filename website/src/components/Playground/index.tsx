@@ -42,7 +42,9 @@ export interface PlaygroundProps<T = any> {
   /** How the Store's action log records (e.g. `{ recordFrom: 'open' }` for
    * a fast stream), over `DOCS_LOG` */
   actionLog?: LogOptions;
-  /** A demo the preview plays by itself once in view (Play replays it) */
+  /** A demo the preview plays by itself once in view (its Live Preview label
+   * replays it). Declare it once at module level: its identity keys the
+   * once-per-page autostart. */
   autoRun?: AutoRunScript;
 }
 

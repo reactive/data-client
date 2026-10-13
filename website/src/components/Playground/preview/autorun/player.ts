@@ -80,8 +80,8 @@ async function perform(
   stage: Stage,
   sleep: (ms: number) => Promise<void>,
 ) {
-  await sleep(step.delay ?? STEP_DELAY);
   if ('wait' in step) return sleep(step.wait);
+  await sleep(step.delay ?? STEP_DELAY);
   if ('store' in step) return stage.store(step.store === 'open');
 
   // look the target up again before each act: a render may have replaced it

@@ -23,7 +23,7 @@ export interface LivePreviewProps<T> extends PreviewProps<T> {
   actionLog?: LogOptions;
   autoRun?: AutoRunScript;
   /** Opens or closes the Store for the demo, without saving it */
-  showStore: (open: boolean | null) => void;
+  showStore: (open: boolean) => void;
 }
 
 export default function LivePreview<T>({

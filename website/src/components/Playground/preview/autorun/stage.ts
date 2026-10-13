@@ -19,6 +19,37 @@ export function createStage(
   root.append(layer);
   let pointer: HTMLElement | undefined;
   let at = { x: 0, y: 0 };
+  let target: HTMLElement | undefined;
+
+  /** Moves the pointer onto `el`, the tip at its center */
+  const place = (el: HTMLElement) => {
+    const box = el.getBoundingClientRect();
+    const origin = layer.getBoundingClientRect();
+    at = {
+      x: box.left + box.width / 2,
+      y: box.top + box.height / 2,
+    };
+    const first = !pointer;
+    if (!pointer) {
+      pointer = document.createElement('div');
+      pointer.className = styles.pointer;
+      pointer.innerHTML = POINTER_SVG;
+      layer.append(pointer);
+    }
+    pointer.style.transform = `translate(${at.x - origin.left}px, ${at.y - origin.top}px)`;
+    // the first point fades in where it is, then glides from there
+    if (first) {
+      void pointer.offsetWidth;
+      pointer.dataset.shown = '';
+    }
+  };
+  // the layer sits at the playground's foot, so content growing above it
+  // (the Store opening) moves the pointer's origin: follow the target
+  const resized =
+    typeof ResizeObserver === 'function' ?
+      new ResizeObserver(() => target && place(target))
+    : undefined;
+  resized?.observe(root);
 
   return {
     find(target) {
@@ -45,27 +76,10 @@ export function createStage(
     },
 
     point(el) {
+      // root only bounds the walk: the scrollers inside it do the moving
       revealIn(root, el);
-      const box = el.getBoundingClientRect();
-      const origin = layer.getBoundingClientRect();
-      at = {
-        x: box.left + box.width / 2,
-        y: box.top + box.height / 2,
-      };
-      const transform = `translate(${at.x - origin.left}px, ${at.y - origin.top}px)`;
-      const first = !pointer;
-      if (!pointer) {
-        pointer = document.createElement('div');
-        pointer.className = styles.pointer;
-        pointer.innerHTML = POINTER_SVG;
-        layer.append(pointer);
-      }
-      pointer.style.transform = transform;
-      // the first point fades in where it is, then glides from there
-      if (first) {
-        void pointer.offsetWidth;
-        pointer.dataset.shown = '';
-      }
+      target = el;
+      place(el);
     },
 
     click(el) {
@@ -108,6 +122,7 @@ export function createStage(
     store,
 
     end() {
+      resized?.disconnect();
       layer.dataset.ended = '';
       setTimeout(() => layer.remove(), END_MS);
     },
@@ -140,6 +155,6 @@ function scopeOf(root: HTMLElement, scope: Scope) {
 // jsdom lacks checkVisibility
 const visible = (el: HTMLElement) => el.checkVisibility?.() ?? true;
 
-/** An arrow pointer, its tip at the element's top left (the point) */
+/** An arrow pointer, its tip at the SVG's top left (placed on the target) */
 const POINTER_SVG =
   '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 2l17 10.5-7.4 1.4L9 21z" /></svg>';

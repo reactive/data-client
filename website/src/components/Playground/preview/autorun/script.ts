@@ -3,16 +3,17 @@
  * declare it. */
 export type AutoRunScript = readonly Step[];
 
-export type Step = StepTiming &
-  (
-    | { click: Target }
-    /** Appends `text` to an input, a character at a time */
-    | { type: Target; text: string }
-    /** Holds still, letting a change sink in */
-    | { wait: number }
-    /** Opens or closes the Store, without changing the reader's own choice */
-    | { store: 'open' | 'close' }
-  );
+export type Step =
+  /** Holds still for `wait` ms, letting a change sink in */
+  | { wait: number }
+  | (StepTiming &
+      (
+        | { click: Target }
+        /** Appends `text` to an input, a character at a time */
+        | { type: Target; text: string }
+        /** Opens or closes the Store, without changing the reader's own choice */
+        | { store: 'open' | 'close' }
+      ));
 
 interface StepTiming {
   /** ms before the step acts (default `STEP_DELAY` in ./player) */

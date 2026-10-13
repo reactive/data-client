@@ -4,7 +4,7 @@ import type { AutoRunScript } from '../../../Playground/preview/autorun/script';
  * every post reads */
 const autoRun: AutoRunScript = [
   { delay: 1000, type: { label: 'Name' }, text: ' Jr.' },
-  { wait: 1800 },
+  { wait: 2500 },
   { store: 'open' },
   {
     delay: 1200,
@@ -13,6 +13,6 @@ const autoRun: AutoRunScript = [
       selector: '[data-table="User"] tbody tr[data-id]',
     },
   },
-  { wait: 3000 },
+  { wait: 3700 },
 ];
 export default autoRun;

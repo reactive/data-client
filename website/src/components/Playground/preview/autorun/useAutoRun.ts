@@ -21,7 +21,7 @@ import { prefersReducedMotion } from '../../../motion';
 export function useAutoRun(
   script: AutoRunScript | undefined,
   reset: () => void,
-  showStore: (open: boolean | null) => void,
+  showStore: (open: boolean) => void,
 ) {
   const [player] = useState(createPlayer);
   // read when a run starts, so `watch` and `replay` keep their identity
@@ -49,21 +49,14 @@ export function useAutoRun(
       const syncPaused = () => player.setPaused(!visible || document.hidden);
 
       const onInput = (event: Event) => {
-        if (!event.isTrusted) return;
-        // a touch may start a scroll, which isn't taking over; a tap clicks
-        // (a click is a PointerEvent too, so check the type)
-        if (
-          event.type === 'pointerdown' &&
-          (event as PointerEvent).pointerType === 'touch'
-        )
-          return;
-        if ((event.target as Element).closest?.('[data-autorun-control]'))
-          return;
+        if (!isReaderInput(event)) return;
         if (latest.current.script) played.add(latest.current.script);
         player.stop();
       };
       const observer = new IntersectionObserver(
-        ([entry]) => {
+        entries => {
+          // a late callback may hold several: the last is current
+          const entry = entries[entries.length - 1];
           // a run pauses only once out of sight entirely
           visible = entry.isIntersecting;
           syncPaused();
@@ -101,12 +94,12 @@ export function useAutoRun(
     const { script, showStore } = latest.current;
     // the reader chose when to watch it, so it won't start by itself later
     if (script) played.add(script);
-    player.stop();
     reset();
     // the demo shows the Store opening, if it does
-    if (script?.some(step => 'store' in step)) showStore(false);
+    if (script?.some(step => 'store' in step && step.store === 'open'))
+      showStore(false);
     start();
-  }, [player, reset, start]);
+  }, [reset, start]);
 
   return { player, watch, replay };
 }
@@ -117,6 +110,17 @@ export function useAutoRun(
  * Per page load (client-side navigation keeps it); replaying is the label's
  * job. */
 const played = new WeakSet<AutoRunScript>();
+
+/** The reader's own press, tap or key, which takes over: not the demo's
+ * (untrusted) events or controls, and not a touch, which may start a scroll
+ * (a tap still clicks; a click is a PointerEvent too, so check the type) */
+export const isReaderInput = (event: Event) =>
+  event.isTrusted &&
+  !(
+    event.type === 'pointerdown' &&
+    (event as PointerEvent).pointerType === 'touch'
+  ) &&
+  !(event.target as Element | null)?.closest?.('[data-autorun-control]');
 
 // keydown misses some virtual keyboards and IMEs; beforeinput doesn't
 const INPUT = ['pointerdown', 'click', 'keydown', 'beforeinput'] as const;

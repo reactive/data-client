@@ -11,7 +11,7 @@ import {
 } from '../autorun/player';
 import type { AutoRunScript } from '../autorun/script';
 import { createStage } from '../autorun/stage';
-import { useAutoRun } from '../autorun/useAutoRun';
+import { isReaderInput, useAutoRun } from '../autorun/useAutoRun';
 
 function fakeStage(
   found: HTMLElement | null = document.createElement('input'),
@@ -83,6 +83,16 @@ it('stop ends the run where it is', async () => {
   expect(listener).toHaveBeenCalledTimes(2);
 });
 
+it('a wait holds for its own time only', async () => {
+  const player = createPlayer();
+  const { stage, calls } = fakeStage();
+  player.play([{ wait: 500 }, { delay: 100, store: 'open' }], stage);
+  await jest.advanceTimersByTimeAsync(599);
+  expect(calls).toEqual([]);
+  await jest.advanceTimersByTimeAsync(1);
+  expect(calls).toEqual(['store true', 'end']);
+});
+
 it('stopping an idle player leaves it idle', () => {
   const player = createPlayer();
   player.stop();
@@ -145,6 +155,37 @@ describe('stage', () => {
     expect(seen).toEqual(['pointerdown', 'mousedown', 'mouseup', 'click']);
   });
 
+  it('the pointer follows its target when the playground resizes', () => {
+    let resized: () => void = () => {};
+    (globalThis as any).ResizeObserver = class {
+      constructor(callback: () => void) {
+        resized = callback;
+      }
+
+      observe() {}
+      disconnect() {}
+    };
+    // jsdom lacks scrolling, which bringing the target into view uses
+    Element.prototype.scrollTo = () => {};
+    try {
+      const root = playground();
+      const stage = createStage(root, () => {});
+      const button = root.querySelector('button')!;
+      let top = 100;
+      button.getBoundingClientRect = () =>
+        ({ left: 0, top, width: 20, height: 20 }) as DOMRect;
+      stage.point(button);
+      const pointer = root.querySelector<HTMLElement>('svg')!.parentElement!;
+      expect(pointer.style.transform).toBe('translate(10px, 110px)');
+      top = 400;
+      resized();
+      expect(pointer.style.transform).toBe('translate(10px, 410px)');
+    } finally {
+      delete (globalThis as any).ResizeObserver;
+      delete (Element.prototype as any).scrollTo;
+    }
+  });
+
   it('end() takes its layer away', () => {
     const root = playground();
     const before = [...root.children];
@@ -155,6 +196,52 @@ describe('stage', () => {
     stage.end();
     jest.runAllTimers();
     expect(layer.isConnected).toBe(false);
+  });
+});
+
+describe('isReaderInput', () => {
+  const control = document.createElement('button');
+  control.dataset.autorunControl = '';
+  const other = document.createElement('button');
+  it.each([
+    [
+      'a press',
+      {
+        isTrusted: true,
+        type: 'pointerdown',
+        pointerType: 'mouse',
+        target: other,
+      },
+      true,
+    ],
+    [
+      'a tap (its click)',
+      { isTrusted: true, type: 'click', pointerType: 'touch', target: other },
+      true,
+    ],
+    ['a key', { isTrusted: true, type: 'keydown', target: other }, true],
+    [
+      'a touch, which may scroll',
+      {
+        isTrusted: true,
+        type: 'pointerdown',
+        pointerType: 'touch',
+        target: other,
+      },
+      false,
+    ],
+    [
+      "the demo's own event",
+      { isTrusted: false, type: 'click', target: other },
+      false,
+    ],
+    [
+      "the demo's controls",
+      { isTrusted: true, type: 'click', target: control },
+      false,
+    ],
+  ])('%s: %s', (_, event, takesOver) => {
+    expect(isReaderInput(event as unknown as Event)).toBe(takesOver);
   });
 });
 
@@ -262,6 +349,24 @@ describe('useAutoRun', () => {
     const second = mount(script);
     second.see(1);
     expect(second.result.current.player.getState()).toBe('idle');
+  });
+
+  it('replay starts over from a fresh store, closing a Store it opens', () => {
+    const reset = jest.fn();
+    const playground = document.createElement('div');
+    playground.dataset.playground = '';
+    const preview = document.createElement('div');
+    playground.append(preview);
+    document.body.append(playground);
+    const showStore = jest.fn();
+    const { result } = renderHook(() =>
+      useAutoRun([{ store: 'open' }], reset, showStore),
+    );
+    result.current.watch(preview);
+    act(() => result.current.replay());
+    expect(reset).toHaveBeenCalledTimes(1);
+    expect(showStore).toHaveBeenCalledWith(false);
+    expect(result.current.player.getState()).toBe('playing');
   });
 
   it("a script that changes identity doesn't start over a run", () => {
