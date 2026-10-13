@@ -561,6 +561,8 @@ const config: Config = {
     path.resolve(__dirname, './llms-plugin'),
     path.resolve(__dirname, './chunks-plugin'),
     path.resolve(__dirname, './build-id-plugin'),
+    // Default-locale robots.txt lists every locale sitemap (sitemap-robots-plugin.js)
+    path.resolve(__dirname, './sitemap-robots-plugin'),
   ],
   themeConfig: {
     mermaid: {
