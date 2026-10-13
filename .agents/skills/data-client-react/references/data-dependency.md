@@ -322,7 +322,7 @@ export const ProfileResource = resource({
 });
 ```
 
-```tsx title="ProfileList"
+```tsx title="ProfileList" {6-8}
 import React from 'react';
 import { useDLE } from '@data-client/react';
 import { ProfileResource } from './ProfileResource';
@@ -407,7 +407,7 @@ export const getTicker = new RestEndpoint({
 });
 ```
 
-```tsx title="AssetPrice" {5}
+```tsx title="AssetPrice" {6}
 import { useLive } from '@data-client/react';
 import NumberFlow from '@number-flow/react';
 import { getTicker } from './Ticker';

@@ -247,7 +247,7 @@ export const ProfileResource = resource({
 });
 ```
 
-```html title="ProfileList.vue" {5}
+```html title="ProfileList.vue" {5,9-10}
 <script setup lang="ts">
   import { useDLE } from '@data-client/vue';
   import { ProfileResource } from './ProfileResource';
