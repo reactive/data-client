@@ -58,7 +58,7 @@
   --c: var(--stale);
 }
 .band2,
-.invalidIfStale .band1 {
+.invalidIfStale .diagram .band1 {
   --c: var(--invalid);
 }
 .band rect {
@@ -482,18 +482,18 @@
   min-width: 0;
   padding: 0.5rem 0.6rem 0;
   border-top: 3px solid var(--c);
+  transition: border-color var(--motion-snappy);
 }
 .column > :first-child {
   margin-top: 0;
   font-size: 1.1rem;
   color: var(--c);
+  transition: color var(--motion-snappy);
 }
-.column {
-  transition: opacity var(--motion-snappy);
-}
-/* with invalidIfStale there is no Stale: its section no longer applies */
+/* with invalidIfStale there is no Stale: grey out its marker, keep its text
+   readable */
 .invalidIfStale .column.band1 {
-  opacity: 0.5;
+  --c: var(--ifm-color-emphasis-600);
 }
 .column > :last-child {
   margin-bottom: 0;

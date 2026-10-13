@@ -101,6 +101,7 @@ export default function ExpiryTimeline({
             styles.diagram,
             styles[ZONES[play.zone]],
             play.paused && styles.paused,
+            // run stays 0 until the reader first scrubs
             !play.run && styles.unseeked,
           )}
           style={
