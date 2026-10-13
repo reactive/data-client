@@ -91,7 +91,7 @@ export function Router({ routes }: { routes: readonly Route[] }) {
         data-pending={pending || undefined}
         aria-hidden="true"
       />
-      <div className={styles.addressBar}>
+      <div className={styles.addressBar} aria-busy={pending}>
         <button
           type="button"
           className={clsx(styles.headerButton, styles.addressBack)}
