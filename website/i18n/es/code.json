@@ -821,6 +821,15 @@
   "playground.resetPreview": {
     "message": "Reiniciar la vista previa"
   },
+  "playground.router.back": {
+    "message": "Atrás"
+  },
+  "playground.router.home": {
+    "message": "Inicio"
+  },
+  "playground.router.pages": {
+    "message": "Páginas de la vista previa"
+  },
   "playground.demo.replay": {
     "message": "Repetir la demo"
   },

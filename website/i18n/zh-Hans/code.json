@@ -821,6 +821,15 @@
   "playground.resetPreview": {
     "message": "重置预览"
   },
+  "playground.router.back": {
+    "message": "返回"
+  },
+  "playground.router.home": {
+    "message": "首页"
+  },
+  "playground.router.pages": {
+    "message": "预览页面"
+  },
   "playground.demo.replay": {
     "message": "重播演示"
   },
