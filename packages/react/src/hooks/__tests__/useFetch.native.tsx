@@ -19,7 +19,7 @@ import { createEntityMeta } from '__tests__/utils';
 import nock from 'nock';
 import React, { Suspense } from 'react';
 // relative imports to avoid circular dependency in tsconfig references
-import { InteractionManager, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { AsyncBoundary } from '../..';
 import { StateContext, ControllerContext } from '../../context';
@@ -310,7 +310,7 @@ describe('useFetch', () => {
       const { getByText, getByTestId } = render(tree);
       expect(fbmock).not.toHaveBeenCalled();
       await new Promise(resolve =>
-        InteractionManager.runAfterInteractions(() => {
+        requestIdleCallback(() => {
           resolve(null);
         }),
       );
@@ -321,7 +321,7 @@ describe('useFetch', () => {
 
       act(() => thenavigation.goBack());
       await new Promise(resolve =>
-        InteractionManager.runAfterInteractions(() => {
+        requestIdleCallback(() => {
           resolve(null);
         }),
       );
