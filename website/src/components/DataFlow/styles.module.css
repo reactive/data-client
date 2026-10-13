@@ -132,6 +132,8 @@
   stroke-width: 8;
   opacity: 0;
 }
+/* delays are the chip keyframe stops: fetch reaches NetworkManager at 18%,
+   setresponse reaches the store at 69% */
 .Network .flash {
   stroke: var(--action);
   animation: render var(--cycle) calc(var(--cycle) * 0.18) infinite;
@@ -280,16 +282,17 @@
 @media (prefers-reduced-motion: reduce) {
   .flow,
   .state,
-  .diagram .flash,
-  .chip {
+  .diagram .flash {
     animation: none;
   }
-  /* hold each action still on its leg of the loop */
+  /* each action holds still on the x=190 line: fetch leaving the
+     Controller, setresponse entering the Store */
   .chip {
+    animation: none;
     opacity: 1;
   }
   .fetch {
-    transform: translate(275px, 70px);
+    transform: translate(190px, 89px);
   }
   .response {
     transform: translate(190px, 265px);

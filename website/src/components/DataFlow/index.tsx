@@ -10,6 +10,7 @@ import useHighlight from '../useHighlight';
 type Manager = 'DevTools' | 'Network' | 'Subscription' | 'Custom';
 
 // the middleware chain, in the order getDefaultManagers() builds it
+// (the chip keyframes in styles.module.css follow these and OUTSIDE's y)
 const MANAGERS: { id: Manager; name?: string; y: number }[] = [
   { id: 'DevTools', name: 'DevToolsManager', y: 120 },
   { id: 'Network', name: 'NetworkManager', y: 154 },
