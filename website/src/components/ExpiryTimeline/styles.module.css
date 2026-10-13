@@ -199,6 +199,11 @@
     transform: translate(-50%, 0);
   }
 }
+/* after Escape, until the pointer leaves */
+.annotation.dismissed .tip {
+  opacity: 0;
+  pointer-events: none;
+}
 
 .scrubber {
   fill: transparent;

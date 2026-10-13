@@ -312,6 +312,19 @@ function Annotations({
     document.addEventListener('pointerdown', close);
     return () => document.removeEventListener('pointerdown', close);
   }, [open]);
+  // Escape hides any tooltip, hovered ones too, until the pointer moves on
+  const [dismissed, setDismissed] = useState(false);
+  useEffect(() => {
+    const dismiss = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      setOpen(null);
+      setDismissed(true);
+      const active = document.activeElement as HTMLElement | null;
+      if (active?.closest(`.${styles.annotation}`)) active.blur();
+    };
+    document.addEventListener('keydown', dismiss);
+    return () => document.removeEventListener('keydown', dismiss);
+  }, []);
   const id = useId();
 
   const learnMore = translate({
@@ -368,10 +381,7 @@ function Annotations({
       onPointerDown: (e: React.PointerEvent) => {
         pointerType.current = e.pointerType;
       },
-      // the tooltip shows on focus; Escape dismisses it
-      onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => {
-        if (e.key === 'Escape') e.currentTarget.blur();
-      },
+      onFocus: () => setDismissed(false),
     };
     const tapped = () => {
       const touch = pointerType.current === 'touch';
@@ -381,7 +391,13 @@ function Annotations({
     return (
       <span
         key={name}
-        className={clsx(styles.annotation, align, open === i && styles.open)}
+        className={clsx(
+          styles.annotation,
+          align,
+          open === i && styles.open,
+          dismissed && styles.dismissed,
+        )}
+        onPointerLeave={() => setDismissed(false)}
         style={{
           left: `${((X0 + BAND * i) / WIDTH) * 100}%`,
           width: `${(BAND / WIDTH) * 100}%`,
