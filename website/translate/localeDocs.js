@@ -31,8 +31,16 @@ const IMPORT =
  * Content with its own source folder: the docs instances (Vue mirrors
  * docs/core) and the blog. `translations`: where its translations are
  * committed in a locale's folder; `localized`: the folder generated for a
- * locale, where Docusaurus reads it
+ * locale, where Docusaurus reads it; `keep`: committed files in that folder
  */
+const BLOG = {
+  id: 'blog',
+  path: 'website/blog',
+  translations: 'blog',
+  localized: locale => `website/i18n/${locale}/docusaurus-plugin-content-blog`,
+  // Docusaurus reads the blog's UI strings from beside its posts
+  keep: ['options.json'],
+};
 const SOURCE_INSTANCES = [
   ...DOCS_INSTANCES.filter(
     (d, i, all) => all.findIndex(other => other.path === d.path) === i,
@@ -41,15 +49,8 @@ const SOURCE_INSTANCES = [
     translations: d.path,
     localized: locale => localizedPath(d.id, locale),
   })),
-  {
-    id: 'blog',
-    path: 'website/blog',
-    translations: 'blog',
-    localized: locale =>
-      `website/i18n/${locale}/docusaurus-plugin-content-blog`,
-  },
+  BLOG,
 ];
-const BLOG = SOURCE_INSTANCES.at(-1);
 /** Instance whose source folder holds `file` (repo-relative) */
 const instanceOf = file =>
   SOURCE_INSTANCES.find(d => file.startsWith(`${d.path}/`));
@@ -61,22 +62,29 @@ const sourceFiles = instance =>
     .filter(file => !file.split('/').some(part => part.startsWith('.')))
     .map(file => `${instance.path}/${file}`);
 
-/** Swaps the instance folder (its `from` field) a path is in, or is, for its `to` field */
-const swapFolder = (file, from, to) => {
-  const instance = SOURCE_INSTANCES.find(
-    d => file === d[from] || file.startsWith(`${d[from]}/`),
+/** Instance whose committed translations hold `name` (locale-relative) */
+const translationsInstanceOf = name =>
+  SOURCE_INSTANCES.find(
+    d => name === d.translations || name.startsWith(`${d.translations}/`),
   );
-  return instance ? instance[to] + file.slice(instance[from].length) : file;
-};
-/** Where a locale's translation of a source file is committed (repo-relative) */
-const translationOf = (file, locale) =>
-  path.posix.join(
+/** Where a locale's translation of a source file (or folder) is committed (repo-relative) */
+const translationOf = (file, locale) => {
+  const instance = SOURCE_INSTANCES.find(
+    d => file === d.path || file.startsWith(`${d.path}/`),
+  );
+  return path.posix.join(
     'website/i18n',
     locale,
-    swapFolder(file, 'path', 'translations'),
+    instance ? instance.translations + file.slice(instance.path.length) : file,
   );
+};
 /** Source file of a translation, from its path in the locale's folder */
-const translatedSource = name => swapFolder(name, 'translations', 'path');
+const translatedSource = name => {
+  const instance = translationsInstanceOf(name);
+  return instance ?
+      instance.path + name.slice(instance.translations.length)
+    : name;
+};
 
 /** Line ranges [start, end] of fenced code blocks */
 function fences(lines) {
@@ -199,7 +207,8 @@ const blobsOf = files =>
     )
   : {};
 
-/** A locale's lock: the English each translation was finalized against */
+/** A locale's lock: the English each translation was finalized against
+ * (`docs` holds every page, blog posts included) */
 const readLock = locale =>
   fs.existsSync(lockFile(locale)) ?
     JSON.parse(fs.readFileSync(lockFile(locale), 'utf8'))
@@ -281,8 +290,7 @@ function generate(locale) {
     }
     if (fs.existsSync(outDir))
       for (const name of walk(outDir))
-        // but the blog's UI strings, committed beside its posts
-        if (!written.has(name) && name !== 'options.json')
+        if (!written.has(name) && !instance.keep?.includes(name))
           fs.rmSync(path.join(outDir, name));
   }
   return { sourceOf: file => sources.get(file) ?? file };
@@ -305,10 +313,7 @@ function watch(locale, then = () => {}) {
     ...SOURCE_INSTANCES.map(d => [d.path]),
     // the locale's folder, which may not have translations yet; but not the
     // folders generated in it
-    [
-      translationOf('', locale),
-      name => SOURCE_INSTANCES.some(d => name.startsWith(`${d.translations}/`)),
-    ],
+    [translationOf('', locale), name => translationsInstanceOf(name)],
     [path.relative(ROOT, path.dirname(lockFile(locale)))],
   ];
   for (const [dir, filter = () => true] of watched) {

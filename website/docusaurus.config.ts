@@ -83,10 +83,10 @@ const prismPalenight = {
 
 const gitVcs = getVcsPreset('default-v1');
 const editRoot = 'https://github.com/reactive/data-client/edit/master';
-/** Plugin options locating a docs instance (framework-docs/docsInstances.js) */
 // In Chinese, joins lines split inside a paragraph (translate/README.md)
 const localeRemarkPlugins =
   currentLocale === DEFAULT_LOCALE ? [] : [remarkJoinCjkLines];
+/** Plugin options locating a docs instance (framework-docs/docsInstances.js) */
 const docsLocation = (id: string) => {
   const { path: docsPath, routeBasePath, exclude = [] } = docsInstance(id);
   return {
