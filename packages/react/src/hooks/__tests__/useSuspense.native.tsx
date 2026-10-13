@@ -36,7 +36,6 @@ import { createEntityMeta } from '__tests__/utils';
 import nock from 'nock';
 import React, { Suspense } from 'react';
 import { Text, View } from 'react-native';
-import { InteractionManager } from 'react-native';
 import { Temporal } from 'temporal-polyfill';
 
 // relative imports to avoid circular dependency in tsconfig references
@@ -288,7 +287,7 @@ describe('useSuspense()', () => {
       const { getByText, getByTestId } = render(tree);
       expect(fbmock).not.toHaveBeenCalled();
       await new Promise(resolve =>
-        InteractionManager.runAfterInteractions(() => {
+        requestIdleCallback(() => {
           resolve(null);
         }),
       );
@@ -299,7 +298,7 @@ describe('useSuspense()', () => {
 
       act(() => thenavigation.goBack());
       await new Promise(resolve =>
-        InteractionManager.runAfterInteractions(() => {
+        requestIdleCallback(() => {
           resolve(null);
         }),
       );
