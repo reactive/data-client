@@ -132,9 +132,12 @@
 }
 
 .plain rect,
+.bound rect {
+  rx: 7px;
+}
+.plain rect,
 .bound rect,
 .rest {
-  rx: 7px;
   stroke-width: 1.5;
 }
 .plain rect,
@@ -187,6 +190,7 @@
   animation: none;
 }
 
+/* last, so it also beats .binding.on */
 @media (prefers-reduced-motion: reduce) {
   .binding,
   .binding.on,
