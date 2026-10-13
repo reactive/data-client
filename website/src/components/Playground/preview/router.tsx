@@ -91,7 +91,7 @@ export function Router({ routes }: { routes: readonly Route[] }) {
         data-pending={pending || undefined}
         aria-hidden="true"
       />
-      <div className={styles.addressBar} aria-busy={pending}>
+      <div className={styles.addressBar}>
         <button
           type="button"
           className={clsx(styles.headerButton, styles.addressBack)}
@@ -101,7 +101,12 @@ export function Router({ routes }: { routes: readonly Route[] }) {
           })}
           disabled={history.length === 1}
           onClick={() =>
-            startTransition(() => setHistory(paths => paths.slice(0, -1)))
+            // a second click can land before the first commits
+            startTransition(() =>
+              setHistory(paths =>
+                paths.length > 1 ? paths.slice(0, -1) : paths,
+              ),
+            )
           }
         >
           <BackIcon />
@@ -110,8 +115,8 @@ export function Router({ routes }: { routes: readonly Route[] }) {
       </div>
       <Suspense fallback={<Loading />}>
         {/* under the address bar, so Back still works when a page throws; a
-            new path clears the error. Inside Suspense, which stays mounted so
-            navigating keeps the page shown until the next one is ready */}
+            new path clears the error. Suspense stays outside this key: a newly
+            mounted one would show its fallback rather than hold the page */}
         <ErrorBoundary key={path} fallbackComponent={ErrorMessage}>
           <Page routes={routes} path={path} />
         </ErrorBoundary>

@@ -473,7 +473,7 @@ function render(file, framework, props = {}, drop = DROP) {
     let routed = false;
     visit({ type: 'root', children }, 'code', code => {
       code.data.playground = node;
-      routed ||= /\broute="/.test(code.meta ?? '');
+      routed ||= /\broute=/.test(code.meta ?? '');
     });
     return routed ? [routesNote(framework), ...children] : children;
   }

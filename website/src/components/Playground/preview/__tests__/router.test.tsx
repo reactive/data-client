@@ -36,6 +36,7 @@ describe('routerTrailer', () => {
 });
 
 describe('Router', () => {
+  afterEach(() => jest.restoreAllMocks());
   function List() {
     return <Link to="/posts/5">Post 5</Link>;
   }
@@ -114,7 +115,19 @@ describe('Router', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Back' }));
     });
     expect(screen.getByText('Missing')).toBeTruthy();
-    jest.restoreAllMocks();
+  });
+
+  test('stops at the first page when Back is pressed twice', async () => {
+    render(<Router routes={routes} />);
+    await act(async () => {
+      fireEvent.click(screen.getByText('Post 5'));
+    });
+    const back = screen.getByRole('button', { name: 'Back' });
+    await act(async () => {
+      fireEvent.click(back);
+      fireEvent.click(back);
+    });
+    expect(screen.getByText('Post 5')).toBeTruthy();
   });
 
   test('leaves a Link alone when its onClick cancels the event', async () => {
