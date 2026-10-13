@@ -53,8 +53,8 @@ The policy currently exposes:
 - complete replacement through `GCInterface`
 - `ImmortalGCPolicy` for no automatic deletion
 
-React `DataProvider` installs `GCPolicy` by default. Its React Native build
-substitutes `NativeGCPolicy`. A bare `Controller` and the Vue provider currently
+React `DataProvider` installs `GCPolicy` by default, on web and React Native
+alike. A bare `Controller` and the Vue provider currently
 fall back to `ImmortalGCPolicy` unless a policy is supplied. Imperative use must
 also own policy lifecycle: constructing a `Controller` with a `GCPolicy` does
 not call `init()` or `cleanup()`; providers do that through `initManager`.
@@ -80,13 +80,12 @@ the work interruptible. On web:
 A sufficiently large queue can therefore produce a long task and dropped
 frames.
 
-### React Native scheduling is deprecated and unbounded
+### React Native scheduling is unbounded
 
-`NativeGCPolicy` uses `InteractionManager.runAfterInteractions()` and
-`InteractionManager.setDeadline()`. In React Native 0.86, `InteractionManager`
-is deprecated, `runAfterInteractions()` is implemented using `setImmediate()`,
-and `setDeadline()` is a no-op. It defers a sweep but does not protect an active
-interaction or bound the resulting task.
+React Native 0.87 removed `InteractionManager` (in 0.86 it was already a
+`setImmediate()` shim with a no-op `setDeadline()`), so React Native now uses
+the same `requestIdleCallback()` path as web. It defers a sweep but does not
+protect an active interaction or bound the resulting task.
 
 React Native 0.86 officially recommends refactoring long tasks into smaller
 units and scheduling them with `requestIdleCallback()`. That is the supported
