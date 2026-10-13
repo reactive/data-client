@@ -68,8 +68,8 @@ export function useAutoRun(
           visible = entry.isIntersecting;
           syncPaused();
           const { script } = latest.current;
-          // at most once per preview, so a script that changed identity
-          // can't start over a run
+          // idle: never over a run, even if the script changed identity;
+          // played: a script starts by itself once per page load
           if (
             script &&
             player.getState() === 'idle' &&
@@ -99,7 +99,7 @@ export function useAutoRun(
 
   const replay = useCallback(() => {
     const { script, showStore } = latest.current;
-    // the reader chose when to watch it, so it won't start by itself after
+    // the reader chose when to watch it, so it won't start by itself later
     if (script) played.add(script);
     player.stop();
     reset();
@@ -111,10 +111,11 @@ export function useAutoRun(
   return { player, watch, replay };
 }
 
-/** Scripts that played by themselves or that the reader took over before:
- * the preview unmounts while hidden (a Demo's other protocol tab shares its
- * script), and showing it again shouldn't start the demo over. Per page
- * load (client-side navigation keeps it); replaying is the label's job. */
+/** Scripts that played by themselves, or that the reader took over or
+ * replayed: the preview unmounts while hidden (a Demo's other protocol tab
+ * shares its script), and showing it again shouldn't start the demo over.
+ * Per page load (client-side navigation keeps it); replaying is the label's
+ * job. */
 const played = new WeakSet<AutoRunScript>();
 
 // keydown misses some virtual keyboards and IMEs; beforeinput doesn't

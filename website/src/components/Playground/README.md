@@ -312,14 +312,14 @@ DesignSystem/       components injected into preview scope
   - The reader takes over with any input of their own (`isTrusted`) in the
     playground: a press, a tap, a key. That ends the run for good, leaving
     everything as it was, since the rest of the script assumes a state the
-    reader just changed; the label starts it over. Input or a replay before
-    the demo starts keeps it from starting by itself. Each script starts by itself once per
-    page load (`played` in `useAutoRun.ts`; client-side navigation keeps it):
-    a hidden preview unmounts, and a Demo's protocol tabs share one script, so
-    switching tabs doesn't replay. Scrolling, hovering, a touch that starts a
-    scroll and the demo's own controls (`data-autorun-control`)
-    don't take over. Out of view or in a background tab, the run pauses
-    where it is and resumes when back.
+    reader just changed; the label starts it over. Input before the demo
+    starts keeps it from starting by itself, and so does a replay. Each script
+    starts by itself once per page load (`played` in `useAutoRun.ts`;
+    client-side navigation keeps it): a hidden preview unmounts, and a Demo's
+    protocol tabs share one script, so switching tabs doesn't replay.
+    Scrolling, hovering, a touch that starts a scroll and the demo's own
+    controls (`data-autorun-control`) don't take over. Out of view or in a
+    background tab, the run pauses where it is and resumes when back.
   - The Store opens for a step through `useStoreOpen`'s `show`, which
     doesn't persist: tab storage keeps the reader's own choice (a docs page
     shares one `groupId`), until the reader toggles it.
