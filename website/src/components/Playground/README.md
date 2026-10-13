@@ -319,11 +319,13 @@ DesignSystem/       components injected into preview scope
     reader just changed; the label starts it over. Input before the demo
     starts keeps it from starting by itself, and so does a replay. Each script
     starts by itself once per page load (`played` in `useAutoRun.ts`;
-    client-side navigation keeps it): a hidden preview unmounts, and a Demo's
-    protocol tabs share one script, so switching tabs doesn't replay.
+    client-side navigation keeps it), so a playground that remounts (the
+    page's framework switched away and back) doesn't replay.
     Scrolling, hovering, a touch that starts a scroll and the demo's own
-    controls (`data-autorun-control`) don't take over. Out of view or in a
-    background tab, the run pauses where it is and resumes when back.
+    controls (`data-autorun-control`) don't take over. Once neither the
+    preview nor the playground is mostly in view (the start's rule), or in a
+    background tab, the run pauses where it is and resumes when back, so it
+    never scrolls the page back to a reader scrolling past.
   - The Store opens for a step through `useStoreOpen`'s `show`, which
     doesn't persist: tab storage keeps the reader's own choice (a docs page
     shares one `groupId`), until the reader toggles it.

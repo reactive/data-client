@@ -383,15 +383,28 @@ describe('useAutoRun', () => {
     expect(result.current.player.getState()).toBe('playing');
   });
 
-  it('pauses only out of sight', async () => {
+  it('pauses once mostly out of sight, before it scrolls the page back', async () => {
     const { see, showStore } = mount();
     see(1);
-    see(0);
+    // the reader scrolling on past it
+    see(0.2);
     await jest.advanceTimersByTimeAsync(5000);
     expect(showStore).not.toHaveBeenCalled();
-    see(0.1);
+    see(0.6);
     await jest.runAllTimersAsync();
     expect(showStore).toHaveBeenCalledWith(true);
+  });
+
+  it('plays on while the preview shows, the Store opened above it', async () => {
+    // on a phone, before the demo scrolls up to the Store
+    const { see, seeOnly, playground, showStore } = mount([
+      { store: 'open' },
+      { store: 'close' },
+    ]);
+    see(1);
+    seeOnly(playground, 0.5);
+    await jest.runAllTimersAsync();
+    expect(showStore).toHaveBeenLastCalledWith(false);
   });
 
   it('plays on while the playground shows, the preview gone from view', async () => {
@@ -418,7 +431,7 @@ describe('useAutoRun', () => {
     expect(first.result.current.player.getState()).toBe('playing');
     first.unwatch();
     first.unmount();
-    // e.g. the Demo's other protocol tab, which shares the script
+    // e.g. the page's framework switched away and back
     const second = mount(script);
     second.see(1);
     expect(second.result.current.player.getState()).toBe('idle');

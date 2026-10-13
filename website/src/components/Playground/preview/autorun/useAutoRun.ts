@@ -12,7 +12,7 @@ import { prefersReducedMotion } from '../../../motion';
  * - The reader's own input anywhere in the playground (a press, a tap, a
  *   key) ends the run, and they carry on from what it left. Scrolling,
  *   hovering and the demo's own controls (`data-autorun-control`) don't.
- * - Out of view or in a background tab, the run pauses where it is.
+ * - Mostly out of view or in a background tab, the run pauses where it is.
  * - Under reduced motion it never starts by itself.
  *
  * `showStore` opens or closes the Store for the demo without saving it as
@@ -45,8 +45,14 @@ export function useAutoRun(
       const playground = el?.closest<HTMLElement>('[data-playground]');
       if (!el || !playground || !latest.current.script) return;
       root.current = playground;
-      let visible = false;
-      const syncPaused = () => player.setPaused(!visible || document.hidden);
+      // whether the preview (where it starts) and the playground around it
+      // (where it acts: on a phone the Store opens above the preview) are
+      // mostly in view; once neither is, a reader scrolling past pauses it
+      // before its next step scrolls the page back
+      let previewShown = false;
+      let aroundShown = false;
+      const syncPaused = () =>
+        player.setPaused(!(previewShown || aroundShown) || document.hidden);
 
       const onInput = (event: Event) => {
         if (!isReaderInput(event)) return;
@@ -58,23 +64,20 @@ export function useAutoRun(
           // a late callback may hold several per element: the last is current
           const last = (target: Element) =>
             entries.findLast(entry => entry.target === target);
-          // a run pauses only once the playground is out of sight entirely:
-          // it acts in the Store too, which on a phone opens above the preview
           const around = last(playground);
-          if (around) {
-            visible = around.isIntersecting;
-            syncPaused();
-          }
           const shown = last(el);
+          if (around) aroundShown = mostlyShown(around);
+          if (shown) previewShown = mostlyShown(shown);
+          syncPaused();
           const { script } = latest.current;
           // idle: never over a run, even if the script changed identity;
           // played: a script starts by itself once per page load
           if (
             shown &&
+            previewShown &&
             script &&
             player.getState() === 'idle' &&
             !played.has(script) &&
-            mostlyShown(shown) &&
             !prefersReducedMotion()
           ) {
             played.add(script);
@@ -114,8 +117,8 @@ export function useAutoRun(
 }
 
 /** Scripts that played by themselves, or that the reader took over or
- * replayed: the preview unmounts while hidden (a Demo's other protocol tab
- * shares its script), and showing it again shouldn't start the demo over.
+ * replayed: the playground remounts (say, the page's framework switched
+ * away and back), and showing it again shouldn't start the demo over.
  * Per page load (client-side navigation keeps it); replaying is the label's
  * job. */
 const played = new WeakSet<AutoRunScript>();
