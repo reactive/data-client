@@ -25,17 +25,20 @@ const require = createRequire(import.meta.url);
 const { GlobExcludeDefault, createMatcher } = require('@docusaurus/utils');
 
 const {
+  BLOG,
   SOURCE_INSTANCES,
   importTarget,
   instanceOf,
   lockFile,
   readLock,
   relativeImports,
+  sourceFiles,
+  translatedSource,
   translationOf,
 } = require('./localeDocs.js');
 const { DEFAULT_LOCALE, LOCALES } = require('./locales.js');
 const { DOCS_INSTANCES } = require('../framework-docs/docsInstances.js');
-const { MD, walk } = require('../framework-docs/index.js');
+const { FM, MD, walk } = require('../framework-docs/index.js');
 
 const WEBSITE = path.join(ROOT, 'website');
 
@@ -52,17 +55,15 @@ const {
 });
 
 /** Repo-relative markdown sources, partials included */
-const SOURCES = SOURCE_INSTANCES.flatMap(d =>
-  walk(path.join(ROOT, d.path))
-    .filter(file => MD.test(file))
-    .map(file => `${d.path}/${file}`),
+const SOURCES = SOURCE_INSTANCES.flatMap(sourceFiles).filter(file =>
+  MD.test(file),
 );
-/** Each instance's unpublished files, as its docs plugin excludes them */
-const EXCLUDED = DOCS_INSTANCES.map(d => ({
+/** Each instance's unpublished files, as its plugin excludes them */
+const EXCLUDED = [...DOCS_INSTANCES, BLOG].map(d => ({
   dir: `${d.path}/`,
   excluded: createMatcher([...GlobExcludeDefault, ...(d.exclude ?? [])]),
 }));
-/** Whether some docs instance publishes a source as a page */
+/** Whether some docs instance or the blog publishes a source as a page */
 const published = file =>
   EXCLUDED.some(
     ({ dir, excluded }) =>
@@ -70,6 +71,11 @@ const published = file =>
   );
 
 const read = file => fs.readFileSync(path.join(ROOT, file), 'utf8');
+/** `draft: true` front matter, as scripts/blog-publish.mjs reads it */
+const DRAFT = /^draft:\s*(true|True|TRUE)[^\S\r\n]*(#.*)?$/m;
+/** Drafts change quickly and production builds leave them out, so `prepare`
+ * lists them only once published */
+const isDraft = file => DRAFT.test(FM.exec(read(file))?.[1] ?? '');
 const exists = file => fs.existsSync(path.join(ROOT, file));
 /** Git blob id of each file's content (stored, so it can be read back) */
 const blobsOf = paths =>
@@ -247,7 +253,9 @@ async function prepare(locale, english) {
   const pages = [...wanted]
     .filter(
       file =>
-        lock.docs[file] !== blobs[file] || !exists(translationOf(file, locale)),
+        (lock.docs[file] !== blobs[file] ||
+          !exists(translationOf(file, locale))) &&
+        !isDraft(file),
     )
     .map(file => {
       const translation = translationOf(file, locale);
@@ -318,7 +326,7 @@ function changedTranslations(locale) {
     // a rename or copy is followed by the path it came from
     if (/[RC]/.test(status)) i++;
     if (!status.includes('D') && file.startsWith(prefix) && MD.test(file))
-      changed.push(file.slice(prefix.length));
+      changed.push(translatedSource(file.slice(prefix.length)));
   }
   return changed;
 }
@@ -330,7 +338,9 @@ function sourceArg(file, locale) {
     .split(path.sep)
     .join('/');
   const prefix = localeDir(locale);
-  return relative.startsWith(prefix) ? relative.slice(prefix.length) : relative;
+  return relative.startsWith(prefix) ?
+      translatedSource(relative.slice(prefix.length))
+    : relative;
 }
 
 /** Structure problems of a translation versus the English it translates */

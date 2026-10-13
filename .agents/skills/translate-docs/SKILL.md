@@ -1,6 +1,6 @@
 ---
 name: translate-docs
-description: Translate the docs site into another language (website/i18n), or update translations after the English docs changed; the repo lists the work and validates it, any model can translate
+description: Translate the docs site and blog into another language (website/i18n), or update translations after the English docs or blog changed; the repo lists the work and validates it, any model can translate
 disable-model-invocation: true
 metadata:
   internal: true
@@ -8,7 +8,7 @@ metadata:
 
 # Translate the docs
 
-English in `docs/` is the only source. `website/translate/translate.mjs` lists what to translate and checks what you wrote; you do the translating. How the pieces fit: `website/translate/README.md`.
+English in `docs/` and `website/blog/` is the only source. `website/translate/translate.mjs` lists what to translate and checks what you wrote; you do the translating. How the pieces fit: `website/translate/README.md`.
 
 ## Procedure
 
@@ -29,15 +29,15 @@ A Claude Code routine runs this early every Sunday morning; run by hand the same
 2. Run the procedure above for every locale. If `prepare` lists no pages, no UI strings and nothing removed, stop without a PR.
 3. Run `node --test website/translate/mdx.test.mjs` and `node website/translate/translate.mjs check`, then open a PR titled `docs(i18n): Update translations` listing per locale the pages translated, updated and removed.
 
-Never edit `website/translate/lock/*.json` or the generated `website/i18n/<locale>/docusaurus-plugin-content-docs*/current/` folders yourself.
+Never edit `website/translate/lock/*.json` or the generated `website/i18n/<locale>/docusaurus-plugin-content-docs*/current/` and `docusaurus-plugin-content-blog/` folders yourself.
 
 ## Translation rules
 
-The docs are for Reactive Data Client (`@data-client`), a TypeScript library for fetching, caching and mutating async data in React and Vue apps.
+The docs and blog are for Reactive Data Client (`@data-client`), a TypeScript library for fetching, caching and mutating async data in React and Vue apps.
 
 Write natural, precise technical prose for developers, as a native-speaking engineer would. Keep the meaning, tone and level of detail; never add, drop or summarize content.
 
-Pages are MDX (Markdown with JSX) for Docusaurus. Translate only human-readable prose: paragraphs, headings, list items, table cells, admonition titles (the text in `:::tip[...]`), link text, image alt text, text between JSX tags, `label`/`title`/`alt`/`description` attribute strings, and the `title`, `sidebar_label` and `description` front matter values (and their `react_`/`vue_` variants).
+Pages are MDX (Markdown with JSX) for Docusaurus. Translate only human-readable prose: paragraphs, headings, list items, table cells, admonition titles (the text in `:::tip[...]`), link text, image alt text, text between JSX tags, `label`/`title`/`alt`/`description`/`caption` attribute strings, and the `title`, `sidebar_label` and `description` front matter values (and their `react_`/`vue_` variants).
 
 Keep everything else byte for byte (`finalize` rejects changes to it):
 

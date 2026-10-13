@@ -26,6 +26,7 @@ const TRANSLATABLE_ATTRIBUTE = new Set([
   'label',
   'title',
   'description',
+  'caption',
 ]);
 
 /** Headings outside code: level, text (without `{#id}`), explicit id, framework */
