@@ -657,6 +657,7 @@ export const Scrubber = memo(function Scrubber({
         >
           ›
         </button>
+        {/* data-scrub-track: what auto-run demos sweep (Playground README) */}
         <div
           ref={track}
           className={styles.scrubTrack}

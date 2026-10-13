@@ -44,11 +44,12 @@ export function createStage(
     const box = el.getBoundingClientRect();
     placeAt(box.left + box.width / 2, box.top + box.height / 2);
   };
-  /** Brings `el` into view */
+  /** Brings `el` into view, as the target the pointer is on */
   const reveal = (el: HTMLElement) => {
     // root only bounds the walk: the scrollers inside it do the moving
     revealIn(root, el);
     revealOnPage(el);
+    pointedAt = el;
   };
   // the layer sits at the playground's foot, so content growing above it
   // (the Store opening) moves the pointer's origin: follow the target,
@@ -87,7 +88,6 @@ export function createStage(
 
     point(el) {
       reveal(el);
-      pointedAt = el;
       place(el);
     },
 
@@ -128,10 +128,7 @@ export function createStage(
     hover(el, fraction) {
       // onto it first: where it starts, as the mouse enters
       const entering = pointedAt !== el;
-      if (entering) {
-        reveal(el);
-        pointedAt = el;
-      }
+      if (entering) reveal(el);
       const box = el.getBoundingClientRect();
       const init = {
         bubbles: true,
@@ -165,12 +162,12 @@ export function createStage(
 
 /** A mouse's pointer event; a plain MouseEvent where there is no
  * PointerEvent (jsdom) */
-const mouse = (type: string, init: MouseEventInit) =>
+const mouse = (type: string, init: PointerEventInit) =>
   new (typeof PointerEvent === 'function' ? PointerEvent : MouseEvent)(type, {
     ...init,
     pointerType: 'mouse',
     isPrimary: true,
-  } as PointerEventInit);
+  });
 /** ms: the layer's fade out (`--motion-snappy`) */
 const END_MS = springEasing(springs.snappy).duration;
 /** The click: a ring spreading from the tip */
