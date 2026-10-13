@@ -8,8 +8,7 @@ sidebar_label: 渲染数据
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 
-import ThemedImage from '@theme/ThemedImage';
-import useBaseUrl from '@docusaurus/useBaseUrl';
+import DataColocation from '@site/src/components/DataColocation';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
@@ -314,17 +313,7 @@ render(<Navigation />);
 
 </FrameworkPlayground>
 
-<a href="https://react.dev/learn/passing-data-deeply-with-context" target="_blank">
-<ThemedImage
-alt="在许多上下文中使用的 Endpoint"
-sources={{
-    light: useBaseUrl('/img/passing_data_context_far.webp'),
-    dark: useBaseUrl('/img/passing_data_context_far.webp'),
-  }}
-style={{float: "right",marginLeft:"10px"}}
-width="415" height="184"
-/>
-</a>
+<DataColocation />
 
 不要进行 [prop 逐层传递](https://react.dev/learn/passing-data-deeply-with-context#the-problem-with-passing-props)。而是在渲染数据的组件中直接调用 [useSuspense()](../api/useSuspense.md)。这被
 称为 _数据就近放置_（data co-location）。

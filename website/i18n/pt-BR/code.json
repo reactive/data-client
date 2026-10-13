@@ -842,5 +842,9 @@
   },
   "playground.code": {
     "message": "Código"
+  },
+  "dataColocation.label": {
+    "message": "Árvore de componentes em que cada componente que renderiza dados os lê diretamente do store com useSuspense(): User para CurrentUser e Avatar, Post para PostBody e Comment para CommentList. Uma mudança renderiza de novo apenas esses componentes e nada mais da árvore",
+    "description": "Accessible label of the data co-location diagram on the Render Data page"
   }
 }

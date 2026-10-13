@@ -1,0 +1,187 @@
+.diagram {
+  --line: var(--ifm-color-emphasis-300);
+  --user: hsl(262, 52%, 48%);
+  --post: hsl(206, 69%, 40%);
+  --comment: hsl(165, 70%, 26%);
+  --on-chip: #fff;
+  float: right;
+  width: 440px;
+  max-width: 100%;
+  margin: 0 0 1rem 1.25rem;
+  font-size: 11.5px;
+  text-anchor: middle;
+  user-select: none;
+}
+[data-theme='dark'] .diagram {
+  --user: hsl(262, 75%, 74%);
+  --post: var(--ifm-color-primary-light);
+  --comment: hsl(165, 55%, 55%);
+  --on-chip: hsl(220, 20%, 12%);
+}
+/* full width under the text instead of squeezing it */
+@media (max-width: 768px) {
+  .diagram {
+    float: none;
+    display: block;
+    margin: 0 auto 1rem;
+  }
+}
+
+/* each entity changes in turn, every 2s of a 6s cycle */
+.User {
+  --c: var(--user);
+  --delay: 0s;
+}
+.Post {
+  --c: var(--post);
+  --delay: 2s;
+}
+.Comment {
+  --c: var(--comment);
+  --delay: 4s;
+}
+
+.tree {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 1.5;
+}
+
+.binding {
+  fill: none;
+  stroke: var(--c);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 2 6;
+  opacity: 0.45;
+  animation:
+    flow 0.8s linear infinite,
+    send 6s var(--delay) infinite;
+}
+@keyframes flow {
+  from {
+    stroke-dashoffset: 8;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes send {
+  0%,
+  30%,
+  100% {
+    opacity: 0.45;
+  }
+  4% {
+    opacity: 1;
+  }
+}
+
+/* the entity changing, then the components re-rendering for it, like
+   React DevTools' highlight */
+.diagram .flash {
+  fill: none;
+  stroke: var(--c);
+  stroke-width: 8;
+  opacity: 0;
+  animation: render 6s var(--delay) infinite;
+}
+.bound .flash {
+  animation-delay: calc(var(--delay) + 0.25s);
+}
+@keyframes render {
+  0%,
+  25%,
+  100% {
+    opacity: 0;
+  }
+  4% {
+    opacity: 0.6;
+  }
+}
+
+.store {
+  fill: var(--ifm-background-surface-color);
+  stroke: var(--ifm-color-primary);
+  stroke-width: 1.5;
+  rx: 12px;
+}
+.db {
+  color: var(--ifm-color-primary);
+}
+
+.chip rect {
+  fill: var(--c);
+  rx: 11px;
+}
+.chip text {
+  fill: var(--on-chip);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 10.5px;
+  font-weight: 600;
+}
+
+.plain rect,
+.bound rect,
+.rest {
+  stroke-width: 1.5;
+  rx: 7px;
+}
+.plain rect,
+.rest {
+  fill: var(--ifm-background-surface-color);
+  stroke: var(--line);
+}
+.plain text {
+  fill: var(--ifm-color-emphasis-600);
+}
+.rest {
+  rx: 4px;
+}
+.bound rect {
+  fill: color-mix(in srgb, var(--c) 12%, var(--ifm-background-surface-color));
+  stroke: var(--c);
+}
+.bound text {
+  fill: var(--ifm-font-color-base);
+  font-weight: 500;
+}
+.bound .hook {
+  fill: var(--c);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 10px;
+  font-weight: 400;
+}
+
+.chip,
+.bound {
+  cursor: pointer;
+}
+.chip,
+.bound,
+.binding {
+  transition:
+    opacity var(--motion-snappy),
+    stroke-width var(--motion-snappy);
+}
+.off {
+  opacity: 0.2;
+}
+/* animations beat plain opacity, so the send pulse gives way to these */
+.binding.on {
+  stroke-width: 3;
+  opacity: 1;
+  animation: flow 0.8s linear infinite;
+}
+.binding.off {
+  animation: none;
+}
+
+/* last, so it also beats .binding.on */
+@media (prefers-reduced-motion: reduce) {
+  .binding,
+  .binding.on,
+  .diagram .flash {
+    animation: none;
+  }
+}
