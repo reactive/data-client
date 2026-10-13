@@ -535,9 +535,10 @@ div.playgroundTextEdit > .playgroundHeader,
 .subtabs .tab:not(.selected):hover {
   background-color: var(--pg-bar);
 }
-/* over the Store (the cover) the selected control joins the Store's top,
-   code-colored like any selected tab */
-.controlTabs:not(.overCover) {
+/* in dark mode, over the Store (the cover) the selected control joins the
+   Store's top, code-colored like any selected tab; the light Store's top is
+   the bar itself, so there the control keeps its look */
+.controlTabs:not(:root[data-theme='dark'] .overCover) {
   --pg-tab-selected-bg: var(--pg-tab-hover-bg);
   --pg-tab-selected: var(--pg-tab-hover);
 }
