@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791842462996,
+  "lastUpdate": 1791930796645,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark React": [
@@ -8771,6 +8771,108 @@ window.BENCHMARK_DATA = {
             "name": "data-client: move-item",
             "value": 250.16,
             "range": "± 11.3%",
+            "unit": "ops/s"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "b4899d05731ad672cf17432ba603008a8c888169",
+          "message": "pkg: Update build packages (major) (#4209)\n\n* pkg: Update build packages\n\n* pkg: Adapt build to Babel 8, webpack-dev-server 6, linaria 8\n\n- CI: run node_matrix on Node 22.18/24.11 (Babel 8 engines); limit full-app\n  tsc to TS 5.3 since linaria 8 types need TS 5.0+\n- babel-node 8 passes flags after the script to the script; move them first\n- Published packages accept @babel/runtime ^7.20.0 || ^8.0.0 so Babel 7 apps\n  keep deduping (output only uses helpers present in both)\n- declare fields assigned in constructors so Babel 8 doesn't emit\n  `this.x = void 0`\n- Example apps: engines node >=22.18.0; drop unused @linaria/shaker\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NkGRqFawhBWCcgbgXZLtg4\n\n* internal: Tidy Babel 8 CI follow-ups\n\n- Gate the full-app tsc on TS >= 5.0 (matching the linaria reason) instead of\n  the single 5.3 matrix entry\n- Drop the stale legacy-node npm comment in node_matrix\n- normalizr-redux engines match its Babel 8 babel-node script\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NkGRqFawhBWCcgbgXZLtg4\n\n* internal: Example engines match Babel 8's Node range\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NkGRqFawhBWCcgbgXZLtg4\n\n* internal: Next.js example engines match Babel 8's Node range\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NkGRqFawhBWCcgbgXZLtg4\n\n* internal: Restore libc fields in example lockfiles\n\nRegenerated with npm 11 so platform libc metadata stays intact.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NkGRqFawhBWCcgbgXZLtg4\n\n* internal: One Node floor for the Babel 8 toolchain; drop @types/babel__core\n\nRoot and remaining Babel 8 examples declare ^22.18.0 || >=24.11.0, and\n@types/babel__core goes since Babel 8 ships its own types.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NkGRqFawhBWCcgbgXZLtg4\n\n* internal: Point initialize skill at the root Node engines\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01NkGRqFawhBWCcgbgXZLtg4\n\n---------\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-13T22:26:31Z",
+          "tree_id": "bba7ca5fe36c14e2c9c55d8855dbda46df2391ea",
+          "url": "https://github.com/reactive/data-client/commit/b4899d05731ad672cf17432ba603008a8c888169"
+        },
+        "date": 1791930793916,
+        "tool": "customBiggerIsBetter",
+        "benches": [
+          {
+            "name": "data-client: getlist-100",
+            "value": 129.87,
+            "range": "± 4.1%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500",
+            "value": 40.98,
+            "range": "± 5.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity",
+            "value": 322.58,
+            "range": "± 8.0%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user",
+            "value": 322.58,
+            "range": "± 8.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: getlist-500-sorted",
+            "value": 45.25,
+            "range": "± 9.2%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-sorted",
+            "value": 285.71,
+            "range": "± 5.5%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-entity-multi-view",
+            "value": 285.71,
+            "range": "± 8.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: list-detail-switch-10",
+            "value": 7.07,
+            "range": "± 5.4%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: update-user-10000",
+            "value": 69.69,
+            "range": "± 12.3%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: invalidate-and-resolve",
+            "value": 35.09,
+            "range": "± 6.7%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: unshift-item",
+            "value": 202.04,
+            "range": "± 4.9%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: delete-item",
+            "value": 263.16,
+            "range": "± 3.8%",
+            "unit": "ops/s"
+          },
+          {
+            "name": "data-client: move-item",
+            "value": 161.29,
+            "range": "± 9.5%",
             "unit": "ops/s"
           }
         ]
