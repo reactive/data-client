@@ -110,16 +110,13 @@ export const PostResource = resource({
         required
       />
       <TextArea name="body" :rows="12" label="Body" required>
-        After clicking 'save', the form is disabled and the button shows
-        a spinner until the POST completes. Upon completion the newly
+        After clicking 'save', the form is locked and the button animates
+        until the POST completes. Upon completion the newly
         created post is displayed immediately as Reactive Data Client is
         able to use the fetch response to populate the store.
       </TextArea>
       <div v-if="error" class="alert alert--danger">{{ error.message }}</div>
-      <button type="submit" class="button button--primary">
-        <template v-if="loading"><Spinner />Saving…</template>
-        <template v-else>Save</template>
-      </button>
+      <button type="submit">{{ loading ? 'Saving…' : 'Save' }}</button>
     </fieldset>
   </form>
 </template>

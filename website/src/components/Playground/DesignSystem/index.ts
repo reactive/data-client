@@ -8,5 +8,4 @@ export { TextInput } from './TextInput';
 export { TextArea } from './TextArea';
 export { SearchIcon } from './SearchIcon';
 export { Loading } from './Loading';
-export { Spinner } from './Spinner';
 export { default as NumberFlow } from '@number-flow/react';

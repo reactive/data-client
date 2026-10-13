@@ -611,9 +611,43 @@ div.playgroundTextEdit > .playgroundHeader,
 .playgroundPreview fieldset:disabled * {
   cursor: progress;
 }
-/* Infima fades disabled buttons; the busy Save button stays solid */
-.playgroundPreview fieldset:disabled :global(.button) {
-  opacity: 1;
+/* While a form saves, a light traces its submit button's border */
+@property --pg-trace-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+.playgroundPreview form[aria-busy='true'] button[type='submit'] {
+  /* 1px wider border, 1px less padding: same size, room for the light */
+  border: 2px solid transparent;
+  padding: calc(0.3rem - 1px) calc(0.8rem - 1px);
+  background:
+    linear-gradient(
+        var(--ifm-background-surface-color),
+        var(--ifm-background-surface-color)
+      )
+      padding-box,
+    conic-gradient(
+        from var(--pg-trace-angle),
+        var(--ifm-color-emphasis-200) 0 45%,
+        var(--ifm-color-primary) 75%,
+        var(--ifm-color-emphasis-200) 76%
+      )
+      border-box;
+  box-shadow: 0 0 0 3px
+    color-mix(in srgb, var(--ifm-color-primary) 15%, transparent);
+  color: var(--ifm-color-primary);
+  animation: trace 1.2s linear infinite;
+}
+@keyframes trace {
+  to {
+    --pg-trace-angle: 360deg;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .playgroundPreview form[aria-busy='true'] button[type='submit'] {
+    animation: none;
+  }
 }
 .playgroundPreview input[type='checkbox'] {
   width: 1rem;
