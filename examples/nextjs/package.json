@@ -10,7 +10,7 @@
     "lint": "yarn g:lint"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": "^22.18.0 || >=24.11.0"
   },
   "stackblitz": {
     "startCommand": "npm run dev"
