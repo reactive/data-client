@@ -1,6 +1,9 @@
 /// <reference types="jest" />
 
-import transformCode from '../transformCode';
+import transformCode, {
+  defaultExportName,
+  withoutDeclared,
+} from '../transformCode';
 
 describe('transformCode', () => {
   test('removes Prettier multiline imports', () => {
@@ -100,6 +103,37 @@ const x = 'value';`,
   test('removes namespace re-exports', () => {
     expect(transformCode(`export * as ns from './x';\nconst y = 1;`)).toBe(
       'const y = 1;',
+    );
+  });
+});
+
+describe('defaultExportName', () => {
+  test.each([
+    ['export default function PostList() {}', 'PostList'],
+    ['export default async function Page() {}', 'Page'],
+    ['export default class Board extends React.Component {}', 'Board'],
+    ['const a = 1;\nexport default PostDetail;', 'PostDetail'],
+    ['export default function () {}', undefined],
+    ['export default class {}', undefined],
+    ['export default memo(PostList);', undefined],
+    ['function PostList() {}', undefined],
+  ])('%s', (code, name) => {
+    expect(defaultExportName(code)).toBe(name);
+  });
+});
+
+describe('withoutDeclared', () => {
+  const scope = { Link: 1, Avatar: 2, render: 3 };
+
+  test('drops names the code declares with const, let or class', () => {
+    expect(
+      withoutDeclared(scope, 'export class Link {}\nconst Avatar = 1;'),
+    ).toEqual({ render: 3 });
+  });
+
+  test('keeps the same scope when nothing collides', () => {
+    expect(withoutDeclared(scope, 'const x = 1;\n  const Link = 2;')).toBe(
+      scope,
     );
   });
 });

@@ -66,7 +66,8 @@ interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
 export function Router({ routes }: { routes: readonly Route[] }) {
   const [history, setHistory] = useState(['/']);
   const navigate = useCallback(
-    (to: string) => setHistory(paths => [...paths, to]),
+    (to: string) =>
+      setHistory(paths => (paths.at(-1) === to ? paths : [...paths, to])),
     [],
   );
   const path = history[history.length - 1];

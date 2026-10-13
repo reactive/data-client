@@ -8,6 +8,7 @@ import Preview from './Preview';
 import { ResetButton } from './PreviewError';
 import PreviewWrapper from './PreviewWrapper';
 import { useRenderCount } from './RenderCount';
+import { withoutDeclared } from './transformCode';
 import { routerTrailer } from './router';
 import { usePreviewReset } from './usePreviewReset';
 import type { CodeDocument } from '../editor/codeModel';
@@ -62,6 +63,10 @@ export default function LivePreview<T>({
   // outlives remounts, so a restored store keeps its schemas and actions
   const [registry] = useState(() => new SchemaRegistry(actionLog));
   const managers = useCodeManagers(documents, remount);
+  const scope = useMemo(
+    () => withoutDeclared(managers.scope, code),
+    [managers.scope, code],
+  );
   const demo = useAutoRun(autoRun, reset, showStore);
   const getInterceptorData = useMemo(
     () =>
@@ -78,7 +83,7 @@ export default function LivePreview<T>({
       transformCode={managers.transformCode}
       enableTypeScript
       noInline
-      scope={managers.scope}
+      scope={scope}
     >
       <PreviewWrapper
         ref={demo.watch}

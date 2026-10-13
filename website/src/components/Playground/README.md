@@ -296,9 +296,10 @@ DesignSystem/       components injected into preview scope
   stand in for the app's own router, like the design system; Vue pages use
   `RouterLink` and `vue-router`'s `useRouter()`, and keep the same `route`
   fences only to name their path (Vue examples don't run).
-  Navigation is a plain state update, so a page can wrap it in
-  `startTransition`; each page renders in its own Suspense boundary, so the
-  address bar stays while it loads. A reset (fresh store) starts again at `/`.
+  Navigation is a plain state update, which a page can wrap in
+  `startTransition` (demos show their loading states, so the router doesn't);
+  pages render in a Suspense boundary under the address bar, which stays while
+  a page loads. A reset (fresh store) starts again at `/`.
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
   count in the preview header (written to the DOM, so counting adds no commits).
   `website/profiling-plugin.js` replaces `react-dom/client` with React's
