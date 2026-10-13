@@ -20,7 +20,7 @@
     "validate:run": "yarn build && (yarn preview &) && sleep 5 && yarn validate"
   },
   "engines": {
-    "node": ">=22"
+    "node": "^22.18.0 || >=24.11.0"
   },
   "dependencies": {
     "@data-client/core": "workspace:*",

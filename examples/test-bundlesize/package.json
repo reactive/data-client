@@ -18,7 +18,7 @@
     "postinstall": "rm -rf node_modules/.cache"
   },
   "engines": {
-    "node": ">=18.0"
+    "node": "^22.18.0 || >=24.11.0"
   },
   "browserslist": "extends @anansi/browserslist-config",
   "keywords": [

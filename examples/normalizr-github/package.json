@@ -15,7 +15,6 @@
   },
   "devDependencies": {
     "@babel/core": "8.0.7",
-    "@babel/node": "8.0.6",
-    "@types/babel__core": "^7"
+    "@babel/node": "8.0.6"
   }
 }
