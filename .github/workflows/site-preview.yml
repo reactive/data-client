@@ -115,15 +115,16 @@ jobs:
             echo "english-only=true" >> "$GITHUB_OUTPUT"
           fi
       # Docusaurus Faster's Rspack cache. Only master saves it, so
-      # PRs share one fresh entry instead of each storing their own; stale
-      # modules just miss.
+      # PRs share one fresh entry instead of each storing their own. Only
+      # restore one built from the same yarn.lock: Rspack doesn't invalidate
+      # modules whose dependencies changed, and a cache from older
+      # dependencies breaks the build (#4209's Babel 8 upgrade).
       - uses: actions/cache/restore@v6
         with:
           path: website/node_modules/.cache
           key: website-rspack-${{ hashFiles('yarn.lock') }}
           restore-keys: |
             website-rspack-${{ hashFiles('yarn.lock') }}-
-            website-rspack-
       - name: Build website
         env:
           # PRs build drafts. The queue and master build production, so a link
