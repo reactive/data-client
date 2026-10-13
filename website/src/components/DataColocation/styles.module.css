@@ -1,0 +1,149 @@
+.diagram {
+  --surface: var(--ifm-background-surface-color);
+  --line: var(--ifm-color-emphasis-300);
+  --muted: var(--ifm-color-emphasis-600);
+  --user: hsl(262, 60%, 60%);
+  --user-tint: hsl(262, 80%, 96%);
+  --post: hsl(206, 69%, 52%);
+  --post-tint: hsl(206, 80%, 95%);
+  --comment: hsl(165, 60%, 38%);
+  --comment-tint: hsl(165, 60%, 93%);
+  --on-chip: #fff;
+  float: right;
+  width: 440px;
+  max-width: 100%;
+  margin: 0 0 1rem 1.25rem;
+  font-family: var(--ifm-font-family-base);
+  user-select: none;
+}
+[data-theme='dark'] .diagram {
+  --line: var(--ifm-color-emphasis-300);
+  --user: hsl(262, 75%, 74%);
+  --user-tint: hsl(262, 30%, 22%);
+  --post: hsl(206, 75%, 66%);
+  --post-tint: hsl(206, 40%, 20%);
+  --comment: hsl(165, 55%, 55%);
+  --comment-tint: hsl(165, 35%, 17%);
+  --on-chip: hsl(220, 20%, 12%);
+}
+/* full width under the text instead of squeezing it */
+@media (max-width: 768px) {
+  .diagram {
+    float: none;
+    display: block;
+    margin: 0 auto 1rem;
+  }
+}
+
+.User {
+  --c: var(--user);
+  --t: var(--user-tint);
+}
+.Post {
+  --c: var(--post);
+  --t: var(--post-tint);
+}
+.Comment {
+  --c: var(--comment);
+  --t: var(--comment-tint);
+}
+
+.tree {
+  fill: none;
+  stroke: var(--line);
+  stroke-width: 1.5;
+}
+
+.binding {
+  fill: none;
+  stroke: var(--c);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 2 6;
+  animation: flow 0.8s linear infinite;
+}
+@keyframes flow {
+  from {
+    stroke-dashoffset: 8;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .binding {
+    animation: none;
+  }
+}
+
+.store {
+  fill: var(--surface);
+  stroke: var(--ifm-color-primary);
+  stroke-width: 1.5;
+  rx: 12px;
+}
+.db {
+  fill: none;
+  stroke: var(--ifm-color-primary);
+  stroke-width: 1.5;
+}
+
+.chip rect {
+  fill: var(--c);
+}
+.chip text {
+  fill: var(--on-chip);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 10.5px;
+  font-weight: 600;
+  text-anchor: middle;
+}
+
+.plain rect,
+.bound rect {
+  rx: 7px;
+  stroke-width: 1.5;
+}
+.plain rect {
+  fill: var(--surface);
+  stroke: var(--line);
+}
+.plain text {
+  fill: var(--muted);
+  font-size: 11.5px;
+  text-anchor: middle;
+}
+.bound rect {
+  fill: var(--t);
+  stroke: var(--c);
+}
+.bound text {
+  fill: var(--ifm-font-color-base);
+  font-size: 11.5px;
+  font-weight: 500;
+  text-anchor: middle;
+}
+.bound .hook {
+  fill: var(--c);
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 9.5px;
+  font-weight: 400;
+}
+
+.chip,
+.bound {
+  cursor: pointer;
+}
+.chip,
+.bound,
+.binding {
+  transition:
+    opacity var(--motion-snappy),
+    stroke-width var(--motion-snappy);
+}
+.off {
+  opacity: 0.2;
+}
+.binding.on {
+  stroke-width: 3;
+}

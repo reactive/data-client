@@ -168,8 +168,6 @@ export const PostResource = resource({
 </template>
 ```
 
-[](https://react.dev/learn/passing-data-deeply-with-context)
-
 Do not [prop drill](https://react.dev/learn/passing-data-deeply-with-context#the-problem-with-passing-props). Instead, [useSuspense()](./useSuspense.md) in the components that render the data from it. This is
 known as _data co-location_.
 

@@ -839,5 +839,9 @@
   },
   "playground.code": {
     "message": "代码"
+  },
+  "dataColocation.label": {
+    "message": "组件树：CurrentUser、PostBody、CommentList 和 Avatar 各自通过 useSuspense() 直接从 store 读取数据，跳过 App、Header 和 PostPage",
+    "description": "Accessible label of the data co-location diagram on the Render Data page"
   }
 }

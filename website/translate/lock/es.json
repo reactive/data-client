@@ -43,7 +43,7 @@
     "docs/core/concepts/reactivity.md": "1f3f4c5c445db48d04de10966da56a9946d246f8",
     "docs/core/concepts/validation.md": "29d58207abf2606269613cdbfd2ff3209c6e0e71",
     "docs/core/getting-started/agent-skills.md": "a3e67cb45cda75362ea902dba34e3c72489e941e",
-    "docs/core/getting-started/data-dependency.md": "e8ecae2991a01836eb737f2170603e014c2a2ae5",
+    "docs/core/getting-started/data-dependency.md": "d95777ddcf8b8d06d6301fe3a27bdd9f6d867b6c",
     "docs/core/getting-started/debugging.md": "d2b5c1e8e5faec00320384a359facc15532129d3",
     "docs/core/getting-started/installation.md": "fadd92df97f5259c6aa716916c9a67088dc97097",
     "docs/core/getting-started/mutations.md": "2dbc68d4c23d8fdf068f423f05a30b954d11a17b",
@@ -372,7 +372,8 @@
       "playground.store": "Store",
       "playground.code": "Code",
       "playground.errorMessage.status": "Request failed ({status})",
-      "playground.errorMessage.reset": "Reset"
+      "playground.errorMessage.reset": "Reset",
+      "dataColocation.label": "Component tree where CurrentUser, PostBody, CommentList and Avatar each read their data straight from the store with useSuspense(), skipping App, Header and PostPage"
     },
     "docusaurus-plugin-content-blog/options.json": {
       "title": "Blog",

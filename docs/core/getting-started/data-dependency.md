@@ -8,8 +8,7 @@ sidebar_label: Render Data
   <meta name="docsearch:pagerank" content="40"/>
 </head>
 
-import ThemedImage from '@theme/ThemedImage';
-import useBaseUrl from '@docusaurus/useBaseUrl';
+import DataColocation from '@site/src/components/DataColocation';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import ConditionalDependencies from '../shared/\_conditional_dependencies.mdx';
@@ -314,17 +313,7 @@ render(<Navigation />);
 
 </FrameworkPlayground>
 
-<a href="https://react.dev/learn/passing-data-deeply-with-context" target="_blank">
-<ThemedImage
-alt="Endpoints used in many contexts"
-sources={{
-    light: useBaseUrl('/img/passing_data_context_far.webp'),
-    dark: useBaseUrl('/img/passing_data_context_far.webp'),
-  }}
-style={{float: "right",marginLeft:"10px"}}
-width="415" height="184"
-/>
-</a>
+<DataColocation />
 
 Do not [prop drill](https://react.dev/learn/passing-data-deeply-with-context#the-problem-with-passing-props). Instead, [useSuspense()](../api/useSuspense.md) in the components that render the data from it. This is
 known as _data co-location_.

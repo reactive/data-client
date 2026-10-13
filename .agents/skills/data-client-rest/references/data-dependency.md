@@ -163,8 +163,6 @@ function LoadMore() {
 render(<Navigation />);
 ```
 
-[](https://react.dev/learn/passing-data-deeply-with-context)
-
 Do not [prop drill](https://react.dev/learn/passing-data-deeply-with-context#the-problem-with-passing-props). Instead, [useSuspense()](https://dataclient.io/docs/api/useSuspense) in the components that render the data from it. This is
 known as _data co-location_.
 
