@@ -178,7 +178,10 @@ const STYLE = `
 
 let menu: HTMLElement | undefined;
 let listEl: HTMLElement | undefined;
+// the logo the menu opens from: the navbar's, or the mobile sidebar's
 let brand: HTMLElement | undefined;
+const bound = new WeakSet<HTMLElement>();
+let started = false;
 let timer: ReturnType<typeof setTimeout> | undefined;
 // bumped by each open and close, so an open still loading the list doesn't
 // show the menu once anything closed it (the pointer left, a scroll, Escape)
@@ -186,8 +189,11 @@ let generation = 0;
 // click isn't a PointerEvent in every browser
 let lastPointer = '';
 
+const BRAND = '.navbar__brand';
+const brandOf = (node: EventTarget | null) =>
+  node instanceof Element ? node.closest<HTMLElement>(BRAND) : null;
 const isMenuPart = (node: Node | null) =>
-  !!(menu?.contains(node) || brand?.contains(node));
+  !!(menu?.contains(node) || brandOf(node));
 const closeOnMouseLeave = (e: PointerEvent) => {
   if (e.pointerType === 'mouse') closeSoon();
 };
@@ -232,16 +238,18 @@ function ensureMenu() {
   return menu;
 }
 
-async function open(focusFirst = false) {
+async function open(from: HTMLElement, focusFirst = false) {
   clearTimeout(timer);
   const id = ++generation;
   const el = ensureMenu();
   const list = await loadVersions();
-  if (id !== generation || !brand) return;
+  if (id !== generation) return;
+  if (brand !== from) brand?.setAttribute('aria-expanded', 'false');
+  brand = from;
   // measure before changing the DOM so it doesn't force a layout
   const { left } = brand.getBoundingClientRect();
   const { bottom } = (
-    brand.closest('.navbar') ?? brand
+    brand.closest('.navbar-sidebar__brand, .navbar') ?? brand
   ).getBoundingClientRect();
   const { page, site } = here();
   listEl?.replaceChildren(
@@ -298,17 +306,28 @@ function onMenuKey(e: KeyboardEvent) {
   items[(at + step + items.length) % items.length]?.focus();
 }
 
+function bindFrom(e: Event) {
+  const el = brandOf(e.target);
+  if (el) bind(el);
+}
+
 function bind(el: HTMLElement) {
-  if (!brand) {
+  if (bound.has(el)) return;
+  if (!started) {
+    started = true;
     // the label's hover styles too, so add them before the menu first opens
     const style = document.createElement('style');
     style.textContent = STYLE;
     document.head.append(style);
+    // The mobile sidebar renders its own logo, with the same label, whenever
+    // it likes, so bind each logo as it's first touched, hovered or focused
+    for (const type of ['pointerdown', 'pointerover', 'focusin'])
+      document.addEventListener(type, bindFrom, true);
   }
   // load the list before the menu opens, once the page is idle; a failed
   // load clears the cache, so the next open or navbar retries it
   setTimeout(loadVersions, 1000);
-  brand = el;
+  bound.add(el);
   el.setAttribute('aria-haspopup', 'menu');
   el.setAttribute('aria-expanded', 'false');
   el.addEventListener('pointerdown', e => {
@@ -317,7 +336,7 @@ function bind(el: HTMLElement) {
   el.addEventListener('pointerenter', e => {
     if (e.pointerType !== 'mouse') return;
     clearTimeout(timer);
-    timer = setTimeout(() => open(), 80);
+    timer = setTimeout(() => open(el), 80);
   });
   el.addEventListener('pointerleave', closeOnMouseLeave);
   // The version under the logo opens the menu rather than going home: the
@@ -327,14 +346,19 @@ function bind(el: HTMLElement) {
     if (!logo || e.clientY < logo.getBoundingClientRect().bottom - 4) return;
     e.preventDefault();
     // a mouse's hover already opened it, so its click shouldn't close it
-    if (menu?.hasAttribute('data-open') && lastPointer !== 'mouse') close();
-    else open();
+    if (
+      menu?.hasAttribute('data-open') &&
+      brand === el &&
+      lastPointer !== 'mouse'
+    )
+      close();
+    else open(el);
   });
   el.addEventListener('focusout', closeOnFocusOut);
   el.addEventListener('keydown', e => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      open(true);
+      open(el, true);
     }
   });
 }
@@ -345,6 +369,5 @@ export function onRouteUpdate() {
 
 export function onRouteDidUpdate() {
   // Docusaurus may render a new navbar
-  const el = document.querySelector<HTMLElement>('.navbar__brand');
-  if (el && el !== brand) bind(el);
+  document.querySelectorAll<HTMLElement>(BRAND).forEach(bind);
 }
