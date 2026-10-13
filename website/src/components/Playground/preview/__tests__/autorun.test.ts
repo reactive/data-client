@@ -508,6 +508,9 @@ describe('useAutoRun', () => {
   it('replay brings the preview into view, which it plays in', async () => {
     const { result, see, preview, showStore } = mount();
     preview.scrollIntoView = jest.fn(() => see(1));
+    // only its top shows, at the bottom of the viewport
+    preview.getBoundingClientRect = () =>
+      ({ top: innerHeight - 40, bottom: innerHeight + 300 }) as DOMRect;
     see(0.1);
     act(() => result.current.replay());
     expect(preview.scrollIntoView).toHaveBeenCalled();

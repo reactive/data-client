@@ -2,12 +2,13 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { createPlayer } from './player';
 import type { AutoRunScript } from './script';
-import { createStage } from './stage';
+import { createStage, revealOnPage } from './stage';
 import { prefersReducedMotion } from '../../../motion';
 
 /** Plays `script` in the playground (`[data-playground]`) around the
  * preview `watch` is the ref of, the first time that preview is mostly in
- * view, and again from a fresh store with `replay()`.
+ * view, and again from a fresh store with `replay()`, which scrolls the
+ * preview into view.
  *
  * - The reader's own input anywhere in the playground (a press, a tap, a
  *   key) ends the run, and they carry on from what it left. Scrolling,
@@ -73,6 +74,7 @@ export function useAutoRun(
           if (shown) previewShown = mostlyShown(shown);
           syncPaused();
           const { script } = latest.current;
+          // shown: only a fresh observation of the preview starts it;
           // idle: never over a run, even if the script changed identity;
           // played: a script starts by itself once per page load
           if (
@@ -111,10 +113,7 @@ export function useAutoRun(
     // start() takes over from a run in progress: playing aborts it
     reset();
     // the reader asked to watch: bring it into view, which it plays in
-    preview.current?.scrollIntoView({
-      block: 'nearest',
-      behavior: prefersReducedMotion() ? 'instant' : 'smooth',
-    });
+    if (preview.current) revealOnPage(preview.current);
     // the demo shows the Store opening, if it does
     if (script?.some(step => 'store' in step && step.store === 'open'))
       showStore(false);

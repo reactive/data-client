@@ -7,7 +7,8 @@ import { liveLabel } from '../../liveLabel';
 import styles from '../../styles.module.css';
 
 /** The preview's "Live Preview" label, as the demo's control: pressing it
- * replays the demo from a fresh store, and its dot pulses while it plays */
+ * replays the demo from a fresh store, scrolled into view, and its dot pulses
+ * while it plays */
 export default function DemoLabel({
   player,
   onPlay,

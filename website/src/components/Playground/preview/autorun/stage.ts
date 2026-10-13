@@ -164,10 +164,11 @@ function scopeOf(root: HTMLElement, scope: Scope) {
   }
 }
 
-/** Scrolls the page to `el` if the demo moved it out of sight (the Store
- * opens above the preview on a phone), clear of the sticky navbar. The
- * pointer is placed relative to the page, so it scrolls along. */
-function revealOnPage(el: HTMLElement) {
+/** Scrolls the page to `el` if any of it is out of sight (the Store opens
+ * above the preview on a phone; replay brings the preview back), clear of the
+ * sticky navbar. The pointer is placed relative to the page, so it scrolls
+ * along. */
+export function revealOnPage(el: HTMLElement) {
   const navbar = document.querySelector('.navbar')?.getBoundingClientRect();
   const { top, bottom } = el.getBoundingClientRect();
   // a navbar hidden on scroll reports a bottom above the viewport
