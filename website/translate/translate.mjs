@@ -38,7 +38,7 @@ const {
 } = require('./localeDocs.js');
 const { DEFAULT_LOCALE, LOCALES } = require('./locales.js');
 const { DOCS_INSTANCES } = require('../framework-docs/docsInstances.js');
-const { MD, frontMatterValue, walk } = require('../framework-docs/index.js');
+const { FM, MD, walk } = require('../framework-docs/index.js');
 
 const WEBSITE = path.join(ROOT, 'website');
 
@@ -71,6 +71,11 @@ const published = file =>
   );
 
 const read = file => fs.readFileSync(path.join(ROOT, file), 'utf8');
+/** `draft: true` front matter, as scripts/blog-publish.mjs reads it */
+const DRAFT = /^draft:\s*(true|True|TRUE)[^\S\r\n]*(#.*)?$/m;
+/** Drafts change quickly and production builds leave them out, so `prepare`
+ * lists them only once published */
+const isDraft = file => DRAFT.test(FM.exec(read(file))?.[1] ?? '');
 const exists = file => fs.existsSync(path.join(ROOT, file));
 /** Git blob id of each file's content (stored, so it can be read back) */
 const blobsOf = paths =>
@@ -250,8 +255,7 @@ async function prepare(locale, english) {
       file =>
         (lock.docs[file] !== blobs[file] ||
           !exists(translationOf(file, locale))) &&
-        // drafts (blog posts) change quickly and nobody sees them yet
-        frontMatterValue(read(file), 'draft') !== 'true',
+        !isDraft(file),
     )
     .map(file => {
       const translation = translationOf(file, locale);

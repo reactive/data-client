@@ -30,7 +30,7 @@ node website/translate/translate.mjs finalize       # or name the files to accep
 cd website && yarn start --locale es
 ```
 
-- **New and stale pages**: `prepare` lists a page when the lock has no entry for it or its English changed since. It skips drafts (`draft: true` blog posts), which change quickly and aren't published yet. For a stale page it gives `git diff <old> <new>`, the English change, so the translation can be updated in place and its reviewed wording kept.
+- **New and stale pages**: `prepare` lists a page when the lock has no entry for it or its English changed since. It skips drafts (`draft: true` posts and pages), which change quickly and aren't published yet. For a stale page it gives `git diff <old> <new>`, the English change, so the translation can be updated in place and its reviewed wording kept.
 - **Structure is checked** (`mdx.mjs`): a translation must parse as MDX and keep its English page's code, inline code, imports, JSX tags and attributes (except `label`/`title`/`alt`/`description`/`caption`), expressions, directives, link targets, heading levels, block order and front matter (except `title`/`sidebar_label`/`description`). A paragraph, heading or table cell of four or more words left identical to English counts as skipped. `finalize` reports what differs and does not record the page.
 - **Anchors**: `finalize` gives every heading the `{#id}` of its English heading, so `#links` keep working.
 - **Partials**: a locale's pages bring along the `_partials` they import from their own docs folder.
