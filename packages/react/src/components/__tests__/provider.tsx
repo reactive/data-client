@@ -106,7 +106,6 @@ describe('<DataProvider />', () => {
     const { rerender } = render(tree);
     expect(dispatch).toBeDefined();
     let curDisp = dispatch;
-    let curController = controller;
     rerender(tree);
     expect(curDisp).toBe(dispatch);
     expect(count).toBe(1);
@@ -117,7 +116,7 @@ describe('<DataProvider />', () => {
     rerender(<DataProvider managers={managers}>{chil}</DataProvider>);
     expect(count).toBe(1);
     curDisp = dispatch;
-    curController = controller;
+    const curController = controller;
     rerender(<DataProvider managers={managers}>{chil}</DataProvider>);
     expect(curDisp).toBe(dispatch);
     expect(count).toBe(1);
