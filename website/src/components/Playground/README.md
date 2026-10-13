@@ -286,50 +286,6 @@ DesignSystem/       components injected into preview scope
   view from (the tree view, the peek's chips), `StorePanel` opens it over
   the top level in the table view.
 
-- Auto-run: `autoRun` (a `Step[]`, `preview/autorun/script.ts`) plays a
-  scripted demo across the preview and the Store, like a video, the first
-  time 60% of the preview (or of the viewport, if the preview is taller) is
-  in view (never by itself under reduced motion). It has no captions: what
-  changes on screen as the pointer acts is what draws the eye, so a script
-  picks steps whose effect shows, and holds (`wait`) while it sinks in.
-  The preview's "Live Preview" label becomes its control (`DemoLabel`):
-  pressing it replays the demo from a fresh store (closing the Store first
-  if the script opens it) and scrolls the preview into view, where it plays.
-  Its red dot pulses slowly while it plays.
-  - `player.ts` owns timing only: one step at a time, each on a pausable
-    clock, looking its target up again before every act (renders replace
-    elements), giving up after `FIND_TIMEOUT`. `stage.ts` owns the DOM: it
-    finds targets (CSS selector, `hasText`, or a `<label>`'s text, scoped to
-    the preview, the Store (`[data-store-panel]`) or the whole playground),
-    and acts with untrusted events: pointer/mouse events then `click()`, or
-    the native value setter plus `input` so React's `onChange` sees typing.
-    A `store` step glides onto the Store's toggle (`[data-store-toggle]`,
-    whichever the layout shows) and presses it, but opens or closes the
-    Store without saving that as the reader's choice.
-    It never calls `focus()`, which would take the page's focus from the
-    reader. A pointer glides to each target (`--motion-smooth`), in a
-    layer appended to the playground; a target out of sight (the Store
-    opening above the preview on a phone) scrolls into view first.
-    `useAutoRun.ts` connects them to React through the preview's ref (the
-    playground is its `[data-playground]` ancestor); the player's state
-    reaches React only in `DemoLabel`, so a run never re-renders the
-    playground.
-  - The reader takes over with any input of their own (`isTrusted`) in the
-    playground: a press, a tap, a key. That ends the run for good, leaving
-    everything as it was, since the rest of the script assumes a state the
-    reader just changed; the label starts it over. Input before the demo
-    starts keeps it from starting by itself, and so does a replay. Each script
-    starts by itself once per page load (`played` in `useAutoRun.ts`;
-    client-side navigation keeps it), so a playground that remounts (the
-    page's framework switched away and back) doesn't replay.
-    Scrolling, hovering, a touch that starts a scroll and the demo's own
-    controls (`data-autorun-control`) don't take over. Once neither the
-    preview nor the playground is mostly in view (the start's rule), or in a
-    background tab, the run pauses where it is and resumes when back, so it
-    never scrolls the page back to a reader scrolling past.
-  - The Store opens for a step through `useStoreOpen`'s `show`, which
-    doesn't persist: tab storage keeps the reader's own choice (a docs page
-    shares one `groupId`), until the reader toggles it.
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
   count in the preview header (written to the DOM, so counting adds no commits).
   `website/profiling-plugin.js` replaces `react-dom/client` with React's
@@ -361,6 +317,57 @@ DesignSystem/       components injected into preview scope
   fallback); say so in the prose next to a demo that needs it.
 - Third-party console noise is demoted only while previews are mounted
   (`usePlaygroundConsoleDemotion`); never add first-party matchers.
+
+### Auto-run
+
+A playground with `autoRun` (a `Step[]`, `preview/autorun/script.ts`) plays it
+by itself, like a video, the first time 60% of its preview (or of the
+viewport, for a taller preview) is in view; never by itself under reduced
+motion. The "Live Preview" label becomes its control (`DemoLabel`): pressing
+it replays the demo from a fresh store and scrolls the preview into view, and
+its red dot pulses while the demo plays.
+
+Writing a script:
+
+- No captions: the change on screen as the pointer acts is what draws the
+  eye, so pick steps whose effect shows and `wait` while it sinks in.
+- Declare it as a module-level `export const` (like `raceDemo` in
+  `docs/rest/shared/_optimisticTransform.mdx`). "Starts by itself once per
+  page load" is tracked by array identity, so an inline `autoRun={[…]}`
+  plays by itself again whenever the page's framework is switched away and
+  back.
+- Target Store UI with `in: 'store'`; the default scope is the preview.
+  Match `aria-label`s and `data-*` attributes over visible text, which copy
+  edits change.
+- A target that doesn't appear within `FIND_TIMEOUT` ends the run, and only
+  the console says so (`Playground demo:`). Play every new or edited script
+  through in a browser, at a phone width too, where the Store opens above the
+  preview.
+- Step counts follow the fixtures: `raceDemo` presses Next once per change
+  its clicks make, so changing the fixture means recounting.
+
+Behavior to keep when changing the code:
+
+- The reader's own input (`isTrusted`) anywhere in the playground, a press, a
+  tap or a key, ends the run for good, since the rest of the script assumes a
+  state the reader just changed; the label starts it over. Scrolling,
+  hovering, a touch that starts a scroll and the demo's own controls
+  (`data-autorun-control`) don't count.
+- It pauses while neither the preview nor the playground is mostly in view,
+  or the tab is in the background, so it never scrolls the page back to a
+  reader who scrolled past.
+- A `store` step opens or closes the Store through `useStoreOpen`'s `show`,
+  without saving it: tab storage keeps the reader's own choice, shared by
+  every playground with the page's `groupId`.
+- It never calls `focus()`, which would take the page's focus from the
+  reader.
+- The player's state reaches React only in `DemoLabel`, so a run never
+  re-renders the playground.
+
+`player.ts` owns timing: a pausable clock, one step at a time, each looking
+its target up again before it acts (renders replace elements). `stage.ts` owns
+the DOM: locators, untrusted events and the pointer. `useAutoRun.ts` connects
+them to the preview's ref.
 
 ## Tests
 
