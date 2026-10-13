@@ -16,6 +16,7 @@ html[data-theme='dark'] .playground-preview {
   border-radius: 4px;
   position: relative;
   margin-bottom:1ex;
+  transition: opacity var(--motion-snappy);
 }
 html[data-theme='dark'] .rt-TextFieldRoot,
 html[data-theme='dark'] .rt-TextAreaRoot {
@@ -166,12 +167,8 @@ html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
 
 
 /* Disabled fields (on their own or in a disabled fieldset) fade back */
-.rt-TextFieldRoot,
-.rt-TextAreaRoot {
-  transition: opacity var(--motion-snappy);
-}
-.rt-TextFieldRoot:has(> :disabled),
-.rt-TextAreaRoot:has(> :disabled) {
+.rt-TextFieldRoot:has(> .rt-TextFieldInput:disabled),
+.rt-TextAreaRoot:has(> .rt-TextAreaInput:disabled) {
   opacity: 0.5;
 }
 
@@ -185,6 +182,7 @@ html[data-theme='dark'] .small.rt-TextFieldRoot:focus-within {
   padding-bottom:-5px;
   /* overflow: hidden; */
   margin: 1.5ex 0 .5ex;
+  transition: opacity var(--motion-snappy);
 }
 
 /* The textarea element inside the component */

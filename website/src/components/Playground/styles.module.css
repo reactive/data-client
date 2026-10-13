@@ -600,7 +600,7 @@ div.playgroundTextEdit > .playgroundHeader,
 .playgroundPreview textarea:where(:not([class])) {
   padding: 0.3rem 0.5rem;
 }
-/* A form disabled while it saves; its fields fade (design-system.css) */
+/* Groups a form's fields so one `disabled` locks them all */
 .playgroundPreview fieldset {
   min-width: 0;
   margin: 0;
