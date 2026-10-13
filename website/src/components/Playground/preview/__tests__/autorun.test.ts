@@ -180,6 +180,11 @@ describe('stage', () => {
       top = 400;
       resized();
       expect(pointer.style.transform).toBe('translate(10px, 410px)');
+      // a render took it away: the pointer stays where it was
+      button.remove();
+      top = 0;
+      resized();
+      expect(pointer.style.transform).toBe('translate(10px, 410px)');
     } finally {
       delete (globalThis as any).ResizeObserver;
       delete (Element.prototype as any).scrollTo;
@@ -349,6 +354,23 @@ describe('useAutoRun', () => {
     const second = mount(script);
     second.see(1);
     expect(second.result.current.player.getState()).toBe('idle');
+  });
+
+  it('acts on the latest of several queued observations', () => {
+    const { result } = mount();
+    observed(
+      [
+        { isIntersecting: false, intersectionRatio: 0 },
+        {
+          isIntersecting: true,
+          intersectionRatio: 1,
+          intersectionRect: { height: 100 },
+          rootBounds: { height: 800 },
+        },
+      ] as unknown as IntersectionObserverEntry[],
+      {} as IntersectionObserver,
+    );
+    expect(result.current.player.getState()).toBe('playing');
   });
 
   it('replay starts over from a fresh store, closing a Store it opens', () => {

@@ -4,8 +4,9 @@
 export type AutoRunScript = readonly Step[];
 
 export type Step =
-  /** Holds still for `wait` ms, letting a change sink in */
-  | { wait: number }
+  /** Holds still for `wait` ms, letting a change sink in (no `delay`: it
+   * would only add to `wait`) */
+  | { wait: number; delay?: never }
   | (StepTiming &
       (
         | { click: Target }

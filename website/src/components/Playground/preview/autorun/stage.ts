@@ -19,7 +19,7 @@ export function createStage(
   root.append(layer);
   let pointer: HTMLElement | undefined;
   let at = { x: 0, y: 0 };
-  let target: HTMLElement | undefined;
+  let pointedAt: HTMLElement | undefined;
 
   /** Moves the pointer onto `el`, the tip at its center */
   const place = (el: HTMLElement) => {
@@ -44,10 +44,13 @@ export function createStage(
     }
   };
   // the layer sits at the playground's foot, so content growing above it
-  // (the Store opening) moves the pointer's origin: follow the target
+  // (the Store opening) moves the pointer's origin: follow the target,
+  // unless a render took it away (it would measure at the viewport's corner)
   const resized =
     typeof ResizeObserver === 'function' ?
-      new ResizeObserver(() => target && place(target))
+      new ResizeObserver(() => {
+        if (pointedAt?.isConnected && visible(pointedAt)) place(pointedAt);
+      })
     : undefined;
   resized?.observe(root);
 
@@ -78,7 +81,7 @@ export function createStage(
     point(el) {
       // root only bounds the walk: the scrollers inside it do the moving
       revealIn(root, el);
-      target = el;
+      pointedAt = el;
       place(el);
     },
 

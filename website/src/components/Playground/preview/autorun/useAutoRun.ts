@@ -94,6 +94,7 @@ export function useAutoRun(
     const { script, showStore } = latest.current;
     // the reader chose when to watch it, so it won't start by itself later
     if (script) played.add(script);
+    // start() takes over from a run in progress: playing aborts it
     reset();
     // the demo shows the Store opening, if it does
     if (script?.some(step => 'store' in step && step.store === 'open'))
