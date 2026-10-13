@@ -26,17 +26,48 @@ const FENCE = /^(\s*)(`{3,}|~{3,})(.*)$/;
 const IMPORT =
   /^((?:import|export)\s(?:.*?\sfrom\s+)?|\}\s*from\s+)(['"])(\.\.?\/[^'"]+)\2/;
 
-/** Docs instances with their own source folder (Vue mirrors docs/core) */
-const SOURCE_INSTANCES = DOCS_INSTANCES.filter(
-  (d, i, all) => all.findIndex(other => other.path === d.path) === i,
-);
+/** The blog, translated like a docs instance; Docusaurus reads a locale's posts from `localized` */
+const BLOG = {
+  id: 'blog',
+  path: 'website/blog',
+  localized: locale => `website/i18n/${locale}/docusaurus-plugin-content-blog`,
+};
+/**
+ * Content with its own source folder: the docs instances (Vue mirrors
+ * docs/core) and the blog; `localized` is the folder generated for a locale
+ */
+const SOURCE_INSTANCES = [
+  ...DOCS_INSTANCES.filter(
+    (d, i, all) => all.findIndex(other => other.path === d.path) === i,
+  ).map(d => ({ ...d, localized: locale => localizedPath(d.id, locale) })),
+  BLOG,
+];
 /** Instance whose source folder holds `file` (repo-relative) */
 const instanceOf = file =>
   SOURCE_INSTANCES.find(d => file.startsWith(`${d.path}/`));
 
+/** Files of an instance, relative to its folder; Docusaurus skips dotfiles
+ * (the blog's agent rules) */
+const sourceFiles = instance =>
+  walk(path.join(ROOT, instance.path)).filter(
+    file => !file.split('/').some(part => part.startsWith('.')),
+  );
+
+/** A source's path in a locale's folder: from the repo root, or from website/
+ * for the website's own content (`website/blog/x.md` -> `blog/x.md`) */
+const inLocale = file => file.replace(/^website\//, '');
 /** Where a locale's translation of a source file is committed (repo-relative) */
 const translationOf = (file, locale) =>
-  path.posix.join('website/i18n', locale, file);
+  path.posix.join('website/i18n', locale, inLocale(file));
+/** Source file of a translation, from its path in the locale's folder */
+const translatedSource = name => {
+  const instance = SOURCE_INSTANCES.find(d =>
+    name.startsWith(`${inLocale(d.path)}/`),
+  );
+  return instance ?
+      `${instance.path}/${name.slice(inLocale(instance.path).length + 1)}`
+    : name;
+};
 
 /** Line ranges [start, end] of fenced code blocks */
 function fences(lines) {
@@ -95,7 +126,7 @@ const renderedAt = (file, locale) => {
   const instance = instanceOf(file);
   if (!instance) return file;
   return path.posix.join(
-    localizedPath(instance.id, locale),
+    instance.localized(locale),
     file.slice(instance.path.length + 1),
   );
 };
@@ -191,9 +222,7 @@ function generate(locale) {
   const { docs: lock } = readLock(locale);
   const instances = SOURCE_INSTANCES.map(instance => ({
     instance,
-    files: walk(path.join(ROOT, instance.path)).map(
-      name => `${instance.path}/${name}`,
-    ),
+    files: sourceFiles(instance).map(name => `${instance.path}/${name}`),
   }));
   const isTranslated = file =>
     fs.existsSync(path.join(ROOT, translationOf(file, locale)));
@@ -204,7 +233,7 @@ function generate(locale) {
     ),
   );
   for (const { instance, files } of instances) {
-    const outDir = path.join(ROOT, localizedPath(instance.id, locale));
+    const outDir = path.join(ROOT, instance.localized(locale));
     const written = new Set();
     const write = (file, content, from) => {
       const name = file.slice(instance.path.length + 1);
@@ -243,7 +272,9 @@ function generate(locale) {
     }
     if (fs.existsSync(outDir))
       for (const name of walk(outDir))
-        if (!written.has(name)) fs.rmSync(path.join(outDir, name));
+        // but the blog's UI strings, committed beside its posts
+        if (!written.has(name) && name !== 'options.json')
+          fs.rmSync(path.join(outDir, name));
   }
   return { sourceOf: file => sources.get(file) ?? file };
 }
@@ -267,7 +298,8 @@ function watch(locale, then = () => {}) {
     // folders generated in it
     [
       translationOf('', locale),
-      name => SOURCE_INSTANCES.some(d => name.startsWith(`${d.path}/`)),
+      name =>
+        SOURCE_INSTANCES.some(d => name.startsWith(`${inLocale(d.path)}/`)),
     ],
     [path.relative(ROOT, path.dirname(lockFile(locale)))],
   ];
@@ -281,7 +313,10 @@ function watch(locale, then = () => {}) {
 }
 
 module.exports = {
+  BLOG,
   SOURCE_INSTANCES,
+  sourceFiles,
+  translatedSource,
   instanceOf,
   translationOf,
   lockFile,
