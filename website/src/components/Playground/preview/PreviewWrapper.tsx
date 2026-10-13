@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import Header from '../Header';
 import { liveLabel } from '../liveLabel';
 import styles from '../styles.module.css';
+import { RouterControlsSlot } from './routerSlot';
 
 export default function PreviewWrapper({
   children,
@@ -10,13 +11,17 @@ export default function PreviewWrapper({
   label,
   ref,
 }: Props) {
+  const [routerSlot, setRouterSlot] = useState<HTMLElement | null>(null);
   return (
     <div className={styles.previewWrapper} ref={ref}>
       <Header className={styles.previewHeader}>
         {label ?? <span className={styles.liveLabel}>{liveLabel()}</span>}
+        <span className={styles.routerSlot} ref={setRouterSlot} />
         <span className={styles.previewControls}>{headerControls}</span>
       </Header>
-      <div className={styles.playgroundResult}>{children}</div>
+      <RouterControlsSlot value={routerSlot}>
+        <div className={styles.playgroundResult}>{children}</div>
+      </RouterControlsSlot>
     </div>
   );
 }

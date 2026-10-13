@@ -6,7 +6,12 @@ import globals from 'globals';
 // Store inspector). A static import from outside copies it into every docs page
 // with a Playground, so only these eager files (SSR and loading-state chrome)
 // may be imported.
-const EAGER_PREVIEW = ['FixturePreview', 'PreviewWrapper', 'StoreToggle'];
+const EAGER_PREVIEW = [
+  'FixturePreview',
+  'PreviewWrapper',
+  'routerSlot',
+  'StoreToggle',
+];
 /** Restrict `restricted` import paths, except the eager files */
 const lazyPreviewImports = (...restricted) => [
   'error',

@@ -99,7 +99,9 @@ blocks or to stubs typed `any`.
   modules (`import { ArticleResource } from './resources/Article'`).
 - The playground's design system (`website/src/components/Playground/DesignSystem`: `Loading`,
   `Avatar`, `TextInput`, ...) stands for the app's own components and needs no import, like
-  `render()`, which mounts a React playground's app, and Vue's `RouterLink` and `RouterView`.
+  `render()`, which mounts a React playground's app, React's `Link` and `useNavigate()`, which
+  stand for the app's router (see "Router" in `website/src/components/Playground/README.md`), and
+  Vue's `RouterLink` and `RouterView`.
   `NumberFlow` is a real library: import it from `@number-flow/react` or `@number-flow/vue`.
 - Overview pages (`README.md`, like `docs/core/README.md`) may leave imports out of snippets for
   readability, so only their playgrounds are checked.

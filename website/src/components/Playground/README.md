@@ -114,8 +114,8 @@ DesignSystem/       components injected into preview scope
 
 ### Editor
 
-- Fence metastring: `title="…"`, `path="…"` (quotes optional), `collapsed`, `column`, `{1-3}`
-  highlight ranges (pre-selected in Monaco); `language-*` class. Element props
+- Fence metastring: `title="…"`, `path="…"` (quotes optional), `collapsed`, `column`,
+  `route="…"` (see Router), `{1-3}` highlight ranges (pre-selected in Monaco); `language-*` class. Element props
   override metastring values (Demo passes them directly). `defaultTab`
   overrides `collapsed`.
 - `row` layout: non-`column` files are tabs (focus switches tab); `column`
@@ -145,7 +145,10 @@ DesignSystem/       components injected into preview scope
 - All documents are concatenated with a `;` between them (so a half-typed
   statement can't absorb the next document), deferred with `useDeferredValue`,
   stripped of imports/exports by `transformCode`, and run `noInline`
-  (`render(<App />)`) with `preview/scope.ts` as globals. Keep
+  (`render(<App />)`) with `preview/scope.ts` as globals, inside one block so
+  a demo may declare its own `Link` or `Avatar` (react-live passes the scope
+  as parameters, which a `const` or `class` can't redeclare). The documents
+  share that block, so two of them can't declare the same name. Keep
   `monaco/typeLibs.ts` declarations in sync with the scope: `globalScopeLib()`
   aliases library exports into `declare global`, and `Array`/`Object` keep
   their built-in types (they're type-only exports).
@@ -286,6 +289,23 @@ DesignSystem/       components injected into preview scope
   view from (the tree view, the peek's chips), `StorePanel` opens it over
   the top level in the table view.
 
+- Router (`preview/router.tsx`): a demo with several pages gives each page's
+  fence a `route` (a path whose `:name` segments are params, `/posts/:id`) and writes no
+  navigation of its own. The page is that file's named default export, and
+  the path's params are its props. When any file has one, `routerTrailer`
+  appends the `render()` (so no file calls it): a router starting at `/` with
+  Back, Home and the current path in the preview's header (so pages need no
+  back links; `PreviewWrapper` gives the header slot through
+  `RouterControlsSlot`, and the router portals into it). Pages move with
+  `<Link to>` and `useNavigate()`, scope globals that stand in for the app's own router, like
+  the design system; Vue pages use `RouterLink` and `vue-router`'s
+  `useRouter()`, and keep the same `route` fences only to name their path
+  (Vue examples don't run).
+  Navigation is a transition: the page stays until the next one is ready,
+  with a progress bar along the preview's top edge meanwhile, so a page needs
+  no `startTransition` of its own. Pages render in a Suspense boundary whose
+  fallback shows only before the first page is ready.
+  A reset (fresh store) starts again at `/`.
 - `renderCount` wraps the live result in a `<Profiler>` and shows its commit
   count in the preview header (written to the DOM, so counting adds no commits).
   `website/profiling-plugin.js` replaces `react-dom/client` with React's

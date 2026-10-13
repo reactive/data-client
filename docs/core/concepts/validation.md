@@ -253,21 +253,33 @@ export const getArticle = new RestEndpoint({
 
 :::react
 
-```tsx title="ArticleDetail" collapsed
-import React from 'react';
+```tsx title="ArticleList" route="/" collapsed
 import { useSuspense } from '@data-client/react';
-import { getArticle, getArticleList } from './api/Article';
+import { getArticleList } from './api/Article';
 
-function ArticleDetail({ id, onHome }: { id: string; onHome: () => void }) {
+export default function ArticleList() {
+  const articles = useSuspense(getArticleList);
+  return (
+    <div>
+      {articles.map(article => (
+        <div key={article.pk()}>
+          <Link to={`/articles/${article.id}`}>Click me: {article.title}</Link>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+```tsx title="ArticleDetail" route="/articles/:id" collapsed
+import { useSuspense } from '@data-client/react';
+import { getArticle } from './api/Article';
+
+export default function ArticleDetail({ id }: { id: string }) {
   const article = useSuspense(getArticle, { id });
   return (
     <div>
-      <h4>
-        <a onClick={onHome} style={{ cursor: 'pointer' }}>
-          &lt;
-        </a>{' '}
-        {article.title}
-      </h4>
+      <h4>{article.title}</h4>
       <div>
         <p>{article.content}</p>
         <div>
@@ -280,50 +292,43 @@ function ArticleDetail({ id, onHome }: { id: string; onHome: () => void }) {
     </div>
   );
 }
-function ArticleList() {
-  const [route, setRoute] = React.useState('');
-  const articles = useSuspense(getArticleList);
-  if (!route) {
-    return (
-      <div>
-        {articles.map(article => (
-          <div
-            key={article.pk()}
-            onClick={() => setRoute(article.id)}
-            style={{ cursor: 'pointer', textDecoration: 'underline' }}
-          >
-            Click me: {article.title}
-          </div>
-        ))}
-      </div>
-    );
-  }
-  return <ArticleDetail id={route} onHome={() => setRoute('')} />;
-}
-
-render(<ArticleList />);
 ```
 
 :::
 
 :::vue
 
-```html title="ArticleDetail.vue" collapsed
+```html title="ArticleList.vue" route="/" collapsed
+<script setup lang="ts">
+  import { useSuspense } from '@data-client/vue';
+  import { getArticleList } from './api/Article';
+
+  const articles = await useSuspense(getArticleList);
+</script>
+
+<template>
+  <div>
+    <div v-for="article in articles" :key="article.pk()">
+      <RouterLink :to="`/articles/${article.id}`">
+        Click me: {{ article.title }}
+      </RouterLink>
+    </div>
+  </div>
+</template>
+```
+
+```html title="ArticleDetail.vue" route="/articles/:id" collapsed
 <script setup lang="ts">
   import { useSuspense } from '@data-client/vue';
   import { getArticle } from './api/Article';
 
   const props = defineProps<{ id: string }>();
-  const emit = defineEmits<{ home: [] }>();
   const article = await useSuspense(getArticle, () => ({ id: props.id }));
 </script>
 
 <template>
   <div>
-    <h4>
-      <a @click="emit('home')" style="cursor: pointer">&lt;</a>
-      {{ article.title }}
-    </h4>
+    <h4>{{ article.title }}</h4>
     <div>
       <p>{{ article.content }}</p>
       <div>
@@ -332,35 +337,6 @@ render(<ArticleList />);
           {{ article.createdAt.toLocaleString('en-US', { dateStyle: 'medium' }) }}
         </time>
       </div>
-    </div>
-  </div>
-</template>
-```
-
-```html title="ArticleList.vue" collapsed
-<script setup lang="ts">
-  import { ref } from 'vue';
-  import { useSuspense } from '@data-client/vue';
-  import { getArticleList } from './api/Article';
-  import ArticleDetail from './ArticleDetail.vue';
-
-  const route = ref('');
-  const articles = await useSuspense(getArticleList);
-</script>
-
-<template>
-  <Suspense v-if="route">
-    <ArticleDetail :id="route" @home="route = ''" />
-    <template #fallback><div>loading...</div></template>
-  </Suspense>
-  <div v-else>
-    <div
-      v-for="article in articles"
-      :key="article.pk()"
-      @click="route = article.id"
-      style="cursor: pointer; text-decoration: underline"
-    >
-      Click me: {{ article.title }}
     </div>
   </div>
 </template>

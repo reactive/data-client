@@ -5,6 +5,8 @@
 Make your components reusable by binding the data where you **use** it with the one-line [useSuspense()](./useSuspense.md),
 which guarantees data like [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await).
 
+Files with a `route` are pages mounted at that path, with its params as props; `Link` and `useNavigate()` stand for your router (with react-router, read params with `useParams()`).
+
 ```ts title="Resources"
 import { Entity, resource } from '@data-client/rest';
 
@@ -47,11 +49,11 @@ export const PostResource = resource({
 });
 ```
 
-```tsx title="PostDetail" {5}
+```tsx title="PostDetail" route="/posts/:id" {5}
 import { useSuspense } from '@data-client/react';
 import { PostResource } from './Resources';
 
-export default function PostDetail({ setRoute, id }) {
+export default function PostDetail({ id }) {
   const post = useSuspense(PostResource.get, { id });
   return (
     <div>
@@ -65,15 +67,6 @@ export default function PostDetail({ setRoute, id }) {
         </div>
       </header>
       <p>{post.body}</p>
-      <a
-        href="#"
-        onClick={e => {
-          e.preventDefault();
-          setRoute('list');
-        }}
-      >
-        « Back
-      </a>
     </div>
   );
 }
@@ -82,72 +75,45 @@ export default function PostDetail({ setRoute, id }) {
 ```tsx title="PostItem"
 import { type Post } from './Resources';
 
-export default function PostItem({ post, setRoute }: Props) {
+export default function PostItem({ post }: { post: Post }) {
   return (
     <div className="listItem spaced">
       <Avatar src={post.author.profileImage} />
       <div>
         <h4>
-          <a
-            href="#"
-            onClick={e => {
-              e.preventDefault();
-              setRoute(`detail/${post.id}`);
-            }}
-          >
-            {post.title}
-          </a>
+          <Link to={`/posts/${post.id}`}>{post.title}</Link>
         </h4>
         <small>by {post.author.name}</small>
       </div>
     </div>
   );
 }
-
-interface Props {
-  post: Post;
-  setRoute: Function;
-}
 ```
 
-```tsx title="PostList" {6}
+```tsx title="PostList" route="/" {7}
 import { useSuspense } from '@data-client/react';
+import LoadMore from './LoadMore';
 import PostItem from './PostItem';
 import { PostResource } from './Resources';
 
-export default function PostList({ setRoute }) {
+export default function PostList() {
   const posts = useSuspense(PostResource.getList);
   return (
     <div>
       {posts.map(post => (
-        <PostItem key={post.pk()} post={post} setRoute={setRoute} />
+        <PostItem key={post.pk()} post={post} />
       ))}
+      <LoadMore />
     </div>
   );
 }
 ```
 
-```tsx title="Navigation"
-import React from 'react';
+```tsx title="LoadMore"
 import { useController, useLoading, useQuery } from '@data-client/react';
 import { PostResource } from './Resources';
-import PostList from './PostList';
-import PostDetail from './PostDetail';
 
-function Navigation() {
-  const [route, setRoute] = React.useState('list');
-  if (route.startsWith('detail'))
-    return <PostDetail setRoute={setRoute} id={route.split('/')[1]} />;
-
-  return (
-    <>
-      <PostList setRoute={setRoute} />
-      <LoadMore />
-    </>
-  );
-}
-
-function LoadMore() {
+export default function LoadMore() {
   const ctrl = useController();
   const posts = useQuery(PostResource.getList.schema);
   const [nextPage, isPending] = useLoading(() =>
@@ -160,7 +126,6 @@ function LoadMore() {
     </center>
   );
 }
-render(<Navigation />);
 ```
 
 Do not [prop drill](https://react.dev/learn/passing-data-deeply-with-context#the-problem-with-passing-props). Instead, [useSuspense()](./useSuspense.md) in the components that render the data from it. This is

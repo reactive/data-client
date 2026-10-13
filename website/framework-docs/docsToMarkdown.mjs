@@ -190,6 +190,26 @@ function codeBlock({ lang, value, title, meta = title && `title="${title}"` }) {
     data: { raw: value, nocheck: /\bnocheck\b/.test(meta ?? '') },
   };
 }
+/** The glue a playground's router supplies, which its files don't show */
+function routesNote(framework) {
+  const code = value => ({ type: 'inlineCode', value });
+  return paragraph([
+    text('Files with a '),
+    code('route'),
+    text(' are pages mounted at that path, with its params as props'),
+    ...(framework === 'vue' ?
+      [text(' (vue-router '), code('props: true'), text(').')]
+    : [
+        text('; '),
+        code('Link'),
+        text(' and '),
+        code('useNavigate()'),
+        text(' stand for your router (with react-router, read params with '),
+        code('useParams()'),
+        text(').'),
+      ]),
+  ]);
+}
 const codeLang = attrs =>
   attrs.language ?? attrs.className?.replace(/^language-/, '');
 
@@ -448,12 +468,14 @@ function render(file, framework, props = {}, drop = DROP) {
       return [{ type: INLINE[name], children: convertAll(node.children) }];
     // Playgrounds, layout and other wrappers: keep what's inside
     const children = convertAll(node.children);
+    if (!name.endsWith('Playground')) return children;
     // files of one playground make up one example app
-    if (name.endsWith('Playground'))
-      visit({ type: 'root', children }, 'code', code => {
-        code.data.playground = node;
-      });
-    return children;
+    let routed = false;
+    visit({ type: 'root', children }, 'code', code => {
+      code.data.playground = node;
+      routed ||= /\broute=/.test(code.meta ?? '');
+    });
+    return routed ? [routesNote(framework), ...children] : children;
   }
 
   /** A GFM table; row and column spans repeat the cell so each row stands alone */

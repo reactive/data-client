@@ -193,6 +193,8 @@ const PREVIEW_SCOPE_DECLARATIONS = `declare function render(component:JSX.Elemen
         declare function TextInput(props:Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> & { label?: React.ReactNode; loading?: boolean; size?: 'large' | 'medium' | 'small'; }):JSX.Element;
         declare function TextArea(props:React.TextareaHTMLAttributes<HTMLTextAreaElement> & { label?: React.ReactNode;}):JSX.Element;
         declare function SearchIcon():JSX.Element;
+        declare function Link(props: React.AnchorHTMLAttributes<HTMLAnchorElement> & { to: string }):JSX.Element;
+        declare function useNavigate(): (to: string) => void;
         declare function Loading():JSX.Element;
         declare function ErrorMessage(props: { error: Error & { status?: number }; resetErrorBoundary?: () => void; className?: string }):JSX.Element;
         declare function randomFloatInRange(min: number, max: number, decimals?: number): number;

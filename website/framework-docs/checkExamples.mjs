@@ -57,11 +57,14 @@ const FRAMEWORKS = {
     isApp: () => true,
     compiler: ['@typescript/native', 'bin/tsc'],
     jsx: 'react-jsx',
-    // `render()` mounts a playground's app
-    globals: `import type { FC, ReactNode } from 'react';
+    // `render()` mounts a playground's app; `Link` and `useNavigate()` move
+    // between its pages (fences with a `route`)
+    globals: `import type { AnchorHTMLAttributes, FC, ReactNode } from 'react';
 
 declare global {
   function render(app: ReactNode): void;
+  function Link(props: AnchorHTMLAttributes<HTMLAnchorElement> & { to: string }): ReactNode;
+  function useNavigate(): (to: string) => void;
 ${PLACEHOLDERS.map(name => `  const ${name}: FC<any>;`).join('\n')}
 }
 `,
