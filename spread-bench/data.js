@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791930653878,
+  "lastUpdate": 1791935827973,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark Spread": [
@@ -339,6 +339,37 @@ window.BENCHMARK_DATA = {
             "name": "setOneEntity in 10k entity store",
             "value": 151,
             "range": "±1.00%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "d86525996f318ed5a4c80125e012d23b4426bfe8",
+          "message": "pkg: Update all non-major dependencies (#4208)\n\n* pkg: Update all non-major dependencies\n\n* fix(react): Support React Native 0.87\n\nReact Native 0.87 removed InteractionManager, which the native useSuspense,\nuseFetch, useDLE, GCPolicy and IdlingNetworkManager used. Use\nrequestIdleCallback, which React Native always installs; the native GCPolicy\nand IdlingNetworkManager overrides are now redundant with the web ones.\n\nMap react-native/setup-env for jest (only exposed via package exports in\n0.87) and polyfill requestIdleCallback in the native jest environment.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_0168AAhQCiVrG1C6JWvjQZUY\n\n* docs: Describe React Native idle scheduling accurately after InteractionManager removal\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_0168AAhQCiVrG1C6JWvjQZUY\n\n* Revert \"docs: Describe React Native idle scheduling accurately after InteractionManager removal\"\n\nThis reverts commit 8b17a404dfb3ebaa3f2464fc24dfbe505c7c9db2.\n\n* Revert \"fix(react): Support React Native 0.87\"\n\nThis reverts commit 5122327368d288988b81ace07e71820a33c8f5e2.\n\n* pkg: Keep react-native at 0.86.2\n\nThe React Native 0.87 update needs code changes, so it moves to its own PR.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_0168AAhQCiVrG1C6JWvjQZUY\n\n---------\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-13T23:52:53Z",
+          "tree_id": "02fbc0567076dab3db3941ee71cbd887f3c93807",
+          "url": "https://github.com/reactive/data-client/commit/d86525996f318ed5a4c80125e012d23b4426bfe8"
+        },
+        "date": 1791935825182,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "setOneEntity in 10k entity store",
+            "value": 152,
+            "range": "±1.06%",
             "unit": "ops/sec",
             "extra": "85 samples"
           }
