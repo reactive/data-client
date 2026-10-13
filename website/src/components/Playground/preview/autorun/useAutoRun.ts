@@ -55,29 +55,30 @@ export function useAutoRun(
       };
       const observer = new IntersectionObserver(
         entries => {
+          // a late callback may hold several per element: the last is current
+          const last = (target: Element) =>
+            entries.findLast(entry => entry.target === target);
+          // a run pauses only once the playground is out of sight entirely:
+          // it acts in the Store too, which on a phone opens above the preview
+          const around = last(playground);
+          if (around) {
+            visible = around.isIntersecting;
+            syncPaused();
+          }
+          const shown = last(el);
           const { script } = latest.current;
-          // a late callback may hold several: in order, the latest wins
-          for (const entry of entries) {
-            // a run pauses only once the playground is out of sight
-            // entirely: it acts in the Store too, which on a phone opens
-            // above the preview
-            if (entry.target === playground) {
-              visible = entry.isIntersecting;
-              syncPaused();
-              continue;
-            }
-            // idle: never over a run, even if the script changed identity;
-            // played: a script starts by itself once per page load
-            if (
-              script &&
-              player.getState() === 'idle' &&
-              !played.has(script) &&
-              mostlyShown(entry) &&
-              !prefersReducedMotion()
-            ) {
-              played.add(script);
-              start();
-            }
+          // idle: never over a run, even if the script changed identity;
+          // played: a script starts by itself once per page load
+          if (
+            shown &&
+            script &&
+            player.getState() === 'idle' &&
+            !played.has(script) &&
+            mostlyShown(shown) &&
+            !prefersReducedMotion()
+          ) {
+            played.add(script);
+            start();
           }
         },
         { threshold: THRESHOLDS },

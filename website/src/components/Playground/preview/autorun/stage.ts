@@ -44,12 +44,11 @@ export function createStage(
     const box = el.getBoundingClientRect();
     placeAt(box.left + box.width / 2, box.top + box.height / 2);
   };
-  /** Brings `el` into view, as the target the pointer follows */
+  /** Brings `el` into view */
   const reveal = (el: HTMLElement) => {
     // root only bounds the walk: the scrollers inside it do the moving
     revealIn(root, el);
     revealOnPage(el);
-    pointedAt = el;
   };
   // the layer sits at the playground's foot, so content growing above it
   // (the Store opening) moves the pointer's origin: follow the target,
@@ -88,6 +87,7 @@ export function createStage(
 
     point(el) {
       reveal(el);
+      pointedAt = el;
       place(el);
     },
 
@@ -103,10 +103,9 @@ export function createStage(
         clientX: at.x,
         clientY: at.y,
       };
-      const pointerInit = { ...init, pointerType: 'mouse', isPrimary: true };
-      el.dispatchEvent(new Pointer('pointerdown', pointerInit));
+      el.dispatchEvent(mouse('pointerdown', init));
       el.dispatchEvent(new MouseEvent('mousedown', init));
-      el.dispatchEvent(new Pointer('pointerup', pointerInit));
+      el.dispatchEvent(mouse('pointerup', init));
       el.dispatchEvent(new MouseEvent('mouseup', init));
       el.click();
     },
@@ -126,33 +125,32 @@ export function createStage(
       input.dispatchEvent(new Event('input', { bubbles: true }));
     },
 
-    hover(el, at) {
+    hover(el, fraction) {
+      // onto it first: where it starts, as the mouse enters
+      const entering = pointedAt !== el;
+      if (entering) {
+        reveal(el);
+        pointedAt = el;
+      }
       const box = el.getBoundingClientRect();
       const init = {
         bubbles: true,
         composed: true,
-        pointerType: 'mouse',
-        isPrimary: true,
-        clientX: box.left + (at ?? 1) * box.width,
+        clientX: box.left + fraction * box.width,
         clientY: box.top + box.height / 2,
       };
-      if (at === null) {
-        // off it: the pointer stays where it left, not back on its center
-        pointedAt = undefined;
-        el.dispatchEvent(
-          new Pointer('pointerleave', { ...init, bubbles: false }),
-        );
-        return;
-      }
-      // onto it first: where it starts, as the mouse enters
-      if (pointedAt !== el) {
-        reveal(el);
-        el.dispatchEvent(
-          new Pointer('pointerenter', { ...init, bubbles: false }),
-        );
-      }
+      if (entering)
+        el.dispatchEvent(mouse('pointerenter', { ...init, bubbles: false }));
       placeAt(init.clientX, init.clientY);
-      el.dispatchEvent(new Pointer('pointermove', init));
+      el.dispatchEvent(mouse('pointermove', init));
+    },
+
+    leave(el) {
+      // the pointer stays where it left, not back on the target's center
+      pointedAt = undefined;
+      el.dispatchEvent(
+        mouse('pointerleave', { composed: true, clientX: at.x, clientY: at.y }),
+      );
     },
 
     store,
@@ -165,8 +163,14 @@ export function createStage(
   };
 }
 
-// jsdom lacks PointerEvent
-const Pointer = typeof PointerEvent === 'function' ? PointerEvent : MouseEvent;
+/** A mouse's pointer event; a plain MouseEvent where there is no
+ * PointerEvent (jsdom) */
+const mouse = (type: string, init: MouseEventInit) =>
+  new (typeof PointerEvent === 'function' ? PointerEvent : MouseEvent)(type, {
+    ...init,
+    pointerType: 'mouse',
+    isPrimary: true,
+  } as PointerEventInit);
 /** ms: the layer's fade out (`--motion-snappy`) */
 const END_MS = springEasing(springs.snappy).duration;
 /** The click: a ring spreading from the tip */

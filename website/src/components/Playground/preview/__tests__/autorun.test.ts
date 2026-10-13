@@ -24,7 +24,8 @@ function fakeStage(
     point: () => void calls.push('point'),
     click: () => void calls.push('click'),
     append: (_, text) => void calls.push(`append ${text}`),
-    hover: (_, at) => void calls.push(`hover ${at}`),
+    hover: (_, fraction) => void calls.push(`hover ${fraction}`),
+    leave: () => void calls.push('leave'),
     store: open => void calls.push(`store ${open}`),
     end: () => void calls.push('end'),
   };
@@ -95,8 +96,27 @@ it('scrubs across its target, then leaves', async () => {
   await jest.advanceTimersByTimeAsync(MOVE_MS + SCRUB_MS / 2);
   expect(calls.at(-1)).toBe(`hover ${SCRUB_STEPS / 2 / SCRUB_STEPS}`);
   await jest.runAllTimersAsync();
-  expect(calls.slice(-3)).toEqual(['hover 1', 'hover null', 'end']);
+  expect(calls.slice(-3)).toEqual(['hover 1', 'leave', 'end']);
   expect(calls).toHaveLength(SCRUB_STEPS + 3);
+});
+
+it('a scrub moves onto the target a render put in its place', async () => {
+  const player = createPlayer();
+  const { stage } = fakeStage();
+  const first = document.body.appendChild(document.createElement('div'));
+  const second = document.createElement('div');
+  let found = first;
+  stage.find = () => found;
+  const hovered: HTMLElement[] = [];
+  stage.hover = el => void hovered.push(el);
+  player.play([{ delay: 0, scrub: 'div' }], stage);
+  await jest.advanceTimersByTimeAsync(MOVE_MS + SCRUB_MS / 2);
+  first.replaceWith(second);
+  found = second;
+  await jest.runAllTimersAsync();
+  expect(hovered[0]).toBe(first);
+  expect(hovered.at(-1)).toBe(second);
+  document.body.innerHTML = '';
 });
 
 it('a wait holds for its own time only', async () => {
@@ -185,12 +205,12 @@ describe('stage', () => {
       );
     stage.hover(track, 0);
     stage.hover(track, 0.5);
-    stage.hover(track, null);
+    stage.leave(track);
     expect(seen).toEqual([
       'pointerenter 0 false',
       'pointermove 0 false',
       'pointermove 50 false',
-      'pointerleave 100 false',
+      'pointerleave 50 false',
     ]);
     const pointer = root.querySelector<HTMLElement>('svg')!.parentElement!;
     expect(pointer.style.transform).toBe('translate(50px, 10px)');
@@ -455,6 +475,24 @@ describe('useAutoRun', () => {
       {} as IntersectionObserver,
     );
     expect(result.current.player.getState()).toBe('playing');
+  });
+
+  it("doesn't start on an observation a later one replaced", () => {
+    const { result, preview } = mount();
+    observed(
+      [
+        {
+          target: preview,
+          isIntersecting: true,
+          intersectionRatio: 1,
+          intersectionRect: { height: 100 },
+          rootBounds: { height: 800 },
+        },
+        { target: preview, isIntersecting: false, intersectionRatio: 0 },
+      ] as unknown as IntersectionObserverEntry[],
+      {} as IntersectionObserver,
+    );
+    expect(result.current.player.getState()).toBe('idle');
   });
 
   it('replay starts over from a fresh store, closing a Store it opens', () => {

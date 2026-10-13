@@ -8,9 +8,10 @@ export interface Stage {
   point(el: HTMLElement): void;
   click(el: HTMLElement): void;
   append(el: HTMLElement, text: string): void;
-  /** Moves the mouse over `el`, `at` its width's fraction from the left;
-   * `null` moves it off */
-  hover(el: HTMLElement, at: number | null): void;
+  /** Moves the mouse over `el`, `fraction` of its width from the left */
+  hover(el: HTMLElement, fraction: number): void;
+  /** Moves the mouse off `el` */
+  leave(el: HTMLElement): void;
   store(open: boolean): void;
   /** The run is over: the pointer goes */
   end(): void;
@@ -102,9 +103,9 @@ async function perform(
   if ('scrub' in step) {
     // each move is short: look again only once a render replaced it
     let el = await find(step.scrub);
-    const hover = async (at: number | null) => {
+    const hover = async (fraction: number) => {
       if (!el.isConnected) el = await find(step.scrub);
-      stage.hover(el, at);
+      stage.hover(el, fraction);
     };
     await hover(0);
     await sleep(MOVE_MS);
@@ -112,7 +113,7 @@ async function perform(
       await sleep(SCRUB_MS / SCRUB_STEPS);
       await hover(i / SCRUB_STEPS);
     }
-    return hover(null);
+    return stage.leave(el);
   }
   const target = 'click' in step ? step.click : step.type;
   stage.point(await find(target));

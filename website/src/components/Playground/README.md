@@ -303,7 +303,8 @@ DesignSystem/       components injected into preview scope
     and acts with untrusted events: pointer/mouse events then `click()`, or
     the native value setter plus `input` so React's `onChange` sees typing,
     or `pointerenter`/`pointermove`/`pointerleave` to sweep the mouse across
-    a target (the Store's timeline, previewing each moment).
+    a target (the Store's timeline, `[data-scrub-track]`, previewing each
+    moment).
     It never calls `focus()`, which would take the page's focus from the
     reader. A pointer glides to each target (`--motion-smooth`), in a
     layer appended to the playground; a target out of sight (the Store

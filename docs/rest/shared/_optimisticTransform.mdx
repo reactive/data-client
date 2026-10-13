@@ -7,8 +7,10 @@ export const raceDemo = [
   { delay: 250, click: '.vote button.up' },
   { delay: 250, click: '.vote button.up' },
   { delay: 250, click: '.vote button.up' },
+  // past the slowest increment response (the fixture's 5s), so the scrub
+  // shows every response landing
   { wait: 5500 },
-  { scrub: { in: 'store', selector: '[data-track]' } },
+  { scrub: { in: 'store', selector: '[data-scrub-track]' } },
   { wait: 1500 },
 ];
 
