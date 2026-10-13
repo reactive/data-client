@@ -1,4 +1,5 @@
-import * as ReactNative from 'react-native';
+// default import: a namespace import enumerates (and so evaluates) every react-native export
+import ReactNative from 'react-native';
 
 /** InteractionManager waits for running animations and gestures until React Native 0.82,
  * then became a stub; 0.87 removed it in favor of requestIdleCallback.
