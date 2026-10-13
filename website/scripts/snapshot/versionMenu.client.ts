@@ -322,6 +322,7 @@ function install() {
 }
 
 function bind(el: HTMLElement) {
+  // set below, so it also marks a logo as bound
   if (el.hasAttribute('aria-haspopup')) return;
   // load the list before the menu opens, once the page is idle; a failed
   // load clears the cache, so the next open or navbar retries it
