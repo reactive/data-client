@@ -27,12 +27,7 @@ const FENCE = /^(\s*)(`{3,}|~{3,})(.*)$/;
 const IMPORT =
   /^((?:import|export)\s(?:.*?\sfrom\s+)?|\}\s*from\s+)(['"])(\.\.?\/[^'"]+)\2/;
 
-/**
- * Content with its own source folder: the docs instances (Vue mirrors
- * docs/core) and the blog. `translations`: where its translations are
- * committed in a locale's folder; `localized`: the folder generated for a
- * locale, where Docusaurus reads it; `keep`: committed files in that folder
- */
+/** The blog, translated like a docs instance */
 const BLOG = {
   id: 'blog',
   path: 'website/blog',
@@ -41,6 +36,12 @@ const BLOG = {
   // Docusaurus reads the blog's UI strings from beside its posts
   keep: ['options.json'],
 };
+/**
+ * Content with its own source folder: the docs instances (Vue mirrors
+ * docs/core) and the blog. `translations`: where its translations are
+ * committed in a locale's folder; `localized`: the folder generated for a
+ * locale, where Docusaurus reads it; `keep`: committed files in that folder
+ */
 const SOURCE_INSTANCES = [
   ...DOCS_INSTANCES.filter(
     (d, i, all) => all.findIndex(other => other.path === d.path) === i,
@@ -51,9 +52,13 @@ const SOURCE_INSTANCES = [
   })),
   BLOG,
 ];
+/** Instance whose `field` folder (`path` or `translations`) is or holds `file` */
+const instanceIn = (field, file) =>
+  SOURCE_INSTANCES.find(
+    d => file === d[field] || file.startsWith(`${d[field]}/`),
+  );
 /** Instance whose source folder holds `file` (repo-relative) */
-const instanceOf = file =>
-  SOURCE_INSTANCES.find(d => file.startsWith(`${d.path}/`));
+const instanceOf = file => instanceIn('path', file);
 
 /** An instance's files (repo-relative); Docusaurus skips dotfiles (the
  * blog's agent rules) */
@@ -62,16 +67,9 @@ const sourceFiles = instance =>
     .filter(file => !file.split('/').some(part => part.startsWith('.')))
     .map(file => `${instance.path}/${file}`);
 
-/** Instance whose committed translations hold `name` (locale-relative) */
-const translationsInstanceOf = name =>
-  SOURCE_INSTANCES.find(
-    d => name === d.translations || name.startsWith(`${d.translations}/`),
-  );
 /** Where a locale's translation of a source file (or folder) is committed (repo-relative) */
 const translationOf = (file, locale) => {
-  const instance = SOURCE_INSTANCES.find(
-    d => file === d.path || file.startsWith(`${d.path}/`),
-  );
+  const instance = instanceOf(file);
   return path.posix.join(
     'website/i18n',
     locale,
@@ -80,7 +78,7 @@ const translationOf = (file, locale) => {
 };
 /** Source file of a translation, from its path in the locale's folder */
 const translatedSource = name => {
-  const instance = translationsInstanceOf(name);
+  const instance = instanceIn('translations', name);
   return instance ?
       instance.path + name.slice(instance.translations.length)
     : name;
@@ -313,7 +311,7 @@ function watch(locale, then = () => {}) {
     ...SOURCE_INSTANCES.map(d => [d.path]),
     // the locale's folder, which may not have translations yet; but not the
     // folders generated in it
-    [translationOf('', locale), name => translationsInstanceOf(name)],
+    [translationOf('', locale), name => instanceIn('translations', name)],
     [path.relative(ROOT, path.dirname(lockFile(locale)))],
   ];
   for (const [dir, filter = () => true] of watched) {
