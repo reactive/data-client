@@ -14,40 +14,15 @@ const EXPORT_LIST =
 
 const EXPORT_PREFIX = /^[ \t]*export[ \t]+(?:default[ \t]+)?/gm;
 
-const IDENTIFIER = '([A-Za-z_$][\\w$]*)';
 /** `export default function Name`, `class Name` or `Name;` (not an expression) */
-const DEFAULT_EXPORT = new RegExp(
-  `^[ \\t]*export[ \\t]+default[ \\t]+(?:(?:async[ \\t]+)?function\\s*\\*?\\s*${IDENTIFIER}|class\\s+${IDENTIFIER}|${IDENTIFIER}[ \\t]*;?[ \\t]*$)`,
-  'm',
-);
+const DEFAULT_EXPORT =
+  /^[ \t]*export[ \t]+default[ \t]+(?:(?:async[ \t]+)?function\s*\*?\s*([A-Za-z_$][\w$]*)|class\s+(?!extends\b)([A-Za-z_$][\w$]*)|([A-Za-z_$][\w$]*)[ \t]*;?[ \t]*$)/m;
 
 /** Name the code's default export keeps once `transformCode` strips `export default` */
 export function defaultExportName(code: string): string | undefined {
   return DEFAULT_EXPORT.exec(code)
     ?.slice(1)
     .find(name => name !== undefined);
-}
-
-/** `let`, `const` and `class` declarations at the code's top level */
-const LEXICAL_DECLARATION = new RegExp(
-  `^(?:export[ \\t]+(?:default[ \\t]+)?)?(?:const|let|class)[ \\t]+${IDENTIFIER}`,
-  'gm',
-);
-
-/** `scope` without the names the code declares: react-live passes scope as
- * parameters of the function the code runs in, where redeclaring one with
- * `const`, `let` or `class` is a SyntaxError (a demo's own `class Link`) */
-export function withoutDeclared<S extends Record<string, unknown>>(
-  scope: S,
-  code: string,
-): S {
-  const declared = [...code.matchAll(LEXICAL_DECLARATION)]
-    .map(([, name]) => name)
-    .filter(name => name in scope);
-  if (!declared.length) return scope;
-  const own = { ...scope };
-  for (const name of declared) delete own[name];
-  return own;
 }
 
 export default function transformCode(code: string): string {

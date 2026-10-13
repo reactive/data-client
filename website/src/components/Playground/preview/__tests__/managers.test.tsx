@@ -296,3 +296,11 @@ render(<App />);`,
   expect(await screen.findByText('fetched')).toBeTruthy();
   expect(log).toEqual([]);
 });
+
+it('runs code that declares a name the scope provides', async () => {
+  renderPlayground([
+    `class Endpoint {}\nconst useController = 'own';`,
+    appDoc('{useController}'),
+  ]);
+  await screen.findByText('own');
+});

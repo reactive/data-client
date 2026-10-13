@@ -15,7 +15,6 @@ import type { PreviewProps } from '../types';
 import type { LogOptions } from './store/actionLog';
 import SchemaRegistry from './store/schemaRegistry';
 import { StoreHeaderToggle } from './StoreToggle';
-import { withoutDeclared } from './transformCode';
 import { useCodeManagers } from './useCodeManagers';
 import { usePlaygroundConsoleDemotion } from './usePlaygroundConsoleDemotion';
 
@@ -63,10 +62,6 @@ export default function LivePreview<T>({
   // outlives remounts, so a restored store keeps its schemas and actions
   const [registry] = useState(() => new SchemaRegistry(actionLog));
   const managers = useCodeManagers(documents, remount);
-  const scope = useMemo(
-    () => withoutDeclared(managers.scope, code),
-    [managers.scope, code],
-  );
   const demo = useAutoRun(autoRun, reset, showStore);
   const getInterceptorData = useMemo(
     () =>
@@ -83,7 +78,7 @@ export default function LivePreview<T>({
       transformCode={managers.transformCode}
       enableTypeScript
       noInline
-      scope={scope}
+      scope={managers.scope}
     >
       <PreviewWrapper
         ref={demo.watch}

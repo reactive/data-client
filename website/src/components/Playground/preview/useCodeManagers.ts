@@ -26,7 +26,11 @@ export function useCodeManagers(
   );
   // changes only along with the code, so it never re-runs the code by itself
   const transformWithManagers = useCallback(
-    (code: string) => transformCode(code) + managersTrailer(version),
+    // react-live runs the code in a function whose parameters are the scope;
+    // a block lets the code declare its own `Link` or `Avatar` with `const`
+    // or `class` (a SyntaxError beside a parameter), and the opening brace on
+    // the code's first line keeps error line numbers.
+    (code: string) => `{${transformCode(code)}${managersTrailer(version)}\n}`,
     [version],
   );
   return { host, scope, transformCode: transformWithManagers };

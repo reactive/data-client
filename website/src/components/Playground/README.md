@@ -145,7 +145,9 @@ DesignSystem/       components injected into preview scope
 - All documents are concatenated with a `;` between them (so a half-typed
   statement can't absorb the next document), deferred with `useDeferredValue`,
   stripped of imports/exports by `transformCode`, and run `noInline`
-  (`render(<App />)`) with `preview/scope.ts` as globals. Keep
+  (`render(<App />)`) with `preview/scope.ts` as globals, inside one block so
+  a demo may declare its own `Link` or `Avatar` (react-live passes the scope
+  as parameters, which a `const` or `class` can't redeclare). Keep
   `monaco/typeLibs.ts` declarations in sync with the scope: `globalScopeLib()`
   aliases library exports into `declare global`, and `Array`/`Object` keep
   their built-in types (they're type-only exports).

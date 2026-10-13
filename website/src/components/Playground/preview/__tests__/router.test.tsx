@@ -65,4 +65,25 @@ describe('Router', () => {
     expect(screen.getByText('Post 5')).toBeTruthy();
     expect(back).toHaveProperty('disabled', true);
   });
+
+  test('leaves a Link alone when its onClick cancels the event', async () => {
+    render(
+      <Router
+        routes={[
+          [
+            '/',
+            () => (
+              <Link to="/posts/5" onClick={event => event.preventDefault()}>
+                Post 5
+              </Link>
+            ),
+          ],
+        ]}
+      />,
+    );
+    await act(async () => {
+      fireEvent.click(screen.getByText('Post 5'));
+    });
+    expect(screen.getByText('/')).toBeTruthy();
+  });
 });
