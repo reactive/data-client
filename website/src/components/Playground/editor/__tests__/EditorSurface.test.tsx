@@ -38,6 +38,8 @@ function renderSurface(layout: 'row' | 'stacked', docs = documents) {
       variant="playground"
       interactive={false}
       fixtureContent={<div>GET /article/1</div>}
+      // as Playground passes in row (the Store's layer)
+      cover={layout === 'row' ? <div /> : undefined}
     />,
   );
 }

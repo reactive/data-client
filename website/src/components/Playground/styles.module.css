@@ -564,9 +564,11 @@ div.playgroundTextEdit > .playgroundHeader,
     color var(--ifm-transition-fast) ease,
     background-color var(--ifm-transition-fast) ease;
 }
+/* open, it stays lit as when hovered (the bar's own colors, both themes) */
 .fixturesToggle[aria-expanded='true'] {
   opacity: 1;
-  color: var(--pg-tab-selected);
+  background-color: var(--pg-tab-hover-bg);
+  color: var(--pg-tab-hover);
 }
 .fixturesToggle:focus-visible {
   outline: 2px solid var(--ifm-color-primary);

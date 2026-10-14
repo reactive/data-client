@@ -171,6 +171,7 @@ export default function EditorSurface({
       : <div className={styles.editorBody}>
           <div className={styles.editorDocs} inert={covered}>
             {tabs}
+            {fixtures}
             {code}
           </div>
           {cover}
