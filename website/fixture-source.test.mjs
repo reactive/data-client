@@ -120,6 +120,20 @@ world\`;
   { endpoint: E, response() { log(); } },
   {
     endpoint: E,
+    response(a: number) {
+      if (a) return a;
+    },
+  },
+  {
+    endpoint: E,
+    response() {
+      return [1].map(b => {
+        return b;
+      });
+    },
+  },
+  {
+    endpoint: E,
     response() {
       return {
         id: 1, // the id
@@ -136,6 +150,10 @@ world\`;
         undefined,
         '{ a }',
         undefined,
+        // a conditional return isn't what it always returns
+        undefined,
+        // nested functions' returns are their own
+        '[1].map(b => { return b; })',
         // comments go, literals stay as written
         "{ id: 1, title: 'a,}  b' }",
       ],

@@ -99,13 +99,16 @@ export function summarize(fixture: FixtureOrInterceptor) {
 function delayLabel(delay: FixtureOrInterceptor['delay']) {
   const ms =
     typeof delay === 'function' ?
-      // NaN, which reads `delay`, when it isn't a number literal
-      Number((delay as Pinned).returnedSource?.replaceAll('_', ''))
+      numberLiteral((delay as Pinned).returnedSource)
     : delay;
   if (typeof ms === 'number' && ms !== 0) {
     return Number.isNaN(ms) ? 'delay' : `${ms} ms`;
   }
 }
+
+/** `1_000` → 1000; NaN, which reads `delay`, for anything but a number */
+const numberLiteral = (text = '') =>
+  /^\d[\d_]*(\.\d+)?$/.test(text) ? Number(text.replaceAll('_', '')) : NaN;
 
 /** What fixture-source.js pins on fixture functions, besides `toString()` */
 type Pinned = { returnedSource?: string };

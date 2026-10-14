@@ -25,8 +25,9 @@ const keyName = prop =>
 const isFixture = props => props.some(prop => keyName(prop) === 'endpoint');
 
 /** Where in a function (Babel or ESTree) the node it returns sits: an
- * arrow's expression body, or the argument of its body's only `return`
- * (with several, it has no one value to show) */
+ * arrow's expression body, or the argument of its body's only `return` when
+ * that ends the body (with several, or a conditional one, it has no one value
+ * to show) */
 function returnedKey(fn) {
   if (fn.body.type !== 'BlockStatement') return 'body';
   let returns = 0;
@@ -41,14 +42,15 @@ function returnedKey(fn) {
     }
   };
   fn.body.body.forEach(count);
-  const i = fn.body.body.length - 1;
-  const last = fn.body.body[i];
+  const lastIndex = fn.body.body.length - 1;
+  const last = fn.body.body[lastIndex];
   return returns === 1 && last?.type === 'ReturnStatement' && last.argument ?
-      `body.body.${i}.argument`
+      `body.body.${lastIndex}.argument`
     : undefined;
 }
 
-// The Babel Docusaurus builds with, to reprint returned expressions
+// The Babel Docusaurus builds with (its own dependencies, so they resolve
+// under any linker), to reprint returned expressions
 const docusaurusRequire = createRequire(require.resolve('@docusaurus/babel'));
 const { default: generate } = docusaurusRequire('@babel/generator');
 const { parseExpression } = createRequire(
@@ -56,11 +58,12 @@ const { parseExpression } = createRequire(
 )('@babel/parser');
 
 /** A glance at an expression's text: reprinted on one line, without
- * comments; undefined for text that doesn't parse alone (like `yield`) */
+ * comments; undefined for text that doesn't parse alone (like `yield x`) */
 function oneLine(text) {
   try {
     const expression = parseExpression(text, {
       plugins: ['jsx'],
+      // cut from its async function, a returned `await x` still parses
       allowAwaitOutsideFunction: true,
     });
     return generate(expression, { concise: true, comments: false }).code;
