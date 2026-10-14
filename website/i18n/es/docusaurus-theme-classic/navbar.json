@@ -7,14 +7,6 @@
     "message": "Reactive Data Client",
     "description": "The alt text of navbar logo"
   },
-  "item.label.React": {
-    "message": "React",
-    "description": "Navbar item with label React"
-  },
-  "item.label.Vue": {
-    "message": "Vue",
-    "description": "Navbar item with label Vue"
-  },
   "item.label.API": {
     "message": "API",
     "description": "Navbar item with label API"

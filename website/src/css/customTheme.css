@@ -52,18 +52,26 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
 .navbar__item > .header-locale-dropdown:hover {
   opacity: 0.6;
 }
-/* and stays in the navbar on small screens, where Infima hides navbar items;
-   the margin clears the search button, which is absolutely positioned there */
+/* Language and framework menus stay in the navbar on small screens, where
+   Infima hides navbar items; the margin clears the search button, which is
+   absolutely positioned there */
 @media (max-width: 996px) {
-  .navbar__item:has(> .header-locale-dropdown) {
+  .navbar__item:has(> .header-locale-dropdown),
+  .navbar__item:has(> .header-framework-dropdown) {
     display: block;
+  }
+  .navbar__item:has(> .header-locale-dropdown) {
     margin-right: 2.5rem;
   }
+  .header-framework-dropdown {
+    white-space: nowrap;
+  }
 }
-/* so the mobile side menu doesn't list it a second time */
+/* so the mobile side menu doesn't list them a second time */
 .navbar-sidebar
   .menu__list-item:has(
-    > .menu__list-item-collapsible > .header-locale-dropdown
+    > .menu__list-item-collapsible
+      > :is(.header-locale-dropdown, .header-framework-dropdown)
   ) {
   display: none;
 }
@@ -132,6 +140,12 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
     margin-top: -40px;
     margin-left: 32px;
     padding-left: 0.5rem;
+  }
+}
+/* phones narrower than this need the room for the framework menu */
+@media only screen and (max-width: 374px) {
+  .navbar .navbar__brand .navbar__logo:after {
+    display: none;
   }
 }
 .navbar .navbar__brand img {

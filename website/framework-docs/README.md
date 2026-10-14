@@ -138,9 +138,10 @@ Vue:
   (`FRAMEWORKS`) read routes and frameworks from it.
 - `index.js` `docsFor()` lists each framework's docs with their routes (honoring `slug`) and
   `framework_equivalent`; `remarkFramework.js` and `docsToMarkdown.mjs` link with those routes.
-- `FrameworkSelector` (in the breadcrumbs) switches to the same page in the other docs instance, or
-  its `framework_equivalent` (`customFields.frameworkEquivalents`), and disables a framework when
-  neither exists there.
+- The React/Vue navbar menu (`src/theme/NavbarItem/FrameworkDropdownNavbarItem.tsx`) switches to the
+  same page in the other docs instance, or its `framework_equivalent`
+  (`customFields.frameworkEquivalents`), else that framework's docs root. Outside framework docs it
+  shows the framework read last, as does the API navbar link.
 
 ## Agent skill references
 

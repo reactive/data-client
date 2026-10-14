@@ -1,4 +1,6 @@
 import { useActivePlugin } from '@docusaurus/plugin-content-docs/client';
+import { useStorageSlot } from '@docusaurus/theme-common';
+import { useEffect } from 'react';
 
 import {
   FRAMEWORK_INSTANCES,
@@ -19,4 +21,17 @@ export const frameworkOf = (pluginId: string | undefined) =>
 /** Which framework the current docs page is rendered for */
 export default function useFramework(): Framework {
   return frameworkOf(useActivePlugin()?.pluginId) ?? 'react';
+}
+
+/**
+ * Framework of the current docs page; elsewhere (REST, blog, ...) the one whose
+ * docs were viewed last, so the navbar keeps the reader's framework.
+ */
+export function usePreferredFramework(): Framework {
+  const framework = frameworkOf(useActivePlugin()?.pluginId);
+  const [stored, storage] = useStorageSlot('docusaurus.framework');
+  useEffect(() => {
+    if (framework) storage.set(framework);
+  }, [framework, storage]);
+  return framework ?? (stored === 'vue' ? 'vue' : 'react');
 }

@@ -123,7 +123,7 @@ function docsFor(framework) {
 
 /**
  * `framework_equivalent:` front matter in both directions, for
- * FrameworkSelector: { [framework]: { [doc id]: counterpart's doc id } }
+ * the framework navbar menu: { [framework]: { [doc id]: counterpart's doc id } }
  */
 function frameworkEquivalents() {
   const docs = Object.fromEntries(FRAMEWORKS.map(f => [f, docsFor(f)]));

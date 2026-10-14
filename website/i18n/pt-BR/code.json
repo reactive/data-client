@@ -769,12 +769,6 @@
   "embed.openInNewTab": {
     "message": "Abrir em uma nova aba"
   },
-  "frameworkSelector.select": {
-    "message": "Selecionar framework"
-  },
-  "frameworkSelector.unavailable": {
-    "message": "Esta página não está disponível para {framework}"
-  },
   "genericsTabs.type": {
     "message": "Tipo"
   },

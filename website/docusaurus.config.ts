@@ -295,7 +295,7 @@ const config: Config = {
   themes: ['@docusaurus/theme-mermaid'],
   customFields: {
     repoUrl: 'https://github.com/reactive/data-client',
-    // read by FrameworkSelector to switch between differently named pages
+    // read by the framework navbar menu to switch between differently named pages
     frameworkEquivalents: frameworkDocs.frameworkEquivalents(),
   },
   onBrokenLinks: 'warn',
@@ -627,17 +627,11 @@ const config: Config = {
       hideOnScroll: true,
       items: [
         {
-          type: 'doc',
+          // React/Vue menu showing the framework being read
+          type: 'custom-frameworkDropdown',
           position: 'left',
-          docId: 'introduction',
-          label: 'React',
-        },
-        {
-          type: 'doc',
-          position: 'left',
-          docId: 'introduction',
-          docsPluginId: 'vue',
-          label: 'Vue',
+          // stays in the navbar on small screens (customTheme.css)
+          className: 'header-framework-dropdown',
         },
         {
           // links to the React or Vue API, based on the docs being viewed
