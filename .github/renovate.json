@@ -16,7 +16,7 @@
   "timezone": "America/Chicago",
   "postUpdateOptions": ["yarnDedupeHighest"],
   "vulnerabilityAlerts": {
-    "description": "security updates otherwise skip minimumReleaseAge, but yarn still rejects releases under a day old",
+    "description": "security updates otherwise skip minimumReleaseAge, but yarn still rejects releases under a day old. This overrides packageRules, so preapproved scopes wait a day here too",
     "minimumReleaseAge": "1 day"
   },
   "packageRules": [
