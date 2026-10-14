@@ -395,7 +395,8 @@
       "asyncBoundaries.page": "around the PostPage route",
       "asyncBoundaries.component": "around each component that loads",
       "asyncBoundaries.label": "The component tree under its store, with one {boundary} {where}. Opening a post mounts Avatar, PostBody and CommentList, which suspend until their data arrives: everything inside the boundary shows its loading fallback until the last of them does, while the rest of the page keeps rendering. The higher the boundary, the fewer loading indicators and the more of the page they replace; one around each component shows three that resolve one by one",
-      "asyncBoundaries.where": "Where the boundary goes"
+      "asyncBoundaries.where": "Where the boundary goes",
+      "asyncBoundaries.labelVueApp": "The component tree under its store, with one Suspense around the whole app. It resolved when the app first loaded, so opening a post does not bring back its fallback: Avatar, PostBody and CommentList stay blank, with no loading indicator, each until its own data arrives"
     },
     "docusaurus-plugin-content-blog/options.json": {
       "sidebar.title": "All posts",

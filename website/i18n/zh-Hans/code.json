@@ -927,5 +927,9 @@
   "asyncBoundaries.where": {
     "message": "边界放在哪里",
     "description": "Label of the group of positions the boundary can be moved to on the async boundaries diagram"
+  },
+  "asyncBoundaries.labelVueApp": {
+    "message": "store 之下的组件树，整个应用外面包着一个 Suspense。它在应用首次加载时就已完成，所以打开一篇文章不会再显示它的 fallback：Avatar、PostBody 和 CommentList 保持空白，没有任何加载指示器，各自等到自己的数据到达",
+    "description": "Accessible label of the async boundaries diagram on the Vue Render Data page, when the Suspense is around the whole app"
   }
 }

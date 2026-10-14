@@ -157,7 +157,12 @@ export default function AsyncBoundaries() {
   const [hovered, setHovered] = useState<Level | null>(null);
   const [focused, setFocused] = useState<Level | null>(null);
   const preview = hovered ?? focused;
-  const boundary = useFramework() === 'vue' ? 'Suspense' : 'AsyncBoundary';
+  const vue = useFramework() === 'vue';
+  const boundary = vue ? 'Suspense' : 'AsyncBoundary';
+  // a Vue <Suspense> that has resolved stays resolved when components deeper
+  // inside it suspend: each stays blank, with no fallback, until its own data
+  // arrives. The app's resolved on first load, before the post opened
+  const blank = vue && level === 'app';
 
   const where: Record<Level, string> = {
     app: translate({
@@ -195,16 +200,26 @@ export default function AsyncBoundaries() {
         className={styles.diagram}
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         role="img"
-        aria-label={translate(
-          {
-            id: 'asyncBoundaries.label',
-            message:
-              'The component tree under its store, with one {boundary} {where}. Opening a post mounts Avatar, PostBody and CommentList, which suspend until their data arrives: everything inside the boundary shows its loading fallback until the last of them does, while the rest of the page keeps rendering. The higher the boundary, the fewer loading indicators and the more of the page they replace; one around each component shows three that resolve one by one',
-            description:
-              'Accessible label of the async boundaries diagram on the Render Data page; {boundary} is AsyncBoundary or Suspense, {where} one of the asyncBoundaries.app/page/component strings',
-          },
-          { boundary, where: where[level] },
-        )}
+        aria-label={
+          blank ?
+            translate({
+              id: 'asyncBoundaries.labelVueApp',
+              message:
+                'The component tree under its store, with one Suspense around the whole app. It resolved when the app first loaded, so opening a post does not bring back its fallback: Avatar, PostBody and CommentList stay blank, with no loading indicator, each until its own data arrives',
+              description:
+                'Accessible label of the async boundaries diagram on the Vue Render Data page, when the Suspense is around the whole app',
+            })
+          : translate(
+              {
+                id: 'asyncBoundaries.label',
+                message:
+                  'The component tree under its store, with one {boundary} {where}. Opening a post mounts Avatar, PostBody and CommentList, which suspend until their data arrives: everything inside the boundary shows its loading fallback until the last of them does, while the rest of the page keeps rendering. The higher the boundary, the fewer loading indicators and the more of the page they replace; one around each component shows three that resolve one by one',
+                description:
+                  'Accessible label of the async boundaries diagram on the Render Data page; {boundary} is AsyncBoundary or Suspense, {where} one of the asyncBoundaries.app/page/component strings',
+              },
+              { boundary, where: where[level] },
+            )
+        }
       >
         {/* each run starts over, so a moved boundary shows its loading right away */}
         <g key={level}>
@@ -279,24 +294,29 @@ export default function AsyncBoundaries() {
             </g>
           ))}
 
-          {/* the fallback, in place of what the boundary wraps: a surface and a spinner */}
-          {REGIONS[level].map(({ points, corner, spinner, wait }) => (
-            <g
-              key={points.join()}
-              className={clsx(
-                styles.anim,
-                styles.fallback,
-                styles[`wait${wait}`],
-              )}
-            >
-              <path className={styles.tint} d={rounded(points, corner)} />
-              <circle
-                className={styles.spinner}
-                {...spinner}
-                pathLength={100}
-              />
-            </g>
-          ))}
+          {/* the fallback, in place of what the boundary wraps: a surface and a spinner
+              (or, under a resolved Vue Suspense, just the blank components) */}
+          {REGIONS[blank ? 'component' : level].map(
+            ({ points, corner, spinner, wait }) => (
+              <g
+                key={points.join()}
+                className={clsx(
+                  styles.anim,
+                  styles.fallback,
+                  styles[`wait${wait}`],
+                )}
+              >
+                <path className={styles.tint} d={rounded(points, corner)} />
+                {!blank && (
+                  <circle
+                    className={styles.spinner}
+                    {...spinner}
+                    pathLength={100}
+                  />
+                )}
+              </g>
+            ),
+          )}
         </g>
 
         {/* every position's outline: the chosen one in full, the others faint */}
@@ -312,7 +332,6 @@ export default function AsyncBoundaries() {
             {REGIONS[l].map(({ points, corner, tag: [tx, ty] }) => (
               <React.Fragment key={points.join()}>
                 <path className={styles.outline} d={rounded(points, corner)} />
-                {/* eslint-disable-next-line @docusaurus/no-untranslated-text -- component name */}
                 <text className={styles.tag} x={tx} y={ty}>
                   {`<${boundary}>`}
                 </text>

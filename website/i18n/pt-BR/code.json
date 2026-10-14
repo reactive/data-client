@@ -927,5 +927,9 @@
   "asyncBoundaries.where": {
     "message": "Onde fica o limite",
     "description": "Label of the group of positions the boundary can be moved to on the async boundaries diagram"
+  },
+  "asyncBoundaries.labelVueApp": {
+    "message": "A árvore de componentes sob seu store, com um Suspense ao redor de todo o app. Ele foi resolvido quando o app carregou pela primeira vez, então abrir um post não traz seu fallback de volta: Avatar, PostBody e CommentList ficam em branco, sem nenhum indicador de carregamento, cada um até seus próprios dados chegarem",
+    "description": "Accessible label of the async boundaries diagram on the Vue Render Data page, when the Suspense is around the whole app"
   }
 }
