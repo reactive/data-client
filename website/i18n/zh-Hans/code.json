@@ -856,6 +856,14 @@
     "message": "组件树：每个渲染数据的组件都通过 useSuspense() 直接从 store 读取数据：CurrentUser 和 Avatar 读取 User，PostBody 读取 Post，CommentList 读取 Comment。数据变化只会让这些组件重新渲染，树中其余部分都不会",
     "description": "Accessible label of the data co-location diagram on the Render Data page"
   },
+  "collectionLists.label": {
+    "message": "store 中缓存了三个列表，分别来自 getTodos({ userId: 1 })、getTodos({ userId: 2 }) 和 getTodos()。push 或 unshift 创建的 userId 为 1 的 todo 会加入 userId 1 列表和无筛选列表（加到末尾或开头），但绝不会加入 userId 2 列表，因为只有列表获取时的每个参数都出现在调用中，该列表才会收到这个条目。remove 会把它从同样这些列表中移除；move 会把它从 userId 1 列表移到 userId 2 列表，无筛选列表则保留它",
+    "description": "Accessible label of the collection lists diagram on the Collection page"
+  },
+  "collectionLists.operation": {
+    "message": "操作",
+    "description": "Label of the push / unshift / remove / move switch on the collection lists diagram"
+  },
   "atomicMutations.label": {
     "message": "一个待办应用及其上方的 store。TodoList 中的一行调用 ctrl.fetch(partialUpdate)：store 立即乐观地改变该 Todo，新数据沿着绑定只流向渲染它的组件，即它在 TodoList 中的那一行，以及（对 Todo 1 而言）TodoDetail；与此同时 PATCH 发出，其响应确认这次改变。CurrentUser 和树中其余部分保持原有数据，没有任何内容被重新获取",
     "description": "Accessible label of the atomic mutations diagram on the Mutate Data page"
