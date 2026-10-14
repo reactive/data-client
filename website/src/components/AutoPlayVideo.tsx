@@ -18,11 +18,13 @@ const AutoPlayVideo = ({
   useEffect(() => {
     const videoElement = videoRef.current;
     if (!videoElement) return;
+    // a pause() before play() settles rejects with AbortError; the controls show any real failure
+    const play = () => videoElement.play().catch(() => undefined);
 
     // Ensure IntersectionObserver is supported
     if (!('IntersectionObserver' in window)) {
       // Fallback to always play if not supported
-      videoElement.play();
+      play();
       return;
     }
 
@@ -35,7 +37,7 @@ const AutoPlayVideo = ({
     const handleIntersect = (entries: IntersectionObserverEntry[]) => {
       entries.forEach((entry: IntersectionObserverEntry) => {
         if (entry.isIntersecting) {
-          videoElement.play();
+          play();
         } else {
           videoElement.pause();
         }
