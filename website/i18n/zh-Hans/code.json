@@ -856,6 +856,14 @@
     "message": "组件树：每个渲染数据的组件都通过 useSuspense() 直接从 store 读取数据：CurrentUser 和 Avatar 读取 User，PostBody 读取 Post，CommentList 读取 Comment。数据变化只会让这些组件重新渲染，树中其余部分都不会",
     "description": "Accessible label of the data co-location diagram on the Render Data page"
   },
+  "collectionLists.label": {
+    "message": "store 中缓存了三个列表，分别来自 getTodos({ userId: 1 })、getTodos({ userId: 2 }) 和 getTodos()。push 或 unshift 创建的 userId 为 1 的 todo 会加入 userId 1 列表和无筛选列表（加到末尾或开头），但绝不会加入 userId 2 列表，因为只有列表获取时的每个参数都出现在调用中，该列表才会收到这个条目。remove 会把它从同样这些列表中移除；move 会把它从 userId 1 列表移到 userId 2 列表，无筛选列表则保留它",
+    "description": "Accessible label of the collection lists diagram on the Collection page"
+  },
+  "collectionLists.operation": {
+    "message": "操作",
+    "description": "Label of the push / unshift / remove / move switch on the collection lists diagram"
+  },
   "dataFlow.label": {
     "message": "单向数据流。组件通过 Controller 派发 action，进入 manager 的中间件链：DevToolsManager、NetworkManager、SubscriptionManager，然后是你自己的 manager。manager 与外部世界（DevTools、HTTP、SSE、WebSockets、IndexedDB）交互，并通过 Controller 派发回来。读取数据时，rdc/fetch action 在 NetworkManager 停下，由它通过 HTTP 发出请求，并把响应作为 rdc/setresponse 派发，经过每个 manager 进入 store。新的状态随后在组件中渲染",
     "description": "Accessible label of the data flow diagram on the Managers, Manager, Overview and Debugging pages"

@@ -154,3 +154,22 @@ small {
     line-height: 2.5;
   }
 }
+
+/* a diagram beside the doc text after it, or under it when the doc column is
+   too narrow for both */
+.theme-doc-markdown {
+  container: doc / inline-size;
+}
+.theme-doc-markdown .doc-float {
+  display: block;
+  float: right;
+  width: 440px;
+  max-width: 100%;
+  margin: 0 0 1rem 1.25rem;
+}
+@container doc (max-width: 700px) {
+  .theme-doc-markdown .doc-float {
+    float: none;
+    margin: 0 auto 1.5rem;
+  }
+}

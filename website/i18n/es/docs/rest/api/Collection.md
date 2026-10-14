@@ -7,11 +7,14 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import CollectionLists from '@site/src/components/CollectionLists';
 import { RestEndpoint } from '@data-client/rest';
 import { v4 as uuid } from 'uuid';
 import { postFixtures,getInitialInterceptorData } from '@site/src/fixtures/posts-collection';
 
 # Collection
+
+<CollectionLists float />
 
 `Collections` definen [listas (Array)](./Array.md) o [mapas (Values)](./Values.md) mutables.
 
@@ -21,6 +24,8 @@ y mover elementos entre collections con [.move](#move).
 
 [RestEndpoint](./RestEndpoint.md) proporciona [.push](./RestEndpoint.md#push), [.unshift](./RestEndpoint.md#unshift), [.assign](./RestEndpoint.md#assign), [.remove](./RestEndpoint.md#remove), [.move](./RestEndpoint.md#move)
 y los extensores [.getPage](./RestEndpoint.md#getpage)/ [.paginated()](./RestEndpoint.md#paginated) cuando se usan `Collections`
+
+<div style={{clear: 'both'}} />
 
 ## Uso {#usage}
 
@@ -113,7 +118,7 @@ import React from 'react';
 import { useController } from '@data-client/react';
 import { getTodos } from './api/Todo';
 
-export default function NewTodo({ userId }: { userId?: string }) {
+export default function NewTodo({ userId }: { userId: string }) {
   const ctrl = useController();
   const [unshift, setUnshift] = React.useState(false);
 
@@ -197,7 +202,7 @@ render(<UserList />);
   import { useController } from '@data-client/vue';
   import { getTodos } from './api/Todo';
 
-  const props = defineProps<{ userId?: string }>();
+  const props = defineProps<{ userId: string }>();
   const ctrl = useController();
   const unshift = ref(false);
 
@@ -705,7 +710,7 @@ ctrl.set(getTodos.schema.remove, { userId: '1' }, { id: '123' });
 ```
 
 ```ts
-// Remove from all collections (empty args matches all)
+// Empty args only match collections fetched with no filter args, like getTodos({})
 ctrl.set(getTodos.schema.remove, {}, { id: '123' });
 ```
 
