@@ -350,6 +350,8 @@
       "homepage.demo.live.middlewares": "middlewares",
       "errors.dklj.customLink": "Entity key",
       "embed.openInNewTab": "Open in new tab",
+      "frameworkSelector.select": "Select framework",
+      "frameworkSelector.unavailable": "This page is not available for {framework}",
       "genericsTabs.type": "Type",
       "genericsTabs.generics": "With Generics",
       "stackblitz.loading": "Loading demo…",

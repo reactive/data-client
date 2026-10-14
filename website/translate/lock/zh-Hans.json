@@ -350,6 +350,8 @@
       "errors.osid.customLink": "Endpoint name",
       "theme.blog.author.pageTitle": "{authorName} - {nPosts}",
       "embed.openInNewTab": "Open in new tab",
+      "frameworkSelector.select": "Select framework",
+      "frameworkSelector.unavailable": "This page is not available for {framework}",
       "genericsTabs.type": "Type",
       "genericsTabs.generics": "With Generics",
       "stackblitz.loading": "Loading demo…",

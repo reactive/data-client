@@ -295,7 +295,7 @@ const config: Config = {
   themes: ['@docusaurus/theme-mermaid'],
   customFields: {
     repoUrl: 'https://github.com/reactive/data-client',
-    // read by the framework navbar menu to switch between differently named pages
+    // read by FrameworkSelector to switch between differently named pages
     frameworkEquivalents: frameworkDocs.frameworkEquivalents(),
   },
   onBrokenLinks: 'warn',
