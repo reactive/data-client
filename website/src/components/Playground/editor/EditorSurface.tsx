@@ -90,34 +90,33 @@ export default function EditorSurface({
 
   const createModels = useCreateModels(id, documents);
 
-  // Row is compact: the fixtures fold away under the file tabs, opened from
-  // their end, as part of the code's definition
-  const rowFixtures = row ? fixtureContent : undefined;
+  // fixtures belong to the code, not to any one file: row (kept compact)
+  // folds them under the file tabs behind a toggle at the bar's end
+  const rowFixtures = row && documents.length > 1 ? fixtureContent : undefined;
   const [fixturesOpen, setFixturesOpen] = useState(false);
   const tabs =
-    row && (documents.length > 1 || rowFixtures != null) ?
-      <>
-        <EditorTabs
-          documents={documents}
-          closedList={closedList}
-          onClick={handleTabSwitch}
-          compact={variant === 'standalone'}
-          hasHeaderControls={headerControls != null}
-        >
-          {rowFixtures != null ?
-            <FixturesToggle
-              open={fixturesOpen}
-              onClick={() => setFixturesOpen(open => !open)}
-            />
-          : null}
-        </EditorTabs>
+    row && documents.length > 1 ?
+      <EditorTabs
+        documents={documents}
+        closedList={closedList}
+        onClick={handleTabSwitch}
+        compact={variant === 'standalone'}
+        hasHeaderControls={headerControls != null}
+      >
         {rowFixtures != null ?
-          <Unfold open={fixturesOpen}>{rowFixtures}</Unfold>
+          <FixturesToggle
+            open={fixturesOpen}
+            onClick={() => setFixturesOpen(open => !open)}
+          />
         : null}
-      </>
+      </EditorTabs>
     : null;
-  // the file tabs only pick which file shows, so they go under the cover
-  // with the files
+  const fixtures =
+    rowFixtures != null ?
+      <Unfold open={fixturesOpen}>{rowFixtures}</Unfold>
+    : null;
+  // the file tabs (and the fixtures they fold) only go with the files, so
+  // they go under the cover with them
   const code = documents.map((document, index) => (
     <React.Fragment key={`${document.path}:${index}`}>
       {(!row || document.col) && document.title ?
@@ -156,12 +155,9 @@ export default function EditorSurface({
       })}
     >
       <EditorHeader
-        fixtureContent={!row ? fixtureContent : undefined}
-        title={
-          row && documents.length === 1 && rowFixtures == null ?
-            documents[0].title
-          : undefined
-        }
+        // without file tabs to fold them under, fixtures show as when stacked
+        fixtureContent={rowFixtures == null ? fixtureContent : undefined}
+        title={row && documents.length === 1 ? documents[0].title : undefined}
         covered={covered}
         coverTitle={coverTitle}
         controls={headerControls}
@@ -169,6 +165,7 @@ export default function EditorSurface({
       {cover == null ?
         <>
           {tabs}
+          {fixtures}
           {code}
         </>
       : <div className={styles.editorBody}>
@@ -318,11 +315,11 @@ function FixturesToggle({
   return (
     <button
       type="button"
-      className={styles.fixturesToggle}
+      className={clsx('clean-btn', styles.fixturesToggle)}
       aria-expanded={open}
       onClick={onClick}
     >
-      <span className={styles.fixturesToggleFn} aria-hidden>
+      <span className={styles.fixtureFn} aria-hidden>
         ƒ
       </span>
       <span className={styles.fixturesToggleLabel}>

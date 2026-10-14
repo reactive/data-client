@@ -557,19 +557,12 @@ div.playgroundTextEdit > .playgroundHeader,
   gap: 0.35em;
   margin-left: auto;
   padding: 0 0.75rem;
-  border: none;
-  background: none;
-  color: inherit;
   font: inherit;
-  cursor: pointer;
   opacity: 0.75;
   transition:
     opacity var(--ifm-transition-fast) ease,
-    color var(--ifm-transition-fast) ease;
-}
-.fixturesToggleFn {
-  font-style: italic;
-  color: var(--ifm-color-primary);
+    color var(--ifm-transition-fast) ease,
+    background-color var(--ifm-transition-fast) ease;
 }
 .fixturesToggle[aria-expanded='true'] {
   opacity: 1;

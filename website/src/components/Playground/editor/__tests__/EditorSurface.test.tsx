@@ -8,11 +8,6 @@ import React from 'react';
 import type { CodeDocument } from '../codeModel';
 import EditorSurface from '../EditorSurface';
 
-jest.mock(
-  '@docusaurus/useIsomorphicLayoutEffect',
-  () => require('react').useLayoutEffect,
-  { virtual: true },
-);
 // Monaco never mounts here (`interactive={false}`)
 jest.mock('../../PlaygroundEditor', () => () => null);
 jest.mock('../../monaco/models', () => ({ createMissingModels() {} }));
@@ -34,10 +29,10 @@ const documents: CodeDocument[] = [
   },
 ];
 
-function renderSurface(layout: 'row' | 'stacked') {
+function renderSurface(layout: 'row' | 'stacked', docs = documents) {
   return render(
     <EditorSurface
-      documents={documents}
+      documents={docs}
       update={() => {}}
       layout={layout}
       variant="playground"
@@ -48,7 +43,7 @@ function renderSurface(layout: 'row' | 'stacked') {
 }
 
 describe('EditorSurface fixtures', () => {
-  test('row folds them under the file tabs, opened from the tab bar', () => {
+  test('row folds them behind a toggle beside the file tabs', () => {
     renderSurface('row');
     const toggle = screen.getByRole('button', { name: /Fixtures/ });
     expect(toggle.closest('[role="tablist"]')).toBeNull();
@@ -58,10 +53,20 @@ describe('EditorSurface fixtures', () => {
     fireEvent.click(toggle);
     expect(toggle.getAttribute('aria-expanded')).toBe('true');
     expect(fixtures.closest('[inert]')).toBeNull();
+
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    expect(fixtures.closest('[inert]')).not.toBeNull();
   });
 
   test('stacked shows them open, with no toggle', () => {
     renderSurface('stacked');
+    expect(screen.queryByRole('button', { name: /Fixtures/ })).toBeNull();
+    expect(screen.getByText('GET /article/1').closest('[inert]')).toBeNull();
+  });
+
+  test('single-file row, with no file tabs, shows them as stacked does', () => {
+    renderSurface('row', documents.slice(1));
     expect(screen.queryByRole('button', { name: /Fixtures/ })).toBeNull();
     expect(screen.getByText('GET /article/1').closest('[inert]')).toBeNull();
   });
