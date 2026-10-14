@@ -4,8 +4,7 @@ unlisted: true
 ---
 
 import SchemaTable from '../shared/\_schema_table.mdx';
-import ThemedImage from '@theme/ThemedImage';
-import useBaseUrl from '@docusaurus/useBaseUrl';
+import DataFlow from '@site/src/components/DataFlow';
 import Link from '@docusaurus/Link';
 
 ## API 定义 {#api-definition}
@@ -72,13 +71,7 @@ import Link from '@docusaurus/Link';
 
 ## 客户端 {#client}
 
-<ThemedImage
-alt="FLUX"
-sources={{
-    light: useBaseUrl('/img/flux-full.png'),
-    dark: useBaseUrl('/img/flux-full-dark.png'),
-  }}
-/>
+<DataFlow />
 
 |                                  名称                                  | 定义                                                                         |
 | :--------------------------------------------------------------------: | ---------------------------------------------------------------------------------- |

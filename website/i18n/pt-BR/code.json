@@ -860,6 +860,10 @@
     "message": "Operação",
     "description": "Label of the push / unshift / remove / move switch on the collection lists diagram"
   },
+  "dataFlow.label": {
+    "message": "Fluxo de dados unidirecional. Os componentes despacham ações pelo Controller para a cadeia de middleware dos managers: DevToolsManager, NetworkManager, SubscriptionManager e depois os seus. Os managers conversam com o mundo externo (DevTools, HTTP, SSE, WebSockets, IndexedDB) e despacham de volta pelo Controller. A ação rdc/fetch de uma leitura para no NetworkManager, que envia a requisição por HTTP e despacha a resposta como rdc/setresponse por todos os managers até o store. O novo estado é então renderizado nos componentes",
+    "description": "Accessible label of the data flow diagram on the Managers, Manager, Overview and Debugging pages"
+  },
   "expiryTimeline.within": {
     "message": "dentro de",
     "description": "Before the dataExpiryLength option name, over the Fresh story: a mount within that time finds fresh data"

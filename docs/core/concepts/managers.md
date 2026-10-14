@@ -6,8 +6,7 @@ description: Safe programmatic access to the global store. Enables fully extensi
 image: /img/social/managers-card.png
 ---
 
-import ThemedImage from '@theme/ThemedImage';
-import useBaseUrl from '@docusaurus/useBaseUrl';
+import DataFlow from '@site/src/components/DataFlow';
 import StackBlitz from '@site/src/components/StackBlitz';
 import BatchSetDemo from '../shared/\_BatchSetDemo.mdx';
 import StreamManagerDemo from '../shared/\_StreamManagerDemo.mdx';
@@ -25,13 +24,7 @@ import StreamManagerDemo from '../shared/\_StreamManagerDemo.mdx';
 Reactive Data Client uses the [flux store](https://facebookarchive.github.io/flux/docs/in-depth-overview/) pattern, which is
 characterized by an easy to [understand and debug](../getting-started/debugging.md) the store's [undirectional data flow](<https://en.wikipedia.org/wiki/Unidirectional_Data_Flow_(computer_science)>). State updates are performed by a [reducer function](https://github.com/reactive/data-client/blob/master/packages/core/src/state/reducer/createReducer.ts#L19).
 
-<ThemedImage
-alt="Manager flux flow"
-sources={{
-    light: useBaseUrl('/img/flux-full.png'),
-    dark: useBaseUrl('/img/flux-full-dark.png'),
-  }}
-/>
+<DataFlow />
 
 In flux architectures, it is critical all functions in the flux loop are :react[[pure](https://react.dev/learn/keeping-components-pure)]:vue[[pure](https://en.wikipedia.org/wiki/Pure_function)].
 Managers provide centralized orchestration of side effects. In other words, they are the means to interface
