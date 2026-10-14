@@ -3,12 +3,11 @@ import Translate from '@docusaurus/Translate';
 import useIsomorphicLayoutEffect from '@docusaurus/useIsomorphicLayoutEffect';
 import clsx from 'clsx';
 import type * as Monaco from 'monaco-editor';
-import React, { useCallback, useId, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 
 import Header from '../Header';
 import { modelPath, useModelId } from '../monaco/modelPath';
 import { createMissingModels } from '../monaco/models';
-import NetworkIcon from '../NetworkIcon';
 import Editor from '../PlaygroundEditor';
 import styles from '../styles.module.css';
 import TabList from '../TabList';
@@ -90,46 +89,18 @@ export default function EditorSurface({
 
   const createModels = useCreateModels(id, documents);
 
-  // fixtures belong to the code, not to any one file: row (kept compact)
-  // floats them over the code from a network icon at the file tabs' end,
-  // previewed on hover and pinned open by a click or tap
-  const rowFixtures = row && documents.length > 1 ? fixtureContent : undefined;
-  const [fixturesOpen, setFixturesOpen] = useState(false);
-  // useId, unlike the models' id, matches between SSR and hydration
-  const fixturesId = useId();
   const tabs =
     row && documents.length > 1 ?
-      <>
-        <EditorTabs
-          documents={documents}
-          closedList={closedList}
-          onClick={handleTabSwitch}
-          compact={variant === 'standalone'}
-          hasHeaderControls={headerControls != null}
-        >
-          {rowFixtures != null ?
-            <FixturesToggle
-              open={fixturesOpen}
-              controls={fixturesId}
-              onClick={() => setFixturesOpen(open => !open)}
-            />
-          : null}
-        </EditorTabs>
-        {rowFixtures != null ?
-          <div className={styles.fixturesAnchor}>
-            <div
-              id={fixturesId}
-              className={styles.fixturesPopover}
-              data-open={fixturesOpen || undefined}
-            >
-              {rowFixtures}
-            </div>
-          </div>
-        : null}
-      </>
+      <EditorTabs
+        documents={documents}
+        closedList={closedList}
+        onClick={handleTabSwitch}
+        compact={variant === 'standalone'}
+        hasHeaderControls={headerControls != null}
+      />
     : null;
-  // the file tabs (and the fixtures they float) only go with the files, so
-  // they go under the cover with them
+  // the file tabs only pick which file shows, so they go under the cover
+  // with the files
   const code = documents.map((document, index) => (
     <React.Fragment key={`${document.path}:${index}`}>
       {(!row || document.col) && document.title ?
@@ -168,8 +139,7 @@ export default function EditorSurface({
       })}
     >
       <EditorHeader
-        // without file tabs to float them from, fixtures show as when stacked
-        fixtureContent={rowFixtures == null ? fixtureContent : undefined}
+        fixtureContent={!row ? fixtureContent : undefined}
         title={row && documents.length === 1 ? documents[0].title : undefined}
         covered={covered}
         coverTitle={coverTitle}
@@ -281,15 +251,12 @@ function EditorTabs({
   onClick,
   compact,
   hasHeaderControls,
-  children,
 }: {
   documents: readonly CodeDocument[];
   closedList: readonly boolean[];
   onClick: (index: number) => void;
   compact: boolean;
   hasHeaderControls: boolean;
-  /** Controls at the bar's end */
-  children?: React.ReactNode;
 }) {
   const tabs = documents
     .map((document, index) => ({ document, index }))
@@ -312,33 +279,7 @@ function EditorTabs({
           onSelect: () => onClick(index),
         }))}
       />
-      {children}
     </Header>
-  );
-}
-
-function FixturesToggle({
-  open,
-  controls,
-  onClick,
-}: {
-  open: boolean;
-  controls: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      className={clsx('clean-btn', styles.fixturesToggle)}
-      aria-expanded={open}
-      aria-controls={controls}
-      onClick={onClick}
-    >
-      <NetworkIcon />
-      <span className={styles.visuallyHidden}>
-        <Translate id="playground.fixtures">Fixtures</Translate>
-      </span>
-    </button>
   );
 }
 

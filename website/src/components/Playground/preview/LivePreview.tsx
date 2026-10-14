@@ -4,12 +4,12 @@ import { LiveProvider } from 'react-live';
 import DemoLabel from './autorun/DemoLabel';
 import type { AutoRunScript } from './autorun/script';
 import { useAutoRun } from './autorun/useAutoRun';
+import FixturePreview from './FixturePreview';
 import Preview from './Preview';
 import { ResetButton } from './PreviewError';
 import PreviewWrapper from './PreviewWrapper';
 import { useRenderCount } from './RenderCount';
 import { routerTrailer } from './router';
-import { usePreviewReset } from './usePreviewReset';
 import type { CodeDocument } from '../editor/codeModel';
 import type { PreviewProps } from '../types';
 import type { LogOptions } from './store/actionLog';
@@ -17,6 +17,7 @@ import SchemaRegistry from './store/schemaRegistry';
 import { StoreHeaderToggle } from './StoreToggle';
 import { useCodeManagers } from './useCodeManagers';
 import { usePlaygroundConsoleDemotion } from './usePlaygroundConsoleDemotion';
+import { usePreviewReset } from './usePreviewReset';
 
 export interface LivePreviewProps<T> extends PreviewProps<T> {
   documents: readonly CodeDocument[];
@@ -85,6 +86,11 @@ export default function LivePreview<T>({
         label={
           autoRun ?
             <DemoLabel player={demo.player} onPlay={demo.replay} />
+          : undefined
+        }
+        fixtures={
+          row && fixtures?.length ?
+            <FixturePreview fixtures={fixtures} />
           : undefined
         }
         headerControls={

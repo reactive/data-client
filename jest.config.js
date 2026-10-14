@@ -97,8 +97,6 @@ const projects = [
         '<rootDir>/website/src/components/Playground/testing/docusaurusBrowserOnly.tsx',
       '^@docusaurus/useIsBrowser$':
         '<rootDir>/website/src/components/Playground/testing/docusaurusUseIsBrowser.ts',
-      '^@docusaurus/useIsomorphicLayoutEffect$':
-        '<rootDir>/website/src/components/Playground/testing/docusaurusUseIsomorphicLayoutEffect.ts',
       '^@theme/CodeBlock$':
         '<rootDir>/website/src/components/Playground/testing/themeCodeBlock.tsx',
     },
