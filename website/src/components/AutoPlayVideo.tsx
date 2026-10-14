@@ -13,7 +13,8 @@ const AutoPlayVideo = ({
   children?: React.ReactNode;
   /** Describes what the video shows, for screen readers and as fallback text */
   alt: string;
-  /** Plays with sound at this volume (0-1) when the browser allows it, otherwise muted */
+  /** Plays with sound at this volume (0-1) when the browser allows it, otherwise muted.
+   * iOS ignores the level and uses the device volume. */
   volume?: number;
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -23,19 +24,29 @@ const AutoPlayVideo = ({
     if (!videoElement) return;
     if (volume !== undefined) videoElement.volume = volume;
 
-    // Browsers block autoplay with sound until the user interacts with the page
-    const play = () =>
+    // Browsers block autoplay with sound until the user interacts with the page,
+    // so fall back to muted and retry sound each time it scrolls back into view
+    let autoMuted = false;
+    const play = () => {
+      if (autoMuted) videoElement.muted = false;
       videoElement.play().catch((error: DOMException) => {
         if (error.name !== 'NotAllowedError' || videoElement.muted) return;
-        videoElement.muted = true;
-        return videoElement.play();
+        videoElement.muted = autoMuted = true;
+        videoElement.play().catch(() => undefined);
       });
+    };
+    // once the reader unmutes, their choice wins over the fallback
+    const onVolumeChange = () => {
+      if (!videoElement.muted) autoMuted = false;
+    };
+    videoElement.addEventListener('volumechange', onVolumeChange);
 
     // Ensure IntersectionObserver is supported
     if (!('IntersectionObserver' in window)) {
       // Fallback to always play if not supported
       play();
-      return;
+      return () =>
+        videoElement.removeEventListener('volumechange', onVolumeChange);
     }
 
     const observerOptions = {
@@ -60,6 +71,7 @@ const AutoPlayVideo = ({
     // Clean up the observer on unmount
     return () => {
       observer.unobserve(videoElement);
+      videoElement.removeEventListener('volumechange', onVolumeChange);
     };
   }, [volume]);
 
