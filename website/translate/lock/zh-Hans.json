@@ -345,7 +345,6 @@
       "theme.SearchModal.askAiScreen.afterToolCallText": "Searched for",
       "theme.SearchModal.footer.submitQuestionText": "Submit question",
       "theme.SearchModal.footer.backToSearchText": "Back to search",
-      "theme.Playground.buttons.reset": "Reset",
       "homepage.githubStars.star": "Star",
       "errors.dklj.customLink": "Entity key",
       "errors.osid.customLink": "Endpoint name",

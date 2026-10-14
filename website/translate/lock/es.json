@@ -268,7 +268,6 @@
       "theme.SearchModal.noResultsScreen.reportMissingResultsText": "Believe this query should return results?",
       "theme.SearchModal.noResultsScreen.reportMissingResultsLinkText": "Let us know.",
       "theme.SearchModal.placeholder": "Search docs",
-      "theme.Playground.buttons.reset": "Reset",
       "theme.blog.post.plurals": "One post|{count} posts",
       "theme.blog.tagTitle": "{nPosts} tagged with \"{tagName}\"",
       "theme.blog.authorsList.pageTitle": "Authors",
