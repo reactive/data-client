@@ -393,7 +393,7 @@
       "expiryTimeline.storyInvalid": "A component mounting with useSuspense() shows its fallback until the fetch of the invalid data resolves",
       "asyncBoundaries.app": "around the whole app",
       "asyncBoundaries.page": "around the PostPage route",
-      "asyncBoundaries.component": "around each component that reads data",
+      "asyncBoundaries.component": "around each component that loads",
       "asyncBoundaries.label": "The component tree under its store, with one {boundary} {where}. Opening a post mounts Avatar, PostBody and CommentList, which suspend until their data arrives: everything inside the boundary shows its loading fallback until the last of them does, while the rest of the page keeps rendering. The higher the boundary, the fewer loading indicators and the more of the page they replace; one around each component shows three that resolve one by one",
       "asyncBoundaries.where": "Where the boundary goes"
     },

@@ -917,8 +917,8 @@
     "description": "Where the boundary goes, on the async boundaries diagram; completes \"<AsyncBoundary> around the PostPage route\""
   },
   "asyncBoundaries.component": {
-    "message": "alrededor de cada componente que lee datos",
-    "description": "Where the boundary goes, on the async boundaries diagram; completes \"<AsyncBoundary> around each component that reads data\""
+    "message": "alrededor de cada componente que carga",
+    "description": "Where the boundary goes, on the async boundaries diagram; completes \"<AsyncBoundary> around each component that loads\""
   },
   "asyncBoundaries.label": {
     "message": "El árbol de componentes bajo su store, con un {boundary} {where}. Abrir un post monta Avatar, PostBody y CommentList, que se suspenden hasta que llegan sus datos: todo lo que está dentro del límite muestra su fallback de carga hasta que llega el último, mientras el resto de la página sigue renderizándose. Cuanto más arriba esté el límite, menos indicadores de carga hay y más parte de la página reemplazan; uno alrededor de cada componente muestra tres que se resuelven uno a uno",

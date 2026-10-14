@@ -21,20 +21,11 @@ const HEIGHT = 250;
 
 /**
  * Where the boundary goes: around the whole app, around the PostPage route,
- * or around each component that reads data
+ * or around each component that loads
  */
 const LEVELS = ['app', 'page', 'component'] as const;
 type Level = (typeof LEVELS)[number];
 
-/** The PostPage route's subtree: what a boundary around the route wraps */
-const PAGE = [
-  'PostPage',
-  'Article',
-  'Share',
-  'CommentList',
-  'Avatar',
-  'PostBody',
-];
 /** Opening a post mounts these, so they suspend; CurrentUser already has its data */
 const LOADERS = BOUND.filter(({ name }) => name !== 'CurrentUser');
 /** The last data to arrive (see the arrival times in styles.module.css) */
@@ -44,15 +35,15 @@ type Point = [number, number];
 
 /** One boundary: its outline, its tag, and the spinner of its fallback */
 interface Region {
-  d: string;
+  /** the outline's corners, in order */
+  points: Point[];
+  /** how far the corners are rounded */
+  corner: number;
   /** the `<AsyncBoundary>` tag, at the outline's top-left corner */
   tag: Point;
-  spinner: Point;
-  r: number;
+  spinner: { cx: number; cy: number; r: number };
   /** the data its fallback waits for */
   wait: Entity;
-  /** the pointer target: its box in the SVG, clipped to the outline's shape */
-  hit: { x: number; y: number; w: number; h: number; points?: Point[] };
 }
 
 /** `r` along the edge from one corner toward the next */
@@ -77,76 +68,81 @@ const box = (x: number, y: number, w: number, h: number): Point[] => [
   [x, y + h],
 ];
 
-/** Everything under the store */
-const APP = box(2, 58, 436, 190);
-/**
- * PostPage, then Article and CommentList, then Avatar, PostBody and Share:
- * stepped so it leaves out CurrentUser on the left and Footer's children on
- * the right
- */
-const ROUTE: Point[] = [
-  [258, 100],
-  [342, 100],
-  [342, 143],
-  [372, 143],
-  [372, 200],
-  [392, 200],
-  [392, 246],
-  [128, 246],
-  [128, 200],
-  [174, 200],
-  [174, 143],
-  [258, 143],
-];
+/** The pointer target: the outline's box, a little bigger for a finger */
+const HIT_PAD = 4;
+function hit(points: Point[]) {
+  const xs = points.map(([x]) => x);
+  const ys = points.map(([, y]) => y);
+  const x = Math.min(...xs) - HIT_PAD;
+  const y = Math.min(...ys) - HIT_PAD;
+  const w = Math.max(...xs) + HIT_PAD - x;
+  const h = Math.max(...ys) + HIT_PAD - y;
+  return {
+    left: `${(x / WIDTH) * 100}%`,
+    top: `${(y / HEIGHT) * 100}%`,
+    width: `${(w / WIDTH) * 100}%`,
+    height: `${(h / HEIGHT) * 100}%`,
+    // the outline's shape, so a tap just outside it goes to the position behind
+    clipPath: `polygon(${points
+      .map(([px, py]) => `${((px - x) / w) * 100}% ${((py - y) / h) * 100}%`)
+      .join(', ')})`,
+  };
+}
 
 const REGIONS: Record<Level, Region[]> = {
   app: [
     {
-      d: rounded(APP, 12),
+      // everything under the store
+      points: box(2, 58, 436, 190),
+      corner: 12,
       tag: [12, 61.5],
-      spinner: [220, 152],
-      r: 9,
+      spinner: { cx: 220, cy: 152, r: 9 },
       wait: SLOWEST,
-      hit: { x: 0, y: 54, w: WIDTH, h: HEIGHT - 54 },
     },
   ],
   page: [
     {
-      d: rounded(ROUTE, 8),
+      // PostPage, then Article and CommentList, then Avatar, PostBody and
+      // Share: stepped so it leaves out CurrentUser on the left and Footer's
+      // children on the right
+      points: [
+        [258, 100],
+        [342, 100],
+        [342, 143],
+        [372, 143],
+        [372, 200],
+        [392, 200],
+        [392, 246],
+        [128, 246],
+        [128, 200],
+        [174, 200],
+        [174, 143],
+        [258, 143],
+      ],
+      corner: 8,
       tag: [266, 103.5],
-      spinner: [273, 172],
-      r: 9,
+      spinner: { cx: 273, cy: 172, r: 9 },
       wait: SLOWEST,
-      hit: { x: 128, y: 100, w: 264, h: 146, points: ROUTE },
     },
   ],
   // the component's own box is the boundary
   component: LOADERS.map(({ entity, cx, y }) => ({
-    d: rounded(box(cx - 46, y, 92, 34), 7),
+    points: box(cx - 46, y, 92, 34),
+    corner: 7,
     tag: [cx - 40, y + 1],
-    spinner: [cx, y + 17],
-    r: 6,
+    spinner: { cx, cy: y + 17, r: 6 },
     wait: entity,
-    hit: { x: cx - 50, y: y - 4, w: 100, h: 42 },
   })),
 };
 
-/** The data a component inside the boundary waits for, if it is inside */
-function waits(level: Level, name: string): Entity | undefined {
-  switch (level) {
-    case 'app':
-      return SLOWEST;
-    case 'page':
-      return PAGE.includes(name) ? SLOWEST : undefined;
-    case 'component':
-      return LOADERS.find(c => c.name === name)?.entity;
-  }
-}
-
 export default function AsyncBoundaries() {
   const [level, setLevel] = useState<Level>('page');
-  // the position pointed at or focused, previewed as an outline
-  const [preview, setPreview] = useState<Level | null>(null);
+  // the position pointed at, and the one focused: previewed as an outline,
+  // the pointer's while it is over one (the route's focus ring is clipped
+  // to its outline, so the outline is its focus cue)
+  const [hovered, setHovered] = useState<Level | null>(null);
+  const [focused, setFocused] = useState<Level | null>(null);
+  const preview = hovered ?? focused;
   const boundary = useFramework() === 'vue' ? 'Suspense' : 'AsyncBoundary';
 
   const where: Record<Level, string> = {
@@ -164,38 +160,19 @@ export default function AsyncBoundaries() {
     }),
     component: translate({
       id: 'asyncBoundaries.component',
-      message: 'around each component that reads data',
+      message: 'around each component that loads',
       description:
-        'Where the boundary goes, on the async boundaries diagram; completes "<AsyncBoundary> around each component that reads data"',
+        'Where the boundary goes, on the async boundaries diagram; completes "<AsyncBoundary> around each component that loads"',
     }),
-  };
-  const ghost = (name: string) => {
-    const wait = waits(level, name);
-    return wait && [styles.anim, styles.ghost, styles[`wait${wait}`]];
   };
   const target = (l: Level) => ({
     'aria-pressed': l === level,
     'aria-label': `<${boundary}> ${where[l]}`,
-    onPointerEnter: (e: React.PointerEvent) => {
-      if (e.pointerType !== 'touch') setPreview(l);
-    },
-    onPointerLeave: (e: React.PointerEvent) => {
-      if (e.pointerType !== 'touch') setPreview(null);
-    },
-    onFocus: () => setPreview(l),
-    onBlur: () => setPreview(null),
+    onPointerEnter: () => setHovered(l),
+    onPointerLeave: () => setHovered(null),
+    onFocus: () => setFocused(l),
+    onBlur: () => setFocused(null),
     onClick: () => setLevel(l),
-  });
-  const pct = ({ x, y, w, h, points }: Region['hit']) => ({
-    left: `${(x / WIDTH) * 100}%`,
-    top: `${(y / HEIGHT) * 100}%`,
-    width: `${(w / WIDTH) * 100}%`,
-    height: `${(h / HEIGHT) * 100}%`,
-    clipPath:
-      points &&
-      `polygon(${points
-        .map(([px, py]) => `${((px - x) / w) * 100}% ${((py - y) / h) * 100}%`)
-        .join(', ')})`,
   });
 
   return (
@@ -258,7 +235,7 @@ export default function AsyncBoundaries() {
           ))}
 
           {PLAIN.map(({ name, cx, y, w }) => (
-            <g key={name} className={clsx(styles.plain, ghost(name))}>
+            <g key={name} className={styles.plain}>
               <rect x={cx - w / 2} y={y} width={w} height="22" />
               <text x={cx} y={y + 15}>
                 {name}
@@ -268,7 +245,7 @@ export default function AsyncBoundaries() {
           {REST.map(({ cx, y }) => (
             <rect
               key={cx}
-              className={clsx(styles.rest, ghost('rest'))}
+              className={styles.rest}
               x={cx - 10}
               y={y}
               width="20"
@@ -276,10 +253,7 @@ export default function AsyncBoundaries() {
             />
           ))}
           {BOUND.map(({ name, entity, cx, y }) => (
-            <g
-              key={name}
-              className={clsx(styles.bound, styles[entity], ghost(name))}
-            >
+            <g key={name} className={clsx(styles.bound, styles[entity])}>
               <rect x={cx - 46} y={y} width="92" height="34" />
               <text x={cx} y={y + 14}>
                 {name}
@@ -291,22 +265,20 @@ export default function AsyncBoundaries() {
             </g>
           ))}
 
-          {/* the fallback: a tint over what the boundary wraps, and a spinner */}
-          {REGIONS[level].map(({ d, spinner: [sx, sy], r, wait }) => (
+          {/* the fallback, in place of what the boundary wraps: a surface and a spinner */}
+          {REGIONS[level].map(({ points, corner, spinner, wait }) => (
             <g
-              key={d}
+              key={points.join()}
               className={clsx(
                 styles.anim,
                 styles.fallback,
                 styles[`wait${wait}`],
               )}
             >
-              <path className={styles.tint} d={d} />
+              <path className={styles.tint} d={rounded(points, corner)} />
               <circle
                 className={styles.spinner}
-                cx={sx}
-                cy={sy}
-                r={r}
+                {...spinner}
                 pathLength={100}
               />
             </g>
@@ -318,15 +290,14 @@ export default function AsyncBoundaries() {
           <g
             key={l}
             className={clsx(
-              styles.boundary,
               l === 'component' && styles.leaf,
               l === level && styles.active,
               l === preview && styles.preview,
             )}
           >
-            {REGIONS[l].map(({ d, tag: [tx, ty] }) => (
-              <React.Fragment key={d}>
-                <path className={styles.outline} d={d} />
+            {REGIONS[l].map(({ points, corner, tag: [tx, ty] }) => (
+              <React.Fragment key={points.join()}>
+                <path className={styles.outline} d={rounded(points, corner)} />
                 {/* eslint-disable-next-line @docusaurus/no-untranslated-text -- component name */}
                 <text className={styles.tag} x={tx} y={ty}>
                   {`<${boundary}>`}
@@ -337,7 +308,9 @@ export default function AsyncBoundaries() {
         ))}
       </svg>
 
-      {/* the positions, as transparent buttons over the SVG: inside its role="img" they would be presentational */}
+      {/* the positions, as transparent buttons over the SVG: inside its role="img"
+          they would be presentational. The component level is one choice, so its
+          first button is the one tab stop; the others are only for the pointer */}
       <div
         className={styles.targets}
         role="group"
@@ -349,13 +322,14 @@ export default function AsyncBoundaries() {
         })}
       >
         {LEVELS.map(l =>
-          REGIONS[l].map(({ d, hit }) => (
+          REGIONS[l].map(({ points }, i) => (
             <button
-              key={d}
+              key={points.join()}
               type="button"
               className={styles.target}
-              style={pct(hit)}
+              style={hit(points)}
               {...target(l)}
+              {...(i > 0 && { tabIndex: -1, 'aria-hidden': true })}
             />
           )),
         )}

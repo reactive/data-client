@@ -14,6 +14,7 @@ export const CHIPS: { entity: Entity; x: number; w: number }[] = [
 ];
 
 // components that render no data, so they never re-render for it
+// (AsyncBoundaries draws its boundary outlines from these coordinates and BOUND's)
 export const PLAIN = [
   { name: 'App', cx: 104, y: 66, w: 56 },
   { name: 'Header', cx: 60, y: 106, w: 64 },
