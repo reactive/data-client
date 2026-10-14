@@ -77,7 +77,7 @@ function babelPlugin({ types: t, template }) {
           // Only multi-line text can hold a line start, so skip the rest to
           // keep the per-line scan below short
           const { loc } = child.node;
-          if (loc.start.line !== loc.end.line) {
+          if (loc?.start.line !== loc?.end.line) {
             literals.push(child.node);
           }
         } else if (TYPE_KEYS.has(child.key)) {
