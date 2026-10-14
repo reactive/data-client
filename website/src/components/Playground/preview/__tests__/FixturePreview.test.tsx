@@ -76,7 +76,10 @@ describe('FixturePreview', () => {
         ]}
       />,
     );
-    fireEvent.click(screen.getByRole('button'));
+    const toggle = screen.getByRole('button');
+    // collapsed, the row shows what the function returns
+    expect(toggle.textContent).toContain('ƒ → { id }');
+    fireEvent.click(toggle);
     expect(screen.getByText(/return \{ id \}/)).toBeTruthy();
   });
 });
@@ -94,7 +97,8 @@ describe('summarize', () => {
     ).toEqual({
       method: 'GET',
       path: '/article/:id',
-      hint: 'ƒ response',
+      fn: 'response',
+      hint: undefined,
       error: false,
       delay: 'delay',
     });
@@ -105,8 +109,8 @@ describe('summarize', () => {
       summarize({
         endpoint: getArticle,
         fetchResponse: () => ({ id: 1 }),
-      } as any).hint,
-    ).toBe('ƒ fetchResponse');
+      } as any).fn,
+    ).toBe('fetchResponse');
   });
 
   test('fixtures without an HTTP method keep the whole key', () => {
@@ -142,7 +146,7 @@ describe('summarize', () => {
     const big = Array.from({ length: 500 }, (_, i) => ({ id: i }));
     expect(
       summarize({ endpoint: getArticle, args: [{ id: 9 }], response: big }).hint
-        .length,
+        ?.length,
     ).toBe(160);
   });
 });

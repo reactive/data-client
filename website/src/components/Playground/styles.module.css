@@ -995,6 +995,11 @@ div.playgroundTextEdit > .playgroundHeader,
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* marks a hint read from a function's source rather than data */
+.fixtureFn {
+  color: var(--store-type);
+  font-style: italic;
+}
 .fixtureToggle[aria-expanded='true'] .fixtureHint {
   visibility: hidden;
 }
@@ -1315,8 +1320,21 @@ div.fixtureJson {
   .playgroundContainer .headerButton.storeHeaderToggle {
     display: inline-flex;
   }
-  /* drop the response hint so the path keeps the row's width */
+  /* the response hint takes a line of its own under the path, so the path
+     keeps the row's width */
+  .fixtureToggle {
+    flex-wrap: wrap;
+    row-gap: 0;
+  }
+  .fixturePath {
+    flex: 1 1 0;
+  }
   .fixtureHint {
+    order: 1;
+    flex-basis: 100%;
+    padding-left: calc(12px + 0.5rem);
+  }
+  .fixtureToggle[aria-expanded='true'] .fixtureHint {
     display: none;
   }
 }

@@ -4,6 +4,7 @@ import CodeBlock from '@theme/CodeBlock';
 import clsx from 'clsx';
 import { memo, type ReactElement, useState } from 'react';
 
+import { returnedSource } from '../returnedSource';
 import { splitKey } from '../splitKey';
 import styles from '../styles.module.css';
 import type { FixtureOrInterceptor } from '../types';
@@ -24,7 +25,7 @@ export default memo(FixturePreview);
  * mounts while open */
 function FixtureRow({ fixture }: { fixture: FixtureOrInterceptor }) {
   const [open, setOpen] = useState(false);
-  const { method, path, hint, error, delay } = summarize(fixture);
+  const { method, path, hint, fn, error, delay } = summarize(fixture);
   return (
     <div className={styles.fixture}>
       <button
@@ -43,7 +44,9 @@ function FixtureRow({ fixture }: { fixture: FixtureOrInterceptor }) {
         : null}
         <span className={styles.fixturePath}>{path}</span>
         <span className={styles.fixtureHint} aria-hidden>
-          {hint}
+          {fn ?
+            <FunctionHint name={fn} fixture={fixture} />
+          : hint}
         </span>
         {error ?
           <span className={clsx(styles.pill, styles.danger)}>
@@ -72,16 +75,20 @@ const HINT_CHARS = 160;
 /** The row's line: the endpoint as the Store names it, a glance at the
  * response, and what else the fixture does */
 export function summarize(fixture: FixtureOrInterceptor) {
-  const isFetch = 'fetchResponse' in fixture;
+  const fn =
+    'fetchResponse' in fixture ? ('fetchResponse' as const)
+    : typeof fixture.response === 'function' ? ('response' as const)
+    : undefined;
   const { delay } = fixture;
   return {
     ...splitKey(keyOf(fixture)),
+    fn,
+    // String() covers what JSON.stringify can't, like undefined
     hint:
-      isFetch ? 'ƒ fetchResponse'
-      : typeof fixture.response === 'function' ? 'ƒ response'
-        // JSON.stringify(undefined) is undefined
-      : (JSON.stringify(fixture.response)?.slice(0, HINT_CHARS) ??
-        String(fixture.response)),
+      fn ? undefined : (
+        (JSON.stringify(fixture.response)?.slice(0, HINT_CHARS) ??
+        String(fixture.response))
+      ),
     error: 'error' in fixture && fixture.error === true,
     delay:
       typeof delay === 'number' ? `${delay} ms`
@@ -102,6 +109,29 @@ function keyOf(fixture: FixtureOrInterceptor): string {
   };
   const path = endpoint.path ?? endpoint.name ?? '';
   return endpoint.method ? `${endpoint.method} ${path}` : path;
+}
+
+/** `ƒ → { todos: Object.values(this) }`: what the function returns, read
+ * from its source, so the row hints at the response without running it */
+function FunctionHint({
+  name,
+  fixture,
+}: {
+  name: 'response' | 'fetchResponse';
+  fixture: FixtureOrInterceptor;
+}) {
+  return (
+    <>
+      <span className={styles.fixtureFn}>ƒ</span>{' '}
+      {/* the source is only sure to be pinned in the browser's bundle */}
+      <BrowserOnly>
+        {() => {
+          const returned = returnedSource(`${(fixture as any)[name]}`);
+          return returned ? `→ ${returned.slice(0, HINT_CHARS)}` : name;
+        }}
+      </BrowserOnly>
+    </>
+  );
 }
 
 function FixtureResponse({
