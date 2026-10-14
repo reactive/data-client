@@ -1,27 +1,19 @@
 /// <reference types="jest" />
+import { ErrorBoundary } from '@data-client/react';
 import { render, renderHook } from '@testing-library/react';
 import React from 'react';
 
 import { usePlaygroundConsoleDemotion } from '../usePlaygroundConsoleDemotion';
 
-class Boundary extends React.Component<{ children: React.ReactNode }> {
-  state = { failed: false };
-  static getDerivedStateFromError() {
-    return { failed: true };
-  }
-  render() {
-    return this.state.failed ? null : this.props.children;
-  }
-}
 function Throws(): React.ReactNode {
   throw new Error('boom');
 }
 /** Has React log an error a boundary caught, as a throwing preview does */
 const throwCaught = () =>
   render(
-    <Boundary>
+    <ErrorBoundary>
       <Throws />
-    </Boundary>,
+    </ErrorBoundary>,
   ).unmount();
 
 let error: jest.SpyInstance;
