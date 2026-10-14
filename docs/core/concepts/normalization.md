@@ -1,6 +1,7 @@
 ---
 title: Entity and Data Normalization
 sidebar_label: Data Normalization
+image: /img/social/normalization-card.jpg
 ---
 
 <head>
