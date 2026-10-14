@@ -9,7 +9,13 @@ const prettier = require('prettier');
 
 const FN_KEYS = new Set(['response', 'fetchResponse']);
 // Babel child keys holding TypeScript-only syntax, cut from the shown source
-const TYPE_KEYS = new Set(['typeAnnotation', 'returnType', 'typeParameters']);
+// (Babel 8 moves call and `new` type arguments to typeArguments)
+const TYPE_KEYS = new Set([
+  'typeAnnotation',
+  'returnType',
+  'typeParameters',
+  'typeArguments',
+]);
 
 const keyName = prop =>
   !prop.computed && prop.key && (prop.key.name ?? prop.key.value);
@@ -68,6 +74,10 @@ function babelPlugin({ types: t, template }) {
           } else {
             cuts.push([expression.end, child.node.end]);
           }
+        } else if (child.isIdentifier({ optional: true })) {
+          // `init?: RequestInit` reads as `init`
+          const end = child.node.start + child.node.name.length;
+          cuts.push([end, end + 1]);
         } else if (child.isTSNonNullExpression()) {
           cuts.push([child.node.end - 1, child.node.end]);
         }

@@ -35,8 +35,8 @@ describe('babelPlugin', () => {
   },
   {
     endpoint: E,
-    response: (a: number): number => {
-      const b = a + 1;
+    response: (a: number, init?: RequestInit): number => {
+      const b = new Map<string, number>().get(String(a)) ?? a + 1;
       return b;
     },
   },
@@ -48,7 +48,7 @@ describe('babelPlugin', () => {
       run(code).map(fixture => String(fixture.response)),
       [
         'async response({ id }) {\n  return { id, post: (this.posts)[id] };\n}',
-        '(a) => {\n  const b = a + 1;\n  return b;\n}',
+        '(a, init) => {\n  const b = new Map().get(String(a)) ?? a + 1;\n  return b;\n}',
         '(a) => {\n    return a;\n  }',
       ],
     );
