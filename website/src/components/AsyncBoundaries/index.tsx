@@ -368,12 +368,12 @@ export default function AsyncBoundaries() {
               {...(i > 0 && {
                 tabIndex: -1,
                 'aria-hidden': true,
-                // a click would focus it, outside the accessibility tree; it
-                // still lets go of the focus, like a click on the page, so none
-                // stays behind on the position it moved from
+                // a click would focus it, outside the accessibility tree. Focus
+                // stays where it was, but no longer previews that position
+                // next to the one just chosen
                 onMouseDown: (e: React.MouseEvent) => {
                   e.preventDefault();
-                  (document.activeElement as HTMLElement | null)?.blur();
+                  setFocused(null);
                 },
               })}
             />
