@@ -74,8 +74,10 @@ function babelPlugin({ types: t, template }) {
     path.traverse({
       enter(child) {
         if (child.isTemplateElement() || child.isStringLiteral()) {
-          // Only multi-line text can hold a line start
-          if (code.slice(child.node.start, child.node.end).includes('\n')) {
+          // Only multi-line text can hold a line start, so skip the rest to
+          // keep the per-line scan below short
+          const { loc } = child.node;
+          if (loc.start.line !== loc.end.line) {
             literals.push(child.node);
           }
         } else if (TYPE_KEYS.has(child.key)) {
