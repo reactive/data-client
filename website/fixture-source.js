@@ -54,25 +54,17 @@ const withSourceEstree = (fn, source) => ({
   ],
 });
 
-/** The first line starts at the fixture; later ones keep the file's nesting.
- * The closing line sits at that nesting's base, so strip its indent (lines
- * inside a template literal may sit shallower, and keep their text).
- */
-function dedent(source) {
-  const lastLine = source.slice(source.lastIndexOf('\n') + 1);
-  const indent = /^ */.exec(lastLine)[0].length;
-  return indent ?
-      source.replace(new RegExp(`^ {0,${indent}}`, 'gm'), '')
-    : source;
-}
-
 function babelPlugin({ types: t, template }) {
   function authoredSource(path) {
     const code = path.hub.getCode();
+    const { start, end } = path.node;
     const cuts = [];
+    const quasis = [];
     path.traverse({
       enter(child) {
-        if (TYPE_KEYS.has(child.key)) {
+        if (child.isTemplateElement()) {
+          quasis.push(child.node);
+        } else if (TYPE_KEYS.has(child.key)) {
           cuts.push([child.node.start, child.node.end]);
           child.skip();
         } else if (
@@ -112,15 +104,31 @@ function babelPlugin({ types: t, template }) {
         }
       },
     });
+    // The first line starts at the fixture; later ones keep the file's
+    // nesting, so cut their shared indent (text inside template literals
+    // is the fixture's data, so it's neither measured nor cut)
+    const indents = [];
+    for (let nl = code.indexOf('\n', start); nl !== -1 && nl < end;) {
+      const line = nl + 1;
+      nl = code.indexOf('\n', line);
+      if (quasis.some(q => q.start < line && line <= q.end)) continue;
+      const indent = /^ */.exec(code.slice(line, nl === -1 ? end : nl))[0];
+      indents.push([line, indent.length, line + indent.length === nl]);
+    }
+    const base = Math.min(
+      ...indents.filter(([, , blank]) => !blank).map(([, length]) => length),
+    );
+    for (const [line, length] of indents) {
+      cuts.push([line, line + Math.min(length, base)]);
+    }
     let source = '';
-    let at = path.node.start;
+    let at = start;
     for (const [from, to] of cuts.sort((a, b) => a[0] - b[0])) {
       // Cuts can nest, e.g. a type annotation inside an `as` expression
       if (from > at) source += code.slice(at, from);
       at = Math.max(at, to);
     }
-    source += code.slice(at, path.node.end);
-    return dedent(source);
+    return source + code.slice(at, end);
   }
 
   const withSourceBabel = (fn, source) =>
