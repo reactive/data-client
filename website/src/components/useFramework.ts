@@ -5,7 +5,6 @@ import { useEffect } from 'react';
 import {
   FRAMEWORK_INSTANCES,
   docsInstance,
-  frameworkInstance,
 } from '../../framework-docs/docsInstances.js';
 
 export type Framework = 'react' | 'vue';
@@ -28,20 +27,29 @@ export default function useFramework(): Framework {
 }
 
 /**
+ * Of the given docs instances, the one being viewed; elsewhere (blog, other
+ * docs, ...) the one viewed last, else the first
+ */
+export function usePreferredDocs(ids: readonly string[]): string {
+  const activeId = useActivePlugin()?.pluginId;
+  const current = activeId && ids.includes(activeId) ? activeId : undefined;
+  const [stored, storage] = useStorageSlot(
+    `docusaurus.preferredDocs.${ids.join(',')}`,
+  );
+  // not keyed on `stored`, so tabs on different docs don't overwrite each other back and forth
+  useEffect(() => {
+    if (current && current !== storage.get()) storage.set(current);
+  }, [current, storage]);
+  return current ?? (stored && ids.includes(stored) ? stored : ids[0]);
+}
+
+const frameworkIds = FRAMEWORK_INSTANCES.map(d => d.id);
+
+/**
  * Framework of the current docs page; elsewhere (REST, blog, ...) the one whose
  * docs were viewed last, so the navbar keeps the reader's framework. Page
  * content uses useFramework(), as REST and GraphQL pages render React.
  */
 export function usePreferredFramework(): Framework {
-  const framework = useDocsFramework();
-  const [stored, storage] = useStorageSlot('docusaurus.framework');
-  // not keyed on `stored`, so tabs on different frameworks don't overwrite each other back and forth
-  useEffect(() => {
-    if (framework && framework !== storage.get()) storage.set(framework);
-  }, [framework, storage]);
-  return (
-    framework ??
-    (frameworkInstance(stored)?.framework as Framework | undefined) ??
-    'react'
-  );
+  return frameworkOf(usePreferredDocs(frameworkIds))!;
 }

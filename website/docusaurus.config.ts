@@ -24,6 +24,7 @@ const isDev = process.env.NODE_ENV === 'development';
 
 // docs/core is shared by React (/docs) and Vue (/vue); see framework-docs/
 const {
+  FRAMEWORK_INSTANCES,
   docsInstance,
   frameworkInstance,
 } = require('./framework-docs/docsInstances.js');
@@ -628,7 +629,8 @@ const config: Config = {
       items: [
         {
           // React/Vue menu showing the framework being read
-          type: 'custom-frameworkDropdown',
+          type: 'custom-docsDropdown',
+          docsPluginIds: FRAMEWORK_INSTANCES.map(d => d.id),
           position: 'left',
         },
         {
