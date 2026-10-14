@@ -5140,7 +5140,7 @@ __metadata:
     "@data-client/endpoint": "workspace:*"
     "@data-client/normalizr": "workspace:^"
     "@types/jest": "npm:30.0.0"
-    "@types/node": "npm:^25.0.0"
+    "@types/node": "npm:^26.0.0"
     flux-standard-action: "npm:^2.1.1"
     rollup-plugins: "workspace:*"
   languageName: unknown
@@ -5155,7 +5155,7 @@ __metadata:
     "@data-client/core": "workspace:*"
     "@data-client/normalizr": "workspace:*"
     "@types/jest": "npm:30.0.0"
-    "@types/node": "npm:^25.0.0"
+    "@types/node": "npm:^26.0.0"
     immutable: "npm:5.1.9"
     nock: "npm:13.3.1"
     rollup-plugins: "workspace:*"
@@ -5171,7 +5171,7 @@ __metadata:
     "@babel/runtime": "npm:^7.20.0 || ^8.0.0"
     "@data-client/endpoint": "workspace:^"
     "@types/jest": "npm:30.0.0"
-    "@types/node": "npm:^25.0.0"
+    "@types/node": "npm:^26.0.0"
     nock: "npm:13.3.1"
     rollup-plugins: "workspace:*"
   languageName: unknown
@@ -5188,7 +5188,7 @@ __metadata:
     "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/react": "npm:^16.1.0"
     "@types/jest": "npm:30.0.0"
-    "@types/node": "npm:^25.0.0"
+    "@types/node": "npm:^26.0.0"
     "@types/react": "npm:19.3.0"
     "@types/react-dom": "npm:^19"
     react: "npm:^19.0.0"
@@ -5212,7 +5212,7 @@ __metadata:
     "@babel/runtime": "npm:^7.20.0 || ^8.0.0"
     "@data-client/endpoint": "workspace:*"
     "@types/jest": "npm:30.0.0"
-    "@types/node": "npm:^25.0.0"
+    "@types/node": "npm:^26.0.0"
     immutable: "npm:5.1.9"
     rollup-plugins: "workspace:*"
     temporal-polyfill: "npm:^0.3.0"
@@ -5236,7 +5236,7 @@ __metadata:
     "@testing-library/react": "npm:^16.1.0"
     "@testing-library/react-native": "npm:^13.3.3"
     "@types/jest": "npm:30.0.0"
-    "@types/node": "npm:^25.0.0"
+    "@types/node": "npm:^26.0.0"
     "@types/qs": "npm:^6"
     "@types/react": "npm:19.3.0"
     "@types/react-dom": "npm:*"
@@ -5275,7 +5275,7 @@ __metadata:
     "@data-client/react": "workspace:*"
     "@data-client/test": "workspace:*"
     "@types/jest": "npm:30.0.0"
-    "@types/node": "npm:^25.0.0"
+    "@types/node": "npm:^26.0.0"
     nock: "npm:13.3.1"
     path-to-regexp: "npm:^8.1.0"
     rollup-plugins: "workspace:*"
@@ -5293,7 +5293,7 @@ __metadata:
     "@testing-library/react": "npm:^16.0.0"
     "@testing-library/react-native": "npm:^13.0.0"
     "@types/jest": "npm:30.0.0"
-    "@types/node": "npm:^25.0.0"
+    "@types/node": "npm:^26.0.0"
     "@types/react": "npm:19.3.0"
     "@types/react-dom": "npm:19.3.0"
     "@types/react-test-renderer": "npm:19.3.0"
@@ -5341,7 +5341,7 @@ __metadata:
     "@anansi/browserslist-config": "npm:^1.4.2"
     "@babel/runtime": "npm:^7.20.0 || ^8.0.0"
     "@types/jest": "npm:30.0.0"
-    "@types/node": "npm:^25.0.0"
+    "@types/node": "npm:^26.0.0"
     "@types/react": "npm:19.3.0"
     react: "npm:^19.0.0"
     rollup-plugins: "workspace:*"
@@ -5364,7 +5364,7 @@ __metadata:
     "@data-client/rest": "workspace:*"
     "@jest/globals": "npm:^30.0.0"
     "@types/jest": "npm:30.0.0"
-    "@types/node": "npm:^25.0.0"
+    "@types/node": "npm:^26.0.0"
     "@vue/test-utils": "npm:^2.4.0"
     jest-environment-jsdom: "npm:^30.0.0"
     jest-mock: "npm:^30.0.0"
@@ -11645,21 +11645,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:>=20.0.0":
-  version: 26.6.4
-  resolution: "@types/node@npm:26.6.4"
+"@types/node@npm:*, @types/node@npm:26.6.5, @types/node@npm:>=20.0.0, @types/node@npm:^26.0.0":
+  version: 26.6.5
+  resolution: "@types/node@npm:26.6.5"
   dependencies:
     undici-types: "npm:~8.9.0"
-  checksum: 10c0/094e7362df9200ba4c2da09131ca3b5d1aa51535a268a24e4ee2546d9c5a323d1d30cbdaaaa3db7ef8b2387572d1f9edabb11538ab7a09d3bca33ae5cddc2b1b
-  languageName: node
-  linkType: hard
-
-"@types/node@npm:25.9.9, @types/node@npm:^25.0.0":
-  version: 25.9.9
-  resolution: "@types/node@npm:25.9.9"
-  dependencies:
-    undici-types: "npm:>=7.24.0 <7.24.7"
-  checksum: 10c0/2ba08caa7118af2f2761f2f5db9b6304faf5bd027a2dcb72bf6fcae3dd9e470d17045fec27f89023c02e7d4e0661c6e5877174bd39794bef080db8b35ad4a1ea
+  checksum: 10c0/4f791f69466ace7842c09e7bef96cb1ddbb65cf3db916ef7e84f0e2b2a17220b6b816dc7539d01520cadfb17ed7169b8214910900493e0a83be8bc7d124ec20a
   languageName: node
   linkType: hard
 
@@ -18173,7 +18164,7 @@ __metadata:
     "@data-client/rest": "workspace:*"
     "@playwright/test": "npm:1.61.1"
     "@tanstack/react-query": "npm:5.96.2"
-    "@types/node": "npm:25.9.9"
+    "@types/node": "npm:26.6.5"
     "@types/react": "npm:19.3.0"
     "@types/react-dom": "npm:19.3.0"
     "@typescript/native": "npm:typescript@7.0.2"
@@ -29653,7 +29644,7 @@ __metadata:
     "@testing-library/react-hooks": "npm:8.0.1"
     "@testing-library/react-native": "npm:13.3.3"
     "@types/jest": "npm:30.0.0"
-    "@types/node": "npm:25.9.9"
+    "@types/node": "npm:26.6.5"
     "@types/react": "npm:19.3.0"
     "@types/react-dom": "npm:19.3.0"
     "@typescript/native": "npm:typescript@7.0.2"
@@ -32194,13 +32185,6 @@ __metadata:
     has-symbols: "npm:^1.1.0"
     which-boxed-primitive: "npm:^1.1.1"
   checksum: 10c0/7dbd35ab02b0e05fe07136c72cb9355091242455473ec15057c11430129bab38b7b3624019b8778d02a881c13de44d63cd02d122ee782fb519e1de7775b5b982
-  languageName: node
-  linkType: hard
-
-"undici-types@npm:>=7.24.0 <7.24.7":
-  version: 7.24.6
-  resolution: "undici-types@npm:7.24.6"
-  checksum: 10c0/d9cd8befb643ac904615c280a095ba4240531f6bb4a5e75a22a7483630ca8d3f1016d2ab6ace6ceda1f63b3a2db2fe037fafe121d6917a0187573aa548ff78ca
   languageName: node
   linkType: hard
 

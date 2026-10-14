@@ -126,7 +126,7 @@
     "@anansi/browserslist-config": "^1.4.2",
     "@data-client/endpoint": "workspace:*",
     "@types/jest": "30.0.0",
-    "@types/node": "^25.0.0",
+    "@types/node": "^26.0.0",
     "rollup-plugins": "workspace:*"
   }
 }
