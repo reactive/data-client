@@ -1,7 +1,8 @@
 /**
  * React Native Testing Library 14 made render, renderHook and act async.
- * When its renderer (test-renderer) is installed, render hooks with it directly
- * so renderDataClient() stays synchronous; otherwise use RNTL 13's sync APIs.
+ * When its renderer (test-renderer, an RNTL 14 peer) is installed, render hooks
+ * with it directly so renderDataClient() stays synchronous; otherwise use
+ * RNTL 13's sync APIs.
  */
 import * as RNTL from '@testing-library/react-native';
 import React from 'react';
@@ -19,74 +20,80 @@ try {
   if (e?.code !== 'MODULE_NOT_FOUND') throw e;
 }
 
-const roots = new Set<Root>();
-if (createRoot && typeof afterEach === 'function') {
-  afterEach(() => {
-    for (const root of roots) React.act(() => root.unmount());
-    roots.clear();
-  });
-}
-
-function renderTestRendererHook(
-  callback: (props: any) => any,
-  { initialProps, wrapper }: { initialProps?: any; wrapper?: any } = {},
-) {
-  const result = React.createRef<any>();
-  function HookContainer({ hookProps }: { hookProps: any }) {
-    const renderResult = callback(hookProps);
-    React.useEffect(() => {
-      (result as any).current = renderResult;
+/** A sync port of RNTL's render-hook.js */
+function makeRenderHook(createRoot: () => Root) {
+  const roots = new Set<Root>();
+  if (typeof afterEach === 'function') {
+    afterEach(() => {
+      React.act(() => {
+        for (const root of roots) root.unmount();
+      });
+      roots.clear();
     });
-    return null;
   }
-  const root = (createRoot as () => Root)();
-  roots.add(root);
-  const render = (hookProps: any) => {
-    const element = React.createElement(HookContainer, { hookProps });
-    React.act(() => {
-      root.render(
-        wrapper ? React.createElement(wrapper, null, element) : element,
-      );
-    });
-  };
-  render(initialProps);
-  return {
-    result,
-    rerender: render,
-    unmount() {
-      roots.delete(root);
-      React.act(() => root.unmount());
-    },
+
+  return function renderHook(
+    callback: (props: any) => any,
+    { initialProps, wrapper }: { initialProps?: any; wrapper?: any } = {},
+  ) {
+    const result = { current: undefined as any };
+    function HookContainer({ hookProps }: { hookProps: any }) {
+      const renderResult = callback(hookProps);
+      React.useEffect(() => {
+        result.current = renderResult;
+      });
+      return null;
+    }
+    const root = createRoot();
+    roots.add(root);
+    const render = (hookProps: any) => {
+      const element = React.createElement(HookContainer, { hookProps });
+      React.act(() => {
+        root.render(
+          wrapper ? React.createElement(wrapper, null, element) : element,
+        );
+      });
+    };
+    render(initialProps);
+    return {
+      result,
+      rerender: render,
+      unmount() {
+        roots.delete(root);
+        React.act(() => root.unmount());
+      },
+    };
   };
 }
 
-export const renderHook: RenderHook =
-  createRoot ? (renderTestRendererHook as any) : (RNTL.renderHook as any);
-
-/** React.act() that also works inside RNTL's waitFor(), which turns off the act environment */
+/**
+ * Sync React.act() that also works inside RNTL's waitFor(), which turns off the
+ * act environment. Mirrors withGlobalActEnvironment() from RNTL's act.js, whose
+ * exported act() is always async.
+ */
 function actEnvironment(callback: () => any): any {
   const g = globalThis as any;
   const previous = g.IS_REACT_ACT_ENVIRONMENT;
+  const restore = () => {
+    g.IS_REACT_ACT_ENVIRONMENT = previous;
+  };
   g.IS_REACT_ACT_ENVIRONMENT = true;
   let isAsync = false;
-  let result: any;
   try {
-    result = React.act(() => {
+    const result = React.act(() => {
       const value = callback();
       isAsync = typeof value?.then === 'function';
       return value;
     });
-  } catch (e) {
-    g.IS_REACT_ACT_ENVIRONMENT = previous;
-    throw e;
+    return isAsync ? Promise.resolve(result).finally(restore) : result;
+  } finally {
+    if (!isAsync) restore();
   }
-  if (!isAsync) {
-    g.IS_REACT_ACT_ENVIRONMENT = previous;
-    return result;
-  }
-  return Promise.resolve(result).finally(() => {
-    g.IS_REACT_ACT_ENVIRONMENT = previous;
-  });
 }
 
-export const act: ActType = createRoot ? actEnvironment : (RNTL.act as any);
+export const renderHook = (
+  createRoot ?
+    makeRenderHook(createRoot)
+  : RNTL.renderHook) as RenderHook;
+
+export const act = (createRoot ? actEnvironment : RNTL.act) as ActType;
