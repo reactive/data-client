@@ -96,7 +96,11 @@ world\`;
 
   it('keeps the default toString() when the cut source would not parse', () => {
     const code = compile(
-      `module.exports = [{ endpoint: E, response: (a: any) => ((a as any)).b }];`,
+      `module.exports = [
+  { endpoint: E, response: (a: any) => ((a as any)).b },
+  { endpoint: E, response: (a: any) => (a as any /* ) */).b },
+  { endpoint: E, response: (a: number) => (a + 1 /* ) */) as any },
+];`,
     );
     assert.doesNotMatch(code, /toString/);
   });
