@@ -856,6 +856,14 @@
     "message": "Árbol de componentes donde cada componente que renderiza datos los lee directamente del store con useSuspense(): User para CurrentUser y Avatar, Post para PostBody y Comment para CommentList. Un cambio vuelve a renderizar solo esos componentes y nada más del árbol",
     "description": "Accessible label of the data co-location diagram on the Render Data page"
   },
+  "collectionLists.label": {
+    "message": "Tres listas guardadas en el store a partir de getTodos({ userId: 1 }), getTodos({ userId: 2 }) y getTodos(). Un todo con userId 1 creado por push o unshift entra en la lista de userId 1 y en la lista sin filtro, al final o al principio, y nunca en la lista de userId 2, porque una lista solo recibe un elemento cuando todos los argumentos con los que se obtuvo aparecen en la llamada. remove lo saca de esas mismas listas; move lo saca de la lista de userId 1 y lo mete en la de userId 2, y la lista sin filtro lo conserva",
+    "description": "Accessible label of the collection lists diagram on the Collection page"
+  },
+  "collectionLists.operation": {
+    "message": "Operación",
+    "description": "Label of the push / unshift / remove / move switch on the collection lists diagram"
+  },
   "expiryTimeline.within": {
     "message": "dentro de",
     "description": "Before the dataExpiryLength option name, over the Fresh story: a mount within that time finds fresh data"

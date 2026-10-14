@@ -7,6 +7,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import CollectionLists from '@site/src/components/CollectionLists';
 import { RestEndpoint } from '@data-client/rest';
 import { v4 as uuid } from 'uuid';
 import { postFixtures,getInitialInterceptorData } from '@site/src/fixtures/posts-collection';
@@ -23,6 +24,8 @@ e mover entre collections com [.move](#move).
 e [.getPage](./RestEndpoint.md#getpage)/ [.paginated()](./RestEndpoint.md#paginated) ao usar `Collections`
 
 ## Uso {#usage}
+
+<CollectionLists />
 
 <FrameworkPlayground row fixtures={[
 {
@@ -113,7 +116,7 @@ import React from 'react';
 import { useController } from '@data-client/react';
 import { getTodos } from './api/Todo';
 
-export default function NewTodo({ userId }: { userId?: string }) {
+export default function NewTodo({ userId }: { userId: string }) {
   const ctrl = useController();
   const [unshift, setUnshift] = React.useState(false);
 
@@ -197,7 +200,7 @@ render(<UserList />);
   import { useController } from '@data-client/vue';
   import { getTodos } from './api/Todo';
 
-  const props = defineProps<{ userId?: string }>();
+  const props = defineProps<{ userId: string }>();
   const ctrl = useController();
   const unshift = ref(false);
 

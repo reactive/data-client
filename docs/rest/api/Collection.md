@@ -7,6 +7,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import LanguageTabs from '@site/src/components/LanguageTabs';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import CollectionLists from '@site/src/components/CollectionLists';
 import { RestEndpoint } from '@data-client/rest';
 import { v4 as uuid } from 'uuid';
 import { postFixtures,getInitialInterceptorData } from '@site/src/fixtures/posts-collection';
@@ -23,6 +24,8 @@ and move between collections with [.move](#move).
 and [.getPage](./RestEndpoint.md#getpage)/ [.paginated()](./RestEndpoint.md#paginated) extenders when using `Collections`
 
 ## Usage
+
+<CollectionLists />
 
 <FrameworkPlayground row fixtures={[
 {

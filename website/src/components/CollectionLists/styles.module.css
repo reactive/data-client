@@ -1,0 +1,382 @@
+/* the diagram and the operation switch laid over it */
+.frame {
+  --line: var(--ifm-color-emphasis-300);
+  --user1: hsl(262, 52%, 48%);
+  --user2: hsl(165, 70%, 26%);
+  --on-chip: #fff;
+  margin: 0 0 1.5rem;
+}
+[data-theme='dark'] .frame {
+  --user1: hsl(262, 75%, 74%);
+  --user2: hsl(165, 55%, 55%);
+  --on-chip: hsl(220, 20%, 12%);
+}
+/* the switch is placed in % of the diagram's box */
+.stage {
+  position: relative;
+  max-width: 520px;
+  margin: 0 auto;
+}
+.diagram {
+  --play: running;
+  --seek: 0s;
+  display: block;
+  width: 100%;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 10.5px;
+  text-anchor: middle;
+  user-select: none;
+}
+
+.user1 {
+  --c: var(--user1);
+}
+.user2 {
+  --c: var(--user2);
+}
+/* values in the arguments, in their user's color */
+text .user1,
+text .user2 {
+  fill: var(--c);
+  font-weight: 600;
+}
+
+/* the segmented control: push / unshift / remove / move */
+.tabs > rect {
+  fill: var(--ifm-background-surface-color);
+  stroke: var(--line);
+  stroke-width: 1;
+}
+.tab rect {
+  fill: var(--ifm-color-primary);
+  opacity: 0;
+  transition: opacity var(--motion-snappy);
+}
+.tab text {
+  fill: var(--ifm-color-emphasis-700);
+  font-weight: 600;
+  transition: fill var(--motion-snappy);
+}
+.tab.active rect {
+  opacity: 1;
+}
+.tab.active text {
+  fill: var(--on-chip);
+}
+
+/* the real buttons, one over each drawn tab */
+.controls {
+  position: absolute;
+  display: flex;
+}
+.controls button {
+  position: relative;
+  display: block;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+/* the ring goes round the drawn tab, not the taller button */
+.controls button:focus-visible {
+  outline: none;
+}
+.controls button:focus-visible::after {
+  content: '';
+  position: absolute;
+  top: var(--tab-top);
+  right: 0;
+  bottom: var(--tab-bottom);
+  left: 0;
+  border-radius: 999px;
+  outline: 2px solid var(--ifm-color-primary);
+  outline-offset: 1px;
+}
+
+.call text {
+  fill: var(--ifm-font-color-base);
+}
+.call .op {
+  fill: var(--ifm-color-primary);
+  font-weight: 600;
+}
+
+.store {
+  fill: var(--ifm-background-surface-color);
+  stroke: var(--ifm-color-primary);
+  stroke-width: 1.5;
+  rx: 12px;
+}
+.db {
+  color: var(--ifm-color-primary);
+}
+.endpoint {
+  fill: var(--ifm-color-emphasis-700);
+  text-anchor: start;
+}
+
+/* one cached list: its arguments, then its todos */
+.card > rect {
+  fill: var(--ifm-background-color);
+  stroke: var(--line);
+  stroke-width: 1;
+  rx: 8px;
+}
+.card > text {
+  fill: var(--ifm-color-emphasis-800);
+}
+.row {
+  fill: color-mix(in srgb, var(--c) 14%, var(--ifm-background-surface-color));
+  rx: 7px;
+}
+.bar {
+  fill: var(--c);
+  opacity: 0.5;
+  rx: 2px;
+}
+
+/* the todo the operation creates, removes or moves */
+.chip rect {
+  fill: var(--c);
+  rx: 7px;
+}
+.chip text {
+  fill: var(--on-chip);
+  font-size: 9.5px;
+  font-weight: 600;
+}
+
+/* whether the list's arguments match the call: a check or a cross */
+.badge circle {
+  fill: var(--ifm-color-emphasis-400);
+}
+.badge path {
+  fill: none;
+  stroke: var(--on-chip);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.match .badge circle {
+  fill: var(--ifm-color-primary);
+}
+
+/* one run: the call, the lists compared with it, then the todo moving */
+.anim {
+  animation-duration: var(--period);
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-delay: var(--seek);
+  animation-play-state: var(--play);
+}
+
+/* the call going out, like React DevTools' highlight */
+.flash {
+  fill: none;
+  stroke: var(--ifm-color-primary);
+  stroke-width: 6;
+  rx: 9px;
+  opacity: 0;
+  animation-name: call;
+}
+@keyframes call {
+  0%,
+  2%,
+  22%,
+  100% {
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.5;
+  }
+}
+
+/* the lists are compared with the call; one that fails fades back */
+.card {
+  animation-name: compare;
+}
+.match {
+  --dim: 1;
+}
+.miss {
+  --dim: 0.4;
+}
+@keyframes compare {
+  0%,
+  12%,
+  100% {
+    opacity: 1;
+  }
+  20%,
+  92% {
+    opacity: var(--dim);
+  }
+}
+.badge {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation-name: verdict;
+}
+@keyframes verdict {
+  0%,
+  12% {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  20%,
+  92% {
+    opacity: 1;
+    transform: none;
+  }
+  98%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+
+/* the todos already there blink out at the end of a run, so the next starts clean */
+.rows {
+  animation-name: cycle;
+}
+@keyframes cycle {
+  0% {
+    opacity: 0;
+  }
+  4%,
+  92% {
+    opacity: 1;
+  }
+  98%,
+  100% {
+    opacity: 0;
+  }
+}
+/* unshift puts the todo first, so they make room */
+.shifted {
+  animation-name: cycle, shift;
+}
+@keyframes shift {
+  0%,
+  24% {
+    transform: none;
+    animation-timing-function: cubic-bezier(0.3, 0.6, 0.2, 1);
+  }
+  46%,
+  100% {
+    transform: translateY(20px);
+  }
+}
+
+/* the todo: in from the call (arrive), out of the list (leave), from one list
+   to another (travel), or kept where it is (stay) */
+.arrive {
+  animation-name: arrive;
+}
+@keyframes arrive {
+  0%,
+  24% {
+    transform: translate(var(--x0), var(--y0));
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.3, 0.6, 0.2, 1);
+  }
+  30% {
+    opacity: 1;
+  }
+  46%,
+  92% {
+    transform: translate(var(--x1), var(--y1));
+    opacity: 1;
+  }
+  98%,
+  100% {
+    transform: translate(var(--x1), var(--y1));
+    opacity: 0;
+  }
+}
+.leave {
+  animation-name: leave;
+}
+@keyframes leave {
+  0% {
+    transform: translate(var(--x0), var(--y0));
+    opacity: 0;
+  }
+  4%,
+  24% {
+    transform: translate(var(--x0), var(--y0));
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.8, 0.6);
+  }
+  42%,
+  100% {
+    transform: translate(var(--x0), calc(var(--y0) - 14px));
+    opacity: 0;
+  }
+}
+.travel,
+.stay {
+  animation-name: travel;
+}
+@keyframes travel {
+  0% {
+    transform: translate(var(--x0), var(--y0));
+    opacity: 0;
+  }
+  4%,
+  24% {
+    transform: translate(var(--x0), var(--y0));
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.3, 0.6, 0.2, 1);
+  }
+  46%,
+  92% {
+    transform: translate(var(--x1), var(--y1));
+    opacity: 1;
+  }
+  98%,
+  100% {
+    transform: translate(var(--x1), var(--y1));
+    opacity: 0;
+  }
+}
+/* move changes the todo's user: its old chip gives way to the new one */
+.was {
+  animation-name: fade;
+}
+.becomes {
+  animation-name: appear;
+}
+@keyframes fade {
+  0%,
+  28% {
+    opacity: 1;
+  }
+  42%,
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes appear {
+  0%,
+  28% {
+    opacity: 0;
+  }
+  42%,
+  100% {
+    opacity: 1;
+  }
+}
+
+/* nothing moves on its own: hold each run at its outcome */
+@media (prefers-reduced-motion: reduce) {
+  .diagram {
+    --play: paused;
+    --seek: calc(var(--period) * -0.7);
+  }
+  .tab rect,
+  .tab text {
+    transition: none;
+  }
+}
