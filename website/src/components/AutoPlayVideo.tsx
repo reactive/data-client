@@ -20,9 +20,13 @@ const AutoPlayVideo = ({
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
+    if (videoRef.current && volume !== undefined)
+      videoRef.current.volume = volume;
+  }, [volume]);
+
+  useEffect(() => {
     const videoElement = videoRef.current;
     if (!videoElement) return;
-    if (volume !== undefined) videoElement.volume = volume;
 
     // Browsers block autoplay with sound until the user interacts with the page,
     // so fall back to muted and retry sound each time it scrolls back into view
@@ -31,7 +35,9 @@ const AutoPlayVideo = ({
       if (autoMuted) videoElement.muted = false;
       videoElement.play().catch((error: DOMException) => {
         if (error.name !== 'NotAllowedError' || videoElement.muted) return;
-        videoElement.muted = autoMuted = true;
+        autoMuted = true;
+        videoElement.muted = true;
+        // muted autoplay is always allowed; any other failure leaves the controls
         videoElement.play().catch(() => undefined);
       });
     };
@@ -40,13 +46,14 @@ const AutoPlayVideo = ({
       if (!videoElement.muted) autoMuted = false;
     };
     videoElement.addEventListener('volumechange', onVolumeChange);
+    const removeListener = () =>
+      videoElement.removeEventListener('volumechange', onVolumeChange);
 
     // Ensure IntersectionObserver is supported
     if (!('IntersectionObserver' in window)) {
       // Fallback to always play if not supported
       play();
-      return () =>
-        videoElement.removeEventListener('volumechange', onVolumeChange);
+      return removeListener;
     }
 
     const observerOptions = {
@@ -71,9 +78,9 @@ const AutoPlayVideo = ({
     // Clean up the observer on unmount
     return () => {
       observer.unobserve(videoElement);
-      videoElement.removeEventListener('volumechange', onVolumeChange);
+      removeListener();
     };
-  }, [volume]);
+  }, []);
 
   return (
     <center>
