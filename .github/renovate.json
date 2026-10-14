@@ -22,7 +22,7 @@
       "minimumReleaseAge": "1 day"
     },
     {
-      "description": "mirrors npmPreapprovedPackages in .yarnrc.yml",
+      "description": "mirrors npmPreapprovedPackages in .yarnrc.yml; must stay after the 1-day rule, since later rules win",
       "matchDatasources": ["npm"],
       "matchPackageNames": ["@anansi/*", "@data-client/*", "@pojo-router/*"],
       "minimumReleaseAge": "0 days"
