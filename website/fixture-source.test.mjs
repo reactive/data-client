@@ -43,8 +43,8 @@ describe('babelPlugin', () => {
   { endpoint: E, response: (a: number) => {
       return a;
     } },
-  { endpoint: E, response(a: number) {
-      return a;
+  { endpoint: E, response(this: Data, a: number) {
+      return (<any>a).b;
     } },
 ];`);
     assert.deepEqual(
@@ -53,7 +53,7 @@ describe('babelPlugin', () => {
         'async response({ id }) {\n  return { id, post: (this.posts)[id] };\n}',
         '(a, init) => {\n  const b = new Map().get(String(a)) ?? a + 1;\n  return b;\n}',
         '(a) => {\n  return a;\n}',
-        'response(a) {\n  return a;\n}',
+        'response(a) {\n  return (a).b;\n}',
       ],
     );
   });
@@ -75,13 +75,13 @@ describe('babelPlugin', () => {
 });
 
 describe('recmaPlugin', () => {
+  // The MDX compiler Docusaurus builds with
+  const mdxPath = createRequire(
+    require.resolve('@docusaurus/mdx-loader'),
+  ).resolve('@mdx-js/mdx');
+
   it('formats inline MDX fixtures, parenthesized ones included', async () => {
-    // The MDX compiler Docusaurus builds with
-    const { compile } = await import(
-      createRequire(require.resolve('@docusaurus/mdx-loader')).resolve(
-        '@mdx-js/mdx',
-      )
-    );
+    const { compile } = await import(mdxPath);
     const out = String(
       await compile(
         `<P fixtures={[
@@ -105,5 +105,21 @@ id,
       'response({ id }) {\n  return {\n    id,\n  };\n}',
       'a => a.b',
     ]);
+  });
+
+  it('never fails the build over a fixture it cannot format', async () => {
+    const { compile } = await import(mdxPath);
+    const out = String(
+      await compile(
+        `> <P fixtures={[{
+>   endpoint: E,
+>   response() {
+>     return 1;
+>   },
+> }]} />`,
+        { recmaPlugins: [recmaPlugin] },
+      ),
+    );
+    assert.doesNotMatch(out, /toString/);
   });
 });

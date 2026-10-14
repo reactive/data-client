@@ -79,6 +79,17 @@ function babelPlugin({ types: t, template }) {
           // `init?: RequestInit` reads as `init`
           const nameEnd = child.node.start + child.node.name.length;
           cuts.push([nameEnd, code.indexOf('?', nameEnd) + 1]);
+        } else if (child.isTSTypeAssertion()) {
+          // `<any>a` reads as `a`
+          cuts.push([child.node.start, child.node.expression.start]);
+        } else if (
+          child.listKey === 'params' &&
+          child.isIdentifier({ name: 'this' })
+        ) {
+          // a `this: T` parameter only exists for types
+          const next = child.getSibling(child.key + 1).node;
+          cuts.push([child.node.start, next?.start ?? child.node.end]);
+          child.skip();
         } else if (child.isTSNonNullExpression()) {
           cuts.push([child.node.end - 1, child.node.end]);
         }
@@ -169,7 +180,11 @@ function recmaPlugin() {
     const code = String(file.value);
     const config = await (prettierConfig ??=
       prettier.resolveConfig(__filename));
-    for (const prop of matches) await format(prop, code, config);
+    for (const prop of matches) {
+      // Only the panel's text is at stake, so never fail the page's build
+      // (e.g. a fixture in a blockquote keeps its `> ` prefixes)
+      await format(prop, code, config).catch(() => {});
+    }
   };
 }
 
