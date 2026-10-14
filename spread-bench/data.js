@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791942507155,
+  "lastUpdate": 1791942662827,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark Spread": [
@@ -403,6 +403,37 @@ window.BENCHMARK_DATA = {
             "range": "±1.38%",
             "unit": "ops/sec",
             "extra": "86 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "f454bb428a84cfd0d9e624484a8110eaaddce865",
+          "message": "pkg: Update `@anansi/eslint-plugin` to v2 (#4357)\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+          "timestamp": "2026-10-14T01:46:51Z",
+          "tree_id": "86259b4752e1889cdfd28173eef9f2bfd3aea15e",
+          "url": "https://github.com/reactive/data-client/commit/f454bb428a84cfd0d9e624484a8110eaaddce865"
+        },
+        "date": 1791942659989,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "setOneEntity in 10k entity store",
+            "value": 150,
+            "range": "±0.96%",
+            "unit": "ops/sec",
+            "extra": "85 samples"
           }
         ]
       }
