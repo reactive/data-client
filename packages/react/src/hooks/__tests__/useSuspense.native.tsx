@@ -301,6 +301,57 @@ describe('useSuspense()', () => {
     });
   });
 
+  it('should not refetch on refocus once revalidated data is fresh', async () => {
+    const fetchArticle = jest.fn(async ({ id }: { id: number }) => payload);
+    const getArticle = new Endpoint(fetchArticle, {
+      schema: CoolerArticle,
+      key: ({ id }: { id: number }) => `fresh-focus-article-${id}`,
+    });
+    const cached = mockInitialState([
+      { endpoint: getArticle, args: [{ id: payload.id }], response: payload },
+    ]);
+    const key = getArticle.key({ id: payload.id });
+    // make the cached result stale so mounting revalidates it
+    const state = {
+      ...cached,
+      meta: { [key]: { ...cached.meta[key], expiresAt: 1 } },
+    };
+
+    let thenavigation: any;
+    function Article({ navigation }: { navigation: any }) {
+      thenavigation = navigation;
+      const article = useSuspense(getArticle, { id: payload.id });
+      return <Text testID="article">{article.title}</Text>;
+    }
+    function Home() {
+      return <Text>Home</Text>;
+    }
+    const Stack = createNativeStackNavigator();
+    const waitForIdle = () =>
+      act(() => new Promise(resolve => setTimeout(resolve, 50)));
+
+    const { getByText, getByTestId } = await render(
+      <CacheProvider initialState={state}>
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName="Article">
+            <Stack.Screen name="Article" component={Article} />
+            <Stack.Screen name="Home" component={Home} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </CacheProvider>,
+    );
+    await waitForIdle();
+    expect(fetchArticle).toHaveBeenCalledTimes(1);
+
+    await act(() => thenavigation.navigate('Home'));
+    expect(getByText('Home')).toBeDefined();
+    await act(() => thenavigation.goBack());
+    await waitForIdle();
+    expect(getByTestId('article')).toBeDefined();
+    // revalidation made the data fresh, so focus shouldn't fetch again
+    expect(fetchArticle).toHaveBeenCalledTimes(1);
+  });
+
   it('should NOT suspend if result is not stale and options.invalidIfStale is true', async () => {
     const { entities, result } = normalize(CoolerArticle, payload);
     const fetchKey = InvalidIfStaleArticleResource.get.key({ id: payload.id });
