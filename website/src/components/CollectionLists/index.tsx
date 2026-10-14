@@ -41,12 +41,15 @@ const LISTS: List[] = [
 
 /** The todo each operation creates, removes or moves */
 const TODO = { id: '9', userId: '1' as User };
-/** Each operation's arguments: path/search params, then the body */
-const CALLS: Record<Op, [Record<string, string>, Record<string, string>]> = {
+/**
+ * Each operation's arguments: search params, then the body. move drops
+ * searchParams and getTodos' path has no params, so its body is its only one.
+ */
+const CALLS: Record<Op, Record<string, string>[]> = {
   push: [{ userId: TODO.userId }, { title: "'…'" }],
   unshift: [{ userId: TODO.userId }, { title: "'…'" }],
   remove: [{ userId: TODO.userId }, { id: TODO.id }],
-  move: [{ id: TODO.id }, { userId: '2' }],
+  move: [{ id: TODO.id, userId: '2' }],
 };
 
 /**
@@ -106,7 +109,7 @@ function scene(op: Op) {
           chips.push({ user, motion: 'leave', from: end, to: end });
         break;
       case 'move': {
-        const becomes = args[1].userId as User;
+        const becomes = args[args.length - 1].userId as User;
         if (existing[i] && !match[i]) {
           // out of this list, to the end of the list its new values match
           const dest = LISTS.findIndex((_, j) => match[j] && !existing[j]);
@@ -126,7 +129,6 @@ function scene(op: Op) {
 export default function CollectionLists({ float }: { float?: boolean }) {
   const [op, setOp] = useState<Op>('push');
   const { match, chips, shifts } = scene(op);
-  const [params, body] = CALLS[op];
 
   return (
     <div className={clsx(styles.frame, float && styles.float)}>
@@ -160,10 +162,12 @@ export default function CollectionLists({ float }: { float?: boolean }) {
               <text x={WIDTH / 2} y={CALL_Y}>
                 {'ctrl.fetch(getTodos.'}
                 <tspan className={styles.op}>{op}</tspan>
-                {', '}
-                <Args value={params} />
-                {', '}
-                <Args value={body} />
+                {CALLS[op].map((arg, i) => (
+                  <React.Fragment key={i}>
+                    {', '}
+                    <Args value={arg} />
+                  </React.Fragment>
+                ))}
                 {')'}
               </text>
             </g>
