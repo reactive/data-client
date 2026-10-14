@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791946146048,
+  "lastUpdate": 1791947231987,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark Spread": [
@@ -527,6 +527,37 @@ window.BENCHMARK_DATA = {
             "range": "±0.99%",
             "unit": "ops/sec",
             "extra": "85 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "4eb1c1efc3c85c4067e2c480a6a4878c90af7398",
+          "message": "pkg: Update build packages (#4363)\n\n* pkg: Update build packages\n\n* pkg: Regenerate yarn.lock; hold rollup at 4.64.5\n\nrollup 4.64.6 is under a day old, so yarn's npmMinimalAgeGate quarantines\nit and Renovate's lockfile update failed.\n\nCo-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>\nClaude-Session: https://claude.ai/code/session_01X9faGn9X1XtsnJoubudpnJ\n\n---------\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>\nCo-authored-by: Claude <noreply@anthropic.com>",
+          "timestamp": "2026-10-13T23:05:58-04:00",
+          "tree_id": "9c154e6005130061da30c39f2509916c158a6aaf",
+          "url": "https://github.com/reactive/data-client/commit/4eb1c1efc3c85c4067e2c480a6a4878c90af7398"
+        },
+        "date": 1791947228700,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "setOneEntity in 10k entity store",
+            "value": 141,
+            "range": "±1.04%",
+            "unit": "ops/sec",
+            "extra": "80 samples"
           }
         ]
       }
