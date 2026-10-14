@@ -77,23 +77,24 @@ function babelPlugin({ types: t, template }) {
           child.skip();
         } else if (
           child.isTSAsExpression() ||
-          child.isTSSatisfiesExpression()
+          child.isTSSatisfiesExpression() ||
+          child.isTSTypeAssertion()
         ) {
           const { expression, extra } = child.node;
-          // `(post as any).author` reads as `post.author`
+          // `(post as any).author` and `(<any>post).author` read as `post.author`
           if (extra?.parenthesized && t.isIdentifier(expression)) {
             cuts.push([extra.parenStart, expression.start]);
             cuts.push([expression.end, child.node.end + 1]);
+          } else if (child.isTSTypeAssertion()) {
+            cuts.push([child.node.start, expression.start]);
           } else {
             cuts.push([expression.end, child.node.end]);
           }
         } else if (child.isIdentifier({ optional: true })) {
-          // `init?: RequestInit` reads as `init`
-          const nameEnd = child.node.start + child.node.name.length;
-          cuts.push([nameEnd, code.indexOf('?', nameEnd) + 1]);
-        } else if (child.isTSTypeAssertion()) {
-          // `<any>a` reads as `a`
-          cuts.push([child.node.start, child.node.expression.start]);
+          // `init?: RequestInit` reads as `init`; TS allows space or comments
+          // before the `?`, so cut everything up to the type
+          const { start, name, typeAnnotation, end } = child.node;
+          cuts.push([start + name.length, typeAnnotation?.start ?? end]);
         } else if (
           child.listKey === 'params' &&
           child.isIdentifier({ name: 'this' })
