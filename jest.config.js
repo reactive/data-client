@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 // ESM-only dependencies tests import; Jest must compile them to CommonJS
-const esmModules = 'temporal-polyfill|temporal-spec|temporal-utils';
+const esmModules = 'temporal-polyfill|temporal-utils';
 
 const baseConfig = {
   transformIgnorePatterns: [

@@ -4,6 +4,7 @@ import * as rhReactNext from '@data-client/react/next';
 import * as rest from '@data-client/rest';
 import BigNumber from 'bignumber.js';
 import { Suspense, use } from 'react';
+// uses native Temporal (and its Intl) when the browser has it
 import { Temporal, Intl } from 'temporal-polyfill';
 import { v4 as uuid } from 'uuid';
 
