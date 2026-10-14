@@ -14,6 +14,7 @@ import StackBlitz from '@site/src/components/StackBlitz';
 import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 import TypeScriptEditor from '@site/src/components/TypeScriptEditor';
 import DeleteProcess from './\_DeleteProcess.mdx';
+import CollectionLists from '@site/src/components/CollectionLists';
 
 # Resource
 
@@ -389,6 +390,8 @@ resource({ path: '/:owner/*path' }).getList.path === '/:owner';
 <!-- prettier-ignore-end -->
 
 Normalmente usado com [useSuspense()](/docs/api/useSuspense), [Controller.invalidate](/docs/api/Controller#invalidate), [Controller.expireAll](/docs/api/Controller#expireAll)
+
+<CollectionLists />
 
 ### getList.push {#push}
 

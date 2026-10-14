@@ -151,7 +151,7 @@
     "@data-client/react": "workspace:*",
     "@testing-library/react-native": "^13.0.0",
     "@types/jest": "30.0.0",
-    "@types/node": "^25.0.0",
+    "@types/node": "^26.0.0",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "@types/react-test-renderer": "19.3.0",

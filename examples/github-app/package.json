@@ -57,7 +57,7 @@
     "@data-client/img": "0.18.2",
     "@data-client/react": "0.18.2",
     "@data-client/rest": "0.18.2",
-    "temporal-polyfill": "^0.3.0",
+    "temporal-polyfill": "^1.0.0",
     "antd": "6.6.6",
     "core-js": "^3.48.0",
     "history": "^5.3.0",
