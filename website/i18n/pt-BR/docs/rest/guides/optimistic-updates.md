@@ -304,7 +304,7 @@ cliente depois da segunda.
 
 <OptimisticRace />
 
-Nos dois casos acabamos exibindo um estado incorreto e, pelo caminho, vemos atualizações de estado estranhas e travadas.
+Outras bibliotecas mostram 0, 2 e depois 1 sem atualizações otimistas, e 0, 1, 2, 2 e depois 1 com elas. As duas terminam no valor errado, com atualizações travadas pelo caminho. O Data Client mostra 0, 1 e depois 2, e mantém o 2 quando a resposta mais antiga chega por último.
 
 ### Compensando variações de tempo do servidor {#server-timings}
 

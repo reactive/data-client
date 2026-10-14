@@ -304,7 +304,7 @@ client after the second response.
 
 <OptimisticRace />
 
-In both cases we end up showing an incorrect state, and along the way see weird janky state updates.
+Other libraries show 0, 2, then 1 without optimistic updates, and 0, 1, 2, 2, then 1 with them. Both end on the wrong count, with janky updates along the way. Data Client shows 0, 1, then 2, and keeps 2 when the older response arrives last.
 
 ### Compensating for Server timing variations {#server-timings}
 
