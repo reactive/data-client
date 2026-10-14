@@ -122,13 +122,14 @@ function scene(op: Op) {
   return { match, chips, shifts: op === 'unshift' ? match : [] };
 }
 
-export default function CollectionLists() {
+/** float: beside the text that follows it, on wide screens */
+export default function CollectionLists({ float }: { float?: boolean }) {
   const [op, setOp] = useState<Op>('push');
   const { match, chips, shifts } = scene(op);
   const [params, body] = CALLS[op];
 
   return (
-    <div className={styles.frame}>
+    <div className={clsx(styles.frame, float && styles.float)}>
       <Tabs op={op} onChange={setOp} />
       <div className={styles.stage}>
         <svg

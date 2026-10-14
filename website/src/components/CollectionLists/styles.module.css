@@ -6,6 +6,20 @@
   --on-chip: #fff;
   margin: 0 0 1.5rem;
 }
+/* beside the text, when the doc column leaves it room */
+.float {
+  float: right;
+  width: 440px;
+  max-width: 100%;
+  margin: 0 0 1rem 1.25rem;
+}
+@container doc (max-width: 700px) {
+  .float {
+    float: none;
+    width: auto;
+    margin: 0 0 1.5rem;
+  }
+}
 [data-theme='dark'] .frame {
   --user1: hsl(262, 75%, 74%);
   --user2: hsl(165, 55%, 55%);

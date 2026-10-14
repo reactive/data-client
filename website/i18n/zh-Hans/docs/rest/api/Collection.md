@@ -14,6 +14,8 @@ import { postFixtures,getInitialInterceptorData } from '@site/src/fixtures/posts
 
 # Collection
 
+<CollectionLists float />
+
 `Collections` 用于定义可变的[列表（Array）](./Array.md)或[映射（Values）](./Values.md)。
 
 这意味着它们可以增长和缩减。你可以用 [.push](#push) 或 [.unshift](#unshift) 向 `Collection(Array)` 添加元素，
@@ -23,7 +25,7 @@ import { postFixtures,getInitialInterceptorData } from '@site/src/fixtures/posts
 使用 `Collections` 时，[RestEndpoint](./RestEndpoint.md) 提供了 [.push](./RestEndpoint.md#push), [.unshift](./RestEndpoint.md#unshift), [.assign](./RestEndpoint.md#assign), [.remove](./RestEndpoint.md#remove), [.move](./RestEndpoint.md#move)
 和 [.getPage](./RestEndpoint.md#getpage)/ [.paginated()](./RestEndpoint.md#paginated) 扩展器
 
-<CollectionLists />
+<div style={{clear: 'both'}} />
 
 ## 用法 {#usage}
 

@@ -154,3 +154,8 @@ small {
     line-height: 2.5;
   }
 }
+
+/* lets a doc's diagrams float beside its text only when the column fits both */
+.theme-doc-markdown {
+  container: doc / inline-size;
+}

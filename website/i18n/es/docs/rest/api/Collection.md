@@ -14,6 +14,8 @@ import { postFixtures,getInitialInterceptorData } from '@site/src/fixtures/posts
 
 # Collection
 
+<CollectionLists float />
+
 `Collections` definen [listas (Array)](./Array.md) o [mapas (Values)](./Values.md) mutables.
 
 Esto significa que pueden crecer y encogerse. Puedes añadir a un `Collection(Array)` con [.push](#push) o [.unshift](#unshift),
@@ -23,7 +25,7 @@ y mover elementos entre collections con [.move](#move).
 [RestEndpoint](./RestEndpoint.md) proporciona [.push](./RestEndpoint.md#push), [.unshift](./RestEndpoint.md#unshift), [.assign](./RestEndpoint.md#assign), [.remove](./RestEndpoint.md#remove), [.move](./RestEndpoint.md#move)
 y los extensores [.getPage](./RestEndpoint.md#getpage)/ [.paginated()](./RestEndpoint.md#paginated) cuando se usan `Collections`
 
-<CollectionLists />
+<div style={{clear: 'both'}} />
 
 ## Uso {#usage}
 
