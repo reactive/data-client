@@ -585,7 +585,7 @@ div.playgroundTextEdit > .playgroundHeader,
   overflow: auto;
   /* opaque: the code it floats over never shows through */
   background: var(--monoco-code-background);
-  border-bottom: 1px solid var(--pg-bar-edge);
+  border-bottom: 1px solid var(--store-line-strong);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
   visibility: hidden;
   opacity: 0;
