@@ -75,19 +75,12 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
   transform: rotate(180deg);
 }
 
-/* Language and framework menus stay in the navbar on small screens, where
-   Infima hides navbar items; the margin clears the search button, which is
-   absolutely positioned there */
+/* and stays in the navbar on small screens, where Infima hides navbar items;
+   the margin clears the search button, which is absolutely positioned there */
 @media (max-width: 996px) {
-  .navbar__item:has(> .header-locale-dropdown),
-  .navbar__item:has(> .header-framework-dropdown) {
-    display: block;
-  }
   .navbar__item:has(> .header-locale-dropdown) {
+    display: block;
     margin-right: 2.5rem;
-  }
-  .header-framework-dropdown {
-    white-space: nowrap;
   }
 }
 /* so the mobile side menu doesn't list it a second time */
@@ -150,8 +143,7 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
 .navbar .navbar__brand .navbar__title {
   display: none;
 }
-/* below 375px the wordmark is left out, to make room for the framework menu */
-@media only screen and (min-width: 375px) and (max-width: 996px) {
+@media only screen and (max-width: 996px) {
   .navbar .navbar__brand .navbar__logo:after {
     /* font-family: 'Alternox','Avenir Next', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; */
     font-size: 20px;

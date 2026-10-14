@@ -630,7 +630,6 @@ const config: Config = {
           // React/Vue menu showing the framework being read
           type: 'custom-frameworkDropdown',
           position: 'left',
-          // stays in the navbar on small screens (customTheme.css)
           className: 'header-framework-dropdown',
         },
         {

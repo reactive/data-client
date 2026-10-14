@@ -9,20 +9,13 @@ import {
 } from '../../../framework-docs/docsInstances.js';
 import { usePreferredFramework } from '../../components/useFramework';
 
-type ItemProps = Omit<Props, 'items' | 'label'>;
-
 /**
  * React/Vue menu labeled with the reader's framework, linking to each
- * framework's docs. Phones keep it in the navbar (customTheme.css), so the
- * side menu gets none.
+ * framework's docs
  */
 export default function FrameworkDropdownNavbarItem(
-  props: ItemProps,
-): React.JSX.Element | null {
-  return props.mobile ? null : <FrameworkDropdown {...props} />;
-}
-
-function FrameworkDropdown(props: ItemProps): React.JSX.Element {
+  props: Omit<Props, 'items' | 'label'>,
+): React.JSX.Element {
   const framework = usePreferredFramework();
   const allDocs = useAllDocsData();
   return (
