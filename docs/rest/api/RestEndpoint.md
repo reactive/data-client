@@ -15,6 +15,7 @@ import EndpointPlayground from '@site/src/components/HTTP/EndpointPlayground';
 import Grid from '@site/src/components/Grid';
 import Link from '@docusaurus/Link';
 import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
+import CollectionLists from '@site/src/components/CollectionLists';
 
 # RestEndpoint
 
@@ -1026,6 +1027,8 @@ const UserDetailNormalized = getUser.extend({
 
 These convenience accessors create new endpoints for common [Collection](./Collection.md) operations.
 They only work when the `RestEndpoint`'s schema contains a [Collection](./Collection.md).
+
+<CollectionLists />
 
 ### push
 

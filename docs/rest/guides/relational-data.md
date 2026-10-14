@@ -214,7 +214,7 @@ Nesting data when your endpoint doesn't.
 Even if the network responses don't nest data, we can perform client-side joins by specifying
 the relationship in [Entity.schema](../api/Entity.md#schema)
 
-<FrameworkPlayground>
+<FrameworkPlayground row>
 
 ```ts title="resources/User" collapsed
 import { Entity, resource } from '@data-client/rest';
