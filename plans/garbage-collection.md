@@ -80,13 +80,13 @@ the work interruptible. On web:
 A sufficiently large queue can therefore produce a long task and dropped
 frames.
 
-### React Native scheduling is deprecated and unbounded
+### React Native scheduling is unbounded
 
-`NativeGCPolicy` uses `InteractionManager.runAfterInteractions()` and
-`InteractionManager.setDeadline()`. In React Native 0.86, `InteractionManager`
-is deprecated, `runAfterInteractions()` is implemented using `setImmediate()`,
-and `setDeadline()` is a no-op. It defers a sweep but does not protect an active
-interaction or bound the resulting task.
+`NativeGCPolicy` uses `InteractionManager.runAfterInteractions()` where React
+Native still provides it, and `requestIdleCallback()` from 0.87, which removed
+`InteractionManager`. Since 0.82 `InteractionManager` was already a
+`setImmediate()` stub with a no-op `setDeadline()`. Either way it defers a sweep
+but does not protect an active interaction or bound the resulting task.
 
 React Native 0.86 officially recommends refactoring long tasks into smaller
 units and scheduling them with `requestIdleCallback()`. That is the supported

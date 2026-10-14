@@ -1,5 +1,6 @@
 import { NetworkManager } from '@data-client/core';
-import { InteractionManager } from 'react-native';
+
+import idleCallback from '../idleCallback.native.js';
 
 /** Can help prevent stuttering by waiting for idle for sideEffect free fetches */
 export default class NativeIdlingNetworkManager extends NetworkManager {
@@ -11,9 +12,6 @@ export default class NativeIdlingNetworkManager extends NetworkManager {
     callback: (...args: any[]) => void,
     options?: IdleRequestOptions,
   ) {
-    InteractionManager.runAfterInteractions(callback);
-    if (options?.timeout) {
-      InteractionManager.setDeadline(options.timeout);
-    }
+    idleCallback(callback, options);
   }
 }
