@@ -17,7 +17,7 @@
   "postUpdateOptions": ["yarnDedupeHighest"],
   "packageRules": [
     {
-      "description": "yarn's default 1-day npmMinimalAgeGate rejects fresher releases, so proposing them leaves the PR without a yarn.lock update",
+      "description": "yarn's default 1-day npmMinimalAgeGate rejects fresher releases, so proposing them leaves the PR without a yarn.lock update. Security updates skip this on purpose; if one lands without a lockfile, tick its retry box once the release is a day old",
       "matchManagers": ["npm"],
       "minimumReleaseAge": "1 day"
     },
