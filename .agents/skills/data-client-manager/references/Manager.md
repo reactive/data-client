@@ -9,10 +9,9 @@ The default managers orchestrate the complex asynchronous behavior that Data Cli
 provides out of the box. These can easily be configured with [getDefaultManagers()](./getDefaultManagers.md), and
 extended with your own custom `Managers`.
 
-[middleware](#middleware) hooks Managers into the central store's
-[control flow](#control-flow). [cleanup()](#cleanup) and [init()](#init) hook into the
-store's lifecycle for setup/teardown behaviors. A Manager that only needs lifecycle hooks can leave out `middleware`;
-actions then pass through it unchanged.
+Managers must implement [middleware](#middleware), which hooks them into the central store's
+[control flow](#control-flow). Additionally, [cleanup()](#cleanup) and [init()](#init) hook into the
+store's lifecycle for setup/teardown behaviors.
 
 ```typescript
 type Dispatch = (action: ActionTypes) => Promise<void>;
@@ -20,7 +19,7 @@ type Dispatch = (action: ActionTypes) => Promise<void>;
 type Middleware = (controller: Controller) => (next: Dispatch) => Dispatch;
 
 interface Manager {
-  middleware?: Middleware;
+  middleware: Middleware;
   cleanup(): void;
   init?: (state: State<any>) => void;
 }

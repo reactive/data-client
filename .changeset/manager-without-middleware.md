@@ -4,24 +4,8 @@
 '@data-client/vue': patch
 ---
 
-Fix crash with Managers that don't define `middleware`
+Clear error for a [Manager](https://dataclient.io/docs/api/Manager) without `middleware`
 
-[Manager](https://dataclient.io/docs/api/Manager) types `middleware` as optional, but a Manager that only used
-[init()](https://dataclient.io/docs/api/Manager#init) and [cleanup()](https://dataclient.io/docs/api/Manager#cleanup)
-threw `manager.middleware is not a function` when the provider mounted. Actions now pass through it unchanged, so you
-can drop the pass-through middleware you added to work around it:
-
-```ts
-import type { Manager, Middleware } from '@data-client/react';
-
-class AnalyticsManager implements Manager {
-  init() {
-    analytics.start();
-  }
-  cleanup() {
-    analytics.stop();
-  }
-  // no longer needed
-  middleware: Middleware = () => next => next;
-}
-```
+A Manager must define [middleware](https://dataclient.io/docs/api/Manager#middleware). One without it used to crash
+with `manager.middleware is not a function`; in development it now throws an error naming the Manager and linking to
+the docs.
