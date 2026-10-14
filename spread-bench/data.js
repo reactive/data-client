@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791935827973,
+  "lastUpdate": 1791942507155,
   "repoUrl": "https://github.com/reactive/data-client",
   "entries": {
     "Benchmark Spread": [
@@ -372,6 +372,37 @@ window.BENCHMARK_DATA = {
             "range": "±1.06%",
             "unit": "ops/sec",
             "extra": "85 samples"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "29139614+renovate[bot]@users.noreply.github.com",
+            "name": "renovate[bot]",
+            "username": "renovate[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": false,
+          "id": "bd0f31f5d2afc358ac868b80c703edb3579acfb1",
+          "message": "pkg: Update `@anansi/cli` to v4 (#4356)\n\nCo-authored-by: renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
+          "timestamp": "2026-10-14T01:46:36Z",
+          "tree_id": "2dfafb2128c22579e61c7fafc67afe3cdd5ac0a0",
+          "url": "https://github.com/reactive/data-client/commit/bd0f31f5d2afc358ac868b80c703edb3579acfb1"
+        },
+        "date": 1791942504722,
+        "tool": "benchmarkjs",
+        "benches": [
+          {
+            "name": "setOneEntity in 10k entity store",
+            "value": 250,
+            "range": "±1.38%",
+            "unit": "ops/sec",
+            "extra": "86 samples"
           }
         ]
       }
