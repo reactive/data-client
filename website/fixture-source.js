@@ -86,7 +86,11 @@ function babelPlugin({ types: t, template }) {
             cuts.push([extra.parenStart, expression.start]);
             cuts.push([expression.end, child.node.end + 1]);
           } else if (child.isTSTypeAssertion()) {
-            cuts.push([child.node.start, expression.start]);
+            // `<any>(a + 1)` keeps its parens
+            cuts.push([
+              child.node.start,
+              expression.extra?.parenStart ?? expression.start,
+            ]);
           } else {
             cuts.push([expression.end, child.node.end]);
           }
@@ -187,7 +191,11 @@ function recmaPlugin() {
     for (const prop of matches) {
       // Only the panel's text is at stake, so never fail the page's build
       // (e.g. a fixture in a blockquote keeps its `> ` prefixes)
-      await format(prop, code, config).catch(() => {});
+      await format(prop, code, config).catch(error =>
+        console.warn(
+          `${file.path}: Fixtures panel shows this fixture minified: ${error.message}`,
+        ),
+      );
     }
   };
 }

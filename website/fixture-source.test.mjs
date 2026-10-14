@@ -52,7 +52,7 @@ world\`;
     },
   },
   { endpoint: E, response(this: Data, a: number) {
-      return (<any>a).b;
+      return (<any>a).b + <any>(a + 1);
     } },
 ];`);
     assert.deepEqual(
@@ -63,7 +63,7 @@ world\`;
         '(a) => {\n  return a;\n}',
         '(a) => a',
         'response() {\n  return `hello\nworld`;\n}',
-        'response(a) {\n  return a.b;\n}',
+        'response(a) {\n  return a.b + (a + 1);\n}',
       ],
     );
   });
