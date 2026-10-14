@@ -46,7 +46,7 @@
     "serve": "14.2.6",
     "tsx": "4.23.15",
     "typescript": "npm:@typescript/typescript6@6.0.2",
-    "webpack": "5.108.4",
+    "webpack": "5.111.1",
     "webpack-cli": "7.2.3"
   },
   "browserslist": "extends @anansi/browserslist-config"
