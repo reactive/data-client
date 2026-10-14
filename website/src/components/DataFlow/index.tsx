@@ -41,7 +41,8 @@ const LINKS: { manager: Manager; d: string }[] = [
 ];
 
 // the actions in the animation, named as devtools shows them, and the
-// managers each passes through; fetch stops at NetworkManager
+// managers each passes through; a read's fetch stops at NetworkManager
+// (an optimistic mutation's goes on to the store, which this leaves out)
 const ACTIONS: {
   type: string;
   cls: 'fetch' | 'response';
@@ -83,7 +84,7 @@ export default function DataFlow() {
       aria-label={translate({
         id: 'dataFlow.label',
         message:
-          'Unidirectional data flow. Components dispatch actions through the Controller into the middleware chain of managers: DevToolsManager, NetworkManager, SubscriptionManager, then your own. Managers talk to the outside world (DevTools, HTTP, SSE, WebSockets, IndexedDB) and dispatch back through the Controller. A rdc/fetch action stops at NetworkManager, which sends the request over HTTP and dispatches the response as rdc/setresponse through every manager into the store. The new state then renders in the components',
+          'Unidirectional data flow. Components dispatch actions through the Controller into the middleware chain of managers: DevToolsManager, NetworkManager, SubscriptionManager, then your own. Managers talk to the outside world (DevTools, HTTP, SSE, WebSockets, IndexedDB) and dispatch back through the Controller. A rdc/fetch action for a read stops at NetworkManager, which sends the request over HTTP and dispatches the response as rdc/setresponse through every manager into the store. The new state then renders in the components',
       })}
     >
       <g className={styles.managers}>

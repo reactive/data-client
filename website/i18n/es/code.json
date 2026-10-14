@@ -857,7 +857,7 @@
     "description": "Accessible label of the data co-location diagram on the Render Data page"
   },
   "dataFlow.label": {
-    "message": "Flujo de datos unidireccional. Los componentes despachan acciones a través del Controller hacia la cadena de middleware de los managers: DevToolsManager, NetworkManager, SubscriptionManager y luego los tuyos. Los managers hablan con el mundo exterior (DevTools, HTTP, SSE, WebSockets, IndexedDB) y despachan de vuelta a través del Controller. Una acción rdc/fetch se detiene en NetworkManager, que envía la petición por HTTP y despacha la respuesta como rdc/setresponse a través de todos los managers hasta el store. El nuevo estado se renderiza entonces en los componentes",
+    "message": "Flujo de datos unidireccional. Los componentes despachan acciones a través del Controller hacia la cadena de middleware de los managers: DevToolsManager, NetworkManager, SubscriptionManager y luego los tuyos. Los managers hablan con el mundo exterior (DevTools, HTTP, SSE, WebSockets, IndexedDB) y despachan de vuelta a través del Controller. La acción rdc/fetch de una lectura se detiene en NetworkManager, que envía la petición por HTTP y despacha la respuesta como rdc/setresponse a través de todos los managers hasta el store. El nuevo estado se renderiza entonces en los componentes",
     "description": "Accessible label of the data flow diagram on the Managers, Manager, Overview and Debugging pages"
   },
   "expiryTimeline.within": {

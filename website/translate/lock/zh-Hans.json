@@ -374,7 +374,7 @@
       "playground.errorMessage.status": "Request failed ({status})",
       "playground.errorMessage.reset": "Reset",
       "dataColocation.label": "Component tree where each component that renders data reads it straight from the store with useSuspense(): User for CurrentUser and Avatar, Post for PostBody, and Comment for CommentList. A change re-renders just those components, and none of the rest of the tree",
-      "dataFlow.label": "Unidirectional data flow. Components dispatch actions through the Controller into the middleware chain of managers: DevToolsManager, NetworkManager, SubscriptionManager, then your own. Managers talk to the outside world (DevTools, HTTP, SSE, WebSockets, IndexedDB) and dispatch back through the Controller. A rdc/fetch action stops at NetworkManager, which sends the request over HTTP and dispatches the response as rdc/setresponse through every manager into the store. The new state then renders in the components",
+      "dataFlow.label": "Unidirectional data flow. Components dispatch actions through the Controller into the middleware chain of managers: DevToolsManager, NetworkManager, SubscriptionManager, then your own. Managers talk to the outside world (DevTools, HTTP, SSE, WebSockets, IndexedDB) and dispatch back through the Controller. A rdc/fetch action for a read stops at NetworkManager, which sends the request over HTTP and dispatches the response as rdc/setresponse through every manager into the store. The new state then renders in the components",
       "playground.demo.replay": "Replay demo",
       "expiryTimeline.learnMore": "Learn more",
       "expiryTimeline.dataExpiryLength": "How long (in milliseconds) a response stays fresh before it becomes stale.",
