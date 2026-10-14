@@ -3,9 +3,9 @@ import { useStorageSlot } from '@docusaurus/theme-common';
 import { useEffect } from 'react';
 
 import {
-  FRAMEWORKS,
   FRAMEWORK_INSTANCES,
   docsInstance,
+  frameworkInstance,
 } from '../../framework-docs/docsInstances.js';
 
 export type Framework = 'react' | 'vue';
@@ -20,7 +20,7 @@ export const frameworkOf = (pluginId: string | undefined) =>
   docsInstance(pluginId)?.framework as Framework | undefined;
 
 /** Framework of the current page, if it is a framework's docs */
-export const useDocsFramework = () => frameworkOf(useActivePlugin()?.pluginId);
+const useDocsFramework = () => frameworkOf(useActivePlugin()?.pluginId);
 
 /** Which framework the current docs page is rendered for */
 export default function useFramework(): Framework {
@@ -39,8 +39,9 @@ export function usePreferredFramework(): Framework {
   useEffect(() => {
     if (framework && framework !== storage.get()) storage.set(framework);
   }, [framework, storage]);
-  if (framework) return framework;
-  return stored && FRAMEWORKS.includes(stored) ?
-      (stored as Framework)
-    : 'react';
+  return (
+    framework ??
+    (frameworkInstance(stored)?.framework as Framework | undefined) ??
+    'react'
+  );
 }

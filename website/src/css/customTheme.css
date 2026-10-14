@@ -37,8 +37,8 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
   }
 }
 
-/* Framework menu: a fine chevron in place of Infima's solid triangle */
-.dropdown > .navbar__link.header-framework-dropdown:after {
+/* Navbar menus: a fine chevron in place of Infima's solid triangle */
+.dropdown > .navbar__link:after {
   width: 0.7em;
   height: 0.7em;
   margin-left: 0.25em;
@@ -54,8 +54,7 @@ html[data-theme='dark'] .docusaurus-highlight-code-line {
     transform var(--motion-snappy),
     opacity var(--motion-snappy);
 }
-.dropdown:is(:hover, .dropdown--show)
-  > .navbar__link.header-framework-dropdown:after {
+.dropdown:is(:hover, .dropdown--show) > .navbar__link:after {
   opacity: 0.8;
   transform: rotate(180deg);
 }

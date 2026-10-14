@@ -630,10 +630,9 @@ const config: Config = {
           // React/Vue menu showing the framework being read
           type: 'custom-frameworkDropdown',
           position: 'left',
-          className: 'header-framework-dropdown',
         },
         {
-          // links to the React or Vue API, based on the docs being viewed
+          // links to the React or Vue API: the docs being viewed, else the last ones read
           type: 'custom-frameworkDocSidebar',
           position: 'left',
           sidebarId: 'api',
