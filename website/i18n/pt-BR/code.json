@@ -907,5 +907,33 @@
   "expiryTimeline.afterInvalidIfStale": {
     "message": "Com invalidIfStale, depois que dataExpiryLength (em milissegundos) passa, a resposta em cache fica inválida: precisa ser buscada de novo antes de poder renderizar.",
     "description": "Tooltip on the Stale story’s dataExpiryLength label of the expiry diagram, while its invalidIfStale switch is on"
+  },
+  "optimisticRace.label": {
+    "message": "Dois incrementos de um contador em 0 são enviados antes que qualquer um responda, e a segunda resposta, 2, chega ao cliente antes da primeira, 1. Sem atualizações otimistas, um contador exibe 0, depois 2, depois 1. Com atualizações otimistas ingênuas, exibe 0, 1, 2, 2 e depois 1. Os dois terminam no valor errado. O Data Client exibe 0, 1, 2 e fica em 2: a resposta atrasada é mais antiga do que o store já tem, então não muda nada",
+    "description": "Accessible label of the race condition diagram on the Optimistic Updates page"
+  },
+  "optimisticRace.client": {
+    "message": "Cliente",
+    "description": "Label of the client lane in the race condition diagram: the app sending increments"
+  },
+  "optimisticRace.server": {
+    "message": "Servidor",
+    "description": "Label of the server lane in the race condition diagram: the API that counts the increments"
+  },
+  "optimisticRace.dataClient": {
+    "message": "Data Client",
+    "description": "Label of the Data Client row in the race condition diagram (the product name, usually kept)"
+  },
+  "optimisticRace.other": {
+    "message": "Outras",
+    "description": "Label of the two rows for other libraries in the race condition diagram, over \"no optimistic\" or \"optimistic\""
+  },
+  "optimisticRace.noOptimistic": {
+    "message": "sem otimismo",
+    "description": "Under \"Other\" in the race condition diagram: this row shows a counter without optimistic updates"
+  },
+  "optimisticRace.optimistic": {
+    "message": "otimista",
+    "description": "Under \"Other\" and \"Data Client\" in the race condition diagram: these rows show a counter with optimistic updates"
   }
 }

@@ -284,22 +284,7 @@ but optimistic updates make it even worse.
 Here's an example of the race condition. Here we request an increment twice; but the first response comes back to
 client after the second response.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Client
-    participant Server
-    Client->>+Server: Increment from 0
-    Client->>+Server: Increment from 1
-    Server->>-Client: Response: 2
-    Server->>-Client: Response: 1
-```
-
-With other libraries and no optimistic updates this would result in showing 0, then, 2, then 1.
-
-If the other library does have optimistic updates, it should show 0, 1, 2, 2, then 1.
-
-In both cases we end up showing an incorrect state, and along the way see weird janky state updates.
+Other libraries show 0, 2, then 1 without optimistic updates, and 0, 1, 2, 2, then 1 with them. Both end on the wrong count, with janky updates along the way. Data Client shows 0, 1, then 2, and keeps 2 when the older response arrives last.
 
 ### Compensating for Server timing variations {#server-timings}
 

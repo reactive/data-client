@@ -12,6 +12,7 @@ import FrameworkPlayground from '@site/src/components/FrameworkPlayground';
 import {RestEndpoint} from '@data-client/rest';
 import { todoFixtures } from '@site/src/fixtures/todos';
 import OptimisticTransform from '../shared/\_optimisticTransform.mdx';
+import OptimisticRace from '@site/src/components/OptimisticRace';
 
 # Actualizaciones optimistas
 
@@ -301,22 +302,9 @@ pero las actualizaciones optimistas lo empeoran aún más.
 Este es un ejemplo de la condición de carrera. Aquí solicitamos un incremento dos veces; pero la primera respuesta llega al
 cliente después de la segunda.
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Client
-    participant Server
-    Client->>+Server: Increment from 0
-    Client->>+Server: Increment from 1
-    Server->>-Client: Response: 2
-    Server->>-Client: Response: 1
-```
+<OptimisticRace />
 
-Con otras librerías y sin actualizaciones optimistas, esto daría como resultado mostrar 0, luego 2 y luego 1.
-
-Si la otra librería sí tiene actualizaciones optimistas, mostraría 0, 1, 2, 2 y luego 1.
-
-En ambos casos terminamos mostrando un estado incorrecto y, por el camino, vemos actualizaciones de estado extrañas y entrecortadas.
+Otras bibliotecas muestran 0, 2 y luego 1 sin actualizaciones optimistas, y 0, 1, 2, 2 y luego 1 con ellas. Ambas terminan en un valor incorrecto, con actualizaciones entrecortadas por el camino. Data Client muestra 0, 1 y luego 2, y mantiene el 2 cuando la respuesta más antigua llega al final.
 
 ### Compensar las variaciones de tiempo del servidor {#server-timings}
 
