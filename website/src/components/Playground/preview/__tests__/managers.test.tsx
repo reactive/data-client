@@ -262,19 +262,6 @@ render(<App />);`,
   expect(await screen.findByText(/async broke/)).toBeTruthy();
 });
 
-it('shows a manager error when getMiddleware() throws', async () => {
-  renderPlayground([
-    `class Legacy implements Manager {
-  getMiddleware() { throw new Error('legacy broke'); }
-  cleanup() {}
-}
-function getManagers() { return [new Legacy(), ...getDefaultManagers()]; }`,
-    appDoc('ok'),
-  ]);
-  expect(await screen.findByText(/legacy broke/)).toBeTruthy();
-  expect(screen.getByText('ok')).toBeTruthy();
-});
-
 it('reads a typed getManagers declaration', async () => {
   renderPlayground([
     `class LogManager {

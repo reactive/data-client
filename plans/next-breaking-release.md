@@ -11,13 +11,6 @@ Type and API cleanups deferred because they would break users or mixed package v
 - **Readonly `args` in endpoint's `EntityInterface`**: `packages/endpoint/src/interface.ts` still declares `pk(..., args: any[])`, while normalizr's `EntityInterface` takes `readonly any[]`. Make them match, or have endpoint re-export normalizr's.
   - Breaks: Entity subclasses with a mutable-`args` `static pk()` override assigned to endpoint's `EntityInterface`.
 
-## Required `Manager.middleware`
-
-`Manager` in `packages/core/src/types.ts` types both `middleware` and the legacy `getMiddleware()` as optional, so TypeScript accepts a Manager with neither. [#4378](https://github.com/reactive/data-client/pull/4378) made that a clear development error at mount instead of `manager.middleware is not a function`.
-
-- **Make `middleware` required and remove `getMiddleware()`** from `Manager`, and drop the `getMiddleware` fallback in `packages/core/src/manager/applyManager.ts`.
-  - Breaks: Managers that still define `getMiddleware()`. Migration: rename it to a `middleware` property (`middleware: Middleware = controller => next => async action => ...`), as the v0.14 blog recommended.
-
 ## Vue `createDataClient` export
 
 `@data-client/vue` exports `createDataClient()` and its `ProvidedDataClient` return type, but they are `DataClientPlugin` internals (marked `@deprecated` in `packages/vue/src/providers/createDataClient.ts`). `ProvideOptions` stays public since it types the plugin options; only its `app` field is internal.
