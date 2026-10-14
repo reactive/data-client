@@ -5,9 +5,10 @@ const siteSrc = path.join(__dirname, 'src') + path.sep;
 
 module.exports = api => ({
   presets: [require.resolve('@docusaurus/core/lib/babel/preset')],
-  // SSR renders each component once, so memoizing only pays off in the client bundle
-  plugins:
-    api.caller(caller => caller?.name) === 'client' ?
+  plugins: [
+    require.resolve('./fixture-source-babel-plugin.js'),
+    // SSR renders each component once, so memoizing only pays off in the client bundle
+    ...(api.caller(caller => caller?.name) === 'client' ?
       [
         [
           'babel-plugin-react-compiler',
@@ -16,5 +17,6 @@ module.exports = api => ({
           { sources: filename => filename.startsWith(siteSrc) },
         ],
       ]
-    : [],
+    : []),
+  ],
 });
