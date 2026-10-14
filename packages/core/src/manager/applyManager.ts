@@ -1,5 +1,6 @@
 import NetworkManager from './NetworkManager.js';
 import type Controller from '../controller/Controller.js';
+import type { Middleware } from '../middlewareTypes.js';
 import { Manager } from '../types.js';
 
 export default function applyManager(
@@ -17,7 +18,8 @@ export default function applyManager(
     );
   }
   return managers.map((manager, i) => {
-    if (!manager.middleware) manager.middleware = manager.getMiddleware?.();
+    if (!manager.middleware)
+      manager.middleware = manager.getMiddleware?.() ?? passThrough;
     return (api: ReduxMiddlewareAPI) => {
       if (i === 0) {
         controller.bindMiddleware(api);
@@ -29,6 +31,8 @@ export default function applyManager(
     };
   });
 }
+
+const passThrough: Middleware = () => next => next;
 
 /* These should be compatible with redux */
 export interface ReduxMiddlewareAPI<

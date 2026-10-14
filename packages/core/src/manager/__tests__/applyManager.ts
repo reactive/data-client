@@ -79,6 +79,31 @@ it('applyManagers should handle legacy Manager.getMiddleware()', () => {
   expect(actionCount).toBe(1);
   expect(rootDispatch.mock.calls.length).toBe(1);
 });
+it('applyManagers should pass actions through Managers without middleware', () => {
+  let initCount = 0;
+  class MyManager implements Manager {
+    init() {
+      initCount++;
+    }
+
+    cleanup() {}
+  }
+  const middlewares = applyManager(
+    [new MyManager(), new NetworkManager()],
+    new Controller(),
+  );
+
+  const rootDispatch = jest.fn((action: any) => {
+    return Promise.resolve();
+  });
+
+  const dispatch = middlewareDispatch(middlewares, rootDispatch);
+  dispatch(
+    createSet(Article, { args: [{ id: 1 }], value: { id: 1, title: 'hi' } }),
+  );
+  expect(rootDispatch.mock.calls.length).toBe(1);
+  expect(initCount).toBe(0);
+});
 
 function middlewareDispatch(
   middlewares: ReduxMiddleware[],
