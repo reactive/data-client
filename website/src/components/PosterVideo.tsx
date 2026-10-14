@@ -29,11 +29,11 @@ export default function PosterVideo({
     if (!video) return;
     video.volume = volume;
     setStarted(true);
-    // a source that fails to load leaves the controls to show it
+    // play() rejects if the source fails or playback is blocked; the controls, now shown, report that
     video.play().catch(() => undefined);
   };
 
-  // the button unmounts on play, so keep keyboard focus on the video's controls
+  // the button unmounts on play; the video is only focusable once its controls render, so focus after commit
   useEffect(() => {
     if (started) videoRef.current?.focus();
   }, [started]);
